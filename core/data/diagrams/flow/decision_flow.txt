@@ -1,0 +1,14 @@
+# Simple Decision Flow
+# Basic branching logic flowchart
+
+st=>start: Start
+input=>inputoutput: Get User Input
+check=>condition: Valid Input?
+process=>operation: Process Data
+error=>operation: Show Error
+output=>inputoutput: Display Result
+e=>end: End
+
+st->input->check
+check(yes)->process->output->e
+check(no)->error->input

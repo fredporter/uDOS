@@ -1,0 +1,177 @@
+{
+  "id": "cloud",
+  "name": "Cloud Access - POKE",
+  "version": "2.0.0",
+  "description": "Secure external access for uDOS. Manages tunneling for remote access, file sharing via HTTP, and group collaboration. All cloud/internet access runs through this extension to protect offline-first environment. Service shortcuts provide convenient access to core extensions.",
+  "author": "uDOS Core Team",
+  "license": "MIT",
+  "category": "cloud",
+  "type": "service",
+  "status": "active",
+
+  "dependencies": {
+    "uDOS": ">=2.0.0",
+    "python": ">=3.10",
+    "extensions": ["logging-manager"]
+  },
+
+  "optional_dependencies": {
+    "ngrok": {
+      "description": "Secure tunneling service",
+      "install": "pip install pyngrok",
+      "config_required": "NGROK_AUTH_TOKEN"
+    },
+    "cloudflared": {
+      "description": "Cloudflare tunnel alternative",
+      "install": "Download from cloudflare.com",
+      "config_required": false
+    }
+  },
+
+  "requires_network": true,
+  "requires_permissions": [
+    "internet",
+    "file_share",
+    "tunnel_create",
+    "user_sessions"
+  ],
+
+  "commands": [
+    {
+      "name": "POKE DASHBOARD",
+      "description": "Start NES-themed dashboard (port 5555)",
+      "subcommands": ["--stop"]
+    },
+    {
+      "name": "POKE DESKTOP",
+      "description": "Start desktop interface (port 8892)",
+      "subcommands": ["--stop"]
+    },
+    {
+      "name": "POKE TERMINAL",
+      "description": "Start web terminal (port 8889)",
+      "subcommands": ["--stop"]
+    },
+    {
+      "name": "POKE TELETEXT",
+      "description": "Start teletext interface (port 9002)",
+      "subcommands": ["--stop"]
+    },
+    {
+      "name": "POKE START",
+      "description": "Start a core extension service",
+      "subcommands": ["dashboard", "desktop", "terminal", "teletext"]
+    },
+    {
+      "name": "POKE STOP",
+      "description": "Stop a running service",
+      "subcommands": ["dashboard", "desktop", "terminal", "teletext"]
+    },
+    {
+      "name": "POKE RESTART",
+      "description": "Restart a service",
+      "subcommands": ["dashboard", "desktop", "terminal", "teletext"]
+    },
+    {
+      "name": "POKE LIST",
+      "description": "List all services and their status"
+    },
+    {
+      "name": "POKE STATUS",
+      "description": "Show detailed service status"
+    },
+    {
+      "name": "POKE TUNNEL",
+      "description": "Manage secure tunnels for remote access",
+      "subcommands": [
+        "OPEN [--port PORT] [--subdomain NAME] [--expires HOURS]",
+        "CLOSE [tunnel_id]",
+        "STATUS",
+        "LIST"
+      ]
+    },
+    {
+      "name": "POKE SHARE",
+      "description": "Share files/data via secure tunnels (v2.1 - roadmap)",
+      "subcommands": [
+        "FILE <path> [--expires HOURS]",
+        "FOLDER <path> [--expires HOURS]",
+        "STOP <share_id>",
+        "LIST"
+      ]
+    },
+    {
+      "name": "POKE GROUP",
+      "description": "Group collaboration (v2.1 - roadmap)",
+      "subcommands": [
+        "CREATE <name> [--private]",
+        "JOIN <group_id>",
+        "INVITE <user> <group_id>",
+        "LEAVE <group_id>",
+        "LIST",
+        "CHAT <group_id> [message]"
+      ]
+    }
+  ],
+
+  "services": [
+    "TunnelManager",
+    "SharingManager",
+    "GroupManager",
+    "SecurityManager"
+  ],
+
+  "config": {
+    "default_tunnel_lifetime": "24h",
+    "max_concurrent_tunnels": 3,
+    "default_share_lifetime": "7d",
+    "max_share_size": "100MB",
+    "allow_public_shares": false,
+    "require_auth": true,
+    "rate_limit": {
+      "tunnels_per_hour": 10,
+      "shares_per_hour": 50,
+      "bandwidth_mb_per_hour": 500
+    }
+  },
+
+  "security": {
+    "encryption": "AES-256",
+    "authentication": "JWT + RSA",
+    "tunnel_protocol": "HTTPS only",
+    "share_validation": true,
+    "content_scanning": false,
+    "audit_logging": true
+  },
+
+  "ui": {
+    "web_dashboard": false,
+    "real_time_updates": true,
+    "tunnel_qr_codes": true
+  },
+
+  "installation": {
+    "requires_setup": true,
+    "setup_steps": [
+      "Install ngrok or cloudflared",
+      "Configure authentication tokens",
+      "Set network permissions",
+      "Initialize security keys"
+    ]
+  },
+
+  "roadmap": {
+    "v2.1": {
+      "poke_web": "Secure HTTP sharing of uDOS instances, files, and data between users or for remote access",
+      "security_requirements": [
+        "End-to-end encryption for shared data",
+        "Authentication and authorization system",
+        "Rate limiting and abuse prevention",
+        "Content validation and scanning",
+        "Audit logging for all external access"
+      ],
+      "share_implementation": "Complete POKE SHARE FILE/FOLDER commands with HTTP servers and tunnel integration",
+      "group_collaboration": "Multi-user collaboration with real-time sync"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+[ EVENT PRODUCTION PIPELINE ]
+----------------------------
+[ CONCEPT ]
+     |
+     v
+[ BUDGET & BOOKING ]
+     |
+     v
+[ MARKETING ]
+     |
+     v
+[ ONSALE / TICKETING ]
+     |
+     v
+[ SHOW DELIVERY ]
+     |
+     v
+[ REPORTING / DEBRIEF ]

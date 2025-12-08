@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "layer_id": 50,
+  "layer_name": "underground",
+  "layer_type": "subterranean",
+  "description": "Underground layer - geology, caves, aquifers, bunkers, tunnels",
+  "version": "1.0.0",
+  "depth_range": {
+    "min_m": 0,
+    "max_m": -12000,
+    "typical_structures_m": -100
+  },
+  "data_types": [
+    "geology",
+    "cave_systems",
+    "aquifers",
+    "tunnels",
+    "bunkers",
+    "mineral_deposits"
+  ],
+  "geological_layers": {
+    "soil": {
+      "depth_m": 2,
+      "description": "Topsoil and organic matter",
+      "permeability": "high"
+    },
+    "regolith": {
+      "depth_m": 30,
+      "description": "Weathered rock and sediment",
+      "permeability": "medium"
+    },
+    "bedrock": {
+      "depth_m": 1000,
+      "description": "Solid rock layer",
+      "permeability": "low"
+    },
+    "deep_crust": {
+      "depth_m": 12000,
+      "description": "Lower crust",
+      "permeability": "very low"
+    }
+  },
+  "structure_types": {
+    "natural_cave": {
+      "symbol": "C",
+      "typical_depth_m": -50,
+      "use_cases": ["shelter", "water source", "storage"]
+    },
+    "aquifer": {
+      "symbol": "W",
+      "typical_depth_m": -100,
+      "use_cases": ["water extraction", "well drilling"]
+    },
+    "tunnel": {
+      "symbol": "T",
+      "typical_depth_m": -20,
+      "use_cases": ["transport", "utilities", "mining"]
+    },
+    "bunker": {
+      "symbol": "B",
+      "typical_depth_m": -10,
+      "use_cases": ["shelter", "storage", "survival"]
+    },
+    "mine": {
+      "symbol": "M",
+      "typical_depth_m": -500,
+      "use_cases": ["resource extraction"]
+    }
+  },
+  "aquifer_types": {
+    "unconfined": {
+      "description": "Water table accessible from surface",
+      "recharge_rate": "high",
+      "depth_m": 30
+    },
+    "confined": {
+      "description": "Pressurized layer between impermeable rock",
+      "recharge_rate": "low",
+      "depth_m": 200
+    },
+    "artesian": {
+      "description": "Naturally flowing pressurized water",
+      "recharge_rate": "low",
+      "depth_m": 300
+    }
+  },
+  "sample_tiles": {
+    "AA340": {
+      "name": "Sydney Underground",
+      "geology": "sandstone bedrock",
+      "aquifer_depth_m": -80,
+      "aquifer_type": "unconfined",
+      "cave_systems": false,
+      "tunnels": ["Metro", "Harbor Tunnel"],
+      "bunkers": 0
+    },
+    "JF57": {
+      "name": "London Underground",
+      "geology": "clay and chalk",
+      "aquifer_depth_m": -100,
+      "aquifer_type": "confined",
+      "cave_systems": false,
+      "tunnels": ["Tube network", "Thames Tunnel"],
+      "bunkers": 12
+    }
+  },
+  "survival_applications": {
+    "water_sources": [
+      "Identify aquifer locations for well drilling",
+      "Map spring emergence points",
+      "Assess groundwater quality"
+    ],
+    "shelter_options": [
+      "Natural cave systems for emergency shelter",
+      "Abandoned mines (with caution)",
+      "Bunker locations for disaster scenarios"
+    ],
+    "resources": [
+      "Mineral deposits for tools",
+      "Clay for pottery/construction",
+      "Stone for building materials"
+    ]
+  },
+  "metadata": {
+    "created": "2025-12-04",
+    "author": "uDOS v1.2.3",
+    "data_sources": [
+      "USGS geological surveys",
+      "Cave registry databases",
+      "Aquifer maps"
+    ],
+    "update_frequency": "yearly",
+    "last_updated": "2025-12-04"
+  }
+}

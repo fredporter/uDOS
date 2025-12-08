@@ -1,0 +1,313 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SPRITE Variable Schema",
+  "description": "Schema for character/sprite variables in uDOS v1.1.9+ Round 1",
+  "type": "object",
+  "required": ["type", "name", "stats", "meta"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "sprite",
+      "description": "Variable type identifier"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50,
+      "pattern": "^[A-Z][A-Z0-9-]*$",
+      "description": "Sprite name in UPPERCASE-HYPHEN format"
+    },
+    "stats": {
+      "type": "object",
+      "description": "Core character statistics",
+      "required": ["hp", "hp_max", "level"],
+      "properties": {
+        "hp": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Current hit points"
+        },
+        "hp_max": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum hit points"
+        },
+        "mp": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Current magic/mana points"
+        },
+        "mp_max": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Maximum magic/mana points"
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Character level"
+        },
+        "xp": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Experience points"
+        },
+        "xp_next": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "XP required for next level (auto-calculated)"
+        },
+        "attack": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 10,
+          "description": "Attack power"
+        },
+        "defense": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 5,
+          "description": "Defense power"
+        },
+        "speed": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 5,
+          "description": "Speed/agility"
+        },
+        "luck": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 50,
+          "description": "Luck rating"
+        }
+      }
+    },
+    "inventory": {
+      "type": "object",
+      "description": "Sprite inventory",
+      "properties": {
+        "gold": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Currency amount"
+        },
+        "items": {
+          "type": "array",
+          "description": "List of item IDs in inventory",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9-]*$"
+          },
+          "maxItems": 100,
+          "default": []
+        },
+        "equipment": {
+          "type": "object",
+          "description": "Equipped items by slot",
+          "properties": {
+            "weapon": {
+              "type": ["string", "null"],
+              "pattern": "^[A-Z][A-Z0-9-]*$",
+              "default": null
+            },
+            "armor": {
+              "type": ["string", "null"],
+              "pattern": "^[A-Z][A-Z0-9-]*$",
+              "default": null
+            },
+            "shield": {
+              "type": ["string", "null"],
+              "pattern": "^[A-Z][A-Z0-9-]*$",
+              "default": null
+            },
+            "accessory": {
+              "type": ["string", "null"],
+              "pattern": "^[A-Z][A-Z0-9-]*$",
+              "default": null
+            }
+          }
+        },
+        "capacity": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 20,
+          "description": "Max inventory slots"
+        }
+      }
+    },
+    "status": {
+      "type": "object",
+      "description": "Status effects and conditions",
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["alive", "dead", "unconscious", "sleeping"],
+          "default": "alive",
+          "description": "Current state"
+        },
+        "effects": {
+          "type": "array",
+          "description": "Active status effects",
+          "items": {
+            "type": "object",
+            "required": ["effect", "duration"],
+            "properties": {
+              "effect": {
+                "type": "string",
+                "enum": ["poison", "burn", "freeze", "stun", "blind", "heal", "buff", "debuff"],
+                "description": "Effect type"
+              },
+              "duration": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Turns remaining"
+              },
+              "power": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 1,
+                "description": "Effect strength"
+              }
+            }
+          },
+          "default": []
+        },
+        "buffs": {
+          "type": "object",
+          "description": "Temporary stat modifiers",
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "default": {}
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "description": "Learned skills/abilities",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "mp_cost"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9-]*$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mp_cost": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "power": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 10
+          },
+          "level_required": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          }
+        }
+      },
+      "default": []
+    },
+    "meta": {
+      "type": "object",
+      "description": "Metadata about the sprite",
+      "required": ["created", "modified"],
+      "properties": {
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        },
+        "modified": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modification timestamp"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["global", "session", "script", "local"],
+          "default": "session",
+          "description": "Variable scope"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Optional sprite description"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags for categorization",
+          "default": []
+        }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "type": "sprite",
+      "name": "HERO",
+      "stats": {
+        "hp": 100,
+        "hp_max": 100,
+        "mp": 50,
+        "mp_max": 50,
+        "level": 1,
+        "xp": 0,
+        "xp_next": 100,
+        "attack": 15,
+        "defense": 10,
+        "speed": 8,
+        "luck": 50
+      },
+      "inventory": {
+        "gold": 100,
+        "items": ["POTION", "SWORD-IRON"],
+        "equipment": {
+          "weapon": "SWORD-IRON",
+          "armor": null,
+          "shield": null,
+          "accessory": null
+        },
+        "capacity": 20
+      },
+      "status": {
+        "state": "alive",
+        "effects": [],
+        "buffs": {}
+      },
+      "skills": [
+        {
+          "id": "SLASH",
+          "name": "Slash",
+          "mp_cost": 5,
+          "power": 20,
+          "level_required": 1
+        }
+      ],
+      "meta": {
+        "created": "2025-12-01T10:00:00Z",
+        "modified": "2025-12-01T10:00:00Z",
+        "scope": "session",
+        "description": "Player character",
+        "tags": ["player", "hero"]
+      }
+    }
+  ]
+}

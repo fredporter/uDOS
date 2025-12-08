@@ -1,0 +1,27 @@
+# Dev Mode Repository - Git Ignore
+# ================================
+
+# Session notes are local-only
+sessions/
+sessions/**/*
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# Archives (auto-generated)
+.archive/
+
+# Temp files
+*.tmp
+*.bak
+*~

@@ -1,0 +1,2 @@
+Gotcha — here’s a fresh set of 25 ASCII diagrams with no block/shading characters at all (no █ ▓ ▒ ░). All plain ASCII, no diagonals, ready for Markdown.
+I’ll number them and put each one in a text code block.

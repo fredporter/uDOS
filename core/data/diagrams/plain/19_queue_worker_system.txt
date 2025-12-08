@@ -1,0 +1,16 @@
+[ QUEUE WORKERS ]
+-----------------
+[ PRODUCER ]
+     |
+     v
++-------------+
+|   QUEUE     |
++-------------+
+     |
+   +---+---+
+   |       |
+   v       v
+[ WORKER1 ][ WORKER2 ]
+     |         |
+     v         v
+[ RESULTS / SIDE-EFFECTS ]

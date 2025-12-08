@@ -1,0 +1,294 @@
+{
+  "name": "Hybrid Technical-Organic",
+  "version": "2.0.0",
+  "description": "Balanced combination of MCM geometry and organic forms for diagrams with both technical and natural elements",
+  "color_palette": {
+    "background": "#FFFFFF",
+    "primary": "#000000",
+    "secondary": "none",
+    "prohibited": ["#gray", "#808080", "gradients", "raster_effects"],
+    "notes": "STRICT monochrome only - black (#000000) and white (#FFFFFF). No grays, no gradients."
+  },
+  "geometry": {
+    "style": "dual",
+    "description": "Technical elements use MCM precision, organic elements use natural curves",
+    "technical_zones": {
+      "geometry": "MCM",
+      "angles": [0, 45, 90, 135, 180, 225, 270, 315],
+      "shapes": ["circle", "rectangle", "triangle"],
+      "examples": ["containers", "tools", "structures", "mechanical_parts"]
+    },
+    "organic_zones": {
+      "geometry": "natural",
+      "curves": "smooth bezier, variable",
+      "shapes": ["irregular", "flowing"],
+      "examples": ["plants", "water", "terrain", "biological_materials"]
+    },
+    "integration": {
+      "transition": "clear boundary or gradual blend",
+      "balance": "equal visual weight to both styles",
+      "hierarchy": "technical elements as framework, organic as content (or vice versa)"
+    }
+  },
+  "stroke": {
+    "width_range": [1.5, 3.5],
+    "technical_default": 2.5,
+    "organic_default": 2.5,
+    "variation": {
+      "technical": "consistent width",
+      "organic": "slight variation (2.0-3.0px)",
+      "transition": "gradual change at interface"
+    },
+    "line_cap": "round",
+    "line_join": "round"
+  },
+  "patterns": {
+    "technical_patterns": {
+      "hatching": {
+        "description": "Parallel diagonal lines at 45°",
+        "spacing": "5px",
+        "stroke_width": 1.0,
+        "use": "technical components, manufactured materials"
+      },
+      "stipple": {
+        "description": "Regular grid of dots",
+        "spacing": "6px grid",
+        "dot_radius": 0.75,
+        "use": "granular technical materials, ground plane"
+      },
+      "cross_hatch": {
+        "description": "Perpendicular hatching",
+        "angles": [45, 135],
+        "spacing": 5,
+        "stroke_width": 1.0,
+        "use": "deep shadows, metal surfaces"
+      }
+    },
+    "organic_patterns": {
+      "wavy_lines": {
+        "description": "Undulating parallel lines",
+        "wavelength": 12,
+        "amplitude": 3,
+        "spacing": 6,
+        "stroke_width": 1.0,
+        "use": "organic surfaces, water, plant materials"
+      },
+      "undulating": {
+        "description": "Irregular texture lines",
+        "variation": "medium",
+        "spacing": 5,
+        "stroke_width": 1.0,
+        "use": "natural textures, bark, soil"
+      },
+      "feathering": {
+        "description": "Short radiating strokes",
+        "length": "8-12px",
+        "spacing": 4,
+        "stroke_width": 1.5,
+        "use": "soft edges, vegetation, transitions"
+      }
+    },
+    "hybrid_patterns": {
+      "gradient_hatching": {
+        "description": "Hatching that transitions from regular to irregular",
+        "start": "precise 45° lines",
+        "end": "slightly wavy lines",
+        "use": "technical-to-organic transitions"
+      },
+      "structured_stipple": {
+        "description": "Dots that shift from grid to random",
+        "technical_zone": "perfect grid",
+        "organic_zone": "clustered/random",
+        "use": "material transitions"
+      }
+    }
+  },
+  "kinetic_elements": {
+    "technical_symbols": {
+      "gears": {
+        "use": "mechanical systems, decision points",
+        "style": "precise geometric",
+        "stroke_width": 2.0
+      },
+      "arrows": {
+        "use": "flow direction, force vectors",
+        "style": "filled triangle head",
+        "stroke_width": 2.5
+      },
+      "conduits": {
+        "use": "pipes, channels, pathways",
+        "style": "straight or angular curves",
+        "stroke_width": 2.5
+      }
+    },
+    "organic_flow": {
+      "water_flow": {
+        "use": "liquid movement",
+        "style": "smooth wavy lines with arrows",
+        "stroke_width": 2.0
+      },
+      "wind_flow": {
+        "use": "air movement",
+        "style": "curved streamlines",
+        "stroke_width": 1.5
+      },
+      "growth_direction": {
+        "use": "plant growth, natural processes",
+        "style": "gentle curved arrows",
+        "stroke_width": 2.0
+      }
+    }
+  },
+  "typography": {
+    "font_family": "Helvetica, Arial, sans-serif",
+    "weights": {
+      "normal": 400,
+      "bold": 700
+    },
+    "sizes": {
+      "title": 18,
+      "header": 14,
+      "technical_label": 10,
+      "organic_label": 9,
+      "detail_label": 8,
+      "annotation": 7
+    },
+    "placement": {
+      "technical_zones": "aligned to grid, precise",
+      "organic_zones": "following natural forms",
+      "general": "clear hierarchy, good spacing"
+    },
+    "leader_lines": {
+      "technical": "straight or elbow (90°), stroke 1.0px",
+      "organic": "gently curved, stroke 1.0px",
+      "terminator": "dot or arrow as appropriate"
+    }
+  },
+  "composition": {
+    "viewBox_recommended": {
+      "square": "800×800",
+      "landscape": "1000×800",
+      "portrait": "600×1000"
+    },
+    "margins": {
+      "outer": 40,
+      "inner": 20
+    },
+    "layout_strategies": {
+      "technical_frame": {
+        "description": "Technical structure containing organic content",
+        "example": "Water filter (technical container) with organic filtration media",
+        "grid": "technical elements on grid",
+        "organic": "natural forms within technical framework"
+      },
+      "organic_context": {
+        "description": "Natural environment with technical elements",
+        "example": "Shelter construction in natural setting",
+        "landscape": "organic background",
+        "technical": "precise structural elements overlaid"
+      },
+      "side_by_side": {
+        "description": "Technical and organic zones clearly separated",
+        "example": "Plant identification (organic) with harvest tools (technical)",
+        "division": "clear vertical or horizontal split"
+      }
+    },
+    "whitespace": {
+      "importance": "high",
+      "technical_zones": "precise, gridded",
+      "organic_zones": "natural, flowing"
+    }
+  },
+  "integration_techniques": {
+    "boundary_types": {
+      "hard_edge": {
+        "description": "Clear line between technical and organic",
+        "use": "when contrast is intentional",
+        "implementation": "precise boundary line (2.5px)"
+      },
+      "soft_transition": {
+        "description": "Gradual blend between styles",
+        "use": "when integration is natural",
+        "implementation": "transition zone with hybrid patterns"
+      },
+      "interwoven": {
+        "description": "Technical and organic elements intermixed",
+        "use": "complex systems (e.g., irrigation, fire management)",
+        "implementation": "alternating elements with consistent style per element"
+      }
+    },
+    "visual_balance": {
+      "weight": "equal importance to both styles",
+      "complexity": "match detail level between technical and organic",
+      "contrast": "use difference in geometry as visual interest"
+    }
+  },
+  "common_applications": {
+    "water_systems": {
+      "technical": "containers, pipes, valves (MCM geometry)",
+      "organic": "water flow, filtration media, natural sources (curves)",
+      "integration": "technical framework with organic content"
+    },
+    "fire_systems": {
+      "technical": "tools, structure, measurement (precise)",
+      "organic": "wood, tinder, flame, smoke (flowing)",
+      "integration": "technical lay with organic materials"
+    },
+    "shelter_construction": {
+      "technical": "tools, measurements, joinery (geometric)",
+      "organic": "natural materials, setting, vegetation (curved)",
+      "integration": "precise structure in natural context"
+    },
+    "food_systems": {
+      "technical": "tools, preservation equipment (MCM)",
+      "organic": "plants, animals, natural processes (flowing)",
+      "integration": "technical tools with organic subjects"
+    },
+    "medical_procedures": {
+      "technical": "tools, bandages, containers (precise)",
+      "organic": "body, plants, natural materials (curved)",
+      "integration": "technical procedures on organic subjects"
+    }
+  },
+  "validation_rules": {
+    "monochrome_check": {
+      "rule": "Only #000000 and #FFFFFF allowed",
+      "enforcement": "strict",
+      "error": "Color values outside black/white range detected"
+    },
+    "style_consistency": {
+      "rule": "Each element should clearly be technical OR organic style",
+      "enforcement": "warning",
+      "error": "Ambiguous style - unclear if technical or organic"
+    },
+    "pattern_validation": {
+      "rule": "Use appropriate patterns for each style zone",
+      "enforcement": "medium",
+      "error": "Organic pattern in technical zone or vice versa"
+    },
+    "integration_quality": {
+      "rule": "Technical and organic elements should integrate visually",
+      "enforcement": "warning",
+      "error": "Styles appear disconnected or conflicting"
+    },
+    "svg_wellformed": {
+      "rule": "Valid SVG XML structure",
+      "enforcement": "strict",
+      "error": "Malformed SVG - must be valid XML"
+    }
+  },
+  "optimization_notes": [
+    "Vectorization: Use 'hybrid' preset (balanced potrace settings)",
+    "File size: Target <60KB per diagram (complexity between technical and organic)",
+    "Style clarity: Keep technical elements precise, organic elements natural",
+    "Transition zones: Use hybrid patterns to smooth integration",
+    "Balance: Equal visual weight to both styles prevents dominance",
+    "Readability: Ensure both technical labels and organic details are clear"
+  ],
+  "usage_examples": {
+    "water_filter_system": "Technical container (rectangle, hatching) with organic filtration layers (wavy lines, undulating textures). Arrows show water flow (curved conduits). Labels use technical precision.",
+    "fire_lay_construction": "Precise geometric fire structure (MCM triangles, rectangles) with organic wood pieces (natural curves, bark texture). Dimension lines for spacing, flame shown with wavy organic lines.",
+    "shelter_with_setting": "Technical A-frame structure (precise angles, dimension lines) in natural landscape (organic terrain, vegetation). Clear boundary between built and natural elements.",
+    "edible_plant_harvest": "Botanical illustration (organic, flowing) with harvesting tool detail (technical, precise). Side-by-side layout with labels appropriate to each zone."
+  }
+}

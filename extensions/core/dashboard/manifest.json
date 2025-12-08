@@ -1,0 +1,27 @@
+{
+    "name": "dashboard",
+    "version": "1.0.12",
+    "description": "Advanced web dashboard with real-time monitoring, file operations, metrics visualization, and system management",
+    "author": "uDOS Team",
+    "type": "web",
+    "main": "app.py",
+    "dependencies": {
+        "python": [
+            "flask",
+            "flask-socketio",
+            "psutil",
+            "gitpython"
+        ]
+    },
+    "permissions": [
+        "file_operations",
+        "system_metrics",
+        "process_management",
+        "git_integration"
+    ],
+    "frameworks": [
+        "retrocss3",
+        "teletext",
+        "system7-css"
+    ]
+}

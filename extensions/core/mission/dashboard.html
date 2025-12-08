@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS Mission Control</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>🎯 uDOS Mission Control</h1>
+            <div class="status-indicator">
+                <span id="connection-status" class="status-dot connected"></span>
+                <span id="connection-text">Connected</span>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="dashboard-grid">
+
+            <!-- Active Missions Panel -->
+            <section class="panel active-missions">
+                <h2>🚀 Active Missions</h2>
+                <div id="missions-list" class="missions-list">
+                    <div class="empty-state">No active missions</div>
+                </div>
+                <div class="next-up">
+                    <h3>📌 Next Up</h3>
+                    <div id="next-mission" class="next-mission-card">
+                        <p class="empty-state">No missions queued</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Resource Usage Panel -->
+            <section class="panel resources">
+                <h2>📊 Resource Usage</h2>
+                <div id="resources-container" class="resources-container">
+
+                    <!-- API Quotas -->
+                    <div class="resource-group">
+                        <h3>🔑 API Quotas</h3>
+                        <div id="api-quotas"></div>
+                    </div>
+
+                    <!-- Disk Space -->
+                    <div class="resource-group">
+                        <h3>💾 Disk Space</h3>
+                        <div id="disk-usage"></div>
+                    </div>
+
+                    <!-- System Resources -->
+                    <div class="resource-group">
+                        <h3>⚡ System</h3>
+                        <div id="system-resources"></div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Scheduled Tasks Panel -->
+            <section class="panel schedules">
+                <h2>⏰ Scheduled Tasks</h2>
+                <div id="schedules-list" class="schedules-list">
+                    <div class="empty-state">No scheduled tasks</div>
+                </div>
+            </section>
+
+            <!-- Timeline Panel -->
+            <section class="panel timeline">
+                <h2>📅 Mission Timeline</h2>
+                <div id="timeline-container" class="timeline-container">
+                    <div class="empty-state">No timeline events</div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Celebration Overlay -->
+        <div id="celebration-overlay" class="celebration-overlay hidden">
+            <div class="celebration-content">
+                <div class="celebration-icon">🎉</div>
+                <h2 id="celebration-title">Mission Complete!</h2>
+                <p id="celebration-message"></p>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

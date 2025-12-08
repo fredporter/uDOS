@@ -1,0 +1,107 @@
+{
+  "category": "AI Assistant",
+  "description": "AI-powered assistance and development commands",
+  "commands": {
+    "OK": {
+      "name": "OK",
+      "syntax": [
+        "OK",
+        "OK ASK <question>",
+        "OK DEV <task>"
+      ],
+      "description": "AI assistant command router and help",
+      "detailed": "OK provides access to AI-powered assistance through OK Assistant (ASK) and GitHub Copilot (DEV). Without parameters, shows available options.",
+      "parameters": [],
+      "examples": [
+        {
+          "command": "OK",
+          "description": "Show OK command help"
+        },
+        {
+          "command": "OK ASK What is uDOS?",
+          "description": "Ask OK Assistant a question"
+        },
+        {
+          "command": "OK DEV How do I create a service?",
+          "description": "Get development help from Copilot"
+        }
+      ],
+      "related": ["ASK", "READ", "KNOWLEDGE"],
+      "notes": [
+        "Requires API keys for full functionality",
+        "ASK uses OK Assistant AI with knowledge base integration",
+        "DEV uses GitHub Copilot CLI with project context"
+      ],
+      "version_added": "1.0.5"
+    },
+    "ASK": {
+      "name": "ASK",
+      "syntax": [
+        "ASK <question>",
+        "OK ASK <question>"
+      ],
+      "description": "Query OK Assistant AI with knowledge base integration",
+      "detailed": "ASK sends questions to Google's OK Assistant AI, enriched with local knowledge base content for more relevant responses.",
+      "parameters": [
+        {
+          "name": "question",
+          "type": "string",
+          "optional": false,
+          "description": "Question to ask the AI"
+        }
+      ],
+      "examples": [
+        {
+          "command": "ASK How does the grid system work?",
+          "description": "Ask about grid system"
+        },
+        {
+          "command": "ASK What commands are available for files?",
+          "description": "Ask about file commands"
+        }
+      ],
+      "related": ["OK", "READ", "KNOWLEDGE"],
+      "notes": [
+        "Searches local knowledge base first",
+        "Falls back to offline patterns without API key",
+        "Maintains conversation history within session"
+      ],
+      "version_added": "1.0.0",
+      "version_enhanced": "1.0.5"
+    },
+    "READ": {
+      "name": "READ",
+      "syntax": [
+        "READ",
+        "READ <panel>"
+      ],
+      "description": "AI analysis of panel content",
+      "detailed": "READ uses AI to analyze and provide insights about panel content, suggesting next actions or identifying patterns.",
+      "parameters": [
+        {
+          "name": "panel",
+          "type": "string",
+          "optional": true,
+          "description": "Panel to analyze"
+        }
+      ],
+      "examples": [
+        {
+          "command": "READ",
+          "description": "Analyze current panel"
+        },
+        {
+          "command": "READ A1",
+          "description": "Analyze panel A1"
+        }
+      ],
+      "related": ["ASK", "GRID"],
+      "notes": [
+        "Useful for summarizing complex data",
+        "Can suggest data transformations",
+        "Works best with structured content"
+      ],
+      "version_added": "1.0.5"
+    }
+  }
+}

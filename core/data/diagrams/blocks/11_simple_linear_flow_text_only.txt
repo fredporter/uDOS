@@ -1,0 +1,10 @@
+[ LEAD CAPTURE ]
+        |
+        v
+[ EMAIL SEQUENCE ]
+        |
+        v
+[ OFFER PAGE ]
+        |
+        v
+[ PURCHASE ]

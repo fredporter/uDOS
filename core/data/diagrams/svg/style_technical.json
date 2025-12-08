@@ -1,0 +1,45 @@
+{
+  "name": "Technical Style",
+  "description": "Clean technical diagrams with precise lines and labels",
+  "settings": {
+    "font_family": "Arial, sans-serif",
+    "font_size": 12,
+    "line_width": 2,
+    "arrow_size": 8,
+    "padding": 20,
+    "spacing": 40
+  },
+  "colors": {
+    "background": "#FFFFFF",
+    "foreground": "#000000",
+    "primary": "#0066CC",
+    "secondary": "#6699CC",
+    "accent": "#FF6600",
+    "grid": "#E0E0E0",
+    "text": "#333333"
+  },
+  "shapes": {
+    "rectangle": {
+      "fill": "#FFFFFF",
+      "stroke": "#0066CC",
+      "stroke_width": 2,
+      "rx": 4
+    },
+    "circle": {
+      "fill": "#E8F4FF",
+      "stroke": "#0066CC",
+      "stroke_width": 2
+    },
+    "diamond": {
+      "fill": "#FFF4E8",
+      "stroke": "#FF6600",
+      "stroke_width": 2
+    },
+    "arrow": {
+      "stroke": "#333333",
+      "stroke_width": 2,
+      "marker_fill": "#333333"
+    }
+  },
+  "usage": "Ideal for technical documentation, system architecture, flowcharts"
+}

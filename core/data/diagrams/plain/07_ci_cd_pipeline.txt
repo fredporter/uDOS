@@ -1,0 +1,18 @@
+[ CI - CD PIPELINE ]
+--------------------
+[ SOURCE REPO ]
+        |
+        v
+[ BUILD & TEST ]
+        |
+        v
+[ QUALITY CHECKS ]
+        |
+        v
+[ ARTIFACT STORE ]
+        |
+        v
+[ STAGING ]
+        |
+        v
+[ PRODUCTION ]

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS System Desktop v1.0.24 - Classic Mac OS Interface</title>
+    <link rel="stylesheet" href="../../assets/css/classic-patterns.css">
+    <link rel="stylesheet" href="desktop.css">
+</head>
+<body>
+    <!-- Menu Bar -->
+    <ul role="menu-bar">
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+            File
+            <ul role="menu">
+                <li role="menu-item"><a href="#" onclick="newDocument()">New</a></li>
+                <li role="menu-item"><a href="#" onclick="openDocument()">Open...</a></li>
+                <li role="menu-item" class="disabled"><a>Close</a></li>
+                <li><hr></li>
+                <li role="menu-item"><a href="#" onclick="window.close()">Quit</a></li>
+            </ul>
+        </li>
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+            Edit
+            <ul role="menu">
+                <li role="menu-item"><a href="#" onclick="alert('Undo')">Undo</a></li>
+                <li><hr></li>
+                <li role="menu-item"><a href="#" onclick="document.execCommand('cut')">Cut</a></li>
+                <li role="menu-item"><a href="#" onclick="document.execCommand('copy')">Copy</a></li>
+                <li role="menu-item"><a href="#" onclick="document.execCommand('paste')">Paste</a></li>
+            </ul>
+        </li>
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+            View
+            <ul role="menu">
+                <li role="menu-item"><a href="#" onclick="toggleWindow('about-window')">About uDOS</a></li>
+                <li role="menu-item"><a href="#" onclick="toggleWindow('system-window')">System Info</a></li>
+                <li role="menu-item"><a href="#" onclick="toggleWindow('finder-window')">Extensions</a></li>
+                <li role="menu-item"><a href="#" onclick="toggleWindow('command-window')">Command Palette</a></li>
+            </ul>
+        </li>
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+            Tools
+            <ul role="menu">
+                <li role="menu-item"><a href="#" onclick="openCharacterEditor()">Character Editor</a></li>
+                <li role="menu-item"><a href="#" onclick="openExtension('terminal', 8889)">Terminal</a></li>
+                <li role="menu-item"><a href="#" onclick="openMarkedViewer()">Knowledge Base</a></li>
+                <li role="menu-item"><a href="#" onclick="openExtension('teletext', 8890)">Teletext</a></li>
+                <li role="menu-item"><a href="#" onclick="openExtension('dashboard', 8888)">Dashboard</a></li>
+            </ul>
+        </li>
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+            Help
+            <ul role="menu">
+                <li role="menu-item"><a href="#" onclick="showHelp()">uDOS Help</a></li>
+                <li role="menu-item"><a href="#" onclick="toggleWindow('about-window')">About uDOS</a></li>
+            </ul>
+        </li>
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+            Test
+            <ul role="menu">
+                <li role="menu-item"><a href="#" onclick="toggleWindow('test-window')">Design System Test</a></li>
+                <li role="menu-item"><a href="#" onclick="testIcons()">Test Icons</a></li>
+                <li role="menu-item"><a href="#" onclick="testFonts()">Test Fonts</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <!-- Desktop Icons -->
+    <div id="desktop-icons"></div>
+
+    <!-- About uDOS Window -->
+    <div class="window" id="about-window" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 300px;">
+        <div class="title-bar">
+            <button class="close" aria-label="Close" onclick="closeWindow('about-window')"></button>
+            <h1 class="title">About uDOS</h1>
+            <button aria-label="Resize" disabled></button>
+        </div>
+        <div class="separator"></div>
+        <div class="window-pane" style="font-family: Roboto, sans-serif; font-size: 12px;">
+            <div class="about-box">
+                <div class="about-logo">🖥️</div>
+                <div class="about-version" style="font-family: Roboto, sans-serif; font-size: 12px;">uDOS System Desktop</div>
+                <div style="font-family: Roboto, sans-serif; font-size: 12px; margin: 4px 0;">v1.0.24</div>
+                <div style="font-family: Roboto, sans-serif; font-size: 12px; margin: 16px 0; padding: 12px; background: #f0f0f0; border: 1px solid #888;">
+                    Phase 8.8 Complete<br>
+                    system.css Integration<br>
+                    Extensions Restructure
+                </div>
+                <div class="about-credits" style="font-family: Roboto, sans-serif; font-size: 12px;">
+                    Built with system.css (sakofchit)<br>
+                    Chicago font • Classic Mac OS System 7<br>
+                    Synthwave DOS color palette<br><br>
+                    © 2024-2025 uDOS Project<br>
+                    Retro Computing • Modern Web
+                </div>
+            </div>
+        </div>
+        <div class="status-bar">
+            <p class="status-bar-field">v1.0.24-extensions</p>
+            <p class="status-bar-field">Phase 8.8</p>
+        </div>
+    </div>
+
+    <!-- System Information Window -->
+    <div class="window" id="system-window" style="position: absolute; left: 80px; top: 70px; width: 420px; display: none;">
+        <div class="title-bar">
+            <button class="close" aria-label="Close" onclick="closeWindow('system-window')"></button>
+            <h1 class="title">System Information</h1>
+            <button aria-label="Resize" disabled></button>
+        </div>
+        <div class="separator"></div>
+        <div class="window-pane">
+            <h3>System Information</h3>
+            <div class="stats-panel">
+                <div class="stat-row">
+                    <span class="stat-label">System:</span>
+                    <span class="stat-value">uDOS v1.0.24</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Interface:</span>
+                    <span class="stat-value">system.css</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Font:</span>
+                    <span class="stat-value">Chicago</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Theme:</span>
+                    <span class="stat-value">Synthwave DOS</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Extensions:</span>
+                    <span class="stat-value">6 active</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Branch:</span>
+                    <span class="stat-value">v1.0.24-extensions</span>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 20px;">Color Palette</h3>
+            <div style="padding: 12px; background: white; border: 1px solid #aaa;">
+                <div style="margin: 4px 0;">
+                    <span style="display: inline-block; width: 20px; height: 20px; background: var(--color-cyan-bright); border: 1px solid black; vertical-align: middle;"></span>
+                    Cyan Bright
+                </div>
+                <div style="margin: 4px 0;">
+                    <span style="display: inline-block; width: 20px; height: 20px; background: var(--color-blue-bright); border: 1px solid black; vertical-align: middle;"></span>
+                    Blue Bright
+                </div>
+                <div style="margin: 4px 0;">
+                    <span style="display: inline-block; width: 20px; height: 20px; background: var(--color-green-bright); border: 1px solid black; vertical-align: middle;"></span>
+                    Green Bright
+                </div>
+                <div style="margin: 4px 0;">
+                    <span style="display: inline-block; width: 20px; height: 20px; background: var(--color-orange-bright); border: 1px solid black; vertical-align: middle;"></span>
+                    Orange Bright
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Finder/Extensions Window -->
+    <div class="window" id="finder-window" style="position: absolute; left: 120px; top: 100px; width: 500px; display: none;">
+        <div class="title-bar">
+            <button class="close" aria-label="Close" onclick="closeWindow('finder-window')"></button>
+            <h1 class="title">uDOS Extensions</h1>
+            <button aria-label="Resize" disabled></button>
+        </div>
+        <div class="separator"></div>
+        <div class="window-pane">
+            <h3>📁 Active Extensions</h3>
+            <div class="finder-list" style="margin-top: 12px;">
+                <div class="finder-item" ondblclick="openExtension('markdown', 9000)">
+                    <span>📖 Markdown Viewer</span>
+                    <span style="color: #00ff00;">ACTIVE</span>
+                </div>
+                <div class="finder-item" ondblclick="openCharacterEditor()">
+                    <span>🎨 Character Editor</span>
+                    <span style="color: #00ff00;">ACTIVE</span>
+                </div>
+                <div class="finder-item" ondblclick="openExtension('teletext', 8890)">
+                    <span>📺 Teletext</span>
+                    <span style="color: #00ff00;">ACTIVE</span>
+                </div>
+                <div class="finder-item" ondblclick="openExtension('terminal', 8889)">
+                    <span>💻 C64 Terminal</span>
+                    <span style="color: #00ff00;">ACTIVE</span>
+                </div>
+                <div class="finder-item" ondblclick="openExtension('dashboard', 8888)">
+                    <span>🎮 Dashboard (NES)</span>
+                    <span style="color: #00ff00;">ACTIVE</span>
+                </div>
+                <div class="finder-item">
+                    <span>🖥️ System Desktop</span>
+                    <span style="color: #00ff00;">ACTIVE</span>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 20px;">📊 Recent Activity</h3>
+            <div style="background: white; border: 1px solid #aaa; padding: 12px; margin-top: 8px; max-height: 150px; overflow-y: auto; font-size: 10px;">
+                <div style="margin: 4px 0; padding: 4px; border-left: 3px solid var(--color-cyan-bright);">
+                    <strong>Phase 8.8:</strong> Extensions restructure + system.css
+                </div>
+                <div style="margin: 4px 0; padding: 4px; border-left: 3px solid var(--color-green-bright);">
+                    <strong>Phase 6:</strong> Dashboard NES redesign
+                </div>
+                <div style="margin: 4px 0; padding: 4px; border-left: 3px solid var(--color-blue-bright);">
+                    <strong>Phase 5.1:</strong> Typography enhancement
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Command Palette Window -->
+    <div class="window" id="command-window" style="position: absolute; left: 180px; top: 120px; width: 600px; display: none;">
+        <div class="title-bar">
+            <button class="close" aria-label="Close" onclick="closeWindow('command-window')"></button>
+            <h1 class="title">Command Palette</h1>
+            <button aria-label="Resize" disabled></button>
+        </div>
+        <div class="separator"></div>
+        <div class="window-pane">
+            <div class="command-palette">
+                <div style="margin-bottom: 12px;">
+                    <strong>uDOS Command Palette</strong>
+                </div>
+                <input type="text" class="command-input" id="cmd-input" placeholder="Type a command..." />
+                <div class="command-output" id="cmd-output">
+<span class="command-prompt">$</span> Welcome to uDOS Command Palette v1.0.24
+<span class="command-prompt">$</span> Type 'help' for available commands
+<span class="command-prompt">$</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Character Editor Window -->
+    <div class="window" id="character-editor-window" style="position: absolute; left: 10px; top: 30px; width: calc(100% - 20px); height: calc(100% - 40px); display: none;" data-maximized="true">
+        <div class="title-bar">
+            <button class="close" aria-label="Close" onclick="closeCharacterEditor()"></button>
+            <h1 class="title">Character Editor</h1>
+            <button aria-label="Resize" disabled></button>
+        </div>
+        <div class="separator"></div>
+        <div class="window-pane" style="padding: 0; overflow: hidden; height: calc(100% - 38px);">
+            <iframe id="character-editor-iframe" src="" style="width: 100%; height: 100%; border: none; display: block;"></iframe>
+        </div>
+    </div>
+
+    <!-- File Picker Window -->
+    <div class="window" id="file-picker-window" style="position: absolute; left: 10px; top: 30px; width: calc(100% - 20px); height: calc(100% - 40px); display: none;" data-maximized="true">
+        <div class="title-bar">
+            <button class="close" aria-label="Close" onclick="closeFilePicker()"></button>
+            <h1 class="title">Memory Browser</h1>
+            <button aria-label="Resize" disabled></button>
+        </div>
+        <div class="separator"></div>
+        <div class="details-bar">
+            <span id="current-path">/memory</span>
+            <span id="file-count">0 items</span>
+        </div>
+        <div class="separator"></div>
+        <div class="window-pane" style="padding: 0; height: calc(100% - 90px); display: flex; flex-direction: column;">
+            <!-- File List -->
+            <div id="file-list" style="flex: 1; overflow-y: auto; background: #fff;">
+                <div style="padding: 20px; text-align: center; color: #808080;">
+                    Select a folder to browse files
+                </div>
+            </div>
+
+            <!-- Status Bar -->
+            <div style="padding: 8px; border-top: 2px solid #000; background: #f0f0f0; font-family: Geneva_9, Chicago, sans-serif; font-size: 11px; display: flex; justify-content: space-between;">
+                <span id="status-text">Ready</span>
+                <span id="selected-file"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Knowledge Library Picker Window -->
+    <div class="window" id="knowledge-picker-window" style="position: absolute; left: 10px; top: 30px; width: calc(100% - 20px); height: calc(100% - 40px); display: none;" data-maximized="true">
+        <div class="title-bar">
+            <button class="close" aria-label="Close" onclick="closeKnowledgePicker()"></button>
+            <h1 class="title">Knowledge Library</h1>
+            <button aria-label="Resize" disabled></button>
+        </div>
+        <div class="separator"></div>
+        <div class="details-bar">
+            <span id="knowledge-path">/knowledge</span>
+            <span id="knowledge-count">0 items</span>
+        </div>
+        <div class="separator"></div>
+        <div class="window-pane" style="padding: 0; height: calc(100% - 90px); display: flex; flex-direction: column;">
+            <!-- File List -->
+            <div id="knowledge-list" style="flex: 1; overflow-y: auto; background: #fff;">
+                <div style="padding: 20px; text-align: center; color: #808080;">
+                    Loading knowledge library...
+                </div>
+            </div>
+
+            <!-- Status Bar -->
+            <div style="padding: 8px; border-top: 2px solid #000; background: #f0f0f0; font-family: Geneva_9, Chicago, sans-serif; font-size: 11px; display: flex; justify-content: space-between;">
+                <span id="knowledge-status">Ready</span>
+                <span id="knowledge-selected"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Design System Test Window -->
+    <div class="window" id="test-window" style="position: absolute; left: 160px; top: 100px; width: 700px; max-height: 600px; overflow-y: auto; display: none;">
+        <div class="title-bar">
+            <button class="close" aria-label="Close" onclick="closeWindow('test-window')"></button>
+            <h1 class="title">system.css Design System Test</h1>
+            <button aria-label="Resize" disabled></button>
+        </div>
+        <div class="separator"></div>
+        <div class="window-pane">
+            <h2 style="font-family: Chicago; font-size: 24px; margin-bottom: 16px;">Typography Test</h2>
+
+            <div style="margin-bottom: 20px;">
+                <h3>Font Families:</h3>
+                <p style="font-family: Chicago; font-size: 12px;">Chicago - Primary UI font (12px)</p>
+                <p style="font-family: Chicago; font-size: 10px;">Chicago - Small text (10px)</p>
+                <p style="font-family: Chicago; font-size: 18px;">Chicago - Display font (18px)</p>
+                <p style="font-family: Roboto; font-size: 12px;">Roboto - Body text font (12px)</p>
+                <p style="font-family: Roboto; font-weight: bold; font-size: 12px;">Roboto Bold - Headings (12px)</p>
+                <p style="font-family: Roboto; font-style: italic; font-size: 12px;">Roboto Italic - Emphasis (12px)</p>
+                <p style="font-family: monospace; font-size: 11px;">Monospace - Code/Terminal (11px)</p>
+            </div>
+
+            <h3>Buttons</h3>
+            <div class="field-row" style="margin-bottom: 16px;">
+                <button class="btn">Standard Button</button>
+                <button class="btn-default">Default Button</button>
+                <button class="btn" disabled>Disabled Button</button>
+            </div>
+
+            <h3>Form Controls</h3>
+            <div style="margin-bottom: 20px;">
+                <div class="field-row">
+                    <input type="checkbox" id="test-check-1">
+                    <label for="test-check-1">Checkbox Option 1</label>
+                </div>
+                <div class="field-row">
+                    <input type="checkbox" id="test-check-2" checked>
+                    <label for="test-check-2">Checkbox Option 2 (checked)</label>
+                </div>
+                <div class="field-row">
+                    <input type="checkbox" id="test-check-3">
+                    <label for="test-check-3">Checkbox Option 3</label>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <div class="field-row">
+                    <input type="radio" id="test-radio-1" name="test-radio">
+                    <label for="test-radio-1">Radio Option 1</label>
+                </div>
+                <div class="field-row">
+                    <input type="radio" id="test-radio-2" name="test-radio" checked>
+                    <label for="test-radio-2">Radio Option 2 (selected)</label>
+                </div>
+                <div class="field-row">
+                    <input type="radio" id="test-radio-3" name="test-radio">
+                    <label for="test-radio-3">Radio Option 3</label>
+                </div>
+            </div>
+
+            <h3>Text Inputs</h3>
+            <div style="margin-bottom: 20px;">
+                <div class="field-row" style="margin-bottom: 8px;">
+                    <label style="width: 100px;">Name:</label>
+                    <input type="text" placeholder="Enter text..." style="flex: 1;">
+                </div>
+                <div class="field-row" style="margin-bottom: 8px;">
+                    <label style="width: 100px;">Password:</label>
+                    <input type="password" placeholder="Password" style="flex: 1;">
+                </div>
+                <div class="field-row">
+                    <label style="width: 100px;">Comments:</label>
+                    <textarea rows="3" style="flex: 1; font-family: Monaco, monospace;">Multi-line text area</textarea>
+                </div>
+            </div>
+
+            <h3>Icon Test</h3>
+            <div style="background: white; border: 2px solid #000; padding: 16px; margin-bottom: 20px;">
+                <p style="margin-bottom: 12px;"><strong>system.css Icons:</strong></p>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <img src="icons/apple.svg" alt="Apple" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <div style="font-size: 9px; margin-top: 4px;">apple.svg</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="icons/checkmark.svg" alt="Checkmark" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <div style="font-size: 9px; margin-top: 4px;">checkmark.svg</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="icons/radio-dot.svg" alt="Radio Dot" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <div style="font-size: 9px; margin-top: 4px;">radio-dot.svg</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="icons/scrollbar-up.svg" alt="Scroll Up" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <div style="font-size: 9px; margin-top: 4px;">scrollbar-up.svg</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="icons/scrollbar-down.svg" alt="Scroll Down" style="width: 24px; height: 24px; border: 1px solid #ccc; padding: 4px;">
+                        <div style="font-size: 9px; margin-top: 4px;">scrollbar-down.svg</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Scrollbar Test</h3>
+            <div style="background: white; border: 2px solid #000; height: 150px; overflow-y: scroll; padding: 12px; margin-bottom: 20px;">
+                <p>This scrollable area tests the custom scrollbar styling with authentic system.css icons.</p>
+                <p>Line 1 - Scroll to see more content</p>
+                <p>Line 2 - Authentic Mac OS scrollbar arrows</p>
+                <p>Line 3 - Checkerboard track pattern</p>
+                <p>Line 4 - White thumb with black border</p>
+                <p>Line 5 - system.css scrollbar icons</p>
+                <p>Line 6 - scrollbar-up.svg on top</p>
+                <p>Line 7 - scrollbar-down.svg on bottom</p>
+                <p>Line 8 - Active states work too</p>
+                <p>Line 9 - Classic System 6 look</p>
+                <p>Line 10 - End of test content</p>
+            </div>
+
+            <h3>Classic Patterns</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                <div style="text-align: center;">
+                    <div class="pattern-checkerboard" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Checker</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-fine-dots" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Fine Dots</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-grid-small" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Grid</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-diagonal" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Diagonal</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-crosshatch" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Crosshatch</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-dense-dots" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Dense</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-sparse-dots" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Sparse</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-vertical-lines" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Vertical</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-horizontal-lines" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Horizontal</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-bricks" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Bricks</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-scales" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Scales</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-waves" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Waves</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-triangles" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Triangles</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-hexagons" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Hexagons</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-diagonal-right" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Diag Right</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="pattern-weave" style="width: 60px; height: 60px; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Weave</div>
+                </div>
+            </div>
+
+            <h3>Color Test</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                <div style="text-align: center;">
+                    <div style="width: 60px; height: 60px; background: #000; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Black<br>#000</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="width: 60px; height: 60px; background: #fff; border: 2px solid #000; margin: 0 auto;"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">White<br>#fff</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="width: 60px; height: 60px; background: #c0c0c0; border: 2px solid #000; margin: 0 auto;\"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Grey<br>#c0c0c0</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="width: 60px; height: 60px; background: #808080; border: 2px solid #000; margin: 0 auto;\"></div>
+                    <div style="font-size: 9px; margin-top: 4px;">Dark Grey<br>#808080</div>
+                </div>
+            </div>
+
+            <h3>System Info</h3>
+            <div style="background: white; border: 2px solid #000; padding: 12px; font-family: Monaco, monospace; font-size: 11px;">
+                <div style="margin: 4px 0;">system.css version: v0.1.11</div>
+                <div style="margin: 4px 0;">Author: Sakun Acharige (@sakofchit)</div>
+                <div style="margin: 4px 0;">License: MIT</div>
+                <div style="margin: 4px 0;">Fonts: Chicago_12, Geneva_9, Monaco</div>
+                <div style="margin: 4px 0;">Icons: 17 SVG files loaded</div>
+                <div style="margin: 4px 0;">Format: WOFF2 (optimized)</div>
+            </div>
+        </div>
+        <div class="status-bar">
+            <p class="status-bar-field">All features loaded</p>
+            <p class="status-bar-field">system.css v0.1.11</p>
+        </div>
+    </div>
+
+    <script src="static/desktop.js"></script>
+</body>
+</html>

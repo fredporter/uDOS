@@ -1,0 +1,38 @@
+{
+  "THEME_NAME": "default",
+  "VERSION": "1.0.2",
+  "NAME": "Default System Theme",
+  "STYLE": "Standard uDOS",
+  "VERBOSE_LEVEL": "MEDIUM",
+  "ICON": "💻",
+  "DESCRIPTION": "Clean, straightforward uDOS system theme",
+
+  "TERMINOLOGY": {
+    "PROMPT_BASE": ">",
+    "CMD_CATALOG": "CATALOG",
+    "CMD_LOAD": "LOAD",
+    "CMD_SAVE": "SAVE",
+    "CMD_RUN": "RUN",
+    "CMD_CLS": "CLS",
+    "CMD_HELP": "HELP",
+    "CMD_MAP": "MAP",
+    "CMD_EDIT": "EDIT",
+    "CMD_EXIT": "EXIT",
+    "CMD_REBOOT": "REBOOT",
+    "CMD_REPAIR": "REPAIR"
+  },
+
+  "MESSAGES": {
+    "ERROR_CRASH": "ERROR: Command '{command}' failed unexpectedly",
+    "ERROR_INVALID_UCODE_FORMAT": "ERROR: Invalid command format '{ucode}' - {error}",
+    "ERROR_UNKNOWN_MODULE": "ERROR: Unknown module '{module}'",
+    "ERROR_UNKNOWN_SYSTEM_COMMAND": "ERROR: Unknown system command '{command}'",
+    "ERROR_UNKNOWN_FILE_COMMAND": "ERROR: Unknown file command '{command}'",
+    "ERROR_GENERIC": "ERROR: {error}",
+    "INFO_EXIT": "Goodbye! uDOS session terminated.",
+    "INFO_HELP_INTRO": "Available commands:",
+    "INFO_REPAIR_RUNNING": "Running system diagnostics...",
+    "ACTION_SUCCESS": "Operation completed successfully",
+    "ACTION_SUCCESS_REPAIR_COMPLETE": "System repair completed successfully"
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "id": "daily-fire-management",
+  "title": "Daily Fire Safety & Management Checklist",
+  "category": "daily",
+  "description": "Daily routine for managing campfires, wood stoves, and fire safety in outdoor or survival situations",
+  "version": "1.0.0",
+  "created": "2025-12-02T00:00:00Z",
+  "updated": "2025-12-02T00:00:00Z",
+  "author": "uDOS Knowledge Bank",
+  "difficulty": "beginner",
+  "estimated_time": "20-30 minutes daily",
+  "prerequisites": [
+    "Established fire pit or stove",
+    "Basic fire safety knowledge",
+    "Fire extinguishing supplies"
+  ],
+  "related_guides": [
+    "fire/fire-starting",
+    "fire/fire-safety"
+  ],
+  "tags": [
+    "fire",
+    "safety",
+    "daily",
+    "survival",
+    "camping"
+  ],
+  "items": [
+    {
+      "id": "morning_check_embers",
+      "text": "Check overnight fire for active embers",
+      "priority": "critical",
+      "category": "Morning Routine",
+      "notes": "Safety check before starting day"
+    },
+    {
+      "id": "morning_clear_area",
+      "text": "Clear 10-foot radius around fire pit of debris",
+      "priority": "high",
+      "category": "Morning Routine"
+    },
+    {
+      "id": "morning_water_ready",
+      "text": "Ensure water bucket is full and nearby",
+      "priority": "critical",
+      "category": "Morning Routine",
+      "quantity": 5,
+      "unit": "gallons"
+    },
+    {
+      "id": "morning_shovel_ready",
+      "text": "Confirm shovel/dirt available for emergencies",
+      "priority": "high",
+      "category": "Morning Routine"
+    },
+    {
+      "id": "collect_tinder",
+      "text": "Collect dry tinder for day's fires",
+      "priority": "medium",
+      "category": "Fuel Collection",
+      "notes": "Dry grass, bark, paper"
+    },
+    {
+      "id": "collect_kindling",
+      "text": "Gather kindling (small twigs, 1-2 inches)",
+      "priority": "medium",
+      "category": "Fuel Collection"
+    },
+    {
+      "id": "collect_fuel_wood",
+      "text": "Collect fuel wood (3-6 inches diameter)",
+      "priority": "medium",
+      "category": "Fuel Collection",
+      "quantity": 10,
+      "unit": "logs"
+    },
+    {
+      "id": "inspect_fire_pit",
+      "text": "Inspect fire pit for damage or erosion",
+      "priority": "high",
+      "category": "Maintenance"
+    },
+    {
+      "id": "check_wind",
+      "text": "Check wind direction and speed",
+      "priority": "critical",
+      "category": "Weather",
+      "notes": "Delay fire if high winds"
+    },
+    {
+      "id": "build_fire",
+      "text": "Build fire using safe techniques",
+      "priority": "high",
+      "category": "Fire Starting"
+    },
+    {
+      "id": "monitor_fire",
+      "text": "Never leave fire unattended",
+      "priority": "critical",
+      "category": "Active Use",
+      "notes": "Always have someone watching"
+    },
+    {
+      "id": "maintain_clearance",
+      "text": "Keep flammable items 3+ feet from fire",
+      "priority": "critical",
+      "category": "Active Use"
+    },
+    {
+      "id": "evening_banking",
+      "text": "Bank fire for overnight (if keeping)",
+      "priority": "medium",
+      "category": "Evening Routine",
+      "optional": true,
+      "notes": "Cover with ash, reduce to coals"
+    },
+    {
+      "id": "evening_extinguish",
+      "text": "Fully extinguish fire if not keeping overnight",
+      "priority": "critical",
+      "category": "Evening Routine",
+      "subitems": [
+        {
+          "id": "spread_coals",
+          "text": "Spread out coals and embers"
+        },
+        {
+          "id": "pour_water",
+          "text": "Pour water over all coals"
+        },
+        {
+          "id": "stir_ashes",
+          "text": "Stir ashes and add more water"
+        },
+        {
+          "id": "touch_test",
+          "text": "Touch test - should be cool to touch"
+        }
+      ]
+    },
+    {
+      "id": "evening_final_check",
+      "text": "Final safety check before bed",
+      "priority": "critical",
+      "category": "Evening Routine",
+      "notes": "No smoke, steam, or heat"
+    },
+    {
+      "id": "clean_area",
+      "text": "Clean fire area of trash and debris",
+      "priority": "medium",
+      "category": "Cleanup"
+    },
+    {
+      "id": "restock_supplies",
+      "text": "Restock emergency water and tools",
+      "priority": "high",
+      "category": "Preparation"
+    }
+  ],
+  "metadata": {
+    "season": "all",
+    "location_type": "wilderness",
+    "skill_level": "beginner",
+    "frequency": "daily",
+    "weather_dependent": true
+  }
+}

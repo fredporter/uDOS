@@ -1,0 +1,19 @@
+# Multi-System Integration
+# Shows complex interactions across multiple services
+
+Title: Order Fulfillment Process
+
+Customer->OrderService: Place Order
+OrderService->Inventory: Check Stock
+Inventory-->OrderService: Available
+OrderService->Payment: Process Payment
+Payment-->OrderService: Payment OK
+OrderService->Shipping: Create Shipment
+Shipping->Warehouse: Pick Items
+Warehouse-->Shipping: Items Packed
+Shipping-->OrderService: Tracking Number
+OrderService->Notification: Send Email
+Notification-->Customer: Order Confirmation
+
+Note over OrderService: Multi-step transaction
+Note right of Shipping: 2-3 day delivery

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POKE Online Dashboard</title>
+  <style>
+    body { font-family: monospace; background: #181c20; color: #e0e0e0; margin: 0; padding: 0; }
+    header { background: #222; padding: 1em; text-align: center; font-size: 1.5em; letter-spacing: 2px; }
+    main { max-width: 700px; margin: 2em auto; background: #23272b; border-radius: 8px; box-shadow: 0 2px 8px #0008; padding: 2em; }
+    h2 { color: #7fd1b9; }
+    .section { margin-bottom: 2em; }
+    .status { font-weight: bold; color: #7fd1b9; }
+    .error { color: #ff6b6b; }
+    .tunnel-url { font-size: 1.2em; color: #ffe066; }
+    button { background: #7fd1b9; color: #181c20; border: none; padding: 0.5em 1.5em; border-radius: 4px; font-size: 1em; cursor: pointer; margin-top: 1em; }
+    button:disabled { background: #444; color: #aaa; }
+    .file-list { background: #181c20; border: 1px solid #333; border-radius: 4px; padding: 1em; margin-top: 1em; }
+    .file-list li { margin-bottom: 0.5em; }
+    .group-list { background: #181c20; border: 1px solid #333; border-radius: 4px; padding: 1em; margin-top: 1em; }
+    .group-list li { margin-bottom: 0.5em; }
+  </style>
+</head>
+<body>
+  <header>POKE Online Dashboard</header>
+  <main>
+    <section class="section">
+      <h2>Tunnel Status</h2>
+      <div id="tunnel-status" class="status">Loading...</div>
+      <div id="tunnel-url" class="tunnel-url"></div>
+      <button id="start-tunnel">Start Tunnel</button>
+      <button id="stop-tunnel">Stop Tunnel</button>
+      <div id="tunnel-error" class="error"></div>
+    </section>
+    <section class="section">
+      <h2>Shared Files</h2>
+      <ul id="file-list" class="file-list"></ul>
+      <button id="refresh-files">Refresh</button>
+    </section>
+    <section class="section">
+      <h2>Groups</h2>
+      <ul id="group-list" class="group-list"></ul>
+      <button id="refresh-groups">Refresh</button>
+    </section>
+  </main>
+  <script>
+    async function fetchStatus() {
+      try {
+        const res = await fetch('/poke/status');
+        const data = await res.json();
+        document.getElementById('tunnel-status').textContent = (data.active_tunnels && data.active_tunnels > 0) ? 'Active' : 'Inactive';
+        let url = '';
+        if (data.tunnels && data.tunnels.length > 0) {
+          url = data.tunnels[0].public_url || '';
+        }
+        document.getElementById('tunnel-url').textContent = url;
+        document.getElementById('tunnel-error').textContent = data.error || '';
+      } catch (e) {
+        document.getElementById('tunnel-status').textContent = 'Error';
+        document.getElementById('tunnel-error').textContent = e.toString();
+      }
+    }
+    async function fetchFiles() {
+      try {
+        const res = await fetch('/poke/shares');
+        const data = await res.json();
+        const list = document.getElementById('file-list');
+        list.innerHTML = '';
+        (data.shares || []).forEach(f => {
+          const li = document.createElement('li');
+          li.textContent = f.path + (f.description ? ' - ' + f.description : '');
+          list.appendChild(li);
+        });
+      } catch (e) {
+        document.getElementById('file-list').innerHTML = '<li class="error">Error loading shares</li>';
+      }
+    }
+    async function fetchGroups() {
+      try {
+        const res = await fetch('/poke/groups');
+        const data = await res.json();
+        const list = document.getElementById('group-list');
+        list.innerHTML = '';
+        (data.groups || []).forEach(g => {
+          const li = document.createElement('li');
+          li.textContent = g.name + (g.description ? ' - ' + g.description : '');
+          list.appendChild(li);
+        });
+      } catch (e) {
+        document.getElementById('group-list').innerHTML = '<li class="error">Error loading groups</li>';
+      }
+    }
+    document.getElementById('start-tunnel').onclick = async () => {
+      try {
+        const res = await fetch('/poke/start', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({})});
+        const data = await res.json();
+        if (!data.success) {
+          document.getElementById('tunnel-error').textContent = data.error || 'Failed to start tunnel';
+        }
+        fetchStatus();
+      } catch (e) {
+        document.getElementById('tunnel-error').textContent = e.toString();
+      }
+    };
+    document.getElementById('stop-tunnel').onclick = async () => {
+      try {
+        // Stop the first active tunnel (for demo)
+        const statusRes = await fetch('/poke/status');
+        const statusData = await statusRes.json();
+        let tunnelId = '';
+        if (statusData.tunnels && statusData.tunnels.length > 0) {
+          tunnelId = statusData.tunnels[0].id;
+        }
+        if (!tunnelId) {
+          document.getElementById('tunnel-error').textContent = 'No active tunnel to stop';
+          return;
+        }
+        const res = await fetch('/poke/stop', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({tunnel_id: tunnelId})});
+        const data = await res.json();
+        if (!data.success) {
+          document.getElementById('tunnel-error').textContent = data.error || 'Failed to stop tunnel';
+        }
+        fetchStatus();
+      } catch (e) {
+        document.getElementById('tunnel-error').textContent = e.toString();
+      }
+    };
+    document.getElementById('refresh-files').onclick = fetchFiles;
+    document.getElementById('refresh-groups').onclick = fetchGroups;
+    fetchStatus(); fetchFiles(); fetchGroups();
+  </script>
+</body>
+</html>

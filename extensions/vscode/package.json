@@ -1,0 +1,174 @@
+{
+  "name": "vscode-udos",
+  "displayName": "uDOS Language Support",
+  "description": "Language support for uDOS .uPY scripting language - syntax highlighting, IntelliSense, debugging, and sandbox testing",
+  "version": "1.0.0",
+  "publisher": "udos",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Debuggers",
+    "Testing"
+  ],
+  "keywords": [
+    "udos",
+    "upy",
+    "survival",
+    "offline",
+    "knowledge"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "upy",
+        "aliases": [
+          "uPY",
+          "uDOS Script"
+        ],
+        "extensions": [
+          ".upy"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "upy",
+        "scopeName": "source.upy",
+        "path": "./syntaxes/upy.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "upy",
+        "path": "./snippets/upy.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "udos.runScript",
+        "title": "uDOS: Run Script",
+        "category": "uDOS",
+        "icon": "$(play)"
+      },
+      {
+        "command": "udos.runInSandbox",
+        "title": "uDOS: Run in Sandbox",
+        "category": "uDOS",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "udos.checkKnowledgeQuality",
+        "title": "uDOS: Check Knowledge Quality",
+        "category": "uDOS",
+        "icon": "$(check-all)"
+      },
+      {
+        "command": "udos.previewSVG",
+        "title": "uDOS: Preview SVG",
+        "category": "uDOS",
+        "icon": "$(file-media)"
+      },
+      {
+        "command": "udos.previewASCII",
+        "title": "uDOS: Preview ASCII Art",
+        "category": "uDOS",
+        "icon": "$(symbol-text)"
+      },
+      {
+        "command": "udos.validateTeletext",
+        "title": "uDOS: Validate Teletext",
+        "category": "uDOS",
+        "icon": "$(symbol-color)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "resourceLangId == upy",
+          "command": "udos.runScript",
+          "group": "navigation@1"
+        },
+        {
+          "when": "resourceLangId == upy",
+          "command": "udos.runInSandbox",
+          "group": "navigation@2"
+        }
+      ],
+      "editor/title": [
+        {
+          "when": "resourceLangId == upy",
+          "command": "udos.runScript",
+          "group": "navigation@1"
+        },
+        {
+          "when": "resourceLangId == upy",
+          "command": "udos.runInSandbox",
+          "group": "navigation@2"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "uDOS",
+      "properties": {
+        "udos.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:5001",
+          "description": "uDOS API server URL"
+        },
+        "udos.autoRunOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically run script when saving .upy files"
+        },
+        "udos.sandboxAutoCleanup": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically cleanup sandbox instances after execution"
+        },
+        "udos.showExecutionTime": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show execution time in output"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0",
+    "@vscode/test-electron": "^2.3.0",
+    "@vscode/vsce": "^2.19.0"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fredporter/uDOS.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fredporter/uDOS/issues"
+  },
+  "homepage": "https://github.com/fredporter/uDOS/wiki/VS-Code-Extension",
+  "license": "MIT"
+}

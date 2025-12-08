@@ -1,0 +1,73 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Camp Alpha",
+        "type": "shelter",
+        "status": "active",
+        "capacity": 10,
+        "water_nearby": true,
+        "notes": "Elevated site, good drainage"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4194, 37.7749]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freshwater Spring",
+        "type": "water_source",
+        "quality": "excellent",
+        "flow_rate": "moderate",
+        "seasonal": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4184, 37.7759]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Trail to Water",
+        "type": "path",
+        "difficulty": "easy",
+        "distance_m": 250,
+        "markers": "blue blazes"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-122.4194, 37.7749],
+          [-122.4190, 37.7752],
+          [-122.4186, 37.7755],
+          [-122.4184, 37.7759]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Foraging Zone",
+        "type": "food_area",
+        "resources": ["berries", "nuts", "edible plants"],
+        "season": "summer-fall",
+        "safety": "good"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-122.4174, 37.7759],
+          [-122.4164, 37.7759],
+          [-122.4164, 37.7749],
+          [-122.4174, 37.7749],
+          [-122.4174, 37.7759]
+        ]]
+      }
+    }
+  ]
+}

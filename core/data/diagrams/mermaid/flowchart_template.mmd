@@ -1,0 +1,23 @@
+graph TD
+    Start[Start Process] --> Decision{Check Condition}
+    Decision -->|Condition Met| ActionA[Perform Action A]
+    Decision -->|Condition Not Met| ActionB[Perform Action B]
+    ActionA --> End[End Process]
+    ActionB --> End
+
+    %% Flowchart Template
+    %%
+    %% Node Shapes:
+    %% [Rectangle] - Standard process
+    %% (Round edges) - Start/End
+    %% {Diamond} - Decision
+    %% ((Circle)) - Connection point
+    %% >Flag] - Flag/marker
+    %%
+    %% Arrow Types:
+    %% --> Solid arrow
+    %% -.-> Dotted arrow
+    %% ==> Thick arrow
+    %%
+    %% Labels:
+    %% -->|Label| Add text to arrows

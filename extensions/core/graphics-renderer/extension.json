@@ -1,0 +1,71 @@
+{
+  "id": "graphics-renderer",
+  "name": "Graphics Renderer Service",
+  "version": "1.2.15",
+  "description": "Node.js rendering service for uDOS graphics system (ASCII, Teletext, SVG, Sequence, Flow)",
+  "author": "uDOS Project",
+  "license": "MIT",
+  "category": "core",
+  "type": "service",
+  "status": "active",
+  "port": 5555,
+  "dependencies": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "npm_packages": [
+    "express",
+    "body-parser",
+    "cors",
+    "js-sequence-diagrams",
+    "flowchart.js",
+    "canvas",
+    "puppeteer"
+  ],
+  "files": {
+    "main": "server.js",
+    "package": "package.json",
+    "renderers": [
+      "renderers/ascii.js",
+      "renderers/teletext.js",
+      "renderers/svg.js",
+      "renderers/sequence.js",
+      "renderers/flow.js"
+    ]
+  },
+  "endpoints": {
+    "health": "GET /health",
+    "render_ascii": "POST /render/ascii",
+    "render_teletext": "POST /render/teletext",
+    "render_svg": "POST /render/svg",
+    "render_sequence": "POST /render/sequence",
+    "render_flow": "POST /render/flow",
+    "render_unified": "POST /render",
+    "list_templates": "GET /templates/:format"
+  },
+  "integration": {
+    "python_bridge": "core/services/graphics_service.py",
+    "make_command": "core/commands/make_handler.py",
+    "templates": "core/data/diagrams/"
+  },
+  "features": [
+    "ASCII template rendering with variable substitution",
+    "Teletext 8-color palette support",
+    "SVG generation with style templates",
+    "Sequence diagram rendering (js-sequence)",
+    "Flowchart rendering (flowchart.js)",
+    "Template catalog management",
+    "Health check monitoring",
+    "Extension manager integration"
+  ],
+  "setup": {
+    "install": "npm install",
+    "start": "npm start",
+    "dev": "npm run dev"
+  },
+  "credits": {
+    "version": "1.2.15",
+    "date": "December 2025",
+    "foundation": "v1.2.12 PATHS and folder structure"
+  }
+}

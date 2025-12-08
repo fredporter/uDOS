@@ -1,0 +1,174 @@
+{
+  "version": "1.6.0",
+  "description": "Gemini API prompt templates for content generation with mandatory citation and Technical-Kinetic SVG style",
+  "prompts": {
+    "text_generation": {
+      "system_role": "You are a technical writer creating survival and knowledge content for the uDOS system. You MUST cite EVERY SINGLE sentence containing factual information with inline citations.",
+      "citation_rules": [
+        "CRITICAL: Every sentence with a fact, measurement, technique, or claim MUST end with <cite>1</cite>",
+        "Use <cite>N</cite> for source document citations (where N is reference number)",
+        "Use <web>N</web> for web-crawled content citations",
+        "Use <meta>N</meta> for document metadata citations",
+        "MINIMUM: Every paragraph must have citations on 95% of sentences",
+        "Target: ≥98% of sentences should be cited",
+        "Only opinion/transition sentences can be uncited"
+      ],
+      "citation_enforcement": [
+        "After writing each sentence, ask: 'Is this a fact?' If yes, add <cite>1</cite>",
+        "Prefer over-citation to under-citation",
+        "When in doubt, cite it",
+        "Descriptive sentences about techniques, measurements, or procedures ALWAYS need citations"
+      ],
+      "template": "Convert the following source material into a comprehensive uDOS knowledge guide.\n\n**CRITICAL CITATION REQUIREMENT**: You MUST add <cite>1</cite> after EVERY sentence that contains:\n- Facts or statistics\n- Measurements or specifications  \n- Techniques or procedures\n- Safety warnings or recommendations\n- Equipment or material descriptions\n- Any claim that came from the source material\n\n**ONLY EXEMPT**: Pure transition sentences like \"This guide covers...\" or \"The following sections explain...\"\n\n**Structure Requirements**:\n1. **Mandatory Citations**: ≥95% of sentences MUST have <cite>1</cite> tags\n2. **Markdown**: Use clear headers (##, ###), bullet lists, code blocks\n3. **Tone**: Professional, educational, practical\n4. **Length**: Comprehensive but under 100KB\n5. **Cross-references**: Use [[topic]] syntax for internal links\n\n**Citation Example**:\n\"Water should be boiled for at least 1 minute at sea level<cite>1</cite>. At altitudes above 2000 meters, extend boiling time to 3 minutes<cite>1</cite>.\"\n\nSource Material:\n{source_content}\n\n{crawled_content}\n\nGenerate the guide with MANDATORY citations on every factual sentence:"
+    },
+    "svg_generation_technical_kinetic": {
+      "description": "Technical-Kinetic SVG style - Monochrome, MCM geometry, kinetic flow",
+      "mandatory_constraints": {
+        "color": "STRICTLY BLACK (#000000) AND WHITE (#FFFFFF) ONLY. NO GRAY FILLS. NO GRADIENTS. NO RASTER EFFECTS.",
+        "structure": "Mid-Century Modern (MCM) geometry: clean circles, rectangles, precise angles (45°, 90° preferred)",
+        "typography": "Sans-serif fonts only (Helvetica, Arial): 12-16pt headers, 8-10pt labels",
+        "lines": "2-3px stroke weight consistently throughout",
+        "kinetic_flow": "All processes/connections must use exaggerated curved conduits, gears, or levers to show motion",
+        "shading": "Vector patterns ONLY: hatching (parallel lines), stipple (dots), wavy lines, undulating patterns. NO solid gray fills."
+      },
+      "diagram_types": {
+        "flowchart": {
+          "description": "Process diagrams with kinetic flow elements",
+          "requirements": [
+            "Use curved conduits with arrows for flow",
+            "Add gears/cogs at decision points",
+            "Exaggerate curves to show motion",
+            "Label each step clearly (8-10pt sans-serif)",
+            "Use hatching for emphasis, not solid fills"
+          ]
+        },
+        "architecture": {
+          "description": "System architecture and structure diagrams",
+          "requirements": [
+            "MCM geometry: perfect circles, clean rectangles",
+            "45° or 90° angles for connections",
+            "Layer components with clean separation",
+            "Use stipple pattern for background differentiation",
+            "2px stroke for structure, 3px for emphasis"
+          ]
+        },
+        "organic": {
+          "description": "Hand-illustrative style for natural subjects",
+          "requirements": [
+            "Flowing, irregular outlines (still black & white)",
+            "Wavy line shading for texture",
+            "Undulating patterns for organic materials",
+            "Varied line weight (2-3px) for depth",
+            "Labels with clean sans-serif type"
+          ]
+        },
+        "schematic": {
+          "description": "Technical diagrams with precise measurements",
+          "requirements": [
+            "Perfect geometric shapes",
+            "Dimension lines with arrows",
+            "Annotation callouts (leaders + labels)",
+            "Hatching for cross-sections",
+            "Scale indicator if applicable"
+          ]
+        }
+      },
+      "template": "Create a {diagram_type} SVG diagram with the following MANDATORY constraints:\n\n**ABSOLUTE RULES (NO EXCEPTIONS):**\n1. **COLOR**: ONLY black (#000000) and white (#FFFFFF). NO GRAY. NO GRADIENTS.\n2. **SHADING**: Vector patterns only (hatching, stipple, wavy lines). NO solid fills.\n3. **GEOMETRY**: Mid-Century Modern - clean circles, rectangles, 45°/90° angles\n4. **TYPOGRAPHY**: Sans-serif (Helvetica/Arial) - 12-16pt headers, 8-10pt labels\n5. **FLOW**: Curved conduits, gears, levers for all processes (exaggerated kinetic motion)\n6. **STROKES**: 2-3px weight consistently\n\n**SUBJECT**: {subject}\n\n**REQUIREMENTS**:\n{requirements}\n\n**OUTPUT**: Return only valid SVG code (no markdown, no explanations). Ensure compliance with all Technical-Kinetic constraints."
+    },
+    "ascii_generation": {
+      "description": "C64 PETSCII ASCII art for terminal display",
+      "template": "Create ASCII art diagram for: {subject}\n\nConstraints:\n- Use C64 PETSCII character set\n- Maximum width: 80 characters\n- Maximum height: 24 lines\n- Use box drawing characters: ┌─┐│└┘├┤┬┴┼\n- Include labels and annotations\n\nGenerate clean ASCII art:"
+    },
+    "teletext_generation": {
+      "description": "WST mosaic block Teletext graphics",
+      "template": "Create Teletext graphics for: {subject}\n\nConstraints:\n- WST 8-color palette: black, red, green, yellow, blue, magenta, cyan, white\n- 40×25 character grid\n- Mosaic blocks (2×3 pixel cells)\n- Use Level 1 compatibility\n- Output as HTML with inline styles\n\nGenerate Teletext HTML:"
+    },
+    "citation_extraction": {
+      "description": "Extract and format bibliography from citations",
+      "template": "Extract all citations from the following content and create a numbered bibliography:\n\nContent:\n{content}\n\nFormat:\n1. [Source title/URL] - [Author/Publisher] - [Date if available]\n2. ...\n\nGenerate bibliography:"
+    },
+    "quality_validation": {
+      "description": "Validate content quality and citation coverage",
+      "template": "Analyze the following content for quality:\n\nContent:\n{content}\n\nCheck:\n1. Citation coverage (% of sentences with citations)\n2. Markdown structure (valid headers, lists, code blocks)\n3. File size (should be < 100KB)\n4. Cross-reference integrity ([[topic]] links)\n5. Readability score\n\nProvide JSON report:\n{\n  \"citation_coverage\": 0.95,\n  \"structure_valid\": true,\n  \"file_size_kb\": 45,\n  \"broken_links\": [],\n  \"readability\": \"good\",\n  \"issues\": []\n}"
+    },
+    "web_crawl_enrichment": {
+      "description": "Identify knowledge gaps and suggest web sources",
+      "template": "Analyze this source document and identify knowledge gaps:\n\nSource:\n{source_content}\n\nIdentify:\n1. Missing topics that should be covered\n2. Incomplete sections needing more detail\n3. Suggested search queries for web enrichment\n4. Authoritative sources to consult (government, academic, established organizations)\n\nProvide JSON:\n{\n  \"gaps\": [\"topic1\", \"topic2\"],\n  \"incomplete_sections\": [\"section1\", \"section2\"],\n  \"search_queries\": [\"query1\", \"query2\"],\n  \"suggested_sources\": [\"url1\", \"url2\"]\n}"
+    }
+  },
+  "style_guide": {
+    "technical_kinetic_svg": {
+      "name": "Technical-Kinetic",
+      "description": "Monochrome MCM geometry with kinetic flow elements",
+      "palette": {
+        "foreground": "#000000",
+        "background": "#FFFFFF",
+        "allowed_colors": ["#000000", "#FFFFFF"],
+        "forbidden": ["gray", "gradients", "raster effects", "transparency"]
+      },
+      "patterns": {
+        "hatching": {
+          "description": "Parallel lines for shading",
+          "spacing": "2-4px",
+          "angle": "45° or 135°",
+          "usage": "Cross-sections, emphasis, depth"
+        },
+        "stipple": {
+          "description": "Dot patterns for texture",
+          "density": "sparse to dense (3-10px spacing)",
+          "usage": "Background differentiation, material texture"
+        },
+        "wavy": {
+          "description": "Undulating lines for organic materials",
+          "amplitude": "2-5px",
+          "frequency": "5-10px",
+          "usage": "Wood grain, water, fabric"
+        },
+        "undulating": {
+          "description": "Flowing patterns for natural elements",
+          "style": "irregular, hand-drawn feel",
+          "usage": "Terrain, organic shapes, natural materials"
+        }
+      },
+      "geometry": {
+        "circles": "Perfect circles with 2-3px stroke",
+        "rectangles": "Clean right angles, precise dimensions",
+        "angles": "Prefer 45° and 90° for clarity",
+        "curves": "Smooth bezier curves for flow (exaggerated for kinetic effect)"
+      },
+      "typography": {
+        "font_family": "Helvetica, Arial, sans-serif",
+        "header_size": "12-16pt",
+        "label_size": "8-10pt",
+        "annotation_size": "7-9pt",
+        "alignment": "left-aligned for labels, centered for titles"
+      },
+      "kinetic_elements": {
+        "gears": "Use at decision points, transitions",
+        "conduits": "Curved pipes/tubes for flow paths",
+        "levers": "For manual processes or triggers",
+        "arrows": "Bold, curved arrows showing direction",
+        "motion_lines": "Indicate movement/energy flow"
+      },
+      "file_requirements": {
+        "max_size": "50KB",
+        "viewBox": "0 0 800 600 (or appropriate for content)",
+        "xmlns": "http://www.w3.org/2000/svg",
+        "validation": "Must pass monochrome check (no grays)"
+      }
+    }
+  },
+  "examples": {
+    "flowchart_prompt": "Create a flowchart SVG diagram showing the water purification decision process. Include: source identification (stream/pond/rain), treatment method selection (boil/filter/chemical), and verification steps. Use curved conduits for flow, gears at decision points, and hatching for emphasis. STRICT: black & white only, MCM geometry, 2-3px strokes.",
+    "architecture_prompt": "Create an architecture SVG showing the uDOS system structure. Display: Core (center circle), Extensions (surrounding rectangles), Services (connecting layers). Use stipple pattern for background layers, 2px strokes for structure, 3px for main components. STRICT: monochrome, no gradients, MCM geometry.",
+    "organic_prompt": "Create an organic sketch SVG of an edible plant (dandelion). Show: roots, leaves, flower. Use wavy line shading for texture, varied line weight (2-3px) for depth, flowing irregular outlines. Label parts with 8pt sans-serif. STRICT: black & white only, vector patterns for shading."
+  },
+  "notes": [
+    "All prompts must enforce citation requirements for text generation",
+    "SVG generation must include explicit Technical-Kinetic constraints in every prompt",
+    "Validation prompts should return structured JSON for automated processing",
+    "Web crawl prompts should prioritize authoritative, legal, ethical sources",
+    "File size limits are enforced: guides < 100KB, SVGs < 50KB",
+    "Citation coverage target: ≥95% of content"
+  ]
+}

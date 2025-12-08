@@ -1,0 +1,176 @@
+{
+  "version": "1.2.15",
+  "last_updated": "2025-12-07",
+  "formats": {
+    "ascii": {
+      "description": "Plain text ASCII art templates",
+      "extension": ".txt",
+      "max_size_kb": 5,
+      "template_count": 25,
+      "categories": {
+        "flowcharts": ["flowchart_vertical", "flowchart_horizontal"],
+        "systems": ["system_components", "system_layers"],
+        "progress": ["progress_bar", "progress_steps"],
+        "funnels": ["funnel_conversion", "funnel_sales"],
+        "timelines": ["timeline_horizontal", "timeline_vertical", "timeline_gantt"],
+        "decisions": ["decision_tree", "decision_binary"],
+        "organization": ["org_chart", "org_flat"],
+        "networks": ["network_star", "network_mesh", "network_hierarchy"],
+        "data": ["table_simple", "matrix_grid"],
+        "ui": ["box_callout", "banner_header", "icon_symbols"],
+        "process": ["cycle_process", "arrow_process"]
+      }
+    },
+    "teletext": {
+      "description": "8-color teletext palettes for terminal rendering",
+      "extension": ".json",
+      "max_size_kb": 10,
+      "template_count": 4,
+      "palettes": [
+        {
+          "name": "classic",
+          "description": "High-contrast primary colors",
+          "file": "palette_classic.json"
+        },
+        {
+          "name": "earth",
+          "description": "Warm earthy tones for survival content",
+          "file": "palette_earth.json"
+        },
+        {
+          "name": "terminal",
+          "description": "Classic green phosphor CRT",
+          "file": "palette_terminal.json"
+        },
+        {
+          "name": "amber",
+          "description": "Vintage amber CRT aesthetic",
+          "file": "palette_amber.json"
+        }
+      ]
+    },
+    "svg": {
+      "description": "SVG base styles for AI-assisted generation",
+      "extension": ".json",
+      "max_size_kb": 50,
+      "template_count": 3,
+      "styles": [
+        {
+          "name": "technical",
+          "description": "Clean technical diagrams with precise lines",
+          "file": "style_technical.json",
+          "use_cases": ["technical documentation", "system architecture", "flowcharts"]
+        },
+        {
+          "name": "simple",
+          "description": "Minimalist black and white",
+          "file": "style_simple.json",
+          "use_cases": ["minimalist diagrams", "print-friendly", "high-contrast"]
+        },
+        {
+          "name": "detailed",
+          "description": "Rich colors and gradients",
+          "file": "style_detailed.json",
+          "use_cases": ["presentations", "reports", "polished documentation"]
+        }
+      ]
+    },
+    "sequence": {
+      "description": "Sequence diagram templates using js-sequence syntax",
+      "extension": ".txt",
+      "max_size_kb": 5,
+      "template_count": 5,
+      "renderer": "js-sequence",
+      "templates": [
+        {
+          "name": "message_flow",
+          "description": "Basic sequential messaging between actors",
+          "file": "message_flow.txt"
+        },
+        {
+          "name": "api_request",
+          "description": "REST API request/response pattern",
+          "file": "api_request.txt"
+        },
+        {
+          "name": "error_handling",
+          "description": "Error conditions and fallback sequences",
+          "file": "error_handling.txt"
+        },
+        {
+          "name": "multi_system",
+          "description": "Complex multi-service interactions",
+          "file": "multi_system.txt"
+        },
+        {
+          "name": "async_process",
+          "description": "Asynchronous job processing pattern",
+          "file": "async_process.txt"
+        }
+      ]
+    },
+    "flow": {
+      "description": "Flowchart templates using flowchart.js syntax",
+      "extension": ".txt",
+      "max_size_kb": 5,
+      "template_count": 5,
+      "renderer": "flowchart.js",
+      "templates": [
+        {
+          "name": "decision_flow",
+          "description": "Simple branching logic flowchart",
+          "file": "decision_flow.txt"
+        },
+        {
+          "name": "login_process",
+          "description": "User authentication flow",
+          "file": "login_process.txt"
+        },
+        {
+          "name": "data_pipeline",
+          "description": "Multi-stage data transformation",
+          "file": "data_pipeline.txt"
+        },
+        {
+          "name": "business_logic",
+          "description": "Complex multi-branch decision tree",
+          "file": "business_logic.txt"
+        },
+        {
+          "name": "error_recovery",
+          "description": "Retry logic with fallback paths",
+          "file": "error_recovery.txt"
+        }
+      ]
+    }
+  },
+  "usage": {
+    "make_command": {
+      "ascii": "MAKE --format ascii --template <name> --output <file>",
+      "teletext": "MAKE --format teletext --palette <name> --output <file>",
+      "svg": "MAKE --format svg --style <name> \"<description>\"",
+      "sequence": "MAKE --format sequence --template <name> --output <file>",
+      "flow": "MAKE --format flow --template <name> --output <file>"
+    },
+    "path_patterns": {
+      "ascii": "core/data/diagrams/ascii/<template>.txt",
+      "teletext": "core/data/diagrams/teletext/palette_<name>.json",
+      "svg": "core/data/diagrams/svg/style_<name>.json",
+      "sequence": "core/data/diagrams/sequence/<template>.txt",
+      "flow": "core/data/diagrams/flow/<template>.txt"
+    }
+  },
+  "credits": {
+    "version": "1.2.15",
+    "date": "December 2025",
+    "foundation": "v1.2.12 PATHS constants and folder structure",
+    "total_templates": 42,
+    "breakdown": {
+      "ascii": 25,
+      "teletext": 4,
+      "svg": 3,
+      "sequence": 5,
+      "flow": 5
+    }
+  }
+}

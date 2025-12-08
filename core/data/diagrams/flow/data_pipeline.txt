@@ -1,0 +1,19 @@
+# Data Processing Pipeline
+# Multi-stage data transformation flow
+
+st=>start: Receive Data
+validate=>condition: Valid Format?
+clean=>operation: Clean Data
+transform=>operation: Transform Schema
+enrich=>operation: Enrich with Metadata
+checkQuality=>condition: Quality OK?
+store=>operation: Store in Database
+quarantine=>operation: Move to Quarantine
+notify=>operation: Send Notification
+e=>end: Complete
+
+st->validate
+validate(yes)->clean->transform->enrich->checkQuality
+validate(no)->quarantine->notify->e
+checkQuality(yes)->store->notify->e
+checkQuality(no)->quarantine->notify->e

@@ -1,0 +1,17 @@
+{
+  "name": "Classic 8-Color Palette",
+  "description": "Standard teletext 8-color palette with high contrast",
+  "colors": {
+    "black": "#000000",
+    "red": "#FF0000",
+    "green": "#00FF00",
+    "yellow": "#FFFF00",
+    "blue": "#0000FF",
+    "magenta": "#FF00FF",
+    "cyan": "#00FFFF",
+    "white": "#FFFFFF"
+  },
+  "background": "#000000",
+  "foreground": "#FFFFFF",
+  "usage": "Default palette for high-contrast text-based displays"
+}

@@ -1,0 +1,21 @@
+# uPY v2.0.2 - Water Filter Construction Mission
+
+MISSION (CREATE|Water Filter Construction)
+SET (priority|high)                    # v2.0.2: (cmd|params)
+SET (location|AA340)                   # No quotes needed
+
+# Add knowledge guide
+GUIDE (ADD|tier3|DIY Water Filter)
+
+# Navigate to location
+MAP (GOTO|AA340|100)
+
+# Check mission status - v2.0.2 three formats
+[IF {$MISSION.STATUS} == 'ACTIVE': CHECKPOINT (SAVE|mission-start)]
+[IF {$MISSION.STATUS} == 'ACTIVE': PRINT ('Mission started at {$location}')]
+
+# Medium form with THEN/ELSE
+[IF {$priority} == 'high' THEN: FLAG (urgent) ELSE: FLAG (normal)]
+
+# Complete mission
+MISSION (COMPLETE)

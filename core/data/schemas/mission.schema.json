@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "uDOS Mission Schema",
+  "description": "Schema for mission definitions with workflow and checklist integration",
+  "type": "object",
+  "required": ["id", "title", "priority", "version"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique mission identifier (kebab-case)",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "description": "Mission title",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "description": {
+      "type": "string",
+      "description": "Mission description and objectives"
+    },
+    "priority": {
+      "type": "string",
+      "description": "Mission priority level",
+      "enum": ["high", "medium", "low"]
+    },
+    "status": {
+      "type": "string",
+      "description": "Current mission status",
+      "enum": ["not_started", "active", "paused", "completed", "archived", "cancelled"],
+      "default": "not_started"
+    },
+    "version": {
+      "type": "string",
+      "description": "Mission version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "created": {
+      "type": "string",
+      "description": "Creation timestamp",
+      "format": "date-time"
+    },
+    "started_at": {
+      "type": ["string", "null"],
+      "description": "Start timestamp",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": ["string", "null"],
+      "description": "Completion timestamp",
+      "format": "date-time"
+    },
+    "workflow_script": {
+      "type": "string",
+      "description": "Associated workflow .upy script (e.g., 'content-generation.upy')"
+    },
+    "related_guides": {
+      "type": "array",
+      "description": "Related knowledge guides",
+      "items": {
+        "type": "string",
+        "description": "Guide path (e.g., 'water/purification')"
+      }
+    },
+    "related_checklists": {
+      "type": "array",
+      "description": "Related checklists",
+      "items": {
+        "type": "string",
+        "description": "Checklist ID (e.g., 'water-storage-maintenance')"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "description": "Searchable tags",
+      "items": {
+        "type": "string"
+      }
+    },
+    "moves": {
+      "type": "array",
+      "description": "Mission milestones (moves)",
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Move ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "Move title"
+          },
+          "description": {
+            "type": "string",
+            "description": "Move description"
+          },
+          "steps": {
+            "type": "array",
+            "description": "Atomic steps within move",
+            "items": {
+              "type": "object",
+              "required": ["id", "title"],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "estimated_duration": {
+                  "type": "integer",
+                  "description": "Estimated duration in minutes"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["not_started", "in_progress", "completed", "skipped"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata",
+      "additionalProperties": true
+    }
+  }
+}

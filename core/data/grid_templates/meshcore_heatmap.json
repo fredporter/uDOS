@@ -1,0 +1,24 @@
+{
+  "name": "MeshCore Signal Heatmap",
+  "description": "Signal strength coverage visualization using gradient blocks",
+  "layer": 600,
+  "viewport": "STANDARD",
+  "dimensions": {
+    "rows": 4,
+    "columns": 6
+  },
+  "header": "Signal Coverage Grid (100%-0%)",
+  "footer": "Coverage: █=100% ▓=75% ▒=50% ░=25% ' '=0%",
+  "border": false,
+  "heatmap": true,
+  "signal_data": [
+    [100, 88, 66, 44, 22, 0],
+    [88, 100, 88, 66, 44, 22],
+    [66, 88, 100, 88, 66, 44],
+    [44, 66, 88, 100, 88, 66]
+  ],
+  "tile_prefix": "{{tile_base}}",
+  "variables": {
+    "tile_base": "AA340"
+  }
+}

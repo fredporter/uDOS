@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "layer_id": 600,
+  "layer_name": "cloud",
+  "layer_type": "atmospheric",
+  "description": "Cloud cover layer - weather systems, precipitation, atmospheric conditions",
+  "version": "1.0.0",
+  "altitude_range": {
+    "min_m": 1000,
+    "max_m": 12000,
+    "typical_m": 3000
+  },
+  "data_types": [
+    "cloud_cover_percent",
+    "cloud_type",
+    "precipitation",
+    "wind_speed",
+    "atmospheric_pressure"
+  ],
+  "cloud_types": {
+    "cirrus": {
+      "altitude_m": 6000,
+      "symbol": "-",
+      "precipitation": false,
+      "opacity": 0.2
+    },
+    "cumulus": {
+      "altitude_m": 2000,
+      "symbol": "o",
+      "precipitation": false,
+      "opacity": 0.5
+    },
+    "cumulonimbus": {
+      "altitude_m": 3000,
+      "symbol": "#",
+      "precipitation": true,
+      "opacity": 0.9
+    },
+    "stratus": {
+      "altitude_m": 1500,
+      "symbol": "=",
+      "precipitation": true,
+      "opacity": 0.7
+    },
+    "clear": {
+      "altitude_m": 0,
+      "symbol": " ",
+      "precipitation": false,
+      "opacity": 0.0
+    }
+  },
+  "precipitation_types": {
+    "none": {"symbol": " ", "intensity": 0},
+    "drizzle": {"symbol": ".", "intensity": 1},
+    "light_rain": {"symbol": ",", "intensity": 2},
+    "rain": {"symbol": "'", "intensity": 3},
+    "heavy_rain": {"symbol": "|", "intensity": 4},
+    "snow": {"symbol": "*", "intensity": 3},
+    "hail": {"symbol": "o", "intensity": 4}
+  },
+  "sample_tiles": {
+    "AA340": {
+      "name": "Sydney Weather",
+      "cloud_cover_percent": 30,
+      "cloud_type": "cumulus",
+      "precipitation": "none",
+      "wind_speed_kmh": 15,
+      "pressure_hpa": 1013
+    },
+    "JF57": {
+      "name": "London Weather",
+      "cloud_cover_percent": 75,
+      "cloud_type": "stratus",
+      "precipitation": "drizzle",
+      "wind_speed_kmh": 20,
+      "pressure_hpa": 1010
+    }
+  },
+  "metadata": {
+    "created": "2025-12-04",
+    "author": "uDOS v1.2.3",
+    "data_sources": [
+      "Synthetic weather patterns",
+      "Climate models"
+    ],
+    "update_frequency": "real-time (when integrated with weather API)",
+    "last_updated": "2025-12-04"
+  }
+}

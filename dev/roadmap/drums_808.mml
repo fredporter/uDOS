@@ -1,0 +1,89 @@
+; drums_808.mml
+; -------------------------------------------------------------------
+; TR-808 style drum patterns for an open-source, text-based groovebox.
+; This file is intended as a seed for Copilot to extend.
+;
+; Mapping concept (engine-dependent – adapt to your MML driver):
+;   C = 808 kick
+;   D = 808 snare
+;   E = 808 low tom
+;   F = 808 mid tom
+;   G = 808 hi tom / rim
+;   A = closed hat
+;   B = open hat / clap
+;
+; Groove: 4/4, 125 BPM, house / electro with 80s flavour.
+
+t125          ; tempo
+l16           ; default note length = 16th notes
+o4            ; base octave for drum mapping
+v14           ; main drum volume
+
+; -------------------------------------------------------------------
+; PATTERN: DRUM_MAIN_A
+; Classic four-on-the-floor 808 pattern (4 bars)
+; Kick on every beat, snare on 2 + 4, hats on 8ths.
+; Use as "MC-303 style" main groove.
+
+; Bar 1–4:
+;  Beat:   1   &   2   &   3   &   4   &
+;  Kick:   C               C
+;  Snare:          D               D
+;  Hats:   A   A   A   A   A   A   A   A
+
+; CHANNEL: drums main
+; (Some MML engines expect channel prefixes like "A", "B" etc.)
+
+; @808_KIT  ; uncomment / adapt if your engine supports drum kits
+
+[
+  ; bar 1
+  C--- A-A- D--- A-A- C--- A-A- D--- A-A-
+  ; bar 2 (add off-beat clap / open hat flavour)
+  C--- A-B- D--- A-A- C--- A-B- D--- A-A-
+  ; bar 3 (slight variation on hats)
+  C--- A-A- D-A- A-A- C--- A-A- D-A- A-A-
+  ; bar 4 (little fill with toms)
+  C--- A-A- D--- A-A- C--- A-A- D-EF A-B-
+]2           ; repeat this 4-bar phrase twice
+
+; -------------------------------------------------------------------
+; PATTERN: DRUM_BREAK_A
+; Simple breakdown: keep hats, drop most kicks, tease snare.
+; Good for 80s-style build ups.
+
+; bar 1–2: hats with sparse kicks
+[
+  ; bar 1
+  C--- A-A- ---- A-A- ---- A-A- ---- A-A-
+  ; bar 2 (snare teaser)
+  ---- A-A- D--- A-A- ---- A-A- D--- A-A-
+]2
+
+; -------------------------------------------------------------------
+; GAME SFX + FUNNY / NOSTALGIC HITS (drum-voice stubs)
+; These can be mapped to extra samples in your engine:
+;   High-pitched tom / rim = retro "UI blip" / "coin" sound
+;   Very short noise burst = "8-bit explosion" or "funny pop"
+
+; Example: 1-bar "coin pickup" fill at the end of a section.
+; Treat G as "coin" sample, B as "cartoon pop" sample.
+
+; COIN_FILL_A
+; place on a separate channel or at the end of DRUM_MAIN_A loop
+
+; v12          ; slightly lower volume for SFX layer
+; o5           ; higher octave mapping if your engine uses pitch
+
+; 16th-note run into the downbeat:
+; GGGG GGGG GGGG B---   ; coins → cartoon pop on beat 4
+
+; -------------------------------------------------------------------
+; TODO / HINTS FOR COPILOT
+; - Generate additional patterns:
+;   - DRUM_MAIN_B: electro / early hip-hop, sparser kicks, more claps.
+;   - DRUM_FILL_A/B: 1-bar and 2-bar tom runs in 808 style.
+;   - DRUM_GAME_A: 8-bit-influenced hats (alternating A / G) for
+;     "open-source retro game" levels.
+; - Comment patterns clearly so they can be chained by a groovebox-style
+;   engine (A, B, BREAK, FILL, etc).

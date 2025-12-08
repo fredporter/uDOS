@@ -1,0 +1,35 @@
+# Chicago Font Family - License
+
+This folder contains two Chicago font variants:
+
+## ChicagoFLF.ttf
+- **License**: Public Domain
+- **Author**: Robin Casady (recreation of Apple Chicago font)
+- **Status**: ✅ Free to distribute and modify
+- **Notes**: Classic System font recreation, widely used in retro projects
+- **No attribution required**
+
+## chicago-12-1.otf
+- **License**: Creative Commons Attribution Share Alike 3.0
+- **Author**: kamekku14 (FontStruct.com)
+- **Original**: Based on "Chicago 12" by Damien Guard
+- **Source**: https://fontstruct.com/fontstructions/show/2230457
+- **Status**: ✅ Free to distribute with attribution
+- **Requirements**:
+  - Must maintain attribution
+  - Derivative works must use same CC BY-SA 3.0 license
+  - See LICENSE-chicago-12-1.txt and README-chicago-12-1.txt for full details
+
+## Distribution Rights
+
+Both fonts are legally distributable with uDOS extensions. ChicagoFLF is recommended for maximum freedom (public domain), while chicago-12-1 offers an enhanced variant with CC BY-SA licensing.
+
+## Attribution
+
+When using chicago-12-1.otf, include:
+```
+Font: Chicago 12.1
+Author: kamekku14 (FontStruct.com)
+License: Creative Commons Attribution Share Alike 3.0
+Based on: Chicago 12 by Damien Guard
+```

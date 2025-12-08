@@ -1,0 +1,493 @@
+{
+  "id": "72-hour-bug-out-bag",
+  "title": "72-Hour Bug-Out Bag Checklist",
+  "category": "emergency",
+  "description": "Complete emergency evacuation bag for 3 days of self-sufficiency",
+  "version": "1.0.0",
+  "created": "2025-12-02T00:00:00Z",
+  "updated": "2025-12-02T00:00:00Z",
+  "author": "uDOS Knowledge Bank",
+  "difficulty": "intermediate",
+  "estimated_time": "2-3 hours",
+  "prerequisites": [
+    "Access to outdoor/camping supply store",
+    "Basic budget ($200-500)",
+    "Backpack (40-65L capacity)"
+  ],
+  "related_guides": [
+    "water/purification",
+    "fire/starting-methods",
+    "shelter/emergency-bivvy",
+    "navigation/compass-basics"
+  ],
+  "tags": [
+    "emergency",
+    "evacuation",
+    "survival",
+    "bug-out",
+    "72-hour-kit",
+    "disaster-prep"
+  ],
+  "items": [
+    {
+      "id": "bag_selection",
+      "text": "Bag Selection & Testing",
+      "category": "pre-check",
+      "priority": "critical",
+      "subitems": [
+        {
+          "id": "pack_size",
+          "text": "Appropriate pack size (40-65L capacity)"
+        },
+        {
+          "id": "straps",
+          "text": "Comfortable shoulder straps and hip belt"
+        },
+        {
+          "id": "attachment",
+          "text": "External attachment points (MOLLE/loops)"
+        },
+        {
+          "id": "waterproof",
+          "text": "Water-resistant or has rain cover"
+        },
+        {
+          "id": "weight_test",
+          "text": "Test weight when loaded (max 20-25% body weight)"
+        }
+      ]
+    },
+    {
+      "id": "water_storage",
+      "text": "Water Storage (3L minimum)",
+      "category": "water",
+      "priority": "critical",
+      "quantity": 3,
+      "unit": "liters",
+      "subitems": [
+        {
+          "id": "nalgene",
+          "text": "2x 1L Nalgene bottles or equivalent (BPA-free)"
+        },
+        {
+          "id": "collapsible",
+          "text": "1x collapsible water container (2L+)"
+        },
+        {
+          "id": "metal_bottle",
+          "text": "1x metal water bottle or canteen (can boil water)"
+        }
+      ]
+    },
+    {
+      "id": "water_purification",
+      "text": "Water Purification (Multi-barrier approach)",
+      "category": "water",
+      "priority": "critical",
+      "notes": "Have at least 3 methods for water treatment",
+      "subitems": [
+        {
+          "id": "filter",
+          "text": "Water filter (Sawyer Mini, LifeStraw, or MSR)"
+        },
+        {
+          "id": "tablets",
+          "text": "50x water purification tablets (backup)"
+        },
+        {
+          "id": "pre_filter",
+          "text": "1x bandana or coffee filter (pre-filter sediment)"
+        },
+        {
+          "id": "bleach",
+          "text": "Small bottle unscented bleach (8 drops/gallon method)"
+        }
+      ]
+    },
+    {
+      "id": "shelter_basic",
+      "text": "Basic Shelter Equipment",
+      "category": "shelter",
+      "priority": "critical",
+      "subitems": [
+        {
+          "id": "bivvy",
+          "text": "1x emergency bivvy or space blanket"
+        },
+        {
+          "id": "tarp",
+          "text": "1x tarp (8x10ft minimum) with grommets"
+        },
+        {
+          "id": "paracord",
+          "text": "50ft paracord (550lb test)"
+        },
+        {
+          "id": "ground_pad",
+          "text": "1x ground pad or closed-cell foam mat"
+        },
+        {
+          "id": "tent",
+          "text": "Tent (adds weight but provides comfort)",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "id": "warmth",
+      "text": "Warmth & Insulation",
+      "category": "shelter",
+      "priority": "high",
+      "subitems": [
+        {
+          "id": "sleeping_bag",
+          "text": "Wool blanket or compact sleeping bag (rated for climate)"
+        },
+        {
+          "id": "mylar",
+          "text": "2x emergency Mylar blankets (backup)"
+        },
+        {
+          "id": "socks",
+          "text": "Extra socks (wool, 2-3 pairs)"
+        },
+        {
+          "id": "hat",
+          "text": "Warm hat/beanie"
+        },
+        {
+          "id": "gloves",
+          "text": "Gloves (winter) or sun gloves (summer)"
+        }
+      ]
+    },
+    {
+      "id": "clothing",
+      "text": "Clothing Layers (3-layer system)",
+      "category": "shelter",
+      "priority": "high",
+      "notes": "Avoid cotton - use wool or synthetics",
+      "subitems": [
+        {
+          "id": "base_layer",
+          "text": "Base layer (moisture-wicking, not cotton)"
+        },
+        {
+          "id": "mid_layer",
+          "text": "Mid layer (fleece or wool)"
+        },
+        {
+          "id": "outer_layer",
+          "text": "Outer layer (rain jacket, windproof)"
+        },
+        {
+          "id": "underwear",
+          "text": "Extra underwear (2-3 sets)"
+        },
+        {
+          "id": "bandana",
+          "text": "Bandana or shemagh (multipurpose)"
+        }
+      ]
+    },
+    {
+      "id": "fire_starting",
+      "text": "Fire Starting Equipment (3+ methods)",
+      "category": "fire",
+      "priority": "critical",
+      "notes": "Always have backup methods in waterproof container",
+      "subitems": [
+        {
+          "id": "lighter",
+          "text": "2x BIC lighters (tested, full)"
+        },
+        {
+          "id": "matches",
+          "text": "Waterproof matches (25+ count)"
+        },
+        {
+          "id": "ferro_rod",
+          "text": "Ferro rod with striker"
+        },
+        {
+          "id": "tinder",
+          "text": "Dry tinder (cotton balls + petroleum jelly)"
+        },
+        {
+          "id": "magnesium",
+          "text": "Magnesium fire starter (optional backup)",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "id": "first_aid",
+      "text": "First Aid Kit",
+      "category": "medical",
+      "priority": "critical",
+      "notes": "Check expiration dates quarterly",
+      "subitems": [
+        {
+          "id": "bandages",
+          "text": "Assorted bandages (10+)"
+        },
+        {
+          "id": "gauze",
+          "text": "Sterile gauze pads (5+)"
+        },
+        {
+          "id": "tape",
+          "text": "Medical tape"
+        },
+        {
+          "id": "antiseptic",
+          "text": "Antiseptic wipes (10+)"
+        },
+        {
+          "id": "pain_relief",
+          "text": "Pain relievers (ibuprofen, acetaminophen)"
+        },
+        {
+          "id": "antibiotic",
+          "text": "Antibiotic ointment"
+        },
+        {
+          "id": "tweezers",
+          "text": "Tweezers/scissors"
+        },
+        {
+          "id": "emergency_blanket",
+          "text": "Emergency thermal blanket"
+        }
+      ]
+    },
+    {
+      "id": "food",
+      "text": "Food (72 hours / 6,000+ calories)",
+      "category": "food",
+      "priority": "high",
+      "quantity": 6000,
+      "unit": "calories",
+      "notes": "High-calorie, long shelf-life items only",
+      "subitems": [
+        {
+          "id": "energy_bars",
+          "text": "Energy/protein bars (12+)"
+        },
+        {
+          "id": "trail_mix",
+          "text": "Trail mix or nuts (1lb)"
+        },
+        {
+          "id": "freeze_dried",
+          "text": "Freeze-dried meals (3-6 pouches)"
+        },
+        {
+          "id": "jerky",
+          "text": "Beef jerky or dried meat"
+        },
+        {
+          "id": "instant_coffee",
+          "text": "Instant coffee/tea (morale)",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "id": "navigation",
+      "text": "Navigation Tools",
+      "category": "navigation",
+      "priority": "high",
+      "subitems": [
+        {
+          "id": "compass",
+          "text": "Compass (quality, liquid-filled)"
+        },
+        {
+          "id": "maps",
+          "text": "Local topographic maps (laminated)"
+        },
+        {
+          "id": "gps",
+          "text": "GPS device or phone with offline maps",
+          "optional": true
+        },
+        {
+          "id": "whistle",
+          "text": "Emergency whistle"
+        }
+      ]
+    },
+    {
+      "id": "tools",
+      "text": "Essential Tools",
+      "category": "tools",
+      "priority": "high",
+      "subitems": [
+        {
+          "id": "knife",
+          "text": "Fixed-blade knife (4-6 inch)"
+        },
+        {
+          "id": "multi_tool",
+          "text": "Multi-tool (Leatherman, Gerber)"
+        },
+        {
+          "id": "duct_tape",
+          "text": "Duct tape (wrapped on stick)"
+        },
+        {
+          "id": "cordage",
+          "text": "Extra cordage/rope (100ft)"
+        },
+        {
+          "id": "saw",
+          "text": "Folding saw or wire saw",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "id": "light",
+      "text": "Lighting",
+      "category": "tools",
+      "priority": "high",
+      "subitems": [
+        {
+          "id": "headlamp",
+          "text": "LED headlamp (hands-free)"
+        },
+        {
+          "id": "flashlight",
+          "text": "Backup flashlight"
+        },
+        {
+          "id": "batteries",
+          "text": "Extra batteries (same type)"
+        },
+        {
+          "id": "glow_sticks",
+          "text": "Glow sticks (emergency marking)"
+        }
+      ]
+    },
+    {
+      "id": "communication",
+      "text": "Communication & Signaling",
+      "category": "communication",
+      "priority": "medium",
+      "subitems": [
+        {
+          "id": "radio",
+          "text": "Hand-crank emergency radio",
+          "optional": true
+        },
+        {
+          "id": "phone",
+          "text": "Charged phone with backup battery"
+        },
+        {
+          "id": "signal_mirror",
+          "text": "Signal mirror"
+        },
+        {
+          "id": "notepad",
+          "text": "Waterproof notepad + pencil"
+        }
+      ]
+    },
+    {
+      "id": "hygiene",
+      "text": "Hygiene & Sanitation",
+      "category": "hygiene",
+      "priority": "medium",
+      "subitems": [
+        {
+          "id": "toilet_paper",
+          "text": "Toilet paper (1 roll in ziplock)"
+        },
+        {
+          "id": "trowel",
+          "text": "Small trowel (for cat holes)"
+        },
+        {
+          "id": "soap",
+          "text": "Biodegradable soap"
+        },
+        {
+          "id": "toothbrush",
+          "text": "Toothbrush + toothpaste (travel size)"
+        },
+        {
+          "id": "hand_sanitizer",
+          "text": "Hand sanitizer (alcohol-based)"
+        }
+      ]
+    },
+    {
+      "id": "documents",
+      "text": "Important Documents (Waterproof container)",
+      "category": "documents",
+      "priority": "critical",
+      "notes": "Make copies, keep originals safe at home",
+      "subitems": [
+        {
+          "id": "id",
+          "text": "Photocopies of ID, passport"
+        },
+        {
+          "id": "insurance",
+          "text": "Insurance cards, policy numbers"
+        },
+        {
+          "id": "contacts",
+          "text": "Emergency contact list (written)"
+        },
+        {
+          "id": "cash",
+          "text": "Cash in small bills ($200+ suggested)"
+        },
+        {
+          "id": "photos",
+          "text": "Family photos (for reunification)"
+        }
+      ]
+    },
+    {
+      "id": "final_check",
+      "text": "Final Verification",
+      "category": "maintenance",
+      "priority": "critical",
+      "notes": "Do this quarterly",
+      "subitems": [
+        {
+          "id": "expiration",
+          "text": "Check all expiration dates (food, meds, batteries)"
+        },
+        {
+          "id": "weight_test_final",
+          "text": "Test full pack weight (walk 1 mile)"
+        },
+        {
+          "id": "accessibility",
+          "text": "Verify quick-access items are reachable"
+        },
+        {
+          "id": "season_adjust",
+          "text": "Adjust for current season (add/remove clothing)"
+        },
+        {
+          "id": "location",
+          "text": "Store in accessible location known to all family"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "season": "all",
+    "location_type": "any",
+    "skill_level": "beginner",
+    "pack_weight_target": "15-20 lbs",
+    "review_frequency": "quarterly"
+  }
+}

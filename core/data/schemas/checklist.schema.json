@@ -1,0 +1,186 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "uDOS Checklist Schema",
+  "description": "Schema for interactive checklists with progress tracking and guide integration",
+  "type": "object",
+  "required": ["id", "title", "category", "items", "version"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier (kebab-case)",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable title",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "category": {
+      "type": "string",
+      "description": "Checklist category",
+      "enum": [
+        "emergency",
+        "daily",
+        "weekly",
+        "monthly",
+        "project",
+        "maintenance",
+        "setup",
+        "preparation",
+        "inventory"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of checklist purpose"
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "created": {
+      "type": "string",
+      "description": "Creation date (ISO 8601)",
+      "format": "date-time"
+    },
+    "updated": {
+      "type": "string",
+      "description": "Last update date (ISO 8601)",
+      "format": "date-time"
+    },
+    "author": {
+      "type": "string",
+      "description": "Checklist author/creator"
+    },
+    "difficulty": {
+      "type": "string",
+      "description": "Difficulty level",
+      "enum": ["beginner", "intermediate", "advanced", "expert"]
+    },
+    "estimated_time": {
+      "type": "string",
+      "description": "Estimated completion time (e.g., '30 minutes', '2 hours', '1 day')"
+    },
+    "related_guides": {
+      "type": "array",
+      "description": "Related knowledge guides",
+      "items": {
+        "type": "string",
+        "description": "Guide path (e.g., 'water/purification/boiling')"
+      }
+    },
+    "related_checklists": {
+      "type": "array",
+      "description": "Related checklists",
+      "items": {
+        "type": "string",
+        "description": "Checklist ID"
+      }
+    },
+    "prerequisites": {
+      "type": "array",
+      "description": "Required items or knowledge before starting",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "description": "Searchable tags",
+      "items": {
+        "type": "string"
+      }
+    },
+    "items": {
+      "type": "array",
+      "description": "Checklist items",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "text"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique item ID within checklist",
+            "pattern": "^[a-z0-9_]+$"
+          },
+          "text": {
+            "type": "string",
+            "description": "Item description",
+            "minLength": 1
+          },
+          "optional": {
+            "type": "boolean",
+            "description": "Whether item is optional",
+            "default": false
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Required quantity (for inventory items)",
+            "minimum": 1
+          },
+          "unit": {
+            "type": "string",
+            "description": "Unit of measurement (e.g., 'liters', 'days', 'each')"
+          },
+          "category": {
+            "type": "string",
+            "description": "Item sub-category for grouping"
+          },
+          "priority": {
+            "type": "string",
+            "description": "Item priority",
+            "enum": ["critical", "high", "medium", "low"]
+          },
+          "notes": {
+            "type": "string",
+            "description": "Additional notes or instructions"
+          },
+          "subitems": {
+            "type": "array",
+            "description": "Nested sub-items",
+            "items": {
+              "type": "object",
+              "required": ["id", "text"],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9_]+$"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "optional": {
+                  "type": "boolean",
+                  "default": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata",
+      "properties": {
+        "season": {
+          "type": "string",
+          "enum": ["spring", "summer", "autumn", "winter", "all"]
+        },
+        "location_type": {
+          "type": "string",
+          "enum": ["urban", "suburban", "rural", "wilderness", "any"]
+        },
+        "skill_level": {
+          "type": "string",
+          "enum": ["novice", "beginner", "intermediate", "advanced", "expert"]
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

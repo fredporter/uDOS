@@ -1,0 +1,153 @@
+{
+  "name": "Technical-Kinetic",
+  "version": "1.1.6",
+  "description": "Monochrome MCM geometry with kinetic flow - strict black & white line art",
+  "author": "uDOS Design System",
+  "created": "2025-11-30",
+
+  "constraints": {
+    "color": "STRICTLY BLACK (#000000) and WHITE (#FFFFFF) only. NO GRAY. NO GRADIENTS.",
+    "geometry": "Mid-Century Modern (MCM) - clean circles, rectangles, precise 45°/90° angles",
+    "typography": "Sans-serif fonts only (Helvetica, Arial): 12-16pt headers, 8-10pt labels",
+    "lines": "2-3px stroke weight consistently throughout all elements",
+    "kinetic_flow": "All processes/connections must use exaggerated curved conduits, gears, or levers",
+    "shading": "Vector patterns ONLY: hatching (parallel lines), stipple (dots), wavy lines, undulating patterns. NO solid gray fills."
+  },
+
+  "diagram_types": {
+    "flowchart": {
+      "description": "Process diagrams with kinetic flow elements",
+      "requirements": [
+        "Curved conduits with directional arrows for flow",
+        "Gears/cogs at decision/transformation points",
+        "Exaggerated curves to show motion/dynamics",
+        "Clear step labels (8-10pt sans-serif)",
+        "Hatching patterns for emphasis zones"
+      ],
+      "examples": [
+        "examples/water-purification-flowchart.svg",
+        "examples/fire-starting-process.svg"
+      ]
+    },
+    "architecture": {
+      "description": "System architecture and structure diagrams",
+      "requirements": [
+        "Perfect geometric shapes (circles, rectangles)",
+        "45° or 90° angles for all connections",
+        "Layered components with clear separation",
+        "Stipple pattern for background differentiation",
+        "2px stroke for structure, 3px for emphasis"
+      ],
+      "examples": [
+        "examples/shelter-structure.svg",
+        "examples/tool-anatomy.svg"
+      ]
+    },
+    "organic": {
+      "description": "Hand-illustrative style for natural subjects",
+      "requirements": [
+        "Flowing, irregular outlines (still black & white)",
+        "Wavy line shading for texture/depth",
+        "Undulating patterns for organic materials",
+        "Varied line weight (2-3px) for depth perception",
+        "Clean sans-serif labels with leader lines"
+      ],
+      "examples": [
+        "examples/plant-identification.svg",
+        "examples/animal-tracking.svg"
+      ]
+    },
+    "schematic": {
+      "description": "Technical diagrams with precise measurements",
+      "requirements": [
+        "Perfect geometric shapes and proportions",
+        "Dimension lines with arrows and measurements",
+        "Annotation callouts with leaders",
+        "Hatching for cross-sections",
+        "Scale indicator when applicable"
+      ],
+      "examples": [
+        "examples/trap-schematic.svg",
+        "examples/knot-diagram.svg"
+      ]
+    }
+  },
+
+  "reference_images": {
+    "description": "Load these reference images when generating diagrams to ensure style consistency",
+    "max_count": 14,
+    "images": [
+      {
+        "filename": "01-flowchart-clean.png",
+        "description": "Example flowchart with curved conduits and kinetic flow",
+        "demonstrates": ["curved_conduits", "kinetic_flow", "process_arrows"]
+      },
+      {
+        "filename": "02-architecture-mcm.png",
+        "description": "MCM geometry example with perfect shapes and angles",
+        "demonstrates": ["mcm_geometry", "clean_circles", "90_degree_angles"]
+      },
+      {
+        "filename": "03-kinetic-flow.png",
+        "description": "Exaggerated kinetic elements - gears, levers, conduits",
+        "demonstrates": ["gears", "levers", "motion_indicators"]
+      },
+      {
+        "filename": "04-hatching-pattern.png",
+        "description": "Vector pattern examples for shading",
+        "demonstrates": ["hatching", "stipple", "wavy_lines"]
+      },
+      {
+        "filename": "05-typography.png",
+        "description": "Sans-serif typography examples with proper sizing",
+        "demonstrates": ["sans_serif", "label_sizing", "hierarchy"]
+      },
+      {
+        "filename": "06-curved-conduits.png",
+        "description": "Flow elements showing exaggerated curves",
+        "demonstrates": ["curved_pipes", "directional_arrows", "flow_dynamics"]
+      },
+      {
+        "filename": "07-gears-cogs.png",
+        "description": "Mechanical elements for transformation/decision points",
+        "demonstrates": ["gears", "cogs", "mechanical_elements"]
+      }
+    ],
+    "placeholder": "⚠️ Reference images must be created manually. See README.md for guidelines."
+  },
+
+  "model_config": {
+    "primary_model": "gemini-2.0-flash-exp",
+    "fallback_model": "gemini-exp-1206",
+    "use_pro_for_refinement": true,
+    "output_format": "png",
+    "resolution": "1200x900",
+    "dpi": 300,
+    "temperature": 0.4,
+    "top_p": 0.9
+  },
+
+  "vectorization": {
+    "method": "potrace",
+    "fallback": "vtracer",
+    "stroke_width": 2.5,
+    "simplify_paths": true,
+    "remove_artifacts": true,
+    "preserve_corners": true
+  },
+
+  "validation": {
+    "enforce_monochrome": true,
+    "forbid_gradients": true,
+    "forbid_raster_images": true,
+    "forbid_gray_fills": true,
+    "require_stroke_consistency": true,
+    "max_svg_size_kb": 50
+  },
+
+  "usage": {
+    "command": "GENERATE SVG \"<subject>\" --style technical-kinetic --type <diagram_type>",
+    "ucode": "[GENERATE|svg|<subject>|style=technical-kinetic|type=<diagram_type>]",
+    "batch": "See sandbox/workflow/content_generation.uscript for batch examples"
+  }
+}

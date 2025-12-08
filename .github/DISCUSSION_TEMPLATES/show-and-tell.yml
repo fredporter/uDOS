@@ -1,0 +1,69 @@
+labels: [showcase, community]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🎨 Show & Tell
+
+        Share what you've built with uDOS! This could be:
+        - Extensions you've created
+        - Knowledge guides you've written
+        - Creative workflows or scripts
+        - Integration with other tools
+        - Interesting use cases
+
+  - type: input
+    id: title
+    attributes:
+      label: Project Title
+      description: What did you build?
+      placeholder: "My Mushroom Foraging Guide Collection"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Tell us about your project
+      placeholder: |
+        Created a comprehensive guide to edible mushrooms in the Pacific Northwest...
+    validations:
+      required: true
+
+  - type: textarea
+    id: demo
+    attributes:
+      label: Screenshots/Demo
+      description: |
+        Share screenshots, ASCII art, or demo output
+        Tip: You can drag & drop images or paste ASCII art
+      placeholder: |
+        ```
+        [Your uDOS output here]
+        ```
+    validations:
+      required: false
+
+  - type: input
+    id: repo
+    attributes:
+      label: Repository/Link
+      description: Optional - link to your code, guide, or extension
+      placeholder: "https://github.com/username/udos-extension"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: category
+    attributes:
+      label: Project Type
+      description: What kind of project is this?
+      options:
+        - label: Extension (plugin/add-on)
+        - label: Knowledge guide/content
+        - label: uCODE script/workflow
+        - label: Integration with external tool
+        - label: Theme or visual customization
+        - label: Other creative use

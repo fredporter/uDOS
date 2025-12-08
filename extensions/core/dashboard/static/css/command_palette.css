@@ -1,0 +1,129 @@
+/* Command Palette Styles */
+.command-palette {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    max-width: 90vw;
+    background: var(--bg-color);
+    border: 2px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    font-family: var(--font-family);
+}
+
+.command-palette.hidden {
+    display: none;
+}
+
+.command-palette-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.command-input-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.command-input-wrapper i {
+    color: var(--text-muted);
+    margin-right: 8px;
+}
+
+.command-input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 16px;
+    outline: none;
+    padding: 4px;
+}
+
+.command-input::placeholder {
+    color: var(--text-muted);
+}
+
+.command-shortcut {
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.command-results {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.command-result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+}
+
+.command-result:hover {
+    background: var(--hover-bg);
+}
+
+.command-result.selected {
+    background: var(--selection-bg);
+    border-left-color: var(--accent-color);
+}
+
+.command-result-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.command-result i {
+    color: var(--text-muted);
+    width: 16px;
+    text-align: center;
+}
+
+.command-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.command-name {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.command-description {
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.command-category {
+    color: var(--text-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+/* Animation for widget focus */
+.widget-highlight {
+    animation: highlight-pulse 2s ease-out;
+}
+
+@keyframes highlight-pulse {
+    0% {
+        box-shadow: 0 0 0 0 var(--accent-color);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    }
+}

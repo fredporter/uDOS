@@ -1,0 +1,844 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Knowledge Bank Master Topic List",
+  "description": "Comprehensive list of survival knowledge topics for gap analysis and content generation",
+  "version": "1.0.0",
+  "last_updated": "2025-12-03",
+
+  "categories": {
+    "water": {
+      "current_count": 26,
+      "target_count": 40,
+      "priority": "critical",
+      "topics": {
+        "existing": [
+          "boiling",
+          "filtration",
+          "purification-methods",
+          "collection-techniques",
+          "storage-basics",
+          "emergency-sources",
+          "solar-distillation",
+          "chemical-treatment",
+          "natural-indicators",
+          "conservation",
+          "contamination-risks",
+          "testing-basics",
+          "portable-filters",
+          "diy-systems",
+          "rainwater-harvesting",
+          "spring-identification",
+          "well-basics",
+          "transport-methods",
+          "seasonal-considerations",
+          "greywater-recycling",
+          "ice-snow-melting",
+          "coastal-desalination",
+          "plant-transpiration",
+          "emergency-rationing",
+          "quality-assessment",
+          "container-safety"
+        ],
+        "planned": [
+          {
+            "id": "water-testing-chemical",
+            "title": "Chemical Water Testing Methods",
+            "priority": "high",
+            "description": "pH, hardness, contaminants",
+            "difficulty": "intermediate",
+            "word_count_target": 800
+          },
+          {
+            "id": "water-testing-biological",
+            "title": "Biological Water Testing",
+            "priority": "high",
+            "description": "Bacteria, parasites, protozoa detection",
+            "difficulty": "advanced",
+            "word_count_target": 900
+          },
+          {
+            "id": "desalination-solar-still",
+            "title": "Solar Still Construction",
+            "priority": "medium",
+            "description": "Passive desalination using solar energy",
+            "difficulty": "intermediate",
+            "word_count_target": 700
+          },
+          {
+            "id": "desalination-reverse-osmosis",
+            "title": "Reverse Osmosis Filtration",
+            "priority": "medium",
+            "description": "Mechanical desalination systems",
+            "difficulty": "advanced",
+            "word_count_target": 850
+          },
+          {
+            "id": "storage-containers-comparison",
+            "title": "Water Storage Container Types",
+            "priority": "high",
+            "description": "Materials, capacity, pros/cons",
+            "difficulty": "beginner",
+            "word_count_target": 600
+          },
+          {
+            "id": "rainwater-harvesting-systems",
+            "title": "Rainwater Harvesting System Design",
+            "priority": "medium",
+            "description": "Roof collection, filtration, storage",
+            "difficulty": "intermediate",
+            "word_count_target": 1000
+          },
+          {
+            "id": "well-drilling-basics",
+            "title": "Hand-Dug Well Construction",
+            "priority": "medium",
+            "description": "Location, depth, lining, safety",
+            "difficulty": "advanced",
+            "word_count_target": 1200
+          },
+          {
+            "id": "spring-protection",
+            "title": "Spring Source Protection",
+            "priority": "medium",
+            "description": "Spring box, pipe installation, maintenance",
+            "difficulty": "intermediate",
+            "word_count_target": 750
+          },
+          {
+            "id": "waterborne-disease-prevention",
+            "title": "Waterborne Disease Prevention",
+            "priority": "critical",
+            "description": "Cholera, dysentery, giardia, cryptosporidium",
+            "difficulty": "intermediate",
+            "word_count_target": 900
+          },
+          {
+            "id": "uv-purification",
+            "title": "UV Light Water Purification",
+            "priority": "high",
+            "description": "SteriPEN, solar UV, effectiveness",
+            "difficulty": "intermediate",
+            "word_count_target": 650
+          },
+          {
+            "id": "ceramic-filter-maintenance",
+            "title": "Ceramic Filter Care and Maintenance",
+            "priority": "medium",
+            "description": "Cleaning, flow rate, lifespan",
+            "difficulty": "beginner",
+            "word_count_target": 500
+          },
+          {
+            "id": "activated-carbon-filtration",
+            "title": "Activated Carbon Filtration",
+            "priority": "medium",
+            "description": "How it works, limitations, replacement",
+            "difficulty": "intermediate",
+            "word_count_target": 700
+          },
+          {
+            "id": "water-hauling-methods",
+            "title": "Water Transport and Hauling",
+            "priority": "low",
+            "description": "Containers, carrying techniques, distance",
+            "difficulty": "beginner",
+            "word_count_target": 550
+          },
+          {
+            "id": "emergency-water-sources-urban",
+            "title": "Urban Emergency Water Sources",
+            "priority": "high",
+            "description": "Hot water heater, toilet tank, pipes",
+            "difficulty": "beginner",
+            "word_count_target": 600
+          }
+        ]
+      }
+    },
+
+    "fire": {
+      "current_count": 20,
+      "target_count": 35,
+      "priority": "critical",
+      "topics": {
+        "existing": [
+          "friction-methods",
+          "bow-drill",
+          "hand-drill",
+          "fire-plow",
+          "spark-methods",
+          "flint-steel",
+          "ferro-rod",
+          "battery-methods",
+          "fire-lays",
+          "tinder-selection",
+          "kindling-preparation",
+          "fuel-wood",
+          "fire-starting-wet",
+          "coal-bed-cooking",
+          "signal-fires",
+          "fire-safety",
+          "fire-maintenance",
+          "ember-preservation",
+          "fire-reflector-walls",
+          "smoke-management"
+        ],
+        "planned": [
+          {
+            "id": "fire-safety-protocols",
+            "title": "Wilderness Fire Safety Protocols",
+            "priority": "critical",
+            "description": "Clearance, control, extinguishing",
+            "difficulty": "beginner",
+            "word_count_target": 800
+          },
+          {
+            "id": "ember-preservation-techniques",
+            "title": "Ember Preservation and Transport",
+            "priority": "medium",
+            "description": "Punk wood, char cloth, ember carriers",
+            "difficulty": "intermediate",
+            "word_count_target": 650
+          },
+          {
+            "id": "wet-conditions-fire-starting",
+            "title": "Fire Starting in Wet Conditions",
+            "priority": "high",
+            "description": "Finding dry materials, feather sticks",
+            "difficulty": "advanced",
+            "word_count_target": 900
+          },
+          {
+            "id": "signal-fire-construction",
+            "title": "Signal Fire Design and Use",
+            "priority": "medium",
+            "description": "Visibility, smoke production, timing",
+            "difficulty": "intermediate",
+            "word_count_target": 600
+          },
+          {
+            "id": "fire-lay-comparison",
+            "title": "Fire Lay Types Comparison",
+            "priority": "high",
+            "description": "Teepee, log cabin, lean-to, platform, star",
+            "difficulty": "beginner",
+            "word_count_target": 750
+          },
+          {
+            "id": "coal-bed-cooking-detailed",
+            "title": "Coal Bed Cooking Techniques",
+            "priority": "medium",
+            "description": "Temperature control, timing, food types",
+            "difficulty": "intermediate",
+            "word_count_target": 700
+          },
+          {
+            "id": "fire-reflector-walls",
+            "title": "Fire Reflector Wall Construction",
+            "priority": "medium",
+            "description": "Heat reflection, materials, positioning",
+            "difficulty": "intermediate",
+            "word_count_target": 550
+          },
+          {
+            "id": "smoke-management",
+            "title": "Campfire Smoke Management",
+            "priority": "low",
+            "description": "Wind, fuel selection, positioning",
+            "difficulty": "beginner",
+            "word_count_target": 500
+          },
+          {
+            "id": "fire-extinguishing-methods",
+            "title": "Safe Fire Extinguishing",
+            "priority": "critical",
+            "description": "Water, soil, verification",
+            "difficulty": "beginner",
+            "word_count_target": 600
+          },
+          {
+            "id": "friction-fire-detailed",
+            "title": "Friction Fire Master Guide",
+            "priority": "high",
+            "description": "Bow drill, hand drill, fire plow comparison",
+            "difficulty": "advanced",
+            "word_count_target": 1200
+          },
+          {
+            "id": "natural-tinder-materials",
+            "title": "Natural Tinder Material Guide",
+            "priority": "high",
+            "description": "Bark, grass, fungi, down, availability",
+            "difficulty": "beginner",
+            "word_count_target": 700
+          },
+          {
+            "id": "fire-maintenance-schedules",
+            "title": "Long-Term Fire Maintenance",
+            "priority": "medium",
+            "description": "Feeding schedule, overnight, restarting",
+            "difficulty": "intermediate",
+            "word_count_target": 600
+          },
+          {
+            "id": "dutch-oven-cooking",
+            "title": "Dutch Oven Campfire Cooking",
+            "priority": "low",
+            "description": "Temperature zones, recipes, maintenance",
+            "difficulty": "intermediate",
+            "word_count_target": 800
+          },
+          {
+            "id": "fire-hardening-wood",
+            "title": "Fire Hardening Wooden Tools",
+            "priority": "low",
+            "description": "Temperature, technique, applications",
+            "difficulty": "advanced",
+            "word_count_target": 650
+          },
+          {
+            "id": "charcoal-production",
+            "title": "Charcoal Production Methods",
+            "priority": "low",
+            "description": "Mound method, pit method, uses",
+            "difficulty": "advanced",
+            "word_count_target": 750
+          }
+        ]
+      }
+    },
+
+    "shelter": {
+      "current_count": 20,
+      "target_count": 35,
+      "priority": "critical",
+      "topics": {
+        "planned": [
+          {
+            "id": "insulation-materials-comparison",
+            "title": "Natural Insulation Materials",
+            "priority": "high",
+            "description": "Leaves, grass, moss, bark, snow",
+            "difficulty": "beginner",
+            "word_count_target": 700
+          },
+          {
+            "id": "weatherproofing-techniques",
+            "title": "Shelter Weatherproofing Methods",
+            "priority": "high",
+            "description": "Rain, wind, snow protection",
+            "difficulty": "intermediate",
+            "word_count_target": 800
+          },
+          {
+            "id": "foundation-preparation",
+            "title": "Shelter Foundation and Floor",
+            "priority": "medium",
+            "description": "Drainage, insulation, platform",
+            "difficulty": "intermediate",
+            "word_count_target": 650
+          },
+          {
+            "id": "roof-construction-methods",
+            "title": "Wilderness Roof Construction",
+            "priority": "high",
+            "description": "Thatching, layering, pitch",
+            "difficulty": "advanced",
+            "word_count_target": 900
+          },
+          {
+            "id": "snow-shelter-quinzhee",
+            "title": "Quinzhee Snow Shelter",
+            "priority": "medium",
+            "description": "Construction, safety, ventilation",
+            "difficulty": "intermediate",
+            "word_count_target": 750
+          },
+          {
+            "id": "snow-shelter-igloo",
+            "title": "Igloo Construction Techniques",
+            "priority": "medium",
+            "description": "Block cutting, spiral layout, entrance",
+            "difficulty": "advanced",
+            "word_count_target": 1000
+          },
+          {
+            "id": "snow-cave-construction",
+            "title": "Snow Cave Shelter",
+            "priority": "medium",
+            "description": "Site selection, excavation, safety",
+            "difficulty": "intermediate",
+            "word_count_target": 700
+          },
+          {
+            "id": "desert-shelter-design",
+            "title": "Desert Shelter Considerations",
+            "priority": "medium",
+            "description": "Shade, ventilation, heat protection",
+            "difficulty": "intermediate",
+            "word_count_target": 650
+          },
+          {
+            "id": "tropical-shelter-design",
+            "title": "Tropical Climate Shelters",
+            "priority": "medium",
+            "description": "Rain, insects, ventilation, elevation",
+            "difficulty": "intermediate",
+            "word_count_target": 700
+          },
+          {
+            "id": "emergency-bivouac",
+            "title": "Emergency Bivouac Techniques",
+            "priority": "high",
+            "description": "Quick shelter, minimal materials",
+            "difficulty": "beginner",
+            "word_count_target": 600
+          },
+          {
+            "id": "tarp-shelter-configurations",
+            "title": "Tarp Shelter Configurations",
+            "priority": "high",
+            "description": "14 setups: A-frame, lean-to, diamond, etc",
+            "difficulty": "beginner",
+            "word_count_target": 900
+          },
+          {
+            "id": "natural-thatching",
+            "title": "Natural Material Thatching",
+            "priority": "medium",
+            "description": "Grass, reed, palm, bark techniques",
+            "difficulty": "advanced",
+            "word_count_target": 800
+          },
+          {
+            "id": "shelter-site-selection",
+            "title": "Shelter Site Selection Criteria",
+            "priority": "critical",
+            "description": "Drainage, wind, resources, hazards",
+            "difficulty": "beginner",
+            "word_count_target": 700
+          },
+          {
+            "id": "ventilation-systems",
+            "title": "Shelter Ventilation Design",
+            "priority": "high",
+            "description": "Air flow, condensation, CO safety",
+            "difficulty": "intermediate",
+            "word_count_target": 650
+          },
+          {
+            "id": "heat-retention-strategies",
+            "title": "Shelter Heat Retention",
+            "priority": "high",
+            "description": "Insulation, size, thermal mass",
+            "difficulty": "intermediate",
+            "word_count_target": 700
+          }
+        ]
+      }
+    },
+
+    "food": {
+      "current_count": 23,
+      "target_count": 40,
+      "priority": "high",
+      "topics": {
+        "planned": [
+          {
+            "id": "meat-smoking-procedures",
+            "title": "Meat Smoking and Preservation",
+            "priority": "high",
+            "description": "Cold smoke, hot smoke, wood selection",
+            "difficulty": "advanced",
+            "word_count_target": 1000
+          },
+          {
+            "id": "salt-curing-methods",
+            "title": "Salt Curing Meat and Fish",
+            "priority": "high",
+            "description": "Dry cure, wet brine, ratios",
+            "difficulty": "intermediate",
+            "word_count_target": 800
+          },
+          {
+            "id": "food-dehydration-detailed",
+            "title": "Food Dehydration Techniques",
+            "priority": "high",
+            "description": "Sun, air, fire drying methods",
+            "difficulty": "intermediate",
+            "word_count_target": 900
+          },
+          {
+            "id": "fermentation-basics",
+            "title": "Wild Fermentation Basics",
+            "priority": "medium",
+            "description": "Sauerkraut, kimchi, safety",
+            "difficulty": "intermediate",
+            "word_count_target": 850
+          },
+          {
+            "id": "canning-safety-pressure",
+            "title": "Pressure Canning Safety",
+            "priority": "high",
+            "description": "Botulism prevention, timing, testing",
+            "difficulty": "advanced",
+            "word_count_target": 1000
+          },
+          {
+            "id": "root-cellar-construction",
+            "title": "Root Cellar Design and Construction",
+            "priority": "medium",
+            "description": "Temperature, humidity, ventilation",
+            "difficulty": "advanced",
+            "word_count_target": 1100
+          },
+          {
+            "id": "hunting-methods-comparison",
+            "title": "Wilderness Hunting Methods",
+            "priority": "medium",
+            "description": "Stalking, ambush, tracking",
+            "difficulty": "advanced",
+            "word_count_target": 900
+          },
+          {
+            "id": "trapping-techniques-detailed",
+            "title": "Survival Trapping Guide",
+            "priority": "medium",
+            "description": "Deadfall, snare, regulations",
+            "difficulty": "advanced",
+            "word_count_target": 1200
+          },
+          {
+            "id": "fishing-methods-comparison",
+            "title": "Wilderness Fishing Techniques",
+            "priority": "medium",
+            "description": "Line, net, trap, spear methods",
+            "difficulty": "intermediate",
+            "word_count_target": 800
+          },
+          {
+            "id": "edible-insect-preparation",
+            "title": "Edible Insect Guide",
+            "priority": "low",
+            "description": "Identification, preparation, nutrition",
+            "difficulty": "intermediate",
+            "word_count_target": 700
+          },
+          {
+            "id": "wild-game-butchering",
+            "title": "Field Dressing and Butchering",
+            "priority": "high",
+            "description": "Deer, rabbit, bird techniques",
+            "difficulty": "advanced",
+            "word_count_target": 1200
+          },
+          {
+            "id": "food-safety-storage",
+            "title": "Wilderness Food Safety",
+            "priority": "critical",
+            "description": "Temperature, contamination, spoilage",
+            "difficulty": "intermediate",
+            "word_count_target": 850
+          },
+          {
+            "id": "calorie-density-guide",
+            "title": "Food Calorie Density Comparison",
+            "priority": "medium",
+            "description": "Weight vs energy content",
+            "difficulty": "beginner",
+            "word_count_target": 600
+          },
+          {
+            "id": "foraging-calendar-seasonal",
+            "title": "Seasonal Foraging Calendar",
+            "priority": "high",
+            "description": "Monthly availability guide",
+            "difficulty": "intermediate",
+            "word_count_target": 1000
+          },
+          {
+            "id": "nut-processing-methods",
+            "title": "Wild Nut Processing",
+            "priority": "medium",
+            "description": "Cracking, leaching, storage",
+            "difficulty": "intermediate",
+            "word_count_target": 700
+          },
+          {
+            "id": "grain-storage-techniques",
+            "title": "Grain Long-Term Storage",
+            "priority": "low",
+            "description": "Containers, pests, moisture",
+            "difficulty": "intermediate",
+            "word_count_target": 650
+          },
+          {
+            "id": "wild-edible-plant-guide",
+            "title": "Wild Edible Plants by Region",
+            "priority": "high",
+            "description": "North America common edibles",
+            "difficulty": "intermediate",
+            "word_count_target": 1500
+          }
+        ]
+      }
+    },
+
+    "navigation": {
+      "current_count": 20,
+      "target_count": 35,
+      "priority": "high",
+      "topics": {
+        "planned": [
+          {
+            "id": "gps-vs-traditional",
+            "title": "GPS vs Traditional Navigation",
+            "priority": "medium",
+            "description": "Pros, cons, backup methods",
+            "difficulty": "beginner",
+            "word_count_target": 700
+          },
+          {
+            "id": "altimeter-use",
+            "title": "Altimeter Navigation Techniques",
+            "priority": "medium",
+            "description": "Elevation, pressure, accuracy",
+            "difficulty": "intermediate",
+            "word_count_target": 650
+          },
+          {
+            "id": "weather-prediction-techniques",
+            "title": "Wilderness Weather Prediction",
+            "priority": "high",
+            "description": "Cloud types, wind, barometer",
+            "difficulty": "intermediate",
+            "word_count_target": 900
+          },
+          {
+            "id": "celestial-navigation-detailed",
+            "title": "Celestial Navigation Master Guide",
+            "priority": "medium",
+            "description": "Stars, sun, moon positioning",
+            "difficulty": "advanced",
+            "word_count_target": 1200
+          },
+          {
+            "id": "shadow-stick-method",
+            "title": "Shadow Stick Navigation",
+            "priority": "high",
+            "description": "East-west line, time estimation",
+            "difficulty": "beginner",
+            "word_count_target": 550
+          },
+          {
+            "id": "natural-navigation-signs",
+            "title": "Natural Direction Indicators",
+            "priority": "medium",
+            "description": "Moss, tree growth, ant hills",
+            "difficulty": "beginner",
+            "word_count_target": 700
+          },
+          {
+            "id": "map-reading-advanced",
+            "title": "Advanced Map Reading",
+            "priority": "high",
+            "description": "Contours, features, route planning",
+            "difficulty": "advanced",
+            "word_count_target": 1000
+          },
+          {
+            "id": "compass-declination",
+            "title": "Magnetic Declination Adjustment",
+            "priority": "high",
+            "description": "True vs magnetic north",
+            "difficulty": "intermediate",
+            "word_count_target": 650
+          },
+          {
+            "id": "route-planning-considerations",
+            "title": "Wilderness Route Planning",
+            "priority": "high",
+            "description": "Terrain, distance, timing, bailout",
+            "difficulty": "intermediate",
+            "word_count_target": 850
+          },
+          {
+            "id": "terrain-association",
+            "title": "Terrain Association Navigation",
+            "priority": "medium",
+            "description": "Map-to-ground correlation",
+            "difficulty": "intermediate",
+            "word_count_target": 700
+          },
+          {
+            "id": "pacing-distance-estimation",
+            "title": "Pacing and Distance Measurement",
+            "priority": "medium",
+            "description": "Pace count, correction factors",
+            "difficulty": "beginner",
+            "word_count_target": 600
+          },
+          {
+            "id": "handrail-navigation",
+            "title": "Handrail Navigation Techniques",
+            "priority": "medium",
+            "description": "Linear features as guides",
+            "difficulty": "intermediate",
+            "word_count_target": 550
+          },
+          {
+            "id": "catching-features",
+            "title": "Catching Features in Navigation",
+            "priority": "medium",
+            "description": "Safety backstops, overshoot",
+            "difficulty": "intermediate",
+            "word_count_target": 600
+          },
+          {
+            "id": "night-navigation",
+            "title": "Night Navigation Techniques",
+            "priority": "medium",
+            "description": "Limited visibility, safety",
+            "difficulty": "advanced",
+            "word_count_target": 750
+          },
+          {
+            "id": "desert-navigation",
+            "title": "Desert Navigation Challenges",
+            "priority": "low",
+            "description": "Heat, mirages, landmarks",
+            "difficulty": "advanced",
+            "word_count_target": 700
+          }
+        ]
+      }
+    },
+
+    "medical": {
+      "current_count": 27,
+      "target_count": 40,
+      "priority": "critical",
+      "topics": {
+        "planned": [
+          {
+            "id": "wilderness-first-aid-protocols",
+            "title": "Wilderness First Aid Decision Making",
+            "priority": "critical",
+            "description": "Assessment, evacuation, treatment",
+            "difficulty": "advanced",
+            "word_count_target": 1200
+          },
+          {
+            "id": "wound-infection-treatment",
+            "title": "Wound Infection Management",
+            "priority": "critical",
+            "description": "Recognition, treatment, prevention",
+            "difficulty": "advanced",
+            "word_count_target": 900
+          },
+          {
+            "id": "fracture-stabilization",
+            "title": "Fracture Splinting Techniques",
+            "priority": "critical",
+            "description": "Improvised splints, immobilization",
+            "difficulty": "advanced",
+            "word_count_target": 1000
+          },
+          {
+            "id": "heat-exhaustion-vs-stroke",
+            "title": "Heat Illness Recognition",
+            "priority": "critical",
+            "description": "Exhaustion vs stroke, treatment",
+            "difficulty": "intermediate",
+            "word_count_target": 800
+          },
+          {
+            "id": "hypothermia-treatment-stages",
+            "title": "Hypothermia Treatment Protocols",
+            "priority": "critical",
+            "description": "Mild, moderate, severe stages",
+            "difficulty": "advanced",
+            "word_count_target": 1000
+          },
+          {
+            "id": "snakebite-protocols",
+            "title": "Snakebite First Aid",
+            "priority": "critical",
+            "description": "DO/DON'T, evacuation priority",
+            "difficulty": "advanced",
+            "word_count_target": 850
+          },
+          {
+            "id": "allergic-reaction-management",
+            "title": "Anaphylaxis Emergency Response",
+            "priority": "critical",
+            "description": "EpiPen use, recognition, support",
+            "difficulty": "advanced",
+            "word_count_target": 750
+          },
+          {
+            "id": "cpr-wilderness-adaptations",
+            "title": "Wilderness CPR Considerations",
+            "priority": "critical",
+            "description": "Extended care, cessation criteria",
+            "difficulty": "advanced",
+            "word_count_target": 900
+          },
+          {
+            "id": "shock-treatment-wilderness",
+            "title": "Shock Recognition and Treatment",
+            "priority": "critical",
+            "description": "Types, signs, management",
+            "difficulty": "advanced",
+            "word_count_target": 800
+          },
+          {
+            "id": "burns-classification-treatment",
+            "title": "Burn Injury Management",
+            "priority": "high",
+            "description": "1st, 2nd, 3rd degree treatment",
+            "difficulty": "advanced",
+            "word_count_target": 950
+          },
+          {
+            "id": "altitude-sickness-prevention",
+            "title": "Altitude Sickness Prevention",
+            "priority": "high",
+            "description": "Acclimatization, recognition, descent",
+            "difficulty": "intermediate",
+            "word_count_target": 850
+          },
+          {
+            "id": "dehydration-assessment",
+            "title": "Dehydration Assessment Guide",
+            "priority": "high",
+            "description": "Mild, moderate, severe signs",
+            "difficulty": "beginner",
+            "word_count_target": 650
+          },
+          {
+            "id": "dental-emergencies",
+            "title": "Wilderness Dental Emergencies",
+            "priority": "medium",
+            "description": "Toothache, lost filling, broken tooth",
+            "difficulty": "intermediate",
+            "word_count_target": 700
+          }
+        ]
+      }
+    }
+  },
+
+  "metadata": {
+    "total_existing": 136,
+    "total_planned": 100,
+    "total_target": 236,
+    "expansion_percentage": 73.5,
+    "critical_categories": ["water", "fire", "shelter", "medical"],
+    "generation_batches": {
+      "batch_size": 10,
+      "estimated_batches": 10,
+      "estimated_time_per_batch": "2 hours"
+    }
+  }
+}

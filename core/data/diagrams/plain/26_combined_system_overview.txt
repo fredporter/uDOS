@@ -1,0 +1,22 @@
+[ FULL SYSTEM OVERVIEW ]
+------------------------
+CLIENTS
+  |
+  v
+[ API GATEWAY ]
+  |
+  v
++-----------------------------+
+|  SERVICES                   |
+|  - Auth                     |
+|  - Users                    |
+|  - Orders                   |
++-----------------------------+
+  |
+  +--> [ DATABASES ]
+  |      - user_db
+  |      - order_db
+  |
+  +--> [ CACHE ]
+  |
+  +--> [ MESSAGE BUS ] -> [ WORKERS ]

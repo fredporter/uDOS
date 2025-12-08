@@ -1,0 +1,19 @@
+# Error Recovery Flow
+# Demonstrates retry logic and fallback paths
+
+st=>start: Execute Task
+attempt=>operation: Run Process
+check=>condition: Success?
+incrementRetry=>operation: Increment Retry Count
+checkRetries=>condition: Max Retries?
+wait=>operation: Wait Exponentially
+fallback=>operation: Use Fallback Method
+logError=>operation: Log to System
+alertAdmin=>operation: Alert Administrator
+e=>end: End
+
+st->attempt->check
+check(yes)->e
+check(no)->incrementRetry->checkRetries
+checkRetries(no)->wait->attempt
+checkRetries(yes)->fallback->logError->alertAdmin->e

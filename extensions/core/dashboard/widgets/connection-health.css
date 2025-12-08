@@ -1,0 +1,200 @@
+/**
+ * connection-health.css - Connection Health Widget Styling
+ * v1.2.8 - Task 7: Connection Health Dashboard
+ */
+
+.health-widget {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 15px;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    margin-top: 20px;
+}
+
+.health-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #333;
+}
+
+.health-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #4CAF50;
+}
+
+.toggle-btn {
+    background: #2a2a2a;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.toggle-btn:hover {
+    background: #333;
+    border-color: #4CAF50;
+}
+
+.health-content {
+    display: block;
+}
+
+.health-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.health-metric {
+    background: #2a2a2a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.metric-label {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.health-status {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.health-status.excellent {
+    color: #4CAF50;
+}
+
+.health-status.good {
+    color: #8BC34A;
+}
+
+.health-status.fair {
+    color: #FFC107;
+}
+
+.health-status.poor {
+    color: #f44336;
+}
+
+.health-status.warning {
+    color: #FF9800;
+}
+
+.quality-score {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.quality-score.excellent {
+    color: #4CAF50;
+}
+
+.quality-score.good {
+    color: #8BC34A;
+}
+
+.quality-score.fair {
+    color: #FFC107;
+}
+
+.quality-score.poor {
+    color: #f44336;
+}
+
+.uptime-value {
+    font-size: 16px;
+    color: #2196F3;
+    font-weight: bold;
+}
+
+.rate-value {
+    font-size: 16px;
+    color: #9C27B0;
+    font-weight: bold;
+}
+
+.health-section {
+    background: #2a2a2a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.health-section h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.reconnection-history {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.reconnection-history::-webkit-scrollbar {
+    width: 6px;
+}
+
+.reconnection-history::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 3px;
+}
+
+.reconnection-history::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 3px;
+}
+
+.reconnection-history::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.history-empty {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.history-item {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    gap: 10px;
+    padding: 8px;
+    border-bottom: 1px solid #333;
+    font-size: 12px;
+    align-items: center;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-time {
+    color: #888;
+}
+
+.history-reason {
+    color: #FFC107;
+}
+
+.history-uptime {
+    color: #2196F3;
+    font-size: 11px;
+}

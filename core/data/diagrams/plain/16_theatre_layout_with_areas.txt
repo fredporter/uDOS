@@ -1,0 +1,13 @@
+[ STUDIO LAYOUT ]
+-----------------
+ENTRY / BAR
+-----------
+[ STANDARD SEATING ]
+S S S S S S S S S S
+S S S S S S S S S S
+[ PREMIUM PLATFORM ]
+P P P P P P P P P P
+[ VIP TABLES ]
+[V][V] [V][V] [V][V] [V][V]
+[ STAGE ]
+=========

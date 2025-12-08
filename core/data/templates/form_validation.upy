@@ -1,0 +1,67 @@
+#!/usr/bin/env udos
+# uPY v2.0.2 Form Validation Template
+# Input validation with error handling - demonstrates all three formats
+
+PRINT (==========================================)
+PRINT (  User Registration Form)
+PRINT (==========================================)
+PRINT ()
+
+# Username validation - SHORT FORM
+LABEL (USERNAME_INPUT)
+INPUT (Enter username (3-20 characters):) → {$username}
+SET (username_length|LEN({$username}))
+[IF {$username_length} < 3: PRINT (Username too short!) | BRANCH (USERNAME_INPUT)]
+[IF {$username_length} > 20: PRINT (Username too long!) | BRANCH (USERNAME_INPUT)]
+PRINT (✓ Username accepted)
+PRINT ()
+
+# Email validation
+LABEL [EMAIL_INPUT]
+# Email validation - MEDIUM FORM with THEN/ELSE
+LABEL (EMAIL_INPUT)
+INPUT (Enter email address:) → {$email}
+[IF '@' NOT IN {$email} THEN: PRINT (Invalid email format!) | BRANCH (EMAIL_INPUT)]
+[IF '.' NOT IN {$email} THEN: PRINT (Invalid email format!) | BRANCH (EMAIL_INPUT)]
+PRINT (✓ Email accepted)
+PRINT ()
+
+# Password validation - SHORT FORM
+LABEL (PASSWORD_INPUT)
+INPUT (Enter password (min 8 characters):) → {$password}
+SET (password_length|LEN({$password}))
+[IF {$password_length} < 8: PRINT (Password too short!) | BRANCH (PASSWORD_INPUT)]
+PRINT (✓ Password accepted)
+PRINT ()m password
+LABEL [PASSWORD_CONFIRM]
+INPUT [Confirm password:] → password_confirm
+# Confirm password - TERNARY (medium form)
+LABEL (PASSWORD_CONFIRM)
+INPUT (Confirm password:) → {$password_confirm}
+[{$password} != {$password_confirm} ? PRINT (Passwords do not match!) | BRANCH (PASSWORD_CONFIRM) : PRINT (✓ Password confirmed)]
+PRINT ()
+
+# Age validation - LONG FORM (complex logic)
+LABEL (AGE_INPUT)
+INPUT (Enter age (must be 13 or older):) → {$age}
+IF {$age} < 13
+  PRINT (You must be 13 or older to register!)
+  BRANCH (AGE_INPUT)
+ELSE IF {$age} > 120
+  PRINT (Please enter a valid age!)
+  BRANCH (AGE_INPUT)
+END IF
+PRINT (✓ Age accepted)
+PRINT ()
+
+# Summary
+PRINT (==========================================)
+PRINT (  Registration Summary)
+PRINT (==========================================)
+PRINT (Username: {$username})
+PRINT (Email: {$email})
+PRINT (Age: {$age})
+PRINT ()
+PRINT (Registration complete!)
+XP (+50)
+END

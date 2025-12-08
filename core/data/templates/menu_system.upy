@@ -1,0 +1,69 @@
+#!/usr/bin/env udos
+# uPY v2.0.2 Menu System Template
+# Interactive menu with navigation and state management
+
+# Initialize menu state
+SET (current_menu|main)
+SET (running|true)
+
+# Main loop
+LABEL (LOOP)
+[IF {$running} == false: END]
+
+# Route to current menu - v2.0.2 short conditionals
+[IF {$current_menu} == 'main': BRANCH (MENU_MAIN)]
+[IF {$current_menu} == 'inventory': BRANCH (MENU_INVENTORY)]
+[IF {$current_menu} == 'settings': BRANCH (MENU_SETTINGS)]
+
+# Main menu
+LABEL (MENU_MAIN)
+PRINT ()
+PRINT (==========================================)
+PRINT (  Main Menu)
+PRINT (==========================================)
+CHOICE (Select an option:)
+  OPTION (View Inventory|MENU_INVENTORY)
+  OPTION (Settings|MENU_SETTINGS)
+  OPTION (Exit|EXIT)
+
+# Inventory menu
+LABEL (MENU_INVENTORY)
+PRINT ()
+PRINT (==========================================)
+PRINT (  Inventory)
+PRINT (==========================================)
+PRINT (Water Bottle x3)
+PRINT (First Aid Kit x1)
+PRINT (Flashlight x1)
+PRINT ()
+CHOICE (What would you like to do?)
+  OPTION (Back to Main Menu|MAIN_MENU_RETURN)
+  OPTION (Exit|EXIT)
+
+LABEL (MAIN_MENU_RETURN)
+SET (current_menu|main)
+BRANCH (LOOP)
+
+# Settings menu
+LABEL (MENU_SETTINGS)
+PRINT ()
+PRINT (==========================================)
+PRINT (  Settings)
+PRINT (==========================================)
+PRINT (Theme: {$THEME})
+PRINT (Location: {$SPRITE-LOCATION})
+PRINT ()
+CHOICE (What would you like to do?)
+  OPTION (Back to Main Menu|SETTINGS_RETURN)
+  OPTION (Exit|EXIT)
+
+LABEL (SETTINGS_RETURN)
+SET (current_menu|main)
+BRANCH (LOOP)
+
+# Exit
+LABEL (EXIT)
+SET (running|false)
+PRINT ()
+PRINT (Goodbye!)
+BRANCH (LOOP)

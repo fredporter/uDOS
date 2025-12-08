@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>uDOS Terminal v2.0.0</title>
+    <link rel="stylesheet" href="terminal.css?v=2">
+</head>
+<body>
+    <!-- C64 Loading Screen -->
+    <section class="loading-screen" id="loadingScreen">
+        <ul class="loading">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </section>
+
+    <!-- Terminal Interface -->
+    <section class="terminal" id="terminal">
+        <div class="terminal-container">
+            <div class="terminal-output" id="output"></div>
+            <div class="terminal-input-line">
+                <span class="prompt">></span>
+                <input type="text" class="terminal-input" id="input" autocomplete="off" spellcheck="false" autofocus>
+            </div>
+        </div>
+    </section>
+
+    <!-- Function Keys -->
+    <nav class="function-keys" id="functionKeys">
+        <button data-key="F1"><span>F1</span><small>HELP</small></button>
+        <button data-key="F2"><span>F2</span><small>KNOW</small></button>
+        <button data-key="F3"><span>F3</span><small>LIST</small></button>
+        <button data-key="F4"><span>F4</span><small>EDIT</small></button>
+        <button data-key="F5"><span>F5</span><small>RUN</small></button>
+        <button data-key="F6"><span>F6</span><small>STAT</small></button>
+        <button data-key="F7"><span>F7</span><small>CLR</small></button>
+        <button data-key="F8"><span>F8</span><small>CHAR</small></button>
+    </nav>
+
+    <script src="static/terminal.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+# uPY v2.0.2 - USER SETUP SCRIPT
+# User Profile Configuration
+# Simplified for modern uPY syntax
+
+PRINT (============================================================)
+PRINT (  uDOS USER SETUP - v2.0.2)
+PRINT (============================================================)
+PRINT ()
+
+# Check if user.json exists
+SYSTEM (CHECK_FILE|memory/user.json) → {$file_exists}
+
+# If missing, create from template
+IF {$file_exists} == false
+  PRINT (Creating user.json from template...)
+  FILE (COPY|core/data/templates/user.template.json|memory/user.json)
+  SET (needs_setup|true)
+END IF
+
+# Load profile
+SYSTEM (LOAD_JSON|memory/user.json) → {$user_profile}
+
+# Get user name (REQUIRED)
+GET ({$user_profile.NAME}) → {$user_name}
+IF EMPTY({$user_name})
+  INPUT (Enter your name:) → {$user_name}
+  SET (user_profile.NAME|{$user_name})
+  SET (updated|true)
+END IF
+
+PRINT (✓ Name: {$user_name})
+
+# Timezone (optional)
+GET ({$user_profile.TIMEZONE}) → {$tz}
+[IF EMPTY({$tz}): SET (user_profile.TIMEZONE|UTC) | SET (updated|true)]
+
+# Location (optional)
+GET ({$user_profile.LOCATION}) → {$loc}
+[IF EMPTY({$loc}): SET (user_profile.LOCATION|Unknown) | SET (updated|true)]
+
+# Save if updated
+IF {$updated} == true
+  SYSTEM (SAVE_JSON|{$user_profile}|memory/user.json)
+  PRINT (✅ Profile saved)
+END IF
+
+PRINT ()
+PRINT (Setup complete!)
+EXIT (0)

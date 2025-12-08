@@ -1,0 +1,8 @@
+Project Schedule:
+
+Task A  [████████░░░░░░░░] Week 1-2
+Task B  [░░░░████████░░░░] Week 2-3
+Task C  [░░░░░░░░████████] Week 3-4
+Task D  [░░░░░░░░░░░░████] Week 4
+
+Legend: █ = Complete  ░ = Pending

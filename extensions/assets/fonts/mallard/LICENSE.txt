@@ -1,0 +1,47 @@
+# Mallard Font Family - License
+
+## All Variants
+The Mallard font family includes 6 style variants, all sharing the same licensing:
+
+- mallard-blockier.otf
+- mallard-blocky.otf (base version)
+- mallard-neueue.otf
+- mallard-smooth.otf
+- mallard-smoother.otf
+- mallard-tiny.otf
+
+## License Information
+
+- **License**: Creative Commons Attribution Share Alike 3.0
+- **Author**: "gid" (FontStruct.com)
+- **Purpose**: Teletext font recreation
+- **Source**: https://fontstruct.com
+- **Status**: ✅ Free to distribute with attribution
+
+## Requirements
+
+1. **Attribution**: Must credit "gid" as the original author
+2. **Share Alike**: Derivative works must use CC BY-SA 3.0 license
+3. **Include License**: This license file must accompany distribution
+
+## Distribution Rights
+
+All Mallard variants are legally distributable with uDOS extensions. They provide authentic Teletext rendering for retro computing applications.
+
+## Attribution
+
+When using Mallard fonts, include:
+```
+Font: Mallard family (6 variants)
+Author: gid (FontStruct.com)
+License: Creative Commons Attribution Share Alike 3.0
+```
+
+## Variants Description
+
+- **blocky**: Base version, standard Teletext rendering
+- **blockier**: More angular, sharper edges
+- **smooth**: Softened edges for better screen rendering
+- **smoother**: Extra smoothing for modern displays
+- **neueue**: Modern interpretation with updated metrics
+- **tiny**: Compact variant for dense layouts

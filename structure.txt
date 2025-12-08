@@ -1,0 +1,457 @@
+uDOS/
+├── .github/
+│   ├── DISCUSSION_TEMPLATES/
+│   │   ├── ideas.yml
+│   │   ├── q-and-a.yml
+│   │   └── show-and-tell.yml
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   ├── documentation.md
+│   │   ├── extension_submission.md
+│   │   └── feature_request.md
+│   ├── copilot-instructions.md
+│   └── PULL_REQUEST_TEMPLATE.md
+├── bin/
+│   ├── udos
+│   └── uenv.sh
+├── core/
+│   ├── commands/
+│   │   ├── archive_handler.py
+│   │   ├── assets_handler.py
+│   │   ├── assistant_handler.py
+│   │   ├── backup_handler.py
+│   │   ├── barter_commands.py
+│   │   ├── base_handler.py
+│   │   ├── checklist_handler.py
+│   │   ├── cmd_config_planet.py
+│   │   ├── cmd_locate.py
+│   │   ├── color_handler.py
+│   │   ├── community_commands.py
+│   │   ├── configuration_handler.py
+│   │   ├── dashboard_handler.py
+│   │   ├── debug_handler.py
+│   │   ├── dev_mode_handler.py
+│   │   ├── display_handler.py
+│   │   ├── docs_unified_handler.py
+│   │   ├── draw_handler.py
+│   │   ├── environment_handler.py
+│   │   ├── extension_handler.py
+│   │   ├── feedback_handler.py
+│   │   ├── file_handler.py
+│   │   ├── generate_handler_old.py
+│   │   ├── github_diagrams_handler.py
+│   │   ├── gmail_handler.py
+│   │   ├── help_v2_handler.py
+│   │   ├── logs_handler.py
+│   │   ├── make_handler.py
+│   │   ├── memory_commands.py
+│   │   ├── memory_unified_handler.py
+│   │   ├── mermaid_handler.py
+│   │   ├── mission_handler.py
+│   │   ├── object_handler.py
+│   │   ├── output_handler.py
+│   │   ├── panel_handler.py
+│   │   ├── peek_handler.py
+│   │   ├── private_commands.py
+│   │   ├── repair_handler.py
+│   │   ├── resource_handler.py
+│   │   ├── sandbox_handler.py
+│   │   ├── schedule_handler.py
+│   │   ├── session_handler.py
+│   │   ├── shakedown_handler.py
+│   │   ├── shared_commands.py
+│   │   ├── sprite_handler.py
+│   │   ├── story_handler.py
+│   │   ├── system_handler.py
+│   │   ├── tile_handler.py
+│   │   ├── tree_handler.py
+│   │   ├── typo_handler.py
+│   │   ├── undo_handler.py
+│   │   ├── user_handler.py
+│   │   ├── variable_handler.py
+│   │   └── workflow_handler.py
+│   ├── input/
+│   │   ├── __init__.py
+│   │   ├── interactive.py
+│   │   ├── prompt_decorator.py
+│   │   └── smart_prompt.py
+│   ├── interpreters/
+│   │   ├── __init__.py
+│   │   ├── offline.py
+│   │   ├── uDOS_parser.py
+│   │   └── validator.py
+│   ├── knowledge/
+│   │   ├── __init__.py
+│   │   ├── bank.py
+│   │   ├── base_manager.py
+│   │   ├── file_picker.py
+│   │   ├── memory.py
+│   │   ├── service.py
+│   │   ├── tier_manager.py
+│   │   └── types.py
+│   ├── output/
+│   │   ├── __init__.py
+│   │   ├── color_ui.py
+│   │   ├── graphics.py
+│   │   ├── layout_manager.py
+│   │   ├── output_formatter.py
+│   │   ├── screen_manager.py
+│   │   ├── splash.py
+│   │   ├── story_manager.py
+│   │   ├── syntax_highlighter.py
+│   │   └── teletext_renderer.py
+│   ├── runtime/
+│   │   ├── __init__.py
+│   │   ├── commands.py
+│   │   ├── upy_executor.py
+│   │   ├── upy_file_io.py
+│   │   ├── upy_lists.py
+│   │   ├── upy_math.py
+│   │   ├── upy_parser.py
+│   │   ├── upy_preprocessor.py
+│   │   └── upy_runtime_v2.py
+│   ├── services/
+│   │   ├── theme/
+│   │   │   ├── theme_builder.py
+│   │   │   ├── theme_loader.py
+│   │   │   └── theme_manager.py
+│   │   ├── api_audit.py
+│   │   ├── api_monitor.py
+│   │   ├── ascii_generator.py
+│   │   ├── asset_manager.py
+│   │   ├── barter_service.py
+│   │   ├── checklist_manager.py
+│   │   ├── citation_manager.py
+│   │   ├── community_service.py
+│   │   ├── config_manager.py
+│   │   ├── connection_manager.py
+│   │   ├── cross_reference_validator.py
+│   │   ├── debug_engine.py
+│   │   ├── dev_mode_manager.py
+│   │   ├── diagram_compositor.py
+│   │   ├── diagram_generator.py
+│   │   ├── editor_manager.py
+│   │   ├── email_converter.py
+│   │   ├── email_parser.py
+│   │   ├── encryption_service.py
+│   │   ├── error_handler.py
+│   │   ├── extension_lifecycle.py
+│   │   ├── extension_manager.py
+│   │   ├── gemini_generator.py
+│   │   ├── github_webhook_handler.py
+│   │   ├── gmail_auth.py
+│   │   ├── gmail_service.py
+│   │   ├── graphics_compositor.py
+│   │   ├── graphics_library.py
+│   │   ├── help_manager.py
+│   │   ├── history_manager.py
+│   │   ├── input_manager.py
+│   │   ├── intelligent_error_handler.py
+│   │   ├── knowledge_gap_analyzer.py
+│   │   ├── knowledge_metrics.py
+│   │   ├── logging_manager.py
+│   │   ├── memory_manager.py
+│   │   ├── mission_manager.py
+│   │   ├── output_pacer.py
+│   │   ├── performance_monitor.py
+│   │   ├── planet_manager.py
+│   │   ├── platform_webhook_handlers.py
+│   │   ├── priority_queue.py
+│   │   ├── resource_manager.py
+│   │   ├── scheduler.py
+│   │   ├── session_analytics.py
+│   │   ├── session_logger.py
+│   │   ├── session_manager.py
+│   │   ├── session_replay.py
+│   │   ├── setup_wizard.py
+│   │   ├── sharing_service.py
+│   │   ├── standardized_input.py
+│   │   ├── sync_engine.py
+│   │   ├── sync_manager.py
+│   │   ├── typo_manager.py
+│   │   ├── uDOS_grid.py
+│   │   ├── uDOS_logger.py
+│   │   ├── uDOS_startup.py
+│   │   ├── unified_logger.py
+│   │   ├── user_manager.py
+│   │   ├── vectorizer.py
+│   │   ├── viewport_manager.py
+│   │   ├── webhook_event_store.py
+│   │   └── webhook_manager.py
+│   ├── ui/
+│   │   ├── __init__.py
+│   │   ├── file_picker.py
+│   │   ├── knowledge_file_picker.py
+│   │   ├── map_renderer.py
+│   │   ├── option_selector.py
+│   │   ├── picker.py
+│   │   ├── progress_indicators.py
+│   │   ├── teletext_prompt.py
+│   │   ├── unified_selector.py
+│   │   └── visual_selector.py
+│   ├── utils/
+│   │   ├── alias_manager.py
+│   │   ├── archive_index.py
+│   │   ├── archive_manager.py
+│   │   ├── autocomplete.py
+│   │   ├── command_registry.py
+│   │   ├── common.py
+│   │   ├── completer.py
+│   │   ├── error_handler.py
+│   │   ├── fast_startup.py
+│   │   ├── files.py
+│   │   ├── fuzzy_matcher.py
+│   │   ├── grid_utils.py
+│   │   ├── lazy_loader.py
+│   │   ├── pager.py
+│   │   ├── path_validator.py
+│   │   ├── performance_profiler.py
+│   │   ├── progress_manager.py
+│   │   ├── reorganize_knowledge.sh
+│   │   ├── settings.py
+│   │   ├── setup.py
+│   │   ├── startup_welcome.py
+│   │   ├── system_info.py
+│   │   ├── tizo_manager.py
+│   │   ├── usage_tracker.py
+│   │   ├── variables.py
+│   │   ├── viewport.py
+│   │   └── viewport_viz.py
+│   ├── __init__.py
+│   ├── config.py
+│   ├── README.md
+│   ├── uDOS_commands.py
+│   └── uDOS_main.py
+├── extensions/
+│   ├── api/
+│   │   ├── README.md
+│   │   └── server.py
+│   ├── assets/
+│   │   ├── fonts/
+│   │   │   ├── chicago/
+│   │   │   ├── mallard/
+│   │   │   ├── petme/
+│   │   │   ├── roboto/
+│   │   │   ├── teletext50/
+│   │   │   ├── C64_User_Mono_v1.0-STYLE.woff
+│   │   │   ├── ChicagoFLF.woff
+│   │   │   ├── ChicagoFLF.woff2
+│   │   │   ├── ChiKareGo2.woff
+│   │   │   ├── ChiKareGo2.woff2
+│   │   │   ├── FindersKeepers.woff
+│   │   │   ├── FindersKeepers.woff2
+│   │   │   ├── giana.woff
+│   │   │   ├── LICENSE_ASSESSMENT.md
+│   │   │   ├── monaco.woff
+│   │   │   ├── monaco.woff2
+│   │   │   ├── PressStart2P-Regular.ttf
+│   │   │   └── README.md
+│   │   ├── icons/
+│   │   │   └── .gitkeep
+│   │   ├── patterns/
+│   │   ├── styles/
+│   │   │   ├── hand-illustrative/
+│   │   │   ├── hybrid/
+│   │   │   └── technical-kinetic/
+│   │   ├── CREDITS.md
+│   │   └── README.md
+│   ├── assistant/
+│   │   ├── __init__.py
+│   │   ├── extension.json
+│   │   ├── gemini_service.py
+│   │   ├── handler.py
+│   │   └── README.md
+│   ├── cloud/
+│   │   ├── web/
+│   │   │   └── dashboard.html
+│   │   ├── __init__.py
+│   │   ├── extension.json
+│   │   ├── group_manager.py
+│   │   ├── poke_commands.py
+│   │   ├── server.py
+│   │   ├── sharing_manager.py
+│   │   ├── start_server.sh
+│   │   └── tunnel_manager.py
+│   ├── core/
+│   │   ├── dashboard/
+│   │   │   ├── fonts/
+│   │   │   ├── routes/
+│   │   │   ├── server/
+│   │   │   ├── services/
+│   │   │   ├── static/
+│   │   │   ├── widgets/
+│   │   │   ├── analytics-demo.html
+│   │   │   ├── app.py
+│   │   │   ├── config.json
+│   │   │   ├── CREDITS.md
+│   │   │   ├── dashboard-api.js
+│   │   │   ├── dashboard-builder.js
+│   │   │   ├── dashboard-styles.css
+│   │   │   ├── IMPLEMENTATION.md
+│   │   │   ├── index-builder.html
+│   │   │   ├── index.html
+│   │   │   ├── manifest.json
+│   │   │   ├── README.md
+│   │   │   └── start.sh
+│   │   ├── desktop/
+│   │   │   ├── fonts/
+│   │   │   ├── icons/
+│   │   │   ├── static/
+│   │   │   ├── CHARACTER-EDITOR-INTEGRATION.md
+│   │   │   ├── CHARACTER-EDITOR-KEYBOARDS.md
+│   │   │   ├── character-editor.html
+│   │   │   ├── CREDITS.md
+│   │   │   ├── demo.html
+│   │   │   ├── desktop.css
+│   │   │   ├── FILE-PICKER-IMPLEMENTATION.md
+│   │   │   ├── IMPLEMENTATION-SUMMARY.md
+│   │   │   ├── index.html
+│   │   │   ├── KEYBOARD-LAYOUT-REFERENCE.md
+│   │   │   ├── marked-loader.html
+│   │   │   ├── QUICK-REFERENCE.md
+│   │   │   ├── README.md
+│   │   │   ├── STRUCTURE.md
+│   │   │   └── TEST-RESULTS.md
+│   │   ├── mission/
+│   │   │   ├── dashboard.css
+│   │   │   ├── dashboard.html
+│   │   │   ├── dashboard.js
+│   │   │   ├── dashboard_handler.py
+│   │   │   ├── extension.json
+│   │   │   └── README.md
+│   │   ├── shared/
+│   │   │   ├── __init__.py
+│   │   │   ├── base_server.py
+│   │   │   └── port_manager.py
+│   │   ├── svg/
+│   │   │   ├── __init__.py
+│   │   │   ├── extension.json
+│   │   │   ├── README.md
+│   │   │   └── svg_generator.py
+│   │   ├── teletext/
+│   │   │   ├── fonts/
+│   │   │   ├── static/
+│   │   │   ├── index.html
+│   │   │   ├── README.md
+│   │   │   ├── requirements.txt
+│   │   │   ├── start.sh
+│   │   │   └── teletext-synthwave.css
+│   │   ├── terminal/
+│   │   │   ├── fonts/
+│   │   │   ├── static/
+│   │   │   ├── extension.json
+│   │   │   ├── index.html
+│   │   │   └── terminal.css
+│   │   ├── webhooks/
+│   │   │   ├── integrations/
+│   │   │   ├── __init__.py
+│   │   │   ├── api_server.py
+│   │   │   ├── client.py
+│   │   │   ├── config.json
+│   │   │   ├── event_processor.py
+│   │   │   ├── event_router.py
+│   │   │   ├── extension.json
+│   │   │   ├── README.md
+│   │   │   ├── simulator.py
+│   │   │   └── test_panel.py
+│   │   ├── CREDITS.md
+│   │   ├── extension_dev_tools.py
+│   │   ├── extensions_server.py
+│   │   ├── launch.sh
+│   │   └── README.md
+│   ├── play/
+│   │   ├── commands/
+│   │   │   ├── __init__.py
+│   │   │   ├── map_handler.py
+│   │   │   ├── resource_handler.py
+│   │   │   ├── scenario_handler.py
+│   │   │   ├── scenario_play_handler.py
+│   │   │   ├── story_handler.py
+│   │   │   ├── survival_handler.py
+│   │   │   └── xp_handler.py
+│   │   ├── services/
+│   │   │   ├── game_mechanics/
+│   │   │   ├── __init__.py
+│   │   │   ├── map_data_manager.py
+│   │   │   └── map_engine.py
+│   │   ├── __init__.py
+│   │   └── README.md
+│   ├── setup/
+│   │   ├── setup_all.sh
+│   │   ├── setup_micro.sh
+│   │   └── setup_typo.sh
+│   ├── vscode/
+│   │   ├── images/
+│   │   │   ├── file-icon.svg
+│   │   │   ├── icon.png
+│   │   │   └── icon.svg
+│   │   ├── out/
+│   │   │   ├── commands/
+│   │   │   ├── providers/
+│   │   │   ├── extension.d.ts
+│   │   │   ├── extension.js
+│   │   │   └── extension.js.map
+│   │   ├── snippets/
+│   │   │   └── upy.json
+│   │   ├── src/
+│   │   │   ├── commands/
+│   │   │   ├── providers/
+│   │   │   └── extension.ts
+│   │   ├── syntaxes/
+│   │   │   └── upy.tmLanguage.json
+│   │   ├── test-examples/
+│   │   │   ├── feature-test.upy
+│   │   │   ├── knowledge-workflow.upy
+│   │   │   └── water-filter-mission.upy
+│   │   ├── enable-extension.sh
+│   │   ├── language-configuration.json
+│   │   ├── package.json
+│   │   ├── README.md
+│   │   ├── STRUCTURE.md
+│   │   ├── TESTING-GUIDE.md
+│   │   ├── TROUBLESHOOTING.md
+│   │   └── tsconfig.json
+│   ├── PORT-REGISTRY.md
+│   ├── QUICK-REFERENCE.md
+│   ├── README.md
+│   ├── SERVER-MANAGEMENT.md
+│   └── server_manager.py
+├── knowledge/
+│   ├── checklists/
+│   ├── communication/
+│   ├── community/
+│   ├── fire/
+│   ├── food/
+│   ├── making/
+│   ├── medical/
+│   ├── navigation/
+│   ├── reference/
+│   ├── shelter/
+│   ├── skills/
+│   ├── survival/
+│   ├── tech/
+│   ├── tools/
+│   ├── water/
+│   ├── well-being/
+│   ├── KNOWLEDGE-SYSTEM.md
+│   ├── README.md
+│   └── structure.txt
+├── udos/
+│   └── __init__.py
+├── .env.example
+├── .gitignore
+├── CHANGELOG.md
+├── CODE-OF-CONDUCT.md
+├── CONTRIBUTING.md
+├── CREDITS.md
+├── INSTALL.md
+├── LICENSE.txt
+├── MANIFEST.in
+├── QUICK-START.md
+├── README.MD
+├── requirements.txt
+├── setup.py
+├── start_udos.sh
+├── structure.txt
+├── uDOS.code-workspace
+└── uDOS.py

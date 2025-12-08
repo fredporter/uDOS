@@ -1,0 +1,35 @@
+sequenceDiagram
+    participant User
+    participant System
+    participant Database
+
+    User->>System: Send Request
+    activate System
+    System->>Database: Query Data
+    activate Database
+    Database-->>System: Return Results
+    deactivate Database
+    System-->>User: Send Response
+    deactivate System
+
+    Note right of System: Process request
+    Note over User,Database: End-to-end interaction
+
+    %% Sequence Diagram Template
+    %%
+    %% Participants:
+    %% participant Name - Define actor/system
+    %%
+    %% Arrows:
+    %% ->> Solid line with arrow
+    %% -->> Dotted line with arrow
+    %% -x Solid line with X
+    %% --x Dotted line with X
+    %%
+    %% Activation:
+    %% activate Name - Start lifeline
+    %% deactivate Name - End lifeline
+    %%
+    %% Notes:
+    %% Note left/right of Name: Text
+    %% Note over Name1,Name2: Text

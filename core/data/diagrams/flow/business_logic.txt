@@ -1,0 +1,24 @@
+# Complex Business Logic
+# Multi-branch decision tree with loops
+
+st=>start: New Order
+checkInventory=>condition: In Stock?
+checkPayment=>condition: Payment OK?
+processOrder=>operation: Create Order
+reserveItems=>operation: Reserve Inventory
+chargeCard=>operation: Charge Payment
+shipOrder=>operation: Ship Items
+backorder=>operation: Create Backorder
+notifyCustomer=>operation: Send Email
+paymentFailed=>operation: Payment Failed
+retry=>condition: Retry Payment?
+cancel=>operation: Cancel Order
+e=>end: Complete
+
+st->checkInventory
+checkInventory(yes)->checkPayment
+checkInventory(no)->backorder->notifyCustomer->e
+checkPayment(yes)->processOrder->reserveItems->chargeCard->shipOrder->notifyCustomer->e
+checkPayment(no)->paymentFailed->retry
+retry(yes)->checkPayment
+retry(no)->cancel->notifyCustomer->e

@@ -1,0 +1,12 @@
+[ SIMPLE FLOW ]
+----------------
+[ START ]
+   |
+   v
+[ STEP 1 ]
+   |
+   v
+[ STEP 2 ]
+   |
+   v
+[ END ]

@@ -1,0 +1,261 @@
+{
+  "metadata": {
+    "version": "1.0.20b",
+    "updated": "2025-11-16",
+    "description": "Climate zone classifications for TILE mapping system",
+    "total_zones": 18
+  },
+  "climate_zones": [
+    {
+      "id": "tropical_rainforest",
+      "name": "Tropical Rainforest",
+      "koppen_code": "Af",
+      "temp_range_c": {"min": 18, "max": 35},
+      "annual_rainfall_mm": {"min": 2000, "max": 10000},
+      "description": "Hot and humid year-round with heavy rainfall",
+      "vegetation": "Dense rainforest",
+      "example_locations": ["Amazon Basin", "Congo Basin", "Southeast Asia"],
+      "season_count": 1,
+      "color_code": "dark_green"
+    },
+    {
+      "id": "tropical_monsoon",
+      "name": "Tropical Monsoon",
+      "koppen_code": "Am",
+      "temp_range_c": {"min": 18, "max": 38},
+      "annual_rainfall_mm": {"min": 1500, "max": 4000},
+      "description": "Hot with distinct wet and dry seasons",
+      "vegetation": "Seasonal forests",
+      "example_locations": ["Mumbai", "West Africa coast", "Caribbean"],
+      "season_count": 2,
+      "color_code": "green"
+    },
+    {
+      "id": "tropical_savanna",
+      "name": "Tropical Savanna",
+      "koppen_code": "Aw",
+      "temp_range_c": {"min": 15, "max": 35},
+      "annual_rainfall_mm": {"min": 500, "max": 1500},
+      "description": "Warm with pronounced dry season",
+      "vegetation": "Grasslands with scattered trees",
+      "example_locations": ["Sub-Saharan Africa", "Northern Australia", "Brazil"],
+      "season_count": 2,
+      "color_code": "yellow_green"
+    },
+    {
+      "id": "hot_desert",
+      "name": "Hot Desert",
+      "koppen_code": "BWh",
+      "temp_range_c": {"min": 5, "max": 50},
+      "annual_rainfall_mm": {"min": 0, "max": 250},
+      "description": "Extremely hot and dry",
+      "vegetation": "Sparse desert plants",
+      "example_locations": ["Sahara", "Arabian Desert", "Death Valley"],
+      "season_count": 2,
+      "color_code": "yellow"
+    },
+    {
+      "id": "cold_desert",
+      "name": "Cold Desert",
+      "koppen_code": "BWk",
+      "temp_range_c": {"min": -20, "max": 30},
+      "annual_rainfall_mm": {"min": 0, "max": 250},
+      "description": "Cold winters, hot summers, very dry",
+      "vegetation": "Minimal desert scrub",
+      "example_locations": ["Gobi Desert", "Great Basin", "Patagonia"],
+      "season_count": 4,
+      "color_code": "tan"
+    },
+    {
+      "id": "semi_arid",
+      "name": "Semi-Arid Steppe",
+      "koppen_code": "BS",
+      "temp_range_c": {"min": -10, "max": 40},
+      "annual_rainfall_mm": {"min": 250, "max": 500},
+      "description": "Low rainfall, grassland transition zone",
+      "vegetation": "Short grasses and shrubs",
+      "example_locations": ["Great Plains", "Sahel", "Central Asia"],
+      "season_count": 4,
+      "color_code": "brown"
+    },
+    {
+      "id": "mediterranean",
+      "name": "Mediterranean",
+      "koppen_code": "Cs",
+      "temp_range_c": {"min": 5, "max": 30},
+      "annual_rainfall_mm": {"min": 400, "max": 900},
+      "description": "Hot dry summers, mild wet winters",
+      "vegetation": "Chaparral, olive groves",
+      "example_locations": ["Mediterranean coast", "California", "Chile"],
+      "season_count": 4,
+      "color_code": "olive"
+    },
+    {
+      "id": "humid_subtropical",
+      "name": "Humid Subtropical",
+      "koppen_code": "Cfa",
+      "temp_range_c": {"min": -5, "max": 35},
+      "annual_rainfall_mm": {"min": 800, "max": 2000},
+      "description": "Hot humid summers, mild winters",
+      "vegetation": "Mixed forests",
+      "example_locations": ["Southeast US", "Southeast China", "Northern Argentina"],
+      "season_count": 4,
+      "color_code": "green"
+    },
+    {
+      "id": "oceanic",
+      "name": "Oceanic",
+      "koppen_code": "Cfb",
+      "temp_range_c": {"min": 0, "max": 25},
+      "annual_rainfall_mm": {"min": 800, "max": 2500},
+      "description": "Mild temperatures year-round, frequent rain",
+      "vegetation": "Temperate rainforest",
+      "example_locations": ["Western Europe", "New Zealand", "Pacific Northwest"],
+      "season_count": 4,
+      "color_code": "dark_green"
+    },
+    {
+      "id": "continental_warm",
+      "name": "Warm Continental",
+      "koppen_code": "Dfa",
+      "temp_range_c": {"min": -25, "max": 35},
+      "annual_rainfall_mm": {"min": 500, "max": 1000},
+      "description": "Hot summers, cold snowy winters",
+      "vegetation": "Deciduous and mixed forests",
+      "example_locations": ["Northeast US", "Eastern Europe", "Northern China"],
+      "season_count": 4,
+      "color_code": "light_green"
+    },
+    {
+      "id": "continental_cool",
+      "name": "Cool Continental",
+      "koppen_code": "Dfb",
+      "temp_range_c": {"min": -35, "max": 25},
+      "annual_rainfall_mm": {"min": 400, "max": 800},
+      "description": "Cool summers, very cold winters",
+      "vegetation": "Boreal forest (taiga)",
+      "example_locations": ["Canada", "Russia", "Scandinavia"],
+      "season_count": 4,
+      "color_code": "forest_green"
+    },
+    {
+      "id": "subarctic",
+      "name": "Subarctic",
+      "koppen_code": "Dfc",
+      "temp_range_c": {"min": -50, "max": 20},
+      "annual_rainfall_mm": {"min": 200, "max": 600},
+      "description": "Short cool summers, long severe winters",
+      "vegetation": "Sparse boreal forest",
+      "example_locations": ["Northern Canada", "Siberia", "Alaska"],
+      "season_count": 2,
+      "color_code": "gray_green"
+    },
+    {
+      "id": "tundra",
+      "name": "Tundra",
+      "koppen_code": "ET",
+      "temp_range_c": {"min": -50, "max": 10},
+      "annual_rainfall_mm": {"min": 100, "max": 400},
+      "description": "No true summer, permafrost",
+      "vegetation": "Mosses, lichens, low shrubs",
+      "example_locations": ["Arctic Canada", "Northern Russia", "Greenland"],
+      "season_count": 2,
+      "color_code": "white_gray"
+    },
+    {
+      "id": "ice_cap",
+      "name": "Ice Cap",
+      "koppen_code": "EF",
+      "temp_range_c": {"min": -70, "max": 0},
+      "annual_rainfall_mm": {"min": 50, "max": 500},
+      "description": "Permanent ice and snow",
+      "vegetation": "None",
+      "example_locations": ["Antarctica", "Greenland interior", "Arctic ice"],
+      "season_count": 2,
+      "color_code": "white"
+    },
+    {
+      "id": "highland",
+      "name": "Highland",
+      "koppen_code": "H",
+      "temp_range_c": {"min": -30, "max": 25},
+      "annual_rainfall_mm": {"min": 200, "max": 3000},
+      "description": "Varies with altitude and location",
+      "vegetation": "Varies from forest to alpine",
+      "example_locations": ["Himalayas", "Andes", "Alps"],
+      "season_count": 4,
+      "color_code": "brown_white"
+    },
+    {
+      "id": "humid_continental_dry",
+      "name": "Humid Continental (Dry)",
+      "koppen_code": "Dwa",
+      "temp_range_c": {"min": -30, "max": 30},
+      "annual_rainfall_mm": {"min": 300, "max": 700},
+      "description": "Dry winters, warm summers",
+      "vegetation": "Mixed grassland and forest",
+      "example_locations": ["Inner Mongolia", "Manchuria"],
+      "season_count": 4,
+      "color_code": "tan_green"
+    },
+    {
+      "id": "monsoon_influenced",
+      "name": "Monsoon-Influenced",
+      "koppen_code": "Cwa",
+      "temp_range_c": {"min": 0, "max": 35},
+      "annual_rainfall_mm": {"min": 600, "max": 1500},
+      "description": "Dry winters, wet summers",
+      "vegetation": "Seasonal forests",
+      "example_locations": ["Northern India", "Parts of China", "Central America"],
+      "season_count": 2,
+      "color_code": "green"
+    },
+    {
+      "id": "alpine",
+      "name": "Alpine",
+      "koppen_code": "H",
+      "temp_range_c": {"min": -20, "max": 15},
+      "annual_rainfall_mm": {"min": 500, "max": 2000},
+      "description": "High altitude, cold year-round",
+      "vegetation": "Alpine meadows, bare rock",
+      "example_locations": ["Rocky Mountains", "Alps", "Tibetan Plateau"],
+      "season_count": 2,
+      "color_code": "gray_white"
+    }
+  ],
+  "koppen_classification": {
+    "A": {"group": "Tropical", "description": "Average temp > 18°C year-round"},
+    "B": {"group": "Arid", "description": "Evaporation exceeds precipitation"},
+    "C": {"group": "Temperate", "description": "Coldest month 0-18°C"},
+    "D": {"group": "Continental", "description": "Coldest month < 0°C, warmest > 10°C"},
+    "E": {"group": "Polar", "description": "Warmest month < 10°C"}
+  },
+  "precipitation_patterns": {
+    "year_round": {
+      "description": "Rainfall distributed throughout year",
+      "climates": ["tropical_rainforest", "oceanic"]
+    },
+    "summer_wet": {
+      "description": "Most rain in summer months",
+      "climates": ["tropical_monsoon", "humid_subtropical", "monsoon_influenced"]
+    },
+    "winter_wet": {
+      "description": "Most rain in winter months",
+      "climates": ["mediterranean"]
+    },
+    "minimal": {
+      "description": "Very little precipitation",
+      "climates": ["hot_desert", "cold_desert", "ice_cap"]
+    }
+  },
+  "temperature_categories": {
+    "extreme_cold": {"range": "< -30°C", "description": "Arctic/Antarctic conditions"},
+    "very_cold": {"range": "-30°C to -10°C", "description": "Subarctic winter"},
+    "cold": {"range": "-10°C to 0°C", "description": "Cold winter"},
+    "cool": {"range": "0°C to 10°C", "description": "Temperate cool"},
+    "mild": {"range": "10°C to 20°C", "description": "Comfortable"},
+    "warm": {"range": "20°C to 30°C", "description": "Warm tropical"},
+    "hot": {"range": "30°C to 40°C", "description": "Hot desert/tropical"},
+    "extreme_heat": {"range": "> 40°C", "description": "Extreme desert heat"}
+  }
+}

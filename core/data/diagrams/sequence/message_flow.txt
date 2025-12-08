@@ -1,0 +1,12 @@
+# Basic Message Flow
+# Demonstrates simple sequential messaging between actors
+
+Title: User Authentication Flow
+
+User->Server: Login Request
+Server->Database: Query User
+Database-->Server: User Data
+Server->Server: Validate Credentials
+Server-->User: Auth Token
+
+Note right of Server: Token valid for 24h

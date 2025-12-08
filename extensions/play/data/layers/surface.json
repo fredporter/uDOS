@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "layer_id": 100,
+  "layer_name": "surface",
+  "layer_type": "physical",
+  "description": "Earth surface layer - terrain, elevation, land/water boundaries",
+  "version": "1.0.0",
+  "resolution": "~83km per cell",
+  "grid_size": {
+    "columns": 480,
+    "rows": 270,
+    "total_cells": 129600
+  },
+  "data_types": [
+    "elevation",
+    "terrain_type",
+    "land_water",
+    "biome",
+    "climate_zone"
+  ],
+  "elevation": {
+    "unit": "meters",
+    "min": -11034,
+    "max": 8849,
+    "sea_level": 0,
+    "ranges": {
+      "deep_ocean": {"min": -11034, "max": -6000, "color": "#000080"},
+      "ocean": {"min": -6000, "max": -200, "color": "#0000FF"},
+      "shallow_water": {"min": -200, "max": 0, "color": "#4169E1"},
+      "lowland": {"min": 0, "max": 200, "color": "#90EE90"},
+      "hills": {"min": 200, "max": 1000, "color": "#9ACD32"},
+      "mountains": {"min": 1000, "max": 3000, "color": "#8B4513"},
+      "high_mountains": {"min": 3000, "max": 8849, "color": "#FFFFFF"}
+    }
+  },
+  "terrain_types": {
+    "water": {"id": 0, "symbol": "~", "color": "#0000FF"},
+    "plains": {"id": 1, "symbol": ".", "color": "#90EE90"},
+    "forest": {"id": 2, "symbol": "T", "color": "#228B22"},
+    "desert": {"id": 3, "symbol": "^", "color": "#F4A460"},
+    "tundra": {"id": 4, "symbol": "_", "color": "#E0E0E0"},
+    "mountain": {"id": 5, "symbol": "M", "color": "#8B4513"},
+    "ice": {"id": 6, "symbol": "*", "color": "#FFFFFF"},
+    "swamp": {"id": 7, "symbol": "m", "color": "#556B2F"}
+  },
+  "biomes": {
+    "tropical_rainforest": {"climate": "Af", "precipitation_mm": 2000, "temp_c": 27},
+    "savanna": {"climate": "Aw", "precipitation_mm": 1000, "temp_c": 24},
+    "desert": {"climate": "BWh", "precipitation_mm": 250, "temp_c": 20},
+    "mediterranean": {"climate": "Csa", "precipitation_mm": 500, "temp_c": 16},
+    "temperate": {"climate": "Cfb", "precipitation_mm": 800, "temp_c": 10},
+    "continental": {"climate": "Dfa", "precipitation_mm": 600, "temp_c": 5},
+    "subarctic": {"climate": "Dfc", "precipitation_mm": 400, "temp_c": -5},
+    "tundra": {"climate": "ET", "precipitation_mm": 250, "temp_c": -10},
+    "ice_cap": {"climate": "EF", "precipitation_mm": 100, "temp_c": -20}
+  },
+  "sample_tiles": {
+    "AA340": {
+      "name": "Sydney Basin",
+      "elevation_m": 58,
+      "terrain": "plains",
+      "biome": "temperate",
+      "land_water_ratio": 0.7,
+      "population_density": "high"
+    },
+    "JF57": {
+      "name": "London Region",
+      "elevation_m": 11,
+      "terrain": "plains",
+      "biome": "temperate",
+      "land_water_ratio": 0.9,
+      "population_density": "high"
+    },
+    "QB185": {
+      "name": "Pacific Ocean",
+      "elevation_m": -4000,
+      "terrain": "water",
+      "biome": "ocean",
+      "land_water_ratio": 0.0,
+      "population_density": "none"
+    }
+  },
+  "metadata": {
+    "created": "2025-12-04",
+    "author": "uDOS v1.2.3",
+    "data_sources": [
+      "SRTM elevation data",
+      "NASA Blue Marble",
+      "Köppen climate classification"
+    ],
+    "update_frequency": "quarterly",
+    "last_updated": "2025-12-04"
+  }
+}

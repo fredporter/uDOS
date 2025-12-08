@@ -1,0 +1,208 @@
+{
+  "id": "webhooks",
+  "name": "Webhook Integration System",
+  "version": "1.2.10",
+  "type": "service",
+  "category": "core",
+  "description": "Unified webhook processing for GitHub, Slack, Notion, ClickUp events with routing and automation",
+  "author": "uDOS Development Team",
+  "license": "MIT",
+  "status": "active",
+  "dependencies": {
+    "core": ">=1.2.10",
+    "services": ["config"],
+    "interpreters": ["ucode_interpreter"]
+  },
+  "platforms": {
+    "supported": ["github", "slack", "notion", "clickup"],
+    "github": {
+      "events": ["push", "pull_request", "issues", "release", "star"],
+      "requires_secret": true
+    },
+    "slack": {
+      "events": ["message", "reaction_added", "app_mention", "slash_command"],
+      "requires_secret": true
+    },
+    "notion": {
+      "events": ["page.updated", "page.created", "database.item.created", "database.item.updated"],
+      "requires_secret": true
+    },
+    "clickup": {
+      "events": ["taskCreated", "taskUpdated", "taskDeleted", "taskCommentPosted", "taskStatusUpdated"],
+      "requires_secret": true
+    }
+  },
+  "components": {
+    "event_processor": {
+      "file": "event_processor.py",
+      "description": "Normalizes platform-specific payloads to unified format",
+      "exports": ["EventProcessor"]
+    },
+    "event_router": {
+      "file": "event_router.py",
+      "description": "Routes events to handlers and uCODE scripts",
+      "exports": ["EventRouter", "EventRoute"]
+    },
+    "api_server": {
+      "file": "api_server.py",
+      "description": "REST API server for webhook management and event querying",
+      "exports": ["WebhookAPIServer", "create_server"]
+    },
+    "client": {
+      "file": "client.py",
+      "description": "Python client library for webhook API (sync and async)",
+      "exports": ["WebhookClient", "Event", "Route", "Stats"]
+    },
+    "integrations": {
+      "directory": "integrations/",
+      "description": "Platform-specific webhook setup helpers",
+      "exports": ["GitHubIntegration", "SlackIntegration", "NotionIntegration", "ClickUpIntegration"]
+    },
+    "simulator": {
+      "file": "simulator.py",
+      "description": "Webhook event simulator for testing without external platforms",
+      "exports": ["WebhookSimulator", "SimulatedEvent"]
+    },
+    "test_panel": {
+      "file": "test_panel.py",
+      "description": "Interactive web UI for webhook testing and debugging",
+      "exports": ["WebhookTestPanel", "create_test_panel"]
+    },
+    "config": {
+      "file": "config.json",
+      "description": "Platform configurations and routing rules"
+    }
+  },
+  "endpoints": [
+    {
+      "path": "/webhooks/github",
+      "method": "POST",
+      "description": "GitHub webhook receiver",
+      "requires_signature": true,
+      "signature_header": "X-Hub-Signature-256"
+    },
+    {
+      "path": "/webhooks/slack",
+      "method": "POST",
+      "description": "Slack webhook receiver",
+      "requires_signature": true,
+      "signature_header": "X-Slack-Signature"
+    },
+    {
+      "path": "/webhooks/notion",
+      "method": "POST",
+      "description": "Notion webhook receiver",
+      "requires_signature": true,
+      "signature_header": "Notion-Signature"
+    },
+    {
+      "path": "/webhooks/clickup",
+      "method": "POST",
+      "description": "ClickUp webhook receiver",
+      "requires_signature": true,
+      "signature_header": "ClickUp-Signature"
+    },
+    {
+      "path": "/api/events",
+      "method": "GET",
+      "description": "Query event history with optional filters",
+      "parameters": ["limit", "event_type", "platform"]
+    },
+    {
+      "path": "/api/events/{event_id}",
+      "method": "GET",
+      "description": "Get specific event by ID"
+    },
+    {
+      "path": "/api/routes",
+      "method": "GET",
+      "description": "List all registered routes"
+    },
+    {
+      "path": "/api/routes/{name}",
+      "method": "GET",
+      "description": "Get specific route details"
+    },
+    {
+      "path": "/api/routes/{name}/enable",
+      "method": "POST",
+      "description": "Enable a route"
+    },
+    {
+      "path": "/api/routes/{name}/disable",
+      "method": "POST",
+      "description": "Disable a route"
+    },
+    {
+      "path": "/api/routes/{name}",
+      "method": "DELETE",
+      "description": "Remove a route"
+    },
+    {
+      "path": "/api/stats",
+      "method": "GET",
+      "description": "Get system statistics (API, processor, router)"
+    },
+    {
+      "path": "/api/stats/reset",
+      "method": "POST",
+      "description": "Reset all statistics"
+    },
+    {
+      "path": "/api/health",
+      "method": "GET",
+      "description": "Health check endpoint"
+    }
+  ],
+  "environment_variables": {
+    "GITHUB_WEBHOOK_SECRET": {
+      "required": false,
+      "description": "Secret for validating GitHub webhook signatures"
+    },
+    "SLACK_SIGNING_SECRET": {
+      "required": false,
+      "description": "Secret for validating Slack webhook signatures"
+    },
+    "NOTION_WEBHOOK_SECRET": {
+      "required": false,
+      "description": "Secret for validating Notion webhook signatures"
+    },
+    "CLICKUP_WEBHOOK_SECRET": {
+      "required": false,
+      "description": "Secret for validating ClickUp webhook signatures"
+    }
+  },
+  "configuration": {
+    "config_file": "extensions/core/webhooks/config.json",
+    "default_enabled": true,
+    "max_history": 1000,
+    "retry_failed": true,
+    "max_retries": 3
+  },
+  "features": [
+    "Multi-platform webhook normalization",
+    "Pattern-based event routing",
+    "uCODE script execution on events",
+    "Priority-based handler execution",
+    "Event history and statistics",
+    "Signature verification",
+    "Rate limiting",
+    "Async event processing",
+    "REST API server with 14 endpoints",
+    "Python client library (sync + async)",
+    "Platform integration helpers",
+    "CORS support for web clients",
+    "Event simulator for testing",
+    "Interactive web test panel"
+  ],
+  "installation": {
+    "auto_register": true,
+    "setup_script": null,
+    "requires_restart": false
+  },
+  "documentation": {
+    "wiki": "wiki/Webhook-Integration.md",
+    "examples": "memory/workflows/missions/webhook_examples/",
+    "api_reference": "extensions/core/webhooks/README.md"
+  }
+}

@@ -1,0 +1,19 @@
+[ TICKET PURCHASE FLOW ]
+------------------------
+[ VISIT EVENT PAGE ]
+          |
+          v
+[ SELECT SHOWTIME ]
+          |
+          v
+[ PICK SEATS ]
+          |
+          v
+[ CHECKOUT ]
+          |
+          v
+[ PAYMENT ]
+     |
+     +--> [ SUCCESS ] --> [ SEND TICKETS ]
+     |
+     +--> [ FAILURE ] --> [ SHOW ERROR ]

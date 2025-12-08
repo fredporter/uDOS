@@ -1,0 +1,38 @@
+{
+  "THEME_NAME": "teletext",
+  "VERSION": "1.0.2",
+  "NAME": "Teletext Broadcast System",
+  "STYLE": "BBC Ceefax / Teletext vintage",
+  "VERBOSE_LEVEL": "MEDIUM",
+  "ICON": "📺",
+  "DESCRIPTION": "Retro teletext broadcast interface theme",
+
+  "TERMINOLOGY": {
+    "PROMPT_BASE": "TELETEXT>",
+    "CMD_CATALOG": "INDEX",
+    "CMD_LOAD": "PAGE",
+    "CMD_SAVE": "STORE",
+    "CMD_RUN": "BROADCAST",
+    "CMD_CLS": "CLEAR",
+    "CMD_HELP": "GUIDE",
+    "CMD_MAP": "MAP",
+    "CMD_EDIT": "EDIT",
+    "CMD_EXIT": "STANDBY",
+    "CMD_REBOOT": "RESET",
+    "CMD_REPAIR": "SERVICE"
+  },
+
+  "MESSAGES": {
+    "ERROR_CRASH": "⚠ BROADCAST ERROR: '{command}' transmission failed",
+    "ERROR_INVALID_UCODE_FORMAT": "⚠ INVALID PAGE FORMAT: '{ucode}' - {error}",
+    "ERROR_UNKNOWN_MODULE": "⚠ SERVICE UNAVAILABLE: Module '{module}' not found",
+    "ERROR_UNKNOWN_SYSTEM_COMMAND": "⚠ UNKNOWN COMMAND: '{command}' not in broadcast schedule",
+    "ERROR_UNKNOWN_FILE_COMMAND": "⚠ FILE ERROR: Command '{command}' not recognized",
+    "ERROR_GENERIC": "⚠ ERROR: {error}",
+    "INFO_EXIT": "📺 CEEFAX service ending. Standby.",
+    "INFO_HELP_INTRO": "📋 Available teletext pages:",
+    "INFO_REPAIR_RUNNING": "🔧 Running service diagnostics...",
+    "ACTION_SUCCESS": "✓ Transmission successful",
+    "ACTION_SUCCESS_REPAIR_COMPLETE": "✓ Service maintenance completed"
+  }
+}

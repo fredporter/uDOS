@@ -1,0 +1,41 @@
+{
+  "api_quotas": {
+    "gemini": {
+      "daily_limit": 1500,
+      "hourly_limit": 100,
+      "reset_time": "00:00",
+      "note": "Free tier limits. Resets at UTC midnight."
+    },
+    "github": {
+      "hourly_limit": 5000,
+      "reset_time": "hourly",
+      "note": "Authenticated API requests. Resets hourly."
+    }
+  },
+  "rate_limits": {
+    "gemini": {
+      "requests_per_minute": 15,
+      "note": "Conservative rate limit to avoid throttling"
+    },
+    "github": {
+      "requests_per_minute": 60,
+      "note": "Authenticated API rate limit"
+    }
+  },
+  "disk_thresholds": {
+    "warning_percent": 80,
+    "critical_percent": 90,
+    "max_mission_mb": 1000,
+    "note": "Disk space warnings for sandbox and system"
+  },
+  "cpu_thresholds": {
+    "warning_percent": 75,
+    "critical_percent": 90,
+    "note": "CPU usage thresholds for background monitoring"
+  },
+  "memory_thresholds": {
+    "warning_percent": 80,
+    "critical_percent": 90,
+    "note": "System memory usage thresholds"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "name": "Sonic Screwdriver Device Status",
+  "description": "Firmware version status grid for provisioning layer",
+  "layer": 650,
+  "viewport": "STANDARD",
+  "dimensions": {
+    "rows": 5,
+    "columns": 6
+  },
+  "header": "Layer 650 - Firmware Status Grid",
+  "footer": "Status: ✓=Current ⚠=Outdated ✗=Incompatible | Target: v{{target_version}}",
+  "border": true,
+  "cells": [
+    {
+      "row": 0,
+      "col": 0,
+      "tile": "{{tile_base}}",
+      "device": "D1",
+      "symbol": "✓",
+      "value": "v{{target_version}}"
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "tile": "{{tile_offset_1}}",
+      "device": "D2",
+      "symbol": "⚠",
+      "value": "v{{old_version_1}}"
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "tile": "{{tile_offset_2}}",
+      "device": "D3",
+      "symbol": "✓",
+      "value": "v{{target_version}}"
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "tile": "{{tile_row_1}}",
+      "device": "D4",
+      "symbol": "✗",
+      "value": "v{{old_version_2}}"
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "tile": "{{tile_row_1_3}}",
+      "device": "D5",
+      "symbol": "✓",
+      "value": "v{{target_version}}"
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "tile": "{{tile_row_2_1}}",
+      "device": "D6",
+      "symbol": "⚠",
+      "value": "v{{old_version_1}}"
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "tile": "{{tile_row_2_4}}",
+      "device": "D7",
+      "symbol": "⚠",
+      "value": "v{{old_version_3}}"
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "tile": "{{tile_row_3_2}}",
+      "device": "D8",
+      "symbol": "✓",
+      "value": "v{{target_version}}"
+    }
+  ],
+  "variables": {
+    "tile_base": "AA340",
+    "target_version": "2.4.1",
+    "old_version_1": "2.3.0",
+    "old_version_2": "1.9.5",
+    "old_version_3": "2.2.8"
+  }
+}

@@ -1,0 +1,248 @@
+{
+  "category": "System Commands",
+  "description": "Core system management and administration commands",
+  "commands": {
+    "HELP": {
+      "name": "HELP",
+      "syntax": [
+        "HELP",
+        "HELP <command>",
+        "HELP SEARCH <query>",
+        "HELP CATEGORY <category>",
+        "HELP RECENT",
+        "HELP STATS",
+        "HELP SESSION"
+      ],
+      "description": "Display help information and command documentation",
+      "detailed": "The HELP command provides comprehensive documentation for all uDOS commands. It supports multiple modes for finding information quickly.",
+      "parameters": [
+        {
+          "name": "command",
+          "type": "string",
+          "optional": true,
+          "description": "Specific command name to get detailed help for"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "optional": true,
+          "description": "Search query for fuzzy command search"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "optional": true,
+          "description": "Category name to filter commands by"
+        }
+      ],
+      "examples": [
+        {
+          "command": "HELP",
+          "description": "Show all commands organized by category"
+        },
+        {
+          "command": "HELP STATUS",
+          "description": "Show detailed help for the STATUS command"
+        },
+        {
+          "command": "HELP SEARCH file",
+          "description": "Search for commands related to 'file'"
+        },
+        {
+          "command": "HELP CATEGORY system",
+          "description": "Show all system commands"
+        },
+        {
+          "command": "HELP RECENT",
+          "description": "Show recently used commands"
+        },
+        {
+          "command": "HELP STATS",
+          "description": "Show most frequently used commands"
+        },
+        {
+          "command": "HELP SESSION",
+          "description": "Show current session statistics"
+        }
+      ],
+      "related": ["STATUS", "CONFIG", "SETTINGS"],
+      "notes": [
+        "Use fuzzy search to find commands when you don't know the exact name",
+        "Recent command tracking requires UsageTracker service",
+        "Help content is loaded from COMMANDS.json in data/system/"
+      ],
+      "version_added": "1.0.0",
+      "version_enhanced": "1.0.12"
+    },
+    "STATUS": {
+      "name": "STATUS",
+      "syntax": [
+        "STATUS",
+        "STATUS SYSTEM",
+        "STATUS SERVERS",
+        "STATUS ALL"
+      ],
+      "description": "Display system status and diagnostics",
+      "detailed": "The STATUS command provides real-time information about system health, running services, and configuration.",
+      "parameters": [],
+      "examples": [
+        {
+          "command": "STATUS",
+          "description": "Show basic system status"
+        },
+        {
+          "command": "STATUS SYSTEM",
+          "description": "Show detailed system information"
+        },
+        {
+          "command": "STATUS SERVERS",
+          "description": "Show all running web servers"
+        }
+      ],
+      "related": ["REPAIR", "CONFIG", "HELP"],
+      "notes": [
+        "Shows connection status (ONLINE/LIMITED/OFFLINE)",
+        "Displays viewport tier and grid configuration",
+        "Includes session and move statistics"
+      ],
+      "version_added": "1.0.0"
+    },
+    "REPAIR": {
+      "name": "REPAIR",
+      "syntax": [
+        "REPAIR",
+        "REPAIR AUTO",
+        "REPAIR CHECK"
+      ],
+      "description": "System diagnostics and auto-repair functionality",
+      "detailed": "REPAIR scans for common issues and can automatically fix configuration problems, missing files, and corrupted data.",
+      "parameters": [],
+      "examples": [
+        {
+          "command": "REPAIR",
+          "description": "Run diagnostic scan and show issues"
+        },
+        {
+          "command": "REPAIR AUTO",
+          "description": "Automatically fix detected issues"
+        },
+        {
+          "command": "REPAIR CHECK",
+          "description": "Check for issues without fixing"
+        }
+      ],
+      "related": ["STATUS", "REBOOT", "CONFIG"],
+      "notes": [
+        "Always backs up files before making changes",
+        "Can fix missing directories, corrupted configs, and broken links",
+        "Run after major updates or if system behaves unexpectedly"
+      ],
+      "version_added": "1.0.1"
+    },
+    "BLANK": {
+      "name": "BLANK",
+      "syntax": [
+        "BLANK",
+        "BLANK ALL",
+        "BLANK BUFFER",
+        "BLANK LAST <n>",
+        "BLANK GRID",
+        "BLANK LOGS",
+        "BLANK HISTORY"
+      ],
+      "description": "Clear screen and terminal state with various modes",
+      "detailed": "BLANK (also aliased as CLEAR) provides intelligent screen clearing with options to preserve status information or clear specific components.",
+      "parameters": [
+        {
+          "name": "n",
+          "type": "integer",
+          "optional": true,
+          "description": "Number of lines to clear (for BLANK LAST)"
+        }
+      ],
+      "examples": [
+        {
+          "command": "BLANK",
+          "description": "Smart clear - preserve 3-line status bar"
+        },
+        {
+          "command": "BLANK ALL",
+          "description": "Complete screen wipe including scrollback"
+        },
+        {
+          "command": "BLANK BUFFER",
+          "description": "Clear scrollback buffer only"
+        },
+        {
+          "command": "BLANK LAST 5",
+          "description": "Clear last 5 lines"
+        },
+        {
+          "command": "BLANK GRID",
+          "description": "Clear grid data (with confirmation)"
+        },
+        {
+          "command": "BLANK LOGS",
+          "description": "Clear log files (with confirmation)"
+        },
+        {
+          "command": "BLANK HISTORY",
+          "description": "Clear command history (with confirmation)"
+        }
+      ],
+      "related": ["HELP", "STATUS"],
+      "notes": [
+        "Uses ANSI escape sequences for precise control",
+        "Destructive operations require confirmation",
+        "Smart clear preserves important status information"
+      ],
+      "version_added": "1.0.0",
+      "version_enhanced": "1.0.12"
+    },
+    "SETUP": {
+      "name": "SETUP",
+      "syntax": [
+        "SETUP",
+        "SETUP WIZARD",
+        "SETUP QUICK",
+        "SETUP THEME",
+        "SETUP VIEWPORT",
+        "SETUP EXTENSIONS",
+        "SETUP HELP"
+      ],
+      "description": "Interactive setup wizard and configuration",
+      "detailed": "SETUP provides guided configuration for new users and component-specific setup for advanced users.",
+      "parameters": [],
+      "examples": [
+        {
+          "command": "SETUP",
+          "description": "Run full interactive setup wizard"
+        },
+        {
+          "command": "SETUP QUICK",
+          "description": "Quick setup with sensible defaults"
+        },
+        {
+          "command": "SETUP THEME",
+          "description": "Theme selection only"
+        },
+        {
+          "command": "SETUP VIEWPORT",
+          "description": "Viewport configuration only"
+        },
+        {
+          "command": "SETUP EXTENSIONS",
+          "description": "Extension management only"
+        }
+      ],
+      "related": ["CONFIG", "SETTINGS", "HELP"],
+      "notes": [
+        "First-run setup creates user.json and .env files",
+        "Theme changes apply immediately",
+        "Viewport settings require REBOOT to take effect"
+      ],
+      "version_added": "1.0.0",
+      "version_enhanced": "1.0.12"
+    }
+  }
+}

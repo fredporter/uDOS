@@ -1,0 +1,160 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "uDOS Story Variables",
+  "description": "Story/adventure progression variables for narrative gameplay",
+  "type": "object",
+  "variables": {
+    "STORY-CURRENT": {
+      "type": "string",
+      "description": "Currently active story/adventure ID",
+      "scope": "session",
+      "default": "",
+      "validation": {
+        "pattern": "^[a-zA-Z0-9_-]*$",
+        "maxLength": 50
+      }
+    },
+    "STORY-CHAPTER": {
+      "type": "integer",
+      "description": "Current chapter number",
+      "scope": "session",
+      "default": 1,
+      "validation": {
+        "minimum": 1,
+        "maximum": 99
+      }
+    },
+    "STORY-CHECKPOINT": {
+      "type": "string",
+      "description": "Last checkpoint/save point ID",
+      "scope": "session",
+      "default": "",
+      "validation": {
+        "pattern": "^[a-zA-Z0-9_-]*$",
+        "maxLength": 50
+      }
+    },
+    "STORY-FLAGS": {
+      "type": "array",
+      "description": "Story progression flags (events completed)",
+      "scope": "session",
+      "default": [],
+      "validation": {
+        "maxItems": 100
+      },
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_-]+$"
+      }
+    },
+    "STORY-CHOICES": {
+      "type": "object",
+      "description": "Player choices made during story",
+      "scope": "session",
+      "default": {},
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "STORY-QUEST-ACTIVE": {
+      "type": "array",
+      "description": "Currently active quest IDs",
+      "scope": "session",
+      "default": [],
+      "validation": {
+        "maxItems": 20
+      },
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_-]+$"
+      }
+    },
+    "STORY-QUEST-COMPLETED": {
+      "type": "array",
+      "description": "Completed quest IDs",
+      "scope": "session",
+      "default": [],
+      "validation": {
+        "maxItems": 200
+      },
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_-]+$"
+      }
+    },
+    "STORY-NPC-MET": {
+      "type": "array",
+      "description": "NPCs the player has met",
+      "scope": "session",
+      "default": [],
+      "validation": {
+        "maxItems": 100
+      },
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_-]+$"
+      }
+    },
+    "STORY-LOCATIONS-VISITED": {
+      "type": "array",
+      "description": "TILE codes visited during story",
+      "scope": "session",
+      "default": [],
+      "validation": {
+        "maxItems": 500
+      },
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z]{2}\\d{1,3}(-\\d{3})?$"
+      }
+    },
+    "STORY-DIALOGUE-SEEN": {
+      "type": "array",
+      "description": "Dialogue IDs already displayed",
+      "scope": "session",
+      "default": [],
+      "validation": {
+        "maxItems": 1000
+      },
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_-]+$"
+      }
+    },
+    "STORY-TIME-ELAPSED": {
+      "type": "integer",
+      "description": "In-game time elapsed (minutes)",
+      "scope": "session",
+      "default": 0,
+      "validation": {
+        "minimum": 0,
+        "maximum": 999999
+      }
+    },
+    "STORY-ENDING": {
+      "type": "string",
+      "description": "Story ending reached (if completed)",
+      "scope": "session",
+      "default": "",
+      "validation": {
+        "enum": ["", "good", "bad", "neutral", "secret", "true"]
+      }
+    },
+    "STORY-DIFFICULTY": {
+      "type": "string",
+      "description": "Current difficulty setting",
+      "scope": "session",
+      "default": "normal",
+      "validation": {
+        "enum": ["easy", "normal", "hard", "nightmare"]
+      }
+    }
+  },
+  "meta": {
+    "version": "1.0.0",
+    "created": "2025-12-01",
+    "category": "gameplay",
+    "endings": ["good", "bad", "neutral", "secret", "true"],
+    "difficulties": ["easy", "normal", "hard", "nightmare"]
+  }
+}

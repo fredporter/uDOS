@@ -1,0 +1,89 @@
+{
+  "FONTS": {
+    "MONASPACE": {
+      "VARIANTS": {
+        "NEON": {
+          "NAME": "Monaspace Neon",
+          "DESCRIPTION": "Neo-grotesque sans - Clean and modern",
+          "FILES": {
+            "REGULAR": "MonaspaceNeon-Regular.woff2",
+            "BOLD": "MonaspaceNeon-Bold.woff2",
+            "ITALIC": "MonaspaceNeon-Italic.woff2"
+          },
+          "CSS_FAMILY": "Monaspace Neon"
+        },
+        "ARGON": {
+          "NAME": "Monaspace Argon",
+          "DESCRIPTION": "Humanist sans - Warm and readable",
+          "FILES": {
+            "REGULAR": "MonaspaceArgon-Regular.woff2",
+            "BOLD": "MonaspaceArgon-Bold.woff2",
+            "ITALIC": "MonaspaceArgon-Italic.woff2"
+          },
+          "CSS_FAMILY": "Monaspace Argon"
+        },
+        "XENON": {
+          "NAME": "Monaspace Xenon",
+          "DESCRIPTION": "Slab serif - Editorial and strong",
+          "FILES": {
+            "REGULAR": "MonaspaceXenon-Regular.woff2",
+            "BOLD": "MonaspaceXenon-Bold.woff2",
+            "ITALIC": "MonaspaceXenon-Italic.woff2"
+          },
+          "CSS_FAMILY": "Monaspace Xenon"
+        },
+        "RADON": {
+          "NAME": "Monaspace Radon",
+          "DESCRIPTION": "Handwriting - Casual and personal",
+          "FILES": {
+            "REGULAR": "MonaspaceRadon-Regular.woff2",
+            "BOLD": "MonaspaceRadon-Bold.woff2",
+            "ITALIC": "MonaspaceRadon-Italic.woff2"
+          },
+          "CSS_FAMILY": "Monaspace Radon"
+        },
+        "KRYPTON": {
+          "NAME": "Monaspace Krypton",
+          "DESCRIPTION": "Mechanical sans - Technical and precise",
+          "FILES": {
+            "REGULAR": "MonaspaceKrypton-Regular.woff2",
+            "BOLD": "MonaspaceKrypton-Bold.woff2",
+            "ITALIC": "MonaspaceKrypton-Italic.woff2"
+          },
+          "CSS_FAMILY": "Monaspace Krypton"
+        }
+      },
+      "DEFAULT_VARIANT": "NEON",
+      "FONT_SIZE": "14px",
+      "LINE_HEIGHT": "1.5",
+      "FEATURES": {
+        "TEXTURE_HEALING": true,
+        "LIGATURES": true,
+        "POWERLINE": true,
+        "VARIABLE_FONT": true
+      }
+    },
+    "FALLBACK": {
+      "FAMILIES": [
+        "monospace",
+        "Consolas",
+        "Monaco",
+        "Courier New"
+      ]
+    },
+    "WEB_CONFIG": {
+      "FONT_PATH": "extensions/fonts/monaspace",
+      "FORMAT": "woff2",
+      "DISPLAY": "swap",
+      "PRELOAD": true
+    }
+  },
+  "TERMINAL_FONTS": {
+    "CLI_RECOMMENDATION": {
+      "MACOS": "Install via Font Book or use system monospace",
+      "LINUX": "Copy OTF files to ~/.local/share/fonts/",
+      "WINDOWS": "Install OTF files to C:\\Windows\\Fonts\\"
+    },
+    "NOTE": "Web fonts (WOFF2) are for browser-based terminals only. For CLI use, install system fonts manually."
+  }
+}

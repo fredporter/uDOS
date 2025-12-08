@@ -1,0 +1,58 @@
+{
+  "name": "Sonic Screwdriver Flash Progress",
+  "description": "Real-time firmware flash progress indicator",
+  "layer": 650,
+  "viewport": "STANDARD",
+  "dimensions": {
+    "rows": 7,
+    "columns": 1
+  },
+  "header": "🔧 Flashing {{tile}}-{{layer}}-{{device}}",
+  "border": true,
+  "double_border": true,
+  "steps": [
+    {
+      "label": "Verifying signature...",
+      "percentage": "{{step_1_pct}}",
+      "status": "{{step_1_status}}"
+    },
+    {
+      "label": "Erasing Bank B...",
+      "percentage": "{{step_2_pct}}",
+      "status": "{{step_2_status}}"
+    },
+    {
+      "label": "Writing firmware...",
+      "percentage": "{{step_3_pct}}",
+      "status": "{{step_3_status}}"
+    },
+    {
+      "label": "Validating...",
+      "percentage": "{{step_4_pct}}",
+      "status": "{{step_4_status}}"
+    },
+    {
+      "label": "Health check...",
+      "percentage": "{{step_5_pct}}",
+      "status": "{{step_5_status}}"
+    }
+  ],
+  "footer": "Progress: {{completed_steps}}/5 steps       Elapsed: {{elapsed_time}}s",
+  "variables": {
+    "tile": "AA340",
+    "layer": "300",
+    "device": "D1",
+    "step_1_pct": "100",
+    "step_1_status": "✓",
+    "step_2_pct": "100",
+    "step_2_status": "✓",
+    "step_3_pct": "76",
+    "step_3_status": "",
+    "step_4_pct": "0",
+    "step_4_status": "",
+    "step_5_pct": "0",
+    "step_5_status": "",
+    "completed_steps": "3",
+    "elapsed_time": "8.2"
+  }
+}

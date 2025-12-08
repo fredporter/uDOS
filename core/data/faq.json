@@ -1,0 +1,294 @@
+{
+  "SYSTEM_NAME": "uDOS Knowledge Base",
+  "VERSION": "1.0.0",
+  "DESCRIPTION": "Unified FAQ and offline assistance system",
+  "FAQ": {
+    "HOW_TO_START": {
+      "question": "How do I start using uDOS?",
+      "answer": "Run './start_udos.sh' from the terminal. First time: SETUP wizard guides you through configuration.",
+      "commands": [
+        "SETUP",
+        "HELP"
+      ],
+      "keywords": [
+        "start",
+        "begin",
+        "getting started",
+        "first time"
+      ]
+    },
+    "LIST_FILES": {
+      "question": "How do I see what files are available?",
+      "answer": "Use CATALOG to list files in current directory, or CATALOG \"<path>\" for specific directory.",
+      "commands": [
+        "CATALOG"
+      ],
+      "keywords": [
+        "list files",
+        "show files",
+        "directory",
+        "folder contents"
+      ]
+    },
+    "LOAD_FILE": {
+      "question": "How do I load a file?",
+      "answer": "Use: LOAD \"<filename>\" TO \"<panel_name>\"\nExample: LOAD \"data/STORY.UDT\" TO \"main\"",
+      "commands": [
+        "LOAD",
+        "SHOW"
+      ],
+      "keywords": [
+        "open file",
+        "load file",
+        "read file",
+        "view file"
+      ]
+    },
+    "SAVE_FILE": {
+      "question": "How do I save my work?",
+      "answer": "Use: SAVE \"<panel_name>\" TO \"<filename>\"\nExample: SAVE \"main\" TO \"my_work.txt\"",
+      "commands": [
+        "SAVE"
+      ],
+      "keywords": [
+        "save file",
+        "write file",
+        "export",
+        "save work"
+      ]
+    },
+    "CREATE_PANEL": {
+      "question": "How do I create a new panel?",
+      "answer": "Use: GRID PANEL CREATE \"<name>\"\nExample: GRID PANEL CREATE \"notes\"",
+      "commands": [
+        "GRID PANEL CREATE",
+        "GRID PANELS LIST"
+      ],
+      "keywords": [
+        "new panel",
+        "create panel",
+        "add panel",
+        "make panel"
+      ]
+    },
+    "USE_OK_ASSISTED_TASK": {
+      "question": "How do I use OK Assisted Task features?",
+      "answer": "Requires internet connection. Use: OK \"<question>\" or OK \"<question>\" FROM \"<panel>\"\nExample: OK \"Summarize this\" FROM \"main\" or OK \"What is uDOS?\"",
+      "commands": [
+        "OK"
+      ],
+      "keywords": [
+        "ok-assisted-task",
+        "gemini",
+        "ask question",
+        "summarize",
+        "ok-assisted-task help"
+      ]
+    },
+    "EDIT_FILE": {
+      "question": "How do I edit a file?",
+      "answer": "Use: EDIT \"<filename>\" (opens in configured editor)\nSet editor: EDIT --editor <nano|vim|micro>\nInstall micro: EDIT --install-micro",
+      "commands": [
+        "EDIT"
+      ],
+      "keywords": [
+        "edit file",
+        "modify file",
+        "change file",
+        "open editor"
+      ]
+    },
+    "FIX_ERRORS": {
+      "question": "Something isn't working, how do I fix it?",
+      "answer": "Try: REPAIR (auto-fix common issues), UNDO (undo last action), or RESTORE <session> (restore previous state)",
+      "commands": [
+        "REPAIR",
+        "UNDO",
+        "RESTORE"
+      ],
+      "keywords": [
+        "fix",
+        "broken",
+        "error",
+        "not working",
+        "repair",
+        "troubleshoot"
+      ]
+    },
+    "WEB_EXTENSIONS": {
+      "question": "How do I use web extensions?",
+      "answer": "Use: EXTENSIONS START <name>\nAvailable: font-editor, markdown-viewer, typo\nExample: EXTENSIONS START markdown-viewer",
+      "commands": [
+        "EXTENSIONS START",
+        "EXTENSIONS LIST",
+        "EXTENSIONS STATUS"
+      ],
+      "keywords": [
+        "web extension",
+        "browser",
+        "font editor",
+        "markdown viewer",
+        "typo"
+      ]
+    },
+    "VIEW_STRUCTURE": {
+      "question": "How do I see the repository structure?",
+      "answer": "Use: TREE (full tree) or TREE <folder> for specific folder\nOptions: SANDBOX, MEMORY, KNOWLEDGE, HISTORY, CORE, WIKI, EXTENSIONS, EXAMPLES",
+      "commands": [
+        "TREE"
+      ],
+      "keywords": [
+        "structure",
+        "tree",
+        "folders",
+        "directory structure",
+        "repository"
+      ]
+    },
+    "SYSTEM_INFO": {
+      "question": "How do I check system status?",
+      "answer": "Use: DASH (full dashboard), STATUS (quick status), or VIEWPORT (display info)",
+      "commands": [
+        "DASH",
+        "STATUS",
+        "VIEWPORT"
+      ],
+      "keywords": [
+        "status",
+        "dashboard",
+        "system info",
+        "check system"
+      ]
+    },
+    "OFFLINE_MODE": {
+      "question": "What works offline?",
+      "answer": "All commands work offline except OK (OK Assisted Task). Offline mode provides pattern-based assistance and local analysis.",
+      "commands": [
+        "HELP",
+        "CATALOG",
+        "LOAD",
+        "SAVE",
+        "EDIT",
+        "TREE"
+      ],
+      "keywords": [
+        "offline",
+        "no internet",
+        "without connection",
+        "local"
+      ]
+    }
+  },
+  "QUICK_TIPS": {
+    "tab_completion": "Press TAB for command completion and suggestions",
+    "help_system": "Use HELP <command> for detailed help on any command",
+    "command_history": "Use UP/DOWN arrows to navigate command history",
+    "sandbox": "sandbox/ is your workspace - test files here (gitignored)",
+    "memory": "memory/ is for permanent storage - commit important work here"
+  },
+  "OFFLINE_ASSISTANCE": {
+    "DESCRIPTION": "Local OK Assisted Task-style assistance using pattern matching and templates",
+    "PROMPTS": {
+      "HELP_REQUEST": {
+        "PATTERN": [
+          "help",
+          "how do i",
+          "what is",
+          "explain"
+        ],
+        "RESPONSE_TEMPLATE": "Based on your question about '{topic}', here's what I know:\n\n{info}\n\nFor detailed help, use: HELP {command}",
+        "FALLBACK": "I'm working offline. Try 'HELP <command>' for specific commands, or 'CATALOG' to explore files."
+      },
+      "FILE_SUGGESTION": {
+        "PATTERN": [
+          "find",
+          "locate",
+          "where is",
+          "search for"
+        ],
+        "RESPONSE_TEMPLATE": "Searching for '{query}'...\n\nSuggestion: Use 'CATALOG' to list files, or 'CATALOG \"<path>\"' to search a specific directory.",
+        "COMMANDS": [
+          "CATALOG"
+        ]
+      },
+      "SUMMARIZE_REQUEST": {
+        "PATTERN": [
+          "summarize",
+          "summary",
+          "what does",
+          "overview"
+        ],
+        "RESPONSE_TEMPLATE": "To summarize content:\n1. Load the file: LOAD \"{file}\" TO \"summary\"\n2. Review: SHOW \"summary\"\n3. When online, ask OK System: OK \"Summarize this\" FROM \"summary\"",
+        "OFFLINE_ACTION": "local_summary"
+      },
+      "COMMAND_SUGGESTION": {
+        "PATTERN": [
+          "i want to",
+          "need to",
+          "trying to"
+        ],
+        "KEYWORDS": {
+          "list files": "CATALOG",
+          "load file": "LOAD \"<file>\" TO \"<panel>\"",
+          "save": "SAVE \"<panel>\" TO \"<file>\"",
+          "create panel": "GRID PANEL CREATE \"<name>\"",
+          "ok-assisted-task help": "OK \"<question>\" (requires internet)"
+        }
+      },
+      "ERROR_HELP": {
+        "PATTERN": [
+          "error",
+          "not working",
+          "failed",
+          "problem"
+        ],
+        "RESPONSE_TEMPLATE": "Troubleshooting '{issue}':\n\n{suggestions}\n\nIf problems persist, try: REPAIR",
+        "COMMON_FIXES": {
+          "file not found": "Check the file path. Use CATALOG to list available files.",
+          "panel not found": "Panel doesn't exist. Use GRID PANELS LIST to see all panels.",
+          "offline": "OK Assisted Task features require internet. Using offline mode.",
+          "permission": "Check file permissions or try a different location."
+        }
+      },
+      "OFFLINE_ANALYSIS": {
+        "PATTERN": [
+          "analyze",
+          "check",
+          "review",
+          "examine"
+        ],
+        "METHODS": {
+          "word_count": "Count words in content",
+          "line_count": "Count lines in content",
+          "file_info": "Show file size and type",
+          "structure": "Analyze JSON/UDO structure"
+        }
+      }
+    },
+    "RESPONSES": {
+      "OFFLINE_MODE": "🔌 Working offline. OK Assisted Task features unavailable. Using local logic engine.",
+      "ONLINE_MODE": "🌐 Connected. OK Assisted Task features available.",
+      "PARTIAL_MATCH": "I think you're trying to: {suggestion}\nIs this correct? Type the full command to proceed.",
+      "NO_MATCH": "I'm not sure what you mean. Try 'HELP' for available commands, or be more specific.",
+      "REPAIR_NEEDED": "System issue detected. Run 'REPAIR' to attempt automatic fixes."
+    },
+    "TOOLS": {
+      "WORD_COUNT": {
+        "description": "Count words in panel content",
+        "usage": "Automatically applied when analyzing text"
+      },
+      "LINE_COUNT": {
+        "description": "Count lines in panel content",
+        "usage": "Automatically applied when analyzing text"
+      },
+      "FILE_SIZE": {
+        "description": "Get file size information",
+        "usage": "Automatically shown for loaded files"
+      },
+      "STRUCTURE_CHECK": {
+        "description": "Validate JSON/UDO file structure",
+        "usage": "Automatically applied to .UDO and .json files"
+      }
+    }
+  }
+}

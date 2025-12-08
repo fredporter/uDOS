@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>uDOS Teletext Interface</title>
+  <link rel="stylesheet" href="teletext-synthwave.css" />
+</head>
+<body>
+  <!-- Combined Status/Function Bar (Top) -->
+  <div class="top-bar">
+    <div class="status-section">
+      <span class="status-item">uDOS TELETEXT v2.0.0</span>
+      <span class="status-item" id="clock">00:00:00</span>
+      <span class="status-item" id="connection-status">⚪ STANDBY</span>
+    </div>
+    <div class="fkey-section">
+      <div class="fkey-item" onclick="teletextCore.executeCommand('help')">
+        <span class="fkey-num">F1</span><span class="fkey-label">HELP</span>
+      </div>
+      <div class="fkey-item" onclick="teletextCore.showBlocks()">
+        <span class="fkey-num">F2</span><span class="fkey-label">BLOCKS</span>
+      </div>
+      <div class="fkey-item" onclick="teletextCore.executeCommand('status')">
+        <span class="fkey-num">F3</span><span class="fkey-label">STATUS</span>
+      </div>
+      <div class="fkey-item" onclick="teletextCore.executeCommand('clear')">
+        <span class="fkey-num">F4</span><span class="fkey-label">CLEAR</span>
+      </div>
+      <div class="fkey-item" onclick="teletextCore.executeCommand('test')">
+        <span class="fkey-num">F5</span><span class="fkey-label">TEST</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Teletext Display -->
+  <div class="teletext-screen">
+    <div class="teletext-output" id="output"></div>
+    <div class="teletext-input-line">
+      <span class="prompt">></span>
+      <input type="text" class="teletext-input" id="input" autocomplete="off" spellcheck="false" autofocus>
+    </div>
+  </div>
+
+  <!--
+    uDOS Teletext Interface
+    Inspired by Teletext50: https://galax.xyz/Teletext50/
+    Teletext50 font by 3d@galax.xyz
+    uDOS implementation with authentic teletext rendering
+  -->
+  <script src="static/teletext-core.js"></script>
+</body>
+</html>

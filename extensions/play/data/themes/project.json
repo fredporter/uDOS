@@ -1,0 +1,227 @@
+{
+  "THEME_NAME": "PROJECT",
+  "VERSION": "1.0.2",
+  "NAME": "Project Manager",
+  "STYLE": "Business-focused project management",
+  "VERBOSE_LEVEL": "LOW",
+  "ICON": "📋",
+  "DESCRIPTION": "Manage tasks and objectives with clear, concise business terminology",
+
+  "CORE_SYSTEM": {
+    "PROMPT_BASE": "PM>",
+    "SYSTEM_NAME": "SYSTEM",
+    "WORKSPACE_NAME": "WORKSPACE",
+    "SESSION_NAME": "SESSION",
+    "DEFAULT_LOCATION": "MAIN_OFFICE"
+  },
+
+  "CORE_USER": {
+    "USER_TITLE": "PROJECT_MANAGER",
+    "USER_ROLE": "MANAGER",
+    "USER_PROJECT": "ACTIVE_PROJECT",
+    "USER_MISSION": "DELIVERABLE"
+  },
+
+  "CHARACTER_TYPES": {
+    "default_class": "Project Manager",
+    "properties": {
+      "class_name": "Project Manager",
+      "background": "Business professional and team coordinator",
+      "specialization": "Project delivery and stakeholder management",
+      "certification": "PMP Certified",
+      "attributes": {
+        "LEADERSHIP": {"min": 1, "max": 20, "default": 15},
+        "ORGANIZATION": {"min": 1, "max": 20, "default": 16},
+        "COMMUNICATION": {"min": 1, "max": 20, "default": 14},
+        "PLANNING": {"min": 1, "max": 20, "default": 13},
+        "EFFICIENCY": {"min": 1, "max": 20, "default": 12},
+        "ADAPTABILITY": {"min": 1, "max": 20, "default": 11}
+      },
+      "equipment_slots": {
+        "primary_tool": "LAPTOP",
+        "planning_tool": "GANTT_CHART",
+        "communication": "MOBILE_PHONE",
+        "documentation": "PROJECT_BINDER",
+        "tracking": "DASHBOARD_ACCESS"
+      },
+      "special_abilities": ["MILESTONE_TRACKING", "STAKEHOLDER_MANAGEMENT", "RISK_ASSESSMENT"],
+      "progression_metrics": ["projects_completed", "on_time_delivery_rate", "team_satisfaction_score"]
+    }
+  },
+
+  "OBJECT_TYPES": {
+    "categories": {
+      "deliverable": {
+        "properties": ["completion_percentage", "quality_score", "deadline", "priority"],
+        "rarity_levels": ["ROUTINE", "IMPORTANT", "CRITICAL", "STRATEGIC"],
+        "conditions": ["PLANNED", "IN_PROGRESS", "UNDER_REVIEW", "COMPLETED"]
+      },
+      "resource": {
+        "properties": ["availability", "skill_level", "cost_per_hour", "utilization"],
+        "rarity_levels": ["JUNIOR", "STANDARD", "SENIOR", "EXPERT"],
+        "conditions": ["AVAILABLE", "ALLOCATED", "OVERALLOCATED", "UNAVAILABLE"]
+      },
+      "milestone": {
+        "properties": ["target_date", "dependencies", "critical_path", "buffer_time"],
+        "rarity_levels": ["MINOR", "MAJOR", "CRITICAL", "GO_NO_GO"],
+        "conditions": ["UPCOMING", "ON_TRACK", "AT_RISK", "MISSED"]
+      },
+      "document": {
+        "properties": ["version", "approval_status", "stakeholder_review", "compliance"],
+        "rarity_levels": ["DRAFT", "INTERNAL", "CLIENT_FACING", "REGULATORY"],
+        "conditions": ["DRAFT", "UNDER_REVIEW", "APPROVED", "ARCHIVED"]
+      }
+    },
+    "special_properties": ["CRITICAL_PATH", "EXECUTIVE_VISIBILITY", "CLIENT_FACING", "COMPLIANCE_REQUIRED"]
+  },
+
+  "LOCATION_TRACKING": {
+    "coordinate_system": "OFFICE_GRID",
+    "position_format": "{building}-{floor}-{department}-{desk}",
+    "timestamp_integration": true,
+    "map_integration": true,
+    "example_coordinates": "HQ-05-PMO-DESK-12"
+  },
+
+  "TERMINOLOGY": {
+    "COMMANDS": {
+      "CMD_CATALOG": "LIST",
+      "CMD_LOAD": "OPEN",
+      "CMD_SAVE": "SAVE",
+      "CMD_RUN": "RUN",
+      "CMD_CLS": "CLEAR",
+      "CMD_COMMANDS": "COMMANDS",
+      "CMD_HELP": "HELP",
+      "CMD_RESTART": "RESTART",
+      "CMD_MAP": "MAP",
+      "CMD_GOTO": "GOTO",
+      "CMD_MOVE": "MOVE",
+      "CMD_LAYER": "LAYER",
+      "CMD_DESCEND": "DOWN",
+      "CMD_ASCEND": "UP",
+      "CMD_LOCATE": "PIN",
+      "CMD_WHERE": "WHERE",
+      "CMD_TREE": "TREE",
+      "CMD_OK": "OK",
+      "CMD_EDIT": "EDIT",
+      "CMD_SHOW": "SHOW",
+      "CMD_ANALYZE": "REVIEW",
+      "CMD_REPAIR": "FIX",
+      "CMD_THEME": "THEME",
+      "CMD_LEARN": "LEARN",
+      "CMD_PROJECT": "PROJECT",
+      "CMD_MISSION": "MISSION"
+    },
+    "NOUNS": {
+      "NOUN_FILE_UDO": "FILE",
+      "NOUN_FILE_MD": "DOC",
+      "NOUN_FILE_SCRIPT": "SCRIPT",
+      "NOUN_WORKSPACE": "WORKSPACE",
+      "NOUN_DIRECTORY": "FOLDER",
+      "NOUN_SYSTEM": "SYSTEM",
+      "NOUN_LAYER": "LEVEL",
+      "NOUN_DUNGEON_LEVEL": "LEVEL",
+      "NOUN_COORDINATES": "POSITION",
+      "NOUN_MAP": "MAP",
+      "NOUN_LOCATION": "PIN",
+      "NOUN_PANEL": "PANEL",
+      "NOUN_GRID": "GRID",
+      "NOUN_SESSION": "SESSION",
+      "NOUN_KNOWLEDGE": "KNOWLEDGE",
+      "NOUN_TEMPLATE": "TEMPLATE"
+    }
+  },
+
+  "MESSAGES": {
+    "SUCCESS": {
+      "ACTION_SUCCESS": "✓ TASK COMPLETED",
+      "ACTION_SUCCESS_SCREEN_CLEARED": "Workspace cleared. Ready for next task.",
+      "ACTION_SUCCESS_FILE_LOADED": "File '{file_path}' opened in panel '{panel_name}'. Ready for review.",
+      "ACTION_SUCCESS_FILE_SAVED": "Panel '{panel_name}' saved to '{file_path}'. Changes documented.",
+      "ACTION_SUCCESS_PANEL_CREATED": "New panel '{panel_name}' created. Workspace expanded.",
+      "ACTION_SUCCESS_PANEL_DELETED": "Panel '{panel_name}' closed. Resources freed.",
+      "ACTION_SUCCESS_PANEL_SELECTED": "Switched to panel '{panel_name}'. Focus updated.",
+      "ACTION_SUCCESS_SCRIPT_EXECUTED": "Script '{script_file}' executed successfully. Results logged.",
+      "ACTION_SUCCESS_CLOSED_EDITOR": "File '{file_path}' editor closed. Changes saved.",
+      "ACTION_SUCCESS_REPAIR_STARTED": "System maintenance initiated. Running diagnostics...",
+      "ACTION_SUCCESS_REPAIR_COMPLETE": "All systems operational. Maintenance complete.",
+      "ACTION_SUCCESS_UNDO": "Previous action undone. State restored.",
+      "ACTION_SUCCESS_REDO": "Action reapplied. Progress continued.",
+      "ACTION_SUCCESS_ANALYSIS_COMPLETE": "Review complete. Analysis results available.",
+      "ACTION_SUCCESS_MAP_MOVED": "Position updated to ({x}, {y}). Map synchronized.",
+      "ACTION_SUCCESS_MAP_TELEPORT": "Moved to position ({x}, {y}). Location updated.",
+      "ACTION_SUCCESS_LAYER_CHANGED": "Layer changed to {layer}. View adjusted.",
+      "ACTION_SUCCESS_DESCENDED": "Moved down to layer {layer}. Detail level increased.",
+      "ACTION_SUCCESS_ASCENDED": "Moved up to layer {layer}. Overview level increased.",
+      "ACTION_SUCCESS_LOCATION_SET": "Location pinned at {city}. Reference point set.",
+      "ACTION_SUCCESS_THEME_CHANGED": "Theme changed to {theme}. Interface updated.",
+      "ACTION_SUCCESS_KNOWLEDGE_LOADED": "Knowledge entry '{topic}' accessed. Information loaded.",
+      "ACTION_SUCCESS_PROJECT_CREATED": "New project '{name}' created. Planning initiated.",
+      "ACTION_SUCCESS_CHARACTER_CREATED": "Team member '{name}' added to project. Role assigned.",
+      "ACTION_SUCCESS_OBJECT_CREATED": "'{name}' added to project inventory. Status: {status}.",
+      "ACTION_SUCCESS_LEVEL_UP": "Performance improved. New competency level: {level}. Skills enhanced.",
+      "ACTION_SUCCESS_ITEM_ENHANCED": "'{item}' efficiency improved +{bonus}%. Performance optimized."
+    },
+    "INFO": {
+      "INFO_HELP_INTRO": "Available commands (organized by functional area):",
+      "INFO_DIRECTORY_LISTING": "Listing folder '{path}' (access verified):",
+      "INFO_EXIT": "Session ended. All work saved and logged. 📋",
+      "INFO_REPAIR_RUNNING": "Running system diagnostics. Checking all components...",
+      "INFO_UNDO_EMPTY": "No previous actions to undo. At initial state.",
+      "INFO_REDO_EMPTY": "No actions to redo. Current state is latest.",
+      "INFO_OFFLINE_MODE": "[OFFLINE MODE] External resources unavailable. Using local cache...",
+      "INFO_MAP_POSITION": "Current position: ({x}, {y}) in layer {layer}",
+      "INFO_AVAILABLE_LAYERS": "Available layers (by scope level):",
+      "INFO_DUNGEON_DEPTH": "Current detail level: {depth}",
+      "INFO_THEME_CURRENT": "Active theme: {theme}",
+      "INFO_KNOWLEDGE_CATEGORIES": "Knowledge base categories:",
+      "INFO_CHARACTER_STATS": "Team member profile - Leadership: {leadership}, Organization: {organization}, Planning: {planning}",
+      "INFO_INVENTORY": "Project resources: {items}. All assets tracked.",
+      "INFO_LOCATION": "Office location: {location}. Status: active."
+    },
+    "ERRORS": {
+      "ERROR_SYNTAX": "?SYNTAX ERROR - Command format incorrect",
+      "ERROR_NOT_FOUND": "?NOT FOUND - Resource not available",
+      "ERROR_INVALID": "?INVALID - Operation not supported",
+      "ERROR_CRASH": "?SYSTEM ERROR: {error} (Escalating to IT support)",
+      "ERROR_PERMISSIONS": "?ACCESS DENIED - Insufficient privileges",
+      "ERROR_EMPTY_SLATE": "?EMPTY WORKSPACE - No data to process",
+      "ERROR_NO_PATH": "?NO CONNECTION - Path unavailable",
+      "ERROR_INVALID_UCODE_FORMAT": "?INVALID SCRIPT: {ucode} ({error}) - Format error",
+      "ERROR_UNKNOWN_MODULE": "?UNKNOWN MODULE: {module}",
+      "ERROR_UNKNOWN_SYSTEM_COMMAND": "?UNKNOWN COMMAND: {command}",
+      "ERROR_UNKNOWN_FILE_COMMAND": "?UNKNOWN FILE COMMAND: {command}",
+      "ERROR_UNKNOWN_GRID_COMMAND": "?UNKNOWN GRID COMMAND: {command}",
+      "ERROR_COMMAND_NOT_FOUND": "?COMMAND '{command}' NOT FOUND",
+      "ERROR_DIRECTORY_NOT_FOUND": "?FOLDER NOT FOUND: {path}",
+      "ERROR_FILE_NOT_FOUND": "?FILE NOT FOUND: {file_path}",
+      "ERROR_PANEL_NOT_FOUND": "?PANEL NOT FOUND: {panel_name}",
+      "ERROR_SCRIPT_FILE_NOT_FOUND": "?SCRIPT NOT FOUND: {script_file}",
+      "ERROR_FAILED_TO_LOAD_FILE": "?LOAD FAILED: {error}",
+      "ERROR_FAILED_TO_SAVE_FILE": "?SAVE FAILED: {error}",
+      "ERROR_FAILED_TO_EXECUTE_SCRIPT": "?EXECUTION FAILED: {error}",
+      "ERROR_COULD_NOT_OPEN_EDITOR": "?CANNOT OPEN EDITOR: {error}",
+      "ERROR_GENERIC": "?ERROR: {error}",
+      "ERROR_AI_NO_KEY": "?EXTERNAL SERVICES OFFLINE - Configure API access",
+      "ERROR_AI_SDK_NOT_INSTALLED": "?EXTERNAL TOOLS UNAVAILABLE - Install required packages",
+      "ERROR_AI_INITIALIZATION_FAILED": "?SERVICE INITIALIZATION FAILED: {error}",
+      "ERROR_AI_CALL_FAILED": "?SERVICE REQUEST FAILED: {error}",
+      "ERROR_UNKNOWN_AI_COMMAND": "?UNKNOWN SERVICE COMMAND: {command}",
+      "ERROR_REPAIR_FAILED": "?REPAIR FAILED: {error}",
+      "ERROR_UNDO_FAILED": "?UNDO FAILED: {error}",
+      "ERROR_REDO_FAILED": "?REDO FAILED: {error}",
+      "ERROR_LAYER_NOT_FOUND": "?UNKNOWN LAYER: {layer}",
+      "ERROR_NO_CONNECTION": "?NO PATH BETWEEN LAYERS",
+      "ERROR_CANNOT_DESCEND": "?MAXIMUM DETAIL LEVEL REACHED",
+      "ERROR_CANNOT_ASCEND": "?MAXIMUM OVERVIEW LEVEL REACHED",
+      "ERROR_CITY_NOT_FOUND": "?UNKNOWN LOCATION: {city}",
+      "ERROR_THEME_NOT_FOUND": "?UNKNOWN THEME: {theme}",
+      "ERROR_KNOWLEDGE_NOT_FOUND": "?KNOWLEDGE ENTRY NOT FOUND: {topic}",
+      "ERROR_CHARACTER_NOT_FOUND": "?TEAM MEMBER NOT FOUND: {name}",
+      "ERROR_OBJECT_NOT_FOUND": "?RESOURCE NOT FOUND: {name}",
+      "ERROR_INSUFFICIENT_RESOURCES": "?INSUFFICIENT RESOURCES - Budget or capacity constraints",
+      "ERROR_DEADLINE_CONFLICT": "?SCHEDULE CONFLICT - Deadlines overlap",
+      "ERROR_STAKEHOLDER_APPROVAL_PENDING": "?PENDING APPROVAL - Stakeholder sign-off required"
+    }
+  }
+}

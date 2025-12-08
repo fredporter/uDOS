@@ -1,0 +1,285 @@
+{
+  "dashboard": {
+    "name": "uDOS Advanced Dashboard",
+    "version": "1.0.10",
+    "description": "Retro-futuristic dashboard combining Retro CSS3, Teletext, and modern web technologies",
+    "author": "uDOS Development Team",
+    "created": "2025-11-03"
+  },
+  "frameworks": {
+    "retrocss3": {
+      "enabled": true,
+      "source": "../retrocss3/",
+      "fonts": [
+        "Retro_User_Mono_v1.0-STYLE.woff",
+        "Retro_User_Mono_v1.0-STYLE.ttf",
+        "giana.woff",
+        "giana.ttf"
+      ],
+      "colors": {
+        "primary": "#6076c5",
+        "secondary": "#20398d",
+        "accent": "#00ff41",
+        "background": "#1e1e1e"
+      }
+    },
+    "system7": {
+      "enabled": true,
+      "source": "../system7-css/",
+      "styles": "system7.css",
+      "scripts": "system7.js",
+      "fonts": ["ChicagoFLF.ttf", "geneva_9.ttf", "monaco.ttf"],
+      "colors": {
+        "primary": "#DDDDDD",
+        "secondary": "#AAAAAA",
+        "accent": "#316AC5",
+        "background": "#C6C6C6"
+      }
+    },
+    "teletext": {
+      "enabled": true,
+      "source": "../teletext/",
+      "api": "teletext-api.js",
+      "styles": "teletext-enhanced.css",
+      "fonts": ["MODE7GX3.TTF"]
+    },
+    "typography": {
+      "enabled": true,
+      "source": "../../core/css/typography-system.css",
+      "manager": "../../core/js/typography-manager.js",
+      "themes": [
+        "classic-mac",
+        "system-mono",
+        "teletext",
+        "chicago",
+        "geneva",
+        "monaco",
+        "pixchicago",
+        "modern-retro"
+      ]
+    }
+  },
+  "modules": {
+    "system-monitor": {
+      "enabled": true,
+      "name": "System Monitor",
+      "description": "Real-time system performance monitoring",
+      "icon": "🖥️",
+      "hotkey": "Alt+1"
+    },
+    "process-manager": {
+      "enabled": true,
+      "name": "Process Manager",
+      "description": "View and manage running processes",
+      "icon": "⚙️",
+      "hotkey": "Alt+2"
+    },
+    "network-analyzer": {
+      "enabled": true,
+      "name": "Network Analyzer",
+      "description": "Monitor network activity and connections",
+      "icon": "🌐",
+      "hotkey": "Alt+3"
+    },
+    "terminal-emulator": {
+      "enabled": true,
+      "name": "Terminal Emulator",
+      "description": "Command-line interface",
+      "icon": "💻",
+      "hotkey": "Alt+4"
+    },
+    "retro-simulator": {
+      "enabled": true,
+      "name": "Retro Simulator",
+      "description": "Commodore 64 BASIC emulator",
+      "icon": "🎮",
+      "hotkey": "Alt+5"
+    },
+    "teletext-decoder": {
+      "enabled": true,
+      "name": "Teletext Decoder",
+      "description": "Teletext page viewer and editor",
+      "icon": "📺",
+      "hotkey": "Alt+6"
+    },
+    "file-browser": {
+      "enabled": true,
+      "name": "File Browser",
+      "description": "Browse and manage files",
+      "icon": "📁",
+      "hotkey": "Alt+7"
+    },
+    "system7-interface": {
+      "enabled": true,
+      "name": "System 7 Interface",
+      "description": "Classic Macintosh System 7 desktop environment",
+      "icon": "🖱️",
+      "hotkey": "Alt+9"
+    }
+  },
+  "themes": {
+    "retro": {
+      "name": "Retro Classic",
+      "colors": {
+        "primary": "#6076c5",
+        "secondary": "#20398d",
+        "accent": "#00ff41",
+        "background": "#1e1e1e",
+        "text": "#ffffff"
+      },
+      "font": "C64 User Mono"
+    },
+    "c64": {
+      "name": "Commodore 64",
+      "colors": {
+        "primary": "#6076c5",
+        "secondary": "#20398d",
+        "accent": "#a5a5ff",
+        "background": "#3e31a2",
+        "text": "#6076c5"
+      },
+      "font": "C64 User Mono"
+    },
+    "teletext": {
+      "name": "Teletext Green",
+      "colors": {
+        "primary": "#00ff41",
+        "secondary": "#000000",
+        "accent": "#ffff00",
+        "background": "#000000",
+        "text": "#00ff41"
+      },
+      "font": "MODE7GX3"
+    },
+    "modern": {
+      "name": "Modern Dark",
+      "colors": {
+        "primary": "#2196f3",
+        "secondary": "#1976d2",
+        "accent": "#4caf50",
+        "background": "#121212",
+        "text": "#ffffff"
+      },
+      "font": "Monaco"
+    },
+    "system7": {
+      "name": "Classic System 7",
+      "colors": {
+        "primary": "#DDDDDD",
+        "secondary": "#AAAAAA",
+        "accent": "#316AC5",
+        "background": "#C6C6C6",
+        "text": "#000000"
+      },
+      "font": "Chicago"
+    }
+  },
+  "layout": {
+    "responsive": true,
+    "breakpoints": {
+      "mobile": 768,
+      "tablet": 1200,
+      "desktop": 1920
+    },
+    "grid": {
+      "desktop": {
+        "columns": "300px 1fr 250px",
+        "rows": "60px 1fr 40px",
+        "areas": [
+          "header header header",
+          "sidebar main rightpanel",
+          "footer footer footer"
+        ]
+      },
+      "tablet": {
+        "columns": "250px 1fr",
+        "rows": "60px 1fr 40px",
+        "areas": [
+          "header header",
+          "sidebar main",
+          "footer footer"
+        ]
+      },
+      "mobile": {
+        "columns": "1fr",
+        "rows": "60px 1fr 40px",
+        "areas": [
+          "header",
+          "main",
+          "footer"
+        ]
+      }
+    }
+  },
+  "features": {
+    "realtime_updates": {
+      "enabled": true,
+      "interval": 1000,
+      "websocket": false,
+      "polling": true
+    },
+    "keyboard_shortcuts": {
+      "enabled": true,
+      "theme_toggle": "Ctrl+T",
+      "module_hotkeys": true,
+      "help": "F1"
+    },
+    "animations": {
+      "enabled": true,
+      "glow_effects": true,
+      "data_streams": true,
+      "transitions": true
+    },
+    "accessibility": {
+      "high_contrast": false,
+      "font_scaling": true,
+      "screen_reader": true
+    }
+  },
+  "data_sources": {
+    "system_metrics": {
+      "cpu": "mock",
+      "memory": "mock",
+      "disk": "mock",
+      "network": "mock"
+    },
+    "logs": {
+      "system": "mock",
+      "application": "mock",
+      "error": "mock"
+    },
+    "processes": {
+      "list": "mock",
+      "details": "mock"
+    }
+  },
+  "extensions": {
+    "plugins_directory": "../plugins/",
+    "auto_load": true,
+    "api_version": "1.0",
+    "supported_types": [
+      "widget",
+      "module",
+      "theme",
+      "data_source"
+    ]
+  },
+  "security": {
+    "csrf_protection": true,
+    "xss_protection": true,
+    "content_security_policy": true,
+    "allowed_origins": ["localhost", "127.0.0.1"]
+  },
+  "performance": {
+    "cache_enabled": true,
+    "compression": true,
+    "lazy_loading": true,
+    "debounce_delay": 300
+  },
+  "logging": {
+    "level": "info",
+    "console": true,
+    "file": false,
+    "max_entries": 1000
+  }
+}

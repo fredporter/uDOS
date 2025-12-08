@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uDOS Dashboard Builder v1.0.24 - NES Retro Interface</title>
+
+    <!-- Self-contained styles -->
+    <link rel="stylesheet" href="dashboard-styles.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header with Controls -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1 class="title-text">
+                    🎮 uDOS DASHBOARD
+                    <span class="nes-badge is-splited">
+                        <span class="is-dark">v1</span>
+                        <span class="is-primary">0.24</span>
+                    </span>
+                </h1>
+                <p class="subtitle-text">RETRO COMPUTING INTERFACE • NES FRAMEWORK</p>
+            </div>
+
+            <div class="header-controls">
+                <button id="edit-mode-btn" class="nes-btn is-warning" onclick="dashboardBuilder.toggleEditMode()">
+                    ⚙️ Edit Layout
+                </button>
+                <button class="nes-btn is-primary" onclick="dashboardBuilder.openWidgetPicker()">
+                    ➕ Add Widget
+                </button>
+                <button class="nes-btn" onclick="dashboardBuilder.openSettings()">
+                    🎨 Settings
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard-main">
+            <!-- Widgets will be rendered here by dashboard-builder.js -->
+        </main>
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <div class="footer-content">
+                <div class="footer-text">uDOS v1.0.24 • NES Framework Integration • Customizable Dashboard</div>
+                <div class="footer-stats">
+                    <div class="footer-stat">
+                        <i class="nes-icon trophy is-small"></i>
+                        <span>Level 24</span>
+                    </div>
+                    <div class="footer-stat">
+                        <i class="nes-icon clock is-small"></i>
+                        <span id="current-time">--:--:--</span>
+                    </div>
+                    <div class="footer-stat">
+                        <i class="nes-icon like is-small"></i>
+                        <span>Status: <span class="blink">ONLINE</span></span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Widget Picker Modal -->
+    <div id="widget-picker-modal" class="modal">
+        <div class="modal-content nes-container is-dark with-title">
+            <h3 class="title">📦 Add Widget</h3>
+            <button class="modal-close nes-btn is-error" onclick="dashboardBuilder.closeWidgetPicker()">✕</button>
+
+            <div class="modal-body">
+                <p class="modal-instructions">Select a widget to add to your dashboard:</p>
+                <div id="widget-picker-list" class="widget-picker-list">
+                    <!-- Widget options populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content nes-container is-dark with-title">
+            <h3 class="title">⚙️ Dashboard Settings</h3>
+            <button class="modal-close nes-btn is-error" onclick="dashboardBuilder.closeSettings()">✕</button>
+
+            <div class="modal-body">
+                <!-- Theme Selector -->
+                <section class="settings-section">
+                    <h4 class="settings-heading">🎨 Theme</h4>
+                    <div class="nes-select">
+                        <select id="theme-select" onchange="dashboardBuilder.applyTheme(this.value)">
+                            <option value="synthwave">Synthwave DOS</option>
+                            <option value="classic">Classic NES</option>
+                            <option value="gameboy">Game Boy</option>
+                            <option value="retro">Retro</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- Layout Options -->
+                <section class="settings-section">
+                    <h4 class="settings-heading">📐 Layout</h4>
+                    <div class="nes-field">
+                        <label for="columns-select">Grid Columns:</label>
+                        <div class="nes-select">
+                            <select id="columns-select" onchange="dashboardBuilder.changeColumns(this.value)">
+                                <option value="1">1 Column</option>
+                                <option value="2">2 Columns</option>
+                                <option value="3" selected>3 Columns</option>
+                                <option value="4">4 Columns</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Import/Export -->
+                <section class="settings-section">
+                    <h4 class="settings-heading">💾 Data Management</h4>
+                    <div class="button-group">
+                        <button class="nes-btn is-primary" onclick="dashboardBuilder.exportLayout()">
+                            📤 Export Layout
+                        </button>
+                        <button class="nes-btn is-success" onclick="dashboardBuilder.importLayout()">
+                            📥 Import Layout
+                        </button>
+                        <button class="nes-btn is-warning" onclick="dashboardBuilder.resetLayout()">
+                            🔄 Reset to Default
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Info -->
+                <section class="settings-section">
+                    <div class="nes-container is-rounded">
+                        <p style="font-size: 10px; line-height: 1.8;">
+                            <strong>💡 Tips:</strong><br>
+                            • Click "Edit Layout" to rearrange widgets<br>
+                            • Use "Add Widget" to insert new components<br>
+                            • Your layout is saved automatically<br>
+                            • Export your layout to share with others
+                        </p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="dashboard-builder.js"></script>
+    <script>
+        // Initialize theme selector
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeSelect = document.getElementById('theme-select');
+            const savedTheme = localStorage.getItem('dashboard-theme') || 'synthwave';
+            themeSelect.value = savedTheme;
+
+            const columnsSelect = document.getElementById('columns-select');
+            const savedLayout = localStorage.getItem('dashboard-layout');
+            if (savedLayout) {
+                const layout = JSON.parse(savedLayout);
+                columnsSelect.value = layout.columns || 3;
+            }
+        });
+
+        // Console welcome message
+        console.log(`
+╔═══════════════════════════════════════════╗
+║  🎮 uDOS DASHBOARD BUILDER v1.0.24       ║
+║  NES Framework Integration                ║
+║                                           ║
+║  Features:                                ║
+║  • Drag & Drop Widget Builder            ║
+║  • 12+ Widget Types                      ║
+║  • 4 Retro Themes                        ║
+║  • Import/Export Layouts                 ║
+║  • Fully Customizable                    ║
+║                                           ║
+║  Press F12 to access developer tools     ║
+╚═══════════════════════════════════════════╝
+        `);
+    </script>
+</body>
+</html>

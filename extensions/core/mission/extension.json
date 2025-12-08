@@ -1,0 +1,74 @@
+{
+  "id": "mission",
+  "name": "Mission Control Dashboard",
+  "version": "1.1.2",
+  "type": "interface",
+  "category": "web",
+  "description": "Web-based dashboard for mission management, scheduling, and resource monitoring",
+  "author": "uDOS Development Team",
+  "license": "MIT",
+  "status": "active",
+  "dependencies": {
+    "core": ">=1.1.2",
+    "services": ["mission_manager", "scheduler", "resource_manager", "output_pacer"]
+  },
+  "endpoints": [
+    {
+      "path": "/dashboard",
+      "handler": "dashboard_handler",
+      "method": "GET",
+      "description": "Main dashboard interface"
+    },
+    {
+      "path": "/api/missions",
+      "handler": "missions_api",
+      "method": "GET",
+      "description": "Get all missions"
+    },
+    {
+      "path": "/api/missions/:id",
+      "handler": "mission_detail_api",
+      "method": "GET",
+      "description": "Get mission details"
+    },
+    {
+      "path": "/api/schedules",
+      "handler": "schedules_api",
+      "method": "GET",
+      "description": "Get all scheduled tasks"
+    },
+    {
+      "path": "/api/resources",
+      "handler": "resources_api",
+      "method": "GET",
+      "description": "Get resource summary"
+    },
+    {
+      "path": "/ws/updates",
+      "handler": "websocket_handler",
+      "method": "WEBSOCKET",
+      "description": "WebSocket for real-time updates"
+    }
+  ],
+  "static_files": [
+    "dashboard.html",
+    "dashboard.css",
+    "dashboard.js"
+  ],
+  "features": [
+    "Real-time mission tracking",
+    "WebSocket updates",
+    "Resource monitoring",
+    "Schedule visualization",
+    "Progress animations",
+    "Priority indicators",
+    "Timeline view",
+    "Completion celebrations"
+  ],
+  "configuration": {
+    "auto_refresh": 5000,
+    "websocket_reconnect": true,
+    "celebration_duration": 3000,
+    "max_timeline_items": 50
+  }
+}

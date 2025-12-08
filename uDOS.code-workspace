@@ -1,0 +1,290 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"python.defaultInterpreterPath": "./.venv/bin/python",
+		"python.terminal.activateEnvironment": true,
+		"python.testing.pytestArgs": [
+			"sandbox/tests",
+			"--cache-dir=sandbox/.pytest_cache"
+		],
+		"python.testing.unittestEnabled": false,
+		"python.testing.pytestEnabled": true,
+		"files.watcherExclude": {
+			"**/.venv/**": true,
+			"**/sandbox/logs/**": true,
+			"**/sandbox/trash/**": true,
+			"**/sandbox/.pytest_cache/**": true,
+			"**/__pycache__/**": true,
+			"**/extensions/cloned/**": true
+		},
+		"search.exclude": {
+			"**/.venv": true,
+			"**/sandbox/logs": true,
+			"**/sandbox/trash": true,
+			"**/sandbox/.pytest_cache": true,
+			"**/__pycache__": true,
+			"**/extensions/cloned": true
+		},
+		"files.exclude": {
+			"**/__pycache__": true,
+			"**/*.pyc": true,
+			"**/sandbox/.server_state.json": true
+		},
+		"github.copilot.chat.codeGeneration.instructions": [
+			{
+				"file": ".github/copilot-instructions.md"
+			}
+		],
+		"files.associations": {
+			"*.upy": "upy"
+		},
+		"[upy]": {
+			"editor.tabSize": 4,
+			"editor.insertSpaces": true,
+			"editor.quickSuggestions": {
+				"other": true,
+				"comments": false,
+				"strings": false
+			},
+			"editor.snippetSuggestions": "top",
+			"editor.wordBasedSuggestions": "off"
+		}
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Check Virtual Environment",
+				"type": "shell",
+				"command": "bash",
+				"args": [
+					"-c",
+					"if [ -z \"$VIRTUAL_ENV\" ]; then echo '⚠️  Virtual environment not active! Run: source .venv/bin/activate'; exit 1; else echo '✅ Virtual environment active:' $VIRTUAL_ENV; fi"
+				],
+				"group": "build"
+			},
+			{
+				"label": "Run uDOS Interactive",
+				"type": "shell",
+				"command": "./start_udos.sh",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "Run Shakedown Test",
+				"type": "shell",
+				"command": "./start_udos.sh",
+				"args": [
+					"sandbox/ucode/shakedown.uscript"
+				],
+				"group": {
+					"kind": "test",
+					"isDefault": true
+				},
+				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "Shakedown Terminal Core",
+				"type": "shell",
+				"command": "bash",
+				"args": [
+					"-c",
+					"printf \"STATUS --live\\nREPAIR auto\\nTREE\\nDASHBOARD CLI\\nPOKE STATUS\\n\" | ${workspaceFolder}/.venv/bin/python uDOS.py"
+				],
+				"group": "test",
+				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "Map APAC Center Sanity",
+				"type": "shell",
+				"command": "bash",
+				"args": [
+					"-c",
+					"printf \"MAP STATUS\\nMAP VIEW 480 270\\nMAP CITIES\\nMAP LOCATE BNE\\n\" | ${workspaceFolder}/.venv/bin/python uDOS.py"
+				],
+				"group": "test",
+				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "Run Pytest",
+				"type": "shell",
+				"command": "${workspaceFolder}/.venv/bin/python",
+				"args": [
+					"-m",
+					"pytest",
+					"-q",
+					"sandbox/tests"
+				],
+				"group": "test",
+				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "Logs: Tail Dev",
+				"type": "shell",
+				"command": "tail",
+				"args": [
+					"-f",
+					"sandbox/logs/dev-*.log"
+				],
+				"group": "build",
+				"isBackground": true
+			},
+			{
+				"label": "Copilot: Stamp Summary Line",
+				"type": "shell",
+				"command": "${workspaceFolder}/.venv/bin/python",
+				"args": [
+					"-m",
+					"core.copilot_summary",
+					"${input:summaryMessage}"
+				],
+				"group": "build",
+				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "Dev Round: v1.0.1 System Check",
+				"type": "shell",
+				"command": "bash",
+				"args": [
+					"-c",
+					"echo '🔄 v1.0.1 SYSTEM Round Checklist:' && echo '✅ HELP command implemented' && echo '✅ STATUS --live working' && echo '✅ REPAIR auto functional' && echo '✅ DASHBOARD CLI operational' && echo '⚠️  Operator: Review and adjust as needed'"
+				],
+				"group": "test"
+			},
+			{
+				"label": "Dev Round: v1.0.2 File Ops Check",
+				"type": "shell",
+				"command": "bash",
+				"args": [
+					"-c",
+					"echo '🔄 v1.0.2 FILE OPS Round Checklist:' && echo '✅ NEW file creation' && echo '✅ EDIT file modification' && echo '✅ COPY file operations' && echo '✅ MOVE file operations' && echo '✅ SEARCH functionality' && echo '✅ BATCH operations' && echo '⚠️  Operator: Review and adjust as needed'"
+				],
+				"group": "test"
+			},
+			{
+				"label": "Dev Round: v1.0.3 Mapping Check",
+				"type": "shell",
+				"command": "bash",
+				"args": [
+					"-c",
+					"echo '🔄 v1.0.3 MAPPING Round Checklist:' && echo '✅ APAC-centred grid implemented' && echo '✅ TIZO location system' && echo '✅ Zoom functionality' && echo '✅ MAP VIEW working' && echo '⚠️  Operator: Review and adjust as needed'"
+				],
+				"group": "test"
+			},
+			{
+				"label": "Dev Round: v1.0.4 Teletext Check",
+				"type": "shell",
+				"command": "bash",
+				"args": [
+					"-c",
+					"echo '🔄 v1.0.4 TELETEXT Round Checklist:' && echo '✅ TELETEXT output rendering' && echo '✅ MAP WEB integration' && echo '✅ Output formatting' && echo '⚠️  Operator: Review and adjust as needed'"
+				],
+				"group": "test"
+			},
+			{
+				"label": "Dev Round: v1.0.5 Web Infra Check",
+				"type": "shell",
+				"command": "bash",
+				"args": [
+					"-c",
+					"echo '🔄 v1.0.5 WEB INFRA Round Checklist:' && echo '✅ POKE START command' && echo '✅ POKE STOP command' && echo '✅ POKE STATUS command' && echo '✅ Web server functionality' && echo '⚠️  Operator: Review and adjust as needed'"
+				],
+				"group": "test"
+			},
+			{
+				"label": "Update Wiki: Current Dev Round",
+				"type": "shell",
+				"command": "${workspaceFolder}/.venv/bin/python",
+				"args": [
+					"-c",
+					"import datetime; print(f'📝 Updating documentation - {datetime.datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")}'); print('Remember to update wiki/Development-History.md with latest progress'); print('Dev notes: dev/'); print('Documentation: sandbox/docs/')"
+				],
+				"group": "build",
+				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "Generate SVG Diagram",
+				"type": "shell",
+				"command": "${workspaceFolder}/.venv/bin/python",
+				"args": [
+					"sandbox/scripts/generate_svg_diagram.py",
+					"${input:diagramDescription}",
+					"${input:diagramCategory}"
+				],
+				"group": "build",
+				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "CLEAN Sandbox",
+				"type": "shell",
+				"command": "bash",
+				"args": [
+					"-c",
+					"printf \"CLEAN\\n\" | ${workspaceFolder}/.venv/bin/python uDOS.py"
+				],
+				"group": "build",
+				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "TIDY Sandbox",
+				"type": "shell",
+				"command": "bash",
+				"args": [
+					"-c",
+					"printf \"TIDY --report\\n\" | ${workspaceFolder}/.venv/bin/python uDOS.py"
+				],
+				"group": "build",
+				"dependsOn": "Check Virtual Environment"
+			},
+			{
+				"label": "Extension: Compile uDOS Language Support",
+				"type": "shell",
+				"command": "cd extensions/vscode && npm run compile",
+				"group": "build",
+				"problemMatcher": "$tsc"
+			},
+			{
+				"label": "Extension: Watch Mode",
+				"type": "shell",
+				"command": "cd extensions/vscode && npm run watch",
+				"group": "build",
+				"isBackground": true,
+				"problemMatcher": "$tsc-watch"
+			},
+			{
+				"label": "Extension: Package VSIX",
+				"type": "shell",
+				"command": "cd extensions/vscode && npm run package",
+				"group": "build",
+				"dependsOn": "Extension: Compile uDOS Language Support"
+			}
+		],
+		"inputs": [
+			{
+				"id": "summaryMessage",
+				"description": "Enter dev summary message",
+				"default": "",
+				"type": "promptString"
+			},
+			{
+				"id": "diagramDescription",
+				"description": "Enter diagram description",
+				"default": "water filter 3 stages",
+				"type": "promptString"
+			},
+			{
+				"id": "diagramCategory",
+				"description": "Enter category (water, fire, shelter, food, medical, tools, navigation, communication)",
+				"default": "water",
+				"type": "promptString"
+			}
+		]
+	}
+}

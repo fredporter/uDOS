@@ -1,0 +1,168 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "uDOS Object Variables",
+  "description": "Game object/item variables for equipment and inventory system",
+  "type": "object",
+  "variables": {
+    "OBJECT-ID": {
+      "type": "string",
+      "description": "Unique object identifier",
+      "scope": "local",
+      "default": "",
+      "validation": {
+        "pattern": "^[a-zA-Z0-9_-]+$",
+        "minLength": 1,
+        "maxLength": 50
+      }
+    },
+    "OBJECT-NAME": {
+      "type": "string",
+      "description": "Display name of object",
+      "scope": "local",
+      "default": "",
+      "validation": {
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "OBJECT-TYPE": {
+      "type": "string",
+      "description": "Object category/type",
+      "scope": "local",
+      "default": "item",
+      "validation": {
+        "enum": ["weapon", "armor", "consumable", "quest", "tool", "item", "resource"]
+      }
+    },
+    "OBJECT-DESCRIPTION": {
+      "type": "string",
+      "description": "Object description text",
+      "scope": "local",
+      "default": "",
+      "validation": {
+        "maxLength": 500
+      }
+    },
+    "OBJECT-VALUE": {
+      "type": "integer",
+      "description": "Monetary value in gold",
+      "scope": "local",
+      "default": 0,
+      "validation": {
+        "minimum": 0,
+        "maximum": 99999
+      }
+    },
+    "OBJECT-WEIGHT": {
+      "type": "number",
+      "description": "Weight in kilograms",
+      "scope": "local",
+      "default": 0.0,
+      "validation": {
+        "minimum": 0,
+        "maximum": 999.99
+      }
+    },
+    "OBJECT-DAMAGE": {
+      "type": "integer",
+      "description": "Damage value (for weapons)",
+      "scope": "local",
+      "default": 0,
+      "validation": {
+        "minimum": 0,
+        "maximum": 999
+      }
+    },
+    "OBJECT-DEFENSE": {
+      "type": "integer",
+      "description": "Defense value (for armor)",
+      "scope": "local",
+      "default": 0,
+      "validation": {
+        "minimum": 0,
+        "maximum": 999
+      }
+    },
+    "OBJECT-DURABILITY": {
+      "type": "integer",
+      "description": "Current durability/condition",
+      "scope": "local",
+      "default": 100,
+      "validation": {
+        "minimum": 0,
+        "maximum": 100
+      }
+    },
+    "OBJECT-STACKABLE": {
+      "type": "boolean",
+      "description": "Whether object can stack in inventory",
+      "scope": "local",
+      "default": false
+    },
+    "OBJECT-STACK-SIZE": {
+      "type": "integer",
+      "description": "Current stack quantity",
+      "scope": "local",
+      "default": 1,
+      "validation": {
+        "minimum": 1,
+        "maximum": 999
+      }
+    },
+    "OBJECT-EFFECT": {
+      "type": "string",
+      "description": "Special effect or ability",
+      "scope": "local",
+      "default": "",
+      "validation": {
+        "enum": ["", "heal", "poison", "boost-strength", "boost-dexterity", "boost-intelligence", "restore-hp", "restore-stamina"]
+      }
+    },
+    "OBJECT-EFFECT-VALUE": {
+      "type": "integer",
+      "description": "Effect magnitude/strength",
+      "scope": "local",
+      "default": 0,
+      "validation": {
+        "minimum": 0,
+        "maximum": 999
+      }
+    },
+    "OBJECT-REQUIRED-LEVEL": {
+      "type": "integer",
+      "description": "Minimum level to use object",
+      "scope": "local",
+      "default": 1,
+      "validation": {
+        "minimum": 1,
+        "maximum": 99
+      }
+    },
+    "OBJECT-LOCATION": {
+      "type": "string",
+      "description": "TILE code where object is located (if on ground)",
+      "scope": "local",
+      "default": "",
+      "validation": {
+        "pattern": "^[A-Z]{2}\\d{1,3}(-\\d{3})?$|^$"
+      }
+    },
+    "OBJECT-OWNER": {
+      "type": "string",
+      "description": "Sprite name who owns this object",
+      "scope": "local",
+      "default": "",
+      "validation": {
+        "pattern": "^[a-zA-Z0-9 _-]*$",
+        "maxLength": 50
+      }
+    }
+  },
+  "meta": {
+    "version": "1.0.0",
+    "created": "2025-12-01",
+    "category": "gameplay",
+    "object_types": ["weapon", "armor", "consumable", "quest", "tool", "item", "resource"],
+    "effects": ["heal", "poison", "boost-strength", "boost-dexterity", "boost-intelligence", "restore-hp", "restore-stamina"]
+  }
+}

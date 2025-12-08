@@ -1,0 +1,199 @@
+{
+  "VERSION": "2.0.0",
+  "SCHEMA": "UDOS_LOCATIONS_V2",
+  "DESCRIPTION": "TILE code location system with timezone detection (no lat/long storage)",
+  "LAST_UPDATED": "2024-11-26",
+
+  "_COMMENT_TZONE": "TZONE/TIZO = Timezone-based location detection only (not a grid system)",
+  "_COMMENT_COORDINATES": "No lat/long coordinates stored - TILE codes only. Use base_layer for coordinate lookups.",
+
+  "timezone_cities": {
+    "AEST": {
+      "name": "Sydney",
+      "country": "Australia",
+      "continent": "Oceania",
+      "tile": "OC-AU-SYD",
+      "grid_cell": "AA340",
+      "offset": "+10:00"
+    },
+    "JST": {
+      "name": "Tokyo",
+      "country": "Japan",
+      "continent": "Asia",
+      "tile": "AS-JP-TYO",
+      "grid_cell": "AB320",
+      "offset": "+09:00"
+    },
+    "GMT": {
+      "name": "London",
+      "country": "United Kingdom",
+      "continent": "Europe",
+      "tile": "EU-UK-LON",
+      "grid_cell": "AM240",
+      "offset": "+00:00"
+    },
+    "EST": {
+      "name": "New York",
+      "country": "USA",
+      "continent": "North America",
+      "tile": "NA-US-NYC",
+      "grid_cell": "AG136",
+      "offset": "-05:00"
+    },
+    "PST": {
+      "name": "Los Angeles",
+      "country": "USA",
+      "continent": "North America",
+      "tile": "NA-US-LAX",
+      "grid_cell": "AA120",
+      "offset": "-08:00"
+    },
+    "CET": {
+      "name": "Berlin",
+      "country": "Germany",
+      "continent": "Europe",
+      "tile": "EU-DE-BER",
+      "grid_cell": "AN246",
+      "offset": "+01:00"
+    },
+    "IST": {
+      "name": "Mumbai",
+      "country": "India",
+      "continent": "Asia",
+      "tile": "AS-IN-BOM",
+      "grid_cell": "AT276",
+      "offset": "+05:30"
+    },
+    "CST": {
+      "name": "Shanghai",
+      "country": "China",
+      "continent": "Asia",
+      "tile": "AS-CN-SHA",
+      "grid_cell": "AX301",
+      "offset": "+08:00"
+    },
+    "BRT": {
+      "name": "São Paulo",
+      "country": "Brazil",
+      "continent": "South America",
+      "tile": "SA-BR-SAO",
+      "grid_cell": "AH190",
+      "offset": "-03:00"
+    },
+    "SAST": {
+      "name": "Johannesburg",
+      "country": "South Africa",
+      "continent": "Africa",
+      "tile": "AF-ZA-JNB",
+      "grid_cell": "AO245",
+      "offset": "+02:00"
+    },
+    "NZST": {
+      "name": "Auckland",
+      "country": "New Zealand",
+      "continent": "Oceania",
+      "tile": "OC-NZ-AKL",
+      "grid_cell": "AC338",
+      "offset": "+12:00"
+    },
+    "SGT": {
+      "name": "Singapore",
+      "country": "Singapore",
+      "continent": "Asia",
+      "tile": "AS-SG-SIN",
+      "grid_cell": "AW305",
+      "offset": "+08:00"
+    }
+  },
+
+  "tile_system": {
+    "_COMMENT": "Hierarchical alphanumeric TILE codes replace lat/long storage",
+
+    "encoding": "CONTINENT-COUNTRY-CITY[-DISTRICT[-BLOCK]]",
+    "coordinate_system": "uDOS MAP grid (480x270 cells, 16x16px each)",
+    "grid_format": "Column-Row (e.g., AB320 = Column AB, Row 320 - always 2 letters)",
+
+    "levels": {
+      "world": {
+        "description": "7 continent tiles",
+        "tiles": ["AS", "EU", "NA", "SA", "AF", "OC", "AN"],
+        "zoom": 1,
+        "layer": 100
+      },
+      "region": {
+        "description": "Country within continent (ISO 3166-1 alpha-2)",
+        "example": "AS-JP (Asia, Japan)",
+        "zoom": 2,
+        "layer": 200
+      },
+      "city": {
+        "description": "Major city (IATA-like 3-letter codes)",
+        "example": "AS-JP-TYO (Tokyo)",
+        "zoom": 3,
+        "layer": 300
+      },
+      "district": {
+        "description": "City districts (A1-Z9 grid, 26×9=234 tiles)",
+        "example": "AS-JP-TYO-C5 (Shibuya district)",
+        "zoom": 4,
+        "layer": 400
+      },
+      "block": {
+        "description": "Street blocks (01-99)",
+        "example": "AS-JP-TYO-C5-42",
+        "zoom": 5,
+        "layer": 500
+      }
+    },
+
+    "continents": {
+      "AS": {"name": "Asia", "grid_range": ["AS250", "AC350"]},
+      "EU": {"name": "Europe", "grid_range": ["AL235", "AR255"]},
+      "NA": {"name": "North America", "grid_range": ["AA110", "AJ145"]},
+      "SA": {"name": "South America", "grid_range": ["AF175", "AK195"]},
+      "AF": {"name": "Africa", "grid_range": ["AM225", "AS255"]},
+      "OC": {"name": "Oceania", "grid_range": ["AY330", "BE350"]},
+      "AN": {"name": "Antarctica", "grid_range": ["AA360", "RL370"]}
+    },
+
+    "default_start": "OC-AU-SYD",
+    "fallback": "EU-UK-LON"
+  },
+
+  "base_layer": {
+    "_COMMENT": "Layer 100 - Base world map linking grid cells to TILE codes",
+    "layer_id": 100,
+    "layer_name": "World Base Layer",
+    "description": "Teletext page 100-899 style base layer mapping grid cells to TILE codes",
+    "grid_size": {
+      "columns": 480,
+      "rows": 270,
+      "cell_size_px": [16, 16],
+      "total_cells": 129600
+    },
+    "reference": "See extensions/assets/data/worldmap.json for full grid mapping"
+  },
+
+  "coordinate_conversion": {
+    "_COMMENT": "TILE codes are the primary location format - no lat/long storage",
+
+    "tile_to_grid": {
+      "description": "Decode TILE code to grid cell reference",
+      "example": "AS-JP-TYO → AB320 (Column AB, Row 320)"
+    },
+
+    "grid_to_tile": {
+      "description": "Encode grid cell to nearest TILE code",
+      "example": "AB320 → AS-JP-TYO",
+      "precision": "city_level"
+    }
+  },
+
+  "usage": {
+    "startup": "Detect user timezone → Map to city → Get TILE code → Set grid position",
+    "navigation": "Use TILE codes for all location storage (USER.UDT, map positions)",
+    "display": "Convert TILE to human-readable (AS-JP-TYO → 'Tokyo, Japan' @ AB320)",
+    "zoom": "Navigate layers by zoom level (Layer 100→200→300→400→500)",
+    "grid_lookup": "Use base_layer (Layer 100) for grid cell to coordinate conversions"
+  }
+}

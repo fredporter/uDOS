@@ -1,0 +1,414 @@
+{
+  "font_system": {
+    "name": "uDOS Font & Typography System",
+    "version": "1.0.24",
+    "description": "Comprehensive font, color, and character mapping system for uDOS extensions and core functionality",
+    "last_updated": "2025-11-17",
+
+    "color_palette": {
+      "name": "Synthwave DOS",
+      "version": "1.0.24",
+      "standard": "VGA 16-color",
+      "css_file": "extensions/core/css/synthwave-dos-colors.css",
+      "default": true,
+
+      "colors": {
+        "base_16": {
+          "black": {"hex": "#000000", "rgb": [0, 0, 0], "ansi": "\\033[30m", "tput": 0},
+          "gray_dark": {"hex": "#555555", "rgb": [85, 85, 85], "ansi": "\\033[90m", "tput": 8},
+          "gray_light": {"hex": "#AAAAAA", "rgb": [170, 170, 170], "ansi": "\\033[37m", "tput": 7},
+          "white_bright": {"hex": "#FFFFFF", "rgb": [255, 255, 255], "ansi": "\\033[97m", "tput": 15},
+
+          "red_dark": {"hex": "#AA0000", "rgb": [170, 0, 0], "ansi": "\\033[31m", "tput": 1},
+          "red_bright": {"hex": "#FF5555", "rgb": [255, 85, 85], "ansi": "\\033[91m", "tput": 9},
+
+          "green_dark": {"hex": "#00AA00", "rgb": [0, 170, 0], "ansi": "\\033[32m", "tput": 2},
+          "green_bright": {"hex": "#55FF55", "rgb": [85, 255, 85], "ansi": "\\033[92m", "tput": 10},
+
+          "blue_dark": {"hex": "#0000AA", "rgb": [0, 0, 170], "ansi": "\\033[34m", "tput": 4},
+          "blue_bright": {"hex": "#5555FF", "rgb": [85, 85, 255], "ansi": "\\033[94m", "tput": 12},
+
+          "cyan_dark": {"hex": "#00AAAA", "rgb": [0, 170, 170], "ansi": "\\033[36m", "tput": 6},
+          "cyan_bright": {"hex": "#55FFFF", "rgb": [85, 255, 255], "ansi": "\\033[96m", "tput": 14},
+
+          "magenta_dark": {"hex": "#AA00AA", "rgb": [170, 0, 170], "ansi": "\\033[35m", "tput": 5},
+          "magenta_bright": {"hex": "#FF55FF", "rgb": [255, 85, 255], "ansi": "\\033[95m", "tput": 13},
+
+          "orange_dark": {"hex": "#AA5500", "rgb": [170, 85, 0], "ansi": "\\033[33m", "tput": 3},
+          "orange_bright": {"hex": "#FFFF55", "rgb": [255, 255, 85], "ansi": "\\033[93m", "tput": 11}
+        },
+
+        "semantic": {
+          "terminal_bg": "black",
+          "terminal_fg": "gray_light",
+          "terminal_cursor": "cyan_bright",
+          "terminal_selection": "blue_bright",
+
+          "status_success": "green_bright",
+          "status_error": "red_bright",
+          "status_warning": "orange_bright",
+          "status_info": "cyan_bright",
+
+          "ui_border": "gray_dark",
+          "ui_border_active": "cyan_bright",
+          "ui_highlight": "cyan_bright",
+          "ui_shadow": "black"
+        },
+
+        "transparency_levels": [10, 25, 50, 75],
+        "css_var_prefix": "--color-"
+      }
+    },
+
+    "font_families": {
+      "retro_fonts": {
+        "location": "extensions/core/fonts/",
+
+        "chicago": {
+          "name": "Chicago",
+          "description": "Classic Macintosh System font",
+          "use_case": ["System 7 Desktop", "classic Mac interfaces"],
+          "variants": [
+            {
+              "name": "ChicagoFLF",
+              "file": "chicago/ChicagoFLF.ttf",
+              "format": "truetype",
+              "license": "Public Domain",
+              "recommended": true
+            },
+            {
+              "name": "chicago-12-1",
+              "file": "chicago/chicago-12-1.otf",
+              "format": "opentype",
+              "license": "CC BY-SA 3.0",
+              "creator": "kamekku14/Damien Guard"
+            }
+          ],
+          "fallback_stack": "'Chicago', 'Chicago FLF', -apple-system, BlinkMacSystemFont, monospace",
+          "css_family": "Chicago"
+        },
+
+        "mallard": {
+          "name": "Mallard",
+          "description": "BBC Teletext rendering font family",
+          "use_case": ["Teletext extension", "retro broadcast interfaces"],
+          "variants": [
+            {
+              "name": "Blocky",
+              "file": "mallard/mallard-blocky.otf",
+              "format": "opentype",
+              "recommended": true
+            },
+            {
+              "name": "Blockier",
+              "file": "mallard/mallard-blockier.otf",
+              "format": "opentype"
+            },
+            {
+              "name": "Smooth",
+              "file": "mallard/mallard-smooth.otf",
+              "format": "opentype"
+            },
+            {
+              "name": "Smoother",
+              "file": "mallard/mallard-smoother.otf",
+              "format": "opentype"
+            },
+            {
+              "name": "Neueue",
+              "file": "mallard/mallard-neueue.otf",
+              "format": "opentype"
+            },
+            {
+              "name": "Tiny",
+              "file": "mallard/mallard-tiny.otf",
+              "format": "opentype"
+            }
+          ],
+          "fallback_stack": "'Mallard', 'MODE7GX3', 'Courier New', monospace",
+          "css_family": "Mallard",
+          "license": "CC BY-SA 3.0",
+          "creator": "gid (FontStruct.com)"
+        },
+
+        "petme": {
+          "name": "PetMe",
+          "description": "Commodore PET/CBM font family",
+          "use_case": ["C64 Terminal", "Commodore-themed interfaces"],
+          "variants": [
+            {
+              "name": "PetMe",
+              "file": "petme/PetMe.ttf",
+              "format": "truetype",
+              "description": "Standard PET/CBM"
+            },
+            {
+              "name": "PetMe64",
+              "file": "petme/PetMe64.ttf",
+              "format": "truetype",
+              "description": "Commodore 64",
+              "recommended": true
+            },
+            {
+              "name": "PetMe128",
+              "file": "petme/PetMe128.ttf",
+              "format": "truetype",
+              "description": "Commodore 128"
+            },
+            {
+              "name": "PetMe2X",
+              "file": "petme/PetMe2X.ttf",
+              "format": "truetype",
+              "description": "2X scaled"
+            },
+            {
+              "name": "PetMe2Y",
+              "file": "petme/PetMe2Y.ttf",
+              "format": "truetype",
+              "description": "2Y scaled"
+            },
+            {
+              "name": "PetMe642Y",
+              "file": "petme/PetMe642Y.ttf",
+              "format": "truetype",
+              "description": "C64 2Y scaled"
+            },
+            {
+              "name": "PetMe1282Y",
+              "file": "petme/PetMe1282Y.ttf",
+              "format": "truetype",
+              "description": "C128 2Y scaled"
+            }
+          ],
+          "fallback_stack": "'PetMe64', 'PetMe', 'Courier New', monospace",
+          "css_family": "PetMe64",
+          "license": "Kreative Software Free Use License v1.2f"
+        },
+
+        "mode7": {
+          "name": "MODE7GX3",
+          "description": "BBC Micro Mode 7 Teletext font",
+          "file": "extensions/core/teletext/fonts/MODE7GX3.TTF",
+          "format": "truetype",
+          "use_case": ["Teletext fallback"],
+          "fallback_stack": "'MODE7GX3', 'Courier New', monospace",
+          "css_family": "MODE7GX3"
+        }
+      },
+
+      "system_fonts": {
+        "monospace_stack": "'Monaco', 'Courier New', 'Courier', monospace",
+        "sans_stack": "'Geneva', 'Helvetica', 'Arial', sans-serif",
+        "serif_stack": "'Times', 'Times New Roman', serif",
+        "default": "monospace"
+      },
+
+      "font_display": {
+        "strategy": "swap",
+        "description": "Prevents invisible text during font loading"
+      }
+    },
+
+    "block_graphics": {
+      "description": "Character sets for text-mode graphics",
+
+      "petscii": {
+        "name": "C64 PETSCII",
+        "description": "Commodore 64 PETSCII block graphics",
+        "charset": "petscii",
+        "font": "PetMe64",
+        "characters": {
+          "full_block": "█",
+          "upper_half": "▀",
+          "lower_half": "▄",
+          "left_half": "▌",
+          "right_half": "▐",
+          "quadrant_ul": "▘",
+          "quadrant_ur": "▝",
+          "quadrant_ll": "▖",
+          "quadrant_lr": "▗"
+        }
+      },
+
+      "unicode_box": {
+        "name": "Unicode Box Drawing",
+        "description": "Standard Unicode box drawing characters",
+        "charset": "unicode",
+        "characters": {
+          "horizontal": "─",
+          "vertical": "│",
+          "top_left": "┌",
+          "top_right": "┐",
+          "bottom_left": "└",
+          "bottom_right": "┘",
+          "cross": "┼",
+          "t_down": "┬",
+          "t_up": "┴",
+          "t_right": "├",
+          "t_left": "┤",
+          "heavy_horizontal": "━",
+          "heavy_vertical": "┃",
+          "double_horizontal": "═",
+          "double_vertical": "║"
+        }
+      },
+
+      "teletext": {
+        "name": "Teletext Graphics",
+        "description": "BBC Teletext Mode 7 graphics characters",
+        "charset": "teletext",
+        "font": "Mallard",
+        "characters": {
+          "mosaic_1": "🬀",
+          "mosaic_2": "🬁",
+          "mosaic_3": "🬂",
+          "mosaic_4": "🬃",
+          "mosaic_5": "🬄",
+          "mosaic_6": "🬅",
+          "mosaic_7": "🬆",
+          "mosaic_8": "🬇"
+        }
+      },
+
+      "ascii_extended": {
+        "name": "ASCII Extended",
+        "description": "CP437 extended ASCII characters",
+        "charset": "cp437",
+        "characters": {
+          "block_light": "░",
+          "block_medium": "▒",
+          "block_heavy": "▓",
+          "block_full": "█"
+        }
+      }
+    },
+
+    "character_mappings": {
+      "description": "Standard character sets and custom mapping support",
+
+      "standard_sets": {
+        "ascii": {
+          "range": [32, 126],
+          "description": "Standard ASCII printable characters"
+        },
+        "extended_ascii": {
+          "range": [128, 255],
+          "description": "Extended ASCII (CP437)"
+        },
+        "unicode_basic": {
+          "range": [0, 65535],
+          "description": "Unicode Basic Multilingual Plane"
+        }
+      },
+
+      "emoji_support": {
+        "enabled": true,
+        "sets": [
+          {
+            "name": "Emoji Basic",
+            "description": "Common emoji characters",
+            "range": [127744, 129791],
+            "examples": ["😀", "👍", "❤️", "⭐", "🎮"]
+          },
+          {
+            "name": "Symbols",
+            "description": "Miscellaneous symbols",
+            "range": [9728, 9983],
+            "examples": ["☀", "☁", "☂", "★", "♠", "♣", "♥", "♦"]
+          }
+        ],
+        "fallback_font": "system"
+      },
+
+      "custom_mapping_template": {
+        "location": "memory/system/user/",
+        "filename_pattern": "font-profile-{name}.json",
+        "description": "User can create custom character mappings",
+        "editable_fields": [
+          "name",
+          "description",
+          "base_font",
+          "custom_characters",
+          "color_scheme",
+          "block_graphics_set"
+        ]
+      }
+    },
+
+    "extensions_integration": {
+      "c64_terminal": {
+        "primary_font": "PetMe64",
+        "fallback": "PetMe",
+        "block_graphics": "petscii",
+        "color_palette": "Synthwave DOS"
+      },
+
+      "teletext": {
+        "primary_font": "Mallard",
+        "variant": "blocky",
+        "fallback": "MODE7GX3",
+        "block_graphics": "teletext",
+        "color_palette": "Synthwave DOS"
+      },
+
+      "desktop": {
+        "system_font": "Chicago",
+        "dialog_font": "Geneva",
+        "monospace_font": "Monaco",
+        "color_palette": "System 7 Classic"
+      },
+
+      "character_editor": {
+        "editable_fonts": ["PetMe64", "PetMe128", "Mallard", "Chicago"],
+        "supports_custom_profiles": true,
+        "profile_storage": "memory/system/user/",
+        "export_formats": ["ttf", "otf", "json"]
+      },
+
+      "markdown_viewer": {
+        "heading_font": "Chicago",
+        "body_font": "system",
+        "code_font": "Monaco",
+        "fallback": "monospace"
+      }
+    },
+
+    "core_integration": {
+      "uDOS_settings": {
+        "config_key": "font_system",
+        "load_on_startup": true,
+        "user_overrides": "memory/system/user/font-preferences.json"
+      },
+
+      "uDOS_graphics": {
+        "default_font": "monospace",
+        "block_graphics_enabled": true,
+        "emoji_rendering": true
+      },
+
+      "uDOS_prompt": {
+        "font_stack": "system",
+        "color_scheme": "Synthwave DOS"
+      }
+    },
+
+    "css_generation": {
+      "auto_generate": true,
+      "output_path": "extensions/core/css/",
+      "includes": [
+        "synthwave-dos-colors.css",
+        "typography-system.css"
+      ],
+      "font_face_declarations": true,
+      "css_custom_properties": true
+    },
+
+    "documentation": {
+      "main_readme": "extensions/core/fonts/README.md",
+      "color_system": "extensions/core/css/synthwave-dos-colors.css",
+      "wiki": "wiki/Typography-System.md",
+      "style_guide": "docs/guides/style-guide.md",
+      "changelog": "CHANGELOG.md"
+    }
+  }
+}

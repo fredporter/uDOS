@@ -1,0 +1,137 @@
+{
+  "THEME_SCHEMA": {
+    "VERSION": "1.0.2",
+    "STANDARD_VARIABLES": {
+      "CORE_SYSTEM": [
+        "THEME_NAME",
+        "VERSION",
+        "NAME",
+        "STYLE",
+        "DESCRIPTION",
+        "ICON",
+        "VERBOSE_LEVEL"
+      ],
+      "CORE_USER": [
+        "USER_NAME",
+        "USER_LOCATION",
+        "USER_TIMEZONE",
+        "USER_PROJECT",
+        "USER_PROJECT_TYPE",
+        "USER_MODE",
+        "USER_LEVEL",
+        "USER_EXPERIENCE"
+      ],
+      "CHARACTER_TYPES": [
+        "CHARACTER_NAME",
+        "CHARACTER_CLASS",
+        "CHARACTER_LEVEL",
+        "CHARACTER_HP",
+        "CHARACTER_MAX_HP",
+        "CHARACTER_XP",
+        "CHARACTER_STRENGTH",
+        "CHARACTER_INTELLIGENCE",
+        "CHARACTER_DEXTERITY",
+        "CHARACTER_CONSTITUTION",
+        "CHARACTER_WISDOM",
+        "CHARACTER_CHARISMA",
+        "CHARACTER_ALIGNMENT",
+        "CHARACTER_RACE",
+        "CHARACTER_BACKGROUND"
+      ],
+      "OBJECT_TYPES": [
+        "OBJECT_NAME",
+        "OBJECT_TYPE",
+        "OBJECT_CATEGORY",
+        "OBJECT_RARITY",
+        "OBJECT_CONDITION",
+        "OBJECT_DURABILITY",
+        "OBJECT_VALUE",
+        "OBJECT_WEIGHT",
+        "OBJECT_PROPERTIES",
+        "OBJECT_DESCRIPTION",
+        "OBJECT_ENCHANTMENT",
+        "OBJECT_HISTORY"
+      ],
+      "LOCATION_TRACKING": [
+        "LOCATION_TIMESTAMP",
+        "LOCATION_COORDINATES",
+        "LOCATION_LAYER",
+        "LOCATION_ZONE",
+        "LOCATION_REGION",
+        "LOCATION_MAP_TILE",
+        "LOCATION_ZOOM_LEVEL",
+        "LOCATION_PRECISION"
+      ]
+    },
+    "MESSAGE_CATEGORIES": {
+      "ACTION_SUCCESS": "Positive action completion messages",
+      "ACTION_FAILURE": "Negative action failure messages",
+      "INFO": "Informational status messages",
+      "ERROR": "Error condition messages",
+      "WARNING": "Warning/caution messages",
+      "PROMPT": "User interaction prompts",
+      "SYSTEM": "System status messages"
+    },
+    "TERMINOLOGY_MAPPING": {
+      "COMMANDS": {
+        "CMD_CATALOG": "View/list command",
+        "CMD_LOAD": "Load/open command",
+        "CMD_SAVE": "Save/store command",
+        "CMD_RUN": "Execute/run command",
+        "CMD_CLS": "Clear screen command",
+        "CMD_COMMANDS": "List commands command",
+        "CMD_HELP": "Help/documentation command",
+        "CMD_RESTART": "Restart/reboot command",
+        "CMD_MAP": "Map/navigation command",
+        "CMD_GOTO": "Go to location command",
+        "CMD_MOVE": "Move/travel command",
+        "CMD_LAYER": "Layer/level command",
+        "CMD_DESCEND": "Go down/deeper command",
+        "CMD_ASCEND": "Go up/surface command",
+        "CMD_LOCATE": "Find/bookmark command",
+        "CMD_WHERE": "Current location command",
+        "CMD_TREE": "Directory tree command",
+        "CMD_OK": "Quick OK System access command",
+        "CMD_EDIT": "Edit/modify command",
+        "CMD_SHOW": "Display/reveal command",
+        "CMD_ANALYZE": "Analyze/examine command",
+        "CMD_REPAIR": "Repair/fix command",
+        "CMD_THEME": "Theme/style command",
+        "CMD_LEARN": "Learn/study command",
+        "CMD_PROJECT": "Project/initiative command",
+        "CMD_MISSION": "Mission/quest command"
+      },
+      "NOUNS": {
+        "NOUN_FILE_UDO": "uDOS file type",
+        "NOUN_FILE_MD": "Markdown file type",
+        "NOUN_FILE_SCRIPT": "Script file type",
+        "NOUN_WORKSPACE": "Workspace/buffer area",
+        "NOUN_DIRECTORY": "Directory/folder",
+        "NOUN_SYSTEM": "System/core",
+        "NOUN_LAYER": "Layer/level/dimension",
+        "NOUN_DUNGEON_LEVEL": "Depth/tier",
+        "NOUN_COORDINATES": "Position/coordinates",
+        "NOUN_MAP": "Map/chart/navigation",
+        "NOUN_LOCATION": "Location/place/waypoint",
+        "NOUN_PANEL": "Panel/viewport/display",
+        "NOUN_GRID": "Grid/interface/matrix",
+        "NOUN_SESSION": "Session/campaign/voyage",
+        "NOUN_KNOWLEDGE": "Knowledge/encyclopedia/database",
+        "NOUN_TEMPLATE": "Template/protocol/pattern",
+        "NOUN_CHARACTER": "Character/avatar/persona",
+        "NOUN_OBJECT": "Object/item/artifact"
+      }
+    },
+    "TIMESTAMP_FORMAT": {
+      "PATTERN": "udos-{YYMMDD}-{HHSS}-{TMZO}-{MAPTILE}-{ZOOM}",
+      "DESCRIPTION": "Compact human-readable timestamp with location data",
+      "COMPONENTS": {
+        "YYMMDD": "Year-Month-Day (6 digits)",
+        "HHSS": "Hour-Second (4 digits)",
+        "TMZO": "Timezone offset (4 chars)",
+        "MAPTILE": "Map tile coordinates (6 chars)",
+        "ZOOM": "Zoom/precision level (2 chars)"
+      }
+    }
+  }
+}

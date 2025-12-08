@@ -1,0 +1,77 @@
+#!/usr/bin/env udos
+# uPY v2.0.2 - Extension Feature Demo
+# Purpose: Test VS Code extension capabilities
+
+# This file demonstrates all extension features:
+# - Syntax highlighting
+# - IntelliSense autocomplete
+# - Code snippets
+# - Hover documentation
+
+# === Test 1: Variable Autocomplete ===
+# Type {$MIS and autocomplete should suggest {$MISSION
+SET (test_var|'Hello uDOS')              # v2.0.2: (command|params)
+SET (counter|42)
+
+# === Test 2: Property Completion ===
+# Type {$MISSION. and see properties: ID, NAME, STATUS, PROGRESS, etc.
+GET ({$MISSION.STATUS})
+GET ({$WORKFLOW.PHASE})
+
+# === Test 3: Command Completion ===
+# Type GUIDE and autocomplete should show GUIDE commands
+GUIDE (SEARCH|water)
+GUIDE (LIST|fire)
+
+# === Test 4: Map Navigation ===
+MAP (GOTO|AA340|100)        # Sydney - should show hover docs
+MAP (SEARCH|London)
+MAP (INFO)
+
+# === Test 5: Control Flow (v2.0.2 - Three Formats) ===
+# Short form (1-2 actions)
+[IF {$counter} > 10: PRINT ('Counter is large: {$counter}')]
+[IF {$counter} <= 10: PRINT ('Counter is small: {$counter}')]
+
+# Medium form (inline THEN/ELSE)
+[IF {$counter} >= 50 THEN: PRINT ('High') ELSE: PRINT ('Normal')]
+
+# === Test 6: Loops ===
+FOREACH {$item} IN {$list}
+  PRINT ('Processing: {$item}')               # {$} for variables
+END
+
+WHILE {$counter} < 100
+  SET (counter|{$counter} + 1)                # v2.0.2: {$} for read
+END
+
+# === Test 7: Mission System ===
+MISSION (CREATE|Extension Test Mission)
+MISSION (START)
+MISSION (STATUS)
+
+# === Test 8: Comments & Strings ===
+# This is a comment - should be colored differently
+PRINT ('This is a string with "quotes"')  # Single quotes default
+PRINT ('Double quotes with \'single\' inside')  # Both accepted
+
+# === Test 9: Snippets ===
+# Try typing these and pressing Tab:
+# - mission (full mission template)
+# - workflow (workflow template)
+# - foreach (loop template)
+# - if (conditional template)
+# - guide (knowledge guide template)
+
+# === Test 10: System Commands ===
+STATUS (--detailed)
+SETTINGS
+CLEAN (--scan)
+BACKUP (test.upy)
+
+# Success! If you see:
+# ✅ Syntax highlighting (colors for commands, variables, comments)
+# ✅ Autocomplete suggestions when typing
+# ✅ Documentation when hovering
+# ✅ Snippets expanding
+# Then the extension is working correctly!

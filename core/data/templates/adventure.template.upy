@@ -1,0 +1,74 @@
+#!/usr/bin/env udos
+# uPY v2.0.2 Adventure Template - Survival Quest
+# Three-format syntax: short/medium/long conditionals
+
+# Character variables - v2.0.2: (command|params)
+SET (SPRITE-NAME|Survivor)
+SET (SPRITE-HP|100)
+SET (SPRITE-HP-MAX|100)
+SET (SPRITE-LEVEL|1)
+SET (SPRITE-XP|0)
+
+# Story intro
+PRINT (==========================================)
+PRINT (  Survival Quest)
+PRINT (==========================================)
+PRINT ()
+PRINT (You are {$SPRITE-NAME}, stranded in the wilderness.)
+PRINT (Your goal: Survive and find your way home.)
+PRINT ()
+
+# Set location
+SET (SPRITE-LOCATION|AA340)
+XP (+10)
+
+# Main choice
+LABEL (START)
+
+PRINT (You stand at the edge of a dense forest.)
+PRINT ()
+
+CHOICE (Which path will you take?)
+  OPTION (Follow the river|RIVER)
+  OPTION (Climb the hill|HILL)
+  OPTION (Build a fire|FIRE)
+
+# River path - v2.0.2 short conditionals
+LABEL (RIVER)
+PRINT (You follow the river downstream...)
+ROLL (1d20) → {$roll}
+[IF {$roll} >= 15: XP (+50) | PRINT (You found a water source!)]
+[IF {$roll} < 15: HP (-10) | PRINT (You slip on wet rocks.)]
+END
+
+# Hill path
+LABEL [HILL]
+# Hill path - v2.0.2 medium form with THEN/ELSE
+LABEL (HILL)
+PRINT (You climb the steep hill...)
+ROLL (1d20) → {$roll}
+[IF {$roll} >= 12 THEN: XP (+40) | PRINT (You reach the summit!) ELSE: HP (-15) | PRINT (The climb was too difficult.)]
+END
+
+# Fire path - v2.0.2 long form (complex logic)
+LABEL (FIRE)
+PRINT (You build a signal fire...)
+ROLL (1d20) → {$roll}
+IF {$roll} >= 14
+  PRINT (Rescue team spotted your signal!)
+  BRANCH (RESCUED)
+ELSE
+  PRINT (The fire is too small...)
+  BRANCH (START)
+END IF
+
+# Rescued ending
+LABEL (RESCUED)
+PRINT ()
+PRINT (==========================================)
+PRINT (  YOU WERE RESCUED!)
+PRINT (==========================================)
+PRINT ()
+XP (+100)
+FLAG (adventure_complete)
+ENDemplate guide in comments above

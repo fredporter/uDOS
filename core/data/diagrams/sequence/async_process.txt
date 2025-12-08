@@ -1,0 +1,16 @@
+# Async Processing Pattern
+# Demonstrates asynchronous task handling
+
+Title: Background Job Processing
+
+User->WebApp: Upload File
+WebApp->Queue: Add to Job Queue
+WebApp-->User: Upload Accepted (202)
+Queue->Worker: Process Job
+Worker->Storage: Save Processed File
+Worker->Database: Update Status
+Worker->Notification: Send Completion Email
+Notification-->User: Processing Complete
+
+Note over Queue,Worker: Async processing
+Note right of Worker: Can take 5-10 minutes

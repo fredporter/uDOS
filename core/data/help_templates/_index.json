@@ -1,0 +1,66 @@
+{
+  "version": "1.0.12",
+  "description": "Help template index for uDOS command documentation",
+  "last_updated": "2025-11-07",
+  "templates": [
+    {
+      "file": "system_commands.json",
+      "category": "System Commands",
+      "commands": ["HELP", "STATUS", "REPAIR", "BLANK", "SETUP"],
+      "description": "Core system management and administration"
+    },
+    {
+      "file": "file_commands.json",
+      "category": "File Operations",
+      "commands": ["LIST", "LOAD", "SAVE", "EDIT", "RUN"],
+      "description": "File and workspace management"
+    },
+    {
+      "file": "assistant_commands.json",
+      "category": "AI Assistant",
+      "commands": ["OK", "ASK", "READ"],
+      "description": "AI-powered assistance and development"
+    },
+    {
+      "file": "grid_commands.json",
+      "category": "Grid Management",
+      "commands": ["GRID", "NEW GRID", "SHOW GRID"],
+      "description": "Grid system and panel management"
+    }
+  ],
+  "usage": {
+    "description": "Help templates provide structured documentation for commands",
+    "format": "Each template file contains detailed command information including syntax, parameters, examples, and notes",
+    "integration": "Templates can be loaded by HelpManager service for enhanced HELP command output"
+  },
+  "template_structure": {
+    "category": "Category name",
+    "description": "Category description",
+    "commands": {
+      "COMMAND_NAME": {
+        "name": "Command name",
+        "syntax": ["Syntax variations"],
+        "description": "Brief description",
+        "detailed": "Detailed explanation",
+        "parameters": [
+          {
+            "name": "Parameter name",
+            "type": "Parameter type",
+            "optional": true,
+            "description": "Parameter description"
+          }
+        ],
+        "examples": [
+          {
+            "command": "Example command",
+            "description": "What the example does"
+          }
+        ],
+        "related": ["Related commands"],
+        "notes": ["Important notes"],
+        "version_added": "Version when added",
+        "version_enhanced": "Version when enhanced (optional)"
+      }
+    }
+  }
+}

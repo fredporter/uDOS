@@ -1,0 +1,192 @@
+{
+  "font_profile": {
+    "metadata": {
+      "name": "Custom Profile Template",
+      "description": "User-customizable font and character mapping profile",
+      "version": "1.0.0",
+      "created": "2025-11-17",
+      "last_modified": "2025-11-17",
+      "author": "user",
+      "based_on": "knowledge/system/font-system.json"
+    },
+
+    "font_settings": {
+      "primary_font": {
+        "family": "PetMe64",
+        "path": "extensions/core/fonts/petme/PetMe64.ttf",
+        "format": "truetype",
+        "size": "16px",
+        "line_height": "1.2",
+        "letter_spacing": "0"
+      },
+
+      "fallback_fonts": [
+        "PetMe",
+        "Courier New",
+        "monospace"
+      ],
+
+      "alternate_fonts": {
+        "heading": "Chicago",
+        "monospace": "Monaco",
+        "teletext": "Mallard"
+      }
+    },
+
+    "color_scheme": {
+      "name": "Custom Synthwave",
+      "based_on": "Synthwave DOS",
+
+      "colors": {
+        "background": "#000000",
+        "foreground": "#55FFFF",
+        "cursor": "#FFFF55",
+        "selection": "#5555FF",
+
+        "primary": "#55FFFF",
+        "secondary": "#FF55FF",
+        "accent": "#FFFF55",
+
+        "success": "#55FF55",
+        "error": "#FF5555",
+        "warning": "#FFFF55",
+        "info": "#55FFFF"
+      },
+
+      "transparency": {
+        "enabled": true,
+        "levels": [10, 25, 50, 75]
+      }
+    },
+
+    "character_mappings": {
+      "description": "Custom character assignments for special keys",
+
+      "custom_characters": {
+        "block_full": {
+          "unicode": "U+2588",
+          "char": "█",
+          "key": "Shift+8",
+          "description": "Full block"
+        },
+        "block_upper": {
+          "unicode": "U+2580",
+          "char": "▀",
+          "key": "Shift+9",
+          "description": "Upper half block"
+        },
+        "block_lower": {
+          "unicode": "U+2584",
+          "char": "▄",
+          "key": "Shift+0",
+          "description": "Lower half block"
+        },
+        "box_horizontal": {
+          "unicode": "U+2500",
+          "char": "─",
+          "key": "Alt+-",
+          "description": "Box drawing horizontal"
+        },
+        "box_vertical": {
+          "unicode": "U+2502",
+          "char": "│",
+          "key": "Alt+|",
+          "description": "Box drawing vertical"
+        }
+      },
+
+      "block_graphics_set": "petscii",
+
+      "emoji_enabled": true,
+      "emoji_font": "system",
+
+      "special_characters": {
+        "copyright": "©",
+        "registered": "®",
+        "trademark": "™",
+        "bullet": "•",
+        "ellipsis": "…",
+        "em_dash": "—",
+        "en_dash": "–"
+      }
+    },
+
+    "block_graphics": {
+      "enabled": true,
+      "set": "petscii",
+
+      "custom_blocks": {
+        "full": "█",
+        "upper_half": "▀",
+        "lower_half": "▄",
+        "left_half": "▌",
+        "right_half": "▐",
+        "light_shade": "░",
+        "medium_shade": "▒",
+        "heavy_shade": "▓"
+      },
+
+      "box_drawing": {
+        "enabled": true,
+        "style": "single",
+        "corners": ["┌", "┐", "└", "┘"],
+        "lines": ["─", "│"],
+        "intersections": ["┼", "┬", "┴", "├", "┤"]
+      }
+    },
+
+    "rendering_options": {
+      "font_smoothing": "antialiased",
+      "text_rendering": "optimizeLegibility",
+      "crt_effect": false,
+      "scanlines": false,
+      "pixel_perfect": false,
+
+      "spacing": {
+        "letter_spacing": "0",
+        "word_spacing": "normal",
+        "line_height": "1.2"
+      }
+    },
+
+    "export_settings": {
+      "format": "json",
+      "include_metadata": true,
+      "compress": false,
+      "filename_pattern": "font-profile-{name}-{timestamp}.json"
+    },
+
+    "compatibility": {
+      "uDOS_version": "1.0.24",
+      "extensions": [
+        "c64-terminal",
+        "teletext",
+        "character-editor",
+        "desktop"
+      ],
+      "requires_fonts": [
+        "PetMe64",
+        "Chicago",
+        "Mallard"
+      ]
+    },
+
+    "usage_notes": {
+      "instructions": [
+        "1. Copy this template to create a new profile",
+        "2. Customize font_settings, color_scheme, and character_mappings",
+        "3. Save to memory/system/user/font-profile-{your-name}.json",
+        "4. Load profile in Character Editor or uDOS settings",
+        "5. Export modified fonts in TTF/OTF format if desired"
+      ],
+
+      "tips": [
+        "Use 'based_on' field to inherit from system font-system.json",
+        "Test color combinations for terminal visibility",
+        "Ensure custom character mappings don't conflict with system keys",
+        "Keep fallback fonts for compatibility",
+        "Document custom characters for future reference"
+      ]
+    }
+  }
+}

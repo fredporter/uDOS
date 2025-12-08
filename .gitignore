@@ -1,0 +1,317 @@
+# ============================================================
+# uDOS v1.2.21 - Git Ignore Configuration
+# ============================================================
+# Philosophy: Track DISTRIBUTION-READY CONTENT ONLY
+# 
+# ✅ TRACKED (Shipped with uDOS):
+#   - Core system (core/, knowledge/)
+#   - Production extensions (extensions/play/, extensions/assistant/)
+#   - Distributable scripts (memory/ucode/{tests,stdlib,examples,adventures})
+#   - Documentation (wiki/, dev/roadmap/, README files)
+#
+# ❌ NEVER TRACKED (Local-only):
+#   - Node modules (npm install builds these)
+#   - Python bytecode (__pycache__, *.pyc)
+#   - User data (memory/workflows/, memory/missions/)
+#   - Development sessions (dev/sessions/)
+#   - Virtual environments (.venv/)
+#   - Build artifacts (dist/, *.vsix)
+# ============================================================
+
+# ============================================================
+# CRITICAL: Build Artifacts & Dependencies (NEVER TRACK)
+# ============================================================
+# Node.js - users run `npm install` to build
+node_modules/
+**/node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python bytecode - generated at runtime
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build outputs
+dist/
+build/
+*.vsix
+*.egg
+*.egg-info/
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# ============================================================
+# Environment & Secrets
+# ============================================================
+.env
+.env.local
+*.key
+*.secret
+
+# Gmail OAuth2 credentials
+memory/system/user/gmail_credentials.json
+memory/system/user/.gmail_token.enc
+*.gmail_token*
+
+# User configuration overrides
+*.UDC
+data/STORY.UDO
+data/USER.UDO
+
+# ============================================================
+# IDE & System Files
+# ============================================================
+.DS_Store
+**/.DS_Store
+.vscode/settings.json
+.vscode/*.log
+.idea/
+*.swp
+*.swo
+*~
+.cache/
+.pytest_cache/
+
+# ============================================================
+# Development Sessions (NEVER TRACK)
+# ============================================================
+# These are local development notes, not documentation
+dev/sessions/
+dev/sessions/**/*
+
+# ============================================================
+# Extensions - Clone Management
+# ============================================================
+# Track: uDOS-native extensions, setup scripts, README files
+# Ignore: Cloned third-party repositories (users install locally)
+
+# Ignore all cloned repositories
+extensions/cloned/
+extensions/cloned/**/*
+
+# Track structure and documentation
+!extensions/cloned/.gitkeep
+!extensions/cloned/README.md
+
+# ============================================================
+# Memory - User Workspace (v1.2.12+)
+# ============================================================
+# Ignore entire memory/ by default (user workspace)
+memory/
+memory/**/*
+
+# ✅ TRACK: Core distributable scripts
+!memory/ucode/
+!memory/ucode/tests/
+!memory/ucode/tests/**
+!memory/ucode/stdlib/
+!memory/ucode/stdlib/**
+!memory/ucode/examples/
+!memory/ucode/examples/**
+!memory/ucode/adventures/
+!memory/ucode/adventures/**
+
+# ✅ TRACK: Structural files
+!memory/ucode/.gitkeep
+!memory/ucode/scripts/.gitkeep
+!memory/ucode/sandbox/.gitkeep
+!memory/README.md
+!memory/README-*.md
+!memory/.gitkeep
+!memory/pytest.ini
+!memory/structure.txt
+
+# ✅ TRACK: Required directory structure (.gitkeep files only)
+!memory/workflows/
+!memory/workflows/.gitkeep
+!memory/workflows/README.md
+!memory/workflows/config.json
+!memory/missions/
+!memory/missions/.gitkeep
+!memory/system/
+!memory/system/.gitkeep
+!memory/system/user/
+!memory/system/user/.gitkeep
+!memory/system/themes/
+!memory/system/themes/.gitkeep
+!memory/bank/
+!memory/bank/.gitkeep
+!memory/bank/private/
+!memory/bank/private/.gitkeep
+!memory/bank/barter/
+!memory/bank/barter/.gitkeep
+!memory/shared/
+!memory/shared/.gitkeep
+!memory/shared/groups/
+!memory/shared/groups/.gitkeep
+!memory/shared/metadata/
+!memory/shared/metadata/.gitkeep
+!memory/shared/public/
+!memory/shared/public/.gitkeep
+!memory/shared/.submissions/
+!memory/shared/.submissions/.gitkeep
+!memory/logs/
+!memory/logs/.gitkeep
+!memory/sessions/
+!memory/sessions/.gitkeep
+!memory/checklists/
+!memory/checklists/.gitkeep
+!memory/docs/
+!memory/docs/.gitkeep
+!memory/drafts/
+!memory/drafts/.gitkeep
+!memory/drafts/ascii/
+!memory/drafts/ascii/.gitkeep
+!memory/drafts/svg/
+!memory/drafts/svg/.gitkeep
+!memory/drafts/teletext/
+!memory/drafts/teletext/.gitkeep
+
+# ❌ IGNORE: All user workspace content (again, for clarity)
+memory/ucode/scripts/*
+!memory/ucode/scripts/.gitkeep
+memory/ucode/sandbox/*
+!memory/ucode/sandbox/.gitkeep
+memory/workflows/*
+!memory/workflows/.gitkeep
+!memory/workflows/README.md
+memory/system/**/*
+memory/bank/**/*
+memory/shared/**/*
+memory/private/**/*
+memory/logs/**/*
+memory/sessions/**/*
+memory/checklists/**/*
+memory/missions/**/*
+memory/docs/**/*
+memory/drafts/**/*
+
+# ============================================================
+# Archives & Backups (v1.1.16+)
+# ============================================================
+# Universal .archive/ folders - NEVER tracked (generated content)
+.archive/
+**/.archive/
+.archive/**/*
+**/.archive/**/*
+
+# Backup patterns
+backups/
+*.backup
+*.bak
+*~
+
+# ============================================================
+# Logs & Session State (NEVER TRACK)
+# ============================================================
+*.log
+*.jsonl
+*.pid
+*.state
+memory/logs/*.log
+memory/logs/*.jsonl
+memory/logs/session-*.json
+memory/logs/*_server.log
+memory/workflows/logs/
+memory/workflows/logs/**/*
+
+# ============================================================
+# Databases (Generated Content)
+# ============================================================
+*.db
+*.sqlite
+*.sqlite3
+memory/system/user/*.db
+memory/bank/*.db
+
+# ============================================================
+# Deprecated Root Folders (v1.2.12+)
+# ============================================================
+# Prevent recreation at root level
+sandbox/
+sandbox/**/*
+data/
+scripts/
+
+# ============================================================
+# Root-Level Prevention
+# ============================================================
+/output/
+/tmp/
+/temp/
+/test_*.py
+/test_*.uscript
+/test_*.sh
+/*.test.*
+/tmp_*
+/temp_*
+
+# ============================================================
+# Core System - Fully Tracked (Ship with uDOS)
+# ============================================================
+!core/
+!core/**/*
+!extensions/
+!extensions/**/*
+!knowledge/
+!knowledge/**/*
+!wiki/
+!wiki/**/*
+!dev/
+!dev/**/*
+
+# But NEVER track these even in core/extensions
+core/**/.archive/
+core/**/__pycache__/
+core/**/*.pyc
+extensions/**/.archive/
+extensions/**/__pycache__/
+extensions/**/*.pyc
+extensions/**/node_modules/
+extensions/**/dist/
+extensions/**/*.vsix
+knowledge/**/.archive/
+wiki/**/.archive/
+
+# CRITICAL: Re-ignore dev/sessions/ (development notes)
+dev/sessions/
+dev/sessions/**/*
+
+# ============================================================
+# Wiki Deployment
+# ============================================================
+uDOS.wiki/
+
+# ============================================================
+# Project Files - ALWAYS TRACK
+# ============================================================
+!*.md
+!*.txt
+!*.json
+!*.yaml
+!*.yml
+!*.toml
+!*.cfg
+!*.ini
+!requirements.txt
+!setup.py
+!.gitignore
+!.gitattributes
+!LICENSE*
+!CREDITS*
+!CHANGELOG*
+!CONTRIBUTING*
+!CODE-OF-CONDUCT*
+
+# ============================================================
+# End of uDOS .gitignore (v1.2.21)
+# ============================================================

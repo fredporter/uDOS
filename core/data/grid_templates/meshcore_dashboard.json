@@ -1,0 +1,47 @@
+{
+  "name": "MeshCore Device Dashboard",
+  "description": "Comprehensive device status dashboard with metrics",
+  "layer": 600,
+  "viewport": "WIDE",
+  "dimensions": {
+    "rows": 8,
+    "columns": 9
+  },
+  "header": "Device Status Dashboard - Layer 600",
+  "border": true,
+  "sections": [
+    {
+      "title": "Network Summary",
+      "rows": [0, 1],
+      "content": [
+        "Total Devices: {{device_count}}",
+        "Online: {{online_count}} | Offline: {{offline_count}} | Connecting: {{connecting_count}}"
+      ]
+    },
+    {
+      "title": "Device List",
+      "rows": [2, 3, 4, 5, 6],
+      "headers": ["ID", "Type", "Status", "Signal", "Uptime", "Msgs/s"],
+      "devices": [
+        {"id": "D1", "type": "⊚", "status": "●", "signal": 82, "uptime": "24h", "msgs": 145},
+        {"id": "D2", "type": "⊕", "status": "●", "signal": 76, "uptime": "18h", "msgs": 203},
+        {"id": "D3", "type": "⊗", "status": "●", "signal": 91, "uptime": "36h", "msgs": 87},
+        {"id": "D4", "type": "⊙", "status": "○", "signal": 0, "uptime": "0h", "msgs": 0},
+        {"id": "D5", "type": "⊘", "status": "●", "signal": 68, "uptime": "12h", "msgs": 54}
+      ]
+    },
+    {
+      "title": "Alerts",
+      "rows": [7],
+      "content": [
+        "⚠ D4 offline for 2h 15m | ◐ D7 reconnecting (attempt 3/5)"
+      ]
+    }
+  ],
+  "variables": {
+    "device_count": "8",
+    "online_count": "6",
+    "offline_count": "1",
+    "connecting_count": "1"
+  }
+}

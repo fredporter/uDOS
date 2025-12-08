@@ -1,0 +1,10 @@
+Common Symbols:
+
+✓ Checkmark       ✗ X-Mark         ● Bullet
+◆ Diamond         ★ Star           ▶ Play
+■ Square          ▲ Up Arrow       ▼ Down Arrow
+◀ Left Arrow      ▶ Right Arrow    ⚠ Warning
+⚡ Lightning       ⚙ Settings       ℹ Info
+✉ Email           ☎ Phone          ⌂ Home
+☰ Menu            ⊕ Add            ⊖ Remove
+♥ Heart           ♪ Music          ☁ Cloud

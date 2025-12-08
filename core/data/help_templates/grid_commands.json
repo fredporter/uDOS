@@ -1,0 +1,131 @@
+{
+  "category": "Grid Management",
+  "description": "Grid system and panel management commands",
+  "commands": {
+    "GRID": {
+      "name": "GRID",
+      "syntax": [
+        "GRID",
+        "GRID <size>",
+        "GRID <width>x<height>"
+      ],
+      "description": "Display or configure grid layout",
+      "detailed": "GRID manages the panel workspace system. Shows current layout or creates new grids with specified dimensions.",
+      "parameters": [
+        {
+          "name": "size",
+          "type": "string",
+          "optional": true,
+          "description": "Preset size (small, medium, large)"
+        },
+        {
+          "name": "width",
+          "type": "integer",
+          "optional": true,
+          "description": "Grid width in cells"
+        },
+        {
+          "name": "height",
+          "type": "integer",
+          "optional": true,
+          "description": "Grid height in cells"
+        }
+      ],
+      "examples": [
+        {
+          "command": "GRID",
+          "description": "Show current grid layout"
+        },
+        {
+          "command": "GRID 3x3",
+          "description": "Create 3x3 grid"
+        },
+        {
+          "command": "GRID large",
+          "description": "Create large preset grid"
+        }
+      ],
+      "related": ["NEW GRID", "SHOW GRID", "LOAD"],
+      "notes": [
+        "Panels are referenced by cell notation (A1, B2, etc.)",
+        "Grid size adapts to viewport automatically",
+        "Each panel can hold different content types"
+      ],
+      "version_added": "1.0.0"
+    },
+    "NEW GRID": {
+      "name": "NEW GRID",
+      "syntax": [
+        "NEW GRID",
+        "NEW GRID <width>x<height>"
+      ],
+      "description": "Create new empty grid",
+      "detailed": "NEW GRID clears the current grid and creates a fresh workspace with specified or default dimensions.",
+      "parameters": [
+        {
+          "name": "width",
+          "type": "integer",
+          "optional": true,
+          "description": "Grid width in cells"
+        },
+        {
+          "name": "height",
+          "type": "integer",
+          "optional": true,
+          "description": "Grid height in cells"
+        }
+      ],
+      "examples": [
+        {
+          "command": "NEW GRID",
+          "description": "Create default grid"
+        },
+        {
+          "command": "NEW GRID 4x4",
+          "description": "Create 4x4 grid"
+        }
+      ],
+      "related": ["GRID", "SHOW GRID", "BLANK GRID"],
+      "notes": [
+        "Clears all existing panel content",
+        "Saves previous grid to history",
+        "Use UNDO to restore previous grid"
+      ],
+      "version_added": "1.0.0"
+    },
+    "SHOW GRID": {
+      "name": "SHOW GRID",
+      "syntax": [
+        "SHOW GRID",
+        "SHOW GRID <panel>"
+      ],
+      "description": "Display grid visualization",
+      "detailed": "SHOW GRID renders a visual representation of the grid with panel labels and content summaries.",
+      "parameters": [
+        {
+          "name": "panel",
+          "type": "string",
+          "optional": true,
+          "description": "Specific panel to highlight"
+        }
+      ],
+      "examples": [
+        {
+          "command": "SHOW GRID",
+          "description": "Show entire grid layout"
+        },
+        {
+          "command": "SHOW GRID A1",
+          "description": "Show grid with A1 highlighted"
+        }
+      ],
+      "related": ["GRID", "NEW GRID"],
+      "notes": [
+        "Uses box-drawing characters for borders",
+        "Shows content preview for each panel",
+        "Adapts to terminal width"
+      ],
+      "version_added": "1.0.0"
+    }
+  }
+}
