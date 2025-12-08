@@ -1,12 +1,18 @@
 # Function Programming Guide
 
-**Complete guide to writing functions in uPY v2.0.2 (uDOS v1.2.x)**
+**Complete guide to writing functions in uPY v1.2 (uDOS v1.2.21)**
 
-**Last Updated:** December 7, 2025
+**Last Updated:** December 8, 2025
 
 ## Overview
 
-Functions allow you to create reusable blocks of code with parameters and return values. This guide covers everything from basic syntax to advanced patterns.
+Functions in uPY v1.2 allow you to create reusable blocks of code with parameters and return values. This guide covers everything from basic syntax to advanced patterns using the three-format system (short/medium/long).
+
+**uPY v1.2 Syntax Conventions:**
+- **Variables**: `{$variable}` - Always use curly braces with $ prefix
+- **Commands**: `(command|params)` - Parentheses for actions
+- **Conditionals**: `[IF {$var} < 30: action]` - Square brackets for control flow
+- **Three formats**: Choose complexity level based on needs
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Complete guide to creating interactive text adventures in uDOS using `.upy` scripts**
 
-**Version:** v2.0.2 (uDOS v1.2.x)
-**Last Updated:** December 7, 2025
+**Version:** v1.2 (uDOS v1.2.21)
+**Last Updated:** December 8, 2025
 
 ## Table of Contents
 

@@ -1,12 +1,20 @@
 # Command Reference
 
-**Version:** v1.2.20 (Workflow Management System)
-**Format:** uPY (Python-like syntax)
-**Last Updated:** December 3, 2025
+**Version:** v1.2.21 (OK Assistant + Final Stable v1.2.x)
+**Format:** uPY v1.2 (Three-format syntax system)
+**Last Updated:** December 8, 2025
 
 Complete reference for all uDOS commands with uPY syntax examples.
 
 > **💡 Quick Help**: Type `HELP` in uDOS for command list, or `HELP <command>` for specific help.
+
+> **📘 uPY Syntax**: uDOS v1.2.x uses **uPY v1.2** with three-format system:
+> - **Variables**: `{$variable}` - Curly braces with $ prefix
+> - **Commands**: `(command|params)` - Parentheses for actions
+> - **Conditionals**: `[IF {$var} < 30: action]` - Square brackets for control flow
+> - **Three formats**: Short (1-2 actions), Medium (inline branching), Long (multi-line)
+>
+> See [Function Programming Guide](Function-Programming-Guide.md) for complete syntax reference.
 
 ---
 

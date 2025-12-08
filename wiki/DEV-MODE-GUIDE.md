@@ -1,4 +1,4 @@
-# DEV MODE Guide (v1.2.2)
+# DEV MODE Guide (v1.2.21)
 
 **Interactive Debugging System for uPY Scripts**
 
@@ -1411,5 +1411,5 @@ DEV|MODE*DISABLE                   # Save state and exit
 
 ---
 
-**Last Updated:** 2025-12-03 (v1.2.2)
+**Last Updated:** December 8, 2025 (v1.2.21)
 **Maintained by:** uDOS Development Team

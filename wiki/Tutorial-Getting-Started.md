@@ -52,7 +52,7 @@ pip install -r requirements.txt
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
-║                        uDOS v1.2.20                              ║
+║                        uDOS v1.2.21                              ║
 ║           Offline-First Survival Knowledge + Computing           ║
 ╚══════════════════════════════════════════════════════════════════╝
 
@@ -60,7 +60,7 @@ Initializing systems...
 ✓ Configuration loaded
 ✓ Knowledge bank ready (230+ guides)
 ✓ Extensions available (dashboard, teletext, maps, assistant)
-✓ uPY v2.0.2 runtime ready
+✓ uPY v1.2 runtime ready
 ✓ Workflow system initialized
 
 🔮 >
@@ -123,12 +123,12 @@ Available Commands:
 ┌─────────────────────────────────────────────────────────────────┐
 │                      SYSTEM STATUS                               │
 ├─────────────────────────────────────────────────────────────────┤
-│ Version:          1.2.20                                        │
+│ Version:          1.2.21                                        │
 │ Python:           3.9+ (tested 3.11+)                          │
 │ Knowledge:        230+ guides (water, fire, shelter, etc.)     │
 │ Extensions:       dashboard, teletext, maps, assistant         │
 │ API Status:       ✓ Gemini (if configured) / ✓ Offline ready   │
-│ uPY Runtime:      v2.0.2 ready                                 │
+│ uPY Runtime:      v1.2 ready                                   │
 │ Workflow:         ✓ Missions, checkpoints, templates           │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -139,10 +139,10 @@ Available Commands:
 
 **Output:**
 ```
-uDOS v1.2.20 - Offline-First Survival Knowledge + Computing
+uDOS v1.2.21 - Offline-First Survival Knowledge + Computing
 Released: December 2025
 Python: 3.9+ (tested with 3.11+)
-uPY Runtime: v2.0.2
+uPY Runtime: v1.2
 License: MIT
 ```
 
@@ -292,11 +292,11 @@ uCODE is uDOS's scripting language for automation.
 
 ### 4.2 Your First Script
 
-Create `my_first_script.uscript`:
+Create `my_first_script.upy`:
 
-```uscript
+```upy
 ---
-title: "My First uCODE Script"
+title: "My First uPY Script"
 author: "Student"
 description: "Learning uCODE basics"
 version: "1.0.0"
@@ -320,12 +320,12 @@ version: "1.0.0"
 **Run it:**
 
 ```bash
-🔮 > MISSION|run|my_first_script.uscript
+🔮 > RUN my_first_script.upy
 ```
 
-### 4.3 Variables in uCODE
+### 4.3 Variables in uPY
 
-```uscript
+```upy
 ---
 title: "Variable Demo"
 ---
@@ -345,7 +345,7 @@ $format = "detailed"
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                   .uscript FILE STRUCTURE                        │
+│                   .upy FILE STRUCTURE                           │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  1. YAML Frontmatter (optional)                                 │
@@ -361,7 +361,7 @@ $format = "detailed"
 │  3. Variable Definitions                                        │
 │     $variable = "value"                                          │
 │                                                                  │
-│  4. uCODE Commands                                              │
+│  4. uPY Commands                                                 │
 │     [COMMAND|param1|param2]                                     │
 │                                                                  │
 │  5. Comments                                                    │
@@ -483,7 +483,7 @@ GENERATE|guide|communication|emergency_signals
 ```
 Task: Create a script that generates 3 water-related guides
 
-File: water_guides.uscript
+File: water_guides.upy
 ---
 $topics = ["boiling", "filtration", "storage"]
 
@@ -498,7 +498,7 @@ $topics = ["boiling", "filtration", "storage"]
 Task: Check your script for errors
 
 Command:
-python -m core.ucode.validator --lint water_guides.uscript
+python -m core.interpreters.validator --lint water_guides.upy
 ```
 
 ---
@@ -548,7 +548,7 @@ python -m core.ucode.validator --lint water_guides.uscript
 │  GENERATE|diagram|...    - Generate diagram (multi-format)      │
 │  REFRESH|guide|...       - Update to current standards          │
 │                                                                  │
-│  MISSION|run|file        - Execute .uscript file                │
+│  RUN <file>            - Execute .upy file                       │
 │  EXTENSION|list          - List extensions                      │
 │                                                                  │
 │  Exit: CTRL+C or EXIT command                                   │
@@ -577,7 +577,7 @@ For AI features: Add GEMINI_API_KEY to .env file
 **Problem: "Script validation failed"**
 ```
 Solution: Check script syntax
-Run: python -m core.ucode.validator --lint yourscript.uscript
+Run: python -m core.interpreters.validator --lint yourscript.upy
 ```
 
 ---

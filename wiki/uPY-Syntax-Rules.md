@@ -1,8 +1,8 @@
-# uPY v2.0.2 Syntax Rules
+# uPY v1.2 Syntax Rules
 
-**Quick Reference Card** - Clean, minimal, Python-aligned syntax
+**Quick Reference Card** - Three-format syntax system with distinct brackets
 
-**Version:** v2.0.2 (uDOS v1.2.x) | **Date:** December 7, 2025
+**Version:** v1.2 (uDOS v1.2.21) | **Date:** December 8, 2025
 
 ---
 

@@ -1,7 +1,7 @@
 # Extension Development Guide
 
-**Last Updated:** December 1, 2025
-**Version:** 2.0.0
+**Last Updated:** December 8, 2025
+**Version:** v1.2.21
 **Status:** Complete
 
 ---

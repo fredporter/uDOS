@@ -1,7 +1,7 @@
 # Theme System
 
-**Version**: 1.0.13
-**Last Updated**: 8 November 2025
+**Version**: v1.2.21
+**Last Updated**: December 8, 2025
 
 The uDOS Theme System provides comprehensive customization of the user interface, terminology, and experience. Create, share, and switch between themes to match your workflow, aesthetic preferences, or accessibility needs.
 

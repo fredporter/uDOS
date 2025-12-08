@@ -206,8 +206,8 @@ See **[Contributing](Contributing.md)** for complete guidelines.
 - [Knowledge System](Knowledge-System.md)
 - [Development History](Development-History.md)
 - [Mapping System](Mapping-System.md)
+- [OK Assistant Guide](OK-Assistant-Guide.md) ⭐ v1.2.21
 - [Philosophy](Philosophy.md) ⭐
-
 - [Quick Start](../QUICK-START.md)
 - [Style Guide](Style-Guide.md)
 - [Text-First Computing](Text-First-Computing.md)

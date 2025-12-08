@@ -1,6 +1,6 @@
 # uPY Quick Start Tutorial
 
-**Version:** v1.2.x
+**Version:** v1.2.21
 **Time to Complete:** 10-15 minutes
 **Difficulty:** Beginner
 **Prerequisites:** uDOS installed, basic programming knowledge
@@ -375,7 +375,7 @@ JSON.save("player.json")  # ✅ Save immediately
 mv my_script.txt my_script.upy
 
 # Run with correct path
-./start_udos.sh sandbox/ucode/my_script.upy
+./start_udos.sh memory/ucode/sandbox/my_script.upy
 ```
 
 ### Emoji Not Showing

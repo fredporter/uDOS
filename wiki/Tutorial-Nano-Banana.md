@@ -1,9 +1,9 @@
 # Tutorial: Nano Banana Quick Start
 
-**Version:** 1.1.7
+**Version:** v1.2.21
 **Duration:** 15-20 minutes
 **Prerequisites:** GEMINI_API_KEY configured
-**Last Updated:** December 1, 2025
+**Last Updated:** December 8, 2025
 
 ## What You'll Learn
 
@@ -101,7 +101,7 @@ Let's start simple with a water filter diagram.
 3. ⏳ Generates PNG (15-20 seconds)
 4. ⏳ Vectorizes PNG→SVG with potrace
 5. ✅ Validates Technical-Kinetic compliance
-6. 💾 Saves to `sandbox/drafts/svg/water-filter-technical-kinetic-20251201-143022.svg`
+6. 💾 Saves to `memory/drafts/svg/water-filter-technical-kinetic-20251201-143022.svg`
 
 **Expected Output:**
 ```
@@ -110,11 +110,11 @@ Let's start simple with a water filter diagram.
    Type: flowchart
    Vectorizer: potrace
    Time: 18.3s
-   Saved: sandbox/drafts/svg/water-filter-technical-kinetic-20251201-143022.svg
+   Saved: memory/drafts/svg/water-filter-technical-kinetic-20251201-143022.svg
    Validation: ✅ Technical-Kinetic compliant
 
 🔧 Next Steps:
-   - Edit: open -a 'Inkscape' sandbox/drafts/svg/water-filter-*.svg
+   - Edit: open -a 'Inkscape' memory/drafts/svg/water-filter-*.svg
    - Regenerate: GENERATE SVG water filter --style hand-illustrative
    - Refine: GENERATE SVG water filter --pro --strict
 ```
@@ -125,21 +125,21 @@ Open the generated SVG in your favorite editor:
 
 **macOS:**
 ```bash
-open -a 'Inkscape' sandbox/drafts/svg/water-filter-*.svg
+open -a 'Inkscape' memory/drafts/svg/water-filter-*.svg
 # or
-open sandbox/drafts/svg/water-filter-*.svg  # Preview
+open memory/drafts/svg/water-filter-*.svg  # Preview
 ```
 
 **Linux:**
 ```bash
-inkscape sandbox/drafts/svg/water-filter-*.svg
+inkscape memory/drafts/svg/water-filter-*.svg
 # or
-xdg-open sandbox/drafts/svg/water-filter-*.svg
+xdg-open memory/drafts/svg/water-filter-*.svg
 ```
 
 **Windows:**
 ```bash
-start inkscape sandbox/drafts/svg/water-filter-*.svg
+start inkscape memory/drafts/svg/water-filter-*.svg
 ```
 
 ---
@@ -289,7 +289,7 @@ Save with a specific name:
 🔮 > GENERATE SVG water filter --save my-filter.svg
 ```
 
-Output: `sandbox/drafts/svg/my-filter.svg`
+Output: `memory/drafts/svg/my-filter.svg`
 
 ### Combine All Options
 
@@ -305,9 +305,9 @@ Create a uCODE script for batch generation.
 
 ### Create Workflow File
 
-Create `sandbox/workflow/my_batch.uscript`:
+Create `memory/workflows/missions/my_batch.upy`:
 
-```uscript
+```upy
 ---
 title: "My First Batch Generation"
 description: "Generate multiple survival diagrams"
@@ -331,18 +331,18 @@ GENERATE SVG shelter frame --type architecture
 SLEEP 3
 
 PRINT "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-PRINT "✅ Batch complete! Check sandbox/drafts/svg/"
+PRINT "✅ Batch complete! Check memory/drafts/svg/"
 ```
 
 ### Run Your Workflow
 
 ```
-🔮 > RUN "sandbox/workflow/my_batch.uscript"
+🔮 > RUN "memory/workflows/missions/my_batch.upy"
 ```
 
 **Output:**
 ```
-🚀 Executing script: my_batch.uscript
+🚀 Executing script: my_batch.upy
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Starting batch generation...
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -353,23 +353,23 @@ Starting batch generation...
 ✅ SVG diagram generated: shelter frame
    [... output ...]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ Batch complete! Check sandbox/drafts/svg/
+✅ Batch complete! Check memory/drafts/svg/
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ Script completed
 ```
 
 ### Use Example Workflows
 
-uDOS includes 4 example workflows in `sandbox/workflow/examples/`:
+uDOS includes 4 example workflows in `memory/ucode/examples/`:
 
-1. **nano_banana_quick_start.uscript** - Beginner tutorial (this guide!)
-2. **nano_banana_batch.uscript** - Batch generation with tracking
-3. **nano_banana_quality_check.uscript** - Quality validation + retry logic
-4. **nano_banana_styles_demo.uscript** - All style/type combinations
+1. **nano_banana_quick_start.upy** - Beginner tutorial (this guide!)
+2. **nano_banana_batch.upy** - Batch generation with tracking
+3. **nano_banana_quality_check.upy** - Quality validation + retry logic
+4. **nano_banana_styles_demo.upy** - All style/type combinations
 
 Run any example:
 ```
-🔮 > RUN "sandbox/workflow/examples/nano_banana_batch.uscript"
+🔮 > RUN "memory/ucode/examples/nano_banana_batch.upy"
 ```
 
 ---
@@ -489,7 +489,7 @@ GENERATE SVG diagram3
 3. **Error handling:** Check output for ✅ vs ❌
 4. **Save logs:** Redirect output to file
 
-```uscript
+```upy
 # Good batch workflow
 FOR $topic IN ["water", "fire", "shelter"]
   PRINT "Generating: $topic"
@@ -547,7 +547,7 @@ sudo apt install inkscape  # Linux
 ### Explore More Features
 
 1. **Create custom style guides** - See [Nano Banana Integration Guide](Nano-Banana-Integration#custom-style-guides)
-2. **Build complex workflows** - See `sandbox/workflow/examples/`
+2. **Build complex workflows** - See `memory/ucode/examples/`
 3. **Integrate with missions** - See [Workflows Guide](Workflows)
 4. **Generate ASCII alternatives** - `GENERATE ASCII <description>`
 
@@ -623,7 +623,7 @@ GENERATE SVG <description> --style technical-kinetic --type flowchart --pro --st
 - `schematic` - Technical specs
 
 ### Workflow Template
-```uscript
+```upy
 ---
 title: "Your Workflow"
 description: "Description here"

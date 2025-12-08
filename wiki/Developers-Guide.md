@@ -2,7 +2,7 @@
 
 Complete guide for uDOS developers and contributors covering architecture, APIs, workflows, and best practices.
 
-**Version:** v1.2.20 (Workflow Management System)
+**Version:** v1.2.21 (OK Assistant Integration)
 **Status:** Production Ready
 **Last Updated:** December 2025
 

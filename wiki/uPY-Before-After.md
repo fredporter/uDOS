@@ -1,6 +1,6 @@
-# Before & After: uPY v2.0.2 Syntax
+# Before & After: uPY v1.2 Syntax
 
-**Visual guide showing the improvements in uPY v2.0.2 (uDOS v1.2.x) syntax**
+**Visual guide showing the improvements in uPY v1.2 (uDOS v1.2.21) syntax**
 
 **Last Updated:** December 7, 2025
 

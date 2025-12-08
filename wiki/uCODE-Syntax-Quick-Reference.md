@@ -1,6 +1,7 @@
 # uCODE Syntax Quick Reference
 
-**Version:** 2.0.0 (uPY v2.0 - Clean Minimal Syntax)
+**Version:** v1.2 (uPY v1.2 - Three-Format Syntax System)
+**Last Updated:** December 8, 2025
 **Last Updated:** December 5, 2025
 
 ---
@@ -42,7 +43,7 @@ SET (message|'Hello $name')
 
 ### Variable Syntax - Single Style
 
-uPY v2.0 uses **$ only for string interpolation**:
+uPY v1.2 uses **$ only for string interpolation**:
 
 | Context | Syntax | Example |
 |---------|--------|---------|
@@ -138,7 +139,7 @@ SET (CONSTANT_VAL|100)    # ✅ UPPER for constants
 ### Complete Example
 
 ```uscript
-# Modern uPY v2.0 style
+# Modern uPY v1.2 style
 SET (app_name|'uDOS')
 SET (version|'2.0')
 SET (status|'active')

@@ -59,13 +59,11 @@ memory/
 │   │   └── .archive/       # Old checkpoint history
 │   ├── state/              # Current execution state and control
 │   └── extensions/         # Gameplay/XP/achievement integration
-├── system/                 # System files
-│   ├── .archive/           # System file backups & old configs
-│   ├── themes/             # Custom themes
-│   │   └── .archive/       # Theme backups
-│   └── user/               # User settings and persistent data
-│       └── .archive/       # User config history (BACKUP command)
-├── bank/                   # Banking/barter system
+├── bank/                   # Banking/barter/user system (unified)
+│   ├── user/               # User settings and persistent data
+│   │   └── .archive/       # User config history (BACKUP command)
+│   ├── system/             # System files (themes, resource-state)
+│   │   └── .archive/       # System file backups & old configs
 │   ├── private/            # Private transactions
 │   └── barter/             # Barter transactions
 ├── shared/                 # Shared/community content
@@ -74,10 +72,12 @@ memory/
 │   ├── public/             # Public content
 │   └── .submissions/       # Content submissions
 ├── docs/                   # User documentation
-└── drafts/                 # Draft content
-    ├── ascii/              # ASCII art drafts
-    ├── svg/                # SVG drafts
-    └── teletext/           # Teletext drafts
+├── drafts/                 # Draft content
+│   ├── ascii/              # ASCII art drafts
+│   ├── svg/                # SVG drafts
+│   └── teletext/           # Teletext drafts
+└── logs/                   # System logs
+    └── auto/               # Auto-generated logs
 ```
 
 ### Universal .archive/ System (v1.1.16)
@@ -139,9 +139,10 @@ memory/logs/.archive/             # Log rotation
   - Old checkpoints → `memory/workflows/checkpoints/.archive/`
 - Workflow state → `memory/workflows/state/` (current execution state)
 - Workflow extensions → `memory/workflows/extensions/` (gameplay integration)
-- User data → `memory/system/user/`
-  - Config backups → `memory/system/user/.archive/`
-- System backups → `memory/system/.archive/` (unified backup location)
+- User data → `memory/bank/user/`
+  - Config backups → `memory/bank/user/.archive/`
+- System files → `memory/bank/system/` (themes, resource-state.json)
+  - System backups → `memory/bank/system/.archive/`
 - Core tests/utilities → `memory/ucode/` (tracked in git)
 
 **✅ Use `.archive/` folders for (auto-managed, ALL directories):**
@@ -734,7 +735,7 @@ Available via `Ctrl+Shift+P` → "Run Task":
   - **Status:** Active in output display
   
 - **File Browser** (`core/ui/file_browser.py`) ✅ AVAILABLE
-  - 5 workspaces: knowledge/, docs/, drafts/, sandbox/, scripts/
+  - 5 workspaces: knowledge/, memory/docs/, memory/drafts/, memory/ucode/sandbox/, memory/ucode/scripts/
   - Filtered views (.upy, .md, .json only)
   - Breadcrumb navigation
   - Press 0 to switch workspaces

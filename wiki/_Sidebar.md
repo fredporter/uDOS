@@ -20,8 +20,9 @@
 
 ## 📖 User Guides
 - **[Command Reference](Command-Reference)** - All commands
+- **[OK Assistant Guide](OK-Assistant-Guide)** ⭐ v1.2.21 - AI-powered content generation
 - **[Tutorial: Getting Started](Tutorial-Getting-Started)** - Interactive tutorial
-- **[Tutorial: Nano Banana](Tutorial-Nano-Banana)** ⭐ v1.1.7 - SVG generation
+- **[Tutorial: Nano Banana](Tutorial-Nano-Banana)** ⭐ v1.2.21 - SVG generation
 - **[Troubleshooting](Troubleshooting-Complete)** - Fix common issues
 - **[Workflows](Workflows)** - Common tasks & automation
 
@@ -101,7 +102,7 @@
 
 ---
 
-**Version**: v1.2.20 (Workflow Management System)
+**Version**: v1.2.21 (OK Assistant Integration)
 **Last Updated**: December 2025
 
 ⭐ = Featured guide

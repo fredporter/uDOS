@@ -1,8 +1,8 @@
 # Nano Banana Integration Guide
 
-**Version:** 1.1.7
+**Version:** v1.2.21
 **Status:** Production Ready (Workflows Complete)
-**Last Updated:** December 1, 2025
+**Last Updated:** December 8, 2025
 
 ## Overview
 
@@ -186,14 +186,14 @@ water-purification-filter-technical-kinetic-20251130-143022.svg
 
 **Output Directory:**
 ```
-sandbox/drafts/svg/
+memory/drafts/svg/
 ```
 
 **Code:**
 ```python
 from pathlib import Path
 
-output_path = Path("sandbox/drafts/svg") / filename
+output_path = Path("memory/drafts/svg") / filename
 output_path.write_text(result.svg_content, encoding='utf-8')
 ```
 
@@ -391,8 +391,8 @@ GENERATE SVG solar still system --type schematic
 
 ### Basic Batch Generation
 
-```uscript
-# File: sandbox/workflow/batch_svg_generation.uscript
+```upy
+# File: memory/workflows/missions/batch_svg_generation.upy
 
 $topics = ["water purification", "fire triangle", "shelter types"]
 
@@ -433,8 +433,8 @@ done
 
 ### Knowledge Base Generation
 
-```uscript
-# File: sandbox/workflow/knowledge_diagram_generation.uscript
+```upy
+# File: memory/workflows/missions/knowledge_diagram_generation.upy
 
 $categories = ["water", "fire", "shelter", "food"]
 
@@ -456,11 +456,11 @@ done
 
 ## Workflow Examples
 
-uDOS v1.1.7 includes 4 production-ready workflow examples in `sandbox/workflow/examples/`:
+uDOS v1.2.21 includes 4 production-ready workflow examples in `memory/ucode/examples/`:
 
 ### 1. Quick Start Tutorial
 
-**File:** `nano_banana_quick_start.uscript`
+**File:** `nano_banana_quick_start.upy`
 
 **Purpose:** Beginner tutorial for single SVG generation with error handling.
 
@@ -472,7 +472,7 @@ uDOS v1.1.7 includes 4 production-ready workflow examples in `sandbox/workflow/e
 
 **Usage:**
 ```bash
-🔮 > RUN "sandbox/workflow/examples/nano_banana_quick_start.uscript"
+🔮 > RUN "memory/ucode/examples/nano_banana_quick_start.upy"
 ```
 
 **Code Preview:**
@@ -498,12 +498,12 @@ GENERATE SVG fire triangle --style hand-illustrative
 PRINT "Step 3: Using Pro mode for higher quality..."
 GENERATE SVG shelter frame --type architecture --pro
 
-PRINT "✅ Tutorial complete! Check sandbox/drafts/svg/"
+PRINT "✅ Tutorial complete! Check memory/drafts/svg/"
 ```
 
 ### 2. Batch Generation
 
-**File:** `nano_banana_batch.uscript`
+**File:** `nano_banana_batch.upy`
 
 **Purpose:** Generate multiple diagrams with rate limiting and progress tracking.
 
@@ -515,7 +515,7 @@ PRINT "✅ Tutorial complete! Check sandbox/drafts/svg/"
 
 **Usage:**
 ```bash
-🔮 > RUN "sandbox/workflow/examples/nano_banana_batch.uscript"
+🔮 > RUN "memory/ucode/examples/nano_banana_batch.upy"
 ```
 
 **Code Preview:**
@@ -905,6 +905,6 @@ GEMINI_PRO_MODEL=gemini-exp-1206    # Nano Banana Pro
 
 ---
 
-**Document Version:** 1.1.7
-**Last Updated:** December 1, 2025
+**Document Version:** v1.2.21
+**Last Updated:** December 8, 2025
 **Status:** Production Ready ✅ (Workflows Complete)

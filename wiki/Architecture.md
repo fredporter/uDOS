@@ -1,6 +1,6 @@
 # uDOS Architecture
 
-**Version:** v1.2.20 (December 2025)
+**Version:** v1.2.21 (December 2025)
 
 Internal structure of uDOS - survival knowledge, mapping, and workflow automation.
 
@@ -107,7 +107,7 @@ uDOS/
    ├─ Config & Environment (.env, user settings)
    ├─ Command Router (uDOS_commands.py)
    ├─ Services (knowledge manager, asset manager)
-   └─ Runtime (uPY v1.2.x interpreter)
+   └─ Runtime (uPY v1.2 interpreter)
 
 2. Initialize user environment (/memory)
    ├─ Load user profile (memory/system/user/USER.UDT)

@@ -1,7 +1,7 @@
 # uPY Command Set Analysis & Recommendations
 
-**Date**: December 7, 2025
-**Version**: v2.0.2 (uDOS v1.2.x)
+**Date**: December 8, 2025
+**Version**: v1.2 (uDOS v1.2.21)
 **Purpose**: Define minimal, learner-friendly uPY commands as gateway to Python
 
 ---

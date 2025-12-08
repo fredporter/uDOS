@@ -1,8 +1,8 @@
-# uPY Migration Guide: v1.x to v2.0.2
+# uPY Migration Guide: Legacy to v1.2
 
-**Last Updated:** December 7, 2025
-**Target Version:** v2.0.2 (uDOS v1.2.x)
-**Audience:** uPY script developers migrating from v1.x
+**Last Updated:** December 8, 2025
+**Target Version:** v1.2 (uDOS v1.2.21)
+**Audience:** uPY script developers migrating from legacy syntax
 
 ## Table of Contents
 
@@ -20,9 +20,9 @@
 
 ## Overview
 
-### What Changed in v2.0.2?
+### What Changed in v1.2?
 
-uPY v2.0.2 introduces **cleaner, more consistent syntax** with a custom interpreter. The new syntax is designed to:
+uPY v1.2 introduces **three-format syntax system** with a custom interpreter. The new syntax is designed to:
 - ✅ Eliminate Python dependency (no `exec()`)
 - ✅ Improve readability and consistency
 - ✅ Enable better error messages

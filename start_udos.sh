@@ -315,8 +315,8 @@ if command -v node &> /dev/null; then
     fi
 fi
 
-# Check data directories (v2.0: sandbox-based structure) - silent creation
-for dir in sandbox/logs sandbox/drafts sandbox/workflow sandbox/scripts sandbox/ucode sandbox/tests memory/user memory/planet memory/community memory/shared memory/groups; do
+# Check data directories (v1.2.21: memory-based structure) - silent creation
+for dir in memory/ucode/sandbox memory/ucode/scripts memory/logs memory/drafts; do
     mkdir -p "$dir" 2>/dev/null
 done
 

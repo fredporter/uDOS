@@ -128,7 +128,7 @@ When you run `./start_udos.sh` for the first time:
 
 ```
 ┌─────────────────────────────────────┐
-│       μDOS v1.2.20                 │
+│       μDOS v1.2.21                 │
 │  Offline-First Operating System     │
 └─────────────────────────────────────┘
 
@@ -732,7 +732,7 @@ export LC_ALL=en_US.UTF-8
 ---
 
 **Last Updated**: December 2025
-**Version**: v1.2.20
+**Version**: v1.2.21
 **Feedback**: Open an issue or discussion on GitHub
 
 **Next**: [Command Reference](Command-Reference.md) | [Philosophy](Philosophy.md) | [FAQ](FAQ.md)

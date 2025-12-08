@@ -1,12 +1,12 @@
-# uPY v2.0.2 Runtime Architecture
+# uPY v1.2 Runtime Architecture
 
-**Version:** v2.0.2 (uDOS v1.2.x)
-**Last Updated:** December 7, 2025
+**Version:** v1.2 (uDOS v1.2.21)
+**Last Updated:** December 8, 2025
 **Status:** Production Ready
 
 ## Overview
 
-The uPY v2.0.2 runtime is a custom interpreter designed to execute `.upy` scripts with native support for v2.0.2 syntax. Unlike previous versions that relied on Python transpilation, v2.0.2 uses direct interpretation with pattern matching for better performance, type safety, and cleaner error messages.
+The uPY v1.2 runtime is a custom interpreter designed to execute `.upy` scripts with native support for v1.2 syntax. Unlike previous versions that relied on Python transpilation, v2.0.2 uses direct interpretation with pattern matching for better performance, type safety, and cleaner error messages.
 
 ## Design Principles
 
@@ -17,7 +17,7 @@ The uPY v2.0.2 runtime is a custom interpreter designed to execute `.upy` script
 - Cleaner error messages (no Python stack traces)
 
 ### 2. **Pattern-Based Interpretation**
-- Regex patterns match v2.0.2 syntax
+- Regex patterns match v1.2 syntax
 - Clear separation between syntax types
 - Easy to extend with new features
 - Type-safe operations

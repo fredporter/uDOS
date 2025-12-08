@@ -1,6 +1,7 @@
 # Extensions System
 
-**Complete guide to uDOS extensions: bundled extensions, external dependencies, and unified server management**
+**Version:** v1.2.21
+**Complete guide to uDOS extensions: bundled extensions, external dependencies, and unified server management****
 
 > **💡 Quick Start**: Launch extensions with `./launch.sh dashboard` or install external tools with `./extensions/setup/setup_all.sh`
 
@@ -45,6 +46,10 @@ extensions/
 │   ├── launch.sh              # Launcher script
 │   ├── README-SERVER.md       # Server documentation
 │   └── CREDITS.md             # Attributions
+├── assistant/                 # AI assistant (OK system, Gemini integration)
+│   ├── ok_handler.py         # OK command handler
+│   ├── ok_context_manager.py # Workspace context tracking
+│   └── ok_panel.py           # O-key TUI panel
 ├── bundled/                   # uDOS-native extensions (git tracked)
 │   └── web/                   # Web-based UI extensions
 │       ├── dashboard/        # System dashboard interface

@@ -1,6 +1,6 @@
 # Welcome to uDOS Wiki
 
-**uDOS v1.2.20** - Workflow Management System - Offline-first survival knowledge system with workflow automation, mission control, TUI panels, and comprehensive testing framework.
+**uDOS v1.2.21** - OK Assistant Integration - Offline-first survival knowledge system with AI-powered content generation (O-key panel, MAKE commands), workflow automation, mission control, TUI panels, and comprehensive testing framework.
 
 **Production Ready**: 148 SHAKEDOWN tests | Workflow System | TUI Panels | 230+ Knowledge Guides
 
@@ -14,9 +14,9 @@
 |:----------------|:----------|:---------|
 | [Quick Start](../QUICK-START.md) | [Command Reference](Command-Reference) | [uCODE Manual](uCODE-Language) |
 | [Installation](../INSTALL.md) | [Architecture](Architecture) | [Extensions System](Extensions-System) |
-| [Interactive Tutorial](Tutorial-Getting-Started) | [Developers Guide](Developers-Guide) | [Theme System](Theme-System) ⭐ |
-| [FAQ](FAQ) | [Troubleshooting](Troubleshooting-Complete) | [Extension Development](Extension-Development) |
-| [uPY Quick Start](Tutorial-uPY-Quick-Start) ⭐ NEW | [uPY Cheat Sheet](uPY-Cheat-Sheet) ⭐ NEW | [Before & After Guide](uPY-Before-After) ⭐ NEW |
+| [Interactive Tutorial](Tutorial-Getting-Started) | [Developers Guide](Developers-Guide) | [OK Assistant Guide](OK-Assistant-Guide) ⭐ v1.2.21 |
+| [FAQ](FAQ) | [Troubleshooting](Troubleshooting-Complete) | [Theme System](Theme-System) ⭐ |
+| [uPY Quick Start](Tutorial-uPY-Quick-Start) ⭐ | [uPY Cheat Sheet](uPY-Cheat-Sheet) ⭐ | [Extension Development](Extension-Development) |
 
 ---
 

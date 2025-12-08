@@ -8,31 +8,29 @@
 		"python.defaultInterpreterPath": "./.venv/bin/python",
 		"python.terminal.activateEnvironment": true,
 		"python.testing.pytestArgs": [
-			"sandbox/tests",
-			"--cache-dir=sandbox/.pytest_cache"
+			"memory/ucode/tests",
+			"--cache-dir=memory/ucode/.pytest_cache"
 		],
 		"python.testing.unittestEnabled": false,
 		"python.testing.pytestEnabled": true,
 		"files.watcherExclude": {
 			"**/.venv/**": true,
-			"**/sandbox/logs/**": true,
-			"**/sandbox/trash/**": true,
-			"**/sandbox/.pytest_cache/**": true,
+			"**/memory/logs/**": true,
+			"**/memory/ucode/.pytest_cache/**": true,
 			"**/__pycache__/**": true,
 			"**/extensions/cloned/**": true
 		},
 		"search.exclude": {
 			"**/.venv": true,
-			"**/sandbox/logs": true,
-			"**/sandbox/trash": true,
-			"**/sandbox/.pytest_cache": true,
+			"**/memory/logs": true,
+			"**/memory/ucode/.pytest_cache": true,
 			"**/__pycache__": true,
 			"**/extensions/cloned": true
 		},
 		"files.exclude": {
 			"**/__pycache__": true,
 			"**/*.pyc": true,
-			"**/sandbox/.server_state.json": true
+			"**/memory/.server_state.json": true
 		},
 		"github.copilot.chat.codeGeneration.instructions": [
 			{
@@ -82,7 +80,7 @@
 				"type": "shell",
 				"command": "./start_udos.sh",
 				"args": [
-					"sandbox/ucode/shakedown.uscript"
+					"memory/ucode/tests/shakedown.upy"
 				],
 				"group": {
 					"kind": "test",
@@ -120,7 +118,7 @@
 					"-m",
 					"pytest",
 					"-q",
-					"sandbox/tests"
+					"memory/ucode/tests"
 				],
 				"group": "test",
 				"dependsOn": "Check Virtual Environment"
@@ -131,7 +129,7 @@
 				"command": "tail",
 				"args": [
 					"-f",
-					"sandbox/logs/dev-*.log"
+					"memory/logs/auto/dev-*.log"
 				],
 				"group": "build",
 				"isBackground": true
@@ -204,7 +202,7 @@
 				"command": "${workspaceFolder}/.venv/bin/python",
 				"args": [
 					"-c",
-					"import datetime; print(f'📝 Updating documentation - {datetime.datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")}'); print('Remember to update wiki/Development-History.md with latest progress'); print('Dev notes: dev/'); print('Documentation: sandbox/docs/')"
+					"import datetime; print(f'📝 Updating documentation - {datetime.datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")}'); print('Remember to update wiki/Development-History.md with latest progress'); print('Dev notes: dev/'); print('Documentation: memory/docs/')"
 				],
 				"group": "build",
 				"dependsOn": "Check Virtual Environment"
@@ -214,7 +212,7 @@
 				"type": "shell",
 				"command": "${workspaceFolder}/.venv/bin/python",
 				"args": [
-					"sandbox/scripts/generate_svg_diagram.py",
+					"memory/ucode/scripts/generate_svg_diagram.py",
 					"${input:diagramDescription}",
 					"${input:diagramCategory}"
 				],
@@ -222,7 +220,7 @@
 				"dependsOn": "Check Virtual Environment"
 			},
 			{
-				"label": "CLEAN Sandbox",
+				"label": "CLEAN Memory",
 				"type": "shell",
 				"command": "bash",
 				"args": [
@@ -233,7 +231,7 @@
 				"dependsOn": "Check Virtual Environment"
 			},
 			{
-				"label": "TIDY Sandbox",
+				"label": "TIDY Memory",
 				"type": "shell",
 				"command": "bash",
 				"args": [

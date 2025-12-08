@@ -1,8 +1,8 @@
 # uCODE Language Specification
 
-**Version:** 2.0.2 (uPY v2.0 Clean Syntax)
+**Version:** v1.2 (uPY v1.2 Three-Format Syntax)
 **Status:** Production
-**Last Updated:** December 5, 2025
+**Last Updated:** December 8, 2025
 
 ---
 
@@ -22,9 +22,9 @@ uCODE is uDOS's command language and scripting system. It provides both interact
 
 ---
 
-## uPY v2.0 Syntax
+## uPY v1.2 Syntax
 
-Clean, minimal Python-like syntax for scripting.
+Three-format system with distinct brackets for variables, commands, and conditionals.
 
 ### Variables
 

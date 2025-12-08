@@ -1,8 +1,8 @@
 # uPY Syntax Cheat Sheet
 
-**Quick reference for uPY v2.0.2 (uDOS v1.2.x)**
+**Quick reference for uPY v1.2 (uDOS v1.2.21)**
 
-**Last Updated:** December 7, 2025
+**Last Updated:** December 8, 2025
 
 ---
 

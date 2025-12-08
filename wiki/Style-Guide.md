@@ -1,6 +1,6 @@
 # uDOS Style Guide
 
-**Version:** v1.2.20 (December 2025)
+**Version:** v1.2.21 (December 2025)
 
 This document outlines design and style conventions for uDOS, ensuring consistent user experience across CLI, TUI, graphics, and data formats. Core principles: human-readable, minimal-touch, offline-first, authentic retro computing aesthetics.
 
@@ -65,13 +65,14 @@ STATUS --health
 
 ## 3. TUI Key Bindings
 
-### Panel Keys (v1.2.20)
+### Panel Keys (v1.2.21)
 
 Single-key shortcuts for TUI panels:
 
 | Key | Panel | Purpose | Version |
 |-----|-------|---------|---------|
 | **W** | Workflow Manager | Missions, checkpoints, templates | v1.2.20 |
+| **O** | OK Assistant | AI-powered content generation | v1.2.21 |
 | **C** | Config & Settings | Browse/edit settings | v1.2.18 |
 | **D** | Dev Browser | System files, dev logs | v1.2.19 |
 | **L** | Debug Panel | Live logs, error tracking | v1.2.19 |
