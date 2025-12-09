@@ -25,36 +25,38 @@ class SandboxHandler:
     """Handles CLEAN and TIDY commands for /memory directory management (v1.2.x)."""
 
     def __init__(self):
-        # v1.2.12: Updated to memory/ structure
+        # v1.2.21: Updated to new memory/ structure (Geography Consolidation)
+        # memory/docs = markdown files
+        # memory/drafts = draft markdown
+        # memory/ucode/sandbox = draft .upy (testing/debugging)
+        # memory/ucode/scripts = polished .upy
         self.sandbox_root = Path("memory")
         self.subdirs = {
-            'trash': self.sandbox_root / 'trash',
-            'dev': Path("dev"),  # Development files at root
-            'docs': self.sandbox_root / 'docs',
-            'drafts': self.sandbox_root / 'drafts',
-            'tests': self.sandbox_root / 'ucode' / 'tests',
-            'logs': self.sandbox_root / 'logs',
-            'scripts': self.sandbox_root / 'ucode' / 'scripts',
-            'ucode': self.sandbox_root / 'ucode',
-            'workflow': self.sandbox_root / 'workflows',  # v1.2.x: workflows not workflow
-            'peek': self.sandbox_root / 'peek',
-            'sessions': self.sandbox_root / 'sessions',
-            'user': self.sandbox_root / 'system' / 'user'  # v1.2.x: memory/system/user
+            'dev': Path("dev"),  # Development files at root (git submodule)
+            'docs': self.sandbox_root / 'docs',  # Markdown documentation
+            'drafts': self.sandbox_root / 'drafts',  # Draft markdown
+            'tests': self.sandbox_root / 'ucode' / 'tests',  # Test suites
+            'logs': self.sandbox_root / 'logs',  # System logs
+            'scripts': self.sandbox_root / 'ucode' / 'scripts',  # Polished .upy scripts
+            'sandbox': self.sandbox_root / 'ucode' / 'sandbox',  # Draft .upy for testing
+            'ucode': self.sandbox_root / 'ucode',  # uPY script root
+            'workflows': self.sandbox_root / 'workflows',  # Workflow system
+            'user': self.sandbox_root / 'bank' / 'user',  # v1.2.21: memory/bank/user
+            'system': self.sandbox_root / 'bank' / 'system'  # v1.2.21: memory/bank/system
         }
 
         # Folders that should NEVER be deleted (protected)
-        self.protected_folders = {'user', 'tests'}
+        self.protected_folders = {'user', 'tests', 'system'}
 
         # Folders that can be safely cleaned without confirmation
-        self.auto_clean_folders = {'trash', 'logs', 'peek'}
+        self.auto_clean_folders = {'logs', 'sandbox'}
 
         # Default retention days for different folder types
         self.retention_days = {
             'logs': 7,
             'dev': 30,
             'drafts': 30,
-            'sessions': 14,
-            'peek': 1
+            'sandbox': 7  # Draft .upy scripts - clean after 7 days
         }
 
     def handle(self, command, args=None):
@@ -70,14 +72,16 @@ class SandboxHandler:
 
     def clean(self, args):
         """
-        CLEAN command - Flush and cleanup sandbox subdirectories.
+        CLEAN command - Flush and cleanup subdirectories and .archive/ folders.
 
         Usage:
             CLEAN                    - Clean all (interactive, shows menu)
             CLEAN logs               - Clean only logs folder
-            CLEAN trash              - Empty trash folder
+            CLEAN sandbox            - Clean draft .upy scripts
+            CLEAN archives           - Empty all .archive/ folders recursively
             CLEAN drafts,logs        - Clean multiple folders (comma-separated)
             CLEAN --all              - Clean all (no prompts)
+            CLEAN --archives         - Include .archive/ folders in cleanup
             CLEAN --force            - Force delete (dangerous!)
             CLEAN --days=30          - Keep only last 30 days
             CLEAN --dry-run          - Show what would be deleted
@@ -95,6 +99,7 @@ class SandboxHandler:
         stats_only = False
         reset_mode = False
         nuclear_mode = False
+        clean_archives = False
         keep_days = None
 
         if not args:
@@ -105,6 +110,8 @@ class SandboxHandler:
             if arg.startswith('--'):
                 if arg == '--all':
                     interactive = False
+                elif arg == '--archives':
+                    clean_archives = True
                 elif arg == '--force':
                     force = True
                     interactive = False
@@ -118,9 +125,16 @@ class SandboxHandler:
                     nuclear_mode = True
                 elif arg.startswith('--days='):
                     keep_days = int(arg.split('=')[1])
+            elif arg.lower() == 'archives':
+                clean_archives = True
+                interactive = True  # Archives cleanup requires confirmation
             else:
                 # Support comma-separated targets
                 targets.extend([t.strip().lower() for t in arg.split(',')])
+
+        # Handle archive cleaning
+        if clean_archives or 'archives' in targets:
+            return self._clean_archives(dry_run, interactive, force)
 
         # Show stats only
         if stats_only:
@@ -226,7 +240,7 @@ class SandboxHandler:
             "⚡ = Auto-cleanable (no confirmation)",
             "",
             "💡 Usage Examples:",
-            "   CLEAN trash              - Empty trash only",
+            "   CLEAN sandbox            - Clean draft .upy scripts",
             "   CLEAN logs,drafts        - Clean multiple folders",
             "   CLEAN --all              - Clean all (no prompts)",
             "   CLEAN --stats            - Show statistics only",
@@ -254,8 +268,8 @@ class SandboxHandler:
         old_files = []
         total_size = 0
 
-        if folder_name == 'trash':
-            # Trash: delete everything
+        if folder_name == 'sandbox':
+            # Sandbox: delete draft .upy scripts (everything in sandbox)
             items = list(folder_path.iterdir())
             for item in items:
                 if item.is_file():
@@ -460,23 +474,58 @@ class SandboxHandler:
         return '\n\n'.join(results)
 
     def _tidy_folder(self, folder_name, report_only, auto_mode):
-        """Organize a specific folder."""
+        """Organize a specific folder with duplicate detection and archiving (v1.2.21)."""
         folder_path = self.subdirs.get(folder_name)
 
         if not folder_path or not folder_path.exists():
             return f"ℹ️  {folder_name.title()}: Folder doesn't exist"
 
+        # Special handling for specific folders
         if folder_name == 'logs':
             return self._tidy_logs(report_only, auto_mode)
         elif folder_name == 'scripts':
             return self._tidy_scripts(report_only, auto_mode)
-        elif folder_name == 'workflow':
+        elif folder_name == 'workflow' or folder_name == 'workflows':
             return self._tidy_workflow(report_only, auto_mode)
         elif folder_name == 'ucode':
             return self._tidy_ucode(report_only, auto_mode)
+
+        # Generic tidying with duplicate detection
+        result = f"\n📁 Tidying {folder_name}...\n"
+
+        # Find duplicates
+        duplicates = self._find_duplicates(folder_path)
+        if duplicates:
+            total_dup_size = sum(d['size'] for d in duplicates)
+            result += f"  🔍 Found {len(duplicates)} duplicate files ({total_dup_size / (1024 * 1024):.2f} MB)\n"
+
+            if not report_only:
+                moved = 0
+                for dup in duplicates:
+                    try:
+                        self._move_to_archive(dup['duplicate'], 'duplicates')
+                        moved += 1
+                    except Exception:
+                        continue
+                result += f"  ✅ Moved {moved} duplicates to .archive/duplicates/\n"
         else:
-            file_count = sum(1 for _ in folder_path.rglob('*') if _.is_file())
-            return f"✅ {folder_name.title()}: {file_count} files (no organization needed)"
+            result += f"  ✅ No duplicates found\n"
+
+        # Find old versions (files with similar names and older dates)
+        old_versions = self._find_old_versions(folder_path)
+        if old_versions:
+            result += f"  🕐 Found {len(old_versions)} old versions\n"
+            if not report_only:
+                moved = 0
+                for old_file in old_versions:
+                    try:
+                        self._move_to_archive(old_file, 'old_versions')
+                        moved += 1
+                    except Exception:
+                        continue
+                result += f"  ✅ Moved {moved} old versions to .archive/old_versions/\n"
+
+        return result
 
     def _tidy_logs(self, report_only, auto_mode):
         """Organize logs by type and date."""
@@ -728,10 +777,10 @@ class SandboxHandler:
                 age_days = (datetime.now() - oldest).days
 
                 # Recommendations based on folder type and age
-                if name == 'trash' and file_count > 0:
+                if name == 'sandbox' and file_count > 0:
                     recommendations.append(
-                        f"🗑️  {name.title()}: {file_count} items can be deleted ({size_mb:.2f} MB)\n"
-                        f"   Run: CLEAN trash"
+                        f"📝 {name.title()}: {file_count} draft .upy scripts can be reviewed ({size_mb:.2f} MB)\n"
+                        f"   Run: CLEAN sandbox"
                     )
                 elif name == 'logs' and age_days > 30:
                     recommendations.append(
@@ -742,11 +791,6 @@ class SandboxHandler:
                     recommendations.append(
                         f"📄 {name.title()}: Contains drafts older than 60 days\n"
                         f"   Run: CLEAN drafts --days=60"
-                    )
-                elif name == 'peek' and file_count > 20:
-                    recommendations.append(
-                        f"👁️  {name.title()}: Contains {file_count} processed files\n"
-                        f"   Run: CLEAN peek"
                     )
                 elif size_mb > 50 and name not in self.protected_folders:
                     recommendations.append(
@@ -772,38 +816,40 @@ class SandboxHandler:
         """
         Called by REPAIR command to fix sandbox issues.
         Returns health status and repairs performed.
+        
+        v1.2.21: Updated for new memory structure (docs, drafts, ucode/sandbox, ucode/scripts)
         """
         issues = []
         repairs = []
 
-        # Check for missing directories
+        # Check for missing REQUIRED directories only (not optional)
+        required_dirs = {'docs', 'drafts', 'ucode', 'workflows', 'user', 'system', 'logs'}
         for name, path in self.subdirs.items():
-            if not path.exists():
-                issues.append(f"Missing directory: {name}")
-                # v1.2.12: Don't auto-create - let CONFIG FIX handle it
-                # path.mkdir(parents=True, exist_ok=True)
-                # repairs.append(f"Created missing directory: {name}")
+            if name in required_dirs and not path.exists():
+                issues.append(f"Missing required directory: {name}")
+                # v1.2.21: Don't auto-create - let CONFIG FIX handle it
 
-        # Check for orphaned files in sandbox root
+        # Check for orphaned files in memory/ root
+        allowed_memory_files = ['README.md', 'README-v1.1.13.md', '.gitkeep']
         sandbox_root_files = [
             f for f in self.sandbox_root.iterdir()
-            if f.is_file() and f.name not in ['README.md', 'user.json', '.server_state.json']
+            if f.is_file() and f.name not in allowed_memory_files
         ]
 
         if sandbox_root_files:
-            issues.append(f"Found {len(sandbox_root_files)} orphaned files in sandbox root")
-            # Could move to trash or appropriate folder
+            issues.append(f"Found {len(sandbox_root_files)} orphaned files in memory/ root - should be in subdirectories")
 
-        # Check for overly large folders
+        # Check for overly large folders (informational, not critical)
         for name, path in self.subdirs.items():
             if path.exists():
                 total_size = sum(f.stat().st_size for f in path.rglob('*') if f.is_file())
                 size_mb = total_size / (1024 * 1024)
 
                 if size_mb > 100 and name not in self.protected_folders:
-                    issues.append(f"{name} folder is large ({size_mb:.2f} MB)")
+                    # This is just informational, not an issue
+                    pass  # Remove from issues list
 
-        # Check for very old files
+        # Check for very old files in auto-clean folders
         for name, path in self.subdirs.items():
             if name in self.auto_clean_folders and path.exists():
                 file_times = [f.stat().st_mtime for f in path.rglob('*') if f.is_file()]
@@ -812,7 +858,8 @@ class SandboxHandler:
                     age_days = (datetime.now() - oldest).days
 
                     if age_days > 90:
-                        issues.append(f"{name} contains files older than 90 days")
+                        # This is a recommendation, not a critical issue
+                        pass  # Don't add to issues
 
         result = {
             'status': 'healthy' if not issues else 'warnings',
@@ -884,3 +931,224 @@ class SandboxHandler:
             return f"🗑️  Sandbox: Deleted {total_deleted} files ({size_mb:.2f} MB freed)"
 
         return "❌ Unknown destroy mode"
+
+    def _clean_archives(self, dry_run=False, interactive=True, force=False):
+        """Empty all .archive/ folders recursively (v1.2.21)."""
+        result = "╔" + "="*68 + "╗\n"
+        result += "║" + "🗂️  ARCHIVE CLEANUP".center(68) + "║\n"
+        result += "╚" + "="*68 + "╝\n\n"
+
+        # Find all .archive/ directories
+        archive_dirs = []
+        total_size = 0
+        total_files = 0
+
+        for root, dirs, files in os.walk(self.sandbox_root):
+            if '.archive' in dirs:
+                archive_path = Path(root) / '.archive'
+                file_count = sum(1 for _ in archive_path.rglob('*') if _.is_file())
+                if file_count > 0:
+                    size = sum(f.stat().st_size for f in archive_path.rglob('*') if f.is_file())
+                    archive_dirs.append({
+                        'path': archive_path,
+                        'files': file_count,
+                        'size': size,
+                        'location': str(archive_path.relative_to(self.sandbox_root))
+                    })
+                    total_files += file_count
+                    total_size += size
+
+        if not archive_dirs:
+            return result + "✅ No .archive/ folders found with content\n"
+
+        size_mb = total_size / (1024 * 1024)
+        result += f"📊 Found {len(archive_dirs)} .archive/ folders with content:\n"
+        result += f"   Total: {total_files} files ({size_mb:.2f} MB)\n\n"
+
+        for archive in archive_dirs:
+            result += f"  • {archive['location']}: {archive['files']} files ({archive['size'] / (1024 * 1024):.2f} MB)\n"
+
+        if dry_run:
+            result += f"\n🔍 Dry run - would delete {total_files} files ({size_mb:.2f} MB)\n"
+            return result
+
+        if interactive and not force:
+            result += f"\n⚠️  This will permanently delete all archived files!\n"
+            result += f"💡 Use BACKUP to preserve important versions before cleaning\n\n"
+            print(result)
+            response = input("Type 'CLEAN ARCHIVES' to confirm: ")
+            if response != 'CLEAN ARCHIVES':
+                return "⏭️  Archive cleanup cancelled"
+
+        # Delete all .archive/ contents
+        deleted_count = 0
+        deleted_size = 0
+
+        for archive in archive_dirs:
+            try:
+                for item in archive['path'].rglob('*'):
+                    if item.is_file():
+                        size = item.stat().st_size
+                        item.unlink()
+                        deleted_count += 1
+                        deleted_size += size
+                # Remove empty directories
+                for dirpath in sorted(archive['path'].rglob('*'), key=lambda p: len(str(p)), reverse=True):
+                    if dirpath.is_dir() and not any(dirpath.iterdir()):
+                        dirpath.rmdir()
+            except Exception as e:
+                continue
+
+        result = "✅ Archive cleanup complete\n\n"
+        result += f"📊 Deleted {deleted_count} files ({deleted_size / (1024 * 1024):.2f} MB)\n"
+        result += f"💾 {len(archive_dirs)} .archive/ folders emptied\n"
+        return result
+
+    def _find_duplicates(self, folder_path):
+        """Find duplicate files in folder (v1.2.21)."""
+        import hashlib
+
+        file_hashes = {}
+        duplicates = []
+
+        for file_path in folder_path.rglob('*'):
+            if not file_path.is_file() or file_path.name.startswith('.'):
+                continue
+
+            # Calculate file hash
+            try:
+                hasher = hashlib.md5()
+                with open(file_path, 'rb') as f:
+                    hasher.update(f.read())
+                file_hash = hasher.hexdigest()
+
+                if file_hash in file_hashes:
+                    duplicates.append({
+                        'original': file_hashes[file_hash],
+                        'duplicate': file_path,
+                        'size': file_path.stat().st_size
+                    })
+                else:
+                    file_hashes[file_hash] = file_path
+            except Exception:
+                continue
+
+        return duplicates
+
+    def _move_to_archive(self, file_path, reason="old_version"):
+        """Move file to .archive/ folder (v1.2.21)."""
+        # Find or create .archive/ in same directory
+        archive_dir = file_path.parent / '.archive' / reason
+        archive_dir.mkdir(parents=True, exist_ok=True)
+
+        # Generate timestamped filename
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        archive_name = f"{timestamp}_{file_path.name}"
+        archive_path = archive_dir / archive_name
+
+        # Move file
+        shutil.move(str(file_path), str(archive_path))
+        return archive_path
+
+    def _find_old_versions(self, folder_path):
+        """Find old versions of files (similar names, older dates)."""
+        from collections import defaultdict
+        import re
+
+        # Group files by base name (without timestamps/versions)
+        file_groups = defaultdict(list)
+        timestamp_pattern = re.compile(r'_\d{8}_\d{6}')
+        version_pattern = re.compile(r'_v\d+')
+
+        for file_path in folder_path.rglob('*'):
+            if not file_path.is_file() or file_path.name.startswith('.'):
+                continue
+
+            # Remove common version/timestamp patterns
+            base_name = timestamp_pattern.sub('', file_path.stem)
+            base_name = version_pattern.sub('', base_name)
+
+            file_groups[base_name].append(file_path)
+
+        # Identify old versions (keep newest in each group)
+        old_versions = []
+        for base_name, files in file_groups.items():
+            if len(files) > 1:
+                # Sort by modification time, newest first
+                sorted_files = sorted(files, key=lambda f: f.stat().st_mtime, reverse=True)
+                # All except newest are old versions
+                old_versions.extend(sorted_files[1:])
+
+        return old_versions
+
+    def _clean_archives(self, dry_run=False, interactive=True, force=False):
+        """Empty all .archive/ folders recursively (v1.2.21)."""
+        result = "╔" + "="*68 + "╗\n"
+        result += "║" + "🗂️  ARCHIVE CLEANUP".center(68) + "║\n"
+        result += "╚" + "="*68 + "╝\n\n"
+
+        # Find all .archive/ directories
+        archive_dirs = []
+        total_size = 0
+        total_files = 0
+
+        for root, dirs, files in os.walk(self.sandbox_root):
+            if '.archive' in dirs:
+                archive_path = Path(root) / '.archive'
+                file_count = sum(1 for _ in archive_path.rglob('*') if _.is_file())
+                if file_count > 0:
+                    size = sum(f.stat().st_size for f in archive_path.rglob('*') if f.is_file())
+                    archive_dirs.append({
+                        'path': archive_path,
+                        'files': file_count,
+                        'size': size,
+                        'location': str(archive_path.relative_to(self.sandbox_root))
+                    })
+                    total_files += file_count
+                    total_size += size
+
+        if not archive_dirs:
+            return result + "✅ No .archive/ folders found with content\n"
+
+        size_mb = total_size / (1024 * 1024)
+        result += f"📊 Found {len(archive_dirs)} .archive/ folders with content:\n"
+        result += f"   Total: {total_files} files ({size_mb:.2f} MB)\n\n"
+
+        for archive in archive_dirs:
+            result += f"  • {archive['location']}: {archive['files']} files ({archive['size'] / (1024 * 1024):.2f} MB)\n"
+
+        if dry_run:
+            result += f"\n🔍 Dry run - would delete {total_files} files ({size_mb:.2f} MB)\n"
+            return result
+
+        if interactive and not force:
+            result += f"\n⚠️  This will permanently delete all archived files!\n"
+            result += f"💡 Use BACKUP to preserve important versions before cleaning\n\n"
+            print(result)
+            response = input("Type 'CLEAN ARCHIVES' to confirm: ")
+            if response != 'CLEAN ARCHIVES':
+                return "⏭️  Archive cleanup cancelled"
+
+        # Delete all .archive/ contents
+        deleted_count = 0
+        deleted_size = 0
+
+        for archive in archive_dirs:
+            try:
+                for item in archive['path'].rglob('*'):
+                    if item.is_file():
+                        size = item.stat().st_size
+                        item.unlink()
+                        deleted_count += 1
+                        deleted_size += size
+                # Remove empty directories
+                for dirpath in sorted(archive['path'].rglob('*'), key=lambda p: len(str(p)), reverse=True):
+                    if dirpath.is_dir() and not any(dirpath.iterdir()):
+                        dirpath.rmdir()
+            except Exception as e:
+                continue
+
+        result = "✅ Archive cleanup complete\n\n"
+        result += f"📊 Deleted {deleted_count} files ({deleted_size / (1024 * 1024):.2f} MB)\n"
+        result += f"💾 {len(archive_dirs)} .archive/ folders emptied\n"
+        return result

@@ -159,7 +159,7 @@ class GmailAuthService:
 
         return False
 
-    def login(self) -> Dict[str, Any]:
+    def login(self, auth_port: int = 8080) -> Dict[str, Any]:
         """
         Start OAuth2 login flow.
 
@@ -202,7 +202,7 @@ class GmailAuthService:
 
             # Run local server for callback (opens browser)
             self.credentials = flow.run_local_server(
-                port=8080,
+                port=auth_port,
                 prompt='consent',
                 success_message='Authentication successful! You can close this window.'
             )

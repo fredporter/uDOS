@@ -4,8 +4,9 @@ Thank you for your interest in contributing to uDOS! This document provides guid
 
 ## Project Overview
 
-uDOS v1.2.4 is a secure, offline-first operating system for survival knowledge with:
-- **Extension Hot Reload System** (v1.2.4) - No full restarts needed
+uDOS v1.2.21 is a secure, offline-first operating system for survival knowledge with:
+- **OK Assistant System** (v1.2.21) - AI-assisted workflow generation
+- **Extension Hot Reload System** - No full restarts needed
 - **GitHub Browser Integration** - Direct feedback via browser
 - **Visual Mode Indicators** - Color-coded prompts (regular/dev/assist)
 - **1,810+ passing tests** (100% coverage)
@@ -200,7 +201,9 @@ test(memory): Add 4-tier encryption test suite
 - Include example usage in README
 - Add tests (minimum 90% coverage)
 
-## Hot Reload Workflow (v1.2.4)
+## Hot Reload Workflow
+
+**Fast Extension Development** (introduced v1.2.4, enhanced v1.2.21)
 
 ### Development with Hot Reload
 
@@ -303,11 +306,11 @@ Use `REBOOT --extension` (hot reload) when:
    - Any breaking changes?
    - Related issues?
 
-## GitHub Feedback Integration (v1.2.4)
+## GitHub Feedback Integration
 
 ### Quick Feedback via Browser
 
-**New in v1.2.4**: Submit feedback directly through GitHub without leaving uDOS:
+**Streamlined Reporting**: Submit feedback directly through GitHub without leaving uDOS:
 
 ```bash
 # Report a bug (opens pre-filled GitHub Issue)

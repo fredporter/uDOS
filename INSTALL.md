@@ -137,7 +137,7 @@ source .venv/bin/activate
 
 # Run system check
 python uDOS.py --version
-# Should show: uDOS v1.1.0
+# Should show: uDOS v1.2.21
 
 # Run basic test
 echo "STATUS" | python uDOS.py
@@ -237,4 +237,4 @@ rm -rf uDOS
 - ✅ Linux: Fully tested and supported (Ubuntu, Debian, Fedora, Arch)
 - ✅ Windows: Fully tested and supported (10/11, WSL2)
 
-**v1.1.0** is the **first stable public release** with full cross-platform support and 1,810 passing tests.
+**v1.2.21** is the **FINAL STABLE v1.2.x RELEASE** with OK Assistant, complete TUI system, and 95.9% test coverage (142/148 SHAKEDOWN tests).

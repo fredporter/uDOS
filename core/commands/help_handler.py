@@ -1,5 +1,5 @@
 """
-uDOS v1.2.9+ - Enhanced Help System (HELP v2)
+uDOS v1.2.9+ - Enhanced Help System
 
 Provides comprehensive, navigable help with:
 - Section selector (quick jump to categories)
@@ -40,7 +40,7 @@ def pad_to_border(text: str, total_width: int = 79) -> str:
     return text + ' ' * padding_needed
 
 
-class HelpV2Handler:
+class HelpHandler:
     """Enhanced help system with section navigation and comprehensive docs."""
 
     def __init__(self):
@@ -119,7 +119,7 @@ class HelpV2Handler:
 
         # Header
         lines.append("╔" + "═"*78 + "╗")
-        lines.append("║" + " "*26 + "uDOS HELP SYSTEM v2.0" + " "*31 + "║")
+        lines.append("║" + " "*26 + "uDOS HELP SYSTEM" + " "*34 + "║")
         lines.append("╠" + "═"*78 + "╣")
         lines.append("║" + " "*78 + "║")
 
@@ -880,6 +880,6 @@ class HelpV2Handler:
 
 
 # Factory function for easy import
-def create_help_handler() -> HelpV2Handler:
-    """Create and return a HelpV2Handler instance."""
-    return HelpV2Handler()
+def create_help_handler() -> HelpHandler:
+    """Create and return a HelpHandler instance."""
+    return HelpHandler()

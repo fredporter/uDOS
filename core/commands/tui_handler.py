@@ -69,15 +69,21 @@ class TUIHandler:
             if self.tui:
                 self.tui.keypad.enabled = True
             result = "✅ Keypad navigation enabled\n"
-            result += "   8↑ 2↓ 4← 6→ (arrows) | 5✓ (select)\n"
-            result += "   7↶ 9↷ (undo/redo) | 1◀ 3▶ (history) | 0☰ (menu)"
+            result += "   Context-aware: Pager scrolling (no text) → Predictive navigation (typing)\n"
+            result += "   8↑ 2↓ 4← 6→ (arrows) | 5✓ (select) | 7↶ 9↷ (undo/redo)\n"
+            result += "   1◀ 3▶ (history) | 0☰ (menu)"
             
             if component == 'ALL':
-                self.config.set('prediction_enabled', True)
+                self.config.set('smart_input_enabled', True)
+                self.config.set('prediction_enabled', True) 
                 self.config.set('preserve_scroll', True)
-                result += "\n✅ All TUI features enabled"
+                result += "\n✅ All TUI features enabled (keypad + smart input + pager)"
             
             return result
+        
+        elif component == 'SMARTINPUT' or component == 'SMART':
+            self.config.set('smart_input_enabled', True)
+            return "✅ Smart input enabled (predictive text, auto-complete, syntax highlighting)"
         
         elif component == 'PREDICTOR':
             self.config.set('prediction_enabled', True)
@@ -97,7 +103,11 @@ class TUIHandler:
         """Disable TUI component"""
         component = component.upper()
         
-        if component == 'KEYPAD' or component == 'ALL':
+        if component == 'SMARTINPUT' or component == 'SMART':
+            self.config.set('smart_input_enabled', False)
+            return "❌ Smart input disabled (fallback to basic text entry)"
+        
+        elif component == 'KEYPAD' or component == 'ALL':
             self.config.set('keypad_enabled', False)
             if self.tui:
                 self.tui.keypad.enabled = False
@@ -173,20 +183,27 @@ class TUIHandler:
 ║                                                        ║
 ╠════════════════════════════════════════════════════════╣
 ║  Components:                                           ║
-║    KEYPAD     - Numpad navigation (8↑ 2↓ 4← 6→ 5✓)   ║
-║    PREDICTOR  - Command autocomplete predictions      ║
+║    KEYPAD     - Context-aware numpad navigation       ║
+║    SMARTINPUT - Predictive text with auto-complete    ║
+║    PREDICTOR  - Command completion engine              ║
 ║    PAGER      - Enhanced output scrolling             ║
 ║    BROWSER    - File browser (FILE BROWSE command)    ║
 ║    ALL        - All components                        ║
 ║                                                        ║
 ╠════════════════════════════════════════════════════════╣
+║  Context-Aware Keypad (v1.2.21):                      ║
+║    NO TEXT → Pager: 8↑2↓ scroll, 4←6→ page           ║
+║    TYPING  → Predict: 8↑2↓ navigate, 6→ accept       ║
+║                                                        ║
 ║  Examples:                                             ║
-║    TUI ENABLE KEYPAD     Enable numpad navigation     ║
+║    TUI ENABLE KEYPAD     Enable context-aware keypad  ║
+║    TUI ENABLE SMARTINPUT Enable predictive text       ║
 ║    TUI DISABLE ALL       Disable all TUI features     ║
 ║    TUI STATUS            Check what's enabled         ║
 ║    TUI TOGGLE KEYPAD     Quick keypad on/off          ║
 ║                                                        ║
 ╚════════════════════════════════════════════════════════╝
 
-💡 Tip: Keypad is disabled by default to avoid conflicts with
-   number input. Enable it when you want keyboard-only navigation."""
+💡 Smart Features: Keypad + Smart Input work together for
+   intuitive navigation. Pager scrolling when idle, predictive
+   text navigation when typing. Configure in CONFIG TUI."""

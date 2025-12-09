@@ -1,18 +1,13 @@
 """
-uDOS v1.0.0 - Command Router
+uDOS v1.2.21 - Command Router
 
-This is a thin routing layer that delegates commands to specialized handlers:
-- AssistantHandler: Assistant/Gemini commands (ASK, ANALYZE, EXPLAIN, etc.)
-- FileHandler: File operations (NEW, DELETE, COPY, MOVE, RENAME, SHOW, EDIT, RUN)
-- GridHandler: Grid/panel operations (deprecated, provides migration messages)
-- MapHandler: Map navigation (MOVE, GOTO, LAYER, VIEW, LOCATE, etc.)
-- SystemHandler: System commands (REPAIR, STATUS, REBOOT, DESTROY, DASHBOARD, etc.)
+Thin routing layer that delegates commands to specialized handlers:
+- AssistantHandler: AI commands (ASK, ANALYZE)
+- FileHandler: File operations (NEW, DELETE, COPY, MOVE, SHOW, EDIT)
+- MapHandler: Navigation (MOVE, GOTO, LAYER, VIEW, LOCATE)
+- SystemHandler: System commands (REPAIR, STATUS, REBOOT)
 
-This refactored design keeps the main router under 200 lines while maintaining
-all functionality through delegation.
-
-Version: 1.0.0
-Author: Fred Porter
+Clean modular design with no deprecated patterns or backward compatibility.
 """
 
 import json
@@ -81,41 +76,26 @@ class CommandHandler:
             MapCommandHandler = None
             self._play_available = False
 
-        # v1.0.20 - 4-Tier Knowledge Bank handlers
+        # Memory System handlers
         from core.commands.memory_commands import MemoryCommandHandler
         from core.commands.private_commands import PrivateCommandHandler
         from core.commands.shared_commands import SharedCommandHandler
         from core.commands.community_commands import CommunityCommandHandler
-        # Note: KB command now redirects to GUIDE handler (KnowledgeCommandHandler removed in v2.0.0)
 
-        # v1.0.20b - Enhanced Mapping & Reference Data System
+        # Core system handlers
         from core.commands.tile_handler import TILECommandHandler
-
-        # v1.0.21 - Teletext Display System
         from core.commands.panel_handler import PanelCommandHandler
-
-        # v1.1.17 - Unified Documentation System (consolidates GUIDE + DIAGRAM + LEARN)
         from core.commands.docs_unified_handler import DocsUnifiedHandler
-
-        # v1.0.33 - Barter Economy System
         from core.commands.barter_commands import BarterCommandHandler
 
-        # v1.1.0 - User Feedback System
+        # Core UI & System Imports
         from core.commands.user_handler import UserCommandHandler
-
-        # v1.2.8+ - Color TUI Enhancement
         from core.commands.color_handler import handle_color
-
-        # v1.0.32 - Tree Structure Generator
         from core.commands.tree_handler import TreeHandler
-
-        # v1.5.0 - PEEK Data Collection System
         from core.commands.peek_handler import PeekHandler
-
-        # v2.0 - Sandbox Management System
         from core.commands.sandbox_handler import SandboxHandler
-
-        # v1.1.2 - Mission Control & Workflow Automation
+        
+        # Workflow & Mission Imports
         from core.commands.mission_handler import handle_mission_command
         from core.commands.schedule_handler import handle_schedule_command
         from core.commands.workflow_handler import handle_workflow_command
@@ -124,41 +104,34 @@ class CommandHandler:
         self.file_handler = FileCommandHandler(**handler_kwargs)
         self.map_handler = MapCommandHandler(**handler_kwargs) if MapCommandHandler else None
         self.system_handler = SystemCommandHandler(**handler_kwargs)
-        # Note: bank_handler removed in v2.0.0 - use GUIDE for knowledge access
 
-        # v1.0.20 - 4-Tier Memory System handlers
+
+        # Memory System Handlers
         self.memory_handler = MemoryCommandHandler()
         self.private_handler = PrivateCommandHandler()
         self.shared_handler = SharedCommandHandler()
         self.community_handler = CommunityCommandHandler()
-        # Note: knowledge_v2_handler removed in v2.0.0 - KB commands redirect to DOCS
 
-        # v1.0.20b - TILE Enhanced Mapping handler
+
+        # Core System Handlers
         self.tile_handler = TILECommandHandler(**handler_kwargs)
-
-        # v1.0.21 - PANEL Teletext Display handler
         self.panel_handler = PanelCommandHandler(**handler_kwargs)
-
-        # v1.1.17 - DOCS Unified Documentation handler (replaces GUIDE + DIAGRAM + LEARN)
         self.docs_handler = DocsUnifiedHandler(viewport=viewport, logger=logger)
 
-        # v1.2.15 - MAKE handler (5-format graphics system with Node.js renderer)
-        from core.commands.make_handler_v1_2_15 import MakeHandler
+        # Content Generation Handlers
+        from core.commands.make_handler import MakeHandler
         self.make_handler = MakeHandler(**handler_kwargs)
-
-        # v1.2.21 - OK handler (AI-assisted workflow generation)
+        
         from core.commands.ok_handler import create_ok_handler
         self.ok_handler = create_ok_handler(**handler_kwargs)
-
-        # v1.2.15 - PROMPT handler (Admin prompt management, requires DEV MODE)
+        
         from core.commands.prompt_handler import PromptHandler
         self.prompt_handler = PromptHandler()
 
-        # v1.1.15 - MERMAID handler (Mermaid.js diagram integration)
+        # Diagram & Integration Handlers
         from core.commands.mermaid_handler import MermaidHandler
         self.mermaid_handler = MermaidHandler(viewport=viewport, logger=logger)
-
-        # v1.1.15 - TYPORA handler (Extended diagram syntax support)
+        
         try:
             from extensions.core.typora_diagrams.handler import get_handler as get_typora_handler
             self.typora_handler = get_typora_handler(viewport=viewport, logger=logger)
@@ -167,35 +140,44 @@ class CommandHandler:
             if logger:
                 logger.log('EVENT', "Typora diagrams extension not available")
 
-        # v1.1.9 - SPRITE & OBJECT handlers (Round 1 Variable System)
+        # Game Object Handlers
         from core.commands.sprite_handler import SpriteHandler
         from core.commands.object_handler import ObjectHandler
 
-        # v1.1.14 - CHECKLIST handler (Task Management System)
+        # Task Management Handlers
         from core.commands.checklist_handler import ChecklistHandler
         self.checklist_handler = ChecklistHandler(config=None)
 
-        # v1.1.14 - ARCHIVE handler (Historical Data Management)
+
         from core.commands.archive_handler import ArchiveHandler
         self.archive_handler = ArchiveHandler(**handler_kwargs)
 
-        # v1.1.16 - BACKUP handler (Archive System Infrastructure)
+
         from core.commands.backup_handler import create_handler as create_backup_handler
         self.backup_handler = create_backup_handler(viewport=viewport, logger=logger)
 
-        # v1.1.16 - UNDO/REDO handler (Version History Management)
+
         from core.commands.undo_handler import create_handler as create_undo_handler
         self.undo_handler = create_undo_handler(viewport=viewport, logger=logger)
+        
+        
+        # Content & Build Handlers
+        from core.commands.clone_handler import CloneHandler
+        self.clone_handler = CloneHandler(**handler_kwargs)
+        
+
+        from core.commands.build_handler import BuildHandler
+        self.build_handler = BuildHandler(**handler_kwargs)
         
         # v1.2.15 - TUI Management
         from core.commands.tui_handler import TUIHandler
         self.tui_handler = TUIHandler()  # Will set TUI controller later
 
-        # v1.2.9 - Gmail Cloud Integration handler (OAuth2, Email, Drive sync)
+
         from core.commands.gmail_handler import handle_gmail_command
         self.gmail_handler = handle_gmail_command
 
-        # v1.1.5.1 - SESSION handler (Session management, history, undo/redo, restore)
+
         from core.commands.session_handler import SessionHandler
         self.session_handler = SessionHandler(**handler_kwargs)
 
@@ -208,7 +190,7 @@ class CommandHandler:
         self.sprite_handler = SpriteHandler(components)
         self.object_handler = ObjectHandler(components)
 
-        # v1.1.9+ - STORY handler (Round 2 Adventure System)
+        # Adventure & Game Handlers
         from core.commands.story_handler import StoryHandler
         story_components = {
             'config': None,
@@ -217,34 +199,36 @@ class CommandHandler:
         }
         self.story_handler = StoryHandler(story_components)
 
-        # v1.1.6 - LOGS Command handler (Logging System Management)
+        
+        # System Management Handlers
         from core.commands.logs_handler import create_logs_handler
         self.logs_handler = create_logs_handler()
 
-        # v1.0.33 - BARTER Economy handler
+
         self.barter_handler = BarterCommandHandler()
 
-        # v1.1.0 - User Feedback handler
+
         self.user_handler = UserCommandHandler(**handler_kwargs)
 
-        # v1.0.32 - TREE Structure handler
+
         self.tree_handler = TreeHandler()
 
-        # v1.5.0 - PEEK Data Collection handler
+
         self.peek_handler = PeekHandler(**handler_kwargs)
 
-        # v2.0 - Sandbox Management handler
+
         self.sandbox_handler = SandboxHandler()
 
-        # v1.1.8 - EXTENSION Management handler (Extension Polish)
+
         from core.commands.extension_handler import create_extension_handler
         self.extension_handler = create_extension_handler(viewport=viewport, logger=logger)
 
-        # v1.2.2 - DEV MODE Debugging System
+        
+        # Development System Handlers
         from core.commands.dev_mode_handler import DevModeHandler
         self.dev_mode_handler = DevModeHandler()
 
-        # Now set main_handler reference on all handlers (v2.0.0: removed bank_handler)
+        # Set main_handler reference on all handlers
         for handler in [self.assistant_handler, self.file_handler,
                        self.system_handler]:
             handler.main_handler = self
@@ -312,7 +296,7 @@ class CommandHandler:
             params = command_parts[1:] if len(command_parts) > 1 else []
 
             # Route to appropriate handler
-            # v1.2.21 - OK assistant (must come before ASSISTANT check)
+            # OK Assistant (check before ASSISTANT)
             if module == "OK":
                 return self.ok_handler.handle(command, params, grid)
 
@@ -326,15 +310,7 @@ class CommandHandler:
             elif module == "ROLE":
                 return self.system_handler._handle_config_role([])
 
-            elif module == "GRID":
-                return ("❌ GRID commands have been removed in uDOS v1.0.32\n\n"
-                       "The panel system has been simplified. Commands now work\n"
-                       "directly with files and the terminal output.\n\n"
-                       "💡 Alternatives:\n"
-                       "   • Use TREE to view repository structure\n"
-                       "   • Use EDIT to edit files\n"
-                       "   • Use SHOW to view files\n"
-                       "   • Use PANEL for teletext UI")
+
 
             elif module == "MAP":
                 if self.map_handler:
@@ -343,11 +319,9 @@ class CommandHandler:
                     return ("❌ MAP commands require Play extension\n"
                            "💡 Install: POKE START play")
 
-            elif module == "BANK":
-                # BANK handler removed in v2.0.0 - redirect to DOCS
-                return self.docs_handler.handle(command, params)
 
-            # v1.0.20 - 4-Tier Knowledge Bank & Memory System
+
+            # Memory System
             elif module == "MEMORY":
                 return self.memory_handler.handle(command, params)
 
@@ -360,15 +334,13 @@ class CommandHandler:
             elif module == "COMMUNITY":
                 return self.community_handler.handle(command, params)
 
-            elif module == "KB" or module == "KNOWLEDGEBANK":
-                # KB handler removed in v2.0.0 - redirect to DOCS
-                return self.docs_handler.handle(command, params)
 
-            # v1.0.20b - Enhanced Mapping & Reference Data System
+
+            # Mapping System
             elif module == "TILE":
                 return self.tile_handler.handle(command, ' '.join(params) if params else '', grid)
 
-            # v1.0.33 - Barter Economy System
+            # Barter System
             elif module == "BARTER" or module == "OFFER" or module == "REQUEST" or module == "TRADE":
                 # Route OFFER, REQUEST, TRADE directly to barter handler
                 if module in ["OFFER", "REQUEST", "TRADE"]:
@@ -376,7 +348,7 @@ class CommandHandler:
                 else:
                     return self.barter_handler.handle(command, params)
 
-            # v1.1.9 - SPRITE & OBJECT Variable System (Round 1)
+            # Sprite System
             elif module == "SPRITE":
                 success = self.sprite_handler.handle([command] + params)
                 return "✅ Command executed" if success else "❌ Command failed"
@@ -385,51 +357,33 @@ class CommandHandler:
                 success = self.object_handler.handle([command] + params)
                 return "✅ Command executed" if success else "❌ Command failed"
 
-            # v1.1.9+ - STORY Adventure System (Round 2)
+            # Story System
             elif module == "STORY":
                 return self.story_handler.handle(command, params)
 
-            # v1.0.21 - Teletext Display System
+            # Display System
             elif module == "PANEL" or module == "UI":
                 return self.panel_handler.handle(command, params, grid)
 
-            # v1.1.17 - Unified Documentation System
+            # Documentation System
             elif module == "DOCS":
                 return self.docs_handler.handle(command, params)
 
-            # v1.1.17 - Legacy commands (deprecated, show migration notice)
-            elif module == "GUIDE":
-                notice = "⚠️  GUIDE command deprecated in v1.1.17\n\nUse: DOCS {cmd}\n\nAll GUIDE commands work with DOCS:\n  GUIDE LIST → DOCS LIST guide\n  GUIDE START <name> → DOCS START <name>\n  GUIDE NEXT → DOCS NEXT\n\nExecuting as DOCS...\n\n".format(cmd=command if command else 'LIST')
-                return notice + self.docs_handler.handle(command, params)
 
-            elif module == "DIAGRAM":
-                notice = (
-                    "⚠️  DIAGRAM command deprecated in v1.2.15\n\n"
-                    "Use: MAKE --format <format> [options]\n\n"
-                    "New 5-format graphics system:\n"
-                    "  MAKE --format ascii --template flowchart_vertical\n"
-                    "  MAKE --format teletext --palette earth \"Status: OK\"\n"
-                    "  MAKE --format svg --style technical \"system architecture\"\n"
-                    "  MAKE --format sequence --template api_request\n"
-                    "  MAKE --format flow --template decision_flow\n\n"
-                    "For templates: MAKE --list\n"
-                    "For help: MAKE --format <format> --help\n"
-                )
-                return notice
 
-            elif module == "LEARN":
-                notice = "⚠️  LEARN command deprecated in v1.1.17\n\nUse: DOCS {cmd}\n\nAll LEARN commands work with DOCS:\n  LEARN → DOCS\n  LEARN <name> → DOCS SHOW <name>\n  LEARN --continue → DOCS CONTINUE\n\nExecuting as DOCS...\n\n".format(cmd=command if command else '')
-                return notice + self.docs_handler.handle(command, params)
 
-            # v1.1.14 - Checklist Task Management
+
+
+
+            # Task Management
             elif module == "CHECKLIST":
                 return self.checklist_handler.handle(command, params)
 
-            # v1.1.14 - Archive Management System
+            # Archive Management
             elif module == "ARCHIVE":
                 return self.archive_handler.handle(params, grid, parser)
 
-            # v1.1.16 - BACKUP Archive System
+            # Backup System
             elif module == "BACKUP":
                 return self.backup_handler.handle(params, grid, parser)
 
@@ -440,49 +394,31 @@ class CommandHandler:
             elif module == "REDO":
                 return self.undo_handler.handle_redo(params, grid, parser)
 
-            # v1.1.5.1 - SESSION, HISTORY, RESTORE commands
+            # Session Management
             elif module in ["SESSION", "HISTORY", "RESTORE"]:
                 return self.session_handler.handle(module, params, grid, parser)
 
-            # v1.2.17 - DRAW deprecated - use MAKE instead
-            elif module == "DRAW":
-                return (
-                    "⚠️  DRAW command deprecated in v1.2.17\n\n"
-                    "Use MAKE instead with 5 formats:\n"
-                    "  MAKE ASCII <template>     - ASCII diagrams\n"
-                    "  MAKE TELETEXT <palette>   - Teletext pages\n"
-                    "  MAKE SVG <description>    - Vector graphics\n"
-                    "  MAKE SEQUENCE <template>  - Sequence diagrams\n"
-                    "  MAKE FLOW <template>      - Flowcharts\n\n"
-                    "See: MAKE --help"
-                )
 
-            # v2.0.2 - MAKE Unified Generation System (Offline-first AI + Nano Banana)
-            # Renamed from GENERATE for clarity
-            elif module == "MAKE" or module == "GENERATE":  # Support both for backward compatibility
+
+            # Unified Generation System
+            elif module == "MAKE":
                 return self.make_handler.handle(command, params, grid)
 
-            # v1.2.21 - OK assistant commands
+            # OK Assistant Commands
             elif module == "OK":
                 return self.ok_handler.handle(command, params, grid)
 
-            # v1.2.15 - PROMPT Admin Prompt Management (requires DEV MODE)
+            # Admin Prompt Management
             elif module == "PROMPT":
                 return self.prompt_handler.handle(params)
 
-            # v1.1.15 - MERMAID Text-to-Diagram System
+            # Diagram Systems
             elif module == "MERMAID":
                 return self.mermaid_handler.handle_command(params)
 
-            # v1.2.17 - GitHub Diagrams deprecated - use MAKE instead
-            elif module == "GEODIAGRAM" or module == "GEOJSON" or module == "STL":
-                return (
-                    "⚠️  GitHub Diagrams deprecated in v1.2.17\n\n"
-                    "Use MAKE SVG instead for vector graphics.\n\n"
-                    "See: MAKE --help"
-                )
 
-            # v1.1.15 - TYPORA Extended Diagram Support
+
+
             elif module == "TYPORA":
                 if self.typora_handler:
                     return self.typora_handler.handle_command(params)
@@ -494,22 +430,13 @@ class CommandHandler:
                         "Make sure the handler.py file exists and is importable.\n"
                     )
 
-            # v1.1.5 - SVG Graphics Extension (REMOVED in v1.1.5.3 - use MAKE SVG)
-            elif module == "SVG":
-                return (
-                    "❌ SVG command removed in v1.1.5.3\n\n"
-                    "Use: MAKE SVG <description>\n\n"
-                    "Examples:\n"
-                    "  MAKE SVG water purification flowchart\n"
-                    "  MAKE SVG solar still diagram\n\n"
-                    "The MAKE command provides better quality via Nano Banana.\n"
-                )
 
-            # v1.1.6 - LOGS System Management
+
+            # System Management
             elif module == "LOGS":
                 return self.logs_handler.handle(command, params)
 
-            # v1.0.32 & v1.1.7 - POKE Extension Management & Online Features
+            # Extension Management
             elif module == "POKE" or module == "OUTPUT" or module == "SERVER":
                 # Check if this is POKE Online extension command
                 if params and params[0].upper() in ["TUNNEL", "SHARE", "GROUP"]:
@@ -526,11 +453,11 @@ class CommandHandler:
                     # Delegate to system handler for extension management
                     return self.system_handler.handle_output(params, self.grid, self.parser)
 
-            # v1.1.0 - User Feedback System
+            # User Feedback
             elif module == "USER":
                 return self.user_handler.handle(command, params, grid)
 
-            # v1.2.4 - FEEDBACK shortcut (routes to USER handler)
+            # Feedback Shortcut
             elif module == "FEEDBACK":
                 return self.user_handler.handle("FEEDBACK", params, grid)
 
@@ -549,6 +476,21 @@ class CommandHandler:
             # v2.0 - Sandbox Management System
             elif module == "SANDBOX":
                 return self.sandbox_handler.handle(command, params)
+            
+            # v1.2.21 - CLONE User Content Packaging
+            elif module == "CLONE":
+                return self.clone_handler.handle(params, grid, parser)
+            
+            # v1.2.21 - BUILD Offline Installation Packaging  
+            elif module == "BUILD":
+                return self.build_handler.handle(params, grid, parser)
+            
+            # v1.1.16 - UNDO/REDO Version History
+            elif module == "UNDO":
+                return self.undo_handler.handle(params, grid, parser)
+            
+            elif module == "REDO":
+                return self.undo_handler.handle_redo(params, grid, parser)
 
             # v1.1.8 - EXTENSION Management (Extension Polish)
             elif module == "EXTENSION" or module == "EXT":

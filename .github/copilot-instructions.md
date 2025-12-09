@@ -312,14 +312,14 @@ memory/ucode/
 ### uPY Runtime Architecture (v1.2)
 
 **Critical Files**:
-- `core/runtime/upy_runtime_v2.py` - Main interpreter (1,179 lines)
+- `core/runtime/upy_runtime.py` - Main interpreter (1,179 lines)
 - `core/interpreters/validator.py` - Syntax validation
 - Test runner: `./start_udos.sh <script.upy>`
 
 **Execution Flow**:
 ```python
 # In uDOS_main.py:run_script()
-from core.runtime.upy_runtime_v2 import UPYRuntime
+from core.runtime.upy_runtime import UPYRuntime
 runtime = UPYRuntime(command_handler=command_handler, grid=grid, parser=parser)
 output = runtime.execute_file(script_file)  # Interprets .upy directly - no conversion
 ```
@@ -365,7 +365,7 @@ END IF
 When documenting or referencing uPY features:
 - Use **v1.2** for syntax version (aligned with uDOS v1.2.x)
 - uPY versions match uDOS major.minor (v1.2.21 uses uPY v1.2)
-- Runtime files: `core/runtime/upy_runtime_v2.py` (interpreter)
+- Runtime files: `core/runtime/upy_runtime.py` (interpreter)
 - Validator: `core/interpreters/validator.py` (syntax checking)
 - Test runner: Run with `./start_udos.sh <script.upy>`
 
@@ -377,7 +377,7 @@ When documenting or referencing uPY features:
 - **Usage:** `./start_udos.sh memory/ucode/tests/shakedown.upy`
 - **Commands tested:** TREE, CONFIG CHECK/FIX, CLEAN, BACKUP, GUIDE, etc.
 - Use **v1.2.x** for version references (aligned with uDOS)
-- Runtime files: `core/runtime/upy_runtime_v2.py` (internal implementation)
+- Runtime files: `core/runtime/upy_runtime.py` (internal implementation)
 - Interpreter: `core/interpreters/validator.py` (syntax validation)
 
 ## System Variables (v2.0)

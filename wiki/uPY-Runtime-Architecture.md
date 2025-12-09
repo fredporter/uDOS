@@ -39,7 +39,7 @@ The uPY v1.2 runtime is a custom interpreter designed to execute `.upy` scripts 
 
 ```
 core/runtime/
-├── upy_runtime_v2.py      # Main interpreter engine (843 lines)
+├── upy_runtime.py      # Main interpreter engine (1,179 lines)
 ├── upy_math.py            # Math expression parser (343 lines)
 ├── upy_lists.py           # List operations (325 lines)
 ├── upy_file_io.py         # File I/O module (344 lines)
@@ -48,7 +48,7 @@ core/runtime/
 
 ### Component Responsibilities
 
-#### 1. **UPYRuntimeV2** (`upy_runtime_v2.py`)
+#### 1. **UPYRuntime** (`upy_runtime.py`)
 
 **Main interpreter engine** - Orchestrates script execution and manages state.
 

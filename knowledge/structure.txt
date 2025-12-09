@@ -11,7 +11,6 @@ knowledge/
 │   │   ├── first-aid-kit-inventory.json
 │   │   ├── first-aid-kit-inventory.md
 │   │   └── wound-care-emergency.json
-│   ├── learning/
 │   ├── projects/
 │   │   ├── build-debris-hut.md
 │   │   ├── shelter-construction-project.json
@@ -37,10 +36,6 @@ knowledge/
 │   ├── visual_distress_signals.md
 │   └── whistle_codes.md
 ├── community/
-│   ├── collaboration/
-│   ├── conflict-resolution/
-│   ├── local-resilience/
-│   ├── mutual-aid/
 │   └── README.md
 ├── fire/
 │   ├── bow_drill_technique.md
@@ -262,6 +257,7 @@ knowledge/
 │   ├── README.md
 │   ├── sleep-hygiene-optimization.md
 │   └── stress-management-resilience.md
+├── .DS_Store
 ├── KNOWLEDGE-SYSTEM.md
 ├── README.md
 └── structure.txt

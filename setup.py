@@ -9,7 +9,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="udos",
-    version="1.2.12",
+    version="1.2.21",
     author="Fred Porter",
     author_email="fred@udos.dev",
     description="uDOS - Offline-first Operating System for Survival Knowledge",

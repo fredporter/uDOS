@@ -549,7 +549,7 @@ Features:
 </div>
 <input type="text" class="nes-input is-dark">
 <button class="nes-btn is-primary">Execute</button>
-<span class="nes-badge is-success">v1.1.15</span>
+<span class="nes-badge is-success">v1.2.21</span>
 ```
 
 ### classic.css - Mac OS 8.1 Interface
@@ -702,7 +702,7 @@ The `LEXICON.UDO` file in the `/data` directory defines the thematic "skin" of t
 
 ### uDOS Core Font System
 
-uDOS v1.1.15 uses a curated collection of retro fonts stored in `extensions/assets/fonts/` with comprehensive fallback stacks for reliability. The font system is managed by the Asset Manager and integrated across all extensions.
+uDOS v1.2.21 uses a curated collection of retro fonts stored in `extensions/assets/fonts/` with comprehensive fallback stacks for reliability. The font system is managed by the Asset Manager and integrated across all extensions.
 
 **Font Management:** See [ASSETS-GUIDE](ASSETS-GUIDE.md) for programmatic font loading and the complete font catalog.
 
@@ -848,7 +848,7 @@ FONT INFO              # Current configuration
 
 ### Synthwave DOS Color System
 
-uDOS v1.1.15 uses the **Synthwave DOS** color palette as its default system theme. This palette is inspired by high-contrast instant photography and optimized for terminal visibility.
+uDOS v1.2.21 uses the **Synthwave DOS** color palette as its default system theme. This palette is inspired by high-contrast instant photography and optimized for terminal visibility.
 
 **Primary Color Reference:**
 

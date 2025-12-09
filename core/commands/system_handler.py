@@ -199,9 +199,9 @@ class SystemCommandHandler(BaseCommandHandler):
 
     def handle_help(self, params, grid, parser):
         """Enhanced help system with section navigation (v1.2.9+)."""
-        from .help_v2_handler import create_help_handler
+        from .help_handler import create_help_handler
 
-        # Use new HelpV2Handler for comprehensive, navigable help
+        # Use new HelpHandler for comprehensive, navigable help
         help_handler = create_help_handler()
         return help_handler.handle(params)
 

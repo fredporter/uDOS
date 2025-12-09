@@ -105,29 +105,24 @@ class MapCommandHandler(BaseCommandHandler):
         try:
             from core.services.planet_manager import PlanetManager
             pm = PlanetManager()
-            current_planet = pm.get_current()
-
-            if not current_planet:
-                return "⚠️  No planet selected. Use CONFIG PLANET to set up your workspace."
+            current_planet = pm.get_current_planet()
+            current_galaxy = pm.get_current_galaxy()
+            planet_icon = pm.get_planet_icon(current_planet)
+            galaxy_icon = pm.get_galaxy_icon(current_galaxy)
 
             # Build status header with planet info
             result = f"""🗺️  Map Status
 {'='*40}
-Planet: {current_planet.icon} {current_planet.name}
-Solar System: {current_planet.solar_system}
-Type: {current_planet.planet_type}"""
+Planet: {planet_icon} {current_planet}
+Galaxy: {galaxy_icon} {current_galaxy}"""
 
-            # Add location info if available
-            location = pm.get_location(current_planet.name)
+            # Add location info from user.json (TILE code)
+            from core.config import get_config
+            config = get_config()
+            location = config.get_user('USER_PROFILE.LOCATION')
             if location:
                 result += f"""
-📍 Current Location: {location.name or 'Custom location'}"""
-                if location.region:
-                    result += f"""
-   Region: {location.region}"""
-                if location.country:
-                    result += f"""
-   Country: {location.country}"""
+📍 Location: {location}"""
                 result += f"""
    Coordinates: {location.latitude:.2f}°, {location.longitude:.2f}°"""
 

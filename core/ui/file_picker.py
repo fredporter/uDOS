@@ -43,7 +43,6 @@ class FilePicker:
             'private': Path('memory/private'),
             'groups': Path('memory/groups'),
             'shared': Path('memory/shared'),
-            'planet': Path('memory/planet'),
             'user': Path('memory/bank/user')
         }
 

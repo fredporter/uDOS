@@ -297,6 +297,43 @@
       ]
     },
     {
+      "NAME": "DEV",
+      "SYNTAX": "DEV <ENABLE|DISABLE|STATUS|BREAK|STEP|CONTINUE|INSPECT|STACK|TRACE|WATCH|HELP>",
+      "DESCRIPTION": "uPY script debugger for ALL USERS. Set breakpoints, step through code, inspect variables in your memory/ucode/ scripts. For core file editing (master only), use 'DEV MODE ON' instead.",
+      "UCODE_TEMPLATE": "[DEV|$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$2": null,
+        "$3": null
+      },
+      "EXAMPLES": [
+        "DEV ENABLE",
+        "DEV BREAK 10",
+        "DEV BREAK 15 \"counter > 5\"",
+        "DEV STEP",
+        "DEV CONTINUE",
+        "DEV INSPECT counter",
+        "DEV STACK",
+        "DEV TRACE ON",
+        "DEV STATUS"
+      ],
+      "FLAGS": {
+        "ENABLE": "Enable uPY script debugging",
+        "DISABLE": "Disable uPY script debugging", 
+        "STATUS": "Show debugger status",
+        "BREAK": "Set/remove/list breakpoints",
+        "STEP": "Execute one line at a time",
+        "CONTINUE": "Resume execution until next breakpoint",
+        "INSPECT": "View variable values",
+        "STACK": "Show call stack",
+        "TRACE": "Toggle trace logging",
+        "WATCH": "Watch variable changes"
+      },
+      "NOTES": [
+        "v1.2.21 - Debugger available to ALL users for memory/ucode/ scripts",
+        "For core file editing (core/knowledge/extensions), use: DEV MODE ON"
+      ]
+    },
+    {
       "NAME": "SHOW",
       "SYNTAX": "SHOW [file_path]",
       "DESCRIPTION": "Display file contents in terminal or browser. Opens file picker if no path provided. Limited to sandbox/ and memory/ directories.",
@@ -612,6 +649,49 @@
       ]
     },
     {
+      "NAME": "BACKUP",
+      "SYNTAX": "BACKUP [--validate] [<file>]",
+      "DESCRIPTION": "File backup operations with archive system integration. Create timestamped backups or validate backup system health.",
+      "UCODE_TEMPLATE": "[BACKUP|BACKUP*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "FLAGS": {
+        "--validate": "Validate backup system and report archive directory status"
+      },
+      "EXAMPLES": [
+        "BACKUP config/user.json",
+        "BACKUP --validate"
+      ]
+    },
+    {
+      "NAME": "EXTENSION",
+      "SYNTAX": "EXTENSION <command> [<extension_id>]",
+      "DESCRIPTION": "Manage uDOS extensions. Commands: STATUS (show all extensions), ENABLE <id>, DISABLE <id>, INFO <id>.",
+      "UCODE_TEMPLATE": "[EXTENSION|EXTENSION*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "STATUS"
+      },
+      "EXAMPLES": [
+        "EXTENSION STATUS",
+        "EXTENSION INFO assistant",
+        "EXTENSION ENABLE play-map"
+      ]
+    },
+    {
+      "NAME": "TILE", 
+      "SYNTAX": "TILE <command> [<tile_code>]",
+      "DESCRIPTION": "Grid tile operations. Commands: INFO <code> (show tile details), LIST (show all tiles).",
+      "UCODE_TEMPLATE": "[TILE|TILE*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "LIST"
+      },
+      "EXAMPLES": [
+        "TILE INFO AA340",
+        "TILE LIST"
+      ]
+    },
+    {
       "NAME": "STATUS",
       "SYNTAX": "STATUS [--live]",
       "DESCRIPTION": "Shows system status including connection mode, servers, and health. Use --live for real-time monitoring.",
@@ -623,50 +703,118 @@
     },
     {
       "NAME": "CLEAN",
-      "SYNTAX": "CLEAN [logs|trash|tests|drafts|peek|--all] [--days=N]",
-      "DESCRIPTION": "Flush and cleanup sandbox subdirectories. Removes old logs, empties trash, cleans test artifacts, archives old drafts. Default keeps last 30 days.",
+      "SYNTAX": "CLEAN [archives|logs|--all|--dry-run|--force] [--days=N]",
+      "DESCRIPTION": "Flush and cleanup workspace directories. Empties .archive/ folders, removes old logs, cleans artifacts. Default interactive with confirmation.",
       "UCODE_TEMPLATE": "[SANDBOX|CLEAN*$1*$2]",
       "DEFAULT_PARAMS": {
         "$1": "",
         "$2": ""
       },
       "FLAGS": {
-        "--all": "Clean all subdirectories (no prompts)",
+        "--archives": "Empty all .archive/ folders across workspace",
+        "--all": "Clean all directories (logs + archives)",
+        "--dry-run": "Preview what would be cleaned without removing",
+        "--force": "Skip confirmation prompts",
         "--days=N": "Keep only last N days (default 30)"
       },
       "EXAMPLES": [
         "CLEAN",
+        "CLEAN archives",
         "CLEAN logs",
-        "CLEAN trash",
         "CLEAN --all",
-        "CLEAN --days=7"
+        "CLEAN --dry-run",
+        "CLEAN archives --force"
       ],
       "NOTES": [
-        "Maintains clean /sandbox structure",
-        "Interactive by default (prompts before deletion)",
-        "Use --all for automated cleanup"
+        "✅ Updated in v1.2.21 - .archive/ folder support",
+        "Maintains clean workspace structure",
+        "Interactive by default (confirms before deletion)",
+        "Use --dry-run to preview changes safely"
       ]
     },
     {
       "NAME": "TIDY",
-      "SYNTAX": "TIDY [logs|scripts|workflow|--report]",
-      "DESCRIPTION": "Organize and sort files in sandbox directories. Categorizes logs by type, organizes scripts, updates workflow files.",
+      "SYNTAX": "TIDY [folder|--duplicates|--versions|--report]",
+      "DESCRIPTION": "Organize and sort files in workspace directories. Detects duplicates via MD5 hashing, finds old versions by naming patterns, archives automatically.",
       "UCODE_TEMPLATE": "[SANDBOX|TIDY*$1]",
       "DEFAULT_PARAMS": {
         "$1": ""
       },
       "FLAGS": {
+        "--duplicates": "Find and archive duplicate files",
+        "--versions": "Find and archive old version files",
         "--report": "Generate report without making changes"
       },
       "EXAMPLES": [
         "TIDY",
-        "TIDY logs",
+        "TIDY memory/docs",
+        "TIDY --duplicates",
+        "TIDY --versions",
         "TIDY --report"
       ],
       "NOTES": [
-        "Organizes files without deletion",
-        "Groups logs by type (session, server, debug)",
-        "Use --report to preview changes"
+        "✅ Updated in v1.2.21 - Duplicate detection, version archiving",
+        "Uses MD5 hashing to identify exact duplicates",
+        "Detects old versions via regex patterns (_YYYYMMDD_, _vN)",
+        "Moves duplicates/old versions to .archive/ folders",
+        "Use --report to preview changes safely"
+      ]
+    },
+    {
+      "NAME": "CLONE",
+      "SYNTAX": "CLONE [--check|--exclude=pattern|--export=path]",
+      "DESCRIPTION": "Package user content for system duplication. Creates tar.gz archive of docs, drafts, scripts, workflows, user settings. Excludes .archive/ folders and logs.",
+      "UCODE_TEMPLATE": "[CLONE|$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "",
+        "$2": ""
+      },
+      "FLAGS": {
+        "--check": "Preview package contents without creating archive",
+        "--exclude=pattern": "Add file/folder pattern to exclusions",
+        "--export=path": "Custom export path (default: current directory)"
+      },
+      "EXAMPLES": [
+        "CLONE",
+        "CLONE --check",
+        "CLONE --export=/backups/",
+        "CLONE --exclude=*.tmp"
+      ],
+      "NOTES": [
+        "✅ NEW in v1.2.21 - User content packaging",
+        "Packages: memory/docs/, memory/drafts/, memory/ucode/scripts/, memory/workflows/, memory/bank/user/",
+        "Excludes: .archive/, logs/, *.pyc, __pycache__",
+        "Output: udos-clone-YYYYMMDD_HHMMSS.tar.gz",
+        "Use for backup, transfer, or system duplication"
+      ]
+    },
+    {
+      "NAME": "BUILD",
+      "SYNTAX": "BUILD [--check|--download|--full|--export=path]",
+      "DESCRIPTION": "Pre-download repositories and create offline installation package. Clones optional repos (MeshCore, CoreUI) and packages core system for distribution.",
+      "UCODE_TEMPLATE": "[BUILD|$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "",
+        "$2": ""
+      },
+      "FLAGS": {
+        "--check": "Check current repository status",
+        "--download": "Download missing repositories only",
+        "--full": "Complete build process (check + download + package)",
+        "--export=path": "Custom export path (default: current directory)"
+      },
+      "EXAMPLES": [
+        "BUILD --check",
+        "BUILD --download",
+        "BUILD --full",
+        "BUILD --full --export=/dist/"
+      ],
+      "NOTES": [
+        "✅ NEW in v1.2.21 - Offline installation packaging",
+        "Downloads: MeshCore (optional), CoreUI Icons (optional)",
+        "Packages: core/, extensions/, knowledge/, wiki/, requirements.txt",
+        "Output: udos-build-YYYYMMDD_HHMMSS.tar.gz",
+        "Use for offline distribution or air-gapped installations"
       ]
     },
     {
@@ -713,13 +861,6 @@
       "DEFAULT_PARAMS": {
         "$1": ""
       }
-    },
-    {
-      "NAME": "CLEAN",
-      "SYNTAX": "CLEAN",
-      "DESCRIPTION": "Review sandbox files and prepare for commit to memory folder.",
-      "UCODE_TEMPLATE": "[SYSTEM|CLEAN]",
-      "DEFAULT_PARAMS": {}
     },
     {
       "NAME": "MAP",

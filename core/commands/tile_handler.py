@@ -39,11 +39,12 @@ class TILECommandHandler(BaseCommandHandler):
     def geography_data(self):
         """Lazy load geography databases."""
         if self._geography_data is None:
-            geo_path = Path("core/data/geography")
+            from core.utils.paths import PATHS
+            geo_path = PATHS.CORE_DATA_GEOGRAPHY
             self._geography_data = {
-                "countries": self._load_json(geo_path / "countries.json"),
+                # Note: countries.json and timezones.json deprecated in v1.2.21
+                # Data now consolidated in cities.json
                 "cities": self._load_json(geo_path / "cities.json"),
-                "timezones": self._load_json(geo_path / "timezones.json"),
                 "terrain": self._load_json(geo_path / "terrain.json"),
                 "climate": self._load_json(geo_path / "climate.json")
             }

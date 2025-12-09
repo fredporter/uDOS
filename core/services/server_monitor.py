@@ -30,72 +30,79 @@ class ServerMonitor:
     """
     
     # Core servers from server_manager.py
-    CORE_SERVERS = {
-        'api': {
-            'name': 'API Server',
-            'port': 5001,
-            'health_url': 'http://localhost:5001/api/health',
-            'type': 'core',
-            'managed': True
-        },
-        'terminal': {
-            'name': 'Retro Terminal',
-            'port': 8889,
-            'health_url': 'http://localhost:8889/health',
-            'type': 'core',
-            'managed': True
-        },
-        'dashboard': {
-            'name': 'System Dashboard',
-            'port': 8888,
-            'health_url': 'http://localhost:8888/health',
-            'type': 'core',
-            'managed': True
-        },
-        'teletext': {
-            'name': 'Teletext Display',
-            'port': 9002,
-            'health_url': 'http://localhost:9002/health',
-            'type': 'core',
-            'managed': True
-        },
-        'desktop': {
-            'name': 'Retro Desktop',
-            'port': 8892,
-            'health_url': 'http://localhost:8892/health',
-            'type': 'core',
-            'managed': True
+    @staticmethod
+    def get_core_servers(host='localhost'):
+        """Get core server configurations with configurable host."""
+        return {
+            'api': {
+                'name': 'API Server',
+                'port': 5001,
+                'health_url': f'http://{host}:5001/api/health',
+                'type': 'core',
+                'managed': True
+            },
+            'terminal': {
+                'name': 'Retro Terminal',
+                'port': 8889,
+                'health_url': f'http://{host}:8889/health',
+                'type': 'core',
+                'managed': True
+            },
+            'dashboard': {
+                'name': 'System Dashboard',
+                'port': 8888,
+                'health_url': f'http://{host}:8888/health',
+                'type': 'core',
+                'managed': True
+            },
+            'teletext': {
+                'name': 'Teletext Display',
+                'port': 9002,
+                'health_url': f'http://{host}:9002/health',
+                'type': 'core',
+                'managed': True
+            },
+            'desktop': {
+                'name': 'Retro Desktop',
+                'port': 8892,
+                'health_url': f'http://{host}:8892/health',
+                'type': 'core',
+                'managed': True
+            }
         }
-    }
     
     # Extension servers (not managed by server_manager)
-    EXTENSION_SERVERS = {
-        'mission': {
-            'name': 'Mission Control',
-            'port': 5000,
-            'health_url': 'http://localhost:5000/health',
-            'type': 'extension',
-            'managed': False
-        },
-        'graphics': {
-            'name': 'Graphics Renderer',
-            'port': 5555,
-            'health_url': 'http://localhost:5555/health',
-            'type': 'extension',
-            'managed': False
-        },
-        'map': {
-            'name': 'Map Server',
-            'port': 8080,
-            'health_url': 'http://localhost:8080/health',
-            'type': 'extension',
-            'managed': False
+    @staticmethod
+    def get_extension_servers(host='localhost'):
+        """Get extension server configurations with configurable host."""
+        return {
+            'mission': {
+                'name': 'Mission Control',
+                'port': 5000,
+                'health_url': f'http://{host}:5000/health',
+                'type': 'extension',
+                'managed': False
+            },
+            'graphics': {
+                'name': 'Graphics Renderer',
+                'port': 5555,
+                'health_url': f'http://{host}:5555/health',
+                'type': 'extension',
+                'managed': False
+            },
+            'map': {
+                'name': 'Map Server',
+                'port': 8080,
+                'health_url': f'http://{host}:8080/health',
+                'type': 'extension',
+                'managed': False
+            }
         }
-    }
     
-    def __init__(self):
-        """Initialize server monitor"""
-        self.all_servers = {**self.CORE_SERVERS, **self.EXTENSION_SERVERS}
+    def __init__(self, host='localhost'):
+        """Initialize server monitor with configurable host"""
+        self.host = host
+        self.all_servers = {**self.get_core_servers(host), **self.get_extension_servers(host)}
         self._server_manager = None
         self._port_manager = None
         self._last_check = {}

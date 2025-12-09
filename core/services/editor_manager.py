@@ -286,7 +286,7 @@ class EditorManager:
             print(f"❌ Build failed: {e}")
             return False
 
-    def open_file(self, filepath, mode=None, editor=None):
+    def open_file(self, filepath, mode=None, editor=None, typo_port=5173):
         """
         Open a file with the appropriate editor.
 
@@ -341,7 +341,7 @@ class EditorManager:
                 web_dir = alt_dir
 
             # Start typo server if not running
-            success, message = server_mgr.start_typo_server(port=5173, open_browser=True)
+            success, message = server_mgr.start_typo_server(port=typo_port, open_browser=True)
 
             if success:
                 print(message)

@@ -54,6 +54,16 @@ class MermaidHandler:
         """
         self.viewport = viewport
         self.logger = logger
+        
+        # Get dashboard URL from config
+        try:
+            from core.config import Config
+            config = Config()
+            host = config.get('dashboard_host', 'localhost')
+            port = config.get('dashboard_port', 5050)
+            self.dashboard_url = f'http://{host}:{port}'
+        except:
+            self.dashboard_url = 'http://localhost:5050'
 
         # Output directories
         self.mermaid_output = Path("memory/drafts/mermaid")
@@ -378,7 +388,7 @@ OPTIONS:
    Then run: mmdc -i {mmd_file} -o {mmd_file.with_suffix('.svg')}
 
 2. Preview in dashboard (if running):
-   Visit: http://localhost:5050/mermaid/preview
+   Visit: {self.dashboard_url}/mermaid/preview
 
 3. Copy code to Typora or GitHub markdown:
    ```mermaid

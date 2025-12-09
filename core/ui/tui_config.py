@@ -28,6 +28,7 @@ class TUIConfig:
     
     DEFAULT_CONFIG = {
         "keypad_enabled": False,  # Disabled by default
+        "smart_input_enabled": True,  # Smart predictive text
         "preserve_scroll": True,
         "show_scroll_indicators": True,
         "prediction_max_results": 5,
@@ -36,7 +37,10 @@ class TUIConfig:
         "viewport_height": 20,
         "show_breadcrumbs": True,
         "enable_fuzzy_match": True,
-        "syntax_highlighting": True
+        "syntax_highlighting": True,
+        "numpad_context_aware": True,  # Numpad works contextually (pager vs predictive)
+        "show_prediction_box": True,  # Show dropdown prediction box
+        "auto_accept_single_match": False  # Don't auto-complete on single match
     }
     
     def __init__(self, config_path: Optional[Path] = None):

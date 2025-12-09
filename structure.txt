@@ -22,7 +22,9 @@ uDOS/
 │   │   ├── backup_handler.py
 │   │   ├── barter_commands.py
 │   │   ├── base_handler.py
+│   │   ├── build_handler.py
 │   │   ├── checklist_handler.py
+│   │   ├── clone_handler.py
 │   │   ├── cmd_config_planet.py
 │   │   ├── cmd_locate.py
 │   │   ├── color_handler.py
@@ -33,30 +35,31 @@ uDOS/
 │   │   ├── dev_mode_handler.py
 │   │   ├── display_handler.py
 │   │   ├── docs_unified_handler.py
-│   │   ├── draw_handler.py
 │   │   ├── environment_handler.py
 │   │   ├── extension_handler.py
 │   │   ├── feedback_handler.py
 │   │   ├── file_handler.py
-│   │   ├── generate_handler_old.py
-│   │   ├── github_diagrams_handler.py
 │   │   ├── gmail_handler.py
-│   │   ├── help_v2_handler.py
+│   │   ├── help_handler.py
 │   │   ├── logs_handler.py
 │   │   ├── make_handler.py
 │   │   ├── memory_commands.py
 │   │   ├── memory_unified_handler.py
 │   │   ├── mermaid_handler.py
+│   │   ├── mesh_handler.py
 │   │   ├── mission_handler.py
 │   │   ├── object_handler.py
+│   │   ├── ok_handler.py
 │   │   ├── output_handler.py
 │   │   ├── panel_handler.py
 │   │   ├── peek_handler.py
 │   │   ├── private_commands.py
+│   │   ├── prompt_handler.py
 │   │   ├── repair_handler.py
 │   │   ├── resource_handler.py
 │   │   ├── sandbox_handler.py
 │   │   ├── schedule_handler.py
+│   │   ├── screwdriver_handler.py
 │   │   ├── session_handler.py
 │   │   ├── shakedown_handler.py
 │   │   ├── shared_commands.py
@@ -65,11 +68,14 @@ uDOS/
 │   │   ├── system_handler.py
 │   │   ├── tile_handler.py
 │   │   ├── tree_handler.py
+│   │   ├── tui_handler.py
 │   │   ├── typo_handler.py
 │   │   ├── undo_handler.py
 │   │   ├── user_handler.py
 │   │   ├── variable_handler.py
 │   │   └── workflow_handler.py
+│   ├── docs/
+│   │   └── LOCATION-DATA-STRUCTURE.md
 │   ├── input/
 │   │   ├── __init__.py
 │   │   ├── interactive.py
@@ -109,7 +115,7 @@ uDOS/
 │   │   ├── upy_math.py
 │   │   ├── upy_parser.py
 │   │   ├── upy_preprocessor.py
-│   │   └── upy_runtime_v2.py
+│   │   └── upy_runtime.py
 │   ├── services/
 │   │   ├── theme/
 │   │   │   ├── theme_builder.py
@@ -121,8 +127,10 @@ uDOS/
 │   │   ├── asset_manager.py
 │   │   ├── barter_service.py
 │   │   ├── checklist_manager.py
+│   │   ├── checkpoint_manager.py
 │   │   ├── citation_manager.py
 │   │   ├── community_service.py
+│   │   ├── config_initializer.py
 │   │   ├── config_manager.py
 │   │   ├── connection_manager.py
 │   │   ├── cross_reference_validator.py
@@ -137,14 +145,17 @@ uDOS/
 │   │   ├── error_handler.py
 │   │   ├── extension_lifecycle.py
 │   │   ├── extension_manager.py
+│   │   ├── extension_monitor.py
 │   │   ├── gemini_generator.py
 │   │   ├── github_webhook_handler.py
 │   │   ├── gmail_auth.py
 │   │   ├── gmail_service.py
 │   │   ├── graphics_compositor.py
 │   │   ├── graphics_library.py
+│   │   ├── graphics_service.py
 │   │   ├── help_manager.py
 │   │   ├── history_manager.py
+│   │   ├── hot_reload.py
 │   │   ├── input_manager.py
 │   │   ├── intelligent_error_handler.py
 │   │   ├── knowledge_gap_analyzer.py
@@ -152,6 +163,8 @@ uDOS/
 │   │   ├── logging_manager.py
 │   │   ├── memory_manager.py
 │   │   ├── mission_manager.py
+│   │   ├── ok_config.py
+│   │   ├── ok_context_manager.py
 │   │   ├── output_pacer.py
 │   │   ├── performance_monitor.py
 │   │   ├── planet_manager.py
@@ -159,6 +172,7 @@ uDOS/
 │   │   ├── priority_queue.py
 │   │   ├── resource_manager.py
 │   │   ├── scheduler.py
+│   │   ├── server_monitor.py
 │   │   ├── session_analytics.py
 │   │   ├── session_logger.py
 │   │   ├── session_manager.py
@@ -180,15 +194,33 @@ uDOS/
 │   │   └── webhook_manager.py
 │   ├── ui/
 │   │   ├── __init__.py
+│   │   ├── command_predictor.py
+│   │   ├── config_browser.py
+│   │   ├── debug_panel.py
+│   │   ├── environment_editor.py
+│   │   ├── file_browser.py
 │   │   ├── file_picker.py
+│   │   ├── grid_renderer.py
+│   │   ├── grid_template_loader.py
+│   │   ├── keypad_navigator.py
 │   │   ├── knowledge_file_picker.py
 │   │   ├── map_renderer.py
+│   │   ├── ok_assistant_panel.py
 │   │   ├── option_selector.py
+│   │   ├── pager.py
 │   │   ├── picker.py
+│   │   ├── profile_manager.py
 │   │   ├── progress_indicators.py
+│   │   ├── server_panel.py
+│   │   ├── system_file_browser.py
 │   │   ├── teletext_prompt.py
+│   │   ├── testing_interface.py
+│   │   ├── tui_config.py
+│   │   ├── tui_controller.py
 │   │   ├── unified_selector.py
-│   │   └── visual_selector.py
+│   │   ├── user_settings_panel.py
+│   │   ├── visual_selector.py
+│   │   └── workflow_manager_panel.py
 │   ├── utils/
 │   │   ├── alias_manager.py
 │   │   ├── archive_index.py
@@ -205,6 +237,7 @@ uDOS/
 │   │   ├── lazy_loader.py
 │   │   ├── pager.py
 │   │   ├── path_validator.py
+│   │   ├── paths.py
 │   │   ├── performance_profiler.py
 │   │   ├── progress_manager.py
 │   │   ├── reorganize_knowledge.sh
@@ -248,15 +281,13 @@ uDOS/
 │   │   │   └── README.md
 │   │   ├── icons/
 │   │   │   └── .gitkeep
-│   │   ├── patterns/
 │   │   ├── styles/
-│   │   │   ├── hand-illustrative/
-│   │   │   ├── hybrid/
 │   │   │   └── technical-kinetic/
 │   │   ├── CREDITS.md
 │   │   └── README.md
 │   ├── assistant/
 │   │   ├── __init__.py
+│   │   ├── context_builder.py
 │   │   ├── extension.json
 │   │   ├── gemini_service.py
 │   │   ├── handler.py
@@ -312,6 +343,12 @@ uDOS/
 │   │   │   ├── README.md
 │   │   │   ├── STRUCTURE.md
 │   │   │   └── TEST-RESULTS.md
+│   │   ├── graphics-renderer/
+│   │   │   ├── renderers/
+│   │   │   ├── extension.json
+│   │   │   ├── package.json
+│   │   │   ├── README.md
+│   │   │   └── server.js
 │   │   ├── mission/
 │   │   │   ├── dashboard.css
 │   │   │   ├── dashboard.html
@@ -375,8 +412,14 @@ uDOS/
 │   │   │   ├── map_data_manager.py
 │   │   │   └── map_engine.py
 │   │   ├── __init__.py
-│   │   └── README.md
+│   │   ├── meshcore_device_manager.py
+│   │   ├── meshcore_integration.py
+│   │   ├── meshcore_signal_calculator.py
+│   │   ├── README.md
+│   │   ├── screwdriver_flash_packs.py
+│   │   └── screwdriver_provisioner.py
 │   ├── setup/
+│   │   ├── install_meshcore.py
 │   │   ├── setup_all.sh
 │   │   ├── setup_micro.sh
 │   │   └── setup_typo.sh
@@ -440,7 +483,10 @@ uDOS/
 │   └── __init__.py
 ├── .env.example
 ├── .gitignore
+├── .gitignore.old
+├── .gitmodules
 ├── CHANGELOG.md
+├── CLEANUP-SUMMARY-v1.2.21.md
 ├── CODE-OF-CONDUCT.md
 ├── CONTRIBUTING.md
 ├── CREDITS.md
@@ -453,5 +499,7 @@ uDOS/
 ├── setup.py
 ├── start_udos.sh
 ├── structure.txt
+├── test_command_routing.py
+├── test_dev_mode.sh
 ├── uDOS.code-workspace
 └── uDOS.py

@@ -1,10 +1,10 @@
-"""
-uDOS v1.0.29 - File Command Handler (Smart Mode)
+""" 
+uDOS v1.2.21 - File Command Handler (Smart Mode)
 
 Handles all file-related commands with smart input:
-- FILE: Interactive operation menu (v1.0.29)
+- FILE: Interactive operation menu
 - NEW: Create new file with template
-- DELETE/DEL: Delete file with confirmation
+- DELETE/DEL: Delete file with confirmation (soft-delete to .archive/)
 - COPY/DUPLICATE: Copy file within or between workspaces
 - MOVE: Move file between workspaces
 - RENAME: Rename file in current workspace
@@ -12,15 +12,14 @@ Handles all file-related commands with smart input:
 - EDIT: Edit file with nano/micro/typo
 - RUN: Execute script file
 
-Smart Mode (v1.0.29):
+Smart Mode Features:
 - Zero arguments triggers interactive operation picker
 - File picker integration with InputManager
 - Smart context detection
+- Archive system integration (v1.1.16)
 
-Version: 1.0.29
-"""
-
-import os
+Version: 1.2.21
+"""import os
 from pathlib import Path
 from datetime import datetime
 from .base_handler import BaseCommandHandler
@@ -114,7 +113,7 @@ class FileCommandHandler(BaseCommandHandler):
 
     def _handle_new(self, params):
         """Create new file with template selection."""
-        from core.uDOS_interactive import InteractivePrompt
+        from core.input.interactive import InteractivePrompt
         prompt = InteractivePrompt()
 
         filename = params[0] if params else ''
@@ -173,7 +172,7 @@ class FileCommandHandler(BaseCommandHandler):
 
     def _handle_delete(self, params):
         """Delete file with soft-delete to .archive/deleted/ (v1.1.16)."""
-        from core.uDOS_interactive import InteractivePrompt
+        from core.input.interactive import InteractivePrompt
         from core.utils.archive_manager import ArchiveManager
         from pathlib import Path
 
@@ -237,7 +236,7 @@ class FileCommandHandler(BaseCommandHandler):
 
     def _handle_copy(self, params):
         """Copy file within or between workspaces."""
-        from core.uDOS_interactive import InteractivePrompt
+        from core.input.interactive import InteractivePrompt
         prompt = InteractivePrompt()
 
         source = params[0] if params else ''
@@ -285,7 +284,7 @@ class FileCommandHandler(BaseCommandHandler):
 
     def _handle_move(self, params):
         """Move file between workspaces."""
-        from core.uDOS_interactive import InteractivePrompt
+        from core.input.interactive import InteractivePrompt
         prompt = InteractivePrompt()
 
         source = params[0] if params else ''
@@ -334,7 +333,7 @@ class FileCommandHandler(BaseCommandHandler):
 
     def _handle_rename(self, params):
         """Rename file in current workspace."""
-        from core.uDOS_interactive import InteractivePrompt
+        from core.input.interactive import InteractivePrompt
         prompt = InteractivePrompt()
 
         old_name = params[0] if params else ''
@@ -647,7 +646,7 @@ class FileCommandHandler(BaseCommandHandler):
         """Execute script file."""
         if not params:
             # Interactive file picker
-            from core.uDOS_interactive import InteractivePrompt
+            from core.input.interactive import InteractivePrompt
             prompt = InteractivePrompt()
 
             # Show .upy files
@@ -700,7 +699,7 @@ class FileCommandHandler(BaseCommandHandler):
 
     def _handle_pick(self, params):
         """Interactive file picker with fuzzy search."""
-        from core.uDOS_interactive import InteractivePrompt
+        from core.input.interactive import InteractivePrompt
         prompt = InteractivePrompt()
 
         # Get search pattern
@@ -814,7 +813,7 @@ class FileCommandHandler(BaseCommandHandler):
 
     def _handle_batch(self, params):
         """Handle batch file operations."""
-        from core.uDOS_interactive import InteractivePrompt
+        from core.input.interactive import InteractivePrompt
         prompt = InteractivePrompt()
 
         if not params:
@@ -913,7 +912,7 @@ class FileCommandHandler(BaseCommandHandler):
 
     def _handle_bookmarks(self, params):
         """Manage file bookmarks."""
-        from core.uDOS_interactive import InteractivePrompt
+        from core.input.interactive import InteractivePrompt
         prompt = InteractivePrompt()
 
         if not params:

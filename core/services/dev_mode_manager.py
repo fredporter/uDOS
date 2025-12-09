@@ -1,16 +1,15 @@
 """
-DEV MODE Manager - Master User Development Environment
+DEV MODE Manager - Core System Write Protection
 
-Provides secure development mode with:
-- Master user authentication
-- Session management and tracking
-- Permission system for dangerous operations
-- Activity logging and audit trail
-- Hot reload capabilities
+Provides write protection for core system files:
+- Protects core/, knowledge/, extensions/ from modification
+- Master user authentication required for core changes
+- Session management and activity logging
+- Allows editing templates, configs, and user scripts
 
-Version: 1.0.0
+Version: 1.2.21
 Author: uDOS Development Team
-Created: 2025-11-25
+Updated: 2025-12-08
 """
 
 import os
@@ -26,8 +25,9 @@ class DevModeManager:
     """
     Manages DEV MODE state, authentication, and permissions.
 
-    DEV MODE provides unrestricted access to dangerous operations
-    and development tools. Only available to master users.
+    DEV MODE allows editing core system files (core/, knowledge/, extensions/).
+    Normal users can modify memory/, sandbox/, and user files.
+    Only master users can enable DEV MODE for core modifications.
     """
 
     def __init__(self, config_manager=None, base_path: Optional[Path] = None):
@@ -49,10 +49,22 @@ class DevModeManager:
         self.authenticated_user = None
         self.command_count = 0
 
-        # Dangerous commands that require DEV MODE
-        self.dangerous_commands = {
-            'DELETE', 'DESTROY', 'REPAIR', 'RESET', 'WIPE',
-            'EXECUTE', 'SHELL', 'EVAL', 'IMPORT', 'LOAD'
+        # Protected directories (require DEV MODE for write access)
+        self.protected_paths = {
+            'core/',
+            'knowledge/',
+            'extensions/core/',
+            'extensions/play/',
+            'extensions/web/',
+            'extensions/assistant/',
+        }
+        
+        # Commands that can modify core files (require DEV MODE)
+        # Note: REPAIR, DESTROY, DELETE work on user files without DEV MODE
+        self.core_modification_commands = {
+            'EDIT',  # When editing core/* files
+            'NEW',   # When creating in core/* 
+            'DELETE' # When deleting from core/*
         }
 
         # Ensure log directory exists
@@ -187,33 +199,43 @@ class DevModeManager:
 
         return True, message
 
-    def check_permission(self, command: str) -> tuple[bool, Optional[str]]:
+    def check_permission(self, command: str, target_path: Optional[str] = None) -> tuple[bool, Optional[str]]:
         """
-        Check if command is allowed based on current mode.
+        Check if operation is allowed based on target path.
 
         Args:
             command: Command name to check
+            target_path: Path being modified (if applicable)
 
         Returns:
             (allowed: bool, warning_message: Optional[str])
         """
-        command_upper = command.upper()
-
-        # Check if command is dangerous
-        if command_upper in self.dangerous_commands:
+        # If no target path, allow command (e.g., STATUS, LIST)
+        if not target_path:
+            return True, None
+            
+        # Check if target path is in protected directories
+        is_protected = any(
+            target_path.startswith(protected) 
+            for protected in self.protected_paths
+        )
+        
+        if is_protected:
             if self.is_active:
                 # Allow in DEV MODE but warn
-                warning = f"⚠️ Dangerous operation: {command} (DEV MODE enabled)"
+                warning = f"⚠️  Modifying core file: {target_path} (DEV MODE enabled)"
                 return True, warning
             else:
                 # Deny without DEV MODE
                 error = (
-                    f"❌ Command '{command}' requires DEV MODE\n"
-                    f"💡 Enable with: DEV MODE ON"
+                    f"❌ Cannot modify core file: {target_path}\n"
+                    f"💡 Core files are read-only. Enable DEV MODE to edit:\n"
+                    f"   DEV MODE ON\n\n"
+                    f"Protected directories: core/, knowledge/, extensions/"
                 )
                 return False, error
-
-        # Command is safe - allow
+        
+        # Not a protected path - allow for all users
         return True, None
 
     def log_command(self, command: str, params: List[str], result: str = "Success"):

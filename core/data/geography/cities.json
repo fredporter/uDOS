@@ -1,11 +1,12 @@
 {
   "metadata": {
-    "version": "2.0.0",
+    "version": "2.2.0",
     "total_cities": 55,
     "coordinate_system": "uDOS TILE grid (480x270, 83km @ layer 100)",
-    "last_updated": "2025-11-30 21:39:11",
-    "migration_source": "/Users/fredbook/Code/uDOS/extensions/assets/data/cities.json",
-    "failed_migrations": []
+    "last_updated": "2025-12-08",
+    "data_structure": "TILE-based geography (no lat/long stored)",
+    "note": "Country data included (no separate countries.json)",
+    "timezone_data": "Integrated (no separate timezones.json)"
   },
   "cities": [
     {
@@ -15,11 +16,12 @@
       "tile_code": "JM56-100",
       "grid_cell": "JM56",
       "layer": 100,
-      "latitude": 52.3676,
-      "longitude": 4.9041,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Europe/Paris",
+        "utc_offset": "+01:00",
+        "utc_offset_dst": "+02:00",
+        "dst_active": true,
+        "abbr": "CET/CEST"
       },
       "climate": "oceanic",
       "languages": [
@@ -37,11 +39,12 @@
       "tile_code": "KL78-100",
       "grid_cell": "KL78",
       "layer": 100,
-      "latitude": 37.9838,
-      "longitude": 23.7275,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Europe/Athens",
+        "utc_offset": "+02:00",
+        "utc_offset_dst": "+03:00",
+        "dst_active": true,
+        "abbr": "EET/EEST"
       },
       "climate": "mediterranean",
       "languages": [
@@ -59,11 +62,12 @@
       "tile_code": "OK114-100",
       "grid_cell": "OK114",
       "layer": 100,
-      "latitude": 13.7563,
-      "longitude": 100.5018,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Asia/Bangkok",
+        "utc_offset": "+07:00",
+        "utc_offset_dst": "+07:00",
+        "dst_active": false,
+        "abbr": "ICT"
       },
       "climate": "tropical_wet_dry",
       "languages": [
@@ -81,11 +85,12 @@
       "tile_code": "JI72-100",
       "grid_cell": "JI72",
       "layer": 100,
-      "latitude": 41.3851,
-      "longitude": 2.1734,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Europe/Madrid",
+        "utc_offset": "+01:00",
+        "utc_offset_dst": "+02:00",
+        "dst_active": true,
+        "abbr": "CET/CEST"
       },
       "climate": "mediterranean",
       "languages": [
@@ -104,11 +109,12 @@
       "tile_code": "PF75-100",
       "grid_cell": "PF75",
       "layer": 100,
-      "latitude": 39.9042,
-      "longitude": 116.4074,
       "timezone": {
-        "name": "China Standard Time",
-        "offset": "+08:00"
+        "iana": "Asia/Shanghai",
+        "utc_offset": "+08:00",
+        "utc_offset_dst": "+08:00",
+        "dst_active": false,
+        "abbr": "CST"
       },
       "climate": "humid_continental",
       "languages": [
@@ -126,11 +132,12 @@
       "tile_code": "JX56-100",
       "grid_cell": "JX56",
       "layer": 100,
-      "latitude": 52.52,
-      "longitude": 13.405,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Europe/Berlin",
+        "utc_offset": "+01:00",
+        "utc_offset_dst": "+02:00",
+        "dst_active": true,
+        "abbr": "CET/CEST"
       },
       "climate": "oceanic",
       "languages": [
@@ -148,11 +155,12 @@
       "tile_code": "FP71-100",
       "grid_cell": "FP71",
       "layer": 100,
-      "latitude": 42.3601,
-      "longitude": -71.0589,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "America/New_York",
+        "utc_offset": "-05:00",
+        "utc_offset_dst": "-04:00",
+        "dst_active": true,
+        "abbr": "EST/EDT"
       },
       "climate": "humid_continental",
       "languages": [
@@ -170,11 +178,12 @@
       "tile_code": "JL58-100",
       "grid_cell": "JL58",
       "layer": 100,
-      "latitude": 50.8503,
-      "longitude": 4.3517,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Europe/Paris",
+        "utc_offset": "+01:00",
+        "utc_offset_dst": "+02:00",
+        "dst_active": true,
+        "abbr": "CET/CEST"
       },
       "climate": "oceanic",
       "languages": [
@@ -193,11 +202,12 @@
       "tile_code": "GG186-100",
       "grid_cell": "GG186",
       "layer": 100,
-      "latitude": -34.6037,
-      "longitude": -58.3816,
       "timezone": {
-        "name": "ART",
-        "offset": "+00:00"
+        "iana": "America/Buenos_Aires",
+        "utc_offset": "-03:00",
+        "utc_offset_dst": "-03:00",
+        "dst_active": false,
+        "abbr": "ART"
       },
       "climate": "humid_subtropical",
       "languages": [
@@ -215,11 +225,12 @@
       "tile_code": "KV89-100",
       "grid_cell": "KV89",
       "layer": 100,
-      "latitude": 30.0444,
-      "longitude": 31.2357,
       "timezone": {
-        "name": "EET",
-        "offset": "+00:00"
+        "iana": "Africa/Cairo",
+        "utc_offset": "+02:00",
+        "utc_offset_dst": "+02:00",
+        "dst_active": false,
+        "abbr": "EET"
       },
       "climate": "hot_desert",
       "languages": [
@@ -237,11 +248,12 @@
       "tile_code": "ET72-100",
       "grid_cell": "ET72",
       "layer": 100,
-      "latitude": 41.8781,
-      "longitude": -87.6298,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "America/Chicago",
+        "utc_offset": "-06:00",
+        "utc_offset_dst": "-05:00",
+        "dst_active": true,
+        "abbr": "CST/CDT"
       },
       "climate": "humid_continental",
       "languages": [
@@ -259,8 +271,6 @@
       "tile_code": "OS90-100",
       "grid_cell": "OS90",
       "layer": 100,
-      "latitude": 29.563,
-      "longitude": 106.5516,
       "timezone": {
         "name": "China Standard Time",
         "offset": "+08:00"
@@ -281,8 +291,6 @@
       "tile_code": "JW51-100",
       "grid_cell": "JW51",
       "layer": 100,
-      "latitude": 55.6761,
-      "longitude": 12.5683,
       "timezone": {
         "name": "Coordinated Universal Time",
         "offset": "+00:00"
@@ -303,11 +311,12 @@
       "tile_code": "NE91-100",
       "grid_cell": "NE91",
       "layer": 100,
-      "latitude": 28.7041,
-      "longitude": 77.1025,
       "timezone": {
-        "name": "India Standard Time",
-        "offset": "+05:30"
+        "iana": "Asia/Kolkata",
+        "utc_offset": "+05:30",
+        "utc_offset_dst": "+05:30",
+        "dst_active": false,
+        "abbr": "IST"
       },
       "climate": "humid_subtropical",
       "languages": [
@@ -326,11 +335,12 @@
       "tile_code": "NW99-100",
       "grid_cell": "NW99",
       "layer": 100,
-      "latitude": 23.8103,
-      "longitude": 90.4125,
       "timezone": {
-        "name": "BST",
-        "offset": "+00:00"
+        "iana": "Asia/Dhaka",
+        "utc_offset": "+06:00",
+        "utc_offset_dst": "+06:00",
+        "dst_active": false,
+        "abbr": "BST"
       },
       "climate": "tropical_wet_dry",
       "languages": [
@@ -348,11 +358,12 @@
       "tile_code": "MB97-100",
       "grid_cell": "MB97",
       "layer": 100,
-      "latitude": 25.2048,
-      "longitude": 55.2708,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Asia/Dubai",
+        "utc_offset": "+04:00",
+        "utc_offset_dst": "+04:00",
+        "dst_active": false,
+        "abbr": "GST"
       },
       "climate": "hot_desert",
       "languages": [
@@ -371,8 +382,6 @@
       "tile_code": "IX54-100",
       "grid_cell": "IX54",
       "layer": 100,
-      "latitude": 53.3498,
-      "longitude": -6.2603,
       "timezone": {
         "name": "Coordinated Universal Time",
         "offset": "+00:00"
@@ -394,11 +403,12 @@
       "tile_code": "PB100-100",
       "grid_cell": "PB100",
       "layer": 100,
-      "latitude": 23.1291,
-      "longitude": 113.2644,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Asia/Shanghai",
+        "utc_offset": "+08:00",
+        "utc_offset_dst": "+08:00",
+        "dst_active": false,
+        "abbr": "CST"
       },
       "climate": "humid_subtropical",
       "languages": [
@@ -416,11 +426,12 @@
       "tile_code": "PC101-100",
       "grid_cell": "PC101",
       "layer": 100,
-      "latitude": 22.3193,
-      "longitude": 114.1694,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Asia/Hong_Kong",
+        "utc_offset": "+08:00",
+        "utc_offset_dst": "+08:00",
+        "dst_active": false,
+        "abbr": "HKT"
       },
       "climate": "humid_subtropical",
       "languages": [
@@ -439,11 +450,12 @@
       "tile_code": "KS73-100",
       "grid_cell": "KS73",
       "layer": 100,
-      "latitude": 41.0082,
-      "longitude": 28.9784,
       "timezone": {
-        "name": "EET",
-        "offset": "+00:00"
+        "iana": "Europe/Istanbul",
+        "utc_offset": "+03:00",
+        "utc_offset_dst": "+03:00",
+        "dst_active": false,
+        "abbr": "TRT"
       },
       "climate": "mediterranean",
       "languages": [
@@ -461,11 +473,12 @@
       "tile_code": "MR97-100",
       "grid_cell": "MR97",
       "layer": 100,
-      "latitude": 24.8607,
-      "longitude": 67.0011,
       "timezone": {
-        "name": "PKT",
-        "offset": "+00:00"
+        "iana": "Asia/Karachi",
+        "utc_offset": "+05:00",
+        "utc_offset_dst": "+05:00",
+        "dst_active": false,
+        "abbr": "PKT"
       },
       "climate": "hot_desert",
       "languages": [
@@ -484,11 +497,12 @@
       "tile_code": "KA141-100",
       "grid_cell": "KA141",
       "layer": 100,
-      "latitude": -4.4419,
-      "longitude": 15.2663,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Africa/Kinshasa",
+        "utc_offset": "+01:00",
+        "utc_offset_dst": "+01:00",
+        "dst_active": false,
+        "abbr": "WAT"
       },
       "climate": "tropical_wet_dry",
       "languages": [
@@ -507,11 +521,12 @@
       "tile_code": "NT101-100",
       "grid_cell": "NT101",
       "layer": 100,
-      "latitude": 22.5726,
-      "longitude": 88.3639,
       "timezone": {
-        "name": "India Standard Time",
-        "offset": "+05:30"
+        "iana": "Asia/Kolkata",
+        "utc_offset": "+05:30",
+        "utc_offset_dst": "+05:30",
+        "dst_active": false,
+        "abbr": "IST"
       },
       "climate": "tropical_wet_dry",
       "languages": [
@@ -531,11 +546,12 @@
       "tile_code": "JK125-100",
       "grid_cell": "JK125",
       "layer": 100,
-      "latitude": 6.5244,
-      "longitude": 3.3792,
       "timezone": {
-        "name": "WAT",
-        "offset": "+00:00"
+        "iana": "Africa/Lagos",
+        "utc_offset": "+01:00",
+        "utc_offset_dst": "+01:00",
+        "dst_active": false,
+        "abbr": "WAT"
       },
       "climate": "tropical_wet_dry",
       "languages": [
@@ -554,8 +570,6 @@
       "tile_code": "IT76-100",
       "grid_cell": "IT76",
       "layer": 100,
-      "latitude": 38.7223,
-      "longitude": -9.1393,
       "timezone": {
         "name": "Coordinated Universal Time",
         "offset": "+00:00"
@@ -576,11 +590,12 @@
       "tile_code": "JF57-100",
       "grid_cell": "JF57",
       "layer": 100,
-      "latitude": 51.5074,
-      "longitude": -0.1278,
       "timezone": {
-        "name": "Greenwich Mean Time",
-        "offset": "+00:00"
+        "iana": "Europe/London",
+        "utc_offset": "+00:00",
+        "utc_offset_dst": "+01:00",
+        "dst_active": true,
+        "abbr": "GMT/BST"
       },
       "climate": "oceanic",
       "languages": [
@@ -598,11 +613,12 @@
       "tile_code": "DE83-100",
       "grid_cell": "DE83",
       "layer": 100,
-      "latitude": 34.0522,
-      "longitude": -118.2437,
       "timezone": {
-        "name": "Pacific Standard Time",
-        "offset": "-08:00"
+        "iana": "America/Los_Angeles",
+        "utc_offset": "-08:00",
+        "utc_offset_dst": "-07:00",
+        "dst_active": true,
+        "abbr": "PST/PDT"
       },
       "climate": "mediterranean",
       "languages": [
@@ -621,11 +637,12 @@
       "tile_code": "JB74-100",
       "grid_cell": "JB74",
       "layer": 100,
-      "latitude": 40.4168,
-      "longitude": -3.7038,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Europe/Madrid",
+        "utc_offset": "+01:00",
+        "utc_offset_dst": "+02:00",
+        "dst_active": true,
+        "abbr": "CET/CEST"
       },
       "climate": "mediterranean",
       "languages": [
@@ -643,11 +660,12 @@
       "tile_code": "PL113-100",
       "grid_cell": "PL113",
       "layer": 100,
-      "latitude": 14.5995,
-      "longitude": 120.9842,
       "timezone": {
-        "name": "PHT",
-        "offset": "+00:00"
+        "iana": "Asia/Manila",
+        "utc_offset": "+08:00",
+        "utc_offset_dst": "+08:00",
+        "dst_active": false,
+        "abbr": "PHT"
       },
       "climate": "tropical_monsoon",
       "languages": [
@@ -666,11 +684,12 @@
       "tile_code": "QR191-100",
       "grid_cell": "QR191",
       "layer": 100,
-      "latitude": -37.8136,
-      "longitude": 144.9631,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Australia/Sydney",
+        "utc_offset": "+10:00",
+        "utc_offset_dst": "+11:00",
+        "dst_active": true,
+        "abbr": "AEST/AEDT"
       },
       "climate": "oceanic",
       "languages": [
@@ -688,11 +707,12 @@
       "tile_code": "ED105-100",
       "grid_cell": "ED105",
       "layer": 100,
-      "latitude": 19.4326,
-      "longitude": -99.1332,
       "timezone": {
-        "name": "China Standard Time",
-        "offset": "+08:00"
+        "iana": "America/Mexico_City",
+        "utc_offset": "-06:00",
+        "utc_offset_dst": "-05:00",
+        "dst_active": true,
+        "abbr": "CST/CDT"
       },
       "climate": "highland",
       "languages": [
@@ -710,11 +730,12 @@
       "tile_code": "FD96-100",
       "grid_cell": "FD96",
       "layer": 100,
-      "latitude": 25.7617,
-      "longitude": -80.1918,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "America/New_York",
+        "utc_offset": "-05:00",
+        "utc_offset_dst": "-04:00",
+        "dst_active": true,
+        "abbr": "EST/EDT"
       },
       "climate": "tropical_monsoon",
       "languages": [
@@ -733,11 +754,12 @@
       "tile_code": "LE51-100",
       "grid_cell": "LE51",
       "layer": 100,
-      "latitude": 55.7558,
-      "longitude": 37.6173,
       "timezone": {
-        "name": "Moscow Standard Time",
-        "offset": "+03:00"
+        "iana": "Europe/Moscow",
+        "utc_offset": "+03:00",
+        "utc_offset_dst": "+03:00",
+        "dst_active": false,
+        "abbr": "MSK"
       },
       "climate": "humid_continental",
       "languages": [
@@ -755,11 +777,12 @@
       "tile_code": "MZ106-100",
       "grid_cell": "MZ106",
       "layer": 100,
-      "latitude": 19.076,
-      "longitude": 72.8777,
       "timezone": {
-        "name": "India Standard Time",
-        "offset": "+05:30"
+        "iana": "Asia/Kolkata",
+        "utc_offset": "+05:30",
+        "utc_offset_dst": "+05:30",
+        "dst_active": false,
+        "abbr": "IST"
       },
       "climate": "tropical_wet_dry",
       "languages": [
@@ -779,11 +802,12 @@
       "tile_code": "FL73-100",
       "grid_cell": "FL73",
       "layer": 100,
-      "latitude": 40.7128,
-      "longitude": -74.006,
       "timezone": {
-        "name": "Eastern Standard Time",
-        "offset": "-05:00"
+        "iana": "America/New_York",
+        "utc_offset": "-05:00",
+        "utc_offset_dst": "-04:00",
+        "dst_active": true,
+        "abbr": "EST/EDT"
       },
       "climate": "humid_subtropical",
       "languages": [
@@ -801,11 +825,12 @@
       "tile_code": "QE82-100",
       "grid_cell": "QE82",
       "layer": 100,
-      "latitude": 34.6937,
-      "longitude": 135.5023,
       "timezone": {
-        "name": "Japan Standard Time",
-        "offset": "+09:00"
+        "iana": "Asia/Tokyo",
+        "utc_offset": "+09:00",
+        "utc_offset_dst": "+09:00",
+        "dst_active": false,
+        "abbr": "JST"
       },
       "climate": "humid_subtropical",
       "languages": [
@@ -823,8 +848,6 @@
       "tile_code": "JU45-100",
       "grid_cell": "JU45",
       "layer": 100,
-      "latitude": 59.9139,
-      "longitude": 10.7522,
       "timezone": {
         "name": "Coordinated Universal Time",
         "offset": "+00:00"
@@ -845,11 +868,12 @@
       "tile_code": "JJ61-100",
       "grid_cell": "JJ61",
       "layer": 100,
-      "latitude": 48.8566,
-      "longitude": 2.3522,
       "timezone": {
-        "name": "Central European Time",
-        "offset": "+01:00"
+        "iana": "Europe/Paris",
+        "utc_offset": "+01:00",
+        "utc_offset_dst": "+02:00",
+        "dst_active": true,
+        "abbr": "CET/CEST"
       },
       "climate": "oceanic",
       "languages": [
@@ -867,8 +891,6 @@
       "tile_code": "JZ59-100",
       "grid_cell": "JZ59",
       "layer": 100,
-      "latitude": 50.0755,
-      "longitude": 14.4378,
       "timezone": {
         "name": "Coordinated Universal Time",
         "offset": "+00:00"
@@ -889,11 +911,12 @@
       "tile_code": "HA169-100",
       "grid_cell": "HA169",
       "layer": 100,
-      "latitude": -22.9068,
-      "longitude": -43.1729,
       "timezone": {
-        "name": "BRT",
-        "offset": "+00:00"
+        "iana": "America/Sao_Paulo",
+        "utc_offset": "-03:00",
+        "utc_offset_dst": "-02:00",
+        "dst_active": true,
+        "abbr": "BRT/BRST"
       },
       "climate": "tropical_monsoon",
       "languages": [
@@ -911,11 +934,12 @@
       "tile_code": "JW72-100",
       "grid_cell": "JW72",
       "layer": 100,
-      "latitude": 41.9028,
-      "longitude": 12.4964,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Europe/Rome",
+        "utc_offset": "+01:00",
+        "utc_offset_dst": "+02:00",
+        "dst_active": true,
+        "abbr": "CET/CEST"
       },
       "climate": "mediterranean",
       "languages": [
@@ -933,11 +957,12 @@
       "tile_code": "CY78-100",
       "grid_cell": "CY78",
       "layer": 100,
-      "latitude": 37.7749,
-      "longitude": -122.4194,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "America/Los_Angeles",
+        "utc_offset": "-08:00",
+        "utc_offset_dst": "-07:00",
+        "dst_active": true,
+        "abbr": "PST/PDT"
       },
       "climate": "mediterranean",
       "languages": [
@@ -955,11 +980,12 @@
       "tile_code": "PT78-100",
       "grid_cell": "PT78",
       "layer": 100,
-      "latitude": 37.5665,
-      "longitude": 126.978,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Asia/Seoul",
+        "utc_offset": "+09:00",
+        "utc_offset_dst": "+09:00",
+        "dst_active": false,
+        "abbr": "KST"
       },
       "climate": "humid_continental",
       "languages": [
@@ -977,11 +1003,12 @@
       "tile_code": "PL88-100",
       "grid_cell": "PL88",
       "layer": 100,
-      "latitude": 31.2304,
-      "longitude": 121.4737,
       "timezone": {
-        "name": "China Standard Time",
-        "offset": "+08:00"
+        "iana": "Asia/Shanghai",
+        "utc_offset": "+08:00",
+        "utc_offset_dst": "+08:00",
+        "dst_active": false,
+        "abbr": "CST"
       },
       "climate": "humid_subtropical",
       "languages": [
@@ -999,11 +1026,12 @@
       "tile_code": "PC101-100",
       "grid_cell": "PC101",
       "layer": 100,
-      "latitude": 22.5431,
-      "longitude": 114.0579,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Asia/Shanghai",
+        "utc_offset": "+08:00",
+        "utc_offset_dst": "+08:00",
+        "dst_active": false,
+        "abbr": "CST"
       },
       "climate": "humid_subtropical",
       "languages": [
@@ -1021,11 +1049,12 @@
       "tile_code": "OO132-100",
       "grid_cell": "OO132",
       "layer": 100,
-      "latitude": 1.3521,
-      "longitude": 103.8198,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Asia/Singapore",
+        "utc_offset": "+08:00",
+        "utc_offset_dst": "+08:00",
+        "dst_active": false,
+        "abbr": "SGT"
       },
       "climate": "tropical_rainforest",
       "languages": [
@@ -1046,11 +1075,12 @@
       "tile_code": "KE46-100",
       "grid_cell": "KE46",
       "layer": 100,
-      "latitude": 59.3293,
-      "longitude": 18.0686,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Europe/Stockholm",
+        "utc_offset": "+01:00",
+        "utc_offset_dst": "+02:00",
+        "dst_active": true,
+        "abbr": "CET/CEST"
       },
       "climate": "humid_continental",
       "languages": [
@@ -1068,11 +1098,12 @@
       "tile_code": "QZ185-100",
       "grid_cell": "QZ185",
       "layer": 100,
-      "latitude": -33.8688,
-      "longitude": 151.2093,
       "timezone": {
-        "name": "Australian Eastern Standard Time",
-        "offset": "+10:00"
+        "iana": "Australia/Sydney",
+        "utc_offset": "+10:00",
+        "utc_offset_dst": "+11:00",
+        "dst_active": true,
+        "abbr": "AEST/AEDT"
       },
       "climate": "humid_subtropical",
       "languages": [
@@ -1084,17 +1115,18 @@
       "population_class": "major"
     },
     {
-      "name": "São Paulo",
+      "name": "S\u00e3o Paulo",
       "country": "Brazil",
       "country_code": "BR",
       "tile_code": "GV170-100",
       "grid_cell": "GV170",
       "layer": 100,
-      "latitude": -23.5505,
-      "longitude": -46.6333,
       "timezone": {
-        "name": "BRT",
-        "offset": "+00:00"
+        "iana": "America/Sao_Paulo",
+        "utc_offset": "-03:00",
+        "utc_offset_dst": "-02:00",
+        "dst_active": true,
+        "abbr": "BRT/BRST"
       },
       "climate": "humid_subtropical",
       "languages": [
@@ -1112,8 +1144,6 @@
       "tile_code": "PG75-100",
       "grid_cell": "PG75",
       "layer": 100,
-      "latitude": 39.3434,
-      "longitude": 117.3616,
       "timezone": {
         "name": "China Standard Time",
         "offset": "+08:00"
@@ -1134,11 +1164,12 @@
       "tile_code": "QK81-100",
       "grid_cell": "QK81",
       "layer": 100,
-      "latitude": 35.6762,
-      "longitude": 139.6503,
       "timezone": {
-        "name": "Japan Standard Time",
-        "offset": "+09:00"
+        "iana": "Asia/Tokyo",
+        "utc_offset": "+09:00",
+        "utc_offset_dst": "+09:00",
+        "dst_active": false,
+        "abbr": "JST"
       },
       "climate": "humid_subtropical",
       "languages": [
@@ -1156,11 +1187,12 @@
       "tile_code": "FE69-100",
       "grid_cell": "FE69",
       "layer": 100,
-      "latitude": 43.6532,
-      "longitude": -79.3832,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "America/Toronto",
+        "utc_offset": "-05:00",
+        "utc_offset_dst": "-04:00",
+        "dst_active": true,
+        "abbr": "EST/EDT"
       },
       "climate": "humid_continental",
       "languages": [
@@ -1179,11 +1211,12 @@
       "tile_code": "KB62-100",
       "grid_cell": "KB62",
       "layer": 100,
-      "latitude": 48.2082,
-      "longitude": 16.3738,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Europe/Vienna",
+        "utc_offset": "+01:00",
+        "utc_offset_dst": "+02:00",
+        "dst_active": true,
+        "abbr": "CET/CEST"
       },
       "climate": "oceanic",
       "languages": [
@@ -1201,11 +1234,12 @@
       "tile_code": "KI56-100",
       "grid_cell": "KI56",
       "layer": 100,
-      "latitude": 52.2297,
-      "longitude": 21.0122,
       "timezone": {
-        "name": "Coordinated Universal Time",
-        "offset": "+00:00"
+        "iana": "Europe/Warsaw",
+        "utc_offset": "+01:00",
+        "utc_offset_dst": "+02:00",
+        "dst_active": true,
+        "abbr": "CET/CEST"
       },
       "climate": "humid_continental",
       "languages": [
@@ -1223,8 +1257,6 @@
       "tile_code": "JR63-100",
       "grid_cell": "JR63",
       "layer": 100,
-      "latitude": 47.3769,
-      "longitude": 8.5417,
       "timezone": {
         "name": "Coordinated Universal Time",
         "offset": "+00:00"

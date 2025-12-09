@@ -260,12 +260,12 @@ class ConfigurationHandler(BaseCommandHandler):
         output.append("")
         output.append("🌌 SYSTEM LOCATION:")
         output.append("-" * 40)
-        galaxy = config.get_user('SYSTEM.GALAXY', 'Milky Way')
-        planet = config.get_user('SYSTEM.PLANET', 'Earth')
-        city = config.get_user('SYSTEM.CITY', 'Not set')
-        city_grid = config.get_user('SYSTEM.CITY_GRID', 'N/A')
-        city_layer = config.get_user('SYSTEM.CITY_LAYER', 100)
-        full_tile = f"{city_grid}-{city_layer}" if city_grid != 'N/A' else 'N/A'
+        # Read from USER_PROFILE and LOCATION_DATA (authoritative as of v1.2.21)
+        galaxy = config.get_user('USER_PROFILE.GALAXY', 'Milky Way')
+        planet = config.get_user('USER_PROFILE.PLANET', 'Earth')
+        city = config.get_user('USER_PROFILE.LOCATION', 'Not set')  # City name
+        tile_code = config.get_user('USER_PROFILE.TILE', 'N/A')  # TILE code
+        full_tile = tile_code if tile_code != 'N/A' else 'N/A'
 
         output.append(f"  Galaxy: {galaxy}")
         output.append(f"  Planet: {planet}")
@@ -1615,10 +1615,10 @@ class ConfigurationHandler(BaseCommandHandler):
                         output.append(f"💡 Use 'edit filename' to open files in {new_editor}")
 
             elif action == "Edit System Location (Galaxy/Planet/City)":
-                # Show current location
-                galaxy = config.get_user('SYSTEM.GALAXY', 'Milky Way')
-                planet = config.get_user('SYSTEM.PLANET', 'Earth')
-                city = config.get_user('SYSTEM.CITY', 'Not set')
+                # Show current location (from USER_PROFILE and LOCATION_DATA)
+                galaxy = config.get_user('USER_PROFILE.GALAXY', 'Milky Way')
+                planet = config.get_user('USER_PROFILE.PLANET', 'Earth')
+                city = config.get_user('USER_PROFILE.LOCATION', 'Not set')  # City name
 
                 output.append(f"\n📍 Current Location: {galaxy} > {planet} > {city}")
                 output.append("\n💡 To change location, run: WIZARD")
@@ -1752,7 +1752,8 @@ class ConfigurationHandler(BaseCommandHandler):
     def _load_cities_list(self):
         """Load cities from cities.json for location selection."""
         try:
-            cities_path = Path('core/data/geography/cities.json')
+            from core.utils.paths import PATHS
+            cities_path = PATHS.CORE_DATA_GEOGRAPHY_CITIES
             if cities_path.exists():
                 with open(cities_path, 'r') as f:
                     data = json.load(f)

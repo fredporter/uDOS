@@ -273,13 +273,11 @@ class ShakedownHandler(BaseCommandHandler):
                 output.append(f"  ❌ Error reading planets.json: {e}")
                 self._add_test("Planet: planets.json valid JSON", False, str(e))
 
-        # Check planet directories
-        planet_dir = self.root / "memory" / "planet"
-        exists = planet_dir.exists()
-        symbol = "✅" if exists else "❌"
-        output.append(f"  {symbol} memory/planet/ directory")
-        self._add_test("Planet: memory/planet directory", exists)
-
+        # Planet/Galaxy data now stored in user.json only (no directory needed)
+        # Location: USER_PROFILE.LOCATION (TILE code)
+        # Planet: USER_PROFILE.PLANET (Earth, Mars, etc.)
+        # Galaxy: USER_PROFILE.GALAXY (Milky Way, etc.)
+        
         output.append("")
 
     def _test_asset_management(self, output: List[str], verbose: bool):

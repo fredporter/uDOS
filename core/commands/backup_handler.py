@@ -69,6 +69,8 @@ class BackupHandler(BaseCommandHandler):
             return self._dedupe_backups(params[1:])
         elif subcommand == 'RETENTION':
             return self._retention_policy(params[1:])
+        elif '--validate' in params:
+            return self._validate_backup_system()
         else:
             # Default: create backup
             return self._create_backup(params)
@@ -1636,6 +1638,35 @@ class BackupHandler(BaseCommandHandler):
 ║    Configurable via metadata.json                         ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝"""
+
+    def _validate_backup_system(self) -> str:
+        """Validate backup system functionality."""
+        results = []
+        
+        # Check if archive directories exist
+        archive_paths = [
+            Path("memory/bank/user/.archive"),
+            Path("memory/bank/system/.archive"),
+            Path("memory/workflows/.archive"),
+            Path("core/runtime/.archive")
+        ]
+        
+        existing_archives = 0
+        for path in archive_paths:
+            if path.exists():
+                existing_archives += 1
+                backup_count = len(list(path.glob("*")))
+                results.append(f"✅ {path}: {backup_count} backups")
+            else:
+                results.append(f"ℹ️  {path}: No archive directory")
+        
+        # Check backup system health
+        if existing_archives > 0:
+            results.append(f"✅ Backup system operational ({existing_archives}/{len(archive_paths)} locations active)")
+        else:
+            results.append("ℹ️  No backup locations found - system ready for first backup")
+            
+        return "\n".join(results)
 
 
 def create_handler(**kwargs) -> BackupHandler:

@@ -1,4 +1,4 @@
-# uDOS Extensions System v1.1.15
+# uDOS Extensions System v1.2.21
 
 **Web GUI, Diagram Generation, AI Assistant, and Extension Framework**
 
@@ -6,7 +6,7 @@
 
 The uDOS extensions system provides dual-interface capabilities (Terminal + Web) with production-ready web infrastructure, comprehensive diagram generation, and AI-powered assistance.
 
-**v1.1.15 Features** (Graphics Infrastructure Complete):
+**v1.2.21 Features** (OK Assistant + Complete TUI System):
 - **Mermaid Diagrams**: 12 diagram types with server-side rendering
 - **GitHub Diagrams**: Native GeoJSON maps + ASCII STL 3D models
 - **ASCII Graphics**: Unicode box-drawing + 2 house styles (51 diagrams)

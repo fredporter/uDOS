@@ -207,7 +207,7 @@ def get_writable_alternatives(path: str, root: str = None) -> list:
 
     Example:
         >>> get_writable_alternatives('core/data/themes/custom.json')
-        ['memory/themes/custom.json', 'memory/planet/themes/custom.json']
+        ['memory/themes/custom.json', 'memory/docs/themes/custom.json']
     """
     path_obj = Path(path)
 
@@ -234,8 +234,8 @@ def get_writable_alternatives(path: str, root: str = None) -> list:
     if 'themes' in str(path) or 'config' in str(path):
         alternatives.append(str(Path('memory/config') / Path(*parts)))
 
-    # Secondary: memory/planet/ for general work
-    alternatives.append(str(Path('memory/planet') / Path(*parts)))
+    # Secondary: memory/docs/ for general work
+    alternatives.append(str(Path('memory/docs') / Path(*parts)))
 
     # Tertiary: sandbox/ for temporary work
     alternatives.append(str(Path('sandbox') / Path(*parts)))
@@ -269,10 +269,8 @@ def validate_directory_structure(root: str) -> list:
         'memory/private',
         'memory/shared',
         'memory/groups',
-        'memory/sandbox',
-        'memory/planet',
+        'memory/ucode/sandbox',
         'memory/config',
-        'sandbox',
         'output'
     ]
 

@@ -1,6 +1,6 @@
 # uDOS Core System
 
-The core system contains all Python modules that power uDOS v1.1.2.
+The core system contains all Python modules that power uDOS v1.2.21.
 
 ## Architecture Overview
 

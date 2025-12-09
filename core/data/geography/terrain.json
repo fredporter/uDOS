@@ -1,316 +1,335 @@
 {
   "metadata": {
-    "version": "1.0.20b",
-    "updated": "2025-11-16",
+    "version": "2.0.0",
+    "updated": "2025-12-08",
     "description": "Terrain type definitions for TILE mapping system",
-    "total_types": 24
+    "total_types": 24,
+    "coordinate_system": "TILE-based (elevation derived from layer)",
+    "note": "Elevation calculated from TILE layer (100-899)"
   },
   "terrain_types": [
     {
       "id": "ocean",
       "name": "Ocean",
-      "ascii_char": "≈",
+      "ascii_char": "\u2248",
       "color_code": "blue",
-      "elevation_range": {"min": -11000, "max": 0},
       "traversable": false,
       "water_source": true,
       "description": "Deep ocean waters",
       "map_symbol": "~",
-      "teletext_block": "░"
+      "teletext_block": "\u2591"
     },
     {
       "id": "coastal_water",
       "name": "Coastal Water",
-      "ascii_char": "∼",
+      "ascii_char": "\u223c",
       "color_code": "cyan",
-      "elevation_range": {"min": -200, "max": 0},
       "traversable": false,
       "water_source": true,
       "description": "Shallow coastal waters and seas",
       "map_symbol": "~",
-      "teletext_block": "▒"
+      "teletext_block": "\u2592"
     },
     {
       "id": "lake",
       "name": "Lake",
-      "ascii_char": "○",
+      "ascii_char": "\u25cb",
       "color_code": "blue",
-      "elevation_range": {"min": -500, "max": 3000},
       "traversable": false,
       "water_source": true,
       "description": "Freshwater lakes",
       "map_symbol": "O",
-      "teletext_block": "▓"
+      "teletext_block": "\u2593"
     },
     {
       "id": "river",
       "name": "River",
       "ascii_char": "~",
       "color_code": "cyan",
-      "elevation_range": {"min": 0, "max": 5000},
       "traversable": false,
       "water_source": true,
       "description": "Flowing rivers and streams",
       "map_symbol": "~",
-      "teletext_block": "▒"
+      "teletext_block": "\u2592"
     },
     {
       "id": "beach",
       "name": "Beach",
-      "ascii_char": "·",
+      "ascii_char": "\u00b7",
       "color_code": "yellow",
-      "elevation_range": {"min": 0, "max": 10},
       "traversable": true,
       "water_source": false,
       "description": "Sandy coastal beaches",
       "map_symbol": ".",
-      "teletext_block": "░"
+      "teletext_block": "\u2591"
     },
     {
       "id": "desert",
       "name": "Desert",
-      "ascii_char": "∴",
+      "ascii_char": "\u2234",
       "color_code": "yellow",
-      "elevation_range": {"min": -100, "max": 1500},
       "traversable": true,
       "water_source": false,
       "description": "Arid desert terrain",
       "map_symbol": ":",
-      "teletext_block": "░"
+      "teletext_block": "\u2591"
     },
     {
       "id": "plains",
       "name": "Plains",
-      "ascii_char": "─",
+      "ascii_char": "\u2500",
       "color_code": "green",
-      "elevation_range": {"min": 0, "max": 500},
       "traversable": true,
       "water_source": false,
       "description": "Flat grasslands and plains",
       "map_symbol": "-",
-      "teletext_block": "▒"
+      "teletext_block": "\u2592"
     },
     {
       "id": "grassland",
       "name": "Grassland",
       "ascii_char": "\"",
       "color_code": "green",
-      "elevation_range": {"min": 0, "max": 1000},
       "traversable": true,
       "water_source": false,
       "description": "Grassy savanna",
       "map_symbol": "\"",
-      "teletext_block": "▒"
+      "teletext_block": "\u2592"
     },
     {
       "id": "forest",
       "name": "Forest",
-      "ascii_char": "♣",
+      "ascii_char": "\u2663",
       "color_code": "green",
-      "elevation_range": {"min": 0, "max": 3000},
       "traversable": true,
       "water_source": false,
       "description": "Dense woodland forest",
       "map_symbol": "T",
-      "teletext_block": "▓"
+      "teletext_block": "\u2593"
     },
     {
       "id": "jungle",
       "name": "Jungle",
-      "ascii_char": "♠",
+      "ascii_char": "\u2660",
       "color_code": "green",
-      "elevation_range": {"min": 0, "max": 2000},
       "traversable": false,
       "water_source": true,
       "description": "Tropical rainforest",
       "map_symbol": "Y",
-      "teletext_block": "█"
+      "teletext_block": "\u2588"
     },
     {
       "id": "hills",
       "name": "Hills",
-      "ascii_char": "∩",
+      "ascii_char": "\u2229",
       "color_code": "brown",
-      "elevation_range": {"min": 200, "max": 1000},
       "traversable": true,
       "water_source": false,
       "description": "Rolling hills",
       "map_symbol": "n",
-      "teletext_block": "▒"
+      "teletext_block": "\u2592"
     },
     {
       "id": "mountains",
       "name": "Mountains",
-      "ascii_char": "▲",
+      "ascii_char": "\u25b2",
       "color_code": "brown",
-      "elevation_range": {"min": 1000, "max": 5000},
       "traversable": true,
       "water_source": false,
       "description": "Mountain ranges",
       "map_symbol": "^",
-      "teletext_block": "▓"
+      "teletext_block": "\u2593"
     },
     {
       "id": "high_mountains",
       "name": "High Mountains",
-      "ascii_char": "△",
+      "ascii_char": "\u25b3",
       "color_code": "white",
-      "elevation_range": {"min": 5000, "max": 9000},
       "traversable": false,
       "water_source": false,
       "description": "High altitude peaks with snow",
       "map_symbol": "A",
-      "teletext_block": "█"
+      "teletext_block": "\u2588"
     },
     {
       "id": "glacier",
       "name": "Glacier",
-      "ascii_char": "≡",
+      "ascii_char": "\u2261",
       "color_code": "white",
-      "elevation_range": {"min": 0, "max": 9000},
       "traversable": false,
       "water_source": true,
       "description": "Permanent ice fields",
       "map_symbol": "=",
-      "teletext_block": "▓"
+      "teletext_block": "\u2593"
     },
     {
       "id": "tundra",
       "name": "Tundra",
-      "ascii_char": "∙",
+      "ascii_char": "\u2219",
       "color_code": "white",
-      "elevation_range": {"min": 0, "max": 1000},
       "traversable": true,
       "water_source": false,
       "description": "Arctic/alpine tundra",
       "map_symbol": ".",
-      "teletext_block": "░"
+      "teletext_block": "\u2591"
     },
     {
       "id": "ice_sheet",
       "name": "Ice Sheet",
-      "ascii_char": "█",
+      "ascii_char": "\u2588",
       "color_code": "white",
-      "elevation_range": {"min": 0, "max": 5000},
       "traversable": false,
       "water_source": true,
       "description": "Polar ice sheets",
       "map_symbol": "#",
-      "teletext_block": "█"
+      "teletext_block": "\u2588"
     },
     {
       "id": "swamp",
       "name": "Swamp",
-      "ascii_char": "≋",
+      "ascii_char": "\u224b",
       "color_code": "green",
-      "elevation_range": {"min": -10, "max": 50},
       "traversable": false,
       "water_source": true,
       "description": "Wetlands and marshes",
       "map_symbol": "m",
-      "teletext_block": "▓"
+      "teletext_block": "\u2593"
     },
     {
       "id": "wetland",
       "name": "Wetland",
-      "ascii_char": "≈",
+      "ascii_char": "\u2248",
       "color_code": "cyan",
-      "elevation_range": {"min": 0, "max": 100},
       "traversable": true,
       "water_source": true,
       "description": "Seasonal wetlands",
       "map_symbol": "w",
-      "teletext_block": "▒"
+      "teletext_block": "\u2592"
     },
     {
       "id": "canyon",
       "name": "Canyon",
-      "ascii_char": "║",
+      "ascii_char": "\u2551",
       "color_code": "brown",
-      "elevation_range": {"min": -500, "max": 2000},
       "traversable": true,
       "water_source": false,
       "description": "Deep canyons and gorges",
       "map_symbol": "|",
-      "teletext_block": "▓"
+      "teletext_block": "\u2593"
     },
     {
       "id": "plateau",
       "name": "Plateau",
-      "ascii_char": "═",
+      "ascii_char": "\u2550",
       "color_code": "brown",
-      "elevation_range": {"min": 1000, "max": 4000},
       "traversable": true,
       "water_source": false,
       "description": "High elevation plateaus",
       "map_symbol": "_",
-      "teletext_block": "▒"
+      "teletext_block": "\u2592"
     },
     {
       "id": "volcanic",
       "name": "Volcanic",
-      "ascii_char": "Δ",
+      "ascii_char": "\u0394",
       "color_code": "red",
-      "elevation_range": {"min": 0, "max": 6000},
       "traversable": false,
       "water_source": false,
       "description": "Active or dormant volcanoes",
       "map_symbol": "V",
-      "teletext_block": "█"
+      "teletext_block": "\u2588"
     },
     {
       "id": "urban",
       "name": "Urban",
-      "ascii_char": "▪",
+      "ascii_char": "\u25aa",
       "color_code": "gray",
-      "elevation_range": {"min": -50, "max": 2500},
       "traversable": true,
       "water_source": false,
       "description": "Cities and urban areas",
       "map_symbol": "#",
-      "teletext_block": "█"
+      "teletext_block": "\u2588"
     },
     {
       "id": "farmland",
       "name": "Farmland",
-      "ascii_char": "≡",
+      "ascii_char": "\u2261",
       "color_code": "yellow",
-      "elevation_range": {"min": 0, "max": 1500},
       "traversable": true,
       "water_source": false,
       "description": "Agricultural land",
       "map_symbol": "=",
-      "teletext_block": "▒"
+      "teletext_block": "\u2592"
     },
     {
       "id": "badlands",
       "name": "Badlands",
-      "ascii_char": "≈",
+      "ascii_char": "\u2248",
       "color_code": "brown",
-      "elevation_range": {"min": 100, "max": 1500},
       "traversable": true,
       "water_source": false,
       "description": "Eroded badlands terrain",
       "map_symbol": "~",
-      "teletext_block": "▓"
+      "teletext_block": "\u2593"
     }
   ],
-  "elevation_categories": {
-    "deep_ocean": {"min": -11000, "max": -2000, "description": "Abyssal plains and trenches"},
-    "ocean": {"min": -2000, "max": -200, "description": "Ocean floor"},
-    "coastal": {"min": -200, "max": 0, "description": "Continental shelf"},
-    "lowland": {"min": 0, "max": 200, "description": "Sea level to low elevation"},
-    "upland": {"min": 200, "max": 500, "description": "Low hills"},
-    "highland": {"min": 500, "max": 1000, "description": "High hills"},
-    "mountain": {"min": 1000, "max": 3000, "description": "Mountains"},
-    "high_mountain": {"min": 3000, "max": 5000, "description": "High peaks"},
-    "extreme": {"min": 5000, "max": 9000, "description": "Extreme altitude"}
-  },
   "traversal_difficulty": {
-    "easy": ["plains", "grassland", "beach", "farmland"],
-    "moderate": ["forest", "hills", "wetland", "desert"],
-    "difficult": ["mountains", "tundra", "canyon", "badlands"],
-    "extreme": ["high_mountains", "jungle", "swamp"],
-    "impassable": ["ocean", "coastal_water", "ice_sheet", "volcanic", "glacier"]
+    "easy": [
+      "plains",
+      "grassland",
+      "beach",
+      "farmland"
+    ],
+    "moderate": [
+      "forest",
+      "hills",
+      "wetland",
+      "desert"
+    ],
+    "difficult": [
+      "mountains",
+      "tundra",
+      "canyon",
+      "badlands"
+    ],
+    "extreme": [
+      "high_mountains",
+      "jungle",
+      "swamp"
+    ],
+    "impassable": [
+      "ocean",
+      "coastal_water",
+      "ice_sheet",
+      "volcanic",
+      "glacier"
+    ]
+  },
+  "tile_layers": {
+    "100": {
+      "name": "world",
+      "scale_km": 83,
+      "description": "World layer - continents and oceans"
+    },
+    "200": {
+      "name": "region",
+      "scale_km": 2.78,
+      "description": "Regional layer - countries and states"
+    },
+    "300": {
+      "name": "city",
+      "scale_km": 0.093,
+      "description": "City layer - urban areas"
+    },
+    "400": {
+      "name": "district",
+      "scale_km": 0.003,
+      "description": "District layer - neighborhoods"
+    },
+    "500": {
+      "name": "block",
+      "scale_km": 0.0001,
+      "description": "Block layer - buildings"
+    }
   }
 }

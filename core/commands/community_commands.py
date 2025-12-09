@@ -31,7 +31,13 @@ class CommunityCommandHandler:
         self.memory_manager = MemoryManager()
         self.community_service = CommunityService()
         self.groups_path = self.memory_manager.get_tier_path(MemoryTier.GROUPS)
-        self.current_user = "owner@localhost"  # TODO: Get from session/auth
+        # Get user from config or use placeholder
+        try:
+            from core.config import Config
+            config = Config()
+            self.current_user = config.get('current_user', 'owner@localhost')
+        except:
+            self.current_user = "owner@localhost"
 
     def handle(self, command: str, args: List[str]) -> str:
         """

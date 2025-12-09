@@ -147,13 +147,12 @@ def check_critical_files() -> HealthCheckResult:
     result = HealthCheckResult("Critical Files")
     root = get_udos_root()
 
-    # Critical files that must exist
+    # Critical files that must exist (v1.2.21 - core entry point + main files)
     critical_files = [
-        "uDOS.py",
+        "uDOS.py",  # Main entry point
         "core/uDOS_main.py",
-        "core/uDOS_parser.py",
-        "core/uDOS_grid.py",
         "core/uDOS_commands.py",
+        "core/config.py",
         "core/data/commands.json",
         "core/data/themes/dungeon.json",
         "core/data/themes/default.json",
@@ -165,6 +164,8 @@ def check_critical_files() -> HealthCheckResult:
         "core/data",
         "core/data/themes",
         "memory",
+        "memory/ucode",
+        "memory/workflows",
     ]
 
     # Check files
@@ -213,15 +214,11 @@ def check_module_imports() -> HealthCheckResult:
     if str(root) not in sys.path:
         sys.path.insert(0, str(root))
 
-    # Core modules that should be importable
+    # Core modules that should be importable (v1.2.21 - removed deprecated modules)
     core_modules = [
         "core.uDOS_main",
-        "core.uDOS_parser",
-        "core.uDOS_grid",
         "core.uDOS_commands",
-        "core.uDOS_splash",
-        "core.uDOS_graphics",
-        "core.utils.viewport",
+        "core.config",
     ]
 
     for module_name in core_modules:
@@ -960,10 +957,10 @@ def check_web_servers() -> HealthCheckResult:
         }
     }
 
-    def is_port_in_use(port: int) -> bool:
+    def is_port_in_use(port: int, host: str = 'localhost') -> bool:
         """Check if a port is already in use."""
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            return s.connect_ex(('localhost', port)) == 0
+            return s.connect_ex((host, port)) == 0
 
     for server_id, config in servers.items():
         server_path = root / config['path']

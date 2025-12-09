@@ -1,7 +1,7 @@
 """
-DEV MODE Command Handler - Interactive Debugging for uPY Scripts (v1.2.2)
+DEV MODE Command Handler - Interactive Debugging for uPY Scripts (v1.2.21)
 
-Provides interactive debugging commands for uPY script development:
+Provides interactive debugging for ALL USERS in their memory/ucode/ scripts:
 - ENABLE/DISABLE: Toggle debug mode
 - BREAK: Set/remove/list breakpoints
 - STEP: Execute one line
@@ -11,8 +11,11 @@ Provides interactive debugging commands for uPY script development:
 - TRACE: Toggle trace logging
 - STATUS: Show debug state
 
+Note: This is for debugging uPY scripts, NOT for core file protection.
+See DEV MODE ON for core system file editing (master user only).
+
 Usage:
-    DEV MODE ENABLE                    # Enable debug mode
+    DEV ENABLE                         # Enable debugging
     DEV BREAK 10                       # Set breakpoint at line 10
     DEV BREAK 15 "counter > 5"         # Conditional breakpoint
     DEV STEP                           # Execute next line
@@ -20,8 +23,8 @@ Usage:
     DEV INSPECT counter                # Show variable value
     DEV STACK                          # Show call stack
     DEV TRACE ON                       # Enable trace logging
-    DEV MODE STATUS                    # Show debug state
-    DEV MODE DISABLE                   # Disable debug mode
+    DEV STATUS                         # Show debug state
+    DEV DISABLE                        # Disable debugging
 """
 
 from pathlib import Path
@@ -68,7 +71,17 @@ class DevModeHandler:
         command = args[0].upper()
 
         # Route to command handlers
-        if command == 'ENABLE':
+        if command in ['ON', 'OFF']:
+            # Redirect to environment handler for DEV MODE ON/OFF (core protection)
+            return (
+                f"💡 For core file editing, use: DEV MODE {command}\n"
+                f"   (This enables master user access to core/knowledge/extensions)\n\n"
+                f"For uPY script debugging, use:\n"
+                f"  DEV ENABLE  - Start debugging your scripts\n"
+                f"  DEV BREAK   - Set breakpoints\n"
+                f"  DEV STEP    - Step through code"
+            )
+        elif command == 'ENABLE':
             return self._handle_enable()
         elif command == 'DISABLE':
             return self._handle_disable()
@@ -94,13 +107,13 @@ class DevModeHandler:
             return f"❌ Unknown DEV MODE command: {command}\nUse 'DEV HELP' for usage."
 
     def _handle_enable(self) -> str:
-        """Enable debug mode."""
+        """Enable debug mode for uPY script debugging."""
         self.debug_engine.enable()
         self._save_state()
 
-        return """✅ Debug mode ENABLED
+        return """✅ uPY Debugger ENABLED
 
-Debug features active:
+Debug features active for your scripts in memory/ucode/:
   • Breakpoints will pause execution
   • #BREAK directives will be honored
   • Variable inspection available
@@ -108,24 +121,27 @@ Debug features active:
 
 Next steps:
   1. Set breakpoints: DEV BREAK <line> [condition]
-  2. Run your script
+  2. Run your script: ./start_udos.sh memory/ucode/sandbox/myscript.upy
   3. Use DEV STEP / DEV CONTINUE when paused
 
-Use 'DEV MODE STATUS' to see current state."""
+Use 'DEV STATUS' to see current state.
+
+Note: This is for debugging YOUR scripts, not for core file editing.
+      For core file access, use: DEV MODE ON"""
 
     def _handle_disable(self) -> str:
         """Disable debug mode."""
         self.debug_engine.disable()
         self._save_state()
 
-        return """✅ Debug mode DISABLED
+        return """✅ uPY Debugger DISABLED
 
 All debugging features deactivated:
   • Breakpoints will be ignored
   • #BREAK directives skipped
   • Trace logging stopped
 
-Breakpoints are preserved and will be active when you re-enable debug mode."""
+Breakpoints are preserved and will be active when you re-enable debugging."""
 
     def _handle_status(self) -> str:
         """Show current debug state."""
@@ -134,12 +150,12 @@ Breakpoints are preserved and will be active when you re-enable debug mode."""
         # Build status display
         lines = []
         lines.append("╔════════════════════════════════════════════════════════════╗")
-        lines.append("║ DEV MODE Status                                            ║")
+        lines.append("║ uPY Debugger Status                                        ║")
         lines.append("╠════════════════════════════════════════════════════════════╣")
 
         # Mode status
         mode = "🟢 ENABLED" if status['enabled'] else "🔴 DISABLED"
-        lines.append(f"║ Mode:              {mode:<40} ║")
+        lines.append(f"║ Debug Mode:        {mode:<40} ║")
 
         # Execution state
         exec_state = "⏸️  PAUSED" if status['paused'] else "▶️  RUNNING"
@@ -194,7 +210,8 @@ Breakpoints are preserved and will be active when you re-enable debug mode."""
 
         # Add helpful hints
         if not status['enabled']:
-            lines.append("\n💡 Enable debug mode: DEV MODE ENABLE")
+            lines.append("\n💡 Enable debugging: DEV ENABLE")
+            lines.append("💡 For core file editing: DEV MODE ON")
         elif bp_count == 0:
             lines.append("\n💡 Set a breakpoint: DEV BREAK <line_number>")
 

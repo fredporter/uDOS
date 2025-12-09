@@ -71,7 +71,7 @@ def run_script(script_path, parser, grid, command_handler, logger, command_histo
             return
 
         # Use v2.0.2 runtime for (COMMAND|args) syntax
-        from core.runtime.upy_runtime_v2 import UPYRuntime
+        from core.runtime.upy_runtime import UPYRuntime
 
         runtime = UPYRuntime(command_handler=command_handler, grid=grid, parser=parser)
 
@@ -681,27 +681,9 @@ def main():
 
                 ucode = parser.parse(user_input)
 
-                # Check DEV MODE permissions for dangerous commands (v1.5.0)
-                try:
-                    from core.services.dev_mode_manager import get_dev_mode_manager
-                    dev_mode_mgr = get_dev_mode_manager()
-
-                    # Extract command from ucode
-                    parts = ucode.strip('[]').split('|')
-                    if len(parts) >= 2:
-                        command_parts = parts[1].split('*')
-                        command = command_parts[0].upper()
-
-                        # Check permission
-                        allowed, message = dev_mode_mgr.check_permission(command)
-                        if not allowed:
-                            print(message)
-                            continue  # Skip execution
-                        elif message:
-                            # Show warning but allow execution
-                            print(message)
-                except Exception:
-                    pass  # DEV MODE not available, continue normally
+                # Note: DEV MODE permission checks moved to file operations
+                # Commands like REPAIR, DESTROY work for all users on memory/ files
+                # Only core/knowledge/extensions require DEV MODE
 
                 result = command_handler.handle_command(ucode, grid, parser)
 

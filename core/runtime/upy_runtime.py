@@ -739,10 +739,29 @@ class UPYRuntime:
         # Delegate to command handler if available
         elif self.command_handler:
             try:
-                # CommandHandler uses handle_command(input_str, grid, parser) method
-                # Format: "COMMAND option1 option2"
+                # CommandHandler expects uCODE format, so use parser to convert
+                # Format: "COMMAND option1 option2" -> "[MODULE|COMMAND*option1*option2]"
                 cmd_str = f"{command} {' '.join(params)}" if params else command
-                return self.command_handler.handle_command(cmd_str, self.grid, self.parser)
+                
+                if self.parser:
+                    # Use parser to convert to proper uCODE format
+                    ucode = self.parser.parse(cmd_str)
+                    result = self.command_handler.handle_command(ucode, self.grid, self.parser)
+                else:
+                    # Fallback: try direct call (might not work for all commands)
+                    result = self.command_handler.handle_command(cmd_str, self.grid, self.parser)
+                
+                # If the command returns output, print it (for commands like STATUS, TREE, etc.)
+                if result and isinstance(result, str) and result.strip():
+                    print(result)
+                    self.output.append(result)
+                elif result and isinstance(result, list):
+                    for line in result:
+                        if line and line.strip():
+                            print(line)
+                            self.output.append(line)
+                            
+                return result
             except Exception as e:
                 print(f"⚠️  Command '{command}' failed: {e}")
                 return None

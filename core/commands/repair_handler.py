@@ -194,11 +194,7 @@ class RepairHandler(BaseCommandHandler):
                 f"  REPAIR --upgrade-python - Update Python to latest\n"
                 f"  REPAIR --upgrade-venv  - Refresh virtual environment\n"
                 f"  REPAIR --upgrade-all   - Update all components\n"
-                f"  REPAIR --install-extensions - Clone all recommended extensions\n"
-                f"  REPAIR --clone micro   - Clone specific extension\n"
-                f"  REPAIR --clone typo    - Clone typo editor\n"
-                f"  REPAIR --clone cmd     - Clone web terminal\n"
-                f"  REPAIR --clone monaspace - Clone Monaspace fonts\n")
+                f"  REPAIR --extensions    - Check cloned extensions status\n")
 
     def _upgrade_python(self):
         """Check for and optionally upgrade Python."""
@@ -366,18 +362,14 @@ class RepairHandler(BaseCommandHandler):
 
         # 4. Extension updates
         result += "\n🔌 Checking extensions...\n"
-        missing_extensions = []
-        for ext_name in ['micro', 'typo', 'cmd', 'monaspace']:
-            if not self._check_extension_installed(ext_name):
-                missing_extensions.append(ext_name)
-
-        if missing_extensions:
-            result += f"📦 {len(missing_extensions)} extensions not installed: {', '.join(missing_extensions)}\n"
-            result += "💡 Install with: REPAIR --install-extensions\n"
-            components.append(f"⚠️  {len(missing_extensions)} extensions missing")
+        cloned_extensions = self._get_cloned_extensions()
+        if cloned_extensions:
+            result += f"✅ {len(cloned_extensions)} cloned extensions: {', '.join(cloned_extensions)}\n"
+            components.append(f"✅ {len(cloned_extensions)} extensions cloned")
         else:
-            result += "✅ All recommended extensions installed\n"
-            components.append("✅ Extensions")
+            result += "ℹ️  No cloned extensions found in extensions/cloned/\n"
+            result += "💡 See extensions/cloned/README.md for available extensions\n"
+            components.append("ℹ️  No extensions cloned")
 
         # Summary
         result += "\n" + "="*60 + "\n"
@@ -426,153 +418,87 @@ class RepairHandler(BaseCommandHandler):
         return result
 
     def _repair_show_clone_options(self):
-        """Show available extensions to clone."""
+        """Show cloned extensions status (v1.2.21 - dynamic scan)."""
         result = "╔" + "═"*68 + "╗\n"
-        result += "║" + "🌟 AVAILABLE EXTENSIONS TO CLONE".center(68) + "║\n"
+        result += "║" + "🔌 CLONED EXTENSIONS STATUS".center(68) + "║\n"
         result += "╚" + "═"*68 + "╝\n\n"
 
-        extensions = {
-            'micro': {
-                'name': 'Micro Editor',
-                'description': 'Modern terminal text editor with mouse support',
-                'status': self._check_extension_installed('micro')
-            },
-            'typo': {
-                'name': 'Typo Editor',
-                'description': 'Web-based markdown editor with live preview',
-                'status': self._check_extension_installed('typo')
-            },
-            'cmd': {
-                'name': 'Web Terminal',
-                'description': 'Browser-based terminal interface',
-                'status': self._check_extension_installed('cmd')
-            },
-            'monaspace': {
-                'name': 'Monaspace Fonts',
-                'description': 'Monospaced font family from GitHub',
-                'status': self._check_extension_installed('monaspace')
-            }
-        }
-
-        for ext_id, ext_info in extensions.items():
-            status_icon = "✅" if ext_info['status'] else "⭕"
-            status_text = "installed" if ext_info['status'] else "available to clone"
-
-            result += f"{status_icon} {ext_info['name']}\n"
-            result += f"    {ext_info['description']}\n"
-            result += f"    Status: {status_text}\n"
-            if not ext_info['status']:
-                result += f"    Clone: REPAIR --clone {ext_id}\n"
-            result += "\n"
-
-        result += "💡 Use 'REPAIR --install-extensions' to clone all missing extensions\n"
+        cloned_extensions = self._get_cloned_extensions()
+        
+        if cloned_extensions:
+            result += f"✅ Found {len(cloned_extensions)} cloned extensions:\n\n"
+            for ext_name in sorted(cloned_extensions):
+                result += f"  • {ext_name}\n"
+        else:
+            result += "ℹ️  No cloned extensions found in extensions/cloned/\n"
+        
+        result += "\n💡 See extensions/cloned/README.md for installation instructions\n"
+        result += "💡 Available: MeshCore, CoreUI, Micro Editor, Typo Editor, etc.\n"
         return result
 
     def _repair_install_all_extensions(self):
-        """Clone all recommended extensions if not already present."""
+        """Show cloned extensions information (v1.2.21 - no auto-install)."""
         result = "╔" + "═"*68 + "╗\n"
-        result += "║" + "🌟 CLONING RECOMMENDED EXTENSIONS".center(68) + "║\n"
+        result += "║" + "🔌 CLONED EXTENSIONS".center(68) + "║\n"
         result += "╚" + "═"*68 + "╝\n\n"
 
-        extensions = ['micro', 'typo', 'cmd', 'monaspace']
-        installed = []
-        cloned = []
-        failed = []
-
-        for ext_name in extensions:
-            if self._check_extension_installed(ext_name):
-                installed.append(ext_name)
-                result += f"✅ {ext_name}: already present\n"
-            else:
-                result += f"🌱 {ext_name}: cloning...\n"
-                success = self._clone_extension(ext_name)
-                if success:
-                    cloned.append(ext_name)
-                    result += f"✨ {ext_name}: successfully cloned\n"
-                else:
-                    failed.append(ext_name)
-                    result += f"❌ {ext_name}: clone failed\n"
-
-        result += "\n"
-        if cloned:
-            result += f"🎉 Successfully cloned: {', '.join(cloned)}\n"
-        if installed:
-            result += f"✅ Already installed: {', '.join(installed)}\n"
-        if failed:
-            result += f"⚠️  Clone failed: {', '.join(failed)}\n"
-            result += "💡 Check network connection and try individual clones\n"
+        cloned_extensions = self._get_cloned_extensions()
+        
+        if cloned_extensions:
+            result += f"✅ Currently cloned ({len(cloned_extensions)}):" + "\n"
+            for ext_name in sorted(cloned_extensions):
+                result += f"  • {ext_name}\n"
+        else:
+            result += "ℹ️  No cloned extensions found\n"
+        
+        result += "\n💡 To add extensions:\n"
+        result += "  1. See extensions/cloned/README.md for available extensions\n"
+        result += "  2. Clone manually: cd extensions/cloned/ && git clone <repo>\n"
+        result += "  3. Optional extensions: MeshCore, CoreUI, Micro, Typo, etc.\n"
 
         return result
 
     def _repair_clone_extension(self, extension_name):
-        """Clone a specific extension."""
-        if self._check_extension_installed(extension_name):
-            return f"✅ {extension_name} is already installed\n💡 Use REPAIR --check to verify system status"
-
-        result = f"🌱 Cloning {extension_name}...\n\n"
-        success = self._clone_extension(extension_name)
-
-        if success:
-            result += f"✨ {extension_name} successfully cloned!\n"
-            result += f"💡 Extension ready for use\n"
-        else:
-            result += f"❌ Failed to clone {extension_name}\n"
-            result += f"💡 Check network connection and try again\n"
+        """Show extension clone instructions (v1.2.21 - manual only)."""
+        result = f"ℹ️  Extension cloning is manual in v1.2.21\n\n"
+        result += "💡 To clone extensions:\n"
+        result += f"  cd extensions/cloned/\n"
+        result += f"  git clone <repository-url> {extension_name}\n\n"
+        result += "📖 See extensions/cloned/README.md for available repositories\n"
+        result += "✨ Recommended: MeshCore, CoreUI Icons, Micro Editor, Typo Editor\n"
 
         return result
 
     def _repair_check_extensions(self):
-        """Check status of all extensions."""
+        """Check status of cloned extensions (v1.2.21)."""
         result = "\n🔌 Extension Status:\n"
 
-        extensions = ['micro', 'typo', 'cmd', 'monaspace']
-        for ext_name in extensions:
-            if self._check_extension_installed(ext_name):
-                result += f"  ✅ {ext_name}: ready\n"
-            else:
-                result += f"  ⭕ {ext_name}: not installed (REPAIR --clone {ext_name})\n"
+        cloned_extensions = self._get_cloned_extensions()
+        if cloned_extensions:
+            result += f"  ✅ {len(cloned_extensions)} cloned: {', '.join(sorted(cloned_extensions))}\n"
+        else:
+            result += "  ℹ️  No extensions cloned (see extensions/cloned/README.md)\n"
 
         return result
 
+    def _get_cloned_extensions(self):
+        """Get list of cloned extensions (v1.2.21 - dynamic scan)."""
+        cloned_dir = Path('extensions/cloned')
+        if not cloned_dir.exists():
+            return []
+        
+        extensions = []
+        for item in cloned_dir.iterdir():
+            if item.is_dir() and not item.name.startswith('.') and item.name != 'README.md':
+                extensions.append(item.name)
+        
+        return extensions
+
     def _check_extension_installed(self, extension_name):
-        """Check if an extension is installed."""
-        checks = {
-            'micro': Path('extensions/clone/native/micro/micro').exists(),
-            'typo': Path('extensions/clone/web/typo/package.json').exists(),
-            'cmd': Path('extensions/clone/web/cmd/package.json').exists(),
-            'monaspace': Path('extensions/clone/monaspace-fonts/fonts').exists()
-        }
-        return checks.get(extension_name, False)
-
-    def _clone_extension(self, extension_name):
-        """Clone an extension using its setup script."""
-        setup_scripts = {
-            'micro': 'extensions/setup_micro.sh',
-            'typo': 'extensions/setup_typo.sh',
-            'cmd': 'extensions/setup_cmd.sh',
-            'monaspace': 'extensions/setup_monaspace.sh'
-        }
-
-        script_path = setup_scripts.get(extension_name)
-        if not script_path or not Path(script_path).exists():
-            return False
-
+        """Check if extension exists in cloned/ (v1.2.21)."""
         try:
-            # Set environment variable for auto-install
-            env = os.environ.copy()
-            env['UDOS_AUTO_INSTALL'] = '1'
-
-            # Run the setup script
-            result = subprocess.run(
-                ['bash', script_path],
-                capture_output=True,
-                text=True,
-                env=env,
-                timeout=300  # 5 minute timeout
-            )
-
-            return result.returncode == 0
-
+            cloned_extensions = self._get_cloned_extensions()
+            return extension_name in cloned_extensions
         except Exception as e:
             return False
 

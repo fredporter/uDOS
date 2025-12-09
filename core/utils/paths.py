@@ -33,6 +33,10 @@ class PathConstants:
     
     # Core subdirectories
     CORE_DATA = CORE / "data"
+    CORE_DATA_GEOGRAPHY = CORE_DATA / "geography"
+    CORE_DATA_GEOGRAPHY_CITIES = CORE_DATA_GEOGRAPHY / "cities.json"
+    CORE_DATA_GEOGRAPHY_CLIMATE = CORE_DATA_GEOGRAPHY / "climate.json"
+    CORE_DATA_GEOGRAPHY_TERRAIN = CORE_DATA_GEOGRAPHY / "terrain.json"
     CORE_COMMANDS = CORE / "commands"
     CORE_RUNTIME = CORE / "runtime"
     CORE_SERVICES = CORE / "services"
@@ -57,6 +61,7 @@ class PathConstants:
     MEMORY_SYSTEM_THEMES = MEMORY_SYSTEM / "themes"
     
     MEMORY_BANK = MEMORY / "bank"
+    MEMORY_BANK_USER = MEMORY_BANK / "user"
     MEMORY_BANK_PRIVATE = MEMORY_BANK / "private"
     MEMORY_BANK_BARTER = MEMORY_BANK / "barter"
     
