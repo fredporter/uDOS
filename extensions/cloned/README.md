@@ -1,6 +1,6 @@
 # Cloned Extensions Directory
 
-This directory contains third-party extensions cloned from external repositories. These are **NOT tracked in git** and must be installed locally.
+This directory contains third-party extensions cloned from external repositories. These are **NOT tracked in git** and are installed automatically via `extensions/setup/` scripts.
 
 ## 📦 Available Extensions
 
@@ -9,10 +9,10 @@ This directory contains third-party extensions cloned from external repositories
 **Repository:** https://github.com/meshcore-dev/MeshCore  
 **Purpose:** Mesh networking hardware integration, device management, signal propagation
 
-**Installation:**
+**Auto-Installation:**
 ```bash
-cd extensions/cloned/
-git clone https://github.com/meshcore-dev/MeshCore.git meshcore
+# Installed automatically via extensions/setup/install_meshcore.py
+python extensions/setup/install_meshcore.py --install
 ```
 
 **uDOS Integration:**
@@ -26,7 +26,7 @@ git clone https://github.com/meshcore-dev/MeshCore.git meshcore
 - Signal propagation analysis
 - Device provisioning and management
 
-**Status:** Optional dependency (uDOS works without it)
+**Status:** Installed on first run or via setup script
 
 ---
 
