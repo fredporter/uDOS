@@ -103,13 +103,6 @@ extensions/cloned/**/*
 !extensions/cloned/README.md
 
 # ============================================================
-# Extensions - Large Assets (Downloaded via Setup)
-# ============================================================
-# Ignore large font files (downloaded via extensions/setup)
-extensions/assets/fonts/petme/*.ttf
-extensions/assets/fonts/roboto/*.ttf
-
-# ============================================================
 # Memory - User Workspace (v1.2.12+)
 # ============================================================
 # Ignore entire memory/ by default (user workspace)
