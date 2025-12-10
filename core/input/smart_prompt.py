@@ -169,39 +169,19 @@ class SmartPrompt:
 
         @kb.add('tab')
         def _(event):
-            if event.current_buffer.complete_state:
-                event.current_buffer.complete_next()
+            # Use prompt_toolkit's native completion handling
+            buffer = event.current_buffer
+            if buffer.complete_state:
+                # Already showing completions - cycle to next
+                buffer.complete_next()
             else:
-                # Check if we have completions to accept
-                text = event.current_buffer.text
-                if text:
-                    from prompt_toolkit.document import Document
-                    doc = Document(text, cursor_position=len(text))
-                    comps = list(self.completer.get_completions(doc, None))
-                    if comps and self.selected_completion_index < len(comps):
-                        selected = comps[self.selected_completion_index]
-                        event.current_buffer.text = selected.text
-                        event.current_buffer.cursor_position = len(selected.text)
-                        self.selected_completion_index = 0
-                        event.app.invalidate()
-                        return
-                event.current_buffer.start_completion()
+                # Start completion
+                buffer.start_completion()
         
         @kb.add('enter')
         def _(event):
-            # If we have completions visible, accept the selected one before executing
-            text = event.current_buffer.text
-            if text:
-                from prompt_toolkit.document import Document
-                doc = Document(text, cursor_position=len(text))
-                comps = list(self.completer.get_completions(doc, None))
-                if comps and self.selected_completion_index < len(comps):
-                    selected = comps[self.selected_completion_index]
-                    event.current_buffer.text = selected.text
-                    event.current_buffer.cursor_position = len(selected.text)
-                    self.selected_completion_index = 0
-                    event.app.invalidate()
-            # Now submit the command
+            # Don't auto-accept completions - just submit what user typed
+            # User can press Tab to accept a completion before Enter
             event.current_buffer.validate_and_handle()
         
         @kb.add('escape')
