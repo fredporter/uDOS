@@ -186,7 +186,9 @@ class InboxHandler(BaseCommandHandler):
         
         # Save combined daily output
         if existing_records:
-            self._save_processed_csv(daily_output, list(existing_records.values()))
+            # Fill missing location data from adjacent records
+            filled_records = self._fill_missing_location_fields(list(existing_records.values()))
+            self._save_processed_csv(daily_output, filled_records)
             
             # Move processed files to .archive/
             archived_count = 0
@@ -225,6 +227,23 @@ class InboxHandler(BaseCommandHandler):
                 # If still empty, try next row
                 elif i < len(rows) - 1 and rows[i+1].get('FullAddress', '').strip():
                     row['FullAddress'] = rows[i+1]['FullAddress']
+        
+        return rows
+    
+    def _fill_missing_location_fields(self, rows: List[Dict]) -> List[Dict]:
+        """Fill missing Street/Suburb/State/Postcode/Country from adjacent rows in final output."""
+        location_fields = ['Street', 'Suburb', 'State', 'Postcode', 'Country']
+        
+        for i, row in enumerate(rows):
+            for field in location_fields:
+                # If field is missing or empty
+                if not row.get(field, '').strip():
+                    # Try to copy from previous row
+                    if i > 0 and rows[i-1].get(field, '').strip():
+                        row[field] = rows[i-1][field]
+                    # If still empty, try next row
+                    elif i < len(rows) - 1 and rows[i+1].get(field, '').strip():
+                        row[field] = rows[i+1][field]
         
         return rows
     
@@ -407,19 +426,39 @@ class InboxHandler(BaseCommandHandler):
         return processed
     
     def _extract_keyword(self, filename: str) -> str:
-        """Extract keyword from filename (e.g., 'pilates-studio' from 'example-pilates studio-Sutherland.csv')."""
-        # Remove 'example-' prefix and file extension
-        name = filename.replace('example-', '').replace('.csv', '')
+        """Extract keyword from filename.
         
-        # Extract keyword (before location)
-        parts = name.split('-')
-        if len(parts) > 1:
-            # Take first meaningful part (skip 'example')
-            keyword = parts[0].strip().lower().replace(' ', '-')
-        else:
-            keyword = name.strip().lower().replace(' ', '-')
+        Examples:
+            '1Google-Quick-ndis-Melbourne Victoria Australia.csv' → 'ndis'
+            'example-pilates studio-Sutherland Shire NSW.csv' → 'pilates-studio'
+            '20251210_205418_example-pilates studio-Sutherland.csv' → 'pilates-studio'
+        """
+        # Remove timestamp prefix if present (e.g., '20251210_205418_')
+        import re
+        name = re.sub(r'^\d{8}_\d{6}_', '', filename)
         
-        return keyword
+        # Remove file extension
+        name = name.replace('.csv', '')
+        
+        # Remove common prefixes
+        name = name.replace('example-', '')
+        
+        # Split by dash and filter meaningful parts
+        parts = [p.strip() for p in name.split('-') if p.strip()]
+        
+        # Filter out common non-keyword parts
+        skip_words = {'google', 'quick', '1google', '2google', 'nsw', 'vic', 'qld', 'sa', 'wa', 'nt', 'tas', 'act',
+                     'australia', 'sydney', 'melbourne', 'brisbane', 'perth', 'adelaide', 'darwin', 'hobart', 'canberra'}
+        
+        # Find first meaningful keyword (not a prefix, location, or state)
+        for part in parts:
+            part_lower = part.lower().replace(' ', '-')
+            # Skip single digits/letters and common prefixes
+            if len(part_lower) > 1 and not part_lower.isdigit() and part_lower not in skip_words:
+                return part_lower
+        
+        # Fallback: use first part
+        return parts[0].lower().replace(' ', '-') if parts else 'unknown'
     
     def _parse_address(self, full_address: str) -> Dict[str, str]:
         """Parse FullAddress into components with proper State separation."""
