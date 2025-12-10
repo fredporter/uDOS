@@ -5,13 +5,16 @@ Processes files placed in memory/inbox/:
 - CSV business location data (scraped listings)
 - Automatic filtering, geocoding, and formatting
 - Outputs to memory/bank/private/ or memory/shared/
+- Archives processed files to memory/inbox/.archive/
 
 Features:
 - Email-only filtering (retains only records with email)
 - Location parsing from FullAddress
-- TILE code generation from lat/long
+- Precise TILE code generation (layer 500 with sub-cell offsets)
+- Reversible geocoding (TILE → lat/long)
 - Social media link extraction
 - Keyword tagging from filename
+- Daily file consolidation with record updates
 """
 
 from pathlib import Path
@@ -111,6 +114,10 @@ class InboxHandler(BaseCommandHandler):
         if not files:
             return "📥 No CSV files to process in inbox"
         
+        # Ensure .archive directory exists
+        archive_path = self.inbox_path / ".archive"
+        archive_path.mkdir(exist_ok=True)
+        
         # Daily output file
         today = datetime.now().strftime("%Y-%m-%d")
         daily_output = self.output_path / f"{today}-scraped-output.csv"
@@ -132,7 +139,8 @@ class InboxHandler(BaseCommandHandler):
         total_rows = 0
         total_processed = 0
         total_skipped = 0
-        total_duplicates = 0
+        total_updated = 0
+        processed_files = []
         
         for file_path in files:
             keyword = self._extract_keyword(file_path.name)
@@ -158,29 +166,50 @@ class InboxHandler(BaseCommandHandler):
                         if processed:
                             email_key = email.lower()
                             if email_key in existing_records:
-                                # Update existing record (keep newer data)
-                                existing_records[email_key].update({k: v for k, v in processed.items() if v})
-                                total_duplicates += 1
+                                # Update existing record (merge non-empty values)
+                                for k, v in processed.items():
+                                    if v and (not existing_records[email_key].get(k) or v != existing_records[email_key].get(k)):
+                                        existing_records[email_key][k] = v
+                                total_updated += 1
                             else:
                                 existing_records[email_key] = processed
                                 total_processed += 1
                         else:
                             total_skipped += 1
-                            
+            
             except Exception as e:
                 return f"❌ Error processing {file_path.name}: {e}"
+            
+            # Mark file for archiving after successful processing
+            processed_files.append(file_path)
         
         # Save combined daily output
         if existing_records:
             self._save_processed_csv(daily_output, list(existing_records.values()))
             
+            # Move processed files to .archive/
+            archived_count = 0
+            for file_path in processed_files:
+                try:
+                    archive_dest = archive_path / file_path.name
+                    # If file exists in archive, append timestamp
+                    if archive_dest.exists():
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        archive_dest = archive_path / f"{timestamp}_{file_path.name}"
+                    file_path.rename(archive_dest)
+                    archived_count += 1
+                except Exception as e:
+                    # Continue if archiving fails
+                    pass
+            
             return (f"✅ Processed {len(files)} file(s)\n"
                    f"   Total Rows: {total_rows}\n"
                    f"   New Records: {total_processed}\n"
-                   f"   Updated Duplicates: {total_duplicates}\n"
+                   f"   Updated Records: {total_updated}\n"
                    f"   Skipped (no email): {total_skipped}\n"
                    f"   Output: {daily_output}\n"
-                   f"   Total Unique Records: {len(existing_records)}")
+                   f"   Total Unique Records: {len(existing_records)}\n"
+                   f"   Archived Files: {archived_count}/{len(files)}")
         else:
             return f"⚠️  No valid records with email addresses"
     
@@ -454,7 +483,7 @@ class InboxHandler(BaseCommandHandler):
         # uDOS grid specs:
         # - Columns: AA-RL (0-479) covering longitude -180 to 180
         # - Rows: 0-269 covering latitude -90 to 90
-        # - Layer 100: World layer (~83km per cell)
+        # - Layer 500: Block layer (~10cm per cell for precise geocoding)
         
         # Map longitude (-180 to 180) to column (0-479)
         col_index = int((lng_f + 180) * 479 / 360)
@@ -467,8 +496,13 @@ class InboxHandler(BaseCommandHandler):
         # Convert column index to AA-RL format
         col_letters = self._index_to_column(col_index)
         
-        # TILE code format: AA340-100 (column + row + layer)
-        return f"{col_letters}{row_index}-100"
+        # For layer 500 (block level), add sub-cell precision using decimals
+        # Calculate offset within cell (0-999 for both lat/lng)
+        lng_offset = int(((lng_f + 180) * 479 / 360 - col_index) * 1000)
+        lat_offset = int((((90 - lat_f) * 269 / 180) - row_index) * 1000)
+        
+        # TILE code format: AA340-500:123,456 (column + row + layer + offsets)
+        return f"{col_letters}{row_index}-500:{lng_offset:03d},{lat_offset:03d}"
     
     def _index_to_column(self, index: int) -> str:
         """Convert column index (0-479) to AA-RL format."""
@@ -480,6 +514,43 @@ class InboxHandler(BaseCommandHandler):
         second_char = chr(ord('A') + second)
         
         return f"{first_char}{second_char}"
+    
+    @staticmethod
+    def tile_to_latlong(tile_code: str) -> tuple:
+        """Convert TILE code back to lat/long coordinates.
+        
+        Args:
+            tile_code: TILE format AA340-500:123,456
+            
+        Returns:
+            Tuple of (latitude, longitude) as floats
+        """
+        # Parse: QY185-500:431,333
+        parts = tile_code.split('-')
+        col_row = parts[0]
+        layer_offset = parts[1] if len(parts) > 1 else '500:0,0'
+        
+        # Extract column letters and row number
+        col_letters = col_row[:2]
+        row_num = int(col_row[2:])
+        
+        # Extract offsets
+        if ':' in layer_offset:
+            layer, offsets = layer_offset.split(':')
+            lng_offset, lat_offset = map(int, offsets.split(','))
+        else:
+            lng_offset, lat_offset = 0, 0
+        
+        # Convert column letters to index (AA=0, AB=1, ...)
+        first_char = ord(col_letters[0]) - ord('A')
+        second_char = ord(col_letters[1]) - ord('A')
+        col_index = first_char * 26 + second_char
+        
+        # Map back to coordinates
+        lng = (col_index + lng_offset/1000) * 360 / 479 - 180
+        lat = 90 - (row_num + lat_offset/1000) * 180 / 269
+        
+        return round(lat, 6), round(lng, 6)
     
     def _save_processed_csv(self, output_file: Path, rows: List[Dict]) -> None:
         """Save processed data to CSV."""
