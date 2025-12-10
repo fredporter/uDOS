@@ -32,14 +32,18 @@ class InboxHandler(BaseCommandHandler):
         self.output_path.mkdir(parents=True, exist_ok=True)
     
     def handle(self, command: str, params: List[str], grid=None) -> str:
-        """Route inbox commands."""
-        if not params:
+        """Route inbox commands.
+        
+        command will be the action (PROCESS/LIST/STATUS/CLEAN)
+        params will be additional parameters like filename
+        """
+        if not command:
             return self._handle_inbox_status()
         
-        action = params[0].upper()
+        action = command.upper()
         
         if action == "PROCESS":
-            filename = params[1] if len(params) > 1 else None
+            filename = params[0] if params else None
             return self._process_files(filename)
         elif action == "LIST":
             return self._list_inbox_files()

@@ -579,10 +579,9 @@ class SmartPrompt:
                 sys.stdout.write(f"\n{padding}{shortcuts}\n")
                 sys.stdout.flush()
             
-            # Show prompt with blinking cursor
-            sys.stdout.write(prompt_text)
-            sys.stdout.flush()
-            self._show_ready_cursor()
+            # Don't write prompt manually - session.prompt() will display it
+            # Just show the blinking cursor effect at the start
+            # self._show_ready_cursor()
             
             formatted_prompt = FormattedText([('class:prompt', prompt_text)])
             user_input = self.session.prompt(formatted_prompt, multiline=multiline)
