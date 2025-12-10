@@ -143,6 +143,9 @@ class InboxHandler(BaseCommandHandler):
                     rows = list(reader)
                     total_rows += len(rows)
                     
+                    # Fill missing location data from adjacent rows
+                    rows = self._fill_missing_locations(rows)
+                    
                     for row in rows:
                         # Clean and validate email
                         email = self._clean_email(row.get('Email', ''))
@@ -180,6 +183,20 @@ class InboxHandler(BaseCommandHandler):
                    f"   Total Unique Records: {len(existing_records)}")
         else:
             return f"⚠️  No valid records with email addresses"
+    
+    def _fill_missing_locations(self, rows: List[Dict]) -> List[Dict]:
+        """Fill missing FullAddress from adjacent rows in the same sheet."""
+        for i, row in enumerate(rows):
+            # If FullAddress is missing or empty
+            if not row.get('FullAddress', '').strip():
+                # Try to copy from previous row
+                if i > 0 and rows[i-1].get('FullAddress', '').strip():
+                    row['FullAddress'] = rows[i-1]['FullAddress']
+                # If still empty, try next row
+                elif i < len(rows) - 1 and rows[i+1].get('FullAddress', '').strip():
+                    row['FullAddress'] = rows[i+1]['FullAddress']
+        
+        return rows
     
     def _clean_email(self, email: str) -> str:
         """Clean and validate email address."""
