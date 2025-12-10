@@ -88,17 +88,17 @@ class ImprovedCompleter(Completer):
                 option_text = sug.get('option', '')
                 cmd_name = sug.get('command', '')
                 
-                # Build description - NO display_meta, just text
+                # Build description for display_meta
                 desc = sug.get('description', '')
                 if not desc:
                     desc = f"{cmd_name} {option_text}"
                 
-                # Create completion with FormattedText (prevents auto-wrapping)
-                display_text = FormattedText([('', f"{option_text:<15} - {desc[:60]}")])
+                # Use display_meta like commands do (works without FormattedText wrapping)
                 yield Completion(
                     option_text,
                     start_position=-len(current_word) if current_word else 0,
-                    display=display_text
+                    display=option_text,
+                    display_meta=desc[:80]
                 )
 
 
@@ -534,7 +534,15 @@ class SmartPrompt:
                         lines = []
                         for i, comp in enumerate(completions[:5]):
                             marker = "►" if i == self.selected_completion_index else " "
-                            lines.append(f"{marker} {comp.text:<12} │ {comp.display_meta}")
+                            # Extract text from FormattedText if needed
+                            meta_text = comp.display_meta
+                            if hasattr(meta_text, '__iter__') and not isinstance(meta_text, str):
+                                # FormattedText is list of (style, text) tuples
+                                try:
+                                    meta_text = ''.join([part[1] for part in meta_text])
+                                except:
+                                    meta_text = str(meta_text)
+                            lines.append(f"{marker} {comp.text:<12} │ {meta_text}")
                         
                         return "\n".join(lines)
                     except:
