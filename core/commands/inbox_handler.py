@@ -237,6 +237,38 @@ class InboxHandler(BaseCommandHandler):
         # Return original if can't parse
         return phone
     
+    def _clean_business_name(self, name: str) -> str:
+        """Clean and format business name."""
+        if not name:
+            return ''
+        
+        name = name.strip()
+        
+        # Convert & to 'and'
+        name = name.replace('&', 'and')
+        
+        # Remove special characters (keep letters, numbers, spaces, hyphens)
+        name = re.sub(r'[^\w\s\-]', '', name)
+        
+        # Clean up extra whitespace
+        name = ' '.join(name.split())
+        
+        # Smart title case - preserve acronyms (2-3 uppercase letters)
+        words = name.split()
+        formatted_words = []
+        for word in words:
+            # Keep acronyms (2-3 uppercase letters) as-is
+            if len(word) <= 3 and word.isupper():
+                formatted_words.append(word)
+            # Keep mixed case words with all uppercase start (like 'inLIFE')
+            elif word[0].islower() and any(c.isupper() for c in word[1:]):
+                formatted_words.append(word.title())
+            # Otherwise apply title case
+            else:
+                formatted_words.append(word.title())
+        
+        return ' '.join(formatted_words)
+    
     def _clean_url(self, url: str) -> str:
         """Clean URL by removing query parameters and fragments."""
         if not url:
@@ -278,9 +310,12 @@ class InboxHandler(BaseCommandHandler):
         instagram = self._clean_url(row.get('Instagram', ''))
         linkedin = self._clean_url(row.get('LinkedIn', ''))
         
+        # Clean business name
+        business_name = self._clean_business_name(row.get('Name', ''))
+        
         # Extract clean data
         processed = {
-            'Business_Name': row.get('Name', '').strip(),
+            'Business_Name': business_name,
             'Email': email,
             'Phone': phone,
             'Website': website,
