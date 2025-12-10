@@ -237,6 +237,23 @@ class InboxHandler(BaseCommandHandler):
         # Return original if can't parse
         return phone
     
+    def _clean_url(self, url: str) -> str:
+        """Clean URL by removing query parameters and fragments."""
+        if not url:
+            return ''
+        
+        url = url.strip()
+        
+        # Remove query parameters (?key=value&...)
+        if '?' in url:
+            url = url.split('?')[0]
+        
+        # Remove fragments (#section)
+        if '#' in url:
+            url = url.split('#')[0]
+        
+        return url
+    
     def _process_business_row(self, row: Dict, keyword: str) -> Optional[Dict]:
         """Process a single business row."""
         # Clean email
@@ -255,24 +272,28 @@ class InboxHandler(BaseCommandHandler):
         # Format phone number
         phone = self._format_phone(row.get('Phone', ''))
         
+        # Clean URLs
+        website = self._clean_url(row.get('Website', ''))
+        facebook = self._clean_url(row.get('Facebook', ''))
+        instagram = self._clean_url(row.get('Instagram', ''))
+        linkedin = self._clean_url(row.get('LinkedIn', ''))
+        
         # Extract clean data
         processed = {
             'Business_Name': row.get('Name', '').strip(),
             'Email': email,
             'Phone': phone,
-            'Website': row.get('Website', '').strip(),
+            'Website': website,
             'Keyword': keyword,
             'Street': location_data.get('street', ''),
             'Suburb': location_data.get('suburb', ''),
             'State': location_data.get('state', ''),
             'Postcode': location_data.get('postcode', ''),
             'Country': location_data.get('country', 'Australia'),
-            'Lat': lat,
-            'Long': lng,
             'TILE_Code': tile_code,
-            'Facebook': row.get('Facebook', '').strip(),
-            'Instagram': row.get('Instagram', '').strip(),
-            'LinkedIn': row.get('LinkedIn', '').strip(),
+            'Facebook': facebook,
+            'Instagram': instagram,
+            'LinkedIn': linkedin,
             'Rating': row.get('Rating', ''),
             'Reviews': row.get('Reviews', ''),
         }
