@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 import csv
 import re
+from datetime import datetime
 from .base_handler import BaseCommandHandler
 
 
@@ -98,7 +99,7 @@ class InboxHandler(BaseCommandHandler):
         return "\n".join(output)
     
     def _process_files(self, filename: Optional[str] = None) -> str:
-        """Process CSV file(s) in inbox."""
+        """Process CSV file(s) in inbox - combines into daily output file."""
         if filename:
             file_path = self.inbox_path / filename
             if not file_path.exists():
@@ -110,56 +111,139 @@ class InboxHandler(BaseCommandHandler):
         if not files:
             return "📥 No CSV files to process in inbox"
         
-        results = []
+        # Daily output file
+        today = datetime.now().strftime("%Y-%m-%d")
+        daily_output = self.output_path / f"{today}-scraped-output.csv"
+        
+        # Load existing records if file exists (for deduplication)
+        existing_records = {}
+        if daily_output.exists():
+            try:
+                with open(daily_output, 'r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        email = row.get('Email', '').strip().lower()
+                        if email:
+                            existing_records[email] = row
+            except Exception:
+                pass  # Start fresh if error reading
+        
+        # Process all files
+        total_rows = 0
+        total_processed = 0
+        total_skipped = 0
+        total_duplicates = 0
+        
         for file_path in files:
-            result = self._process_csv_file(file_path)
-            results.append(result)
-        
-        return "\n\n".join(results)
-    
-    def _process_csv_file(self, file_path: Path) -> str:
-        """Process a single CSV file."""
-        keyword = self._extract_keyword(file_path.name)
-        
-        # Read CSV
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-        except Exception as e:
-            return f"❌ Error reading {file_path.name}: {e}"
-        
-        # Filter and process
-        processed_rows = []
-        skipped = 0
-        
-        for row in rows:
-            # Filter: Must have email
-            if not row.get('Email') or row['Email'].strip() == '':
-                skipped += 1
-                continue
+            keyword = self._extract_keyword(file_path.name)
             
-            # Process row
-            processed = self._process_business_row(row, keyword)
-            if processed:
-                processed_rows.append(processed)
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    rows = list(reader)
+                    total_rows += len(rows)
+                    
+                    for row in rows:
+                        # Clean and validate email
+                        email = self._clean_email(row.get('Email', ''))
+                        if not email:
+                            total_skipped += 1
+                            continue
+                        
+                        # Process row
+                        processed = self._process_business_row(row, keyword)
+                        if processed:
+                            email_key = email.lower()
+                            if email_key in existing_records:
+                                # Update existing record (keep newer data)
+                                existing_records[email_key].update({k: v for k, v in processed.items() if v})
+                                total_duplicates += 1
+                            else:
+                                existing_records[email_key] = processed
+                                total_processed += 1
+                        else:
+                            total_skipped += 1
+                            
+            except Exception as e:
+                return f"❌ Error processing {file_path.name}: {e}"
         
-        # Save processed data
-        if processed_rows:
-            output_file = self.output_path / f"processed_{keyword}_{file_path.stem}.csv"
-            self._save_processed_csv(output_file, processed_rows)
+        # Save combined daily output
+        if existing_records:
+            self._save_processed_csv(daily_output, list(existing_records.values()))
             
-            return (f"✅ Processed: {file_path.name}\n"
-                   f"   Keyword: {keyword}\n"
-                   f"   Total Rows: {len(rows)}\n"
-                   f"   With Email: {len(processed_rows)}\n"
-                   f"   Skipped: {skipped}\n"
-                   f"   Output: {output_file}")
+            return (f"✅ Processed {len(files)} file(s)\n"
+                   f"   Total Rows: {total_rows}\n"
+                   f"   New Records: {total_processed}\n"
+                   f"   Updated Duplicates: {total_duplicates}\n"
+                   f"   Skipped (no email): {total_skipped}\n"
+                   f"   Output: {daily_output}\n"
+                   f"   Total Unique Records: {len(existing_records)}")
         else:
-            return f"⚠️  {file_path.name}: No rows with email addresses"
+            return f"⚠️  No valid records with email addresses"
+    
+    def _clean_email(self, email: str) -> str:
+        """Clean and validate email address."""
+        if not email:
+            return ''
+        
+        # Remove mailto: prefix
+        email = email.replace('mailto:', '').strip()
+        
+        # Basic email validation (has @ and .)
+        if '@' not in email or '.' not in email:
+            return ''
+        
+        # Remove invalid/placeholder emails
+        invalid_patterns = [
+            'sentry-next.wixpress.com',
+            'example.com',
+            'test.com',
+            '@facebook.com',
+            'fbml'
+        ]
+        
+        email_lower = email.lower()
+        for pattern in invalid_patterns:
+            if pattern in email_lower:
+                return ''
+        
+        return email
+    
+    def _format_phone(self, phone: str) -> str:
+        """Format phone to international format (+61...)."""
+        if not phone:
+            return ''
+        
+        # Remove all non-digit characters
+        digits = re.sub(r'\D', '', phone)
+        
+        if not digits:
+            return ''
+        
+        # Australian numbers
+        if digits.startswith('61'):
+            # Already has country code
+            return f"+{digits}"
+        elif digits.startswith('0'):
+            # Remove leading 0, add +61
+            return f"+61{digits[1:]}"
+        elif len(digits) == 9:
+            # Missing leading 0, add +61
+            return f"+61{digits}"
+        elif len(digits) >= 10:
+            # Standard AU format
+            return f"+61{digits}" if not digits.startswith('61') else f"+{digits}"
+        
+        # Return original if can't parse
+        return phone
     
     def _process_business_row(self, row: Dict, keyword: str) -> Optional[Dict]:
         """Process a single business row."""
+        # Clean email
+        email = self._clean_email(row.get('Email', ''))
+        if not email:
+            return None
+        
         # Extract location from FullAddress
         location_data = self._parse_address(row.get('FullAddress', ''))
         
@@ -168,15 +252,19 @@ class InboxHandler(BaseCommandHandler):
         lng = row.get('Long', '')
         tile_code = self._latlong_to_tile(lat, lng) if lat and lng else ''
         
+        # Format phone number
+        phone = self._format_phone(row.get('Phone', ''))
+        
         # Extract clean data
         processed = {
             'Business_Name': row.get('Name', '').strip(),
-            'Email': row.get('Email', '').strip(),
-            'Phone': row.get('Phone', '').strip(),
+            'Email': email,
+            'Phone': phone,
             'Website': row.get('Website', '').strip(),
             'Keyword': keyword,
             'Street': location_data.get('street', ''),
             'Suburb': location_data.get('suburb', ''),
+            'State': location_data.get('state', ''),
             'Postcode': location_data.get('postcode', ''),
             'Country': location_data.get('country', 'Australia'),
             'Lat': lat,
@@ -207,20 +295,20 @@ class InboxHandler(BaseCommandHandler):
         return keyword
     
     def _parse_address(self, full_address: str) -> Dict[str, str]:
-        """Parse FullAddress into components."""
+        """Parse FullAddress into components with proper State separation."""
         if not full_address:
-            return {'street': '', 'suburb': '', 'postcode': '', 'country': ''}
+            return {'street': '', 'suburb': '', 'state': '', 'postcode': '', 'country': ''}
         
         # Common patterns:
-        # "Street Address, Suburb State Postcode Country"
-        # "Street Address, Suburb State Postcode"
-        # "Street Address, Suburb NSW Australia Postcode"
+        # "Street Address, Suburb State Postcode, Country"
+        # "Street Address, Suburb NSW 2234, Australia"
         
         parts = [p.strip() for p in full_address.split(',')]
         
         result = {
             'street': '',
             'suburb': '',
+            'state': '',
             'postcode': '',
             'country': 'Australia'
         }
@@ -229,21 +317,31 @@ class InboxHandler(BaseCommandHandler):
             result['street'] = parts[0]
         
         if len(parts) >= 2:
-            # Last part usually has suburb/state/postcode
-            last_part = parts[-1]
+            # Second part usually has suburb/state/postcode
+            middle_part = parts[1]
+            
+            # Extract state (NSW, VIC, QLD, etc.)
+            state_match = re.search(r'\b(NSW|VIC|QLD|SA|WA|TAS|NT|ACT)\b', middle_part)
+            if state_match:
+                result['state'] = state_match.group(1)
             
             # Extract postcode (4 digits)
-            postcode_match = re.search(r'\b(\d{4})\b', last_part)
+            postcode_match = re.search(r'\b(\d{4})\b', middle_part)
             if postcode_match:
                 result['postcode'] = postcode_match.group(1)
             
-            # Extract suburb (word before state/postcode)
-            suburb_match = re.search(r'^([A-Za-z\s\-]+)', last_part)
-            if suburb_match:
-                result['suburb'] = suburb_match.group(1).strip()
-            
-            # Extract country if present
-            if 'Australia' in last_part:
+            # Extract suburb (text before state)
+            if result['state']:
+                suburb_match = re.match(r'^([A-Za-z\s\-]+)', middle_part)
+                if suburb_match:
+                    suburb = suburb_match.group(1).strip()
+                    # Remove state abbreviation if it got included
+                    suburb = re.sub(r'\b(NSW|VIC|QLD|SA|WA|TAS|NT|ACT)\b', '', suburb).strip()
+                    result['suburb'] = suburb
+        
+        # Check for country in last part
+        if len(parts) >= 3:
+            if 'Australia' in parts[-1]:
                 result['country'] = 'Australia'
         
         return result
