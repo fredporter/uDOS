@@ -88,10 +88,13 @@ class ImprovedCompleter(Completer):
                 option_text = sug.get('option', '')
                 cmd_name = sug.get('command', '')
                 
-                # Build meta showing option details
-                meta = f"{cmd_name} {option_text}"
-                if sug.get('description'):
-                    meta = f"{sug['description']}"
+                # Build meta showing option details (ensure it's a plain string)
+                desc = sug.get('description', '')
+                if desc:
+                    # Force conversion to plain string (in case it's wrapped in FormattedText)
+                    meta = str(desc) if not isinstance(desc, str) else desc
+                else:
+                    meta = f"{cmd_name} {option_text}"
                 
                 yield Completion(
                     option_text,

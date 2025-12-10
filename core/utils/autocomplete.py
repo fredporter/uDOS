@@ -55,7 +55,8 @@ class AutocompleteService:
                         clean_subcmd = subcmd.strip('<>').split()[0].upper()
                         if clean_subcmd and clean_subcmd not in ['NAME', 'DESC', 'TOPIC', 'QUESTION']:
                             options.append(clean_subcmd)
-                            option_details[clean_subcmd] = subcmd_desc
+                            # Ensure description is a plain string, not FormattedText or other object
+                            option_details[clean_subcmd] = str(subcmd_desc) if subcmd_desc else ''
                 
                 # Fallback: Extract options from syntax if no SUBCOMMANDS
                 if not options and '|' in syntax:
