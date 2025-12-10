@@ -88,19 +88,17 @@ class ImprovedCompleter(Completer):
                 option_text = sug.get('option', '')
                 cmd_name = sug.get('command', '')
                 
-                # Build meta showing option details (ensure it's a plain string)
+                # Build description - NO display_meta, just text
                 desc = sug.get('description', '')
-                if desc:
-                    # Force conversion to plain string (in case it's wrapped in FormattedText)
-                    meta = str(desc) if not isinstance(desc, str) else desc
-                else:
-                    meta = f"{cmd_name} {option_text}"
+                if not desc:
+                    desc = f"{cmd_name} {option_text}"
                 
+                # Create completion with FormattedText (prevents auto-wrapping)
+                display_text = FormattedText([('', f"{option_text:<15} - {desc[:60]}")])
                 yield Completion(
                     option_text,
                     start_position=-len(current_word) if current_word else 0,
-                    display=option_text,
-                    display_meta=meta
+                    display=display_text
                 )
 
 
@@ -478,7 +476,7 @@ class SmartPrompt:
             sys.stdout.flush()
             time.sleep(0.15)
 
-    def ask(self, prompt_text: str = "🌀 ", multiline: bool = False) -> str:
+    def ask(self, prompt_text: str = "🌀 ", multiline: bool = False, show_shortcuts: bool = True) -> str:
         """Display prompt and get user input with autocomplete."""
         if self.tui and self.tui.keypad.enabled:
             print("┌─ Nav: 8↑ 2↓ 4← 6→ 5✓ | Help: F1 | History: Ctrl+R ↑/↓ | Edit: Ctrl+A/E/K/U/W ─┐")
@@ -557,8 +555,23 @@ class SmartPrompt:
                     bottom_toolbar=get_bottom_toolbar,
                 )
             
-            # Show prompt with blinking cursor
+            # Show keyboard shortcuts header if enabled
             import sys
+            if show_shortcuts:
+                # Get terminal width
+                try:
+                    import shutil
+                    term_width = shutil.get_terminal_size().columns
+                except:
+                    term_width = 80
+                
+                # Right-aligned shortcuts line
+                shortcuts = "Ctrl+A/E/K/U/W ─┐"
+                padding = " " * (term_width - len(shortcuts))
+                sys.stdout.write(f"\n{padding}{shortcuts}\n")
+                sys.stdout.flush()
+            
+            # Show prompt with blinking cursor
             sys.stdout.write(prompt_text)
             sys.stdout.flush()
             self._show_ready_cursor()
