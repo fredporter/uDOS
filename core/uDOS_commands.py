@@ -14,6 +14,11 @@ import json
 from pathlib import Path
 from core.services.theme.theme_loader import load_theme
 
+# Import mission/workflow handlers at module level for use in execute_ucode
+from core.commands.mission_handler import handle_mission_command
+from core.commands.schedule_handler import handle_schedule_command
+from core.commands.workflow_handler import handle_workflow_command
+
 
 class CommandHandler:
     """Main command router - delegates to specialized handlers."""
@@ -94,11 +99,6 @@ class CommandHandler:
         from core.commands.tree_handler import TreeHandler
         from core.commands.peek_handler import PeekHandler
         from core.commands.sandbox_handler import SandboxHandler
-        
-        # Workflow & Mission Imports
-        from core.commands.mission_handler import handle_mission_command
-        from core.commands.schedule_handler import handle_schedule_command
-        from core.commands.workflow_handler import handle_workflow_command
 
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
@@ -368,6 +368,10 @@ class CommandHandler:
             # Documentation System
             elif module == "DOCS":
                 return self.docs_handler.handle(command, params)
+            
+            # GUIDE - redirect to DOCS (consolidated in v2.0)
+            elif module == "GUIDE":
+                return self.docs_handler.handle(command, params)
 
 
 
@@ -402,7 +406,10 @@ class CommandHandler:
 
             # Unified Generation System
             elif module == "MAKE":
-                return self.make_handler.handle(command, params, grid)
+                # MAKE handler expects all params including subcommand
+                # Prepend command back to params since it contains the subcommand
+                all_params = [command] + params if command else params
+                return self.make_handler.handle("MAKE", all_params, grid)
 
             # OK Assistant Commands
             elif module == "OK":

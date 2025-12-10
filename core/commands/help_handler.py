@@ -1,62 +1,59 @@
 """
-uDOS v1.2.9+ - Enhanced Help System
+uDOS v1.2.22 - Modern Help System
 
-Provides comprehensive, navigable help with:
-- Section selector (quick jump to categories)
-- Complete command reference with all v1.2.x additions
-- Syntax highlighting for examples
-- Usage patterns and common workflows
-- Interactive navigation
+Integrated with smart prompt and pager:
+- Clean, borderless output
+- Syntax highlighting for commands and examples
+- Command options and subcommands clearly displayed
+- Minimal blank lines
+- Pager integration for long content
+- Hotkey support in smart prompt
 
-Version: 1.2.9
+Version: 1.2.22
 Author: uDOS Development Team
 """
 
+import json
+from pathlib import Path
 from typing import List, Dict, Optional
-from core.output.syntax_highlighter import highlight_syntax
 import re
-
-# ANSI color codes for command highlighting
-CMD_COLOR = '\033[1;32m'  # Bright green for commands
-RESET = '\033[0m'
-
-
-def colorize_command(text: str) -> str:
-    """Colorize command names in text (e.g., 'HELP FILES' -> colored 'HELP' and 'FILES')."""
-    # Match uppercase words (commands)
-    return re.sub(r'\b([A-Z][A-Z0-9_]+)\b', f'{CMD_COLOR}\\1{RESET}', text)
-
-
-def strip_ansi(text: str) -> str:
-    """Remove ANSI escape codes from text for length calculation."""
-    ansi_escape = re.compile(r'\x1b\[[0-9;]*m')
-    return ansi_escape.sub('', text)
-
-
-def pad_to_border(text: str, total_width: int = 79) -> str:
-    """Pad text to fit border width, accounting for ANSI codes."""
-    visible_len = len(strip_ansi(text))
-    padding_needed = total_width - visible_len
-    return text + ' ' * padding_needed
 
 
 class HelpHandler:
-    """Enhanced help system with section navigation and comprehensive docs."""
+    """Modern help system with smart prompt integration."""
 
-    def __init__(self):
-        """Initialize help system with all command categories."""
-        self.sections = self._build_sections()
+    def __init__(self, viewport=None, logger=None):
+        """Initialize help handler."""
+        self.viewport = viewport
+        self.logger = logger
+        self.commands = self._load_commands()
+        
+        # ANSI colors for syntax highlighting
+        self.colors = {
+            'command': '\033[1;36m',      # Cyan for commands
+            'option': '\033[1;33m',       # Yellow for options
+            'param': '\033[1;35m',        # Magenta for parameters
+            'value': '\033[0;32m',        # Green for values
+            'comment': '\033[0;90m',      # Gray for comments
+            'highlight': '\033[1;37m',    # Bright white for emphasis
+            'reset': '\033[0m'
+        }
+
+    def _load_commands(self) -> Dict:
+        """Load commands from commands.json."""
+        commands_file = Path(__file__).parent.parent / 'data' / 'commands.json'
+        with open(commands_file) as f:
+            data = json.load(f)
+        return {cmd['NAME']: cmd for cmd in data['COMMANDS']}
 
     def handle(self, params: List[str]) -> str:
         """
-        Handle HELP command with enhanced features.
+        Handle HELP command.
 
         Usage:
-            HELP                    - Show main menu with section selector
-            HELP <section>          - Jump to specific section
-            HELP SEARCH <query>     - Search all commands
-            HELP QUICK              - Quick reference card
-            HELP <command>          - Detailed help for specific command
+            HELP                - Show available commands by category
+            HELP <command>      - Show detailed help for command
+            HELP SEARCH <term>  - Search commands
 
         Args:
             params: Command parameters
@@ -65,821 +62,294 @@ class HelpHandler:
             Formatted help output
         """
         if not params:
-            return self._show_main_menu()
+            return self._show_command_list()
 
-        subcommand = params[0].upper()
+        command = params[0].upper()
 
-        # Section shortcuts
-        section_map = {
-            'FILES': 'file',
-            'FILE': 'file',
-            'SYSTEM': 'system',
-            'KNOWLEDGE': 'knowledge',
-            'KB': 'knowledge',
-            'MEMORY': 'memory',
-            'GRAPHICS': 'graphics',
-            'DIAGRAM': 'graphics',
-            'SVG': 'graphics',
-            'MAP': 'mapping',
-            'MAPPING': 'mapping',
-            'TILE': 'mapping',
-            'CLOUD': 'cloud',
-            'GMAIL': 'cloud',
-            'SYNC': 'cloud',
-            'AUTOMATION': 'automation',
-            'MISSIONS': 'automation',
-            'WORKFLOW': 'automation',
-            'DISPLAY': 'display',
-            'THEME': 'display',
-            'DEV': 'advanced',
-            'DEBUG': 'advanced',
-            'RESOURCE': 'advanced',
-        }
-
-        # Check for section shortcuts
-        if subcommand in section_map:
-            return self._show_section(section_map[subcommand])
-
-        # Special commands
-        if subcommand == 'SEARCH':
-            if len(params) < 2:
-                return "Usage: HELP SEARCH <query>\nExample: HELP SEARCH workflow"
-            query = ' '.join(params[1:]).lower()
+        if command == 'SEARCH':
+            query = ' '.join(params[1:]).lower() if len(params) > 1 else ''
             return self._search_commands(query)
 
-        if subcommand == 'QUICK':
-            return self._show_quick_reference()
+        # Show specific command help
+        if command in self.commands:
+            return self._show_command_help(command)
+        
+        # Try fuzzy match
+        matches = self._fuzzy_match(command)
+        if matches:
+            if len(matches) == 1:
+                return self._show_command_help(matches[0])
+            else:
+                return self._show_matches(command, matches)
+        
+        return f"❌ Unknown command: {command}\n💡 Type HELP to see all commands"
 
-        # Try to find specific command
-        return self._show_command_help(subcommand)
-
-    def _show_main_menu(self) -> str:
-        """Show main help menu with section selector."""
+    def _show_command_list(self) -> str:
+        """Show categorized list of all commands."""
+        c = self.colors
         lines = []
-
+        
         # Header
-        lines.append("╔" + "═"*78 + "╗")
-        lines.append("║" + " "*26 + "uDOS HELP SYSTEM" + " "*34 + "║")
-        lines.append("╠" + "═"*78 + "╣")
-        lines.append("║" + " "*78 + "║")
-
-        # Section Selector
-        lines.append("║  QUICK NAVIGATION:".ljust(79) + "║")
-        lines.append("║  " + "─"*76 + "║")
-        lines.append("║  " + pad_to_border(colorize_command("HELP FILES") + "         - File operations (NEW, EDIT, DELETE, COPY, etc.)", 76) + "║")
-        lines.append("║  " + pad_to_border(colorize_command("HELP SYSTEM") + "        - System commands (STATUS, REPAIR, BACKUP, etc.)", 76) + "║")
-        lines.append("║  " + pad_to_border(colorize_command("HELP KNOWLEDGE") + "     - Knowledge bank & guides (GUIDE, SEARCH)", 76) + "║")
-        lines.append("║  " + pad_to_border(colorize_command("HELP MEMORY") + "        - Memory system (MEMORY, SHARED, PRIVATE)", 76) + "║")
-        lines.append("║  " + pad_to_border(colorize_command("HELP GRAPHICS") + "      - Graphics & diagrams (SVG, DIAGRAM, PANEL)", 76) + "║")
-        lines.append("║  " + pad_to_border(colorize_command("HELP MAPPING") + "       - Map & grid system (TILE, LAYER, LOCATE)", 76) + "║")
-        lines.append("║  " + pad_to_border(colorize_command("HELP CLOUD") + "         - Cloud sync (GMAIL, SYNC, EMAIL, IMPORT)", 76) + "║")
-        lines.append("║  " + pad_to_border(colorize_command("HELP AUTOMATION") + "    - Missions & workflows (MISSION, SCHEDULE)", 76) + "║")
-        lines.append("║  " + pad_to_border(colorize_command("HELP DISPLAY") + "       - Display & themes (PANEL, THEME, LAYOUT)", 76) + "║")
-        lines.append("║  " + pad_to_border(colorize_command("HELP ADVANCED") + "      - Advanced tools (DEV MODE, RESOURCE, LOGS)", 76) + "║")
-        lines.append("║" + " "*78 + "║")
-
-        # Special Features
-        lines.append("║  SPECIAL FEATURES:".ljust(79) + "║")
-        lines.append("║  " + "─"*76 + "║")
-        lines.append("║  " + pad_to_border(colorize_command("HELP SEARCH") + " <query>       - Search all commands", 76) + "║")
-        lines.append("║  " + pad_to_border(colorize_command("HELP QUICK") + "                - One-page quick reference", 76) + "║")
-        lines.append("║  " + pad_to_border(colorize_command("HELP") + " <command>            - Detailed help for specific command", 76) + "║")
-        lines.append("║" + " "*78 + "║")
-
-        # Footer
-        lines.append("╠" + "═"*78 + "╣")
-        lines.append("║  Full documentation: https://github.com/fredporter/uDOS/wiki".ljust(79) + "║")
-        lines.append("║  Get support: File an issue on GitHub".ljust(79) + "║")
-        lines.append("║  uDOS version: 1.2.9 (Gmail Cloud Sync)".ljust(79) + "║")
-        lines.append("╚" + "═"*78 + "╝")
-
-        return '\n'.join(lines)
-
-    def _show_section(self, section: str) -> str:
-        """Show commands for a specific section."""
-        if section not in self.sections:
-            return f"Unknown section: {section}\nTry: HELP for all sections"
-
-        section_data = self.sections[section]
-        lines = []
-
-        # Header
-        lines.append("╔" + "═"*78 + "╗")
-        header_text = f"{section_data['icon']} {section_data['title']}"
-        lines.append("║  " + pad_to_border(header_text, 76) + "║")
-        lines.append("╠" + "═"*78 + "╣")
-        lines.append("║" + " "*78 + "║")
-
-        # Commands
-        for cmd in section_data['commands']:
-            cmd_name_colored = colorize_command(cmd['name'])
-            lines.append("║  " + pad_to_border(cmd_name_colored, 76) + "║")
-            lines.append(f"║    {cmd['desc']:<73} ║")
-            lines.append("║" + " "*78 + "║")
-
-            # Syntax with highlighting
-            lines.append("║    Syntax:".ljust(79) + "║")
-            for syntax in cmd['syntax']:
-                highlighted = highlight_syntax(syntax)
-                lines.append("║      " + pad_to_border(highlighted, 72) + "║")
-
-            lines.append("║" + " "*78 + "║")
-
-            # Examples
-            if cmd.get('examples'):
-                lines.append("║    Examples:".ljust(79) + "║")
-                for example in cmd['examples']:
-                    highlighted = highlight_syntax(example)
-                    lines.append("║      " + pad_to_border(highlighted, 72) + "║")
-                lines.append("║" + " "*78 + "║")
-
-        # Footer
-        lines.append("╠" + "═"*78 + "╣")
-        lines.append("║  " + pad_to_border("Tip: Use " + colorize_command("HELP") + " <command> for more details", 76) + "║")
-        lines.append("║  " + pad_to_border("Try: " + colorize_command("HELP SEARCH") + " <keyword> to find related commands", 76) + "║")
-        lines.append("╚" + "═"*78 + "╝")
-
-        return '\n'.join(lines)
-
-    def _show_quick_reference(self) -> str:
-        """Show one-page quick reference card."""
-        lines = []
-
-        lines.append("╔" + "═"*78 + "╗")
-        lines.append("║" + " "*25 + "QUICK REFERENCE CARD" + " "*33 + "║")
-        lines.append("╠" + "═"*78 + "╣")
-        lines.append("║" + " "*78 + "║")
-
-        # Most used commands by category
-        quick_cmds = [
-            ("Files", [
-                ("NEW <file>", "Create new file"),
-                ("EDIT <file>", "Edit file"),
-                ("DELETE <file>", "Delete file"),
-                ("SHOW <file>", "Display file"),
-            ]),
-            ("System", [
-                ("STATUS", "System overview"),
-                ("REPAIR", "Fix system issues"),
-                ("BACKUP <file>", "Create backup"),
-                ("CLEAN", "Clean workspace"),
-            ]),
-            ("Knowledge", [
-                ("GUIDE <topic>", "Interactive guide"),
-                ("SEARCH <query>", "Search knowledge"),
-            ]),
-            ("Cloud", [
-                ("LOGIN GMAIL", "Authenticate"),
-                ("SYNC GMAIL", "Sync files"),
-                ("EMAIL LIST", "List emails"),
-                ("IMPORT GMAIL", "Import emails"),
-            ]),
-            ("Automation", [
-                ("MISSION CREATE", "New mission"),
-                ("WORKFLOW RUN", "Run workflow"),
-                ("SCHEDULE ADD", "Schedule task"),
-            ]),
-            ("Graphics", [
-                ("SVG <name>", "Generate SVG"),
-                ("DIAGRAM <topic>", "Create diagram"),
-                ("PANEL <content>", "Display panel"),
-            ]),
-        ]
-
-        for category, commands in quick_cmds:
-            category_colored = colorize_command(category)
-            lines.append("║  " + pad_to_border(category_colored, 76) + "║")
-            lines.append("║  " + "─"*76 + "║")
-            for cmd, desc in commands:
-                cmd_colored = colorize_command(cmd)
-                line_text = f"{cmd_colored:<25} {desc}"
-                lines.append("║    " + pad_to_border(line_text, 74) + "║")
-            lines.append("║" + " "*78 + "║")
-
-        # Common patterns
-        lines.append("║  Common Patterns:".ljust(79) + "║")
-        lines.append("║  " + "─"*76 + "║")
-        lines.append("║    " + pad_to_border("$VARIABLE                   Use environment variables", 74) + "║")
-        lines.append("║    " + pad_to_border("COMMAND --flag              Add options to commands", 74) + "║")
-        lines.append("║    " + pad_to_border("COMMAND < input > output    Redirect input/output", 74) + "║")
-        lines.append("║" + " "*78 + "║")
-
-        lines.append("╠" + "═"*78 + "╣")
-        lines.append("║  " + pad_to_border("For detailed help: " + colorize_command("HELP") + " <section> or " + colorize_command("HELP") + " <command>", 76) + "║")
-        lines.append("╚" + "═"*78 + "╝")
-
-        return '\n'.join(lines)
-
-    def _search_commands(self, query: str) -> str:
-        """Search commands by name, description, or category."""
-        results = []
-
-        for section_name, section_data in self.sections.items():
-            for cmd in section_data['commands']:
-                # Search in name, description, and syntax
-                searchable = f"{cmd['name']} {cmd['desc']} {' '.join(cmd['syntax'])}".lower()
-                if query in searchable:
-                    results.append({
-                        'section': section_data['title'],
-                        'icon': section_data['icon'],
-                        'name': cmd['name'],
-                        'desc': cmd['desc']
-                    })
-
-        if not results:
-            return f"No commands found matching '{query}'\nTry broader search terms or HELP for all sections"
-
-        # Format results
-        lines = []
-        lines.append("╔" + "═"*78 + "╗")
-        lines.append("║  🔍 " + pad_to_border(f"Search Results for: {query}", 74) + "║")
-        lines.append("╠" + "═"*78 + "╣")
-        lines.append("║" + " "*78 + "║")
-
-        for result in results:
-            result_line = f"{result['icon']} {colorize_command(result['name']):<25} ({result['section']})"
-            lines.append("║  " + pad_to_border(result_line, 76) + "║")
-            lines.append(f"║    {result['desc']:<73} ║")
-            lines.append("║" + " "*78 + "║")
-
-        lines.append("╠" + "═"*78 + "╣")
-        lines.append("║  " + pad_to_border(f"Found {len(results)} command(s). Use " + colorize_command("HELP") + " <command> for details.", 76) + "║")
-        lines.append("╚" + "═"*78 + "╝")
-
-        return '\n'.join(lines)
+        lines.append(f"{c['highlight']}📚 uDOS Command Reference{c['reset']}")
+        lines.append(f"{c['comment']}Complete guide to all available commands organized by category{c['reset']}\n")
+        
+        # Group commands by category with descriptions
+        categories = {
+            '🗂️  File Operations': {
+                'description': 'Create, edit, delete, and manage files and directories',
+                'commands': ['FILE', 'NEW', 'DELETE', 'COPY', 'MOVE', 'EDIT', 'SHOW', 'LIST', 'TREE']
+            },
+            '⚙️  System': {
+                'description': 'System maintenance, configuration, and status monitoring',
+                'commands': ['STATUS', 'REPAIR', 'CONFIG', 'BACKUP', 'CLEAN', 'REBOOT', 'THEME']
+            },
+            '📖 Knowledge': {
+                'description': 'Access survival guides and knowledge bank resources',
+                'commands': ['GUIDE', 'SEARCH', 'INDEX']
+            },
+            '💾 Memory': {
+                'description': 'Personal, shared, and community memory management',
+                'commands': ['MEMORY', 'PRIVATE', 'SHARED', 'COMMUNITY']
+            },
+            '🎨 Graphics': {
+                'description': 'Create and display ASCII art, diagrams, and visual content',
+                'commands': ['SVG', 'DIAGRAM', 'PANEL', 'SPRITE']
+            },
+            '🗺️  Mapping': {
+                'description': 'Navigate grid system, layers, and spatial coordinates',
+                'commands': ['MAP', 'TILE', 'LAYER', 'LOCATE', 'ASCEND', 'DESCEND']
+            },
+            '☁️  Cloud': {
+                'description': 'Cloud synchronization and external data integration',
+                'commands': ['GMAIL', 'SYNC', 'EMAIL', 'IMPORT', 'EXPORT']
+            },
+            '🤖 AI & Automation': {
+                'description': 'AI-powered content generation and workflow automation',
+                'commands': ['OK', 'MAKE', 'MISSION', 'WORKFLOW', 'SCHEDULE']
+            },
+            '🎮 Gameplay': {
+                'description': 'Experience points, items, quests, and achievements',
+                'commands': ['XP', 'ITEM', 'QUEST', 'ACHIEVEMENT']
+            },
+            '🔧 Advanced': {
+                'description': 'Development tools, debugging, and system extensions',
+                'commands': ['DEV', 'DEBUG', 'RESOURCE', 'EXTENSION']
+            },
+        }
+        
+        for category, data in categories.items():
+            lines.append(f"{c['highlight']}{category}{c['reset']}")
+            lines.append(f"{c['comment']}{data['description']}{c['reset']}")
+            
+            available_cmds = [cmd for cmd in data['commands'] if cmd in self.commands]
+            if available_cmds:
+                # Format in columns with descriptions
+                cols = 3
+                for i in range(0, len(available_cmds), cols):
+                    row = available_cmds[i:i+cols]
+                    formatted_cmds = []
+                    for cmd in row:
+                        desc = self.commands[cmd].get('DESCRIPTION', '')[:30]
+                        formatted_cmds.append(f"{c['command']}{cmd:12}{c['reset']} {c['comment']}{desc}{c['reset']}")
+                    lines.append("  " + "  ".join(formatted_cmds))
+            lines.append("")  # Single blank line between categories
+        
+        # Usage hints section
+        lines.append(f"{c['highlight']}Quick Start Guide{c['reset']}")
+        lines.append(f"{c['comment']}Getting help and finding commands:{c['reset']}")
+        lines.append(f"  {c['command']}HELP <command>{c['reset']}        Show detailed help for any command")
+        lines.append(f"  {c['command']}HELP SEARCH <term>{c['reset']}    Search all commands by keyword")
+        lines.append(f"  {c['command']}Press F1{c['reset']}               Get help while typing a command")
+        lines.append(f"  {c['command']}↑/↓ arrows{c['reset']}             Navigate command completions")
+        lines.append(f"  {c['command']}Tab or Enter{c['reset']}           Accept selected completion\n")
+        
+        # Common workflows
+        lines.append(f"{c['highlight']}Common Workflows{c['reset']}")
+        lines.append(f"  {c['option']}File Management:{c['reset']}    FILE → Pick operation → Select file")
+        lines.append(f"  {c['option']}Knowledge Lookup:{c['reset']}  GUIDE water → Browse survival guides")
+        lines.append(f"  {c['option']}AI Generation:{c['reset']}     OK MAKE SVG \"water filter diagram\"")
+        lines.append(f"  {c['option']}System Check:{c['reset']}      STATUS → View system health")
+        
+        return "\n".join(lines)
 
     def _show_command_help(self, command: str) -> str:
         """Show detailed help for a specific command."""
-        # Search all sections for the command
-        for section_name, section_data in self.sections.items():
-            for cmd in section_data['commands']:
-                if cmd['name'].upper() == command.upper():
-                    return self._format_command_detail(cmd, section_data)
-
-        return f"Unknown command: {command}\nTry: HELP SEARCH {command.lower()}"
-
-    def _format_command_detail(self, cmd: Dict, section: Dict) -> str:
-        """Format detailed help for a single command."""
+        c = self.colors
+        cmd_data = self.commands[command]
         lines = []
+        
+        # Command name and description (more detailed)
+        lines.append(f"{c['highlight']}━━━ {command} ━━━{c['reset']}")
+        description = cmd_data.get('DESCRIPTION', 'No description available')
+        lines.append(f"{description}\n")
+        
+        # Syntax with explanation
+        syntax = cmd_data.get('SYNTAX', command)
+        lines.append(f"{c['comment']}Syntax:{c['reset']}")
+        lines.append(f"  {self._highlight_syntax(syntax)}")
+        lines.append(f"{c['comment']}  Legend: {c['command']}COMMAND{c['reset']} {c['option']}[optional]{c['reset']} {c['param']}<required>{c['reset']} {c['comment']}|{c['reset']} {c['comment']}choices{c['reset']}\n")
+        
+        # Subcommands/Options (with more detail)
+        subcommands = cmd_data.get('SUBCOMMANDS', {})
+        if subcommands:
+            lines.append(f"{c['comment']}Available Options:{c['reset']}")
+            for subcmd, desc in subcommands.items():
+                # Clean up subcmd display
+                clean_subcmd = subcmd.strip('<>')
+                lines.append(f"  {c['option']}{clean_subcmd:18}{c['reset']} {desc}")
+            lines.append("")
+        
+        # Examples (show all with context)
+        examples = cmd_data.get('EXAMPLES', [])
+        if examples:
+            lines.append(f"{c['comment']}Usage Examples:{c['reset']}")
+            for i, example in enumerate(examples[:8], 1):  # Show up to 8 examples
+                lines.append(f"  {c['comment']}{i}.{c['reset']} {c['command']}{example}{c['reset']}")
+            if len(examples) > 8:
+                lines.append(f"{c['comment']}  ... and {len(examples) - 8} more examples{c['reset']}")
+            lines.append("")
+        
+        # Flags (with full descriptions)
+        flags = cmd_data.get('FLAGS', {})
+        if flags:
+            lines.append(f"{c['comment']}Command Flags:{c['reset']}")
+            for flag, desc in flags.items():
+                lines.append(f"  {c['option']}{flag:18}{c['reset']} {desc}")
+            lines.append("")
+        
+        # Notes (show all)
+        notes = cmd_data.get('NOTES', [])
+        if notes:
+            lines.append(f"{c['comment']}Important Notes:{c['reset']}")
+            for note in notes:  # Show all notes
+                # Remove emoji if present at start
+                clean_note = re.sub(r'^[^\w\s]+\s*', '', note)
+                lines.append(f"  • {clean_note}")
+            lines.append("")
+        
+        # Related commands (if we can infer them)
+        related = self._get_related_commands(command)
+        if related:
+            lines.append(f"{c['comment']}Related Commands:{c['reset']}")
+            for rel_cmd in related[:5]:
+                rel_desc = self.commands[rel_cmd].get('DESCRIPTION', '')[:50]
+                lines.append(f"  {c['command']}{rel_cmd:15}{c['reset']} {c['comment']}{rel_desc}{c['reset']}")
+            lines.append("")
+        
+        # Footer with helpful hints
+        lines.append(f"{c['comment']}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{c['reset']}")
+        lines.append(f"{c['comment']}💡 Tips:{c['reset']}")
+        lines.append(f"  • Press {c['option']}F1{c['reset']} while typing to see this help")
+        lines.append(f"  • Use {c['command']}↑/↓{c['reset']} arrows to browse command completions")
+        lines.append(f"  • Type {c['command']}HELP SEARCH <keyword>{c['reset']} to find related commands")
+        
+        return "\n".join(lines)
 
-        lines.append("╔" + "═"*78 + "╗")
-        cmd_header = f"{section['icon']} {colorize_command(cmd['name'])}"
-        lines.append("║  " + pad_to_border(cmd_header, 76) + "║")
-        lines.append("╠" + "═"*78 + "╣")
-        lines.append("║" + " "*78 + "║")
+    def _highlight_syntax(self, syntax: str) -> str:
+        """Apply syntax highlighting to command syntax."""
+        c = self.colors
+        
+        # Highlight command name (first word)
+        parts = syntax.split(None, 1)
+        if not parts:
+            return syntax
+        
+        result = f"{c['command']}{parts[0]}{c['reset']}"
+        
+        if len(parts) > 1:
+            rest = parts[1]
+            # Highlight options in brackets
+            rest = re.sub(r'\[([^\]]+)\]', f"{c['comment']}[{c['option']}\\1{c['comment']}]{c['reset']}", rest)
+            # Highlight required params in <>
+            rest = re.sub(r'<([^>]+)>', f"{c['param']}<\\1>{c['reset']}", rest)
+            # Highlight pipe separator
+            rest = re.sub(r'\|', f"{c['comment']}|{c['reset']}", rest)
+            result += " " + rest
+        
+        return result
 
-        # Description
-        lines.append(f"║  {cmd['desc']:<75} ║")
-        lines.append("║" + " "*78 + "║")
+    def _search_commands(self, query: str) -> str:
+        """Search commands by name or description."""
+        c = self.colors
+        
+        if not query:
+            return "❌ Usage: HELP SEARCH <term>\nExample: HELP SEARCH file"
+        
+        matches = []
+        query_lower = query.lower()
+        
+        for name, cmd_data in self.commands.items():
+            desc = cmd_data.get('DESCRIPTION', '').lower()
+            syntax = cmd_data.get('SYNTAX', '').lower()
+            
+            if (query_lower in name.lower() or 
+                query_lower in desc or 
+                query_lower in syntax):
+                matches.append((name, cmd_data))
+        
+        if not matches:
+            return f"❌ No commands found matching '{query}'\n💡 Try HELP to see all commands"
+        
+        lines = []
+        lines.append(f"{c['highlight']}🔍 Search results for '{query}'{c['reset']}\n")
+        
+        for name, cmd_data in matches[:15]:  # Show max 15 results
+            desc = cmd_data.get('DESCRIPTION', '')[:60]
+            lines.append(f"{c['command']}{name:15}{c['reset']} {desc}")
+        
+        if len(matches) > 15:
+            lines.append(f"\n{c['comment']}... and {len(matches) - 15} more results{c['reset']}")
+        
+        lines.append(f"\n{c['comment']}💡 Type {c['command']}HELP <command>{c['reset']}{c['comment']} for details{c['reset']}")
+        
+        return "\n".join(lines)
 
-        # Syntax
-        lines.append("║  Syntax:".ljust(79) + "║")
-        lines.append("║  " + "─"*76 + "║")
-        for syntax in cmd['syntax']:
-            highlighted = highlight_syntax(syntax)
-            lines.append("║    " + pad_to_border(highlighted, 74) + "║")
-        lines.append("║" + " "*78 + "║")
-
-        # Examples
-        if cmd.get('examples'):
-            lines.append("║  Examples:".ljust(79) + "║")
-            lines.append("║  " + "─"*76 + "║")
-            for example in cmd['examples']:
-                highlighted = highlight_syntax(example)
-                lines.append("║    " + pad_to_border(highlighted, 74) + "║")
-            lines.append("║" + " "*78 + "║")
-
-        # Related commands
-        if cmd.get('related'):
-            lines.append("║  Related Commands:".ljust(79) + "║")
-            lines.append("║  " + "─"*76 + "║")
-            related_str = ", ".join(cmd['related'])
-            lines.append(f"║    {related_str:<73} ║")
-            lines.append("║" + " "*78 + "║")
-
-        # Notes
-        if cmd.get('notes'):
-            lines.append("║  Notes:".ljust(79) + "║")
-            lines.append("║  " + "─"*76 + "║")
-            for note in cmd['notes']:
-                # Wrap long notes
-                while len(note) > 73:
-                    break_point = note[:73].rfind(' ')
-                    if break_point == -1:
-                        break_point = 73
-                    lines.append(f"║    {note[:break_point]:<73} ║")
-                    note = note[break_point:].lstrip()
-                if note:
-                    lines.append(f"║    {note:<73} ║")
-            lines.append("║" + " "*78 + "║")
-
-        lines.append("╠" + "═"*78 + "╣")
-        lines.append("║  " + pad_to_border("See also: " + colorize_command("HELP") + f" {section['title'][:20]}", 76) + "║")
-        lines.append("╚" + "═"*78 + "╝")
-
-        return '\n'.join(lines)
-
-    def _build_sections(self) -> Dict:
-        """Build comprehensive command reference with all v1.2.x commands."""
-        return {
-            'file': {
-                'icon': '📝',
-                'title': 'File Operations',
-                'commands': [
-                    {
-                        'name': 'NEW',
-                        'desc': 'Create a new file',
-                        'syntax': ['NEW <filename>', 'NEW <filename> --template=<type>'],
-                        'examples': [
-                            'NEW shopping_list.txt',
-                            'NEW mission.upy --template=mission',
-                            'NEW notes.md --template=markdown',
-                        ],
-                        'related': ['EDIT', 'DELETE', 'COPY'],
-                        'notes': ['Templates available: mission, workflow, checklist, markdown, python']
-                    },
-                    {
-                        'name': 'EDIT',
-                        'desc': 'Edit an existing file in your system editor',
-                        'syntax': ['EDIT <filename>'],
-                        'examples': ['EDIT config.json', 'EDIT memory/missions/current.upy'],
-                        'related': ['NEW', 'SHOW', 'SAVE'],
-                    },
-                    {
-                        'name': 'DELETE',
-                        'desc': 'Delete a file (soft-delete to .archive/ for 7 days)',
-                        'syntax': ['DELETE <filename>', 'DELETE <filename> --permanent'],
-                        'examples': ['DELETE old_notes.txt', 'DELETE temp.log --permanent'],
-                        'related': ['REPAIR RECOVER', 'CLEAN'],
-                        'notes': ['Deleted files go to .archive/deleted/ for 7-day recovery window']
-                    },
-                    {
-                        'name': 'COPY',
-                        'desc': 'Copy a file to new location',
-                        'syntax': ['COPY <source> <destination>'],
-                        'examples': ['COPY template.upy my_mission.upy', 'COPY config.json config.backup'],
-                        'related': ['MOVE', 'RENAME'],
-                    },
-                    {
-                        'name': 'MOVE',
-                        'desc': 'Move a file to new location',
-                        'syntax': ['MOVE <source> <destination>'],
-                        'examples': ['MOVE draft.txt memory/docs/', 'MOVE temp.log memory/logs/'],
-                        'related': ['COPY', 'RENAME'],
-                    },
-                    {
-                        'name': 'SHOW',
-                        'desc': 'Display file contents',
-                        'syntax': ['SHOW <filename>', 'SHOW <filename> --lines=N'],
-                        'examples': ['SHOW README.md', 'SHOW memory/logs/system.log --lines=50'],
-                        'related': ['EDIT', 'SEARCH'],
-                    },
-                ]
-            },
-            'system': {
-                'icon': '🔧',
-                'title': 'System Commands',
-                'commands': [
-                    {
-                        'name': 'STATUS',
-                        'desc': 'Show system status overview (disk, resources, health)',
-                        'syntax': ['STATUS', 'STATUS --detailed', 'STATUS --health'],
-                        'examples': ['STATUS', 'STATUS --health'],
-                        'related': ['REPAIR', 'RESOURCE', 'CLEAN'],
-                    },
-                    {
-                        'name': 'REPAIR',
-                        'desc': 'Diagnose and fix system issues',
-                        'syntax': ['REPAIR', 'REPAIR RECOVER <file>', 'REPAIR --auto'],
-                        'examples': ['REPAIR', 'REPAIR RECOVER deleted_file.txt', 'REPAIR --auto'],
-                        'related': ['STATUS', 'BACKUP', 'CLEAN'],
-                        'notes': ['RECOVER restores files from .archive/deleted/ within 7-day window']
-                    },
-                    {
-                        'name': 'BACKUP',
-                        'desc': 'Create, list, restore, or clean file backups',
-                        'syntax': [
-                            'BACKUP <file>',
-                            'BACKUP LIST <file>',
-                            'BACKUP RESTORE <file> <timestamp>',
-                            'BACKUP CLEAN <file>',
-                        ],
-                        'examples': [
-                            'BACKUP config.json',
-                            'BACKUP LIST config.json',
-                            'BACKUP RESTORE config.json 20251205_143022',
-                            'BACKUP CLEAN config.json',
-                        ],
-                        'related': ['UNDO', 'REDO', 'REPAIR'],
-                        'notes': ['Backups stored in .archive/backups/ with 30-day retention']
-                    },
-                    {
-                        'name': 'UNDO',
-                        'desc': 'Revert file to previous version',
-                        'syntax': ['UNDO <file>', 'UNDO <file> --steps=N'],
-                        'examples': ['UNDO config.json', 'UNDO mission.upy --steps=3'],
-                        'related': ['REDO', 'BACKUP'],
-                        'notes': ['Uses .archive/versions/ with 90-day retention, keeps last 5 versions']
-                    },
-                    {
-                        'name': 'REDO',
-                        'desc': 'Re-apply undone changes to file',
-                        'syntax': ['REDO <file>', 'REDO <file> --steps=N'],
-                        'examples': ['REDO config.json', 'REDO mission.upy --steps=2'],
-                        'related': ['UNDO', 'BACKUP'],
-                    },
-                    {
-                        'name': 'CLEAN',
-                        'desc': 'Clean workspace and manage archives',
-                        'syntax': [
-                            'CLEAN',
-                            'CLEAN --scan',
-                            'CLEAN --purge [days]',
-                            'CLEAN --dry-run',
-                        ],
-                        'examples': [
-                            'CLEAN',
-                            'CLEAN --scan',
-                            'CLEAN --purge 60',
-                            'CLEAN --dry-run --purge 30',
-                        ],
-                        'related': ['REPAIR', 'BACKUP'],
-                        'notes': ['--scan shows archive health metrics, --purge removes old archives']
-                    },
-                ]
-            },
-            'knowledge': {
-                'icon': '📚',
-                'title': 'Knowledge & Guides',
-                'commands': [
-                    {
-                        'name': 'GUIDE',
-                        'desc': 'Interactive survival guides with progress tracking',
-                        'syntax': [
-                            'GUIDE',
-                            'GUIDE <category>',
-                            'GUIDE <category>/<topic>',
-                            'GUIDE LIST',
-                        ],
-                        'examples': [
-                            'GUIDE water',
-                            'GUIDE fire/friction',
-                            'GUIDE shelter/debris-hut',
-                            'GUIDE LIST',
-                        ],
-                        'related': ['SEARCH', 'DIAGRAM'],
-                        'notes': ['Categories: water, fire, shelter, food, navigation, medical']
-                    },
-                    {
-                        'name': 'SEARCH',
-                        'desc': 'Search knowledge bank content',
-                        'syntax': ['SEARCH <query>', 'SEARCH <query> --category=<cat>'],
-                        'examples': [
-                            'SEARCH water purification',
-                            'SEARCH fire --category=fire',
-                            'SEARCH navigation stars',
-                        ],
-                        'related': ['GUIDE', 'MEMORY'],
-                    },
-                ]
-            },
-            'memory': {
-                'icon': '💾',
-                'title': 'Memory System',
-                'commands': [
-                    {
-                        'name': 'MEMORY',
-                        'desc': '4-tier memory system (public knowledge, shared, private, community)',
-                        'syntax': [
-                            'MEMORY LIST',
-                            'MEMORY SEARCH <query>',
-                            'MEMORY ADD <content>',
-                            'MEMORY GET <id>',
-                        ],
-                        'examples': [
-                            'MEMORY LIST',
-                            'MEMORY SEARCH survival',
-                            'MEMORY ADD "Important note about water"',
-                        ],
-                        'related': ['SHARED', 'PRIVATE', 'COMMUNITY'],
-                    },
-                    {
-                        'name': 'PRIVATE',
-                        'desc': 'Private memory tier (encrypted, local-only)',
-                        'syntax': ['PRIVATE LIST', 'PRIVATE ADD <content>', 'PRIVATE GET <id>'],
-                        'examples': ['PRIVATE ADD "Personal reminder"', 'PRIVATE LIST'],
-                        'related': ['MEMORY', 'SHARED'],
-                    },
-                    {
-                        'name': 'SHARED',
-                        'desc': 'Shared memory tier (cloud-synced groups)',
-                        'syntax': ['SHARED LIST', 'SHARED ADD <content>', 'SHARED SYNC'],
-                        'examples': ['SHARED LIST', 'SHARED SYNC'],
-                        'related': ['MEMORY', 'COMMUNITY'],
-                    },
-                ]
-            },
-            'graphics': {
-                'icon': '🎨',
-                'title': 'Graphics & Diagrams',
-                'commands': [
-                    {
-                        'name': 'SVG',
-                        'desc': 'Generate SVG diagrams using Gemini AI',
-                        'syntax': ['SVG <description>', 'SVG <description> --category=<cat>'],
-                        'examples': [
-                            'SVG water filter diagram',
-                            'SVG fire teepee structure --category=fire',
-                            'SVG shelter debris hut --category=shelter',
-                        ],
-                        'related': ['DIAGRAM', 'PANEL'],
-                        'notes': ['Requires GEMINI_API_KEY in .env file']
-                    },
-                    {
-                        'name': 'DIAGRAM',
-                        'desc': 'Generate Mermaid diagrams',
-                        'syntax': ['DIAGRAM <type> <description>'],
-                        'examples': [
-                            'DIAGRAM flowchart "Water purification process"',
-                            'DIAGRAM sequence "Mission workflow"',
-                        ],
-                        'related': ['SVG', 'PANEL'],
-                    },
-                    {
-                        'name': 'PANEL',
-                        'desc': 'Display teletext-style panels',
-                        'syntax': ['PANEL <content>', 'PANEL <file>'],
-                        'examples': ['PANEL "Status update"', 'PANEL memory/docs/status.txt'],
-                        'related': ['DIAGRAM', 'THEME'],
-                    },
-                ]
-            },
-            'mapping': {
-                'icon': '🗺️',
-                'title': 'Mapping & Grid System',
-                'commands': [
-                    {
-                        'name': 'TILE',
-                        'desc': 'Grid tile commands (2-letter TILE codes)',
-                        'syntax': [
-                            'TILE INFO <code>',
-                            'TILE LOCATE <name>',
-                            'TILE LAYER <layer>',
-                            'TILE CONVERT <coords>',
-                        ],
-                        'examples': [
-                            'TILE INFO AA340',
-                            'TILE LOCATE Sydney',
-                            'TILE LAYER 100',
-                            'TILE CONVERT -33.87,151.21',
-                        ],
-                        'related': ['LOCATE', 'LAYER'],
-                        'notes': ['Format: AA-RL (columns) + 0-269 (rows), Layers: 100-500']
-                    },
-                    {
-                        'name': 'LOCATE',
-                        'desc': 'Find locations on the grid',
-                        'syntax': ['LOCATE <name>', 'LOCATE <tile_code>'],
-                        'examples': ['LOCATE London', 'LOCATE AA340'],
-                        'related': ['TILE', 'LAYER'],
-                    },
-                ]
-            },
-            'cloud': {
-                'icon': '☁️',
-                'title': 'Gmail Cloud Integration',
-                'commands': [
-                    {
-                        'name': 'LOGIN',
-                        'desc': 'Authenticate with Gmail (OAuth2)',
-                        'syntax': ['LOGIN GMAIL'],
-                        'examples': ['LOGIN GMAIL'],
-                        'related': ['LOGOUT', 'STATUS'],
-                        'notes': ['Opens browser for OAuth2 authentication, tokens stored encrypted']
-                    },
-                    {
-                        'name': 'LOGOUT',
-                        'desc': 'Revoke Gmail authentication',
-                        'syntax': ['LOGOUT GMAIL'],
-                        'examples': ['LOGOUT GMAIL'],
-                        'related': ['LOGIN', 'STATUS'],
-                    },
-                    {
-                        'name': 'SYNC',
-                        'desc': 'Sync files with Google Drive',
-                        'syntax': [
-                            'SYNC GMAIL',
-                            'SYNC GMAIL STATUS',
-                            'SYNC GMAIL ENABLE [mode]',
-                            'SYNC GMAIL DISABLE',
-                            'SYNC GMAIL CHANGES',
-                        ],
-                        'examples': [
-                            'SYNC GMAIL',
-                            'SYNC GMAIL STATUS',
-                            'SYNC GMAIL ENABLE auto --interval=300',
-                            'SYNC GMAIL CHANGES',
-                        ],
-                        'related': ['LOGIN', 'CONFIG'],
-                        'notes': ['Syncs: missions, workflows, checklists, user config, docs, drafts']
-                    },
-                    {
-                        'name': 'EMAIL',
-                        'desc': 'Email operations (list, send, download, tasks)',
-                        'syntax': [
-                            'EMAIL LIST [query]',
-                            'EMAIL SEND <to> <subject>',
-                            'EMAIL DOWNLOAD <id>',
-                            'EMAIL TASKS [query]',
-                        ],
-                        'examples': [
-                            'EMAIL LIST is:unread',
-                            'EMAIL LIST from:boss subject:urgent',
-                            'EMAIL TASKS is:unread',
-                            'EMAIL DOWNLOAD msg_abc123',
-                        ],
-                        'related': ['IMPORT', 'SYNC'],
-                    },
-                    {
-                        'name': 'IMPORT',
-                        'desc': 'Import emails as notes/checklists/missions (auto-detect)',
-                        'syntax': [
-                            'IMPORT GMAIL [query]',
-                            'IMPORT GMAIL --preview [query]',
-                            'IMPORT GMAIL --type=<type> [query]',
-                            'IMPORT GMAIL --limit=<n> [query]',
-                        ],
-                        'examples': [
-                            'IMPORT GMAIL is:starred',
-                            'IMPORT GMAIL --preview is:unread',
-                            'IMPORT GMAIL --type=mission from:boss',
-                            'IMPORT GMAIL --limit=5 is:unread',
-                        ],
-                        'related': ['EMAIL', 'SYNC'],
-                        'notes': ['Auto-detect: 3+ tasks=mission, 1-2 tasks=checklist, 0 tasks=note']
-                    },
-                    {
-                        'name': 'QUOTA',
-                        'desc': 'Show Gmail/Drive quota usage',
-                        'syntax': ['QUOTA GMAIL'],
-                        'examples': ['QUOTA GMAIL'],
-                        'related': ['STATUS', 'RESOURCE'],
-                    },
-                    {
-                        'name': 'CONFIG',
-                        'desc': 'Show or update Gmail sync configuration',
-                        'syntax': ['CONFIG GMAIL', 'CONFIG GMAIL SET <key> <value>'],
-                        'examples': [
-                            'CONFIG GMAIL',
-                            'CONFIG GMAIL SET interval 600',
-                            'CONFIG GMAIL SET strategy local-wins',
-                        ],
-                        'related': ['SYNC', 'SETTINGS'],
-                        'notes': ['Strategies: newest-wins, local-wins, cloud-wins, manual']
-                    },
-                ]
-            },
-            'automation': {
-                'icon': '⚙️',
-                'title': 'Missions & Automation',
-                'commands': [
-                    {
-                        'name': 'MISSION',
-                        'desc': 'Mission control system',
-                        'syntax': [
-                            'MISSION CREATE <name>',
-                            'MISSION LIST',
-                            'MISSION START <id>',
-                            'MISSION STATUS <id>',
-                            'MISSION COMPLETE <id>',
-                        ],
-                        'examples': [
-                            'MISSION CREATE water-collection',
-                            'MISSION LIST',
-                            'MISSION START mission-001',
-                            'MISSION STATUS mission-001',
-                        ],
-                        'related': ['WORKFLOW', 'SCHEDULE'],
-                    },
-                    {
-                        'name': 'WORKFLOW',
-                        'desc': 'Workflow automation (.upy scripts)',
-                        'syntax': [
-                            'WORKFLOW RUN <file>',
-                            'WORKFLOW LIST',
-                            'WORKFLOW STATUS',
-                            'WORKFLOW STOP <id>',
-                        ],
-                        'examples': [
-                            'WORKFLOW RUN memory/workflows/missions/daily.upy',
-                            'WORKFLOW LIST',
-                            'WORKFLOW STATUS',
-                        ],
-                        'related': ['MISSION', 'SCHEDULE'],
-                    },
-                    {
-                        'name': 'SCHEDULE',
-                        'desc': 'Task scheduling system',
-                        'syntax': [
-                            'SCHEDULE ADD <task> --at <time>',
-                            'SCHEDULE LIST',
-                            'SCHEDULE REMOVE <id>',
-                        ],
-                        'examples': [
-                            'SCHEDULE ADD "SYNC GMAIL" --at 09:00',
-                            'SCHEDULE LIST',
-                            'SCHEDULE REMOVE task-001',
-                        ],
-                        'related': ['MISSION', 'WORKFLOW'],
-                    },
-                ]
-            },
-            'display': {
-                'icon': '🖥️',
-                'title': 'Display & Themes',
-                'commands': [
-                    {
-                        'name': 'THEME',
-                        'desc': 'Change display theme',
-                        'syntax': ['THEME <name>', 'THEME LIST'],
-                        'examples': ['THEME foundation', 'THEME galaxy', 'THEME LIST'],
-                        'related': ['PANEL', 'COLOR'],
-                    },
-                    {
-                        'name': 'LAYOUT',
-                        'desc': 'Screen layout management',
-                        'syntax': [
-                            'LAYOUT INFO',
-                            'LAYOUT MODE <mode>',
-                            'LAYOUT RESIZE',
-                        ],
-                        'examples': [
-                            'LAYOUT INFO',
-                            'LAYOUT MODE compact',
-                            'LAYOUT MODE dashboard',
-                        ],
-                        'related': ['THEME', 'PANEL'],
-                    },
-                    {
-                        'name': 'COLOR',
-                        'desc': 'Color and syntax highlighting settings',
-                        'syntax': ['COLOR <preset>', 'COLOR DEMO'],
-                        'examples': ['COLOR rainbow', 'COLOR DEMO'],
-                        'related': ['THEME', 'LAYOUT'],
-                    },
-                ]
-            },
-            'advanced': {
-                'icon': '🔬',
-                'title': 'Advanced Tools',
-                'commands': [
-                    {
-                        'name': 'DEV',
-                        'desc': 'Developer mode (interactive debugging)',
-                        'syntax': [
-                            'DEV MODE ON',
-                            'DEV MODE OFF',
-                            'DEV MODE STATUS',
-                        ],
-                        'examples': ['DEV MODE ON', 'DEV MODE STATUS'],
-                        'related': ['LOGS', 'RESOURCE'],
-                    },
-                    {
-                        'name': 'RESOURCE',
-                        'desc': 'Resource monitoring (quotas, disk, CPU, memory)',
-                        'syntax': [
-                            'RESOURCE STATUS',
-                            'RESOURCE QUOTA [provider]',
-                            'RESOURCE SUMMARY',
-                        ],
-                        'examples': [
-                            'RESOURCE STATUS',
-                            'RESOURCE QUOTA gemini',
-                            'RESOURCE SUMMARY',
-                        ],
-                        'related': ['STATUS', 'QUOTA'],
-                    },
-                    {
-                        'name': 'LOGS',
-                        'desc': 'View system logs',
-                        'syntax': [
-                            'LOGS TAIL [lines]',
-                            'LOGS SEARCH <query>',
-                            'LOGS CLEAR',
-                        ],
-                        'examples': [
-                            'LOGS TAIL 50',
-                            'LOGS SEARCH ERROR',
-                            'LOGS CLEAR',
-                        ],
-                        'related': ['DEV', 'STATUS'],
-                    },
-                ]
-            },
-        }
-
-
-# Factory function for easy import
-def create_help_handler() -> HelpHandler:
-    """Create and return a HelpHandler instance."""
-    return HelpHandler()
+    def _fuzzy_match(self, query: str) -> List[str]:
+        """Find commands that partially match query."""
+        query_lower = query.lower()
+        matches = []
+        
+        for name in self.commands.keys():
+            if query_lower in name.lower():
+                matches.append(name)
+        
+        return matches
+    
+    def _get_related_commands(self, command: str) -> List[str]:
+        """Find commands related to the given command."""
+        cmd_data = self.commands[command]
+        desc_lower = cmd_data.get('DESCRIPTION', '').lower()
+        syntax_lower = cmd_data.get('SYNTAX', '').lower()
+        
+        # Keywords to look for relationships
+        keywords = set()
+        for word in desc_lower.split():
+            if len(word) > 4:  # Only meaningful words
+                keywords.add(word)
+        
+        related = []
+        for name, data in self.commands.items():
+            if name == command:
+                continue
+            
+            other_desc = data.get('DESCRIPTION', '').lower()
+            other_syntax = data.get('SYNTAX', '').lower()
+            
+            # Check for keyword overlap
+            for keyword in keywords:
+                if keyword in other_desc or keyword in other_syntax:
+                    related.append(name)
+                    break
+        
+        return related[:5]
+    
+    def get_quick_help_for_prompt(self, command: str) -> str:
+        """Get one-line quick help for smart prompt display."""
+        if command not in self.commands:
+            return ""
+        
+        cmd_data = self.commands[command]
+        syntax = cmd_data.get('SYNTAX', command)
+        desc = cmd_data.get('DESCRIPTION', '')[:60]
+        
+        return f"{syntax} - {desc}"

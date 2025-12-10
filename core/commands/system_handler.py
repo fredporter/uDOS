@@ -198,11 +198,12 @@ class SystemCommandHandler(BaseCommandHandler):
         return self._output_handler
 
     def handle_help(self, params, grid, parser):
-        """Enhanced help system with section navigation (v1.2.9+)."""
-        from .help_handler import create_help_handler
-
-        # Use new HelpHandler for comprehensive, navigable help
-        help_handler = create_help_handler()
+        """HELP command - show command reference - uses modern HelpHandler."""
+        # Import here to avoid circular dependency
+        from .help_handler import HelpHandler
+        
+        # Create handler and delegate
+        help_handler = HelpHandler(viewport=self.viewport, logger=self.logger)
         return help_handler.handle(params)
 
     def handle_blank(self, params, grid, parser):
@@ -258,12 +259,12 @@ class SystemCommandHandler(BaseCommandHandler):
             # WORKSPACE command removed - use file pickers
             'OUTPUT': self.handle_output,
             'SERVER': self.handle_output,
+            'WEB': self.handle_output,
             'GET': self.handle_get,
             'SET': self.handle_set,
             'HISTORY': self.handle_history,
             'SESSION': self.handle_session,
             'RESTORE': self.handle_restore,
-            'CONFIG_PLANET': self.handle_config_planet,
             'LOCATE': self.handle_locate,
             'DEV': self.handle_dev_mode,
             'ASSETS': self.handle_assets,
@@ -725,13 +726,8 @@ class SystemCommandHandler(BaseCommandHandler):
         return result['message'] if result['success'] else f"❌ {result['message']}"
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # v1.0.32: PLANET SYSTEM COMMANDS
+    # v1.0.32: PLANET SYSTEM COMMANDS (CONFIG PLANET deprecated v1.2.21)
     # ═══════════════════════════════════════════════════════════════════════════
-
-    def handle_config_planet(self, params, grid, parser):
-        """Handle CONFIG PLANET commands - delegates to cmd_config_planet."""
-        from core.commands.cmd_config_planet import cmd_config_planet
-        return self._format_cmd_result(cmd_config_planet(self._get_user_data(), params))
 
     def handle_locate(self, params, grid, parser):
         """Handle LOCATE command - delegates to cmd_locate."""

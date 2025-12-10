@@ -1,23 +1,6 @@
 """
-uDOS v1.2.21 - Smart Interactive Prompt
-Enhanced CLI with TRUE predictive text (non-intrusive suggestions)
-
-FIXES FROM v1:
-- No auto-complete on single keypress (was inserting full commands)
-- Proper suggestion box with cursor navigation
-- Arrow keys + numpad support for selection
-- Tab to accept suggestion
-- Esc to dismiss suggestions
-
-Features:
-- Non-intrusive prediction box (suggestions shown, not inserted)
-- Multi-line suggestion display with cursor
-- Tab/Enter to accept selected suggestion
-- Arrow keys (↑↓) + numpad (8/2) for navigation
-- Fuzzy matching from command history
-- Graceful degradation to plain text input (no hotkeys in fallback mode)
-
-Version: 1.2.21 (Geography Consolidation)
+uDOS v1.2.22 - Smart Interactive Prompt
+Predictive autocomplete with multi-column suggestions.
 """
 
 from prompt_toolkit import prompt
@@ -28,6 +11,7 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.formatted_text import FormattedText, HTML
 from prompt_toolkit.layout import Float, FloatContainer, Window
 from prompt_toolkit.layout.controls import FormattedTextControl
+from prompt_toolkit.shortcuts import print_formatted_text
 from typing import List, Iterable, Optional
 import sys
 import os
@@ -36,107 +20,91 @@ from core.utils.autocomplete import AutocompleteService
 
 
 class ImprovedCompleter(Completer):
-    """
-    Improved completer that ONLY shows suggestions, never auto-inserts.
-    
-    Changes from v1:
-    - Completions require explicit Tab/Enter to accept
-    - No auto-insertion on keypress
-    - Clear visual distinction between input and suggestions
-    """
+    """Autocomplete provider for command and parameter suggestions."""
 
     def __init__(self, autocomplete_service: AutocompleteService):
-        """Initialize with autocomplete service."""
         self.autocomplete = autocomplete_service
-        self.last_suggestions = []
 
     def get_completions(self, document, complete_event) -> Iterable[Completion]:
-        """
-        Generate completions WITHOUT auto-inserting.
-        
-        User must press Tab or select with arrows to accept.
-        """
+        """Generate command and parameter completions."""
         text = document.text_before_cursor
         words = text.split()
 
-        # Don't show completions unless user explicitly requests (Tab key)
-        if not complete_event.completion_requested:
-            return
-
         if not words:
-            # Empty input - suggest common commands
-            suggestions = self.autocomplete.get_command_suggestions('', max_results=10)
+            # Empty input - suggest common/recent commands
+            suggestions = self.autocomplete.get_command_suggestions('', max_results=15)
             for sug in suggestions:
+                # Build rich meta with syntax and options
+                meta_parts = [sug['description'][:40]]
+                if sug.get('usage'):
+                    meta_parts.append(f"Usage: {sug['usage'][:50]}")
+                if sug.get('options'):
+                    opts = ', '.join(sug['options'][:4])
+                    if len(sug['options']) > 4:
+                        opts += f" +{len(sug['options'])-4} more"
+                    meta_parts.append(f"Options: {opts}")
+                
                 yield Completion(
                     sug['command'],
                     start_position=0,
-                    display=f"  {sug['command']:<12} │ {sug['description'][:45]}"
+                    display=sug['command'],
+                    display_meta=' | '.join(meta_parts)
                 )
 
         elif len(words) == 1 and not text.endswith(' '):
-            # First word - command suggestions
+            # First word - command suggestions (show ALL matches, not just top 10)
             partial = words[0]
-            suggestions = self.autocomplete.get_command_suggestions(partial, max_results=10)
+            suggestions = self.autocomplete.get_command_suggestions(partial, max_results=25)
 
             for sug in suggestions:
-                # Only complete the command part
-                remaining = sug['command'][len(partial):]
+                # Build rich meta with syntax and options
+                meta_parts = [sug['description'][:40]]
+                if sug.get('usage'):
+                    meta_parts.append(f"Usage: {sug['usage'][:50]}")
+                if sug.get('options'):
+                    opts = ', '.join(sug['options'][:4])
+                    if len(sug['options']) > 4:
+                        opts += f" +{len(sug['options'])-4} more"
+                    meta_parts.append(f"Options: {opts}")
                 
+                # Replace the partial text with the full command
                 yield Completion(
-                    remaining,
-                    start_position=0,
-                    display=f"  {sug['command']:<12} │ {sug['description'][:45]}"
+                    sug['command'],
+                    start_position=-len(partial),
+                    display=sug['command'],
+                    display_meta=' | '.join(meta_parts)
                 )
 
         else:
-            # Subsequent words - parameter suggestions
+            # Subsequent words - option/parameter suggestions
             current_word = words[-1] if not text.endswith(' ') else ''
-            suggestions = self.autocomplete.get_parameter_suggestions(
+            suggestions = self.autocomplete.get_option_suggestions(
                 command=words[0],
-                partial_param=current_word,
-                position=len(words) - 1
+                partial=current_word,
+                max_results=15
             )
 
             for sug in suggestions:
-                remaining = sug['value'][len(current_word):] if current_word else sug['value']
+                option_text = sug.get('option', '')
+                cmd_name = sug.get('command', '')
                 
-                icon = {
-                    'path': '📁',
-                    'file': '📄',
-                    'flag': '🚩',
-                    'value': '💡',
-                    'param': '⚙️'
-                }.get(sug['type'], '·')
+                # Build meta showing option details
+                meta = f"{cmd_name} {option_text}"
+                if sug.get('description'):
+                    meta = f"{sug['description']}"
                 
                 yield Completion(
-                    remaining,
-                    start_position=0,
-                    display=f"  {icon} {sug['value']:<12} │ {sug.get('description', sug['type'])[:40]}"
+                    option_text,
+                    start_position=-len(current_word) if current_word else 0,
+                    display=option_text,
+                    display_meta=meta
                 )
 
 
 class SmartPrompt:
-    """
-    Enhanced interactive prompt with PROPER predictive text.
-    
-    KEY CHANGES FROM v1:
-    - Suggestions shown in dropdown (not auto-inserted)
-    - Arrow keys navigate suggestions
-    - Tab/Enter accepts selected suggestion
-    - Single letter keypresses type normally (NO auto-complete)
-    - Esc dismisses suggestion box
-    - Numpad 8/2 also navigate when enabled
-    """
+    """Interactive prompt with autocomplete and history."""
 
     def __init__(self, command_history=None, theme='dungeon', use_fallback=False):
-        """
-        Initialize smart prompt v2.
-
-        Args:
-            command_history: CommandHistory instance
-            theme: Theme name for styling
-            use_fallback: Force fallback mode (simple input)
-        """
         # Check TUI config for smart input setting
         try:
             from core.ui.tui_config import get_tui_config
@@ -157,7 +125,9 @@ class SmartPrompt:
         self.pt_history = InMemoryHistory()
         self.use_fallback = use_fallback
         self.fallback_reason = getattr(self, 'fallback_reason', None)
-        self.tui = None  # TUI controller
+        self.tui = None
+        self.session = None
+        self.selected_completion_index = 0
         
         # Load history
         if command_history and not use_fallback:
@@ -179,10 +149,13 @@ class SmartPrompt:
             self.style = Style.from_dict({
                 'prompt': 'ansigreen bold',
                 '': '',
-                'completion-menu.completion': 'bg:#1a1a1a #00ff00',
+                # Completion menu - HIGH CONTRAST
+                'completion-menu': 'bg:#000000 #00ff00',
+                'completion-menu.completion': 'bg:#000000 #00ff00',
                 'completion-menu.completion.current': 'bg:#00ff00 #000000 bold',
-                'scrollbar.background': 'bg:#333333',
-                'scrollbar.button': 'bg:#00ff00',
+                'completion-menu.meta.completion': 'bg:#000000 #888888 italic',
+                'completion-menu.meta.completion.current': 'bg:#00ff00 #000000',
+                'completion-menu.multi-column-meta': 'bg:#000000 #888888',
             })
 
         # Test prompt_toolkit
@@ -190,148 +163,280 @@ class SmartPrompt:
             self._test_prompt_toolkit()
 
     def _create_key_bindings(self) -> KeyBindings:
-        """
-        Create key bindings with PROPER navigation support.
-        
-        CRITICAL CHANGES:
-        - NO auto-complete on letter keys
-        - Tab opens/navigates completion menu
-        - Arrow keys (↑↓) navigate completions
-        - Enter accepts selected completion
-        - Esc closes completion menu
-        - Numpad 8/2 navigate when TUI enabled
-        """
+        """Create key bindings for navigation, editing, and completion."""
         kb = KeyBindings()
 
-        # ===== COMPLETION NAVIGATION =====
-        # (prompt_toolkit handles Tab, Enter, arrows by default)
+        @kb.add('tab')
+        def _(event):
+            if event.current_buffer.complete_state:
+                event.current_buffer.complete_next()
+            else:
+                # Check if we have completions to accept
+                text = event.current_buffer.text
+                if text:
+                    from prompt_toolkit.document import Document
+                    doc = Document(text, cursor_position=len(text))
+                    comps = list(self.completer.get_completions(doc, None))
+                    if comps and self.selected_completion_index < len(comps):
+                        selected = comps[self.selected_completion_index]
+                        event.current_buffer.text = selected.text
+                        event.current_buffer.cursor_position = len(selected.text)
+                        self.selected_completion_index = 0
+                        event.app.invalidate()
+                        return
+                event.current_buffer.start_completion()
         
-        # ===== NUMPAD SUPPORT (TUI mode) =====
-        @kb.add('8')  # Numpad 8 = Up
+        @kb.add('enter')
+        def _(event):
+            # If we have completions visible, accept the selected one before executing
+            text = event.current_buffer.text
+            if text:
+                from prompt_toolkit.document import Document
+                doc = Document(text, cursor_position=len(text))
+                comps = list(self.completer.get_completions(doc, None))
+                if comps and self.selected_completion_index < len(comps):
+                    selected = comps[self.selected_completion_index]
+                    event.current_buffer.text = selected.text
+                    event.current_buffer.cursor_position = len(selected.text)
+                    self.selected_completion_index = 0
+                    event.app.invalidate()
+            # Now submit the command
+            event.current_buffer.validate_and_handle()
+        
+        @kb.add('escape')
+        def _(event):
+            if event.current_buffer.complete_state:
+                event.current_buffer.complete_state = None
+        
+        @kb.add('f1')
+        def _(event):
+            """Show help for current command (F1 hotkey)."""
+            buffer = event.current_buffer
+            text = buffer.text.strip()
+            
+            if text:
+                # Extract command name (first word)
+                command = text.split()[0].upper()
+                
+                # Load help handler and show help
+                try:
+                    from core.commands.help_handler import HelpHandler
+                    help_handler = HelpHandler()
+                    help_text = help_handler.handle([command])
+                    
+                    # Print help output
+                    print(f"\n{help_text}\n")
+                    
+                    # Refresh prompt
+                    event.app.invalidate()
+                except Exception as e:
+                    print(f"\n❌ Error loading help: {e}\n")
+            else:
+                # Show general help
+                try:
+                    from core.commands.help_handler import HelpHandler
+                    help_handler = HelpHandler()
+                    help_text = help_handler.handle([])
+                    print(f"\n{help_text}\n")
+                    event.app.invalidate()
+                except Exception as e:
+                    print(f"\n❌ Error loading help: {e}\n")
+        
+        @kb.add('up')
+        def _(event):
+            if event.current_buffer.complete_state:
+                event.current_buffer.complete_previous()
+            else:
+                # Check if we have completions in toolbar
+                text = event.current_buffer.text
+                if text:
+                    from prompt_toolkit.document import Document
+                    doc = Document(text, cursor_position=len(text))
+                    comps = list(self.completer.get_completions(doc, None))
+                    if comps:
+                        self.selected_completion_index = max(0, self.selected_completion_index - 1)
+                        event.app.invalidate()
+                        return
+                event.current_buffer.history_backward()
+        
+        @kb.add('down')
+        def _(event):
+            if event.current_buffer.complete_state:
+                event.current_buffer.complete_next()
+            else:
+                # Check if we have completions in toolbar
+                text = event.current_buffer.text
+                if text:
+                    from prompt_toolkit.document import Document
+                    doc = Document(text, cursor_position=len(text))
+                    comps = list(self.completer.get_completions(doc, None))
+                    if comps:
+                        self.selected_completion_index = min(len(comps) - 1, self.selected_completion_index + 1)
+                        event.app.invalidate()
+                        return
+                event.current_buffer.history_forward()
+        
+        @kb.add('right')
+        def _(event):
+            if event.current_buffer.complete_state:
+                event.current_buffer.complete_state = None
+            else:
+                event.current_buffer.cursor_right()
+        
+        @kb.add('8')
         def _(event):
             if self.tui and self.tui.keypad.enabled:
-                current_text = event.current_buffer.text
-                
-                # If no text typed yet, scroll pager up
-                if not current_text.strip():
-                    if hasattr(self.tui, 'pager') and self.tui.pager:
-                        from core.ui.pager import ScrollDirection
-                        scrolled = self.tui.pager.scroll(ScrollDirection.UP)
-                        if scrolled:
-                            # Show scroll indicator briefly
-                            pass  # Pager handles display
-                    return
-                
-                # If text typed, navigate completion menu or history
+                # Priority 1: If completion menu is open, ALWAYS navigate
                 if event.current_buffer.complete_state:
                     event.current_buffer.complete_previous()
+                # Priority 2: If buffer is empty, navigate history/pager
+                elif len(event.current_buffer.text) == 0:
+                    if hasattr(self.tui, 'pager') and self.tui.pager:
+                        from core.ui.pager import ScrollDirection
+                        self.tui.pager.scroll(ScrollDirection.UP)
+                    else:
+                        event.current_buffer.history_backward()
+                # Priority 3: Text present and no menu = insert digit
                 else:
-                    # History backward
-                    event.current_buffer.history_backward()
+                    event.current_buffer.insert_text('8')
             else:
                 # Insert '8' normally when keypad disabled
                 event.current_buffer.insert_text('8')
 
-        @kb.add('2')  # Numpad 2 = Down
+        @kb.add('2')
         def _(event):
             if self.tui and self.tui.keypad.enabled:
-                current_text = event.current_buffer.text
-                
-                # If no text typed yet, scroll pager down
-                if not current_text.strip():
-                    if hasattr(self.tui, 'pager') and self.tui.pager:
-                        from core.ui.pager import ScrollDirection
-                        scrolled = self.tui.pager.scroll(ScrollDirection.DOWN)
-                        if scrolled:
-                            # Show scroll indicator briefly
-                            pass  # Pager handles display
-                    return
-                
-                # If text typed, navigate completion menu or history
                 if event.current_buffer.complete_state:
                     event.current_buffer.complete_next()
-                else:
-                    # History forward
-                    event.current_buffer.history_forward()
-            else:
-                # Insert '2' normally when keypad disabled
-                event.current_buffer.insert_text('2')
-
-        @kb.add('4')  # Numpad 4 = Left
-        def _(event):
-            if self.tui and self.tui.keypad.enabled:
-                current_text = event.current_buffer.text
-                
-                # If no text typed yet, page up in pager
-                if not current_text.strip():
+                elif len(event.current_buffer.text) == 0:
                     if hasattr(self.tui, 'pager') and self.tui.pager:
                         from core.ui.pager import ScrollDirection
-                        scrolled = self.tui.pager.scroll(ScrollDirection.PAGE_UP)
-                        if scrolled:
-                            pass  # Pager handles display
-                    return
-                
-                # If text typed, move cursor left
-                event.current_buffer.cursor_left()
+                        self.tui.pager.scroll(ScrollDirection.DOWN)
+                    else:
+                        event.current_buffer.history_forward()
+                else:
+                    event.current_buffer.insert_text('2')
+            else:
+                event.current_buffer.insert_text('2')
+
+        @kb.add('4')
+        def _(event):
+            if self.tui and self.tui.keypad.enabled and len(event.current_buffer.text) == 0:
+                if hasattr(self.tui, 'pager') and self.tui.pager:
+                    from core.ui.pager import ScrollDirection
+                    self.tui.pager.scroll(ScrollDirection.PAGE_UP)
             else:
                 event.current_buffer.insert_text('4')
 
-        @kb.add('6')  # Numpad 6 = Right  
+        @kb.add('6')
         def _(event):
             if self.tui and self.tui.keypad.enabled:
-                current_text = event.current_buffer.text
-                
-                # If no text typed yet, page down in pager
-                if not current_text.strip():
+                if event.current_buffer.complete_state:
+                    event.current_buffer.complete_state = None
+                elif len(event.current_buffer.text) == 0:
                     if hasattr(self.tui, 'pager') and self.tui.pager:
                         from core.ui.pager import ScrollDirection
-                        scrolled = self.tui.pager.scroll(ScrollDirection.PAGE_DOWN)
-                        if scrolled:
-                            pass  # Pager handles display
-                    return
-                
-                # If text typed and completion available, accept suggestion
-                if event.current_buffer.complete_state:
-                    # Accept current completion
-                    event.current_buffer.apply_completion(event.current_buffer.complete_state.current_completion)
-                    event.current_buffer.complete_state = None
+                        self.tui.pager.scroll(ScrollDirection.PAGE_DOWN)
                 else:
-                    # Move cursor right normally
-                    event.current_buffer.cursor_right()
+                    event.current_buffer.insert_text('6')
             else:
                 event.current_buffer.insert_text('6')
 
-        @kb.add('5')  # Numpad 5 = Select/Enter
+        @kb.add('5')
         def _(event):
             if self.tui and self.tui.keypad.enabled:
-                # Accept current completion or submit line
                 if event.current_buffer.complete_state:
-                    event.current_buffer.complete_next()
                     event.current_buffer.complete_state = None
-                else:
+                elif len(event.current_buffer.text) == 0:
                     event.current_buffer.validate_and_handle()
+                else:
+                    event.current_buffer.insert_text('5')
             else:
                 event.current_buffer.insert_text('5')
 
-        # ===== CURSOR MOVEMENT =====
-        @kb.add('c-a')  # Ctrl+A = Start of line
+        @kb.add('1')
+        def _(event):
+            if self.tui and self.tui.keypad.enabled and len(event.current_buffer.text) == 0:
+                event.current_buffer.history_backward()
+            else:
+                event.current_buffer.insert_text('1')
+
+        @kb.add('3')
+        def _(event):
+            if self.tui and self.tui.keypad.enabled and len(event.current_buffer.text) == 0:
+                event.current_buffer.history_forward()
+            else:
+                event.current_buffer.insert_text('3')
+
+        @kb.add('7')
+        def _(event):
+            if self.tui and self.tui.keypad.enabled and len(event.current_buffer.text) == 0:
+                event.current_buffer.undo()
+            else:
+                event.current_buffer.insert_text('7')
+
+        @kb.add('9')
+        def _(event):
+            if self.tui and self.tui.keypad.enabled and len(event.current_buffer.text) == 0:
+                if hasattr(event.current_buffer, '_redo_stack') and event.current_buffer._redo_stack:
+                    event.current_buffer.redo()
+            else:
+                event.current_buffer.insert_text('9')
+
+        @kb.add('0')
+        def _(event):
+            if not (self.tui and self.tui.keypad.enabled and len(event.current_buffer.text) == 0):
+                event.current_buffer.insert_text('0')
+
+        @kb.add('c-a')
         def _(event):
             event.current_buffer.cursor_position = 0
 
-        @kb.add('c-e')  # Ctrl+E = End of line
+        @kb.add('c-e')
         def _(event):
             event.current_buffer.cursor_position = len(event.current_buffer.text)
 
-        @kb.add('c-k')  # Ctrl+K = Delete to end of line
+        @kb.add('c-b')
+        def _(event):
+            event.current_buffer.cursor_left()
+
+        @kb.add('c-f')
+        def _(event):
+            event.current_buffer.cursor_right()
+
+        @kb.add('c-k')
         def _(event):
             event.current_buffer.delete(count=len(event.current_buffer.text) - event.current_buffer.cursor_position)
 
-        @kb.add('c-u')  # Ctrl+U = Delete to start of line
+        @kb.add('c-u')
         def _(event):
             event.current_buffer.delete_before_cursor(count=event.current_buffer.cursor_position)
 
-        # ===== HISTORY SEARCH =====
-        # (Ctrl+R is built-in to prompt_toolkit)
+        @kb.add('c-w')
+        def _(event):
+            event.current_buffer.delete_before_cursor(count=event.current_buffer.document.find_start_of_previous_word())
+
+        @kb.add('c-d')
+        def _(event):
+            event.current_buffer.delete()
+
+        @kb.add('c-l')
+        def _(event):
+            event.app.renderer.clear()
+
+        @kb.add('c-p')
+        def _(event):
+            if event.current_buffer.complete_state:
+                event.current_buffer.complete_previous()
+            else:
+                event.current_buffer.history_backward()
+
+        @kb.add('c-n')
+        def _(event):
+            if event.current_buffer.complete_state:
+                event.current_buffer.complete_next()
+            else:
+                event.current_buffer.history_forward()
 
         return kb
 
@@ -356,45 +461,107 @@ class SmartPrompt:
     def set_tui_controller(self, tui_controller):
         """Set TUI controller for enhanced features."""
         self.tui = tui_controller
-
-    def ask(self, prompt_text: str = "> ", multiline: bool = False) -> str:
-        """
-        Display prompt and get user input with PROPER suggestions.
+    
+    def _show_ready_cursor(self):
+        """Show blinking white block cursor after prompt (3 blinks)."""
+        import time
+        import sys
         
-        CRITICAL: Suggestions are SHOWN, not auto-inserted.
-        User must Tab to open menu, arrows to navigate, Enter to accept.
+        for _ in range(3):
+            sys.stdout.write('\033[97m█\033[0m')  # White block
+            sys.stdout.flush()
+            time.sleep(0.15)
+            sys.stdout.write('\b \b')  # Backspace, space, backspace
+            sys.stdout.flush()
+            time.sleep(0.15)
 
-        Args:
-            prompt_text: Prompt string
-            multiline: Allow multiline input
-
-        Returns:
-            User input string
-        """
-        # Show hints if TUI enabled
+    def ask(self, prompt_text: str = "🌀 ", multiline: bool = False) -> str:
+        """Display prompt and get user input with autocomplete."""
         if self.tui and self.tui.keypad.enabled:
-            print("┌─ Keypad: 8↑ 2↓ 4← 6→ 5✓ | Tab=suggest Enter=accept Esc=cancel ─┐")
+            print("┌─ Nav: 8↑ 2↓ 4← 6→ 5✓ | Help: F1 | History: Ctrl+R ↑/↓ | Edit: Ctrl+A/E/K/U/W ─┐")
 
-        # Use fallback if needed
         if self.use_fallback:
             return self._ask_fallback(prompt_text)
 
         try:
+            if self.session is None:
+                from prompt_toolkit import PromptSession
+                from prompt_toolkit.shortcuts import CompleteStyle
+                from prompt_toolkit.document import Document
+                
+                # Bottom toolbar showing completions OR pager
+                def get_bottom_toolbar():
+                    if not hasattr(self.session, 'app') or not self.session.app:
+                        return ""
+                    
+                    try:
+                        # Priority 1: Check if pager has content to show
+                        if self.tui and hasattr(self.tui, 'pager') and self.tui.pager:
+                            pager = self.tui.pager
+                            if pager.state.total_lines > 0:
+                                # Show pager status bar
+                                current_page = (pager.state.scroll_offset // pager.state.viewport_height) + 1
+                                total_pages = (pager.state.total_lines // pager.state.viewport_height) + 1
+                                progress_pct = int(pager.state.scroll_percentage * 100)
+                                
+                                # Progress bar (60 chars wide)
+                                filled = int(60 * pager.state.scroll_percentage)
+                                bar = '█' * filled + '░' * (60 - filled)
+                                
+                                return f"{bar} Page {current_page}/{total_pages} [↓→/ENTER|↑←|ESC]"
+                        
+                        # Priority 2: Show completions if typing
+                        buffer = self.session.app.current_buffer
+                        text = buffer.text
+                        
+                        if not text:
+                            self.selected_completion_index = 0
+                            return ""
+                        
+                        # Get completions for current text
+                        doc = Document(text, cursor_position=len(text))
+                        completions = list(self.completer.get_completions(doc, None))
+                        
+                        if not completions:
+                            self.selected_completion_index = 0
+                            return ""
+                        
+                        # Ensure index is valid
+                        self.selected_completion_index = min(self.selected_completion_index, len(completions) - 1)
+                        
+                        # Show first 5 completions
+                        lines = []
+                        for i, comp in enumerate(completions[:5]):
+                            marker = "►" if i == self.selected_completion_index else " "
+                            lines.append(f"{marker} {comp.text:<12} │ {comp.display_meta}")
+                        
+                        return "\n".join(lines)
+                    except:
+                        return ""
+                
+                self.session = PromptSession(
+                    completer=self.completer,
+                    complete_while_typing=True,
+                    complete_style=CompleteStyle.COLUMN,
+                    history=self.pt_history,
+                    key_bindings=self.key_bindings,
+                    style=self.style,
+                    enable_history_search=True,
+                    mouse_support=False,
+                    reserve_space_for_menu=10,
+                    complete_in_thread=False,
+                    validate_while_typing=False,
+                    bottom_toolbar=get_bottom_toolbar,
+                )
+            
+            # Show prompt with blinking cursor
+            import sys
+            sys.stdout.write(prompt_text)
+            sys.stdout.flush()
+            self._show_ready_cursor()
+            
             formatted_prompt = FormattedText([('class:prompt', prompt_text)])
-
-            user_input = prompt(
-                formatted_prompt,
-                completer=self.completer,
-                complete_while_typing=False,  # CRITICAL: Don't auto-show (user presses Tab)
-                history=self.pt_history,
-                key_bindings=self.key_bindings,
-                style=self.style,
-                multiline=multiline,
-                enable_history_search=True,
-                mouse_support=False,
-                # Completion menu style
-                reserve_space_for_menu=5,  # Reserve space for suggestions
-            )
+            user_input = self.session.prompt(formatted_prompt, multiline=multiline)
 
             # Add to history
             if self.command_history and user_input.strip():
@@ -415,22 +582,16 @@ class SmartPrompt:
             return self._ask_fallback(prompt_text)
 
     def _ask_fallback(self, prompt_text: str = "uDOS> ") -> str:
-        """Fallback using plain standard input() - no autocomplete, no hotkeys."""
+        """Fallback using plain input()."""
         try:
-            # Plain text input only - no special key handling
             user_input = input(prompt_text).strip()
-
             if self.command_history and user_input:
                 try:
                     self.command_history.append_string(user_input)
                 except Exception:
                     pass
-
             return user_input
         except (KeyboardInterrupt, EOFError):
-            return ''
-        except Exception:
-            # If even basic input fails, return empty
             return ''
 
     def ask_with_default(self, prompt_text: str, default: str = '') -> str:

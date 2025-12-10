@@ -46,6 +46,9 @@ class AssistantCommandHandler(BaseCommandHandler):
 
         # Lazy load extension handler
         self._extension_handler = None
+        
+        # Store config_manager from kwargs
+        self.config_manager = kwargs.get('config_manager') or kwargs.get('config')
 
         # Legacy properties (for backward compatibility)
         self.gemini = None  # Lazy initialization
@@ -56,7 +59,7 @@ class AssistantCommandHandler(BaseCommandHandler):
 
         # Role-based access control (v1.1.0)
         # Get role from config_manager (set via CONFIG ROLE wizard)
-        self.user_role = self.config_manager.get('USER_ROLE', 'user') if hasattr(self, 'config_manager') and self.config_manager else "user"
+        self.user_role = self.config_manager.get('USER_ROLE', 'user') if self.config_manager else "user"
 
     @property
     def extension_handler(self):

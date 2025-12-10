@@ -194,6 +194,7 @@ uDOS/
 │   │   └── webhook_manager.py
 │   ├── ui/
 │   │   ├── __init__.py
+│   │   ├── bottom_bar.py
 │   │   ├── command_predictor.py
 │   │   ├── config_browser.py
 │   │   ├── debug_panel.py
@@ -501,5 +502,6 @@ uDOS/
 ├── structure.txt
 ├── test_command_routing.py
 ├── test_dev_mode.sh
+├── test_prompt_visual.py
 ├── uDOS.code-workspace
 └── uDOS.py

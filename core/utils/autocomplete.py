@@ -27,7 +27,64 @@ class AutocompleteService:
         self._build_command_cache()
 
     def _build_command_cache(self):
-        """Build command and option cache for fast lookups."""
+        """Build command and option cache for fast lookups from commands.json."""
+        import json
+        from pathlib import Path
+        
+        # Load commands from commands.json
+        try:
+            commands_file = Path(__file__).parent.parent / 'data' / 'commands.json'
+            with open(commands_file) as f:
+                commands_data = json.load(f)
+            
+            # Build cache from loaded commands
+            for cmd in commands_data.get('COMMANDS', []):
+                cmd_name = cmd['NAME']
+                description = cmd.get('DESCRIPTION', '').split('.')[0]  # First sentence
+                syntax = cmd.get('SYNTAX', f"{cmd_name}")
+                examples = cmd.get('EXAMPLES', [])
+                subcommands = cmd.get('SUBCOMMANDS', {})
+                
+                # Extract options from SUBCOMMANDS first (preferred)
+                options = []
+                option_details = {}
+                
+                if subcommands:
+                    for subcmd, subcmd_desc in subcommands.items():
+                        # Clean up subcommand name (remove <> and parameter placeholders)
+                        clean_subcmd = subcmd.strip('<>').split()[0].upper()
+                        if clean_subcmd and clean_subcmd not in ['NAME', 'DESC', 'TOPIC', 'QUESTION']:
+                            options.append(clean_subcmd)
+                            option_details[clean_subcmd] = subcmd_desc
+                
+                # Fallback: Extract options from syntax if no SUBCOMMANDS
+                if not options and '|' in syntax:
+                    # Parse options from syntax alternatives
+                    parts = syntax.split('|')
+                    for part in parts:
+                        words = part.strip().split()
+                        if len(words) > 1 and words[0] == cmd_name:
+                            option = words[1].strip('<>"[]')
+                            if option and option.upper() not in ['<DESC>', '<TOPIC>', '<QUESTION>', '<NAME>']:
+                                options.append(option.upper())
+                
+                self._command_cache[cmd_name] = {
+                    'description': description[:60],  # Limit description length
+                    'options': list(set(options)),  # Remove duplicates
+                    'option_details': option_details,  # Store option descriptions
+                    'usage': syntax.split('|')[0].strip(),  # First syntax variant
+                    'examples': examples[:3]  # First 3 examples
+                }
+            
+            print(f"✅ Loaded {len(self._command_cache)} commands from commands.json")
+            
+        except Exception as e:
+            print(f"⚠️  Warning: Could not load commands.json: {e}")
+            print("   Using fallback command cache...")
+            self._build_fallback_cache()
+    
+    def _build_fallback_cache(self):
+        """Fallback command cache if commands.json fails to load."""
         # System commands
         system_commands = {
             'HELP': {
@@ -233,6 +290,7 @@ class AutocompleteService:
             **assistant_commands,
             **game_commands
         }
+        print(f"✅ Using fallback cache with {len(self._command_cache)} commands")
 
     def get_command_suggestions(self, partial: str, max_results: int = 10) -> List[Dict]:
         """
@@ -297,19 +355,54 @@ class AutocompleteService:
             max_results: Maximum number of suggestions
 
         Returns:
-            List of option suggestion dictionaries
+            List of option suggestion dictionaries with descriptions
         """
         command_upper = command.upper()
         if command_upper not in self._command_cache:
             return []
 
         options = self._command_cache[command_upper].get('options', [])
+        option_details = self._command_cache[command_upper].get('option_details', {})
+        
         if not options:
             return []
 
+        # Option descriptions (common patterns as fallback)
+        default_descriptions = {
+            'LIST': 'Show all available items',
+            'NEW': 'Create new item',
+            'DELETE': 'Remove item',
+            'SET': 'Set or change value',
+            'GET': 'Retrieve value',
+            'INFO': 'Show detailed information',
+            'HELP': 'Show help for this command',
+            'SEARCH': 'Search for items',
+            'STATS': 'Show statistics',
+            'CLEAR': 'Clear or reset',
+            'EXPORT': 'Export data',
+            'IMPORT': 'Import data',
+            'RECENT': 'Show recent items',
+            'ALL': 'Apply to all items',
+            'EDIT': 'Edit item',
+            'SHOW': 'Display item',
+            'HIDE': 'Hide item',
+            'ENABLE': 'Enable feature',
+            'DISABLE': 'Disable feature',
+            'STATUS': 'Show current status',
+            'RUN': 'Execute or run',
+            'COPY': 'Copy item',
+            'MOVE': 'Move item',
+            'RENAME': 'Rename item',
+        }
+
         if not partial:
             # Return all options when no partial
-            return [{'option': opt, 'command': command_upper, 'score': 1.0} for opt in options]
+            return [{
+                'option': opt,
+                'command': command_upper,
+                'description': option_details.get(opt, default_descriptions.get(opt, f'{command_upper} {opt.lower()}')),
+                'score': 1.0
+            } for opt in options]
 
         partial_upper = partial.upper()
         suggestions = []
@@ -320,6 +413,7 @@ class AutocompleteService:
                 suggestions.append({
                     'option': opt,
                     'command': command_upper,
+                    'description': option_details.get(opt, default_descriptions.get(opt, f'{command_upper} {opt.lower()}')),
                     'score': 1.0,
                     'match_type': 'prefix'
                 })
@@ -333,6 +427,7 @@ class AutocompleteService:
                         suggestions.append({
                             'option': opt,
                             'command': command_upper,
+                            'description': option_details.get(opt, default_descriptions.get(opt, f'{command_upper} {opt.lower()}')),
                             'score': ratio * 0.8,
                             'match_type': 'fuzzy'
                         })

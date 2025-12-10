@@ -258,8 +258,9 @@ class VariableHandler(BaseCommandHandler):
         Returns:
             Variable history
         """
-        if not hasattr(parser, 'ucode') or not parser.ucode:
-            return "❌ uCODE interpreter not available"
+        if not parser or not hasattr(parser, 'ucode') or not parser.ucode:
+            # HISTORY without ucode shows command history instead
+            return self._show_command_history(params)
 
         debugger = parser.ucode.debugger
 
@@ -408,3 +409,20 @@ class VariableHandler(BaseCommandHandler):
 
         value = workflow_data.get(field.upper(), '<unknown field>')
         return f"WORKFLOW.{field} = {value}"
+
+    def _show_command_history(self, params):
+        """Show command history when uCODE is not available."""
+        try:
+            from core.services.session_logger import SessionLogger
+            logger = SessionLogger()
+            history = logger.get_recent_commands(limit=20)
+            
+            if not history:
+                return "📜 No command history available"
+            
+            output = ["\n📜 Recent Commands:"]
+            for i, cmd in enumerate(history, 1):
+                output.append(f"  {i:2}. {cmd}")
+            return "\n".join(output)
+        except Exception as e:
+            return f"❌ Error loading command history: {e}"

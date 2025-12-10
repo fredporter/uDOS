@@ -19,7 +19,9 @@ Smart Mode Features:
 - Archive system integration (v1.1.16)
 
 Version: 1.2.21
-"""import os
+"""
+
+import os
 from pathlib import Path
 from datetime import datetime
 from .base_handler import BaseCommandHandler

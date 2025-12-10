@@ -19,6 +19,63 @@ See [ROADMAP.md](dev/roadmap/ROADMAP.MD) for planned features and development pr
 
 ---
 
+## [1.2.22] - 2025-12-09
+
+### v1.2.22 - TUI Smart Input Navigation Fixes (v2 - FINAL)
+
+**Bug Fix Release:** Fixed numpad navigation to work properly with completion menus and enhanced keyboard shortcuts.
+
+#### Fixed
+
+**TUI Smart Input System - Priority-Based Numpad Navigation**
+- **Completion Menu Navigation** - Fixed critical issue where numpad keys inserted digits instead of navigating when completion menu was open
+  - Changed priority order: Check completion menu state FIRST, then buffer state
+  - **Priority 1:** Completion menu open → Numpad ALWAYS navigates (even if text present)
+  - **Priority 2:** Buffer empty (no menu) → Numpad navigates history/pager
+  - **Priority 3:** Text present (no menu) → Numpad inserts digits
+  - Example: Type "R" → menu shows READ, REBOOT → Press 8 → Navigate up ✅ (previously inserted "8" ❌)
+
+- **Three-State Navigation Logic** - Context-aware numpad behavior:
+  - **State 1 (Empty + Menu):** Numpad 8/2 = History navigation, 5 = Submit
+  - **State 2 (Text + Menu):** Numpad 8/2 = Menu navigation, 5 = Accept, Esc = Close
+  - **State 3 (Text + No Menu):** Numpad 0-9 = Insert digits (e.g., "XP 100")
+
+- **Enhanced Keyboard Shortcuts** - Added missing key bindings:
+  - Tab key: Trigger/navigate completions (start menu or move to next item)
+  - Esc key: Close completion menu (dismiss suggestions)
+  - Arrow keys: Verified proper navigation in both menu and history modes
+  - Right arrow/Tab: Accept selected completion
+
+#### Enhanced
+
+**Command Completion Display**
+- Increased command suggestions from 10 to 25 maximum results
+- Typing single letter now shows all matching commands (e.g., 'r' shows REBOOT, REPAIR, RUN, READ, REPORT, etc.)
+- Empty input suggestions increased from 10 to 15 common commands
+- Better visibility of available commands when typing
+
+**Developer Tools**
+- Added `dev/tools/demo_smart_input.py` - Interactive demo with visual guides
+- Added `dev/tools/test_smart_input.py` - Automated test suite (5/5 passing)
+- Updated `wiki/TUI-Smart-Input-Guide.md` - Complete keyboard reference
+
+#### Technical Details
+- Modified: `core/input/smart_prompt.py` (Lines 210-340)
+  - Changed numpad 8/2/5/6 to priority-based logic
+  - Added Tab and Esc key handlers
+  - Enhanced completion menu state checking
+- Zero performance impact, 100% backward compatible
+- Graceful degradation when keypad disabled
+
+#### Testing
+- ✅ All 5 automated tests passing
+- ✅ Completion menu navigation with numpad (8↑ 2↓)
+- ✅ Tab/Esc keys for menu control
+- ✅ Number insertion when no menu open
+- ✅ History navigation when buffer empty
+
+---
+
 ## [1.2.21] - 2025-12-08
 
 ### v1.2.21 - OK Assistant & AI Workflows (FINAL STABLE v1.2.x)
