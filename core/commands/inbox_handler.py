@@ -282,11 +282,23 @@ class InboxHandler(BaseCommandHandler):
         return ' '.join(formatted_words)
     
     def _clean_url(self, url: str) -> str:
-        """Clean URL by removing query parameters and fragments."""
+        """Clean URL by removing query parameters and fragments, filter invalid URLs."""
         if not url:
             return ''
         
         url = url.strip()
+        
+        # Filter out invalid/tracking URLs
+        invalid_patterns = [
+            '/tr?',           # Facebook tracking pixels
+            '/fbml',          # Old Facebook markup language URLs
+            '/2008/',         # Old broken Facebook URLs
+            'wix_google',     # Wix tracking
+        ]
+        
+        for pattern in invalid_patterns:
+            if pattern in url:
+                return ''
         
         # Remove query parameters (?key=value&...)
         if '?' in url:
