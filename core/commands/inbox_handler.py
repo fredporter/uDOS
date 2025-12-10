@@ -10,7 +10,8 @@ Processes files placed in memory/inbox/:
 Features:
 - Email-only filtering (retains only records with email)
 - Location parsing from FullAddress
-- Precise TILE code generation (layer 500 with sub-cell offsets)
+- uCODE-compliant TILE codes (layer 500, alphanumeric base-36)
+- Format: [COLUMN][ROW]-[LAYER]-[OFFSET] (e.g., AA340-500-A1B2)
 - Reversible geocoding (TILE → lat/long)
 - Social media link extraction
 - Keyword tagging from filename
@@ -484,6 +485,7 @@ class InboxHandler(BaseCommandHandler):
         # - Columns: AA-RL (0-479) covering longitude -180 to 180
         # - Rows: 0-269 covering latitude -90 to 90
         # - Layer 500: Block layer (~10cm per cell for precise geocoding)
+        # - Format: [COLUMN][ROW]-[LAYER]-[OFFSET] (alphanumeric only)
         
         # Map longitude (-180 to 180) to column (0-479)
         col_index = int((lng_f + 180) * 479 / 360)
@@ -496,13 +498,17 @@ class InboxHandler(BaseCommandHandler):
         # Convert column index to AA-RL format
         col_letters = self._index_to_column(col_index)
         
-        # For layer 500 (block level), add sub-cell precision using decimals
-        # Calculate offset within cell (0-999 for both lat/lng)
-        lng_offset = int(((lng_f + 180) * 479 / 360 - col_index) * 1000)
-        lat_offset = int((((90 - lat_f) * 269 / 180) - row_index) * 1000)
+        # For layer 500 (block level), encode sub-cell precision in base-36
+        # Calculate offset within cell (0-1295 = 36^2-1 for each axis)
+        lng_offset = int(((lng_f + 180) * 479 / 360 - col_index) * 1296) % 1296
+        lat_offset = int((((90 - lat_f) * 269 / 180) - row_index) * 1296) % 1296
         
-        # TILE code format: AA340-500:123,456 (column + row + layer + offsets)
-        return f"{col_letters}{row_index}-500:{lng_offset:03d},{lat_offset:03d}"
+        # Convert to base-36 (0-9, A-Z): 2 chars each = 4 char total
+        lng_b36 = self._to_base36(lng_offset, 2)
+        lat_b36 = self._to_base36(lat_offset, 2)
+        
+        # TILE code format: AA340-500-A1B2 (alphanumeric with dashes only)
+        return f"{col_letters}{row_index}-500-{lng_b36}{lat_b36}"
     
     def _index_to_column(self, index: int) -> str:
         """Convert column index (0-479) to AA-RL format."""
@@ -515,29 +521,51 @@ class InboxHandler(BaseCommandHandler):
         
         return f"{first_char}{second_char}"
     
+    def _to_base36(self, num: int, width: int) -> str:
+        """Convert number to base-36 (0-9, A-Z) with fixed width."""
+        if num < 0 or num >= 36**width:
+            num = 0
+        
+        digits = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        result = ''
+        
+        for _ in range(width):
+            result = digits[num % 36] + result
+            num //= 36
+        
+        return result
+    
     @staticmethod
     def tile_to_latlong(tile_code: str) -> tuple:
         """Convert TILE code back to lat/long coordinates.
         
         Args:
-            tile_code: TILE format AA340-500:123,456
+            tile_code: TILE format AA340-500-A1B2 (alphanumeric base-36)
             
         Returns:
             Tuple of (latitude, longitude) as floats
         """
-        # Parse: QY185-500:431,333
+        # Parse: QY185-500-A1B2
         parts = tile_code.split('-')
         col_row = parts[0]
-        layer_offset = parts[1] if len(parts) > 1 else '500:0,0'
+        layer = parts[1] if len(parts) > 1 else '500'
+        offset_str = parts[2] if len(parts) > 2 else '0000'
         
         # Extract column letters and row number
         col_letters = col_row[:2]
         row_num = int(col_row[2:])
         
-        # Extract offsets
-        if ':' in layer_offset:
-            layer, offsets = layer_offset.split(':')
-            lng_offset, lat_offset = map(int, offsets.split(','))
+        # Decode base-36 offsets (4 chars: 2 for lng, 2 for lat)
+        def from_base36(s: str) -> int:
+            digits = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+            result = 0
+            for char in s:
+                result = result * 36 + digits.index(char.upper())
+            return result
+        
+        if len(offset_str) >= 4:
+            lng_offset = from_base36(offset_str[:2])
+            lat_offset = from_base36(offset_str[2:4])
         else:
             lng_offset, lat_offset = 0, 0
         
@@ -546,9 +574,9 @@ class InboxHandler(BaseCommandHandler):
         second_char = ord(col_letters[1]) - ord('A')
         col_index = first_char * 26 + second_char
         
-        # Map back to coordinates
-        lng = (col_index + lng_offset/1000) * 360 / 479 - 180
-        lat = 90 - (row_num + lat_offset/1000) * 180 / 269
+        # Map back to coordinates (36^2 = 1296 divisions per cell)
+        lng = (col_index + lng_offset/1296) * 360 / 479 - 180
+        lat = 90 - (row_num + lat_offset/1296) * 180 / 269
         
         return round(lat, 6), round(lng, 6)
     
