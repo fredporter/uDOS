@@ -147,6 +147,10 @@ class CommandHandler:
         # Task Management Handlers
         from core.commands.checklist_handler import ChecklistHandler
         self.checklist_handler = ChecklistHandler(config=None)
+        
+        # Inbox Processing Handler
+        from core.commands.inbox_handler import InboxHandler
+        self.inbox_handler = InboxHandler(**handler_kwargs)
 
 
         from core.commands.archive_handler import ArchiveHandler
@@ -382,6 +386,10 @@ class CommandHandler:
             # Task Management
             elif module == "CHECKLIST":
                 return self.checklist_handler.handle(command, params)
+            
+            # Inbox Processing
+            elif module == "INBOX":
+                return self.inbox_handler.handle(command, params, grid)
 
             # Archive Management
             elif module == "ARCHIVE":

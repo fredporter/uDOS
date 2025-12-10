@@ -789,6 +789,39 @@
       ]
     },
     {
+      "NAME": "INBOX",
+      "SYNTAX": "INBOX [PROCESS [file]|LIST|STATUS|CLEAN]",
+      "DESCRIPTION": "Process files from memory/inbox/ - filters scraped business data CSV files, extracts email-only records, geocodes addresses to TILE codes, formats social links.",
+      "UCODE_TEMPLATE": "[INBOX|$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "STATUS",
+        "$2": ""
+      },
+      "SUBCOMMANDS": {
+        "PROCESS [file]": "Process CSV file(s) - filters by email, geocodes locations, generates TILE codes",
+        "LIST": "List all CSV files waiting in inbox",
+        "STATUS": "Show inbox status and file count",
+        "CLEAN": "Archive processed files to .archive/"
+      },
+      "EXAMPLES": [
+        "INBOX STATUS",
+        "INBOX LIST",
+        "INBOX PROCESS",
+        "INBOX PROCESS example-pilates-studio.csv",
+        "INBOX CLEAN"
+      ],
+      "NOTES": [
+        "✅ NEW in v1.2.22 - Automated inbox processing for scraped business data",
+        "Filters: Retains only records with valid email addresses",
+        "Extracts: Business name, email, phone, website, social links (FB/IG/LinkedIn)",
+        "Geocodes: Parses FullAddress → Street, Suburb, Postcode, Country",
+        "TILE codes: Converts lat/long to uDOS grid format (AA340-100)",
+        "Keywords: Extracted from filename (e.g., 'pilates-studio')",
+        "Output: memory/bank/private/processed/processed_{keyword}_{filename}.csv",
+        "Use INBOX CLEAN to archive processed files"
+      ]
+    },
+    {
       "NAME": "BUILD",
       "SYNTAX": "BUILD [--check|--download|--full|--export=path]",
       "DESCRIPTION": "Pre-download repositories and create offline installation package. Clones optional repos (MeshCore, CoreUI) and packages core system for distribution.",
