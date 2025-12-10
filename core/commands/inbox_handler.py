@@ -238,7 +238,7 @@ class InboxHandler(BaseCommandHandler):
         return phone
     
     def _clean_business_name(self, name: str) -> str:
-        """Clean and format business name."""
+        """Clean and format business name with relaxed title case."""
         if not name:
             return ''
         
@@ -253,16 +253,28 @@ class InboxHandler(BaseCommandHandler):
         # Clean up extra whitespace
         name = ' '.join(name.split())
         
-        # Smart title case - preserve acronyms (2-3 uppercase letters)
+        # Relaxed title case - keep common words lowercase
+        lowercase_words = {'and', 'or', 'the', 'a', 'an', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'}
+        
         words = name.split()
         formatted_words = []
-        for word in words:
+        
+        for i, word in enumerate(words):
+            word_lower = word.lower()
+            
+            # Always capitalize first word
+            if i == 0:
+                # Keep acronyms (2-3 uppercase letters) as-is
+                if len(word) <= 3 and word.isupper():
+                    formatted_words.append(word)
+                else:
+                    formatted_words.append(word.title())
+            # Keep common words lowercase (unless they're acronyms)
+            elif word_lower in lowercase_words:
+                formatted_words.append(word_lower)
             # Keep acronyms (2-3 uppercase letters) as-is
-            if len(word) <= 3 and word.isupper():
+            elif len(word) <= 3 and word.isupper():
                 formatted_words.append(word)
-            # Keep mixed case words with all uppercase start (like 'inLIFE')
-            elif word[0].islower() and any(c.isupper() for c in word[1:]):
-                formatted_words.append(word.title())
             # Otherwise apply title case
             else:
                 formatted_words.append(word.title())
