@@ -320,6 +320,30 @@ def generate_filename(
     )
 
 
+def generate_daily(base_name: str, extension: str = "", config=None) -> str:
+    """Generate daily filename: YYYY-MM-DD-basename.ext (convenience wrapper)."""
+    gen = FilenameGenerator(config)
+    return gen.generate_daily(base_name, extension)
+
+
+def generate_session(base_name: str, extension: str = "", config=None) -> str:
+    """Generate session filename: YYYY-MM-DD-HH-MM-SS-basename.ext (convenience wrapper)."""
+    gen = FilenameGenerator(config)
+    return gen.generate_session(base_name, extension)
+
+
+def generate_instance(base_name: str, extension: str = "", config=None) -> str:
+    """Generate instance filename with milliseconds: YYYY-MM-DD-HH-MM-SS-mmm-basename.ext (convenience wrapper)."""
+    gen = FilenameGenerator(config)
+    return gen.generate_instance(base_name, extension)
+
+
+def generate_located(base_name: str, extension: str = "", tile_code: Optional[str] = None, config=None) -> str:
+    """Generate located filename: YYYY-MM-DD-HH-MM-SS-TILE-basename.ext (convenience wrapper)."""
+    gen = FilenameGenerator(config)
+    return gen.generate_located(base_name, extension, tile_code)
+
+
 def parse_filename(filename: str) -> dict:
     """
     Parse uDOS-formatted filename (convenience wrapper).

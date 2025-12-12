@@ -2,13 +2,13 @@ Layout (keypad style)
 
 +------+------+------+
 |  7   |  8   |  9   |
-| Undo |  ↑   | Redo |
+| Redo |  ↑   | Undo |
 +------+------+------+
 |  4   |  5   |  6   |
-|  ←   | Sel  |  →   |
+|  ←   |  OK  |  →   |
 +------+------+------+
 |  1   |  2   |  3   |
-|Hist- |  ↓   |Hist+ |
+|  Yes |  ↓   |  No  |
 +------+------+------+
        |  0   |
        | Menu |
@@ -21,14 +21,11 @@ What each key does
 	•	4 → Move Left
 	•	6 → Move Right
 	•	Editing
-	•	7 → Undo (like Ctrl+Z)
-	•	9 → Redo (like Ctrl+Y / Shift+Ctrl+Z)
-	•	5 → Select / Confirm / Enter (centre “action” button)
-	•	History navigation
-	•	1 → History Back
-(e.g. jump to previous cursor position / previous item / previous buffer)
-	•	3 → History Forward
-(reverse of 1)
-	•	Extra / global
-	•	0 → Menu / History list / Mode toggle
-(e.g. open a list of recent locations/documents, or toggle nav mode)
+	•	7 → Redo 
+	•	9 → Undo 
+	•	5 → Select / Confirm / Enter / OK(centre “action” button)
+	•	Question navigation
+	•	1 → Yes 
+	•	3 → No
+	•	0 → Menu / 
+

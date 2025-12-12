@@ -25,6 +25,7 @@ import os
 from pathlib import Path
 from datetime import datetime
 from .base_handler import BaseCommandHandler
+from core.utils.filename_generator import FilenameGenerator, generate_daily, generate_session, generate_located
 
 
 class FileCommandHandler(BaseCommandHandler):
@@ -35,6 +36,7 @@ class FileCommandHandler(BaseCommandHandler):
         self._workspace_manager = None
         self._editor_manager = None
         self._file_picker = None
+        self.filename_gen = FilenameGenerator(config=kwargs.get('config'))
 
     @property
     def workspace_manager(self):

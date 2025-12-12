@@ -39,6 +39,7 @@ from datetime import datetime
 import json
 import subprocess
 import tempfile
+from core.utils.filename_generator import generate_session
 
 
 class MermaidHandler:
@@ -315,9 +316,9 @@ For more info: https://mermaid.js.org/
             tmp.write(code)
             tmp_path = tmp.name
 
-        # Generate output filename
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = self.mermaid_output / f"{diagram_type}_{timestamp}.svg"
+        # Generate output filename with ISO 8601 timestamp
+        filename = generate_session(diagram_type, ".svg")
+        output_file = self.mermaid_output / filename
 
         try:
             # Run mermaid-cli
@@ -367,8 +368,9 @@ Use 'MERMAID EXPORT png' to convert to PNG.
         Returns:
             Instructions for manual rendering
         """
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        mmd_file = self.mermaid_output / f"{diagram_type}_{timestamp}.mmd"
+        # Generate .mmd filename with ISO 8601 timestamp
+        filename = generate_session(diagram_type, ".mmd")
+        mmd_file = self.mermaid_output / filename
 
         try:
             with open(mmd_file, 'w') as f:

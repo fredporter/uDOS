@@ -28,6 +28,7 @@ import time
 import json
 
 from .base_handler import BaseCommandHandler
+from core.utils.filename_generator import generate_session
 from core.services.api_monitor import get_api_monitor, APIRequest
 from core.services.priority_queue import get_priority_queue, Priority as QueuePriority
 from core.services.performance_monitor import get_performance_monitor
@@ -839,11 +840,11 @@ Use: GENERATE SEQUENCE --list
         try:
             content = template_file.read_text()
             
-            # Save to drafts
+            # Save to drafts with ISO 8601 timestamp
             output_dir = PATHS.MEMORY_DRAFTS / 'sequence'
             output_dir.mkdir(parents=True, exist_ok=True)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file = output_dir / f"{template_name}_{timestamp}.txt"
+            filename = generate_session(template_name, ".txt")
+            output_file = output_dir / filename
             output_file.write_text(content)
             
             return f"""✅ Sequence Diagram Generated
@@ -913,11 +914,11 @@ Use: GENERATE FLOW --list
         try:
             content = template_file.read_text()
             
-            # Save to drafts
+            # Save to drafts with ISO 8601 timestamp
             output_dir = PATHS.MEMORY_DRAFTS / 'flow'
             output_dir.mkdir(parents=True, exist_ok=True)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file = output_dir / f"{template_name}_{timestamp}.txt"
+            filename = generate_session(template_name, ".txt")
+            output_file = output_dir / filename
             output_file.write_text(content)
             
             return f"""✅ Flowchart Generated
