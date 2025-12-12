@@ -1,8 +1,13 @@
 """
 Filename Generator Utility
 
-Universal filename generation with optional date-time-location formatting.
-Implements uDOS filename convention: YYYY-MM-DD-HH-MM-SS-TILE-basename.ext
+Universal filename generation with compact date-time-timezone-location formatting.
+Implements uDOS filename convention: YYYYMMDD-HHMMSSTZ-TILE-basename.ext
+
+Format Examples:
+- Date only: 20251212-backup.json
+- Session: 20251212-143045AEST-workflow.upy
+- Located: 20251212-143045AEST-AA340-mission.upy
 
 Part of v1.2.23 - Time-Space Integration Enhancement
 """
@@ -11,30 +16,66 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple
 import re
+import json
 
 
 class FilenameGenerator:
-    """Generate standardized filenames with optional date-time-location."""
+    """Generate standardized filenames with compact date-time-timezone-location format."""
     
     # Standard separators
-    DATE_SEP = "-"
-    TIME_SEP = "-"
     COMPONENT_SEP = "-"
     
-    # Format patterns
-    DATE_FORMAT = "%Y-%m-%d"
-    TIME_FORMAT = "%H-%M-%S"
-    DATETIME_FORMAT = f"{DATE_FORMAT}{COMPONENT_SEP}{TIME_FORMAT}"
-    MILLISECOND_FORMAT = f"{DATETIME_FORMAT}{COMPONENT_SEP}%f"
+    # Compact format patterns (no internal separators)
+    DATE_FORMAT = "%Y%m%d"    # YYYYMMDD
+    TIME_FORMAT = "%H%M%S"    # HHMMSS
+    
+    # Timezone abbreviation mapping
+    TIMEZONE_ABBR = {
+        "UTC": "UTC",
+        "America/New_York": "EST",
+        "America/Los_Angeles": "PST",
+        "Europe/London": "GMT",
+        "Europe/Paris": "CET",
+        "Asia/Tokyo": "JST",
+        "Australia/Sydney": "AEST",
+    }
     
     def __init__(self, config=None):
         """
         Initialize filename generator.
         
         Args:
-            config: Optional Config instance for TILE detection
+            config: Optional Config instance for location detection
         """
         self.config = config
+        self.timezones_data = self._load_timezones()
+        self.current_timezone = self._get_current_timezone()
+    
+    def _load_timezones(self) -> dict:
+        """Load timezone data from timezones.json."""
+        try:
+            from pathlib import Path
+            # Try to find timezones.json in core/data/
+            project_root = Path(__file__).parent.parent.parent
+            tz_file = project_root / "core" / "data" / "timezones.json"
+            if tz_file.exists():
+                with open(tz_file, 'r') as f:
+                    return json.load(f)
+        except Exception:
+            pass
+        return {"zones": {}, "tiles": {}}
+    
+    def _get_current_timezone(self) -> str:
+        """Get current timezone from config or environment."""
+        if self.config:
+            tz = self.config.get_env('TIMEZONE', 'UTC')
+            return tz
+        return 'UTC'
+    
+    def _get_timezone_abbr(self, timezone_name: str = None) -> str:
+        """Get timezone abbreviation (2-4 characters)."""
+        tz = timezone_name or self.current_timezone
+        return self.TIMEZONE_ABBR.get(tz, 'UTC')
     
     def generate(
         self,
@@ -66,35 +107,42 @@ class FilenameGenerator:
         Examples:
             >>> gen = FilenameGenerator()
             >>> gen.generate("backup", ".json", include_date=True)
-            "2025-12-12-backup.json"
+            "20251212-backup.json"
             
             >>> gen.generate("workflow", ".upy", include_time=True)
-            "2025-12-12-14-30-45-workflow.upy"
+            "20251212-143045AEST-workflow.upy"
             
             >>> gen.generate("mission", ".upy", include_time=True, 
             ...              include_location=True, tile_code="AA340")
-            "2025-12-12-14-30-45-AA340-mission.upy"
+            "20251212-143045AEST-AA340-mission.upy"
             
             >>> gen.generate("error", ".json", include_milliseconds=True)
-            "2025-12-12-14-30-45-123-error.json"
+            "20251212-143045AEST-123-error.json"
         """
         parts = []
         
         # Use provided timestamp or current time
         now = timestamp or datetime.now()
         
-        # Date component
+        # Date component (always included if time is included)
         if include_date or include_time or include_milliseconds:
-            parts.append(now.strftime(self.DATE_FORMAT))
-        
-        # Time component
-        if include_time or include_milliseconds:
-            parts.append(now.strftime(self.TIME_FORMAT))
-        
-        # Milliseconds component (first 3 digits)
-        if include_milliseconds:
-            ms = now.strftime("%f")[:3]  # First 3 digits of microseconds
-            parts.append(ms)
+            date_str = now.strftime(self.DATE_FORMAT)  # YYYYMMDD
+            
+            # Time component (compact with timezone)
+            if include_time or include_milliseconds:
+                time_str = now.strftime(self.TIME_FORMAT)  # HHMMSS
+                tz_abbr = self._get_timezone_abbr()  # AEST, UTC, etc.
+                
+                # Milliseconds component (appended after timezone if needed)
+                if include_milliseconds:
+                    ms = now.strftime("%f")[:3]  # First 3 digits
+                    time_tz = f"{date_str}{self.COMPONENT_SEP}{time_str}{tz_abbr}{self.COMPONENT_SEP}{ms}"
+                else:
+                    time_tz = f"{date_str}{self.COMPONENT_SEP}{time_str}{tz_abbr}"
+                parts.append(time_tz)
+            else:
+                # Date only (no timezone suffix)
+                parts.append(date_str)
         
         # Location component
         if include_location:
@@ -105,8 +153,12 @@ class FilenameGenerator:
         # Base name
         parts.append(base_name)
         
-        # Combine parts
-        filename = self.COMPONENT_SEP.join(parts)
+        # Combine parts (only separate with - if multiple components)
+        if len(parts) == 1:
+            filename = parts[0]
+        else:
+            # First part is date-time-tz, rest are separate
+            filename = self.COMPONENT_SEP.join(parts)
         
         # Add extension
         if extension:
@@ -117,15 +169,15 @@ class FilenameGenerator:
         return filename
     
     def generate_daily(self, base_name: str, extension: str = "") -> str:
-        """Generate daily filename: YYYY-MM-DD-basename.ext"""
+        """Generate daily filename: YYYYMMDD-basename.ext"""
         return self.generate(base_name, extension, include_date=True)
     
     def generate_session(self, base_name: str, extension: str = "") -> str:
-        """Generate session filename: YYYY-MM-DD-HH-MM-SS-basename.ext"""
+        """Generate session filename: YYYYMMDD-HHMMSSTZ-basename.ext"""
         return self.generate(base_name, extension, include_time=True)
     
     def generate_instance(self, base_name: str, extension: str = "") -> str:
-        """Generate instance filename: YYYY-MM-DD-HH-MM-SS-mmm-basename.ext"""
+        """Generate instance filename: YYYYMMDD-HHMMSSTZ-mmm-basename.ext"""
         return self.generate(base_name, extension, include_milliseconds=True)
     
     def generate_located(
@@ -134,7 +186,7 @@ class FilenameGenerator:
         extension: str = "",
         tile_code: Optional[str] = None
     ) -> str:
-        """Generate location-aware filename: YYYY-MM-DD-HH-MM-SS-TILE-basename.ext"""
+        """Generate location-aware filename: YYYYMMDD-HHMMSSTZ-TILE-basename.ext"""
         return self.generate(
             base_name, 
             extension, 
@@ -152,8 +204,9 @@ class FilenameGenerator:
         
         Returns:
             Dictionary with parsed components:
-                - date: YYYY-MM-DD or None
-                - time: HH-MM-SS or None
+                - date: YYYYMMDD or None
+                - time: HHMMSS or None
+                - timezone: TZ abbreviation or None
                 - milliseconds: mmm or None
                 - tile: TILE code or None
                 - base_name: Base filename
@@ -161,10 +214,11 @@ class FilenameGenerator:
         
         Example:
             >>> gen = FilenameGenerator()
-            >>> gen.parse_filename("2025-12-12-14-30-45-AA340-mission.upy")
+            >>> gen.parse_filename("20251212-143045AEST-AA340-mission.upy")
             {
-                'date': '2025-12-12',
-                'time': '14-30-45',
+                'date': '20251212',
+                'time': '143045',
+                'timezone': 'AEST',
                 'milliseconds': None,
                 'tile': 'AA340',
                 'base_name': 'mission',
@@ -174,6 +228,7 @@ class FilenameGenerator:
         result = {
             'date': None,
             'time': None,
+            'timezone': None,
             'milliseconds': None,
             'tile': None,
             'base_name': None,
@@ -188,25 +243,37 @@ class FilenameGenerator:
         # Split components
         parts = name.split(self.COMPONENT_SEP)
         
+        if not parts:
+            return result
+        
         idx = 0
         
-        # Check for date (YYYY-MM-DD pattern)
-        if idx < len(parts) and self._is_date(parts[idx]):
-            result['date'] = parts[idx]
-            idx += 1
+        # Check first part for date (YYYYMMDD) or date-time combo
+        if idx < len(parts):
+            first_part = parts[idx]
+            
+            # Check for YYYYMMDD (exactly 8 digits)
+            if re.match(r'^\d{8}$', first_part):
+                result['date'] = first_part
+                idx += 1
         
-        # Check for time (HH-MM-SS pattern)
-        if idx < len(parts) and self._is_time(parts[idx]):
-            result['time'] = parts[idx]
-            idx += 1
+        # Check next part for time+timezone (HHMMSSTZ where TZ is 2-4 letters)
+        if idx < len(parts):
+            time_part = parts[idx]
+            # Match HHMMSS (6 digits) followed by 2-4 uppercase letters
+            time_match = re.match(r'^(\d{6})([A-Z]{2,4})$', time_part)
+            if time_match:
+                result['time'] = time_match.group(1)
+                result['timezone'] = time_match.group(2)
+                idx += 1
         
         # Check for milliseconds (3-digit pattern)
-        if idx < len(parts) and self._is_milliseconds(parts[idx]):
+        if idx < len(parts) and re.match(r'^\d{3}$', parts[idx]):
             result['milliseconds'] = parts[idx]
             idx += 1
         
-        # Check for TILE code (2-letter + digits pattern)
-        if idx < len(parts) and self._is_tile(parts[idx]):
+        # Check for TILE code (2-letter column + number, optional -layer)
+        if idx < len(parts) and re.match(r'^[A-Z]{2}\d+(-\d+)?$', parts[idx]):
             result['tile'] = parts[idx]
             idx += 1
         
@@ -238,21 +305,7 @@ class FilenameGenerator:
         
         return None
     
-    def _is_date(self, part: str) -> bool:
-        """Check if part matches YYYY-MM-DD pattern."""
-        return bool(re.match(r'^\d{4}-\d{2}-\d{2}$', part))
-    
-    def _is_time(self, part: str) -> bool:
-        """Check if part matches HH-MM-SS pattern."""
-        return bool(re.match(r'^\d{2}-\d{2}-\d{2}$', part))
-    
-    def _is_milliseconds(self, part: str) -> bool:
-        """Check if part matches mmm pattern (3 digits)."""
-        return bool(re.match(r'^\d{3}$', part))
-    
-    def _is_tile(self, part: str) -> bool:
-        """Check if part matches TILE code pattern (e.g., AA340, JF57)."""
-        return bool(re.match(r'^[A-Z]{2}\d+$', part))
+
     
     def get_timestamp_from_filename(self, filename: str) -> Optional[datetime]:
         """
@@ -269,25 +322,26 @@ class FilenameGenerator:
         if not parsed['date']:
             return None
         
-        # Build timestamp string
+        # Build timestamp string from compact format
+        date_str = parsed['date']  # YYYYMMDD
+        
         if parsed['time']:
+            time_str = parsed['time']  # HHMMSS
             if parsed['milliseconds']:
                 # Full timestamp with milliseconds
-                ts_str = f"{parsed['date']} {parsed['time']}.{parsed['milliseconds']}"
-                fmt = "%Y-%m-%d %H-%M-%S.%f"
+                ts_str = f"{date_str}{time_str}{parsed['milliseconds']}"
+                fmt = "%Y%m%d%H%M%S%f"
             else:
                 # Date and time only
-                ts_str = f"{parsed['date']} {parsed['time']}"
-                fmt = "%Y-%m-%d %H-%M-%S"
+                ts_str = f"{date_str}{time_str}"
+                fmt = "%Y%m%d%H%M%S"
         else:
             # Date only
-            ts_str = parsed['date']
-            fmt = "%Y-%m-%d"
+            ts_str = date_str
+            fmt = "%Y%m%d"
         
         try:
-            # Replace separators for parsing
-            ts_str = ts_str.replace('-', ' ')
-            return datetime.strptime(ts_str, fmt.replace('-', ' '))
+            return datetime.strptime(ts_str, fmt)
         except ValueError:
             return None
 
@@ -385,10 +439,10 @@ if __name__ == "__main__":
     print()
     
     test_files = [
-        "2025-12-12-backup.json",
-        "2025-12-12-14-30-45-export.json",
-        "2025-12-12-14-30-45-123-error-context.json",
-        "2025-12-12-14-30-45-AA340-mission.upy",
+        "20251212-backup.json",
+        "20251212-143045AEST-export.json",
+        "20251212-143045AEST-123-error-context.json",
+        "20251212-143045AEST-AA340-mission.upy",
     ]
     
     for filename in test_files:
