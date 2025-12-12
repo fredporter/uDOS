@@ -487,11 +487,32 @@ class DashboardHandler(BaseCommandHandler):
         return self._status_snapshot()
 
     def handle_viewport(self, params, grid, parser):
-        """Display viewport visualization."""
-        if self.viewport:
-            return self.viewport.draw_viewport_map()
-        else:
-            return "Viewport information not available. Try: REBOOT"
+        """
+        Display viewport visualization with educational TUI demo.
+        
+        Shows:
+        - Current terminal dimensions
+        - Device tier detection
+        - TUI capabilities (Unicode, colors, monospace)
+        - Box-drawing and column formatting demos
+        - Color palette test
+        """
+        try:
+            from core.services.viewport_manager import ViewportManager
+            from core.utils.viewport_viz import ViewportVisualizer
+            
+            # Get viewport info
+            vp = ViewportManager()
+            vp_info = vp.refresh_viewport()
+            
+            # Create visualizer
+            viz = ViewportVisualizer(viewport=vp)
+            
+            # Generate educational splash
+            return viz.generate_educational_splash(viewport_manager=vp)
+            
+        except Exception as e:
+            return f"❌ Error displaying viewport: {e}\n💡 Try: REBOOT"
 
     def handle_palette(self, params, grid, parser):
         """

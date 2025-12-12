@@ -2,6 +2,7 @@
 
 import os
 import shutil
+from core.utils.column_formatter import ColumnFormatter, ColumnConfig
 
 class ViewportVisualizer:
     """
@@ -56,6 +57,7 @@ class ViewportVisualizer:
         self.unicode_support = self._test_unicode()
         self.color_support = self._test_color()
         self.monospace_font = self._test_monospace()
+        self.formatter = ColumnFormatter(ColumnConfig(width=min(self.width - 4, 76)))
 
     def _test_unicode(self):
         """Test if terminal supports Unicode."""
@@ -262,3 +264,165 @@ class ViewportVisualizer:
         test_lines.append("terminal may not be monospace.")
 
         return "\n".join(test_lines)
+    
+    def generate_educational_splash(self, viewport_manager=None):
+        """
+        Generate educational viewport detection splash with TUI demos.
+        Shows what's being measured and demonstrates TUI capabilities.
+        
+        Args:
+            viewport_manager: ViewportManager instance for tier detection
+            
+        Returns:
+            Formatted splash screen as string
+        """
+        lines = []
+        
+        # Header with ColumnFormatter
+        lines.append(self.formatter.box_top("🔍 VIEWPORT DETECTION & TUI CAPABILITIES TEST"))
+        lines.append("")
+        
+        # What we're measuring
+        lines.append(self.formatter.box_section_header("MEASURING YOUR DISPLAY", "Understanding terminal dimensions"))
+        lines.append("")
+        
+        # Current measurements
+        term_cols, term_lines = self.width, self.height
+        data = [
+            ("Terminal Width", f"{term_cols} characters", "Horizontal space"),
+            ("Terminal Height", f"{term_lines} lines", "Vertical space"),
+        ]
+        
+        # Add viewport manager info if available
+        if viewport_manager:
+            vp_info = viewport_manager.viewport_info
+            tier_info = vp_info.get("screen_tier", {})
+            
+            data.extend([
+                ("", "", ""),  # Spacer
+                ("Grid Cells (Width)", f"{tier_info.get('actual_width_cells', 'N/A')} cells", "16×16 blocks wide"),
+                ("Grid Cells (Height)", f"{tier_info.get('actual_height_cells', 'N/A')} cells", "16×16 blocks tall"),
+                ("", "", ""),  # Spacer
+                ("Device Tier", tier_info.get('label', 'Unknown'), tier_info.get('description', '')),
+                ("Aspect Ratio", tier_info.get('aspect', 'Unknown'), "Width:Height proportion"),
+            ])
+        
+        for key, value, description in data:
+            if key:  # Skip spacers
+                lines.append(self.formatter.box_kv_line(key, f"{value} - {description}"))
+            else:
+                lines.append(self.formatter.box_line("", align="left"))
+        
+        lines.append("")
+        lines.append(self.formatter.box_separator())
+        lines.append("")
+        
+        # TUI Capabilities Test
+        lines.append(self.formatter.box_section_header("TUI CAPABILITIES", "Testing terminal features"))
+        lines.append("")
+        
+        # Capability checks with visual indicators
+        capabilities = [
+            ("Unicode Support", self.unicode_support, "Box drawing: ╔═╗║╚╝╠╣"),
+            ("256 Colors", self.color_support, "Full color palette"),
+            ("Monospace Font", self.monospace_font, "Aligned columns"),
+        ]
+        
+        for cap_name, supported, example in capabilities:
+            status = "✅ YES" if supported else "❌ NO"
+            lines.append(self.formatter.box_kv_line(cap_name, f"{status} - {example}"))
+        
+        lines.append("")
+        lines.append(self.formatter.box_separator())
+        lines.append("")
+        
+        # Box-Drawing Demo
+        lines.append(self.formatter.box_section_header("BOX-DRAWING DEMO", "Unicode vs ASCII comparison"))
+        lines.append("")
+        
+        if self.unicode_support:
+            demo_box = [
+                "║  Unicode Mode:  ╔═══╗ ╠═╣ ╬ ┌─┐ │ ├┤ ▲▼◄► █▓▒░  ║",
+                "║  Blocks/Shade:  ■□ ●○ ◆◇ ▪▫ ▲△ ▼▽ ◄◅ ►▻ ★☆    ║",
+                "║  Line Drawing:  ─│┌┐└┘├┤┬┴┼ ═║╔╗╚╝╠╣╦╩╬     ║",
+            ]
+        else:
+            demo_box = [
+                "║  ASCII Mode:    +-+  |  # @ + . * - | + ^ v < >  ║",
+                "║  Basic Chars:   [] () {} <> /\\ |-  +-+ #+# *+*   ║",
+                "║  Fallback:      Limited box-drawing available     ║",
+            ]
+        
+        for line in demo_box:
+            lines.append(self.formatter.box_line(line[4:], align="left"))  # Strip initial ║
+        
+        lines.append("")
+        lines.append(self.formatter.box_separator())
+        lines.append("")
+        
+        # Color Palette Demo
+        if self.color_support:
+            lines.append(self.formatter.box_section_header("COLOR PALETTE", "Polaroid theme (system default)"))
+            lines.append("")
+            
+            # Color blocks with labels
+            color_demo = "  "
+            for name, code in [('RED', 'red'), ('GRN', 'green'), ('YEL', 'yellow'),
+                              ('BLU', 'blue'), ('PUR', 'purple'), ('CYN', 'cyan')]:
+                block = self.shade_block('full') * 3
+                color_demo += self.color(f"{block}", code) + " "
+            
+            lines.append(self.formatter.box_line(color_demo, align="left"))
+            lines.append(self.formatter.box_line("  RED  GRN  YEL  BLU  PUR  CYN", align="left"))
+            lines.append("")
+            
+            # Grayscale gradient
+            gray_demo = "  "
+            for i in range(6):
+                block = self.shade_block('full') * 4
+                gray_demo += self.color(block, f"gray_{i}")
+            lines.append(self.formatter.box_line(gray_demo, align="left"))
+            lines.append(self.formatter.box_line("  Black ────────────► White", align="left"))
+        else:
+            lines.append(self.formatter.box_line("⚠️  Color support not detected - Monochrome mode", align="left"))
+        
+        lines.append("")
+        lines.append(self.formatter.box_separator())
+        lines.append("")
+        
+        # Column Formatter Demo
+        lines.append(self.formatter.box_section_header("COLUMN FORMATTING", "Professional table layouts"))
+        lines.append("")
+        
+        # Sample table using formatter
+        table_data = [
+            ["Command", "Width", "Purpose"],
+            ["STATUS", "70 chars", "System overview"],
+            ["GUIDE", "61 chars", "Knowledge display"],
+            ("MAP", "80 chars", "Grid rendering"),
+        ]
+        
+        for row in table_data:
+            lines.append(self.formatter.box_multi_column(row, [20, 15, 25]))
+        
+        lines.append("")
+        lines.append(self.formatter.box_line("💡 All TUI panels use consistent formatting", align="center"))
+        
+        lines.append("")
+        lines.append(self.formatter.box_bottom())
+        
+        # Educational footer
+        lines.append("")
+        lines.append("🎓 WHAT THIS MEANS:")
+        lines.append("   • uDOS adapts to your screen size automatically")
+        lines.append("   • Panels resize based on available space")
+        lines.append("   • Unicode provides better visuals where supported")
+        lines.append("   • Colors enhance readability (optional)")
+        lines.append("")
+        lines.append("📝 CONFIGURATION:")
+        lines.append("   • CONFIG VIEWPORT <width> <height> - Override detection")
+        lines.append("   • VIEWPORT - Show current viewport details")
+        lines.append("   • STATUS - Quick system overview")
+        lines.append("")
+        
+        return "\n".join(lines)

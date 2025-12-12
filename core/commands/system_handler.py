@@ -580,15 +580,29 @@ class SystemCommandHandler(BaseCommandHandler):
             time.sleep(0.15)
 
             # Clear line and show completion
-            if i == 3:  # Viewport detection
+            if i == 3:  # Viewport detection - SHOW EDUCATIONAL SPLASH
                 try:
                     from core.services.viewport_manager import ViewportManager
+                    from core.utils.viewport_viz import ViewportVisualizer
+                    
                     vp = ViewportManager()
-                    tier = vp.refresh_viewport()["screen_tier"]
+                    vp_info = vp.refresh_viewport()
+                    tier = vp_info["screen_tier"]
                     size = f"{tier['actual_width_cells']}×{tier['actual_height_cells']}"
-                except:
+                    
+                    # Show educational splash
+                    print(f"\r{' ' * 80}\r\033[1;32m[✓]\033[0m {step_name:<20} ({size})  ", flush=True)
+                    print("\n")
+                    
+                    # Create visualizer and show educational splash
+                    viz = ViewportVisualizer(viewport=vp)
+                    splash = viz.generate_educational_splash(viewport_manager=vp)
+                    print(splash)
+                    print("\n")
+                    
+                except Exception as e:
                     size = "cached"
-                print(f"\r{' ' * 80}\r\033[1;32m[✓]\033[0m {step_name:<20} ({size})  ", flush=True)
+                    print(f"\r{' ' * 80}\r\033[1;32m[✓]\033[0m {step_name:<20} ({size})  ", flush=True)
             else:
                 print(f"\r{' ' * 80}\r\033[1;32m[✓]\033[0m {step_name:<20} ({completion_msg})  ", flush=True)
 
