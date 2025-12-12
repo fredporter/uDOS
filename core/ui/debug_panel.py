@@ -136,7 +136,6 @@ class DebugPanel:
         
         # Header
         output.append(self.formatter.box_top("DEBUG PANEL"))
-        output.append("")═ DEBUG PANEL ══╗")
         output.append("")
         
         # Current log file

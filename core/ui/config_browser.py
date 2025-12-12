@@ -75,8 +75,7 @@ class ConfigBrowser:
         """Render panel header"""
         modified_indicator = f" ({len(self.modified_keys)} modified)" if self.modified_keys else ""
         title = f"CONFIG Browser{modified_indicator}"
-        return self.formatter.box_top(title)odified)" if self.modified_keys else ""
-        return f"╔══ CONFIG Browser ══╗{modified_indicator}"
+        return self.formatter.box_top(title)
     
     def _render_category_tabs(self) -> str:
         """Render category tabs"""

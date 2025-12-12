@@ -287,13 +287,14 @@ class FileBrowser:
             
         Returns:
             List of formatted lines
+        """
         lines = []
         
         # Header
         breadcrumb = f"📁 {self.get_breadcrumb()}"
         lines.append(self.formatter.box_top("File Browser"))
         lines.append(self.formatter.box_line(breadcrumb, align="left"))
-        lines.append(self.formatter.box_separator())f.get_breadcrumb()}")
+        lines.append(self.formatter.box_separator())
         lines.append("─" * 60)
         
         # Entries
