@@ -19,12 +19,16 @@ import shutil
 from pathlib import Path
 from datetime import datetime, timedelta
 import json
+from core.utils.filename_generator import FilenameGenerator
 
 
 class SandboxHandler:
     """Handles CLEAN and TIDY commands for /memory directory management (v1.2.x)."""
 
-    def __init__(self):
+    def __init__(self, config=None):
+        # v1.2.23: FilenameGenerator for consistent report naming
+        self.filename_gen = FilenameGenerator(config=config)
+        
         # v1.2.21: Updated to new memory/ structure (Geography Consolidation)
         # memory/docs = markdown files
         # memory/drafts = draft markdown

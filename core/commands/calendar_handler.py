@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 import calendar as cal_module
 import json
+from core.services.unified_task_manager import create_task_manager
 
 
 class CalendarHandler:
@@ -47,9 +48,12 @@ class CalendarHandler:
         self.current_date = datetime.now()
         self.view_mode = 'month'  # month, week, day
         
+        # v1.2.23: Use UnifiedTaskManager instead of tasks.json
+        self.task_mgr = create_task_manager(config)
+        
     @property
     def task_file(self):
-        """Get path to tasks.json file."""
+        """DEPRECATED: Get path to tasks.json file. Use task_mgr instead."""
         return Path("memory/bank/user/tasks.json")
     
     def handle_command(self, params):

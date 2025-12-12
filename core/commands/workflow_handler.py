@@ -32,6 +32,8 @@ from core.output.syntax_highlighter import highlight_syntax
 from core.config import Config
 from core.commands.base_handler import BaseCommandHandler
 from core.utils.paths import PATHS
+from core.utils.filename_generator import FilenameGenerator
+from core.services.unified_task_manager import create_task_manager
 
 
 class WorkflowHandler(BaseCommandHandler):
@@ -49,6 +51,12 @@ class WorkflowHandler(BaseCommandHandler):
         self.checkpoint_dir = PATHS.MEMORY_WORKFLOWS_CHECKPOINTS
         self.reports_dir = PATHS.MEMORY_WORKFLOWS / "reports"
         self.background_processes: Dict[str, subprocess.Popen] = {}
+        
+        # v1.2.23: FilenameGenerator for checkpoint naming
+        self.filename_gen = FilenameGenerator(config=config)
+        
+        # v1.2.23: UnifiedTaskManager for workflow step tracking
+        self.task_mgr = create_task_manager(config)
 
         # Ensure directories exist
         self.log_dir.mkdir(parents=True, exist_ok=True)

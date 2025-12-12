@@ -15,6 +15,7 @@ import json
 import shutil
 from pathlib import Path
 from .base_handler import BaseCommandHandler
+from core.utils.filename_generator import FilenameGenerator
 
 
 class SystemCommandHandler(BaseCommandHandler):
@@ -22,6 +23,10 @@ class SystemCommandHandler(BaseCommandHandler):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        
+        # v1.2.23: FilenameGenerator for system exports and reports
+        config = kwargs.get('config')
+        self.filename_gen = FilenameGenerator(config=config)
 
         # Import services only when needed (lazy loading)
         self._startup_module = None

@@ -30,6 +30,7 @@ from .base_handler import BaseCommandHandler
 from core.services.ok_context_manager import get_ok_context_manager
 from core.services.ok_config import get_ok_config
 from extensions.assistant.context_builder import get_context_builder
+from core.utils.filename_generator import FilenameGenerator
 
 
 class OKHandler(BaseCommandHandler):
@@ -48,6 +49,10 @@ class OKHandler(BaseCommandHandler):
         self.context_manager = get_ok_context_manager()
         self.context_builder = get_context_builder()
         self.ok_config = get_ok_config()
+        
+        # v1.2.23: FilenameGenerator for AI-generated content
+        config = kwargs.get('config')
+        self.filename_gen = FilenameGenerator(config=config)
 
         # Gemini service (lazy load)
         self._gemini = None

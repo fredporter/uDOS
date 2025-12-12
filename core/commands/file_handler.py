@@ -162,21 +162,44 @@ class FileCommandHandler(BaseCommandHandler):
             if not filename:
                 return "❌ File creation cancelled"
         
-        # Apply filename generation if flags are set
+        # Apply filename generation if flags are set (v1.2.23)
         if flags['dated'] or flags['timed'] or flags['located']:
             from pathlib import Path
             base_name = Path(filename).stem  # Get name without extension
             extension = Path(filename).suffix  # Get extension
             
             if flags['timed']:
-                # Full timestamp
-                if flags['located']:
-                    filename = self.filename_gen.generate_located(base_name, extension, flags['tile'])
+                # Full timestamp with optional location
+                tile_code = flags['tile'] or self.config.get('current_tile')
+                if flags['located'] and tile_code:
+                    # Generate: YYYYMMDD-HHMMSSTZ-TILE-basename.ext
+                    filename = self.filename_gen.generate(
+                        base_name=f"{tile_code}-{base_name}",
+                        extension=extension,
+                        include_date=True,
+                        include_time=True
+                    )
                 else:
-                    filename = self.filename_gen.generate_session(base_name, extension)
+                    # Generate: YYYYMMDD-HHMMSSTZ-basename.ext
+                    filename = self.filename_gen.generate(
+                        base_name=base_name,
+                        extension=extension,
+                        include_date=True,
+                        include_time=True
+                    )
             elif flags['dated']:
-                # Date only
-                filename = self.filename_gen.generate_daily(base_name, extension)
+                # Date only: YYYYMMDD-basename.ext
+                filename = self.filename_gen.generate(
+                    base_name=base_name,
+                    extension=extension,
+                    include_date=True,
+                    include_time=False
+                )
+            elif flags['located']:
+                # Location only: basename-TILE.ext
+                tile_code = flags['tile'] or self.config.get('current_tile')
+                if tile_code:
+                    filename = f"{base_name}-{tile_code}{extension}"
 
         # Show workspaces
         workspaces = self.workspace_manager.list_workspaces()
