@@ -1228,8 +1228,8 @@
       "UCODE_TEMPLATE": "[FILE|NEW*$1]",
       "DEFAULT_PARAMS": {},
       "FLAGS": {
-        "--dated": "Add date prefix (YYYY-MM-DD-filename)",
-        "--timed": "Add date+time prefix (YYYY-MM-DD-HH-MM-SS-filename)",
+        "--dated": "Add date prefix (YYYYMMDD-filename)",
+        "--timed": "Add date+time+timezone prefix (YYYYMMDD-HHMMSSTZ-filename)",
         "--located": "Add location suffix with TILE code",
         "--tile": "Specify TILE code for location (requires --located)"
       },
@@ -1244,9 +1244,9 @@
       "EXAMPLES": [
         "NEW",
         "NEW mission_log.md",
-        "NEW backup.json --dated",
-        "NEW workflow.upy --timed",
-        "NEW mission.upy --timed --located --tile AA340"
+        "NEW backup.json --dated → 20251212-backup.json",
+        "NEW workflow.upy --timed → 20251212-143045AEST-workflow.upy",
+        "NEW mission.upy --timed --located --tile AA340 → 20251212-143045AEST-AA340-mission.upy"
       ],
       "NOTES": [
         "Templates include: blank, note, quest, config, script",
@@ -1254,10 +1254,11 @@
         "Variable substitution: {date}, {username}, {title}",
         "Creates file in selected workspace (sandbox/memory/data)",
         "Interactive mode guides you through all choices",
-        "✅ v1.2.23: Timestamp flags for ISO 8601 formatted filenames",
-        "Date format: YYYY-MM-DD (e.g., 2025-12-12-backup.json)",
-        "Session format: YYYY-MM-DD-HH-MM-SS (e.g., 2025-12-12-21-15-30-workflow.upy)",
-        "Located format: YYYY-MM-DD-HH-MM-SS-TILE (e.g., 2025-12-12-21-15-30-AA340-mission.upy)"
+        "✅ v1.2.23: Compact timestamp format with timezone codes",
+        "Date format: YYYYMMDD (e.g., 20251212-backup.json)",
+        "Session format: YYYYMMDD-HHMMSSTZ (e.g., 20251212-143045AEST-workflow.upy)",
+        "Located format: YYYYMMDD-HHMMSSTZ-TILE (e.g., 20251212-143045AEST-AA340-mission.upy)",
+        "Timezone codes: UTC, EST, PST, GMT, CET, JST, AEST (from timezones.json)"
       ]
     },
     {
