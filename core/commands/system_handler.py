@@ -392,17 +392,22 @@ class SystemCommandHandler(BaseCommandHandler):
         Commands:
             DISK                - Show disk usage report with progress bars
             DISK STATUS         - Same as DISK
+            DISK INFO           - Show device hardware information
+            DISK SCAN           - Refresh device hardware stats
+            DISK HEALTH         - Check disk and memory thresholds
             DISK PRESET <name>  - Set preset (minimal/compact/standard/full/extended)
             DISK LIMIT <path> <mb> - Set custom limit for path
             DISK EXPORT         - Export report to JSON file
         """
         from core.services.disk_monitor import DiskMonitor
+        from core.services.device_manager import DeviceManager
         from datetime import datetime
         
         monitor = DiskMonitor(self.config)
+        device_mgr = DeviceManager(self.config)
         
         if not params:
-            # Show report
+            # Show combined report: disk usage + device info
             usage = monitor.scan_all(use_cache=False)
             monitor.print_report(usage, show_bars=True)
             
@@ -412,6 +417,54 @@ class SystemCommandHandler(BaseCommandHandler):
                 print("\n⚠️  WARNINGS:")
                 for warning in warnings:
                     print(f"  {warning}")
+            
+            # Show device hardware summary
+            print("\n" + "=" * 60)
+            print("💻 DEVICE HARDWARE")
+            print("=" * 60)
+            
+            hardware = device_mgr.get_info('hardware')
+            if hardware:
+                cpu = hardware.get('cpu', {})
+                memory = hardware.get('memory', {})
+                storage = hardware.get('storage', {})
+                
+                # CPU info
+                print(f"\n🖥️  CPU:")
+                print(f"   Model: {cpu.get('model', 'Unknown')}")
+                print(f"   Cores: {cpu.get('cores', '?')} ({cpu.get('threads', '?')} threads)")
+                print(f"   Speed: {cpu.get('frequency_ghz', '?')}GHz")
+                if 'usage_percent' in cpu:
+                    usage_pct = cpu['usage_percent']
+                    bar = self._make_progress_bar(usage_pct, 20)
+                    print(f"   Usage: {bar} {usage_pct:.1f}%")
+                
+                # Memory info
+                print(f"\n💾 RAM:")
+                total_gb = memory.get('total_gb', 0)
+                available_gb = memory.get('available_gb', 0)
+                used_pct = memory.get('used_percent', 0)
+                bar = self._make_progress_bar(used_pct, 20)
+                print(f"   Total: {total_gb:.1f}GB")
+                print(f"   Available: {available_gb:.1f}GB")
+                print(f"   Usage: {bar} {used_pct:.1f}%")
+                
+                # Storage info
+                print(f"\n💿 Storage:")
+                total_gb = storage.get('total_gb', 0)
+                available_gb = storage.get('available_gb', 0)
+                used_pct = storage.get('used_percent', 0)
+                bar = self._make_progress_bar(used_pct, 20)
+                print(f"   Total: {total_gb:.1f}GB ({storage.get('filesystem', '?')})")
+                print(f"   Available: {available_gb:.1f}GB")
+                print(f"   Usage: {bar} {used_pct:.1f}%")
+            
+            # Show location
+            location = device_mgr.get_info('location')
+            if location:
+                print(f"\n📍 Location:")
+                print(f"   Timezone: {location.get('timezone', '?')} ({location.get('timezone_abbr', '?')})")
+                print(f"   TILE: {location.get('tile_code', '?')} ({location.get('city', '?')}, {location.get('country', '?')})")
             
             # Show suggestions
             suggestions = monitor.get_optimization_suggestions(usage)
@@ -469,6 +522,128 @@ class SystemCommandHandler(BaseCommandHandler):
             except ValueError:
                 return f"❌ Invalid limit: {params[2]} (must be a number)"
         
+        elif subcommand == 'INFO':
+            # Show detailed device information
+            print("=" * 60)
+            print("💻 DEVICE INFORMATION")
+            print("=" * 60)
+            
+            # Device identity
+            device_info = device_mgr.get_info('device')
+            if device_info:
+                print(f"\n🖥️  Device:")
+                print(f"   ID: {device_info.get('id', 'unknown')}")
+                print(f"   Name: {device_info.get('name', 'Unknown Device')}")
+                print(f"   Type: {device_info.get('type', 'unknown')}")
+                print(f"   Platform: {device_info.get('platform', 'unknown')}")
+                print(f"   Architecture: {device_info.get('architecture', 'unknown')}")
+            
+            # System info
+            system_info = device_mgr.get_info('system')
+            if system_info:
+                print(f"\n⚙️  System:")
+                print(f"   OS: {system_info.get('os', 'Unknown')} {system_info.get('version', '')}")
+                print(f"   Kernel: {system_info.get('kernel', 'Unknown')}")
+                print(f"   Hostname: {system_info.get('hostname', 'Unknown')}")
+                uptime_hrs = system_info.get('uptime_hours', 0)
+                uptime_days = uptime_hrs / 24
+                print(f"   Uptime: {uptime_days:.1f} days ({uptime_hrs:.1f} hours)")
+                print(f"   Python: {system_info.get('python_version', 'Unknown')}")
+            
+            # Hardware summary
+            hardware = device_mgr.get_info('hardware')
+            if hardware:
+                cpu = hardware.get('cpu', {})
+                memory = hardware.get('memory', {})
+                storage = hardware.get('storage', {})
+                
+                print(f"\n🔧 Hardware:")
+                print(f"   CPU: {cpu.get('model', 'Unknown')} ({cpu.get('cores', '?')} cores, {cpu.get('frequency_ghz', '?')}GHz)")
+                print(f"   RAM: {memory.get('total_gb', '?')}GB (DDR4/DDR5)")
+                print(f"   Storage: {storage.get('total_gb', '?')}GB {storage.get('filesystem', 'Unknown')}")
+                display = hardware.get('display', {})
+                if display:
+                    print(f"   Display: {display.get('width', '?')}x{display.get('height', '?')} ({display.get('dpi', '?')}dpi)")
+            
+            # Network info
+            network_info = device_mgr.get_info('network')
+            if network_info:
+                print(f"\n🌐 Network:")
+                print(f"   Hostname: {network_info.get('hostname', 'Unknown')}")
+                interfaces = network_info.get('interfaces', [])
+                for iface in interfaces[:2]:  # Show first 2 interfaces
+                    print(f"   {iface.get('name', '?')}: {iface.get('ipv4', 'No IPv4')} ({iface.get('status', 'unknown')})")
+                if network_info.get('dns_servers'):
+                    dns_list = ', '.join(network_info['dns_servers'][:2])
+                    print(f"   DNS: {dns_list}")
+            
+            # Location
+            location = device_mgr.get_info('location')
+            if location:
+                print(f"\n📍 Location:")
+                print(f"   Timezone: {location.get('timezone', 'Unknown')} ({location.get('timezone_abbr', '?')})")
+                print(f"   Offset: UTC{location.get('timezone_offset', '?')}")
+                print(f"   TILE: {location.get('tile_code', 'Unknown')}")
+                print(f"   City: {location.get('city', 'Unknown')}, {location.get('country', 'Unknown')}")
+            
+            # Capabilities
+            capabilities = device_mgr.get_info('capabilities')
+            if capabilities:
+                print(f"\n✨ Capabilities:")
+                cap_str = []
+                if capabilities.get('audio'): cap_str.append("🔊 Audio")
+                if capabilities.get('video'): cap_str.append("📹 Video")
+                if capabilities.get('network'): cap_str.append("🌐 Network")
+                if capabilities.get('bluetooth'): cap_str.append("📱 Bluetooth")
+                if capabilities.get('virtualization'): cap_str.append("🖥️  Virtualization")
+                if capabilities.get('containers'): cap_str.append("🐳 Containers")
+                print(f"   {' │ '.join(cap_str)}")
+            
+            return ""
+        
+        elif subcommand == 'SCAN':
+            # Refresh device hardware stats
+            print("🔄 Scanning device hardware...")
+            device_mgr.refresh()
+            device_mgr.save()
+            print("✅ Device information updated")
+            print("\n💡 Run DISK or DISK INFO to see updated stats")
+            return ""
+        
+        elif subcommand == 'HEALTH':
+            # Check disk and memory health
+            print("=" * 60)
+            print("🏥 DEVICE HEALTH CHECK")
+            print("=" * 60)
+            
+            health = device_mgr.check_health()
+            
+            # Disk health
+            disk = health.get('disk', {})
+            disk_status = disk.get('status', 'unknown')
+            disk_icon = "✅" if disk_status == 'ok' else "⚠️"
+            print(f"\n💿 Disk: {disk_icon} {disk_status.upper()}")
+            print(f"   Usage: {disk.get('used_percent', 0):.1f}% ({disk.get('available_gb', 0):.1f}GB available)")
+            print(f"   Threshold: {disk.get('threshold', 0):.0f}%")
+            if disk_status == 'warning':
+                print(f"   ⚠️  Disk usage above threshold!")
+            
+            # Memory health
+            memory = health.get('memory', {})
+            mem_status = memory.get('status', 'unknown')
+            mem_icon = "✅" if mem_status == 'ok' else "⚠️"
+            print(f"\n💾 Memory: {mem_icon} {mem_status.upper()}")
+            print(f"   Usage: {memory.get('used_percent', 0):.1f}% ({memory.get('available_gb', 0):.1f}GB available)")
+            print(f"   Threshold: {memory.get('threshold', 0):.0f}%")
+            if mem_status == 'warning':
+                print(f"   ⚠️  Memory usage above threshold!")
+            
+            # Overall status
+            overall_status = "✅ HEALTHY" if disk_status == 'ok' and mem_status == 'ok' else "⚠️  ATTENTION NEEDED"
+            print(f"\n📊 Overall: {overall_status}")
+            
+            return ""
+        
         elif subcommand == 'EXPORT':
             # Export to memory/logs with uDOS filename format
             now = datetime.now()
@@ -481,7 +656,7 @@ class SystemCommandHandler(BaseCommandHandler):
             return f"✅ Disk report exported to:\n   {filepath.relative_to(self.config.project_root)}"
         
         else:
-            return f"❌ Unknown DISK command: {subcommand}\n💡 Use: DISK [STATUS|PRESET|LIMIT|EXPORT]"
+            return f"❌ Unknown DISK command: {subcommand}\n💡 Use: DISK [STATUS|INFO|SCAN|HEALTH|PRESET|LIMIT|EXPORT]"
 
     def handle_status(self, params, grid, parser):
         """Display comprehensive system status - delegates to DashboardHandler."""
@@ -1268,4 +1443,24 @@ class SystemCommandHandler(BaseCommandHandler):
         """
         from core.commands.assets_handler import handle_assets_command
         return handle_assets_command(params, grid, parser)
+    
+    # ═══════════════════════════════════════════════════════════════════════════
+    # v1.2.23: HELPER METHODS
+    # ═══════════════════════════════════════════════════════════════════════════
+    
+    def _make_progress_bar(self, percent: float, width: int = 20) -> str:
+        """
+        Create a progress bar visualization.
+        
+        Args:
+            percent: Percentage (0-100)
+            width: Width of bar in characters
+        
+        Returns:
+            Progress bar string (e.g., "[▓▓▓▓▓▓▓░░░]")
+        """
+        filled = int((percent / 100) * width)
+        empty = width - filled
+        return f"[{'▓' * filled}{'░' * empty}]"
+
 
