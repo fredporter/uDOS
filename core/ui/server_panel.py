@@ -8,6 +8,7 @@ Integrates with ServerMonitor and ExtensionMonitor services.
 from typing import Dict, List, Optional
 from core.services.server_monitor import get_server_monitor
 from core.services.extension_monitor import get_extension_monitor
+from core.utils.column_formatter import ColumnFormatter, ColumnConfig
 
 
 class ServerPanel:
@@ -28,6 +29,7 @@ class ServerPanel:
         self.extension_monitor = get_extension_monitor()
         self.current_view = 'servers'  # servers, extensions, health
         self.selected_index = 0
+        self.formatter = ColumnFormatter(ColumnConfig(width=70))
         
     def render(self) -> str:
         """
@@ -66,9 +68,12 @@ class ServerPanel:
         tabs.append("[H] Health" if self.current_view == 'health' else " H  Health")
         
         tab_bar = "  |  ".join(tabs)
-        separator = "=" * 70
         
-        return f"╔══ uDOS Server Panel ══╗\n{tab_bar}\n{separator}"
+        lines = []
+        lines.append(self.formatter.box_top("uDOS Server Panel"))
+        lines.append(self.formatter.box_line(tab_bar, align="left"))
+        lines.append(self.formatter.box_separator())
+        return "\n".join(lines)
     
     def _render_servers(self) -> List[str]:
         """Render server status view"""

@@ -91,8 +91,9 @@ class UserSettingsPanel:
         output = []
         
         # Header
-        modified_indicator = " *modified*" if self.modified else ""
-        output.append(f"╔══ USER SETTINGS ══╗{modified_indicator}")
+        modified_indicator = " *" if self.modified else ""
+        title = f"USER SETTINGS{modified_indicator}"
+        output.append(self.formatter.box_top(title))
         output.append("")
         
         # Section tabs

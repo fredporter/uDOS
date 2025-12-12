@@ -9,6 +9,7 @@ from typing import Dict, List, Optional, Any
 from pathlib import Path
 from core.config import Config
 from core.services.ok_config import get_ok_config
+from core.utils.column_formatter import ColumnFormatter, ColumnConfig
 
 
 class ConfigBrowser:
@@ -42,6 +43,7 @@ class ConfigBrowser:
         self.editing_key = None
         self.edit_buffer = None
         self.modified_keys = set()
+        self.formatter = ColumnFormatter(ColumnConfig(width=70))
         
     def render(self) -> str:
         """
@@ -69,10 +71,11 @@ class ConfigBrowser:
         output.append(self._render_footer())
         
         return "\n".join(output)
-    
     def _render_header(self) -> str:
         """Render panel header"""
         modified_indicator = f" ({len(self.modified_keys)} modified)" if self.modified_keys else ""
+        title = f"CONFIG Browser{modified_indicator}"
+        return self.formatter.box_top(title)odified)" if self.modified_keys else ""
         return f"╔══ CONFIG Browser ══╗{modified_indicator}"
     
     def _render_category_tabs(self) -> str:

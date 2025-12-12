@@ -9,6 +9,7 @@ from typing import Dict, List, Optional, Any
 from pathlib import Path
 from datetime import datetime
 import re
+from core.utils.column_formatter import ColumnFormatter, ColumnConfig
 
 
 class LogEntry:
@@ -88,6 +89,7 @@ class DebugPanel:
         self.auto_scroll = True
         self.scroll_offset = 0
         self.max_lines = 100  # Keep last N lines in memory
+        self.formatter = ColumnFormatter(ColumnConfig(width=70))
         
         # Load initial logs
         self._load_logs()
@@ -128,13 +130,13 @@ class DebugPanel:
     def refresh_logs(self):
         """Reload logs from file (for live updates)"""
         self._load_logs()
-    
     def render(self) -> str:
         """Render debug panel"""
         output = []
         
         # Header
-        output.append("╔══ DEBUG PANEL ══╗")
+        output.append(self.formatter.box_top("DEBUG PANEL"))
+        output.append("")═ DEBUG PANEL ══╗")
         output.append("")
         
         # Current log file
