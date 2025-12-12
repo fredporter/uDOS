@@ -116,11 +116,42 @@ class FileCommandHandler(BaseCommandHandler):
             return self.get_message("ERROR_UNKNOWN_FILE_COMMAND", command=command)
 
     def _handle_new(self, params):
-        """Create new file with template selection."""
+        """Create new file with template selection.
+        
+        Flags:
+            --dated: Add date prefix (YYYY-MM-DD-filename)
+            --timed: Add date+time prefix (YYYY-MM-DD-HH-MM-SS-filename)
+            --located: Add location suffix (filename-TILE)
+            --tile <code>: Specify TILE code for location
+        
+        Examples:
+            FILE NEW test.txt --dated
+            FILE NEW workflow.upy --timed
+            FILE NEW mission.upy --timed --located --tile AA340
+        """
         from core.input.interactive import InteractivePrompt
         prompt = InteractivePrompt()
 
-        filename = params[0] if params else ''
+        # Parse flags
+        flags = {
+            'dated': '--dated' in params,
+            'timed': '--timed' in params,
+            'located': '--located' in params,
+            'tile': None
+        }
+        
+        # Extract TILE code if provided
+        if '--tile' in params:
+            tile_idx = params.index('--tile')
+            if tile_idx + 1 < len(params):
+                flags['tile'] = params[tile_idx + 1]
+        
+        # Get filename (first non-flag param)
+        filename = ''
+        for param in params:
+            if not param.startswith('--') and param != flags['tile']:
+                filename = param
+                break
 
         # Ask for filename if not provided
         if not filename:
@@ -130,6 +161,22 @@ class FileCommandHandler(BaseCommandHandler):
             )
             if not filename:
                 return "❌ File creation cancelled"
+        
+        # Apply filename generation if flags are set
+        if flags['dated'] or flags['timed'] or flags['located']:
+            from pathlib import Path
+            base_name = Path(filename).stem  # Get name without extension
+            extension = Path(filename).suffix  # Get extension
+            
+            if flags['timed']:
+                # Full timestamp
+                if flags['located']:
+                    filename = self.filename_gen.generate_located(base_name, extension, flags['tile'])
+                else:
+                    filename = self.filename_gen.generate_session(base_name, extension)
+            elif flags['dated']:
+                # Date only
+                filename = self.filename_gen.generate_daily(base_name, extension)
 
         # Show workspaces
         workspaces = self.workspace_manager.list_workspaces()
