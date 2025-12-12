@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from typing import List, Optional, Dict, Callable
 from pathlib import Path
 from enum import Enum
+from core.utils.column_formatter import ColumnFormatter, ColumnConfig
 
 
 class Workspace(Enum):
@@ -98,6 +99,7 @@ class FileBrowser:
         from core.utils.paths import PATHS
         self.root = root_path or PATHS.ROOT
         self.state = BrowserState()
+        self.formatter = ColumnFormatter(ColumnConfig(width=60))
         
         # Workspace paths
         self.workspaces = {
@@ -285,12 +287,13 @@ class FileBrowser:
             
         Returns:
             List of formatted lines
-        """
         lines = []
         
         # Header
-        lines.append("═" * 60)
-        lines.append(f"📁 {self.get_breadcrumb()}")
+        breadcrumb = f"📁 {self.get_breadcrumb()}"
+        lines.append(self.formatter.box_top("File Browser"))
+        lines.append(self.formatter.box_line(breadcrumb, align="left"))
+        lines.append(self.formatter.box_separator())f.get_breadcrumb()}")
         lines.append("─" * 60)
         
         # Entries

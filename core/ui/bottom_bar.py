@@ -22,6 +22,7 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.styles import Style
+from core.utils.column_formatter import ColumnFormatter, ColumnConfig
 
 
 class BottomBar:
@@ -43,6 +44,7 @@ class BottomBar:
         self.pager = pager
         self.current_suggestions = []
         self.selected_index = 0
+        self.formatter = ColumnFormatter(ColumnConfig(width=70))
         
     def get_inline_completion(self, text: str) -> str:
         """Get inline completion preview for current text."""

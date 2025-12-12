@@ -29,6 +29,7 @@ from core.services.ok_context_manager import get_ok_context_manager
 from extensions.assistant.context_builder import get_context_builder
 from core.services.ok_context_manager import get_ok_context_manager
 from extensions.assistant.context_builder import get_context_builder
+from core.utils.column_formatter import ColumnFormatter, ColumnConfig
 
 
 class ConversationEntry:
@@ -148,6 +149,7 @@ class OKAssistantPanel:
         self.selected_index = 0
         self.view_mode = "prompts"  # prompts, history, input
         self.history: List[ConversationEntry] = []
+        self.formatter = ColumnFormatter(ColumnConfig(width=62))
         
         # Context awareness (use provided or get singleton)
         self.context_manager = context_manager or get_ok_context_manager()
@@ -290,21 +292,18 @@ class OKAssistantPanel:
         lines = []
         
         # Header
-        lines.append("╔══════════════════════════════════════════════════════════════╗")
-        lines.append("║                      OK ASSISTANT                            ║")
-        lines.append("╠══════════════════════════════════════════════════════════════╣")
+        lines.append(self.formatter.box_top("OK ASSISTANT"))
         
         # Context display
-        context_line = f"║ Context: {self.current_workspace:<50} ║"
-        lines.append(context_line[:64] + "║")
+        context = f"Context: {self.current_workspace or 'Unknown'}"
+        lines.append(self.formatter.box_line(context, align="left"))
         
-        tile_file = f"TILE: {self.tile_location}"
+        tile_file = f"TILE: {self.tile_location or 'Unknown'}"
         if self.current_file:
             tile_file += f"  File: {Path(self.current_file).name}"
-        context_line2 = f"║ {tile_file:<58} ║"
-        lines.append(context_line2[:64] + "║")
+        lines.append(self.formatter.box_line(tile_file, align="left"))
         
-        lines.append("╠══════════════════════════════════════════════════════════════╣")
+        lines.append(self.formatter.box_separator())
         
         # View tabs
         prompts_tab = "[PROMPTS]" if self.view_mode == "prompts" else " PROMPTS "

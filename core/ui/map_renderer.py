@@ -21,6 +21,7 @@ from core.utils.grid_utils import (
     GRID_COLUMNS,
     GRID_ROWS
 )
+from core.utils.column_formatter import ColumnFormatter, ColumnConfig
 
 # v1.2.14: Import grid rendering system for Layer 600-650
 try:
@@ -67,6 +68,7 @@ class MapRenderer:
         self.project_root = project_root or Path(__file__).resolve().parents[2]
         self.cities = []
         self.layers = {}
+        self.formatter = ColumnFormatter(ColumnConfig(width=80))
         self._load_cities()
         
         # v1.2.14: Initialize grid renderer for Layer 600-650
