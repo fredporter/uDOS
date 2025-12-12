@@ -150,29 +150,6 @@
       ]
     },
     {
-      "NAME": "CONFIG PLANET",
-      "SYNTAX": "CONFIG PLANET [LIST|SET|NEW|DELETE|SOLAR|INFO] [args...]",
-      "DESCRIPTION": "Manage planets (workspace metaphor). Create, switch, and list planets in your solar system.",
-      "UCODE_TEMPLATE": "[SYSTEM|CONFIG_PLANET*$1*$2*$3*$4*$5]",
-      "DEFAULT_PARAMS": {},
-      "EXAMPLES": [
-        "CONFIG PLANET",
-        "CONFIG PLANET LIST",
-        "CONFIG PLANET SET Earth",
-        "CONFIG PLANET NEW Mars Sol Mars \ud83d\udd34 \"Red planet workspace\"",
-        "CONFIG PLANET INFO Earth",
-        "CONFIG PLANET SOLAR"
-      ],
-      "DETAILS": {
-        "LIST": "Show all planets",
-        "SET": "Switch to planet",
-        "NEW": "Create new planet",
-        "DELETE": "Remove planet",
-        "SOLAR": "List solar systems",
-        "INFO": "Show planet details"
-      }
-    },
-    {
       "NAME": "LOCATE",
       "SYNTAX": "LOCATE [SET <lat> <lon>|CITY <name>|CLEAR]",
       "DESCRIPTION": "Set or view current real-world location on active planet. Enables location-aware survival knowledge.",

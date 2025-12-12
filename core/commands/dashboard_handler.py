@@ -241,6 +241,55 @@ class DashboardHandler(BaseCommandHandler):
 
         status += "╠" + "═"*78 + "╣\n"
 
+        # System Metrics (v1.2.22 - Device awareness)
+        status += "║ " + "💻 DEVICE METRICS".ljust(77) + "║\n"
+        status += "║ " + "─"*77 + "║\n"
+
+        try:
+            from core.services.device_monitor import DeviceMonitor
+            device_monitor = DeviceMonitor(config)
+            caps = device_monitor.get_capabilities(use_cache=True)
+            
+            # Disk usage bar
+            disk_bar_len = 30
+            disk_filled = int((caps.disk_usage_percent / 100) * disk_bar_len)
+            disk_bar = "█" * disk_filled + "░" * (disk_bar_len - disk_filled)
+            status += f"║  Disk: [{disk_bar}] {caps.disk_usage_percent}%".ljust(78) + " ║\n"
+            status += f"║        {caps.disk_used_gb:.1f}GB used / {caps.disk_total_gb:.1f}GB total ({caps.disk_free_gb:.1f}GB free)".ljust(78) + " ║\n"
+            
+            # Memory usage bar
+            if caps.ram_total_gb > 0:
+                ram_bar_len = 30
+                ram_filled = int((caps.ram_usage_percent / 100) * ram_bar_len)
+                ram_bar = "█" * ram_filled + "░" * (ram_bar_len - ram_filled)
+                status += f"║  RAM:  [{ram_bar}] {caps.ram_usage_percent}%".ljust(78) + " ║\n"
+                status += f"║        {caps.ram_total_gb - caps.ram_available_gb:.1f}GB used / {caps.ram_total_gb:.1f}GB total ({caps.ram_available_gb:.1f}GB available)".ljust(78) + " ║\n"
+            
+            # CPU load
+            if caps.cpu_load_1min is not None:
+                load_color = "🟢" if caps.cpu_load_1min < caps.cpu_cores else "🟡" if caps.cpu_load_1min < caps.cpu_cores * 2 else "🔴"
+                status += f"║  CPU:  {load_color} {caps.cpu_cores} cores, load: {caps.cpu_load_1min:.2f} (1m) {caps.cpu_load_5min:.2f} (5m)".ljust(78) + " ║\n"
+            else:
+                status += f"║  CPU:  {caps.cpu_cores} cores".ljust(78) + " ║\n"
+            
+            # Battery (if present)
+            if caps.has_battery and caps.battery_percent is not None:
+                battery_bar_len = 20
+                battery_filled = int((caps.battery_percent / 100) * battery_bar_len)
+                battery_bar = "█" * battery_filled + "░" * (battery_bar_len - battery_filled)
+                charge_icon = "⚡" if caps.battery_charging else "🔋"
+                status += f"║  Battery: {charge_icon} [{battery_bar}] {caps.battery_percent:.0f}%".ljust(78) + " ║\n"
+            
+            # Device class
+            device_class = device_monitor.get_device_class(caps)
+            suggested_preset = device_monitor.suggest_udos_preset(caps)
+            status += f"║  Class: {device_class.upper():<15} Suggested preset: {suggested_preset.upper():<20}".ljust(78) + " ║\n"
+            
+        except Exception as e:
+            status += f"║  ⚠️  Device metrics unavailable".ljust(78) + " ║\n"
+
+        status += "╠" + "═"*78 + "╣\n"
+
         # Web Extension Servers with visual status bars
         status += "║ " + "🌐 WEB SERVERS".ljust(77) + "║\n"
         status += "║ " + "─"*77 + "║\n"

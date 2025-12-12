@@ -319,6 +319,21 @@ def main():
         story_data = components['story_data']
 
         print_splash_screen()
+        
+        # Show startup time (v1.2.22)
+        try:
+            from core.services.timedate_manager import get_timedate_manager
+            tdm = get_timedate_manager()
+            tz_info = tdm.get_time_info()
+            time_str = tdm.get_current_time(None, "%Y-%m-%d %H:%M:%S")
+            print(f"\n🕐 {time_str} | {tz_info.abbreviation} ({tz_info.offset})", end="")
+            if tz_info.city:
+                print(f" | 📍 {tz_info.city}", end="")
+            if tz_info.tile:
+                print(f" | 🗺️  TILE {tz_info.tile}", end="")
+            print("\n")
+        except Exception:
+            pass  # Silently skip if time system not available
 
         # Initialize core components (only once!)
         parser = Parser()

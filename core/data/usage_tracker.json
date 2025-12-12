@@ -3,14 +3,14 @@
     "HELP": 45,
     "DASH": 8,
     "SHOW": 6,
-    "CONFIG": 13,
+    "CONFIG": 14,
     "OUTPUT": 8,
     "SETUP": 2,
     "HISTORY": 5,
     "STATUS": 4,
     "SHAKEDOWN": 3,
     "ACCESS": 2,
-    "ERROR": 13,
+    "ERROR": 15,
     "LIST": 4,
     "WIZARD": 2,
     "CATEGORIES": 1,
@@ -29,7 +29,7 @@
     "HELP": 40,
     "DASH": 7,
     "SHOW": 6,
-    "CONFIG": 11,
+    "CONFIG": 12,
     "OUTPUT": 7,
     "SETUP": 1,
     "HISTORY": 5,
@@ -51,7 +51,7 @@
   },
   "failure_counts": {
     "OUTPUT": 1,
-    "ERROR": 13,
+    "ERROR": 15,
     "SETUP": 1,
     "DASH": 1,
     "CONFIG": 2,
@@ -61,33 +61,6 @@
     "RUN": 1
   },
   "recent_commands": [
-    {
-      "command": "DASH",
-      "timestamp": "2025-12-01T00:26:22.129673",
-      "params": [
-        "web"
-      ],
-      "success": false,
-      "context": {}
-    },
-    {
-      "command": "CONFIG",
-      "timestamp": "2025-12-01T00:26:36.041435",
-      "params": [
-        "list"
-      ],
-      "success": false,
-      "context": {}
-    },
-    {
-      "command": "HELP",
-      "timestamp": "2025-12-01T11:50:57.739140",
-      "params": [
-        "ALL"
-      ],
-      "success": true,
-      "context": {}
-    },
     {
       "command": "LIST",
       "timestamp": "2025-12-01T11:51:05.762231",
@@ -883,7 +856,34 @@
       ],
       "success": true,
       "context": {}
+    },
+    {
+      "command": "CONFIG",
+      "timestamp": "2025-12-11T00:54:04.421615",
+      "params": [
+        "fi"
+      ],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-12-11T01:06:32.931593",
+      "params": [
+        "Invalid command: restart"
+      ],
+      "success": false,
+      "context": {}
+    },
+    {
+      "command": "ERROR",
+      "timestamp": "2025-12-11T01:10:48.255364",
+      "params": [
+        "Invalid command: restart"
+      ],
+      "success": false,
+      "context": {}
     }
   ],
-  "last_updated": "2025-12-08T23:12:13.835950"
+  "last_updated": "2025-12-11T01:10:52.069396"
 }

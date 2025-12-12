@@ -25,7 +25,7 @@ uDOS/
 │   │   ├── build_handler.py
 │   │   ├── checklist_handler.py
 │   │   ├── clone_handler.py
-│   │   ├── cmd_config_planet.py
+│   │   ├── cloud_handler.py
 │   │   ├── cmd_locate.py
 │   │   ├── color_handler.py
 │   │   ├── community_commands.py
@@ -41,6 +41,7 @@ uDOS/
 │   │   ├── file_handler.py
 │   │   ├── gmail_handler.py
 │   │   ├── help_handler.py
+│   │   ├── inbox_handler.py
 │   │   ├── logs_handler.py
 │   │   ├── make_handler.py
 │   │   ├── memory_commands.py
@@ -75,7 +76,11 @@ uDOS/
 │   │   ├── variable_handler.py
 │   │   └── workflow_handler.py
 │   ├── docs/
-│   │   └── LOCATION-DATA-STRUCTURE.md
+│   │   ├── LOCATION-DATA-STRUCTURE.md
+│   │   ├── SMART-INPUT-FIX-v2.md
+│   │   ├── SMART-INPUT-GUIDE.md
+│   │   ├── SMART-INPUT-IMPLEMENTATION.md
+│   │   └── SMART-INPUT-v2.1-MODERNIZATION.md
 │   ├── input/
 │   │   ├── __init__.py
 │   │   ├── interactive.py
@@ -294,6 +299,25 @@ uDOS/
 │   │   ├── handler.py
 │   │   └── README.md
 │   ├── cloud/
+│   │   ├── bizintel/
+│   │   │   ├── __init__.py
+│   │   │   ├── contact_extractor.py
+│   │   │   ├── enrichment_client.py
+│   │   │   ├── entity_resolver.py
+│   │   │   ├── google_business_client.py
+│   │   │   ├── id_generator.py
+│   │   │   ├── IMPLEMENTATION-SUMMARY.md
+│   │   │   ├── keyword_generator.py
+│   │   │   ├── location_resolver.py
+│   │   │   ├── marketing_db.py
+│   │   │   ├── message_pruner.py
+│   │   │   ├── QUICK-REFERENCE.md
+│   │   │   ├── README.md
+│   │   │   ├── social_clients.py
+│   │   │   ├── TEST-RESULTS.md
+│   │   │   ├── TESTING-COMPLETE.md
+│   │   │   ├── website_parser.py
+│   │   │   └── WORKFLOW-AUTOMATION.md
 │   │   ├── web/
 │   │   │   └── dashboard.html
 │   │   ├── __init__.py

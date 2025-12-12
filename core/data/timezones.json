@@ -1,0 +1,73 @@
+{
+  "zones": {
+    "UTC": {
+      "name": "UTC",
+      "offset": "+00:00",
+      "cities": [
+        "Greenwich"
+      ]
+    },
+    "America/New_York": {
+      "name": "America/New_York",
+      "offset": "-05:00",
+      "cities": [
+        "New York",
+        "Washington DC",
+        "Miami"
+      ]
+    },
+    "America/Los_Angeles": {
+      "name": "America/Los_Angeles",
+      "offset": "-08:00",
+      "cities": [
+        "Los Angeles",
+        "San Francisco",
+        "Seattle"
+      ]
+    },
+    "Europe/London": {
+      "name": "Europe/London",
+      "offset": "+00:00",
+      "cities": [
+        "London",
+        "Edinburgh",
+        "Cardiff"
+      ]
+    },
+    "Europe/Paris": {
+      "name": "Europe/Paris",
+      "offset": "+01:00",
+      "cities": [
+        "Paris",
+        "Berlin",
+        "Rome"
+      ]
+    },
+    "Asia/Tokyo": {
+      "name": "Asia/Tokyo",
+      "offset": "+09:00",
+      "cities": [
+        "Tokyo",
+        "Osaka",
+        "Kyoto"
+      ]
+    },
+    "Australia/Sydney": {
+      "name": "Australia/Sydney",
+      "offset": "+10:00",
+      "cities": [
+        "Sydney",
+        "Melbourne",
+        "Brisbane"
+      ]
+    }
+  },
+  "tiles": {
+    "AA340": "Australia/Sydney",
+    "JF57": "Europe/London",
+    "LE180": "America/New_York",
+    "LK220": "America/Los_Angeles",
+    "KH110": "Asia/Tokyo",
+    "JH85": "Europe/Paris"
+  }
+}

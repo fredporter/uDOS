@@ -1,11 +1,10 @@
 # 🗺️ uDOS Development Roadmap
 
-**Current Version:** v1.2.20 ✅ **COMPLETE** (Workflow Management System)
-**Target Release:** v1.2.21 🎯 **STABLE RELEASE** (AI Assistant Integration)
-**Next Major:** v1.3.0 📋 (Future - Community & Extension Ecosystem)
-**Last Updated:** December 7, 2025
+**Current Version:** v1.2.21 ✅ **COMPLETE** (AI Assistant + BIZINTEL + Workflow Automation)
+**Next Release:** v1.3.0 📋 **PLANNING** (Community & Extension Ecosystem)
+**Last Updated:** December 10, 2025
 
-> **Goal:** Complete v1.2.x as a stable, production-ready release with full TUI functionality, server monitoring, config management, and AI-assisted workflows.
+> **Goal:** Complete v1.2.x as a stable, production-ready release with full TUI functionality, AI assistance, business intelligence, and workflow automation.
 
 ---
 
@@ -228,73 +227,144 @@
 
 ---
 
-### v1.2.21 🎯 **NEXT** - AI Assistant Integration (STABLE RELEASE)
+### v1.2.21 ✅ **COMPLETE** - AI Assistant + BIZINTEL + Workflow Automation
 
-**Goal:** Complete Gemini AI integration with TUI controls for final stable release.
+**Goal:** Complete AI integration, business intelligence, and workflow automation with legal data sources.
 
-**Tasks:**
-1. **AI Command Panel** (~200 lines)
-   - Press 'A' to open AI assistant
-   - Quick prompts for common tasks
-   - Code generation requests
-   - Knowledge queries
-   - Integration with workflow system
+**Status:** All 17 tasks complete (~5,644 lines across 17 files)
 
-2. **Context-Aware Assistance** (~150 lines)
-   - Auto-include current file context
-   - Workspace-aware suggestions
-   - Command prediction enhancement
-   - Error explanation
-   - Workflow suggestions
+**Phase 1: OK Assistant (760 lines)** ✅ December 8, 2025
+1. ✅ **OK Assistant Panel** (310 lines) - O-key opens AI assistant, 8 quick prompts
+2. ✅ **Context-Aware Assistance** (200 lines) - Auto-include workspace context
+3. ✅ **OK Configuration** (100 lines) - CONFIG panel [OK] tab
+4. ✅ **OK Workflows** (150 lines) - MAKE commands
 
-3. **AI Configuration** (~100 lines)
-   - Model selection (gemini-pro, gemini-flash)
-   - Temperature/token controls
-   - Safety settings
-   - Cost tracking
-   - API key management
+**Phase 2: BIZINTEL Core (2,632 lines)** ✅ December 8, 2025
+5. ✅ **Marketing Extension (BIZINTEL)** (2,632 lines) - Complete BI system
+   - ID generator (120 lines) - biz-*, prs-*, rel-*, aud-*, msg-* IDs
+   - Marketing database (638 lines) - 5 tables in memory/bank/user/contacts.db
+   - Entity resolver (396 lines) - Priority matching with fuzzy fallback
+   - Contact extractor (310 lines) - Email parsing and business detection
+   - Message pruner (272 lines) - Thread compression and archiving
+   - Google Business client (308 lines) - Places API integration
+   - Cloud handler (588 lines) - CLOUD commands
+6. ✅ **Integration** - Cloud handler in command router
+7. ✅ **Documentation** - extensions/cloud/bizintel/README.md, uDOS ID Standard
 
-4. **AI Workflows** (~150 lines)
-   - Generate uPY scripts from description
-   - Create diagrams from prompts
-   - Document generation
-   - Code review/optimization
-   - Mission script generation
+**Phase 3: Data Source Extensions (2,152 lines)** ✅ December 10, 2025
+8. ✅ **Website Parser** (575 lines) - robots.txt compliant staff directory extraction
+9. ✅ **Social Media APIs** (450 lines) - Twitter/X, Instagram official APIs
+10. ✅ **Email Enrichment** (680 lines) - Clearbit, Hunter.io, PeopleDataLabs
+11. ✅ **Database Extensions** (+200 lines) - 3 new tables (roles, social_profiles, enrichment_cache)
+12. ✅ **Command Extensions** (+247 lines) - WEBSITE PARSE, SOCIAL ENRICH, ENRICH commands
 
-**Estimate:** 600 lines, 2-3 commits
-**Priority:** HIGH - Complete feature set
+**Phase 4: Workflow Automation (730 lines)** ✅ December 10, 2025
+13. ✅ **Keyword Generator** (350 lines) - Gemini AI keyword generation with offline fallback
+   - AI-powered search keywords (5 categories: primary, location, industry, competitor, niche)
+   - Industry templates for offline mode (4 categories)
+   - uPY variable export format
+   - Workflow config integration
+14. ✅ **Location Resolver** (380 lines) - Address → TILE codes + MeshCore positions
+   - Google Geocoding API integration
+   - TILE code system (480×270 grid, layers 100-500)
+   - MeshCore grid positioning
+   - Bidirectional TILE ↔ lat/lon conversion
+   - uPY variable export format
+15. ✅ **Command Integration** - CLOUD GENERATE KEYWORDS, CLOUD RESOLVE LOCATION
+16. ✅ **Module Exports** - Updated __init__.py with KeywordGenerator, LocationResolver
+17. ✅ **Documentation** (900+ lines)
+   - WORKFLOW-AUTOMATION.md (450+ lines) - Complete guide
+   - IMPLEMENTATION-SUMMARY.md (400+ lines) - Technical details
+   - QUICK-REFERENCE.md (150+ lines) - Quick start
+   - Updated README.md with workflow automation section
+
+**Total:** 5,644 lines across 17 files
+- OK Assistant: 760 lines (4 files)
+- BIZINTEL Core: 2,632 lines (7 files)
+- Data Sources: 2,152 lines (3 files)
+- Workflow Automation: 730 lines (2 code files) + 370 lines (docs/test)
+- Documentation: 900+ lines (4 files)
+
+**Files Created:** 17
+- OK Assistant: 4 files
+- BIZINTEL Core: 7 files
+- Data Sources: 3 files
+- Workflow Automation: 2 files (keyword_generator.py, location_resolver.py)
+- Documentation: 4 files (WORKFLOW-AUTOMATION.md, IMPLEMENTATION-SUMMARY.md, QUICK-REFERENCE.md, test script)
+
+**Files Modified:** 6
+- cloud_handler.py (command integration)
+- extensions/cloud/bizintel/__init__.py (exports)
+- extensions/cloud/bizintel/README.md (updated)
+- marketing_db.py (3 new tables)
+
+**BIZINTEL System Summary:**
+Total: 5,514 lines across 14 files
+- Core: 2,632 lines (DB, entities, extraction, pruning, Google Business)
+- Data Sources: 2,152 lines (website parser, social APIs, enrichment)
+- Workflow Automation: 730 lines (keyword generation, location resolution)
+
+**New API Requirements:**
+- GEMINI_API_KEY - Keyword generation (1,500 requests/day free)
+- GOOGLE_GEOCODING_API_KEY - Location resolution (28,500 requests/month free)
+
+**New Commands:**
+```bash
+# Keyword generation
+CLOUD GENERATE KEYWORDS "live music venues" --location "Sydney" --upy
+
+# Location resolution  
+CLOUD RESOLVE LOCATION "Opera House, Sydney NSW" --layer 300 --upy
+```
+
+**Commits:** 
+- v1.2.21: OK Assistant Integration (760 lines, 11 files) ✅
+- v1.2.21: BIZINTEL Business Intelligence System (2,632 lines) ✅
+- v1.2.21: BIZINTEL Data Source Extensions (2,152 lines) ✅
+- v1.2.21: Workflow Automation (730 lines + 900 lines docs) ✅ - PENDING COMMIT
 
 **Post-Release:**
-- Comprehensive testing
-- Documentation update
-- CHANGELOG finalization
-- Release notes
-- Tag v1.2.21 as STABLE
+- ⏳ Testing: Gemini API keyword generation
+- ⏳ Testing: Google Geocoding location resolution
+- ⏳ Testing: TILE code conversion accuracy
+- ⏳ Testing: MeshCore position calculation
+- ⏳ Final documentation review
+- ⏳ CHANGELOG update
+- ⏳ Tag v1.2.21 as STABLE
+
+**Session Notes:**
+- `dev/sessions/v1.2.21-ok-assistant-session.md`
+- `dev/sessions/v1.2.21-bizintel-session.md`
+- `dev/sessions/2025-12-10-bizintel-data-sources.md`
+- `extensions/cloud/bizintel/IMPLEMENTATION-SUMMARY.md`
+
+**Documentation:**
+- `extensions/cloud/bizintel/WORKFLOW-AUTOMATION.md` - Complete guide
+- `extensions/cloud/bizintel/QUICK-REFERENCE.md` - Quick start
+- `extensions/cloud/bizintel/README.md` - System overview
+- `wiki/Mapping-System.md` - TILE code reference
 
 ---
 
 ## 📊 v1.2.x Summary
 
-**Total Remaining Work:** ~600 lines (1 release to stable)
-**Current Progress:** v1.2.20/v1.2.21 (96% complete)
-**Estimated Completion:** 1 development cycle
+**Total Work Completed:** 5,644 lines across v1.2.21 (100% complete)
+**Current Progress:** v1.2.21 COMPLETE - Ready for testing and release
+**Status:** ✅ All code complete, testing pending
 
 **What's Complete:**
-- ✅ TUI Navigation (v1.2.15)
-- ✅ Keypad controls
-- ✅ Command predictor
-- ✅ File Browser (v1.2.16)
-- ✅ Server Monitoring (v1.2.17)
-- ✅ Config & Settings TUI (v1.2.18)
-- ✅ DEV MODE Enhancement (v1.2.19)
-- ✅ Workflow Management (v1.2.20)
-- ✅ Pager integration
-- ✅ File browser (v1.2.16)
-- ✅ Column view layout (v1.2.16)
-- ✅ Server monitoring (v1.2.17)
-- ✅ Extension monitor (v1.2.17)
-- ✅ System health tracking (v1.2.17)
-- ✅ Config & Settings TUI (v1.2.18)
+- ✅ TUI Navigation (v1.2.15) - Keypad controls, command predictor
+- ✅ File Browser (v1.2.16) - 0-key launcher, workspace navigation
+- ✅ Server Monitoring (v1.2.17) - Health tracking, extension monitor
+- ✅ Config & Settings TUI (v1.2.18) - Complete config management
+- ✅ DEV MODE Enhancement (v1.2.19) - Session logging, dev tools
+- ✅ Workflow Management (v1.2.20) - Mission system integration
+- ✅ OK Assistant (v1.2.21) - AI integration with 8 quick prompts
+- ✅ BIZINTEL Core (v1.2.21) - Business intelligence system (2,632 lines)
+- ✅ BIZINTEL Data Sources (v1.2.21) - Website, social, enrichment (2,152 lines)
+- ✅ Workflow Automation (v1.2.21) - Keywords + Locations (730 lines)
+
+**v1.2.x Total:** ~11,500 lines across 6 releases
 - ✅ DEV MODE tools (v1.2.19)
 - ✅ Grid rendering system
 - ✅ Mapping layers
@@ -305,7 +375,245 @@
 - ✅ API server
 
 **What Remains:**
-- 🔲 AI assistant TUI (v1.2.21 - FINAL STABLE)
+- 🔲 Marketing extension structure (v1.2.21)
+- 🔲 SCRAPE command implementation (v1.2.21)
+- 🔲 INBOX/PROCESS commands (v1.2.21)
+- 🔲 Business intelligence data models (v1.2.21)
+
+---
+
+## 🎯 v1.2.22 📋 **PLANNING** - Self-Healing & Auto-Error-Awareness + Core Time-Date System
+
+**Goal:** Intelligent error handling with OK Assistant integration, role-based permissions, comprehensive theme-aware I/O, sandbox testing, local pattern learning with strict privacy, core time-date functionality with ASCII clock/calendar, and full integration with backup/archive/cleanup systems.
+
+**Status:** Planning complete, ready for implementation
+
+**Planned Tasks:**
+
+1. 🔲 **Error Interceptor Middleware** (450 lines)
+   - `core/services/error_interceptor.py`
+   - Wrap all command execution with context capture
+   - Theme-formatted error prompts: Retry | Get OK Help | Enter DEV MODE
+   - Sanitized single-line JSON storage in `memory/logs/error_contexts/`
+   - Unified smart retention: 7-day rolling + critical/signature-based
+   - Integration with archive system and CLEAN command
+
+2. 🔲 **Role-Based Permissions System** (300 lines)
+   - `core/services/role_manager.py`
+   - User roles: viewer/user/contributor/admin/wizard
+   - Wizard auto-detection from CREDITS.md git authors
+   - Shared password (4-char min, 8+ recommended) via `.env` bcrypt hash
+   - Commands: `ROLE SETUP`, `ROLE SET`, `ROLE STATUS`, `ROLE CHECK`
+   - Permissions for DEV MODE and `/core`+`/extensions` edits
+
+3. 🔲 **Universal Theme-Aware I/O System** (2,460 lines)
+   - Extend 7 themes: +80 lines each = 560 lines
+   - Message types: errors, success, warnings, prompts, status
+   - `core/services/theme_messenger.py` (350 lines)
+   - Theme vocabulary maps per style (galaxy/dungeon/ranger/etc.)
+   - Plaintext fallback for old terminals
+   - Bulk update 49 handlers: ~1,200 lines
+   - Dev tools: `theme_template_generator.py` (250 lines), `theme_message_map.json`, `update_handlers_for_themes.py` (150 lines)
+
+4. 🔲 **Sandbox Isolation + Disk Monitoring** (1,100 lines)
+   - `core/services/sandbox_runner.py` (480 lines)
+   - Isolated testing in `memory/sandbox/{debug,data,logs}/`
+   - Network blocking with Gemini allowlist
+   - Resource limits: 30s timeout, 512MB RAM, 100MB disk
+   - Failed session retention: 30 days in `memory/sandbox/failed/`
+   - `core/services/disk_monitor.py` (320 lines)
+   - Track sizes: `/memory`, `/memory/logs`, `/memory/sandbox`, `/core`, `/extensions`
+   - 5-minute cache with optional `watchdog` background refresh
+   - `core/commands/tree_handler.py` (+120 lines): `TREE --sizes`, `TREE --disk`
+   - New commands: `DISK`, `DISK REPORT` (CSV export)
+   - `core/commands/dev_handler.py` (+200 lines): `SANDBOX` commands
+   - Update `shakedown.upy` (+30 lines), `requirements.txt` (tree, watchdog)
+   - Full integration with BACKUP/RESTORE system
+
+5. 🔲 **OK FIX + Pattern Learning** (730 lines)
+   - `extensions/assistant/ok_handler.py` (+240 lines): `OK FIX` command
+   - Load error from `memory/logs/error_contexts/latest.json`
+   - Query Gemini with sanitized context
+   - 3 ranked fix suggestions with confidence scores
+   - Route to sandbox for testing, require password for system files
+   - `extensions/assistant/gemini_service.py` (+120 lines): error prompts
+   - `core/services/pattern_learner.py` (220 lines)
+   - Local-only database: `memory/bank/system/error_patterns.json`
+   - Strict privacy: sanitized, compressed, single-line logs
+   - Exclude `/memory/private` patterns
+   - Auto-archive: keep top 150 by success rate
+   - `memory/ucode/tests/test_pattern_privacy.py` (150 lines)
+   - Privacy validation: no paths, keys, usernames leaked
+   - `core/commands/system_handler.py` (+160 lines)
+   - Commands: `PATTERNS STATUS/CLEAR/EXPORT`, `ERROR HISTORY`
+   - Integration with UNDO/REDO and archive system
+
+6. 🔲 **Core Time-Date System** (1,540 lines)
+   - `core/services/timedate_manager.py` (480 lines)
+   - Timezone tracking from `.env` (`TIMEZONE`)
+   - City/location from timezone (never blank/unknown)
+   - Use existing `core/data/timezones.json`
+   - Startup integration: time/timezone display at boot
+   - Message: "Current time: {time} | Timezone: {tz} | Location: {city} | Use TIME SET to update"
+   - `core/commands/time_handler.py` (650 lines)
+   - `CLOCK`: ASCII art digital clock (7-segment style), real-time updates
+   - `TIMER <minutes>`: Countdown with ASCII display
+   - `EGG`: Intelligent timer with story/data collection
+     - Prompts: "How many eggs?", "How cooked?", "Water temp?"
+     - Calculates optimal time, ASCII animation
+   - `STOPWATCH`: Start/stop/lap/reset with ASCII display
+   - `CALENDAR [year|month|week]`: Text column layouts
+     - Annual: 12-month grid
+     - Monthly: Single month with week numbers
+     - Weekly: 7-day with hours
+   - `CALENDAR --tasks`: Show workflows/tasks for date range
+   - `CALENDAR ADD <date> <task>`: Create workflow reminder
+   - Workflow integration: `core/services/checkpoint_manager.py` (+80 lines)
+   - Scheduled checkpoints with cron-like syntax
+   - Storage: `memory/workflows/calendar/{YYYY-MM}.json`
+   - Commands: `WORKFLOW SCHEDULE <name> <cron>`
+   - Update `core/uDOS_commands.py` routing (+20 lines)
+   - Update `requirements.txt` (pytz)
+   - Documentation: `wiki/Time-Date-System.md` (350 lines)
+
+7. 🔲 **JSON Viewer/Editor for TUI** (600 lines)
+   - `core/ui/json_editor.py` (420 lines)
+   - Lightweight read-only `JSON VIEW` command
+   - 3-column layout: tree view | preview | validation
+   - Tree navigation with expand/collapse (8/2 keys)
+   - Simple key/value editor for quick config changes
+   - Auto-backup to `.archive/` before edits
+   - Schema validation if `.schema` file present
+   - Supports: `memory/bank/system/*.json`, `memory/workflows/*.json`, `.config/*.json`
+   - `core/commands/file_handler.py` (+180 lines)
+   - Commands: `JSON VIEW <file>`, `JSON EDIT <file>`
+   - Theme-aware display
+   - J-key TUI integration: `core/ui/tui_controller.py` (+30 lines), `core/input/smart_prompt.py` (+15 lines)
+   - External tool recommendations in `extensions/cloned/README.md` (+150 lines)
+   - Document: `fx` (brew install fx), `jless`, `visidata`
+   - Integration with existing column rendering from v1.2.16
+   - Full BACKUP/RESTORE integration for JSON edits
+
+**Archive/Backup/Cleanup Integration:**
+- Error contexts archived monthly to `memory/logs/.archive/error_contexts/`
+- Sandbox sessions archived to `memory/sandbox/.archive/`
+- Failed sandboxes kept 30 days in `memory/sandbox/failed/`
+- Pattern database auto-archives old patterns
+- JSON edits auto-backup to `.archive/` before changes
+- Calendar tasks stored in `memory/workflows/calendar/` with archive support
+- CLEAN command extended to purge old error contexts, sandbox archives
+- TIDY command organizes time-date logs, calendar files
+- BACKUP command includes error patterns, sandbox state
+- RESTORE command can recover deleted error contexts, sandbox sessions
+- UNDO/REDO work with JSON edits, role changes, time settings
+
+**Total Estimated Lines:** ~7,180 lines
+- Error Interceptor: 450 lines
+- Role Manager: 300 lines
+- Theme I/O System: 2,460 lines (560 themes + 350 messenger + 1,200 handlers + 350 tools)
+- Sandbox + Disk Monitor: 1,100 lines (480 sandbox + 320 monitor + 300 commands/tests)
+- OK FIX + Patterns: 730 lines (240 OK + 120 Gemini + 220 learner + 150 tests)
+- Time-Date System: 1,540 lines (480 manager + 650 commands + 80 workflow + 330 docs)
+- JSON Viewer: 600 lines (420 editor + 180 commands)
+
+**New Dependencies:**
+- `pytz` - Timezone support (already in core/data/)
+- `tree` - Enhanced directory listings
+- `watchdog` - Optional file system monitoring
+- `bcrypt` - Password hashing
+
+**New Commands:**
+```bash
+# Role Management
+ROLE SETUP                    # First-time password setup (4-char min)
+ROLE SET <level>              # Change role (admin/wizard)
+ROLE STATUS                   # Show current role/permissions
+ROLE CHECK                    # Debug wizard detection
+
+# Error & Pattern Management
+OK FIX                        # AI-powered error fix suggestions
+PATTERNS STATUS               # Show pattern database stats
+PATTERNS CLEAR                # Wipe patterns (admin-only)
+PATTERNS EXPORT <file>        # Backup patterns for sharing
+ERROR HISTORY [--severity] [--days]  # View retained errors
+
+# Sandbox Testing
+SANDBOX TEST <file>           # Test fix in isolated environment
+SANDBOX STATUS                # Show active sessions, disk usage
+SANDBOX CLEAN [--all]         # Purge archives
+SANDBOX FAILURES              # List failed test sessions
+SANDBOX RESTORE <session_id>  # Rerun failed tests
+
+# Disk Monitoring
+TREE --sizes                  # Show folder sizes inline
+TREE --disk                   # Detailed disk report
+DISK                          # Alias for TREE --disk
+DISK REPORT                   # Generate CSV export
+
+# Time-Date System
+CLOCK                         # ASCII art digital clock
+TIMER <minutes>               # Countdown timer with ASCII
+EGG                           # Intelligent egg timer
+STOPWATCH                     # Start/stop/lap/reset
+CALENDAR [year|month|week]    # Text calendar layouts
+CALENDAR --tasks              # Show scheduled workflows
+CALENDAR ADD <date> <task>    # Create reminder
+TIME SET                      # Update timezone/location
+TIMEZONE LIST                 # Show available timezones
+TIMEZONE SET <name>           # Change timezone
+WORKFLOW SCHEDULE <name> <cron>  # Schedule workflow
+
+# JSON Editing
+JSON VIEW <file>              # Read-only tree navigator
+JSON EDIT <file>              # Simple key/value editor
+```
+
+**Testing:**
+- Update `memory/ucode/tests/shakedown.upy` with new validations
+- Privacy test suite for pattern sanitization
+- Disk monitor accuracy tests
+- Time-date timezone validation
+- JSON editor schema validation
+- Sandbox isolation verification
+- Archive/backup integration tests
+
+**Documentation:**
+- `wiki/Time-Date-System.md` - Complete time/calendar guide
+- `wiki/Error-Handling.md` - Self-healing system guide
+- `wiki/Role-Management.md` - Permission system docs
+- `wiki/Theme-Messages.md` - Theme I/O system reference
+- `dev/sessions/v1.2.22-self-healing-session.md` - Implementation notes
+
+**uDOS File Format Standards:**
+
+Native file formats: `.md`, `.json`, `.upy`
+
+**Filename Format (memory/ folder only):**
+```
+YYYY-MM-DD-filename.ext              # Daily files (logs, notes)
+YYYY-MM-DD-HH-MM-SS-filename.ext     # Session files (backups, exports)
+YYYY-MM-DD-HH-MM-SS-sss-filename.ext # Instance files (logs, debug)
+YYYY-MM-DD-HH-MM-SS-TILE-filename.ext # Location-specific files
+```
+
+Examples:
+- `2025-12-12-daily-log.md` - Daily log
+- `2025-12-12-14-30-45-backup.json` - Session backup
+- `2025-12-12-14-30-45-123-error-context.json` - Error log with milliseconds
+- `2025-12-12-14-30-45-AA340-workflow.upy` - Workflow at Sydney grid location
+
+**Not used for:**
+- `/core` and `/extensions` system files (generic names for dev/updates)
+- `/knowledge` folder files (stable reference names)
+- Configuration files (`.env`, `user.json`, `config.json`)
+
+**Date-Time-Timezone Integration:**
+- All timestamps use system timezone from `.env` (`TIMEZONE`)
+- Filenames use local time (not UTC)
+- Location field (TILE code) optional, only if contextually useful
+- Format serves as data string (self-documenting filenames)
+
+**Session Notes:** `dev/sessions/v1.2.22-self-healing-session.md` (in progress)
 
 ---
 
@@ -320,7 +628,7 @@
 - Collaborative missions
 - P2P sync (beyond Gmail/Drive)
 
-**Status:** Deferred until v1.2.20 stable release complete
+**Status:** Deferred until v1.2.22 stable release complete
 
 **Philosophy:** Build a solid, stable v1.2.x foundation before expanding scope. Focus on completing what's started rather than adding new features.
 
@@ -409,6 +717,6 @@
 
 ---
 
-**Last Updated:** December 7, 2025
+**Last Updated:** December 12, 2025
 **Maintainer:** Fred Porter
-**Status:** Active development, v1.2.20 release track
+**Status:** Active planning, v1.2.22 release track

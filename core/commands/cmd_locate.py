@@ -39,7 +39,7 @@ def cmd_locate(user_data: dict, args: list) -> dict:
     if not current:
         return {
             'success': False,
-            'message': 'No active planet. Use CONFIG PLANET SET to select a planet first.'
+            'message': 'No active planet. Set planet field in user.json (memory/bank/user/user.json).'
         }
 
     # No args - show current location

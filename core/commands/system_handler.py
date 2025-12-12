@@ -246,6 +246,7 @@ class SystemCommandHandler(BaseCommandHandler):
             'REPAIR': self.handle_repair,
             'SHAKEDOWN': self.handle_shakedown,
             'TREE': self.handle_tree,
+            'DISK': self.handle_disk,
             'REBOOT': self.handle_reboot,
             'DESTROY': self.handle_destroy,
             'VIEWPORT': self.handle_viewport,
@@ -383,6 +384,104 @@ class SystemCommandHandler(BaseCommandHandler):
         output.append("")
         
         return "\n".join(output)
+    
+    def handle_disk(self, params, grid, parser):
+        """
+        DISK command - disk usage monitoring and management.
+        
+        Commands:
+            DISK                - Show disk usage report with progress bars
+            DISK STATUS         - Same as DISK
+            DISK PRESET <name>  - Set preset (minimal/compact/standard/full/extended)
+            DISK LIMIT <path> <mb> - Set custom limit for path
+            DISK EXPORT         - Export report to JSON file
+        """
+        from core.services.disk_monitor import DiskMonitor
+        from datetime import datetime
+        
+        monitor = DiskMonitor(self.config)
+        
+        if not params:
+            # Show report
+            usage = monitor.scan_all(use_cache=False)
+            monitor.print_report(usage, show_bars=True)
+            
+            # Check warnings
+            warnings = monitor.check_limits(usage)
+            if warnings:
+                print("\n⚠️  WARNINGS:")
+                for warning in warnings:
+                    print(f"  {warning}")
+            
+            # Show suggestions
+            suggestions = monitor.get_optimization_suggestions(usage)
+            if suggestions:
+                print("\n💡 OPTIMIZATION SUGGESTIONS:")
+                for suggestion in suggestions:
+                    print(f"  • {suggestion}")
+            
+            return ""
+        
+        subcommand = params[0].upper()
+        
+        if subcommand == 'STATUS':
+            # Same as DISK with no params
+            return self.handle_disk([], grid, parser)
+        
+        elif subcommand == 'PRESET':
+            if len(params) < 2:
+                # Show available presets
+                output = [
+                    "",
+                    "📦 DISK PRESETS - Scalable uDOS Distributions",
+                    "=" * 60,
+                    "",
+                    "Available presets:",
+                    "",
+                    "  minimal   (16MB)  - Core only, no extensions",
+                    "  compact   (32MB)  - Core + essential extensions",
+                    "  standard  (64MB)  - Core + extensions, limited knowledge",
+                    "  full      (128MB) - Core + extensions + knowledge",
+                    "  extended  (256MB+)- Everything + user data",
+                    "",
+                    f"Current preset: {self.config.get('disk_preset', 'custom').upper()}",
+                    "",
+                    "Usage: DISK PRESET <name>",
+                    "=" * 60,
+                ]
+                return "\n".join(output)
+            
+            preset = params[1].lower()
+            if monitor.set_preset(preset):
+                return f"✅ Disk preset set to: {preset.upper()}\n💡 Run DISK to see new limits"
+            else:
+                return f"❌ Unknown preset: {preset}\n💡 Use: minimal, compact, standard, full, extended"
+        
+        elif subcommand == 'LIMIT':
+            if len(params) < 3:
+                return "Usage: DISK LIMIT <path> <mb>\nPaths: core, extensions, knowledge, memory, total"
+            
+            path = params[1].lower()
+            try:
+                limit_mb = float(params[2])
+                monitor.set_custom_limit(path, limit_mb)
+                return f"✅ Set {path} limit to {limit_mb}MB\n💡 Run DISK to see updated report"
+            except ValueError:
+                return f"❌ Invalid limit: {params[2]} (must be a number)"
+        
+        elif subcommand == 'EXPORT':
+            # Export to memory/logs with uDOS filename format
+            now = datetime.now()
+            filename = now.strftime("%Y-%m-%d-%H-%M-%S") + "-disk-report.json"
+            filepath = Path(self.config.project_root) / "memory" / "logs" / filename
+            
+            usage = monitor.scan_all(use_cache=False)
+            monitor.export_report(filepath, usage)
+            
+            return f"✅ Disk report exported to:\n   {filepath.relative_to(self.config.project_root)}"
+        
+        else:
+            return f"❌ Unknown DISK command: {subcommand}\n💡 Use: DISK [STATUS|PRESET|LIMIT|EXPORT]"
 
     def handle_status(self, params, grid, parser):
         """Display comprehensive system status - delegates to DashboardHandler."""
@@ -724,6 +823,397 @@ class SystemCommandHandler(BaseCommandHandler):
     def _format_cmd_result(self, result):
         """Helper to format command result with success/error prefix."""
         return result['message'] if result['success'] else f"❌ {result['message']}"
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # v1.2.22: ROLE-BASED PERMISSIONS SYSTEM
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def handle_role(self, params, grid, parser):
+        """
+        Handle ROLE commands - user role and permission management.
+        
+        Commands:
+        - ROLE SETUP - First-time password setup (4-char min, 8+ recommended)
+        - ROLE SET <level> - Change role (viewer/user/contributor/admin/wizard)
+        - ROLE STATUS - Show current role and permissions
+        - ROLE CHECK - Debug wizard detection
+        
+        Part of v1.2.22 - Self-Healing & Auto-Error-Awareness System
+        """
+        from core.services.role_manager import RoleManager, UserRole
+        
+        role_manager = RoleManager(self.config)
+        
+        if not params:
+            return "Usage: ROLE SETUP|SET|STATUS|CHECK"
+        
+        subcommand = params[0].upper()
+        
+        if subcommand == 'SETUP':
+            return self._handle_role_setup(role_manager)
+        elif subcommand == 'SET':
+            if len(params) < 2:
+                return "Usage: ROLE SET <level>\nLevels: viewer, user, contributor, admin, wizard"
+            return self._handle_role_set(role_manager, params[1])
+        elif subcommand == 'STATUS':
+            return self._handle_role_status(role_manager)
+        elif subcommand == 'CHECK':
+            return self._handle_role_check(role_manager)
+        else:
+            return f"Unknown ROLE command: {subcommand}\nUsage: ROLE SETUP|SET|STATUS|CHECK"
+    
+    def _handle_role_setup(self, role_manager):
+        """Handle ROLE SETUP - first-time password setup."""
+        import getpass
+        
+        print("\n🔐 Role Setup - Admin/Wizard Password Configuration")
+        print("━" * 60)
+        print("Create a password for admin/wizard access.")
+        print("Minimum 4 characters, 8+ characters recommended.")
+        print("Press Enter for no password (less secure).\n")
+        
+        try:
+            password1 = getpass.getpass("Enter password: ")
+            
+            if password1:
+                password2 = getpass.getpass("Confirm password: ")
+                
+                if password1 != password2:
+                    return "❌ Passwords do not match. Setup cancelled."
+                
+                if len(password1) < 4:
+                    return "❌ Password must be at least 4 characters."
+                
+                # Strength indicator
+                strength = "weak" if len(password1) < 8 else "medium" if len(password1) < 12 else "strong"
+                print(f"Password strength: {strength}")
+            
+            # Set password
+            if role_manager.set_password(password1):
+                status = "✅ Password saved to .env"
+                if not password1:
+                    status += " (no password required)"
+                
+                # Check wizard status
+                if role_manager._detect_wizard():
+                    status += "\n✨ Wizard role auto-detected from git author"
+                
+                return status
+            else:
+                return "❌ Failed to save password."
+        
+        except (EOFError, KeyboardInterrupt):
+            return "\n❌ Setup cancelled."
+    
+    def _handle_role_set(self, role_manager, level_str):
+        """Handle ROLE SET - change user role."""
+        from core.services.role_manager import UserRole
+        
+        # Parse role level
+        try:
+            role = UserRole(level_str.lower())
+        except ValueError:
+            return f"❌ Invalid role: {level_str}\nValid roles: viewer, user, contributor, admin, wizard"
+        
+        # Check if password required
+        if role in [UserRole.ADMIN, UserRole.WIZARD]:
+            password = role_manager.prompt_password(f"Enter password for {role.value} access: ")
+            if not password:
+                return "❌ Password required for admin/wizard role."
+        else:
+            password = None
+        
+        # Set role
+        if role_manager.set_role(role, password):
+            return f"✅ Role changed to: {role.value}"
+        else:
+            if role == UserRole.WIZARD:
+                return "❌ Wizard role requires git author match in CREDITS.md"
+            else:
+                return "❌ Failed to change role. Check password."
+    
+    def _handle_role_status(self, role_manager):
+        """Handle ROLE STATUS - show current role and permissions."""
+        info = role_manager.get_role_info()
+        
+        output = ["\n📋 Role Status"]
+        output.append("━" * 60)
+        output.append(f"Current Role: {info['role_name']} ({info['role']})")
+        
+        if info['wizard_detected']:
+            output.append("✨ Wizard detected (git author matches CREDITS.md)")
+        
+        output.append("\nPermissions:")
+        perms = info['permissions']
+        output.append(f"  📖 Read knowledge: {'✅' if perms['read_knowledge'] else '❌'}")
+        output.append(f"  ✍️  Write memory: {'✅' if perms['write_memory'] else '❌'}")
+        output.append(f"  ⚙️  Run workflows: {'✅' if perms['run_workflows'] else '❌'}")
+        output.append(f"  📤 Submit content: {'✅' if perms['submit_content'] else '❌'}")
+        output.append(f"  🔧 Edit core: {'✅' if perms['edit_core'] else '❌'}")
+        output.append(f"  🧩 Edit extensions: {'✅' if perms['edit_extensions'] else '❌'}")
+        output.append(f"  🐛 DEV MODE: {'✅' if perms['dev_mode'] else '❌'}")
+        output.append(f"  🧪 Sandbox testing: {'✅' if perms['sandbox_test'] else '❌'}")
+        
+        return "\n".join(output)
+    
+    def _handle_role_check(self, role_manager):
+        """Handle ROLE CHECK - debug wizard detection."""
+        info = role_manager.get_debug_info()
+        
+        output = ["\n🔍 Role Debug Information"]
+        output.append("━" * 60)
+        output.append(f"Current Role: {info['current_role']}")
+        output.append(f"Wizard Detected: {'✅' if info['wizard_detected'] else '❌'}")
+        output.append(f"\nGit Author: {info.get('git_author', 'Not found')}")
+        
+        if info.get('credits_emails'):
+            output.append(f"\nCREDITS.md Emails ({len(info['credits_emails'])}):")
+            for email in info['credits_emails'][:10]:  # Show first 10
+                output.append(f"  • {email}")
+            if len(info['credits_emails']) > 10:
+                output.append(f"  ... and {len(info['credits_emails']) - 10} more")
+        else:
+            output.append("\nNo emails found in CREDITS.md")
+        
+        output.append(f"\nMatch Found: {'✅' if info.get('match_found') else '❌'}")
+        
+        if 'error' in info:
+            output.append(f"\n⚠️  Error: {info['error']}")
+        
+        return "\n".join(output)
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # v1.2.22: ERROR PATTERN LEARNING SYSTEM
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def handle_patterns(self, params, grid, parser):
+        """
+        Handle PATTERNS commands - error pattern management.
+        
+        Commands:
+        - PATTERNS STATUS - Show pattern learning statistics
+        - PATTERNS CLEAR - Clear all learned patterns (requires confirmation)
+        - PATTERNS EXPORT [file] - Export patterns to JSON file
+        
+        Part of v1.2.22 - Self-Healing & Auto-Error-Awareness System
+        """
+        from core.services.pattern_learner import get_pattern_learner
+        from datetime import datetime
+        
+        learner = get_pattern_learner()
+        
+        if not params:
+            return "Usage: PATTERNS STATUS|CLEAR|EXPORT"
+        
+        subcommand = params[0].upper()
+        
+        if subcommand == 'STATUS':
+            return self._handle_patterns_status(learner)
+        elif subcommand == 'CLEAR':
+            return self._handle_patterns_clear(learner)
+        elif subcommand == 'EXPORT':
+            filename = params[1] if len(params) > 1 else None
+            return self._handle_patterns_export(learner, filename)
+        else:
+            return f"Unknown PATTERNS command: {subcommand}\nUsage: PATTERNS STATUS|CLEAR|EXPORT"
+    
+    def _handle_patterns_status(self, learner):
+        """Handle PATTERNS STATUS - show statistics."""
+        stats = learner.get_statistics()
+        
+        output = ["\n📚 Error Pattern Learning Statistics"]
+        output.append("━" * 60)
+        output.append(f"Total Patterns: {stats['total_patterns']}")
+        output.append(f"Total Occurrences: {stats['total_occurrences']}")
+        output.append(f"Patterns with Fixes: {stats['patterns_with_fixes']}")
+        
+        if stats['average_success_rate'] > 0:
+            output.append(f"Average Success Rate: {stats['average_success_rate']:.1f}%")
+        
+        # Privacy notice
+        output.append("\n🔒 Privacy:")
+        output.append("  • All data stored locally only")
+        output.append("  • Usernames, paths, and keys are sanitized")
+        output.append("  • No telemetry or cloud sync")
+        output.append(f"  • Data location: memory/bank/system/error_patterns.json")
+        
+        # Recent patterns
+        if stats['total_patterns'] > 0:
+            output.append("\nRecent Patterns:")
+            patterns_data = learner._load_patterns()
+            recent = sorted(patterns_data.items(), key=lambda x: x[1].get('last_seen', ''), reverse=True)[:5]
+            
+            for signature, data in recent:
+                error_type = data.get('error_type', 'Unknown')
+                count = data.get('count', 0)
+                fixes = len(data.get('suggested_fixes', []))
+                output.append(f"  • {error_type} (#{signature[:8]}): {count}x, {fixes} fixes")
+        
+        output.append("\nCommands:")
+        output.append("  • PATTERNS CLEAR - Clear all patterns")
+        output.append("  • PATTERNS EXPORT - Export to JSON")
+        output.append("  • OK FIX - Get fix suggestions for errors")
+        
+        return "\n".join(output)
+    
+    def _handle_patterns_clear(self, learner):
+        """Handle PATTERNS CLEAR - clear all learned patterns."""
+        import sys
+        
+        print("\n⚠️  WARNING: This will delete all learned error patterns!")
+        print("This action cannot be undone.\n")
+        
+        try:
+            response = input("Type 'yes' to confirm: ")
+            if response.lower() == 'yes':
+                learner.clear_patterns()
+                return "✅ All error patterns cleared"
+            else:
+                return "❌ Clear cancelled"
+        except (EOFError, KeyboardInterrupt):
+            return "\n❌ Clear cancelled"
+    
+    def _handle_patterns_export(self, learner, filename=None):
+        """Handle PATTERNS EXPORT - export patterns to JSON."""
+        from datetime import datetime
+        from pathlib import Path
+        
+        # Generate filename with uDOS format if not provided
+        if not filename:
+            timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+            filename = f"{timestamp}-error-patterns.json"
+        
+        # Export to memory/docs/
+        output_dir = Path("memory/docs")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = output_dir / filename
+        
+        try:
+            learner.export_patterns(str(output_path))
+            
+            # Show file size
+            size = output_path.stat().st_size
+            size_str = f"{size} bytes" if size < 1024 else f"{size/1024:.1f} KB"
+            
+            return f"✅ Patterns exported to: {output_path}\nSize: {size_str}"
+        
+        except Exception as e:
+            return f"❌ Export failed: {e}"
+
+    def handle_error(self, params, grid, parser):
+        """
+        Handle ERROR commands - error context management.
+        
+        Commands:
+        - ERROR HISTORY - Show recent errors
+        - ERROR SHOW <signature> - Show full error details
+        - ERROR CLEAR - Clear error history (requires confirmation)
+        
+        Part of v1.2.22 - Self-Healing & Auto-Error-Awareness System
+        """
+        from core.services.error_interceptor import get_error_context_manager
+        
+        error_manager = get_error_context_manager()
+        
+        if not params:
+            return "Usage: ERROR HISTORY|SHOW|CLEAR"
+        
+        subcommand = params[0].upper()
+        
+        if subcommand == 'HISTORY':
+            return self._handle_error_history(error_manager)
+        elif subcommand == 'SHOW':
+            if len(params) < 2:
+                return "Usage: ERROR SHOW <signature>"
+            signature = params[1].lstrip('#')  # Remove # prefix if present
+            return self._handle_error_show(error_manager, signature)
+        elif subcommand == 'CLEAR':
+            return self._handle_error_clear(error_manager)
+        else:
+            return f"Unknown ERROR command: {subcommand}\nUsage: ERROR HISTORY|SHOW|CLEAR"
+    
+    def _handle_error_history(self, error_manager):
+        """Handle ERROR HISTORY - show recent errors."""
+        contexts = error_manager.get_all_contexts(limit=10)
+        
+        if not contexts:
+            return "✅ No errors in history"
+        
+        output = ["\n🔍 Recent Error History"]
+        output.append("━" * 60)
+        
+        for i, ctx in enumerate(contexts, 1):
+            timestamp = ctx.get('timestamp', 'Unknown')
+            error_type = ctx.get('error_type', 'Unknown')
+            message = ctx.get('message', 'No message')[:50]  # Truncate
+            signature = ctx.get('signature', 'N/A')
+            severity = ctx.get('severity', 'MEDIUM')
+            
+            # Severity indicator
+            indicator = '🔴' if severity == 'CRITICAL' else '🟡' if severity == 'HIGH' else '🟢'
+            
+            output.append(f"{i}. {indicator} {error_type} (#{signature[:8]})")
+            output.append(f"   {message}...")
+            output.append(f"   Time: {timestamp}")
+            output.append("")
+        
+        output.append("Commands:")
+        output.append("  • ERROR SHOW #<signature> - View full error details")
+        output.append("  • OK FIX #<signature> - Get fix suggestions")
+        output.append("  • ERROR CLEAR - Clear error history")
+        
+        return "\n".join(output)
+    
+    def _handle_error_show(self, error_manager, signature):
+        """Handle ERROR SHOW - show full error details."""
+        ctx = error_manager.get_context(signature)
+        
+        if not ctx:
+            return f"❌ Error not found: #{signature}\n\nUse: ERROR HISTORY to see available errors"
+        
+        output = ["\n🔍 Error Details"]
+        output.append("━" * 60)
+        output.append(f"Type: {ctx.get('error_type', 'Unknown')}")
+        output.append(f"Message: {ctx.get('message', 'No message')}")
+        output.append(f"Signature: #{ctx.get('signature', 'N/A')}")
+        output.append(f"Severity: {ctx.get('severity', 'MEDIUM')}")
+        output.append(f"Timestamp: {ctx.get('timestamp', 'Unknown')}")
+        
+        if ctx.get('command'):
+            output.append(f"Command: {ctx['command']}")
+        
+        if ctx.get('stack_trace'):
+            output.append("\nStack Trace:")
+            output.append(ctx['stack_trace'])
+        
+        if ctx.get('environment'):
+            env = ctx['environment']
+            output.append("\nEnvironment:")
+            output.append(f"  Theme: {env.get('theme', 'Unknown')}")
+            output.append(f"  Location: {env.get('tile_location', 'Unknown')}")
+        
+        output.append("\nNext Steps:")
+        output.append(f"  • OK FIX #{signature[:8]} - Get fix suggestions")
+        output.append("  • DEV MODE - Enter debug mode")
+        
+        return "\n".join(output)
+    
+    def _handle_error_clear(self, error_manager):
+        """Handle ERROR CLEAR - clear error history."""
+        import sys
+        
+        print("\n⚠️  WARNING: This will delete all error history!")
+        print("This action cannot be undone.\n")
+        
+        try:
+            response = input("Type 'yes' to confirm: ")
+            if response.lower() == 'yes':
+                error_manager.clear_all()
+                return "✅ Error history cleared"
+            else:
+                return "❌ Clear cancelled"
+        except (EOFError, KeyboardInterrupt):
+            return "\n❌ Clear cancelled"
 
     # ═══════════════════════════════════════════════════════════════════════════
     # v1.0.32: PLANET SYSTEM COMMANDS (CONFIG PLANET deprecated v1.2.21)

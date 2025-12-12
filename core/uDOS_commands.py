@@ -99,11 +99,13 @@ class CommandHandler:
         from core.commands.tree_handler import TreeHandler
         from core.commands.peek_handler import PeekHandler
         from core.commands.sandbox_handler import SandboxHandler
+        from core.commands.cloud_handler import CloudHandler
 
         self.assistant_handler = AssistantCommandHandler(**handler_kwargs)
         self.file_handler = FileCommandHandler(**handler_kwargs)
         self.map_handler = MapCommandHandler(**handler_kwargs) if MapCommandHandler else None
         self.system_handler = SystemCommandHandler(**handler_kwargs)
+        self.cloud_handler = CloudHandler(**handler_kwargs)
 
 
         # Memory System Handlers
@@ -155,7 +157,14 @@ class CommandHandler:
 
         from core.commands.archive_handler import ArchiveHandler
         self.archive_handler = ArchiveHandler(**handler_kwargs)
+        
+        # Time/Date Handler (v1.2.22)
+        from core.commands.time_handler import create_time_handler
+        self.time_handler = create_time_handler(**handler_kwargs)
 
+        # JSON Viewer/Editor Handler (v1.2.22)
+        from core.commands.json_handler import create_json_handler
+        self.json_handler = create_json_handler(**handler_kwargs)
 
         from core.commands.backup_handler import create_handler as create_backup_handler
         self.backup_handler = create_backup_handler(viewport=viewport, logger=logger)
@@ -310,11 +319,25 @@ class CommandHandler:
             elif module == "FILE":
                 return self.file_handler.handle(command, params, grid, parser)
 
-            # ROLE shortcut to CONFIG ROLE
+            # ROLE - User role and permission management (v1.2.22)
             elif module == "ROLE":
-                return self.system_handler._handle_config_role([])
+                return self.system_handler.handle_role([command] + params, grid, parser)
 
+            # PATTERNS - Error pattern learning (v1.2.22)
+            elif module == "PATTERNS":
+                return self.system_handler.handle_patterns([command] + params, grid, parser)
 
+            # ERROR - Error context management (v1.2.22)
+            elif module == "ERROR":
+                return self.system_handler.handle_error([command] + params, grid, parser)
+
+            # TIME - Time/date system (v1.2.22)
+            elif module in ["TIME", "CLOCK", "TIMER", "EGG", "STOPWATCH", "CALENDAR"]:
+                return self.time_handler.handle(command, params, grid)
+
+            # JSON - JSON viewer/editor (v1.2.22)
+            elif module == "JSON":
+                return self.json_handler.handle_command([command] + params)
 
             elif module == "MAP":
                 if self.map_handler:
@@ -495,6 +518,10 @@ class CommandHandler:
             # v1.2.21 - CLONE User Content Packaging
             elif module == "CLONE":
                 return self.clone_handler.handle(params, grid, parser)
+            
+            # v1.2.21 - CLOUD Business Intelligence (BIZINTEL)
+            elif module == "CLOUD":
+                return self.cloud_handler.handle_command([module] + [command] + params)
             
             # v1.2.21 - BUILD Offline Installation Packaging  
             elif module == "BUILD":

@@ -146,7 +146,7 @@ Available Commands:
   MAP VIEW - Show ASCII map around your location
   LOCATE CITY <name> - Set location to a major city
   LOCATE SET <lat> <lon> - Set custom coordinates
-  CONFIG PLANET LIST - View all your planets"""
+  CONFIG GET planet - View current planet (stored in user.json)"""
 
             return result
 
@@ -191,7 +191,7 @@ Use 'MAP VIEW' to see the area around you."""
             current_planet = pm.get_current()
 
             if not current_planet:
-                return "⚠️  No planet selected. Use CONFIG PLANET to set up your workspace."
+                return "⚠️  No planet selected. Set 'planet' field in user.json (memory/bank/user/user.json)."
 
             # Only show map for Earth
             if current_planet.planet_type != "Earth":
@@ -444,7 +444,7 @@ Layer: {matching_city['layer']}
 
 Use MAP VIEW to see the area around you."""
                 else:
-                    return "⚠️  No planet selected. Use CONFIG PLANET first."
+                    return "⚠️  No planet selected. Set 'planet' field in user.json."
 
             except Exception as e:
                 return f"Error setting location: {str(e)}"
@@ -491,7 +491,7 @@ Nearest City: {nearest['name']} ({nearest['distance_km']:.1f} km)"""
                     result += "\n\nUse MAP VIEW to see the area."
                     return result
                 else:
-                    return "⚠️  No planet selected. Use CONFIG PLANET first."
+                    return "⚠️  No planet selected. Set 'planet' field in user.json."
 
             except ValueError:
                 return "Invalid coordinates. Use decimal degrees (e.g., MAP LOCATE SET 51.5074 -0.1278)"

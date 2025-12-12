@@ -7,13 +7,15 @@ Commands:
 - TREE: Update all structure files and show root tree
 - MEMORY TREE: Show memory tree
 - KNOWLEDGE TREE: Show knowledge tree
+- TREE --sizes: Show tree with file sizes
+- TREE --disk: Show disk usage report with progress bars
 
 Files created:
 - structure.txt (root - excludes /knowledge, respects .gitignore)
 - memory/structure.txt (excludes memory/logs)
 - knowledge/structure.txt (full knowledge tree)
 
-Version: 1.1.0 (Added pager support for long trees)
+Version: 1.2.22 (Added disk monitoring and size display)
 """
 
 import os
@@ -22,14 +24,17 @@ from typing import List, Set, Optional, Dict
 import fnmatch
 from core.utils.pager import page_output
 from core.utils.paths import PATHS
+from core.services.disk_monitor import DiskMonitor
 
 
 class TreeHandler:
     """Handler for TREE command - generates directory structure files."""
 
-    def __init__(self):
+    def __init__(self, config=None):
         self.base_path = Path.cwd()
         self.gitignore_patterns = self._load_gitignore()
+        self.config = config
+        self.disk_monitor = DiskMonitor(config) if config else None
 
     def _load_gitignore(self) -> List[str]:
         """Load patterns from .gitignore file."""
@@ -295,12 +300,45 @@ class TreeHandler:
         Args:
             params: Command parameters
 
-        Returns:
-            Formatted output
         """
-        # Check for subcommands
+        # Check for subcommands and flags
         if params and len(params) > 0:
             subcommand = params[0].upper()
+            
+            # TREE --disk: Show disk usage report
+            if subcommand == '--DISK' or subcommand == 'DISK':
+                if not self.disk_monitor:
+                    return "❌ Disk monitor not initialized (Config required)"
+                
+                usage = self.disk_monitor.scan_all(use_cache=False)
+                
+                # Build output
+                output = []
+                output.append("")
+                self.disk_monitor.print_report(usage, show_bars=True)
+                
+                # Check for warnings
+                warnings = self.disk_monitor.check_limits(usage)
+                if warnings:
+                    output.append("\n⚠️  WARNINGS:")
+                    for warning in warnings:
+                        output.append(f"  {warning}")
+                
+                # Get suggestions
+                suggestions = self.disk_monitor.get_optimization_suggestions(usage)
+                if suggestions:
+                    output.append("\n💡 OPTIMIZATION SUGGESTIONS:")
+                    for suggestion in suggestions:
+                        output.append(f"  • {suggestion}")
+                
+                output.append("")
+                return "\n".join(output)
+            
+            # TREE --sizes: Show tree with file sizes (future enhancement)
+            elif subcommand == '--SIZES' or subcommand == 'SIZES':
+                return "⚠️  TREE --sizes coming soon (shows file sizes in tree)"
+
+            elif subcommand == 'MEMORY':er()
 
             if subcommand == 'MEMORY':
                 # MEMORY TREE - show memory tree

@@ -1,9 +1,15 @@
 """
 uDOS v1.2.22 - Smart Interactive Prompt
-Predictive autocomplete with multi-column suggestions.
+Dynamic real-time autocomplete with visual feedback.
+Features:
+- Auto-show completions as you type
+- Multi-word command support (POKE START, CLOUD GENERATE, etc.)
+- Smart selection with arrow keys
+- Tab/Right-Arrow to accept suggestion
+- Syntax highlighting for commands/options/variables
 """
 
-from prompt_toolkit import prompt
+from prompt_toolkit import prompt, PromptSession
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.key_binding import KeyBindings
@@ -11,7 +17,11 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.formatted_text import FormattedText, HTML
 from prompt_toolkit.layout import Float, FloatContainer, Window
 from prompt_toolkit.layout.controls import FormattedTextControl
-from prompt_toolkit.shortcuts import print_formatted_text
+from prompt_toolkit.shortcuts import print_formatted_text, CompleteStyle
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit.validation import Validator
+from prompt_toolkit.enums import EditingMode
+from prompt_toolkit.document import Document
 from typing import List, Iterable, Optional
 import sys
 import os
@@ -20,86 +30,152 @@ from core.utils.autocomplete import AutocompleteService
 
 
 class ImprovedCompleter(Completer):
-    """Autocomplete provider for command and parameter suggestions."""
+    """Dynamic autocomplete with real-time suggestions as you type."""
 
     def __init__(self, autocomplete_service: AutocompleteService):
         self.autocomplete = autocomplete_service
+        self.multi_word_commands = self._build_multi_word_index()
+
+    def _build_multi_word_index(self) -> dict:
+        """Build index of multi-word commands for smart matching."""
+        multi_word = {}
+        
+        # Known multi-word command patterns
+        patterns = {
+            'POKE': ['START', 'STOP', 'STATUS', 'EXPORT', 'IMPORT'],
+            'CLOUD': ['GENERATE', 'RESOLVE', 'BUSINESS', 'EMAIL', 'CONTACTS', 'WEBSITE', 
+                     'SOCIAL', 'ENRICH', 'LINK', 'PRUNE', 'EXPORT', 'STATS'],
+            'CONFIG': ['GET', 'SET', 'LIST', 'CHECK', 'FIX', 'BACKUP', 'RESTORE'],
+            'WORKFLOW': ['NEW', 'LIST', 'RUN', 'PAUSE', 'RESUME', 'STOP', 'STATUS'],
+            'MISSION': ['NEW', 'LIST', 'START', 'PAUSE', 'RESUME', 'COMPLETE', 'FAIL'],
+            'TUI': ['ENABLE', 'DISABLE', 'STATUS'],
+            'GUIDE': ['WATER', 'FIRE', 'SHELTER', 'FOOD', 'MEDICAL', 'NAVIGATION'],
+        }
+        
+        for base_cmd, subcmds in patterns.items():
+            multi_word[base_cmd] = subcmds
+        
+        return multi_word
 
     def get_completions(self, document, complete_event) -> Iterable[Completion]:
-        """Generate command and parameter completions."""
+        """Generate completions with real-time feedback."""
         text = document.text_before_cursor
         words = text.split()
 
+        # Empty input - show common commands
         if not words:
-            # Empty input - suggest common/recent commands
-            suggestions = self.autocomplete.get_command_suggestions('', max_results=15)
-            for sug in suggestions:
-                # Build rich meta with syntax and options
-                meta_parts = [sug['description'][:40]]
-                if sug.get('usage'):
-                    meta_parts.append(f"Usage: {sug['usage'][:50]}")
-                if sug.get('options'):
-                    opts = ', '.join(sug['options'][:4])
-                    if len(sug['options']) > 4:
-                        opts += f" +{len(sug['options'])-4} more"
-                    meta_parts.append(f"Options: {opts}")
-                
-                yield Completion(
-                    sug['command'],
-                    start_position=0,
-                    display=sug['command'],
-                    display_meta=' | '.join(meta_parts)
-                )
+            for sug in self.autocomplete.get_command_suggestions('', max_results=20):
+                yield Completion(sug['command'], start_position=0, 
+                               display=sug['command'], display_meta=self._build_meta(sug))
+            return
+        
+        # Space after command - show subcommands
+        if len(words) == 1 and text.endswith(' '):
+            base_cmd = words[0].upper()
+            if base_cmd in self.multi_word_commands:
+                for subcmd in self.multi_word_commands[base_cmd]:
+                    desc = f"{base_cmd} {subcmd} - {self._get_subcmd_desc(base_cmd, subcmd)}"
+                    yield Completion(subcmd, start_position=0, display=subcmd, display_meta=desc[:80])
+                return
 
-        elif len(words) == 1 and not text.endswith(' '):
-            # First word - command suggestions (show ALL matches, not just top 10)
-            partial = words[0]
-            suggestions = self.autocomplete.get_command_suggestions(partial, max_results=25)
+        # First word - command suggestions
+        if len(words) == 1 and not text.endswith(' '):
+            partial = words[0].upper()
+            for sug in self.autocomplete.get_command_suggestions(partial, max_results=30):
+                yield Completion(sug['command'], start_position=-len(partial), 
+                               display=sug['command'], display_meta=self._build_meta(sug))
+            return
 
-            for sug in suggestions:
-                # Build rich meta with syntax and options
-                meta_parts = [sug['description'][:40]]
-                if sug.get('usage'):
-                    meta_parts.append(f"Usage: {sug['usage'][:50]}")
-                if sug.get('options'):
-                    opts = ', '.join(sug['options'][:4])
-                    if len(sug['options']) > 4:
-                        opts += f" +{len(sug['options'])-4} more"
-                    meta_parts.append(f"Options: {opts}")
+        # Multi-word command detection (POKE START, CLOUD GENERATE, etc.)
+        if len(words) >= 2 and (base_cmd := words[0].upper()) in self.multi_word_commands:
+            second_word = words[1] if not text.endswith(' ') else ''
+            
+            # Match second-word completions (even single characters!)
+            if len(words) == 2 and not text.endswith(' '):
+                second_upper = second_word.upper()
                 
-                # Replace the partial text with the full command
-                yield Completion(
-                    sug['command'],
-                    start_position=-len(partial),
-                    display=sug['command'],
-                    display_meta=' | '.join(meta_parts)
-                )
+                for subcmd in self.multi_word_commands[base_cmd]:
+                    if not second_word or subcmd.startswith(second_upper):
+                        desc = f"{base_cmd} {subcmd} - {self._get_subcmd_desc(base_cmd, subcmd)}"
+                        yield Completion(
+                            subcmd,
+                            start_position=-len(second_word) if second_word else 0,
+                            display=subcmd,
+                            display_meta=desc[:80]
+                        )
+                return  # Early return after multi-word matches
+            
+            # After multi-word command, show options/parameters
+            if len(words) > 2 or (len(words) == 2 and text.endswith(' ')):
+                current_word = words[-1] if not text.endswith(' ') else ''
+                full_cmd = f"{base_cmd} {words[1].upper()}"
+                
+                # Get options for the full multi-word command
+                for sug in self.autocomplete.get_option_suggestions(full_cmd, partial=current_word, max_results=20):
+                    option_text = sug.get('option', '')
+                    desc = sug.get('description', f"{full_cmd} {option_text}")
+                    yield Completion(option_text, start_position=-len(current_word) if current_word else 0,
+                                   display=option_text, display_meta=desc[:80])
+                return
 
-        else:
-            # Subsequent words - option/parameter suggestions
-            current_word = words[-1] if not text.endswith(' ') else ''
-            suggestions = self.autocomplete.get_option_suggestions(
-                command=words[0],
-                partial=current_word,
-                max_results=15
-            )
+        # Default: option/parameter suggestions
+        current_word = words[-1] if not text.endswith(' ') else ''
+        for sug in self.autocomplete.get_option_suggestions(words[0], partial=current_word, max_results=20):
+            option_text = sug.get('option', '')
+            desc = sug.get('description', f"{words[0]} {option_text}")
+            yield Completion(option_text, start_position=-len(current_word) if current_word else 0,
+                           display=option_text, display_meta=desc[:80])
 
-            for sug in suggestions:
-                option_text = sug.get('option', '')
-                cmd_name = sug.get('command', '')
-                
-                # Build description for display_meta
-                desc = sug.get('description', '')
-                if not desc:
-                    desc = f"{cmd_name} {option_text}"
-                
-                # Use display_meta like commands do (works without FormattedText wrapping)
-                yield Completion(
-                    option_text,
-                    start_position=-len(current_word) if current_word else 0,
-                    display=option_text,
-                    display_meta=desc[:80]
-                )
+    @staticmethod
+    def _extract_meta_text(meta) -> str:
+        """Extract plain text from FormattedText or return as-is."""
+        if isinstance(meta, str):
+            return meta
+        if hasattr(meta, '__iter__'):
+            try:
+                return ''.join(part[1] for part in meta)
+            except:
+                pass
+        return str(meta)
+    
+    def _build_meta(self, sug: dict) -> str:
+        """Build rich metadata display for suggestions."""
+        meta_parts = [sug['description'][:50]]
+        
+        if sug.get('options') and len(sug['options']) > 0:
+            opts = ', '.join(sug['options'][:3])
+            if len(sug['options']) > 3:
+                opts += f" +{len(sug['options'])-3}"
+            meta_parts.append(f"→ {opts}")
+        
+        return ' | '.join(meta_parts)
+    
+    # Subcommand descriptions - centralized data
+    SUBCOMMAND_DESCRIPTIONS = {
+        'CLOUD': {
+            'GENERATE': 'Generate keywords with AI', 'RESOLVE': 'Convert address to TILE code',
+            'BUSINESS': 'Search for businesses', 'EMAIL': 'Email operations',
+            'CONTACTS': 'Contact management', 'WEBSITE': 'Parse website data',
+            'SOCIAL': 'Social media enrichment', 'ENRICH': 'Enrich data with APIs',
+            'LINK': 'Link messages/data', 'PRUNE': 'Archive old data',
+            'EXPORT': 'Export data (CSV/JSON)', 'STATS': 'Show statistics'
+        },
+        'POKE': {
+            'START': 'Start Pokémon battle', 'STOP': 'Stop current battle',
+            'STATUS': 'Show battle status', 'EXPORT': 'Export battle data',
+            'IMPORT': 'Import Pokémon data'
+        },
+        'CONFIG': {
+            'GET': 'Get configuration value', 'SET': 'Set configuration value',
+            'LIST': 'List all configurations', 'CHECK': 'Check configuration validity',
+            'FIX': 'Fix configuration issues', 'BACKUP': 'Backup configurations',
+            'RESTORE': 'Restore from backup'
+        }
+    }
+    
+    def _get_subcmd_desc(self, base_cmd: str, subcmd: str) -> str:
+        """Get description for any subcommand."""
+        return self.SUBCOMMAND_DESCRIPTIONS.get(base_cmd, {}).get(subcmd, f'{subcmd.lower()} operation')
 
 
 class SmartPrompt:
@@ -144,19 +220,33 @@ class SmartPrompt:
             except Exception:
                 pass
 
-        # Create key bindings (NO auto-complete on single key)
+        # Create key bindings
         if not use_fallback:
             self.key_bindings = self._create_key_bindings()
             self.style = Style.from_dict({
+                # Prompt styling
                 'prompt': 'ansigreen bold',
                 '': '',
-                # Completion menu - HIGH CONTRAST
-                'completion-menu': 'bg:#000000 #00ff00',
+                
+                # Auto-suggest from history (gray ghost text)
+                'auto-suggestion': 'fg:#666666',
+                
+                # Completion menu - HIGH CONTRAST with clear selection
+                'completion-menu': 'bg:#001100 #00ff00',
                 'completion-menu.completion': 'bg:#000000 #00ff00',
                 'completion-menu.completion.current': 'bg:#00ff00 #000000 bold',
+                
+                # Metadata (description) styling
+                'completion-menu.meta': 'bg:#000000 #00aa00 italic',
                 'completion-menu.meta.completion': 'bg:#000000 #888888 italic',
                 'completion-menu.meta.completion.current': 'bg:#00ff00 #000000',
-                'completion-menu.multi-column-meta': 'bg:#000000 #888888',
+                
+                # Multi-column layout
+                'completion-menu.multi-column-meta': 'bg:#000000 #00aa00',
+                
+                # Scrollbar
+                'scrollbar.background': 'bg:#000000',
+                'scrollbar.button': 'bg:#00ff00',
             })
 
         # Test prompt_toolkit
@@ -164,30 +254,96 @@ class SmartPrompt:
             self._test_prompt_toolkit()
 
     def _create_key_bindings(self) -> KeyBindings:
-        """Create key bindings for navigation, editing, and completion."""
+        """Create intuitive key bindings for smart input."""
         kb = KeyBindings()
 
         @kb.add('tab')
         def _(event):
-            # Use prompt_toolkit's native completion handling
+            """Tab: Accept current completion or complete first match."""
             buffer = event.current_buffer
+            
+            # If completions are visible, accept the current one
             if buffer.complete_state:
-                # Already showing completions - cycle to next
-                buffer.complete_next()
+                current_completion = buffer.complete_state.current_completion
+                if current_completion:
+                    buffer.apply_completion(current_completion)
             else:
-                # Start completion
-                buffer.start_completion()
+                # Start completion and auto-accept first match if only one
+                buffer.start_completion(select_first=True)
+                
+                # If exactly one completion, auto-accept it
+                if buffer.complete_state and len(buffer.complete_state.completions) == 1:
+                    buffer.apply_completion(buffer.complete_state.current_completion)
+        
+        @kb.add('c-space')
+        def _(event):
+            """Ctrl+Space: Force show all completions."""
+            buffer = event.current_buffer
+            buffer.start_completion(select_first=True)
         
         @kb.add('enter')
         def _(event):
-            # Don't auto-accept completions - just submit what user typed
-            # User can press Tab to accept a completion before Enter
-            event.current_buffer.validate_and_handle()
+            """Enter: Execute command (no auto-accept)."""
+            buffer = event.current_buffer
+            
+            # Close completion menu if open
+            if buffer.complete_state:
+                buffer.complete_state = None
+            
+            # Submit the actual typed text
+            buffer.validate_and_handle()
         
         @kb.add('escape')
         def _(event):
-            if event.current_buffer.complete_state:
-                event.current_buffer.complete_state = None
+            """Escape: Close completion menu or clear buffer."""
+            buffer = event.current_buffer
+            if buffer.complete_state:
+                buffer.complete_state = None
+            elif buffer.text:
+                # Clear the input
+                buffer.reset()
+            else:
+                # Exit gracefully
+                event.app.exit(result='EXIT')
+        
+        @kb.add('right')
+        def _(event):
+            """Right arrow: Accept completion or move cursor."""
+            buffer = event.current_buffer
+            
+            # If at end of line and completion available, accept it
+            if buffer.cursor_position == len(buffer.text) and buffer.complete_state:
+                buffer.apply_completion(buffer.complete_state.current_completion)
+            else:
+                # Normal cursor movement
+                buffer.cursor_right()
+        
+        @kb.add('left')
+        def _(event):
+            """Left arrow: Move cursor (close completion if at start)."""
+            buffer = event.current_buffer
+            if buffer.cursor_position == 0 and buffer.complete_state:
+                buffer.complete_state = None
+            else:
+                buffer.cursor_left()
+        
+        @kb.add('up')
+        def _(event):
+            """Up: Navigate completions or history."""
+            buffer = event.current_buffer
+            if buffer.complete_state:
+                buffer.complete_previous()
+            else:
+                buffer.history_backward()
+        
+        @kb.add('down')
+        def _(event):
+            """Down: Navigate completions or history."""
+            buffer = event.current_buffer
+            if buffer.complete_state:
+                buffer.complete_next()
+            else:
+                buffer.history_forward()
         
         @kb.add('f1')
         def _(event):
@@ -231,7 +387,6 @@ class SmartPrompt:
                 # Check if we have completions in toolbar
                 text = event.current_buffer.text
                 if text:
-                    from prompt_toolkit.document import Document
                     doc = Document(text, cursor_position=len(text))
                     comps = list(self.completer.get_completions(doc, None))
                     if comps:
@@ -248,7 +403,6 @@ class SmartPrompt:
                 # Check if we have completions in toolbar
                 text = event.current_buffer.text
                 if text:
-                    from prompt_toolkit.document import Document
                     doc = Document(text, cursor_position=len(text))
                     comps = list(self.completer.get_completions(doc, None))
                     if comps:
@@ -465,104 +619,73 @@ class SmartPrompt:
             return self._ask_fallback(prompt_text)
 
         try:
+            # Initialize session on first use
             if self.session is None:
-                from prompt_toolkit import PromptSession
-                from prompt_toolkit.shortcuts import CompleteStyle
-                from prompt_toolkit.document import Document
-                
-                # Bottom toolbar showing completions OR pager
                 def get_bottom_toolbar():
-                    if not hasattr(self.session, 'app') or not self.session.app:
-                        return ""
+                    """Show completions in bottom toolbar (up to 3 lines)."""
+                    from prompt_toolkit.application.current import get_app
                     
-                    try:
-                        # Priority 1: Check if pager has content to show
-                        if self.tui and hasattr(self.tui, 'pager') and self.tui.pager:
-                            pager = self.tui.pager
-                            if pager.state.total_lines > 0:
-                                # Show pager status bar
-                                current_page = (pager.state.scroll_offset // pager.state.viewport_height) + 1
-                                total_pages = (pager.state.total_lines // pager.state.viewport_height) + 1
-                                progress_pct = int(pager.state.scroll_percentage * 100)
-                                
-                                # Progress bar (60 chars wide)
-                                filled = int(60 * pager.state.scroll_percentage)
-                                bar = '█' * filled + '░' * (60 - filled)
-                                
-                                return f"{bar} Page {current_page}/{total_pages} [↓→/ENTER|↑←|ESC]"
+                    app = get_app()
+                    if not app or not hasattr(app, 'current_buffer'):
+                        return FormattedText([('', '🔍 Ready...')])  # Show we're active
+                    
+                    buffer = app.current_buffer
+                    
+                    # Show current text length as debug
+                    text = buffer.text if buffer else ''
+                    
+                    if not buffer or not buffer.complete_state:
+                        # Show that we're waiting for completions
+                        if text:
+                            return FormattedText([('class:completion-menu.completion', f' 🔍 Typing: "{text}" (press TAB for options)')])
+                        return FormattedText([('class:completion-menu.completion', ' 🔍 Type a command...')])
+                    
+                    # Get completions from current state
+                    completions = buffer.complete_state.completions
+                    if not completions:
+                        return FormattedText([('class:completion-menu.completion', ' ⚠️ No matches')])
+                    
+                    # Format up to 9 completions (3 lines × 3 per line)
+                    items = []
+                    for i, comp in enumerate(completions[:9]):
+                        if i > 0 and i % 3 == 0:
+                            items.append(('', '\n'))  # New line every 3 items
                         
-                        # Priority 2: Show completions if typing
-                        buffer = self.session.app.current_buffer
-                        text = buffer.text
+                        # Get display text
+                        display = comp.display_text if hasattr(comp, 'display_text') else comp.text
+                        meta = comp.display_meta_text if hasattr(comp, 'display_meta_text') else ''
                         
-                        if not text:
-                            self.selected_completion_index = 0
-                            return ""
+                        # Format: [display] meta
+                        if meta:
+                            items.append(('class:completion-menu.completion', f' [{display}] '))
+                            items.append(('class:completion-menu.meta', meta[:40]))  # Truncate meta
+                        else:
+                            items.append(('class:completion-menu.completion', f' [{display}] '))
                         
-                        # Get completions for current text
-                        doc = Document(text, cursor_position=len(text))
-                        completions = list(self.completer.get_completions(doc, None))
-                        
-                        if not completions:
-                            self.selected_completion_index = 0
-                            return ""
-                        
-                        # Ensure index is valid
-                        self.selected_completion_index = min(self.selected_completion_index, len(completions) - 1)
-                        
-                        # Show first 5 completions
-                        lines = []
-                        for i, comp in enumerate(completions[:5]):
-                            marker = "►" if i == self.selected_completion_index else " "
-                            # Extract text from FormattedText if needed
-                            meta_text = comp.display_meta
-                            if hasattr(meta_text, '__iter__') and not isinstance(meta_text, str):
-                                # FormattedText is list of (style, text) tuples
-                                try:
-                                    meta_text = ''.join([part[1] for part in meta_text])
-                                except:
-                                    meta_text = str(meta_text)
-                            lines.append(f"{marker} {comp.text:<12} │ {meta_text}")
-                        
-                        return "\n".join(lines)
-                    except:
-                        return ""
+                        # Add separator if not last
+                        if i < len(completions) - 1 and (i + 1) % 3 != 0:
+                            items.append(('', '  '))
+                    
+                    return FormattedText(items)
                 
                 self.session = PromptSession(
                     completer=self.completer,
-                    complete_while_typing=True,
-                    complete_style=CompleteStyle.COLUMN,
+                    complete_while_typing=True,  # Show completions as you type!
                     history=self.pt_history,
                     key_bindings=self.key_bindings,
                     style=self.style,
                     enable_history_search=True,
                     mouse_support=False,
-                    reserve_space_for_menu=10,
-                    complete_in_thread=False,
+                    complete_in_thread=True,  # Allow async completion
                     validate_while_typing=False,
-                    bottom_toolbar=get_bottom_toolbar,
+                    auto_suggest=AutoSuggestFromHistory(),
+                    editing_mode=EditingMode.EMACS,
+                    bottom_toolbar=get_bottom_toolbar,  # Dynamic toolbar
+                    reserve_space_for_menu=0,  # Don't reserve - let toolbar handle it
+                    refresh_interval=0.1,  # Refresh every 100ms for live updates
                 )
             
-            # Show keyboard shortcuts header if enabled
-            import sys
-            if show_shortcuts:
-                # Get terminal width
-                try:
-                    import shutil
-                    term_width = shutil.get_terminal_size().columns
-                except:
-                    term_width = 80
-                
-                # Right-aligned shortcuts line
-                shortcuts = "Ctrl+A/E/K/U/W ─┐"
-                padding = " " * (term_width - len(shortcuts))
-                sys.stdout.write(f"\n{padding}{shortcuts}\n")
-                sys.stdout.flush()
-            
-            # Don't write prompt manually - session.prompt() will display it
-            # Just show the blinking cursor effect at the start
-            # self._show_ready_cursor()
-            
+            # Simple formatted prompt
             formatted_prompt = FormattedText([('class:prompt', prompt_text)])
             user_input = self.session.prompt(formatted_prompt, multiline=multiline)
 

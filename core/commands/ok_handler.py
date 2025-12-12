@@ -109,6 +109,8 @@ class OKHandler(BaseCommandHandler):
             return self._handle_make(params[1:])
         elif subcommand == "ASK":
             return self._handle_ask(params[1:])
+        elif subcommand == "FIX":
+            return self._handle_fix(params[1:])
         elif subcommand == "CLEAR":
             return self._handle_clear()
         elif subcommand == "STATUS":
@@ -376,6 +378,125 @@ class OKHandler(BaseCommandHandler):
         except Exception as e:
             return f"❌ Error: {e}"
 
+    def _handle_fix(self, params: List[str]) -> str:
+        """Handle OK FIX command - suggest fixes for errors using AI + learned patterns."""
+        from core.services.pattern_learner import get_pattern_learner
+        from core.services.error_interceptor import get_error_context_manager
+        
+        learner = get_pattern_learner()
+        error_manager = get_error_context_manager()
+        
+        # Get error context (signature or latest)
+        if params and params[0].startswith('#'):
+            # Specific error by signature
+            signature = params[0][1:]  # Remove # prefix
+            error_ctx = error_manager.get_context(signature)
+            if not error_ctx:
+                return f"❌ Error not found: #{signature}\n\nUse: ERROR HISTORY to see available errors"
+        else:
+            # Use latest error
+            error_ctx = error_manager.get_latest()
+            if not error_ctx:
+                return "❌ No recent errors found\n\nUse OK FIX after an error occurs"
+        
+        # Build output
+        lines = []
+        lines.append("╔══════════════════════════════════════════════════════════╗")
+        lines.append("║               OK FIX - Error Analysis                    ║")
+        lines.append("╚══════════════════════════════════════════════════════════╝")
+        lines.append("")
+        
+        # Show error summary
+        lines.append(f"🔍 Error: {error_ctx['error_type']}")
+        lines.append(f"   Message: {error_ctx['message']}")
+        lines.append(f"   Signature: #{error_ctx['signature']}")
+        lines.append(f"   Timestamp: {error_ctx['timestamp']}")
+        lines.append("")
+        
+        # Get learned patterns
+        suggestions = learner.suggest_fix(
+            error_ctx['error_type'],
+            error_ctx['message'],
+            error_ctx.get('stack_trace', '')
+        )
+        
+        if suggestions:
+            lines.append("📚 Learned Fixes (from previous occurrences):")
+            for i, sugg in enumerate(suggestions[:3], 1):  # Top 3
+                success_rate = sugg.get('success_rate', 0)
+                if success_rate > 0:
+                    lines.append(f"   {i}. {sugg['fix']} (✅ {success_rate:.0%} success rate)")
+                else:
+                    lines.append(f"   {i}. {sugg['fix']}")
+            lines.append("")
+        
+        # Get AI analysis (if available)
+        if self.gemini and self.gemini.is_available:
+            lines.append("🤖 AI Analysis (via Gemini)...")
+            lines.append("")
+            
+            try:
+                # Build error analysis prompt
+                prompt = self._build_error_analysis_prompt(error_ctx, suggestions)
+                
+                # Query Gemini
+                response = self.gemini.ask(prompt)
+                
+                if response.get('success'):
+                    lines.append(response['response'])
+                    self._update_stats('fix', response.get('tokens_used', 0))
+                else:
+                    lines.append(f"⚠️  AI analysis failed: {response.get('error', 'Unknown error')}")
+            
+            except Exception as e:
+                lines.append(f"⚠️  AI analysis error: {e}")
+        else:
+            lines.append("ℹ️  AI analysis unavailable (set GEMINI_API_KEY in .env)")
+        
+        lines.append("")
+        lines.append("Next Steps:")
+        lines.append("  • Try suggested fix and use: OK FIX WORKED (or FAILED)")
+        lines.append("  • View full error: ERROR SHOW #{signature}")
+        lines.append("  • Enter debug mode: DEV MODE")
+        
+        return '\n'.join(lines)
+    
+    def _build_error_analysis_prompt(self, error_ctx: Dict[str, Any], learned_suggestions: List[Dict]) -> str:
+        """Build prompt for Gemini error analysis."""
+        prompt_parts = []
+        
+        prompt_parts.append("You are an expert debugging assistant for uDOS (an offline-first terminal OS).")
+        prompt_parts.append("")
+        prompt_parts.append("Analyze this error and provide:")
+        prompt_parts.append("1. Root cause analysis")
+        prompt_parts.append("2. Step-by-step fix instructions")
+        prompt_parts.append("3. Prevention tips")
+        prompt_parts.append("")
+        prompt_parts.append(f"ERROR TYPE: {error_ctx['error_type']}")
+        prompt_parts.append(f"MESSAGE: {error_ctx['message']}")
+        
+        if error_ctx.get('command'):
+            prompt_parts.append(f"COMMAND: {error_ctx['command']}")
+        
+        if error_ctx.get('stack_trace'):
+            # Truncate stack trace to avoid token limits
+            stack = error_ctx['stack_trace'][:1000]
+            prompt_parts.append("")
+            prompt_parts.append("STACK TRACE:")
+            prompt_parts.append(stack)
+        
+        if learned_suggestions:
+            prompt_parts.append("")
+            prompt_parts.append("PREVIOUSLY SUCCESSFUL FIXES:")
+            for sugg in learned_suggestions[:3]:
+                success_rate = sugg.get('success_rate', 0)
+                prompt_parts.append(f"  • {sugg['fix']} ({success_rate:.0%} success rate)")
+        
+        prompt_parts.append("")
+        prompt_parts.append("Provide concise, actionable advice (max 200 words).")
+        
+        return '\n'.join(prompt_parts)
+
     def _handle_clear(self) -> str:
         """Clear conversation history."""
         if self.gemini and self.gemini.is_available:
@@ -462,13 +583,16 @@ class OKHandler(BaseCommandHandler):
             "  OK MAKE TEST <file>      - Generate unit tests\n"
             "  OK MAKE MISSION <cat> <tile> - Generate mission script\n\n"
             "  OK ASK <question>        - Ask AI assistant\n"
+            "  OK FIX [#signature]      - Analyze error and suggest fixes\n"
             "  OK CLEAR                 - Clear conversation history\n"
             "  OK STATUS                - Show usage statistics\n\n"
             "Examples:\n"
             "  OK MAKE WORKFLOW \"water purification checklist\"\n"
             "  OK MAKE SVG \"water filter diagram\"\n"
             "  OK MAKE DOC \"grid system overview\"\n"
-            "  OK ASK \"How do I use the TILE system?\"\n\n"
+            "  OK ASK \"How do I use the TILE system?\"\n"
+            "  OK FIX                   - Fix latest error\n"
+            "  OK FIX #39a383e5         - Fix specific error by signature\n\n"
             "TUI:\n"
             "  Press O-key to open OK assistant panel\n\n"
             "Configuration:\n"
