@@ -665,6 +665,40 @@
       ]
     },
     {
+      "NAME": "TASK",
+      "SYNTAX": "TASK <subcommand> [args]",
+      "DESCRIPTION": "Task management integrated with calendar system. Create, track, and complete tasks with priority levels and due dates.",
+      "UCODE_TEMPLATE": "[TASK|$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$1": "LIST"
+      },
+      "SUBCOMMANDS": {
+        "LIST": "Show all tasks with status",
+        "ADD": "Create new task with description",
+        "DONE": "Mark task as complete",
+        "DEL": "Delete task by ID",
+        "EDIT": "Update task field value"
+      },
+      "EXAMPLES": [
+        "TASK LIST",
+        "TASK ADD \"Complete Task 4 implementation\"",
+        "TASK ADD \"Review PR\" --due 2025-12-15 --urgent",
+        "TASK DONE 1",
+        "TASK DEL 2",
+        "TASK EDIT 1 progress 80",
+        "TASK EDIT 1 description \"Updated task description\""
+      ],
+      "NOTES": [
+        "✅ Active in v1.2.23 - Calendar-Workflow Task 4",
+        "Tasks stored in memory/bank/user/tasks.json",
+        "Priority levels: normal (📋) or urgent (⚡)",
+        "Status indicators: pending, in_progress, done (✅)",
+        "Progress tracking: 0-100% with visual bars",
+        "Integrates with CAL DAY view for daily task display",
+        "Use quotes for multi-word descriptions"
+      ]
+    },
+    {
       "NAME": "EXTENSION",
       "SYNTAX": "EXTENSION <command> [<extension_id>]",
       "DESCRIPTION": "Manage uDOS extensions. Commands: STATUS (show all extensions), ENABLE <id>, DISABLE <id>, INFO <id>.",

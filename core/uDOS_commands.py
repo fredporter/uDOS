@@ -414,7 +414,11 @@ class CommandHandler:
             elif module in ["CAL", "CALENDAR"]:
                 return self.calendar_handler.handle_command([command] + params if command else [])
             
-            # Task Management
+            # Task Management (v1.2.23 Task 4 - integrated with calendar)
+            elif module == "TASK":
+                return self.calendar_handler.handle_command([command] + params if command else [])
+            
+            # Checklist Management (separate from TASK)
             elif module == "CHECKLIST":
                 return self.checklist_handler.handle(command, params)
             

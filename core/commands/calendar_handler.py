@@ -10,6 +10,11 @@ Commands:
     CAL DAY or CAL TODAY - Show daily calendar view
     CAL NEXT           - Navigate to next month/week
     CAL PREV           - Navigate to previous month/week
+    TASK LIST          - Show all tasks
+    TASK ADD "<desc>" [--due DATE] [--urgent]  - Create new task
+    TASK DONE <id>     - Mark task complete
+    TASK DEL <id>      - Delete task
+    TASK EDIT <id> <field> <value>  - Update task
 
 Features:
 - Timezone and TILE code display in headers
@@ -24,6 +29,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional
 import calendar as cal_module
+import json
 
 
 class CalendarHandler:
@@ -41,9 +47,14 @@ class CalendarHandler:
         self.current_date = datetime.now()
         self.view_mode = 'month'  # month, week, day
         
+    @property
+    def task_file(self):
+        """Get path to tasks.json file."""
+        return Path("memory/bank/user/tasks.json")
+    
     def handle_command(self, params):
         """
-        Handle CAL/CALENDAR commands.
+        Handle CAL/CALENDAR and TASK commands.
         
         Args:
             params: Command parameters [command, ...args]
@@ -76,8 +87,23 @@ class CalendarHandler:
         elif subcommand == 'PREV':
             return self._navigate_previous()
         
+        elif subcommand == 'LIST':
+            return self._task_list()
+        
+        elif subcommand == 'ADD':
+            return self._task_add(params[1:])
+        
+        elif subcommand == 'DONE':
+            return self._task_done(params[1:])
+        
+        elif subcommand == 'DEL':
+            return self._task_delete(params[1:])
+        
+        elif subcommand == 'EDIT':
+            return self._task_edit(params[1:])
+        
         else:
-            return f"❌ Unknown CAL command: {subcommand}\n💡 Use: CAL [MONTH|WEEK|DAY|NEXT|PREV]"
+            return f"❌ Unknown CAL command: {subcommand}\n💡 Use: CAL [MONTH|WEEK|DAY|NEXT|PREV] or TASK [LIST|ADD|DONE|DEL|EDIT]"
     
     def _navigate_next(self) -> str:
         """Navigate to next time period."""
@@ -324,6 +350,274 @@ class CalendarHandler:
         lines.append("💡 Commands: CAL NEXT | CAL PREV | CAL MONTH | CAL WEEK")
         
         return "\n".join(lines)
+    
+    # ======================== TASK MANAGEMENT METHODS ========================
+    
+    def _load_tasks(self) -> Dict:
+        """Load tasks from tasks.json."""
+        if not self.task_file.exists():
+            return {"tasks": [], "next_id": 1}
+        
+        try:
+            with open(self.task_file, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            return {"tasks": [], "next_id": 1, "error": str(e)}
+    
+    def _save_tasks(self, data: Dict) -> bool:
+        """Save tasks to tasks.json."""
+        try:
+            self.task_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.task_file, 'w') as f:
+                json.dump(data, f, indent=2)
+            return True
+        except Exception as e:
+            print(f"❌ Error saving tasks: {e}")
+            return False
+    
+    def _task_list(self) -> str:
+        """List all tasks."""
+        data = self._load_tasks()
+        tasks = data.get("tasks", [])
+        
+        if not tasks:
+            return "📋 No tasks yet. Use: TASK ADD \"description\" [--due DATE] [--urgent]"
+        
+        lines = []
+        lines.append("╔" + "═" * 78 + "╗")
+        lines.append("║" + " TASK LIST ".center(78) + "║")
+        lines.append("╠" + "═" * 78 + "╣")
+        
+        for task in tasks:
+            # Task header with ID and status
+            status_icon = "✅" if task['status'] == 'done' else ("⚡" if task.get('priority') == 'urgent' else "📋")
+            task_id = task['id']
+            status = task['status'].upper()
+            
+            header = f"{status_icon} #{task_id} [{status}]"
+            lines.append(f"║ {header:<76} ║")
+            
+            # Description
+            desc = task['description']
+            if len(desc) > 72:
+                desc = desc[:69] + "..."
+            lines.append(f"║   {desc:<74} ║")
+            
+            # Metadata line
+            meta_parts = []
+            if task.get('due_date'):
+                meta_parts.append(f"Due: {task['due_date']}")
+            if task.get('progress'):
+                meta_parts.append(f"Progress: {task['progress']}%")
+            if task.get('created'):
+                meta_parts.append(f"Created: {task['created'][:10]}")
+            
+            if meta_parts:
+                meta_line = " │ ".join(meta_parts)
+                lines.append(f"║   {meta_line:<74} ║")
+            
+            # Progress bar if progress exists
+            if task.get('progress'):
+                progress = task['progress']
+                filled = int(progress / 10)
+                bar = "▓" * filled + "░" * (10 - filled)
+                lines.append(f"║   [{bar}] {progress}%{' ' * (72 - len(bar) - len(str(progress)) - 6)}║")
+            
+            lines.append("╠" + "─" * 78 + "╣")
+        
+        # Replace last separator with bottom border
+        lines[-1] = "╚" + "═" * 78 + "╝"
+        
+        # Add stats
+        total = len(tasks)
+        done = sum(1 for t in tasks if t['status'] == 'done')
+        pending = total - done
+        urgent = sum(1 for t in tasks if t.get('priority') == 'urgent' and t['status'] != 'done')
+        
+        lines.append("")
+        lines.append(f"📊 Total: {total} │ ✅ Done: {done} │ 📋 Pending: {pending} │ ⚡ Urgent: {urgent}")
+        lines.append("")
+        lines.append("💡 Commands: TASK ADD \"desc\" | TASK DONE <id> | TASK DEL <id> | TASK EDIT <id> <field> <value>")
+        
+        return "\n".join(lines)
+    
+    def _task_add(self, params: List[str]) -> str:
+        """Add a new task."""
+        if not params:
+            return "❌ Usage: TASK ADD \"description\" [--due DATE] [--urgent]"
+        
+        # Parse description (find quoted string)
+        desc = None
+        due_date = None
+        is_urgent = False
+        
+        # Join params and parse
+        full_text = " ".join(params)
+        
+        # Extract quoted description
+        if '"' in full_text:
+            parts = full_text.split('"')
+            if len(parts) >= 2:
+                desc = parts[1]
+                remaining = parts[2] if len(parts) > 2 else ""
+        else:
+            # No quotes, take everything before flags
+            desc_parts = []
+            for p in params:
+                if p.startswith('--'):
+                    break
+                desc_parts.append(p)
+            desc = " ".join(desc_parts)
+        
+        if not desc:
+            return "❌ Task description required. Use quotes: TASK ADD \"description\""
+        
+        # Parse flags
+        if '--urgent' in full_text:
+            is_urgent = True
+        
+        if '--due' in full_text:
+            idx = params.index('--due') if '--due' in params else -1
+            if idx >= 0 and idx + 1 < len(params):
+                due_date = params[idx + 1]
+        
+        # Load tasks
+        data = self._load_tasks()
+        task_id = data['next_id']
+        
+        # Create task
+        task = {
+            'id': task_id,
+            'description': desc,
+            'status': 'pending',
+            'priority': 'urgent' if is_urgent else 'normal',
+            'due_date': due_date,
+            'created': datetime.now().isoformat(),
+            'completed': None,
+            'progress': 0
+        }
+        
+        data['tasks'].append(task)
+        data['next_id'] += 1
+        
+        # Save
+        if self._save_tasks(data):
+            icon = "⚡" if is_urgent else "📋"
+            due_info = f" (Due: {due_date})" if due_date else ""
+            return f"✅ {icon} Task #{task_id} added: {desc}{due_info}"
+        else:
+            return "❌ Error saving task"
+    
+    def _task_done(self, params: List[str]) -> str:
+        """Mark task as done."""
+        if not params:
+            return "❌ Usage: TASK DONE <id>"
+        
+        try:
+            task_id = int(params[0])
+        except ValueError:
+            return f"❌ Invalid task ID: {params[0]}"
+        
+        data = self._load_tasks()
+        task = next((t for t in data['tasks'] if t['id'] == task_id), None)
+        
+        if not task:
+            return f"❌ Task #{task_id} not found"
+        
+        if task['status'] == 'done':
+            return f"ℹ️  Task #{task_id} already marked as done"
+        
+        task['status'] = 'done'
+        task['completed'] = datetime.now().isoformat()
+        task['progress'] = 100
+        
+        if self._save_tasks(data):
+            return f"✅ Task #{task_id} marked as done: {task['description']}"
+        else:
+            return "❌ Error saving task"
+    
+    def _task_delete(self, params: List[str]) -> str:
+        """Delete a task."""
+        if not params:
+            return "❌ Usage: TASK DEL <id>"
+        
+        try:
+            task_id = int(params[0])
+        except ValueError:
+            return f"❌ Invalid task ID: {params[0]}"
+        
+        data = self._load_tasks()
+        task = next((t for t in data['tasks'] if t['id'] == task_id), None)
+        
+        if not task:
+            return f"❌ Task #{task_id} not found"
+        
+        data['tasks'] = [t for t in data['tasks'] if t['id'] != task_id]
+        
+        if self._save_tasks(data):
+            return f"🗑️  Task #{task_id} deleted: {task['description']}"
+        else:
+            return "❌ Error saving tasks"
+    
+    def _task_edit(self, params: List[str]) -> str:
+        """
+        Edit a task field.
+        
+        Note: Due to command parsing limitations, progress values may not parse correctly.
+        Workaround: Use TASK DONE <id> to set progress to 100%, or edit tasks.json directly.
+        """
+        if len(params) < 3:
+            return "❌ Usage: TASK EDIT <id> <field> <value>\n💡 Fields: description, priority, due_date, progress, status\n⚠️  Note: Some params may not parse correctly - use TASK DONE or edit tasks.json"
+        
+        try:
+            task_id = int(params[0])
+        except ValueError:
+            return f"❌ Invalid task ID: {params[0]}"
+        
+        field = params[1].lower()
+        value = " ".join(params[2:])
+        
+        # Remove quotes if present
+        if value.startswith('"') and value.endswith('"'):
+            value = value[1:-1]
+        
+        data = self._load_tasks()
+        task = next((t for t in data['tasks'] if t['id'] == task_id), None)
+        
+        if not task:
+            return f"❌ Task #{task_id} not found"
+        
+        # Validate and update field
+        if field == 'description':
+            task['description'] = value
+        elif field == 'priority':
+            if value not in ['normal', 'urgent']:
+                return "❌ Priority must be 'normal' or 'urgent'"
+            task['priority'] = value
+        elif field == 'due_date':
+            task['due_date'] = value
+        elif field == 'progress':
+            try:
+                progress = int(value)
+                if not 0 <= progress <= 100:
+                    return "❌ Progress must be 0-100"
+                task['progress'] = progress
+            except ValueError:
+                return f"❌ Invalid progress value: {value}"
+        elif field == 'status':
+            if value not in ['pending', 'in_progress', 'done']:
+                return "❌ Status must be 'pending', 'in_progress', or 'done'"
+            task['status'] = value
+            if value == 'done':
+                task['completed'] = datetime.now().isoformat()
+                task['progress'] = 100
+        else:
+            return f"❌ Unknown field: {field}\n💡 Fields: description, priority, due_date, progress, status"
+        
+        if self._save_tasks(data):
+            return f"✅ Task #{task_id} updated: {field} = {value}"
+        else:
+            return "❌ Error saving task"
 
 
 def handle_calendar_command(params, grid, parser):
