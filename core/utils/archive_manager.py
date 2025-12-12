@@ -33,6 +33,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple, Any
 import time
+from core.utils.filename_generator import FilenameGenerator
 
 
 class ArchiveManager:
@@ -64,6 +65,15 @@ class ArchiveManager:
         if root_path is None:
             root_path = Path.cwd()
         self.root = Path(root_path)
+        
+        # Initialize filename generator for consistent timestamp formatting (v1.2.23)
+        try:
+            from core.config import Config
+            config = Config()
+            self.filename_gen = FilenameGenerator(config=config)
+        except:
+            # Fallback if config not available
+            self.filename_gen = FilenameGenerator()
 
     def get_archive_path(self, directory: Path) -> Path:
         """Get .archive/ path for a directory.
@@ -139,9 +149,13 @@ class ArchiveManager:
         versions_dir = archive_dir / self.SUBDIR_VERSIONS
         versions_dir.mkdir(parents=True, exist_ok=True)
 
-        # Generate timestamped version name
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        version_name = f"{timestamp}_{file_path.name}"
+        # Generate timestamped version name (v1.2.23 - using FilenameGenerator)
+        version_name = self.filename_gen.generate(
+            base_name=file_path.stem,
+            extension=file_path.suffix,
+            include_date=True,
+            include_time=True
+        )
         version_path = versions_dir / version_name
 
         # Copy file to versions
@@ -187,9 +201,13 @@ class ArchiveManager:
         backups_dir = archive_dir / self.SUBDIR_BACKUPS
         backups_dir.mkdir(parents=True, exist_ok=True)
 
-        # Generate timestamped backup name
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_name = f"{timestamp}_{file_path.name}"
+        # Generate timestamped backup name (v1.2.23 - using FilenameGenerator)
+        backup_name = self.filename_gen.generate(
+            base_name=file_path.stem,
+            extension=file_path.suffix,
+            include_date=True,
+            include_time=True
+        )
         backup_path = backups_dir / backup_name
 
         # Copy file to backups
@@ -217,9 +235,13 @@ class ArchiveManager:
         deleted_dir = archive_dir / self.SUBDIR_DELETED
         deleted_dir.mkdir(parents=True, exist_ok=True)
 
-        # Generate timestamped deleted name
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        deleted_name = f"{timestamp}_{file_path.name}"
+        # Generate timestamped deleted name (v1.2.23 - using FilenameGenerator)
+        deleted_name = self.filename_gen.generate(
+            base_name=file_path.stem,
+            extension=file_path.suffix,
+            include_date=True,
+            include_time=True
+        )
         deleted_path = deleted_dir / deleted_name
 
         # Move file to deleted
@@ -584,12 +606,17 @@ class ArchiveManager:
             reverse=True
         )
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         original_size = file_path.stat().st_size
 
         # If no previous backup exists, create full backup
         if not existing_backups:
-            backup_name = f"{timestamp}_{file_path.name}"
+            # Generate timestamped backup name (v1.2.23 - using FilenameGenerator)
+            backup_name = self.filename_gen.generate(
+                base_name=file_path.stem,
+                extension=file_path.suffix,
+                include_date=True,
+                include_time=True
+            )
             backup_path = backups_dir / backup_name
             shutil.copy2(file_path, backup_path)
 
@@ -612,8 +639,13 @@ class ArchiveManager:
             with open(file_path, 'r', encoding='utf-8') as f:
                 current_lines = f.readlines()
         except UnicodeDecodeError:
-            # Binary file - fall back to full backup
-            backup_name = f"{timestamp}_{file_path.name}"
+            # Binary file - fall back to full backup (v1.2.23 - using FilenameGenerator)
+            backup_name = self.filename_gen.generate(
+                base_name=file_path.stem,
+                extension=file_path.suffix,
+                include_date=True,
+                include_time=True
+            )
             backup_path = backups_dir / backup_name
             shutil.copy2(file_path, backup_path)
 
@@ -647,8 +679,13 @@ class ArchiveManager:
                 'savings_percent': 100.0
             }
 
-        # Save diff file
-        diff_name = f"{timestamp}_{file_path.name}.diff"
+        # Save diff file (v1.2.23 - using FilenameGenerator)
+        diff_name = self.filename_gen.generate(
+            base_name=file_path.stem,
+            extension=".diff",
+            include_date=True,
+            include_time=True
+        )
         diff_path = backups_dir / diff_name
 
         with open(diff_path, 'w', encoding='utf-8') as f:
