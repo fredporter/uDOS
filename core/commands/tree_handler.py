@@ -334,9 +334,43 @@ class TreeHandler:
                 output.append("")
                 return "\n".join(output)
             
-            # TREE --sizes: Show tree with file sizes (future enhancement)
+            # TREE --sizes: Show tree with file sizes
             elif subcommand == '--SIZES' or subcommand == 'SIZES':
-                return "⚠️  TREE --sizes coming soon (shows file sizes in tree)"
+                # Get optional path parameter
+                target_path = params[1] if len(params) > 1 else '.'
+                
+                # Handle relative paths from current working directory
+                if not target_path.startswith('/'):
+                    # Relative path - resolve from current directory
+                    path = (self.base_path / target_path).resolve()
+                else:
+                    # Absolute path
+                    path = Path(target_path).resolve()
+                
+                if not path.exists():
+                    return f"❌ Path not found: {target_path}"
+                
+                if not path.is_dir():
+                    return f"❌ Not a directory: {target_path}"
+                
+                # Generate tree with sizes
+                display_path = target_path if target_path != '.' else path.name
+                output = [f"\n📊 Directory tree with sizes: {display_path}/\n"]
+                tree_lines = self._generate_tree_with_sizes(path, current_depth=0, max_depth=5)
+                output.extend(tree_lines)
+                
+                # Add total size summary
+                total_size = self._calculate_dir_size(path)
+                output.append(f"\n📦 Total size: {self._format_size(total_size)}")
+                output.append("")
+                
+                result = "\n".join(output)
+                
+                # Use pager if output is long
+                lines = result.split('\n')
+                if len(lines) > 20:
+                    return page_output(result)
+                return result
 
             elif subcommand == 'MEMORY':er()
 
@@ -395,3 +429,139 @@ class TreeHandler:
             return ""  # Empty string since pager already displayed
 
         return full_output
+    
+    def _format_size(self, size_bytes: int) -> str:
+        """
+        Format size in bytes to human-readable format.
+        
+        Args:
+            size_bytes: Size in bytes
+            
+        Returns:
+            Formatted string (e.g., "1.2KB", "543MB", "12.4GB")
+        """
+        if size_bytes == 0:
+            return "0B"
+        
+        units = ['B', 'KB', 'MB', 'GB', 'TB']
+        unit_index = 0
+        size = float(size_bytes)
+        
+        while size >= 1024 and unit_index < len(units) - 1:
+            size /= 1024
+            unit_index += 1
+        
+        # Format with appropriate precision
+        if unit_index == 0:  # Bytes
+            return f"{int(size)}{units[unit_index]}"
+        elif size >= 100:
+            return f"{int(size)}{units[unit_index]}"
+        elif size >= 10:
+            return f"{size:.1f}{units[unit_index]}"
+        else:
+            return f"{size:.2f}{units[unit_index]}"
+    
+    def _calculate_dir_size(self, directory: Path) -> int:
+        """
+        Calculate total size of directory including all subdirectories.
+        
+        Args:
+            directory: Directory path
+            
+        Returns:
+            Total size in bytes
+        """
+        total_size = 0
+        
+        try:
+            for item in directory.rglob('*'):
+                if item.is_file():
+                    try:
+                        total_size += item.stat().st_size
+                    except (PermissionError, OSError):
+                        pass
+        except (PermissionError, OSError):
+            pass
+        
+        return total_size
+    
+    def _generate_tree_with_sizes(
+        self,
+        directory: Path,
+        prefix: str = "",
+        is_last: bool = True,
+        current_depth: int = 0,
+        max_depth: int = 5
+    ) -> List[str]:
+        """
+        Generate tree structure with file/folder sizes.
+        
+        Args:
+            directory: Directory to scan
+            prefix: Prefix for tree formatting
+            is_last: Whether this is the last item in parent
+            current_depth: Current recursion depth
+            max_depth: Maximum recursion depth
+            
+        Returns:
+            List of formatted tree lines with sizes
+        """
+        if current_depth >= max_depth:
+            return []
+        
+        lines = []
+        
+        try:
+            # Get all items in directory
+            items = sorted(directory.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower()))
+            
+            # Filter out hidden files and common ignores
+            items = [
+                item for item in items
+                if not item.name.startswith('.') and 
+                   item.name not in {'__pycache__', 'node_modules', '.git'}
+            ]
+            
+            for i, item in enumerate(items):
+                is_last_item = (i == len(items) - 1)
+                
+                # Tree characters
+                connector = "└── " if is_last_item else "├── "
+                extension = "    " if is_last_item else "│   "
+                
+                # Calculate size
+                if item.is_file():
+                    try:
+                        size = item.stat().st_size
+                        size_str = self._format_size(size)
+                    except (PermissionError, OSError):
+                        size_str = "???"
+                    item_name = item.name
+                elif item.is_dir():
+                    # For directories, calculate total size
+                    size = self._calculate_dir_size(item)
+                    size_str = self._format_size(size)
+                    item_name = item.name + "/"
+                else:
+                    size_str = "???"
+                    item_name = item.name
+                
+                # Format line with size right-aligned (padded to 10 chars)
+                line = f"{prefix}{connector}{item_name:<40} {size_str:>10}"
+                lines.append(line)
+                
+                # Recurse into directories
+                if item.is_dir() and current_depth < max_depth - 1:
+                    sub_lines = self._generate_tree_with_sizes(
+                        item,
+                        prefix + extension,
+                        is_last_item,
+                        current_depth + 1,
+                        max_depth
+                    )
+                    lines.extend(sub_lines)
+        
+        except PermissionError:
+            pass  # Skip directories we can't access
+        
+        return lines
