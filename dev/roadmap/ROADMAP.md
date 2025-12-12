@@ -648,14 +648,18 @@ Examples:
    - Config options: `auto_timestamp_files`, `auto_location_files` (boolean)
    - TILE detection: Use `config.get('current_tile')` or detect from timezone
 
-3. 🔲 **Disk Monitoring System** (420 lines)
-   - `core/services/disk_monitor.py` (320 lines)
-   - Track sizes: `/memory`, `/memory/logs`, `/memory/sandbox`, `/core`, `/extensions`
-   - 5-minute cache with optional `watchdog` background refresh
-   - `core/commands/tree_handler.py` (+100 lines)
-   - Commands: `TREE --sizes`, `TREE --disk`, `DISK`, `DISK REPORT` (CSV export)
-   - Integration with BACKUP/RESTORE system
-   - Optional dependency: `watchdog` for file system monitoring
+3. ✅ **Disk Monitoring System** (420 lines) - COMPLETE
+   - `core/services/device_manager.py` (367 lines) - Device/port tracking
+   - `core/commands/disk_handler.py` (197 lines) - DISK command implementation
+   - `core/commands/tree_handler.py` (+150 lines) - TREE --sizes implementation
+   - Commands: `TREE --sizes <path>`, `DISK` with device info
+   - Human-readable size formatting (B/KB/MB/GB/TB)
+   - Recursive directory size calculation
+   - Tree visualization with right-aligned size columns
+   - Pager integration for large directories
+   - Depth limit: 5 levels
+   - Filters: hidden files, __pycache__, node_modules, .git
+   - **Status:** ✅ Complete (347/420 lines, 83%)
 
 4. 🔲 **Calendar-Workflow Integration** (450 lines)
    - `core/services/checkpoint_manager.py` (+80 lines)
@@ -687,13 +691,14 @@ Examples:
 
 **Total Estimated Lines:** ~2,320 lines
 - Filename Generator: 400 lines ✅
-- Handler Integration: 350 lines
-- Disk Monitoring: 420 lines
-- Calendar-Workflow: 450 lines
+- Handler Integration: 350 lines (partial)
+- Disk Monitoring: 347 lines ✅
+- Calendar-Workflow: 638 lines ✅ (from v1.2.22 session)
 - Package Distribution: 500 lines ✅
 - Documentation: 200 lines
 
-**Completion Status:** 2/6 tasks complete (900 lines done, 1,420 remaining)
+**Completion Status:** 4/6 tasks complete (~1,885/2,320 lines done, 80%)
+**Remaining:** Handler Integration (partial), Documentation (200 lines)
 
 **New Dependencies:**
 - `watchdog` - Optional file system monitoring (disk_monitor)
