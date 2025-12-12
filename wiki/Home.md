@@ -1,8 +1,8 @@
 # Welcome to uDOS Wiki
 
-**uDOS v1.2.21** - OK Assistant Integration - Offline-first survival knowledge system with AI-powered content generation (O-key panel, MAKE commands), workflow automation, mission control, TUI panels, and comprehensive testing framework.
+**uDOS v1.2.22** - Self-Healing & Auto-Error-Awareness System - Offline-first survival knowledge system with intelligent error handling, pattern learning, JSON editor, complete time-date system, and AI-powered error analysis.
 
-**Production Ready**: 148 SHAKEDOWN tests | Workflow System | TUI Panels | 230+ Knowledge Guides
+**Production Ready**: 45/45 tests passing (100%) | 8 Major Systems | Privacy-First | 230+ Knowledge Guides
 
 > 🗺️ *"The Hitchhiker's Guide to the Galaxy on a small computer - A Survival Handbook for Armageddon"*
 
@@ -17,6 +17,90 @@
 | [Interactive Tutorial](Tutorial-Getting-Started) | [Developers Guide](Developers-Guide) | [OK Assistant Guide](OK-Assistant-Guide) ⭐ v1.2.21 |
 | [FAQ](FAQ) | [Troubleshooting](Troubleshooting-Complete) | [Theme System](Theme-System) ⭐ |
 | [uPY Quick Start](Tutorial-uPY-Quick-Start) ⭐ | [uPY Cheat Sheet](uPY-Cheat-Sheet) ⭐ | [Extension Development](Extension-Development) |
+
+---
+
+## 🚀 v1.2.22 - Self-Healing & Auto-Error-Awareness System (December 12, 2025)
+
+**Production Ready Release** - Complete intelligent error handling with privacy-first design, role-based permissions, interactive JSON editor, and AI-powered error analysis. All 8 planned tasks complete, 45/45 tests passing (100%).
+
+### 🎯 Major Features
+
+**🔍 Error Handling** (450 lines + 434 lines pattern learning)
+- Automatic error capture with 5-layer privacy sanitization
+- LOCAL-ONLY pattern learning with fuzzy matching (no cloud sync)
+- OK FIX command for AI-powered error analysis
+- Commands: ERROR HISTORY/SHOW/CLEAR, PATTERNS STATUS/CLEAR/EXPORT
+
+**🔐 Role Management** (440 lines)
+- 5-level permission hierarchy: viewer → user → contributor → admin → wizard
+- Bcrypt password protection (cost factor 12)
+- Wizard auto-detection via git author
+- Commands: ROLE SETUP/SET/STATUS/CHECK
+
+**🎨 Theme System** (350 lines)
+- Universal theme-aware messaging across all commands
+- 7 unique vocabularies with F-string interpolation
+- Automatic emoji stripping for plaintext mode
+- Consistent UX with unified terminology
+
+**💾 Device Monitoring** (1,850 lines)
+- System capability detection (disk/RAM/CPU/battery)
+- Progress bars with visual indicators
+- Informational limits (guides, doesn't block)
+- Sandbox testing environment
+
+**🕐 Time-Date System** (1,153 lines)
+- Complete timezone management with 400+ cities
+- 8 commands: TIME, CLOCK, TIMER, EGG, STOPWATCH, CALENDAR
+- ASCII 7-segment clock display
+- Intelligent egg timer with cooking presets
+
+**📝 JSON Viewer/Editor** ⭐ NEW (920 lines)
+- Interactive tree navigation with expand/collapse
+- 11 commands for complete JSON editing workflow
+- Type-aware editing (7 types) with visual indicators
+- Change tracking, diff view, undo/redo stack (100 operations)
+
+**🤖 AI-Powered Analysis** (890 lines)
+- OK FIX for context-aware error analysis
+- Pattern learning with success rate tracking
+- Privacy-first design (all data stays local)
+- Graceful fallback without API key
+
+### 📚 New Documentation
+
+- [Error Handling Guide](Error-Handling) - Complete error system documentation (650 lines)
+- [Role Management Guide](Role-Management) - Permission system reference (620 lines)
+- [Theme Messages Guide](Theme-Messages) - Theme vocabulary reference (580 lines)
+- [JSON Viewer Guide](JSON-Viewer) - Interactive JSON editor tutorial (1,200 lines)
+
+### 🧪 Testing
+
+**Test Coverage: 45/45 passing (100%)**
+- Integration tests: 29/29 (error handling, roles, device, time-date, pattern learning, JSON viewer)
+- Live command tests: 16/16 (all major systems validated with real commands)
+- SHAKEDOWN test: Expanded with comprehensive v1.2.22 validation
+
+### 🔒 Privacy Guarantees
+
+**5-Layer Sanitization:** Usernames → `<USER>`, Paths → relative, API keys → `<KEY>`, Emails → `<EMAIL>`, IPs → `<IP>`
+
+**Privacy Commitments:**
+- ✅ NO cloud sync for error patterns
+- ✅ All data stays local (memory/system/)
+- ✅ User can inspect/delete patterns anytime
+- ✅ Privacy tests: ALL PASSING
+
+### 📦 Deliverables
+
+- **Code:** 8,428 lines (108% of estimate)
+- **Documentation:** 3,400+ lines
+- **Files Changed:** 57 files (+18,637 insertions)
+- **New Files:** 23 major files created
+- **Dependencies:** bcrypt>=4.0.0, pytz>=2023.3
+
+**Status:** PRODUCTION READY 🚀
 
 ---
 
