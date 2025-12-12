@@ -217,6 +217,71 @@ END FUNCTION
 
 ---
 
+## 📦 Installation & Package Sizes
+
+uDOS is available in **5 installation tiers** to suit different needs and system constraints:
+
+### Package Size Comparison
+
+| Package | Size | Files | Features | Install Command |
+|---------|------|-------|----------|-----------------|
+| **Ultra** | 8MB | 608 | Core only (no guides/extensions) | `pip install udos[ultra]` |
+| **Lite** ⭐ | 16MB | 850 | Core + 230 knowledge guides | `pip install udos` |
+| **Standard** | 32MB | 993 | + AI assistant + graphics | `pip install udos[standard]` |
+| **Full** | 64MB | 1,235 | + Gameplay + docs + offline features | `pip install udos[full]` |
+| **Enterprise** | 128MB+ | 1,620+ | Everything + cloud/BI + dev tools | `pip install udos[enterprise]` |
+
+⭐ **Default installation** (Lite) provides complete offline knowledge system with 230 survival guides
+
+### Feature Matrix
+
+| Feature | Ultra | Lite | Standard | Full | Enterprise |
+|---------|-------|------|----------|------|------------|
+| Core Commands (49 handlers) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| uPY Scripting v1.2 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Knowledge Bank (230 guides) | ❌ | ✅ | ✅ | ✅ | ✅ |
+| OK Assistant (AI) | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Error Handling + Patterns | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Role Management | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Time-Date System | ✅ | ✅ | ✅ | ✅ | ✅ |
+| JSON Editor | ✅ | ✅ | ✅ | ✅ | ✅ |
+| TUI System | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Graphics (ASCII/SVG) | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Gameplay (XP/missions) | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Map System (grid/layers) | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Cloud Sync (Gmail/Drive) | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Business Intelligence | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Documentation | ❌ | ❌ | ❌ | ✅ | ✅ |
+
+### Quick Start
+
+```bash
+# Recommended: Full offline system with knowledge guides
+pip install udos
+
+# For AI assistance and graphics
+pip install udos[standard]
+
+# For complete offline experience with gameplay
+pip install udos[full]
+
+# For business users and contributors
+pip install udos[enterprise]
+
+# Or clone from source
+git clone https://github.com/fredporter/uDOS.git
+cd uDOS
+python uDOS.py
+```
+
+**System Requirements:**
+- Python 3.9+ (3.12 recommended)
+- 16MB+ disk space (depends on package tier)
+- Terminal with 80+ columns (120+ recommended for TUI)
+- Optional: Git for version control features
+
+---
+
 ## 🎯 Previous Major Releases
 
 ### v1.2.15 - TUI Integration (December 8, 2025)

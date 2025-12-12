@@ -9,7 +9,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="udos",
-    version="1.2.21",
+    version="1.2.22",
     author="Fred Porter",
     author_email="fred@udos.dev",
     description="uDOS - Offline-first Operating System for Survival Knowledge",
@@ -22,6 +22,11 @@ setup(
         "Source Code": "https://github.com/fredporter/uDOS",
     },
     packages=find_packages(include=["udos", "udos.*", "core", "core.*", "extensions", "extensions.*"]),
+    package_data={
+        'core': ['data/**/*'],
+        'knowledge': ['**/*.md'],
+        'extensions': ['assets/**/*', 'core/**/*', 'assistant/**/*'],
+    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
@@ -41,12 +46,45 @@ setup(
     python_requires=">=3.9",
     install_requires=requirements,
     extras_require={
+        # Ultra-minimal (8MB) - Core only
+        "ultra": [],
+        
+        # Lite (16MB) - Core + Knowledge (DEFAULT)
+        "lite": [],
+        
+        # Standard (32MB) - Core + Knowledge + AI + Graphics
+        "standard": [
+            "google-generativeai>=0.3.0",  # OK Assistant
+        ],
+        
+        # Full (64MB) - Complete offline system + gameplay
+        "full": [
+            "google-generativeai>=0.3.0",
+            "pillow>=10.0.0",  # Image processing
+        ],
+        
+        # Enterprise (128MB+) - Everything including cloud/BI
+        "enterprise": [
+            "google-generativeai>=0.3.0",
+            "pillow>=10.0.0",
+            "google-auth>=2.0.0",
+            "google-auth-oauthlib>=1.0.0",
+            "google-auth-httplib2>=0.1.0",
+            "google-api-python-client>=2.0.0",
+            "sqlalchemy>=2.0.0",  # BIZINTEL database
+            "fuzzywuzzy>=0.18.0",  # Entity resolution
+            "python-Levenshtein>=0.21.0",  # Fuzzy matching speedup
+        ],
+        
+        # Development tools
         "dev": [
             "pytest>=7.4.0",
             "pytest-cov>=4.1.0",
             "flake8>=6.0.0",
             "black>=23.0.0",
         ],
+        
+        # Legacy AI option (same as standard)
         "ai": [
             "google-generativeai>=0.3.0",
         ],

@@ -617,6 +617,122 @@ Examples:
 
 ---
 
+## 🎯 v1.2.23 📋 **PLANNING** - Time-Space Integration + Package Distribution
+
+**Goal:** Complete universal filename convention, package distribution system, and enhanced monitoring.
+
+**Status:** Planning complete, ready for implementation (December 12, 2025)
+
+**Planned Tasks:**
+
+1. ✅ **Universal Filename Generator** (400 lines) - COMPLETE
+   - `core/utils/filename_generator.py` (400 lines)
+   - FilenameGenerator class with full ISO 8601 support
+   - Parse/generate with date-time-location components
+   - Methods: generate(), generate_daily(), generate_session(), generate_instance(), generate_located()
+   - Parsing: parse_filename(), get_timestamp_from_filename()
+   - TILE code auto-detection from config/timezone
+   - Examples and demo in __main__
+   - **Status:** ✅ Complete, ready for handler integration
+
+2. 🔲 **Handler Integration** (350 lines)
+   - Update 7 command handlers to use filename_generator:
+     - `core/commands/backup_handler.py` (+50 lines)
+     - `core/commands/ok_handler.py` (+50 lines)
+     - `core/commands/sandbox_handler.py` (+50 lines)
+     - `core/commands/archive_handler.py` (+50 lines)
+     - `core/commands/system_handler.py` (+50 lines)
+     - `core/commands/file_handler.py` (+50 lines)
+     - `core/commands/workflow_handler.py` (+50 lines)
+   - Add flags: `--dated`, `--timed`, `--located` to relevant commands
+   - Config options: `auto_timestamp_files`, `auto_location_files` (boolean)
+   - TILE detection: Use `config.get('current_tile')` or detect from timezone
+
+3. 🔲 **Disk Monitoring System** (420 lines)
+   - `core/services/disk_monitor.py` (320 lines)
+   - Track sizes: `/memory`, `/memory/logs`, `/memory/sandbox`, `/core`, `/extensions`
+   - 5-minute cache with optional `watchdog` background refresh
+   - `core/commands/tree_handler.py` (+100 lines)
+   - Commands: `TREE --sizes`, `TREE --disk`, `DISK`, `DISK REPORT` (CSV export)
+   - Integration with BACKUP/RESTORE system
+   - Optional dependency: `watchdog` for file system monitoring
+
+4. 🔲 **Calendar-Workflow Integration** (450 lines)
+   - `core/services/checkpoint_manager.py` (+80 lines)
+   - Scheduled checkpoints with cron-like syntax
+   - Storage: `memory/workflows/calendar/{YYYY-MM}.json`
+   - `core/commands/workflow_handler.py` (+120 lines)
+   - Commands: `WORKFLOW SCHEDULE <name> <cron>`
+   - `core/commands/time_handler.py` (+150 lines)
+   - Commands: `CALENDAR --tasks`, `CALENDAR ADD <date> <task>`
+   - Calendar task management and reminder system
+   - Integration with mission system
+
+5. ✅ **Package Distribution Setup** (500 lines) - COMPLETE
+   - `setup.py` updated with v1.2.22 and 5 install tiers
+   - Ultra (8MB): `pip install udos[ultra]` - Core only
+   - Lite (16MB): `pip install udos` or `pip install udos[lite]` - Core + Knowledge (DEFAULT)
+   - Standard (32MB): `pip install udos[standard]` - + AI + Graphics
+   - Full (64MB): `pip install udos[full]` - Complete offline + gameplay
+   - Enterprise (128MB+): `pip install udos[enterprise]` - Everything + cloud/BI
+   - Package data includes: core/data, knowledge guides, extension assets
+   - Dependency management per tier
+   - **Status:** ✅ Complete, ready for PyPI publishing
+
+6. 🔲 **Documentation Updates** (200 lines)
+   - `wiki/Installation-Guide.md` - Package tier comparison
+   - `README.MD` - Package size table and installation options
+   - `dev/sessions/v1.2.23-integration-session.md` - Implementation notes
+   - Update `CHANGELOG.md` with v1.2.23 features
+
+**Total Estimated Lines:** ~2,320 lines
+- Filename Generator: 400 lines ✅
+- Handler Integration: 350 lines
+- Disk Monitoring: 420 lines
+- Calendar-Workflow: 450 lines
+- Package Distribution: 500 lines ✅
+- Documentation: 200 lines
+
+**Completion Status:** 2/6 tasks complete (900 lines done, 1,420 remaining)
+
+**New Dependencies:**
+- `watchdog` - Optional file system monitoring (disk_monitor)
+
+**New Commands:**
+```bash
+# Filename generation (integrated into existing commands)
+NEW <file> --dated              # Create with date prefix
+BACKUP <file> --timed           # Backup with full timestamp
+COPY <file> <dest> --located    # Copy with TILE location
+
+# Disk monitoring
+TREE --sizes                    # Show folder sizes inline
+TREE --disk                     # Detailed disk report
+DISK                            # Alias for TREE --disk
+DISK REPORT                     # Generate CSV export
+
+# Calendar-workflow integration
+CALENDAR --tasks                # Show scheduled workflows
+CALENDAR ADD <date> <task>      # Create reminder
+WORKFLOW SCHEDULE <name> <cron> # Schedule workflow with cron syntax
+```
+
+**Testing:**
+- Filename generation unit tests
+- Handler integration tests
+- Disk monitor accuracy tests
+- Calendar scheduling tests
+- Package installation validation (all 5 tiers)
+
+**Documentation:**
+- `wiki/Installation-Guide.md` - Package tier guide
+- `wiki/Filename-Convention.md` - Naming standards
+- `dev/sessions/v1.2.23-integration-session.md` - Implementation notes
+
+**Session Notes:** `dev/sessions/v1.2.23-integration-session.md` (in progress)
+
+---
+
 ## 🔮 v1.3.0 (Future Considerations)
 
 **Focus:** Community & Extension Ecosystem
