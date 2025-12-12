@@ -642,6 +642,29 @@
       ]
     },
     {
+      "NAME": "CAL",
+      "SYNTAX": "CAL [MONTH|WEEK|DAY|NEXT|PREV]",
+      "DESCRIPTION": "Calendar views with timezone and location integration. Display monthly, weekly, or daily schedules with task indicators.",
+      "UCODE_TEMPLATE": "[CAL|$1]",
+      "DEFAULT_PARAMS": {
+        "$1": "MONTH"
+      },
+      "EXAMPLES": [
+        "CAL",
+        "CAL MONTH",
+        "CAL WEEK",
+        "CAL DAY",
+        "CAL NEXT",
+        "CAL PREV"
+      ],
+      "NOTES": [
+        "✅ Active in v1.2.23 - Calendar-Workflow Task 4",
+        "Shows timezone (AEST/UTC/etc) and TILE code in headers",
+        "Use CAL NEXT/PREV to navigate between time periods",
+        "Task indicators: 📋 normal, ⚡ urgent, ✅ done"
+      ]
+    },
+    {
       "NAME": "EXTENSION",
       "SYNTAX": "EXTENSION <command> [<extension_id>]",
       "DESCRIPTION": "Manage uDOS extensions. Commands: STATUS (show all extensions), ENABLE <id>, DISABLE <id>, INFO <id>.",

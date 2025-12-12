@@ -236,6 +236,10 @@ class CommandHandler:
         from core.commands.extension_handler import create_extension_handler
         self.extension_handler = create_extension_handler(viewport=viewport, logger=logger)
 
+        # Calendar System (v1.2.23 Task 4)
+        from core.commands.calendar_handler import CalendarHandler
+        from core.config import Config
+        self.calendar_handler = CalendarHandler(config=Config(), **handler_kwargs)
         
         # Development System Handlers
         from core.commands.dev_mode_handler import DevModeHandler
@@ -406,6 +410,10 @@ class CommandHandler:
 
 
 
+            # Calendar & Task Management (v1.2.23 Task 4)
+            elif module in ["CAL", "CALENDAR"]:
+                return self.calendar_handler.handle_command([command] + params if command else [])
+            
             # Task Management
             elif module == "CHECKLIST":
                 return self.checklist_handler.handle(command, params)
