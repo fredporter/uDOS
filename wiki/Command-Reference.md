@@ -1,10 +1,10 @@
 # Command Reference
 
-**Version:** v1.2.21 (OK Assistant + Final Stable v1.2.x)
+**Version:** v1.2.22 (Self-Healing & Auto-Error-Awareness System)
 **Format:** uPY v1.2 (Three-format syntax system)
-**Last Updated:** December 8, 2025
+**Last Updated:** December 12, 2025
 
-Complete reference for all uDOS commands with uPY syntax examples.
+Complete reference for all uDOS commands with uPY syntax examples, including new error handling, role management, time-date, and JSON viewer commands.
 
 > **💡 Quick Help**: Type `HELP` in uDOS for command list, or `HELP <command>` for specific help.
 
@@ -21,6 +21,10 @@ Complete reference for all uDOS commands with uPY syntax examples.
 ## 📋 Command Categories
 
 - [System Commands](#system-commands) - Core system operations
+- [Error Handling](#error-handling-commands) ⭐ v1.2.22 - Error capture & pattern learning
+- [Role Management](#role-management-commands) ⭐ v1.2.22 - Permission system
+- [Time & Date](#time--date-commands) ⭐ v1.2.22 - Timezone & clock management
+- [JSON Editor](#json-editor-commands) ⭐ v1.2.22 - Interactive JSON viewer/editor
 - [File Operations](#file-operations) - File management
 - [Content Generation](#content-generation) - AI-powered creation
 - [Knowledge & Guides](#knowledge--guides) - Knowledge bank access
@@ -105,6 +109,468 @@ CONFIG username "Fred"      # Set username
 
 ### SETTINGS
 Alias for CONFIG command.
+
+---
+
+## Error Handling Commands
+
+⭐ **New in v1.2.22** - Intelligent error capture with pattern learning and AI-powered analysis.
+
+### OK FIX
+AI-powered error analysis with pattern application.
+
+**Syntax:**
+```
+OK FIX [#signature]     # Analyze error (optional signature)
+```
+
+**Examples:**
+```upy
+OK FIX                  # Analyze most recent error
+OK FIX #abc123          # Analyze specific error by signature
+```
+
+**Features:**
+- Context-aware error analysis using Gemini AI
+- Automatic pattern matching from learned fixes
+- Graceful fallback without API key
+- Success rate tracking for patterns
+
+### ERROR HISTORY
+Show recent errors with signatures.
+
+**Syntax:**
+```
+ERROR HISTORY           # Show all recent errors
+ERROR HISTORY 10        # Show last 10 errors
+```
+
+### ERROR SHOW
+View full error details.
+
+**Syntax:**
+```
+ERROR SHOW #<signature> # Show specific error
+```
+
+### ERROR CLEAR
+Clear error history.
+
+**Syntax:**
+```
+ERROR CLEAR             # Clear all errors
+ERROR CLEAR #<sig>      # Clear specific error
+```
+
+### PATTERNS STATUS
+View learned error patterns and statistics.
+
+**Syntax:**
+```
+PATTERNS STATUS         # Show all patterns
+```
+
+**Output:**
+- Total patterns learned
+- Success rate per pattern
+- Pattern application count
+- Storage location
+
+### PATTERNS CLEAR
+Clear all learned patterns.
+
+**Syntax:**
+```
+PATTERNS CLEAR          # Delete all patterns
+```
+
+### PATTERNS EXPORT
+Export patterns to JSON file.
+
+**Syntax:**
+```
+PATTERNS EXPORT [file]  # Export patterns
+```
+
+**Examples:**
+```upy
+PATTERNS EXPORT                         # Export to default location
+PATTERNS EXPORT memory/backup/patterns.json  # Export to specific file
+```
+
+**See Also:** [Error Handling Guide](Error-Handling.md)
+
+---
+
+## Role Management Commands
+
+⭐ **New in v1.2.22** - Bcrypt-protected permission system with 5 levels.
+
+### ROLE SETUP
+Initialize password protection for role system.
+
+**Syntax:**
+```
+ROLE SETUP              # Start interactive setup
+```
+
+**Interactive:**
+- Prompts for password for each role level
+- Uses bcrypt hashing (cost factor 12)
+- Creates `memory/system/user/roles.json`
+
+### ROLE SET
+Change current permission level.
+
+**Syntax:**
+```
+ROLE SET <level>        # Set role level
+```
+
+**Levels:**
+- `viewer` (0) - Read-only access
+- `user` (1) - Basic write operations
+- `contributor` (2) - Content creation
+- `admin` (3) - System configuration
+- `wizard` (4) - Full control (auto-detected via git)
+
+**Examples:**
+```upy
+ROLE SET admin          # Elevate to admin (requires password)
+ROLE SET user           # Switch to user role
+```
+
+### ROLE STATUS
+View current role and permissions.
+
+**Syntax:**
+```
+ROLE STATUS             # Show current role info
+```
+
+**Output:**
+- Current role level and name
+- Available commands for this role
+- Wizard status (if applicable)
+
+### ROLE CHECK
+Check permission for specific command.
+
+**Syntax:**
+```
+ROLE CHECK <command>    # Check if command allowed
+```
+
+**Examples:**
+```upy
+ROLE CHECK DELETE       # Check if DELETE is allowed
+ROLE CHECK CONFIG       # Check if CONFIG is allowed
+```
+
+**See Also:** [Role Management Guide](Role-Management.md)
+
+---
+
+## Time & Date Commands
+
+⭐ **New in v1.2.22** - Complete timezone management with ASCII clock display.
+
+### TIME
+Show current time with timezone info.
+
+**Syntax:**
+```
+TIME                    # Show current time
+TIME <timezone>         # Show time in timezone
+```
+
+**Examples:**
+```upy
+TIME                    # Local time
+TIME Australia/Brisbane # Brisbane time
+TIME America/New_York   # NYC time
+```
+
+### TIME SET
+Set system timezone.
+
+**Syntax:**
+```
+TIME SET <timezone>     # Set default timezone
+```
+
+**Examples:**
+```upy
+TIME SET Australia/Sydney
+TIME SET Europe/London
+```
+
+### TIME ADD
+Track additional timezone.
+
+**Syntax:**
+```
+TIME ADD <name> <timezone>  # Add tracked timezone
+```
+
+**Examples:**
+```upy
+TIME ADD "Home" Australia/Brisbane
+TIME ADD "Work" America/New_York
+```
+
+### TIME LIST
+Show all tracked timezones.
+
+**Syntax:**
+```
+TIME LIST               # List all timezones
+```
+
+### CLOCK
+Display ASCII 7-segment clock.
+
+**Syntax:**
+```
+CLOCK                   # Show clock for default timezone
+CLOCK MULTI             # Show multiple timezone clocks
+```
+
+**Example:**
+```
+ ██  ██   ██  ███   ███  ██
+████ ██ ████  ████ ████ ████
+  ██ ██   ██  ██ █    ██   ██
+████ ██ ████  ████   ██  ████
+██   ██   ██  ██ ██  ██  ██  
+████ ██ ████  ████   ██  ████
+     21:37:42  +10:00
+```
+
+### TIMER
+Countdown timer.
+
+**Syntax:**
+```
+TIMER <duration>        # Start countdown timer
+```
+
+**Duration Format:**
+- `5m` - 5 minutes
+- `2h30m` - 2 hours 30 minutes
+- `45s` - 45 seconds
+
+**Examples:**
+```upy
+TIMER 5m                # 5-minute timer
+TIMER 1h                # 1-hour timer
+TIMER 30s               # 30-second timer
+```
+
+### EGG
+Intelligent egg timer with cooking presets.
+
+**Syntax:**
+```
+EGG <type>              # Start egg timer
+```
+
+**Types:**
+- `soft` - 6 minutes (runny yolk)
+- `medium` - 9 minutes (jammy yolk)
+- `hard` - 12 minutes (firm yolk)
+- `jammy` - 7 minutes (creamy yolk)
+
+**Examples:**
+```upy
+EGG soft                # 6-minute soft boiled
+EGG hard                # 12-minute hard boiled
+```
+
+### STOPWATCH
+Lap timer with split times.
+
+**Syntax:**
+```
+STOPWATCH START         # Start stopwatch
+STOPWATCH LAP           # Record lap time
+STOPWATCH STOP          # Stop and show results
+```
+
+### CALENDAR
+Display calendar view.
+
+**Syntax:**
+```
+CALENDAR                # Current month
+CALENDAR <month> <year> # Specific month/year
+```
+
+**Examples:**
+```upy
+CALENDAR                # This month
+CALENDAR 12 2025        # December 2025
+CALENDAR Jan 2026       # January 2026
+```
+
+---
+
+## JSON Editor Commands
+
+⭐ **New in v1.2.22** - Interactive tree-based JSON viewer and editor.
+
+### JSON LOAD
+Load JSON file for viewing/editing.
+
+**Syntax:**
+```
+JSON LOAD <file>        # Load JSON file
+```
+
+**Examples:**
+```upy
+JSON LOAD memory/bank/user/user.json
+JSON LOAD core/data/themes/galaxy.json
+```
+
+### JSON VIEW
+Display tree structure with cursor.
+
+**Syntax:**
+```
+JSON VIEW [lines]       # Show tree (default 20 lines)
+```
+
+**Examples:**
+```upy
+JSON VIEW               # Show 20 lines
+JSON VIEW 50            # Show 50 lines
+JSON VIEW 5             # Show 5 lines
+```
+
+**Tree Symbols:**
+- 📦/📁 - Object (expanded/collapsed)
+- 📋/📄 - Array (expanded/collapsed)
+- 📝 - String value
+- 🔢 - Number value
+- ✓/✗ - Boolean value
+- ∅ - Null value
+- ▶ - Current cursor position
+
+### JSON UP / JSON DOWN
+Navigate cursor through tree.
+
+**Syntax:**
+```
+JSON UP                 # Move cursor up
+JSON DOWN               # Move cursor down
+```
+
+### JSON EXPAND / JSON COLLAPSE
+Toggle node expansion.
+
+**Syntax:**
+```
+JSON EXPAND             # Expand container at cursor
+JSON COLLAPSE           # Collapse container at cursor
+```
+
+### JSON EDIT
+Edit value at cursor (type-aware).
+
+**Syntax:**
+```
+JSON EDIT <value>       # Edit current value
+```
+
+**Type Parsing:**
+- Numbers: `42`, `3.14`
+- Booleans: `true`, `false`
+- Null: `null`
+- Strings: `"text"`, `'text'`, or unquoted
+- Objects: `{"key": "value"}`
+- Arrays: `[1, 2, 3]`
+
+**Examples:**
+```upy
+JSON EDIT "new_username"        # Edit string
+JSON EDIT 42                    # Edit number
+JSON EDIT false                 # Edit boolean
+JSON EDIT {"dark": true}        # Edit object
+```
+
+### JSON SAVE
+Save changes to file (creates backup).
+
+**Syntax:**
+```
+JSON SAVE [file]        # Save to original or new file
+```
+
+**Examples:**
+```upy
+JSON SAVE                       # Save to original file
+JSON SAVE config_backup.json    # Save to new file
+```
+
+**Safety:**
+- Creates `.backup` file before overwriting
+- Validates JSON before saving
+
+### JSON DIFF
+Show changes from original.
+
+**Syntax:**
+```
+JSON DIFF               # Show all changes
+```
+
+**Output:**
+- Modified values (before → after)
+- Added keys
+- Removed keys
+- Type changes
+
+### JSON UNDO / JSON REDO
+Undo or redo edit operations.
+
+**Syntax:**
+```
+JSON UNDO               # Undo last edit
+JSON REDO               # Redo undone edit
+```
+
+**History:** 100-operation stack per file
+
+### JSON PATH
+Show full path to cursor position.
+
+**Syntax:**
+```
+JSON PATH               # Display cursor path
+```
+
+**Example Output:**
+```
+Current Path: user.json.settings.auto_backup
+```
+
+### JSON INFO
+Display viewer statistics.
+
+**Syntax:**
+```
+JSON INFO               # Show viewer status
+```
+
+**Output:**
+- File name and size
+- Total nodes, visible nodes
+- Cursor position
+- Has changes indicator
+- Undo/redo availability
+
+**See Also:** [JSON Viewer Guide](JSON-Viewer.md)
 
 ---
 
