@@ -18,7 +18,8 @@ Options:
     --force: Overwrite existing unified_tasks.json
 
 Author: GitHub Copilot
-Date: December 13, 2025
+Date: 20251213-143500UTC
+Location: Development
 Version: 1.0.0 (v1.2.23 Phase 3)
 """
 

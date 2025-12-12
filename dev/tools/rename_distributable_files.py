@@ -25,7 +25,8 @@ Options:
     --dir <path>: Target directory (default: memory/workflows/missions)
 
 Author: GitHub Copilot
-Date: December 13, 2025
+Date: 20251213-144000UTC
+Location: Development
 Version: 1.0.0 (v1.2.23 Phase 3)
 """
 

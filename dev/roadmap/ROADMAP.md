@@ -2,9 +2,38 @@
 
 **Current Version:** v1.2.21 ✅ **COMPLETE** (AI Assistant + BIZINTEL + Workflow Automation)
 **Next Release:** v1.3.0 📋 **PLANNING** (Community & Extension Ecosystem)
-**Last Updated:** December 10, 2025
+**Last Updated:** 20251213-145000UTC (December 13, 2025)
 
 > **Goal:** Complete v1.2.x as a stable, production-ready release with full TUI functionality, AI assistance, business intelligence, and workflow automation.
+
+---
+
+## 📋 uDOS ID Standard - Document Timestamps (v1.2.23)
+
+**Effective:** 20251213-145000UTC (December 13, 2025)
+
+**Standard Format:**
+```
+Date: YYYYMMDD-HHMMSSTZ (Readable Date)
+Location: [Context/Module/Location]
+```
+
+**Examples:**
+- **Python files:** `Date: 20251213-143500UTC` + `Location: Core Services`
+- **Markdown docs:** `Last Updated: 20251213-145000UTC (December 13, 2025)`
+- **Session logs:** `Date: 20251213-104000UTC (December 13, 2025)` + `Location: Development Session`
+
+**Migration Status:**
+- ✅ Migration scripts: Updated to uDOS ID format
+- ✅ Core services: unified_task_manager.py updated
+- ✅ Key documents: ROADMAP.md, integration plans updated
+- ⏳ Legacy files: Will be updated as modified (no mass migration)
+
+**Rationale:**
+- Consistent with FilenameGenerator (YYYYMMDD-HHMMSSTZ-TILE-name.ext)
+- Self-documenting timestamps (timezone + location awareness)
+- Sortable and machine-readable
+- Human-friendly with optional readable date
 
 ---
 
