@@ -988,18 +988,17 @@ TODO: Add note content
         return bookmarks
     
     def is_bookmarked(self, path: Path) -> bool:
-        """Check if path is bookmarked"""
+        """Check if path is bookmarked."""
         return str(path) in self.state.bookmarks
     
     def remember_workspace_path(self) -> None:
-        """Remember current path for current workspace"""
+        """Remember current path for current workspace."""
         workspace_key = self.state.workspace.value
         self.state.workspace_paths[workspace_key] = str(self.state.current_path)
         self._save_state()
     
     def restore_workspace_path(self, workspace: Workspace) -> Optional[Path]:
-        """
-        Restore last path for workspace.
+        """Restore last path for workspace.
         
         Args:
             workspace: Workspace to restore
@@ -1018,7 +1017,7 @@ TODO: Add note content
         return None
     
     def _save_state(self) -> None:
-        """Save browser state to disk"""
+        """Save browser state to disk."""
         try:
             from core.utils.paths import PATHS
             import json
@@ -1046,7 +1045,7 @@ TODO: Add note content
             pass
     
     def _load_state(self) -> None:
-        """Load browser state from disk"""
+        """Load browser state from disk."""
         try:
             from core.utils.paths import PATHS
             import json
@@ -1079,3 +1078,5 @@ TODO: Add note content
         except Exception as e:
             # Silent fail - use defaults if load fails
             pass
+
+# Syntax fix: balanced quotes

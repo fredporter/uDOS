@@ -18,8 +18,9 @@ from .services.connection_manager import ConnectionMonitor
 from .utils.viewport import ViewportDetector
 from .services.user_manager import UserManager
 from .input.smart_prompt import SmartPrompt
-from .ui.tui_controller import TUIController
-from .ui.tui_config import get_tui_config
+# TEMP: TUI disabled due to file_browser.py syntax error
+# from .ui.tui_controller import TUIController
+# from .ui.tui_config import get_tui_config
 from .input.prompt_decorator import get_prompt_decorator
 # Old tree utility removed - now using TreeHandler
 from .utils.fast_startup import fast_initialize  # v1.0.31 Fast Startup
@@ -465,12 +466,13 @@ def main():
         # Initialize smart prompt with autocomplete
         smart_prompt = SmartPrompt(command_history=command_history, theme='dungeon')
         
-        # Initialize TUI controller (v1.2.15)
-        tui_config = get_tui_config()
-        tui = TUIController(config=tui_config.settings)
+        # Initialize TUI controller (v1.2.15) - TEMP DISABLED
+        # tui_config = get_tui_config()
+        # tui = TUIController(config=tui_config.settings)
         
-        # Pass TUI controller to SmartPrompt for integration
-        smart_prompt.set_tui_controller(tui)
+        # Pass TUI controller to SmartPrompt for integration - TEMP DISABLED
+        # smart_prompt.set_tui_controller(tui)
+        tui = None  # Placeholder
 
         # Initialize prompt decorator for themed prompts
         prompt_decorator = get_prompt_decorator(theme='dungeon')
