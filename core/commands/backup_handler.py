@@ -90,6 +90,9 @@ class BackupHandler(BaseCommandHandler):
         if not file_path.is_file():
             return f"❌ Not a file: {file_path}"
 
+        # v1.2.23: Auto-detect unified_tasks.json for special handling
+        is_unified_tasks = 'unified_tasks.json' in str(file_path)
+        
         # Parse flags
         compress = '--compress' in params or '-c' in params
         incremental = '--incremental' in params or '-i' in params
@@ -98,6 +101,10 @@ class BackupHandler(BaseCommandHandler):
             idx = params.index('--to')
             if idx + 1 < len(params):
                 archive_path = Path(params[idx + 1]) / '.archive'
+        
+        # v1.2.23: Force incremental for unified_tasks.json to save space
+        if is_unified_tasks and not compress:
+            incremental = True
 
         try:
             archive_mgr = ArchiveManager()

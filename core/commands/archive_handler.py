@@ -11,6 +11,7 @@ import json
 import shutil
 from datetime import datetime
 from core.utils.paths import PATHS
+from core.services.unified_task_manager import create_task_manager
 
 
 class ArchiveHandler(BaseCommandHandler):
@@ -18,6 +19,7 @@ class ArchiveHandler(BaseCommandHandler):
 
     v1.1.16: Now uses .archive/completed/ folders within each workspace area
     instead of centralized memory/system/archived/.
+    v1.2.23: Integrated with UnifiedTaskManager for task/project archiving.
     """
 
     def __init__(self, **kwargs):
@@ -29,6 +31,10 @@ class ArchiveHandler(BaseCommandHandler):
         self.mission_archive = PATHS.MEMORY_WORKFLOWS_MISSIONS / ".archive" / "completed"
         self.workflow_archive = PATHS.MEMORY_WORKFLOWS / ".archive" / "completed"
         self.checklist_archive = PATHS.MEMORY_CHECKLISTS / ".archive" / "completed"
+        
+        # v1.2.23: UnifiedTaskManager for task archiving
+        config = kwargs.get('config')
+        self.task_mgr = create_task_manager(config)
 
         # Ensure archive folders exist
         self.mission_archive.mkdir(parents=True, exist_ok=True)
@@ -86,6 +92,23 @@ class ArchiveHandler(BaseCommandHandler):
                     "Usage: ARCHIVE checklist <id>"
                 )
             return self._archive_checklist(params[1])
+        
+        # v1.2.23: Task and project archiving
+        elif command == "task":
+            if len(params) < 2:
+                return self.output_formatter.format_error(
+                    "Task ID required",
+                    "Usage: ARCHIVE task <id>"
+                )
+            return self._archive_task(params[1])
+        
+        elif command == "project":
+            if len(params) < 2:
+                return self.output_formatter.format_error(
+                    "Project ID required",
+                    "Usage: ARCHIVE project <id>"
+                )
+            return self._archive_project(params[1])
 
         elif command == "all":
             if len(params) < 2 or params[1].lower() != "completed":
@@ -460,17 +483,86 @@ class ArchiveHandler(BaseCommandHandler):
         )
 
     def _get_archived_items(self, archive_type: str):
-        """Get list of archived items of a specific type."""
+        \"\"\"Get list of archived items of a specific type.\"\"\"
         type_dir = self.archive_base / archive_type
         if not type_dir.exists():
             return []
 
         items = []
         for archive in type_dir.iterdir():
-            metadata_file = archive / "metadata.json"
+            metadata_file = archive / \"metadata.json\"
             if metadata_file.exists():
                 success, metadata, error = self.load_json_file(metadata_file)
                 if success:
                     items.append(metadata)
 
         return sorted(items, key=lambda x: x['archived_at'], reverse=True)
+    
+    def _archive_task(self, task_id: str) -> str:
+        \"\"\"Archive completed task using UnifiedTaskManager (v1.2.23).\"\"\"
+        try:
+            # Get task
+            task = self.task_mgr.get_task(task_id)
+            if not task:
+                return self.output_formatter.format_error(
+                    f\"Task not found: {task_id}\",
+                    \"Use TASK LIST to see available tasks\"
+                )
+            
+            # Check if task is complete
+            if task['status'] != 'done':
+                return self.output_formatter.format_error(
+                    \"Task must be completed before archiving\",
+                    f\"Current status: {task['status']}\"
+                )
+            
+            # Archive via task manager
+            archive_path = self.task_mgr.archive_task(task_id)
+            
+            if archive_path:
+                return self.output_formatter.format_success(
+                    f\"Task archived: {task_id}\",
+                    f\"Description: {task['description']}\",
+                    f\"Archived to: {archive_path}\"
+                )
+            else:
+                return self.output_formatter.format_error(
+                    f\"Failed to archive task: {task_id}\"
+                )
+                
+        except Exception as e:
+            return self.output_formatter.format_error(
+                f\"Error archiving task: {e}\"
+            )
+    
+    def _archive_project(self, project_id: str) -> str:
+        \"\"\"Archive completed project with all tasks (v1.2.23).\"\"\"
+        try:
+            # Get project
+            project = self.task_mgr.get_project(project_id)
+            if not project:
+                return self.output_formatter.format_error(
+                    f\"Project not found: {project_id}\",
+                    \"Use PROJECT LIST to see available projects\"
+                )
+            
+            # Archive via task manager (includes all related tasks)
+            archive_path = self.task_mgr.archive_project(project_id)
+            
+            if archive_path:
+                task_count = len(project.get('task_ids', []))
+                return self.output_formatter.format_success(
+                    f\"Project archived: {project_id}\",
+                    f\"Name: {project['name']}\",
+                    f\"Tasks archived: {task_count}\",
+                    f\"Archived to: {archive_path}\"
+                )
+            else:
+                return self.output_formatter.format_error(
+                    f\"Failed to archive project: {project_id}\"
+                )
+                
+        except Exception as e:
+            return self.output_formatter.format_error(
+                f\"Error archiving project: {e}\"
+            )

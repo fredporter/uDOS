@@ -67,6 +67,11 @@ class UndoHandler(BaseCommandHandler):
         filename = params[0]
         return self._redo_file(filename)
 
+"""    
+    def _is_unified_tasks_file(self, filename: str) -> bool:
+        """Check if file is unified_tasks.json (v1.2.23)."""
+        return 'unified_tasks.json' in filename
+    
     def _undo_file(self, filename: str) -> str:
         """Revert file to previous version."""
         from core.utils.archive_manager import ArchiveManager
@@ -74,6 +79,10 @@ class UndoHandler(BaseCommandHandler):
         file_path = Path(filename)
         if not file_path.exists():
             return f"❌ File not found: {filename}"
+        
+        # v1.2.23: Special handling for unified_tasks.json
+        if self._is_unified_tasks_file(filename):
+            return self._undo_unified_tasks(file_path)
 
         # Find versions for this file
         archive_mgr = ArchiveManager()
