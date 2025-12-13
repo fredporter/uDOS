@@ -549,6 +549,302 @@ Planned for future releases:
 - **v1.1.18:** Cloud sync for .archive/ folders
 - **v1.1.19:** Archive comparison tools (diff between versions)
 - **v1.1.20:** Automated archival triggers (on mission completion)
+- **v1.2.23:** Unified task system integration, monthly folder organization, TIDY by date/location
+
+---
+
+## v1.2.23 Updates: Unified Task System Integration
+
+### Task and Project Archiving
+
+Complete task/project archiving with automatic monthly organization.
+
+#### ARCHIVE task
+
+Archive completed tasks to monthly folders.
+
+```bash
+ARCHIVE task <task_id>
+
+# Example
+ARCHIVE task 20251213-163000UTC-task-0001
+
+# Result
+# → Moved to: memory/workflows/tasks/.archive/2025-12/
+# → Filename: 20251213-archived-task-0001.json
+# → Removed from active unified_tasks.json
+```
+
+**Requirements**:
+- Task must have status = "done"
+- Task data preserved in archive file
+- References updated in unified_tasks.json
+
+#### ARCHIVE project
+
+Archive completed projects with all linked tasks.
+
+```bash
+ARCHIVE project <project_id>
+
+# Example
+ARCHIVE project 20251213-160000UTC-project-camp-setup
+
+# Result
+# → Project archived to: .archive/2025-12/20251213-archived-project-camp.json
+# → All linked tasks archived together
+# → Project completion: 100% required
+```
+
+**Features**:
+- Archives project and all child tasks
+- Maintains task-project relationships
+- Creates single archive bundle
+- Monthly folder organization (YYYY-MM/)
+
+### Monthly Folder Organization
+
+Automatic organization by creation date.
+
+**Structure**:
+```
+memory/workflows/tasks/.archive/
+├── 2025-12/
+│   ├── 20251213-archived-task-0001.json
+│   ├── 20251213-archived-task-0002.json
+│   └── 20251213-archived-project-camp.json
+├── 2025-11/
+│   ├── 20251115-archived-task-0100.json
+│   └── 20251120-archived-project-recon.json
+└── 2025-10/
+    └── 20251010-archived-task-0050.json
+```
+
+**Benefits**:
+- Chronological organization
+- Easy cleanup of old archives
+- Predictable location (YYYY-MM/)
+- Fast date-based searches
+
+### TIDY Integration
+
+Organize existing files by date or location.
+
+#### TIDY tasks
+
+Organize task files into monthly folders.
+
+```bash
+TIDY tasks
+# Groups files matching: YYYYMMDD-*-task-*.json
+# Into: YYYY-MM/ folders
+```
+
+#### TIDY missions
+
+Organize missions by TILE code.
+
+```bash
+TIDY missions
+# Groups files matching: *-TILE-mission-*.upy
+# Into: TILE/ folders
+```
+
+#### TIDY --by-date
+
+Workspace-wide date organization.
+
+```bash
+TIDY --by-date [--report]
+# Organizes all uDOS ID format files
+# Creates YYYY-MM/ folders
+# Use --report for preview
+```
+
+#### TIDY --by-location
+
+Workspace-wide location organization.
+
+```bash
+TIDY --by-location [--report]
+# Groups files by TILE code
+# Creates TILE/ folders
+# Use --report for preview
+```
+
+### Format Recognition
+
+TIDY recognizes uDOS ID format automatically.
+
+**Pattern Detection**:
+```python
+# Regex: ^\d{8}-\d{6}[A-Z]{3,4}-
+# Matches: 20251213-163000UTC-task-name.json
+#          20251213-163000PST-AA340-mission.upy
+
+# Date extraction: YYYYMMDD (first 8 chars)
+# Location extraction: TILE code between timestamps and name
+```
+
+**Files Recognized**:
+- `20251213-163000UTC-task-collect-water.json` → `2025-12/`
+- `20251213-163000UTC-AA340-mission-camp.upy` → `AA340/`
+- `20251115-140000UTC-project-recon.json` → `2025-11/`
+
+**Files Ignored**:
+- `unified_tasks.json` (main data file)
+- `config.json` (system files)
+- `legacy-task.json` (no uDOS ID format)
+
+### Version Control for Tasks
+
+UNDO/REDO/BACKUP integrated with unified_tasks.json.
+
+#### BACKUP unified_tasks.json
+
+Auto-incremental backups for space efficiency.
+
+```bash
+BACKUP memory/workflows/tasks/unified_tasks.json
+
+# Auto-detected as unified_tasks.json
+# → Incremental backup enabled
+# → Only changed data stored
+# → Space-efficient versioning
+```
+
+#### UNDO unified_tasks.json
+
+Special handling for task data file.
+
+```bash
+UNDO memory/workflows/tasks/unified_tasks.json
+
+# → Restores previous backup
+# → Current state saved for REDO
+# → Task relationships preserved
+# → Atomic revert (all or nothing)
+```
+
+#### REDO unified_tasks.json
+
+Restore undone changes.
+
+```bash
+REDO memory/workflows/tasks/unified_tasks.json
+
+# → Restores state before UNDO
+# → Maintains redo stack
+# → Full state recovery
+```
+
+### Archive Management
+
+CLEAN command integration for archive maintenance.
+
+#### CLEAN archives
+
+Remove old .archive/ contents workspace-wide.
+
+```bash
+CLEAN archives [--dry-run] [--force]
+
+Options:
+  --dry-run    Preview what would be cleaned
+  --force      Skip confirmation prompts
+
+# Scans all .archive/ folders
+# Applies retention policies
+# Confirms before deletion (unless --force)
+```
+
+**Retention Policies**:
+- Versions: 90 days (10 max per file)
+- Backups: 30 days
+- Deleted: 7 days (recovery window)
+- Completed: Indefinite (manual cleanup)
+
+#### CLEAN with stats
+
+View archive space usage.
+
+```bash
+CLEAN --stats
+
+Output:
+  Archive Statistics:
+  
+  memory/workflows/.archive/: 45MB
+  - Backups: 20MB (15 files, oldest: 28 days)
+  - Completed: 25MB (50 files)
+  
+  memory/missions/.archive/: 12MB
+  - Completed: 12MB (25 files)
+  
+  Total archive space: 57MB
+```
+
+### Migration Guide (v1.2.22 → v1.2.23)
+
+Migrate existing archives to new structure.
+
+#### Step 1: Backup Current Archives
+
+```bash
+# Backup entire .archive/ structure
+tar -czf archive-backup-20251213.tar.gz \
+  memory/*/.archive/ \
+  memory/*/*/.archive/
+```
+
+#### Step 2: Run Migration
+
+```bash
+# Migrate tasks to unified system
+python dev/tools/migrate_to_unified_tasks.py
+
+# Rename files to uDOS ID format
+python dev/tools/rename_distributable_files.py
+```
+
+#### Step 3: Organize Existing Files
+
+```bash
+# Organize by date
+TIDY tasks
+TIDY --by-date
+
+# Organize by location
+TIDY missions
+TIDY --by-location
+```
+
+#### Step 4: Verify Structure
+
+```bash
+# Check for issues
+CONFIG CHECK
+
+# Fix any problems
+CONFIG FIX
+
+# View organization
+TREE memory/workflows/tasks/.archive/ --sizes
+```
+
+### New Commands Summary
+
+| Command | Description | v1.2.23 |
+|---------|-------------|---------|
+| `ARCHIVE task <id>` | Archive completed task | ✅ NEW |
+| `ARCHIVE project <id>` | Archive project + tasks | ✅ NEW |
+| `TIDY tasks` | Organize by date (YYYY-MM/) | ✅ NEW |
+| `TIDY missions` | Organize by location (TILE/) | ✅ NEW |
+| `TIDY --by-date` | Workspace-wide date org | ✅ NEW |
+| `TIDY --by-location` | Workspace-wide location org | ✅ NEW |
+| `CLEAN archives` | Clean all .archive/ folders | ✅ NEW |
+| `BACKUP unified_tasks.json` | Auto-incremental backup | ✅ ENHANCED |
+| `UNDO unified_tasks.json` | Special task file handling | ✅ ENHANCED |
 
 ---
 
@@ -557,8 +853,10 @@ Planned for future releases:
 - [Command Reference](Command-Reference.md) - All archive system commands
 - [Configuration](Configuration.md) - Retention policy configuration
 - [Developers Guide](Developers-Guide.md) - ArchiveManager API
+- [Task Management](Task-Management.md) - Unified task system (v1.2.23)
+- [Filename Convention](Filename-Convention.md) - uDOS ID format (v1.2.23)
 
 ---
 
-**Last Updated:** December 3, 2025
-**Version:** v1.1.16
+**Last Updated:** 20251213-165000UTC (December 13, 2025)
+**Version:** v1.2.23
