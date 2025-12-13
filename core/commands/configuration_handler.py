@@ -77,8 +77,8 @@ class ConfigurationHandler(BaseCommandHandler):
     def _run_interactive_setup(self):
         """Run interactive story-style setup wizard."""
         try:
-            from core.config import Config
-            config = Config()
+            from core.commands.handler_utils import HandlerUtils
+            config = HandlerUtils.get_config()
 
             output = []
             output.append("")

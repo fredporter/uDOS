@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import Optional
 from core.services.debug_engine import DebugEngine
 from core.services.unified_logger import UnifiedLogger
-from core.config import Config
+from core.commands.handler_utils import HandlerUtils
 
 
 class DevModeHandler:
@@ -39,7 +39,7 @@ class DevModeHandler:
 
     def __init__(self):
         """Initialize DEV MODE handler with debug engine."""
-        self.config = Config()
+        self.config = HandlerUtils.get_config()
         self.logger = UnifiedLogger()
         self.debug_engine = DebugEngine(self.logger)
         from core.utils.paths import PATHS

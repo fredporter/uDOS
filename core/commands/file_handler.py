@@ -523,10 +523,10 @@ class FileCommandHandler(BaseCommandHandler):
         # Auto-detection for markdown
         if file_path.endswith('.md'):
             try:
-                from core.config import Config
                 from core.services.typo_manager import TypoManager
+                from core.commands.handler_utils import HandlerUtils
 
-                config = Config()
+                config = HandlerUtils.get_config()
                 web_enabled = config.get('editor.web_editor_enabled', True)
 
                 if web_enabled:
@@ -542,10 +542,10 @@ class FileCommandHandler(BaseCommandHandler):
     def _view_with_typo(self, file_path: str, params: list) -> str:
         """View file in Typo preview mode."""
         try:
-            from core.config import Config
             from core.services.typo_manager import TypoManager
+            from core.commands.handler_utils import HandlerUtils
 
-            config = Config()
+            config = HandlerUtils.get_config()
             typo = TypoManager(config)
 
             if not typo.is_installed():
@@ -674,9 +674,9 @@ class FileCommandHandler(BaseCommandHandler):
         try:
             # Check if smart_code_editor exists
             from extensions.assistant.smart_code_editor import SmartCodeEditor
-            from core.config import Config
+            from core.commands.handler_utils import HandlerUtils
             
-            config = Config()
+            config = HandlerUtils.get_config()
             editor = SmartCodeEditor(config)
             
             # Read Python source
@@ -774,8 +774,8 @@ class FileCommandHandler(BaseCommandHandler):
 
         # Check if auto-detection is enabled
         try:
-            from core.config import Config
-            config = Config()
+            from core.commands.handler_utils import HandlerUtils
+            config = HandlerUtils.get_config()
             auto_detect = config.get('editor.auto_detect_editor', True)
             web_enabled = config.get('editor.web_editor_enabled', True)
 
@@ -804,10 +804,10 @@ class FileCommandHandler(BaseCommandHandler):
             Result message
         """
         try:
-            from core.config import Config
             from core.services.typo_manager import TypoManager
+            from core.commands.handler_utils import HandlerUtils
 
-            config = Config()
+            config = HandlerUtils.get_config()
             typo = TypoManager(config)
 
             # Check if installed

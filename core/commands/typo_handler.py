@@ -25,8 +25,8 @@ class TypoCommandHandler(BaseCommandHandler):
         """Lazy load Typo manager."""
         if self._typo_manager is None:
             from core.services.typo_manager import TypoManager
-            from core.config import Config
-            self._typo_manager = TypoManager(Config())
+            from core.commands.handler_utils import HandlerUtils
+            self._typo_manager = TypoManager(HandlerUtils.get_config())
         return self._typo_manager
 
     def handle(self, command, params, grid, parser=None):

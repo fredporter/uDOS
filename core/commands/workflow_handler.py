@@ -29,8 +29,8 @@ import glob
 import psutil
 from core.output.syntax_highlighter import highlight_syntax
 
-from core.config import Config
 from core.commands.base_handler import BaseCommandHandler
+from core.commands.handler_utils import HandlerUtils
 from core.utils.paths import PATHS
 from core.utils.filename_generator import FilenameGenerator
 from core.services.unified_task_manager import create_task_manager
@@ -39,13 +39,13 @@ from core.services.unified_task_manager import create_task_manager
 class WorkflowHandler(BaseCommandHandler):
     """Handler for workflow automation commands."""
 
-    def __init__(self, config: Config):
+    def __init__(self, config=None):
         """Initialize workflow handler.
 
         Args:
-            config: uDOS configuration instance
+            config: uDOS configuration instance (optional, uses HandlerUtils if not provided)
         """
-        super().__init__(config)
+        super().__init__(config or HandlerUtils.get_config())
         self.log_dir = PATHS.MEMORY_LOGS
         self.log_file = self.log_dir / "workflow.log"
         self.checkpoint_dir = PATHS.MEMORY_WORKFLOWS_CHECKPOINTS
