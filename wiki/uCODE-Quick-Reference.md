@@ -86,12 +86,16 @@ GUIDE[medical/wounds|technical]
 ```
 PRINT[message]                       # Display message
 PRINT[Hello, world!]
-PRINT[Water: 50L|Food: 30 days]     # Multiple lines
+PRINT[Water: 50L|Food: 30 days]     # Columns (pipe = column separator)
+
+# Pipe creates columns, not new lines
+PRINT[Col1|Col2|Col3]                # Three columns side-by-side
+PRINT[Name: Alice|Age: 25|HP: 100]  # Data in columns
 
 # Special characters (use emoji codes)
 PRINT[Score: :sb:100:eb:]            # [100]
 PRINT[Price: :dollar:50]             # $50
-PRINT[Use :pipe: separator]          # |
+PRINT[Use :pipe: separator]          # To display actual | character
 ```
 
 ### Variables
@@ -165,11 +169,16 @@ STATUS                               # Basic status
 STATUS*HEALTH                        # Detailed health
 TREE                                 # Show all files
 TREE[path]                           # Show specific path
+CONFIG                               # Show configuration
+CONFIG[setting|value]                # Set configuration
+VIEWPORT                             # Show viewport settings
+VIEWPORT[width|height]               # Set viewport size
 
 STATUS
 STATUS*HEALTH
-TREE
 TREE[knowledge/water]
+CONFIG[theme|galaxy]
+VIEWPORT[80|24]
 ```
 
 ---
@@ -261,6 +270,18 @@ $SYSTEM.FILE_COUNT       # File count
 $SYSTEM.UPTIME           # Uptime seconds
 ```
 
+### Config & Viewport
+
+```
+$CONFIG.THEME            # Current theme
+$CONFIG.LANGUAGE         # Language setting
+$CONFIG.TIMEZONE         # Timezone
+$CONFIG.LOCATION         # Current location (TILE code)
+$VIEWPORT.WIDTH          # Viewport width (columns)
+$VIEWPORT.HEIGHT         # Viewport height (rows)
+$VIEWPORT.MODE           # Display mode (terminal|web|mobile)
+```
+
 ---
 
 ## Special Characters (Emoji Codes)
@@ -308,6 +329,9 @@ CHECKPOINT*SAVE[health-check-complete]
 # Check resources
 water = GET[$water-level]
 food = GET[$food-supply]
+
+# Display in columns (pipe = column separator)
+PRINT[Water: {water}L | Food: {food} days | Status: OK]
 
 # Alert if low
 IF water < 30 THEN PRINT[⚠️ Water low!]
@@ -498,6 +522,10 @@ STATUS
 STATUS*HEALTH
 TREE
 TREE[path]
+CONFIG
+CONFIG[setting|value]
+VIEWPORT
+VIEWPORT[width|height]
 
 # Output
 PRINT[message|message...]
