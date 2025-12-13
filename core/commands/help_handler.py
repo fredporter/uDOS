@@ -172,7 +172,7 @@ class HelpHandler:
         
         # uCODE syntax reference (v1.2.24+)
         lines.append(f"{c['highlight']}uCODE Scripting Syntax (v1.2.24){c['reset']}")
-        lines.append(f"{c['comment']}Three bracket types for .upy scripts:{c['reset']}")
+        lines.append(f"{c['comment']}User scripting format (.upy files) with three bracket types:{c['reset']}")
         lines.append(f"  {c['command']}{{$variable}}{c['reset']}          Variables and system state")
         lines.append(f"  {c['command']}COMMAND[ args ]{c['reset']}     Commands with arguments (note spaces)")
         lines.append(f"  {c['command']}[IF condition]{c['reset']}     Short-form conditionals")
@@ -184,6 +184,7 @@ class HelpHandler:
         lines.append(f"  {c['option']}Conditionals:{c['reset']}      [IF {{$hp}} < 30: HEAL | PRINT[ OK ]]")
         lines.append(f"  {c['option']}Tags:{c['reset']}              CHECKPOINT*SAVE, MISSION*START")
         lines.append("")
+        lines.append(f"{c['comment']}Note: uPY is for user operations. Dev Mode supports full Python for admins.{c['reset']}")
         lines.append(f"{c['comment']}More info: wiki/uCODE-Quick-Reference.md{c['reset']}")
         
         return "\n".join(lines)

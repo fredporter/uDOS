@@ -618,10 +618,19 @@ class FileCommandHandler(BaseCommandHandler):
     def _handle_python_file(self, file_path: str, params: list) -> str:
         """Handle .py files with conversion offer to .upy for editing.
         
+        User Operations (uPY format):
+        - Convert to .upy for user scripting and automation
+        - Uses bracket syntax: COMMAND[ args | ... ]
+        
+        Dev Mode Operations (Full Python):
+        - Admin/wizard users can edit Python directly
+        - Full Python capabilities for system development
+        - Requires DEV MODE permissions
+        
         Options:
         - View source as-is
-        - Convert to .upy for editing (with smart code editor)
-        - Edit directly (not recommended - use .upy workflow)
+        - Convert to .upy for user operations (recommended)
+        - Edit directly (dev mode - requires admin permissions)
         """
         from core.input.interactive import InteractivePrompt
         prompt = InteractivePrompt()
@@ -637,12 +646,17 @@ class FileCommandHandler(BaseCommandHandler):
         # Interactive menu for .py files
         print(f"\n🐍 Python File: {file_path}")
         print("─" * 60)
-        print("Python files can be:")
+        print("Python files support two workflows:")
+        print("")
         print("  V - View source (read-only)")
-        print("  C - Convert to .upy for editing (recommended)")
-        print("  E - Edit directly (not recommended)")
+        print("  C - Convert to .upy for user operations (recommended)")
+        print("  E - Edit Python directly (Dev Mode - admin only)")
         print("  X - Cancel")
         print("─" * 60)
+        print("")
+        print("💡 Note: uPY format is for user scripting/automation")
+        print("   Dev Mode allows full Python editing for admins")
+        print("")
         
         choice = prompt.ask_text("Action", default="V").upper()
         
@@ -694,10 +708,22 @@ class FileCommandHandler(BaseCommandHandler):
             return f"❌ Error converting Python to uPY: {str(e)}"
     
     def _edit_python_direct(self, file_path: str) -> str:
-        """Edit Python file directly (not recommended but available)."""
-        return (f"⚠️  Warning: Editing Python directly bypasses uPY workflow\n\n"
+        """Edit Python file directly (Dev Mode - requires admin permissions)."""
+        # Check if user has dev mode permissions
+        from core.services.user_manager import UserManager
+        user_mgr = UserManager()
+        
+        if not user_mgr.has_dev_mode():
+            return (f"❌ Access Denied: Python editing requires Dev Mode\n\n"
+                   f"Python files (.py) are for system development by admin/wizard users.\n"
+                   f"User scripting should use .upy format (bracket syntax).\n\n"
+                   f"💡 Convert to .upy: FILE SHOW {file_path} --convert\n\n"
+                   f"🔓 Request Dev Mode access with: DEV ENABLE")
+        
+        return (f"🔓 Dev Mode: Editing Python directly\n\n"
                f"Opening: {file_path}\n\n"
-               f"Recommended: Convert to .upy first with FILE SHOW --convert\n\n" +
+               f"Note: Full Python capabilities available for admin users\n"
+               f"User operations should use .upy format\n\n" +
                self.editor_manager.open_file(file_path))
 
     def _handle_edit(self, params):

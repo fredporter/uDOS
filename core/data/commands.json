@@ -327,9 +327,10 @@
       "NOTES": [
         "✅ v1.2.24 - Universal file handler",
         "🎯 .json → JSON viewer with syntax highlighting",
-        "🐍 .py → Interactive menu (view/convert/edit)",
+        "🐍 .py → User: convert to .upy | Dev Mode: edit Python directly",
         "📝 .md → Typo markdown preview (if available)",
-        "📜 .upy/.txt → Terminal viewer"
+        "📜 .upy → User scripting (bracket syntax)",
+        "🔓 Python editing requires Dev Mode permissions"
       ]
     },
     {
@@ -417,9 +418,10 @@
       "NOTES": [
         "✅ v1.2.24 - Universal file handler with smart type detection",
         "🎯 .json → JSON viewer with syntax highlighting",
-        "🐍 .py → Offers conversion to .upy for editing",
+        "🐍 .py → User: convert to .upy | Admin: edit Python directly (Dev Mode)",
         "📝 .md → Typo markdown preview (if available)",
-        "📜 .upy → Direct viewing or editing",
+        "📜 .upy → User scripting format with bracket syntax",
+        "🔓 Python editing requires Dev Mode (admin/wizard permissions)",
         "Interactive menu when called without parameters"
       ]
     },
