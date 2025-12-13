@@ -30,28 +30,28 @@ Choose your experience level:
 
 **Correct Syntax Examples:**
 ```upy
-PRINT[Water: 50L | Food: 30 days | Health: 85%]  # Columns with pipe
-SET[$water-level|45]                             # $ prefix for variables
-CHECKPOINT*SAVE[materials-gathered]              # Asterisk for tags
-STATUS                                           # No empty brackets
+PRINT[ Water: 50L | Food: 30 days | Health: 85% ]  # Columns with pipe
+SET[ $water-level | 45 ]                            # $ prefix for variables
+CHECKPOINT*SAVE[ materials-gathered ]               # Asterisk for tags
+STATUS                                              # No empty brackets
 IF {$water-level} < 30 THEN
-  GUIDE[water/purification|detailed]
+  GUIDE[ water/purification | detailed ]
 END IF
 ```
 
 **Common Mistakes to Avoid:**
 ```upy
 # ❌ WRONG:
-CHECKPOINT_SAVE[data]        # Underscore (wrong)
-SET[water-level|45]          # Missing $ prefix (wrong)
-STATUS[]                     # Empty brackets (wrong)
-PRINT[Line 1\nLine 2]        # \n creates lines (wrong for columns)
+CHECKPOINT_SAVE[ data ]        # Underscore (wrong)
+SET[ water-level | 45 ]        # Missing $ prefix (wrong)
+STATUS[]                       # Empty brackets (wrong)
+PRINT[ Line 1\nLine 2 ]        # \n creates lines (wrong for columns)
 
 # ✅ CORRECT:
-CHECKPOINT*SAVE[data]        # Asterisk (correct)
-SET[$water-level|45]         # $ prefix (correct)
-STATUS                       # No brackets (correct)
-PRINT[Col1 | Col2 | Col3]    # Pipe creates columns (correct)
+CHECKPOINT*SAVE[ data ]        # Asterisk (correct)
+SET[ $water-level | 45 ]       # $ prefix (correct)
+STATUS                         # No brackets (correct)
+PRINT[ Col1 | Col2 | Col3 ]    # Pipe creates columns (correct)
 ```
 
 ### Level 2: Intermediate (Mixed Syntax)
@@ -69,8 +69,8 @@ PRINT[Col1 | Col2 | Col3]    # Pipe creates columns (correct)
 **Syntax Mixing Example:**
 ```upy
 # UPPERCASE uCODE for commands
-SET[$water-level|100]
-MISSION*START[resource-management]
+SET[ $water-level | 100 ]
+MISSION*START[ resource-management ]
 
 # lowercase Python for logic
 def check_resource(name, level, threshold):
@@ -78,15 +78,15 @@ def check_resource(name, level, threshold):
     return f"{name}: {level}% ({status})"
 
 # Get uCODE variable in Python
-water = GET[$water-level]
+water = GET[ $water-level ]
 
 # Use Python result in uCODE
-PRINT[{check_resource('Water', water, 30)}]
+PRINT[ {check_resource('Water', water, 30)} ]
 
 # Python loop with uCODE commands
 for day in range(1, 4):
-    PRINT[Day {day} complete]
-    CHECKPOINT*SAVE[day-{day}]
+    PRINT[ Day {day} complete ]
+    CHECKPOINT*SAVE[ day-{day} ]
 ```
 
 **Understanding the Transition:**
@@ -155,8 +155,8 @@ if __name__ == "__main__":
 ### Variables
 ```upy
 # Beginner/Intermediate (UPPERCASE context)
-SET[$water-level|50]           # Set variable
-GET[$water-level]              # Get variable
+SET[ $water-level | 50 ]       # Set variable
+GET[ $water-level ]            # Get variable
 {$water-level}                 # Use in string
 
 # Advanced (lowercase Python)
@@ -168,10 +168,10 @@ f"Level: {level}"              # Normal Python string
 ### Commands vs Functions
 ```upy
 # Beginner/Intermediate (command syntax)
-PRINT[Message]
-CHECKPOINT*SAVE[name]
-MISSION*START[id]
-XP[+100]
+PRINT[ Message ]
+CHECKPOINT*SAVE[ name ]
+MISSION*START[ id ]
+XP[ +100 ]
 
 # Advanced (function syntax)
 print_output("Message")
@@ -183,35 +183,35 @@ xp_award(100)
 ### Tags (Asterisks vs Underscores)
 ```upy
 # ✅ CORRECT - Asterisk for tags
-CHECKPOINT*SAVE[data]
-CHECKPOINT*RESTORE[data]
-MISSION*START[id]
-MISSION*COMPLETE[id]
+CHECKPOINT*SAVE[ data ]
+CHECKPOINT*RESTORE[ data ]
+MISSION*START[ id ]
+MISSION*COMPLETE[ id ]
 HEAL*SPRITE
 LEVEL*UP
 
 # ❌ WRONG - Never use underscores
-CHECKPOINT_SAVE[data]    # Wrong!
-MISSION_START[id]        # Wrong!
+CHECKPOINT_SAVE[ data ]    # Wrong!
+MISSION_START[ id ]        # Wrong!
 ```
 
 ### PRINT Columns (Pipes vs Newlines)
 ```upy
 # ✅ CORRECT - Pipe creates columns
-PRINT[Water: 50L | Food: 30 days | Health: 85%]
+PRINT[ Water: 50L | Food: 30 days | Health: 85% ]
 # Output: Water: 50L  Food: 30 days  Health: 85%  (side-by-side)
 
 # ✅ CORRECT - Multiple PRINT for lines
-PRINT[Water: 50L]
-PRINT[Food: 30 days]
-PRINT[Health: 85%]
+PRINT[ Water: 50L ]
+PRINT[ Food: 30 days ]
+PRINT[ Health: 85% ]
 # Output:
 # Water: 50L
 # Food: 30 days
 # Health: 85%
 
 # ❌ WRONG - \n doesn't create columns
-PRINT[Water: 50L\nFood: 30 days]  # Creates lines, not columns
+PRINT[ Water: 50L\nFood: 30 days ]  # Creates lines, not columns
 ```
 
 ### Empty Brackets (Don't Use Them)
@@ -291,8 +291,8 @@ source .venv/bin/activate
 
 ### From uDOS Prompt
 ```upy
-uDOS> RUN memory/ucode/examples/beginner_daily_check.upy
-uDOS> EXECUTE intermediate_resource_manager.upy
+uDOS> RUN[ memory/ucode/examples/beginner_daily_check.upy ]
+uDOS> EXECUTE[ intermediate_resource_manager.upy ]
 ```
 
 ## 📖 Documentation

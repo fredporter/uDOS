@@ -23,9 +23,9 @@ With v1.2.24's Python-first architecture, you have access to **the entire Python
 
 ```python
 # Beginner syntax - UPPERCASE for visual consistency with uCODE
-PRINT[Hello, world!]
-IF GET[$player-hp] < 50 THEN HEAL*SPRITE[player|30|medkit]
-FUNCTION[@daily*check]
+PRINT[ Hello, world! ]
+IF GET[ $player-hp ] < 50 THEN HEAL*SPRITE[ player | 30 | medkit ]
+FUNCTION[ @daily*check ]
 ```
 
 ### Intermediate Level: Mixed Syntax
@@ -36,7 +36,7 @@ from udos_core import *
 
 player_hp = get_var("player-hp", 100)
 if player_hp < 50:
-    HEAL*SPRITE("player", 30, "medkit")  # uCODE command
+    HEAL*SPRITE("player", 30, "medkit")  # uCODE command as Python function
 ```
 
 ### Advanced Level: Pure Lowercase Python
@@ -149,7 +149,7 @@ while water_level > 0:
     
     if water_level < 30:
         print("⚠️ Water critical!")
-        guide("water/collection", "detailed")
+        guide("water/collection", "detailed")  # Python function call
         break
 
 print(f"Survived {days_survived} days")
@@ -266,9 +266,9 @@ if camp_ok:
 else:
     print("⚠️ Camp needs supplies")
     if not w_ok:
-        guide("water/collection", "simple")
+        guide("water/collection", "simple")  # Python function call
     if not f_ok:
-        guide("food/foraging", "simple")
+        guide("food/foraging", "simple")  # Python function call
 ```
 
 ### Lambda Functions
@@ -366,7 +366,7 @@ class ResourceManager:
         self._water = value
         if value < self.min_water:
             print(f"⚠️ Water low: {value}L")
-            guide("water/collection", "detailed")
+            guide("water/collection", "detailed")  # Python function call
     
     @property
     def food(self):
@@ -381,7 +381,7 @@ class ResourceManager:
         self._food = value
         if value < self.min_food:
             print(f"⚠️ Food low: {value} days")
-            guide("food/foraging", "detailed")
+            guide("food/foraging", "detailed")  # Python function call
     
     def consume_daily(self):
         """Consume daily resources."""
@@ -729,7 +729,7 @@ try:
     print(f"Water remaining: {remaining}")
 except ResourceDepletedError as e:
     print(f"⚠️ {e}")
-    guide("water/collection", "detailed")
+    guide("water/collection", "detailed")  # Python function call
 ```
 
 ---
@@ -752,7 +752,7 @@ def log_execution(func):
 def establish_camp(location):
     """Establish camp at location."""
     print(f"Setting up camp at {location}")
-    checkpoint_save(f"camp-{location}")
+    checkpoint_save(f"camp-{location}")  # Python function call
     return True
 
 # Use decorated function
@@ -768,13 +768,13 @@ from contextlib import contextmanager
 def mission_context(mission_id):
     """Context manager for mission execution."""
     print(f"Starting mission: {mission_id}")
-    checkpoint_save(f"mission-{mission_id}-start")
+    checkpoint_save(f"mission-{mission_id}-start")  # Python function call
     
     try:
         yield mission_id
     finally:
         print(f"Mission completed: {mission_id}")
-        checkpoint_save(f"mission-{mission_id}-complete")
+        checkpoint_save(f"mission-{mission_id}-complete")  # Python function call
 
 # Use context manager
 with mission_context("establish-camp") as mission:
@@ -830,19 +830,19 @@ class SurvivalManager:
                 
                 # Trigger appropriate guide
                 if resource == "water":
-                    guide("water/collection", "detailed")
+                    guide("water/collection", "detailed")  # Python function call
                 elif resource == "food":
-                    guide("food/foraging", "detailed")
+                    guide("food/foraging", "detailed")  # Python function call
                 elif resource == "wood":
-                    guide("making/fire", "simple")
+                    guide("making/fire", "simple")  # Python function call
     
     def save_state(self):
         """Save current state as checkpoint."""
-        checkpoint_save("resource-check-complete")
+        checkpoint_save("resource-check-complete")  # Python function call
         
         # Update all stored values
         for resource, amount in self.resources.items():
-            set_var(f"{resource}-level", amount)
+            set_var(f"{resource}-level", amount)  # Python function call
 
 # Use manager
 manager = SurvivalManager()

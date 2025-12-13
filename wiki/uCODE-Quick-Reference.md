@@ -10,8 +10,8 @@
 ### Command Format
 
 ```
-COMMAND[arg1|arg2|arg3]     # With arguments
-COMMAND                      # Without arguments (no empty brackets)
+COMMAND[ arg1 | arg2 | arg3 ]     # With arguments
+COMMAND                            # Without arguments (no empty brackets)
 ```
 
 ### Tag Notation
@@ -20,15 +20,15 @@ Use **asterisk (*)** for tags, not underscores:
 
 ```
 ✅ CORRECT:
-CHECKPOINT*SAVE[name]
-MISSION*START[id]
-HEAL*SPRITE[id|amount|item]
+CHECKPOINT*SAVE[ name ]
+MISSION*START[ id ]
+HEAL*SPRITE[ id | amount | item ]
 STATUS*HEALTH
 
 ❌ WRONG:
-CHECKPOINT_SAVE[name]       # Don't use underscores
-MISSION_START[id]
-HEAL_SPRITE[id|amount|item]
+CHECKPOINT_SAVE[ name ]       # Don't use underscores
+MISSION_START[ id ]
+HEAL_SPRITE[ id | amount | item ]
 STATUS_HEALTH
 ```
 
@@ -38,14 +38,14 @@ Use **dollar sign ($)** prefix for variables:
 
 ```
 ✅ CORRECT:
-GET[$water-level]
-SET[$player-hp|100]
-IF GET[$food-supply] < 30
+GET[ $water-level ]
+SET[ $player-hp | 100 ]
+IF GET[ $food-supply ] < 30
 
 ❌ WRONG:
-GET[water-level]            # Missing $ prefix
-SET[player-hp|100]
-IF GET[food-supply] < 30
+GET[ water-level ]            # Missing $ prefix
+SET[ player-hp | 100 ]
+IF GET[ food-supply ] < 30
 ```
 
 ### Empty Brackets
@@ -75,90 +75,90 @@ MISSION*STATUS[]
 ### Knowledge
 
 ```
-GUIDE[topic|complexity]              # Get survival guide
-GUIDE[water/purification|detailed]
-GUIDE[fire/bow-drill|simple]
-GUIDE[medical/wounds|technical]
+GUIDE[ topic | complexity ]              # Get survival guide
+GUIDE[ water/purification | detailed ]
+GUIDE[ fire/bow-drill | simple ]
+GUIDE[ medical/wounds | technical ]
 ```
 
 ### Output
 
 ```
-PRINT[message]                       # Display message
-PRINT[Hello, world!]
-PRINT[Water: 50L|Food: 30 days]     # Columns (pipe = column separator)
+PRINT[ message ]                       # Display message
+PRINT[ Hello, world! ]
+PRINT[ Water: 50L | Food: 30 days ]     # Columns (pipe = column separator)
 
 # Pipe creates columns, not new lines
-PRINT[Col1|Col2|Col3]                # Three columns side-by-side
-PRINT[Name: Alice|Age: 25|HP: 100]  # Data in columns
+PRINT[ Col1 | Col2 | Col3 ]                # Three columns side-by-side
+PRINT[ Name: Alice | Age: 25 | HP: 100 ]  # Data in columns
 
 # Special characters (use emoji codes)
-PRINT[Score: :sb:100:eb:]            # [100]
-PRINT[Price: :dollar:50]             # $50
-PRINT[Use :pipe: separator]          # To display actual | character
+PRINT[ Score: :sb:100:eb: ]            # [100]
+PRINT[ Price: :dollar:50 ]             # $50
+PRINT[ Use :pipe: separator ]          # To display actual | character
 ```
 
 ### Variables
 
 ```
-GET[$variable]                       # Read variable
-SET[$variable|value]                 # Write variable
+GET[ $variable ]                       # Read variable
+SET[ $variable | value ]                 # Write variable
 
-GET[$player-hp]
-SET[$water-level|50]
-SET[$camp-location|AA340]
+GET[ $player-hp ]
+SET[ $water-level | 50 ]
+SET[ $camp-location | AA340 ]
 ```
 
 ### Checkpoints
 
 ```
-CHECKPOINT*SAVE[name]                # Save progress
-CHECKPOINT*LOAD[name]                # Load progress
+CHECKPOINT*SAVE[ name ]                # Save progress
+CHECKPOINT*LOAD[ name ]                # Load progress
 
-CHECKPOINT*SAVE[camp-established]
-CHECKPOINT*LOAD[before-storm]
+CHECKPOINT*SAVE[ camp-established ]
+CHECKPOINT*LOAD[ before-storm ]
 ```
 
 ### Missions
 
 ```
-MISSION*START[id]                    # Start mission
-MISSION*COMPLETE[id]                 # Complete mission
-MISSION*STATUS                       # Check status
+MISSION*START[ id ]                    # Start mission
+MISSION*COMPLETE[ id ]                 # Complete mission
+MISSION*STATUS                         # Check status
 
-MISSION*START[establish-camp]
-MISSION*COMPLETE[find-water]
+MISSION*START[ establish-camp ]
+MISSION*COMPLETE[ find-water ]
 MISSION*STATUS
 ```
 
 ### Sprites
 
 ```
-HEAL*SPRITE[id|amount|item]          # Heal sprite
+HEAL*SPRITE[ id | amount | item ]          # Heal sprite
 
-HEAL*SPRITE[player|20|bandage]
-HEAL*SPRITE[companion|50|medkit]
+HEAL*SPRITE[ player | 20 | bandage ]
+HEAL*SPRITE[ companion | 50 | medkit ]
 ```
 
 ### Experience
 
 ```
-XP[amount]                           # Gain experience
-LEVEL*UP                             # Level up
+XP[ amount ]                           # Gain experience
+LEVEL*UP                               # Level up
 
-XP[+100]
-XP[+500]
+XP[ +100 ]
+XP[ +500 ]
 LEVEL*UP
 ```
 
 ### Inventory
 
 ```
-ITEM[name]                           # Add item
-INVENTORY                            # Show items
+ITEM[ name ]                           # Add itemem
+INVENTORY                              # Show items
 
-ITEM[axe]
-ITEM[water-filter]
+ITEM[ axe ]
+ITEM[ water-filter ]
 INVENTORY
 ```
 
@@ -168,17 +168,17 @@ INVENTORY
 STATUS                               # Basic status
 STATUS*HEALTH                        # Detailed health
 TREE                                 # Show all files
-TREE[path]                           # Show specific path
+TREE[ path ]                           # Show specific path
 CONFIG                               # Show configuration
-CONFIG[setting|value]                # Set configuration
+CONFIG[ setting | value ]                # Set configuration
 VIEWPORT                             # Show viewport settings
-VIEWPORT[width|height]               # Set viewport size
+VIEWPORT[ width | height ]               # Set viewport size
 
 STATUS
 STATUS*HEALTH
-TREE[knowledge/water]
-CONFIG[theme|galaxy]
-VIEWPORT[80|24]
+TREE[ knowledge/water ]
+CONFIG[ theme | galaxy ]
+VIEWPORT[ 80 | 24 ]
 ```
 
 ---
@@ -189,13 +189,13 @@ VIEWPORT[80|24]
 
 ```python
 # Beginner level - UPPERCASE for consistency
-PRINT[Hello, world!]
-IF GET[$player-hp] < 50 THEN HEAL*SPRITE[player|30|medkit]
+PRINT[ Hello, world! ]
+IF GET[ $player-hp ] < 50 THEN HEAL*SPRITE[ player | 30 | medkit ]
 
 FUNCTION[@daily*check]
-  PRINT[Checking resources...]
-  GET[$water-level]
-  GET[$food-supply]
+  PRINT[ Checking resources... ]
+  GET[ $water-level ]
+  GET[ $food-supply ]
 END FUNCTION
 ```
 
@@ -208,7 +208,7 @@ from udos_core import *
 player_hp = get_var("player-hp", 100)
 
 if player_hp < 50:
-    HEAL*SPRITE("player", 30, "medkit")  # uCODE command
+    HEAL*SPRITE("player", 30, "medkit")  # uCODE command (lowercase function style)
     print("Healed player")               # Python
 ```
 
@@ -300,10 +300,10 @@ $VIEWPORT.MODE           # Display mode (terminal|web|mobile)
 :caret:      → ^          # Caret
 
 # Examples:
-PRINT[Array: :sb:1, 2, 3:eb:]        # Array: [1, 2, 3]
-PRINT[Email: admin:at:udos.com]      # Email: admin@udos.com
-PRINT[Tag: :hash:important]          # Tag: #important
-PRINT[Price: :dollar:50]             # Price: $50
+PRINT[ Array: :sb:1, 2, 3:eb: ]        # Array: [1, 2, 3]
+PRINT[ Email: admin:at:udos.com ]      # Email: admin@udos.com
+PRINT[ Tag: :hash:important ]          # Tag: #important
+PRINT[ Price: :dollar:50 ]             # Price: $50
 ```
 
 ---
@@ -314,54 +314,54 @@ PRINT[Price: :dollar:50]             # Price: $50
 
 ```python
 # Get health
-hp = GET[$player-hp]
+hp = GET[ $player-hp ]
 
 # Heal if needed
-IF hp < 50 THEN HEAL*SPRITE[player|30|medkit]
+IF hp < 50 THEN HEAL*SPRITE[ player | 30 | medkit ]
 
 # Save checkpoint
-CHECKPOINT*SAVE[health-check-complete]
+CHECKPOINT*SAVE[ health-check-complete ]
 ```
 
 ### Resource Monitor
 
 ```python
 # Check resources
-water = GET[$water-level]
-food = GET[$food-supply]
+water = GET[ $water-level ]
+food = GET[ $food-supply ]
 
 # Display in columns (pipe = column separator)
-PRINT[Water: {water}L | Food: {food} days | Status: OK]
+PRINT[ Water: {water}L | Food: {food} days | Status: OK ]
 
 # Alert if low
-IF water < 30 THEN PRINT[⚠️ Water low!]
-IF food < 20 THEN PRINT[⚠️ Food low!]
+IF water < 30 THEN PRINT[ ⚠️ Water low! ]
+IF food < 20 THEN PRINT[ ⚠️ Food low! ]
 
 # Get guides
-IF water < 30 THEN GUIDE[water/collection|detailed]
-IF food < 20 THEN GUIDE[food/foraging|detailed]
+IF water < 30 THEN GUIDE[ water/collection | detailed ]
+IF food < 20 THEN GUIDE[ food/foraging | detailed ]
 ```
 
 ### Mission Workflow
 
 ```python
 # Start mission
-MISSION*START[establish-camp]
+MISSION*START[ establish-camp ]
 
 # Execute steps with checkpoints
-PRINT[Phase 1: Location]
-SET[$camp-location|AA340]
-CHECKPOINT*SAVE[location-selected]
-XP[+50]
+PRINT[ Phase 1: Location ]
+SET[ $camp-location | AA340 ]
+CHECKPOINT*SAVE[ location-selected ]
+XP[ +50 ]
 
-PRINT[Phase 2: Shelter]
-GUIDE[shelter/lean-to|detailed]
-CHECKPOINT*SAVE[shelter-built]
-XP[+100]
+PRINT[ Phase 2: Shelter ]
+GUIDE[ shelter/lean-to | detailed ]
+CHECKPOINT*SAVE[ shelter-built ]
+XP[ +100 ]
 
 # Complete mission
-MISSION*COMPLETE[establish-camp]
-XP[+500]
+MISSION*COMPLETE[ establish-camp ]
+XP[ +500 ]
 LEVEL*UP
 ```
 
@@ -421,25 +421,25 @@ mission1                # Be descriptive
 
 ```
 ❌ WRONG:
-PRINT[Water, Food, Shelter]        # Commas
-GUIDE[water/purification, detailed]
+PRINT[ Water, Food, Shelter ]        # Commas
+GUIDE[ water/purification, detailed ]
 
 ✅ CORRECT:
-PRINT[Water|Food|Shelter]          # Pipes
-GUIDE[water/purification|detailed]
+PRINT[ Water | Food | Shelter ]          # Pipes
+GUIDE[ water/purification | detailed ]
 ```
 
 ### Mistake 2: Underscores in Tags
 
 ```
 ❌ WRONG:
-CHECKPOINT_SAVE[name]
-MISSION_START[id]
+CHECKPOINT_SAVE[ name ]
+MISSION_START[ id ]
 LEVEL_UP
 
 ✅ CORRECT:
-CHECKPOINT*SAVE[name]              # Asterisks
-MISSION*START[id]
+CHECKPOINT*SAVE[ name ]              # Asterisks
+MISSION*START[ id ]
 LEVEL*UP
 ```
 
@@ -447,12 +447,12 @@ LEVEL*UP
 
 ```
 ❌ WRONG:
-GET[water-level]
-SET[player-hp|100]
+GET[ water-level ]
+SET[ player-hp | 100 ]
 
 ✅ CORRECT:
-GET[$water-level]                  # $ prefix
-SET[$player-hp|100]
+GET[ $water-level ]                  # $ prefix
+SET[ $player-hp | 100 ]
 ```
 
 ### Mistake 4: Empty Brackets
@@ -473,12 +473,12 @@ TREE
 
 ```
 ❌ WRONG (usually):
-GUIDE["water/purification"|"detailed"]
-PRINT["Hello, world!"]
+GUIDE[ "water/purification" | "detailed" ]
+PRINT[ "Hello, world!" ]
 
 ✅ CORRECT (usually):
-GUIDE[water/purification|detailed]  # No quotes
-PRINT[Hello, world!]
+GUIDE[ water/purification | detailed ]  # No quotes
+PRINT[ Hello, world! ]
 
 ✅ ALSO CORRECT (in Python):
 guide("water/purification", "detailed")  # Python style
@@ -516,44 +516,44 @@ print("Hello, world!")
 
 ```
 # Knowledge & Help
-GUIDE[topic|level]
+GUIDE[ topic | level ]
 HELP
 STATUS
 STATUS*HEALTH
 TREE
-TREE[path]
+TREE[ path ]
 CONFIG
-CONFIG[setting|value]
+CONFIG[ setting | value ]
 VIEWPORT
-VIEWPORT[width|height]
+VIEWPORT[ width | height ]
 
 # Output
-PRINT[message|message...]
+PRINT[ message | message... ]
 
 # Player
-HEAL*SPRITE[id|amount|item]
-XP[+amount]
+HEAL*SPRITE[ id | amount | item ]
+XP[ +amount ]
 LEVEL*UP
 
 # Inventory
-ITEM[name]
+ITEM[ name ]
 INVENTORY
 
 # Variables
-GET[$name]
-SET[$name|value]
+GET[ $name ]
+SET[ $name | value ]
 
 # Checkpoints
-CHECKPOINT*SAVE[name]
-CHECKPOINT*LOAD[name]
+CHECKPOINT*SAVE[ name ]
+CHECKPOINT*LOAD[ name ]
 
 # Missions
-MISSION*START[id]
-MISSION*COMPLETE[id]
+MISSION*START[ id ]
+MISSION*COMPLETE[ id ]
 MISSION*STATUS
 
 # Python Basics (UPPERCASE in uCODE)
-PRINT[message]
+PRINT[ message ]
 IF condition THEN action
 FUNCTION[@name*tag]
 ```

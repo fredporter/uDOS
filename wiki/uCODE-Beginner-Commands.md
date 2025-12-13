@@ -25,7 +25,7 @@ uCODE is uDOS's beginner-friendly command language for survival tasks. Think of 
 uCODE commands use square brackets `[...]` with pipe separators `|` when they need arguments:
 
 ```
-COMMAND[argument1|argument2|argument3]
+COMMAND[ argument1 | argument2 | argument3 ]
 ```
 
 **Commands without arguments don't use brackets:**
@@ -38,21 +38,21 @@ INVENTORY       # Show your items
 
 **Example with arguments:**
 ```
-GUIDE[shelter/lean-to|detailed]
-     └─────┬──────┘  └────┬────┘
-      Guide topic    Detail level
+GUIDE[ shelter/lean-to | detailed ]
+     └──────┬───────┘  └─────┬─────┘
+       Guide topic      Detail level
 ```
 
 **Tags use asterisk (*) notation:**
 ```
-CHECKPOINT*SAVE[materials-gathered]
+CHECKPOINT*SAVE[ materials-gathered ]
           ↑
     Tag separator (like command-line flags)
 ```
 
 **Variables use dollar sign ($) prefix:**
 ```
-SET[$water-level|45]
+SET[ $water-level | 45 ]
     ↑
 Variable prefix
 ```
@@ -74,31 +74,31 @@ Variable prefix
 
 ```
 # Water guides
-GUIDE[water/purification|detailed]
-GUIDE[water/collection|simple]
-GUIDE[water/storage|technical]
+GUIDE[ water/purification | detailed ]
+GUIDE[ water/collection | simple ]
+GUIDE[ water/storage | technical ]
 
 # Fire guides
-GUIDE[fire/friction|detailed]
-GUIDE[fire/bow-drill|simple]
-GUIDE[fire/safety|detailed]
+GUIDE[ fire/friction | detailed ]
+GUIDE[ fire/bow-drill | simple ]
+GUIDE[ fire/safety | detailed ]
 
 # Shelter guides
-GUIDE[shelter/lean-to|detailed]
-GUIDE[shelter/debris-hut|simple]
+GUIDE[ shelter/lean-to | detailed ]
+GUIDE[ shelter/debris-hut | simple ]
 
 # Medical guides
-GUIDE[medical/wounds|detailed]
-GUIDE[medical/burns|simple]
-GUIDE[medical/hypothermia|technical]
+GUIDE[ medical/wounds | detailed ]
+GUIDE[ medical/burns | simple ]
+GUIDE[ medical/hypothermia | technical ]
 
 # Food guides
-GUIDE[food/foraging|detailed]
-GUIDE[food/preservation|simple]
+GUIDE[ food/foraging | detailed ]
+GUIDE[ food/preservation | simple ]
 
 # Navigation guides
-GUIDE[navigation/stars|detailed]
-GUIDE[navigation/sun|simple]
+GUIDE[ navigation/stars | detailed ]
+GUIDE[ navigation/sun | simple ]
 ```
 
 **Available categories:**
@@ -115,7 +115,7 @@ GUIDE[navigation/sun|simple]
 
 ### PRINT - Display Messages
 
-**Format:** `PRINT[message1|message2|...]`
+**Format:** `PRINT[ message1 | message2 | ... ]`
 
 **Note:** PRINT is a basic Python command used in UPPERCASE within uCODE for consistency.
 
@@ -123,18 +123,18 @@ GUIDE[navigation/sun|simple]
 
 ```
 # Simple message
-PRINT[Hello, world!]
+PRINT[ Hello, world! ]
 
 # Multiple messages (shown on separate lines)
-PRINT[Water level: 50 liters|Food: adequate|Shelter: complete]
+PRINT[ Water level: 50 liters | Food: adequate | Shelter: complete ]
 
 # Blank line
-PRINT[]
+PRINT
 
 # With special characters (use emoji codes)
-PRINT[Score: :sb:100:eb:]           # Shows: Score: [100]
-PRINT[Price: :dollar:50]             # Shows: Price: $50
-PRINT[Use :pipe: to separate]       # Shows: Use | to separate
+PRINT[ Score: :sb:100:eb: ]           # Shows: Score: [100]
+PRINT[ Price: :dollar:50 ]             # Shows: Price: $50
+PRINT[ Use :pipe: to separate ]       # Shows: Use | to separate
 ```
 
 **Special Characters in Output:**
@@ -154,10 +154,10 @@ When you need to show special characters, use emoji codes:
 
 **Common emoji codes:**
 ```
-PRINT[Array: :sb:1, 2, 3:eb:]              # Array: [1, 2, 3]
-PRINT[Email: admin:at:udos.com]            # Email: admin@udos.com
-PRINT[Tag: :hash:important]                # Tag: #important
-PRINT[Math: 2:caret:8 = 256]               # Math: 2^8 = 256
+PRINT[ Array: :sb:1, 2, 3:eb: ]              # Array: [1, 2, 3]
+PRINT[ Email: admin:at:udos.com ]            # Email: admin@udos.com
+PRINT[ Tag: :hash:important ]                # Tag: #important
+PRINT[ Math: 2:caret:8 = 256 ]               # Math: 2^8 = 256
 ```
 
 ---
@@ -166,20 +166,20 @@ PRINT[Math: 2:caret:8 = 256]               # Math: 2^8 = 256
 
 ### HEAL*SPRITE - Restore Health
 
-**Format:** `HEAL*SPRITE[sprite_id|amount|item]`
+**Format:** `HEAL*SPRITE[ sprite_id | amount | item ]`
 
 **Examples:**
 
 ```
 # Heal yourself
-HEAL*SPRITE[player|20|bandage]
-HEAL*SPRITE[player|50|medkit]
+HEAL*SPRITE[ player | 20 | bandage ]
+HEAL*SPRITE[ player | 50 | medkit ]
 
 # Heal a companion
-HEAL*SPRITE[companion|30|potion]
+HEAL*SPRITE[ companion | 30 | potion ]
 
 # Emergency healing
-HEAL*SPRITE[player|100|emergency-kit]
+HEAL*SPRITE[ player | 100 | emergency-kit ]
 ```
 
 **Common items:**
@@ -194,7 +194,7 @@ HEAL*SPRITE[player|100|emergency-kit]
 
 ### CHECKPOINT*SAVE - Save Your Progress
 
-**Format:** `CHECKPOINT*SAVE[checkpoint_name]`
+**Format:** `CHECKPOINT*SAVE[ checkpoint_name ]`
 
 **Note:** The asterisk (*) is used as a tag separator, similar to command-line flags.
 
@@ -202,14 +202,14 @@ HEAL*SPRITE[player|100|emergency-kit]
 
 ```
 # Save after major milestones
-CHECKPOINT*SAVE[camp-established]
-CHECKPOINT*SAVE[water-source-found]
-CHECKPOINT*SAVE[shelter-built]
-CHECKPOINT*SAVE[fire-started]
+CHECKPOINT*SAVE[ camp-established ]
+CHECKPOINT*SAVE[ water-source-found ]
+CHECKPOINT*SAVE[ shelter-built ]
+CHECKPOINT*SAVE[ fire-started ]
 
 # Save before risky actions
-CHECKPOINT*SAVE[before-storm]
-CHECKPOINT*SAVE[before-exploration]
+CHECKPOINT*SAVE[ before-storm ]
+CHECKPOINT*SAVE[ before-exploration ]
 ```
 
 **Naming tips:**
@@ -219,14 +219,14 @@ CHECKPOINT*SAVE[before-exploration]
 
 ### CHECKPOINT*LOAD - Restore Previous State
 
-**Format:** `CHECKPOINT*LOAD[checkpoint_name]`
+**Format:** `CHECKPOINT*LOAD[ checkpoint_name ]`
 
 **Examples:**
 
 ```
 # Return to previous checkpoint
-CHECKPOINT*LOAD[camp-established]
-CHECKPOINT*LOAD[before-storm]
+CHECKPOINT*LOAD[ camp-established ]
+CHECKPOINT*LOAD[ before-storm ]
 ```
 
 ---
@@ -235,7 +235,7 @@ CHECKPOINT*LOAD[before-storm]
 
 ### GET - Read Saved Values
 
-**Format:** `GET[$variable_name]`
+**Format:** `GET[ $variable_name ]`
 
 **Note:** Variables use the `$` prefix to distinguish them from plain text.
 
@@ -243,9 +243,9 @@ CHECKPOINT*LOAD[before-storm]
 
 ```
 # Check your stats
-GET[$player-hp]
-GET[$player-name]
-GET[$player-level]
+GET[ $player-hp ]
+GET[ $player-name ]
+GET[ $player-level ]
 
 # Check resources
 GET[$water-level]
@@ -253,27 +253,27 @@ GET[$food-supply]
 GET[$wood-count]
 
 # Check location
-GET[$camp-location]
-GET[$current-grid]
+GET[ $camp-location ]
+GET[ $current-grid ]
 ```
 
 ### SET - Save Values
 
-**Format:** `SET[$variable_name|value]`
+**Format:** `SET[ $variable_name | value ]`
 
 **Examples:**
 
 ```
 # Set your info
-SET[$player-name|Hero]
-SET[$player-level|5]
+SET[ $player-name | Hero ]
+SET[ $player-level | 5 ]
 
 # Set resources
-SET[$water-level|50]
-SET[$food-supply|30]
+SET[ $water-level | 50 ]
+SET[ $food-supply | 30 ]
 
 # Set location
-SET[$camp-location|AA340]
+SET[ $camp-location | AA340 ]
 ```
 
 **Variable naming rules:**
@@ -288,25 +288,25 @@ SET[$camp-location|AA340]
 
 ### MISSION*START - Begin a Mission
 
-**Format:** `MISSION*START[mission_name]`
+**Format:** `MISSION*START[ mission_name ]`
 
 **Examples:**
 
 ```
-MISSION*START[establish-camp]
-MISSION*START[find-water]
-MISSION*START[build-shelter]
+MISSION*START[ establish-camp ]
+MISSION*START[ find-water ]
+MISSION*START[ build-shelter ]
 ```
 
 ### MISSION*COMPLETE - Finish a Mission
 
-**Format:** `MISSION*COMPLETE[mission_name]`
+**Format:** `MISSION*COMPLETE[ mission_name ]`
 
 **Examples:**
 
 ```
-MISSION*COMPLETE[establish-camp]
-MISSION*COMPLETE[find-water]
+MISSION*COMPLETE[ establish-camp ]
+MISSION*COMPLETE[ find-water ]
 ```
 
 ### MISSION*STATUS - Check Progress
@@ -326,16 +326,16 @@ MISSION*STATUS
 
 ### XP - Gain Experience Points
 
-**Format:** `XP[amount]`
+**Format:** `XP[ amount ]`
 
 **Examples:**
 
 ```
 # Earn XP for accomplishments
-XP[+10]   # Small task
-XP[+50]   # Medium task
-XP[+100]  # Major achievement
-XP[+500]  # Mission complete
+XP[ +10 ]   # Small task
+XP[ +50 ]   # Medium task
+XP[ +100 ]  # Major achievement
+XP[ +500 ]  # Mission complete
 ```
 
 ### LEVEL*UP - Increase Level
@@ -355,16 +355,16 @@ LEVEL*UP
 
 ### ITEM - Add Item to Inventory
 
-**Format:** `ITEM[item_name]`
+**Format:** `ITEM[ item_name ]`
 
 **Examples:**
 
 ```
-ITEM[axe]
-ITEM[rope]
-ITEM[water-filter]
-ITEM[knife]
-ITEM[firestarter]
+ITEM[ axe ]
+ITEM[ rope ]
+ITEM[ water-filter ]
+ITEM[ knife ]
+ITEM[ firestarter ]
 ```
 
 ### INVENTORY - Show Items
@@ -408,8 +408,8 @@ STATUS*HEALTH
 TREE
 
 # Show specific folder
-TREE[memory/ucode/scripts]
-TREE[knowledge/water]
+TREE[ memory/ucode/scripts ]
+TREE[ knowledge/water ]
 ```
 
 ---
@@ -426,14 +426,14 @@ These Python basics are shown in UPPERCASE when used in uCODE context:
 
 ```
 # Check health and heal if needed
-IF GET[$player-hp] < 50 THEN HEAL*SPRITE[player|30|medkit]
+IF GET[ $player-hp ] < 50 THEN HEAL*SPRITE[ player | 30 | medkit ]
 
 # Check resources
-IF GET[$water-level] < 20 THEN PRINT[Warning: Water low!]
+IF GET[ $water-level ] < 20 THEN PRINT[ Warning: Water low! ]
 
 # Multiple conditions
-IF GET[$player-level] > 5 THEN XP[+100]
-IF GET[$camp-location] == AA340 THEN PRINT[You are at base camp]
+IF GET[ $player-level ] > 5 THEN XP[ +100 ]
+IF GET[ $camp-location ] == AA340 THEN PRINT[ You are at base camp ]
 ```
 
 ### FUNCTION - Reusable Code Blocks
@@ -444,13 +444,13 @@ IF GET[$camp-location] == AA340 THEN PRINT[You are at base camp]
 
 ```
 # Define a function for daily routine
-FUNCTION[@daily*check]
-  PRINT[Starting daily check...]
-  GET[$water-level]
-  GET[$food-supply]
-  IF GET[$water-level] < 30 THEN PRINT[Collect water today]
-  IF GET[$food-supply] < 20 THEN PRINT[Gather food today]
-  CHECKPOINT*SAVE[daily-check-complete]
+FUNCTION[ @daily*check ]
+  PRINT[ Starting daily check... ]
+  GET[ $water-level ]
+  GET[ $food-supply ]
+  IF GET[ $water-level ] < 30 THEN PRINT[ Collect water today ]
+  IF GET[ $food-supply ] < 20 THEN PRINT[ Gather food today ]
+  CHECKPOINT*SAVE[ daily-check-complete ]
 END FUNCTION
 
 # Call the function
@@ -468,66 +468,66 @@ END FUNCTION
 ```
 # Check your status
 MISSION*STATUS
-GET[$water-level]
-GET[$player-hp]
+GET[ $water-level ]
+GET[ $player-hp ]
 
 # If low on water, get guidance
-GUIDE[water/collection|simple]
+GUIDE[ water/collection | simple ]
 
 # Save checkpoint
-CHECKPOINT*SAVE[morning-start]
+CHECKPOINT*SAVE[ morning-start ]
 ```
 
 ### Example 2: Building a Shelter
 
 ```
 # Start mission
-MISSION*START[build-shelter]
+MISSION*START[ build-shelter ]
 
 # Get instructions
-GUIDE[shelter/lean-to|detailed]
+GUIDE[ shelter/lean-to | detailed ]
 
 # Save progress checkpoints
-CHECKPOINT*SAVE[materials-gathered]
-CHECKPOINT*SAVE[frame-built]
-CHECKPOINT*SAVE[cover-complete]
+CHECKPOINT*SAVE[ materials-gathered ]
+CHECKPOINT*SAVE[ frame-built ]
+CHECKPOINT*SAVE[ cover-complete ]
 
 # Complete mission
-MISSION*COMPLETE[build-shelter]
-XP[+100]
+MISSION*COMPLETE[ build-shelter ]
+XP[ +100 ]
 ```
 
 ### Example 3: Emergency Healing
 
 ```
 # Check current health
-GET[$player-hp]
+GET[ $player-hp ]
 
 # If low, heal immediately
-IF GET[$player-hp] < 50 THEN HEAL*SPRITE[player|50|medkit]
+IF GET[ $player-hp ] < 50 THEN HEAL*SPRITE[ player | 50 | medkit ]
 
 # Check medical guide if needed
-GUIDE[medical/wounds|detailed]
+GUIDE[ medical/wounds | detailed ]
 
 # Update status
-PRINT[Healing complete]
+PRINT[ Healing complete ]
 ```
 
 ### Example 4: Resource Management
 
 ```
 # Check resources
-GET[$water-level]
-GET[$food-supply]
-GET[$wood-count]
+GET[ $water-level ]
+GET[ $food-supply ]
+GET[ $wood-count ]
 
 # Update after use
-SET[$water-level|45]
-SET[$food-supply|28]
+SET[ $water-level | 45 ]
+SET[ $food-supply | 28 ]
 
 # Get help if running low
-IF GET[$water-level] < 30 THEN GUIDE[water/collection|simple]
-IF GET[$food-supply] < 25 THEN GUIDE[food/foraging|simple]
+IF GET[ $water-level ] < 30 THEN GUIDE[ water/collection | simple ]
+IF GET[ $food-supply ] < 25 THEN GUIDE[ food/foraging | simple ]
 ```
 
 ---
@@ -538,27 +538,27 @@ IF GET[$food-supply] < 25 THEN GUIDE[food/foraging|simple]
 
 Begin with basic commands:
 ```
-PRINT[Hello!]
+PRINT[ Hello! ]
 STATUS
-GUIDE[water/purification|simple]
+GUIDE[ water/purification | simple ]
 ```
 
 ### 2. Save Often
 
 Create checkpoints regularly:
 ```
-CHECKPOINT*SAVE[after-water-collection]
-CHECKPOINT*SAVE[shelter-complete]
-CHECKPOINT*SAVE[before-exploration]
+CHECKPOINT*SAVE[ after-water-collection ]
+CHECKPOINT*SAVE[ shelter-complete ]
+CHECKPOINT*SAVE[ before-exploration ]
 ```
 
 ### 3. Use Guides
 
 The knowledge bank has everything you need:
 ```
-GUIDE[fire/bow-drill|detailed]
-GUIDE[shelter/debris-hut|simple]
-GUIDE[medical/hypothermia|technical]
+GUIDE[ fire/bow-drill | detailed ]
+GUIDE[ shelter/debris-hut | simple ]
+GUIDE[ medical/hypothermia | technical ]
 ```
 
 ### 4. Check Status
@@ -566,7 +566,7 @@ GUIDE[medical/hypothermia|technical]
 Monitor your progress:
 ```
 MISSION*STATUS
-GET[$player-hp]
+GET[ $player-hp ]
 INVENTORY
 ```
 
@@ -574,11 +574,11 @@ INVENTORY
 
 Use descriptive names with dashes:
 ```
-✅ Good: CHECKPOINT*SAVE[camp-established]
-❌ Bad: CHECKPOINT*SAVE[cp1]
+✅ Good: CHECKPOINT*SAVE[ camp-established ]
+❌ Bad: CHECKPOINT*SAVE[ cp1 ]
 
-✅ Good: SET[$water-level|50]
-❌ Bad: SET[$w|50]
+✅ Good: SET[ $water-level | 50 ]
+❌ Bad: SET[ $w | 50 ]
 ```
 
 ---
@@ -595,8 +595,8 @@ GUIDE[water/purification, detailed]
 
 **Correct:**
 ```
-PRINT[Water|Food|Shelter]
-GUIDE[water/purification|detailed]
+PRINT[ Water | Food | Shelter ]
+GUIDE[ water/purification | detailed ]
 ```
 
 **Rule:** Use pipes `|` not commas `,`
@@ -611,8 +611,8 @@ SET[$player name|Hero]
 
 **Correct:**
 ```
-CHECKPOINT*SAVE[camp-established]
-SET[$player-name|Hero]
+CHECKPOINT*SAVE[ camp-established ]
+SET[ $player-name | Hero ]
 ```
 
 **Rule:** Use dashes `-` not spaces
@@ -645,8 +645,8 @@ GET[water-level]
 
 **Correct:**
 ```
-SET[$player-hp|100]
-GET[$water-level]
+SET[ $player-hp | 100 ]
+GET[ $water-level ]
 ```
 
 **Rule:** Always use `$` prefix for variables
@@ -677,38 +677,38 @@ TREE
 
 ```
 # Information
-GUIDE[topic|level]
+GUIDE[ topic | level ]
 STATUS
 TREE
 
 # Output
-PRINT[message]
+PRINT[ message ]
 
 # Player
-HEAL*SPRITE[player|amount|item]
-XP[+points]
+HEAL*SPRITE[ player | amount | item ]
+XP[ +points ]
 LEVEL*UP
 
 # Inventory
-ITEM[name]
+ITEM[ name ]
 INVENTORY
 
 # Checkpoints
-CHECKPOINT*SAVE[name]
-CHECKPOINT*LOAD[name]
+CHECKPOINT*SAVE[ name ]
+CHECKPOINT*LOAD[ name ]
 
 # Variables
-GET[$name]
-SET[$name|value]
+GET[ $name ]
+SET[ $name | value ]
 
 # Missions
-MISSION*START[name]
-MISSION*COMPLETE[name]
+MISSION*START[ name ]
+MISSION*COMPLETE[ name ]
 MISSION*STATUS
 
 # Basic Python (UPPERCASE in uCODE)
 IF condition THEN action
-FUNCTION[@name*tag]
+FUNCTION[ @name*tag ]
 ```
 
 ---
@@ -735,7 +735,7 @@ Once you're comfortable with these commands, you can:
 - **Status check:** `STATUS*HEALTH`
 - **File structure:** `TREE`
 - **Command list:** `HELP`
-- **Guides:** Browse `knowledge/` folder with `TREE[knowledge]`
+- **Guides:** Browse `knowledge/` folder with `TREE[ knowledge ]`
 - **Quick Reference:** [uCODE Quick Reference](uCODE-Quick-Reference.md)
 
 ---

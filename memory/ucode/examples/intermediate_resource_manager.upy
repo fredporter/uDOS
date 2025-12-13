@@ -2,18 +2,18 @@
 # Mixing UPPERCASE uCODE with lowercase Python
 # Level: Intermediate (UPPERCASE uCODE + lowercase Python)
 
-PRINT[=== Resource Management System ===]
-PRINT[]
+PRINT[ === Resource Management System === ]
+PRINT
 
 # Initialize resources (UPPERCASE uCODE)
-SET[$water-level|100]
-SET[$food-level|75]
-SET[$health|90]
-SET[$alert-threshold|30]
+SET[ $water-level | 100 ]
+SET[ $food-level | 75 ]
+SET[ $health | 90 ]
+SET[ $alert-threshold | 30 ]
 
-MISSION*START[resource-management]
-PRINT[Managing resources...]
-PRINT[]
+MISSION*START[ resource-management ]
+PRINT[ Managing resources... ]
+PRINT
 
 # Check resources with Python (lowercase)
 def check_resource(name, level, threshold):
@@ -22,16 +22,16 @@ def check_resource(name, level, threshold):
     return f"{name}: {level}% ({status})"
 
 # Get current values ($ prefix)
-water = GET[$water-level]
-food = GET[$food-level]
-health = GET[$health]
-threshold = GET[$alert-threshold]
+water = GET[ $water-level ]
+food = GET[ $food-level ]
+health = GET[ $health ]
+threshold = GET[ $alert-threshold ]
 
 # Display status (UPPERCASE)
-PRINT[Current Resource Status:]
-PRINT[Water | Food | Health]
-PRINT[{water}% | {food}% | {health}%]
-PRINT[]
+PRINT[ Current Resource Status: ]
+PRINT[ Water | Food | Health ]
+PRINT[ {water}% | {food}% | {health}% ]
+PRINT
 
 # Process each resource (lowercase Python)
 resources = {
@@ -43,25 +43,25 @@ resources = {
 for resource_name, level in resources.items():
     if level < threshold:
         # Alert with UPPERCASE uCODE
-        PRINT[⚠️  {resource_name.upper()} CRITICAL!]
-        CHECKPOINT*SAVE[low-{resource_name}]
+        PRINT[ ⚠️  {resource_name.upper()} CRITICAL! ]
+        CHECKPOINT*SAVE[ low-{resource_name} ]
         
         # Auto-repair (lowercase Python + UPPERCASE)
         if resource_name == 'health':
             HEAL*SPRITE
-            PRINT[Emergency healing applied]
+            PRINT[ Emergency healing applied ]
         elif resource_name == 'water':
-            SET[$water-level|50]
-            PRINT[Emergency water ration deployed]
+            SET[ $water-level | 50 ]
+            PRINT[ Emergency water ration deployed ]
         elif resource_name == 'food':
-            SET[$food-level|50]
-            PRINT[Emergency food ration deployed]
+            SET[ $food-level | 50 ]
+            PRINT[ Emergency food ration deployed ]
         
-        XP[+50]
+        XP[ +50 ]
     else:
-        PRINT[✓ {resource_name.upper()} levels adequate]
+        PRINT[ ✓ {resource_name.upper()} levels adequate ]
 
-PRINT[]
+PRINT
 
 # Daily consumption simulation (lowercase Python)
 import random
@@ -76,7 +76,7 @@ def consume_resources():
     return consumption
 
 # Simulate 3 days
-PRINT[Simulating 3-day consumption:]
+PRINT[ Simulating 3-day consumption: ]
 for day in range(1, 4):
     consumed = consume_resources()
     
@@ -85,16 +85,16 @@ for day in range(1, 4):
     food -= consumed['food']
     health -= consumed['health']
     
-    SET[$water-level|{water}]
-    SET[$food-level|{food}]
-    SET[$health|{health}]
+    SET[ $water-level | {water} ]
+    SET[ $food-level | {food} ]
+    SET[ $health | {health} ]
     
-    PRINT[Day {day}: Water -{consumed['water']}% | Food -{consumed['food']}% | Health -{consumed['health']}%]
-    CHECKPOINT*SAVE[day-{day}-complete]
+    PRINT[ Day {day}: Water -{consumed['water']}% | Food -{consumed['food']}% | Health -{consumed['health']}% ]
+    CHECKPOINT*SAVE[ day-{day}-complete ]
 
-PRINT[]
-PRINT[Final Status After 3 Days:]
-PRINT[Water: {water}% | Food: {food}% | Health: {health}%]
+PRINT
+PRINT[ Final Status After 3 Days: ]
+PRINT[ Water: {water}% | Food: {food}% | Health: {health}% ]
 
 # Generate report (lowercase Python)
 report = f"""
@@ -105,10 +105,10 @@ Resource Management Summary:
 - Status: {'STABLE' if min(water, food, health) > threshold else 'CRITICAL'}
 """
 
-PRINT[{report}]
+PRINT[ {report} ]
 
 # Save and complete (UPPERCASE)
-CHECKPOINT*SAVE[management-complete]
-XP[+200]
-MISSION*COMPLETE[resource-management]
-PRINT[Mission Complete | XP Earned: 200]
+CHECKPOINT*SAVE[ management-complete ]
+XP[ +200 ]
+MISSION*COMPLETE[ resource-management ]
+PRINT[ Mission Complete | XP Earned: 200 ]
