@@ -1,6 +1,6 @@
 """
-DOCS Unified Command Handler - v1.1.17
-Consolidates GUIDE, DIAGRAM, and LEARN into single documentation system
+GUIDE Command Handler - v1.3
+Interactive knowledge system for survival guides, diagrams, and learning
 
 Smart Features:
 - Auto-detect content type (guide/diagram/reference)
@@ -8,23 +8,23 @@ Smart Features:
 - Content quality assessment (REVIEW)
 - AI-powered content regeneration (REGEN)
 - Interactive picker with recommendations
-- Backward compatibility with legacy commands
+- Backward compatibility with legacy DOCS commands
 
 Commands:
-  DOCS                        Interactive picker
-  DOCS LIST [type] [category] List content by type/category
-  DOCS SHOW <name>            Smart content display
-  DOCS SEARCH <query>         Search all documentation
-  DOCS START <name>           Begin interactive learning
-  DOCS NEXT|PREV              Navigate steps
-  DOCS COMPLETE [step]        Mark step complete
-  DOCS PROGRESS               View learning progress
-  DOCS REVIEW <name>          Assess content quality
-  DOCS REGEN <name> [opts]    Regenerate with improvements
-  DOCS HISTORY <name>         View content version history
+  GUIDE                       Interactive picker
+  GUIDE LIST [type] [cat]     List content by type/category
+  GUIDE SHOW <name>           Smart content display
+  GUIDE SEARCH <query>        Search all documentation
+  GUIDE START <name>          Begin interactive learning
+  GUIDE NEXT|PREV             Navigate steps
+  GUIDE COMPLETE [step]       Mark step complete
+  GUIDE PROGRESS              View learning progress
+  GUIDE REVIEW <name>         Assess content quality
+  GUIDE REGEN <name> [opts]   Regenerate with improvements
+  GUIDE HISTORY <name>        View content version history
 
 Author: uDOS Development Team
-Version: 1.1.17 (December 2025)
+Version: 1.3 (December 2025)
 """
 
 from pathlib import Path
@@ -36,11 +36,11 @@ from core.commands.base_handler import BaseCommandHandler
 from core.utils.pager import page_output
 
 
-class DocsUnifiedHandler(BaseCommandHandler):
-    """Unified handler for all documentation access (GUIDE + DIAGRAM + LEARN)"""
+class GuideHandler(BaseCommandHandler):
+    """Handler for GUIDE commands - knowledge access and interactive learning"""
 
     def __init__(self, viewport=None, logger=None, **kwargs):
-        """Initialize unified docs handler"""
+        """Initialize GUIDE handler"""
         # Initialize base handler (provides shared utilities)
         super().__init__(viewport=viewport, logger=logger, **kwargs)
 

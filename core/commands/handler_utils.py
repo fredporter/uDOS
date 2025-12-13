@@ -223,3 +223,121 @@ class HandlerUtils:
         if len(text) <= max_length:
             return text
         return text[:max_length - len(suffix)] + suffix
+    
+    @staticmethod
+    def read_file_content(filepath: str, encoding: str = 'utf-8') -> tuple[bool, str]:
+        """
+        Read file content safely.
+        
+        Args:
+            filepath: Path to file
+            encoding: File encoding
+            
+        Returns:
+            (success: bool, content_or_error: str)
+        """
+        try:
+            path = Path(filepath)
+            if not path.exists():
+                return False, f"File not found: {filepath}"
+            if not path.is_file():
+                return False, f"Not a file: {filepath}"
+            
+            content = path.read_text(encoding=encoding)
+            return True, content
+        except UnicodeDecodeError:
+            return False, f"Unable to decode file (not {encoding}): {filepath}"
+        except Exception as e:
+            return False, f"Error reading file: {e}"
+    
+    @staticmethod
+    def write_file_content(filepath: str, content: str, 
+                          encoding: str = 'utf-8', 
+                          create_dirs: bool = True) -> tuple[bool, Optional[str]]:
+        """
+        Write content to file safely.
+        
+        Args:
+            filepath: Path to file
+            content: Content to write
+            encoding: File encoding
+            create_dirs: Create parent directories if they don't exist
+            
+        Returns:
+            (success: bool, error_message: Optional[str])
+        """
+        try:
+            path = Path(filepath)
+            
+            if create_dirs:
+                path.parent.mkdir(parents=True, exist_ok=True)
+            
+            path.write_text(content, encoding=encoding)
+            return True, None
+        except Exception as e:
+            return False, f"Error writing file: {e}"
+    
+    @staticmethod
+    def format_file_size(size_bytes: int) -> str:
+        """
+        Format file size in human-readable format.
+        
+        Args:
+            size_bytes: Size in bytes
+            
+        Returns:
+            Formatted size string (e.g., "1.5 MB")
+        """
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+            if size_bytes < 1024.0:
+                return f"{size_bytes:.1f} {unit}"
+            size_bytes /= 1024.0
+        return f"{size_bytes:.1f} PB"
+    
+    @staticmethod
+    def format_timestamp(timestamp: float, format_str: str = "%Y-%m-%d %H:%M:%S") -> str:
+        """
+        Format Unix timestamp to readable string.
+        
+        Args:
+            timestamp: Unix timestamp
+            format_str: strftime format string
+            
+        Returns:
+            Formatted timestamp string
+        """
+        from datetime import datetime
+        return datetime.fromtimestamp(timestamp).strftime(format_str)
+    
+    @staticmethod
+    def get_file_info(filepath: str) -> Optional[dict]:
+        """
+        Get file metadata.
+        
+        Args:
+            filepath: Path to file
+            
+        Returns:
+            Dict with file info or None if error
+        """
+        try:
+            path = Path(filepath)
+            if not path.exists():
+                return None
+            
+            stat = path.stat()
+            return {
+                'name': path.name,
+                'path': str(path.absolute()),
+                'size': stat.st_size,
+                'size_formatted': HandlerUtils.format_file_size(stat.st_size),
+                'modified': stat.st_mtime,
+                'modified_formatted': HandlerUtils.format_timestamp(stat.st_mtime),
+                'created': stat.st_ctime,
+                'created_formatted': HandlerUtils.format_timestamp(stat.st_ctime),
+                'is_file': path.is_file(),
+                'is_dir': path.is_dir(),
+                'extension': path.suffix,
+            }
+        except Exception:
+            return None

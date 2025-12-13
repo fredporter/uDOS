@@ -90,7 +90,7 @@ class CommandHandler:
         # Core system handlers
         from core.commands.tile_handler import TILECommandHandler
         from core.commands.panel_handler import PanelCommandHandler
-        from core.commands.docs_unified_handler import DocsUnifiedHandler
+        from core.commands.guide_handler import GuideHandler
         from core.commands.barter_commands import BarterCommandHandler
 
         # Core UI & System Imports
@@ -118,7 +118,7 @@ class CommandHandler:
         # Core System Handlers
         self.tile_handler = TILECommandHandler(**handler_kwargs)
         self.panel_handler = PanelCommandHandler(**handler_kwargs)
-        self.docs_handler = DocsUnifiedHandler(viewport=viewport, logger=logger)
+        self.guide_handler = GuideHandler(viewport=viewport, logger=logger)
 
         # Content Generation Handlers
         from core.commands.make_handler import MakeHandler
@@ -424,13 +424,13 @@ class CommandHandler:
             elif module == "PANEL" or module == "UI":
                 return self.panel_handler.handle(command, params, grid)
 
-            # Documentation System
-            elif module == "DOCS":
-                return self.docs_handler.handle(command, params)
-            
-            # GUIDE - redirect to DOCS (consolidated in v2.0)
+            # Knowledge System
             elif module == "GUIDE":
-                return self.docs_handler.handle(command, params)
+                return self.guide_handler.handle(command, params)
+            
+            # DOCS - redirect to GUIDE (backward compatibility)
+            elif module == "DOCS":
+                return self.guide_handler.handle(command, params)
 
 
 
