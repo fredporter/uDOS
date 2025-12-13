@@ -653,6 +653,13 @@ class CommandHandler:
                 param_str = ' '.join(params) if params else ''
                 return handle_color(param_str)
 
+            # v1.2.24+ - MODE system (prompt mode switching)
+            elif module in ["MODE", "GHOST", "TOMB", "CRYPT"]:
+                result = self.system_handler.handle(command, params, grid, parser)
+                if hasattr(self.system_handler, 'reboot_requested'):
+                    self.reboot_requested = self.system_handler.reboot_requested
+                return result
+
             elif module == "SYSTEM":
                 # System handler needs access to reboot flag
                 result = self.system_handler.handle(command, params, grid, parser)

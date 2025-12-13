@@ -713,7 +713,6 @@ class SystemCommandHandler(BaseCommandHandler):
 
         # Set role in config
         self.config_manager.set('USER_ROLE', role)
-        self.config_manager.save()
 
         emoji = "🧙" if role == "wizard" else "👤"
         features = "\n✅ OK DEV enabled\n✅ Advanced system access" if role == "wizard" else ""
@@ -1537,9 +1536,9 @@ class SystemCommandHandler(BaseCommandHandler):
             MODE CRYPT              - Switch to crypt mode (🛜)
             MODE STATUS             - Show all available modes
         """
-        if len(params) == 1:
+        if not params or len(params) == 0:
             # Show current mode
-            current_mode = self.config.get('prompt_mode', 'command')
+            current_mode = self.config_manager.get('prompt_mode', 'command')
             mode_emojis = {
                 'command': '🌀',
                 'dev': '⚙️',
@@ -1551,7 +1550,7 @@ class SystemCommandHandler(BaseCommandHandler):
             emoji = mode_emojis.get(current_mode, '🌀')
             return f"{emoji} Current mode: {current_mode.upper()}"
         
-        subcommand = params[1].upper()
+        subcommand = params[0].upper()
         
         if subcommand == 'STATUS':
             output = []
@@ -1566,7 +1565,7 @@ class SystemCommandHandler(BaseCommandHandler):
             output.append("")
             output.append("Priority: DEV > GHOST > TOMB > CRYPT > ASSIST > COMMAND")
             output.append("")
-            current_mode = self.config.get('prompt_mode', 'command')
+            current_mode = self.config_manager.get('prompt_mode', 'command')
             output.append(f"Current: {current_mode.upper()}")
             return "\n".join(output)
         
@@ -1584,8 +1583,7 @@ class SystemCommandHandler(BaseCommandHandler):
             return f"❌ Unknown mode: {subcommand}\n💡 Use: MODE STATUS to see available modes"
         
         new_mode = mode_map[subcommand]
-        self.config.set('prompt_mode', new_mode)
-        self.config.save()
+        self.config_manager.set('prompt_mode', new_mode)
         
         mode_descriptions = {
             'command': '🌀 COMMAND MODE - Standard operations',
@@ -1608,17 +1606,15 @@ class SystemCommandHandler(BaseCommandHandler):
         - Safe experimentation
         """
         # Check if already in ghost mode
-        current_mode = self.config.get('prompt_mode', 'command')
+        current_mode = self.config_manager.get('prompt_mode', 'command')
         
         if current_mode == 'ghost':
             # Exit ghost mode
-            self.config.set('prompt_mode', 'command')
-            self.config.save()
+            self.config_manager.set('prompt_mode', 'command')
             return "🌀 Exited GHOST mode → COMMAND mode"
         else:
             # Enter ghost mode
-            self.config.set('prompt_mode', 'ghost')
-            self.config.save()
+            self.config_manager.set('prompt_mode', 'ghost')
             output = []
             output.append("👻 GHOST MODE ACTIVATED")
             output.append("")
@@ -1640,17 +1636,15 @@ class SystemCommandHandler(BaseCommandHandler):
         - No network access
         - No sharing capabilities
         """
-        current_mode = self.config.get('prompt_mode', 'command')
+        current_mode = self.config_manager.get('prompt_mode', 'command')
         
         if current_mode == 'tomb':
             # Exit tomb mode
-            self.config.set('prompt_mode', 'command')
-            self.config.save()
+            self.config_manager.set('prompt_mode', 'command')
             return "🌀 Exited TOMB mode → COMMAND mode"
         else:
             # Enter tomb mode
-            self.config.set('prompt_mode', 'tomb')
-            self.config.save()
+            self.config_manager.set('prompt_mode', 'tomb')
             output = []
             output.append("🔒 TOMB MODE ACTIVATED")
             output.append("")
@@ -1672,17 +1666,15 @@ class SystemCommandHandler(BaseCommandHandler):
         - Location/beacon/key sharing
         - Collaborative archival work
         """
-        current_mode = self.config.get('prompt_mode', 'command')
+        current_mode = self.config_manager.get('prompt_mode', 'command')
         
         if current_mode == 'crypt':
             # Exit crypt mode
-            self.config.set('prompt_mode', 'command')
-            self.config.save()
+            self.config_manager.set('prompt_mode', 'command')
             return "🌀 Exited CRYPT mode → COMMAND mode"
         else:
             # Enter crypt mode
-            self.config.set('prompt_mode', 'crypt')
-            self.config.save()
+            self.config_manager.set('prompt_mode', 'crypt')
             output = []
             output.append("🛜 CRYPT MODE ACTIVATED")
             output.append("")

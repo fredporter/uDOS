@@ -314,7 +314,7 @@
       "NAME": "MODE",
       "SYNTAX": "MODE [COMMAND|DEV|ASSIST|GHOST|TOMB|CRYPT|STATUS]",
       "DESCRIPTION": "Switch between prompt modes. Each mode changes the prompt indicator and provides different capabilities.",
-      "UCODE_TEMPLATE": "[MODE|$1]",
+      "UCODE_TEMPLATE": "[SYSTEM|MODE*$1]",
       "DEFAULT_PARAMS": {},
       "EXAMPLES": [
         "MODE",
@@ -344,7 +344,7 @@
       "NAME": "GHOST",
       "SYNTAX": "GHOST",
       "DESCRIPTION": "Toggle GHOST mode for isolated sandbox testing. No persistent changes, network disabled.",
-      "UCODE_TEMPLATE": "[GHOST]",
+      "UCODE_TEMPLATE": "[SYSTEM|GHOST]",
       "DEFAULT_PARAMS": {},
       "EXAMPLES": [
         "GHOST"
@@ -362,7 +362,7 @@
       "NAME": "TOMB",
       "SYNTAX": "TOMB",
       "DESCRIPTION": "Toggle TOMB mode for read-only archival access. Local storage only, no networking.",
-      "UCODE_TEMPLATE": "[TOMB]",
+      "UCODE_TEMPLATE": "[SYSTEM|TOMB]",
       "DEFAULT_PARAMS": {},
       "EXAMPLES": [
         "TOMB"
@@ -380,7 +380,7 @@
       "NAME": "CRYPT",
       "SYNTAX": "CRYPT",
       "DESCRIPTION": "Toggle CRYPT mode for archival with networking. Location/beacon/key sharing enabled.",
-      "UCODE_TEMPLATE": "[CRYPT]",
+      "UCODE_TEMPLATE": "[SYSTEM|CRYPT]",
       "DEFAULT_PARAMS": {},
       "EXAMPLES": [
         "CRYPT"
