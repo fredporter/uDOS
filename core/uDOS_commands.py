@@ -187,6 +187,10 @@ class CommandHandler:
         from core.commands.device_handler import DeviceHandler
         self.device_handler = DeviceHandler(**handler_kwargs)
 
+        # v1.2.25 - Keypad Demo
+        from core.commands.keypad_demo_handler import KeypadDemoHandler
+        self.keypad_demo_handler = KeypadDemoHandler(**handler_kwargs)
+
         from core.commands.gmail_handler import handle_gmail_command
         self.gmail_handler = handle_gmail_command
 
@@ -547,6 +551,10 @@ class CommandHandler:
             # v1.2.25 - Device Management (Input Devices)
             elif module == "DEVICE":
                 return self.device_handler.handle_command([command] + params if command else params)
+
+            # v1.2.25 - Keypad Demo (Universal Input System)
+            elif module == "KEYPAD":
+                return self.keypad_demo_handler.handle_command([command] + params if command else params)
 
             # v1.5.0 - PEEK Data Collection System
             elif module == "PEEK":
