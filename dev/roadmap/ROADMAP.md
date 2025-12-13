@@ -504,9 +504,11 @@ heal-sprite[20]               # Function call
 
 **Forbidden Characters (NOT allowed in variables/filenames/function names):**
 ```
-`~@#$%^&*[]{}'"<>\|
+`~@#$%^&*[]{}'"<>\|_
 ```
-Use ONLY: `a-z A-Z 0-9 _ -` (alphanumeric, underscore, dash)
+Note: uCODE uses **dashes** `-` not underscores `_` (Python compatibility handled by smart editor)
+
+Use ONLY: `a-z A-Z 0-9 -` (alphanumeric and dash)
 
 **Emoji Escape System (ONLY in COMMAND[...] arguments for output text):**
 ```
@@ -514,8 +516,11 @@ Use ONLY: `a-z A-Z 0-9 _ -` (alphanumeric, underscore, dash)
 :dollar: → $     :sq: → '         :dq: → "          :backtick: → `
 :tilde: → ~      :at: → @         :hash: → #        :percent: → %
 :caret: → ^      :amp: → &        :lcb: → {         :rcb: → }
-:lt: → <         :gt: → >         :bs: → \
+:lt: → <         :gt: → >         :bs: → \          :underscore: → _
 ```
+
+Note: Underscores forbidden in uCODE syntax (use dashes `-` instead)
+Smart editor converts: `player_hp` (Python) ↔ `player-hp` (uCODE)
 
 **Example with Emoji Escapes (command arguments only):**
 ```upy

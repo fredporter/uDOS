@@ -28,13 +28,15 @@ uCODE Syntax Rules:
 - Emoji Escapes: ONLY inside COMMAND[...] for output text/strings
 
 Forbidden Characters (NOT allowed in variables/filenames):
-  `~@#$%^&*[]{}'"<>\|
+  `~@#$%^&*[]{}'"<>\|_
+  Note: uCODE uses dashes (-) not underscores (_)
   
 Emoji Escape System (ONLY in COMMAND[...] arguments for output text):
   :sb: → [    :eb: → ]    :pipe: → |    :star: → *    :dollar: → $
   :sq: → '    :dq: → "    :backtick: → `    :tilde: → ~    :at: → @
   :hash: → #    :percent: → %    :caret: → ^    :amp: → &
   :lcb: → {    :rcb: → }    :lt: → <    :gt: → >    :bs: → \
+  :underscore: → _ (use dashes in uCODE, underscores only for output text)
 
 Example (emoji codes for special chars in output):
   PRINT[This is the end|:sb:Score: $variable:eb:]
@@ -104,6 +106,7 @@ COMMAND_EMOJI_MAP = {
     '<': ':lt:',       # less than
     '>': ':gt:',       # greater than
     '\\': ':bs:',      # backslash
+    '_': ':underscore:', # underscore (uCODE uses dashes -)
 }
 
 # Reverse mapping for rendering (emoji → character)
