@@ -1,0 +1,374 @@
+# uDOS v1.2.23 - Unified Task System Test Suite
+# Date: 20251213-155000UTC
+# Location: Test Suite
+# Purpose: Comprehensive testing of unified task management system
+
+PRINT ('═══════════════════════════════════════════════════════════')
+PRINT ('🧪 uDOS v1.2.23 - Unified Task System Tests')
+PRINT ('Date: 20251213-155000UTC')
+PRINT ('═══════════════════════════════════════════════════════════')
+PRINT ('')
+
+# Initialize test counters
+SET {$tests_run} = 0
+SET {$tests_passed} = 0
+SET {$tests_failed} = 0
+
+# ═══════════════════════════════════════════════════════════════
+# TEST SUITE 1: Filename Generator & uDOS ID Format
+# ═══════════════════════════════════════════════════════════════
+
+PRINT ('📋 TEST SUITE 1: Filename Generator & uDOS ID Format')
+PRINT ('─────────────────────────────────────────────────────────')
+
+# Test 1.1: Create file with --dated flag
+PRINT ('Test 1.1: FILE NEW --dated flag')
+SET {$tests_run} = {$tests_run} + 1
+# Note: Manual validation - check format YYYYMMDD-name.ext
+PRINT ('  ℹ️  Manual validation required: FILE NEW test.md --dated')
+PRINT ('  Expected format: YYYYMMDD-test.md')
+PRINT ('')
+
+# Test 1.2: Create file with --timed flag  
+PRINT ('Test 1.2: FILE NEW --timed flag')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  ℹ️  Manual validation required: FILE NEW test.md --timed')
+PRINT ('  Expected format: YYYYMMDD-HHMMSSTZ-test.md')
+PRINT ('')
+
+# Test 1.3: Create file with --timed --located flags
+PRINT ('Test 1.3: FILE NEW --timed --located --tile AA340')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  ℹ️  Manual validation required')
+PRINT ('  Expected format: YYYYMMDD-HHMMSSTZ-AA340-test.md')
+PRINT ('')
+
+# ═══════════════════════════════════════════════════════════════
+# TEST SUITE 2: UnifiedTaskManager Core Operations
+# ═══════════════════════════════════════════════════════════════
+
+PRINT ('📋 TEST SUITE 2: UnifiedTaskManager Core Operations')
+PRINT ('─────────────────────────────────────────────────────────')
+
+# Test 2.1: Check unified_tasks.json exists
+PRINT ('Test 2.1: Verify unified_tasks.json structure')
+SET {$tests_run} = {$tests_run} + 1
+
+IF (EXISTS 'memory/workflows/tasks/unified_tasks.json')
+  PRINT ('  ✅ unified_tasks.json exists')
+  SET {$tests_passed} = {$tests_passed} + 1
+ELSE
+  PRINT ('  ❌ unified_tasks.json not found')
+  SET {$tests_failed} = {$tests_failed} + 1
+END IF
+PRINT ('')
+
+# Test 2.2: Validate unified_tasks.json is valid JSON
+PRINT ('Test 2.2: Validate JSON structure')
+SET {$tests_run} = {$tests_run} + 1
+# Note: Parser validation - should not throw errors
+PRINT ('  ℹ️  JSON validation: Parse memory/workflows/tasks/unified_tasks.json')
+PRINT ('  Expected: Valid JSON with tasks/projects/metadata keys')
+PRINT ('')
+
+# Test 2.3: Check backup directory exists
+PRINT ('Test 2.3: Verify backup directory structure')
+SET {$tests_run} = {$tests_run} + 1
+
+IF (EXISTS 'memory/workflows/tasks/backups')
+  PRINT ('  ✅ Backups directory exists')
+  SET {$tests_passed} = {$tests_passed} + 1
+ELSE
+  PRINT ('  ❌ Backups directory not found')
+  SET {$tests_failed} = {$tests_failed} + 1
+END IF
+PRINT ('')
+
+# Test 2.4: Check archive directory structure
+PRINT ('Test 2.4: Verify archive directory structure')
+SET {$tests_run} = {$tests_run} + 1
+
+IF (EXISTS 'memory/workflows/tasks/.archive')
+  PRINT ('  ✅ Archive directory exists')
+  SET {$tests_passed} = {$tests_passed} + 1
+ELSE
+  PRINT ('  ❌ Archive directory not found')
+  SET {$tests_failed} = {$tests_failed} + 1
+END IF
+PRINT ('')
+
+# ═══════════════════════════════════════════════════════════════
+# TEST SUITE 3: Task Lifecycle (Manual Commands)
+# ═══════════════════════════════════════════════════════════════
+
+PRINT ('📋 TEST SUITE 3: Task Lifecycle Operations')
+PRINT ('─────────────────────────────────────────────────────────')
+PRINT ('Note: These tests require manual command execution')
+PRINT ('')
+
+# Test 3.1: Task creation
+PRINT ('Test 3.1: Create task')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. TASK CREATE "Test water collection" --project "Test Project"')
+PRINT ('     2. TASK LIST')
+PRINT ('  Expected: Task created with uDOS ID format')
+PRINT ('  Expected ID format: 20251213-HHMMSSTZ-task-XXX')
+PRINT ('')
+
+# Test 3.2: Project creation
+PRINT ('Test 3.2: Create project')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. PROJECT CREATE "Test Camp Setup" --location AA340')
+PRINT ('     2. PROJECT LIST')
+PRINT ('  Expected: Project created with location awareness')
+PRINT ('')
+
+# Test 3.3: Task-project linking
+PRINT ('Test 3.3: Link task to project')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. TASK LINK <task_id> --project <project_id>')
+PRINT ('     2. PROJECT STATUS <project_id>')
+PRINT ('  Expected: Task shows in project task list')
+PRINT ('')
+
+# Test 3.4: Task completion
+PRINT ('Test 3.4: Complete task')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. TASK DONE <task_id>')
+PRINT ('     2. TASK LIST')
+PRINT ('  Expected: Task status = "done", completion timestamp set')
+PRINT ('')
+
+# ═══════════════════════════════════════════════════════════════
+# TEST SUITE 4: Version Control (UNDO/REDO/BACKUP)
+# ═══════════════════════════════════════════════════════════════
+
+PRINT ('📋 TEST SUITE 4: Version Control Operations')
+PRINT ('─────────────────────────────────────────────────────────')
+
+# Test 4.1: Backup unified_tasks.json
+PRINT ('Test 4.1: Backup task file')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. BACKUP memory/workflows/tasks/unified_tasks.json')
+PRINT ('     2. Check memory/workflows/tasks/backups/')
+PRINT ('  Expected: Backup file with timestamp in backups/')
+PRINT ('  Format: 20251213-HHMMSSTZ-unified_tasks.json')
+PRINT ('')
+
+# Test 4.2: UNDO task changes
+PRINT ('Test 4.2: Undo task changes')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. Make change to task (TASK EDIT <id> priority urgent)')
+PRINT ('     2. UNDO memory/workflows/tasks/unified_tasks.json')
+PRINT ('     3. TASK LIST')
+PRINT ('  Expected: Change reverted to previous version')
+PRINT ('')
+
+# Test 4.3: REDO task changes
+PRINT ('Test 4.3: Redo undone changes')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. REDO memory/workflows/tasks/unified_tasks.json')
+PRINT ('     2. TASK LIST')
+PRINT ('  Expected: Undone change restored')
+PRINT ('')
+
+# ═══════════════════════════════════════════════════════════════
+# TEST SUITE 5: Archiving System
+# ═══════════════════════════════════════════════════════════════
+
+PRINT ('📋 TEST SUITE 5: Archive Operations')
+PRINT ('─────────────────────────────────────────────────────────')
+
+# Test 5.1: Archive completed task
+PRINT ('Test 5.1: Archive completed task')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. Create and complete a task')
+PRINT ('     2. ARCHIVE task <task_id>')
+PRINT ('     3. Check memory/workflows/tasks/.archive/YYYY-MM/')
+PRINT ('  Expected: Task archived to monthly folder')
+PRINT ('  Format: .archive/2025-12/20251213-archived-task-XXX.json')
+PRINT ('')
+
+# Test 5.2: Archive project with tasks
+PRINT ('Test 5.2: Archive project with all tasks')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. Create project with 2-3 linked tasks')
+PRINT ('     2. Complete all tasks')
+PRINT ('     3. ARCHIVE project <project_id>')
+PRINT ('     4. Check .archive/projects/')
+PRINT ('  Expected: Project + all related tasks archived')
+PRINT ('')
+
+# Test 5.3: Archive validation (status check)
+PRINT ('Test 5.3: Archive status validation')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. Create task (dont complete)')
+PRINT ('     2. ARCHIVE task <task_id>')
+PRINT ('  Expected: Error - "Task must be completed before archiving"')
+PRINT ('')
+
+# ═══════════════════════════════════════════════════════════════
+# TEST SUITE 6: File Organization (TIDY/CLEAN)
+# ═══════════════════════════════════════════════════════════════
+
+PRINT ('📋 TEST SUITE 6: File Organization')
+PRINT ('─────────────────────────────────────────────────────────')
+
+# Test 6.1: TIDY tasks by date
+PRINT ('Test 6.1: Organize tasks by date')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. Create some task files with uDOS ID format')
+PRINT ('     2. TIDY tasks --report  (preview)')
+PRINT ('     3. TIDY tasks           (execute)')
+PRINT ('  Expected: Tasks organized into YYYY-MM folders')
+PRINT ('')
+
+# Test 6.2: TIDY missions by location
+PRINT ('Test 6.2: Organize missions by location')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. Create missions with --located flag (different TILE codes)')
+PRINT ('     2. TIDY missions --report')
+PRINT ('     3. TIDY missions')
+PRINT ('  Expected: Missions grouped by TILE code folders')
+PRINT ('')
+
+# Test 6.3: TIDY --by-date (workspace-wide)
+PRINT ('Test 6.3: Workspace-wide date organization')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. TIDY --by-date --report')
+PRINT ('  Expected: Preview of all files with uDOS ID format')
+PRINT ('  Expected: Organized into YYYY-MM folders')
+PRINT ('')
+
+# Test 6.4: CLEAN archives recognition
+PRINT ('Test 6.4: CLEAN recognizes uDOS ID format')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run these commands:')
+PRINT ('     1. CLEAN --stats')
+PRINT ('  Expected: Reports files by format (uDOS ID vs legacy)')
+PRINT ('')
+
+# ═══════════════════════════════════════════════════════════════
+# TEST SUITE 7: Migration Tools
+# ═══════════════════════════════════════════════════════════════
+
+PRINT ('📋 TEST SUITE 7: Migration Tools')
+PRINT ('─────────────────────────────────────────────────────────')
+
+# Test 7.1: Migration script dry-run
+PRINT ('Test 7.1: Test migration dry-run')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run in terminal:')
+PRINT ('     python dev/tools/migrate_to_unified_tasks.py --dry-run')
+PRINT ('  Expected: Shows what would be migrated without changes')
+PRINT ('')
+
+# Test 7.2: Rename script dry-run
+PRINT ('Test 7.2: Test rename script dry-run')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Manual test: Run in terminal:')
+PRINT ('     python dev/tools/rename_distributable_files.py --dry-run')
+PRINT ('  Expected: Shows files that would be renamed')
+PRINT ('  Expected: Detects existing uDOS format (skips)')
+PRINT ('')
+
+# ═══════════════════════════════════════════════════════════════
+# TEST SUITE 8: Integration Tests
+# ═══════════════════════════════════════════════════════════════
+
+PRINT ('📋 TEST SUITE 8: Integration Tests')
+PRINT ('─────────────────────────────────────────────────────────')
+
+# Test 8.1: Full task lifecycle
+PRINT ('Test 8.1: Complete task lifecycle')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Full integration test:')
+PRINT ('     1. FILE NEW mission.upy --timed --located --tile AA340')
+PRINT ('     2. PROJECT CREATE "Integration Test" --location AA340')
+PRINT ('     3. TASK CREATE "Test task" --project <project_id>')
+PRINT ('     4. TASK DONE <task_id>')
+PRINT ('     5. BACKUP memory/workflows/tasks/unified_tasks.json')
+PRINT ('     6. ARCHIVE task <task_id>')
+PRINT ('     7. TIDY tasks')
+PRINT ('     8. CLEAN --stats')
+PRINT ('  Expected: All operations succeed, files properly organized')
+PRINT ('')
+
+# Test 8.2: UNDO/REDO chain
+PRINT ('Test 8.2: UNDO/REDO chain')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Version control test:')
+PRINT ('     1. Make 3 changes to tasks')
+PRINT ('     2. UNDO (revert change 3)')
+PRINT ('     3. UNDO (revert change 2)')
+PRINT ('     4. REDO (restore change 2)')
+PRINT ('     5. REDO (restore change 3)')
+PRINT ('  Expected: All undo/redo operations succeed')
+PRINT ('')
+
+# Test 8.3: Project with multiple tasks
+PRINT ('Test 8.3: Project with multiple tasks')
+SET {$tests_run} = {$tests_run} + 1
+PRINT ('  📝 Relationship test:')
+PRINT ('     1. PROJECT CREATE "Camp Setup"')
+PRINT ('     2. TASK CREATE "Task 1" --project <id>')
+PRINT ('     3. TASK CREATE "Task 2" --project <id>')
+PRINT ('     4. TASK CREATE "Task 3" --project <id>')
+PRINT ('     5. Complete all tasks')
+PRINT ('     6. ARCHIVE project <id>')
+PRINT ('  Expected: Project completion = 100%, all tasks archived')
+PRINT ('')
+
+# ═══════════════════════════════════════════════════════════════
+# TEST SUMMARY
+# ═══════════════════════════════════════════════════════════════
+
+PRINT ('')
+PRINT ('═══════════════════════════════════════════════════════════')
+PRINT ('📊 TEST SUMMARY')
+PRINT ('═══════════════════════════════════════════════════════════')
+PRINT ('')
+PRINT ('Total Tests Run:     {$tests_run}')
+PRINT ('Tests Passed:        {$tests_passed}')
+PRINT ('Tests Failed:        {$tests_failed}')
+PRINT ('Manual Tests:        ' + ({$tests_run} - {$tests_passed} - {$tests_failed}))
+PRINT ('')
+
+# Calculate success rate for automated tests
+IF ({$tests_passed} + {$tests_failed}) > 0
+  SET {$auto_tests} = {$tests_passed} + {$tests_failed}
+  SET {$success_rate} = ({$tests_passed} / {$auto_tests}) * 100
+  PRINT ('Automated Success Rate: {$success_rate}%')
+END IF
+
+PRINT ('')
+PRINT ('ℹ️  NOTE: Most tests require manual execution and validation')
+PRINT ('ℹ️  This suite validates the integration points and structure')
+PRINT ('')
+
+IF {$tests_failed} > 0
+  PRINT ('⚠️  SOME TESTS FAILED - Review output above')
+ELSE
+  PRINT ('✅ ALL AUTOMATED TESTS PASSED')
+  PRINT ('📝 Continue with manual test validation')
+END IF
+
+PRINT ('')
+PRINT ('═══════════════════════════════════════════════════════════')
+PRINT ('Test Date: 20251213-155000UTC')
+PRINT ('Version: v1.2.23')
+PRINT ('Location: memory/ucode/tests/test_unified_tasks.upy')
+PRINT ('═══════════════════════════════════════════════════════════')
