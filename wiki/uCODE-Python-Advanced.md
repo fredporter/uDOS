@@ -17,6 +17,46 @@ With v1.2.24's Python-first architecture, you have access to **the entire Python
 
 ---
 
+## Transition from UPPERCASE to Lowercase
+
+### Beginner Level: UPPERCASE uCODE
+
+```python
+# Beginner syntax - UPPERCASE for visual consistency with uCODE
+PRINT[Hello, world!]
+IF GET[$player-hp] < 50 THEN HEAL*SPRITE[player|30|medkit]
+FUNCTION[@daily*check]
+```
+
+### Intermediate Level: Mixed Syntax
+
+```python
+# Intermediate - Mix UPPERCASE uCODE with lowercase Python
+from udos_core import *
+
+player_hp = get_var("player-hp", 100)
+if player_hp < 50:
+    HEAL*SPRITE("player", 30, "medkit")  # uCODE command
+```
+
+### Advanced Level: Pure Lowercase Python
+
+**From this point forward, this guide uses standard lowercase Python syntax.**
+
+```python
+# Advanced - Pure Python with uCODE as imported functions
+from udos_core import guide, heal_sprite, checkpoint_save
+
+player_hp = 100
+
+if player_hp < 50:
+    heal_sprite("player", 30, "medkit")
+    guide("medical/wounds", "detailed")
+    checkpoint_save("emergency-heal")
+```
+
+---
+
 ## Python Control Flow
 
 ### Conditionals (if/elif/else)
@@ -30,23 +70,23 @@ player_level = get_var("player-level", 1)
 
 # Complex conditional logic
 if player_hp < 20:
-    PRINT["CRITICAL: Health very low!"]
-    HEAL_SPRITE["player"|"50"|"emergency-kit"]
-    GUIDE["medical/wounds"|"detailed"]
+    print("CRITICAL: Health very low!")
+    heal_sprite("player", 50, "emergency-kit")
+    guide("medical/wounds", "detailed")
 elif player_hp < 50:
-    PRINT["WARNING: Health low"]
-    HEAL_SPRITE["player"|"20"|"bandage"]
+    print("WARNING: Health low")
+    heal_sprite("player", 20, "bandage")
 elif player_hp < 80:
-    PRINT["Health moderate"]
+    print("Health moderate")
 else:
-    PRINT["Health excellent"]
+    print("Health excellent")
 
 # Nested conditionals
 if player_level > 5:
     if player_hp > 80:
-        PRINT["Ready for advanced missions!"]
+        print("Ready for advanced missions!")
     else:
-        PRINT["Level high but health low - rest first"]
+        print("Level high but health low - rest first")
 ```
 
 ### Ternary Operator
@@ -54,13 +94,13 @@ if player_level > 5:
 ```python
 # Concise conditional assignment
 status = "healthy" if player_hp > 80 else "injured"
-PRINT[f"Status: {status}"]
+print(f"Status: {status}")
 
 # Nested ternary
 priority = "critical" if hp < 20 else "urgent" if hp < 50 else "normal"
 
 # With function calls
-action = HEAL_SPRITE["player"|"50"|"medkit"] if hp < 30 else PRINT["No healing needed"]
+action = heal_sprite("player", 50, "medkit") if hp < 30 else print("No healing needed")
 ```
 
 ### Loops
@@ -72,80 +112,69 @@ action = HEAL_SPRITE["player"|"50"|"medkit"] if hp < 30 else PRINT["No healing n
 inventory = ["axe", "rope", "knife", "water-filter"]
 
 for item in inventory:
-    PRINT[f"Checking {item}..."]
+    print(f"Checking {item}...")
     if item == "water-filter":
-        PRINT["Essential item found!"]
+        print("Essential item found!")
 
 # Loop with index
 for i, item in enumerate(inventory, 1):
-    PRINT[f"{i}. {item}"]
+    print(f"{i}. {item}")
 
 # Loop over range
 for day in range(1, 8):  # Days 1-7
-    PRINT[f"Day {day} survival log"]
+    print(f"Day {day} survival log")
     water_consumed = 5
     set_var(f"water-day-{day}", water_consumed)
 
 # Loop over dictionary
 resources = {"water": 50, "food": 30, "wood": 20}
 for resource, amount in resources.items():
-    PRINT[f"{resource}: {amount}"]
+    print(f"{resource}: {amount}")
     if amount < 25:
-        PRINT[f"  ⚠ {resource} running low!"]
+        print(f"  ⚠️ {resource} running low!")
 ```
 
 #### While Loops
 
 ```python
 # Monitor water level
-water = get_var("water-level", 100)
+water_level = get_var("water-level", 100)
+daily_consumption = 5
 
-while water > 0:
-    PRINT[f"Water: {water} liters"]
+days_survived = 0
+while water_level > 0:
+    water_level -= daily_consumption
+    days_survived += 1
+    print(f"Day {days_survived}: Water at {water_level}L")
     
-    # Daily consumption
-    water -= 5
-    
-    if water < 30:
-        PRINT["Warning: Water low!"]
-        GUIDE["water/collection"|"quick"]
+    if water_level < 30:
+        print("⚠️ Water critical!")
+        guide("water/collection", "detailed")
         break
-    
-    set_var("water-level", water)
 
-# Infinite loop with break
-checkpoint_count = 0
-while True:
-    checkpoint_count += 1
-    CHECKPOINT_SAVE[f"auto-{checkpoint_count}"]
-    
-    if checkpoint_count >= 10:
-        break  # Stop after 10 checkpoints
+print(f"Survived {days_survived} days")
 ```
 
-#### Loop Control
+#### List Comprehensions
 
 ```python
-# Continue - skip to next iteration
-for item in inventory:
-    if item == "broken-tool":
-        continue  # Skip broken items
-    PRINT[f"Using {item}"]
+# Filter resources below threshold
+resources = [100, 45, 23, 67, 15, 89]
+low_resources = [r for r in resources if r < 30]
+print(f"Low resources: {low_resources}")
 
-# Break - exit loop early
-for location in search_area:
-    if check_water_source(location):
-        PRINT[f"Water found at {location}!"]
-        break  # Stop searching
+# Transform data
+inventory = ["axe", "rope", "knife"]
+upper_inventory = [item.upper() for item in inventory]
 
-# Else clause (runs if loop completes without break)
-for item in inventory:
-    if item == "water-filter":
-        PRINT["Filter found!"]
-        break
-else:
-    PRINT["No filter - need to find one"]
-    GUIDE["water/filtration"|"detailed"]
+# Conditional comprehension
+hp_values = [100, 45, 78, 23, 91]
+critical = [hp for hp in hp_values if hp < 30]
+healthy = [hp for hp in hp_values if hp >= 80]
+
+# Dictionary comprehension
+items = ["axe", "rope", "knife"]
+item_counts = {item: inventory.count(item) for item in items}
 ```
 
 ---
@@ -155,186 +184,268 @@ else:
 ### Basic Functions
 
 ```python
-def check_resources():
-    """Check all resource levels."""
+def check_health(sprite_id):
+    """Check sprite health and heal if needed."""
+    hp = get_var(f"{sprite_id}-hp", 100)
+    
+    if hp < 30:
+        print(f"{sprite_id}: CRITICAL")
+        heal_sprite(sprite_id, 50, "emergency-kit")
+    elif hp < 60:
+        print(f"{sprite_id}: Low")
+        heal_sprite(sprite_id, 20, "bandage")
+    else:
+        print(f"{sprite_id}: Healthy")
+    
+    return hp
+
+# Call function
+player_hp = check_health("player")
+companion_hp = check_health("companion")
+```
+
+### Functions with Multiple Parameters
+
+```python
+def calculate_survival_time(water, food, people=1, climate="temperate"):
+    """Calculate days of survival with current resources.
+    
+    Args:
+        water: Water in liters
+        food: Food in days worth
+        people: Number of people (default 1)
+        climate: hot | temperate | cold (default temperate)
+    
+    Returns:
+        Tuple of (water_days, food_days, min_days)
+    """
+    # Adjust consumption by climate
+    water_per_day = {
+        "hot": 5,
+        "temperate": 3,
+        "cold": 2
+    }
+    
+    daily_water = water_per_day[climate] * people
+    water_days = water / daily_water
+    food_days = food / people
+    
+    min_days = min(water_days, food_days)
+    
+    return water_days, food_days, min_days
+
+# Use function
+water_days, food_days, survival = calculate_survival_time(100, 30, people=2, climate="hot")
+print(f"Water: {water_days:.1f} days")
+print(f"Food: {food_days:.1f} days")
+print(f"Survival time: {survival:.1f} days")
+```
+
+### Functions Returning Multiple Values
+
+```python
+def assess_camp_status():
+    """Assess all camp resource levels."""
     water = get_var("water-level", 100)
     food = get_var("food-supply", 50)
     wood = get_var("wood-count", 30)
     
-    PRINT[f"Water: {water} | Food: {food} | Wood: {wood}"]
-    return water, food, wood
-
-# Call function
-w, f, wd = check_resources()
-```
-
-### Functions with Parameters
-
-```python
-def heal_player(amount, item_name):
-    """Heal player by specified amount."""
-    current_hp = get_var("player-hp", 100)
-    max_hp = get_var("player-max-hp", 100)
+    water_ok = water >= 30
+    food_ok = food >= 20
+    wood_ok = wood >= 15
     
-    new_hp = min(current_hp + amount, max_hp)  # Cap at max
-    set_var("player-hp", new_hp)
+    all_ok = water_ok and food_ok and wood_ok
     
-    HEAL_SPRITE["player"|str(amount)|item_name]
-    PRINT[f"Healed {amount} HP using {item_name}"]
-    
-    return new_hp
+    return water_ok, food_ok, wood_ok, all_ok
 
-# Usage
-heal_player(30, "bandage")
-heal_player(50, "medkit")
-```
+# Unpack results
+w_ok, f_ok, wd_ok, camp_ok = assess_camp_status()
 
-### Default Parameters
-
-```python
-def guide_lookup(topic, complexity="detailed"):
-    """Look up survival guide with default complexity."""
-    GUIDE[f"{topic}"|complexity]
-    PRINT[f"Showing {complexity} guide for {topic}"]
-
-# Use default
-guide_lookup("water/purification")  # Uses "detailed"
-
-# Override default
-guide_lookup("fire/bow-drill", "simple")
-```
-
-### Keyword Arguments
-
-```python
-def create_checkpoint(name, save_inventory=True, save_location=True):
-    """Create checkpoint with optional data."""
-    CHECKPOINT_SAVE[name]
-    
-    if save_inventory:
-        inv = get_var("inventory", "[]")
-        set_var(f"checkpoint-{name}-inventory", inv)
-    
-    if save_location:
-        loc = get_var("current-location", "unknown")
-        set_var(f"checkpoint-{name}-location", loc)
-    
-    PRINT[f"Checkpoint '{name}' saved"]
-
-# Various calling styles
-create_checkpoint("camp-setup")
-create_checkpoint("pre-storm", save_inventory=False)
-create_checkpoint("exploration", save_location=True, save_inventory=True)
-```
-
-### Return Values
-
-```python
-def calculate_days_remaining(water, daily_use):
-    """Calculate how many days water will last."""
-    if daily_use == 0:
-        return float('inf')  # Infinite days if no use
-    
-    days = water / daily_use
-    return int(days)
-
-# Use return value
-water_level = get_var("water-level", 50)
-days = calculate_days_remaining(water_level, 5)
-PRINT[f"Water will last {days} days"]
-
-if days < 3:
-    PRINT["Need to collect water soon!"]
-    GUIDE["water/collection"|"quick"]
+if camp_ok:
+    print("✅ Camp fully stocked")
+else:
+    print("⚠️ Camp needs supplies")
+    if not w_ok:
+        guide("water/collection", "simple")
+    if not f_ok:
+        guide("food/foraging", "simple")
 ```
 
 ### Lambda Functions
 
 ```python
-# Simple anonymous functions
+# Simple lambda
 square = lambda x: x ** 2
-PRINT[f"5 squared: {square(5)}"]
+print(square(5))  # 25
 
-# Use with sort
-resources = [
-    {"name": "water", "amount": 50},
-    {"name": "food", "amount": 30},
-    {"name": "wood", "amount": 70}
+# Lambda with conditionals
+status = lambda hp: "healthy" if hp > 80 else "injured"
+print(status(90))  # healthy
+
+# Lambda in sorting
+players = [
+    {"name": "Alice", "hp": 90},
+    {"name": "Bob", "hp": 45},
+    {"name": "Charlie", "hp": 75}
 ]
+sorted_players = sorted(players, key=lambda p: p["hp"])
 
-# Sort by amount
-sorted_resources = sorted(resources, key=lambda x: x["amount"])
-for res in sorted_resources:
-    PRINT[f"{res['name']}: {res['amount']}"]
-
-# Filter with lambda
-low_resources = list(filter(lambda x: x["amount"] < 40, resources))
+# Lambda in filtering
+high_hp = list(filter(lambda p: p["hp"] > 70, players))
 ```
 
 ---
 
-## List Comprehensions
+## Classes and Objects
 
-### Basic Comprehensions
+### Basic Classes
 
 ```python
-# Create list from range
-squares = [x**2 for x in range(10)]
-PRINT[f"Squares: {squares}"]
+class Survivor:
+    """Represent a survivor with health, inventory, and skills."""
+    
+    def __init__(self, name, hp=100):
+        """Initialize survivor."""
+        self.name = name
+        self.hp = hp
+        self.max_hp = 100
+        self.inventory = []
+        self.level = 1
+        self.xp = 0
+    
+    def heal(self, amount):
+        """Heal survivor by amount."""
+        self.hp = min(self.hp + amount, self.max_hp)
+        print(f"{self.name} healed to {self.hp} HP")
+    
+    def add_item(self, item):
+        """Add item to inventory."""
+        self.inventory.append(item)
+        print(f"{self.name} acquired {item}")
+    
+    def status(self):
+        """Display survivor status."""
+        print(f"=== {self.name} ===")
+        print(f"HP: {self.hp}/{self.max_hp}")
+        print(f"Level: {self.level}")
+        print(f"XP: {self.xp}")
+        print(f"Items: {len(self.inventory)}")
 
-# Transform existing list
-items = ["axe", "rope", "knife"]
-upper_items = [item.upper() for item in items]
+# Create survivors
+player = Survivor("Hero")
+companion = Survivor("Buddy", hp=80)
 
-# With condition
-even_squares = [x**2 for x in range(10) if x % 2 == 0]
-
-# Multiple conditions
-valid_resources = [r for r in resources if r > 0 and r < 100]
+# Use methods
+player.heal(20)
+player.add_item("axe")
+player.status()
 ```
 
-### Nested Comprehensions
+### Classes with Properties
 
 ```python
-# 2D grid
-grid = [[f"{x},{y}" for x in range(3)] for y in range(3)]
-for row in grid:
-    PRINT[str(row)]
+class ResourceManager:
+    """Manage camp resources with thresholds."""
+    
+    def __init__(self):
+        self._water = 100
+        self._food = 50
+        self.min_water = 30
+        self.min_food = 20
+    
+    @property
+    def water(self):
+        """Get water level."""
+        return self._water
+    
+    @water.setter
+    def water(self, value):
+        """Set water level with validation."""
+        if value < 0:
+            raise ValueError("Water cannot be negative")
+        self._water = value
+        if value < self.min_water:
+            print(f"⚠️ Water low: {value}L")
+            guide("water/collection", "detailed")
+    
+    @property
+    def food(self):
+        """Get food level."""
+        return self._food
+    
+    @food.setter
+    def food(self, value):
+        """Set food level with validation."""
+        if value < 0:
+            raise ValueError("Food cannot be negative")
+        self._food = value
+        if value < self.min_food:
+            print(f"⚠️ Food low: {value} days")
+            guide("food/foraging", "detailed")
+    
+    def consume_daily(self):
+        """Consume daily resources."""
+        self.water -= 5
+        self.food -= 1
+        print(f"Daily consumption: {self.water}L water, {self.food} days food")
 
-# Flatten nested list
-nested = [[1, 2], [3, 4], [5, 6]]
-flat = [item for sublist in nested for item in sublist]
-PRINT[f"Flattened: {flat}"]
+# Use resource manager
+camp = ResourceManager()
+camp.water = 25  # Triggers warning
+camp.consume_daily()
 ```
 
-### Dictionary Comprehensions
+### Inheritance
 
 ```python
-# Create dictionary from lists
-keys = ["water", "food", "wood"]
-values = [50, 30, 20]
-resources_dict = {k: v for k, v in zip(keys, values)}
+class Character:
+    """Base class for all characters."""
+    
+    def __init__(self, name, hp=100):
+        self.name = name
+        self.hp = hp
+        self.max_hp = hp
+    
+    def heal(self, amount):
+        """Heal character."""
+        self.hp = min(self.hp + amount, self.max_hp)
 
-# Transform dictionary
-doubled = {k: v*2 for k, v in resources_dict.items()}
+class Player(Character):
+    """Player character with inventory and XP."""
+    
+    def __init__(self, name, hp=100):
+        super().__init__(name, hp)
+        self.inventory = []
+        self.xp = 0
+        self.level = 1
+    
+    def gain_xp(self, amount):
+        """Gain experience points."""
+        self.xp += amount
+        # Level up every 1000 XP
+        new_level = 1 + (self.xp // 1000)
+        if new_level > self.level:
+            self.level = new_level
+            print(f"{self.name} leveled up to {self.level}!")
 
-# Filter dictionary
-low_resources = {k: v for k, v in resources_dict.items() if v < 40}
+class Companion(Character):
+    """Companion character with loyalty."""
+    
+    def __init__(self, name, hp=80):
+        super().__init__(name, hp)
+        self.loyalty = 50
+    
+    def increase_loyalty(self, amount):
+        """Increase companion loyalty."""
+        self.loyalty = min(self.loyalty + amount, 100)
+        print(f"{self.name} loyalty: {self.loyalty}")
 
-# Swap keys and values
-swapped = {v: k for k, v in resources_dict.items()}
-```
+# Create characters
+hero = Player("Hero")
+buddy = Companion("Buddy")
 
-### Set Comprehensions
-
-```python
-# Unique values
-numbers = [1, 2, 2, 3, 3, 3, 4]
-unique = {x for x in numbers}
-
-# Transform to set
-items = ["axe", "rope", "axe", "knife"]
-unique_items = {item.lower() for item in items}
+hero.gain_xp(500)
+buddy.increase_loyalty(20)
 ```
 
 ---
@@ -344,247 +455,100 @@ unique_items = {item.lower() for item in items}
 ### Lists
 
 ```python
-# Creation
-inventory = []
+# Create and modify lists
 inventory = ["axe", "rope", "knife"]
-inventory = list(range(10))
-
-# Adding items
 inventory.append("water-filter")
-inventory.extend(["compass", "map"])
-inventory.insert(0, "priority-item")  # Add at index 0
+inventory.extend(["bandage", "firestarter"])
+inventory.insert(0, "compass")
 
-# Removing items
-inventory.remove("axe")  # Remove by value
-item = inventory.pop()  # Remove and return last item
-item = inventory.pop(0)  # Remove and return at index
-inventory.clear()  # Remove all
+# Remove items
+inventory.remove("rope")
+last_item = inventory.pop()
+del inventory[0]
 
-# Accessing
-first = inventory[0]
-last = inventory[-1]
-middle = inventory[len(inventory)//2]
+# List operations
+print(len(inventory))
+print("axe" in inventory)
+inventory.sort()
+inventory.reverse()
 
 # Slicing
 first_three = inventory[:3]
 last_two = inventory[-2:]
 every_other = inventory[::2]
-reversed_list = inventory[::-1]
-
-# Searching
-if "axe" in inventory:
-    PRINT["Have axe"]
-
-index = inventory.index("rope")  # Find index
-count = inventory.count("axe")  # Count occurrences
-
-# Sorting
-inventory.sort()  # In-place sort
-sorted_inv = sorted(inventory)  # Return new sorted list
-inventory.sort(reverse=True)  # Descending
-
-# List operations
-combined = inventory1 + inventory2
-repeated = inventory * 3
-length = len(inventory)
 ```
 
 ### Dictionaries
 
 ```python
-# Creation
-player = {}
-player = {"name": "Hero", "hp": 100, "level": 5}
-player = dict(name="Hero", hp=100, level=5)
+# Create dictionaries
+resources = {
+    "water": 100,
+    "food": 50,
+    "wood": 30
+}
 
-# Accessing
-name = player["name"]
-hp = player.get("hp", 100)  # With default
-level = player.get("level")
-
-# Adding/updating
-player["xp"] = 450
-player.update({"gold": 50, "items": 10})
-
-# Removing
-del player["gold"]
-xp = player.pop("xp", 0)  # Remove and return with default
-
-# Checking
-if "hp" in player:
-    PRINT[f"HP: {player['hp']}"]
-
-# Iterating
-for key in player:
-    PRINT[f"{key}: {player[key]}"]
-
-for key, value in player.items():
-    PRINT[f"{key}: {value}"]
+# Access and modify
+resources["water"] = 95
+resources["tools"] = 5
 
 # Dictionary methods
-keys = player.keys()
-values = player.values()
-items = player.items()
+keys = resources.keys()
+values = resources.values()
+items = resources.items()
 
-# Merging (Python 3.9+)
-defaults = {"hp": 100, "mp": 50}
-player = defaults | player  # Player values override defaults
-```
+# Safe access
+water = resources.get("water", 0)
+metal = resources.get("metal", 0)  # Returns 0 if not found
 
-### Tuples
+# Update multiple values
+resources.update({"water": 90, "food": 45})
 
-```python
-# Creation (immutable)
-location = (10, 20, 100)  # x, y, layer
-coords = 10, 20, 100  # Parentheses optional
+# Remove items
+del resources["wood"]
+tools = resources.pop("tools")
 
-# Unpacking
-x, y, layer = location
-
-# Single element (needs comma)
-single = (42,)
-
-# Accessing
-x = location[0]
-layer = location[-1]
-
-# Tuple as dictionary key (immutable, so allowed)
-grid_data = {
-    (0, 0): "camp",
-    (1, 0): "water",
-    (0, 1): "shelter"
-}
+# Iterate
+for resource, amount in resources.items():
+    print(f"{resource}: {amount}")
 ```
 
 ### Sets
 
 ```python
-# Creation (unique, unordered)
-visited = set()
-visited = {"AA340", "AB340", "AC340"}
-visited = set(["AA340", "AB340", "AA340"])  # Duplicates removed
-
-# Adding
-visited.add("AD340")
-visited.update(["AE340", "AF340"])
-
-# Removing
-visited.remove("AA340")  # Error if not present
-visited.discard("ZZ999")  # No error if not present
-item = visited.pop()  # Remove and return arbitrary item
+# Create sets
+required_items = {"axe", "rope", "knife", "water-filter"}
+available_items = {"axe", "rope", "bandage", "firestarter"}
 
 # Set operations
-a = {1, 2, 3, 4}
-b = {3, 4, 5, 6}
+missing = required_items - available_items
+print(f"Missing: {missing}")
 
-union = a | b  # {1, 2, 3, 4, 5, 6}
-intersection = a & b  # {3, 4}
-difference = a - b  # {1, 2}
-symmetric_diff = a ^ b  # {1, 2, 5, 6}
+have = required_items & available_items
+print(f"Have: {have}")
 
-# Testing
-if 3 in a:
-    PRINT["Found 3"]
+all_items = required_items | available_items
+print(f"All items: {all_items}")
 
-is_subset = a <= b
-is_superset = a >= b
+# Add/remove
+required_items.add("compass")
+required_items.remove("knife")
+required_items.discard("hammer")  # Doesn't error if not present
 ```
 
----
-
-## Error Handling
-
-### Try/Except
+### Tuples
 
 ```python
-# Basic error handling
-try:
-    level = int(user_input)
-    set_var("player-level", level)
-except ValueError:
-    PRINT["Error: Invalid number"]
-    level = 1  # Default
+# Immutable sequences
+location = (33.87, 151.21, 100)  # lat, lon, layer
+lat, lon, layer = location  # Unpacking
 
-# Multiple exception types
-try:
-    file_data = load_file("config.json")
-    config = json.loads(file_data)
-except FileNotFoundError:
-    PRINT["Config file not found"]
-    config = {}
-except json.JSONDecodeError:
-    PRINT["Invalid JSON format"]
-    config = {}
+# Named tuples
+from collections import namedtuple
 
-# Catch all exceptions
-try:
-    risky_operation()
-except Exception as e:
-    PRINT[f"Error: {e}"]
-    print(f"DEBUG: {type(e).__name__}")
-```
-
-### Finally
-
-```python
-# Cleanup code that always runs
-file = None
-try:
-    file = open("data.txt", "r")
-    data = file.read()
-finally:
-    if file:
-        file.close()  # Always close file
-
-# Better: Use context manager
-try:
-    with open("data.txt", "r") as file:
-        data = file.read()
-except FileNotFoundError:
-    PRINT["File not found"]
-```
-
-### Else Clause
-
-```python
-# Runs if no exception occurred
-try:
-    result = calculate_distance(start, end)
-except ValueError:
-    PRINT["Invalid coordinates"]
-else:
-    PRINT[f"Distance: {result}"]
-    set_var("last-distance", result)
-```
-
-### Custom Exceptions
-
-```python
-class InsufficientResourcesError(Exception):
-    """Raised when resources are too low."""
-    pass
-
-def craft_item(item_name, resources):
-    """Craft item if enough resources."""
-    required = get_recipe(item_name)
-    
-    for resource, amount in required.items():
-        if resources.get(resource, 0) < amount:
-            raise InsufficientResourcesError(
-                f"Need {amount} {resource}, have {resources.get(resource, 0)}"
-            )
-    
-    # Craft the item
-    consume_resources(resources, required)
-    return item_name
-
-# Usage
-try:
-    item = craft_item("shelter", {"wood": 20, "rope": 5})
-    PRINT[f"Crafted: {item}"]
-except InsufficientResourcesError as e:
-    PRINT[f"Cannot craft: {e}"]
-    GUIDE["resource/gathering"|"quick"]
+Location = namedtuple("Location", ["lat", "lon", "layer"])
+sydney = Location(33.87, 151.21, 100)
+print(f"Sydney: {sydney.lat}, {sydney.lon}, layer {sydney.layer}")
 ```
 
 ---
@@ -596,45 +560,42 @@ except InsufficientResourcesError as e:
 ```python
 from pathlib import Path
 
-# Read entire file
-with open("memory/docs/notes.txt", "r") as f:
-    content = f.read()
+# Read text file
+def load_guide(category, name):
+    """Load survival guide content."""
+    path = Path(f"knowledge/{category}/{name}.md")
+    
+    if not path.exists():
+        print(f"Guide not found: {path}")
+        return None
+    
+    with path.open() as f:
+        content = f.read()
+    
+    return content
 
-# Read line by line
-with open("memory/docs/log.txt", "r") as f:
-    for line in f:
-        PRINT[line.strip()]
-
-# Read all lines as list
-with open("memory/docs/items.txt", "r") as f:
-    lines = f.readlines()
-
-# Using Path (recommended)
-config_file = Path("memory/bank/user/settings.json")
-if config_file.exists():
-    content = config_file.read_text()
+# Use function
+water_guide = load_guide("water", "purification")
+print(water_guide)
 ```
 
 ### Writing Files
 
 ```python
-# Write (overwrites)
-with open("memory/docs/output.txt", "w") as f:
-    f.write("New content\n")
-    f.write("Second line\n")
+# Write text file
+def save_mission_log(mission_id, log_data):
+    """Save mission log to file."""
+    path = Path(f"memory/logs/missions/{mission_id}.log")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with path.open("w") as f:
+        f.write(log_data)
+    
+    print(f"Log saved: {path}")
 
-# Append
-with open("memory/logs/events.log", "a") as f:
-    f.write(f"{datetime.now()}: Event logged\n")
-
-# Write lines
-lines = ["Line 1", "Line 2", "Line 3"]
-with open("output.txt", "w") as f:
-    f.writelines([line + "\n" for line in lines])
-
-# Using Path
-output_file = Path("memory/docs/report.txt")
-output_file.write_text("Report content here")
+# Use function
+log = "Mission started: establish-camp\nLocation: AA340\nStatus: ACTIVE"
+save_mission_log("mission-001", log)
 ```
 
 ### JSON Files
@@ -642,129 +603,133 @@ output_file.write_text("Report content here")
 ```python
 import json
 
-# Read JSON
-with open("memory/bank/user/variables.json", "r") as f:
-    data = json.load(f)
-
 # Write JSON
-data = {"player-name": "Hero", "player-level": 5}
-with open("memory/bank/user/variables.json", "w") as f:
-    json.dump(data, f, indent=2)
+def save_checkpoint(name, data):
+    """Save checkpoint data as JSON."""
+    path = Path(f"memory/checkpoints/{name}.json")
+    
+    with path.open("w") as f:
+        json.dump(data, f, indent=2)
+    
+    print(f"Checkpoint saved: {name}")
 
-# Parse JSON string
-json_str = '{"key": "value"}'
-data = json.loads(json_str)
+# Read JSON
+def load_checkpoint(name):
+    """Load checkpoint data from JSON."""
+    path = Path(f"memory/checkpoints/{name}.json")
+    
+    if not path.exists():
+        return None
+    
+    with path.open() as f:
+        data = json.load(f)
+    
+    return data
 
-# Generate JSON string
-data = {"key": "value"}
-json_str = json.dumps(data, indent=2)
-```
-
-### Path Operations
-
-```python
-from pathlib import Path
-
-# Create Path object
-user_dir = Path("memory/bank/user")
-
-# Check existence
-if user_dir.exists():
-    PRINT["Directory exists"]
-
-# Create directory
-user_dir.mkdir(parents=True, exist_ok=True)
-
-# List files
-for file in user_dir.glob("*.json"):
-    PRINT[f"Found: {file.name}"]
-
-# Join paths
-config_file = user_dir / "settings.json"
-
-# Get parts
-name = config_file.name  # "settings.json"
-stem = config_file.stem  # "settings"
-suffix = config_file.suffix  # ".json"
-parent = config_file.parent  # Path("memory/bank/user")
+# Use functions
+checkpoint_data = {
+    "player_hp": 85,
+    "water_level": 50,
+    "location": "AA340",
+    "timestamp": "2025-12-13T10:30:00"
+}
+save_checkpoint("camp-established", checkpoint_data)
+loaded = load_checkpoint("camp-established")
 ```
 
 ---
 
-## Import and Modules
+## Error Handling
 
-### Standard Library
+### Try/Except
 
 ```python
-# Date and time
-from datetime import datetime, timedelta
+def safe_heal(sprite_id, amount):
+    """Heal sprite with error handling."""
+    try:
+        hp = get_var(f"{sprite_id}-hp")
+        new_hp = hp + amount
+        set_var(f"{sprite_id}-hp", new_hp)
+        print(f"{sprite_id} healed to {new_hp} HP")
+    except ValueError as e:
+        print(f"Error healing {sprite_id}: {e}")
+        # Set default
+        set_var(f"{sprite_id}-hp", 100)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
 
-now = datetime.now()
-PRINT[f"Current time: {now.strftime('%Y-%m-%d %H:%M:%S')}"]
-
-tomorrow = now + timedelta(days=1)
-week_ago = now - timedelta(weeks=1)
-
-# Math
-import math
-
-distance = math.sqrt((x2-x1)**2 + (y2-y1)**2)
-angle = math.atan2(dy, dx)
-rounded = math.ceil(distance)
-
-# Random
-import random
-
-dice_roll = random.randint(1, 6)
-choice = random.choice(["water", "food", "wood"])
-samples = random.sample(inventory, 3)  # Pick 3 random items
-random.shuffle(inventory)  # Shuffle in place
-
-# Collections
-from collections import Counter, defaultdict, deque
-
-# Count occurrences
-items = ["axe", "rope", "axe", "knife", "axe"]
-counts = Counter(items)
-PRINT[f"Axes: {counts['axe']}"]
-
-# Default dictionary
-resources = defaultdict(int)  # Default value 0
-resources["water"] += 10  # No KeyError
-
-# Deque (efficient queue)
-queue = deque([1, 2, 3])
-queue.append(4)  # Add right
-queue.appendleft(0)  # Add left
-item = queue.pop()  # Remove right
-item = queue.popleft()  # Remove left
+# Use function
+safe_heal("player", 20)
+safe_heal("invalid", 10)  # Handles error gracefully
 ```
 
-### Third-Party Packages
+### Multiple Exceptions
 
 ```python
-# Requests (HTTP)
-import requests
+def load_resource_file(filename):
+    """Load resource configuration with error handling."""
+    try:
+        with open(filename) as f:
+            data = json.load(f)
+        return data
+    except FileNotFoundError:
+        print(f"File not found: {filename}")
+        return {}
+    except json.JSONDecodeError:
+        print(f"Invalid JSON in: {filename}")
+        return {}
+    except PermissionError:
+        print(f"Permission denied: {filename}")
+        return {}
 
-response = requests.get("https://api.example.com/data")
-data = response.json()
+# Use function
+config = load_resource_file("config.json")
+```
 
-# Numpy (numerical computing)
-import numpy as np
+### Finally Clause
 
-distances = np.array([10, 20, 15, 30])
-mean_distance = distances.mean()
-max_distance = distances.max()
+```python
+def update_resource_file(filename, data):
+    """Update resource file with cleanup."""
+    file_handle = None
+    try:
+        file_handle = open(filename, "w")
+        json.dump(data, file_handle, indent=2)
+        print(f"Updated: {filename}")
+    except IOError as e:
+        print(f"Error writing {filename}: {e}")
+    finally:
+        if file_handle:
+            file_handle.close()
+```
 
-# Pandas (data analysis)
-import pandas as pd
+### Custom Exceptions
 
-df = pd.DataFrame({
-    "resource": ["water", "food", "wood"],
-    "amount": [50, 30, 20]
-})
+```python
+class ResourceDepletedError(Exception):
+    """Exception for when a resource is depleted."""
+    pass
 
-low_resources = df[df["amount"] < 40]
+def consume_resource(resource_name, amount):
+    """Consume resource, raise exception if depleted."""
+    current = get_var(resource_name, 0)
+    
+    if current < amount:
+        raise ResourceDepletedError(
+            f"{resource_name} depleted: need {amount}, have {current}"
+        )
+    
+    new_amount = current - amount
+    set_var(resource_name, new_amount)
+    return new_amount
+
+# Use with error handling
+try:
+    remaining = consume_resource("water-level", 10)
+    print(f"Water remaining: {remaining}")
+except ResourceDepletedError as e:
+    print(f"⚠️ {e}")
+    guide("water/collection", "detailed")
 ```
 
 ---
@@ -774,26 +739,24 @@ low_resources = df[df["amount"] < 40]
 ### Decorators
 
 ```python
-def log_calls(func):
-    """Decorator to log function calls."""
+def log_execution(func):
+    """Decorator to log function execution."""
     def wrapper(*args, **kwargs):
-        PRINT[f"Calling {func.__name__}"]
+        print(f"Executing: {func.__name__}")
         result = func(*args, **kwargs)
-        PRINT[f"Finished {func.__name__}"]
+        print(f"Completed: {func.__name__}")
         return result
     return wrapper
 
-@log_calls
-def important_operation():
-    PRINT["Doing important work..."]
-    return 42
+@log_execution
+def establish_camp(location):
+    """Establish camp at location."""
+    print(f"Setting up camp at {location}")
+    checkpoint_save(f"camp-{location}")
+    return True
 
-# Usage
-result = important_operation()
-# Output:
-# Calling important_operation
-# Doing important work...
-# Finished important_operation
+# Use decorated function
+establish_camp("AA340")
 ```
 
 ### Context Managers
@@ -802,178 +765,264 @@ result = important_operation()
 from contextlib import contextmanager
 
 @contextmanager
-def checkpoint_context(name):
-    """Context manager for automatic checkpoint save/restore."""
-    CHECKPOINT_SAVE[f"before-{name}"]
+def mission_context(mission_id):
+    """Context manager for mission execution."""
+    print(f"Starting mission: {mission_id}")
+    checkpoint_save(f"mission-{mission_id}-start")
+    
     try:
-        yield
-    except Exception as e:
-        PRINT[f"Error: {e}"]
-        CHECKPOINT_LOAD[f"before-{name}"]
-        raise
+        yield mission_id
     finally:
-        CHECKPOINT_SAVE[f"after-{name}"]
+        print(f"Mission completed: {mission_id}")
+        checkpoint_save(f"mission-{mission_id}-complete")
 
-# Usage
-with checkpoint_context("exploration"):
-    # Your risky code here
-    explore_dangerous_area()
+# Use context manager
+with mission_context("establish-camp") as mission:
+    print(f"Executing {mission}")
+    # Mission code here
 ```
 
 ### Generators
 
 ```python
-def resource_monitor(threshold):
-    """Generator that yields when resources are low."""
-    while True:
-        water = get_var("water-level", 100)
-        food = get_var("food-supply", 50)
-        
-        if water < threshold:
-            yield "water"
-        if food < threshold:
-            yield "food"
-
-# Usage
-monitor = resource_monitor(30)
-for low_resource in monitor:
-    PRINT[f"Low {low_resource}!"]
-    GUIDE[f"{low_resource}/collection"|"quick"]
-```
-
-### Type Hints
-
-```python
-from typing import List, Dict, Optional, Union
-
-def calculate_resources(
-    inventory: List[str],
-    amounts: Dict[str, int],
-    multiplier: Optional[float] = None
-) -> int:
-    """Calculate total resources with optional multiplier."""
-    total = sum(amounts.values())
+def daily_water_consumption(initial_water, daily_use):
+    """Generate daily water levels."""
+    water = initial_water
+    day = 1
     
-    if multiplier is not None:
-        total = int(total * multiplier)
-    
-    return total
+    while water > 0:
+        yield day, water
+        water -= daily_use
+        day += 1
 
-# Type hints help IDE autocomplete and catch errors early
+# Use generator
+for day, water in daily_water_consumption(100, 5):
+    print(f"Day {day}: {water}L")
+    if water < 30:
+        print("⚠️ Water running low!")
+        break
 ```
 
 ---
 
-## Performance Tips
+## Integration with uCODE Commands
 
-### 1. Use Built-ins
+### Wrapping uCODE in Python
 
 ```python
-# ✅ Fast: Built-in sum
-total = sum(values)
+from udos_core import *
 
-# ❌ Slower: Manual loop
-total = 0
-for v in values:
-    total += v
+class SurvivalManager:
+    """High-level survival management."""
+    
+    def __init__(self):
+        self.resources = {
+            "water": get_var("water-level", 100),
+            "food": get_var("food-supply", 50),
+            "wood": get_var("wood-count", 30)
+        }
+    
+    def check_all_resources(self):
+        """Check all resources and trigger guides if needed."""
+        for resource, amount in self.resources.items():
+            if amount < 30:
+                print(f"⚠️ {resource} low: {amount}")
+                
+                # Trigger appropriate guide
+                if resource == "water":
+                    guide("water/collection", "detailed")
+                elif resource == "food":
+                    guide("food/foraging", "detailed")
+                elif resource == "wood":
+                    guide("making/fire", "simple")
+    
+    def save_state(self):
+        """Save current state as checkpoint."""
+        checkpoint_save("resource-check-complete")
+        
+        # Update all stored values
+        for resource, amount in self.resources.items():
+            set_var(f"{resource}-level", amount)
+
+# Use manager
+manager = SurvivalManager()
+manager.check_all_resources()
+manager.save_state()
 ```
 
-### 2. List Comprehensions
+---
+
+## Performance Optimization
+
+### Efficient Loops
 
 ```python
-# ✅ Fast: List comprehension
-squares = [x**2 for x in range(1000)]
+# ❌ Slow: Multiple function calls
+for i in range(1000):
+    result = get_var("counter", 0)
+    result += 1
+    set_var("counter", result)
 
-# ❌ Slower: Loop with append
+# ✅ Fast: Batch operations
+counter = get_var("counter", 0)
+for i in range(1000):
+    counter += 1
+set_var("counter", counter)
+```
+
+### List Comprehensions vs Loops
+
+```python
+# ❌ Slower
 squares = []
 for x in range(1000):
-    squares.append(x**2)
+    squares.append(x ** 2)
+
+# ✅ Faster
+squares = [x ** 2 for x in range(1000)]
 ```
 
-### 3. Generators for Large Data
+### Caching Results
 
 ```python
-# ✅ Memory efficient: Generator
-def read_large_file(filepath):
-    with open(filepath) as f:
-        for line in f:
-            yield line.strip()
+from functools import lru_cache
 
-# ❌ Memory intensive: Load all at once
-with open(filepath) as f:
-    lines = f.readlines()  # All in memory
-```
+@lru_cache(maxsize=128)
+def calculate_water_needs(days, people, climate):
+    """Calculate water needs with caching."""
+    # Expensive calculation
+    base_rate = {"hot": 5, "temperate": 3, "cold": 2}
+    return days * people * base_rate[climate]
 
-### 4. Set Operations
+# First call: calculates
+result1 = calculate_water_needs(7, 2, "hot")
 
-```python
-# ✅ Fast: Set membership test O(1)
-visited = set(["AA340", "AB340", "AC340"])
-if "AA340" in visited:
-    pass
-
-# ❌ Slower: List membership test O(n)
-visited = ["AA340", "AB340", "AC340"]
-if "AA340" in visited:
-    pass
+# Second call: cached
+result2 = calculate_water_needs(7, 2, "hot")  # Instant
 ```
 
 ---
 
-## Debugging
+## Testing
 
-### Print Debugging
-
-```python
-# Add debug prints
-def complex_calculation(a, b):
-    print(f"DEBUG: a={a}, b={b}")
-    result = a * b + (a - b)
-    print(f"DEBUG: result={result}")
-    return result
-```
-
-### Python Debugger (pdb)
+### Unit Tests
 
 ```python
-import pdb
+import unittest
 
-def buggy_function():
-    x = 10
-    y = 20
-    pdb.set_trace()  # Debugger stops here
-    result = x / y
-    return result
+class TestSurvivalFunctions(unittest.TestCase):
+    """Test survival management functions."""
+    
+    def test_calculate_survival_time(self):
+        """Test survival time calculation."""
+        water_days, food_days, min_days = calculate_survival_time(
+            water=100,
+            food=30,
+            people=2,
+            climate="hot"
+        )
+        
+        self.assertEqual(water_days, 10.0)
+        self.assertEqual(food_days, 15.0)
+        self.assertEqual(min_days, 10.0)
+    
+    def test_heal_function(self):
+        """Test healing function."""
+        survivor = Survivor("Test", hp=50)
+        survivor.heal(30)
+        self.assertEqual(survivor.hp, 80)
+        
+        # Test max HP cap
+        survivor.heal(50)
+        self.assertEqual(survivor.hp, 100)
 
-# Commands in debugger:
-# n - next line
-# s - step into function
-# c - continue
-# p variable - print variable
-# l - list code
-# q - quit
-```
-
-### Assertions
-
-```python
-def set_player_hp(hp):
-    """Set player HP with validation."""
-    assert hp >= 0, "HP cannot be negative"
-    assert hp <= 100, "HP cannot exceed 100"
-    set_var("player-hp", hp)
+if __name__ == "__main__":
+    unittest.main()
 ```
 
 ---
 
-## Related Documentation
+## Best Practices Summary
 
-- **[uCODE Beginner Commands](uCODE-Beginner-Commands.md)** - Start here if new
-- **[Python-First Guide](uCODE-Python-First-Guide.md)** - Architecture overview
-- **[Migration Guide](dev/tools/README-MIGRATION.md)** - Upgrade old scripts
+### 1. Use Type Hints
+
+```python
+def calculate_days(water: float, consumption: float) -> float:
+    """Calculate days of water supply."""
+    return water / consumption
+```
+
+### 2. Document Everything
+
+```python
+def complex_function(param1, param2):
+    """
+    One-line summary.
+    
+    Longer description explaining what the function does,
+    how it works, and any important details.
+    
+    Args:
+        param1: Description of first parameter
+        param2: Description of second parameter
+    
+    Returns:
+        Description of return value
+    
+    Raises:
+        ValueError: When param1 is negative
+    """
+    pass
+```
+
+### 3. Follow PEP 8
+
+```python
+# Good variable names
+player_health = 100
+water_collection_rate = 5
+
+# Good function names
+def check_resource_levels():
+    pass
+
+# Good class names
+class ResourceManager:
+    pass
+```
+
+### 4. Handle Errors
+
+```python
+# Always use try/except for risky operations
+try:
+    result = risky_operation()
+except SpecificError as e:
+    handle_error(e)
+```
+
+---
+
+## Next Steps
+
+You now have the full Python ecosystem at your disposal:
+
+1. **Build Complex Systems** - Create sophisticated survival simulations
+2. **Integrate Libraries** - Use numpy, pandas, matplotlib, etc.
+3. **Create Extensions** - Build uDOS extensions in Python
+4. **Contribute** - Share your advanced scripts with the community
+
+---
+
+## Reference
+
+- **Beginner:** [uCODE Beginner Commands](uCODE-Beginner-Commands.md)
+- **Intermediate:** [uCODE Python-First Guide](uCODE-Python-First-Guide.md)
+- **Quick Lookup:** [uCODE Quick Reference](uCODE-Quick-Reference.md)
+- **Python Docs:** https://docs.python.org/3/
 
 ---
 
 **Level:** Advanced  
-**Version:** v1.2.24  
-**Performance:** 925,078 ops/sec native Python execution
+**Prerequisites:** [Python-First Guide](uCODE-Python-First-Guide.md)  
+**Version:** v1.2.24

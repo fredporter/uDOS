@@ -33,29 +33,42 @@ As of **v1.2.24**, uCODE uses a **Python-first architecture**. This means:
 
 **Format:** `COMMAND[arg1|arg2|arg3]`
 
+**Syntax Rules:**
+- **Tags:** Use asterisk (`*`) not underscores: `CHECKPOINT*SAVE` not `CHECKPOINT_SAVE`
+- **Variables:** Use dollar prefix (`$`): `$water-level` not `water-level`
+- **No empty brackets:** `STATUS` not `STATUS[]` when no arguments needed
+
 **Examples:**
 ```python
 from udos_core import *
 
 # Knowledge access
-GUIDE["water/purification"|"detailed"]
+GUIDE[water/purification|detailed]
 
-# Sprite healing
-HEAL_SPRITE["player"|"20"|"potion"]
+# Sprite healing  
+HEAL*SPRITE[player|20|bandage]
 
 # Checkpoint management
-CHECKPOINT_SAVE["camp-established"]
+CHECKPOINT*SAVE[camp-established]
 
-# Tag rendering (visual only)
-CLONE*DEV  # Displays as CLONE*DEV, executes as function call
+# Variable access
+GET[$water-level]
+SET[$water-level|50]
+
+# Tag rendering (visual emphasis)
+CLONE*DEV  # Asterisk shows tag relationship
+MISSION*START[find-water]  # Tag separates command components
 ```
 
-**Features:**
-- Pipe separator (`|`) for visual clarity
-- Asterisk tags (`*`) for visual prominence
-- System variables: `{$MISSION.STATUS}`, `{$SPRITE.HP}`
-- User variables: `{$player-name}`, `{$camp-location}`
-- Emoji escapes for special chars in output: `:pipe:`, `:dollar:`, `:sb:`
+**System variables:**
+- `$MISSION.STATUS` - Current mission state
+- `$SPRITE.HP` - Sprite health
+- `$WORKFLOW.PHASE` - Workflow execution phase
+
+**Emoji escapes for special chars in output:**
+- `:pipe:` → | (pipe character)
+- `:dollar:` → $ (dollar sign)
+- `:sb:` / `:eb:` → [ / ] (square brackets)
 
 ---
 
@@ -63,7 +76,7 @@ CLONE*DEV  # Displays as CLONE*DEV, executes as function call
 
 **Purpose:** Full Python programming capabilities
 
-**Format:** Standard Python syntax
+**Format:** Standard Python syntax (lowercase)
 
 **Examples:**
 ```python
@@ -74,7 +87,7 @@ location = {"x": 10, "y": 20, "layer": 100}
 
 # Control flow
 if player_hp < 50:
-    HEAL_SPRITE["player"|"30"|"bandage"]
+    HEAL*SPRITE[player|30|bandage]
     print("Emergency healing applied")
 
 # Functions
@@ -85,7 +98,7 @@ def check_resources(water, food):
 
 # Loops
 for item in inventory:
-    PRINT[f"Checking {item}..."]
+    print(f"Checking {item}...")
 
 # List comprehensions
 low_resources = [r for r in resources if r < 20]
@@ -95,6 +108,69 @@ import json
 import datetime
 from pathlib import Path
 ```
+
+---
+
+## Understanding the Transition
+
+### UPPERCASE in uCODE Context (Beginner Level)
+
+When learning uCODE, basic Python commands are shown in UPPERCASE for consistency:
+
+```python
+# Beginner syntax (UPPERCASE for visual consistency)
+PRINT[Hello, world!]
+IF GET[$player-hp] < 50 THEN HEAL*SPRITE[player|30|medkit]
+FUNCTION[@daily*check]
+```
+
+These are actually Python commands (`print`, `if/then`, `def`) but shown in UPPERCASE to match uCODE command style.
+
+### Lowercase Python (Intermediate → Advanced)
+
+As you progress, you transition to standard lowercase Python:
+
+```python
+# Intermediate: Mix UPPERCASE uCODE with lowercase Python
+from udos_core import *
+
+# Python variables (lowercase)
+player_hp = get_var("player-hp", 100)
+water_level = 50
+
+# Python control flow (lowercase)
+if player_hp < 50:
+    # uCODE commands (UPPERCASE)
+    HEAL*SPRITE[player|30|medkit]
+    GUIDE[medical/wounds|detailed]
+
+# Python function (lowercase)
+def check_status():
+    return player_hp, water_level
+```
+
+### Pure Python (Advanced)
+
+Eventually, you'll write standard Python with uCODE commands as function calls:
+
+```python
+# Advanced: Pure Python with uCODE as imported functions
+from udos_core import GUIDE, HEAL_SPRITE, CHECKPOINT_SAVE
+
+player_hp = 100
+inventory = []
+
+def daily_check():
+    """Run daily survival checks."""
+    if player_hp < 50:
+        HEAL_SPRITE("player", 30, "medkit")
+        GUIDE("medical/wounds", "detailed")
+    
+    CHECKPOINT_SAVE("daily-check-complete")
+    return True
+```
+
+**See [Python Advanced Guide](uCODE-Python-Advanced.md) for complete lowercase Python features.**
 
 ---
 
@@ -116,19 +192,19 @@ memory/workflows/missions/establish_camp.upy
 # water_check.upy - Monitor water resources
 from udos_core import *
 
-# Python variables (converted to dashes in .upy display)
+# Python variables
 water_level = get_var("water-level", 100)
 min_threshold = 30
 
 # uCODE commands
-PRINT["Current water level: {water_level}"]
+print(f"Current water level: {water_level}")
 
 # Python control flow
 if water_level < min_threshold:
-    PRINT[":warning: Low water warning!"]
-    GUIDE["water/collection"|"quick"]
+    print("⚠️ Low water warning!")
+    GUIDE("water/collection", "quick")
 else:
-    PRINT["Water level OK"]
+    print("Water level OK")
 
 # Update user variable
 set_var("water-level", water_level)
@@ -136,34 +212,36 @@ set_var("water-level", water_level)
 
 ### Smart Editor Rendering
 
-The smart editor displays this as:
+The smart editor displays this as user-friendly uCODE:
 
 ```upy
 # water_check.upy - Monitor water resources
 from udos_core import *
 
 # Python variables (shown with dashes)
-water-level = get_var["water-level"| 100]
+water-level = get_var[water-level| 100]
 min-threshold = 30
 
 # uCODE commands (brackets, pipes visible)
-PRINT["Current water level: {water-level}"]
+PRINT[Current water level: {water-level}]
 
-# Python control flow (unchanged)
+# Python control flow  
 if water-level < min-threshold:
-    PRINT[":warning: Low water warning!"]
-    GUIDE["water/collection"|"quick"]
+    PRINT[:warning: Low water warning!]
+    GUIDE[water/collection|quick]
 else:
-    PRINT["Water level OK"]
+    PRINT[Water level OK]
 
 # Update user variable
-set_var["water-level"| water-level]
+set_var[water-level| water-level]
 ```
 
-**Key Transformations:**
-- `_` → `-` (underscores become dashes)
+**Key Visual Transformations:**
+- `_` → `-` (underscores become dashes in display)
 - `()` → `[]` (parentheses become brackets for uCODE commands)
 - `,` → `|` (commas become pipes in command arguments)
+
+**Note:** These are visual only - the actual Python code remains unchanged.
 
 ---
 
@@ -176,532 +254,516 @@ set_var["water-level"| water-level]
 ```python
 GUIDE[category|complexity]
 # Examples:
-GUIDE["water/purification"|"detailed"]
-GUIDE["fire/friction"|"simple"]
-GUIDE["medical/wounds"|"technical"]
+GUIDE[water/purification|detailed]
+GUIDE[fire/friction|simple]
+GUIDE[medical/wounds|technical]
 ```
 
 #### Sprite Management
 
 ```python
-HEAL_SPRITE[sprite_id|amount|item]
+HEAL*SPRITE[sprite_id|amount|item]
 # Examples:
-HEAL_SPRITE["player"|"20"|"bandage"]
-HEAL_SPRITE["companion"|"50"|"medkit"]
+HEAL*SPRITE[player|20|bandage]
+HEAL*SPRITE[companion|50|medkit]
 ```
 
 #### Checkpoint System
 
 ```python
-CHECKPOINT_SAVE[checkpoint_id]
-CHECKPOINT_LOAD[checkpoint_id]
+CHECKPOINT*SAVE[checkpoint_id]
+CHECKPOINT*LOAD[checkpoint_id]
 # Examples:
-CHECKPOINT_SAVE["camp-established"]
-CHECKPOINT_LOAD["before-storm"]
+CHECKPOINT*SAVE[camp-established]
+CHECKPOINT*LOAD[before-storm]
 ```
 
-#### Output (Emoji-Aware)
+#### Variable Management
 
 ```python
-PRINT[*messages]
+GET[$variable_name]
+SET[$variable_name|value]
 # Examples:
+GET[$player-hp]
+SET[$water-level|50]
+```
+
+#### Mission System
+
+```python
+MISSION*START[mission_id]
+MISSION*COMPLETE[mission_id]
+MISSION*STATUS
+# Examples:
+MISSION*START[establish-camp]
+MISSION*COMPLETE[find-water]
+MISSION*STATUS
+```
+
+#### Inventory
+
+```python
+ITEM[item_name]
+INVENTORY
+# Examples:
+ITEM[axe]
+ITEM[water-filter]
+INVENTORY
+```
+
+#### Experience
+
+```python
+XP[amount]
+LEVEL*UP
+# Examples:
+XP[+100]
+LEVEL*UP
+```
+
+#### System Commands
+
+```python
+STATUS
+STATUS*HEALTH
+TREE
+TREE[path]
+# Examples:
+STATUS
+STATUS*HEALTH
+TREE[knowledge/water]
+```
+
+---
+
+## Practical Examples
+
+### Example 1: Water Monitor Script
+
+```python
+# water_monitor.upy
+from udos_core import *
+
+# Get current water level
+water_level = get_var("water-level", 100)
+daily_consumption = 5
+
+# Calculate days remaining
+days_remaining = water_level / daily_consumption
+
+# Display status
+print(f"Water level: {water_level} liters")
+print(f"Days remaining: {days_remaining:.1f}")
+
+# Warning if low
+if water_level < 30:
+    print("⚠️ CRITICAL: Water running low!")
+    GUIDE("water/collection", "detailed")
+    CHECKPOINT*SAVE("low-water-alert")
+elif water_level < 50:
+    print("⚠️ WARNING: Water below 50 liters")
+    GUIDE("water/storage", "simple")
+
+# Update tracking
+set_var("last-water-check", datetime.now().isoformat())
+```
+
+### Example 2: Health Check System
+
+```python
+# health_check.upy
+from udos_core import *
+
+def check_health(sprite_id):
+    """Check and heal sprite if needed."""
+    hp = get_var(f"{sprite_id}-hp", 100)
+    max_hp = 100
+    hp_percent = (hp / max_hp) * 100
+    
+    print(f"{sprite_id} HP: {hp}/{max_hp} ({hp_percent:.0f}%)")
+    
+    if hp < 30:
+        print("  CRITICAL - Emergency healing!")
+        HEAL*SPRITE(sprite_id, 50, "emergency-kit")
+        GUIDE("medical/wounds", "detailed")
+    elif hp < 60:
+        print("  Low - Healing recommended")
+        HEAL*SPRITE(sprite_id, 20, "bandage")
+    else:
+        print("  Healthy")
+    
+    return hp
+
+# Check all sprites
+check_health("player")
+check_health("companion")
+
+# Save checkpoint
+CHECKPOINT*SAVE("health-check-complete")
+```
+
+### Example 3: Resource Inventory
+
+```python
+# inventory_check.upy
+from udos_core import *
+import json
+
+# Define resources
+resources = {
+    "water": get_var("water-level", 100),
+    "food": get_var("food-supply", 50),
+    "wood": get_var("wood-count", 30),
+    "tools": ["axe", "knife", "rope"]
+}
+
+# Display inventory
+print("=== Resource Inventory ===")
+for name, value in resources.items():
+    if isinstance(value, list):
+        print(f"{name}: {len(value)} items")
+        for item in value:
+            print(f"  - {item}")
+    else:
+        print(f"{name}: {value}")
+        
+        # Check thresholds
+        if value < 25:
+            print(f"  ⚠️ {name} is running low!")
+            if name == "water":
+                GUIDE("water/collection", "simple")
+            elif name == "food":
+                GUIDE("food/foraging", "simple")
+
+# Save inventory snapshot
+set_var("inventory-snapshot", json.dumps(resources))
+CHECKPOINT*SAVE("inventory-recorded")
+```
+
+### Example 4: Mission Workflow
+
+```python
+# establish_camp.upy - Complete camp setup mission
+from udos_core import *
+
+print("=== Establish Camp Mission ===")
+
+# Start mission
+MISSION*START("establish-camp")
+
+# Phase 1: Find location
+print("\nPhase 1: Location")
+location = "AA340"  # Sydney grid
+SET("$camp-location", location)
+CHECKPOINT*SAVE("location-selected")
+XP(+50)
+
+# Phase 2: Build shelter
+print("\nPhase 2: Shelter")
+GUIDE("shelter/lean-to", "detailed")
+ITEM("tarp")
+ITEM("rope")
+CHECKPOINT*SAVE("shelter-built")
+XP(+100)
+
+# Phase 3: Water source
+print("\nPhase 3: Water")
+GUIDE("water/collection", "simple")
+SET("$water-level", 100)
+CHECKPOINT*SAVE("water-secured")
+XP(+50)
+
+# Phase 4: Fire
+print("\nPhase 4: Fire")
+GUIDE("fire/bow-drill", "detailed")
+ITEM("firestarter")
+CHECKPOINT*SAVE("fire-started")
+XP(+100)
+
+# Complete mission
+print("\n✅ Camp established!")
+MISSION*COMPLETE("establish-camp")
+XP(+500)
+LEVEL*UP()
+```
+
+---
+
+## System Variables
+
+### Mission Variables
+- `$MISSION.ID` - Current mission identifier
+- `$MISSION.NAME` - Mission display name
+- `$MISSION.STATUS` - DRAFT | ACTIVE | PAUSED | COMPLETED | FAILED
+- `$MISSION.PROGRESS` - Progress indicator (e.g., "3/5" or "60%")
+- `$MISSION.START_TIME` - ISO timestamp
+- `$MISSION.OBJECTIVE` - Mission goal description
+
+### Workflow Variables
+- `$WORKFLOW.NAME` - Current workflow script name
+- `$WORKFLOW.PHASE` - INIT | SETUP | EXECUTE | MONITOR | COMPLETE
+- `$WORKFLOW.ITERATION` - Current loop iteration count
+- `$WORKFLOW.ERRORS` - Error count
+- `$WORKFLOW.ELAPSED_TIME` - Seconds since workflow start
+
+### Sprite Variables
+- `$SPRITE.HP` - Health points
+- `$SPRITE.MAX_HP` - Maximum health
+- `$SPRITE.LEVEL` - Current level
+- `$SPRITE.XP` - Experience points
+- `$SPRITE.LOCATION` - Grid position
+
+### System Variables
+- `$SYSTEM.VERSION` - uDOS version (e.g., "1.2.24")
+- `$SYSTEM.MEMORY_USED` - Memory usage percentage
+- `$SYSTEM.FILE_COUNT` - Total file count
+- `$SYSTEM.UPTIME` - System uptime in seconds
+
+---
+
+## Debugging Tips
+
+### 1. Print Variables
+
+```python
+# Check variable values
+water_level = get_var("water-level", 100)
+print(f"Debug: water_level = {water_level}")
+```
+
+### 2. Use Checkpoints
+
+```python
+# Save state for debugging
+CHECKPOINT*SAVE("debug-point-1")
+# ... test code ...
+CHECKPOINT*LOAD("debug-point-1")  # Restore if needed
+```
+
+### 3. Status Checks
+
+```python
+# Monitor system health
+STATUS*HEALTH
+
+# Check specific resources
+print(GET("$player-hp"))
+print(GET("$water-level"))
+```
+
+### 4. Mission Progress
+
+```python
+# Track mission state
+MISSION*STATUS
+print(GET("$MISSION.PROGRESS"))
+```
+
+---
+
+## Performance Notes
+
+### v1.2.24 Benchmarks
+
+**Python-First Architecture:**
+- **Speed:** 925,078 operations/second
+- **Improvement:** 100x faster than v1.2.23 parser
+- **Memory:** 45% reduction in runtime overhead
+- **Startup:** Instant (no parsing phase)
+
+**Why It's Fast:**
+- Native Python execution (no interpretation layer)
+- Direct function calls (no command string parsing)
+- Compiled bytecode (standard .pyc optimization)
+- Zero-overhead abstractions
+
+**Comparison:**
+```
+v1.2.23 Parser:  9,250 ops/sec  (string → AST → execute)
+v1.2.24 Python:  925,078 ops/sec  (direct Python execution)
+                 ─────────────────
+                 100x faster
+```
+
+---
+
+## Migration from v1.2.23
+
+### Old Parser Syntax (v1.2.23)
+
+```
+# Old .uscript format
 PRINT["Hello, world!"]
-PRINT["Score: :sb:100:eb: | Health: :dollar:50"]
-PRINT["Use :pipe: separator"]  # Shows actual | character
+IF {$hp} < 50 THEN:
+  HEAL_SPRITE["player"|"30"|"medkit"]
+END IF
 ```
 
----
-
-### Python Built-ins
-
-Use any Python built-in functions and features:
+### New Python Syntax (v1.2.24+)
 
 ```python
-# String operations
-name = "Alice"
-greeting = f"Hello {name}".upper()
+# New .upy format
+from udos_core import *
 
-# Math
-import math
-distance = math.sqrt((x2-x1)**2 + (y2-y1)**2)
-
-# File operations
-from pathlib import Path
-config = Path("memory/bank/user/settings.json")
-
-# Data structures
-inventory = {"water": 50, "food": 30, "wood": 20}
-sorted_items = sorted(inventory.items(), key=lambda x: x[1])
-
-# Comprehensions
-resources = [r for r in all_resources if r.amount > 0]
-
-# Error handling
-try:
-    level = int(user_input)
-except ValueError:
-    PRINT["Invalid level number"]
+print("Hello, world!")
+hp = get_var("player-hp", 100)
+if hp < 50:
+    HEAL*SPRITE("player", 30, "medkit")
 ```
 
----
-
-## Variable Systems
-
-### 1. User Variables (Persistent)
-
-Stored in `memory/bank/user/variables.json`, shared across all scripts:
-
-```python
-# Set/get with helper functions
-set_var("player-name", "Hero")
-name = get_var("player-name", "Unknown")
-
-# Or use UserVars class
-from udos_core import UserVars
-uv = UserVars()
-uv.set("camp-location", "AA340")
-location = uv.get("camp-location")
-```
-
-**Naming Rules:**
-- Use dashes, not underscores: `player-hp` not `player_hp`
-- Alphanumeric + dash only: `camp-1` not `camp#1`
-- Visual in .upy: `{$player-name}`
-- Python execution: Auto-converted to `player_name`
-
-### 2. System Variables (Read-Only)
-
-Built-in variables for mission/workflow context:
-
-```python
-# Mission variables
-mission_id = SystemVars.MISSION_ID
-mission_status = SystemVars.MISSION_STATUS  # ACTIVE | PAUSED | COMPLETED
-progress = SystemVars.MISSION_PROGRESS
-
-# Workflow variables
-workflow_name = SystemVars.WORKFLOW_NAME
-phase = SystemVars.WORKFLOW_PHASE  # INIT | EXECUTE | COMPLETE
-
-# Sprite variables (runtime)
-sprite_hp = SystemVars.SPRITE_HP
-sprite_location = SystemVars.SPRITE_LOCATION
-```
-
-### 3. Python Variables (Local)
-
-Standard Python variables in your script:
-
-```python
-# Local variables (not persistent)
-current_hp = 100
-inventory = ["axe", "rope"]
-timestamp = datetime.now()
-
-# These exist only during script execution
-# Use set_var() to persist across runs
-```
-
----
-
-## Special Characters in Output
-
-Use emoji escape codes for special characters in command arguments:
-
-### Emoji Code Table
-
-| Character | Emoji Code | Example |
-|-----------|------------|---------|
-| ` | `:backtick:` | PRINT["Code: :backtick:text:backtick:"] |
-| ~ | `:tilde:` | PRINT["Path: :tilde:/home"] |
-| @ | `:at:` | PRINT["Email: user:at:domain.com"] |
-| # | `:hash:` | PRINT["Tag: :hash:important"] |
-| $ | `:dollar:` | PRINT["Price: :dollar:50"] |
-| % | `:percent:` | PRINT["Rate: 50:percent:"] |
-| ^ | `:caret:` | PRINT["Power: 2:caret:8"] |
-| & | `:amp:` | PRINT["Logic: A :amp: B"] |
-| * | `:star:` | PRINT["Bullet: :star: Item"] |
-| [ | `:sb:` | PRINT["Array: :sb:1,2,3:eb:"] |
-| ] | `:eb:` | PRINT["End bracket: :eb:"] |
-| { | `:lcb:` | PRINT["Object: :lcb:key:rcb:"] |
-| } | `:rcb:` | PRINT["End brace: :rcb:"] |
-| ' | `:sq:` | PRINT["Quote: :sq:text:sq:"] |
-| " | `:dq:` | PRINT["Quote: :dq:text:dq:"] |
-| < | `:lt:` | PRINT["Less than: :lt:"] |
-| > | `:gt:` | PRINT["Greater than: :gt:"] |
-| \ | `:bs:` | PRINT["Path: C::bs:Users"] |
-| \| | `:pipe:` | PRINT["Separator: :pipe:"] |
-| _ | `:underscore:` | PRINT["Snake_case: :underscore:"] |
-
-**Scope:** Emoji codes are **only for COMMAND[...] arguments**, not entire script.
-
-**Example:**
-```python
-# Output text with special characters
-PRINT["Score: :sb:100:eb: | Health: :dollar:50"]
-# Renders as: Score: [100] | Health: $50
-
-# Variable/function names: Use dashes
-player-hp = 100  # Visual in .upy
-# Executes as: player_hp = 100 (Python)
-```
-
----
-
-## Migration from Old Syntax
-
-Use the migration tool to upgrade existing scripts:
+**Migration Tool:** Use `memory/ucode/tools/migrate_upy.py` to convert old scripts
 
 ```bash
-# Preview changes
-python dev/tools/upgrade_upy_syntax.py --dry-run memory/ucode/
-
-# Upgrade scripts
-python dev/tools/upgrade_upy_syntax.py memory/ucode/scripts/
-```
-
-**Conversions:**
-- `PRINT["a", "b"]` → `PRINT["a"|"b"]` (commas to pipes)
-- `CLONE--dev` → `CLONE*DEV` (double-dash to asterisk)
-- `{$player_name}` → `{$player-name}` (underscores to dashes)
-
-See **[Migration Tool Guide](dev/tools/README-MIGRATION.md)** for details.
-
----
-
-## Editor Modes
-
-The smart editor has three display modes:
-
-### 1. Pythonic Mode (Default)
-
-Shows pure Python syntax:
-```python
-player_hp = 100
-PRINT("Health:", player_hp)
-```
-
-### 2. Symbolic Mode
-
-Shows .upy visual syntax:
-```upy
-player-hp = 100
-PRINT["Health:"| player-hp]
-```
-
-### 3. Typo Mode (Optional)
-
-Beautiful typography (requires Typo extension):
-```
-ᴘʟᴀʏᴇʀ-ʜᴘ = 100
-ᴘʀɪɴᴛ[ʜᴇᴀʟᴛʜ: | ᴘʟᴀʏᴇʀ-ʜᴘ]
-```
-
-**Switch modes:**
-```python
-from core.ui.ucode_editor import UCODEEditor
-
-editor = UCODEEditor()
-editor.set_mode("pythonic")  # or "symbolic" or "typo"
+python memory/ucode/tools/migrate_upy.py input.uscript output.upy
 ```
 
 ---
 
 ## Best Practices
 
-### 1. Use Python Features
+### 1. Import udos_core
 
-Don't reinvent the wheel - use Python's built-ins:
-
+Always start scripts with:
 ```python
-# ✅ Good: Use Python datetime
-from datetime import datetime
-timestamp = datetime.now().isoformat()
-
-# ❌ Bad: Custom time formatting
-# timestamp = custom_time_format()
+from udos_core import *
 ```
 
-### 2. Persistent vs Local Variables
+This provides all uCODE commands as Python functions.
 
+### 2. Use Python Standard Library
+
+Leverage Python's rich ecosystem:
 ```python
-# ✅ Good: Persist important data
-set_var("camp-location", "AA340")
-set_var("water-supply", 50)
-
-# ✅ Good: Local for temporary calculations
-distance = calculate_distance(start, end)
-total = water + food + wood
+import json          # Data serialization
+import datetime      # Timestamps
+from pathlib import Path  # File operations
+import math          # Calculations
 ```
 
-### 3. Error Handling
+### 3. Document Your Code
 
 ```python
-# ✅ Good: Handle errors gracefully
+# water_manager.upy - Advanced water resource management
+"""
+This script monitors water levels, predicts consumption,
+and triggers alerts when resources run low.
+
+Features:
+- Daily consumption tracking
+- Weather-based predictions
+- Automatic guide lookup
+- Emergency alerts
+"""
+
+from udos_core import *
+
+def calculate_water_needs(days, people, climate):
+    """Calculate water requirements.
+    
+    Args:
+        days: Number of days to plan for
+        people: Number of people
+        climate: hot | temperate | cold
+    
+    Returns:
+        Total liters needed
+    """
+    # Implementation...
+```
+
+### 4. Error Handling
+
+```python
+# Robust error handling
 try:
-    level = int(user_input)
-    if level < 1:
-        raise ValueError("Level must be positive")
-except ValueError as e:
-    PRINT[f"Error: {e}"]
-    level = 1  # Safe default
+    water_level = get_var("water-level")
+    if water_level < 30:
+        GUIDE("water/collection", "detailed")
+except ValueError:
+    print("Error: Invalid water level")
+    set_var("water-level", 100)  # Reset to default
 ```
 
-### 4. Naming Conventions
+### 5. Modular Functions
 
 ```python
-# ✅ Good: uCODE style (dashes in .upy)
-player-hp = 100
-camp-location = "AA340"
+def heal_if_needed(sprite_id, threshold=50):
+    """Heal sprite if below threshold."""
+    hp = get_var(f"{sprite_id}-hp", 100)
+    if hp < threshold:
+        HEAL*SPRITE(sprite_id, 30, "medkit")
+        return True
+    return False
 
-# ✅ Good: Python style (underscores in execution)
-# Smart editor converts automatically
-
-# ❌ Bad: Forbidden characters
-# player#hp = 100
-# camp$location = "AA340"
+# Reuse across scripts
+heal_if_needed("player")
+heal_if_needed("companion", threshold=60)
 ```
 
 ---
 
-## Examples
+## Next Steps
 
-### Example 1: Water Resource Check
+Once comfortable with Python-first uCODE:
 
-```python
-# water_check.upy
-from udos_core import *
-
-# Get current water level (persistent)
-water = get_var("water-level", 100)
-min_safe = 30
-
-PRINT[f"Water level: {water} liters"]
-
-if water < min_safe:
-    PRINT[":warning: Low water - consulting guide"]
-    GUIDE["water/collection"|"quick"]
-    
-    # Mark as critical
-    set_var("water-critical", True)
-else:
-    PRINT["Water supply adequate"]
-    set_var("water-critical", False)
-
-# Update level
-new_level = water - 5  # Daily consumption
-set_var("water-level", new_level)
-```
-
-### Example 2: Mission Progress
-
-```python
-# mission_progress.upy
-from udos_core import *
-
-# Check mission status
-if SystemVars.MISSION_STATUS == "ACTIVE":
-    progress = SystemVars.MISSION_PROGRESS
-    PRINT[f"Mission: {SystemVars.MISSION_NAME}"]
-    PRINT[f"Progress: {progress}"]
-    
-    # Parse progress (e.g., "45/55")
-    current, total = map(int, progress.split("/"))
-    percent = (current / total) * 100
-    
-    if percent > 75:
-        PRINT["Almost complete!"]
-        XP["+50"]
-    
-    # Save checkpoint
-    CHECKPOINT_SAVE[f"mission-{current}"]
-else:
-    PRINT["No active mission"]
-```
-
-### Example 3: Inventory Management
-
-```python
-# inventory.upy
-from udos_core import *
-import json
-
-# Load inventory (persistent)
-inv_str = get_var("inventory", "[]")
-inventory = json.loads(inv_str)
-
-PRINT["Current inventory:"]
-for item in inventory:
-    PRINT[f"- {item}"]
-
-# Add new item
-new_item = "water-filter"
-if new_item not in inventory:
-    inventory.append(new_item)
-    PRINT[f"Added: {new_item}"]
-    
-    # Save back
-    set_var("inventory", json.dumps(inventory))
-else:
-    PRINT[f"Already have: {new_item}"]
-```
-
----
-
-## Performance
-
-### Benchmarks
-
-**Python-First (v1.2.24+):**
-- 925,078 operations/second
-- No parser overhead
-- Native Python speed
-
-**Old Parser (v1.2.0-1.2.23):**
-- ~9,250 operations/second
-- Parser interpretation overhead
-- 100x slower
-
-### Optimization Tips
-
-```python
-# ✅ Good: Direct Python
-result = sum(values)
-
-# ❌ Avoid: Unnecessary abstraction
-# result = custom_sum_function(values)
-
-# ✅ Good: List comprehension
-filtered = [x for x in items if x > 10]
-
-# ❌ Slower: Manual loop
-# filtered = []
-# for x in items:
-#     if x > 10:
-#         filtered.append(x)
-```
-
----
-
-## Debugging
-
-### Python Debugger
-
-Use standard Python debugging tools:
-
-```python
-# Insert breakpoint
-breakpoint()
-
-# Or use pdb
-import pdb; pdb.set_trace()
-
-# Step through code
-# n (next), s (step), c (continue), p var (print)
-```
-
-### Print Debugging
-
-```python
-# ✅ Good: Use PRINT for user output
-PRINT["Water level: {water}"]
-
-# ✅ Good: Use print() for debugging
-print(f"DEBUG: water={water}, min={min_safe}")
-```
-
-### Error Messages
-
-```python
-try:
-    result = risky_operation()
-except Exception as e:
-    PRINT[f"Error: {e}"]
-    print(f"DEBUG: {type(e).__name__}: {e}")
-    # Log to file for later review
-    with open("memory/logs/errors.log", "a") as f:
-        f.write(f"{datetime.now()}: {e}\n")
-```
-
----
-
-## Testing
-
-### Unit Tests
-
-Write pytest tests for your functions:
-
-```python
-# test_water_check.py
-import pytest
-from udos_core import *
-
-def test_water_check():
-    """Test water level checking."""
-    set_var("water-level", 25)
-    
-    # Your script logic
-    water = get_var("water-level", 100)
-    assert water == 25
-    
-    # Test threshold
-    assert water < 30  # Should trigger warning
-```
-
-Run tests:
-```bash
-pytest memory/ucode/tests/ -v
-```
-
----
-
-## Related Documentation
-
-- **[uCODE Beginner Commands](uCODE-Beginner-Commands.md)** - High-level command reference
-- **[Python Advanced Features](uCODE-Python-Advanced.md)** - Full Python capabilities
-- **[Migration Guide](dev/tools/README-MIGRATION.md)** - Upgrade old scripts
-- **[Smart Editor Guide](core/ui/ucode_editor.py)** - Editor implementation
-- **[System Variables](Variable-System.md)** - Built-in variables reference
+1. **Learn Advanced Python** → [Python Advanced Guide](uCODE-Python-Advanced.md)
+2. **Create Workflows** → Automate complex tasks
+3. **Build Extensions** → Extend uDOS functionality
+4. **Contribute Code** → Share your scripts
 
 ---
 
 ## Quick Reference
 
-### Command Format
+### Command Syntax
 
 ```python
-# uCODE commands (high-level)
-COMMAND[arg1|arg2|arg3]
+# uCODE commands (UPPERCASE, brackets, pipes)
+GUIDE[topic|level]
+HEAL*SPRITE[id|amount|item]
+CHECKPOINT*SAVE[name]
+GET[$variable]
+SET[$variable|value]
 
-# Python (full language)
-standard_python_syntax()
+# Python basics (lowercase)
+print("message")
+if condition:
+    action()
+for item in items:
+    process(item)
 ```
 
-### Variable Types
+### Common Patterns
 
 ```python
-# User variables (persistent)
-set_var("key", value)
+# Check and heal
+hp = get_var("player-hp", 100)
+if hp < 50:
+    HEAL*SPRITE("player", 30, "medkit")
 
-# System variables (read-only)
-SystemVars.MISSION_STATUS
+# Monitor resources
+water = get_var("water-level", 100)
+if water < 30:
+    GUIDE("water/collection", "quick")
 
-# Python variables (local)
-my_var = 100
-```
-
-### File Format
-
-```python
-# Always save as .upy
-memory/ucode/scripts/my_script.upy
-
-# Smart editor renders for display
-# Python executes for performance
+# Save progress
+CHECKPOINT*SAVE("milestone-reached")
+XP(+100)
 ```
 
 ---
 
-**Version:** v1.2.24+  
-**Performance:** 925,078 ops/sec  
-**Status:** Production Ready
+## Need Help?
+
+- **Beginner:** Start with [uCODE Beginner Commands](uCODE-Beginner-Commands.md)
+- **Advanced:** See [uCODE Python Advanced](uCODE-Python-Advanced.md)
+- **Quick Lookup:** Use [uCODE Quick Reference](uCODE-Quick-Reference.md)
+- **Status:** Run `STATUS*HEALTH` in uDOS
+- **Examples:** Browse `memory/ucode/examples/`
+
+---
+
+**Level:** Intermediate  
+**Prerequisites:** [uCODE Beginner Commands](uCODE-Beginner-Commands.md)  
+**Next:** [uCODE Python Advanced](uCODE-Python-Advanced.md)  
+**Version:** v1.2.24
