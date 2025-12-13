@@ -287,15 +287,15 @@ class DeviceManager:
             return self.device_data.get(section, {})
         return self.device_data
     
-    def update_location(self, tile_code: str, timezone: str = None) -> bool:
+    def update_location(self, tile_code: str, tz_name: str = None) -> bool:
         """Update location and timezone."""
         self.device_data["location"]["tile_code"] = tile_code
         self.device_data["location"]["city"] = self._get_city_from_tile(tile_code)
         self.device_data["location"]["country"] = self._get_country_from_tile(tile_code)
         
-        if timezone:
-            self.device_data["location"]["timezone"] = timezone
-            self.device_data["location"]["timezone_abbr"] = self._get_tz_abbr(timezone)
+        if tz_name:
+            self.device_data["location"]["timezone"] = tz_name
+            self.device_data["location"]["timezone_abbr"] = self._get_tz_abbr(tz_name)
         
         self.device_data["location"]["last_updated"] = datetime.now(timezone.utc).isoformat()
         return self.save()
