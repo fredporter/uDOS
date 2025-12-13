@@ -80,15 +80,25 @@ class OKHandler(BaseCommandHandler):
 
     @property
     def gemini(self):
-        """Lazy load Gemini service."""
+        """Lazy load Gemini service with first-time setup."""
         if self._gemini is None:
             try:
                 from extensions.assistant.gemini_service import GeminiService
                 from core.config import Config
                 config = Config()
+                
+                # Check if API key is set (v1.3 - first-time setup)
+                api_key = config.get_env('GEMINI_API_KEY', '')
+                if not api_key:
+                    # Prompt for setup on first use
+                    return self._prompt_gemini_setup(config)
+                
                 self._gemini = GeminiService(config_manager=config)
+            except ImportError:
+                # Cloud extension not installed
+                return None
             except Exception as e:
-                # Gemini not available
+                # Other Gemini initialization error
                 return None
         return self._gemini
 
@@ -695,6 +705,72 @@ Generate the diagram code now:"""
             lines.append(f"📍 Location: {context['workspace']['tile_location']}")
 
         return '\n'.join(lines)
+
+    def _prompt_gemini_setup(self, config) -> Optional[Any]:
+        """
+        Prompt user for GEMINI_API_KEY setup on first use.
+        
+        Args:
+            config: Config instance
+            
+        Returns:
+            Initialized GeminiService or None if setup failed/skipped
+        """
+        from pathlib import Path
+        
+        # Check if cloud extension is installed
+        gemini_service_path = Path('extensions/assistant/gemini_service.py')
+        if not gemini_service_path.exists():
+            print("\n❌ Cloud extension not installed")
+            print("OK commands require the AI assistant extension")
+            print("\nInstallation:")
+            print("  1. Ensure extensions/assistant/ directory exists")
+            print("  2. Install dependencies: pip install google-generativeai")
+            print("  3. Restart uDOS")
+            return None
+        
+        print("\n💡 First-time OK Assistant setup")
+        print("GEMINI_API_KEY required for AI-powered features")
+        print("Get API key: https://makersuite.google.com/app/apikey")
+        print("\nFeatures enabled:")
+        print("  • OK MAKE WORKFLOW/SVG/DOC/TEST/MISSION")
+        print("  • OK ASK <question>")
+        print("  • OK FIX (AI error analysis)")
+        
+        try:
+            api_key = input("\nEnter Gemini API Key (starts with AIza...): ").strip()
+            
+            if not api_key:
+                print("⚠️  Setup skipped - OK commands will not be available")
+                return None
+            
+            # Validate format
+            if not api_key.startswith('AIza'):
+                print("❌ Invalid API key format (should start with 'AIza')")
+                print("⚠️  Setup skipped - Please try again later")
+                return None
+            
+            # Save to .env
+            config.set_env('GEMINI_API_KEY', api_key)
+            print("✅ API key saved to .env")
+            
+            # Initialize GeminiService
+            try:
+                from extensions.assistant.gemini_service import GeminiService
+                self._gemini = GeminiService(config_manager=config)
+                print("✅ OK Assistant initialized successfully")
+                return self._gemini
+            except Exception as e:
+                print(f"❌ Failed to initialize Gemini service: {e}")
+                print("⚠️  API key saved but service unavailable")
+                return None
+                
+        except KeyboardInterrupt:
+            print("\n⚠️  Setup cancelled")
+            return None
+        except Exception as e:
+            print(f"❌ Setup error: {e}")
+            return None
 
     def _extract_code(self, response: str) -> str:
         """Extract code block from response."""

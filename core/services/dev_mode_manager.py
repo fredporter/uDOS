@@ -6,10 +6,11 @@ Provides write protection for core system files:
 - Master user authentication required for core changes
 - Session management and activity logging
 - Allows editing templates, configs, and user scripts
+- GITHUB_TOKEN prompt only for verified contributors (CREDITS.md)
 
-Version: 1.2.21
+Version: 1.3.0
 Author: uDOS Development Team
-Updated: 2025-12-08
+Updated: 2025-12-13
 """
 
 import os
@@ -28,6 +29,11 @@ class DevModeManager:
     DEV MODE allows editing core system files (core/, knowledge/, extensions/).
     Normal users can modify memory/, sandbox/, and user files.
     Only master users can enable DEV MODE for core modifications.
+    
+    GITHUB_TOKEN Setup (v1.3):
+    - Only prompted for verified contributors listed in CREDITS.md
+    - First-time activation checks contributor status
+    - Non-contributors can still use DEV MODE without GitHub integration
     """
 
     def __init__(self, config_manager=None, base_path: Optional[Path] = None):
@@ -111,6 +117,34 @@ class DevModeManager:
         self._log(f"Authentication successful: {master_user}")
         return True
 
+    def _is_contributor(self, username: str) -> bool:
+        """
+        Check if username is listed in CREDITS.md as a contributor.
+
+        Args:
+            username: Username to check
+
+        Returns:
+            True if user is in CREDITS.md, False otherwise
+        """
+        credits_path = self.base_path / 'CREDITS.md'
+        if not credits_path.exists():
+            return False
+
+        try:
+            content = credits_path.read_text(encoding='utf-8')
+            # Check for username in various formats
+            username_lower = username.lower()
+            return any([
+                username in content,
+                username_lower in content.lower(),
+                f"**{username}**" in content,
+                f"- **{username}**" in content
+            ])
+        except Exception as e:
+            self._log(f"Failed to check contributor status: {e}")
+            return False
+
     def enable(self, password: Optional[str] = None, interactive: bool = True) -> tuple[bool, str]:
         """
         Enable DEV MODE with authentication.
@@ -138,6 +172,23 @@ class DevModeManager:
         # Authenticate
         if not self.authenticate(password):
             return False, "❌ Authentication failed - Invalid credentials"
+
+        # Check for GITHUB_TOKEN on first-time activation (v1.3)
+        # Only prompt if user is verified contributor in CREDITS.md
+        github_token = self.config.get_env('GITHUB_TOKEN', '') if self.config else ''
+        if interactive and not github_token and self._is_contributor(self.authenticated_user):
+            print("\n💡 Contributor detected - First-time DEV MODE setup")
+            print("GITHUB_TOKEN required for core file editing and webhooks")
+            print("Get token: https://github.com/settings/tokens (repo scope required)")
+            try:
+                token_input = input("Enter GitHub Personal Access Token (or press Enter to skip): ").strip()
+                if token_input and self.config:
+                    self.config.set_env('GITHUB_TOKEN', token_input)
+                    print("✅ GitHub token saved to .env")
+                elif not token_input:
+                    print("⚠️  Token setup skipped - Some features may be limited")
+            except Exception as e:
+                print(f"⚠️  Token setup skipped: {e}")
 
         # Enable DEV MODE
         self.is_active = True
