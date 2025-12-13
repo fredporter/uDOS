@@ -591,12 +591,15 @@ User-friendly      Parse phase    Fast runtime       Render phase   Storage
 
 **Remaining Tasks:**
 
-3. 🔲 **Migration Tool** (200 lines) - Week 3
-   - `dev/tools/upgrade_upy_syntax.py`
-   - Scan existing .upy files for old syntax
-   - Update to new pipe separator syntax (commas → pipes)
-   - Validate tag rendering (-- → *)
-   - Batch upgrade for memory/ucode/
+3. ✅ **Migration Tool** (200 lines) - Week 3 COMPLETE
+   - `dev/tools/upgrade_upy_syntax.py` ✅
+   - Scan existing .upy files for old syntax ✅
+   - Update to new pipe separator syntax (commas → pipes) ✅
+   - Validate tag rendering (-- → *) ✅
+   - Batch upgrade for memory/ucode/ ✅
+   - **Testing:** 6 commas + 4 tags converted successfully
+   - **Features:** Dry-run mode, backup files (.bak), warning system
+   - **Validation:** Detects forbidden characters (including underscores)
 
 4. 🔲 **Documentation Update** (400 lines) - Week 4
    - `wiki/uCODE-Python-Guide.md` - Complete Python-first guide
