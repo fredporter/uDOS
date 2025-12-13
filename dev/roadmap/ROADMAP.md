@@ -601,11 +601,13 @@ User-friendly      Parse phase    Fast runtime       Render phase   Storage
    - **Features:** Dry-run mode, backup files (.bak), warning system
    - **Validation:** Detects forbidden characters (including underscores)
 
-4. 🔲 **Documentation Update** (400 lines) - Week 4
-   - `wiki/uCODE-Python-Guide.md` - Complete Python-first guide
-   - Update all uPY examples to Python syntax
-   - Migration guide for users
-   - Educational tips for beginners
+4. ✅ **Documentation Update** (1,800+ lines) - Week 4 COMPLETE
+   - `wiki/uCODE-Python-First-Guide.md` (600 lines) ✅ - Architecture & Python integration
+   - `wiki/uCODE-Beginner-Commands.md` (650 lines) ✅ - Simple command reference (no Python)
+   - `wiki/uCODE-Python-Advanced.md` (650 lines) ✅ - Full Python features (advanced)
+   - **Separation:** Beginner commands vs. advanced Python features
+   - **Clarity:** Progressive learning path (beginner → intermediate → advanced)
+   - **Examples:** 100+ code examples across all skill levels
 
 **Total Estimated:** ~1,400 lines (vs. removing 1,850 lines = net -450 lines)
 
