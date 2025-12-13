@@ -326,7 +326,7 @@ output = runtime.execute_file(script_file)  # Interprets .upy directly - no conv
 
 **Key Components**:
 - **Variables**: `{$VARIABLE}` with dot notation `{$MISSION.STATUS}`
-- **Commands**: `(COMMAND|param1|param2)` - delegates to CommandHandler
+- **Commands**: `COMMAND[ param1 | param2 ]` - new bracket syntax (v1.2.24+)
 - **Conditionals**: Three formats (short/medium/long) parsed by regex patterns
 - **Functions**: Stored in `self.functions` dict, executed inline
 - **System vars**: Read-only (MISSION.*, WORKFLOW.*, SPRITE.*)
@@ -334,9 +334,9 @@ output = runtime.execute_file(script_file)  # Interprets .upy directly - no conv
 ### uPY Syntax (v1.2)
 
 **Three Bracket Types:**
-- `{$variable}` - Variables (assignment, interpolation, system)
-- `(command|params)` - Commands and functions
-- `[condition]` - Short-form conditionals
+- `$variable` - Variables (no braces in v1.2.24+)
+- `COMMAND[ arg1 | arg2 ]` - Commands with bracket syntax
+- `[IF condition...]` - Conditionals
 
 **Three Complexity Levels:**
 ```upy

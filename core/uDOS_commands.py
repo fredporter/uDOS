@@ -131,9 +131,6 @@ class CommandHandler:
         self.prompt_handler = PromptHandler()
 
         # Diagram & Integration Handlers
-        from core.commands.mermaid_handler import MermaidHandler
-        self.mermaid_handler = MermaidHandler(viewport=viewport, logger=logger)
-        
         try:
             from extensions.core.typora_diagrams.handler import get_handler as get_typora_handler
             self.typora_handler = get_typora_handler(viewport=viewport, logger=logger)
@@ -494,12 +491,6 @@ class CommandHandler:
                 return self.prompt_handler.handle(params)
 
             # Diagram Systems
-            elif module == "MERMAID":
-                return self.mermaid_handler.handle_command(params)
-
-
-
-
             elif module == "TYPORA":
                 if self.typora_handler:
                     return self.typora_handler.handle_command(params)

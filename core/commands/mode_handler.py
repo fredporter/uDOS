@@ -4,22 +4,16 @@ Handles prompt mode switching: COMMAND, DEV, ASSIST, GHOST, TOMB, CRYPT.
 """
 
 from .base_handler import BaseCommandHandler
+from .handler_utils import HandlerUtils
 
 
 class ModeCommandHandler(BaseCommandHandler):
     """Handle prompt mode switching commands."""
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._config_manager = None
-
     @property
     def config_manager(self):
-        """Lazy-load config manager."""
-        if self._config_manager is None:
-            from core.config import Config
-            self._config_manager = Config()
-        return self._config_manager
+        """Get shared config manager instance."""
+        return HandlerUtils.get_config()
 
     def handle(self, command, params):
         """Route mode commands."""

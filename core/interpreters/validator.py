@@ -222,11 +222,11 @@ class CommandRegistry:
 class UCodeParser:
     """Parser for uCODE syntax - v2.0.2."""
 
-    # v2.0.2 Regex patterns
-    # Variables: {$name}
+    # v2.0.2 Regex patterns (legacy support)
+    # Variables: {$name} (v1.2.24+: $name without braces)
     VARIABLE_PATTERN = re.compile(r'\{\$([a-zA-Z_][a-zA-Z0-9_.-]*)\}')
 
-    # Commands: (COMMAND|param1|param2)
+    # Commands: COMMAND[ param1 | param2 ] (v1.2.24+ bracket syntax)
     COMMAND_PATTERN = re.compile(r'\(([A-Z_]+)(?:\|([^\)]+))?\)')
 
     # Short conditionals: [IF condition: action]
@@ -323,7 +323,7 @@ class UCodeParser:
             if not line.strip() or line.strip().startswith('#'):
                 continue
 
-            # Parse v2.0.2 command syntax: (COMMAND|params)
+            # Parse v1.2.24+ command syntax: COMMAND[ params ] (legacy pattern support)
             for match in self.COMMAND_PATTERN.finditer(line):
                 command = self._parse_command(match, line_num, match.start())
                 if command:

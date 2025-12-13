@@ -1,0 +1,2291 @@
+{
+  "SYSTEM_NAME": "uDOS",
+  "COMMAND_SET_VERSION": "1.0.0",
+  "COMMANDS": [
+    {
+      "NAME": "OK",
+      "SYNTAX": "OK MAKE WORKFLOW \"<desc>\" | OK MAKE SVG \"<desc>\" | OK MAKE DOC \"<topic>\" | OK ASK \"<question>\" | OK STATUS",
+      "DESCRIPTION": "OK AI Assistant - Generate workflows, SVG graphics, documentation, tests with AI. MAKE commands for generation, ASK for questions, STATUS for usage stats.",
+      "UCODE_TEMPLATE": "[OK|$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$2": null,
+        "$3": null
+      },
+      "DEFERRED": "",
+      "EXAMPLES": [
+        "OK MAKE WORKFLOW \"water purification\"",
+        "OK MAKE SVG \"water filter diagram\"",
+        "OK MAKE DOC \"grid system\"",
+        "OK ASK how do I use TILE codes?",
+        "OK STATUS"
+      ],
+      "NOTES": [
+        "✅ Active in v1.2.21 - OK Assistant with AI-powered generation"
+      ]
+    },
+    {
+      "NAME": "EXPLAIN",
+      "SYNTAX": "EXPLAIN \"<command>\"",
+      "DESCRIPTION": "Get assisted explanation of what a command does.",
+      "UCODE_TEMPLATE": "[ASSIST|EXPLAIN*$1]",
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "NOTES": [
+        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
+      ]
+    },
+    {
+      "NAME": "GENERATE",
+      "SYNTAX": "GENERATE \"<description>\"",
+      "DESCRIPTION": "Generate a uDOS script from natural language description using assisted guidance.",
+      "UCODE_TEMPLATE": "[ASSIST|GENERATE*$1]",
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "NOTES": [
+        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
+      ]
+    },
+    {
+      "NAME": "DEBUG",
+      "SYNTAX": "DEBUG \"<error message>\"",
+      "DESCRIPTION": "Get assisted help debugging an error.",
+      "UCODE_TEMPLATE": "[ASSIST|DEBUG*$1]",
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "NOTES": [
+        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
+      ]
+    },
+    {
+      "NAME": "READ",
+      "SYNTAX": "READ <panel>",
+      "DESCRIPTION": "Read and analyze panel content for insights and suggestions.",
+      "UCODE_TEMPLATE": "[ASSIST|READ*$1]",
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "EXAMPLES": [
+        "READ docs",
+        "READ poke",
+        "READ logs"
+      ],
+      "NOTES": [
+        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
+      ]
+    },
+    {
+      "NAME": "ASSIST",
+      "SYNTAX": "ASSIST [CLEAR]",
+      "DESCRIPTION": "Access AI assistant features. Without subcommand, shows assistant status. Use ASSIST CLEAR to clear conversation history.",
+      "UCODE_TEMPLATE": "[ASSIST|STATUS]",
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "NOTES": [
+        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension",
+        "Defaults to showing assistant status when called without subcommand"
+      ]
+    },
+    {
+      "NAME": "ASSIST CLEAR",
+      "SYNTAX": "ASSIST CLEAR",
+      "DESCRIPTION": "Clear assisted conversation history.",
+      "UCODE_TEMPLATE": "[ASSIST|CLEAR]",
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "NOTES": [
+        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
+      ]
+    },
+    {
+      "NAME": "GET",
+      "SYNTAX": "GET [field.path]",
+      "DESCRIPTION": "Get configuration field value interactively or explicitly from STORY, SYSTEM, or CONFIG.",
+      "UCODE_TEMPLATE": "[SYSTEM|GET*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "EXAMPLES": [
+        "GET",
+        "GET STORY.USER_NAME",
+        "GET SYSTEM.THEME",
+        "GET CONFIG.GEMINI_API_KEY"
+      ],
+      "DETAILS": {
+        "INTERACTIVE": "No args - shows field picker",
+        "EXPLICIT": "Provide field path using dot notation",
+        "SOURCES": "STORY (user data), SYSTEM (settings), CONFIG (.env)"
+      }
+    },
+    {
+      "NAME": "SET",
+      "SYNTAX": "SET [field.path] [value]",
+      "DESCRIPTION": "Set configuration field value interactively or explicitly in STORY or CONFIG.",
+      "UCODE_TEMPLATE": "[SYSTEM|SET*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "",
+        "$2": ""
+      },
+      "EXAMPLES": [
+        "SET",
+        "SET STORY.USER_NAME Fred",
+        "SET STORY.THEME hacker",
+        "SET CONFIG.OFFLINE_MODE true"
+      ],
+      "DETAILS": {
+        "INTERACTIVE": "No args - prompts for field and value",
+        "EXPLICIT": "Provide field path and value",
+        "NOTE": "SYSTEM fields are read-only"
+      }
+    },
+    {
+      "NAME": "CONFIG",
+      "SYNTAX": "CONFIG <list|get|set|validate> [key] [value]",
+      "DESCRIPTION": "Manage .env configuration (API keys, installation ID, system settings).",
+      "UCODE_TEMPLATE": "[SYSTEM|CONFIG*$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "CONFIG list",
+        "CONFIG get GEMINI_API_KEY",
+        "CONFIG set THEME foundation",
+        "CONFIG validate"
+      ]
+    },
+    {
+      "NAME": "LOCATE",
+      "SYNTAX": "LOCATE [SET <lat> <lon>|CITY <name>|CLEAR]",
+      "DESCRIPTION": "Set or view current real-world location on active planet. Enables location-aware survival knowledge.",
+      "UCODE_TEMPLATE": "[SYSTEM|LOCATE*$1*$2*$3*$4*$5]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "LOCATE",
+        "LOCATE SET 51.5074 -0.1278 London UK England",
+        "LOCATE CITY Tokyo",
+        "LOCATE CITY \"New York\"",
+        "LOCATE CLEAR"
+      ],
+      "DETAILS": {
+        "SET": "Set coordinates manually",
+        "CITY": "Select from city database",
+        "CLEAR": "Remove location"
+      }
+    },
+    {
+      "NAME": "BLANK",
+      "SYNTAX": "BLANK",
+      "DESCRIPTION": "Clears the terminal screen.",
+      "UCODE_TEMPLATE": "[SYSTEM|BLANK]",
+      "DEFAULT_PARAMS": {}
+    },
+    {
+      "NAME": "SPLASH",
+      "SYNTAX": "SPLASH [<text>|FILE <path>|LOGO]",
+      "DESCRIPTION": "Display full-screen ASCII art splash graphics. Use SPLASH LOGO for uDOS logo, or provide custom text/file path.",
+      "UCODE_TEMPLATE": "[SYSTEM|SPLASH*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "LOGO"
+      },
+      "EXAMPLES": [
+        "SPLASH",
+        "SPLASH LOGO",
+        "SPLASH Welcome to uDOS!",
+        "SPLASH FILE splash.txt"
+      ],
+      "DETAILS": {
+        "LOGO": "Shows uDOS ASCII logo animation",
+        "TEXT": "Display custom text as ASCII art",
+        "FILE": "Load ASCII art from file"
+      }
+    },
+    {
+      "NAME": "HELP",
+      "SYNTAX": "HELP [<command_name>]",
+      "DESCRIPTION": "Provides help for a specific command.",
+      "UCODE_TEMPLATE": "[SYSTEM|HELP*$1]"
+    },
+    {
+      "NAME": "FEEDBACK",
+      "SYNTAX": "FEEDBACK \"<message>\" [TYPE <category>]",
+      "DESCRIPTION": "Submit feedback, confusion points, or feature requests to improve uDOS. Captures session context automatically.",
+      "UCODE_TEMPLATE": "[USER|FEEDBACK*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$2": "general"
+      },
+      "EXAMPLES": [
+        "FEEDBACK \"Love the new PANEL system!\"",
+        "FEEDBACK \"MAP CREATE is confusing\" TYPE confusion",
+        "FEEDBACK \"Add keyboard shortcuts\" TYPE request"
+      ],
+      "NOTES": [
+        "Categories: general, confusion, request, praise",
+        "Saved to memory/logs/feedback/",
+        "Integrates with session analytics"
+      ]
+    },
+    {
+      "NAME": "REPORT",
+      "SYNTAX": "REPORT TITLE=\"<title>\" DESC=\"<description>\" [SEVERITY <level>] [CATEGORY <type>]",
+      "DESCRIPTION": "Submit a detailed bug report or issue with reproduction steps and session context.",
+      "UCODE_TEMPLATE": "[USER|REPORT*$1*$2*$3*$4]",
+      "DEFAULT_PARAMS": {
+        "$3": "medium",
+        "$4": "bug"
+      },
+      "EXAMPLES": [
+        "REPORT TITLE=\"Menu overlap\" DESC=\"Text overlaps in narrow terminals\"",
+        "REPORT TITLE=\"MAP fails\" DESC=\"KeyError on CREATE\" SEVERITY high",
+        "REPORT TITLE=\"Add feature\" DESC=\"Dark mode support\" CATEGORY feature_request"
+      ],
+      "NOTES": [
+        "Severity: critical, high, medium, low, info",
+        "Category: bug, feature_request, confusion, question",
+        "Saved to memory/logs/feedback/bug_reports.jsonl",
+        "Auto-captures session context"
+      ]
+    },
+    {
+      "NAME": "ROLE",
+      "SYNTAX": "ROLE",
+      "DESCRIPTION": "Display current user role. Use CONFIG ROLE to change between user and wizard roles. Wizard role enables OK DEV and advanced system features.",
+      "UCODE_TEMPLATE": "[SYSTEM|CONFIG*ROLE]",
+      "CATEGORY": "CONFIGURATION",
+      "EXAMPLES": [
+        "ROLE",
+        "CONFIG ROLE wizard",
+        "CONFIG ROLE user"
+      ],
+      "NOTES": [
+        "Wizard role enables OK DEV command for GitHub Copilot CLI",
+        "Wizard role grants access to advanced system features",
+        "Use CONFIG ROLE <role> to change: user | wizard"
+      ]
+    },
+    {
+      "NAME": "HISTORY",
+      "SYNTAX": "HISTORY [SEARCH <query>|STATS|CLEAR [days]|EXPORT <file>|RECENT [count]]",
+      "DESCRIPTION": "Enhanced command history management with intelligent search, statistics, and export capabilities.",
+      "UCODE_TEMPLATE": "[SYSTEM|HISTORY*$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "HISTORY",
+        "HISTORY SEARCH map",
+        "HISTORY STATS",
+        "HISTORY RECENT 20",
+        "HISTORY EXPORT my_commands.txt",
+        "HISTORY CLEAR 30"
+      ]
+    },
+    {
+      "NAME": "DEV",
+      "SYNTAX": "DEV <ENABLE|DISABLE|STATUS|BREAK|STEP|CONTINUE|INSPECT|STACK|TRACE|WATCH|HELP>",
+      "DESCRIPTION": "uPY script debugger for ALL USERS. Set breakpoints, step through code, inspect variables in your memory/ucode/ scripts. For core file editing (master only), use 'DEV MODE ON' instead.",
+      "UCODE_TEMPLATE": "[DEV|$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$2": null,
+        "$3": null
+      },
+      "EXAMPLES": [
+        "DEV ENABLE",
+        "DEV BREAK 10",
+        "DEV BREAK 15 \"counter > 5\"",
+        "DEV STEP",
+        "DEV CONTINUE",
+        "DEV INSPECT counter",
+        "DEV STACK",
+        "DEV TRACE ON",
+        "DEV STATUS"
+      ],
+      "FLAGS": {
+        "ENABLE": "Enable uPY script debugging",
+        "DISABLE": "Disable uPY script debugging", 
+        "STATUS": "Show debugger status",
+        "BREAK": "Set/remove/list breakpoints",
+        "STEP": "Execute one line at a time",
+        "CONTINUE": "Resume execution until next breakpoint",
+        "INSPECT": "View variable values",
+        "STACK": "Show call stack",
+        "TRACE": "Toggle trace logging",
+        "WATCH": "Watch variable changes"
+      },
+      "NOTES": [
+        "v1.2.21 - Debugger available to ALL users for memory/ucode/ scripts",
+        "For core file editing (core/knowledge/extensions), use: DEV MODE ON"
+      ]
+    },
+    {
+      "NAME": "MODE",
+      "SYNTAX": "MODE [COMMAND|DEV|ASSIST|GHOST|TOMB|CRYPT|STATUS]",
+      "DESCRIPTION": "Switch between prompt modes. Each mode changes the prompt indicator and provides different capabilities.",
+      "UCODE_TEMPLATE": "[SYSTEM|MODE*$1]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "MODE",
+        "MODE STATUS",
+        "MODE COMMAND",
+        "MODE DEV",
+        "MODE ASSIST",
+        "MODE GHOST",
+        "MODE TOMB",
+        "MODE CRYPT"
+      ],
+      "FLAGS": {
+        "STATUS": "Show all available modes"
+      },
+      "NOTES": [
+        "✅ v1.2.24+ - Prompt mode system",
+        "🌀 COMMAND - Standard operations (default)",
+        "⚙️ DEV - Developer/admin access",
+        "❤️ ASSIST - AI-powered assistance",
+        "👻 GHOST - Demo/sandbox/offline-testing",
+        "🔒 TOMB - Archival local/private only",
+        "🛜 CRYPT - Archival with networking",
+        "Priority: DEV > GHOST > TOMB > CRYPT > ASSIST > COMMAND"
+      ]
+    },
+    {
+      "NAME": "GHOST",
+      "SYNTAX": "GHOST",
+      "DESCRIPTION": "Toggle GHOST mode for isolated sandbox testing. No persistent changes, network disabled.",
+      "UCODE_TEMPLATE": "[SYSTEM|GHOST]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "GHOST"
+      ],
+      "NOTES": [
+        "✅ v1.2.24+ - Sandbox testing mode",
+        "👻 Isolated testing environment",
+        "🚫 No persistent file changes",
+        "📵 Network disabled",
+        "🧪 Safe experimentation",
+        "Run GHOST again to exit"
+      ]
+    },
+    {
+      "NAME": "TOMB",
+      "SYNTAX": "TOMB",
+      "DESCRIPTION": "Toggle TOMB mode for read-only archival access. Local storage only, no networking.",
+      "UCODE_TEMPLATE": "[SYSTEM|TOMB]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "TOMB"
+      ],
+      "NOTES": [
+        "✅ v1.2.24+ - Archival mode (local/private)",
+        "🔒 Read-only archival access",
+        "💾 Local storage only",
+        "📵 No network access",
+        "🚫 No sharing capabilities",
+        "Run TOMB again to exit"
+      ]
+    },
+    {
+      "NAME": "CRYPT",
+      "SYNTAX": "CRYPT",
+      "DESCRIPTION": "Toggle CRYPT mode for archival with networking. Location/beacon/key sharing enabled.",
+      "UCODE_TEMPLATE": "[SYSTEM|CRYPT]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "CRYPT"
+      ],
+      "NOTES": [
+        "✅ v1.2.24+ - Archival mode (with networking)",
+        "🛜 Read-write archival access",
+        "🌐 Network enabled for sync",
+        "📍 Location/beacon/key sharing",
+        "🤝 Collaborative archival work",
+        "Run CRYPT again to exit"
+      ]
+    },
+    {
+      "NAME": "SHOW",
+      "SYNTAX": "SHOW [file_path] [--json|--convert|--view|--edit]",
+      "DESCRIPTION": "Universal file viewer with smart type detection. .json → JSON viewer, .py → conversion offer to .upy, .md → Typo preview, .upy/.txt → terminal. Opens file picker if no path provided.",
+      "UCODE_TEMPLATE": "[FILE|SHOW*$1]",
+      "DEFAULT_PARAMS": {},
+      "FLAGS": {
+        "--json": "Force JSON viewer mode",
+        "--convert": "Convert .py to .upy (Python files only)",
+        "--view": "View source as-is (read-only)",
+        "--edit": "Edit directly (not recommended for .py)",
+        "--web": "Open file in web browser (markdown viewer)",
+        "--cli": "Display file in terminal (default)"
+      },
+      "NOTES": [
+        "✅ v1.2.24 - Universal file handler",
+        "🎯 .json → JSON viewer with syntax highlighting",
+        "🐍 .py → User: convert to .upy | Dev Mode: edit Python directly",
+        "📝 .md → Typo markdown preview (if available)",
+        "📜 .upy → User scripting (bracket syntax)",
+        "🔓 Python editing requires Dev Mode permissions"
+      ]
+    },
+    {
+      "NAME": "RUN",
+      "SYNTAX": "RUN \"<script_file>\"",
+      "DESCRIPTION": "Executes a script file containing uDOS commands.",
+      "UCODE_TEMPLATE": "[FILE|RUN*$1]",
+      "DEFAULT_PARAMS": {}
+    },
+    {
+      "NAME": "EDIT",
+      "SYNTAX": "EDIT \"<file>\" [--cli|--web] [--editor <name>] [--config] [--install-micro]",
+      "DESCRIPTION": "Opens a file in a text editor. Supports CLI editors (micro, nano, vim) and web editors (typo). Use --config to view available editors, --install-micro to install micro editor.",
+      "UCODE_TEMPLATE": "[FILE|EDIT*$1]",
+      "DEFAULT_PARAMS": {},
+      "FLAGS": {
+        "--cli": "Force CLI editor mode",
+        "--web": "Force web editor mode (requires typo)",
+        "--editor <name>": "Use specific editor (e.g., nano, vim, micro)",
+        "--config": "Show editor configuration and available editors",
+        "--install-micro": "Install micro text editor"
+      },
+      "EXAMPLES": [
+        "EDIT myfile.txt",
+        "EDIT --cli README.md",
+        "EDIT --editor nano config.json",
+        "EDIT --config",
+        "EDIT --install-micro"
+      ]
+    },
+    {
+      "NAME": "FILE PICK",
+      "SYNTAX": "FILE PICK [pattern]",
+      "DESCRIPTION": "Interactive file picker with fuzzy search capabilities. Use pattern to filter files.",
+      "UCODE_TEMPLATE": "[FILE|PICK*$1]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "FILE PICK",
+        "FILE PICK *.md",
+        "FILE PICK README"
+      ]
+    },
+    {
+      "NAME": "FILE RECENT",
+      "SYNTAX": "FILE RECENT [count] [workspace]",
+      "DESCRIPTION": "Show recently accessed files with access frequency and timestamps.",
+      "UCODE_TEMPLATE": "[FILE|RECENT*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "10",
+        "$2": ""
+      },
+      "EXAMPLES": [
+        "FILE RECENT",
+        "FILE RECENT 5",
+        "FILE RECENT 20 sandbox"
+      ]
+    },
+    {
+      "NAME": "FILE",
+      "SYNTAX": "FILE [operation] [params]",
+      "DESCRIPTION": "Universal file handler with smart type detection. Handles .md, .upy, .py, .json, .txt files intelligently. Interactive menu when called without parameters.",
+      "UCODE_TEMPLATE": "[FILE|MENU]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "FILE",
+        "FILE SHOW config.json",
+        "FILE SHOW script.py",
+        "FILE INFO README.md",
+        "FILE RECENT"
+      ],
+      "SUBCOMMANDS": {
+        "SHOW": "View file (JSON viewer for .json, uPY converter for .py, Typo for .md)",
+        "EDIT": "Edit file with smart editor",
+        "NEW": "Create new file with templates",
+        "DELETE": "Delete file (soft-delete to .archive/)",
+        "COPY": "Copy file within or between workspaces",
+        "MOVE": "Move file between workspaces",
+        "RENAME": "Rename file in current workspace",
+        "INFO": "Show file statistics and metadata",
+        "RECENT": "Show recently accessed files",
+        "BATCH": "Batch operations (DELETE/COPY/MOVE with patterns)",
+        "BOOKMARKS": "Manage file bookmarks",
+        "PREVIEW": "Preview with metadata and git status"
+      },
+      "NOTES": [
+        "✅ v1.2.24 - Universal file handler with smart type detection",
+        "🎯 .json → JSON viewer with syntax highlighting",
+        "🐍 .py → User: convert to .upy | Admin: edit Python directly (Dev Mode)",
+        "📝 .md → Typo markdown preview (if available)",
+        "📜 .upy → User scripting format with bracket syntax",
+        "🔓 Python editing requires Dev Mode (admin/wizard permissions)",
+        "Interactive menu when called without parameters"
+      ]
+    },
+    {
+      "NAME": "FILE BATCH",
+      "SYNTAX": "FILE BATCH <DELETE|COPY|MOVE> <pattern> [destination]",
+      "DESCRIPTION": "Batch file operations with pattern matching. Delete, copy, or move multiple files at once.",
+      "UCODE_TEMPLATE": "[FILE|BATCH*$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "FILE BATCH DELETE *.tmp",
+        "FILE BATCH COPY *.md backup/",
+        "FILE BATCH MOVE logs/* archive/"
+      ]
+    },
+    {
+      "NAME": "FILE BOOKMARKS",
+      "SYNTAX": "FILE BOOKMARKS [ADD|REMOVE] [filename]",
+      "DESCRIPTION": "Manage persistent bookmark system with tags and custom names.",
+      "UCODE_TEMPLATE": "[FILE|BOOKMARKS*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "",
+        "$2": ""
+      },
+      "EXAMPLES": [
+        "FILE BOOKMARKS",
+        "FILE BOOKMARKS ADD README.md",
+        "FILE BOOKMARKS REMOVE config.json"
+      ]
+    },
+    {
+      "NAME": "FILE PREVIEW",
+      "SYNTAX": "FILE PREVIEW <filename>",
+      "DESCRIPTION": "Preview file content with metadata and git status display.",
+      "UCODE_TEMPLATE": "[FILE|PREVIEW*$1]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "FILE PREVIEW README.md",
+        "FILE PREVIEW data.json"
+      ]
+    },
+    {
+      "NAME": "FILE INFO",
+      "SYNTAX": "FILE INFO <filename>",
+      "DESCRIPTION": "Show comprehensive file information and statistics.",
+      "UCODE_TEMPLATE": "[FILE|INFO*$1]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "FILE INFO README.md",
+        "FILE INFO script.py"
+      ]
+    },
+    {
+      "NAME": "BANK",
+      "SYNTAX": "BANK [SEARCH|LIST|SHOW|INDEX|STATS|CATEGORIES] [params]",
+      "DESCRIPTION": "Access the local data bank. Without subcommand, defaults to LIST. Use BANK SEARCH to search, BANK SHOW to display content, etc.",
+      "UCODE_TEMPLATE": "[BANK|LIST]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "BANK",
+        "BANK SEARCH python",
+        "BANK LIST commands"
+      ]
+    },
+    {
+      "NAME": "BANK SEARCH",
+      "SYNTAX": "BANK SEARCH <query> [category] [limit]",
+      "DESCRIPTION": "Search the local data bank with full-text search and ranking.",
+      "UCODE_TEMPLATE": "[BANK|SEARCH*$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$2": "",
+        "$3": "10"
+      },
+      "EXAMPLES": [
+        "BANK SEARCH \"OK command\"",
+        "BANK SEARCH mapping commands 5",
+        "BANK SEARCH python concepts"
+      ]
+    },
+    {
+      "NAME": "BANK LIST",
+      "SYNTAX": "BANK LIST [category]",
+      "DESCRIPTION": "Browse data bank by categories and topics.",
+      "UCODE_TEMPLATE": "[BANK|LIST*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "EXAMPLES": [
+        "BANK LIST",
+        "BANK LIST commands",
+        "BANK LIST concepts"
+      ]
+    },
+    {
+      "NAME": "BANK SHOW",
+      "SYNTAX": "BANK SHOW <item>",
+      "DESCRIPTION": "Display data bank content with panel integration.",
+      "UCODE_TEMPLATE": "[BANK|SHOW*$1]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "BANK SHOW \"OK command\"",
+        "BANK SHOW mapping"
+      ]
+    },
+    {
+      "NAME": "BANK INDEX",
+      "SYNTAX": "BANK INDEX",
+      "DESCRIPTION": "Manual reindexing of data bank with statistics.",
+      "UCODE_TEMPLATE": "[BANK|INDEX]",
+      "DEFAULT_PARAMS": {}
+    },
+    {
+      "NAME": "BANK STATS",
+      "SYNTAX": "BANK STATS",
+      "DESCRIPTION": "Show comprehensive data bank metrics and statistics.",
+      "UCODE_TEMPLATE": "[BANK|STATS]",
+      "DEFAULT_PARAMS": {}
+    },
+    {
+      "NAME": "BANK CATEGORIES",
+      "SYNTAX": "BANK CATEGORIES",
+      "DESCRIPTION": "List all data bank categories and their overview.",
+      "UCODE_TEMPLATE": "[BANK|CATEGORIES]",
+      "DEFAULT_PARAMS": {}
+    },
+    {
+      "NAME": "REPAIR",
+      "SYNTAX": "REPAIR [--check|--auto|--report|--pull|--upgrade-pip|--install-extensions|--clone <extension>]",
+      "DESCRIPTION": "System health check and repair with extension management. Validates Python environment, dependencies, file structure, git repository, and extensions. Can auto-fix issues, pull updates from GitHub, upgrade pip, or clone recommended extensions (micro, typo, cmd, monaspace).",
+      "UCODE_TEMPLATE": "[SYSTEM|REPAIR*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "FLAGS": {
+        "--check": "Health check only (no repairs)",
+        "--auto": "Automatically fix detected issues",
+        "--report": "Detailed diagnostic report",
+        "--pull": "Pull latest updates from GitHub",
+        "--upgrade-pip": "Upgrade pip package manager",
+        "--install-extensions": "Clone all recommended extensions",
+        "--clone <name>": "Clone specific extension (micro, typo, cmd, monaspace)"
+      },
+      "EXAMPLES": [
+        "REPAIR",
+        "REPAIR --check",
+        "REPAIR --auto",
+        "REPAIR --report",
+        "REPAIR --pull",
+        "REPAIR --upgrade-pip",
+        "REPAIR --install-extensions",
+        "REPAIR --clone micro",
+        "REPAIR --clone typo",
+        "REPAIR --clone monaspace"
+      ]
+    },
+    {
+      "NAME": "UNDO",
+      "SYNTAX": "UNDO",
+      "DESCRIPTION": "Undoes the last reversible operation.",
+      "UCODE_TEMPLATE": "[SYSTEM|UNDO]",
+      "DEFAULT_PARAMS": {}
+    },
+    {
+      "NAME": "REDO",
+      "SYNTAX": "REDO",
+      "DESCRIPTION": "Redoes the last undone operation.",
+      "UCODE_TEMPLATE": "[SYSTEM|REDO]",
+      "DEFAULT_PARAMS": {}
+    },
+    {
+      "NAME": "RESTORE",
+      "SYNTAX": "RESTORE [<session_number>]",
+      "DESCRIPTION": "Restores state to a previous session (bulk undo). Use RESTORE LIST to see available sessions.",
+      "UCODE_TEMPLATE": "[SYSTEM|RESTORE*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": "LIST"
+      }
+    },
+    {
+      "NAME": "SHAKEDOWN",
+      "SYNTAX": "SHAKEDOWN [--verbose] [--quick] [--report]",
+      "DESCRIPTION": "Comprehensive v1.5.0 system validation test suite. Tests architecture cleanup (17\u219211 core dirs), planet system integration, asset management, DEV MODE security, memory structure (28\u219216 dirs), database locations, startup health, and core module imports. Options: --verbose (detailed output), --quick (core tests only), --report (generate JSON report).",
+      "UCODE_TEMPLATE": "[SYSTEM|SHAKEDOWN*$1]",
+      "DEFAULT_PARAMS": {},
+      "OPTIONS": {
+        "--verbose": "Show detailed test output",
+        "--quick": "Run core tests only (skip integration)",
+        "--report": "Generate JSON report in memory/logs/"
+      },
+      "EXAMPLES": [
+        "SHAKEDOWN",
+        "SHAKEDOWN --verbose",
+        "SHAKEDOWN --quick",
+        "SHAKEDOWN --report"
+      ]
+    },
+    {
+      "NAME": "REBOOT",
+      "SYNTAX": "REBOOT [--extensions] [--extension <id>] [--validate]",
+      "DESCRIPTION": "Restarts uDOS or reloads extensions. Full restart re-detects system settings and viewport. Hot reload variants (v1.2.4+): --extensions (reload all extensions), --extension <id> (reload single extension), --validate (dry-run validation).",
+      "UCODE_TEMPLATE": "[SYSTEM|REBOOT*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "FLAGS": {
+        "--extensions": "Reload all extensions without full system restart",
+        "--extension <id>": "Reload a single extension by ID",
+        "--validate": "Validate extension without reloading (dry-run)"
+      },
+      "EXAMPLES": [
+        "REBOOT",
+        "REBOOT --extensions",
+        "REBOOT --extension assistant",
+        "REBOOT --validate --extension play-map"
+      ]
+    },
+    {
+      "NAME": "DESTROY",
+      "SYNTAX": "DESTROY [--all] [--env] [--reset]",
+      "DESCRIPTION": "Destructive reset command - clears workspace and optionally resets entire installation. Always prompts for confirmation. Options: --all (clear sandbox + memory + logs), --env (also delete .env), --reset (complete reset + fresh git clone). Auto-reboots after execution.",
+      "UCODE_TEMPLATE": "[SYSTEM|DESTROY*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "FLAGS": {
+        "--all": "Clear sandbox, memory, and all logs",
+        "--env": "Also delete .env file (requires reconfiguration)",
+        "--reset": "Complete reset: clear everything + reset git repository to GitHub state"
+      },
+      "EXAMPLES": [
+        "DESTROY",
+        "DESTROY --all",
+        "DESTROY --all --env",
+        "DESTROY --reset"
+      ]
+    },
+    {
+      "NAME": "BACKUP",
+      "SYNTAX": "BACKUP [--validate] [<file>]",
+      "DESCRIPTION": "File backup operations with archive system integration. Create timestamped backups or validate backup system health.",
+      "UCODE_TEMPLATE": "[BACKUP|BACKUP*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "FLAGS": {
+        "--validate": "Validate backup system and report archive directory status"
+      },
+      "EXAMPLES": [
+        "BACKUP config/user.json",
+        "BACKUP --validate"
+      ]
+    },
+    {
+      "NAME": "CAL",
+      "SYNTAX": "CAL [MONTH|WEEK|DAY|NEXT|PREV]",
+      "DESCRIPTION": "Calendar views with timezone and location integration. Display monthly, weekly, or daily schedules with task indicators.",
+      "UCODE_TEMPLATE": "[CAL|$1]",
+      "DEFAULT_PARAMS": {
+        "$1": "MONTH"
+      },
+      "EXAMPLES": [
+        "CAL",
+        "CAL MONTH",
+        "CAL WEEK",
+        "CAL DAY",
+        "CAL NEXT",
+        "CAL PREV"
+      ],
+      "NOTES": [
+        "✅ Active in v1.2.23 - Calendar-Workflow Task 4",
+        "Shows timezone (AEST/UTC/etc) and TILE code in headers",
+        "Use CAL NEXT/PREV to navigate between time periods",
+        "Task indicators: 📋 normal, ⚡ urgent, ✅ done"
+      ]
+    },
+    {
+      "NAME": "TASK",
+      "SYNTAX": "TASK <subcommand> [args]",
+      "DESCRIPTION": "Task management integrated with calendar system. Create, track, and complete tasks with priority levels and due dates.",
+      "UCODE_TEMPLATE": "[TASK|$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$1": "LIST"
+      },
+      "SUBCOMMANDS": {
+        "LIST": "Show all tasks with status",
+        "ADD": "Create new task with description",
+        "DONE": "Mark task as complete",
+        "DEL": "Delete task by ID",
+        "EDIT": "Update task field value"
+      },
+      "EXAMPLES": [
+        "TASK LIST",
+        "TASK ADD \"Complete Task 4 implementation\"",
+        "TASK ADD \"Review PR\" --due 2025-12-15 --urgent",
+        "TASK DONE 1",
+        "TASK DEL 2",
+        "TASK EDIT 1 progress 80",
+        "TASK EDIT 1 description \"Updated task description\""
+      ],
+      "NOTES": [
+        "✅ Active in v1.2.23 - Calendar-Workflow Task 4",
+        "Tasks stored in memory/bank/user/tasks.json",
+        "Priority levels: normal (📋) or urgent (⚡)",
+        "Status indicators: pending, in_progress, done (✅)",
+        "Progress tracking: 0-100% with visual bars",
+        "Integrates with CAL DAY view for daily task display",
+        "Use quotes for multi-word descriptions"
+      ]
+    },
+    {
+      "NAME": "EXTENSION",
+      "SYNTAX": "EXTENSION <command> [<extension_id>]",
+      "DESCRIPTION": "Manage uDOS extensions. Commands: STATUS (show all extensions), ENABLE <id>, DISABLE <id>, INFO <id>.",
+      "UCODE_TEMPLATE": "[EXTENSION|EXTENSION*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "STATUS"
+      },
+      "EXAMPLES": [
+        "EXTENSION STATUS",
+        "EXTENSION INFO assistant",
+        "EXTENSION ENABLE play-map"
+      ]
+    },
+    {
+      "NAME": "TILE", 
+      "SYNTAX": "TILE <command> [<tile_code>]",
+      "DESCRIPTION": "Grid tile operations. Commands: INFO <code> (show tile details), LIST (show all tiles).",
+      "UCODE_TEMPLATE": "[TILE|TILE*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "LIST"
+      },
+      "EXAMPLES": [
+        "TILE INFO AA340",
+        "TILE LIST"
+      ]
+    },
+    {
+      "NAME": "STATUS",
+      "SYNTAX": "STATUS [--live]",
+      "DESCRIPTION": "Shows system status including connection mode, servers, and health. Use --live for real-time monitoring.",
+      "UCODE_TEMPLATE": "[SYSTEM|STATUS*$1]",
+      "DEFAULT_PARAMS": {},
+      "FLAGS": {
+        "--live": "Enable real-time monitoring mode (update every 3 seconds)"
+      }
+    },
+    {
+      "NAME": "CLEAN",
+      "SYNTAX": "CLEAN [archives|logs|--all|--dry-run|--force] [--days=N]",
+      "DESCRIPTION": "Flush and cleanup workspace directories. Empties .archive/ folders, removes old logs, cleans artifacts. Default interactive with confirmation.",
+      "UCODE_TEMPLATE": "[SANDBOX|CLEAN*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "",
+        "$2": ""
+      },
+      "FLAGS": {
+        "--archives": "Empty all .archive/ folders across workspace",
+        "--all": "Clean all directories (logs + archives)",
+        "--dry-run": "Preview what would be cleaned without removing",
+        "--force": "Skip confirmation prompts",
+        "--days=N": "Keep only last N days (default 30)"
+      },
+      "EXAMPLES": [
+        "CLEAN",
+        "CLEAN archives",
+        "CLEAN logs",
+        "CLEAN --all",
+        "CLEAN --dry-run",
+        "CLEAN archives --force"
+      ],
+      "NOTES": [
+        "✅ Updated in v1.2.21 - .archive/ folder support",
+        "Maintains clean workspace structure",
+        "Interactive by default (confirms before deletion)",
+        "Use --dry-run to preview changes safely"
+      ]
+    },
+    {
+      "NAME": "TIDY",
+      "SYNTAX": "TIDY [folder|--duplicates|--versions|--report]",
+      "DESCRIPTION": "Organize and sort files in workspace directories. Detects duplicates via MD5 hashing, finds old versions by naming patterns, archives automatically.",
+      "UCODE_TEMPLATE": "[SANDBOX|TIDY*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "FLAGS": {
+        "--duplicates": "Find and archive duplicate files",
+        "--versions": "Find and archive old version files",
+        "--report": "Generate report without making changes"
+      },
+      "EXAMPLES": [
+        "TIDY",
+        "TIDY memory/docs",
+        "TIDY --duplicates",
+        "TIDY --versions",
+        "TIDY --report"
+      ],
+      "NOTES": [
+        "✅ Updated in v1.2.21 - Duplicate detection, version archiving",
+        "Uses MD5 hashing to identify exact duplicates",
+        "Detects old versions via regex patterns (_YYYYMMDD_, _vN)",
+        "Moves duplicates/old versions to .archive/ folders",
+        "Use --report to preview changes safely"
+      ]
+    },
+    {
+      "NAME": "CLONE",
+      "SYNTAX": "CLONE [--check|--exclude=pattern|--export=path]",
+      "DESCRIPTION": "Package user content for system duplication. Creates tar.gz archive of docs, drafts, scripts, workflows, user settings. Excludes .archive/ folders and logs.",
+      "UCODE_TEMPLATE": "[CLONE|$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "",
+        "$2": ""
+      },
+      "FLAGS": {
+        "--check": "Preview package contents without creating archive",
+        "--exclude=pattern": "Add file/folder pattern to exclusions",
+        "--export=path": "Custom export path (default: current directory)"
+      },
+      "EXAMPLES": [
+        "CLONE",
+        "CLONE --check",
+        "CLONE --export=/backups/",
+        "CLONE --exclude=*.tmp"
+      ],
+      "NOTES": [
+        "✅ NEW in v1.2.21 - User content packaging",
+        "Packages: memory/docs/, memory/drafts/, memory/ucode/scripts/, memory/workflows/, memory/bank/user/",
+        "Excludes: .archive/, logs/, *.pyc, __pycache__",
+        "Output: udos-clone-YYYYMMDD_HHMMSS.tar.gz",
+        "Use for backup, transfer, or system duplication"
+      ]
+    },
+    {
+      "NAME": "INBOX",
+      "SYNTAX": "INBOX [PROCESS [file]|LIST|STATUS|CLEAN]",
+      "DESCRIPTION": "Process files from memory/inbox/ - filters scraped business data CSV files, extracts email-only records, geocodes addresses to TILE codes, formats social links.",
+      "UCODE_TEMPLATE": "[INBOX|$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "STATUS",
+        "$2": ""
+      },
+      "SUBCOMMANDS": {
+        "PROCESS [file]": "Process CSV file(s) - filters by email, geocodes locations, generates TILE codes",
+        "LIST": "List all CSV files waiting in inbox",
+        "STATUS": "Show inbox status and file count",
+        "CLEAN": "Archive processed files to .archive/"
+      },
+      "EXAMPLES": [
+        "INBOX STATUS",
+        "INBOX LIST",
+        "INBOX PROCESS",
+        "INBOX PROCESS example-pilates-studio.csv",
+        "INBOX CLEAN"
+      ],
+      "NOTES": [
+        "✅ NEW in v1.2.22 - Automated inbox processing for scraped business data",
+        "Filters: Retains only records with valid email addresses",
+        "Extracts: Business name, email, phone, website, social links (FB/IG/LinkedIn)",
+        "Geocodes: Parses FullAddress → Street, Suburb, Postcode, Country",
+        "TILE codes: Converts lat/long to uDOS grid format (AA340-100)",
+        "Keywords: Extracted from filename (e.g., 'pilates-studio')",
+        "Output: memory/bank/private/processed/processed_{keyword}_{filename}.csv",
+        "Use INBOX CLEAN to archive processed files"
+      ]
+    },
+    {
+      "NAME": "BUILD",
+      "SYNTAX": "BUILD [--check|--download|--full|--export=path]",
+      "DESCRIPTION": "Pre-download repositories and create offline installation package. Clones optional repos (MeshCore, CoreUI) and packages core system for distribution.",
+      "UCODE_TEMPLATE": "[BUILD|$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "",
+        "$2": ""
+      },
+      "FLAGS": {
+        "--check": "Check current repository status",
+        "--download": "Download missing repositories only",
+        "--full": "Complete build process (check + download + package)",
+        "--export=path": "Custom export path (default: current directory)"
+      },
+      "EXAMPLES": [
+        "BUILD --check",
+        "BUILD --download",
+        "BUILD --full",
+        "BUILD --full --export=/dist/"
+      ],
+      "NOTES": [
+        "✅ NEW in v1.2.21 - Offline installation packaging",
+        "Downloads: MeshCore (optional), CoreUI Icons (optional)",
+        "Packages: core/, extensions/, knowledge/, wiki/, requirements.txt",
+        "Output: udos-build-YYYYMMDD_HHMMSS.tar.gz",
+        "Use for offline distribution or air-gapped installations"
+      ]
+    },
+    {
+      "NAME": "VIEWPORT",
+      "SYNTAX": "VIEWPORT",
+      "DESCRIPTION": "Displays current terminal viewport and grid layout.",
+      "UCODE_TEMPLATE": "[SYSTEM|VIEWPORT]",
+      "DEFAULT_PARAMS": {}
+    },
+    {
+      "NAME": "PALETTE",
+      "SYNTAX": "PALETTE",
+      "DESCRIPTION": "Displays the Polaroid color palette with visual tests and reference.",
+      "UCODE_TEMPLATE": "[SYSTEM|PALETTE]",
+      "DEFAULT_PARAMS": {}
+    },
+    {
+      "NAME": "PANEL",
+      "SYNTAX": "PANEL [<content>]",
+      "DESCRIPTION": "Display content in a formatted panel with title and border. Can display memory content, status info, or custom text.",
+      "UCODE_TEMPLATE": "[UI|PANEL*$1]",
+      "DEFERRED": "v1.1+",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "EXAMPLES": [
+        "PANEL",
+        "PANEL MEMORY",
+        "PANEL STATUS"
+      ],
+      "NOTES": [
+        "Integrates with memory system",
+        "Supports grid layout formatting",
+        "Can display various content types",
+        "\u26a0\ufe0f DEFERRED to v1.1+ - Display UI extension"
+      ]
+    },
+    {
+      "NAME": "DASH",
+      "SYNTAX": "DASH [WEB]",
+      "DESCRIPTION": "Display comprehensive system dashboard. Use 'DASH WEB' to open interactive web dashboard in browser. Alias: DASHBOARD",
+      "UCODE_TEMPLATE": "[SYSTEM|DASH*$1]",
+      "ALIASES": [],
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      }
+    },
+    {
+      "NAME": "MAP",
+      "SYNTAX": "MAP [STATUS|VIEW|LAYER]",
+      "DESCRIPTION": "Shows current map position and layer information.",
+      "UCODE_TEMPLATE": "[MAP|STATUS]",
+      "DEFAULT_PARAMS": {},
+      "EXTENSION": "play",
+      "NOTES": [
+        "Requires Play extension",
+        "Enable with: POKE START play"
+      ]
+    },
+    {
+      "NAME": "GOTO",
+      "SYNTAX": "GOTO <x> <y>",
+      "DESCRIPTION": "Teleport to specific coordinates on current map layer.",
+      "UCODE_TEMPLATE": "[MAP|GOTO*$1*$2]",
+      "DEFAULT_PARAMS": {},
+      "EXTENSION": "play",
+      "NOTES": [
+        "Requires Play extension",
+        "Enable with: POKE START play"
+      ]
+    },
+    {
+      "NAME": "STEP",
+      "SYNTAX": "STEP <dx> <dy>",
+      "DESCRIPTION": "Move relative to current position (NetHack-style navigation).",
+      "UCODE_TEMPLATE": "[MAP|MOVE*$1*$2]",
+      "DEFAULT_PARAMS": {},
+      "EXTENSION": "play",
+      "NOTES": [
+        "Alias for map movement command",
+        "Use MOVE for file operations",
+        "NetHack-style relative positioning",
+        "Requires Play extension",
+        "Enable with: POKE START play"
+      ]
+    },
+    {
+      "NAME": "LAYER",
+      "SYNTAX": "LAYER [<layer_name>]",
+      "DESCRIPTION": "Switch to a different map layer or list available layers.",
+      "UCODE_TEMPLATE": "[MAP|LAYER*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": ""
+      },
+      "EXTENSION": "play",
+      "NOTES": [
+        "Requires Play extension",
+        "Enable with: POKE START play"
+      ]
+    },
+    {
+      "NAME": "DESCEND",
+      "SYNTAX": "DESCEND",
+      "DESCRIPTION": "Descend one layer (NetHack > command) - go deeper.",
+      "UCODE_TEMPLATE": "[MAP|DESCEND]",
+      "DEFAULT_PARAMS": {},
+      "EXTENSION": "play",
+      "NOTES": [
+        "Requires Play extension",
+        "Enable with: POKE START play"
+      ]
+    },
+    {
+      "NAME": "ASCEND",
+      "SYNTAX": "ASCEND",
+      "DESCRIPTION": "Ascend one layer (NetHack < command) - go higher.",
+      "UCODE_TEMPLATE": "[MAP|ASCEND]",
+      "DEFAULT_PARAMS": {},
+      "EXTENSION": "play",
+      "NOTES": [
+        "Requires Play extension",
+        "Enable with: POKE START play"
+      ]
+    },
+    {
+      "NAME": "LOCATE",
+      "SYNTAX": "LOCATE <city_name>",
+      "DESCRIPTION": "Set your real-world location to a major city.",
+      "UCODE_TEMPLATE": "[MAP|LOCATE*$1]",
+      "DEFAULT_PARAMS": {},
+      "EXTENSION": "play",
+      "NOTES": [
+        "Requires Play extension",
+        "Enable with: POKE START play"
+      ]
+    },
+    {
+      "NAME": "WIZARD",
+      "ALIASES": ["SETUP"],
+      "SYNTAX": "WIZARD [QUICK|THEME|VIEWPORT|EXTENSIONS|HELP]",
+      "DESCRIPTION": "Run interactive setup wizard for first-time configuration. SETUP is an alias for backward compatibility.",
+      "UCODE_TEMPLATE": "[SYSTEM|WIZARD*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": "WIZARD"
+      },
+      "NOTES": [
+        "WIZARD or WIZARD WIZARD runs full interactive setup",
+        "WIZARD QUICK uses sensible defaults",
+        "WIZARD THEME configures theme only",
+        "WIZARD VIEWPORT configures viewport only",
+        "WIZARD EXTENSIONS manages extensions",
+        "SETUP is deprecated - use WIZARD for setup, or CONFIG for settings"
+      ]
+    },
+    {
+      "NAME": "TREE",
+      "SYNTAX": "TREE [MEMORY|KNOWLEDGE|--sizes <path>]",
+      "DESCRIPTION": "Generate directory structure files and display tree. TREE updates all 3 structure.txt files (root, memory, knowledge) and shows root tree. MEMORY TREE shows memory tree. KNOWLEDGE TREE shows knowledge tree. TREE --sizes <path> shows directory with file sizes.",
+      "UCODE_TEMPLATE": "[TREE|SHOW*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "",
+        "$2": ""
+      },
+      "NOTES": [
+        "Note: Use 'TREE' for root, or 'MEMORY TREE'/'KNOWLEDGE TREE' as two-word commands"
+      ]
+    },
+    {
+      "NAME": "TUI",
+      "SYNTAX": "TUI [ENABLE|DISABLE|TOGGLE|STATUS] [KEYPAD|PREDICTOR|PAGER|BROWSER|ALL]",
+      "DESCRIPTION": "Manage Terminal User Interface components. Enable/disable keypad navigation (numpad controls), command predictions, enhanced paging, and file browser.",
+      "UCODE_TEMPLATE": "[TUI|$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "STATUS",
+        "$2": ""
+      },
+      "EXAMPLES": [
+        "TUI STATUS",
+        "TUI ENABLE KEYPAD",
+        "TUI DISABLE ALL",
+        "TUI TOGGLE KEYPAD"
+      ],
+      "COMPONENTS": {
+        "KEYPAD": "Numpad navigation: 8↑ 2↓ 4← 6→ 5✓ 7↶ 9↷ 1◀ 3▶ 0☰",
+        "PREDICTOR": "Real-time command predictions with syntax highlighting",
+        "PAGER": "Enhanced scrolling with scroll-while-prompting",
+        "BROWSER": "Workspace-aware file browser (use FILE BROWSE)",
+        "ALL": "All TUI components"
+      },
+      "NOTES": [
+        "v1.2.15: TUI integration complete",
+        "Keypad disabled by default to avoid number input conflicts",
+        "Enable keypad when you want keyboard-only navigation"
+      ]
+    },
+    {
+      "NAME": "POKE",
+      "SYNTAX": "POKE <START|STOP|STATUS|LIST> [output_name] [options]",
+      "DESCRIPTION": "Manage web-based output interfaces (typo editor, cmd terminal, dashboard, etc.). Start/stop servers, check status, and list available outputs. Alias: SERVER",
+      "UCODE_TEMPLATE": "[SYSTEM|OUTPUT*$1*$2]",
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "OUTPUTS": {
+        "typo": "Web markdown editor (Svelte/Node.js) - Default port: 5173",
+        "dashboard": "Unified control panel for all web outputs - Default port: 8888",
+        "terminal": "C64-style web terminal - Default port: 8889",
+        "teletext": "BBC Teletext interface - Default port: 9002",
+        "desktop": "Retro desktop environment - Default port: 8892",
+        "font-editor": "16x16 bitmap font/character editor - Default port: 8891",
+        "markdown": "Markdown viewer using Typo preview mode - Default port: 5173",
+        "cmd": "Web terminal emulator (mrchimp/cmd) - Default port: 3000"
+      },
+      "SUBCOMMANDS": {
+        "START": "Start an output interface (e.g., POKE START dashboard)",
+        "STOP": "Stop a running output server",
+        "STATUS": "Check output server status (or all servers)",
+        "LIST": "List all available output interfaces"
+      },
+      "FLAGS": {
+        "--port <number>": "Specify port number",
+        "--no-browser": "Don't auto-open browser"
+      },
+      "EXAMPLES": [
+        "POKE LIST",
+        "POKE START dashboard",
+        "POKE START typo",
+        "POKE START cmd",
+        "POKE START cmd --port 8080",
+        "POKE STATUS",
+        "POKE STOP typo",
+        "SERVER START dashboard"
+      ],
+      "NOTES": [
+        "Dashboard provides unified control for all web outputs",
+        "Access dashboard at http://localhost:8888 (default)",
+        "Dashboard shows real-time status and logs for all outputs",
+        "SERVER is an alias for POKE (legacy compatibility)",
+        "\u26a0\ufe0f DEFERRED to v1.1+ - Web interface extension"
+      ]
+    },
+    {
+      "NAME": "PEEK",
+      "SYNTAX": "PEEK <url|FILE path> [--format json|text] [--save filename] [--extract]",
+      "DESCRIPTION": "Fetch and parse data from URLs or local documents. Supports Markdown (.md), JSON (.json), SVG (.svg), and HTML. Auto-saves to memory/sandbox.",
+      "UCODE_TEMPLATE": "[PEEK|FETCH*$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "PEEK <url>": "Fetch content from URL",
+        "PEEK FILE <path>": "Parse local file"
+      },
+      "FLAGS": {
+        "--format <type>": "Output format (json, text)",
+        "--save <filename>": "Save to sandbox/peek/<filename>",
+        "--extract": "Extract structured data from content"
+      },
+      "EXAMPLES": [
+        "PEEK https://example.com/data.json",
+        "PEEK https://github.com/user/repo/README.md --save readme.md",
+        "PEEK FILE knowledge/guide.md --extract",
+        "PEEK https://api.github.com/repos/user/repo --format json"
+      ],
+      "SUPPORTED_FORMATS": {
+        "markdown": "Displays first 100 lines of .md content",
+        "json": "Pretty-prints JSON with 2-space indent",
+        "svg": "Shows SVG metadata and first 20 lines",
+        "html": "Strips tags and shows text content"
+      },
+      "NOTES": [
+        "Content is saved to sandbox/peek/ by default",
+        "Large content is truncated for display (not storage)",
+        "Uses User-Agent: uDOS-PEEK/1.0",
+        "10 second timeout on URL fetches"
+      ]
+    },
+    {
+      "NAME": "FONT",
+      "SYNTAX": "FONT <LIST|SET|INFO> [variant]",
+      "DESCRIPTION": "Manage Monaspace fonts for web-based editors and terminals. View available font variants, set preferences, and check current configuration.",
+      "UCODE_TEMPLATE": "[SYSTEM|FONT*$1*$2]",
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "SUBCOMMANDS": {
+        "LIST": "List all Monaspace font variants with descriptions and installation status",
+        "SET": "Set preferred font variant (NEON, ARGON, XENON, RADON, KRYPTON)",
+        "INFO": "Display current font configuration and settings"
+      },
+      "VARIANTS": {
+        "NEON": "Neo-grotesque sans - Clean and modern (default)",
+        "ARGON": "Humanist sans - Warm and readable",
+        "XENON": "Slab serif - Editorial and strong",
+        "RADON": "Handwriting - Casual and personal",
+        "KRYPTON": "Mechanical sans - Technical and precise"
+      },
+      "FEATURES": [
+        "Texture Healing\u2122 - Advanced character spacing",
+        "Coding ligatures - Enhanced readability",
+        "Powerline symbols - Terminal integration",
+        "Variable font technology - Flexible styling"
+      ],
+      "EXAMPLES": [
+        "FONT LIST",
+        "FONT INFO",
+        "FONT SET NEON",
+        "FONT SET ARGON"
+      ],
+      "NOTES": [
+        "Install fonts first: bash extensions/setup_monaspace.sh",
+        "Fonts apply to web-based editors (typo) and web terminals (cmd.js)",
+        "For CLI terminals, install system fonts manually (see FONT INFO)",
+        "\u26a0\ufe0f DEFERRED to v1.1+ - Typography extension"
+      ]
+    },
+    {
+      "NAME": "THEME",
+      "SYNTAX": "THEME [<name>|LIST|SET <name>|STATUS]",
+      "DESCRIPTION": "Manage uDOS personality themes. Switch between DUNGEON (fantasy), GALAXY (sci-fi comedy), FOUNDATION (serious survival), SCIENCE (research methodology), and PROJECT (business concise). Each theme changes command names, messages, and overall verbosity. Use theme name directly as shortcut (e.g., THEME GALAXY).",
+      "UCODE_TEMPLATE": "[SYSTEM|THEME*$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "STATUS"
+      },
+      "FLAGS": {},
+      "SUBCOMMANDS": {
+        "LIST": "Display all available themes with descriptions",
+        "<name>": "Shortcut to change theme directly (DUNGEON, GALAXY, FOUNDATION, SCIENCE, or PROJECT)",
+        "SET <name>": "Change active theme (explicit form)",
+        "STATUS": "Show currently active theme"
+      },
+      "THEMES": {
+        "DUNGEON": {
+          "NAME": "Dungeon Master",
+          "ICON": "\u2694\ufe0f",
+          "STYLE": "NetHack-inspired fantasy adventure",
+          "VERBOSITY": "HIGH"
+        },
+        "GALAXY": {
+          "NAME": "Galactic Hitchhiker",
+          "ICON": "\ud83d\ude80",
+          "STYLE": "Douglas Adams sci-fi comedy",
+          "VERBOSITY": "VERY_HIGH"
+        },
+        "FOUNDATION": {
+          "NAME": "Foundation Protocol",
+          "ICON": "\ud83d\udcca",
+          "STYLE": "Asimov colony survival",
+          "VERBOSITY": "MEDIUM"
+        },
+        "SCIENCE": {
+          "NAME": "Research Lab",
+          "ICON": "\ud83d\udd2c",
+          "STYLE": "Scientific research and experimental methodology",
+          "VERBOSITY": "LOW_MEDIUM"
+        },
+        "PROJECT": {
+          "NAME": "Project Manager",
+          "ICON": "\ud83d\udccb",
+          "STYLE": "Business-focused project management",
+          "VERBOSITY": "LOW"
+        }
+      },
+      "EXAMPLES": [
+        "THEME",
+        "THEME LIST",
+        "THEME GALAXY",
+        "THEME SCIENCE",
+        "THEME PROJECT",
+        "THEME SET DUNGEON",
+        "THEME STATUS"
+      ],
+      "NOTES": [
+        "Theme changes take effect on next restart",
+        "Saved in STORY.UDO SYSTEM_OPTIONS.THEME",
+        "Changes all command names and system messages",
+        "Use HELP after theme change to see new command vocabulary"
+      ]
+    },
+    {
+      "NAME": "WEB",
+      "SYNTAX": "WEB",
+      "DESCRIPTION": "Launch full uDOS instance in web browser with xterm.js terminal emulator. Opens browser with splash screen, ASCII dashboard, and persistent command prompt. The web terminal runs independently from the CLI instance.",
+      "UCODE_TEMPLATE": "[SYSTEM|WEB]",
+      "DEFAULT_PARAMS": {},
+      "DEFERRED": "v1.1+",
+      "FLAGS": {},
+      "SUBCOMMANDS": {},
+      "EXAMPLES": [
+        "WEB"
+      ],
+      "NOTES": [
+        "Auto-starts web server on port 8888 if not running",
+        "Full terminal emulation with xterm.js",
+        "Supports ASCII art, colors, and cursor control",
+        "Independent web instance - CLI continues running",
+        "Web terminal includes: splash screen, dashboard, help system",
+        "Theme switching available in web interface",
+        "\u26a0\ufe0f DEFERRED to v1.1+ - Web interface extension"
+      ]
+    },
+    {
+      "NAME": "NEW",
+      "SYNTAX": "NEW [<filename>] [--dated] [--timed] [--located] [--tile <code>]",
+      "DESCRIPTION": "Create a new file from template in the current workspace. Interactive prompts for filename, workspace selection, and template type. Supports ISO 8601 timestamp prefixes.",
+      "UCODE_TEMPLATE": "[FILE|NEW*$1]",
+      "DEFAULT_PARAMS": {},
+      "FLAGS": {
+        "--dated": "Add date prefix (YYYYMMDD-filename)",
+        "--timed": "Add date+time+timezone prefix (YYYYMMDD-HHMMSSTZ-filename)",
+        "--located": "Add location suffix with TILE code",
+        "--tile": "Specify TILE code for location (requires --located)"
+      },
+      "SUBCOMMANDS": {},
+      "TEMPLATES": {
+        "blank": "Empty markdown file",
+        "note": "Simple note with date/author header",
+        "quest": "Quest/mission template with objectives",
+        "config": "Configuration file in .UDO format",
+        "script": "uScript automation file"
+      },
+      "EXAMPLES": [
+        "NEW",
+        "NEW mission_log.md",
+        "NEW backup.json --dated → 20251212-backup.json",
+        "NEW workflow.upy --timed → 20251212-143045AEST-workflow.upy",
+        "NEW mission.upy --timed --located --tile AA340 → 20251212-143045AEST-AA340-mission.upy"
+      ],
+      "NOTES": [
+        "Templates include: blank, note, quest, config, script",
+        "Auto-detects file extension (.md, .udo, .txt, .uscript)",
+        "Variable substitution: {date}, {username}, {title}",
+        "Creates file in selected workspace (sandbox/memory/data)",
+        "Interactive mode guides you through all choices",
+        "✅ v1.2.23: Compact timestamp format with timezone codes",
+        "Date format: YYYYMMDD (e.g., 20251212-backup.json)",
+        "Session format: YYYYMMDD-HHMMSSTZ (e.g., 20251212-143045AEST-workflow.upy)",
+        "Located format: YYYYMMDD-HHMMSSTZ-TILE (e.g., 20251212-143045AEST-AA340-mission.upy)",
+        "Timezone codes: UTC, EST, PST, GMT, CET, JST, AEST (from timezones.json)"
+      ]
+    },
+    {
+      "NAME": "DELETE",
+      "ALIASES": [],
+      "SYNTAX": "DELETE [<filename>]",
+      "DESCRIPTION": "Delete a file from current workspace with confirmation dialog. Shows file list if no filename provided.",
+      "UCODE_TEMPLATE": "[FILE|DELETE*$1]",
+      "DEFAULT_PARAMS": {},
+      "FLAGS": {},
+      "SUBCOMMANDS": {},
+      "EXAMPLES": [
+        "DELETE old_notes.md",
+        "DEL"
+      ],
+      "NOTES": [
+        "Requires confirmation before deletion",
+        "Shows all files in current workspace for selection",
+        "Cannot be undone - file is permanently removed",
+        "Use with caution"
+      ]
+    },
+    {
+      "NAME": "COPY",
+      "ALIASES": [],
+      "SYNTAX": "COPY <source> [<destination>]",
+      "DESCRIPTION": "Copy a file within current workspace or to another workspace. Optionally rename during copy.",
+      "UCODE_TEMPLATE": "[FILE|COPY*$1*$2]",
+      "DEFAULT_PARAMS": {},
+      "FLAGS": {},
+      "SUBCOMMANDS": {},
+      "EXAMPLES": [
+        "COPY notes.md",
+        "COPY quest.md quest_backup.md",
+        "DUPLICATE config.udo"
+      ],
+      "NOTES": [
+        "Can copy to same or different workspace",
+        "Auto-generates _copy suffix if no destination name",
+        "Interactive mode shows workspace selection",
+        "Original file remains unchanged"
+      ]
+    },
+    {
+      "NAME": "MOVE",
+      "SYNTAX": "MOVE <source> [<destination>]",
+      "DESCRIPTION": "Move file between workspaces or rename within workspace. File is removed from source location.",
+      "UCODE_TEMPLATE": "[FILE|MOVE*$1*$2]",
+      "DEFAULT_PARAMS": {},
+      "FLAGS": {},
+      "SUBCOMMANDS": {},
+      "EXAMPLES": [
+        "MOVE notes.md",
+        "MOVE temp.txt final.txt"
+      ],
+      "NOTES": [
+        "File is removed from original location",
+        "Can move between any workspaces (sandbox/memory/data)",
+        "Can rename during move",
+        "Interactive workspace selection"
+      ]
+    },
+    {
+      "NAME": "RENAME",
+      "SYNTAX": "RENAME <old_name> [<new_name>]",
+      "DESCRIPTION": "Rename a file in current workspace. Keep same extension for consistency.",
+      "UCODE_TEMPLATE": "[FILE|RENAME*$1*$2]",
+      "DEFAULT_PARAMS": {},
+      "FLAGS": {},
+      "SUBCOMMANDS": {},
+      "EXAMPLES": [
+        "RENAME draft.md final.md",
+        "RENAME"
+      ],
+      "NOTES": [
+        "File stays in current workspace",
+        "Cannot overwrite existing file",
+        "Interactive mode shows file list"
+      ]
+    },
+    {
+      "NAME": "MEMORY",
+      "SYNTAX": "MEMORY [<subcommand>] [<args>]",
+      "DESCRIPTION": "Access memory system with 4 tiers (PRIVATE, SHARED, COMMUNITY, PUBLIC). Manage personal and shared knowledge.",
+      "UCODE_TEMPLATE": "[MEMORY|$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "STATUS",
+        "$2": ""
+      },
+      "FLAGS": {
+        "--tier": "Specify tier (private/shared/community/public)",
+        "--analyze": "Analyze content for appropriate tier"
+      },
+      "SUBCOMMANDS": {
+        "STATUS": "Show memory tier status",
+        "LIST": "List memory content",
+        "SEARCH": "Search across tiers",
+        "ANALYZE": "Analyze content classification"
+      },
+      "EXAMPLES": [
+        "MEMORY",
+        "MEMORY PRIVATE",
+        "MEMORY --tier=shared LIST",
+        "MEMORY STATUS"
+      ],
+      "NOTES": [
+        "4 tiers: PRIVATE (encrypted), SHARED (team), COMMUNITY (group), PUBLIC (open)",
+        "Each tier has different security and speed",
+        "Supports intelligent content classification"
+      ]
+    },
+    {
+      "NAME": "KNOWLEDGE",
+      "SYNTAX": "KNOWLEDGE [TREE|<subcommand>]",
+      "DESCRIPTION": "Access the knowledge bank directory. KNOWLEDGE TREE shows the knowledge directory structure.",
+      "UCODE_TEMPLATE": "[TREE|SHOW*KNOWLEDGE]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "TREE": "Show knowledge directory tree structure"
+      },
+      "EXAMPLES": [
+        "KNOWLEDGE TREE"
+      ],
+      "NOTES": [
+        "Routes to TREE handler to display knowledge/ directory structure"
+      ]
+    },
+    {
+      "NAME": "WORKSPACE",
+      "ALIASES": [],
+      "SYNTAX": "WORKSPACE <LIST|SWITCH|STATUS>",
+      "DESCRIPTION": "Manage workspace isolation. Three workspaces: sandbox (experiments), memory (storage), data (config).",
+      "UCODE_TEMPLATE": "[SYSTEM|WORKSPACE*$1]",
+      "DEFAULT_PARAMS": {
+        "$1": "LIST"
+      },
+      "FLAGS": {},
+      "SUBCOMMANDS": {
+        "LIST": "Show all workspaces with file counts",
+        "SWITCH": "Change current workspace",
+        "STATUS": "Show current workspace details"
+      },
+      "EXAMPLES": [
+        "WORKSPACE",
+        "WORKSPACE LIST",
+        "WORKSPACE SWITCH memory",
+        "WS STATUS"
+      ],
+      "NOTES": [
+        "\ud83e\uddea sandbox - Temporary experiments and testing",
+        "\ud83d\udcbe memory - Long-term storage and archives",
+        "\u2699\ufe0f  data - Configuration and system files",
+        "Files are isolated by workspace",
+        "Use MOVE to transfer files between workspaces"
+      ]
+    },
+    {
+      "NAME": "SETUP",
+      "ALIASES": ["SETTINGS"],
+      "SYNTAX": "SETUP [SHOW|EDIT|RESET|<key>]",
+      "DESCRIPTION": "Quick setup - display or modify system settings. For full configuration options use CONFIG command.",
+      "UCODE_TEMPLATE": "[SYSTEM|SETUP]",
+      "DEFAULT_PARAMS": {},
+      "FLAGS": {},
+      "SUBCOMMANDS": {
+        "SHOW": "Display all current settings",
+        "EDIT": "Interactive configuration menu (same as CONFIG)",
+        "RESET": "Restore default settings"
+      },
+      "CATEGORIES": {
+        "user": "Username, display name, location, avatar",
+        "system": "Theme, color mode, timezone",
+        "workspace": "Default workspace, auto-save, backups"
+      },
+      "EXAMPLES": [
+        "SETUP",
+        "SETUP SHOW",
+        "SETUP EDIT",
+        "CONFIG"
+      ],
+      "NOTES": [
+        "SETUP is a quick view of settings - use CONFIG for full interactive menu",
+        "SETTINGS is an alias for SETUP (backward compatibility)",
+        "SETUP EDIT redirects to CONFIG interactive menu",
+        "Settings saved to user.json and .env",
+        "Changes apply to both CLI and web interface"
+      ]
+    },
+    {
+      "NAME": "GUIDE",
+      "ALIASES": [],
+      "SYNTAX": "GUIDE <LIST|SHOW|START|NEXT|PREV|COMPLETE|RESET|PROGRESS> [params]",
+      "DESCRIPTION": "Interactive knowledge viewer with step-through tutorials and progress tracking.",
+      "UCODE_TEMPLATE": "[GUIDE|$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$1": "LIST",
+        "$2": null,
+        "$3": null
+      },
+      "FLAGS": {},
+      "SUBCOMMANDS": {
+        "LIST": "Browse available guides by category",
+        "SHOW": "View guide overview and steps",
+        "START": "Begin interactive guide session",
+        "NEXT": "Move to next step in current guide",
+        "PREV": "Move to previous step",
+        "JUMP": "Jump to specific step number",
+        "COMPLETE": "Mark step as complete",
+        "RESET": "Reset guide progress",
+        "PROGRESS": "Show current progress"
+      },
+      "CATEGORIES": {
+        "survival": "Emergency preparedness, first aid, shelter",
+        "skills": "Programming, knot-tying, navigation",
+        "productivity": "Workflows, automation, tools",
+        "well-being": "Health, fitness, mental wellness",
+        "environment": "Sustainability, conservation",
+        "community": "Collaboration, sharing, support",
+        "tools": "Equipment, maintenance, DIY",
+        "building": "Construction, repair, making"
+      },
+      "EXAMPLES": [
+        "GUIDE LIST",
+        "GUIDE LIST survival",
+        "GUIDE START water-purification",
+        "GUIDE NEXT",
+        "GUIDE COMPLETE 3",
+        "GUIDE PROGRESS"
+      ],
+      "NOTES": [
+        "Progress saved between sessions",
+        "Step-through tutorials with checklists",
+        "ASCII diagram display in viewport",
+        "TZONE location context awareness",
+        "Resume from last position"
+      ]
+    },
+    {
+      "NAME": "DIAGRAM",
+      "ALIASES": [],
+      "SYNTAX": "DIAGRAM <LIST|SEARCH|SHOW|RENDER|EXPORT|GENERATE> [params]",
+      "DESCRIPTION": "ASCII art library browser and content generator - search, view, export diagrams, and generate new content with Gemini API (v1.6.0).",
+      "UCODE_TEMPLATE": "[DIAGRAM|$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$1": "LIST",
+        "$2": null,
+        "$3": null
+      },
+      "FLAGS": {
+        "--crawl": "Enable web crawler for supplementary content (GENERATE)",
+        "--style": "SVG style: technical|kinetic|hybrid (GENERATE)",
+        "--output": "Output directory path (GENERATE)",
+        "--citations-strict": "Require 100% citation coverage (GENERATE)",
+        "--validate": "Run full quality validation (GENERATE)",
+        "--format": "Output formats: md,svg,ascii,teletext (GENERATE)",
+        "--batch": "Batch process directory (GENERATE)"
+      },
+      "SUBCOMMANDS": {
+        "LIST": "List diagrams by type category",
+        "SEARCH": "Search diagram library by keywords",
+        "SHOW": "Display diagram in terminal",
+        "RENDER": "Render with custom width",
+        "COPY": "Copy to grid panel",
+        "EXPORT": "Save diagram to file",
+        "TYPES": "Show diagram categories",
+        "GENERATE": "Generate content + Technical-Kinetic SVGs with Gemini API (v1.6.0)"
+      },
+      "TYPES": {
+        "knot": "Knot tying instructions",
+        "shelter": "Shelter construction blueprints",
+        "chart": "Comparison charts and matrices",
+        "map": "Navigation and maps",
+        "flow": "Flowcharts and decision trees",
+        "circuit": "Wiring and circuits",
+        "anatomy": "Medical and anatomical",
+        "plant": "Plant identification",
+        "tool": "Tool usage diagrams",
+        "symbol": "Symbol references",
+        "timeline": "Progress and timelines",
+        "table": "Data tables",
+        "ascii": "General ASCII art"
+      },
+      "EXAMPLES": [
+        "DIAGRAM LIST",
+        "DIAGRAM LIST knot",
+        "DIAGRAM SEARCH fire",
+        "DIAGRAM SHOW bowline",
+        "DIAGRAM RENDER compass 40",
+        "DIAGRAM EXPORT shelter-diagram shelter.txt",
+        "DIAGRAM TYPES",
+        "DIAGRAM GENERATE knowledge/water/filtration.md",
+        "DIAGRAM GENERATE guide.md --format md,svg,ascii,teletext",
+        "DIAGRAM GENERATE guide.md --crawl --style kinetic",
+        "DIAGRAM GENERATE knowledge/fire/ --batch --citations-strict"
+      ],
+      "NOTES": [
+        "Extracts diagrams from knowledge guides",
+        "Viewport-aware rendering",
+        "Scale to fit terminal width",
+        "Export in multiple formats",
+        "Categorized library with search",
+        "✨ v1.6.0: GENERATE creates content with mandatory citations",
+        "GENERATE uses Gemini API (requires GEMINI_API_KEY)",
+        "Multi-format: MD (text), SVG (vector), ASCII (terminal), Teletext (retro web)",
+        "ASCII: C64 PETSCII 80x24, Teletext: WST 40x25 8-color mosaic",
+        "Technical-Kinetic SVG style: monochrome MCM + kinetic flow",
+        "Citation coverage target: ≥95% (strict mode: 100%)",
+        "Multi-stage: Analysis → Crawl → Text → SVG → Assembly"
+      ]
+    },
+    {
+      "NAME": "LOGS",
+      "SYNTAX": "LOGS STATUS | LOGS CLEANUP [--dry-run] | LOGS SEARCH <pattern> | LOGS ARCHIVE [month] | LOGS HELP",
+      "DESCRIPTION": "Manage uDOS logging system with flat directory structure.",
+      "UCODE_TEMPLATE": "[LOGS|$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "STATUS": "Show logging statistics and current log files",
+        "CLEANUP": "Clean up old logs per retention policy (--dry-run to preview)",
+        "SEARCH": "Search log files for patterns",
+        "ARCHIVE": "Archive logs to compressed file (default: last month)",
+        "HELP": "Show LOGS command help"
+      },
+      "EXAMPLES": [
+        "LOGS STATUS",
+        "LOGS CLEANUP --dry-run",
+        "LOGS SEARCH error --category system --days 3",
+        "LOGS ARCHIVE 2025-10"
+      ],
+      "NOTES": [
+        "v1.1.6 - Flat directory structure (sandbox/logs/*.log)",
+        "Category-based naming: system-, web-, ucode-, workflow-, etc.",
+        "Retention policies: Daily logs (30d), Mission logs (never), Debug logs (7d)",
+        "18 files, ~58MB average storage"
+      ]
+    },
+    {
+      "NAME": "DRAW",
+      "SYNTAX": "DRAW <type> \"<description>\" [--file <file>] [--save <output>] [--format <format>]",
+      "DESCRIPTION": "Generate ASCII/Unicode diagrams (flowcharts, trees, grids, hierarchies).",
+      "UCODE_TEMPLATE": "[DRAW|$1*$2*$3*$4]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "FLOW": "Create flowchart diagram",
+        "TREE": "Create tree structure diagram",
+        "GRID": "Create table/grid diagram",
+        "HIERARCHY": "Create org chart/hierarchy diagram",
+        "HELP": "Show DRAW command help",
+        "TYPES": "List available diagram types"
+      },
+      "EXAMPLES": [
+        "DRAW FLOW \"Start → Process → End\"",
+        "DRAW TREE \"System\\nUsers\\nData\\nConfig\"",
+        "DRAW GRID \"Name,Age\\nAlice,30\\nBob,25\"",
+        "DRAW HIERARCHY \"CEO\\n  CTO\\n  CFO\"",
+        "DRAW \"Process checkout workflow\"",
+        "DRAW FLOW --file workflow.txt --save diagram.txt",
+        "DRAW FLOW --data flowchart.json --format unicode"
+      ],
+      "NOTES": [
+        "v1.1.4 - ASCII/Teletext Graphics System",
+        "Auto type detection from natural language",
+        "8 Unicode box-drawing character sets",
+        "Export formats: ASCII, ANSI, Unicode",
+        "Performance: <10ms (small), <200ms (large)"
+      ]
+    },
+    {
+      "NAME": "MAKE",
+      "SYNTAX": "MAKE --format <format> [options] <content>",
+      "DESCRIPTION": "Unified graphics generation system supporting 5 formats (ASCII, Teletext, SVG, Sequence, Flow). Replaces old GENERATE/DIAGRAM commands.",
+      "UCODE_TEMPLATE": "[MAKE|$1*$2*$3*$4*$5*$6*$7*$8]",
+      "DEFAULT_PARAMS": {},
+      "FORMATS": {
+        "ascii": "Template-based ASCII art with variable substitution",
+        "teletext": "8-color teletext pages with palette support",
+        "svg": "AI-assisted SVG diagrams with style templates",
+        "sequence": "Sequence diagrams using js-sequence syntax",
+        "flow": "Flowcharts using flowchart.js syntax"
+      },
+      "COMMON_OPTIONS": {
+        "--format": "Graphics format (ascii|teletext|svg|sequence|flow) [REQUIRED]",
+        "--output": "Save to custom file location",
+        "--list": "List available templates/palettes/styles",
+        "--status": "Show session statistics",
+        "--help": "Show format-specific help"
+      },
+      "FORMAT_OPTIONS": {
+        "ASCII": {
+          "--template": "Template name (required)",
+          "--data": "Variable substitution (key=value)",
+          "--width": "Max width in characters",
+          "--border": "Add border around output"
+        },
+        "TELETEXT": {
+          "--palette": "Color palette (classic|earth|terminal|amber)",
+          "--width": "Page width (default: 40)",
+          "--height": "Page height (default: 24)"
+        },
+        "SVG": {
+          "--style": "Style template (technical|simple|detailed)",
+          "--width": "SVG width (default: 800)",
+          "--height": "SVG height (default: 600)"
+        },
+        "SEQUENCE": {
+          "--template": "Template name from library",
+          "--source": "Raw js-sequence syntax"
+        },
+        "FLOW": {
+          "--template": "Template name from library",
+          "--source": "Raw flowchart.js syntax"
+        }
+      },
+      "SUBCOMMANDS": {
+        "ASCII": "Template-based ASCII art (25 templates)",
+        "TELETEXT": "8-color teletext rendering (4 palettes)",
+        "SVG": "AI-assisted vector graphics (3 styles)",
+        "SEQUENCE": "Sequence diagrams (5 templates)",
+        "FLOW": "Flowcharts (5 templates)"
+      },
+      "EXAMPLES": [
+        "MAKE --format ascii --template flowchart_vertical",
+        "MAKE --format ascii --template progress_bar --data progress=75",
+        "MAKE --format teletext --palette earth \"{green}Status: OK{/green}\"",
+        "MAKE --format teletext --palette terminal \"System Ready\"",
+        "MAKE --format svg --style technical \"3-tier web architecture\"",
+        "MAKE --format svg --style simple \"user login flowchart\"",
+        "MAKE --format sequence --template api_request",
+        "MAKE --format sequence --source \"User->Server: Login\\nServer-->User: Token\"",
+        "MAKE --format flow --template decision_flow",
+        "MAKE --format flow --template login_process",
+        "MAKE --list",
+        "MAKE --format ascii --list",
+        "MAKE --status"
+      ],
+      "TEMPLATES": {
+        "ASCII_CATEGORIES": [
+          "flowcharts (2): flowchart_vertical, flowchart_horizontal",
+          "systems (2): system_components, system_layers",
+          "progress (2): progress_bar, progress_steps",
+          "funnels (2): funnel_conversion, funnel_sales",
+          "timelines (3): timeline_horizontal, timeline_vertical, timeline_gantt",
+          "decisions (2): decision_tree, decision_binary",
+          "organization (2): org_chart, org_flat",
+          "networks (3): network_star, network_mesh, network_hierarchy",
+          "data (2): table_simple, matrix_grid",
+          "ui (3): box_callout, banner_header, icon_symbols",
+          "process (2): cycle_process, arrow_process"
+        ],
+        "TELETEXT_PALETTES": [
+          "classic: High-contrast primary colors",
+          "earth: Warm earthy tones for survival content",
+          "terminal: Classic green phosphor CRT",
+          "amber: Vintage amber CRT aesthetic"
+        ],
+        "SVG_STYLES": [
+          "technical: Clean technical diagrams with precise lines",
+          "simple: Minimalist black and white",
+          "detailed: Rich colors with gradients"
+        ],
+        "SEQUENCE_TEMPLATES": [
+          "message_flow: Basic actor messaging",
+          "api_request: REST API patterns",
+          "error_handling: Error fallback sequences",
+          "multi_system: Multi-service interactions",
+          "async_process: Background job processing"
+        ],
+        "FLOW_TEMPLATES": [
+          "decision_flow: Simple branching logic",
+          "login_process: User authentication flow",
+          "data_pipeline: Data transformation pipeline",
+          "business_logic: Complex decision trees",
+          "error_recovery: Retry and fallback logic"
+        ]
+      },
+      "NOTES": [
+        "v1.2.15 - 5-Format Graphics System Unification",
+        "Node.js renderer service on port 5555",
+        "Template library: core/data/diagrams/",
+        "Size limits: ASCII 5KB, Teletext 10KB, SVG 50KB, Sequence 5KB, Flow 5KB",
+        "Deprecates: GENERATE, DIAGRAM commands",
+        "Python bridge: core/services/graphics_service.py",
+        "Extension: extensions/core/graphics-renderer/",
+        "42 total templates (25 ASCII + 4 Teletext + 3 SVG + 5 Sequence + 5 Flow)"
+      ]
+    },
+    {
+      "NAME": "PROMPT",
+      "SYNTAX": "PROMPT <subcommand> [args]",
+      "DESCRIPTION": "Admin-only AI prompt management for graphics generation. Requires DEV MODE.",
+      "UCODE_TEMPLATE": "[PROMPT|$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "ADMIN_ONLY": true,
+      "REQUIRES": "DEV MODE enabled (CONFIG SET dev_mode true)",
+      "SUBCOMMANDS": {
+        "LIST [format]": "List all prompts or filter by format (ascii/svg/etc.)",
+        "SHOW <id>": "Display full prompt with metadata",
+        "EDIT <id>": "Edit prompt in default editor",
+        "TEST <id> <input>": "Test prompt with sample input",
+        "STATS": "Show usage statistics for all prompts",
+        "CREATE <format>": "Create new prompt template",
+        "DELETE <id>": "Delete prompt (requires confirmation)"
+      },
+      "FORMATS": [
+        "ascii - ASCII diagram prompts",
+        "teletext - Teletext page prompts",
+        "svg - SVG graphics prompts",
+        "sequence - Sequence diagram prompts",
+        "flow - Flowchart prompts"
+      ],
+      "PROMPT_STRUCTURE": {
+        "FRONTMATTER": "YAML metadata (id, version, usage stats)",
+        "CONTENT": "Markdown prompt text with variable substitution",
+        "VARIABLES": "{{input}}, {{style}}, {{complexity}}"
+      },
+      "EXAMPLES": [
+        "PROMPT LIST",
+        "PROMPT LIST ascii",
+        "PROMPT SHOW ascii_default",
+        "PROMPT TEST ascii_default \"water filter\"",
+        "PROMPT STATS",
+        "PROMPT CREATE svg",
+        "PROMPT EDIT ascii_default"
+      ],
+      "STORAGE": "core/data/prompts/graphics/<format>/<id>.md",
+      "VERSION_CONTROL": [
+        "Track version in YAML frontmatter",
+        "Update timestamp on changes",
+        "Monitor usage_count and success_rate",
+        "Test prompts before production deployment"
+      ],
+      "NOTES": [
+        "⚠️ ADMIN ONLY - Prompts control AI behavior",
+        "Requires: CONFIG SET dev_mode true",
+        "Prompts used by: MAKE --format <type> --ai-assisted",
+        "File format: YAML frontmatter + Markdown content",
+        "Version: v1.2.15+",
+        "Security: DEV MODE check enforced at handler level"
+      ]
+    },
+    {
+      "NAME": "SVG",
+      "SYNTAX": "SVG \"<description>\" [--style <style>] [--save <file>]",
+      "DESCRIPTION": "Generate AI-powered SVG vector diagrams (requires Gemini API).",
+      "UCODE_TEMPLATE": "[SVG|$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "HELP": "Show SVG command help"
+      },
+      "STYLES": {
+        "lineart": "Clean line art (default)",
+        "blueprint": "Technical blueprint style",
+        "sketch": "Hand-drawn sketch style",
+        "isometric": "Isometric 3D style"
+      },
+      "EXAMPLES": [
+        "SVG \"water filtration system\"",
+        "SVG \"fire starting technique\" --style blueprint",
+        "SVG \"shelter construction\" --save shelter.svg --style isometric",
+        "SVG \"knot tying steps\" --style sketch"
+      ],
+      "NOTES": [
+        "v1.1.5 - SVG Graphics Extension",
+        "AI-powered generation with fallback templates",
+        "4 artistic styles (lineart, blueprint, sketch, isometric)",
+        "XML validation and post-processing",
+        "ASCII preview in terminal",
+        "Auto-save to sandbox/drafts/svg/"
+      ]
+    },
+    {
+      "NAME": "MISSION",
+      "SYNTAX": "MISSION <subcommand> [options]",
+      "DESCRIPTION": "Mission Control system for managing long-running projects with moves and steps.",
+      "UCODE_TEMPLATE": "[MISSION|$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "CREATE": "Create new mission",
+        "START": "Start mission work",
+        "PAUSE": "Pause mission",
+        "RESUME": "Resume mission",
+        "STATUS": "Show mission status",
+        "COMPLETE": "Mark mission complete",
+        "LIST": "List all missions",
+        "TEMPLATES": "List mission templates",
+        "HELP": "Show MISSION command help"
+      },
+      "EXAMPLES": [
+        "MISSION CREATE \"Write Novel\" --template novel",
+        "MISSION START my-mission",
+        "MISSION STATUS",
+        "MISSION TEMPLATES"
+      ],
+      "NOTES": [
+        "v1.1.2 - Mission Control & Workflow Automation",
+        "Work measured in STEPS and MOVES (not time)",
+        "13 templates: Creative (5), Research (4), Personal Dev (4)",
+        "Progress tracking with cron-like scheduling"
+      ]
+    },
+    {
+      "NAME": "SCHEDULE",
+      "SYNTAX": "SCHEDULE <subcommand> [options]",
+      "DESCRIPTION": "Cron-like task scheduling for automation.",
+      "UCODE_TEMPLATE": "[SCHEDULE|$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "DAILY": "Schedule daily task",
+        "EVERY": "Schedule recurring task",
+        "ONCE": "Schedule one-time task",
+        "CANCEL": "Cancel scheduled task",
+        "LIST": "List scheduled tasks",
+        "STATUS": "Show scheduler status",
+        "HELP": "Show SCHEDULE command help"
+      },
+      "EXAMPLES": [
+        "SCHEDULE DAILY AT 09:00 backup.uscript",
+        "SCHEDULE EVERY 1h health-check.uscript",
+        "SCHEDULE ONCE AT 2025-12-01T15:00 deploy.uscript"
+      ],
+      "NOTES": [
+        "v1.1.2 - Scheduler System",
+        "Background task queue with worker thread",
+        "Priority system (CRITICAL, HIGH, MEDIUM, LOW)",
+        "Retry logic with exponential backoff"
+      ]
+    },
+    {
+      "NAME": "CHECKPOINT",
+      "SYNTAX": "CHECKPOINT*SAVE <name> | CHECKPOINT*LOAD <name> | CHECKPOINT*LIST",
+      "DESCRIPTION": "Save/restore mission state snapshots (like git commits for progress).",
+      "UCODE_TEMPLATE": "[WORKFLOW|$1*$2]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "SAVE": "Save current mission state",
+        "LOAD": "Restore checkpoint state",
+        "LIST": "List saved checkpoints",
+        "DELETE": "Delete checkpoint"
+      },
+      "EXAMPLES": [
+        "CHECKPOINT*SAVE instructions-reviewed",
+        "CHECKPOINT*SAVE materials-gathered",
+        "CHECKPOINT*LOAD frame-built",
+        "CHECKPOINT*LIST"
+      ],
+      "NOTES": [
+        "✅ Core Command v1.2.24 - Mission milestone tracking",
+        "Maps to WORKFLOW SAVE_CHECKPOINT/LOAD_CHECKPOINT",
+        "Auto-timestamped JSON files in memory/workflows/checkpoints/",
+        "Simplified syntax for .upy scripts"
+      ]
+    },
+    {
+      "NAME": "XP",
+      "SYNTAX": "XP <amount> | XP*GET | XP*LEVEL",
+      "DESCRIPTION": "Experience points tracking (value/progress currency in barter system).",
+      "UCODE_TEMPLATE": "[BARTER|XP*$1]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "XP +25",
+        "XP +50",
+        "XP +100",
+        "XP*GET",
+        "XP*LEVEL"
+      ],
+      "NOTES": [
+        "✅ Core Command v1.2.24 - Progress tracking",
+        "Integrates with BARTER economy system",
+        "Stored in memory/bank/user/profile.json",
+        "Used for unlocking features, tracking achievements"
+      ]
+    },
+    {
+      "NAME": "ITEM",
+      "SYNTAX": "ITEM <name> | ITEM*ADD <name> <count> | ITEM*REMOVE <name> | ITEM*LIST",
+      "DESCRIPTION": "Basic inventory management (add/remove items from user inventory).",
+      "UCODE_TEMPLATE": "[SPRITE|INVENTORY*$1*$2]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "ADD": "Add item to inventory",
+        "REMOVE": "Remove item from inventory",
+        "LIST": "List inventory items",
+        "COUNT": "Get item count"
+      },
+      "EXAMPLES": [
+        "ITEM rope",
+        "ITEM tarp",
+        "ITEM*ADD water-bottle 3",
+        "ITEM*REMOVE axe",
+        "ITEM*LIST"
+      ],
+      "NOTES": [
+        "✅ Core Command v1.2.24 - Simple resource tracking",
+        "Maps to SPRITE INVENTORY system",
+        "Stored in active sprite/character data",
+        "Simplified syntax for beginners"
+      ]
+    },
+    {
+      "NAME": "BARTER",
+      "SYNTAX": "BARTER <subcommand> [options]",
+      "DESCRIPTION": "Value exchange system (offer/request/trade items, skills, XP).",
+      "UCODE_TEMPLATE": "[BARTER|$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "OFFER": "Create barter offer",
+        "REQUEST": "Create barter request",
+        "TRADE": "Execute trade",
+        "LIST": "List active barters",
+        "CANCEL": "Cancel offer/request",
+        "ACCEPT": "Accept trade",
+        "HISTORY": "View trade history"
+      },
+      "EXAMPLES": [
+        "BARTER OFFER rope FOR water-bottle",
+        "BARTER REQUEST tarp FOR 50-xp",
+        "BARTER LIST",
+        "BARTER ACCEPT trade-001"
+      ],
+      "NOTES": [
+        "✅ Core Command v1.2.24 - Economic system",
+        "BarterService in core/services/barter_service.py",
+        "Supports item, skill, XP exchanges",
+        "Transaction log in memory/bank/barter/"
+      ]
+    },
+    {
+      "NAME": "WORKFLOW",
+      "SYNTAX": "WORKFLOW <command> [params]",
+      "DESCRIPTION": "Workflow automation commands (LOG, LOAD_JSON, SAVE_JSON, etc.).",
+      "UCODE_TEMPLATE": "[WORKFLOW|$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "LOG": "Log message (info, warn, error, debug)",
+        "LOAD_JSON": "Load JSON file",
+        "SAVE_JSON": "Save JSON file",
+        "CHECK_ENV": "Check environment variable",
+        "ENSURE_DIR": "Create directory",
+        "RUN_PYTHON": "Run Python script",
+        "SLEEP": "Sleep for duration",
+        "TIMESTAMP": "Get current timestamp",
+        "HELP": "Show WORKFLOW command help"
+      },
+      "EXAMPLES": [
+        "WORKFLOW LOG info \"Starting process\"",
+        "WORKFLOW LOAD_JSON data.json",
+        "WORKFLOW ENSURE_DIR output/reports"
+      ],
+      "NOTES": [
+        "v1.1.2 - Workflow Automation",
+        "18 commands for script automation",
+        "Template engine with {{var}} substitution",
+        "File logging to sandbox/logs/workflow.log"
+      ]
+    },
+    {
+      "NAME": "RESOURCE",
+      "SYNTAX": "RESOURCE <subcommand> [options]",
+      "DESCRIPTION": "Resource management (API quotas, disk space, CPU, memory).",
+      "UCODE_TEMPLATE": "[RESOURCE|$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$1": "HELP"
+      },
+      "SUBCOMMANDS": {
+        "STATUS": "Show resource usage dashboard",
+        "QUOTA": "Check API quotas",
+        "ALLOCATE": "Allocate resources for mission",
+        "RELEASE": "Release mission resources",
+        "THROTTLE": "Check throttling status",
+        "SUMMARY": "Complete resource dashboard",
+        "HELP": "Show resource command help"
+      },
+      "EXAMPLES": [
+        "RESOURCE STATUS",
+        "RESOURCE QUOTA gemini",
+        "RESOURCE SUMMARY",
+        "RESOURCE HELP"
+      ],
+      "NOTES": [
+        "v1.1.2 - Resource Management",
+        "API quota tracking (Gemini, GitHub)",
+        "Rate limiting (sliding window)",
+        "Disk space warnings (90% threshold)",
+        "CPU/memory monitoring with psutil"
+      ]
+    },
+    {
+      "NAME": "SPRITE",
+      "SYNTAX": "SPRITE <subcommand> [args]",
+      "DESCRIPTION": "Character/sprite management with JSON schema validation.",
+      "UCODE_TEMPLATE": "[SPRITE|$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$1": "LIST"
+      },
+      "SUBCOMMANDS": {
+        "CREATE": "Create new sprite with defaults",
+        "LOAD": "Load sprite from JSON file",
+        "SAVE": "Save sprite to JSON file",
+        "SET": "Set sprite property (dot notation)",
+        "GET": "Get sprite property (dot notation)",
+        "LIST": "List all sprites",
+        "DELETE": "Delete sprite",
+        "INFO": "Show sprite details"
+      },
+      "EXAMPLES": [
+        "SPRITE CREATE HERO",
+        "SPRITE LOAD WARRIOR hero.json",
+        "SPRITE SET HERO.stats.hp = 50",
+        "SPRITE GET HERO.stats.level",
+        "SPRITE SAVE HERO hero.json",
+        "SPRITE LIST",
+        "SPRITE INFO HERO"
+      ],
+      "NOTES": [
+        "v1.1.9 - Round 1 Variable System",
+        "JSON Schema validation (sprite.schema.json)",
+        "Dot notation for property access",
+        "Stats, inventory, status, skills",
+        "Scope management (global, session, script, local)",
+        "Files saved to sandbox/user/ by default"
+      ]
+    },
+    {
+      "NAME": "OBJECT",
+      "SYNTAX": "OBJECT <subcommand> [args]",
+      "DESCRIPTION": "Item/object catalog management with JSON schema validation.",
+      "UCODE_TEMPLATE": "[OBJECT|$1*$2*$3]",
+      "DEFAULT_PARAMS": {
+        "$1": "LIST"
+      },
+      "SUBCOMMANDS": {
+        "LOAD": "Load objects catalog from JSON",
+        "LIST": "List all objects (optionally by category)",
+        "INFO": "Show object details",
+        "SEARCH": "Search objects by name/description",
+        "FILTER": "Filter objects by property"
+      },
+      "EXAMPLES": [
+        "OBJECT LOAD sandbox/user/items.json",
+        "OBJECT LIST weapon",
+        "OBJECT INFO SWORD-IRON",
+        "OBJECT SEARCH potion",
+        "OBJECT FILTER rarity=legendary"
+      ],
+      "NOTES": [
+        "v1.1.9 - Round 1 Variable System",
+        "JSON Schema validation (object.schema.json)",
+        "Categories: weapon, armor, consumable, key-item, etc.",
+        "Properties: stackable, weight, value, rarity",
+        "Stats, effects, requirements, crafting",
+        "Catalog loaded from JSON files"
+      ]
+    }
+  ]
+}
