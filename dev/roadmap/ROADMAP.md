@@ -2,7 +2,8 @@
 
 **Current Version:** v1.2.24 ✅ **RELEASED** (Python-First Rebase - 100x Performance)
 **Next Release:** v1.2.25 📋 **PLANNING** (Universal Input Device System)
-**Last Updated:** 20251213-175000UTC (December 13, 2025)
+**Final v1.2.x Release:** v1.2.27 📋 **PLANNING** (Complete Testing & Fine-Tuning)
+**Last Updated:** 20251213-181500UTC (December 13, 2025)
 
 > **Goal:** Complete v1.2.x as a stable, production-ready release with full TUI functionality, AI assistance, business intelligence, and workflow automation.
 
@@ -982,116 +983,734 @@ TOUCH DISABLE                 # Disable touch gestures
 
 **Status:** Planning phase (after v1.2.25 input device system)
 
-**Planned Tasks:**
+**Architecture Overview:**
+
+```
+Error Detection → Interceptor → Context Capture → Storage
+                      ↓              ↓               ↓
+                 Theme Prompt    Sanitize      error_contexts/
+                      ↓              ↓               ↓
+              User Choice      Pattern Learn   Retention
+               /    |    \         ↓               ↓
+           RETRY  OK FIX  DEV  Local DB       Archive
+                    ↓              ↓               ↓
+              Gemini AI      150 patterns    Monthly
+                    ↓              ↓               ↓
+              Solutions     Privacy Safe    CLEAN purge
+                    ↓              
+                Sandbox Test
+```
+
+### Phase 1: Error Detection & Capture (Week 1)
 
 1. 🔲 **Error Interceptor Middleware** (450 lines)
-   - `core/services/error_interceptor.py`
-   - Wrap all command execution with context capture
-   - Theme-formatted error prompts: Retry | Get OK Help | Enter DEV MODE
-   - Sanitized single-line JSON storage in `memory/logs/error_contexts/`
-   - Unified smart retention: 7-day rolling + critical/signature-based
-   - Integration with archive system and CLEAN command
+   - `core/services/error_interceptor.py` (450 lines)
+   
+   **Core Functionality:**
+   - Wrap all command execution with try/except
+   - Capture full error context (command, args, user, time, location)
+   - Sanitize sensitive data (paths, keys, usernames)
+   - Generate error signature (hash of error type + location)
+   - Store as single-line JSON in `memory/logs/error_contexts/`
+   
+   **Error Context Structure:**
+   ```json
+   {
+     "id": "err-20251213-164500UTC-AA340-001",
+     "timestamp": "20251213-164500UTC",
+     "command": "WORKFLOW START",
+     "args": ["mission-001"],
+     "error_type": "FileNotFoundError",
+     "error_msg": "Workflow file not found",
+     "signature": "abc123def456",
+     "user_role": "BUILDER",
+     "location": "AA340",
+     "stack_trace_hash": "xyz789",
+     "context_vars": {"workflow_id": "mission-001"}
+   }
+   ```
+   
+   **Theme-Formatted Prompts:**
+   ```
+   Foundation: ⚠️  Error: Workflow file not found
+               [R]etry | [O]K Help | [D]EV Mode | [Q]uit
+   
+   Dungeon:    💀 ERROR! The workflow scroll vanishes into darkness!
+               [R]etry | [O]K Wizard | [D]ungeon Master | [Q]uit
+   
+   Galaxy:     🚨 SYSTEM MALFUNCTION: Workflow trajectory lost
+               [R]etry | [O]K Assist | [D]eveloper | [Q]uit
+   ```
+   
+   **Smart Retention:**
+   - Last 50 errors (rolling window)
+   - Critical errors (system crashes) - kept 30 days
+   - Unique signatures (first occurrence) - kept 90 days
+   - Monthly archive to `.archive/error_contexts/YYYY-MM/`
+   - CLEAN command integration for purging old errors
 
-2. 🔲 **Theme-Aware Role-Based Permissions** (450 lines)
-   - `core/services/role_manager.py` (350 lines)
-   - 8 permission levels (10-100): VISITOR/EXPLORER/BUILDER/GUARDIAN/NAVIGATOR/ARCHITECT/SAGE/WIZARD
-   - Theme-mapped role names (Dungeon: GHOST/TOMB/KNIGHT, Ranger: SCOUT/TRACKER, etc.)
-   - Wizard auto-detection from CREDITS.md git authors
-   - Shared password (4-char min, 8+ recommended) via `.env` bcrypt hash
-   - Commands: `ROLE SETUP`, `ROLE SET`, `ROLE STATUS`, `ROLE CHECK`
-   - Permissions for DEV MODE and `/core`+`/extensions` edits
-   - `core/data/role_theme_maps.json` (100 lines)
-   - Maps role levels to theme-specific names
-   - 4 themes: foundation, dungeon, ranger, galaxy
-   - Automatic role name updates on theme switch
+2. 🔲 **Theme-Aware Role-Based Permissions** (550 lines)
+   - `core/services/role_manager.py` (400 lines)
+   - `core/data/role_theme_maps.json` (150 lines)
+   
+   **Permission Levels (10-100):**
+   ```python
+   10 = VISITOR    # Read-only knowledge bank access
+   20 = EXPLORER   # Can create files in memory/
+   30 = BUILDER    # Can modify memory/, run workflows
+   40 = GUARDIAN   # Can backup/restore/archive
+   50 = NAVIGATOR  # Can modify configuration
+   60 = ARCHITECT  # Can install extensions
+   70 = SAGE       # Can enter DEV MODE
+   80 = WIZARD     # Can edit core/ and extensions/
+   100 = ROOT      # Full system access (git authors only)
+   ```
+   
+   **Theme Mappings:**
+   ```json
+   {
+     "foundation": {
+       "10": "VISITOR", "20": "EXPLORER", "30": "BUILDER",
+       "40": "GUARDIAN", "50": "NAVIGATOR", "60": "ARCHITECT",
+       "70": "SAGE", "80": "WIZARD", "100": "ROOT"
+     },
+     "dungeon": {
+       "10": "GHOST", "20": "TOMB", "30": "KNIGHT",
+       "40": "CLERIC", "50": "RANGER", "60": "MAGE",
+       "70": "ARCHMAGE", "80": "DUNGEON MASTER", "100": "GOD"
+     },
+     "ranger": {
+       "10": "WANDERER", "20": "SCOUT", "30": "TRACKER",
+       "40": "GUARDIAN", "50": "PATHFINDER", "60": "SURVIVALIST",
+       "70": "VETERAN", "80": "RANGER MASTER", "100": "ELDER"
+     },
+     "galaxy": {
+       "10": "CADET", "20": "ENSIGN", "30": "OFFICER",
+       "40": "COMMANDER", "50": "CAPTAIN", "60": "ADMIRAL",
+       "70": "FLEET ADMIRAL", "80": "SUPREME COMMANDER", "100": "SOVEREIGN"
+     }
+   }
+   ```
+   
+   **Password System:**
+   - Shared password for elevation (4-char min, 8+ recommended)
+   - Stored as bcrypt hash in `.env`: `UDOS_ADMIN_PASSWORD`
+   - First-time setup: `ROLE SETUP` command prompts for password
+   - Auto-detect WIZARD level from git authors in CREDITS.md
+   - Session-based elevation (no password required for 30 minutes)
+   
+   **Commands:**
+   ```bash
+   ROLE SETUP                # First-time password setup
+   ROLE SET <level>          # Elevate to level (requires password)
+   ROLE SET VISITOR          # Downgrade to lower level (no password)
+   ROLE STATUS               # Show current role and permissions
+   ROLE CHECK                # Debug wizard auto-detection
+   ROLE LIST                 # Show all roles for current theme
+   ```
+   
+   **Permission Checks:**
+   - File operations check role before write
+   - DEV MODE requires SAGE (70+)
+   - Core/extensions editing requires WIZARD (80+)
+   - System commands (REBOOT, REPAIR) require GUARDIAN (40+)
+   - Configuration changes require NAVIGATOR (50+)
+
+### Phase 2: Theme-Aware Messaging (Week 2)
 
 3. 🔲 **Universal Theme-Aware I/O System** (2,460 lines)
-   - Extend 7 themes: +80 lines each = 560 lines
-   - Message types: errors, success, warnings, prompts, status
    - `core/services/theme_messenger.py` (350 lines)
-   - Theme vocabulary maps per style (galaxy/dungeon/ranger/etc.)
-   - Plaintext fallback for old terminals
-   - Bulk update 49 handlers: ~1,200 lines
-   - Dev tools: `theme_template_generator.py` (250 lines), `theme_message_map.json`, `update_handlers_for_themes.py` (150 lines)
+   - `core/data/theme_vocabulary.json` (560 lines - 80 per theme × 7 themes)
+   - Bulk handler updates: ~1,200 lines across 49 handlers
+   - Dev tools: 360 lines (generator + updater scripts)
+   
+   **Message Categories:**
+   ```python
+   class MessageType:
+       ERROR = "error"        # System errors, failures
+       SUCCESS = "success"    # Completed operations
+       WARNING = "warning"    # Cautions, non-critical issues
+       INFO = "info"          # Status updates, information
+       PROMPT = "prompt"      # User input requests
+       PROGRESS = "progress"  # Operation progress indicators
+   ```
+   
+   **Theme Vocabulary Structure:**
+   ```json
+   {
+     "foundation": {
+       "error": {"prefix": "⚠️", "verb": "failed", "suggestion": "try"},
+       "success": {"prefix": "✅", "verb": "completed", "confirmation": "done"},
+       "warning": {"prefix": "⚡", "verb": "caution", "advice": "check"},
+       "info": {"prefix": "ℹ️", "verb": "status", "display": "showing"},
+       "prompt": {"prefix": "❓", "verb": "enter", "request": "provide"},
+       "progress": {"prefix": "⏳", "verb": "working", "indicator": "processing"}
+     },
+     "dungeon": {
+       "error": {"prefix": "💀", "verb": "doomed", "suggestion": "attempt"},
+       "success": {"prefix": "⚔️", "verb": "conquered", "confirmation": "victorious"},
+       "warning": {"prefix": "🔥", "verb": "peril", "advice": "beware"},
+       "info": {"prefix": "📜", "verb": "decree", "display": "revealing"},
+       "prompt": {"prefix": "🗡️", "verb": "demand", "request": "summon"},
+       "progress": {"prefix": "🕯️", "verb": "questing", "indicator": "advancing"}
+     },
+     "galaxy": {
+       "error": {"prefix": "🚨", "verb": "malfunction", "suggestion": "recalibrate"},
+       "success": {"prefix": "✨", "verb": "achieved", "confirmation": "confirmed"},
+       "warning": {"prefix": "⚠️", "verb": "alert", "advice": "scan"},
+       "info": {"prefix": "📡", "verb": "report", "display": "transmitting"},
+       "prompt": {"prefix": "🎯", "verb": "input", "request": "engage"},
+       "progress": {"prefix": "🌀", "verb": "processing", "indicator": "computing"}
+     }
+   }
+   ```
+   
+   **ThemeMessenger Usage:**
+   ```python
+   from core.services.theme_messenger import ThemeMessenger
+   
+   messenger = ThemeMessenger(theme='dungeon')
+   
+   # Error message
+   messenger.error("Workflow scroll vanishes into darkness!")
+   # Output: 💀 ERROR! The workflow scroll vanishes into darkness!
+   
+   # Success message
+   messenger.success("Quest completed", details="50 XP gained")
+   # Output: ⚔️ VICTORIOUS! Quest completed | 50 XP gained
+   
+   # Progress indicator
+   messenger.progress("Questing through dark caverns", percent=45)
+   # Output: 🕯️ QUESTING... [████████░░░░░░░░] 45% dark caverns
+   ```
+   
+   **Handler Integration Pattern:**
+   ```python
+   # Before (v1.2.25)
+   return "✅ Workflow created successfully"
+   
+   # After (v1.2.26)
+   from core.services.theme_messenger import get_messenger
+   messenger = get_messenger()
+   return messenger.success("Workflow created successfully")
+   ```
+   
+   **Dev Tools:**
+   - `dev/tools/theme_template_generator.py` (250 lines)
+     - Generate theme vocabulary templates
+     - Validate all themes have required keys
+     - Export to JSON format
+   - `dev/tools/update_handlers_for_themes.py` (110 lines)
+     - Scan all 49 handlers for hardcoded messages
+     - Generate replacement suggestions
+     - Batch update with confirmation
+   
+   **Plaintext Fallback:**
+   - Auto-detect terminal capabilities
+   - Disable emoji for non-UTF8 terminals
+   - Plain ASCII output mode for ancient systems
+
+### Phase 3: Sandbox & Monitoring (Week 3)
 
 4. 🔲 **Sandbox Isolation + Disk Monitoring** (1,100 lines)
    - `core/services/sandbox_runner.py` (480 lines)
-   - Isolated testing in `memory/sandbox/{debug,data,logs}/`
-   - Network blocking with Gemini allowlist
-   - Resource limits: 30s timeout, 512MB RAM, 100MB disk
-   - Failed session retention: 30 days in `memory/sandbox/failed/`
    - `core/services/disk_monitor.py` (320 lines)
-   - Track sizes: `/memory`, `/memory/logs`, `/memory/sandbox`, `/core`, `/extensions`
-   - 5-minute cache with optional `watchdog` background refresh
-   - `core/commands/tree_handler.py` (+120 lines): `TREE --sizes`, `TREE --disk`
-   - New commands: `DISK`, `DISK REPORT` (CSV export)
-   - `core/commands/dev_handler.py` (+200 lines): `SANDBOX` commands
-   - Update `shakedown.upy` (+30 lines), `requirements.txt` (tree, watchdog)
-   - Full integration with BACKUP/RESTORE system
+   - `core/commands/tree_handler.py` (+120 lines)
+   - `core/commands/dev_handler.py` (+180 lines)
+   
+   **Sandbox Architecture:**
+   ```
+   memory/sandbox/
+   ├── active/              # Currently running tests
+   │   ├── session-001/
+   │   │   ├── data/        # Isolated file operations
+   │   │   ├── logs/        # Test execution logs
+   │   │   └── config.json  # Session metadata
+   │   └── session-002/
+   ├── failed/              # Failed test sessions (30-day retention)
+   │   └── 20251213-164500UTC-session-001/
+   └── .archive/            # Completed tests (7-day retention)
+       └── 20251213/
+   ```
+   
+   **SandboxRunner Features:**
+   - Isolated environment for testing fixes
+   - Network blocking (except Gemini API allowlist)
+   - Resource limits:
+     - 30-second timeout
+     - 512MB RAM max
+     - 100MB disk space
+     - No system file access
+   - Auto-cleanup after successful runs
+   - Failed session preservation (30 days)
+   - Session replay capability
+   
+   **Commands:**
+   ```bash
+   SANDBOX TEST <file>           # Test script in isolated environment
+   SANDBOX TEST --fix <error_id> # Test OK FIX suggestion
+   SANDBOX STATUS                # Show active sessions
+   SANDBOX CLEAN                 # Purge old sessions
+   SANDBOX FAILURES              # List failed tests
+   SANDBOX RESTORE <session_id>  # Rerun failed test
+   SANDBOX EXPORT <session_id>   # Export test logs
+   ```
+   
+   **Disk Monitor:**
+   - Real-time disk usage tracking
+   - 5-minute cache for performance
+   - Optional `watchdog` for instant updates
+   - Tracks:
+     - `/memory` total size
+     - `/memory/logs` size (warn at 100MB)
+     - `/memory/sandbox` size (warn at 500MB)
+     - `/core` size (readonly reference)
+     - `/extensions` size (readonly reference)
+     - `.archive/` folders across workspace
+   
+   **TREE Command Enhancement:**
+   ```bash
+   TREE --sizes              # Show folder sizes inline
+   TREE --disk               # Full disk usage report
+   TREE --disk --json        # Export as JSON
+   
+   # Example output:
+   memory/                   2.3 GB
+   ├── logs/                 45 MB ⚠️
+   ├── sandbox/              120 MB
+   ├── workflows/            850 MB
+   └── .archive/             1.2 GB 💾
+   ```
+   
+   **DISK Command:**
+   ```bash
+   DISK                      # Quick disk report
+   DISK REPORT               # Detailed CSV export
+   DISK USAGE <path>         # Analyze specific folder
+   DISK CLEANUP              # Suggest cleanup targets
+   
+   # Example output:
+   📊 DISK USAGE REPORT
+   ==================
+   Total: 2.3 GB
+   Logs:  45 MB (2%) ⚠️ near limit
+   Archive: 1.2 GB (52%) 💾 consider cleanup
+   Sandbox: 120 MB (5%) ✅ healthy
+   ```
+
+### Phase 4: AI-Powered Error Resolution (Week 4)
 
 5. 🔲 **OK FIX + Pattern Learning** (730 lines)
-   - `extensions/assistant/ok_handler.py` (+240 lines): `OK FIX` command
-   - Load error from `memory/logs/error_contexts/latest.json`
-   - Query Gemini with sanitized context
-   - 3 ranked fix suggestions with confidence scores
-   - Route to sandbox for testing, require password for system files
-   - `extensions/assistant/gemini_service.py` (+120 lines): error prompts
+   - `extensions/assistant/ok_handler.py` (+240 lines)
+   - `extensions/assistant/gemini_service.py` (+120 lines)
    - `core/services/pattern_learner.py` (220 lines)
-   - Local-only database: `memory/bank/system/error_patterns.json`
-   - Strict privacy: sanitized, compressed, single-line logs
-   - Exclude `/memory/private` patterns
-   - Auto-archive: keep top 150 by success rate
    - `memory/ucode/tests/test_pattern_privacy.py` (150 lines)
-   - Privacy validation: no paths, keys, usernames leaked
-   - `core/commands/system_handler.py` (+160 lines)
-   - Commands: `PATTERNS STATUS/CLEAR/EXPORT`, `ERROR HISTORY`
-   - Integration with UNDO/REDO and archive system
+   
+   **OK FIX Workflow:**
+   ```
+   1. User encounters error
+   2. Error Interceptor captures context
+   3. User chooses [O] OK Help
+   4. OK FIX loads latest error from error_contexts/
+   5. Sanitize sensitive data (paths, keys, usernames)
+   6. Query Gemini AI with error context
+   7. Receive 3 ranked fix suggestions
+   8. User selects fix to test
+   9. Route to Sandbox for isolated testing
+   10. If successful, apply to main system
+   11. Record pattern in pattern database
+   ```
+   
+   **OK FIX Command:**
+   ```bash
+   OK FIX                    # Fix latest error
+   OK FIX <error_id>         # Fix specific error
+   OK FIX --explain          # Explain error without fixing
+   OK FIX --suggest          # Get suggestions without testing
+   
+   # Example output:
+   🤖 OK ASSISTANT - Error Analysis
+   ================================
+   Error: FileNotFoundError in WORKFLOW START
+   Context: Mission file 'mission-001.upy' not found
+   
+   📋 Suggested Fixes (ranked by confidence):
+   
+   [1] 95% - Create missing workflow file
+       Command: FILE NEW mission-001.upy --template mission
+       
+   [2] 80% - Check workflow name spelling
+       Similar files: mission-002.upy, mission-003.upy
+       
+   [3] 60% - Restore from archive
+       Archive found: .archive/workflows/mission-001.upy
+   
+   Select fix [1-3], [E]xplain, [T]est in sandbox, [Q]uit:
+   ```
+   
+   **Gemini AI Integration:**
+   - Specialized error analysis prompts
+   - Context-aware fix suggestions
+   - Confidence scoring (0-100%)
+   - Multiple solution approaches
+   - Graceful fallback to pattern database
+   - Rate limiting (50 requests/day for errors)
+   
+   **Pattern Learning System:**
+   - Local database: `memory/bank/system/error_patterns.json`
+   - Structure:
+     ```json
+     {
+       "patterns": [
+         {
+           "signature": "abc123def456",
+           "error_type": "FileNotFoundError",
+           "command": "WORKFLOW START",
+           "frequency": 12,
+           "success_rate": 0.85,
+           "fix_history": [
+             {"fix": "CREATE_FILE", "success": true, "timestamp": "..."},
+             {"fix": "RESTORE_ARCHIVE", "success": false, "timestamp": "..."}
+           ],
+           "best_fix": "CREATE_FILE",
+           "last_seen": "20251213-164500UTC"
+         }
+       ],
+       "metadata": {
+         "total_errors": 145,
+         "unique_patterns": 23,
+         "success_rate": 0.82,
+         "last_updated": "20251213-164500UTC"
+       }
+     }
+     ```
+   
+   **Privacy Guarantees:**
+   - Sanitize ALL user-specific data:
+     - Replace absolute paths → `<path>`
+     - Mask API keys → `<key>`
+     - Remove usernames → `<user>`
+     - Remove TILE codes → `<location>`
+   - Exclude `/memory/private` entirely
+   - Single-line JSON (no pretty print)
+   - Compressed storage (gzip optional)
+   - Auto-archive: Keep top 150 patterns by success rate
+   - Monthly pruning of low-confidence patterns
+   
+   **Privacy Test Suite:**
+   ```bash
+   # memory/ucode/tests/test_pattern_privacy.py
+   TEST privacy_no_paths          # ✅ No absolute paths in patterns
+   TEST privacy_no_keys           # ✅ No API keys in patterns
+   TEST privacy_no_usernames      # ✅ No usernames in patterns
+   TEST privacy_no_locations      # ✅ No TILE codes in patterns
+   TEST privacy_sanitized_errors  # ✅ All errors sanitized
+   TEST privacy_excluded_private  # ✅ /memory/private never logged
+   ```
+   
+   **Commands:**
+   ```bash
+   PATTERNS STATUS               # Show pattern database stats
+   PATTERNS CLEAR                # Wipe all patterns (admin only)
+   PATTERNS EXPORT <file>        # Backup patterns for sharing
+   PATTERNS IMPORT <file>        # Import community patterns
+   ERROR HISTORY                 # View recent errors
+   ERROR HISTORY --severity      # Filter by severity
+   ERROR HISTORY --days 7        # Last 7 days
+   ERROR EXPORT <file>           # Export errors for debugging
+   ```
+
+### Phase 5: Time-Date System (Week 5)
 
 6. 🔲 **Core Time-Date System** (1,540 lines)
    - `core/services/timedate_manager.py` (480 lines)
-   - Timezone tracking from `.env` (`TIMEZONE`)
-   - City/location from timezone (never blank/unknown)
-   - Use existing `core/data/timezones.json`
-   - Startup integration: time/timezone display at boot
-   - Message: "Current time: {time} | Timezone: {tz} | Location: {city} | Use TIME SET to update"
    - `core/commands/time_handler.py` (650 lines)
-   - `CLOCK`: ASCII art digital clock (7-segment style), real-time updates
-   - `TIMER <minutes>`: Countdown with ASCII display
-   - `EGG`: Intelligent timer with story/data collection
-     - Prompts: "How many eggs?", "How cooked?", "Water temp?"
-     - Calculates optimal time, ASCII animation
-   - `STOPWATCH`: Start/stop/lap/reset with ASCII display
-   - `CALENDAR [year|month|week]`: Text column layouts
-     - Annual: 12-month grid
-     - Monthly: Single month with week numbers
-     - Weekly: 7-day with hours
-   - `CALENDAR --tasks`: Show workflows/tasks for date range
-   - `CALENDAR ADD <date> <task>`: Create workflow reminder
-   - Workflow integration: `core/services/checkpoint_manager.py` (+80 lines)
-   - Scheduled checkpoints with cron-like syntax
-   - Storage: `memory/workflows/calendar/{YYYY-MM}.json`
-   - Commands: `WORKFLOW SCHEDULE <name> <cron>`
-   - Update `core/uDOS_commands.py` routing (+20 lines)
-   - Update `requirements.txt` (pytz)
-   - Documentation: `wiki/Time-Date-System.md` (350 lines)
+   - `core/services/checkpoint_manager.py` (+80 lines)
+   - `wiki/Time-Date-System.md` (350 lines)
+   
+   **Timezone Management:**
+   - Read from `.env`: `TIMEZONE=Australia/Sydney`
+   - Use existing `core/data/timezones.json` (420 cities)
+   - Auto-detect city from timezone
+   - Fallback: UTC if timezone invalid
+   - Update at runtime with `TIME SET` command
+   
+   **Startup Integration:**
+   ```
+   🌀 uDOS v1.2.26 | Python-First OS
+   📍 Sydney, Australia | 🕐 14:35 AEST | 🗓️ Friday, 13 Dec 2025
+   
+   Use TIME SET to update timezone | CLOCK for live display
+   ```
+   
+   **ASCII Clock (7-Segment Display):**
+   ```bash
+   CLOCK                     # Live updating clock
+   CLOCK --big               # Larger font (10 lines)
+   CLOCK --date              # Show date below time
+   
+   # Example output:
+   ╔═══╗ ╔═══╗   ╔═══╗ ╔═══╗   ╔═══╗ ╔═══╗
+   ║   ║ ║   ║   ║   ║ ║   ║   ║   ║ ║   ║
+   ║ 1 ║ ║ 4 ║ : ║ 3 ║ ║ 5 ║ : ║ 4 ║ ║ 2 ║
+   ║   ║ ║   ║   ║   ║ ║   ║   ║   ║ ║   ║
+   ╚═══╝ ╚═══╝   ╚═══╝ ╚═══╝   ╚═══╝ ╚═══╝
+   
+        14:35:42 AEST | Friday, 13 Dec 2025
+   ```
+   
+   **Timer System:**
+   ```bash
+   TIMER 25                  # 25-minute countdown (Pomodoro)
+   TIMER 1h30m               # 1 hour 30 minutes
+   TIMER 90s                 # 90 seconds
+   
+   # ASCII countdown display:
+   ⏰ TIMER - 25:00 remaining
+   
+   ████████████████████░░░░░░░░░░░░░░░░░░░░ 60%
+   
+   [Space] Pause | [R] Reset | [Q] Quit
+   ```
+   
+   **EGG Timer (Intelligent):**
+   ```bash
+   EGG                       # Interactive egg timer
+   
+   # Prompts:
+   🥚 How many eggs? [1-12]: 4
+   🍳 How cooked? [soft/medium/hard]: medium
+   🌡️  Water temp? [cold/room/boiling]: boiling
+   
+   # Calculates optimal time:
+   ⏰ Medium eggs (4x) from boiling: 9 minutes
+   
+   Starting timer...
+   
+   🥚🥚🥚🥚 ████████████████░░░░░░░░░░░░░░░░ 50%
+   
+   4:30 remaining | Medium eggs will be perfect!
+   ```
+   
+   **Stopwatch:**
+   ```bash
+   STOPWATCH                 # Start stopwatch
+   STOPWATCH --lap           # Record lap time
+   STOPWATCH --stop          # Stop and show total
+   STOPWATCH --reset         # Reset to zero
+   
+   # Display:
+   ⏱️  STOPWATCH
+   
+   Current:  02:34:15.42
+   Lap 1:    00:45:12.33
+   Lap 2:    01:23:45.67
+   Lap 3:    00:25:17.42 ⭐ (fastest)
+   
+   [Space] Lap | [S] Stop | [R] Reset
+   ```
+   
+   **Calendar Views:**
+   ```bash
+   CALENDAR                  # Current month
+   CALENDAR 2025             # Full year (12-month grid)
+   CALENDAR 2025-12          # Specific month
+   CALENDAR week             # Current week with hours
+   
+   # Annual view:
+   ╔═══════════════════════════════════════╗
+   ║          📅 2025 CALENDAR            ║
+   ╠═══════════════════════════════════════╣
+   ║ JAN  FEB  MAR  APR  MAY  JUN         ║
+   ║ JUL  AUG  SEP  OCT  NOV  DEC         ║
+   ╚═══════════════════════════════════════╝
+   
+   # Monthly view:
+   ╔══════════════════════════════════╗
+   ║      December 2025              ║
+   ╠══════════════════════════════════╣
+   ║ Mon Tue Wed Thu Fri Sat Sun     ║
+   ║  1   2   3   4   5   6   7      ║
+   ║  8   9  10  11  12  13  14 ⭐   ║
+   ║ 15  16  17  18  19  20  21      ║
+   ║ 22  23  24  25  26  27  28      ║
+   ║ 29  30  31                      ║
+   ╚══════════════════════════════════╝
+   
+   ⭐ Today: Friday, Dec 13, 2025
+   ```
+   
+   **Task Integration:**
+   ```bash
+   CALENDAR --tasks          # Show workflows/deadlines
+   CALENDAR ADD "Release v1.2.26" --date 2025-12-20
+   CALENDAR REMOVE <task_id>
+   
+   # Output:
+   📅 UPCOMING TASKS
+   
+   Dec 15 | WORKFLOW: Backup system (mission-001)
+   Dec 18 | CHECKPOINT: Weekly review
+   Dec 20 | DEADLINE: Release v1.2.26 ⭐
+   Dec 25 | REMINDER: Christmas break
+   ```
+   
+   **Workflow Scheduling:**
+   ```bash
+   WORKFLOW SCHEDULE backup "0 2 * * *"  # Daily at 2am
+   WORKFLOW SCHEDULE review "0 9 * * 1"  # Monday 9am
+   WORKFLOW SCHEDULE cleanup "*/30 * * * *"  # Every 30 min
+   
+   # Cron syntax:
+   # ┌─────── minute (0-59)
+   # │ ┌─────── hour (0-23)
+   # │ │ ┌─────── day of month (1-31)
+   # │ │ │ ┌─────── month (1-12)
+   # │ │ │ │ ┌─────── day of week (0-6, Sun-Sat)
+   # * * * * *
+   ```
+   
+   **Storage:**
+   ```
+   memory/workflows/calendar/
+   ├── 2025-12.json          # December 2025 events
+   ├── 2026-01.json          # January 2026 events
+   └── scheduled.json        # Cron workflows
+   ```
+   
+   **Commands Summary:**
+   ```bash
+   CLOCK                     # Live ASCII clock
+   TIMER <duration>          # Countdown timer
+   EGG                       # Intelligent egg timer
+   STOPWATCH                 # Stopwatch with laps
+   CALENDAR [period]         # Calendar views
+   CALENDAR --tasks          # Show scheduled items
+   CALENDAR ADD <task>       # Add event
+   TIME SET                  # Update timezone
+   TIMEZONE LIST             # Show available timezones
+   TIMEZONE SET <name>       # Change timezone
+   WORKFLOW SCHEDULE <cron>  # Schedule workflow
+   ```
 
-7. 🔲 **JSON Viewer/Editor for TUI** (600 lines)
+### Phase 6: JSON Editor & Integration (Week 6)
+
+7. 🔲 **JSON Viewer/Editor for TUI** (645 lines)
    - `core/ui/json_editor.py` (420 lines)
-   - Lightweight read-only `JSON VIEW` command
-   - 3-column layout: tree view | preview | validation
-   - Tree navigation with expand/collapse (8/2 keys)
-   - Simple key/value editor for quick config changes
-   - Auto-backup to `.archive/` before edits
-   - Schema validation if `.schema` file present
-   - Supports: `memory/bank/system/*.json`, `memory/workflows/*.json`, `.config/*.json`
    - `core/commands/file_handler.py` (+180 lines)
-   - Commands: `JSON VIEW <file>`, `JSON EDIT <file>`
+   - `core/ui/tui_controller.py` (+30 lines)
+   - `core/input/smart_prompt.py` (+15 lines)
+   
+   **JSON Viewer (Read-Only):**
+   ```bash
+   JSON VIEW <file>          # Browse JSON structure
+   JSON VIEW --tree          # Tree view only
+   JSON VIEW --raw           # Raw JSON display
+   
+   # 3-Column Layout:
+   ╔══════════════════════════════════════════════════════════╗
+   ║               JSON VIEWER - config.json                 ║
+   ╠══════════════╦═══════════════════╦═══════════════════════╣
+   ║ TREE         ║ PREVIEW           ║ VALIDATION            ║
+   ║              ║                   ║                       ║
+   ║ ▼ config     ║ {                 ║ ✅ Valid JSON         ║
+   ║   ▼ theme    ║   "name": "found" ║ 📊 Size: 2.3 KB      ║
+   ║     • name   ║   "colors": {     ║ 🔢 Keys: 45          ║
+   ║     ▶ colors ║     "primary": "" ║ 📁 Depth: 4          ║
+   ║   ▶ display  ║   }               ║                       ║
+   ║   ▶ paths    ║ }                 ║ Schema: ✅ Found      ║
+   ║              ║                   ║ Last edit: 2 days ago ║
+   ╚══════════════╩═══════════════════╩═══════════════════════╝
+   
+   [8/2] Navigate | [4/6] Expand/Collapse | [5] Select | [Q] Quit
+   ```
+   
+   **JSON Editor (Simple):**
+   ```bash
+   JSON EDIT <file>          # Edit JSON values
+   JSON EDIT --safe          # Auto-backup before edit
+   
+   # Edit interface:
+   ╔══════════════════════════════════════════════════════════╗
+   ║               JSON EDITOR - user.json                   ║
+   ╠══════════════════════════════════════════════════════════╣
+   ║ Path: config.theme.name                                 ║
+   ║ Type: string                                            ║
+   ║ Current: "foundation"                                   ║
+   ║                                                         ║
+   ║ New value: [galaxy                              ]       ║
+   ║                                                         ║
+   ║ Valid options: foundation | dungeon | ranger | galaxy  ║
+   ╚══════════════════════════════════════════════════════════╝
+   
+   [Enter] Save | [Esc] Cancel | [Tab] Next field
+   ```
+   
+   **Features:**
+   - Tree navigation with 8/2 (up/down) keys
+   - Expand/collapse nodes with 4/6 (left/right)
+   - Select item with 5 key
+   - JSON path breadcrumb display
+   - Syntax highlighting (keys blue, values green, strings yellow)
+   - Type validation (string/number/boolean/array/object)
+   - Auto-backup before edits to `.archive/`
+   - Schema validation if `.schema.json` present
+   - Undo/redo integration
    - Theme-aware display
-   - J-key TUI integration: `core/ui/tui_controller.py` (+30 lines), `core/input/smart_prompt.py` (+15 lines)
-   - External tool recommendations in `extensions/cloned/README.md` (+150 lines)
-   - Document: `fx` (brew install fx), `jless`, `visidata`
-   - Integration with existing column rendering from v1.2.16
-   - Full BACKUP/RESTORE integration for JSON edits
+   
+   **Supported Files:**
+   ```
+   memory/bank/system/*.json     # System config
+   memory/workflows/*.json       # Workflow data
+   memory/bank/user/*.json       # User settings
+   .config/*.json                # Extension config
+   ```
+   
+   **Schema Validation:**
+   ```json
+   // config.schema.json
+   {
+     "type": "object",
+     "properties": {
+       "theme": {
+         "type": "object",
+         "properties": {
+           "name": {
+             "type": "string",
+             "enum": ["foundation", "dungeon", "ranger", "galaxy"]
+           }
+         }
+       }
+     },
+     "required": ["theme"]
+   }
+   ```
+   
+   **J-Key Integration:**
+   - Press J in command mode → opens JSON file browser
+   - Lists all JSON files in supported directories
+   - Number selection (1-9) to open file
+   - Auto-detect edit vs. view based on permissions
+   
+   **External Tool Recommendations:**
+   ```bash
+   # For advanced JSON work, recommend:
+   brew install fx          # Terminal JSON viewer/editor
+   brew install jless       # Pager for JSON
+   pip install visidata     # Spreadsheet-style JSON editor
+   ```
+   
+   **Commands:**
+   ```bash
+   JSON VIEW <file>          # Read-only browser
+   JSON VIEW --tree          # Tree view only
+   JSON VIEW --raw           # Raw JSON
+   JSON EDIT <file>          # Simple editor
+   JSON EDIT --safe          # Auto-backup
+   JSON VALIDATE <file>      # Check validity
+   JSON FORMAT <file>        # Pretty-print
+   JSON MINIFY <file>        # Compress
+   ```
 
 **Archive/Backup/Cleanup Integration:**
 - Error contexts archived monthly to `memory/logs/.archive/error_contexts/`
@@ -1412,9 +2031,296 @@ RESTORE tasks           # Restore from backup
 
 ---
 
+## 🎯 v1.2.27 📋 **PLANNING** - Complete Testing & Fine-Tuning Round
+
+**Goal:** Comprehensive testing, validation, and refinement of every command, handler, and service before v1.3.0. Ensure production-ready stability across entire v1.2.x codebase.
+
+**Status:** Planning phase (after v1.2.26 self-healing system)
+
+**Critical Philosophy:** No new features in v1.2.27. Only testing, bug fixes, performance optimization, documentation improvements, and UX refinement.
+
+### Phase 1: Command Validation (Week 1-2)
+
+**All 49 Command Handlers** (~1,200 lines testing + fixes)
+
+1. 🔲 **Core Commands Testing** (300 lines)
+   - `memory/ucode/tests/test_core_commands.upy`
+   - Test all system commands: STATUS, TREE, CONFIG, HELP, EXIT
+   - Environment variables: ENV, SET, GET, DELETE
+   - Output handlers: PRINT, CLEAR, HISTORY
+   - Variable management: VAR commands
+   - Validate error messages, edge cases, help text
+
+2. 🔲 **File Operations Testing** (350 lines)
+   - `memory/ucode/tests/test_file_operations.upy`
+   - Test NEW, DELETE, COPY, MOVE, RENAME commands
+   - File browser operations (0-key navigation)
+   - JSON viewer/editor (J-key)
+   - Path validation, permission checks
+   - Archive integration (.archive/ soft-delete)
+   - Backup/restore workflows
+
+3. 🔲 **Knowledge & Guide Testing** (250 lines)
+   - `memory/ucode/tests/test_knowledge_system.upy`
+   - Test GUIDE command across all 230+ guides
+   - Category navigation (water, fire, shelter, medical, etc.)
+   - Search functionality
+   - Progress tracking
+   - Bookmark system
+   - Interactive guide rendering
+
+4. 🔲 **Workflow & Mission Testing** (300 lines)
+   - `memory/ucode/tests/test_workflows.upy`
+   - Test WORKFLOW, MISSION, CHECKPOINT commands
+   - W-key panel navigation
+   - Template creation (10 mission types)
+   - State persistence
+   - Schedule/calendar integration
+   - UNDO/REDO for workflow changes
+
+### Phase 2: TUI System Validation (Week 2-3)
+
+**All TUI Components** (~800 lines testing + fixes)
+
+5. 🔲 **Keypad Navigation Testing** (200 lines)
+   - `memory/ucode/tests/test_tui_navigation.upy`
+   - Test 0-9 keypad controls in all contexts
+   - 8/2 (up/down), 4/6 (left/right), 5 (select)
+   - 7/9 (redo/undo), 1/3 (yes/no), 0 (menu)
+   - Mode transitions (command/browse/panel)
+   - Cursor positioning, scroll behavior
+
+6. 🔲 **Panel System Testing** (300 lines)
+   - `memory/ucode/tests/test_tui_panels.upy`
+   - Test all panels: O (OK), C (Config), S (Server), W (Workflow), D (Dev), L (Log), T (Test)
+   - 0-key file browser with 5 workspaces
+   - Panel transitions and state persistence
+   - Column view layout (3-column responsive)
+   - Tab navigation within panels
+
+7. 🔲 **Command Predictor Testing** (150 lines)
+   - `memory/ucode/tests/test_command_predictor.upy`
+   - Autocomplete accuracy
+   - Syntax highlighting (green/yellow/cyan/magenta)
+   - Fuzzy matching tolerance
+   - Learning from command frequency
+   - Token-by-token validation
+
+8. 🔲 **Pager & Display Testing** (150 lines)
+   - `memory/ucode/tests/test_pager_display.upy`
+   - Scroll-while-prompting functionality
+   - Visual indicators (▲ more above, ▼ more below)
+   - Scroll position persistence
+   - Large output handling (>1000 lines)
+   - Terminal resize behavior
+
+### Phase 3: Extension & Service Testing (Week 3-4)
+
+**All Extensions & Services** (~900 lines testing + fixes)
+
+9. 🔲 **OK Assistant Testing** (250 lines)
+   - `memory/ucode/tests/test_ok_assistant.upy`
+   - Test O-key panel and 8 quick prompts
+   - MAKE commands (WORKFLOW/SVG/DOC/TEST/MISSION)
+   - ASK command with context awareness
+   - Gemini API integration (with fallback)
+   - Conversation history management
+
+10. 🔲 **BIZINTEL System Testing** (300 lines)
+    - `memory/ucode/tests/test_bizintel.upy`
+    - Test CLOUD commands (5,514 lines of code to validate)
+    - Marketing database operations
+    - Contact extraction from emails
+    - Website parsing (robots.txt compliance)
+    - Social media enrichment APIs
+    - Keyword generation workflow
+    - Location resolution (TILE codes)
+
+11. 🔲 **Server Monitoring Testing** (150 lines)
+    - `memory/ucode/tests/test_server_monitoring.upy`
+    - Test S-key server panel (3 views)
+    - 8 server definitions validation
+    - Health checking endpoints
+    - Extension monitor (5 extensions)
+    - System health metrics
+    - Memory/disk/log tracking
+
+12. 🔲 **Grid & Mapping Testing** (200 lines)
+    - `memory/ucode/tests/test_grid_mapping.upy`
+    - Test TILE code system (480×270 grid)
+    - Layer architecture (100-899)
+    - Location resolution accuracy
+    - MeshCore integration (if installed)
+    - Grid rendering performance
+    - TILE ↔ lat/lon conversion
+
+### Phase 4: Integration & Performance Testing (Week 4-5)
+
+**Cross-System Validation** (~600 lines testing + fixes)
+
+13. 🔲 **Archive System Integration** (150 lines)
+    - `memory/ucode/tests/test_archive_integration.upy`
+    - Test universal .archive/ folders
+    - BACKUP/UNDO/REDO across all commands
+    - CLEAN/TIDY integration
+    - Soft-delete recovery (7-day window)
+    - Version history management
+    - Archive health monitoring
+
+14. 🔲 **Configuration Management** (150 lines)
+    - `memory/ucode/tests/test_config_management.upy`
+    - Test C-key config panel
+    - .env file handling
+    - user.json persistence
+    - Theme switching (7 themes)
+    - Profile save/load
+    - Import/export functionality
+
+15. 🔲 **Performance Benchmarking** (200 lines)
+    - `memory/ucode/tests/test_performance.upy`
+    - uPY runtime speed (validate 925,078 ops/sec)
+    - Command execution latency
+    - File operations throughput
+    - TUI rendering performance
+    - Memory usage monitoring
+    - Startup time benchmarks
+
+16. 🔲 **Error Handling & Edge Cases** (100 lines)
+    - `memory/ucode/tests/test_error_handling.upy`
+    - Invalid command inputs
+    - Missing file handling
+    - Permission denied scenarios
+    - Network failures (graceful degradation)
+    - API key missing (offline fallback)
+    - Corrupted JSON recovery
+
+### Phase 5: Documentation & UX Polish (Week 5-6)
+
+**User Experience Refinement** (~1,500 lines docs + fixes)
+
+17. 🔲 **Command Reference Audit** (400 lines)
+    - Review `core/data/commands.json` (all 150+ commands)
+    - Verify syntax examples are accurate
+    - Update descriptions for clarity
+    - Add usage examples for complex commands
+    - Cross-reference with wiki documentation
+    - Ensure help text matches actual behavior
+
+18. 🔲 **Wiki Documentation Review** (600 lines)
+    - Audit all 40+ wiki pages
+    - Update screenshots/examples for v1.2.x features
+    - Fix outdated command syntax
+    - Add troubleshooting sections
+    - Create video walkthroughs (ASCII recordings)
+    - Update Getting-Started.md for new users
+
+19. 🔲 **Error Message Improvements** (300 lines)
+    - Review all error messages across 49 handlers
+    - Make error messages more helpful
+    - Suggest correct syntax on errors
+    - Add "Did you mean...?" suggestions
+    - Theme-aware error formatting
+    - Context-aware help links
+
+20. 🔲 **User Feedback Integration** (200 lines)
+    - Create feedback collection system
+    - Add FEEDBACK command
+    - GitHub issue templates
+    - User satisfaction survey
+    - Beta tester recruitment
+    - Bug reporting workflow
+
+### Phase 6: Final Validation & Release Prep (Week 6)
+
+**Production Readiness** (~400 lines + release artifacts)
+
+21. 🔲 **SHAKEDOWN Test Update** (150 lines)
+    - Update `memory/ucode/tests/shakedown.upy`
+    - Add v1.2.25, v1.2.26, v1.2.27 validations
+    - Comprehensive system health checks
+    - All 150+ commands smoke tested
+    - Extension availability verification
+    - Performance threshold validation
+
+22. 🔲 **Package Testing** (100 lines)
+    - Test all 5 installation tiers
+    - STARTER (7.3MB) - core + knowledge
+    - EXPLORER (~28MB) - + AI + touch
+    - ADVENTURER (~58MB) - + gameplay + graphics
+    - EXPEDITION (~120MB+) - + cloud + BIZINTEL
+    - Verify dependencies for each tier
+
+23. 🔲 **Cross-Platform Testing** (50 lines)
+    - macOS validation (primary platform)
+    - Linux testing (Ubuntu, Fedora)
+    - Windows WSL testing
+    - Terminal compatibility (iTerm, Terminal.app, gnome-terminal)
+    - Python 3.8, 3.9, 3.10, 3.11, 3.12 compatibility
+
+24. 🔲 **Release Artifacts** (100 lines)
+    - Final CHANGELOG.md update
+    - Release notes for v1.2.27
+    - Migration guide (v1.1.x → v1.2.x)
+    - What's New document
+    - Known issues list
+    - Git tag v1.2.27 as STABLE
+
+**Total Estimated:** ~5,400 lines (testing + fixes + docs)
+- Phase 1 (Commands): 1,200 lines
+- Phase 2 (TUI): 800 lines
+- Phase 3 (Extensions): 900 lines
+- Phase 4 (Integration): 600 lines
+- Phase 5 (Documentation): 1,500 lines
+- Phase 6 (Release Prep): 400 lines
+
+**Timeline:** 6 weeks
+- Weeks 1-2: Command validation
+- Weeks 2-3: TUI system validation
+- Weeks 3-4: Extension & service testing
+- Weeks 4-5: Integration & performance
+- Weeks 5-6: Documentation & UX polish
+- Week 6: Final validation & release
+
+**Success Criteria:**
+- ✅ All 150+ commands tested with automated tests
+- ✅ Zero crashes in normal operation
+- ✅ All TUI panels work correctly
+- ✅ Performance meets benchmarks (925K ops/sec)
+- ✅ Documentation 100% accurate
+- ✅ SHAKEDOWN test passes at 100%
+- ✅ Cross-platform compatibility verified
+- ✅ User feedback incorporated
+
+**New Commands:**
+```bash
+# Testing & Validation
+TEST ALL                       # Run complete test suite
+TEST COMMAND <name>            # Test specific command
+TEST TUI                       # Test all TUI panels
+TEST PERFORMANCE               # Run performance benchmarks
+TEST REPORT                    # Generate test coverage report
+
+# User Feedback
+FEEDBACK                       # Submit feedback/bug report
+FEEDBACK LIST                  # View submitted feedback
+FEEDBACK EXPORT                # Export feedback to file
+```
+
+**Documentation:**
+- `wiki/Testing-Guide.md` - Complete testing documentation
+- `wiki/Contributing.md` - Updated with testing requirements
+- `dev/sessions/v1.2.27-testing-session.md` - Testing session notes
+- `KNOWN-ISSUES.md` - Known issues and workarounds
+
+**Session Notes:** `dev/sessions/v1.2.27-testing-session.md` (pending start)
+
+---
+
 ## 🔮 v1.3.0 (Future Considerations)
 
 **Focus:** Community & Extension Ecosystem
+
+**Prerequisite:** v1.2.27 testing complete and v1.2.x declared STABLE
 
 **Potential Features:**
 - Extension marketplace/discovery
@@ -1423,9 +2329,9 @@ RESTORE tasks           # Restore from backup
 - Collaborative missions
 - P2P sync (beyond Gmail/Drive)
 
-**Status:** Deferred until v1.2.24 stable release complete
+**Status:** Deferred until v1.2.27 testing complete
 
-**Philosophy:** Build a solid, stable v1.2.x foundation before expanding scope. Focus on completing what's started rather than adding new features.
+**Philosophy:** Build a solid, stable v1.2.x foundation before expanding scope. Complete v1.2.27 comprehensive testing first.
 
 ---
 
