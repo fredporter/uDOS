@@ -317,3 +317,14 @@ class UndoHandler(BaseCommandHandler):
             "=" * 66,
         ]
         return "\n".join(lines)
+
+def create_handler(**kwargs) -> UndoHandler:
+    """Factory function to create UndoHandler instance.
+    
+    Args:
+        **kwargs: Handler configuration (viewport, logger, output_formatter, parser)
+    
+    Returns:
+        UndoHandler: Configured undo/redo handler instance
+    """
+    return UndoHandler(**kwargs)
