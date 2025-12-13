@@ -442,16 +442,24 @@ class FileCommandHandler(BaseCommandHandler):
             return f"❌ Error renaming file: {str(e)}"
 
     def _handle_show(self, params):
-        """Display file with smart viewer detection (Typo for markdown preview)."""
+        """Display file with smart viewer detection (universal file handler).
+        
+        Smart Type Detection:
+        - .json → JSON viewer with syntax highlighting
+        - .py → Offer conversion to .upy for editing
+        - .md → Typo markdown preview (if available) or terminal
+        - .upy → Terminal viewer or editor
+        - .txt → Terminal viewer
+        """
         if not params:
-            # Use knowledge file picker for .md and .upy files
+            # Use knowledge file picker for all supported file types
             from core.ui.knowledge_file_picker import KnowledgeFilePicker
             picker = KnowledgeFilePicker()
 
             file_path = picker.pick_file(
                 workspace='both',
                 prompt="📄 Select file to view",
-                file_types=['.md', '.upy', '.txt', '.json']
+                file_types=['.md', '.upy', '.py', '.txt', '.json']
             )
 
             if not file_path:
@@ -465,15 +473,28 @@ class FileCommandHandler(BaseCommandHandler):
         allowed_dirs = [
             str(PATHS.MEMORY),
             str(PATHS.KNOWLEDGE),
-            os.path.abspath('output')
+            str(PATHS.CORE),
+            os.path.abspath('output'),
+            os.path.abspath('extensions')
         ]
         if not any(abs_path.startswith(allowed_dir) for allowed_dir in allowed_dirs):
-            return f"❌ Access denied: {file_path}\n\nOnly memory/, knowledge/, and output/ are accessible"
+            return f"❌ Access denied: {file_path}\n\nOnly memory/, knowledge/, core/, extensions/, and output/ are accessible"
 
         if not os.path.exists(file_path):
             return f"❌ File not found: {file_path}"
 
-        # Detect view mode
+        # SMART FILE TYPE ROUTING
+        file_ext = Path(file_path).suffix.lower()
+        
+        # JSON files → JSON viewer
+        if file_ext == '.json':
+            return self._view_json(file_path)
+        
+        # Python files → Offer uPY conversion
+        if file_ext == '.py':
+            return self._handle_python_file(file_path, params)
+        
+        # Regular file viewing
         view_mode = self._detect_view_mode(file_path, params)
 
         if view_mode == 'typo':
@@ -573,6 +594,111 @@ class FileCommandHandler(BaseCommandHandler):
                 return f"📄 {file_path}\n{'═'*60}\n\n{content}\n\n{'═'*60}"
             except Exception as e2:
                 return f"❌ Error reading file: {str(e2)}"
+    
+    def _view_json(self, file_path: str) -> str:
+        """View JSON file with syntax highlighting using JSON command."""
+        try:
+            # Use the JSON viewer command handler
+            from core.commands.json_handler import JSONHandler
+            json_handler = JSONHandler(config=self.config, logger=self.logger, viewport=self.viewport)
+            
+            # Call JSON SHOW command
+            return json_handler.handle_command(['SHOW', file_path])
+        except ImportError:
+            # Fallback to simple pretty-print if JSON handler not available
+            try:
+                import json
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                formatted = json.dumps(data, indent=2, ensure_ascii=False)
+                return f"📋 {file_path}\n{'═'*60}\n\n{formatted}\n\n{'═'*60}"
+            except Exception as e:
+                return f"❌ Error viewing JSON: {str(e)}"
+    
+    def _handle_python_file(self, file_path: str, params: list) -> str:
+        """Handle .py files with conversion offer to .upy for editing.
+        
+        Options:
+        - View source as-is
+        - Convert to .upy for editing (with smart code editor)
+        - Edit directly (not recommended - use .upy workflow)
+        """
+        from core.input.interactive import InteractivePrompt
+        prompt = InteractivePrompt()
+        
+        # Check if --convert flag or --edit flag provided
+        if '--convert' in params:
+            return self._convert_py_to_upy(file_path)
+        elif '--view' in params or '--terminal' in params:
+            return self._view_with_terminal(file_path)
+        elif '--edit' in params:
+            return self._edit_python_direct(file_path)
+        
+        # Interactive menu for .py files
+        print(f"\n🐍 Python File: {file_path}")
+        print("─" * 60)
+        print("Python files can be:")
+        print("  V - View source (read-only)")
+        print("  C - Convert to .upy for editing (recommended)")
+        print("  E - Edit directly (not recommended)")
+        print("  X - Cancel")
+        print("─" * 60)
+        
+        choice = prompt.ask_text("Action", default="V").upper()
+        
+        if choice == 'V':
+            return self._view_with_terminal(file_path)
+        elif choice == 'C':
+            return self._convert_py_to_upy(file_path)
+        elif choice == 'E':
+            return self._edit_python_direct(file_path)
+        else:
+            return "❌ Cancelled"
+    
+    def _convert_py_to_upy(self, file_path: str) -> str:
+        """Convert .py file to .upy using smart code editor."""
+        try:
+            # Check if smart_code_editor exists
+            from extensions.assistant.smart_code_editor import SmartCodeEditor
+            from core.config import Config
+            
+            config = Config()
+            editor = SmartCodeEditor(config)
+            
+            # Read Python source
+            with open(file_path, 'r', encoding='utf-8') as f:
+                python_code = f.read()
+            
+            # Convert to uPY
+            upy_code = editor.python_to_upy(python_code)
+            
+            # Generate .upy filename
+            upy_path = file_path.replace('.py', '.upy')
+            if upy_path == file_path:  # Shouldn't happen but safeguard
+                upy_path = file_path + '.upy'
+            
+            # Write .upy file
+            with open(upy_path, 'w', encoding='utf-8') as f:
+                f.write(upy_code)
+            
+            return (f"✅ Converted to uPY format\n"
+                   f"   Source: {file_path}\n"
+                   f"   Output: {upy_path}\n\n"
+                   f"💡 Edit with: FILE EDIT {upy_path}")
+        
+        except ImportError:
+            return ("❌ Smart Code Editor not available\n\n"
+                   "This requires the AI assistant extension.\n"
+                   "Use: FILE EDIT --direct to edit Python directly")
+        except Exception as e:
+            return f"❌ Error converting Python to uPY: {str(e)}"
+    
+    def _edit_python_direct(self, file_path: str) -> str:
+        """Edit Python file directly (not recommended but available)."""
+        return (f"⚠️  Warning: Editing Python directly bypasses uPY workflow\n\n"
+               f"Opening: {file_path}\n\n"
+               f"Recommended: Convert to .upy first with FILE SHOW --convert\n\n" +
+               self.editor_manager.open_file(file_path))
 
     def _handle_edit(self, params):
         """Edit file with smart editor detection (Typo for markdown, micro for others)."""

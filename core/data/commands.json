@@ -312,14 +312,25 @@
     },
     {
       "NAME": "SHOW",
-      "SYNTAX": "SHOW [file_path]",
-      "DESCRIPTION": "Display file contents in terminal or browser. Opens file picker if no path provided. Limited to sandbox/ and memory/ directories.",
+      "SYNTAX": "SHOW [file_path] [--json|--convert|--view|--edit]",
+      "DESCRIPTION": "Universal file viewer with smart type detection. .json → JSON viewer, .py → conversion offer to .upy, .md → Typo preview, .upy/.txt → terminal. Opens file picker if no path provided.",
       "UCODE_TEMPLATE": "[FILE|SHOW*$1]",
       "DEFAULT_PARAMS": {},
       "FLAGS": {
+        "--json": "Force JSON viewer mode",
+        "--convert": "Convert .py to .upy (Python files only)",
+        "--view": "View source as-is (read-only)",
+        "--edit": "Edit directly (not recommended for .py)",
         "--web": "Open file in web browser (markdown viewer)",
         "--cli": "Display file in terminal (default)"
-      }
+      },
+      "NOTES": [
+        "✅ v1.2.24 - Universal file handler",
+        "🎯 .json → JSON viewer with syntax highlighting",
+        "🐍 .py → Interactive menu (view/convert/edit)",
+        "📝 .md → Typo markdown preview (if available)",
+        "📜 .upy/.txt → Terminal viewer"
+      ]
     },
     {
       "NAME": "RUN",
@@ -379,17 +390,37 @@
     {
       "NAME": "FILE",
       "SYNTAX": "FILE [operation] [params]",
-      "DESCRIPTION": "Interactive file operations menu. Without subcommand, shows interactive picker for common file operations. Supports: BATCH, BOOKMARKS, INFO, PICK, PREVIEW, RECENT.",
+      "DESCRIPTION": "Universal file handler with smart type detection. Handles .md, .upy, .py, .json, .txt files intelligently. Interactive menu when called without parameters.",
       "UCODE_TEMPLATE": "[FILE|MENU]",
       "DEFAULT_PARAMS": {},
       "EXAMPLES": [
         "FILE",
-        "FILE INFO",
+        "FILE SHOW config.json",
+        "FILE SHOW script.py",
+        "FILE INFO README.md",
         "FILE RECENT"
       ],
+      "SUBCOMMANDS": {
+        "SHOW": "View file (JSON viewer for .json, uPY converter for .py, Typo for .md)",
+        "EDIT": "Edit file with smart editor",
+        "NEW": "Create new file with templates",
+        "DELETE": "Delete file (soft-delete to .archive/)",
+        "COPY": "Copy file within or between workspaces",
+        "MOVE": "Move file between workspaces",
+        "RENAME": "Rename file in current workspace",
+        "INFO": "Show file statistics and metadata",
+        "RECENT": "Show recently accessed files",
+        "BATCH": "Batch operations (DELETE/COPY/MOVE with patterns)",
+        "BOOKMARKS": "Manage file bookmarks",
+        "PREVIEW": "Preview with metadata and git status"
+      },
       "NOTES": [
-        "Interactive menu when called without parameters",
-        "Smart file operation picker with context detection"
+        "✅ v1.2.24 - Universal file handler with smart type detection",
+        "🎯 .json → JSON viewer with syntax highlighting",
+        "🐍 .py → Offers conversion to .upy for editing",
+        "📝 .md → Typo markdown preview (if available)",
+        "📜 .upy → Direct viewing or editing",
+        "Interactive menu when called without parameters"
       ]
     },
     {
