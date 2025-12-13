@@ -274,6 +274,8 @@ class SystemCommandHandler(BaseCommandHandler):
             'LOCATE': self.handle_locate,
             'DEV': self.handle_dev_mode,
             'ASSETS': self.handle_assets,
+            'UNDO': self.handle_undo,
+            'REDO': self.handle_redo,
         }
 
         handler = handlers.get(command)
@@ -1467,5 +1469,55 @@ class SystemCommandHandler(BaseCommandHandler):
         filled = int((percent / 100) * width)
         empty = width - filled
         return f"[{'▓' * filled}{'░' * empty}]"
+    
+    def handle_undo(self, params, grid, parser):
+        """
+        Handle UNDO command - delegates to UndoHandler (v1.2.23).
+        
+        Commands:
+        - UNDO <file> - Revert file to previous version
+        - UNDO --list <file> - List version history
+        - UNDO --to-version <version> <file> - Revert to specific version
+        
+        Args:
+            params: Command parameters
+            grid: Grid object
+            parser: Parser object
+            
+        Returns:
+            Command response
+        """
+        from core.commands.undo_handler import create_handler
+        undo_handler = create_handler(
+            viewport=self.viewport,
+            logger=self.logger,
+            output_formatter=self.output_formatter,
+            parser=parser
+        )
+        return undo_handler.handle(params, grid, parser)
+    
+    def handle_redo(self, params, grid, parser):
+        """
+        Handle REDO command - delegates to UndoHandler (v1.2.23).
+        
+        Commands:
+        - REDO <file> - Re-apply undone changes
+        
+        Args:
+            params: Command parameters
+            grid: Grid object
+            parser: Parser object
+            
+        Returns:
+            Command response
+        """
+        from core.commands.undo_handler import create_handler
+        undo_handler = create_handler(
+            viewport=self.viewport,
+            logger=self.logger,
+            output_formatter=self.output_formatter,
+            parser=parser
+        )
+        return undo_handler.handle_redo(params, grid, parser)
 
 
