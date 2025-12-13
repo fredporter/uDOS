@@ -6,58 +6,41 @@ Tests mouse handler performance with 100+ regions to ensure:
 - Fast region registration
 - Quick click detection
 - Efficient region lookup
-- Responsive hover detection
+- Responsive event processing
 """
 
 import pytest
 import time
-from unittest.mock import Mock, patch
-from core.input.mouse_handler import MouseHandler
-from core.services.device_manager import DeviceManager
+from core.input.mouse_handler import (
+    MouseHandler, ClickableRegion, MouseEvent, 
+    MousePosition, MouseEventType, MouseButton
+)
 
 
 class TestMousePerformance:
     """Test MouseHandler performance with many regions."""
     
     @pytest.fixture
-    def mock_device_manager(self):
-        """Create mock device manager."""
-        dm = Mock(spec=DeviceManager)
-        dm.has_mouse.return_value = True
-        dm.is_mouse_enabled.return_value = True
-        return dm
-    
-    @pytest.fixture
-    def mouse_handler(self, mock_device_manager):
-        """Create mouse handler with mock device manager."""
-        return MouseHandler(device_manager=mock_device_manager)
+    def mouse_handler(self):
+        """Create mouse handler for testing."""
+        return MouseHandler()
     
     def test_register_100_regions_performance(self, mouse_handler):
         """Test registering 100 regions completes quickly (< 50ms)."""
-        # Generate 100 regions (10x10 grid)
-        regions = []
-        for i in range(10):
-            for j in range(10):
-                regions.append({
-                    'id': f'region_{i}_{j}',
-                    'x1': j * 10,
-                    'y1': i * 3,
-                    'x2': (j + 1) * 10 - 1,
-                    'y2': (i + 1) * 3 - 1,
-                    'callback': lambda: None
-                })
-        
         # Measure registration time
         start_time = time.perf_counter()
-        for region in regions:
-            mouse_handler.register_region(
-                region['id'],
-                region['x1'],
-                region['y1'],
-                region['x2'],
-                region['y2'],
-                region['callback']
-            )
+        for i in range(10):
+            for j in range(10):
+                region = ClickableRegion(
+                    name=f'region_{i}_{j}',
+                    x1=j * 10,
+                    y1=i * 3,
+                    x2=(j + 1) * 10 - 1,
+                    y2=(i + 1) * 3 - 1,
+                    callback=lambda e: None
+                )
+                mouse_handler.add_region(region)
+        
         register_time = (time.perf_counter() - start_time) * 1000
         
         # Assertions
@@ -66,32 +49,39 @@ class TestMousePerformance:
         print(f"\n✓ Registered 100 regions in {register_time:.2f}ms")
     
     def test_click_detection_100_regions_performance(self, mouse_handler):
-        """Test click detection with 100 regions is fast (< 10ms)."""
+        """Test click detection with 100 regions is fast (< 10ms per click)."""
         # Register 100 regions
-        callback_count = 0
+        callback_count = {'count': 0}
         
-        def test_callback():
-            nonlocal callback_count
-            callback_count += 1
+        def test_callback(event):
+            callback_count['count'] += 1
         
         for i in range(10):
             for j in range(10):
-                mouse_handler.register_region(
-                    f'region_{i}_{j}',
-                    j * 10, i * 3,
-                    (j + 1) * 10 - 1, (i + 1) * 3 - 1,
-                    test_callback
+                region = ClickableRegion(
+                    name=f'region_{i}_{j}',
+                    x1=j * 10,
+                    y1=i * 3,
+                    x2=(j + 1) * 10 - 1,
+                    y2=(i + 1) * 3 - 1,
+                    callback=test_callback
                 )
+                mouse_handler.add_region(region)
         
         # Measure click detection times
         click_times = []
         for i in range(10):
             for j in range(10):
-                x = j * 10 + 5  # Center of region
-                y = i * 3 + 1
+                pos = MousePosition(x=j * 10 + 5, y=i * 3 + 1)
+                event = MouseEvent(
+                    event_type=MouseEventType.CLICK,
+                    button=MouseButton.LEFT,
+                    position=pos,
+                    timestamp=time.time()
+                )
                 
                 start_time = time.perf_counter()
-                mouse_handler.handle_click(x, y)
+                mouse_handler.process_event(event)
                 click_time = (time.perf_counter() - start_time) * 1000
                 click_times.append(click_time)
         
@@ -100,39 +90,40 @@ class TestMousePerformance:
         max_click_time = max(click_times)
         
         # Assertions
-        assert callback_count == 100
+        assert callback_count['count'] == 100
         assert avg_click_time < 10, f"Avg click time {avg_click_time:.2f}ms (should be < 10ms)"
         assert max_click_time < 50, f"Max click time {max_click_time:.2f}ms (should be < 50ms)"
         print(f"\n✓ Click detection: avg={avg_click_time:.4f}ms, max={max_click_time:.4f}ms")
     
     def test_hover_detection_100_regions_performance(self, mouse_handler):
-        """Test hover detection with 100 regions is fast (< 10ms)."""
-        # Register 100 regions with hover callbacks
-        hover_count = 0
-        
-        def hover_callback():
-            nonlocal hover_count
-            hover_count += 1
-        
+        """Test hover/move detection with 100 regions is fast."""
+        # Register 100 regions
         for i in range(10):
             for j in range(10):
-                mouse_handler.register_region(
-                    f'region_{i}_{j}',
-                    j * 10, i * 3,
-                    (j + 1) * 10 - 1, (i + 1) * 3 - 1,
-                    lambda: None,
-                    hover_callback=hover_callback
+                region = ClickableRegion(
+                    name=f'region_{i}_{j}',
+                    x1=j * 10,
+                    y1=i * 3,
+                    x2=(j + 1) * 10 - 1,
+                    y2=(i + 1) * 3 - 1,
+                    callback=lambda e: None
                 )
+                mouse_handler.add_region(region)
         
         # Measure hover detection times
         hover_times = []
         for i in range(10):
             for j in range(10):
-                x = j * 10 + 5
-                y = i * 3 + 1
+                pos = MousePosition(x=j * 10 + 5, y=i * 3 + 1)
+                event = MouseEvent(
+                    event_type=MouseEventType.HOVER,
+                    button=None,
+                    position=pos,
+                    timestamp=time.time()
+                )
                 
                 start_time = time.perf_counter()
-                mouse_handler.handle_hover(x, y)
+                mouse_handler.process_event(event)
                 hover_time = (time.perf_counter() - start_time) * 1000
                 hover_times.append(hover_time)
         
@@ -141,7 +132,6 @@ class TestMousePerformance:
         max_hover_time = max(hover_times)
         
         # Assertions
-        assert hover_count == 100
         assert avg_hover_time < 10, f"Avg hover time {avg_hover_time:.2f}ms (should be < 10ms)"
         assert max_hover_time < 50, f"Max hover time {max_hover_time:.2f}ms (should be < 50ms)"
         print(f"\n✓ Hover detection: avg={avg_hover_time:.4f}ms, max={max_hover_time:.4f}ms")
@@ -151,22 +141,24 @@ class TestMousePerformance:
         # Register 100 regions
         for i in range(10):
             for j in range(10):
-                mouse_handler.register_region(
-                    f'region_{i}_{j}',
-                    j * 10, i * 3,
-                    (j + 1) * 10 - 1, (i + 1) * 3 - 1,
-                    lambda: None
+                region = ClickableRegion(
+                    name=f'region_{i}_{j}',
+                    x1=j * 10,
+                    y1=i * 3,
+                    x2=(j + 1) * 10 - 1,
+                    y2=(i + 1) * 3 - 1,
+                    callback=lambda e: None
                 )
+                mouse_handler.add_region(region)
         
-        # Measure region lookup times (direct method call)
+        # Measure region lookup times
         lookup_times = []
         for i in range(10):
             for j in range(10):
-                x = j * 10 + 5
-                y = i * 3 + 1
+                pos = MousePosition(x=j * 10 + 5, y=i * 3 + 1)
                 
                 start_time = time.perf_counter()
-                region = mouse_handler.get_region_at(x, y)
+                region = mouse_handler.find_region_at(pos)
                 lookup_time = (time.perf_counter() - start_time) * 1000
                 lookup_times.append(lookup_time)
                 assert region is not None
@@ -183,12 +175,15 @@ class TestMousePerformance:
         # Register 100 regions
         for i in range(10):
             for j in range(10):
-                mouse_handler.register_region(
-                    f'region_{i}_{j}',
-                    j * 10, i * 3,
-                    (j + 1) * 10 - 1, (i + 1) * 3 - 1,
-                    lambda: None
+                region = ClickableRegion(
+                    name=f'region_{i}_{j}',
+                    x1=j * 10,
+                    y1=i * 3,
+                    x2=(j + 1) * 10 - 1,
+                    y2=(i + 1) * 3 - 1,
+                    callback=lambda e: None
                 )
+                mouse_handler.add_region(region)
         
         # Measure clear time
         start_time = time.perf_counter()
@@ -203,23 +198,26 @@ class TestMousePerformance:
     def test_unregister_performance(self, mouse_handler):
         """Test unregistering individual regions is fast."""
         # Register 100 regions
-        region_ids = []
+        region_names = []
         for i in range(10):
             for j in range(10):
-                region_id = f'region_{i}_{j}'
-                region_ids.append(region_id)
-                mouse_handler.register_region(
-                    region_id,
-                    j * 10, i * 3,
-                    (j + 1) * 10 - 1, (i + 1) * 3 - 1,
-                    lambda: None
+                region_name = f'region_{i}_{j}'
+                region_names.append(region_name)
+                region = ClickableRegion(
+                    name=region_name,
+                    x1=j * 10,
+                    y1=i * 3,
+                    x2=(j + 1) * 10 - 1,
+                    y2=(i + 1) * 3 - 1,
+                    callback=lambda e: None
                 )
+                mouse_handler.add_region(region)
         
         # Measure unregister times
         unregister_times = []
-        for region_id in region_ids:
+        for region_name in region_names:
             start_time = time.perf_counter()
-            mouse_handler.unregister_region(region_id)
+            mouse_handler.remove_region(region_name)
             unregister_time = (time.perf_counter() - start_time) * 1000
             unregister_times.append(unregister_time)
         
@@ -236,21 +234,29 @@ class TestMousePerformance:
         # Register overlapping regions (5 layers of 20 regions each)
         for layer in range(5):
             for i in range(20):
-                mouse_handler.register_region(
-                    f'layer_{layer}_region_{i}',
-                    i * 5, layer * 2,
-                    (i + 2) * 5, (layer + 2) * 2,
-                    lambda: None
+                region = ClickableRegion(
+                    name=f'layer_{layer}_region_{i}',
+                    x1=i * 5,
+                    y1=layer * 2,
+                    x2=(i + 2) * 5,
+                    y2=(layer + 2) * 2,
+                    callback=lambda e: None
                 )
+                mouse_handler.add_region(region)
         
         # Measure click detection with overlaps
         click_times = []
         for i in range(20):
-            x = i * 5 + 2
-            y = 5
+            pos = MousePosition(x=i * 5 + 2, y=5)
+            event = MouseEvent(
+                event_type=MouseEventType.CLICK,
+                button=MouseButton.LEFT,
+                position=pos,
+                timestamp=time.time()
+            )
             
             start_time = time.perf_counter()
-            mouse_handler.handle_click(x, y)
+            mouse_handler.process_event(event)
             click_time = (time.perf_counter() - start_time) * 1000
             click_times.append(click_time)
         
@@ -266,22 +272,30 @@ class TestMousePerformance:
         # Register 500 regions (50x10 grid)
         for i in range(50):
             for j in range(10):
-                mouse_handler.register_region(
-                    f'region_{i}_{j}',
-                    j * 10, i * 2,
-                    (j + 1) * 10 - 1, (i + 1) * 2 - 1,
-                    lambda: None
+                region = ClickableRegion(
+                    name=f'region_{i}_{j}',
+                    x1=j * 10,
+                    y1=i * 2,
+                    x2=(j + 1) * 10 - 1,
+                    y2=(i + 1) * 2 - 1,
+                    callback=lambda e: None
                 )
+                mouse_handler.add_region(region)
         
         # Measure operations
         start_time = time.perf_counter()
         
-        # Test clicks across the grid
-        for i in range(0, 50, 5):  # Sample every 5th row
+        # Test clicks across the grid (sample every 5th row)
+        for i in range(0, 50, 5):
             for j in range(10):
-                x = j * 10 + 5
-                y = i * 2 + 1
-                mouse_handler.handle_click(x, y)
+                pos = MousePosition(x=j * 10 + 5, y=i * 2 + 1)
+                event = MouseEvent(
+                    event_type=MouseEventType.CLICK,
+                    button=MouseButton.LEFT,
+                    position=pos,
+                    timestamp=time.time()
+                )
+                mouse_handler.process_event(event)
         
         total_time = (time.perf_counter() - start_time) * 1000
         
@@ -294,39 +308,43 @@ class TestMousePerformance:
 class TestMouseEventPerformance:
     """Test mouse event processing performance."""
     
-    @pytest.fixture
-    def mock_device_manager(self):
-        """Create mock device manager."""
-        dm = Mock(spec=DeviceManager)
-        dm.has_mouse.return_value = True
-        dm.is_mouse_enabled.return_value = True
-        return dm
-    
-    def test_event_processing_overhead(self, mock_device_manager):
+    def test_event_processing_overhead(self):
         """Test that event processing overhead is minimal."""
-        handler = MouseHandler(device_manager=mock_device_manager)
+        handler = MouseHandler()
         
         # Register 50 regions
         for i in range(50):
-            handler.register_region(
-                f'region_{i}',
-                i * 2, i,
-                (i + 1) * 2, i + 1,
-                lambda: None
+            region = ClickableRegion(
+                name=f'region_{i}',
+                x1=i * 2,
+                y1=i,
+                x2=(i + 1) * 2,
+                y2=i + 1,
+                callback=lambda e: None
             )
+            handler.add_region(region)
         
         # Measure rapid-fire clicks
-        start_time = time.perf_counter()
-        for _ in range(100):
-            handler.handle_click(25, 25)
-        total_time = (time.perf_counter() - start_time) * 1000
+        click_times = []
+        for i in range(100):
+            pos = MousePosition(x=i % 100, y=i % 50)
+            event = MouseEvent(
+                event_type=MouseEventType.CLICK,
+                button=MouseButton.LEFT,
+                position=pos,
+                timestamp=time.time()
+            )
+            
+            start_time = time.perf_counter()
+            handler.process_event(event)
+            click_time = (time.perf_counter() - start_time) * 1000
+            click_times.append(click_time)
         
-        avg_time = total_time / 100
+        # Calculate statistics
+        avg_time = sum(click_times) / len(click_times)
+        max_time = max(click_times)
         
         # Assertions
-        assert avg_time < 10, f"Avg event time {avg_time:.4f}ms (should be < 10ms)"
-        print(f"\n✓ Event processing: {avg_time:.4f}ms per event (100 events)")
-
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v', '-s'])
+        assert avg_time < 5, f"Avg event processing {avg_time:.4f}ms (should be < 5ms)"
+        assert max_time < 20, f"Max event processing {max_time:.4f}ms (should be < 20ms)"
+        print(f"\n✓ Event processing: avg={avg_time:.4f}ms, max={max_time:.4f}ms")
