@@ -4,22 +4,25 @@
   "COMMANDS": [
     {
       "NAME": "OK",
-      "SYNTAX": "OK MAKE WORKFLOW \"<desc>\" | OK MAKE SVG \"<desc>\" | OK MAKE DOC \"<topic>\" | OK ASK \"<question>\" | OK STATUS",
-      "DESCRIPTION": "OK AI Assistant - Generate workflows, SVG graphics, documentation, tests with AI. MAKE commands for generation, ASK for questions, STATUS for usage stats.",
+      "SYNTAX": "OK MAKE SEQUENCE|FLOWCHART|SVG|ASCII|TELETEXT \"<desc>\" | OK MAKE WORKFLOW|DOC|TEST \"<desc>\" | OK ASK \"<question>\"",
+      "DESCRIPTION": "OK AI Assistant - Generate diagrams (Typora standards: SEQUENCE/FLOWCHART), graphics (SVG/ASCII/TELETEXT), workflows, docs, tests. ASK for questions, STATUS for usage.",
       "UCODE_TEMPLATE": "[OK|$1*$2*$3]",
       "DEFAULT_PARAMS": {
         "$2": null,
         "$3": null
       },
       "EXAMPLES": [
-        "OK MAKE WORKFLOW \"water purification\"",
-        "OK MAKE SVG \"water filter diagram\"",
-        "OK MAKE DOC \"grid system\"",
+        "OK MAKE SEQUENCE \"user login process\"",
+        "OK MAKE FLOWCHART \"water purification steps\"",
+        "OK MAKE SVG \"fire triangle diagram\"",
+        "OK MAKE ASCII \"camp layout\"",
+        "OK MAKE WORKFLOW \"backup system files\"",
         "OK ASK how do I use TILE codes?",
         "OK STATUS"
       ],
       "NOTES": [
-        "✅ Active in v1.2.21 - OK Assistant with AI-powered generation"
+        "✅ Active in v1.3 - Typora/GitHub diagram standards (js-sequence, flowchart.js)",
+        "Graphics: SEQUENCE (interactions), FLOWCHART (processes), SVG (custom), ASCII (text), TELETEXT (retro)"
       ]
     },
     {

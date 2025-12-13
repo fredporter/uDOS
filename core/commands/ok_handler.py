@@ -128,16 +128,21 @@ class OKHandler(BaseCommandHandler):
         if not params:
             return (
                 "OK MAKE - AI-Assisted Generation\n\n"
-                "Commands:\n"
-                "  OK MAKE WORKFLOW <description> - Generate uPY workflow\n"
-                "  OK MAKE SVG <description>      - Generate SVG graphic\n"
-                "  OK MAKE DOC <topic>             - Generate documentation\n"
-                "  OK MAKE TEST <file>             - Generate unit tests\n"
-                "  OK MAKE MISSION <cat> <tile>    - Generate mission script\n\n"
+                "Workflows:\n"
+                "  OK MAKE WORKFLOW <desc>   - Generate uPY workflow script\n"
+                "  OK MAKE MISSION <cat> <tile> - Generate mission script\n"
+                "  OK MAKE TEST <file>       - Generate unit tests\n"
+                "  OK MAKE DOC <topic>       - Generate documentation\n\n"
+                "Graphics (Typora/GitHub standards):\n"
+                "  OK MAKE SEQUENCE <desc>   - js-sequence diagram (interactions)\n"
+                "  OK MAKE FLOWCHART <desc>  - flowchart.js diagram (processes)\n"
+                "  OK MAKE SVG <desc>        - Custom vector graphics\n"
+                "  OK MAKE ASCII <desc>      - Text-based art\n"
+                "  OK MAKE TELETEXT <desc>   - Retro terminal graphics\n\n"
                 "Examples:\n"
-                "  OK MAKE WORKFLOW \"water purification checklist\"\n"
-                "  OK MAKE SVG \"water filter diagram\"\n"
-                "  OK MAKE DOC \"grid system overview\"\n"
+                "  OK MAKE SEQUENCE \"user login process\"\n"
+                "  OK MAKE FLOWCHART \"water purification steps\"\n"
+                "  OK MAKE SVG \"water filter components\"\n"
                 "  OK MAKE TEST core/services/ok_config.py\n"
             )
 
@@ -146,8 +151,16 @@ class OKHandler(BaseCommandHandler):
 
         if make_type == "WORKFLOW":
             return self._make_workflow(make_params)
+        elif make_type == "SEQUENCE":
+            return self._make_diagram(make_params, "sequence")
+        elif make_type == "FLOWCHART" or make_type == "FLOW":
+            return self._make_diagram(make_params, "flowchart")
         elif make_type == "SVG":
             return self._make_svg(make_params)
+        elif make_type == "ASCII":
+            return self._make_diagram(make_params, "ascii")
+        elif make_type == "TELETEXT":
+            return self._make_diagram(make_params, "teletext")
         elif make_type == "DOC":
             return self._make_doc(make_params)
         elif make_type == "TEST":
@@ -155,7 +168,7 @@ class OKHandler(BaseCommandHandler):
         elif make_type == "MISSION":
             return self._make_mission(make_params)
         else:
-            return f"❌ Unknown MAKE type: {make_type}\n\nUse: OK MAKE --help"
+            return f"❌ Unknown MAKE type: {make_type}\n\nSupported: SEQUENCE, FLOWCHART, SVG, ASCII, TELETEXT, WORKFLOW, DOC, TEST, MISSION"
 
     def _make_workflow(self, params: List[str]) -> str:
         """Generate uPY workflow script."""
@@ -194,6 +207,73 @@ class OKHandler(BaseCommandHandler):
                     f"✅ Workflow generated: {filepath}\n\n"
                     f"Preview:\n{code[:200]}...\n\n"
                     f"Run with: RUN {filepath}"
+                )
+            else:
+                return f"❌ Generation failed: {response.get('error', 'Unknown error')}"
+
+        except Exception as e:
+            return f"❌ Error: {e}"
+
+    def _make_diagram(self, params: List[str], diagram_type: str) -> str:
+        """Generate Typora-compatible diagram code (sequence/flowchart/ascii/teletext)."""
+        if not params:
+            type_examples = {
+                'sequence': 'Alice->Bob: Hello Bob!',
+                'flowchart': 'st=>start: Start\\nop=>operation: Process',
+                'ascii': 'water filtration system',
+                'teletext': 'survival guide header'
+            }
+            example = type_examples.get(diagram_type, 'description')
+            return f"❌ Usage: OK MAKE {diagram_type.upper()} <description>\n\nExample: OK MAKE {diagram_type.upper()} \"{example}\""
+
+        description = ' '.join(params)
+
+        if not self.gemini or not self.gemini.is_available:
+            return "❌ Gemini API not available. Set GEMINI_API_KEY in .env"
+
+        # Build diagram-specific prompt
+        prompt = self._build_diagram_prompt(description, diagram_type)
+
+        try:
+            response = self.gemini.ask(prompt)
+
+            if response.get('success'):
+                diagram_code = self._extract_code(response['response'])
+
+                # Save to appropriate directory
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"{diagram_type}_{timestamp}.md"
+                
+                # Determine output directory
+                if diagram_type in ['sequence', 'flowchart']:
+                    output_dir = Path("memory/drafts/diagrams")
+                elif diagram_type == 'ascii':
+                    output_dir = Path("memory/drafts/ascii")
+                elif diagram_type == 'teletext':
+                    output_dir = Path("memory/drafts/teletext")
+                else:
+                    output_dir = Path("memory/drafts")
+                
+                output_dir.mkdir(parents=True, exist_ok=True)
+                filepath = output_dir / filename
+
+                # Wrap in Typora/GitHub markdown fence
+                if diagram_type in ['sequence', 'flowchart']:
+                    fence_type = 'sequence' if diagram_type == 'sequence' else 'flow'
+                    wrapped_code = f"```{fence_type}\n{diagram_code}\n```\n"
+                else:
+                    wrapped_code = diagram_code
+
+                with open(filepath, 'w') as f:
+                    f.write(wrapped_code)
+
+                self._update_stats(diagram_type, response.get('tokens_used', 0))
+
+                return (
+                    f"✅ {diagram_type.upper()} diagram generated: {filepath}\n\n"
+                    f"Format: Typora/GitHub compatible\n"
+                    f"Preview:\n{diagram_code[:150]}...\n\n"
+                    f"View with: SHOW {filepath}"
                 )
             else:
                 return f"❌ Generation failed: {response.get('error', 'Unknown error')}"
@@ -502,6 +582,74 @@ class OKHandler(BaseCommandHandler):
         
         return '\n'.join(prompt_parts)
 
+    def _build_diagram_prompt(self, description: str, diagram_type: str) -> str:
+        """Build AI prompt for diagram generation."""
+        type_specs = {
+            'sequence': {
+                'format': 'js-sequence-diagrams syntax',
+                'example': 'Alice->Bob: Hello\\nNote right of Bob: Bob thinks\\nBob-->Alice: Hi!',
+                'rules': [
+                    'Use -> for solid lines, --> for dashed lines',
+                    'Format: Actor->Actor: Message',
+                    'Use "Note left/right of Actor: text" for notes',
+                    'Use "Title: text" for diagram title'
+                ]
+            },
+            'flowchart': {
+                'format': 'flowchart.js syntax',
+                'example': 'st=>start: Start\\nop=>operation: Process\\ne=>end\\nst->op->e',
+                'rules': [
+                    'Define nodes: id=>type: label',
+                    'Types: start, end, operation, condition, inputoutput, subroutine',
+                    'Connect with arrows: node1->node2',
+                    'Conditions: cond(yes)->node1, cond(no)->node2'
+                ]
+            },
+            'ascii': {
+                'format': 'ASCII art',
+                'example': '+---+\\n| A |\\n+---+',
+                'rules': [
+                    'Use box drawing: + - | for borders',
+                    'Use arrows: -> <- => <= for connections',
+                    'Keep it simple and readable in monospace'
+                ]
+            },
+            'teletext': {
+                'format': 'Teletext/ANSI art',
+                'example': '█▀▀▀█\\n█   █\\n█▄▄▄█',
+                'rules': [
+                    'Use block chars: █ ▀ ▄ ░ ▒ ▓',
+                    'Create retro terminal aesthetic',
+                    'Use simple geometric shapes'
+                ]
+            }
+        }
+
+        spec = type_specs.get(diagram_type, type_specs['sequence'])
+
+        prompt = f"""Generate a {diagram_type} diagram for: {description}
+
+OUTPUT FORMAT: {spec['format']}
+
+EXAMPLE:
+{spec['example']}
+
+RULES:
+"""
+        for rule in spec['rules']:
+            prompt += f"  • {rule}\n"
+
+        prompt += f"""
+REQUIREMENTS:
+  • Output ONLY the diagram code (no markdown fences, no explanations)
+  • Follow {spec['format']} syntax exactly
+  • Keep it concise and clear
+  • Test the syntax mentally before outputting
+
+Generate the diagram code now:"""
+
+        return prompt
+
     def _handle_clear(self) -> str:
         """Clear conversation history."""
         if self.gemini and self.gemini.is_available:
@@ -581,23 +729,28 @@ class OKHandler(BaseCommandHandler):
             "╔══════════════════════════════════════════════════════════╗\n"
             "║               OK Assistant - AI Workflows                ║\n"
             "╚══════════════════════════════════════════════════════════╝\n\n"
-            "Commands:\n"
+            "Workflows:\n"
             "  OK MAKE WORKFLOW <desc>  - Generate uPY workflow script\n"
-            "  OK MAKE SVG <desc>       - Generate SVG graphic\n"
-            "  OK MAKE DOC <topic>      - Generate documentation\n"
+            "  OK MAKE MISSION <cat> <tile> - Generate mission script\n"
             "  OK MAKE TEST <file>      - Generate unit tests\n"
-            "  OK MAKE MISSION <cat> <tile> - Generate mission script\n\n"
+            "  OK MAKE DOC <topic>      - Generate documentation\n\n"
+            "Graphics (Typora/GitHub standards):\n"
+            "  OK MAKE SEQUENCE <desc>  - js-sequence diagram (interactions)\n"
+            "  OK MAKE FLOWCHART <desc> - flowchart.js diagram (processes)\n"
+            "  OK MAKE SVG <desc>       - Custom vector graphics\n"
+            "  OK MAKE ASCII <desc>     - Text-based art\n"
+            "  OK MAKE TELETEXT <desc>  - Retro terminal graphics\n\n"
+            "Assistant:\n"
             "  OK ASK <question>        - Ask AI assistant\n"
             "  OK FIX [#signature]      - Analyze error and suggest fixes\n"
             "  OK CLEAR                 - Clear conversation history\n"
             "  OK STATUS                - Show usage statistics\n\n"
             "Examples:\n"
-            "  OK MAKE WORKFLOW \"water purification checklist\"\n"
-            "  OK MAKE SVG \"water filter diagram\"\n"
-            "  OK MAKE DOC \"grid system overview\"\n"
+            "  OK MAKE SEQUENCE \"user login process\"\n"
+            "  OK MAKE FLOWCHART \"water purification steps\"\n"
+            "  OK MAKE SVG \"fire triangle diagram\"\n"
             "  OK ASK \"How do I use the TILE system?\"\n"
-            "  OK FIX                   - Fix latest error\n"
-            "  OK FIX #39a383e5         - Fix specific error by signature\n\n"
+            "  OK FIX                   - Fix latest error\n\n"
             "TUI:\n"
             "  Press O-key to open OK assistant panel\n\n"
             "Configuration:\n"
