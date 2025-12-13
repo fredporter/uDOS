@@ -48,6 +48,58 @@ if UDOS_ROOT not in sys.path:
 # from core.config import Config
 
 # =============================================================================
+# USER VARIABLES (Read-Write, Persistent)
+# =============================================================================
+
+import json
+from pathlib import Path
+
+class UserVars:
+    """Persistent user variables stored in memory/bank/user/variables.json"""
+    
+    def __init__(self):
+        self.var_file = Path("memory/bank/user/variables.json")
+        self.var_file.parent.mkdir(parents=True, exist_ok=True)
+        self._vars = self._load()
+    
+    def _load(self) -> dict:
+        """Load user variables from disk"""
+        if self.var_file.exists():
+            try:
+                with open(self.var_file, 'r') as f:
+                    return json.load(f)
+            except:
+                return {}
+        return {}
+    
+    def _save(self):
+        """Save user variables to disk"""
+        with open(self.var_file, 'w') as f:
+            json.dump(self._vars, f, indent=2)
+    
+    def get(self, name: str, default=None):
+        """Get user variable value"""
+        return self._vars.get(name, default)
+    
+    def set(self, name: str, value: Any):
+        """Set user variable value and persist"""
+        self._vars[name] = value
+        self._save()
+    
+    def delete(self, name: str):
+        """Delete user variable"""
+        if name in self._vars:
+            del self._vars[name]
+            self._save()
+    
+    def list_all(self) -> dict:
+        """Get all user variables"""
+        return self._vars.copy()
+
+# Global user variables instance
+_user_vars = UserVars()
+
+# =============================================================================
 # SYSTEM VARIABLES (Read-Only)
 # =============================================================================
 
@@ -197,14 +249,36 @@ def python_to_ucode(python_code: str) -> str:
     Returns:
         uCODE-formatted string for display
     
-    Examples:
+    Visual Transformations:
         PRINT("Hello") → PRINT["Hello"]
         heal_sprite(20) → @HEAL-SPRITE[20]
-        sprite_hp = 100 → $SPRITE-HP = 100
+        sprite_hp = 100 → $sprite-hp = 100
+        CLONE_dev → CLONE*DEV (-- becomes *, tags UPPERCASE)
+        build_full → BUILD*FULL
+    
+    Tag Rendering Rules:
+        - Double dash (--) becomes asterisk (*)
+        - Underscore (_) becomes dash (-)
+        - Tag part after * is UPPERCASE
+        - Command part before * stays as-is
     """
-    # TODO: Implement in core/ui/ucode_editor.py
-    # This is a placeholder for the smart editor transformation
-    return python_code
+    import re
+    
+    # Transform command tags: CLONE--dev → CLONE*DEV
+    def transform_tags(match):
+        cmd = match.group(1)  # Command part (before --)
+        tag = match.group(2).upper()  # Tag part (after --), uppercase
+        return f"{cmd}*{tag}"
+    
+    code = python_code
+    # Match: word + double-dash + word (e.g., CLONE--dev, BUILD--full)
+    code = re.sub(r'(\w+)--(\w+)', transform_tags, code)
+    
+    # Transform underscores to dashes in identifiers
+    code = code.replace('_', '-')
+    
+    # TODO: Full implementation in core/ui/ucode_editor.py
+    return code
 
 def ucode_to_python(ucode_text: str) -> str:
     """Convert uCODE visual syntax to valid Python
@@ -234,13 +308,34 @@ __description__ = "uDOS Core Python API - Pure Python scripting interface"
 
 # Export all public functions
 __all__ = [
-    # System variables
+    # User variables (persistent)
+    '_user_vars',
+    # System variables (read-only)
     'SPRITE_HP', 'MISSION_STATUS', 'LOCATION', 'WORKFLOW_NAME', 'WORKFLOW_PHASE',
     # Core commands
     'PRINT', 'GUIDE', 'CHECKPOINT_SAVE', 'HEAL_SPRITE', 'MISSION_CREATE', 'SPRITE_SET',
     # Helper functions
     'python_to_ucode', 'ucode_to_python',
 ]
+
+# Convenience functions for user variables
+def get_var(name: str, default=None):
+    """Get user variable (persistent across scripts)"""
+    return _user_vars.get(name, default)
+
+def set_var(name: str, value: Any):
+    """Set user variable (saved to memory/bank/user/variables.json)"""
+    _user_vars.set(name, value)
+
+def delete_var(name: str):
+    """Delete user variable"""
+    _user_vars.delete(name)
+
+def list_vars() -> dict:
+    """List all user variables"""
+    return _user_vars.list_all()
+
+__all__ += ['get_var', 'set_var', 'delete_var', 'list_vars']
 
 if __name__ == '__main__':
     print(f"uDOS Core Python API v{__version__}")
