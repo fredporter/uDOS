@@ -460,13 +460,15 @@ CLOUD RESOLVE LOCATION "Opera House, Sydney NSW" --layer 300 --upy
 
 **Status:** **WEEK 2 COMPLETE** - Smart editor finished (December 13, 2025)
 
-**Critical Design Decision:**
-Replace custom uPY parser with **Python-first approach**:
-- ❌ Remove: 1,850+ lines of parser (upy_runtime.py, validator.py)
-- ✅ Add: 600 lines of Python API + smart editor ✅ **COMPLETE**
-- ✅ Result: Valid Python code, 100x faster (925,078 ops/sec), full IDE support
+**Critical Architecture Decision:**
+Keep .upy as STANDARD format, use smart editor for fast execution:
+- ✅ .upy files remain standard (saved on disk, user-friendly syntax)
+- ✅ Smart editor parses .upy → Python (fast execution at runtime)
+- ✅ Smart editor renders Python → .upy (for display/saving)
+- ❌ Remove: 1,850+ lines of custom parser overhead
+- ✅ Result: 925,078 ops/sec (100x faster), lossless round-trip
 
-**uCODE Syntax (Python-Compatible):**
+**uCODE .upy Syntax (Smart Editor Parses to Python):**
 ```python
 # Import uDOS Python library
 from udos_core import *
@@ -475,26 +477,35 @@ from udos_core import *
 $SPRITE-HP = 100              # System variable (UPPERCASE)
 $player-name = "Hero"         # User variable (lowercase)
 
-# Commands (square brackets, pipe separator)
-PRINT["Hello World"]          # Built-in command
+# Commands (square brackets, PIPE separator)
+PRINT["Hello"|"World"]        # Multiple arguments with |
+set-var["water-supply"|20]    # Built-in command
 GUIDE["water/purification"]   # Knowledge bank access
 
-# Functions (@ prefix for calls, FUNCTION keyword)
-FUNCTION @calculate-water[$days]
-  RETURN $days * 3
-END
+# Tags (asterisk separator, UPPERCASE tag)
+CLONE*DEV                     # Development clone
+BUILD*FULL                    # Full build
 
-$total = @calculate-water[7]  # Call user function
-@HEAL-SPRITE[20]              # Call system function
+# Functions (dash-separated names)
+heal-sprite[20]               # Function call
+@calculate-water[7]           # User function call
 ```
 
 **Syntax Rules:**
-1. **Variables**: `$VARIABLE` (no `{}`)
-2. **Commands**: `COMMAND[args]` (square brackets, no parentheses for commands)
-3. **Functions**: `@function-name[args]` (@ prefix, square brackets)
-4. **Import**: `LOAD[udos-core]` instead of `from udos_core import *`
-5. **Python ↔ uCODE**: `_` becomes `-` (e.g., `SPRITE_HP` → `SPRITE-HP`)
-6. **Case**: UPPERCASE = system, lowercase = user
+1. **Variables**: `$variable-name` (dashes, not underscores)
+2. **Commands**: `COMMAND[arg1|arg2|arg3]` (pipes | separate arguments)
+3. **Functions**: `function-name[args]` or `@function-name[args]`
+4. **Tags**: `COMMAND*TAG` (asterisk separator, TAG UPPERCASE)
+5. **Python ↔ .upy**: Smart editor handles conversion automatically
+6. **Case**: UPPERCASE = commands/tags, lowercase = variables/functions
+
+**Architecture Flow:**
+```
+.upy file (disk) → Smart Editor → Python (execution) → Smart Editor → .upy (save)
+     ↓                  ↓              ↓                    ↓            ↓
+User-friendly      Parse phase    Fast runtime       Render phase   Storage
+ readable          (commas→pipes) (925K ops/sec)    (pipes→commas)  format
+```
 
 **Completed Tasks:**
 
@@ -506,23 +517,25 @@ $total = @calculate-water[7]  # Call user function
    - Helper functions: get_var, set_var, delete_var, list_vars, python_to_ucode
    - Performance: **925,078 ops/sec** (100x faster than old parser)
 
-2. ✅ **Smart Text Editor** (320 lines) - Week 2 ✅ **COMPLETE**
-   - `core/ui/ucode_editor.py` - Python ↔ uCODE ↔ Typo visual rendering
-   - Three modes: pythonic, symbolic, typo (optional Typo extension)
-   - Bidirectional lossless transformations (round-trip validated)
-   - Syntax highlighting with ANSI colors (commands cyan, functions green)
+2. ✅ **Smart Text Editor** (411 lines) - Week 2 ✅ **COMPLETE**
+   - `core/ui/ucode_editor.py` - .upy ↔ Python ↔ Typo parsing/rendering
+   - Parse .upy → Python for fast execution (925,078 ops/sec)
+   - Render Python → .upy for display/saving
+   - Three modes: pythonic (Python), symbolic (.upy), typo (beautiful typography)
+   - Bidirectional lossless transformations (round-trip validated ✅)
+   - Pipe separator: Commas → Pipes in .upy format (arg1|arg2|arg3)
    - Tag rendering: CLONE--dev → CLONE*DEV (visual display)
+   - Syntax highlighting with ANSI colors (commands cyan, functions green)
    - Optional Typo extension integration (graceful fallback to symbolic)
 
 **Remaining Tasks:**
 
 3. 🔲 **Migration Tool** (200 lines) - Week 3
-
-3. 🔲 **Migration Tool** (200 lines) - Week 3
-   - `dev/tools/migrate_upy_to_python.py`
-   - Convert existing .upy files to .py
-   - Preserve functionality, update syntax
-   - Batch migration for memory/ucode/
+   - `dev/tools/upgrade_upy_syntax.py`
+   - Scan existing .upy files for old syntax
+   - Update to new pipe separator syntax (commas → pipes)
+   - Validate tag rendering (-- → *)
+   - Batch upgrade for memory/ucode/
 
 4. 🔲 **Documentation Update** (400 lines) - Week 4
    - `wiki/uCODE-Python-Guide.md` - Complete Python-first guide
