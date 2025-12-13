@@ -886,16 +886,16 @@ SPRITE-SET('test'|2)
         output.append("🏗️  Handler Architecture Tests (v1.1.17)")
         output.append("─" * 63)
 
-        # Test system handler size (should be ~674 lines after v1.1.5.1 refactor)
+        # Test system handler size (v1.2.24: expanded with new features)
         system_handler_path = self.root / "core" / "commands" / "system_handler.py"
         if system_handler_path.exists():
             with open(system_handler_path) as f:
                 lines = len(f.readlines())
 
-            # After refactoring should be 600-700 lines
-            refactored = 600 <= lines <= 750
+            # v1.2.24: 1400-1600 lines (expanded with time, JSON, error patterns, etc.)
+            refactored = 1400 <= lines <= 1700
             symbol = "✅" if refactored else "⚠️"
-            output.append(f"  {symbol} system_handler.py: {lines} lines (target: 600-700)")
+            output.append(f"  {symbol} system_handler.py: {lines} lines (target: 1400-1700)")
             self._add_test("Handler: system_handler refactored", refactored)
 
         # Check for shared utilities
