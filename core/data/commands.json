@@ -311,6 +311,90 @@
       ]
     },
     {
+      "NAME": "MODE",
+      "SYNTAX": "MODE [COMMAND|DEV|ASSIST|GHOST|TOMB|CRYPT|STATUS]",
+      "DESCRIPTION": "Switch between prompt modes. Each mode changes the prompt indicator and provides different capabilities.",
+      "UCODE_TEMPLATE": "[MODE|$1]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "MODE",
+        "MODE STATUS",
+        "MODE COMMAND",
+        "MODE DEV",
+        "MODE ASSIST",
+        "MODE GHOST",
+        "MODE TOMB",
+        "MODE CRYPT"
+      ],
+      "FLAGS": {
+        "STATUS": "Show all available modes"
+      },
+      "NOTES": [
+        "✅ v1.2.24+ - Prompt mode system",
+        "🌀 COMMAND - Standard operations (default)",
+        "⚙️ DEV - Developer/admin access",
+        "❤️ ASSIST - AI-powered assistance",
+        "👻 GHOST - Demo/sandbox/offline-testing",
+        "🔒 TOMB - Archival local/private only",
+        "🛜 CRYPT - Archival with networking",
+        "Priority: DEV > GHOST > TOMB > CRYPT > ASSIST > COMMAND"
+      ]
+    },
+    {
+      "NAME": "GHOST",
+      "SYNTAX": "GHOST",
+      "DESCRIPTION": "Toggle GHOST mode for isolated sandbox testing. No persistent changes, network disabled.",
+      "UCODE_TEMPLATE": "[GHOST]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "GHOST"
+      ],
+      "NOTES": [
+        "✅ v1.2.24+ - Sandbox testing mode",
+        "👻 Isolated testing environment",
+        "🚫 No persistent file changes",
+        "📵 Network disabled",
+        "🧪 Safe experimentation",
+        "Run GHOST again to exit"
+      ]
+    },
+    {
+      "NAME": "TOMB",
+      "SYNTAX": "TOMB",
+      "DESCRIPTION": "Toggle TOMB mode for read-only archival access. Local storage only, no networking.",
+      "UCODE_TEMPLATE": "[TOMB]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "TOMB"
+      ],
+      "NOTES": [
+        "✅ v1.2.24+ - Archival mode (local/private)",
+        "🔒 Read-only archival access",
+        "💾 Local storage only",
+        "📵 No network access",
+        "🚫 No sharing capabilities",
+        "Run TOMB again to exit"
+      ]
+    },
+    {
+      "NAME": "CRYPT",
+      "SYNTAX": "CRYPT",
+      "DESCRIPTION": "Toggle CRYPT mode for archival with networking. Location/beacon/key sharing enabled.",
+      "UCODE_TEMPLATE": "[CRYPT]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "CRYPT"
+      ],
+      "NOTES": [
+        "✅ v1.2.24+ - Archival mode (with networking)",
+        "🛜 Read-write archival access",
+        "🌐 Network enabled for sync",
+        "📍 Location/beacon/key sharing",
+        "🤝 Collaborative archival work",
+        "Run CRYPT again to exit"
+      ]
+    },
+    {
       "NAME": "SHOW",
       "SYNTAX": "SHOW [file_path] [--json|--convert|--view|--edit]",
       "DESCRIPTION": "Universal file viewer with smart type detection. .json → JSON viewer, .py → conversion offer to .upy, .md → Typo preview, .upy/.txt → terminal. Opens file picker if no path provided.",
