@@ -1622,57 +1622,57 @@ SPRITE-SET('test'|2)
             output.append(f"  ❌ Regular mode test failed: {e}")
             self._add_test("Prompt Modes: regular prompt", False, str(e))
 
-        # Test 3: DEV mode prompt (v1.2.22+ emoji-based)
+        # Test 3: DEV mode prompt (v1.2.24+ emoji-based)
         try:
             decorator = PromptDecorator(theme='dungeon', use_colors=True)
             dev_prompt = decorator.get_prompt(is_assist_mode=False, dev_mode=True)
 
-            # Check for DEV indicator - v1.2.22+ uses '🔧' emoji
-            has_dev_symbol = '🔧' in dev_prompt
+            # Check for DEV indicator - v1.2.24+ uses '⚙️' emoji
+            has_dev_symbol = '⚙️' in dev_prompt
 
             if has_dev_symbol:
-                output.append("  ✅ DEV mode prompt ('🔧' emoji)")
+                output.append("  ✅ DEV mode prompt ('⚙️' emoji)")
                 if verbose:
                     output.append(f"      Prompt: {repr(dev_prompt)}")
                 self._add_test("Prompt Modes: DEV prompt", True)
             else:
-                output.append(f"  ❌ DEV prompt missing '🔧' symbol: {repr(dev_prompt)}")
+                output.append(f"  ❌ DEV prompt missing '⚙️' symbol: {repr(dev_prompt)}")
                 self._add_test("Prompt Modes: DEV prompt", False, "Missing symbol")
 
         except Exception as e:
             output.append(f"  ❌ DEV mode test failed: {e}")
             self._add_test("Prompt Modes: DEV prompt", False, str(e))
 
-        # Test 4: ASSIST mode prompt (v1.2.22+ emoji-based)
+        # Test 4: ASSIST mode prompt (v1.2.24+ emoji-based)
         try:
             decorator = PromptDecorator(theme='dungeon', use_colors=True)
             assist_prompt = decorator.get_prompt(is_assist_mode=True, dev_mode=False)
 
-            # Check for ASSIST indicator - v1.2.22+ uses '🤖' emoji
-            has_assist_symbol = '🤖' in assist_prompt
+            # Check for ASSIST indicator - v1.2.24+ uses '❤️' emoji
+            has_assist_symbol = '❤️' in assist_prompt
 
             if has_assist_symbol:
-                output.append("  ✅ ASSIST mode prompt ('🤖' emoji)")
+                output.append("  ✅ ASSIST mode prompt ('❤️' emoji)")
                 if verbose:
                     output.append(f"      Prompt: {repr(assist_prompt)}")
                 self._add_test("Prompt Modes: ASSIST prompt", True)
             else:
-                output.append(f"  ❌ ASSIST prompt missing '🤖' symbol: {repr(assist_prompt)}")
+                output.append(f"  ❌ ASSIST prompt missing '❤️' symbol: {repr(assist_prompt)}")
                 self._add_test("Prompt Modes: ASSIST prompt", False, "Missing symbol")
 
         except Exception as e:
             output.append(f"  ❌ ASSIST mode test failed: {e}")
             self._add_test("Prompt Modes: ASSIST prompt", False, str(e))
 
-        # Test 5: Mode priority (dev > assist > regular) - v1.2.22+ emoji
+        # Test 5: Mode priority (dev > ghost > tomb > crypt > assist > regular) - v1.2.24+ emoji
         try:
             decorator = PromptDecorator(theme='dungeon', use_colors=True)
 
             # DEV mode should override ASSIST mode
             dev_override = decorator.get_prompt(is_assist_mode=True, dev_mode=True)
-            # v1.2.22+ - check for emoji-based '🔧' not text
-            has_dev = '🔧' in dev_override
-            has_no_assist = '🤖' not in dev_override
+            # v1.2.24+ - check for emoji-based '⚙️' not text
+            has_dev = '⚙️' in dev_override
+            has_no_assist = '❤️' not in dev_override
 
             if has_dev and has_no_assist:
                 output.append("  ✅ Mode priority correct (DEV > ASSIST)")

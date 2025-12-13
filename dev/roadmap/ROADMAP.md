@@ -462,6 +462,28 @@ CLOUD RESOLVE LOCATION "Opera House, Sydney NSW" --layer 300 --upy
 
 **Achievement:** 100x performance boost (925,078 ops/sec), complete 3-tier documentation (4,000+ lines), 4 core commands registered, full integration validation complete.
 
+### 🎭 Prompt Mode System Update (v1.2.24+)
+
+**New Emoji Set** (December 13, 2025):
+- 🌀 **COMMAND MODE** (was 🌀) - Standard operations (unchanged)
+- ⚙️ **DEV MODE** (was 🔧) - Developer/admin access
+- ❤️ **ASSIST MODE** (was 🤖) - AI-powered assistance
+- 👻 **GHOST MODE** (NEW) - Demo/sandbox/offline-testing only
+- 🔒 **TOMB MODE** (NEW) - Archival local/private only
+- 🛜 **CRYPT MODE** (NEW) - Archival with live/networking/sharing
+
+**Priority Order:** DEV > GHOST > TOMB > CRYPT > ASSIST > COMMAND
+
+**Implementation:**
+- `core/input/prompt_decorator.py` - All modes defined with comprehensive docs
+- `core/commands/shakedown_handler.py` - Tests updated for new emoji
+- All 3 themes (dungeon/science/cyberpunk) support all 6 modes
+
+**Use Cases:**
+- **GHOST** 👻: Safe experimentation, no persistent changes, network disabled
+- **TOMB** 🔒: Read-only archival access, local storage only, no sharing
+- **CRYPT** 🛜: Read-write archival with sync, location/beacon/key sharing enabled
+
 **Critical Architecture Decision:**
 Keep .upy as STANDARD format, use smart editor for fast execution:
 - ✅ .upy files remain standard (saved on disk, user-friendly syntax)
