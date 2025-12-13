@@ -1228,6 +1228,66 @@
       ]
     },
     {
+      "NAME": "SELECTOR",
+      "SYNTAX": "SELECTOR [DEMO|TEST|STATUS]",
+      "DESCRIPTION": "Unified selector framework for TUI components. Standardizes selection behavior across menus, lists, file browsers, and all interactive panels.",
+      "UCODE_TEMPLATE": "[SELECTOR|$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "DEMO",
+        "$2": ""
+      },
+      "EXAMPLES": [
+        "SELECTOR DEMO",
+        "SELECTOR TEST single",
+        "SELECTOR TEST multi",
+        "SELECTOR STATUS"
+      ],
+      "SUBCOMMANDS": {
+        "SELECTOR DEMO": "Interactive demonstration of all selector types",
+        "SELECTOR TEST <mode>": "Test specific selection mode (single/multi/toggle/none)",
+        "SELECTOR STATUS": "Show selector statistics and configuration"
+      },
+      "MODES": {
+        "SINGLE": "One item at a time (default)",
+        "MULTI": "Multiple items with checkboxes",
+        "TOGGLE": "Toggle states on/off",
+        "NONE": "Display only (no selection)"
+      },
+      "NAVIGATION": {
+        "8": "Move up (↑)",
+        "2": "Move down (↓)",
+        "5": "Select/Confirm (⏎)",
+        "1-9": "Select by number",
+        "4": "Previous page (←)",
+        "6": "Next page (→)",
+        "0": "Cancel/Back"
+      },
+      "FEATURES": {
+        "consistent_api": "Unified API across all TUI components",
+        "keypad_navigation": "Full keypad support (8↑ 2↓ 4← 6→ 5=select)",
+        "mouse_support": "Click to select items",
+        "visual_feedback": "Highlighting, icons, selection indicators",
+        "pagination": "Automatic pagination for long lists",
+        "multi_select": "Checkboxes for multiple selection",
+        "search_filter": "Real-time text filtering",
+        "number_select": "Quick selection with 1-9 keys"
+      },
+      "COMPONENTS": [
+        "File browsers (memory/ucode, knowledge/)",
+        "Configuration panels (CONFIG, OK, TUI)",
+        "Command history and logs",
+        "Menu systems (all panels)",
+        "List displays (any component)"
+      ],
+      "NOTES": [
+        "v1.2.25: Selector standardization (Week 4)",
+        "Replaces component-specific selection logic",
+        "Compatible with KEYPAD and MOUSE systems",
+        "Used by all TUI panels and browsers",
+        "Provides consistent UX across uDOS"
+      ]
+    },
+    {
       "NAME": "PEEK",
       "SYNTAX": "PEEK <url|FILE path> [--format json|text] [--save filename] [--extract]",
       "DESCRIPTION": "Fetch and parse data from URLs or local documents. Supports Markdown (.md), JSON (.json), SVG (.svg), and HTML. Auto-saves to memory/sandbox.",

@@ -195,6 +195,10 @@ class CommandHandler:
         from core.commands.mouse_handler import MouseCommandHandler
         self.mouse_handler = MouseCommandHandler(**handler_kwargs)
 
+        # v1.2.25 - Selector Framework
+        from core.commands.selector_handler import SelectorCommandHandler
+        self.selector_handler = SelectorCommandHandler(**handler_kwargs)
+
         from core.commands.gmail_handler import handle_gmail_command
         self.gmail_handler = handle_gmail_command
 
@@ -563,6 +567,10 @@ class CommandHandler:
             # v1.2.25 - Mouse Input (Universal Input System)
             elif module == "MOUSE":
                 return self.mouse_handler.handle_command([command] + params if command else params)
+
+            # v1.2.25 - Selector Framework (Universal Input System)
+            elif module == "SELECTOR":
+                return self.selector_handler.handle_command([command] + params if command else params)
 
             # v1.5.0 - PEEK Data Collection System
             elif module == "PEEK":
