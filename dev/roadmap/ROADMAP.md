@@ -492,12 +492,68 @@ heal-sprite[20]               # Function call
 ```
 
 **Syntax Rules:**
-1. **Variables**: `$variable-name` (dashes, not underscores)
-2. **Commands**: `COMMAND[arg1|arg2|arg3]` (pipes | separate arguments)
-3. **Functions**: `function-name[args]` or `@function-name[args]`
-4. **Tags**: `COMMAND*TAG` (asterisk separator, TAG UPPERCASE)
-5. **Python ↔ .upy**: Smart editor handles conversion automatically
-6. **Case**: UPPERCASE = commands/tags, lowercase = variables/functions
+1. **Variables**: `$variable-name` (alphanumeric + dashes/underscores ONLY)
+2. **Commands**: `COMMAND[arg1|arg2|arg3]` (square brackets, pipes | separate arguments)
+3. **Functions**: `function-name[args]` or `@function-name[args]` (alphanumeric + dashes/underscores ONLY)
+4. **Tags**: `COMMAND*TAG` (asterisk separator, TAG UPPERCASE, replaces old `--` syntax)
+5. **Filenames**: Alphanumeric + dashes/underscores ONLY (NO special characters)
+6. **Quotes**: Hidden by default in display (preference to hide `'` or `"`)
+7. **Emoji Escapes**: ONLY inside `COMMAND[...]` for output text/strings
+8. **Python ↔ .upy**: Smart editor handles conversion automatically
+9. **Case**: UPPERCASE = commands/tags, lowercase = variables/functions
+
+**Forbidden Characters (NOT allowed in variables/filenames/function names):**
+```
+`~@#$%^&*[]{}'"<>\|
+```
+Use ONLY: `a-z A-Z 0-9 _ -` (alphanumeric, underscore, dash)
+
+**Emoji Escape System (ONLY in COMMAND[...] arguments for output text):**
+```
+:sb: → [         :eb: → ]         :pipe: → |        :star: → *
+:dollar: → $     :sq: → '         :dq: → "          :backtick: → `
+:tilde: → ~      :at: → @         :hash: → #        :percent: → %
+:caret: → ^      :amp: → &        :lcb: → {         :rcb: → }
+:lt: → <         :gt: → >         :bs: → \
+```
+
+**Example with Emoji Escapes (command arguments only):**
+```upy
+# Show brackets in output text
+PRINT[This is the end|:sb:Score: $variable:eb:]
+# Renders:
+#   Line 1: This is the end
+#   Line 2: [Score: $variable]
+
+# Show pipe character in output
+PRINT[Use :pipe: for vertical bar|And :star: for asterisk]
+# Renders:
+#   Line 1: Use | for vertical bar
+#   Line 2: And * for asterisk
+
+# Show quotes in output
+GUIDE[water/boiling|:sq:Quick:sq: method saves time]
+# Renders:
+#   Line 1: water/boiling
+#   Line 2: 'Quick' method saves time
+
+# Complex example with multiple escapes
+PRINT[Command format: COMMAND:sb:arg1:pipe:arg2:eb:]
+# Renders: Command format: COMMAND[arg1|arg2]
+```
+
+**Legacy Syntax (REMOVED in v1.2.24):**
+- ❌ Old shortcode: `{$COMMAND[args]}` (curly braces removed)
+- ❌ Old tags: `COMMAND--tag` (replaced with `COMMAND*TAG`)
+- ❌ Old separator: `COMMAND[arg1, arg2]` (commas replaced with pipes `|`)
+
+**New Py-Compliant Syntax:**
+```upy
+COMMAND*tag[$variable|Text example|101|OPTION]
+        ↑   ↑        ↑            ↑   ↑
+     asterisk $var  pipe sep    number  flag
+     (not --)       (not ,)
+```
 
 **Architecture Flow:**
 ```

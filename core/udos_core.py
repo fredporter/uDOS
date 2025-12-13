@@ -151,9 +151,33 @@ WORKFLOW_PHASE = _sys_vars.WORKFLOW_PHASE
 # CORE COMMANDS (Python Functions)
 # =============================================================================
 
-def PRINT(message: str) -> None:
-    """Print message to console (uDOS output formatting)"""
-    print(message)
+def PRINT(*messages: str) -> None:
+    """Print messages to console with emoji rendering
+    
+    Args:
+        *messages: One or more messages (pipe | in .upy format separates lines)
+    
+    Emoji Rendering (ONLY in COMMAND arguments):
+        :sb: → [    :eb: → ]    :pipe: → |    :star: → *
+        :sq: → '    :dq: → "    :dollar: → $   etc.
+    
+    Examples:
+        PRINT("Hello", "World")  # Python: 2 args
+        PRINT["Hello"|"World"]   # .upy: 2 lines
+        PRINT["Use :pipe: char"] # .upy: renders "Use | char"
+    """
+    # Import emoji renderer
+    try:
+        from core.ui.ucode_editor import render_command_emoji
+        
+        # Render each message with emoji conversion
+        for message in messages:
+            rendered = render_command_emoji(str(message))
+            print(rendered)
+    except ImportError:
+        # Fallback if smart editor not available
+        for message in messages:
+            print(message)
 
 def GUIDE(path: str, complexity: str = "detailed") -> Dict[str, Any]:
     """Load knowledge guide from knowledge bank

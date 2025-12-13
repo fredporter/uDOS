@@ -20,10 +20,27 @@ Three Display Modes:
 3. typo      - Beautiful typography via Typo extension (optional display)
 
 uCODE Syntax Rules:
-- Commands: COMMAND[arg1|arg2|arg3]  (pipes, not commas)
-- Variables: $variable-name (dashes, not underscores)
-- Functions: @function-name[arg1|arg2] (@ prefix)
+- Commands: COMMAND[arg1|arg2|arg3]  (square brackets, pipes separate args)
+- Variables: $variable-name (alphanumeric, dashes, underscores ONLY)
+- Functions: @function-name[args] (alphanumeric, dashes, underscores ONLY)
 - Tags: COMMAND*TAG (asterisk separator, TAG UPPERCASE)
+- Filenames: Alphanumeric, dashes, underscores ONLY
+- Emoji Escapes: ONLY inside COMMAND[...] for output text/strings
+
+Forbidden Characters (NOT allowed in variables/filenames):
+  `~@#$%^&*[]{}'"<>\|
+  
+Emoji Escape System (ONLY in COMMAND[...] arguments for output text):
+  :sb: → [    :eb: → ]    :pipe: → |    :star: → *    :dollar: → $
+  :sq: → '    :dq: → "    :backtick: → `    :tilde: → ~    :at: → @
+  :hash: → #    :percent: → %    :caret: → ^    :amp: → &
+  :lcb: → {    :rcb: → }    :lt: → <    :gt: → >    :bs: → \
+
+Example (emoji codes for special chars in output):
+  PRINT[This is the end|:sb:Score: $variable:eb:]
+  Renders two lines:
+    Line 1: This is the end
+    Line 2: [Score: $variable]
 
 Transformations:
 - .upy → Python: Parse for execution (lossless)
@@ -61,6 +78,50 @@ except ImportError:
     TYPO_AVAILABLE = False
 
 DisplayMode = Literal['pythonic', 'symbolic', 'typo']
+
+# =============================================================================
+# Emoji Escape System - For COMMAND[...] Arguments Only
+# =============================================================================
+
+# Emoji codes for special characters in command arguments (output text/strings)
+COMMAND_EMOJI_MAP = {
+    '[': ':sb:',       # start bracket
+    ']': ':eb:',       # end bracket
+    '|': ':pipe:',     # pipe separator
+    '*': ':star:',     # asterisk
+    '$': ':dollar:',   # dollar sign
+    "'": ':sq:',       # single quote
+    '"': ':dq:',       # double quote
+    '`': ':backtick:', # backtick
+    '~': ':tilde:',    # tilde
+    '@': ':at:',       # at sign
+    '#': ':hash:',     # hash
+    '%': ':percent:',  # percent
+    '^': ':caret:',    # caret
+    '&': ':amp:',      # ampersand
+    '{': ':lcb:',      # left curly brace
+    '}': ':rcb:',      # right curly brace
+    '<': ':lt:',       # less than
+    '>': ':gt:',       # greater than
+    '\\': ':bs:',      # backslash
+}
+
+# Reverse mapping for rendering (emoji → character)
+EMOJI_UNESCAPE_MAP = {v: k for k, v in COMMAND_EMOJI_MAP.items()}
+
+def render_command_emoji(text: str) -> str:
+    """Convert emoji codes to actual characters (for PRINT/output commands)
+    
+    Args:
+        text: Text with emoji codes (e.g., "Score: :sb:100:eb:")
+    
+    Returns:
+        Text with actual characters (e.g., "Score: [100]")
+    """
+    result = text
+    for emoji, char in EMOJI_UNESCAPE_MAP.items():
+        result = result.replace(emoji, char)
+    return result
 
 class UCODEEditor:
     """Smart text editor for Python ↔ uCODE ↔ Typo transformations"""
