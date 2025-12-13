@@ -1945,6 +1945,105 @@
       ]
     },
     {
+      "NAME": "CHECKPOINT",
+      "SYNTAX": "CHECKPOINT*SAVE <name> | CHECKPOINT*LOAD <name> | CHECKPOINT*LIST",
+      "DESCRIPTION": "Save/restore mission state snapshots (like git commits for progress).",
+      "UCODE_TEMPLATE": "[WORKFLOW|$1*$2]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "SAVE": "Save current mission state",
+        "LOAD": "Restore checkpoint state",
+        "LIST": "List saved checkpoints",
+        "DELETE": "Delete checkpoint"
+      },
+      "EXAMPLES": [
+        "CHECKPOINT*SAVE instructions-reviewed",
+        "CHECKPOINT*SAVE materials-gathered",
+        "CHECKPOINT*LOAD frame-built",
+        "CHECKPOINT*LIST"
+      ],
+      "NOTES": [
+        "✅ Core Command v1.2.24 - Mission milestone tracking",
+        "Maps to WORKFLOW SAVE_CHECKPOINT/LOAD_CHECKPOINT",
+        "Auto-timestamped JSON files in memory/workflows/checkpoints/",
+        "Simplified syntax for .upy scripts"
+      ]
+    },
+    {
+      "NAME": "XP",
+      "SYNTAX": "XP <amount> | XP*GET | XP*LEVEL",
+      "DESCRIPTION": "Experience points tracking (value/progress currency in barter system).",
+      "UCODE_TEMPLATE": "[BARTER|XP*$1]",
+      "DEFAULT_PARAMS": {},
+      "EXAMPLES": [
+        "XP +25",
+        "XP +50",
+        "XP +100",
+        "XP*GET",
+        "XP*LEVEL"
+      ],
+      "NOTES": [
+        "✅ Core Command v1.2.24 - Progress tracking",
+        "Integrates with BARTER economy system",
+        "Stored in memory/bank/user/profile.json",
+        "Used for unlocking features, tracking achievements"
+      ]
+    },
+    {
+      "NAME": "ITEM",
+      "SYNTAX": "ITEM <name> | ITEM*ADD <name> <count> | ITEM*REMOVE <name> | ITEM*LIST",
+      "DESCRIPTION": "Basic inventory management (add/remove items from user inventory).",
+      "UCODE_TEMPLATE": "[SPRITE|INVENTORY*$1*$2]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "ADD": "Add item to inventory",
+        "REMOVE": "Remove item from inventory",
+        "LIST": "List inventory items",
+        "COUNT": "Get item count"
+      },
+      "EXAMPLES": [
+        "ITEM rope",
+        "ITEM tarp",
+        "ITEM*ADD water-bottle 3",
+        "ITEM*REMOVE axe",
+        "ITEM*LIST"
+      ],
+      "NOTES": [
+        "✅ Core Command v1.2.24 - Simple resource tracking",
+        "Maps to SPRITE INVENTORY system",
+        "Stored in active sprite/character data",
+        "Simplified syntax for beginners"
+      ]
+    },
+    {
+      "NAME": "BARTER",
+      "SYNTAX": "BARTER <subcommand> [options]",
+      "DESCRIPTION": "Value exchange system (offer/request/trade items, skills, XP).",
+      "UCODE_TEMPLATE": "[BARTER|$1*$2*$3]",
+      "DEFAULT_PARAMS": {},
+      "SUBCOMMANDS": {
+        "OFFER": "Create barter offer",
+        "REQUEST": "Create barter request",
+        "TRADE": "Execute trade",
+        "LIST": "List active barters",
+        "CANCEL": "Cancel offer/request",
+        "ACCEPT": "Accept trade",
+        "HISTORY": "View trade history"
+      },
+      "EXAMPLES": [
+        "BARTER OFFER rope FOR water-bottle",
+        "BARTER REQUEST tarp FOR 50-xp",
+        "BARTER LIST",
+        "BARTER ACCEPT trade-001"
+      ],
+      "NOTES": [
+        "✅ Core Command v1.2.24 - Economic system",
+        "BarterService in core/services/barter_service.py",
+        "Supports item, skill, XP exchanges",
+        "Transaction log in memory/bank/barter/"
+      ]
+    },
+    {
       "NAME": "WORKFLOW",
       "SYNTAX": "WORKFLOW <command> [params]",
       "DESCRIPTION": "Workflow automation commands (LOG, LOAD_JSON, SAVE_JSON, etc.).",

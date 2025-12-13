@@ -53,6 +53,7 @@ def run_script(script_path, parser, grid, command_handler, logger, command_histo
     """
     Executes a uDOS script file (.upy format only).
 
+    v1.2.24: Uses UPYRuntime parser for bracket syntax COMMAND[ args | ... ]
     v1.1.12: Uses UPYParser for new COMMAND(args) syntax.
     v2.0.2: Updated for v2.0.2 syntax support.
     Backward compatibility for .uscript removed in v1.1.12.
@@ -70,7 +71,7 @@ def run_script(script_path, parser, grid, command_handler, logger, command_histo
             print(error_msg)
             return
 
-        # Use v2.0.2 runtime for (COMMAND|args) syntax
+        # Use v1.2.24 runtime for COMMAND[ args ] bracket syntax
         from core.runtime.upy_runtime import UPYRuntime
 
         runtime = UPYRuntime(command_handler=command_handler, grid=grid, parser=parser)

@@ -398,6 +398,62 @@ class UPYRuntime:
             var_name = var_name.strip('{}$')
             return self.get_variable(var_name)
 
+        elif command == 'XP':
+            # Experience points tracking
+            if params:
+                amount_str = params[0].strip()
+                if amount_str.startswith('+') or amount_str.startswith('-'):
+                    # Add/subtract XP
+                    amount = int(amount_str)
+                    current_xp = self.get_variable('xp') or 0
+                    new_xp = current_xp + amount
+                    self.set_variable('xp', new_xp)
+                    msg = f"✨ XP {amount:+d} (Total: {new_xp})"
+                    print(msg)
+                    self.output.append(msg)
+                    return new_xp
+            # Get current XP
+            return self.get_variable('xp') or 0
+
+        elif command == 'ITEM':
+            # Basic inventory management
+            if not params:
+                return self.get_variable('inventory') or []
+            
+            item_name = params[0]
+            inventory = self.get_variable('inventory') or []
+            
+            # Add item to inventory
+            if isinstance(inventory, list):
+                inventory.append(item_name)
+            else:
+                inventory = [item_name]
+            
+            self.set_variable('inventory', inventory)
+            msg = f"📦 Item added: {item_name}"
+            print(msg)
+            self.output.append(msg)
+            return inventory
+
+        elif command == 'CHECKPOINT' or command.startswith('CHECKPOINT*'):
+            # Checkpoint/milestone tracking (simplified for runtime)
+            if len(params) > 0:
+                checkpoint_name = params[0]
+                # Store checkpoint as variable
+                checkpoint_data = {
+                    'name': checkpoint_name,
+                    'variables': dict(self.variables),
+                    'timestamp': 'now'
+                }
+                checkpoints = self.get_variable('checkpoints') or []
+                checkpoints.append(checkpoint_data)
+                self.set_variable('checkpoints', checkpoints)
+                msg = f"💾 Checkpoint saved: {checkpoint_name}"
+                print(msg)
+                self.output.append(msg)
+                return checkpoint_data
+            return None
+
         elif command == 'LIST':
             # LIST operations: CREATE, APPEND, REMOVE, INSERT, GET, SET, SIZE, SLICE, etc.
             if not params:
@@ -739,7 +795,12 @@ class UPYRuntime:
             try:
                 # CommandHandler expects uCODE format, so use parser to convert
                 # Format: "COMMAND option1 option2" -> "[MODULE|COMMAND*option1*option2]"
-                cmd_str = f"{command} {' '.join(params)}" if params else command
+                
+                # Convert COMMAND*TAG back to COMMAND TAG for parser
+                # e.g., "MISSION*START" -> "MISSION START"
+                # e.g., "CHECKPOINT*SAVE" -> "CHECKPOINT SAVE"
+                command_for_parser = command.replace('*', ' ')
+                cmd_str = f"{command_for_parser} {' '.join(params)}" if params else command_for_parser
                 
                 if self.parser:
                     # Use parser to convert to proper uCODE format

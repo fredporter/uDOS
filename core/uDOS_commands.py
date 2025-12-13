@@ -388,6 +388,33 @@ class CommandHandler:
                 success = self.object_handler.handle([command] + params)
                 return "✅ Command executed" if success else "❌ Command failed"
 
+            # v1.2.24 - Core Gameplay Commands
+            elif module == "CHECKPOINT":
+                # Map to WORKFLOW SAVE_CHECKPOINT/LOAD_CHECKPOINT
+                from core.config import Config
+                config = Config()
+                # Convert CHECKPOINT*SAVE → SAVE_CHECKPOINT, CHECKPOINT*LOAD → LOAD_CHECKPOINT
+                if command == "SAVE":
+                    workflow_command = "SAVE_CHECKPOINT"
+                elif command == "LOAD":
+                    workflow_command = "LOAD_CHECKPOINT"
+                elif command == "LIST":
+                    workflow_command = "LIST_CHECKPOINTS"
+                else:
+                    workflow_command = command
+                return handle_workflow_command(workflow_command, params, config)
+
+            elif module == "XP":
+                # Map to BARTER XP system
+                return self.barter_handler.handle("XP", [command] + params)
+
+            elif module == "ITEM":
+                # Map to SPRITE INVENTORY system
+                inventory_command = "ADD" if not command or command.startswith('+') else "REMOVE" if command.startswith('-') else command
+                sprite_params = ["INVENTORY", inventory_command] + params
+                success = self.sprite_handler.handle(sprite_params)
+                return "✅ Item updated" if success else "❌ Item operation failed"
+
             # Story System
             elif module == "STORY":
                 return self.story_handler.handle(command, params)
