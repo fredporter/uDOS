@@ -19,6 +19,102 @@ See [ROADMAP.md](dev/roadmap/ROADMAP.MD) for planned features and development pr
 
 ---
 
+## [1.2.24.1] - 2025-12-13
+
+### v1.2.24.1 - Maintenance & Polish
+
+**Patch Release:** Code cleanup, refactoring, and infrastructure improvements. Prepares codebase for v1.2.25 (Input Device System).
+
+#### Added
+
+**First-Time API Key Setup** (271 lines)
+- **GITHUB_TOKEN Setup** - Interactive prompt for DEV MODE access
+  - Only prompted for verified contributors in CREDITS.md
+  - Clear setup instructions with GitHub PAT documentation links
+  - Optional (can skip without blocking DEV MODE functionality)
+  - Saves to .env for persistence
+  
+- **GEMINI_API_KEY Setup** - First-time setup for OK commands
+  - Checks for cloud extension (extensions/assistant/gemini_service.py)
+  - Validates API key format (starts with 'AIza')
+  - Clear error messages if extension missing
+  - Optional (can skip without breaking functionality)
+  - Saves to .env and initializes GeminiService
+
+**Typora Diagram Standards** (updated OK MAKE commands)
+- `OK MAKE SEQUENCE` - js-sequence-diagrams (interactions, actor messages)
+- `OK MAKE FLOWCHART` - flowchart.js (processes, decision trees)
+- `OK MAKE SVG/ASCII/TELETEXT` - Custom graphics formats
+- Typora/GitHub markdown compatible (flow fences)
+- AI-powered diagram generation with format-specific prompts
+- Removed generic DIAGRAM/CHART terminology
+
+**HandlerUtils Module** (343 lines)
+- `core/commands/handler_utils.py` - Centralized handler utilities
+- Lazy-loaded shared Config instance (reduces memory footprint)
+- File I/O utilities (read/write/info)
+- Consistent config access pattern across all handlers
+- Easier to mock for testing
+
+#### Changed
+
+**Handler Refactoring**
+- Renamed `DocsUnifiedHandler` → `GuideHandler` (clearer purpose)
+  - GUIDE is now primary command (knowledge access)
+  - DOCS remains as backward-compatible alias
+  - Enhanced with HandlerUtils file I/O utilities
+  
+- Extracted MODE commands to dedicated handler
+  - `core/commands/mode_handler.py` (128 lines)
+  - MODE/GHOST/TOMB/CRYPT prompt switching
+  - Cleaner separation from system_handler
+  
+- Integrated HandlerUtils across handlers (14 handlers updated)
+  - workflow_handler.py: Lazy-loaded config
+  - typo_handler.py: Shared config instance
+  - dev_mode_handler.py: Centralized config access
+  - file_handler.py: 5 imports replaced
+  - configuration_handler.py: Setup wizard uses shared config
+  - Reduced ~28 lines of duplicate Config() imports
+
+**Commands.json Cleanup** (-196 lines, -8.6%)
+- 2,291 → 2,095 lines
+- Removed 10 DEFERRED commands (EXPLAIN, GENERATE, DEBUG, READ, etc.)
+- Cleaned duplicate entries and legacy syntax
+- Updated with new diagram standards
+- Better organized command categories
+
+**System Handler Reduction** (-165 lines, -9.8%)
+- 1,690 → 1,525 lines
+- Extracted MODE logic to mode_handler.py
+- Removed backwards compatibility code
+- Cleaner, more focused handler
+
+#### Removed
+
+**Mermaid Handler** (-725 lines)
+- Removed `core/commands/mermaid_handler.py`
+- Removed mermaid diagram templates
+- OK MAKE now supports SEQUENCE/FLOWCHART via Typora standards
+- Simplified diagram generation workflow
+
+**Total Reductions:** -233 lines of handler code, -1,120 lines total
+
+#### Fixed
+
+- SHAKEDOWN tests updated for v1.2.24 reality
+- HELP command syntax (removed braces from variables, added asterisks)
+- MODE command implementation completed
+
+#### Development Tools
+
+- `dev/tools/clean_commands_json.py` (76 lines)
+  - Automated commands.json cleanup tool
+  - Removes duplicates and validates syntax
+  - Future-proof maintenance automation
+
+---
+
 ## [1.2.23] - 2025-12-13
 
 ### v1.2.23 - Unified Task Management & File Organization System
