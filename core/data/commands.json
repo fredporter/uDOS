@@ -1178,6 +1178,56 @@
       ]
     },
     {
+      "NAME": "MOUSE",
+      "SYNTAX": "MOUSE [ENABLE|DISABLE|STATUS|DEMO|REGION|RESET]",
+      "DESCRIPTION": "Mouse input system for TUI. Click detection (left/right/middle), double-click, drag-and-drop, scroll wheel, clickable regions, and position tracking.",
+      "UCODE_TEMPLATE": "[MOUSE|$1*$2*$3*$4*$5*$6]",
+      "DEFAULT_PARAMS": {
+        "$1": "STATUS",
+        "$2": "",
+        "$3": "",
+        "$4": "",
+        "$5": "",
+        "$6": ""
+      },
+      "EXAMPLES": [
+        "MOUSE ENABLE",
+        "MOUSE STATUS",
+        "MOUSE DEMO",
+        "MOUSE REGION ADD menu 0 0 20 5",
+        "MOUSE REGION LIST",
+        "MOUSE RESET"
+      ],
+      "SUBCOMMANDS": {
+        "MOUSE ENABLE": "Enable mouse input capture",
+        "MOUSE DISABLE": "Disable mouse input",
+        "MOUSE STATUS": "Show state and statistics",
+        "MOUSE DEMO": "Interactive mouse demonstration",
+        "MOUSE REGION ADD <name> <x1> <y1> <x2> <y2>": "Add clickable region",
+        "MOUSE REGION LIST": "List all regions",
+        "MOUSE REGION REMOVE <name>": "Remove region",
+        "MOUSE REGION ENABLE <name>": "Enable region",
+        "MOUSE REGION DISABLE <name>": "Disable region",
+        "MOUSE RESET": "Reset statistics"
+      },
+      "FEATURES": {
+        "clicks": "Left, right, middle button detection",
+        "double_click": "Configurable double-click threshold",
+        "drag": "Click and drag with threshold detection",
+        "scroll": "Mouse wheel up/down events",
+        "regions": "Define clickable areas with callbacks",
+        "tracking": "Real-time position tracking",
+        "statistics": "Click, drag, scroll counters"
+      },
+      "NOTES": [
+        "v1.2.25: Mouse TUI integration (Week 3)",
+        "Requires xterm-compatible terminal",
+        "Works with DEVICE ENABLE MOUSE",
+        "Coordinates use terminal (x, y) position",
+        "Regions defined in terminal character units"
+      ]
+    },
+    {
       "NAME": "PEEK",
       "SYNTAX": "PEEK <url|FILE path> [--format json|text] [--save filename] [--extract]",
       "DESCRIPTION": "Fetch and parse data from URLs or local documents. Supports Markdown (.md), JSON (.json), SVG (.svg), and HTML. Auto-saves to memory/sandbox.",

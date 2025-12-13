@@ -18,6 +18,7 @@ from core.ui.debug_panel import get_debug_panel
 from core.ui.testing_interface import get_testing_interface
 from core.ui.workflow_manager_panel import WorkflowManagerPanel
 from core.ui.ok_assistant_panel import get_ok_assistant_panel
+from core.input.mouse_handler import MouseHandler
 
 
 class TUIController:
@@ -30,9 +31,10 @@ class TUIController:
     - Paged output
     - File browsing
     - Server panel (v1.2.17)
+    - Mouse input (v1.2.25)
     """
     
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config: Dict[str, Any] = None, viewport=None):
         self.config = config or {}
         
         # Initialize components
@@ -47,6 +49,7 @@ class TUIController:
         self.testing_interface = get_testing_interface()
         self.workflow_manager = WorkflowManagerPanel()
         self.ok_panel = get_ok_assistant_panel()
+        self.mouse_handler = MouseHandler(viewport=viewport, config=self.config)
         
         # Current mode
         self.mode = "command"  # command, browser, pager, server_panel, config_panel, dev_browser, debug_panel, test_panel, workflow_panel, ok_panel
