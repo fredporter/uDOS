@@ -454,11 +454,391 @@ CLOUD RESOLVE LOCATION "Opera House, Sydney NSW" --layer 300 --upy
 
 ---
 
-## 🎯 v1.2.24 📋 **PLANNING** - Self-Healing & Auto-Error-Awareness + Core Time-Date System
+## 🎯 v1.2.24 📋 **IN PROGRESS** - uCODE Python-First Rebase (CRITICAL)
+
+**Goal:** Rebase uPY scripting to pure Python with uCODE visual rendering. Remove 1,850+ lines of parser complexity, gain 10-100x speed, full Python ecosystem compatibility.
+
+**Status:** **ACTIVE PRIORITY** - Architecture redesign (started December 13, 2025)
+
+**Critical Design Decision:**
+Replace custom uPY parser with **Python-first approach**:
+- ❌ Remove: 1,850+ lines of parser (upy_runtime.py, validator.py)
+- ✅ Add: 700 lines of Python API + smart editor
+- ✅ Result: Valid Python code, 10-100x faster, full IDE support
+
+**uCODE Syntax (Python-Compatible):**
+```python
+# Import uDOS Python library
+from udos_core import *
+
+# Variables (no curly braces)
+$SPRITE-HP = 100              # System variable (UPPERCASE)
+$player-name = "Hero"         # User variable (lowercase)
+
+# Commands (square brackets, pipe separator)
+PRINT["Hello World"]          # Built-in command
+GUIDE["water/purification"]   # Knowledge bank access
+
+# Functions (@ prefix for calls, FUNCTION keyword)
+FUNCTION @calculate-water[$days]
+  RETURN $days * 3
+END
+
+$total = @calculate-water[7]  # Call user function
+@HEAL-SPRITE[20]              # Call system function
+```
+
+**Syntax Rules:**
+1. **Variables**: `$VARIABLE` (no `{}`)
+2. **Commands**: `COMMAND[args]` (square brackets, no parentheses for commands)
+3. **Functions**: `@function-name[args]` (@ prefix, square brackets)
+4. **Import**: `LOAD[udos-core]` instead of `from udos_core import *`
+5. **Python ↔ uCODE**: `_` becomes `-` (e.g., `SPRITE_HP` → `SPRITE-HP`)
+6. **Case**: UPPERCASE = system, lowercase = user
+
+**Planned Tasks:**
+
+1. 🔲 **udos_core.py - Python API Library** (500 lines) - Week 1
+   - System variables (SPRITE_HP, MISSION_STATUS, LOCATION)
+   - System functions (PRINT, GUIDE, HEAL_SPRITE, CHECKPOINT_SAVE, etc.)
+   - 40+ uDOS commands as Python functions
+   - Helper functions for editor transforms
+
+2. 🔲 **Smart Text Editor** (300 lines) - Week 2
+   - `core/ui/ucode_editor.py` - Python ↔ uCODE visual rendering
+   - Three modes: pythonic, symbolic, hybrid
+   - Syntax highlighting (system/user, commands/functions)
+   - Bracket matching and scope indicators
+   - Inline documentation tooltips
+
+3. 🔲 **Migration Tool** (200 lines) - Week 3
+   - `dev/tools/migrate_upy_to_python.py`
+   - Convert existing .upy files to .py
+   - Preserve functionality, update syntax
+   - Batch migration for memory/ucode/
+
+4. 🔲 **Documentation Update** (400 lines) - Week 4
+   - `wiki/uCODE-Python-Guide.md` - Complete Python-first guide
+   - Update all uPY examples to Python syntax
+   - Migration guide for users
+   - Educational tips for beginners
+
+**Total Estimated:** ~1,400 lines (vs. removing 1,850 lines = net -450 lines)
+
+**Benefits:**
+- ✅ **10-100x faster** execution (no parser overhead)
+- ✅ **Full Python compatibility** (import any package)
+- ✅ **Better debugging** (Python debugger, pytest)
+- ✅ **AI assistance** (Copilot, Cursor understand Python)
+- ✅ **Educational** (teach real Python, not custom DSL)
+- ✅ **Maintainable** (30+ years of Python stability)
+- ✅ **Simpler** (1,850 lines removed, 700 added = -1,150 lines)
+
+**Impact on Existing System:**
+- Replace `core/runtime/upy_runtime.py` (1,198 lines) → `udos_core.py` (500 lines)
+- Replace `core/interpreters/validator.py` (664 lines) → Editor rendering (300 lines)
+- Update `memory/ucode/` scripts to .py format (migration tool)
+- Preserve SHAKEDOWN test functionality (rewrite in Python)
+
+**Testing:**
+- Convert shakedown.upy → shakedown.py
+- Validate all 142 tests still pass
+- Performance benchmarks (parser vs direct Python)
+- Migration tool validation on all .upy files
+
+**Documentation:**
+- Complete syntax guide with side-by-side examples
+- Migration path from v1.2.x to v1.2.24
+- Python ecosystem integration guide
+- Educational resources for Python beginners
+
+**Session Notes:** `dev/sessions/v1.2.24-ucode-python-rebase.md` (in progress)
+
+**Audit Summary:**
+- **uPY-Specific Commands**: 40+ uDOS commands (GUIDE, MISSION, SPRITE-SET, etc.)
+- **Python-Native**: IF/THEN/PRINT/FUNCTION already in Python
+- **Parser Overhead**: 1,850+ lines can be eliminated
+- **Smart Editor**: 300 lines renders Python in uCODE style
+- **Net Savings**: -1,150 lines, infinite Python ecosystem access
+
+---
+
+## 🎯 v1.2.25 📋 **PLANNING** - Universal Input Device System (KEYPAD + Mouse)
+
+**Goal:** Standardize input methods across desktop, terminal, and kiosk devices. Universal KEYPAD system (0-9) for navigation/selection. Full mouse TUI support with smart clipboard. Touch gestures as optional extension (standard+ tiers).
+
+**Status:** Planning phase (after v1.2.24 uCODE rebase)
+
+**Critical Design Decision:**
+Create **device-agnostic input system** that works identically on:
+- Desktop (keyboard + mouse) ✅ Core
+- Terminal (keyboard only) ✅ Core (existing)
+- Kiosk (touchscreen + keyboard) ✅ Extension (standard+ tiers)
+- Mobile/Tablet (touch only) ✅ Extension (standard+ tiers)
+
+**Device Detection System:**
+```json
+// memory/bank/system/device.json
+{
+  "hardware": {
+    "keyboard": true,
+    "mouse": true,
+    "touch": false,
+    "keypad_hardware": false
+  },
+  "input_mode": "keypad",  // keypad | full_keyboard | touch | hybrid
+  "mouse_enabled": true,
+  "touch_available": false,
+  "terminal_capabilities": {
+    "xterm_mouse": true,
+    "colors_256": true,
+    "unicode": true
+  }
+}
+```
+
+**Universal KEYPAD Layout (0-9):**
+```
++------+------+------+
+|  7   |  8   |  9   |
+| REDO |  ↑   | UNDO |
++------+------+------+
+|  4   |  5   |  6   |
+|  ←   |  OK  |  →   |
++------+------+------+
+|  1   |  2   |  3   |
+| YES  |  ↓   |  NO  |
++------+------+------+
+       |  0   |
+       | MENU |
+       +------+
+```
+
+**Key Mappings (Consistent Throughout uDOS):**
+- **8** → Move Up / Scroll Up (natural scroll direction)
+- **2** → Move Down / Scroll Down (natural scroll direction)
+- **4** → Move Left / Previous
+- **6** → Move Right / Next
+- **5** → OK / Select / Confirm / Enter (center action button)
+- **7** → Redo (last undone action)
+- **9** → Undo (revert last action)
+- **1** → Yes (affirmative answer)
+- **3** → No (negative answer)
+- **0** → Menu / Options / Context (access additional features)
+
+**Mouse Operations (TUI-Compatible, Core Feature):**
+- **Left Click**: Point & select (menus, buttons, list items)
+- **Left Hold (1s)**: Select word at cursor
+- **Left Hold + Drag**: Extend selection (multi-word/multi-line)
+- **Left Hold (2s)**: Select entire line
+- **Left Hold (2s) + Drag Up/Down**: Select multiple lines
+- **Release**: Auto-copy selection to clipboard
+- **Right Click**: Paste at cursor position (command prompt or editor)
+- **Scroll Wheel Up**: Page up / Move up (equivalent to 8 key)
+- **Scroll Wheel Down**: Page down / Move down (equivalent to 2 key)
+- **Middle Click**: Context menu (equivalent to 0 key)
+
+**Rolling Clipboard System:**
+- History buffer: Last 20 clipboard items
+- Auto-copy on mouse selection
+- Right-click paste anywhere in TUI
+- Cross-terminal compatibility (tmux, screen)
+- Commands: `CLIP HISTORY`, `CLIP PASTE <n>`, `CLIP CLEAR`
+- Privacy mode: Exclude from history with `--private` flag
+
+**Planned Tasks (Core - STARTER Tier Compatible):**
+
+1. 🔲 **Device Detection & Configuration** (380 lines) - Week 1
+   - `core/services/device_manager.py` (260 lines)
+   - Detect keyboard, mouse at startup (no touch in core)
+   - Write `memory/bank/system/device.json` with hardware profile
+   - Runtime input mode switching (keypad/full/hybrid only)
+   - Platform-specific detection (macOS, Linux, Windows)
+   - Terminal capability detection (xterm mouse protocol)
+   - Commands: `DEVICE STATUS`, `DEVICE SETUP`, `DEVICE MODE <mode>`
+   - `core/utils/input_detector.py` (120 lines)
+   - Keyboard/mouse detection without external dependencies
+   - Terminal feature detection (colors, unicode, mouse)
+
+2. 🔲 **Universal KEYPAD Handler** (620 lines) - Week 1-2
+   - `core/input/keypad_handler.py` (450 lines)
+   - Unified 0-9 key mapping for all contexts
+   - Mode-aware routing (navigation vs. selection vs. editing)
+   - Integration with existing `keypad_navigator.py` (379 lines)
+   - Standardized selector system (menus, lists, options)
+   - Number-based selection (1-9 for items, 0 for menu/more)
+   - Full keyboard fallback (arrow keys still work)
+   - `core/ui/selector_base.py` (170 lines)
+   - Base class for all selection interfaces
+   - Auto-numbering (1-9 visible items, 0 for more/menu)
+   - Visual indicators (emoji + number + label format)
+   - Consistent layout across all panels
+
+3. 🔲 **Mouse TUI Integration** (780 lines) - Week 2
+   - `core/input/mouse_handler.py` (500 lines)
+   - xterm mouse event capture (standard escape sequences)
+   - Click detection (position, button, hold duration)
+   - Drag detection (start/end positions for selection)
+   - Scroll wheel handling (natural page navigation)
+   - Integration with TUI panels (clickable buttons/options)
+   - Graceful degradation (terminals without mouse support)
+   - `core/services/clipboard_manager.py` (280 lines)
+   - Rolling clipboard with 20-item history
+   - Auto-copy on mouse selection
+   - Paste on right-click (context-aware positioning)
+   - Privacy mode (exclude sensitive data with flag)
+   - Commands: `CLIP HISTORY`, `CLIP PASTE <n>`, `CLIP CLEAR`, `CLIP EXPORT <file>`
+   - Cross-terminal clipboard (tmux, screen compatible)
+   - Fallback to manual copy/paste when cross-app fails
+
+4. 🔲 **Selector Standardization** (520 lines) - Week 3
+   - Update all existing selectors to use KEYPAD numbering
+   - `core/ui/file_browser.py` (+75 lines) - Number selection (1-9)
+   - `core/ui/config_panel.py` (+75 lines) - Number selection (1-9)
+   - `core/ui/server_panel.py` (+75 lines) - Number selection (1-9)
+   - `core/ui/workflow_manager_panel.py` (+75 lines) - Number selection (1-9)
+   - `core/commands/*_handler.py` (+220 lines) - Menu standardization
+   - All menus/lists use consistent numbering
+   - Visual format: `<emoji> <number> <label>` throughout
+   - 0 key always = "More options" or "Back to menu"
+
+5. 🔲 **TUI Mouse Click Integration** (420 lines) - Week 3-4
+   - `core/ui/tui_controller.py` (+170 lines)
+   - Mouse event routing to active panel
+   - Click-to-focus for TUI panels
+   - Button/clickable area detection (hit boxes)
+   - Hover state tracking
+   - `core/ui/clickable_mixin.py` (120 lines)
+   - Mixin class for all clickable TUI elements
+   - Hit detection (x/y coordinate mapping)
+   - Visual hover feedback (highlight, underline)
+   - Click handler registration
+   - `core/input/smart_prompt.py` (+130 lines)
+   - Click to position cursor in command prompt
+   - Right-click paste at cursor position
+   - Mouse drag text selection in prompt
+   - Scroll wheel history navigation
+
+6. 🔲 **Documentation & Testing** (330 lines) - Week 4
+   - `wiki/Input-Devices.md` (180 lines) - Core input guide
+   - KEYPAD system reference (0-9 mappings)
+   - Mouse operations guide (click, drag, paste)
+   - Clipboard system usage
+   - Device mode switching
+   - `memory/ucode/tests/test_input_devices.py` (150 lines)
+   - Device detection validation (keyboard, mouse)
+   - KEYPAD mapping consistency tests
+   - Mouse event simulation tests
+   - Clipboard history tests
+   - Terminal capability detection tests
+   - Update `shakedown.upy` with device validation
+
+**Total Estimated (Core):** ~3,050 lines
+- Device Detection: 380 lines
+- KEYPAD Handler: 620 lines
+- Mouse Integration: 780 lines
+- Selector Standardization: 520 lines
+- TUI Mouse Clicks: 420 lines
+- Documentation & Tests: 330 lines
+
+**Touch Gesture Extension (Standard+ Tiers Only):**
+
+**Extension Structure:**
+```
+extensions/input/
+├── extension.json           # Extension manifest
+├── README.md               # Touch system documentation
+├── touch_handler.py        # SDL2 touch events (450 lines)
+├── touch_keypad.py         # On-screen KEYPAD overlay (200 lines)
+└── gestures.py             # Gesture recognition (180 lines)
+```
+
+**Touch Features (Optional, EXPLORER+ Only):**
+- **Tap**: Select/confirm (equivalent to 5 key)
+- **Long Press (1s)**: Context menu (equivalent to 0 key)
+- **Swipe Up/Down**: Scroll pages (equivalent to 8/2 keys)
+- **Swipe Left/Right**: Navigate (equivalent to 4/6 keys)
+- **Two-Finger Tap**: Undo (equivalent to 9 key)
+- **Three-Finger Tap**: Redo (equivalent to 7 key)
+- **Pinch**: Zoom terminal font size
+- **On-Screen KEYPAD**: Virtual 0-9 buttons for touch devices
+
+**Touch Extension (~830 lines, EXPLORER+ Tiers):**
+- `extensions/input/touch_handler.py` (450 lines) - SDL2 integration
+- `extensions/input/touch_keypad.py` (200 lines) - Virtual KEYPAD
+- `extensions/input/gestures.py` (180 lines) - Gesture recognition
+- Included in: EXPLORER, ADVENTURER, EXPEDITION tiers
+
+**Benefits:**
+- ✅ **Universal UX** - Same interaction model across all devices
+- ✅ **Accessibility** - Works keyboard-only, mouse-only, or touch-only
+- ✅ **Efficiency** - Number selection faster than arrow navigation
+- ✅ **Consistency** - KEYPAD 0-9 throughout entire interface
+- ✅ **Smart Clipboard** - Rolling history with cross-terminal support
+- ✅ **STARTER Tier Compatible** - Core mouse/keyboard in base package (7.3MB)
+- ✅ **Optional Touch** - Extension for kiosk/mobile (EXPLORER+ tiers)
+- ✅ **Backwards Compatible** - Full keyboard still works as before
+- ✅ **No Bloat** - SDL2 dependency only for touch extension
+- ✅ **Personal Focus** - Adventure-themed, not corporate
+
+**Integration with Existing Systems:**
+- TUI Controller - Add mouse event routing, click handlers
+- SmartPrompt - Add mouse positioning, right-click paste
+- All Panels - Add numbered selection (1-9, 0 for menu)
+- File Browser - Click navigation + number shortcuts
+- Config Panel - Click settings + number shortcuts
+- Workflow Manager - Click workflows + number shortcuts
+- Server Panel - Click servers + number shortcuts
+
+**New Dependencies:**
+- **Core (required)**: None (uses standard Python + xterm sequences)
+- **Extension (optional)**: `SDL2` (5MB, touch gesture support)
+- **Optional**: `pyperclip` (cross-platform clipboard fallback)
+
+**New Commands:**
+```bash
+# Device Management (Core)
+DEVICE STATUS                 # Show input capabilities
+DEVICE SETUP                  # Run device detection wizard
+DEVICE MODE <mode>            # Switch mode (keypad/full/hybrid)
+
+# Clipboard Management (Core)
+CLIP HISTORY                  # Show clipboard stack (last 20)
+CLIP PASTE <n>                # Paste from history (1-20)
+CLIP CLEAR                    # Clear clipboard history
+CLIP EXPORT <file>            # Save clipboard to file
+
+# Touch Extension (EXPLORER+ only)
+DEVICE CALIBRATE              # Touch screen calibration
+TOUCH ENABLE                  # Enable touch gestures
+TOUCH DISABLE                 # Disable touch gestures
+```
+
+**Testing:**
+- Device detection on macOS, Linux, Windows
+- Mouse click detection in various terminals (iTerm, Terminal.app, gnome-terminal, etc.)
+- xterm mouse protocol compatibility testing
+- KEYPAD mapping consistency across all panels
+- Clipboard cross-terminal compatibility (tmux, screen)
+- Touch extension validation (if installed)
+- Update SHAKEDOWN with device system validation
+
+**Documentation:**
+- `wiki/Input-Devices.md` - Complete input system guide
+- `wiki/KEYPAD-Reference.md` - 0-9 key mappings reference
+- `wiki/Mouse-Operations.md` - TUI mouse guide (core)
+- `extensions/input/README.md` - Touch extension guide (optional)
+- `dev/sessions/v1.2.25-input-devices-session.md` - Implementation notes
+
+**Session Notes:** `dev/sessions/v1.2.25-input-devices-session.md` (pending start)
+
+---
+
+## 🎯 v1.2.26 📋 **PLANNING** - Self-Healing & Auto-Error-Awareness + Core Time-Date System
 
 **Goal:** Intelligent error handling with OK Assistant integration, role-based permissions, comprehensive theme-aware I/O, sandbox testing, local pattern learning with strict privacy, core time-date functionality with ASCII clock/calendar, and full integration with backup/archive/cleanup systems.
 
-**Status:** Planning phase (next after v1.2.23 production release)
+**Status:** Planning phase (after v1.2.25 input device system)
 
 **Planned Tasks:**
 
@@ -470,13 +850,18 @@ CLOUD RESOLVE LOCATION "Opera House, Sydney NSW" --layer 300 --upy
    - Unified smart retention: 7-day rolling + critical/signature-based
    - Integration with archive system and CLEAN command
 
-2. 🔲 **Role-Based Permissions System** (300 lines)
-   - `core/services/role_manager.py`
-   - User roles: viewer/user/contributor/admin/wizard
+2. 🔲 **Theme-Aware Role-Based Permissions** (450 lines)
+   - `core/services/role_manager.py` (350 lines)
+   - 8 permission levels (10-100): VISITOR/EXPLORER/BUILDER/GUARDIAN/NAVIGATOR/ARCHITECT/SAGE/WIZARD
+   - Theme-mapped role names (Dungeon: GHOST/TOMB/KNIGHT, Ranger: SCOUT/TRACKER, etc.)
    - Wizard auto-detection from CREDITS.md git authors
    - Shared password (4-char min, 8+ recommended) via `.env` bcrypt hash
    - Commands: `ROLE SETUP`, `ROLE SET`, `ROLE STATUS`, `ROLE CHECK`
    - Permissions for DEV MODE and `/core`+`/extensions` edits
+   - `core/data/role_theme_maps.json` (100 lines)
+   - Maps role levels to theme-specific names
+   - 4 themes: foundation, dungeon, ranger, galaxy
+   - Automatic role name updates on theme switch
 
 3. 🔲 **Universal Theme-Aware I/O System** (2,460 lines)
    - Extend 7 themes: +80 lines each = 560 lines
@@ -579,9 +964,9 @@ CLOUD RESOLVE LOCATION "Opera House, Sydney NSW" --layer 300 --upy
 - RESTORE command can recover deleted error contexts, sandbox sessions
 - UNDO/REDO work with JSON edits, role changes, time settings
 
-**Total Estimated Lines:** ~7,180 lines
+**Total Estimated Lines:** ~7,330 lines
 - Error Interceptor: 450 lines
-- Role Manager: 300 lines
+- Theme-Aware Role Manager: 450 lines (350 manager + 100 theme maps)
 - Theme I/O System: 2,460 lines (560 themes + 350 messenger + 1,200 handlers + 350 tools)
 - Sandbox + Disk Monitor: 1,100 lines (480 sandbox + 320 monitor + 300 commands/tests)
 - OK FIX + Patterns: 730 lines (240 OK + 120 Gemini + 220 learner + 150 tests)
@@ -598,9 +983,10 @@ CLOUD RESOLVE LOCATION "Opera House, Sydney NSW" --layer 300 --upy
 ```bash
 # Role Management
 ROLE SETUP                    # First-time password setup (4-char min)
-ROLE SET <level>              # Change role (admin/wizard)
-ROLE STATUS                   # Show current role/permissions
+ROLE SET <level>              # Change role (10-100 or name: VISITOR/BUILDER/WIZARD)
+ROLE STATUS                   # Show current role/permissions (theme-aware display)
 ROLE CHECK                    # Debug wizard detection
+ROLE LIST                     # Show all available roles for current theme
 
 # Error & Pattern Management
 OK FIX                        # AI-powered error fix suggestions
@@ -766,15 +1152,15 @@ Examples (COMPACT - no internal dashes):
 
 6. ✅ **Package Distribution** (230 lines) - COMPLETE
    - `setup.py` updated with 5 installation tiers
-   - `MANIFEST.in` configured for lite tier (extensions excluded)
+   - `MANIFEST.in` configured for STARTER tier (extensions excluded)
    - `PACKAGE-TIERS.md` (230 lines) - Complete installation guide
    - `knowledge/__init__.py` - Makes knowledge a proper Python package
    - **Tier Sizes (actual build results):**
-     - Ultra: ~8MB (core only)
-     - **Lite: 7.3MB** (core + knowledge) - DEFAULT, 54% under 16MB target!
-     - Standard: ~28MB (+ AI assistant)
-     - Full: ~58MB (+ gameplay + graphics)
-     - Enterprise: ~120MB+ (+ cloud + BIZINTEL)
+     - CORE: ~8MB (terminal only, no knowledge)
+     - **STARTER: 7.3MB** (core + knowledge) - DEFAULT, 54% under 16MB target!
+     - EXPLORER: ~28MB (+ AI assistant + touch extension)
+     - ADVENTURER: ~58MB (+ gameplay + graphics + web UI)
+     - EXPEDITION: ~120MB+ (+ cloud + BIZINTEL + all extensions)
    - Build results: 2.1MB wheel, 7.26MB unpacked, 667 files, 250 knowledge files
    - **Status:** ✅ Complete, ready for PyPI publication
 
@@ -817,7 +1203,7 @@ Examples (COMPACT - no internal dashes):
 - Phase 8: Documentation (1,700 lines) ✅
 
 **Completion Status:** 8/8 phases complete (100%)
-**Package Size:** 7.3MB lite tier (54% under 16MB target)
+**Package Size:** 7.3MB STARTER tier (54% under 16MB target)
 **Test Coverage:** 50+ tests (5 automated + 18 manual + 3 integration)
 
 **New Dependencies:**
