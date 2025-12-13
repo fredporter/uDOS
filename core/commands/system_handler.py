@@ -1522,4 +1522,3 @@ class SystemCommandHandler(BaseCommandHandler):
             parser=parser
         )
         return undo_handler.handle_redo(params, grid, parser)
-        """Handle MODE command for switching prompt modes.

@@ -28,6 +28,7 @@ from typing import Dict, List, Optional, Any
 import glob
 import psutil
 from core.output.syntax_highlighter import highlight_syntax
+from core.config import Config
 
 from core.commands.base_handler import BaseCommandHandler
 from core.commands.handler_utils import HandlerUtils
