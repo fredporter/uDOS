@@ -67,7 +67,6 @@ class UndoHandler(BaseCommandHandler):
         filename = params[0]
         return self._redo_file(filename)
 
-"""    
     def _is_unified_tasks_file(self, filename: str) -> bool:
         """Check if file is unified_tasks.json (v1.2.23)."""
         return 'unified_tasks.json' in filename
@@ -234,15 +233,15 @@ class UndoHandler(BaseCommandHandler):
             lines.append(f"║     {timestamp}  {size_kb} KB{marker}{' ' * (24 - len(str(size_kb)) - len(marker))} ║")
 
             if i < len(versions):
-                lines.append("║  ─────────────────────────────────────────────────────────  ║")
+                lines.append("  -----------------------------------------------------------")
 
         lines.extend([
-            "╠═══════════════════════════════════════════════════════════╣",
-            "║  Commands:                                                ║",
-            f"║  UNDO {filename:<50} ║",
-            f"║  UNDO --to-version <version_name> {filename:<23} ║",
-            f"║  REDO {filename:<50} ║",
-            "╚═══════════════════════════════════════════════════════════╝"
+            "==================================================================",
+            "  Commands:",
+            f"  UNDO {filename}",
+            f"  UNDO --to-version <version_name> {filename}",
+            f"  REDO {filename}",
+            "=================================================================="
         ])
 
         return '\n'.join(lines)
@@ -272,51 +271,49 @@ class UndoHandler(BaseCommandHandler):
 
     def _show_help(self) -> str:
         """Show UNDO/REDO help."""
-        return """╔═══════════════════════════════════════════════════════════╗
-║              UNDO/REDO Command Reference                  ║
-╠═══════════════════════════════════════════════════════════╣
-║                                                           ║
-║  UNDO <file>                                              ║
-║    Revert file to previous version                        ║
-║    Example: UNDO config.json                              ║
-║                                                           ║
-║  UNDO --list <file>                                       ║
-║    List all available versions for file                   ║
-║    Example: UNDO --list config.json                       ║
-║                                                           ║
-║  UNDO --to-version <version_name> <file>                  ║
-║    Revert to specific version                             ║
-║    Example: UNDO --to-version 20251203_120000_config.json ║
-║                                                           ║
-║  REDO <file>                                              ║
-║    Re-apply undone changes                                ║
-║    Example: REDO config.json                              ║
-║                                                           ║
-╠═══════════════════════════════════════════════════════════╣
-║  How It Works:                                            ║
-║                                                           ║
-║  1. File versions are automatically saved to .archive/    ║
-║     when file changes are detected                        ║
-║                                                           ║
-║  2. UNDO restores previous version from .archive/versions ║
-║                                                           ║
-║  3. Current state is saved for REDO                       ║
-║                                                           ║
-║  4. Version history kept for 90 days (configurable)       ║
-║                                                           ║
-║  5. Maximum 10 versions per file (oldest auto-purged)     ║
-║                                                           ║
-╠═══════════════════════════════════════════════════════════╣
-║  Version Format:                                          ║
-║    YYYYMMDD_HHMMSS_original_filename.ext                  ║
-║    Example: 20251203_143022_config.json                   ║
-║                                                           ║
-║  Storage Location:                                        ║
-║    <file_directory>/.archive/versions/                    ║
-║                                                           ║
-╚═══════════════════════════════════════════════════════════╝"""
-
-
-def create_handler(**kwargs) -> UndoHandler:
-    """Factory function for handler creation."""
-    return UndoHandler(**kwargs)
+        lines = [
+            "=" * 66,
+            "              UNDO/REDO Command Reference",
+            "=" * 66,
+            "",
+            "  UNDO <file>",
+            "    Revert file to previous version",
+            "    Example: UNDO config.json",
+            "",
+            "  UNDO --list <file>",
+            "    List all available versions for file",
+            "    Example: UNDO --list config.json",
+            "",
+            "  UNDO --to-version <version_name> <file>",
+            "    Revert to specific version",
+            "    Example: UNDO --to-version 20251203_120000_config.json",
+            "",
+            "  REDO <file>",
+            "    Re-apply undone changes",
+            "    Example: REDO config.json",
+            "",
+            "=" * 66,
+            "  How It Works:",
+            "",
+            "  1. File versions are automatically saved to .archive/",
+            "     when file changes are detected",
+            "",
+            "  2. UNDO restores previous version from .archive/versions",
+            "",
+            "  3. Current state is saved for REDO",
+            "",
+            "  4. Version history kept for 90 days (configurable)",
+            "",
+            "  5. Maximum 10 versions per file (oldest auto-purged)",
+            "",
+            "=" * 66,
+            "  Version Format:",
+            "    YYYYMMDD_HHMMSS_original_filename.ext",
+            "    Example: 20251203_143022_config.json",
+            "",
+            "  Storage Location:",
+            "    <file_directory>/.archive/versions/",
+            "",
+            "=" * 66,
+        ]
+        return "\n".join(lines)
