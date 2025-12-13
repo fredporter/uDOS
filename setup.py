@@ -9,7 +9,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="udos",
-    version="1.2.22",
+    version="1.2.23",
     author="Fred Porter",
     author_email="fred@udos.dev",
     description="uDOS - Offline-first Operating System for Survival Knowledge",
@@ -21,11 +21,10 @@ setup(
         "Documentation": "https://github.com/fredporter/uDOS/wiki",
         "Source Code": "https://github.com/fredporter/uDOS",
     },
-    packages=find_packages(include=["udos", "udos.*", "core", "core.*", "extensions", "extensions.*"]),
+    packages=find_packages(include=["udos", "udos.*", "core", "core.*"]) + ['knowledge'],
     package_data={
         'core': ['data/**/*'],
-        'knowledge': ['**/*.md'],
-        'extensions': ['assets/**/*', 'core/**/*', 'assistant/**/*'],
+        'knowledge': ['**/*.md', '**/*.json', '**/*.txt'],
     },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -46,24 +45,32 @@ setup(
     python_requires=">=3.9",
     install_requires=requirements,
     extras_require={
-        # Ultra-minimal (8MB) - Core only
+        # Ultra-minimal (~8MB) - Core only, no knowledge, no extensions
         "ultra": [],
         
-        # Lite (16MB) - Core + Knowledge (DEFAULT)
+        # Lite (~16MB) - Core + Knowledge (DEFAULT) - NO EXTENSIONS
+        # Excludes: extensions/, dev/, wiki/, memory/
+        # Perfect for: Offline survival, minimal installs, embedded systems
         "lite": [],
         
-        # Standard (32MB) - Core + Knowledge + AI + Graphics
+        # Standard (~28MB) - Core + Knowledge + AI + Essential Extensions
+        # Includes: extensions/assistant/ (OK Assistant)
+        # Requires: Gemini API key for AI features
         "standard": [
             "google-generativeai>=0.3.0",  # OK Assistant
         ],
         
-        # Full (64MB) - Complete offline system + gameplay
+        # Full (~58MB) - Complete system + Gameplay + Graphics
+        # Includes: extensions/play/, extensions/assets/fonts/
+        # Features: XP system, map engine, ASCII graphics, font rendering
         "full": [
             "google-generativeai>=0.3.0",
-            "pillow>=10.0.0",  # Image processing
+            "pillow>=10.0.0",  # Image processing for graphics
         ],
         
-        # Enterprise (128MB+) - Everything including cloud/BI
+        # Enterprise (~120MB+) - Everything including Cloud + BIZINTEL
+        # Includes: extensions/cloud/, extensions/cloud/bizintel/
+        # Features: Group sharing, tunneling, business intelligence, entity resolution
         "enterprise": [
             "google-generativeai>=0.3.0",
             "pillow>=10.0.0",
@@ -76,7 +83,7 @@ setup(
             "python-Levenshtein>=0.21.0",  # Fuzzy matching speedup
         ],
         
-        # Development tools
+        # Development tools (not included in any tier)
         "dev": [
             "pytest>=7.4.0",
             "pytest-cov>=4.1.0",
@@ -84,7 +91,7 @@ setup(
             "black>=23.0.0",
         ],
         
-        # Legacy AI option (same as standard)
+        # Legacy AI option (alias for standard)
         "ai": [
             "google-generativeai>=0.3.0",
         ],
@@ -98,14 +105,5 @@ setup(
         "bin/udos",
     ],
     include_package_data=True,
-    package_data={
-        "": [
-            "knowledge/**/*.json",
-            "knowledge/**/*.md",
-            "data/**/*",
-            "extensions/**/*",
-        ],
-        "udos": ["py.typed"],
-    },
     zip_safe=False,
 )

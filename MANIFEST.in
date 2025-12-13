@@ -1,9 +1,9 @@
-# Manifest file for package data inclusion
+# Manifest file for package data inclusion (v1.2.23)
+# Updated: Exclude dev/, wiki/, memory/, extensions/ from Lite tier
 include README.MD
 include LICENSE.txt
 include CHANGELOG.md
-include ROADMAP.MD
-include QUICK-REFERENCE.md
+include QUICK-START.md
 include INSTALL.md
 include CONTRIBUTING.md
 include CREDITS.md
@@ -13,22 +13,24 @@ include start_udos.sh
 # Core source code
 recursive-include core *.py
 
-# Knowledge base
+# Knowledge base (included in Lite+ tiers)
 recursive-include knowledge *.json
 recursive-include knowledge *.md
 recursive-include knowledge *.txt
+graft knowledge
 
 # Data files
 recursive-include data *.json
 recursive-include data *.md
 recursive-include data *.txt
 
-# Extensions
-recursive-include extensions *.html
-recursive-include extensions *.css
-recursive-include extensions *.js
-recursive-include extensions *.json
-recursive-include extensions *.md
+# Extensions (EXCLUDED from ultra/lite tiers - v1.2.23)
+# Extensions installed separately or via full/enterprise tiers
+# recursive-include extensions *.html
+# recursive-include extensions *.css
+# recursive-include extensions *.js
+# recursive-include extensions *.json
+# recursive-include extensions *.md
 
 # Exclude unnecessary files
 global-exclude __pycache__
@@ -38,9 +40,12 @@ global-exclude *.swp
 global-exclude *.swo
 global-exclude *~
 
-# Exclude development/testing
+# Exclude development/testing/documentation (v1.2.23)
 recursive-exclude memory *
+recursive-exclude dev *
 recursive-exclude docs *
 recursive-exclude wiki *
 recursive-exclude .git *
 recursive-exclude .github *
+recursive-exclude extensions *
+recursive-exclude .archive *
