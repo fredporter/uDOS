@@ -1,11 +1,12 @@
-# uDOS v1.2.22 - Self-Healing & Auto-Error-Awareness System 🚀
+# uDOS v1.2.23 - Unified Task Management & File Organization System 🚀
 
 **uDOS** is an offline-first knowledge system for survival, self-sufficiency, and sustainable living. Built with a text-first philosophy, community-driven development, and a focus on practical skills over corporate control.
 
-**Current Status**: ✅ **v1.2.22-stable** (December 12, 2025) - PRODUCTION READY
-**Latest Update**: Intelligent error handling, pattern learning, JSON viewer/editor, and complete time-date system
+**Current Status**: ✅ **v1.2.23-stable** (December 13, 2025) - PRODUCTION READY
+**Latest Update**: Unified task management, compact filename standard, intelligent archiving, version control, and file organization
 **uPY Syntax**: ✨ **v1.2** - Three-format system (short/medium/long) for conditionals and functions
-**Test Coverage**: **45/45 tests passing** (100% - integration + live command tests)
+**Test Coverage**: **50+ tests passing** (v1.2.22: 45, v1.2.23: 5 automated + 18 manual)
+**Package Size**: **7.3MB lite tier** (54% under 16MB target)
 **Knowledge Bank**: **230+ comprehensive survival guides** across 8 categories
 **Map System**: **Multi-layer TILE grid** with 100-899 layer architecture
 **AI Integration**: **OK Assistant** with 8 MAKE commands + **OK FIX** for error analysis
@@ -75,9 +76,86 @@ END FUNCTION
 
 ---
 
-## 🚀 v1.2.22 - Self-Healing & Auto-Error-Awareness System (December 12, 2025) ✨
+## 📦 Package Tiers (v1.2.23)
 
-**PRODUCTION READY** - Complete intelligent error handling with privacy-first design, role-based permissions, interactive JSON editor, and AI-powered error analysis. All 8 planned tasks complete, 45/45 tests passing.
+**Optimized Distribution**: Choose your installation size based on needs!
+
+| Tier | Size | What's Included | Use Case |
+|------|------|----------------|----------|
+| **Lite** | 7.3MB | Core + Knowledge + Basic Extensions | Air-gapped, minimal installs |
+| **Standard** | ~45MB | + Web extensions (Teletext, Dashboard) | Most users, full features |
+| **Full** | ~120MB | + Optional repos (MeshCore, CoreUI) | Developers, mesh networking |
+| **Dev** | +36 files | Development tools (git submodule) | Contributors only |
+
+**Installation**:
+```bash
+# Lite (default)
+git clone https://github.com/fredporter/uDOS.git
+
+# Dev (contributors)
+git clone --recurse-submodules https://github.com/fredporter/uDOS.git
+
+# Build offline package
+python uDOS.py -c "BUILD --lite"  # or --full
+```
+
+**Commands**:
+- `CLONE` - Package your user content (docs, scripts, settings) for backup
+- `BUILD` - Create offline installation package (lite/standard/full)
+
+---
+
+## 🚀 v1.2.23 - Unified Task Management System (December 13, 2025) ✨
+
+**PRODUCTION READY** - Single source of truth for tasks/projects, compact filename standard, intelligent archiving, and complete file organization. All 8 phases complete, 50+ tests passing.
+
+### What's New in v1.2.23
+
+📋 **Unified Task Management** (1,215 lines)
+- **Single Source of Truth**: All tasks/projects in `memory/bank/user/unified_tasks.json`
+- **Rich Features**: Priorities, tags, dependencies, progress tracking, locations (TILE codes)
+- **TASK Commands**: CREATE, LIST, DONE, DELETE, EDIT with filtering
+- **PROJECT Commands**: CREATE, LIST, STATUS with location tracking
+- **Migration Tools**: Automatic conversion from legacy task systems
+
+📝 **Filename Standard** (455 lines)
+- **uDOS ID Format**: `YYYYMMDD-HHMMSSTZ-TILE-name.ext` (compact, sortable, globally unique)
+- **4 Types**: date-only, session (time), instance (counter), located (TILE)
+- **Examples**: `20251213-backup.json`, `20251213-164500UTC-AA340-mission.upy`
+- **Integration**: FILE NEW flags (--dated, --timed, --located, --tile)
+
+🔄 **Version Control** (319 lines)
+- **UNDO/REDO**: Complete file version history with .archive/ integration
+- **Auto-Versioning**: 10 versions per file, 90-day retention (configurable)
+- **Special Handling**: Confirmation prompts for critical files (unified_tasks.json)
+- **Commands**: UNDO [file], UNDO --list, UNDO --to-version, REDO [file]
+
+🗂️ **File Organization** (285 lines)
+- **Smart TIDY**: Duplicate detection via MD5, old version pattern recognition
+- **Auto-Archiving**: Move old versions to .archive/ with timestamps
+- **Date Grouping**: Organize dated files into monthly folders (YYYY-MM/)
+- **Location Grouping**: Group files by TILE codes from filenames
+
+📦 **Archive System** (569 lines)
+- **ARCHIVE Commands**: task <id>, project <id>, workflow
+- **Unified Integration**: Archives tasks/projects from UnifiedTaskManager
+- **Structure**: `.archive/tasks/`, `.archive/projects/`, `.archive/workflows/`
+
+🧹 **Enhanced CLEAN** (250 lines)
+- **Archive Support**: CLEAN --archives for recursive .archive/ cleanup
+- **Safety**: Interactive confirmation, --dry-run preview mode
+- **Statistics**: File count, size, directories scanned
+
+💾 **User Packaging** (250 lines + 350 lines)
+- **CLONE Command**: Export user content (docs, scripts, workflows, settings)
+- **BUILD Command**: Create offline installation packages (lite/standard/full)
+- **Smart Exclusions**: Skip .archive/, logs/, cache files
+
+---
+
+## 🚀 v1.2.22 - Self-Healing & Auto-Error-Awareness System (December 12, 2025)
+
+**Complete intelligent error handling** with privacy-first design, role-based permissions, interactive JSON editor, and AI-powered error analysis.
 
 ### What's New in v1.2.22
 

@@ -19,6 +19,116 @@ See [ROADMAP.md](dev/roadmap/ROADMAP.MD) for planned features and development pr
 
 ---
 
+## [1.2.23] - 2025-12-13
+
+### v1.2.23 - Unified Task Management & File Organization System
+
+**Major Feature Release:** Single source of truth for tasks/projects, compact filename standard, intelligent archiving, version control, and file organization.
+
+#### Added
+
+**Unified Task Management (Phase 1-2)**
+- **UnifiedTaskManager Service** - Centralized task/project management
+  - `core/services/unified_task_manager.py` (1,215 lines) - Single source of truth for all tasks
+  - Tasks: ID, description, status, priority, tags, dependencies, progress tracking
+  - Projects: Name, location (TILE code), task lists, status, metadata
+  - Single JSON storage: `memory/bank/user/unified_tasks.json`
+  - Migration from legacy systems: `dev/tools/migrate_to_unified_tasks.py`
+  - TASK commands: CREATE, LIST, DONE, DELETE, EDIT with rich filtering
+  - PROJECT commands: CREATE, LIST, STATUS with location tracking
+
+**Filename Standard (Phase 3)**
+- **Compact Timestamp Format** - uDOS ID standard for all generated files
+  - `core/utils/filename_generator.py` (455 lines) - Standardized filename generation
+  - Format: `YYYYMMDD-HHMMSSTZ-TILE-name.ext` (no internal dashes)
+  - 4 types: date-only, session (with time), instance (with counter), located (with TILE)
+  - Examples: `20251213-backup.json`, `20251213-164500UTC-workflow.upy`, `20251213-164500UTC-AA340-mission.upy`
+  - Benefits: Sortable, parseable, compact, globally unique with location context
+  - Integration: FILE NEW command flags (--dated, --timed, --located, --tile)
+  - Documentation: `wiki/Filename-Convention.md` (420 lines) with visual examples
+
+**Version Control (Phase 4)**
+- **UNDO/REDO System** - Complete version history with .archive/ integration
+  - `core/commands/undo_handler.py` (319 lines) - File version control handler
+  - Automatic version saving to `.archive/versions/` on file changes
+  - UNDO command: Revert to previous version, --list to show history, --to-version for specific version
+  - REDO command: Re-apply undone changes with change stack
+  - Version format: `YYYYMMDD_HHMMSS_original_filename.ext`
+  - Retention: 10 versions per file, 90 days (configurable)
+  - Special handling for unified_tasks.json with backup confirmation
+
+**File Organization (Phase 5)**
+- **TIDY Enhancements** - Intelligent duplicate detection and version archiving
+  - Duplicate detection via MD5 hashing with interactive resolution
+  - Old version pattern recognition: `_vN`, `_YYYYMMDD_`, `.bak`, `.old`, `_backup`
+  - Automatic archiving to `.archive/` with timestamped moves
+  - Date-based organization: Move dated files to monthly folders (YYYY-MM/)
+  - Location-based grouping: Organize by TILE codes from filenames
+  - Flags: --by-date, --by-location, --report (dry-run)
+
+**Archive System (Phase 2)**
+- **ARCHIVE Command** - Task/project/workflow archiving with unified task integration
+  - `core/commands/archive_handler.py` (569 lines) - Enhanced with v1.2.23 UnifiedTaskManager
+  - ARCHIVE task <id>: Archive completed task from unified system
+  - ARCHIVE project <id>: Archive project with all linked tasks
+  - ARCHIVE workflow: Archive completed workflow with metadata
+  - Archive structure: `.archive/tasks/`, `.archive/projects/`, `.archive/workflows/`
+  - Automatic completion marking and timestamp recording
+
+**Enhanced CLEAN (Phase 5)**
+- **Archive Integration** - Recursive .archive/ scanning and cleanup
+  - `core/commands/clean_handler.py` (+250 lines) - Archive system support
+  - CLEAN --archives: Empty all .archive/ folders recursively
+  - Interactive confirmation prompts for safety (unless --force)
+  - Dry-run mode: --dry-run shows what would be cleaned
+  - Statistics: File count, total size, directories scanned
+  - Recursive scanning of entire memory/ workspace
+
+**User Content Packaging (Phase 7)**
+- **CLONE Command** - Export user content for backup/migration
+  - `core/commands/clone_handler.py` (250 lines) - User workspace packaging
+  - Packages: memory/docs, drafts, scripts, workflows, user settings
+  - Excludes: .archive/, logs/, *.pyc, __pycache__, .DS_Store
+  - Output: `udos-clone-YYYYMMDD_HHMMSS.tar.gz` with metadata.json
+  - Metadata: username, clone date, file count, directory structure
+  - Flags: --check (list contents without creating archive)
+
+**Offline Installation (Phase 8)**
+- **BUILD Command** - Complete offline distribution packaging
+  - `core/commands/build_handler.py` (350 lines) - Distribution packaging
+  - Downloads: Optional MeshCore, CoreUI Icons repos
+  - Packages: core/, extensions/, knowledge/, wiki/, requirements.txt
+  - Output: `udos-build-YYYYMMDD_HHMMSS.tar.gz` for air-gapped installation
+  - Build tiers: lite (7.3MB), standard (~45MB), full (~120MB)
+  - Flags: --check (validate build requirements), --lite, --full
+
+#### Fixed
+- **archive_handler.py** - Escaped quotes in docstrings causing SyntaxError (21 instances)
+- **undo_handler.py** - UTF-8 box-drawing characters replaced with ASCII for portability
+- **undo_handler.py** - Added missing create_handler factory function for proper initialization
+
+#### Changed
+- **FilenameGenerator Integration** - 6 handlers updated to use compact timestamp format
+  - calendar_handler, workflow_handler, ok_handler, sandbox_handler, system_handler, file_handler
+- **Document Timestamp Standard** - Aligned 5 core files with uDOS ID format
+- **TIDY Command** - Enhanced with duplicate detection and intelligent version archiving
+- **CLEAN Command** - Added --archives flag for recursive .archive/ cleanup
+
+#### Documentation
+- **Task-Management.md** (650 lines) - Complete UnifiedTaskManager API reference
+- **Filename-Convention.md** (420 lines) - uDOS ID format with visual examples
+- **Archive-System.md** (+250 lines) - Updated with task/project archiving workflows
+- **Installation-Guide.md** (380 lines) - Updated with CLONE/BUILD commands
+- **ROADMAP.md** (+227 lines) - File format clarification, v1.2.23 completion status
+
+#### Metrics
+- **Lines Added**: 6,205 lines across 8 new/modified files
+- **Package Size**: 7.3MB (lite tier, 54% under 16MB target)
+- **Tests**: 50+ tests (45 v1.2.22 + 5 v1.2.23 automated + 18 manual)
+- **Documentation**: 1,700 lines across 5 wiki pages
+
+---
+
 ## [1.2.22] - 2025-12-12
 
 ### v1.2.22 - Self-Healing & Auto-Error-Awareness System
