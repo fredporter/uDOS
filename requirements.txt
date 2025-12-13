@@ -17,6 +17,9 @@ vtracer>=0.6.0
 # Environment variable management
 python-dotenv>=1.0.0
 
+# Timezone detection (v1.2.25+)
+tzlocal>=4.0
+
 # Interactive CLI with tab completion
 prompt_toolkit>=3.0.0
 

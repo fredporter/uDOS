@@ -321,6 +321,13 @@ def main():
 
         print_splash_screen()
         
+        # Show viewport measurement (v1.2.25)
+        try:
+            from core.output.splash import print_viewport_measurement
+            print_viewport_measurement(viewport, delay=0.1)
+        except Exception:
+            pass  # Silently skip if measurement not available
+        
         # Show startup time (v1.2.22)
         try:
             from core.services.timedate_manager import get_timedate_manager

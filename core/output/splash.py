@@ -31,7 +31,7 @@ def print_splash_screen():
         # Subtitle with gradient
         subtitle = Text()
         subtitle.append("uDOS ", style="bold cyan")
-        subtitle.append("v1.2.21", style="bold yellow")
+        subtitle.append("v1.2.25", style="bold yellow")
         subtitle.append(" - ", style="white")
         subtitle.append("Offline-First Survival OS", style="bold green")
 
@@ -45,9 +45,9 @@ def print_splash_screen():
 
         syntax_text = Text()
         syntax_text.append("📝 Syntax: ", style="dim")
-        syntax_text.append("COMMAND(options|$VARIABLE|'string')", style="bold green")
+        syntax_text.append("COMMAND [options]", style="bold green")
         syntax_text.append(" or ", style="dim")
-        syntax_text.append("MODULE COMMAND(params)", style="bold magenta")
+        syntax_text.append("COMMAND [param1 | param2]", style="bold magenta")
 
         # Create panel with colored border
         panel_content = Text.assemble(
@@ -91,10 +91,10 @@ def print_splash_screen():
  ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
 """
     print(splash_text)
-    print("uDOS v1.2.23 - Offline-First Survival OS")
+    print("uDOS v1.2.25 - Offline-First Survival OS")
     print("="*50)
     print("Type HELP for commands | CONFIG LIST for settings")
-    print("Syntax: COMMAND(options|$VARIABLE|'string') or MODULE COMMAND(params)")
+    print("Syntax: COMMAND [options] or COMMAND [param1 | param2]")
     print()
 
 

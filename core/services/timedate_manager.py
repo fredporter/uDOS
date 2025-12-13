@@ -19,6 +19,12 @@ try:
 except ImportError:
     PYTZ_AVAILABLE = False
 
+try:
+    import tzlocal
+    TZLOCAL_AVAILABLE = True
+except ImportError:
+    TZLOCAL_AVAILABLE = False
+
 
 @dataclass
 class TimeZoneInfo:
@@ -136,8 +142,17 @@ class TimeDateManager:
         
         # Try system timezone
         try:
-            if PYTZ_AVAILABLE:
-                # Get local timezone
+            if TZLOCAL_AVAILABLE:
+                # Get local timezone using tzlocal
+                local_tz = tzlocal.get_localzone()
+                tz_name = str(local_tz)
+                # Verify it's a valid IANA name
+                if tz_name and '/' in tz_name:
+                    self._current_tz = tz_name
+                else:
+                    self._current_tz = "UTC"
+            elif PYTZ_AVAILABLE:
+                # Fallback: try to use time module
                 import time
                 if hasattr(time, 'tzname'):
                     # Try to map to IANA
