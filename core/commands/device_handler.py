@@ -39,45 +39,52 @@ class DeviceHandler(BaseCommandHandler):
             Command output string
         """
         if len(params) < 1:
-            return self._show_usage()
+            # No params - show status by default
+            return self._status()
         
-        command = params[0].upper()
+        # Handle both "DEVICE STATUS" (params=["DEVICE", "STATUS"]) 
+        # and "STATUS" (params=["STATUS"]) routing patterns
+        first_param = params[0].upper()
         
-        if command == "DEVICE":
+        if first_param == "DEVICE":
+            # Full command: DEVICE STATUS, DEVICE SETUP, etc.
             if len(params) == 1:
                 # Just "DEVICE" - show status
                 return self._status()
-            
             subcommand = params[1].upper()
-            
-            if subcommand == "STATUS":
-                return self._status()
-            elif subcommand == "SETUP":
-                return self._setup()
-            elif subcommand == "MODE":
-                if len(params) < 3:
-                    return "❌ Usage: DEVICE MODE <keypad|full_keyboard|hybrid>"
-                return self._set_mode(params[2])
-            elif subcommand == "TEST":
-                return self._test()
-            elif subcommand == "ENABLE":
-                if len(params) < 3:
-                    return "❌ Usage: DEVICE ENABLE <MOUSE>"
-                if params[2].upper() == "MOUSE":
-                    return self._enable_mouse()
-                else:
-                    return f"❌ Unknown device: {params[2]}\n   Valid: MOUSE"
-            elif subcommand == "DISABLE":
-                if len(params) < 3:
-                    return "❌ Usage: DEVICE DISABLE <MOUSE>"
-                if params[2].upper() == "MOUSE":
-                    return self._disable_mouse()
-                else:
-                    return f"❌ Unknown device: {params[2]}\n   Valid: MOUSE"
-            else:
-                return self._show_usage()
+            args_start = 2
+        else:
+            # Direct subcommand: STATUS, SETUP, etc. (routed from uDOS_commands.py)
+            subcommand = first_param
+            args_start = 1
         
-        return self._show_usage()
+        # Handle subcommands
+        if subcommand == "STATUS" or subcommand == "":
+            return self._status()
+        elif subcommand == "SETUP":
+            return self._setup()
+        elif subcommand == "MODE":
+            if len(params) < args_start + 1:
+                return "❌ Usage: DEVICE MODE <keypad|full_keyboard|hybrid>"
+            return self._set_mode(params[args_start])
+        elif subcommand == "TEST":
+            return self._test()
+        elif subcommand == "ENABLE":
+            if len(params) < args_start + 1:
+                return "❌ Usage: DEVICE ENABLE <MOUSE>"
+            if params[args_start].upper() == "MOUSE":
+                return self._enable_mouse()
+            else:
+                return f"❌ Unknown device: {params[args_start]}\n   Valid: MOUSE"
+        elif subcommand == "DISABLE":
+            if len(params) < args_start + 1:
+                return "❌ Usage: DEVICE DISABLE <MOUSE>"
+            if params[args_start].upper() == "MOUSE":
+                return self._disable_mouse()
+            else:
+                return f"❌ Unknown device: {params[args_start]}\n   Valid: MOUSE"
+        else:
+            return self._show_usage()
     
     def _status(self) -> str:
         """Show input device status."""
