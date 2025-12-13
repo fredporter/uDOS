@@ -1,0 +1,43 @@
+# Beginner Example: Daily Survival Check
+# This script demonstrates basic uCODE commands with correct syntax
+# Level: Beginner (UPPERCASE only, no Python needed)
+
+# Display welcome message
+PRINT[=== Daily Survival Check ===]
+PRINT[]
+
+# Check current resources (using $ prefix for variables)
+PRINT[Checking resources...]
+GET[$water-level]
+GET[$food-supply]
+GET[$player-hp]
+PRINT[]
+
+# Display status in columns (pipe = column separator)
+PRINT[Water: 50L | Food: 30 days | Health: 85%]
+PRINT[]
+
+# Check health and heal if needed
+PRINT[Health Assessment:]
+IF GET[$player-hp] < 50 THEN HEAL*SPRITE[player|30|medkit]
+IF GET[$player-hp] >= 50 THEN PRINT[Health is good!]
+PRINT[]
+
+# Check resources and get guides if low
+PRINT[Resource Assessment:]
+IF GET[$water-level] < 30 THEN GUIDE[water/collection|detailed]
+IF GET[$food-supply] < 20 THEN GUIDE[food/foraging|simple]
+PRINT[]
+
+# Save checkpoint with correct syntax (asterisk for tag)
+CHECKPOINT*SAVE[daily-check-complete]
+PRINT[Checkpoint saved: daily-check-complete]
+
+# Gain experience for completing daily check
+XP[+10]
+PRINT[Gained 10 XP for daily check]
+PRINT[]
+
+# Show final status
+PRINT[Daily check complete!]
+STATUS

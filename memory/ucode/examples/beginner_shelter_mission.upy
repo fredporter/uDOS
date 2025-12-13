@@ -1,0 +1,60 @@
+# Beginner Example: Build Shelter Mission
+# Complete walkthrough of establishing a shelter
+# Level: Beginner (UPPERCASE only)
+
+PRINT[=== Shelter Building Mission ===]
+PRINT[]
+
+# Start the mission (asterisk for tag)
+MISSION*START[build-shelter]
+PRINT[Mission started: Build Shelter]
+PRINT[]
+
+# Phase 1: Get instructions
+PRINT[Phase 1: Learning Shelter Techniques]
+GUIDE[shelter/lean-to|detailed]
+CHECKPOINT*SAVE[instructions-reviewed]
+XP[+25]
+PRINT[]
+
+# Phase 2: Gather materials
+PRINT[Phase 2: Gathering Materials]
+ITEM[rope]
+ITEM[tarp]
+ITEM[axe]
+PRINT[Materials collected | Rope | Tarp | Axe]
+CHECKPOINT*SAVE[materials-gathered]
+XP[+50]
+PRINT[]
+
+# Phase 3: Build frame
+PRINT[Phase 3: Building Frame]
+PRINT[Constructing frame structure...]
+SET[$shelter-progress|frame-complete]
+CHECKPOINT*SAVE[frame-built]
+XP[+75]
+PRINT[]
+
+# Phase 4: Add cover
+PRINT[Phase 4: Adding Cover]
+PRINT[Installing tarp covering...]
+SET[$shelter-progress|cover-complete]
+CHECKPOINT*SAVE[cover-installed]
+XP[+100]
+PRINT[]
+
+# Complete mission
+PRINT[Shelter construction complete!]
+MISSION*COMPLETE[build-shelter]
+XP[+200]
+LEVEL*UP
+PRINT[]
+
+# Save final state
+CHECKPOINT*SAVE[shelter-mission-complete]
+PRINT[Mission Complete | Total XP: 450 | Level Up!]
+PRINT[]
+
+# Show inventory
+PRINT[Final Inventory:]
+INVENTORY

@@ -1,0 +1,219 @@
+# Advanced Example: Survival System with Classes
+# Pure lowercase Python with uCODE as imported functions
+# Level: Advanced (lowercase Python + uCODE library)
+
+from dataclasses import dataclass
+from typing import Optional, List
+from datetime import datetime
+import json
+
+# uCODE core functions (lowercase)
+from ucode import (
+    print_output, set_var, get_var, checkpoint_save,
+    mission_start, mission_complete, xp_award, guide_load
+)
+
+@dataclass
+class Resource:
+    """Resource tracking with auto-alerts"""
+    name: str
+    current: float
+    maximum: float
+    critical_threshold: float = 25.0
+    
+    @property
+    def percentage(self) -> float:
+        return (self.current / self.maximum) * 100
+    
+    @property
+    def is_critical(self) -> bool:
+        return self.percentage < self.critical_threshold
+    
+    def consume(self, amount: float) -> bool:
+        """Consume resource, return success"""
+        if self.current >= amount:
+            self.current -= amount
+            return True
+        return False
+    
+    def replenish(self, amount: float) -> None:
+        """Add resource, cap at maximum"""
+        self.current = min(self.current + amount, self.maximum)
+
+class SurvivalSystem:
+    """Complete survival tracking system"""
+    
+    def __init__(self):
+        self.resources: dict[str, Resource] = {
+            'water': Resource('Water', 100.0, 100.0, 30.0),
+            'food': Resource('Food', 100.0, 100.0, 25.0),
+            'health': Resource('Health', 100.0, 100.0, 40.0),
+            'energy': Resource('Energy', 100.0, 100.0, 20.0)
+        }
+        self.day: int = 0
+        self.checkpoints: List[dict] = []
+    
+    def simulate_day(self) -> dict:
+        """Simulate one day of survival"""
+        self.day += 1
+        
+        # Daily consumption rates
+        consumption = {
+            'water': 12.0,
+            'food': 8.0,
+            'health': 2.0,
+            'energy': 15.0
+        }
+        
+        results = {'day': self.day, 'events': [], 'consumed': {}}
+        
+        # Process consumption
+        for name, amount in consumption.items():
+            resource = self.resources[name]
+            success = resource.consume(amount)
+            results['consumed'][name] = amount
+            
+            # Check critical levels
+            if resource.is_critical:
+                results['events'].append(f"{name.upper()} CRITICAL: {resource.percentage:.1f}%")
+                
+                # Auto-response
+                if name == 'health' and resource.current > 0:
+                    # Emergency healing
+                    resource.replenish(20.0)
+                    results['events'].append(f"Emergency {name} protocol activated")
+                    xp_award(50)
+        
+        # Save checkpoint
+        checkpoint_data = {
+            'day': self.day,
+            'resources': {name: r.current for name, r in self.resources.items()},
+            'timestamp': datetime.now().isoformat()
+        }
+        self.checkpoints.append(checkpoint_data)
+        
+        return results
+    
+    def get_status_report(self) -> str:
+        """Generate comprehensive status report"""
+        report_lines = [
+            f"=== Day {self.day} Status Report ===",
+            ""
+        ]
+        
+        for name, resource in self.resources.items():
+            status_icon = "✓" if not resource.is_critical else "⚠️"
+            report_lines.append(
+                f"{status_icon} {name.title()}: {resource.percentage:.1f}% "
+                f"({resource.current:.1f}/{resource.maximum:.1f})"
+            )
+        
+        return "\n".join(report_lines)
+    
+    def optimize_resources(self) -> List[str]:
+        """AI-driven resource optimization suggestions"""
+        suggestions = []
+        
+        # Analyze resource ratios
+        water_food_ratio = (
+            self.resources['water'].percentage / 
+            self.resources['food'].percentage
+        )
+        
+        if water_food_ratio > 2.0:
+            suggestions.append("Water abundant: Consider preserving food")
+        elif water_food_ratio < 0.5:
+            suggestions.append("Food abundant: Prioritize water sourcing")
+        
+        # Health/energy relationship
+        health_pct = self.resources['health'].percentage
+        energy_pct = self.resources['energy'].percentage
+        
+        if health_pct < 50 and energy_pct > 50:
+            suggestions.append("Use excess energy for health recovery activities")
+        
+        # Critical warnings
+        critical_resources = [
+            name for name, r in self.resources.items() if r.is_critical
+        ]
+        
+        if critical_resources:
+            suggestions.append(
+                f"CRITICAL: Immediate action needed for {', '.join(critical_resources)}"
+            )
+        
+        return suggestions
+
+def main():
+    """Main survival simulation"""
+    # Initialize system
+    system = SurvivalSystem()
+    
+    # Start mission (uCODE)
+    mission_start('advanced-survival')
+    print_output("=== Advanced Survival System v1.2.24 ===")
+    print_output("")
+    
+    # Load survival guides (uCODE)
+    water_guide = guide_load('water/purification', 'detailed')
+    food_guide = guide_load('food/preservation', 'detailed')
+    
+    print_output("Survival guides loaded")
+    checkpoint_save('guides-loaded')
+    print_output("")
+    
+    # Simulate 7 days
+    print_output("Simulating 7-day survival scenario...")
+    print_output("")
+    
+    for day in range(1, 8):
+        results = system.simulate_day()
+        
+        # Display day results
+        print_output(f"Day {results['day']}:")
+        
+        # Show consumption
+        consumed_str = " | ".join([
+            f"{name.title()}: -{amt:.1f}"
+            for name, amt in results['consumed'].items()
+        ])
+        print_output(f"  Consumed: {consumed_str}")
+        
+        # Show events
+        if results['events']:
+            print_output("  Events:")
+            for event in results['events']:
+                print_output(f"    • {event}")
+        
+        # Get optimization suggestions
+        suggestions = system.optimize_resources()
+        if suggestions:
+            print_output("  Suggestions:")
+            for suggestion in suggestions:
+                print_output(f"    → {suggestion}")
+        
+        print_output("")
+        
+        # Save checkpoint (uCODE)
+        checkpoint_save(f'day-{day}-complete')
+        xp_award(100)
+    
+    # Final report
+    print_output("=== Final Status ===")
+    print_output(system.get_status_report())
+    print_output("")
+    
+    # Export checkpoint data
+    export_path = "memory/logs/survival_checkpoints.json"
+    with open(export_path, 'w') as f:
+        json.dump(system.checkpoints, f, indent=2)
+    
+    print_output(f"Checkpoint data exported to {export_path}")
+    
+    # Mission complete (uCODE)
+    xp_award(500)
+    mission_complete('advanced-survival')
+    print_output("Mission Complete | Total XP: 1200")
+
+if __name__ == "__main__":
+    main()
