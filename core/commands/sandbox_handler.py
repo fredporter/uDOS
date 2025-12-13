@@ -29,6 +29,10 @@ class SandboxHandler:
         # v1.2.23: FilenameGenerator for consistent report naming
         self.filename_gen = FilenameGenerator(config=config)
         
+        # v1.2.23: uDOS ID format pattern for recognition
+        import re
+        self.udos_id_pattern = re.compile(r'^\d{8}-\d{6}[A-Z]{3,4}-')
+        
         # v1.2.21: Updated to new memory/ structure (Geography Consolidation)
         # memory/docs = markdown files
         # memory/drafts = draft markdown
@@ -63,6 +67,26 @@ class SandboxHandler:
             'sandbox': 7  # Draft .upy scripts - clean after 7 days
         }
 
+    def _is_udos_format(self, filename: str) -> bool:
+        """Check if filename uses uDOS ID standard (v1.2.23)."""
+        return bool(self.udos_id_pattern.match(filename))
+    
+    def _extract_date_from_filename(self, filename: str) -> str:
+        """Extract date (YYYYMMDD) from uDOS ID format filename."""
+        if self._is_udos_format(filename):
+            return filename[:8]  # YYYYMMDD
+        return None
+    
+    def _extract_location_from_filename(self, filename: str) -> str:
+        """Extract TILE code from uDOS ID format filename."""
+        if self._is_udos_format(filename):
+            # Format: YYYYMMDD-HHMMSSTZ-TILE-name
+            parts = filename.split('-')
+            if len(parts) >= 3:
+                # TILE code is after timezone (3rd part)
+                return parts[2]
+        return None
+    
     def handle(self, command, args=None):
         """Route CLEAN and TIDY commands."""
         args = args or []
@@ -428,14 +452,21 @@ class SandboxHandler:
             TIDY                     - Tidy all subdirectories (interactive)
             TIDY logs                - Organize logs only
             TIDY scripts             - Categorize scripts
+            TIDY tasks               - Organize by date (v1.2.23)
+            TIDY missions            - Organize by location (v1.2.23)
             TIDY --report            - Generate report without changes
             TIDY --auto              - Auto-organize without prompts
+            TIDY --by-date           - Group files by YYYY-MM folders (v1.2.23)
+            TIDY --by-location       - Group files by TILE codes (v1.2.23)
 
         Features:
             - Organize logs by date and type
             - Categorize scripts by purpose
             - Sort workflow files
             - Generate cleanup recommendations
+            - v1.2.23: Recognize uDOS ID format (YYYYMMDD-HHMMSSTZ-TILE-name)
+            - v1.2.23: Auto-organize by date (YYYY-MM folders)
+            - v1.2.23: Auto-organize by location (TILE code folders)
         """
         report_only = '--report' in args
         auto_mode = '--auto' in args
@@ -452,6 +483,10 @@ class SandboxHandler:
 
         results = []
 
+        # v1.2.23: Check for organization flags
+        organize_by_date = '--by-date' in args
+        organize_by_location = '--by-location' in args
+        
         # Organize each target
         for target in targets:
             if target == 'all':
@@ -459,12 +494,26 @@ class SandboxHandler:
                     if folder in self.subdirs:
                         result = self._tidy_folder(folder, report_only, auto_mode)
                         results.append(result)
+            elif target == 'tasks':
+                # v1.2.23: Organize tasks by date
+                result = self._tidy_tasks_by_date(report_only)
+                results.append(result)
+            elif target == 'missions':
+                # v1.2.23: Organize missions by location
+                result = self._tidy_missions_by_location(report_only)
+                results.append(result)
             else:
                 if target not in self.subdirs:
                     results.append(f"❌ Unknown folder: {target}")
                     continue
                 result = self._tidy_folder(target, report_only, auto_mode)
                 results.append(result)
+        
+        # v1.2.23: Apply date/location organization if requested
+        if organize_by_date:
+            results.append(self._organize_files_by_date(report_only))
+        if organize_by_location:
+            results.append(self._organize_files_by_location(report_only))
 
         # Generate cleanup statistics
         if report_only or '--stats' in args:
@@ -531,6 +580,106 @@ class SandboxHandler:
 
         return result
 
+    def _tidy_tasks_by_date(self, report_only: bool) -> str:
+        """Organize tasks by date into YYYY-MM folders (v1.2.23)."""
+        tasks_dir = Path("memory/workflows/tasks")
+        if not tasks_dir.exists():
+            return "ℹ️  No tasks directory found"
+        
+        result = "\n📅 Organizing tasks by date...\n"
+        organized = 0
+        
+        for file in tasks_dir.glob("*.json"):
+            if file.name == "unified_tasks.json":
+                continue  # Skip main data file
+            
+            date_str = self._extract_date_from_filename(file.name)
+            if date_str:
+                # Create YYYY-MM folder
+                year_month = f"{date_str[:4]}-{date_str[4:6]}"
+                target_dir = tasks_dir / year_month
+                
+                if not report_only:
+                    target_dir.mkdir(exist_ok=True)
+                    file.rename(target_dir / file.name)
+                
+                organized += 1
+        
+        result += f"  ✅ Organized {organized} task files by date\n"
+        return result
+    
+    def _tidy_missions_by_location(self, report_only: bool) -> str:
+        """Organize missions by TILE code folders (v1.2.23)."""
+        missions_dir = Path("memory/workflows/missions")
+        if not missions_dir.exists():
+            return "ℹ️  No missions directory found"
+        
+        result = "\n🗺️  Organizing missions by location...\n"
+        organized = 0
+        
+        for file in missions_dir.glob("*.upy"):
+            tile_code = self._extract_location_from_filename(file.name)
+            if tile_code:
+                target_dir = missions_dir / tile_code
+                
+                if not report_only:
+                    target_dir.mkdir(exist_ok=True)
+                    file.rename(target_dir / file.name)
+                
+                organized += 1
+        
+        result += f"  ✅ Organized {organized} mission files by location\n"
+        return result
+    
+    def _organize_files_by_date(self, report_only: bool) -> str:
+        """Organize all uDOS ID format files by date (v1.2.23)."""
+        result = "\n📅 Organizing files by date (YYYY-MM)...\n"
+        organized = 0
+        
+        for root_dir in [Path("memory/workflows"), Path("memory/ucode/scripts")]:
+            if not root_dir.exists():
+                continue
+            
+            for file in root_dir.glob("**/*.upy"):
+                if not self._is_udos_format(file.name):
+                    continue
+                
+                date_str = self._extract_date_from_filename(file.name)
+                if date_str:
+                    year_month = f"{date_str[:4]}-{date_str[4:6]}"
+                    target_dir = file.parent / year_month
+                    
+                    if not report_only and file.parent.name != year_month:
+                        target_dir.mkdir(exist_ok=True)
+                        file.rename(target_dir / file.name)
+                        organized += 1
+        
+        result += f"  ✅ Organized {organized} files by date\n"
+        return result
+    
+    def _organize_files_by_location(self, report_only: bool) -> str:
+        """Organize all uDOS ID format files by TILE code (v1.2.23)."""
+        result = "\n🗺️  Organizing files by location (TILE codes)...\n"
+        organized = 0
+        
+        missions_dir = Path("memory/workflows/missions")
+        if missions_dir.exists():
+            for file in missions_dir.glob("*.upy"):
+                if not self._is_udos_format(file.name):
+                    continue
+                
+                tile_code = self._extract_location_from_filename(file.name)
+                if tile_code:
+                    target_dir = missions_dir / tile_code
+                    
+                    if not report_only:
+                        target_dir.mkdir(exist_ok=True)
+                        file.rename(target_dir / file.name)
+                        organized += 1
+        
+        result += f"  ✅ Organized {organized} files by location\n"
+        return result
+    
     def _tidy_logs(self, report_only, auto_mode):
         """Organize logs by type and date."""
         logs_dir = self.subdirs['logs']
