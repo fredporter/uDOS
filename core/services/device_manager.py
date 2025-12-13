@@ -328,3 +328,218 @@ class DeviceManager:
                 "usage_percent": hardware["cpu"]["usage_percent"]
             }
         }
+    
+    # ========== Input Device Detection (v1.2.25) ==========
+    
+    def detect_input_capabilities(self) -> dict:
+        """
+        Detect input device capabilities (v1.2.25).
+        
+        Returns:
+            Dictionary with keyboard, mouse, touch, terminal features
+        """
+        import os
+        import sys
+        
+        capabilities = {
+            "keyboard": {
+                "available": True,  # Terminal requires keyboard
+                "num_keypad": True  # Best guess for desktop
+            },
+            "mouse": {
+                "available": self._has_mouse_support(),
+                "protocol": "xterm" if self._supports_xterm_mouse() else "none",
+                "enabled": self._supports_xterm_mouse()
+            },
+            "touch": {
+                "available": False,  # Requires extension
+                "extension_required": "extensions/input/touch_handler.py"
+            },
+            "terminal": {
+                "name": os.environ.get('TERM_PROGRAM', os.environ.get('TERM', 'unknown')),
+                "xterm_mouse": self._supports_xterm_mouse(),
+                "colors_256": self._supports_256_colors(),
+                "unicode": self._supports_unicode(),
+                "width": self._get_terminal_width(),
+                "height": self._get_terminal_height()
+            },
+            "mode": "keypad",  # Default input mode
+            "last_updated": datetime.now(timezone.utc).isoformat()
+        }
+        
+        # Update device_data with input section
+        self.device_data["input"] = capabilities
+        self.save()
+        
+        return capabilities
+    
+    def _has_mouse_support(self) -> bool:
+        """Check if mouse input is available."""
+        # Check for xterm mouse protocol support
+        if self._supports_xterm_mouse():
+            return True
+        
+        # Platform-specific checks
+        system = platform.system()
+        if system == "Darwin":  # macOS
+            return True  # Most Mac terminals support mouse
+        elif system == "Linux":
+            # Check if running in GUI terminal
+            import os
+            display = os.environ.get('DISPLAY')
+            return display is not None
+        elif system == "Windows":
+            return True  # Windows Terminal supports mouse
+        
+        return False
+    
+    def _supports_xterm_mouse(self) -> bool:
+        """Check if terminal supports xterm mouse protocol."""
+        import os
+        term = os.environ.get('TERM', '')
+        term_program = os.environ.get('TERM_PROGRAM', '')
+        
+        # Known terminals with xterm mouse support
+        supported_terms = ['xterm', 'screen', 'tmux', 'rxvt']
+        supported_programs = ['iTerm.app', 'Terminal.app', 'Hyper', 'Alacritty', 'VSCode']
+        
+        if term_program in supported_programs:
+            return True
+        
+        for supported in supported_terms:
+            if supported in term:
+                return True
+        
+        return False
+    
+    def _supports_256_colors(self) -> bool:
+        """Check if terminal supports 256 colors."""
+        import os
+        term = os.environ.get('TERM', '')
+        return '256color' in term or 'truecolor' in term
+    
+    def _supports_unicode(self) -> bool:
+        """Check if terminal supports Unicode."""
+        import sys
+        encoding = sys.stdout.encoding or ''
+        return 'utf' in encoding.lower()
+    
+    def _get_terminal_width(self) -> int:
+        """Get terminal width in columns."""
+        try:
+            import shutil
+            size = shutil.get_terminal_size()
+            return size.columns
+        except Exception:
+            return 80  # Default fallback
+    
+    def _get_terminal_height(self) -> int:
+        """Get terminal height in rows."""
+        try:
+            import shutil
+            size = shutil.get_terminal_size()
+            return size.lines
+        except Exception:
+            return 24  # Default fallback
+    
+    def get_input_mode(self) -> str:
+        """
+        Get current input mode.
+        
+        Returns:
+            Input mode: 'keypad', 'full_keyboard', or 'hybrid'
+        """
+        if "input" not in self.device_data:
+            self.detect_input_capabilities()
+        return self.device_data["input"].get("mode", "keypad")
+    
+    def set_input_mode(self, mode: str) -> bool:
+        """
+        Set input mode.
+        
+        Args:
+            mode: Input mode ('keypad', 'full_keyboard', 'hybrid')
+            
+        Returns:
+            True if mode was set successfully
+        """
+        valid_modes = ['keypad', 'full_keyboard', 'hybrid']
+        if mode not in valid_modes:
+            return False
+        
+        if "input" not in self.device_data:
+            self.detect_input_capabilities()
+        
+        self.device_data["input"]["mode"] = mode
+        self.device_data["input"]["last_updated"] = datetime.now(timezone.utc).isoformat()
+        self.save()
+        return True
+    
+    def is_mouse_enabled(self) -> bool:
+        """Check if mouse input is enabled."""
+        if "input" not in self.device_data:
+            self.detect_input_capabilities()
+        return self.device_data["input"]["mouse"].get("enabled", False)
+    
+    def enable_mouse(self) -> bool:
+        """Enable mouse input if available."""
+        if "input" not in self.device_data:
+            self.detect_input_capabilities()
+        
+        if not self.device_data["input"]["mouse"]["available"]:
+            return False
+        
+        self.device_data["input"]["mouse"]["enabled"] = True
+        self.device_data["input"]["last_updated"] = datetime.now(timezone.utc).isoformat()
+        self.save()
+        return True
+    
+    def disable_mouse(self) -> None:
+        """Disable mouse input."""
+        if "input" not in self.device_data:
+            self.detect_input_capabilities()
+        
+        self.device_data["input"]["mouse"]["enabled"] = False
+        self.device_data["input"]["last_updated"] = datetime.now(timezone.utc).isoformat()
+        self.save()
+    
+    def get_input_status_report(self) -> str:
+        """
+        Generate human-readable input device status report (v1.2.25).
+        
+        Returns:
+            Formatted status string
+        """
+        if "input" not in self.device_data:
+            self.detect_input_capabilities()
+        
+        inp = self.device_data["input"]
+        kb = inp["keyboard"]
+        mouse = inp["mouse"]
+        touch = inp["touch"]
+        term = inp["terminal"]
+        
+        lines = []
+        lines.append("📱 INPUT DEVICE STATUS")
+        lines.append("=" * 60)
+        lines.append("")
+        lines.append("Hardware:")
+        lines.append(f"  Keyboard:     {'✅ Available' if kb['available'] else '❌ Not detected'}")
+        lines.append(f"  Num Keypad:   {'✅ Detected' if kb['num_keypad'] else '❌ Not detected'}")
+        lines.append(f"  Mouse:        {'✅ Available (' + mouse['protocol'] + ')' if mouse['available'] else '❌ Not supported'}")
+        lines.append(f"  Touch:        {'✅ Available' if touch['available'] else '❌ Extension required'}")
+        lines.append("")
+        lines.append("Terminal:")
+        lines.append(f"  Name:         {term['name']}")
+        lines.append(f"  Size:         {term['width']}x{term['height']} columns")
+        lines.append(f"  Mouse Events: {'✅ Supported' if term['xterm_mouse'] else '❌ Not supported'}")
+        lines.append(f"  256 Colors:   {'✅ Supported' if term['colors_256'] else '❌ Not supported'}")
+        lines.append(f"  Unicode:      {'✅ Supported' if term['unicode'] else '❌ Not supported'}")
+        lines.append("")
+        lines.append("Current Settings:")
+        lines.append(f"  Input Mode:   {inp['mode'].upper().replace('_', ' ')}")
+        lines.append(f"  Mouse:        {'ENABLED' if mouse['enabled'] else 'DISABLED'}")
+        lines.append("")
+        lines.append(f"Last Updated: {inp['last_updated']}")
+        
+        return "\n".join(lines)

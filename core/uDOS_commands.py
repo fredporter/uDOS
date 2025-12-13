@@ -183,6 +183,9 @@ class CommandHandler:
         from core.commands.tui_handler import TUIHandler
         self.tui_handler = TUIHandler()  # Will set TUI controller later
 
+        # v1.2.25 - Device Management
+        from core.commands.device_handler import DeviceHandler
+        self.device_handler = DeviceHandler(**handler_kwargs)
 
         from core.commands.gmail_handler import handle_gmail_command
         self.gmail_handler = handle_gmail_command
@@ -540,6 +543,10 @@ class CommandHandler:
             # v1.2.15 - TUI Management (Keypad, Predictor, Pager, Browser)
             elif module == "TUI":
                 return self.tui_handler.handle_command([command] + params if command else params)
+
+            # v1.2.25 - Device Management (Input Devices)
+            elif module == "DEVICE":
+                return self.device_handler.handle_command([command] + params if command else params)
 
             # v1.5.0 - PEEK Data Collection System
             elif module == "PEEK":

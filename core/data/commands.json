@@ -1106,6 +1106,39 @@
       ]
     },
     {
+      "NAME": "DEVICE",
+      "SYNTAX": "DEVICE [STATUS|SETUP|MODE|TEST|ENABLE|DISABLE]",
+      "DESCRIPTION": "Manage input device detection and configuration. Detect keyboard, mouse, and terminal capabilities. Switch between keypad, full keyboard, and hybrid input modes.",
+      "UCODE_TEMPLATE": "[DEVICE|$1*$2]",
+      "DEFAULT_PARAMS": {
+        "$1": "STATUS",
+        "$2": ""
+      },
+      "EXAMPLES": [
+        "DEVICE STATUS",
+        "DEVICE SETUP",
+        "DEVICE MODE keypad",
+        "DEVICE ENABLE MOUSE",
+        "DEVICE TEST"
+      ],
+      "MODES": {
+        "keypad": "0-9 numpad navigation (default)",
+        "full_keyboard": "All keys including arrows, function keys",
+        "hybrid": "Keypad + additional shortcuts"
+      },
+      "CAPABILITIES": {
+        "keyboard": "Terminal keyboard input (always available)",
+        "mouse": "xterm mouse protocol (click, drag, scroll)",
+        "touch": "Touch gestures (requires extension)",
+        "terminal": "256 colors, Unicode, terminal size detection"
+      },
+      "NOTES": [
+        "v1.2.25: Device detection and input mode management",
+        "Mouse support requires xterm-compatible terminal",
+        "Touch support requires extensions/input extension (EXPLORER+ tiers)"
+      ]
+    },
+    {
       "NAME": "PEEK",
       "SYNTAX": "PEEK <url|FILE path> [--format json|text] [--save filename] [--extract]",
       "DESCRIPTION": "Fetch and parse data from URLs or local documents. Supports Markdown (.md), JSON (.json), SVG (.svg), and HTML. Auto-saves to memory/sandbox.",
