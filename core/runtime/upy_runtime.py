@@ -1,16 +1,20 @@
 """
-uPY v1.2.x Runtime Engine
-Interpreter for v1.2.x syntax
+uPY v1.2.24 Runtime Engine (Bracket Syntax)
+Interpreter for v1.2.24 bracket syntax
 
 Syntax Support:
 - Variables: {$VARIABLE} or {$VARIABLE.PROPERTY}
-- Commands: (COMMAND|param1|param2)
+- Commands: COMMAND[ param1 | param2 ]  (brackets with spaces, pipes)
 - Short conditionals: [IF condition: action]
 - Medium conditionals: [IF cond THEN: action ELSE: action]
 - Ternary: [condition ? action : else_action]
 - Long conditionals: IF/ELSE IF/ELSE/END IF
 - Short functions: @name(params): expression
 - Long functions: FUNCTION/END FUNCTION
+
+Note: .upy files are source format (human-readable with brackets).
+Smart editor converts to Python for fast execution.
+This runtime supports direct .upy execution in sandbox/test mode.
 """
 
 import re
@@ -68,42 +72,35 @@ class UPYRuntime:
             'SPRITE-XP': 0,
         }
 
-        # Patterns for v2.0.2
+        # Patterns for v1.2.24 - Bracket syntax
         self.var_pattern = re.compile(r'\{\$([a-zA-Z_][a-zA-Z0-9_.-]*)\}')
-        self.cmd_pattern = re.compile(r'\(([A-Z_]+)(?:\|([^\)]+))?\)')
+        self.cmd_pattern = re.compile(r'([A-Z_*]+)\s*\[\s*([^\]]+?)\s*\]')  # COMMAND[ args | with | pipes ]
         self.short_cond_pattern = re.compile(r'\[IF\s+(.+?):\s*(.+?)\]')
         self.medium_cond_pattern = re.compile(r'\[IF\s+(.+?)\s+THEN:\s*(.+?)(?:\s+ELSE:\s*(.+?))?\]')
         self.ternary_pattern = re.compile(r'\[(.+?)\s*\?\s*(.+?)\s*:\s*(.+?)\]')
 
     def split_actions(self, action_str: str) -> List[str]:
         """
-        Split actions on | but respect parentheses and brackets.
+        Split actions on | but respect brackets for command arguments.
 
         Args:
-            action_str: String with potentially multiple actions like "(CMD|param)|(CMD2|param)"
+            action_str: String with potentially multiple actions like "CMD[ param ] | CMD2[ param ]"
 
         Returns:
             List of individual actions
         """
         actions = []
         current = []
-        paren_depth = 0
         bracket_depth = 0
 
         for char in action_str:
-            if char == '(':
-                paren_depth += 1
-                current.append(char)
-            elif char == ')':
-                paren_depth -= 1
-                current.append(char)
-            elif char == '[':
+            if char == '[':
                 bracket_depth += 1
                 current.append(char)
             elif char == ']':
                 bracket_depth -= 1
                 current.append(char)
-            elif char == '|' and paren_depth == 0 and bracket_depth == 0:
+            elif char == '|' and bracket_depth == 0:
                 # Split here
                 if current:
                     actions.append(''.join(current).strip())
@@ -240,48 +237,49 @@ class UPYRuntime:
 
     def parse_command(self, text: str) -> Optional[Tuple[str, List[str]]]:
         """
-        Parse command: (COMMAND|param1|param2)
-        Handles nested parentheses in parameters.
+        Parse command: COMMAND[ param1 | param2 ]
+        Handles nested brackets in parameters.
 
         Returns:
             (command_name, params) tuple or None
         """
         text = text.strip()
-        if not text.startswith('(') or not text.endswith(')'):
+        
+        # Match COMMAND[ args ] pattern (with optional asterisk for tags)
+        match = self.cmd_pattern.match(text)
+        if not match:
             return None
+        
+        command_name = match.group(1)
+        args_str = match.group(2) if match.lastindex >= 2 else ""
+        
+        # Split arguments on | but respect nested brackets
+        bracket_depth = 0
+        args = []
+        current_arg = []
 
-        # Remove outer parentheses
-        inner = text[1:-1]
-
-        # Split on | but respect nested parentheses
-        parts = []
-        current = []
-        paren_depth = 0
-
-        for char in inner:
-            if char == '(':
-                paren_depth += 1
-                current.append(char)
-            elif char == ')':
-                paren_depth -= 1
-                current.append(char)
-            elif char == '|' and paren_depth == 0:
-                parts.append(''.join(current))
-                current = []
+        for char in args_str:
+            if char == '[':
+                bracket_depth += 1
+                current_arg.append(char)
+            elif char == ']':
+                bracket_depth -= 1
+                current_arg.append(char)
+            elif char == '|' and bracket_depth == 0:
+                # Found separator at top level
+                args.append(''.join(current_arg).strip())
+                current_arg = []
             else:
-                current.append(char)
+                current_arg.append(char)
 
-        # Add last part
-        if current:
-            parts.append(''.join(current))
+        # Add last argument
+        if current_arg or args_str:  # Include empty last arg if there was a trailing |
+            args.append(''.join(current_arg).strip())
 
-        if not parts:
-            return None
+        # Substitute variables in parameters
+        params = [self.substitute_variables(arg) for arg in args]
 
-        command = parts[0].strip().upper()
-        params = [self.substitute_variables(p.strip()) for p in parts[1:]]
-
-        return (command, params)
+        return (command_name, params)
 
     def evaluate_condition(self, condition: str) -> bool:
         """
@@ -973,7 +971,7 @@ class UPYRuntime:
                 # Call function
                 return self.call_function(func_name, args)
 
-        # Commands: (COMMAND|params)
+        # Commands: COMMAND[ params | ... ]
         parsed = self.parse_command(line)
         if parsed:
             command, params = parsed
