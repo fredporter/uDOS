@@ -11,7 +11,6 @@
         "$2": null,
         "$3": null
       },
-      "DEFERRED": "",
       "EXAMPLES": [
         "OK MAKE WORKFLOW \"water purification\"",
         "OK MAKE SVG \"water filter diagram\"",
@@ -21,78 +20,6 @@
       ],
       "NOTES": [
         "✅ Active in v1.2.21 - OK Assistant with AI-powered generation"
-      ]
-    },
-    {
-      "NAME": "EXPLAIN",
-      "SYNTAX": "EXPLAIN \"<command>\"",
-      "DESCRIPTION": "Get assisted explanation of what a command does.",
-      "UCODE_TEMPLATE": "[ASSIST|EXPLAIN*$1]",
-      "DEFAULT_PARAMS": {},
-      "DEFERRED": "v1.1+",
-      "NOTES": [
-        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
-      ]
-    },
-    {
-      "NAME": "GENERATE",
-      "SYNTAX": "GENERATE \"<description>\"",
-      "DESCRIPTION": "Generate a uDOS script from natural language description using assisted guidance.",
-      "UCODE_TEMPLATE": "[ASSIST|GENERATE*$1]",
-      "DEFAULT_PARAMS": {},
-      "DEFERRED": "v1.1+",
-      "NOTES": [
-        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
-      ]
-    },
-    {
-      "NAME": "DEBUG",
-      "SYNTAX": "DEBUG \"<error message>\"",
-      "DESCRIPTION": "Get assisted help debugging an error.",
-      "UCODE_TEMPLATE": "[ASSIST|DEBUG*$1]",
-      "DEFAULT_PARAMS": {},
-      "DEFERRED": "v1.1+",
-      "NOTES": [
-        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
-      ]
-    },
-    {
-      "NAME": "READ",
-      "SYNTAX": "READ <panel>",
-      "DESCRIPTION": "Read and analyze panel content for insights and suggestions.",
-      "UCODE_TEMPLATE": "[ASSIST|READ*$1]",
-      "DEFAULT_PARAMS": {},
-      "DEFERRED": "v1.1+",
-      "EXAMPLES": [
-        "READ docs",
-        "READ poke",
-        "READ logs"
-      ],
-      "NOTES": [
-        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
-      ]
-    },
-    {
-      "NAME": "ASSIST",
-      "SYNTAX": "ASSIST [CLEAR]",
-      "DESCRIPTION": "Access AI assistant features. Without subcommand, shows assistant status. Use ASSIST CLEAR to clear conversation history.",
-      "UCODE_TEMPLATE": "[ASSIST|STATUS]",
-      "DEFAULT_PARAMS": {},
-      "DEFERRED": "v1.1+",
-      "NOTES": [
-        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension",
-        "Defaults to showing assistant status when called without subcommand"
-      ]
-    },
-    {
-      "NAME": "ASSIST CLEAR",
-      "SYNTAX": "ASSIST CLEAR",
-      "DESCRIPTION": "Clear assisted conversation history.",
-      "UCODE_TEMPLATE": "[ASSIST|CLEAR]",
-      "DEFAULT_PARAMS": {},
-      "DEFERRED": "v1.1+",
-      "NOTES": [
-        "\u26a0\ufe0f DEFERRED to v1.1+ - OK Assistant extension"
       ]
     },
     {
@@ -295,7 +222,7 @@
       ],
       "FLAGS": {
         "ENABLE": "Enable uPY script debugging",
-        "DISABLE": "Disable uPY script debugging", 
+        "DISABLE": "Disable uPY script debugging",
         "STATUS": "Show debugger status",
         "BREAK": "Set/remove/list breakpoints",
         "STEP": "Execute one line at a time",
@@ -687,7 +614,7 @@
     {
       "NAME": "SHAKEDOWN",
       "SYNTAX": "SHAKEDOWN [--verbose] [--quick] [--report]",
-      "DESCRIPTION": "Comprehensive v1.5.0 system validation test suite. Tests architecture cleanup (17\u219211 core dirs), planet system integration, asset management, DEV MODE security, memory structure (28\u219216 dirs), database locations, startup health, and core module imports. Options: --verbose (detailed output), --quick (core tests only), --report (generate JSON report).",
+      "DESCRIPTION": "Comprehensive v1.5.0 system validation test suite. Tests architecture cleanup (17→11 core dirs), planet system integration, asset management, DEV MODE security, memory structure (28→16 dirs), database locations, startup health, and core module imports. Options: --verbose (detailed output), --quick (core tests only), --report (generate JSON report).",
       "UCODE_TEMPLATE": "[SYSTEM|SHAKEDOWN*$1]",
       "DEFAULT_PARAMS": {},
       "OPTIONS": {
@@ -830,7 +757,7 @@
       ]
     },
     {
-      "NAME": "TILE", 
+      "NAME": "TILE",
       "SYNTAX": "TILE <command> [<tile_code>]",
       "DESCRIPTION": "Grid tile operations. Commands: INFO <code> (show tile details), LIST (show all tiles).",
       "UCODE_TEMPLATE": "[TILE|TILE*$1*$2]",
@@ -1016,27 +943,6 @@
       "DEFAULT_PARAMS": {}
     },
     {
-      "NAME": "PANEL",
-      "SYNTAX": "PANEL [<content>]",
-      "DESCRIPTION": "Display content in a formatted panel with title and border. Can display memory content, status info, or custom text.",
-      "UCODE_TEMPLATE": "[UI|PANEL*$1]",
-      "DEFERRED": "v1.1+",
-      "DEFAULT_PARAMS": {
-        "$1": ""
-      },
-      "EXAMPLES": [
-        "PANEL",
-        "PANEL MEMORY",
-        "PANEL STATUS"
-      ],
-      "NOTES": [
-        "Integrates with memory system",
-        "Supports grid layout formatting",
-        "Can display various content types",
-        "\u26a0\ufe0f DEFERRED to v1.1+ - Display UI extension"
-      ]
-    },
-    {
       "NAME": "DASH",
       "SYNTAX": "DASH [WEB]",
       "DESCRIPTION": "Display comprehensive system dashboard. Use 'DASH WEB' to open interactive web dashboard in browser. Alias: DASHBOARD",
@@ -1137,7 +1043,9 @@
     },
     {
       "NAME": "WIZARD",
-      "ALIASES": ["SETUP"],
+      "ALIASES": [
+        "SETUP"
+      ],
       "SYNTAX": "WIZARD [QUICK|THEME|VIEWPORT|EXTENSIONS|HELP]",
       "DESCRIPTION": "Run interactive setup wizard for first-time configuration. SETUP is an alias for backward compatibility.",
       "UCODE_TEMPLATE": "[SYSTEM|WIZARD*$1]",
@@ -1195,51 +1103,6 @@
       ]
     },
     {
-      "NAME": "POKE",
-      "SYNTAX": "POKE <START|STOP|STATUS|LIST> [output_name] [options]",
-      "DESCRIPTION": "Manage web-based output interfaces (typo editor, cmd terminal, dashboard, etc.). Start/stop servers, check status, and list available outputs. Alias: SERVER",
-      "UCODE_TEMPLATE": "[SYSTEM|OUTPUT*$1*$2]",
-      "DEFAULT_PARAMS": {},
-      "DEFERRED": "v1.1+",
-      "OUTPUTS": {
-        "typo": "Web markdown editor (Svelte/Node.js) - Default port: 5173",
-        "dashboard": "Unified control panel for all web outputs - Default port: 8888",
-        "terminal": "C64-style web terminal - Default port: 8889",
-        "teletext": "BBC Teletext interface - Default port: 9002",
-        "desktop": "Retro desktop environment - Default port: 8892",
-        "font-editor": "16x16 bitmap font/character editor - Default port: 8891",
-        "markdown": "Markdown viewer using Typo preview mode - Default port: 5173",
-        "cmd": "Web terminal emulator (mrchimp/cmd) - Default port: 3000"
-      },
-      "SUBCOMMANDS": {
-        "START": "Start an output interface (e.g., POKE START dashboard)",
-        "STOP": "Stop a running output server",
-        "STATUS": "Check output server status (or all servers)",
-        "LIST": "List all available output interfaces"
-      },
-      "FLAGS": {
-        "--port <number>": "Specify port number",
-        "--no-browser": "Don't auto-open browser"
-      },
-      "EXAMPLES": [
-        "POKE LIST",
-        "POKE START dashboard",
-        "POKE START typo",
-        "POKE START cmd",
-        "POKE START cmd --port 8080",
-        "POKE STATUS",
-        "POKE STOP typo",
-        "SERVER START dashboard"
-      ],
-      "NOTES": [
-        "Dashboard provides unified control for all web outputs",
-        "Access dashboard at http://localhost:8888 (default)",
-        "Dashboard shows real-time status and logs for all outputs",
-        "SERVER is an alias for POKE (legacy compatibility)",
-        "\u26a0\ufe0f DEFERRED to v1.1+ - Web interface extension"
-      ]
-    },
-    {
       "NAME": "PEEK",
       "SYNTAX": "PEEK <url|FILE path> [--format json|text] [--save filename] [--extract]",
       "DESCRIPTION": "Fetch and parse data from URLs or local documents. Supports Markdown (.md), JSON (.json), SVG (.svg), and HTML. Auto-saves to memory/sandbox.",
@@ -1274,44 +1137,6 @@
       ]
     },
     {
-      "NAME": "FONT",
-      "SYNTAX": "FONT <LIST|SET|INFO> [variant]",
-      "DESCRIPTION": "Manage Monaspace fonts for web-based editors and terminals. View available font variants, set preferences, and check current configuration.",
-      "UCODE_TEMPLATE": "[SYSTEM|FONT*$1*$2]",
-      "DEFAULT_PARAMS": {},
-      "DEFERRED": "v1.1+",
-      "SUBCOMMANDS": {
-        "LIST": "List all Monaspace font variants with descriptions and installation status",
-        "SET": "Set preferred font variant (NEON, ARGON, XENON, RADON, KRYPTON)",
-        "INFO": "Display current font configuration and settings"
-      },
-      "VARIANTS": {
-        "NEON": "Neo-grotesque sans - Clean and modern (default)",
-        "ARGON": "Humanist sans - Warm and readable",
-        "XENON": "Slab serif - Editorial and strong",
-        "RADON": "Handwriting - Casual and personal",
-        "KRYPTON": "Mechanical sans - Technical and precise"
-      },
-      "FEATURES": [
-        "Texture Healing\u2122 - Advanced character spacing",
-        "Coding ligatures - Enhanced readability",
-        "Powerline symbols - Terminal integration",
-        "Variable font technology - Flexible styling"
-      ],
-      "EXAMPLES": [
-        "FONT LIST",
-        "FONT INFO",
-        "FONT SET NEON",
-        "FONT SET ARGON"
-      ],
-      "NOTES": [
-        "Install fonts first: bash extensions/setup_monaspace.sh",
-        "Fonts apply to web-based editors (typo) and web terminals (cmd.js)",
-        "For CLI terminals, install system fonts manually (see FONT INFO)",
-        "\u26a0\ufe0f DEFERRED to v1.1+ - Typography extension"
-      ]
-    },
-    {
       "NAME": "THEME",
       "SYNTAX": "THEME [<name>|LIST|SET <name>|STATUS]",
       "DESCRIPTION": "Manage uDOS personality themes. Switch between DUNGEON (fantasy), GALAXY (sci-fi comedy), FOUNDATION (serious survival), SCIENCE (research methodology), and PROJECT (business concise). Each theme changes command names, messages, and overall verbosity. Use theme name directly as shortcut (e.g., THEME GALAXY).",
@@ -1329,31 +1154,31 @@
       "THEMES": {
         "DUNGEON": {
           "NAME": "Dungeon Master",
-          "ICON": "\u2694\ufe0f",
+          "ICON": "⚔️",
           "STYLE": "NetHack-inspired fantasy adventure",
           "VERBOSITY": "HIGH"
         },
         "GALAXY": {
           "NAME": "Galactic Hitchhiker",
-          "ICON": "\ud83d\ude80",
+          "ICON": "🚀",
           "STYLE": "Douglas Adams sci-fi comedy",
           "VERBOSITY": "VERY_HIGH"
         },
         "FOUNDATION": {
           "NAME": "Foundation Protocol",
-          "ICON": "\ud83d\udcca",
+          "ICON": "📊",
           "STYLE": "Asimov colony survival",
           "VERBOSITY": "MEDIUM"
         },
         "SCIENCE": {
           "NAME": "Research Lab",
-          "ICON": "\ud83d\udd2c",
+          "ICON": "🔬",
           "STYLE": "Scientific research and experimental methodology",
           "VERBOSITY": "LOW_MEDIUM"
         },
         "PROJECT": {
           "NAME": "Project Manager",
-          "ICON": "\ud83d\udccb",
+          "ICON": "📋",
           "STYLE": "Business-focused project management",
           "VERBOSITY": "LOW"
         }
@@ -1372,28 +1197,6 @@
         "Saved in STORY.UDO SYSTEM_OPTIONS.THEME",
         "Changes all command names and system messages",
         "Use HELP after theme change to see new command vocabulary"
-      ]
-    },
-    {
-      "NAME": "WEB",
-      "SYNTAX": "WEB",
-      "DESCRIPTION": "Launch full uDOS instance in web browser with xterm.js terminal emulator. Opens browser with splash screen, ASCII dashboard, and persistent command prompt. The web terminal runs independently from the CLI instance.",
-      "UCODE_TEMPLATE": "[SYSTEM|WEB]",
-      "DEFAULT_PARAMS": {},
-      "DEFERRED": "v1.1+",
-      "FLAGS": {},
-      "SUBCOMMANDS": {},
-      "EXAMPLES": [
-        "WEB"
-      ],
-      "NOTES": [
-        "Auto-starts web server on port 8888 if not running",
-        "Full terminal emulation with xterm.js",
-        "Supports ASCII art, colors, and cursor control",
-        "Independent web instance - CLI continues running",
-        "Web terminal includes: splash screen, dashboard, help system",
-        "Theme switching available in web interface",
-        "\u26a0\ufe0f DEFERRED to v1.1+ - Web interface extension"
       ]
     },
     {
@@ -1583,16 +1386,18 @@
         "WS STATUS"
       ],
       "NOTES": [
-        "\ud83e\uddea sandbox - Temporary experiments and testing",
-        "\ud83d\udcbe memory - Long-term storage and archives",
-        "\u2699\ufe0f  data - Configuration and system files",
+        "🧪 sandbox - Temporary experiments and testing",
+        "💾 memory - Long-term storage and archives",
+        "⚙️  data - Configuration and system files",
         "Files are isolated by workspace",
         "Use MOVE to transfer files between workspaces"
       ]
     },
     {
       "NAME": "SETUP",
-      "ALIASES": ["SETTINGS"],
+      "ALIASES": [
+        "SETTINGS"
+      ],
       "SYNTAX": "SETUP [SHOW|EDIT|RESET|<key>]",
       "DESCRIPTION": "Quick setup - display or modify system settings. For full configuration options use CONFIG command.",
       "UCODE_TEMPLATE": "[SYSTEM|SETUP]",

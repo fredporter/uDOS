@@ -244,6 +244,10 @@ class CommandHandler:
         # Development System Handlers
         from core.commands.dev_mode_handler import DevModeHandler
         self.dev_mode_handler = DevModeHandler()
+        
+        # Mode Handler (v1.3)
+        from core.commands.mode_handler import ModeCommandHandler
+        self.mode_handler = ModeCommandHandler(**handler_kwargs)
 
         # Set main_handler reference on all handlers
         for handler in [self.assistant_handler, self.file_handler,
@@ -653,12 +657,9 @@ class CommandHandler:
                 param_str = ' '.join(params) if params else ''
                 return handle_color(param_str)
 
-            # v1.2.24+ - MODE system (prompt mode switching)
+            # v1.3 - MODE system (prompt mode switching)
             elif module in ["MODE", "GHOST", "TOMB", "CRYPT"]:
-                result = self.system_handler.handle(command, params, grid, parser)
-                if hasattr(self.system_handler, 'reboot_requested'):
-                    self.reboot_requested = self.system_handler.reboot_requested
-                return result
+                return self.mode_handler.handle(command, params)
 
             elif module == "SYSTEM":
                 # System handler needs access to reboot flag
