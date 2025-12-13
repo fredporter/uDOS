@@ -1,4 +1,4 @@
-# uDOS v1.2.21 - Main Application
+# uDOS v1.2.23 - Main Application
 
 # Suppress dependency warnings gracefully
 import warnings
@@ -265,7 +265,7 @@ def main():
     try:
         # Check for help flag first
         if '--help' in sys.argv or '-h' in sys.argv:
-            print("uDOS v1.2.21 - Universal Device Operating System")
+            print("uDOS v1.2.23 - Universal Device Operating System")
             print("Usage:")
             print("  python uDOS.py                     # Interactive mode")
             print("  python uDOS.py -c \"COMMAND\"       # Execute single command")
@@ -281,7 +281,7 @@ def main():
 
         # Check for version flag
         if '--version' in sys.argv or '-v' in sys.argv:
-            print("uDOS v1.2.21 - uPY Migration Complete")
+            print("uDOS v1.2.23 - uPY Migration Complete")
             print("Released: December 2, 2025")
             print("\nFeatures:")
             print("  • .upy format only (COMMAND args syntax)")

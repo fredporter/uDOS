@@ -1,5 +1,5 @@
 """
-uDOS v1.2.21 - CLONE Command Handler
+uDOS v1.2.23 - CLONE Command Handler
 
 Collates unique local user content folders for system duplication.
 Packages user-created content for backup or transfer to another installation.
@@ -175,7 +175,7 @@ EXAMPLES:
                 # Add metadata
                 metadata = {
                     'created': timestamp,
-                    'version': 'v1.2.21',
+                    'version': 'v1.2.23',
                     'description': 'uDOS user content clone',
                     'directories': list(self.user_content_dirs.keys())
                 }

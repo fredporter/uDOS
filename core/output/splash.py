@@ -91,7 +91,7 @@ def print_splash_screen():
  ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
 """
     print(splash_text)
-    print("uDOS v1.2.21 - Offline-First Survival OS")
+    print("uDOS v1.2.23 - Offline-First Survival OS")
     print("="*50)
     print("Type HELP for commands | CONFIG LIST for settings")
     print("Syntax: COMMAND(options|$VARIABLE|'string') or MODULE COMMAND(params)")
