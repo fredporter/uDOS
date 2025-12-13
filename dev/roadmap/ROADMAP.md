@@ -1,9 +1,9 @@
 # 🗺️ uDOS Development Roadmap
 
-**Current Version:** v1.2.24 ✅ **RELEASED** (Python-First Rebase - 100x Performance)
+**Current Version:** v1.2.24.1 ✅ **RELEASED** (Maintenance & Polish)
 **Next Release:** v1.2.25 📋 **PLANNING** (Universal Input Device System)
 **Final v1.2.x Release:** v1.2.27 📋 **PLANNING** (Complete Testing & Fine-Tuning)
-**Last Updated:** 20251213-181500UTC (December 13, 2025)
+**Last Updated:** 20251213-183000UTC (December 13, 2025)
 
 > **Goal:** Complete v1.2.x as a stable, production-ready release with full TUI functionality, AI assistance, business intelligence, and workflow automation.
 
@@ -2336,6 +2336,30 @@ FEEDBACK EXPORT                # Export feedback to file
 ---
 
 ## 📝 Recent Completions
+
+### v1.2.24.1 (December 13, 2025) ✅
+
+**Maintenance & Polish** - Net -777 lines, 16 commits
+
+- HandlerUtils refactoring (343 lines, reduced duplication)
+- First-time API key setup prompts (271 lines)
+- MODE handler extraction (128 lines)
+- Commands.json cleanup (-196 lines, -8.6%)
+- Typora diagram standards (SEQUENCE/FLOWCHART)
+- Removed mermaid handler (-725 lines)
+- System handler reduction (-165 lines, -9.8%)
+- Dev tools: clean_commands_json.py (76 lines)
+
+### v1.2.24 (December 13, 2025) ✅
+
+**Python-First Rebase** - 5,000+ lines, 7 commits
+
+- 100x performance boost (925,078 ops/sec)
+- Three-tier documentation (2,700+ lines)
+- Core gameplay commands registered
+- Spacing standard applied (540+ examples)
+- Integration fixes (runtime parser, routing)
+- Example scripts (4 complete .upy files)
 
 ### v1.2.17 (December 9, 2025) ✅
 
