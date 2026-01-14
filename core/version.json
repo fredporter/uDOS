@@ -1,0 +1,25 @@
+{
+  "$schema": "./version.schema.json",
+  "component": "core",
+  "name": "uDOS Core (TUI/uPY/MeshCore)",
+  "version": {
+    "major": 1,
+    "minor": 0,
+    "patch": 1,
+    "build": 0
+  },
+  "display": "v1.0.1.0",
+  "channel": "alpha",
+  "released": "2026-01-10",
+  "description": "DatabaseManager service, v1.0.1 test coverage (35 handler tests)",
+  "changelog": "dev/roadmap/CHANGELOG-core.md",
+  "dependencies": {
+    "python": ">=3.10",
+    "tinycore": ">=15.0"
+  },
+  "metadata": {
+    "author": "Fred Porter",
+    "license": "MIT",
+    "repository": "https://github.com/fredporter/uDOS"
+  }
+}
