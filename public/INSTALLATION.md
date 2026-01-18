@@ -72,12 +72,14 @@ uDOS-core/
 **Key point:** When you run Python from this directory, use module paths WITHOUT `public/` prefix:
 
 ✅ Correct:
+
 ```bash
 python -m wizard.server
 python -m extensions.api.server
 ```
 
 ❌ Incorrect (don't do this):
+
 ```bash
 python -m public.wizard.server     # Won't find anything
 ```
@@ -87,6 +89,7 @@ python -m public.wizard.server     # Won't find anything
 **ModuleNotFoundError: No module named 'wizard'**
 
 Make sure:
+
 1. You're in the cloned `uDOS-core/` directory
 2. Virtual environment is activated (`source venv/bin/activate`)
 3. You've run `pip install -r requirements.txt`
@@ -111,6 +114,7 @@ cd uDOS-dev
 ```
 
 The private repo includes:
+
 - `/core/` — TypeScript runtime for mobile
 - `/app/` — Tauri desktop app (macOS)
 - `/dev/goblin/` — Experimental dev server
@@ -125,6 +129,6 @@ The private repo includes:
 
 ---
 
-**Last Updated:** January 18, 2026  
-**Version:** Alpha v1.0.6.0  
-**Private Dev Repo:** https://github.com/fredporter/uDOS-dev  
+**Last Updated:** January 18, 2026
+**Version:** Alpha v1.0.6.0
+**Private Dev Repo:** https://github.com/fredporter/uDOS-dev
