@@ -3,7 +3,7 @@ name: Sync Public Mirror
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch: 
 
 permissions:
   contents: write
@@ -45,7 +45,7 @@ jobs:
 
 Offline-first, distributed OS layer combining Python TUI, TypeScript runtime, and Tauri GUI.
 
-This is the public mirror of uDOS. For development and private components, see the private repository.
+This is the public mirror of uDOS.  For development and private components, see the private repository.
 
 Content:
 - core - TypeScript runtime
@@ -54,9 +54,9 @@ Content:
 - knowledge - Knowledge articles
 - docs - Engineering documentation
 
-Installation: See core/README.md for setup instructions.
+Installation:  See core/README.md for setup instructions. 
 
-Links: https://github.com/fredporter/uDOS-core (public)
+Links:  https://github.com/fredporter/uDOS-core (public)
        https://github.com/fredporter/uDOS (private)
 
 Automated mirror synced from the private repository.
@@ -81,6 +81,10 @@ ENDREADME
           git init
           git config user.email "github-actions@github.com"
           git config user.name "GitHub Actions"
+          
+          # Set default branch to main
+          git checkout -b main
+          
           git add -A
 
           if [ -z "$(git diff --cached --name-only)" ]; then
