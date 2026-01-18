@@ -1,215 +1,166 @@
 # Repository Rename Complete ✅
 
 **Date:** 2026-01-18  
-**Status:** 🎉 ALL REFERENCES UPDATED  
-**Commit:** cc8e63c (pushed to uDOS-dev/main)
+**Status:** 🎉 PUBLIC REPO RENAMED: uDOS-core → uDOS  
+**Version Bump:** Core v1.0.0 → v1.0.0.1
 
 ---
 
 ## Summary
 
-Complete update of all repository references from `fredporter/uDOS` → `fredporter/uDOS-dev` across the entire codebase.
+The public GitHub repository has been renamed from `fredporter/uDOS-core` to `fredporter/uDOS` to simplify the project structure and improve clarity.
 
-**Total Files Updated:** 31  
-**References Updated:** 51 (critical: 11, important: 6, secondary: 34)  
-**Remaining Orphaned References:** 0  
-**Status:** ✅ 100% Complete
+**Repository Structure:**
+
+- **Private:** `fredporter/uDOS-dev` (development + private content) - UNCHANGED
+- **Public:** `fredporter/uDOS-core` → `fredporter/uDOS` (mirrored release code + docs)
+
+**Key Changes:**
+
+- Public repo URL: `https://github.com/fredporter/uDOS-core` → `https://github.com/fredporter/uDOS`
+- Git remote URL already correct (GitHub handles redirects automatically)
+- Documentation and workflow files updated
 
 ---
 
 ## Critical Updates (PUBLIC-FACING)
 
-### 1. **Public README** (`public/README.MD`)
+### 1. **GitHub Actions Workflow** (`.github/workflows/sync-public.yml`)
 
-- ✅ 5 clone URLs updated (Lite, Full, Development options)
-- ✅ Links section corrected (3 references)
-- Impact: Users cloning public distribution see correct repositories
+- ✅ Updated README generation to reference `fredporter/uDOS`
+- ✅ Changed repository title from "uDOS Core" to "uDOS"
+- ✅ Updated documentation links in auto-generated README
+- Impact: Automated sync generates correct public README
 
-### 2. **Setup.py** (`setup.py`)
+### 2. **Documentation Files**
 
-- ✅ Package metadata updated (4 URLs):
-  - `url` parameter
-  - `project_urls.bug_tracker`
-  - `project_urls.documentation`
-  - `project_urls.source_code`
-- Impact: pip installations show correct repository
+**File: `docs/howto/setup-udos-core-sync.md`**
 
-### 3. **VSCode Extension** (`public/extensions/vscode/package.json`)
+- ✅ Title: "Setup uDOS-core Sync" → "Setup uDOS Sync"
+- ✅ All 12 references to `fredporter/uDOS-core` → `fredporter/uDOS`
+- ✅ Updated token name: `uDOS-Core-Sync` → `uDOS-Sync`
+- ✅ Updated mermaid diagram
+- ✅ Updated manual sync script examples
+- Impact: Setup instructions reference correct repository
 
-- ✅ Repository and issue tracker links updated (2 references)
-- Impact: Extension marketplace shows correct GitHub repo
+**File: `docs/howto/public-private-sync.md`**
 
----
+- ✅ Updated repository references (5 changes)
+- ✅ Updated sync script examples
+- ✅ All `/tmp/uDOS-core` paths → `/tmp/uDOS`
+- Impact: Sync procedures use correct paths
 
-## Important Updates (CONFIGURATION)
+### 3. **Version Bump** (`core/version.json`)
 
-### 4. **Wizard Configuration** (6 files)
-
-- ✅ `public/wizard/config/github_keys.example.json` — allowlist default
-- ✅ `public/wizard/config/wizard.json` — allowed_repo setting
-- ✅ `public/wizard/server.py` — default parameter
-- ✅ `wizard/config/github_keys.example.json` — allowlist default
-- ✅ `wizard/config/wizard.json` — allowed_repo setting
-- ✅ `wizard/server.py` — default parameter
-- Impact: GitHub sync service uses correct repository
+- ✅ Version: `1.0.0` → `1.0.0.1`
+- ✅ Updated release notes to document repository rename
+- Impact: Version tracking reflects infrastructure change
 
 ---
 
-## Secondary Updates (DOCUMENTATION & TEMPLATES)
+## Configuration Changes Needed
 
-### 5. **Issue Templates** (4 files)
+### GitHub Secrets (fredporter/uDOS-dev)
 
-- ✅ `.github/ISSUE_TEMPLATE/bug_report.md` — troubleshooting wiki link
-- ✅ `.github/ISSUE_TEMPLATE/feature_request.md` — philosophy wiki link
-- ✅ `.github/ISSUE_TEMPLATE/extension_submission.md` — 2 wiki links
-- ✅ `.github/PULL_REQUEST_TEMPLATE.md` — style guide wiki link
-- Impact: Contributors directed to correct documentation
+Update these secrets in the private repository:
 
-### 6. **Workspace & Documentation** (5 files)
+1. **PUBLIC_REPO**
+   - Old value: `fredporter/uDOS-core`
+   - New value: `fredporter/uDOS`
 
-- ✅ `uDOS-Dev.code-workspace` — structural comment
-- ✅ `docs/howto/public-private-sync.md` — repo reference
-- ✅ `docs/howto/NOTIFICATION-HISTORY.md` — 2 issue/discussion links
-- ✅ `public/LICENSE.txt` — header URL
-- ✅ `docs/devlog/CLEANUP-COMPLETE.md` — 3 references (dual-repo model + secrets setup)
-- Impact: Documentation and workspace config accurate
-
-### 7. **API Servers** (2 files)
-
-- ✅ `public/extensions/api/server.py` — documentation link
-- ✅ `public/extensions/api/server_modular.py` — documentation link
-- Impact: API documentation points to correct wiki
+2. **PUBLIC_TOKEN**
+   - Token name: `uDOS-Sync` (formerly `uDOS-Core-Sync`)
+   - Scopes: `repo` (all permissions)
+   - Ensure token has access to `fredporter/uDOS`
 
 ---
 
-## Development Updates (GOBLIN)
+## Files Updated
 
-### 8. **Goblin Components & Services** (8 files)
-
-- ✅ `goblin/src/lib/components/GlobalMenuBar.svelte` — 2 GitHub links
-- ✅ `goblin/core/commands/feedback_handler.py` — GITHUB_REPO constant
-- ✅ `goblin/core/commands/display_handler.py` — wiki link in help text
-- ✅ `goblin/core/services/uDOS_startup.py` — 2 clone/remote URLs
-- ✅ `goblin/core/services/error_handler.py` — GitHub issues reference
-- ✅ `goblin/core/docs/INPUT-SYSTEM.md` — GitHub issues link
-- ✅ `goblin/core/version.json` — repository URL
-- ✅ `bin/udos` — help text repository link
-- Impact: Goblin development UI and documentation accurate
+| File                                 | Changes                            | Impact           |
+| ------------------------------------ | ---------------------------------- | ---------------- |
+| `.github/workflows/sync-public.yml`  | README generation, repo references | Automated sync   |
+| `docs/howto/setup-udos-core-sync.md` | 12 references updated              | Setup guide      |
+| `docs/howto/public-private-sync.md`  | 5 references updated               | Sync procedures  |
+| `core/version.json`                  | Version bump to 1.0.0.1            | Version tracking |
+| `docs/REPOSITORY-RENAME-COMPLETE.md` | This summary document              | Documentation    |
 
 ---
 
-## Verification
+## Testing Checklist
 
-### Before Update
+- [x] Updated `.github/workflows/sync-public.yml`
+- [x] Updated `docs/howto/setup-udos-core-sync.md`
+- [x] Updated `docs/howto/public-private-sync.md`
+- [x] Updated `docs/REPOSITORY-RENAME-COMPLETE.md`
+- [x] Bumped core version to `1.0.0.1`
+- [ ] Verify GitHub Actions workflow runs successfully
+- [ ] Verify content syncs to `fredporter/uDOS`
+- [ ] Update GitHub secrets (PUBLIC_REPO)
+- [ ] Test clone from new URL
 
-```bash
-$ grep -r "fredporter/uDOS(?!-dev|-core)" .
-# Returns 71+ matches across 31 files
+---
+
+## Important Notes
+
+### GitHub Redirect Behavior
+
+GitHub automatically redirects old repository URLs to new ones:
+
+- Old URL: `https://github.com/fredporter/uDOS-core` → New URL: `https://github.com/fredporter/uDOS`
+- Git operations still work with old URL
+- Update to new canonical URL for clarity
+
+### What Stays the Same
+
+1. **Private Repo:** `fredporter/uDOS-dev` (unchanged)
+2. **Git Remote:** Local `.git/config` already shows correct URL
+3. **Workflow Logic:** Sync logic remains identical
+4. **Content:** No changes to what gets synced
+
+### What Changed
+
+1. **Public Repo Name:** `uDOS-core` → `uDOS`
+2. **Documentation:** All references updated
+3. **Token Name:** `uDOS-Core-Sync` → `uDOS-Sync` (recommended)
+4. **README Title:** "uDOS Core" → "uDOS"
+
+---
+
+## Rationale
+
+**Why rename?**
+
+1. **Simplicity:** "uDOS" is cleaner than "uDOS-core"
+2. **Clarity:** The public repo represents the entire project, not just "core"
+3. **Consistency:** Matches other uDOS branding and naming conventions
+4. **Future-proof:** Makes room for potential iOS/mobile repos if needed
+
+**Why keep uDOS-dev private?**
+
+- Contains development notes, private workflows, API keys
+- Source of truth for all uDOS development
+- Syncs filtered content to public `fredporter/uDOS`
+
+---
+
+## Commit Message
+
 ```
+docs: rename public repo from uDOS-core to uDOS (v1.0.0.1)
 
-### After Update
+- Update GitHub Actions workflow (sync-public.yml)
+- Update documentation references
+- Bump core version to 1.0.0.1
+- Update REPOSITORY-RENAME-COMPLETE.md
 
-```bash
-$ grep -r "fredporter/uDOS(?!-dev|-core)" .
-# Returns: No matches found ✅
-```
+Old: https://github.com/fredporter/uDOS-core
+New: https://github.com/fredporter/uDOS
 
----
-
-## Impact Assessment
-
-### For Users (Public Distribution)
-
-✅ `uDOS-core` README shows correct clone URLs  
-✅ Installation guide (`INSTALLATION.md`) is consistent  
-✅ Setup.py points to correct development repository  
-✅ Issue templates direct bugs to correct repo
-
-### For Contributors (Private Development)
-
-✅ Workspace config accurate  
-✅ GitHub sync service configured correctly  
-✅ Wizard server uses correct default repository  
-✅ Issue/PR templates guide contributors appropriately
-
-### For Public Sync Workflow
-
-✅ All references consistent across public distribution  
-✅ Users cloning `uDOS-core` see accurate documentation  
-✅ GitHub sync service (`github_sync.py`) uses correct repo  
-✅ No broken links or stale references
-
----
-
-## Git History
-
-```bash
-Commit: cc8e63c
-Author: (automated)
-Date: 2026-01-18
-
-refactor: update all repository references from fredporter/uDOS to fredporter/uDOS-dev
-
-- Critical: Fix public/README.MD (5 clone URLs + links)
-- Critical: Update setup.py metadata (4 URLs)
-- Critical: Fix VSCode extension package.json (2 URLs)
-- Important: Update wizard configs and server defaults (6 files)
-- Secondary: Fix templates, workspace config, docs (10 files)
-- Development: Update goblin components and services (8 files)
-- Total: 31 files updated, 0 remaining orphaned references
-
-Status: Pushed to uDOS-dev/main → Triggering public sync workflow
+Private repo (uDOS-dev) unchanged.
 ```
 
 ---
 
-## Next Steps
-
-1. ✅ **Public Sync** — Workflow will sync to `uDOS-core` (automatic on push)
-2. ✅ **Distribution Quality** — Public repo now has correct references
-3. ✅ **User Documentation** — All clone URLs point to correct repositories
-4. ⏳ **Testing** — Ready for validation on Linux machine (as discussed)
-
----
-
-## Files Changed Summary
-
-| Category                                 | Count  | Priority    | Status      |
-| ---------------------------------------- | ------ | ----------- | ----------- |
-| Public-facing (README, setup, extension) | 3      | CRITICAL    | ✅          |
-| Wizard configuration & servers           | 6      | IMPORTANT   | ✅          |
-| Templates, docs, workspace               | 9      | SECONDARY   | ✅          |
-| Goblin development components            | 8      | DEVELOPMENT | ✅          |
-| API servers & misc                       | 5      | SECONDARY   | ✅          |
-| **TOTAL**                                | **31** | **ALL**     | **✅ 100%** |
-
----
-
-## Verification Commands
-
-```bash
-# Verify all references updated
-grep -r "fredporter/uDOS(?!-dev|-core)" . --include="*.md" --include="*.json" --include="*.py" --include="*.ts" --include="*.svelte"
-
-# Check specific critical files
-cat public/README.MD | grep -i "github.com"
-cat setup.py | grep -i "url"
-cat public/extensions/vscode/package.json | grep -i "repository"
-
-# Verify git history
-git log --oneline -1
-# Should show: cc8e63c refactor: update all repository references...
-
-# Verify push succeeded
-git status
-# Should show: "Your branch is up to date with 'origin/main'"
-```
-
----
-
-**Status:** 🎉 **COMPLETE**  
-**All References:** ✅ Updated (51 total)  
-**Orphaned References:** 0  
-**Public Distribution:** Ready for testing
-
-_See previous dev logs for full context on repository structure and sync workflow._
+_Last Updated: 2026-01-18_  
+_Version: Core v1.0.0.1_

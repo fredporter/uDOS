@@ -51,7 +51,7 @@ show_progress() {
     local current=$1
     local total=$2
     local message="$3"
-    
+
     # Use Python's modular progress bar for consistent, dynamic formatting
     python3 << EOF
 import sys
@@ -291,7 +291,7 @@ CURRENT_CHECK=$((CURRENT_CHECK + 1))
 show_progress $CURRENT_CHECK $TOTAL_CHECKS "Checking dependencies..."
 MISSING_DEPS=0
 MISSING_LIST=""
-for package in "google-generativeai" "python-dotenv" "prompt_toolkit" "requests" "psutil"; do
+for package in "google-generativeai" "python-dotenv" "prompt_toolkit" "requests" "psutil" "fastapi" "uvicorn" "cryptography"; do
     # Convert package name to module name for import check
     if [[ "$package" == "google-generativeai" ]]; then
         module_name="google.generativeai"

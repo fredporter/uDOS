@@ -1,4 +1,4 @@
-# Setup uDOS-core Sync — GitHub Actions Configuration
+# Setup uDOS Sync — GitHub Actions Configuration
 
 **Status:** ⚠️ Not Syncing (Secrets Not Configured)  
 **Last Updated:** 2026-01-18  
@@ -8,7 +8,7 @@
 
 ## Problem
 
-The GitHub Actions workflow `.github/workflows/sync-public.yml` is configured to automatically sync the private `fredporter/uDOS-dev` repository to the public `fredporter/uDOS-core` mirror, but **the required secrets are not configured** in GitHub repository settings.
+The GitHub Actions workflow `.github/workflows/sync-public.yml` is configured to automatically sync the private `fredporter/uDOS-dev` repository to the public `fredporter/uDOS` mirror, but **the required secrets are not configured** in GitHub repository settings.
 
 **Current State:**
 
@@ -57,7 +57,7 @@ README.md         → Auto-generated public README
 1. Go to GitHub Settings → [Developer settings → Personal access tokens](https://github.com/settings/tokens)
 2. Click "Generate new token (classic)"
 3. **Token settings:**
-   - **Token name:** `uDOS-Core-Sync`
+   - **Token name:** `uDOS-Sync`
    - **Expiration:** 90 days or longer
    - **Scopes:** Check only `repo` (full control of private repositories)
    - **Click:** "Generate token"
@@ -69,7 +69,7 @@ README.md         → Auto-generated public README
 2. Click "New repository secret"
 3. **Add first secret:**
    - **Name:** `PUBLIC_REPO`
-   - **Value:** `fredporter/uDOS-core`
+   - **Value:** `fredporter/uDOS`
    - Click "Add secret"
 4. **Add second secret:**
    - **Name:** `PUBLIC_TOKEN`
@@ -99,7 +99,7 @@ Option B: **Manual trigger** (via GitHub UI)
 
 ### Step 4: Verify Sync
 
-1. Go to [fredporter/uDOS-core → Actions](https://github.com/fredporter/uDOS-core/actions)
+1. Go to [fredporter/uDOS → Actions](https://github.com/fredporter/uDOS/actions)
 2. Check for new workflow runs
 3. Verify the pushed content appears in the public repo
 
@@ -114,7 +114,7 @@ graph LR
     A["Push to private<br/>fredporter/uDOS-dev"] -->|trigger| B["sync-public.yml"]
     B -->|rsync| C["Prepare mirror/<br/>with /public, /core, /docs"]
     C -->|generate| D["README.md<br/>public-facing"]
-    D -->|push -f| E["fredporter/uDOS-core<br/>main branch"]
+    D -->|push -f| E["fredporter/uDOS<br/>main branch"]
     E -->|complete| F["✅ Synced"]
 ```
 
@@ -225,9 +225,9 @@ If the automated workflow isn't working, sync manually:
 # Sync private repo content to public repo
 
 PRIVATE_REPO="/Users/fredbook/Code/uDOS"
-PUBLIC_REPO_URL="https://github.com/fredporter/uDOS-core.git"
+PUBLIC_REPO_URL="https://github.com/fredporter/uDOS.git"
 PUBLIC_TOKEN="your_github_pat_here"
-TEMP_DIR="/tmp/uDOS-core-sync"
+TEMP_DIR="/tmp/uDOS-sync"
 
 # 1. Prepare mirror directory
 rm -rf "$TEMP_DIR"
@@ -257,7 +257,7 @@ git config user.email "you@example.com"
 git config user.name "Your Name"
 git add -A
 git commit -m "Sync from private repo: public/, core/, docs/, LICENSE"
-git remote add origin "https://x-access-token:${PUBLIC_TOKEN}@github.com/fredporter/uDOS-core.git"
+git remote add origin "https://x-access-token:${PUBLIC_TOKEN}@github.com/fredporter/uDOS.git"
 git push -f origin main
 
 echo "✅ Sync complete!"
@@ -286,10 +286,10 @@ PUBLIC_TOKEN="your_pat_here" ./bin/sync-public.sh
 ## Next Steps
 
 1. ✅ Create GitHub PAT (scope: `repo`)
-2. ✅ Add `PUBLIC_REPO` secret: `fredporter/uDOS-core`
+2. ✅ Add `PUBLIC_REPO` secret: `fredporter/uDOS`
 3. ✅ Add `PUBLIC_TOKEN` secret: (paste PAT)
 4. ✅ Test sync by pushing to `main` or manual trigger
-5. ✅ Verify content appears in `fredporter/uDOS-core`
+5. ✅ Verify content appears in `fredporter/uDOS`
 
 ---
 

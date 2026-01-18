@@ -35,6 +35,40 @@ fi
 source "$PROJECT_ROOT/.venv/bin/activate"
 echo -e "${GREEN}✅ Python venv activated${NC}"
 
+# Check dependencies (auto-repair)
+echo -e "${CYAN}Checking dependencies...${NC}"
+MISSING_DEPS=()
+
+# Check FastAPI
+if ! python -c "import fastapi" 2>/dev/null; then
+    MISSING_DEPS+=("fastapi>=0.95.0")
+fi
+
+# Check uvicorn
+if ! python -c "import uvicorn" 2>/dev/null; then
+    MISSING_DEPS+=("uvicorn[standard]>=0.21.0")
+fi
+
+# Check pydantic
+if ! python -c "import pydantic" 2>/dev/null; then
+    MISSING_DEPS+=("pydantic>=2.0.0")
+fi
+
+# Check cryptography
+if ! python -c "import cryptography" 2>/dev/null; then
+    MISSING_DEPS+=("cryptography>=41.0.0")
+fi
+
+# Auto-install missing dependencies
+if [ ${#MISSING_DEPS[@]} -gt 0 ]; then
+    echo -e "${YELLOW}⚠️  Missing dependencies: ${MISSING_DEPS[*]}${NC}"
+    echo -e "${CYAN}Installing...${NC}"
+    pip install -q "${MISSING_DEPS[@]}" 2>&1 | grep -v "WARNING:" || true
+    echo -e "${GREEN}✅ Dependencies installed${NC}"
+else
+    echo -e "${GREEN}✅ All dependencies satisfied${NC}"
+fi
+
 # Set environment
 export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"
 export UDOS_DEV_MODE=1

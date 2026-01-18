@@ -174,6 +174,12 @@ class WizardServer:
         # Rate limiting middleware
         app.middleware("http")(create_rate_limit_middleware(self.rate_limiter))
 
+        # Mount static files (CSS, fonts, images)
+        static_path = Path(__file__).parent / "static"
+        if static_path.exists():
+            from fastapi.staticfiles import StaticFiles
+            app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
+
         # Register routes
         self._register_routes(app)
 
@@ -196,6 +202,10 @@ class WizardServer:
         history_service = NotificationHistoryService()
         history_router = create_notification_history_routes(history_service)
         app.include_router(history_router)
+
+        # Register Configuration Management routes (Secrets Panel)
+        from wizard.routes.config import router as config_router
+        app.include_router(config_router)
 
         self.app = app
         return app

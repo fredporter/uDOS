@@ -88,12 +88,12 @@ class RepairHandler(BaseCommandHandler):
             if not requirements.exists():
                 return {"status": "error", "message": "requirements.txt not found"}
 
-            # Run pip install
+            # Run pip install with upgrade to get latest compatible versions
             result = subprocess.run(
-                ["pip", "install", "-r", str(requirements)],
+                ["pip", "install", "--upgrade", "-r", str(requirements)],
                 capture_output=True,
                 text=True,
-                timeout=120,
+                timeout=180,
             )
 
             if result.returncode == 0:
