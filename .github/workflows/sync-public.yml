@@ -1,63 +1,168 @@
 name: Sync Public Mirror
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-    env:
-      TAG: ${{ github.event.release.tag_name }}
     steps:
       - name: Checkout private repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Prepare mirror content (public folder + core)
+      - name: Prepare mirror content
         run: |
           set -euo pipefail
           mkdir -p mirror
 
-          # Copy public folder (wizard, extensions, knowledge, library, distribution)
-          rsync -av --delete --exclude='.git' --exclude='.DS_Store' --exclude='node_modules' public/ mirror/
+          # Copy /public folder (Wizard, Extensions, Knowledge, Library)
+          if [ -d "public" ]; then
+            rsync -av --delete --exclude='.git' --exclude='.DS_Store' --exclude='node_modules' public/ mirror/
+            echo "✅ Synced /public/ folder"
+          fi
 
-          # Copy core (TypeScript runtime)
-          rsync -av --exclude='__pycache__' --exclude='*.pyc' --exclude='node_modules' --exclude='build' --exclude='dist' core/ mirror/core/
+          # Copy /core folder (TypeScript runtime)
+          if [ -d "core" ]; then
+            rsync -av --exclude='__pycache__' --exclude='*.pyc' --exclude='node_modules' --exclude='build' --exclude='dist' core/ mirror/core/
+            echo "✅ Synced /core/ folder"
+          fi
 
-          # Generate main README with links
+          # Copy /docs folder (documentation)
+          if [ -d "docs" ]; then
+            rsync -av docs/ mirror/docs/
+            echo "✅ Synced /docs/ folder"
+          fi
+
+          # Copy LICENSE if exists
+          if [ -f LICENSE ] || [ -f LICENSE.txt ] || [ -f LICENSE.md ]; then
+            cp -v LICENSE* mirror/ 2>/dev/null || true
+            echo "✅ Synced LICENSE"
+          fi
+
+          # Generate public-facing README
           cat > mirror/README.md << 'EOF'
-          # uDOS Core - Public Mirror
+# uDOS Core - Public Mirror
 
-          **Offline-first, distributed OS layer**
+**Offline-first, distributed OS layer combining Python TUI, TypeScript runtime, and Tauri GUI**
 
-          This is the public mirror of uDOS core components.
+This is the public distribution mirror of uDOS. For development and private components, see the [private repository](https://github.com/fredporter/uDOS).
 
-          ## 📚 Documentation
+## 📦 What's Included (Public)
 
-          - [Core Documentation](core/docs/) - TUI system, handlers, services, architecture
-          - [AGENTS.md](https://github.com/fredporter/uDOS/blob/main/AGENTS.md) - Development workflow (private repo)
-          - [Engineering Docs](https://github.com/fredporter/uDOS/tree/main/docs) - Full docs in private repo
+| Directory | Purpose |
+|-----------|---------|
+| **core/** | TypeScript runtime (v1.1.0) - iOS/Android ready |
+| **wizard/** | AI routing, APIs, services (v1.1.0.0) |
+| **extensions/** | API, transport, VSCode extensions |
+| **knowledge/** | Knowledge bank articles |
+| **distribution/** | Packaging, TCZ builder, installers |
+| **docs/** | Engineering documentation |
 
-          ## 🗂️ Repository Structure
+## 🔒 What's NOT Included (Private)
 
-          - **core/** - TUI runtime, command handlers, uPY interpreter (includes `core/docs/`)
-          - **plugins/api/** - REST/WebSocket API server
-          - **distribution/** - TCZ packaging, installer scripts, stack definitions
-          - **library/tinycore/** - TinyCore ISO downloader and manager
-          - **knowledge/** - 231+ articles (survival, tech, code)
-          - **data/** - System databases
+- `/empire/` - Personal CRM and business intelligence
+- `/library/` - Private extensions for empire/dev
+- `/app/` - Tauri desktop app (separate repo)
+- Wizard config (secrets, OAuth, API keys)
+- Test data and user information
 
-          ## 🔒 Private Components
+## 🚀 Quick Start
 
-          Not included in public mirror:
-          - **wizard/** - AI routing, secrets, Gmail relay (private only)
-          - **extensions/transport/** - MeshCore, Audio, QR implementations (private only)
-          - **app/**, **app-beta/** - GUI applications (separate repos)
+### Installation
+
+```bash
+# Clone public repo
+git clone https://github.com/fredporter/uDOS-core.git
+cd uDOS-core
+
+# Python environment (core services)
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# TypeScript (runtime)
+cd core
+npm install
+npm test
+```
+
+### Development
+
+```bash
+# Private repo (full development)
+git clone https://github.com/fredporter/uDOS.git
+cd uDOS
+
+# Set up Python
+source .venv/bin/activate
+
+# Run TUI
+./bin/start_udos.sh
+
+# Run Wizard dev
+python wizard/launch_wizard_dev.py
+```
+
+## 📚 Documentation
+
+- [AGENTS.md](https://github.com/fredporter/uDOS/blob/main/AGENTS.md) - Development workflow
+- [docs/roadmap.md](https://github.com/fredporter/uDOS/blob/main/docs/roadmap.md) - Current roadmap
+- [docs/decisions/](https://github.com/fredporter/uDOS/tree/main/docs/decisions) - Architecture decisions
+
+## 🔗 Links
+
+- **Public Mirror:** [fredporter/uDOS-core](https://github.com/fredporter/uDOS-core) (you are here)
+- **Private Repo:** [fredporter/uDOS](https://github.com/fredporter/uDOS) (full development)
+- **Roadmap:** [docs/roadmap.md](https://github.com/fredporter/uDOS/blob/main/docs/roadmap.md)
+
+## 📄 License
+
+See LICENSE file in this repository.
+
+---
+
+*This is an automated mirror synced from the private repository.*
+EOF
+
+          echo "✅ Generated public README"
+          ls -lah mirror/ | head -15
+
+      - name: Push to public repo
+        env:
+          PUBLIC_REPO: ${{ secrets.PUBLIC_REPO }}
+          PUBLIC_TOKEN: ${{ secrets.PUBLIC_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$PUBLIC_REPO" ] || [ -z "$PUBLIC_TOKEN" ]; then
+            echo "⚠️  Skipping sync: PUBLIC_REPO or PUBLIC_TOKEN not configured"
+            echo "   Set repository secrets to enable automatic syncing"
+            exit 0
+          fi
+
+          cd mirror
+          git init
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+          git add -A
+
+          if [ -z "$(git diff --cached --name-only)" ]; then
+            echo "ℹ️  No changes to sync"
+            exit 0
+          fi
+
+          git commit -m "Sync from private repo: public/, core/, docs/, LICENSE"
+          git remote add origin "https://x-access-token:${PUBLIC_TOKEN}@github.com/${PUBLIC_REPO}.git"
+          git push -f origin main
+          echo "✅ Pushed to $PUBLIC_REPO"
+
 
           ## 📦 Components
 
