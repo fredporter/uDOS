@@ -40,27 +40,27 @@ jobs:
             echo "✅ Synced LICENSE"
           fi
 
-          cat > mirror/README.md << 'ENDREADME'
-# uDOS Core
+          cat > mirror/README.md << 'EOF'
+uDOS Core
 
 Offline-first, distributed OS layer combining Python TUI, TypeScript runtime, and Tauri GUI.
 
-This is the public mirror of uDOS.  For development and private components, see the private repository.
+This is the public mirror of uDOS. For development and private components, see the private repository.
 
 Content:
 - core - TypeScript runtime
-- wizard - AI routing services
+- wizard - AI routing services  
 - extensions - API and transport
 - knowledge - Knowledge articles
 - docs - Engineering documentation
 
-Installation:  See core/README.md for setup instructions. 
+Installation: See core/README.md for setup instructions.
 
-Links:  https://github.com/fredporter/uDOS-core (public)
+Links: https://github.com/fredporter/uDOS-core (public)
        https://github.com/fredporter/uDOS (private)
 
 Automated mirror synced from the private repository.
-ENDREADME
+EOF
 
           echo "✅ Generated public README"
           ls -lah mirror/
