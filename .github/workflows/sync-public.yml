@@ -45,50 +45,8 @@ jobs:
             cp -v LICENSE* mirror/ 2>/dev/null || true
             echo "✅ Synced LICENSE"
           fi
-
           # Generate public-facing README
-          cat > mirror/README.md << 'READMEEOF'
-# uDOS Core
-
-Offline-first, distributed OS layer combining Python TUI, TypeScript runtime, and Tauri GUI.
-
-This is the public distribution mirror of uDOS. For development and private components, see the private repository at fredporter/uDOS.
-
-## What is Included
-
-Public directories:
-- core - TypeScript runtime for iOS, Android, and web
-- wizard - AI routing and services
-- extensions - API, transport, and VSCode support
-- knowledge - Knowledge bank articles
-- docs - Engineering documentation
-
-## What is NOT Included
-
-Private extensions, CRM configuration, app sources, secrets, and test data.
-
-## Installation
-
-git clone https://github.com/fredporter/uDOS-core.git
-cd uDOS-core
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-## Full Development
-
-For full development with private components, clone the private repository at fredporter/uDOS.
-
-## Links
-
-Public Mirror: https://github.com/fredporter/uDOS-core
-Private Repo: https://github.com/fredporter/uDOS
-
-Automated mirror synced from the private repository.
-READMEEOF
-
-          echo "✅ Generated public README"
-          ls -lah mirror/ | head -15
+          bash .github/scripts/generate-public-readme.sh
 
       - name: Push to public repo
         env:
