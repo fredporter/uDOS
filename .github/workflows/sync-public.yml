@@ -21,8 +21,19 @@ jobs:
           mkdir -p mirror
 
           if [ -d "public" ]; then
-            rsync -av --delete --exclude='.git' --exclude='.DS_Store' --exclude='node_modules' public/ mirror/
-            echo "✅ Synced /public/"
+            rsync -av --delete \
+              --exclude='.git' \
+              --exclude='.DS_Store' \
+              --exclude='node_modules' \
+              --exclude='wizard/config/*.json' \
+              --exclude='wizard/config/.*' \
+              --exclude='**/*.env' \
+              --exclude='**/.env*' \
+              --exclude='**/secrets*' \
+              --exclude='**/*_keys.json' \
+              --exclude='**/*_token*' \
+              public/ mirror/
+            echo "✅ Synced /public/ (excluded secrets)"
           fi
 
           if [ -d "core" ]; then
@@ -38,6 +49,13 @@ jobs:
           if [ -f LICENSE ] || [ -f LICENSE.txt ] || [ -f LICENSE.md ]; then
             cp -v LICENSE* mirror/ 2>/dev/null || true
             echo "✅ Synced LICENSE"
+          fi
+
+          # Copy example config files (if they exist)
+          if [ -d "public/wizard/config" ]; then
+            mkdir -p mirror/wizard/config
+            cp -v public/wizard/config/*.example.json mirror/wizard/config/ 2>/dev/null || true
+            echo "✅ Synced example configs"
           fi
 
           # Generate README
