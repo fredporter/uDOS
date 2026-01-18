@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div x-data="dashboard()">
+    <!-- Page Header -->
+    <div class="px-4 sm:px-0 mb-8">
+        <h1 class="text-3xl font-bold text-white">Dashboard</h1>
+        <p class="mt-1 text-gray-400">System status and monitoring</p>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div 
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        hx-get="/api/stats"
+        hx-trigger="every 5s"
+        hx-swap="innerHTML"
+    >
+        <!-- Status -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3 class="text-gray-400 text-sm font-medium">Status</h3>
+                <span class="text-2xl">🟢</span>
+            </div>
+            <div class="mt-3">
+                <p class="text-3xl font-semibold text-white">{{ stats.status|title }}</p>
+                <p class="text-gray-400 text-sm mt-1">Uptime: {{ stats.uptime }}</p>
+            </div>
+        </div>
+        
+        <!-- Devices -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3 class="text-gray-400 text-sm font-medium">Devices</h3>
+                <span class="text-2xl">📱</span>
+            </div>
+            <div class="mt-3">
+                <p class="text-3xl font-semibold text-white">{{ stats.devices.active }}/{{ stats.devices.paired }}</p>
+                <p class="text-gray-400 text-sm mt-1">Active/Paired</p>
+            </div>
+        </div>
+        
+        <!-- API Requests -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3 class="text-gray-400 text-sm font-medium">API Requests</h3>
+                <span class="text-2xl">📊</span>
+            </div>
+            <div class="mt-3">
+                <p class="text-3xl font-semibold text-white">{{ stats.api.requests_today }}</p>
+                <p class="text-gray-400 text-sm mt-1">Avg: {{ stats.api.avg_response_ms }}ms</p>
+            </div>
+        </div>
+        
+        <!-- Costs -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3 class="text-gray-400 text-sm font-medium">Costs (Month)</h3>
+                <span class="text-2xl">💰</span>
+            </div>
+            <div class="mt-3">
+                <p class="text-3xl font-semibold text-white">${{ stats.costs.month }}</p>
+                <p class="text-gray-400 text-sm mt-1">Today: ${{ stats.costs.today }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Recent Logs -->
+        <div class="content-card">
+            <div class="card-header">
+                <h2 class="text-xl font-semibold text-white">Recent Logs</h2>
+                <a href="/logs" class="text-blue-400 hover:text-blue-300 text-sm">View all →</a>
+            </div>
+            
+            <div 
+                class="divide-y divide-gray-700"
+                hx-get="/api/logs?limit=5"
+                hx-trigger="every 10s"
+                hx-swap="innerHTML"
+            >
+                {% for log in stats.get('recent_logs', []) %}
+                <div class="py-3">
+                    <div class="flex items-start">
+                        <span class="log-badge log-{{ log.level|lower }}">{{ log.level }}</span>
+                        <div class="ml-3 flex-1">
+                            <p class="text-sm text-gray-300">{{ log.message }}</p>
+                            <p class="text-xs text-gray-500 mt-1">{{ log.timestamp }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <!-- Placeholder if no logs -->
+                {% if not stats.get('recent_logs') %}
+                <div class="py-8 text-center text-gray-500">
+                    No recent logs
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Active Devices -->
+        <div class="content-card">
+            <div class="card-header">
+                <h2 class="text-xl font-semibold text-white">Active Devices</h2>
+                <a href="/devices" class="text-blue-400 hover:text-blue-300 text-sm">View all →</a>
+            </div>
+            
+            <div 
+                class="divide-y divide-gray-700"
+                hx-get="/api/devices"
+                hx-trigger="every 5s"
+                hx-target="this"
+                hx-swap="innerHTML"
+            >
+                <!-- Device list will be loaded via HTMX -->
+                <div class="py-8 text-center text-gray-500">
+                    Loading devices...
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="mt-8">
+        <div class="content-card">
+            <div class="card-header">
+                <h2 class="text-xl font-semibold text-white">Quick Actions</h2>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button class="action-button">
+                    <span class="text-2xl mb-2">📄</span>
+                    <span class="text-sm">Host File (POKE)</span>
+                </button>
+                
+                <button class="action-button">
+                    <span class="text-2xl mb-2">🔗</span>
+                    <span class="text-sm">Add Webhook</span>
+                </button>
+                
+                <button class="action-button">
+                    <span class="text-2xl mb-2">📱</span>
+                    <span class="text-sm">Pair Device</span>
+                </button>
+                
+                <button class="action-button">
+                    <span class="text-2xl mb-2">📊</span>
+                    <span class="text-sm">View Reports</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function dashboard() {
+    return {
+        init() {
+            // Connect to WebSocket for real-time updates
+            this.connectWebSocket();
+        },
+        
+        connectWebSocket() {
+            const ws = new WebSocket('ws://localhost:8080/ws');
+            
+            ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                console.log('WebSocket update:', message);
+                
+                // Trigger HTMX refresh for stats
+                if (message.type === 'stats_update') {
+                    htmx.trigger('body', 'refresh-stats');
+                }
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+    }
+}
+</script>
+{% endblock %}

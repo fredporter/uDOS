@@ -1,0 +1,18 @@
+#!/bin/bash
+# Port Manager Shell Wrapper
+# Quick access to port management utilities
+
+set -e
+
+WORKSPACE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$WORKSPACE_ROOT"
+
+# Activate venv if not already active
+if [ -z "$VIRTUAL_ENV" ]; then
+    if [ -f ".venv/bin/activate" ]; then
+        source .venv/bin/activate
+    fi
+fi
+
+# Run the port manager CLI
+python -m wizard.cli_port_manager "$@"

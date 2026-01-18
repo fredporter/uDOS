@@ -1,0 +1,18 @@
+{
+  "profile": "default",
+  "description": "Example AI provider key references. Values are stored in secrets.tomb and resolved by key_id.",
+  "providers": {
+    "mistral": {
+      "key_id": "ai-mistral-main",
+      "endpoint": "https://api.mistral.ai/v1"
+    },
+    "openrouter": {
+      "key_id": "ai-openrouter",
+      "endpoint": "https://openrouter.ai/api/v1"
+    },
+    "ollama": {
+      "key_id": "ai-ollama-local",
+      "endpoint": "http://127.0.0.1:11434"
+    }
+  }
+}

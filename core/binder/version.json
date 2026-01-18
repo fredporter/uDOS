@@ -1,0 +1,22 @@
+{
+  "version": "1.0.6.0",
+  "component": "binder",
+  "release_type": "alpha",
+  "dependencies": {
+    "core": ">=1.1.0.0"
+  },
+  "changelog": {
+    "1.0.6.0": {
+      "date": "2026-01-17",
+      "changes": [
+        "Initial release - Phase 3 complete",
+        "BinderConfig: JSON-based configuration (26 tests)",
+        "BinderValidator: Structure validation (26 tests)",
+        "BinderDatabase: SQLite context manager (33 tests)",
+        "BinderFeed: RSS 2.0 + JSON Feed v1.1 (34 tests)",
+        "Integration tests: 15 tests covering workflows, performance, errors",
+        "Usage guide: 400+ lines of documentation"
+      ]
+    }
+  }
+}

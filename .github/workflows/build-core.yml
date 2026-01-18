@@ -1,0 +1,77 @@
+name: Build Core (TypeScript Runtime)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Build target'
+        required: false
+        default: 'core'
+      build_id:
+        description: 'Build identifier'
+        required: false
+
+jobs:
+  build:
+    name: Build Core TypeScript Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Get version
+        id: version
+        working-directory: ./core
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building Core TypeScript Runtime v$VERSION"
+      
+      - name: Install dependencies
+        working-directory: ./core
+        run: npm ci
+      
+      - name: Run tests
+        working-directory: ./core
+        run: npm test
+      
+      - name: Build TypeScript
+        working-directory: ./core
+        run: npm run build
+      
+      - name: Create distribution package
+        run: |
+          # Create distribution directory
+          mkdir -p distribution/builds/${{ github.event.inputs.build_id || github.run_id }}
+          
+          # Create tarball with versioned name
+          cd core
+          tar -czf ../distribution/builds/${{ github.event.inputs.build_id || github.run_id }}/core-typescript-${{ steps.version.outputs.version }}.tar.gz \
+            --exclude='node_modules' \
+            --exclude='__tests__' \
+            --exclude='coverage' \
+            --exclude='*.test.ts' \
+            src/ dist/ package.json README.md CHANGELOG.md version.json
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-build-${{ github.event.inputs.build_id || github.run_id }}
+          path: distribution/builds/${{ github.event.inputs.build_id || github.run_id }}/*
+          retention-days: 30
+      
+      - name: Build summary
+        run: |
+          echo "### Build Complete ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Build ID:** ${{ github.event.inputs.build_id || github.run_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Artifacts:**" >> $GITHUB_STEP_SUMMARY
+          ls -lh distribution/builds/${{ github.event.inputs.build_id || github.run_id }}/ >> $GITHUB_STEP_SUMMARY

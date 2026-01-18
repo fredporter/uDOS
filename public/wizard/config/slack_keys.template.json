@@ -1,0 +1,9 @@
+{
+  "_comment": "Slack credentials for Wizard Server - NEVER commit real tokens",
+  "_instructions": "Copy to slack_keys.json (gitignored) and fill in your values",
+  "SLACK_BOT_TOKEN": "xoxb-your-token-here",
+  "SLACK_WEBHOOK_URL": "",
+  "SLACK_DEFAULT_CHANNEL": "#notifications",
+  "SLACK_SIGNING_SECRET": "",
+  "SLACK_APP_TOKEN": ""
+}

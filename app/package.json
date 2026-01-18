@@ -1,0 +1,31 @@
+{
+  "name": "markdown",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-dialog": "^2.6.0",
+    "@tauri-apps/plugin-opener": "^2",
+    "svelte": "^4.2.0",
+    "svelte-notion": "^0.0.3",
+    "tailwindcss": "^3.4.1"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^3.1.2",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tauri-apps/cli": "^2",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.32",
+    "typescript": "~5.6.2",
+    "vite": "^5.4.0"
+  }
+}

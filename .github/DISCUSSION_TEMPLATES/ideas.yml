@@ -1,0 +1,58 @@
+labels: [enhancement, community-idea]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 💡 Share Your Ideas
+
+        This is a space to propose new features, improvements, or creative uses for uDOS. We welcome all ideas that align with our core principles:
+        - 🌍 Offline-first design
+        - 🤝 Barter over currency
+        - 🎯 Practical over political
+        - 👤 Individual-user-owned
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your Idea
+      description: Describe your feature idea, improvement, or creative use case
+      placeholder: |
+        Example: Add solar/lunar tide tables for coastal foraging...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Cases
+      description: How would this benefit uDOS users?
+      placeholder: |
+        - Helps with timing shellfish harvesting
+        - Useful for fishing and beachcombing
+        - Integrates with navigation knowledge
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation Ideas
+      description: Optional - any thoughts on how this could work?
+      placeholder: |
+        Could use offline almanac data...
+        Integrate with LOCATE command...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: alignment
+    attributes:
+      label: Philosophy Alignment
+      description: Which uDOS principles does this support?
+      options:
+        - label: Offline-first (works without internet)
+        - label: Practical survival/self-sufficiency
+        - label: Knowledge sharing and community
+        - label: Simple, text-based interface
+        - label: Privacy and user ownership

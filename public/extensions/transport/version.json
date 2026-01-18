@@ -1,0 +1,21 @@
+{
+  "component": "transport",
+  "name": "uDOS Transport Layer",
+  "version": {
+    "major": 1,
+    "minor": 0,
+    "patch": 1,
+    "build": 0
+  },
+  "display": "v1.0.1.0",
+  "channel": "alpha",
+  "released": "2026-01-10",
+  "description": "Node discovery service for mesh pairing",
+  "transports": {
+    "meshcore": "P2P mesh networking",
+    "bluetooth-private": "Paired device communication",
+    "nfc": "Physical contact transfer",
+    "qr": "Visual data relay",
+    "audio": "Acoustic packet transmission"
+  }
+}

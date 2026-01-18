@@ -1,0 +1,75 @@
+{
+  "timestamp": "2026-01-17T12:00:00.000000",
+  "services": [
+    {
+      "name": "wizard",
+      "port": 8765,
+      "environment": "production",
+      "process_name": "python",
+      "description": "Wizard Server - Production always-on service",
+      "startup_cmd": "python -m wizard.server",
+      "shutdown_cmd": null,
+      "health_endpoint": "http://localhost:8765/health",
+      "enabled": true,
+      "status": "unknown",
+      "pid": null,
+      "last_check": null
+    },
+    {
+      "name": "goblin",
+      "port": 8767,
+      "environment": "experimental",
+      "process_name": "python",
+      "description": "Goblin Dev Server - Experimental features",
+      "startup_cmd": "python dev/goblin/server.py",
+      "shutdown_cmd": null,
+      "health_endpoint": "http://localhost:8767/health",
+      "enabled": true,
+      "status": "unknown",
+      "pid": null,
+      "last_check": null
+    },
+    {
+      "name": "api",
+      "port": 5001,
+      "environment": "development",
+      "process_name": "python",
+      "description": "API Server - REST/WebSocket API",
+      "startup_cmd": "python -m extensions.api.server",
+      "shutdown_cmd": null,
+      "health_endpoint": "http://localhost:5001/health",
+      "enabled": true,
+      "status": "unknown",
+      "pid": null,
+      "last_check": null
+    },
+    {
+      "name": "vite",
+      "port": 5173,
+      "environment": "development",
+      "process_name": "npm",
+      "description": "Vite Dev Server - Frontend development",
+      "startup_cmd": "npm run dev",
+      "shutdown_cmd": null,
+      "health_endpoint": "http://localhost:5173/",
+      "enabled": true,
+      "status": "unknown",
+      "pid": null,
+      "last_check": null
+    },
+    {
+      "name": "tauri",
+      "port": null,
+      "environment": "development",
+      "process_name": "tauri",
+      "description": "Tauri App - Desktop application",
+      "startup_cmd": "npm run tauri dev",
+      "shutdown_cmd": null,
+      "health_endpoint": null,
+      "enabled": true,
+      "status": "unknown",
+      "pid": null,
+      "last_check": null
+    }
+  ]
+}

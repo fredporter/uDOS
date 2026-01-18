@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div x-data="webhooksPanel()">
+    <!-- Page Header -->
+    <div class="px-4 sm:px-0 mb-8">
+        <h1 class="text-3xl font-bold text-white">Webhooks</h1>
+        <p class="mt-1 text-gray-400">Receive events from external services</p>
+    </div>
+    
+    <!-- Add Webhook -->
+    <div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+        <h2 class="text-lg font-semibold text-white mb-4">Add New Webhook</h2>
+        
+        <form @submit.prevent="createWebhook()" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="text-xs text-gray-400 uppercase block mb-1">Service Name</label>
+                <input 
+                    type="text"
+                    x-model="newWebhook.name"
+                    placeholder="github-deploy"
+                    class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm"
+                    required
+                >
+            </div>
+            <div>
+                <label class="text-xs text-gray-400 uppercase block mb-1">Service Type</label>
+                <select 
+                    x-model="newWebhook.service"
+                    title="Service type"
+                    class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm"
+                >
+                    <option value="generic">Generic</option>
+                    <option value="github">GitHub</option>
+                    <option value="stripe">Stripe</option>
+                    <option value="slack">Slack</option>
+                    <option value="zapier">Zapier</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button 
+                    type="submit"
+                    class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white"
+                >
+                    Create Webhook
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Webhook List -->
+    <div class="space-y-4">
+        {% for webhook in webhooks %}
+        <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+            <!-- Webhook Header -->
+            <div class="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
+                <div class="flex items-center">
+                    <span class="text-2xl mr-3">
+                        {% if webhook.service == 'github' %}🐙
+                        {% elif webhook.service == 'stripe' %}💳
+                        {% elif webhook.service == 'slack' %}💬
+                        {% else %}🔗{% endif %}
+                    </span>
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">{{ webhook.id }}</h3>
+                        <p class="text-sm text-gray-400">{{ webhook.service }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-400 text-sm">{{ webhook.events }} events</span>
+                    <span class="text-gray-500 text-sm">Last: {{ webhook.last }}</span>
+                </div>
+            </div>
+            
+            <!-- Webhook URL -->
+            <div class="px-4 py-3 bg-gray-900/50">
+                <label class="text-xs text-gray-400 uppercase block mb-1">Webhook URL</label>
+                <div class="flex items-center">
+                    <code class="flex-1 bg-gray-700 px-3 py-2 rounded-l text-sm text-green-400 font-mono">
+                        {{ request.url.scheme }}://{{ request.url.netloc }}/webhook/{{ webhook.id }}
+                    </code>
+                    <button 
+                        @click="copyUrl('/webhook/{{ webhook.id }}')"
+                        class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-r text-white"
+                        title="Copy to clipboard"
+                    >
+                        📋
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Recent Events (collapsible) -->
+            <details class="group">
+                <summary class="px-4 py-2 cursor-pointer bg-gray-700/30 hover:bg-gray-700/50 text-sm text-gray-400">
+                    Recent Events <span class="group-open:rotate-90 inline-block transition-transform">▶</span>
+                </summary>
+                <div 
+                    hx-get="/api/webhooks/{{ webhook.id }}/events"
+                    hx-trigger="revealed"
+                    hx-swap="innerHTML"
+                    class="px-4 py-3 max-h-64 overflow-y-auto"
+                >
+                    <p class="text-gray-500 text-sm">Loading events...</p>
+                </div>
+            </details>
+            
+            <!-- Actions -->
+            <div class="px-4 py-3 border-t border-gray-700 flex justify-end space-x-2">
+                <button 
+                    hx-post="/api/webhooks/{{ webhook.id }}/test"
+                    class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm text-white"
+                >
+                    🧪 Test
+                </button>
+                <button 
+                    @click="editWebhook('{{ webhook.id }}')"
+                    class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm text-white"
+                >
+                    ⚙️ Config
+                </button>
+                <button 
+                    hx-delete="/api/webhooks/{{ webhook.id }}"
+                    hx-confirm="Delete webhook {{ webhook.id }}?"
+                    hx-swap="outerHTML"
+                    hx-target="closest .bg-gray-800"
+                    class="px-3 py-1 bg-red-900 hover:bg-red-800 rounded text-sm text-white"
+                >
+                    🗑️ Delete
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Empty State -->
+        {% if not webhooks %}
+        <div class="bg-gray-800 rounded-lg p-8 text-center border border-gray-700">
+            <span class="text-6xl mb-4 block">🔗</span>
+            <h3 class="text-xl font-semibold text-white mb-2">No Webhooks Configured</h3>
+            <p class="text-gray-400">Create your first webhook to receive events from external services</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function webhooksPanel() {
+    return {
+        newWebhook: {
+            name: '',
+            service: 'generic'
+        },
+        
+        async createWebhook() {
+            try {
+                const response = await fetch('/api/webhooks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.newWebhook)
+                });
+                
+                if (response.ok) {
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Failed to create webhook:', error);
+            }
+        },
+        
+        copyUrl(path) {
+            const fullUrl = window.location.origin + path;
+            navigator.clipboard.writeText(fullUrl);
+        },
+        
+        editWebhook(id) {
+            // Open edit modal or navigate to config page
+            console.log('Edit webhook:', id);
+        }
+    }
+}
+</script>
+{% endblock %}

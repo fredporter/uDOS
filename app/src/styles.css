@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   uMarkdown Style System
+   Based on: docs/STYLE-GUIDE.md
+   App Name: uMarkdown (internal: Markdown)
+   ============================================ */
+
+@layer base {
+  /* Text wrapping (from Typo) */
+  h1 {
+    text-wrap: balance;
+  }
+
+  p, li {
+    text-wrap: pretty;
+  }
+
+  /* Font CSS Variables */
+  :root {
+    /* Three independent font controls */
+    --mdk-font-heading: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mdk-font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mdk-font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+    /* Font scale (controlled by Typo-style toggles) */
+    --mdk-prose-scale: 1;
+
+    /* Syntax highlighting (from Typo) */
+    --shiki-foreground: rgb(229 231 235); /* gray-200 */
+    --shiki-background: rgb(17 24 39); /* gray-900 */
+    --shiki-token-constant: rgb(249 250 251); /* gray-50 */
+    --shiki-token-string: rgb(186 230 253); /* sky-200 */
+    --shiki-token-comment: rgb(156 163 175); /* gray-400 */
+    --shiki-token-keyword: rgb(153 246 228); /* teal-300 */
+    --shiki-token-parameter: rgb(209 213 219); /* gray-300 */
+    --shiki-token-function: rgb(165 180 252); /* indigo-300 */
+    --shiki-token-string-expression: rgb(186 230 253); /* sky-200 */
+    --shiki-token-punctuation: rgb(209 213 219); /* gray-300 */
+    --shiki-token-link: rgb(209 213 219); /* gray-300 */
+  }
+
+  /* Base typography & rendering */
+  :root {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Ensure body and root fill screen */
+  html, body {
+    @apply h-screen w-screen overflow-hidden;
+  }
+
+  #app {
+    @apply h-full w-full;
+  }
+}
+
+@layer components {
+  /* ============================================
+     Font Application Classes
+     ============================================ */
+  .mdk-font-heading { font-family: var(--mdk-font-heading); }
+  .mdk-font-body { font-family: var(--mdk-font-body); }
+  .mdk-font-code { font-family: var(--mdk-font-code); }
+
+  /* Preview-specific overrides */
+  .mdk-preview :is(h1,h2,h3,h4,h5,h6) {
+    font-family: var(--mdk-font-heading);
+  }
+
+  .mdk-preview :is(code, pre, kbd, samp) {
+    font-family: var(--mdk-font-code);
+  }
+
+  /* ============================================
+     Reusable Button Styles (Typo-inspired)
+     ============================================ */
+  .mdk-btn {
+    @apply inline-flex min-w-[2.5rem] items-center justify-center gap-1 rounded-lg p-2 
+           text-sm font-semibold tracking-wide leading-none transition 
+           hover:scale-[103%] hover:bg-gray-500/20 
+           active:scale-95 active:bg-gray-500/30
+           disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:bg-transparent
+           focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .mdk-btn.is-disabled {
+    @apply opacity-50 pointer-events-none;
+  }
+
+  .mdk-btn--ghost {
+    @apply hover:bg-gray-200 dark:hover:bg-gray-800/60;
+  }
+
+  .mdk-btn--primary {
+    @apply bg-brand-600 text-white hover:bg-brand-700;
+  }
+
+  .mdk-icon-btn {
+    @apply flex min-w-[2.5rem] items-center justify-center gap-1 rounded-lg p-2 
+           leading-none transition hover:scale-[103%] hover:bg-gray-500/20 
+           active:scale-95 active:bg-gray-500/30;
+  }
+
+  /* ============================================
+     Panel & Form Components
+     ============================================ */
+  .mdk-panel {
+    @apply rounded-lg border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900/40;
+  }
+
+  .mdk-panel__header {
+    @apply px-4 py-3 border-b border-gray-300 dark:border-gray-800;
+  }
+
+  .mdk-panel__body {
+    @apply px-4 py-4;
+  }
+
+  .mdk-field {
+    @apply grid gap-1.5;
+  }
+
+  .mdk-field__label {
+    @apply text-sm text-gray-700 dark:text-gray-300 font-medium;
+  }
+
+  .mdk-select, .mdk-input {
+    @apply rounded-md border border-gray-300 dark:border-gray-800
+           bg-white dark:bg-gray-950 px-3 py-2 text-sm
+           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+  }
+
+  .mdk-divider {
+    @apply h-px bg-gray-300 dark:bg-gray-800;
+  }
+
+  /* ============================================
+     Toggle Buttons (Bottom Bar)
+     ============================================ */
+  .mdk-toggle {
+    @apply px-3 py-1.5 rounded-md text-sm transition
+           hover:bg-gray-200 dark:hover:bg-gray-800;
+  }
+
+  .mdk-toggle.is-active {
+    @apply bg-brand-600 text-white hover:bg-brand-700;
+  }
+
+  /* ============================================
+     Layout Components
+     ============================================ */
+  .mdk-toolbar {
+    @apply flex items-center gap-2 px-4 py-2 border-b border-gray-300 dark:border-gray-800;
+  }
+
+  .mdk-toolbar__group {
+    @apply flex items-center gap-1;
+  }
+
+  .mdk-bottom-bar {
+    @apply flex items-center justify-between px-4 py-2 border-t border-gray-300 dark:border-gray-800;
+  }
+
+  .mdk-bottom-bar__group {
+    @apply flex items-center gap-2;
+  }
+
+  /* ============================================
+     App Layout
+     ============================================ */
+  .mdk-app {
+    @apply h-full w-full overflow-hidden bg-gray-950;
+  }
+
+  .mdk-shell {
+    @apply flex flex-col h-full w-full;
+  }
+
+  .mdk-main {
+    @apply flex flex-1 overflow-hidden min-h-0;
+  }
+
+  .mdk-pane {
+    @apply flex-1 overflow-auto;
+  }
+
+  .mdk-pane--editor {
+    @apply border-r border-gray-300 dark:border-gray-800;
+  }
+
+  .mdk-pane--preview {
+    @apply bg-gray-50 dark:bg-gray-900;
+  }
+}

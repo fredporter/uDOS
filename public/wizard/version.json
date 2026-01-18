@@ -1,0 +1,23 @@
+{
+  "$schema": "../core/version.schema.json",
+  "component": "wizard",
+  "name": "uDOS Wizard Server",
+  "version": {
+    "major": 1,
+    "minor": 1,
+    "patch": 0,
+    "build": 0
+  },
+  "display": "v1.1.0.0",
+  "channel": "alpha",
+  "released": "2026-01-13",
+  "description": "AI Gateway + Model Routing (Local-First): Integrated ModelRouter, PolicyEnforcer, VibeService, TaskClassifier for Devstral-first routing with OpenRouter escalation + policy validation",
+  "changelog": "dev/roadmap/CHANGELOG-wizard.md",
+  "dependencies": {
+    "core": ">=1.0.0.0"
+  },
+  "metadata": {
+    "requires_network": true,
+    "realm": "wizard_only"
+  }
+}

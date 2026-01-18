@@ -1,0 +1,1183 @@
+{
+  "locations": [
+    {
+      "id": "L300-AA10",
+      "name": "Forest Clearing",
+      "description": "A sunlit clearing in an ancient forest. Tall pines surround the space, their needles carpeting the ground.",
+      "layer": 300,
+      "cell": "AA10",
+      "scale": "terrestrial",
+      "connections": [
+        { "to": "L300-AB10", "direction": "east", "label": "Forest Path" },
+        { "to": "L300-AA11", "direction": "south", "label": "Dense Woods" }
+      ],
+      "tiles": {
+        "AB10": {
+          "objects": [
+            { "char": "🌲", "label": "tall pine", "z": 1, "blocks": true }
+          ]
+        },
+        "AC10": {
+          "objects": [
+            { "char": "🌲", "label": "ancient oak", "z": 1, "blocks": true }
+          ]
+        },
+        "AA11": {
+          "objects": [
+            { "char": "🪵", "label": "fallen log", "z": 0 }
+          ]
+        },
+        "AB11": {
+          "objects": [
+            { "char": "🍄", "label": "mushroom cluster", "z": 0 }
+          ]
+        },
+        "AA12": {
+          "objects": [
+            { "char": "🌿", "label": "fern", "z": 0 }
+          ]
+        },
+        "AA10": {
+          "sprites": [
+            { "id": "player", "char": "🚶", "label": "you", "z": 5 }
+          ],
+          "markers": [
+            { "type": "spawn", "label": "starting point" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-AB10",
+      "name": "Forest Path",
+      "description": "A winding dirt path through dense forest. Sunlight filters through the canopy above.",
+      "layer": 300,
+      "cell": "AB10",
+      "scale": "terrestrial",
+      "connections": [
+        { "to": "L300-AA10", "direction": "west", "label": "Forest Clearing" },
+        { "to": "L300-AC10", "direction": "east", "label": "Old Bridge" }
+      ],
+      "tiles": {
+        "AA08": {
+          "objects": [
+            { "char": "🌲", "label": "spruce", "z": 1, "blocks": true }
+          ]
+        },
+        "AD08": {
+          "objects": [
+            { "char": "🌲", "label": "fir tree", "z": 1, "blocks": true }
+          ]
+        },
+        "AB09": {
+          "objects": [
+            { "char": "🪨", "label": "large boulder", "z": 1, "blocks": true }
+          ]
+        },
+        "AC11": {
+          "objects": [
+            { "char": "🌼", "label": "wildflowers", "z": 0 }
+          ]
+        },
+        "AB12": {
+          "objects": [
+            { "char": "🦋", "label": "butterfly", "z": 2 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-AC10",
+      "name": "Old Stone Bridge",
+      "description": "An ancient stone bridge spans a narrow ravine. Water trickles far below.",
+      "layer": 300,
+      "cell": "AC10",
+      "scale": "terrestrial",
+      "connections": [
+        { "to": "L300-AB10", "direction": "west", "label": "Forest Path" },
+        { "to": "L300-AD10", "direction": "east", "label": "Mountain Trail" }
+      ],
+      "tiles": {
+        "AB09": {
+          "objects": [
+            { "char": "🪨", "label": "stone pillar", "z": 1, "blocks": true }
+          ]
+        },
+        "AB10": {
+          "objects": [
+            { "char": "▓", "label": "bridge stone", "z": 0, "fg": "gray" }
+          ]
+        },
+        "AC10": {
+          "objects": [
+            { "char": "▓", "label": "bridge stone", "z": 0, "fg": "gray" }
+          ]
+        },
+        "AD10": {
+          "objects": [
+            { "char": "▓", "label": "bridge stone", "z": 0, "fg": "gray" }
+          ]
+        },
+        "AD11": {
+          "objects": [
+            { "char": "🪨", "label": "stone pillar", "z": 1, "blocks": true }
+          ]
+        },
+        "AC08": {
+          "objects": [
+            { "char": "🌊", "label": "stream below", "z": 0, "fg": "cyan" }
+          ]
+        },
+        "AC12": {
+          "objects": [
+            { "char": "🌊", "label": "stream below", "z": 0, "fg": "cyan" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L301-AA00",
+      "name": "Mountain Vista",
+      "description": "A dramatic mountain overlook. Snow-capped peaks stretch to the horizon.",
+      "layer": 301,
+      "cell": "AA00",
+      "scale": "terrestrial",
+      "connections": [
+        { "to": "L300-DC29", "direction": "down", "label": "Descent to Valley" }
+      ],
+      "tiles": {
+        "AA01": {
+          "objects": [
+            { "char": "⛰️", "label": "mountain peak", "z": 2, "blocks": true }
+          ]
+        },
+        "AB00": {
+          "objects": [
+            { "char": "⛰️", "label": "distant peak", "z": 1, "blocks": true }
+          ]
+        },
+        "AA02": {
+          "objects": [
+            { "char": "❄️", "label": "snow patch", "z": 0 }
+          ]
+        },
+        "AB02": {
+          "objects": [
+            { "char": "☁️", "label": "cloud", "z": 3 }
+          ]
+        },
+        "AC00": {
+          "objects": [
+            { "char": "🦅", "label": "soaring eagle", "z": 4 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L306-AA00",
+      "name": "Low Earth Orbit",
+      "description": "Floating above Earth's atmosphere. The planet's blue oceans shimmer below.",
+      "layer": 306,
+      "cell": "AA00",
+      "scale": "orbital",
+      "connections": [
+        { "to": "L300-AA10", "direction": "down", "label": "Earth Surface", "requires": "re-entry vehicle" },
+        { "to": "L306-AB00", "direction": "east", "label": "Orbit Path" }
+      ],
+      "tiles": {
+        "AA00": {
+          "objects": [
+            { "char": "🛰️", "label": "space station", "z": 2, "blocks": true }
+          ],
+          "markers": [
+            { "type": "waypoint", "label": "ISS position" }
+          ]
+        },
+        "AB00": {
+          "objects": [
+            { "char": "🌍", "label": "Earth below", "z": 0, "fg": "blue" }
+          ]
+        },
+        "AA01": {
+          "objects": [
+            { "char": "☀️", "label": "sun", "z": 1 }
+          ]
+        },
+        "AC00": {
+          "objects": [
+            { "char": "✨", "label": "stars", "z": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L311-AA00",
+      "name": "Mars Surface - Olympus Mons",
+      "description": "Standing on the largest volcano in the solar system. Red dust stretches in all directions.",
+      "layer": 311,
+      "cell": "AA00",
+      "scale": "planetary",
+      "connections": [
+        { "to": "L306-DC29", "direction": "orbit", "label": "Mars Orbit" }
+      ],
+      "tiles": {
+        "AA00": {
+          "objects": [
+            { "char": "🏔️", "label": "volcano rim", "z": 2, "blocks": true }
+          ],
+          "markers": [
+            { "type": "landmark", "label": "Olympus Mons summit" }
+          ]
+        },
+        "AB00": {
+          "objects": [
+            { "char": "🌋", "label": "caldera", "z": 1 }
+          ]
+        },
+        "AA01": {
+          "objects": [
+            { "char": "🪨", "label": "rust-colored rock", "z": 0, "fg": "red" }
+          ]
+        },
+        "AC00": {
+          "objects": [
+            { "char": "🌑", "label": "Phobos (moon)", "z": 3 }
+          ]
+        },
+        "AD00": {
+          "objects": [
+            { "char": "🛸", "label": "rover", "z": 1 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L321-AA00",
+      "name": "Alpha Centauri System",
+      "description": "A triple star system, our nearest stellar neighbor. Three suns dance in complex orbits.",
+      "layer": 321,
+      "cell": "AA00",
+      "scale": "stellar",
+      "connections": [
+        { "to": "L311-DC29", "direction": "solar-system", "label": "Sol System", "requires": "faster-than-light" },
+        { "to": "L321-AB00", "direction": "inner-system", "label": "Proxima b" }
+      ],
+      "tiles": {
+        "AA00": {
+          "objects": [
+            { "char": "⭐", "label": "Alpha Centauri A", "z": 2, "fg": "yellow" }
+          ],
+          "markers": [
+            { "type": "star", "label": "Primary star" }
+          ]
+        },
+        "AB00": {
+          "objects": [
+            { "char": "⭐", "label": "Alpha Centauri B", "z": 2, "fg": "orange" }
+          ]
+        },
+        "AC00": {
+          "objects": [
+            { "char": "🔴", "label": "Proxima Centauri", "z": 1, "fg": "red" }
+          ]
+        },
+        "AD00": {
+          "objects": [
+            { "char": "🪐", "label": "Proxima b", "z": 1, "fg": "blue" }
+          ]
+        },
+        "AA01": {
+          "objects": [
+            { "char": "🚀", "label": "generation ship", "z": 3 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L351-AA00",
+      "name": "Galactic Core - Sagittarius A*",
+      "description": "The supermassive black hole at the heart of the Milky Way. Gravity warps space itself.",
+      "layer": 351,
+      "cell": "AA00",
+      "scale": "galactic",
+      "connections": [
+        { "to": "L321-DC29", "direction": "outer-arm", "label": "Orion Arm" }
+      ],
+      "tiles": {
+        "AA00": {
+          "objects": [
+            { "char": "⚫", "label": "supermassive black hole", "z": 3, "blocks": true }
+          ],
+          "markers": [
+            { "type": "landmark", "label": "Galactic center" }
+          ]
+        },
+        "AB00": {
+          "objects": [
+            { "char": "🌌", "label": "accretion disk", "z": 2, "fg": "cyan" }
+          ]
+        },
+        "AA01": {
+          "objects": [
+            { "char": "✨", "label": "x-ray jets", "z": 1, "fg": "magenta" }
+          ]
+        },
+        "AC00": {
+          "objects": [
+            { "char": "🌟", "label": "dense star cluster", "z": 1 }
+          ]
+        },
+        "AD00": {
+          "objects": [
+            { "char": "🛸", "label": "ancient probe", "z": 2 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L401-AA00",
+      "name": "Andromeda Galaxy (M31)",
+      "description": "Our nearest large galactic neighbor, 2.5 million light-years away. A spiral galaxy approaching the Milky Way.",
+      "layer": 401,
+      "cell": "AA00",
+      "scale": "cosmic",
+      "connections": [
+        { "to": "L351-DC29", "direction": "intergalactic", "label": "Milky Way", "requires": "wormhole-gate" }
+      ],
+      "tiles": {
+        "AA00": {
+          "objects": [
+            { "char": "🌌", "label": "Andromeda core", "z": 3, "fg": "white" }
+          ],
+          "markers": [
+            { "type": "galaxy", "label": "M31 center" }
+          ]
+        },
+        "AB00": {
+          "objects": [
+            { "char": "✨", "label": "spiral arm", "z": 2, "fg": "blue" }
+          ]
+        },
+        "AC00": {
+          "objects": [
+            { "char": "✨", "label": "spiral arm", "z": 2, "fg": "blue" }
+          ]
+        },
+        "AA01": {
+          "objects": [
+            { "char": "🌟", "label": "globular cluster", "z": 1 }
+          ]
+        },
+        "AD00": {
+          "objects": [
+            { "char": "⭕", "label": "wormhole gate", "z": 4, "fg": "magenta" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-AA11",
+      "name": "Dense Woods",
+      "description": "Thick forest with towering trees blocking most sunlight. The air is cool and damp.",
+      "layer": 300,
+      "cell": "AA11",
+      "scale": "terrestrial",
+      "continent": "global",
+      "connections": [
+        { "to": "L300-AA10", "direction": "north", "label": "Forest Clearing" },
+        { "to": "L300-AB11", "direction": "east", "label": "Shadowed Grove" }
+      ],
+      "tiles": {
+        "AA10": {
+          "objects": [
+            { "char": "🌲", "label": "pine", "z": 1, "blocks": true }
+          ]
+        },
+        "AB10": {
+          "objects": [
+            { "char": "🌲", "label": "spruce", "z": 1, "blocks": true }
+          ]
+        },
+        "AC10": {
+          "objects": [
+            { "char": "🌲", "label": "fir", "z": 1, "blocks": true }
+          ]
+        },
+        "AA11": {
+          "objects": [
+            { "char": "🍄", "label": "toadstool", "z": 0 }
+          ]
+        },
+        "AB11": {
+          "objects": [
+            { "char": "🕷️", "label": "spider", "z": 1 }
+          ]
+        },
+        "AA12": {
+          "objects": [
+            { "char": "🪵", "label": "rotting log", "z": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BA00",
+      "name": "Mount Everest Base Camp",
+      "description": "High altitude camp in the Himalayas. Prayer flags flutter in thin mountain air, white peaks pierce the clouds.",
+      "layer": 300,
+      "cell": "BA00",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "type": "geographical-landmark",
+      "connections": [
+        { "to": "L300-AA10", "direction": "southwest", "label": "Temperate Forest" }
+      ],
+      "tiles": {
+        "BA00": {
+          "objects": [
+            { "char": "⛺", "label": "base camp tent", "z": 2 }
+          ],
+          "markers": [
+            { "type": "landmark", "label": "Everest base camp" }
+          ]
+        },
+        "BA01": {
+          "objects": [
+            { "char": "⛰️", "label": "mountain peak", "z": 3, "blocks": true }
+          ]
+        },
+        "BB00": {
+          "objects": [
+            { "char": "🚩", "label": "prayer flag", "z": 2 }
+          ]
+        },
+        "BA02": {
+          "objects": [
+            { "char": "❄️", "label": "snowfield", "z": 0, "fg": "white" }
+          ]
+        },
+        "BB01": {
+          "objects": [
+            { "char": "🧗", "label": "climber", "z": 2 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BB00",
+      "name": "Tokyo Metropolitan",
+      "description": "A sprawling megacity of neon lights and bustling streets. Towering buildings pierce a hazy sky.",
+      "layer": 300,
+      "cell": "BB00",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "type": "major-city",
+      "connections": [
+        { "to": "L300-BA00", "direction": "west", "label": "Himalayan Region" },
+        { "to": "L300-BC00", "direction": "east", "label": "Mount Fuji" }
+      ],
+      "tiles": {
+        "BB00": {
+          "objects": [
+            { "char": "🏯", "label": "traditional temple", "z": 2 }
+          ],
+          "markers": [
+            { "type": "city-center", "label": "Shibuya Crossing" }
+          ]
+        },
+        "BB01": {
+          "objects": [
+            { "char": "🏢", "label": "skyscraper", "z": 3, "fg": "blue" }
+          ]
+        },
+        "BC00": {
+          "objects": [
+            { "char": "🏬", "label": "shopping arcade", "z": 2 }
+          ]
+        },
+        "BB02": {
+          "objects": [
+            { "char": "🚄", "label": "maglev train", "z": 2 }
+          ]
+        },
+        "BC01": {
+          "objects": [
+            { "char": "🌃", "label": "neon district", "z": 1, "fg": "magenta" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BC00",
+      "name": "Mount Fuji Summit",
+      "description": "Japan's iconic snow-capped volcano. A perfect cone visible from vast distances, wreathed in clouds.",
+      "layer": 300,
+      "cell": "BC00",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "type": "geographical-landmark",
+      "connections": [
+        { "to": "L300-BB00", "direction": "west", "label": "Tokyo City" }
+      ],
+      "tiles": {
+        "BC00": {
+          "objects": [
+            { "char": "🗻", "label": "Mount Fuji", "z": 3, "blocks": true, "fg": "white" }
+          ],
+          "markers": [
+            { "type": "landmark", "label": "Summit" }
+          ]
+        },
+        "BC01": {
+          "objects": [
+            { "char": "☁️", "label": "cloud belt", "z": 2 }
+          ]
+        },
+        "BD00": {
+          "objects": [
+            { "char": "❄️", "label": "eternal snow", "z": 1 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BD00",
+      "name": "Sahara Desert Crossing",
+      "description": "Endless golden dunes rolling to the horizon. The sun beats down mercilessly on sand that shifts with the wind.",
+      "layer": 300,
+      "cell": "BD00",
+      "scale": "terrestrial",
+      "continent": "Africa",
+      "type": "geographical-landmark",
+      "connections": [
+        { "to": "L300-BE00", "direction": "north", "label": "Timbuktu" },
+        { "to": "L300-BF00", "direction": "east", "label": "Nile Delta" }
+      ],
+      "tiles": {
+        "BD00": {
+          "objects": [
+            { "char": "🏜️", "label": "sand dune", "z": 1, "fg": "yellow" }
+          ]
+        },
+        "BD01": {
+          "objects": [
+            { "char": "🏜️", "label": "rolling dune", "z": 1, "fg": "yellow" }
+          ]
+        },
+        "BE00": {
+          "objects": [
+            { "char": "🐪", "label": "camel caravan", "z": 2 }
+          ]
+        },
+        "BD02": {
+          "objects": [
+            { "char": "☀️", "label": "scorching sun", "z": 0, "fg": "red" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BE00",
+      "name": "Timbuktu Ancient City",
+      "description": "A legendary city on the Niger River. Mud brick architecture and ancient libraries hold centuries of knowledge.",
+      "layer": 300,
+      "cell": "BE00",
+      "scale": "terrestrial",
+      "continent": "Africa",
+      "type": "major-city",
+      "connections": [
+        { "to": "L300-BD00", "direction": "south", "label": "Sahara Sands" },
+        { "to": "L300-BF00", "direction": "east", "label": "Nile Valley" }
+      ],
+      "tiles": {
+        "BE00": {
+          "objects": [
+            { "char": "🕌", "label": "mosque", "z": 2 }
+          ],
+          "markers": [
+            { "type": "city-center", "label": "Grand Market" }
+          ]
+        },
+        "BE01": {
+          "objects": [
+            { "char": "📚", "label": "ancient library", "z": 1 }
+          ]
+        },
+        "BF00": {
+          "objects": [
+            { "char": "🏘️", "label": "mud brick houses", "z": 1 }
+          ]
+        },
+        "BE02": {
+          "objects": [
+            { "char": "🌊", "label": "Niger River", "z": 0, "fg": "cyan" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BF00",
+      "name": "Nile Delta Confluence",
+      "description": "Where the Nile River spreads into a fertile delta. Ancient temples rise from green fields amid the blue waters.",
+      "layer": 300,
+      "cell": "BF00",
+      "scale": "terrestrial",
+      "continent": "Africa",
+      "type": "geographical-landmark",
+      "connections": [
+        { "to": "L300-BE00", "direction": "west", "label": "Timbuktu" },
+        { "to": "L300-BG00", "direction": "east", "label": "Cairo" }
+      ],
+      "tiles": {
+        "BF00": {
+          "objects": [
+            { "char": "🏛️", "label": "ancient temple", "z": 2 }
+          ],
+          "markers": [
+            { "type": "landmark", "label": "Temple complex" }
+          ]
+        },
+        "BF01": {
+          "objects": [
+            { "char": "🌾", "label": "fertile crops", "z": 0, "fg": "green" }
+          ]
+        },
+        "BG00": {
+          "objects": [
+            { "char": "🌊", "label": "delta waters", "z": 0, "fg": "blue" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BG00",
+      "name": "Cairo - City of Pyramids",
+      "description": "Egypt's sprawling capital on the Nile. Modern city energy meets ancient monuments.",
+      "layer": 300,
+      "cell": "BG00",
+      "scale": "terrestrial",
+      "continent": "Africa",
+      "type": "major-city",
+      "connections": [
+        { "to": "L300-BF00", "direction": "west", "label": "Nile Delta" },
+        { "to": "L300-BH00", "direction": "south", "label": "Upper Nile" }
+      ],
+      "tiles": {
+        "BG00": {
+          "objects": [
+            { "char": "🔺", "label": "pyramid", "z": 3 }
+          ],
+          "markers": [
+            { "type": "city-center", "label": "Giza Plateau" }
+          ]
+        },
+        "BG01": {
+          "objects": [
+            { "char": "🏢", "label": "modern district", "z": 2 }
+          ]
+        },
+        "BH00": {
+          "objects": [
+            { "char": "🐪", "label": "camel ride", "z": 1 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-CA00",
+      "name": "Amazon Rainforest Heart",
+      "description": "The world's largest tropical rainforest. Canopy towers overhead, strange cries echo through endless green.",
+      "layer": 300,
+      "cell": "CA00",
+      "scale": "terrestrial",
+      "continent": "South America",
+      "type": "geographical-landmark",
+      "connections": [
+        { "to": "L300-CB00", "direction": "northeast", "label": "Rio de Janeiro" },
+        { "to": "L300-CC00", "direction": "south", "label": "Rainforest Lodge" }
+      ],
+      "tiles": {
+        "CA00": {
+          "objects": [
+            { "char": "🌳", "label": "canopy tree", "z": 2, "blocks": true, "fg": "green" }
+          ]
+        },
+        "CA01": {
+          "objects": [
+            { "char": "🌿", "label": "dense undergrowth", "z": 1 }
+          ]
+        },
+        "CB00": {
+          "objects": [
+            { "char": "🦜", "label": "macaw", "z": 2 }
+          ]
+        },
+        "CA02": {
+          "objects": [
+            { "char": "🐍", "label": "anaconda", "z": 1 }
+          ]
+        },
+        "CC00": {
+          "objects": [
+            { "char": "🦋", "label": "butterfly swarm", "z": 2 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-CB00",
+      "name": "Rio de Janeiro City",
+      "description": "Vibrant coastal metropolis nestled between mountains and sea. Beaches, favelas, and modern skyline create a unique blend.",
+      "layer": 300,
+      "cell": "CB00",
+      "scale": "terrestrial",
+      "continent": "South America",
+      "type": "major-city",
+      "connections": [
+        { "to": "L300-CA00", "direction": "southwest", "label": "Amazon" },
+        { "to": "L300-CD00", "direction": "south", "label": "Copacabana Beach" }
+      ],
+      "tiles": {
+        "CB00": {
+          "objects": [
+            { "char": "🗿", "label": "Christ statue", "z": 3 }
+          ],
+          "markers": [
+            { "type": "city-center", "label": "Corcovado Peak" }
+          ]
+        },
+        "CB01": {
+          "objects": [
+            { "char": "🏖️", "label": "beach district", "z": 1 }
+          ]
+        },
+        "CB02": {
+          "objects": [
+            { "char": "🏢", "label": "downtown skyline", "z": 2 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-CD00",
+      "name": "Copacabana Beach",
+      "description": "Iconic crescent beach. Surfers ride waves while carnival celebrations happen on the sand.",
+      "layer": 300,
+      "cell": "CD00",
+      "scale": "terrestrial",
+      "continent": "South America",
+      "type": "geographical-landmark",
+      "connections": [
+        { "to": "L300-CB00", "direction": "north", "label": "Rio Center" }
+      ],
+      "tiles": {
+        "CD00": {
+          "objects": [
+            { "char": "🏖️", "label": "sandy beach", "z": 0, "fg": "yellow" }
+          ],
+          "markers": [
+            { "type": "landmark", "label": "Beach zone" }
+          ]
+        },
+        "CD01": {
+          "objects": [
+            { "char": "🌊", "label": "atlantic waves", "z": 1, "fg": "cyan" }
+          ]
+        },
+        "CE00": {
+          "objects": [
+            { "char": "🏄", "label": "surfer", "z": 2 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DA00",
+      "name": "New York City Skyline",
+      "description": "The city that never sleeps. Towering skyscrapers, busy streets, and millions of stories in motion.",
+      "layer": 300,
+      "cell": "DA00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "type": "major-city",
+      "connections": [
+        { "to": "L300-DB00", "direction": "northwest", "label": "Niagara Falls" },
+        { "to": "L300-DC00", "direction": "south", "label": "Atlantic Coast" }
+      ],
+      "tiles": {
+        "DA00": {
+          "objects": [
+            { "char": "🗼", "label": "Empire State Building", "z": 3 }
+          ],
+          "markers": [
+            { "type": "city-center", "label": "Times Square" }
+          ]
+        },
+        "DA01": {
+          "objects": [
+            { "char": "🏢", "label": "skyscraper", "z": 3, "fg": "cyan" }
+          ]
+        },
+        "DA02": {
+          "objects": [
+            { "char": "🏢", "label": "tower", "z": 2, "fg": "gray" }
+          ]
+        },
+        "DB00": {
+          "objects": [
+            { "char": "🚕", "label": "yellow taxi", "z": 1 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DB00",
+      "name": "Niagara Falls",
+      "description": "Thundering curtains of water cascade down massive cliffs. Mist rises in clouds, and the roar is deafening.",
+      "layer": 300,
+      "cell": "DB00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "type": "geographical-landmark",
+      "connections": [
+        { "to": "L300-DA00", "direction": "southeast", "label": "New York City" },
+        { "to": "L300-DD00", "direction": "west", "label": "Great Lakes" }
+      ],
+      "tiles": {
+        "DB00": {
+          "objects": [
+            { "char": "💧", "label": "cascading falls", "z": 2, "fg": "cyan" }
+          ],
+          "markers": [
+            { "type": "landmark", "label": "Falls edge" }
+          ]
+        },
+        "DB01": {
+          "objects": [
+            { "char": "💨", "label": "mist cloud", "z": 1 }
+          ]
+        },
+        "DC00": {
+          "objects": [
+            { "char": "🚁", "label": "tour helicopter", "z": 2 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DD00",
+      "name": "Great Lakes Region",
+      "description": "Vast freshwater lakes bordered by forests. Shipping routes cross waters that seem like inland seas.",
+      "layer": 300,
+      "cell": "DD00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "type": "geographical-landmark",
+      "connections": [
+        { "to": "L300-DB00", "direction": "east", "label": "Niagara Falls" },
+        { "to": "L300-DE00", "direction": "south", "label": "Chicago" }
+      ],
+      "tiles": {
+        "DD00": {
+          "objects": [
+            { "char": "🌊", "label": "lake water", "z": 0, "fg": "blue" }
+          ]
+        },
+        "DD01": {
+          "objects": [
+            { "char": "🚢", "label": "cargo ship", "z": 1 }
+          ]
+        },
+        "DE00": {
+          "objects": [
+            { "char": "🌲", "label": "forest shore", "z": 1 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DE00",
+      "name": "Chicago Metropolitan",
+      "description": "The Windy City on Lake Michigan. Modern architecture and industrial heritage meet waterfront progress.",
+      "layer": 300,
+      "cell": "DE00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "type": "major-city",
+      "connections": [
+        { "to": "L300-DD00", "direction": "north", "label": "Great Lakes" },
+        { "to": "L300-DF00", "direction": "south", "label": "Great Plains" }
+      ],
+      "tiles": {
+        "DE00": {
+          "objects": [
+            { "char": "🏗️", "label": "Willis Tower", "z": 3 }
+          ],
+          "markers": [
+            { "type": "city-center", "label": "Downtown Loop" }
+          ]
+        },
+        "DE01": {
+          "objects": [
+            { "char": "🏢", "label": "modern tower", "z": 2 }
+          ]
+        },
+        "DF00": {
+          "objects": [
+            { "char": "🌊", "label": "lake shore", "z": 1, "fg": "blue" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-EA00",
+      "name": "London Metropolis",
+      "description": "Britain's ancient and modern capital. Historic monuments, red double-decker buses, and the Thames flowing through.",
+      "layer": 300,
+      "cell": "EA00",
+      "scale": "terrestrial",
+      "continent": "Europe",
+      "type": "major-city",
+      "connections": [
+        { "to": "L300-EB00", "direction": "north", "label": "Scottish Highlands" },
+        { "to": "L300-EC00", "direction": "south", "label": "Dover Cliffs" }
+      ],
+      "tiles": {
+        "EA00": {
+          "objects": [
+            { "char": "🕐", "label": "Big Ben", "z": 3 }
+          ],
+          "markers": [
+            { "type": "city-center", "label": "Westminster" }
+          ]
+        },
+        "EA01": {
+          "objects": [
+            { "char": "🏰", "label": "palace", "z": 2 }
+          ]
+        },
+        "EB00": {
+          "objects": [
+            { "char": "🚌", "label": "double-decker bus", "z": 1 }
+          ]
+        },
+        "EA02": {
+          "objects": [
+            { "char": "🌉", "label": "Thames bridge", "z": 1 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-EB00",
+      "name": "Scottish Highlands",
+      "description": "Dramatic mountains and windswept moorlands. Ancient castles perch on rocky outcrops amid mist and mystery.",
+      "layer": 300,
+      "cell": "EB00",
+      "scale": "terrestrial",
+      "continent": "Europe",
+      "type": "geographical-landmark",
+      "connections": [
+        { "to": "L300-EA00", "direction": "south", "label": "London" },
+        { "to": "L300-ED00", "direction": "west", "label": "Isles of Skye" }
+      ],
+      "tiles": {
+        "EB00": {
+          "objects": [
+            { "char": "🏰", "label": "ancient castle", "z": 2 }
+          ],
+          "markers": [
+            { "type": "landmark", "label": "Castle ruins" }
+          ]
+        },
+        "EB01": {
+          "objects": [
+            { "char": "⛰️", "label": "mountain peak", "z": 2 }
+          ]
+        },
+        "EC00": {
+          "objects": [
+            { "char": "☁️", "label": "misty cloud", "z": 1 }
+          ]
+        },
+        "EB02": {
+          "objects": [
+            { "char": "🧆", "label": "highland sheep", "z": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-EC00",
+      "name": "Swiss Alps Summit",
+      "description": "Towering snow-covered peaks with pristine glaciers. Alpine chalets dot the valleys below.",
+      "layer": 300,
+      "cell": "EC00",
+      "scale": "terrestrial",
+      "continent": "Europe",
+      "type": "geographical-landmark",
+      "connections": [
+        { "to": "L300-EA00", "direction": "west", "label": "London" },
+        { "to": "L300-ED00", "direction": "south", "label": "Mediterranean Coast" }
+      ],
+      "tiles": {
+        "EC00": {
+          "objects": [
+            { "char": "⛰️", "label": "Matterhorn", "z": 3, "blocks": true }
+          ],
+          "markers": [
+            { "type": "landmark", "label": "Alpine summit" }
+          ]
+        },
+        "EC01": {
+          "objects": [
+            { "char": "❄️", "label": "eternal glacier", "z": 1 }
+          ]
+        },
+        "ED00": {
+          "objects": [
+            { "char": "🏔️", "label": "snow peak", "z": 2 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-ED00",
+      "name": "Mediterranean Coast - Athens",
+      "description": "Where ancient Greek civilization bloomed. Marble temples overlook wine-dark seas, whitewashed villages cluster on hills.",
+      "layer": 300,
+      "cell": "ED00",
+      "scale": "terrestrial",
+      "continent": "Europe",
+      "type": "major-city",
+      "connections": [
+        { "to": "L300-EC00", "direction": "north", "label": "Swiss Alps" },
+        { "to": "L300-EE00", "direction": "south", "label": "Greek Islands" }
+      ],
+      "tiles": {
+        "ED00": {
+          "objects": [
+            { "char": "🏛️", "label": "Parthenon", "z": 3 }
+          ],
+          "markers": [
+            { "type": "city-center", "label": "Acropolis" }
+          ]
+        },
+        "ED01": {
+          "objects": [
+            { "char": "⛱️", "label": "sandy beach", "z": 1 }
+          ]
+        },
+        "EE00": {
+          "objects": [
+            { "char": "🏛️", "label": "ancient temple", "z": 2 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-FA00",
+      "name": "Sydney Harbour Metropolitan",
+      "description": "Australia's largest city gleams on turquoise waters. Opera house sails catch the light, beaches stretch endlessly.",
+      "layer": 300,
+      "cell": "FA00",
+      "scale": "terrestrial",
+      "continent": "Oceania",
+      "type": "major-city",
+      "connections": [
+        { "to": "L300-FB00", "direction": "west", "label": "Outback Desert" },
+        { "to": "L300-FC00", "direction": "south", "label": "Great Barrier Reef" }
+      ],
+      "tiles": {
+        "FA00": {
+          "objects": [
+            { "char": "🏗️", "label": "Opera House", "z": 3 }
+          ],
+          "markers": [
+            { "type": "city-center", "label": "Sydney Cove" }
+          ]
+        },
+        "FA01": {
+          "objects": [
+            { "char": "🏖️", "label": "Bondi Beach", "z": 1 }
+          ]
+        },
+        "FB00": {
+          "objects": [
+            { "char": "🌉", "label": "Harbour Bridge", "z": 2 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-FB00",
+      "name": "Outback Desert Expanse",
+      "description": "The vast Australian interior. Red earth, spinifex grass, and eucalyptus trees stretch endlessly under burning sun.",
+      "layer": 300,
+      "cell": "FB00",
+      "scale": "terrestrial",
+      "continent": "Oceania",
+      "type": "geographical-landmark",
+      "connections": [
+        { "to": "L300-FA00", "direction": "east", "label": "Sydney" },
+        { "to": "L300-FC00", "direction": "north", "label": "Northern Territory" }
+      ],
+      "tiles": {
+        "FB00": {
+          "objects": [
+            { "char": "🏜️", "label": "red earth", "z": 0, "fg": "red" }
+          ]
+        },
+        "FB01": {
+          "objects": [
+            { "char": "🌞", "label": "burning sun", "z": 1 }
+          ]
+        },
+        "FC00": {
+          "objects": [
+            { "char": "🦘", "label": "kangaroo", "z": 1 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-FC00",
+      "name": "Great Barrier Reef",
+      "description": "The world's largest coral reef system. Underwater canyons burst with colorful fish and living coral.",
+      "layer": 300,
+      "cell": "FC00",
+      "scale": "terrestrial",
+      "continent": "Oceania",
+      "type": "geographical-landmark",
+      "connections": [
+        { "to": "L300-FA00", "direction": "north", "label": "Sydney" },
+        { "to": "L300-FB00", "direction": "south", "label": "Outback" }
+      ],
+      "tiles": {
+        "FC00": {
+          "objects": [
+            { "char": "🪸", "label": "coral formation", "z": 1, "fg": "cyan" }
+          ],
+          "markers": [
+            { "type": "landmark", "label": "Reef system" }
+          ]
+        },
+        "FC01": {
+          "objects": [
+            { "char": "🐠", "label": "tropical fish", "z": 0 }
+          ]
+        },
+        "FD00": {
+          "objects": [
+            { "char": "🐙", "label": "octopus", "z": 0 }
+          ]
+        },
+        "FC02": {
+          "objects": [
+            { "char": "🐢", "label": "sea turtle", "z": 1 }
+          ]
+        }
+      }
+    }
+  ]
+}

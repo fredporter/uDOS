@@ -1,0 +1,44 @@
+{
+  "component": "udos-core",
+  "name": "uDOS Core",
+  "version": {
+    "major": 1,
+    "minor": 1,
+    "patch": 0,
+    "build": 0
+  },
+  "display": "v1.1.0.0",
+  "type": "tcz",
+  "description": "Offline-first TUI runtime with command handlers, services, and uPY interpreter",
+  "author": "Fred Porter",
+  "license": "MIT",
+  
+  "dependencies": {
+    "system": {
+      "python": ">=3.10",
+      "tinycore": ">=11.0"
+    },
+    "components": {}
+  },
+  
+  "platform": ["tinycore", "linux", "macos"],
+  "min_udos_version": "1.0.0.0",
+  
+  "files": {
+    "python": "core/",
+    "bin": ["bin/udos", "bin/start_udos.sh"],
+    "config": "etc/udos/",
+    "docs": "core/docs/"
+  },
+  
+  "installation": {
+    "mode": "automatic",
+    "script": "install.sh",
+    "post_install": "python -m core.version check"
+  },
+  
+  "released": "2026-01-17",
+  "channel": "alpha",
+  "signed": false,
+  "checksum": "sha256:placeholder"
+}

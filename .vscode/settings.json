@@ -1,0 +1,66 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.linting.pylintArgs": [
+    "--disable=C0111,C0103,C0301,R0913,R0914,R0915,W0703",
+    "--max-line-length=120",
+    "--good-names=i,j,k,x,y,z,w,h,id,ok,db,up,ui,on,vm,db"
+  ],
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportUnusedImport": "warning",
+    "reportDuplicateImport": "error",
+    "reportUnusedVariable": "warning"
+  },
+  "[python]": {
+    "editor.rulers": [80, 120],
+    "editor.defaultFormatter": "ms-python.python",
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/node_modules": true,
+    "**/.pytest_cache": true,
+    "**/.cache": true,
+    ".venv": true,
+    ".archive": true,
+    ".dev": true,
+    "app/.svelte-kit": true,
+    "app/build": true,
+    "app/src-tauri/target": true,
+    "distribution/build": true,
+    "distribution/dist": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.venv/**": true,
+    "app/.svelte-kit/**": true,
+    "app/build/**": true,
+    "**/target/**": true,
+    "**/__pycache__/**": true,
+    "**/.cache/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.venv": true,
+    "**/target": true,
+    "**/__pycache__": true,
+    "**/.cache": true,
+    ".archive": true,
+    ".dev": true,
+    "app/.svelte-kit": true,
+    "app/build": true
+  },
+  "editor.rulers": [100, 120],
+  "editor.formatOnSave": false,
+  "editor.trimAutoWhitespace": true,
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "extensions.ignoreRecommendations": false
+}

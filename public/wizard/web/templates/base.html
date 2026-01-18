@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ page_title }} - uDOS Wizard Server{% endblock %}</title>
+    
+    <!-- HTMX (reactive updates) -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    <!-- Alpine.js (minimal state management) -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Tailwind CSS (utility-first styling) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/wizard.css">
+    
+    <style>
+        /* Custom color scheme */
+        :root {
+            --color-primary: #3b82f6;
+            --color-secondary: #8b5cf6;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-error: #ef4444;
+            --color-dark: #1e293b;
+            --color-darker: #0f172a;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 border-b border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold text-blue-400">
+                        🧙 uDOS Wizard
+                    </a>
+                </div>
+                
+                <!-- Main Navigation -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
+                            Dashboard
+                        </a>
+                        <a href="/poke" class="nav-link {% if request.url.path == '/poke' %}active{% endif %}">
+                            POKE Server
+                        </a>
+                        <a href="/webhooks" class="nav-link {% if request.url.path == '/webhooks' %}active{% endif %}">
+                            Webhooks
+                        </a>
+                        <a href="/devices" class="nav-link {% if request.url.path == '/devices' %}active{% endif %}">
+                            Devices
+                        </a>
+                        <a href="/logs" class="nav-link {% if request.url.path == '/logs' %}active{% endif %}">
+                            Logs
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Status Indicator -->
+                <div class="flex items-center">
+                    <span class="flex items-center text-green-400">
+                        <span class="h-2 w-2 bg-green-400 rounded-full animate-pulse mr-2"></span>
+                        Online
+                    </span>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-800 border-t border-gray-700 mt-12">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-gray-400 text-sm">
+                uDOS Wizard Server v1.0.0.0 | 
+                <a href="/health" class="text-blue-400 hover:text-blue-300">Health Check</a> |
+                <a href="https://github.com/udos" class="text-blue-400 hover:text-blue-300">Docs</a>
+            </p>
+        </div>
+    </footer>
+    
+    <!-- Custom JS -->
+    <script src="/static/js/wizard.js"></script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

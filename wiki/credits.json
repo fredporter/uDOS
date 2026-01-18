@@ -1,0 +1,384 @@
+{
+  "$schema": "./credits.schema.json",
+  "meta": {
+    "version": "1.0.0",
+    "last_updated": "2026-01-07",
+    "description": "Version-controlled credits for uDOS libraries and dependencies",
+    "auto_generated": true,
+    "source": "core.services.credits_sync"
+  },
+  "libraries": {
+    "editors": [
+      {
+        "id": "micro",
+        "name": "Micro Editor",
+        "author": "Zachary Yedidia",
+        "license": "MIT",
+        "license_note": null,
+        "repository": "https://github.com/zyedidia/micro",
+        "original_repo": null,
+        "description": "Modern and intuitive terminal-based text editor",
+        "location": "library/micro",
+        "wizard_only": false,
+        "version": null
+      }
+    ],
+    "markdown_docs": [
+      {
+        "id": "typo",
+        "name": "Typo Markdown Editor",
+        "author": "Ross Robino",
+        "license": "MIT",
+        "license_note": null,
+        "repository": "https://github.com/rossrobino/typo",
+        "original_repo": null,
+        "description": "Clean markdown editor with live preview and .udos.md support",
+        "location": "library/typo",
+        "wizard_only": false,
+        "version": null
+      },
+      {
+        "id": "url-to-markdown",
+        "name": "URL to Markdown",
+        "author": "uDOS Wizard Server",
+        "license": "MIT",
+        "license_note": null,
+        "repository": "https://github.com/iw4p/url-to-markdown",
+        "original_repo": null,
+        "description": "Convert web pages to Markdown format",
+        "location": "library/url-to-markdown",
+        "wizard_only": true,
+        "version": null
+      },
+      {
+        "id": "markdowndb",
+        "name": "MarkdownDB",
+        "author": "Datopian",
+        "license": "MIT",
+        "license_note": null,
+        "repository": "https://github.com/datopian/markdowndb",
+        "original_repo": null,
+        "description": "SQL-based Markdown file database for structured content queries",
+        "location": "library/markdowndb",
+        "wizard_only": false,
+        "version": null
+      },
+      {
+        "id": "marp",
+        "name": "Marp",
+        "author": "Marp Team",
+        "license": "MIT",
+        "license_note": null,
+        "repository": "https://github.com/marp-team/marp",
+        "original_repo": null,
+        "description": "Markdown presentation ecosystem - create slides with Markdown",
+        "location": "library/marp",
+        "wizard_only": false,
+        "version": null
+      },
+      {
+        "id": "remark",
+        "name": "Remark",
+        "author": "uDOS Wizard Server",
+        "license": "MIT",
+        "license_note": null,
+        "repository": "https://github.com/gnab/remark",
+        "original_repo": null,
+        "description": "Markdown to slideshow presentation tool",
+        "location": "library/remark",
+        "wizard_only": false,
+        "version": null
+      },
+      {
+        "id": "markdown-to-pdf",
+        "name": "Markdown to PDF",
+        "author": "uDOS Wizard Server",
+        "license": "MIT",
+        "license_note": null,
+        "repository": "https://github.com/JayJay1024/markdown-to-pdf",
+        "original_repo": null,
+        "description": "Convert Markdown documents to PDF format",
+        "location": "library/markdown-to-pdf",
+        "wizard_only": false,
+        "version": null
+      }
+    ],
+    "voice_audio": [
+      {
+        "id": "handy",
+        "name": "Handy STT",
+        "author": "CJ Pais",
+        "license": "MIT",
+        "license_note": null,
+        "repository": "https://github.com/cjpais/Handy",
+        "original_repo": null,
+        "description": "Free, open source speech-to-text application. Completely offline using Whisper or Parakeet models.",
+        "location": "library/handy",
+        "wizard_only": false,
+        "version": "0.6.10"
+      },
+      {
+        "id": "piper",
+        "name": "Piper TTS",
+        "author": "OHF Voice",
+        "license": "GPL-3.0",
+        "license_note": "Original rhasspy/piper was MIT, new OHF-Voice fork is GPL-3.0",
+        "repository": "https://github.com/OHF-Voice/piper1-gpl",
+        "original_repo": "https://github.com/rhasspy/piper",
+        "description": "Fast, local neural text-to-speech system. Supports 30+ languages with natural-sounding voices.",
+        "location": "library/piper",
+        "wizard_only": false,
+        "version": null
+      }
+    ],
+    "ai_ml": [
+      {
+        "id": "mistral-vibe",
+        "name": "Mistral Vibe CLI",
+        "author": "Mistral AI",
+        "license": "Apache-2.0",
+        "license_note": null,
+        "repository": "https://github.com/mistralai/mistral-vibe",
+        "original_repo": null,
+        "description": "Mistral's open-source CLI coding assistant. Interactive AI agent for codebase exploration, modification, and development tasks.",
+        "location": "library/mistral-vibe",
+        "wizard_only": true,
+        "version": "v1.3.3"
+      },
+      {
+        "id": "songscribe",
+        "name": "Songscribe",
+        "author": "Gabe Serna",
+        "license": "MIT",
+        "license_note": null,
+        "repository": "https://github.com/gabe-serna/songscribe",
+        "original_repo": null,
+        "description": "Turn any song into sheet music. ML-powered instrument separation, audio-to-MIDI conversion, and score generation.",
+        "location": "library/songscribe",
+        "wizard_only": false,
+        "version": "1.2.1"
+      },
+      {
+        "id": "gemini-cli",
+        "name": "Gemini CLI",
+        "author": "uDOS Wizard Server",
+        "license": "Apache-2.0",
+        "license_note": null,
+        "repository": "https://github.com/google-gemini/gemini-cli",
+        "original_repo": null,
+        "description": "Google Gemini AI assistant for terminal",
+        "location": "library/gemini-cli",
+        "wizard_only": true,
+        "version": null
+      },
+      {
+        "id": "ollama",
+        "name": "Ollama Local AI",
+        "author": "uDOS Dev",
+        "license": "MIT",
+        "license_note": null,
+        "repository": "https://ollama.com/download",
+        "original_repo": null,
+        "description": "Run LLMs locally - offline AI for uDOS Vibe CLI. No cloud, no API keys, full privacy.",
+        "location": "library/ollama",
+        "wizard_only": false,
+        "version": null
+      }
+    ],
+    "forms": [
+      {
+        "id": "gtx-form",
+        "name": "GTX Form",
+        "author": "Community",
+        "license": "MIT",
+        "license_note": null,
+        "repository": "https://github.com/gtx-form/gtx-form",
+        "original_repo": null,
+        "description": "Typeform-style form builder with React and Vite",
+        "location": "library/gtx-form",
+        "wizard_only": false,
+        "version": null
+      }
+    ],
+    "games": [
+      {
+        "id": "nethack",
+        "name": "NetHack",
+        "author": "uDOS Wizard Server",
+        "license": "NGPL",
+        "license_note": null,
+        "repository": "https://github.com/NetHack/NetHack",
+        "original_repo": null,
+        "description": "Classic roguelike dungeon crawler with ASCII graphics",
+        "location": "library/nethack",
+        "wizard_only": false,
+        "version": "3.6.7"
+      }
+    ],
+    "networking": [
+      {
+        "id": "meshcore",
+        "name": "MeshCore Mesh Networking",
+        "author": "uDOS Wizard Server",
+        "license": "MIT",
+        "license_note": null,
+        "repository": "https://github.com/meshcore-dev/MeshCore",
+        "original_repo": null,
+        "description": "P2P mesh networking for offline device communication",
+        "location": "library/meshcore",
+        "wizard_only": false,
+        "version": null
+      }
+    ]
+  },
+  "wizard_library": [
+    {
+      "id": "home-assistant",
+      "name": "Home Assistant",
+      "author": "Home Assistant",
+      "license": "Apache-2.0",
+      "license_note": null,
+      "repository": "https://github.com/home-assistant/core",
+      "original_repo": null,
+      "description": "Open-source home automation platform with local control and privacy focus",
+      "location": "wizard/library/home-assistant",
+      "wizard_only": true,
+      "version": null
+    }
+  ],
+  "fonts": {
+    "system_fonts": [
+      {
+        "name": "SF Mono",
+        "purpose": "Code/monospace",
+        "fallbacks": [
+          "Monaco",
+          "Cascadia Code",
+          "Consolas",
+          "monospace"
+        ],
+        "license": "System font (Apple)"
+      },
+      {
+        "name": "SF Pro Text",
+        "purpose": "UI text",
+        "fallbacks": [
+          "system-ui",
+          "sans-serif"
+        ],
+        "license": "System font (Apple)"
+      },
+      {
+        "name": "Avenir",
+        "purpose": "Humanist sans-serif",
+        "fallbacks": [
+          "Helvetica Neue",
+          "sans-serif"
+        ],
+        "license": "System font"
+      },
+      {
+        "name": "Georgia",
+        "purpose": "Old-style serif",
+        "fallbacks": [
+          "Times New Roman",
+          "serif"
+        ],
+        "license": "System font (Microsoft)"
+      }
+    ]
+  },
+  "retro_influences": [
+    {
+      "name": "Teletext/Ceefax",
+      "era": "1970s-2000s",
+      "influence": "Tile-based information display, 40-column layouts, block graphics"
+    },
+    {
+      "name": "BBC Micro",
+      "era": "1981",
+      "influence": "Mode 7 teletext graphics, educational computing philosophy"
+    },
+    {
+      "name": "Commodore 64",
+      "era": "1982",
+      "influence": "PETSCII character graphics, retro color palettes"
+    },
+    {
+      "name": "AmigaOS",
+      "era": "1985",
+      "influence": "Workbench aesthetics, copper bars, four-color schemes"
+    },
+    {
+      "name": "MS-DOS",
+      "era": "1981-2000",
+      "influence": "Command-line interface patterns, text-mode UI"
+    },
+    {
+      "name": "ANSI Art",
+      "era": "1980s-1990s",
+      "influence": "Terminal graphics, BBS aesthetic"
+    }
+  ],
+  "groovebox": {
+    "description": "Audio synthesis and data transmission using MML (Music Macro Language)",
+    "sound_design": {
+      "imperial_sounds": {
+        "name": "Imperial Data Transport",
+        "author": "uDOS Team",
+        "license": "Public Domain / CC0",
+        "description": "Dark synth sounds for acoustic data transfer - mathematically generated, no external samples",
+        "influences": [
+          "80s Synthesizer music",
+          "Star Wars Imperial aesthetic",
+          "Dialup modem sounds",
+          "Vocoder effects"
+        ]
+      }
+    },
+    "mml_standard": {
+      "name": "Music Macro Language (MML)",
+      "license": "Public Domain",
+      "description": "Standard music notation format from 1970s-80s home computers",
+      "historical_implementations": [
+        "NEC PC-8801 (1981)",
+        "MSX BASIC (1983)",
+        "Sharp X68000 (1987)",
+        "Commodore 64 SID"
+      ]
+    },
+    "scale_data": {
+      "name": "Musical Scale Frequencies",
+      "license": "Public Domain",
+      "description": "Standard A440 tuning with 12-TET temperament",
+      "source": "International standard (ISO 16)"
+    }
+  },
+  "license_summary": {
+    "MIT": [
+      "micro",
+      "typo",
+      "url-to-markdown",
+      "handy",
+      "gtx-form",
+      "markdowndb",
+      "marp",
+      "remark",
+      "markdown-to-pdf",
+      "songscribe",
+      "meshcore",
+      "ollama"
+    ],
+    "Apache-2.0": [
+      "mistral-vibe",
+      "gemini-cli",
+      "home-assistant"
+    ],
+    "GPL-3.0": [
+      "piper"
+    ],
+    "NGPL": [
+      "nethack"
+    ]
+  }
+}

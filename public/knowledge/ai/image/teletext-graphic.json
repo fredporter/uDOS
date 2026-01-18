@@ -1,0 +1,52 @@
+{
+  "$schema": "../instruction.schema.json",
+  "instruction": {
+    "id": "teletext-graphic",
+    "title": "Teletext/Ceefax Style Graphic",
+    "purpose": "Generate retro teletext-style graphics using WST Level 1 constraints (blocky 6x2 characters, 8 colors)",
+    "category": "image",
+    "prompt": "Create a teletext-style graphic of {{subject}}.\n\nTeletext Constraints (WST Level 1):\n- 8 colors only: Black (#000), Red (#F00), Green (#0F0), Yellow (#FF0), Blue (#00F), Magenta (#F0F), Cyan (#0FF), White (#FFF)\n- Block graphics using Unicode block characters: █ ▀ ▄ ▌ ▐ ▖ ▗ ▘ ▝ ▚ ▞\n- Maximum 40 columns x 24 rows\n- No anti-aliasing or gradients\n- Hold graphics mode (color carries until changed)\n\nOutput Format:\n```\n[Teletext graphic using block characters]\n```\n\nColor key (if needed):\n- List which colors represent what\n\nDesign notes:\n- Brief explanation of choices",
+    "system_prompt": "You are a teletext graphics designer from the 1980s BBC Ceefax era. Create blocky, colorful, nostalgic graphics within strict technical limits.",
+    "variables": [
+      {
+        "name": "subject",
+        "description": "What to depict (e.g., 'weather map', 'news header', 'game sprite')",
+        "required": true
+      }
+    ],
+    "examples": [
+      {
+        "input": "sun weather icon",
+        "output": "Yellow circle made of █ blocks with radiating lines in alternating yellow/red",
+        "notes": "Classic teletext weather symbol"
+      }
+    ]
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2026-01-06",
+    "author": "uDOS Dev",
+    "source_provider": "gemini",
+    "iterations": 4,
+    "tags": ["teletext", "ceefax", "retro", "8-color", "block-graphics"],
+    "quality_score": 7.0
+  },
+  "execution": {
+    "offline_capable": true,
+    "recommended_model": "gemini-2.0-flash",
+    "fallback_models": ["claude-3-haiku", "mistral:7b"],
+    "temperature": 0.8,
+    "max_tokens": 2048,
+    "timeout_seconds": 60
+  },
+  "lineage": {
+    "derived_from": null,
+    "changelog": [
+      {
+        "version": "1.0.0",
+        "date": "2026-01-06",
+        "changes": "Initial version based on gemini-image.md Teletext style"
+      }
+    ]
+  }
+}

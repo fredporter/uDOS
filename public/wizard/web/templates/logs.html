@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div x-data="logsPanel()">
+    <!-- Page Header -->
+    <div class="px-4 sm:px-0 mb-8">
+        <h1 class="text-3xl font-bold text-white">Server Logs</h1>
+        <p class="mt-1 text-gray-400">Real-time log streaming and search</p>
+    </div>
+    
+    <!-- Controls Bar -->
+    <div class="bg-gray-800 rounded-lg p-4 mb-6 flex flex-wrap items-center justify-between gap-4 border border-gray-700">
+        <!-- Filters -->
+        <div class="flex items-center space-x-4">
+            <div>
+                <label class="text-xs text-gray-400 uppercase block mb-1">Level</label>
+                <select 
+                    x-model="level"
+                    @change="refreshLogs()"
+                    title="Log level filter"
+                    class="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm"
+                >
+                    <option value="all">All Levels</option>
+                    <option value="debug">Debug</option>
+                    <option value="info">Info</option>
+                    <option value="warning">Warning</option>
+                    <option value="error">Error</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="text-xs text-gray-400 uppercase block mb-1">Source</label>
+                <select 
+                    x-model="source"
+                    @change="refreshLogs()"
+                    title="Log source filter"
+                    class="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm"
+                >
+                    <option value="all">All Sources</option>
+                    <option value="wizard">Wizard Server</option>
+                    <option value="mesh">Mesh Network</option>
+                    <option value="api">API Server</option>
+                    <option value="transport">Transport</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="text-xs text-gray-400 uppercase block mb-1">Search</label>
+                <input 
+                    type="text"
+                    x-model="search"
+                    @input.debounce.300ms="refreshLogs()"
+                    placeholder="Filter logs..."
+                    class="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm w-48"
+                >
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex items-center space-x-2">
+            <button 
+                @click="toggleStreaming()"
+                :class="streaming ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-700 hover:bg-gray-600'"
+                class="px-4 py-2 rounded text-white flex items-center"
+            >
+                <span x-text="streaming ? '⏸️ Pause' : '▶️ Stream'"></span>
+            </button>
+            <button 
+                @click="clearLogs()"
+                class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-white"
+            >
+                🗑️ Clear
+            </button>
+            <button 
+                hx-get="/api/logs/export"
+                class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-white"
+            >
+                📥 Export
+            </button>
+        </div>
+    </div>
+    
+    <!-- Log Viewer -->
+    <div class="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden">
+        <!-- Log Header -->
+        <div class="bg-gray-800 px-4 py-2 border-b border-gray-700 flex items-center justify-between">
+            <span class="text-gray-400 text-sm">
+                <span x-text="logs.length"></span> entries
+                <span x-show="streaming" class="ml-2 text-green-400">
+                    <span class="inline-block animate-pulse">●</span> Live
+                </span>
+            </span>
+            <span class="text-gray-500 text-xs">
+                Last updated: <span x-text="lastUpdate"></span>
+            </span>
+        </div>
+        
+        <!-- Log Entries -->
+        <div 
+            id="log-container"
+            class="h-[600px] overflow-y-auto font-mono text-sm"
+            x-ref="logContainer"
+        >
+            <template x-for="log in filteredLogs" :key="log.id">
+                <div 
+                    class="log-entry px-4 py-2 border-b border-gray-800 hover:bg-gray-800/50"
+                    :class="{
+                        'bg-red-900/20': log.level === 'ERROR',
+                        'bg-yellow-900/20': log.level === 'WARNING'
+                    }"
+                >
+                    <div class="flex items-start">
+                        <!-- Timestamp -->
+                        <span class="text-gray-500 w-40 flex-shrink-0" x-text="log.timestamp"></span>
+                        
+                        <!-- Level Badge -->
+                        <span 
+                            class="w-16 flex-shrink-0 text-center rounded px-1 py-0.5 text-xs font-medium"
+                            :class="{
+                                'bg-gray-700 text-gray-300': log.level === 'DEBUG',
+                                'bg-blue-900 text-blue-300': log.level === 'INFO',
+                                'bg-yellow-900 text-yellow-300': log.level === 'WARNING',
+                                'bg-red-900 text-red-300': log.level === 'ERROR'
+                            }"
+                            x-text="log.level"
+                        ></span>
+                        
+                        <!-- Source Tag -->
+                        <span class="text-purple-400 w-20 flex-shrink-0 mx-2" x-text="'[' + log.source + ']'"></span>
+                        
+                        <!-- Message -->
+                        <span class="text-gray-200 flex-1" x-text="log.message"></span>
+                    </div>
+                </div>
+            </template>
+            
+            <!-- Empty State -->
+            <div x-show="filteredLogs.length === 0" class="text-center py-12 text-gray-500">
+                <span class="text-4xl mb-4 block">📋</span>
+                <p>No logs matching filters</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function logsPanel() {
+    return {
+        logs: [],
+        level: 'all',
+        source: 'all',
+        search: '',
+        streaming: true,
+        lastUpdate: 'Never',
+        ws: null,
+        
+        get filteredLogs() {
+            return this.logs.filter(log => {
+                if (this.level !== 'all' && log.level.toLowerCase() !== this.level) return false;
+                if (this.source !== 'all' && log.source !== this.source) return false;
+                if (this.search && !log.message.toLowerCase().includes(this.search.toLowerCase())) return false;
+                return true;
+            });
+        },
+        
+        init() {
+            this.loadInitialLogs();
+            this.connectWebSocket();
+        },
+        
+        async loadInitialLogs() {
+            const response = await fetch('/api/logs?limit=500');
+            const data = await response.json();
+            this.logs = data.logs || [];
+            this.lastUpdate = new Date().toLocaleTimeString();
+        },
+        
+        refreshLogs() {
+            this.loadInitialLogs();
+        },
+        
+        toggleStreaming() {
+            this.streaming = !this.streaming;
+        },
+        
+        clearLogs() {
+            this.logs = [];
+        },
+        
+        connectWebSocket() {
+            this.ws = new WebSocket('ws://localhost:8080/ws/logs');
+            
+            this.ws.onmessage = (event) => {
+                if (!this.streaming) return;
+                
+                const log = JSON.parse(event.data);
+                this.logs.unshift(log);
+                
+                // Keep max 1000 logs in memory
+                if (this.logs.length > 1000) {
+                    this.logs = this.logs.slice(0, 1000);
+                }
+                
+                this.lastUpdate = new Date().toLocaleTimeString();
+                
+                // Auto-scroll if at bottom
+                const container = this.$refs.logContainer;
+                if (container.scrollTop < 50) {
+                    container.scrollTop = 0;
+                }
+            };
+            
+            this.ws.onerror = () => {
+                console.error('Log WebSocket error');
+                setTimeout(() => this.connectWebSocket(), 5000);
+            };
+        }
+    }
+}
+</script>
+{% endblock %}

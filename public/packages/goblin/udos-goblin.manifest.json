@@ -1,0 +1,70 @@
+{
+  "component": "udos-goblin",
+  "name": "Goblin Dev Server",
+  "version": {
+    "major": 0,
+    "minor": 2,
+    "patch": 0,
+    "build": 0
+  },
+  "display": "v0.2.0.0",
+  "type": "tcz",
+  "description": "Development/experimental server: Notion sync, runtime executor, binder compiler (localhost-only, unstable)",
+  "author": "Fred Porter",
+  "license": "MIT",
+  
+  "dependencies": {
+    "system": {
+      "python": ">=3.10",
+      "packages": ["fastapi>=0.104", "uvicorn>=0.24"]
+    },
+    "components": {
+      "udos-api": ">=1.0.0.0"
+    }
+  },
+  
+  "platform": ["linux", "macos"],
+  "min_udos_version": "1.0.2.0",
+  
+  "files": {
+    "python": "dev/goblin/",
+    "bin": ["bin/Launch-Goblin-Dev.command", "dev/goblin/server.py"],
+    "config": "dev/goblin/config/",
+    "docs": "dev/goblin/docs/"
+  },
+  
+  "installation": {
+    "mode": "manual",
+    "script": "install.sh",
+    "post_install": "pip install fastapi uvicorn && python dev/goblin/server.py --localhost-only"
+  },
+  
+  "port": 8767,
+  "access": "localhost-only",
+  "api_version": "/api/v0/*",
+  "status": "unstable",
+  "breaking_changes": true,
+  
+  "api_endpoints": [
+    "POST /api/v0/notion/webhook",
+    "GET /api/v0/notion/sync/status",
+    "POST /api/v0/runtime/parse",
+    "POST /api/v0/runtime/execute",
+    "POST /api/v0/tasks/schedule",
+    "POST /api/v0/binder/compile"
+  ],
+  
+  "notes": [
+    "Port 8767 (development, localhost-only)",
+    "Breaking changes expected between minor versions",
+    "/api/v0/* endpoints are unstable",
+    "Notion sync: Phase B complete (queue + schema), conflict/publish deferred",
+    "Binder compiler: functional, exports Markdown/PDF/JSON/dev-briefs",
+    "Runtime executor: Python stubs (full TS implementation in /core/)"
+  ],
+  
+  "released": "2026-01-16",
+  "channel": "alpha",
+  "signed": false,
+  "checksum": "sha256:placeholder"
+}

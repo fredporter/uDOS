@@ -1,0 +1,52 @@
+{
+  "$schema": "../instruction.schema.json",
+  "instruction": {
+    "id": "fix-python-errors",
+    "title": "Fix Python Errors",
+    "purpose": "Analyze Python code for syntax errors, logic bugs, and common mistakes, then provide corrected code with explanations",
+    "category": "coding",
+    "prompt": "Analyze this Python code and fix any issues:\n\n```python\n{{code}}\n```\n\nProvide your response in this exact format:\n\n## Issues Found\nList each issue with line numbers if possible.\n\n## Fixed Code\n```python\n[Complete fixed code here]\n```\n\n## Changes Made\n- Change 1: explanation\n- Change 2: explanation\n\nIf the code is correct, say \"No issues found\" and explain why the code is good.",
+    "system_prompt": "You are a Python expert. Focus on: syntax errors, type mismatches, logic bugs, import issues, and best practices. Be concise but thorough.",
+    "variables": [
+      {
+        "name": "code",
+        "description": "Python code to analyze and fix",
+        "required": true
+      }
+    ],
+    "examples": [
+      {
+        "input": "def foo(\n  return 42",
+        "output": "## Issues Found\n- Line 1: Missing closing parenthesis\n- Line 2: Indentation error\n\n## Fixed Code\n```python\ndef foo():\n    return 42\n```\n\n## Changes Made\n- Added closing parenthesis to function definition\n- Fixed indentation of return statement",
+        "notes": "Basic syntax error example"
+      }
+    ]
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2026-01-06",
+    "author": "uDOS Dev",
+    "source_provider": "gemini",
+    "iterations": 3,
+    "tags": ["python", "debugging", "syntax", "code-fix"],
+    "quality_score": 8.0
+  },
+  "execution": {
+    "offline_capable": true,
+    "recommended_model": "deepseek-coder:6.7b",
+    "fallback_models": ["codellama:7b", "qwen2.5-coder:7b", "mistral:7b"],
+    "temperature": 0.2,
+    "max_tokens": 2048,
+    "timeout_seconds": 60
+  },
+  "lineage": {
+    "derived_from": null,
+    "changelog": [
+      {
+        "version": "1.0.0",
+        "date": "2026-01-06",
+        "changes": "Initial version with structured output format"
+      }
+    ]
+  }
+}

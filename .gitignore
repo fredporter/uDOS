@@ -1,0 +1,126 @@
+# uDOS Sync Rules (Alpha) — Public export model
+# Public surface tracked: core/, wizard/, extensions/ (release-ready), app/, docs/, bin/, config templates, and /public for OSS mirror.
+# Local/private stays local.
+
+# ---------- Public export surface ----------
+!public/
+!public/**
+
+# ---------- Private workspaces ----------
+memory/
+!memory/.gitkeep
+!memory/README.md
+!memory/WORKSPACE-STRUCTURE.md
+.archive/
+**/.archive/
+.dev/
+**/.dev/
+.tmp/
+**/.tmp/
+.cache/
+**/.cache/
+.build/
+**/.build/
+dev/goblin/
+dev/sessions/
+core_beta/
+
+# ---------- Experimental / local assets ----------
+library/
+!library/.gitkeep
+!library/README.md
+!library/container.schema.json
+!library/container.template.json
+
+# ---------- Dependencies & build outputs ----------
+.venv/
+**/venv/
+env/
+**/env/
+node_modules/
+**/node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+coverage/
+**/coverage/
+*.vsix
+*.egg
+*.egg-info/
+**/target/
+*.dmg
+*.deb
+*.AppImage
+*.msi
+*.app
+**/bundle/
+distribution/
+distribution/**
+
+# ---------- Logs, runtime state, databases ----------
+*.log
+*.jsonl
+*.pid
+*.state
+*.db
+*.sqlite
+*.sqlite3
+nohup.out
+
+# ---------- Secrets & credentials ----------
+.env
+.env.*
+*.key
+*.secret
+ai_keys.json
+wizard/config/ai_keys.json
+wizard/config/oauth_providers.json
+wizard/config/slack_keys.json
+memory/system/user/gmail_credentials.json
+memory/system/user/.gmail_token.enc
+*.gmail_token*
+
+# ---------- Tests & fixtures (generated) ----------
+.pytest_cache/
+**/.pytest_cache/
+test_*.py
+test_*.sh
+/test_*.uscript
+
+# ---------- IDE / OS detritus ----------
+.DS_Store
+**/.DS_Store
+.vscode/settings.json
+.vscode/*.log
+.idea/
+*.swp
+*.swo
+*~
+
+# ---------- Legacy / deprecated ----------
+sandbox/
+data/
+scripts/
+uDOS.wiki/
+
+# ---------- Allowlisted project files ----------
+!*.md
+!*.txt
+!*.json
+!*.yaml
+!*.yml
+!*.toml
+!*.cfg
+!*.ini
+!requirements.txt
+!setup.py
+!.gitignore
+!.gitattributes
+!LICENSE*
+!CREDITS*
+!CHANGELOG*
+!CONTRIBUTING*
+!CODE-OF-CONDUCT*

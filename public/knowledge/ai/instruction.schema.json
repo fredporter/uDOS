@@ -1,0 +1,170 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AI Instruction Schema",
+  "description": "Schema for perfected AI instructions in the uDOS Knowledge Bank",
+  "type": "object",
+  "required": ["instruction", "metadata"],
+  "properties": {
+    "instruction": {
+      "type": "object",
+      "description": "The core instruction content",
+      "required": ["id", "title", "purpose", "prompt"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier (lowercase, hyphens)",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Human-readable title"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "What this instruction accomplishes"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["coding", "writing", "image", "workflow", "analysis", "creative", "system"],
+          "description": "Instruction category"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "The perfected prompt/instruction text"
+        },
+        "system_prompt": {
+          "type": ["string", "null"],
+          "description": "Optional system prompt for context"
+        },
+        "variables": {
+          "type": "array",
+          "description": "Template variables ({{variable_name}})",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "description": {"type": "string"},
+              "required": {"type": "boolean", "default": true},
+              "default": {"type": "string"}
+            },
+            "required": ["name", "description"]
+          }
+        },
+        "examples": {
+          "type": "array",
+          "description": "Example inputs/outputs",
+          "items": {
+            "type": "object",
+            "properties": {
+              "input": {"type": "string"},
+              "output": {"type": "string"},
+              "notes": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Instruction metadata",
+      "required": ["version", "created"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Semantic version (x.y.z)",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "created": {
+          "type": "string",
+          "format": "date",
+          "description": "Creation date (YYYY-MM-DD)"
+        },
+        "updated": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Last update date"
+        },
+        "author": {
+          "type": "string",
+          "description": "Author/contributor"
+        },
+        "source_provider": {
+          "type": "string",
+          "enum": ["gemini", "claude", "gpt", "mistral", "human", "hybrid"],
+          "description": "AI provider used to perfect this instruction"
+        },
+        "iterations": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of refinement iterations"
+        },
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Searchable tags"
+        },
+        "quality_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Quality rating (0-10)"
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "description": "Execution configuration",
+      "properties": {
+        "offline_capable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Can run without internet"
+        },
+        "recommended_model": {
+          "type": "string",
+          "description": "Best model for this instruction"
+        },
+        "fallback_models": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Alternative models"
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Recommended temperature"
+        },
+        "max_tokens": {
+          "type": "integer",
+          "description": "Maximum output tokens"
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "description": "Execution timeout"
+        }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "description": "Instruction history and derivation",
+      "properties": {
+        "derived_from": {
+          "type": ["string", "null"],
+          "description": "Parent instruction ID"
+        },
+        "changelog": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "version": {"type": "string"},
+              "date": {"type": "string", "format": "date"},
+              "changes": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

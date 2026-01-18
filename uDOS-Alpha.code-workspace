@@ -1,0 +1,92 @@
+{
+  "folders": [
+    {
+      "name": "🏠 uDOS Root",
+      "path": "."
+    },
+    {
+      "name": "⚡ Core Runtime (TypeScript)",
+      "path": "core"
+    },
+    {
+      "name": "📱 uCode App",
+      "path": "app"
+    },
+    {
+      "name": "📚 Docs & Specs",
+      "path": "docs"
+    },
+    {
+      "name": "📝 Memory & User Data",
+      "path": "memory"
+    },
+    {
+      "name": "🎨 Library & Assets",
+      "path": "library"
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder:🏠 uDOS Root}/.venv/bin/python",
+    "typescript.tsdk": "${workspaceFolder:⚡ Core Runtime (TypeScript)}/node_modules/typescript/lib",
+    "files.exclude": {
+      "**/.venv": true,
+      "**/node_modules": true,
+      "**/target": true,
+      "**/.svelte-kit": true,
+      "**/__pycache__": true,
+      "**/*.pyc": true,
+      "**/.DS_Store": true
+    },
+    "search.exclude": {
+      "**/.venv": true,
+      "**/node_modules": true,
+      "**/target": true,
+      "**/.svelte-kit": true,
+      "**/dist": true,
+      "**/.archive": true,
+      "**/.backup": true
+    },
+    "files.associations": {
+      "*-ucode.md": "markdown",
+      "*-story.md": "markdown",
+      "*-marp.md": "markdown",
+      "*-guide.md": "markdown",
+      "*-config.md": "markdown"
+    },
+    "editor.formatOnSave": true,
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter",
+      "editor.formatOnSave": true
+    },
+    "[markdown]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true,
+      "editor.wordWrap": "on"
+    },
+    "chat.tools.terminal.autoApprove": {
+      "/^cd /Users/fredbook/Code/uDOS/core && node -e \"\nconst state = \\{ player: \\{ x: 5, y: 3 \\} \\};\nconst varPath = 'player\\.x';\nconst parts = varPath\\.split\\('\\.'\\);\nlet current = state;\n\nfor \\(const part of parts\\) \\{\n  console\\.log\\('Looking for part:', part, 'in', current\\);\n  if \\(current && typeof current === 'object' && part in current\\) \\{\n    current = current\\[part\\];\n  \\} else \\{\n    current = undefined;\n    break;\n  \\}\n\\}\nconsole\\.log\\('Result:', current\\);\n\"$/": {
+        "approve": true,
+        "matchCommandLine": true
+      }
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-python.black-formatter",
+      "svelte.svelte-vscode",
+      "tauri-apps.tauri-vscode",
+      "rust-lang.rust-analyzer",
+      "esbenp.prettier-vscode",
+      "bradlc.vscode-tailwindcss",
+      "GitHub.copilot",
+      "yzhang.markdown-all-in-one",
+      "marp-team.marp-vscode"
+    ]
+  },
+  "comments": {
+    "description": "uDOS Alpha - Multi-root workspace for entire system",
+    "structure": "Core (Python) + App (Tauri/Svelte) + Memory (User data) + Library (Assets)",
+    "note": "Use uCode-Dev.code-workspace in app/ folder for focused app development"
+  }
+}

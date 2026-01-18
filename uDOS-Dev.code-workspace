@@ -1,0 +1,322 @@
+{
+  "folders": [
+    {
+      "name": "📦 Core (TypeScript Runtime)",
+      "path": "core",
+      "icon": {
+        "light": "library/icons/typescript.svg",
+        "dark": "library/icons/typescript.svg"
+      }
+    },
+    {
+      "name": "🧙 Wizard (Production Server)",
+      "path": "wizard",
+      "icon": {
+        "light": "library/icons/server.svg",
+        "dark": "library/icons/server.svg"
+      }
+    },
+    {
+      "name": "🧙 Goblin (Dev Server)",
+      "path": "dev/goblin",
+      "icon": {
+        "light": "library/icons/experiment.svg",
+        "dark": "library/icons/experiment.svg"
+      }
+    },
+    {
+      "name": "📱 App (Tauri + Svelte)",
+      "path": "app-beta",
+      "icon": {
+        "light": "library/icons/app.svg",
+        "dark": "library/icons/app.svg"
+      }
+    },
+    {
+      "name": "🔌 Extensions (Public)",
+      "path": "extensions",
+      "icon": {
+        "light": "library/icons/extension.svg",
+        "dark": "library/icons/extension.svg"
+      }
+    },
+    {
+      "name": "📚 Documentation",
+      "path": "docs",
+      "icon": {
+        "light": "library/icons/docs.svg",
+        "dark": "library/icons/docs.svg"
+      }
+    },
+    {
+      "name": "🧠 Knowledge Base",
+      "path": "knowledge",
+      "icon": {
+        "light": "library/icons/lightbulb.svg",
+        "dark": "library/icons/lightbulb.svg"
+      }
+    },
+    {
+      "name": "🔧 Dev Tools",
+      "path": "dev",
+      "icon": {
+        "light": "library/icons/tools.svg",
+        "dark": "library/icons/tools.svg"
+      }
+    },
+    {
+      "name": "📋 Project Root",
+      "path": ".",
+      "icon": {
+        "light": "library/icons/project.svg",
+        "dark": "library/icons/project.svg"
+      }
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/node_modules": false,
+      "**/*.pyc": true,
+      "**/__pycache__": true,
+      ".venv": true,
+      ".archive": true,
+      ".dev": true,
+      "distribution": true,
+      "library": true,
+      "memory": true,
+      "packages": true,
+      "bin": true,
+      "wiki": true
+    },
+    "search.exclude": {
+      "**/.git": true,
+      "**/node_modules": true,
+      "**/__pycache__": true,
+      ".venv": true,
+      ".archive": true,
+      ".dev": true,
+      "distribution": true,
+      "library": true,
+      "memory": true,
+      "packages": true
+    },
+    "[typescript]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[python]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "ms-python.python"
+    },
+    "[markdown]": {
+      "editor.wordWrap": "on",
+      "editor.formatOnSave": false
+    },
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+      "--max-line-length=100"
+    ],
+    "typescript.tsdk": "core/node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "ms-vscode.makefile-tools",
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "rust-lang.rust-analyzer",
+      "svelte.svelte-vscode",
+      "bradlc.vscode-tailwindcss",
+      "redhat.vscode-yaml",
+      "ms-markdown-edit-mode.md-preview-button",
+      "yzhang.markdown-all-in-one",
+      "ban.troff"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "🧙 Wizard Server (Production)",
+        "type": "python",
+        "request": "launch",
+        "module": "wizard.server",
+        "args": [
+          "--port",
+          "8765"
+        ],
+        "cwd": "${workspaceFolder:📋 Project Root}",
+        "console": "integratedTerminal",
+        "justMyCode": false
+      },
+      {
+        "name": "🧙 Goblin Dev Server",
+        "type": "python",
+        "request": "launch",
+        "module": "dev.goblin.main",
+        "args": [
+          "--port",
+          "8767"
+        ],
+        "cwd": "${workspaceFolder:📋 Project Root}",
+        "console": "integratedTerminal",
+        "justMyCode": false
+      },
+      {
+        "name": "📦 Core Tests (TypeScript Runtime)",
+        "type": "node",
+        "request": "launch",
+        "program": "${workspaceFolder:📦 Core (TypeScript Runtime)}/node_modules/.bin/jest",
+        "args": [
+          "--runInBand"
+        ],
+        "cwd": "${workspaceFolder:📦 Core (TypeScript Runtime)}",
+        "console": "integratedTerminal"
+      },
+      {
+        "name": "📱 Tauri Dev",
+        "type": "shell",
+        "request": "launch",
+        "command": "npm",
+        "args": [
+          "run",
+          "tauri",
+          "dev"
+        ],
+        "cwd": "${workspaceFolder:📱 App (Tauri + Svelte)}",
+        "console": "integratedTerminal"
+      },
+      {
+        "name": "🔌 Extensions API",
+        "type": "node",
+        "request": "launch",
+        "program": "${workspaceFolder:🔌 Extensions (Public)}/api/server.js",
+        "cwd": "${workspaceFolder:🔌 Extensions (Public)}",
+        "console": "integratedTerminal"
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build Core (TypeScript)",
+        "type": "shell",
+        "command": "npm",
+        "args": [
+          "run",
+          "build"
+        ],
+        "cwd": "${workspaceFolder:📦 Core (TypeScript Runtime)}",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always"
+        }
+      },
+      {
+        "label": "Test Core (TypeScript)",
+        "type": "shell",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": "${workspaceFolder:📦 Core (TypeScript Runtime)}",
+        "group": {
+          "kind": "test",
+          "isDefault": true
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always"
+        }
+      },
+      {
+        "label": "Start Wizard Server",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "-m",
+          "wizard.server",
+          "--port",
+          "8765"
+        ],
+        "cwd": "${workspaceFolder:📋 Project Root}",
+        "isBackground": true,
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always"
+        }
+      },
+      {
+        "label": "Start Goblin Dev Server",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "-m",
+          "dev.goblin.main",
+          "--port",
+          "8767"
+        ],
+        "cwd": "${workspaceFolder:📋 Project Root}",
+        "isBackground": true,
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always"
+        }
+      },
+      {
+        "label": "Tauri Dev",
+        "type": "shell",
+        "command": "npm",
+        "args": [
+          "run",
+          "tauri",
+          "dev"
+        ],
+        "cwd": "${workspaceFolder:📱 App (Tauri + Svelte)}",
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always"
+        }
+      },
+      {
+        "label": "Run Extensions API",
+        "type": "shell",
+        "command": "node",
+        "args": [
+          "api/server.js"
+        ],
+        "cwd": "${workspaceFolder:🔌 Extensions (Public)}",
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always"
+        }
+      }
+    ]
+  }
+}

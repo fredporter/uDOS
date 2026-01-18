@@ -1,0 +1,17 @@
+{
+  "name": "{{PACKAGE_NAME}}",
+  "version": "1.0.0",
+  "type": "tcz",
+  "description": "{{DESCRIPTION}}",
+  "author": "{{AUTHOR}}",
+  "license": "MIT",
+  "dependencies": [],
+  "platform": ["tinycore"],
+  "min_udos_version": "1.0.0.0",
+  "tcz": {
+    "size_kb": 0,
+    "install_path": "/opt/udos/{{PACKAGE_NAME}}",
+    "post_install": null,
+    "provides": []
+  }
+}

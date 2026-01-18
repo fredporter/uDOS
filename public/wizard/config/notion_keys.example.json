@@ -1,0 +1,11 @@
+{
+  "profile": "default",
+  "description": "Example Notion integration key references (feature-flagged).",
+  "integration": {
+    "key_id": "notion-integration-token",
+    "database_id_key_id": "notion-database-id"
+  },
+  "feature_flags": {
+    "sync_enabled": false
+  }
+}

@@ -1,0 +1,82 @@
+# uDOS Vibe Configuration
+
+[project]
+name = "uDOS"
+version = "1.0.2.0"
+description = "Offline-first OS layer for Tiny Core Linux with TUI and desktop interfaces"
+
+[model]
+# Default to offline Devstral via Ollama
+provider = "ollama"
+model = "devstral-small-2"
+endpoint = "http://127.0.0.1:11434"
+
+# Cloud routing disabled by default
+# See docs/decisions/wizard-model-routing-policy.md
+cloud_enabled = false
+
+[context]
+# Primary context files (read in order)
+context_files = [
+    "AGENTS.md",
+    "docs/_index.md",
+    "docs/roadmap.md",
+    ".vibe/CONTEXT.md"
+]
+
+# Include patterns (relative to repo root)
+include = [
+    "core/**/*.py",
+    "app/**/*.{ts,svelte}",
+    "wizard/**/*.py",
+    "extensions/**/*.py",
+    "docs/**/*.md",
+    "*.md"
+]
+
+# Exclude patterns
+exclude = [
+    "**/.dev/**",
+    "**/.archive/**",
+    "**/node_modules/**",
+    "**/.venv/**",
+    "**/dist/**",
+    "**/target/**",
+    "memory/**",
+    "library/**",
+    "distribution/**",
+    "**/__pycache__/**",
+    "**/*.pyc"
+]
+
+[completion]
+temperature = 0.2
+max_tokens = 4096
+top_p = 0.95
+
+[logging]
+level = "INFO"
+file = "memory/logs/vibe.log"
+
+[policy]
+# Offline-first enforcement
+require_local = true
+allow_cloud_escalation = false
+
+# Privacy controls
+scan_secrets = true
+redact_keys = true
+
+# Cost tracking
+track_usage = true
+log_escalations = true
+
+[workspace]
+# Multi-workspace boundaries
+workspaces = [
+    { name = "core", path = "core/", type = "python" },
+    { name = "app", path = "app/", type = "typescript" },
+    { name = "wizard", path = "wizard/", type = "python" },
+    { name = "extensions", path = "extensions/", type = "python" },
+    { name = "docs", path = "docs/", type = "markdown" }
+]

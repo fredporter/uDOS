@@ -1,0 +1,17 @@
+{
+  "name": "{{PACKAGE_NAME}}",
+  "version": "1.0.0",
+  "type": "plugin",
+  "description": "{{DESCRIPTION}}",
+  "author": "{{AUTHOR}}",
+  "license": "MIT",
+  "dependencies": [],
+  "platform": ["system-app"],
+  "min_udos_version": "1.0.0.0",
+  "plugin": {
+    "entry_component": "Plugin.svelte",
+    "mode": "all|terminal|teledesk|desktop|dashboard",
+    "sidebar": false,
+    "settings": {}
+  }
+}
