@@ -1,9 +1,9 @@
 ---
 name: Feature Request
 about: Suggest a new feature or enhancement for uDOS
-title: '[FEATURE] '
+title: "[FEATURE] "
 labels: enhancement
-assignees: ''
+assignees: ""
 ---
 
 ## 💡 Feature Description
@@ -51,6 +51,7 @@ Are there existing features this would complement or depend on?
 ## 📚 Additional Context
 
 Any other relevant information:
+
 - Similar features in other tools?
 - Community feedback or requests?
 - Technical considerations?

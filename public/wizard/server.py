@@ -324,7 +324,7 @@ class WizardServer:
             """
             Receive GitHub webhooks for CI self-healing and safe repo sync.
             Signature validation is enforced when `github_webhook_secret` is set.
-            
+
             Events to subscribe:
               - workflow_run (completed, requested)
               - check_run (completed)
@@ -594,7 +594,7 @@ class WizardServer:
         from wizard.services.interactive_console import WizardConsole
 
         app = self.create_app()
-        
+
         if interactive:
             # Run server in background with interactive console in foreground
             config = uvicorn.Config(
@@ -604,28 +604,28 @@ class WizardServer:
                 log_level="info" if self.config.debug else "warning",
             )
             server = uvicorn.Server(config)
-            
+
             # Create console
             console = WizardConsole(self, self.config)
-            
+
             # Run both concurrently
             async def run_with_console():
                 # Start server in background
                 server_task = asyncio.create_task(server.serve())
-                
+
                 # Wait a moment for server to start
                 await asyncio.sleep(1)
-                
+
                 # Run interactive console in foreground
                 console_task = asyncio.create_task(console.run())
-                
+
                 # Wait for console to exit (user types 'exit')
                 await console_task
-                
+
                 # Shutdown server gracefully
                 server.should_exit = True
                 await server_task
-            
+
             # Run the async main function
             asyncio.run(run_with_console())
         else:
@@ -646,7 +646,7 @@ if __name__ == "__main__":
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind")
     parser.add_argument("--port", type=int, default=8765, help="Port to bind")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
-    parser.add_argument("--no-interactive", action="store_true", 
+    parser.add_argument("--no-interactive", action="store_true",
                        help="Run in daemon mode without interactive console")
 
     args = parser.parse_args()
@@ -658,7 +658,7 @@ if __name__ == "__main__":
     )
 
     server = WizardServer(config)
-    
+
     if not args.no_interactive:
         # Interactive mode with console (default)
         server.run(interactive=True)

@@ -1,7 +1,7 @@
 # Wizard Server (Production)
 
-**Status:** v1.1.0.0 (Stable)  
-**Port:** 8765  
+**Status:** v1.1.0.0 (Stable)
+**Port:** 8765
 **Scope:** Production-only services (assistant routing, plugin repo, proxy, relays, GitHub monitor/sync, port manager, distribution)
 
 > Experimental work lives in [dev/goblin](../dev/goblin/README.md) (localhost-only, `/api/v0/*`). Wizard stays stable and production-facing.

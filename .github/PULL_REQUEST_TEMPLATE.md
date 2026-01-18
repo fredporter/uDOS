@@ -30,6 +30,7 @@ Describe the testing you've performed:
 - [ ] All existing tests pass
 
 **Test commands run:**
+
 ```bash
 pytest memory/tests/
 ```
@@ -47,6 +48,7 @@ If applicable, add screenshots or example outputs:
 ## ✅ Checklist
 
 ### Code Quality
+
 - [ ] Code follows [uDOS style guide](https://github.com/fredporter/uDOS-dev/wiki/Style-Guide)
 - [ ] Self-review performed
 - [ ] Comments added for complex logic
@@ -54,12 +56,14 @@ If applicable, add screenshots or example outputs:
 - [ ] No new warnings introduced
 
 ### Documentation
+
 - [ ] Updated relevant documentation (wiki, README, etc.)
 - [ ] Added/updated code comments and docstrings
 - [ ] Updated CHANGELOG.md if applicable
 - [ ] Examples provided for new features
 
 ### Testing
+
 - [ ] All tests pass locally
 - [ ] Added tests for new functionality
 - [ ] Tested on target platforms (check all that apply):
@@ -68,11 +72,13 @@ If applicable, add screenshots or example outputs:
   - [ ] Windows (WSL)
 
 ### Dependencies
+
 - [ ] No new dependencies added, OR
 - [ ] New dependencies documented in requirements.txt
 - [ ] New dependencies justified in PR description
 
 ### Breaking Changes
+
 - [ ] No breaking changes, OR
 - [ ] Breaking changes documented
 - [ ] Migration guide provided
@@ -80,6 +86,7 @@ If applicable, add screenshots or example outputs:
 ## 🔍 Additional Context
 
 Any other relevant information:
+
 - Implementation decisions made
 - Trade-offs considered
 - Known limitations
@@ -92,6 +99,7 @@ Specific areas you'd like reviewers to focus on:
 ---
 
 **By submitting this PR, I confirm that:**
+
 - [ ] I have read and agree to the [Code of Conduct](CODE_OF_CONDUCT.md)
 - [ ] I have read the [Contributing Guidelines](CONTRIBUTING.md)
 - [ ] My contribution is my own original work

@@ -1,9 +1,9 @@
 ---
 name: Extension Submission
 about: Submit a new extension to the uDOS extension marketplace
-title: '[EXTENSION] '
+title: "[EXTENSION] "
 labels: extension
-assignees: ''
+assignees: ""
 ---
 
 ## 📦 Extension Information
@@ -46,7 +46,7 @@ Link to your extension's documentation:
 
 What testing has been done?
 
-- [ ] Unit tests (coverage: ___%)
+- [ ] Unit tests (coverage: \_\_\_%)
 - [ ] Integration tests with uDOS core
 - [ ] Manual testing on macOS
 - [ ] Manual testing on Linux
@@ -71,6 +71,7 @@ If applicable, add screenshots or example outputs:
 ## 🔒 Security Considerations
 
 Does your extension:
+
 - Access files outside the uDOS workspace? [Yes/No]
 - Make network requests? [Yes/No]
 - Execute system commands? [Yes/No]
@@ -91,6 +92,7 @@ If yes to any, explain the necessity and safety measures.
 ## 📝 Additional Notes
 
 Any other information about your extension:
+
 - Known limitations?
 - Future planned features?
 - Contribution guidelines?

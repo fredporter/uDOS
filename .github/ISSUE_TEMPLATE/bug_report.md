@@ -1,9 +1,9 @@
 ---
 name: Bug Report
 about: Report a bug or issue with uDOS
-title: '[BUG] '
+title: "[BUG] "
 labels: bug
-assignees: ''
+assignees: ""
 ---
 
 ## 🐛 Bug Description
@@ -42,6 +42,7 @@ If applicable, add screenshots or paste error logs:
 ## 🔍 Additional Context
 
 Any other relevant information:
+
 - Does this happen consistently or intermittently?
 - Did this work in a previous version?
 - Any recent changes to your setup?
