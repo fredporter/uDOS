@@ -51,7 +51,7 @@ jobs:
           #     print(f"Building udos-{name}.tcz...")
           #     tcz = builder.build_package(spec)
           #     print(f"Built {tcz}")
-          
+
           print("TCZ packaging not yet implemented. See .github/workflows/release.yml for details.")
           PY
 

@@ -1,12 +1,16 @@
 # uDOS Sync Rules (Alpha) — Public export model
-# Public surface tracked: core/, wizard/, extensions/ (release-ready), app/, docs/, bin/, config templates, and /public for OSS mirror.
-# Local/private stays local.
+# Public surface tracked: /public/ only (Wizard, Extensions, Knowledge, Library for distribution)
+# Private/personal stays local: /empire/ (CRM), /library/ (extensions for empire/goblin), /dev/goblin/ (experimental)
 
 # ---------- Public export surface ----------
 !public/
 !public/**
 
-# ---------- Private workspaces ----------
+# ---------- Private workspaces & personal ----------
+empire/
+library/
+private/
+**/private/
 memory/
 !memory/.gitkeep
 !memory/README.md
