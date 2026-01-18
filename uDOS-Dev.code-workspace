@@ -1,7 +1,29 @@
 {
+  // uDOS Development Workspace Configuration
+  // Structure: Private Repo (fredporter/uDOS) with public distribution (fredporter/uDOS-core)
+  //
+  // DIRECTORY LAYOUT:
+  // /public/              → Synced to GitHub (public distribution)
+  //   ├── wizard/         → Production Wizard Server v1.1.0
+  //   ├── extensions/     → Public extensions (API, Transport)
+  //   ├── knowledge/      → Knowledge base
+  //   └── distribution/   → Packaging & installers
+  //
+  // /empire/              → Private CRM/BIZINTEL (NOT in public repo)
+  // /library/             → Private extensions (for empire/goblin)
+  // /core/                → TypeScript Runtime v1.1.0
+  // /app/                 → Tauri GUI v1.0.3
+  // /dev/goblin/          → Experimental dev server v0.2.0
+  // /docs/                → Engineering documentation
+  // /memory/              → User data, logs, tests
+  // /bin/                 → Launch scripts
+  //
+  // IMPORTANT: .gitignore blocks /empire/, /library/, /dev/goblin/ from public git
+  // Only /public/ syncs to fredporter/uDOS-core
+
   "folders": [
     {
-      "name": "📦 Core (TypeScript Runtime)",
+      "name": "📦 Core (TypeScript Runtime) - v1.1.0",
       "path": "core",
       "icon": {
         "light": "library/icons/typescript.svg",
@@ -9,15 +31,31 @@
       }
     },
     {
-      "name": "🧙 Wizard (Production Server)",
-      "path": "wizard",
+      "name": "🏛️ Public Distribution - /public/",
+      "path": "public",
+      "icon": {
+        "light": "library/icons/release.svg",
+        "dark": "library/icons/release.svg"
+      }
+    },
+    {
+      "name": "👑 Empire (Private CRM)",
+      "path": "empire",
+      "icon": {
+        "light": "library/icons/crown.svg",
+        "dark": "library/icons/crown.svg"
+      }
+    },
+    {
+      "name": "🧙 Wizard (Production Server) - v1.1.0",
+      "path": "public/wizard",
       "icon": {
         "light": "library/icons/server.svg",
         "dark": "library/icons/server.svg"
       }
     },
     {
-      "name": "🧙 Goblin (Dev Server)",
+      "name": "🧙 Goblin (Dev Server) - v0.2.0",
       "path": "dev/goblin",
       "icon": {
         "light": "library/icons/experiment.svg",
@@ -25,8 +63,8 @@
       }
     },
     {
-      "name": "📱 App (Tauri + Svelte)",
-      "path": "app-beta",
+      "name": "📱 App (Tauri + Svelte) - v1.0.3",
+      "path": "app",
       "icon": {
         "light": "library/icons/app.svg",
         "dark": "library/icons/app.svg"
@@ -34,7 +72,7 @@
     },
     {
       "name": "🔌 Extensions (Public)",
-      "path": "extensions",
+      "path": "public/extensions",
       "icon": {
         "light": "library/icons/extension.svg",
         "dark": "library/icons/extension.svg"
@@ -50,14 +88,22 @@
     },
     {
       "name": "🧠 Knowledge Base",
-      "path": "knowledge",
+      "path": "public/knowledge",
       "icon": {
         "light": "library/icons/lightbulb.svg",
         "dark": "library/icons/lightbulb.svg"
       }
     },
     {
-      "name": "🔧 Dev Tools",
+      "name": "📚 Library (Private Extensions)",
+      "path": "library",
+      "icon": {
+        "light": "library/icons/library.svg",
+        "dark": "library/icons/library.svg"
+      }
+    },
+    {
+      "name": "🔧 Dev Tools & Scripts",
       "path": "dev",
       "icon": {
         "light": "library/icons/tools.svg",
@@ -65,7 +111,15 @@
       }
     },
     {
-      "name": "📋 Project Root",
+      "name": "📋 Memory & Data",
+      "path": "memory",
+      "icon": {
+        "light": "library/icons/database.svg",
+        "dark": "library/icons/database.svg"
+      }
+    },
+    {
+      "name": "🏠 Project Root",
       "path": ".",
       "icon": {
         "light": "library/icons/project.svg",
@@ -83,12 +137,12 @@
       ".venv": true,
       ".archive": true,
       ".dev": true,
-      "distribution": true,
-      "library": true,
-      "memory": true,
-      "packages": true,
+      ".cache": true,
+      ".build": true,
+      ".pytest_cache": true,
       "bin": true,
-      "wiki": true
+      "wiki": true,
+      "data": false
     },
     "search.exclude": {
       "**/.git": true,
@@ -97,7 +151,9 @@
       ".venv": true,
       ".archive": true,
       ".dev": true,
-      "distribution": true,
+      ".cache": true,
+      ".pytest_cache": true
+    },
       "library": true,
       "memory": true,
       "packages": true
