@@ -47,30 +47,29 @@ jobs:
           fi
 
           # Generate public-facing README
-          cat > mirror/README.md << 'ENDREADME'
-# uDOS Core - Public Mirror
+          cat > mirror/README.md << 'README_END'
+# uDOS Core
 
-**Offline-first, distributed OS layer combining Python TUI, TypeScript runtime, and Tauri GUI**
+Offline-first, distributed OS layer combining Python TUI, TypeScript runtime, and Tauri GUI.
 
-This is the public distribution mirror of uDOS. For development and private components, see the [private repository](https://github.com/fredporter/uDOS).
+This is the public distribution mirror of uDOS. For development and private components, see the private repository at fredporter/uDOS.
 
-## What's Included
+## What is Included
 
-**Public directories:**
-- `core/` - TypeScript runtime (v1.1.0) for iOS/Android/web
-- `wizard/` - AI routing, APIs, services (v1.1.0.0)
-- `extensions/` - API, transport, VSCode language support
-- `knowledge/` - Knowledge bank articles
-- `docs/` - Engineering documentation
-- `distribution/` - Packaging, TCZ builder, installers
+Public directories:
+- core - TypeScript runtime (v1.1.0) for iOS, Android, and web
+- wizard - AI routing, APIs, and services (v1.1.0.0)
+- extensions - API, transport, and VSCode support
+- knowledge - Knowledge bank articles
+- docs - Engineering documentation
+- distribution - Packaging and installers
 
-**What's NOT included:** Private extensions, CRM config, app sources, secrets, test data
+## What is NOT Included
 
-## Quick Start
+Private extensions, CRM configuration, app sources, secrets, and test data.
 
-### Clone and Install
+## Installation
 
-```bash
 git clone https://github.com/fredporter/uDOS-core.git
 cd uDOS-core
 
@@ -78,39 +77,32 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-cd core
-npm install
-npm test
-```
+cd core && npm install && npm test
 
-### Full Development (requires private repo access)
+## Full Development
 
-```bash
+For full development with private components:
+
 git clone https://github.com/fredporter/uDOS.git
 cd uDOS
 source .venv/bin/activate
 
 ./bin/start_udos.sh
 python wizard/launch_wizard_dev.py
-```
 
 ## Documentation
 
-- AGENTS.md - Development workflow and architecture
-- docs/roadmap.md - Current development priorities
-- docs/decisions/ - Architecture decision records
-- docs/howto/ - Guides and procedures
+See AGENTS.md, docs/roadmap.md, docs/decisions/, and docs/howto/ in the private repository.
 
 ## Links
 
-- Public Mirror: https://github.com/fredporter/uDOS-core
-- Private Repo: https://github.com/fredporter/uDOS
-- Roadmap: https://github.com/fredporter/uDOS/blob/main/docs/roadmap.md
+Public Mirror: https://github.com/fredporter/uDOS-core
+Private Repo: https://github.com/fredporter/uDOS
 
 ---
 
-*Automated mirror synced from the private repository.*
-ENDREADME
+Automated mirror synced from the private repository.
+README_END
 
           echo "✅ Generated public README"
           ls -lah mirror/ | head -15
