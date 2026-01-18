@@ -47,7 +47,7 @@ jobs:
           fi
 
           # Generate public-facing README
-          cat > mirror/README.md << 'README_END'
+          cat > mirror/README.md << 'READMEEOF'
 # uDOS Core
 
 Offline-first, distributed OS layer combining Python TUI, TypeScript runtime, and Tauri GUI.
@@ -57,12 +57,11 @@ This is the public distribution mirror of uDOS. For development and private comp
 ## What is Included
 
 Public directories:
-- core - TypeScript runtime (v1.1.0) for iOS, Android, and web
-- wizard - AI routing, APIs, and services (v1.1.0.0)
+- core - TypeScript runtime for iOS, Android, and web
+- wizard - AI routing and services
 - extensions - API, transport, and VSCode support
 - knowledge - Knowledge bank articles
 - docs - Engineering documentation
-- distribution - Packaging and installers
 
 ## What is NOT Included
 
@@ -72,37 +71,21 @@ Private extensions, CRM configuration, app sources, secrets, and test data.
 
 git clone https://github.com/fredporter/uDOS-core.git
 cd uDOS-core
-
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-cd core && npm install && npm test
-
 ## Full Development
 
-For full development with private components:
-
-git clone https://github.com/fredporter/uDOS.git
-cd uDOS
-source .venv/bin/activate
-
-./bin/start_udos.sh
-python wizard/launch_wizard_dev.py
-
-## Documentation
-
-See AGENTS.md, docs/roadmap.md, docs/decisions/, and docs/howto/ in the private repository.
+For full development with private components, clone the private repository at fredporter/uDOS.
 
 ## Links
 
 Public Mirror: https://github.com/fredporter/uDOS-core
 Private Repo: https://github.com/fredporter/uDOS
 
----
-
 Automated mirror synced from the private repository.
-README_END
+READMEEOF
 
           echo "✅ Generated public README"
           ls -lah mirror/ | head -15
