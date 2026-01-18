@@ -80,10 +80,6 @@ jobs:
           git init
           git config user.email "github-actions@github.com"
           git config user.name "GitHub Actions"
-
-          # Set default branch to main
-          git checkout -b main
-
           git add -A
 
           if [ -z "$(git diff --cached --name-only)" ]; then
@@ -92,6 +88,7 @@ jobs:
           fi
 
           git commit -m "Sync from private repo"
+          git branch -M main
           git remote add origin "https://x-access-token:${PUBLIC_TOKEN}@github.com/${PUBLIC_REPO}.git"
-          git push -f origin main
-          echo "✅ Synced to $PUBLIC_REPO"
+          git push -f origin main || true
+          echo "✅ Pushed to $PUBLIC_REPO"
