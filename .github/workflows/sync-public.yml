@@ -47,89 +47,70 @@ jobs:
           fi
 
           # Generate public-facing README
-          cat > mirror/README.md << 'EOF'
+          cat > mirror/README.md << 'ENDREADME'
 # uDOS Core - Public Mirror
 
 **Offline-first, distributed OS layer combining Python TUI, TypeScript runtime, and Tauri GUI**
 
 This is the public distribution mirror of uDOS. For development and private components, see the [private repository](https://github.com/fredporter/uDOS).
 
-## 📦 What's Included (Public)
+## What's Included
 
-| Directory | Purpose |
-|-----------|---------|
-| **core/** | TypeScript runtime (v1.1.0) - iOS/Android ready |
-| **wizard/** | AI routing, APIs, services (v1.1.0.0) |
-| **extensions/** | API, transport, VSCode extensions |
-| **knowledge/** | Knowledge bank articles |
-| **distribution/** | Packaging, TCZ builder, installers |
-| **docs/** | Engineering documentation |
+**Public directories:**
+- `core/` - TypeScript runtime (v1.1.0) for iOS/Android/web
+- `wizard/` - AI routing, APIs, services (v1.1.0.0)
+- `extensions/` - API, transport, VSCode language support
+- `knowledge/` - Knowledge bank articles
+- `docs/` - Engineering documentation
+- `distribution/` - Packaging, TCZ builder, installers
 
-## 🔒 What's NOT Included (Private)
+**What's NOT included:** Private extensions, CRM config, app sources, secrets, test data
 
-- `/empire/` - Personal CRM and business intelligence
-- `/library/` - Private extensions for empire/dev
-- `/app/` - Tauri desktop app (separate repo)
-- Wizard config (secrets, OAuth, API keys)
-- Test data and user information
+## Quick Start
 
-## 🚀 Quick Start
-
-### Installation
+### Clone and Install
 
 ```bash
-# Clone public repo
 git clone https://github.com/fredporter/uDOS-core.git
 cd uDOS-core
 
-# Python environment (core services)
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# TypeScript (runtime)
 cd core
 npm install
 npm test
 ```
 
-### Development
+### Full Development (requires private repo access)
 
 ```bash
-# Private repo (full development)
 git clone https://github.com/fredporter/uDOS.git
 cd uDOS
-
-# Set up Python
 source .venv/bin/activate
 
-# Run TUI
 ./bin/start_udos.sh
-
-# Run Wizard dev
 python wizard/launch_wizard_dev.py
 ```
 
-## 📚 Documentation
+## Documentation
 
-- [AGENTS.md](https://github.com/fredporter/uDOS/blob/main/AGENTS.md) - Development workflow
-- [docs/roadmap.md](https://github.com/fredporter/uDOS/blob/main/docs/roadmap.md) - Current roadmap
-- [docs/decisions/](https://github.com/fredporter/uDOS/tree/main/docs/decisions) - Architecture decisions
+- AGENTS.md - Development workflow and architecture
+- docs/roadmap.md - Current development priorities
+- docs/decisions/ - Architecture decision records
+- docs/howto/ - Guides and procedures
 
-## 🔗 Links
+## Links
 
-- **Public Mirror:** [fredporter/uDOS-core](https://github.com/fredporter/uDOS-core) (you are here)
-- **Private Repo:** [fredporter/uDOS](https://github.com/fredporter/uDOS) (full development)
-- **Roadmap:** [docs/roadmap.md](https://github.com/fredporter/uDOS/blob/main/docs/roadmap.md)
-
-## 📄 License
-
-See LICENSE file in this repository.
+- Public Mirror: https://github.com/fredporter/uDOS-core
+- Private Repo: https://github.com/fredporter/uDOS
+- Roadmap: https://github.com/fredporter/uDOS/blob/main/docs/roadmap.md
 
 ---
 
-*This is an automated mirror synced from the private repository.*
-EOF
+*Automated mirror synced from the private repository.*
+ENDREADME
 
           echo "✅ Generated public README"
           ls -lah mirror/ | head -15
