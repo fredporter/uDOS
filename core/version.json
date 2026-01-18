@@ -1,6 +1,6 @@
 {
   "component": "core",
-  "version": "1.0.0-lean",
+  "version": "1.0.0",
   "status": "development",
   "location": "core/",
   "description": "Lean TypeScript Runtime for markdown script execution",

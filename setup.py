@@ -3,13 +3,20 @@ from setuptools import setup, find_packages
 import json
 from pathlib import Path
 
-with open("README.MD", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+# Use simple description if README not found
+try:
+    with open("README.md", "r", encoding="utf-8") as fh:
+        long_description = fh.read()
+except FileNotFoundError:
+    long_description = "uDOS - Offline-first Operating System for Survival Knowledge"
 
-with open("requirements.txt", "r", encoding="utf-8") as fh:
-    requirements = [
-        line.strip() for line in fh if line.strip() and not line.startswith("#")
-    ]
+try:
+    with open("requirements.txt", "r", encoding="utf-8") as fh:
+        requirements = [
+            line.strip() for line in fh if line.strip() and not line.startswith("#")
+        ]
+except FileNotFoundError:
+    requirements = []
 
 # Read version from core/version.json
 version_file = Path("core/version.json")
@@ -34,11 +41,10 @@ setup(
         "Documentation": "https://github.com/fredporter/uDOS/wiki",
         "Source Code": "https://github.com/fredporter/uDOS",
     },
-    packages=find_packages(include=["udos", "udos.*", "core", "core.*"])
-    + ["knowledge"],
+    packages=find_packages(include=["core", "core.*", "public", "public.*"]),
     package_data={
-        "core": ["data/**/*"],
-        "knowledge": ["**/*.md", "**/*.json", "**/*.txt"],
+        "core": ["**/*.json", "**/*.md"],
+        "public": ["**/*.json", "**/*.md"],
     },
     classifiers=[
         "Development Status :: 5 - Production/Stable",

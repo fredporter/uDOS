@@ -2,8 +2,40 @@
 
 **Current Version:** Core v1.1.0.0 | API v1.1.0.0 | App v1.0.3.0 | Wizard v1.1.0.0 | Goblin v0.2.0.0 | Binder v1.0.6.0 | TUI v1.0.0.0  
 **Release:** Alpha v1.0.6.0 Phase 5G ✅ **COMPLETE** 2026-01-18  
-**Next Target:** Phase 6: Advanced Features or Wizard Server Integration  
+**Next Target:** Phase 6: Wizard Integration (OAuth + Services) OR v1.0.7.0 Teletext Grid Runtime  
 **Last Updated:** 2026-01-18
+
+---
+
+## 🏗️ Architecture Clarification (2026-01-18)
+
+### Wizard vs Goblin — Production vs Development
+
+| Aspect       | **Wizard Server**            | **Goblin Dev Server**            |
+| ------------ | ---------------------------- | -------------------------------- |
+| **Port**     | 8765                         | 8767                             |
+| **Status**   | Production v1.1.0.0 (stable) | Experimental v0.2.0.0 (unstable) |
+| **Purpose**  | Always-on, public-facing     | Localhost-only, dev experiments  |
+| **Location** | `/public/wizard/`            | `/dev/goblin/`                   |
+| **Symlink**  | `wizard → public/wizard`     | `goblin → dev/goblin`            |
+
+**Wizard Responsibilities:**
+
+- ✅ AI assistants (Vibe, Mistral) — Shared by all devices
+- ✅ Scheduling, workflows, calendar sync — Production task management
+- ✅ Device authentication + session management
+- ✅ Plugin repository + distribution
+- ❌ NO aggressive auto-restart (graceful degradation)
+
+**Goblin Responsibilities:**
+
+- ✅ Accesses Wizard AI via API (doesn't host AI)
+- ✅ Separate dev workflow files (not using Wizard's)
+- ✅ Separate dev logs (isolated from production)
+- ✅ Notion sync, TS runtime experiments, binder compilation
+- ✅ Aggressive auto-restart appropriate for dev mode
+
+---
 
 ## ✅ Maintenance: TUI Launcher + App Alias (COMPLETE 2026-01-18)
 
