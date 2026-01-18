@@ -8,14 +8,16 @@
 
 ## Problem
 
-The GitHub Actions workflow `.github/workflows/sync-public.yml` is configured to automatically sync the private `fredporter/uDOS` repository to the public `fredporter/uDOS-core` mirror, but **the required secrets are not configured** in GitHub repository settings.
+The GitHub Actions workflow `.github/workflows/sync-public.yml` is configured to automatically sync the private `fredporter/uDOS-dev` repository to the public `fredporter/uDOS-core` mirror, but **the required secrets are not configured** in GitHub repository settings.
 
 **Current State:**
+
 - ❌ Workflow exists and is enabled
 - ❌ Secrets `PUBLIC_REPO` and `PUBLIC_TOKEN` are missing
 - ❌ Manual syncing required or workflow is skipped
 
 **Workflow Trigger:**
+
 - Automatic: On every push to `main` branch
 - Manual: Via GitHub Actions "Run workflow" button
 
@@ -24,6 +26,7 @@ The GitHub Actions workflow `.github/workflows/sync-public.yml` is configured to
 ## What Gets Synced
 
 ### Included in Public Mirror
+
 ```
 /public/          → Wizard, Extensions, Knowledge, Library
 /core/            → TypeScript runtime
@@ -33,6 +36,7 @@ README.md         → Auto-generated public README
 ```
 
 ### Excluded from Public Mirror
+
 ```
 /app/             → Tauri app (separate repo)
 /app-beta/        → Beta app (separate repo)
@@ -59,9 +63,9 @@ README.md         → Auto-generated public README
    - **Click:** "Generate token"
 4. **Copy the token immediately** (you won't see it again)
 
-### Step 2: Add Secrets to Private Repo (fredporter/uDOS)
+### Step 2: Add Secrets to Private Repo (fredporter/uDOS-dev)
 
-1. Go to [fredporter/uDOS → Settings → Secrets and variables → Actions](https://github.com/fredporter/uDOS/settings/secrets/actions)
+1. Go to [fredporter/uDOS-dev → Settings → Secrets and variables → Actions](https://github.com/fredporter/uDOS-dev/settings/secrets/actions)
 2. Click "New repository secret"
 3. **Add first secret:**
    - **Name:** `PUBLIC_REPO`
@@ -77,14 +81,17 @@ README.md         → Auto-generated public README
 ### Step 3: Test the Sync
 
 Option A: **Push to main** (automatic trigger)
+
 ```bash
 cd /Users/fredbook/Code/uDOS
 git push origin main
 ```
+
 The workflow will automatically trigger and sync.
 
 Option B: **Manual trigger** (via GitHub UI)
-1. Go to [fredporter/uDOS → Actions](https://github.com/fredporter/uDOS/actions)
+
+1. Go to [fredporter/uDOS-dev → Actions](https://github.com/fredporter/uDOS-dev/actions)
 2. Click "Sync Public Mirror" workflow
 3. Click "Run workflow"
 4. Select branch: `main`
@@ -104,7 +111,7 @@ Option B: **Manual trigger** (via GitHub UI)
 
 ```mermaid
 graph LR
-    A["Push to private<br/>fredporter/uDOS"] -->|trigger| B["sync-public.yml"]
+    A["Push to private<br/>fredporter/uDOS-dev"] -->|trigger| B["sync-public.yml"]
     B -->|rsync| C["Prepare mirror/<br/>with /public, /core, /docs"]
     C -->|generate| D["README.md<br/>public-facing"]
     D -->|push -f| E["fredporter/uDOS-core<br/>main branch"]
@@ -139,12 +146,13 @@ graph LR
 ```yaml
 on:
   push:
-    branches: [ main ]           # Trigger on main branch push
-  workflow_dispatch:             # Manual trigger available
+    branches: [main] # Trigger on main branch push
+  workflow_dispatch: # Manual trigger available
 
 env:
-  PUBLIC_REPO: ${{ secrets.PUBLIC_REPO }}        # Set in repo settings
-  PUBLIC_TOKEN: ${{ secrets.PUBLIC_TOKEN }}      # Set in repo settings
+  PUBLIC_REPO: ${{ secrets.PUBLIC_REPO }} # Set in repo settings
+  PUBLIC_TOKEN: ${{ secrets.PUBLIC_TOKEN }} # Set in repo settings
+
 
 # Copy /public/, /core/, /docs/ to mirror/
 # Generate README.md
@@ -158,6 +166,7 @@ env:
 ### Workflow Doesn't Run
 
 **Check:**
+
 1. Is the workflow enabled? Go to Actions tab → "Sync Public Mirror" → Check "Status"
 2. Did the push actually go to `main` branch?
    ```bash
@@ -168,11 +177,13 @@ env:
 ### Secrets Not Found Error
 
 **In workflow logs, you might see:**
+
 ```
 ⚠️  Skipping sync: PUBLIC_REPO or PUBLIC_TOKEN not configured
 ```
 
 **Fix:**
+
 - Verify secrets are in repo settings (Settings → Secrets → Actions)
 - Check secret names match exactly: `PUBLIC_REPO`, `PUBLIC_TOKEN`
 - Wait 10-15 seconds after adding secrets (caching)
@@ -180,11 +191,13 @@ env:
 ### Permission Denied on Push
 
 **Error:**
+
 ```
 fatal: could not read Password for 'https://github.com': No such file or directory
 ```
 
 **Fix:**
+
 - Ensure `PUBLIC_TOKEN` is a valid GitHub PAT
 - Verify PAT has `repo` scope
 - Check PAT hasn't expired
@@ -192,10 +205,12 @@ fatal: could not read Password for 'https://github.com': No such file or directo
 ### Workflow Hangs
 
 **Usually caused by:**
+
 - Large files being synced (especially in `public/library/`)
 - Network timeout
 
 **Solution:**
+
 - Exclude large files in `.github/workflows/sync-public.yml`
 - Manually trigger again
 
@@ -249,6 +264,7 @@ echo "✅ Sync complete!"
 ```
 
 Save as `bin/sync-public.sh` and run:
+
 ```bash
 chmod +x bin/sync-public.sh
 PUBLIC_TOKEN="your_pat_here" ./bin/sync-public.sh

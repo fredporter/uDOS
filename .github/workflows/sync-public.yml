@@ -45,7 +45,7 @@ jobs:
           echo "" >> mirror/README.md
           echo "Offline-first, distributed OS layer combining Python TUI, TypeScript runtime, and Tauri GUI." >> mirror/README.md
           echo "" >> mirror/README.md
-          echo "This is the public mirror of uDOS. For development and private components, see the private repository." >> mirror/README.md
+          echo "This is the public mirror of uDOS. For development and private components, see the private repository at https://github.com/fredporter/uDOS-dev." >> mirror/README.md
           echo "" >> mirror/README.md
           echo "Content:" >> mirror/README.md
           echo "- core - TypeScript runtime" >> mirror/README.md
@@ -57,7 +57,7 @@ jobs:
           echo "Installation: See core/README.md for setup instructions." >> mirror/README.md
           echo "" >> mirror/README.md
           echo "Links: https://github.com/fredporter/uDOS-core (public)" >> mirror/README.md
-          echo "       https://github.com/fredporter/uDOS (private)" >> mirror/README.md
+          echo "       https://github.com/fredporter/uDOS-dev (private)" >> mirror/README.md
           echo "" >> mirror/README.md
           echo "Automated mirror synced from the private repository." >> mirror/README.md
 
