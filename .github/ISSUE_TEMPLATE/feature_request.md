@@ -58,6 +58,6 @@ Any other relevant information:
 ## ✔️ Checklist
 
 - [ ] I've searched existing issues for similar requests
-- [ ] This aligns with uDOS's [philosophy](https://github.com/fredporter/uDOS/wiki/Philosophy)
+- [ ] This aligns with uDOS's [philosophy](https://github.com/fredporter/uDOS-dev/wiki/Philosophy)
 - [ ] I've provided clear use cases
 - [ ] I've considered implementation complexity

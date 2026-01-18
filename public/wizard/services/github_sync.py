@@ -2,7 +2,7 @@
 
 Provides safe, policy-aware sync operations (pull/push) for allowed repositories.
 Designed for production Wizard server usage:
-- Allowlist of repos (default: fredporter/uDOS)
+- Allowlist of repos (default: fredporter/uDOS-dev)
 - Branch guard (default: main)
 - No force operations; fast-forward only
 - Optional push (disabled by default)
@@ -40,7 +40,7 @@ class GitHubSyncService:
         max_retries: int = 2,
     ) -> None:
         self.repo_root = repo_root or Path(__file__).resolve().parents[2]
-        self.allowed_repos = set(allowed_repos or ["fredporter/uDOS"])
+        self.allowed_repos = set(allowed_repos or ["fredporter/uDOS-dev"])
         self.default_branch = default_branch
         self.push_enabled = push_enabled
         self.max_retries = max_retries

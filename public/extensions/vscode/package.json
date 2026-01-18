@@ -20,10 +20,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/fredporter/uDOS"
+    "url": "https://github.com/fredporter/uDOS-dev"
   },
   "bugs": {
-    "url": "https://github.com/fredporter/uDOS/issues"
+    "url": "https://github.com/fredporter/uDOS-dev/issues"
   },
   "activationEvents": [
     "onLanguage:udos",

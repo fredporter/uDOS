@@ -80,13 +80,13 @@ If yes to any, explain the necessity and safety measures.
 
 ## ✔️ Quality Checklist
 
-- [ ] Code follows [uDOS style guide](https://github.com/fredporter/uDOS/wiki/Style-Guide)
+- [ ] Code follows [uDOS style guide](https://github.com/fredporter/uDOS-dev/wiki/Style-Guide)
 - [ ] Extension has comprehensive documentation
 - [ ] All features are tested
 - [ ] Extension metadata is complete (manifest.json)
 - [ ] No security vulnerabilities identified
 - [ ] Compatible with uDOS v1.1.0+
-- [ ] Follows [extension development guidelines](https://github.com/fredporter/uDOS/wiki/API-Reference)
+- [ ] Follows [extension development guidelines](https://github.com/fredporter/uDOS-dev/wiki/API-Reference)
 
 ## 📝 Additional Notes
 

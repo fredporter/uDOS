@@ -7,7 +7,7 @@
 
 ## Repos
 
-- Private: fredporter/uDOS (source of truth, dev-only content)
+- Private: fredporter/uDOS-dev (source of truth, dev-only content)
 - Public: fredporter/uDOS-core (release docs + assets mirror)
 
 ---

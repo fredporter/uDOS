@@ -716,8 +716,8 @@ python wizard/launch_wizard_dev.py --no-tui
 
 ## 📞 Support & Issues
 
-**Issues:** https://github.com/fredporter/uDOS/issues  
-**Discussions:** https://github.com/fredporter/uDOS/discussions  
+**Issues:** https://github.com/fredporter/uDOS-dev/issues  
+**Discussions:** https://github.com/fredporter/uDOS-dev/discussions  
 **Documentation:** Check [docs/\_index.md](../_index.md) for related topics
 
 ---

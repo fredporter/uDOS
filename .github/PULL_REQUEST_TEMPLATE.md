@@ -47,7 +47,7 @@ If applicable, add screenshots or example outputs:
 ## ✅ Checklist
 
 ### Code Quality
-- [ ] Code follows [uDOS style guide](https://github.com/fredporter/uDOS/wiki/Style-Guide)
+- [ ] Code follows [uDOS style guide](https://github.com/fredporter/uDOS-dev/wiki/Style-Guide)
 - [ ] Self-review performed
 - [ ] Comments added for complex logic
 - [ ] No unnecessary debug code or commented code

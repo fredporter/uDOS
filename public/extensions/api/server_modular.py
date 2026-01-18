@@ -193,7 +193,7 @@ def index():
                 "tui": "/api/tui/status",
                 "settings": "/api/settings/unified",
             },
-            "documentation": "https://github.com/fredporter/uDOS/wiki",
+            "documentation": "https://github.com/fredporter/uDOS-dev/wiki",
             "message": "uDOS API Server is running. Use /api/* endpoints.",
         }
     )

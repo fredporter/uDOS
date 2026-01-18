@@ -35,11 +35,11 @@ setup(
     description="uDOS - Offline-first Operating System for Survival Knowledge",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/fredporter/uDOS",
+    url="https://github.com/fredporter/uDOS-dev",
     project_urls={
-        "Bug Tracker": "https://github.com/fredporter/uDOS/issues",
-        "Documentation": "https://github.com/fredporter/uDOS/wiki",
-        "Source Code": "https://github.com/fredporter/uDOS",
+        "Bug Tracker": "https://github.com/fredporter/uDOS-dev/issues",
+        "Documentation": "https://github.com/fredporter/uDOS-dev/wiki",
+        "Source Code": "https://github.com/fredporter/uDOS-dev",
     },
     packages=find_packages(include=["core", "core.*", "public", "public.*"]),
     package_data={

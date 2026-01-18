@@ -22,7 +22,7 @@ SOFTWARE.
 
 ================================================================================
 uDOS v1.0.0 - Human-Readable CLI Framework
-https://github.com/fredporter/uDOS
+https://github.com/fredporter/uDOS-dev
 ================================================================================
 
 THIRD-PARTY LICENSES AND ATTRIBUTIONS

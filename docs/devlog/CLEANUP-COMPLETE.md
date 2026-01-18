@@ -108,7 +108,7 @@ Git Commits:
 **Changes Made:**
 
 1. **Added structural header comments** explaining:
-   - Dual-repo model (private fredporter/uDOS + public fredporter/uDOS-core)
+   - Dual-repo model (private fredporter/uDOS-dev + public fredporter/uDOS-core)
    - Directory layout with folder descriptions
    - Git privacy notes
 
@@ -156,7 +156,7 @@ Git Commits:
 ### **sync-public.yml** — READY (Pending Secrets ⏳)
 
 - Workflow is configured and committed
-- **Requires GitHub secrets in fredporter/uDOS settings:**
+- **Requires GitHub secrets in fredporter/uDOS-dev settings:**
   - `PUBLIC_REPO` = `fredporter/uDOS-core`
   - `PUBLIC_TOKEN` = [Personal Access Token]
 - Once secrets added, syncs on every push to main
@@ -164,7 +164,7 @@ Git Commits:
 **To Configure Secrets:**
 
 ```
-1. Go to: https://github.com/fredporter/uDOS/settings/secrets/actions
+1. Go to: https://github.com/fredporter/uDOS-dev/settings/secrets/actions
 2. Click "New repository secret"
 3. Add SECRET_1: PUBLIC_REPO = "fredporter/uDOS-core"
 4. Add SECRET_2: PUBLIC_TOKEN = [PAT with public_repo scope]

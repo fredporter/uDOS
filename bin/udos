@@ -57,7 +57,7 @@ Examples:
     udos --validate my-script.upy          # Check syntax
     udos -i shelter-quest.upy              # Run then go interactive
 
-For more information, visit: https://github.com/fredporter/uDOS
+For more information, visit: https://github.com/fredporter/uDOS-dev
 EOF
 }
 

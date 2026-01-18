@@ -83,7 +83,7 @@ class WizardConfig:
 
     # GitHub integration
     github_webhook_secret: Optional[str] = None
-    github_allowed_repo: str = "fredporter/uDOS"
+    github_allowed_repo: str = "fredporter/uDOS-dev"
     github_default_branch: str = "main"
     github_push_enabled: bool = False
 

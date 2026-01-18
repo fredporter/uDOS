@@ -134,7 +134,7 @@ public/
 ### Lite (Default) - 7.3MB
 
 ```bash
-git clone https://github.com/fredporter/uDOS.git
+git clone https://github.com/fredporter/uDOS-core.git
 ```
 
 Core + knowledge base only. Perfect for air-gapped systems.
@@ -142,20 +142,23 @@ Core + knowledge base only. Perfect for air-gapped systems.
 ### Full - ~45MB
 
 ```bash
-git clone --depth=1 https://github.com/fredporter/uDOS.git
+git clone --depth=1 https://github.com/fredporter/uDOS-core.git
 pip install -r requirements.txt
 ```
 
 Includes all extensions and tools.
 
-### Development
+### Development (Full Private Repo)
+
+For TypeScript runtime, iOS/Android apps, and full development tools:
 
 ```bash
-git clone --recurse-submodules https://github.com/fredporter/uDOS.git
+git clone https://github.com/fredporter/uDOS-dev.git
+cd uDOS-dev
 python -m core.version check
 ```
 
-Contributor setup with full git history.
+Private repo with full git history.
 
 ---
 
@@ -247,9 +250,10 @@ MIT License - See [LICENSE.txt](LICENSE.txt)
 
 ## 🔗 Links
 
-- **GitHub**: https://github.com/fredporter/uDOS
-- **Issues**: https://github.com/fredporter/uDOS/issues
-- **Discussions**: https://github.com/fredporter/uDOS/discussions
+- **Public Repo (This)**: https://github.com/fredporter/uDOS-core
+- **Private Dev Repo**: https://github.com/fredporter/uDOS-dev
+- **Issues**: https://github.com/fredporter/uDOS-dev/issues
+- **Discussions**: https://github.com/fredporter/uDOS-dev/discussions
 
 ---
 

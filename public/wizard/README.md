@@ -84,7 +84,7 @@ Auth: all `/api/v1/*` require device auth (Bearer token). Rate limits apply per 
   "gmail_relay_enabled": false,
   "ai_gateway_enabled": true,
   "github_webhook_secret": null,
-  "github_allowed_repo": "fredporter/uDOS",
+  "github_allowed_repo": "fredporter/uDOS-dev",
   "github_default_branch": "main",
   "github_push_enabled": false
 }
