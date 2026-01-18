@@ -9,16 +9,18 @@
   //   ├── knowledge/      → Knowledge base
   //   └── distribution/   → Packaging & installers
   //
-  // /empire/              → Private CRM/BIZINTEL (NOT in public repo)
+  // /empire/              → Private CRM/Business Intelligence (v1.0.0.1)
+  // /groovebox/           → Music production system (private)
   // /library/             → Private extensions (for empire/goblin)
   // /core/                → TypeScript Runtime v1.1.0
   // /app/                 → Tauri GUI v1.0.3
   // /dev/goblin/          → Experimental dev server v0.2.0
+  //   └── screwdriver/    → Dev tools and utilities
   // /docs/                → Engineering documentation
   // /memory/              → User data, logs, tests
   // /bin/                 → Launch scripts
   //
-  // IMPORTANT: .gitignore blocks /empire/, /library/, /dev/goblin/ from public git
+  // IMPORTANT: .gitignore blocks /empire/, /library/, /groovebox/, /dev/goblin/ from public git
   // Only /public/ syncs to fredporter/uDOS-core
 
   "folders": [
@@ -39,11 +41,19 @@
       }
     },
     {
-      "name": "👑 Empire (Private CRM)",
+      "name": "👑 Empire (Private CRM) - v1.0.0.1",
       "path": "empire",
       "icon": {
         "light": "library/icons/crown.svg",
         "dark": "library/icons/crown.svg"
+      }
+    },
+    {
+      "name": "🎸 Groovebox (Music Production)",
+      "path": "groovebox",
+      "icon": {
+        "light": "library/icons/music.svg",
+        "dark": "library/icons/music.svg"
       }
     },
     {
@@ -60,6 +70,14 @@
       "icon": {
         "light": "library/icons/experiment.svg",
         "dark": "library/icons/experiment.svg"
+      }
+    },
+    {
+      "name": "🔧 Screwdriver (Goblin Tools)",
+      "path": "dev/goblin/screwdriver",
+      "icon": {
+        "light": "library/icons/tools.svg",
+        "dark": "library/icons/tools.svg"
       }
     },
     {

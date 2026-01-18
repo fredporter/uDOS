@@ -1,6 +1,6 @@
 # uDOS Sync Rules (Alpha) — Public export model
 # Public surface tracked: /public/ only (Wizard, Extensions, Knowledge, Library for distribution)
-# Private/personal stays local: /empire/ (CRM), /library/ (extensions for empire/goblin), /dev/goblin/ (experimental)
+# Private/personal stays local: /empire/ (CRM), /groovebox/ (music), /library/ (extensions for empire/goblin), /dev/goblin/ (experimental)
 
 # ---------- Public export surface ----------
 !public/
@@ -8,6 +8,7 @@
 
 # ---------- Private workspaces & personal ----------
 empire/
+groovebox/
 library/
 private/
 **/private/
