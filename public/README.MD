@@ -8,26 +8,24 @@
 
 ## 🚀 Quick Start
 
+**IMPORTANT:** When you clone this repository, the module paths do NOT include `public/`. Use paths like `wizard.server`, not `public.wizard.server`.
+
 ```bash
 # Clone repository
-git clone https://github.com/fredporter/uDOS.git
-cd uDOS
+git clone https://github.com/fredporter/uDOS-core.git
+cd uDOS-core
 
 # Setup virtual environment
-python3 -m venv .venv
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+python3 -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
 
 # Install dependencies
 pip install -r requirements.txt
 
 # Run Wizard Server (always-on services)
-python -m public.wizard.server
+python -m wizard.server
 
-# Or run TUI (command-line interface)
-python -m core.tui
-
-# Or build Tauri app (desktop GUI)
-cd app && npm install && npm run dev
+# See INSTALLATION.md for full setup guide and troubleshooting
 ```
 
 ---
