@@ -3,7 +3,7 @@ name: Sync Public Mirror
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: 
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -40,27 +40,26 @@ jobs:
             echo "✅ Synced LICENSE"
           fi
 
-          cat > mirror/README.md << 'EOF'
-uDOS Core
-
-Offline-first, distributed OS layer combining Python TUI, TypeScript runtime, and Tauri GUI.
-
-This is the public mirror of uDOS. For development and private components, see the private repository.
-
-Content:
-- core - TypeScript runtime
-- wizard - AI routing services  
-- extensions - API and transport
-- knowledge - Knowledge articles
-- docs - Engineering documentation
-
-Installation: See core/README.md for setup instructions.
-
-Links: https://github.com/fredporter/uDOS-core (public)
-       https://github.com/fredporter/uDOS (private)
-
-Automated mirror synced from the private repository.
-EOF
+          # Generate README
+          echo "uDOS Core" > mirror/README.md
+          echo "" >> mirror/README.md
+          echo "Offline-first, distributed OS layer combining Python TUI, TypeScript runtime, and Tauri GUI." >> mirror/README.md
+          echo "" >> mirror/README.md
+          echo "This is the public mirror of uDOS. For development and private components, see the private repository." >> mirror/README.md
+          echo "" >> mirror/README.md
+          echo "Content:" >> mirror/README.md
+          echo "- core - TypeScript runtime" >> mirror/README.md
+          echo "- wizard - AI routing services" >> mirror/README.md
+          echo "- extensions - API and transport" >> mirror/README.md
+          echo "- knowledge - Knowledge articles" >> mirror/README.md
+          echo "- docs - Engineering documentation" >> mirror/README.md
+          echo "" >> mirror/README.md
+          echo "Installation: See core/README.md for setup instructions." >> mirror/README.md
+          echo "" >> mirror/README.md
+          echo "Links: https://github.com/fredporter/uDOS-core (public)" >> mirror/README.md
+          echo "       https://github.com/fredporter/uDOS (private)" >> mirror/README.md
+          echo "" >> mirror/README.md
+          echo "Automated mirror synced from the private repository." >> mirror/README.md
 
           echo "✅ Generated public README"
           ls -lah mirror/
@@ -81,10 +80,10 @@ EOF
           git init
           git config user.email "github-actions@github.com"
           git config user.name "GitHub Actions"
-          
+
           # Set default branch to main
           git checkout -b main
-          
+
           git add -A
 
           if [ -z "$(git diff --cached --name-only)" ]; then
