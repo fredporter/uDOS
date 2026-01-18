@@ -4,17 +4,17 @@
   "name": "uDOS Wizard Server",
   "version": {
     "major": 1,
-    "minor": 1,
+    "minor": 0,
     "patch": 0,
-    "build": 0
+    "build": 1
   },
-  "display": "v1.1.0.0",
+  "display": "v1.0.0.1",
   "channel": "alpha",
-  "released": "2026-01-13",
-  "description": "AI Gateway + Model Routing (Local-First): Integrated ModelRouter, PolicyEnforcer, VibeService, TaskClassifier for Devstral-first routing with OpenRouter escalation + policy validation",
+  "released": "2026-01-18",
+  "description": "Font Collections API + Teletext Graphics Support: Renamed Sextant to Teletext, added display_name/count to collections endpoint, integrated 8 font collections (217 chars) with Pixel Editor",
   "changelog": "dev/roadmap/CHANGELOG-wizard.md",
   "dependencies": {
-    "core": ">=1.0.0.0"
+    "core": ">=1.1.0.0"
   },
   "metadata": {
     "requires_network": true,

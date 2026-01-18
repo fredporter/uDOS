@@ -4,12 +4,40 @@
 **Port:** 8765
 **Scope:** Production-only services (assistant routing, plugin repo, proxy, relays, GitHub monitor/sync, port manager, distribution)
 
+> **📊 New!** [Dashboard Index](docs/DASHBOARD.md) — Central control center with feature discovery and API status
 > Experimental work lives in [dev/goblin](../dev/goblin/README.md) (localhost-only, `/api/v0/*`). Wizard stays stable and production-facing.
+
+---
+
+## 🎯 Dashboard & Feature Discovery
+
+The **Wizard Dashboard** is the main entry point for all features:
+
+```
+http://127.0.0.1:8765/          → HTML dashboard (web browser)
+GET /api/v1/index               → JSON dashboard (API/TUI clients)
+```
+
+**Features at a Glance:**
+
+- ⚙️ [Configuration](docs/DASHBOARD.md#-configuration) — Manage wizard.json and API keys
+- 🔤 [Font Manager](docs/DASHBOARD.md#-font-manager) — Custom fonts (planned)
+- ✏️ [Typo Editor](docs/DASHBOARD.md#️-text-editor-typo) — Rich text editor with live preview
+- 🎮 [Grid Editor](docs/DASHBOARD.md#-grid-editor) — Tile-based world editing (planned)
+- 📊 [Notifications](docs/DASHBOARD.md#-notifications) — Notification history and management
+- 💬 [Slack Integration](docs/DASHBOARD.md#-slack-integration) — Slack notifications
+- 🤖 [AI Gateway](docs/DASHBOARD.md#-ai-gateway) — Model routing and status
+- 📦 [Plugin Repository](docs/DASHBOARD.md#-plugin-repository) — Browse and install plugins
+- 🐙 [GitHub Monitor](docs/DASHBOARD.md#-github-monitor) — CI/CD pipeline status
+- 🔌 [Port Manager](docs/DASHBOARD.md#-port-manager) — Service port monitoring
+
+**See:** [DASHBOARD.md](docs/DASHBOARD.md) for complete documentation or [DASHBOARD-QUICK.md](docs/DASHBOARD-QUICK.md) for quick reference.
 
 ---
 
 ## What Wizard Provides
 
+- **Dashboard Index** — Centralized feature discovery with API status
 - Assistant routing gateway (local-first, optional cloud burst per policy)
 - Interactive console (foreground alongside server) with status, services, GitHub, poke URL, help/exit
 - GitHub monitor + safe sync (webhook + manual `/api/v1/github/*`)

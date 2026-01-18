@@ -1,0 +1,20 @@
+# Configuration Secrets - NEVER COMMIT
+# =====================================
+.env
+.env-local
+.env.*.local
+
+# Home directory config (personal secrets)
+!/.uDOS/config/.env
+!/.uDOS/config/.env-local
+
+# API keys in any format
+*_key
+*_secret
+*_token
+*_password
+
+# Credential files
+credentials.json
+auth.json
+secrets.json

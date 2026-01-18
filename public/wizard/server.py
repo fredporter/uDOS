@@ -36,6 +36,7 @@ try:
     from fastapi import FastAPI, HTTPException, Depends, Request
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.responses import JSONResponse
+    from fastapi.staticfiles import StaticFiles
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -203,9 +204,66 @@ class WizardServer:
         history_router = create_notification_history_routes(history_service)
         app.include_router(history_router)
 
+        # Register Dashboard Index routes
+        from wizard.routes.dashboard import router as index_router
+        app.include_router(index_router)
+
+        # Register Typo Text Editor routes
+        from wizard.routes.typo import router as typo_router
+        app.include_router(typo_router)
+
         # Register Configuration Management routes (Secrets Panel)
         from wizard.routes.config import router as config_router
         app.include_router(config_router)
+
+        # Register Config Editor routes (Micro integration)
+        from wizard.routes.config_editor import router as editor_router
+        app.include_router(editor_router, prefix="/api/v1/config")
+
+        # Register Config Dashboard routes (API status + editor)
+        from wizard.routes.config_dashboard import router as dashboard_router
+        app.include_router(dashboard_router, prefix="/api/v1/config")
+
+        # Register Font Manager routes
+        from wizard.routes.fonts import router as fonts_router
+        app.include_router(fonts_router)
+
+        # Register Pixel Editor routes
+        from wizard.routes.pixels import router as pixels_router
+        app.include_router(pixels_router)
+
+        # Serve Svelte dashboard
+        dashboard_dist = Path(__file__).parent / "dist"  # Points to /public/wizard/dist
+        if dashboard_dist.exists():
+            # Mount static files (assets, CSS, JS)
+            app.mount("/assets", StaticFiles(directory=str(dashboard_dist / "assets")), name="static")
+
+            # Add a root endpoint that serves index.html
+            @app.get("/", include_in_schema=False)
+            async def serve_dashboard():
+                from fastapi.responses import FileResponse
+                index_html = dashboard_dist / "index.html"
+                if index_html.exists():
+                    return FileResponse(index_html)
+
+            # Serve tool pages
+            @app.get("/font-manager", include_in_schema=False)
+            async def serve_font_manager():
+                from fastapi.responses import FileResponse
+                font_manager_html = dashboard_dist / "font-manager.html"
+                if font_manager_html.exists():
+                    return FileResponse(font_manager_html)
+                # Fallback to index.html
+                return FileResponse(dashboard_dist / "index.html")
+
+            @app.get("/pixel-editor", include_in_schema=False)
+            async def serve_pixel_editor():
+                from fastapi.responses import FileResponse
+                pixel_editor_html = dashboard_dist / "pixel-editor.html"
+                if pixel_editor_html.exists():
+                    return FileResponse(pixel_editor_html)
+                # Fallback to index.html
+                return FileResponse(dashboard_dist / "index.html")
 
         self.app = app
         return app
@@ -646,6 +704,12 @@ class WizardServer:
                 port=port or self.config.port,
                 log_level="info" if self.config.debug else "warning",
             )
+
+
+# Module-level FastAPI app for uvicorn
+# This is created once at module import time
+_default_server = WizardServer()
+app = _default_server.create_app()
 
 
 # CLI entry point

@@ -1,47 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ page_title }} - uDOS Wizard Server{% endblock %}</title>
-    
+
+    <!-- Initialize dark mode (Tailwind class strategy) -->
+    <script>
+        // Dark mode by default, with light mode provision
+        // Future: Add toggle UI to switch between modes
+        if (localStorage.theme === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+
     <!-- HTMX (reactive updates) -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    
+
     <!-- Alpine.js (minimal state management) -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+
     <!-- Tailwind CSS (utility-first styling) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+    <script>
+        // Configure Tailwind for dark mode class strategy
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/static/css/wizard.css">
-    
+
     <style>
-        /* Custom color scheme */
+        /* uDOS Color Palette v2.0.0 - Custom properties */
         :root {
+            /* Tailwind Standard Colors (for compatibility) */
             --color-primary: #3b82f6;
             --color-secondary: #8b5cf6;
             --color-success: #10b981;
             --color-warning: #f59e0b;
             --color-error: #ef4444;
-            --color-dark: #1e293b;
-            --color-darker: #0f172a;
+
+            /* uDOS Terrain Colors */
+            --udos-forest: #2d5016;
+            --udos-grass: #4c9a2a;
+            --udos-deep-water: #1b4965;
+            --udos-water: #3377dd;
+            --udos-earth: #6b4423;
+            --udos-sand: #e0b984;
+            --udos-mountain: #4f646f;
+            --udos-snow: #f2f6f9;
+
+            /* uDOS Marker Colors */
+            --udos-danger: #dc2626;
+            --udos-alert: #ff7a1a;
+            --udos-waypoint: #ffd23f;
+            --udos-safe: #00e89a;
+            --udos-objective: #00bfe6;
+
+            /* uDOS Special Colors */
+            --udos-lava: #ff4500;
+            --udos-ice: #a7c7e7;
+            --udos-toxic: #2ee312;
+            --udos-deep-sea: #003366;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen">
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors">
     <!-- Navigation -->
-    <nav class="bg-gray-800 border-b border-gray-700">
+    <nav class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="/" class="text-2xl font-bold text-blue-400">
-                        🧙 uDOS Wizard
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-2xl shadow-lg">
+                        🧙
+                    </div>
+                    <a href="/" class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        uDOS Wizard
                     </a>
                 </div>
-                
+
                 <!-- Main Navigation -->
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-4">
@@ -62,37 +104,67 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <!-- Status Indicator -->
                 <div class="flex items-center">
-                    <span class="flex items-center text-green-400">
-                        <span class="h-2 w-2 bg-green-400 rounded-full animate-pulse mr-2"></span>
+                    <span class="flex items-center text-green-600 dark:text-green-400">
+                        <span class="h-2 w-2 bg-green-600 dark:bg-green-400 rounded-full animate-pulse mr-2"></span>
                         Online
                     </span>
                 </div>
             </div>
         </div>
     </nav>
-    
+
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 pb-20">
         {% block content %}{% endblock %}
     </main>
-    
-    <!-- Footer -->
-    <footer class="bg-gray-800 border-t border-gray-700 mt-12">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-gray-400 text-sm">
-                uDOS Wizard Server v1.0.0.0 | 
-                <a href="/health" class="text-blue-400 hover:text-blue-300">Health Check</a> |
-                <a href="https://github.com/udos" class="text-blue-400 hover:text-blue-300">Docs</a>
-            </p>
+
+    <!-- Bottom Status Bar -->
+    <div class="fixed bottom-0 left-0 right-0 bg-gray-100 dark:bg-gray-900 border-t border-gray-300 dark:border-gray-800 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-2">
+            <div class="flex items-center justify-between text-xs">
+                <div class="flex items-center gap-4">
+                    <span class="text-gray-600 dark:text-gray-400">
+                        <span class="font-semibold text-gray-900 dark:text-white">uDOS Wizard</span> v1.1.0.0
+                    </span>
+                    <span class="text-gray-500 dark:text-gray-500">|</span>
+                    <span class="text-gray-600 dark:text-gray-400">Port: 8765</span>
+                    <span class="text-gray-500 dark:text-gray-500">|</span>
+                    <span class="flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                        <span class="text-gray-600 dark:text-gray-400">Online</span>
+                    </span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="/api/v1/docs" class="text-blue-600 dark:text-blue-400 hover:underline">API Docs</a>
+                    <span class="text-gray-500 dark:text-gray-500">|</span>
+                    <a href="/health" class="text-blue-600 dark:text-blue-400 hover:underline">Health</a>
+                    <span class="text-gray-500 dark:text-gray-500">|</span>
+                    <a href="https://github.com/fredporter/uDOS" class="text-blue-600 dark:text-blue-400 hover:underline">Docs</a>
+                    <span class="text-gray-500 dark:text-gray-500">|</span>
+                    <span class="text-gray-600 dark:text-gray-400" id="current-time"></span>
+                </div>
+            </div>
         </div>
-    </footer>
-    
+    </div>
+
+    <script>
+        // Update clock every second
+        function updateClock() {
+            const timeEl = document.getElementById('current-time');
+            if (timeEl) {
+                timeEl.textContent = new Date().toLocaleTimeString();
+            }
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+
     <!-- Custom JS -->
     <script src="/static/js/wizard.js"></script>
-    
+
     {% block scripts %}{% endblock %}
 </body>
 </html>

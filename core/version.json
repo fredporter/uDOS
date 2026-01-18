@@ -1,9 +1,9 @@
 {
   "component": "core",
-  "version": "1.0.0.1",
+  "version": "1.1.0.0",
   "status": "development",
   "location": "core/",
-  "description": "Lean TypeScript Runtime for markdown script execution",
+  "description": "Lean TypeScript/Python Runtime with text graphics capabilities",
   "features": [
     "Markdown parsing (frontmatter + blocks)",
     "State management (variables, objects, arrays)",
@@ -13,8 +13,12 @@
     "Panels (ASCII/teletext rendering)",
     "Maps (viewport rendering with sprites)",
     "SQLite binding (optional, read-only)",
-    "Variable interpolation in text"
+    "Variable interpolation in text",
+    "ASCII pattern generation (Python)",
+    "Teletext block graphics (Python)",
+    "Diagram parsing (Python)",
+    "Feed generation/consumption (Python)"
   ],
   "created_at": "2026-01-16",
-  "notes": "v1.0.0.1: Repository rename (uDOS-core → uDOS) - Updated GitHub sync workflow and documentation"
+  "notes": "v1.1.0.0: Added graphics module - ASCII patterns, teletext blocks, diagram parsing, feed handling. Renamed Sextant to Teletext."
 }

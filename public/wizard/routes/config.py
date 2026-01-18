@@ -22,6 +22,7 @@ from typing import Dict, Any, Optional
 from pydantic import BaseModel
 
 from wizard.services.secure_config import SecureConfigManager, KeyCategory
+from wizard.services.config_framework import get_config_framework, ConfigFramework
 
 router = APIRouter(prefix="/api/v1/config", tags=["configuration"])
 
@@ -191,249 +192,6 @@ def _get_config_panel_html() -> str:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><span class="emoji-mono">🔐</span> uDOS Secrets Manager</title>
     <link rel="stylesheet" href="/static/css/global.css">
-    <style>
-        /* Panel-specific overrides only */
-        .config-header {
-            background: linear-gradient(135deg, rgb(30 58 138) 0%, rgb(59 130 246) 100%);
-            padding: 2rem;
-            text-align: center;
-            color: white;
-            margin-bottom: 2rem;
-            border-radius: 0.75rem;
-        }
-
-        .config-header h1 {
-            margin: 0 0 0.5rem 0;
-            font-size: 2rem;
-        }
-
-        .config-header p {
-            margin: 0;
-            opacity: 0.9;
-        }
-
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .stat {
-            padding: 1rem;
-            background-color: rgb(30 41 59);
-            border-radius: 0.5rem;
-            border-left: 3px solid rgb(59 130 246);
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: rgb(156 163 175);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: rgb(226 232 240);
-        }
-
-        .categories-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .category-card {
-            background-color: rgb(15 23 42);
-            border: 1px solid rgb(51 65 85);
-            border-radius: 0.75rem;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-
-        .category-header {
-            background-color: rgb(30 41 59);
-            padding: 1rem;
-            font-weight: 600;
-            border-bottom: 1px solid rgb(51 65 85);
-            color: rgb(226 232 240);
-        }
-
-        .keys-list {
-            padding: 1rem;
-        }
-
-        .key-item {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid rgb(51 65 85);
-        }
-
-        .key-item:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .key-name {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-            font-weight: bold;
-            color: rgb(226 232 240);
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .key-provider {
-            font-size: 0.85rem;
-            color: rgb(156 163 175);
-            margin-bottom: 0.5rem;
-        }
-
-        .key-status {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .key-input-group {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.75rem;
-        }
-
-        .key-input {
-            flex: 1;
-            padding: 0.5rem;
-            border: 1px solid rgb(71 85 105);
-            border-radius: 0.375rem;
-            background-color: rgb(30 41 59);
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-            font-size: 0.85rem;
-            color: rgb(229 231 235);
-        }
-
-        .key-input:focus {
-            outline: none;
-            border-color: rgb(59 130 246);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .key-input::placeholder {
-            color: rgb(107 114 128);
-        }
-
-        .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.8rem;
-            transition: all 0.2s;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-
-        .btn-save {
-            background-color: rgb(34 197 94);
-            color: white;
-        }
-
-        .btn-save:hover {
-            background-color: rgb(22 163 74);
-        }
-
-        .btn-delete {
-            background-color: rgb(239 68 68);
-            color: white;
-            padding: 0.5rem;
-        }
-
-        .btn-delete:hover {
-            background-color: rgb(220 38 38);
-        }
-
-        .message {
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            border-radius: 0.5rem;
-            border-left: 4px solid;
-            display: none;
-        }
-
-        .message.success {
-            background-color: rgb(6 78 59);
-            border-color: rgb(34 197 94);
-            color: rgb(134 239 172);
-        }
-
-        .message.error {
-            background-color: rgb(78 9 21);
-            border-color: rgb(239 68 68);
-            color: rgb(248 113 113);
-        }
-
-        .message.show {
-            display: block;
-        }
-
-        .instructions {
-            background-color: rgb(15 23 42);
-            border: 1px solid rgb(51 65 85);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-
-        .instructions h2 {
-            margin-bottom: 1rem;
-            color: rgb(226 232 240);
-            font-size: 1.25rem;
-        }
-
-        .instructions ol {
-            margin-left: 1.5rem;
-            line-height: 1.8;
-        }
-
-        .instructions li {
-            margin-bottom: 0.75rem;
-            color: rgb(209 213 219);
-        }
-
-        .instructions code {
-            background-color: rgb(30 41 59);
-            padding: 0.125rem 0.375rem;
-            border-radius: 0.25rem;
-            color: rgb(186 230 253);
-        }
-
-        @media (max-width: 768px) {
-            .categories-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .config-header h1 {
-                font-size: 1.5rem;
-            }
-
-            .key-input-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.75rem;
-            }
-        }
-    </style>
 </head>
 <body class="app">
     <div class="shell">
@@ -528,8 +286,22 @@ def _get_config_panel_html() -> str:
                 const container = document.getElementById("categories");
                 container.innerHTML = "";
 
-                // Get categories from statusData.by_category
-                const byCategory = statusData.by_category || {};
+                // Build category map from allKeys instead of statusData
+                const byCategory = {};
+                for (const [keyName, keyInfo] of Object.entries(allKeys)) {
+                    const cat = keyInfo.category || "uncategorized";
+                    if (!byCategory[cat]) {
+                        byCategory[cat] = { keys: [], total: 0, set: 0 };
+                    }
+                    byCategory[cat].keys.push(keyName);
+                    byCategory[cat].total++;
+                    if (keyInfo.is_set) byCategory[cat].set++;
+                }
+
+                if (Object.keys(byCategory).length === 0) {
+                    container.innerHTML = '<div class="message info"><span class="emoji-mono">ℹ️</span> No keys configured yet. Add one above.</div>';
+                    return;
+                }
 
                 for (const [category, categoryInfo] of Object.entries(byCategory)) {
                     const card = document.createElement("div");
@@ -655,10 +427,61 @@ def _get_config_panel_html() -> str:
             }, 5000);
         }
 
-        // Load on startup
+        # Load on startup
         loadStatus();
         setInterval(loadStatus, 30000); // Refresh every 30 seconds
     </script>
 </body>
 </html>
     """
+
+
+# Config Framework Routes
+# =======================
+# These endpoints support the new global config framework
+# used by the simplified config panel with Micro editor integration.
+
+@router.get("/framework/registry")
+async def get_framework_registry(
+    category: Optional[str] = None,
+    framework: ConfigFramework = Depends(get_config_framework)
+) -> Dict[str, Any]:
+    """Get API registry organized by category."""
+    registry = framework.get_registry_by_category()
+
+    if category:
+        # Return only the requested category
+        if category in registry:
+            return {
+                "category": category,
+                "apis": registry[category],
+            }
+        else:
+            raise HTTPException(status_code=404, detail=f"Category {category} not found")
+
+    return {
+        "status": "success",
+        "total": sum(len(apis) for apis in registry.values()),
+        "categories": {
+            cat: {
+                "count": len(apis),
+                "apis": apis,
+            }
+            for cat, apis in registry.items()
+        }
+    }
+
+
+@router.get("/framework/status")
+async def get_framework_status(
+    framework: ConfigFramework = Depends(get_config_framework)
+) -> Dict[str, Any]:
+    """Get current status of all configured APIs."""
+    return {
+        "status": "success",
+        "statuses": {
+            api.env_key: api.status.value
+            for apis in framework.get_registry_by_category().values()
+            for api in apis
+        }
+    }

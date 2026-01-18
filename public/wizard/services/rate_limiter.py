@@ -74,6 +74,14 @@ ENDPOINT_TIERS: Dict[str, RateLimitTier] = {
     "/health": RateLimitTier.LIGHT,
     "/api/v1/status": RateLimitTier.LIGHT,
     "/api/v1/ping": RateLimitTier.LIGHT,
+    "/api/v1/config/framework/registry": RateLimitTier.LIGHT,
+    "/api/v1/config/framework/status": RateLimitTier.LIGHT,
+    "/api/v1/config/dashboard": RateLimitTier.LIGHT,
+    "/api/v1/config/status": RateLimitTier.LIGHT,
+    # Font API (high throughput for character browsing)
+    "/api/v1/fonts/collections": RateLimitTier.LIGHT,
+    "/api/v1/fonts/characters": RateLimitTier.LIGHT,
+    "/api/v1/fonts/search": RateLimitTier.LIGHT,
     # Standard tier
     "/api/v1/plugin/list": RateLimitTier.STANDARD,
     "/api/v1/plugin/{id}": RateLimitTier.STANDARD,
@@ -507,6 +515,16 @@ def create_rate_limit_middleware(rate_limiter: RateLimiter = None):
             device_id = request.client.host if request.client else "anonymous"
 
         endpoint = request.url.path
+
+        # Skip rate limiting for static assets and informational API endpoints
+        if endpoint.startswith("/assets/"):
+            response = await call_next(request)
+            return response
+
+        # Skip rate limiting for dashboard index and health checks (lightweight, cacheable)
+        if endpoint in ["/", "/health", "/api/v1/index", "/api/v1/status"]:
+            response = await call_next(request)
+            return response
 
         # Check rate limit
         result = limiter.check(device_id, endpoint)

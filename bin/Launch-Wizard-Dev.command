@@ -91,8 +91,46 @@ if lsof -Pi :8765 -sTCP:LISTEN -t >/dev/null 2>&1; then
     sleep 1
 fi
 
-# Launch Wizard Server
-python -m wizard.server 2>&1
+# Launch Wizard Server in background (redirect output)
+echo -e "${CYAN}Starting server...${NC}"
+python -m wizard.server > "$PROJECT_ROOT/memory/logs/wizard-server.log" 2>&1 &
+SERVER_PID=$!
+sleep 2
 
-# Cleanup on exit
-trap "echo -e '${YELLOW}Shutting down Wizard Server...${NC}'" EXIT
+# Check if server started
+if ! kill -0 $SERVER_PID 2>/dev/null; then
+    echo -e "${RED}❌ Failed to start Wizard Server${NC}"
+    echo "Check log: tail -50 $PROJECT_ROOT/memory/logs/wizard-server.log"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Wizard Server running (PID: $SERVER_PID)${NC}"
+echo "📝 Server log: $PROJECT_ROOT/memory/logs/wizard-server.log"
+echo ""
+
+# Open browser
+echo -e "${CYAN}${BOLD}Opening dashboard in browser...${NC}"
+sleep 1
+open "http://127.0.0.1:8765/" 2>/dev/null || echo -e "${YELLOW}⚠️  Could not auto-open browser. Visit: http://127.0.0.1:8765/${NC}"
+
+echo ""
+echo -e "${GREEN}${BOLD}🎉 Wizard Server Ready!${NC}"
+echo ""
+echo "Dashboard: http://127.0.0.1:8765/"
+echo "API Docs:  http://127.0.0.1:8765/docs"
+echo ""
+echo -e "${CYAN}Press Ctrl+C to stop the server${NC}"
+echo ""
+
+# Setup cleanup on exit
+cleanup() {
+    echo ""
+    echo -e "${YELLOW}Shutting down Wizard Server (PID: $SERVER_PID)...${NC}"
+    kill $SERVER_PID 2>/dev/null || true
+    sleep 1
+    exit 0
+}
+trap cleanup EXIT INT TERM
+
+# Keep server running in foreground
+wait $SERVER_PID

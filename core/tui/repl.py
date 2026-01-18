@@ -8,6 +8,9 @@ Integrates dispatcher, renderer, and game state.
 from typing import Optional
 import sys
 import logging
+import asyncio
+import json
+from pathlib import Path
 
 from .dispatcher import CommandDispatcher
 from .renderer import GridRenderer
@@ -20,6 +23,28 @@ logging.basicConfig(
 )
 
 
+async def check_wizard_dashboard():
+    """Check if Wizard Server is running and get dashboard info (async)"""
+    try:
+        # Try to import httpx (optional dependency)
+        import httpx
+
+        # Try to connect to Wizard dashboard
+        async with httpx.AsyncClient(timeout=2) as client:
+            try:
+                response = await client.get("http://127.0.0.1:8765/api/v1/index")
+                if response.status_code == 200:
+                    return response.json()
+            except Exception:
+                # Wizard not running, that's okay
+                pass
+    except ImportError:
+        # httpx not available
+        pass
+
+    return None
+
+
 class TUIRepl:
     """Main TUI read-eval-print loop"""
 
@@ -30,6 +55,7 @@ class TUIRepl:
         self.state = GameState()
         self.logger = logging.getLogger("tui-repl")
         self.running = False
+        self.wizard_dashboard = None
 
     def run(self) -> None:
         """
@@ -126,6 +152,32 @@ class TUIRepl:
             f"\n{self.renderer.BOLD}🎮 uDOS Lightweight TUI v1.0.0{self.renderer.RESET}"
         )
         print(f"Modern CLI for the refined core")
+
+        # Check Wizard dashboard (non-blocking with timeout)
+        try:
+            import httpx
+
+            try:
+                response = httpx.get("http://127.0.0.1:8765/api/v1/index", timeout=1)
+                if response.status_code == 200:
+                    dashboard = response.json()
+                    apis_configured = sum(
+                        1 for v in dashboard.get("configured_apis", {}).values() if v
+                    )
+                    print(
+                        f"{self.renderer.GREEN}✓{self.renderer.RESET} Wizard Server running ({apis_configured}/8 APIs configured)"
+                    )
+                    print(
+                        f"  {self.renderer.CYAN}→ Visit: http://127.0.0.1:8765/{self.renderer.RESET}"
+                    )
+                    self.wizard_dashboard = dashboard
+            except Exception:
+                print(
+                    f"{self.renderer.YELLOW}⊘{self.renderer.RESET} Wizard Server not running"
+                )
+        except ImportError:
+            pass
+
         print(f"{self.renderer.CYAN}Type HELP for commands{self.renderer.RESET}\n")
         self.logger.info("[STARTUP] TUI started")
 
