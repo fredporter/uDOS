@@ -14,39 +14,34 @@ jobs:
     steps:
       - name: Checkout private repo
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Prepare mirror content
         run: |
           set -euo pipefail
           mkdir -p mirror
 
-          # Copy /public folder (Wizard, Extensions, Knowledge, Library)
           if [ -d "public" ]; then
             rsync -av --delete --exclude='.git' --exclude='.DS_Store' --exclude='node_modules' public/ mirror/
-            echo "✅ Synced /public/ folder"
+            echo "✅ Synced /public/"
           fi
 
-          # Copy /core folder (TypeScript runtime)
           if [ -d "core" ]; then
             rsync -av --exclude='__pycache__' --exclude='*.pyc' --exclude='node_modules' --exclude='build' --exclude='dist' core/ mirror/core/
-            echo "✅ Synced /core/ folder"
+            echo "✅ Synced /core/"
           fi
 
-          # Copy /docs folder (documentation)
           if [ -d "docs" ]; then
             rsync -av docs/ mirror/docs/
-            echo "✅ Synced /docs/ folder"
+            echo "✅ Synced /docs/"
           fi
 
-          # Copy LICENSE if exists
           if [ -f LICENSE ] || [ -f LICENSE.txt ] || [ -f LICENSE.md ]; then
             cp -v LICENSE* mirror/ 2>/dev/null || true
             echo "✅ Synced LICENSE"
           fi
-          # Generate public-facing README
+
           bash .github/scripts/generate-public-readme.sh
+          ls -lah mirror/
 
       - name: Push to public repo
         env:
@@ -56,8 +51,7 @@ jobs:
           set -euo pipefail
 
           if [ -z "$PUBLIC_REPO" ] || [ -z "$PUBLIC_TOKEN" ]; then
-            echo "⚠️  Skipping sync: PUBLIC_REPO or PUBLIC_TOKEN not configured"
-            echo "   Set repository secrets to enable automatic syncing"
+            echo "⚠️  Skipping: secrets not configured"
             exit 0
           fi
 
@@ -68,102 +62,11 @@ jobs:
           git add -A
 
           if [ -z "$(git diff --cached --name-only)" ]; then
-            echo "ℹ️  No changes to sync"
+            echo "No changes to sync"
             exit 0
           fi
 
-          git commit -m "Sync from private repo: public/, core/, docs/, LICENSE"
+          git commit -m "Sync from private repo"
           git remote add origin "https://x-access-token:${PUBLIC_TOKEN}@github.com/${PUBLIC_REPO}.git"
           git push -f origin main
-          echo "✅ Pushed to $PUBLIC_REPO"
-
-
-          ## 📦 Components
-
-          | Component | Version | Description |
-          |-----------|---------|-------------|
-          | Core | v1.0.1.0 | TUI runtime, handlers, services |
-          | API | v1.0.1.0 | REST/WebSocket server |
-          | Knowledge | v1.0.2.0 | Knowledge bank (231+ articles) |
-
-          ## 🚀 Installation
-
-          ### TinyCore Linux
-
-          ```bash
-          # Download TinyCore ISO
-          python library/tinycore/setup.py download tinycore
-
-          # Install uDOS stack
-          cd distribution
-          ./installer.sh --tier=core
-          ```
-
-          See [distribution/README.md](distribution/README.md) for full installation guide.
-
-          ## 🔗 Links
-
-          - **Private Repo:** [fredporter/uDOS](https://github.com/fredporter/uDOS) (development)
-          - **Public Mirror:** [fredporter/uDOS-core](https://github.com/fredporter/uDOS-core) (you are here)
-
-          ---
-
-          *This is an automated mirror. For development, see the private repo.*
-          EOF
-
-          # Copy LICENSE
-          if [ -f LICENSE.txt ]; then cp -a LICENSE.txt mirror/; fi
-
-          echo "Synced docs + core + knowledge + plugins/api + data"
-
-      - name: Push to public repo
-        env:
-          PUBLIC_REPO: ${{ secrets.PUBLIC_REPO }}
-          PUBLIC_TOKEN: ${{ secrets.PUBLIC_TOKEN }}
-        run: |
-          set -euo pipefail
-          test -n "$PUBLIC_REPO" || (echo "Missing PUBLIC_REPO" && exit 1)
-          test -n "$PUBLIC_TOKEN" || (echo "Missing PUBLIC_TOKEN" && exit 1)
-          cd mirror
-          git init
-          git config user.email "actions@github.com"
-          git config user.name "github-actions"
-          git checkout -b main
-          git add -A
-          git commit -m "Sync ${TAG}: core, plugins/api, distribution, library/tinycore, data, and knowledge"
-          git remote add origin https://x-access-token:${PUBLIC_TOKEN}@github.com/${PUBLIC_REPO}.git
-          git push -f origin main
-
-      - name: Recreate public release and upload assets
-        env:
-          PUBLIC_REPO: ${{ secrets.PUBLIC_REPO }}
-          PUBLIC_TOKEN: ${{ secrets.PUBLIC_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          echo "Syncing release ${TAG} to ${PUBLIC_REPO}"
-          # Install GitHub CLI
-          sudo apt-get update && sudo apt-get install -y jq curl
-          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-          sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-          sudo apt-get update && sudo apt-get install -y gh
-
-          # Fetch release assets from private repo (using GITHUB_TOKEN)
-          gh release view "${TAG}" --json assets --jq '.assets[].url' > asset_urls.txt
-          mkdir -p assets && cd assets
-          while read -r url; do
-            name=$(basename "$url")
-            curl -L \
-              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-              -H "Accept: application/octet-stream" \
-              -o "$name" "$url"
-          done < ../asset_urls.txt
-
-          # Switch to PUBLIC_TOKEN for public repo operations
-          unset GITHUB_TOKEN
-          gh auth logout --hostname github.com || true
-          gh auth login --with-token <<< "${PUBLIC_TOKEN}"
-          gh release view "${TAG}" -R "${PUBLIC_REPO}" >/dev/null 2>&1 || gh release create "${TAG}" -R "${PUBLIC_REPO}" -t "${TAG}" -n "Release ${TAG}"
-          shopt -s nullglob
-          gh release upload "${TAG}" *.tcz *.md5.txt -R "${PUBLIC_REPO}" --clobber || echo "No *.tcz or *.md5.txt assets to upload"
+          echo "✅ Synced to $PUBLIC_REPO"
