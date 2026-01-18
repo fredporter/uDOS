@@ -29,6 +29,10 @@ memory/
 dev/goblin/
 dev/sessions/
 core_beta/
+app/
+wiki/
+data/
+scripts/
 
 # ---------- Experimental / local assets ----------
 library/
