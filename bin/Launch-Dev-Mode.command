@@ -77,6 +77,35 @@ print_divider() {
     echo -e "${DIM}  ─────────────────────────────────────────────────────────────${NC}"
 }
 
+# Spinner function for long-running tasks
+run_with_spinner() {
+    local message="$1"
+    shift
+    local cmd="$@"
+    local spin_chars='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+    local i=0
+
+    # Start command in background
+    eval "$cmd" &
+    local pid=$!
+
+    # Show spinner while command runs
+    printf "  ${YELLOW}⠋${NC} %s" "$message"
+    while kill -0 $pid 2>/dev/null; do
+        i=$(( (i + 1) % 10 ))
+        printf "\r  ${YELLOW}${spin_chars:$i:1}${NC} %s" "$message"
+        sleep 0.1
+    done
+
+    # Get exit code
+    wait $pid
+    local exit_code=$?
+
+    # Clear spinner line and return exit code
+    printf "\r"
+    return $exit_code
+}
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Cleanup Handler
 # ═══════════════════════════════════════════════════════════════════════════
@@ -165,11 +194,14 @@ print_header
 echo -e "${WHITE}${BOLD}  Environment Setup${NC}"
 print_divider
 
-# Check virtual environment
+# Check virtual environment - auto-create if missing
 if [ ! -d ".venv" ]; then
-    print_status "error" "Virtual environment not found!"
-    echo "       Run: python3 -m venv .venv"
-    exit 1
+    if run_with_spinner "Creating virtual environment..." "python3 -m venv .venv"; then
+        print_status "ok" "Virtual environment created"
+    else
+        print_status "error" "Failed to create virtual environment"
+        exit 1
+    fi
 fi
 
 source .venv/bin/activate
@@ -179,10 +211,14 @@ print_status "ok" "Python venv activated"
 export PYTHONPATH="$UDOS_ROOT:$PYTHONPATH"
 export UDOS_DEV_MODE=1
 
-# Check dependencies
+# Check dependencies - auto-install if missing
 if ! python -c "import flask" 2>/dev/null; then
-    print_status "error" "Flask not installed - run: pip install -r requirements.txt"
-    exit 1
+    if run_with_spinner "Installing dependencies (this may take a minute)..." "pip install -q -r requirements.txt"; then
+        print_status "ok" "Dependencies installed"
+    else
+        print_status "error" "Failed to install dependencies"
+        exit 1
+    fi
 fi
 print_status "ok" "Python dependencies ready"
 

@@ -298,7 +298,7 @@
 		{
 			"label": "uDOS API Server",
 			"type": "shell",
-			"command": "/Users/fredbook/Code/uDOS/.venv/bin/python -m extensions.api.server",
+			"command": "${workspaceFolder:🏠 uDOS Root}/.venv/bin/python -m extensions.api.server",
 			"isBackground": true,
 			"problemMatcher": []
 		},

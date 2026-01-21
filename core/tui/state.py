@@ -13,6 +13,9 @@ from typing import Dict, List, Any, Optional
 import json
 from pathlib import Path
 
+# Dynamic project root detection
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
 
 class GameState:
     """Central game state management"""
@@ -29,7 +32,7 @@ class GameState:
             "mana": 50,
         }
         self.session_history: List[str] = []
-        self._saves_dir = Path("/Users/fredbook/Code/uDOS/memory/saved_games")
+        self._saves_dir = PROJECT_ROOT / "memory" / "saved_games"
 
     def update_from_handler(self, handler_result: Dict[str, Any]) -> None:
         """

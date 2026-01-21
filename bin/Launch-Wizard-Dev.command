@@ -22,18 +22,55 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 BOLD='\033[1m'
 
+# Spinner function for long-running tasks
+run_with_spinner() {
+    local message="$1"
+    shift
+    local cmd="$@"
+    local spin_chars='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+    local i=0
+
+    eval "$cmd" &
+    local pid=$!
+
+    printf "  ${YELLOW}⠋${NC} %s" "$message"
+    while kill -0 $pid 2>/dev/null; do
+        i=$(( (i + 1) % 10 ))
+        printf "\r  ${YELLOW}${spin_chars:$i:1}${NC} %s" "$message"
+        sleep 0.1
+    done
+
+    wait $pid
+    local exit_code=$?
+    printf "\r"
+    return $exit_code
+}
+
 clear
 print_service_urls "🧙 Wizard Server - Production Environment"
 
-# Check venv
+# Check venv - auto-create if missing
 if [ ! -d "$PROJECT_ROOT/.venv" ]; then
-    echo -e "${RED}❌ Virtual environment not found${NC}"
-    echo "   Create it with: python -m venv .venv"
-    exit 1
+    if run_with_spinner "Creating virtual environment..." "python3 -m venv $PROJECT_ROOT/.venv"; then
+        echo -e "  ${GREEN}✅ Virtual environment created${NC}"
+    else
+        echo -e "  ${RED}❌ Failed to create virtual environment${NC}"
+        exit 1
+    fi
 fi
 
 source "$PROJECT_ROOT/.venv/bin/activate"
 echo -e "${GREEN}✅ Python venv activated${NC}"
+
+# Check dependencies - auto-install if missing
+if ! python -c "import flask" 2>/dev/null; then
+    if run_with_spinner "Installing dependencies (this may take a minute)..." "pip install -q -r $PROJECT_ROOT/requirements.txt"; then
+        echo -e "  ${GREEN}✅ Dependencies installed${NC}"
+    else
+        echo -e "  ${RED}❌ Failed to install dependencies${NC}"
+        exit 1
+    fi
+fi
 
 # Set environment
 export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"

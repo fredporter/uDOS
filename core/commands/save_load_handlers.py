@@ -5,6 +5,9 @@ import json
 from pathlib import Path
 from core.commands.base import BaseCommandHandler
 
+# Dynamic project root detection
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
 
 class SaveHandler(BaseCommandHandler):
     """Handler for SAVE command - save game state."""
@@ -27,7 +30,7 @@ class SaveHandler(BaseCommandHandler):
         # Sanitize slot name
         slot_name = "".join(c for c in slot_name if c.isalnum() or c in "_-")
 
-        save_dir = Path("/Users/fredbook/Code/uDOS/memory/saved_games")
+        save_dir = PROJECT_ROOT / "memory" / "saved_games"
         save_dir.mkdir(parents=True, exist_ok=True)
 
         save_file = save_dir / f"{slot_name}.json"
@@ -79,7 +82,7 @@ class LoadHandler(BaseCommandHandler):
         # Sanitize slot name
         slot_name = "".join(c for c in slot_name if c.isalnum() or c in "_-")
 
-        save_dir = Path("/Users/fredbook/Code/uDOS/memory/saved_games")
+        save_dir = PROJECT_ROOT / "memory" / "saved_games"
         save_file = save_dir / f"{slot_name}.json"
 
         if not save_file.exists():

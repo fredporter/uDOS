@@ -5,6 +5,9 @@ from pathlib import Path
 from core.commands.base import BaseCommandHandler
 from core.locations import load_locations
 
+# Dynamic project root detection
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
 
 class ShakedownHandler(BaseCommandHandler):
     """Handler for SHAKEDOWN command - system validation and diagnostics."""
@@ -72,9 +75,9 @@ class ShakedownHandler(BaseCommandHandler):
 
         # Check 3: Memory directories
         memory_dirs = [
-            "/Users/fredbook/Code/uDOS/memory/logs",
-            "/Users/fredbook/Code/uDOS/memory/saved_games",
-            "/Users/fredbook/Code/uDOS/memory/tests",
+            PROJECT_ROOT / "memory" / "logs",
+            PROJECT_ROOT / "memory" / "saved_games",
+            PROJECT_ROOT / "memory" / "tests",
         ]
 
         missing_dirs = []
@@ -96,7 +99,7 @@ class ShakedownHandler(BaseCommandHandler):
             results["passed"] += 1
 
         # Check 4: TypeScript runtime
-        ts_runtime = Path("/Users/fredbook/Code/uDOS/core/src")
+        ts_runtime = PROJECT_ROOT / "core" / "src"
         if ts_runtime.exists():
             ts_files = list(ts_runtime.glob("**/*.ts"))
             results["checks"]["ts_runtime"] = {
@@ -113,7 +116,7 @@ class ShakedownHandler(BaseCommandHandler):
             results["failed"] += 1
 
         # Check 5: Handler modules
-        handler_dir = Path("/Users/fredbook/Code/uDOS/core/commands")
+        handler_dir = PROJECT_ROOT / "core" / "commands"
         if handler_dir.exists():
             handlers = list(handler_dir.glob("*_handler.py"))
             results["checks"]["handlers"] = {
@@ -130,7 +133,7 @@ class ShakedownHandler(BaseCommandHandler):
             results["failed"] += 1
 
         # Check 6: Tests
-        test_dir = Path("/Users/fredbook/Code/uDOS/memory/tests")
+        test_dir = PROJECT_ROOT / "memory" / "tests"
         if test_dir.exists():
             test_files = list(test_dir.glob("**/*.py"))
             test_files = [f for f in test_files if "test_" in f.name]

@@ -5,6 +5,9 @@ from pathlib import Path
 import subprocess
 from core.commands.base import BaseCommandHandler
 
+# Dynamic project root detection
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
 
 class RepairHandler(BaseCommandHandler):
     """Handler for REPAIR command - self-healing and system maintenance."""
@@ -45,7 +48,7 @@ class RepairHandler(BaseCommandHandler):
     def _git_pull(self) -> Dict:
         """Pull latest changes from git repository."""
         try:
-            repo_path = Path("/Users/fredbook/Code/uDOS")
+            repo_path = PROJECT_ROOT
 
             # Check if it's a git repo
             git_dir = repo_path / ".git"
@@ -82,7 +85,7 @@ class RepairHandler(BaseCommandHandler):
     def _install_dependencies(self) -> Dict:
         """Install/verify Python dependencies."""
         try:
-            repo_path = Path("/Users/fredbook/Code/uDOS")
+            repo_path = PROJECT_ROOT
             requirements = repo_path / "requirements.txt"
 
             if not requirements.exists():
@@ -138,15 +141,15 @@ class RepairHandler(BaseCommandHandler):
             checks["python_version"] = f"Error: {str(e)}"
 
         # Check venv
-        venv_path = Path("/Users/fredbook/Code/uDOS/.venv")
+        venv_path = PROJECT_ROOT / ".venv"
         checks["venv_active"] = "✅ Found" if venv_path.exists() else "❌ Not found"
 
         # Check git
-        git_dir = Path("/Users/fredbook/Code/uDOS/.git")
+        git_dir = PROJECT_ROOT / ".git"
         checks["git_repo"] = "✅ Git repo" if git_dir.exists() else "❌ Not a git repo"
 
         # Check core files
-        core_dir = Path("/Users/fredbook/Code/uDOS/core")
+        core_dir = PROJECT_ROOT / "core"
         checks["core_files"] = (
             f"✅ {len(list(core_dir.glob('**/*.py')))} Python files"
             if core_dir.exists()
