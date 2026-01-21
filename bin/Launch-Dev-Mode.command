@@ -83,7 +83,7 @@ print_divider() {
 cleanup() {
     echo ""
     echo -e "${YELLOW}🛑 Shutting down dev servers...${NC}"
-    
+
     # Kill background processes
     if [ -f "$PIDS_FILE" ]; then
         while read -r pid; do
@@ -94,11 +94,11 @@ cleanup() {
         done < "$PIDS_FILE"
         rm -f "$PIDS_FILE"
     fi
-    
+
     # Kill any remaining processes on our ports
     lsof -ti:$API_PORT 2>/dev/null | xargs kill -9 2>/dev/null || true
     lsof -ti:$WIZARD_PORT 2>/dev/null | xargs kill -9 2>/dev/null || true
-    
+
     echo -e "${GREEN}✓ Clean shutdown complete${NC}"
     exit 0
 }
@@ -120,14 +120,14 @@ check_and_heal_servers() {
     while true; do
         sleep 10  # Check every 10 seconds
         CURRENT_TIME=$(date +%s)
-        
+
         # Reset counters every 30 minutes
         if [ $((CURRENT_TIME - LAST_RESET)) -ge 1800 ]; then
             API_FAILURES=0
             WIZARD_FAILURES=0
             LAST_RESET=$CURRENT_TIME
         fi
-        
+
         # Check API Server
         if [ -n "$API_PID" ] && ! kill -0 "$API_PID" 2>/dev/null; then
             if [ $API_FAILURES -lt $MAX_FAILURES ]; then
@@ -139,7 +139,7 @@ check_and_heal_servers() {
                 sleep 2
             fi
         fi
-        
+
         # Check Wizard Server
         if [ -n "$WIZARD_PID" ] && ! kill -0 "$WIZARD_PID" 2>/dev/null; then
             if [ $WIZARD_FAILURES -lt $MAX_FAILURES ]; then
@@ -247,7 +247,7 @@ if [ -f "wizard/server.py" ]; then
     WIZARD_PID=$!
     echo "$WIZARD_PID" >> "$PIDS_FILE"
     sleep 2
-    
+
     if kill -0 "$WIZARD_PID" 2>/dev/null; then
         print_status "ok" "Wizard server running (PID: $WIZARD_PID)"
     else
@@ -260,7 +260,7 @@ else
 fi
 
 # Note: For experimental features, use Goblin Dev Server (port 8767)
-# Run: ./bin/Launch-Goblin-Dev.command
+# Run: dev/goblin/launch-goblin-dev.sh
 
 echo ""
 
@@ -270,28 +270,28 @@ echo ""
 show_dashboard() {
     echo -e "${WHITE}${BOLD}  Services Dashboard${NC}"
     print_divider
-    
+
     # API Server status
     if kill -0 "$API_PID" 2>/dev/null; then
         echo -e "  ${GREEN}●${NC} API Server        ${DIM}http://localhost:$API_PORT${NC}"
     else
         echo -e "  ${RED}●${NC} API Server        ${DIM}(stopped)${NC}"
     fi
-    
+
     # Wizard Server status
     if [ -n "$WIZARD_PID" ] && kill -0 "$WIZARD_PID" 2>/dev/null; then
         echo -e "  ${GREEN}●${NC} Wizard Server     ${DIM}http://localhost:$WIZARD_PORT${NC}"
     else
         echo -e "  ${YELLOW}●${NC} Wizard Server     ${DIM}(not running)${NC}"
     fi
-    
+
     # Tauri dev server (if running)
     if lsof -i:$VITE_PORT &>/dev/null; then
         echo -e "  ${GREEN}●${NC} Vite Dev Server   ${DIM}http://localhost:$VITE_PORT${NC}"
     else
         echo -e "  ${DIM}○${NC} Vite Dev Server   ${DIM}(not started)${NC}"
     fi
-    
+
     echo ""
     echo -e "${WHITE}${BOLD}  Quick Links${NC}"
     print_divider
@@ -341,7 +341,7 @@ echo ""
 while true; do
     echo -ne "${MAGENTA}dev>${NC} "
     read -r cmd args
-    
+
     case "$cmd" in
         "tauri")
             if [ "$TAURI_AVAILABLE" -eq 1 ]; then
@@ -356,7 +356,7 @@ while true; do
                 print_status "error" "npm not available"
             fi
             ;;
-            
+
         "browser")
             print_status "run" "Opening browser..."
             if [ "$(uname)" = "Darwin" ]; then
@@ -365,14 +365,14 @@ while true; do
                 xdg-open "http://localhost:$VITE_PORT" 2>/dev/null || xdg-open "http://localhost:$API_PORT"
             fi
             ;;
-            
+
         "tui")
             print_status "run" "Starting TUI..."
             bin/start_udos.sh
             print_header
             show_dashboard
             ;;
-            
+
         "wizard")
             print_status "run" "Starting Wizard Server TUI..."
             cd wizard
@@ -381,7 +381,7 @@ while true; do
             print_header
             show_dashboard
             ;;
-            
+
         "wizard-start")
             if [ -n "$WIZARD_PID" ] && kill -0 "$WIZARD_PID" 2>/dev/null; then
                 print_status "warn" "Wizard Server already running (PID: $WIZARD_PID)"
@@ -391,7 +391,7 @@ while true; do
                 WIZARD_PID=$!
                 echo "$WIZARD_PID" >> "$PIDS_FILE"
                 sleep 2
-                
+
                 if kill -0 "$WIZARD_PID" 2>/dev/null; then
                     print_status "ok" "Wizard Server started (PID: $WIZARD_PID)"
                 else
@@ -400,7 +400,7 @@ while true; do
                 fi
             fi
             ;;
-            
+
         "wizard-stop")
             if [ -z "$WIZARD_PID" ] || ! kill -0 "$WIZARD_PID" 2>/dev/null; then
                 print_status "warn" "Wizard Server not running"
@@ -415,10 +415,10 @@ while true; do
                 WIZARD_PID=""
             fi
             ;;
-            
+
         "wizard-restart")
             print_status "run" "Restarting Wizard Server..."
-            
+
             # Stop if running
             if [ -n "$WIZARD_PID" ] && kill -0 "$WIZARD_PID" 2>/dev/null; then
                 kill "$WIZARD_PID" 2>/dev/null
@@ -427,13 +427,13 @@ while true; do
                     kill -9 "$WIZARD_PID" 2>/dev/null
                 fi
             fi
-            
+
             # Start fresh
             python wizard/server.py > "$LOG_DIR/wizard-$(date +%Y-%m-%d).log" 2>&1 &
             WIZARD_PID=$!
             echo "$WIZARD_PID" >> "$PIDS_FILE"
             sleep 2
-            
+
             if kill -0 "$WIZARD_PID" 2>/dev/null; then
                 print_status "ok" "Wizard Server restarted (PID: $WIZARD_PID)"
             else
@@ -441,20 +441,20 @@ while true; do
                 WIZARD_PID=""
             fi
             ;;
-            
+
         "logs")
             echo ""
             print_status "info" "Tailing logs in real-time (Ctrl+C to return to prompt)..."
             echo ""
             tail -f "$LOG_DIR"/*-dev-*.log "$LOG_DIR"/session-commands-*.log 2>/dev/null || tail -f "$LOG_DIR"/*.log
             ;;
-            
+
         "status")
             print_header
             show_dashboard
             show_commands
             ;;
-            
+
         "restart")
             print_status "run" "Restarting services..."
             # Kill existing
@@ -463,12 +463,12 @@ while true; do
             done < "$PIDS_FILE"
             > "$PIDS_FILE"
             sleep 1
-            
+
             # Restart API
             python extensions/api/server.py > "$LOG_DIR/api-dev-$(date +%Y-%m-%d).log" 2>&1 &
             API_PID=$!
             echo "$API_PID" >> "$PIDS_FILE"
-            
+
             # Restart Wizard
             if [ -f "wizard/server.py" ]; then
                 python wizard/server.py > "$LOG_DIR/wizard-$(date +%Y-%m-%d).log" 2>&1 &
@@ -476,22 +476,22 @@ while true; do
                 echo "$WIZARD_PID" >> "$PIDS_FILE"
             fi
             services..."
-            
+
             # Test API
             echo -e "${CYAN}API Server:${NC}"
             curl -s "http://localhost:$API_PORT/api/health" | python -m json.tool 2>/dev/null || echo "  ❌ Not responding"
-            
+
             # Test Wizard
             echo -e "\n${CYAN}Wizard Server:${NC}"
             curl -s "http://localhost:$WIZARD_PORT/health" | python -m json.tool 2>/dev/null || echo "  ❌ N
             print_status "ok" "Services restarted"
             show_dashboard
             ;;
-            
+
         "health")
             print_status "info" "System Health Check"
             echo ""
-            
+
             # Check processes
             echo -e "${CYAN}Process Status:${NC}"
             if kill -0 "$API_PID" 2>/dev/null; then
@@ -499,19 +499,19 @@ while true; do
             else
                 echo -e "  ${RED}✗${NC} API Server (not running)"
             fi
-            
+
             if [ -n "$WIZARD_PID" ] && kill -0 "$WIZARD_PID" 2>/dev/null; then
                 echo -e "  ${GREEN}✓${NC} Wizard Server (PID: $WIZARD_PID)"
             else
                 echo -e "  ${RED}✗${NC} Wizard Server (not running)"
             fi
-            
+
             if kill -0 "$MONITOR_PID" 2>/dev/null; then
                 echo -e "  ${GREEN}✓${NC} Health Monitor (PID: $MONITOR_PID)"
             else
                 echo -e "  ${RED}✗${NC} Health Monitor (not running)"
             fi
-            
+
             # Check endpoints
             echo -e "\n${CYAN}Endpoint Status:${NC}"
             API_HEALTH=$(curl -s -m 2 "http://localhost:$API_PORT/api/health" 2>/dev/null | python -m json.tool 2>/dev/null)
@@ -520,62 +520,62 @@ while true; do
             else
                 echo -e "  ${RED}✗${NC} API http://localhost:$API_PORT/api/health"
             fi
-            
+
             WIZARD_HEALTH=$(curl -s -m 2 "http://localhost:$WIZARD_PORT/health" 2>/dev/null | python -m json.tool 2>/dev/null)
             if [ $? -eq 0 ]; then
                 echo -e "  ${GREEN}✓${NC} Wizard http://localhost:$WIZARD_PORT/health"
             else
                 echo -e "  ${RED}✗${NC} Wizard http://localhost:$WIZARD_PORT/health"
             fi
-            
+
             # Check failure counters
             echo -e "\n${CYAN}Failure Recovery:${NC}"
             echo "  API Server: $API_FAILURES failures (reset in $((1800 - ($(date +%s) - LAST_RESET))) seconds)"
             echo "  Wizard Server: $WIZARD_FAILURES failures (reset in $((1800 - ($(date +%s) - LAST_RESET))) seconds)"
             echo -e "  Max retries: $MAX_FAILURES"
-            
+
             # Check logs
             echo -e "\n${CYAN}Recent Logs:${NC}"
             if [ -f "$LOG_DIR/api-dev-$(date +%Y-%m-%d).log" ]; then
                 API_ERRORS=$(grep -i "error" "$LOG_DIR/api-dev-$(date +%Y-%m-%d).log" | wc -l)
                 echo -e "  API: $API_ERRORS errors in today's log"
             fi
-            
+
             if [ -f "$LOG_DIR/wizard-dev-$(date +%Y-%m-%d).log" ]; then
                 WIZARD_ERRORS=$(grep -i "error" "$LOG_DIR/wizard-dev-$(date +%Y-%m-%d).log" | wc -l)
                 echo -e "  Wizard: $WIZARD_ERRORS errors in today's log"
             fi
             ;;
-            
+
         "test")
             print_status "run" "Testing API..."
             curl -s "http://localhost:$API_PORT/api/health" | python -m json.tool 2>/dev/null || echo "API not responding"
             ;;
-            
+
         "version")
             python -m core.version show
             ;;
-            
+
         "help"|"?")
             show_commands
             ;;
-            
+
         "exit"|"quit"|"q")
             break
             ;;
-            
+
         "")
             # Empty input - show prompt hint
             echo -e "${DIM}  Type 'help' for commands, 'tui' for full TUI, or 'exit' to quit${NC}"
             ;;
-        
+
         # uDOS maintenance commands - not available in Dev Mode
         "tidy"|"TIDY"|"clean"|"CLEAN"|"repair"|"REPAIR"|"shakedown"|"SHAKEDOWN")
             print_status "warn" "Command '$cmd' not available in Dev Mode"
             echo -e "${DIM}  These commands require full TUI session${NC}"
             echo -e "${DIM}  Type 'tui' to launch full TUI, or 'exit' then run bin/start_udos.sh${NC}"
             ;;
-            
+
         *)
             # Try to execute as uDOS command via API
             if [ -n "$cmd" ]; then
@@ -583,7 +583,7 @@ while true; do
                 RESPONSE=$(curl -s -X POST "http://localhost:$API_PORT/api/command" \
                     -H "Content-Type: application/json" \
                     -d "{\"command\": \"$cmd $args\"}" 2>/dev/null)
-                
+
                 if [ -n "$RESPONSE" ]; then
                     echo "$RESPONSE" | python -c "
 import sys, json

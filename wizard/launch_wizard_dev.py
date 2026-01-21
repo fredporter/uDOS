@@ -67,9 +67,9 @@ def main():
     elif args.no_tui:
         logger.info("[WIZ] Starting Wizard Server (no TUI)")
         logger.info("[WIZ] Note: Dev server archived. Use Goblin Dev Server for experimental features.")
-        logger.info("[WIZ] Run: ./bin/Launch-Goblin-Dev.command")
+        logger.info("[WIZ] Run: dev/goblin/launch-goblin-dev.sh")
         print("\n⚠️  Dev server has been moved to Goblin Dev Server")
-        print("    Run: ./bin/Launch-Goblin-Dev.command\n")
+        print("    Run: dev/goblin/launch-goblin-dev.sh\n")
         sys.exit(0)
 
     # Integrated mode (default): Server + TUI

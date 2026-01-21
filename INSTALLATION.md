@@ -106,18 +106,20 @@ python wizard/cli_port_manager.py kill :8765
 
 ## For Private Development
 
-If you want the full development environment with TypeScript runtime, iOS/Android apps, and experimental features:
+If you want the full development environment with the desktop app and experimental features:
 
 ```bash
-git clone https://github.com/fredporter/uDOS-dev.git
-cd uDOS-dev
+# Clone with private submodule (requires access)
+git clone --recurse-submodules git@github.com:fredporter/uDOS.git
+cd uDOS
 ```
 
-The private repo includes:
+The private `/dev/` submodule includes:
 
-- `/core/` — TypeScript runtime for mobile
-- `/app/` — Tauri desktop app (macOS)
+- `/dev/app/` — uMarkdown desktop app (Tauri + Svelte)
 - `/dev/goblin/` — Experimental dev server
+- `/dev/empire/` — CRM system
+- `/dev/groovebox/` — Music production tools
 - Full development tools and CI/CD
 
 ## Next Steps
@@ -129,6 +131,6 @@ The private repo includes:
 
 ---
 
-**Last Updated:** January 18, 2026
-**Version:** Alpha v1.0.6.0
-**Private Dev Repo:** https://github.com/fredporter/uDOS-dev
+**Last Updated:** January 21, 2026
+**Version:** Alpha v1.0.2.0
+**Private Dev Submodule:** https://github.com/fredporter/uDOS-dev
