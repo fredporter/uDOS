@@ -1,7 +1,7 @@
 #!/bin/bash
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║                     uDOS Vibe Setup (Offline-First)                      ║
-# ║                Mistral Vibe CLI + Devstral Small 2 via Ollama            ║
+# ║                   Mistral Vibe CLI + Devstral via Ollama                 ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
 set -e
@@ -20,7 +20,7 @@ NC='\033[0m'
 echo -e "${CYAN}"
 echo "╔═══════════════════════════════════════════════════════════════════════════╗"
 echo "║                     uDOS Vibe Setup (Offline-First)                      ║"
-echo "║                Mistral Vibe CLI + Devstral Small 2 via Ollama            ║"
+echo "║                   Mistral Vibe CLI + Devstral via Ollama                 ║"
 echo "╚═══════════════════════════════════════════════════════════════════════════╝"
 echo -e "${NC}\n"
 
@@ -31,7 +31,7 @@ if command -v ollama &> /dev/null; then
     ollama --version
 else
     echo -e "${YELLOW}Installing Ollama...${NC}"
-    
+
     if [[ "$OSTYPE" == "darwin"* ]]; then
         # macOS
         if command -v brew &> /dev/null; then
@@ -49,7 +49,7 @@ else
         echo "  Please install Ollama manually from https://ollama.com"
         exit 1
     fi
-    
+
     echo -e "${GREEN}✓ Ollama installed${NC}"
 fi
 
@@ -61,7 +61,7 @@ if pgrep -x "ollama" > /dev/null; then
     echo -e "${GREEN}✓ Ollama service already running${NC}"
 else
     echo -e "${YELLOW}Starting Ollama service...${NC}"
-    
+
     if [[ "$OSTYPE" == "darwin"* ]]; then
         # macOS - start as background service
         brew services start ollama 2>/dev/null || ollama serve &
@@ -69,7 +69,7 @@ else
         # Linux - start in background
         ollama serve &
     fi
-    
+
     sleep 2
     echo -e "${GREEN}✓ Ollama service started${NC}"
 fi
@@ -77,23 +77,15 @@ fi
 echo ""
 
 # Step 3: Pull Devstral Small 2 model
-echo -e "${BLUE}Step 3: Pulling Devstral Small 2 model${NC}"
-echo -e "${YELLOW}⚠️  This may take a while (model size: ~7.7GB)${NC}"
+echo -e "${BLUE}Step 3: Pulling Devstral model${NC}"
+echo -e "${YELLOW}⚠️  This may take a while (model size: ~14GB)${NC}"
 
-if ollama list | grep -q "mistral-small2"; then
-    echo -e "${GREEN}✓ mistral-small2 model already available${NC}"
+if ollama list | grep -q "devstral"; then
+    echo -e "${GREEN}✓ devstral model already available${NC}"
 else
-    echo -e "${CYAN}Pulling mistral-small2 from Ollama...${NC}"
-    ollama pull mistral-small2
-    echo -e "${GREEN}✓ mistral-small2 model downloaded${NC}"
-fi
-
-# Also check for devstral-small-2 alias
-if ollama list | grep -q "devstral-small-2"; then
-    echo -e "${GREEN}✓ devstral-small-2 alias available${NC}"
-else
-    echo -e "${YELLOW}Note: Using 'mistral-small2' (Devstral Small 2)${NC}"
-    echo -e "${YELLOW}You can create alias: ollama cp mistral-small2 devstral-small-2${NC}"
+    echo -e "${CYAN}Pulling devstral from Ollama...${NC}"
+    ollama pull devstral
+    echo -e "${GREEN}✓ devstral model downloaded${NC}"
 fi
 
 echo ""
@@ -102,7 +94,7 @@ echo ""
 echo -e "${BLUE}Step 4: Testing Ollama connection${NC}"
 if curl -s http://127.0.0.1:11434/api/tags &> /dev/null; then
     echo -e "${GREEN}✓ Ollama API responding at http://127.0.0.1:11434${NC}"
-    
+
     # Show available models
     echo -e "\n${CYAN}Available models:${NC}"
     ollama list
@@ -127,7 +119,7 @@ else
     echo -e "${YELLOW}Cloning Vibe CLI repository...${NC}"
     mkdir -p library
     cd library
-    
+
     if git clone https://github.com/mistralai/vibe.git mistral-vibe 2>/dev/null; then
         echo -e "${GREEN}✓ Vibe CLI cloned${NC}"
     else
@@ -135,28 +127,28 @@ else
         echo "  Manual: cd library && git clone https://github.com/mistralai/vibe.git mistral-vibe"
         exit 1
     fi
-    
+
     cd ..
 fi
 
 # Install Vibe CLI
 if [ -f "library/mistral-vibe/setup.py" ] || [ -f "library/mistral-vibe/pyproject.toml" ]; then
     echo -e "${CYAN}Installing Vibe CLI to venv...${NC}"
-    
+
     # Activate venv
     if [ ! -d ".venv" ]; then
         echo -e "${RED}✗ Virtual environment not found${NC}"
         echo "  Run: python3 -m venv .venv"
         exit 1
     fi
-    
+
     source .venv/bin/activate
-    
+
     # Install vibe
     cd library/mistral-vibe
     pip install -e . --quiet || pip install .
     cd ../..
-    
+
     if command -v vibe &> /dev/null; then
         echo -e "${GREEN}✓ Vibe CLI installed${NC}"
         vibe --version
@@ -217,7 +209,7 @@ echo -e "${BLUE}Step 7: Testing Vibe with uDOS context${NC}"
 
 if command -v vibe &> /dev/null; then
     echo -e "${CYAN}Running test query...${NC}"
-    
+
     # Simple test
     echo "Test: 'What is uDOS?'" | vibe chat --no-stream 2>/dev/null || \
         echo -e "${YELLOW}⚠️  Vibe test skipped (may require additional setup)${NC}"
