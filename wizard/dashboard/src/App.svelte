@@ -5,6 +5,7 @@
   import Webhooks from "./routes/Webhooks.svelte";
   import Logs from "./routes/Logs.svelte";
   import Catalog from "./routes/Catalog.svelte";
+  import Config from "./routes/Config.svelte";
 
   // Simple hash-based routing
   let currentRoute = "dashboard";
@@ -30,7 +31,7 @@
       <div class="px-4 py-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-6">
-            <h1 class="text-xl font-bold text-white">🧙 Wizard Server</h1>
+            <h1 class="text-xl font-bold text-white">Wizard Server</h1>
             <div class="flex gap-2">
               <button
                 class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute ===
@@ -86,6 +87,15 @@
               >
                 Catalog
               </button>
+              <button
+                class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute ===
+                'config'
+                  ? 'bg-gray-700 text-white'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
+                on:click={() => navigate("config")}
+              >
+                Config
+              </button>
             </div>
           </div>
         </div>
@@ -106,6 +116,8 @@
         <Logs />
       {:else if currentRoute === "catalog"}
         <Catalog />
+      {:else if currentRoute === "config"}
+        <Config />
       {/if}
     </main>
   </div>
