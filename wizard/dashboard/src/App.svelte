@@ -1,13 +1,13 @@
 <script>
-  import Dashboard from './routes/Dashboard.svelte';
-  import Devices from './routes/Devices.svelte';
-  import Poke from './routes/Poke.svelte';
-  import Webhooks from './routes/Webhooks.svelte';
-  import Logs from './routes/Logs.svelte';
-  import Catalog from './routes/Catalog.svelte';
+  import Dashboard from "./routes/Dashboard.svelte";
+  import Devices from "./routes/Devices.svelte";
+  import Poke from "./routes/Poke.svelte";
+  import Webhooks from "./routes/Webhooks.svelte";
+  import Logs from "./routes/Logs.svelte";
+  import Catalog from "./routes/Catalog.svelte";
 
   // Simple hash-based routing
-  let currentRoute = 'dashboard';
+  let currentRoute = "dashboard";
 
   function navigate(route) {
     currentRoute = route;
@@ -16,10 +16,10 @@
 
   function handleHashChange() {
     const hash = window.location.hash.slice(1);
-    currentRoute = hash || 'dashboard';
+    currentRoute = hash || "dashboard";
   }
 
-  window.addEventListener('hashchange', handleHashChange);
+  window.addEventListener("hashchange", handleHashChange);
   handleHashChange();
 </script>
 
@@ -33,38 +33,56 @@
             <h1 class="text-xl font-bold text-white">🧙 Wizard Server</h1>
             <div class="flex gap-2">
               <button
-                class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute === 'dashboard' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
-                on:click={() => navigate('dashboard')}
+                class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute ===
+                'dashboard'
+                  ? 'bg-gray-700 text-white'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
+                on:click={() => navigate("dashboard")}
               >
                 Dashboard
               </button>
               <button
-                class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute === 'devices' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
-                on:click={() => navigate('devices')}
+                class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute ===
+                'devices'
+                  ? 'bg-gray-700 text-white'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
+                on:click={() => navigate("devices")}
               >
                 Devices
               </button>
               <button
-                class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute === 'poke' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
-                on:click={() => navigate('poke')}
+                class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute ===
+                'poke'
+                  ? 'bg-gray-700 text-white'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
+                on:click={() => navigate("poke")}
               >
                 POKE
               </button>
               <button
-                class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute === 'webhooks' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
-                on:click={() => navigate('webhooks')}
+                class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute ===
+                'webhooks'
+                  ? 'bg-gray-700 text-white'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
+                on:click={() => navigate("webhooks")}
               >
                 Webhooks
               </button>
               <button
-                class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute === 'logs' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
-                on:click={() => navigate('logs')}
+                class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute ===
+                'logs'
+                  ? 'bg-gray-700 text-white'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
+                on:click={() => navigate("logs")}
               >
                 Logs
               </button>
               <button
-                class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute === 'catalog' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
-                on:click={() => navigate('catalog')}
+                class="px-3 py-2 rounded-md text-sm font-medium transition-colors {currentRoute ===
+                'catalog'
+                  ? 'bg-gray-700 text-white'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
+                on:click={() => navigate("catalog")}
               >
                 Catalog
               </button>
@@ -76,17 +94,17 @@
 
     <!-- Content -->
     <main class="flex-1 overflow-auto bg-gray-950">
-      {#if currentRoute === 'dashboard'}
+      {#if currentRoute === "dashboard"}
         <Dashboard />
-      {:else if currentRoute === 'devices'}
+      {:else if currentRoute === "devices"}
         <Devices />
-      {:else if currentRoute === 'poke'}
+      {:else if currentRoute === "poke"}
         <Poke />
-      {:else if currentRoute === 'webhooks'}
+      {:else if currentRoute === "webhooks"}
         <Webhooks />
-      {:else if currentRoute === 'logs'}
+      {:else if currentRoute === "logs"}
         <Logs />
-      {:else if currentRoute === 'catalog'}
+      {:else if currentRoute === "catalog"}
         <Catalog />
       {/if}
     </main>

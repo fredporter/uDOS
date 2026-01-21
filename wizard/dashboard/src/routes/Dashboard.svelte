@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
 
   let dashboardData = null;
   let loading = true;
@@ -7,7 +7,7 @@
 
   async function loadDashboard() {
     try {
-      const res = await fetch('/api/v1/index');
+      const res = await fetch("/api/v1/index");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       dashboardData = await res.json();
       loading = false;
@@ -27,7 +27,9 @@
   {#if loading}
     <div class="text-center py-12 text-gray-400">Loading dashboard...</div>
   {:else if error}
-    <div class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700">{error}</div>
+    <div class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700">
+      {error}
+    </div>
   {:else if dashboardData}
     <!-- Server Status -->
     <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
@@ -41,8 +43,14 @@
 
       {#if dashboardData.dashboard}
         <div class="space-y-2 text-sm text-gray-400">
-          <p><span class="font-medium">Name:</span> {dashboardData.dashboard.name}</p>
-          <p><span class="font-medium">Version:</span> {dashboardData.dashboard.version}</p>
+          <p>
+            <span class="font-medium">Name:</span>
+            {dashboardData.dashboard.name}
+          </p>
+          <p>
+            <span class="font-medium">Version:</span>
+            {dashboardData.dashboard.version}
+          </p>
           <p>
             <span class="font-medium">Updated:</span>
             {new Date(dashboardData.dashboard.timestamp).toLocaleString()}
@@ -64,7 +72,7 @@
                   ? 'bg-green-900 text-green-300'
                   : 'bg-gray-700 text-gray-400'}"
               >
-                {feature.enabled ? 'Enabled' : 'Disabled'}
+                {feature.enabled ? "Enabled" : "Disabled"}
               </span>
             </div>
             <p class="text-sm text-gray-400">{feature.description}</p>

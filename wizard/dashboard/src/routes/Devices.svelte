@@ -1,17 +1,17 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
 
   let devices = [];
   let loading = true;
   let error = null;
-  let filter = 'all';
+  let filter = "all";
   let showPairingModal = false;
-  let pairingCode = '';
-  let pairingQR = '';
+  let pairingCode = "";
+  let pairingQR = "";
 
   async function loadDevices() {
     try {
-      const res = await fetch('/api/devices');
+      const res = await fetch("/api/devices");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       devices = await res.json();
       loading = false;
@@ -23,7 +23,7 @@
 
   async function generatePairingCode() {
     try {
-      const res = await fetch('/api/devices/pairing-code');
+      const res = await fetch("/api/devices/pairing-code");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       pairingCode = data.code;
@@ -35,7 +35,7 @@
 
   async function syncDevice(deviceId) {
     try {
-      await fetch(`/api/devices/${deviceId}/sync`, { method: 'POST' });
+      await fetch(`/api/devices/${deviceId}/sync`, { method: "POST" });
       await loadDevices();
     } catch (err) {
       error = `Sync failed: ${err.message}`;
@@ -44,7 +44,7 @@
 
   async function syncAll() {
     try {
-      await fetch('/api/devices/sync-all', { method: 'POST' });
+      await fetch("/api/devices/sync-all", { method: "POST" });
       await loadDevices();
     } catch (err) {
       error = `Sync all failed: ${err.message}`;
@@ -53,16 +53,16 @@
 
   function getDeviceIcon(type) {
     const icons = {
-      desktop: '🖥️',
-      mobile: '📱',
-      tinycore: '🐧',
+      desktop: "🖥️",
+      mobile: "📱",
+      tinycore: "🐧",
     };
-    return icons[type] || '💻';
+    return icons[type] || "💻";
   }
 
   $: filteredDevices = devices.filter((d) => {
-    if (filter === 'online') return d.status === 'online';
-    if (filter === 'offline') return d.status !== 'online';
+    if (filter === "online") return d.status === "online";
+    if (filter === "offline") return d.status !== "online";
     return true;
   });
 
@@ -81,7 +81,9 @@
   </div>
 
   {#if error}
-    <div class="bg-red-900 text-red-200 p-4 rounded-lg mb-6 border border-red-700">
+    <div
+      class="bg-red-900 text-red-200 p-4 rounded-lg mb-6 border border-red-700"
+    >
       {error}
     </div>
   {/if}
@@ -145,7 +147,7 @@
             </div>
             <span
               class="px-2 py-1 rounded text-xs font-medium {device.status ===
-                'online'
+              'online'
                 ? 'bg-green-900 text-green-300'
                 : 'bg-gray-700 text-gray-400'}"
             >
@@ -157,19 +159,23 @@
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
               <p class="text-xs text-gray-500 uppercase">Last Seen</p>
-              <p class="text-sm text-gray-300">{device.last_seen || '—'}</p>
+              <p class="text-sm text-gray-300">{device.last_seen || "—"}</p>
             </div>
             <div>
               <p class="text-xs text-gray-500 uppercase">Sync Status</p>
-              <p class="text-sm text-gray-300">{device.sync_status || '—'}</p>
+              <p class="text-sm text-gray-300">{device.sync_status || "—"}</p>
             </div>
             <div>
               <p class="text-xs text-gray-500 uppercase">Transport</p>
-              <p class="text-sm text-gray-300">{device.transport || 'MeshCore'}</p>
+              <p class="text-sm text-gray-300">
+                {device.transport || "MeshCore"}
+              </p>
             </div>
             <div>
               <p class="text-xs text-gray-500 uppercase">Trust Level</p>
-              <p class="text-sm text-gray-300">{device.trust_level || 'Standard'}</p>
+              <p class="text-sm text-gray-300">
+                {device.trust_level || "Standard"}
+              </p>
             </div>
           </div>
 
@@ -207,7 +213,9 @@
           <div class="text-center">
             <p class="text-gray-400 mb-4">Enter this code on your device:</p>
             <div class="bg-gray-900 rounded-lg p-6 mb-4">
-              <p class="text-4xl font-mono text-white tracking-widest">{pairingCode}</p>
+              <p class="text-4xl font-mono text-white tracking-widest">
+                {pairingCode}
+              </p>
             </div>
             {#if pairingQR}
               <p class="text-gray-400 mb-2">Or scan this QR code:</p>
