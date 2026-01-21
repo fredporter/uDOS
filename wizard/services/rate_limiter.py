@@ -511,6 +511,11 @@ def create_rate_limit_middleware(rate_limiter: RateLimiter = None):
 
         endpoint = request.url.path
 
+        # Skip rate limiting for localhost requests
+        client_host = request.client.host if request.client else ""
+        if client_host in ("127.0.0.1", "localhost", "::1"):
+            return await call_next(request)
+
         # Check rate limit
         result = limiter.check(device_id, endpoint)
 
