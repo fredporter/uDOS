@@ -22,6 +22,7 @@ Security:
 import os
 import json
 import asyncio
+import webbrowser
 import hmac
 import hashlib
 from datetime import datetime
@@ -616,6 +617,11 @@ class WizardServer:
                 # Wait a moment for server to start
                 await asyncio.sleep(1)
 
+                # Open dashboard in browser
+                dashboard_url = f"http://{host or self.config.host}:{port or self.config.port}/docs"
+                if self.config.host == "0.0.0.0":
+                    dashboard_url = f"http://localhost:{port or self.config.port}"
+                webbrowser.open(dashboard_url)
                 # Run interactive console in foreground
                 console_task = asyncio.create_task(console.run())
 
