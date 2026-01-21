@@ -1,0 +1,79 @@
+{
+  "component": "udos-tech-guides",
+  "name": "uDOS Technical Guides",
+  "version": {
+    "major": 1,
+    "minor": 0,
+    "patch": 0,
+    "build": 0
+  },
+  "display": "v1.0.0.0",
+  "type": "knowledge",
+  "description": "Technical specifications, architecture guides, and Architecture Decision Records (ADRs)",
+  "author": "Fred Porter",
+  "license": "CC-BY-4.0",
+  
+  "dependencies": {
+    "system": {},
+    "components": {}
+  },
+  
+  "platform": ["linux", "macos", "windows"],
+  "min_udos_version": "1.0.0.0",
+  
+  "files": {
+    "specs": "docs/specs/",
+    "decisions": "docs/decisions/",
+    "howto": "docs/howto/"
+  },
+  
+  "sections": [
+    {
+      "name": "Technical Specifications",
+      "path": "docs/specs/",
+      "articles": [
+        "workspace-architecture.md",
+        "vibe-setup.md",
+        "transport-policy.md",
+        "api-contract.md"
+      ]
+    },
+    {
+      "name": "Architecture Decisions (ADRs)",
+      "path": "docs/decisions/",
+      "articles": [
+        "ADR-0001-wizard-model-routing-policy.md",
+        "ADR-0002-offline-first.md",
+        "ADR-0003-modular-architecture.md"
+      ]
+    },
+    {
+      "name": "How-To Guides",
+      "path": "docs/howto/",
+      "articles": [
+        "setup-development-environment.md",
+        "run-tests.md",
+        "deploy-extensions.md"
+      ]
+    }
+  ],
+  
+  "adr_count": 3,
+  "spec_count": 4,
+  "howto_count": 3,
+  
+  "usage": "Engineering reference; archived decisions + active specs + repeatable procedures",
+  
+  "notes": [
+    "ADRs document architectural decisions with context + consequences",
+    "Specs cover stable technical contracts (workspace, transport, API)",
+    "How-To guides are step-by-step procedures for common tasks",
+    "All documents in Markdown with YAML frontmatter",
+    "Format: status, date, context, decision, consequences"
+  ],
+  
+  "released": "2026-01-17",
+  "channel": "alpha",
+  "signed": false,
+  "checksum": "sha256:placeholder"
+}

@@ -1,0 +1,34 @@
+{
+  "$schema": "./container.schema.json",
+  "container": {
+    "id": "meshcore",
+    "name": "MeshCore Mesh Networking",
+    "description": "P2P mesh networking for offline device communication",
+    "type": "git",
+    "source": "https://github.com/meshcore-dev/MeshCore",
+    "ref": "main",
+    "cloned_at": null,
+    "last_update": null,
+    "commit": null,
+    "version": null
+  },
+  "policy": {
+    "read_only": true,
+    "auto_update": false,
+    "update_channel": "wizard_only",
+    "verify_signatures": false
+  },
+  "integration": {
+    "wrapper_path": "extensions/transport/meshcore/",
+    "service_path": "extensions/play/services/meshcore_service.py",
+    "handler_path": "core/commands/mesh_handler.py",
+    "install_script": "extensions/setup/install_meshcore.py"
+  },
+  "metadata": {
+    "license": "MIT",
+    "homepage": "https://github.com/meshcore-dev/MeshCore",
+    "documentation": "extensions/transport/meshcore/README.md",
+    "maintainer": "uDOS Wizard Server"
+  },
+  "_note": "This manifest is created when Wizard Server clones the repo. cloned_at, last_update, commit, and version fields are populated automatically."
+}

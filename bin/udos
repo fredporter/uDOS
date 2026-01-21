@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+#
+# uDOS Shell Launcher
+# Provides command-line interface for running .upy scripts and interactive mode
+#
+
+set -e
+
+# Determine uDOS installation directory
+UDOS_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export UDOS_HOME
+
+# Add uDOS to PATH if not already there
+if [[ ":$PATH:" != *":$UDOS_HOME/bin:"* ]]; then
+    export PATH="$UDOS_HOME/bin:$PATH"
+fi
+
+# Python executable (prefer virtual environment)
+if [ -n "$VIRTUAL_ENV" ]; then
+    PYTHON="$VIRTUAL_ENV/bin/python3"
+elif [ -f "$UDOS_HOME/.venv/bin/python3" ]; then
+    PYTHON="$UDOS_HOME/.venv/bin/python3"
+else
+    PYTHON="python3"
+fi
+
+# Source environment setup
+if [ -f "$UDOS_HOME/bin/uenv.sh" ]; then
+    source "$UDOS_HOME/bin/uenv.sh"
+fi
+
+# Usage message
+usage() {
+    cat << EOF
+uDOS - Offline-First Operating System for Survival Knowledge
+
+Usage:
+    udos                        Start interactive mode
+    udos <script.upy>          Execute a .upy script
+    udos --version             Show version information
+    udos --help                Show this help message
+
+Options:
+    -i, --interactive          Force interactive mode after script
+    -v, --verbose              Enable verbose output
+    --no-color                 Disable colored output
+    --validate <script.upy>    Validate script syntax only
+
+Environment:
+    UDOS_HOME                  Installation directory
+    UDOS_CONFIG                Configuration file path
+    UDOS_THEME                 Default theme name
+
+Examples:
+    udos                                    # Start interactive mode
+    udos memory/ucode/examples/water-quest.upy  # Run water quest
+    udos --validate my-script.upy          # Check syntax
+    udos -i shelter-quest.upy              # Run then go interactive
+
+For more information, visit: https://github.com/fredporter/uDOS-dev
+EOF
+}
+
+# Version information
+version() {
+    cat << EOF
+uDOS v2.0.0 (Round 3: uPY Refactor)
+Python-first architecture with UPPERCASE-HYPHEN commands
+Copyright © 2024-2025 Fred Porter
+License: MIT
+EOF
+}
+
+# Parse command-line arguments
+INTERACTIVE=0
+VERBOSE=0
+VALIDATE=0
+SCRIPT=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -v|--version)
+            version
+            exit 0
+            ;;
+        -i|--interactive)
+            INTERACTIVE=1
+            shift
+            ;;
+        --verbose)
+            VERBOSE=1
+            export UDOS_VERBOSE=1
+            shift
+            ;;
+        --no-color)
+            export UDOS_NO_COLOR=1
+            shift
+            ;;
+        --validate)
+            VALIDATE=1
+            SCRIPT="$2"
+            shift 2
+            ;;
+        *.upy)
+            SCRIPT="$1"
+            shift
+            ;;
+        *)
+            echo "Error: Unknown option or invalid file: $1" >&2
+            echo "Try 'udos --help' for more information." >&2
+            exit 1
+            ;;
+    esac
+done
+
+# Execute based on mode
+if [ -n "$SCRIPT" ]; then
+    # Script mode
+    if [ ! -f "$SCRIPT" ]; then
+        echo "Error: Script not found: $SCRIPT" >&2
+        exit 1
+    fi
+
+    if [ $VALIDATE -eq 1 ]; then
+        # Validate only
+        echo "Validating: $SCRIPT"
+        $PYTHON -c "
+import sys
+sys.path.insert(0, '$UDOS_HOME')
+from pathlib import Path
+from core.runtime.upy import UPYInterpreter
+
+try:
+    # Just check if the script can be parsed
+    with open('$SCRIPT', 'r') as f:
+        code = f.read()
+    interpreter = UPYInterpreter(timeout=5)
+    # Validate without executing
+    import ast
+    ast.parse(code)
+    print('✅ Valid .upy script')
+    sys.exit(0)
+except Exception as e:
+    print(f'❌ Invalid: {e}', file=sys.stderr)
+    sys.exit(1)
+"
+    else
+        # Execute script
+        if [ $VERBOSE -eq 1 ]; then
+            echo "Executing: $SCRIPT"
+        fi
+
+        if [ $INTERACTIVE -eq 1 ]; then
+            # Run script then drop to interactive
+            $PYTHON "$UDOS_HOME/uDOS.py" --script "$SCRIPT" --interactive
+        else
+            # Run script and exit
+            $PYTHON "$UDOS_HOME/uDOS.py" --script "$SCRIPT"
+        fi
+    fi
+else
+    # Interactive mode (default)
+    if [ $VERBOSE -eq 1 ]; then
+        echo "Starting uDOS interactive mode..."
+    fi
+    $PYTHON "$UDOS_HOME/uDOS.py"
+fi

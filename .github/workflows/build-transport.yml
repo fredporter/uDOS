@@ -1,0 +1,57 @@
+name: Build Transport
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Build target'
+        required: false
+        default: 'transport'
+      build_id:
+        description: 'Build identifier'
+        required: false
+  workflow_call:
+    inputs:
+      target:
+        type: string
+        default: 'transport'
+      build_id:
+        type: string
+        required: false
+
+jobs:
+  build:
+    name: Build Transport Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(python -c "import json; print(json.load(open('extensions/transport/version.json'))['version'])")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      
+      - name: Build package
+        run: |
+          mkdir -p distribution/builds/${{ inputs.build_id || github.run_id }}
+          cd extensions/transport
+          tar -czf ../../distribution/builds/${{ inputs.build_id || github.run_id }}/transport-${{ steps.version.outputs.version }}.tar.gz \
+            --exclude='__pycache__' \
+            --exclude='*.pyc' \
+            --exclude='tests/' \
+            .
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: transport-build-${{ inputs.build_id || github.run_id }}
+          path: distribution/builds/${{ inputs.build_id || github.run_id }}/*
+          retention-days: 30

@@ -1,0 +1,200 @@
+# uDOS .gitignore for PUBLIC Repo (fredporter/uDOS)
+# Root repo is PUBLIC - open source components only
+# /dev/ is a GIT SUBMODULE pointing to private repo (fredporter/uDOS-dev)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STRUCTURE:
+#   PUBLIC (root):   core, wizard, extensions, docs, knowledge, library
+#   PRIVATE (/dev):  goblin, empire, app, groovebox - as git submodule
+#   LOCAL (memory):  user data, logs, credentials - never committed
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ---------- PRIVATE SUBMODULE ----------
+# /dev is tracked as a git submodule, not directly
+# The submodule reference is in .gitmodules
+
+# ---------- Local workspace data (never commit) ----------
+memory/
+!memory/.gitkeep
+!memory/README.md
+!memory/WORKSPACE-STRUCTURE.md
+
+# Local scratch folders
+.archive/
+**/.archive/
+.dev/
+**/.dev/
+.tmp/
+**/.tmp/
+.cache/
+**/.cache/
+.build/
+**/.build/
+private/
+**/private/
+
+# ---------- SECRETS & CREDENTIALS (CRITICAL) ----------
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Config files with secrets
+wizard/config/ai_keys.json
+wizard/config/github_keys.json
+wizard/config/slack_keys.json
+wizard/config/oauth_providers.json
+wizard/config/notion_keys.json
+public/wizard/config/ai_keys.json
+public/wizard/config/github_keys.json
+public/wizard/config/slack_keys.json
+public/wizard/config/oauth_providers.json
+public/wizard/config/notion_keys.json
+**/config/*_keys.json
+**/config/*secret*.json
+**/config/*token*.json
+
+# Python secrets
+.env.*
+**/.env
+**/.env.*
+secrets.py
+**/secrets.py
+**/secret.py
+
+# Node secrets
+.env.local
+.env.*.local
+**/secrets.js
+**/secret.js
+
+# OS & tool secrets
+.DS_Store/.env
+.vscode/settings.local.json
+.vscode/launch.local.json
+
+# Private keys & certificates
+*.pem
+*.key
+*.p8
+*.p12
+*.pfx
+
+# OAuth/API tokens
+**/oauth_tokens.json
+**/oauth.json
+**/tokens.json
+**/token.json
+**/credentials.json
+**/secrets.json
+
+# API key files
+**/*_api_key*
+**/*_token*
+**/*_secret*
+**/*_credentials*
+
+# Password databases
+**/*.kdbx
+**/*.db-journal
+
+# Dependencies & build outputs
+.venv/
+**/venv/
+env/
+**/env/
+node_modules/
+**/node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+coverage/
+**/coverage/
+*.vsix
+*.egg
+*.egg-info/
+**/target/
+*.dmg
+*.deb
+*.AppImage
+*.msi
+*.app
+**/bundle/
+distribution/
+distribution/**
+
+# ---------- Logs, runtime state, databases ----------
+*.log
+*.jsonl
+*.pid
+*.state
+*.db
+*.sqlite
+*.sqlite3
+nohup.out
+
+# ---------- Secrets & credentials ----------
+.env
+.env.*
+*.key
+*.secret
+ai_keys.json
+wizard/config/ai_keys.json
+wizard/config/oauth_providers.json
+wizard/config/slack_keys.json
+memory/system/user/gmail_credentials.json
+memory/system/user/.gmail_token.enc
+*.gmail_token*
+
+# ---------- Tests & fixtures (generated) ----------
+.pytest_cache/
+**/.pytest_cache/
+test_*.py
+test_*.sh
+/test_*.uscript
+
+# ---------- IDE / OS detritus ----------
+.DS_Store
+**/.DS_Store
+.vscode/settings.json
+.vscode/*.log
+.idea/
+*.swp
+*.swo
+*~
+
+# ---------- Legacy / deprecated ----------
+sandbox/
+data/
+scripts/
+uDOS.wiki/
+
+# ---------- External repos (local clones, not tracked) ----------
+# These are cloned locally for development reference but not part of uDOS
+library/gtx-form/
+library/home-assistant/
+
+# ---------- Allowlisted project files ----------
+!*.md
+!*.txt
+!*.json
+!*.yaml
+!*.yml
+!*.toml
+!*.cfg
+!*.ini
+!requirements.txt
+!setup.py
+!.gitignore
+!.gitattributes
+!LICENSE*
+!CREDITS*
+!CHANGELOG*
+!CONTRIBUTING*
+!CODE-OF-CONDUCT*

@@ -1,0 +1,71 @@
+{
+  "component": "udos-workflow-manager",
+  "name": "Wizard Workflow Manager",
+  "version": {
+    "major": 1,
+    "minor": 0,
+    "patch": 0,
+    "build": 4
+  },
+  "display": "v1.0.4.0",
+  "type": "tcz",
+  "description": "Task scheduling + persistence: Organic cron (Plant→Sprout→Prune→Trellis→Harvest→Compost) with SQLite backend (v1.0.4.0+)",
+  "author": "Fred Porter",
+  "license": "MIT",
+  
+  "dependencies": {
+    "system": {
+      "python": ">=3.10",
+      "packages": ["pydantic>=2.0"]
+    },
+    "components": {
+      "udos-wizard": ">=1.1.0.0"
+    }
+  },
+  
+  "platform": ["linux", "macos"],
+  "min_udos_version": "1.0.4.0",
+  
+  "files": {
+    "python": "wizard/services/workflow_manager.py",
+    "routes": "wizard/services/migration_routes.py",
+    "config": "wizard/config/",
+    "db": "memory/wizard/workflows.db"
+  },
+  
+  "installation": {
+    "mode": "automatic",
+    "script": "install.sh",
+    "post_install": "python -m wizard.services.workflow_manager --init-db"
+  },
+  
+  "api_endpoints": [
+    "GET /api/v1/workflows/",
+    "POST /api/v1/workflows/",
+    "GET /api/v1/workflows/{id}",
+    "PUT /api/v1/workflows/{id}",
+    "DELETE /api/v1/workflows/{id}",
+    "POST /api/v1/workflows/{id}/execute"
+  ],
+  
+  "auth_scope": "workflow:read|write",
+  "database": "SQLite3 (memory/wizard/workflows.db)",
+  
+  "organic_cron_model": {
+    "stages": ["Plant", "Sprout", "Prune", "Trellis", "Harvest", "Compost"],
+    "description": "Organic task scheduling lifecycle"
+  },
+  
+  "notes": [
+    "Per-user/tenant scoping enforced",
+    "SQLite-backed persistence",
+    "Rate limits on write operations",
+    "Background job execution",
+    "Task status tracking: pending|in-progress|completed|blocked"
+  ],
+  
+  "released": "2026-01-17",
+  "channel": "alpha",
+  "signed": false,
+  "checksum": "sha256:placeholder"
+}

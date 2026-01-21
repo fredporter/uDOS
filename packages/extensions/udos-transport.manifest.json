@@ -1,0 +1,84 @@
+{
+  "component": "udos-transport",
+  "name": "uDOS Transport Extension",
+  "version": {
+    "major": 1,
+    "minor": 0,
+    "patch": 1,
+    "build": 0
+  },
+  "display": "v1.0.1.0",
+  "type": "extension",
+  "description": "MeshCore P2P, Audio relay, QR relay, NFC, Bluetooth Private (with policy validation enforced)",
+  "author": "Fred Porter",
+  "license": "MIT",
+  
+  "dependencies": {
+    "system": {
+      "python": ">=3.10"
+    },
+    "components": {
+      "udos-core": ">=1.0.0.0"
+    }
+  },
+  
+  "platform": ["linux", "macos", "windows"],
+  "min_udos_version": "1.0.0.0",
+  
+  "files": {
+    "python": "extensions/transport/",
+    "policy": "extensions/transport/policy.yaml",
+    "docs": "extensions/transport/README.md"
+  },
+  
+  "installation": {
+    "mode": "automatic",
+    "script": "install.sh",
+    "post_install": "python -m extensions.transport.validator --check-policy"
+  },
+  
+  "transports": {
+    "private": [
+      "meshcore (P2P mesh networking)",
+      "bluetooth_private (paired devices only)",
+      "nfc (physical contact)",
+      "qr_relay (visual data transfer)",
+      "audio_relay (acoustic packets)"
+    ],
+    "public_signal_only": [
+      "bluetooth_public (beacons/presence, NO DATA)"
+    ]
+  },
+  
+  "policy_enforcement": {
+    "enabled": true,
+    "validator": "extensions/transport/validator.py",
+    "rules": [
+      "Private transports: commands + data allowed",
+      "Public signal channels: data strictly forbidden",
+      "All transports validated before use"
+    ]
+  },
+  
+  "logging_tags": [
+    "[MESH] MeshCore P2P",
+    "[BT-PRIV] Bluetooth Private (paired)",
+    "[BT-PUB] Bluetooth Public (signals only)",
+    "[NFC] NFC contact transfer",
+    "[QR] QR code relay",
+    "[AUD] Audio relay"
+  ],
+  
+  "notes": [
+    "Transport policy is non-negotiable",
+    "Bluetooth Public ONLY for beacons/presence (no data)",
+    "All data transfers use private channels",
+    "Policy validator runs on every transport operation",
+    "Offline-first: no cloud dependencies"
+  ],
+  
+  "released": "2026-01-10",
+  "channel": "alpha",
+  "signed": false,
+  "checksum": "sha256:placeholder"
+}

@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "udos.udos-vscode"
+  ],
+  "unwantedRecommendations": [
+    "ms-toolsai.jupyter"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+	"name": "@rossrobino/typo",
+	"type": "module",
+	"version": "2.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "vite dev",
+		"host": "vite dev --host",
+		"build": "vite build",
+		"preview": "vite preview",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"format": "prettier --write ."
+	},
+	"devDependencies": {
+		"@robino/prettier": "^2.0.2",
+		"@sveltejs/adapter-static": "^3.0.10",
+		"@sveltejs/adapter-vercel": "^5.10.2",
+		"@sveltejs/kit": "^2.43.4",
+		"@sveltejs/vite-plugin-svelte": "^6.2.1",
+		"@tailwindcss/typography": "^0.5.19",
+		"@tailwindcss/vite": "^4.1.13",
+		"@types/wicg-file-system-access": "^2023.10.6",
+		"prettier-plugin-svelte": "^3.4.0",
+		"prettier-plugin-tailwindcss": "^0.6.14",
+		"svelte-check": "^4.3.2",
+		"tailwindcss": "^4.1.13",
+		"typescript": "^5.9.2",
+		"vite": "^7.1.7"
+	},
+	"dependencies": {
+		"@robino/md": "^4.0.3",
+		"@tauri-apps/api": "^2",
+		"@tauri-apps/plugin-dialog": "^2",
+		"@vercel/analytics": "^1.5.0",
+		"drab": "^7.0.3",
+		"prettier": "^3.6.2",
+		"svelte": "^5.39.5",
+		"ts-blank-space": "^0.6.2"
+	}
+}

@@ -1,0 +1,68 @@
+name: Release Packages
+
+# DISABLED: TCZ packaging not yet implemented
+# Uncomment when core.packaging.tcz_builder is ready
+on:
+  workflow_dispatch:  # Manual trigger only for now
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install squashfs-tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y squashfs-tools
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build TCZ packages (core, api, wizard)
+        run: |
+          python - <<'PY'
+          # PLACEHOLDER: core.packaging.tcz_builder not yet implemented
+          # When ready, uncomment the imports below and implement the build logic
+          #
+          # from pathlib import Path
+          # from core.packaging.tcz_builder import TCZBuilder, create_core_spec, create_api_spec, create_wizard_spec
+          # from core.version import get_version_string
+          #
+          # workspace = Path.cwd()
+          # output = workspace / 'distribution' / 'tcz'
+          # builder = TCZBuilder(workspace, output)
+          #
+          # core_v = get_version_string('core')
+          # api_v = get_version_string('api')
+          # wiz_v = get_version_string('wizard')
+          #
+          # for name, spec in [
+          #   ('core', create_core_spec(core_v)),
+          #   ('api', create_api_spec(api_v)),
+          #   ('wizard', create_wizard_spec(wiz_v)),
+          # ]:
+          #     print(f"Building udos-{name}.tcz...")
+          #     tcz = builder.build_package(spec)
+          #     print(f"Built {tcz}")
+
+          print("TCZ packaging not yet implemented. See .github/workflows/release.yml for details.")
+          PY
+
+      - name: Generate checksums
+        run: |
+          echo "TCZ packaging not yet implemented"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

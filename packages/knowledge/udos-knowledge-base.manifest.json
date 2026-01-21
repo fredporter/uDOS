@@ -1,0 +1,82 @@
+{
+  "component": "udos-knowledge-base",
+  "name": "uDOS Knowledge Base",
+  "version": {
+    "major": 1,
+    "minor": 0,
+    "patch": 2,
+    "build": 0
+  },
+  "display": "v1.0.2.0",
+  "type": "knowledge",
+  "description": "Comprehensive knowledge bank: 231+ markdown articles covering tools, frameworks, best practices",
+  "author": "Fred Porter & Community",
+  "license": "CC-BY-4.0",
+  
+  "dependencies": {
+    "system": {},
+    "components": {}
+  },
+  
+  "platform": ["linux", "macos", "windows"],
+  "min_udos_version": "1.0.0.0",
+  
+  "files": {
+    "articles": "knowledge/",
+    "index": "knowledge/README.md"
+  },
+  
+  "categories": [
+    {
+      "name": "Developer Tools",
+      "count": 48,
+      "articles": ["git", "docker", "vscode", "npm", "poetry", "make", "cmake"]
+    },
+    {
+      "name": "Languages & Frameworks",
+      "count": 67,
+      "articles": ["python", "typescript", "rust", "go", "javascript", "svelte", "react"]
+    },
+    {
+      "name": "DevOps & Cloud",
+      "count": 31,
+      "articles": ["kubernetes", "terraform", "github-actions", "aws", "docker-compose", "systemd"]
+    },
+    {
+      "name": "Web & Networking",
+      "count": 42,
+      "articles": ["http", "websocket", "tcp-ip", "dns", "ssl-tls", "graphql", "rest-api"]
+    },
+    {
+      "name": "Data & Databases",
+      "count": 25,
+      "articles": ["sqlite", "postgresql", "mongodb", "redis", "kafka", "sql"]
+    },
+    {
+      "name": "Best Practices",
+      "count": 18,
+      "articles": ["testing", "ci-cd", "security", "performance", "scalability", "documentation"]
+    }
+  ],
+  
+  "search": {
+    "indexed": true,
+    "full_text_search": true,
+    "tags": true
+  },
+  
+  "usage": "Reference material for developers; offline-accessible, no network required",
+  
+  "notes": [
+    "231+ articles covering essential developer topics",
+    "Offline-first: all content bundled locally",
+    "Searchable via knowledge/ directory or in-TUI search",
+    "Community contributions welcome",
+    "Format: Standard markdown with frontmatter"
+  ],
+  
+  "released": "2026-01-17",
+  "channel": "alpha",
+  "signed": false,
+  "checksum": "sha256:placeholder"
+}

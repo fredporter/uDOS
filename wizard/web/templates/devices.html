@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div x-data="devicesPanel()">
+    <!-- Page Header -->
+    <div class="px-4 sm:px-0 mb-8">
+        <h1 class="text-3xl font-bold text-white">Mesh Devices</h1>
+        <p class="mt-1 text-gray-400">Monitor and manage connected uDOS nodes</p>
+    </div>
+    
+    <!-- Device Actions Bar -->
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex space-x-4">
+            <button 
+                @click="showPairingModal = true"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white flex items-center"
+            >
+                <span class="mr-2">📱</span> Pair New Device
+            </button>
+            <button 
+                hx-post="/api/devices/sync-all"
+                hx-swap="none"
+                class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white flex items-center"
+            >
+                <span class="mr-2">🔄</span> Sync All
+            </button>
+        </div>
+        
+        <!-- Filter -->
+        <div class="flex items-center space-x-2">
+            <span class="text-gray-400 text-sm">Filter:</span>
+            <select 
+                @change="filterDevices($event.target.value)"
+                class="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"
+            >
+                <option value="all">All Devices</option>
+                <option value="online">Online Only</option>
+                <option value="offline">Offline Only</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Device Grid -->
+    <div 
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        hx-get="/api/devices"
+        hx-trigger="every 10s"
+        hx-swap="innerHTML"
+    >
+        {% for device in devices %}
+        <div class="device-card bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <!-- Device Header -->
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center">
+                    <span class="text-3xl mr-3">
+                        {% if device.type == 'desktop' %}🖥️
+                        {% elif device.type == 'mobile' %}📱
+                        {% elif device.type == 'tinycore' %}🐧
+                        {% else %}💻{% endif %}
+                    </span>
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">{{ device.name }}</h3>
+                        <p class="text-sm text-gray-400">{{ device.id }}</p>
+                    </div>
+                </div>
+                <!-- Status Badge -->
+                <span class="status-badge {% if device.status == 'online' %}status-online{% else %}status-offline{% endif %}">
+                    {{ device.status }}
+                </span>
+            </div>
+            
+            <!-- Device Stats -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <p class="text-xs text-gray-500 uppercase">Last Seen</p>
+                    <p class="text-sm text-gray-300">{{ device.last_seen }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase">Sync Status</p>
+                    <p class="text-sm text-gray-300">{{ device.sync_status|default('—') }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase">Transport</p>
+                    <p class="text-sm text-gray-300">{{ device.transport|default('MeshCore') }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase">Trust Level</p>
+                    <p class="text-sm text-gray-300">{{ device.trust_level|default('Standard') }}</p>
+                </div>
+            </div>
+            
+            <!-- Device Actions -->
+            <div class="flex space-x-2 border-t border-gray-700 pt-4">
+                <button 
+                    hx-post="/api/devices/{{ device.id }}/sync"
+                    hx-swap="none"
+                    class="flex-1 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm text-white"
+                >
+                    🔄 Sync
+                </button>
+                <button 
+                    hx-post="/api/devices/{{ device.id }}/ping"
+                    hx-swap="none"
+                    class="flex-1 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm text-white"
+                >
+                    📡 Ping
+                </button>
+                <button 
+                    @click="showDeviceDetails('{{ device.id }}')"
+                    class="flex-1 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm text-white"
+                >
+                    ⚙️ Config
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Empty State -->
+        {% if not devices %}
+        <div class="col-span-3 text-center py-12">
+            <span class="text-6xl mb-4 block">📱</span>
+            <h3 class="text-xl font-semibold text-white mb-2">No Devices Paired</h3>
+            <p class="text-gray-400 mb-4">Pair your first device to start building your mesh network</p>
+            <button 
+                @click="showPairingModal = true"
+                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white"
+            >
+                Pair Device
+            </button>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pairing Modal -->
+    <div 
+        x-show="showPairingModal"
+        x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    >
+        <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 border border-gray-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-white">Pair New Device</h3>
+                <button @click="showPairingModal = false" class="text-gray-400 hover:text-white">✕</button>
+            </div>
+            
+            <!-- Pairing Methods -->
+            <div class="space-y-4">
+                <!-- QR Code Method -->
+                <div class="p-4 bg-gray-700 rounded-lg">
+                    <h4 class="font-medium text-white mb-2">📱 QR Code Pairing</h4>
+                    <p class="text-sm text-gray-400 mb-3">Scan this code with your uDOS device</p>
+                    <div 
+                        hx-get="/api/devices/pairing-qr"
+                        hx-trigger="load"
+                        hx-swap="innerHTML"
+                        class="bg-white p-4 rounded text-center"
+                    >
+                        <span class="text-gray-500">Generating QR code...</span>
+                    </div>
+                </div>
+                
+                <!-- Manual Code Method -->
+                <div class="p-4 bg-gray-700 rounded-lg">
+                    <h4 class="font-medium text-white mb-2">🔑 Manual Pairing Code</h4>
+                    <p class="text-sm text-gray-400 mb-3">Enter this code on your device</p>
+                    <div 
+                        hx-get="/api/devices/pairing-code"
+                        hx-trigger="load"
+                        hx-swap="innerHTML"
+                        class="text-center"
+                    >
+                        <code class="text-2xl font-mono text-blue-400 bg-gray-900 px-4 py-2 rounded">
+                            ···· ····
+                        </code>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2 text-center">Expires in 5 minutes</p>
+                </div>
+                
+                <!-- NFC Method (if available) -->
+                <div class="p-4 bg-gray-700 rounded-lg opacity-50">
+                    <h4 class="font-medium text-white mb-2">📶 NFC Pairing</h4>
+                    <p class="text-sm text-gray-400">Touch devices together (requires NFC)</p>
+                </div>
+            </div>
+            
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-400">
+                    Waiting for device connection...
+                    <span class="inline-block animate-pulse">⏳</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    [x-cloak] { display: none !important; }
+    
+    .status-badge {
+        @apply px-2 py-1 rounded-full text-xs font-medium;
+    }
+    .status-online {
+        @apply bg-green-900 text-green-400;
+    }
+    .status-offline {
+        @apply bg-gray-700 text-gray-400;
+    }
+</style>
+
+<script>
+function devicesPanel() {
+    return {
+        showPairingModal: false,
+        filter: 'all',
+        
+        init() {
+            // Listen for pairing success via WebSocket
+            this.connectWebSocket();
+        },
+        
+        filterDevices(value) {
+            this.filter = value;
+            // HTMX will handle the actual filtering via query param
+            htmx.ajax('GET', `/api/devices?status=${value}`, {target: '.device-grid'});
+        },
+        
+        showDeviceDetails(deviceId) {
+            // Navigate to device config page
+            window.location.href = `/devices/${deviceId}`;
+        },
+        
+        connectWebSocket() {
+            const ws = new WebSocket('ws://localhost:8080/ws');
+            
+            ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                
+                if (message.type === 'device_paired') {
+                    this.showPairingModal = false;
+                    // Refresh device list
+                    htmx.trigger('.grid', 'htmx:load');
+                }
+            };
+        }
+    }
+}
+</script>
+{% endblock %}

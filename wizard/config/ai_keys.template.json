@@ -1,0 +1,12 @@
+{
+  "_comment": "API keys for uDOS Wizard Server - NEVER commit with real keys!",
+  "_instructions": "Copy this file to ai_keys.json and fill in your keys",
+  
+  "GEMINI_API_KEY": "",
+  "OPENAI_API_KEY": "",
+  "ANTHROPIC_API_KEY": "",
+  "OLLAMA_HOST": "http://localhost:11434",
+  
+  "NOUNPROJECT_API_KEY": "",
+  "NOUNPROJECT_API_SECRET": ""
+}

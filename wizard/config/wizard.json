@@ -1,0 +1,22 @@
+{
+  "host": "0.0.0.0",
+  "port": 8765,
+  "debug": false,
+  "requests_per_minute": 60,
+  "requests_per_hour": 1000,
+  "ai_budget_daily": 10.0,
+  "ai_budget_monthly": 100.0,
+  "plugin_repo_enabled": true,
+  "plugin_auto_update": false,
+  "web_proxy_enabled": true,
+  "gmail_relay_enabled": true,
+  "ai_gateway_enabled": true,
+  "oauth_enabled": false,
+  "github_webhook_secret": null,
+  "github_allowed_repo": "fredporter/uDOS-dev",
+  "github_default_branch": "main",
+  "github_push_enabled": false,
+  "hubspot_enabled": false,
+  "notion_enabled": false,
+  "icloud_enabled": false
+}

@@ -1,0 +1,181 @@
+{
+  "id": "tool-making-project",
+  "title": "Basic Tool Making Project Checklist",
+  "category": "project",
+  "description": "Step-by-step guide for crafting essential primitive tools from natural materials",
+  "version": "1.0.0",
+  "created": "2025-12-02T00:00:00Z",
+  "updated": "2025-12-02T00:00:00Z",
+  "author": "uDOS Knowledge Bank",
+  "difficulty": "intermediate",
+  "estimated_time": "3-5 hours",
+  "prerequisites": [
+    "Basic knife skills",
+    "Knowledge of wood types",
+    "Fire-making ability (for hardening)"
+  ],
+  "related_guides": [
+    "tools/stone-tool-crafting",
+    "tools/cordage-techniques",
+    "making/primitive-crafting"
+  ],
+  "tags": [
+    "tools",
+    "crafting",
+    "primitive-skills",
+    "survival",
+    "project"
+  ],
+  "items": [
+    {
+      "id": "select_project",
+      "text": "Choose tool to make (knife, spear, digging stick, etc.)",
+      "priority": "critical",
+      "category": "Planning"
+    },
+    {
+      "id": "gather_materials",
+      "text": "Collect necessary materials",
+      "priority": "critical",
+      "category": "Materials",
+      "subitems": [
+        {
+          "id": "wood_shaft",
+          "text": "Find appropriate wood (hardwood for most tools)"
+        },
+        {
+          "id": "stone_blade",
+          "text": "Select suitable stone (flint, obsidian, chert)"
+        },
+        {
+          "id": "binding_material",
+          "text": "Gather cordage or sinew"
+        },
+        {
+          "id": "adhesive",
+          "text": "Collect pine resin or pitch (optional)"
+        }
+      ]
+    },
+    {
+      "id": "prepare_workspace",
+      "text": "Set up safe, well-lit work area",
+      "priority": "high",
+      "category": "Setup"
+    },
+    {
+      "id": "shape_shaft",
+      "text": "Shape wooden shaft/handle",
+      "priority": "high",
+      "category": "Woodworking",
+      "notes": "Remove bark, smooth surface, proper length"
+    },
+    {
+      "id": "create_groove",
+      "text": "Cut groove or notch for blade attachment",
+      "priority": "high",
+      "category": "Woodworking"
+    },
+    {
+      "id": "knap_stone",
+      "text": "Knap stone to desired shape (if making stone tool)",
+      "priority": "high",
+      "category": "Stone Working",
+      "optional": true,
+      "notes": "Wear eye protection. Use controlled strikes."
+    },
+    {
+      "id": "sharpen_edge",
+      "text": "Sharpen stone edge by pressure flaking",
+      "priority": "medium",
+      "category": "Stone Working",
+      "optional": true
+    },
+    {
+      "id": "fire_harden",
+      "text": "Fire-harden wooden point/tip (for spears, digging sticks)",
+      "priority": "medium",
+      "category": "Heat Treatment",
+      "optional": true,
+      "notes": "Char slowly, don't burn. Increases durability."
+    },
+    {
+      "id": "test_fit",
+      "text": "Test-fit blade/point to shaft",
+      "priority": "high",
+      "category": "Assembly"
+    },
+    {
+      "id": "apply_adhesive",
+      "text": "Apply pine pitch or resin to binding area",
+      "priority": "medium",
+      "category": "Assembly",
+      "optional": true,
+      "notes": "Heat pitch until sticky"
+    },
+    {
+      "id": "bind_blade",
+      "text": "Secure blade with cordage binding",
+      "priority": "critical",
+      "category": "Assembly",
+      "notes": "Use strong knots. Multiple wraps for strength."
+    },
+    {
+      "id": "reinforce_binding",
+      "text": "Apply additional resin over cordage",
+      "priority": "medium",
+      "category": "Assembly",
+      "optional": true
+    },
+    {
+      "id": "cure_time",
+      "text": "Allow adhesive to cure (if used)",
+      "priority": "medium",
+      "category": "Finishing",
+      "optional": true,
+      "notes": "24 hours for best results"
+    },
+    {
+      "id": "test_tool",
+      "text": "Test tool with light use before relying on it",
+      "priority": "critical",
+      "category": "Testing",
+      "notes": "Start gentle, increase pressure gradually"
+    },
+    {
+      "id": "adjust_repairs",
+      "text": "Make necessary adjustments or repairs",
+      "priority": "high",
+      "category": "Refinement"
+    },
+    {
+      "id": "final_sharpening",
+      "text": "Final sharpening/edge maintenance",
+      "priority": "medium",
+      "category": "Finishing"
+    },
+    {
+      "id": "create_sheath",
+      "text": "Make protective sheath or cover",
+      "priority": "low",
+      "category": "Safety",
+      "optional": true,
+      "notes": "For sharp tools. Prevents injury."
+    },
+    {
+      "id": "document_process",
+      "text": "Document what worked and what didn't",
+      "priority": "low",
+      "category": "Learning",
+      "notes": "Improve next time"
+    }
+  ],
+  "metadata": {
+    "season": "all",
+    "location_type": "any",
+    "skill_level": "intermediate",
+    "build_time": "3-5 hours",
+    "danger_level": "moderate",
+    "safety_equipment": "Eye protection recommended for stone working"
+  }
+}

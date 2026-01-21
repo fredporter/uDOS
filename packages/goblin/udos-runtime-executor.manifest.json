@@ -1,0 +1,76 @@
+{
+  "component": "udos-runtime-executor",
+  "name": "Goblin TS Markdown Runtime",
+  "version": {
+    "major": 0,
+    "minor": 1,
+    "patch": 0,
+    "build": 0
+  },
+  "display": "v0.1.0.0",
+  "type": "tcz",
+  "description": "Python-based runtime block executor (state, set, form, if/else, nav, panel, map); full TS implementation in /core/",
+  "author": "Fred Porter",
+  "license": "MIT",
+  
+  "dependencies": {
+    "system": {
+      "python": ">=3.10",
+      "packages": ["pydantic>=2.0"]
+    },
+    "components": {
+      "udos-goblin": ">=0.1.0.0"
+    }
+  },
+  
+  "platform": ["linux", "macos"],
+  "min_udos_version": "1.0.3.0",
+  
+  "files": {
+    "python": "dev/goblin/services/runtime_executor.py",
+    "typescript": "core/src/",
+    "config": "dev/goblin/config/"
+  },
+  
+  "installation": {
+    "mode": "automatic",
+    "script": "install.sh",
+    "post_install": "pip install pydantic"
+  },
+  
+  "api_endpoints": [
+    "POST /api/v0/runtime/parse",
+    "POST /api/v0/runtime/execute",
+    "GET /api/v0/runtime/state"
+  ],
+  
+  "runtimes": {
+    "python": "dev/goblin/services/runtime_executor.py (stubs)",
+    "typescript": "core/ (production-ready, v1.0.0.0)",
+    "target": "iOS/iPadOS with TypeScript implementation"
+  },
+  
+  "block_types": [
+    "state (variable declaration)",
+    "set (assignment)",
+    "form (user input)",
+    "if/else (conditional)",
+    "nav (navigation)",
+    "panel (UI container)",
+    "map (iteration)"
+  ],
+  
+  "notes": [
+    "Python runtime: experimental (Goblin development only)",
+    "TypeScript runtime: production-ready in /core/ (v1.0.0.0)",
+    "Supports nested variable access: $a.b.c, $a[0]",
+    "Variable interpolation in text blocks",
+    "Sandboxed, deterministic execution",
+    "Mobile-ready (iOS/iPadOS native app target)"
+  ],
+  
+  "released": "2026-01-16",
+  "channel": "alpha",
+  "signed": false,
+  "checksum": "sha256:placeholder"
+}

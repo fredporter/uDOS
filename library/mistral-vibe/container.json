@@ -1,0 +1,88 @@
+{
+  "$schema": "../container.schema.json",
+  "container": {
+    "id": "mistral-vibe",
+    "name": "Mistral Vibe CLI",
+    "description": "Mistral's open-source CLI coding assistant. Interactive AI agent for codebase exploration, modification, and development tasks.",
+    "type": "git",
+    "source": "https://github.com/mistralai/mistral-vibe",
+    "ref": "main",
+    "cloned_at": null,
+    "last_update": null,
+    "commit": null,
+    "version": "v1.3.3"
+  },
+  "policy": {
+    "read_only": true,
+    "auto_update": true,
+    "update_channel": "wizard_only",
+    "verify_signatures": false,
+    "wizard_only": true
+  },
+  "integration": {
+    "service_path": "extensions/assistant/vibe_cli_service.py",
+    "handler_path": "core/commands/okfix_handler.py",
+    "install_script": "library/mistral-vibe/install.sh",
+    "config_path": "~/.vibe/config.toml"
+  },
+  "capabilities": {
+    "offline": false,
+    "streaming": true,
+    "vision": false,
+    "tools": [
+      "read_file",
+      "write_file",
+      "search_replace",
+      "bash",
+      "grep",
+      "todo"
+    ],
+    "features": [
+      "Interactive chat with codebase",
+      "File manipulation",
+      "Shell command execution",
+      "Code search with ripgrep",
+      "Project-aware context",
+      "Custom system prompts",
+      "MCP server support"
+    ],
+    "models": {
+      "default": "devstral-small",
+      "available": [
+        "devstral-small",
+        "devstral-2",
+        "codestral-latest",
+        "mistral-large-latest"
+      ]
+    }
+  },
+  "config": {
+    "api_key_required": true,
+    "api_key_env": "MISTRAL_API_KEY",
+    "rate_limited": true,
+    "home_dir": "~/.vibe",
+    "config_file": "config.toml"
+  },
+  "build": {
+    "type": "pip",
+    "install_command": "pip install mistral-vibe",
+    "alt_install": "uv tool install mistral-vibe",
+    "one_liner": "curl -LsSf https://mistral.ai/vibe/install.sh | bash",
+    "runtime": "python",
+    "python_version": ">=3.12"
+  },
+  "system_requirements": {
+    "memory": "512MB",
+    "storage": "100MB",
+    "network": "Required - Mistral API access",
+    "platforms": ["linux", "macos", "windows"]
+  },
+  "metadata": {
+    "license": "Apache-2.0",
+    "homepage": "https://github.com/mistralai/mistral-vibe",
+    "documentation": "https://github.com/mistralai/mistral-vibe#readme",
+    "maintainer": "Mistral AI / uDOS Wizard Server",
+    "category": "ai"
+  },
+  "_note": "WIZARD ONLY - Requires Mistral API key. Dev coding assistant with powerful codebase tools."
+}

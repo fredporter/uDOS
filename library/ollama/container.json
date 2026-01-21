@@ -1,0 +1,74 @@
+{
+  "$schema": "../container.schema.json",
+  "container": {
+    "id": "ollama",
+    "name": "Ollama Local AI",
+    "description": "Run LLMs locally - offline AI for uDOS Vibe CLI. No cloud, no API keys, full privacy.",
+    "type": "tarball",
+    "source": "https://ollama.com/download",
+    "ref": null,
+    "cloned_at": null,
+    "last_update": null,
+    "commit": null,
+    "version": null
+  },
+  "policy": {
+    "read_only": false,
+    "auto_update": false,
+    "update_channel": "manual",
+    "verify_signatures": false,
+    "wizard_only": false
+  },
+  "integration": {
+    "service_path": "extensions/assistant/vibe_cli_service.py",
+    "handler_path": "core/commands/okfix_handler.py",
+    "install_script": "library/ollama/install.sh"
+  },
+  "capabilities": {
+    "offline": true,
+    "streaming": true,
+    "vision": true,
+    "embedding": true,
+    "api_type": "OpenAI-compatible",
+    "default_host": "http://localhost:11434",
+    "models": {
+      "coding": [
+        {"name": "codellama:7b", "size": "3.8GB", "purpose": "Code completion/generation"},
+        {"name": "deepseek-coder:6.7b", "size": "3.8GB", "purpose": "Advanced coding"},
+        {"name": "qwen2.5-coder:7b", "size": "4.4GB", "purpose": "Multi-language coding"},
+        {"name": "starcoder2:3b", "size": "1.7GB", "purpose": "Lightweight coding"}
+      ],
+      "general": [
+        {"name": "llama3.2:3b", "size": "2.0GB", "purpose": "Fast general tasks"},
+        {"name": "mistral:7b", "size": "4.1GB", "purpose": "Balanced performance"},
+        {"name": "gemma2:2b", "size": "1.6GB", "purpose": "Tiny Core friendly"}
+      ],
+      "vision": [
+        {"name": "llava:7b", "size": "4.5GB", "purpose": "Image understanding"}
+      ]
+    },
+    "recommended": {
+      "tiny_core": "gemma2:2b",
+      "dev_coding": "deepseek-coder:6.7b",
+      "general": "mistral:7b"
+    }
+  },
+  "system_requirements": {
+    "memory": {
+      "minimum": "4GB",
+      "recommended": "8GB",
+      "for_7b_models": "16GB"
+    },
+    "storage": "Varies by model (1.5GB - 5GB each)",
+    "cpu": "Modern x64 or ARM64",
+    "gpu": "Optional - CUDA/ROCm/Metal acceleration"
+  },
+  "metadata": {
+    "license": "MIT",
+    "homepage": "https://ollama.com",
+    "documentation": "https://github.com/ollama/ollama",
+    "maintainer": "uDOS Dev",
+    "category": "ai"
+  },
+  "_note": "DEVICE MESH SAFE - Fully offline AI. No API keys required. Perfect for Two-Realm Architecture (Realm A)."
+}

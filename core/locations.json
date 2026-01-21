@@ -1,0 +1,2692 @@
+{
+  "version": "1.0.0",
+  "description": "uDOS Virtual World Locations - 80+ locations across 6 continents with timezone data",
+  "regions": {
+    "tutorial": "Forest Clearing area (game start)",
+    "asia_east": "East Asia - Japan, Korea, China",
+    "asia_south": "South Asia - India, Southeast Asia, Philippines",
+    "asia_central": "Central Asia - Middle East, Himalayas",
+    "europe_north": "Northern Europe - UK, Scandinavia",
+    "europe_central": "Central Europe - Germany, France, Alps",
+    "europe_south": "Southern Europe - Mediterranean, Greece, Balkans",
+    "africa_north": "North Africa - Sahara, Egypt, Nile",
+    "africa_central": "Central Africa - Congo, Sahel, Sub-Saharan",
+    "africa_south": "Southern Africa - South Africa, Madagascar",
+    "americas_north": "North America - USA, Canada, Mexico",
+    "americas_central": "Central America & Caribbean - Rainforests, Islands",
+    "americas_south": "South America - Amazon, Andes, Pampas",
+    "oceania_australia": "Australia & Oceania - Continent, Islands",
+    "orbital": "Space - Earth Orbit, Stations",
+    "planetary": "Planetary Bodies - Mars, Venus, Moons",
+    "stellar": "Star Systems - Alpha Centauri, Proxima",
+    "galactic": "Galactic Scale - Black Holes, Core",
+    "cosmic": "Intergalactic - Other Galaxies"
+  },
+  "locations": [
+    {
+      "id": "L300-AA10",
+      "name": "Forest Clearing",
+      "region": "tutorial",
+      "description": "A sunlit clearing in an ancient forest. Tall pines surround the space, their needles carpeting the ground.",
+      "layer": 300,
+      "cell": "AA10",
+      "scale": "terrestrial",
+      "continent": "global",
+      "timezone": "UTC+0",
+      "coordinates": {
+        "lat": 51.5074,
+        "lon": -0.1278
+      },
+      "type": "spawn",
+      "region_type": "clearing",
+      "connections": [
+        {
+          "to": "L300-BJ10",
+          "direction": "east",
+          "label": "Travel East to Tokyo"
+        }
+      ],
+      "tiles": {
+        "AA10": {
+          "sprites": [
+            {
+              "id": "player",
+              "char": "🚶",
+              "label": "you",
+              "z": 5
+            }
+          ],
+          "markers": [
+            {
+              "type": "spawn",
+              "label": "starting point"
+            }
+          ]
+        },
+        "AB10": {
+          "objects": [
+            {
+              "char": "🌲",
+              "label": "tall pine",
+              "z": 1,
+              "blocks": true
+            }
+          ]
+        },
+        "AC10": {
+          "objects": [
+            {
+              "char": "🌲",
+              "label": "ancient oak",
+              "z": 1,
+              "blocks": true
+            }
+          ]
+        },
+        "AA11": {
+          "objects": [
+            {
+              "char": "🪵",
+              "label": "fallen log",
+              "z": 0
+            }
+          ]
+        },
+        "AB11": {
+          "objects": [
+            {
+              "char": "🍄",
+              "label": "mushroom",
+              "z": 0
+            }
+          ]
+        },
+        "AA12": {
+          "objects": [
+            {
+              "char": "🌿",
+              "label": "fern",
+              "z": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BJ10",
+      "name": "Tokyo - Shibuya Crossing",
+      "region": "asia_east",
+      "description": "The world's busiest pedestrian crossing. Neon lights reflect off glass towers as thousands of people move through the intersection.",
+      "layer": 300,
+      "cell": "BJ10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+9",
+      "coordinates": {
+        "lat": 35.6595,
+        "lon": 139.7004
+      },
+      "type": "major-city",
+      "region_type": "metropolis",
+      "connections": [
+        {
+          "to": "L300-BK10",
+          "direction": "north",
+          "label": "Shinjuku District"
+        },
+        {
+          "to": "L300-BC00",
+          "direction": "west",
+          "label": "Mount Fuji"
+        }
+      ],
+      "tiles": {
+        "BJ10": {
+          "markers": [
+            {
+              "type": "city-center",
+              "label": "Shibuya Crossing"
+            }
+          ]
+        },
+        "BJ11": {
+          "objects": [
+            {
+              "char": "📺",
+              "label": "neon signs",
+              "z": 2,
+              "fg": "magenta"
+            }
+          ]
+        },
+        "BK10": {
+          "objects": [
+            {
+              "char": "🏢",
+              "label": "skyscraper",
+              "z": 3,
+              "fg": "blue"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BK10",
+      "name": "Tokyo - Shinjuku District",
+      "region": "asia_east",
+      "description": "Tokyo's neon-drenched entertainment district. Restaurants, arcades, and bars pulse with electric energy.",
+      "layer": 300,
+      "cell": "BK10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+9",
+      "coordinates": {
+        "lat": 35.6895,
+        "lon": 139.7003
+      },
+      "type": "major-city",
+      "region_type": "district",
+      "connections": [
+        {
+          "to": "L300-BJ10",
+          "direction": "south",
+          "label": "Shibuya Crossing"
+        },
+        {
+          "to": "L300-BL10",
+          "direction": "west",
+          "label": "Tokyo Tower"
+        }
+      ],
+      "tiles": {
+        "BK10": {
+          "objects": [
+            {
+              "char": "🌃",
+              "label": "neon night",
+              "z": 2,
+              "fg": "magenta"
+            }
+          ]
+        },
+        "BK11": {
+          "objects": [
+            {
+              "char": "🍜",
+              "label": "ramen shop",
+              "z": 1
+            }
+          ]
+        },
+        "BL10": {
+          "objects": [
+            {
+              "char": "🎮",
+              "label": "arcade",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BL10",
+      "name": "Tokyo - Tower District",
+      "region": "asia_east",
+      "description": "The iconic red tower dominates the skyline. Below, temples and modern gardens coexist in harmony.",
+      "layer": 300,
+      "cell": "BL10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+9",
+      "coordinates": {
+        "lat": 35.6762,
+        "lon": 139.7394
+      },
+      "type": "major-city",
+      "region_type": "landmark",
+      "connections": [
+        {
+          "to": "L300-BK10",
+          "direction": "east",
+          "label": "Shinjuku"
+        },
+        {
+          "to": "L300-BM10",
+          "direction": "south",
+          "label": "Asakusa Temple"
+        }
+      ],
+      "tiles": {
+        "BL10": {
+          "objects": [
+            {
+              "char": "🗼",
+              "label": "Tokyo Tower",
+              "z": 3,
+              "fg": "red"
+            }
+          ]
+        },
+        "BL11": {
+          "objects": [
+            {
+              "char": "🏯",
+              "label": "temple",
+              "z": 2
+            }
+          ]
+        },
+        "BM10": {
+          "objects": [
+            {
+              "char": "🏮",
+              "label": "lantern",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BM10",
+      "name": "Tokyo - Asakusa Temple",
+      "region": "asia_east",
+      "description": "One of Tokyo's oldest temples. Incense smoke drifts past traditional red lanterns and wooden gates.",
+      "layer": 300,
+      "cell": "BM10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+9",
+      "coordinates": {
+        "lat": 35.7148,
+        "lon": 139.7966
+      },
+      "type": "major-city",
+      "region_type": "temple",
+      "connections": [
+        {
+          "to": "L300-BL10",
+          "direction": "north",
+          "label": "Tower District"
+        },
+        {
+          "to": "L300-BC00",
+          "direction": "west",
+          "label": "Mount Fuji"
+        }
+      ],
+      "tiles": {
+        "BM10": {
+          "markers": [
+            {
+              "type": "temple",
+              "label": "Senso-ji"
+            }
+          ]
+        },
+        "BM11": {
+          "objects": [
+            {
+              "char": "🏛️",
+              "label": "temple structure",
+              "z": 2
+            }
+          ]
+        },
+        "BN10": {
+          "objects": [
+            {
+              "char": "🌸",
+              "label": "cherry blossoms",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BC00",
+      "name": "Mount Fuji",
+      "region": "asia_east",
+      "description": "Japan's iconic snow-capped volcano and UNESCO World Heritage site. Visible for hundreds of kilometers on clear days.",
+      "layer": 300,
+      "cell": "BC00",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+9",
+      "coordinates": {
+        "lat": 35.3606,
+        "lon": 138.7274
+      },
+      "type": "geographical-landmark",
+      "region_type": "mountain",
+      "connections": [
+        {
+          "to": "L300-BJ10",
+          "direction": "east",
+          "label": "Tokyo"
+        },
+        {
+          "to": "L300-BO10",
+          "direction": "south",
+          "label": "Hakone Hot Springs"
+        }
+      ],
+      "tiles": {
+        "BC00": {
+          "objects": [
+            {
+              "char": "🗻",
+              "label": "Mount Fuji",
+              "z": 3,
+              "fg": "white",
+              "blocks": true
+            }
+          ]
+        },
+        "BC01": {
+          "objects": [
+            {
+              "char": "❄️",
+              "label": "eternal snow",
+              "z": 1
+            }
+          ]
+        },
+        "BD00": {
+          "objects": [
+            {
+              "char": "☁️",
+              "label": "cloud belt",
+              "z": 2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BO10",
+      "name": "Hakone Hot Springs",
+      "region": "asia_east",
+      "description": "A resort town surrounded by hot springs and mountain views. Relaxation and natural beauty blend together.",
+      "layer": 300,
+      "cell": "BO10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+9",
+      "coordinates": {
+        "lat": 35.2334,
+        "lon": 139.0202
+      },
+      "type": "major-city",
+      "region_type": "resort",
+      "connections": [
+        {
+          "to": "L300-BC00",
+          "direction": "north",
+          "label": "Mount Fuji"
+        },
+        {
+          "to": "L300-BP10",
+          "direction": "south",
+          "label": "Yokohama"
+        }
+      ],
+      "tiles": {
+        "BO10": {
+          "objects": [
+            {
+              "char": "♨️",
+              "label": "hot spring",
+              "z": 1,
+              "fg": "yellow"
+            }
+          ]
+        },
+        "BO11": {
+          "objects": [
+            {
+              "char": "🏨",
+              "label": "resort",
+              "z": 2
+            }
+          ]
+        },
+        "BP10": {
+          "objects": [
+            {
+              "char": "🌊",
+              "label": "steam rising",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BP10",
+      "name": "Yokohama Port",
+      "region": "asia_east",
+      "description": "Japan's second-largest city and major port. Modern ships dock alongside traditional warehouses.",
+      "layer": 300,
+      "cell": "BP10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+9",
+      "coordinates": {
+        "lat": 35.4437,
+        "lon": 139.638
+      },
+      "type": "major-city",
+      "region_type": "port",
+      "connections": [
+        {
+          "to": "L300-BO10",
+          "direction": "north",
+          "label": "Hakone"
+        },
+        {
+          "to": "L300-BJ10",
+          "direction": "west",
+          "label": "Tokyo"
+        }
+      ],
+      "tiles": {
+        "BP10": {
+          "objects": [
+            {
+              "char": "🚢",
+              "label": "cargo ship",
+              "z": 2
+            }
+          ]
+        },
+        "BP11": {
+          "objects": [
+            {
+              "char": "🏭",
+              "label": "warehouse",
+              "z": 1
+            }
+          ]
+        },
+        "BQ10": {
+          "objects": [
+            {
+              "char": "⚓",
+              "label": "anchor",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BQ10",
+      "name": "Seoul - Gangnam District",
+      "region": "asia_east",
+      "description": "South Korea's ultra-modern entertainment hub. Glass towers, shopping malls, and trendy nightlife dominate the landscape.",
+      "layer": 300,
+      "cell": "BQ10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+9",
+      "coordinates": {
+        "lat": 37.4979,
+        "lon": 127.0276
+      },
+      "type": "major-city",
+      "region_type": "metropolis",
+      "connections": [
+        {
+          "to": "L300-BR10",
+          "direction": "west",
+          "label": "Namsan Tower"
+        },
+        {
+          "to": "L300-BS10",
+          "direction": "east",
+          "label": "Olympic Park"
+        }
+      ],
+      "tiles": {
+        "BQ10": {
+          "objects": [
+            {
+              "char": "🏢",
+              "label": "glass tower",
+              "z": 3,
+              "fg": "cyan"
+            }
+          ]
+        },
+        "BQ11": {
+          "objects": [
+            {
+              "char": "🛍️",
+              "label": "shopping mall",
+              "z": 2
+            }
+          ]
+        },
+        "BR10": {
+          "objects": [
+            {
+              "char": "💃",
+              "label": "nightclub",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BR10",
+      "name": "Seoul - Namsan Tower",
+      "region": "asia_east",
+      "description": "Seoul's iconic communications tower standing atop a mountain. Panoramic city views from the observation deck.",
+      "layer": 300,
+      "cell": "BR10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+9",
+      "coordinates": {
+        "lat": 37.5506,
+        "lon": 126.99
+      },
+      "type": "major-city",
+      "region_type": "landmark",
+      "connections": [
+        {
+          "to": "L300-BQ10",
+          "direction": "east",
+          "label": "Gangnam"
+        },
+        {
+          "to": "L300-BT10",
+          "direction": "south",
+          "label": "Myeongdong"
+        }
+      ],
+      "tiles": {
+        "BR10": {
+          "objects": [
+            {
+              "char": "📡",
+              "label": "Namsan Tower",
+              "z": 3,
+              "fg": "blue"
+            }
+          ]
+        },
+        "BR11": {
+          "objects": [
+            {
+              "char": "🏔️",
+              "label": "mountain",
+              "z": 2
+            }
+          ]
+        },
+        "BS10": {
+          "objects": [
+            {
+              "char": "🌆",
+              "label": "city view",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BS10",
+      "name": "Seoul - Olympic Park",
+      "region": "asia_east",
+      "description": "Venue of the 1988 Summer Olympics. Modern sports facilities surrounded by beautiful gardens.",
+      "layer": 300,
+      "cell": "BS10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+9",
+      "coordinates": {
+        "lat": 37.5216,
+        "lon": 127.1165
+      },
+      "type": "major-city",
+      "region_type": "sports",
+      "connections": [
+        {
+          "to": "L300-BQ10",
+          "direction": "west",
+          "label": "Gangnam"
+        }
+      ],
+      "tiles": {
+        "BS10": {
+          "objects": [
+            {
+              "char": "🏟️",
+              "label": "Olympic Stadium",
+              "z": 2
+            }
+          ]
+        },
+        "BS11": {
+          "objects": [
+            {
+              "char": "🎯",
+              "label": "sports venue",
+              "z": 1
+            }
+          ]
+        },
+        "BT10": {
+          "objects": [
+            {
+              "char": "🌳",
+              "label": "garden",
+              "z": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BT10",
+      "name": "Seoul - Myeongdong Shopping",
+      "region": "asia_east",
+      "description": "Seoul's busiest shopping district. Department stores, boutiques, and street food vendors fill the pedestrian streets.",
+      "layer": 300,
+      "cell": "BT10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+9",
+      "coordinates": {
+        "lat": 37.5604,
+        "lon": 126.984
+      },
+      "type": "major-city",
+      "region_type": "shopping",
+      "connections": [
+        {
+          "to": "L300-BR10",
+          "direction": "north",
+          "label": "Namsan Tower"
+        },
+        {
+          "to": "L300-BV10",
+          "direction": "east",
+          "label": "Insadong Antique"
+        }
+      ],
+      "tiles": {
+        "BT10": {
+          "objects": [
+            {
+              "char": "🛍️",
+              "label": "boutique",
+              "z": 2
+            }
+          ]
+        },
+        "BT11": {
+          "objects": [
+            {
+              "char": "🍜",
+              "label": "street food",
+              "z": 1
+            }
+          ]
+        },
+        "BU10": {
+          "objects": [
+            {
+              "char": "👥",
+              "label": "crowded streets",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BV10",
+      "name": "Bangkok - Grand Palace",
+      "region": "asia_south",
+      "description": "Thailand's most sacred Buddhist temple. Golden spires glisten under the tropical sun, surrounded by ornate walls.",
+      "layer": 300,
+      "cell": "BV10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+7",
+      "coordinates": {
+        "lat": 13.6508,
+        "lon": 100.4918
+      },
+      "type": "major-city",
+      "region_type": "temple",
+      "connections": [
+        {
+          "to": "L300-BW10",
+          "direction": "east",
+          "label": "Floating Markets"
+        },
+        {
+          "to": "L300-BX10",
+          "direction": "north",
+          "label": "Ratchaprasong"
+        }
+      ],
+      "tiles": {
+        "BV10": {
+          "objects": [
+            {
+              "char": "🏯",
+              "label": "Grand Palace",
+              "z": 3
+            }
+          ]
+        },
+        "BV11": {
+          "objects": [
+            {
+              "char": "✨",
+              "label": "golden spires",
+              "z": 2,
+              "fg": "yellow"
+            }
+          ]
+        },
+        "BW10": {
+          "objects": [
+            {
+              "char": "🚶",
+              "label": "pilgrims",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BW10",
+      "name": "Bangkok - Floating Markets",
+      "region": "asia_south",
+      "description": "Ancient canals lined with wooden boats. Vendors sell fruits, vegetables, and souvenirs from traditional long-tail boats.",
+      "layer": 300,
+      "cell": "BW10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+7",
+      "coordinates": {
+        "lat": 13.8912,
+        "lon": 100.4148
+      },
+      "type": "major-city",
+      "region_type": "market",
+      "connections": [
+        {
+          "to": "L300-BV10",
+          "direction": "west",
+          "label": "Grand Palace"
+        },
+        {
+          "to": "L300-BY10",
+          "direction": "south",
+          "label": "Ayutthaya Ancient"
+        }
+      ],
+      "tiles": {
+        "BW10": {
+          "objects": [
+            {
+              "char": "🚤",
+              "label": "long-tail boat",
+              "z": 2
+            }
+          ]
+        },
+        "BW11": {
+          "objects": [
+            {
+              "char": "🌾",
+              "label": "produce stalls",
+              "z": 1
+            }
+          ]
+        },
+        "BX10": {
+          "objects": [
+            {
+              "char": "🌊",
+              "label": "canal water",
+              "z": 0,
+              "fg": "cyan"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BX10",
+      "name": "Bangkok - Ratchaprasong Shopping",
+      "region": "asia_south",
+      "description": "Modern shopping district with skyscrapers and luxury brands. A perfect blend of old and new Thailand.",
+      "layer": 300,
+      "cell": "BX10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+7",
+      "coordinates": {
+        "lat": 13.7417,
+        "lon": 100.5385
+      },
+      "type": "major-city",
+      "region_type": "shopping",
+      "connections": [
+        {
+          "to": "L300-BV10",
+          "direction": "south",
+          "label": "Grand Palace"
+        }
+      ],
+      "tiles": {
+        "BX10": {
+          "objects": [
+            {
+              "char": "🏬",
+              "label": "shopping mall",
+              "z": 2
+            }
+          ]
+        },
+        "BX11": {
+          "objects": [
+            {
+              "char": "🏢",
+              "label": "luxury tower",
+              "z": 3,
+              "fg": "cyan"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-BY10",
+      "name": "Ayutthaya Ancient City",
+      "region": "asia_south",
+      "description": "Thailand's ancient capital from 1351-1767. Ruins of temples and palaces hint at past glory.",
+      "layer": 300,
+      "cell": "BY10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+7",
+      "coordinates": {
+        "lat": 14.3595,
+        "lon": 100.5849
+      },
+      "type": "geographical-landmark",
+      "region_type": "ruins",
+      "connections": [
+        {
+          "to": "L300-BW10",
+          "direction": "north",
+          "label": "Bangkok"
+        },
+        {
+          "to": "L300-CA10",
+          "direction": "east",
+          "label": "Khao Yai Park"
+        }
+      ],
+      "tiles": {
+        "BY10": {
+          "objects": [
+            {
+              "char": "🏛️",
+              "label": "temple ruins",
+              "z": 2
+            }
+          ]
+        },
+        "BY11": {
+          "objects": [
+            {
+              "char": "🗿",
+              "label": "stone Buddha",
+              "z": 2
+            }
+          ]
+        },
+        "BZ10": {
+          "objects": [
+            {
+              "char": "⚰️",
+              "label": "ancient tomb",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-CA10",
+      "name": "Khao Yai National Park",
+      "region": "asia_south",
+      "description": "Thailand's oldest and most visited national park. Rainforest canopy towers above wildlife trails.",
+      "layer": 300,
+      "cell": "CA10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+7",
+      "coordinates": {
+        "lat": 14.4297,
+        "lon": 101.3672
+      },
+      "type": "geographical-landmark",
+      "region_type": "park",
+      "connections": [
+        {
+          "to": "L300-BY10",
+          "direction": "west",
+          "label": "Ayutthaya"
+        },
+        {
+          "to": "L300-CB10",
+          "direction": "east",
+          "label": "Phuket Beach"
+        }
+      ],
+      "tiles": {
+        "CA10": {
+          "objects": [
+            {
+              "char": "🌳",
+              "label": "rainforest",
+              "z": 2,
+              "fg": "green"
+            }
+          ]
+        },
+        "CA11": {
+          "objects": [
+            {
+              "char": "🦁",
+              "label": "elephant",
+              "z": 1
+            }
+          ]
+        },
+        "CB10": {
+          "objects": [
+            {
+              "char": "🐒",
+              "label": "gibbon",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-CB10",
+      "name": "Phuket Beach",
+      "region": "asia_south",
+      "description": "Thailand's largest island and premier beach destination. White sand beaches and turquoise waters attract tourists worldwide.",
+      "layer": 300,
+      "cell": "CB10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+7",
+      "coordinates": {
+        "lat": 7.8804,
+        "lon": 98.3923
+      },
+      "type": "major-city",
+      "region_type": "beach",
+      "connections": [
+        {
+          "to": "L300-CA10",
+          "direction": "west",
+          "label": "Khao Yai Park"
+        },
+        {
+          "to": "L300-CC10",
+          "direction": "east",
+          "label": "Phi Phi Islands"
+        }
+      ],
+      "tiles": {
+        "CB10": {
+          "objects": [
+            {
+              "char": "🏖️",
+              "label": "sandy beach",
+              "z": 0,
+              "fg": "yellow"
+            }
+          ]
+        },
+        "CB11": {
+          "objects": [
+            {
+              "char": "🌊",
+              "label": "turquoise water",
+              "z": 0,
+              "fg": "cyan"
+            }
+          ]
+        },
+        "CC10": {
+          "objects": [
+            {
+              "char": "🏨",
+              "label": "resort",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-CC10",
+      "name": "Phi Phi Islands",
+      "region": "asia_south",
+      "description": "Dramatic limestone cliffs rise from crystal-clear waters. A paradise for divers and island hoppers.",
+      "layer": 300,
+      "cell": "CC10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+7",
+      "coordinates": {
+        "lat": 7.7489,
+        "lon": 98.7725
+      },
+      "type": "geographical-landmark",
+      "region_type": "island",
+      "connections": [
+        {
+          "to": "L300-CB10",
+          "direction": "west",
+          "label": "Phuket"
+        },
+        {
+          "to": "L300-CD10",
+          "direction": "north",
+          "label": "Krabi Cliffs"
+        }
+      ],
+      "tiles": {
+        "CC10": {
+          "objects": [
+            {
+              "char": "🏔️",
+              "label": "limestone cliffs",
+              "z": 2
+            }
+          ]
+        },
+        "CC11": {
+          "objects": [
+            {
+              "char": "🌴",
+              "label": "palm tree",
+              "z": 1
+            }
+          ]
+        },
+        "CD10": {
+          "objects": [
+            {
+              "char": "🐠",
+              "label": "coral reef",
+              "z": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-CD10",
+      "name": "Krabi Rock Climbing",
+      "region": "asia_south",
+      "description": "Towering limestone formations jut from the jungle and sea. World-class rock climbing destination.",
+      "layer": 300,
+      "cell": "CD10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+7",
+      "coordinates": {
+        "lat": 8.3663,
+        "lon": 98.9341
+      },
+      "type": "geographical-landmark",
+      "region_type": "climbing",
+      "connections": [
+        {
+          "to": "L300-CC10",
+          "direction": "south",
+          "label": "Phi Phi Islands"
+        },
+        {
+          "to": "L300-CE10",
+          "direction": "west",
+          "label": "Langkawi Island"
+        }
+      ],
+      "tiles": {
+        "CD10": {
+          "objects": [
+            {
+              "char": "🏔️",
+              "label": "rock formations",
+              "z": 2
+            }
+          ]
+        },
+        "CD11": {
+          "objects": [
+            {
+              "char": "🧗",
+              "label": "climber",
+              "z": 1
+            }
+          ]
+        },
+        "CE10": {
+          "objects": [
+            {
+              "char": "🌿",
+              "label": "jungle",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-CE10",
+      "name": "Mumbai - Marine Drive",
+      "region": "asia_south",
+      "description": "India's glittering coastal city. Skyscrapers reflect in the Arabian Sea, street food vendors crowd the promenade.",
+      "layer": 300,
+      "cell": "CE10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+5:30",
+      "coordinates": {
+        "lat": 18.9676,
+        "lon": 72.8194
+      },
+      "type": "major-city",
+      "region_type": "metropolis",
+      "connections": [
+        {
+          "to": "L300-CF10",
+          "direction": "north",
+          "label": "Gateway of India"
+        },
+        {
+          "to": "L300-CG10",
+          "direction": "east",
+          "label": "Dharavi Slums"
+        }
+      ],
+      "tiles": {
+        "CE10": {
+          "objects": [
+            {
+              "char": "🌃",
+              "label": "city lights",
+              "z": 2
+            }
+          ]
+        },
+        "CE11": {
+          "objects": [
+            {
+              "char": "🏢",
+              "label": "tower",
+              "z": 3,
+              "fg": "cyan"
+            }
+          ]
+        },
+        "CF10": {
+          "objects": [
+            {
+              "char": "🌊",
+              "label": "arabian sea",
+              "z": 0,
+              "fg": "blue"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-CF10",
+      "name": "Mumbai - Gateway of India",
+      "region": "asia_south",
+      "description": "Mumbai's iconic monument overlooking the harbor. Built in 1924, it symbolizes India's independence.",
+      "layer": 300,
+      "cell": "CF10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+5:30",
+      "coordinates": {
+        "lat": 18.9586,
+        "lon": 72.8347
+      },
+      "type": "major-city",
+      "region_type": "monument",
+      "connections": [
+        {
+          "to": "L300-CE10",
+          "direction": "south",
+          "label": "Marine Drive"
+        }
+      ],
+      "tiles": {
+        "CF10": {
+          "objects": [
+            {
+              "char": "🏛️",
+              "label": "Gateway",
+              "z": 3
+            }
+          ]
+        },
+        "CF11": {
+          "objects": [
+            {
+              "char": "⚓",
+              "label": "harbor",
+              "z": 1
+            }
+          ]
+        },
+        "CG10": {
+          "objects": [
+            {
+              "char": "🚢",
+              "label": "ferry boat",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-CG10",
+      "name": "Mumbai - Dharavi Slums",
+      "region": "asia_south",
+      "description": "Asia's largest slum - a vibrant community of millions. Leather tanneries, pottery workshops, recycling centers.",
+      "layer": 300,
+      "cell": "CG10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "UTC+5:30",
+      "coordinates": {
+        "lat": 19.0176,
+        "lon": 72.8479
+      },
+      "type": "major-city",
+      "region_type": "district",
+      "connections": [
+        {
+          "to": "L300-CE10",
+          "direction": "west",
+          "label": "Marine Drive"
+        }
+      ],
+      "tiles": {
+        "CG10": {
+          "objects": [
+            {
+              "char": "🏘️",
+              "label": "dense housing",
+              "z": 1
+            }
+          ]
+        },
+        "CG11": {
+          "objects": [
+            {
+              "char": "🛠️",
+              "label": "workshop",
+              "z": 1
+            }
+          ]
+        },
+        "CH10": {
+          "objects": [
+            {
+              "char": "👥",
+              "label": "community",
+              "z": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DA00",
+      "name": "New York City",
+      "region": "americas_north",
+      "description": "The city that never sleeps. Towering skyscrapers, busy streets, and millions of stories intersect.",
+      "layer": 300,
+      "cell": "DA00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "timezone": "UTC-5",
+      "coordinates": {
+        "lat": 40.7128,
+        "lon": -74.006
+      },
+      "type": "major-city",
+      "region_type": "metropolis",
+      "connections": [
+        {
+          "to": "L300-DB00",
+          "direction": "north",
+          "label": "Niagara Falls"
+        },
+        {
+          "to": "L300-DC00",
+          "direction": "south",
+          "label": "Philadelphia"
+        },
+        {
+          "to": "L300-DD00",
+          "direction": "west",
+          "label": "Pennsylvania"
+        }
+      ],
+      "tiles": {
+        "DA00": {
+          "objects": [
+            {
+              "char": "🗼",
+              "label": "Empire State",
+              "z": 3
+            }
+          ]
+        },
+        "DA01": {
+          "objects": [
+            {
+              "char": "🏢",
+              "label": "skyscraper",
+              "z": 3
+            }
+          ]
+        },
+        "DB00": {
+          "objects": [
+            {
+              "char": "🚕",
+              "label": "yellow taxi",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DB00",
+      "name": "Niagara Falls",
+      "region": "americas_north",
+      "description": "Thundering curtains of water cascade down massive cliffs. Mist rises in clouds, and the roar is deafening.",
+      "layer": 300,
+      "cell": "DB00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "timezone": "UTC-5",
+      "coordinates": {
+        "lat": 43.0896,
+        "lon": -79.0849
+      },
+      "type": "geographical-landmark",
+      "region_type": "waterfall",
+      "connections": [
+        {
+          "to": "L300-DA00",
+          "direction": "south",
+          "label": "New York City"
+        },
+        {
+          "to": "L300-DC00",
+          "direction": "east",
+          "label": "Toronto"
+        }
+      ],
+      "tiles": {
+        "DB00": {
+          "objects": [
+            {
+              "char": "💧",
+              "label": "cascading falls",
+              "z": 2,
+              "fg": "cyan"
+            }
+          ]
+        },
+        "DB01": {
+          "objects": [
+            {
+              "char": "💨",
+              "label": "mist cloud",
+              "z": 1
+            }
+          ]
+        },
+        "DC00": {
+          "objects": [
+            {
+              "char": "🚁",
+              "label": "helicopter",
+              "z": 2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DC00",
+      "name": "Toronto - CN Tower",
+      "region": "americas_north",
+      "description": "Canada's largest city with an iconic needle-like tower. A cosmopolitan blend of cultures and architecture.",
+      "layer": 300,
+      "cell": "DC00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "timezone": "UTC-5",
+      "coordinates": {
+        "lat": 43.6426,
+        "lon": -79.3871
+      },
+      "type": "major-city",
+      "region_type": "metropolis",
+      "connections": [
+        {
+          "to": "L300-DB00",
+          "direction": "west",
+          "label": "Niagara Falls"
+        },
+        {
+          "to": "L300-DD00",
+          "direction": "south",
+          "label": "Great Lakes"
+        }
+      ],
+      "tiles": {
+        "DC00": {
+          "objects": [
+            {
+              "char": "🗼",
+              "label": "CN Tower",
+              "z": 3,
+              "fg": "red"
+            }
+          ]
+        },
+        "DC01": {
+          "objects": [
+            {
+              "char": "🌆",
+              "label": "skyline",
+              "z": 2
+            }
+          ]
+        },
+        "DD00": {
+          "objects": [
+            {
+              "char": "🏙️",
+              "label": "downtown",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DD00",
+      "name": "Great Lakes Region",
+      "region": "americas_north",
+      "description": "Vast freshwater lakes bordered by forests. Shipping routes cross waters that seem like inland seas.",
+      "layer": 300,
+      "cell": "DD00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "timezone": "UTC-6",
+      "coordinates": {
+        "lat": 42.3601,
+        "lon": -83.0891
+      },
+      "type": "geographical-landmark",
+      "region_type": "lakes",
+      "connections": [
+        {
+          "to": "L300-DB00",
+          "direction": "east",
+          "label": "Niagara Falls"
+        },
+        {
+          "to": "L300-DE00",
+          "direction": "west",
+          "label": "Chicago"
+        }
+      ],
+      "tiles": {
+        "DD00": {
+          "objects": [
+            {
+              "char": "🌊",
+              "label": "lake water",
+              "z": 0,
+              "fg": "blue"
+            }
+          ]
+        },
+        "DD01": {
+          "objects": [
+            {
+              "char": "🚢",
+              "label": "cargo ship",
+              "z": 1
+            }
+          ]
+        },
+        "DE00": {
+          "objects": [
+            {
+              "char": "🌲",
+              "label": "forest shore",
+              "z": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DE00",
+      "name": "Chicago - Willis Tower",
+      "region": "americas_north",
+      "description": "The Windy City's iconic black tower. Industrial heritage meets modern architecture on Lake Michigan.",
+      "layer": 300,
+      "cell": "DE00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "timezone": "UTC-6",
+      "coordinates": {
+        "lat": 41.8788,
+        "lon": -87.6233
+      },
+      "type": "major-city",
+      "region_type": "metropolis",
+      "connections": [
+        {
+          "to": "L300-DD00",
+          "direction": "east",
+          "label": "Great Lakes"
+        },
+        {
+          "to": "L300-DF00",
+          "direction": "south",
+          "label": "St. Louis Gateway"
+        }
+      ],
+      "tiles": {
+        "DE00": {
+          "objects": [
+            {
+              "char": "🏗️",
+              "label": "Willis Tower",
+              "z": 3
+            }
+          ]
+        },
+        "DE01": {
+          "objects": [
+            {
+              "char": "🏢",
+              "label": "tower",
+              "z": 2
+            }
+          ]
+        },
+        "DF00": {
+          "objects": [
+            {
+              "char": "🌊",
+              "label": "lake shore",
+              "z": 0,
+              "fg": "blue"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DF00",
+      "name": "St. Louis - Gateway Arch",
+      "region": "americas_north",
+      "description": "The iconic Gateway to the West. A gleaming stainless steel arch symbolizes westward expansion.",
+      "layer": 300,
+      "cell": "DF00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "timezone": "UTC-6",
+      "coordinates": {
+        "lat": 38.627,
+        "lon": -90.1994
+      },
+      "type": "major-city",
+      "region_type": "monument",
+      "connections": [
+        {
+          "to": "L300-DE00",
+          "direction": "north",
+          "label": "Chicago"
+        },
+        {
+          "to": "L300-DG00",
+          "direction": "south",
+          "label": "Memphis"
+        }
+      ],
+      "tiles": {
+        "DF00": {
+          "objects": [
+            {
+              "char": "🏛️",
+              "label": "Gateway Arch",
+              "z": 3
+            }
+          ]
+        },
+        "DF01": {
+          "objects": [
+            {
+              "char": "🌊",
+              "label": "Mississippi River",
+              "z": 0,
+              "fg": "brown"
+            }
+          ]
+        },
+        "DG00": {
+          "objects": [
+            {
+              "char": "🚢",
+              "label": "riverboat",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DG00",
+      "name": "Memphis - Music City",
+      "region": "americas_north",
+      "description": "The birthplace of blues and rock and roll. Graceland mansion and Beale Street pulse with musical heritage.",
+      "layer": 300,
+      "cell": "DG00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "timezone": "UTC-6",
+      "coordinates": {
+        "lat": 35.1164,
+        "lon": -90.049
+      },
+      "type": "major-city",
+      "region_type": "music",
+      "connections": [
+        {
+          "to": "L300-DF00",
+          "direction": "north",
+          "label": "St. Louis"
+        },
+        {
+          "to": "L300-DH00",
+          "direction": "south",
+          "label": "New Orleans"
+        }
+      ],
+      "tiles": {
+        "DG00": {
+          "objects": [
+            {
+              "char": "🎸",
+              "label": "guitar",
+              "z": 1
+            }
+          ]
+        },
+        "DG01": {
+          "objects": [
+            {
+              "char": "🎵",
+              "label": "music notes",
+              "z": 1
+            }
+          ]
+        },
+        "DH00": {
+          "objects": [
+            {
+              "char": "🏛️",
+              "label": "Graceland",
+              "z": 2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DH00",
+      "name": "New Orleans - French Quarter",
+      "region": "americas_north",
+      "description": "Louisiana's mystical city. Jazz clubs, creole cuisine, and Spanish moss on oak trees create unique atmosphere.",
+      "layer": 300,
+      "cell": "DH00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "timezone": "UTC-6",
+      "coordinates": {
+        "lat": 29.9511,
+        "lon": -90.2623
+      },
+      "type": "major-city",
+      "region_type": "music",
+      "connections": [
+        {
+          "to": "L300-DG00",
+          "direction": "north",
+          "label": "Memphis"
+        },
+        {
+          "to": "L300-DI00",
+          "direction": "west",
+          "label": "Bayou Swamps"
+        }
+      ],
+      "tiles": {
+        "DH00": {
+          "objects": [
+            {
+              "char": "🎷",
+              "label": "jazz horn",
+              "z": 1
+            }
+          ]
+        },
+        "DH01": {
+          "objects": [
+            {
+              "char": "🏘️",
+              "label": "colonial buildings",
+              "z": 1
+            }
+          ]
+        },
+        "DI00": {
+          "objects": [
+            {
+              "char": "🌴",
+              "label": "spanish moss oak",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DI00",
+      "name": "Louisiana Bayou",
+      "region": "americas_north",
+      "description": "Swampy wetlands teeming with wildlife. Cypress trees rise from murky waters, alligators bask on logs.",
+      "layer": 300,
+      "cell": "DI00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "timezone": "UTC-6",
+      "coordinates": {
+        "lat": 29.55,
+        "lon": -91.0225
+      },
+      "type": "geographical-landmark",
+      "region_type": "swamp",
+      "connections": [
+        {
+          "to": "L300-DH00",
+          "direction": "east",
+          "label": "New Orleans"
+        },
+        {
+          "to": "L300-DJ00",
+          "direction": "west",
+          "label": "Houston"
+        }
+      ],
+      "tiles": {
+        "DI00": {
+          "objects": [
+            {
+              "char": "🌳",
+              "label": "cypress tree",
+              "z": 2,
+              "fg": "green"
+            }
+          ]
+        },
+        "DI01": {
+          "objects": [
+            {
+              "char": "🐊",
+              "label": "alligator",
+              "z": 1
+            }
+          ]
+        },
+        "DJ00": {
+          "objects": [
+            {
+              "char": "💧",
+              "label": "murky water",
+              "z": 0,
+              "fg": "cyan"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-DJ00",
+      "name": "Houston - Space Center",
+      "region": "americas_north",
+      "description": "Texas metropolis home to NASA Space Center. 'Mission Control' commands from here to distant worlds.",
+      "layer": 300,
+      "cell": "DJ00",
+      "scale": "terrestrial",
+      "continent": "North America",
+      "timezone": "UTC-6",
+      "coordinates": {
+        "lat": 29.7604,
+        "lon": -95.3698
+      },
+      "type": "major-city",
+      "region_type": "space",
+      "connections": [
+        {
+          "to": "L300-DI00",
+          "direction": "east",
+          "label": "Bayou Swamps"
+        }
+      ],
+      "tiles": {
+        "DJ00": {
+          "objects": [
+            {
+              "char": "🚀",
+              "label": "rocket",
+              "z": 3
+            }
+          ]
+        },
+        "DJ01": {
+          "objects": [
+            {
+              "char": "🛸",
+              "label": "spacecraft",
+              "z": 2
+            }
+          ]
+        },
+        "DK00": {
+          "objects": [
+            {
+              "char": "🌌",
+              "label": "mission control",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-EA00",
+      "name": "London - Westminster",
+      "region": "europe_north",
+      "description": "Britain's capital and heart of empire. Historic monuments blend with modern cityscape along the Thames.",
+      "layer": 300,
+      "cell": "EA00",
+      "scale": "terrestrial",
+      "continent": "Europe",
+      "timezone": "UTC+0",
+      "coordinates": {
+        "lat": 51.5074,
+        "lon": -0.1278
+      },
+      "type": "major-city",
+      "region_type": "metropolis",
+      "connections": [
+        {
+          "to": "L300-EB00",
+          "direction": "north",
+          "label": "Scottish Highlands"
+        },
+        {
+          "to": "L300-EC00",
+          "direction": "south",
+          "label": "Dover Cliffs"
+        }
+      ],
+      "tiles": {
+        "EA00": {
+          "objects": [
+            {
+              "char": "🕐",
+              "label": "Big Ben",
+              "z": 3
+            }
+          ]
+        },
+        "EA01": {
+          "objects": [
+            {
+              "char": "🏰",
+              "label": "palace",
+              "z": 2
+            }
+          ]
+        },
+        "EB00": {
+          "objects": [
+            {
+              "char": "🌉",
+              "label": "Thames bridge",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-EB00",
+      "name": "Scottish Highlands",
+      "region": "europe_north",
+      "description": "Rugged mountains and windswept moorlands. Ancient castles perch on rocky outcrops amid mist.",
+      "layer": 300,
+      "cell": "EB00",
+      "scale": "terrestrial",
+      "continent": "Europe",
+      "timezone": "UTC+0",
+      "coordinates": {
+        "lat": 57.4778,
+        "lon": -4.4225
+      },
+      "type": "geographical-landmark",
+      "region_type": "mountains",
+      "connections": [
+        {
+          "to": "L300-EA00",
+          "direction": "south",
+          "label": "London"
+        },
+        {
+          "to": "L300-EC00",
+          "direction": "west",
+          "label": "Isles of Skye"
+        }
+      ],
+      "tiles": {
+        "EB00": {
+          "objects": [
+            {
+              "char": "🏰",
+              "label": "castle",
+              "z": 2
+            }
+          ]
+        },
+        "EB01": {
+          "objects": [
+            {
+              "char": "⛰️",
+              "label": "mountain",
+              "z": 2
+            }
+          ]
+        },
+        "EC00": {
+          "objects": [
+            {
+              "char": "☁️",
+              "label": "mist",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-EC00",
+      "name": "Swiss Alps",
+      "region": "europe_central",
+      "description": "Towering snow-covered peaks with pristine glaciers. Alpine chalets nestle in valleys far below.",
+      "layer": 300,
+      "cell": "EC00",
+      "scale": "terrestrial",
+      "continent": "Europe",
+      "timezone": "UTC+1",
+      "coordinates": {
+        "lat": 46.8182,
+        "lon": 8.2275
+      },
+      "type": "geographical-landmark",
+      "region_type": "mountains",
+      "connections": [
+        {
+          "to": "L300-EA00",
+          "direction": "west",
+          "label": "London"
+        },
+        {
+          "to": "L300-ED00",
+          "direction": "south",
+          "label": "Mediterranean"
+        }
+      ],
+      "tiles": {
+        "EC00": {
+          "objects": [
+            {
+              "char": "⛰️",
+              "label": "Matterhorn",
+              "z": 3
+            }
+          ]
+        },
+        "EC01": {
+          "objects": [
+            {
+              "char": "❄️",
+              "label": "glacier",
+              "z": 1
+            }
+          ]
+        },
+        "ED00": {
+          "objects": [
+            {
+              "char": "🏔️",
+              "label": "peak",
+              "z": 2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-ED00",
+      "name": "Mediterranean - Athens",
+      "region": "europe_south",
+      "description": "Birthplace of Western civilization. Ancient temples overlook wine-dark seas and olive-covered hills.",
+      "layer": 300,
+      "cell": "ED00",
+      "scale": "terrestrial",
+      "continent": "Europe",
+      "timezone": "UTC+2",
+      "coordinates": {
+        "lat": 37.9838,
+        "lon": 23.7275
+      },
+      "type": "major-city",
+      "region_type": "historical",
+      "connections": [
+        {
+          "to": "L300-EC00",
+          "direction": "north",
+          "label": "Swiss Alps"
+        }
+      ],
+      "tiles": {
+        "ED00": {
+          "objects": [
+            {
+              "char": "🏛️",
+              "label": "Parthenon",
+              "z": 3
+            }
+          ]
+        },
+        "ED01": {
+          "objects": [
+            {
+              "char": "⛱️",
+              "label": "beach",
+              "z": 1
+            }
+          ]
+        },
+        "EE00": {
+          "objects": [
+            {
+              "char": "🏛️",
+              "label": "temple",
+              "z": 2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-FA00",
+      "name": "Sydney - Opera House",
+      "region": "oceania_australia",
+      "description": "Australia's largest city gleams on turquoise waters. Opera house sails catch harbor light.",
+      "layer": 300,
+      "cell": "FA00",
+      "scale": "terrestrial",
+      "continent": "Oceania",
+      "timezone": "UTC+11",
+      "coordinates": {
+        "lat": -33.8568,
+        "lon": 151.2153
+      },
+      "type": "major-city",
+      "region_type": "metropolis",
+      "connections": [
+        {
+          "to": "L300-FB00",
+          "direction": "west",
+          "label": "Outback Desert"
+        },
+        {
+          "to": "L300-FC00",
+          "direction": "south",
+          "label": "Great Barrier Reef"
+        }
+      ],
+      "tiles": {
+        "FA00": {
+          "objects": [
+            {
+              "char": "🏗️",
+              "label": "Opera House",
+              "z": 3
+            }
+          ]
+        },
+        "FA01": {
+          "objects": [
+            {
+              "char": "🏖️",
+              "label": "Bondi Beach",
+              "z": 1
+            }
+          ]
+        },
+        "FB00": {
+          "objects": [
+            {
+              "char": "🌉",
+              "label": "Harbour Bridge",
+              "z": 2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-FB00",
+      "name": "Outback Desert",
+      "region": "oceania_australia",
+      "description": "Australia's red interior. Vast empty plains under burning sun, where ancient Aboriginal cultures thrive.",
+      "layer": 300,
+      "cell": "FB00",
+      "scale": "terrestrial",
+      "continent": "Oceania",
+      "timezone": "UTC+9:30",
+      "coordinates": {
+        "lat": -25.2744,
+        "lon": 133.7751
+      },
+      "type": "geographical-landmark",
+      "region_type": "desert",
+      "connections": [
+        {
+          "to": "L300-FA00",
+          "direction": "east",
+          "label": "Sydney"
+        },
+        {
+          "to": "L300-FD00",
+          "direction": "north",
+          "label": "Uluru Rock"
+        }
+      ],
+      "tiles": {
+        "FB00": {
+          "objects": [
+            {
+              "char": "🏜️",
+              "label": "red earth",
+              "z": 0,
+              "fg": "red"
+            }
+          ]
+        },
+        "FB01": {
+          "objects": [
+            {
+              "char": "🌞",
+              "label": "burning sun",
+              "z": 1
+            }
+          ]
+        },
+        "FC00": {
+          "objects": [
+            {
+              "char": "🦘",
+              "label": "kangaroo",
+              "z": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-FC00",
+      "name": "Great Barrier Reef",
+      "region": "oceania_australia",
+      "description": "The world's largest coral ecosystem. Underwater gardens burst with colorful fish and living corals.",
+      "layer": 300,
+      "cell": "FC00",
+      "scale": "terrestrial",
+      "continent": "Oceania",
+      "timezone": "UTC+10",
+      "coordinates": {
+        "lat": -16.2859,
+        "lon": 145.7781
+      },
+      "type": "geographical-landmark",
+      "region_type": "reef",
+      "connections": [
+        {
+          "to": "L300-FA00",
+          "direction": "north",
+          "label": "Sydney"
+        },
+        {
+          "to": "L300-FD00",
+          "direction": "west",
+          "label": "Uluru"
+        }
+      ],
+      "tiles": {
+        "FC00": {
+          "objects": [
+            {
+              "char": "🪸",
+              "label": "coral",
+              "z": 1,
+              "fg": "cyan"
+            }
+          ]
+        },
+        "FC01": {
+          "objects": [
+            {
+              "char": "🐠",
+              "label": "tropical fish",
+              "z": 0
+            }
+          ]
+        },
+        "FD00": {
+          "objects": [
+            {
+              "char": "🐙",
+              "label": "octopus",
+              "z": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L300-FD00",
+      "name": "Uluru - Ayers Rock",
+      "region": "oceania_australia",
+      "description": "The red monolith at the heart of Australia. Sacred to Aboriginal peoples, it glows at sunset.",
+      "layer": 300,
+      "cell": "FD00",
+      "scale": "terrestrial",
+      "continent": "Oceania",
+      "timezone": "UTC+9:30",
+      "coordinates": {
+        "lat": -25.344,
+        "lon": 131.0369
+      },
+      "type": "geographical-landmark",
+      "region_type": "rock",
+      "connections": [
+        {
+          "to": "L300-FB00",
+          "direction": "south",
+          "label": "Outback"
+        }
+      ],
+      "tiles": {
+        "FD00": {
+          "objects": [
+            {
+              "char": "🏔️",
+              "label": "Uluru",
+              "z": 3,
+              "fg": "red"
+            }
+          ]
+        },
+        "FD01": {
+          "objects": [
+            {
+              "char": "🌅",
+              "label": "sunset glow",
+              "z": 1
+            }
+          ]
+        },
+        "FE00": {
+          "objects": [
+            {
+              "char": "👥",
+              "label": "Aboriginal site",
+              "z": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L306-AA00",
+      "name": "Low Earth Orbit",
+      "region": "orbital",
+      "description": "Floating above Earth's atmosphere. The planet's blue oceans shimmer below, a view of irreplaceable beauty.",
+      "layer": 306,
+      "cell": "AA00",
+      "scale": "orbital",
+      "continent": "space",
+      "timezone": "UTC+0",
+      "coordinates": {
+        "lat": 0,
+        "lon": 0
+      },
+      "type": "space-station",
+      "region_type": "station",
+      "connections": [
+        {
+          "to": "L300-EA00",
+          "direction": "down",
+          "label": "Earth Surface",
+          "requires": "re-entry vehicle"
+        }
+      ],
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "🛰️",
+              "label": "ISS",
+              "z": 2
+            }
+          ]
+        },
+        "AB00": {
+          "objects": [
+            {
+              "char": "🌍",
+              "label": "Earth",
+              "z": 0,
+              "fg": "blue"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "L311-AA00",
+      "name": "Mars - Olympus Mons",
+      "region": "planetary",
+      "description": "Standing on the solar system's largest volcano. Red dust stretches to the horizon beneath a butterscotch sky.",
+      "layer": 311,
+      "cell": "AA00",
+      "scale": "planetary",
+      "continent": "space",
+      "timezone": "UTC+0",
+      "coordinates": {
+        "lat": 18.65,
+        "lon": 226.1973
+      },
+      "type": "space-location",
+      "connections": [
+        {
+          "to": "L306-AA00",
+          "direction": "orbit",
+          "label": "Mars Orbit"
+        }
+      ],
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "🏔️",
+              "label": "volcano",
+              "z": 2,
+              "fg": "red"
+            }
+          ]
+        },
+        "AB00": {
+          "objects": [
+            {
+              "char": "🪨",
+              "label": "rock",
+              "z": 0,
+              "fg": "red"
+            }
+          ]
+        },
+        "AC00": {
+          "objects": [
+            {
+              "char": "🛸",
+              "label": "rover",
+              "z": 1
+            }
+          ]
+        }
+      },
+      "region_type": "volcano"
+    },
+    {
+      "id": "L321-AA00",
+      "name": "Alpha Centauri",
+      "region": "stellar",
+      "description": "A triple star system, our nearest stellar neighbor. Three suns dance in complex gravitational orbits.",
+      "layer": 321,
+      "cell": "AA00",
+      "scale": "stellar",
+      "continent": "space",
+      "timezone": "UTC+0",
+      "coordinates": {
+        "lat": 0,
+        "lon": 0
+      },
+      "type": "space-location",
+      "connections": [
+        {
+          "to": "L311-AA00",
+          "direction": "solar-system",
+          "label": "Sol System",
+          "requires": "FTL drive"
+        }
+      ],
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "⭐",
+              "label": "Alpha Centauri A",
+              "z": 2,
+              "fg": "yellow"
+            }
+          ]
+        },
+        "AB00": {
+          "objects": [
+            {
+              "char": "⭐",
+              "label": "Alpha Centauri B",
+              "z": 2,
+              "fg": "orange"
+            }
+          ]
+        },
+        "AC00": {
+          "objects": [
+            {
+              "char": "🔴",
+              "label": "Proxima",
+              "z": 1,
+              "fg": "red"
+            }
+          ]
+        }
+      },
+      "region_type": "star-system"
+    },
+    {
+      "id": "L351-AA00",
+      "name": "Sagittarius A*",
+      "region": "galactic",
+      "description": "The supermassive black hole at our galaxy's heart. Gravity warps space and time itself around it.",
+      "layer": 351,
+      "cell": "AA00",
+      "scale": "galactic",
+      "continent": "space",
+      "timezone": "UTC+0",
+      "coordinates": {
+        "lat": 0,
+        "lon": 0
+      },
+      "type": "space-location",
+      "connections": [
+        {
+          "to": "L321-AA00",
+          "direction": "outer-arm",
+          "label": "Orion Arm"
+        }
+      ],
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "⚫",
+              "label": "black hole",
+              "z": 3
+            }
+          ]
+        },
+        "AB00": {
+          "objects": [
+            {
+              "char": "🌌",
+              "label": "accretion disk",
+              "z": 2,
+              "fg": "cyan"
+            }
+          ]
+        },
+        "AC00": {
+          "objects": [
+            {
+              "char": "✨",
+              "label": "jets",
+              "z": 1,
+              "fg": "magenta"
+            }
+          ]
+        }
+      },
+      "region_type": "black-hole"
+    },
+    {
+      "id": "L401-AA00",
+      "name": "Andromeda Galaxy",
+      "region": "cosmic",
+      "description": "Our nearest large galactic neighbor, 2.5 million light-years away. A spiral galaxy spiraling towards us.",
+      "layer": 401,
+      "cell": "AA00",
+      "scale": "cosmic",
+      "continent": "space",
+      "timezone": "UTC+0",
+      "coordinates": {
+        "lat": 0,
+        "lon": 0
+      },
+      "type": "space-location",
+      "connections": [
+        {
+          "to": "L351-AA00",
+          "direction": "intergalactic",
+          "label": "Milky Way",
+          "requires": "wormhole"
+        }
+      ],
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "🌌",
+              "label": "Andromeda",
+              "z": 3,
+              "fg": "white"
+            }
+          ]
+        },
+        "AB00": {
+          "objects": [
+            {
+              "char": "✨",
+              "label": "spiral arm",
+              "z": 2,
+              "fg": "blue"
+            }
+          ]
+        },
+        "AC00": {
+          "objects": [
+            {
+              "char": "⭕",
+              "label": "wormhole",
+              "z": 4,
+              "fg": "magenta"
+            }
+          ]
+        }
+      },
+      "region_type": "galaxy"
+    }
+  ]
+}

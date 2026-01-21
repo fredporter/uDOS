@@ -1,0 +1,78 @@
+# GitHub Repository Configuration
+# Specifies repositories to sync from GitHub
+
+# ucode - Shipping/release repositories
+ucode:
+  # Micro Core Linux
+  - name: "micro"
+    owner: "uDOS"
+    repo: "micro"
+    path: "library/ucode/micro"
+    ref: "main"
+    description: "Minimal TinyCore variant"
+
+  # Marp Presentation Framework
+  - name: "marp"
+    owner: "marp-team"
+    repo: "marp-cli"
+    path: "library/ucode/marp"
+    ref: "main"
+    description: "Markdown presentation converter"
+
+  # TinyCore Linux
+  - name: "tinycore"
+    owner: "tinycorelinux"
+    repo: "Core-scripts"
+    path: "library/ucode/tinycore"
+    ref: "main"
+    description: "TinyCore Linux scripts"
+
+  # MeshCore P2P
+  - name: "meshcore"
+    owner: "uDOS"
+    repo: "meshcore"
+    path: "library/ucode/meshcore"
+    ref: "main"
+    description: "Peer-to-peer mesh networking"
+
+# wizard - Development/wizard-only repositories
+wizard:
+  # Ollama - Local LLM runtime
+  - name: "ollama"
+    owner: "ollama"
+    repo: "ollama"
+    path: "library/wizard/ollama"
+    ref: "main"
+    description: "Run LLMs locally"
+
+  # Mistral Vibe - Offline AI assistant
+  - name: "mistral-vibe"
+    owner: "mistralai"
+    repo: "vibe"
+    path: "library/wizard/mistral-vibe"
+    ref: "main"
+    description: "Offline local LLM interface"
+
+  # Gemini CLI - Google AI CLI
+  - name: "gemini-cli"
+    owner: "BanDev"
+    repo: "google-ai-cli"
+    path: "library/wizard/gemini-cli"
+    ref: "main"
+    description: "Command-line Google AI interface"
+
+  # NetHack - Classic roguelike
+  - name: "nethack"
+    owner: "NetHack"
+    repo: "NetHack"
+    path: "library/wizard/nethack"
+    ref: "NetHack-3.6"
+    description: "Classic roguelike game"
+
+  # Home Assistant - Smart home automation
+  - name: "home-assistant"
+    owner: "home-assistant"
+    repo: "core"
+    path: "library/wizard/home-assistant"
+    ref: "dev"
+    description: "Home automation platform"

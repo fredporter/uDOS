@@ -1,0 +1,66 @@
+{
+  "component": "udos-wizard",
+  "name": "uDOS Wizard Server",
+  "version": {
+    "major": 1,
+    "minor": 1,
+    "patch": 0,
+    "build": 0
+  },
+  "display": "v1.1.0.0",
+  "type": "tcz",
+  "description": "Production-stable Wizard Server: device auth, plugin repo, AI routing, rate limiting",
+  "author": "Fred Porter",
+  "license": "MIT",
+  
+  "dependencies": {
+    "system": {
+      "python": ">=3.10",
+      "packages": ["fastapi>=0.104", "uvicorn>=0.24"]
+    },
+    "components": {
+      "udos-core": ">=1.0.0.0",
+      "udos-api": ">=1.0.0.0"
+    }
+  },
+  
+  "platform": ["tinycore", "linux", "macos"],
+  "min_udos_version": "1.1.0.0",
+  
+  "files": {
+    "python": "wizard/",
+    "bin": ["bin/Launch-Wizard-Dev.command", "wizard/launch_wizard_dev.py"],
+    "config": "wizard/config/",
+    "docs": "wizard/docs/"
+  },
+  
+  "installation": {
+    "mode": "automatic",
+    "script": "install.sh",
+    "post_install": "pip install fastapi uvicorn && python wizard/server.py --health-check",
+    "requires_secrets": true
+  },
+  
+  "secrets_required": [
+    "github-personal-main",
+    "ai-mistral-main",
+    "ai-openrouter",
+    "notion-integration-token"
+  ],
+  
+  "port": 8765,
+  "status": "production-stable",
+  "breaking_changes": false,
+  
+  "notes": [
+    "Port 8765 (production)",
+    "Requires secret store (udos-secret-store v1.0.0.0+)",
+    "Set WIZARD_KEY env var before startup",
+    "See wizard/docs/ for configuration"
+  ],
+  
+  "released": "2026-01-17",
+  "channel": "alpha",
+  "signed": false,
+  "checksum": "sha256:placeholder"
+}

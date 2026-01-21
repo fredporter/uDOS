@@ -1,0 +1,344 @@
+# uDOS Transport Policy
+# Alpha v1.0.0.2+
+#
+# CRITICAL: These rules are non-negotiable and enforced at runtime.
+# Violations result in command rejection and security audit logging.
+
+version: "1.0.0.2"
+policy_mode: strict  # strict | permissive
+
+# ============================================================================
+# TRANSPORT CLASSIFICATION
+# ============================================================================
+
+transports:
+  # === PRIVATE TRANSPORTS (Commands + Data Allowed) ===
+  
+  meshcore:
+    type: private
+    realm: user_mesh
+    data_allowed: true
+    commands_allowed: true
+    description: "Primary P2P mesh network"
+    features:
+      - peer_to_peer
+      - relay_capable
+      - discovery
+      - encryption
+    max_packet_size: 65536  # 64KB
+  
+  bluetooth_private:
+    type: private
+    realm: user_mesh
+    data_allowed: true
+    commands_allowed: true
+    description: "Bluetooth paired devices"
+    features:
+      - pairing_required
+      - short_range
+      - encryption
+    max_packet_size: 4096  # 4KB
+    pairing_timeout: 300  # 5 minutes
+  
+  nfc:
+    type: private
+    realm: user_mesh
+    data_allowed: true
+    commands_allowed: true
+    description: "Near Field Communication (contact)"
+    features:
+      - contact_required
+      - ultra_short_range
+      - tap_to_pair
+    max_packet_size: 256  # 256 bytes
+    range: 4cm
+  
+  qr_relay:
+    type: private
+    realm: user_mesh
+    data_allowed: true
+    commands_allowed: true
+    description: "Visual QR code data transfer"
+    features:
+      - chunked_packets
+      - crc_validation
+      - visual_confirmation
+      - offline_capable
+    max_packet_size: 2048  # 2KB per QR
+    chunk_size: 256
+    error_correction: medium
+  
+  audio_relay:
+    type: private
+    realm: user_mesh
+    data_allowed: true
+    commands_allowed: true
+    description: "Acoustic packet transmission"
+    features:
+      - human_safe_frequencies
+      - error_correction
+      - offline_capable
+      - ambient_noise_tolerant
+    max_packet_size: 512  # 512 bytes
+    frequency_range: [18000, 22000]  # Hz (ultrasonic)
+    version: "1.0.1.0+"  # Added in v1.0.1.0
+  
+  # === PUBLIC SIGNAL CHANNELS (NEVER Data/Commands) ===
+  
+  bluetooth_public:
+    type: public_signal
+    realm: user_mesh
+    data_allowed: false  # ⚠️ NEVER
+    commands_allowed: false  # ⚠️ NEVER
+    signal_only: true
+    description: "BLE beacons for presence/discovery ONLY"
+    allowed_operations:
+      - presence_beacon
+      - device_discovery
+      - signal_strength
+    forbidden_operations:
+      - data_transfer
+      - command_execution
+      - file_transfer
+      - mesh_routing
+    violation_action: reject_and_audit
+  
+  # === WIZARD SERVER TRANSPORTS ===
+  
+  internet:
+    type: wizard_only
+    realm: wizard_server
+    data_allowed: true
+    commands_allowed: true
+    description: "Internet access (Wizard Server only)"
+    required_role: wizard_server
+    features:
+      - http_get
+      - http_post
+      - webscraping
+      - api_calls
+    rate_limiting: true
+    cost_tracking: true
+  
+  web_sockets:
+    type: wizard_only
+    realm: wizard_server
+    data_allowed: true
+    commands_allowed: true
+    description: "WebSocket connections (Wizard Server only)"
+    required_role: wizard_server
+    features:
+      - bidirectional
+      - real_time
+      - persistent
+    rate_limiting: true
+
+# ============================================================================
+# POLICY RULES
+# ============================================================================
+
+rules:
+  # Rule 1: Bluetooth Public = Signal Only
+  bluetooth_public_strict:
+    transport: bluetooth_public
+    enforce: strict
+    violations:
+      - data_transfer: FORBIDDEN
+      - command_execution: FORBIDDEN
+      - packet_routing: FORBIDDEN
+    action: reject_and_audit
+    message: "Bluetooth Public is for presence/discovery only. Use Bluetooth Private for data."
+  
+  # Rule 2: User Mesh = No Web Access
+  user_mesh_offline:
+    realm: user_mesh
+    enforce: strict
+    forbidden_transports:
+      - internet
+      - web_sockets
+    action: reject_and_audit
+    message: "User Mesh devices cannot access web. Use Wizard Server."
+  
+  # Rule 3: Wizard Server = Private Transports to Devices
+  wizard_to_devices:
+    role: wizard_server
+    enforce: strict
+    device_communication:
+      allowed_transports:
+        - meshcore
+        - bluetooth_private
+        - nfc
+        - qr_relay
+        - audio_relay
+      forbidden_transports:
+        - bluetooth_public
+        - direct_internet_exposure
+    action: reject_and_audit
+    message: "Wizard Server must use private transports to communicate with devices."
+  
+  # Rule 4: Mobile Console = Limited Transports
+  mobile_console_restricted:
+    role: mobile_console
+    enforce: strict
+    allowed_transports:
+      - qr_relay
+      - audio_relay
+      - nfc
+    forbidden_transports:
+      - meshcore
+      - bluetooth_private
+      - internet
+    rationale: "Mobile consoles are read-only terminals with minimal network access."
+  
+  # Rule 5: API Keys = Realm Specific
+  api_key_storage:
+    enforce: strict
+    wizard_keys:
+      realm: wizard_only
+      examples:
+        - gemini_api_key
+        - gmail_oauth_token
+        - github_token
+      storage: core/security/.keys/keys_wizard_only.json
+    user_keys:
+      realm: user_mesh
+      examples:
+        - mesh_device_id
+        - paired_device_token
+      storage: core/security/.keys/keys_user_mesh.json
+    violation_action: reject_and_audit
+
+# ============================================================================
+# COMMAND EXPOSURE TIERS
+# ============================================================================
+
+exposure_tiers:
+  LOCAL:
+    description: "Device-only operations (no network)"
+    transports_allowed: []
+    examples:
+      - FILE
+      - NEW
+      - DELETE
+      - HELP
+  
+  PRIVATE_SAFE:
+    description: "Safe for private transports (mesh, BT private, NFC, QR, audio)"
+    transports_allowed:
+      - meshcore
+      - bluetooth_private
+      - nfc
+      - qr_relay
+      - audio_relay
+    examples:
+      - WORKFLOW
+      - MESH
+      - PAIR
+      - VIEW
+      - LIST
+  
+  WIZARD_ONLY:
+    description: "Requires Wizard Server role (web/cloud access)"
+    transports_allowed:
+      - internet
+      - web_sockets
+    required_role: wizard_server
+    examples:
+      - WEB
+      - GMAIL
+      - AI
+      - PLUGIN
+
+# ============================================================================
+# VALIDATION & ENFORCEMENT
+# ============================================================================
+
+validation:
+  pre_execution:
+    - check_role_capability
+    - check_transport_allowed
+    - check_exposure_tier
+    - check_realm_policy
+  
+  runtime:
+    - monitor_transport_usage
+    - detect_policy_violations
+    - audit_wizard_operations
+  
+  post_execution:
+    - log_transport_usage
+    - update_cost_tracking
+    - verify_realm_compliance
+
+enforcement:
+  violation_actions:
+    reject:
+      message: "Operation rejected: Policy violation"
+      log_level: WARNING
+      notify_user: true
+    
+    reject_and_audit:
+      message: "Operation rejected: Security policy violation"
+      log_level: ERROR
+      notify_user: true
+      create_audit_entry: true
+      alert_admin: true
+    
+    permit_with_warning:
+      message: "Operation permitted with warning"
+      log_level: WARNING
+      notify_user: true
+      rationale_required: true
+
+# ============================================================================
+# LOGGING & AUDITING
+# ============================================================================
+
+logging:
+  format: "[{role}] [{transport}] {operation}"
+  
+  transport_tags:
+    meshcore: "[MESH]"
+    bluetooth_private: "[BT-PRIV]"
+    bluetooth_public: "[BT-PUB]"
+    nfc: "[NFC]"
+    qr_relay: "[QR]"
+    audio_relay: "[AUD]"
+    internet: "[WEB]"
+    web_sockets: "[WS]"
+  
+  role_tags:
+    device_owner: "[DEVICE]"
+    paired_device: "[PAIRED]"
+    mobile_console: "[MOBILE]"
+    wizard_server: "[WIZ]"
+  
+  audit_events:
+    - bluetooth_public_data_attempt
+    - user_mesh_web_access_attempt
+    - unauthorized_role_escalation
+    - key_access_violation
+    - transport_policy_violation
+  
+  audit_retention: 90  # days
+
+# ============================================================================
+# TRANSPORT FEATURE MATRIX
+# ============================================================================
+
+feature_matrix:
+  # Transport | Data | Cmds | Realm | Pairing | Range | Speed | Offline
+  meshcore:       [✓,    ✓,    User,   ✗,       Wide,   Fast,   ✓]
+  bluetooth_priv: [✓,    ✓,    User,   ✓,       10m,    Fast,   ✓]
+  bluetooth_pub:  [✗,    ✗,    User,   ✗,       50m,    N/A,    ✓]
+  nfc:            [✓,    ✓,    User,   Tap,     4cm,    Slow,   ✓]
+  qr_relay:       [✓,    ✓,    User,   ✗,       Visual, Slow,   ✓]
+  audio_relay:    [✓,    ✓,    User,   ✗,       5m,     Slow,   ✓]
+  internet:       [✓,    ✓,    Wiz,    ✗,       Global, Fast,   ✗]
+  web_sockets:    [✓,    ✓,    Wiz,    ✗,       Global, Fast,   ✗]
+
+# Legend:
+# ✓ = Allowed
+# ✗ = Forbidden
+# User = User Mesh realm
+# Wiz = Wizard Server realm

@@ -1,0 +1,33 @@
+{
+  "$schema": "./container.schema.json",
+  "container": {
+    "id": "container-id",
+    "name": "Container Display Name",
+    "description": "Brief description of what this container provides",
+    "type": "git",
+    "source": "https://github.com/org/repo",
+    "ref": "main",
+    "cloned_at": null,
+    "last_update": null,
+    "commit": null,
+    "version": null
+  },
+  "policy": {
+    "read_only": true,
+    "auto_update": false,
+    "update_channel": "wizard_only",
+    "verify_signatures": false
+  },
+  "integration": {
+    "wrapper_path": "extensions/transport/<container-id>/",
+    "service_path": null,
+    "handler_path": null,
+    "install_script": null
+  },
+  "metadata": {
+    "license": null,
+    "homepage": null,
+    "documentation": null,
+    "maintainer": "uDOS Wizard Server"
+  }
+}

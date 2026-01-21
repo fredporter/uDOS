@@ -1,0 +1,45 @@
+{
+  "$schema": "../container.schema.json",
+  "container": {
+    "id": "url-to-markdown",
+    "name": "URL to Markdown",
+    "description": "Convert web pages to Markdown format",
+    "type": "git",
+    "source": "https://github.com/iw4p/url-to-markdown",
+    "ref": "main",
+    "cloned_at": null,
+    "last_update": null,
+    "commit": null,
+    "version": null
+  },
+  "policy": {
+    "read_only": true,
+    "auto_update": false,
+    "update_channel": "wizard_only",
+    "verify_signatures": false,
+    "wizard_only": true
+  },
+  "integration": {
+    "wrapper_path": "extensions/web/url2md/",
+    "handler_path": "core/commands/web_handler.py",
+    "install_script": "extensions/setup/install_url2md.py"
+  },
+  "build": {
+    "type": "python",
+    "build_command": "pip install -r requirements.txt",
+    "runtime": "python",
+    "python_dependencies": [
+      "requests",
+      "beautifulsoup4",
+      "html2text"
+    ]
+  },
+  "metadata": {
+    "license": "MIT",
+    "homepage": "https://github.com/iw4p/url-to-markdown",
+    "documentation": "extensions/web/url2md/README.md",
+    "maintainer": "uDOS Wizard Server",
+    "category": "web"
+  },
+  "_note": "WIZARD ONLY - Requires web access for URL fetching."
+}

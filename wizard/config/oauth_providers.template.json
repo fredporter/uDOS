@@ -1,0 +1,55 @@
+{
+    "google": {
+        "client_id": "",
+        "client_secret": "",
+        "scopes": [
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/gmail.send",
+            "https://www.googleapis.com/auth/calendar.readonly",
+            "https://www.googleapis.com/auth/drive.readonly"
+        ],
+        "redirect_uri": "http://localhost:8765/oauth/callback"
+    },
+    "github": {
+        "client_id": "",
+        "client_secret": "",
+        "scopes": [
+            "read:user",
+            "user:email",
+            "repo",
+            "gist"
+        ],
+        "redirect_uri": "http://localhost:8765/oauth/callback"
+    },
+    "spotify": {
+        "client_id": "",
+        "client_secret": "",
+        "scopes": [
+            "user-read-private",
+            "user-read-email",
+            "user-library-read",
+            "playlist-read-private",
+            "user-read-playback-state",
+            "user-modify-playback-state"
+        ],
+        "redirect_uri": "http://localhost:8765/oauth/callback"
+    },
+    "discord": {
+        "client_id": "",
+        "client_secret": "",
+        "scopes": [
+            "identify",
+            "email",
+            "guilds"
+        ],
+        "redirect_uri": "http://localhost:8765/oauth/callback"
+    },
+    "notion": {
+        "client_id": "",
+        "client_secret": "",
+        "scopes": [],
+        "redirect_uri": "http://localhost:8765/oauth/callback"
+    }
+}

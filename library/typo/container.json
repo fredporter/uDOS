@@ -1,0 +1,39 @@
+{
+{\n  "$schema": "../../container.schema.json",
+  "container": {
+    "id": "typo",
+    "name": "Typo Markdown Editor",
+    "description": "Clean markdown editor with live preview and .udos.md support",
+    "type": "git",
+    "source": "https://github.com/rossrobino/typo",
+    "ref": "main",
+    "cloned_at": null,
+    "last_update": null,
+    "commit": null,
+    "version": null
+  },
+  "policy": {
+    "read_only": true,
+    "auto_update": false,
+    "update_channel": "wizard_only",
+    "verify_signatures": false
+  },
+  "integration": {
+    "wrapper_path": "extensions/editors/typo/",
+    "handler_path": null,
+    "install_script": null
+  },
+  "build": {
+    "type": "npm",
+    "build_command": "npm install && npm run build",
+    "runtime": "browser",
+    "static_output": "build/"
+  },
+  "metadata": {
+    "license": "MIT",
+    "homepage": "https://typo.robino.dev/",
+    "documentation": "https://github.com/rossrobino/typo#readme",
+    "maintainer": "Ross Robino / uDOS Wizard Server",
+    "category": "editors"
+  }
+}

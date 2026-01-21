@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Code Container Manifest",
+  "description": "Schema for uDOS code container manifests",
+  "type": "object",
+  "required": ["container", "policy"],
+  "properties": {
+    "container": {
+      "type": "object",
+      "description": "Container identification and source information",
+      "required": ["id", "name", "type", "source"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the container (lowercase, no spaces)",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable display name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief description of container purpose"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["git", "tarball", "tcz"],
+          "description": "Source type - git repo, tarball URL, or TCZ package"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source URL (GitHub repo, tarball URL, etc.)"
+        },
+        "ref": {
+          "type": ["string", "null"],
+          "description": "Git branch, tag, or commit to track"
+        },
+        "cloned_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "ISO timestamp when container was first cloned"
+        },
+        "last_update": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "ISO timestamp of last update check/pull"
+        },
+        "commit": {
+          "type": ["string", "null"],
+          "description": "Current git commit SHA (40 chars)"
+        },
+        "version": {
+          "type": ["string", "null"],
+          "description": "Version tag if available"
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "description": "Container security and update policies",
+      "properties": {
+        "read_only": {
+          "type": "boolean",
+          "default": true,
+          "description": "Container code is read-only on user devices"
+        },
+        "auto_update": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically update from source (Wizard only)"
+        },
+        "update_channel": {
+          "type": "string",
+          "enum": ["wizard_only", "manual", "auto"],
+          "default": "wizard_only",
+          "description": "How updates are received"
+        },
+        "verify_signatures": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require signed commits (if supported)"
+        }
+      }
+    },
+    "integration": {
+      "type": "object",
+      "description": "uDOS integration layer paths",
+      "properties": {
+        "wrapper_path": {
+          "type": ["string", "null"],
+          "description": "Path to uDOS wrapper/transport layer"
+        },
+        "service_path": {
+          "type": ["string", "null"],
+          "description": "Path to service implementation"
+        },
+        "handler_path": {
+          "type": ["string", "null"],
+          "description": "Path to TUI command handler"
+        },
+        "install_script": {
+          "type": ["string", "null"],
+          "description": "Path to installation script"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional container metadata",
+      "properties": {
+        "license": {
+          "type": ["string", "null"],
+          "description": "SPDX license identifier"
+        },
+        "homepage": {
+          "type": ["string", "null"],
+          "description": "Project homepage URL"
+        },
+        "documentation": {
+          "type": ["string", "null"],
+          "description": "Local documentation path"
+        },
+        "maintainer": {
+          "type": "string",
+          "default": "uDOS Wizard Server",
+          "description": "Who maintains this container"
+        }
+      }
+    }
+  }
+}

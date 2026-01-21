@@ -1,0 +1,149 @@
+/* uDOS Wizard Server - Custom Styles */
+
+/* Navigation Links */
+.nav-link {
+    @apply px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white transition-colors;
+}
+
+.nav-link.active {
+    @apply bg-gray-700 text-white;
+}
+
+/* Stat Cards */
+.stat-card {
+    @apply bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700;
+}
+
+.stat-header {
+    @apply flex items-center justify-between;
+}
+
+/* Content Cards */
+.content-card {
+    @apply bg-gray-800 rounded-lg shadow-lg border border-gray-700;
+}
+
+.card-header {
+    @apply flex items-center justify-between px-6 py-4 border-b border-gray-700;
+}
+
+.content-card > div:not(.card-header) {
+    @apply px-6 py-4;
+}
+
+/* Log Badges */
+.log-badge {
+    @apply px-2 py-1 rounded text-xs font-medium;
+}
+
+.log-badge.log-info {
+    @apply bg-blue-900 text-blue-300;
+}
+
+.log-badge.log-error {
+    @apply bg-red-900 text-red-300;
+}
+
+.log-badge.log-warning {
+    @apply bg-yellow-900 text-yellow-300;
+}
+
+.log-badge.log-debug {
+    @apply bg-gray-700 text-gray-300;
+}
+
+/* Action Buttons */
+.action-button {
+    @apply flex flex-col items-center justify-center p-6 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer;
+}
+
+.action-button:hover {
+    @apply transform scale-105 transition-transform;
+}
+
+/* Device Status Indicators */
+.device-status-online {
+    @apply h-2 w-2 bg-green-400 rounded-full;
+}
+
+.device-status-offline {
+    @apply h-2 w-2 bg-gray-600 rounded-full;
+}
+
+.device-status-warning {
+    @apply h-2 w-2 bg-yellow-400 rounded-full animate-pulse;
+}
+
+/* Tables */
+.data-table {
+    @apply w-full text-sm text-left text-gray-300;
+}
+
+.data-table thead {
+    @apply text-xs text-gray-400 uppercase bg-gray-700;
+}
+
+.data-table th {
+    @apply px-6 py-3;
+}
+
+.data-table td {
+    @apply px-6 py-4 border-b border-gray-700;
+}
+
+.data-table tbody tr:hover {
+    @apply bg-gray-700;
+}
+
+/* Forms */
+.form-input {
+    @apply bg-gray-700 border border-gray-600 text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5;
+}
+
+.form-label {
+    @apply block mb-2 text-sm font-medium text-gray-300;
+}
+
+.form-button {
+    @apply text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 transition-colors;
+}
+
+/* Animations */
+@keyframes pulse-slow {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.animate-pulse-slow {
+    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Code Blocks */
+.code-block {
+    @apply bg-gray-900 rounded-lg p-4 font-mono text-sm text-green-400 overflow-x-auto;
+}
+
+/* Alerts */
+.alert {
+    @apply p-4 mb-4 rounded-lg;
+}
+
+.alert-info {
+    @apply bg-blue-900 text-blue-300 border border-blue-700;
+}
+
+.alert-success {
+    @apply bg-green-900 text-green-300 border border-green-700;
+}
+
+.alert-warning {
+    @apply bg-yellow-900 text-yellow-300 border border-yellow-700;
+}
+
+.alert-error {
+    @apply bg-red-900 text-red-300 border border-red-700;
+}

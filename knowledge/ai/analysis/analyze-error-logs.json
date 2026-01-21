@@ -1,0 +1,52 @@
+{
+  "$schema": "../instruction.schema.json",
+  "instruction": {
+    "id": "analyze-error-logs",
+    "title": "Analyze Error Logs",
+    "purpose": "Analyze log files to identify errors, patterns, and root causes with actionable recommendations",
+    "category": "analysis",
+    "prompt": "Analyze these log entries and provide a diagnosis:\n\n```\n{{logs}}\n```\n\nProvide:\n\n## Summary\nBrief overview of what's happening.\n\n## Errors Found\n| Timestamp | Error Type | Message | Severity |\n|-----------|------------|---------|----------|\n| ... | ... | ... | High/Medium/Low |\n\n## Patterns\nAny recurring issues or correlations.\n\n## Root Cause Analysis\nMost likely cause(s) of the issues.\n\n## Recommended Actions\n1. Immediate: [urgent fixes]\n2. Short-term: [this session]\n3. Long-term: [prevent recurrence]\n\n## Files to Check\nList specific files that likely need attention.",
+    "system_prompt": "You are a systems debugger expert at reading logs. Focus on actionable insights, not just listing errors. Prioritize by severity and impact.",
+    "variables": [
+      {
+        "name": "logs",
+        "description": "Log content to analyze (can be multi-line)",
+        "required": true
+      }
+    ],
+    "examples": [
+      {
+        "input": "[ERROR] 2026-01-06 10:15:23 ImportError: No module named 'foo'\n[ERROR] 2026-01-06 10:15:24 AttributeError: 'NoneType' has no attribute 'bar'",
+        "output": "Summary: Import failure causing cascading NoneType errors. Root cause: missing 'foo' module. Action: Install foo or fix import path.",
+        "notes": "Common cascading error pattern"
+      }
+    ]
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2026-01-06",
+    "author": "uDOS Dev",
+    "source_provider": "gemini",
+    "iterations": 3,
+    "tags": ["logs", "debugging", "analysis", "errors", "diagnosis"],
+    "quality_score": 8.5
+  },
+  "execution": {
+    "offline_capable": true,
+    "recommended_model": "mistral:7b",
+    "fallback_models": ["llama3.2:3b", "gemma2:2b"],
+    "temperature": 0.3,
+    "max_tokens": 2048,
+    "timeout_seconds": 90
+  },
+  "lineage": {
+    "derived_from": null,
+    "changelog": [
+      {
+        "version": "1.0.0",
+        "date": "2026-01-06",
+        "changes": "Initial version with structured diagnostic output"
+      }
+    ]
+  }
+}

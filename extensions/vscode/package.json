@@ -1,0 +1,79 @@
+{
+  "name": "udos-language-support",
+  "displayName": "uDOS Markdown Runtime",
+  "description": "Syntax highlighting and snippets for uDOS runtime blocks (state, set, form, nav, if/else, panel, map) inside Markdown.",
+  "version": "1.0.0",
+  "publisher": "udos",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "keywords": [
+    "udos",
+    "markdown",
+    "runtime",
+    "state",
+    "teletext"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fredporter/uDOS-dev"
+  },
+  "bugs": {
+    "url": "https://github.com/fredporter/uDOS-dev/issues"
+  },
+  "activationEvents": [
+    "onLanguage:udos",
+    "onLanguage:state",
+    "onLanguage:set",
+    "onLanguage:form",
+    "onLanguage:if",
+    "onLanguage:else",
+    "onLanguage:nav",
+    "onLanguage:panel",
+    "onLanguage:map"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "udos",
+        "aliases": [
+          "uDOS",
+          "udos",
+          "state",
+          "set",
+          "form",
+          "if",
+          "else",
+          "nav",
+          "panel",
+          "map"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "udos",
+        "scopeName": "source.udos",
+        "path": "./syntaxes/udos.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "markdown",
+        "path": "./snippets/udos.json"
+      },
+      {
+        "language": "udos",
+        "path": "./snippets/udos.json"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "echo \"uDOS VS Code extension: nothing to compile\"",
+    "watch": "npm run compile"
+  }
+}

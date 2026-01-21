@@ -1,0 +1,114 @@
+name: Sync Public Mirror
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v4
+
+      - name: Prepare mirror content
+        run: |
+          set -euo pipefail
+          mkdir -p mirror
+
+          # Sync /public/ contents to mirror root (flattened structure)
+          if [ -d "public" ]; then
+            rsync -av --delete \
+              --exclude='.git' \
+              --exclude='.DS_Store' \
+              --exclude='node_modules' \
+              --exclude='target' \
+              --exclude='wizard/config/*.json' \
+              --exclude='wizard/config/.*' \
+              --exclude='**/*.env' \
+              --exclude='**/.env*' \
+              --exclude='**/secrets*' \
+              --exclude='**/*_keys.json' \
+              --exclude='**/*_token*' \
+              public/ mirror/
+            echo "✅ Synced /public/ contents to root (excluded secrets)"
+          fi
+
+          # Sync /core/ TypeScript runtime to mirror/core/
+          if [ -d "core" ]; then
+            rsync -av --exclude='__pycache__' --exclude='*.pyc' --exclude='node_modules' --exclude='build' --exclude='dist' core/ mirror/core/
+            echo "✅ Synced /core/ TypeScript runtime"
+          fi
+
+          # Note: /docs/ is private development notes (not synced)
+          # Public docs are in /public/docs/ (already synced above)
+          echo "ℹ️  Private /docs/ not synced (development notes only)"
+
+          if [ -f LICENSE ] || [ -f LICENSE.txt ] || [ -f LICENSE.md ]; then
+            cp -v LICENSE* mirror/ 2>/dev/null || true
+            echo "✅ Synced LICENSE"
+          fi
+
+          # Copy example config files (if they exist)
+          if [ -d "public/wizard/config" ]; then
+            mkdir -p mirror/wizard/config
+            cp -v public/wizard/config/*.example.json mirror/wizard/config/ 2>/dev/null || true
+            echo "✅ Synced example configs"
+          fi
+
+          # Generate README
+          echo "uDOS Core" > mirror/README.md
+          echo "" >> mirror/README.md
+          echo "Offline-first, distributed OS layer combining Python TUI, TypeScript runtime, and Tauri GUI." >> mirror/README.md
+          echo "" >> mirror/README.md
+          echo "This is the public mirror of uDOS. For development and private components, see the private repository at https://github.com/fredporter/uDOS-dev." >> mirror/README.md
+          echo "" >> mirror/README.md
+          echo "Content:" >> mirror/README.md
+          echo "- core - TypeScript runtime" >> mirror/README.md
+          echo "- wizard - AI routing services" >> mirror/README.md
+          echo "- extensions - API and transport" >> mirror/README.md
+          echo "- knowledge - Knowledge articles" >> mirror/README.md
+          echo "- docs - Engineering documentation" >> mirror/README.md
+          echo "" >> mirror/README.md
+          echo "Installation: See core/README.md for setup instructions." >> mirror/README.md
+          echo "" >> mirror/README.md
+          echo "Links: https://github.com/fredporter/uDOS-core (public)" >> mirror/README.md
+          echo "       https://github.com/fredporter/uDOS-dev (private)" >> mirror/README.md
+          echo "" >> mirror/README.md
+          echo "Automated mirror synced from the private repository." >> mirror/README.md
+
+          echo "✅ Generated public README"
+          ls -lah mirror/
+
+      - name: Push to public repo
+        env:
+          PUBLIC_REPO: ${{ secrets.PUBLIC_REPO }}
+          PUBLIC_TOKEN: ${{ secrets.PUBLIC_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$PUBLIC_REPO" ] || [ -z "$PUBLIC_TOKEN" ]; then
+            echo "⚠️  Skipping: secrets not configured"
+            exit 0
+          fi
+
+          cd mirror
+          git init
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+          git add -A
+
+          if [ -z "$(git diff --cached --name-only)" ]; then
+            echo "No changes to sync"
+            exit 0
+          fi
+
+          git commit -m "Sync from private repo"
+          git branch -M main
+          git remote add origin "https://x-access-token:${PUBLIC_TOKEN}@github.com/${PUBLIC_REPO}.git"
+          git push -f origin main || true
+          echo "✅ Pushed to $PUBLIC_REPO"

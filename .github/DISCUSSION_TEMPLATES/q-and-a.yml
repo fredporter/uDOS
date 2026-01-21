@@ -1,0 +1,71 @@
+labels: [question, support]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ❓ Questions & Support
+
+        Ask questions about using uDOS, troubleshooting issues, or understanding features.
+
+        **Before posting:**
+        - Check the [wiki documentation](../wiki)
+        - Review [Troubleshooting Guide](../wiki/Troubleshooting-Complete)
+        - Search existing discussions
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Question Category
+      description: What area is your question about?
+      options:
+        - Installation & Setup
+        - Commands & Usage
+        - Knowledge Bank
+        - Extensions & Web Interface
+        - uCODE Scripting
+        - Configuration
+        - Performance & Troubleshooting
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: Ask your question clearly and provide context
+      placeholder: |
+        How do I import external markdown files into the knowledge bank?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: |
+        What have you tried? Include relevant:
+        - Commands you ran
+        - Error messages
+        - Your setup (OS, Python version)
+      placeholder: |
+        OS: macOS Sonoma 14.2
+        Python: 3.11.5
+        uDOS: v1.1.0
+
+        Tried: BANK ADD guide.md
+        Error: File not found
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Troubleshooting Checklist
+      description: Have you tried these basic steps?
+      options:
+        - label: Checked wiki documentation
+        - label: Searched existing discussions/issues
+        - label: Verified virtual environment is active
+        - label: Tried with latest uDOS version

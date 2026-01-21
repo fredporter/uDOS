@@ -1,0 +1,39 @@
+{
+{\n  "$schema": "../../container.schema.json",
+  "container": {
+    "id": "micro",
+    "name": "Micro Editor",
+    "description": "Modern and intuitive terminal-based text editor",
+    "type": "git",
+    "source": "https://github.com/zyedidia/micro",
+    "ref": "master",
+    "cloned_at": null,
+    "last_update": null,
+    "commit": null,
+    "version": null
+  },
+  "policy": {
+    "read_only": true,
+    "auto_update": false,
+    "update_channel": "wizard_only",
+    "verify_signatures": false
+  },
+  "integration": {
+    "wrapper_path": "extensions/editors/micro/",
+    "handler_path": "core/commands/edit_handler.py",
+    "install_script": "extensions/setup/install_micro.sh"
+  },
+  "build": {
+    "type": "go",
+    "build_command": "make build",
+    "runtime": "native",
+    "tce_dependencies": ["go", "compiletc"]
+  },
+  "metadata": {
+    "license": "MIT",
+    "homepage": "https://micro-editor.github.io/",
+    "documentation": "https://github.com/zyedidia/micro#readme",
+    "maintainer": "Zachary Yedidia / uDOS Wizard Server",
+    "category": "editors"
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "id": "daily-security-patrol",
+  "title": "Daily Security & Perimeter Patrol Checklist",
+  "category": "daily",
+  "description": "Daily security assessment and perimeter check for campsites, shelters, or homesteads",
+  "version": "1.0.0",
+  "created": "2025-12-02T00:00:00Z",
+  "updated": "2025-12-02T00:00:00Z",
+  "author": "uDOS Knowledge Bank",
+  "difficulty": "beginner",
+  "estimated_time": "30-45 minutes",
+  "prerequisites": [
+    "Established campsite or shelter",
+    "Marked perimeter",
+    "Basic security awareness"
+  ],
+  "related_guides": [
+    "survival/situational-awareness",
+    "navigation/trail-marking"
+  ],
+  "tags": [
+    "security",
+    "daily",
+    "patrol",
+    "safety",
+    "awareness"
+  ],
+  "items": [
+    {
+      "id": "morning_visual_scan",
+      "text": "Conduct 360-degree visual scan from shelter",
+      "priority": "high",
+      "category": "Morning Patrol"
+    },
+    {
+      "id": "check_weather",
+      "text": "Assess weather conditions and forecast",
+      "priority": "medium",
+      "category": "Morning Patrol"
+    },
+    {
+      "id": "inspect_shelter",
+      "text": "Inspect shelter for damage or intrusion",
+      "priority": "high",
+      "category": "Shelter Check",
+      "subitems": [
+        {
+          "id": "check_roof",
+          "text": "Check roof/cover for damage"
+        },
+        {
+          "id": "check_walls",
+          "text": "Inspect walls/structure"
+        },
+        {
+          "id": "check_ground",
+          "text": "Look for animal tracks near shelter"
+        }
+      ]
+    },
+    {
+      "id": "check_supplies",
+      "text": "Verify critical supplies are secure and intact",
+      "priority": "high",
+      "category": "Supplies",
+      "subitems": [
+        {
+          "id": "water_supply",
+          "text": "Check water containers"
+        },
+        {
+          "id": "food_cache",
+          "text": "Inspect food storage (animal activity?)"
+        },
+        {
+          "id": "tools",
+          "text": "Account for tools and equipment"
+        }
+      ]
+    },
+    {
+      "id": "perimeter_walk_north",
+      "text": "Walk north perimeter section",
+      "priority": "high",
+      "category": "Perimeter Patrol"
+    },
+    {
+      "id": "perimeter_walk_east",
+      "text": "Walk east perimeter section",
+      "priority": "high",
+      "category": "Perimeter Patrol"
+    },
+    {
+      "id": "perimeter_walk_south",
+      "text": "Walk south perimeter section",
+      "priority": "high",
+      "category": "Perimeter Patrol"
+    },
+    {
+      "id": "perimeter_walk_west",
+      "text": "Walk west perimeter section",
+      "priority": "high",
+      "category": "Perimeter Patrol"
+    },
+    {
+      "id": "check_trail_markers",
+      "text": "Verify trail markers are intact and visible",
+      "priority": "medium",
+      "category": "Navigation"
+    },
+    {
+      "id": "look_for_tracks",
+      "text": "Look for animal or human tracks",
+      "priority": "high",
+      "category": "Threat Assessment",
+      "notes": "Document unusual activity"
+    },
+    {
+      "id": "check_barriers",
+      "text": "Inspect perimeter barriers (if any)",
+      "priority": "medium",
+      "category": "Physical Security",
+      "optional": true
+    },
+    {
+      "id": "test_alarms",
+      "text": "Test early warning systems (cans, tripwires, etc.)",
+      "priority": "medium",
+      "category": "Physical Security",
+      "optional": true
+    },
+    {
+      "id": "water_source_check",
+      "text": "Check water source for contamination or changes",
+      "priority": "high",
+      "category": "Resources"
+    },
+    {
+      "id": "firewood_status",
+      "text": "Assess firewood supply level",
+      "priority": "medium",
+      "category": "Resources"
+    },
+    {
+      "id": "escape_routes",
+      "text": "Verify escape routes are clear",
+      "priority": "high",
+      "category": "Safety"
+    },
+    {
+      "id": "update_log",
+      "text": "Update security log with observations",
+      "priority": "medium",
+      "category": "Documentation",
+      "notes": "Date, time, weather, unusual events"
+    },
+    {
+      "id": "evening_scan",
+      "text": "Conduct final perimeter scan before dark",
+      "priority": "high",
+      "category": "Evening Patrol"
+    },
+    {
+      "id": "secure_for_night",
+      "text": "Secure camp for nighttime",
+      "priority": "critical",
+      "category": "Evening Patrol",
+      "subitems": [
+        {
+          "id": "food_secured",
+          "text": "Hang or secure food away from camp"
+        },
+        {
+          "id": "fire_managed",
+          "text": "Manage fire for night (bank or extinguish)"
+        },
+        {
+          "id": "tools_ready",
+          "text": "Keep defensive tools accessible"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "season": "all",
+    "location_type": "wilderness",
+    "skill_level": "beginner",
+    "frequency": "twice-daily",
+    "time_morning": "15 minutes",
+    "time_evening": "20 minutes"
+  }
+}

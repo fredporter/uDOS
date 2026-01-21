@@ -1,0 +1,123 @@
+# uDOS Alpha v1.0.0.17 Requirements
+# Core dependencies for uDOS operation with flexible versioning
+
+# =====================
+# AI PROVIDERS (Wizard Server)
+# =====================
+
+# Gemini (Google AI)
+google-generativeai>=0.3.0
+
+# OpenAI
+openai>=1.0.0
+
+# Anthropic (Claude)
+anthropic>=0.18.0
+
+# =====================
+# GOOGLE SERVICES (Wizard Server)
+# =====================
+
+# Gmail & Google Drive Integration
+google-auth>=2.23.0
+google-auth-oauthlib>=1.1.0
+google-auth-httplib2>=0.1.1
+google-api-python-client>=2.100.0
+
+# =====================
+# IMAGE PROCESSING
+# =====================
+
+# Image Processing & Vectorization
+Pillow>=10.0.0
+vtracer>=0.6.0
+
+# =====================
+# CORE UTILITIES
+# =====================
+
+# Environment variable management
+python-dotenv>=1.0.0
+
+# Timezone detection
+tzlocal>=4.0
+pytz>=2023.3
+
+# Interactive CLI with tab completion
+prompt_toolkit>=3.0.0
+
+# JSON Schema validation (for checklist system)
+jsonschema>=4.0.0
+
+# YAML parsing (for prompt templates)
+PyYAML>=6.0.0
+
+# Encryption for private commands
+cryptography>=41.0.0
+
+# OS Keychain integration (macOS Keychain, Linux Secret Service)
+keyring>=24.0.0
+
+# HTTP requests for web extensions
+requests>=2.31.0
+
+# HTML parsing for website scraping
+beautifulsoup4>=4.12.0
+
+# System information
+psutil>=5.9.0
+
+# Password Hashing
+bcrypt>=4.0.0
+
+# =====================
+# WEB SERVER
+# =====================
+
+# Flask web framework
+flask>=2.0.0
+flask-cors>=5.0.0
+
+# WebSocket support
+flask-socketio>=5.0.0
+simple-websocket>=1.0.0
+
+# Async HTTP client
+aiohttp>=3.11.0
+hypercorn>=0.18.0
+
+# Markdown rendering
+markdown2>=2.4.0
+pygments>=2.10.0
+
+# Fuzzy string matching
+thefuzz>=0.19.0
+
+# =====================
+# TUI
+# =====================
+
+# Rich terminal UI
+rich>=13.0.0
+
+# =====================
+# TESTING
+# =====================
+
+pytest-asyncio>=0.23.0
+
+# =====================
+# NOTES
+# =====================
+
+# - All packages use minimum version constraints (>=) for flexibility
+# - Python 3.8+ required (3.10+ recommended)
+# - Node.js and npm required for Tauri apps (separate installation)
+
+# Installation:
+#   pip install -r requirements.txt
+# Or with upgrade:
+#   pip install --upgrade -r requirements.txt
+
+# Health Check:
+#   python3 core/uDOS_health.py

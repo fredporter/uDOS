@@ -1,0 +1,21 @@
+# uDOS Git Submodules Configuration
+#
+# STRUCTURE:
+#   PUBLIC (this repo):  Core, Wizard, Extensions, Docs, Knowledge, Library
+#   PRIVATE (/dev):      Goblin, Empire, App, Groovebox - proprietary code
+#
+# SETUP:
+#   git submodule add git@github.com:fredporter/uDOS-dev.git dev
+#   git submodule update --init --recursive
+#
+# UPDATE:
+#   cd dev && git pull origin main && cd .. && git add dev && git commit -m "Update dev submodule"
+#
+# CLONE WITH SUBMODULES:
+#   git clone --recurse-submodules git@github.com:fredporter/uDOS.git
+#
+
+[submodule "dev"]
+	path = dev
+	url = git@github.com:fredporter/uDOS-dev.git
+	branch = main
