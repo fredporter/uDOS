@@ -169,6 +169,16 @@ test_*.sh
 *.swo
 *~
 
+# ---------- Python artifacts ----------
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyc
+.Python
+*.so
+
 # ---------- Legacy / deprecated ----------
 sandbox/
 data/
