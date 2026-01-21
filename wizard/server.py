@@ -198,6 +198,16 @@ class WizardServer:
         history_router = create_notification_history_routes(history_service)
         app.include_router(history_router)
 
+        # Mount dashboard static files
+        from fastapi.staticfiles import StaticFiles
+        from fastapi.responses import FileResponse
+        dashboard_path = Path(__file__).parent / "dashboard" / "dist"
+        if dashboard_path.exists():
+            app.mount("/assets", StaticFiles(directory=str(dashboard_path / "assets")), name="assets")
+            @app.get("/")
+            async def serve_dashboard():
+                return FileResponse(str(dashboard_path / "index.html"))
+
         self.app = app
         return app
 
@@ -618,7 +628,7 @@ class WizardServer:
                 await asyncio.sleep(1)
 
                 # Open dashboard in browser
-                dashboard_url = f"http://{host or self.config.host}:{port or self.config.port}/docs"
+                dashboard_url = f"http://{host or self.config.host}:{port or self.config.port}"
                 if self.config.host == "0.0.0.0":
                     dashboard_url = f"http://localhost:{port or self.config.port}"
                 webbrowser.open(dashboard_url)
