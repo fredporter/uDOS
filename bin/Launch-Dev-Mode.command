@@ -213,9 +213,14 @@ export UDOS_DEV_MODE=1
 
 # Check dependencies - auto-install if missing
 if ! python -c "import flask" 2>/dev/null; then
-    if run_with_spinner "Installing dependencies (this may take a minute)..." "pip install -q -r requirements.txt"; then
+    print_status "warn" "Dependencies missing - installing (first time setup)..."
+    echo ""
+    pip install --progress-bar on -r requirements.txt
+    if [ $? -eq 0 ]; then
+        echo ""
         print_status "ok" "Dependencies installed"
     else
+        echo ""
         print_status "error" "Failed to install dependencies"
         exit 1
     fi

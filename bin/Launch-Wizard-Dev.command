@@ -64,9 +64,14 @@ echo -e "${GREEN}✅ Python venv activated${NC}"
 
 # Check dependencies - auto-install if missing
 if ! python -c "import flask" 2>/dev/null; then
-    if run_with_spinner "Installing dependencies (this may take a minute)..." "pip install -q -r $PROJECT_ROOT/requirements.txt"; then
+    echo -e "${YELLOW}⚠️  Dependencies missing - installing (first time setup)...${NC}"
+    echo ""
+    pip install --progress-bar on -r "$PROJECT_ROOT/requirements.txt"
+    if [ $? -eq 0 ]; then
+        echo ""
         echo -e "  ${GREEN}✅ Dependencies installed${NC}"
     else
+        echo ""
         echo -e "  ${RED}❌ Failed to install dependencies${NC}"
         exit 1
     fi
