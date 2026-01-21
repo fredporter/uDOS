@@ -9,18 +9,18 @@ set -e
 # Get directories
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_ROOT"
 
-# Source colors and helpers
-source "$SCRIPT_DIR/udos-urls.sh"
-
-# Colors (already sourced, but define for clarity)
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
 NC='\033[0m'
 BOLD='\033[1m'
+DIM='\033[2m'
 
 # Spinner function for long-running tasks
 run_with_spinner() {
@@ -47,7 +47,14 @@ run_with_spinner() {
 }
 
 clear
-print_service_urls "🧙 Wizard Server - Production Environment"
+echo ""
+echo -e "${CYAN}${BOLD}╔═══════════════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}${BOLD}║               🧙 Wizard Server - Production Environment              ║${NC}"
+echo -e "${CYAN}${BOLD}╚═══════════════════════════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "  ${DIM}Wizard API:${NC}    ${GREEN}http://localhost:8765${NC}"
+echo -e "  ${DIM}Health Check:${NC}  ${GREEN}http://localhost:8765/health${NC}"
+echo ""
 
 # Check venv - auto-create if missing
 if [ ! -d "$PROJECT_ROOT/.venv" ]; then
