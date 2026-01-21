@@ -74,6 +74,11 @@ bcrypt>=4.0.0
 # WEB SERVER
 # =====================
 
+# FastAPI (Wizard Server)
+fastapi>=0.109.0
+uvicorn>=0.27.0
+python-multipart>=0.0.6
+
 # Flask web framework
 flask>=2.0.0
 flask-cors>=5.0.0
