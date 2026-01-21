@@ -74,6 +74,9 @@ ENDPOINT_TIERS: Dict[str, RateLimitTier] = {
     "/health": RateLimitTier.LIGHT,
     "/api/v1/status": RateLimitTier.LIGHT,
     "/api/v1/ping": RateLimitTier.LIGHT,
+    "/api/v1/index": RateLimitTier.LIGHT,
+    "/": RateLimitTier.LIGHT,
+    "/assets": RateLimitTier.LIGHT,
     # Standard tier
     "/api/v1/plugin/list": RateLimitTier.STANDARD,
     "/api/v1/plugin/{id}": RateLimitTier.STANDARD,
