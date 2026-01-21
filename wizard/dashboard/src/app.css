@@ -28,9 +28,13 @@
 html {
   font-size: 16px;
   background: #18181b;
+  color-scheme: light;
 }
 
-/* Font size utilities */
+html.dark {
+  background: #0f172a;
+  color-scheme: dark;
+}
 html.prose-sm,
 .prose-sm {
   font-size: 14px;
@@ -88,24 +92,67 @@ body {
   transition:
     background-color 200ms,
     color 200ms;
+  margin: 0;
+  padding: 0;
+  padding-bottom: 44px;
 }
 
 html.dark body {
   background-color: #0f172a;
   color: #e5e7eb;
 }
-code,
-pre,
-.prose code,
-.prose pre,
-textarea,
-.font-mono {
-  font-family:
-    "IBM Plex Mono", "Menlo", "Monaco", "Consolas", monospace !important;
+
+html.light {
+  background: #f8fafc;
 }
 
-html.dark {
-  color-scheme: dark;
+html.light body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+pre,
+.prose code,
+/* App Layout */
+#app {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mdk-app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+html.dark .mdk-app {
+  background-color: #0f172a;
+  color: #e5e7eb;
+}
+
+html.light .mdk-app {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+.mdk-shell {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.mdk-main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding-bottom: 44px;
+  width: 100%;
 }
 
 html {
