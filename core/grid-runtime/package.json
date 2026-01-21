@@ -1,6 +1,6 @@
 {
   "name": "udos-grid-runtime",
-  "version": "1.0.0.0",
+  "version": "1.0.0",
   "description": "Teletext grid runtime for uDOS spatial graphics and text rendering",
   "type": "module",
   "main": "dist/index.js",

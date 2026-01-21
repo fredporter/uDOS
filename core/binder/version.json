@@ -1,12 +1,12 @@
 {
-  "version": "1.0.6.0",
+  "version": "1.0.6",
   "component": "binder",
   "release_type": "alpha",
   "dependencies": {
-    "core": ">=1.1.0.0"
+    "core": ">=1.1.0"
   },
   "changelog": {
-    "1.0.6.0": {
+    "1.0.6": {
       "date": "2026-01-17",
       "changes": [
         "Initial release - Phase 3 complete",
