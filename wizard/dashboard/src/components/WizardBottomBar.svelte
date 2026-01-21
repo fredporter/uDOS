@@ -5,7 +5,10 @@
   // Font controls (simplified for wizard dashboard)
   const fontSizes = ["sm", "base", "lg", "xl", "2xl"];
   const fontSizeValues = [14, 16, 18, 20, 24];
+  const fontStyles = ["sans", "serif", "mono"];
+  const fontStyleLabels = ["Sans", "Serif", "Mono"];
   let currentSizeIdx = 1; // default to 'base'
+  let currentStyleIdx = 0; // default to 'sans'
   let isFullscreen = false;
 
   function incSize() {
@@ -24,14 +27,30 @@
 
   function resetSize() {
     currentSizeIdx = 1;
+    currentStyleIdx = 0;
     updateFontSize();
+    updateFontStyle();
   }
 
   function updateFontSize() {
-    document.documentElement.style.setProperty(
-      "--wizard-font-size",
-      `${fontSizeValues[currentSizeIdx]}px`,
-    );
+    const html = document.documentElement;
+    // Remove all prose classes
+    fontSizes.forEach((size) => html.classList.remove(`prose-${size}`));
+    // Add current size class
+    html.classList.add(`prose-${fontSizes[currentSizeIdx]}`);
+  }
+
+  function toggleFontStyle() {
+    currentStyleIdx = (currentStyleIdx + 1) % fontStyles.length;
+    updateFontStyle();
+  }
+
+  function updateFontStyle() {
+    const html = document.documentElement;
+    // Remove all font style classes
+    fontStyles.forEach((style) => html.classList.remove(`font-${style}`));
+    // Add current style class
+    html.classList.add(`font-${fontStyles[currentStyleIdx]}`);
   }
 
   function toggleFullscreen() {
@@ -48,13 +67,16 @@
 
   // Initialize
   updateFontSize();
+  updateFontStyle();
 </script>
 
 <div class="wizard-bottom-bar">
   <!-- Left side: Status info -->
   <div class="wizard-bar-left">
     <span class="status-text"
-      >Font: {fontSizes[currentSizeIdx].toUpperCase()}</span
+      >{fontStyleLabels[currentStyleIdx]} · {fontSizes[
+        currentSizeIdx
+      ].toUpperCase()}</span
     >
     <span class="status-text">·</span>
     <span class="status-text">{isDark ? "Dark" : "Light"} mode</span>
@@ -87,6 +109,18 @@
         class="reset-btn"
       >
         ∞
+      </button>
+    </div>
+
+    <!-- Font Style Toggle -->
+    <div class="control-section">
+      <button
+        on:click={toggleFontStyle}
+        class="style-btn"
+        aria-label="Toggle font style"
+        title="Current: {fontStyleLabels[currentStyleIdx]}"
+      >
+        {fontStyleLabels[currentStyleIdx]}
       </button>
     </div>
 
@@ -264,6 +298,39 @@
     background: #dbeafe;
     border-color: #60a5fa;
     color: #0c4a6e;
+  }
+
+  /* Font Style Button */
+  .style-btn {
+    background: none;
+    border: 1px solid #4b5563;
+    color: inherit;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.625rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+    line-height: 1;
+    min-width: 3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .style-btn:hover {
+    background: #374151;
+    border-color: #6b7280;
+    color: #ffffff;
+  }
+
+  :global(html.light) .style-btn {
+    border-color: #cbd5e1;
+  }
+
+  :global(html.light) .style-btn:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+    color: #0f172a;
   }
 
   /* Icon Buttons */
