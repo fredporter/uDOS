@@ -229,6 +229,23 @@ class WizardServer:
                 },
             }
 
+        @app.get("/api/v1/index")
+        async def dashboard_index():
+            """Dashboard index data."""
+            return {
+                "dashboard": {
+                    "name": "uDOS Wizard Server",
+                    "version": "1.0.0",
+                    "timestamp": datetime.utcnow().isoformat() + "Z",
+                },
+                "features": [
+                    {"name": "Plugin Repository", "enabled": self.config.plugin_repo_enabled, "description": "Distribute and install plugins"},
+                    {"name": "Web Proxy", "enabled": self.config.web_proxy_enabled, "description": "Fetch web content for devices"},
+                    {"name": "Gmail Relay", "enabled": self.config.gmail_relay_enabled, "description": "Send emails via Gmail API"},
+                    {"name": "AI Gateway", "enabled": self.config.ai_gateway_enabled, "description": "AI model access with cost tracking"},
+                ],
+            }
+
         @app.get("/api/v1/status")
         async def server_status(request: Request):
             """Get server status (authenticated)."""
