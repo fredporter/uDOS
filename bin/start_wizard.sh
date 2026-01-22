@@ -119,45 +119,62 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
 
     # Check if npm is available
     if ! command -v npm &> /dev/null; then
-        print_warning "npm not found"
+        print_warning "npm not found - attempting automatic installation..."
 
-        # Detect which package manager to use
+        # Try automatic installation based on system
         if command -v apt-get &> /dev/null; then
-            print_status "To install Node.js, run:"
-            echo "  sudo apt-get update && sudo apt-get install -y nodejs npm"
+            print_status "Installing Node.js via apt-get..."
+            if sudo apt-get update -qq && sudo apt-get install -y nodejs npm -qq 2>&1 | grep -v "Reading"; then
+                print_success "Node.js installed successfully!"
+            else
+                print_error "Failed to install Node.js automatically"
+                print_status "Please run manually: sudo apt-get update && sudo apt-get install -y nodejs npm"
+                print_warning "Continuing with fallback HTML dashboard..."
+            fi
         elif command -v brew &> /dev/null; then
-            print_status "To install Node.js, run:"
-            echo "  brew install node"
+            print_status "Installing Node.js via Homebrew..."
+            if brew install node 2>&1 | grep -v "Warning:"; then
+                print_success "Node.js installed successfully!"
+            else
+                print_error "Failed to install Node.js automatically"
+                print_status "Please run manually: brew install node"
+                print_warning "Continuing with fallback HTML dashboard..."
+            fi
         elif [ -d "$HOME/.nvm" ]; then
-            print_status "nvm detected. Run:"
-            echo "  source ~/.nvm/nvm.sh && nvm install --lts && nvm use --lts"
+            print_status "Installing Node.js via nvm..."
+            source ~/.nvm/nvm.sh
+            if nvm install --lts && nvm use --lts; then
+                print_success "Node.js installed successfully!"
+            else
+                print_error "Failed to install Node.js via nvm"
+                print_warning "Continuing with fallback HTML dashboard..."
+            fi
         else
-            print_status "To install Node.js, visit: https://nodejs.org/"
+            print_error "No supported package manager found"
+            print_status "Please install Node.js manually from: https://nodejs.org/"
+            print_warning "Continuing with fallback HTML dashboard..."
         fi
+    fi
 
-        echo ""
-        print_warning "Continuing with fallback HTML dashboard for now (Svelte build will auto-run once npm is available)..."
-    else
+    # Re-check if npm is now available after installation attempt
+    if command -v npm &> /dev/null; then
         # npm is available, build the dashboard
-        print_success "Node.js/npm found - building Svelte dashboard..."
+        print_success "Node.js/npm ready - building Svelte dashboard..."
         start_spinner "Installing dashboard dependencies..."
         cd "$UDOS_ROOT/wizard/dashboard"
 
-        if npm install --quiet 2>/dev/null; then
-            stop_spinner "Dashboard dependencies installed"
-        else
-            stop_spinner "Dashboard dependencies installed (with warnings)"
-        fi
+        npm install --quiet 2>&1 | grep -v "npm WARN" || true
+        stop_spinner "Dashboard dependencies installed"
 
         start_spinner "Building Svelte dashboard..."
-        if npm run build --quiet 2>/dev/null; then
-            stop_spinner "Dashboard built successfully ✨"
-        else
-            stop_spinner "Dashboard built (with warnings)"
-        fi
+        npm run build --quiet 2>&1 | grep -v "npm WARN" || true
+        stop_spinner "Dashboard built successfully ✨"
 
         cd "$UDOS_ROOT"
         print_success "Svelte dashboard is ready!"
+    else
+        print_warning "npm still not available after installation attempt"
+        print_warning "Using fallback HTML dashboard"
     fi
 else
     print_success "Svelte dashboard already built"
