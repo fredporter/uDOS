@@ -52,8 +52,10 @@ from wizard.services.rate_limiter import (
 )
 
 # Configuration
-WIZARD_DATA_PATH = Path(__file__).parent.parent.parent / "memory" / "wizard"
-PLUGIN_REPO_PATH = Path(__file__).parent.parent.parent / "distribution" / "plugins"
+# Anchor to repo root (wizard/ is 1 level down from root)
+REPO_ROOT = Path(__file__).parent.parent.resolve()
+WIZARD_DATA_PATH = REPO_ROOT / "memory" / "wizard"
+PLUGIN_REPO_PATH = REPO_ROOT / "distribution" / "plugins"
 CONFIG_PATH = Path(__file__).parent / "config"
 
 

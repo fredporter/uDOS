@@ -247,7 +247,9 @@ class WorkflowRunner:
             List of downloaded file paths
         """
         if not destination:
-            destination = Path(f"memory/artifacts/{run_id}")
+            # Anchor to repo root
+            repo_root = Path(__file__).parent.parent.parent.resolve()
+            destination = repo_root / "memory" / "artifacts" / str(run_id)
 
         try:
             logger.info(f"[WIZ] Downloading artifacts from run {run_id}")

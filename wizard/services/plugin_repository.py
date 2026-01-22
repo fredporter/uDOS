@@ -32,8 +32,9 @@ from wizard.services.logging_manager import get_logger
 
 logger = get_logger("plugin-repository")
 
-# Paths
-REPO_BASE = Path(__file__).parent.parent.parent / "distribution" / "plugins"
+# Paths (anchor to repo root)
+REPO_ROOT = Path(__file__).parent.parent.parent.resolve()
+REPO_BASE = REPO_ROOT / "distribution" / "plugins"
 INDEX_PATH = REPO_BASE / "index.json"
 PACKAGES_PATH = REPO_BASE / "packages"
 CACHE_PATH = REPO_BASE / "cache"

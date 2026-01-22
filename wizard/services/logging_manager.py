@@ -103,8 +103,9 @@ class LoggingManager:
     def __init__(self, log_dir: Optional[str] = None):
         """Initialize logging manager."""
         if log_dir is None:
-            # Use memory/logs/ directory
-            log_dir = str(Path(__file__).parent.parent.parent / "memory" / "logs")
+            # Use memory/logs/ directory (anchor to repo root)
+            repo_root = Path(__file__).parent.parent.parent.resolve()
+            log_dir = str(repo_root / "memory" / "logs")
         
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)
