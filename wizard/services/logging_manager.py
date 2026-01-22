@@ -16,10 +16,13 @@ Usage:
 
 import logging
 import json
+import os
 import re
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Any
+
+from wizard.services.path_utils import get_repo_root
 
 
 class FlatFileHandler(logging.FileHandler):
@@ -103,16 +106,12 @@ class LoggingManager:
     def __init__(self, log_dir: Optional[str] = None):
         """Initialize logging manager."""
         if log_dir is None:
-            # Find repo root by looking for uDOS.py marker
-            current = Path(__file__).resolve()
-            repo_root = None
-            for parent in [current.parent] + list(current.parents):
-                if (parent / "uDOS.py").exists():
-                    repo_root = parent
-                    break
-            if not repo_root:
-                repo_root = Path(__file__).parent.parent.parent.resolve()
-            log_dir = str(repo_root / "memory" / "logs")
+            # Allow override via env; otherwise anchor to repo root
+            env_log_dir = os.environ.get("UDOS_LOG_DIR")
+            if env_log_dir:
+                log_dir = env_log_dir
+            else:
+                log_dir = str(get_repo_root() / "memory" / "logs")
         
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)

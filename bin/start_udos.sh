@@ -14,6 +14,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UDOS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$UDOS_ROOT"
 
+# Centralized logs
+export UDOS_LOG_DIR="$UDOS_ROOT/memory/logs"
+mkdir -p "$UDOS_LOG_DIR"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
