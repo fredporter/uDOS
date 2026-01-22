@@ -5,9 +5,41 @@
 
 set -e
 
-# Resolve script location and uDOS root (works regardless of current cwd)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-UDOS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# Resolve uDOS root by locating uDOS.py (prevents /memory or /distribution at /)
+find_repo_root() {
+    local start="$1"
+    while [ -n "$start" ] && [ "$start" != "/" ]; do
+        if [ -f "$start/uDOS.py" ]; then
+            echo "$start"
+            return 0
+        fi
+        start="$(dirname "$start")"
+    done
+    return 1
+}
+
+resolve_udos_root() {
+    # 1) honor UDOS_ROOT if it already points at a repo
+    if [ -n "$UDOS_ROOT" ] && [ -f "$UDOS_ROOT/uDOS.py" ]; then
+        echo "$UDOS_ROOT"
+        return 0
+    fi
+
+    # 2) search upward from the launcher script location
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local found
+    found="$(find_repo_root "$script_dir")" && { echo "$found"; return 0; }
+
+    # 3) search upward from the current working directory
+    found="$(find_repo_root "$(pwd)")" && { echo "$found"; return 0; }
+
+    echo "[start_wizard] Could not locate uDOS repo root (missing uDOS.py). Set UDOS_ROOT or run from inside the repo." >&2
+    exit 1
+}
+
+UDOS_ROOT="$(resolve_udos_root)"
+export UDOS_ROOT
 cd "$UDOS_ROOT"
 
 # Centralized logs
