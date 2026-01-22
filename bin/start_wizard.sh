@@ -21,7 +21,7 @@ NC='\033[0m' # No Color
 
 # Get version dynamically from wizard/version.json
 if [ -f "$UDOS_ROOT/wizard/version.json" ]; then
-    WIZARD_VERSION=$(python3 -c "import json, pathlib; p=pathlib.Path('$UDOS_ROOT')/'wizard'/'version.json'; print(json.load(open(p))['version'])" 2>/dev/null || echo "1.0.0.0")
+    WIZARD_VERSION=$(python3 -c "import json; v=json.load(open('$UDOS_ROOT/wizard/version.json'))['version']; print(f\"v{v['major']}.{v['minor']}.{v['patch']}.{v['build']}\")" 2>/dev/null || echo "1.0.0.0")
 else
     WIZARD_VERSION="1.0.0.0"
 fi
@@ -123,23 +123,26 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
 
         # Try automatic installation based on system
         if command -v apt-get &> /dev/null; then
-            print_status "Installing Node.js via apt-get (this may take a minute)..."
+            print_status "Installing Node.js 20 LTS via NodeSource (this may take 2-3 minutes)..."
             echo ""
-            
-            # Run apt-get update with visible progress
-            echo -e "${BLUE}[→]${NC} Updating package lists..."
-            sudo apt-get update 2>&1 | grep -E "Get:|Fetched|Reading" || true
-            
-            # Run apt-get install with visible progress
-            echo -e "${BLUE}[→]${NC} Installing nodejs and npm..."
-            sudo apt-get install -y nodejs npm 2>&1 | grep -E "Unpacking|Setting up|Processing" || true
-            
-            echo ""
-            if command -v npm &> /dev/null; then
-                print_success "Node.js installed successfully!"
+
+            # Install NodeSource repository for Node 20 LTS
+            echo -e "${BLUE}[→]${NC} Adding NodeSource repository..."
+            if curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - 2>&1 | grep -E "Repository|setup" || true; then
+                echo ""
+                echo -e "${BLUE}[→]${NC} Installing Node.js 20..."
+                sudo apt-get install -y nodejs 2>&1 | grep -E "Unpacking|Setting up|Processing" || true
+                echo ""
+
+                if command -v npm &> /dev/null; then
+                    NODE_VER=$(node -v)
+                    print_success "Node.js ${NODE_VER} installed successfully!"
+                else
+                    print_error "Failed to install Node.js automatically"
+                    print_warning "Continuing with fallback HTML dashboard..."
+                fi
             else
-                print_error "Failed to install Node.js automatically"
-                print_status "Please run manually: sudo apt-get update && sudo apt-get install -y nodejs npm"
+                print_error "Failed to add NodeSource repository"
                 print_warning "Continuing with fallback HTML dashboard..."
             fi
         elif command -v brew &> /dev/null; then
@@ -182,8 +185,17 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
         stop_spinner "Dashboard dependencies installed"
 
         start_spinner "Building Svelte dashboard..."
-        npm run build --quiet 2>&1 | grep -v "npm WARN" || true
-        stop_spinner "Dashboard built successfully ✨"
+        if npm run build 2>&1 | tee /tmp/vite_build.log | grep -E "vite|building|Built" || true; then
+            if [ -d "$UDOS_ROOT/wizard/dashboard/dist" ]; then
+                stop_spinner "Dashboard built successfully ✨"
+            else
+                stop_spinner "Dashboard build failed (check /tmp/vite_build.log)"
+                print_warning "Falling back to HTML dashboard"
+            fi
+        else
+            stop_spinner "Dashboard build failed"
+            print_warning "Falling back to HTML dashboard"
+        fi
 
         cd "$UDOS_ROOT"
         print_success "Svelte dashboard is ready!"
