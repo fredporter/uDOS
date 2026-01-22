@@ -237,6 +237,24 @@ class WizardServer:
         )
         app.include_router(sync_executor_router)
 
+        # Register Binder compiler routes
+        from wizard.routes.binder_routes import create_binder_routes
+
+        binder_router = create_binder_routes(auth_guard=self._authenticate)
+        app.include_router(binder_router)
+
+        # Register GitHub integration routes
+        from wizard.routes.github_routes import create_github_routes
+
+        github_router = create_github_routes(auth_guard=self._authenticate)
+        app.include_router(github_router)
+
+        # Register AI routes (Mistral/Vibe)
+        from wizard.routes.ai_routes import create_ai_routes
+
+        ai_router = create_ai_routes(auth_guard=self._authenticate)
+        app.include_router(ai_router)
+
         # Mount dashboard static files
         from fastapi.staticfiles import StaticFiles
         from fastapi.responses import FileResponse, HTMLResponse

@@ -23,6 +23,13 @@
     { id: "webhooks", label: "Webhooks" },
     { id: "logs", label: "Logs" },
     { id: "config", label: "Config" },
+    { separator: true, label: "Services" },
+    { id: "devmode", label: "🧌 Dev Mode" },
+    { id: "tasks", label: "⏱️ Task Scheduler" },
+    { id: "workflow", label: "✅ Workflow" },
+    { id: "binder", label: "📚 Binder Compiler" },
+    { id: "notion", label: "📝 Notion Sync" },
+    { id: "github", label: "🐙 GitHub" },
   ];
 
   async function toggleFullscreen() {
@@ -109,12 +116,16 @@
     <div class="wizard-menu-dropdown">
       <nav class="menu-nav">
         {#each allMenuRoutes as route}
-          <button
-            class="menu-item {currentRoute === route.id ? 'active' : ''}"
-            on:click={() => handleNavigate(route.id)}
-          >
-            {route.label}
-          </button>
+          {#if route.separator}
+            <div class="menu-separator">{route.label}</div>
+          {:else}
+            <button
+              class="menu-item {currentRoute === route.id ? 'active' : ''}"
+              on:click={() => handleNavigate(route.id)}
+            >
+              {route.label}
+            </button>
+          {/if}
         {/each}
       </nav>
     </div>
@@ -361,6 +372,22 @@
   :global(html.light) .menu-item.active {
     background: #f1f5f9;
     color: #0f172a;
+  }
+
+  .menu-separator {
+    padding: 0.75rem 1rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-top: 1px solid #374151;
+    margin-top: 0.5rem;
+  }
+
+  :global(html.light) .menu-separator {
+    color: #64748b;
+    border-top-color: #e2e8f0;
   }
 
   .menu-label {

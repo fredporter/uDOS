@@ -7,6 +7,12 @@
   import Logs from "./routes/Logs.svelte";
   import Catalog from "./routes/Catalog.svelte";
   import Config from "./routes/Config.svelte";
+  import DevMode from "./routes/DevMode.svelte";
+  import Tasks from "./routes/Tasks.svelte";
+  import Workflow from "./routes/Workflow.svelte";
+  import Binder from "./routes/Binder.svelte";
+  import Notion from "./routes/Notion.svelte";
+  import GitHub from "./routes/GitHub.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
   import WizardBottomBar from "./components/WizardBottomBar.svelte";
 
@@ -75,6 +81,18 @@
         <Catalog />
       {:else if currentRoute === "config"}
         <Config />
+      {:else if currentRoute === "devmode"}
+        <DevMode />
+      {:else if currentRoute === "tasks"}
+        <Tasks />
+      {:else if currentRoute === "workflow"}
+        <Workflow />
+      {:else if currentRoute === "binder"}
+        <Binder />
+      {:else if currentRoute === "notion"}
+        <Notion />
+      {:else if currentRoute === "github"}
+        <GitHub />
       {/if}
     </main>
   </div>
