@@ -46,9 +46,7 @@ class GitHubIntegration:
     def _run_gh(self, args: List[str]) -> Dict[str, Any]:
         """Run GitHub CLI command (requires availability check)."""
         if not self.available:
-            raise RuntimeError(
-                self.error_message or "GitHub CLI not available"
-            )
+            raise RuntimeError(self.error_message or "GitHub CLI not available")
         result = subprocess.run(
             ["gh"] + args,
             capture_output=True,

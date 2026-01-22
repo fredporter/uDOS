@@ -120,8 +120,16 @@
       <div class="bg-yellow-950 p-4 rounded border border-yellow-800">
         <p class="font-medium mb-2">To enable GitHub integration:</p>
         <ol class="list-decimal list-inside space-y-1 text-sm">
-          <li>Install GitHub CLI: <code class="bg-yellow-800 px-2 py-1 rounded">brew install gh</code></li>
-          <li>Authenticate: <code class="bg-yellow-800 px-2 py-1 rounded">gh auth login</code></li>
+          <li>
+            Install GitHub CLI: <code class="bg-yellow-800 px-2 py-1 rounded"
+              >brew install gh</code
+            >
+          </li>
+          <li>
+            Authenticate: <code class="bg-yellow-800 px-2 py-1 rounded"
+              >gh auth login</code
+            >
+          </li>
           <li>Restart Wizard server</li>
         </ol>
       </div>
