@@ -32,8 +32,16 @@ from wizard.services.logging_manager import get_logger
 
 logger = get_logger("plugin-repository")
 
-# Paths (anchor to repo root)
-REPO_ROOT = Path(__file__).parent.parent.parent.resolve()
+# Paths (anchor to repo root by finding uDOS.py marker)
+def find_repo_root() -> Path:
+    """Find uDOS repository root by looking for uDOS.py marker file."""
+    current = Path(__file__).resolve()
+    for parent in [current.parent] + list(current.parents):
+        if (parent / "uDOS.py").exists():
+            return parent
+    return Path(__file__).parent.parent.parent.resolve()
+
+REPO_ROOT = find_repo_root()
 REPO_BASE = REPO_ROOT / "distribution" / "plugins"
 INDEX_PATH = REPO_BASE / "index.json"
 PACKAGES_PATH = REPO_BASE / "packages"

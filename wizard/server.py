@@ -31,6 +31,7 @@ from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict, field
 
 from wizard.services.ai_gateway import AIRequest, AIGateway
+from wizard.services.path_utils import get_repo_root
 
 # Optional FastAPI (only on Wizard Server)
 try:
@@ -52,8 +53,8 @@ from wizard.services.rate_limiter import (
 )
 
 # Configuration
-# Anchor to repo root (wizard/ is 1 level down from root)
-REPO_ROOT = Path(__file__).parent.parent.resolve()
+# Use shared path utility to find repo root reliably
+REPO_ROOT = get_repo_root()
 WIZARD_DATA_PATH = REPO_ROOT / "memory" / "wizard"
 PLUGIN_REPO_PATH = REPO_ROOT / "distribution" / "plugins"
 CONFIG_PATH = Path(__file__).parent / "config"

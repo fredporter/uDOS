@@ -247,8 +247,15 @@ class WorkflowRunner:
             List of downloaded file paths
         """
         if not destination:
-            # Anchor to repo root
-            repo_root = Path(__file__).parent.parent.parent.resolve()
+            # Find repo root by looking for uDOS.py marker
+            current = Path(__file__).resolve()
+            repo_root = None
+            for parent in [current.parent] + list(current.parents):
+                if (parent / "uDOS.py").exists():
+                    repo_root = parent
+                    break
+            if not repo_root:
+                repo_root = Path(__file__).parent.parent.parent.resolve()
             destination = repo_root / "memory" / "artifacts" / str(run_id)
 
         try:
