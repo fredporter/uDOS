@@ -1,3 +1,7 @@
+# Check data directories (v1.2.21: memory-based structure) - silent creation
+for dir in "$UDOS_ROOT/memory/ucode/sandbox" "$UDOS_ROOT/memory/ucode/scripts" "$UDOS_ROOT/memory/logs" "$UDOS_ROOT/memory/drafts"; do
+    mkdir -p "$dir" 2>/dev/null
+done
 #!/bin/bash
 
 # uDOS Launcher Script - Alpha v1.0.0.0+
@@ -5,10 +9,10 @@
 
 set -e  # Exit on error
 
-# Navigate to root directory if running from bin/
-if [ "$(basename "$(pwd)")" = "bin" ]; then
-    cd ..
-fi
+# Resolve script location and uDOS root (works regardless of current cwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+UDOS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$UDOS_ROOT"
 
 # Colors for output
 RED='\033[0;31m'
@@ -20,8 +24,8 @@ MAGENTA='\033[0;35m'
 NC='\033[0m' # No Color
 
 # Get version dynamically from core/version.json
-if [ -f "core/version.json" ]; then
-    UDOS_VERSION=$(python3 -c "import json; print(json.load(open('core/version.json'))['version'])" 2>/dev/null || echo "1.0.0.0")
+if [ -f "$UDOS_ROOT/core/version.json" ]; then
+    UDOS_VERSION=$(python3 -c "import json, pathlib; p=pathlib.Path('$UDOS_ROOT')/'core'/'version.json'; print(json.load(open(p))['version'])" 2>/dev/null || echo "1.0.0.0")
 else
     UDOS_VERSION="1.0.0.0"
 fi
@@ -51,7 +55,7 @@ show_progress() {
     local current=$1
     local total=$2
     local message="$3"
-    
+
     # Use Python's modular progress bar for consistent, dynamic formatting
     python3 << EOF
 import sys
@@ -347,7 +351,7 @@ if command -v node &> /dev/null; then
 fi
 
 # Check data directories (v1.2.21: memory-based structure) - silent creation
-for dir in memory/ucode/sandbox memory/ucode/scripts memory/logs memory/drafts; do
+for dir in "$UDOS_ROOT/memory/ucode/sandbox" "$UDOS_ROOT/memory/ucode/scripts" "$UDOS_ROOT/memory/logs" "$UDOS_ROOT/memory/drafts"; do
     mkdir -p "$dir" 2>/dev/null
 done
 

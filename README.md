@@ -25,36 +25,19 @@ pip install -r requirements.txt
 
 ### Launch Options
 
-**Core TUI (Text Interface):**
+Pick your starting point — each has a dedicated launcher script:
 
-```bash
-# Run TUI directly
-./bin/start_udos.sh
+| What You Want                    | Command                           | Port     | Features                                |
+| -------------------------------- | --------------------------------- | -------- | --------------------------------------- |
+| **Text CLI (recommended first)** | `./bin/start_udos.sh`             | —        | Offline-first, no server needed         |
+| **Web Dashboard + APIs**         | `./bin/start_wizard.sh`           | 8765     | Production server, webhooks, AI routing |
+| **Dev Experiments**              | `./bin/start_goblin.sh`           | 8767     | Notion sync, runtime execution, tasks   |
+| **Desktop App**                  | `cd dev/app && npm run tauri dev` | —        | GUI with markdown formats               |
+| **Everything at once**           | `./bin/Launch-Dev-Mode.command`   | Multiple | Full dev environment                    |
 
-# Or via Python module
-python -m core.tui
-```
+**See [QUICKSTART.md](QUICKSTART.md) for detailed launch instructions and options.**
 
-**Wizard Server (Always-on Backend):**
-
-```bash
-# Launch with launcher script
-./bin/Launch-Wizard-Dev.command
-
-# Or directly
-python -m wizard.server
-
-# Or with interactive console
-python -m wizard.server --interactive
-```
-
-**Full Development Mode (TUI + Wizard + API):**
-
-```bash
-./bin/Launch-Dev-Mode.command
-```
-
-See [INSTALLATION.md](INSTALLATION.md) for full setup guide and troubleshooting.
+For setup guide and troubleshooting, see [INSTALLATION.md](INSTALLATION.md).
 
 ---
 
