@@ -94,12 +94,16 @@ stop_spinner "Dependencies installed and ready"
 
 INTERACTIVE=0
 PORT=8765
+ALLOW_FALLBACK=0
 
 # Parse simple flags/port
 for arg in "$@"; do
     case "$arg" in
         --interactive|-i)
             INTERACTIVE=1
+            ;;
+        --allow-fallback)
+            ALLOW_FALLBACK=1
             ;;
         --port=*)
             PORT="${arg#*=}"
@@ -139,11 +143,21 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
                     print_success "Node.js ${NODE_VER} installed successfully!"
                 else
                     print_error "Failed to install Node.js automatically"
-                    print_warning "Continuing with fallback HTML dashboard..."
+                    if [ "$ALLOW_FALLBACK" -eq 1 ]; then
+                        print_warning "Continuing with fallback HTML dashboard..."
+                    else
+                        print_error "Dashboard build aborted (npm unavailable). Use --allow-fallback to skip build."
+                        exit 1
+                    fi
                 fi
             else
                 print_error "Failed to add NodeSource repository"
-                print_warning "Continuing with fallback HTML dashboard..."
+                if [ "$ALLOW_FALLBACK" -eq 1 ]; then
+                    print_warning "Continuing with fallback HTML dashboard..."
+                else
+                    print_error "Dashboard build aborted (NodeSource setup failed). Use --allow-fallback to skip build."
+                    exit 1
+                fi
             fi
         elif command -v brew &> /dev/null; then
             print_status "Installing Node.js via Homebrew (this may take a minute)..."
@@ -156,7 +170,12 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
             else
                 print_error "Failed to install Node.js automatically"
                 print_status "Please run manually: brew install node"
-                print_warning "Continuing with fallback HTML dashboard..."
+                if [ "$ALLOW_FALLBACK" -eq 1 ]; then
+                    print_warning "Continuing with fallback HTML dashboard..."
+                else
+                    print_error "Dashboard build aborted (npm unavailable). Use --allow-fallback to skip build."
+                    exit 1
+                fi
             fi
         elif [ -d "$HOME/.nvm" ]; then
             print_status "Installing Node.js via nvm..."
@@ -165,12 +184,53 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
                 print_success "Node.js installed successfully!"
             else
                 print_error "Failed to install Node.js via nvm"
-                print_warning "Continuing with fallback HTML dashboard..."
+                if [ "$ALLOW_FALLBACK" -eq 1 ]; then
+                    print_warning "Continuing with fallback HTML dashboard..."
+                else
+                    print_error "Dashboard build aborted (npm unavailable). Use --allow-fallback to skip build."
+                    exit 1
+                fi
             fi
         else
             print_error "No supported package manager found"
             print_status "Please install Node.js manually from: https://nodejs.org/"
-            print_warning "Continuing with fallback HTML dashboard..."
+            if [ "$ALLOW_FALLBACK" -eq 1 ]; then
+                print_warning "Continuing with fallback HTML dashboard..."
+            else
+                print_error "Dashboard build aborted (npm unavailable). Use --allow-fallback to skip build."
+                exit 1
+            fi
+        fi
+    fi
+
+    # Enforce minimum Node version
+    if command -v node &> /dev/null; then
+        NODE_VERSION=$(node -v | cut -dv -f2)
+        NODE_MAJOR=$(echo "$NODE_VERSION" | cut -d'.' -f1)
+        if [ "$NODE_MAJOR" -lt 18 ]; then
+            print_error "Node.js $NODE_VERSION is too old (need >=18, recommended 20)."
+            if command -v apt-get &> /dev/null; then
+                print_status "Reinstalling Node.js 20 via NodeSource..."
+                if curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs; then
+                    print_success "Node.js upgraded to $(node -v)"
+                else
+                    if [ "$ALLOW_FALLBACK" -eq 1 ]; then
+                        print_warning "Continuing with fallback HTML dashboard..."
+                        NODE_TOO_OLD=1
+                    else
+                        print_error "Dashboard build aborted (Node too old). Use --allow-fallback to skip build."
+                        exit 1
+                    fi
+                fi
+            else
+                if [ "$ALLOW_FALLBACK" -eq 1 ]; then
+                    print_warning "Continuing with fallback HTML dashboard..."
+                    NODE_TOO_OLD=1
+                else
+                    print_error "Dashboard build aborted (Node too old). Upgrade Node >=18."
+                    exit 1
+                fi
+            fi
         fi
     fi
 
@@ -190,18 +250,37 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
                 stop_spinner "Dashboard built successfully ✨"
             else
                 stop_spinner "Dashboard build failed (check /tmp/vite_build.log)"
-                print_warning "Falling back to HTML dashboard"
+                if [ "$ALLOW_FALLBACK" -eq 1 ] || [ "$NODE_TOO_OLD" = "1" ]; then
+                    print_warning "Falling back to HTML dashboard"
+                else
+                    print_error "Build failed; see /tmp/vite_build.log"
+                    exit 1
+                fi
             fi
         else
             stop_spinner "Dashboard build failed"
-            print_warning "Falling back to HTML dashboard"
+            if [ "$ALLOW_FALLBACK" -eq 1 ] || [ "$NODE_TOO_OLD" = "1" ]; then
+                print_warning "Falling back to HTML dashboard"
+            else
+                print_error "Build failed; see /tmp/vite_build.log"
+                exit 1
+            fi
         fi
 
         cd "$UDOS_ROOT"
-        print_success "Svelte dashboard is ready!"
+        if [ "$ALLOW_FALLBACK" -eq 1 ] && [ ! -d "$UDOS_ROOT/wizard/dashboard/dist" ]; then
+            print_warning "Svelte dashboard not built; using fallback HTML"
+        else
+            print_success "Svelte dashboard is ready!"
+        fi
     else
         print_warning "npm still not available after installation attempt"
-        print_warning "Using fallback HTML dashboard"
+        if [ "$ALLOW_FALLBACK" -eq 1 ]; then
+            print_warning "Using fallback HTML dashboard"
+        else
+            print_error "Dashboard build aborted (npm unavailable). Use --allow-fallback to skip build."
+            exit 1
+        fi
     fi
 else
     print_success "Svelte dashboard already built"
