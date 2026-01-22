@@ -134,11 +134,18 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
             print_status "Installing Node.js 20 LTS via NodeSource (this may take 2-3 minutes)..."
             echo ""
 
+            # Ensure curl exists for NodeSource script
+            if ! command -v curl &> /dev/null; then
+                echo -e "${BLUE}[→]${NC} Installing curl..."
+                sudo apt-get update 2>/dev/null | grep -E "Get:|Fetched|Reading" || true
+                sudo apt-get install -y curl 2>/dev/null | grep -E "Unpacking|Setting up|Processing" || true
+            fi
+
             # Install NodeSource repository for Node 20 LTS
             echo -e "${BLUE}[→]${NC} Adding NodeSource repository..."
-            if curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - 2>&1 | grep -E "Repository|setup" || true; then
+            if curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - 2>&1 | grep -E "Repository|setup|NodeSource" || true; then
                 echo ""
-                echo -e "${BLUE}[→]${NC} Installing Node.js 20..."
+                echo -e "${BLUE}[→]${NC} Installing Node.js 20 (replaces old nodejs/npm)..."
                 sudo apt-get install -y nodejs 2>&1 | grep -E "Unpacking|Setting up|Processing" || true
                 echo ""
 
@@ -214,6 +221,13 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
         if [ "$NODE_MAJOR" -lt 18 ]; then
             print_error "Node.js $NODE_VERSION is too old (need >=18, recommended 20)."
             if command -v apt-get &> /dev/null; then
+                # Ensure curl exists
+                if ! command -v curl &> /dev/null; then
+                    echo -e "${BLUE}[→]${NC} Installing curl..."
+                    sudo apt-get update 2>/dev/null | grep -E "Get:|Fetched|Reading" || true
+                    sudo apt-get install -y curl 2>/dev/null | grep -E "Unpacking|Setting up|Processing" || true
+                fi
+
                 print_status "Reinstalling Node.js 20 via NodeSource..."
                 if curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs; then
                     print_success "Node.js upgraded to $(node -v)"
