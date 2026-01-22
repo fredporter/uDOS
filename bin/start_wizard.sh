@@ -141,6 +141,11 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
                 sudo apt-get install -y curl 2>/dev/null | grep -E "Unpacking|Setting up|Processing" || true
             fi
 
+            # Remove conflicting old node packages to avoid dpkg overwrite errors
+            echo -e "${BLUE}[→]${NC} Removing old node packages (nodejs/npm/libnode-dev)..."
+            sudo apt-get remove -y nodejs npm libnode-dev nodejs-doc 2>/dev/null | grep -E "Removing|Purging" || true
+            sudo apt-get autoremove -y 2>/dev/null | grep -E "Removing" || true
+
             # Install NodeSource repository for Node 20 LTS
             echo -e "${BLUE}[→]${NC} Adding NodeSource repository..."
             if curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - 2>&1 | grep -E "Repository|setup|NodeSource" || true; then
