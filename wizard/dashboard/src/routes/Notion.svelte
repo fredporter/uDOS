@@ -82,10 +82,14 @@
 
 <div class="max-w-7xl mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold text-white mb-2">Notion Sync</h1>
-  <p class="text-gray-400 mb-8">Bidirectional Notion ↔ Markdown synchronization</p>
+  <p class="text-gray-400 mb-8">
+    Bidirectional Notion ↔ Markdown synchronization
+  </p>
 
   {#if error}
-    <div class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6">
+    <div
+      class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6"
+    >
       {error}
     </div>
   {/if}
@@ -126,14 +130,19 @@
           <div class="bg-gray-900 border border-gray-700 rounded p-3">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <span class="text-2xl">{getEventTypeIcon(item.event_type)}</span>
+                <span class="text-2xl">{getEventTypeIcon(item.event_type)}</span
+                >
                 <div>
-                  <div class="text-white font-medium">{item.page_title || "Untitled"}</div>
+                  <div class="text-white font-medium">
+                    {item.page_title || "Untitled"}
+                  </div>
                   <div class="text-gray-400 text-xs">{item.event_type}</div>
                 </div>
               </div>
               <span
-                class="px-2 py-1 rounded text-xs border {getStatusClass(item.status)}"
+                class="px-2 py-1 rounded text-xs border {getStatusClass(
+                  item.status,
+                )}"
               >
                 {item.status}
               </span>

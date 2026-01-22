@@ -7,13 +7,41 @@
   let devlog = [];
   let loading = true;
   let error = null;
+  let ghAvailable = true;
+  let ghError = null;
   let activeTab = "repos";
+
+  async function checkHealth() {
+    try {
+      const res = await fetch("/api/v1/github/health");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === "unavailable") {
+          ghAvailable = false;
+          ghError = data.error;
+          loading = false;
+          return false;
+        }
+        ghAvailable = true;
+        return true;
+      }
+    } catch (err) {
+      console.error("Failed to check GitHub health:", err);
+      ghAvailable = false;
+      ghError = "Failed to connect to GitHub service";
+      loading = false;
+      return false;
+    }
+    return true;
+  }
 
   async function loadRepos() {
     try {
       const res = await fetch("/api/v1/github/repos");
       if (res.ok) {
         repos = await res.json();
+      } else if (res.status === 503) {
+        ghAvailable = false;
       }
     } catch (err) {
       console.error("Failed to load repos:", err);
@@ -25,6 +53,8 @@
       const res = await fetch("/api/v1/github/issues");
       if (res.ok) {
         issues = await res.json();
+      } else if (res.status === 503) {
+        ghAvailable = false;
       }
     } catch (err) {
       console.error("Failed to load issues:", err);
@@ -36,6 +66,8 @@
       const res = await fetch("/api/v1/github/pull-requests");
       if (res.ok) {
         pullRequests = await res.json();
+      } else if (res.status === 503) {
+        ghAvailable = false;
       }
     } catch (err) {
       console.error("Failed to load PRs:", err);
@@ -56,11 +88,14 @@
     }
   }
 
-  onMount(() => {
-    loadRepos();
-    loadIssues();
-    loadPullRequests();
-    loadDevlog();
+  onMount(async () => {
+    const available = await checkHealth();
+    if (available) {
+      loadRepos();
+      loadIssues();
+      loadPullRequests();
+      loadDevlog();
+    }
   });
 
   function getStateClass(state) {
@@ -76,8 +111,25 @@
     Repository context, issues, PRs, and development logs
   </p>
 
-  {#if error}
-    <div class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6">
+  {#if !ghAvailable}
+    <div
+      class="bg-yellow-900 text-yellow-200 p-6 rounded-lg border border-yellow-700 mb-6"
+    >
+      <h3 class="text-lg font-semibold mb-2">⚠️ GitHub CLI Not Available</h3>
+      <p class="mb-4">{ghError || "GitHub CLI is not configured"}</p>
+      <div class="bg-yellow-950 p-4 rounded border border-yellow-800">
+        <p class="font-medium mb-2">To enable GitHub integration:</p>
+        <ol class="list-decimal list-inside space-y-1 text-sm">
+          <li>Install GitHub CLI: <code class="bg-yellow-800 px-2 py-1 rounded">brew install gh</code></li>
+          <li>Authenticate: <code class="bg-yellow-800 px-2 py-1 rounded">gh auth login</code></li>
+          <li>Restart Wizard server</li>
+        </ol>
+      </div>
+    </div>
+  {:else if error}
+    <div
+      class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6"
+    >
       {error}
     </div>
   {/if}
@@ -156,7 +208,7 @@
                   <h4 class="text-white font-medium flex-1">{issue.title}</h4>
                   <span
                     class="px-2 py-1 rounded text-xs border {getStateClass(
-                      issue.state
+                      issue.state,
                     )}"
                   >
                     {issue.state}
@@ -164,7 +216,7 @@
                 </div>
                 <div class="text-xs text-gray-500">
                   #{issue.number} • {issue.author} • {new Date(
-                    issue.created_at
+                    issue.created_at,
                   ).toLocaleDateString()}
                 </div>
               </div>
@@ -181,14 +233,16 @@
                 <div class="flex items-start justify-between mb-2">
                   <h4 class="text-white font-medium flex-1">{pr.title}</h4>
                   <span
-                    class="px-2 py-1 rounded text-xs border {getStateClass(pr.state)}"
+                    class="px-2 py-1 rounded text-xs border {getStateClass(
+                      pr.state,
+                    )}"
                   >
                     {pr.state}
                   </span>
                 </div>
                 <div class="text-xs text-gray-500">
                   #{pr.number} • {pr.author} • {new Date(
-                    pr.created_at
+                    pr.created_at,
                   ).toLocaleDateString()}
                 </div>
               </div>

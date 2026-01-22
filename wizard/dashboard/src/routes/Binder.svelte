@@ -70,10 +70,14 @@
 
 <div class="max-w-7xl mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold text-white mb-2">Binder Compiler</h1>
-  <p class="text-gray-400 mb-8">Multi-format document compilation (Markdown, PDF, JSON, Brief)</p>
+  <p class="text-gray-400 mb-8">
+    Multi-format document compilation (Markdown, PDF, JSON, Brief)
+  </p>
 
   {#if error}
-    <div class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6">
+    <div
+      class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6"
+    >
       {error}
     </div>
   {/if}
@@ -96,7 +100,9 @@
               {/if}
             </div>
             <span
-              class="px-2 py-1 rounded text-xs border {getStatusClass(binder.status)}"
+              class="px-2 py-1 rounded text-xs border {getStatusClass(
+                binder.status,
+              )}"
             >
               {binder.status}
             </span>
@@ -121,7 +127,9 @@
 
           <!-- Compile Actions -->
           <div class="border-t border-gray-700 pt-4">
-            <h4 class="text-sm font-semibold text-gray-400 mb-3">Compile To:</h4>
+            <h4 class="text-sm font-semibold text-gray-400 mb-3">
+              Compile To:
+            </h4>
             <div class="flex gap-2">
               {#each ["markdown", "pdf", "json", "brief"] as format}
                 <button
@@ -139,14 +147,17 @@
           <!-- Recent Outputs -->
           {#if binder.outputs && binder.outputs.length > 0}
             <div class="border-t border-gray-700 mt-4 pt-4">
-              <h4 class="text-sm font-semibold text-gray-400 mb-3">Recent Outputs:</h4>
+              <h4 class="text-sm font-semibold text-gray-400 mb-3">
+                Recent Outputs:
+              </h4>
               <div class="space-y-2">
                 {#each binder.outputs as output}
                   <div
                     class="flex items-center justify-between bg-gray-900 border border-gray-700 rounded p-2"
                   >
                     <div class="flex items-center gap-2">
-                      <span class="text-lg">{getFormatIcon(output.format)}</span>
+                      <span class="text-lg">{getFormatIcon(output.format)}</span
+                      >
                       <span class="text-white text-sm">{output.format}</span>
                     </div>
                     <div class="text-xs text-gray-400">

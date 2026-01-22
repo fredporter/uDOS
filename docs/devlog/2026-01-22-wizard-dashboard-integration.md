@@ -8,6 +8,7 @@
 All 10 migrated Goblin services are now wired up to the Wizard dashboard:
 
 ### 1. **Dev Mode** (`/devmode`)
+
 - **Routes:** `/api/v1/dev/*`
 - **Service:** `wizard/services/dev_mode_service.py`
 - **Features:**
@@ -18,6 +19,7 @@ All 10 migrated Goblin services are now wired up to the Wizard dashboard:
 - **UI:** `wizard/dashboard/src/routes/DevMode.svelte`
 
 ### 2. **Task Scheduler** (`/tasks`)
+
 - **Routes:** `/api/v1/tasks/*`
 - **Service:** `wizard/services/task_scheduler.py`
 - **Features:**
@@ -28,6 +30,7 @@ All 10 migrated Goblin services are now wired up to the Wizard dashboard:
 - **UI:** `wizard/dashboard/src/routes/Tasks.svelte`
 
 ### 3. **Workflow Manager** (`/workflow`)
+
 - **Routes:** `/api/v1/workflow/*`
 - **Service:** `wizard/services/workflow_manager.py`
 - **Features:**
@@ -38,6 +41,7 @@ All 10 migrated Goblin services are now wired up to the Wizard dashboard:
 - **UI:** `wizard/dashboard/src/routes/Workflow.svelte`
 
 ### 4. **Binder Compiler** (`/binder`)
+
 - **Routes:** `/api/v1/binder/*`
 - **Service:** `wizard/services/binder_compiler.py`
 - **Features:**
@@ -48,6 +52,7 @@ All 10 migrated Goblin services are now wired up to the Wizard dashboard:
 - **UI:** `wizard/dashboard/src/routes/Binder.svelte`
 
 ### 5. **Notion Sync** (`/notion`)
+
 - **Routes:** `/api/v1/notion/*`
 - **Service:** `wizard/services/notion_sync_service.py`
 - **Features:**
@@ -59,6 +64,7 @@ All 10 migrated Goblin services are now wired up to the Wizard dashboard:
 - **UI:** `wizard/dashboard/src/routes/Notion.svelte`
 
 ### 6. **GitHub Integration** (`/github`)
+
 - **Routes:** `/api/v1/github/*`
 - **Service:** `wizard/services/github_integration.py`
 - **Features:**
@@ -70,6 +76,7 @@ All 10 migrated Goblin services are now wired up to the Wizard dashboard:
 - **UI:** `wizard/dashboard/src/routes/GitHub.svelte`
 
 ### 7. **AI Services** (via `/ai/*`)
+
 - **Routes:** `/api/v1/ai/*`
 - **Service:** `wizard/services/mistral_vibe.py`
 - **Features:**
@@ -80,6 +87,7 @@ All 10 migrated Goblin services are now wired up to the Wizard dashboard:
 - **Endpoint Only:** No dedicated UI page (integrated into existing features)
 
 ### 8. **Sync Executor** (Backend only)
+
 - **Routes:** `/api/v1/sync/*`
 - **Service:** `wizard/services/sync_executor.py`
 - **Features:**
@@ -89,6 +97,7 @@ All 10 migrated Goblin services are now wired up to the Wizard dashboard:
 - **No UI:** Backend service consumed by Notion page
 
 ### 9. **Block Mapper** (Library)
+
 - **Service:** `wizard/services/block_mapper.py`
 - **Features:**
   - Bidirectional Notion ↔ Markdown conversion
@@ -101,6 +110,7 @@ All 10 migrated Goblin services are now wired up to the Wizard dashboard:
 ### Hamburger Menu Structure
 
 **Top Level:**
+
 - Dashboard
 - Devices
 - Catalog
@@ -110,6 +120,7 @@ All 10 migrated Goblin services are now wired up to the Wizard dashboard:
 - Config
 
 **Services Section** (separator):
+
 - 🧌 Dev Mode
 - ⏱️ Task Scheduler
 - ✅ Workflow
@@ -185,6 +196,7 @@ wizard/
 ## Testing
 
 ### Start Wizard Server
+
 ```bash
 cd /Users/fredbook/Code/uDOS
 source .venv/bin/activate
@@ -192,11 +204,13 @@ python -m wizard.server
 ```
 
 ### Access Dashboard
+
 ```
 http://localhost:8765
 ```
 
 ### Navigate to New Services
+
 - Click hamburger menu (☰) in top right
 - Scroll to **SERVICES** section
 - Click any service to test:
@@ -209,16 +223,16 @@ http://localhost:8765
 
 ## API Endpoints Summary
 
-| Service | Endpoint Prefix | Method | Purpose |
-|---------|----------------|--------|---------|
-| Dev Mode | `/api/v1/dev` | GET/POST | Goblin server lifecycle |
-| Tasks | `/api/v1/tasks` | GET/POST | Task scheduling |
-| Workflow | `/api/v1/workflow` | GET/POST/PATCH | Projects & todos |
-| Binder | `/api/v1/binder` | GET/POST | Multi-format compilation |
-| Notion | `/api/v1/notion` | GET/POST | Notion sync |
-| GitHub | `/api/v1/github` | GET/POST | Repo integration |
-| AI | `/api/v1/ai` | GET/POST | Mistral/Vibe services |
-| Sync Executor | `/api/v1/sync` | GET/POST | Notion sync execution |
+| Service       | Endpoint Prefix    | Method         | Purpose                  |
+| ------------- | ------------------ | -------------- | ------------------------ |
+| Dev Mode      | `/api/v1/dev`      | GET/POST       | Goblin server lifecycle  |
+| Tasks         | `/api/v1/tasks`    | GET/POST       | Task scheduling          |
+| Workflow      | `/api/v1/workflow` | GET/POST/PATCH | Projects & todos         |
+| Binder        | `/api/v1/binder`   | GET/POST       | Multi-format compilation |
+| Notion        | `/api/v1/notion`   | GET/POST       | Notion sync              |
+| GitHub        | `/api/v1/github`   | GET/POST       | Repo integration         |
+| AI            | `/api/v1/ai`       | GET/POST       | Mistral/Vibe services    |
+| Sync Executor | `/api/v1/sync`     | GET/POST       | Notion sync execution    |
 
 ## Next Steps
 

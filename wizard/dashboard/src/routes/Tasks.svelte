@@ -74,7 +74,9 @@
   <div class="flex items-center justify-between mb-8">
     <div>
       <h1 class="text-3xl font-bold text-white mb-2">Task Scheduler</h1>
-      <p class="text-gray-400">Organic cron model: Plant → Sprout → Harvest → Compost</p>
+      <p class="text-gray-400">
+        Organic cron model: Plant → Sprout → Harvest → Compost
+      </p>
     </div>
     <button
       on:click={() => (showCreateForm = !showCreateForm)}
@@ -85,7 +87,9 @@
   </div>
 
   {#if error}
-    <div class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6">
+    <div
+      class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6"
+    >
       {error}
     </div>
   {/if}
@@ -104,7 +108,8 @@
           />
         </div>
         <div>
-          <label class="block text-sm text-gray-400 mb-2">Schedule (cron)</label>
+          <label class="block text-sm text-gray-400 mb-2">Schedule (cron)</label
+          >
           <input
             type="text"
             bind:value={newTask.schedule}
@@ -146,7 +151,9 @@
               <div class="flex items-center justify-between">
                 <div>
                   <span class="text-white font-medium">{item.task_name}</span>
-                  <span class="text-gray-400 text-sm ml-2">→ {item.scheduled_for}</span>
+                  <span class="text-gray-400 text-sm ml-2"
+                    >→ {item.scheduled_for}</span
+                  >
                 </div>
                 <span class="text-xs text-yellow-400">Scheduled</span>
               </div>
@@ -162,7 +169,9 @@
         All Tasks ({tasks.length})
       </h3>
       {#if tasks.length === 0}
-        <p class="text-gray-400 text-center py-8">No tasks yet. Create one above!</p>
+        <p class="text-gray-400 text-center py-8">
+          No tasks yet. Create one above!
+        </p>
       {:else}
         <div class="space-y-3">
           {#each tasks as task}
@@ -174,7 +183,7 @@
                 </div>
                 <span
                   class="px-2 py-1 rounded text-xs border {getStateBadgeClass(
-                    task.state
+                    task.state,
                   )}"
                 >
                   {task.state}

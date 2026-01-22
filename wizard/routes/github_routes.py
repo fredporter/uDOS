@@ -25,12 +25,20 @@ def create_github_routes(auth_guard: AuthGuard = None) -> APIRouter:
     async def health_check(request: Request):
         if auth_guard:
             await auth_guard(request)
-        info = gh.get_repo_info()
-        return {
-            "status": "ok",
-            "repo": info.get("name"),
-            "owner": info.get("owner", {}).get("login"),
-        }
+        if not gh.available:
+            return {
+                "status": "unavailable",
+                "error": gh.error_message,
+            }
+        try:
+            info = gh.get_repo_info()
+            return {
+                "status": "ok",
+                "repo": info.get("name"),
+                "owner": info.get("owner", {}).get("login"),
+            }
+        except Exception as exc:
+            return {"status": "error", "error": str(exc)}
 
     @router.post("/sync-cli")
     async def sync_repository(request: Request):
@@ -45,6 +53,8 @@ def create_github_routes(auth_guard: AuthGuard = None) -> APIRouter:
     async def get_issues(request: Request, state: str = "open"):
         if auth_guard:
             await auth_guard(request)
+        if not gh.available:
+            raise HTTPException(status_code=503, detail=gh.error_message)
         try:
             issues = gh.get_issues(state)
             return {"issues": issues, "count": len(issues)}
@@ -55,6 +65,8 @@ def create_github_routes(auth_guard: AuthGuard = None) -> APIRouter:
     async def create_issue(request: Request, issue: IssueCreate):
         if auth_guard:
             await auth_guard(request)
+        if not gh.available:
+            raise HTTPException(status_code=503, detail=gh.error_message)
         try:
             return gh.create_issue(
                 title=issue.title, body=issue.body, labels=issue.labels
@@ -66,6 +78,8 @@ def create_github_routes(auth_guard: AuthGuard = None) -> APIRouter:
     async def get_pull_requests(request: Request, state: str = "open"):
         if auth_guard:
             await auth_guard(request)
+        if not gh.available:
+            raise HTTPException(status_code=503, detail=gh.error_message)
         try:
             prs = gh.get_pull_requests(state)
             return {"pull_requests": prs, "count": len(prs)}

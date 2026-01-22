@@ -80,7 +80,9 @@
   <p class="text-gray-400 mb-8">Manage Goblin experimental dev server</p>
 
   {#if error}
-    <div class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6">
+    <div
+      class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6"
+    >
       {error}
     </div>
   {/if}

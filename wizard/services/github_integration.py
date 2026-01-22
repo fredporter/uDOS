@@ -22,19 +22,33 @@ class GitHubIntegration:
     def __init__(self, repo_path: str = None):
         repo_root = get_repo_root()
         self.repo_path = Path(repo_path or repo_root).absolute()
+        self.available = False
+        self.error_message = None
         self._check_gh_cli()
 
     def _check_gh_cli(self) -> None:
+        """Check if GitHub CLI is installed and authenticated (non-fatal)."""
         try:
             result = subprocess.run(
                 ["gh", "auth", "status"], capture_output=True, text=True, check=False
             )
             if result.returncode != 0:
-                raise RuntimeError("GitHub CLI not authenticated. Run: gh auth login")
+                self.error_message = "GitHub CLI not authenticated. Run: gh auth login"
+                logger.warning(f"[WIZ] {self.error_message}")
+                return
+            self.available = True
+            logger.info("[WIZ] GitHub CLI authenticated and ready")
         except FileNotFoundError:
-            raise RuntimeError("GitHub CLI not installed. Install: brew install gh")
+            self.error_message = "GitHub CLI not installed. Install: brew install gh"
+            logger.warning(f"[WIZ] {self.error_message}")
+            return
 
     def _run_gh(self, args: List[str]) -> Dict[str, Any]:
+        """Run GitHub CLI command (requires availability check)."""
+        if not self.available:
+            raise RuntimeError(
+                self.error_message or "GitHub CLI not available"
+            )
         result = subprocess.run(
             ["gh"] + args,
             capture_output=True,
@@ -45,6 +59,7 @@ class GitHubIntegration:
         return json.loads(result.stdout) if result.stdout else {}
 
     def sync_repo(self) -> Dict[str, str]:
+        """Sync repository (git operations don't require GitHub CLI)."""
         subprocess.run(
             ["git", "fetch", "origin"],
             cwd=self.repo_path,
@@ -66,6 +81,7 @@ class GitHubIntegration:
         }
 
     def get_issues(self, state: str = "open") -> List[Dict[str, Any]]:
+        """Get GitHub issues (requires GitHub CLI)."""
         return self._run_gh(
             [
                 "issue",

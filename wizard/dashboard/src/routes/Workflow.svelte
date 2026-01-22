@@ -142,7 +142,9 @@
   </div>
 
   {#if error}
-    <div class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6">
+    <div
+      class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6"
+    >
       {error}
     </div>
   {/if}
@@ -227,7 +229,8 @@
           {#each projects as project}
             <button
               on:click={() => selectProject(project.id)}
-              class="w-full text-left px-3 py-2 rounded {selectedProject === project.id
+              class="w-full text-left px-3 py-2 rounded {selectedProject ===
+              project.id
                 ? 'bg-purple-900 text-purple-200'
                 : 'text-gray-300 hover:bg-gray-700'}"
             >
@@ -267,7 +270,7 @@
                   <div class="flex items-center gap-2">
                     <span
                       class="px-2 py-1 rounded text-xs border {getStatusClass(
-                        task.status
+                        task.status,
                       )}"
                     >
                       {task.status}
