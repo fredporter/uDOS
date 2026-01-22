@@ -60,7 +60,7 @@
   <div class="wizard-bar-content">
     <!-- Logo/Title -->
     <div class="wizard-bar-left">
-      <h1 class="wizard-title">🧙 Wizard Server</h1>
+      <h1 class="wizard-title">Wizard Server</h1>
     </div>
 
     <!-- Center: Desktop Nav -->

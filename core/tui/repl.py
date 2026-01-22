@@ -3,6 +3,7 @@ TUI REPL (Read-Eval-Print Loop)
 
 Main event loop for the lightweight CLI interface.
 Integrates dispatcher, renderer, and game state.
+Uses SmartPrompt for advanced input with autocomplete.
 """
 
 from typing import Optional
@@ -12,6 +13,7 @@ import logging
 from .dispatcher import CommandDispatcher
 from .renderer import GridRenderer
 from .state import GameState
+from core.input import SmartPrompt
 
 
 # Configure logging
@@ -31,6 +33,15 @@ class TUIRepl:
         self.logger = logging.getLogger("tui-repl")
         self.running = False
 
+        # Initialize SmartPrompt for advanced input
+        self.prompt = SmartPrompt()
+        if self.prompt.use_fallback:
+            self.logger.info(
+                f"[SmartPrompt] Using fallback mode: {self.prompt.fallback_reason}"
+            )
+        else:
+            self.logger.info("[SmartPrompt] Initialized with prompt_toolkit")
+
     def run(self) -> None:
         """
         Start the main REPL loop
@@ -48,9 +59,13 @@ class TUIRepl:
         try:
             while self.running:
                 try:
-                    # Get user input
-                    prompt = self.renderer.format_prompt(self.state.current_location)
-                    user_input = input(prompt).strip()
+                    # Get user input using SmartPrompt
+                    # Note: Use plain prompt text (strip ANSI codes)
+                    # SmartPrompt will handle terminal rendering better
+                    location = self.state.current_location
+                    plain_prompt = f"[{location}] > "
+
+                    user_input = self.prompt.ask(plain_prompt)
 
                     # Handle empty input
                     if not user_input:

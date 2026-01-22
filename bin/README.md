@@ -1,51 +1,202 @@
 # uDOS Launcher Scripts
 
-Quick-start scripts for launching different uDOS components.
+Quick-start scripts for launching uDOS components.
 
-## Scripts Overview
+## 🚀 Quick Start
+
+### Double-Click Launchers (macOS)
+
+- **`Launch-uDOS-TUI.command`** — TUI interface (offline-first)
+- **`Launch-Wizard-Server.command`** — Production API server (port 8765)
+- **For Goblin:** See `/dev/goblin/bin/Launch-Goblin-Dev.command`
+
+### Terminal Launch
+
+```bash
+./bin/Launch-uDOS-TUI.command           # TUI
+./bin/Launch-Wizard-Server.command      # Wizard API
+./dev/goblin/bin/Launch-Goblin-Dev.command  # Goblin (experimental)
+```
+
+---
+
+## 📊 Server Overview
+
+### 🧙 Wizard Production Server
+
+**Location:** `Launch-Wizard-Server.command`
+**Port:** 8765
+**Status:** Production v1.1.0.0 (stable, frozen)
+
+**Features:**
+
+- AI Gateway (Ollama, OpenRouter, Vibe)
+- Device Authentication + Sessions
+- Extension Repository
+- Notion Sync + Task Scheduler
+- Binder Compiler
+- GitHub Integration
+- Dev Mode Coordination
+
+**Access:**
+
+- API: `http://localhost:8765/api/v1/*`
+- Docs: `http://localhost:8765/docs`
+
+---
+
+### 👺 Goblin Experimental Server
+
+**Location:** `/dev/goblin/bin/Launch-Goblin-Dev.command`
+**Port:** 8767
+**Status:** Experimental v0.2.0 (unstable, breaking changes OK)
+
+**Features:**
+
+- Runtime Executor (TS Markdown)
+- Svelte Dashboard
+- Experimental `/api/v0/*` routes
+- Local-only (127.0.0.1)
+
+**Access:**
+
+- Dashboard: `http://127.0.0.1:8767`
+- Docs: `http://127.0.0.1:8767/docs`
+
+---
+
+### 🖥️ uDOS TUI
+
+**Location:** `Launch-uDOS-TUI.command`
+**Status:** Production (offline-first)
+
+**Features:**
+
+- Interactive terminal interface
+- No network required
+- SmartPrompt command parser
+- Full system access
+
+---
+
+## 📋 Boot Sequence
+
+All launchers show environment checks before starting:
+
+```
+╔═══════════════════════════════════════════════════════════════╗
+║            🧙 Wizard Production Server v1.1.0.0               ║
+║      Always-On • AI Routing • Webhooks • Device Auth          ║
+╚═══════════════════════════════════════════════════════════════╝
+
+[BOOT] Checking environment...
+[BOOT] uDOS Root: /Users/fredbook/Code/uDOS
+[BOOT] Python: Python 3.9.6
+
+[✓] Virtual environment activated
+[✓] Dependencies installed and ready
+[BOOT] Starting Wizard Server on port 8765...
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Port Already In Use
+
+```bash
+lsof -i :8765   # Wizard
+lsof -i :8767   # Goblin
+kill -9 <PID>
+```
+
+### Virtual Environment Issues
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Submodule Not Found
+
+```bash
+git submodule update --init --recursive
+```
+
+### Check Server Logs
+
+```bash
+cat memory/logs/wizard-*.log
+cat memory/logs/system-*.log
+cat memory/logs/debug-*.log
+```
+
+---
+
+## 📂 Launcher Directory Structure
+
+```
+/bin/
+├── README.md                        # This file
+├── Launch-uDOS-TUI.command          # TUI entry point
+├── Launch-Wizard-Server.command     # Wizard (always-on)
+└── launch-udos-dev.sh               # Dev setup
+
+/dev/goblin/bin/
+├── Launch-Goblin-Dev.command        # Goblin (experimental)
+└── launch-goblin-dev.sh             # Shell script version
+```
+
+---
+
+## 🧪 Full Development Stack
+
+Start all servers for development:
+
+**Terminal 1 - TUI:**
+
+```bash
+./bin/Launch-uDOS-TUI.command
+```
+
+**Terminal 2 - Wizard:**
+
+```bash
+./bin/Launch-Wizard-Server.command &
+```
+
+**Terminal 3 - Goblin:**
+
+```bash
+./dev/goblin/bin/Launch-Goblin-Dev.command &
+```
+
+**Terminal 4 - App (optional):**
+
+```bash
+cd dev/app && npm run tauri dev
+```
+
+**Access:**
+
+- TUI: Terminal 1 (interactive)
+- Wizard: http://localhost:8765/docs
+- Goblin: http://127.0.0.1:8767
+- App: Native window
+
+---
+
+## 📚 Legacy Scripts
+
+The following scripts are still available for direct use:
 
 ### `start_udos.sh` — Core TUI
-
-Launches the offline-first text-based interface.
 
 ```bash
 ./bin/start_udos.sh [uscript-file]
 ```
 
-**Features:**
-
-- Offline operation
-- No dependencies
-- Minimal footprint
-
----
-
-### `start_wizard.sh` — Wizard Server + Web Dashboard
-
-Launches the always-on production server with Svelte web dashboard.
-
-```bash
-./bin/start_wizard.sh [port]
-```
-
-**Default:** Port 8765
-
-**Features:**
-
-- Automatic Node.js/npm detection
-- Automatic Svelte dashboard build
-- Daemon mode (background service)
-- Browser auto-launch
-- Fallback HTML dashboard if npm not available
-
-**What it does:**
-
-1. Activates Python virtual environment
-2. Installs Python dependencies
-3. Checks for Node.js/npm
-4. Builds Svelte dashboard (if npm available)
-5. Starts Wizard Server in daemon mode
-6. Opens browser dashboard
+Features: Offline, no dependencies, minimal footprint
 
 ---
 

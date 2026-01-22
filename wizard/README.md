@@ -16,7 +16,7 @@
 - Port Manager API/CLI integration
 - Plugin repository (`/api/v1/plugin/*`) backed by `distribution/plugins`
 - Web proxy placeholder (`/api/v1/web/fetch`) with validation stubs
-- Gmail relay toggle (Wizard-only), plus space for HubSpot/Notion/iCloud/OAuth/sync handlers
+- Gmail relay toggle (Wizard-only), plus space for Notion/iCloud/OAuth/sync handlers
 - VS Code bridge + notification history routes
 - Cost tracking + rate limiting, device sessions, assistant model listing/completion
 
@@ -119,10 +119,10 @@ Auth: all `/api/v1/*` require device auth (Bearer token). Rate limits apply per 
 
 ## Wizard-owned integrations (placement)
 
-- HubSpot CRM: Wizards owns auth + sync handlers (contacts, enrichment). Do not implement in Core/App.
 - Notion webhooks/sync: Wizard-only handlers; bidirectional sync endpoints belong here.
 - iCloud/backup relays: Wizard-only relays; never Core/App.
 - OAuth/token exchange: All auth flows terminate in Wizard handlers; distribute scoped tokens to devices.
+- HubSpot CRM: Moved to Empire server (dev/empire) — it only syncs Empire's contacts.db to HubSpot.
 
 ---
 

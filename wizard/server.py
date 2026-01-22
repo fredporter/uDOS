@@ -194,22 +194,65 @@ class WizardServer:
         app.include_router(port_router)
 
         # Register Notification History routes
-        from wizard.services.notification_history_service import NotificationHistoryService
-        from wizard.routes.notification_history_routes import create_notification_history_routes
+        from wizard.services.notification_history_service import (
+            NotificationHistoryService,
+        )
+        from wizard.routes.notification_history_routes import (
+            create_notification_history_routes,
+        )
 
         history_service = NotificationHistoryService()
         history_router = create_notification_history_routes(history_service)
         app.include_router(history_router)
 
+        # Register Dev Mode routes
+        from wizard.routes.dev_routes import create_dev_routes
+
+        dev_router = create_dev_routes(auth_guard=self._authenticate)
+        app.include_router(dev_router)
+
+        # Register Notion sync routes
+        from wizard.routes.notion_routes import create_notion_routes
+
+        notion_router = create_notion_routes(auth_guard=self._authenticate)
+        app.include_router(notion_router)
+
+        # Register Task scheduler routes
+        from wizard.routes.task_routes import create_task_routes
+
+        task_router = create_task_routes(auth_guard=self._authenticate)
+        app.include_router(task_router)
+
+        # Register Workflow manager routes
+        from wizard.routes.workflow_routes import create_workflow_routes
+
+        workflow_router = create_workflow_routes(auth_guard=self._authenticate)
+        app.include_router(workflow_router)
+
+        # Register Sync executor routes
+        from wizard.routes.sync_executor_routes import create_sync_executor_routes
+
+        sync_executor_router = create_sync_executor_routes(
+            auth_guard=self._authenticate
+        )
+        app.include_router(sync_executor_router)
+
         # Mount dashboard static files
         from fastapi.staticfiles import StaticFiles
         from fastapi.responses import FileResponse, HTMLResponse
+
         dashboard_path = Path(__file__).parent / "dashboard" / "dist"
         if dashboard_path.exists():
-            app.mount("/assets", StaticFiles(directory=str(dashboard_path / "assets")), name="assets")
+            app.mount(
+                "/assets",
+                StaticFiles(directory=str(dashboard_path / "assets")),
+                name="assets",
+            )
+
             @app.get("/")
             async def serve_dashboard():
                 return FileResponse(str(dashboard_path / "index.html"))
+
         else:
             # Fallback: serve basic dashboard when build isn't available
             @app.get("/")
@@ -218,7 +261,7 @@ class WizardServer:
 
         self.app = app
         return app
-    
+
     def _get_fallback_dashboard_html(self) -> str:
         """Return basic HTML dashboard when Svelte build isn't available."""
         return """<!DOCTYPE html>
@@ -337,10 +380,26 @@ class WizardServer:
                     "timestamp": datetime.utcnow().isoformat() + "Z",
                 },
                 "features": [
-                    {"name": "Plugin Repository", "enabled": self.config.plugin_repo_enabled, "description": "Distribute and install plugins"},
-                    {"name": "Web Proxy", "enabled": self.config.web_proxy_enabled, "description": "Fetch web content for devices"},
-                    {"name": "Gmail Relay", "enabled": self.config.gmail_relay_enabled, "description": "Send emails via Gmail API"},
-                    {"name": "AI Gateway", "enabled": self.config.ai_gateway_enabled, "description": "AI model access with cost tracking"},
+                    {
+                        "name": "Plugin Repository",
+                        "enabled": self.config.plugin_repo_enabled,
+                        "description": "Distribute and install plugins",
+                    },
+                    {
+                        "name": "Web Proxy",
+                        "enabled": self.config.web_proxy_enabled,
+                        "description": "Fetch web content for devices",
+                    },
+                    {
+                        "name": "Gmail Relay",
+                        "enabled": self.config.gmail_relay_enabled,
+                        "description": "Send emails via Gmail API",
+                    },
+                    {
+                        "name": "AI Gateway",
+                        "enabled": self.config.ai_gateway_enabled,
+                        "description": "AI model access with cost tracking",
+                    },
                 ],
             }
 
@@ -465,7 +524,9 @@ class WizardServer:
 
             raw_body = await request.body()
             if self.config.github_webhook_secret:
-                if not self._verify_signature(raw_body, signature, self.config.github_webhook_secret):
+                if not self._verify_signature(
+                    raw_body, signature, self.config.github_webhook_secret
+                ):
                     raise HTTPException(status_code=401, detail="invalid signature")
 
             try:
@@ -498,7 +559,7 @@ class WizardServer:
                 "event": event_type,
                 "delivery_id": delivery_id,
                 "sync": sync_result.__dict__ if sync_result else None,
-                "result": result
+                "result": result,
             }
 
         # Manual GitHub sync endpoint
@@ -508,6 +569,7 @@ class WizardServer:
             Manually trigger a safe sync (pull by default) for the allowed repo.
             """
             from wizard.services.github_sync import get_github_sync_service
+
             await self._authenticate(request)  # reuse auth guard
             body = await request.json()
             action = body.get("action", "pull")
@@ -607,11 +669,15 @@ class WizardServer:
         return device_id
 
     @staticmethod
-    def _verify_signature(raw_body: bytes, signature: Optional[str], secret: str) -> bool:
+    def _verify_signature(
+        raw_body: bytes, signature: Optional[str], secret: str
+    ) -> bool:
         """Validate GitHub webhook signature (sha256)."""
         if not signature or not signature.startswith("sha256="):
             return False
-        expected = hmac.new(secret.encode("utf-8"), raw_body, hashlib.sha256).hexdigest()
+        expected = hmac.new(
+            secret.encode("utf-8"), raw_body, hashlib.sha256
+        ).hexdigest()
         provided = signature.split("sha256=", 1)[1]
         return hmac.compare_digest(expected, provided)
 
@@ -743,7 +809,9 @@ class WizardServer:
                 await asyncio.sleep(1)
 
                 # Open dashboard in browser
-                dashboard_url = f"http://{host or self.config.host}:{port or self.config.port}"
+                dashboard_url = (
+                    f"http://{host or self.config.host}:{port or self.config.port}"
+                )
                 if self.config.host == "0.0.0.0":
                     dashboard_url = f"http://localhost:{port or self.config.port}"
                 webbrowser.open(dashboard_url)
@@ -777,8 +845,11 @@ if __name__ == "__main__":
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind")
     parser.add_argument("--port", type=int, default=8765, help="Port to bind")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
-    parser.add_argument("--no-interactive", action="store_true",
-                       help="Run in daemon mode without interactive console")
+    parser.add_argument(
+        "--no-interactive",
+        action="store_true",
+        help="Run in daemon mode without interactive console",
+    )
 
     args = parser.parse_args()
 

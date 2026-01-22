@@ -1,0 +1,229 @@
+"""DEV MODE command handler - Activate/deactivate development mode via Wizard Server."""
+
+from typing import List, Dict, Optional
+from pathlib import Path
+import requests
+import json
+
+try:
+    from wizard.services.logging_manager import get_logger
+
+    logger = get_logger("dev-mode-handler")
+except ImportError:
+    # Fallback if wizard module not available
+    import logging
+
+    logger = logging.getLogger("dev-mode-handler")
+
+from core.commands.base import BaseCommandHandler
+
+
+class DevModeHandler(BaseCommandHandler):
+    """Handler for DEV MODE command - managed by Wizard Server."""
+
+    def __init__(self):
+        """Initialize dev mode handler."""
+        super().__init__()
+        self.wizard_host = "127.0.0.1"
+        self.wizard_port = 8765
+
+    def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
+        """
+        Handle DEV MODE command.
+
+        Args:
+            command: Command name (DEV MODE)
+            params: [activate|deactivate|status|restart|logs] (default: status)
+            grid: Optional grid context
+            parser: Optional parser
+
+        Returns:
+            Dict with dev mode status
+        """
+        if not params:
+            params = ["status"]
+
+        action = params[0].lower()
+
+        if action == "activate":
+            return self._activate_dev_mode()
+        elif action == "deactivate":
+            return self._deactivate_dev_mode()
+        elif action == "status":
+            return self._get_dev_status()
+        elif action == "restart":
+            return self._restart_dev_mode()
+        elif action == "logs":
+            lines = int(params[1]) if len(params) > 1 else 50
+            return self._get_dev_logs(lines)
+        elif action == "health":
+            return self._get_dev_health()
+        else:
+            return {
+                "status": "error",
+                "message": f"Unknown action: {action}",
+                "available": [
+                    "activate",
+                    "deactivate",
+                    "status",
+                    "restart",
+                    "logs",
+                    "health",
+                ],
+            }
+
+    def _activate_dev_mode(self) -> Dict:
+        """Activate dev mode via Wizard."""
+        try:
+            response = requests.post(
+                f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/activate",
+                timeout=10,
+            )
+            result = response.json()
+            logger.info(f"[DEV] Dev mode activated: {result.get('message')}")
+            return {
+                "status": "activated",
+                "message": result.get("message"),
+                "goblin_endpoint": result.get("goblin_endpoint"),
+                "goblin_pid": result.get("goblin_pid"),
+            }
+        except requests.exceptions.ConnectionError:
+            logger.error("[DEV] Cannot connect to Wizard Server")
+            return {
+                "status": "error",
+                "message": "Wizard Server not running on 127.0.0.1:8765",
+                "hint": "Start Wizard with: python -m wizard.server",
+            }
+        except Exception as exc:
+            logger.error(f"[DEV] Failed to activate dev mode: {exc}")
+            return {
+                "status": "error",
+                "message": str(exc),
+            }
+
+    def _deactivate_dev_mode(self) -> Dict:
+        """Deactivate dev mode via Wizard."""
+        try:
+            response = requests.post(
+                f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/deactivate",
+                timeout=10,
+            )
+            result = response.json()
+            logger.info(f"[DEV] Dev mode deactivated: {result.get('message')}")
+            return {
+                "status": "deactivated",
+                "message": result.get("message"),
+            }
+        except requests.exceptions.ConnectionError:
+            return {
+                "status": "error",
+                "message": "Wizard Server not running",
+            }
+        except Exception as exc:
+            logger.error(f"[DEV] Failed to deactivate dev mode: {exc}")
+            return {
+                "status": "error",
+                "message": str(exc),
+            }
+
+    def _get_dev_status(self) -> Dict:
+        """Get dev mode status from Wizard."""
+        try:
+            response = requests.get(
+                f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/status",
+                timeout=5,
+            )
+            result = response.json()
+            return {
+                "status": "ok",
+                "active": result.get("active"),
+                "uptime_seconds": result.get("uptime_seconds"),
+                "goblin_endpoint": result.get("goblin_endpoint"),
+                "goblin_pid": result.get("goblin_pid"),
+                "services": result.get("services"),
+            }
+        except requests.exceptions.ConnectionError:
+            return {
+                "status": "wizard_offline",
+                "message": "Wizard Server not running",
+            }
+        except Exception as exc:
+            logger.error(f"[DEV] Failed to get dev status: {exc}")
+            return {
+                "status": "error",
+                "message": str(exc),
+            }
+
+    def _restart_dev_mode(self) -> Dict:
+        """Restart dev mode via Wizard."""
+        try:
+            response = requests.post(
+                f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/restart",
+                timeout=15,
+            )
+            result = response.json()
+            logger.info(f"[DEV] Dev mode restarted: {result.get('message')}")
+            return {
+                "status": "restarted",
+                "message": result.get("message"),
+            }
+        except requests.exceptions.ConnectionError:
+            return {
+                "status": "error",
+                "message": "Wizard Server not running",
+            }
+        except Exception as exc:
+            logger.error(f"[DEV] Failed to restart dev mode: {exc}")
+            return {
+                "status": "error",
+                "message": str(exc),
+            }
+
+    def _get_dev_logs(self, lines: int = 50) -> Dict:
+        """Get dev mode logs from Wizard."""
+        try:
+            response = requests.get(
+                f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/logs?lines={lines}",
+                timeout=5,
+            )
+            result = response.json()
+            return {
+                "status": "ok",
+                "goblin_pid": result.get("goblin_pid"),
+                "log_file": result.get("log_file"),
+                "logs": result.get("logs", []),
+                "total_lines": result.get("total_lines"),
+            }
+        except Exception as exc:
+            logger.error(f"[DEV] Failed to get dev logs: {exc}")
+            return {
+                "status": "error",
+                "message": str(exc),
+            }
+
+    def _get_dev_health(self) -> Dict:
+        """Get dev mode health from Wizard."""
+        try:
+            response = requests.get(
+                f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/health",
+                timeout=5,
+            )
+            result = response.json()
+            return {
+                "status": "ok",
+                "healthy": result.get("healthy"),
+                "dev_active": result.get("status") == "active",
+                "services": result.get("services"),
+            }
+        except requests.exceptions.ConnectionError:
+            return {
+                "status": "wizard_offline",
+                "healthy": False,
+                "dev_active": False,
+            }
+        except Exception as exc:
+            logger.error(f"[DEV] Failed to get dev health: {exc}")
+            return {
+                "status": "error",
+                "message": str(exc),
+            }

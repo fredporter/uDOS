@@ -2,7 +2,7 @@
 Command Dispatcher
 
 Routes user commands to appropriate handlers.
-Manages 13 command handlers from Phase 5F.
+Manages command handlers including system, NPC, and dev mode.
 """
 
 from typing import Dict, List, Any, Optional
@@ -20,6 +20,7 @@ from core.commands import (
     HelpHandler,
     ShakedownHandler,
     RepairHandler,
+    DevModeHandler,
     NPCHandler,
     DialogueEngine,
     TalkHandler,
@@ -51,9 +52,10 @@ class CommandDispatcher:
             "SPAWN": SpawnHandler(),
             "SAVE": SaveHandler(),
             "LOAD": LoadHandler(),
-            # System (2)
+            # System (3)
             "SHAKEDOWN": ShakedownHandler(),
             "REPAIR": RepairHandler(),
+            "DEV MODE": DevModeHandler(),
             # NPC & Dialogue (3)
             "NPC": self.npc_handler,
             "TALK": self.talk_handler,

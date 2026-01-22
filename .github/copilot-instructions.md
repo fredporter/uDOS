@@ -208,11 +208,12 @@ pytest dev/tests/ -v
 # Launch TUI
 bin/start_udos.sh
 
-# Dev Mode (API + Dashboard)
-bin/Launch-Dev-Mode.command
+# Activate Dev Mode (via Wizard)
+./bin/start_udos.sh
+> DEV MODE activate
 
-# Launch Goblin Dev Server
-python dev/goblin/goblin_server.py
+# Or via REST API
+curl -X POST http://localhost:8765/api/v1/dev/activate
 
 # Self-healing
 REPAIR --pull        # Git sync

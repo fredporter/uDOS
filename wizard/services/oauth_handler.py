@@ -20,7 +20,6 @@ class OAuthProvider(str, Enum):
     MICROSOFT = "microsoft"
     GITHUB = "github"
     NOTION = "notion"
-    HUBSPOT = "hubspot"
     SLACK = "slack"
     APPLE = "apple"
 
