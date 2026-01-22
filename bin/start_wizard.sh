@@ -123,8 +123,19 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
 
         # Try automatic installation based on system
         if command -v apt-get &> /dev/null; then
-            print_status "Installing Node.js via apt-get..."
-            if sudo apt-get update -qq && sudo apt-get install -y nodejs npm -qq 2>&1 | grep -v "Reading"; then
+            print_status "Installing Node.js via apt-get (this may take a minute)..."
+            echo ""
+            
+            # Run apt-get update with visible progress
+            echo -e "${BLUE}[→]${NC} Updating package lists..."
+            sudo apt-get update 2>&1 | grep -E "Get:|Fetched|Reading" || true
+            
+            # Run apt-get install with visible progress
+            echo -e "${BLUE}[→]${NC} Installing nodejs and npm..."
+            sudo apt-get install -y nodejs npm 2>&1 | grep -E "Unpacking|Setting up|Processing" || true
+            
+            echo ""
+            if command -v npm &> /dev/null; then
                 print_success "Node.js installed successfully!"
             else
                 print_error "Failed to install Node.js automatically"
@@ -132,8 +143,12 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
                 print_warning "Continuing with fallback HTML dashboard..."
             fi
         elif command -v brew &> /dev/null; then
-            print_status "Installing Node.js via Homebrew..."
-            if brew install node 2>&1 | grep -v "Warning:"; then
+            print_status "Installing Node.js via Homebrew (this may take a minute)..."
+            echo ""
+            echo -e "${BLUE}[→]${NC} Running brew install node..."
+            brew install node 2>&1 | grep -E "==>" || true
+            echo ""
+            if command -v npm &> /dev/null; then
                 print_success "Node.js installed successfully!"
             else
                 print_error "Failed to install Node.js automatically"
