@@ -348,8 +348,20 @@ if lsof -i:${PORT} >/dev/null 2>&1; then
     print_status "Using port manager to clean up..."
     python3 -m wizard.cli_port_manager kill wizard >/dev/null 2>&1 || \
     python3 -m wizard.cli_port_manager kill ":${PORT}" >/dev/null 2>&1 || true
-    sleep 2
-    print_success "Port ${PORT} freed"
+
+    # Wait for port to actually be freed (up to 10 seconds)
+    for i in {1..10}; do
+        sleep 1
+        if ! lsof -i:${PORT} >/dev/null 2>&1; then
+            print_success "Port ${PORT} freed"
+            break
+        fi
+        if [ $i -eq 10 ]; then
+            print_error "Failed to free port ${PORT} after 10 seconds"
+            print_error "Try manually killing the process: lsof -ti:${PORT} | xargs kill -9"
+            exit 1
+        fi
+    done
 fi
 
 # Start Wizard Server
