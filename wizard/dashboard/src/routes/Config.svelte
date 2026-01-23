@@ -459,9 +459,11 @@
             <strong>5. Setup providers</strong> - Scroll down to Provider Setup section
           </li>
         </ol>
-        
+
         <div class="mt-4 pt-3 border-t border-gray-700">
-          <h4 class="text-xs font-semibold text-gray-400 mb-2">Wizard Commands</h4>
+          <h4 class="text-xs font-semibold text-gray-400 mb-2">
+            Wizard Commands
+          </h4>
           <div class="text-xs text-gray-500 space-y-1">
             <div>CONFIG SHOW - View config status</div>
             <div>CONFIG LIST - List all configs</div>
@@ -474,13 +476,11 @@
   </div>
 
   <!-- Providers Setup Section -->
-  <div
-    class="border border-base-200 rounded-lg p-4 hover:border-primary transition-colors mt-6"
-  >
-    <div class="flex items-center justify-between mb-2">
+  <div class="mt-6 bg-gray-800 border border-gray-700 rounded-lg p-6">
+    <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-2">
         <svg
-          class="w-5 h-5 text-primary"
+          class="w-5 h-5 text-blue-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -492,10 +492,13 @@
             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
           />
         </svg>
-        <h3 class="font-semibold text-lg">Provider Setup</h3>
+        <h3 class="text-lg font-semibold text-white">Provider Setup</h3>
       </div>
-      <button class="btn btn-sm btn-ghost" on:click={toggleProviders}>
-        {showProviders ? "▼" : "▶"}
+      <button
+        class="px-3 py-1.5 text-sm rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
+        on:click={toggleProviders}
+      >
+        {showProviders ? "▼ Hide" : "▶ Show"}
       </button>
     </div>
 
@@ -506,23 +509,24 @@
             <span class="loading loading-spinner loading-md"></span>
           </div>
         {:else if providers.length === 0}
-          <p class="text-base-content/60 text-sm col-span-full">
+          <p class="text-gray-400 text-sm col-span-full">
             No providers available
           </p>
         {:else}
           {#each providers as provider}
-            <div class="border border-base-300 rounded-lg p-3 h-full">
+            <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
               <div class="flex items-start justify-between mb-2">
                 <div>
-                  <h4 class="font-medium">{provider.name}</h4>
-                  <p class="text-sm text-base-content/60">
+                  <h4 class="text-white font-medium">{provider.name}</h4>
+                  <p class="text-sm text-gray-400">
                     {provider.description}
                   </p>
                 </div>
                 <div
-                  class="badge badge-sm {provider.status === 'configured'
-                    ? 'badge-success'
-                    : 'badge-ghost'}"
+                  class="px-2 py-1 rounded text-xs {provider.status ===
+                  'configured'
+                    ? 'bg-green-900 text-green-300'
+                    : 'bg-gray-700 text-gray-400'}"
                 >
                   {provider.status || "not configured"}
                 </div>
@@ -536,26 +540,26 @@
                     href={setup.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="btn btn-sm btn-primary mt-2 w-full justify-center"
+                    class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
                   >
                     🌐 {setup.label} →
                   </a>
                 {:else if setup.type === "tui"}
                   <div class="mt-2">
-                    <p class="text-sm text-base-content/70 mb-1">
+                    <p class="text-sm text-gray-400 mb-1">
                       In Wizard TUI, run:
                     </p>
-                    <div class="mockup-code text-xs p-2">
-                      <pre><code>{setup.command}</code></pre>
+                    <div class="bg-gray-950 rounded p-2 border border-gray-700">
+                      <code class="text-green-400 text-xs">{setup.command}</code>
                     </div>
                   </div>
                 {:else if setup.type === "auto"}
                   <div class="mt-2">
-                    <p class="text-sm text-base-content/70 mb-1">
+                    <p class="text-sm text-gray-400 mb-1">
                       Auto-configure via TUI:
                     </p>
-                    <div class="mockup-code text-xs p-2">
-                      <pre><code>{setup.command}</code></pre>
+                    <div class="bg-gray-950 rounded p-2 border border-gray-700">
+                      <code class="text-green-400 text-xs">{setup.command}</code>
                     </div>
                   </div>
                 {/if}
