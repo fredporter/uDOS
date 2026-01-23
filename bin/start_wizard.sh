@@ -57,13 +57,13 @@ NC='\033[0m' # No Color
 
 # Get version dynamically from wizard/version.json
 if [ -f "$UDOS_ROOT/wizard/version.json" ]; then
-    WIZARD_VERSION=$(python3 -c "import json; v=json.load(open('$UDOS_ROOT/wizard/version.json'))['version']; print(f\"v{v['major']}.{v['minor']}.{v['patch']}.{v['build']}\")" 2>/dev/null || echo "1.0.0.0")
+    WIZARD_VERSION=$(python3 -c "import json; v=json.load(open('$UDOS_ROOT/wizard/version.json'))['version']; print(f\"v{v['major']}.{v['minor']}.{v['patch']}\")" 2>/dev/null || echo "1.0.0")
 else
-    WIZARD_VERSION="1.0.0.0"
+    WIZARD_VERSION="1.0.0"
 fi
 
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${MAGENTA}🧙 Wizard Server v${WIZARD_VERSION}${NC}"
+echo -e "${MAGENTA}uDOS Wizard Server ${WIZARD_VERSION}${NC}"
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
 print_status() {
