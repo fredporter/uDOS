@@ -6,6 +6,10 @@
       "key_id": "ai-mistral-main",
       "endpoint": "https://api.mistral.ai/v1"
     },
+    "openai": {
+      "key_id": "ai-openai",
+      "endpoint": "https://api.openai.com/v1"
+    },
     "openrouter": {
       "key_id": "ai-openrouter",
       "endpoint": "https://openrouter.ai/api/v1"
