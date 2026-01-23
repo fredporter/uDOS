@@ -332,7 +332,11 @@
                 on:click={() => loadFile(file.id)}
               >
                 <div class="font-medium flex items-center justify-between">
-                  <span>{typeof file.label === 'string' ? file.label.replace(/ \(.*\)/, "") : file.id}</span>
+                  <span
+                    >{typeof file.label === "string"
+                      ? file.label.replace(/ \(.*\)/, "")
+                      : file.id}</span
+                  >
                   <span
                     class="text-xs px-2 py-1 rounded {getStatusBadgeClass(
                       file,
@@ -341,7 +345,9 @@
                     {getFileStatus(file)}
                   </span>
                 </div>
-                <div class="text-xs text-gray-500">{file.description}</div>
+                <div class="text-xs text-gray-500">
+                  {typeof file.description === "string" ? file.description : ""}
+                </div>
               </button>
             {/each}
           {/if}
@@ -376,7 +382,7 @@
     <div class="col-span-9">
       <div
         class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden flex flex-col"
-        style="height: 500px;"
+        style="height: 450px;"
       >
         <!-- Editor header -->
         <div
