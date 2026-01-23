@@ -128,15 +128,15 @@ start_spinner "Installing dependencies from requirements.txt..."
 pip install -q -r "$UDOS_ROOT/requirements.txt" 2>/dev/null
 stop_spinner "Dependencies installed and ready"
 
-INTERACTIVE=0
+INTERACTIVE=1  # Default to interactive TUI
 PORT=8765
 ALLOW_FALLBACK=0
 
 # Parse simple flags/port
 for arg in "$@"; do
     case "$arg" in
-        --interactive|-i)
-            INTERACTIVE=1
+        --no-interactive|--daemon|-d)
+            INTERACTIVE=0
             ;;
         --allow-fallback)
             ALLOW_FALLBACK=1
