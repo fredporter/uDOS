@@ -1,33 +1,87 @@
-# Wizard Config Overview
+# Wizard Configuration Management
 
-Sensitive configuration lives in this folder. Use the provided templates to create local-only files (gitignored) before running the Wizard server.
+Private configuration files for API keys, secrets, and system settings.
+**Local machine only - never committed to git.**
 
-## Templates (copy → fill → keep private)
+## 🎛️ Managing Configs
 
-- `ai_keys.template.json` → `ai_keys.json` (Ollama/OpenRouter/Gemini/Anthropic keys)
-- `oauth_providers.template.json` → `oauth_providers.json` (Google/GitHub/Spotify/Discord/Notion)
-- `slack_keys.template.json` → `slack_keys.json` (Slack bot token, webhook, default channel, signing secret)
-- `github_keys.example.json` → `github_keys.json` (GitHub personal access tokens)
-- `notion_keys.example.json` → `notion_keys.json` (Notion integration token)
-- `port_registry.json` (tracked) — service/port mapping for port-manager
+### Web Dashboard (Recommended)
 
-## Quick status check (no secrets printed)
+Open [http://localhost:8765/#config](http://localhost:8765/#config) to:
 
-Run the local checker to confirm files exist and required keys are present:
+- View all available configs
+- Edit API keys in a secure, user-friendly interface
+- See example/template formats
+- Save changes locally
+
+### REST API
+
+```bash
+# List all config files
+curl http://localhost:8765/api/v1/config/files
+
+# Get a config (loads example if missing)
+curl http://localhost:8765/api/v1/config/ai_keys
+
+# Save a config
+curl -X POST http://localhost:8765/api/v1/config/ai_keys \
+  -H "Content-Type: application/json" \
+  -d '{"content": {...}}'
+
+# View example/template
+curl http://localhost:8765/api/v1/config/ai_keys/example
+
+# Reset to example/template
+curl -X POST http://localhost:8765/api/v1/config/ai_keys/reset
+```
+
+## 📋 Configuration Files
+
+### Available Configs
+
+- `ai_keys.json` — AI provider credentials (Mistral, OpenRouter, Ollama)
+- `github_keys.json` — GitHub token and webhooks
+- `notion_keys.json` — Notion API credentials
+- `oauth_providers.json` — OAuth provider configs
+- `slack_keys.json` — Slack bot token and secrets
+- `wizard.json` — Server settings and policies
+
+### Templates in Public Repo
+
+- `*_keys.example.json` — Full working example with all required fields
+- `*_keys.template.json` — Minimal template for getting started
+
+## 🔐 Security
+
+✅ **Private configs NEVER committed to git**
+
+- Actual `*_keys.json` files are gitignored
+- Only `.example.json` and `.template.json` in public repo
+- Private configs stay on local machine only
+- Accessible only on localhost
+
+## 🚀 Quick Start
+
+1. Open [http://localhost:8765/#config](http://localhost:8765/#config)
+2. Select a configuration (e.g., "AI Provider Keys")
+3. Click "📋 View Example" to see the format
+4. Get your API key from the provider
+5. Edit and save locally
+6. Integration is immediately available
+
+## Legacy: Manual File Copy
+
+Before using the dashboard, you could manually copy templates:
+
+```bash
+cp wizard/config/ai_keys.example.json wizard/config/ai_keys.json
+nano wizard/config/ai_keys.json
+```
+
+**This still works**, but the dashboard is easier.
+
+## Status Check
 
 ```bash
 python wizard/config/check_config_status.py
 ```
-
-## Usage
-
-1. Copy the relevant template to its non-tracked counterpart.
-2. Populate values with real secrets.
-3. Load into environment (e.g., `direnv`, `.env`, or process manager) **or** read from file in your startup scripts.
-4. Never commit real secrets. The `.gitignore` protects the `*keys.json` files.
-
-## Quick Checks
-
-- Ensure `ai_keys.json` and `slack_keys.json` exist before enabling AI or Slack features.
-- Verify `port_registry.json` matches local service ports before running port-manager.
-- Keep OAuth redirect URIs aligned with `oauth_providers.json` (default `http://localhost:8765/oauth/callback`).

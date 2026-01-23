@@ -255,6 +255,12 @@ class WizardServer:
         ai_router = create_ai_routes(auth_guard=self._authenticate)
         app.include_router(ai_router)
 
+        # Register Configuration routes
+        from wizard.routes.config_routes import create_config_routes
+
+        config_router = create_config_routes(auth_guard=self._authenticate)
+        app.include_router(config_router)
+
         # Mount dashboard static files
         from fastapi.staticfiles import StaticFiles
         from fastapi.responses import FileResponse, HTMLResponse
