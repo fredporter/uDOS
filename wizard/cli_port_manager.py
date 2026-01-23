@@ -156,16 +156,18 @@ def cmd_heal(args: list):
     """Automatically heal all port conflicts."""
     pm = get_port_manager()
     conflicts = pm.get_conflicts()
-    
+
     if not conflicts:
         print("✅ No conflicts to heal")
         return
-    
+
     print(f"\n🔧 Healing {len(conflicts)} port conflict(s)...\n")
     results = pm.heal_conflicts()
-    
+
     success_count = sum(1 for v in results.values() if v)
-    print(f"\n{'✅' if success_count == len(results) else '⚠️ '} Healed {success_count}/{len(results)} conflicts")
+    print(
+        f"\n{'✅' if success_count == len(results) else '⚠️ '} Healed {success_count}/{len(results)} conflicts"
+    )
 
 
 def print_help():
