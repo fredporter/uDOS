@@ -346,67 +346,71 @@ print_status "Checking for existing Wizard Server on port ${PORT}..."
 if lsof -i:${PORT} >/dev/null 2>&1; then
     print_warning "Port ${PORT} is already in use"
     print_status "Using port manager to clean up..."
-    python -m wizard.cli_port_manager kill wizard >/dev/null 2>&1 || \
-    python -m wizard.cli_port_manager kill ":${PORT}" >/dev/null 2>&1 || true
+    python3 -m wizard.cli_port_manager kill wizard >/dev/null 2>&1 || \
+    python3 -m wizard.cli_port_manager kill ":${PORT}" >/dev/null 2>&1 || true
     sleep 2
     print_success "Port ${PORT} freed"
 fi
 
-# Start Wizard Server in background (daemon by default, TUI if --interactive)
-start_spinner "Starting Wizard Server on port ${PORT}..."
+# Start Wizard Server
 if [ "$INTERACTIVE" -eq 1 ]; then
-    python3 -m wizard.server --port "$PORT" &
+    # Interactive mode - run in foreground without spinner
+    print_success "Starting Wizard Server in interactive mode on port ${PORT}..."
+    echo ""
+    exec python3 -m wizard.server --port "$PORT"
 else
+    # Daemon mode - run in background with spinner
+    start_spinner "Starting Wizard Server on port ${PORT}..."
     python3 -m wizard.server --port "$PORT" --no-interactive &
+    WIZARD_PID=$!
+
+    # Wait for server startup
+    sleep 3
+
+    # Check if server is running
+    if kill -0 $WIZARD_PID 2>/dev/null; then
+        stop_spinner "Wizard Server started (PID: $WIZARD_PID)"
+    else
+        echo -ne "\r${RED}[✗]${NC} Failed to start Wizard Server\n"
+        exit 1
+    fi
+
+    # Determine which browser to use
+    BROWSER_CMD=""
+    if command -v xdg-open &> /dev/null; then
+        BROWSER_CMD="xdg-open"
+    elif command -v open &> /dev/null; then
+        BROWSER_CMD="open"
+    elif command -v firefox &> /dev/null; then
+        BROWSER_CMD="firefox"
+    elif command -v google-chrome &> /dev/null; then
+        BROWSER_CMD="google-chrome"
+    elif command -v chromium &> /dev/null; then
+        BROWSER_CMD="chromium"
+    fi
+
+    # Open browser dashboard if available
+    if [ -n "$BROWSER_CMD" ]; then
+        start_spinner "Opening browser dashboard..."
+        sleep 1
+        $BROWSER_CMD "http://localhost:${PORT}" 2>/dev/null &
+        stop_spinner "Browser opened"
+    else
+        print_warning "No browser detected. Open manually: http://localhost:${PORT}"
+    fi
+
+    echo ""
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    print_success "Wizard Server is running!"
+    echo -e "${MAGENTA}📊 Dashboard: http://localhost:${PORT}${NC}"
+    echo -e "${MAGENTA}📡 API: http://localhost:${PORT}/api/v1${NC}"
+    echo -e "${MAGENTA}🔌 WebSocket: ws://localhost:${PORT}/ws${NC}"
+    echo ""
+    print_status "Press Ctrl+C to stop the server"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+    # Keep script running and handle cleanup
+    trap "print_warning 'Shutting down Wizard Server...'; kill $WIZARD_PID 2>/dev/null || true; deactivate 2>/dev/null || true; echo ''; print_success 'Wizard Server stopped'; exit 0" SIGINT SIGTERM
+
+    wait $WIZARD_PID
 fi
-WIZARD_PID=$!
-
-# Wait for server startup
-sleep 3
-
-# Check if server is running
-if kill -0 $WIZARD_PID 2>/dev/null; then
-    stop_spinner "Wizard Server started (PID: $WIZARD_PID)"
-else
-    echo -ne "\r${RED}[✗]${NC} Failed to start Wizard Server\n"
-    exit 1
-fi
-
-# Determine which browser to use
-BROWSER_CMD=""
-if command -v xdg-open &> /dev/null; then
-    BROWSER_CMD="xdg-open"
-elif command -v open &> /dev/null; then
-    BROWSER_CMD="open"
-elif command -v firefox &> /dev/null; then
-    BROWSER_CMD="firefox"
-elif command -v google-chrome &> /dev/null; then
-    BROWSER_CMD="google-chrome"
-elif command -v chromium &> /dev/null; then
-    BROWSER_CMD="chromium"
-fi
-
-# Open browser dashboard if available
-if [ -n "$BROWSER_CMD" ]; then
-    start_spinner "Opening browser dashboard..."
-    sleep 1
-    $BROWSER_CMD "http://localhost:${PORT}" 2>/dev/null &
-    stop_spinner "Browser opened"
-else
-    print_warning "No browser detected. Open manually: http://localhost:${PORT}"
-fi
-
-echo ""
-echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-print_success "Wizard Server is running!"
-echo -e "${MAGENTA}📊 Dashboard: http://localhost:${PORT}${NC}"
-echo -e "${MAGENTA}📡 API: http://localhost:${PORT}/api/v1${NC}"
-echo -e "${MAGENTA}🔌 WebSocket: ws://localhost:${PORT}/ws${NC}"
-echo ""
-print_status "Press Ctrl+C to stop the server"
-echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-
-# Keep script running and handle cleanup
-trap "print_warning 'Shutting down Wizard Server...'; kill $WIZARD_PID 2>/dev/null || true; deactivate 2>/dev/null || true; echo ''; print_success 'Wizard Server stopped'; exit 0" SIGINT SIGTERM
-
-wait $WIZARD_PID
