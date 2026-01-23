@@ -355,9 +355,9 @@ fi
 # Start Wizard Server in background (daemon by default, TUI if --interactive)
 start_spinner "Starting Wizard Server on port ${PORT}..."
 if [ "$INTERACTIVE" -eq 1 ]; then
-    python -m wizard.server --port "$PORT" --interactive &
+    python3 -m wizard.server --port "$PORT" &
 else
-    python -m wizard.server --port "$PORT" --no-interactive &
+    python3 -m wizard.server --port "$PORT" --no-interactive &
 fi
 WIZARD_PID=$!
 
