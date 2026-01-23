@@ -51,6 +51,12 @@
       description: "Slack bot token and workspace config",
       icon: "🔗",
     },
+    hubspot_keys: {
+      id: "hubspot_keys",
+      label: "📈 HubSpot",
+      description: "HubSpot API key configuration",
+      icon: "📊",
+    },
     wizard: {
       id: "wizard",
       label: "⚙️ Wizard Settings",
@@ -156,6 +162,7 @@
 
       // Reload to get updated status
       await loadFile(selectedFile);
+      await loadProviders();
     } catch (err) {
       setStatus(`Failed to save: ${err.message}`, "error");
     } finally {
@@ -233,6 +240,23 @@
     } finally {
       isLoadingProviders = false;
     }
+  }
+
+  function providerStatusBadge(provider) {
+    const status = provider?.status || {};
+    const configured = status.configured;
+    const available = status.available;
+
+    return {
+      configuredText: configured ? "Configured" : "Not configured",
+      configuredClass: configured
+        ? "bg-green-900 text-green-200"
+        : "bg-gray-800 text-gray-400",
+      availableText: available ? "Connected" : "Not reachable",
+      availableClass: available
+        ? "bg-green-900 text-green-200"
+        : "bg-yellow-900 text-yellow-200",
+    };
   }
 
   function toggleProviders() {
@@ -521,6 +545,7 @@
           </p>
         {:else}
           {#each providers as provider}
+            {@const badge = providerStatusBadge(provider)}
             <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
               <div class="flex items-start justify-between mb-2">
                 <div>
@@ -535,15 +560,20 @@
                       : ""}
                   </p>
                 </div>
-                <div
-                  class="px-2 py-1 rounded text-xs {provider.status ===
-                  'configured'
-                    ? 'bg-green-900 text-green-300'
-                    : 'bg-gray-700 text-gray-400'}"
-                >
-                  {typeof provider.status === "string"
-                    ? provider.status
-                    : "not configured"}
+                <div class="flex flex-col items-end gap-1 text-xs">
+                  <span class={`px-2 py-1 rounded ${badge.configuredClass}`}>
+                    {badge.configuredText}
+                  </span>
+                  <span class={`px-2 py-1 rounded ${badge.availableClass}`}>
+                    {badge.availableText}
+                  </span>
+                  {#if provider.status?.cli_installed === false}
+                    <span
+                      class="px-2 py-1 rounded bg-yellow-900 text-yellow-200"
+                    >
+                      CLI missing
+                    </span>
+                  {/if}
                 </div>
               </div>
 
