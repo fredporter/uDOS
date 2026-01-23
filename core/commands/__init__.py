@@ -21,6 +21,8 @@ from .dev_mode_handler import DevModeHandler
 from .npc_handler import NPCHandler
 from .dialogue_engine import DialogueEngine, DialogueTree, DialogueNode
 from .talk_handler import TalkHandler
+from .config_handler import ConfigHandler
+from .provider_handler import ProviderHandler
 
 __all__ = [
     "BaseCommandHandler",
@@ -47,4 +49,7 @@ __all__ = [
     "DialogueTree",
     "DialogueNode",
     "TalkHandler",
+    # Wizard commands
+    "ConfigHandler",
+    "ProviderHandler",
 ]

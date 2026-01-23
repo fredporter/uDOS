@@ -104,6 +104,18 @@ class HelpHandler(BaseCommandHandler):
             "example": "REPLY 1 or REPLY 2",
             "notes": "Continue conversation by choosing numbered option",
         },
+        "CONFIG": {
+            "description": "Manage Wizard configuration",
+            "usage": "CONFIG [SHOW|LIST|EDIT <file>|SETUP]",
+            "example": "CONFIG SHOW or CONFIG EDIT wizard.json",
+            "notes": "View status, list config files, edit configs, run provider setup",
+        },
+        "PROVIDER": {
+            "description": "Manage AI/service providers",
+            "usage": "PROVIDER [LIST|STATUS <id>|ENABLE <id>|DISABLE <id>|SETUP <id>]",
+            "example": "PROVIDER LIST or PROVIDER ENABLE github",
+            "notes": "Configure AI providers (ollama, github, openai, etc.)",
+        },
     }
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:

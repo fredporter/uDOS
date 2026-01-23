@@ -24,6 +24,8 @@ from core.commands import (
     NPCHandler,
     DialogueEngine,
     TalkHandler,
+    ConfigHandler,
+    ProviderHandler,
 )
 
 
@@ -60,6 +62,9 @@ class CommandDispatcher:
             "NPC": self.npc_handler,
             "TALK": self.talk_handler,
             "REPLY": self.talk_handler,
+            # Wizard Management (2)
+            "CONFIG": ConfigHandler(),
+            "PROVIDER": ProviderHandler(),
         }
 
     def dispatch(
