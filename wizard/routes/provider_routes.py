@@ -89,6 +89,16 @@ def create_provider_routes(auth_guard=None):
             "config_file": "assistant_keys.json",
             "config_key": "OPENROUTER_API_KEY",
         },
+        "hubspot": {
+            "name": "HubSpot",
+            "description": "HubSpot CRM API",
+            "type": "api_key",
+            "automation": "manual",
+            "cli_required": False,
+            "web_url": "https://app.hubspot.com/l/api-key",
+            "config_file": "hubspot_keys.json",
+            "config_key": "HUBSPOT_API_KEY",
+        },
         "gemini": {
             "name": "Google Gemini",
             "description": "Google's AI models",

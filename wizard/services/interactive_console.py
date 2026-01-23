@@ -23,6 +23,7 @@ import json
 import urllib.request
 import urllib.error
 import urllib.parse
+import subprocess
 from typing import Optional, Dict, Any, Callable
 from datetime import datetime
 from pathlib import Path
@@ -36,6 +37,7 @@ class WizardConsole:
         self.server = server_instance
         self.config = config
         self.running = False
+        self.repo_root = Path(__file__).parent.parent
         self.commands: Dict[str, Callable] = {
             "status": self.cmd_status,
             "services": self.cmd_services,
@@ -55,7 +57,7 @@ class WizardConsole:
     def print_banner(self):
         """Display startup banner with capabilities."""
         version = self._get_version()
-        
+
         banner = f"""
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -69,25 +71,35 @@ class WizardConsole:
 📊 CAPABILITIES:
 """
         print(banner)
-        
+
         # List enabled services
         services = self._get_service_status()
         for service_name, service_info in services.items():
             status = "✅" if service_info["enabled"] else "⏸️ "
             version_str = f"v{service_info.get('version', 'unknown')}"
-            print(f"  {status} {service_name:<20} {version_str:<12} {service_info.get('description', '')}")
-        
+            print(
+                f"  {status} {service_name:<20} {version_str:<12} {service_info.get('description', '')}"
+            )
+
         print(f"\n⚙️  CONFIGURATION:")
-        print(f"  • Rate Limit: {self.config.requests_per_minute}/min, {self.config.requests_per_hour}/hour")
-        print(f"  • AI Budget: ${self.config.ai_budget_daily}/day, ${self.config.ai_budget_monthly}/month")
+        print(
+            f"  • Rate Limit: {self.config.requests_per_minute}/min, {self.config.requests_per_hour}/hour"
+        )
+        print(
+            f"  • AI Budget: ${self.config.ai_budget_daily}/day, ${self.config.ai_budget_monthly}/month"
+        )
         print(f"  • Debug Mode: {'Enabled' if self.config.debug else 'Disabled'}")
-        
+
         print(f"\n🌐 ENDPOINTS:")
-        print(f"  • Health:         http://{self.config.host}:{self.config.port}/health")
-        print(f"  • API:            http://{self.config.host}:{self.config.port}/api/v1/")
+        print(
+            f"  • Health:         http://{self.config.host}:{self.config.port}/health"
+        )
+        print(
+            f"  • API:            http://{self.config.host}:{self.config.port}/api/v1/"
+        )
         print(f"  • WebSocket:      ws://{self.config.host}:{self.config.port}/ws")
         print(f"  • Documentation:  http://{self.config.host}:{self.config.port}/docs")
-        
+
         print("\n💬 INTERACTIVE MODE: Type 'help' for commands, 'exit' to shutdown")
         print("=" * 68)
         print()
@@ -111,48 +123,48 @@ class WizardConsole:
             "Plugin Repository": {
                 "enabled": self.config.plugin_repo_enabled,
                 "version": "1.1.0",
-                "description": "Plugin distribution and updates"
+                "description": "Plugin distribution and updates",
             },
             "AI Gateway": {
                 "enabled": self.config.ai_gateway_enabled,
                 "version": "1.1.0",
-                "description": "AI model routing (Ollama/OpenRouter)"
+                "description": "AI model routing (Ollama/OpenRouter)",
             },
             "Web Proxy": {
                 "enabled": self.config.web_proxy_enabled,
                 "version": "1.0.0",
-                "description": "Web content fetching"
+                "description": "Web content fetching",
             },
             "Gmail Relay": {
                 "enabled": self.config.gmail_relay_enabled,
                 "version": "1.0.0",
-                "description": "Email relay service"
+                "description": "Email relay service",
             },
             "GitHub Monitor": {
                 "enabled": True,
                 "version": "1.0.0",
-                "description": "CI/CD self-healing (Actions webhooks)"
+                "description": "CI/CD self-healing (Actions webhooks)",
             },
             "Rate Limiter": {
                 "enabled": True,
                 "version": "1.1.0",
-                "description": "Request rate limiting"
+                "description": "Request rate limiting",
             },
             "Cost Tracker": {
                 "enabled": True,
                 "version": "1.0.0",
-                "description": "API cost monitoring"
+                "description": "API cost monitoring",
             },
             "Device Auth": {
                 "enabled": True,
                 "version": "1.0.0",
-                "description": "Device authentication"
+                "description": "Device authentication",
             },
             "WebSocket": {
                 "enabled": True,
                 "version": "1.0.0",
-                "description": "Real-time updates"
-            }
+                "description": "Real-time updates",
+            },
         }
 
     async def cmd_status(self, args: list) -> None:
@@ -161,7 +173,9 @@ class WizardConsole:
         print(f"  • Uptime: {self._get_uptime()}")
         print(f"  • Port: {self.config.port}")
         print(f"  • Debug: {'Yes' if self.config.debug else 'No'}")
-        print(f"  • Active Services: {sum(1 for s in self._get_service_status().values() if s['enabled'])}/8")
+        print(
+            f"  • Active Services: {sum(1 for s in self._get_service_status().values() if s['enabled'])}/8"
+        )
         print()
 
     async def cmd_services(self, args: list) -> None:
@@ -196,24 +210,28 @@ class WizardConsole:
     async def cmd_health(self, args: list) -> None:
         """Run health checks."""
         print("\n🏥 HEALTH CHECKS:")
-        
+
         # Check data directories
         data_path = Path(__file__).parent.parent.parent / "memory" / "wizard"
         plugin_path = Path(__file__).parent.parent.parent / "distribution" / "plugins"
-        
+
         print(f"  • Data Directory: {'✅ OK' if data_path.exists() else '❌ MISSING'}")
-        print(f"  • Plugin Directory: {'✅ OK' if plugin_path.exists() else '❌ MISSING'}")
-        
+        print(
+            f"  • Plugin Directory: {'✅ OK' if plugin_path.exists() else '❌ MISSING'}"
+        )
+
         # Check configuration
         config_path = Path(__file__).parent.parent / "config" / "wizard.json"
         print(f"  • Configuration: {'✅ OK' if config_path.exists() else '⚠️  DEFAULT'}")
-        
+
         # Check service status
         services = self._get_service_status()
         active_count = sum(1 for s in services.values() if s["enabled"])
         print(f"  • Active Services: ✅ {active_count}/8")
-        
-        print(f"\n  Overall Status: {'✅ HEALTHY' if active_count > 0 else '⚠️  DEGRADED'}")
+
+        print(
+            f"\n  Overall Status: {'✅ HEALTHY' if active_count > 0 else '⚠️  DEGRADED'}"
+        )
         print()
 
     async def cmd_reload(self, args: list) -> None:
@@ -221,6 +239,7 @@ class WizardConsole:
         print("\n🔄 RELOADING CONFIGURATION...")
         try:
             from wizard.server import WizardConfig
+
             config_path = Path(__file__).parent.parent / "config" / "wizard.json"
             if config_path.exists():
                 self.config = WizardConfig.load(config_path)
@@ -234,14 +253,15 @@ class WizardConsole:
     async def cmd_github(self, args: list) -> None:
         """Show GitHub Actions status and recent runs."""
         print("\n📊 GITHUB ACTIONS STATUS:")
-        
+
         try:
             from wizard.services.github_monitor import get_github_monitor
+
             monitor = get_github_monitor()
-            
+
             # Get recent runs
             runs = monitor.get_recent_runs(limit=5)
-            
+
             if not runs:
                 print("  ⚠️  No recent runs found (GitHub CLI may not be configured)")
                 print("  Install: brew install gh")
@@ -260,17 +280,23 @@ class WizardConsole:
                         emoji = "⏳"
                     else:
                         emoji = "⏸️ "
-                    
+
                     # Format output
-                    print(f"    {emoji} {run.name:<30} {run.head_branch:<15} {run.conclusion or run.status}")
-            
+                    print(
+                        f"    {emoji} {run.name:<30} {run.head_branch:<15} {run.conclusion or run.status}"
+                    )
+
             # Show failure patterns
             if monitor.failure_patterns:
                 print(f"\n  Failure Patterns:")
-                for pattern, count in sorted(monitor.failure_patterns.items(), key=lambda x: x[1], reverse=True):
+                for pattern, count in sorted(
+                    monitor.failure_patterns.items(), key=lambda x: x[1], reverse=True
+                ):
                     print(f"    • {pattern}: {count}x")
-            
-            print(f"\n  Webhook URL: http://{self.config.host}:{self.config.port}/api/v1/github/webhook")
+
+            print(
+                f"\n  Webhook URL: http://{self.config.host}:{self.config.port}/api/v1/github/webhook"
+            )
             print("  Configure at: https://github.com/[owner]/[repo]/settings/hooks")
         except Exception as e:
             print(f"  ⚠️  GitHub Monitor unavailable: {e}")
@@ -283,21 +309,21 @@ class WizardConsole:
     async def cmd_poke(self, args: list) -> None:
         """Open a URL in the default browser."""
         import webbrowser
-        
+
         if not args:
             print("\n❌ ERROR: No URL provided")
             print("   Usage: poke <url>")
             print("   Example: poke http://localhost:8765/docs")
             print()
             return
-        
+
         url = args[0]
-        
+
         # Validate URL format
         if not url.startswith(("http://", "https://", "file://")):
             print(f"\n⚠️  WARNING: URL should start with http://, https://, or file://")
             print(f"   Attempting to open: {url}")
-        
+
         try:
             print(f"\n🌐 Opening URL in browser...")
             print(f"   {url}")
@@ -335,7 +361,9 @@ class WizardConsole:
         if data is not None:
             request_data = json.dumps(data).encode("utf-8")
 
-        req = urllib.request.Request(url, data=request_data, headers=headers, method=method.upper())
+        req = urllib.request.Request(
+            url, data=request_data, headers=headers, method=method.upper()
+        )
         with urllib.request.urlopen(req, timeout=5) as resp:
             body = resp.read().decode("utf-8")
             return json.loads(body) if body else {}
@@ -413,22 +441,45 @@ class WizardConsole:
                 result = await loop.run_in_executor(
                     None, lambda: self._api_request("POST", path)
                 )
-                if result.get("success"):
-                    commands = result.get("commands", [])
-                    print(f"\n{provider_id} setup info:")
-                    if commands:
-                        for cmd in commands:
-                            print(f"  • {cmd.get('type','')}: {cmd.get('cmd','')}")
-                    else:
-                        print(f"  • {result.get('message','No automation available')}")
-                    print()
-                else:
+                if not result.get("success"):
                     print(f"\n⚠️  {result.get('message','Setup not available')}\n")
+                    return
+
+                commands = result.get("commands", [])
+                if not commands:
+                    print(f"\n⚠️  No automation available for {provider_id}\n")
+                    return
+
+                print(f"\n{provider_id} setup running...")
+                for cmd in commands:
+                    cmd_str = cmd.get("cmd", "")
+                    if not cmd_str:
+                        continue
+                    print(f"  • {cmd.get('type','cmd')}: {cmd_str}")
+                    try:
+                        completed = await loop.run_in_executor(
+                            None,
+                            lambda: subprocess.run(
+                                cmd_str,
+                                shell=True,
+                                cwd=self.repo_root,
+                                check=False,
+                            ),
+                        )
+                        if completed.returncode != 0:
+                            print(f"    ⚠️  exited {completed.returncode}")
+                        else:
+                            print("    ✅ done")
+                    except Exception as run_err:
+                        print(f"    ❌ {run_err}")
+                print()
 
             else:
                 print("\nUsage: provider status|flag|unflag|setup <provider_id>\n")
         except urllib.error.HTTPError as e:
-            print(f"\n❌ Provider API error: {e.read().decode('utf-8') if e.fp else e}\n")
+            print(
+                f"\n❌ Provider API error: {e.read().decode('utf-8') if e.fp else e}\n"
+            )
         except Exception as e:
             print(f"\n❌ Provider command failed: {e}\n")
 
@@ -446,32 +497,32 @@ class WizardConsole:
         """Run interactive console loop."""
         self.running = True
         self.print_banner()
-        
+
         while self.running:
             try:
                 # Use asyncio-compatible input
                 print("wizard> ", end="", flush=True)
-                
+
                 # Run input in executor to not block event loop
                 loop = asyncio.get_event_loop()
                 command_line = await loop.run_in_executor(None, sys.stdin.readline)
                 command_line = command_line.strip()
-                
+
                 if not command_line:
                     continue
-                
+
                 # Parse command
                 parts = command_line.split()
                 cmd = parts[0].lower()
                 args = parts[1:] if len(parts) > 1 else []
-                
+
                 # Execute command
                 if cmd in self.commands:
                     await self.commands[cmd](args)
                 else:
                     print(f"❌ Unknown command: {cmd}")
                     print("   Type 'help' for available commands\n")
-                    
+
             except KeyboardInterrupt:
                 print("\n\n⚠️  Keyboard interrupt received")
                 await self.cmd_exit([])
@@ -482,5 +533,5 @@ class WizardConsole:
                 break
             except Exception as e:
                 print(f"❌ Error: {e}\n")
-        
+
         print("✅ Wizard Server shutdown complete\n")

@@ -35,6 +35,7 @@ def create_config_routes(auth_guard=None):
         "notion_keys": "notion_keys.json",
         "oauth": "oauth_providers.json",
         "slack_keys": "slack_keys.json",
+        "hubspot_keys": "hubspot_keys.json",
         "wizard": "wizard.json",
     }
 
@@ -45,6 +46,7 @@ def create_config_routes(auth_guard=None):
         "notion_keys": "Notion Keys",
         "oauth": "OAuth Providers",
         "slack_keys": "Slack Keys",
+        "hubspot_keys": "HubSpot Keys",
         "wizard": "Wizard",
     }
 
