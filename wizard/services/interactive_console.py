@@ -19,10 +19,13 @@ Commands:
 
 import asyncio
 import sys
+import json
+import urllib.request
+import urllib.error
+import urllib.parse
 from typing import Optional, Dict, Any, Callable
 from datetime import datetime
 from pathlib import Path
-import json
 
 
 class WizardConsole:
@@ -40,7 +43,11 @@ class WizardConsole:
             "health": self.cmd_health,
             "reload": self.cmd_reload,
             "github": self.cmd_github,
-            "workflows": self.cmd_workflows,            "poke": self.cmd_poke,            "help": self.cmd_help,
+            "workflows": self.cmd_workflows,
+            "poke": self.cmd_poke,
+            "help": self.cmd_help,
+            "providers": self.cmd_providers,
+            "provider": self.cmd_provider,
             "exit": self.cmd_exit,
             "quit": self.cmd_exit,
         }
@@ -312,9 +319,118 @@ class WizardConsole:
         print("  github     - Show GitHub Actions status and recent runs")
         print("  workflows  - Alias for 'github' command")
         print("  poke       - Open a URL in the default browser")
+        print("  providers  - List provider status (Ollama, OpenRouter, etc.)")
+        print("  provider   - Provider actions: status|flag|unflag|setup <id>")
         print("  help       - Show this help message")
         print("  exit/quit  - Shutdown server gracefully")
         print()
+
+    def _api_request(self, method: str, path: str, data: Optional[dict] = None):
+        """Call Wizard API from the console."""
+        base_host = "localhost" if self.config.host == "0.0.0.0" else self.config.host
+        url = f"http://{base_host}:{self.config.port}{path}"
+        headers = {"Content-Type": "application/json"}
+
+        request_data = None
+        if data is not None:
+            request_data = json.dumps(data).encode("utf-8")
+
+        req = urllib.request.Request(url, data=request_data, headers=headers, method=method.upper())
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            body = resp.read().decode("utf-8")
+            return json.loads(body) if body else {}
+
+    async def cmd_providers(self, args: list) -> None:
+        """List providers and their status."""
+        loop = asyncio.get_event_loop()
+        try:
+            result = await loop.run_in_executor(
+                None, lambda: self._api_request("GET", "/api/v1/providers/list")
+            )
+        except Exception as e:
+            print(f"\n❌ Provider list failed: {e}\n")
+            return
+
+        providers = result.get("providers", [])
+        if not providers:
+            print("\n⚠️  No providers found\n")
+            return
+
+        print("\n🤖 PROVIDERS:")
+        for p in providers:
+            status = p.get("status", {})
+            configured = "✅" if status.get("configured") else "⚠️"
+            available = "✅" if status.get("available") else "❌"
+            print(
+                f"  {p['id']:<10} {p['name']:<18} configured {configured}  available {available}  type {p.get('type','')}"
+            )
+        print()
+
+    async def cmd_provider(self, args: list) -> None:
+        """Provider actions: status|flag|unflag|setup <id>."""
+        if not args or len(args) < 2:
+            print("\nUsage: provider status|flag|unflag|setup <provider_id>\n")
+            return
+
+        action, provider_id = args[0].lower(), args[1]
+        loop = asyncio.get_event_loop()
+
+        try:
+            if action == "status":
+                result = await loop.run_in_executor(
+                    None,
+                    lambda: self._api_request(
+                        "GET", f"/api/v1/providers/{provider_id}/status"
+                    ),
+                )
+                status = result.get("status", {})
+                print(
+                    f"\n{result.get('name','')} ({provider_id})\n  configured: {status.get('configured')}\n  available:  {status.get('available')}\n  cli_installed: {status.get('cli_installed')}\n  needs_restart: {status.get('needs_restart')}\n"
+                )
+
+            elif action == "flag":
+                result = await loop.run_in_executor(
+                    None,
+                    lambda: self._api_request(
+                        "POST", f"/api/v1/providers/{provider_id}/flag"
+                    ),
+                )
+                print(f"\n{result.get('message','Flagged')}\n")
+
+            elif action == "unflag":
+                result = await loop.run_in_executor(
+                    None,
+                    lambda: self._api_request(
+                        "POST", f"/api/v1/providers/{provider_id}/unflag"
+                    ),
+                )
+                print(f"\n{result.get('message','Unflagged')}\n")
+
+            elif action == "setup":
+                # POST with query param
+                query = urllib.parse.urlencode({"provider_id": provider_id})
+                path = f"/api/v1/providers/setup/run?{query}"
+                result = await loop.run_in_executor(
+                    None, lambda: self._api_request("POST", path)
+                )
+                if result.get("success"):
+                    commands = result.get("commands", [])
+                    print(f"\n{provider_id} setup info:")
+                    if commands:
+                        for cmd in commands:
+                            print(f"  • {cmd.get('type','')}: {cmd.get('cmd','')}")
+                    else:
+                        print(f"  • {result.get('message','No automation available')}")
+                    print()
+                else:
+                    print(f"\n⚠️  {result.get('message','Setup not available')}\n")
+
+            else:
+                print("\nUsage: provider status|flag|unflag|setup <provider_id>\n")
+        except urllib.error.HTTPError as e:
+            print(f"\n❌ Provider API error: {e.read().decode('utf-8') if e.fp else e}\n")
+        except Exception as e:
+            print(f"\n❌ Provider command failed: {e}\n")
 
     async def cmd_exit(self, args: list) -> None:
         """Shutdown server."""
