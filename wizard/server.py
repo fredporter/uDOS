@@ -20,8 +20,10 @@ Security:
 """
 
 import os
+import re
 import json
 import asyncio
+import shutil
 import webbrowser
 import hmac
 import hashlib
@@ -29,8 +31,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict, field
+from collections import deque
 
 from wizard.services.ai_gateway import AIRequest, AIGateway
+from wizard.services.logging_manager import get_logging_manager
 from wizard.services.path_utils import get_repo_root
 
 # Optional FastAPI (only on Wizard Server)
@@ -138,6 +142,10 @@ class WizardServer:
     - Cost tracking
     """
 
+    LOG_LINE_PATTERN = re.compile(
+        r"^\[(?P<timestamp>[^\]]+)\]\s+\[(?P<level>[^\]]+)\]\s+\[(?P<category>[^\]]+)\](?:\s+\[(?P<source>[^\]]+)\])?\s+(?P<message>.*)$"
+    )
+
     def __init__(self, config: WizardConfig = None):
         """Initialize Wizard Server."""
         self.config = config or WizardConfig.load()
@@ -146,6 +154,7 @@ class WizardServer:
         self.rate_limiter = get_rate_limiter()
         self.ai_gateway = AIGateway()
         self._started = False
+        self.logging_manager = get_logging_manager()
 
         # Ensure directories exist
         WIZARD_DATA_PATH.mkdir(parents=True, exist_ok=True)
@@ -401,6 +410,8 @@ class WizardServer:
         @app.get("/api/v1/index")
         async def dashboard_index():
             """Dashboard index data."""
+            system_stats = self._get_system_stats()
+            log_stats = self.logging_manager.get_log_stats()
             return {
                 "dashboard": {
                     "name": "uDOS Wizard Server",
@@ -429,7 +440,14 @@ class WizardServer:
                         "description": "AI model access with cost tracking",
                     },
                 ],
+                "system": system_stats,
+                "log_stats": log_stats,
             }
+
+        @app.get("/api/v1/system/stats")
+        async def system_stats():
+            """Return current system resource stats."""
+            return self._get_system_stats()
 
         @app.get("/api/v1/status")
         async def server_status(request: Request):
@@ -630,12 +648,17 @@ class WizardServer:
             return {"devices": devices, "count": len(devices)}
 
         @app.get("/api/v1/logs")
-        async def get_logs(filter: str = "all", limit: int = 20):
-            """Get filtered logs (TUI endpoint)."""
-            # This is a placeholder - would connect to actual log system
-            logs = []
-            # TODO: Implement actual log retrieval from logging system
-            return {"logs": logs, "filter": filter, "limit": limit}
+        async def get_logs(
+            request: Request,
+            category: str = "all",
+            filter: Optional[str] = None,
+            limit: int = 200,
+            level: Optional[str] = None,
+        ):
+            """Return recent Wizard logs (latest first)."""
+            _ = request  # placeholder for future auth guard
+            selected_category = filter or category or "all"
+            return self._read_logs(selected_category, limit=limit, level=level)
 
         @app.post("/api/v1/models/switch")
         async def switch_model(request: Request):
@@ -669,6 +692,245 @@ class WizardServer:
                 "action": action,
                 "message": f"Service {service} {action}ed successfully",
             }
+
+    def _get_system_stats(self) -> Dict[str, Any]:
+        """Collect lightweight system resource metrics."""
+        cpu_count = os.cpu_count() or 1
+        try:
+            load1, load5, load15 = os.getloadavg()
+        except OSError:
+            load1 = load5 = load15 = 0.0
+
+        load_per_cpu = round(load1 / cpu_count, 2) if cpu_count else 0.0
+        memory = self._read_memory_stats()
+        swap = self._read_swap_stats()
+        disk = self._read_disk_stats()
+        uptime_seconds = self._get_uptime_seconds()
+        process_count = self._get_process_count()
+
+        overload_reasons: List[str] = []
+        if load_per_cpu > 1.25:
+            overload_reasons.append("cpu_load_high")
+        if memory["used_percent"] > 95:  # Higher threshold since swap is active
+            overload_reasons.append("memory_high")
+        if disk["used_percent"] > 90:
+            overload_reasons.append("disk_high")
+
+        return {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "cpu": {
+                "count": cpu_count,
+                "load1": round(load1, 2),
+                "load5": round(load5, 2),
+                "load15": round(load15, 2),
+                "load_per_cpu": load_per_cpu,
+            },
+            "memory": memory,
+            "swap": swap,
+            "disk": disk,
+            "uptime_seconds": uptime_seconds,
+            "process_count": process_count,
+            "overload": bool(overload_reasons),
+            "overload_reasons": overload_reasons,
+        }
+
+    def _read_memory_stats(self) -> Dict[str, Any]:
+        """Read memory stats from /proc/meminfo (Linux)."""
+        meminfo_path = Path("/proc/meminfo")
+        total_kb = available_kb = None
+        if meminfo_path.exists():
+            try:
+                for line in meminfo_path.read_text().splitlines():
+                    if line.startswith("MemTotal:"):
+                        total_kb = int(line.split()[1])
+                    elif line.startswith("MemAvailable:"):
+                        available_kb = int(line.split()[1])
+            except (OSError, ValueError):
+                total_kb = available_kb = None
+
+        total_bytes = (total_kb or 0) * 1024
+        available_bytes = (available_kb or 0) * 1024
+        used_bytes = max(total_bytes - available_bytes, 0)
+
+        to_mb = lambda b: round(b / (1024 * 1024), 1)
+        used_percent = (
+            round((used_bytes / total_bytes) * 100, 1) if total_bytes else 0.0
+        )
+
+        return {
+            "total_mb": to_mb(total_bytes),
+            "available_mb": to_mb(available_bytes),
+            "used_mb": to_mb(used_bytes),
+            "used_percent": used_percent,
+        }
+
+    def _read_swap_stats(self) -> Dict[str, Any]:
+        """Read swap memory statistics from /proc/meminfo or /proc/swaps."""
+        meminfo_path = Path("/proc/meminfo")
+        swap_total_kb = swap_free_kb = None
+
+        if meminfo_path.exists():
+            try:
+                for line in meminfo_path.read_text().splitlines():
+                    if line.startswith("SwapTotal:"):
+                        swap_total_kb = int(line.split()[1])
+                    elif line.startswith("SwapFree:"):
+                        swap_free_kb = int(line.split()[1])
+            except (OSError, ValueError):
+                swap_total_kb = swap_free_kb = None
+
+        total_bytes = (swap_total_kb or 0) * 1024
+        free_bytes = (swap_free_kb or 0) * 1024
+        used_bytes = max(total_bytes - free_bytes, 0)
+
+        to_gb = lambda b: round(b / (1024 * 1024 * 1024), 2)
+        used_percent = (
+            round((used_bytes / total_bytes) * 100, 1) if total_bytes else 0.0
+        )
+
+        return {
+            "total_gb": to_gb(total_bytes),
+            "used_gb": to_gb(used_bytes),
+            "free_gb": to_gb(free_bytes),
+            "used_percent": used_percent,
+            "active": total_bytes > 0,
+        }
+
+    def _read_disk_stats(self) -> Dict[str, Any]:
+        """Read disk usage for the repo root volume."""
+        try:
+            usage = shutil.disk_usage(str(REPO_ROOT))
+        except OSError:
+            return {
+                "total_gb": 0,
+                "used_gb": 0,
+                "free_gb": 0,
+                "used_percent": 0.0,
+            }
+
+        total_bytes = usage.total
+        used_bytes = usage.total - usage.free
+        free_bytes = usage.free
+        used_percent = (
+            round((used_bytes / total_bytes) * 100, 1) if total_bytes else 0.0
+        )
+
+        to_gb = lambda b: round(b / (1024 * 1024 * 1024), 2)
+        return {
+            "total_gb": to_gb(total_bytes),
+            "used_gb": to_gb(used_bytes),
+            "free_gb": to_gb(free_bytes),
+            "used_percent": used_percent,
+        }
+
+    def _get_uptime_seconds(self) -> Optional[float]:
+        """Read system uptime in seconds if available."""
+        uptime_path = Path("/proc/uptime")
+        if uptime_path.exists():
+            try:
+                return float(uptime_path.read_text().split()[0])
+            except (OSError, ValueError):
+                return None
+        return None
+
+    def _get_process_count(self) -> Optional[int]:
+        """Count active processes on Linux."""
+        proc_path = Path("/proc")
+        if not proc_path.exists():
+            return None
+        try:
+            return len(
+                [p for p in proc_path.iterdir() if p.is_dir() and p.name.isdigit()]
+            )
+        except OSError:
+            return None
+
+    def _read_logs(
+        self, category: str = "all", limit: int = 200, level: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Tail recent log lines for dashboard/TUI usage."""
+        log_dir = self.logging_manager.log_dir
+        if not log_dir.exists():
+            return {
+                "logs": [],
+                "category": category,
+                "limit": limit,
+                "categories": [],
+                "stats": {},
+            }
+
+        files = sorted(
+            log_dir.glob("*.log"), key=lambda p: p.stat().st_mtime, reverse=True
+        )
+        categories = sorted({p.stem.split("-")[0] for p in files})
+
+        selected = (category or "all").lower()
+        entries: List[Dict[str, Any]] = []
+
+        for log_file in files:
+            if selected not in ("all", "") and not log_file.stem.startswith(
+                f"{selected}-"
+            ):
+                continue
+
+            for line in self._tail_file(log_file, max(limit * 3, 200)):
+                parsed = self._parse_log_line(line, log_file.name)
+                if not parsed:
+                    continue
+                if level and parsed["level"].lower() != level.lower():
+                    continue
+                entries.append(parsed)
+
+        entries.sort(
+            key=lambda e: e.get("timestamp_sort") or e.get("timestamp"),
+            reverse=True,
+        )
+        trimmed = entries[:limit]
+        for entry in trimmed:
+            entry.pop("timestamp_sort", None)
+
+        return {
+            "logs": trimmed,
+            "category": selected,
+            "limit": limit,
+            "categories": categories,
+            "stats": self.logging_manager.get_log_stats(),
+        }
+
+    def _tail_file(self, path: Path, max_lines: int) -> List[str]:
+        """Return up to max_lines from end of file."""
+        buf: deque = deque(maxlen=max_lines)
+        try:
+            with path.open("r", encoding="utf-8", errors="ignore") as handle:
+                for line in handle:
+                    buf.append(line.rstrip("\n"))
+        except OSError:
+            return []
+        return list(buf)
+
+    def _parse_log_line(self, line: str, filename: str) -> Optional[Dict[str, Any]]:
+        """Parse a log line emitted by LoggingManager format."""
+        match = self.LOG_LINE_PATTERN.match(line)
+        if not match:
+            return None
+
+        ts_raw = match.group("timestamp")
+        try:
+            ts_dt = datetime.strptime(ts_raw, "%Y-%m-%d %H:%M:%S")
+            ts_iso = ts_dt.isoformat()
+        except ValueError:
+            ts_dt = None
+            ts_iso = ts_raw
+
+        return {
+            "timestamp": ts_iso,
+            "timestamp_sort": ts_dt,
+            "level": match.group("level"),
+            "category": match.group("category"),
+            "source": match.group("source") or "wizard",
+            "message": match.group("message"),
+            "file": filename,
+        }
 
     async def _authenticate(self, request: Request) -> str:
         """Authenticate device request."""

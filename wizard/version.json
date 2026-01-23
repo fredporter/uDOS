@@ -6,11 +6,11 @@
     "major": 1,
     "minor": 1,
     "patch": 0,
-    "build": 0
+    "build": 1
   },
-  "display": "v1.1.0.0",
+  "display": "v1.1.0.1",
   "channel": "alpha",
-  "released": "2026-01-13",
+  "released": "2026-01-23",
   "description": "AI Gateway + Model Routing (Local-First): Integrated ModelRouter, PolicyEnforcer, VibeService, TaskClassifier for Devstral-first routing with OpenRouter escalation + policy validation",
   "changelog": "dev/roadmap/CHANGELOG-wizard.md",
   "dependencies": {

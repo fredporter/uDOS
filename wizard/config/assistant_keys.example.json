@@ -6,9 +6,17 @@
       "key_id": "ai-mistral-main",
       "endpoint": "https://api.mistral.ai/v1"
     },
+    "anthropic": {
+      "key_id": "ai-anthropic",
+      "endpoint": "https://api.anthropic.com"
+    },
     "openai": {
       "key_id": "ai-openai",
       "endpoint": "https://api.openai.com/v1"
+    },
+    "gemini": {
+      "key_id": "ai-gemini",
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta"
     },
     "openrouter": {
       "key_id": "ai-openrouter",
