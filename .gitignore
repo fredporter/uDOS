@@ -211,9 +211,8 @@ library/home-assistant/
 
 # ---------- SECRETS & CREDENTIALS (HIGH PRIORITY - after whitelist override) ----------
 # These must come AFTER !*.json to take precedence
-wizard/config/ai_keys.json
+wizard/config/assistant_keys.json
 wizard/config/github_keys.json
 wizard/config/slack_keys.json
 wizard/config/oauth_providers.json
 wizard/config/notion_keys.json
-wizard/config/wizard.json
