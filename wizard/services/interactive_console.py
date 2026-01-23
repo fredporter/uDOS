@@ -25,6 +25,7 @@ import urllib.error
 import urllib.parse
 import subprocess
 import shutil
+from wizard.services.path_utils import get_repo_root
 from typing import Optional, Dict, Any, Callable
 from datetime import datetime
 from pathlib import Path
@@ -38,7 +39,7 @@ class WizardConsole:
         self.server = server_instance
         self.config = config
         self.running = False
-        self.repo_root = Path(__file__).parent.parent
+        self.repo_root = get_repo_root()
         self.commands: Dict[str, Callable] = {
             "status": self.cmd_status,
             "services": self.cmd_services,
@@ -480,43 +481,33 @@ class WizardConsole:
                             print("  • setup: gh CLI missing (install gh first)")
                             continue
 
-                        # Handle repo-local setup script for ollama
-                        if "setup_wizard.sh" in raw_cmd:
-                            script_path = self.repo_root / "bin" / "setup_wizard.sh"
-                            if script_path.exists():
-                                cmd_str = f"{script_path} --auto --no-browser"
-                            else:
-                                print("  • setup: setup_wizard.sh not found")
-                                continue
-
-                        # Slack CLI fallback: use npm if brew missing
-                        if (
-                            provider_id == "slack"
-                            and "brew install slack/tap/slack-cli" in raw_cmd
-                        ):
-                            if shutil.which("brew") is None:
-                                if shutil.which("npm"):
-                                    cmd_str = "npm install -g @slack/cli"
-                                else:
-                                    print(
-                                        "  • install: slack CLI requires npm or brew; npm not found"
-                                    )
-                                    continue
-                            # If slack CLI already present, skip install
-                            if shutil.which("slack"):
-                                print(
-                                    "  • install: slack CLI already present; skipping"
-                                )
-                                continue
-                        if (
-                            provider_id == "slack"
-                            and raw_cmd.startswith("slack ")
-                            and shutil.which("slack") is None
-                        ):
-                            print(
-                                "  • setup: slack CLI missing; install @slack/cli first"
-                            )
+                    # Handle repo-local setup script for ollama
+                    if "setup_wizard.sh" in raw_cmd:
+                        script_path = self.repo_root / "bin" / "setup_wizard.sh"
+                        if script_path.exists():
+                            cmd_str = f"bash {script_path} --auto --no-browser"
+                        else:
+                            print("  • setup: setup_wizard.sh not found")
                             continue
+
+                    # Slack CLI handling: avoid failing installs; prompt manual steps
+                    if provider_id == "slack" and "@slack/cli" in raw_cmd:
+                        if shutil.which("slack"):
+                            print("  • install: slack CLI already present; skipping")
+                            continue
+                        print(
+                            "  • install: slack CLI not auto-installed. Install manually: npm install -g @slack/cli (or download binary from https://api.slack.com/automation/cli)."
+                        )
+                        continue
+                    if (
+                        provider_id == "slack"
+                        and raw_cmd.startswith("slack ")
+                        and shutil.which("slack") is None
+                    ):
+                        print(
+                            "  • setup: slack CLI missing; install @slack/cli first"
+                        )
+                        continue
 
                     print(f"  • {cmd.get('type','cmd')}: {cmd_str}")
                     try:

@@ -126,7 +126,7 @@ def create_provider_routes(auth_guard=None):
             "automation": "cli",
             "cli_required": True,
             "cli_name": "slack",
-            "install_cmd": "npm install -g @slack/cli",
+            "install_cmd": "echo 'Install Slack CLI manually: npm install -g @slack/cli (or download https://api.slack.com/automation/cli)'",
             "setup_cmd": "slack auth",
             "check_cmd": "slack auth test",
             "config_file": "slack_keys.json",
