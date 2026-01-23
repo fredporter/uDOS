@@ -253,4 +253,7 @@
       </div>
     </div>
   {/if}
+
+  <!-- Bottom padding spacer -->
+  <div class="h-32"></div>
 </div>

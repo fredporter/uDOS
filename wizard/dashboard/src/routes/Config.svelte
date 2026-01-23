@@ -18,6 +18,7 @@
   let statusMessage = "";
   let statusType = ""; // "success", "error", "info"
   let currentFileInfo = {};
+  let wizardSettings = {};
 
   // Configuration files available
   const configFiles = {
@@ -65,6 +66,54 @@
     },
   };
 
+  const wizardToggleFields = [
+    {
+      key: "ai_gateway_enabled",
+      label: "AI Gateway",
+      description: "Enable routing to local/cloud AI providers via Wizard",
+    },
+    {
+      key: "plugin_repo_enabled",
+      label: "Plugin Repository",
+      description: "Serve extensions from the Wizard plugin repo",
+    },
+    {
+      key: "plugin_auto_update",
+      label: "Plugin Auto-Update",
+      description: "Allow Wizard to auto-update plugins when available",
+    },
+    {
+      key: "web_proxy_enabled",
+      label: "Web Proxy",
+      description: "Permit Wizard to reach the web for APIs and scraping",
+    },
+    {
+      key: "gmail_relay_enabled",
+      label: "Gmail Relay",
+      description: "Send email via the configured Gmail relay",
+    },
+    {
+      key: "github_push_enabled",
+      label: "GitHub Push",
+      description: "Allow Wizard to push commits to GitHub",
+    },
+    {
+      key: "hubspot_enabled",
+      label: "HubSpot",
+      description: "Enable HubSpot CRM integration",
+    },
+    {
+      key: "notion_enabled",
+      label: "Notion",
+      description: "Enable Notion workspace integration",
+    },
+    {
+      key: "icloud_enabled",
+      label: "iCloud",
+      description: "Enable iCloud-based sync and features",
+    },
+  ];
+
   // Provider setup
   let providers = [];
   let showProviders = false;
@@ -109,6 +158,7 @@
 
       // Pretty-print the JSON
       content = JSON.stringify(data.content, null, 2);
+      wizardSettings = fileId === "wizard" ? { ...data.content } : {};
 
       // Update status
       if (data.is_example) {
@@ -127,6 +177,7 @@
     } catch (err) {
       setStatus(`Failed to load config: ${err.message}`, "error");
       content = "{}";
+      wizardSettings = {};
     } finally {
       isLoading = false;
     }
@@ -246,7 +297,23 @@
     const status = provider?.status || {};
     const configured = status.configured;
     const available = status.available;
+    const providerType = provider?.type || "";
 
+    // For API key providers, configured is what matters (not available/reachable)
+    if (providerType === "api_key" || providerType === "integration") {
+      return {
+        configuredText: configured ? "Configured" : "Not configured",
+        configuredClass: configured
+          ? "bg-green-900 text-green-200"
+          : "bg-gray-800 text-gray-400",
+        availableText: configured ? "Ready" : "Setup needed",
+        availableClass: configured
+          ? "bg-green-900 text-green-200"
+          : "bg-red-900 text-red-200",
+      };
+    }
+
+    // For CLI/OAuth/local providers, show both configured and available
     return {
       configuredText: configured ? "Configured" : "Not configured",
       configuredClass: configured
@@ -312,6 +379,25 @@
       return "bg-blue-900 text-blue-200";
     }
     return "bg-gray-700 text-gray-300";
+  }
+
+  function updateWizardToggle(key, value) {
+    wizardSettings = { ...wizardSettings, [key]: value };
+    if (selectedFile !== "wizard") return;
+
+    let parsed;
+    try {
+      parsed = JSON.parse(content);
+    } catch (err) {
+      parsed = { ...wizardSettings };
+    }
+    parsed[key] = value;
+    content = JSON.stringify(parsed, null, 2);
+    hasChanges = true;
+  }
+
+  function isWizardFileSelected() {
+    return selectedFile === "wizard";
   }
 </script>
 
@@ -454,6 +540,52 @@
         </div>
 
         <!-- Editor -->
+        {#if isWizardFileSelected()}
+          <div class="border-b border-gray-700 bg-gray-900 px-4 py-3">
+            <h3 class="text-white font-medium mb-2">Quick Toggles</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {#each wizardToggleFields as field}
+                <div class="bg-gray-800 border border-gray-700 rounded-lg p-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <div class="text-sm text-white font-semibold">
+                        {field.label}
+                      </div>
+                      <p class="text-xs text-gray-400 mt-1">
+                        {field.description}
+                      </p>
+                    </div>
+                    <button
+                      class={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        wizardSettings?.[field.key]
+                          ? "bg-blue-500"
+                          : "bg-gray-600"
+                      }`}
+                      on:click={() =>
+                        updateWizardToggle(
+                          field.key,
+                          !wizardSettings?.[field.key],
+                        )}
+                      aria-label={`Toggle ${field.label}`}
+                    >
+                      <span
+                        class={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                          wizardSettings?.[field.key]
+                            ? "translate-x-5"
+                            : "translate-x-1"
+                        }`}
+                      ></span>
+                    </button>
+                  </div>
+                </div>
+              {/each}
+            </div>
+            <p class="text-xs text-gray-500 mt-3">
+              Changes here update the wizard.json preview below. Click "Save
+              Changes" to persist.
+            </p>
+          </div>
+        {/if}
         <textarea
           value={content}
           on:input={(e) => {
@@ -617,6 +749,9 @@
       </div>
     {/if}
   </div>
+
+  <!-- Bottom padding spacer -->
+  <div class="h-32"></div>
 </div>
 
 <style>

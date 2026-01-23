@@ -9,4 +9,7 @@
   <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
     <p class="text-gray-400">Coming soon: Webhook configuration</p>
   </div>
+
+  <!-- Bottom padding spacer -->
+  <div class="h-32"></div>
 </div>

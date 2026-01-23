@@ -172,4 +172,7 @@
       </div>
     {/if}
   {/if}
+
+  <!-- Bottom padding spacer -->
+  <div class="h-32"></div>
 </div>

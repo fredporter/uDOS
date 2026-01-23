@@ -126,7 +126,7 @@ def create_provider_routes(auth_guard=None):
             "automation": "cli",
             "cli_required": True,
             "cli_name": "slack",
-            "install_cmd": "echo 'Install Slack CLI manually: npm install -g @slack/cli (or download https://api.slack.com/automation/cli)'",
+            "install_cmd": "npm install -g @slack/cli",
             "setup_cmd": "slack auth",
             "check_cmd": "slack auth test",
             "config_file": "slack_keys.json",
@@ -171,6 +171,22 @@ def create_provider_routes(auth_guard=None):
             cli_name = provider.get("cli_name")
             status["cli_installed"] = shutil.which(cli_name) is not None
 
+        # Special handling: GitHub can be considered configured if gh auth succeeds
+        if provider_id == "github":
+            if status.get("cli_installed"):
+                try:
+                    result = subprocess.run(
+                        "gh auth status",
+                        shell=True,
+                        capture_output=True,
+                        timeout=5,
+                    )
+                    if result.returncode == 0:
+                        status["configured"] = True
+                        status["available"] = True
+                except Exception:
+                    pass
+
         # Check if config file exists and has keys
         if config_file.exists():
             with open(config_file, "r") as f:
@@ -178,7 +194,36 @@ def create_provider_routes(auth_guard=None):
                     config = json.load(f)
                     if provider["type"] == "api_key":
                         key = provider.get("config_key", "")
-                        status["configured"] = bool(config.get(key))
+                        # Flat key (legacy) e.g., OPENAI_API_KEY
+                        has_key = bool(config.get(key))
+
+                        # Nested providers map (current pattern)
+                        if not has_key:
+                            providers_map = config.get("providers", {})
+                            entry = providers_map.get(provider_id) or providers_map.get(
+                                provider.get("config_key", "")
+                            )
+                            if isinstance(entry, dict):
+                                has_key = bool(
+                                    entry.get("api_key")
+                                    or entry.get("key")
+                                    or entry.get("key_id")
+                                )
+                            elif isinstance(entry, str):
+                                has_key = bool(entry)
+
+                        status["configured"] = has_key
+                    elif provider["type"] == "integration":
+                        # For integrations like Notion, check nested integration.key_id
+                        has_key = False
+                        integration = config.get("integration", {})
+                        if isinstance(integration, dict):
+                            has_key = bool(
+                                integration.get("key_id")
+                                or integration.get("api_key")
+                                or integration.get("token")
+                            )
+                        status["configured"] = has_key
                     else:
                         # For OAuth/local services
                         status["configured"] = True

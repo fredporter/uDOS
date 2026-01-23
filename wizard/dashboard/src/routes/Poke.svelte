@@ -131,4 +131,7 @@
       and the Pixel Editor is in the Goblin dev server.
     </p>
   </div>
+
+  <!-- Bottom padding spacer -->
+  <div class="h-32"></div>
 </div>
