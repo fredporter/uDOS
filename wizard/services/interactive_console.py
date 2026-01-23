@@ -461,14 +461,61 @@ class WizardConsole:
 
                     # Apply simple platform-aware substitutions
                     if provider_id == "github":
-                        if "brew install gh" in raw_cmd and shutil.which("brew") is None:
+                        if (
+                            "brew install gh" in raw_cmd
+                            and shutil.which("brew") is None
+                        ):
                             if shutil.which("apt-get"):
-                                cmd_str = "sudo apt-get update && sudo apt-get install -y gh"
+                                cmd_str = (
+                                    "sudo apt-get update && sudo apt-get install -y gh"
+                                )
                             else:
-                                print("  • install: gh CLI required (install via package manager)")
+                                print(
+                                    "  • install: gh CLI required (install via package manager)"
+                                )
                                 continue
-                        if (raw_cmd.startswith("gh ") or " gh " in raw_cmd) and shutil.which("gh") is None:
+                        if (
+                            raw_cmd.startswith("gh ") or " gh " in raw_cmd
+                        ) and shutil.which("gh") is None:
                             print("  • setup: gh CLI missing (install gh first)")
+                            continue
+
+                        # Handle repo-local setup script for ollama
+                        if "setup_wizard.sh" in raw_cmd:
+                            script_path = self.repo_root / "bin" / "setup_wizard.sh"
+                            if script_path.exists():
+                                cmd_str = f"{script_path} --auto --no-browser"
+                            else:
+                                print("  • setup: setup_wizard.sh not found")
+                                continue
+
+                        # Slack CLI fallback: use npm if brew missing
+                        if (
+                            provider_id == "slack"
+                            and "brew install slack/tap/slack-cli" in raw_cmd
+                        ):
+                            if shutil.which("brew") is None:
+                                if shutil.which("npm"):
+                                    cmd_str = "npm install -g @slack/cli"
+                                else:
+                                    print(
+                                        "  • install: slack CLI requires npm or brew; npm not found"
+                                    )
+                                    continue
+                            # If slack CLI already present, skip install
+                            if shutil.which("slack"):
+                                print(
+                                    "  • install: slack CLI already present; skipping"
+                                )
+                                continue
+                        if (
+                            provider_id == "slack"
+                            and raw_cmd.startswith("slack ")
+                            and shutil.which("slack") is None
+                        ):
+                            print(
+                                "  • setup: slack CLI missing; install @slack/cli first"
+                            )
                             continue
 
                     print(f"  • {cmd.get('type','cmd')}: {cmd_str}")
