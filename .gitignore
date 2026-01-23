@@ -43,12 +43,12 @@ private/
 .env.production.local
 
 # Config files with secrets
-wizard/config/ai_keys.json
+wizard/config/assistant_keys.json
 wizard/config/github_keys.json
 wizard/config/slack_keys.json
 wizard/config/oauth_providers.json
 wizard/config/notion_keys.json
-public/wizard/config/ai_keys.json
+public/wizard/config/assistant_keys.json
 public/wizard/config/github_keys.json
 public/wizard/config/slack_keys.json
 public/wizard/config/oauth_providers.json
@@ -144,8 +144,8 @@ nohup.out
 .env.*
 *.key
 *.secret
-ai_keys.json
-wizard/config/ai_keys.json
+assistant_keys.json
+wizard/config/assistant_keys.json
 wizard/config/oauth_providers.json
 wizard/config/slack_keys.json
 memory/system/user/gmail_credentials.json

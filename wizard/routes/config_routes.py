@@ -30,7 +30,7 @@ def create_config_routes(auth_guard=None):
 
     # Map config file IDs to actual filenames
     CONFIG_FILES = {
-        "ai_keys": "ai_keys.json",
+        "assistant_keys": "assistant_keys.json",
         "github_keys": "github_keys.json",
         "notion_keys": "notion_keys.json",
         "oauth": "oauth_providers.json",

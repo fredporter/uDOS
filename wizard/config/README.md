@@ -21,25 +21,25 @@ Open [http://localhost:8765/#config](http://localhost:8765/#config) to:
 curl http://localhost:8765/api/v1/config/files
 
 # Get a config (loads example if missing)
-curl http://localhost:8765/api/v1/config/ai_keys
+curl http://localhost:8765/api/v1/config/assistant_keys
 
 # Save a config
-curl -X POST http://localhost:8765/api/v1/config/ai_keys \
+curl -X POST http://localhost:8765/api/v1/config/assistant_keys \
   -H "Content-Type: application/json" \
   -d '{"content": {...}}'
 
 # View example/template
-curl http://localhost:8765/api/v1/config/ai_keys/example
+curl http://localhost:8765/api/v1/config/assistant_keys/example
 
 # Reset to example/template
-curl -X POST http://localhost:8765/api/v1/config/ai_keys/reset
+curl -X POST http://localhost:8765/api/v1/config/assistant_keys/reset
 ```
 
 ## 📋 Configuration Files
 
 ### Available Configs
 
-- `ai_keys.json` — AI provider credentials (Mistral, OpenRouter, Ollama)
+- `assistant_keys.json` — AI provider credentials (Mistral, OpenRouter, Ollama)
 - `github_keys.json` — GitHub token and webhooks
 - `notion_keys.json` — Notion API credentials
 - `oauth_providers.json` — OAuth provider configs

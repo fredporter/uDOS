@@ -21,9 +21,9 @@
 
   // Configuration files available
   const configFiles = {
-    ai_keys: {
-      id: "ai_keys",
-      label: "🤖 AI Provider Keys",
+    assistant_keys: {
+      id: "assistant_keys",
+      label: "🤖 Assistant Keys",
       description: "Mistral, OpenRouter, Ollama API credentials",
       icon: "🔑",
     },
