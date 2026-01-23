@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 
 
-def create_provider_routes():
+def create_provider_routes(auth_guard=None):
     """Create provider management routes."""
     router = APIRouter(prefix="/api/v1/providers", tags=["providers"])
 
