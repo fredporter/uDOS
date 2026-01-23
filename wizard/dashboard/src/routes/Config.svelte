@@ -66,8 +66,14 @@
   let showSshSetup = false;
   let isSshTesting = false;
 
+  // Provider setup
+  let providers = [];
+  let showProviders = false;
+  let isLoadingProviders = false;
+
   onMount(async () => {
     await loadFileList();
+    await loadProviders();
   });
 
   async function loadFileList() {
@@ -290,6 +296,55 @@
       loadSshStatus();
       loadSshInstructions();
     }
+  }
+
+  async function loadProviders() {
+    isLoadingProviders = true;
+    try {
+      const response = await fetch("/api/v1/providers/list");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      providers = data.providers || [];
+    } catch (err) {
+      console.error("Failed to load providers:", err);
+    } finally {
+      isLoadingProviders = false;
+    }
+  }
+
+  function toggleProviders() {
+    showProviders = !showProviders;
+  }
+
+  function getProviderSetupInstructions(provider) {
+    // Web/OAuth setup
+    if (provider.web_url) {
+      return {
+        type: "web",
+        url: provider.web_url,
+        label: "Setup via Website",
+      };
+    }
+
+    // CLI automation
+    if (provider.automation === "cli" && provider.setup_cmd) {
+      return {
+        type: "tui",
+        command: `PROVIDER SETUP ${provider.id}`,
+        label: "Use Wizard TUI Command",
+      };
+    }
+
+    // Full automation
+    if (provider.automation === "full") {
+      return {
+        type: "auto",
+        command: `PROVIDER SETUP ${provider.id}`,
+        label: "Auto-detect & Configure",
+      };
+    }
+
+    return null;
   }
 
   function getFileStatus(file) {
@@ -642,6 +697,81 @@
           {/each}
         </ol>
       </div>
+    </div>
+  {/if}
+</div>
+
+<!-- Providers Setup Section -->
+<div class="border border-base-200 rounded-lg p-4 hover:border-primary transition-colors mt-6">
+  <div class="flex items-center justify-between mb-2">
+    <div class="flex items-center gap-2">
+      <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+      </svg>
+      <h3 class="font-semibold text-lg">Provider Setup</h3>
+    </div>
+    <button
+      class="btn btn-sm btn-ghost"
+      on:click={toggleProviders}
+    >
+      {showProviders ? '▼' : '▶'}
+    </button>
+  </div>
+  
+  {#if showProviders}
+    <div class="space-y-3 mt-4">
+      {#if isLoadingProviders}
+        <div class="flex justify-center py-8">
+          <span class="loading loading-spinner loading-md"></span>
+        </div>
+      {:else if providers.length === 0}
+        <p class="text-base-content/60 text-sm">No providers available</p>
+      {:else}
+        {#each providers as provider}
+          <div class="border border-base-300 rounded-lg p-3">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <h4 class="font-medium">{provider.name}</h4>
+                <p class="text-sm text-base-content/60">{provider.description}</p>
+              </div>
+              <div class="badge badge-sm {provider.status === 'configured' ? 'badge-success' : 'badge-ghost'}">
+                {provider.status || 'not configured'}
+              </div>
+            </div>
+
+            {#if getProviderSetupInstructions(provider)}
+              {@const setup = getProviderSetupInstructions(provider)}
+              
+              {#if setup.type === 'web'}
+                <a 
+                  href={setup.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-sm btn-primary mt-2"
+                >
+                  🌐 {setup.label} →
+                </a>
+                
+              {:else if setup.type === 'tui'}
+                <div class="mt-2">
+                  <p class="text-sm text-base-content/70 mb-1">In Wizard TUI, run:</p>
+                  <div class="mockup-code text-xs p-2">
+                    <pre><code>{setup.command}</code></pre>
+                  </div>
+                </div>
+                
+              {:else if setup.type === 'auto'}
+                <div class="mt-2">
+                  <p class="text-sm text-base-content/70 mb-1">Auto-configure via TUI:</p>
+                  <div class="mockup-code text-xs p-2">
+                    <pre><code>{setup.command}</code></pre>
+                  </div>
+                </div>
+              {/if}
+            {/if}
+          </div>
+        {/each}
+      {/if}
     </div>
   {/if}
 </div>
