@@ -291,7 +291,7 @@
   }
 </script>
 
-<div class="max-w-7xl mx-auto px-4 py-8 pb-32">
+<div class="max-w-7xl mx-auto px-4 py-8 pb-24">
   <h1 class="text-3xl font-bold text-white mb-2">🔐 Configuration</h1>
   <p class="text-gray-400 mb-8">
     Edit API keys, webhooks, and system settings (local machine only)
@@ -510,9 +510,7 @@
     </div>
 
     {#if showProviders}
-      <div
-        class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 max-h-96 overflow-y-auto"
-      >
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
         {#if isLoadingProviders}
           <div class="flex justify-center py-8 col-span-full">
             <span class="loading loading-spinner loading-md"></span>
