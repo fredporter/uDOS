@@ -24,6 +24,7 @@ import urllib.request
 import urllib.error
 import urllib.parse
 import subprocess
+import shutil
 from typing import Optional, Dict, Any, Callable
 from datetime import datetime
 from pathlib import Path
@@ -452,9 +453,24 @@ class WizardConsole:
 
                 print(f"\n{provider_id} setup running...")
                 for cmd in commands:
-                    cmd_str = cmd.get("cmd", "")
-                    if not cmd_str:
+                    raw_cmd = cmd.get("cmd", "")
+                    if not raw_cmd:
                         continue
+
+                    cmd_str = raw_cmd
+
+                    # Apply simple platform-aware substitutions
+                    if provider_id == "github":
+                        if "brew install gh" in raw_cmd and shutil.which("brew") is None:
+                            if shutil.which("apt-get"):
+                                cmd_str = "sudo apt-get update && sudo apt-get install -y gh"
+                            else:
+                                print("  • install: gh CLI required (install via package manager)")
+                                continue
+                        if (raw_cmd.startswith("gh ") or " gh " in raw_cmd) and shutil.which("gh") is None:
+                            print("  • setup: gh CLI missing (install gh first)")
+                            continue
+
                     print(f"  • {cmd.get('type','cmd')}: {cmd_str}")
                     try:
                         completed = await loop.run_in_executor(
