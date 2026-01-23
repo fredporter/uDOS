@@ -85,3 +85,105 @@ nano wizard/config/ai_keys.json
 ```bash
 python wizard/config/check_config_status.py
 ```
+
+## 🔑 GitHub SSH Keys
+
+SSH keys for GitHub authentication are managed separately from API configs.
+
+### Why SSH Keys Are Different
+
+- **Private Key**: Stored in `~/.ssh/` (system standard, never in config folder)
+- **Public Key**: Safe to share, added to GitHub
+- **Local Only**: Keys never committed to any git repo
+- **System Standard**: Uses OS-native SSH directory location
+
+### Setup
+
+The easiest way is using the included setup script:
+
+```bash
+# Interactive setup (recommended)
+./bin/setup_github_ssh.sh
+
+# Auto setup with defaults
+./bin/setup_github_ssh.sh --auto
+
+# Check status
+./bin/setup_github_ssh.sh --status
+
+# View help
+./bin/setup_github_ssh.sh --help
+```
+
+### Via Dashboard
+
+1. Open [http://localhost:8765/#config](http://localhost:8765/#config)
+2. Expand "🔑 GitHub SSH Keys" section
+3. Click "Test Connection" to check status
+4. Click "View Public Key" to see your key
+5. Or run the setup script: `./bin/setup_github_ssh.sh`
+
+### REST API (SSH Management)
+
+```bash
+# Check SSH key status
+curl http://localhost:8765/api/v1/config/ssh/status
+
+# Get public key
+curl http://localhost:8765/api/v1/config/ssh/public-key
+
+# Test GitHub connection
+curl -X POST http://localhost:8765/api/v1/config/ssh/test-connection
+
+# View setup instructions
+curl http://localhost:8765/api/v1/config/ssh/setup-instructions
+```
+
+### Key Locations
+
+- **Private Key**: `~/.ssh/id_ed25519_github` (or your custom name)
+- **Public Key**: `~/.ssh/id_ed25519_github.pub`
+- **SSH Config Dir**: `~/.ssh/`
+
+### Manual Setup
+
+```bash
+# Generate ed25519 key (recommended)
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_github -C "your@email.com"
+
+# Or RSA key (wider compatibility)
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_github -C "your@email.com"
+
+# View your public key
+cat ~/.ssh/id_ed25519_github.pub
+
+# Test connection
+ssh -T git@github.com
+
+# Configure git to use the key
+git config --global core.sshCommand "ssh -i ~/.ssh/id_ed25519_github"
+```
+
+### After Setup
+
+1. Copy your public key
+2. Add to GitHub: https://github.com/settings/keys
+3. Test: `ssh -T git@github.com`
+4. Use `git clone git@github.com:user/repo.git` for SSH clones
+
+## Security Notes
+
+✅ **SSH Key Security:**
+
+- Private keys stay in `~/.ssh/` (OS standard location)
+- Never shared or committed to git
+- Protected by file permissions (600)
+- Backup your `~/.ssh/` directory regularly
+- Public keys are safe to share
+
+✅ **API Key Security:**
+
+- Config files stay in `wizard/config/` (local only)
+- All `*_keys.json` files gitignored
+- Only examples/templates in public repo
+- Never sync or backup to cloud

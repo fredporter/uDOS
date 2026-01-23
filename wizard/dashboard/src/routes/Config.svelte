@@ -59,6 +59,13 @@
     },
   };
 
+  // SSH section is special - not a config file
+  let sshStatus = null;
+  let sshPublicKey = null;
+  let sshInstructions = null;
+  let showSshSetup = false;
+  let isSshTesting = false;
+
   onMount(async () => {
     await loadFileList();
   });
@@ -210,6 +217,81 @@
     }
   }
 
+  async function loadSshStatus() {
+    try {
+      const response = await fetch("/api/v1/config/ssh/status");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      sshStatus = await response.json();
+
+      if (sshStatus.key_exists) {
+        setStatus("✓ SSH key found", "success");
+      }
+    } catch (err) {
+      setStatus(`Failed to check SSH status: ${err.message}`, "error");
+    }
+  }
+
+  async function loadSshPublicKey() {
+    try {
+      const response = await fetch("/api/v1/config/ssh/public-key");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      sshPublicKey = await response.json();
+    } catch (err) {
+      setStatus(`Failed to load public key: ${err.message}`, "error");
+    }
+  }
+
+  async function loadSshInstructions() {
+    try {
+      const response = await fetch("/api/v1/config/ssh/setup-instructions");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      sshInstructions = await response.json();
+    } catch (err) {
+      setStatus(`Failed to load instructions: ${err.message}`, "error");
+    }
+  }
+
+  async function testSshConnection() {
+    isSshTesting = true;
+    try {
+      const response = await fetch("/api/v1/config/ssh/test-connection", {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        setStatus(`SSH test failed: ${error.detail}`, "error");
+      } else {
+        const result = await response.json();
+        if (result.success) {
+          setStatus("✓ SSH connection to GitHub successful!", "success");
+        } else {
+          setStatus(
+            `SSH test failed. Make sure your public key is added to GitHub.`,
+            "error",
+          );
+        }
+      }
+    } catch (err) {
+      setStatus(`Failed to test SSH: ${err.message}`, "error");
+    } finally {
+      isSshTesting = false;
+    }
+  }
+
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text);
+    setStatus("✓ Copied to clipboard", "success");
+  }
+
+  function toggleSshSetup() {
+    showSshSetup = !showSshSetup;
+    if (showSshSetup) {
+      loadSshStatus();
+      loadSshInstructions();
+    }
+  }
+
   function getFileStatus(file) {
     if (file.exists) {
       return "✓ Active Config";
@@ -286,6 +368,64 @@
             {/each}
           {/if}
         </div>
+      </div>
+
+      <!-- SSH Section -->
+      <div class="mt-6 p-4 bg-gray-800 border border-gray-700 rounded-lg">
+        <button
+          on:click={toggleSshSetup}
+          class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors bg-gray-700 text-white hover:bg-gray-600"
+        >
+          <div class="font-medium flex items-center justify-between">
+            <span>🔑 GitHub SSH Keys</span>
+            <span>{showSshSetup ? "▼" : "▶"}</span>
+          </div>
+          <div class="text-xs text-gray-400">Manage SSH authentication</div>
+        </button>
+
+        {#if showSshSetup}
+          <div class="mt-3 space-y-3">
+            {#if sshStatus}
+              {#if sshStatus.key_exists}
+                <div class="text-xs">
+                  <div class="text-green-400 font-medium">✓ Key Found</div>
+                  {#if sshStatus.key_type}
+                    <div class="text-gray-400 mt-1">
+                      {sshStatus.key_type} · {sshStatus.key_bits} bits
+                    </div>
+                  {/if}
+                </div>
+              {:else}
+                <div class="text-xs text-yellow-400">⚠ No SSH key found</div>
+              {/if}
+            {/if}
+
+            <button
+              on:click={testSshConnection}
+              disabled={isSshTesting}
+              class="w-full text-left px-2 py-1.5 text-xs rounded bg-blue-700 text-white hover:bg-blue-600 transition-colors disabled:opacity-50"
+            >
+              {isSshTesting ? "Testing..." : "🧪 Test Connection"}
+            </button>
+
+            <button
+              on:click={loadSshPublicKey}
+              class="w-full text-left px-2 py-1.5 text-xs rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
+            >
+              📋 View Public Key
+            </button>
+
+            <div class="text-xs text-gray-400">
+              <div class="font-medium">Setup:</div>
+              <div class="mt-1">Run setup script in terminal:</div>
+              <code
+                class="block bg-gray-900 p-1 mt-1 text-green-400 text-xs overflow-auto"
+              >
+                ./bin/setup_github_ssh.sh
+              </code>
+            </div>
+          </div>
+        {/if}
       </div>
 
       <!-- Info panel -->
@@ -402,6 +542,108 @@
       </div>
     </div>
   </div>
+
+  <!-- SSH Public Key Modal -->
+  {#if sshPublicKey}
+    <div
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-gray-800 border border-gray-700 rounded-lg max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+      >
+        <div
+          class="p-4 border-b border-gray-700 flex items-center justify-between"
+        >
+          <h3 class="text-lg font-semibold text-white">
+            🔑 GitHub SSH Public Key
+          </h3>
+          <button
+            on:click={() => (sshPublicKey = null)}
+            class="text-gray-400 hover:text-white"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="p-4 space-y-4">
+          <div>
+            <p class="text-sm text-gray-400 mb-3">
+              Copy this public key and add it to your GitHub account:
+            </p>
+            <a
+              href="https://github.com/settings/keys"
+              target="_blank"
+              rel="noreferrer"
+              class="text-blue-400 hover:text-blue-300 text-sm"
+            >
+              → https://github.com/settings/keys
+            </a>
+          </div>
+
+          <div class="bg-gray-900 p-3 rounded border border-gray-700">
+            <code class="text-green-400 text-xs break-all whitespace-pre-wrap">
+              {sshPublicKey.public_key}
+            </code>
+          </div>
+
+          <button
+            on:click={() => copyToClipboard(sshPublicKey.public_key)}
+            class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
+          >
+            📋 Copy to Clipboard
+          </button>
+
+          <div class="text-xs text-gray-400 space-y-2">
+            <p>
+              <strong>Location:</strong>
+              <code class="bg-gray-900 px-1.5 py-0.5 rounded"
+                >{sshPublicKey.path}</code
+              >
+            </p>
+            <p>
+              <strong>Next steps:</strong>
+            </p>
+            <ol class="list-decimal list-inside space-y-1">
+              <li>Copy the key above</li>
+              <li>Go to GitHub Settings → SSH and GPG keys</li>
+              <li>Click "New SSH key"</li>
+              <li>Paste the key and add a title</li>
+              <li>Click "Add SSH key"</li>
+              <li>
+                Test with: <code class="bg-gray-900 px-1.5 py-0.5 rounded"
+                  >ssh -T git@github.com</code
+                >
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  <!-- SSH Instructions Modal -->
+  {#if sshInstructions && showSshSetup}
+    <div class="mt-4 p-4 bg-blue-900 border border-blue-700 rounded-lg">
+      <h4 class="text-sm font-semibold text-blue-200 mb-3">
+        📖 SSH Setup Instructions
+      </h4>
+      <div class="text-xs text-blue-100 space-y-2">
+        <p>To set up GitHub SSH authentication:</p>
+        <ol class="list-decimal list-inside space-y-1">
+          {#each sshInstructions.steps as step}
+            <li>
+              <strong>{step.title}</strong>
+              {#if step.command}
+                <div class="mt-1 bg-gray-900 p-2 rounded text-green-400">
+                  <code>{step.command}</code>
+                </div>
+              {/if}
+            </li>
+          {/each}
+        </ol>
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>
