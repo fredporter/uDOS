@@ -38,6 +38,16 @@ def create_config_routes(auth_guard=None):
         "wizard": "wizard.json",
     }
 
+    # Proper capitalization for display labels
+    LABEL_MAP = {
+        "assistant_keys": "Assistant Keys",
+        "github_keys": "GitHub Keys",
+        "notion_keys": "Notion Keys",
+        "oauth": "OAuth Providers",
+        "slack_keys": "Slack Keys",
+        "wizard": "Wizard",
+    }
+
     @router.get("/files")
     async def get_config_files():
         """List available config files with their status."""
@@ -54,9 +64,12 @@ def create_config_routes(auth_guard=None):
                         files.append(
                             {
                                 "id": file_id,
-                                "label": filename.replace("_", " ")
-                                .replace(".json", "")
-                                .title(),
+                                "label": LABEL_MAP.get(
+                                    file_id,
+                                    filename.replace("_", " ")
+                                    .replace(".json", "")
+                                    .title(),
+                                ),
                                 "filename": filename,
                                 "exists": True,
                                 "is_example": filename.endswith(".example.json"),
@@ -67,9 +80,12 @@ def create_config_routes(auth_guard=None):
                         files.append(
                             {
                                 "id": file_id,
-                                "label": filename.replace("_", " ")
-                                .replace(".json", "")
-                                .title(),
+                                "label": LABEL_MAP.get(
+                                    file_id,
+                                    filename.replace("_", " ")
+                                    .replace(".json", "")
+                                    .title(),
+                                ),
                                 "filename": filename,
                                 "exists": True,
                                 "is_example": False,
@@ -88,9 +104,10 @@ def create_config_routes(auth_guard=None):
                     files.append(
                         {
                             "id": file_id,
-                            "label": filename.replace("_", " ")
-                            .replace(".json", "")
-                            .title(),
+                            "label": LABEL_MAP.get(
+                                file_id,
+                                filename.replace("_", " ").replace(".json", "").title(),
+                            ),
                             "filename": filename,
                             "exists": False,
                             "is_example": True,
@@ -102,9 +119,10 @@ def create_config_routes(auth_guard=None):
                     files.append(
                         {
                             "id": file_id,
-                            "label": filename.replace("_", " ")
-                            .replace(".json", "")
-                            .title(),
+                            "label": LABEL_MAP.get(
+                                file_id,
+                                filename.replace("_", " ").replace(".json", "").title(),
+                            ),
                             "filename": filename,
                             "exists": False,
                             "is_example": False,
@@ -116,9 +134,10 @@ def create_config_routes(auth_guard=None):
                     files.append(
                         {
                             "id": file_id,
-                            "label": filename.replace("_", " ")
-                            .replace(".json", "")
-                            .title(),
+                            "label": LABEL_MAP.get(
+                                file_id,
+                                filename.replace("_", " ").replace(".json", "").title(),
+                            ),
                             "filename": filename,
                             "exists": False,
                             "is_example": False,

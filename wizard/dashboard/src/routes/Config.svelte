@@ -291,7 +291,7 @@
   }
 </script>
 
-<div class="max-w-7xl mx-auto px-4 py-8 pb-24">
+<div class="max-w-7xl mx-auto px-4 py-8 pb-32">
   <h1 class="text-3xl font-bold text-white mb-2">🔐 Configuration</h1>
   <p class="text-gray-400 mb-8">
     Edit API keys, webhooks, and system settings (local machine only)
@@ -510,7 +510,9 @@
     </div>
 
     {#if showProviders}
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 max-h-96 overflow-y-auto"
+      >
         {#if isLoadingProviders}
           <div class="flex justify-center py-8 col-span-full">
             <span class="loading loading-spinner loading-md"></span>
@@ -524,9 +526,15 @@
             <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
               <div class="flex items-start justify-between mb-2">
                 <div>
-                  <h4 class="text-white font-medium">{provider.name}</h4>
+                  <h4 class="text-white font-medium">
+                    {typeof provider.name === "string"
+                      ? provider.name
+                      : provider.id || "Unknown"}
+                  </h4>
                   <p class="text-sm text-gray-400">
-                    {provider.description}
+                    {typeof provider.description === "string"
+                      ? provider.description
+                      : ""}
                   </p>
                 </div>
                 <div
@@ -535,7 +543,9 @@
                     ? 'bg-green-900 text-green-300'
                     : 'bg-gray-700 text-gray-400'}"
                 >
-                  {provider.status || "not configured"}
+                  {typeof provider.status === "string"
+                    ? provider.status
+                    : "not configured"}
                 </div>
               </div>
 
