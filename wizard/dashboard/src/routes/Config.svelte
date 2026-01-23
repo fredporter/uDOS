@@ -375,7 +375,8 @@
     <!-- Right: Editor -->
     <div class="col-span-9">
       <div
-        class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden flex flex-col h-full"
+        class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden flex flex-col"
+        style="height: 600px;"
       >
         <!-- Editor header -->
         <div
