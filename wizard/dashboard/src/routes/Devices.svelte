@@ -9,6 +9,19 @@
   let pairingCode = "";
   let pairingQR = "";
 
+  function handleBackdropClick(event) {
+    if (event.target === event.currentTarget) {
+      showPairingModal = false;
+    }
+  }
+
+  function handleBackdropKey(event) {
+    if (["Enter", " ", "Spacebar", "Escape"].includes(event.key)) {
+      event.preventDefault();
+      showPairingModal = false;
+    }
+  }
+
   async function loadDevices() {
     try {
       const res = await fetch("/api/devices");
@@ -202,11 +215,17 @@
   {#if showPairingModal}
     <div
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      on:click={() => (showPairingModal = false)}
+      role="button"
+      tabindex="0"
+      aria-label="Close pairing modal"
+      on:click={handleBackdropClick}
+      on:keydown={handleBackdropKey}
     >
       <div
         class="bg-gray-800 rounded-lg p-8 max-w-md w-full border border-gray-700"
-        on:click|stopPropagation
+        role="dialog"
+        aria-modal="true"
+        tabindex="-1"
       >
         <h2 class="text-2xl font-bold text-white mb-4">Pair New Device</h2>
         {#if pairingCode}

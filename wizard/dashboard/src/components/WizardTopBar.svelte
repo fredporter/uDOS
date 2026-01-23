@@ -112,7 +112,19 @@
 
   <!-- Mobile Menu -->
   {#if menuOpen}
-    <div class="wizard-menu-backdrop" on:click={() => (menuOpen = false)} />
+    <div
+      class="wizard-menu-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Close menu"
+      on:click={() => (menuOpen = false)}
+      on:keydown={(event) => {
+        if (["Enter", " ", "Spacebar", "Escape"].includes(event.key)) {
+          event.preventDefault();
+          menuOpen = false;
+        }
+      }}
+    />
     <div class="wizard-menu-dropdown">
       <nav class="menu-nav">
         {#each allMenuRoutes as route}
@@ -220,45 +232,12 @@
     color: #0f172a;
   }
 
-  .nav-label {
-    display: inline;
-  }
-
   /* Right Controls */
   .wizard-bar-right {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     flex-shrink: 0;
-  }
-
-  .icon-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    background: none;
-    border: none;
-    color: #d1d5db;
-    font-size: 1.25rem;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .icon-button:hover {
-    background: #374151;
-    color: #ffffff;
-  }
-
-  :global(html.light) .icon-button {
-    color: #64748b;
-  }
-
-  :global(html.light) .icon-button:hover {
-    background: #e2e8f0;
-    color: #0f172a;
   }
 
   .hamburger-button {
@@ -388,10 +367,6 @@
   :global(html.light) .menu-separator {
     color: #64748b;
     border-top-color: #e2e8f0;
-  }
-
-  .menu-label {
-    flex: 1;
   }
 
   :global(html.light) .menu-item:hover {

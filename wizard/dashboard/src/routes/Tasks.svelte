@@ -99,8 +99,11 @@
       <h3 class="text-lg font-semibold text-white mb-4">Create Task</h3>
       <div class="space-y-4">
         <div>
-          <label class="block text-sm text-gray-400 mb-2">Task Name</label>
+          <label class="block text-sm text-gray-400 mb-2" for="task-name">
+            Task Name
+          </label>
           <input
+            id="task-name"
             type="text"
             bind:value={newTask.name}
             placeholder="e.g., Daily backup"
@@ -108,9 +111,11 @@
           />
         </div>
         <div>
-          <label class="block text-sm text-gray-400 mb-2">Schedule (cron)</label
-          >
+          <label class="block text-sm text-gray-400 mb-2" for="task-schedule">
+            Schedule (cron)
+          </label>
           <input
+            id="task-schedule"
             type="text"
             bind:value={newTask.schedule}
             placeholder="e.g., 0 2 * * * (daily at 2am)"
@@ -118,8 +123,11 @@
           />
         </div>
         <div>
-          <label class="block text-sm text-gray-400 mb-2">Command</label>
+          <label class="block text-sm text-gray-400 mb-2" for="task-command">
+            Command
+          </label>
           <input
+            id="task-command"
             type="text"
             bind:value={newTask.command}
             placeholder="e.g., python backup.py"

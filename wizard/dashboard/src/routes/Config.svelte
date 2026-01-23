@@ -59,13 +59,6 @@
     },
   };
 
-  // SSH section is special - not a config file
-  let sshStatus = null;
-  let sshPublicKey = null;
-  let sshInstructions = null;
-  let showSshSetup = false;
-  let isSshTesting = false;
-
   // Provider setup
   let providers = [];
   let showProviders = false;
@@ -223,79 +216,9 @@
     }
   }
 
-  async function loadSshStatus() {
-    try {
-      const response = await fetch("/api/v1/config/ssh/status");
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      sshStatus = await response.json();
-
-      if (sshStatus.key_exists) {
-        setStatus("✓ SSH key found", "success");
-      }
-    } catch (err) {
-      setStatus(`Failed to check SSH status: ${err.message}`, "error");
-    }
-  }
-
-  async function loadSshPublicKey() {
-    try {
-      const response = await fetch("/api/v1/config/ssh/public-key");
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      sshPublicKey = await response.json();
-    } catch (err) {
-      setStatus(`Failed to load public key: ${err.message}`, "error");
-    }
-  }
-
-  async function loadSshInstructions() {
-    try {
-      const response = await fetch("/api/v1/config/ssh/setup-instructions");
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      sshInstructions = await response.json();
-    } catch (err) {
-      setStatus(`Failed to load instructions: ${err.message}`, "error");
-    }
-  }
-
-  async function testSshConnection() {
-    isSshTesting = true;
-    try {
-      const response = await fetch("/api/v1/config/ssh/test-connection", {
-        method: "POST",
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        setStatus(`SSH test failed: ${error.detail}`, "error");
-      } else {
-        const result = await response.json();
-        if (result.success) {
-          setStatus("✓ SSH connection to GitHub successful!", "success");
-        } else {
-          setStatus(
-            `SSH test failed. Make sure your public key is added to GitHub.`,
-            "error",
-          );
-        }
-      }
-    } catch (err) {
-      setStatus(`Failed to test SSH: ${err.message}`, "error");
-    } finally {
-      isSshTesting = false;
-    }
-  }
-
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text);
     setStatus("✓ Copied to clipboard", "success");
-  }
-
-  function toggleSshSetup() {
-    showSshSetup = !showSshSetup;
-    if (showSshSetup) {
-      loadSshStatus();
-      loadSshInstructions();
-    }
   }
 
   async function loadProviders() {
@@ -425,64 +348,6 @@
         </div>
       </div>
 
-      <!-- SSH Section -->
-      <div class="mt-6 p-4 bg-gray-800 border border-gray-700 rounded-lg">
-        <button
-          on:click={toggleSshSetup}
-          class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors bg-gray-700 text-white hover:bg-gray-600"
-        >
-          <div class="font-medium flex items-center justify-between">
-            <span>🔑 GitHub SSH Keys</span>
-            <span>{showSshSetup ? "▼" : "▶"}</span>
-          </div>
-          <div class="text-xs text-gray-400">Manage SSH authentication</div>
-        </button>
-
-        {#if showSshSetup}
-          <div class="mt-3 space-y-3">
-            {#if sshStatus}
-              {#if sshStatus.key_exists}
-                <div class="text-xs">
-                  <div class="text-green-400 font-medium">✓ Key Found</div>
-                  {#if sshStatus.key_type}
-                    <div class="text-gray-400 mt-1">
-                      {sshStatus.key_type} · {sshStatus.key_bits} bits
-                    </div>
-                  {/if}
-                </div>
-              {:else}
-                <div class="text-xs text-yellow-400">⚠ No SSH key found</div>
-              {/if}
-            {/if}
-
-            <button
-              on:click={testSshConnection}
-              disabled={isSshTesting}
-              class="w-full text-left px-2 py-1.5 text-xs rounded bg-blue-700 text-white hover:bg-blue-600 transition-colors disabled:opacity-50"
-            >
-              {isSshTesting ? "Testing..." : "🧪 Test Connection"}
-            </button>
-
-            <button
-              on:click={loadSshPublicKey}
-              class="w-full text-left px-2 py-1.5 text-xs rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
-            >
-              📋 View Public Key
-            </button>
-
-            <div class="text-xs text-gray-400">
-              <div class="font-medium">Setup:</div>
-              <div class="mt-1">Run setup script in terminal:</div>
-              <code
-                class="block bg-gray-900 p-1 mt-1 text-green-400 text-xs overflow-auto"
-              >
-                ./bin/setup_github_ssh.sh
-              </code>
-            </div>
-          </div>
-        {/if}
-      </div>
-
       <!-- Info panel -->
       <div class="mt-6 p-4 bg-gray-800 border border-gray-700 rounded-lg">
         <h3 class="text-sm font-semibold text-white mb-3">🔒 Security</h3>
@@ -591,189 +456,116 @@
             <strong>4. Save locally</strong> - Click "💾 Save Changes" when done
           </li>
           <li>
-            <strong>5. Verify</strong> - Test the integration through its dashboard
+            <strong>5. Setup providers</strong> - Scroll down to Provider Setup section
           </li>
         </ol>
+        
+        <div class="mt-4 pt-3 border-t border-gray-700">
+          <h4 class="text-xs font-semibold text-gray-400 mb-2">Wizard Commands</h4>
+          <div class="text-xs text-gray-500 space-y-1">
+            <div>CONFIG SHOW - View config status</div>
+            <div>CONFIG LIST - List all configs</div>
+            <div>PROVIDER LIST - Show all providers</div>
+            <div>PROVIDER SETUP &lt;name&gt; - Run setup</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- SSH Public Key Modal -->
-  {#if sshPublicKey}
-    <div
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div
-        class="bg-gray-800 border border-gray-700 rounded-lg max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
-      >
-        <div
-          class="p-4 border-b border-gray-700 flex items-center justify-between"
+  <!-- Providers Setup Section -->
+  <div
+    class="border border-base-200 rounded-lg p-4 hover:border-primary transition-colors mt-6"
+  >
+    <div class="flex items-center justify-between mb-2">
+      <div class="flex items-center gap-2">
+        <svg
+          class="w-5 h-5 text-primary"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          <h3 class="text-lg font-semibold text-white">
-            🔑 GitHub SSH Public Key
-          </h3>
-          <button
-            on:click={() => (sshPublicKey = null)}
-            class="text-gray-400 hover:text-white"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div class="p-4 space-y-4">
-          <div>
-            <p class="text-sm text-gray-400 mb-3">
-              Copy this public key and add it to your GitHub account:
-            </p>
-            <a
-              href="https://github.com/settings/keys"
-              target="_blank"
-              rel="noreferrer"
-              class="text-blue-400 hover:text-blue-300 text-sm"
-            >
-              → https://github.com/settings/keys
-            </a>
-          </div>
-
-          <div class="bg-gray-900 p-3 rounded border border-gray-700">
-            <code class="text-green-400 text-xs break-all whitespace-pre-wrap">
-              {sshPublicKey.public_key}
-            </code>
-          </div>
-
-          <button
-            on:click={() => copyToClipboard(sshPublicKey.public_key)}
-            class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
-          >
-            📋 Copy to Clipboard
-          </button>
-
-          <div class="text-xs text-gray-400 space-y-2">
-            <p>
-              <strong>Location:</strong>
-              <code class="bg-gray-900 px-1.5 py-0.5 rounded"
-                >{sshPublicKey.path}</code
-              >
-            </p>
-            <p>
-              <strong>Next steps:</strong>
-            </p>
-            <ol class="list-decimal list-inside space-y-1">
-              <li>Copy the key above</li>
-              <li>Go to GitHub Settings → SSH and GPG keys</li>
-              <li>Click "New SSH key"</li>
-              <li>Paste the key and add a title</li>
-              <li>Click "Add SSH key"</li>
-              <li>
-                Test with: <code class="bg-gray-900 px-1.5 py-0.5 rounded"
-                  >ssh -T git@github.com</code
-                >
-              </li>
-            </ol>
-          </div>
-        </div>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+          />
+        </svg>
+        <h3 class="font-semibold text-lg">Provider Setup</h3>
       </div>
+      <button class="btn btn-sm btn-ghost" on:click={toggleProviders}>
+        {showProviders ? "▼" : "▶"}
+      </button>
     </div>
-  {/if}
 
-  <!-- SSH Instructions Modal -->
-  {#if sshInstructions && showSshSetup}
-    <div class="mt-4 p-4 bg-blue-900 border border-blue-700 rounded-lg">
-      <h4 class="text-sm font-semibold text-blue-200 mb-3">
-        📖 SSH Setup Instructions
-      </h4>
-      <div class="text-xs text-blue-100 space-y-2">
-        <p>To set up GitHub SSH authentication:</p>
-        <ol class="list-decimal list-inside space-y-1">
-          {#each sshInstructions.steps as step}
-            <li>
-              <strong>{step.title}</strong>
-              {#if step.command}
-                <div class="mt-1 bg-gray-900 p-2 rounded text-green-400">
-                  <code>{step.command}</code>
+    {#if showProviders}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+        {#if isLoadingProviders}
+          <div class="flex justify-center py-8 col-span-full">
+            <span class="loading loading-spinner loading-md"></span>
+          </div>
+        {:else if providers.length === 0}
+          <p class="text-base-content/60 text-sm col-span-full">
+            No providers available
+          </p>
+        {:else}
+          {#each providers as provider}
+            <div class="border border-base-300 rounded-lg p-3 h-full">
+              <div class="flex items-start justify-between mb-2">
+                <div>
+                  <h4 class="font-medium">{provider.name}</h4>
+                  <p class="text-sm text-base-content/60">
+                    {provider.description}
+                  </p>
                 </div>
-              {/if}
-            </li>
-          {/each}
-        </ol>
-      </div>
-    </div>
-  {/if}
-</div>
+                <div
+                  class="badge badge-sm {provider.status === 'configured'
+                    ? 'badge-success'
+                    : 'badge-ghost'}"
+                >
+                  {provider.status || "not configured"}
+                </div>
+              </div>
 
-<!-- Providers Setup Section -->
-<div class="border border-base-200 rounded-lg p-4 hover:border-primary transition-colors mt-6">
-  <div class="flex items-center justify-between mb-2">
-    <div class="flex items-center gap-2">
-      <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
-      <h3 class="font-semibold text-lg">Provider Setup</h3>
-    </div>
-    <button
-      class="btn btn-sm btn-ghost"
-      on:click={toggleProviders}
-    >
-      {showProviders ? '▼' : '▶'}
-    </button>
-  </div>
-  
-  {#if showProviders}
-    <div class="space-y-3 mt-4">
-      {#if isLoadingProviders}
-        <div class="flex justify-center py-8">
-          <span class="loading loading-spinner loading-md"></span>
-        </div>
-      {:else if providers.length === 0}
-        <p class="text-base-content/60 text-sm">No providers available</p>
-      {:else}
-        {#each providers as provider}
-          <div class="border border-base-300 rounded-lg p-3">
-            <div class="flex items-start justify-between mb-2">
-              <div>
-                <h4 class="font-medium">{provider.name}</h4>
-                <p class="text-sm text-base-content/60">{provider.description}</p>
-              </div>
-              <div class="badge badge-sm {provider.status === 'configured' ? 'badge-success' : 'badge-ghost'}">
-                {provider.status || 'not configured'}
-              </div>
+              {#if getProviderSetupInstructions(provider)}
+                {@const setup = getProviderSetupInstructions(provider)}
+
+                {#if setup.type === "web"}
+                  <a
+                    href={setup.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-sm btn-primary mt-2 w-full justify-center"
+                  >
+                    🌐 {setup.label} →
+                  </a>
+                {:else if setup.type === "tui"}
+                  <div class="mt-2">
+                    <p class="text-sm text-base-content/70 mb-1">
+                      In Wizard TUI, run:
+                    </p>
+                    <div class="mockup-code text-xs p-2">
+                      <pre><code>{setup.command}</code></pre>
+                    </div>
+                  </div>
+                {:else if setup.type === "auto"}
+                  <div class="mt-2">
+                    <p class="text-sm text-base-content/70 mb-1">
+                      Auto-configure via TUI:
+                    </p>
+                    <div class="mockup-code text-xs p-2">
+                      <pre><code>{setup.command}</code></pre>
+                    </div>
+                  </div>
+                {/if}
+              {/if}
             </div>
-
-            {#if getProviderSetupInstructions(provider)}
-              {@const setup = getProviderSetupInstructions(provider)}
-              
-              {#if setup.type === 'web'}
-                <a 
-                  href={setup.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn btn-sm btn-primary mt-2"
-                >
-                  🌐 {setup.label} →
-                </a>
-                
-              {:else if setup.type === 'tui'}
-                <div class="mt-2">
-                  <p class="text-sm text-base-content/70 mb-1">In Wizard TUI, run:</p>
-                  <div class="mockup-code text-xs p-2">
-                    <pre><code>{setup.command}</code></pre>
-                  </div>
-                </div>
-                
-              {:else if setup.type === 'auto'}
-                <div class="mt-2">
-                  <p class="text-sm text-base-content/70 mb-1">Auto-configure via TUI:</p>
-                  <div class="mockup-code text-xs p-2">
-                    <pre><code>{setup.command}</code></pre>
-                  </div>
-                </div>
-              {/if}
-            {/if}
-          </div>
-        {/each}
-      {/if}
-    </div>
-  {/if}
+          {/each}
+        {/if}
+      </div>
+    {/if}
+  </div>
 </div>
 
 <style>
