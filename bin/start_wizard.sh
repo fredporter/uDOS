@@ -346,19 +346,30 @@ print_status "Checking for existing Wizard Server on port ${PORT}..."
 if lsof -i:${PORT} >/dev/null 2>&1; then
     print_warning "Port ${PORT} is already in use"
     print_status "Using port manager to clean up..."
-    python3 -m wizard.cli_port_manager kill wizard >/dev/null 2>&1 || \
+    python3 -m wizard.cli_port_manager kill wizard >/dev/null 2>&1 || true
     python3 -m wizard.cli_port_manager kill ":${PORT}" >/dev/null 2>&1 || true
+    sleep 1
 
-    # Wait for port to actually be freed (up to 10 seconds)
-    for i in {1..10}; do
-        sleep 1
+    # If port manager didn't work, use direct kill
+    if lsof -i:${PORT} >/dev/null 2>&1; then
+        print_status "Port manager failed, using direct kill..."
+        PIDS=$(lsof -ti:${PORT} 2>/dev/null || true)
+        if [ -n "$PIDS" ]; then
+            echo "$PIDS" | xargs kill -9 2>/dev/null || true
+            sleep 1
+        fi
+    fi
+
+    # Wait for port to actually be freed (up to 5 more seconds)
+    for i in {1..5}; do
         if ! lsof -i:${PORT} >/dev/null 2>&1; then
             print_success "Port ${PORT} freed"
             break
         fi
-        if [ $i -eq 10 ]; then
-            print_error "Failed to free port ${PORT} after 10 seconds"
-            print_error "Try manually killing the process: lsof -ti:${PORT} | xargs kill -9"
+        sleep 1
+        if [ $i -eq 5 ]; then
+            print_error "Failed to free port ${PORT}"
+            print_error "Manual cleanup required: lsof -ti:${PORT} | xargs kill -9"
             exit 1
         fi
     done
