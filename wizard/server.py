@@ -260,7 +260,11 @@ class WizardServer:
 
         config_router = create_config_routes(auth_guard=self._authenticate)
         app.include_router(config_router)
+        # Register Provider management routes
+        from wizard.routes.provider_routes import create_provider_routes
 
+        provider_router = create_provider_routes()
+        app.include_router(provider_router)
         # Mount dashboard static files
         from fastapi.staticfiles import StaticFiles
         from fastapi.responses import FileResponse, HTMLResponse
