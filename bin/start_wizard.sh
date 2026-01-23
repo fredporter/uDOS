@@ -341,22 +341,14 @@ else
     print_success "Svelte dashboard already built"
 fi
 
-# Check if port is already in use and kill existing process
-print_status "Checking port ${PORT}..."
-EXISTING_PID=$(lsof -ti:${PORT} 2>/dev/null)
-if [ -n "$EXISTING_PID" ]; then
-    print_warning "Port ${PORT} is in use by process ${EXISTING_PID}"
-    print_status "Stopping existing Wizard Server..."
-    kill $EXISTING_PID 2>/dev/null || true
+# Use port manager to clean up any existing wizard process
+print_status "Checking for existing Wizard Server on port ${PORT}..."
+if lsof -i:${PORT} >/dev/null 2>&1; then
+    print_warning "Port ${PORT} is already in use"
+    print_status "Using port manager to clean up..."
+    python -m wizard.cli_port_manager kill wizard >/dev/null 2>&1 || \
+    python -m wizard.cli_port_manager kill ":${PORT}" >/dev/null 2>&1 || true
     sleep 2
-    
-    # Force kill if still running
-    if kill -0 $EXISTING_PID 2>/dev/null; then
-        print_warning "Force killing process ${EXISTING_PID}..."
-        kill -9 $EXISTING_PID 2>/dev/null || true
-        sleep 1
-    fi
-    
     print_success "Port ${PORT} freed"
 fi
 
