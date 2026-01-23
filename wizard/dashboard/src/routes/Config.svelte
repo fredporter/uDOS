@@ -29,7 +29,7 @@
     },
     github_keys: {
       id: "github_keys",
-      label: "🐙 GitHub Integration",
+      label: "🐙 GitHub Keys",
       description: "GitHub token and webhook secrets",
       icon: "🔗",
     },
@@ -291,7 +291,7 @@
   }
 </script>
 
-<div class="max-w-7xl mx-auto px-4 py-8">
+<div class="max-w-7xl mx-auto px-4 py-8 pb-24">
   <h1 class="text-3xl font-bold text-white mb-2">🔐 Configuration</h1>
   <p class="text-gray-400 mb-8">
     Edit API keys, webhooks, and system settings (local machine only)
@@ -332,7 +332,7 @@
                 on:click={() => loadFile(file.id)}
               >
                 <div class="font-medium flex items-center justify-between">
-                  <span>{file.label.replace(/ \(.*\)/, "")}</span>
+                  <span>{typeof file.label === 'string' ? file.label.replace(/ \(.*\)/, "") : file.id}</span>
                   <span
                     class="text-xs px-2 py-1 rounded {getStatusBadgeClass(
                       file,
@@ -376,7 +376,7 @@
     <div class="col-span-9">
       <div
         class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden flex flex-col"
-        style="height: 600px;"
+        style="height: 500px;"
       >
         <!-- Editor header -->
         <div
@@ -551,7 +551,8 @@
                       In Wizard TUI, run:
                     </p>
                     <div class="bg-gray-950 rounded p-2 border border-gray-700">
-                      <code class="text-green-400 text-xs">{setup.command}</code>
+                      <code class="text-green-400 text-xs">{setup.command}</code
+                      >
                     </div>
                   </div>
                 {:else if setup.type === "auto"}
@@ -560,7 +561,8 @@
                       Auto-configure via TUI:
                     </p>
                     <div class="bg-gray-950 rounded p-2 border border-gray-700">
-                      <code class="text-green-400 text-xs">{setup.command}</code>
+                      <code class="text-green-400 text-xs">{setup.command}</code
+                      >
                     </div>
                   </div>
                 {/if}
