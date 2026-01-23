@@ -291,7 +291,7 @@
   }
 </script>
 
-<div class="max-w-7xl mx-auto px-4 py-8 pb-24">
+<div class="max-w-7xl mx-auto px-4 py-8 pb-40">
   <h1 class="text-3xl font-bold text-white mb-2">🔐 Configuration</h1>
   <p class="text-gray-400 mb-8">
     Edit API keys, webhooks, and system settings (local machine only)
