@@ -44,7 +44,7 @@ Pick your starting point — each has a dedicated launcher script:
 | **Text CLI (recommended first)** | `./bin/start_udos.sh`             | —        | Offline-first, no server needed         |
 | **Web Dashboard + APIs**         | `./bin/start_wizard.sh`           | 8765     | Production server, webhooks, AI routing |
 | **Dev Experiments**              | `./bin/start_goblin.sh`           | 8767     | Notion sync, runtime execution, tasks   |
-| **Desktop App**                  | `cd app/src && npm run tauri dev` | —        | GUI with markdown formats               |
+| **Desktop App**                  | `cd app && npm run tauri dev`     | —        | GUI with markdown formats               |
 | **Everything at once**           | `./bin/Launch-Dev-Mode.command`   | Multiple | Full dev environment                    |
 
 **See [QUICKSTART.md](QUICKSTART.md) for detailed launch instructions and options.**

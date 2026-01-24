@@ -20,8 +20,8 @@
 	url = https://github.com/fredporter/uDOS-dev.git
 	branch = main
 
-[submodule "app/src"]
-	path = app/src
+[submodule "app"]
+	path = app
 	url = git@github.com:fredporter/uMarkdown-app.git
 	branch = main
 [submodule "sonic"]

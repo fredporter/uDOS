@@ -122,7 +122,7 @@
         "label": "🖥️ App: Tauri Dev",
         "type": "shell",
         "command": "npm run tauri:dev",
-        "options": { "cwd": "${workspaceFolder:🖥️ App}/src" },
+        "options": { "cwd": "${workspaceFolder:🖥️ App}" },
         "presentation": { "reveal": "always", "panel": "dedicated" }
       }
     ]

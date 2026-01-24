@@ -210,7 +210,7 @@ This document consolidates all active development streams across Core, Wizard, G
    - Sandboxed script execution (Phase 2)
 
 6. **Migration to /app**
-   - Public scaffold with private submodule at /app/src
+   - Public scaffold with private submodule at /app
    - Dev launchers and docs (App Store + Xcode prep)
    - macOS integration stubs (file dialogs, notifications, keychain)
 

@@ -80,7 +80,7 @@ This file exists to:
 - Future native macOS + iOS/iPadOS clients
 - Five markdown formats: `-ucode.md`, `-story.md`, `-marp.md`, `-guide.md`, `-config.md`
 - **Location:** `/app/` (public scaffold)
-- **Submodule:** `/app/src` → `fredporter/uMarkdown-app` (private)
+- **Submodule:** `/app` → `fredporter/uMarkdown-app` (private)
 - **Deprecated:** `/dev/app` (private submodule legacy; do not use as source of truth)
 
 **App responsibilities:**

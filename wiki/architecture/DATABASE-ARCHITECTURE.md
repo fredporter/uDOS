@@ -138,7 +138,7 @@ CREATE TABLE script_knowledge_links (
 | `workflow`  | uPY        | `memory/ucode/adventures/` | Mission templates  |
 | `template`  | uPY        | `memory/templates/`        | .udos.md templates |
 | `function`  | uPY        | `core/runtime/`            | Reusable functions |
-| `component` | TypeScript | `app/src/`                 | Svelte components  |
+| `component` | TypeScript | `app/`                 | Svelte components  |
 | `handler`   | Python     | `core/commands/`           | Command handlers   |
 
 ---

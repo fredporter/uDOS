@@ -157,7 +157,7 @@ Development server with Notion sync, runtime execution, and task scheduling. **L
 Modern GUI for uMarkdown with multiple format support.
 
 ```bash
-cd app/src
+cd app
 npm install
 npm run tauri dev
 ```

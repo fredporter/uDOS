@@ -180,7 +180,7 @@ cat memory/logs/debug-*.log
 ./dev/goblin/bin/Launch-Goblin-Dev.command &
 
 # Terminal 4: Tauri App (if working on UI)
-cd app/src
+cd app
 npm run tauri dev
 ```
 
