@@ -14,7 +14,7 @@
 - Handler architecture (92+ commands)
 - Services layer (140+ services)
 - uPY interpreter (restricted Python)
-- TinyCore Linux compatibility
+- Alpine Linux primary targeting (musl, BusyBox)
 
 ### Non-Responsibilities
 
@@ -34,14 +34,14 @@ from core.commands.base_handler import BaseCommandHandler
 
 class FileHandler(BaseCommandHandler):
     """Handles FILE, NEW, DELETE, etc."""
-    
+
     def handle(self, command, params, grid, parser):
         if command == "NEW":
             return self._handle_new(params)
         elif command == "DELETE":
             return self._handle_delete(params)
         # ...
-    
+
     def _handle_new(self, params):
         """Implementation for NEW command"""
         # Business logic here
@@ -111,13 +111,13 @@ Current: Core v1.1.0.0
 
 ---
 
-## TinyCore Compatibility
+## Alpine Linux Targeting
 
-- No systemd assumptions
-- Minimal dependencies
-- Pure Python preferred
-- Use `busybox` equivalents
-- Test on actual TinyCore when possible
+- No systemd assumptions (OpenRC on Alpine)
+- Prefer musl-compatible dependencies; Pure Python preferred
+- Use BusyBox-compatible shell tools
+- Package and distribution via `apk` where applicable
+- Test on actual Alpine Linux images where possible
 
 ---
 

@@ -273,7 +273,7 @@ class OSDetector:
         required_str = ", ".join(required_platforms)
 
         return (
-            f"⚠️  {command} is not supported on {current}.\n"
+            f"WARN {command} is not supported on {current}.\n"
             f"   Supported platforms: {required_str}\n"
             f"   Consider running this command on a supported system."
         )
@@ -366,7 +366,7 @@ class OSDetector:
         for category, caps in categories.items():
             lines.append(f"\n{category}:")
             for cap in caps:
-                status = "✓" if self.has_capability(cap) else "✗"
+                status = "OK" if self.has_capability(cap) else "X"
                 lines.append(f"  {status} {cap}")
 
         return "\n".join(lines)

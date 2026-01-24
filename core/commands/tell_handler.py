@@ -3,6 +3,7 @@
 from typing import List, Dict
 from core.commands.base import BaseCommandHandler
 from core.locations import load_locations
+from core.tui.output import OutputToolkit
 
 
 class TellHandler(BaseCommandHandler):
@@ -36,23 +37,20 @@ class TellHandler(BaseCommandHandler):
             return {"status": "error", "message": f"Location {location_id} not found"}
 
         # Build rich description
-        description_lines = [
-            f"╔═══════════════════════════════════════════════════════════════════════════════╗",
-            f"║ {location.name:<77}║",
-        ]
+        description_lines = [OutputToolkit.banner("LOCATION DETAIL")]
+        description_lines.append(f"Name: {location.name}")
 
         # Add type and region info
         description_lines.append(
-            f"║ {location.type.title()} in {location.region.replace('_', ' ').title():<61}║"
+            f"Type: {location.type.title()} in {location.region.replace('_', ' ').title()}"
         )
 
         # Add layer info
         layer_name = (
             "Terrestrial" if location.layer == 300 else f"Layer {location.layer}"
         )
-        description_lines.append(f"║ {layer_name} • {location.continent:<64}║")
-
-        description_lines.append(f"║ {'':<77}║")
+        description_lines.append(f"Layer: {layer_name} | Continent: {location.continent}")
+        description_lines.append("")
 
         # Add description with word wrapping
         description = location.description
@@ -69,32 +67,28 @@ class TellHandler(BaseCommandHandler):
             else:
                 description = ""
 
-            description_lines.append(f"║ {line:<77}║")
-
-        description_lines.append(f"║ {'':<77}║")
+            description_lines.append(f"{line}")
+        description_lines.append("")
 
         # Add coordinates
         description_lines.append(
-            f"║ 📍 Coordinates: {location.coordinates.lat:.4f}°{'N' if location.coordinates.lat >= 0 else 'S'}, "
-            f"{location.coordinates.lon:.4f}°{'E' if location.coordinates.lon >= 0 else 'W':<26}║"
+            f"Coordinates: {location.coordinates.lat:.4f}{'N' if location.coordinates.lat >= 0 else 'S'}, "
+            f"{location.coordinates.lon:.4f}{'E' if location.coordinates.lon >= 0 else 'W'}"
         )
 
         # Add timezone
-        description_lines.append(f"║ 🕐 Timezone: {location.timezone:<63}║")
+        description_lines.append(f"Timezone: {location.timezone}")
 
         # Add connections summary
         if location.connections:
             conn_text = f"Connected to: {len(location.connections)} locations"
-            description_lines.append(f"║ {conn_text:<77}║")
-
-        description_lines.append(
-            f"╚═══════════════════════════════════════════════════════════════════════════════╝"
-        )
+            description_lines.append(conn_text)
 
         return {
             "status": "success",
             "location_id": location_id,
             "location_name": location.name,
             "description": "\n".join(description_lines),
+            "output": "\n".join(description_lines),
             "full_text": location.description,
         }

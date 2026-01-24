@@ -4,6 +4,7 @@ from typing import List, Dict
 import requests
 from pathlib import Path
 from core.commands.base import BaseCommandHandler
+from core.tui.output import OutputToolkit
 from core.services.logging_manager import get_logger, LogTags
 
 logger = get_logger("config-handler")
@@ -44,18 +45,22 @@ class ConfigHandler(BaseCommandHandler):
             response = requests.get(f"{WIZARD_API}/config/status", timeout=5)
             if response.status_code == 200:
                 data = response.json()
-                output = ["📋 Wizard Configuration Status", ""]
+                output = [OutputToolkit.banner("WIZARD CONFIG STATUS"), ""]
 
                 if "enabled_providers" in data:
-                    output.append("Enabled Providers:")
-                    for provider in data.get("enabled_providers", []):
-                        output.append(f"  ✓ {provider}")
+                    providers = data.get("enabled_providers", [])
+                    if providers:
+                        output.append("Enabled Providers:")
+                        for provider in providers:
+                            output.append(f"  OK {provider}")
+                    else:
+                        output.append("Enabled Providers: (none)")
                     output.append("")
 
                 if "config_files" in data:
                     output.append("Configuration Files:")
                     for name, info in data.get("config_files", {}).items():
-                        status = "✓" if info.get("exists") else "✗"
+                        status = "OK" if info.get("exists") else "X"
                         output.append(f"  {status} {name}")
                     output.append("")
 
@@ -82,10 +87,10 @@ class ConfigHandler(BaseCommandHandler):
             response = requests.get(f"{WIZARD_API}/config/list", timeout=5)
             if response.status_code == 200:
                 data = response.json()
-                output = ["📁 Configuration Files", ""]
+                output = [OutputToolkit.banner("CONFIGURATION FILES"), ""]
 
                 for name, info in data.get("config_files", {}).items():
-                    status = "✓" if info.get("exists") else "✗"
+                    status = "OK" if info.get("exists") else "X"
                     path = info.get("path", "")
                     output.append(f"{status} {name}")
                     output.append(f"   {path}")
@@ -126,7 +131,7 @@ class ConfigHandler(BaseCommandHandler):
             subprocess.run([editor, str(config_file)], check=True)
             return {
                 "status": "success",
-                "output": f"Edited {filename}\n\n⚠️  Restart Wizard Server to apply changes",
+                "output": f"Edited {filename}\n\nNOTE: Restart Wizard Server to apply changes",
             }
         except subprocess.CalledProcessError:
             return {"status": "error", "message": f"Failed to open editor: {editor}"}
@@ -141,7 +146,7 @@ class ConfigHandler(BaseCommandHandler):
         """Run provider setup check."""
         import subprocess
 
-        output = ["🔧 Running Provider Setup Check", ""]
+        output = [OutputToolkit.banner("PROVIDER SETUP CHECK"), ""]
 
         try:
             # Run setup checker interactively
@@ -152,9 +157,9 @@ class ConfigHandler(BaseCommandHandler):
             )
 
             if result.returncode == 0:
-                output.append("✓ Setup check completed")
+                output.append("OK Setup check completed")
             else:
-                output.append("⚠️  Setup check had issues")
+                output.append("WARN Setup check had issues")
 
             return {"status": "success", "output": "\n".join(output)}
         except Exception as e:

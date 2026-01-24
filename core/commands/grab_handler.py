@@ -2,6 +2,7 @@
 
 from typing import List, Dict
 from core.commands.base import BaseCommandHandler
+from core.tui.output import OutputToolkit
 from core.locations import load_locations
 
 
@@ -78,9 +79,19 @@ class GrabHandler(BaseCommandHandler):
             if item["name"].lower() == item_name.lower():
                 item["quantity"] = item.get("quantity", 1) + 1
                 self.set_state("inventory", inventory)
+                output = "\n".join(
+                    [
+                        OutputToolkit.banner("ITEM PICKED UP"),
+                        OutputToolkit.table(
+                            ["item", "cell", "qty"],
+                            [[item_name, grabbed["cell"], item["quantity"]]],
+                        ),
+                    ]
+                )
                 return {
                     "status": "success",
-                    "message": f"Picked up {grabbed['char']} {item_name}",
+                    "message": f"Picked up {item_name}",
+                    "output": output,
                     "cell": grabbed["cell"],
                     "inventory_total": item["quantity"],
                 }
@@ -97,9 +108,19 @@ class GrabHandler(BaseCommandHandler):
         )
 
         self.set_state("inventory", inventory)
+        output = "\n".join(
+            [
+                OutputToolkit.banner("ITEM PICKED UP"),
+                OutputToolkit.table(
+                    ["item", "cell", "location"],
+                    [[item_name, grabbed["cell"], location.name]],
+                ),
+            ]
+        )
         return {
             "status": "success",
-            "message": f"Picked up {grabbed['char']} {item_name}",
+            "message": f"Picked up {item_name}",
+            "output": output,
             "cell": grabbed["cell"],
             "location": location.name,
             "inventory_total": 1,

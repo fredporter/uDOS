@@ -4,8 +4,9 @@ Path Utilities for Wizard Server
 Provides reliable repo root detection to prevent creating folders outside repo.
 """
 
+import json
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any
 
 
 def find_repo_root(start_path: Optional[Path] = None) -> Path:
@@ -48,7 +49,12 @@ def find_repo_root(start_path: Optional[Path] = None) -> Path:
 
 def get_memory_dir() -> Path:
     """Get memory/ directory path (creates if doesn't exist)."""
-    memory_dir = find_repo_root() / "memory"
+    config = _load_wizard_config()
+    locations = config.get("file_locations", {}) if isinstance(config, dict) else {}
+    memory_root = locations.get("memory_root", "memory")
+    memory_dir = Path(memory_root)
+    if not memory_dir.is_absolute():
+        memory_dir = find_repo_root() / memory_dir
     memory_dir.mkdir(parents=True, exist_ok=True)
     return memory_dir
 
@@ -77,3 +83,15 @@ def get_repo_root() -> Path:
     if _REPO_ROOT is None:
         _REPO_ROOT = find_repo_root()
     return _REPO_ROOT
+
+
+def _load_wizard_config() -> Dict[str, Any]:
+    """Load wizard.json config if available."""
+    config_path = Path(__file__).parent.parent / "config" / "wizard.json"
+    if not config_path.exists():
+        return {}
+    try:
+        with open(config_path, "r") as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        return {}

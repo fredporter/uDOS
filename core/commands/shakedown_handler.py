@@ -4,6 +4,7 @@ from typing import List, Dict
 from pathlib import Path
 from core.commands.base import BaseCommandHandler
 from core.locations import load_locations
+from core.tui.output import OutputToolkit
 
 # Dynamic project root detection
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -42,13 +43,13 @@ class ShakedownHandler(BaseCommandHandler):
             results["checks"]["locations"] = {
                 "status": "pass",
                 "count": len(all_locs),
-                "message": f"✅ Loaded {len(all_locs)} locations",
+                "message": f"Loaded {len(all_locs)} locations",
             }
             results["passed"] += 1
         except Exception as e:
             results["checks"]["locations"] = {
                 "status": "fail",
-                "message": f"❌ Failed to load locations: {str(e)}",
+                "message": f"Failed to load locations: {str(e)}",
             }
             results["failed"] += 1
 
@@ -69,7 +70,7 @@ class ShakedownHandler(BaseCommandHandler):
         results["checks"]["commands"] = {
             "status": "pass",
             "count": len(core_commands),
-            "message": f"✅ {len(core_commands)} core commands registered",
+            "message": f"{len(core_commands)} core commands registered",
         }
         results["passed"] += 1
 
@@ -88,13 +89,13 @@ class ShakedownHandler(BaseCommandHandler):
         if missing_dirs:
             results["checks"]["directories"] = {
                 "status": "warning",
-                "message": f"⚠️  {len(missing_dirs)} directories not found (will be created on use)",
+                "message": f"{len(missing_dirs)} directories not found (will be created on use)",
             }
             results["warnings"] += 1
         else:
             results["checks"]["directories"] = {
                 "status": "pass",
-                "message": f"✅ All memory directories exist",
+                "message": "All memory directories exist",
             }
             results["passed"] += 1
 
@@ -105,13 +106,13 @@ class ShakedownHandler(BaseCommandHandler):
             results["checks"]["ts_runtime"] = {
                 "status": "pass",
                 "count": len(ts_files),
-                "message": f"✅ TypeScript runtime present ({len(ts_files)} files)",
+                "message": f"TypeScript runtime present ({len(ts_files)} files)",
             }
             results["passed"] += 1
         else:
             results["checks"]["ts_runtime"] = {
                 "status": "fail",
-                "message": "❌ TypeScript runtime not found",
+                "message": "TypeScript runtime not found",
             }
             results["failed"] += 1
 
@@ -122,13 +123,13 @@ class ShakedownHandler(BaseCommandHandler):
             results["checks"]["handlers"] = {
                 "status": "pass",
                 "count": len(handlers),
-                "message": f"✅ {len(handlers)} handler modules found",
+                "message": f"{len(handlers)} handler modules found",
             }
             results["passed"] += 1
         else:
             results["checks"]["handlers"] = {
                 "status": "fail",
-                "message": "❌ Commands directory not found",
+                "message": "Commands directory not found",
             }
             results["failed"] += 1
 
@@ -140,13 +141,13 @@ class ShakedownHandler(BaseCommandHandler):
             results["checks"]["tests"] = {
                 "status": "pass",
                 "count": len(test_files),
-                "message": f"✅ {len(test_files)} test files present",
+                "message": f"{len(test_files)} test files present",
             }
             results["passed"] += 1
         else:
             results["checks"]["tests"] = {
                 "status": "warning",
-                "message": "⚠️  Test directory not found",
+                "message": "Test directory not found",
             }
             results["warnings"] += 1
 
@@ -159,4 +160,16 @@ class ShakedownHandler(BaseCommandHandler):
         elif results["warnings"] > 0:
             results["status"] = "warning"
 
+        checklist_items = []
+        for key, check in results["checks"].items():
+            ok = check.get("status") == "pass"
+            checklist_items.append((f"{key}: {check.get('message')}", ok))
+
+        output = []
+        output.append(OutputToolkit.banner("SHAKEDOWN"))
+        output.append(OutputToolkit.checklist(checklist_items))
+        output.append("")
+        output.append(f"Summary: {results['summary']}")
+
+        results["output"] = "\n".join(output)
         return results

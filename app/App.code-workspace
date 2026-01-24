@@ -1,0 +1,80 @@
+{
+  "folders": [
+    { "name": "app-src", "path": "src" },
+    { "name": "app-docs", "path": "docs" },
+    { "name": "udos-docs", "path": "../docs" }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/.svelte-kit": true,
+      "**/.DS_Store": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/.svelte-kit": true,
+      "**/dist": true
+    },
+    "files.associations": {
+      "*-ucode.md": "markdown",
+      "*-story.md": "markdown",
+      "*-marp.md": "markdown",
+      "*-guide.md": "markdown",
+      "*-config.md": "markdown"
+    },
+    "typescript.tsdk": "${workspaceFolder:app-src}/node_modules/typescript/lib",
+    "editor.formatOnSave": true,
+    "[svelte]": { "editor.defaultFormatter": "svelte.svelte-vscode" },
+    "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[markdown]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true,
+      "editor.wordWrap": "on"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "svelte.svelte-vscode",
+      "tauri-apps.tauri-vscode",
+      "rust-lang.rust-analyzer",
+      "esbenp.prettier-vscode",
+      "marp-team.marp-vscode"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "app-dev",
+        "type": "shell",
+        "command": "npm run tauri:dev",
+        "isBackground": true,
+        "presentation": { "reveal": "always", "panel": "dedicated", "focus": true },
+        "group": { "kind": "build", "isDefault": true },
+        "options": { "cwd": "${workspaceFolder:app-src}" }
+      },
+      {
+        "label": "app-build",
+        "type": "shell",
+        "command": "npm run tauri:build",
+        "group": "build",
+        "options": { "cwd": "${workspaceFolder:app-src}" }
+      }
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "lldb",
+        "request": "launch",
+        "name": "tauri-dev",
+        "cargo": {
+          "args": ["build", "--manifest-path=./src-tauri/Cargo.toml", "--profile=dev"]
+        },
+        "cwd": "${workspaceFolder:app-src}",
+        "preLaunchTask": "app-dev"
+      }
+    ]
+  }
+}

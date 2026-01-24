@@ -127,7 +127,7 @@
     <h3 class="text-sm font-semibold text-blue-300 mb-2">📝 Note</h3>
     <p class="text-sm text-blue-200">
       <strong>Font Manager</strong> and <strong>Pixel Editor</strong> are available
-      in the main app (dev/app). The Font Manager lets you customize typography,
+      in the main app (/app). The Font Manager lets you customize typography,
       and the Pixel Editor is in the Goblin dev server.
     </p>
   </div>

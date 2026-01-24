@@ -26,10 +26,10 @@
 
 ### App (GUI Client) — PRIVATE (/dev submodule)
 
-- [dev/app/README.md](../dev/app/README.md)
-- [dev/app/docs/](../dev/app/docs/)
-- Tauri backend: `dev/app/src-tauri/`
-- Svelte frontend: `dev/app/src/`
+- [app/README.md](../app/README.md)
+- [app/docs/](../app/docs/)
+- Tauri backend: `app/src-tauri/`
+- Svelte frontend: `app/src/`
 
 ### Wizard (Always-On Server)
 
@@ -57,7 +57,7 @@
 
 - **Read formal spec:** [docs/specs/workspace-architecture.md](../docs/specs/workspace-architecture.md)
 
-1. **Core** (TinyCore/TUI) — Offline-first, no GUI assumptions
+1. **Core** (Alpine/TUI) — Offline-first, no GUI assumptions
 2. **App** (Tauri+Svelte) — GUI client, five markdown formats
 3. **Wizard** (Always-on) — AI routing, webhooks, APIs, dev tooling
 

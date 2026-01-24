@@ -68,6 +68,19 @@ fi
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${MAGENTA}🎮 uDOS Core TUI ${UDOS_VERSION}${NC}"
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "🥁 Hello and welcome! Now beginning to start the..."
+
+# Optional: render ASCII block banner for "uDOS"
+python3 - <<'PY'
+from core.services.pattern_generator import PatternGenerator
+try:
+    pg = PatternGenerator(ascii_only=True)
+    banner = pg.generate_text_banner("uDOS")
+    print("\n".join(banner))
+except Exception:
+    # Fallback: skip banner on error
+    pass
+PY
 
 print_success() {
     echo -e "${GREEN}[✓]${NC} $1"
@@ -107,6 +120,7 @@ print_success "Dependencies ready"
 
 # Launch core TUI
 echo ""
+echo -e "📦 Launching Core TUI..."
 python uDOS.py "$@"
 
 deactivate

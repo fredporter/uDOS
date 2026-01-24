@@ -124,17 +124,18 @@ class GotoHandler(BaseCommandHandler):
             }
 
         # Update game state
+        previous_location = self.current_location
         self.current_location = target_id
 
         return {
             "status": "success",
-            "message": f"✓ Traveled to {target.name}",
+            "message": f"OK Traveled to {target.name}",
             "location_id": target_id,
             "location_name": target.name,
             "region": target.region,
             "layer": target.layer,
             "timezone": target.timezone,
-            "previous_location": self.current_location,
+            "previous_location": previous_location,
             "available_exits": self._get_available_directions(target),
         }
 

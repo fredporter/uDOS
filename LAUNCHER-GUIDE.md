@@ -2,13 +2,13 @@
 
 ## Quick Start
 
-### For macOS - Double-click to run:
+### For macOS - Double-click to run
 
 - **uDOS TUI:** `/bin/Launch-uDOS-TUI.command` - Interactive terminal interface
 - **Wizard Server:** `/bin/Launch-Wizard-Server.command` - Production API server (port 8765)
 - **Goblin Dev Server:** `/dev/goblin/bin/Launch-Goblin-Dev.command` - Experimental server (port 8767)
 
-### From Terminal:
+### From Terminal
 
 ```bash
 # TUI
@@ -82,10 +82,11 @@
 
 When you launch a server, you'll see:
 
-```
+```text
+
 ╔═══════════════════════════════════════════════════════════════╗
-║            👺 Goblin Dev Server v0.2.0                        ║
-║     Experimental • Localhost Only • Breaking Changes OK       ║
+║ 👺 Goblin Dev Server v0.2.0 ║
+║ Experimental • Localhost Only • Breaking Changes OK ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 [BOOT] Checking environment...
@@ -99,6 +100,7 @@ When you launch a server, you'll see:
 [✓] Virtual environment activated
 [✓] Dependencies installed and ready
 [BOOT] Starting Goblin Dev Server on port 8767...
+
 ```
 
 ---
@@ -150,7 +152,7 @@ cat memory/logs/debug-*.log
 
 ## Launcher Locations
 
-```
+```text
 /bin/
 ├── Launch-uDOS-TUI.command          # TUI entry point
 ├── Launch-Wizard-Server.command     # Wizard (always-on)
@@ -178,7 +180,7 @@ cat memory/logs/debug-*.log
 ./dev/goblin/bin/Launch-Goblin-Dev.command &
 
 # Terminal 4: Tauri App (if working on UI)
-cd dev/app
+cd app/src
 npm run tauri dev
 ```
 

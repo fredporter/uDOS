@@ -34,7 +34,7 @@ pip install -r requirements.txt
 
 ### 4. Run Services
 
-**Option A: Wizard Server (always-on services)**
+#### Option A: Wizard Server (always-on services)
 
 ```bash
 python -m wizard.server
@@ -42,7 +42,7 @@ python -m wizard.server
 # Access: http://localhost:8765
 ```
 
-**Option B: Dev Mode (via Wizard Server)**
+#### Option B: Dev Mode (via Wizard Server)
 
 ```bash
 # Start Wizard Server first
@@ -63,7 +63,7 @@ Dev Mode includes:
 - Real-time WebSocket updates
 - Full Wizard API access with dev features
 
-**Option C: API Server**
+#### Option C: API Server
 
 ```bash
 python -m extensions.api.server
@@ -74,14 +74,16 @@ python -m extensions.api.server
 
 After cloning, your directory structure will be:
 
-```
+```text
+
 uDOS-core/
-├── wizard/              # Wizard Server (port 8765)
-├── extensions/          # API, transport, VSCode extension
-├── knowledge/           # Knowledge bank articles
-├── docs/                # Documentation
-├── requirements.txt     # Python dependencies
-└── README.md            # This file
+├── wizard/ # Wizard Server (port 8765)
+├── extensions/ # API, transport, VSCode extension
+├── knowledge/ # Knowledge bank articles
+├── docs/ # Documentation
+├── requirements.txt # Python dependencies
+└── README.md # This file
+
 ```
 
 **Key point:** When you run Python from this directory, use module paths WITHOUT `public/` prefix:
@@ -101,7 +103,7 @@ python -m public.wizard.server     # Won't find anything
 
 ## Troubleshooting
 
-**ModuleNotFoundError: No module named 'wizard'**
+### ModuleNotFoundError: No module named 'wizard'
 
 Make sure:
 
@@ -110,7 +112,7 @@ Make sure:
 3. You've run `pip install -r requirements.txt`
 4. You're using the correct module path (WITHOUT `public/`)
 
-**Port already in use**
+#### Port already in use
 
 Wizard Server defaults to port 8765. If already in use:
 
@@ -131,7 +133,7 @@ cd uDOS
 
 The private `/dev/` submodule includes:
 
-- `/dev/app/` — uMarkdown desktop app (Tauri + Svelte)
+- `uMarkdown-app` — Desktop app source (Tauri + Svelte), mounted at `/app/src`
 - `/dev/goblin/` — Experimental dev server
 - `/dev/empire/` — CRM system
 - `/dev/groovebox/` — Music production tools
@@ -148,4 +150,4 @@ The private `/dev/` submodule includes:
 
 **Last Updated:** January 21, 2026
 **Version:** Alpha v1.0.2.0
-**Private Dev Submodule:** https://github.com/fredporter/uDOS-dev
+**Private Dev Submodule:** <https://github.com/fredporter/uDOS-dev>

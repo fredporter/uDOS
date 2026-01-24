@@ -20,7 +20,7 @@ Requirements (for APK):
   - Alpine Linux environment (for testing)
 
 Migration Note:
-  This replaces the old TCZ (TinyCore) packaging system.
+    This replaces the old TinyCore TCZ packaging system (deprecated).
   See ADR-0003-alpine-linux-migration.md for details.
 """
 
@@ -109,7 +109,7 @@ class PluginFactory:
 
     Supports:
     - Building from code containers
-    - TCZ packaging (Tiny Core)
+    - TCZ packaging (TinyCore, deprecated)
     - TAR.GZ fallback
     - Manifest generation
     - Checksum calculation
@@ -537,7 +537,7 @@ class APKBuilder:
 
 class TCZBuilder:
     """
-    DEPRECATED: Old TinyCore TCZ package builder.
+    DEPRECATED: Old TinyCore TCZ package builder. Use Alpine-style plugin packaging and distribution managed by Wizard.
 
     This class is kept for backwards compatibility only.
     Use APKBuilder instead for Alpine Linux packages.

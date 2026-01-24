@@ -19,3 +19,8 @@
 	path = dev
 	url = https://github.com/fredporter/uDOS-dev.git
 	branch = main
+
+[submodule "app/src"]
+	path = app/src
+	url = git@github.com:fredporter/uMarkdown-app.git
+	branch = main

@@ -4,6 +4,7 @@ from typing import List, Dict
 import json
 from pathlib import Path
 from core.commands.base import BaseCommandHandler
+from core.tui.output import OutputToolkit
 
 # Dynamic project root detection
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -50,9 +51,25 @@ class SaveHandler(BaseCommandHandler):
             with open(save_file, "w") as f:
                 json.dump(game_state, f, indent=2)
 
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("SAVE GAME"),
+                    OutputToolkit.table(
+                        ["slot", "location", "inventory"],
+                        [
+                            [
+                                slot_name,
+                                game_state["current_location"],
+                                str(len(game_state["inventory"])),
+                            ]
+                        ],
+                    ),
+                ]
+            )
             return {
                 "status": "success",
                 "message": f"Game saved to slot '{slot_name}'",
+                "output": output,
                 "slot": slot_name,
                 "location": game_state["current_location"],
                 "inventory_count": len(game_state["inventory"]),
@@ -110,9 +127,25 @@ class LoadHandler(BaseCommandHandler):
             )
             self.set_state("player_stats", game_state.get("player_stats"))
 
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("LOAD GAME"),
+                    OutputToolkit.table(
+                        ["slot", "location", "inventory"],
+                        [
+                            [
+                                slot_name,
+                                game_state.get("current_location", ""),
+                                str(len(game_state.get("inventory", []))),
+                            ]
+                        ],
+                    ),
+                ]
+            )
             return {
                 "status": "success",
                 "message": f"Game loaded from slot '{slot_name}'",
+                "output": output,
                 "slot": slot_name,
                 "location": game_state.get("current_location"),
                 "inventory_count": len(game_state.get("inventory", [])),

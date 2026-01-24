@@ -4,6 +4,7 @@
   let dashboardData = null;
   let systemStats = null;
   let logStats = null;
+  let githubHealth = null;
   let loading = true;
   let systemLoading = false;
   let error = null;
@@ -50,6 +51,17 @@
     }
   }
 
+  async function loadGitHubHealth() {
+    try {
+      const res = await fetch("/api/v1/github/health");
+      if (res.ok) {
+        githubHealth = await res.json();
+      }
+    } catch (err) {
+      console.error("Failed to load GitHub health", err);
+    }
+  }
+
   async function loadSystemStats() {
     systemLoading = true;
     try {
@@ -66,6 +78,7 @@
 
   onMount(() => {
     loadDashboard();
+    loadGitHubHealth();
     refreshTimer = setInterval(loadSystemStats, 15000);
   });
 
@@ -312,6 +325,35 @@
               <p class="text-sm text-gray-400">{feature.description}</p>
             </div>
           {/each}
+        </div>
+      </div>
+    {/if}
+
+    {#if githubHealth}
+      <div>
+        <h2 class="text-2xl font-bold text-white mb-4">GitHub Integration</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
+            <div class="flex items-start justify-between mb-2">
+              <h3 class="text-lg font-semibold text-white">Health</h3>
+              <span class={`px-2 py-1 rounded text-xs font-medium ${
+                githubHealth.status === "ok"
+                  ? "bg-green-900 text-green-300"
+                  : githubHealth.status === "unavailable"
+                    ? "bg-gray-700 text-gray-300"
+                    : "bg-amber-900 text-amber-200"
+              }`}>
+                {githubHealth.status}
+              </span>
+            </div>
+            <div class="text-sm text-gray-300 space-y-2">
+              <div class="flex justify-between"><span class="text-gray-400">CLI</span><span class="font-semibold">{githubHealth.cli?.available ? "ready" : "auth needed"}</span></div>
+              <div class="flex justify-between"><span class="text-gray-400">Webhook Secret</span><span class="font-semibold">{githubHealth.webhook?.secret_configured ? "configured" : "missing"}</span></div>
+              <div class="flex justify-between"><span class="text-gray-400">Allowed Repo</span><span class="font-semibold">{githubHealth.repo?.allowed}</span></div>
+              <div class="flex justify-between"><span class="text-gray-400">Default Branch</span><span class="font-semibold">{githubHealth.repo?.default_branch}</span></div>
+              <div class="flex justify-between"><span class="text-gray-400">Push Enabled</span><span class="font-semibold">{githubHealth.repo?.push_enabled ? "yes" : "no"}</span></div>
+            </div>
+          </div>
         </div>
       </div>
     {/if}

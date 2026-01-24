@@ -21,6 +21,7 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends, Request, UploadFile, File
 from fastapi.responses import JSONResponse, FileResponse
+from wizard.services.path_utils import get_repo_root, get_memory_dir
 
 
 def create_config_routes(auth_guard=None):
@@ -170,6 +171,16 @@ def create_config_routes(auth_guard=None):
             with open(file_path, "r") as f:
                 try:
                     content = json.load(f)
+                    if file_id == "wizard":
+                        content.setdefault("file_locations", {})
+                        content["file_locations"].setdefault("memory_root", "memory")
+                        content["file_locations"].setdefault("repo_root", "auto")
+                        content["file_locations"]["repo_root_actual"] = str(
+                            get_repo_root()
+                        )
+                        content["file_locations"]["memory_root_actual"] = str(
+                            get_memory_dir()
+                        )
                     return {
                         "id": file_id,
                         "filename": filename,
@@ -188,6 +199,16 @@ def create_config_routes(auth_guard=None):
             with open(example_path, "r") as f:
                 try:
                     content = json.load(f)
+                    if file_id == "wizard":
+                        content.setdefault("file_locations", {})
+                        content["file_locations"].setdefault("memory_root", "memory")
+                        content["file_locations"].setdefault("repo_root", "auto")
+                        content["file_locations"]["repo_root_actual"] = str(
+                            get_repo_root()
+                        )
+                        content["file_locations"]["memory_root_actual"] = str(
+                            get_memory_dir()
+                        )
                     return {
                         "id": file_id,
                         "filename": filename,

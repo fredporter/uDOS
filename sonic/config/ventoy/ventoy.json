@@ -1,0 +1,67 @@
+{
+  "control": [
+    {
+      "VTOY_DEFAULT_SEARCH_ROOT": "/ISOS"
+    },
+    {
+      "VTOY_MENU_TIMEOUT": "30"
+    },
+    {
+      "VTOY_DEFAULT_MENU_MODE": "1"
+    },
+    {
+      "VTOY_FILT_DOT_UNDERSCORE_FILE": "1"
+    },
+    {
+      "VTOY_MENU_SORT": "1"
+    }
+  ],
+
+  "theme": {
+    "display_mode": "GUI",
+    "ventoy_left": "5%",
+    "ventoy_top": "95%",
+    "ventoy_color": "#00ff00"
+  },
+
+  "menu_alias": [
+    {
+      "image": "/ISOS/Ubuntu/*.iso",
+      "alias": "Ubuntu Installers (Desktop Versions)"
+    },
+    {
+      "image": "/ISOS/Minimal/*.iso",
+      "alias": "Minimal/Rescue ISOs (Alpine, TinyCore)"
+    },
+    {
+      "image": "/RaspberryPi/*.img.xz",
+      "alias": "Raspberry Pi Images (write to SD card)"
+    }
+  ],
+
+  "menu_tip": {
+    "/ISOS/Ubuntu": "Ubuntu desktop installers - install to system disk. Requires 4GB+ RAM.",
+    "/ISOS/Minimal": "Lightweight rescue environments - TinyCore and Alpine. 512MB-2GB RAM needed.",
+    "/RaspberryPi": "Pre-built Raspberry Pi images - use Balena Etcher or dd to write to SD card.",
+    "/ISOS/Rescue": "Emergency rescue tools and system recovery ISOs."
+  },
+
+  "menu_class": [
+    {
+      "key": "ubuntu",
+      "class": "ubuntu"
+    },
+    {
+      "key": "alpine",
+      "class": "alpine"
+    },
+    {
+      "key": "tinycore",
+      "class": "tinycore"
+    },
+    {
+      "key": "raspios",
+      "class": "rpi"
+    }
+  ]
+}

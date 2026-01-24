@@ -31,10 +31,11 @@ class PatternHandler(BaseCommandHandler):
         Handle PATTERN command - display terminal patterns.
 
         Syntax:
-            PATTERN              - Show next pattern (cycles through all)
-            PATTERN <name>       - Show specific pattern (c64, chevrons, scanlines, raster, progress, mosaic)
-            PATTERN LIST         - List available patterns
-            PATTERN CYCLE        - Run pattern cycling sequence
+            PATTERN                     - Show next pattern (cycles through all)
+            PATTERN <name>              - Show specific pattern (c64, chevrons, scanlines, raster, progress, mosaic)
+            PATTERN LIST                - List available patterns
+            PATTERN CYCLE [seconds]     - Run pattern cycling sequence
+            PATTERN TEXT <message...>   - Render ASCII block-text banner for message
 
         Args:
             command: Command name (PATTERN)
@@ -55,6 +56,31 @@ class PatternHandler(BaseCommandHandler):
             return self._list_patterns()
         elif action == "cycle":
             return self._cycle_patterns(params[1:])
+        elif action == "text":
+            # Support options: CENTER and COLOR <name>
+            opts = params[1:]
+            center = False
+            color = None
+            msg_tokens = []
+
+            i = 0
+            while i < len(opts):
+                tok = opts[i]
+                low = tok.lower()
+                if low == "center":
+                    center = True
+                    i += 1
+                    continue
+                if low == "color" and i + 1 < len(opts):
+                    color = opts[i + 1].lower()
+                    i += 2
+                    continue
+                msg_tokens.append(tok)
+                i += 1
+
+            return self._show_text_banner(
+                " ".join(msg_tokens), center=center, color=color
+            )
         elif action in self.available_patterns:
             return self._show_pattern(action)
         else:
@@ -87,6 +113,8 @@ class PatternHandler(BaseCommandHandler):
 
             # Detect ASCII-only mode (safer for older terminals)
             ascii_only = os.environ.get("UDOS_ASCII_ONLY", "").lower() in ("1", "true")
+            if os.environ.get("UDOS_FORCE_ASCII", "").lower() in ("1", "true"):
+                ascii_only = True
 
             # Generate pattern
             gen = PatternGenerator(width=width, height=height, ascii_only=ascii_only)
@@ -149,7 +177,7 @@ class PatternHandler(BaseCommandHandler):
 
             for pattern_name in self.available_patterns:
                 # Add pattern title
-                title = f"\n{'═' * 40}\n  {pattern_name.upper()} PATTERN\n{'═' * 40}\n"
+                title = f"\n{'=' * 40}\n  {pattern_name.upper()} PATTERN\n{'=' * 40}\n"
                 output_lines.append(title)
 
                 # Generate and append pattern
@@ -180,6 +208,7 @@ class PatternHandler(BaseCommandHandler):
             "raster": "Demoscene raster bars with sinusoidal movement",
             "progress": "Chunky progress bar with bouncing head",
             "mosaic": "Colourful mosaic with random tiles",
+            "text": "ASCII block-text banner (PATTERN TEXT <message...>)",
         }
 
         pattern_list = []
@@ -195,7 +224,7 @@ class PatternHandler(BaseCommandHandler):
             "status": "success",
             "patterns": pattern_list,
             "count": len(pattern_list),
-            "message": f"Available patterns: {', '.join(self.available_patterns)}",
+            "message": f"Available patterns: {', '.join(self.available_patterns)} + text",
         }
 
     def _get_terminal_width(self) -> int:
@@ -213,3 +242,75 @@ class PatternHandler(BaseCommandHandler):
             return max(10, height)
         except Exception:
             return 30
+
+    def _show_text_banner(
+        self, message: str, center: bool = False, color: Optional[str] = None
+    ) -> Dict:
+        """Render an ASCII block-text banner for the provided message.
+
+        Args:
+            message: Text to render
+            center: If True, center the banner within terminal width
+            color: Optional ANSI colour name (red, grn, ylw, blu, mag, cyn, wht)
+        """
+        msg = (message or "").strip()
+        if not msg:
+            return {
+                "status": "error",
+                "message": "Provide a message: PATTERN TEXT [CENTER] [COLOR <name>] <message...>",
+            }
+
+        try:
+            width = self._get_terminal_width()
+            ascii_only = os.environ.get("UDOS_ASCII_ONLY", "").lower() in ("1", "true")
+            gen = PatternGenerator(width=width, ascii_only=ascii_only)
+            lines = gen.generate_text_banner(msg, spacing=1)
+
+            # Center lines by left-padding based on visible content width
+            if center:
+                padded = []
+                for line in lines:
+                    vis = line.rstrip()
+                    pad = max(0, (width - len(vis)) // 2)
+                    padded.append((" " * pad) + vis)
+                lines = padded
+
+            # Apply colour if requested (simple ANSI foreground mapping)
+            if color:
+                ESC = "\x1b"
+                RST = f"{ESC}[0m"
+                fg_map = {
+                    "red": f"{ESC}[31m",
+                    "grn": f"{ESC}[32m",
+                    "ylw": f"{ESC}[33m",
+                    "blu": f"{ESC}[34m",
+                    "mag": f"{ESC}[35m",
+                    "cyn": f"{ESC}[36m",
+                    "wht": f"{ESC}[37m",
+                }
+                col = fg_map.get(color)
+                if col:
+                    lines = [col + l + RST for l in lines]
+
+            output = "\n".join(lines)
+
+            logger.info(
+                f"{LogTags.LOCAL} PATTERN: Banner '{msg}' ({len(lines)} lines){' centered' if center else ''}{' coloured' if color else ''}"
+            )
+
+            return {
+                "status": "success",
+                "pattern": "text",
+                "message_text": msg,
+                "center": center,
+                "color": color,
+                "lines": len(lines),
+                "width": width,
+                "output": output,
+            }
+        except Exception as e:
+            logger.error(f"{LogTags.LOCAL} PATTERN: Banner failed: {str(e)}")
+            return {
+                "status": "error",
+                "message": f"Banner render failed: {str(e)}",
+            }

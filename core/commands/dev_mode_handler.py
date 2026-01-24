@@ -16,6 +16,7 @@ except ImportError:
     logger = logging.getLogger("dev-mode-handler")
 
 from core.commands.base import BaseCommandHandler
+from core.tui.output import OutputToolkit
 
 
 class DevModeHandler(BaseCommandHandler):
@@ -81,9 +82,23 @@ class DevModeHandler(BaseCommandHandler):
             )
             result = response.json()
             logger.info(f"[DEV] Dev mode activated: {result.get('message')}")
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("DEV MODE ACTIVATED"),
+                    OutputToolkit.table(
+                        ["key", "value"],
+                        [
+                            ["endpoint", str(result.get("goblin_endpoint"))],
+                            ["pid", str(result.get("goblin_pid"))],
+                        ],
+                    ),
+                ]
+            )
             return {
-                "status": "activated",
+                "status": "success",
                 "message": result.get("message"),
+                "output": output,
+                "state": "activated",
                 "goblin_endpoint": result.get("goblin_endpoint"),
                 "goblin_pid": result.get("goblin_pid"),
             }
@@ -110,9 +125,17 @@ class DevModeHandler(BaseCommandHandler):
             )
             result = response.json()
             logger.info(f"[DEV] Dev mode deactivated: {result.get('message')}")
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("DEV MODE DEACTIVATED"),
+                    result.get("message", ""),
+                ]
+            )
             return {
-                "status": "deactivated",
+                "status": "success",
                 "message": result.get("message"),
+                "output": output,
+                "state": "deactivated",
             }
         except requests.exceptions.ConnectionError:
             return {
@@ -134,8 +157,32 @@ class DevModeHandler(BaseCommandHandler):
                 timeout=5,
             )
             result = response.json()
+            services = result.get("services") or {}
+            service_rows = [[name, str(active)] for name, active in services.items()]
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("DEV MODE STATUS"),
+                    OutputToolkit.table(
+                        ["key", "value"],
+                        [
+                            ["active", str(result.get("active"))],
+                            ["uptime_sec", str(result.get("uptime_seconds"))],
+                            ["endpoint", str(result.get("goblin_endpoint"))],
+                            ["pid", str(result.get("goblin_pid"))],
+                        ],
+                    ),
+                    "",
+                    "Services:",
+                    OutputToolkit.table(["service", "active"], service_rows)
+                    if service_rows
+                    else "No services reported.",
+                ]
+            )
             return {
-                "status": "ok",
+                "status": "success",
+                "message": "Dev mode status",
+                "output": output,
+                "state": "status",
                 "active": result.get("active"),
                 "uptime_seconds": result.get("uptime_seconds"),
                 "goblin_endpoint": result.get("goblin_endpoint"),
@@ -163,9 +210,17 @@ class DevModeHandler(BaseCommandHandler):
             )
             result = response.json()
             logger.info(f"[DEV] Dev mode restarted: {result.get('message')}")
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("DEV MODE RESTARTED"),
+                    result.get("message", ""),
+                ]
+            )
             return {
-                "status": "restarted",
+                "status": "success",
                 "message": result.get("message"),
+                "output": output,
+                "state": "restarted",
             }
         except requests.exceptions.ConnectionError:
             return {
@@ -187,8 +242,18 @@ class DevModeHandler(BaseCommandHandler):
                 timeout=5,
             )
             result = response.json()
+            log_lines = result.get("logs", [])
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("DEV MODE LOGS"),
+                    "\n".join(log_lines) if log_lines else "No logs available.",
+                ]
+            )
             return {
-                "status": "ok",
+                "status": "success",
+                "message": "Dev mode logs",
+                "output": output,
+                "state": "logs",
                 "goblin_pid": result.get("goblin_pid"),
                 "log_file": result.get("log_file"),
                 "logs": result.get("logs", []),
@@ -209,8 +274,30 @@ class DevModeHandler(BaseCommandHandler):
                 timeout=5,
             )
             result = response.json()
+            services = result.get("services") or {}
+            service_rows = [[name, str(active)] for name, active in services.items()]
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("DEV MODE HEALTH"),
+                    OutputToolkit.table(
+                        ["key", "value"],
+                        [
+                            ["healthy", str(result.get("healthy"))],
+                            ["dev_active", str(result.get("status") == "active")],
+                        ],
+                    ),
+                    "",
+                    "Services:",
+                    OutputToolkit.table(["service", "healthy"], service_rows)
+                    if service_rows
+                    else "No services reported.",
+                ]
+            )
             return {
-                "status": "ok",
+                "status": "success",
+                "message": "Dev mode health",
+                "output": output,
+                "state": "health",
                 "healthy": result.get("healthy"),
                 "dev_active": result.get("status") == "active",
                 "services": result.get("services"),

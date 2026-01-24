@@ -27,6 +27,9 @@ from core.commands import (
     ConfigHandler,
     ProviderHandler,
     PatternHandler,
+    BinderHandler,
+    RunHandler,
+    DatasetHandler,
 )
 
 
@@ -67,6 +70,12 @@ class CommandDispatcher:
             # Wizard Management (2)
             "CONFIG": ConfigHandler(),
             "PROVIDER": ProviderHandler(),
+            # Binder (Core)
+            "BINDER": BinderHandler(),
+            # Runtime
+            "RUN": RunHandler(),
+            # Data
+            "DATASET": DatasetHandler(),
         }
 
     def dispatch(

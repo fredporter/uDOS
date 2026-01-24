@@ -40,6 +40,8 @@ from enum import Enum
 from contextlib import contextmanager
 from dataclasses import dataclass
 
+from core.services.sqlite_manager import SQLiteManager
+
 
 class AccessMode(Enum):
     """Database access modes."""
@@ -108,8 +110,8 @@ class BinderDatabase:
     def _open_connection(self):
         """Open SQLite connection with mode control."""
         # Create empty database if missing
-        if not self.db_path.exists():
-            self.db_path.touch()
+        SQLiteManager.ensure_db(self.db_path)
+        SQLiteManager.init_db("udos_table", self.db_path)
 
         # URI with access mode
         if self.mode == AccessMode.READ_ONLY:

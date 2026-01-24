@@ -1,21 +1,21 @@
 Local-first Markdown workstation with three “superpowers” layered on top of a Typo-style editor
 
-	1.	Parsing/transforms (image→text, image→ASCII/teletext/SVG, text→table.md)
-	2.	Presentation + form modes (Marp + “Typeform-style” paginated forms)
-	3.	Light programmable Markdown (ucode / uPY subset) that can render safely
+    1.	Parsing/transforms (image→text, image→ASCII/teletext/SVG, text→table.md)
+    2.	Presentation + form modes (Marp + “Typeform-style” paginated forms)
+    3.	Light programmable Markdown (ucode / uPY subset) that can render safely
 
 Here’s the cleanest way to structure this so it’s shippable, App-Store-safe-ish, and doesn’t blow up your repo or runtime complexity.
 
 ⸻
 
-1) Product architecture for the Mac app
+1. Product architecture for the Mac app
 
 A. Typo Editor remains the “Shell”
-	•	Homepage = Typo editor/reader + file browser (iCloud + local)
-	•	Everything else is a mode invoked from:
-	•	context menu (right click)
-	•	command palette
-	•	“Convert…” toolbar
+• Homepage = Typo editor/reader + file browser (iCloud + local)
+• Everything else is a mode invoked from:
+• context menu (right click)
+• command palette
+• “Convert…” toolbar
 
 Key rule: editor stays fast and predictable. Transforms run as separate tasks with clear output files.
 
@@ -24,105 +24,102 @@ Key rule: editor stays fast and predictable. Transforms run as separate tasks wi
 B. File access + iCloud (no internal memory filesystem)
 
 You’re right: for the commercial app, treat files as real files:
-	•	Use macOS file open/save panels everywhere
-	•	Store app state only as:
-	•	recent files
-	•	user preferences
-	•	cached thumbnails/previews
+• Use macOS file open/save panels everywhere
+• Store app state only as:
+• recent files
+• user preferences
+• cached thumbnails/previews
 
 For iCloud:
-	•	Use a dedicated app container folder (Documents)
-	•	Allow user-chosen iCloud folders via bookmark-scoped access (if you’re sandboxed)
+• Use a dedicated app container folder (Documents)
+• Allow user-chosen iCloud folders via bookmark-scoped access (if you’re sandboxed)
 
 ⸻
 
-2) Parsing/transforms: design it as a “Converter Pipeline”
+2. Parsing/transforms: design it as a “Converter Pipeline”
 
 Don’t bake these into editor code. Make a converter framework:
 
 Converter types you listed
-	•	image → text
-	•	image → ASCII / teletext
-	•	image → SVG
-	•	text → table.md
+• image → text
+• image → ASCII / teletext
+• image → SVG
+• text → table.md
 
 Recommended UX pattern
-	•	User selects input (image / text / selection / pasted content)
-	•	Picks target converter
-	•	A side panel shows:
-	•	settings
-	•	preview (optional)
-	•	output location (same folder by default)
-	•	Output becomes a file next to the source:
-	•	photo.md
-	•	photo.teletext.txt
-	•	photo.svg
-	•	notes.table.md
+• User selects input (image / text / selection / pasted content)
+• Picks target converter
+• A side panel shows:
+• settings
+• preview (optional)
+• output location (same folder by default)
+• Output becomes a file next to the source:
+• photo.md
+• photo.teletext.txt
+• photo.svg
+• notes.table.md
 
 This keeps it “file-native” and works beautifully with iCloud syncing.
 
 ⸻
 
-3) Emoji rules (Noto + GitHub :emoji:)
+3. Emoji rules (Noto + GitHub :emoji:)
 
 Goals
-	•	Use Noto Emoji for consistent rendering (and pixel editor previews)
-	•	Display “app emojis” rather than system variation
-	•	Use GitHub :emoji: tokens in source
+• Use Noto Emoji for consistent rendering (and pixel editor previews)
+• Display “app emojis” rather than system variation
+• Use GitHub :emoji: tokens in source
 
 Practical approach
-	•	Internally, store Markdown as:
-	•	:smile: form (GitHub style)
-	•	Rendering pipeline:
-	1.	parse Markdown
-	2.	replace :emoji: tokens with emoji glyph OR custom image sprites (your call)
-	3.	render with Noto Emoji available
+• Internally, store Markdown as:
+• :smile: form (GitHub style)
+• Rendering pipeline: 1. parse Markdown 2. replace :emoji: tokens with emoji glyph OR custom image sprites (your call) 3. render with Noto Emoji available
 
 If you want pixel editor integration:
 Prefer mapping :emoji: → a standard emoji codepoint first, then render to pixels using Noto Emoji. It gives predictable output and avoids managing a massive sprite sheet library.
 
 ⸻
 
-4) Fonts: Heading vs body separation + macOS system fonts
+4. Fonts: Heading vs body separation + macOS system fonts
 
 You want:
-	•	Tailwind/Typo “core 3 fonts” remain
-	•	Plus system font selection
-	•	Plus separate font choice for headings vs body
+• Tailwind/Typo “core 3 fonts” remain
+• Plus system font selection
+• Plus separate font choice for headings vs body
 
 Implement it as document-level style settings
-	•	Default styles stored as:
-	•	App preference (global)
-	•	Optional per-document frontmatter override
+• Default styles stored as:
+• App preference (global)
+• Optional per-document frontmatter override
 
 Example frontmatter:
 
 ---
+
 font:
-  body: "SF Pro Text"
-  heading: "SF Pro Display"
-  mono: "SF Mono"
+body: "SF Pro Text"
+heading: "SF Pro Display"
+mono: "SF Mono"
 emoji: github
+
 ---
 
 Rendering then becomes deterministic across machines.
 
 ⸻
 
-5) ucode / uPY inside Markdown safely
+5. ucode / uPY inside Markdown safely
 
 You’re on the right track: keep it inside fenced code blocks, but treat it as templating, not “run arbitrary code”.
 
-Recommendation: two execution tiers
-	1.	Safe templating (default ON)
-	•	Variables
-	•	if/then
-	•	simple functions (date, format, choose)
-	•	no filesystem, no network, no shell
-	2.	Privileged local execution (default OFF, explicit user enable)
-	•	allowed for power users
-	•	clearly labelled
-	•	still sandboxed with permission prompts
+Recommendation: two execution tiers 1. Safe templating (default ON)
+• Variables
+• if/then
+• simple functions (date, format, choose)
+• no filesystem, no network, no shell 2. Privileged local execution (default OFF, explicit user enable)
+• allowed for power users
+• clearly labelled
+• still sandboxed with permission prompts
 
 Markdown convention
 
@@ -134,40 +131,44 @@ if user.plan == "paid" then set cta = "Buy now"
 ```
 
 Output model:
-	•	ucode does not mutate files silently
-	•	It renders a view (presentation/form) or emits a derived output file
+• ucode does not mutate files silently
+• It renders a view (presentation/form) or emits a derived output file
 
 ⸻
 
-6) Marp slides + “Typeform-style” forms
+6. Marp slides + “Typeform-style” forms
 
 Treat these as renderers that consume:
-	•	Markdown
-	•	frontmatter config
-	•	optional ucode variables
+• Markdown
+• frontmatter config
+• optional ucode variables
 
 A. Marp mode
-	•	You can support standard Marp frontmatter and themes
-	•	Add your own theme layer (“gtx-form styled”)
+• You can support standard Marp frontmatter and themes
+• Add your own theme layer (“gtx-form styled”)
 
 B. Form mode
 
 I’d define a spec like:
-	•	Each “page” is a section separated by --- or # Question
-	•	Fields defined with a small syntax (or frontmatter blocks)
-	•	ucode can decide conditional visibility of pages/questions
+• Each “page” is a section separated by --- or # Question
+• Fields defined with a small syntax (or frontmatter blocks)
+• ucode can decide conditional visibility of pages/questions
 
 Example pattern:
 
 ---
+
 mode: form
 theme: gtx-form
+
 ---
 
 # Your name
+
 [input name="full_name" required]
 
 # Do you need catering?
+
 [radio name="catering" options="yes,no"]
 
 ```ucode
@@ -257,7 +258,7 @@ Everything else can become:
 ---
 
 If you want, next I can turn this into two concrete artefacts (Markdown format, ready to drop into your repos):
-1) **Mac App v1 Spec** (features, UX flows, file formats, export rules)  
+1) **Mac App v1 Spec** (features, UX flows, file formats, export rules)
 2) **`ucode` in Markdown mini-spec** (grammar, safety model, rendering rules, export behaviour)
 
 Got it — that “format / CLEAN” feature is a huge value add, and you can ship it without turning the app into a weird internal database, as long as you treat it as a file-native batch operation with a very explicit preview + output plan.
@@ -652,7 +653,7 @@ Responsibilities
 	•	Optionally emit a stitched draft that is purely deterministic (chronological concatenation + provenance)
 
 Why
-It’s repeatable, scriptable, safe, and works on TinyCore / terminal everywhere.
+It’s repeatable, scriptable, safe, and works on Alpine / terminal everywhere.
 
 Mac app (uMarkdown) owns the editorial “compilation”
 Responsibilities
@@ -715,3 +716,4 @@ What the CLI command could look like (conceptually)
 Then the app does:
 	•	Compile Draft (from stitched or from sources via plan)
 	•	Compile Final (optionally with local model assist)
+```

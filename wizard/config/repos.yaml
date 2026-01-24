@@ -9,7 +9,7 @@ ucode:
     repo: "micro"
     path: "library/ucode/micro"
     ref: "main"
-    description: "Minimal TinyCore variant"
+    description: "Minimal Alpine variant"
 
   # Marp Presentation Framework
   - name: "marp"
@@ -19,13 +19,13 @@ ucode:
     ref: "main"
     description: "Markdown presentation converter"
 
-  # TinyCore Linux
-  - name: "tinycore"
-    owner: "tinycorelinux"
-    repo: "Core-scripts"
-    path: "library/ucode/tinycore"
-    ref: "main"
-    description: "TinyCore Linux scripts"
+  # Alpine Linux
+  - name: "alpine"
+    owner: "alpinelinux"
+    repo: "aports"
+    path: "library/ucode/alpine"
+    ref: "master"
+    description: "Alpine Linux scripts and packaging references"
 
   # MeshCore P2P
   - name: "meshcore"

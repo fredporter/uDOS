@@ -1,0 +1,28 @@
+{
+  "$schema": "../core/version.schema.json",
+  "component": "app",
+  "name": "uMarkdown App",
+  "version": {
+    "major": 1,
+    "minor": 0,
+    "patch": 6,
+    "build": 1
+  },
+  "display": "v1.0.6.1",
+  "channel": "alpha",
+  "released": "2026-01-24",
+  "description": "Toast notifications + Slack integration for native macOS markdown app",
+  "changelog": "README.md",
+  "dependencies": {
+    "tauri": ">=2.0",
+    "node": ">=18.0"
+  },
+  "metadata": {
+    "platform": "macOS",
+    "framework": "Tauri + TypeScript",
+    "future_platforms": [
+      "iOS",
+      "iPadOS"
+    ]
+  }
+}

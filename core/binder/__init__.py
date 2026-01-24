@@ -35,6 +35,7 @@ from .feed import (
     FrontmatterExtractor,
     ContentPreview,
 )
+from .compiler import BinderCompiler
 
 __all__ = [
     # Config
@@ -58,6 +59,8 @@ __all__ = [
     "FrontmatterData",
     "FrontmatterExtractor",
     "ContentPreview",
+    # Compiler
+    "BinderCompiler",
 ]
 
 __version__ = "1.0.0"

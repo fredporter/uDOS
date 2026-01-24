@@ -1,0 +1,5 @@
+{
+  "node_cmd": "node",
+  "ts_runner": "core/runtime/ts_runner.js",
+  "runtime_entry": "core/grid-runtime/dist/index.js"
+}

@@ -22,7 +22,7 @@ A global bottom status bar with:
   - **Font size controls**: A−, A+, ∞ (reset) buttons
   - **View toggle**: Compact/normal view toggle
   - **Dark mode toggle**: Light/dark theme switcher
-- **Styling**: Responsive, matches Typo bottom bar from `/dev/app`
+- **Styling**: Responsive, matches Typo bottom bar from `/app`
 
 ### 3. **Updated App.svelte**
 

@@ -2,6 +2,7 @@
 
 from typing import List, Dict, Optional
 from core.commands.base import BaseCommandHandler
+from core.tui.output import OutputToolkit
 from core.locations import load_locations
 
 
@@ -97,14 +98,37 @@ class FindHandler(BaseCommandHandler):
                 )
 
         if not results:
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("FIND RESULTS"),
+                    f"No locations found for: {search_query}",
+                ]
+            )
             return {
-                "status": "no_results",
-                "message": f"No locations found matching: {search_query}",
+                "status": "success",
+                "message": f"No locations found for: {search_query}",
+                "output": output,
                 "query": search_query,
+                "results": [],
             }
+
+        rows = [
+            [item["id"], item["name"], item["type"], item["region"]]
+            for item in results[:20]
+        ]
+        output = "\n".join(
+            [
+                OutputToolkit.banner("FIND RESULTS"),
+                OutputToolkit.table(["id", "name", "type", "region"], rows),
+                "",
+                f"Count: {len(results)}",
+            ]
+        )
 
         return {
             "status": "success",
+            "message": f"Found {len(results)} locations",
+            "output": output,
             "count": len(results),
             "query": search_query,
             "results": results[:20],  # Limit to 20 results

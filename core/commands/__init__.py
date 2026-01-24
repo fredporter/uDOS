@@ -24,6 +24,9 @@ from .dialogue_engine import DialogueEngine, DialogueTree, DialogueNode
 from .talk_handler import TalkHandler
 from .config_handler import ConfigHandler
 from .provider_handler import ProviderHandler
+from .binder_handler import BinderHandler
+from .run_handler import RunHandler
+from .dataset_handler import DatasetHandler
 
 __all__ = [
     "BaseCommandHandler",
@@ -54,4 +57,7 @@ __all__ = [
     # Wizard commands
     "ConfigHandler",
     "ProviderHandler",
+    "BinderHandler",
+    "RunHandler",
+    "DatasetHandler",
 ]

@@ -13,10 +13,15 @@
   "ai_gateway_enabled": true,
   "oauth_enabled": false,
   "github_webhook_secret": null,
+  "github_webhook_secret_key_id": "github-webhook-secret",
   "github_allowed_repo": "fredporter/uDOS-dev",
   "github_default_branch": "main",
   "github_push_enabled": false,
   "hubspot_enabled": false,
   "notion_enabled": false,
-  "icloud_enabled": false
+  "icloud_enabled": false,
+  "file_locations": {
+    "memory_root": "memory",
+    "repo_root": "auto"
+  }
 }

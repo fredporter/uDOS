@@ -59,7 +59,7 @@ class PluginDiscovery:
         "library/ucode": {
             "micro": ("micro", "Minimal Core Linux"),
             "marp": ("marp", "Presentation framework"),
-            "tinycore": ("tinycore", "TinyCore Linux"),
+            "alpine": ("alpine", "Alpine Linux"),
             "meshcore": ("meshcore", "P2P mesh networking"),
         },
     }

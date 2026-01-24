@@ -5,6 +5,8 @@
   let loading = true;
   let error = null;
   let compiling = false;
+  let fileLocations = null;
+  let locationsError = null;
 
   async function loadBinders() {
     try {
@@ -22,14 +24,15 @@
   async function compileBinder(binderId, format) {
     compiling = true;
     try {
-      const res = await fetch(`/api/v1/binder/${binderId}/compile`, {
+      const res = await fetch(`/api/v1/binder/compile`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ format }),
+        body: JSON.stringify({ binder_id: binderId, formats: [format] }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const result = await res.json();
-      alert(`Compiled ${format}: ${result.output_path}`);
+      const output = result.outputs?.[0]?.path || "output";
+      alert(`Compiled ${format}: ${output}`);
       await loadBinders();
     } catch (err) {
       error = `Failed to compile: ${err.message}`;
@@ -37,7 +40,19 @@
     compiling = false;
   }
 
+  async function loadFileLocations() {
+    try {
+      const res = await fetch("/api/v1/config/wizard");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      fileLocations = data?.content?.file_locations || null;
+    } catch (err) {
+      locationsError = `Failed to load file locations: ${err.message}`;
+    }
+  }
+
   onMount(loadBinders);
+  onMount(loadFileLocations);
 
   function getFormatIcon(format) {
     switch (format) {
@@ -73,6 +88,22 @@
   <p class="text-gray-400 mb-8">
     Multi-format document compilation (Markdown, PDF, JSON, Brief)
   </p>
+
+  {#if locationsError}
+    <div class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6">
+      {locationsError}
+    </div>
+  {/if}
+
+  {#if fileLocations}
+    <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-6 text-sm">
+      <div class="text-gray-400">File Locations</div>
+      <div class="text-white">
+        <div>Repo Root: {fileLocations.repo_root_actual || "auto"}</div>
+        <div>Memory Root: {fileLocations.memory_root_actual || fileLocations.memory_root}</div>
+      </div>
+    </div>
+  {/if}
 
   {#if error}
     <div

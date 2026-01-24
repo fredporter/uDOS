@@ -1,21 +1,40 @@
 """
-TinyCore ISO Setup and Management
-Alpha v1.0.0.37+
+⚠️ DEPRECATED: TinyCore ISO Setup and Management
 
-Downloads, verifies, and manages TinyCore Linux ISOs for uDOS deployment.
+**Status:** DEPRECATED — Use Alpine Linux instead
+**Date:** 2026-01-24
+**Migration:** See docs/decisions/ADR-0003-alpine-linux-migration.md
 
-Usage:
+This module is kept for backwards compatibility only.
+uDOS has migrated to Alpine Linux. Use Alpine installer instead.
+
+For Alpine Linux setup:
+    - See: docs/howto/alpine-install.md
+    - Use: APK packages instead of TCZ
+    - Builder: wizard/services/plugin_factory.py (APKBuilder)
+
+Legacy Usage (DO NOT USE):
     python -m library.tinycore.setup download tinycore
     python -m library.tinycore.setup verify TinyCore-current.iso
     python -m library.tinycore.setup list
 """
 
+import warnings
 import hashlib
 import json
 import urllib.request
 import sys
 from pathlib import Path
 from typing import Optional, Dict
+
+# Deprecation warning
+warnings.warn(
+    "library.tinycore.setup is deprecated. "
+    "uDOS has migrated to Alpine Linux. "
+    "See docs/decisions/ADR-0003-alpine-linux-migration.md",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 # Add project root to path (library/ is at root)
 PROJECT_ROOT = Path(__file__).parent.parent.parent

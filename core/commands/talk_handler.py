@@ -8,6 +8,7 @@ from typing import Dict, List, Any
 from .base import BaseCommandHandler
 from .npc_handler import NPCHandler
 from .dialogue_engine import DialogueEngine
+from core.tui.output import OutputToolkit
 
 
 class TalkHandler(BaseCommandHandler):
@@ -70,11 +71,29 @@ class TalkHandler(BaseCommandHandler):
                 "current_node": result["node_id"],
             }
 
+            options = result.get("options", [])
+            if options:
+                option_rows = [[str(i + 1), opt.get("text", "")] for i, opt in enumerate(options)]
+                options_block = OutputToolkit.table(["#", "option"], option_rows)
+            else:
+                options_block = "No options available."
+
+            output = "\n".join(
+                [
+                    OutputToolkit.banner(f"TALK {npc['name'].upper()}"),
+                    result["text"],
+                    "",
+                    "Options:",
+                    options_block,
+                ]
+            )
+
             return {
                 "status": "success",
                 "npc": npc["name"],
                 "text": result["text"],
                 "options": result["options"],
+                "output": output,
                 "conversation_active": True,
             }
 
@@ -138,6 +157,7 @@ class TalkHandler(BaseCommandHandler):
             return {
                 "status": "success",
                 "message": "Conversation ended",
+                "output": OutputToolkit.banner("CONVERSATION ENDED"),
                 "conversation_active": False,
             }
 
@@ -156,11 +176,29 @@ class TalkHandler(BaseCommandHandler):
             if result.get("complete", False):
                 del self.active_conversations[player_id]
 
+            options = result.get("options", [])
+            if options:
+                option_rows = [[str(i + 1), opt.get("text", "")] for i, opt in enumerate(options)]
+                options_block = OutputToolkit.table(["#", "option"], option_rows)
+            else:
+                options_block = "No options available."
+
+            output = "\n".join(
+                [
+                    OutputToolkit.banner(f"TALK {conv_state['npc_name'].upper()}"),
+                    result["text"],
+                    "",
+                    "Options:",
+                    options_block,
+                ]
+            )
+
             return {
                 "status": "success",
                 "npc": conv_state["npc_name"],
                 "text": result["text"],
                 "options": result.get("options", []),
+                "output": output,
                 "conversation_active": not result.get("complete", False),
                 "action": selected_option.get(
                     "action"

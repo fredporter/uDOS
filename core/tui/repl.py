@@ -82,7 +82,7 @@ class TUIRepl:
                     self.state.update_from_handler(result)
 
                     # Log command
-                    self.logger.info(f"[COMMAND] {user_input} → {result.get('status')}")
+                    self.logger.info(f"[COMMAND] {user_input} -> {result.get('status')}")
                     self.state.add_to_history(user_input)
 
                     # Render result
@@ -90,11 +90,11 @@ class TUIRepl:
                     print(output)
 
                 except KeyboardInterrupt:
-                    print(f"\n{self.renderer.CYAN}→{self.renderer.RESET} Interrupted")
+                    print(f"\n{self.renderer.CYAN}->{self.renderer.RESET} Interrupted")
                     self.logger.info("[INTERRUPT] User interrupted")
 
                 except EOFError:
-                    print(f"\n{self.renderer.CYAN}→{self.renderer.RESET} End of input")
+                    print(f"\n{self.renderer.CYAN}->{self.renderer.RESET} End of input")
                     self.running = False
 
                 except Exception as e:
@@ -137,10 +137,8 @@ class TUIRepl:
 
     def _show_welcome(self) -> None:
         """Display welcome message with startup pattern"""
-        print(
-            f"\n{self.renderer.BOLD}🎮 uDOS Lightweight TUI v1.0.0{self.renderer.RESET}"
-        )
-        print(f"Modern CLI for the refined core")
+        print(f"\n{self.renderer.BOLD}uDOS Lightweight TUI v1.0.0{self.renderer.RESET}")
+        print("Modern CLI for the refined core")
         print(f"{self.renderer.CYAN}Type HELP for commands{self.renderer.RESET}\n")
 
         # Display a startup pattern
@@ -160,7 +158,7 @@ class TUIRepl:
             patterns = ["c64", "chevrons", "scanlines"]
             pattern_name = patterns[hash(str(os.urandom(4))) % len(patterns)]
 
-            gen = PatternGenerator(width=width, height=8, ascii_only=False)
+            gen = PatternGenerator(width=width, height=8, ascii_only=True)
             lines = gen.render_pattern(pattern_name, frames=8)
 
             for line in lines:
@@ -173,7 +171,7 @@ class TUIRepl:
 
     def _show_goodbye(self) -> None:
         """Display goodbye message"""
-        print(f"\n{self.renderer.CYAN}→{self.renderer.RESET} Goodbye!\n")
+        print(f"\n{self.renderer.CYAN}->{self.renderer.RESET} Goodbye!\n")
         self.logger.info("[SHUTDOWN] TUI closed")
 
     def _show_status(self) -> None:

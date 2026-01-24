@@ -3,6 +3,7 @@
 from typing import List, Dict
 import requests
 from core.commands.base import BaseCommandHandler
+from core.tui.output import OutputToolkit
 from core.services.logging_manager import get_logger, LogTags
 
 logger = get_logger("provider-handler")
@@ -47,14 +48,14 @@ class ProviderHandler(BaseCommandHandler):
                 data = response.json()
                 providers = data.get("providers", [])
 
-                output = ["🔌 Available Providers", ""]
+                output = [OutputToolkit.banner("AVAILABLE PROVIDERS"), ""]
 
                 for provider in providers:
                     pid = provider["id"]
                     name = provider["name"]
-                    configured = "✓" if provider.get("configured") else "✗"
-                    available = "✓" if provider.get("available") else "✗"
-                    cli_installed = "✓" if provider.get("cli_installed") else "✗"
+                    configured = "OK" if provider.get("configured") else "X"
+                    available = "OK" if provider.get("available") else "X"
+                    cli_installed = "OK" if provider.get("cli_installed") else "X"
 
                     output.append(f"{name} ({pid})")
                     output.append(
@@ -92,7 +93,12 @@ class ProviderHandler(BaseCommandHandler):
                 data = response.json()
                 provider = data.get("provider", {})
 
-                output = [f"📊 {provider.get('name', provider_id)} Status", ""]
+                output = [
+                    OutputToolkit.banner(
+                        f"{provider.get('name', provider_id).upper()} STATUS"
+                    ),
+                    "",
+                ]
                 output.append(f"ID: {provider.get('id')}")
                 output.append(f"Type: {provider.get('type')}")
                 output.append(f"Automation: {provider.get('automation')}")
@@ -100,13 +106,13 @@ class ProviderHandler(BaseCommandHandler):
 
                 output.append("Status:")
                 output.append(
-                    f"  Configured: {'✓' if provider.get('configured') else '✗'}"
+                    f"  Configured: {'OK' if provider.get('configured') else 'X'}"
                 )
                 output.append(
-                    f"  Available: {'✓' if provider.get('available') else '✗'}"
+                    f"  Available: {'OK' if provider.get('available') else 'X'}"
                 )
                 output.append(
-                    f"  CLI Installed: {'✓' if provider.get('cli_installed') else '✗'}"
+                    f"  CLI Installed: {'OK' if provider.get('cli_installed') else 'X'}"
                 )
                 output.append("")
 
@@ -149,10 +155,10 @@ class ProviderHandler(BaseCommandHandler):
             )
             if response.status_code == 200:
                 data = response.json()
-                output = [f"✓ Enabled {provider_id}", ""]
+                output = [f"OK Enabled {provider_id}", ""]
 
                 if data.get("needs_restart"):
-                    output.append("⚠️  Restart required for setup:")
+                    output.append("WARN Restart required for setup:")
                     output.append("   python -m wizard.check_provider_setup")
                     output.append("")
                     output.append("Or flag for next startup:")
@@ -160,7 +166,7 @@ class ProviderHandler(BaseCommandHandler):
                         f"{WIZARD_API}/providers/{provider_id}/flag", timeout=5
                     )
                     if response.status_code == 200:
-                        output.append("✓ Flagged for setup on next restart")
+                        output.append("OK Flagged for setup on next restart")
 
                 return {"status": "success", "output": "\n".join(output)}
             elif response.status_code == 404:
@@ -187,7 +193,7 @@ class ProviderHandler(BaseCommandHandler):
                 f"{WIZARD_API}/providers/{provider_id}/disable", timeout=5
             )
             if response.status_code == 200:
-                return {"status": "success", "output": f"✓ Disabled {provider_id}"}
+                return {"status": "success", "output": f"OK Disabled {provider_id}"}
             elif response.status_code == 404:
                 return {
                     "status": "error",
@@ -209,7 +215,7 @@ class ProviderHandler(BaseCommandHandler):
         """Run setup for a provider."""
         import subprocess
 
-        output = [f"🔧 Setting up {provider_id}", ""]
+        output = [OutputToolkit.banner(f"SETUP {provider_id.upper()}"), ""]
 
         try:
             # Run setup checker for specific provider
@@ -226,9 +232,9 @@ class ProviderHandler(BaseCommandHandler):
             )
 
             if result.returncode == 0:
-                output.append(f"✓ Setup completed for {provider_id}")
+                output.append(f"OK Setup completed for {provider_id}")
             else:
-                output.append(f"⚠️  Setup had issues for {provider_id}")
+                output.append(f"WARN Setup had issues for {provider_id}")
 
             return {"status": "success", "output": "\n".join(output)}
         except Exception as e:

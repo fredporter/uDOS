@@ -2,6 +2,7 @@
 
 from typing import List, Dict, Optional
 from core.commands.base import BaseCommandHandler
+from core.tui.output import OutputToolkit
 
 
 class BagHandler(BaseCommandHandler):
@@ -52,9 +53,16 @@ class BagHandler(BaseCommandHandler):
         inventory = self.get_state("inventory") or []
 
         if not inventory:
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("INVENTORY"),
+                    "No items in bag.",
+                ]
+            )
             return {
                 "status": "success",
                 "message": "Your bag is empty",
+                "output": output,
                 "items": [],
                 "total_items": 0,
                 "total_weight": 0,
@@ -75,8 +83,33 @@ class BagHandler(BaseCommandHandler):
                 }
             )
 
+        rows = []
+        for item in items_display:
+            status = "equipped" if item.get("equipped") else ""
+            rows.append(
+                [
+                    item.get("name", ""),
+                    str(item.get("quantity", 1)),
+                    str(item.get("weight", 0)),
+                    status,
+                ]
+            )
+
+        output = "\n".join(
+            [
+                OutputToolkit.banner("INVENTORY"),
+                OutputToolkit.table(["item", "qty", "weight", "status"], rows),
+                "",
+                f"Total items: {sum(item.get('quantity', 1) for item in inventory)}",
+                f"Total weight: {total_weight}",
+                "Capacity: 100",
+            ]
+        )
+
         return {
             "status": "success",
+            "message": "Inventory list",
+            "output": output,
             "items": items_display,
             "total_items": sum(item.get("quantity", 1) for item in inventory),
             "total_weight": total_weight,

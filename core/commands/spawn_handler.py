@@ -3,6 +3,7 @@
 from typing import List, Dict
 from core.commands.base import BaseCommandHandler
 from core.locations import load_locations
+from core.tui.output import OutputToolkit
 
 
 class SpawnHandler(BaseCommandHandler):
@@ -60,10 +61,21 @@ class SpawnHandler(BaseCommandHandler):
 
         # For now, we'll just return a success message
         # (Actual spawning would modify the location data structure)
+        output = "\n".join(
+            [
+                OutputToolkit.banner("SPAWN"),
+                OutputToolkit.table(
+                    ["type", "name", "char", "location", "cell"],
+                    [[obj_type, obj_name, obj_char, location.name, cell_id]],
+                ),
+            ]
+        )
+
         if obj_type == "object":
             return {
                 "status": "success",
-                "message": f"Spawned {obj_char} {obj_name} at {location.name}:{cell_id}",
+                "message": f"Spawned {obj_name} at {location.name}:{cell_id}",
+                "output": output,
                 "location_id": location_id,
                 "cell_id": cell_id,
                 "object_type": "object",
@@ -73,7 +85,8 @@ class SpawnHandler(BaseCommandHandler):
         else:  # sprite
             return {
                 "status": "success",
-                "message": f"Spawned sprite {obj_char} {obj_name} at {location.name}:{cell_id}",
+                "message": f"Spawned sprite {obj_name} at {location.name}:{cell_id}",
+                "output": output + "\n\nNote: Sprite can move and interact with environment",
                 "location_id": location_id,
                 "cell_id": cell_id,
                 "object_type": "sprite",

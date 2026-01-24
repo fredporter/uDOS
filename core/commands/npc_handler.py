@@ -7,6 +7,7 @@ state tracking, and movement between locations.
 
 from typing import Dict, List, Any, Optional
 from .base import BaseCommandHandler
+from core.tui.output import OutputToolkit
 
 
 class NPCHandler(BaseCommandHandler):
@@ -97,15 +98,38 @@ class NPCHandler(BaseCommandHandler):
         ]
 
         if not npcs_at_location:
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("NPC LIST"),
+                    f"No NPCs found at {location_id}",
+                ]
+            )
             return {
                 "status": "success",
                 "message": f"No NPCs found at {location_id}",
+                "output": output,
                 "npcs": [],
             }
 
+        rows = [
+            [
+                npc.get("name", ""),
+                npc.get("role", ""),
+                npc.get("disposition", ""),
+                npc.get("dialogue_state", ""),
+            ]
+            for npc in npcs_at_location
+        ]
+        output = "\n".join(
+            [
+                OutputToolkit.banner(f"NPC LIST {location_id}"),
+                OutputToolkit.table(["name", "role", "disposition", "state"], rows),
+            ]
+        )
         return {
             "status": "success",
             "message": f"Found {len(npcs_at_location)} NPC(s) at {location_id}",
+            "output": output,
             "npcs": npcs_at_location,
             "location": location_id,
         }
@@ -142,9 +166,19 @@ class NPCHandler(BaseCommandHandler):
 
         self.npcs[npc_id] = npc_data
 
+        output = "\n".join(
+            [
+                OutputToolkit.banner("NPC SPAWNED"),
+                OutputToolkit.table(
+                    ["id", "name", "role", "location"],
+                    [[npc_id, npc_name, npc_type, location_id]],
+                ),
+            ]
+        )
         return {
             "status": "success",
             "message": f"Spawned {npc_type} '{npc_name}' at {location_id}",
+            "output": output,
             "npc": npc_data,
         }
 

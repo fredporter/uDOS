@@ -3,7 +3,7 @@
 [project]
 name = "uDOS"
 version = "1.0.2.0"
-description = "Offline-first OS layer for Tiny Core Linux with TUI and desktop interfaces"
+description = "Offline-first OS layer targeting Alpine Linux with TUI and desktop interfaces"
 
 [model]
 # Default to offline Devstral via Ollama
@@ -19,7 +19,7 @@ cloud_enabled = false
 # Primary context files (read in order)
 context_files = [
     "AGENTS.md",
-    "docs/_index.md",
+    "docs/README.md",
     "docs/roadmap.md",
     ".vibe/CONTEXT.md"
 ]

@@ -356,7 +356,7 @@ UDOS_PROMPT = """# uDOS Development Assistant
 You are an AI coding assistant integrated with uDOS, an offline-first knowledge system.
 
 ## Context
-- uDOS is a Python-venv OS layer for Tiny Core Linux
+- uDOS is a Python-venv OS layer targeting Alpine Linux
 - Two-Realm Architecture: Device Mesh (offline) vs Wizard Server (online)
 - Transport Policy: MeshCore, Bluetooth Private, NFC, QR, Audio (private only)
 - Bluetooth Public = SIGNAL ONLY, never data
@@ -365,7 +365,7 @@ You are an AI coding assistant integrated with uDOS, an offline-first knowledge 
 - Always use version.json for versions (never hardcode)
 - Route commands through uDOS_commands.py
 - Use logging tags: [LOCAL] [MESH] [WIZ] [BT-PRIV] etc.
-- Tiny Core compatible (no systemd assumptions)
+- Alpine Linux compatible (no systemd assumptions; OpenRC)
 
 ## Key Paths
 - core/ - Python TUI system

@@ -71,7 +71,7 @@ This file exists to:
 
 ---
 
-### 3.2 App (`dev/app/`) — PRIVATE SUBMODULE
+### 3.2 App (`app/`) — PUBLIC scaffold + PRIVATE submodule
 
 **What App is:**
 
@@ -79,7 +79,9 @@ This file exists to:
 - Currently Tauri + Svelte
 - Future native macOS + iOS/iPadOS clients
 - Five markdown formats: `-ucode.md`, `-story.md`, `-marp.md`, `-guide.md`, `-config.md`
-- **Location:** `/dev/app/` (private submodule)
+- **Location:** `/app/` (public scaffold)
+- **Submodule:** `/app/src` → `fredporter/uMarkdown-app` (private)
+- **Deprecated:** `/dev/app` (private submodule legacy; do not use as source of truth)
 
 **App responsibilities:**
 
@@ -95,8 +97,8 @@ This file exists to:
 
 **Primary reference:**
 
-- `dev/app/README.md`
-- `dev/app/docs/`
+- `app/README.md`
+- `app/docs/`
 
 ---
 
@@ -251,7 +253,7 @@ Current extensions:
 
 > **📌 Repository Structure (2026-01-21):**
 >
-> - **PUBLIC (root):** `core/`, `wizard/`, `extensions/`, `docs/`, `knowledge/`, `library/`, `distribution/`
+> - **PUBLIC (root):** `core/`, `wizard/`, `extensions/`, `docs/`, `knowledge/`, `library/`, `distribution/`, `sonic/`
 > - **PRIVATE (/dev submodule):** `goblin/`, `empire/`, `app/`, `groovebox/`, `tests/`, `tools/`
 > - **LOCAL (memory/):** User data, logs, credentials — never committed
 >

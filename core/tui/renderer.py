@@ -46,11 +46,13 @@ class GridRenderer:
 
     def _render_success(self, result: Dict[str, Any]) -> str:
         """Format successful response"""
-        output = f"{self.GREEN}✓{self.RESET} {result.get('message', 'Success')}\n"
+        output = f"{self.GREEN}*{self.RESET} {result.get('message', 'Success')}\n"
 
         # Add command-specific output
         if "description" in result:
             output += result["description"]
+        elif "output" in result:
+            output += result["output"] + "\n"
         elif "items" in result:
             output += self._format_items(result["items"])
         elif "results" in result:
@@ -63,11 +65,14 @@ class GridRenderer:
     def _render_error(self, result: Dict[str, Any]) -> str:
         """Format error response"""
         output = (
-            f"{self.RED}✗{self.RESET} Error: {result.get('message', 'Unknown error')}\n"
+            f"{self.RED}x{self.RESET} Error: {result.get('message', 'Unknown error')}\n"
         )
 
+        if "output" in result:
+            output += result["output"] + "\n"
+
         if "suggestion" in result:
-            output += f"{self.CYAN}→{self.RESET} {result['suggestion']}\n"
+            output += f"{self.CYAN}->{self.RESET} {result['suggestion']}\n"
 
         if "details" in result:
             output += f"  Details: {result['details']}\n"
@@ -76,12 +81,14 @@ class GridRenderer:
 
     def _render_warning(self, result: Dict[str, Any]) -> str:
         """Format warning response"""
-        output = f"{self.YELLOW}⚠{self.RESET} {result.get('message', 'Warning')}\n"
+        output = f"{self.YELLOW}!{self.RESET} {result.get('message', 'Warning')}\n"
+        if "output" in result:
+            output += result["output"] + "\n"
         return output
 
     def _render_generic(self, result: Dict[str, Any]) -> str:
         """Format generic response"""
-        output = f"{self.CYAN}→{self.RESET} Response:\n"
+        output = f"{self.CYAN}->{self.RESET} Response:\n"
         for key, value in result.items():
             if key not in ["status"]:
                 output += f"  {key}: {value}\n"
@@ -97,7 +104,7 @@ class GridRenderer:
             name = item.get("name", "Unknown")
             qty = item.get("quantity", 1)
             equipped = " [equipped]" if item.get("equipped") else ""
-            output += f"  • {name} (qty: {qty}){equipped}\n"
+            output += f"  - {name} (qty: {qty}){equipped}\n"
         return output
 
     def _format_results(self, results: List[Dict[str, Any]]) -> str:
@@ -114,7 +121,7 @@ class GridRenderer:
 
     def format_error(self, message: str, details: str = "") -> str:
         """Format an error message"""
-        output = f"{self.RED}✗{self.RESET} {message}\n"
+        output = f"{self.RED}x{self.RESET} {message}\n"
         if details:
             output += f"  {details}\n"
         return output
@@ -129,6 +136,6 @@ class GridRenderer:
         print("\033[2J\033[H", end="")
 
     @staticmethod
-    def separator(char: str = "─", width: int = 60) -> str:
+    def separator(char: str = "-", width: int = 60) -> str:
         """Create a separator line"""
         return char * width

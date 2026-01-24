@@ -1,8 +1,16 @@
-# TinyCore ISO Library
+# ⚠️ DEPRECATED: TinyCore ISO Library
+
+**Status:** DEPRECATED — Use Alpine Linux instead  
+**Date:** 2026-01-24  
+**Migration:** See [DEPRECATED.md](DEPRECATED.md) and [docs/decisions/ADR-0003-alpine-linux-migration.md](../../docs/decisions/ADR-0003-alpine-linux-migration.md)
+
+---
+
+**This library is archived for historical reference only.**
 
 Local storage for TinyCore Linux ISO images. **Not tracked in git** - ISOs are downloaded on demand.
 
-## Quick Start
+## Quick Start (DEPRECATED)
 
 ```bash
 # List available images
@@ -20,13 +28,13 @@ python -m wizard.library.tinycore.setup usb tinycore /dev/sdb
 
 ## Available Images
 
-| Image | Size | Description |
-|-------|------|-------------|
-| `tinycore` | ~20MB | Base system + GUI (X/FLWM) |
-| `core` | ~15MB | CLI only, no GUI |
-| `coreplus` | ~150MB | Full installer with common TCZs |
-| `tinycore64` | ~22MB | 64-bit TinyCore |
-| `corepure64` | ~15MB | 64-bit CLI only |
+| Image        | Size   | Description                     |
+| ------------ | ------ | ------------------------------- |
+| `tinycore`   | ~20MB  | Base system + GUI (X/FLWM)      |
+| `core`       | ~15MB  | CLI only, no GUI                |
+| `coreplus`   | ~150MB | Full installer with common TCZs |
+| `tinycore64` | ~22MB  | 64-bit TinyCore                 |
+| `corepure64` | ~15MB  | 64-bit CLI only                 |
 
 ## Directory Structure
 
@@ -95,4 +103,4 @@ chmod +x install.sh
 
 ---
 
-*See [distribution/README.md](../../../distribution/README.md) for TCZ packaging architecture.*
+_See [distribution/README.md](../../../distribution/README.md) for TCZ packaging architecture._

@@ -1,88 +1,22 @@
 {
   "folders": [
-    // ═══════════════════════════════════════════════════════════════════
-    // PUBLIC REPO (root) - Open source components
-    // ═══════════════════════════════════════════════════════════════════
-    {
-      "name": "🏠 uDOS Root",
-      "path": "."
-    },
-    {
-      "name": "⚡ Core Runtime",
-      "path": "core"
-    },
-    {
-      "name": "🧙 Wizard Server",
-      "path": "wizard"
-    },
-    {
-      "name": "🔌 Extensions",
-      "path": "extensions"
-    },
-    {
-      "name": "📚 Docs & Specs",
-      "path": "docs"
-    },
-    {
-      "name": "🧠 Knowledge Base",
-      "path": "knowledge"
-    },
-    {
-      "name": "🎨 Library & Assets",
-      "path": "library"
-    },
-    // ═══════════════════════════════════════════════════════════════════
-    // PRIVATE SUBMODULE (/dev) - Development & proprietary components
-    // Requires: git submodule update --init --recursive
-    // ═══════════════════════════════════════════════════════════════════
-    {
-      "name": "🔒 Dev (Private Submodule)",
-      "path": "dev"
-    },
-    {
-      "name": "👺 Goblin Dev Server",
-      "path": "dev/goblin"
-    },
-    {
-      "name": "🏰 Empire (CRM)",
-      "path": "dev/empire"
-    },
-    {
-      "name": "📱 uMarkdown App",
-      "path": "dev/app"
-    },
-    {
-      "name": "🎵 Groovebox",
-      "path": "dev/groovebox"
-    },
-    {
-      "name": "🧪 Dev Tests",
-      "path": "dev/tests"
-    },
-    // ═══════════════════════════════════════════════════════════════════
-    // LOCAL (untracked)
-    // ═══════════════════════════════════════════════════════════════════
-    {
-      "name": "📝 Memory (Local)",
-      "path": "memory"
-    }
+    { "name": "🏠 uDOS Root", "path": "." },
+    { "name": "⚡ Core Runtime", "path": "core" },
+    { "name": "🧙 Wizard Server", "path": "wizard" },
+    { "name": "🔌 Extensions", "path": "extensions" },
+    { "name": "📚 Docs & Specs", "path": "docs" },
+    { "name": "🖥️ App", "path": "app" },
+    { "name": "🔒 Dev (Private Submodule)", "path": "dev" },
+    { "name": "📝 Memory (Local)", "path": "memory" }
   ],
   "settings": {
-    // ─────────────────────────────────────────────────────────────────
-    // Python & TypeScript Configuration
-    // ─────────────────────────────────────────────────────────────────
     "python.defaultInterpreterPath": "${workspaceFolder:🏠 uDOS Root}/.venv/bin/python",
     "typescript.tsdk": "${workspaceFolder:⚡ Core Runtime}/node_modules/typescript/lib",
     "typescript.enablePromptUseWorkspaceTsdk": true,
-
-    // ─────────────────────────────────────────────────────────────────
-    // File Exclusions (keep workspace clean)
-    // ─────────────────────────────────────────────────────────────────
     "files.exclude": {
       "**/.venv": true,
       "**/node_modules": true,
       "**/target": true,
-      "**/.svelte-kit": true,
       "**/__pycache__": true,
       "**/*.pyc": true,
       "**/.DS_Store": true,
@@ -91,17 +25,10 @@
     "search.exclude": {
       "**/.venv": true,
       "**/node_modules": true,
-      "**/target": true,
-      "**/.svelte-kit": true,
       "**/dist": true,
       "**/.archive": true,
-      "**/.backup": true,
-      "**/dev/library/**": true
+      "**/.backup": true
     },
-
-    // ─────────────────────────────────────────────────────────────────
-    // uDOS Markdown Formats
-    // ─────────────────────────────────────────────────────────────────
     "files.associations": {
       "*-ucode.md": "markdown",
       "*-story.md": "markdown",
@@ -110,10 +37,6 @@
       "*-config.md": "markdown",
       "*.uscript": "python"
     },
-
-    // ─────────────────────────────────────────────────────────────────
-    // Editor Settings
-    // ─────────────────────────────────────────────────────────────────
     "editor.formatOnSave": true,
     "[python]": {
       "editor.defaultFormatter": "ms-python.black-formatter",
@@ -128,29 +51,14 @@
       "editor.formatOnSave": true,
       "editor.wordWrap": "on"
     },
-    "[svelte]": {
-      "editor.defaultFormatter": "svelte.svelte-vscode",
-      "editor.formatOnSave": true
-    }
+    "chatgpt.openOnStartup": true
   },
   "extensions": {
     "recommendations": [
-      // Python
       "ms-python.python",
-      "ms-python.black-formatter",
       "ms-python.vscode-pylance",
-      // TypeScript/JavaScript
+      "ms-python.black-formatter",
       "esbenp.prettier-vscode",
-      "dbaeumer.vscode-eslint",
-      // Tauri/Svelte (dev/app)
-      "svelte.svelte-vscode",
-      "tauri-apps.tauri-vscode",
-      "rust-lang.rust-analyzer",
-      "bradlc.vscode-tailwindcss",
-      // Markdown & Docs
-      "yzhang.markdown-all-in-one",
-      "marp-team.marp-vscode",
-      // Copilot
       "GitHub.copilot",
       "GitHub.copilot-chat"
     ]
@@ -158,9 +66,6 @@
   "launch": {
     "version": "0.2.0",
     "configurations": [
-      // ─────────────────────────────────────────────────────────────────
-      // Public Components
-      // ─────────────────────────────────────────────────────────────────
       {
         "name": "🏠 uDOS: Interactive Mode",
         "type": "debugpy",
@@ -183,40 +88,6 @@
         "cwd": "${workspaceFolder:🏠 uDOS Root}"
       },
       {
-        "name": "⚡ Core Tests (TypeScript)",
-        "type": "node",
-        "request": "launch",
-        "program": "${workspaceFolder:⚡ Core Runtime}/node_modules/.bin/jest",
-        "args": ["--runInBand"],
-        "cwd": "${workspaceFolder:⚡ Core Runtime}",
-        "console": "integratedTerminal"
-      },
-      // ─────────────────────────────────────────────────────────────────
-      // Private Components (dev submodule)
-      // ─────────────────────────────────────────────────────────────────
-      {
-        "name": "👺 Goblin Dev Server",
-        "type": "debugpy",
-        "request": "launch",
-        "program": "${workspaceFolder:👺 Goblin Dev Server}/goblin_server.py",
-        "console": "integratedTerminal",
-        "justMyCode": false,
-        "python": "${workspaceFolder:🏠 uDOS Root}/.venv/bin/python",
-        "cwd": "${workspaceFolder:🏠 uDOS Root}"
-      },
-      {
-        "name": "📱 Tauri Dev (App)",
-        "type": "node",
-        "request": "launch",
-        "runtimeExecutable": "npm",
-        "runtimeArgs": ["run", "tauri", "dev"],
-        "cwd": "${workspaceFolder:📱 uMarkdown App}",
-        "console": "integratedTerminal"
-      },
-      // ─────────────────────────────────────────────────────────────────
-      // Debug Utilities
-      // ─────────────────────────────────────────────────────────────────
-      {
         "name": "🐍 Python: Current File",
         "type": "debugpy",
         "request": "launch",
@@ -225,96 +96,35 @@
         "justMyCode": false,
         "python": "${workspaceFolder:🏠 uDOS Root}/.venv/bin/python",
         "cwd": "${workspaceFolder:🏠 uDOS Root}"
-      },
-      {
-        "name": "🔧 VS Code Extension",
-        "type": "extensionHost",
-        "request": "launch",
-        "args": ["--extensionDevelopmentPath=${workspaceFolder:🔌 Extensions}/vscode"],
-        "outFiles": ["${workspaceFolder:🔌 Extensions}/vscode/out/**/*.js"]
       }
     ]
   },
   "tasks": {
     "version": "2.0.0",
     "tasks": [
-      // ─────────────────────────────────────────────────────────────────
-      // Build & Run Tasks
-      // ─────────────────────────────────────────────────────────────────
       {
         "label": "🏠 Run uDOS Interactive",
         "type": "shell",
         "command": "./bin/start_udos.sh",
-        "cwd": "${workspaceFolder:🏠 uDOS Root}",
-        "group": {"kind": "build", "isDefault": true},
-        "presentation": {"reveal": "always", "panel": "dedicated", "focus": true}
+        "options": { "cwd": "${workspaceFolder:🏠 uDOS Root}" },
+        "group": { "kind": "build", "isDefault": true },
+        "presentation": { "reveal": "always", "panel": "dedicated", "focus": true }
       },
       {
         "label": "🧙 Start Wizard Server",
         "type": "shell",
         "command": "source .venv/bin/activate && python -m wizard.server --port 8765",
-        "cwd": "${workspaceFolder:🏠 uDOS Root}",
+        "options": { "cwd": "${workspaceFolder:🏠 uDOS Root}" },
         "isBackground": true,
-        "presentation": {"reveal": "always"}
+        "presentation": { "reveal": "always" }
       },
       {
-        "label": "👺 Start Goblin Dev",
+        "label": "🖥️ App: Tauri Dev",
         "type": "shell",
-        "command": "source .venv/bin/activate && python dev/goblin/goblin_server.py",
-        "cwd": "${workspaceFolder:🏠 uDOS Root}",
-        "isBackground": true,
-        "presentation": {"reveal": "always"}
-      },
-      {
-        "label": "📱 Tauri Dev",
-        "type": "shell",
-        "command": "npm run tauri dev",
-        "cwd": "${workspaceFolder:📱 uMarkdown App}",
-        "isBackground": true,
-        "presentation": {"reveal": "always"}
-      },
-      // ─────────────────────────────────────────────────────────────────
-      // Test Tasks
-      // ─────────────────────────────────────────────────────────────────
-      {
-        "label": "⚡ Core Tests (TypeScript)",
-        "type": "shell",
-        "command": "npm test",
-        "cwd": "${workspaceFolder:⚡ Core Runtime}",
-        "group": {"kind": "test", "isDefault": true},
-        "presentation": {"reveal": "always"}
-      },
-      {
-        "label": "🧪 Shakedown Tests",
-        "type": "shell",
-        "command": "./bin/start_udos.sh memory/tests/shakedown.uscript",
-        "cwd": "${workspaceFolder:🏠 uDOS Root}",
-        "group": "test",
-        "presentation": {"reveal": "always"}
-      },
-      {
-        "label": "🧪 Dev Integration Tests",
-        "type": "shell",
-        "command": "source .venv/bin/activate && pytest dev/tests/ -v",
-        "cwd": "${workspaceFolder:🏠 uDOS Root}",
-        "group": "test",
-        "presentation": {"reveal": "always"}
+        "command": "npm run tauri:dev",
+        "options": { "cwd": "${workspaceFolder:🖥️ App}/src" },
+        "presentation": { "reveal": "always", "panel": "dedicated" }
       }
     ]
-  },
-  "_metadata": {
-    "description": "uDOS Main Workspace - Full development environment",
-    "structure": {
-      "public": "Root repo (open source): core, wizard, extensions, docs, knowledge, library",
-      "private": "/dev submodule (proprietary): goblin, empire, app, groovebox, tests, tools",
-      "local": "memory/ (untracked user data)"
-    },
-    "submodule": {
-      "path": "dev",
-      "repo": "git@github.com:fredporter/uDOS-dev.git",
-      "branch": "main",
-      "setup": "git submodule update --init --recursive"
-    },
-    "updated": "2026-01-21"
   }
 }

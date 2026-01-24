@@ -30,14 +30,14 @@ git submodule update --init --recursive
 | Document | Purpose |
 |----------|---------|
 | [AGENTS.md](../AGENTS.md) | How work is done (architecture, policies, tooling) |
-| [docs/_index.md](../docs/_index.md) | Engineering entry point |
-| [docs/roadmap.md](../docs/roadmap.md) | Current priorities (Now/Next/Later) |
+| [docs/README.md](../docs/README.md) | Engineering entry point |
+| [docs/development-streams.md](../docs/development-streams.md) | Current priorities (Now/Next/Later) |
 
 **Subsystem instructions** (when modifying specific components):
-- [.github/instructions/core.instructions.md](.github/instructions/core.instructions.md) — TUI, handlers, services
-- [.github/instructions/app.instructions.md](.github/instructions/app.instructions.md) — Tauri app, formats (in dev/)
-- [.github/instructions/wizard.instructions.md](.github/instructions/wizard.instructions.md) — Server, AI routing
-- [.github/instructions/extensions.instructions.md](.github/instructions/extensions.instructions.md) — API, transport
+- [instructions/core.instructions.md](instructions/core.instructions.md) — TUI, handlers, services
+- [instructions/app.instructions.md](instructions/app.instructions.md) — Tauri app, formats (public scaffold at /app, source in /app/src)
+- [instructions/wizard.instructions.md](instructions/wizard.instructions.md) — Server, AI routing
+- [instructions/extensions.instructions.md](instructions/extensions.instructions.md) — API, transport
 
 ---
 
@@ -78,7 +78,7 @@ python -m core.version bump core build  # Bump specific component
 **PRIVATE (/dev submodule):**
 - `dev/goblin/` — Experimental dev server
 - `dev/empire/` — CRM system
-- `dev/app/` — Tauri + Svelte desktop app
+- `uMarkdown-app` — Desktop app source (Tauri + Svelte), mounted at `/app/src`
 - `dev/groovebox/` — Music production tools
 - `dev/tests/` — Integration tests
 - `dev/tools/` — Development utilities

@@ -58,7 +58,7 @@ class Device:
 
     id: str
     name: str
-    device_type: str  # desktop, mobile, tinycore
+    device_type: str  # desktop, mobile, alpine
     trust_level: TrustLevel = TrustLevel.STANDARD
     status: DeviceStatus = DeviceStatus.OFFLINE
     transport: str = "meshcore"
@@ -211,7 +211,7 @@ class DeviceAuthService:
             code: Pairing code (with or without space)
             device_id: Unique device identifier
             device_name: Human-readable device name
-            device_type: Type of device (desktop, mobile, tinycore)
+            device_type: Type of device (desktop, mobile, alpine)
             public_key: Device's public key for encryption
 
         Returns:

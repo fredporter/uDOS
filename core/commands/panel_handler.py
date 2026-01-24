@@ -9,6 +9,7 @@ from typing import Dict, List, Optional
 from core.commands.base import BaseCommandHandler
 from core.locations import load_locations, Location
 from core.location_service import LocationService
+from core.tui.output import OutputToolkit
 
 
 class PanelHandler(BaseCommandHandler):
@@ -65,6 +66,7 @@ class PanelHandler(BaseCommandHandler):
             "location_id": location.id,
             "location_name": location.name,
             "panel": panel,
+            "output": panel,
             "height": 24,
             "full_location": location,
         }
@@ -81,49 +83,38 @@ class PanelHandler(BaseCommandHandler):
             Formatted panel string
         """
         lines = []
-
-        # Top border
-        lines.append("┌" + "─" * 70 + "┐")
-
-        # Title
-        title = f"  📍 {location.name}"
-        lines.append(f"│ {title:<68} │")
-        lines.append("│ " + "─" * 68 + " │")
+        lines.append(OutputToolkit.banner("LOCATION PANEL"))
+        lines.append(f"Name: {location.name}")
+        lines.append("")
 
         # Metadata section
-        lines.append(
-            "│                                                                      │"
-        )
-        lines.append(f"│  Region:     {location.region:<50} │")
-        lines.append(f"│  Type:       {location.type} ({location.region_type:<42}) │")
-        lines.append(f"│  Layer:      L{location.layer} ({location.scale:<49}) │")
-        lines.append(f"│  Continent:  {location.continent:<50} │")
+        meta_rows = [
+            ["region", location.region],
+            ["type", f"{location.type} ({location.region_type})"],
+            ["layer", f"L{location.layer} ({location.scale})"],
+            ["continent", location.continent],
+        ]
+        lines.append(OutputToolkit.table(["field", "value"], meta_rows))
 
         # Geographic information
-        lines.append(
-            "│                                                                      │"
-        )
         lat_str = (
-            f"{location.coordinates.lat:.4f}°N"
+            f"{location.coordinates.lat:.4f}N"
             if location.coordinates.lat >= 0
-            else f"{abs(location.coordinates.lat):.4f}°S"
+            else f"{abs(location.coordinates.lat):.4f}S"
         )
         lon_str = (
-            f"{location.coordinates.lon:.4f}°E"
+            f"{location.coordinates.lon:.4f}E"
             if location.coordinates.lon >= 0
-            else f"{abs(location.coordinates.lon):.4f}°W"
+            else f"{abs(location.coordinates.lon):.4f}W"
         )
-        lines.append(f"│  📌 Coordinates: {lat_str}, {lon_str:<43} │")
-        lines.append(f"│  🌍 Timezone:    {location.timezone:<51} │")
-        lines.append(f"│  🕐 Local Time:  {time_str:<51} │")
+        lines.append("")
+        lines.append(f"Coordinates: {lat_str}, {lon_str}")
+        lines.append(f"Timezone: {location.timezone}")
+        lines.append(f"Local Time: {time_str}")
 
         # Description section
-        lines.append(
-            "│                                                                      │"
-        )
-        lines.append(
-            "│  Description:                                                        │"
-        )
+        lines.append("")
+        lines.append("Description:")
 
         # Wrap description
         desc = location.description
@@ -132,15 +123,11 @@ class PanelHandler(BaseCommandHandler):
 
         wrapped = self._wrap_text(desc, 66)
         for line in wrapped:
-            lines.append(f"│  {line:<66} │")
+            lines.append(f"  {line}")
 
         # Connections section
-        lines.append(
-            "│                                                                      │"
-        )
-        lines.append(
-            "│  🚪 Exits (Connected Locations):                                     │"
-        )
+        lines.append("")
+        lines.append("Exits:")
 
         if location.connections:
             for i, conn in enumerate(
@@ -148,36 +135,24 @@ class PanelHandler(BaseCommandHandler):
             ):  # Show up to 5 connections
                 direction = conn.direction.capitalize()
                 label = conn.label[:50]  # Truncate long labels
-                lines.append(f"│     {direction:6} → {label:<57} │")
+                lines.append(f"  {direction:6} -> {label}")
 
             if len(location.connections) > 5:
                 remaining = len(location.connections) - 5
-                lines.append(
-                    f"│     ... and {remaining} more connection(s)                          │"
-                )
+                lines.append(f"  ... and {remaining} more connection(s)")
         else:
-            lines.append(
-                "│     (No connections)                                                 │"
-            )
+            lines.append("  (No connections)")
 
         # Tile markers count
-        lines.append(
-            "│                                                                      │"
-        )
         tile_count = len(location.tiles)
         marker_count = sum(len(t.markers) for t in location.tiles.values())
         sprite_count = sum(len(t.sprites) for t in location.tiles.values())
         obj_count = sum(len(t.objects) for t in location.tiles.values())
 
+        lines.append("")
         lines.append(
-            f"│  📦 Grid Content: {tile_count} cells, {sprite_count} sprites, {obj_count} objects       │"
+            f"Grid Content: {tile_count} cells, {sprite_count} sprites, {obj_count} objects"
         )
-
-        # Bottom border
-        lines.append(
-            "│                                                                      │"
-        )
-        lines.append("└" + "─" * 70 + "┘")
 
         return "\n".join(lines)
 

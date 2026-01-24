@@ -51,7 +51,7 @@ wizard/
 │   ├── vscode_bridge.py       # VS Code extension bridge
 │   ├── mistral_vibe.py        # Vibe CLI context/log analysis
 │   ├── block_mapper.py        # Markdown↔Notion mapping
-│   ├── binder_compiler.py     # Binder compilation (md/json/pdf/brief)
+│   ├── (core) binder/compiler.py # Binder compilation (md/json/pdf/brief)
 │   ├── notion_sync_service.py # Webhook queue, signature verification
 │   ├── sync_executor.py       # Sync queue processing to local mirrors
 │   ├── task_scheduler.py      # Organic cron scheduling

@@ -191,7 +191,7 @@ class GitHubClient:
                 "pushed_at": "2026-01-14T...",
                 "size": 12345,
                 "stargazers_count": 42,
-                "topics": ["offline-first", "tinycore"]
+                "topics": ["offline-first", "alpine"]
             }
         """
         data = self._make_request("GET", f"/repos/{owner}/{repo}")

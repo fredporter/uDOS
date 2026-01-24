@@ -174,7 +174,7 @@ Start all servers for development:
 **Terminal 4 - App (optional):**
 
 ```bash
-cd dev/app && npm run tauri dev
+cd app/src && npm run tauri dev
 ```
 
 **Access:**

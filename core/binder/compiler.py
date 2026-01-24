@@ -1,65 +1,63 @@
 """
-Binder Compiler Service (Wizard)
+Binder Compiler Service (Core)
 
 Compiles multi-chapter knowledge binders to multiple formats:
 - Markdown
 - JSON
-- PDF (pandoc if available)
+- PDF (optional via injected command runner)
 - Dev brief (Markdown + YAML frontmatter)
 """
 
 import hashlib
-import logging
-import sqlite3
-import subprocess
 import re
+import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import yaml
 
-from wizard.services.path_utils import get_repo_root
-from wizard.services.logging_manager import get_logger
+from core.services.logging_manager import get_logger, get_repo_root
+from core.services.sqlite_manager import SQLiteManager
 
-logger = get_logger("wizard.binder")
+logger = get_logger("core.binder")
+
+CommandRunner = Callable[..., Any]
 
 
 class BinderCompiler:
     """Compile multi-format binder outputs."""
 
     def __init__(
-        self, db_path: Optional[Path] = None, config: Optional[Dict[str, Any]] = None
+        self,
+        db_path: Optional[Path] = None,
+        config: Optional[Dict[str, Any]] = None,
+        command_runner: Optional[CommandRunner] = None,
     ):
         repo_root = get_repo_root()
-        default_db = repo_root / "memory" / "wizard" / "binders.db"
+        self.config = config or {}
+
+        default_db = repo_root / "memory" / "binders" / "binders.db"
         if db_path is None:
-            db_path = default_db
+            db_path = self.config.get("db_path", default_db)
 
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
-        self.config = config or {}
         self.output_dir = Path(
-            self.config.get("output_dir", repo_root / "memory" / "wizard" / "binders")
+            self.config.get("output_dir", repo_root / "memory" / "binders")
         )
         self.formats = self.config.get("formats", ["markdown", "json"])
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
+        self._command_runner = command_runner
         self._init_db()
         logger.info(
-            f"[WIZ] Binder compiler ready (db={self.db_path}, out={self.output_dir})"
+            f"[LOCAL] Binder compiler ready (db={self.db_path}, out={self.output_dir})"
         )
 
     def _init_db(self) -> None:
-        schema_path = Path(__file__).parent / "schemas" / "binder_schema.sql"
-        if not schema_path.exists():
-            return
-        conn = sqlite3.connect(str(self.db_path))
-        cursor = conn.cursor()
-        cursor.executescript(schema_path.read_text())
-        conn.commit()
-        conn.close()
+        SQLiteManager.init_db("binder_compiler", self.db_path)
 
     async def compile_binder(
         self, binder_id: str, formats: Optional[List[str]] = None
@@ -67,7 +65,7 @@ class BinderCompiler:
         if formats is None:
             formats = self.formats
 
-        logger.info(f"[WIZ] Compiling binder {binder_id} -> {formats}")
+        logger.info(f"[LOCAL] Compiling binder {binder_id} -> {formats}")
         chapters = await self.get_chapters(binder_id)
         outputs: List[Dict[str, Any]] = []
 
@@ -104,7 +102,7 @@ class BinderCompiler:
         return f"{prefix}_{secrets.token_hex(6)}"
 
     def _calculate_word_count(self, text: str) -> int:
-        text = re.sub(r"[#*`\[\]()]", "", text)
+        text = re.sub(r"[#*`\\[\\]()]", "", text)
         return len(text.split())
 
     def _calculate_checksum(self, file_path: Path) -> str:
@@ -133,7 +131,7 @@ class BinderCompiler:
             conn.close()
             return rows
         except Exception as exc:
-            logger.error(f"[WIZ] Failed to load chapters: {exc}")
+            logger.error(f"[LOCAL] Failed to load chapters: {exc}")
             return []
 
     async def add_chapter(
@@ -183,7 +181,7 @@ class BinderCompiler:
                 "title": title,
             }
         except Exception as exc:
-            logger.error(f"[WIZ] Add chapter failed: {exc}")
+            logger.error(f"[LOCAL] Add chapter failed: {exc}")
             return {"status": "error", "error": str(exc)}
 
     async def update_chapter(
@@ -223,8 +221,51 @@ class BinderCompiler:
                 "updated_at": datetime.now().isoformat(),
             }
         except Exception as exc:
-            logger.error(f"[WIZ] Update chapter failed: {exc}")
+            logger.error(f"[LOCAL] Update chapter failed: {exc}")
             return {"status": "error", "error": str(exc)}
+
+    async def get_binders(self, outputs_limit: int = 5) -> List[Dict[str, Any]]:
+        """Return binder summaries with recent outputs."""
+        try:
+            conn = sqlite3.connect(str(self.db_path))
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT id, name, status, total_chapters, total_words, created_at, updated_at
+                FROM binder_summary
+                ORDER BY updated_at DESC
+                """
+            )
+            binders = [dict(row) for row in cursor.fetchall()]
+
+            for binder in binders:
+                cursor.execute(
+                    """
+                    SELECT format, file_path, file_size, checksum, compiled_at
+                    FROM outputs
+                    WHERE binder_id = ?
+                    ORDER BY compiled_at DESC
+                    LIMIT ?
+                    """,
+                    (binder["id"], outputs_limit),
+                )
+                outputs = [dict(row) for row in cursor.fetchall()]
+                binder["outputs"] = [
+                    {
+                        "format": output.get("format"),
+                        "path": output.get("file_path"),
+                        "size_bytes": output.get("file_size"),
+                        "checksum": output.get("checksum"),
+                        "created_at": output.get("compiled_at"),
+                    }
+                    for output in outputs
+                ]
+            conn.close()
+            return binders
+        except Exception as exc:
+            logger.error(f"[LOCAL] Failed to load binders: {exc}")
+            return []
 
     async def _compile_markdown(
         self, binder_id: str, chapters: List[Dict[str, Any]]
@@ -282,7 +323,7 @@ class BinderCompiler:
                 "checksum": checksum,
             }
         except Exception as exc:
-            logger.error(f"[WIZ] Markdown compile failed: {exc}")
+            logger.error(f"[LOCAL] Markdown compile failed: {exc}")
             return None
 
     async def _compile_json(
@@ -324,16 +365,20 @@ class BinderCompiler:
                 "checksum": checksum,
             }
         except Exception as exc:
-            logger.error(f"[WIZ] JSON compile failed: {exc}")
+            logger.error(f"[LOCAL] JSON compile failed: {exc}")
             return None
 
     async def _compile_pdf(
         self, binder_id: str, chapters: List[Dict[str, Any]]
     ) -> Optional[Dict[str, Any]]:
+        if self._command_runner is None:
+            logger.warning("[LOCAL] PDF generation disabled (no command runner)")
+            return None
+
         try:
-            subprocess.run(["which", "pandoc"], check=True, capture_output=True)
-        except subprocess.CalledProcessError:
-            logger.warning("[WIZ] pandoc not found - skipping PDF generation")
+            self._command_runner(["which", "pandoc"], check=True, capture_output=True)
+        except Exception:
+            logger.warning("[LOCAL] pandoc not found - skipping PDF generation")
             return None
 
         md_output = await self._compile_markdown(binder_id, chapters)
@@ -344,13 +389,13 @@ class BinderCompiler:
         pdf_path = Path(self.output_dir) / f"{binder_id}.pdf"
 
         try:
-            subprocess.run(
+            self._command_runner(
                 ["pandoc", str(md_path), "-o", str(pdf_path)],
                 check=True,
                 capture_output=True,
             )
-        except subprocess.CalledProcessError as exc:
-            logger.error(f"[WIZ] PDF generation failed: {exc.stderr}")
+        except Exception as exc:
+            logger.error(f"[LOCAL] PDF generation failed: {exc}")
             return None
 
         file_size = pdf_path.stat().st_size
@@ -415,7 +460,7 @@ class BinderCompiler:
                 "checksum": checksum,
             }
         except Exception as exc:
-            logger.error(f"[WIZ] Brief compile failed: {exc}")
+            logger.error(f"[LOCAL] Brief compile failed: {exc}")
             return None
 
     def _slugify(self, text: str) -> str:

@@ -17,7 +17,7 @@ This document consolidates all active development streams across Core, Wizard, G
 ### Stream 1: Core Runtime (TypeScript Markdown + Grid)
 
 **Owner:** Core (`/core/`)  
-**Status:** v1.0.7.0 — In Planning  
+**Status:** v1.0.7.0 — Active build  
 **Timeline:** 4-6 weeks
 
 **Components:**
@@ -27,12 +27,13 @@ This document consolidates all active development streams across Core, Wizard, G
    - Runtime blocks: `state`, `set`, `form`, `if/else`, `nav`, `panel`, `map`
    - Variable interpolation in Markdown text
    - SQLite DB binding (read-only)
+   - Core execution via Node runner (parse + execute)
    - Deterministic execution model
 
 2. **Grid Runtime + Spatial Computing**
    - Fractal addressing (L###-Cell pattern)
    - Layer bands (SUR/UDN/SUB)
-   - Viewport rendering (80×30 canonical)
+   - Viewport rendering (80x30 canonical, 40x15 mini)
    - Tile system (16×24 pixels, 5-bit palette)
    - Sextant/quadrant/ASCII fallback rendering
    - Sprite animation support
@@ -45,13 +46,27 @@ This document consolidates all active development streams across Core, Wizard, G
    - SQL executor
    - RSS feed generation
 
+4. **Binder + Dataset Operations (Core)**
+   - Binder compile and chapters (Markdown/JSON/PDF/brief)
+   - SQLite-backed binder metadata
+   - Dataset validation/build/regen (80x30)
+   - Unified locations dataset output
+
+5. **TUI Output Toolkit**
+   - ASCII banners, tables, checklists, map render
+   - Consistent handler output formatting
+   - SmartPrompt and selector framework integration
+
 **Key Deliverables:**
 
 - ✅ Specs moved to `/docs/specs/`
 - ✅ Examples moved to `/docs/examples/`
-- 🔲 Core runtime implementation
-- 🔲 Grid viewport renderer
-- 🔲 File parser integration
+- ✅ Binder compiler moved to Core
+- ✅ Dataset manager + regen tools
+- ✅ Output toolkit (ASCII-first)
+- 🔲 Core runtime implementation (full TS runtime support)
+- 🔲 Grid viewport renderer (beyond base map render)
+- 🔲 File parser integration (CSV/JSON/YAML/SQL)
 
 **References:**
 
@@ -80,10 +95,10 @@ This document consolidates all active development streams across Core, Wizard, G
 2. **Workflow & Project Management**
    - Project/Mission container system
    - Organic cron scheduler
-   - Provider rotation (Ollama → OpenRouter escalation)
+   - Provider rotation (Ollama -> OpenRouter escalation)
    - Daily quota pacing
    - Task graph dependencies
-   - Binder compilation pipeline
+   - Binder compilation uses Core services
 
 3. **Integration Handlers (Phase 6B-6D)**
    - HubSpot CRM sync (Phase 6B, 2 weeks)
@@ -124,10 +139,8 @@ This document consolidates all active development streams across Core, Wizard, G
 **Active Features:**
 
 1. **Binder Compiler**
-   - Multi-chapter generation
-   - Format exports (Markdown, PDF, JSON)
-   - Knowledge synthesis
-   - Dev briefs compilation
+   - Graduated to Core for production usage
+   - Goblin dev routes should call Core binder services
 
 2. **Screwdriver Provisioner**
    - Device flash pack creation
@@ -157,7 +170,7 @@ This document consolidates all active development streams across Core, Wizard, G
 
 ### Stream 4: App Development (Tauri + Future Native)
 
-**Owner:** App (`/dev/app/`)  
+**Owner:** App (`/app/`)  
 **Status:** v1.0.3.0 — Active Development  
 **Timeline:** 8-12 weeks
 
@@ -196,6 +209,11 @@ This document consolidates all active development streams across Core, Wizard, G
    - Typeform-style forms
    - Sandboxed script execution (Phase 2)
 
+6. **Migration to /app**
+   - Public scaffold with private submodule at /app/src
+   - Dev launchers and docs (App Store + Xcode prep)
+   - macOS integration stubs (file dialogs, notifications, keychain)
+
 **Key Deliverables:**
 
 - 🔲 Typo editor core
@@ -204,6 +222,7 @@ This document consolidates all active development streams across Core, Wizard, G
 - 🔲 Emoji system
 - 🔲 uCode renderer
 - 🔲 Marp/form modes
+- 🔲 /app migration and submodule wiring
 
 **References:**
 

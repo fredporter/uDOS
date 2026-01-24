@@ -46,6 +46,15 @@ curl -X POST http://localhost:8765/api/v1/config/assistant_keys/reset
 - `slack_keys.json` — Slack bot token and secrets
 - `wizard.json` — Server settings and policies
 
+### File Locations (wizard.json)
+
+The `file_locations` section controls where Wizard stores local data:
+
+- `memory_root` — Default location for `memory/` (relative to repo root or absolute path)
+- `repo_root` — Repo root override (`auto` uses uDOS.py marker)
+- `repo_root_actual` — Read-only, detected local uDOS root
+- `memory_root_actual` — Read-only, resolved local memory path
+
 ### Templates in Public Repo
 
 - `*_keys.example.json` — Full working example with all required fields

@@ -7,14 +7,15 @@ This directory contains **tool container definitions** - manifest files (contain
 
 ## 📚 Library Organization
 
-| Path | Purpose | Git Tracked | Distribution |
-|------|---------|-------------|--------------|
-| **`/library/`** | Local clones of external repos (development reference) | ❌ No | Never distributed |
-| **`/public/library/`** | uDOS container definitions (manifests + setup scripts) | ✅ Yes | Public repo |
+| Path                   | Purpose                                                | Git Tracked | Distribution      |
+| ---------------------- | ------------------------------------------------------ | ----------- | ----------------- |
+| **`/library/`**        | Local clones of external repos (development reference) | ❌ No       | Never distributed |
+| **`/public/library/`** | uDOS container definitions (manifests + setup scripts) | ✅ Yes      | Public repo       |
 
 **Examples:**
+
 - `/library/gtx-form/` — Local clone of raibove/gtx-form (gitignored, dev reference)
-- `/library/home-assistant/` — Local clone of home-assistant/core (gitignored, dev reference)  
+- `/library/home-assistant/` — Local clone of home-assistant/core (gitignored, dev reference)
 - `/public/library/marp/` — uDOS container definition for Marp (tracked, distributed)
 - `/public/library/micro/` — uDOS container definition for Micro editor (tracked, distributed)
 
@@ -25,6 +26,7 @@ This directory contains **tool container definitions** - manifest files (contain
 When a tool graduates from local experimentation to public distribution:
 
 ### Phase 1: Local Experimentation (Private Repo Only)
+
 ```bash
 # Clone external repo for testing
 cd /library/
@@ -36,6 +38,7 @@ cd tool/
 **Status:** Tool in `/library/tool/` (gitignored, not distributed)
 
 ### Phase 2: Create Container Definition (Public Distribution)
+
 ```bash
 # Create public container definition
 mkdir -p /public/library/tool/
@@ -67,6 +70,7 @@ EOF
 **Status:** Tool definition in `/public/library/tool/` (tracked, distributed)
 
 ### Phase 3: Test via Wizard (Production Path)
+
 ```bash
 # Wizard Server clones from upstream, packages, distributes
 WIZARD INSTALL tool          # Tests full download → install workflow
@@ -74,6 +78,7 @@ TOOL --version               # Verifies integration works
 ```
 
 ### Phase 4: Commit and Distribute
+
 ```bash
 # Commit container definition (NOT the cloned repo)
 git add public/library/tool/
@@ -90,28 +95,37 @@ git push origin main
 
 ## 📦 Resource Types
 
-| Type | Location | Git Status | Purpose |
-|------|----------|------------|---------|
-| **OS Images** | `os-images/` | Gitignored | TinyCore.iso, other bootable images |
-| **Code Containers** | `containers/` | Gitignored | Cloned GitHub repos |
-| **Packages** | `packages/` | Gitignored | Built TCZ/distribution packages |
-| **Templates** | `templates/` | Tracked | Manifest templates, schemas |
+| Type                | Location      | Git Status | Purpose                                   |
+| ------------------- | ------------- | ---------- | ----------------------------------------- |
+| **OS Images**       | `os-images/`  | Gitignored | ⚠️ DEPRECATED: TinyCore ISOs (use Alpine) |
+| **Code Containers** | `containers/` | Gitignored | Cloned GitHub repos                       |
+| **Packages**        | `packages/`   | Gitignored | Built APK packages (Alpine)               |
+| **Templates**       | `templates/`  | Tracked    | Manifest templates, schemas               |
 
-## 🐧 TinyCore Images
+## ⚠️ DEPRECATED: TinyCore Images
+
+**Status:** DEPRECATED — Use Alpine Linux instead  
+**Migration:** See [docs/decisions/ADR-0003-alpine-linux-migration.md](../docs/decisions/ADR-0003-alpine-linux-migration.md)
 
 ```
-library/os-images/
-├── TinyCore-current.iso      # Latest TinyCore (gitignored)
-├── Core-current.iso          # Minimal Core (gitignored)
-├── CorePlus-current.iso      # CorePlus with X11 (gitignored)
-└── checksums.json            # SHA256 checksums (tracked)
+library/tinycore/              # ⚠️ Deprecated
+├── DEPRECATED.md             # Migration guide
+├── README.md                 # Archived documentation
+├── TinyCore-current.iso      # (not needed for Alpine)
+└── setup.py                  # (use Alpine installer instead)
 ```
 
-**Download:**
+**For Alpine Linux:**
+
 ```bash
-WIZARD DOWNLOAD tinycore       # Downloads TinyCore-current.iso
-WIZARD DOWNLOAD coreplus       # Downloads CorePlus-current.iso
+# Install from APK repository
+apk add udos-core
+
+# Or use installer script
+./bin/install.sh
 ```
+
+See: [docs/howto/alpine-install.md](../docs/howto/alpine-install.md)
 
 ---
 
@@ -159,6 +173,7 @@ WIZARD DOWNLOAD coreplus       # Downloads CorePlus-current.iso
 | Handler | `core/commands/mesh_handler.py` | TUI commands |
 
 **Installation (Wizard Server):**
+
 ```bash
 # Clone official repo (Wizard has web access)
 git clone https://github.com/meshcore-dev/MeshCore extensions/cloned/meshcore
@@ -203,12 +218,14 @@ python extensions/setup/install_meshcore.py --install
 **Container Location:** `wizard/library/piper/`
 
 **Features:**
+
 - ⚡ ~10x real-time synthesis on Raspberry Pi 4
 - 🌍 30+ languages, multiple voice models
 - 🔒 Completely offline
 - 📦 Small models (16MB - 100MB per voice)
 
 **TUI Commands:**
+
 ```bash
 VOICE SAY "Hello world"              # Speak text
 VOICE MODEL en_US-lessac-medium      # Set voice
@@ -227,6 +244,7 @@ VOICE VOICES                         # List voices
 **Container Location:** `wizard/library/handy/`
 
 **Features:**
+
 - 🆓 Free, open source (MIT)
 - 🔒 Private - voice never leaves device
 - 🎯 Voice Activity Detection (Silero VAD)
@@ -240,6 +258,7 @@ VOICE VOICES                         # List voices
 | Whisper | Large | 1.1GB | GPU, best quality |
 
 **TUI Commands:**
+
 ```bash
 VOICE LISTEN                    # Start listening
 VOICE LISTEN -t 30              # Listen 30 seconds
@@ -271,6 +290,7 @@ VOICE SAY "I heard: $(input)"
 **Container Location:** `wizard/library/songscribe/`
 
 **Features:**
+
 - 🎵 Audio upload or YouTube URL input
 - 🎸 ML-powered instrument separation (Moseca/Demucs)
 - 🎹 Audio-to-MIDI conversion (Spotify Basic Pitch)
@@ -287,6 +307,7 @@ VOICE SAY "I heard: $(input)"
 | Full Band | 6 | Complex arrangements |
 
 **TUI Commands:**
+
 ```bash
 MUSIC TRANSCRIBE song.mp3           # Full transcription
 MUSIC SEPARATE song.mp3 --preset full_band
@@ -295,6 +316,7 @@ MUSIC IMPORT transcription.mid      # Import to Groovebox
 ```
 
 **Groovebox Integration:**
+
 ```
 Audio → Songscribe → MIDI → Groovebox → MML Patterns
 ```
@@ -355,7 +377,7 @@ Each container should have a `container.json`:
 {
   "container": {
     "id": "meshcore",
-    "name": "MeshCore Mesh Networking", 
+    "name": "MeshCore Mesh Networking",
     "type": "git",
     "source": "https://github.com/meshcore-dev/MeshCore",
     "ref": "main",
@@ -408,10 +430,11 @@ extensions/cloned/
 - **TCZ packaging:** Containers packaged as TCZ for Tiny Core
 
 **See Also:**
+
 - [Credits & Acknowledgments](../wiki/CREDITS.md) - All library credits and licenses
 - [WIZARD-PLUGIN-SYSTEM.md](../../dev/roadmap/WIZARD-PLUGIN-SYSTEM.md)
 - [CODE-CONTAINER.md](../transport/meshcore/CODE-CONTAINER.md)
 
 ---
 
-*Last Updated: 2026-01-07 (Alpha v1.0.0.68)*
+_Last Updated: 2026-01-07 (Alpha v1.0.0.68)_

@@ -24,6 +24,7 @@
 - [TypeScript Markdown Runtime](specs/typescript-markdown-runtime.md) — State, blocks, execution model
 - [Grid & Spatial Computing](specs/grid-spatial-computing.md) — Fractal addressing, layers, viewports, tiles
 - [File Parsing Architecture](specs/file-parsing-architecture.md) — CSV, JSON, YAML, SQL, Markdown tables
+- [Core Runtime Status](specs/core-runtime-status.md) — Command set, runtime state, gaps
 
 ### Wizard Server
 
@@ -71,12 +72,20 @@ Chronological development notes organized by month (YYYY-MM.md format).
 - [Development Streams](development-streams.md) — Feature planning
 - Private submodule decisions in `/dev/docs/`
 
+### Wizard↔Core Integration
+
+- Alpine-style packaging: plugins and tools are distributed via Wizard-managed `apk` or plugin bundles.
+- Distribution: Wizard handles packaging, publishing, and quota-aware updates; Core remains offline-first.
+- Plugin registry: Wizard exposes an extensions repository; Core installs/activates via handlers.
+- Local library management: public definitions in `/library/`, promoted from `/dev/library/` after validation.
+- Versioning: all components use `python -m core.version`; never hardcode versions.
+
 ### Component-Specific Docs
 
 - **Core:** `/core/docs/` — TUI, handlers, services
 - **Wizard:** `/wizard/docs/` — Server architecture, APIs
 - **Goblin:** `/dev/goblin/docs/` — Experimental features
-- **App:** `/dev/app/docs/` — Tauri app, UI components
+- **App:** `/app/docs/` — Tauri app, UI components (public scaffold)
 
 ---
 
@@ -108,11 +117,11 @@ Chronological development notes organized by month (YYYY-MM.md format).
 
 | Component | Version  | Status             |
 | --------- | -------- | ------------------ |
-| Core      | v1.1.0.0 | Stable             |
-| API       | v1.1.0.0 | Stable             |
-| Wizard    | v1.1.0.0 | Stable             |
+| Core      | v1.1.1.1 | Dev                |
+| API       | v1.0.1.0 | Alpha              |
+| Wizard    | v1.1.0.2 | Alpha              |
 | Goblin    | v0.2.0.0 | Experimental       |
-| App       | v1.0.3.0 | Active Development |
+| App       | v1.0.6.1 | Alpha              |
 | TUI       | v1.0.0.0 | Stable             |
 
 ---

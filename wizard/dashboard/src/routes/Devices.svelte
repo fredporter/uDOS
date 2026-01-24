@@ -68,7 +68,7 @@
     const icons = {
       desktop: "🖥️",
       mobile: "📱",
-      tinycore: "🐧",
+      alpine: "🐧",
     };
     return icons[type] || "💻";
   }

@@ -36,6 +36,7 @@ from collections import deque
 from wizard.services.ai_gateway import AIRequest, AIGateway
 from wizard.services.logging_manager import get_logging_manager
 from wizard.services.path_utils import get_repo_root
+from wizard.services.secret_store import get_secret_store, SecretStoreError
 
 # Optional FastAPI (only on Wizard Server)
 try:
@@ -91,6 +92,7 @@ class WizardConfig:
 
     # GitHub integration
     github_webhook_secret: Optional[str] = None
+    github_webhook_secret_key_id: Optional[str] = None
     github_allowed_repo: str = "fredporter/uDOS-dev"
     github_default_branch: str = "main"
     github_push_enabled: bool = False
@@ -411,6 +413,34 @@ class WizardServer:
     def _register_routes(self, app: FastAPI):
         """Register API routes."""
 
+        def _get_webhook_secret() -> Optional[str]:
+            """Resolve GitHub webhook secret from secret store or config."""
+            # Prefer secret store via key-id
+            key_id = self.config.github_webhook_secret_key_id
+            if key_id:
+                try:
+                    store = get_secret_store()
+                    store.unlock()  # uses WIZARD_KEY env or peer
+                    entry = store.get(key_id)
+                    if entry and entry.value:
+                        return entry.value
+                except SecretStoreError:
+                    return None
+            # Strict: no fallback to plaintext config; require secret store
+            return None
+
+        def _verify_signature(
+            body: bytes, signature_header: Optional[str], secret: Optional[str]
+        ) -> bool:
+            """Verify GitHub HMAC-SHA256 signature ('sha256=...'). Requires secret."""
+            if not secret:
+                return False
+            if not signature_header or not signature_header.startswith("sha256="):
+                return False
+            digest = hmac.new(secret.encode("utf-8"), body, hashlib.sha256).hexdigest()
+            expected = f"sha256={digest}"
+            return hmac.compare_digest(expected, signature_header)
+
         @app.get("/health")
         async def health_check():
             """Health check endpoint."""
@@ -436,6 +466,17 @@ class WizardServer:
             os_info = system_service.get_os_info()
             library_status = system_service.get_library_status()
             log_stats = self.logging_manager.get_log_stats()
+
+            # Derive library counts from available status fields
+            available_count = len(
+                [
+                    i
+                    for i in library_status.integrations
+                    if i.can_install and not i.installed
+                ]
+            )
+            installed_count = library_status.installed_count
+            enabled_count = library_status.enabled_count
 
             return {
                 "dashboard": {
@@ -469,12 +510,38 @@ class WizardServer:
                 "os": os_info.to_dict(),
                 "library": {
                     "total": library_status.total_integrations,
-                    "available": library_status.available_integrations,
-                    "installed": library_status.installed_integrations,
-                    "enabled": library_status.enabled_integrations,
+                    "available": available_count,
+                    "installed": installed_count,
+                    "enabled": enabled_count,
                 },
                 "log_stats": log_stats,
             }
+
+        @app.get("/api/v1/github/health")
+        async def github_health():
+            """GitHub integration health: CLI, webhook secret, repo settings."""
+            try:
+                from wizard.services.github_integration import GitHubIntegration
+
+                gh = GitHubIntegration()
+                secret_present = bool(_get_webhook_secret())
+                return {
+                    "status": "ok" if gh.available else "unavailable",
+                    "cli": {
+                        "available": gh.available,
+                        "error": gh.error_message,
+                    },
+                    "webhook": {
+                        "secret_configured": secret_present,
+                    },
+                    "repo": {
+                        "allowed": self.config.github_allowed_repo,
+                        "default_branch": self.config.github_default_branch,
+                        "push_enabled": self.config.github_push_enabled,
+                    },
+                }
+            except Exception as exc:
+                return {"status": "error", "error": str(exc)}
 
         @app.get("/api/v1/system/stats")
         async def system_stats():
@@ -601,11 +668,13 @@ class WizardServer:
             signature = request.headers.get("X-Hub-Signature-256")
 
             raw_body = await request.body()
-            if self.config.github_webhook_secret:
-                if not self._verify_signature(
-                    raw_body, signature, self.config.github_webhook_secret
-                ):
-                    raise HTTPException(status_code=401, detail="invalid signature")
+            secret = _get_webhook_secret()
+            if not secret:
+                raise HTTPException(
+                    status_code=503, detail="webhook secret not configured"
+                )
+            if not _verify_signature(raw_body, signature, secret):
+                raise HTTPException(status_code=401, detail="invalid signature")
 
             try:
                 payload = json.loads(raw_body.decode("utf-8")) if raw_body else {}

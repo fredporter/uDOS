@@ -4,6 +4,7 @@ from typing import List, Dict
 from pathlib import Path
 import subprocess
 from core.commands.base import BaseCommandHandler
+from core.tui.output import OutputToolkit
 
 # Dynamic project root detection
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -65,15 +66,18 @@ class RepairHandler(BaseCommandHandler):
             )
 
             if result.returncode == 0:
+                output = []
+                output.append(OutputToolkit.banner("REPAIR: GIT PULL"))
+                output.append(result.stdout or "Already up to date")
                 return {
                     "status": "success",
-                    "message": "✅ Repository synchronized",
-                    "output": result.stdout or "Already up to date",
+                    "message": "Repository synchronized",
+                    "output": "\n".join(output),
                 }
             else:
                 return {
                     "status": "error",
-                    "message": "❌ Git pull failed",
+                    "message": "Git pull failed",
                     "error": result.stderr,
                 }
         except Exception as e:
@@ -100,15 +104,19 @@ class RepairHandler(BaseCommandHandler):
             )
 
             if result.returncode == 0:
+                output = []
+                output.append(OutputToolkit.banner("REPAIR: DEPENDENCIES"))
+                output.append("Dependencies installed/verified")
+                output.append("Note: run this if you see import errors")
                 return {
                     "status": "success",
-                    "message": "✅ Dependencies installed/verified",
-                    "note": "Run this if you see import errors",
+                    "message": "Dependencies installed",
+                    "output": "\n".join(output),
                 }
             else:
                 return {
                     "status": "error",
-                    "message": "❌ Dependency installation failed",
+                    "message": "Dependency installation failed",
                     "error": result.stderr[-200:],  # Last 200 chars
                 }
         except subprocess.TimeoutExpired:
@@ -142,24 +150,33 @@ class RepairHandler(BaseCommandHandler):
 
         # Check venv
         venv_path = PROJECT_ROOT / ".venv"
-        checks["venv_active"] = "✅ Found" if venv_path.exists() else "❌ Not found"
+        checks["venv_active"] = "Found" if venv_path.exists() else "Not found"
 
         # Check git
         git_dir = PROJECT_ROOT / ".git"
-        checks["git_repo"] = "✅ Git repo" if git_dir.exists() else "❌ Not a git repo"
+        checks["git_repo"] = "Git repo" if git_dir.exists() else "Not a git repo"
 
         # Check core files
         core_dir = PROJECT_ROOT / "core"
         checks["core_files"] = (
-            f"✅ {len(list(core_dir.glob('**/*.py')))} Python files"
+            f"{len(list(core_dir.glob('**/*.py')))} Python files"
             if core_dir.exists()
-            else "❌ core/ not found"
+            else "core/ not found"
         )
+
+        rows = []
+        for key, value in checks.items():
+            rows.append([key, value])
+
+        output = []
+        output.append(OutputToolkit.banner("REPAIR: SYSTEM CHECK"))
+        output.append(OutputToolkit.table(["check", "result"], rows))
 
         return {
             "status": "success",
             "message": "System check complete",
             "checks": checks,
+            "output": "\n".join(output),
         }
 
     def _upgrade_all(self) -> Dict:
@@ -177,8 +194,13 @@ class RepairHandler(BaseCommandHandler):
         # Overall status
         if pull_result["status"] != "success" or install_result["status"] != "success":
             results["status"] = "partial"
-            results["message"] = "⚠️  Some steps had issues"
+            results["message"] = "Some steps had issues"
         else:
-            results["message"] = "✅ System upgraded successfully"
+            results["message"] = "System upgraded successfully"
 
+        output = []
+        output.append(OutputToolkit.banner("REPAIR: UPGRADE"))
+        output.append(f"Git pull: {pull_result.get('status')}")
+        output.append(f"Dependencies: {install_result.get('status')}")
+        results["output"] = "\n".join(output)
         return results
