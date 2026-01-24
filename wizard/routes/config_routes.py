@@ -17,9 +17,10 @@ import json
 import os
 import subprocess
 from pathlib import Path
-from typing import Dict, Any, Optional
-from fastapi import APIRouter, HTTPException, Depends, Request
-from fastapi.responses import JSONResponse
+from typing import Dict, Any, Optional, List
+from datetime import datetime
+from fastapi import APIRouter, HTTPException, Depends, Request, UploadFile, File
+from fastapi.responses import JSONResponse, FileResponse
 
 
 def create_config_routes(auth_guard=None):
@@ -529,5 +530,400 @@ def create_config_routes(auth_guard=None):
                 "Protect your private key with file permissions (700)",
             ],
         }
+
+    # ===== IMPORT/EXPORT SETTINGS =====
+    # Transfer settings between devices
+
+    EXPORT_DIR = Path(__file__).parent.parent.parent / "memory" / "config_exports"
+
+    @router.post("/export")
+    async def export_configs(body: Dict[str, Any]):
+        """Export selected configs to a transferable file.
+
+        Allows backing up or transferring settings to another device.
+
+        Request body:
+            {
+                "file_ids": ["wizard", "github_keys", ...],  # Configs to export
+                "include_secrets": false  # Whether to include API keys
+            }
+
+        Returns:
+            {
+                "success": true,
+                "filename": "udos-config-export-2026-01-24T15-30-45Z.json",
+                "path": "/path/to/file",
+                "size": 1234,
+                "timestamp": "2026-01-24T15:30:45Z",
+                "exported_configs": ["wizard", "github_keys"],
+                "warning": "⚠️ This file contains secrets. Keep it secure!"
+            }
+        """
+        try:
+            file_ids = body.get("file_ids", [])
+            include_secrets = body.get("include_secrets", False)
+
+            if not file_ids:
+                raise HTTPException(
+                    status_code=400, detail="No config files specified for export"
+                )
+
+            # Validate file_ids
+            invalid_ids = [fid for fid in file_ids if fid not in CONFIG_FILES]
+            if invalid_ids:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid config file IDs: {', '.join(invalid_ids)}",
+                )
+
+            # Create export directory
+            EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+
+            # Collect configs
+            export_data = {
+                "export_timestamp": datetime.utcnow().isoformat() + "Z",
+                "exported_from": "uDOS Wizard Server",
+                "version": "1.0",
+                "include_secrets": include_secrets,
+                "configs": {},
+            }
+
+            has_secrets = False
+
+            for file_id in file_ids:
+                filename = CONFIG_FILES[file_id]
+                file_path = CONFIG_PATH / filename
+
+                # Try actual file first
+                content = None
+                if file_path.exists():
+                    try:
+                        with open(file_path, "r") as f:
+                            content = json.load(f)
+                    except json.JSONDecodeError:
+                        pass
+
+                if content is None:
+                    # Try example
+                    example_path = CONFIG_PATH / filename.replace(
+                        ".json", ".example.json"
+                    )
+                    if example_path.exists():
+                        try:
+                            with open(example_path, "r") as f:
+                                content = json.load(f)
+                        except json.JSONDecodeError:
+                            pass
+
+                if content is None:
+                    # Try template
+                    template_path = CONFIG_PATH / filename.replace(
+                        ".json", ".template.json"
+                    )
+                    if template_path.exists():
+                        try:
+                            with open(template_path, "r") as f:
+                                content = json.load(f)
+                        except json.JSONDecodeError:
+                            pass
+
+                if content:
+                    # Filter secrets if not included
+                    if not include_secrets and file_id != "wizard":
+                        has_secrets = True
+                        # Keep structure but redact values
+                        content = {k: "***REDACTED***" for k in content.keys()}
+
+                    export_data["configs"][file_id] = {
+                        "filename": filename,
+                        "content": content,
+                    }
+
+            if not export_data["configs"]:
+                raise HTTPException(
+                    status_code=404, detail="No config files found to export"
+                )
+
+            # Write export file
+            timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%SZ")
+            export_filename = f"udos-config-export-{timestamp}.json"
+            export_path = EXPORT_DIR / export_filename
+
+            with open(export_path, "w") as f:
+                json.dump(export_data, f, indent=2)
+
+            warning = None
+            if has_secrets or include_secrets:
+                warning = "⚠️ This file contains secrets or redacted values. Keep it secure and never commit to git!"
+
+            return {
+                "success": True,
+                "filename": export_filename,
+                "path": str(export_path),
+                "size": export_path.stat().st_size,
+                "timestamp": export_data["export_timestamp"],
+                "exported_configs": list(export_data["configs"].keys()),
+                "include_secrets": include_secrets,
+                "warning": warning,
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Failed to export configs: {str(e)}"
+            )
+
+    @router.get("/export/list")
+    async def list_exports():
+        """List available export files."""
+        if not EXPORT_DIR.exists():
+            return {"exports": []}
+
+        exports = []
+        for export_file in sorted(
+            EXPORT_DIR.glob("udos-config-export-*.json"), reverse=True
+        ):
+            try:
+                stat = export_file.stat()
+                exports.append(
+                    {
+                        "filename": export_file.name,
+                        "path": str(export_file),
+                        "size": stat.st_size,
+                        "modified": datetime.fromtimestamp(stat.st_mtime).isoformat()
+                        + "Z",
+                    }
+                )
+            except Exception:
+                pass
+
+        return {"exports": exports}
+
+    @router.get("/export/{filename}")
+    async def download_export(filename: str):
+        """Download an export file.
+
+        Safety check: only allows downloading from export directory.
+        """
+        # Validate filename to prevent path traversal
+        if not filename.startswith("udos-config-export-") or not filename.endswith(
+            ".json"
+        ):
+            raise HTTPException(status_code=400, detail="Invalid export filename")
+
+        if ".." in filename:
+            raise HTTPException(status_code=400, detail="Invalid path")
+
+        export_path = EXPORT_DIR / filename
+
+        if not export_path.exists():
+            raise HTTPException(
+                status_code=404, detail=f"Export file not found: {filename}"
+            )
+
+        return FileResponse(
+            path=export_path,
+            filename=filename,
+            media_type="application/json",
+        )
+
+    @router.post("/import")
+    async def import_configs(file: UploadFile = File(...)):
+        """Import configs from an export file.
+
+        Validates and imports settings from a previously exported file.
+        Does NOT automatically overwrite existing configs - returns what would be imported.
+
+        Returns:
+            {
+                "success": true,
+                "preview": {
+                    "wizard": {...},
+                    "github_keys": {...}
+                },
+                "conflicts": ["wizard"],  # Configs that would overwrite
+                "timestamp": "2026-01-24T15:30:45Z"
+            }
+        """
+        try:
+            # Read upload file
+            content = await file.read()
+            import_data = json.loads(content.decode("utf-8"))
+
+            # Validate export file structure
+            if "configs" not in import_data:
+                raise ValueError("Invalid export file: missing 'configs' field")
+
+            if not isinstance(import_data["configs"], dict):
+                raise ValueError("Invalid export file: 'configs' must be an object")
+
+            # Check for conflicts
+            conflicts = []
+            preview = {}
+
+            for file_id, config_info in import_data["configs"].items():
+                if file_id not in CONFIG_FILES:
+                    continue  # Skip unknown configs
+
+                filename = CONFIG_FILES[file_id]
+                file_path = CONFIG_PATH / filename
+
+                # Check if file exists (conflict)
+                if file_path.exists():
+                    conflicts.append(file_id)
+
+                # Add to preview
+                preview[file_id] = {
+                    "filename": config_info.get("filename", filename),
+                    "has_content": "content" in config_info
+                    and bool(config_info["content"]),
+                    "is_redacted": all(
+                        v == "***REDACTED***"
+                        for v in config_info.get("content", {}).values()
+                        if isinstance(v, str)
+                    ),
+                }
+
+            return {
+                "success": True,
+                "preview": preview,
+                "conflicts": conflicts,
+                "timestamp": import_data.get("export_timestamp"),
+                "exported_from": import_data.get("exported_from"),
+                "message": (
+                    "Preview: Use POST /api/v1/config/import/apply to import these configs"
+                ),
+            }
+
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=400, detail="Invalid JSON in upload file")
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Failed to read import file: {str(e)}"
+            )
+
+    @router.post("/import/apply")
+    async def apply_import(body: Dict[str, Any]):
+        """Apply previously validated import.
+
+        Request body:
+            {
+                "file_ids": ["wizard", "github_keys", ...],
+                "overwrite_conflicts": false
+            }
+
+        This is a two-step process to prevent accidental overwrites:
+        1. POST /api/v1/config/import (validate)
+        2. POST /api/v1/config/import/apply (confirm)
+        """
+        raise HTTPException(
+            status_code=501,
+            detail="Import apply requires upload file context. Use chunked import instead.",
+        )
+
+    @router.post("/import/chunked")
+    async def import_configs_chunked(
+        file: UploadFile = File(...), body: Dict[str, Any] = None
+    ):
+        """Import and apply configs from export file in one operation.
+
+        Query params/body:
+            overwrite_conflicts: bool - Whether to overwrite existing configs
+            file_ids: list - Specific configs to import (optional, all by default)
+        """
+        try:
+            # Read upload file
+            content = await file.read()
+            import_data = json.loads(content.decode("utf-8"))
+
+            # Validate export file structure
+            if "configs" not in import_data:
+                raise ValueError("Invalid export file: missing 'configs' field")
+
+            overwrite_conflicts = False
+            if body:
+                overwrite_conflicts = body.get("overwrite_conflicts", False)
+
+            file_ids_to_import = None
+            if body:
+                file_ids_to_import = body.get("file_ids")
+
+            # Import configs
+            imported = []
+            skipped = []
+            errors = []
+
+            for file_id, config_info in import_data["configs"].items():
+                if file_id not in CONFIG_FILES:
+                    continue  # Skip unknown configs
+
+                # Check filter
+                if file_ids_to_import and file_id not in file_ids_to_import:
+                    continue
+
+                filename = CONFIG_FILES[file_id]
+                file_path = CONFIG_PATH / filename
+                content_to_write = config_info.get("content", {})
+
+                # Check for redacted values
+                is_redacted = all(
+                    v == "***REDACTED***"
+                    for v in content_to_write.values()
+                    if isinstance(v, str)
+                )
+
+                if is_redacted:
+                    skipped.append(
+                        {
+                            "file_id": file_id,
+                            "reason": "Config was redacted during export. Use full export to transfer secrets.",
+                        }
+                    )
+                    continue
+
+                # Check for conflicts
+                if file_path.exists() and not overwrite_conflicts:
+                    skipped.append(
+                        {
+                            "file_id": file_id,
+                            "reason": "Config already exists. Use overwrite_conflicts=true to replace.",
+                        }
+                    )
+                    continue
+
+                try:
+                    # Write config
+                    file_path.parent.mkdir(parents=True, exist_ok=True)
+                    with open(file_path, "w") as f:
+                        json.dump(content_to_write, f, indent=2)
+
+                    imported.append(file_id)
+                except Exception as e:
+                    errors.append({"file_id": file_id, "error": str(e)})
+
+            return {
+                "success": len(errors) == 0,
+                "imported": imported,
+                "skipped": skipped,
+                "errors": errors,
+                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "message": (
+                    f"Imported {len(imported)} config(s)"
+                    if imported
+                    else "No configs imported"
+                ),
+            }
+
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=400, detail="Invalid JSON in upload file")
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Failed to import configs: {str(e)}"
+            )
 
     return router

@@ -1,9 +1,9 @@
 {
   "component": "core",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "status": "development",
   "location": "core/",
-  "description": "Lean TypeScript Runtime for markdown script execution",
+  "description": "Lean TypeScript Runtime for markdown script execution + ANSI pattern generator",
   "features": [
     "Markdown parsing (frontmatter + blocks)",
     "State management (variables, objects, arrays)",
@@ -13,8 +13,11 @@
     "Panels (ASCII/teletext rendering)",
     "Maps (viewport rendering with sprites)",
     "SQLite binding (optional, read-only)",
-    "Variable interpolation in text"
+    "Variable interpolation in text",
+    "ANSI pattern generator (C64, chevrons, scanlines, raster, progress, mosaic)",
+    "PATTERN command (interactive pattern display and cycling)"
   ],
   "created_at": "2026-01-16",
-  "notes": "Fresh lean runtime - execute example scripts immediately"
+  "updated_at": "2026-01-24",
+  "notes": "Added ANSI pattern generator service and PATTERN command for visual feedback"
 }

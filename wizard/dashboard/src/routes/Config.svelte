@@ -119,6 +119,17 @@
   let showProviders = false;
   let isLoadingProviders = false;
 
+  // Import/Export
+  let showExportModal = false;
+  let showImportModal = false;
+  let selectedExportFiles = new Set();
+  let exportIncludeSecrets = false;
+  let isExporting = false;
+  let isImporting = false;
+  let importFile = null;
+  let importPreview = null;
+  let importConflicts = [];
+
   onMount(async () => {
     await loadFileList();
     await loadProviders();
@@ -293,6 +304,170 @@
     }
   }
 
+  // Import/Export Functions
+
+  function toggleExportModal() {
+    showExportModal = !showExportModal;
+    if (showExportModal) {
+      // Pre-select all files by default
+      selectedExportFiles = new Set(Object.keys(configFiles));
+    }
+  }
+
+  function toggleExportFile(fileId) {
+    if (selectedExportFiles.has(fileId)) {
+      selectedExportFiles.delete(fileId);
+    } else {
+      selectedExportFiles.add(fileId);
+    }
+    selectedExportFiles = selectedExportFiles; // trigger reactivity
+  }
+
+  async function performExport() {
+    if (selectedExportFiles.size === 0) {
+      setStatus("Select at least one config file to export", "error");
+      return;
+    }
+
+    isExporting = true;
+    try {
+      const response = await fetch("/api/v1/config/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          file_ids: Array.from(selectedExportFiles),
+          include_secrets: exportIncludeSecrets,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || `HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      setStatus(
+        `✓ Exported ${result.exported_configs.length} config(s) to ${result.filename}`,
+        "success",
+      );
+
+      // Download the file
+      const downloadLink = document.createElement("a");
+      downloadLink.href = `/api/v1/config/export/${result.filename}`;
+      downloadLink.download = result.filename;
+      downloadLink.click();
+
+      showExportModal = false;
+    } catch (err) {
+      setStatus(`Export failed: ${err.message}`, "error");
+    } finally {
+      isExporting = false;
+    }
+  }
+
+  function toggleImportModal() {
+    showImportModal = !showImportModal;
+    if (!showImportModal) {
+      importFile = null;
+      importPreview = null;
+      importConflicts = [];
+    }
+  }
+
+  async function handleImportFile(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    isImporting = true;
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/v1/config/import", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || `HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      importFile = file.name;
+      importPreview = result.preview;
+      importConflicts = result.conflicts;
+
+      setStatus(
+        `Preview: ${Object.keys(result.preview).length} config(s) ready to import`,
+        "info",
+      );
+    } catch (err) {
+      setStatus(`Import preview failed: ${err.message}`, "error");
+    } finally {
+      isImporting = false;
+    }
+  }
+
+  async function performImport(overwriteConflicts = false) {
+    if (!importFile || !importPreview) {
+      setStatus("No import file loaded", "error");
+      return;
+    }
+
+    isImporting = true;
+    try {
+      // Re-select the file to upload
+      const fileInput = document.getElementById("import-file-input");
+      if (!fileInput || !fileInput.files?.[0]) {
+        throw new Error("File input not found");
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      const body = {
+        overwrite_conflicts: overwriteConflicts,
+        file_ids: Object.keys(importPreview),
+      };
+
+      const response = await fetch("/api/v1/config/import/chunked", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || `HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      let message = `✓ Imported ${result.imported.length} config(s)`;
+      if (result.skipped.length > 0) {
+        message += ` (${result.skipped.length} skipped)`;
+      }
+      if (result.errors.length > 0) {
+        message += ` (${result.errors.length} errors)`;
+      }
+
+      setStatus(message, result.success ? "success" : "error");
+
+      if (result.success) {
+        showImportModal = false;
+        importFile = null;
+        importPreview = null;
+        importConflicts = [];
+        await loadFileList();
+        await loadProviders();
+      }
+    } catch (err) {
+      setStatus(`Import failed: ${err.message}`, "error");
+    } finally {
+      isImporting = false;
+    }
+  }
+
   function providerStatusBadge(provider) {
     const status = provider?.status || {};
     const configured = status.configured;
@@ -419,6 +594,24 @@
       {statusMessage}
     </div>
   {/if}
+
+  <!-- Import/Export Buttons -->
+  <div class="mb-6 flex gap-3">
+    <button
+      on:click={toggleExportModal}
+      class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center gap-2"
+    >
+      <span>📤</span>
+      <span>Export Settings</span>
+    </button>
+    <button
+      on:click={toggleImportModal}
+      class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm flex items-center gap-2"
+    >
+      <span>📥</span>
+      <span>Import Settings</span>
+    </button>
+  </div>
 
   <div class="grid grid-cols-12 gap-6">
     <!-- Left: File selector -->
@@ -753,6 +946,278 @@
   <!-- Bottom padding spacer -->
   <div class="h-32"></div>
 </div>
+
+<!-- Export Modal -->
+{#if showExportModal}
+  <div
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    role="presentation"
+    on:click={() => (showExportModal = false)}
+    on:keydown={(e) => e.key === "Escape" && (showExportModal = false)}
+  >
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+    <div
+      class="bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4 border border-gray-700"
+      role="dialog"
+      aria-labelledby="export-modal-title"
+      on:click={(e) => e.stopPropagation()}
+      on:keydown={(e) => {
+        e.stopPropagation();
+        if (e.key === "Escape") showExportModal = false;
+      }}
+    >
+      <h2 id="export-modal-title" class="text-2xl font-bold text-white mb-4">
+        📤 Export Settings
+      </h2>
+      <p class="text-gray-400 mb-4">
+        Select configuration files to export for transfer to another device.
+      </p>
+
+      <div class="bg-gray-900 rounded-lg p-4 mb-4 border border-gray-700">
+        <h3 class="text-white font-semibold mb-3">Select configs to export:</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {#each Object.values(configFiles) as file}
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selectedExportFiles.has(file.id)}
+                on:change={() => toggleExportFile(file.id)}
+                class="w-4 h-4 rounded"
+              />
+              <span class="text-white font-medium">{file.label}</span>
+            </label>
+          {/each}
+        </div>
+      </div>
+
+      <div class="bg-yellow-900 border border-yellow-700 rounded-lg p-4 mb-4">
+        <div class="flex items-start gap-3">
+          <span class="text-xl">⚠️</span>
+          <div>
+            <h4 class="text-yellow-200 font-semibold mb-2">Security Warning</h4>
+            <div class="text-yellow-100 text-sm space-y-1">
+              <p>
+                <strong>By default:</strong> API keys and secrets are redacted for
+                safety.
+              </p>
+              <p>
+                <strong>Full export:</strong> Check the box below to include actual
+                API keys.
+              </p>
+              <p>
+                <strong>⚡ Security:</strong> Keep exported files secure. Never commit
+                to git. Delete after transfer.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <label class="flex items-center gap-3 cursor-pointer mb-6">
+        <input
+          type="checkbox"
+          bind:checked={exportIncludeSecrets}
+          class="w-4 h-4 rounded"
+        />
+        <span class="text-white">
+          Include API keys & secrets (not recommended - keep file secure!)
+        </span>
+      </label>
+
+      <div class="flex gap-3 justify-end">
+        <button
+          on:click={() => (showExportModal = false)}
+          class="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          on:click={performExport}
+          disabled={selectedExportFiles.size === 0 || isExporting}
+          class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+        >
+          {isExporting ? "Exporting..." : "📥 Export & Download"}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<!-- Import Modal -->
+{#if showImportModal}
+  <div
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    role="presentation"
+    on:click={() => (showImportModal = false)}
+    on:keydown={(e) => e.key === "Escape" && (showImportModal = false)}
+  >
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+    <div
+      class="bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4 border border-gray-700"
+      role="dialog"
+      aria-labelledby="import-modal-title"
+      on:click={(e) => e.stopPropagation()}
+      on:keydown={(e) => {
+        e.stopPropagation();
+        if (e.key === "Escape") showImportModal = false;
+      }}
+    >
+      <h2 id="import-modal-title" class="text-2xl font-bold text-white mb-4">
+        📥 Import Settings
+      </h2>
+
+      {#if !importFile}
+        <!-- File upload -->
+        <p class="text-gray-400 mb-4">
+          Select a previously exported settings file to import configurations.
+        </p>
+
+        <div
+          class="bg-gray-900 rounded-lg p-6 mb-4 border-2 border-dashed border-gray-600"
+        >
+          <input
+            id="import-file-input"
+            type="file"
+            accept=".json"
+            on:change={handleImportFile}
+            class="hidden"
+          />
+          <label
+            for="import-file-input"
+            class="flex flex-col items-center gap-2 cursor-pointer"
+          >
+            <span class="text-3xl">📋</span>
+            <span class="text-white font-semibold">Select export file</span>
+            <span class="text-gray-400 text-sm">.json file from export</span>
+          </label>
+        </div>
+
+        <div class="bg-blue-900 border border-blue-700 rounded-lg p-4">
+          <h4 class="text-blue-200 font-semibold mb-2">ℹ️ Import Process</h4>
+          <ol class="text-blue-100 text-sm space-y-1 ml-4 list-decimal">
+            <li>Select your exported settings file</li>
+            <li>Review what will be imported</li>
+            <li>Choose whether to overwrite existing configs</li>
+            <li>Click Import to apply</li>
+          </ol>
+        </div>
+      {:else if importPreview}
+        <!-- Preview -->
+        <div class="mb-4">
+          <h3 class="text-white font-semibold mb-2">Preview: {importFile}</h3>
+          <div
+            class="bg-gray-900 rounded-lg p-4 border border-gray-700 max-h-96 overflow-y-auto"
+          >
+            {#each Object.entries(importPreview) as [fileId, info]}
+              <div
+                class="flex items-start gap-3 py-2 border-b border-gray-700 last:border-b-0"
+              >
+                <div class="flex-1">
+                  <div class="text-white font-medium">{fileId}</div>
+                  <div class="text-sm text-gray-400">
+                    {info.filename}
+                    {#if info.is_redacted}
+                      <span
+                        class="ml-2 px-2 py-1 bg-yellow-900 text-yellow-200 rounded text-xs"
+                      >
+                        Redacted
+                      </span>
+                    {/if}
+                  </div>
+                </div>
+                <div class="text-right">
+                  {#if importConflicts.includes(fileId)}
+                    <span
+                      class="px-2 py-1 bg-red-900 text-red-200 rounded text-xs"
+                    >
+                      Exists
+                    </span>
+                  {:else}
+                    <span
+                      class="px-2 py-1 bg-green-900 text-green-200 rounded text-xs"
+                    >
+                      New
+                    </span>
+                  {/if}
+                </div>
+              </div>
+            {/each}
+          </div>
+        </div>
+
+        {#if importConflicts.length > 0}
+          <div
+            class="bg-orange-900 border border-orange-700 rounded-lg p-4 mb-4"
+          >
+            <h4 class="text-orange-200 font-semibold mb-2">
+              ⚠️ Existing Configs
+            </h4>
+            <p class="text-orange-100 text-sm mb-3">
+              These configs already exist on this device:
+            </p>
+            <div class="flex flex-wrap gap-2 mb-4">
+              {#each importConflicts as fileId}
+                <span
+                  class="px-2 py-1 bg-orange-800 text-orange-200 rounded text-sm"
+                >
+                  {fileId}
+                </span>
+              {/each}
+            </div>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                id="overwrite-checkbox"
+                class="w-4 h-4 rounded"
+              />
+              <span class="text-orange-100 text-sm">
+                Overwrite existing configs
+              </span>
+            </label>
+          </div>
+        {/if}
+      {/if}
+
+      <div class="flex gap-3 justify-end mt-6">
+        <button
+          on:click={() => {
+            showImportModal = false;
+            importFile = null;
+            importPreview = null;
+            importConflicts = [];
+          }}
+          class="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
+        >
+          {importFile ? "Cancel" : "Close"}
+        </button>
+        {#if importPreview}
+          <button
+            on:click={() => {
+              importFile = null;
+              importPreview = null;
+            }}
+            class="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
+          >
+            ← Back
+          </button>
+          <button
+            on:click={() => {
+              const overwrite =
+                document.getElementById("overwrite-checkbox")?.checked || false;
+              performImport(overwrite);
+            }}
+            disabled={isImporting}
+            class="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors disabled:opacity-50"
+          >
+            {isImporting ? "Importing..." : "✓ Import"}
+          </button>
+        {/if}
+      </div>
+    </div>
+  </div>
+{/if}
 
 <style>
   textarea {

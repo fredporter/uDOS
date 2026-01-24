@@ -17,6 +17,7 @@ from .save_load_handlers import SaveHandler, LoadHandler
 from .help_handler import HelpHandler
 from .shakedown_handler import ShakedownHandler
 from .repair_handler import RepairHandler
+from .pattern_handler import PatternHandler
 from .dev_mode_handler import DevModeHandler
 from .npc_handler import NPCHandler
 from .dialogue_engine import DialogueEngine, DialogueTree, DialogueNode
@@ -42,6 +43,7 @@ __all__ = [
     "HelpHandler",
     "ShakedownHandler",
     "RepairHandler",
+    "PatternHandler",
     "DevModeHandler",
     # NPC & Dialogue commands
     "NPCHandler",

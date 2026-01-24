@@ -3,7 +3,7 @@
 from typing import List, Dict
 import requests
 from core.commands.base import BaseCommandHandler
-from core.services.logging_manager import get_logger
+from core.services.logging_manager import get_logger, LogTags
 
 logger = get_logger("provider-handler")
 

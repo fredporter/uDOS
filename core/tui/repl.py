@@ -136,13 +136,40 @@ class TUIRepl:
         return False
 
     def _show_welcome(self) -> None:
-        """Display welcome message"""
+        """Display welcome message with startup pattern"""
         print(
             f"\n{self.renderer.BOLD}🎮 uDOS Lightweight TUI v1.0.0{self.renderer.RESET}"
         )
         print(f"Modern CLI for the refined core")
         print(f"{self.renderer.CYAN}Type HELP for commands{self.renderer.RESET}\n")
+
+        # Display a startup pattern
+        self._show_startup_pattern()
+
         self.logger.info("[STARTUP] TUI started")
+
+    def _show_startup_pattern(self) -> None:
+        """Display a random startup pattern"""
+        try:
+            from core.services.pattern_generator import PatternGenerator
+            import os
+
+            width = os.get_terminal_size().columns
+            width = max(20, min(80, width))
+
+            patterns = ["c64", "chevrons", "scanlines"]
+            pattern_name = patterns[hash(str(os.urandom(4))) % len(patterns)]
+
+            gen = PatternGenerator(width=width, height=8, ascii_only=False)
+            lines = gen.render_pattern(pattern_name, frames=8)
+
+            for line in lines:
+                print(line)
+            print()  # Blank line after pattern
+
+        except Exception as e:
+            # Silently fail if pattern generation has issues
+            self.logger.debug(f"[STARTUP] Pattern display skipped: {str(e)}")
 
     def _show_goodbye(self) -> None:
         """Display goodbye message"""

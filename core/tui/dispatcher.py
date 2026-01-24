@@ -26,6 +26,7 @@ from core.commands import (
     TalkHandler,
     ConfigHandler,
     ProviderHandler,
+    PatternHandler,
 )
 
 
@@ -54,9 +55,10 @@ class CommandDispatcher:
             "SPAWN": SpawnHandler(),
             "SAVE": SaveHandler(),
             "LOAD": LoadHandler(),
-            # System (3)
+            # System (4)
             "SHAKEDOWN": ShakedownHandler(),
             "REPAIR": RepairHandler(),
+            "PATTERN": PatternHandler(),
             "DEV MODE": DevModeHandler(),
             # NPC & Dialogue (3)
             "NPC": self.npc_handler,
