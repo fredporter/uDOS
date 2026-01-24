@@ -1,53 +1,102 @@
 # uDOS Public Wiki
 
-Community knowledge base and setup guides for uDOS hardware, devices, and configurations.
+**Version:** v1.0.7.0  
+**Last Updated:** 2026-01-24  
+**Status:** Active Reference
 
-**For core documentation, see [docs/](../docs/) | For comprehensive guides, see [knowledge/](../knowledge/)**
-
----
-
-## Quick Links
-
-- **🚀 [Getting Started](#getting-started)** - Installation and first setup
-- **💾 [Hardware Setup](#hardware)** - Partitioning, formatting, storage
-- **🌐 [Network Configuration](#network)** - WiFi, VNC, SSH, VPN
-- **🔧 [Device Integration](#devices)** - Sonic, Bluetooth, NFC setup
-- **🔌 [Integrations & Plugins](#integrations)** - Ollama, MeshCore, plugins
-- **🔍 [Troubleshooting](#troubleshooting)** - Common issues and fixes
+The uDOS public wiki contains user guides, development documentation, and community resources.
 
 ---
 
-## 🚀 Getting Started
+## 📚 Core Documentation
 
-Essential guides for new users installing and configuring uDOS.
+### Getting Started
+- **[QUICKSTART.md](../QUICKSTART.md)** — Get uDOS running in 5 minutes
+- **[INSTALLATION.md](../INSTALLATION.md)** — Detailed installation guide
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** — System design and component organization
 
-- **Alpine Installation** - Complete guide to installing Alpine Linux for uDOS
-- **First Run Setup** - Initial configuration after Alpine installation
-- **Basic Commands** - Essential uDOS commands for beginners
-
----
-
-## 💾 Hardware Setup
-
-Device configuration, partitioning, and disk management guides.
-
-- **Disk Partitioning** - How to partition drives for Alpine Linux
-- **Disk Formatting** - Formatting partitions for ext4 and other filesystems
-- **USB Boot Media** - Creating bootable USB drives with Alpine ISO
-- **Storage Expansion** - Adding external storage and managing disk space
-- **Hardware Requirements** - Minimum and recommended hardware specifications
+### Contributing
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — How to contribute code and documentation
+- **[STYLE-GUIDE.md](STYLE-GUIDE.md)** — Code style and standards
+- **[VISION.md](VISION.md)** — Vision and philosophy
 
 ---
 
-## 🌐 Network Configuration
+## 🏗️ Architecture Standards
 
-Networking, remote access, and connectivity setup.
+Core architectural specifications for understanding how uDOS is designed:
 
-- **Ethernet Setup** - Setting up wired network connections
-- **WiFi Configuration** - Connecting to WiFi networks on Alpine
-- **VPN Setup** - Configuring VPN connections
-- **VNC Remote Desktop** - Setting up VNC for remote GUI access
-- **SSH Remote Access** - Enabling and securing SSH access
+- **[Layer Architecture](architecture/LAYER-ARCHITECTURE.md)** — Fractal grid system, 000-799 layers, coordinate precision
+- **[Filesystem Architecture](architecture/FILESYSTEM-ARCHITECTURE.md)** — System vs user data, directory structure
+- **[Database Architecture](architecture/DATABASE-ARCHITECTURE.md)** — SQLite ecosystem, schema, cross-linking
+- **[Knowledge Linking System](architecture/KNOWLEDGE-LINKING-SYSTEM.md)** — Self-indexing documents, frontmatter schema
+- **[uDOS.md Format](architecture/UDOS-MD-FORMAT.md)** — Executable document format
+- **[uDOS.md Templates](architecture/UDOS-MD-TEMPLATE-SPEC.md)** — Shortcodes, variable interpolation
+
+See **[architecture/README.md](architecture/README.md)** for full architecture index.
+
+---
+
+## 📖 Topics by Category
+
+### Commands & TUI
+- [Command Reference](commands/README.md) — All 92+ commands
+- [TUI Guide](tui/README.md) — Terminal UI usage
+
+### App Development
+- [App Guide](app/README.md) — Tauri/Svelte frontend
+
+### Wizard Server
+- [Wizard Guide](wizard/README.md) — Always-on server features
+
+### Configuration & Deployment
+- [Configuration](CONFIGURATION.md) — System settings
+- [Tiny Core Linux](tinycore/README.md) — Installation media
+
+### Community & Credits
+- [Credits](CREDITS.md) — Attribution and contributors
+
+---
+
+## 🔗 Quick Links
+
+| Need | Resource |
+|------|----------|
+| **Installation** | [INSTALLATION.md](../INSTALLATION.md) |
+| **Getting Started** | [QUICKSTART.md](../QUICKSTART.md) |
+| **System Design** | [ARCHITECTURE.md](ARCHITECTURE.md) |
+| **Contributing** | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| **Code Style** | [STYLE-GUIDE.md](STYLE-GUIDE.md) |
+| **All Commands** | [commands/README.md](commands/README.md) |
+| **Architecture** | [architecture/](architecture/) |
+| **License** | [LICENSE.txt](../LICENSE.txt) |
+
+---
+
+## 🚀 Common Tasks
+
+### I want to...
+
+**...start using uDOS**
+→ Read [QUICKSTART.md](../QUICKSTART.md) then [INSTALLATION.md](../INSTALLATION.md)
+
+**...understand the architecture**
+→ Read [ARCHITECTURE.md](ARCHITECTURE.md) then [architecture/](architecture/)
+
+**...contribute code**
+→ Read [CONTRIBUTING.md](CONTRIBUTING.md) and [STYLE-GUIDE.md](STYLE-GUIDE.md)
+
+**...learn a command**
+→ See [commands/README.md](commands/README.md)
+
+**...use the TUI**
+→ See [tui/README.md](tui/README.md)
+
+**...develop the app**
+→ See [app/README.md](app/README.md)
+
+**...deploy on Tiny Core**
+→ See [tinycore/README.md](tinycore/README.md)
 - **MeshCore Networking** - Setting up peer-to-peer mesh networks
 
 ---
