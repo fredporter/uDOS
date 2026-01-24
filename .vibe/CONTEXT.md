@@ -194,7 +194,7 @@ REPAIR --upgrade-all   # Update all
 2. Route commands through handler architecture
 3. Check transport tier before sending data
 4. Log with tags: `[LOCAL]` `[MESH]` `[BT-PRIV]` `[WIZ]` etc.
-5. Maintain TinyCore compatibility
+5. Maintain Alpine Linux compatibility
 
 ---
 
@@ -214,7 +214,7 @@ REPAIR --upgrade-all   # Update all
 
 ## 🎯 Current Focus (2026-01-13)
 
-**Alpha v1.0.2.0:** Workspace Architecture + TinyCore Distribution
+**Alpha v1.0.2.0:** Workspace Architecture + Alpine Distribution
 
 - [ ] Vibe context setup (this file)
 - [ ] Scoped Copilot instructions

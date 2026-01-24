@@ -26,7 +26,7 @@ MeshCore is integrated as a **Code Container** - the official repository is clon
 │  ┌─────────────────────────────────────────────────────────┐    │
 │  │  Package & Distribute                                    │    │
 │  │  • QR relay for mesh configs                            │    │
-│  │  • TCZ packaging for Tiny Core                          │    │
+│  │  • APK packaging for Alpine Linux                       │    │
 │  │  • Firmware builds for supported hardware               │    │
 │  └─────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────┘
@@ -54,12 +54,12 @@ MeshCore is integrated as a **Code Container** - the official repository is clon
 
 ## 🔧 Code Container vs Custom Code
 
-| Layer | Source | Maintained By | Updates |
-|-------|--------|---------------|---------|
+| Layer         | Source                           | Maintained By | Updates           |
+| ------------- | -------------------------------- | ------------- | ----------------- |
 | **Container** | github.com/meshcore-dev/MeshCore | MeshCore Team | git pull (Wizard) |
-| **Transport** | extensions/transport/meshcore/ | uDOS | version.json |
-| **Service** | extensions/play/services/ | uDOS | version.json |
-| **Handler** | core/commands/mesh_handler.py | uDOS | version.json |
+| **Transport** | extensions/transport/meshcore/   | uDOS          | version.json      |
+| **Service**   | extensions/play/services/        | uDOS          | version.json      |
+| **Handler**   | core/commands/mesh_handler.py    | uDOS          | version.json      |
 
 **Rule:** Container code is **read-only** on user devices. All modifications go in uDOS layers.
 
@@ -239,4 +239,4 @@ transport.send_message("target-id", "Hello from uDOS!")
 
 ---
 
-*Last Updated: 2026-01-05*
+_Last Updated: 2026-01-05_

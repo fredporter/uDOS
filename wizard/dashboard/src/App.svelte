@@ -13,6 +13,8 @@
   import Binder from "./routes/Binder.svelte";
   import Notion from "./routes/Notion.svelte";
   import GitHub from "./routes/GitHub.svelte";
+  import Wiki from "./routes/Wiki.svelte";
+  import Library from "./routes/Library.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
   import WizardBottomBar from "./components/WizardBottomBar.svelte";
 
@@ -93,6 +95,10 @@
         <Notion />
       {:else if currentRoute === "github"}
         <GitHub />
+      {:else if currentRoute === "wiki"}
+        <Wiki />
+      {:else if currentRoute === "library"}
+        <Library />
       {/if}
     </main>
   </div>

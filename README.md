@@ -2,7 +2,8 @@
 
 **uDOS** is a modular, offline-first Python/TypeScript runtime for building knowledge systems, TUI applications, and distributed tools. It's designed for air-gapped environments, minimal installations, and mesh networking.
 
-**Current Status**: ✅ **Alpha v1.0.6** (January 18, 2026)
+**Primary Platform**: 🐧 **Alpine Linux** | **Multi-OS Support**: macOS, Ubuntu, Windows
+**Current Status**: ✅ **Alpha v1.0.6** (January 22, 2026)
 
 ---
 
@@ -11,9 +12,9 @@
 **IMPORTANT:** When you clone this repository, the module paths do NOT include `public/`. Use paths like `wizard.server`, not `public.wizard.server`.
 
 ```bash
-# Clone repository
-git clone https://github.com/fredporter/uDOS-dev.git
-cd uDOS-dev
+# Clone repository (includes private submodule)
+git clone --recurse-submodules https://github.com/fredporter/uDOS.git
+cd uDOS
 
 # Setup virtual environment
 python3 -m venv .venv
@@ -22,6 +23,17 @@ source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 # Install dependencies
 pip install -r requirements.txt
 ```
+
+### Platform Support
+
+| Platform         | Status     | TUI     | Server | GUI  | Notes                           |
+| ---------------- | ---------- | ------- | ------ | ---- | ------------------------------- |
+| **Alpine Linux** | ✅ Primary | Full    | Full   | —    | Embedded/diskless, apk packages |
+| **macOS**        | ✅ Dev     | Full    | Full   | Full | Homebrew, Tauri app             |
+| **Ubuntu**       | ✅ Dev     | Full    | Full   | Full | APT packages                    |
+| **Windows**      | ✅ Dev     | Limited | Full   | Full | Chocolatey, WSL2 recommended    |
+
+**See [Alpine Installation Guide](docs/howto/alpine-install.md) for Alpine Linux setup.**
 
 ### Launch Options
 
@@ -49,31 +61,53 @@ For setup guide and troubleshooting, see [INSTALLATION.md](INSTALLATION.md).
 | -------------- | --------------------------------------------- | ---------- |
 | **Wizard**     | Always-on server (APIs, webhooks, AI routing) | ✅ v1.1.0  |
 | **Extensions** | Modular features (API, Transport, VS Code)    | ✅ v1.0.1  |
-| **Core**       | TypeScript runtime for iOS/Android            | ✅ v1.1.0  |
+| **Core**       | TypeScript/Python runtime (Alpine-first)      | ✅ v1.1.0  |
 | **App**        | Tauri+Svelte desktop client                   | ✅ v1.0.3  |
 | **Knowledge**  | Curated knowledge base & guides               | ✅ Growing |
 
 ### Directory Structure
 
 ```
-public/
-├── wizard/              # Production server (Python, port 8765)
-├── extensions/          # Public plugins & APIs
+🏠 uDOS Root (PUBLIC)/
+├── core/                # TypeScript runtime + Python TUI
+│   ├── services/       # OS-aware services (detector, adapters)
+│   ├── commands/       # 30+ command handlers
+│   ├── os_specific/    # Platform adapters (Alpine/macOS/Ubuntu/Windows)
+│   └── tests/          # OS detector & adapter tests
+├── wizard/             # Production server (Python, port 8765)
+├── extensions/         # Public plugins & APIs
 │   ├── api/            # REST/WebSocket server
 │   ├── transport/      # MeshCore, Bluetooth, NFC, QR, Audio
 │   └── vscode/         # VS Code extension
-├── knowledge/          # Knowledge base (guides, specs, docs)
-├── library/            # Assets, fonts, icons
-├── distribution/       # Release artifacts & packages
-├── docs/               # Public documentation (stub)
-├── wiki/               # Public wiki (stub)
+├── docs/               # Engineering documentation (canonical)
+├── knowledge/          # Knowledge base (guides, specs)
+├── library/            # Alpine package definitions
+├── distribution/       # Release artifacts
 ├── requirements.txt    # Python dependencies
 └── LICENSE.txt         # MIT License
+
+🔒 dev/ (PRIVATE SUBMODULE)/
+├── goblin/            # Experimental dev server (port 8767)
+├── app/               # Tauri+Svelte desktop GUI
+├── empire/            # CRM system
+├── groovebox/         # Music production tools
+├── tests/             # Integration tests
+└── tools/             # Dev utilities
 ```
 
 ---
 
 ## 🎯 Core Features
+
+### Alpine Linux (Primary)
+
+- **Lightweight** - Minimal base install (~130 MB)
+- **Offline-First** - Default operation without internet
+- **Diskless/Live Boot** - Run entirely in RAM with optional persistence (lbu)
+- **APK Packages** - Fast, dependency-resolved package management
+- **OpenRC Init** - Simple service management
+
+**Setup**: See [Alpine Installation Guide](docs/howto/alpine-install.md)
 
 ### Wizard Server (Production)
 

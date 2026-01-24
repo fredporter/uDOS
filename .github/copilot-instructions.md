@@ -1,6 +1,6 @@
 # GitHub Copilot Instructions for uDOS
 
-**uDOS** is an offline-first, distributed OS layer combining Python TUI (Tiny Core Linux), Tauri desktop GUI, custom uPY scripting, and cloud-optional services.
+**uDOS** is an offline-first, distributed OS layer combining Python TUI (Alpine Linux primary, multi-OS support), Tauri desktop GUI, custom uPY scripting, and cloud-optional services.
 
 ---
 

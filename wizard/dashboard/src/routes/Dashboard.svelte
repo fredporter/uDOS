@@ -153,9 +153,18 @@
             <div>
               <h3 class="text-lg font-semibold text-white">System Health</h3>
               <p class="text-sm text-gray-400">
-                Updated {systemStats.timestamp
-                  ? new Date(systemStats.timestamp).toLocaleTimeString()
-                  : "now"}
+                {#if dashboardData.os}
+                  {dashboardData.os.detected_os === "alpine"
+                    ? "🐧 Alpine Linux"
+                    : dashboardData.os.detected_os === "macos"
+                      ? "🍎 macOS"
+                      : dashboardData.os.detected_os === "ubuntu"
+                        ? "🐧 Ubuntu"
+                        : dashboardData.os.detected_os === "windows"
+                          ? "🪟 Windows"
+                          : "Unknown OS"}
+                  • {dashboardData.os.platform_release}
+                {/if}
               </p>
             </div>
             <span

@@ -5,7 +5,7 @@
 # Alpha v1.0.3.0+
 #
 # Supports:
-#   - TinyCore Linux (TCZ packages)
+#   - Alpine Linux (APK packages)
 #   - Linux (systemd, /opt/udos)
 #   - macOS (LaunchAgent, /usr/local/udos)
 #   - Development mode (in-place)
@@ -49,16 +49,33 @@ error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
 detect_platform() {
     case "$(uname -s)" in
         Linux)
+            # Check for Alpine Linux
+            if [ -f /etc/alpine-release ]; then
+                echo "alpine"
+                return
+            fi
             if [ -f /etc/os-release ]; then
-                if grep -qi "tiny core" /etc/os-release 2>/dev/null; then
-                    echo "tinycore"
+                if grep -qi "alpine" /etc/os-release 2>/dev/null; then
+                    echo "alpine"
                     return
                 fi
             fi
-            if [ -d /home/tc ] && command -v tce-load &>/dev/null; then
-                echo "tinycore"
+            if command -v apk &>/dev/null; then
+                echo "alpine"
                 return
             fi
+
+            # Warn if TinyCore detected (deprecated)
+            if [ -f /etc/os-release ]; then
+                if grep -qi "tiny core" /etc/os-release 2>/dev/null; then
+                    warn "TinyCore Linux detected. uDOS has migrated to Alpine Linux."
+                    warn "Please consider migrating to Alpine Linux for continued support."
+                fi
+            fi
+            if [ -d /home/tc ] && command -v tce-load &>/dev/null; then
+                warn "TinyCore tools detected. uDOS has migrated to Alpine Linux."
+            fi
+
             echo "linux"
             ;;
         Darwin)
@@ -81,8 +98,9 @@ is_root() {
 # Get user home directory
 get_user_home() {
     local platform="$1"
-    if [ "$platform" = "tinycore" ]; then
-        echo "/home/tc"
+    if [ "$platform" = "alpine" ]; then
+        # Alpine typically uses /root for root, /home/user for users
+        echo "$HOME"
     else
         echo "$HOME"
     fi
@@ -111,7 +129,7 @@ print_help() {
     echo "                    dev     - Development mode (in-place)"
     echo ""
     echo "  --platform PLT  Override platform detection:"
-    echo "                    tinycore, linux, macos, windows"
+    echo "                    alpine, linux, macos, windows"
     echo ""
     echo "  --prefix PATH   Installation prefix (default: /opt/udos or /usr/local/udos)"
     echo ""
@@ -132,7 +150,7 @@ check_python() {
         PYTHON_VERSION=$(python3 --version 2>&1 | awk '{print $2}')
         PYTHON_MAJOR=$(echo "$PYTHON_VERSION" | cut -d. -f1)
         PYTHON_MINOR=$(echo "$PYTHON_VERSION" | cut -d. -f2)
-        
+
         if [ "$PYTHON_MAJOR" -ge 3 ] && [ "$PYTHON_MINOR" -ge 10 ]; then
             success "Python $PYTHON_VERSION found"
             return 0
@@ -173,16 +191,16 @@ check_rust() {
 install_tinycore() {
     local mode="$1"
     info "Installing for TinyCore Linux..."
-    
+
     # Check if TCZ builder exists
     if [ ! -f "$PROJECT_ROOT/distribution/tcz/build-core.sh" ]; then
         error "TCZ builder not found. Run from uDOS project root."
     fi
-    
+
     info "Building TCZ package..."
     cd "$PROJECT_ROOT/distribution/tcz"
     ./build-core.sh "$VERSION"
-    
+
     # Install TCZ
     if [ -f "udos-core.tcz" ]; then
         info "Installing TCZ..."
@@ -191,7 +209,7 @@ install_tinycore() {
     else
         error "TCZ build failed"
     fi
-    
+
     # Setup user directory
     setup_user_directory "/home/tc"
 }
@@ -201,9 +219,9 @@ install_unix() {
     local platform="$1"
     local mode="$2"
     local prefix="$3"
-    
+
     info "Installing for $platform (mode: $mode)..."
-    
+
     # Determine install prefix
     if [ -z "$prefix" ]; then
         if [ "$platform" = "macos" ]; then
@@ -212,7 +230,7 @@ install_unix() {
             prefix="/opt/udos"
         fi
     fi
-    
+
     # Create installation directory
     if is_root; then
         mkdir -p "$prefix"
@@ -224,7 +242,7 @@ install_unix() {
             mkdir -p "$prefix"
         fi
     fi
-    
+
     # Copy core files
     info "Copying core files to $prefix..."
     cp -r "$PROJECT_ROOT/core" "$prefix/"
@@ -233,7 +251,7 @@ install_unix() {
     cp "$PROJECT_ROOT/requirements.txt" "$prefix/"
     cp "$PROJECT_ROOT/start_udos.sh" "$prefix/"
     chmod +x "$prefix/start_udos.sh"
-    
+
     # Create Python venv
     info "Creating Python virtual environment..."
     python3 -m venv "$prefix/.venv"
@@ -241,7 +259,7 @@ install_unix() {
     pip install --upgrade pip
     pip install -r "$prefix/requirements.txt"
     deactivate
-    
+
     # Create launcher
     info "Creating launcher..."
     local launcher="/usr/local/bin/udos"
@@ -249,7 +267,7 @@ install_unix() {
         launcher="$HOME/.local/bin/udos"
         mkdir -p "$HOME/.local/bin"
     fi
-    
+
     cat > "$launcher" <<EOF
 #!/bin/bash
 # uDOS Launcher - v$VERSION
@@ -258,7 +276,7 @@ cd "$prefix"
 python -m core.uDOS_main "\$@"
 EOF
     chmod +x "$launcher"
-    
+
     # Desktop mode: install Tauri
     if [ "$mode" = "desktop" ] || [ "$mode" = "wizard" ]; then
         if check_node && check_rust; then
@@ -271,23 +289,23 @@ EOF
             warn "Skipping Tauri build (missing Node.js or Rust)"
         fi
     fi
-    
+
     # Wizard mode: additional setup
     if [ "$mode" = "wizard" ]; then
         info "Setting up Wizard Server..."
         cp -r "$PROJECT_ROOT/wizard" "$prefix/"
-        
+
         # Create wizard library directories
         mkdir -p "$prefix/library/os-images"
         mkdir -p "$prefix/library/containers"
         mkdir -p "$prefix/library/packages"
-        
+
         success "Wizard Server configured"
     fi
-    
+
     # Setup user directory
     setup_user_directory "$(get_user_home "$platform")"
-    
+
     success "uDOS installed to $prefix"
     info "Run 'udos' to start (ensure $launcher is in PATH)"
 }
@@ -295,22 +313,22 @@ EOF
 # Development mode
 install_dev() {
     info "Setting up development mode..."
-    
+
     # Just setup venv and user directory
     if [ ! -d "$PROJECT_ROOT/.venv" ]; then
         info "Creating Python virtual environment..."
         python3 -m venv "$PROJECT_ROOT/.venv"
     fi
-    
+
     info "Installing Python dependencies..."
     source "$PROJECT_ROOT/.venv/bin/activate"
     pip install --upgrade pip
     pip install -r "$PROJECT_ROOT/requirements.txt"
     deactivate
-    
+
     # Setup user directory
     setup_user_directory "$HOME"
-    
+
     success "Development environment ready"
     info "Run: source .venv/bin/activate && ./start_udos.sh"
 }
@@ -319,13 +337,13 @@ install_dev() {
 setup_user_directory() {
     local home="$1"
     local udos_home="$home/.udos"
-    
+
     info "Setting up user directory: $udos_home"
-    
+
     # Create directories with appropriate permissions
     mkdir -p "$udos_home/config"
     chmod 700 "$udos_home/config"
-    
+
     mkdir -p "$udos_home/memory/sandbox/scripts"
     mkdir -p "$udos_home/memory/sandbox/workflows"
     mkdir -p "$udos_home/memory/knowledge"
@@ -333,10 +351,10 @@ setup_user_directory() {
     mkdir -p "$udos_home/memory/.cache"
     mkdir -p "$udos_home/memory/.backups"
     chmod 755 "$udos_home/memory"
-    
+
     mkdir -p "$udos_home/.credentials"
     chmod 700 "$udos_home/.credentials"
-    
+
     # Create default config if not exists
     if [ ! -f "$udos_home/config/user.json" ]; then
         cat > "$udos_home/config/user.json" <<EOF
@@ -348,7 +366,7 @@ setup_user_directory() {
 EOF
         chmod 600 "$udos_home/config/user.json"
     fi
-    
+
     success "User directory configured: $udos_home"
 }
 
@@ -356,7 +374,7 @@ EOF
 uninstall() {
     local platform="$1"
     info "Uninstalling uDOS..."
-    
+
     warn "This will remove:"
     echo "  - /opt/udos (or /usr/local/udos)"
     echo "  - /usr/local/bin/udos launcher"
@@ -364,7 +382,7 @@ uninstall() {
     echo "User data (~/.udos) will be preserved."
     echo ""
     read -p "Continue? (y/N) " confirm
-    
+
     if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
         if is_root; then
             rm -rf /opt/udos /usr/local/udos
@@ -385,7 +403,7 @@ main() {
     local platform=""
     local prefix=""
     local uninstall_flag=false
-    
+
     # Parse arguments
     while [ $# -gt 0 ]; do
         case "$1" in
@@ -416,24 +434,24 @@ main() {
                 ;;
         esac
     done
-    
+
     print_banner
-    
+
     # Detect platform if not specified
     if [ -z "$platform" ]; then
         platform=$(detect_platform)
     fi
     info "Platform: $platform"
-    
+
     # Check Python
     check_python || exit 1
-    
+
     # Uninstall if requested
     if $uninstall_flag; then
         uninstall "$platform"
         exit 0
     fi
-    
+
     # Interactive mode selection
     if [ "$mode" = "interactive" ]; then
         echo ""
@@ -444,7 +462,7 @@ main() {
         echo "  4) dev     - Development mode (in-place)"
         echo ""
         read -p "Choice [1-4]: " choice
-        
+
         case "$choice" in
             1) mode="core" ;;
             2) mode="desktop" ;;
@@ -453,10 +471,10 @@ main() {
             *) error "Invalid choice" ;;
         esac
     fi
-    
+
     info "Installation mode: $mode"
     echo ""
-    
+
     # Install based on platform and mode
     case "$platform" in
         tinycore)
@@ -477,7 +495,7 @@ main() {
             error "Unsupported platform: $platform"
             ;;
     esac
-    
+
     echo ""
     success "Installation complete!"
     echo ""

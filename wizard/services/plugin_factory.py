@@ -1,23 +1,27 @@
 """
-Plugin Factory - TCZ Package Builder
+Plugin Factory - APK Package Builder
 ====================================
 
-Builds distribution packages from code containers for Tiny Core Linux.
+Builds distribution packages from code containers for Alpine Linux.
 
 Package Types:
-  - TCZ: Tiny Core Extension (squashfs)
+  - APK: Alpine Package (standard Alpine format)
   - TAR.GZ: Generic tarball (fallback)
 
 Build Process:
   1. Clone/update container from GitHub
   2. Run any build scripts
-  3. Package into TCZ format
+  3. Package into APK format
   4. Generate manifest and checksums
   5. Upload to plugin repository
 
-Requirements (for TCZ):
-  - mksquashfs (squashfs-tools)
-  - Tiny Core Linux environment (for testing)
+Requirements (for APK):
+  - abuild (Alpine package build tools)
+  - Alpine Linux environment (for testing)
+
+Migration Note:
+  This replaces the old TCZ (TinyCore) packaging system.
+  See ADR-0003-alpine-linux-migration.md for details.
 """
 
 import os
@@ -54,13 +58,15 @@ class PluginManifest:
     commit: Optional[str] = None
 
     # Package info
-    package_type: str = "tar.gz"
+    package_type: str = "apk"  # Changed from tar.gz to apk
     package_size: int = 0
     package_checksum: str = ""
+    apk_arch: str = "x86_64"  # APK architecture (x86_64, aarch64, armv7, etc.)
 
-    # Dependencies
+    # Dependencies (APK format)
     dependencies: List[str] = None
-    tce_dependencies: List[str] = None
+    apk_dependencies: List[str] = None  # APK-specific runtime deps
+    build_dependencies: List[str] = None  # APK-specific build deps
 
     # uDOS integration
     wrapper_path: Optional[str] = None
@@ -70,8 +76,10 @@ class PluginManifest:
     def __post_init__(self):
         if self.dependencies is None:
             self.dependencies = []
-        if self.tce_dependencies is None:
-            self.tce_dependencies = []
+        if self.apk_dependencies is None:
+            self.apk_dependencies = []
+        if self.build_dependencies is None:
+            self.build_dependencies = []
         if self.commands is None:
             self.commands = []
 
@@ -389,10 +397,171 @@ class PluginFactory:
         if not plugin_dir.exists():
             return None
 
-        # Find package file
-        for ext in [".tcz", ".tar.gz"]:
+        # Find package file (now prioritizes .apk)
+        for ext in [".apk", ".tcz", ".tar.gz"]:
             packages = list(plugin_dir.glob(f"*{ext}"))
             if packages:
                 return packages[0]
 
         return None
+
+
+class APKBuilder:
+    """
+    Build Alpine APK packages from code containers.
+
+    APK format is the standard Alpine Linux package format.
+    Uses abuild (Alpine build tools) for package creation.
+
+    Example:
+        builder = APKBuilder()
+        result = builder.build_apk(
+            "udos-core",
+            container_path=Path("cloned/udos-core"),
+            arch="x86_64"
+        )
+    """
+
+    def __init__(self, logger=None):
+        """Initialize APK builder."""
+        self.containers_path = CONTAINERS_PATH
+        self.build_temp = BUILD_TEMP_PATH
+        self.repo_path = PLUGIN_REPO_PATH
+        self.logger = logger
+
+    def build_apk(
+        self,
+        plugin_id: str,
+        container_path: Optional[Path] = None,
+        arch: str = "x86_64",
+        version: Optional[str] = None,
+    ) -> BuildResult:
+        """
+        Build APK package from container.
+
+        Args:
+            plugin_id: Package name (e.g., 'udos-core')
+            container_path: Path to container source (auto-detect if None)
+            arch: Target architecture (x86_64, aarch64, armv7, ppc64le, s390x)
+            version: Package version (auto-detect from APKBUILD if None)
+
+        Returns:
+            BuildResult with package path and manifest
+
+        Note:
+            APK build requires:
+            - APKBUILD file in container root
+            - abuild and apk-tools installed
+            - Build dependencies installed (apk add -t .makedeps ...)
+        """
+        import time
+
+        start_time = time.time()
+
+        try:
+            if not container_path:
+                container_path = self.containers_path / plugin_id
+
+            if not container_path.exists():
+                return BuildResult(
+                    success=False,
+                    plugin_id=plugin_id,
+                    error=f"Container not found: {container_path}",
+                )
+
+            # TODO: Implement APK build workflow
+            # 1. Check for APKBUILD file
+            # 2. Validate APKBUILD syntax (abuild -n)
+            # 3. Install build dependencies (apk add -t .makedeps)
+            # 4. Run abuild (cd container_path && abuild -r)
+            # 5. Generate APK and signatures
+            # 6. Create APKINDEX (apk index -o)
+            # 7. Generate manifest
+
+            if self.logger:
+                self.logger.info(
+                    f"[APK] APK builder not yet implemented for {plugin_id}"
+                )
+
+            return BuildResult(
+                success=False,
+                plugin_id=plugin_id,
+                error="APK builder not yet implemented (placeholder)",
+                build_time_seconds=time.time() - start_time,
+            )
+
+        except Exception as e:
+            return BuildResult(
+                success=False,
+                plugin_id=plugin_id,
+                error=f"APK build failed: {str(e)}",
+                build_time_seconds=time.time() - start_time,
+            )
+
+    def verify_apk(self, apk_path: Path) -> Tuple[bool, str]:
+        """
+        Verify APK signature and integrity.
+
+        Args:
+            apk_path: Path to .apk file
+
+        Returns:
+            (valid: bool, message: str)
+        """
+        # TODO: Implement APK verification
+        # 1. Check signature with apk-tools
+        # 2. Verify integrity with tar -tzf
+        # 3. Check dependencies
+        return False, "APK verification not yet implemented"
+
+    def generate_apkindex(self, repo_path: Optional[Path] = None) -> Tuple[bool, str]:
+        """
+        Generate or update APKINDEX for repository.
+
+        Args:
+            repo_path: Repository path (uses default if None)
+
+        Returns:
+            (success: bool, message: str)
+        """
+        if not repo_path:
+            repo_path = self.repo_path
+
+        # TODO: Implement APKINDEX generation
+        # 1. Scan directory for .apk files
+        # 2. Generate APKINDEX.tar.gz with: apk index -o APKINDEX.tar.gz *.apk
+        # 3. Sign index with: abuild-sign -k key.rsa APKINDEX.tar.gz
+
+        return False, "APKINDEX generation not yet implemented"
+
+
+class TCZBuilder:
+    """
+    DEPRECATED: Old TinyCore TCZ package builder.
+
+    This class is kept for backwards compatibility only.
+    Use APKBuilder instead for Alpine Linux packages.
+
+    References:
+    - Migration Guide: docs/decisions/ADR-0003-alpine-linux-migration.md
+    - Alpine APK Format: docs/howto/alpine-install.md
+    """
+
+    def __init__(self, logger=None):
+        """Initialize (deprecated)."""
+        import warnings
+
+        warnings.warn(
+            "TCZBuilder is deprecated. Use APKBuilder for Alpine packages.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.logger = logger
+        self.apk_builder = APKBuilder(logger=logger)
+
+    def build_tcz(self, *args, **kwargs):
+        """DEPRECATED: Use APKBuilder.build_apk() instead."""
+        raise NotImplementedError(
+            "TCZ packaging is deprecated. Use Alpine APK packages instead.\n"
+            "See: docs/decisions/ADR-0003-alpine-linux-migration.md"
+        )

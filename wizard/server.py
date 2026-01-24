@@ -274,6 +274,25 @@ class WizardServer:
 
         provider_router = create_provider_routes(auth_guard=self._authenticate)
         app.include_router(provider_router)
+
+        # Register System Info routes (OS detection, library status)
+        from wizard.routes.system_info_routes import create_system_info_routes
+
+        system_info_router = create_system_info_routes(auth_guard=self._authenticate)
+        app.include_router(system_info_router)
+
+        # Register Wiki provisioning routes
+        from wizard.routes.wiki_routes import create_wiki_routes
+
+        wiki_router = create_wiki_routes(auth_guard=self._authenticate)
+        app.include_router(wiki_router)
+
+        # Register Library management routes
+        from wizard.routes.library_routes import get_library_router
+
+        library_router = get_library_router()
+        app.include_router(library_router)
+
         # Mount dashboard static files
         from fastapi.staticfiles import StaticFiles
         from fastapi.responses import FileResponse, HTMLResponse
@@ -410,8 +429,14 @@ class WizardServer:
         @app.get("/api/v1/index")
         async def dashboard_index():
             """Dashboard index data."""
+            from wizard.services.system_info_service import get_system_info_service
+
+            system_service = get_system_info_service()
             system_stats = self._get_system_stats()
+            os_info = system_service.get_os_info()
+            library_status = system_service.get_library_status()
             log_stats = self.logging_manager.get_log_stats()
+
             return {
                 "dashboard": {
                     "name": "uDOS Wizard Server",
@@ -441,6 +466,13 @@ class WizardServer:
                     },
                 ],
                 "system": system_stats,
+                "os": os_info.to_dict(),
+                "library": {
+                    "total": library_status.total_integrations,
+                    "available": library_status.available_integrations,
+                    "installed": library_status.installed_integrations,
+                    "enabled": library_status.enabled_integrations,
+                },
                 "log_stats": log_stats,
             }
 

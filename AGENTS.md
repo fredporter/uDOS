@@ -8,7 +8,7 @@
 
 uDOS is a **multi-system project** built around three major workspaces:
 
-- **Core** — TinyCore Linux–based, offline-first TUI runtime (no GUI)
+- **Core** — Alpine Linux–targeted, offline-first TUI runtime (no GUI, multi-OS support)
 - **App** — GUI client (Tauri + Svelte now, native macOS + iOS/iPadOS later)
 - **Wizard Server** — always-on services (webhooks, APIs, AI routing, packaging, dev tooling)
 
@@ -24,7 +24,7 @@ This file exists to:
 ## 2. Core Principles
 
 1. **Offline-first by default**\
-   Local execution (TinyCore, Ollama, Devstral) is the baseline. Cloud services are optional extensions.
+   Local execution (Alpine Linux, Ollama, Devstral) is the baseline. Cloud services are optional extensions.
 
 2. **Small, composable systems**\
    Handlers are thin. Shared logic lives in services/utils. Large behaviour is composed, not embedded.
@@ -51,9 +51,10 @@ This file exists to:
 
 - Offline-first runtime
 - TUI only (no GUI assumptions)
-- TinyCore Linux compatible
+- Alpine Linux primary target (macOS, Ubuntu, Windows dev support)
 - Houses command handlers, services, uPY interpreter
 - Custom scripting language (uPY - restricted Python subset)
+- OS-aware with platform-specific capabilities
 
 **Core must NOT:**
 
@@ -249,6 +250,7 @@ Current extensions:
 - Music production tools (MML, 808 drums)
 
 > **📌 Repository Structure (2026-01-21):**
+>
 > - **PUBLIC (root):** `core/`, `wizard/`, `extensions/`, `docs/`, `knowledge/`, `library/`, `distribution/`
 > - **PRIVATE (/dev submodule):** `goblin/`, `empire/`, `app/`, `groovebox/`, `tests/`, `tools/`
 > - **LOCAL (memory/):** User data, logs, credentials — never committed

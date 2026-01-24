@@ -1,0 +1,108 @@
+"""
+Wiki Routes - Public Wiki Management
+
+Provides API endpoints for:
+- Wiki structure and metadata
+- Browsing wiki categories and pages
+- Wiki provisioning and setup
+"""
+
+from fastapi import APIRouter, Request, HTTPException
+from typing import Callable, Optional
+
+from wizard.services.wiki_provisioning_service import get_wiki_service
+from wizard.services.path_utils import get_repo_root
+
+
+def create_wiki_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
+    """Create wiki routes."""
+    router = APIRouter(prefix="/api/v1/wiki", tags=["wiki"])
+
+    wiki_root = get_repo_root() / "wiki"
+    wiki_service = get_wiki_service(wiki_root)
+
+    @router.get("/")
+    async def get_wiki_index(request: Request):
+        """Get wiki index and structure."""
+        if auth_guard:
+            await auth_guard(request)
+
+        return wiki_service.get_structure()
+
+    @router.get("/structure")
+    async def get_wiki_structure(request: Request):
+        """Get complete wiki structure."""
+        if auth_guard:
+            await auth_guard(request)
+
+        return wiki_service.get_structure()
+
+    @router.get("/categories")
+    async def list_wiki_categories(request: Request):
+        """List all wiki categories."""
+        if auth_guard:
+            await auth_guard(request)
+
+        structure = wiki_service.get_structure()
+        return {"categories": structure["categories"]}
+
+    @router.get("/categories/{category_slug}")
+    async def get_wiki_category(category_slug: str, request: Request):
+        """Get specific wiki category with pages."""
+        if auth_guard:
+            await auth_guard(request)
+
+        category = wiki_service.get_category(category_slug)
+        if not category:
+            raise HTTPException(
+                status_code=404, detail=f"Category not found: {category_slug}"
+            )
+
+        pages = wiki_service.get_pages_by_category(category_slug)
+
+        return {
+            "category": category.to_dict(),
+            "pages": [p.to_dict() for p in pages],
+        }
+
+    @router.get("/pages")
+    async def list_wiki_pages(request: Request):
+        """List all wiki pages."""
+        if auth_guard:
+            await auth_guard(request)
+
+        structure = wiki_service.get_structure()
+        return {"pages": structure["pages"]}
+
+    @router.get("/pages/{page_slug}")
+    async def get_wiki_page(page_slug: str, request: Request):
+        """Get specific wiki page metadata."""
+        if auth_guard:
+            await auth_guard(request)
+
+        page = wiki_service.get_page(page_slug)
+        if not page:
+            raise HTTPException(status_code=404, detail=f"Page not found: {page_slug}")
+
+        return page.to_dict()
+
+    @router.post("/provision")
+    async def provision_wiki(request: Request):
+        """Provision wiki directories and structure."""
+        if auth_guard:
+            await auth_guard(request)
+
+        try:
+            wiki_service.provision()
+            return {
+                "status": "success",
+                "message": "Wiki provisioned successfully",
+                "wiki_root": str(wiki_root),
+                "structure": wiki_service.get_structure(),
+            }
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Wiki provisioning failed: {str(e)}"
+            )
+
+    return router
