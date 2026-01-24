@@ -1,7 +1,7 @@
 # uDOS Public Wiki
 
-**Version:** v1.0.7.0  
-**Last Updated:** 2026-01-24  
+**Version:** v1.0.7.0
+**Last Updated:** 2026-01-24
 **Status:** Active Reference
 
 The uDOS public wiki contains user guides, development documentation, and community resources.
@@ -11,14 +11,17 @@ The uDOS public wiki contains user guides, development documentation, and commun
 ## 📚 Core Documentation
 
 ### Getting Started
+
 - **[QUICKSTART.md](../QUICKSTART.md)** — Get uDOS running in 5 minutes
 - **[INSTALLATION.md](../INSTALLATION.md)** — Detailed installation guide
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** — System design and component organization
 
 ### Contributing
+
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — How to contribute code and documentation
 - **[STYLE-GUIDE.md](STYLE-GUIDE.md)** — Code style and standards
 - **[VISION.md](VISION.md)** — Vision and philosophy
+- **[CONFIGURATION.md](CONFIGURATION.md)** — System configuration and variables
 
 ---
 
@@ -40,15 +43,17 @@ See **[architecture/README.md](architecture/README.md)** for full architecture i
 ## 📖 Topics by Category
 
 ### Commands & TUI
+
 - [Command Reference](commands/README.md) — All 92+ commands
 - [TUI Guide](tui/README.md) — Terminal UI usage
 
 ### App Development
+
 - [App Guide](app/README.md) — Tauri/Svelte frontend
 
 ### Wizard Server
-- [Wizard Guide](wizard/README.md) — Always-on server features
 
+- [Wizard Guide](wizard/README.md) — Always-on server features
 
 ---
 
@@ -88,28 +93,32 @@ wiki/
 ## 🔍 See Also
 
 **Root Repository:**
+
 - [README.md](../README.md) — Project overview
 - [AGENTS.md](../AGENTS.md) — How work is done
 - [QUICKSTART.md](../QUICKSTART.md) — 5-minute start
 - [INSTALLATION.md](../INSTALLATION.md) — Installation guide
 
 **Engineering Documentation:**
+
 - [docs/](../docs/) — Engineering spine
 - [docs/development-streams.md](../docs/development-streams.md) — Current roadmap
 - [.github/copilot-instructions.md](../.github/copilot-instructions.md) — AI guidelines
 
 **Private Development:**
+
 - [dev/wiki/](../dev/wiki/) — Development wiki
 - [dev/roadmap/](../dev/roadmap/) — Detailed roadmap
 
 ---
 
-**Status:** Active Wiki  
-**Version:** v1.0.7.0  
-**Updated:** 2026-01-24  
-**Maintained by:** uDOS Community  
-**Repository:** https://github.com/fredporter/uDOS  
+**Status:** Active Wiki
+**Version:** v1.0.7.0
+**Updated:** 2026-01-24
+**Maintained by:** uDOS Community
+**Repository:** https://github.com/fredporter/uDOS
 **License:** [LICENSE.txt](../LICENSE.txt)
+
 - **MeshCore Deployment** - Deploying and running MeshCore
 - **Plugin Installation** - Installing and managing plugins
 - **Library Management** - Managing local /library integrations

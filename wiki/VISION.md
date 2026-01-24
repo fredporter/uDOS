@@ -1,0 +1,143 @@
+# uDOS Vision
+
+> **Version:** Core v1.1.0.0 | **Updated:** 2026-01-24
+
+**A text-first computing environment for humans who value privacy, simplicity, and offline capability.**
+
+---
+
+## 🎯 What is uDOS?
+
+uDOS is a **Python-venv OS layer** targeting Alpine Linux for minimal hardware while providing powerful features:
+
+- **230+ offline survival guides** in markdown format
+- **AI-powered content generation** (online via Gemini, offline via Ollama)
+- **Terminal and desktop interfaces** (TUI + uCode Markdown App)
+- **Private mesh networking** without internet dependency
+
+## 🏛️ Core Principles
+
+### 1. Text-First Computing
+
+```
+Text → Markdown → ASCII/Teletext → SVG (only when essential)
+```
+
+Every output starts as text. Graphics exist to serve communication, not decoration.
+
+### 2. Offline-First / Privacy-First
+
+- **Full functionality without internet**
+- **No telemetry, no tracking**
+- **Explicit opt-in for any cloud features**
+- **Data stays on your device by default**
+
+### 3. Two-Realm Architecture
+
+| Realm             | Purpose   | Internet    | Example                       |
+| ----------------- | --------- | ----------- | ----------------------------- |
+| **User Mesh**     | Daily use | Never       | Laptops, phones, Alpine nodes |
+| **Wizard Server** | AI & web  | When needed | Always-on home server         |
+
+The Wizard Server handles web-dependent tasks (Gemini AI, web scraping, email) and communicates with user devices over **private transports only**.
+
+### 4. Human-Centric Design
+
+- **Drip, don't smash** - Content delivered at sustainable pace
+- **Wellbeing awareness** - Tasks adapt to user energy levels
+- **Simple over clever** - Obvious beats elegant
+
+---
+
+## 🔒 Transport Policy (Non-Negotiable)
+
+### Private Transports (Data Allowed)
+
+- **MeshCore** - Primary P2P mesh
+- **Bluetooth Private** - Paired devices only
+- **NFC** - Physical contact transfer
+- **QR Relay** - Visual data transfer
+- **Audio Relay** - Acoustic packets
+
+### Public Channels (Signal Only)
+
+- **Bluetooth Public** - Presence beacons, NEVER data
+- **Internet** - Wizard Server only, never user devices
+
+---
+
+## 💡 Key Concepts
+
+### uCODE Commands
+
+Commands typed in TUI or executed from `.udos.md` scripts:
+
+```bash
+GUIDE survival/water      # Browse knowledge
+BUNDLE START survival     # Begin learning bundle
+CAPTURE https://example.com  # Save web content
+MAKE TEXT "water guide"   # Generate with AI
+```
+
+### .udos.md Documents
+
+Markdown files with embedded scripts:
+
+````markdown
+---
+title: Water Purification Guide
+type: knowledge
+bundle: survival
+---
+
+# Water Purification
+
+Methods for making water safe...
+
+```upy
+# Embedded script
+result = GUIDE.SEARCH("filter")
+```
+````
+
+````
+
+### Bundles
+
+Collections of related documents with "drip" delivery:
+
+```yaml
+# .bundle.udos.md
+drip:
+  interval: daily
+  items_per_session: 1
+wellbeing:
+  energy_cost: medium
+````
+
+---
+
+## 🎯 Target Users
+
+1. **Privacy advocates** - No tracking, no cloud dependency
+2. **Offline preppers** - Works without internet
+3. **Minimalists** - Runs on minimal hardware
+4. **Knowledge seekers** - 230+ survival guides included
+5. **Makers & hackers** - Fully customizable
+
+---
+
+## 🚀 Getting Started
+
+1. **TUI Users**: Run `./start_udos.sh` and type `HELP`
+2. **Desktop Users**: Launch uCode Markdown App
+3. **Developers**: See [Contributing](../wiki/CONTRIBUTING.md)
+
+---
+
+_"Computing should serve humans, not surveil them."_
+
+---
+
+**Last Updated:** 2026-01-24
+**Version:** Core v1.1.0.0
