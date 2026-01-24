@@ -24,3 +24,6 @@
 	path = app/src
 	url = git@github.com:fredporter/uMarkdown-app.git
 	branch = main
+[submodule "sonic"]
+	path = sonic
+	url = git@github.com:fredporter/uDOS-sonic.git
