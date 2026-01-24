@@ -27,3 +27,6 @@
 [submodule "sonic"]
 	path = sonic
 	url = git@github.com:fredporter/uDOS-sonic.git
+[submodule "app"]
+	path = app
+	url = git@github.com:fredporter/uMarkdown-app.git

@@ -133,7 +133,7 @@ cd uDOS
 
 The private `/dev/` submodule includes:
 
-- `uMarkdown-app` — Desktop app source (Tauri + Svelte), mounted at `/app/src`
+- `uMarkdown-app` — Desktop app source (Tauri + Svelte), mounted at `/app`
 - `/dev/goblin/` — Experimental dev server
 - `/dev/empire/` — CRM system
 - `/dev/groovebox/` — Music production tools
@@ -148,6 +148,14 @@ The private `/dev/` submodule includes:
 
 ---
 
-**Last Updated:** January 21, 2026
-**Version:** Alpha v1.0.2.0
+**Last Updated:** January 24, 2026
+**Current Status:** v1.0.7.0 Planning (Active Development)
+**Component Versions:**
+
+- Core: v1.1.1.1 (Dev)
+- Wizard: v1.1.0.2 (Alpha)
+- API: v1.0.1.0 (Alpha)
+- App: v1.0.6.1 (Alpha)
+- Transport: v1.0.1.0
+
 **Private Dev Submodule:** <https://github.com/fredporter/uDOS-dev>
