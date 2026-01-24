@@ -49,76 +49,67 @@ See **[architecture/README.md](architecture/README.md)** for full architecture i
 ### Wizard Server
 - [Wizard Guide](wizard/README.md) — Always-on server features
 
-### Configuration & Deployment
-- [Configuration](CONFIGURATION.md) — System settings
-- [Tiny Core Linux](tinycore/README.md) — Installation media
-
-### Community & Credits
-- [Credits](CREDITS.md) — Attribution and contributors
 
 ---
 
-## 🔗 Quick Links
+## 📋 Directory Structure
 
-| Need | Resource |
-|------|----------|
-| **Installation** | [INSTALLATION.md](../INSTALLATION.md) |
-| **Getting Started** | [QUICKSTART.md](../QUICKSTART.md) |
-| **System Design** | [ARCHITECTURE.md](ARCHITECTURE.md) |
-| **Contributing** | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| **Code Style** | [STYLE-GUIDE.md](STYLE-GUIDE.md) |
-| **All Commands** | [commands/README.md](commands/README.md) |
-| **Architecture** | [architecture/](architecture/) |
-| **License** | [LICENSE.txt](../LICENSE.txt) |
-
----
-
-## 🚀 Common Tasks
-
-### I want to...
-
-**...start using uDOS**
-→ Read [QUICKSTART.md](../QUICKSTART.md) then [INSTALLATION.md](../INSTALLATION.md)
-
-**...understand the architecture**
-→ Read [ARCHITECTURE.md](ARCHITECTURE.md) then [architecture/](architecture/)
-
-**...contribute code**
-→ Read [CONTRIBUTING.md](CONTRIBUTING.md) and [STYLE-GUIDE.md](STYLE-GUIDE.md)
-
-**...learn a command**
-→ See [commands/README.md](commands/README.md)
-
-**...use the TUI**
-→ See [tui/README.md](tui/README.md)
-
-**...develop the app**
-→ See [app/README.md](app/README.md)
-
-**...deploy on Tiny Core**
-→ See [tinycore/README.md](tinycore/README.md)
-- **MeshCore Networking** - Setting up peer-to-peer mesh networks
+```
+wiki/
+├── README.md                    # This file
+├── ARCHITECTURE.md              # Component organization
+├── CONTRIBUTING.md              # How to contribute
+├── STYLE-GUIDE.md              # Code standards
+├── VISION.md                    # Philosophy
+├── CONFIGURATION.md            # System configuration
+├── CREDITS.md                  # Attribution
+├── architecture/               # Architecture standards
+│   ├── README.md
+│   ├── LAYER-ARCHITECTURE.md
+│   ├── FILESYSTEM-ARCHITECTURE.md
+│   ├── DATABASE-ARCHITECTURE.md
+│   ├── KNOWLEDGE-LINKING-SYSTEM.md
+│   ├── UDOS-MD-FORMAT.md
+│   └── UDOS-MD-TEMPLATE-SPEC.md
+├── commands/                   # Command docs
+│   └── README.md
+├── app/                        # App development
+│   └── README.md
+├── tui/                        # TUI guide
+│   └── README.md
+├── wizard/                     # Wizard Server
+│   └── README.md
+└── tinycore/                   # Deployment
+    └── README.md
+```
 
 ---
 
-## 🔧 Device Integration
+## 🔍 See Also
 
-Sonic devices, Bluetooth, NFC, and hardware flashing guides.
+**Root Repository:**
+- [README.md](../README.md) — Project overview
+- [AGENTS.md](../AGENTS.md) — How work is done
+- [QUICKSTART.md](../QUICKSTART.md) — 5-minute start
+- [INSTALLATION.md](../INSTALLATION.md) — Installation guide
 
-- **Sonic Device Setup** - Initial Sonic device configuration
-- **Sonic Firmware Flashing** - Flashing custom firmware to Sonic devices
-- **Bluetooth Pairing** - Pairing Bluetooth devices and peripherals
-- **NFC Setup** - Setting up NFC readers and configuration
-- **Device Discovery** - Finding and discovering network devices
+**Engineering Documentation:**
+- [docs/](../docs/) — Engineering spine
+- [docs/development-streams.md](../docs/development-streams.md) — Current roadmap
+- [.github/copilot-instructions.md](../.github/copilot-instructions.md) — AI guidelines
+
+**Private Development:**
+- [dev/wiki/](../dev/wiki/) — Development wiki
+- [dev/roadmap/](../dev/roadmap/) — Detailed roadmap
 
 ---
 
-## 🔌 Integrations & Plugins
-
-Third-party services, containers, and library management.
-
-- **Ollama Local AI** - Setting up Ollama for local AI models
-- **Mistral Vibe Setup** - Configuring Mistral Vibe for offline AI
+**Status:** Active Wiki  
+**Version:** v1.0.7.0  
+**Updated:** 2026-01-24  
+**Maintained by:** uDOS Community  
+**Repository:** https://github.com/fredporter/uDOS  
+**License:** [LICENSE.txt](../LICENSE.txt)
 - **MeshCore Deployment** - Deploying and running MeshCore
 - **Plugin Installation** - Installing and managing plugins
 - **Library Management** - Managing local /library integrations
