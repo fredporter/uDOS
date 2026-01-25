@@ -33,7 +33,7 @@
     const parsedSVG = doc.querySelector("svg");
 
     if (parsedSVG) {
-      svgElement = parsedSVG as unknown as SVGElement;
+      svgElement = parsedSVG;
       containerRef.appendChild(svgElement);
 
       // Add click handlers to all elements

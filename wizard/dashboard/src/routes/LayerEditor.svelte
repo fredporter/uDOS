@@ -252,8 +252,11 @@
   <div class="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-6">
     <aside class="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-4">
       <div class="space-y-2">
-        <label class="text-xs uppercase text-gray-400">Document</label>
+        <label for="layer-doc-name" class="text-xs uppercase text-gray-400"
+          >Document</label
+        >
         <input
+          id="layer-doc-name"
           class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
           bind:value={document.name}
           on:input={commitDocument}
@@ -269,9 +272,12 @@
       </div>
 
       <div class="space-y-2">
-        <label class="text-xs uppercase text-gray-400">Storage</label>
+        <label for="layer-storage" class="text-xs uppercase text-gray-400"
+          >Storage</label
+        >
         <div class="flex gap-2">
           <select
+            id="layer-storage"
             class="flex-1 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
             bind:value={scope}
             on:change={loadFiles}
@@ -302,7 +308,7 @@
       </div>
 
       <div class="space-y-2">
-        <label class="text-xs uppercase text-gray-400">Tools</label>
+        <div class="text-xs uppercase text-gray-400">Tools</div>
         <div class="grid grid-cols-2 gap-2">
           <button
             class="px-3 py-2 rounded"
@@ -337,12 +343,12 @@
             <input type="checkbox" bind:checked={showLinks} /> Links
           </label>
         </div>
-        <label class="text-xs uppercase text-gray-400">Zoom</label>
-        <input type="range" min="0.5" max="2" step="0.1" bind:value={zoom} />
+        <label for="layer-zoom" class="text-xs uppercase text-gray-400">Zoom</label>
+        <input id="layer-zoom" type="range" min="0.5" max="2" step="0.1" bind:value={zoom} />
       </div>
 
       <div class="space-y-2">
-        <label class="text-xs uppercase text-gray-400">Sidebar Tabs</label>
+        <div class="text-xs uppercase text-gray-400">Sidebar Tabs</div>
         <div class="grid grid-cols-2 gap-2">
           <button
             class="px-3 py-2 rounded"

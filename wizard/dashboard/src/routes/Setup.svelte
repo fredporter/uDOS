@@ -298,12 +298,22 @@
   <div class="card">
     <h2>Update Configuration</h2>
     <div class="field">
-      <label>Variable</label>
-      <input type="text" bind:value={configName} placeholder="GITHUB_TOKEN" />
+      <label for="setup-config-name">Variable</label>
+      <input
+        id="setup-config-name"
+        type="text"
+        bind:value={configName}
+        placeholder="GITHUB_TOKEN"
+      />
     </div>
     <div class="field">
-      <label>Value</label>
-      <input type="password" bind:value={configValue} placeholder="••••••" />
+      <label for="setup-config-value">Value</label>
+      <input
+        id="setup-config-value"
+        type="password"
+        bind:value={configValue}
+        placeholder="••••••"
+      />
     </div>
     <button on:click={updateConfig}>Update</button>
   </div>

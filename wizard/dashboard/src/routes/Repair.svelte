@@ -373,8 +373,8 @@
   <div class="card">
     <h2>Maintenance</h2>
     <div class="field">
-      <label>Scope</label>
-      <select bind:value={maintenanceScope}>
+      <label for="maintenance-scope">Scope</label>
+      <select id="maintenance-scope" bind:value={maintenanceScope}>
         <option value="current">current</option>
         <option value="+subfolders">+subfolders</option>
         <option value="workspace">workspace</option>
@@ -389,11 +389,11 @@
     <div class="toolchain">
       <div class="label">Compost cleanup</div>
       <div class="field">
-        <label>Days</label>
-        <input type="number" min="1" bind:value={compostDays} />
+        <label for="compost-days">Days</label>
+        <input id="compost-days" type="number" min="1" bind:value={compostDays} />
       </div>
       <label class="checkbox">
-        <input type="checkbox" bind:checked={compostDryRun} />
+        <input id="compost-dry-run" type="checkbox" bind:checked={compostDryRun} />
         Dry run (preview only)
       </label>
       <button on:click={runCompostCleanup}>Cleanup compost</button>
@@ -404,8 +404,8 @@
     <div class="card">
       <h2>Backups</h2>
       <div class="field">
-        <label>Target</label>
-        <select bind:value={backupTarget}>
+        <label for="backup-target">Target</label>
+        <select id="backup-target" bind:value={backupTarget}>
           {#if status}
             {#each Object.keys(status.backup_targets || {}) as key}
               <option value={key}>{key}</option>
@@ -414,17 +414,17 @@
         </select>
       </div>
       <div class="field">
-        <label>Notes</label>
-        <input type="text" bind:value={backupNotes} />
+        <label for="backup-notes">Notes</label>
+        <input id="backup-notes" type="text" bind:value={backupNotes} />
       </div>
       <div class="field">
-        <label>Queue Priority</label>
-        <input type="range" min="1" max="10" bind:value={backupPriority} />
+        <label for="backup-priority">Queue Priority</label>
+        <input id="backup-priority" type="range" min="1" max="10" bind:value={backupPriority} />
         <div class="value">{backupPriority}</div>
       </div>
       <div class="field">
-        <label>Queue Need</label>
-        <input type="range" min="1" max="10" bind:value={backupNeed} />
+        <label for="backup-need">Queue Need</label>
+        <input id="backup-need" type="range" min="1" max="10" bind:value={backupNeed} />
         <div class="value">{backupNeed}</div>
       </div>
       <button on:click={runBackup}>Create backup</button>
@@ -434,8 +434,8 @@
     <div class="card">
       <h2>Restore</h2>
       <div class="field">
-        <label>Backup</label>
-        <select bind:value={restoreArtifact}>
+        <label for="restore-backup">Backup</label>
+        <select id="restore-backup" bind:value={restoreArtifact}>
           {#each artifacts.filter((entry) => entry.kind === "backups") as entry}
             <option value={entry.id}>
               {entry.id} · {formatBytes(entry.size_bytes)} · {formatAge(entry.created_at)}
@@ -460,8 +460,8 @@
         </div>
       {/if}
       <div class="field">
-        <label>Target</label>
-        <select bind:value={restoreTarget}>
+        <label for="restore-target">Target</label>
+        <select id="restore-target" bind:value={restoreTarget}>
           {#if status}
             {#each Object.keys(status.backup_targets || {}) as key}
               <option value={key}>{key}</option>

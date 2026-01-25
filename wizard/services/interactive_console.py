@@ -31,6 +31,8 @@ Commands:
 import asyncio
 import sys
 import json
+import threading
+import time
 import urllib.request
 import urllib.error
 import urllib.parse
@@ -103,11 +105,52 @@ class WizardConsole:
             "quit": self.cmd_exit,
         }
         self._current_file: Optional[Path] = None
+        self._dashboard_ready: Optional[bool] = None
 
-        try:
-            ensure_micro_repo()
-        except Exception:
-            pass
+    def _run_with_spinner(self, message: str, func: Callable[[], Any]) -> Any:
+        spinner = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+        done = False
+        error: Optional[BaseException] = None
+        result: Any = None
+
+        def runner():
+            nonlocal done, error, result
+            try:
+                result = func()
+            except BaseException as exc:
+                error = exc
+            finally:
+                done = True
+
+        thread = threading.Thread(target=runner, daemon=True)
+        thread.start()
+
+        idx = 0
+        while not done:
+            sys.stdout.write(f"\r{spinner[idx % len(spinner)]} {message}")
+            sys.stdout.flush()
+            idx += 1
+            time.sleep(0.08)
+
+        sys.stdout.write("\r")
+        sys.stdout.flush()
+
+        if error:
+            print(f"⚠️  {message} (failed: {error})")
+            return None
+
+        print(f"✅ {message}")
+        return result
+
+    def _check_dashboard_build(self) -> bool:
+        dashboard_index = Path(__file__).parent.parent / "dashboard" / "dist" / "index.html"
+        return dashboard_index.exists()
+
+    def _startup_checks(self) -> None:
+        self._run_with_spinner("Preparing editor (micro)", ensure_micro_repo)
+        self._dashboard_ready = self._run_with_spinner(
+            "Checking dashboard build", self._check_dashboard_build
+        )
 
     def print_banner(self):
         """Display startup banner with capabilities."""
@@ -154,6 +197,9 @@ class WizardConsole:
         )
         print(f"  • WebSocket:      ws://{self.config.host}:{self.config.port}/ws")
         print(f"  • Documentation:  http://{self.config.host}:{self.config.port}/docs")
+
+        if self._dashboard_ready is False:
+            print("\n⚠️  Dashboard build missing. Run: cd wizard/dashboard && npm run build")
 
         print("\n💬 INTERACTIVE MODE: Type 'help' for commands, 'exit' to shutdown")
         print("=" * 68)
@@ -1020,6 +1066,7 @@ class WizardConsole:
     async def run(self):
         """Run interactive console loop."""
         self.running = True
+        self._startup_checks()
         self.print_banner()
 
         while self.running:

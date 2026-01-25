@@ -83,8 +83,11 @@
 
   <div class="flex flex-col gap-4">
     <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 flex flex-wrap items-center gap-3">
-      <label class="text-xs uppercase text-gray-400">Story File</label>
+      <label for="story-file-select" class="text-xs uppercase text-gray-400"
+        >Story File</label
+      >
       <select
+        id="story-file-select"
         class="bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
         bind:value={selectedStoryPath}
         on:change={(e) => loadStory(e.target.value)}

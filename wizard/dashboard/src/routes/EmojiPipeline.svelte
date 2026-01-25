@@ -147,8 +147,9 @@
   <div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
     <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-4">
       <div>
-        <label class="text-xs uppercase text-gray-400">Font</label>
+        <label for="emoji-font" class="text-xs uppercase text-gray-400">Font</label>
         <select
+          id="emoji-font"
           class="mt-1 w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
           bind:value={selectedFontId}
           on:change={loadGlyphs}
@@ -160,8 +161,11 @@
       </div>
 
       <div>
-        <label class="text-xs uppercase text-gray-400">Emoji Dataset</label>
+        <label for="emoji-dataset" class="text-xs uppercase text-gray-400"
+          >Emoji Dataset</label
+        >
         <select
+          id="emoji-dataset"
           class="mt-1 w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
           bind:value={selectedSetId}
         >
@@ -172,8 +176,11 @@
       </div>
 
       <div>
-        <label class="text-xs uppercase text-gray-400">Preview Limit</label>
+        <label for="emoji-preview-limit" class="text-xs uppercase text-gray-400"
+          >Preview Limit</label
+        >
         <input
+          id="emoji-preview-limit"
           class="mt-1 w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
           type="number"
           min="1"

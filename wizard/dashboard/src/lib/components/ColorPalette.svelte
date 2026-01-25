@@ -52,7 +52,7 @@
         type="color"
         value={selectedColor}
         oninput={(e) => {
-          selectedColor = (e.target as HTMLInputElement).value;
+          selectedColor = e.currentTarget.value;
           onChange(selectedColor);
         }}
         class="w-12 h-8 rounded border border-gray-600 cursor-pointer bg-gray-700"
@@ -61,7 +61,7 @@
         type="text"
         value={selectedColor}
         oninput={(e) => {
-          selectedColor = (e.target as HTMLInputElement).value;
+          selectedColor = e.currentTarget.value;
           onChange(selectedColor);
         }}
         class="flex-1 bg-gray-700 text-gray-100 border border-gray-600 rounded px-2 py-1 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"

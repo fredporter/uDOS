@@ -10,6 +10,13 @@ A uDOS Beacon is a minimal Wi‑Fi infrastructure node whose sole function is to
 
 **Core motto:** Beacon announces; Wizard decides.
 
+**Long-range extension (Wizard-only):**
+
+- Keep Beacon as the human portal (Wi‑Fi 2.4 GHz).
+- Add **RadioLink (LoRa/MeshCore)** as an optional Wizard module for small, signed packets between Wizards/relays.
+- Add **NetLink (WireGuard)** as encrypted WAN fallback.
+- Trust stays proximity-first (QR/NFC/physical presence); RadioLink is transport only.
+
 ## Design Principles
 
 | Principle                  | Meaning                                                                   |

@@ -182,6 +182,28 @@ The beacon intentionally **doesn't**:
 
 **Philosophy:** "Beacon announces; Wizard decides."
 
+### 3. RadioLink (Wizard Long-Range Transport)
+
+**Purpose:** Optional long-range, low-bandwidth channel between Wizards/relays without changing Beacon portal flow.
+
+**Transports:**
+
+- **RadioLink (LoRa / MeshCore):** Small, signed packets; multi-hop relays allowed; infrastructure-friendly.
+- **NetLink (WireGuard):** Encrypted WAN fallback when internet is present.
+- **Beacon (Wi-Fi 2.4 GHz):** Human portal; short-range discovery; unchanged.
+
+**Trust Model:**
+
+- Opt-in pairing must happen locally (QR/NFC/physical presence).
+- RadioLink carries transport only; trust is proximity + signed keys.
+- Packet format: content-addressed, signed, replay-safe; no auto-peering.
+
+**Hardware Options:**
+
+- USB LoRa modem per Wizard (simple, uDOS-friendly)
+- Dedicated relay nodes at elevation (best coverage)
+- Co-located Beacon + LoRa (later; separate roles)
+
 ### 3. Beacon VPN Tunnel (WireGuard)
 
 **Purpose:** Encrypted, cost-aware gateway to Wizard

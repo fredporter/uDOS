@@ -187,7 +187,7 @@
                 oninput={(e) =>
                   onUpdateOpacity(
                     layer.id,
-                    parseInt((e.target as HTMLInputElement).value) / 100
+                    Number(e.currentTarget.value) / 100
                   )}
               />
             </label>

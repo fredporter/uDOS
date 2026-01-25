@@ -15,7 +15,6 @@
   } from "$lib/icons";
 
   export let isDark = false;
-  export let onDarkModeToggle = () => {};
   export let onSave = () => {};
   export let onNew = () => {};
   export let onOpen = () => {};

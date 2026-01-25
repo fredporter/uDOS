@@ -172,7 +172,7 @@
           menuOpen = false;
         }
       }}
-    />
+    ></div>
     <div class="wizard-menu-dropdown">
       <div class="menu-token">
         <div class="menu-token-label">Admin Token</div>

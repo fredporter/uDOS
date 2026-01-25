@@ -144,15 +144,17 @@
   <div class="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-6">
     <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-4">
       <div>
-        <label class="text-xs uppercase text-gray-400">SVG Input</label>
-        <input type="file" accept=".svg" on:change={handleFileChange} />
+        <label for="svg-input" class="text-xs uppercase text-gray-400"
+          >SVG Input</label
+        >
+        <input id="svg-input" type="file" accept=".svg" on:change={handleFileChange} />
       </div>
 
       <textarea
         class="w-full h-56 bg-gray-900 border border-gray-700 rounded p-3 text-xs font-mono"
         bind:value={svgContent}
         on:input={processSvg}
-      />
+      ></textarea>
 
       <button
         class="w-full px-3 py-2 rounded bg-blue-600 hover:bg-blue-500"
