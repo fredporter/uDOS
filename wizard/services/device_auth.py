@@ -158,7 +158,9 @@ class DeviceAuthService:
     # Pairing
     # =========================================================================
 
-    def create_pairing_request(self, ttl_minutes: int = 5) -> PairingRequest:
+    def create_pairing_request(
+        self, ttl_minutes: int = 5, wizard_address: Optional[str] = None
+    ) -> PairingRequest:
         """
         Create a new pairing request with code and QR data.
 
@@ -177,7 +179,7 @@ class DeviceAuthService:
                 "type": "udos-pair",
                 "request_id": request_id,
                 "code": code,
-                "wizard": "localhost:8080",  # TODO: Get actual address
+                "wizard": wizard_address or "localhost:8080",
                 "expires": (
                     datetime.now() + timedelta(minutes=ttl_minutes)
                 ).isoformat(),

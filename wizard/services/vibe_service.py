@@ -40,6 +40,7 @@ from datetime import datetime
 import requests
 
 from wizard.services.logging_manager import get_logger
+from wizard.services.ai_context_store import write_context_bundle
 
 logger = get_logger("vibe-service")
 
@@ -212,6 +213,18 @@ class VibeService:
                 logger.warning(f"[LOCAL] Failed to load context {file_path}: {e}")
 
         return "\n\n---\n\n".join(context)
+
+    def load_default_context(self) -> str:
+        """Load normalized context bundle from memory/ai."""
+        context_path = write_context_bundle()
+        try:
+            data = json.loads(context_path.read_text())
+        except Exception:
+            return ""
+        context = []
+        for name, content in data.items():
+            context.append(f"=== {name} ===\n{content}")
+        return "\n\n".join(context)
 
     def clear_history(self) -> None:
         """Clear conversation history."""

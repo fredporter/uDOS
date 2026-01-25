@@ -13,6 +13,17 @@ Commands:
   reload     - Reload configuration
   github     - Show GitHub Actions status
   workflows  - Alias for 'github' command
+  dev        - DEV MODE on/off/status/clear
+  ai         - Vibe/Ollama/Mistral helpers
+  git        - Git shortcuts (status/pull/push)
+  workflow   - Workflow/todo helper
+  logs       - Tail logs from memory/logs
+  backup     - Create .backup snapshot (scope-aware)
+  restore    - Restore latest backup (use --force)
+  tidy       - Move junk into .archive
+  clean      - Reset scope into .archive
+  compost    - Move .archive/.backup/.tmp into /.compost
+  destroy    - Dev TUI only (reinstall)
   help       - Show this help message
   exit/quit  - Shutdown server gracefully
 """
@@ -29,6 +40,27 @@ from wizard.services.path_utils import get_repo_root
 from typing import Optional, Dict, Any, Callable
 from datetime import datetime
 from pathlib import Path
+from wizard.services.dev_mode_service import get_dev_mode_service
+from wizard.services.vibe_service import VibeService
+from wizard.services.mistral_api import MistralAPI
+from wizard.services.workflow_manager import WorkflowManager
+from wizard.services.ai_context_store import write_context_bundle
+from wizard.services.editor_utils import (
+    resolve_workspace_path,
+    open_in_editor,
+    ensure_micro_repo,
+)
+from core.services.maintenance_utils import (
+    create_backup,
+    restore_backup,
+    tidy,
+    clean,
+    compost,
+    list_backups,
+    default_repo_allowlist,
+    default_memory_allowlist,
+    get_memory_root,
+)
 
 
 class WizardConsole:
@@ -48,13 +80,34 @@ class WizardConsole:
             "reload": self.cmd_reload,
             "github": self.cmd_github,
             "workflows": self.cmd_workflows,
+            "workflow": self.cmd_workflow,
             "poke": self.cmd_poke,
+            "dev": self.cmd_dev,
+            "ai": self.cmd_ai,
+            "git": self.cmd_git,
+            "logs": self.cmd_logs,
+            "new": self.cmd_new,
+            "edit": self.cmd_edit,
+            "load": self.cmd_load,
+            "save": self.cmd_save,
+            "backup": self.cmd_backup,
+            "restore": self.cmd_restore,
+            "tidy": self.cmd_tidy,
+            "clean": self.cmd_clean,
+            "compost": self.cmd_compost,
+            "destroy": self.cmd_destroy,
             "help": self.cmd_help,
             "providers": self.cmd_providers,
             "provider": self.cmd_provider,
             "exit": self.cmd_exit,
             "quit": self.cmd_exit,
         }
+        self._current_file: Optional[Path] = None
+
+        try:
+            ensure_micro_repo()
+        except Exception:
+            pass
 
     def print_banner(self):
         """Display startup banner with capabilities."""
@@ -169,6 +222,23 @@ class WizardConsole:
             },
         }
 
+    def _parse_scope(self, args: list) -> tuple[str, list]:
+        if not args:
+            return "workspace", []
+        scope = args[0].lower()
+        if scope in {"current", "+subfolders", "workspace", "all"}:
+            return scope, args[1:]
+        return "workspace", args
+
+    def _resolve_scope(self, scope: str) -> tuple[Path, bool]:
+        if scope == "current":
+            return Path.cwd(), False
+        if scope == "+subfolders":
+            return Path.cwd(), True
+        if scope == "all":
+            return get_repo_root(), True
+        return get_memory_root(), True
+
     async def cmd_status(self, args: list) -> None:
         """Show server status."""
         print("\n📊 SERVER STATUS:")
@@ -235,6 +305,179 @@ class WizardConsole:
             f"\n  Overall Status: {'✅ HEALTHY' if active_count > 0 else '⚠️  DEGRADED'}"
         )
         print()
+
+    async def cmd_dev(self, args: list) -> None:
+        """Dev Mode controls (on/off/status/clear)."""
+        if not args:
+            print("\nUsage: dev on|off|status|clear\n")
+            return
+        action = args[0].lower()
+        dev_mode = get_dev_mode_service()
+        if action == "on":
+            result = dev_mode.activate()
+            print(f"\n{result.get('message','Dev mode activated')}")
+            if result.get("status") == "activated":
+                # Check Ollama availability
+                try:
+                    import requests
+                    requests.get("http://127.0.0.1:11434/api/tags", timeout=3)
+                    print("✅ Ollama is reachable")
+                except Exception:
+                    print("⚠️  Ollama not reachable. Install/start with: brew install ollama && ollama serve")
+                    print("    Optional: run bin/setup_wizard.sh --auto --no-browser")
+
+                print("\n🔍 Suggested next steps (Vibe/Ollama):")
+                suggestion = dev_mode.suggest_next_steps()
+                if "Failed" in suggestion:
+                    client = MistralAPI()
+                    if client.available():
+                        suggestion = client.chat(
+                            "Suggest next development steps for uDOS based on context."
+                        )
+                print(suggestion)
+            print()
+        elif action == "off":
+            result = dev_mode.deactivate()
+            print(f"\n{result.get('message','Dev mode deactivated')}\n")
+        elif action == "status":
+            result = dev_mode.get_status()
+            print("\nDEV MODE STATUS:")
+            print(f"  active: {result.get('active')}")
+            print(f"  endpoint: {result.get('goblin_endpoint')}")
+            print(f"  uptime: {result.get('uptime_seconds')}s")
+            print()
+        elif action == "clear":
+            result = dev_mode.clear()
+            print("\nDEV MODE CLEAR:")
+            print(json.dumps(result, indent=2))
+            print()
+        else:
+            print("\nUsage: dev on|off|status|clear\n")
+
+    async def cmd_ai(self, args: list) -> None:
+        """AI commands: vibe|mistral|ollama|context."""
+        dev_mode = get_dev_mode_service()
+        if not dev_mode.active:
+            print("\n⚠️  DEV MODE is inactive. Use: dev on\n")
+            return
+        if not args:
+            print("\nUsage: ai vibe|mistral|mistral2|ollama|context\n")
+            return
+        action = args[0].lower()
+        if action == "context":
+            write_context_bundle()
+            print("\n✅ AI context bundle refreshed (memory/ai/context.*)\n")
+            return
+        if action == "vibe":
+            if len(args) < 2:
+                print("\nUsage: ai vibe <prompt>\n")
+                return
+            prompt = " ".join(args[1:])
+            vibe = VibeService()
+            context = vibe.load_default_context()
+            result = vibe.generate(prompt=prompt, system=context)
+            print(f"\n{result}\n")
+            return
+        if action in ("mistral", "mistral2"):
+            if len(args) < 2:
+                print("\nUsage: ai mistral|mistral2 <prompt>\n")
+                return
+            prompt = " ".join(args[1:])
+            client = MistralAPI()
+            if not client.available():
+                print("\n⚠️  MISTRAL_API_KEY not configured\n")
+                return
+            result = client.chat(prompt=prompt)
+            print(f"\n{result}\n")
+            return
+        if action == "ollama":
+            if len(args) < 2:
+                print("\nUsage: ai ollama status|pull <model>\n")
+                return
+            sub = args[1].lower()
+            if sub == "status":
+                try:
+                    import requests
+                    resp = requests.get("http://127.0.0.1:11434/api/tags", timeout=5)
+                    print("\nOllama status:")
+                    print(resp.json())
+                    print()
+                except Exception as exc:
+                    print(f"\n⚠️  Ollama not reachable: {exc}\n")
+            elif sub == "pull":
+                model = args[2] if len(args) > 2 else "devstral-small-2"
+                cmd = ["ollama", "pull", model]
+                if not shutil.which("ollama"):
+                    print("\n⚠️  Ollama CLI not installed. Run: brew install ollama\n")
+                    return
+                subprocess.run(cmd, check=False)
+            else:
+                print("\nUsage: ai ollama status|pull <model>\n")
+            return
+
+    async def cmd_git(self, args: list) -> None:
+        """Git shortcuts: status|pull|push|log."""
+        dev_mode = get_dev_mode_service()
+        if not dev_mode.active:
+            print("\n⚠️  DEV MODE is inactive. Use: dev on\n")
+            return
+        if not args:
+            print("\nUsage: git status|pull|push|log\n")
+            return
+        action = args[0].lower()
+        if action == "status":
+            subprocess.run(["git", "status", "-sb"], cwd=self.repo_root, check=False)
+        elif action == "pull":
+            subprocess.run(["git", "pull"], cwd=self.repo_root, check=False)
+        elif action == "push":
+            subprocess.run(["git", "push"], cwd=self.repo_root, check=False)
+        elif action == "log":
+            subprocess.run(["git", "log", "--oneline", "-5"], cwd=self.repo_root, check=False)
+        else:
+            print("\nUsage: git status|pull|push|log\n")
+
+    async def cmd_logs(self, args: list) -> None:
+        """Tail logs from memory/logs."""
+        log_type = args[0] if args else "debug"
+        lines = int(args[1]) if len(args) > 1 else 50
+        log_dir = self.repo_root / "memory" / "logs"
+        today = datetime.now().strftime("%Y-%m-%d")
+        log_path = log_dir / f"{log_type}-{today}.log"
+        if not log_path.exists():
+            print(f"\nNo log found: {log_path}\n")
+            return
+        try:
+            result = subprocess.run(
+                ["tail", "-n", str(lines), str(log_path)],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            print(f"\n{result.stdout}\n")
+        except Exception as exc:
+            print(f"\nFailed to read log: {exc}\n")
+
+    async def cmd_workflow(self, args: list) -> None:
+        """Workflow manager commands."""
+        manager = WorkflowManager()
+        if not args or args[0] == "list":
+            projects = manager.list_projects()
+            print("\nProjects:")
+            for proj in projects:
+                print(f"  [{proj['id']}] {proj['name']} ({proj['status']})")
+            print()
+            return
+        if args[0] == "export":
+            md = manager.export_to_markdown()
+            print(f"\n{md}\n")
+            return
+        if args[0] == "add" and len(args) >= 3:
+            project_id = int(args[1])
+            title = " ".join(args[2:])
+            manager.create_task(project_id=project_id, title=title)
+            print("\n✅ Task added\n")
+            return
+        print("\nUsage: workflow list|export|add <project_id> <title>\n")
 
     async def cmd_reload(self, args: list) -> None:
         """Reload configuration."""
@@ -347,11 +590,177 @@ class WizardConsole:
         print("  github     - Show GitHub Actions status and recent runs")
         print("  workflows  - Alias for 'github' command")
         print("  poke       - Open a URL in the default browser")
+        print("  dev        - DEV MODE on/off/status/clear")
+        print("  ai         - Vibe/Ollama/Mistral helpers")
+        print("  git        - Git shortcuts (status/pull/push/log)")
+        print("  workflow   - Workflow/todo helper")
+        print("  logs       - Tail logs from memory/logs")
+        print("  new/edit/load/save - Open files in editor (/memory)")
+        print("  backup     - Create .backup snapshot (workspace default)")
+        print("  restore    - Restore latest backup (use --force to overwrite)")
+        print("  tidy       - Move junk into .archive")
+        print("  clean      - Reset scope into .archive")
+        print("  compost    - Move .archive/.backup/.tmp to /.compost")
+        print("  destroy    - Dev TUI only (reinstall)")
         print("  providers  - List provider status (Ollama, OpenRouter, etc.)")
         print("  provider   - Provider actions: status|flag|unflag|setup <id>")
         print("  help       - Show this help message")
         print("  exit/quit  - Shutdown server gracefully")
         print()
+
+    async def cmd_new(self, args: list) -> None:
+        """Create a new markdown file in /memory."""
+        name = " ".join(args).strip() if args else "untitled"
+        await self._open_editor(name)
+
+    async def cmd_edit(self, args: list) -> None:
+        """Edit a file in /memory."""
+        target = " ".join(args).strip() if args else ""
+        if not target and self._current_file:
+            target = str(self._current_file)
+        if not target:
+            print("EDIT requires a filename")
+            return
+        await self._open_editor(target)
+
+    async def cmd_load(self, args: list) -> None:
+        """Load a file in /memory (opens editor)."""
+        await self.cmd_edit(args)
+
+    async def cmd_save(self, args: list) -> None:
+        """Save a file in /memory (opens editor)."""
+        await self.cmd_edit(args)
+
+    async def cmd_backup(self, args: list) -> None:
+        scope, remaining = self._parse_scope(args)
+        label = "backup" if not remaining else " ".join(remaining)
+        target_root, _recursive = self._resolve_scope(scope)
+        archive_path, manifest_path = create_backup(target_root, label)
+        print(
+            "\n".join(
+                [
+                    "\n=== BACKUP ===",
+                    f"Scope: {scope}",
+                    f"Target: {target_root}",
+                    f"Archive: {archive_path}",
+                    f"Manifest: {manifest_path}\n",
+                ]
+            )
+        )
+
+    async def cmd_restore(self, args: list) -> None:
+        scope, remaining = self._parse_scope(args)
+        target_root, _recursive = self._resolve_scope(scope)
+        force = False
+        if "--force" in remaining:
+            force = True
+            remaining = [p for p in remaining if p != "--force"]
+
+        archive = None
+        if remaining:
+            candidate = Path(remaining[0])
+            if candidate.exists():
+                archive = candidate
+        if archive is None:
+            backups = list_backups(target_root)
+            if not backups:
+                print(f"No backups found in {target_root / '.backup'}")
+                return
+            archive = backups[0]
+
+        try:
+            message = restore_backup(archive, target_root, force=force)
+        except FileExistsError as exc:
+            print(f"{exc}\nUse RESTORE --force to overwrite existing files.")
+            return
+
+        print(
+            "\n".join(
+                [
+                    "\n=== RESTORE ===",
+                    message,
+                    f"Scope: {scope}",
+                    f"Archive: {archive}",
+                    f"Target: {target_root}\n",
+                ]
+            )
+        )
+
+    async def cmd_tidy(self, args: list) -> None:
+        scope, _remaining = self._parse_scope(args)
+        target_root, recursive = self._resolve_scope(scope)
+        moved, archive_root = tidy(target_root, recursive=recursive)
+        print(
+            "\n".join(
+                [
+                    "\n=== TIDY ===",
+                    f"Scope: {scope}",
+                    f"Target: {target_root}",
+                    f"Moved: {moved}",
+                    f"Archive: {archive_root}\n",
+                ]
+            )
+        )
+
+    async def cmd_clean(self, args: list) -> None:
+        scope, _remaining = self._parse_scope(args)
+        target_root, recursive = self._resolve_scope(scope)
+        if target_root == get_repo_root():
+            allowlist = default_repo_allowlist()
+        elif target_root == get_memory_root():
+            allowlist = default_memory_allowlist()
+        else:
+            allowlist = []
+        moved, archive_root = clean(
+            target_root,
+            allowed_entries=allowlist,
+            recursive=recursive,
+        )
+        print(
+            "\n".join(
+                [
+                    "\n=== CLEAN ===",
+                    f"Scope: {scope}",
+                    f"Target: {target_root}",
+                    f"Moved: {moved}",
+                    f"Archive: {archive_root}\n",
+                ]
+            )
+        )
+
+    async def cmd_compost(self, args: list) -> None:
+        scope, _remaining = self._parse_scope(args)
+        target_root, recursive = self._resolve_scope(scope)
+        moved, compost_root = compost(target_root, recursive=recursive)
+        print(
+            "\n".join(
+                [
+                    "\n=== COMPOST ===",
+                    f"Scope: {scope}",
+                    f"Target: {target_root}",
+                    f"Moved: {moved}",
+                    f"Compost: {compost_root}\n",
+                ]
+            )
+        )
+
+    async def cmd_destroy(self, _args: list) -> None:
+        print("DESTROY is only available from the Dev TUI.")
+
+    async def _open_editor(self, target: str) -> None:
+        try:
+            path = resolve_workspace_path(target)
+        except Exception as exc:
+            print(f"Error: {exc}")
+            return
+
+        ok, editor_name = open_in_editor(path)
+        if not ok:
+            print(f"Error: {editor_name}")
+            return
+
+        self._current_file = path
+        print(f"Opened {path} in {editor_name}")
 
     def _api_request(self, method: str, path: str, data: Optional[dict] = None):
         """Call Wizard API from the console."""

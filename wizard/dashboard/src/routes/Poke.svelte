@@ -4,55 +4,89 @@
    * Manage POKE Online services (Dashboard, Desktop, Terminal, Teletext)
    */
 
-  const services = [
-    {
-      id: "dashboard",
-      name: "Dashboard",
-      port: 5555,
-      description: "NES-themed system dashboard",
-      status: "unknown",
-    },
-    {
-      id: "desktop",
-      name: "Desktop",
-      port: 8892,
-      description: "System desktop interface",
-      status: "unknown",
-    },
-    {
-      id: "terminal",
-      name: "Terminal",
-      port: 8889,
-      description: "Web-based terminal",
-      status: "unknown",
-    },
-    {
-      id: "teletext",
-      name: "Teletext",
-      port: 9002,
-      description: "Teletext interface",
-      status: "unknown",
-    },
-  ];
+  import { onMount } from "svelte";
+
+  let services = [];
+  let adminToken = "";
+  let error = null;
+
+  const authHeaders = () =>
+    adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
+
+  async function loadServices() {
+    error = null;
+    try {
+      const res = await fetch("/api/v1/poke/services", {
+        headers: authHeaders(),
+      });
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          throw new Error("Admin token required");
+        }
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      services = data.services || [];
+    } catch (err) {
+      error = `Failed to load services: ${err.message}`;
+    }
+  }
 
   async function startService(serviceId) {
-    console.log("Starting:", serviceId);
-    // TODO: Call API to start service
+    try {
+      const res = await fetch(`/api/v1/poke/services/${serviceId}/start`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          throw new Error("Admin token required");
+        }
+        throw new Error(`HTTP ${res.status}`);
+      }
+      await loadServices();
+    } catch (err) {
+      error = `Start failed: ${err.message}`;
+    }
   }
 
   async function stopService(serviceId) {
-    console.log("Stopping:", serviceId);
-    // TODO: Call API to stop service
+    try {
+      const res = await fetch(`/api/v1/poke/services/${serviceId}/stop`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          throw new Error("Admin token required");
+        }
+        throw new Error(`HTTP ${res.status}`);
+      }
+      await loadServices();
+    } catch (err) {
+      error = `Stop failed: ${err.message}`;
+    }
   }
 
   async function openService(port) {
     window.open(`http://localhost:${port}`, "_blank");
   }
+
+  onMount(() => {
+    adminToken = localStorage.getItem("wizardAdminToken") || "";
+    loadServices();
+  });
 </script>
 
 <div class="max-w-7xl mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold text-white mb-2">POKE Commands</h1>
   <p class="text-gray-400 mb-8">Manage cloud services and system extensions</p>
+
+  {#if error}
+    <div class="bg-red-900 text-red-200 p-4 rounded-lg border border-red-700 mb-6">
+      {error}
+    </div>
+  {/if}
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     {#each services as service}
@@ -126,9 +160,9 @@
   <div class="mt-6 p-4 bg-blue-900/20 border border-blue-800 rounded-lg">
     <h3 class="text-sm font-semibold text-blue-300 mb-2">📝 Note</h3>
     <p class="text-sm text-blue-200">
-      <strong>Font Manager</strong> and <strong>Pixel Editor</strong> are available
-      in the main app (/app). The Font Manager lets you customize typography,
-      and the Pixel Editor is in the Goblin dev server.
+      <strong>Font Manager</strong>, <strong>Pixel Editor</strong>,
+      <strong>Layer Editor</strong>, and <strong>SVG Processor</strong> now
+      live in the Wizard dashboard under Services.
     </p>
   </div>
 

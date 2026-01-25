@@ -10,6 +10,19 @@
 
 set -e
 
+# Parse args
+UDOS_FORCE_REBUILD=0
+ARGS=()
+for arg in "$@"; do
+    if [ "$arg" = "--rebuild" ]; then
+        UDOS_FORCE_REBUILD=1
+    else
+        ARGS+=("$arg")
+    fi
+done
+export UDOS_FORCE_REBUILD
+set -- "${ARGS[@]}"
+
 cd "$(dirname "$0")/.."
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -73,14 +86,21 @@ UDOS_ROOT="$(resolve_udos_root)" || {
 export UDOS_ROOT
 cd "$UDOS_ROOT"
 
-# Ensure venv is activated
-if [ ! -f "$UDOS_ROOT/.venv/bin/activate" ]; then
-    echo -e "${YELLOW}[SETUP]${NC} Virtual environment not found"
-    echo "Creating .venv..."
-    python3 -m venv "$UDOS_ROOT/.venv"
+# Source common helpers and parse rebuild flag
+if [ -f "$UDOS_ROOT/bin/udos-common.sh" ]; then
+    # shellcheck source=/dev/null
+    source "$UDOS_ROOT/bin/udos-common.sh"
+    parse_rebuild_flag "$@"
+    ensure_python_env || echo -e "${YELLOW}[WARN]${NC} Python env setup skipped"
+else
+    # Minimal venv activation fallback
+    if [ ! -f "$UDOS_ROOT/.venv/bin/activate" ]; then
+        echo -e "${YELLOW}[SETUP]${NC} Virtual environment not found"
+        echo "Creating .venv..."
+        python3 -m venv "$UDOS_ROOT/.venv"
+    fi
+    source "$UDOS_ROOT/.venv/bin/activate"
 fi
-
-source "$UDOS_ROOT/.venv/bin/activate"
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Launch TUI
@@ -95,7 +115,7 @@ echo -e "${GREEN}[BOOT]${NC} uDOS Root: $UDOS_ROOT"
 echo -e "${GREEN}[BOOT]${NC} Python: $(python --version)"
 echo ""
 
-# Run the TUI
+# Run the TUI (start_udos will trigger core rebuild if needed)
 "$UDOS_ROOT/bin/start_udos.sh" "$@"
 
 # Keep window open if script exits

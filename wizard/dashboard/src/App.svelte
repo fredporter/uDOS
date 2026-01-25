@@ -15,6 +15,16 @@
   import GitHub from "./routes/GitHub.svelte";
   import Wiki from "./routes/Wiki.svelte";
   import Library from "./routes/Library.svelte";
+  import Files from "./routes/Files.svelte";
+  import Story from "./routes/Story.svelte";
+  import Tables from "./routes/Tables.svelte";
+  import Repair from "./routes/Repair.svelte";
+  import FontManager from "./routes/FontManager.svelte";
+  import EmojiPipeline from "./routes/EmojiPipeline.svelte";
+  import PixelEditor from "./routes/PixelEditor.svelte";
+  import LayerEditor from "./routes/LayerEditor.svelte";
+  import SvgProcessor from "./routes/SvgProcessor.svelte";
+  import Setup from "./routes/Setup.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
   import WizardBottomBar from "./components/WizardBottomBar.svelte";
 
@@ -97,8 +107,28 @@
         <GitHub />
       {:else if currentRoute === "wiki"}
         <Wiki />
+      {:else if currentRoute === "files"}
+        <Files />
+      {:else if currentRoute === "story"}
+        <Story />
+      {:else if currentRoute === "tables"}
+        <Tables />
       {:else if currentRoute === "library"}
         <Library />
+      {:else if currentRoute === "repair"}
+        <Repair />
+      {:else if currentRoute === "setup"}
+        <Setup />
+      {:else if currentRoute === "font-manager"}
+        <FontManager />
+      {:else if currentRoute === "emoji-pipeline"}
+        <EmojiPipeline />
+      {:else if currentRoute === "pixel-editor"}
+        <PixelEditor />
+      {:else if currentRoute === "layer-editor"}
+        <LayerEditor />
+      {:else if currentRoute === "svg-processor"}
+        <SvgProcessor />
       {/if}
     </main>
   </div>

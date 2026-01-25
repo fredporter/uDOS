@@ -42,6 +42,15 @@ UDOS_ROOT="$(resolve_udos_root)"
 export UDOS_ROOT
 cd "$UDOS_ROOT"
 
+# Source common helpers and parse rebuild flag
+if [ -f "$UDOS_ROOT/bin/udos-common.sh" ]; then
+    # shellcheck source=/dev/null
+    source "$UDOS_ROOT/bin/udos-common.sh"
+    parse_rebuild_flag "$@"
+else
+    UDOS_FORCE_REBUILD=0
+fi
+
 # Centralized logs
 export UDOS_LOG_DIR="$UDOS_ROOT/memory/logs"
 mkdir -p "$UDOS_LOG_DIR"
@@ -152,9 +161,9 @@ for arg in "$@"; do
     esac
 done
 
-# Check if Svelte dashboard needs to be built
+# Check if Svelte dashboard needs to be built or --rebuild requested
 DASHBOARD_PATH="$UDOS_ROOT/wizard/dashboard/dist"
-if [ ! -d "$DASHBOARD_PATH" ]; then
+if [ ! -d "$DASHBOARD_PATH" ] || [ "$UDOS_FORCE_REBUILD" = "1" ]; then
     print_status "Checking for Node.js/npm..."
 
     # Check if npm is available
@@ -339,6 +348,11 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
     fi
 else
     print_success "Svelte dashboard already built"
+fi
+
+# Centralized rebuild hook (no-op if common helpers aren't present)
+if declare -f rebuild_wizard_dashboard >/dev/null 2>&1; then
+    rebuild_wizard_dashboard || print_warning "Wizard dashboard rebuild skipped"
 fi
 
 # Use port manager to clean up any existing wizard process

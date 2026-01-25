@@ -2,11 +2,28 @@
 
 **Version:** v1.0.0  
 **Status:** ✅ Complete and Ready for Testing  
-**Last Updated:** 2026-01-14
+**Last Updated:** 2026-01-25
 
 ---
 
 ## 🚀 Quick Start
+
+### Option 0: Dev Recovery TUI (Repair-first)
+
+Use this when Wizard/Core might be broken. It runs diagnostics on startup
+and exposes repair + backup/restore/cleanup commands.
+
+```bash
+cd /Users/fredbook/Code/uDOS
+source .venv/bin/activate
+python -m wizard.dev_tui
+```
+
+Or via launcher:
+
+```bash
+./bin/launch_wizard_dev_tui.sh
+```
 
 ### Option 1: Integrated Mode (Server + TUI Together)
 
@@ -119,6 +136,18 @@ LOGS [filter] [count]
 HELP            Show command reference
 EXIT            Quit TUI (stops server)
 ```
+
+### Maintenance (TUI + Dev Recovery TUI)
+
+```
+BACKUP [scope] [label]   Create .backup snapshot
+RESTORE [scope] [--force] Restore latest backup
+TIDY [scope]             Move junk into .archive
+CLEAN [scope]            Reset scope into .archive
+COMPOST [scope]          Move .archive/.backup/.tmp into /.compost
+```
+
+Scopes: `current | +subfolders | workspace | all` (default: workspace)
 
 ---
 

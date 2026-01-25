@@ -28,22 +28,25 @@ bin/port-manager status             # Ports
 
 ---
 
-### Wizard Production (4 manifests)
+### Wizard Production (6 manifests)
 
 Always-on services (port 8765, stable API):
 
-| Package                   | Version  | Status            | Purpose                                          |
-| ------------------------- | -------- | ----------------- | ------------------------------------------------ |
-| **udos-wizard**           | v1.1.0.0 | production-stable | Device auth, plugin repo, AI routing (port 8765) |
-| **udos-github-service**   | v1.0.4.0 | NEW               | Repo sync, webhooks, PR/issue mgmt               |
-| **udos-ai-gateway**       | v1.0.0.0 | stable            | Mistral, OpenRouter, Ollama (local-first)        |
-| **udos-workflow-manager** | v1.0.4.0 | NEW               | Organic cron, SQLite-backed tasks                |
+| Package                   | Version  | Status            | Purpose                                           |
+| ------------------------- | -------- | ----------------- | ------------------------------------------------- |
+| **udos-wizard**           | v1.1.0.0 | production-stable | Device auth, plugin repo, AI routing (port 8765)  |
+| **udos-github-service**   | v1.0.4.0 | NEW               | Repo sync, webhooks, PR/issue mgmt                |
+| **udos-ai-gateway**       | v1.0.0.0 | stable            | Mistral, OpenRouter, Ollama (local-first)         |
+| **udos-workflow-manager** | v1.0.4.0 | NEW               | Organic cron, SQLite-backed tasks                 |
+| **udos-sonic**            | v1.0.1.0 | alpha             | Sonic Screwdriver USB builder (plan + Linux exec) |
+| **udos-sonic-datasets**   | v1.0.0.0 | NEW               | Device catalog in uDOS format (Markdown+JSON+SQL) |
 
 **Features:**
 
 - ✅ GitHub: Webhook receiver, auto-retry, status sync
 - ✅ AI: Mistral + OpenRouter with local-first policy
 - ✅ Workflow: Plant→Sprout→Prune→Trellis→Harvest→Compost
+- ✅ Sonic Datasets: Device capabilities, reflash potential, methods catalog
 - ✅ Auth scopes: github:read|write, ai:route, workflow:read|write
 
 **Launch:**
@@ -130,6 +133,8 @@ packages/
     ✅ udos-github-service.manifest.json
     ✅ udos-ai-gateway.manifest.json
     ✅ udos-workflow-manager.manifest.json
+  sonic/
+    ✅ udos-sonic-datasets.manifest.json
   goblin/
     ✅ udos-goblin.manifest.json
     ✅ udos-notion-sync.manifest.json
@@ -145,7 +150,7 @@ packages/
     ✅ udos-code-examples.manifest.json
 ```
 
-**Total Manifests:** 15 ✅ Complete
+**Total Manifests:** 17 ✅ Complete
 
 ---
 
@@ -249,6 +254,7 @@ udos-wizard (v1.1.0.0, port 8765)
   ├─ udos-github-service (v1.0.4.0)
   ├─ udos-ai-gateway (v1.0.0.0)
   ├─ udos-workflow-manager (v1.0.4.0)
+  ├─ udos-sonic-datasets (v1.0.0.0)
   └─ udos-empire-crm (v1.0.4.0)
 ```
 
@@ -313,5 +319,5 @@ udos-goblin (v0.2.0.0, port 8767, localhost-only)
 
 ---
 
-_Last Updated: 2026-01-17_  
+_Last Updated: 2026-01-17_
 _v1.0.4.0 Package Distribution Complete_

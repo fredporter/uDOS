@@ -311,7 +311,10 @@ class MeshSyncService:
         if not path or not content:
             return False
 
-        file_path = KNOWLEDGE_ROOT / path
+        file_path = self._safe_knowledge_path(path)
+        if not file_path:
+            logger.warning(f"[MESH] Rejected unsafe knowledge path: {path}")
+            return False
 
         # Check for conflicts
         if file_path.exists():
@@ -333,6 +336,22 @@ class MeshSyncService:
         self.item_versions[item_id] = self.global_version
 
         return True
+
+    def _safe_knowledge_path(self, rel_path: str) -> Optional[Path]:
+        """Validate and resolve a knowledge path safely."""
+        if not rel_path or rel_path.startswith(("/", "\\")):
+            return None
+        if ".." in rel_path.split("/"):
+            return None
+        if not rel_path.endswith(".md"):
+            return None
+        base = KNOWLEDGE_ROOT.resolve()
+        target = (KNOWLEDGE_ROOT / rel_path).resolve()
+        try:
+            target.relative_to(base)
+        except ValueError:
+            return None
+        return target
 
     def _apply_notification(self, item_data: Dict[str, Any]) -> bool:
         """Apply notification from device."""

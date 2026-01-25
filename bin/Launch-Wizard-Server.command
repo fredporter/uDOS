@@ -5,6 +5,19 @@
 
 set -e
 
+# Parse args
+UDOS_FORCE_REBUILD=0
+ARGS=()
+for arg in "$@"; do
+    if [ "$arg" = "--rebuild" ]; then
+        UDOS_FORCE_REBUILD=1
+    else
+        ARGS+=("$arg")
+    fi
+done
+export UDOS_FORCE_REBUILD
+set -- "${ARGS[@]}"
+
 # Resolve uDOS root by locating uDOS.py
 find_repo_root() {
     local start="$1"
@@ -38,6 +51,13 @@ UDOS_ROOT="$(resolve_udos_root)"
 export UDOS_ROOT
 cd "$UDOS_ROOT"
 
+# Source common helpers and parse rebuild flag
+if [ -f "$UDOS_ROOT/bin/udos-common.sh" ]; then
+    # shellcheck source=/dev/null
+    source "$UDOS_ROOT/bin/udos-common.sh"
+    parse_rebuild_flag "$@"
+fi
+
 # Centralized logs
 export UDOS_LOG_DIR="$UDOS_ROOT/memory/logs"
 mkdir -p "$UDOS_LOG_DIR"
@@ -70,6 +90,21 @@ print_error() { echo -e "${RED}[✗]${NC} $1"; }
 
 PORT=8765
 
+needs_rebuild() {
+    local src_dir="$1"
+    local marker_file="$2"
+    if [ "$UDOS_FORCE_REBUILD" = "1" ]; then
+        return 0
+    fi
+    if [ ! -f "$marker_file" ]; then
+        return 0
+    fi
+    if find "$src_dir" -type f -newer "$marker_file" | head -n 1 | grep -q .; then
+        return 0
+    fi
+    return 1
+}
+
 # Check if venv exists
 if [ ! -f "$UDOS_ROOT/.venv/bin/activate" ]; then
     print_error "Virtual environment not found at .venv/"
@@ -90,7 +125,8 @@ print_success "Dependencies installed and ready"
 
 # Check if Svelte dashboard needs to be built
 DASHBOARD_PATH="$UDOS_ROOT/wizard/dashboard/dist"
-if [ ! -d "$DASHBOARD_PATH" ]; then
+DIST_MARKER="$DASHBOARD_PATH/index.html"
+if [ "$UDOS_FORCE_REBUILD" = "1" ] || needs_rebuild "$UDOS_ROOT/wizard/dashboard/src" "$DIST_MARKER"; then
     print_status "Checking for Node.js/npm..."
 
     if ! command -v npm &> /dev/null; then
@@ -120,7 +156,7 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
         print_status "Installing dashboard dependencies..."
         cd "$UDOS_ROOT/wizard/dashboard"
 
-        npm install --quiet 2>&1 | grep -v "npm WARN" || true
+        npm install --no-fund --no-audit --quiet 2>&1 | grep -v "npm WARN" || true
         print_success "Dashboard dependencies installed"
 
         print_status "Building Svelte dashboard..."
@@ -138,6 +174,11 @@ if [ ! -d "$DASHBOARD_PATH" ]; then
     fi
 else
     print_success "Svelte dashboard already built"
+fi
+
+# Centralized rebuild hook (if available)
+if declare -f rebuild_wizard_dashboard >/dev/null 2>&1; then
+    rebuild_wizard_dashboard || print_warning "Wizard dashboard rebuild skipped"
 fi
 
 # Use port manager to clean up any existing wizard process

@@ -6,12 +6,25 @@
   let error = null;
   let filterStatus = "all"; // all, installed, available, enabled
   let actionInProgress = null; // Track which action is in progress
+  let adminToken = "";
+  let inventoryData = null;
+  let reposData = [];
+  let packagesData = [];
+  let apkStatus = null;
+  let toolchainPackages =
+    "python3 py3-pip py3-setuptools py3-wheel py3-virtualenv";
+  let toolchainResult = null;
+
+  const authHeaders = () =>
+    adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
 
   async function loadLibrary() {
     loading = true;
     error = null;
     try {
-      const res = await fetch("/api/v1/library/status");
+      const res = await fetch("/api/v1/library/status", {
+        headers: authHeaders(),
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       libraryData = await res.json();
     } catch (err) {
@@ -21,11 +34,64 @@
     }
   }
 
+  async function loadInventory() {
+    try {
+      const res = await fetch("/api/v1/library/inventory", {
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      inventoryData = data.inventory || {};
+    } catch (err) {
+      inventoryData = null;
+    }
+  }
+
+  async function loadRepos() {
+    try {
+      const res = await fetch("/api/v1/library/repos", {
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      reposData = data.repos || [];
+    } catch (err) {
+      reposData = [];
+    }
+  }
+
+  async function loadPackages() {
+    try {
+      const res = await fetch("/api/v1/library/packages", {
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      packagesData = data.packages || [];
+    } catch (err) {
+      packagesData = [];
+    }
+  }
+
+  async function loadApkStatus() {
+    try {
+      const res = await fetch("/api/v1/library/apk/status", {
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      apkStatus = data;
+    } catch (err) {
+      apkStatus = { success: false, error: err.message };
+    }
+  }
+
   async function installIntegration(name) {
     actionInProgress = `install-${name}`;
     try {
       const res = await fetch(`/api/v1/library/integration/${name}/install`, {
         method: "POST",
+        headers: authHeaders(),
       });
       const data = await res.json();
 
@@ -46,6 +112,7 @@
     try {
       const res = await fetch(`/api/v1/library/integration/${name}/enable`, {
         method: "POST",
+        headers: authHeaders(),
       });
       const data = await res.json();
 
@@ -66,6 +133,7 @@
     try {
       const res = await fetch(`/api/v1/library/integration/${name}/disable`, {
         method: "POST",
+        headers: authHeaders(),
       });
       const data = await res.json();
 
@@ -88,6 +156,7 @@
     try {
       const res = await fetch(`/api/v1/library/integration/${name}`, {
         method: "DELETE",
+        headers: authHeaders(),
       });
       const data = await res.json();
 
@@ -135,7 +204,14 @@
     return source === "library" ? "📦" : "🔧";
   };
 
-  onMount(loadLibrary);
+  onMount(() => {
+    adminToken = localStorage.getItem("wizardAdminToken") || "";
+    if (adminToken) {
+      refreshAll();
+    } else {
+      loadLibrary();
+    }
+  });
 </script>
 
 <div class="space-y-6">
@@ -144,12 +220,20 @@
       <h1 class="text-3xl font-bold text-white mb-1">Library</h1>
       <p class="text-gray-400">Integrations and plugins</p>
     </div>
-    <button
-      class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold"
-      on:click={loadLibrary}
-    >
-      Refresh
-    </button>
+    <div class="flex gap-2">
+      <button
+        class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold"
+        on:click={refreshAll}
+      >
+        Refresh All
+      </button>
+      <button
+        class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-white text-sm font-semibold border border-gray-700"
+        on:click={loadLibrary}
+      >
+        Refresh Library
+      </button>
+    </div>
   </div>
 
   {#if loading}
@@ -189,6 +273,78 @@
       </div>
     </div>
 
+    <!-- APK Status + Toolchain -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="text-sm text-gray-400">APK Status</div>
+          <button
+            class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-xs text-white"
+            on:click={loadApkStatus}
+          >
+            Refresh
+          </button>
+        </div>
+        {#if apkStatus?.success}
+          <div class="text-sm text-white">
+            abuild: {apkStatus.abuild ? "ok" : "missing"}
+          </div>
+          <div class="text-sm text-white">
+            apk: {apkStatus.apk ? "ok" : "missing"}
+          </div>
+          <div class="text-xs text-gray-400">
+            signing: {apkStatus.signing?.ok ? "ok" : "missing"} ({apkStatus.signing?.detail})
+          </div>
+        {:else if apkStatus}
+          <div class="text-xs text-red-400">Failed to load APK status</div>
+        {:else}
+          <div class="text-xs text-gray-500">No status yet</div>
+        {/if}
+        <button
+          class="w-full mt-2 px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-xs text-white"
+          on:click={generateApkIndex}
+          disabled={actionInProgress !== null}
+        >
+          {actionInProgress === "apk-index" ? "..." : "Generate APKINDEX"}
+        </button>
+      </div>
+
+      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-2">
+        <div class="text-sm text-gray-400">Toolchain Update (Alpine)</div>
+        <input
+          class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-xs text-white"
+          bind:value={toolchainPackages}
+        />
+        <button
+          class="w-full px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-xs text-white"
+          on:click={updateToolchain}
+          disabled={actionInProgress !== null}
+        >
+          {actionInProgress === "toolchain" ? "..." : "Update Toolchain"}
+        </button>
+        {#if toolchainResult}
+          <div
+            class={`text-xs ${toolchainResult.success ? "text-emerald-400" : "text-red-400"}`}
+          >
+            {toolchainResult.message || "Done"}
+          </div>
+        {/if}
+      </div>
+
+      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-2">
+        <div class="text-sm text-gray-400">Inventory</div>
+        <div class="text-xs text-gray-500">
+          {Object.keys(inventoryData || {}).length} integrations with deps
+        </div>
+        <button
+          class="w-full px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-xs text-white"
+          on:click={loadInventory}
+        >
+          Refresh Inventory
+        </button>
+      </div>
+    </div>
+
     <!-- Filters -->
     <div class="flex gap-2 flex-wrap">
       {#each ["all", "installed", "available", "enabled"] as status}
@@ -203,6 +359,78 @@
           {status.charAt(0).toUpperCase() + status.slice(1)}
         </button>
       {/each}
+    </div>
+
+    <!-- Repo Inventory -->
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-white">Library Repos</h2>
+        <button
+          class="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-xs text-white"
+          on:click={loadRepos}
+        >
+          Refresh
+        </button>
+      </div>
+      {#if reposData.length === 0}
+        <div class="text-xs text-gray-500">No repos found</div>
+      {:else}
+        <div class="space-y-2">
+          {#each reposData as repo}
+            <div class="flex items-center justify-between bg-gray-800 border border-gray-700 rounded px-3 py-2">
+              <div class="text-sm text-white">{repo.name}</div>
+              <div class="flex gap-2">
+                <button
+                  class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-xs text-white"
+                  on:click={() => updateRepo(repo.name)}
+                  disabled={actionInProgress !== null}
+                >
+                  {actionInProgress === `repo-update-${repo.name}` ? "..." : "Update"}
+                </button>
+                <button
+                  class="px-2 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-xs text-white"
+                  on:click={() => buildRepo(repo.name, "tar.gz")}
+                  disabled={actionInProgress !== null}
+                >
+                  {actionInProgress === `repo-build-${repo.name}-tar.gz` ? "..." : "Build"}
+                </button>
+                <button
+                  class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-xs text-white"
+                  on:click={() => buildApk(repo.name)}
+                  disabled={actionInProgress !== null}
+                >
+                  {actionInProgress === `repo-build-apk-${repo.name}` ? "..." : "Build APK"}
+                </button>
+              </div>
+            </div>
+          {/each}
+        </div>
+      {/if}
+    </div>
+
+    <!-- Packages -->
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-white">Built Packages</h2>
+        <button
+          class="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-xs text-white"
+          on:click={loadPackages}
+        >
+          Refresh
+        </button>
+      </div>
+      {#if packagesData.length === 0}
+        <div class="text-xs text-gray-500">No packages yet</div>
+      {:else}
+        <div class="space-y-2">
+          {#each packagesData as pkg}
+            <div class="flex items-center justify-between bg-gray-800 border border-gray-700 rounded px-3 py-2">
+              <div class="text-sm text-white">{pkg.filename}</div>
+              <div class="text-xs text-gray-400">{pkg.size_bytes || 0} bytes</div>
+            </div>
+          {/each}
+        </div>
+      {/if}
     </div>
 
     <!-- Integrations grid -->
@@ -313,3 +541,104 @@
     {/if}
   {/if}
 </div>
+  async function updateRepo(name) {
+    actionInProgress = `repo-update-${name}`;
+    try {
+      const res = await fetch(`/api/v1/library/repos/${name}/update`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await loadRepos();
+    } catch (err) {
+      alert(`❌ Update failed: ${err.message}`);
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  async function buildRepo(name, format = "tar.gz") {
+    actionInProgress = `repo-build-${name}-${format}`;
+    try {
+      const res = await fetch(
+        `/api/v1/library/repos/${name}/build?format=${format}`,
+        {
+          method: "POST",
+          headers: authHeaders(),
+        },
+      );
+      const data = await res.json();
+      if (!data.success) throw new Error(data.detail || "Build failed");
+      await loadPackages();
+    } catch (err) {
+      alert(`❌ Build failed: ${err.message}`);
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  async function buildApk(name) {
+    actionInProgress = `repo-build-apk-${name}`;
+    try {
+      const res = await fetch(`/api/v1/library/repos/${name}/build-apk`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.detail || "APK build failed");
+      await loadPackages();
+    } catch (err) {
+      alert(`❌ APK build failed: ${err.message}`);
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  async function generateApkIndex() {
+    actionInProgress = "apk-index";
+    try {
+      const res = await fetch("/api/v1/library/apk/index", {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.detail || "APKINDEX failed");
+      await loadApkStatus();
+    } catch (err) {
+      alert(`❌ APKINDEX failed: ${err.message}`);
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  async function updateToolchain() {
+    actionInProgress = "toolchain";
+    toolchainResult = null;
+    try {
+      const packages = toolchainPackages
+        .split(" ")
+        .map((p) => p.trim())
+        .filter(Boolean);
+      const res = await fetch("/api/v1/library/toolchain/update", {
+        method: "POST",
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({ packages }),
+      });
+      const data = await res.json();
+      toolchainResult = data.result || data;
+    } catch (err) {
+      toolchainResult = { success: false, message: err.message };
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  async function refreshAll() {
+    await Promise.all([
+      loadLibrary(),
+      loadInventory(),
+      loadRepos(),
+      loadPackages(),
+      loadApkStatus(),
+    ]);
+  }

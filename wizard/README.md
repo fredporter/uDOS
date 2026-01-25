@@ -36,6 +36,7 @@ python wizard/server.py --no-interactive
 ```
 
 Logs: see memory/logs (wizard-server-YYYY-MM-DD.log and session-commands-YYYY-MM-DD.log).
+Dev Mode Recovery TUI now runs initial system health diagnostics on startup and attempts a safe, offline-first repair if issues are detected (ensures Python deps, updates git submodules), then re-checks health.
 
 ---
 
@@ -64,6 +65,7 @@ Auth: all `/api/v1/*` require device auth (Bearer token). Rate limits apply per 
 - `distribution/` — Plugin packages and manifests (served via plugin routes).
 - `config/` — `wizard.json` (committed, versioned) for host/port, rate limits, budgets, service toggles, GitHub sync settings.
 - `launch_wizard_dev.py` / `launch_wizard_tui.sh` — Convenience launchers (also wired into VS Code tasks and Dev Mode).
+- `bin/launch_wizard_dev_tui.sh` — Dev Recovery TUI launcher (repair-first, backup/restore/tidy/clean/compost).
 
 ---
 

@@ -86,6 +86,35 @@ def create_wiki_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
 
         return page.to_dict()
 
+    @router.get("/files")
+    async def list_wiki_files(request: Request):
+        """List markdown files under /wiki."""
+        if auth_guard:
+            await auth_guard(request)
+
+        if not wiki_root.exists():
+            return {"files": []}
+
+        files = []
+        for path in wiki_root.rglob("*.md"):
+            rel = path.relative_to(wiki_root).as_posix()
+            files.append({"path": rel, "name": path.name})
+        files.sort(key=lambda item: item["path"])
+        return {"files": files}
+
+    @router.get("/file")
+    async def read_wiki_file(path: str, request: Request):
+        """Read a specific wiki markdown file."""
+        if auth_guard:
+            await auth_guard(request)
+
+        candidate = (wiki_root / path).resolve()
+        if not str(candidate).startswith(str(wiki_root.resolve())):
+            raise HTTPException(status_code=400, detail="Invalid wiki path")
+        if not candidate.exists() or not candidate.is_file():
+            raise HTTPException(status_code=404, detail="Wiki file not found")
+        return candidate.read_text()
+
     @router.post("/provision")
     async def provision_wiki(request: Request):
         """Provision wiki directories and structure."""

@@ -42,28 +42,7 @@ python -m wizard.server
 # Access: http://localhost:8765
 ```
 
-#### Option B: Dev Mode (via Wizard Server)
-
-```bash
-# Start Wizard Server first
-python -m wizard.server &
-
-# Then activate dev mode in TUI
-./bin/start_udos.sh
-> DEV MODE activate
-
-# Or use REST API
-curl -X POST http://localhost:8765/api/v1/dev/activate
-```
-
-Dev Mode includes:
-
-- Goblin dev server (localhost:8767)
-- Notion sync, task scheduling, runtime executor
-- Real-time WebSocket updates
-- Full Wizard API access with dev features
-
-#### Option C: API Server
+#### Option B: API Server
 
 ```bash
 python -m extensions.api.server

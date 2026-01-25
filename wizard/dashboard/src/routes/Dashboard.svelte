@@ -5,10 +5,26 @@
   let systemStats = null;
   let logStats = null;
   let githubHealth = null;
+  let schedulerStatus = null;
+  let schedulerError = null;
+  let schedulerSettings = {
+    max_tasks_per_tick: 2,
+    tick_seconds: 60,
+    allow_network: true,
+  };
+  let selectedTask = null;
+  let selectedTaskRuns = [];
+  let taskDetailError = null;
+  let selectedRun = null;
   let loading = true;
   let systemLoading = false;
   let error = null;
   let refreshTimer;
+  let adminToken = "";
+  let hasAdminToken = false;
+
+  const authHeaders = () =>
+    adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
 
   const overloadLabels = {
     cpu_load_high: "CPU load is elevated",
@@ -44,6 +60,7 @@
       dashboardData = data;
       systemStats = data.system || systemStats;
       logStats = data.log_stats || null;
+      await loadSchedulerStatus();
     } catch (err) {
       error = `Failed to load dashboard: ${err.message}`;
     } finally {
@@ -53,7 +70,9 @@
 
   async function loadGitHubHealth() {
     try {
-      const res = await fetch("/api/v1/github/health");
+      const res = await fetch("/api/v1/github/health", {
+        headers: authHeaders(),
+      });
       if (res.ok) {
         githubHealth = await res.json();
       }
@@ -76,9 +95,68 @@
     }
   }
 
+  async function loadSchedulerStatus() {
+    try {
+      const res = await fetch("/api/v1/tasks/status", {
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      schedulerStatus = await res.json();
+      if (schedulerStatus?.settings) {
+        schedulerSettings = {
+          ...schedulerSettings,
+          ...schedulerStatus.settings,
+        };
+      }
+      schedulerError = null;
+    } catch (err) {
+      schedulerError = `Failed to load scheduler: ${err.message}`;
+      schedulerStatus = null;
+    }
+  }
+
+  async function updateSchedulerSettings() {
+    try {
+      const res = await fetch("/api/v1/tasks/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify(schedulerSettings),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      schedulerSettings = data.settings || schedulerSettings;
+      schedulerError = null;
+    } catch (err) {
+      schedulerError = `Failed to update scheduler: ${err.message}`;
+    }
+  }
+
+  async function loadTaskDetails(taskId) {
+    taskDetailError = null;
+    selectedTaskRuns = [];
+    selectedTask = null;
+    try {
+      const [taskRes, runsRes] = await Promise.all([
+        fetch(`/api/v1/tasks/task/${taskId}`, { headers: authHeaders() }),
+        fetch(`/api/v1/tasks/runs/${taskId}?limit=5`, { headers: authHeaders() }),
+      ]);
+      if (!taskRes.ok) throw new Error(`Task HTTP ${taskRes.status}`);
+      selectedTask = await taskRes.json();
+      if (runsRes.ok) {
+        selectedTaskRuns = await runsRes.json();
+        selectedRun = selectedTaskRuns[0] || null;
+      }
+    } catch (err) {
+      taskDetailError = `Failed to load task details: ${err.message}`;
+    }
+  }
+
   onMount(() => {
+    adminToken = localStorage.getItem("wizardAdminToken") || "";
+    hasAdminToken = !!adminToken;
     loadDashboard();
     loadGitHubHealth();
+    loadSchedulerStatus();
     refreshTimer = setInterval(loadSystemStats, 15000);
   });
 
@@ -108,6 +186,15 @@
       </button>
     </div>
   </div>
+
+  {#if !hasAdminToken}
+    <div class="bg-amber-900/40 border border-amber-700 text-amber-100 rounded-lg p-4 text-sm">
+      <div class="font-semibold">Admin token missing</div>
+      <div class="text-xs text-amber-200 mt-1">
+        Protected endpoints (devices, logs, config, library, GitHub) will fail until you set an admin token in the menu.
+      </div>
+    </div>
+  {/if}
 
   {#if loading}
     <div class="text-center py-12 text-gray-400">Loading dashboard...</div>
@@ -301,6 +388,149 @@
             </div>
           </div>
         </div>
+      {/if}
+    </div>
+
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 space-y-4">
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-white">Scheduler</h3>
+          <p class="text-sm text-gray-400">Queued work and pacing status</p>
+        </div>
+        <button
+          class="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
+          on:click={loadSchedulerStatus}
+        >
+          Refresh
+        </button>
+      </div>
+
+      {#if schedulerError}
+        <div class="bg-red-900/60 border border-red-700 text-red-100 p-3 rounded text-sm">
+          {schedulerError}
+        </div>
+      {:else if schedulerStatus}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">
+          <div>
+            <div class="text-gray-400">Pending queue</div>
+            <div class="text-lg font-semibold">{schedulerStatus.stats?.pending_queue}</div>
+          </div>
+          <div>
+            <div class="text-gray-400">Successful (24h)</div>
+            <div class="text-lg font-semibold">{schedulerStatus.stats?.successful_today}</div>
+          </div>
+          <div>
+            <div class="text-gray-400">Tasks</div>
+            <div class="text-lg font-semibold">
+              {Object.keys(schedulerStatus.stats?.tasks || {}).length}
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 border-t border-gray-700 pt-4">
+          <div class="text-sm text-gray-400 mb-2">Scheduler controls</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-gray-300">
+            <label class="flex flex-col gap-1">
+              <span class="text-gray-400">Max tasks / tick</span>
+              <input
+                type="number"
+                min="1"
+                max="10"
+                bind:value={schedulerSettings.max_tasks_per_tick}
+                class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white"
+              />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-gray-400">Tick seconds</span>
+              <input
+                type="number"
+                min="10"
+                max="3600"
+                bind:value={schedulerSettings.tick_seconds}
+                class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white"
+              />
+            </label>
+            <label class="flex items-center gap-2 mt-6">
+              <input
+                type="checkbox"
+                bind:checked={schedulerSettings.allow_network}
+              />
+              <span class="text-gray-400">Allow network tasks</span>
+            </label>
+          </div>
+          <button
+            class="mt-3 px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs"
+            on:click={updateSchedulerSettings}
+          >
+            Save scheduler settings
+          </button>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-sm text-gray-400 mb-2">Queued tasks</div>
+          {#if schedulerStatus.queue?.length}
+            <div class="space-y-2 text-sm">
+              {#each schedulerStatus.queue.slice(0, 6) as item}
+                <button
+                  class="flex items-center justify-between bg-slate-900/50 border border-slate-700 rounded px-3 py-2 text-left hover:bg-slate-800/70"
+                  on:click={() => loadTaskDetails(item.task_id)}
+                >
+                  <div>
+                    <div class="font-semibold text-white">{item.name}</div>
+                    <div class="text-xs text-gray-400">
+                      {item.kind || "task"} • priority {item.priority} • need {item.need}
+                    </div>
+                  </div>
+                  <div class="text-xs text-gray-400">
+                    {new Date(item.scheduled_for).toLocaleString()}
+                  </div>
+                </button>
+              {/each}
+            </div>
+          {:else}
+            <div class="text-sm text-gray-400">No queued tasks.</div>
+          {/if}
+        </div>
+
+        {#if selectedTask}
+          <div class="mt-4 border-t border-gray-700 pt-4">
+            <div class="text-sm text-gray-400 mb-2">Selected task</div>
+            <div class="bg-slate-900/60 border border-slate-700 rounded p-3 text-sm text-gray-200 space-y-2">
+              <div class="font-semibold text-white">{selectedTask.name}</div>
+              <div class="text-xs text-gray-400">
+                {selectedTask.kind || "task"} • priority {selectedTask.priority} • need {selectedTask.need}
+              </div>
+              {#if selectedTask.payload}
+                <pre class="text-xs text-gray-300 whitespace-pre-wrap">{JSON.stringify(selectedTask.payload, null, 2)}</pre>
+              {/if}
+              {#if selectedTaskRuns?.length}
+                <div class="text-xs text-gray-400">Recent runs</div>
+                <ul class="text-xs text-gray-300 space-y-1">
+                  {#each selectedTaskRuns as run}
+                    <li>
+                      <button
+                        class="text-left hover:text-white"
+                        on:click={() => (selectedRun = run)}
+                      >
+                        {run.created_at} → {run.result || run.state || "pending"}
+                      </button>
+                    </li>
+                  {/each}
+                </ul>
+              {/if}
+              {#if selectedRun}
+                <div class="text-xs text-gray-400 mt-3">Run output</div>
+                <pre class="text-xs text-gray-300 whitespace-pre-wrap">
+{selectedRun.output || "No output"}
+                </pre>
+              {/if}
+            </div>
+          </div>
+        {:else if taskDetailError}
+          <div class="mt-4 text-sm text-red-300">{taskDetailError}</div>
+        {/if}
+      {:else}
+        <div class="text-sm text-gray-400">Loading scheduler status...</div>
       {/if}
     </div>
 

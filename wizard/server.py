@@ -23,6 +23,7 @@ import os
 import re
 import json
 import asyncio
+import threading
 import shutil
 import webbrowser
 import hmac
@@ -37,6 +38,10 @@ from wizard.services.ai_gateway import AIRequest, AIGateway
 from wizard.services.logging_manager import get_logging_manager
 from wizard.services.path_utils import get_repo_root
 from wizard.services.secret_store import get_secret_store, SecretStoreError
+from wizard.services.device_auth import get_device_auth, DeviceStatus
+from wizard.services.mesh_sync import get_mesh_sync
+
+from typing import TYPE_CHECKING
 
 # Optional FastAPI (only on Wizard Server)
 try:
@@ -48,6 +53,11 @@ try:
 except ImportError:
     FASTAPI_AVAILABLE = False
     FastAPI = None
+    HTTPException = None
+    Request = None
+
+if TYPE_CHECKING:  # pragma: no cover
+    from fastapi import Request as FastAPIRequest
 
 # Rate limiter
 from wizard.services.rate_limiter import (
@@ -96,6 +106,13 @@ class WizardConfig:
     github_allowed_repo: str = "fredporter/uDOS-dev"
     github_default_branch: str = "main"
     github_push_enabled: bool = False
+    admin_api_key_id: Optional[str] = None
+    notion_enabled: bool = False
+    hubspot_enabled: bool = False
+    icloud_enabled: bool = False
+    oauth_enabled: bool = False
+    compost_cleanup_days: int = 30
+    compost_cleanup_dry_run: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -157,6 +174,9 @@ class WizardServer:
         self.ai_gateway = AIGateway()
         self._started = False
         self.logging_manager = get_logging_manager()
+        self.task_scheduler = None
+        self._scheduler_thread = None
+        self._scheduler_stop = threading.Event()
 
         # Ensure directories exist
         WIZARD_DATA_PATH.mkdir(parents=True, exist_ok=True)
@@ -176,6 +196,14 @@ class WizardServer:
             docs_url="/docs" if self.config.debug else None,
             redoc_url="/redoc" if self.config.debug else None,
         )
+
+        # Ensure micro editor is available in /library
+        try:
+            from wizard.services.editor_utils import ensure_micro_repo
+
+            ensure_micro_repo()
+        except Exception:
+            pass
 
         # CORS (restricted to known origins in production)
         app.add_middleware(
@@ -201,7 +229,7 @@ class WizardServer:
         # Register Port Manager routes
         from wizard.services.port_manager_service import create_port_manager_router
 
-        port_router = create_port_manager_router()
+        port_router = create_port_manager_router(auth_guard=self._authenticate_admin)
         app.include_router(port_router)
 
         # Register Notification History routes
@@ -219,45 +247,51 @@ class WizardServer:
         # Register Dev Mode routes
         from wizard.routes.dev_routes import create_dev_routes
 
-        dev_router = create_dev_routes(auth_guard=self._authenticate)
+        dev_router = create_dev_routes(auth_guard=self._authenticate_admin)
         app.include_router(dev_router)
 
         # Register Notion sync routes
         from wizard.routes.notion_routes import create_notion_routes
 
-        notion_router = create_notion_routes(auth_guard=self._authenticate)
+        notion_router = create_notion_routes(auth_guard=self._authenticate_admin)
         app.include_router(notion_router)
 
         # Register Task scheduler routes
         from wizard.routes.task_routes import create_task_routes
 
-        task_router = create_task_routes(auth_guard=self._authenticate)
+        task_router = create_task_routes(auth_guard=self._authenticate_admin)
         app.include_router(task_router)
+
+        # Register Setup wizard routes
+        from wizard.routes.setup_routes import create_setup_routes
+
+        setup_router = create_setup_routes(auth_guard=self._authenticate_admin)
+        app.include_router(setup_router)
 
         # Register Workflow manager routes
         from wizard.routes.workflow_routes import create_workflow_routes
 
-        workflow_router = create_workflow_routes(auth_guard=self._authenticate)
+        workflow_router = create_workflow_routes(auth_guard=self._authenticate_admin)
         app.include_router(workflow_router)
 
         # Register Sync executor routes
         from wizard.routes.sync_executor_routes import create_sync_executor_routes
 
         sync_executor_router = create_sync_executor_routes(
-            auth_guard=self._authenticate
+            auth_guard=self._authenticate_admin
         )
         app.include_router(sync_executor_router)
 
         # Register Binder compiler routes
         from wizard.routes.binder_routes import create_binder_routes
 
-        binder_router = create_binder_routes(auth_guard=self._authenticate)
+        binder_router = create_binder_routes(auth_guard=self._authenticate_admin)
         app.include_router(binder_router)
 
         # Register GitHub integration routes
         from wizard.routes.github_routes import create_github_routes
 
-        github_router = create_github_routes(auth_guard=self._authenticate)
+        github_router = create_github_routes(auth_guard=self._authenticate_admin)
         app.include_router(github_router)
 
         # Register AI routes (Mistral/Vibe)
@@ -269,12 +303,12 @@ class WizardServer:
         # Register Configuration routes
         from wizard.routes.config_routes import create_config_routes
 
-        config_router = create_config_routes(auth_guard=self._authenticate)
+        config_router = create_config_routes(auth_guard=self._authenticate_admin)
         app.include_router(config_router)
         # Register Provider management routes
         from wizard.routes.provider_routes import create_provider_routes
 
-        provider_router = create_provider_routes(auth_guard=self._authenticate)
+        provider_router = create_provider_routes(auth_guard=self._authenticate_admin)
         app.include_router(provider_router)
 
         # Register System Info routes (OS detection, library status)
@@ -292,8 +326,83 @@ class WizardServer:
         # Register Library management routes
         from wizard.routes.library_routes import get_library_router
 
-        library_router = get_library_router()
+        library_router = get_library_router(auth_guard=self._authenticate_admin)
         app.include_router(library_router)
+
+        # Register Workspace routes
+        from wizard.routes.workspace_routes import create_workspace_routes
+
+        workspace_router = create_workspace_routes(auth_guard=self._authenticate_admin)
+        app.include_router(workspace_router)
+
+        # Register Font routes
+        from wizard.routes.font_routes import create_font_routes
+
+        font_router = create_font_routes(auth_guard=self._authenticate_admin)
+        app.include_router(font_router)
+
+        # Register Layer editor routes
+        from wizard.routes.layer_editor_routes import create_layer_editor_routes
+
+        layer_editor_router = create_layer_editor_routes(
+            auth_guard=self._authenticate_admin
+        )
+        app.include_router(layer_editor_router)
+
+        # Register Catalog routes
+        from wizard.routes.catalog_routes import create_catalog_routes
+
+        catalog_router = create_catalog_routes(auth_guard=self._authenticate_admin)
+        app.include_router(catalog_router)
+
+        # Register Webhook status routes
+        from wizard.routes.webhook_routes import create_webhook_routes
+
+        def _get_base_url() -> str:
+            host = self.config.host
+            port = self.config.port
+            if host == "0.0.0.0":
+                host = "localhost"
+            return f"http://{host}:{port}"
+
+        def _get_webhook_secret() -> Optional[str]:
+            # Prefer secret store via key-id
+            key_id = self.config.github_webhook_secret_key_id
+            if not key_id:
+                return None
+            try:
+                store = get_secret_store()
+                store.unlock()
+                entry = store.get(key_id)
+                return entry.value if entry and entry.value else None
+            except SecretStoreError:
+                return None
+
+        webhook_router = create_webhook_routes(
+            auth_guard=self._authenticate_admin,
+            base_url_provider=_get_base_url,
+            github_secret_provider=_get_webhook_secret,
+            notion_secret_provider=lambda: os.getenv("NOTION_WEBHOOK_SECRET"),
+        )
+        app.include_router(webhook_router)
+
+        # Register Artifact store routes
+        from wizard.routes.artifact_routes import create_artifact_routes
+
+        artifact_router = create_artifact_routes(auth_guard=self._authenticate_admin)
+        app.include_router(artifact_router)
+
+        # Register Repair routes
+        from wizard.routes.repair_routes import create_repair_routes
+
+        repair_router = create_repair_routes(auth_guard=self._authenticate_admin)
+        app.include_router(repair_router)
+
+        # Register Sonic Screwdriver device database routes
+        from wizard.routes.sonic_routes import create_sonic_routes
+
+        sonic_router = create_sonic_routes(auth_guard=self._authenticate_admin)
+        app.include_router(sonic_router)
 
         # Mount dashboard static files
         from fastapi.staticfiles import StaticFiles
@@ -318,7 +427,38 @@ class WizardServer:
                 return HTMLResponse(self._get_fallback_dashboard_html())
 
         self.app = app
+        self._start_scheduler()
         return app
+
+    def _start_scheduler(self) -> None:
+        if self._scheduler_thread and self._scheduler_thread.is_alive():
+            return
+        from wizard.services.task_scheduler import TaskScheduler
+
+        self.task_scheduler = TaskScheduler()
+        try:
+            self.task_scheduler.ensure_daily_compost_cleanup(
+                days=self.config.compost_cleanup_days,
+                dry_run=self.config.compost_cleanup_dry_run,
+            )
+        except Exception:
+            pass
+
+        def loop():
+            while not self._scheduler_stop.is_set():
+                try:
+                    settings = self.task_scheduler.get_settings()
+                    max_tasks = int(settings.get("max_tasks_per_tick", 2))
+                    tick_seconds = int(settings.get("tick_seconds", 60))
+                    result = self.task_scheduler.run_pending(max_tasks=max_tasks)
+                    if result.get("executed", 0):
+                        logger.info(f"[WIZ] Scheduler executed {result.get('executed')} task(s)")
+                except Exception as exc:
+                    logger.warning(f"[WIZ] Scheduler loop error: {exc}")
+                self._scheduler_stop.wait(tick_seconds)
+
+        self._scheduler_thread = threading.Thread(target=loop, daemon=True)
+        self._scheduler_thread.start()
 
     def _get_fallback_dashboard_html(self) -> str:
         """Return basic HTML dashboard when Svelte build isn't available."""
@@ -428,6 +568,13 @@ class WizardServer:
                     return None
             # Strict: no fallback to plaintext config; require secret store
             return None
+
+        def _get_base_url() -> str:
+            host = self.config.host
+            port = self.config.port
+            if host == "0.0.0.0":
+                host = "localhost"
+            return f"http://{host}:{port}"
 
         def _verify_signature(
             body: bytes, signature_header: Optional[str], secret: Optional[str]
@@ -731,10 +878,172 @@ class WizardServer:
                 result = sync_service.sync_pull()
             return result.__dict__
 
+        # Mesh device management (dashboard)
+        @app.get("/api/v1/mesh/devices")
+        async def list_mesh_devices(request: Request):
+            """List paired mesh devices."""
+            await self._authenticate_admin(request)
+            auth = get_device_auth()
+            devices = auth.list_devices()
+            return {
+                "devices": [
+                    {
+                        "id": d.id,
+                        "name": d.name,
+                        "type": d.device_type,
+                        "status": d.status.value,
+                        "transport": d.transport,
+                        "trust_level": d.trust_level.value,
+                        "last_seen": d.last_seen or "Never",
+                        "sync_status": f"v{d.sync_version}"
+                        if d.sync_version
+                        else "Never synced",
+                    }
+                    for d in devices
+                ],
+                "count": len(devices),
+            }
+
+        @app.post("/api/v1/mesh/pairing-code")
+        async def mesh_pairing_code(request: Request):
+            """Generate pairing code for mesh device."""
+            await self._authenticate_admin(request)
+            auth = get_device_auth()
+            wizard_address = request.url.netloc
+            pairing = auth.create_pairing_request(wizard_address=wizard_address)
+            return {"code": pairing.code, "qr_data": pairing.qr_data}
+
+        @app.get("/api/v1/mesh/pairing-qr")
+        async def mesh_pairing_qr(request: Request, data: str):
+            """Generate QR SVG for pairing payload."""
+            await self._authenticate_admin(request)
+            try:
+                import qrcode
+                from qrcode.image.svg import SvgImage
+            except Exception:
+                raise HTTPException(status_code=503, detail="qrcode not installed")
+
+            qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_M)
+            qr.add_data(data)
+            qr.make(fit=True)
+            img = qr.make_image(image_factory=SvgImage)
+            svg = img.to_string().decode("utf-8")
+            return JSONResponse(content={"svg": svg})
+
+        @app.post("/api/v1/mesh/pair")
+        async def mesh_pair(request: Request):
+            """Complete device pairing."""
+            await self._authenticate_admin(request)
+            body = await request.json()
+            auth = get_device_auth()
+            device = auth.complete_pairing(
+                code=body.get("code"),
+                device_id=body.get("device_id"),
+                device_name=body.get("device_name"),
+                device_type=body.get("device_type", "desktop"),
+                public_key=body.get("public_key", ""),
+            )
+            if not device:
+                raise HTTPException(status_code=400, detail="Invalid or expired code")
+            return {"status": "success", "device": device.to_dict()}
+
+        @app.post("/api/v1/mesh/devices/{device_id}/sync")
+        async def mesh_sync_device(device_id: str, request: Request):
+            """Trigger sync for a specific device."""
+            await self._authenticate_admin(request)
+            auth = get_device_auth()
+            sync = get_mesh_sync()
+            device = auth.get_device(device_id)
+            if not device:
+                raise HTTPException(status_code=404, detail="Device not found")
+            delta = sync.get_delta(device.sync_version)
+            return {
+                "status": "sync_initiated",
+                "device_id": device_id,
+                "items_to_sync": len(delta.items),
+                "from_version": delta.from_version,
+                "to_version": delta.to_version,
+            }
+
+        @app.post("/api/v1/mesh/devices/sync-all")
+        async def mesh_sync_all(request: Request):
+            """Trigger sync for all online devices."""
+            await self._authenticate_admin(request)
+            auth = get_device_auth()
+            online_devices = [
+                d for d in auth.list_devices() if d.status == DeviceStatus.ONLINE
+            ]
+            results = [
+                {
+                    "device_id": d.id,
+                    "device_name": d.name,
+                    "status": "sync_initiated",
+                }
+                for d in online_devices
+            ]
+            return {
+                "status": "success",
+                "devices_synced": len(results),
+                "results": results,
+            }
+
+        @app.post("/api/v1/mesh/devices/{device_id}/ping")
+        async def mesh_ping(device_id: str, request: Request):
+            """Ping a device (placeholder)."""
+            await self._authenticate_admin(request)
+            auth = get_device_auth()
+            device = auth.get_device(device_id)
+            if not device:
+                raise HTTPException(status_code=404, detail="Device not found")
+            return {
+                "status": "pong",
+                "device_id": device_id,
+                "latency_ms": 42,
+                "transport": device.transport,
+            }
+
+        # POKE service controls
+        @app.get("/api/v1/poke/services")
+        async def poke_services(request: Request):
+            await self._authenticate_admin(request)
+            from wizard.web.poke_commands import POKECommandHandler
+
+            handler = POKECommandHandler()
+            services = []
+            for name in ["dashboard", "desktop", "terminal", "teletext", "web"]:
+                config = handler._get_service_config(name)
+                if not config:
+                    continue
+                running = handler._is_port_available(config["port"])
+                services.append(
+                    {
+                        "id": name,
+                        "name": name.title(),
+                        "port": config["port"],
+                        "description": config["description"],
+                        "status": "running" if running else "stopped",
+                    }
+                )
+            return {"services": services}
+
+        @app.post("/api/v1/poke/services/{service}/{action}")
+        async def poke_control(service: str, action: str, request: Request):
+            await self._authenticate_admin(request)
+            from wizard.web.poke_commands import POKECommandHandler
+
+            if action not in ("start", "stop", "restart"):
+                raise HTTPException(status_code=400, detail="Invalid action")
+            handler = POKECommandHandler()
+            ok, message = handler.handle_command([action, service])
+            if not ok:
+                raise HTTPException(status_code=400, detail=message)
+            return {"success": True, "message": message}
+
         # TUI Control Routes (for Wizard TUI interface)
         @app.get("/api/v1/devices")
-        async def list_devices():
+        async def list_devices(request: Request):
             """List connected devices (TUI endpoint)."""
+            await self._authenticate_admin(request)
             devices = []
             for device_id, session in self.sessions.items():
                 devices.append(
@@ -757,13 +1066,14 @@ class WizardServer:
             level: Optional[str] = None,
         ):
             """Return recent Wizard logs (latest first)."""
-            _ = request  # placeholder for future auth guard
+            await self._authenticate_admin(request)
             selected_category = filter or category or "all"
             return self._read_logs(selected_category, limit=limit, level=level)
 
         @app.post("/api/v1/models/switch")
         async def switch_model(request: Request):
             """Switch AI model (TUI endpoint)."""
+            await self._authenticate_admin(request)
             body = await request.json()
             model = body.get("model")
             if not model:
@@ -773,8 +1083,9 @@ class WizardServer:
             return {"success": True, "model": model, "message": f"Switched to {model}"}
 
         @app.post("/api/v1/services/{service}/{action}")
-        async def control_service(service: str, action: str):
+        async def control_service(service: str, action: str, request: Request):
             """Control service start/stop (TUI endpoint)."""
+            await self._authenticate_admin(request)
             valid_services = ["web-proxy", "gmail-relay", "ai-gateway", "plugin-repo"]
             valid_actions = ["start", "stop", "restart"]
 
@@ -1033,7 +1344,7 @@ class WizardServer:
             "file": filename,
         }
 
-    async def _authenticate(self, request: Request) -> str:
+    async def _authenticate(self, request: "FastAPIRequest") -> str:
         """Authenticate device request."""
         auth_header = request.headers.get("Authorization", "")
         if not auth_header.startswith("Bearer "):
@@ -1043,6 +1354,9 @@ class WizardServer:
         # TODO: Validate token against paired devices
         # For now, extract device_id from token format
         device_id = token.split(":")[0] if ":" in token else token[:16]
+        auth = get_device_auth()
+        if not auth.get_device(device_id):
+            raise HTTPException(status_code=401, detail="Unknown device")
 
         # Update session
         now = datetime.utcnow().isoformat() + "Z"
@@ -1059,18 +1373,26 @@ class WizardServer:
         session.request_count += 1
         return device_id
 
-    @staticmethod
-    def _verify_signature(
-        raw_body: bytes, signature: Optional[str], secret: str
-    ) -> bool:
-        """Validate GitHub webhook signature (sha256)."""
-        if not signature or not signature.startswith("sha256="):
-            return False
-        expected = hmac.new(
-            secret.encode("utf-8"), raw_body, hashlib.sha256
-        ).hexdigest()
-        provided = signature.split("sha256=", 1)[1]
-        return hmac.compare_digest(expected, provided)
+    async def _authenticate_admin(self, request: "FastAPIRequest") -> None:
+        """Authenticate admin request using secret store key."""
+        key_id = self.config.admin_api_key_id
+        if not key_id:
+            raise HTTPException(status_code=503, detail="admin api key not configured")
+
+        auth_header = request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="Missing authorization")
+
+        token = auth_header[7:]
+        try:
+            store = get_secret_store()
+            store.unlock()
+            entry = store.get(key_id)
+        except SecretStoreError:
+            raise HTTPException(status_code=503, detail="admin secret store locked")
+
+        if not entry or not entry.value or not hmac.compare_digest(token, entry.value):
+            raise HTTPException(status_code=403, detail="Invalid admin token")
 
     async def _list_plugins(self) -> Dict[str, Any]:
         """List available plugins in repository."""

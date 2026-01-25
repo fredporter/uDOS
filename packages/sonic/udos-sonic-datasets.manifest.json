@@ -1,0 +1,107 @@
+{
+  "$schema": "https://udos.local/schemas/manifest.schema.json",
+  "manifest_version": "1.0.0",
+  "component": "udos-sonic-datasets",
+  "name": "Sonic Screwdriver Device Database",
+  "version": "1.0.0",
+  "status": "alpha",
+  "released": "2026-01-25",
+  "scope": "wizard-distribution",
+  "description": "Device capabilities and re-flash potential catalog for Sonic Screwdriver. Tracks vendor compatibility, BIOS/UEFI, USB boot, Ventoy, and reflash methods.",
+  "publisher": "uDOS Team",
+  "license": "MIT",
+  "repository": "https://github.com/fredporter/uDOS",
+  "documentation": "sonic/datasets/README.md",
+  "dependencies": {
+    "core": ">=1.0.0",
+    "sonic": ">=1.0.0"
+  },
+  "files": [
+    {
+      "path": "sonic/datasets/sonic-devices.table.md",
+      "type": "data-table",
+      "format": "markdown-table",
+      "description": "Primary human-editable device catalog"
+    },
+    {
+      "path": "sonic/datasets/sonic-devices.schema.json",
+      "type": "schema",
+      "format": "json-schema-draft7",
+      "description": "Validation schema for device records"
+    },
+    {
+      "path": "sonic/datasets/sonic-devices.sql",
+      "type": "database-schema",
+      "format": "sqlite3",
+      "description": "SQLite schema and seed data"
+    },
+    {
+      "path": "sonic/datasets/README.md",
+      "type": "documentation",
+      "format": "markdown",
+      "description": "Dataset documentation and usage guide"
+    },
+    {
+      "path": "sonic/datasets/version.json",
+      "type": "metadata",
+      "format": "json",
+      "description": "Component versioning"
+    }
+  ],
+  "features": [
+    "Device catalog with vendor/model/variant",
+    "Hardware capabilities (CPU, RAM, storage, GPU)",
+    "BIOS/UEFI/Secure Boot/TPM detection",
+    "USB boot and Ventoy compatibility tracking",
+    "Re-flash potential assessment",
+    "Recommended flash methods per device",
+    "Source citations and verification status",
+    "JSON Schema validation",
+    "SQLite compilation template"
+  ],
+  "provides": {
+    "data_source": "sonic.devices",
+    "schemas": [
+      "sonic-devices (JSON Schema draft-07)"
+    ],
+    "apis": []
+  },
+  "integrations": [
+    {
+      "target": "wizard-server",
+      "endpoint": "/api/v1/sonic/devices",
+      "method": "GET",
+      "description": "Query device catalog (future integration)"
+    },
+    {
+      "target": "core-file-parsing",
+      "format": "markdown-table",
+      "conversion": "table.md → JSON/SQLite",
+      "description": "Parse and compile device records"
+    }
+  ],
+  "deployment": {
+    "distribution": "udos-sonic-datasets",
+    "install_path": "/sonic/datasets",
+    "required_disk_mb": 2,
+    "data_volume_gb": 0.1
+  },
+  "updates": {
+    "frequency": "ad-hoc",
+    "auto_check": false,
+    "auto_update": false,
+    "changelog_url": "sonic/CHANGELOG.md"
+  },
+  "support": {
+    "issues": "https://github.com/fredporter/uDOS/issues",
+    "discussions": "https://github.com/fredporter/uDOS/discussions"
+  },
+  "tags": [
+    "device-management",
+    "hardware-compatibility",
+    "re-flashing",
+    "usb-boot",
+    "ventoy",
+    "database"
+  ]
+}

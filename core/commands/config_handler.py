@@ -124,10 +124,22 @@ class ConfigHandler(BaseCommandHandler):
             }
 
         import subprocess
+        import os
 
-        editor = "nano"  # Default to nano for TUI compatibility
+        editor = os.environ.get("EDITOR")
+        if not editor:
+            from core.services.editor_utils import pick_editor
+
+            editor_name, editor_path = pick_editor()
+            editor = str(editor_path) if editor_path else None
 
         try:
+            if not editor:
+                return {
+                    "status": "error",
+                    "message": "Editor not found",
+                    "output": "Install micro or nano, or set EDITOR environment variable",
+                }
             subprocess.run([editor, str(config_file)], check=True)
             return {
                 "status": "success",
@@ -139,7 +151,7 @@ class ConfigHandler(BaseCommandHandler):
             return {
                 "status": "error",
                 "message": f"Editor not found: {editor}",
-                "output": "Install nano or set EDITOR environment variable",
+                "output": "Install micro or nano, or set EDITOR environment variable",
             }
 
     def _run_setup(self) -> Dict:

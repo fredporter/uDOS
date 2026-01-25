@@ -8,6 +8,12 @@
   let showPairingModal = false;
   let pairingCode = "";
   let pairingQR = "";
+  let pairingSvg = "";
+  let adminToken = "";
+
+  const authHeaders = () =>
+    adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
+
 
   function handleBackdropClick(event) {
     if (event.target === event.currentTarget) {
@@ -24,9 +30,17 @@
 
   async function loadDevices() {
     try {
-      const res = await fetch("/api/devices");
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      devices = await res.json();
+      const res = await fetch("/api/v1/mesh/devices", {
+        headers: authHeaders(),
+      });
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          throw new Error("Admin token required");
+        }
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      devices = data.devices || [];
       loading = false;
     } catch (err) {
       error = `Failed to load devices: ${err.message}`;
@@ -36,11 +50,30 @@
 
   async function generatePairingCode() {
     try {
-      const res = await fetch("/api/devices/pairing-code");
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const res = await fetch("/api/v1/mesh/pairing-code", {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          throw new Error("Admin token required");
+        }
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = await res.json();
       pairingCode = data.code;
-      pairingQR = data.qr_url;
+      pairingQR = data.qr_data;
+      pairingSvg = "";
+      if (pairingQR) {
+        const qrRes = await fetch(
+          `/api/v1/mesh/pairing-qr?data=${encodeURIComponent(pairingQR)}`,
+          { headers: authHeaders() },
+        );
+        if (qrRes.ok) {
+          const qrData = await qrRes.json();
+          pairingSvg = qrData.svg || "";
+        }
+      }
     } catch (err) {
       error = `Failed to generate pairing code: ${err.message}`;
     }
@@ -48,7 +81,10 @@
 
   async function syncDevice(deviceId) {
     try {
-      await fetch(`/api/devices/${deviceId}/sync`, { method: "POST" });
+      await fetch(`/api/v1/mesh/devices/${deviceId}/sync`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
       await loadDevices();
     } catch (err) {
       error = `Sync failed: ${err.message}`;
@@ -57,7 +93,10 @@
 
   async function syncAll() {
     try {
-      await fetch("/api/devices/sync-all", { method: "POST" });
+      await fetch("/api/v1/mesh/devices/sync-all", {
+        method: "POST",
+        headers: authHeaders(),
+      });
       await loadDevices();
     } catch (err) {
       error = `Sync all failed: ${err.message}`;
@@ -80,6 +119,7 @@
   });
 
   onMount(() => {
+    adminToken = localStorage.getItem("wizardAdminToken") || "";
     loadDevices();
     const interval = setInterval(loadDevices, 10000);
     return () => clearInterval(interval);
@@ -236,9 +276,14 @@
                 {pairingCode}
               </p>
             </div>
-            {#if pairingQR}
-              <p class="text-gray-400 mb-2">Or scan this QR code:</p>
-              <img src={pairingQR} alt="Pairing QR Code" class="mx-auto" />
+            {#if pairingSvg}
+              <p class="text-gray-400 mb-2">Scan this QR code:</p>
+              <div class="bg-white inline-block p-3 rounded" {@html pairingSvg}></div>
+            {:else if pairingQR}
+              <p class="text-gray-400 mb-2">QR payload:</p>
+              <div class="text-xs text-gray-300 bg-gray-900 border border-gray-700 rounded p-3 break-all">
+                {pairingQR}
+              </div>
             {/if}
           </div>
         {:else}

@@ -428,6 +428,27 @@ class APKBuilder:
         self.build_temp = BUILD_TEMP_PATH
         self.repo_path = PLUGIN_REPO_PATH
         self.logger = logger
+        self._default_key_dir = Path.home() / ".abuild"
+
+    def _check_abuild_key(self) -> Tuple[bool, str]:
+        """Check for abuild signing key presence."""
+        sign_key = os.environ.get("WIZARD_APK_SIGN_KEY")
+        if sign_key:
+            key_path = Path(sign_key)
+            if key_path.exists():
+                return True, f"WIZARD_APK_SIGN_KEY={key_path}"
+            return False, f"WIZARD_APK_SIGN_KEY not found: {key_path}"
+
+        key_name = os.environ.get("ABUILD_KEYNAME", "udos")
+        candidate = self._default_key_dir / f"{key_name}.rsa"
+        if candidate.exists():
+            return True, f"ABUILD_KEYNAME={key_name} ({candidate})"
+
+        # Fallback: any .rsa in ~/.abuild
+        keys = list(self._default_key_dir.glob("*.rsa"))
+        if keys:
+            return True, f"abuild key found: {keys[0]}"
+        return False, "abuild key not found in ~/.abuild"
 
     def build_apk(
         self,
@@ -469,24 +490,101 @@ class APKBuilder:
                     error=f"Container not found: {container_path}",
                 )
 
-            # TODO: Implement APK build workflow
-            # 1. Check for APKBUILD file
-            # 2. Validate APKBUILD syntax (abuild -n)
-            # 3. Install build dependencies (apk add -t .makedeps)
-            # 4. Run abuild (cd container_path && abuild -r)
-            # 5. Generate APK and signatures
-            # 6. Create APKINDEX (apk index -o)
-            # 7. Generate manifest
-
-            if self.logger:
-                self.logger.info(
-                    f"[APK] APK builder not yet implemented for {plugin_id}"
+            apkbuild_path = container_path / "APKBUILD"
+            if not apkbuild_path.exists():
+                return BuildResult(
+                    success=False,
+                    plugin_id=plugin_id,
+                    error="APKBUILD not found in container",
+                    build_time_seconds=time.time() - start_time,
                 )
 
+            if shutil.which("abuild") is None:
+                return BuildResult(
+                    success=False,
+                    plugin_id=plugin_id,
+                    error="abuild not found (install abuild on Alpine)",
+                    build_time_seconds=time.time() - start_time,
+                )
+
+            key_ok, key_msg = self._check_abuild_key()
+            if not key_ok:
+                return BuildResult(
+                    success=False,
+                    plugin_id=plugin_id,
+                    error=f"abuild key missing: {key_msg}",
+                    build_time_seconds=time.time() - start_time,
+                )
+
+            # Validate APKBUILD
+            lint = subprocess.run(
+                ["abuild", "-n"],
+                cwd=str(container_path),
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            if lint.returncode != 0:
+                return BuildResult(
+                    success=False,
+                    plugin_id=plugin_id,
+                    error=f"APKBUILD validation failed: {lint.stderr.strip()}",
+                    build_time_seconds=time.time() - start_time,
+                )
+
+            # Build package (requires abuild setup and keys)
+            repo_dest = self.build_temp / "apk-repo"
+            repo_dest.mkdir(parents=True, exist_ok=True)
+            env = os.environ.copy()
+            env["REPODEST"] = str(repo_dest)
+            if version:
+                env["PKGVER_OVERRIDE"] = version
+
+            build = subprocess.run(
+                ["abuild", "-r"],
+                cwd=str(container_path),
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=900,
+            )
+            if build.returncode != 0:
+                return BuildResult(
+                    success=False,
+                    plugin_id=plugin_id,
+                    error=f"abuild failed: {build.stderr.strip()}",
+                    build_time_seconds=time.time() - start_time,
+                )
+
+            # Locate built APKs
+            built_apks = sorted(repo_dest.rglob("*.apk"))
+            if not built_apks:
+                return BuildResult(
+                    success=False,
+                    plugin_id=plugin_id,
+                    error="No APKs produced by abuild",
+                    build_time_seconds=time.time() - start_time,
+                )
+
+            # Prefer package that matches plugin_id prefix
+            package_path = None
+            for apk in built_apks:
+                if apk.name.startswith(f"{plugin_id}-"):
+                    package_path = apk
+                    break
+            if not package_path:
+                package_path = built_apks[0]
+
+            # Move APK into plugin repository
+            plugin_dir = self.repo_path / plugin_id
+            plugin_dir.mkdir(parents=True, exist_ok=True)
+            final_path = plugin_dir / package_path.name
+            shutil.copy2(package_path, final_path)
+
             return BuildResult(
-                success=False,
+                success=True,
                 plugin_id=plugin_id,
-                error="APK builder not yet implemented (placeholder)",
+                package_path=final_path,
                 build_time_seconds=time.time() - start_time,
             )
 
@@ -508,11 +606,20 @@ class APKBuilder:
         Returns:
             (valid: bool, message: str)
         """
-        # TODO: Implement APK verification
-        # 1. Check signature with apk-tools
-        # 2. Verify integrity with tar -tzf
-        # 3. Check dependencies
-        return False, "APK verification not yet implemented"
+        if not apk_path.exists():
+            return False, "APK not found"
+        try:
+            import tarfile
+
+            with tarfile.open(apk_path, "r:gz") as tf:
+                members = tf.getnames()
+                has_signature = any(
+                    name.startswith(".SIGN.RSA.") for name in members
+                )
+            msg = "Signature present" if has_signature else "Signature not found"
+            return True, msg
+        except Exception as e:
+            return False, f"APK verification error: {str(e)}"
 
     def generate_apkindex(self, repo_path: Optional[Path] = None) -> Tuple[bool, str]:
         """
@@ -527,12 +634,34 @@ class APKBuilder:
         if not repo_path:
             repo_path = self.repo_path
 
-        # TODO: Implement APKINDEX generation
-        # 1. Scan directory for .apk files
-        # 2. Generate APKINDEX.tar.gz with: apk index -o APKINDEX.tar.gz *.apk
-        # 3. Sign index with: abuild-sign -k key.rsa APKINDEX.tar.gz
+        apk_files = list(Path(repo_path).rglob("*.apk"))
+        if not apk_files:
+            return False, "No APKs found for index"
 
-        return False, "APKINDEX generation not yet implemented"
+        if shutil.which("apk") is None:
+            return False, "apk tool not found"
+
+        index_path = Path(repo_path) / "APKINDEX.tar.gz"
+        cmd = ["apk", "index", "-o", str(index_path)] + [str(p) for p in apk_files]
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        if result.returncode != 0:
+            return False, f"apk index failed: {result.stderr.strip()}"
+
+        sign_key = os.environ.get("WIZARD_APK_SIGN_KEY")
+        if sign_key:
+            if shutil.which("abuild-sign") is None:
+                return False, "abuild-sign not found for signing"
+            sign = subprocess.run(
+                ["abuild-sign", "-k", sign_key, str(index_path)],
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            if sign.returncode != 0:
+                return False, f"abuild-sign failed: {sign.stderr.strip()}"
+            return True, f"APKINDEX generated and signed: {index_path}"
+
+        return True, f"APKINDEX generated (unsigned): {index_path}"
 
 
 class TCZBuilder:

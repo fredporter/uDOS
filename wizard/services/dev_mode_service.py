@@ -19,6 +19,9 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime
 
 from wizard.services.logging_manager import get_logger
+from wizard.services.workflow_manager import WorkflowManager
+from wizard.services.vibe_service import VibeService
+from wizard.services.ai_context_store import write_context_bundle
 
 
 class DevModeService:
@@ -95,6 +98,14 @@ class DevModeService:
             self.start_time = time.time()
             self.services_status["goblin"] = True
 
+            # Create a Dev Round project for task tracking
+            workflow = WorkflowManager()
+            round_name = f"Dev Round {datetime.now().strftime('%Y-%m-%d')}"
+            workflow.get_or_create_project(
+                round_name,
+                description="Auto-created when DEV MODE is activated.",
+            )
+
             self.logger.info(
                 f"[WIZ-DEV] Dev mode activated. Goblin running on {self.goblin_host}:{self.goblin_port}"
             )
@@ -113,6 +124,64 @@ class DevModeService:
                 "status": "error",
                 "message": str(exc),
             }
+
+    def clear(self) -> Dict[str, Any]:
+        """Clear dev mode caches and trigger rebuild tasks."""
+        self.logger.info("[WIZ-DEV] Clearing dev mode caches/rebuilds...")
+        results: Dict[str, Any] = {"status": "cleared", "actions": []}
+
+        # Refresh AI context bundle
+        try:
+            write_context_bundle()
+            results["actions"].append({"context": "refreshed"})
+        except Exception as exc:
+            results["actions"].append({"context": f"error: {exc}"})
+
+        # Rebuild wizard dashboard if needed
+        dashboard_dir = self.wizard_root / "wizard" / "dashboard"
+        dist_path = dashboard_dir / "dist" / "index.html"
+        rebuild = False
+        if not dist_path.exists():
+            rebuild = True
+        else:
+            try:
+                for path in (dashboard_dir / "src").rglob("*"):
+                    if path.is_file() and path.stat().st_mtime > dist_path.stat().st_mtime:
+                        rebuild = True
+                        break
+            except Exception:
+                rebuild = True
+
+        if rebuild:
+            try:
+                subprocess.run(
+                    ["npm", "install", "--no-fund", "--no-audit"],
+                    cwd=str(dashboard_dir),
+                    check=True,
+                )
+                subprocess.run(
+                    ["npm", "run", "build"],
+                    cwd=str(dashboard_dir),
+                    check=True,
+                )
+                results["actions"].append({"dashboard": "rebuilt"})
+            except Exception as exc:
+                results["actions"].append({"dashboard": f"error: {exc}"})
+
+        return results
+
+    def suggest_next_steps(self) -> str:
+        """Generate next-step suggestions using local Vibe (Ollama)."""
+        try:
+            vibe = VibeService()
+            context = vibe.load_default_context()
+            prompt = (
+                "Suggest the next 3-5 development steps for uDOS. "
+                "Consider devlog, roadmap, and recent logs."
+            )
+            return vibe.generate(prompt=prompt, system=context)
+        except Exception as exc:
+            return f"Failed to generate suggestions: {exc}"
 
     def deactivate(self) -> Dict[str, Any]:
         """Deactivate dev mode (stop Goblin dev server)."""
@@ -258,6 +327,16 @@ class DevModeService:
                 "status": "unreachable",
                 "error": str(exc),
             }
+
+
+_dev_mode_service: Optional[DevModeService] = None
+
+
+def get_dev_mode_service() -> DevModeService:
+    global _dev_mode_service
+    if _dev_mode_service is None:
+        _dev_mode_service = DevModeService()
+    return _dev_mode_service
             health["healthy"] = False
 
         return health

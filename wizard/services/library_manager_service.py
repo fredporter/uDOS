@@ -55,6 +55,81 @@ class LibraryManagerService:
 
         return get_system_info_service(self.repo_root).get_library_status()
 
+    def get_dependency_inventory(self) -> Dict[str, Any]:
+        """Collect dependency inventory from container.json manifests."""
+        status = self.get_library_status()
+        inventory: Dict[str, Any] = {}
+        for integration in status.integrations:
+            try:
+                container_path = Path(integration.path) / "container.json"
+                if not container_path.exists():
+                    continue
+                manifest = json.loads(container_path.read_text())
+                deps = {
+                    "apk_dependencies": manifest.get("apk_dependencies", []),
+                    "brew_dependencies": manifest.get("brew_dependencies", []),
+                    "apt_dependencies": manifest.get("apt_dependencies", []),
+                    "pip_dependencies": manifest.get("pip_dependencies", []),
+                    "python_version": manifest.get("python_version", ""),
+                }
+                inventory[integration.name] = {
+                    "path": integration.path,
+                    "source": integration.source,
+                    "deps": deps,
+                }
+            except Exception:
+                continue
+        return inventory
+
+    def update_alpine_toolchain(
+        self, packages: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """Update Alpine toolchain packages (python3, pip, etc.)."""
+        from wizard.services.system_info_service import get_system_info_service
+
+        os_info = get_system_info_service(self.repo_root).get_os_info()
+        if not os_info.is_alpine:
+            return {
+                "success": False,
+                "message": "Toolchain updates only supported on Alpine",
+            }
+
+        pkg_list = packages or [
+            "python3",
+            "py3-pip",
+            "py3-setuptools",
+            "py3-wheel",
+            "py3-virtualenv",
+        ]
+
+        try:
+            update = subprocess.run(
+                ["apk", "update"], capture_output=True, text=True, timeout=120
+            )
+            if update.returncode != 0:
+                return {
+                    "success": False,
+                    "message": f"apk update failed: {update.stderr.strip()}",
+                }
+
+            cmd = ["apk", "add", "--upgrade", "--no-cache"] + pkg_list
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=300
+            )
+            if result.returncode != 0:
+                return {
+                    "success": False,
+                    "message": f"apk add --upgrade failed: {result.stderr.strip()}",
+                }
+
+            return {
+                "success": True,
+                "message": "Toolchain updated",
+                "packages": pkg_list,
+            }
+        except Exception as e:
+            return {"success": False, "message": f"Toolchain update error: {str(e)}"}
+
     def get_integration(self, name: str) -> Optional[LibraryIntegration]:
         """Get specific integration by name."""
         status = self.get_library_status()

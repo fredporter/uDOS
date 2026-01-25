@@ -30,6 +30,8 @@ from core.commands import (
     BinderHandler,
     RunHandler,
     DatasetHandler,
+    FileEditorHandler,
+    MaintenanceHandler,
 )
 
 
@@ -42,6 +44,9 @@ class CommandDispatcher:
         self.npc_handler = NPCHandler()
         self.dialogue_engine = DialogueEngine()
         self.talk_handler = TalkHandler(self.npc_handler, self.dialogue_engine)
+
+        file_editor = FileEditorHandler()
+        maintenance = MaintenanceHandler()
 
         self.handlers: Dict[str, Any] = {
             # Navigation (4)
@@ -76,7 +81,21 @@ class CommandDispatcher:
             "RUN": RunHandler(),
             # Data
             "DATASET": DatasetHandler(),
+            # File editor
+            "NEW": file_editor,
+            "EDIT": file_editor,
+            # Maintenance
+            "BACKUP": maintenance,
+            "RESTORE": maintenance,
+            "TIDY": maintenance,
+            "CLEAN": maintenance,
+            "COMPOST": maintenance,
+            "DESTROY": maintenance,
         }
+
+        self.file_handler = file_editor
+        self.save_handler = SaveHandler()
+        self.load_handler = LoadHandler()
 
     def dispatch(
         self, command_text: str, grid: Any = None, parser: Any = None
@@ -102,6 +121,14 @@ class CommandDispatcher:
 
         # Get handler
         handler = self.handlers.get(cmd_name)
+        if cmd_name in {"SAVE", "LOAD"}:
+            if cmd_params and cmd_params[0].lower() in {"game", "state"}:
+                handler = (
+                    self.save_handler if cmd_name == "SAVE" else self.load_handler
+                )
+                cmd_params = cmd_params[1:]
+            else:
+                handler = self.file_handler
         if not handler:
             return {
                 "status": "error",

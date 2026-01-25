@@ -26,7 +26,7 @@ except ImportError:
 import sys
 import os
 import logging
-from typing import Optional, List, Iterable
+from typing import Optional, List, Iterable, Tuple
 
 from .autocomplete import AutocompleteService
 from .command_predictor import CommandPredictor
@@ -46,7 +46,7 @@ else:
 
 
 class CoreCompleter(Completer):
-    """Dynamic autocomplete for Core TUI commands"""
+    """Dynamic autocomplete for Core TUI commands with syntax hints"""
 
     def __init__(self, autocomplete_service: AutocompleteService):
         """
@@ -56,19 +56,20 @@ class CoreCompleter(Completer):
             autocomplete_service: AutocompleteService instance
         """
         self.autocomplete = autocomplete_service
+        self._command_cache = {}
 
     def get_completions(
         self, document: Document, complete_event
     ) -> Iterable[Completion]:
         """
-        Provide completions based on cursor position.
+        Provide completions based on cursor position with enhanced help text.
 
         Args:
             document: Current document
             complete_event: Completion event
 
         Yields:
-            Completion objects
+            Completion objects with syntax hints
         """
         text = document.text_before_cursor
         debug_logger.debug(f"get_completions() called: text='{text}'")
@@ -92,14 +93,20 @@ class CoreCompleter(Completer):
             debug_logger.debug(
                 f"  Got {len(completions_list)} completions: {completions_list}"
             )
+
             for completion in completions_list:
                 debug_logger.debug(
                     f"    Yielding completion: {completion}, start_position=-{len(partial_cmd)}"
                 )
+
+                # Get help text for the command
+                help_text = self._get_command_help(completion)
+
                 yield Completion(
                     completion,
                     start_position=-len(partial_cmd),
                     display=completion,
+                    display_meta=help_text,
                 )
         else:
             # Completing arguments/options
@@ -115,11 +122,89 @@ class CoreCompleter(Completer):
                     debug_logger.debug(
                         f"    Yielding option: {option}, start_position=-{len(partial)}"
                     )
+
+                    # Add context-specific help for options
+                    option_hint = self._get_option_hint(cmd, option)
+
                     yield Completion(
                         option,
                         start_position=-len(partial),
                         display=option,
+                        display_meta=option_hint,
                     )
+
+    def _get_command_help(self, command: str) -> str:
+        """
+        Get quick help text for a command.
+
+        Args:
+            command: Command name (e.g., "GOTO")
+
+        Returns:
+            Short description for display
+        """
+        if command in self._command_cache:
+            return self._command_cache[command]
+
+        try:
+            from core.commands.help_handler import HelpHandler
+
+            help_handler = HelpHandler()
+            if command in help_handler.COMMANDS:
+                cmd_info = help_handler.COMMANDS[command]
+                desc = cmd_info.get("description", "")
+                category = cmd_info.get("category", "")
+
+                # Format: "Description | Category"
+                help_text = f"{desc} | {category}" if category else desc
+
+                self._command_cache[command] = help_text
+                return help_text
+        except Exception:
+            pass
+
+        return ""
+
+    def _get_option_hint(self, command: str, option: str) -> str:
+        """
+        Get hint text for an option.
+
+        Args:
+            command: Command name
+            option: Option name
+
+        Returns:
+            Hint text for display
+        """
+        # Common option hints
+        hints = {
+            "--help": "Show help for this command",
+            "--verbose": "Verbose output",
+            "--force": "Force operation without confirmation",
+            "--dry-run": "Show what would be done without doing it",
+            "--limit": "Limit results to N items",
+            "--offset": "Start results at offset",
+            "--type": "Filter by type",
+            "--region": "Filter by region",
+            "--filter": "Filter results",
+            "--compress": "Apply compression",
+            "--aggressive": "Aggressive mode (more changes)",
+            "--confirm": "Require confirmation",
+            "--date": "Specify date (YYYY-MM-DD)",
+            "--template": "Use template",
+            "--readonly": "Read-only mode",
+            "--no-edit": "Do not open editor",
+            "--validate": "Validate before proceeding",
+            "--test": "Test mode (dry run)",
+            "--details": "Show detailed information",
+            "--focus": "Focus on specific module/area",
+            "--check": "Check for issues",
+            "--install": "Install dependencies",
+            "--pull": "Pull from remote",
+            "--skip-intro": "Skip introduction",
+        }
+
+        return hints.get(option.lower(), "")
 
 
 class SmartPrompt:
@@ -184,11 +269,14 @@ class SmartPrompt:
         # Create key bindings
         self.key_bindings = self._create_key_bindings()
 
-        # Create style
+        # Create style with improved syntax highlighting
         self.style = Style.from_dict(
             {
-                "prompt": "ansigreen bold",
-                "": "",
+                "prompt": "ansigreen bold",           # Bold green prompt
+                "completion": "ansiwhite",             # White completions
+                "completion.meta": "ansiyellow",       # Yellow hints
+                "scrollbar": "ansicyan",               # Cyan scrollbar
+                "scrollbar.background": "ansiblack",   # Dark background
             }
         )
 
@@ -344,12 +432,13 @@ class SmartPrompt:
         """
         tokens = self.predictor.tokenize(command)
 
-        # Simple ANSI color codes
-        color_map = {
-            "green": "\033[32m",
-            "cyan": "\033[36m",
-            "yellow": "\033[33m",
-            "white": "\033[37m",
+        # ANSI color codes for syntax highlighting
+        colors = {
+            "command": "\033[1;32m",    # Bold green
+            "subcommand": "\033[36m",    # Cyan
+            "argument": "\033[37m",      # White
+            "option": "\033[33m",        # Yellow
+            "path": "\033[35m",          # Magenta
             "reset": "\033[0m",
         }
 
@@ -358,10 +447,84 @@ class SmartPrompt:
 
         highlighted = ""
         for token in tokens:
-            color = color_map.get(token.color, "")
-            highlighted += f"{color}{token.text}\033[0m "
+            token_color = colors.get(token.color, colors["reset"])
+            highlighted += f"{token_color}{token.text}{colors['reset']} "
 
         return highlighted.strip()
+
+    def get_command_help_hint(self, command: str) -> Optional[str]:
+        """
+        Get a quick help hint for a command.
+
+        Args:
+            command: Command string (e.g., "GOTO north" or "SAVE")
+
+        Returns:
+            Help hint string or None
+        """
+        if not command or not command.strip():
+            return None
+
+        parts = command.split()
+        cmd_name = parts[0].upper() if parts else ""
+
+        # Import help handler to get command metadata
+        try:
+            from core.commands.help_handler import HelpHandler
+            help_handler = HelpHandler()
+
+            if cmd_name in help_handler.COMMANDS:
+                cmd_info = help_handler.COMMANDS[cmd_name]
+                # Format: "COMMAND (category) → description | syntax"
+                category = cmd_info.get("category", "Unknown")
+                desc = cmd_info.get("description", "")
+                syntax = cmd_info.get("syntax", cmd_info.get("usage", ""))
+
+                # Shorten long syntax for display
+                if len(syntax) > 50:
+                    syntax = syntax[:47] + "..."
+
+                return f"{cmd_name} ({category}) → {desc}\n              Syntax: {syntax}"
+
+        except Exception:
+            # Silently fail if help handler unavailable
+            pass
+
+        return None
+
+    def get_syntax_examples(self, command: str, max_examples: int = 3) -> List[str]:
+        """
+        Get example usages for a command.
+
+        Args:
+            command: Command string
+            max_examples: Maximum examples to return
+
+        Returns:
+            List of example strings
+        """
+        if not command or not command.strip():
+            return []
+
+        cmd_name = command.split()[0].upper()
+
+        try:
+            from core.commands.help_handler import HelpHandler
+            help_handler = HelpHandler()
+
+            if cmd_name in help_handler.COMMANDS:
+                cmd_info = help_handler.COMMANDS[cmd_name]
+                example = cmd_info.get("example", "")
+
+                if example:
+                    # Split multiple examples by "or"
+                    examples = [e.strip() for e in example.split(" or ")]
+                    return examples[:max_examples]
+
+        except Exception:
+            pass
+
+        return []
 
     def __repr__(self) -> str:
         """String representation"""

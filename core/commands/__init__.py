@@ -27,6 +27,8 @@ from .provider_handler import ProviderHandler
 from .binder_handler import BinderHandler
 from .run_handler import RunHandler
 from .dataset_handler import DatasetHandler
+from .file_editor_handler import FileEditorHandler
+from .maintenance_handler import MaintenanceHandler
 
 __all__ = [
     "BaseCommandHandler",
@@ -60,4 +62,6 @@ __all__ = [
     "BinderHandler",
     "RunHandler",
     "DatasetHandler",
+    "FileEditorHandler",
+    "MaintenanceHandler",
 ]

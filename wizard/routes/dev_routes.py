@@ -7,14 +7,14 @@ from typing import Callable, Awaitable, Optional
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
-from wizard.services.dev_mode_service import DevModeService
+from wizard.services.dev_mode_service import get_dev_mode_service
 
 AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
 
 
 def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
     router = APIRouter(prefix="/api/v1/dev", tags=["dev-mode"])
-    dev_mode = DevModeService()
+    dev_mode = get_dev_mode_service()
 
     @router.get("/health")
     async def health_check(request: Request):
@@ -45,6 +45,12 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
         return dev_mode.restart()
+
+    @router.post("/clear")
+    async def clear_dev_mode(request: Request):
+        if auth_guard:
+            await auth_guard(request)
+        return dev_mode.clear()
 
     @router.get("/logs")
     async def get_dev_logs(request: Request, lines: int = 50):

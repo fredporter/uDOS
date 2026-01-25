@@ -10,10 +10,17 @@
   let ghAvailable = true;
   let ghError = null;
   let activeTab = "repos";
+  let adminToken = "";
+
+  const authHeaders = () =>
+    adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
+
 
   async function checkHealth() {
     try {
-      const res = await fetch("/api/v1/github/health");
+      const res = await fetch("/api/v1/github/health", {
+        headers: authHeaders(),
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.status === "unavailable") {
@@ -37,9 +44,21 @@
 
   async function loadRepos() {
     try {
-      const res = await fetch("/api/v1/github/repos");
+      const res = await fetch("/api/v1/github/health", {
+        headers: authHeaders(),
+      });
       if (res.ok) {
-        repos = await res.json();
+        const data = await res.json();
+        if (data.status === "ok") {
+          repos = [
+            {
+              name: `${data.owner}/${data.repo}`,
+              description: "Current repository",
+            },
+          ];
+        } else {
+          repos = [];
+        }
       } else if (res.status === 503) {
         ghAvailable = false;
       }
@@ -50,9 +69,12 @@
 
   async function loadIssues() {
     try {
-      const res = await fetch("/api/v1/github/issues");
+      const res = await fetch("/api/v1/github/issues", {
+        headers: authHeaders(),
+      });
       if (res.ok) {
-        issues = await res.json();
+        const data = await res.json();
+        issues = data.issues || [];
       } else if (res.status === 503) {
         ghAvailable = false;
       }
@@ -63,9 +85,12 @@
 
   async function loadPullRequests() {
     try {
-      const res = await fetch("/api/v1/github/pull-requests");
+      const res = await fetch("/api/v1/github/pulls", {
+        headers: authHeaders(),
+      });
       if (res.ok) {
-        pullRequests = await res.json();
+        const data = await res.json();
+        pullRequests = data.pull_requests || [];
       } else if (res.status === 503) {
         ghAvailable = false;
       }
@@ -76,10 +101,12 @@
 
   async function loadDevlog() {
     try {
-      const res = await fetch("/api/v1/github/devlog");
+      const res = await fetch("/api/v1/github/context/devlog", {
+        headers: authHeaders(),
+      });
       if (res.ok) {
         const data = await res.json();
-        devlog = data.entries || [];
+        devlog = data.content || "";
       }
       loading = false;
     } catch (err) {
@@ -89,6 +116,7 @@
   }
 
   onMount(async () => {
+    adminToken = localStorage.getItem("wizardAdminToken") || "";
     const available = await checkHealth();
     if (available) {
       loadRepos();
@@ -258,25 +286,11 @@
           </div>
         {/if}
       {:else if activeTab === "devlog"}
-        {#if devlog.length === 0}
+        {#if !devlog}
           <p class="text-gray-400 text-center py-8">No devlog entries found</p>
         {:else}
-          <div class="space-y-4">
-            {#each devlog as entry}
-              <div class="bg-gray-900 border border-gray-700 rounded p-4">
-                <div class="flex items-center gap-2 mb-2">
-                  <span class="text-purple-400 font-medium">{entry.date}</span>
-                  {#if entry.title}
-                    <span class="text-white">• {entry.title}</span>
-                  {/if}
-                </div>
-                {#if entry.content}
-                  <div class="text-gray-400 text-sm whitespace-pre-line">
-                    {entry.content}
-                  </div>
-                {/if}
-              </div>
-            {/each}
+          <div class="bg-gray-900 border border-gray-700 rounded p-4">
+            <div class="text-gray-400 text-sm whitespace-pre-line">{devlog}</div>
           </div>
         {/if}
       {/if}

@@ -26,7 +26,10 @@ from wizard.services.path_utils import get_repo_root, get_memory_dir
 
 def create_config_routes(auth_guard=None):
     """Create configuration management routes."""
-    router = APIRouter(prefix="/api/v1/config", tags=["config"])
+    dependencies = [Depends(auth_guard)] if auth_guard else []
+    router = APIRouter(
+        prefix="/api/v1/config", tags=["config"], dependencies=dependencies
+    )
 
     CONFIG_PATH = Path(__file__).parent.parent / "config"
 

@@ -27,6 +27,7 @@ Date: 2026-01-05
 import os
 import json
 import asyncio
+import hmac
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, Any, Optional, List
@@ -44,6 +45,7 @@ from wizard.services.device_auth import get_device_auth, DeviceStatus
 from wizard.services.mesh_sync import get_mesh_sync, SyncItemType
 from wizard.services.rate_limiter import get_rate_limiter
 from wizard.services.logging_manager import get_logger
+from wizard.services.secret_store import get_secret_store, SecretStoreError
 
 # Gmail OAuth (Flask blueprint - convert to FastAPI)
 try:
@@ -65,10 +67,16 @@ app = FastAPI(
     version="v1.0.0.0",
 )
 
-# CORS (localhost + local network only)
+# CORS (localhost only by default; allow LAN via env)
+allow_lan = os.environ.get("WIZARD_WEB_ALLOW_LAN", "false").lower() in ("1", "true")
+origin_regex = r"^http://(localhost|127\.0\.0\.1)(:\d+)?$"
+if allow_lan:
+    origin_regex = r"^http://(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3})(:\d+)?$"
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:*", "http://127.0.0.1:*", "http://192.168.*.*"],
+    allow_origins=[],
+    allow_origin_regex=origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -90,6 +98,44 @@ templates = Jinja2Templates(directory=str(WIZARD_ROOT / "web" / "templates"))
 
 # WebSocket connections
 active_connections: List[WebSocket] = []
+
+LOCALHOSTS = {"127.0.0.1", "::1", "localhost"}
+LAN_PREFIXES = ("192.168.", "10.", "172.16.", "172.17.", "172.18.", "172.19.", "172.20.", "172.21.", "172.22.", "172.23.", "172.24.", "172.25.", "172.26.", "172.27.", "172.28.", "172.29.", "172.30.", "172.31.")
+
+
+def _is_allowed_host(host: Optional[str]) -> bool:
+    if not host:
+        return False
+    if host in LOCALHOSTS:
+        return True
+    if allow_lan and host.startswith(LAN_PREFIXES):
+        return True
+    return False
+
+
+async def _require_admin(request: Request) -> None:
+    key_id = os.environ.get("WIZARD_WEB_ADMIN_KEY_ID", "wizard-admin-token")
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing authorization")
+    token = auth_header[7:]
+    try:
+        store = get_secret_store()
+        store.unlock()
+        entry = store.get(key_id)
+    except SecretStoreError:
+        raise HTTPException(status_code=503, detail="admin secret store locked")
+    if not entry or not entry.value:
+        raise HTTPException(status_code=503, detail="admin token not configured")
+    if not hmac.compare_digest(token, entry.value):
+        raise HTTPException(status_code=403, detail="Invalid admin token")
+
+
+@app.middleware("http")
+async def local_only_middleware(request: Request, call_next):
+    if not _is_allowed_host(request.client.host if request.client else ""):
+        return JSONResponse(status_code=403, content={"detail": "Localhost only"})
+    return await call_next(request)
 
 
 # ============================================================================
@@ -149,6 +195,7 @@ async def poke_dashboard(request: Request):
 @app.post("/api/poke/upload")
 async def upload_poke_file(request: Request):
     """Upload file for POKE hosting."""
+    await _require_admin(request)
     # TODO: Implement file upload
     return {"status": "success", "url": "/p/example.html"}
 
@@ -157,7 +204,9 @@ async def upload_poke_file(request: Request):
 async def serve_poke_file(path: str):
     """Serve hosted POKE file."""
     poke_dir = MEMORY_ROOT / "wizard" / "poke"
-    file_path = poke_dir / path
+    file_path = _safe_join(poke_dir, path)
+    if not file_path:
+        raise HTTPException(status_code=400, detail="Invalid path")
 
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
@@ -198,6 +247,7 @@ async def webhooks_dashboard(request: Request):
 @app.post("/webhook/{webhook_id}")
 async def receive_webhook(webhook_id: str, request: Request):
     """Receive webhook from external service."""
+    await _require_admin(request)
     body = await request.json()
 
     logger.info(f"[WIZ] Webhook received: {webhook_id}")
@@ -238,8 +288,9 @@ async def devices_dashboard(request: Request):
 
 
 @app.get("/api/devices")
-async def get_devices():
+async def get_devices(request: Request):
     """API endpoint for device list."""
+    await _require_admin(request)
     devices = await list_devices()
     return JSONResponse({"devices": devices})
 
@@ -280,44 +331,31 @@ async def list_devices() -> List[Dict[str, Any]]:
 
 
 @app.get("/api/devices/pairing-qr")
-async def get_pairing_qr():
+async def get_pairing_qr(request: Request):
     """Generate QR code for device pairing."""
+    await _require_admin(request)
     auth = get_device_auth()
-    request = auth.create_pairing_request()
+    wizard_address = request.url.netloc
+    pairing = auth.create_pairing_request(wizard_address=wizard_address)
 
-    # Return QR code as HTML (or could return SVG/image)
-    # For now, return the data that would be encoded
-    return HTMLResponse(
-        f"""
-        <div class="text-center">
-            <div class="bg-white p-4 rounded inline-block">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={request.qr_data}" 
-                     alt="Pairing QR Code" class="mx-auto">
-            </div>
-            <p class="text-xs text-gray-500 mt-2">Scan with uDOS device</p>
-        </div>
-    """
-    )
+    return JSONResponse({"qr_data": pairing.qr_data, "code": pairing.code})
 
 
 @app.get("/api/devices/pairing-code")
-async def get_pairing_code():
+async def get_pairing_code(request: Request):
     """Generate manual pairing code."""
+    await _require_admin(request)
     auth = get_device_auth()
-    request = auth.create_pairing_request()
+    wizard_address = request.url.netloc
+    pairing = auth.create_pairing_request(wizard_address=wizard_address)
 
-    return HTMLResponse(
-        f"""
-        <code class="text-2xl font-mono text-blue-400 bg-gray-900 px-4 py-2 rounded">
-            {request.code}
-        </code>
-    """
-    )
+    return JSONResponse({"code": pairing.code})
 
 
 @app.post("/api/devices/pair")
 async def pair_device(request: Request):
     """Complete device pairing."""
+    await _require_admin(request)
     body = await request.json()
 
     auth = get_device_auth()
@@ -340,6 +378,7 @@ async def pair_device(request: Request):
 @app.post("/api/devices/{device_id}/sync")
 async def sync_device(device_id: str, request: Request):
     """Trigger sync with a specific device."""
+    await _require_admin(request)
     auth = get_device_auth()
     sync = get_mesh_sync()
 
@@ -366,8 +405,9 @@ async def sync_device(device_id: str, request: Request):
 
 
 @app.post("/api/devices/sync-all")
-async def sync_all_devices():
+async def sync_all_devices(request: Request):
     """Trigger sync with all online devices."""
+    await _require_admin(request)
     auth = get_device_auth()
     online_devices = [d for d in auth.list_devices() if d.status == DeviceStatus.ONLINE]
 
@@ -389,8 +429,9 @@ async def sync_all_devices():
 
 
 @app.post("/api/devices/{device_id}/ping")
-async def ping_device(device_id: str):
+async def ping_device(device_id: str, request: Request):
     """Ping a device to check connectivity."""
+    await _require_admin(request)
     auth = get_device_auth()
     device = auth.get_device(device_id)
 
@@ -421,6 +462,7 @@ async def sync_push(request: Request):
 
     Device pushes its changes to Wizard Server.
     """
+    await _require_admin(request)
     body = await request.json()
     device_id = body.get("device_id")
     items = body.get("items", [])
@@ -451,6 +493,7 @@ async def sync_pull(request: Request, device_id: str, since_version: int = 0):
 
     Device pulls changes from Wizard Server.
     """
+    await _require_admin(request)
     auth = get_device_auth()
     sync = get_mesh_sync()
 
@@ -466,8 +509,9 @@ async def sync_pull(request: Request, device_id: str, since_version: int = 0):
 
 
 @app.get("/api/sync/status")
-async def sync_status():
+async def sync_status(request: Request):
     """Get current sync status."""
+    await _require_admin(request)
     sync = get_mesh_sync()
     auth = get_device_auth()
 
@@ -504,8 +548,9 @@ async def logs_dashboard(request: Request):
 
 
 @app.get("/api/logs")
-async def get_logs(level: str = "all", limit: int = 100):
+async def get_logs(request: Request, level: str = "all", limit: int = 100):
     """API endpoint for log entries."""
+    await _require_admin(request)
     # Read recent logs
     log_entries = await read_recent_logs(level, limit)
     return JSONResponse({"logs": log_entries})
@@ -541,6 +586,9 @@ async def read_recent_logs(level: str, limit: int) -> List[Dict[str, Any]]:
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     """WebSocket for real-time dashboard updates."""
+    if not _is_allowed_host(websocket.client.host if websocket.client else ""):
+        await websocket.close(code=1008)
+        return
     await websocket.accept()
     active_connections.append(websocket)
 
@@ -583,6 +631,9 @@ log_connections: List[WebSocket] = []
 @app.websocket("/ws/logs")
 async def websocket_logs(websocket: WebSocket):
     """WebSocket for real-time log streaming."""
+    if not _is_allowed_host(websocket.client.host if websocket.client else ""):
+        await websocket.close(code=1008)
+        return
     await websocket.accept()
     log_connections.append(websocket)
 
@@ -622,6 +673,20 @@ async def broadcast_event(event_type: str, data: Any):
             await connection.send_json(message)
         except:
             pass  # Client disconnected
+
+
+def _safe_join(base_dir: Path, rel_path: str) -> Optional[Path]:
+    if not rel_path or rel_path.startswith(("/", "\\")):
+        return None
+    if ".." in rel_path.split("/"):
+        return None
+    base = base_dir.resolve()
+    target = (base_dir / rel_path).resolve()
+    try:
+        target.relative_to(base)
+    except ValueError:
+        return None
+    return target
 
 
 # ============================================================================

@@ -14,14 +14,11 @@ Get up and running with uDOS in 5 minutes.
 
 ## Installation
 
-### 1. Clone Repository (with Private Submodule)
+### 1. Clone Repository
 
 ```bash
-git clone --recurse-submodules https://github.com/fredporter/uDOS.git
+git clone https://github.com/fredporter/uDOS.git
 cd uDOS
-
-# If you cloned without submodules:
-git submodule update --init --recursive
 ```
 
 ### 2. Create Virtual Environment
@@ -116,73 +113,24 @@ Always-on backend service with web dashboard for APIs, webhooks, and AI model ro
 
 ---
 
-### Option 3: Goblin Dev Server (Experimental)
+### Option 3: API Extension
 
-Development server with Notion sync, runtime execution, and task scheduling. **Localhost only**.
+REST/WebSocket API server for programmatic access.
 
 ```bash
-./bin/start_goblin.sh
+python -m extensions.api.server
 ```
 
 **What this does:**
 
-1. Activates virtual environment
-2. Installs dependencies if needed
-3. Starts Goblin Dev Server on port `8767`
-4. Opens browser dashboard automatically
+1. Activates virtual environment (if needed)
+2. Starts API server on port `5001`
+3. Provides REST and WebSocket endpoints
 
-**Options:**
+**API URLs:**
 
-```bash
-./bin/start_goblin.sh 8767           # Custom port
-./bin/start_goblin.sh                # Default port 8767
-```
-
-**Features (Experimental):**
-
-- Notion webhook sync
-- TypeScript Markdown runtime execution
-- Task scheduling (organic cron)
-- Binder compilation
-
-**Dashboard URLs:**
-
-- `http://localhost:8767/` — Dev dashboard
-- `http://localhost:8767/api/v0` — Experimental API (unstable)
-
----
-
-### Option 4: Desktop App (Tauri + Svelte)
-
-Modern GUI for uMarkdown with multiple format support.
-
-```bash
-cd app
-npm install
-npm run tauri dev
-```
-
-**Requires:**
-
-- Node.js 18+
-- Tauri CLI installed globally: `npm install -g @tauri-apps/cli@latest`
-
----
-
-### Option 5: Full Development Mode (Everything)
-
-TUI + Wizard Server + Goblin Dev Server + API in one command.
-
-```bash
-./bin/Launch-Dev-Mode.command
-```
-
-**Launches:**
-
-- ✅ Core TUI (main terminal)
-- ✅ Wizard Server (port 8765)
-- ✅ Goblin Dev Server (port 8767)
-- ✅ API Server (port 3000)
+- `http://localhost:5001/docs` — Swagger API documentation
+- `http://localhost:5001/api/v1/*` — REST endpoints
 
 ---
 
@@ -192,9 +140,7 @@ TUI + Wizard Server + Goblin Dev Server + API in one command.
 | ----------------- | ---- | ---------------------------------------- | ------------- |
 | **Core TUI**      | —    | Text-based command interface             | Offline-first |
 | **Wizard Server** | 8765 | Production APIs, model routing, webhooks | Production    |
-| **Goblin Dev**    | 8767 | Notion sync, runtime, task scheduling    | Dev-only      |
-| **API Extension** | 3000 | REST/WebSocket API server                | Optional      |
-| **Tauri App**     | —    | Desktop GUI (runs locally)               | Optional      |
+| **API Extension** | 5001 | REST/WebSocket API server                | Optional      |
 
 ---
 
@@ -238,12 +184,12 @@ tail -f memory/logs/dev-*.log
 ### Run Tests
 
 ```bash
-# TUI health checks (47 tests)
-./bin/start_udos.sh memory/tests/shakedown.uscript
-
-# Integration tests
+# Core TUI tests
 source .venv/bin/activate
-pytest dev/tests/ -v
+pytest core/tests/ -v
+
+# Wizard Server tests
+pytest wizard/tests/ -v
 ```
 
 ---
@@ -285,7 +231,6 @@ pip install Pillow python-dotenv prompt_toolkit rich
 
 ```bash
 ./bin/start_wizard.sh 9000   # Instead of default 8765
-./bin/start_goblin.sh 9001   # Instead of default 8767
 ```
 
 ### Browser Won't Open
@@ -297,19 +242,6 @@ pip install Pillow python-dotenv prompt_toolkit rich
 ```bash
 # Wizard Server
 open http://localhost:8765
-
-# Goblin Dev Server
-open http://localhost:8767
-```
-
-### Submodule Issues
-
-**Problem:** `dev/` folder is empty
-
-**Solution:**
-
-```bash
-git submodule update --init --recursive
 ```
 
 ---
@@ -327,7 +259,7 @@ git submodule update --init --recursive
 
 - **Architecture**: [AGENTS.md](AGENTS.md)
 - **Component Docs**: [Core](core/README.md), [Wizard](wizard/ARCHITECTURE.md), [Extensions](extensions/README.md)
-- **Roadmap**: [docs/roadmap.md](docs/roadmap.md)
+- **Roadmap**: [docs/development-streams.md](docs/development-streams.md)
 - **Issues & Decisions**: [docs/decisions/](docs/decisions/)
 
 ---

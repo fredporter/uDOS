@@ -27,6 +27,7 @@ COMPONENT_PATHS = {
     "wizard": "wizard/version.json",
     "knowledge": "knowledge/version.json",
     "transport": "extensions/transport/version.json",
+    "sonic": "sonic/version.json",
 }
 
 # Legacy paths - ARCHIVED 2026-01-05 (no longer used)

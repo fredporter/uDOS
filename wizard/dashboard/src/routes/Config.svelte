@@ -19,6 +19,15 @@
   let statusType = ""; // "success", "error", "info"
   let currentFileInfo = {};
   let wizardSettings = {};
+  let adminToken = "";
+
+  const authHeaders = () =>
+    adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
+
+  function apiFetch(url, options = {}) {
+    const headers = { ...(options.headers || {}), ...authHeaders() };
+    return fetch(url, { ...options, headers });
+  }
 
   // Configuration files available
   const configFiles = {
@@ -131,6 +140,7 @@
   let importConflicts = [];
 
   onMount(async () => {
+    adminToken = localStorage.getItem("wizardAdminToken") || "";
     await loadFileList();
     await loadProviders();
   });
@@ -138,7 +148,7 @@
   async function loadFileList() {
     isLoading = true;
     try {
-      const response = await fetch("/api/v1/config/files");
+      const response = await apiFetch("/api/v1/config/files");
       const data = await response.json();
       fileList = data.files;
 
@@ -158,7 +168,7 @@
     isLoading = true;
     hasChanges = false;
     try {
-      const response = await fetch(`/api/v1/config/${fileId}`);
+      const response = await apiFetch(`/api/v1/config/${fileId}`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -207,7 +217,7 @@
         throw new Error(`Invalid JSON: ${err.message}`);
       }
 
-      const response = await fetch(`/api/v1/config/${selectedFile}`, {
+      const response = await apiFetch(`/api/v1/config/${selectedFile}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: parsedContent }),
@@ -237,7 +247,7 @@
 
     isLoading = true;
     try {
-      const response = await fetch(`/api/v1/config/${selectedFile}/reset`, {
+      const response = await apiFetch(`/api/v1/config/${selectedFile}/reset`, {
         method: "POST",
       });
 
@@ -259,7 +269,7 @@
     if (!selectedFile) return;
 
     try {
-      const response = await fetch(`/api/v1/config/${selectedFile}/example`);
+      const response = await apiFetch(`/api/v1/config/${selectedFile}/example`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -293,7 +303,7 @@
   async function loadProviders() {
     isLoadingProviders = true;
     try {
-      const response = await fetch("/api/v1/providers/list");
+      const response = await apiFetch("/api/v1/providers/list");
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       providers = data.providers || [];
@@ -331,7 +341,7 @@
 
     isExporting = true;
     try {
-      const response = await fetch("/api/v1/config/export", {
+      const response = await apiFetch("/api/v1/config/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -383,7 +393,7 @@
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("/api/v1/config/import", {
+      const response = await apiFetch("/api/v1/config/import", {
         method: "POST",
         body: formData,
       });
@@ -431,7 +441,7 @@
         file_ids: Object.keys(importPreview),
       };
 
-      const response = await fetch("/api/v1/config/import/chunked", {
+      const response = await apiFetch("/api/v1/config/import/chunked", {
         method: "POST",
         body: formData,
       });

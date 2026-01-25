@@ -7,9 +7,9 @@ Integrated into Wizard Server for real-time visibility.
 """
 
 import asyncio
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Callable, Awaitable
 from datetime import datetime
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from wizard.services.port_manager import (
@@ -125,11 +125,17 @@ class PortManagerService:
         """Kill process on a specific port."""
         import subprocess
         try:
-            subprocess.run(
-                f"lsof -i :{port} | grep -v COMMAND | awk '{{print $2}}' | xargs kill -9",
-                shell=True,
-                timeout=5
+            result = subprocess.run(
+                ["lsof", "-ti", f":{port}"],
+                capture_output=True,
+                text=True,
+                timeout=5,
             )
+            pids = [p for p in result.stdout.strip().splitlines() if p.strip()]
+            if not pids:
+                return True
+            for pid in pids:
+                subprocess.run(["kill", "-9", pid], timeout=2, check=False)
             return True
         except Exception:
             return False
@@ -147,25 +153,37 @@ def get_port_service() -> PortManagerService:
     return _port_service
 
 
-def create_port_manager_router() -> APIRouter:
+def create_port_manager_router(
+    auth_guard: Optional[Callable[[Request], Awaitable[None]]] = None,
+) -> APIRouter:
     """Create FastAPI router for port management endpoints."""
     router = APIRouter(prefix="/api/v1/ports", tags=["port-management"])
+
+    async def _run_guard(request: Request) -> None:
+        if not auth_guard:
+            return
+        result = auth_guard(request)
+        if asyncio.iscoroutine(result):
+            await result
     
     @router.get("/status", response_model=PortDashboard)
-    async def get_port_status():
+    async def get_port_status(request: Request):
         """Get complete port management status."""
+        await _run_guard(request)
         service = get_port_service()
         return service.get_dashboard()
     
     @router.get("/services", response_model=Dict[str, ServiceInfo])
-    async def list_services():
+    async def list_services(request: Request):
         """List all services and their status."""
+        await _run_guard(request)
         service = get_port_service()
         return service.get_all_services()
     
     @router.get("/services/{service_name}", response_model=ServiceInfo)
-    async def get_service_status(service_name: str):
+    async def get_service_status(service_name: str, request: Request):
         """Get status of a specific service."""
+        await _run_guard(request)
         service = get_port_service()
         try:
             return service.check_service(service_name)
@@ -173,14 +191,16 @@ def create_port_manager_router() -> APIRouter:
             raise HTTPException(status_code=404, detail=str(e))
     
     @router.get("/conflicts", response_model=List[PortConflict])
-    async def get_port_conflicts():
+    async def get_port_conflicts(request: Request):
         """Get list of port conflicts."""
+        await _run_guard(request)
         service = get_port_service()
         return service.get_conflicts()
     
     @router.post("/services/{service_name}/kill")
-    async def kill_service(service_name: str):
+    async def kill_service(service_name: str, request: Request):
         """Kill a running service."""
+        await _run_guard(request)
         service = get_port_service()
         if not service.pm.services.get(service_name):
             raise HTTPException(status_code=404, detail=f"Unknown service: {service_name}")
@@ -191,8 +211,9 @@ def create_port_manager_router() -> APIRouter:
             raise HTTPException(status_code=500, detail=f"Failed to kill service: {service_name}")
     
     @router.post("/ports/{port}/kill")
-    async def kill_port(port: int):
+    async def kill_port(port: int, request: Request):
         """Kill process on a specific port."""
+        await _run_guard(request)
         service = get_port_service()
         if service.kill_port(port):
             return {"status": "success", "message": f"Killed process on port {port}"}
@@ -200,15 +221,17 @@ def create_port_manager_router() -> APIRouter:
             raise HTTPException(status_code=500, detail=f"Failed to kill port {port}")
     
     @router.get("/report")
-    async def get_port_report():
+    async def get_port_report(request: Request):
         """Get formatted port status report."""
+        await _run_guard(request)
         service = get_port_service()
         report = service.pm.generate_report()
         return {"report": report}
     
     @router.get("/env")
-    async def get_env_script():
+    async def get_env_script(request: Request):
         """Get environment variable setup script."""
+        await _run_guard(request)
         service = get_port_service()
         script = service.pm.generate_env_script()
         return {"script": script}

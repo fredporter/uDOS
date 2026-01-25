@@ -6,6 +6,8 @@
 
   let menuOpen = false;
   let isFullscreen = false;
+  let adminToken = "";
+  let tokenSaved = false;
 
   const topNavRoutes = [
     { id: "dashboard", label: "Dashboard" },
@@ -13,6 +15,7 @@
     { id: "catalog", label: "Catalog" },
     { id: "poke", label: "Poke" },
     { id: "webhooks", label: "Webhooks" },
+    { id: "setup", label: "Setup" },
   ];
 
   const allMenuRoutes = [
@@ -21,12 +24,22 @@
     { id: "catalog", label: "Catalog" },
     { id: "poke", label: "Poke" },
     { id: "webhooks", label: "Webhooks" },
+    { id: "setup", label: "🧭 Setup" },
     { id: "logs", label: "Logs" },
     { id: "config", label: "Config" },
     { separator: true, label: "Documentation" },
     { id: "wiki", label: "📖 Wiki" },
+    { id: "files", label: "🗂 Files" },
+    { id: "story", label: "📝 Story" },
+    { id: "tables", label: "📊 Tables" },
     { id: "library", label: "📚 Library" },
     { separator: true, label: "Services" },
+    { id: "repair", label: "🛠 Repair" },
+    { id: "font-manager", label: "🔤 Font Manager" },
+    { id: "emoji-pipeline", label: "😀 Emoji Pipeline" },
+    { id: "pixel-editor", label: "🎨 Pixel Editor" },
+    { id: "layer-editor", label: "🧱 Layer Editor" },
+    { id: "svg-processor", label: "🧩 SVG Palette" },
     { id: "devmode", label: "🧌 Dev Mode" },
     { id: "tasks", label: "⏱️ Task Scheduler" },
     { id: "workflow", label: "✅ Workflow" },
@@ -55,7 +68,16 @@
     menuOpen = false;
   }
 
+  function saveToken() {
+    localStorage.setItem("wizardAdminToken", adminToken);
+    tokenSaved = true;
+    setTimeout(() => {
+      tokenSaved = false;
+    }, 1500);
+  }
+
   onMount(() => {
+    adminToken = localStorage.getItem("wizardAdminToken") || "";
     const handleFullscreenChange = () => {
       isFullscreen = !!document.fullscreenElement;
     };
@@ -129,6 +151,18 @@
       }}
     />
     <div class="wizard-menu-dropdown">
+      <div class="menu-token">
+        <div class="menu-token-label">Admin Token</div>
+        <input
+          class="menu-token-input"
+          type="password"
+          bind:value={adminToken}
+          placeholder="Paste admin token"
+        />
+        <button class="menu-token-save" on:click={saveToken}>
+          {tokenSaved ? "Saved" : "Save"}
+        </button>
+      </div>
       <nav class="menu-nav">
         {#each allMenuRoutes as route}
           {#if route.separator}
@@ -291,6 +325,45 @@
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     animation: slideDown 0.2s ease-out;
+  }
+
+  .menu-token {
+    padding: 0.75rem;
+    border-bottom: 1px solid #1f2937;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .menu-token-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #94a3b8;
+    letter-spacing: 0.04em;
+  }
+
+  .menu-token-input {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid #1f2937;
+    color: #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .menu-token-save {
+    background: #059669;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .menu-token-save:hover {
+    background: #10b981;
   }
 
   :global(html.light) .wizard-menu-dropdown {

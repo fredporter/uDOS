@@ -4,24 +4,17 @@
 
 ### For macOS - Double-click to run
 
-- **uDOS TUI:** `/bin/Launch-uDOS-TUI.command` - Interactive terminal interface
+- **Core TUI:** `/bin/Launch-uDOS-TUI.command` - Interactive terminal interface
 - **Wizard Server:** `/bin/Launch-Wizard-Server.command` - Production API server (port 8765)
-- **Goblin Dev Server:** `/dev/goblin/bin/Launch-Goblin-Dev.command` - Experimental server (port 8767)
 
 ### From Terminal
 
 ```bash
-# TUI
+# Core TUI
 ./bin/Launch-uDOS-TUI.command
 
 # Wizard Server
 ./bin/Launch-Wizard-Server.command
-
-# Goblin Dev Server
-./dev/goblin/bin/Launch-Goblin-Dev.command
-
-# Or shell script version
-./dev/goblin/bin/launch-goblin-dev.sh
 ```
 
 ---
@@ -54,30 +47,6 @@
 
 ---
 
-### 👺 Goblin Dev Server (Port 8767)
-
-**Status:** DEVELOPMENT v0.2.0 (unstable, experimental)
-
-**Scope:** Local-only (127.0.0.1)
-
-**Features:**
-
-- Runtime Executor (TS Markdown execution)
-- Experimental API routes (`/api/v0/*`)
-- Svelte Dashboard (modern UI)
-- Feature development sandbox
-
-**Endpoints:**
-
-- Dashboard: `http://127.0.0.1:8767`
-- API: `http://127.0.0.1:8767/api/v0/*`
-- Docs: `http://127.0.0.1:8767/docs`
-- Server Info: `http://127.0.0.1:8767/api/v0/info`
-
-**Config:** `/dev/goblin/config/goblin.json` (local-only, gitignored)
-
----
-
 ## Boot Sequence Output
 
 When you launch a server, you'll see:
@@ -85,21 +54,21 @@ When you launch a server, you'll see:
 ```text
 
 ╔═══════════════════════════════════════════════════════════════╗
-║ 👺 Goblin Dev Server v0.2.0 ║
-║ Experimental • Localhost Only • Breaking Changes OK ║
+║ 🧙 Wizard Server v1.1.0.0 ║
+║ Production • Always-On • Frozen API ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 [BOOT] Checking environment...
 [BOOT] uDOS Root: /Users/fredbook/Code/uDOS
 [BOOT] Python: Python 3.9.6
-[BOOT] Features: Notion sync, Runtime execution, Task scheduling, Binder compilation
+[BOOT] Features: AI Gateway, Plugin Repository, Device Auth, GitHub Integration
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-👺 Goblin Dev Server v0.2.0
+🧙 Wizard Server v1.1.0.0
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [✓] Virtual environment activated
 [✓] Dependencies installed and ready
-[BOOT] Starting Goblin Dev Server on port 8767...
+[BOOT] Starting Wizard Server on port 8765...
 
 ```
 
@@ -112,7 +81,6 @@ When you launch a server, you'll see:
 ```bash
 # Check what's using the port
 lsof -i :8765   # Wizard
-lsof -i :8767   # Goblin
 
 # Kill the process
 kill -9 <PID>
@@ -124,15 +92,6 @@ kill -9 <PID>
 # Activate venv and reinstall
 source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-### Submodule Not Initialized
-
-If you see "[⚠] Note: Goblin Dev Server is in the private submodule (dev/)"
-
-```bash
-git submodule update --init --recursive
-cd dev && git pull origin main && cd ..
 ```
 
 ### Check Server Logs
@@ -154,13 +113,8 @@ cat memory/logs/debug-*.log
 
 ```text
 /bin/
-├── Launch-uDOS-TUI.command          # TUI entry point
-├── Launch-Wizard-Server.command     # Wizard (always-on)
-└── (Goblin moved to dev/goblin/bin)
-
-/dev/goblin/bin/
-├── Launch-Goblin-Dev.command        # Goblin (.command for macOS)
-└── launch-goblin-dev.sh             # Goblin (shell script)
+├── Launch-uDOS-TUI.command          # Core TUI entry point
+└── Launch-Wizard-Server.command     # Wizard API server (always-on)
 ```
 
 ---
@@ -175,30 +129,21 @@ cat memory/logs/debug-*.log
 
 # Terminal 2: Wizard API (in background)
 ./bin/Launch-Wizard-Server.command &
-
-# Terminal 3: Goblin Dev (in background)
-./dev/goblin/bin/Launch-Goblin-Dev.command &
-
-# Terminal 4: Tauri App (if working on UI)
-cd app
-npm run tauri dev
 ```
 
 ### Access Each System
 
-- **TUI:** Interactive prompt in Terminal 1
+- **Core TUI:** Interactive prompt in Terminal 1
 - **Wizard API:** `http://localhost:8765/docs`
-- **Goblin Dashboard:** `http://127.0.0.1:8767`
-- **Tauri App:** Launches in separate window
 
 ---
 
 ## Notes
 
-- **Wizard** is production-stable and frozen. Changes go through RFC process.
-- **Goblin** is experimental-only. Break things, iterate fast, promote to Wizard when stable.
-- **TUI** is the primary user interface for offline-first usage.
-- All servers require Python 3.9+ and virtual environment activation.
+- **Wizard** is production-stable (v1.1.0.0) and frozen. Changes go through RFC process.
+- **Core** is the offline-first TUI runtime. Alpine Linux primary target with multi-OS support.
+- Both systems require Python 3.9+ and virtual environment activation.
+- For experimental development, see private `/dev` submodule.
 
 ---
 

@@ -5,19 +5,36 @@ Provides REST endpoints for managing library integrations and plugins.
 Migrated from Goblin to Wizard for centralized management.
 """
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Request
 from typing import Dict, Any, List, Optional
 from pathlib import Path
+from typing import Callable, Awaitable
 
 from wizard.services.library_manager_service import get_library_manager, InstallResult
 from wizard.services.system_info_service import LibraryStatus, LibraryIntegration
+from wizard.tools.github_dev import PluginFactory
+from wizard.services.plugin_factory import APKBuilder
+from wizard.services.path_utils import get_repo_root
+import shutil
+import os
 
+
+AuthGuard = Optional[Callable[[Request], Awaitable[None]]]
 
 router = APIRouter(prefix="/api/v1/library", tags=["library"])
+_auth_guard: AuthGuard = None
+
+
+async def _run_guard(request: Request) -> None:
+    if not _auth_guard:
+        return
+    result = _auth_guard(request)
+    if hasattr(result, "__await__"):
+        await result
 
 
 @router.get("/status", response_model=Dict[str, Any])
-async def get_library_status():
+async def get_library_status(request: Request):
     """
     Get comprehensive library status.
 
@@ -25,6 +42,7 @@ async def get_library_status():
         LibraryStatus with all integrations and their states
     """
     try:
+        await _run_guard(request)
         manager = get_library_manager()
         status = manager.get_library_status()
 
@@ -58,7 +76,7 @@ async def get_library_status():
 
 
 @router.get("/integration/{name}", response_model=Dict[str, Any])
-async def get_integration(name: str):
+async def get_integration(name: str, request: Request):
     """
     Get specific integration details.
 
@@ -69,6 +87,7 @@ async def get_integration(name: str):
         Integration details or 404 if not found
     """
     try:
+        await _run_guard(request)
         manager = get_library_manager()
         integration = manager.get_integration(name)
 
@@ -101,7 +120,9 @@ async def get_integration(name: str):
 
 
 @router.post("/integration/{name}/install", response_model=Dict[str, Any])
-async def install_integration(name: str, background_tasks: BackgroundTasks):
+async def install_integration(
+    name: str, background_tasks: BackgroundTasks, request: Request
+):
     """
     Install an integration from /library or /dev/library.
 
@@ -117,6 +138,7 @@ async def install_integration(name: str, background_tasks: BackgroundTasks):
         Installation result
     """
     try:
+        await _run_guard(request)
         manager = get_library_manager()
 
         # Check if integration exists
@@ -166,7 +188,7 @@ async def install_integration(name: str, background_tasks: BackgroundTasks):
 
 
 @router.post("/integration/{name}/enable", response_model=Dict[str, Any])
-async def enable_integration(name: str):
+async def enable_integration(name: str, request: Request):
     """
     Enable an installed integration.
 
@@ -179,6 +201,7 @@ async def enable_integration(name: str):
         Enable result
     """
     try:
+        await _run_guard(request)
         manager = get_library_manager()
         result = manager.enable_integration(name)
 
@@ -200,7 +223,7 @@ async def enable_integration(name: str):
 
 
 @router.post("/integration/{name}/disable", response_model=Dict[str, Any])
-async def disable_integration(name: str):
+async def disable_integration(name: str, request: Request):
     """
     Disable an integration.
 
@@ -213,6 +236,7 @@ async def disable_integration(name: str):
         Disable result
     """
     try:
+        await _run_guard(request)
         manager = get_library_manager()
         result = manager.disable_integration(name)
 
@@ -234,7 +258,9 @@ async def disable_integration(name: str):
 
 
 @router.delete("/integration/{name}", response_model=Dict[str, Any])
-async def uninstall_integration(name: str, background_tasks: BackgroundTasks):
+async def uninstall_integration(
+    name: str, background_tasks: BackgroundTasks, request: Request
+):
     """
     Uninstall an integration.
 
@@ -249,6 +275,7 @@ async def uninstall_integration(name: str, background_tasks: BackgroundTasks):
         Uninstall result
     """
     try:
+        await _run_guard(request)
         manager = get_library_manager()
         result = manager.uninstall_integration(name)
 
@@ -270,7 +297,7 @@ async def uninstall_integration(name: str, background_tasks: BackgroundTasks):
 
 
 @router.get("/enabled", response_model=Dict[str, Any])
-async def get_enabled_integrations():
+async def get_enabled_integrations(request: Request):
     """
     Get list of enabled integrations.
 
@@ -278,6 +305,7 @@ async def get_enabled_integrations():
         List of enabled integration names
     """
     try:
+        await _run_guard(request)
         manager = get_library_manager()
         status = manager.get_library_status()
 
@@ -306,7 +334,7 @@ async def get_enabled_integrations():
 
 
 @router.get("/available", response_model=Dict[str, Any])
-async def get_available_integrations():
+async def get_available_integrations(request: Request):
     """
     Get list of integrations available for installation.
 
@@ -314,6 +342,7 @@ async def get_available_integrations():
         List of integrations that can be installed
     """
     try:
+        await _run_guard(request)
         manager = get_library_manager()
         status = manager.get_library_status()
 
@@ -345,7 +374,7 @@ async def get_available_integrations():
 
 
 @router.post("/refresh", response_model=Dict[str, Any])
-async def refresh_library_status():
+async def refresh_library_status(request: Request):
     """
     Refresh library status by rescanning directories.
 
@@ -353,6 +382,7 @@ async def refresh_library_status():
         Updated library status
     """
     try:
+        await _run_guard(request)
         manager = get_library_manager()
         # Just getting fresh status will trigger rescan
         status = manager.get_library_status()
@@ -372,7 +402,7 @@ async def refresh_library_status():
 
 
 @router.get("/stats", response_model=Dict[str, Any])
-async def get_library_stats():
+async def get_library_stats(request: Request):
     """
     Get library statistics summary.
 
@@ -380,6 +410,7 @@ async def get_library_stats():
         High-level stats for dashboard display
     """
     try:
+        await _run_guard(request)
         manager = get_library_manager()
         status = manager.get_library_status()
 
@@ -414,6 +445,199 @@ async def get_library_stats():
 
 
 # Add router to main server
-def get_library_router():
+@router.get("/inventory", response_model=Dict[str, Any])
+async def get_library_inventory(request: Request):
+    """
+    Get dependency inventory for all integrations.
+    """
+    try:
+        await _run_guard(request)
+        manager = get_library_manager()
+        inventory = manager.get_dependency_inventory()
+        return {"success": True, "inventory": inventory}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get inventory: {str(e)}"
+        )
+
+
+@router.post("/toolchain/update", response_model=Dict[str, Any])
+async def update_toolchain(request: Request, packages: Optional[List[str]] = None):
+    """
+    Update Alpine toolchain packages (python3, py3-pip, etc.).
+    """
+    try:
+        await _run_guard(request)
+        manager = get_library_manager()
+        result = manager.update_alpine_toolchain(packages=packages)
+        return {"success": result["success"], "result": result}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to update toolchain: {str(e)}"
+        )
+
+
+@router.get("/repos", response_model=Dict[str, Any])
+async def list_repos(request: Request):
+    """
+    List cloned library repos (library/containers).
+    """
+    try:
+        await _run_guard(request)
+        if repo.startswith("http") and "github.com" not in repo:
+            raise HTTPException(status_code=400, detail="Only GitHub repos supported")
+
+        factory = PluginFactory()
+        return {"success": True, "repos": factory.list_repos()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list repos: {str(e)}")
+
+
+@router.post("/repos/clone", response_model=Dict[str, Any])
+async def clone_repo(request: Request, repo: str, branch: str = "main"):
+    """
+    Clone a repo into library/containers.
+    """
+    try:
+        await _run_guard(request)
+        allowlist = os.environ.get("WIZARD_LIBRARY_REPO_ALLOWLIST", "").strip()
+        if allowlist:
+            allowed = [item.strip() for item in allowlist.split(",") if item.strip()]
+            if not any(
+                repo == entry
+                or repo.startswith(entry.rstrip("*"))
+                or repo == entry.rstrip("*")
+                for entry in allowed
+            ):
+                raise HTTPException(status_code=403, detail="Repo not allowed")
+
+        factory = PluginFactory()
+        cloned = factory.clone(repo, branch=branch)
+        if not cloned:
+            raise HTTPException(status_code=400, detail="Clone failed")
+        return {"success": True, "repo": cloned.to_dict()}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to clone repo: {str(e)}")
+
+
+@router.post("/repos/{name}/update", response_model=Dict[str, Any])
+async def update_repo(name: str, request: Request):
+    """
+    Update a cloned repo (fast-forward).
+    """
+    try:
+        await _run_guard(request)
+        factory = PluginFactory()
+        ok = factory.update(name)
+        if not ok:
+            raise HTTPException(status_code=400, detail="Update failed")
+        return {"success": True, "name": name}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update repo: {str(e)}")
+
+
+@router.post("/repos/{name}/build", response_model=Dict[str, Any])
+async def build_repo(name: str, request: Request, format: str = "tar.gz"):
+    """
+    Build a distribution package from a cloned repo.
+    """
+    try:
+        await _run_guard(request)
+        if format not in ("tar.gz", "zip", "tcz"):
+            raise HTTPException(status_code=400, detail="Unsupported format")
+        factory = PluginFactory()
+        result = factory.build(name, format=format)
+        return {"success": result.success, "result": result.to_dict()}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to build repo: {str(e)}")
+
+
+@router.get("/packages", response_model=Dict[str, Any])
+async def list_packages(request: Request):
+    """
+    List built packages in library/packages.
+    """
+    try:
+        await _run_guard(request)
+        factory = PluginFactory()
+        return {"success": True, "packages": factory.list_packages()}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to list packages: {str(e)}"
+        )
+
+
+@router.post("/repos/{name}/build-apk", response_model=Dict[str, Any])
+async def build_repo_apk(name: str, request: Request, arch: str = "x86_64"):
+    """
+    Build an Alpine APK from a cloned repo in library/containers.
+    """
+    try:
+        await _run_guard(request)
+        repo_root = get_repo_root()
+        container_path = repo_root / "library" / "containers" / name
+        builder = APKBuilder()
+        result = builder.build_apk(name, container_path=container_path, arch=arch)
+        if not result.success:
+            raise HTTPException(status_code=400, detail=result.error or "APK build failed")
+        return {"success": True, "result": {"package_path": str(result.package_path)}}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to build APK: {str(e)}")
+
+
+@router.post("/apk/index", response_model=Dict[str, Any])
+async def generate_apk_index(request: Request):
+    """
+    Generate APKINDEX for distribution/plugins.
+    """
+    try:
+        await _run_guard(request)
+        builder = APKBuilder()
+        ok, message = builder.generate_apkindex()
+        if not ok:
+            raise HTTPException(status_code=400, detail=message)
+        return {"success": True, "message": message}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to generate APKINDEX: {str(e)}"
+        )
+
+
+@router.get("/apk/status", response_model=Dict[str, Any])
+async def get_apk_status(request: Request):
+    """
+    Get APK toolchain and signing status.
+    """
+    try:
+        await _run_guard(request)
+        builder = APKBuilder()
+        abuild_ok = shutil.which("abuild") is not None
+        apk_ok = shutil.which("apk") is not None
+        key_ok, key_msg = builder._check_abuild_key()
+        return {
+            "success": True,
+            "abuild": abuild_ok,
+            "apk": apk_ok,
+            "signing": {"ok": key_ok, "detail": key_msg},
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get APK status: {str(e)}")
+
+
+def get_library_router(auth_guard: AuthGuard = None):
     """Get the library management router."""
+    global _auth_guard
+    _auth_guard = auth_guard
     return router

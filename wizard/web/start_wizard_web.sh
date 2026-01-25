@@ -5,7 +5,7 @@
 source .venv/bin/activate
 
 # Install dependencies if needed
-pip install fastapi uvicorn python-multipart jinja2 google-auth-oauthlib google-auth-httplib2 google-api-python-client 2>/dev/null
+pip install fastapi uvicorn python-multipart jinja2 qrcode google-auth-oauthlib google-auth-httplib2 google-api-python-client 2>/dev/null
 
 # Start server
 echo "🧙 Starting Wizard Server Web Interface..."

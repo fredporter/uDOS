@@ -199,6 +199,9 @@ class AIGateway:
     # Rate limits
     MAX_REQUESTS_PER_DAY = 100
     MAX_TOKENS_PER_REQUEST = 4096
+    # Conservative cloud safety threshold to avoid provider body read timeouts
+    # (e.g., OpenRouter "user_request_timeout" when request body is too large)
+    MAX_SAFE_CLOUD_TOKENS = 6000
 
     def __init__(self):
         """Initialize AI gateway."""
@@ -465,6 +468,31 @@ class AIGateway:
         )
 
         route = self.router.route(classification)
+
+        # Guardrail: prevent oversized prompts from being sent to cloud backends
+        # Providers like OpenRouter may return "user_request_timeout" when the
+        # request body is too large or slow to read. Provide a clear local error
+        # and guidance rather than attempting a failing cloud call.
+        if (
+            route.backend == Backend.CLOUD
+            and classification.estimated_tokens > self.MAX_SAFE_CLOUD_TOKENS
+        ):
+            latency = int((time.time() - start_time) * 1000)
+            return AIResponse(
+                success=False,
+                error=(
+                    "Request too large for cloud routing (~"
+                    f"{classification.estimated_tokens} tokens). "
+                    "Reduce input size or split into smaller chunks to avoid "
+                    "provider timeouts (e.g., 'user_request_timeout')."
+                ),
+                model=route.model,
+                provider=route.backend.value,
+                backend=route.backend.value,
+                route=route.to_dict(),
+                classification=self._classification_to_dict(classification),
+                latency_ms=latency,
+            )
 
         # Policy enforcement
         is_valid, reason = self.policy.validate_route(

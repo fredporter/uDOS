@@ -53,6 +53,23 @@ from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.formatted_text import HTML
 
 from wizard.services.logging_manager import get_logger
+from wizard.services.editor_utils import (
+    resolve_workspace_path,
+    open_in_editor,
+    ensure_micro_repo,
+)
+from core.services.maintenance_utils import (
+    create_backup,
+    restore_backup,
+    tidy,
+    clean,
+    compost,
+    list_backups,
+    default_repo_allowlist,
+    default_memory_allowlist,
+    get_memory_root,
+)
+from wizard.services.path_utils import get_repo_root
 from core.ui.grid_renderer import GridRenderer, ViewportTier, Symbols
 from core.utils.viewport import ViewportDetector
 
@@ -63,6 +80,7 @@ from wizard.services.monitoring_manager import (
     AlertSeverity,
     AlertType,
 )
+from wizard.services.health_diagnostics import run_all as run_dev_diagnostics, attempt_safe_repair
 
 
 @dataclass
@@ -167,9 +185,27 @@ class WizardTUI:
             "COSTS": self._cmd_costs,
             "AUDIT": self._cmd_audit,
             "HELP": self._cmd_help,
+            "NEW": self._cmd_new,
+            "EDIT": self._cmd_edit,
+            "LOAD": self._cmd_load,
+            "SAVE": self._cmd_save,
+            "BACKUP": self._cmd_backup,
+            "RESTORE": self._cmd_restore,
+            "TIDY": self._cmd_tidy,
+            "CLEAN": self._cmd_clean,
+            "COMPOST": self._cmd_compost,
+            "DESTROY": self._cmd_destroy,
             "EXIT": self._cmd_exit,
             "QUIT": self._cmd_exit,
         }
+
+        self._current_file: Optional[Path] = None
+
+        # Ensure micro repo exists for editor use
+        try:
+            ensure_micro_repo()
+        except Exception:
+            pass
 
         self.logger.info(f"[WIZ] Wizard TUI initialized (host={host}, port={port}")
 
@@ -199,6 +235,35 @@ class WizardTUI:
             return response.status_code == 200
         except Exception:
             return False
+
+    def _render_dev_diagnostics_hints(self, diag: Dict[str, Any]) -> str:
+        """Render helpful hints for degraded diagnostics in Dev Mode."""
+        lines = []
+        for check in diag.get("checks", []):
+            if check["status"] == "degraded":
+                name = check["name"]
+                if name == "git_status":
+                    lines.append("\n  💡 Tip: Stash or commit your changes:")
+                    lines.append("     git add -A && git commit -m 'work in progress'")
+                    lines.append("     # or: git stash")
+        return "\n".join(lines)
+
+    def _parse_scope(self, params: List[str]) -> Tuple[str, List[str]]:
+        if not params:
+            return "workspace", []
+        scope = params[0].lower()
+        if scope in {"current", "+subfolders", "workspace", "all"}:
+            return scope, params[1:]
+        return "workspace", params
+
+    def _resolve_scope(self, scope: str) -> Tuple[Path, bool]:
+        if scope == "current":
+            return Path.cwd(), False
+        if scope == "+subfolders":
+            return Path.cwd(), True
+        if scope == "all":
+            return get_repo_root(), True
+        return get_memory_root(), True
 
     def _load_status(self) -> WizardStatus:
         """Load current Wizard Server status."""
@@ -640,6 +705,153 @@ class WizardTUI:
 
         return "\n".join(lines)
 
+    def _cmd_new(self, args: List[str]) -> str:
+        """Create a new markdown file in /memory and open editor."""
+        name = " ".join(args).strip() if args else "untitled"
+        return self._open_editor(name)
+
+    def _cmd_edit(self, args: List[str]) -> str:
+        """Edit a file in /memory."""
+        target = " ".join(args).strip() if args else ""
+        if not target and self._current_file:
+            target = str(self._current_file)
+        if not target:
+            return "❌ EDIT requires a filename"
+        return self._open_editor(target)
+
+    def _cmd_load(self, args: List[str]) -> str:
+        """Load a file in /memory (opens editor)."""
+        return self._cmd_edit(args)
+
+    def _cmd_save(self, args: List[str]) -> str:
+        """Save a file in /memory (opens editor)."""
+        target = " ".join(args).strip() if args else ""
+        if not target and self._current_file:
+            target = str(self._current_file)
+        if not target:
+            return "❌ SAVE requires a filename"
+        return self._open_editor(target)
+
+    def _cmd_backup(self, args: List[str]) -> str:
+        scope, remaining = self._parse_scope(args)
+        label = "backup" if not remaining else " ".join(remaining)
+        target_root, _recursive = self._resolve_scope(scope)
+        archive_path, manifest_path = create_backup(target_root, label)
+        return "\n".join(
+            [
+                self._section_title("BACKUP"),
+                f"Scope: {scope}",
+                f"Target: {target_root}",
+                f"Archive: {archive_path}",
+                f"Manifest: {manifest_path}",
+            ]
+        )
+
+    def _cmd_restore(self, args: List[str]) -> str:
+        scope, remaining = self._parse_scope(args)
+        target_root, _recursive = self._resolve_scope(scope)
+        force = False
+        if "--force" in remaining:
+            force = True
+            remaining = [p for p in remaining if p != "--force"]
+
+        archive = None
+        if remaining:
+            candidate = Path(remaining[0])
+            if candidate.exists():
+                archive = candidate
+        if archive is None:
+            backups = list_backups(target_root)
+            if not backups:
+                return f"No backups found in {target_root / '.backup'}"
+            archive = backups[0]
+
+        try:
+            message = restore_backup(archive, target_root, force=force)
+        except FileExistsError as exc:
+            return f"{exc}\nUse RESTORE --force to overwrite existing files."
+
+        return "\n".join(
+            [
+                self._section_title("RESTORE"),
+                message,
+                f"Scope: {scope}",
+                f"Archive: {archive}",
+                f"Target: {target_root}",
+            ]
+        )
+
+    def _cmd_tidy(self, args: List[str]) -> str:
+        scope, _remaining = self._parse_scope(args)
+        target_root, recursive = self._resolve_scope(scope)
+        moved, archive_root = tidy(target_root, recursive=recursive)
+        return "\n".join(
+            [
+                self._section_title("TIDY"),
+                f"Scope: {scope}",
+                f"Target: {target_root}",
+                f"Moved: {moved}",
+                f"Archive: {archive_root}",
+            ]
+        )
+
+    def _cmd_clean(self, args: List[str]) -> str:
+        scope, _remaining = self._parse_scope(args)
+        target_root, recursive = self._resolve_scope(scope)
+        if target_root == get_repo_root():
+            allowlist = default_repo_allowlist()
+        elif target_root == get_memory_root():
+            allowlist = default_memory_allowlist()
+        else:
+            allowlist = []
+        moved, archive_root = clean(
+            target_root,
+            allowed_entries=allowlist,
+            recursive=recursive,
+        )
+        return "\n".join(
+            [
+                self._section_title("CLEAN"),
+                f"Scope: {scope}",
+                f"Target: {target_root}",
+                f"Moved: {moved}",
+                f"Archive: {archive_root}",
+            ]
+        )
+
+    def _cmd_compost(self, args: List[str]) -> str:
+        scope, _remaining = self._parse_scope(args)
+        target_root, recursive = self._resolve_scope(scope)
+        moved, compost_root = compost(target_root, recursive=recursive)
+        return "\n".join(
+            [
+                self._section_title("COMPOST"),
+                f"Scope: {scope}",
+                f"Target: {target_root}",
+                f"Moved: {moved}",
+                f"Compost: {compost_root}",
+            ]
+        )
+
+    def _cmd_destroy(self, _args: List[str]) -> str:
+        return "DESTROY is only available in the Dev TUI."
+
+    def _open_editor(self, target: str) -> str:
+        try:
+            path = resolve_workspace_path(target)
+        except Exception as exc:
+            return f"❌ {exc}"
+
+        ok, editor_name = open_in_editor(path)
+        if not ok:
+            return f"❌ {editor_name}"
+
+        self._current_file = path
+        return f"✅ Opened {path} in {editor_name}"
+
+    def _section_title(self, title: str) -> str:
+        return f"\n=== {title.upper()} ==="
+
     def _cmd_start(self, args: List[str]) -> str:
         """Start service."""
         if not args:
@@ -1015,6 +1227,15 @@ class WizardTUI:
         lines.append("DEVICES            List connected devices")
         lines.append("RATES              Rate limit management")
         lines.append("CONFIG             Edit Wizard configuration")
+        lines.append("NEW <name>         New markdown file in /memory")
+        lines.append("EDIT <path>        Edit markdown file in /memory")
+        lines.append("LOAD <path>        Open file in editor")
+        lines.append("SAVE <path>        Open file for saving")
+        lines.append("BACKUP [scope]     Create .backup snapshot")
+        lines.append("RESTORE [scope]    Restore latest backup")
+        lines.append("TIDY [scope]       Move junk into .archive")
+        lines.append("CLEAN [scope]      Reset scope into .archive")
+        lines.append("COMPOST [scope]    Move .archive/.backup/.tmp to /.compost")
         lines.append("START <service>    Start service")
         lines.append("STOP <service>     Stop service")
         lines.append("RESTART            Restart Wizard Server")
@@ -1073,7 +1294,42 @@ class WizardTUI:
         """Run TUI (async version)."""
         print("\033[2J\033[H")  # Clear screen
         print(self._render_header())
+
+        # Dev Mode Recovery: initial diagnostics on startup
+        print("\n🏥 Running initial system health diagnostics...\n")
+        diag = run_dev_diagnostics()
         print(self._render_status_dashboard())
+
+        # Summarize diagnostics
+        print("\nDiagnostics Summary:")
+        print(f"  Overall: {diag['overall'].upper()} | Healthy: {diag['healthy']} | Degraded: {diag['degraded']} | Unhealthy: {diag['unhealthy']}")
+        for c in diag["checks"]:
+            icon = "✅" if c["status"] == "healthy" else ("⚠️" if c["status"] == "degraded" else "❌")
+            print(f"  {icon} {c['name']}: {c['message']}")
+
+        # Show hints for degraded checks
+        hints = self._render_dev_diagnostics_hints(diag)
+        if hints:
+            print(hints)
+
+        # Attempt safe repair if degraded/unhealthy
+        if diag["overall"] != "healthy":
+            print("\n🔧 Issues detected — attempting safe, offline repair...")
+            repair = attempt_safe_repair()
+            pip_ok = "✅" if repair.get("pip_install", {}).get("ok") else "❌"
+            sub_ok = "✅" if repair.get("submodule_update", {}).get("ok") else "❌"
+            print(f"  {pip_ok} Python dependencies ensured")
+            print(f"  {sub_ok} Git submodules updated")
+
+            # Re-run diagnostics post-repair
+            diag2 = run_dev_diagnostics()
+            print("\n🔁 Post-Repair Diagnostics:")
+            print(f"  Overall: {diag2['overall'].upper()} | Healthy: {diag2['healthy']} | Degraded: {diag2['degraded']} | Unhealthy: {diag2['unhealthy']}")
+            if diag2["overall"] == "healthy":
+                print("  ✅ System looks healthy after repair.")
+            else:
+                print("  ⚠️ Some issues remain. Consider running Core TUI commands: REPAIR --upgrade-all, SHAKEDOWN")
+
         print("\nType HELP for commands, EXIT to quit.\n")
 
         # Create prompt session

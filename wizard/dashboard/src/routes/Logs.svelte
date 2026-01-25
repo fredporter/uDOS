@@ -12,6 +12,11 @@
   let autoRefresh = true;
   let refreshMs = 10000;
   let timer;
+  let adminToken = "";
+
+  const authHeaders = () =>
+    adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
+
 
   const levelTone = (level) => {
     const lvl = (level || "").toUpperCase();
@@ -35,6 +40,7 @@
     try {
       const res = await fetch(
         `/api/v1/logs?category=${encodeURIComponent(selectedCategory)}&limit=${limit}`,
+        { headers: authHeaders() },
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -77,6 +83,7 @@
   }
 
   onMount(() => {
+    adminToken = localStorage.getItem("wizardAdminToken") || "";
     loadLogs();
     restartTimer();
   });

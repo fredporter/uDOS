@@ -100,6 +100,26 @@ class WorkflowManager:
         conn.close()
         return project_id
 
+    def get_or_create_project(self, name: str, description: str = "") -> int:
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM projects WHERE name = ?", (name,))
+        row = cursor.fetchone()
+        if row:
+            conn.close()
+            return row[0]
+        conn.close()
+        return self.create_project(name, description)
+
+    def list_projects(self) -> List[Dict[str, Any]]:
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM projects ORDER BY created_at DESC")
+        projects = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return projects
+
     def create_task(
         self,
         project_id: int,

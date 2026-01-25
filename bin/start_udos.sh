@@ -42,6 +42,15 @@ UDOS_ROOT="$(resolve_udos_root)"
 export UDOS_ROOT
 cd "$UDOS_ROOT"
 
+# Source common helpers and parse rebuild flag
+if [ -f "$UDOS_ROOT/bin/udos-common.sh" ]; then
+    # shellcheck source=/dev/null
+    source "$UDOS_ROOT/bin/udos-common.sh"
+    parse_rebuild_flag "$@"
+else
+    UDOS_FORCE_REBUILD=0
+fi
+
 # Centralized logs
 export UDOS_LOG_DIR="$UDOS_ROOT/memory/logs"
 mkdir -p "$UDOS_LOG_DIR"
@@ -105,18 +114,25 @@ else
     exit 1
 fi
 
-# Virtual environment
-if [ ! -d "$UDOS_ROOT/.venv" ]; then
-    echo -e "${BLUE}[→]${NC} Creating venv..."
-    python3 -m venv "$UDOS_ROOT/.venv"
+# Ensure Python environment and dependencies via common helper (if available)
+if declare -f ensure_python_env >/dev/null 2>&1; then
+    ensure_python_env || {
+        print_error "Failed to initialize Python environment"
+        exit 1
+    }
+else
+    # Fallback: minimal venv activation
+    if [ ! -d "$UDOS_ROOT/.venv" ]; then
+        echo -e "${BLUE}[→]${NC} Creating venv..."
+        python3 -m venv "$UDOS_ROOT/.venv"
+    fi
+    source "$UDOS_ROOT/.venv/bin/activate"
 fi
 
-source "$UDOS_ROOT/.venv/bin/activate"
-print_success "Virtual environment activated"
-
-# Dependencies (silent)
-pip install -q -r "$UDOS_ROOT/requirements.txt" 2>/dev/null || true
-print_success "Dependencies ready"
+# Optional rebuild of Core TS runtime
+if declare -f rebuild_core_runtime >/dev/null 2>&1; then
+    rebuild_core_runtime || echo -e "${YELLOW}⚠️  Core rebuild skipped (non-fatal)${NC}"
+fi
 
 # Launch core TUI
 echo ""

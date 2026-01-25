@@ -11,14 +11,17 @@ import subprocess
 import shutil
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from datetime import datetime
 
 
 def create_provider_routes(auth_guard=None):
     """Create provider management routes."""
-    router = APIRouter(prefix="/api/v1/providers", tags=["providers"])
+    dependencies = [Depends(auth_guard)] if auth_guard else []
+    router = APIRouter(
+        prefix="/api/v1/providers", tags=["providers"], dependencies=dependencies
+    )
 
     CONFIG_PATH = Path(__file__).parent.parent / "config"
     SETUP_FLAGS_FILE = CONFIG_PATH / "provider_setup_flags.json"

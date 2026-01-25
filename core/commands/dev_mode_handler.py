@@ -41,37 +41,18 @@ class DevModeHandler(BaseCommandHandler):
         Returns:
             Dict with dev mode status
         """
-        if not params:
-            params = ["status"]
-
-        action = params[0].lower()
-
-        if action == "activate":
-            return self._activate_dev_mode()
-        elif action == "deactivate":
-            return self._deactivate_dev_mode()
-        elif action == "status":
-            return self._get_dev_status()
-        elif action == "restart":
-            return self._restart_dev_mode()
-        elif action == "logs":
-            lines = int(params[1]) if len(params) > 1 else 50
-            return self._get_dev_logs(lines)
-        elif action == "health":
-            return self._get_dev_health()
-        else:
-            return {
-                "status": "error",
-                "message": f"Unknown action: {action}",
-                "available": [
-                    "activate",
-                    "deactivate",
-                    "status",
-                    "restart",
-                    "logs",
-                    "health",
-                ],
-            }
+        output = "\n".join(
+            [
+                OutputToolkit.banner("DEV MODE"),
+                "Dev Mode operations are handled by Wizard TUI.",
+                "Run the Wizard server and use its TUI console for DEV ON/OFF.",
+            ]
+        )
+        return {
+            "status": "wizard_required",
+            "message": "Run Wizard server for DEV mode operations",
+            "output": output,
+        }
 
     def _activate_dev_mode(self) -> Dict:
         """Activate dev mode via Wizard."""
