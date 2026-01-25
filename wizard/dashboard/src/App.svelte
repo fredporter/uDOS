@@ -26,7 +26,6 @@
   import SvgProcessor from "./routes/SvgProcessor.svelte";
   import Setup from "./routes/Setup.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
-  import WizardBottomBar from "./components/WizardBottomBar.svelte";
 
   // Simple hash-based routing
   let currentRoute = "dashboard";
@@ -40,12 +39,6 @@
   function handleHashChange() {
     const hash = window.location.hash.slice(1);
     currentRoute = hash || "dashboard";
-  }
-
-  function toggleDarkMode() {
-    isDark = !isDark;
-    applyTheme();
-    localStorage.setItem("wizard-theme", isDark ? "dark" : "light");
   }
 
   function applyTheme() {
@@ -135,4 +128,3 @@
 </div>
 
 <!-- Bottom Settings Bar -->
-<WizardBottomBar {isDark} onDarkModeToggle={toggleDarkMode} />

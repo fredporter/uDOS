@@ -346,10 +346,12 @@ class HelpHandler(BaseCommandHandler):
 
         return {
             "status": "success",
+            "message": f"Found {len(self.COMMANDS)} commands",
             "help": help_text.strip(),
             "commands": list(self.COMMANDS.keys()),
             "categories": list(self.COMMAND_CATEGORIES.keys()),
         }
+
     def _show_command_help(self, cmd_name: str) -> Dict:
         """Show detailed help for a specific command."""
         cmd_info = self.COMMANDS[cmd_name]
@@ -376,6 +378,7 @@ class HelpHandler(BaseCommandHandler):
 
         return {
             "status": "success",
+            "message": f"Help for {cmd_name}",
             "command": cmd_name,
             "help": help_text.strip(),
             "category": cmd_info.get("category", "Uncategorized"),
@@ -424,6 +427,7 @@ class HelpHandler(BaseCommandHandler):
 
         return {
             "status": "success",
+            "message": f"{matching_cat} commands",
             "category": matching_cat,
             "help": help_text.strip(),
             "commands": commands,
@@ -464,6 +468,7 @@ class HelpHandler(BaseCommandHandler):
 
         return {
             "status": "success",
+            "message": f"Syntax help for {cmd_upper}",
             "command": cmd_upper,
             "syntax": syntax,
             "help": help_text.strip(),

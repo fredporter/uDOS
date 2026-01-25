@@ -51,6 +51,14 @@ UDOS_ROOT="$(resolve_udos_root)"
 export UDOS_ROOT
 cd "$UDOS_ROOT"
 
+# Load .env if present (local-only secrets)
+if [ -f "$UDOS_ROOT/.env" ]; then
+    set -a
+    # shellcheck source=/dev/null
+    source "$UDOS_ROOT/.env"
+    set +a
+fi
+
 # Source common helpers and parse rebuild flag
 if [ -f "$UDOS_ROOT/bin/udos-common.sh" ]; then
     # shellcheck source=/dev/null
@@ -120,9 +128,13 @@ source "$UDOS_ROOT/.venv/bin/activate"
 print_success "Virtual environment activated"
 
 # Install/update dependencies
-print_status "Installing dependencies from requirements.txt..."
-pip install -q -r "$UDOS_ROOT/requirements.txt" 2>/dev/null
-print_success "Dependencies installed and ready"
+if declare -f run_with_spinner >/dev/null 2>&1; then
+    run_with_spinner "Installing dependencies from requirements.txt..." "pip install -q -r \"$UDOS_ROOT/requirements.txt\" 2>/dev/null"
+else
+    print_status "Installing dependencies from requirements.txt..."
+    pip install -q -r "$UDOS_ROOT/requirements.txt" 2>/dev/null
+    print_success "Dependencies installed and ready"
+fi
 
 # Check if Svelte dashboard needs to be built
 DASHBOARD_PATH="$UDOS_ROOT/wizard/dashboard/dist"
@@ -157,16 +169,22 @@ if [ "$UDOS_FORCE_REBUILD" = "1" ] || needs_rebuild "$UDOS_ROOT/wizard/dashboard
         print_status "Installing dashboard dependencies..."
         cd "$UDOS_ROOT/wizard/dashboard"
 
-        npm install --no-fund --no-audit --quiet 2>&1 | grep -v "npm WARN" || true
-        print_success "Dashboard dependencies installed"
+        if declare -f run_with_spinner >/dev/null 2>&1; then
+            run_with_spinner "Installing dashboard dependencies..." "npm install --no-fund --no-audit --quiet 2>&1 | grep -v \"npm WARN\" || true"
+        else
+            npm install --no-fund --no-audit --quiet 2>&1 | grep -v "npm WARN" || true
+            print_success "Dashboard dependencies installed"
+        fi
 
-        print_status "Building Svelte dashboard..."
-        if npm run build 2>&1 | grep -E "vite|building|Built" || true; then
-            if [ -d "$UDOS_ROOT/wizard/dashboard/dist" ]; then
-                print_success "Dashboard built successfully ✨"
-            else
-                print_warning "Dashboard build failed - using fallback HTML"
-            fi
+        if declare -f run_with_spinner >/dev/null 2>&1; then
+            run_with_spinner "Building Svelte dashboard..." "npm run build 2>&1 | grep -E \"vite|building|Built\" || true"
+        else
+            print_status "Building Svelte dashboard..."
+            npm run build 2>&1 | grep -E "vite|building|Built" || true
+        fi
+
+        if [ -d "$UDOS_ROOT/wizard/dashboard/dist" ]; then
+            print_success "Dashboard built successfully ✨"
         else
             print_warning "Dashboard build failed - using fallback HTML"
         fi
@@ -183,7 +201,11 @@ fi
 
 # Centralized rebuild hook (if available)
 if declare -f rebuild_wizard_dashboard >/dev/null 2>&1; then
-    rebuild_wizard_dashboard || print_warning "Wizard dashboard rebuild skipped"
+    if declare -f run_with_spinner >/dev/null 2>&1; then
+        run_with_spinner "Checking dashboard build..." "rebuild_wizard_dashboard"
+    else
+        rebuild_wizard_dashboard || print_warning "Wizard dashboard rebuild skipped"
+    fi
 fi
 
 # Use port manager to clean up any existing wizard process

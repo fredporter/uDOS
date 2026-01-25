@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Wizard Server - Main Server
 ===========================
@@ -301,10 +303,16 @@ class WizardServer:
         app.include_router(ai_router)
 
         # Register Configuration routes
-        from wizard.routes.config_routes import create_config_routes
+        from wizard.routes.config_routes import (
+            create_config_routes,
+            create_admin_token_routes,
+        )
 
         config_router = create_config_routes(auth_guard=self._authenticate_admin)
         app.include_router(config_router)
+
+        admin_token_router = create_admin_token_routes()
+        app.include_router(admin_token_router)
         # Register Provider management routes
         from wizard.routes.provider_routes import create_provider_routes
 
@@ -1389,10 +1397,17 @@ class WizardServer:
             store.unlock()
             entry = store.get(key_id)
         except SecretStoreError:
-            raise HTTPException(status_code=503, detail="admin secret store locked")
+            entry = None
 
-        if not entry or not entry.value or not hmac.compare_digest(token, entry.value):
-            raise HTTPException(status_code=403, detail="Invalid admin token")
+        env_token = os.getenv("WIZARD_ADMIN_TOKEN")
+        if entry and entry.value and hmac.compare_digest(token, entry.value):
+            return
+        if env_token and hmac.compare_digest(token, env_token):
+            return
+
+        if entry is None and not env_token:
+            raise HTTPException(status_code=503, detail="admin secret store locked")
+        raise HTTPException(status_code=403, detail="Invalid admin token")
 
     async def _list_plugins(self) -> Dict[str, Any]:
         """List available plugins in repository."""

@@ -138,9 +138,19 @@
   let importFile = null;
   let importPreview = null;
   let importConflicts = [];
+  let adminTokenValue = "";
+  let tokenStatus = null;
+
+  const fontSizes = ["sm", "base", "lg", "xl", "2xl"];
+  const fontStyleLabels = ["Sans", "Serif", "Mono"];
+  const fontStyles = ["sans", "serif", "mono"];
+  let currentSizeIdx = 1;
+  let currentStyleIdx = 0;
+  let isDarkMode = true;
 
   onMount(async () => {
     adminToken = localStorage.getItem("wizardAdminToken") || "";
+    initDisplaySettings();
     await loadFileList();
     await loadProviders();
   });
@@ -311,6 +321,103 @@
       console.error("Failed to load providers:", err);
     } finally {
       isLoadingProviders = false;
+    }
+  }
+
+  async function generateAdminToken() {
+    tokenStatus = "Generating token…";
+    try {
+      const response = await fetch("/api/v1/admin-token/generate", { method: "POST" });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail || `HTTP ${response.status}`);
+      }
+      adminTokenValue = data.token;
+      localStorage.setItem("wizardAdminToken", data.token);
+      tokenStatus = `✅ Token generated and saved to .env${data.key_created ? " (WIZARD_KEY created)" : ""}`;
+    } catch (err) {
+      tokenStatus = `❌ Failed to generate token: ${err.message}`;
+    }
+  }
+
+  function initDisplaySettings() {
+    const savedTheme = localStorage.getItem("wizard-theme");
+    isDarkMode = savedTheme !== "light";
+    const savedSize = localStorage.getItem("wizard-font-size");
+    const savedStyle = localStorage.getItem("wizard-font-style");
+    if (savedSize && fontSizes.includes(savedSize)) {
+      currentSizeIdx = fontSizes.indexOf(savedSize);
+    }
+    if (savedStyle && fontStyles.includes(savedStyle)) {
+      currentStyleIdx = fontStyles.indexOf(savedStyle);
+    }
+    applyTheme();
+    applyFontSize();
+    applyFontStyle();
+  }
+
+  function applyTheme() {
+    const html = document.documentElement;
+    if (isDarkMode) {
+      html.classList.add("dark");
+      html.classList.remove("light");
+    } else {
+      html.classList.add("light");
+      html.classList.remove("dark");
+    }
+    localStorage.setItem("wizard-theme", isDarkMode ? "dark" : "light");
+  }
+
+  function toggleTheme() {
+    isDarkMode = !isDarkMode;
+    applyTheme();
+  }
+
+  function applyFontSize() {
+    const html = document.documentElement;
+    fontSizes.forEach((size) => html.classList.remove(`prose-${size}`));
+    html.classList.add(`prose-${fontSizes[currentSizeIdx]}`);
+    localStorage.setItem("wizard-font-size", fontSizes[currentSizeIdx]);
+  }
+
+  function applyFontStyle() {
+    const html = document.documentElement;
+    fontStyles.forEach((style) => html.classList.remove(`font-${style}`));
+    html.classList.add(`font-${fontStyles[currentStyleIdx]}`);
+    localStorage.setItem("wizard-font-style", fontStyles[currentStyleIdx]);
+  }
+
+  function incSize() {
+    if (currentSizeIdx < fontSizes.length - 1) {
+      currentSizeIdx += 1;
+      applyFontSize();
+    }
+  }
+
+  function decSize() {
+    if (currentSizeIdx > 0) {
+      currentSizeIdx -= 1;
+      applyFontSize();
+    }
+  }
+
+  function resetSize() {
+    currentSizeIdx = 1;
+    currentStyleIdx = 0;
+    applyFontSize();
+    applyFontStyle();
+  }
+
+  function toggleFontStyle() {
+    currentStyleIdx = (currentStyleIdx + 1) % fontStyles.length;
+    applyFontStyle();
+  }
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen();
     }
   }
 
@@ -621,6 +728,81 @@
       <span>📥</span>
       <span>Import Settings</span>
     </button>
+  </div>
+
+  <div class="mb-6 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+      <h3 class="text-sm font-semibold text-white mb-2">Display Settings</h3>
+      <p class="text-xs text-gray-400 mb-4">
+        Theme, typography, and fullscreen controls (moved from the bottom bar).
+      </p>
+      <div class="flex flex-wrap items-center gap-3">
+        <button
+          on:click={toggleTheme}
+          class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+        >
+          {isDarkMode ? "🌙 Dark" : "☀️ Light"}
+        </button>
+        <button
+          on:click={toggleFullscreen}
+          class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+        >
+          ⛶ Fullscreen
+        </button>
+        <button
+          on:click={decSize}
+          class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+          disabled={currentSizeIdx === 0}
+        >
+          A−
+        </button>
+        <button
+          on:click={incSize}
+          class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+          disabled={currentSizeIdx === fontSizes.length - 1}
+        >
+          A+
+        </button>
+        <button
+          on:click={resetSize}
+          class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+        >
+          Reset
+        </button>
+        <button
+          on:click={toggleFontStyle}
+          class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+        >
+          {fontStyleLabels[currentStyleIdx]}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-6 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+      <h3 class="text-sm font-semibold text-white mb-2">Admin Token</h3>
+      <p class="text-xs text-gray-400 mb-3">
+        Generate a local admin token for protected Wizard endpoints. Stored in
+        .env and copied to your browser session.
+      </p>
+      <div class="flex flex-wrap gap-2">
+        <button
+          on:click={generateAdminToken}
+          class="px-3 py-1.5 text-sm rounded-md bg-emerald-600 text-white hover:bg-emerald-500 transition-colors"
+        >
+          🔑 Generate Admin Token
+        </button>
+      </div>
+      {#if tokenStatus}
+        <div class="mt-3 text-xs text-gray-300">{tokenStatus}</div>
+      {/if}
+      {#if adminTokenValue}
+        <div class="mt-3 text-xs text-gray-400">
+          Token stored in browser. Use the menu token field if needed.
+        </div>
+      {/if}
+    </div>
   </div>
 
   <div class="grid grid-cols-12 gap-6">

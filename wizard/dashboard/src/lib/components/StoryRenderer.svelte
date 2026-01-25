@@ -17,13 +17,26 @@
   export let showProgress = true;
   export let theme = 'auto';
 
-  let currentIndex = story.currentSectionIndex;
-  let answers = { ...story.answers };
+  const emptyStory = {
+    frontmatter: { title: "Story", description: "" },
+    sections: [],
+    answers: {},
+    currentSectionIndex: 0,
+    isComplete: false,
+  };
+
+  $: safeStory = story || emptyStory;
+  $: safeStory.sections = safeStory.sections || [];
+  $: safeStory.answers = safeStory.answers || {};
+  $: safeStory.frontmatter = safeStory.frontmatter || emptyStory.frontmatter;
+
+  let currentIndex = safeStory.currentSectionIndex || 0;
+  let answers = { ...safeStory.answers };
   let isValid = false;
 
-  $: currentSection = story.sections[currentIndex];
-  $: progress = getProgress(currentIndex, story.sections.length);
-  $: isLastSection = currentIndex === story.sections.length - 1;
+  $: currentSection = safeStory.sections[currentIndex];
+  $: progress = getProgress(currentIndex, safeStory.sections.length);
+  $: isLastSection = currentIndex === safeStory.sections.length - 1;
 
   onMount(() => {
     validateCurrentSection();
@@ -65,7 +78,7 @@
     validateCurrentSection();
     if (isValid) {
       onSubmit(answers);
-      story.isComplete = true;
+      safeStory.isComplete = true;
     }
   }
 
@@ -73,7 +86,7 @@
     if (confirm('Are you sure you want to reset this story? All answers will be lost.')) {
       answers = {};
       currentIndex = 0;
-      story.isComplete = false;
+      safeStory.isComplete = false;
       validateCurrentSection();
       onReset();
     }
@@ -82,7 +95,7 @@
 
 <div class="story-renderer" class:dark={theme === 'dark'}>
   <!-- Progress bar -->
-  {#if showProgress && story.sections.length > 1}
+  {#if showProgress && safeStory.sections.length > 1}
     <div class="progress-container">
       <div class="progress-bar" style="width: {progress}%"></div>
       <div class="progress-text">{progress}%</div>
@@ -91,9 +104,9 @@
 
   <!-- Header -->
   <div class="header">
-    <h1>{story.frontmatter.title}</h1>
-    {#if story.frontmatter.description}
-      <p class="description">{story.frontmatter.description}</p>
+    <h1>{safeStory.frontmatter.title}</h1>
+    {#if safeStory.frontmatter.description}
+      <p class="description">{safeStory.frontmatter.description}</p>
     {/if}
   </div>
 
@@ -137,9 +150,9 @@
     </div>
 
     <!-- Section indicator -->
-    {#if story.sections.length > 1}
+    {#if safeStory.sections.length > 1}
       <div class="section-indicator">
-        {currentIndex + 1} of {story.sections.length}
+        {currentIndex + 1} of {safeStory.sections.length}
       </div>
     {/if}
   </div>

@@ -137,6 +137,9 @@ fi
 # Launch core TUI
 echo ""
 echo -e "📦 Launching Core TUI..."
+
+# Suppress urllib3 SSL warning (macOS LibreSSL vs OpenSSL mismatch)
+export PYTHONWARNINGS="ignore:urllib3 v2 only supports OpenSSL"
 python uDOS.py "$@"
 
 deactivate

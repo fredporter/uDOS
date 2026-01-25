@@ -49,7 +49,9 @@ class GridRenderer:
         output = f"{self.GREEN}*{self.RESET} {result.get('message', 'Success')}\n"
 
         # Add command-specific output
-        if "description" in result:
+        if "help" in result:
+            output += "\n" + result["help"] + "\n"
+        elif "description" in result:
             output += result["description"]
         elif "output" in result:
             output += result["output"] + "\n"

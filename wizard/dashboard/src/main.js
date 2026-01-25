@@ -1,6 +1,7 @@
 import "./styles.css";
 import "./app.css";
 import App from "./App.svelte";
+import { mount } from "svelte";
 
 function showFatalError(message) {
   const details = message ? `<pre>${message}</pre>` : "";
@@ -31,7 +32,7 @@ try {
   if (!target) {
     throw new Error("Missing #app mount element");
   }
-  app = new App({ target });
+  app = mount(App, { target });
 } catch (err) {
   console.error("Failed to mount Wizard app:", err);
   showFatalError(err?.message || "Unknown error");
