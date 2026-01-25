@@ -593,13 +593,11 @@ form              # keyword (blue)
 **Deliverables:**
 
 1. **Integration Test Suite** (`core/tests/test_file_parsing_v1_0_6.py`)
-
    - 30+ tests covering all parsers
    - End-to-end binder workflows
    - Export/import round-trip validation
 
 2. **User Guide** (`docs/howto/FILE-PARSING-SYSTEM.md`)
-
    - Quick start with CSV import
    - Binder creation and management
    - Markdown table editing
@@ -607,14 +605,12 @@ form              # keyword (blue)
    - Advanced transformations
 
 3. **API Documentation** (`docs/api/FILE-PARSING-API.md`)
-
    - Endpoint reference (8 endpoints)
    - Request/response examples
    - Error codes and handling
    - Rate limiting and quotas
 
 4. **Troubleshooting Guide**
-
    - Common parsing errors
    - Type mismatch handling
    - Large file optimization
@@ -622,7 +618,7 @@ form              # keyword (blue)
 
 5. **Roadmap Update**
    - Mark v1.0.6.0 complete
-   - Preview v1.0.7.0 (Groovebox)
+   - Preview v1.0.7 (Groovebox)
    - Release schedule
 
 ---

@@ -971,6 +971,7 @@
       class="bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4 border border-gray-700"
       role="dialog"
       aria-labelledby="export-modal-title"
+      tabindex="-1"
       on:click={(e) => e.stopPropagation()}
       on:keydown={(e) => {
         e.stopPropagation();
@@ -1068,6 +1069,7 @@
       class="bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4 border border-gray-700"
       role="dialog"
       aria-labelledby="import-modal-title"
+      tabindex="-1"
       on:click={(e) => e.stopPropagation()}
       on:keydown={(e) => {
         e.stopPropagation();

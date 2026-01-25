@@ -217,6 +217,34 @@ run_npm_build_if_needed() {
 # ═══════════════════════════════════════════════════════════════════════════
 # Rebuild After Dev Mode Operations
 # ═══════════════════════════════════════════════════════════════════════════
+dev_mode_marker_path() {
+    echo "$UDOS_ROOT/memory/logs/dev-mode-used"
+}
+
+mark_dev_mode_used() {
+    local marker
+    marker="$(dev_mode_marker_path)"
+    mkdir -p "$(dirname "$marker")"
+    touch "$marker"
+}
+
+check_dev_mode_marker() {
+    local marker
+    marker="$(dev_mode_marker_path)"
+    if [ -f "$marker" ]; then
+        export UDOS_FORCE_REBUILD=1
+        export UDOS_DEV_MODE_USED=1
+        return 0
+    fi
+    return 1
+}
+
+clear_dev_mode_marker() {
+    local marker
+    marker="$(dev_mode_marker_path)"
+    [ -f "$marker" ] && rm -f "$marker"
+}
+
 rebuild_core_runtime() {
     local core_dir="$UDOS_ROOT/core"
     local core_src="$core_dir"

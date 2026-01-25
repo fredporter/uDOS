@@ -204,6 +204,108 @@
     return source === "library" ? "📦" : "🔧";
   };
 
+  async function updateRepo(name) {
+    actionInProgress = `repo-update-${name}`;
+    try {
+      const res = await fetch(`/api/v1/library/repos/${name}/update`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await loadRepos();
+    } catch (err) {
+      alert(`❌ Update failed: ${err.message}`);
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  async function buildRepo(name, format = "tar.gz") {
+    actionInProgress = `repo-build-${name}-${format}`;
+    try {
+      const res = await fetch(
+        `/api/v1/library/repos/${name}/build?format=${format}`,
+        {
+          method: "POST",
+          headers: authHeaders(),
+        },
+      );
+      const data = await res.json();
+      if (!data.success) throw new Error(data.detail || "Build failed");
+      await loadPackages();
+    } catch (err) {
+      alert(`❌ Build failed: ${err.message}`);
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  async function buildApk(name) {
+    actionInProgress = `repo-build-apk-${name}`;
+    try {
+      const res = await fetch(`/api/v1/library/repos/${name}/build-apk`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.detail || "APK build failed");
+      await loadPackages();
+    } catch (err) {
+      alert(`❌ APK build failed: ${err.message}`);
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  async function generateApkIndex() {
+    actionInProgress = "apk-index";
+    try {
+      const res = await fetch("/api/v1/library/apk/index", {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.detail || "APKINDEX failed");
+      await loadApkStatus();
+    } catch (err) {
+      alert(`❌ APKINDEX failed: ${err.message}`);
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  async function updateToolchain() {
+    actionInProgress = "toolchain";
+    toolchainResult = null;
+    try {
+      const packages = toolchainPackages
+        .split(" ")
+        .map((p) => p.trim())
+        .filter(Boolean);
+      const res = await fetch("/api/v1/library/toolchain/update", {
+        method: "POST",
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({ packages }),
+      });
+      const data = await res.json();
+      toolchainResult = data.result || data;
+    } catch (err) {
+      toolchainResult = { success: false, message: err.message };
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  async function refreshAll() {
+    await Promise.all([
+      loadLibrary(),
+      loadInventory(),
+      loadRepos(),
+      loadPackages(),
+      loadApkStatus(),
+    ]);
+  }
+
   onMount(() => {
     adminToken = localStorage.getItem("wizardAdminToken") || "";
     if (adminToken) {
@@ -541,104 +643,3 @@
     {/if}
   {/if}
 </div>
-  async function updateRepo(name) {
-    actionInProgress = `repo-update-${name}`;
-    try {
-      const res = await fetch(`/api/v1/library/repos/${name}/update`, {
-        method: "POST",
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      await loadRepos();
-    } catch (err) {
-      alert(`❌ Update failed: ${err.message}`);
-    } finally {
-      actionInProgress = null;
-    }
-  }
-
-  async function buildRepo(name, format = "tar.gz") {
-    actionInProgress = `repo-build-${name}-${format}`;
-    try {
-      const res = await fetch(
-        `/api/v1/library/repos/${name}/build?format=${format}`,
-        {
-          method: "POST",
-          headers: authHeaders(),
-        },
-      );
-      const data = await res.json();
-      if (!data.success) throw new Error(data.detail || "Build failed");
-      await loadPackages();
-    } catch (err) {
-      alert(`❌ Build failed: ${err.message}`);
-    } finally {
-      actionInProgress = null;
-    }
-  }
-
-  async function buildApk(name) {
-    actionInProgress = `repo-build-apk-${name}`;
-    try {
-      const res = await fetch(`/api/v1/library/repos/${name}/build-apk`, {
-        method: "POST",
-        headers: authHeaders(),
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.detail || "APK build failed");
-      await loadPackages();
-    } catch (err) {
-      alert(`❌ APK build failed: ${err.message}`);
-    } finally {
-      actionInProgress = null;
-    }
-  }
-
-  async function generateApkIndex() {
-    actionInProgress = "apk-index";
-    try {
-      const res = await fetch("/api/v1/library/apk/index", {
-        method: "POST",
-        headers: authHeaders(),
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.detail || "APKINDEX failed");
-      await loadApkStatus();
-    } catch (err) {
-      alert(`❌ APKINDEX failed: ${err.message}`);
-    } finally {
-      actionInProgress = null;
-    }
-  }
-
-  async function updateToolchain() {
-    actionInProgress = "toolchain";
-    toolchainResult = null;
-    try {
-      const packages = toolchainPackages
-        .split(" ")
-        .map((p) => p.trim())
-        .filter(Boolean);
-      const res = await fetch("/api/v1/library/toolchain/update", {
-        method: "POST",
-        headers: { ...authHeaders(), "Content-Type": "application/json" },
-        body: JSON.stringify({ packages }),
-      });
-      const data = await res.json();
-      toolchainResult = data.result || data;
-    } catch (err) {
-      toolchainResult = { success: false, message: err.message };
-    } finally {
-      actionInProgress = null;
-    }
-  }
-
-  async function refreshAll() {
-    await Promise.all([
-      loadLibrary(),
-      loadInventory(),
-      loadRepos(),
-      loadPackages(),
-      loadApkStatus(),
-    ]);
-  }

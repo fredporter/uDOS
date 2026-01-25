@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "uDOS Location Schema v1.0.7.0",
-  "description": "Canonical location data format for v1.0.7.0 grid runtime. Uses finite layer bands (SUR/UDN/SUB) and 80×30 viewport grid.",
+  "title": "uDOS Location Schema v1.0.7",
+  "description": "Canonical location data format for v1.0.7 grid runtime. Uses finite layer bands (SUR/UDN/SUB) and 80×30 viewport grid.",
   "type": "object",
   "properties": {
     "version": {

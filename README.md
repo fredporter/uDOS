@@ -3,7 +3,7 @@
 **uDOS** is a modular, offline-first Python/TypeScript runtime for building knowledge systems, TUI applications, and distributed tools. It's designed for air-gapped environments, minimal installations, and mesh networking.
 
 **Primary Platform**: 🐧 **Alpine Linux** | **Multi-OS Support**: macOS, Ubuntu, Windows
-**Current Status**: ✅ **Alpha v1.0.6** (January 22, 2026)
+**Current Status**: ✅ **Alpha v1.0.7** (January 25, 2026)
 
 ---
 
@@ -39,13 +39,13 @@ pip install -r requirements.txt
 
 Pick your starting point — each has a dedicated launcher script:
 
-| What You Want                    | Command                           | Port     | Features                                |
-| -------------------------------- | --------------------------------- | -------- | --------------------------------------- |
-| **Text CLI (recommended first)** | `./bin/start_udos.sh`             | —        | Offline-first, no server needed         |
-| **Web Dashboard + APIs**         | `./bin/start_wizard.sh`           | 8765     | Production server, webhooks, AI routing |
-| **Dev Experiments**              | `./bin/start_goblin.sh`           | 8767     | Notion sync, runtime execution, tasks   |
-| **Desktop App**                  | `cd app && npm run tauri dev`     | —        | GUI with markdown formats               |
-| **Everything at once**           | `./bin/Launch-Dev-Mode.command`   | Multiple | Full dev environment                    |
+| What You Want                    | Command                         | Port     | Features                                |
+| -------------------------------- | ------------------------------- | -------- | --------------------------------------- |
+| **Text CLI (recommended first)** | `./bin/start_udos.sh`           | —        | Offline-first, no server needed         |
+| **Web Dashboard + APIs**         | `./bin/start_wizard.sh`         | 8765     | Production server, webhooks, AI routing |
+| **Dev Experiments**              | `./bin/start_goblin.sh`         | 8767     | Notion sync, runtime execution, tasks   |
+| **Desktop App**                  | `cd app && npm run tauri dev`   | —        | GUI with markdown formats               |
+| **Everything at once**           | `./bin/Launch-Dev-Mode.command` | Multiple | Full dev environment                    |
 
 **See [QUICKSTART.md](QUICKSTART.md) for detailed launch instructions and options.**
 

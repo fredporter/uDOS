@@ -1,7 +1,7 @@
 # uDOS Documentation Index
 
 **Last Updated:** 2026-01-24  
-**Version:** v1.0.7.0 Planning
+**Version:** v1.0.7
 
 ---
 
@@ -115,14 +115,14 @@ Chronological development notes organized by month (YYYY-MM.md format).
 
 ## 📊 Version Information
 
-| Component | Version  | Status             |
-| --------- | -------- | ------------------ |
-| Core      | v1.1.1.1 | Dev                |
-| API       | v1.0.1.0 | Alpha              |
-| Wizard    | v1.1.0.2 | Alpha              |
-| Goblin    | v0.2.0.0 | Experimental       |
-| App       | v1.0.6.1 | Alpha              |
-| TUI       | v1.0.0.0 | Stable             |
+| Component | Version  | Status       |
+| --------- | -------- | ------------ |
+| Core      | v1.1.1.1 | Dev          |
+| API       | v1.0.1.0 | Alpha        |
+| Wizard    | v1.1.0.2 | Alpha        |
+| Goblin    | v0.2.0.0 | Experimental |
+| App       | v1.0.6.1 | Alpha        |
+| TUI       | v1.0.0.0 | Stable       |
 
 ---
 

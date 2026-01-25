@@ -43,6 +43,10 @@ else
     UDOS_FORCE_REBUILD=0
 fi
 
+if declare -f mark_dev_mode_used >/dev/null 2>&1; then
+    mark_dev_mode_used
+fi
+
 # Activate venv if present
 if [ -f "$UDOS_ROOT/.venv/bin/activate" ]; then
     source "$UDOS_ROOT/.venv/bin/activate"
@@ -55,4 +59,8 @@ if declare -f rebuild_after_dev >/dev/null 2>&1; then
     echo ""
     echo "Running post-Dev rebuild checks..."
     rebuild_after_dev || echo "Post-Dev rebuild skipped or failed (non-fatal)"
+fi
+
+if declare -f mark_dev_mode_used >/dev/null 2>&1; then
+    mark_dev_mode_used
 fi

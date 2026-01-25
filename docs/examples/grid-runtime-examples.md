@@ -1,6 +1,6 @@
 # Grid Runtime Example Scripts
 
-**Status:** v1.0.7.0 Integration Examples  
+**Status:** v1.0.7 Integration Examples  
 **Purpose:** Demonstrate teletext grid rendering, viewport management, and sprite animation
 
 ## Example 1: Simple Viewport Rendering

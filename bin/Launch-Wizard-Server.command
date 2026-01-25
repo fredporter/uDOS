@@ -56,6 +56,7 @@ if [ -f "$UDOS_ROOT/bin/udos-common.sh" ]; then
     # shellcheck source=/dev/null
     source "$UDOS_ROOT/bin/udos-common.sh"
     parse_rebuild_flag "$@"
+    check_dev_mode_marker || true
 fi
 
 # Centralized logs
@@ -174,6 +175,10 @@ if [ "$UDOS_FORCE_REBUILD" = "1" ] || needs_rebuild "$UDOS_ROOT/wizard/dashboard
     fi
 else
     print_success "Svelte dashboard already built"
+fi
+
+if [ "${UDOS_DEV_MODE_USED:-0}" = "1" ] && declare -f clear_dev_mode_marker >/dev/null 2>&1; then
+    clear_dev_mode_marker
 fi
 
 # Centralized rebuild hook (if available)
