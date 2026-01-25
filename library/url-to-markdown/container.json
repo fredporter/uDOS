@@ -21,8 +21,16 @@
   },
   "integration": {
     "wrapper_path": "extensions/web/url2md/",
+    "service_path": null,
     "handler_path": "core/commands/web_handler.py",
     "install_script": "extensions/setup/install_url2md.py"
+  },
+  "metadata": {
+    "license": "MIT",
+    "homepage": "https://github.com/iw4p/url-to-markdown",
+    "documentation": "extensions/web/url2md/README.md",
+    "maintainer": "uDOS Wizard Server",
+    "category": "web"
   },
   "build": {
     "type": "python",
@@ -34,12 +42,6 @@
       "html2text"
     ]
   },
-  "metadata": {
-    "license": "MIT",
-    "homepage": "https://github.com/iw4p/url-to-markdown",
-    "documentation": "extensions/web/url2md/README.md",
-    "maintainer": "uDOS Wizard Server",
-    "category": "web"
-  },
-  "_note": "WIZARD ONLY - Requires web access for URL fetching."
+  "_note": "WIZARD ONLY - Requires web access for URL fetching.",
+  "repo_path": "memory/library/containers/url-to-markdown"
 }

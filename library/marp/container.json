@@ -1,16 +1,16 @@
 {
-{\n  "$schema": "../../container.schema.json",
+  "$schema": "./container.schema.json",
   "container": {
     "id": "marp",
-    "name": "Marp",
-    "description": "Markdown presentation ecosystem - create slides with Markdown",
+    "name": "marp",
+    "description": "",
     "type": "git",
-    "source": "https://github.com/marp-team/marp",
+    "source": "https://github.com/org/repo",
     "ref": "main",
     "cloned_at": null,
     "last_update": null,
     "commit": null,
-    "version": null
+    "version": ""
   },
   "policy": {
     "read_only": true,
@@ -19,21 +19,16 @@
     "verify_signatures": false
   },
   "integration": {
-    "wrapper_path": "extensions/docs/marp/",
-    "handler_path": "core/commands/present_handler.py",
+    "wrapper_path": "extensions/transport/<container-id>/",
+    "service_path": null,
+    "handler_path": null,
     "install_script": null
   },
-  "build": {
-    "type": "npm",
-    "build_command": "yarn install",
-    "runtime": "node",
-    "tce_dependencies": ["nodejs"]
-  },
   "metadata": {
-    "license": "MIT",
-    "homepage": "https://marp.app/",
-    "documentation": "https://marpit.marp.app/",
-    "maintainer": "Marp Team / uDOS Wizard Server",
-    "category": "documentation"
-  }
+    "license": null,
+    "homepage": null,
+    "documentation": null,
+    "maintainer": "uDOS Wizard Server"
+  },
+  "repo_path": "memory/library/containers/marp"
 }

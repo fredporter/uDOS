@@ -1,16 +1,16 @@
 {
   "$schema": "./container.schema.json",
   "container": {
-    "id": "container-id",
-    "name": "Container Display Name",
-    "description": "Brief description of what this container provides",
+    "id": "nounproject",
+    "name": "nounproject",
+    "description": "",
     "type": "git",
     "source": "https://github.com/org/repo",
     "ref": "main",
     "cloned_at": null,
     "last_update": null,
     "commit": null,
-    "version": null
+    "version": ""
   },
   "policy": {
     "read_only": true,
@@ -30,5 +30,5 @@
     "documentation": null,
     "maintainer": "uDOS Wizard Server"
   },
-  "repo_path": "memory/library/containers/<container-id>"
+  "repo_path": "memory/library/containers/nounproject"
 }

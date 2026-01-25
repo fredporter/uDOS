@@ -1,23 +1,23 @@
 # uDOS Library
 
-**Version:** Alpha v1.0.0.37+  
-**Location:** `/public/library/` (distributed) vs `/library/` (local dev only)
+**Version:** Alpha v1.0.0.38+  
+**Location:** `/library/` (tracked definitions) + `/memory/library/containers/` (local clones)
 
-This directory contains **tool container definitions** - manifest files (container.json) for downloadable resources. These are uDOS-created wrappers around external tools for distribution via public repo.
+This directory contains **tool container definitions** (manifest files in `container.json`). The actual cloned repos live under `/memory/library/containers/` so they are never committed.
 
 ## 📚 Library Organization
 
-| Path                   | Purpose                                                | Git Tracked | Distribution      |
-| ---------------------- | ------------------------------------------------------ | ----------- | ----------------- |
-| **`/library/`**        | Local clones of external repos (development reference) | ❌ No       | Never distributed |
-| **`/public/library/`** | uDOS container definitions (manifests + setup scripts) | ✅ Yes      | Public repo       |
+| Path                                | Purpose                                      | Git Tracked | Distribution      |
+| ----------------------------------- | -------------------------------------------- | ----------- | ----------------- |
+| **`/library/<tool>/container.json`**| uDOS container definition + metadata         | ✅ Yes      | Public repo       |
+| **`/memory/library/containers/<tool>`** | Local clone of external repo (dev reference) | ❌ No       | Never distributed |
 
 **Examples:**
 
-- `/library/gtx-form/` — Local clone of raibove/gtx-form (gitignored, dev reference)
-- `/library/home-assistant/` — Local clone of home-assistant/core (gitignored, dev reference)
-- `/public/library/marp/` — uDOS container definition for Marp (tracked, distributed)
-- `/public/library/micro/` — uDOS container definition for Micro editor (tracked, distributed)
+- `/library/typo/container.json` — uDOS container definition for Typo
+- `/library/micro/container.json` — uDOS container definition for Micro editor
+- `/memory/library/containers/typo/` — Local clone of `rossrobino/typo`
+- `/memory/library/containers/micro/` — Local clone of `zyedidia/micro`
 
 ---
 
@@ -29,20 +29,21 @@ When a tool graduates from local experimentation to public distribution:
 
 ```bash
 # Clone external repo for testing
-cd /library/
+mkdir -p /memory/library/containers
+cd /memory/library/containers
 git clone https://github.com/external/tool
 cd tool/
 # Test, modify, evaluate...
 ```
 
-**Status:** Tool in `/library/tool/` (gitignored, not distributed)
+**Status:** Tool in `/memory/library/containers/tool/` (gitignored, not distributed)
 
 ### Phase 2: Create Container Definition (Public Distribution)
 
 ```bash
-# Create public container definition
-mkdir -p /public/library/tool/
-cd /public/library/tool/
+# Create container definition (tracked)
+mkdir -p /library/tool/
+cd /library/tool/
 
 # Create container.json manifest
 cat > container.json << 'EOF'
@@ -67,7 +68,7 @@ EOF
 # Optional: Add README, install script, etc.
 ```
 
-**Status:** Tool definition in `/public/library/tool/` (tracked, distributed)
+**Status:** Tool definition in `/library/tool/` (tracked, distributed)
 
 ### Phase 3: Test via Wizard (Production Path)
 
@@ -81,7 +82,7 @@ TOOL --version               # Verifies integration works
 
 ```bash
 # Commit container definition (NOT the cloned repo)
-git add public/library/tool/
+git add library/tool/
 git commit -m "library: add tool container definition"
 git push origin main
 
@@ -163,7 +164,7 @@ See: [docs/howto/alpine-install.md](../docs/howto/alpine-install.md)
 **Type:** Code Container (Wizard-managed)  
 **Purpose:** P2P mesh networking for offline communication
 
-**Container Location:** `extensions/cloned/meshcore/`
+**Container Location:** `/memory/library/containers/meshcore/`
 
 **uDOS Wrapper Layers:**
 | Layer | Location | Purpose |
@@ -192,7 +193,7 @@ python extensions/setup/install_meshcore.py --install
 **Type:** Code Container  
 **Purpose:** Markdown editing with .udos.md support
 
-**Container Location:** `extensions/cloned/typo/`
+**Container Location:** `/memory/library/containers/typo/`
 
 ---
 
@@ -202,7 +203,7 @@ python extensions/setup/install_meshcore.py --install
 **Type:** Code Container  
 **Purpose:** Terminal text editor
 
-**Container Location:** `extensions/cloned/micro/`
+**Container Location:** `/memory/library/containers/micro/`
 
 ---
 
@@ -215,7 +216,7 @@ python extensions/setup/install_meshcore.py --install
 **Type:** Neural TTS Engine  
 **Purpose:** Fast, local text-to-speech for 30+ languages
 
-**Container Location:** `wizard/library/piper/`
+**Container Location:** `/memory/library/containers/piper/`
 
 **Features:**
 
@@ -241,7 +242,7 @@ VOICE VOICES                         # List voices
 **Type:** Speech Recognition Engine  
 **Purpose:** Offline speech-to-text using Whisper/Parakeet models
 
-**Container Location:** `wizard/library/handy/`
+**Container Location:** `/memory/library/containers/handy/`
 
 **Features:**
 
@@ -287,7 +288,7 @@ VOICE SAY "I heard: $(input)"
 **Type:** Music Transcription Engine  
 **Purpose:** Turn any song into sheet music using ML-powered transcription
 
-**Container Location:** `wizard/library/songscribe/`
+**Container Location:** `/memory/library/containers/songscribe/`
 
 **Features:**
 
@@ -408,16 +409,20 @@ Each container should have a `container.json`:
 ## 📂 Directory Structure
 
 ```
-extensions/cloned/
-├── .gitkeep              # Keeps directory in git (empty)
-├── README.md             # This file
-├── meshcore/             # MeshCore container
-│   ├── container.json    # Container manifest
-│   ├── .git/             # Git repo (cloned)
-│   ├── firmware/         # Official firmware
-│   └── src/              # MeshCore source
-├── typo/                 # Typo container (optional)
-└── micro/                # Micro container (optional)
+/library/
+├── container.schema.json
+├── container.template.json
+├── micro/
+│   └── container.json
+├── typo/
+│   └── container.json
+└── meshcore/
+    └── container.json
+
+/memory/library/containers/
+├── micro/          # git clone https://github.com/zyedidia/micro
+├── typo/           # git clone https://github.com/rossrobino/typo
+└── meshcore/       # git clone https://github.com/meshcore-dev/MeshCore
 ```
 
 ---

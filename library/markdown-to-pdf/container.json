@@ -20,8 +20,16 @@
   },
   "integration": {
     "wrapper_path": "extensions/docs/md2pdf/",
+    "service_path": null,
     "handler_path": "core/commands/export_handler.py",
     "install_script": "extensions/setup/install_md2pdf.py"
+  },
+  "metadata": {
+    "license": "MIT",
+    "homepage": "https://github.com/JayJay1024/markdown-to-pdf",
+    "documentation": "extensions/docs/md2pdf/README.md",
+    "maintainer": "uDOS Wizard Server",
+    "category": "documentation"
   },
   "build": {
     "type": "npm",
@@ -32,11 +40,5 @@
       "chromium"
     ]
   },
-  "metadata": {
-    "license": "MIT",
-    "homepage": "https://github.com/JayJay1024/markdown-to-pdf",
-    "documentation": "extensions/docs/md2pdf/README.md",
-    "maintainer": "uDOS Wizard Server",
-    "category": "documentation"
-  }
+  "repo_path": "memory/library/containers/markdown-to-pdf"
 }

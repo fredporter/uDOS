@@ -25,8 +25,9 @@ set -- "${ARGS[@]}"
 
 cd "$(dirname "$0")/.."
 
+
 # ═══════════════════════════════════════════════════════════════════════════
-# Colors and Formatting
+# Colors, Formatting, and Spinner
 # ═══════════════════════════════════════════════════════════════════════════
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -38,6 +39,35 @@ WHITE='\033[1;37m'
 DIM='\033[2m'
 NC='\033[0m'
 BOLD='\033[1m'
+
+# Spinner function
+SPINNER_PID=""
+spinner() {
+    local msg="$1"
+    local delay=0.12
+    local spinstr='|/-\\'
+    printf "  %s " "$msg"
+    while :; do
+        for i in $(seq 0 3); do
+            printf "\b${spinstr:$i:1}"
+            sleep $delay
+        done
+    done
+}
+start_spinner() {
+    spinner "$1" &
+    SPINNER_PID=$!
+    disown $SPINNER_PID
+}
+stop_spinner() {
+    if [ -n "$SPINNER_PID" ] && kill -0 "$SPINNER_PID" 2>/dev/null; then
+        kill "$SPINNER_PID" 2>/dev/null
+        wait "$SPINNER_PID" 2>/dev/null
+        printf "\b\b\b  \n"
+    fi
+    SPINNER_PID=""
+}
+trap stop_spinner EXIT
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Helper: Find uDOS root
@@ -91,19 +121,26 @@ if [ -f "$UDOS_ROOT/bin/udos-common.sh" ]; then
     # shellcheck source=/dev/null
     source "$UDOS_ROOT/bin/udos-common.sh"
     parse_rebuild_flag "$@"
+    start_spinner "Checking Python environment and build status..."
     ensure_python_env || echo -e "${YELLOW}[WARN]${NC} Python env setup skipped"
+    stop_spinner
 else
     # Minimal venv activation fallback
     if [ ! -f "$UDOS_ROOT/.venv/bin/activate" ]; then
         echo -e "${YELLOW}[SETUP]${NC} Virtual environment not found"
-        echo "Creating .venv..."
-        python3 -m venv "$UDOS_ROOT/.venv"
+        start_spinner "Creating .venv (virtual environment)..."
+        python3 -m venv "$UDOS_ROOT/.venv" >/dev/null 2>&1
+        stop_spinner
+        echo -e "${GREEN}[OK]${NC} .venv created"
     fi
+    start_spinner "Activating Python environment..."
     source "$UDOS_ROOT/.venv/bin/activate"
+    stop_spinner
 fi
 
+
 # ═══════════════════════════════════════════════════════════════════════════
-# Launch TUI
+# Launch TUI (with spinner)
 # ═══════════════════════════════════════════════════════════════════════════
 echo ""
 echo -e "${CYAN}╔═══════════════════════════════════════════════════════════════╗${NC}"

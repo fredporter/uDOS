@@ -14,7 +14,6 @@
     { id: "dashboard", label: "Dashboard" },
     { id: "devices", label: "Devices" },
     { id: "catalog", label: "Catalog" },
-    { id: "poke", label: "Poke" },
     { id: "webhooks", label: "Webhooks" },
     { id: "setup", label: "Setup" },
   ];
@@ -23,9 +22,8 @@
     { id: "dashboard", label: "Dashboard" },
     { id: "devices", label: "Devices" },
     { id: "catalog", label: "Catalog" },
-    { id: "poke", label: "Poke" },
     { id: "webhooks", label: "Webhooks" },
-    { id: "setup", label: "🧭 Setup" },
+    { id: "setup", label: "Setup" },
     { id: "logs", label: "Logs" },
     { id: "config", label: "Config" },
     { separator: true, label: "Documentation" },
@@ -362,11 +360,12 @@
     right: 1rem;
     z-index: 250;
     width: 17rem;
+    max-height: calc(100vh - 5rem);
+    overflow-y: auto;
     background: #1f2937;
     border: 1px solid #374151;
     border-radius: 0.75rem;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
     animation: slideDown 0.2s ease-out;
   }
 

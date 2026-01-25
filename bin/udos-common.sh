@@ -251,10 +251,12 @@ rebuild_core_runtime() {
     local core_dist="$core_dir/dist"
 
     if [ -f "$core_dir/package.json" ]; then
-        echo -e "${CYAN}🔧 Core Runtime: checking build...${NC}"
-        maybe_npm_install "$core_dir" || return 1
-        run_npm_build_if_needed "$core_dir" "$core_dist" "npm run build" || return 1
-        echo -e "${GREEN}✅ Core Runtime ready${NC}"
+        if run_with_spinner "Core Runtime: checking build..." "maybe_npm_install '$core_dir' && run_npm_build_if_needed '$core_dir' '$core_dist' 'npm run build'"; then
+            echo -e "  ${GREEN}✅ Core Runtime ready${NC}"
+        else
+            echo -e "  ${RED}❌ Core Runtime build failed${NC}"
+            return 1
+        fi
     else
         echo -e "${DIM}ℹ️  Core runtime package.json not found; skipping JS build${NC}"
     fi

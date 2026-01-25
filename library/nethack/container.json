@@ -20,9 +20,17 @@
   },
   "integration": {
     "wrapper_path": "extensions/play/nethack/",
+    "service_path": null,
     "handler_path": "core/commands/nethack_handler.py",
     "install_script": "extensions/setup/install_nethack.sh",
     "layers": "400-455"
+  },
+  "metadata": {
+    "license": "NGPL",
+    "homepage": "https://www.nethack.org/",
+    "documentation": "extensions/play/nethack/README.md",
+    "maintainer": "uDOS Wizard Server",
+    "category": "games"
   },
   "build": {
     "type": "make",
@@ -35,11 +43,5 @@
       "compiletc"
     ]
   },
-  "metadata": {
-    "license": "NGPL",
-    "homepage": "https://www.nethack.org/",
-    "documentation": "extensions/play/nethack/README.md",
-    "maintainer": "uDOS Wizard Server",
-    "category": "games"
-  }
+  "repo_path": "memory/library/containers/nethack"
 }

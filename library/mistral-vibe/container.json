@@ -20,10 +20,18 @@
     "wizard_only": true
   },
   "integration": {
+    "wrapper_path": "extensions/transport/<container-id>/",
     "service_path": "extensions/assistant/vibe_cli_service.py",
     "handler_path": "core/commands/okfix_handler.py",
     "install_script": "library/mistral-vibe/install.sh",
     "config_path": "~/.vibe/config.toml"
+  },
+  "metadata": {
+    "license": "Apache-2.0",
+    "homepage": "https://github.com/mistralai/mistral-vibe",
+    "documentation": "https://github.com/mistralai/mistral-vibe#readme",
+    "maintainer": "Mistral AI / uDOS Wizard Server",
+    "category": "ai"
   },
   "capabilities": {
     "offline": false,
@@ -75,14 +83,12 @@
     "memory": "512MB",
     "storage": "100MB",
     "network": "Required - Mistral API access",
-    "platforms": ["linux", "macos", "windows"]
+    "platforms": [
+      "linux",
+      "macos",
+      "windows"
+    ]
   },
-  "metadata": {
-    "license": "Apache-2.0",
-    "homepage": "https://github.com/mistralai/mistral-vibe",
-    "documentation": "https://github.com/mistralai/mistral-vibe#readme",
-    "maintainer": "Mistral AI / uDOS Wizard Server",
-    "category": "ai"
-  },
-  "_note": "WIZARD ONLY - Requires Mistral API key. Dev coding assistant with powerful codebase tools."
+  "_note": "WIZARD ONLY - Requires Mistral API key. Dev coding assistant with powerful codebase tools.",
+  "repo_path": "memory/library/containers/mistral-vibe"
 }

@@ -21,8 +21,16 @@
   },
   "integration": {
     "wrapper_path": "extensions/ai/gemini/",
+    "service_path": null,
     "handler_path": "core/commands/ai_handler.py",
     "install_script": "extensions/setup/install_gemini.sh"
+  },
+  "metadata": {
+    "license": "Apache-2.0",
+    "homepage": "https://github.com/google-gemini/gemini-cli",
+    "documentation": "extensions/ai/gemini/README.md",
+    "maintainer": "uDOS Wizard Server",
+    "category": "ai"
   },
   "build": {
     "type": "npm",
@@ -37,12 +45,6 @@
     "api_key_env": "GEMINI_API_KEY",
     "rate_limited": true
   },
-  "metadata": {
-    "license": "Apache-2.0",
-    "homepage": "https://github.com/google-gemini/gemini-cli",
-    "documentation": "extensions/ai/gemini/README.md",
-    "maintainer": "uDOS Wizard Server",
-    "category": "ai"
-  },
-  "_note": "WIZARD ONLY - Requires API key and web access. Not distributed to user devices."
+  "_note": "WIZARD ONLY - Requires API key and web access. Not distributed to user devices.",
+  "repo_path": "memory/library/containers/gemini-cli"
 }

@@ -69,7 +69,8 @@ class RepairService:
 
         return {
             "os": {
-                "platform": os_info.platform,
+                "platform": os_info.platform_system,
+                "detected_os": os_info.detected_os,
                 "is_alpine": os_info.is_alpine,
             },
             "tools": {

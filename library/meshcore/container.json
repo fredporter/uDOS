@@ -30,5 +30,6 @@
     "documentation": "extensions/transport/meshcore/README.md",
     "maintainer": "uDOS Wizard Server"
   },
-  "_note": "This manifest is created when Wizard Server clones the repo. cloned_at, last_update, commit, and version fields are populated automatically."
+  "_note": "This manifest is created when Wizard Server clones the repo. cloned_at, last_update, commit, and version fields are populated automatically.",
+  "repo_path": "memory/library/containers/meshcore"
 }

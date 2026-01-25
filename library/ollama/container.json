@@ -20,9 +20,17 @@
     "wizard_only": false
   },
   "integration": {
+    "wrapper_path": "extensions/transport/<container-id>/",
     "service_path": "extensions/assistant/vibe_cli_service.py",
     "handler_path": "core/commands/okfix_handler.py",
     "install_script": "library/ollama/install.sh"
+  },
+  "metadata": {
+    "license": "MIT",
+    "homepage": "https://ollama.com",
+    "documentation": "https://github.com/ollama/ollama",
+    "maintainer": "uDOS Dev",
+    "category": "ai"
   },
   "capabilities": {
     "offline": true,
@@ -33,18 +41,50 @@
     "default_host": "http://localhost:11434",
     "models": {
       "coding": [
-        {"name": "codellama:7b", "size": "3.8GB", "purpose": "Code completion/generation"},
-        {"name": "deepseek-coder:6.7b", "size": "3.8GB", "purpose": "Advanced coding"},
-        {"name": "qwen2.5-coder:7b", "size": "4.4GB", "purpose": "Multi-language coding"},
-        {"name": "starcoder2:3b", "size": "1.7GB", "purpose": "Lightweight coding"}
+        {
+          "name": "codellama:7b",
+          "size": "3.8GB",
+          "purpose": "Code completion/generation"
+        },
+        {
+          "name": "deepseek-coder:6.7b",
+          "size": "3.8GB",
+          "purpose": "Advanced coding"
+        },
+        {
+          "name": "qwen2.5-coder:7b",
+          "size": "4.4GB",
+          "purpose": "Multi-language coding"
+        },
+        {
+          "name": "starcoder2:3b",
+          "size": "1.7GB",
+          "purpose": "Lightweight coding"
+        }
       ],
       "general": [
-        {"name": "llama3.2:3b", "size": "2.0GB", "purpose": "Fast general tasks"},
-        {"name": "mistral:7b", "size": "4.1GB", "purpose": "Balanced performance"},
-        {"name": "gemma2:2b", "size": "1.6GB", "purpose": "Tiny Core friendly"}
+        {
+          "name": "llama3.2:3b",
+          "size": "2.0GB",
+          "purpose": "Fast general tasks"
+        },
+        {
+          "name": "mistral:7b",
+          "size": "4.1GB",
+          "purpose": "Balanced performance"
+        },
+        {
+          "name": "gemma2:2b",
+          "size": "1.6GB",
+          "purpose": "Tiny Core friendly"
+        }
       ],
       "vision": [
-        {"name": "llava:7b", "size": "4.5GB", "purpose": "Image understanding"}
+        {
+          "name": "llava:7b",
+          "size": "4.5GB",
+          "purpose": "Image understanding"
+        }
       ]
     },
     "recommended": {
@@ -63,12 +103,6 @@
     "cpu": "Modern x64 or ARM64",
     "gpu": "Optional - CUDA/ROCm/Metal acceleration"
   },
-  "metadata": {
-    "license": "MIT",
-    "homepage": "https://ollama.com",
-    "documentation": "https://github.com/ollama/ollama",
-    "maintainer": "uDOS Dev",
-    "category": "ai"
-  },
-  "_note": "DEVICE MESH SAFE - Fully offline AI. No API keys required. Perfect for Two-Realm Architecture (Realm A)."
+  "_note": "DEVICE MESH SAFE - Fully offline AI. No API keys required. Perfect for Two-Realm Architecture (Realm A).",
+  "repo_path": "memory/library/containers/ollama"
 }
