@@ -64,13 +64,21 @@
     const manifest = await res.json();
     fonts = buildFontList(manifest);
     if (!selectedFontId && fonts.length) {
-      const emojiFont = fonts.find((font) => font.category.startsWith("emoji/"));
+      const emojiFont =
+        fonts.find((font) => font.id === "NotoEmoji") ||
+        fonts.find((font) => (font.category || "").includes("emoji/mono")) ||
+        fonts.find((font) => font.category.startsWith("emoji/"));
       selectedFontId = (emojiFont || fonts[0]).id;
     }
   }
 
   function getSelectedFont() {
     return fonts.find((font) => font.id === selectedFontId) || null;
+  }
+
+  function isColorEmojiFont(font) {
+    if (!font) return false;
+    return (font.category || "").includes("emoji/color") || font.id === "NotoColorEmoji";
   }
 
   function getFontUrl(font) {
@@ -85,6 +93,17 @@
     try {
       const set = getSelectedSet();
       if (!set) throw new Error("No emoji set selected");
+      if (isColorEmojiFont(selectedFont)) {
+        const fallback =
+          fonts.find((font) => font.id === "NotoEmoji") ||
+          fonts.find((font) => (font.category || "").includes("emoji/mono"));
+        if (fallback) {
+          selectedFontId = fallback.id;
+        }
+        throw new Error(
+          "Color emoji fonts (CBDT) are not supported for SVG extraction. Switched to Noto Emoji (outline)."
+        );
+      }
       const codes = set.codes.slice(0, Math.max(1, limit));
       const fontUrl = getFontUrl(selectedFont);
       const result = await extractGlyphsFromFont(fontUrl, codes);

@@ -8,31 +8,13 @@ export const sizePresets = [
   { id: "2xl", label: "2xl" },
 ];
 
-export const ratioPresets = [
-  {
-    id: "tight",
-    label: "Tight",
-    titleScale: 0.98,
-    bodyScale: 0.96,
-    codeScale: 0.96,
-  },
-  {
-    id: "balanced",
-    label: "Balanced",
-    titleScale: 1.0,
-    bodyScale: 1.0,
-    codeScale: 1.0,
-  },
-  {
-    id: "display",
-    label: "Display",
-    titleScale: 1.08,
-    bodyScale: 1.02,
-    codeScale: 1.0,
-  },
-];
-
 export const headingFonts = [
+  {
+    id: "system-sans",
+    label: "System Sans",
+    stack: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
+    scale: { title: 1.0 },
+  },
   {
     id: "system-serif",
     label: "System Serif",
@@ -134,11 +116,10 @@ export const codeFonts = [
 ];
 
 export const defaultTypography = {
-  headingFontId: "chicago-flf",
-  bodyFontId: "los-altos",
-  codeFontId: "monaco",
+  headingFontId: "system-serif",
+  bodyFontId: "system-sans",
+  codeFontId: "system-mono",
   size: "base",
-  ratio: "balanced",
 };
 
 function findById(list, id, fallbackId) {
@@ -154,8 +135,6 @@ function normalizeTypography(raw) {
   const bodyFontId = raw?.bodyFontId || defaultTypography.bodyFontId;
   const codeFontId = raw?.codeFontId || defaultTypography.codeFontId;
   const size = raw?.size || defaultTypography.size;
-  const ratio = raw?.ratio || defaultTypography.ratio;
-
   return {
     headingFontId: findById(headingFonts, headingFontId, defaultTypography.headingFontId).id,
     bodyFontId: findById(bodyFonts, bodyFontId, defaultTypography.bodyFontId).id,
@@ -163,9 +142,6 @@ function normalizeTypography(raw) {
     size: sizePresets.some((preset) => preset.id === size)
       ? size
       : defaultTypography.size,
-    ratio: ratioPresets.some((preset) => preset.id === ratio)
-      ? ratio
-      : defaultTypography.ratio,
   };
 }
 
@@ -236,13 +212,9 @@ export function applyTypographyState(state, { persist = true } = {}) {
     normalized.codeFontId,
     defaultTypography.codeFontId,
   );
-  const ratioPreset =
-    ratioPresets.find((preset) => preset.id === normalized.ratio) ||
-    ratioPresets[1];
-
-  const titleScale = (headingFont.scale?.title || 1) * ratioPreset.titleScale;
-  const bodyScale = (bodyFont.scale?.body || 1) * ratioPreset.bodyScale;
-  const codeScale = (codeFont.scale?.code || 1) * ratioPreset.codeScale;
+  const titleScale = headingFont.scale?.title || 1;
+  const bodyScale = bodyFont.scale?.body || 1;
+  const codeScale = codeFont.scale?.code || 1;
 
   const html = document.documentElement;
   sizePresets.forEach((preset) => html.classList.remove(`prose-${preset.id}`));
@@ -271,6 +243,7 @@ export function resetTypographyState() {
   if (typeof window !== "undefined") {
     localStorage.removeItem("wizard-font-size");
     localStorage.removeItem("wizard-font-style");
+    localStorage.removeItem(STORAGE_KEY);
   }
   return applyTypographyState({ ...defaultTypography }, { persist: true });
 }
@@ -298,8 +271,6 @@ export function getTypographyLabels(state) {
     state.codeFontId,
     defaultTypography.codeFontId,
   );
-  const ratioPreset =
-    ratioPresets.find((preset) => preset.id === state.ratio) || ratioPresets[1];
   const sizePreset =
     sizePresets.find((preset) => preset.id === state.size) || sizePresets[1];
 
@@ -307,7 +278,6 @@ export function getTypographyLabels(state) {
     headingLabel: headingFont.label,
     bodyLabel: bodyFont.label,
     codeLabel: codeFont.label,
-    ratioLabel: ratioPreset.label,
     sizeLabel: sizePreset.label,
   };
 }

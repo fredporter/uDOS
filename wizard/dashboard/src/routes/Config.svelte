@@ -17,7 +17,7 @@
     getTypographyLabels,
     headingFonts,
     loadTypographyState,
-    ratioPresets,
+    resetTypographyState,
     sizePresets,
   } from "../lib/typography.js";
 
@@ -392,13 +392,10 @@
     syncTypography({ ...typography, size: nextSize.id });
   }
 
-  function cycleRatio() {
-    const nextRatio = cycleOption(ratioPresets, typography.ratio);
-    syncTypography({ ...typography, ratio: nextRatio.id });
-  }
 
   function resetTypography() {
-    syncTypography({ ...defaultTypography });
+    typography = resetTypographyState();
+    typographyLabels = getTypographyLabels(typography);
   }
 
   function toggleFullscreen() {
@@ -762,12 +759,6 @@
           class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
         >
           Size: {typographyLabels.sizeLabel}
-        </button>
-        <button
-          on:click={cycleRatio}
-          class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
-        >
-          Ratio: {typographyLabels.ratioLabel}
         </button>
         <button
           on:click={resetTypography}

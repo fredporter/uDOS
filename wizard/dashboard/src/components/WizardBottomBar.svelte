@@ -7,7 +7,7 @@
     headingFonts,
     bodyFonts,
     loadTypographyState,
-    ratioPresets,
+    resetTypographyState,
     sizePresets,
     defaultTypography,
   } from "../lib/typography.js";
@@ -34,18 +34,17 @@
     syncTypography({ ...typography, bodyFontId: nextFont.id });
   }
 
-  function cycleSize() {
-    const nextSize = cycleOption(sizePresets, typography.size);
+  function cycleSize(delta) {
+    const index = sizePresets.findIndex((preset) => preset.id === typography.size);
+    if (index === -1) return;
+    const nextIndex = Math.max(0, Math.min(sizePresets.length - 1, index + delta));
+    const nextSize = sizePresets[nextIndex];
     syncTypography({ ...typography, size: nextSize.id });
   }
 
-  function cycleRatio() {
-    const nextRatio = cycleOption(ratioPresets, typography.ratio);
-    syncTypography({ ...typography, ratio: nextRatio.id });
-  }
-
   function resetTypography() {
-    syncTypography({ ...defaultTypography });
+    typography = resetTypographyState();
+    labels = getTypographyLabels(typography);
   }
 
   function toggleFullscreen() {
@@ -74,8 +73,8 @@
     <span class="status-text">B: {labels.bodyLabel}</span>
     <span class="status-text">·</span>
     <span class="status-text">{labels.sizeLabel}</span>
-    <span class="status-text">/</span>
-    <span class="status-text">{labels.ratioLabel}</span>
+    <span class="status-text">·</span>
+    <span class="status-text">{labels.sizeLabel}</span>
   </div>
 
   <!-- Right side: Controls -->
@@ -83,50 +82,49 @@
     <div class="control-section">
       <button
         on:click={resetTypography}
-        class="reset-btn"
+        class="reset-btn icon-only"
         aria-label="Reset typography"
         title="Reset typography"
       >
-        Reset
+        ↺
       </button>
     </div>
     <div class="control-section">
       <button
         on:click={cycleHeadingFont}
-        class="style-btn"
+        class="style-btn icon-only"
         aria-label="Toggle heading font"
-        title="Heading font"
+        title={`Heading: ${labels.headingLabel}`}
       >
-        H: {labels.headingLabel}
+        H
       </button>
     </div>
     <div class="control-section">
       <button
         on:click={cycleBodyFont}
-        class="style-btn"
+        class="style-btn icon-only"
         aria-label="Toggle body font"
-        title="Body font"
+        title={`Body: ${labels.bodyLabel}`}
       >
-        B: {labels.bodyLabel}
+        B
       </button>
     </div>
     <div class="control-section size-controls">
       <button
-        on:click={cycleSize}
-        aria-label="Toggle font size"
-        title="Font size"
+        on:click={() => cycleSize(-1)}
+        class="icon-only"
+        aria-label="Decrease font size"
+        title={`Size: ${labels.sizeLabel}`}
       >
-        Size {labels.sizeLabel}
+        A−
       </button>
-    </div>
-    <div class="control-section">
       <button
-        on:click={cycleRatio}
-        class="style-btn"
-        aria-label="Toggle font ratio"
-        title="Font ratio"
+        on:click={() => cycleSize(1)}
+        class="icon-only"
+        aria-label="Increase font size"
+        title={`Size: ${labels.sizeLabel}`}
       >
-        Ratio {labels.ratioLabel}
+        A+
       </button>
     </div>
 
@@ -258,6 +256,15 @@
     justify-content: center;
   }
 
+  .icon-only {
+    min-width: 2.25rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
   .size-controls button:hover:not(:disabled) {
     background: #374151;
     border-color: #6b7280;
@@ -287,6 +294,13 @@
     font-weight: 700;
     font-size: 0.75rem;
     padding: 0.375rem 0.65rem;
+  }
+
+  .reset-btn.icon-only {
+    min-width: 2.25rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
   }
 
   .reset-btn:hover {
@@ -322,6 +336,14 @@
     min-width: 5.5rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+  }
+
+  .style-btn.icon-only {
+    min-width: 2.25rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    letter-spacing: 0.06em;
   }
 
   .style-btn:hover {
