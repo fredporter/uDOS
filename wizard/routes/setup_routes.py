@@ -49,6 +49,8 @@ def create_setup_routes(auth_guard=None):
             "variables_configured": configured_count,
             "services_enabled": len(status.get("services_enabled", [])),
             "required_variables": total_required,
+            "steps_completed": status.get("steps_completed", []),
+            "steps_completed_count": len(status.get("steps_completed", [])),
             "configured_variables": variables,
         }
 
@@ -75,6 +77,23 @@ def create_setup_routes(auth_guard=None):
                 "status": "success",
                 "variable": variable.name,
                 "message": f"Configuration updated: {variable.name}",
+            }
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc))
+
+    class StepCompletion(BaseModel):
+        step_id: int
+        completed: bool = True
+
+    @router.post("/steps/complete")
+    async def mark_setup_step_complete(step: StepCompletion):
+        try:
+            setup_state.mark_step_complete(step.step_id, step.completed)
+            return {
+                "status": "success",
+                "step_id": step.step_id,
+                "completed": step.completed,
+                "steps_completed": setup_state.get_status().get("steps_completed", []),
             }
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))

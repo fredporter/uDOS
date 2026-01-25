@@ -28,6 +28,7 @@ class SetupState:
                 "setup_complete": False,
                 "initialized_at": None,
                 "variables_configured": [],
+                "steps_completed": [],
                 "services_enabled": [],
             }
         try:
@@ -37,6 +38,7 @@ class SetupState:
                 "setup_complete": False,
                 "initialized_at": None,
                 "variables_configured": [],
+                "steps_completed": [],
                 "services_enabled": [],
             }
 
@@ -55,6 +57,17 @@ class SetupState:
 
     def mark_setup_complete(self) -> None:
         self.data["setup_complete"] = True
+        if not self.data.get("initialized_at"):
+            self.data["initialized_at"] = datetime.utcnow().isoformat()
+        self._save()
+
+    def mark_step_complete(self, step_id: int, completed: bool = True) -> None:
+        steps = set(self.data.get("steps_completed", []))
+        if completed:
+            steps.add(step_id)
+        else:
+            steps.discard(step_id)
+        self.data["steps_completed"] = sorted(steps)
         if not self.data.get("initialized_at"):
             self.data["initialized_at"] = datetime.utcnow().isoformat()
         self._save()

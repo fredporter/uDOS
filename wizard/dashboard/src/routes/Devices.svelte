@@ -278,7 +278,9 @@
             </div>
             {#if pairingSvg}
               <p class="text-gray-400 mb-2">Scan this QR code:</p>
-              <div class="bg-white inline-block p-3 rounded" {@html pairingSvg}></div>
+              <div class="bg-white inline-block p-3 rounded">
+                {@html pairingSvg}
+              </div>
             {:else if pairingQR}
               <p class="text-gray-400 mb-2">QR payload:</p>
               <div class="text-xs text-gray-300 bg-gray-900 border border-gray-700 rounded p-3 break-all">

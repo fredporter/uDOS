@@ -327,6 +327,9 @@ class DevModeService:
                 "status": "unreachable",
                 "error": str(exc),
             }
+            health["healthy"] = False
+
+        return health
 
 
 _dev_mode_service: Optional[DevModeService] = None
@@ -337,6 +340,3 @@ def get_dev_mode_service() -> DevModeService:
     if _dev_mode_service is None:
         _dev_mode_service = DevModeService()
     return _dev_mode_service
-            health["healthy"] = False
-
-        return health

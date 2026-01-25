@@ -130,6 +130,67 @@ This document consolidates all active development streams across Core, Wizard, G
 
 ---
 
+### Stream 2.5: Beacon Portal (WiFi Infrastructure)
+
+**Owner:** Wizard (`/wizard/`) + Extensions  
+**Status:** v1.0.0 — Specification Complete, Ready for Integration  
+**Timeline:** 2-3 weeks (implementation)
+
+**Components:**
+
+1. **Sonic Screwdriver Device Catalog**
+   - Device identification (vendor, model, year, CPU, GPU, TPM, BIOS)
+   - Reflashing method recommendations
+   - Driver sourcing
+   - Hardware compatibility tracking
+   - Community contributions
+
+2. **Beacon Portal (WiFi Infrastructure)**
+   - WiFi access point configuration (2.4GHz, 5GHz, dual-band)
+   - Two modes: Private-Home (WPA3 passphrase) + Public-Secure (registration)
+   - Captive portal with offline fallback
+   - Device registration + pairing
+   - Local plugin caching
+
+3. **VPN Tunnel (WireGuard)**
+   - Encrypted gateway between beacon and Wizard
+   - ChaCha20-Poly1305 cipher (AEAD)
+   - Curve25519 key exchange (post-quantum)
+   - Cost-aware escalation (local-first with cloud fallback)
+   - Per-device quota enforcement
+
+4. **Device Quota Management**
+   - Monthly cloud budget per device ($5–$10 default)
+   - Cost tracking per request
+   - Quota enforcement before execution
+   - Monthly reset + emergency top-up
+   - Budget alerts at 80%
+
+**Key Deliverables:**
+
+- ✅ SONIC-SCREWDRIVER.md specification
+- ✅ BEACON-PORTAL.md specification
+- ✅ BEACON-VPN-TUNNEL.md specification
+- ✅ beacon_routes.py (13 API endpoints)
+- ✅ beacon_service.py (SQLite backend)
+- ✅ BEACON-IMPLEMENTATION.md (integration guide)
+- ✅ BEACON-QUICK-REFERENCE.md (user guide)
+- 🔲 Wizard server route registration
+- 🔲 Hardware setup guides (4 device categories)
+- 🔲 WireGuard config generation
+- 🔲 Quota enforcement middleware
+- 🔲 Integration tests + load testing
+
+**References:**
+
+- [SONIC-SCREWDRIVER.md](wiki/SONIC-SCREWDRIVER.md)
+- [BEACON-PORTAL.md](wiki/BEACON-PORTAL.md)
+- [BEACON-VPN-TUNNEL.md](wiki/BEACON-VPN-TUNNEL.md)
+- [BEACON-IMPLEMENTATION.md](../wizard/docs/BEACON-IMPLEMENTATION.md)
+- [BEACON-QUICK-REFERENCE.md](wiki/BEACON-QUICK-REFERENCE.md)
+
+---
+
 ### Stream 3: Goblin Dev Server (Experimental)
 
 **Owner:** Goblin (`/dev/goblin/`)  
@@ -233,18 +294,21 @@ This document consolidates all active development streams across Core, Wizard, G
 
 ## 📊 Feature Matrix
 
-| Feature             | Core | Wizard | Goblin | App   |
-| ------------------- | ---- | ------ | ------ | ----- |
-| TS Markdown Runtime | ✅   | —      | —      | ✅    |
-| Grid/Spatial System | ✅   | —      | —      | ✅    |
-| File Parsing        | ✅   | ✅ API | —      | ✅ UI |
-| OAuth Integration   | —    | ✅     | —      | —     |
-| Workflow Management | —    | ✅     | 🧪     | —     |
-| Binder Compilation  | —    | ✅     | 🧪     | —     |
-| Device Provisioning | —    | —      | 🧪     | —     |
-| MeshCore Manager    | —    | —      | 🧪     | —     |
-| Typography System   | —    | —      | —      | ✅    |
-| Converters          | —    | —      | —      | ✅    |
+| Feature             | Core | Wizard | Wizard (Beacon)  | Goblin | App   |
+| ------------------- | ---- | ------ | ---------------- | ------ | ----- |
+| TS Markdown Runtime | ✅   | —      | —                | —      | ✅    |
+| Grid/Spatial System | ✅   | —      | —                | —      | ✅    |
+| File Parsing        | ✅   | ✅ API | —                | —      | ✅ UI |
+| OAuth Integration   | —    | ✅     | —                | —      | —     |
+| Workflow Management | —    | ✅     | —                | 🧪     | —     |
+| Binder Compilation  | —    | ✅     | —                | 🧪     | —     |
+| Device Provisioning | —    | —      | —                | 🧪     | —     |
+| MeshCore Manager    | —    | —      | —                | 🧪     | —     |
+| Beacon Portal       | —    | —      | ✅ (In progress) | —      | —     |
+| Device Quota        | —    | —      | ✅ (In progress) | —      | —     |
+| VPN Tunneling       | —    | —      | ✅ (In progress) | —      | —     |
+| Typography System   | —    | —      | —                | —      | ✅    |
+| Converters          | —    | —      | —                | —      | ✅    |
 
 Legend: ✅ Primary, 🧪 Experimental, — Not applicable
 
@@ -258,10 +322,15 @@ Legend: ✅ Primary, 🧪 Experimental, — Not applicable
 
 - ✅ Wizard/Goblin dashboard integration (COMPLETE 2026-01-24)
 - ✅ Goblin feature cleanup (COMPLETE 2026-01-24)
-- 🔲 Specs consolidation (IN PROGRESS 2026-01-24)
+- ✅ Beacon Portal specification & scaffold (COMPLETE 2026-01-25)
+- ✅ Specs consolidation (COMPLETE 2026-01-25)
 
 **February:**
 
+- 🔲 Beacon Portal integration (Week 1-2)
+  - Register routes in Wizard Server
+  - Initialize service + database
+  - Hardware setup guides
 - 🔲 Core: TS Markdown Runtime (Weeks 1-4)
 - 🔲 Core: Grid Runtime Phase 1 (Weeks 3-6)
 - 🔲 Wizard: OAuth Foundation (Phase 6A, Weeks 1-2)

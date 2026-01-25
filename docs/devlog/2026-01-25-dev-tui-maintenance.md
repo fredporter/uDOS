@@ -26,6 +26,7 @@
 - Added scheduler task drill-down + backup metadata in Repair restore section.
 - Added Setup dashboard page and scheduler task run detail drawer.
 - Added API tests for setup + scheduler status.
+- Added per-step Setup actions, completion toggles, and a top-bar setup progress badge.
 
 ## Notes
 

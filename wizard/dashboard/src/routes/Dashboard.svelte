@@ -16,6 +16,7 @@
   let selectedTaskRuns = [];
   let taskDetailError = null;
   let selectedRun = null;
+  let showRunOutput = false;
   let loading = true;
   let systemLoading = false;
   let error = null;
@@ -145,9 +146,19 @@
       if (runsRes.ok) {
         selectedTaskRuns = await runsRes.json();
         selectedRun = selectedTaskRuns[0] || null;
+        showRunOutput = false;
       }
     } catch (err) {
       taskDetailError = `Failed to load task details: ${err.message}`;
+    }
+  }
+
+  async function copyRunOutput() {
+    if (!selectedRun?.output) return;
+    try {
+      await navigator.clipboard.writeText(selectedRun.output);
+    } catch (err) {
+      console.error("Copy failed", err);
     }
   }
 
@@ -510,7 +521,10 @@
                     <li>
                       <button
                         class="text-left hover:text-white"
-                        on:click={() => (selectedRun = run)}
+                        on:click={() => {
+                          selectedRun = run;
+                          showRunOutput = true;
+                        }}
                       >
                         {run.created_at} → {run.result || run.state || "pending"}
                       </button>
@@ -519,10 +533,28 @@
                 </ul>
               {/if}
               {#if selectedRun}
-                <div class="text-xs text-gray-400 mt-3">Run output</div>
-                <pre class="text-xs text-gray-300 whitespace-pre-wrap">
+                <div class="mt-3">
+                  <button
+                    class="text-xs text-gray-300 hover:text-white border border-slate-700 rounded px-2 py-1"
+                    on:click={() => (showRunOutput = !showRunOutput)}
+                  >
+                    {showRunOutput ? "Hide run output" : "Show run output"}
+                  </button>
+                  {#if showRunOutput}
+                    <div class="mt-2 flex items-center justify-between">
+                      <div class="text-xs text-gray-400">Run output</div>
+                      <button
+                        class="text-xs text-gray-300 hover:text-white border border-slate-700 rounded px-2 py-1"
+                        on:click={copyRunOutput}
+                      >
+                        Copy
+                      </button>
+                    </div>
+                    <pre class="text-xs text-gray-300 whitespace-pre-wrap">
 {selectedRun.output || "No output"}
-                </pre>
+                    </pre>
+                  {/if}
+                </div>
               {/if}
             </div>
           </div>

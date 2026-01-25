@@ -9,6 +9,8 @@
   let error = null;
   let actionResult = null;
   let loading = false;
+  let wizardSteps = [];
+  let stepUpdates = {};
 
   let configName = "";
   let configValue = "";
@@ -31,10 +33,24 @@
       progress = await fetchJson("/api/v1/setup/progress");
       variables = await fetchJson("/api/v1/setup/required-variables");
       paths = await fetchJson("/api/v1/setup/paths");
+      if (!wizardSteps.length) {
+        await loadWizardSteps();
+      }
     } catch (err) {
       error = err.message;
     } finally {
       loading = false;
+    }
+  }
+
+  async function loadWizardSteps() {
+    try {
+      const data = await fetchJson("/api/v1/setup/wizard/start", {
+        method: "POST",
+      });
+      wizardSteps = data.steps || [];
+    } catch (err) {
+      wizardSteps = [];
     }
   }
 
@@ -44,6 +60,7 @@
       actionResult = await fetchJson("/api/v1/setup/wizard/start", {
         method: "POST",
       });
+      wizardSteps = actionResult.steps || wizardSteps;
       await loadSetup();
     } catch (err) {
       actionResult = { error: err.message };
@@ -91,10 +108,68 @@
     }
   }
 
+  async function toggleStepComplete(step) {
+    const stepId = step.step;
+    const completed = !isStepCompleted(step);
+    stepUpdates = { ...stepUpdates, [stepId]: true };
+    actionResult = null;
+    try {
+      actionResult = await fetchJson("/api/v1/setup/steps/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ step_id: stepId, completed }),
+      });
+      await loadSetup();
+    } catch (err) {
+      actionResult = { error: err.message };
+    } finally {
+      stepUpdates = { ...stepUpdates, [stepId]: false };
+    }
+  }
+
+  function openConfig() {
+    window.location.hash = "config";
+  }
+
   onMount(() => {
     adminToken = localStorage.getItem("wizardAdminToken") || "";
     loadSetup();
   });
+
+  const stepStatus = (step) => {
+    if (status?.setup?.setup_complete) return "done";
+    if (isStepCompleted(step)) return "done";
+    const percent = progress?.progress_percent ?? 0;
+    const stepPercent = Math.round((step.step / Math.max(wizardSteps.length, 1)) * 100);
+    if (percent >= stepPercent) return "done";
+    return "pending";
+  };
+
+  const isStepCompleted = (step) =>
+    (progress?.steps_completed || []).includes(step.step);
+
+  const stepAction = (step) => {
+    const id = step.step;
+    if (id === 1) {
+      return { label: "Initialize Paths", action: initializePaths };
+    }
+    if (id === 2) {
+      return { label: "Configure GitHub", action: openConfig };
+    }
+    if (id === 3) {
+      return { label: "Configure Notion", action: openConfig };
+    }
+    if (id === 4) {
+      return { label: "Configure AI", action: openConfig };
+    }
+    if (id === 5) {
+      return { label: "Configure HubSpot", action: openConfig };
+    }
+    if (id === 6) {
+      return { label: "Complete Wizard", action: runWizardComplete };
+    }
+    return null;
+  };
 </script>
 
 <div class="wizard-page">
@@ -155,6 +230,45 @@
     </div>
   {/if}
 
+  {#if wizardSteps?.length}
+    <div class="card">
+      <h2>Wizard Steps</h2>
+      <ol class="step-list">
+        {#each wizardSteps as step}
+          <li class={`step-item ${stepStatus(step)}`}>
+            <div class="step-title">
+              <span class="step-number">{step.step}</span>
+              <span>{step.name}</span>
+              {#if isStepCompleted(step)}
+                <span class="step-pill">Complete</span>
+              {/if}
+            </div>
+            <div class="step-desc">{step.description}</div>
+            <div class="step-actions">
+              {#if stepAction(step)}
+                <button
+                  class="step-action"
+                  on:click={stepAction(step).action}
+                >
+                  {stepAction(step).label}
+                </button>
+              {/if}
+              <label class="step-toggle">
+                <input
+                  type="checkbox"
+                  checked={isStepCompleted(step)}
+                  disabled={stepUpdates[step.step]}
+                  on:change={() => toggleStepComplete(step)}
+                />
+                <span>Mark step complete</span>
+              </label>
+            </div>
+          </li>
+        {/each}
+      </ol>
+    </div>
+  {/if}
+
   {#if variables}
     <div class="card">
       <h2>Required Variables</h2>
@@ -210,7 +324,7 @@
   {/if}
 </div>
 
-<style>
+  <style>
   .wizard-page {
     max-width: 1100px;
     margin: 0 auto;
@@ -270,6 +384,114 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
+  }
+
+  .step-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .step-item {
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(15, 23, 42, 0.6);
+  }
+
+  :global(html.light) .step-item {
+    background: #f8fafc;
+  }
+
+  .step-item.done {
+    border-color: rgba(16, 185, 129, 0.5);
+  }
+
+  .step-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    flex-wrap: wrap;
+  }
+
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.2);
+    font-size: 0.75rem;
+  }
+
+  .step-item.done .step-number {
+    background: rgba(16, 185, 129, 0.6);
+  }
+
+  .step-desc {
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+    color: rgba(248, 250, 252, 0.7);
+  }
+
+  :global(html.light) .step-desc {
+    color: rgba(15, 23, 42, 0.7);
+  }
+
+  .step-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 0.75rem;
+  }
+
+  .step-action {
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    color: #bfdbfe;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  :global(html.light) .step-action {
+    background: rgba(37, 99, 235, 0.12);
+    border-color: rgba(37, 99, 235, 0.4);
+    color: #1d4ed8;
+  }
+
+  .step-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: rgba(248, 250, 252, 0.7);
+  }
+
+  :global(html.light) .step-toggle {
+    color: rgba(15, 23, 42, 0.7);
+  }
+
+  .step-pill {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+  }
+
+  :global(html.light) .step-pill {
+    background: rgba(16, 185, 129, 0.2);
+    color: #047857;
   }
 
   .field {
