@@ -83,7 +83,6 @@ class WizardConsole:
             "github": self.cmd_github,
             "workflows": self.cmd_workflows,
             "workflow": self.cmd_workflow,
-            "poke": self.cmd_poke,
             "dev": self.cmd_dev,
             "ai": self.cmd_ai,
             "git": self.cmd_git,
@@ -597,34 +596,6 @@ class WizardConsole:
         """Alias for github command."""
         await self.cmd_github(args)
 
-    async def cmd_poke(self, args: list) -> None:
-        """Open a URL in the default browser."""
-        import webbrowser
-
-        if not args:
-            print("\n❌ ERROR: No URL provided")
-            print("   Usage: poke <url>")
-            print("   Example: poke http://localhost:8765/docs")
-            print()
-            return
-
-        url = args[0]
-
-        # Validate URL format
-        if not url.startswith(("http://", "https://", "file://")):
-            print(f"\n⚠️  WARNING: URL should start with http://, https://, or file://")
-            print(f"   Attempting to open: {url}")
-
-        try:
-            print(f"\n🌐 Opening URL in browser...")
-            print(f"   {url}")
-            webbrowser.open(url)
-            print("   ✅ Browser opened successfully\n")
-        except Exception as e:
-            print(f"\n❌ ERROR: Could not open browser")
-            print(f"   {str(e)}")
-            print(f"   Copy URL manually: {url}\n")
-
     async def cmd_help(self, args: list) -> None:
         """Show help message."""
         print("\n💬 AVAILABLE COMMANDS:")
@@ -635,7 +606,6 @@ class WizardConsole:
         print("  reload     - Reload configuration from disk")
         print("  github     - Show GitHub Actions status and recent runs")
         print("  workflows  - Alias for 'github' command")
-        print("  poke       - Open a URL in the default browser")
         print("  dev        - DEV MODE on/off/status/clear")
         print("  ai         - Vibe/Ollama/Mistral helpers")
         print("  git        - Git shortcuts (status/pull/push/log)")

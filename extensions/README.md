@@ -28,6 +28,7 @@ extensions/
 - Consolidated extension docs under [docs/](docs/) and removed top-level duplicates.
 - Reintroduced VS Code language support under [vscode/](vscode/) for grammar and snippets; still lightweight and build-free.
 - Public `/extensions` now contains only distributable components and docs; local-only runtimes stay in Wizard or gitignored paths.
+- Applied unified gitignore rules to `/library/` and `/dev/library/` to prevent cloned repos from remote syncing.
 
 ## Version Management
 

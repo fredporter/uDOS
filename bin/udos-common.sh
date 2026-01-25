@@ -34,6 +34,72 @@ BR="┛"
 # ═══════════════════════════════════════════════════════════════════════════
 UDOS_BIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 UDOS_ROOT="$(dirname "$UDOS_BIN_DIR")"
+UDOS_HOME_ROOT="${HOME}/uDOS"
+
+_udos_realpath() {
+    if command -v realpath >/dev/null 2>&1; then
+        realpath "$1"
+    else
+        python3 - <<'PY' "$1"
+import os, sys
+print(os.path.realpath(sys.argv[1]))
+PY
+    fi
+}
+
+_udos_find_repo_root() {
+    local start="$1"
+    while [ -n "$start" ] && [ "$start" != "/" ]; do
+        if [ -f "$start/uDOS.py" ]; then
+            echo "$start"
+            return 0
+        fi
+        start="$(dirname "$start")"
+    done
+    return 1
+}
+
+_udos_within_home_root() {
+    local candidate="$1"
+    if [ -d "$UDOS_HOME_ROOT" ]; then
+        local resolved
+        resolved="$(_udos_realpath "$candidate")"
+        case "$resolved" in
+            "$UDOS_HOME_ROOT"/*|"$UDOS_HOME_ROOT") return 0 ;;
+            *) return 1 ;;
+        esac
+    fi
+    return 0
+}
+
+resolve_udos_root() {
+    local resolved=""
+
+    if [ -n "$UDOS_ROOT" ] && [ -f "$UDOS_ROOT/uDOS.py" ]; then
+        resolved="$UDOS_ROOT"
+    else
+        local script_dir
+        script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        resolved="$(_udos_find_repo_root "$script_dir")" || resolved=""
+        if [ -z "$resolved" ]; then
+            resolved="$(_udos_find_repo_root "$(pwd)")" || resolved=""
+        fi
+    fi
+
+    if [ -z "$resolved" ]; then
+        echo "[udos] Could not locate uDOS repo root (missing uDOS.py). Set UDOS_ROOT or run from inside the repo." >&2
+        return 1
+    fi
+
+    if ! _udos_within_home_root "$resolved"; then
+        echo "[udos] Refusing repo root outside ~/uDOS. Move the repo under ~/uDOS or set UDOS_HOME_ROOT_ALLOW_OUTSIDE=1 to bypass." >&2
+        if [ "$UDOS_HOME_ROOT_ALLOW_OUTSIDE" != "1" ]; then
+            return 1
+        fi
+    fi
+
+    echo "$resolved"
+}
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Spinner Function

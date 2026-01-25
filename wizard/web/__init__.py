@@ -7,13 +7,10 @@ Replaces Tauri requirement with browser-based access.
 
 Components:
 - web_service.py: Flask/FastAPI web server
-- poke_commands.py: POKE web server commands
-- tunnel_manager.py: Secure tunnel for remote access
 - static/: Web UI assets (HTML, CSS, JS)
 
 Features:
 - Wizard Server dashboard (browser GUI)
-- POKE web server for file/page hosting
 - Webhook receiver for external integrations
 - Real-time log streaming via WebSocket
 - Plugin management UI
@@ -28,14 +25,4 @@ try:
 except ImportError:
     WebService = None
 
-try:
-    from .poke_commands import POKECommandHandler as PokeCommands
-except ImportError:
-    PokeCommands = None
-
-try:
-    from .tunnel_manager import TunnelManager
-except ImportError:
-    TunnelManager = None
-
-__all__ = ["WebService", "PokeCommands", "TunnelManager"]
+__all__ = ["WebService"]

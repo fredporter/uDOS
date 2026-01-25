@@ -7,6 +7,7 @@ Default workspace: /memory
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
@@ -23,8 +24,35 @@ def _is_executable(path: Path) -> bool:
     return path.exists() and os.access(path, os.X_OK) and path.is_file()
 
 
+def _read_container_repo_path(container_id: str) -> Optional[Path]:
+    repo_root = get_repo_root()
+    container_json = repo_root / "library" / container_id / "container.json"
+    if not container_json.exists():
+        return None
+
+    try:
+        data = json.loads(container_json.read_text())
+        repo_path = data.get("repo_path")
+    except Exception:
+        return None
+
+    if not repo_path:
+        return None
+
+    repo_path = Path(repo_path)
+    if repo_path.is_absolute():
+        return repo_path
+
+    return (repo_root / repo_path).resolve()
+
+
 def micro_path() -> Path:
-    return get_repo_root() / "library" / "micro"
+    repo_root = get_repo_root()
+    repo_path = _read_container_repo_path("micro")
+    if repo_path:
+        return repo_path
+
+    return get_memory_dir().resolve() / "library" / "containers" / "micro"
 
 
 def ensure_micro_repo() -> None:
@@ -52,7 +80,10 @@ def ensure_micro_repo() -> None:
 
 def find_micro_binary() -> Optional[Path]:
     repo_root = get_repo_root()
+    micro_root = micro_path()
     candidates = [
+        micro_root / "micro",
+        micro_root / "bin" / "micro",
         repo_root / "library" / "micro" / "micro",
         repo_root / "library" / "micro" / "bin" / "micro",
     ]

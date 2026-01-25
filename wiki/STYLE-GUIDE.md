@@ -119,6 +119,66 @@ More detail.
 _Last Updated: YYYY-MM-DD_
 ```
 
+---
+
+## 🔤 Typography Standards (Wizard Dashboard)
+
+Wizard uses a **three-slot typography system** driven by CSS variables (no class explosion):
+
+- **Prose Title** (`--font-prose-title`)
+- **Prose Body** (`--font-prose-body`)
+- **Code** (`--font-code`)
+
+Each slot supports a scale multiplier:
+
+- `--scale-prose-title`
+- `--scale-prose-body`
+- `--scale-code`
+
+Emoji fallback is always appended via:
+
+- `--font-emoji`
+
+### Canonical Font Bundle
+
+Bundled fonts live in:
+
+```
+wizard/font-manager/fonts/
+```
+
+The manifest is:
+
+```
+wizard/font-manager/fonts/manifest.json
+```
+
+### Tailwind + Typography Rules
+
+Tailwind Typography (prose) must read from the variables above. Example:
+
+```js
+typography: () => ({
+  DEFAULT: {
+    css: {
+      fontFamily: "var(--font-prose-body)",
+      "h1,h2,h3,h4,h5,h6": { fontFamily: "var(--font-prose-title)" },
+      "code, pre code": { fontFamily: "var(--font-code)" }
+    }
+  }
+})
+```
+
+### UI Toggles
+
+Wizard’s bottom bar exposes:
+
+- **Heading Font**
+- **Body Font**
+- **Font Size / Ratio**
+
+These controls update the CSS variables at runtime (no recompile).
+
 ### Command Documentation
 
 ````markdown
@@ -250,6 +310,20 @@ knowledge/      # Knowledge bank
 ---
 
 ## 🔄 Git Workflow
+
+---
+
+## 🧭 Path Anchoring
+
+All docs and scripts must refer to the repo root as:
+
+```
+~/uDOS/
+```
+
+Never hardcode machine-specific absolute roots (e.g., `/Users/<name>/Code/`).
+If a script needs the root, resolve it via `UDOS_ROOT` or repo detection, then
+assert it stays within `~/uDOS/` unless `UDOS_HOME_ROOT_ALLOW_OUTSIDE=1` is set.
 
 ### Commit Messages
 

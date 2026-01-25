@@ -137,14 +137,16 @@ logger.info('[LOCAL] uDOS starting...')
 
 **`/library/`** — Tool container definitions (PUBLIC, tracked)
 - `marp/`, `micro/`, `typo/`, etc. — Container definitions (container.json + setup scripts)
+- Only `container.json`, setup scripts (`.sh`, `.py`), and docs tracked; cloned repos ignored
 - Distributed via public repo
 
-**`/dev/library/`** — Local clones of external projects (PRIVATE, in submodule)
-- `gtx-form/` — External repo cloned locally
-- `home-assistant/` — External repo cloned locally
-- Reference copies for development
+**`/dev/library/`** — Local reference clones (PRIVATE, gitignored)
+- `gtx-form/`, `home-assistant/`, etc. — External repos cloned locally for development
+- Only setup scripts and docs tracked; full cloned repos ignored locally
+- Reference copies for testing before promotion
+- Part of private submodule
 
-**Promotion Pattern:** Test in `/dev/library/` → Create definition in `/library/` → Commit → Distribute
+**Promotion Pattern:** Test cloned repo in `/dev/library/` → Create container definition in `/library/` → Commit definition only → Distribute
 
 ---
 

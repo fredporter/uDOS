@@ -198,7 +198,7 @@ wizard/
 ### Start Wizard Server
 
 ```bash
-cd /Users/fredbook/Code/uDOS
+cd ~/uDOS
 source .venv/bin/activate
 python -m wizard.server
 ```

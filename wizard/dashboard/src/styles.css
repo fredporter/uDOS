@@ -20,13 +20,11 @@
 
   /* Font CSS Variables */
   :root {
-    /* Three independent font controls */
-    --mdk-font-heading: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    --mdk-font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    --mdk-font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-
-    /* Font scale (controlled by Typo-style toggles) */
-    --mdk-prose-scale: 1;
+    /* Wizard typography system */
+    --mdk-font-heading: var(--font-prose-title);
+    --mdk-font-body: var(--font-prose-body);
+    --mdk-font-code: var(--font-code);
+    --mdk-prose-scale: var(--scale-prose-body);
 
     /* Syntax highlighting (from Typo) */
     --shiki-foreground: rgb(229 231 235); /* gray-200 */

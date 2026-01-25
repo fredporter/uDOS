@@ -25,7 +25,7 @@
 ## Quick Start
 
 ```bash
-cd /Users/fredbook/Code/uDOS
+cd ~/uDOS
 source .venv/bin/activate
 python wizard/server.py               # interactive console + server
 # or run without console

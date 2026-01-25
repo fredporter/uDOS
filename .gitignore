@@ -186,9 +186,26 @@ scripts/
 uDOS.wiki/
 
 # ---------- External repos (local clones, not tracked) ----------
-# These are cloned locally for development reference but not part of uDOS
-library/gtx-form/
-library/home-assistant/
+# Both /library and /dev/library follow the same rules:
+# TRACK ONLY: container.json, container.template.json, *.md docs, setup scripts
+# IGNORE: cloned/downloaded repos, node_modules, build outputs, .git directories
+library/**/
+!library/container.schema.json
+!library/container.template.json
+!library/README.md
+!library/*.md
+!library/*/setup.sh
+!library/*/setup.py
+!library/*/README.md
+!library/*/.gitkeep
+
+dev/library/**/
+!dev/library/README.md
+!dev/library/*.md
+!dev/library/*/setup.sh
+!dev/library/*/setup.py
+!dev/library/*/README.md
+!dev/library/*/.gitkeep
 
 # ---------- Allowlisted project files ----------
 !*.md

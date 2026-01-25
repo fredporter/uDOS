@@ -28,11 +28,36 @@ from typing import Optional, Dict
 
 
 # Project root detection
+def _home_root() -> Path:
+    return Path.home() / "uDOS"
+
+
+def _enforce_home_root(candidate: Path) -> Path:
+    home_root = _home_root()
+    if home_root.exists() or os.getenv("UDOS_HOME_ROOT_ENFORCE") == "1":
+        try:
+            resolved = candidate.resolve()
+        except FileNotFoundError:
+            resolved = candidate
+        if not str(resolved).startswith(str(home_root)):
+            if os.getenv("UDOS_HOME_ROOT_ALLOW_OUTSIDE") == "1":
+                return candidate
+            raise RuntimeError(
+                "Repo root outside ~/uDOS. Move the repo under ~/uDOS or set "
+                "UDOS_HOME_ROOT_ALLOW_OUTSIDE=1 to bypass."
+            )
+    return candidate
+
+
 def get_repo_root() -> Path:
-    """Get repository root from current file location."""
+    """Get repository root from current file location or UDOS_ROOT."""
+    env_root = os.getenv("UDOS_ROOT")
+    if env_root:
+        env_path = Path(env_root).expanduser()
+        if (env_path / "uDOS.py").exists():
+            return _enforce_home_root(env_path)
     current = Path(__file__).resolve()
-    # core/services/logging_manager.py -> go up to repo root
-    return current.parent.parent.parent
+    return _enforce_home_root(current.parent.parent.parent)
 
 
 class FlatFileHandler(logging.FileHandler):

@@ -8,6 +8,18 @@
    */
 
   import { onMount } from "svelte";
+  import {
+    applyTypographyState,
+    bodyFonts,
+    codeFonts,
+    cycleOption,
+    defaultTypography,
+    getTypographyLabels,
+    headingFonts,
+    loadTypographyState,
+    ratioPresets,
+    sizePresets,
+  } from "../lib/typography.js";
 
   let selectedFile = null;
   let fileList = [];
@@ -33,45 +45,38 @@
   const configFiles = {
     assistant_keys: {
       id: "assistant_keys",
-      label: "🤖 Assistant Keys",
+      label: "Assistant Keys",
       description: "Mistral, OpenRouter, Ollama API credentials",
-      icon: "🔑",
     },
     github_keys: {
       id: "github_keys",
-      label: "🐙 GitHub Keys",
+      label: "GitHub Keys",
       description: "GitHub token and webhook secrets",
-      icon: "🔗",
     },
     notion_keys: {
       id: "notion_keys",
-      label: "📔 Notion Integration",
+      label: "Notion Integration",
       description: "Notion API token and workspace config",
-      icon: "🔗",
     },
     oauth: {
       id: "oauth",
-      label: "🔐 OAuth Providers",
+      label: "OAuth Providers",
       description: "Google, Microsoft, and other OAuth configs",
-      icon: "🔐",
     },
     slack_keys: {
       id: "slack_keys",
-      label: "💬 Slack Integration",
+      label: "Slack Integration",
       description: "Slack bot token and workspace config",
-      icon: "🔗",
     },
     hubspot_keys: {
       id: "hubspot_keys",
-      label: "📈 HubSpot",
+      label: "HubSpot",
       description: "HubSpot API key configuration",
-      icon: "📊",
     },
     wizard: {
       id: "wizard",
-      label: "⚙️ Wizard Settings",
+      label: "Wizard Settings",
       description: "Server configuration, budgets, and policies",
-      icon: "⚙️",
     },
   };
 
@@ -141,11 +146,8 @@
   let adminTokenValue = "";
   let tokenStatus = null;
 
-  const fontSizes = ["sm", "base", "lg", "xl", "2xl"];
-  const fontStyleLabels = ["Sans", "Serif", "Mono"];
-  const fontStyles = ["sans", "serif", "mono"];
-  let currentSizeIdx = 1;
-  let currentStyleIdx = 0;
+  let typography = { ...defaultTypography };
+  let typographyLabels = getTypographyLabels(typography);
   let isDarkMode = true;
 
   onMount(async () => {
@@ -160,7 +162,7 @@
     try {
       const response = await apiFetch("/api/v1/config/files");
       const data = await response.json();
-      fileList = data.files;
+      fileList = data.files || [];
 
       // Select first file by default
       if (fileList.length > 0) {
@@ -343,17 +345,9 @@
   function initDisplaySettings() {
     const savedTheme = localStorage.getItem("wizard-theme");
     isDarkMode = savedTheme !== "light";
-    const savedSize = localStorage.getItem("wizard-font-size");
-    const savedStyle = localStorage.getItem("wizard-font-style");
-    if (savedSize && fontSizes.includes(savedSize)) {
-      currentSizeIdx = fontSizes.indexOf(savedSize);
-    }
-    if (savedStyle && fontStyles.includes(savedStyle)) {
-      currentStyleIdx = fontStyles.indexOf(savedStyle);
-    }
+    typography = loadTypographyState();
     applyTheme();
-    applyFontSize();
-    applyFontStyle();
+    syncTypography(typography);
   }
 
   function applyTheme() {
@@ -373,44 +367,38 @@
     applyTheme();
   }
 
-  function applyFontSize() {
-    const html = document.documentElement;
-    fontSizes.forEach((size) => html.classList.remove(`prose-${size}`));
-    html.classList.add(`prose-${fontSizes[currentSizeIdx]}`);
-    localStorage.setItem("wizard-font-size", fontSizes[currentSizeIdx]);
+  function syncTypography(next) {
+    typography = applyTypographyState(next);
+    typographyLabels = getTypographyLabels(typography);
   }
 
-  function applyFontStyle() {
-    const html = document.documentElement;
-    fontStyles.forEach((style) => html.classList.remove(`font-${style}`));
-    html.classList.add(`font-${fontStyles[currentStyleIdx]}`);
-    localStorage.setItem("wizard-font-style", fontStyles[currentStyleIdx]);
+  function cycleHeadingFont() {
+    const nextFont = cycleOption(headingFonts, typography.headingFontId);
+    syncTypography({ ...typography, headingFontId: nextFont.id });
   }
 
-  function incSize() {
-    if (currentSizeIdx < fontSizes.length - 1) {
-      currentSizeIdx += 1;
-      applyFontSize();
-    }
+  function cycleBodyFont() {
+    const nextFont = cycleOption(bodyFonts, typography.bodyFontId);
+    syncTypography({ ...typography, bodyFontId: nextFont.id });
   }
 
-  function decSize() {
-    if (currentSizeIdx > 0) {
-      currentSizeIdx -= 1;
-      applyFontSize();
-    }
+  function cycleCodeFont() {
+    const nextFont = cycleOption(codeFonts, typography.codeFontId);
+    syncTypography({ ...typography, codeFontId: nextFont.id });
   }
 
-  function resetSize() {
-    currentSizeIdx = 1;
-    currentStyleIdx = 0;
-    applyFontSize();
-    applyFontStyle();
+  function cycleSize() {
+    const nextSize = cycleOption(sizePresets, typography.size);
+    syncTypography({ ...typography, size: nextSize.id });
   }
 
-  function toggleFontStyle() {
-    currentStyleIdx = (currentStyleIdx + 1) % fontStyles.length;
-    applyFontStyle();
+  function cycleRatio() {
+    const nextRatio = cycleOption(ratioPresets, typography.ratio);
+    syncTypography({ ...typography, ratio: nextRatio.id });
+  }
+
+  function resetTypography() {
+    syncTypography({ ...defaultTypography });
   }
 
   function toggleFullscreen() {
@@ -463,8 +451,9 @@
       }
 
       const result = await response.json();
+      const exported = result.exported_configs || [];
       setStatus(
-        `✓ Exported ${result.exported_configs.length} config(s) to ${result.filename}`,
+        `✓ Exported ${exported.length} config(s) to ${result.filename}`,
         "success",
       );
 
@@ -512,11 +501,11 @@
 
       const result = await response.json();
       importFile = file.name;
-      importPreview = result.preview;
-      importConflicts = result.conflicts;
+      importPreview = result.preview || {};
+      importConflicts = result.conflicts || [];
 
       setStatus(
-        `Preview: ${Object.keys(result.preview).length} config(s) ready to import`,
+        `Preview: ${Object.keys(importPreview).length} config(s) ready to import`,
         "info",
       );
     } catch (err) {
@@ -560,12 +549,15 @@
 
       const result = await response.json();
 
-      let message = `✓ Imported ${result.imported.length} config(s)`;
-      if (result.skipped.length > 0) {
-        message += ` (${result.skipped.length} skipped)`;
+      const imported = result.imported || [];
+      const skipped = result.skipped || [];
+      const errors = result.errors || [];
+      let message = `✓ Imported ${imported.length} config(s)`;
+      if (skipped.length > 0) {
+        message += ` (${skipped.length} skipped)`;
       }
-      if (result.errors.length > 0) {
-        message += ` (${result.errors.length} errors)`;
+      if (errors.length > 0) {
+        message += ` (${errors.length} errors)`;
       }
 
       setStatus(message, result.success ? "success" : "error");
@@ -718,14 +710,12 @@
       on:click={toggleExportModal}
       class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center gap-2"
     >
-      <span>📤</span>
       <span>Export Settings</span>
     </button>
     <button
       on:click={toggleImportModal}
       class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm flex items-center gap-2"
     >
-      <span>📥</span>
       <span>Import Settings</span>
     </button>
   </div>
@@ -734,7 +724,7 @@
     <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
       <h3 class="text-sm font-semibold text-white mb-2">Display Settings</h3>
       <p class="text-xs text-gray-400 mb-4">
-        Theme, typography, and fullscreen controls (moved from the bottom bar).
+        Theme, typography, and fullscreen controls (mirrored with the bottom bar).
       </p>
       <div class="flex flex-wrap items-center gap-3">
         <button
@@ -750,30 +740,40 @@
           ⛶ Fullscreen
         </button>
         <button
-          on:click={decSize}
+          on:click={cycleHeadingFont}
           class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
-          disabled={currentSizeIdx === 0}
         >
-          A−
+          Heading: {typographyLabels.headingLabel}
         </button>
         <button
-          on:click={incSize}
+          on:click={cycleBodyFont}
           class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
-          disabled={currentSizeIdx === fontSizes.length - 1}
         >
-          A+
+          Body: {typographyLabels.bodyLabel}
         </button>
         <button
-          on:click={resetSize}
+          on:click={cycleCodeFont}
+          class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+        >
+          Code: {typographyLabels.codeLabel}
+        </button>
+        <button
+          on:click={cycleSize}
+          class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+        >
+          Size: {typographyLabels.sizeLabel}
+        </button>
+        <button
+          on:click={cycleRatio}
+          class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+        >
+          Ratio: {typographyLabels.ratioLabel}
+        </button>
+        <button
+          on:click={resetTypography}
           class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
         >
           Reset
-        </button>
-        <button
-          on:click={toggleFontStyle}
-          class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
-        >
-          {fontStyleLabels[currentStyleIdx]}
         </button>
       </div>
     </div>
@@ -1056,7 +1056,7 @@
           <div class="flex justify-center py-8 col-span-full">
             <span class="loading loading-spinner loading-md"></span>
           </div>
-        {:else if providers.length === 0}
+        {:else if (providers || []).length === 0}
           <p class="text-gray-400 text-sm col-span-full">
             No providers available
           </p>
@@ -1161,7 +1161,7 @@
       }}
     >
       <h2 id="export-modal-title" class="text-2xl font-bold text-white mb-4">
-        📤 Export Settings
+        Export Settings
       </h2>
       <p class="text-gray-400 mb-4">
         Select configuration files to export for transfer to another device.
@@ -1230,7 +1230,7 @@
           disabled={selectedExportFiles.size === 0 || isExporting}
           class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
         >
-          {isExporting ? "Exporting..." : "📥 Export & Download"}
+          {isExporting ? "Exporting..." : "Export & Download"}
         </button>
       </div>
     </div>
@@ -1259,7 +1259,7 @@
       }}
     >
       <h2 id="import-modal-title" class="text-2xl font-bold text-white mb-4">
-        📥 Import Settings
+        Import Settings
       </h2>
 
       {#if !importFile}

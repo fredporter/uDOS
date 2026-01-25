@@ -257,7 +257,10 @@ Current extensions:
 > - **PRIVATE (/dev submodule):** `goblin/`, `empire/`, `app/`, `groovebox/`, `tests/`, `tools/`
 > - **LOCAL (memory/):** User data, logs, credentials — never committed
 >
-> **Library workflow:** Test in `/dev/library/` → Create definition in `/library/` → Commit → Distribute
+> **Library workflow:** Test in `/dev/library/` → Create definition in `/library/` → Commit definition only → Distribute
+
+- **Public/git:** Only container definitions + setup scripts (no cloned repos)
+- **Local/runtime (gitignored):** Full cloned repos, build outputs, dependencies
 
 ---
 

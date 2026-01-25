@@ -14,7 +14,7 @@ Use this when Wizard/Core might be broken. It runs diagnostics on startup
 and exposes repair + backup/restore/cleanup commands.
 
 ```bash
-cd /Users/fredbook/Code/uDOS
+cd ~/uDOS
 source .venv/bin/activate
 python -m wizard.dev_tui
 ```
@@ -32,7 +32,7 @@ Or via launcher:
 # "🧙 Wizard Dev Mode (Server + TUI)"
 
 # Or manually:
-cd /Users/fredbook/Code/uDOS
+cd ~/uDOS
 source .venv/bin/activate
 python wizard/launch_wizard_dev.py
 ```
@@ -51,7 +51,7 @@ python wizard/launch_wizard_dev.py
 # "🧙 Wizard Server Only"
 
 # Or manually:
-cd /Users/fredbook/Code/uDOS
+cd ~/uDOS
 source .venv/bin/activate
 python wizard/launch_wizard_dev.py --no-tui
 ```
@@ -79,7 +79,7 @@ python wizard/launch_wizard_dev.py --tui
 # "🧙 Wizard TUI Only"
 
 # Or manually:
-cd /Users/fredbook/Code/uDOS
+cd ~/uDOS
 source .venv/bin/activate
 python wizard/launch_wizard_dev.py --tui
 ```
@@ -207,7 +207,7 @@ curl -X POST http://127.0.0.1:8765/api/v1/services/ai-gateway/stop
 ### Run Integration Tests
 
 ```bash
-cd /Users/fredbook/Code/uDOS
+cd ~/uDOS
 source .venv/bin/activate
 python test_wizard_dev_mode.py
 ```
@@ -263,7 +263,7 @@ kill -9 <PID>
 
 ```bash
 # Reinstall requirements
-cd /Users/fredbook/Code/uDOS
+cd ~/uDOS
 source .venv/bin/activate
 pip install -r requirements.txt
 ```

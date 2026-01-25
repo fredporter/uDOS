@@ -36,6 +36,7 @@ from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict, field
 from collections import deque
 
+from fastapi import Request
 from wizard.services.ai_gateway import AIRequest, AIGateway
 from wizard.services.logging_manager import get_logging_manager
 from wizard.services.path_utils import get_repo_root
@@ -75,6 +76,22 @@ REPO_ROOT = get_repo_root()
 WIZARD_DATA_PATH = REPO_ROOT / "memory" / "wizard"
 PLUGIN_REPO_PATH = REPO_ROOT / "distribution" / "plugins"
 CONFIG_PATH = Path(__file__).parent / "config"
+
+
+def _load_dotenv(path: Path) -> None:
+    if not path.exists():
+        return
+    for line in path.read_text().splitlines():
+        if not line or line.strip().startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
+_load_dotenv(REPO_ROOT / ".env")
 
 
 @dataclass
@@ -346,7 +363,8 @@ class WizardServer:
         # Register Font routes
         from wizard.routes.font_routes import create_font_routes
 
-        font_router = create_font_routes(auth_guard=self._authenticate_admin)
+        # Fonts are read-only assets; keep public for dashboard tools.
+        font_router = create_font_routes()
         app.include_router(font_router)
 
         # Register Layer editor routes
@@ -1010,43 +1028,6 @@ class WizardServer:
                 "transport": device.transport,
             }
 
-        # POKE service controls
-        @app.get("/api/v1/poke/services")
-        async def poke_services(request: Request):
-            await self._authenticate_admin(request)
-            from wizard.web.poke_commands import POKECommandHandler
-
-            handler = POKECommandHandler()
-            services = []
-            for name in ["dashboard", "desktop", "terminal", "teletext", "web"]:
-                config = handler._get_service_config(name)
-                if not config:
-                    continue
-                running = handler._is_port_available(config["port"])
-                services.append(
-                    {
-                        "id": name,
-                        "name": name.title(),
-                        "port": config["port"],
-                        "description": config["description"],
-                        "status": "running" if running else "stopped",
-                    }
-                )
-            return {"services": services}
-
-        @app.post("/api/v1/poke/services/{service}/{action}")
-        async def poke_control(service: str, action: str, request: Request):
-            await self._authenticate_admin(request)
-            from wizard.web.poke_commands import POKECommandHandler
-
-            if action not in ("start", "stop", "restart"):
-                raise HTTPException(status_code=400, detail="Invalid action")
-            handler = POKECommandHandler()
-            ok, message = handler.handle_command([action, service])
-            if not ok:
-                raise HTTPException(status_code=400, detail=message)
-            return {"success": True, "message": message}
-
         # TUI Control Routes (for Wizard TUI interface)
         @app.get("/api/v1/devices")
         async def list_devices(request: Request):
@@ -1381,7 +1362,7 @@ class WizardServer:
         session.request_count += 1
         return device_id
 
-    async def _authenticate_admin(self, request: "FastAPIRequest") -> None:
+    async def _authenticate_admin(self, request: Request) -> None:
         """Authenticate admin request using secret store key."""
         key_id = self.config.admin_api_key_id
         if not key_id:
@@ -1581,11 +1562,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    config = WizardConfig(
-        host=args.host,
-        port=args.port,
-        debug=args.debug,
-    )
+    config = WizardConfig.load()
+    config.host = args.host or config.host
+    config.port = args.port or config.port
+    config.debug = args.debug or config.debug
 
     server = WizardServer(config)
 

@@ -59,7 +59,7 @@ A global bottom status bar with:
 ## 🚀 To Test
 
 ```bash
-cd /Users/fredbook/Code/uDOS
+cd ~/uDOS
 source .venv/bin/activate
 python wizard/server.py
 

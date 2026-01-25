@@ -17,6 +17,7 @@ from wizard.services.path_utils import get_repo_root
 def _resolve_fonts_root() -> Optional[Path]:
     repo_root = get_repo_root()
     candidates = [
+        repo_root / "wizard" / "font-manager" / "fonts",
         repo_root / "dev" / "goblin" / "fonts",
         repo_root / "library" / "fonts",
     ]

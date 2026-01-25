@@ -249,6 +249,7 @@ class SystemInfoService:
         """
         container_json = item_path / "container.json"
         has_container = container_json.exists()
+        repo_path = None
 
         name = item_path.name
         description = ""
@@ -261,15 +262,24 @@ class SystemInfoService:
                     manifest = json.load(f)
                 description = manifest.get("container", {}).get("description", "")
                 version = manifest.get("container", {}).get("version", "")
+                repo_path = manifest.get("repo_path")
             except:
                 pass
 
+        # Resolve repo path if manifest points elsewhere
+        resolved_path = item_path
+        if repo_path:
+            candidate = Path(repo_path)
+            if not candidate.is_absolute():
+                candidate = self.repo_root / candidate
+            resolved_path = candidate
+
         # Check if installed by looking for setup.sh or build output
-        installed = self._check_if_installed(item_path)
+        installed = self._check_if_installed(resolved_path)
 
         return LibraryIntegration(
             name=name,
-            path=str(item_path),
+            path=str(resolved_path),
             source=source,
             enabled=False,  # Will be set by get_library_status
             installed=installed,

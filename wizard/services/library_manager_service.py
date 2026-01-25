@@ -63,6 +63,11 @@ class LibraryManagerService:
             try:
                 container_path = Path(integration.path) / "container.json"
                 if not container_path.exists():
+                    # Fallback to definition in /library/<name>/container.json
+                    definition_path = self.library_root / integration.name / "container.json"
+                    if definition_path.exists():
+                        container_path = definition_path
+                if not container_path.exists():
                     continue
                 manifest = json.loads(container_path.read_text())
                 deps = {
@@ -164,6 +169,18 @@ class LibraryManagerService:
 
         try:
             integration_path = Path(integration.path)
+            container_path = integration_path / "container.json"
+            if not container_path.exists():
+                definition_path = self.library_root / name / "container.json"
+                if definition_path.exists():
+                    manifest = json.loads(definition_path.read_text())
+                    repo_path = manifest.get("repo_path")
+                    if repo_path:
+                        candidate = Path(repo_path)
+                        if not candidate.is_absolute():
+                            candidate = self.repo_root / candidate
+                        integration_path = candidate
+                        container_path = definition_path
 
             # 1. Run setup script if present
             setup_result = self._run_setup_script(integration_path)

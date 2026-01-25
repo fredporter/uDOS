@@ -2,7 +2,6 @@
   import { onMount } from "svelte";
   import Dashboard from "./routes/Dashboard.svelte";
   import Devices from "./routes/Devices.svelte";
-  import Poke from "./routes/Poke.svelte";
   import Webhooks from "./routes/Webhooks.svelte";
   import Logs from "./routes/Logs.svelte";
   import Catalog from "./routes/Catalog.svelte";
@@ -26,6 +25,8 @@
   import SvgProcessor from "./routes/SvgProcessor.svelte";
   import Setup from "./routes/Setup.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
+  import WizardBottomBar from "./components/WizardBottomBar.svelte";
+  import { initTypography } from "./lib/typography.js";
 
   // Simple hash-based routing
   let currentRoute = "dashboard";
@@ -52,6 +53,12 @@
     }
   }
 
+  function toggleTheme() {
+    isDark = !isDark;
+    localStorage.setItem("wizard-theme", isDark ? "dark" : "light");
+    applyTheme();
+  }
+
   window.addEventListener("hashchange", handleHashChange);
 
   onMount(() => {
@@ -62,6 +69,7 @@
       isDark = false;
     }
     applyTheme();
+    initTypography();
   });
 </script>
 
@@ -76,8 +84,6 @@
         <Dashboard />
       {:else if currentRoute === "devices"}
         <Devices />
-      {:else if currentRoute === "poke"}
-        <Poke />
       {:else if currentRoute === "webhooks"}
         <Webhooks />
       {:else if currentRoute === "logs"}
@@ -128,3 +134,4 @@
 </div>
 
 <!-- Bottom Settings Bar -->
+<WizardBottomBar {isDark} onDarkModeToggle={toggleTheme} />

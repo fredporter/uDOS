@@ -14,6 +14,7 @@ import threading
 
 from .client import GitHubClient, GitHubError
 from core.services.logging_manager import get_logger
+from wizard.services.path_utils import get_repo_root
 
 logger = get_logger("github-sync")
 
@@ -36,15 +37,7 @@ class RepoSync:
         self.library_base = Path(library_base or "library")
         self.config_path = Path(config_path or "wizard/config/repos.yaml")
 
-        # Find repo root by looking for uDOS.py marker
-        current = Path(__file__).resolve()
-        repo_root = None
-        for parent in [current.parent] + list(current.parents):
-            if (parent / "uDOS.py").exists():
-                repo_root = parent
-                break
-        if not repo_root:
-            repo_root = Path(__file__).parent.parent.parent.resolve()
+        repo_root = get_repo_root()
         
         self.status_file = repo_root / "memory" / "logs" / "github-sync-status.json"
         self.status_file.parent.mkdir(parents=True, exist_ok=True)

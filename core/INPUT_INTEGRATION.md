@@ -270,7 +270,7 @@ python -c "from core.input import SmartPrompt; p = SmartPrompt(); print(p)"
 
 **Original Goblin Implementation:**
 
-- File: `/Users/fredbook/Code/uDOS/dev/goblin/core/input/smart_prompt.py`
+- File: `~/uDOS/dev/goblin/core/input/smart_prompt.py`
 - Lines: 1057 total
 - Classes: ImprovedCompleter, SmartPrompt
 - Features: Multi-word commands, TUI integration, viewport headers

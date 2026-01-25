@@ -10,7 +10,7 @@
 
 ### 1. HELP Command Handler Enhancement
 
-**File:** `/Users/fredbook/Code/uDOS/core/commands/help_handler.py`
+**File:** `~/uDOS/core/commands/help_handler.py`
 
 #### Added
 
@@ -62,7 +62,7 @@
 
 ### 2. Smart Prompt Enhancement
 
-**File:** `/Users/fredbook/Code/uDOS/core/input/smart_prompt.py`
+**File:** `~/uDOS/core/input/smart_prompt.py`
 
 #### CoreCompleter Class
 

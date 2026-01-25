@@ -1,56 +1,51 @@
 <script>
+  import { onMount } from "svelte";
+  import {
+    applyTypographyState,
+    cycleOption,
+    getTypographyLabels,
+    headingFonts,
+    bodyFonts,
+    loadTypographyState,
+    ratioPresets,
+    sizePresets,
+    defaultTypography,
+  } from "../lib/typography.js";
+
   export let isDark = true;
   export let onDarkModeToggle = () => {};
 
-  // Font controls (simplified for wizard dashboard)
-  const fontSizes = ["sm", "base", "lg", "xl", "2xl"];
-  const fontSizeValues = [14, 16, 18, 20, 24];
-  const fontStyles = ["sans", "serif", "mono"];
-  const fontStyleLabels = ["Sans", "Serif", "Mono"];
-  let currentSizeIdx = 1; // default to 'base'
-  let currentStyleIdx = 0; // default to 'sans'
+  let typography = { ...defaultTypography };
+  let labels = getTypographyLabels(typography);
   let isFullscreen = false;
 
-  function incSize() {
-    if (currentSizeIdx < fontSizes.length - 1) {
-      currentSizeIdx += 1;
-      updateFontSize();
-    }
+  function syncTypography(next) {
+    typography = applyTypographyState(next);
+    labels = getTypographyLabels(typography);
   }
 
-  function decSize() {
-    if (currentSizeIdx > 0) {
-      currentSizeIdx -= 1;
-      updateFontSize();
-    }
+  function cycleHeadingFont() {
+    const nextFont = cycleOption(headingFonts, typography.headingFontId);
+    syncTypography({ ...typography, headingFontId: nextFont.id });
   }
 
-  function resetSize() {
-    currentSizeIdx = 1;
-    currentStyleIdx = 0;
-    updateFontSize();
-    updateFontStyle();
+  function cycleBodyFont() {
+    const nextFont = cycleOption(bodyFonts, typography.bodyFontId);
+    syncTypography({ ...typography, bodyFontId: nextFont.id });
   }
 
-  function updateFontSize() {
-    const html = document.documentElement;
-    // Remove all prose classes
-    fontSizes.forEach((size) => html.classList.remove(`prose-${size}`));
-    // Add current size class
-    html.classList.add(`prose-${fontSizes[currentSizeIdx]}`);
+  function cycleSize() {
+    const nextSize = cycleOption(sizePresets, typography.size);
+    syncTypography({ ...typography, size: nextSize.id });
   }
 
-  function toggleFontStyle() {
-    currentStyleIdx = (currentStyleIdx + 1) % fontStyles.length;
-    updateFontStyle();
+  function cycleRatio() {
+    const nextRatio = cycleOption(ratioPresets, typography.ratio);
+    syncTypography({ ...typography, ratio: nextRatio.id });
   }
 
-  function updateFontStyle() {
-    const html = document.documentElement;
-    // Remove all font style classes
-    fontStyles.forEach((style) => html.classList.remove(`font-${style}`));
-    // Add current style class
-    html.classList.add(`font-${fontStyles[currentStyleIdx]}`);
+  function resetTypography() {
+    syncTypography({ ...defaultTypography });
   }
 
   function toggleFullscreen() {
@@ -65,62 +60,73 @@
     }
   }
 
-  // Initialize
-  updateFontSize();
-  updateFontStyle();
+  onMount(() => {
+    typography = loadTypographyState();
+    syncTypography(typography);
+  });
 </script>
 
 <div class="wizard-bottom-bar">
   <!-- Left side: Status info -->
   <div class="wizard-bar-left">
-    <span class="status-text"
-      >{fontStyleLabels[currentStyleIdx]} · {fontSizes[
-        currentSizeIdx
-      ].toUpperCase()}</span
-    >
+    <span class="status-text">H: {labels.headingLabel}</span>
     <span class="status-text">·</span>
-    <span class="status-text">{isDark ? "Dark" : "Light"} mode</span>
+    <span class="status-text">B: {labels.bodyLabel}</span>
+    <span class="status-text">·</span>
+    <span class="status-text">{labels.sizeLabel}</span>
+    <span class="status-text">/</span>
+    <span class="status-text">{labels.ratioLabel}</span>
   </div>
 
   <!-- Right side: Controls -->
   <div class="wizard-bar-right">
-    <!-- Size Controls -->
-    <div class="control-section size-controls">
-      <button
-        on:click={decSize}
-        aria-label="Decrease font size"
-        title="Decrease font size"
-        disabled={currentSizeIdx === 0}
-      >
-        A−
-      </button>
-      <button
-        on:click={incSize}
-        aria-label="Increase font size"
-        title="Increase font size"
-        disabled={currentSizeIdx === fontSizes.length - 1}
-      >
-        A+
-      </button>
-      <button
-        on:click={resetSize}
-        aria-label="Reset font size"
-        title="Reset to default size"
-        class="reset-btn"
-      >
-        ∞
-      </button>
-    </div>
-
-    <!-- Font Style Toggle -->
     <div class="control-section">
       <button
-        on:click={toggleFontStyle}
-        class="style-btn"
-        aria-label="Toggle font style"
-        title="Current: {fontStyleLabels[currentStyleIdx]}"
+        on:click={resetTypography}
+        class="reset-btn"
+        aria-label="Reset typography"
+        title="Reset typography"
       >
-        {fontStyleLabels[currentStyleIdx]}
+        Reset
+      </button>
+    </div>
+    <div class="control-section">
+      <button
+        on:click={cycleHeadingFont}
+        class="style-btn"
+        aria-label="Toggle heading font"
+        title="Heading font"
+      >
+        H: {labels.headingLabel}
+      </button>
+    </div>
+    <div class="control-section">
+      <button
+        on:click={cycleBodyFont}
+        class="style-btn"
+        aria-label="Toggle body font"
+        title="Body font"
+      >
+        B: {labels.bodyLabel}
+      </button>
+    </div>
+    <div class="control-section size-controls">
+      <button
+        on:click={cycleSize}
+        aria-label="Toggle font size"
+        title="Font size"
+      >
+        Size {labels.sizeLabel}
+      </button>
+    </div>
+    <div class="control-section">
+      <button
+        on:click={cycleRatio}
+        class="style-btn"
+        aria-label="Toggle font ratio"
+        title="Font ratio"
+      >
+        Ratio {labels.ratioLabel}
       </button>
     </div>
 
@@ -246,7 +252,7 @@
     transition: all 0.2s;
     font-weight: 600;
     line-height: 1;
-    min-width: 2rem;
+    min-width: 3.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -273,13 +279,14 @@
     color: #0f172a;
   }
 
-  /* Reset Button (infinity symbol) */
+  /* Reset Button */
   .reset-btn {
     background: #1e3a8a;
     border-color: #1e40af;
     color: #93c5fd;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.65rem;
   }
 
   .reset-btn:hover {
@@ -312,7 +319,7 @@
     transition: all 0.2s;
     font-weight: 600;
     line-height: 1;
-    min-width: 3rem;
+    min-width: 5.5rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
@@ -371,11 +378,7 @@
       font-size: 0.75rem;
     }
 
-    .status-text:nth-child(2) {
-      display: none;
-    }
-
-    .status-text:nth-child(3) {
+    .status-text:nth-child(n + 3) {
       display: none;
     }
 

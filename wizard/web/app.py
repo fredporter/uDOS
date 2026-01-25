@@ -7,7 +7,6 @@ Uses HTMX + Alpine.js for lightweight, no-build-step interactivity.
 
 Features:
 - Dashboard (system status, logs, health metrics)
-- POKE server (host files/pages)
 - Webhook receiver (external integrations)
 - Device monitor (paired mesh devices)
 - BizIntel dashboard (contact tools)
@@ -33,7 +32,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
@@ -173,59 +172,6 @@ async def get_system_stats() -> Dict[str, Any]:
         "costs": {"today": 0.47, "month": 12.34, "currency": "USD"},
         "logs": {"errors_today": 2, "warnings_today": 8},
     }
-
-
-# ============================================================================
-# POKE Server Routes (File/Page Hosting)
-# ============================================================================
-
-
-@app.get("/poke", response_class=HTMLResponse)
-async def poke_dashboard(request: Request):
-    """POKE server management page."""
-    # List hosted files/pages
-    poke_items = await list_poke_items()
-
-    return templates.TemplateResponse(
-        "poke.html",
-        {"request": request, "items": poke_items, "page_title": "POKE Server"},
-    )
-
-
-@app.post("/api/poke/upload")
-async def upload_poke_file(request: Request):
-    """Upload file for POKE hosting."""
-    await _require_admin(request)
-    # TODO: Implement file upload
-    return {"status": "success", "url": "/p/example.html"}
-
-
-@app.get("/p/{path:path}")
-async def serve_poke_file(path: str):
-    """Serve hosted POKE file."""
-    poke_dir = MEMORY_ROOT / "wizard" / "poke"
-    file_path = _safe_join(poke_dir, path)
-    if not file_path:
-        raise HTTPException(status_code=400, detail="Invalid path")
-
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="File not found")
-
-    return FileResponse(file_path)
-
-
-async def list_poke_items() -> List[Dict[str, Any]]:
-    """List all POKE-hosted items."""
-    # TODO: Implement
-    return [
-        {
-            "name": "example.html",
-            "size": "2.3 KB",
-            "views": 42,
-            "created": "2026-01-04",
-        },
-        {"name": "status.json", "size": "512 B", "views": 127, "created": "2026-01-03"},
-    ]
 
 
 # ============================================================================

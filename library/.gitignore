@@ -1,0 +1,17 @@
+# /library - PUBLIC tool container definitions
+# Only container.json, setup scripts, and documentation are tracked.
+# Cloned/downloaded repos are local-only (not synced).
+
+# Ignore all directories by default
+*/
+
+# Whitelist container definitions and setup files
+!*/container.json
+!*/container.template.json
+!*/setup.sh
+!*/setup.py
+!*/README.md
+!/README.md
+!/container.schema.json
+!/container.template.json
+!.gitkeep

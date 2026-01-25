@@ -9,14 +9,17 @@
  * Features:
  * - Canvas-based 24×24 grid rendering
  * - Mouse drawing with various tools
- * - Teletext color palette (8 WST colors)
- * - Multiple character palettes
+ * - uDOS 32-color palette
+ * - Font/emoji character palettes
  * - Undo/Redo with keyboard shortcuts
  * - WebSocket sync for live collaboration
  * - Export to PNG, SVG, JSON, ASCII
  * - Grid lines toggle
  * - Zoom controls
  */
+
+import { getAllColors } from "./util/udosPalette";
+import { CHARACTER_DATASETS } from "./util/characterDatasets";
 
 class TileEditor {
     constructor(containerId, options = {}) {
@@ -31,35 +34,31 @@ class TileEditor {
         this.showGridLines = options.showGridLines !== false;
         this.zoom = options.zoom || 1;
         
-        // Colors (WST teletext palette)
-        this.colors = {
-            BLACK:   '#000000',
-            RED:     '#FF0000',
-            GREEN:   '#00FF00',
-            YELLOW:  '#FFFF00',
-            BLUE:    '#0000FF',
-            MAGENTA: '#FF00FF',
-            CYAN:    '#00FFFF',
-            WHITE:   '#FFFFFF'
-        };
+        // Colors (uDOS 32-color palette)
+        const palette = getAllColors();
+        this.colors = {};
+        this.colorList = palette.map((c) => {
+            this.colors[c.name] = c.hex;
+            return c.name;
+        });
         
-        // Character palettes
-        this.palettes = {
-            block: [' ', '░', '▒', '▓', '█', '▀', '▄', '▌', '▐',
-                   '┌', '┐', '└', '┘', '─', '│', '┬', '┴', '├', '┤', '┼'],
-            ascii: [' ', '.', ':', '-', '=', '+', '*', '#', '@', 'O', '0', 'X',
-                   '/', '\\', '|', '_', '(', ')', '[', ']', '<', '>'],
-            symbol: ['●', '○', '◉', '◎', '★', '☆', '♠', '♣', '♥', '♦',
-                    '▲', '▼', '◀', '▶', '⊚', '⊕', '⊗', '⊙']
-        };
+        // Character datasets
+        this.datasets = CHARACTER_DATASETS;
         
         // State
         this.grid = this.createEmptyGrid();
         this.currentTool = 'pencil';
         this.currentChar = '█';
-        this.currentPalette = 'block';
-        this.fgColor = 'WHITE';
-        this.bgColor = 'BLACK';
+        this.currentDataset =
+            this.datasets.find((ds) => ds.name.toLowerCase().includes('block')) ||
+            this.datasets[0];
+        this.fgColor = this.colors["White"] ? "White" : this.colorList[0];
+        this.bgColor = this.colors["Black"] ? "Black" : this.colorList[0];
+
+        // Font handling
+        this.fonts = [];
+        this.currentFontId = null;
+        this.currentFontFamily = '"Teletext50", "Noto Color Emoji", "Noto Emoji", monospace';
         
         // Edit state
         this.undoStack = [];
@@ -81,6 +80,7 @@ class TileEditor {
         this.setupUI();
         this.setupEvents();
         this.render();
+        this.loadFontManifest();
     }
     
     createEmptyGrid() {
@@ -133,30 +133,32 @@ class TileEditor {
             </div>
             <div class="tool-group">
                 <label>FG:</label>
-                ${Object.keys(this.colors).map(c => 
+                ${this.colorList.map((c) => 
                     `<button data-fg="${c}" style="background:${this.colors[c]}" 
-                     class="${c === 'WHITE' ? 'active' : ''}" title="${c}"></button>`
+                     class="${c === this.fgColor ? 'active' : ''}" title="${c}"></button>`
                 ).join('')}
             </div>
             <div class="tool-group">
                 <label>BG:</label>
-                ${Object.keys(this.colors).map(c => 
+                ${this.colorList.map((c) => 
                     `<button data-bg="${c}" style="background:${this.colors[c]}"
-                     class="${c === 'BLACK' ? 'active' : ''}" title="${c}"></button>`
+                     class="${c === this.bgColor ? 'active' : ''}" title="${c}"></button>`
                 ).join('')}
             </div>
             <div class="tool-group">
-                <label>Char:</label>
-                <select id="char-palette">
-                    <option value="block">Block</option>
-                    <option value="ascii">ASCII</option>
-                    <option value="symbol">Symbol</option>
+                <label>Font:</label>
+                <select id="font-select">
+                    <option value="">Loading...</option>
                 </select>
-                <select id="char-select">
-                    ${this.palettes.block.map((c, i) => 
-                        `<option value="${i}">${c || '␣'}</option>`
+            </div>
+            <div class="tool-group">
+                <label>Chars:</label>
+                <select id="dataset-select">
+                    ${this.datasets.map((ds, i) =>
+                        `<option value="${i}">${ds.name}</option>`
                     ).join('')}
                 </select>
+                <select id="char-select"></select>
             </div>
             <div class="tool-group">
                 <button id="btn-undo" title="Undo (Ctrl+Z)">↶</button>
@@ -188,6 +190,13 @@ class TileEditor {
         `;
         
         this.container.appendChild(this.statusBar);
+
+        const datasetSelect = document.getElementById('dataset-select');
+        if (datasetSelect && this.currentDataset) {
+            const idx = this.datasets.indexOf(this.currentDataset);
+            if (idx >= 0) datasetSelect.value = String(idx);
+        }
+        this.updateCharSelect();
     }
     
     setupEvents() {
@@ -225,14 +234,22 @@ class TileEditor {
             });
         });
         
-        // Palette and char select
-        document.getElementById('char-palette').addEventListener('change', (e) => {
-            this.currentPalette = e.target.value;
+        // Font select
+        document.getElementById('font-select').addEventListener('change', (e) => {
+            this.selectFont(e.target.value);
+        });
+
+        // Dataset select
+        document.getElementById('dataset-select').addEventListener('change', (e) => {
+            const idx = parseInt(e.target.value, 10);
+            this.currentDataset = this.datasets[idx] || this.datasets[0];
             this.updateCharSelect();
         });
         
         document.getElementById('char-select').addEventListener('change', (e) => {
-            this.currentChar = this.palettes[this.currentPalette][e.target.value] || ' ';
+            const idx = parseInt(e.target.value, 10);
+            const code = this.currentDataset.codes[idx];
+            this.currentChar = code ? String.fromCodePoint(code) : ' ';
         });
         
         // Action buttons
@@ -252,10 +269,82 @@ class TileEditor {
     
     updateCharSelect() {
         const select = document.getElementById('char-select');
-        select.innerHTML = this.palettes[this.currentPalette].map((c, i) => 
-            `<option value="${i}">${c || '␣'}</option>`
-        ).join('');
-        this.currentChar = this.palettes[this.currentPalette][0] || ' ';
+        if (!select || !this.currentDataset) return;
+        select.innerHTML = this.currentDataset.codes.map((code, i) => {
+            const char = String.fromCodePoint(code);
+            const label = char === ' ' ? '␣' : char;
+            return `<option value="${i}">${label}</option>`;
+        }).join('');
+        const firstCode = this.currentDataset.codes.find((code) => code !== 0x20);
+        this.currentChar = firstCode ? String.fromCodePoint(firstCode) : ' ';
+    }
+
+    async loadFontManifest() {
+        try {
+            const res = await fetch('/api/v1/fonts/manifest');
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+            }
+            const manifest = await res.json();
+            const list = [];
+            const collections = manifest.collections || {};
+            for (const [category, subcats] of Object.entries(collections)) {
+                for (const [subcat, fonts] of Object.entries(subcats || {})) {
+                    for (const [fontKey, fontData] of Object.entries(fonts || {})) {
+                        if (!fontData?.file) continue;
+                        list.push({
+                            id: fontKey,
+                            name: fontData.name || fontKey,
+                            file: fontData.file,
+                            category: `${category}/${subcat}`,
+                        });
+                    }
+                }
+            }
+            this.fonts = list;
+            this.updateFontSelect();
+            if (!this.currentFontId && list.length) {
+                const preferred = list.find((f) => f.name === "Teletext50") || list[0];
+                this.selectFont(preferred.id);
+            }
+        } catch (err) {
+            console.error("Pixel editor font manifest load failed:", err);
+            this.updateFontSelect(true);
+        }
+    }
+
+    updateFontSelect(failed = false) {
+        const select = document.getElementById('font-select');
+        if (!select) return;
+        if (failed || this.fonts.length === 0) {
+            select.innerHTML = `<option value="">Fonts unavailable</option>`;
+            return;
+        }
+        select.innerHTML = this.fonts.map((font) => {
+            const label = `${font.name} (${font.category})`;
+            const selected = font.id === this.currentFontId ? 'selected' : '';
+            return `<option value="${font.id}" ${selected}>${label}</option>`;
+        }).join('');
+    }
+
+    async selectFont(fontId) {
+        if (!fontId) return;
+        const font = this.fonts.find((f) => f.id === fontId);
+        if (!font) return;
+        this.currentFontId = fontId;
+        this.updateFontSelect();
+        try {
+            const fontFace = new FontFace(
+                font.name,
+                `url(/api/v1/fonts/file?path=${encodeURIComponent(font.file)})`
+            );
+            const loaded = await fontFace.load();
+            document.fonts.add(loaded);
+            this.currentFontFamily = `"${font.name}", "Noto Color Emoji", "Noto Emoji", monospace`;
+            this.render();
+        } catch (err) {
+            console.error("Failed to load font", err);
+        }
     }
     
     getCellFromEvent(e) {
@@ -515,7 +604,7 @@ class TileEditor {
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         // Set font for characters
-        ctx.font = `${size * 0.8}px "Teletext50", monospace`;
+        ctx.font = `${size * 0.8}px ${this.currentFontFamily}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
@@ -655,7 +744,7 @@ class TileEditor {
     exportSVG() {
         const size = 20; // Fixed size for SVG
         let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${this.gridSize * size} ${this.gridSize * size}">`;
-        svg += `<style>text { font-family: monospace; font-size: ${size * 0.8}px; dominant-baseline: middle; text-anchor: middle; }</style>`;
+        svg += `<style>text { font-family: ${this.currentFontFamily}; font-size: ${size * 0.8}px; dominant-baseline: middle; text-anchor: middle; }</style>`;
         
         for (let y = 0; y < this.gridSize; y++) {
             for (let x = 0; x < this.gridSize; x++) {

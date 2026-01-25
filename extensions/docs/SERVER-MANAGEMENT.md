@@ -95,7 +95,7 @@ $ python extensions/server_manager.py status
 #### Start Individual Extension
 
 ```bash
-cd /Users/fredbook/Code/uDOS
+cd ~/uDOS
 source .venv/bin/activate
 
 # Start API server

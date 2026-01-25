@@ -1,0 +1,200 @@
+{
+  "$schema": "./manifest.schema.json",
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-25",
+  "collections": {
+    "retro": {
+      "c64": {
+        "PetMe64": {
+          "file": "retro/c64/PetMe64.ttf",
+          "name": "PetMe64",
+          "type": "mono",
+          "gridSize": 24,
+          "author": "Style",
+          "license": "Free for personal use",
+          "url": "https://style64.org/petme-c64",
+          "description": "Commodore 64 PETSCII font with authentic 8x8 character cells",
+          "monosorts": {
+            "centering": "baseline",
+            "verticalOffset": 0,
+            "horizontalOffset": 0
+          }
+        }
+      },
+      "teletext": {
+        "Teletext50": {
+          "file": "retro/teletext/Teletext50.otf",
+          "name": "Teletext50",
+          "type": "mono",
+          "gridSize": 24,
+          "author": "Simon Rawles",
+          "license": "OFL (SIL Open Font License)",
+          "url": "https://github.com/simon-rawles/teletext50",
+          "description": "Classic BBC Micro Teletext font with block graphics support",
+          "monosorts": {
+            "centering": "ink-center",
+            "verticalOffset": 1,
+            "horizontalOffset": 0
+          }
+        }
+      },
+      "apple": {
+        "LosAltos": {
+          "file": "retro/apple/Los Altos.ttf",
+          "name": "Los Altos",
+          "type": "sans",
+          "gridSize": 24,
+          "author": "Unknown",
+          "license": "Free",
+          "description": "Classic Macintosh-inspired UI sans",
+          "monosorts": {
+            "centering": "baseline",
+            "verticalOffset": 0,
+            "horizontalOffset": 0
+          }
+        },
+        "Sanfrisco": {
+          "file": "retro/apple/Sanfrisco.ttf",
+          "name": "Sanfrisco",
+          "type": "sans",
+          "gridSize": 24,
+          "author": "Unknown",
+          "license": "Free",
+          "description": "Modern Mac-style UI sans",
+          "monosorts": {
+            "centering": "baseline",
+            "verticalOffset": 0,
+            "horizontalOffset": 0
+          }
+        },
+        "Chicago": {
+          "file": "retro/apple/Chicago.ttf",
+          "name": "Chicago",
+          "type": "mono",
+          "gridSize": 24,
+          "author": "Susan Kare",
+          "license": "Apple System Font (historical)",
+          "description": "Classic Macintosh System 7 system font",
+          "monosorts": {
+            "centering": "baseline",
+            "verticalOffset": 0,
+            "horizontalOffset": 0
+          }
+        },
+        "Monaco": {
+          "file": "retro/apple/monaco.ttf",
+          "name": "Monaco",
+          "type": "mono",
+          "gridSize": 24,
+          "author": "Susan Kare",
+          "license": "Apple System Font (historical)",
+          "description": "Classic Macintosh monospace terminal font",
+          "monosorts": {
+            "centering": "baseline",
+            "verticalOffset": 0,
+            "horizontalOffset": 0
+          }
+        },
+        "ChicagoFLF": {
+          "file": "retro/apple/ChicagoFLF.ttf",
+          "name": "ChicagoFLF",
+          "type": "mono",
+          "gridSize": 24,
+          "author": "Robin Casady",
+          "license": "Free",
+          "description": "Chicago font recreation by Robin Casady",
+          "monosorts": {
+            "centering": "baseline",
+            "verticalOffset": 0,
+            "horizontalOffset": 0
+          }
+        }
+      },
+      "gaming": {
+        "PressStart2P": {
+          "file": "retro/gaming/PressStart2P-Regular.ttf",
+          "name": "Press Start 2P",
+          "type": "mono",
+          "gridSize": 24,
+          "author": "CodeMan38",
+          "license": "OFL (SIL Open Font License)",
+          "url": "https://fonts.google.com/specimen/Press+Start+2P",
+          "description": "Classic arcade game pixel font",
+          "monosorts": {
+            "centering": "ink-center",
+            "verticalOffset": 2,
+            "horizontalOffset": 0
+          }
+        }
+      }
+    },
+    "emoji": {
+      "color": {
+        "NotoColorEmoji": {
+          "file": "emoji/NotoColorEmoji.ttf",
+          "name": "Noto Color Emoji",
+          "type": "color",
+          "gridSize": 24,
+          "author": "Google",
+          "license": "OFL (SIL Open Font License)",
+          "url": "https://github.com/googlefonts/noto-emoji",
+          "description": "Full-color emoji font from Google Noto project",
+          "monosorts": {
+            "centering": "ink-center",
+            "verticalOffset": 0,
+            "horizontalOffset": 0
+          }
+        }
+      },
+      "mono": {
+        "NotoEmoji": {
+          "file": "emoji/NotoEmoji-Regular.ttf",
+          "name": "Noto Emoji",
+          "type": "mono",
+          "gridSize": 24,
+          "author": "Google",
+          "license": "OFL (SIL Open Font License)",
+          "url": "https://github.com/googlefonts/noto-emoji",
+          "description": "Monochrome emoji font from Google Noto project",
+          "monosorts": {
+            "centering": "ink-center",
+            "verticalOffset": 0,
+            "horizontalOffset": 0
+          }
+        }
+      }
+    }
+  },
+  "distributionTargets": [
+    {
+      "name": "Wizard Font Manager (canonical)",
+      "path": ".",
+      "description": "Canonical Wizard font bundle"
+    }
+  ],
+  "credits": {
+    "sources": [
+      {
+        "name": "Google Fonts",
+        "url": "https://fonts.google.com",
+        "license": "Various (OFL, Apache 2.0)"
+      },
+      {
+        "name": "Noto Emoji",
+        "url": "https://github.com/googlefonts/noto-emoji",
+        "license": "OFL (SIL Open Font License)"
+      },
+      {
+        "name": "Teletext50",
+        "url": "https://github.com/simon-rawles/teletext50",
+        "license": "OFL (SIL Open Font License)"
+      },
+      {
+        "name": "Style64 (PetMe)",
+        "url": "https://style64.org",
+        "license": "Free for personal use"
+      }
+    ],
+    "attribution": "Wizard Font Manager - uDOS Alpha v1.0.2.0"
+  }
+}

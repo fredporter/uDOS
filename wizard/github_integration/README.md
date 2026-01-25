@@ -230,7 +230,7 @@ client = GitHubClient(
 
 ### Run Unit Tests
 ```bash
-cd /Users/fredbook/Code/uDOS
+cd ~/uDOS
 
 # Run all GitHub integration tests
 pytest wizard/github_integration/test_github_integration.py -v

@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /Users/fredbook/Code/uDOS
+cd ~/uDOS
 
 echo "=== Git Status ==="
 git status --short

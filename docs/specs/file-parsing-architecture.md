@@ -465,7 +465,7 @@ FEED --serve --port 8765 --path /feeds/main
     <description>Generated from local content</description>
     <item>
       <title>v1.0.6.0 Released</title>
-      <link>file:///Users/fredbook/Code/uDOS/docs/roadmap.md</link>
+      <link>file://~/uDOS/docs/roadmap.md</link>
       <description>File parsing system now available</description>
       <pubDate>Wed, 17 Jan 2026 10:00:00 GMT</pubDate>
     </item>

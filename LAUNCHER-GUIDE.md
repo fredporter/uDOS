@@ -59,7 +59,7 @@ When you launch a server, you'll see:
 ╚═══════════════════════════════════════════════════════════════╝
 
 [BOOT] Checking environment...
-[BOOT] uDOS Root: /Users/fredbook/Code/uDOS
+[BOOT] uDOS Root: ~/uDOS
 [BOOT] Python: Python 3.9.6
 [BOOT] Features: AI Gateway, Plugin Repository, Device Auth, GitHub Integration
 

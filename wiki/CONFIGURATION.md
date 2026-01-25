@@ -270,6 +270,34 @@ Message: $MY_VAR_1
 
 ---
 
+## Wizard Dashboard UI Preferences
+
+Wizard dashboard typography is controlled client-side via CSS variables and local
+storage (system-first, no server state).
+
+**Local storage keys:**
+
+- `wizard-typography-v1` — current typography selection (heading/body/code, size, ratio)
+- `wizard-theme` — `dark` or `light`
+
+**CSS variables (runtime):**
+
+- `--font-prose-title`
+- `--font-prose-body`
+- `--font-code`
+- `--scale-prose-title`
+- `--scale-prose-body`
+- `--scale-code`
+- `--font-emoji`
+
+Bundled font files are served from the Wizard Font Manager at:
+
+```
+wizard/font-manager/fonts/
+```
+
+---
+
 ## Related Documentation
 
 - [Commands Reference](commands/README.md)
@@ -278,5 +306,5 @@ Message: $MY_VAR_1
 
 ---
 
-**Last Updated:** 2026-01-24
+**Last Updated:** 2026-01-25
 **Version:** Core v1.1.0.0

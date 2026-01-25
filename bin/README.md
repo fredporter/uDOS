@@ -90,7 +90,7 @@ All launchers show environment checks before starting:
 ╚═══════════════════════════════════════════════════════════════╝
 
 [BOOT] Checking environment...
-[BOOT] uDOS Root: /Users/fredbook/Code/uDOS
+[BOOT] uDOS Root: ~/uDOS
 [BOOT] Python: Python 3.9.6
 
 [✓] Virtual environment activated
