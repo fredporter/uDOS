@@ -1,6 +1,6 @@
 # Sonic Screwdriver Protocol
 
-**Version:** 1.0.0  
+**Version:** 1.1.0 (Draft)  
 **Status:** Specification (Summary)  
 **Last Updated:** 2026-01-25
 
@@ -50,6 +50,9 @@ It is maintained as a public database (`/sonic/datasets/`) and distributed via W
 | `notes`             | string     | Device-specific guidance / caveats                            |
 | `sources`           | JSON array | Links to driver repos, firmware, documentation                |
 | `last_seen`         | date       | Last verified working date                                    |
+| `windows10_boot`    | enum       | none / install / wtg / unknown                                |
+| `media_mode`        | enum       | none / htpc / retro / unknown                                 |
+| `udos_launcher`     | enum       | none / basic / advanced / unknown                             |
 
 ## Device Categories
 

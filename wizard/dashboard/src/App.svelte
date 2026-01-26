@@ -126,6 +126,8 @@
         <PixelEditor />
       {:else if currentRoute === "layer-editor"}
         <LayerEditor />
+      {:else if currentRoute === "typo-editor"}
+        <Files />
       {:else if currentRoute === "svg-processor"}
         <SvgProcessor />
       {/if}

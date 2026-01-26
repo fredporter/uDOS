@@ -38,6 +38,7 @@
     { id: "emoji-pipeline", label: "😀 Emoji Pipeline" },
     { id: "pixel-editor", label: "🎨 Pixel Editor" },
     { id: "layer-editor", label: "🧱 Layer Editor" },
+    { id: "typo-editor", label: "📝 Markdown Editor" },
     { id: "svg-processor", label: "🧩 SVG Palette" },
     { id: "devmode", label: "🧌 Dev Mode" },
     { id: "tasks", label: "⏱️ Task Scheduler" },
