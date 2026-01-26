@@ -1,6 +1,8 @@
 <script>
   import { onMount } from "svelte";
+  import StoryRenderer from "$lib/components/StoryRenderer.svelte";
   import { getAdminToken, buildAuthHeaders } from "../lib/services/auth";
+  import { notifyError } from "$lib/services/toastService";
 
   let adminToken = "";
   let status = null;
@@ -13,16 +15,37 @@
   let wizardSteps = [];
   let stepUpdates = {};
 
+  let setupStory = null;
+  let storyLoading = false;
+  let storyError = null;
+  let storySubmitStatus = null;
+  let storyBootstrapStatus = null;
+  let storyTheme = "dark";
+
   let configName = "";
   let configValue = "";
 
   const authHeaders = () => buildAuthHeaders();
 
   async function fetchJson(path, options = {}) {
-    const res = await fetch(path, { headers: authHeaders(), ...options });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
-    return data;
+    try {
+      const res = await fetch(path, { headers: authHeaders(), ...options });
+      const data = await res.json();
+      if (!res.ok) {
+        const message = data.detail || `HTTP ${res.status}`;
+        notifyError("Setup request failed", `${path} — ${message}`, {
+          path,
+          status: res.status,
+        });
+        throw new Error(message);
+      }
+      return data;
+    } catch (err) {
+      notifyError("Setup request failed", `${path} — ${err.message || err}`, {
+        path,
+      });
+      throw err;
+    }
   }
 
   async function loadSetup() {
@@ -51,6 +74,72 @@
       wizardSteps = data.steps || [];
     } catch (err) {
       wizardSteps = [];
+      notifyError("Setup wizard failed", err.message || "Unable to load steps", {
+        path: "/api/v1/setup/wizard/start",
+      });
+    }
+  }
+
+  async function loadSetupStory() {
+    storyLoading = true;
+    storyError = null;
+    try {
+      const res = await fetch("/api/v1/setup/story/read", {
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+      setupStory = data.story || null;
+    } catch (err) {
+      setupStory = null;
+      storyError = err.message || String(err);
+      notifyError("Story load failed", storyError, {
+        path: "/api/v1/setup/story/read",
+      });
+    } finally {
+      storyLoading = false;
+    }
+  }
+
+  async function rebootstrapStory() {
+    if (!confirm("Re-bootstrap the setup story? This will overwrite the template.")) {
+      return;
+    }
+    storyBootstrapStatus = "Rebootstrapping story...";
+    try {
+      const res = await fetch("/api/v1/setup/story/bootstrap?force=true", {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+      storyBootstrapStatus = "✅ Setup story reloaded.";
+      await loadSetupStory();
+    } catch (err) {
+      storyBootstrapStatus = `❌ ${err.message || err}`;
+      notifyError("Story bootstrap failed", err.message || `${err}`, {
+        path: "/api/v1/setup/story/bootstrap",
+      });
+    }
+  }
+
+  async function handleStorySubmit(answers) {
+    storySubmitStatus = null;
+    try {
+      const res = await fetch("/api/v1/setup/story/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ answers }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+      storySubmitStatus = "✅ Setup data stored securely.";
+      await loadSetup();
+    } catch (err) {
+      storySubmitStatus = `❌ Failed to store setup data: ${err.message || err}`;
+      notifyError("Story submit failed", err.message || `${err}`, {
+        path: "/api/v1/setup/story/submit",
+      });
     }
   }
 
@@ -133,7 +222,11 @@
 
   onMount(() => {
     adminToken = getAdminToken();
+    storyTheme = document.documentElement.classList.contains("light")
+      ? "light"
+      : "dark";
     loadSetup();
+    loadSetupStory();
   });
 
   const stepStatus = (step) => {
@@ -173,6 +266,31 @@
 </script>
 
 <div class="wizard-page">
+  <div class="card setup-story">
+    <h2>Setup Story</h2>
+    <p class="muted">
+      First-time configuration questions (user + installation profiles).
+    </p>
+    <div class="story-actions">
+      <button on:click={rebootstrapStory}>Re-bootstrap Setup Story</button>
+    </div>
+    {#if storyError}
+      <div class="story-status error">{storyError}</div>
+    {/if}
+    {#if storySubmitStatus}
+      <div class="story-status">{storySubmitStatus}</div>
+    {/if}
+    {#if storyBootstrapStatus}
+      <div class="story-status">{storyBootstrapStatus}</div>
+    {/if}
+    {#if storyLoading}
+      <div class="story-loading">Loading setup story…</div>
+    {:else if setupStory}
+      <StoryRenderer story={setupStory} onSubmit={handleStorySubmit} theme={storyTheme} />
+    {:else}
+      <div class="story-loading">No setup story loaded.</div>
+    {/if}
+  </div>
   <div class="page-header">
     <h1>Setup Wizard</h1>
     <p>First-time configuration and environment readiness.</p>
@@ -369,6 +487,53 @@
   .card.error {
     border-color: #ef4444;
     color: #fecaca;
+  }
+
+  .muted {
+    color: rgba(248, 250, 252, 0.6);
+  }
+
+  :global(html.light) .muted {
+    color: #64748b;
+  }
+
+  .story-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin: 0.75rem 0 1rem 0;
+  }
+
+  .story-status {
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+    color: #cbd5f5;
+  }
+
+  .story-status.error {
+    color: #fecaca;
+  }
+
+  .story-loading {
+    color: rgba(248, 250, 252, 0.6);
+  }
+
+  :global(html.light) .story-loading {
+    color: #64748b;
+  }
+
+  :global(.setup-story .story-renderer) {
+    min-height: auto;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+  }
+
+  :global(.setup-story .story-renderer .header) {
+    padding: 2rem 1.5rem;
+  }
+
+  :global(.setup-story .story-renderer .footer) {
+    padding: 1.5rem;
   }
 
   .status-grid {

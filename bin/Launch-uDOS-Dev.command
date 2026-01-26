@@ -1,17 +1,9 @@
 #!/bin/bash
-# ╔═══════════════════════════════════════════════════════════════════════════╗
-# ║                 Wizard Dev TUI Launcher (.command)                        ║
-# ╚═══════════════════════════════════════════════════════════════════════════╝
+# uDOS Development Mode Launcher
+# Delegates to unified launch_component() system
+
 set -e
-
-cd "$(dirname "$0")/.."
-
-echo ""
-echo "Launching Wizard Dev TUI..."
-echo ""
-
-"$(pwd)/bin/launch_wizard_dev_tui.sh" "$@"
-
-echo ""
-echo "Dev TUI session ended"
-read -p "Press Enter to close this window..."
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+UDOS_ROOT="$(dirname "$SCRIPT_DIR")"
+source "$SCRIPT_DIR/udos-common.sh"
+launch_component "core" "dev" "$@"

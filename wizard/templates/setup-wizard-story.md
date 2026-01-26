@@ -191,3 +191,6 @@ name: capability_plugin_auto_update
 label: Allow plugin auto-update
 type: checkbox
 ```
+
+---
+

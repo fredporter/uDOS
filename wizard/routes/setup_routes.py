@@ -5,9 +5,10 @@ Setup Routes (Wizard)
 First-time setup wizard endpoints for Wizard server.
 """
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from datetime import datetime, timezone
+from typing import Optional, Dict, Any, Sequence, List
 
 from wizard.services.setup_state import setup_state
 from wizard.services.setup_manager import (
@@ -29,8 +30,13 @@ from wizard.services.setup_profiles import (
 )
 
 from wizard.services.path_utils import get_repo_root, get_memory_dir
+from wizard.services.logging_manager import get_logger
 from core.location_service import LocationService
+from core.services.story_service import parse_story_document
 import json
+
+
+logger = get_logger("wizard.setup_routes")
 
 
 class ConfigVariable(BaseModel):
@@ -61,6 +67,64 @@ class InstallProfilePayload(BaseModel):
 
 class StorySubmitPayload(BaseModel):
     answers: Dict[str, Any]
+
+
+def _get_system_timezone_info() -> Dict[str, str]:
+    now = datetime.now().astimezone()
+    tzinfo = now.tzinfo or timezone.utc
+    tz_name = getattr(tzinfo, "key", None) or tzinfo.tzname(now) or "UTC"
+    return {
+        "timezone": tz_name,
+        "local_time": now.strftime("%Y-%m-%d %H:%M"),
+    }
+
+
+def _collect_timezone_options() -> List[Dict[str, Any]]:
+    service = LocationService()
+    mapping: Dict[str, Dict[str, Any]] = {}
+    for loc in service.get_all_locations():
+        tz = str(loc.get("timezone") or "").strip()
+        if not tz:
+            continue
+        label = f"{loc.get('name')} ({loc.get('region', 'global')})"
+        candidate = {
+            "timezone": tz,
+            "label": label,
+            "location_id": loc.get("id"),
+            "location_name": loc.get("name"),
+        }
+        existing = mapping.get(tz)
+        if not existing or loc.get("type") == "major-city":
+            mapping[tz] = candidate
+    return sorted(mapping.values(), key=lambda item: item["label"])
+
+
+def _apply_setup_defaults(
+    story_state: Dict[str, Any],
+    overrides: Dict[str, Any],
+    highlight_fields: Optional[Sequence[str]] = None,
+) -> None:
+    highlight = set(highlight_fields or [])
+    answers = story_state.get("answers") or {}
+    for section in story_state.get("sections", []):
+        for question in section.get("questions", []):
+            name = question.get("name")
+            if not name:
+                continue
+            if name in overrides and overrides[name] is not None:
+                value = overrides[name]
+                answers[name] = value
+                question["value"] = value
+                meta = question.setdefault("meta", {})
+                meta["default_value"] = value
+                meta["previous_value"] = value
+                if name in highlight:
+                    meta["show_previous_overlay"] = True
+                if name == "user_timezone":
+                    meta["options_endpoint"] = "/api/v1/setup/data/timezones"
+            elif name in overrides and overrides[name] is None:
+                answers.pop(name, None)
+    story_state["answers"] = answers
 
 
 def _apply_capabilities_to_wizard_config(capabilities: Dict[str, bool]) -> None:
@@ -110,8 +174,22 @@ def _resolve_location_name(location_id: str) -> str:
     return loc.get("name") if loc else location_id
 
 
+def _is_local_request(request: Request) -> bool:
+    client_host = request.client.host if request.client else ""
+    return client_host in {"127.0.0.1", "::1", "localhost"}
+
+
 def create_setup_routes(auth_guard=None):
-    dependencies = [Depends(auth_guard)] if auth_guard else []
+    async def setup_guard(request: Request) -> None:
+        if not auth_guard:
+            return
+        if not setup_state.get_status().get("setup_complete") and _is_local_request(
+            request
+        ):
+            return
+        await auth_guard(request)
+
+    dependencies = [Depends(setup_guard)] if auth_guard else []
     router = APIRouter(prefix="/api/v1/setup", tags=["setup"], dependencies=dependencies)
 
     @router.get("/status")
@@ -313,6 +391,12 @@ def create_setup_routes(auth_guard=None):
         default = get_default_location_for_timezone(timezone)
         return {"result": default}
 
+    @router.get("/data/timezones")
+    async def timezone_options_endpoint():
+        options = _collect_timezone_options()
+        system_tz = _get_system_timezone_info().get("timezone")
+        return {"timezones": options, "default_timezone": system_tz}
+
     @router.post("/story/bootstrap")
     async def bootstrap_setup_story(force: bool = False):
         repo_root = get_repo_root()
@@ -325,10 +409,79 @@ def create_setup_routes(auth_guard=None):
         story_path = story_dir / "wizard-setup-story.md"
         if force or not story_path.exists():
             story_path.write_text(template_path.read_text())
+            logger.info("Story template bootstrapped (force=%s)", force)
         return {
             "status": "success",
             "path": story_path.relative_to(memory_root).as_posix(),
             "overwritten": bool(force),
+        }
+
+    @router.get("/story/read")
+    async def read_setup_story():
+        memory_root = get_memory_dir()
+        story_path = memory_root / "story" / "wizard-setup-story.md"
+        if not story_path.exists():
+            bootstrap = await bootstrap_setup_story(force=False)
+            story_path = memory_root / bootstrap["path"]
+        if not story_path.exists():
+            raise HTTPException(status_code=404, detail="Setup story not found")
+        raw_content = story_path.read_text()
+        try:
+            story_state = parse_story_document(
+                raw_content,
+                required_frontmatter_keys=["title", "type", "submit_endpoint"],
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc))
+
+        system_info = _get_system_timezone_info()
+        timezone_options = _collect_timezone_options()
+        default_location = get_default_location_for_timezone(system_info["timezone"])
+        if not default_location and timezone_options:
+            # fallback to a location listed under the timezone options
+            match = next(
+                (opt for opt in timezone_options if opt["timezone"] == system_info["timezone"]),
+                None,
+            )
+            if match:
+                default_location = {
+                    "id": match.get("location_id"),
+                    "name": match.get("location_name"),
+                }
+
+        overrides = {
+            "user_timezone": system_info["timezone"],
+            "user_local_time": system_info["local_time"],
+            "user_location_id": default_location.get("id") if default_location else None,
+            "user_location_name": default_location.get("name") if default_location else None,
+        }
+        _apply_setup_defaults(
+            story_state,
+            overrides,
+            highlight_fields=["user_timezone", "user_local_time"],
+        )
+        story_state.setdefault("metadata", {})
+        story_state["metadata"].update(
+            {
+                "system_timezone": system_info["timezone"],
+                "timezone_options": timezone_options,
+                "default_location": default_location,
+            }
+        )
+
+        logger.debug(
+            "Story read: title=%s sections=%d system_tz=%s",
+            story_state["frontmatter"].get("title"),
+            len(story_state["sections"]),
+            system_info["timezone"],
+        )
+        return {
+            "status": "success",
+            "story": story_state,
+            "content": raw_content,
+            "frontmatter": story_state["frontmatter"],
+            "body": story_state["body"],
+            "path": story_path.relative_to(memory_root).as_posix(),
         }
 
     @router.post("/story/submit")

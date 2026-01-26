@@ -8,7 +8,7 @@
    */
 
   import { createEventDispatcher } from 'svelte';
-  import { renderMarkdown } from '$lib/services/storyParser';
+  import { renderMarkdown } from '$lib/services/markdownRenderer';
   import FormField from './FormField.svelte';
 
   export let section;

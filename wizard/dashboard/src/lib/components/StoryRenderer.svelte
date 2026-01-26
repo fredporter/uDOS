@@ -7,7 +7,7 @@
    */
 
   import { onMount } from 'svelte';
-  import { renderMarkdown, getProgress } from '$lib/services/storyParser';
+  import { renderMarkdown, getProgress } from '$lib/services/markdownRenderer';
   import StorySection from './StorySection.svelte';
 
   export let story;

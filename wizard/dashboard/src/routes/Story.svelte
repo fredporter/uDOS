@@ -1,7 +1,6 @@
 <script>
   import { onMount } from "svelte";
   import StoryRenderer from "$lib/components/StoryRenderer.svelte";
-  import { parseStoryFile } from "$lib/services/storyParser";
   import { getAdminToken, buildAuthHeaders } from "$lib/services/auth";
 
   let adminToken = "";
@@ -46,12 +45,12 @@
     loading = true;
     error = null;
     try {
-      const res = await fetch(`/api/v1/workspace/read?path=${encodeURIComponent(path)}`, {
+      const res = await fetch(`/api/v1/workspace/story/parse?path=${encodeURIComponent(path)}`, {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      storyState = parseStoryFile(data.content || "");
+      storyState = data.story;
       selectedStoryPath = path;
     } catch (err) {
       error = err.message || String(err);

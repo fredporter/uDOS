@@ -228,8 +228,8 @@ export class CodeBlockParser {
   private parseYAML(content: string): any {
     const lines = content.split("\n").filter((line) => line.trim());
 
-    // Check if it's an array (starts with -)
-    if (lines.some((line) => line.trim().startsWith("-"))) {
+    // Check if it's an array (FIRST line starts with -)
+    if (lines.length > 0 && lines[0].trim().startsWith("-")) {
       return this.parseYAMLArray(lines);
     }
 
@@ -300,7 +300,9 @@ export class CodeBlockParser {
         const value = trimmed.slice(1).trim();
         if (value.includes(":")) {
           const [key, ...valueParts] = value.split(":");
-          currentItem[key.trim()] = this.parseYAMLValue(valueParts.join(":").trim());
+          currentItem[key.trim()] = this.parseYAMLValue(
+            valueParts.join(":").trim(),
+          );
         }
       } else if (currentItem && trimmed.includes(":")) {
         // Property of current item

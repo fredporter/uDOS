@@ -1,5 +1,5 @@
-knowledge/
-├── ai/
+knowledge/ --part local only
+├── ai/ --part local only
 │   ├── analysis/
 │   │   └── analyze-error-logs.json
 │   ├── coding/
@@ -7,10 +7,10 @@ knowledge/
 │   ├── image/
 │   │   ├── technical-kinetic-svg.json
 │   │   └── teletext-graphic.json
-│   ├── .DS_Store
+│   ├── .DS_Store --local only
 │   ├── instruction.schema.json
 │   └── README.md
-├── checklists/
+├── checklists/ --part local only
 │   ├── daily/
 │   │   ├── daily-fire-management.json
 │   │   ├── daily-security-patrol.json
@@ -28,7 +28,7 @@ knowledge/
 │   │   └── tool-making-project.json
 │   ├── seasonal/
 │   │   └── winter-preparedness.json
-│   ├── .DS_Store
+│   ├── .DS_Store --local only
 │   └── README.md
 ├── code/
 │   ├── upy/
@@ -155,7 +155,7 @@ knowledge/
 │   ├── trail_marking_systems.md
 │   ├── watch_navigation_technique.md
 │   └── weather_pattern_navigation.md
-├── places/
+├── places/ --part local only
 │   ├── cities/
 │   │   ├── london.md
 │   │   ├── new-york.md
@@ -164,7 +164,7 @@ knowledge/
 │   ├── planets/
 │   │   ├── mars.md
 │   │   └── moon.md
-│   ├── .DS_Store
+│   ├── .DS_Store --local only
 │   └── README.md
 ├── reference/
 │   ├── celestial-mechanics.md
@@ -294,7 +294,7 @@ knowledge/
 │   ├── README.md
 │   ├── sleep-hygiene-optimization.md
 │   └── stress-management-resilience.md
-├── .DS_Store
+├── .DS_Store --local only
 ├── __init__.py
 ├── GEOGRAPHY-KNOWLEDGE-SPEC.md
 ├── KNOWLEDGE-SYSTEM.md

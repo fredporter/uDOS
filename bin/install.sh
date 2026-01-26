@@ -31,6 +31,9 @@ VERSION="1.0.3.0"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd 2>/dev/null || echo "$SCRIPT_DIR")"
 
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/udos-common.sh"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -445,6 +448,16 @@ main() {
 
     # Check Python
     check_python || exit 1
+
+    # Dependency preflight before proceeding
+    local tty_flag=0
+    if [ -t 0 ] && [ -t 1 ]; then
+        tty_flag=1
+    fi
+    UDOS_DEP_PYTHON_BIN="${UDOS_DEP_PYTHON_BIN:-python3}"
+    if ! run_dependency_preflight "installer" "$tty_flag" 1; then
+        error "Dependency preflight failed. Resolve the issues above and rerun install.sh"
+    fi
 
     # Uninstall if requested
     if $uninstall_flag; then

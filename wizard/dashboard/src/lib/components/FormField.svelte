@@ -20,6 +20,15 @@
   let locationLoading = false;
   let searchTimer;
   let lastTimezone = '';
+  let timezoneOptions = [];
+  let timezoneLoading = false;
+  let timezoneOptionsLoaded = false;
+
+  $: displayValue = value ?? '';
+  $: overlayEnabled = Boolean(field?.meta?.show_previous_overlay);
+  $: previousValue = field?.meta?.previous_value;
+  $: showPreviousOverlay =
+    overlayEnabled && previousValue && displayValue && displayValue !== previousValue;
 
   $: if (field?.type === 'location') {
     const displayName = field?.meta?.name_field ? answers?.[field.meta.name_field] : '';
@@ -82,6 +91,26 @@
       }
     } catch (err) {
       locationSuggestions = [];
+    }
+  }
+
+  async function loadTimezoneOptions() {
+    if (timezoneOptionsLoaded) return;
+    timezoneLoading = true;
+    try {
+      const res = await fetch("/api/v1/setup/data/timezones", {
+        headers: buildAuthHeaders(),
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      timezoneOptions = data?.timezones || [];
+      timezoneOptionsLoaded = true;
+    } catch (err) {
+      timezoneOptions = [];
+    } finally {
+      timezoneLoading = false;
     }
   }
 
@@ -148,6 +177,9 @@
         fetchDefaultLocation();
       }
     }
+    if (field?.type === 'timezone') {
+      loadTimezoneOptions();
+    }
   });
 </script>
 
@@ -160,14 +192,30 @@
   </label>
 
   {#if field.type === 'text' || field.type === 'email' || field.type === 'number'}
-    <input
-      id={field.name}
-      type={field.type}
-      placeholder={field.placeholder}
-      bind:value
-      on:input={handleInput}
-      required={field.required}
-    />
+    {#if overlayEnabled}
+      <div class="input-overlay">
+        {#if showPreviousOverlay}
+          <span class="previous-value">{previousValue}</span>
+        {/if}
+        <input
+          id={field.name}
+          type={field.type}
+          placeholder={field.placeholder}
+          bind:value
+          on:input={handleInput}
+          required={field.required}
+        />
+      </div>
+    {:else}
+      <input
+        id={field.name}
+        type={field.type}
+        placeholder={field.placeholder}
+        bind:value
+        on:input={handleInput}
+        required={field.required}
+      />
+    {/if}
   {:else if field.type === 'textarea'}
     <textarea
       id={field.name}
@@ -212,6 +260,26 @@
         </div>
       {/if}
     </div>
+  {:else if field.type === 'timezone'}
+    <div class="input-overlay">
+      {#if showPreviousOverlay}
+        <span class="previous-value">{previousValue}</span>
+      {/if}
+      <input
+        id={field.name}
+        type="text"
+        placeholder={field.placeholder}
+        bind:value
+        on:input={handleInput}
+        required={field.required}
+        list={`${field.name}-timezone-options`}
+      />
+    </div>
+    <datalist id={`${field.name}-timezone-options`}>
+      {#each timezoneOptions as option}
+        <option value={option.timezone}>{option.label}</option>
+      {/each}
+    </datalist>
   {:else if field.type === 'checkbox'}
     <div class="checkbox-wrapper">
       <input
@@ -285,6 +353,35 @@
     color: #1f2937;
     font-family: inherit;
     transition: all 0.2s ease;
+  }
+
+  .input-overlay {
+    position: relative;
+  }
+
+  .input-overlay input {
+    position: relative;
+    background: transparent;
+    z-index: 1;
+  }
+
+  .input-overlay .previous-value {
+    position: absolute;
+    inset: 0;
+    color: rgba(59, 130, 246, 0.65);
+    pointer-events: none;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-family: SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+    text-shadow: 0 0 1px rgba(15, 23, 42, 0.35);
+    display: flex;
+    align-items: center;
+    background: linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.05),
+      rgba(59, 130, 246, 0.05)
+    );
+    border-radius: 0.5rem;
   }
 
   :global(.dark) input[type='text'],

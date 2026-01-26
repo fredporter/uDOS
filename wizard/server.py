@@ -43,6 +43,9 @@ from wizard.services.path_utils import get_repo_root
 from wizard.services.secret_store import get_secret_store, SecretStoreError
 from wizard.services.device_auth import get_device_auth, DeviceStatus
 from wizard.services.mesh_sync import get_mesh_sync
+from core.services.dependency_warning_monitor import (
+    install_dependency_warning_monitor,
+)
 
 from typing import TYPE_CHECKING
 
@@ -92,6 +95,7 @@ def _load_dotenv(path: Path) -> None:
 
 
 _load_dotenv(REPO_ROOT / ".env")
+install_dependency_warning_monitor(component="wizard")
 
 
 @dataclass
@@ -374,6 +378,12 @@ class WizardServer:
             auth_guard=self._authenticate_admin
         )
         app.include_router(layer_editor_router)
+
+        # Register Log routes
+        from wizard.routes.log_routes import create_log_routes
+
+        log_router = create_log_routes()
+        app.include_router(log_router)
 
         # Register Catalog routes
         from wizard.routes.catalog_routes import create_catalog_routes

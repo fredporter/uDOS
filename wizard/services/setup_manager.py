@@ -10,7 +10,7 @@ from __future__ import annotations
 import os
 import json
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 from wizard.services.path_utils import get_repo_root, get_memory_dir
 from core.location_service import LocationService
@@ -147,14 +147,22 @@ def get_paths() -> Dict[str, Any]:
 
 def _load_wizard_config() -> Dict[str, Any]:
     config_path = get_repo_root() / "wizard" / "config" / "wizard.json"
+    defaults = {
+        "notion_enabled": False,
+        "ai_gateway_enabled": False,
+        "github_push_enabled": False,
+        "web_proxy_enabled": False,
+        "hubspot_enabled": False,
+    }
     if not config_path.exists():
-        return {
-            "notion_enabled": False,
-            "ai_gateway_enabled": False,
-            "github_push_enabled": False,
-            "web_proxy_enabled": False,
-            "hubspot_enabled": False,
-        }
+        return defaults.copy()
+    try:
+        parsed = json.loads(config_path.read_text())
+        if not isinstance(parsed, dict):
+            return defaults.copy()
+        return {**defaults, **parsed}
+    except Exception:
+        return defaults.copy()
 
 
 _location_service: LocationService | None = None
@@ -201,13 +209,3 @@ def get_default_location_for_timezone(timezone_hint: str | None) -> Optional[Dic
         return None
     matches = search_locations("", timezone_hint=timezone_hint, limit=1)
     return matches[0] if matches else None
-    try:
-        return json.loads(config_path.read_text())
-    except Exception:
-        return {
-            "notion_enabled": False,
-            "ai_gateway_enabled": False,
-            "github_push_enabled": False,
-            "web_proxy_enabled": False,
-            "hubspot_enabled": False,
-        }

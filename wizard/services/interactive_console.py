@@ -16,8 +16,9 @@ Commands:
   dev        - DEV MODE on/off/status/clear
   ai         - Vibe/Ollama/Mistral helpers
   git        - Git shortcuts (status/pull/push)
-  workflow   - Workflow/todo helper
-  logs       - Tail logs from memory/logs
+    workflow   - Workflow/todo helper
+    logs       - Tail logs from memory/logs
+    tree       - Generate structure.txt snapshots (2 levels)
   peek       - Convert URL to Markdown (PEEK <url> [filename])
   extract    - Extract PDF to Markdown (EXTRACT [file.pdf] or bulk)
   backup     - Create .backup snapshot (scope-aware)
@@ -67,6 +68,7 @@ from core.services.maintenance_utils import (
 )
 from wizard.services.url_to_markdown_service import get_url_to_markdown_service
 from wizard.services.pdf_ocr_service import get_pdf_ocr_service
+from wizard.services.tree_service import TreeStructureService
 
 
 class WizardConsole:
@@ -84,6 +86,7 @@ class WizardConsole:
             "config": self.cmd_config,
             "health": self.cmd_health,
             "reload": self.cmd_reload,
+            "reboot": self.cmd_reboot,
             "github": self.cmd_github,
             "workflows": self.cmd_workflows,
             "workflow": self.cmd_workflow,
@@ -91,6 +94,7 @@ class WizardConsole:
             "ai": self.cmd_ai,
             "git": self.cmd_git,
             "logs": self.cmd_logs,
+            "tree": self.cmd_tree,
             "peek": self.cmd_peek,
             "extract": self.cmd_extract,
             "new": self.cmd_new,
@@ -111,6 +115,7 @@ class WizardConsole:
         }
         self._current_file: Optional[Path] = None
         self._dashboard_ready: Optional[bool] = None
+        self.tree_service = TreeStructureService(self.repo_root)
 
     def _run_with_spinner(self, message: str, func: Callable[[], Any]) -> Any:
         spinner = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
@@ -619,6 +624,14 @@ class WizardConsole:
             print(f"  ❌ Error reloading configuration: {e}")
         print()
 
+    async def cmd_reboot(self, args: list) -> None:
+        """Hot-reload the console state (config + dashboard checks)."""
+        print("\n🔁 HOT RELOAD REQUESTED - refreshing configuration + console")
+        await self.cmd_reload([])
+        self._startup_checks()
+        self.print_banner()
+        print("✅ Hot reload complete. Console state reset.\n")
+
     async def cmd_github(self, args: list) -> None:
         """Show GitHub Actions status and recent runs."""
         print("\n📊 GITHUB ACTIONS STATUS:")
@@ -690,6 +703,7 @@ class WizardConsole:
         print("  git        - Git shortcuts (status/pull/push/log)")
         print("  workflow   - Workflow/todo helper")
         print("  logs       - Tail logs from memory/logs")
+        print("  tree       - Generate structure.txt snapshots (2 levels)")
         print("  peek       - Convert URL to Markdown (peek <url> [filename])")
         print("  extract    - Extract PDF to Markdown (extract [file.pdf] or extract for bulk)")
         print("  new/edit/load/save - Open files in editor (/memory)")
@@ -704,6 +718,31 @@ class WizardConsole:
         print("  help       - Show this help message")
         print("  exit/quit  - Shutdown server gracefully")
         print()
+
+    async def cmd_tree(self, _args: list) -> None:
+        """Generate structure.txt files for root, memory, knowledge, and submodules."""
+        try:
+            result = self.tree_service.generate_all_structure_files()
+        except Exception as exc:  # pragma: no cover - defensive
+            print(f"\n❌ Failed to generate trees: {exc}\n")
+            return
+
+        summary = result.get("results", {})
+        submodules = summary.get("submodules", {}) if isinstance(summary.get("submodules"), dict) else {}
+
+        print("\n📁 DIRECTORY TREES (2 levels deep):\n")
+        print(f"  Root:      {summary.get('root', '❌ Not updated')}")
+        print(f"  Memory:    {summary.get('memory', '❌ Not updated')}")
+        print(f"  Knowledge: {summary.get('knowledge', '❌ Not updated')}")
+
+        if submodules:
+            print("\n  Submodules:")
+            for rel_path, status in submodules.items():
+                print(f"    • {rel_path}: {status}")
+
+        root_tree = result.get("root_tree", "")
+        if root_tree:
+            print("\n" + root_tree + "\n")
 
     async def cmd_new(self, args: list) -> None:
         """Create a new markdown file in /memory."""

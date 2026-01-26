@@ -144,13 +144,13 @@ Emoji fallback is always appended via:
 Bundled fonts live in:
 
 ```
-wizard/font-manager/fonts/
+wizard/fonts/
 ```
 
 The manifest is:
 
 ```
-wizard/font-manager/fonts/manifest.json
+wizard/fonts/manifest.json
 ```
 
 ### Tailwind + Typography Rules
@@ -163,10 +163,10 @@ typography: () => ({
     css: {
       fontFamily: "var(--font-prose-body)",
       "h1,h2,h3,h4,h5,h6": { fontFamily: "var(--font-prose-title)" },
-      "code, pre code": { fontFamily: "var(--font-code)" }
-    }
-  }
-})
+      "code, pre code": { fontFamily: "var(--font-code)" },
+    },
+  },
+});
 ```
 
 ### UI Toggles

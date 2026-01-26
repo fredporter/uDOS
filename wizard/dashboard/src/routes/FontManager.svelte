@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte";
+  import { teletextFonts } from "../lib/typography.js";
 
   let adminToken = "";
   let fonts = [];
@@ -9,6 +10,7 @@
   let renderedHtml = "";
   let loading = true;
   let error = null;
+  let showTeletext = false;
 
   const authHeaders = () =>
     adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
@@ -58,6 +60,9 @@
     for (const [collectionName, collection] of Object.entries(
       manifest.collections || {}
     )) {
+      // Skip retro fonts - they're in the Teletext section
+      if (collectionName === "retro") continue;
+      
       for (const [subcategoryName, subcategory] of Object.entries(collection)) {
         for (const [fontKey, fontData] of Object.entries(subcategory)) {
           list.push({
@@ -128,67 +133,107 @@
     <p class="text-gray-400">Manage and preview Wizard font collections</p>
   </div>
 
-  {#if error}
-    <div class="bg-red-900 text-red-200 p-4 rounded-lg mb-6 border border-red-700">
-      {error}
-    </div>
-  {/if}
+  <div class="mb-6 flex gap-2">
+    <button
+      class={`px-4 py-2 rounded ${showTeletext ? "bg-gray-700 text-gray-300" : "bg-purple-600 text-white"}`}
+      on:click={() => (showTeletext = false)}
+    >
+      Prose & Code Fonts
+    </button>
+    <button
+      class={`px-4 py-2 rounded ${showTeletext ? "bg-purple-600 text-white" : "bg-gray-700 text-gray-300"}`}
+      on:click={() => (showTeletext = true)}
+    >
+      Teletext Fonts
+    </button>
+  </div>
 
-  {#if loading}
-    <div class="text-gray-400">Loading fonts...</div>
-  {:else}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
-        <div class="p-4 border-b border-gray-700">
-          <h2 class="font-semibold">Font Collections</h2>
-          <div class="text-xs text-gray-400">{fonts.length} fonts</div>
-        </div>
-        <div class="max-h-[600px] overflow-y-auto">
-          {#each fonts as font}
-            <button
-              class="w-full text-left p-3 border-b border-gray-700 hover:bg-gray-700 {selectedFont?.id === font.id ? 'bg-gray-700' : ''}"
-              on:click={() => selectFont(font)}
+  {#if showTeletext}
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">Teletext & Retro Fonts</h2>
+      <p class="text-gray-400 mb-4">
+        These fonts are reserved for special rendering modes and will be mapped later.
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {#each teletextFonts as font}
+          <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+            <div class="font-semibold">{font.label}</div>
+            <div class="text-sm text-gray-400 mb-2">{font.description}</div>
+            <div
+              class="text-xs text-gray-500 mt-2 font-mono"
+              style="font-family: {font.stack}"
             >
-              <div class="font-semibold text-sm">{font.name}</div>
-              <div class="text-xs text-gray-400">{font.category}</div>
-              <div class="text-xs text-gray-500 mt-1">{font.author}</div>
-            </button>
-          {/each}
-        </div>
+              ABCDEFGHIJKLMNOPQRSTUVWXYZ<br />
+              abcdefghijklmnopqrstuvwxyz<br />
+              0123456789 !@#$%^&*()
+            </div>
+          </div>
+        {/each}
       </div>
+    </div>
+  {:else}
+    {#if error}
+      <div class="bg-red-900 text-red-200 p-4 rounded-lg mb-6 border border-red-700">
+        {error}
+      </div>
+    {/if}
 
-      <div class="lg:col-span-2">
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-sm text-gray-400">Selected</div>
-              <div class="text-lg font-semibold">{selectedFont?.name || "—"}</div>
-            </div>
-            <div class="flex items-center gap-2">
+    {#if loading}
+      <div class="text-gray-400">Loading fonts...</div>
+    {:else}
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+          <div class="p-4 border-b border-gray-700">
+            <h2 class="font-semibold">Font Collections</h2>
+            <div class="text-xs text-gray-400">{fonts.length} fonts</div>
+          </div>
+          <div class="max-h-[600px] overflow-y-auto">
+            {#each fonts as font}
               <button
-                class="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm"
-                on:click={() => adjustFontSize(-2)}
+                class="w-full text-left p-3 border-b border-gray-700 hover:bg-gray-700 {selectedFont?.id === font.id ? 'bg-gray-700' : ''}"
+                on:click={() => selectFont(font)}
               >
-                A-
+                <div class="font-semibold text-sm">{font.name}</div>
+                <div class="text-xs text-gray-400">{font.category}</div>
+                <div class="text-xs text-gray-500 mt-1">{font.author}</div>
               </button>
-              <div class="text-sm">{fontSize}px</div>
-              <button
-                class="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm"
-                on:click={() => adjustFontSize(2)}
-              >
-                A+
-              </button>
-            </div>
+            {/each}
           </div>
         </div>
 
-        <div
-          class="bg-gray-900 border border-gray-700 rounded-lg p-6 prose prose-invert max-w-none"
-          style="font-family: '{selectedFont?.name}', monospace; font-size: {fontSize}px;"
-        >
-          {@html renderedHtml}
+        <div class="lg:col-span-2">
+          <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-gray-400">Selected</div>
+                <div class="text-lg font-semibold">{selectedFont?.name || "—"}</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  class="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm"
+                  on:click={() => adjustFontSize(-2)}
+                >
+                  A-
+                </button>
+                <div class="text-sm">{fontSize}px</div>
+                <button
+                  class="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm"
+                  on:click={() => adjustFontSize(2)}
+                >
+                  A+
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="bg-gray-900 border border-gray-700 rounded-lg p-6 prose prose-invert max-w-none"
+            style="font-family: '{selectedFont?.name}', monospace; font-size: {fontSize}px;"
+          >
+            {@html renderedHtml}
+          </div>
         </div>
       </div>
-    </div>
+    {/if}
   {/if}
 </div>

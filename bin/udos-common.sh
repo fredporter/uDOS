@@ -110,6 +110,8 @@ run_with_spinner() {
     local cmd="$@"
     local spin_chars='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
     local i=0
+    local start_time
+    start_time=$(date +%s)
 
     eval "$cmd" &
     local pid=$!
@@ -123,7 +125,16 @@ run_with_spinner() {
 
     wait $pid
     local exit_code=$?
+    local end_time
+    end_time=$(date +%s)
+    local elapsed=$(( end_time - start_time ))
+
     printf "\r"
+    if [ $exit_code -eq 0 ]; then
+        printf "  ${GREEN}✓${NC} %s (${elapsed}s)\n" "$message"
+    else
+        printf "  ${RED}✗${NC} %s (${elapsed}s)\n" "$message"
+    fi
     return $exit_code
 }
 
@@ -167,6 +178,52 @@ ensure_python_env() {
 
     # Create log directory
     mkdir -p "$UDOS_ROOT/memory/logs"
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Dependency Preflight
+# ═══════════════════════════════════════════════════════════════════════════
+run_dependency_preflight() {
+    local component="$1"
+    local interactive="${2:-1}"
+    local auto_repair="${3:-1}"
+
+    if [ "$UDOS_SKIP_DEP_CHECK" = "1" ]; then
+        return 0
+    fi
+
+    local py_bin="${UDOS_DEP_PYTHON_BIN:-python}"
+    if ! command -v "$py_bin" >/dev/null 2>&1; then
+        echo -e "${YELLOW}⚠️  Dependency preflight skipped (missing ${py_bin})${NC}"
+        return 0
+    fi
+
+    "$py_bin" - "$component" "$interactive" "$auto_repair" <<'PY'
+import sys
+
+from core.services.dependency_warning_monitor import run_preflight_check
+
+component = sys.argv[1]
+interactive = bool(int(sys.argv[2]))
+auto_repair = bool(int(sys.argv[3]))
+
+try:
+    code = run_preflight_check(
+        component=component,
+        prompt_if_interactive=interactive,
+        auto_repair_if_headless=auto_repair,
+    )
+except Exception as exc:  # pragma: no cover
+    print(f"Dependency preflight failed: {exc}")
+    code = 5
+
+sys.exit(code)
+PY
+    local status=$?
+    if [ $status -ne 0 ]; then
+        echo -e "${RED}[✗]${NC} Dependency verification failed"
+    fi
+    return $status
 }
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -353,4 +410,151 @@ rebuild_after_dev() {
     rebuild_core_runtime || return 1
     rebuild_wizard_dashboard || return 1
     return 0
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Unified Component Launcher
+# ═══════════════════════════════════════════════════════════════════════════
+# Central dispatcher for all component launchers (core, wizard, goblin, empire, app)
+# Reduces launcher duplication across .command and .sh files
+# ═════════════════════════════════════════════════════════════════════════════
+
+_setup_component_environment() {
+    local component="$1"
+
+    # Ensure venv and dependencies
+    echo -e "${CYAN}[INFO]${NC} Checking Python environment and dependencies..."
+    ensure_python_env || return 1
+
+    # Run self-healing diagnostics
+    run_with_spinner "Running self-healing diagnostics for ${component}..." "python -m core.services.self_healer $component" || {
+        echo -e "${YELLOW}[WARN]${NC} Some dependency issues detected (non-blocking)"
+    }
+
+    # Setup log directory
+    mkdir -p "$UDOS_ROOT/memory/logs"
+    export UDOS_LOG_DIR="$UDOS_ROOT/memory/logs"
+}
+
+launch_core_tui() {
+    local title="uDOS Core TUI"
+    print_header "$title"
+
+    _setup_component_environment "core" || return 1
+
+    echo -e "${CYAN}[BOOT]${NC} uDOS Root: $UDOS_ROOT"
+    echo -e "${CYAN}[BOOT]${NC} Python: $(python --version)"
+    echo ""
+
+    # Launch the TUI
+    "$UDOS_ROOT/bin/start_udos.sh" "$@" || return 1
+}
+
+launch_wizard_server() {
+    local title="Wizard Server - Always-On Services"
+    print_header "$title"
+
+    _setup_component_environment "wizard" || return 1
+
+    print_service_url "Server" "http://localhost:8765"
+    print_service_url "Dashboard" "http://localhost:8765/dashboard"
+    echo ""
+
+    # Delegate to wizard server launcher
+    "$UDOS_ROOT/bin/start_wizard.sh" "$@" || return 1
+}
+
+launch_wizard_tui() {
+    local title="Wizard Dev TUI - Server + Interactive Console"
+    print_header "$title"
+
+    _setup_component_environment "wizard" || return 1
+
+    # Delegate to wizard TUI launcher
+    "$UDOS_ROOT/wizard/launch_wizard_tui.sh" "$@" || return 1
+}
+
+launch_goblin_dev() {
+    local title="Goblin Dev Server - Experimental Features"
+    print_header "$title"
+
+    _setup_component_environment "goblin" || return 1
+
+    print_service_url "Server" "http://localhost:8767"
+    print_service_url "Dashboard" "http://localhost:5174"
+    print_service_url "Swagger" "http://localhost:8767/docs"
+    echo ""
+
+    # Delegate to goblin launcher
+    "$UDOS_ROOT/dev/bin/start-goblin-dev.sh" "$@" || return 1
+}
+
+launch_empire_dev() {
+    local title="Empire Private Server - CRM & Business Intelligence"
+    print_header "$title"
+
+    _setup_component_environment "empire" || return 1
+
+    print_service_url "Server" "http://localhost:8768"
+    print_service_url "Dashboard" "http://localhost:8768/dashboard"
+    echo ""
+
+    # Delegate to empire launcher
+    "$UDOS_ROOT/dev/bin/start-empire-dev.sh" "$@" || return 1
+}
+
+launch_app_dev() {
+    local title="uMarkdown App - Tauri Development"
+    print_header "$title"
+
+    # App dev doesn't need full Python setup (uses Node/Tauri)
+    echo -e "${CYAN}[INFO]${NC} Checking Node.js environment..."
+
+    if ! command -v npm >/dev/null 2>&1; then
+        echo -e "${RED}[ERROR]${NC} Node.js/npm not found"
+        echo "Install from https://nodejs.org or: brew install node"
+        return 1
+    fi
+
+    echo -e "${GREEN}✓${NC} Node.js: $(node --version)"
+    echo ""
+
+    # Delegate to app launcher
+    "$UDOS_ROOT/app/bin/start_umarkdown_dev.sh" "$@" || return 1
+}
+
+launch_component() {
+    local component="${1:-core}"
+    local mode="${2:-tui}"
+    shift 2 || shift
+
+    # Resolve paths if not already set
+    if [ -z "$UDOS_ROOT" ]; then
+        UDOS_ROOT="$(resolve_udos_root)" || return 1
+        export UDOS_ROOT
+    fi
+
+    cd "$UDOS_ROOT"
+
+    # Dispatch to component-specific launcher
+    case "$component:$mode" in
+        core:tui)       launch_core_tui "$@" ;;
+        wizard:server)  launch_wizard_server "$@" ;;
+        wizard:tui)     launch_wizard_tui "$@" ;;
+        goblin:dev)     launch_goblin_dev "$@" ;;
+        empire:dev)     launch_empire_dev "$@" ;;
+        app:dev)        launch_app_dev "$@" ;;
+        *)
+            echo -e "${RED}[ERROR]${NC} Unknown component:mode: $component:$mode"
+            echo ""
+            echo "Supported combinations:"
+            echo "  core:tui        - Core TUI interactive"
+            echo "  wizard:server   - Wizard Server + dashboard"
+            echo "  wizard:tui      - Wizard TUI console"
+            echo "  goblin:dev      - Goblin Dev Server"
+            echo "  empire:dev      - Empire CRM Server"
+            echo "  app:dev         - App (Tauri) development"
+            return 1
+            ;;
+    esac
 }

@@ -107,13 +107,15 @@ class Location:
     scale: str  # Scale (terrestrial, orbital, planetary, stellar, galactic, cosmic)
     continent: str  # Continent/region name
     timezone: str  # Timezone (IANA preferred)
-    coordinates: Optional[Coordinate] = None  # External coordinates (optional)
 
     # Classification fields
     type: str  # Type (major-city, geographical-landmark, space-station, etc.)
     region_type: (
         str  # Region type (metropolis, landmark, temple, mountain, desert, etc.)
     )
+
+    # Geospatial optional
+    coordinates: Optional[Coordinate] = None  # External coordinates (optional)
 
     # Navigation
     connections: List[LocationConnection] = None  # Connected locations

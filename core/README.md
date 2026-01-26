@@ -44,6 +44,11 @@ choice: "Rest"
 - `map` — Viewport with sprites (optional)
 - `script` — Sandboxed code execution (disabled by default)
 
+**Story Format** (as of 2026-01-26):
+- Parse `-story.md` files (interactive setup/forms)
+- Available via `@udos/runtime/story` module
+- See [STORY-PARSER-MIGRATION.md](docs/STORY-PARSER-MIGRATION.md)
+
 ---
 
 ## 📦 Installation

@@ -281,3 +281,55 @@ export function getTypographyLabels(state) {
     sizeLabel: sizePreset.label,
   };
 }
+
+// Teletext and retro fonts for special rendering modes
+export const teletextFonts = [
+  {
+    id: "chicago-flf",
+    label: "ChicagoFLF",
+    stack: '"ChicagoFLF", "Chicago", ui-serif, serif',
+    description: "Apple Macintosh System Font",
+  },
+  {
+    id: "chicago",
+    label: "Chicago",
+    stack: '"Chicago", "Los Altos", ui-serif, serif',
+    description: "Apple Macintosh Classic",
+  },
+  {
+    id: "monaco",
+    label: "Monaco",
+    stack: '"Monaco", ui-monospace, Menlo, monospace',
+    description: "Apple Terminal Font",
+  },
+  {
+    id: "los-altos",
+    label: "Los Altos",
+    stack: '"Los Altos", ui-sans-serif, sans-serif',
+    description: "Apple Lisa Font",
+  },
+  {
+    id: "sanfrisco",
+    label: "Sanfrisco",
+    stack: '"Sanfrisco", ui-sans-serif, sans-serif',
+    description: "Apple SF Homage",
+  },
+  {
+    id: "petme64",
+    label: "PetMe64",
+    stack: '"PetMe64", "Monaco", monospace',
+    description: "Commodore 64 PETSCII",
+  },
+  {
+    id: "press-start-2p",
+    label: "Press Start 2P",
+    stack: '"Press Start 2P", "Monaco", monospace',
+    description: "Arcade/Gaming Font",
+  },
+  {
+    id: "teletext50",
+    label: "Teletext50",
+    stack: '"Teletext50", "Monaco", monospace',
+    description: "BBC Micro Teletext",
+  },
+];

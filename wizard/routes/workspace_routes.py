@@ -13,6 +13,8 @@ from pydantic import BaseModel
 
 from wizard.services.path_utils import get_memory_dir
 
+from core.services.story_service import parse_story_document
+
 
 class WriteRequest(BaseModel):
     path: str
@@ -81,6 +83,22 @@ def create_workspace_routes(auth_guard=None) -> APIRouter:
             return {"success": True, "content": resolved.read_text()}
         except UnicodeDecodeError:
             raise HTTPException(status_code=400, detail="File is not valid text")
+
+    @router.get("/story/parse")
+    async def parse_story(path: str):
+        try:
+            resolved = _resolve_path(path)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+        if not resolved.exists() or not resolved.is_file():
+            raise HTTPException(status_code=404, detail="File not found")
+        try:
+            story = parse_story_document(
+                resolved.read_text(), required_frontmatter_keys=["title", "type"]
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc))
+        return {"success": True, "path": path, "story": story}
 
     @router.post("/write")
     async def write_file(payload: WriteRequest):

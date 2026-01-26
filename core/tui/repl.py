@@ -15,12 +15,17 @@ from .renderer import GridRenderer
 from .state import GameState
 from core.input import SmartPrompt
 from core.services.basic_user_config import ensure_basic_user_config
+from core.services.dependency_warning_monitor import (
+    install_dependency_warning_monitor,
+)
 
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+
+install_dependency_warning_monitor(component="core-tui")
 
 
 class TUIRepl:

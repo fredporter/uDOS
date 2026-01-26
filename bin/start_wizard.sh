@@ -125,6 +125,12 @@ for arg in "$@"; do
     esac
 done
 
+# Dependency preflight (respect --no-interactive setting)
+if ! run_dependency_preflight "wizard-server" "$INTERACTIVE" 1; then
+    print_error "Dependency preflight failed"
+    exit 1
+fi
+
 # Check if Svelte dashboard needs to be built or --rebuild requested
 DASHBOARD_PATH="$UDOS_ROOT/wizard/dashboard/dist"
 if [ ! -d "$DASHBOARD_PATH" ] || [ "$UDOS_FORCE_REBUILD" = "1" ]; then

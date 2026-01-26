@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import Dashboard from "./routes/Dashboard.svelte";
   import Devices from "./routes/Devices.svelte";
   import Webhooks from "./routes/Webhooks.svelte";
@@ -26,7 +26,9 @@
   import Setup from "./routes/Setup.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
   import WizardBottomBar from "./components/WizardBottomBar.svelte";
+  import ToastContainer from "./lib/components/ToastContainer.svelte";
   import { initTypography } from "./lib/typography.js";
+  import { notifyError } from "$lib/services/toastService";
 
   // Simple hash-based routing
   let currentRoute = "dashboard";
@@ -61,6 +63,33 @@
 
   window.addEventListener("hashchange", handleHashChange);
 
+  function handleGlobalError(event) {
+    const location = `${event.filename || "unknown"}:${event.lineno || 0}:${event.colno || 0}`;
+    notifyError("Runtime error", event.message || "Unknown runtime error", {
+      source: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+      origin: "window.error",
+      location,
+    });
+  }
+
+  function handleUnhandledRejection(event) {
+    const reason = event.reason;
+    const message =
+      typeof reason === "string"
+        ? reason
+        : reason?.message || "Rejected promise with no message";
+    const meta = { origin: "unhandledrejection" };
+    if (reason && typeof reason === "object") {
+      meta.error = {
+        message: reason.message,
+        stack: reason.stack,
+      };
+    }
+    notifyError("Unhandled rejection", message, meta);
+  }
+
   onMount(() => {
     handleHashChange();
     // Load theme preference
@@ -70,12 +99,20 @@
     }
     applyTheme();
     initTypography();
+    window.addEventListener("error", handleGlobalError);
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
+  });
+
+  onDestroy(() => {
+    window.removeEventListener("error", handleGlobalError);
+    window.removeEventListener("unhandledrejection", handleUnhandledRejection);
   });
 </script>
 
 <div class="mdk-app">
   <!-- Top Navigation Bar -->
   <WizardTopBar {currentRoute} onNavigate={navigate} />
+  <ToastContainer />
 
   <div class="mdk-shell">
     <!-- Content -->
