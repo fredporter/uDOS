@@ -4,7 +4,6 @@ from typing import List, Dict
 from pathlib import Path
 import subprocess
 from core.commands.base import BaseCommandHandler
-from core.tui.output import OutputToolkit
 
 # Dynamic project root detection
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -66,6 +65,7 @@ class RepairHandler(BaseCommandHandler):
             )
 
             if result.returncode == 0:
+                from core.tui.output import OutputToolkit
                 output = []
                 output.append(OutputToolkit.banner("REPAIR: GIT PULL"))
                 output.append(result.stdout or "Already up to date")
@@ -104,6 +104,7 @@ class RepairHandler(BaseCommandHandler):
             )
 
             if result.returncode == 0:
+                from core.tui.output import OutputToolkit
                 output = []
                 output.append(OutputToolkit.banner("REPAIR: DEPENDENCIES"))
                 output.append("Dependencies installed/verified")
@@ -168,6 +169,7 @@ class RepairHandler(BaseCommandHandler):
         for key, value in checks.items():
             rows.append([key, value])
 
+        from core.tui.output import OutputToolkit
         output = []
         output.append(OutputToolkit.banner("REPAIR: SYSTEM CHECK"))
         output.append(OutputToolkit.table(["check", "result"], rows))
@@ -198,6 +200,7 @@ class RepairHandler(BaseCommandHandler):
         else:
             results["message"] = "System upgraded successfully"
 
+        from core.tui.output import OutputToolkit
         output = []
         output.append(OutputToolkit.banner("REPAIR: UPGRADE"))
         output.append(f"Git pull: {pull_result.get('status')}")
