@@ -470,6 +470,9 @@ class WizardServer:
         except Exception:
             pass
 
+        # Get logger for the scheduler loop
+        logger = self.logging_manager.get_logger("wizard-scheduler")
+
         def loop():
             while not self._scheduler_stop.is_set():
                 try:
