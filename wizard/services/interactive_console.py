@@ -19,6 +19,7 @@ Commands:
   workflow   - Workflow/todo helper
   logs       - Tail logs from memory/logs
   peek       - Convert URL to Markdown (PEEK <url> [filename])
+  extract    - Extract PDF to Markdown (EXTRACT [file.pdf] or bulk)
   backup     - Create .backup snapshot (scope-aware)
   restore    - Restore latest backup (use --force)
   tidy       - Move junk into .archive
@@ -65,6 +66,7 @@ from core.services.maintenance_utils import (
     get_memory_root,
 )
 from wizard.services.url_to_markdown_service import get_url_to_markdown_service
+from wizard.services.pdf_ocr_service import get_pdf_ocr_service
 
 
 class WizardConsole:
@@ -90,6 +92,7 @@ class WizardConsole:
             "git": self.cmd_git,
             "logs": self.cmd_logs,
             "peek": self.cmd_peek,
+            "extract": self.cmd_extract,
             "new": self.cmd_new,
             "edit": self.cmd_edit,
             "load": self.cmd_load,
@@ -535,6 +538,49 @@ class WizardConsole:
         
         print()
 
+    async def cmd_extract(self, args: list) -> None:
+        """Extract PDF to Markdown and save to outbox.
+        
+        Usage: extract [pdf-filename]
+               extract                    (bulk process inbox)
+        
+        Examples:
+            extract invoice.pdf
+            extract /path/to/document.pdf
+            extract                      (process all PDFs in inbox)
+        """
+        service = get_pdf_ocr_service()
+        
+        if args:
+            # Single file extraction
+            pdf_path = args[0]
+            print(f"\n⏳ Extracting {pdf_path}...")
+            success, output_path, message = await service.extract(pdf_path)
+            
+            if success:
+                print(f"   {message}")
+                print(f"   📄 File: {output_path.relative_to(self.repo_root)}")
+            else:
+                print(f"   ❌ {message}")
+        else:
+            # Bulk extraction from inbox
+            print("\n⏳ Processing PDFs from inbox...")
+            success, results, message = await service.extract_batch()
+            
+            if success:
+                print(f"   {message}")
+                if results:
+                    for result in results:
+                        print(f"   ✅ {result['filename']}")
+                        print(f"      📄 {result['output_path']}")
+                        print(f"      🖼️  {result['images']} images, {result['pages']} pages")
+                else:
+                    print("   (no PDFs found in inbox)")
+            else:
+                print(f"   ❌ {message}")
+        
+        print()
+
     async def cmd_workflow(self, args: list) -> None:
         """Workflow manager commands."""
         manager = WorkflowManager()
@@ -645,6 +691,7 @@ class WizardConsole:
         print("  workflow   - Workflow/todo helper")
         print("  logs       - Tail logs from memory/logs")
         print("  peek       - Convert URL to Markdown (peek <url> [filename])")
+        print("  extract    - Extract PDF to Markdown (extract [file.pdf] or extract for bulk)")
         print("  new/edit/load/save - Open files in editor (/memory)")
         print("  backup     - Create .backup snapshot (workspace default)")
         print("  restore    - Restore latest backup (use --force to overwrite)")
