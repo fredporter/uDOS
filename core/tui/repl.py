@@ -14,6 +14,7 @@ from .dispatcher import CommandDispatcher
 from .renderer import GridRenderer
 from .state import GameState
 from core.input import SmartPrompt
+from core.services.basic_user_config import ensure_basic_user_config
 
 
 # Configure logging
@@ -54,6 +55,10 @@ class TUIRepl:
         - Error handling
         """
         self.running = True
+        try:
+            ensure_basic_user_config(self.prompt.ask)
+        except Exception as exc:
+            self.logger.warning(f"[STARTUP] Basic setup skipped: {exc}")
         self._show_welcome()
 
         try:

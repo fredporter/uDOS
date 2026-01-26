@@ -184,6 +184,7 @@ class WizardTUI:
             "RATELIMIT": self._cmd_ratelimit,
             "COSTS": self._cmd_costs,
             "AUDIT": self._cmd_audit,
+            "TREE": self._cmd_tree,
             "HELP": self._cmd_help,
             "NEW": self._cmd_new,
             "EDIT": self._cmd_edit,
@@ -1254,10 +1255,143 @@ class WizardTUI:
         lines.append("ARTIFACTS          List/manage build artifacts")
         lines.append("GITHUB             GitHub integration status")
         lines.append("")
+        lines.append("Utility Commands:")
+        lines.append("TREE               Generate directory tree (2 levels deep)")
         lines.append("HELP               Show this help")
         lines.append("EXIT               Exit Wizard TUI\n")
 
         return "\n".join(lines)
+
+    def _cmd_tree(self, args: List[str]) -> str:
+        """Generate directory tree structure (2 levels deep) and save to structure.txt.
+        
+        Generates structure.txt in:
+        - Root directory (excluding submodule contents)
+        - Each submodule directory (app/, dev/, sonic/)
+        """
+        try:
+            lines = []
+            lines.append(f"\n📁 GENERATING DIRECTORY TREES (2 levels deep)\n")
+            
+            # Generate root tree (excluding submodule contents)
+            tree_output = self._generate_tree(REPO_ROOT, depth=2, exclude_submodules=True)
+            root_output_path = REPO_ROOT / "structure.txt"
+            root_output_path.write_text(tree_output)
+            self.logger.info(f"[WIZ] Generated root tree structure to {root_output_path}")
+            lines.append(f"✅ Root structure:     {root_output_path}")
+            
+            # Get all submodules and generate their trees
+            submodules = self._find_submodules(REPO_ROOT)
+            for submodule_path in submodules:
+                try:
+                    sub_tree = self._generate_tree(submodule_path, depth=2, exclude_submodules=False)
+                    sub_output_path = submodule_path / "structure.txt"
+                    sub_output_path.write_text(sub_tree)
+                    self.logger.info(f"[WIZ] Generated submodule tree to {sub_output_path}")
+                    lines.append(f"✅ {submodule_path.name}/ structure: {sub_output_path}")
+                except Exception as e:
+                    self.logger.error(f"[WIZ] Error generating tree for {submodule_path}: {e}")
+                    lines.append(f"❌ {submodule_path.name}/ structure: Error - {e}")
+            
+            lines.append(f"")
+            result_output = "\n".join(lines)
+            self.logger.info(f"[WIZ] Tree generation complete")
+            return result_output
+        
+        except Exception as e:
+            self.logger.error(f"[WIZ] Error generating trees: {e}")
+            return f"❌ Error generating trees: {e}"
+    
+    def _find_submodules(self, repo_root: Path) -> List[Path]:
+        """Find all submodule directories in the repo root.
+        
+        A submodule is detected by the presence of a .git file or directory.
+        
+        Args:
+            repo_root: Root directory to search
+        
+        Returns:
+            List of submodule paths
+        """
+        submodules = []
+        try:
+            for item in sorted(repo_root.iterdir()):
+                if item.is_dir() and not item.name.startswith('.'):
+                    # Check if it contains .git (submodule indicator)
+                    git_path = item / ".git"
+                    if git_path.exists():
+                        submodules.append(item)
+        except (PermissionError, OSError):
+            pass
+        
+        return submodules
+    
+    def _is_submodule(self, path: Path) -> bool:
+        """Check if a path is a submodule.
+        
+        Args:
+            path: Path to check
+        
+        Returns:
+            True if path contains .git, False otherwise
+        """
+        git_path = path / ".git"
+        return git_path.exists()
+    
+    def _generate_tree(self, root_path: Path, depth: int = 2, current_depth: int = 0, prefix: str = "", exclude_submodules: bool = False) -> str:
+        """Generate tree structure recursively.
+        
+        Args:
+            root_path: Root directory to start from
+            depth: Maximum depth to traverse
+            current_depth: Current recursion depth
+            prefix: Prefix string for tree formatting
+            exclude_submodules: If True, don't recurse into submodule directories
+        
+        Returns:
+            Tree structure as string
+        """
+        if current_depth >= depth:
+            return ""
+        
+        items = []
+        try:
+            # Get sorted list of items in directory
+            entries = sorted(root_path.iterdir())
+            dirs = [e for e in entries if e.is_dir() and not e.name.startswith('.')]
+            files = [e for e in entries if e.is_file() and not e.name.startswith('.')]
+            
+            # Process directories first
+            for idx, item in enumerate(dirs + files):
+                is_last = (idx == len(dirs + files) - 1)
+                current_prefix = "└── " if is_last else "├── "
+                next_prefix = "    " if is_last else "│   "
+                
+                if item.is_dir():
+                    # Check if it's a submodule and we should skip its contents
+                    is_submodule = self._is_submodule(item)
+                    if is_submodule and exclude_submodules:
+                        # Show submodule folder but don't recurse
+                        items.append(f"{prefix}{current_prefix}{item.name}/ [submodule]")
+                    else:
+                        items.append(f"{prefix}{current_prefix}{item.name}/")
+                        # Recursively add subdirectory contents
+                        sub_tree = self._generate_tree(
+                            item,
+                            depth=depth,
+                            current_depth=current_depth + 1,
+                            prefix=prefix + next_prefix,
+                            exclude_submodules=exclude_submodules
+                        )
+                        if sub_tree:
+                            items.append(sub_tree)
+                else:
+                    items.append(f"{prefix}{current_prefix}{item.name}")
+        
+        except (PermissionError, OSError):
+            pass  # Skip directories we can't read
+        
+        return "\n".join(items)
 
     def _cmd_exit(self, args: List[str]) -> str:
         """Exit Wizard TUI."""

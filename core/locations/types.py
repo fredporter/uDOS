@@ -106,8 +106,8 @@ class Location:
     cell: str  # Grid cell address (e.g., "BJ10")
     scale: str  # Scale (terrestrial, orbital, planetary, stellar, galactic, cosmic)
     continent: str  # Continent/region name
-    timezone: str  # Timezone (e.g., "UTC+9", "UTC-5", "UTC+5:30")
-    coordinates: Coordinate  # GPS coordinates
+    timezone: str  # Timezone (IANA preferred)
+    coordinates: Optional[Coordinate] = None  # External coordinates (optional)
 
     # Classification fields
     type: str  # Type (major-city, geographical-landmark, space-station, etc.)
@@ -144,7 +144,6 @@ class Location:
             f"   Type: {self.type} ({self.region_type})",
             f"   Layer: {self.layer} ({self.scale})",
             f"   Timezone: {self.timezone}",
-            f"   Coordinates: {self.coordinates.lat:.4f}°N, {abs(self.coordinates.lon):.4f}°{'E' if self.coordinates.lon > 0 else 'W'}",
             f"   Connections: {len(self.connections)} exits",
             f"   Description: {self.description[:70]}...",
         ]

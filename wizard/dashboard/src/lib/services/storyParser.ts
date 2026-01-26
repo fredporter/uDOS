@@ -150,6 +150,20 @@ export function parseStoryBlock(content: string): FormField | null {
       return null;
     }
 
+    const meta = { ...data };
+    for (const key of [
+      'name',
+      'label',
+      'type',
+      'required',
+      'placeholder',
+      'options',
+      'value',
+      'validation',
+    ]) {
+      delete meta[key];
+    }
+
     return {
       name: data.name,
       label: data.label,
@@ -158,6 +172,7 @@ export function parseStoryBlock(content: string): FormField | null {
       placeholder: data.placeholder,
       options: data.options || (data.type === 'select' ? [] : undefined),
       value: data.value || '',
+      meta: Object.keys(meta).length ? meta : undefined,
       validation: data.validation,
     };
   } catch (error) {

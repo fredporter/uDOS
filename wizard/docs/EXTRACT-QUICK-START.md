@@ -32,16 +32,19 @@ Should show: ✅ MISTRAL_API_KEY is set
 ## Usage
 
 ### Single File
+
 ```bash
 wizard> extract invoice.pdf
 ```
 
 ### Batch (All PDFs in inbox)
+
 ```bash
 wizard> extract
 ```
 
 ### Absolute Path
+
 ```bash
 wizard> extract ~/Downloads/document.pdf
 ```
@@ -50,10 +53,10 @@ wizard> extract ~/Downloads/document.pdf
 
 ## Input/Output
 
-| Direction | Location | Description |
-|-----------|----------|-------------|
-| **Input** | `memory/sandbox/inbox/` | Drop PDF files here for batch processing |
-| **Output** | `memory/sandbox/outbox/` | Markdown + images saved here |
+| Direction  | Location                 | Description                              |
+| ---------- | ------------------------ | ---------------------------------------- |
+| **Input**  | `memory/sandbox/inbox/`  | Drop PDF files here for batch processing |
+| **Output** | `memory/sandbox/outbox/` | Markdown + images saved here             |
 
 ---
 
@@ -70,6 +73,7 @@ outbox/
 ```
 
 **Markdown Format:**
+
 ```markdown
 ---
 title: document-name
@@ -93,6 +97,7 @@ Page 2 content with images:
 ## Examples
 
 ### Extract Invoice
+
 ```bash
 wizard> extract invoice.pdf
 ⏳ Extracting invoice.pdf...
@@ -101,6 +106,7 @@ wizard> extract invoice.pdf
 ```
 
 ### Batch Process 3 PDFs
+
 ```bash
 wizard> extract
 ⏳ Processing PDFs from inbox...
@@ -120,12 +126,12 @@ wizard> extract
 
 ## Common Issues
 
-| Problem | Solution |
-|---------|----------|
-| `MISTRAL_API_KEY not configured` | `export MISTRAL_API_KEY='sk-...'` |
-| `mistralai package not installed` | `pip install mistralai` |
-| `PDF file not found` | Check path: `extract /full/path/file.pdf` |
-| `File is not a PDF` | Provide a `.pdf` file |
+| Problem                           | Solution                                  |
+| --------------------------------- | ----------------------------------------- |
+| `MISTRAL_API_KEY not configured`  | `export MISTRAL_API_KEY='sk-...'`         |
+| `mistralai package not installed` | `pip install mistralai`                   |
+| `PDF file not found`              | Check path: `extract /full/path/file.pdf` |
+| `File is not a PDF`               | Provide a `.pdf` file                     |
 
 ---
 
@@ -154,12 +160,12 @@ wizard> extract invoice.pdf
 
 ## Files
 
-| Path | Purpose |
-|------|---------|
-| `wizard/services/pdf_ocr_service.py` | Core service (283 lines) |
-| `wizard/services/interactive_console.py` | Command integration |
-| `bin/test_extract.sh` | Test script |
-| `library/pdf-ocr/` | Source library |
+| Path                                     | Purpose                  |
+| ---------------------------------------- | ------------------------ |
+| `wizard/services/pdf_ocr_service.py`     | Core service (283 lines) |
+| `wizard/services/interactive_console.py` | Command integration      |
+| `bin/test_extract.sh`                    | Test script              |
+| `library/pdf-ocr/`                       | Source library           |
 
 ---
 
@@ -170,4 +176,3 @@ See: [EXTRACT-COMMAND.md](EXTRACT-COMMAND.md)
 ---
 
 _Last Updated: 2026-01-25_
-

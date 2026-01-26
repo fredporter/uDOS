@@ -73,11 +73,14 @@ class LocationLoader:
 
     def _parse_location(self, data: Dict) -> Location:
         """Parse a single location from JSON data."""
-        # Parse coordinates
-        coords_data = data.get("coordinates", {})
-        coordinates = Coordinate(
-            lat=float(coords_data.get("lat", 0)), lon=float(coords_data.get("lon", 0))
-        )
+        # Parse optional coordinates (external reference only)
+        coordinates = None
+        coords_data = data.get("coordinates")
+        if isinstance(coords_data, dict):
+            coordinates = Coordinate(
+                lat=float(coords_data.get("lat", 0)),
+                lon=float(coords_data.get("lon", 0)),
+            )
 
         # Parse connections
         connections = []

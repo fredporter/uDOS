@@ -63,8 +63,15 @@
   }
 
   function handleAnswerChange(event) {
-    const { name, value } = event.detail;
-    answers[name] = value;
+    const { name, value, updates } = event.detail;
+    if (name) {
+      answers[name] = value;
+    }
+    if (updates && typeof updates === 'object') {
+      for (const [key, updateValue] of Object.entries(updates)) {
+        answers[key] = updateValue;
+      }
+    }
     validateCurrentSection();
   }
 

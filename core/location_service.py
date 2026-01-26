@@ -79,6 +79,18 @@ class LocationService:
 
         Examples: "UTC+0", "UTC+9", "UTC-5", "UTC+5:30"
         """
+        if not tz_str:
+            return timezone.utc
+
+        # IANA timezone support (e.g., America/Los_Angeles)
+        if "/" in tz_str:
+            try:
+                from zoneinfo import ZoneInfo
+
+                return ZoneInfo(tz_str)
+            except Exception:
+                return timezone.utc
+
         # Remove 'UTC' prefix
         tz_str = tz_str.replace("UTC", "")
 

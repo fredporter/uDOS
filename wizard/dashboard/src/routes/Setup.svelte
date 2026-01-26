@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte";
+  import { getAdminToken, buildAuthHeaders } from "../lib/services/auth";
 
   let adminToken = "";
   let status = null;
@@ -15,8 +16,7 @@
   let configName = "";
   let configValue = "";
 
-  const authHeaders = () =>
-    adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
+  const authHeaders = () => buildAuthHeaders();
 
   async function fetchJson(path, options = {}) {
     const res = await fetch(path, { headers: authHeaders(), ...options });
@@ -132,7 +132,7 @@
   }
 
   onMount(() => {
-    adminToken = localStorage.getItem("wizardAdminToken") || "";
+    adminToken = getAdminToken();
     loadSetup();
   });
 

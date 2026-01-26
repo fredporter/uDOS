@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import StoryRenderer from "$lib/components/StoryRenderer.svelte";
   import { parseStoryFile } from "$lib/services/storyParser";
+  import { getAdminToken, buildAuthHeaders } from "$lib/services/auth";
 
   let adminToken = "";
   let storyFiles = [];
@@ -9,9 +10,11 @@
   let storyState = null;
   let error = null;
   let loading = false;
+  let submitStatus = null;
+  let bootstrapStatus = null;
 
   const authHeaders = () =>
-    adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
+    buildAuthHeaders();
 
   async function loadStoryList() {
     const res = await fetch(`/api/v1/workspace/list?path=`, {
@@ -19,9 +22,24 @@
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    storyFiles = (data.entries || []).filter((entry) =>
+    const rootEntries = data.entries || [];
+    const rootStories = rootEntries.filter((entry) =>
       entry.name.endsWith("-story.md")
     );
+    const storyDir = rootEntries.find((entry) => entry.name === "story" && entry.type === "dir");
+    let nestedStories = [];
+    if (storyDir) {
+      const storyRes = await fetch(`/api/v1/workspace/list?path=story`, {
+        headers: authHeaders(),
+      });
+      if (storyRes.ok) {
+        const storyData = await storyRes.json();
+        nestedStories = (storyData.entries || []).filter((entry) =>
+          entry.name.endsWith("-story.md")
+        );
+      }
+    }
+    storyFiles = [...rootStories, ...nestedStories];
   }
 
   async function loadStory(path) {
@@ -43,6 +61,23 @@
   }
 
   async function handleSubmit(answers) {
+    submitStatus = null;
+    if (storyState?.frontmatter?.submit_endpoint) {
+      try {
+        const res = await fetch(storyState.frontmatter.submit_endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...authHeaders() },
+          body: JSON.stringify({ answers }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || `HTTP ${res.status}`);
+        }
+        submitStatus = "✅ Setup data stored securely.";
+      } catch (err) {
+        submitStatus = `❌ Failed to store setup data: ${err.message || err}`;
+      }
+    }
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const baseName = selectedStoryPath
       ? selectedStoryPath.split("/").pop().replace(/\.md$/, "")
@@ -56,10 +91,43 @@
     alert(`Story submission saved to /memory/${outputPath}`);
   }
 
+  async function rebootstrapStory() {
+    if (!confirm("Re-bootstrap the setup story? This will overwrite the template.")) {
+      return;
+    }
+    bootstrapStatus = "Rebootstrapping story...";
+    try {
+      const res = await fetch("/api/v1/setup/story/bootstrap?force=true", {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || `HTTP ${res.status}`);
+      }
+      bootstrapStatus = "✅ Setup story reloaded.";
+      await loadStoryList();
+      if (data.path) {
+        await loadStory(data.path);
+      }
+    } catch (err) {
+      bootstrapStatus = `❌ ${err.message || err}`;
+    }
+  }
+
   onMount(async () => {
-    adminToken = localStorage.getItem("wizardAdminToken") || "";
+    adminToken = getAdminToken();
     try {
       await loadStoryList();
+      if (!storyFiles.length) {
+        const bootstrap = await fetch("/api/v1/setup/story/bootstrap", {
+          method: "POST",
+          headers: authHeaders(),
+        });
+        if (bootstrap.ok) {
+          await loadStoryList();
+        }
+      }
       if (storyFiles.length) {
         await loadStory(storyFiles[0].path);
       }
@@ -78,6 +146,16 @@
   {#if error}
     <div class="bg-red-900 text-red-200 p-4 rounded-lg mb-6 border border-red-700">
       {error}
+    </div>
+  {/if}
+  {#if submitStatus}
+    <div class="bg-gray-800 border border-gray-700 text-sm text-gray-200 rounded-lg p-3 mb-4">
+      {submitStatus}
+    </div>
+  {/if}
+  {#if bootstrapStatus}
+    <div class="bg-gray-800 border border-gray-700 text-sm text-gray-200 rounded-lg p-3 mb-4">
+      {bootstrapStatus}
     </div>
   {/if}
 
@@ -101,6 +179,12 @@
         on:click={() => loadStory(selectedStoryPath)}
       >
         Reload
+      </button>
+      <button
+        class="px-3 py-2 rounded bg-slate-600"
+        on:click={rebootstrapStory}
+      >
+        Re-bootstrap Setup Story
       </button>
     </div>
 

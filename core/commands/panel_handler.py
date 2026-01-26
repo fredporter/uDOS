@@ -1,7 +1,7 @@
 """
 PANEL command handler - Display location information.
 
-Shows detailed location metadata including timezone, coordinates, connections,
+Shows detailed location metadata including timezone, connections,
 and description. Formatted as an informational panel.
 """
 
@@ -97,18 +97,7 @@ class PanelHandler(BaseCommandHandler):
         lines.append(OutputToolkit.table(["field", "value"], meta_rows))
 
         # Geographic information
-        lat_str = (
-            f"{location.coordinates.lat:.4f}N"
-            if location.coordinates.lat >= 0
-            else f"{abs(location.coordinates.lat):.4f}S"
-        )
-        lon_str = (
-            f"{location.coordinates.lon:.4f}E"
-            if location.coordinates.lon >= 0
-            else f"{abs(location.coordinates.lon):.4f}W"
-        )
         lines.append("")
-        lines.append(f"Coordinates: {lat_str}, {lon_str}")
         lines.append(f"Timezone: {location.timezone}")
         lines.append(f"Local Time: {time_str}")
 

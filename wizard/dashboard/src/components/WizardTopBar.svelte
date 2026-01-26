@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte";
+  import { getAdminToken, setAdminToken } from "../lib/services/auth";
 
   export let currentRoute = "dashboard";
   export let onNavigate = (route) => {};
@@ -69,7 +70,7 @@
   }
 
   function saveToken() {
-    localStorage.setItem("wizardAdminToken", adminToken);
+    setAdminToken(adminToken);
     tokenSaved = true;
     loadSetupProgress();
     setTimeout(() => {
@@ -91,7 +92,7 @@
   }
 
   onMount(() => {
-    adminToken = localStorage.getItem("wizardAdminToken") || "";
+    adminToken = getAdminToken();
     loadSetupProgress();
     const handleFullscreenChange = () => {
       isFullscreen = !!document.fullscreenElement;

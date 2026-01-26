@@ -18,6 +18,8 @@ export interface StoryFrontmatter {
   tags?: string[];
   variables?: Record<string, any>;
   sections?: StorySection[];
+  submit_endpoint?: string;
+  submit_requires_admin?: boolean;
 }
 
 export interface StorySection {
@@ -31,11 +33,12 @@ export interface StorySection {
 export interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'number' | 'email' | 'select' | 'checkbox' | 'radio' | 'textarea';
+  type: 'text' | 'number' | 'email' | 'select' | 'checkbox' | 'radio' | 'textarea' | 'location';
   required?: boolean;
   placeholder?: string;
   options?: string[]; // For select/radio
   value?: any;
+  meta?: Record<string, any>;
   validation?: {
     pattern?: string;
     min?: number;

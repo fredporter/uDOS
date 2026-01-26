@@ -13,13 +13,13 @@ Successfully implemented the **EXTRACT** command for Wizard Server, which conver
 
 ### What Was Built
 
-| Component | File | Lines | Purpose |
-|-----------|------|-------|---------|
-| **Service** | `wizard/services/pdf_ocr_service.py` | 283 | Core PDF OCR processing |
-| **Console Integration** | `wizard/services/interactive_console.py` | 48 | Command implementation + help |
-| **Test Script** | `bin/test_extract.sh` | 96 | Validation and setup testing |
-| **Full Documentation** | `wizard/docs/EXTRACT-COMMAND.md` | 450+ | Complete reference guide |
-| **Quick Start** | `wizard/docs/EXTRACT-QUICK-START.md` | 150+ | 3-minute guide |
+| Component               | File                                     | Lines | Purpose                       |
+| ----------------------- | ---------------------------------------- | ----- | ----------------------------- |
+| **Service**             | `wizard/services/pdf_ocr_service.py`     | 283   | Core PDF OCR processing       |
+| **Console Integration** | `wizard/services/interactive_console.py` | 48    | Command implementation + help |
+| **Test Script**         | `bin/test_extract.sh`                    | 96    | Validation and setup testing  |
+| **Full Documentation**  | `wizard/docs/EXTRACT-COMMAND.md`         | 450+  | Complete reference guide      |
+| **Quick Start**         | `wizard/docs/EXTRACT-QUICK-START.md`     | 150+  | 3-minute guide                |
 
 **Total:** 900+ lines of code and documentation
 
@@ -28,6 +28,7 @@ Successfully implemented the **EXTRACT** command for Wizard Server, which conver
 ## Features Implemented
 
 ### ✅ Single File Extraction
+
 ```bash
 wizard> extract invoice.pdf
 ⏳ Extracting invoice.pdf...
@@ -35,6 +36,7 @@ wizard> extract invoice.pdf
 ```
 
 ### ✅ Batch Processing
+
 ```bash
 wizard> extract
 ⏳ Processing PDFs from inbox...
@@ -42,16 +44,19 @@ wizard> extract
 ```
 
 ### ✅ Absolute Path Support
+
 ```bash
 wizard> extract ~/Downloads/document.pdf
 ```
 
 ### ✅ Image Extraction & Linking
+
 - Automatically extracts images from PDFs
 - Creates wikilinks: `![[image-name.jpeg]]`
 - Saves images in subdirectory
 
 ### ✅ YAML Metadata
+
 ```yaml
 ---
 title: document-name
@@ -63,11 +68,13 @@ image_count: 3
 ```
 
 ### ✅ Error Resilience
+
 - Batch mode continues if one PDF fails
 - Detailed error messages
 - Setup validation before processing
 
 ### ✅ Logging Integration
+
 - Uses canonical logging_manager
 - `[WIZ]` tags for Wizard-only operations
 - Thread-safe logging
@@ -84,16 +91,16 @@ image_count: 3
 class PDFOCRService:
     def __init__(self):
         # Initialize logger, paths, Mistral client
-        
+
     async def extract(pdf_path: Optional[str]) -> (bool, Path, str):
         # Single file extraction
-        
+
     async def extract_batch() -> (bool, list[dict], str):
         # Batch process inbox folder
-        
+
     def _validate_setup() -> (bool, str):
         # Check MISTRAL_API_KEY and dependencies
-        
+
     def _process_pdf_sync(pdf_path: str) -> dict:
         # Synchronous OCR processing (runs in thread)
 ```
@@ -117,7 +124,7 @@ self.commands["extract"] = self.cmd_extract
 # Command Implementation
 async def cmd_extract(self, args: list) -> None:
     service = get_pdf_ocr_service()
-    
+
     if args:
         # Single file: extract(args[0])
     else:
@@ -186,6 +193,7 @@ cmd_extract(["invoice.pdf"])
 ### Required
 
 - **mistralai** — Mistral AI Python SDK
+
   ```bash
   pip install mistralai
   ```
@@ -209,10 +217,10 @@ cmd_extract(["invoice.pdf"])
 
 ### Environment Variables
 
-| Variable | Required | Default | Purpose |
-|----------|----------|---------|---------|
-| `MISTRAL_API_KEY` | ✅ | None | Mistral API key for OCR |
-| `UDOS_ROOT` | ⏸️ | Auto-detect | Override repo root |
+| Variable          | Required | Default     | Purpose                 |
+| ----------------- | -------- | ----------- | ----------------------- |
+| `MISTRAL_API_KEY` | ✅       | None        | Mistral API key for OCR |
+| `UDOS_ROOT`       | ⏸️       | Auto-detect | Override repo root      |
 
 ### Directories
 
@@ -235,6 +243,7 @@ bash bin/test_extract.sh
 ```
 
 **Validates:**
+
 - ✅ Python3 availability
 - ✅ Virtual environment
 - ✅ Package imports
@@ -245,16 +254,19 @@ bash bin/test_extract.sh
 ### Manual Testing
 
 1. **Place PDF in inbox**
+
    ```bash
    cp ~/Downloads/sample.pdf memory/sandbox/inbox/
    ```
 
 2. **Start Wizard Server**
+
    ```bash
    python wizard/server.py
    ```
 
 3. **Extract single file**
+
    ```bash
    wizard> extract sample.pdf
    ```
@@ -269,11 +281,11 @@ bash bin/test_extract.sh
 
 ## Performance
 
-| Task | Time | Notes |
-|------|------|-------|
-| Single 5-page PDF | 10-30 sec | API latency dependent |
-| Single 50-page PDF | 1-2 min | Larger documents slower |
-| Batch 10 PDFs | 5-10 min | Sequential processing |
+| Task               | Time      | Notes                   |
+| ------------------ | --------- | ----------------------- |
+| Single 5-page PDF  | 10-30 sec | API latency dependent   |
+| Single 50-page PDF | 1-2 min   | Larger documents slower |
+| Batch 10 PDFs      | 5-10 min  | Sequential processing   |
 
 ---
 
@@ -282,12 +294,14 @@ bash bin/test_extract.sh
 ### Validation Errors
 
 **Missing MISTRAL_API_KEY**
+
 ```python
 if not self.api_key:
     return False, "MISTRAL_API_KEY not configured (required for OCR)"
 ```
 
 **Missing Package**
+
 ```python
 try:
     import mistralai
@@ -296,6 +310,7 @@ except ImportError:
 ```
 
 **File Not Found**
+
 ```python
 if not pdf_file or not pdf_file.exists():
     return False, f"PDF file not found: {pdf_path}"
@@ -351,14 +366,14 @@ inbox_path = repo_root / "memory" / "sandbox" / "inbox"
 
 ### Similar to PEEK Command
 
-| Aspect | PEEK | EXTRACT |
-|--------|------|---------|
-| **Input** | URLs (web pages) | PDFs (local files) |
-| **API** | requests, BeautifulSoup4 | Mistral OCR |
-| **Output** | Markdown | Markdown + images |
-| **Pattern** | Single URL or batch | Single file or batch |
-| **Service** | URLToMarkdownService | PDFOCRService |
-| **Locations** | outbox | outbox |
+| Aspect        | PEEK                     | EXTRACT              |
+| ------------- | ------------------------ | -------------------- |
+| **Input**     | URLs (web pages)         | PDFs (local files)   |
+| **API**       | requests, BeautifulSoup4 | Mistral OCR          |
+| **Output**    | Markdown                 | Markdown + images    |
+| **Pattern**   | Single URL or batch      | Single file or batch |
+| **Service**   | URLToMarkdownService     | PDFOCRService        |
+| **Locations** | outbox                   | outbox               |
 
 ### Wraps pdf-ocr-obsidian
 
@@ -403,11 +418,13 @@ git push
 ## What's Next
 
 ### Immediate (Ready Now)
+
 1. ✅ Code review and testing
 2. ✅ Commit to GitHub
 3. ✅ Deploy with Wizard Server
 
 ### Short Term (Optional Enhancements)
+
 - [ ] Parallel batch processing
 - [ ] Image extraction toggle
 - [ ] Cost tracking per document
@@ -415,6 +432,7 @@ git push
 - [ ] Multi-language OCR support
 
 ### Future (Nice to Have)
+
 - [ ] Table extraction
 - [ ] Form field recognition
 - [ ] Cache/resume failed batches
@@ -425,11 +443,13 @@ git push
 ## Documentation
 
 ### For Users
+
 - **Quick Start:** `wizard/docs/EXTRACT-QUICK-START.md` (5 min read)
 - **Full Reference:** `wizard/docs/EXTRACT-COMMAND.md` (15 min read)
 - **Test Script:** `bash bin/test_extract.sh` (1 min setup)
 
 ### For Developers
+
 - **Service Code:** `wizard/services/pdf_ocr_service.py` (283 lines, well-commented)
 - **Integration:** `wizard/services/interactive_console.py` (cmd_extract method)
 - **Library:** `library/pdf-ocr/` (cloned from GitHub)
@@ -438,18 +458,18 @@ git push
 
 ## Success Criteria Met ✅
 
-| Requirement | Status | Evidence |
-|-------------|--------|----------|
-| Wire pdf-ocr-obsidian library | ✅ | Cloned to `library/pdf-ocr/` |
-| Create EXTRACT command | ✅ | `cmd_extract()` in console |
-| Single file support | ✅ | `extract file.pdf` works |
-| Batch inbox processing | ✅ | `extract` (no args) scans inbox |
-| Output to outbox | ✅ | Files saved to `/memory/sandbox/outbox/` |
-| Image extraction | ✅ | Images saved + wikilinked |
-| Error handling | ✅ | Validation + batch resilience |
-| Documentation | ✅ | 600+ lines across 2 docs |
-| Test script | ✅ | Executable validation script |
-| Logging integration | ✅ | `[WIZ]` tags via logging_manager |
+| Requirement                   | Status | Evidence                                 |
+| ----------------------------- | ------ | ---------------------------------------- |
+| Wire pdf-ocr-obsidian library | ✅     | Cloned to `library/pdf-ocr/`             |
+| Create EXTRACT command        | ✅     | `cmd_extract()` in console               |
+| Single file support           | ✅     | `extract file.pdf` works                 |
+| Batch inbox processing        | ✅     | `extract` (no args) scans inbox          |
+| Output to outbox              | ✅     | Files saved to `/memory/sandbox/outbox/` |
+| Image extraction              | ✅     | Images saved + wikilinked                |
+| Error handling                | ✅     | Validation + batch resilience            |
+| Documentation                 | ✅     | 600+ lines across 2 docs                 |
+| Test script                   | ✅     | Executable validation script             |
+| Logging integration           | ✅     | `[WIZ]` tags via logging_manager         |
 
 ---
 
@@ -463,4 +483,3 @@ The implementation follows the same architectural patterns as the PEEK command, 
 
 _Last Updated: 2026-01-25_  
 _Implementation Complete ✅_
-

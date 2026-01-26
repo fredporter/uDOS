@@ -12,7 +12,7 @@ Main Classes:
   Location - A location in the game world
   LocationDatabase - Query interface for locations
   LocationService - Advanced location operations (timezone, pathfinding)
-  Coordinate - Geographic coordinates
+  Coordinate - Optional external coordinates (not stored in core datasets)
   Tile - Grid cell with objects, sprites, markers
 
 Quick Start:

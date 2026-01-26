@@ -17,8 +17,8 @@
   const dispatch = createEventDispatcher();
 
   function handleFieldChange(event) {
-    const { name, value } = event.detail;
-    dispatch('answerChange', { name, value });
+    const { name, value, updates } = event.detail;
+    dispatch('answerChange', { name, value, updates });
   }
 </script>
 
@@ -39,6 +39,7 @@
       {#each section.questions as field (field.name)}
         <FormField
           {field}
+          {answers}
           value={answers[field.name]}
           on:change={handleFieldChange}
         />

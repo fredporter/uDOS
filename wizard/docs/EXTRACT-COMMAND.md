@@ -27,11 +27,13 @@ The **EXTRACT** command converts PDF files to Markdown using Mistral AI's OCR (O
 ### Prerequisites
 
 1. **Mistral API Key** — Required for OCR processing
+
    ```bash
    export MISTRAL_API_KEY='sk-...'
    ```
 
 2. **Python Packages** — Installed automatically via `pip install mistralai`
+
    ```bash
    pip install mistralai
    ```
@@ -90,9 +92,9 @@ extract                    (batch process inbox)
 
 ### Arguments
 
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `[pdf-filename]` | No | Path to PDF file (relative to inbox or absolute). If omitted, processes all PDFs in inbox. |
+| Argument         | Required | Description                                                                                |
+| ---------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `[pdf-filename]` | No       | Path to PDF file (relative to inbox or absolute). If omitted, processes all PDFs in inbox. |
 
 ### Examples
 
@@ -153,13 +155,13 @@ Page 3 content here...
 
 ### Metadata Fields
 
-| Field | Description |
-|-------|-------------|
-| `title` | PDF filename without extension |
-| `source_file` | Original PDF filename |
-| `extracted_at` | ISO 8601 timestamp |
-| `format` | Always `pdf-ocr-mistral` |
-| `image_count` | Number of extracted images |
+| Field          | Description                    |
+| -------------- | ------------------------------ |
+| `title`        | PDF filename without extension |
+| `source_file`  | Original PDF filename          |
+| `extracted_at` | ISO 8601 timestamp             |
+| `format`       | Always `pdf-ocr-mistral`       |
+| `image_count`  | Number of extracted images     |
 
 ---
 
@@ -183,12 +185,12 @@ success, results, message = await service.extract_batch()
 
 **Key Methods:**
 
-| Method | Purpose | Returns |
-|--------|---------|---------|
-| `extract(pdf_path)` | Extract single PDF | `(bool, Path \| None, str)` |
-| `extract_batch()` | Batch extract inbox | `(bool, list[dict], str)` |
-| `_validate_setup()` | Check Mistral API config | `(bool, str)` |
-| `_process_pdf_sync()` | Sync OCR processing (runs in thread) | `dict` |
+| Method                | Purpose                              | Returns                     |
+| --------------------- | ------------------------------------ | --------------------------- |
+| `extract(pdf_path)`   | Extract single PDF                   | `(bool, Path \| None, str)` |
+| `extract_batch()`     | Batch extract inbox                  | `(bool, list[dict], str)`   |
+| `_validate_setup()`   | Check Mistral API config             | `(bool, str)`               |
+| `_process_pdf_sync()` | Sync OCR processing (runs in thread) | `dict`                      |
 
 #### `WizardConsole` (Command Integration)
 
@@ -239,29 +241,32 @@ Output Files
 
 ### Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `MISTRAL_API_KEY` | ✅ Yes | Mistral API key (starts with `sk-`) |
-| `UDOS_ROOT` | No | Override repo root detection (default: auto-detect) |
+| Variable          | Required | Description                                         |
+| ----------------- | -------- | --------------------------------------------------- |
+| `MISTRAL_API_KEY` | ✅ Yes   | Mistral API key (starts with `sk-`)                 |
+| `UDOS_ROOT`       | No       | Override repo root detection (default: auto-detect) |
 
 ### Setup Steps
 
 1. **Get Mistral API Key**
+
    ```bash
    # Visit https://console.mistral.ai/
    # Create API key with OCR document permissions
    ```
 
 2. **Set Environment Variable**
+
    ```bash
    export MISTRAL_API_KEY='sk-...'
-   
+
    # Or add to ~/.zshrc / ~/.bashrc
    echo "export MISTRAL_API_KEY='sk-...'" >> ~/.zshrc
    source ~/.zshrc
    ```
 
 3. **Verify Setup**
+
    ```bash
    bash bin/test_extract.sh
    # Should show: ✅ MISTRAL_API_KEY is set
@@ -281,22 +286,27 @@ Output Files
 ### Common Errors
 
 **Error:** `MISTRAL_API_KEY not configured (required for OCR)`
+
 - **Cause:** Environment variable not set
 - **Fix:** `export MISTRAL_API_KEY='sk-...'`
 
 **Error:** `mistralai package not installed: pip install mistralai`
+
 - **Cause:** Python package missing
 - **Fix:** `pip install mistralai`
 
 **Error:** `PDF file not found: document.pdf`
+
 - **Cause:** File doesn't exist at specified path
 - **Fix:** Check path and try again: `extract /full/path/to/document.pdf`
 
 **Error:** `File is not a PDF: .txt`
+
 - **Cause:** Wrong file type
 - **Fix:** Provide a PDF file
 
 **Error:** `OCR processing error: ...`
+
 - **Cause:** API call failed or invalid PDF
 - **Fix:** Check API key, verify PDF is valid, check console logs
 
@@ -335,16 +345,19 @@ bash bin/test_extract.sh
 ### Manual Testing
 
 1. **Place test PDF in inbox**
+
    ```bash
    cp ~/Downloads/sample.pdf memory/sandbox/inbox/
    ```
 
 2. **Extract single file**
+
    ```bash
    wizard> extract sample.pdf
    ```
 
 3. **Check output**
+
    ```bash
    ls -la memory/sandbox/outbox/sample/
    # Should show: output.md, ocr_response.json, images/
@@ -362,11 +375,11 @@ bash bin/test_extract.sh
 
 ### Speed Estimates
 
-| Task | Time | Notes |
-|------|------|-------|
-| Single 5-page PDF | 10-30 sec | Depends on image count and Mistral API latency |
-| Single 50-page PDF | 1-2 min | Larger documents may take longer |
-| Batch 10 PDFs | 5-10 min | Sequential processing (can be parallelized) |
+| Task               | Time      | Notes                                          |
+| ------------------ | --------- | ---------------------------------------------- |
+| Single 5-page PDF  | 10-30 sec | Depends on image count and Mistral API latency |
+| Single 50-page PDF | 1-2 min   | Larger documents may take longer               |
+| Batch 10 PDFs      | 5-10 min  | Sequential processing (can be parallelized)    |
 
 ### Optimization Tips
 
@@ -381,13 +394,13 @@ bash bin/test_extract.sh
 
 Both PEEK and EXTRACT follow the same pattern:
 
-| Aspect | PEEK | EXTRACT |
-|--------|------|---------|
-| **Input** | URLs | PDFs |
-| **Service** | URLToMarkdownService | PDFOCRService |
-| **Output Path** | `/memory/sandbox/outbox/` | `/memory/sandbox/outbox/` |
-| **Single + Batch** | URL or list | File or inbox folder |
-| **Command** | `peek <url>` | `extract [file.pdf]` |
+| Aspect             | PEEK                      | EXTRACT                   |
+| ------------------ | ------------------------- | ------------------------- |
+| **Input**          | URLs                      | PDFs                      |
+| **Service**        | URLToMarkdownService      | PDFOCRService             |
+| **Output Path**    | `/memory/sandbox/outbox/` | `/memory/sandbox/outbox/` |
+| **Single + Batch** | URL or list               | File or inbox folder      |
+| **Command**        | `peek <url>`              | `extract [file.pdf]`      |
 
 ---
 
@@ -427,13 +440,13 @@ The EXTRACT command wraps the [pdf-ocr-obsidian](https://github.com/diegomarzaa/
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `wizard/services/pdf_ocr_service.py` | Core service implementation (283 lines) |
-| `wizard/services/interactive_console.py` | Command integration + help text |
-| `bin/test_extract.sh` | Test script (executable) |
-| `wizard/docs/EXTRACT-COMMAND.md` | This file |
-| `library/pdf-ocr/` | Source library (cloned from GitHub) |
+| File                                     | Purpose                                 |
+| ---------------------------------------- | --------------------------------------- |
+| `wizard/services/pdf_ocr_service.py`     | Core service implementation (283 lines) |
+| `wizard/services/interactive_console.py` | Command integration + help text         |
+| `bin/test_extract.sh`                    | Test script (executable)                |
+| `wizard/docs/EXTRACT-COMMAND.md`         | This file                               |
+| `library/pdf-ocr/`                       | Source library (cloned from GitHub)     |
 
 ---
 
@@ -450,4 +463,3 @@ For issues or questions:
 
 _Last Updated: 2026-01-25_  
 _uDOS Wizard Server v1.1.0.0_
-

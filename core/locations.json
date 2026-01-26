@@ -32,11 +32,7 @@
       "cell": "AA10",
       "scale": "terrestrial",
       "continent": "global",
-      "timezone": "UTC+0",
-      "coordinates": {
-        "lat": 51.5074,
-        "lon": -0.1278
-      },
+      "timezone": "UTC",
       "type": "spawn",
       "region_type": "clearing",
       "connections": [
@@ -51,7 +47,7 @@
           "sprites": [
             {
               "id": "player",
-              "char": "🚶",
+              "char": "\ud83d\udeb6",
               "label": "you",
               "z": 5
             }
@@ -66,7 +62,7 @@
         "AB10": {
           "objects": [
             {
-              "char": "🌲",
+              "char": "\ud83c\udf32",
               "label": "tall pine",
               "z": 1,
               "blocks": true
@@ -76,7 +72,7 @@
         "AC10": {
           "objects": [
             {
-              "char": "🌲",
+              "char": "\ud83c\udf32",
               "label": "ancient oak",
               "z": 1,
               "blocks": true
@@ -86,7 +82,7 @@
         "AA11": {
           "objects": [
             {
-              "char": "🪵",
+              "char": "\ud83e\udeb5",
               "label": "fallen log",
               "z": 0
             }
@@ -95,7 +91,7 @@
         "AB11": {
           "objects": [
             {
-              "char": "🍄",
+              "char": "\ud83c\udf44",
               "label": "mushroom",
               "z": 0
             }
@@ -104,7 +100,7 @@
         "AA12": {
           "objects": [
             {
-              "char": "🌿",
+              "char": "\ud83c\udf3f",
               "label": "fern",
               "z": 0
             }
@@ -121,11 +117,7 @@
       "cell": "BJ10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+9",
-      "coordinates": {
-        "lat": 35.6595,
-        "lon": 139.7004
-      },
+      "timezone": "Asia/Tokyo",
       "type": "major-city",
       "region_type": "metropolis",
       "connections": [
@@ -152,7 +144,7 @@
         "BJ11": {
           "objects": [
             {
-              "char": "📺",
+              "char": "\ud83d\udcfa",
               "label": "neon signs",
               "z": 2,
               "fg": "magenta"
@@ -162,7 +154,7 @@
         "BK10": {
           "objects": [
             {
-              "char": "🏢",
+              "char": "\ud83c\udfe2",
               "label": "skyscraper",
               "z": 3,
               "fg": "blue"
@@ -180,11 +172,7 @@
       "cell": "BK10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+9",
-      "coordinates": {
-        "lat": 35.6895,
-        "lon": 139.7003
-      },
+      "timezone": "Asia/Tokyo",
       "type": "major-city",
       "region_type": "district",
       "connections": [
@@ -203,7 +191,7 @@
         "BK10": {
           "objects": [
             {
-              "char": "🌃",
+              "char": "\ud83c\udf03",
               "label": "neon night",
               "z": 2,
               "fg": "magenta"
@@ -213,7 +201,7 @@
         "BK11": {
           "objects": [
             {
-              "char": "🍜",
+              "char": "\ud83c\udf5c",
               "label": "ramen shop",
               "z": 1
             }
@@ -222,7 +210,7 @@
         "BL10": {
           "objects": [
             {
-              "char": "🎮",
+              "char": "\ud83c\udfae",
               "label": "arcade",
               "z": 1
             }
@@ -239,11 +227,7 @@
       "cell": "BL10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+9",
-      "coordinates": {
-        "lat": 35.6762,
-        "lon": 139.7394
-      },
+      "timezone": "Asia/Tokyo",
       "type": "major-city",
       "region_type": "landmark",
       "connections": [
@@ -262,7 +246,7 @@
         "BL10": {
           "objects": [
             {
-              "char": "🗼",
+              "char": "\ud83d\uddfc",
               "label": "Tokyo Tower",
               "z": 3,
               "fg": "red"
@@ -272,7 +256,7 @@
         "BL11": {
           "objects": [
             {
-              "char": "🏯",
+              "char": "\ud83c\udfef",
               "label": "temple",
               "z": 2
             }
@@ -281,7 +265,7 @@
         "BM10": {
           "objects": [
             {
-              "char": "🏮",
+              "char": "\ud83c\udfee",
               "label": "lantern",
               "z": 1
             }
@@ -298,11 +282,7 @@
       "cell": "BM10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+9",
-      "coordinates": {
-        "lat": 35.7148,
-        "lon": 139.7966
-      },
+      "timezone": "Asia/Tokyo",
       "type": "major-city",
       "region_type": "temple",
       "connections": [
@@ -329,7 +309,7 @@
         "BM11": {
           "objects": [
             {
-              "char": "🏛️",
+              "char": "\ud83c\udfdb\ufe0f",
               "label": "temple structure",
               "z": 2
             }
@@ -338,7 +318,7 @@
         "BN10": {
           "objects": [
             {
-              "char": "🌸",
+              "char": "\ud83c\udf38",
               "label": "cherry blossoms",
               "z": 1
             }
@@ -355,11 +335,7 @@
       "cell": "BC00",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+9",
-      "coordinates": {
-        "lat": 35.3606,
-        "lon": 138.7274
-      },
+      "timezone": "Asia/Tokyo",
       "type": "geographical-landmark",
       "region_type": "mountain",
       "connections": [
@@ -378,7 +354,7 @@
         "BC00": {
           "objects": [
             {
-              "char": "🗻",
+              "char": "\ud83d\uddfb",
               "label": "Mount Fuji",
               "z": 3,
               "fg": "white",
@@ -389,7 +365,7 @@
         "BC01": {
           "objects": [
             {
-              "char": "❄️",
+              "char": "\u2744\ufe0f",
               "label": "eternal snow",
               "z": 1
             }
@@ -398,7 +374,7 @@
         "BD00": {
           "objects": [
             {
-              "char": "☁️",
+              "char": "\u2601\ufe0f",
               "label": "cloud belt",
               "z": 2
             }
@@ -415,11 +391,7 @@
       "cell": "BO10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+9",
-      "coordinates": {
-        "lat": 35.2334,
-        "lon": 139.0202
-      },
+      "timezone": "Asia/Tokyo",
       "type": "major-city",
       "region_type": "resort",
       "connections": [
@@ -438,7 +410,7 @@
         "BO10": {
           "objects": [
             {
-              "char": "♨️",
+              "char": "\u2668\ufe0f",
               "label": "hot spring",
               "z": 1,
               "fg": "yellow"
@@ -448,7 +420,7 @@
         "BO11": {
           "objects": [
             {
-              "char": "🏨",
+              "char": "\ud83c\udfe8",
               "label": "resort",
               "z": 2
             }
@@ -457,7 +429,7 @@
         "BP10": {
           "objects": [
             {
-              "char": "🌊",
+              "char": "\ud83c\udf0a",
               "label": "steam rising",
               "z": 1
             }
@@ -474,11 +446,7 @@
       "cell": "BP10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+9",
-      "coordinates": {
-        "lat": 35.4437,
-        "lon": 139.638
-      },
+      "timezone": "Asia/Tokyo",
       "type": "major-city",
       "region_type": "port",
       "connections": [
@@ -497,7 +465,7 @@
         "BP10": {
           "objects": [
             {
-              "char": "🚢",
+              "char": "\ud83d\udea2",
               "label": "cargo ship",
               "z": 2
             }
@@ -506,7 +474,7 @@
         "BP11": {
           "objects": [
             {
-              "char": "🏭",
+              "char": "\ud83c\udfed",
               "label": "warehouse",
               "z": 1
             }
@@ -515,7 +483,7 @@
         "BQ10": {
           "objects": [
             {
-              "char": "⚓",
+              "char": "\u2693",
               "label": "anchor",
               "z": 1
             }
@@ -532,11 +500,7 @@
       "cell": "BQ10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+9",
-      "coordinates": {
-        "lat": 37.4979,
-        "lon": 127.0276
-      },
+      "timezone": "Asia/Seoul",
       "type": "major-city",
       "region_type": "metropolis",
       "connections": [
@@ -555,7 +519,7 @@
         "BQ10": {
           "objects": [
             {
-              "char": "🏢",
+              "char": "\ud83c\udfe2",
               "label": "glass tower",
               "z": 3,
               "fg": "cyan"
@@ -565,7 +529,7 @@
         "BQ11": {
           "objects": [
             {
-              "char": "🛍️",
+              "char": "\ud83d\udecd\ufe0f",
               "label": "shopping mall",
               "z": 2
             }
@@ -574,7 +538,7 @@
         "BR10": {
           "objects": [
             {
-              "char": "💃",
+              "char": "\ud83d\udc83",
               "label": "nightclub",
               "z": 1
             }
@@ -591,11 +555,7 @@
       "cell": "BR10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+9",
-      "coordinates": {
-        "lat": 37.5506,
-        "lon": 126.99
-      },
+      "timezone": "Asia/Seoul",
       "type": "major-city",
       "region_type": "landmark",
       "connections": [
@@ -614,7 +574,7 @@
         "BR10": {
           "objects": [
             {
-              "char": "📡",
+              "char": "\ud83d\udce1",
               "label": "Namsan Tower",
               "z": 3,
               "fg": "blue"
@@ -624,7 +584,7 @@
         "BR11": {
           "objects": [
             {
-              "char": "🏔️",
+              "char": "\ud83c\udfd4\ufe0f",
               "label": "mountain",
               "z": 2
             }
@@ -633,7 +593,7 @@
         "BS10": {
           "objects": [
             {
-              "char": "🌆",
+              "char": "\ud83c\udf06",
               "label": "city view",
               "z": 1
             }
@@ -650,11 +610,7 @@
       "cell": "BS10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+9",
-      "coordinates": {
-        "lat": 37.5216,
-        "lon": 127.1165
-      },
+      "timezone": "Asia/Seoul",
       "type": "major-city",
       "region_type": "sports",
       "connections": [
@@ -668,7 +624,7 @@
         "BS10": {
           "objects": [
             {
-              "char": "🏟️",
+              "char": "\ud83c\udfdf\ufe0f",
               "label": "Olympic Stadium",
               "z": 2
             }
@@ -677,7 +633,7 @@
         "BS11": {
           "objects": [
             {
-              "char": "🎯",
+              "char": "\ud83c\udfaf",
               "label": "sports venue",
               "z": 1
             }
@@ -686,7 +642,7 @@
         "BT10": {
           "objects": [
             {
-              "char": "🌳",
+              "char": "\ud83c\udf33",
               "label": "garden",
               "z": 0
             }
@@ -703,11 +659,7 @@
       "cell": "BT10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+9",
-      "coordinates": {
-        "lat": 37.5604,
-        "lon": 126.984
-      },
+      "timezone": "Asia/Seoul",
       "type": "major-city",
       "region_type": "shopping",
       "connections": [
@@ -726,7 +678,7 @@
         "BT10": {
           "objects": [
             {
-              "char": "🛍️",
+              "char": "\ud83d\udecd\ufe0f",
               "label": "boutique",
               "z": 2
             }
@@ -735,7 +687,7 @@
         "BT11": {
           "objects": [
             {
-              "char": "🍜",
+              "char": "\ud83c\udf5c",
               "label": "street food",
               "z": 1
             }
@@ -744,7 +696,7 @@
         "BU10": {
           "objects": [
             {
-              "char": "👥",
+              "char": "\ud83d\udc65",
               "label": "crowded streets",
               "z": 1
             }
@@ -761,11 +713,7 @@
       "cell": "BV10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+7",
-      "coordinates": {
-        "lat": 13.6508,
-        "lon": 100.4918
-      },
+      "timezone": "Asia/Bangkok",
       "type": "major-city",
       "region_type": "temple",
       "connections": [
@@ -784,7 +732,7 @@
         "BV10": {
           "objects": [
             {
-              "char": "🏯",
+              "char": "\ud83c\udfef",
               "label": "Grand Palace",
               "z": 3
             }
@@ -793,7 +741,7 @@
         "BV11": {
           "objects": [
             {
-              "char": "✨",
+              "char": "\u2728",
               "label": "golden spires",
               "z": 2,
               "fg": "yellow"
@@ -803,7 +751,7 @@
         "BW10": {
           "objects": [
             {
-              "char": "🚶",
+              "char": "\ud83d\udeb6",
               "label": "pilgrims",
               "z": 1
             }
@@ -820,11 +768,7 @@
       "cell": "BW10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+7",
-      "coordinates": {
-        "lat": 13.8912,
-        "lon": 100.4148
-      },
+      "timezone": "Asia/Bangkok",
       "type": "major-city",
       "region_type": "market",
       "connections": [
@@ -843,7 +787,7 @@
         "BW10": {
           "objects": [
             {
-              "char": "🚤",
+              "char": "\ud83d\udea4",
               "label": "long-tail boat",
               "z": 2
             }
@@ -852,7 +796,7 @@
         "BW11": {
           "objects": [
             {
-              "char": "🌾",
+              "char": "\ud83c\udf3e",
               "label": "produce stalls",
               "z": 1
             }
@@ -861,7 +805,7 @@
         "BX10": {
           "objects": [
             {
-              "char": "🌊",
+              "char": "\ud83c\udf0a",
               "label": "canal water",
               "z": 0,
               "fg": "cyan"
@@ -879,11 +823,7 @@
       "cell": "BX10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+7",
-      "coordinates": {
-        "lat": 13.7417,
-        "lon": 100.5385
-      },
+      "timezone": "Asia/Bangkok",
       "type": "major-city",
       "region_type": "shopping",
       "connections": [
@@ -897,7 +837,7 @@
         "BX10": {
           "objects": [
             {
-              "char": "🏬",
+              "char": "\ud83c\udfec",
               "label": "shopping mall",
               "z": 2
             }
@@ -906,7 +846,7 @@
         "BX11": {
           "objects": [
             {
-              "char": "🏢",
+              "char": "\ud83c\udfe2",
               "label": "luxury tower",
               "z": 3,
               "fg": "cyan"
@@ -924,11 +864,7 @@
       "cell": "BY10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+7",
-      "coordinates": {
-        "lat": 14.3595,
-        "lon": 100.5849
-      },
+      "timezone": "Asia/Bangkok",
       "type": "geographical-landmark",
       "region_type": "ruins",
       "connections": [
@@ -947,7 +883,7 @@
         "BY10": {
           "objects": [
             {
-              "char": "🏛️",
+              "char": "\ud83c\udfdb\ufe0f",
               "label": "temple ruins",
               "z": 2
             }
@@ -956,7 +892,7 @@
         "BY11": {
           "objects": [
             {
-              "char": "🗿",
+              "char": "\ud83d\uddff",
               "label": "stone Buddha",
               "z": 2
             }
@@ -965,7 +901,7 @@
         "BZ10": {
           "objects": [
             {
-              "char": "⚰️",
+              "char": "\u26b0\ufe0f",
               "label": "ancient tomb",
               "z": 1
             }
@@ -982,11 +918,7 @@
       "cell": "CA10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+7",
-      "coordinates": {
-        "lat": 14.4297,
-        "lon": 101.3672
-      },
+      "timezone": "Asia/Bangkok",
       "type": "geographical-landmark",
       "region_type": "park",
       "connections": [
@@ -1005,7 +937,7 @@
         "CA10": {
           "objects": [
             {
-              "char": "🌳",
+              "char": "\ud83c\udf33",
               "label": "rainforest",
               "z": 2,
               "fg": "green"
@@ -1015,7 +947,7 @@
         "CA11": {
           "objects": [
             {
-              "char": "🦁",
+              "char": "\ud83e\udd81",
               "label": "elephant",
               "z": 1
             }
@@ -1024,7 +956,7 @@
         "CB10": {
           "objects": [
             {
-              "char": "🐒",
+              "char": "\ud83d\udc12",
               "label": "gibbon",
               "z": 1
             }
@@ -1041,11 +973,7 @@
       "cell": "CB10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+7",
-      "coordinates": {
-        "lat": 7.8804,
-        "lon": 98.3923
-      },
+      "timezone": "Asia/Bangkok",
       "type": "major-city",
       "region_type": "beach",
       "connections": [
@@ -1064,7 +992,7 @@
         "CB10": {
           "objects": [
             {
-              "char": "🏖️",
+              "char": "\ud83c\udfd6\ufe0f",
               "label": "sandy beach",
               "z": 0,
               "fg": "yellow"
@@ -1074,7 +1002,7 @@
         "CB11": {
           "objects": [
             {
-              "char": "🌊",
+              "char": "\ud83c\udf0a",
               "label": "turquoise water",
               "z": 0,
               "fg": "cyan"
@@ -1084,7 +1012,7 @@
         "CC10": {
           "objects": [
             {
-              "char": "🏨",
+              "char": "\ud83c\udfe8",
               "label": "resort",
               "z": 1
             }
@@ -1101,11 +1029,7 @@
       "cell": "CC10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+7",
-      "coordinates": {
-        "lat": 7.7489,
-        "lon": 98.7725
-      },
+      "timezone": "Asia/Bangkok",
       "type": "geographical-landmark",
       "region_type": "island",
       "connections": [
@@ -1124,7 +1048,7 @@
         "CC10": {
           "objects": [
             {
-              "char": "🏔️",
+              "char": "\ud83c\udfd4\ufe0f",
               "label": "limestone cliffs",
               "z": 2
             }
@@ -1133,7 +1057,7 @@
         "CC11": {
           "objects": [
             {
-              "char": "🌴",
+              "char": "\ud83c\udf34",
               "label": "palm tree",
               "z": 1
             }
@@ -1142,7 +1066,7 @@
         "CD10": {
           "objects": [
             {
-              "char": "🐠",
+              "char": "\ud83d\udc20",
               "label": "coral reef",
               "z": 0
             }
@@ -1159,11 +1083,7 @@
       "cell": "CD10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+7",
-      "coordinates": {
-        "lat": 8.3663,
-        "lon": 98.9341
-      },
+      "timezone": "Asia/Bangkok",
       "type": "geographical-landmark",
       "region_type": "climbing",
       "connections": [
@@ -1182,7 +1102,7 @@
         "CD10": {
           "objects": [
             {
-              "char": "🏔️",
+              "char": "\ud83c\udfd4\ufe0f",
               "label": "rock formations",
               "z": 2
             }
@@ -1191,7 +1111,7 @@
         "CD11": {
           "objects": [
             {
-              "char": "🧗",
+              "char": "\ud83e\uddd7",
               "label": "climber",
               "z": 1
             }
@@ -1200,7 +1120,7 @@
         "CE10": {
           "objects": [
             {
-              "char": "🌿",
+              "char": "\ud83c\udf3f",
               "label": "jungle",
               "z": 1
             }
@@ -1217,11 +1137,7 @@
       "cell": "CE10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+5:30",
-      "coordinates": {
-        "lat": 18.9676,
-        "lon": 72.8194
-      },
+      "timezone": "Asia/Kolkata",
       "type": "major-city",
       "region_type": "metropolis",
       "connections": [
@@ -1240,7 +1156,7 @@
         "CE10": {
           "objects": [
             {
-              "char": "🌃",
+              "char": "\ud83c\udf03",
               "label": "city lights",
               "z": 2
             }
@@ -1249,7 +1165,7 @@
         "CE11": {
           "objects": [
             {
-              "char": "🏢",
+              "char": "\ud83c\udfe2",
               "label": "tower",
               "z": 3,
               "fg": "cyan"
@@ -1259,7 +1175,7 @@
         "CF10": {
           "objects": [
             {
-              "char": "🌊",
+              "char": "\ud83c\udf0a",
               "label": "arabian sea",
               "z": 0,
               "fg": "blue"
@@ -1277,11 +1193,7 @@
       "cell": "CF10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+5:30",
-      "coordinates": {
-        "lat": 18.9586,
-        "lon": 72.8347
-      },
+      "timezone": "Asia/Kolkata",
       "type": "major-city",
       "region_type": "monument",
       "connections": [
@@ -1295,7 +1207,7 @@
         "CF10": {
           "objects": [
             {
-              "char": "🏛️",
+              "char": "\ud83c\udfdb\ufe0f",
               "label": "Gateway",
               "z": 3
             }
@@ -1304,7 +1216,7 @@
         "CF11": {
           "objects": [
             {
-              "char": "⚓",
+              "char": "\u2693",
               "label": "harbor",
               "z": 1
             }
@@ -1313,7 +1225,7 @@
         "CG10": {
           "objects": [
             {
-              "char": "🚢",
+              "char": "\ud83d\udea2",
               "label": "ferry boat",
               "z": 1
             }
@@ -1330,11 +1242,7 @@
       "cell": "CG10",
       "scale": "terrestrial",
       "continent": "Asia",
-      "timezone": "UTC+5:30",
-      "coordinates": {
-        "lat": 19.0176,
-        "lon": 72.8479
-      },
+      "timezone": "Asia/Kolkata",
       "type": "major-city",
       "region_type": "district",
       "connections": [
@@ -1348,7 +1256,7 @@
         "CG10": {
           "objects": [
             {
-              "char": "🏘️",
+              "char": "\ud83c\udfd8\ufe0f",
               "label": "dense housing",
               "z": 1
             }
@@ -1357,7 +1265,7 @@
         "CG11": {
           "objects": [
             {
-              "char": "🛠️",
+              "char": "\ud83d\udee0\ufe0f",
               "label": "workshop",
               "z": 1
             }
@@ -1366,7 +1274,7 @@
         "CH10": {
           "objects": [
             {
-              "char": "👥",
+              "char": "\ud83d\udc65",
               "label": "community",
               "z": 0
             }
@@ -1383,11 +1291,7 @@
       "cell": "DA00",
       "scale": "terrestrial",
       "continent": "North America",
-      "timezone": "UTC-5",
-      "coordinates": {
-        "lat": 40.7128,
-        "lon": -74.006
-      },
+      "timezone": "America/New_York",
       "type": "major-city",
       "region_type": "metropolis",
       "connections": [
@@ -1411,7 +1315,7 @@
         "DA00": {
           "objects": [
             {
-              "char": "🗼",
+              "char": "\ud83d\uddfc",
               "label": "Empire State",
               "z": 3
             }
@@ -1420,7 +1324,7 @@
         "DA01": {
           "objects": [
             {
-              "char": "🏢",
+              "char": "\ud83c\udfe2",
               "label": "skyscraper",
               "z": 3
             }
@@ -1429,7 +1333,7 @@
         "DB00": {
           "objects": [
             {
-              "char": "🚕",
+              "char": "\ud83d\ude95",
               "label": "yellow taxi",
               "z": 1
             }
@@ -1446,11 +1350,7 @@
       "cell": "DB00",
       "scale": "terrestrial",
       "continent": "North America",
-      "timezone": "UTC-5",
-      "coordinates": {
-        "lat": 43.0896,
-        "lon": -79.0849
-      },
+      "timezone": "America/New_York",
       "type": "geographical-landmark",
       "region_type": "waterfall",
       "connections": [
@@ -1469,7 +1369,7 @@
         "DB00": {
           "objects": [
             {
-              "char": "💧",
+              "char": "\ud83d\udca7",
               "label": "cascading falls",
               "z": 2,
               "fg": "cyan"
@@ -1479,7 +1379,7 @@
         "DB01": {
           "objects": [
             {
-              "char": "💨",
+              "char": "\ud83d\udca8",
               "label": "mist cloud",
               "z": 1
             }
@@ -1488,7 +1388,7 @@
         "DC00": {
           "objects": [
             {
-              "char": "🚁",
+              "char": "\ud83d\ude81",
               "label": "helicopter",
               "z": 2
             }
@@ -1505,11 +1405,7 @@
       "cell": "DC00",
       "scale": "terrestrial",
       "continent": "North America",
-      "timezone": "UTC-5",
-      "coordinates": {
-        "lat": 43.6426,
-        "lon": -79.3871
-      },
+      "timezone": "America/Toronto",
       "type": "major-city",
       "region_type": "metropolis",
       "connections": [
@@ -1528,7 +1424,7 @@
         "DC00": {
           "objects": [
             {
-              "char": "🗼",
+              "char": "\ud83d\uddfc",
               "label": "CN Tower",
               "z": 3,
               "fg": "red"
@@ -1538,7 +1434,7 @@
         "DC01": {
           "objects": [
             {
-              "char": "🌆",
+              "char": "\ud83c\udf06",
               "label": "skyline",
               "z": 2
             }
@@ -1547,7 +1443,7 @@
         "DD00": {
           "objects": [
             {
-              "char": "🏙️",
+              "char": "\ud83c\udfd9\ufe0f",
               "label": "downtown",
               "z": 1
             }
@@ -1564,11 +1460,7 @@
       "cell": "DD00",
       "scale": "terrestrial",
       "continent": "North America",
-      "timezone": "UTC-6",
-      "coordinates": {
-        "lat": 42.3601,
-        "lon": -83.0891
-      },
+      "timezone": "America/Chicago",
       "type": "geographical-landmark",
       "region_type": "lakes",
       "connections": [
@@ -1587,7 +1479,7 @@
         "DD00": {
           "objects": [
             {
-              "char": "🌊",
+              "char": "\ud83c\udf0a",
               "label": "lake water",
               "z": 0,
               "fg": "blue"
@@ -1597,7 +1489,7 @@
         "DD01": {
           "objects": [
             {
-              "char": "🚢",
+              "char": "\ud83d\udea2",
               "label": "cargo ship",
               "z": 1
             }
@@ -1606,7 +1498,7 @@
         "DE00": {
           "objects": [
             {
-              "char": "🌲",
+              "char": "\ud83c\udf32",
               "label": "forest shore",
               "z": 0
             }
@@ -1623,11 +1515,7 @@
       "cell": "DE00",
       "scale": "terrestrial",
       "continent": "North America",
-      "timezone": "UTC-6",
-      "coordinates": {
-        "lat": 41.8788,
-        "lon": -87.6233
-      },
+      "timezone": "America/Chicago",
       "type": "major-city",
       "region_type": "metropolis",
       "connections": [
@@ -1646,7 +1534,7 @@
         "DE00": {
           "objects": [
             {
-              "char": "🏗️",
+              "char": "\ud83c\udfd7\ufe0f",
               "label": "Willis Tower",
               "z": 3
             }
@@ -1655,7 +1543,7 @@
         "DE01": {
           "objects": [
             {
-              "char": "🏢",
+              "char": "\ud83c\udfe2",
               "label": "tower",
               "z": 2
             }
@@ -1664,7 +1552,7 @@
         "DF00": {
           "objects": [
             {
-              "char": "🌊",
+              "char": "\ud83c\udf0a",
               "label": "lake shore",
               "z": 0,
               "fg": "blue"
@@ -1682,11 +1570,7 @@
       "cell": "DF00",
       "scale": "terrestrial",
       "continent": "North America",
-      "timezone": "UTC-6",
-      "coordinates": {
-        "lat": 38.627,
-        "lon": -90.1994
-      },
+      "timezone": "America/Chicago",
       "type": "major-city",
       "region_type": "monument",
       "connections": [
@@ -1705,7 +1589,7 @@
         "DF00": {
           "objects": [
             {
-              "char": "🏛️",
+              "char": "\ud83c\udfdb\ufe0f",
               "label": "Gateway Arch",
               "z": 3
             }
@@ -1714,7 +1598,7 @@
         "DF01": {
           "objects": [
             {
-              "char": "🌊",
+              "char": "\ud83c\udf0a",
               "label": "Mississippi River",
               "z": 0,
               "fg": "brown"
@@ -1724,7 +1608,7 @@
         "DG00": {
           "objects": [
             {
-              "char": "🚢",
+              "char": "\ud83d\udea2",
               "label": "riverboat",
               "z": 1
             }
@@ -1741,11 +1625,7 @@
       "cell": "DG00",
       "scale": "terrestrial",
       "continent": "North America",
-      "timezone": "UTC-6",
-      "coordinates": {
-        "lat": 35.1164,
-        "lon": -90.049
-      },
+      "timezone": "America/Chicago",
       "type": "major-city",
       "region_type": "music",
       "connections": [
@@ -1764,7 +1644,7 @@
         "DG00": {
           "objects": [
             {
-              "char": "🎸",
+              "char": "\ud83c\udfb8",
               "label": "guitar",
               "z": 1
             }
@@ -1773,7 +1653,7 @@
         "DG01": {
           "objects": [
             {
-              "char": "🎵",
+              "char": "\ud83c\udfb5",
               "label": "music notes",
               "z": 1
             }
@@ -1782,7 +1662,7 @@
         "DH00": {
           "objects": [
             {
-              "char": "🏛️",
+              "char": "\ud83c\udfdb\ufe0f",
               "label": "Graceland",
               "z": 2
             }
@@ -1799,11 +1679,7 @@
       "cell": "DH00",
       "scale": "terrestrial",
       "continent": "North America",
-      "timezone": "UTC-6",
-      "coordinates": {
-        "lat": 29.9511,
-        "lon": -90.2623
-      },
+      "timezone": "America/Chicago",
       "type": "major-city",
       "region_type": "music",
       "connections": [
@@ -1822,7 +1698,7 @@
         "DH00": {
           "objects": [
             {
-              "char": "🎷",
+              "char": "\ud83c\udfb7",
               "label": "jazz horn",
               "z": 1
             }
@@ -1831,7 +1707,7 @@
         "DH01": {
           "objects": [
             {
-              "char": "🏘️",
+              "char": "\ud83c\udfd8\ufe0f",
               "label": "colonial buildings",
               "z": 1
             }
@@ -1840,7 +1716,7 @@
         "DI00": {
           "objects": [
             {
-              "char": "🌴",
+              "char": "\ud83c\udf34",
               "label": "spanish moss oak",
               "z": 1
             }
@@ -1857,11 +1733,7 @@
       "cell": "DI00",
       "scale": "terrestrial",
       "continent": "North America",
-      "timezone": "UTC-6",
-      "coordinates": {
-        "lat": 29.55,
-        "lon": -91.0225
-      },
+      "timezone": "America/Chicago",
       "type": "geographical-landmark",
       "region_type": "swamp",
       "connections": [
@@ -1880,7 +1752,7 @@
         "DI00": {
           "objects": [
             {
-              "char": "🌳",
+              "char": "\ud83c\udf33",
               "label": "cypress tree",
               "z": 2,
               "fg": "green"
@@ -1890,7 +1762,7 @@
         "DI01": {
           "objects": [
             {
-              "char": "🐊",
+              "char": "\ud83d\udc0a",
               "label": "alligator",
               "z": 1
             }
@@ -1899,7 +1771,7 @@
         "DJ00": {
           "objects": [
             {
-              "char": "💧",
+              "char": "\ud83d\udca7",
               "label": "murky water",
               "z": 0,
               "fg": "cyan"
@@ -1917,11 +1789,7 @@
       "cell": "DJ00",
       "scale": "terrestrial",
       "continent": "North America",
-      "timezone": "UTC-6",
-      "coordinates": {
-        "lat": 29.7604,
-        "lon": -95.3698
-      },
+      "timezone": "America/Chicago",
       "type": "major-city",
       "region_type": "space",
       "connections": [
@@ -1935,7 +1803,7 @@
         "DJ00": {
           "objects": [
             {
-              "char": "🚀",
+              "char": "\ud83d\ude80",
               "label": "rocket",
               "z": 3
             }
@@ -1944,7 +1812,7 @@
         "DJ01": {
           "objects": [
             {
-              "char": "🛸",
+              "char": "\ud83d\udef8",
               "label": "spacecraft",
               "z": 2
             }
@@ -1953,7 +1821,7 @@
         "DK00": {
           "objects": [
             {
-              "char": "🌌",
+              "char": "\ud83c\udf0c",
               "label": "mission control",
               "z": 1
             }
@@ -1970,11 +1838,7 @@
       "cell": "EA00",
       "scale": "terrestrial",
       "continent": "Europe",
-      "timezone": "UTC+0",
-      "coordinates": {
-        "lat": 51.5074,
-        "lon": -0.1278
-      },
+      "timezone": "Europe/London",
       "type": "major-city",
       "region_type": "metropolis",
       "connections": [
@@ -1993,7 +1857,7 @@
         "EA00": {
           "objects": [
             {
-              "char": "🕐",
+              "char": "\ud83d\udd50",
               "label": "Big Ben",
               "z": 3
             }
@@ -2002,7 +1866,7 @@
         "EA01": {
           "objects": [
             {
-              "char": "🏰",
+              "char": "\ud83c\udff0",
               "label": "palace",
               "z": 2
             }
@@ -2011,7 +1875,7 @@
         "EB00": {
           "objects": [
             {
-              "char": "🌉",
+              "char": "\ud83c\udf09",
               "label": "Thames bridge",
               "z": 1
             }
@@ -2028,11 +1892,7 @@
       "cell": "EB00",
       "scale": "terrestrial",
       "continent": "Europe",
-      "timezone": "UTC+0",
-      "coordinates": {
-        "lat": 57.4778,
-        "lon": -4.4225
-      },
+      "timezone": "Europe/London",
       "type": "geographical-landmark",
       "region_type": "mountains",
       "connections": [
@@ -2051,7 +1911,7 @@
         "EB00": {
           "objects": [
             {
-              "char": "🏰",
+              "char": "\ud83c\udff0",
               "label": "castle",
               "z": 2
             }
@@ -2060,7 +1920,7 @@
         "EB01": {
           "objects": [
             {
-              "char": "⛰️",
+              "char": "\u26f0\ufe0f",
               "label": "mountain",
               "z": 2
             }
@@ -2069,7 +1929,7 @@
         "EC00": {
           "objects": [
             {
-              "char": "☁️",
+              "char": "\u2601\ufe0f",
               "label": "mist",
               "z": 1
             }
@@ -2086,11 +1946,7 @@
       "cell": "EC00",
       "scale": "terrestrial",
       "continent": "Europe",
-      "timezone": "UTC+1",
-      "coordinates": {
-        "lat": 46.8182,
-        "lon": 8.2275
-      },
+      "timezone": "Europe/Zurich",
       "type": "geographical-landmark",
       "region_type": "mountains",
       "connections": [
@@ -2109,7 +1965,7 @@
         "EC00": {
           "objects": [
             {
-              "char": "⛰️",
+              "char": "\u26f0\ufe0f",
               "label": "Matterhorn",
               "z": 3
             }
@@ -2118,7 +1974,7 @@
         "EC01": {
           "objects": [
             {
-              "char": "❄️",
+              "char": "\u2744\ufe0f",
               "label": "glacier",
               "z": 1
             }
@@ -2127,7 +1983,7 @@
         "ED00": {
           "objects": [
             {
-              "char": "🏔️",
+              "char": "\ud83c\udfd4\ufe0f",
               "label": "peak",
               "z": 2
             }
@@ -2144,11 +2000,7 @@
       "cell": "ED00",
       "scale": "terrestrial",
       "continent": "Europe",
-      "timezone": "UTC+2",
-      "coordinates": {
-        "lat": 37.9838,
-        "lon": 23.7275
-      },
+      "timezone": "Europe/Athens",
       "type": "major-city",
       "region_type": "historical",
       "connections": [
@@ -2162,7 +2014,7 @@
         "ED00": {
           "objects": [
             {
-              "char": "🏛️",
+              "char": "\ud83c\udfdb\ufe0f",
               "label": "Parthenon",
               "z": 3
             }
@@ -2171,7 +2023,7 @@
         "ED01": {
           "objects": [
             {
-              "char": "⛱️",
+              "char": "\u26f1\ufe0f",
               "label": "beach",
               "z": 1
             }
@@ -2180,7 +2032,7 @@
         "EE00": {
           "objects": [
             {
-              "char": "🏛️",
+              "char": "\ud83c\udfdb\ufe0f",
               "label": "temple",
               "z": 2
             }
@@ -2197,11 +2049,7 @@
       "cell": "FA00",
       "scale": "terrestrial",
       "continent": "Oceania",
-      "timezone": "UTC+11",
-      "coordinates": {
-        "lat": -33.8568,
-        "lon": 151.2153
-      },
+      "timezone": "Australia/Sydney",
       "type": "major-city",
       "region_type": "metropolis",
       "connections": [
@@ -2220,7 +2068,7 @@
         "FA00": {
           "objects": [
             {
-              "char": "🏗️",
+              "char": "\ud83c\udfd7\ufe0f",
               "label": "Opera House",
               "z": 3
             }
@@ -2229,7 +2077,7 @@
         "FA01": {
           "objects": [
             {
-              "char": "🏖️",
+              "char": "\ud83c\udfd6\ufe0f",
               "label": "Bondi Beach",
               "z": 1
             }
@@ -2238,7 +2086,7 @@
         "FB00": {
           "objects": [
             {
-              "char": "🌉",
+              "char": "\ud83c\udf09",
               "label": "Harbour Bridge",
               "z": 2
             }
@@ -2255,11 +2103,7 @@
       "cell": "FB00",
       "scale": "terrestrial",
       "continent": "Oceania",
-      "timezone": "UTC+9:30",
-      "coordinates": {
-        "lat": -25.2744,
-        "lon": 133.7751
-      },
+      "timezone": "Australia/Adelaide",
       "type": "geographical-landmark",
       "region_type": "desert",
       "connections": [
@@ -2278,7 +2122,7 @@
         "FB00": {
           "objects": [
             {
-              "char": "🏜️",
+              "char": "\ud83c\udfdc\ufe0f",
               "label": "red earth",
               "z": 0,
               "fg": "red"
@@ -2288,7 +2132,7 @@
         "FB01": {
           "objects": [
             {
-              "char": "🌞",
+              "char": "\ud83c\udf1e",
               "label": "burning sun",
               "z": 1
             }
@@ -2297,7 +2141,7 @@
         "FC00": {
           "objects": [
             {
-              "char": "🦘",
+              "char": "\ud83e\udd98",
               "label": "kangaroo",
               "z": 1
             }
@@ -2314,11 +2158,7 @@
       "cell": "FC00",
       "scale": "terrestrial",
       "continent": "Oceania",
-      "timezone": "UTC+10",
-      "coordinates": {
-        "lat": -16.2859,
-        "lon": 145.7781
-      },
+      "timezone": "Australia/Brisbane",
       "type": "geographical-landmark",
       "region_type": "reef",
       "connections": [
@@ -2337,7 +2177,7 @@
         "FC00": {
           "objects": [
             {
-              "char": "🪸",
+              "char": "\ud83e\udeb8",
               "label": "coral",
               "z": 1,
               "fg": "cyan"
@@ -2347,7 +2187,7 @@
         "FC01": {
           "objects": [
             {
-              "char": "🐠",
+              "char": "\ud83d\udc20",
               "label": "tropical fish",
               "z": 0
             }
@@ -2356,7 +2196,7 @@
         "FD00": {
           "objects": [
             {
-              "char": "🐙",
+              "char": "\ud83d\udc19",
               "label": "octopus",
               "z": 0
             }
@@ -2373,11 +2213,7 @@
       "cell": "FD00",
       "scale": "terrestrial",
       "continent": "Oceania",
-      "timezone": "UTC+9:30",
-      "coordinates": {
-        "lat": -25.344,
-        "lon": 131.0369
-      },
+      "timezone": "Australia/Adelaide",
       "type": "geographical-landmark",
       "region_type": "rock",
       "connections": [
@@ -2391,7 +2227,7 @@
         "FD00": {
           "objects": [
             {
-              "char": "🏔️",
+              "char": "\ud83c\udfd4\ufe0f",
               "label": "Uluru",
               "z": 3,
               "fg": "red"
@@ -2401,7 +2237,7 @@
         "FD01": {
           "objects": [
             {
-              "char": "🌅",
+              "char": "\ud83c\udf05",
               "label": "sunset glow",
               "z": 1
             }
@@ -2410,7 +2246,7 @@
         "FE00": {
           "objects": [
             {
-              "char": "👥",
+              "char": "\ud83d\udc65",
               "label": "Aboriginal site",
               "z": 0
             }
@@ -2427,11 +2263,7 @@
       "cell": "AA00",
       "scale": "orbital",
       "continent": "space",
-      "timezone": "UTC+0",
-      "coordinates": {
-        "lat": 0,
-        "lon": 0
-      },
+      "timezone": "UTC",
       "type": "space-station",
       "region_type": "station",
       "connections": [
@@ -2446,7 +2278,7 @@
         "AA00": {
           "objects": [
             {
-              "char": "🛰️",
+              "char": "\ud83d\udef0\ufe0f",
               "label": "ISS",
               "z": 2
             }
@@ -2455,7 +2287,7 @@
         "AB00": {
           "objects": [
             {
-              "char": "🌍",
+              "char": "\ud83c\udf0d",
               "label": "Earth",
               "z": 0,
               "fg": "blue"
@@ -2473,11 +2305,7 @@
       "cell": "AA00",
       "scale": "planetary",
       "continent": "space",
-      "timezone": "UTC+0",
-      "coordinates": {
-        "lat": 18.65,
-        "lon": 226.1973
-      },
+      "timezone": "UTC",
       "type": "space-location",
       "connections": [
         {
@@ -2490,7 +2318,7 @@
         "AA00": {
           "objects": [
             {
-              "char": "🏔️",
+              "char": "\ud83c\udfd4\ufe0f",
               "label": "volcano",
               "z": 2,
               "fg": "red"
@@ -2500,7 +2328,7 @@
         "AB00": {
           "objects": [
             {
-              "char": "🪨",
+              "char": "\ud83e\udea8",
               "label": "rock",
               "z": 0,
               "fg": "red"
@@ -2510,7 +2338,7 @@
         "AC00": {
           "objects": [
             {
-              "char": "🛸",
+              "char": "\ud83d\udef8",
               "label": "rover",
               "z": 1
             }
@@ -2528,11 +2356,7 @@
       "cell": "AA00",
       "scale": "stellar",
       "continent": "space",
-      "timezone": "UTC+0",
-      "coordinates": {
-        "lat": 0,
-        "lon": 0
-      },
+      "timezone": "UTC",
       "type": "space-location",
       "connections": [
         {
@@ -2546,7 +2370,7 @@
         "AA00": {
           "objects": [
             {
-              "char": "⭐",
+              "char": "\u2b50",
               "label": "Alpha Centauri A",
               "z": 2,
               "fg": "yellow"
@@ -2556,7 +2380,7 @@
         "AB00": {
           "objects": [
             {
-              "char": "⭐",
+              "char": "\u2b50",
               "label": "Alpha Centauri B",
               "z": 2,
               "fg": "orange"
@@ -2566,7 +2390,7 @@
         "AC00": {
           "objects": [
             {
-              "char": "🔴",
+              "char": "\ud83d\udd34",
               "label": "Proxima",
               "z": 1,
               "fg": "red"
@@ -2585,11 +2409,7 @@
       "cell": "AA00",
       "scale": "galactic",
       "continent": "space",
-      "timezone": "UTC+0",
-      "coordinates": {
-        "lat": 0,
-        "lon": 0
-      },
+      "timezone": "UTC",
       "type": "space-location",
       "connections": [
         {
@@ -2602,7 +2422,7 @@
         "AA00": {
           "objects": [
             {
-              "char": "⚫",
+              "char": "\u26ab",
               "label": "black hole",
               "z": 3
             }
@@ -2611,7 +2431,7 @@
         "AB00": {
           "objects": [
             {
-              "char": "🌌",
+              "char": "\ud83c\udf0c",
               "label": "accretion disk",
               "z": 2,
               "fg": "cyan"
@@ -2621,7 +2441,7 @@
         "AC00": {
           "objects": [
             {
-              "char": "✨",
+              "char": "\u2728",
               "label": "jets",
               "z": 1,
               "fg": "magenta"
@@ -2640,11 +2460,7 @@
       "cell": "AA00",
       "scale": "cosmic",
       "continent": "space",
-      "timezone": "UTC+0",
-      "coordinates": {
-        "lat": 0,
-        "lon": 0
-      },
+      "timezone": "UTC",
       "type": "space-location",
       "connections": [
         {
@@ -2658,7 +2474,7 @@
         "AA00": {
           "objects": [
             {
-              "char": "🌌",
+              "char": "\ud83c\udf0c",
               "label": "Andromeda",
               "z": 3,
               "fg": "white"
@@ -2668,7 +2484,7 @@
         "AB00": {
           "objects": [
             {
-              "char": "✨",
+              "char": "\u2728",
               "label": "spiral arm",
               "z": 2,
               "fg": "blue"
@@ -2678,7 +2494,7 @@
         "AC00": {
           "objects": [
             {
-              "char": "⭕",
+              "char": "\u2b55",
               "label": "wormhole",
               "z": 4,
               "fg": "magenta"

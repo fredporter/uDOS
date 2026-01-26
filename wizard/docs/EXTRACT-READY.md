@@ -2,7 +2,7 @@
 
 **Commit:** `63e6ea46`  
 **Date:** 2026-01-25  
-**Status:** Pushed to GitHub  
+**Status:** Pushed to GitHub
 
 ---
 
@@ -29,6 +29,7 @@ wizard> extract                    # (batch process inbox)
 ## 📦 What Was Delivered
 
 ### Service Implementation
+
 - **File:** `wizard/services/pdf_ocr_service.py` (283 lines)
 - **Class:** `PDFOCRService` with async methods
 - **Methods:**
@@ -38,6 +39,7 @@ wizard> extract                    # (batch process inbox)
   - `_process_pdf_sync()` — Mistral OCR integration
 
 ### Console Integration
+
 - **File:** `wizard/services/interactive_console.py`
 - **Changes:**
   - Added `"extract": self.cmd_extract` to commands dict
@@ -46,11 +48,13 @@ wizard> extract                    # (batch process inbox)
   - Support for single/batch modes
 
 ### Documentation (600+ lines)
+
 1. **EXTRACT-COMMAND.md** — Full reference guide
 2. **EXTRACT-QUICK-START.md** — 3-minute setup
 3. **EXTRACT-IMPLEMENTATION-SUMMARY.md** — Architecture details
 
 ### Testing
+
 - **File:** `bin/test_extract.sh` (executable)
 - **Validates:**
   - Python & venv availability
@@ -62,23 +66,24 @@ wizard> extract                    # (batch process inbox)
 
 ## ✨ Features
 
-| Feature | Status | Usage |
-|---------|--------|-------|
-| Single file extraction | ✅ | `extract file.pdf` |
-| Batch processing | ✅ | `extract` (no args) |
-| Absolute paths | ✅ | `extract ~/Downloads/doc.pdf` |
-| Image extraction | ✅ | Auto-extracted to images/ |
-| Wikilinks | ✅ | `![[image.jpeg]]` formatting |
-| YAML metadata | ✅ | Title, source, timestamp |
-| Error resilience | ✅ | Batch continues on failure |
-| Logging integration | ✅ | `[WIZ]` tags via logging_manager |
-| Thread safety | ✅ | Async processing in thread |
+| Feature                | Status | Usage                            |
+| ---------------------- | ------ | -------------------------------- |
+| Single file extraction | ✅     | `extract file.pdf`               |
+| Batch processing       | ✅     | `extract` (no args)              |
+| Absolute paths         | ✅     | `extract ~/Downloads/doc.pdf`    |
+| Image extraction       | ✅     | Auto-extracted to images/        |
+| Wikilinks              | ✅     | `![[image.jpeg]]` formatting     |
+| YAML metadata          | ✅     | Title, source, timestamp         |
+| Error resilience       | ✅     | Batch continues on failure       |
+| Logging integration    | ✅     | `[WIZ]` tags via logging_manager |
+| Thread safety          | ✅     | Async processing in thread       |
 
 ---
 
 ## 🔧 Technical Details
 
 ### Architecture Pattern
+
 ```python
 # Command (console) → Service → API → Output
 wizard> extract invoice.pdf
@@ -95,6 +100,7 @@ output.md + images/ + ocr_response.json
 ```
 
 ### Input/Output
+
 ```
 memory/sandbox/
 ├── inbox/                    ← Drop PDFs here
@@ -112,6 +118,7 @@ memory/sandbox/
 ```
 
 ### Mistral Integration
+
 - **Model:** `pixtral-12b-2409` (vision model for OCR)
 - **API:** Upload → OCR → Extract text + images
 - **Auth:** Via `MISTRAL_API_KEY` environment variable
@@ -122,6 +129,7 @@ memory/sandbox/
 ## 🚀 Ready to Use
 
 ### Configuration
+
 ```bash
 # Set environment variable
 export MISTRAL_API_KEY='sk-...'
@@ -131,6 +139,7 @@ bash bin/test_extract.sh
 ```
 
 ### Single File
+
 ```bash
 wizard> extract invoice.pdf
 ⏳ Extracting invoice.pdf...
@@ -139,6 +148,7 @@ wizard> extract invoice.pdf
 ```
 
 ### Batch Mode
+
 ```bash
 wizard> extract
 ⏳ Processing PDFs from inbox...
@@ -152,11 +162,11 @@ wizard> extract
 
 ## 📚 Documentation Links
 
-| Document | Purpose | Time |
-|----------|---------|------|
-| [EXTRACT-COMMAND.md](wizard/docs/EXTRACT-COMMAND.md) | Complete reference | 15 min |
-| [EXTRACT-QUICK-START.md](wizard/docs/EXTRACT-QUICK-START.md) | Setup guide | 3 min |
-| [EXTRACT-IMPLEMENTATION-SUMMARY.md](wizard/docs/EXTRACT-IMPLEMENTATION-SUMMARY.md) | Architecture | 10 min |
+| Document                                                                           | Purpose            | Time   |
+| ---------------------------------------------------------------------------------- | ------------------ | ------ |
+| [EXTRACT-COMMAND.md](wizard/docs/EXTRACT-COMMAND.md)                               | Complete reference | 15 min |
+| [EXTRACT-QUICK-START.md](wizard/docs/EXTRACT-QUICK-START.md)                       | Setup guide        | 3 min  |
+| [EXTRACT-IMPLEMENTATION-SUMMARY.md](wizard/docs/EXTRACT-IMPLEMENTATION-SUMMARY.md) | Architecture       | 10 min |
 
 ---
 
@@ -177,17 +187,20 @@ wizard> extract
 ## 🔄 Integration with Existing Systems
 
 ### Mirrors PEEK Command
+
 - Same single/batch pattern
 - Same outbox directory structure
 - Same async command implementation
 - Same service singleton pattern
 
 ### Uses Existing Services
+
 - **logging_manager:** For [WIZ] tagged logging
 - **path_utils:** For repo root detection
 - **interactive_console:** For command registration
 
 ### Wraps pdf-ocr-obsidian
+
 - Full library in `library/pdf-ocr/`
 - Cloned from GitHub with history
 - Minimal wrapper for console integration
@@ -216,11 +229,13 @@ wizard> extract
 ## 🎯 Next Steps (Optional)
 
 ### Short Term
+
 - [ ] Test with actual PDFs and Mistral API key
 - [ ] Monitor performance with large batches
 - [ ] Verify image extraction quality
 
 ### Future Enhancements
+
 - [ ] Parallel batch processing (2-3x faster)
 - [ ] Image extraction toggle
 - [ ] Cost tracking per document
@@ -236,7 +251,7 @@ wizard> extract
 **Documentation:** 600+ lines  
 **Test Coverage:** Full setup validation  
 **Status:** ✅ Production Ready  
-**Deployed:** GitHub main branch  
+**Deployed:** GitHub main branch
 
 The EXTRACT command is ready for use. Users can now convert PDF files to Markdown with automatic image extraction and metadata preservation, all integrated seamlessly into the Wizard Server interactive console.
 
@@ -246,4 +261,3 @@ _Implemented by: GitHub Copilot_
 _Date: 2026-01-25_  
 _Commit: 63e6ea46_  
 _Status: Complete ✅_
-

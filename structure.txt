@@ -1,0 +1,270 @@
+├── app/
+│   ├── bin/
+│   ├── docs/
+│   ├── node_modules/
+│   ├── public/
+│   ├── src/
+│   ├── src-tauri/
+│   ├── App.code-workspace
+│   ├── README.md
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── svelte.config.js
+│   ├── tailwind.config.js
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   ├── version.json
+│   └── vite.config.ts
+├── bin/
+│   ├── Launch-Wizard-Server.command
+│   ├── Launch-uDOS-Dev.command
+│   ├── Launch-uDOS-TUI.command
+│   ├── README.md
+│   ├── install.sh
+│   ├── launch_wizard_dev_tui.sh
+│   ├── port-manager
+│   ├── setup_github_ssh.sh
+│   ├── setup_wizard.sh
+│   ├── start_udos.sh
+│   ├── start_wizard.sh
+│   ├── test_extract.sh
+│   ├── test_peek.sh
+│   ├── udos
+│   └── udos-common.sh
+├── core/
+│   ├── __pycache__/
+│   ├── __tests__/
+│   ├── binder/
+│   ├── commands/
+│   ├── config/
+│   ├── dist/
+│   ├── grid-runtime/
+│   ├── input/
+│   ├── locations/
+│   ├── node_modules/
+│   ├── os_specific/
+│   ├── parsers/
+│   ├── runtime/
+│   ├── services/
+│   ├── src/
+│   ├── tests/
+│   ├── tools/
+│   ├── tui/
+│   ├── ui/
+│   ├── CHANGELOG.md
+│   ├── INPUT_INTEGRATION.md
+│   ├── README.md
+│   ├── SMARTPROMPT_INTEGRATION_SUMMARY.md
+│   ├── SMARTPROMPT_PRESERVATION.md
+│   ├── SMARTPROMPT_REFERENCE.md
+│   ├── __init__.py
+│   ├── jest.config.js
+│   ├── location-parser.ts
+│   ├── location.example.json
+│   ├── location.schema.json
+│   ├── location_service.py
+│   ├── locations-examples-v1.0.7.0.json
+│   ├── locations-full-examples-v1.0.7.0.json
+│   ├── locations.json
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── version.json
+│   ├── version.py
+│   └── version.schema.json
+├── data/
+│   ├── inventory.db
+│   ├── scenarios.db
+│   └── survival.db
+├── dev/
+│   ├── __pycache__/
+│   ├── bin/
+│   ├── build/
+│   ├── docs/
+│   ├── empire/
+│   ├── examples/
+│   ├── goblin/
+│   ├── groovebox/
+│   ├── library/
+│   ├── roadmap/
+│   ├── scripts/
+│   ├── tests/
+│   ├── tools/
+│   ├── wiki-dev/
+│   ├── README.md
+│   └── __init__.py
+├── distribution/
+│   ├── docs/
+│   ├── packages/
+│   ├── plugins/
+│   ├── schemas/
+│   ├── stacks/
+│   ├── templates/
+│   ├── udos/
+│   ├── PACKAGE-TIERS.md
+│   ├── installer.sh
+│   └── remaster_iso.sh
+├── docs/
+│   ├── decisions/
+│   ├── devlog/
+│   ├── examples/
+│   ├── features/
+│   ├── howto/
+│   ├── specs/
+│   ├── wiki/
+│   ├── ALPINE-MIGRATION-COMPLETE.md
+│   ├── ALPINE-MIGRATION-STATUS.md
+│   ├── ALPINE-MIGRATION-SUMMARY.md
+│   ├── BEACON-ARCHITECTURE-SUMMARY.md
+│   ├── BEACON-PORTAL-DELIVERY.md
+│   ├── CHANGELOG-TUI-IMPROVEMENTS.md
+│   ├── HELP-COMMAND-IMPROVEMENTS.md
+│   ├── HELP-COMMAND-QUICK-REF.md
+│   ├── README.md
+│   ├── TUI-IMPROVEMENTS-SUMMARY.md
+│   └── development-streams.md
+├── extensions/
+│   ├── __pycache__/
+│   ├── api/
+│   ├── docs/
+│   ├── transport/
+│   ├── README.md
+│   └── server_manager.py
+├── knowledge/
+│   ├── ai/
+│   ├── checklists/
+│   ├── code/
+│   ├── communication/
+│   ├── community/
+│   ├── fire/
+│   ├── food/
+│   ├── making/
+│   ├── medical/
+│   ├── navigation/
+│   ├── places/
+│   ├── reference/
+│   ├── shelter/
+│   ├── skills/
+│   ├── survival/
+│   ├── tech/
+│   ├── tools/
+│   ├── water/
+│   ├── well-being/
+│   ├── GEOGRAPHY-KNOWLEDGE-SPEC.md
+│   ├── KNOWLEDGE-SYSTEM.md
+│   ├── README.md
+│   ├── __init__.py
+│   ├── structure.txt
+│   └── version.json
+├── library/
+│   ├── gemini-cli/
+│   ├── markdown-to-pdf/
+│   ├── marp/
+│   ├── meshcore/
+│   ├── micro/
+│   ├── mistral-vibe/
+│   ├── nethack/
+│   ├── nounproject/
+│   ├── ollama/
+│   ├── pdf-ocr/
+│   ├── tinycore/
+│   ├── typo/
+│   ├── url-to-markdown/
+│   ├── README.md
+│   ├── container.schema.json
+│   └── container.template.json
+├── memory/
+│   ├── bank/
+│   ├── binders/
+│   ├── drafts/
+│   ├── goblin/
+│   ├── knowledge/
+│   ├── library/
+│   ├── logs/
+│   ├── private/
+│   ├── sandbox/
+│   ├── system/
+│   ├── ucode/
+│   ├── wizard/
+│   └── notifications.db
+├── packages/
+│   ├── core/
+│   ├── extensions/
+│   ├── goblin/
+│   ├── knowledge/
+│   ├── sonic/
+│   ├── wizard/
+│   ├── MANIFEST-INDEX.md
+│   └── README.md
+├── sonic/
+│   ├── config/
+│   ├── core/
+│   ├── datasets/
+│   ├── docs/
+│   ├── payloads/
+│   ├── scripts/
+│   ├── ui/
+│   ├── CHANGELOG.md
+│   ├── LICENSE
+│   ├── README.md
+│   ├── sonic-stick.code-workspace
+│   └── version.json
+├── wiki/
+│   ├── architecture/
+│   ├── ARCHITECTURE.md
+│   ├── CONFIGURATION.md
+│   ├── CONTRIBUTING.md
+│   ├── README.md
+│   ├── STYLE-GUIDE.md
+│   └── VISION.md
+├── wizard/
+│   ├── __pycache__/
+│   ├── config/
+│   ├── dashboard/
+│   ├── dist/
+│   ├── distribution/
+│   ├── docs/
+│   ├── extensions/
+│   ├── font-manager/
+│   ├── github_integration/
+│   ├── plugin_manager/
+│   ├── providers/
+│   ├── routes/
+│   ├── schemas/
+│   ├── security/
+│   ├── services/
+│   ├── templates/
+│   ├── tests/
+│   ├── tools/
+│   ├── web/
+│   ├── ARCHITECTURE.md
+│   ├── PORT-MANAGER-QUICK.md
+│   ├── README.md
+│   ├── WIZARD-DEV-GUIDE.md
+│   ├── __init__.py
+│   ├── check_provider_setup.py
+│   ├── cli_port_manager.py
+│   ├── dev_tui.py
+│   ├── launch_with_port_manager.py
+│   ├── launch_wizard_tui.sh
+│   ├── secrets.tomb
+│   ├── server.py
+│   ├── version.json
+│   └── wizard_tui.py
+├── AGENTS.md
+├── INSTALLATION.md
+├── LAUNCHER-GUIDE.md
+├── LICENSE.txt
+├── MANIFEST.in
+├── QUICKSTART.md
+├── README.md
+├── package-lock.json
+├── package.json
+├── push_changes.sh
+├── requirements.txt
+├── setup.py
+├── test_tree.py
+├── uDOS.code-workspace
+└── uDOS.py

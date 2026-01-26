@@ -70,12 +70,6 @@ class TellHandler(BaseCommandHandler):
             description_lines.append(f"{line}")
         description_lines.append("")
 
-        # Add coordinates
-        description_lines.append(
-            f"Coordinates: {location.coordinates.lat:.4f}{'N' if location.coordinates.lat >= 0 else 'S'}, "
-            f"{location.coordinates.lon:.4f}{'E' if location.coordinates.lon >= 0 else 'W'}"
-        )
-
         # Add timezone
         description_lines.append(f"Timezone: {location.timezone}")
 

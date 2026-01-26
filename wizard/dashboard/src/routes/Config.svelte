@@ -8,6 +8,7 @@
    */
 
   import { onMount } from "svelte";
+  import { getAdminToken, setAdminToken, buildAuthHeaders } from "../lib/services/auth";
   import {
     applyTypographyState,
     bodyFonts,
@@ -33,8 +34,7 @@
   let wizardSettings = {};
   let adminToken = "";
 
-  const authHeaders = () =>
-    adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
+  const authHeaders = () => buildAuthHeaders();
 
   function apiFetch(url, options = {}) {
     const headers = { ...(options.headers || {}), ...authHeaders() };
@@ -151,7 +151,7 @@
   let isDarkMode = true;
 
   onMount(async () => {
-    adminToken = localStorage.getItem("wizardAdminToken") || "";
+    adminToken = getAdminToken();
     initDisplaySettings();
     await loadFileList();
     await loadProviders();
@@ -335,7 +335,8 @@
         throw new Error(data.detail || `HTTP ${response.status}`);
       }
       adminTokenValue = data.token;
-      localStorage.setItem("wizardAdminToken", data.token);
+      setAdminToken(data.token);
+      adminToken = data.token;
       tokenStatus = `✅ Token generated and saved to .env${data.key_created ? " (WIZARD_KEY created)" : ""}`;
     } catch (err) {
       tokenStatus = `❌ Failed to generate token: ${err.message}`;

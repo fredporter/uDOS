@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "uDOS Location Schema v1.0.7",
-  "description": "Canonical location data format for v1.0.7 grid runtime. Uses finite layer bands (SUR/UDN/SUB) and 80×30 viewport grid.",
+  "description": "Canonical location data format for v1.0.7 grid runtime. Grid-only internal format (no lat/long).",
   "type": "object",
   "properties": {
     "version": {
@@ -12,11 +12,24 @@
     "metadata": {
       "type": "object",
       "properties": {
-        "title": { "type": "string", "description": "World title" },
-        "author": { "type": "string" },
-        "created": { "type": "string", "format": "date-time" },
-        "updated": { "type": "string", "format": "date-time" },
-        "description": { "type": "string" }
+        "title": {
+          "type": "string",
+          "description": "World title"
+        },
+        "author": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string"
+        }
       }
     },
     "locations": {
@@ -36,7 +49,20 @@
           },
           "kind": {
             "type": "string",
-            "enum": ["landmark", "town", "village", "poi", "dungeon", "cave", "forest", "mountain", "water", "building", "room", "marker"],
+            "enum": [
+              "landmark",
+              "town",
+              "village",
+              "poi",
+              "dungeon",
+              "cave",
+              "forest",
+              "mountain",
+              "water",
+              "building",
+              "room",
+              "marker"
+            ],
             "description": "Location type classification"
           },
           "layer": {
@@ -72,13 +98,39 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": { "type": "string", "description": "Unique object ID" },
-                "name": { "type": "string" },
-                "character": { "type": "string", "maxLength": 1, "description": "ASCII/Unicode character to display" },
-                "kind": { "type": "string", "enum": ["door", "chest", "tree", "rock", "sign", "altar", "statue"] },
-                "interactive": { "type": "boolean", "default": true }
+                "id": {
+                  "type": "string",
+                  "description": "Unique object ID"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "character": {
+                  "type": "string",
+                  "maxLength": 1,
+                  "description": "ASCII/Unicode character to display"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "door",
+                    "chest",
+                    "tree",
+                    "rock",
+                    "sign",
+                    "altar",
+                    "statue"
+                  ]
+                },
+                "interactive": {
+                  "type": "boolean",
+                  "default": true
+                }
               },
-              "required": ["id", "character"]
+              "required": [
+                "id",
+                "character"
+              ]
             }
           },
           "sprites": {
@@ -87,13 +139,37 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": { "type": "string" },
-                "name": { "type": "string" },
-                "character": { "type": "string", "maxLength": 1, "description": "ASCII character (@=player, M=merchant, D=dragon)" },
-                "kind": { "type": "string", "enum": ["player", "npc", "creature", "merchant", "guard", "enemy"] },
-                "z": { "type": "integer", "description": "Rendering depth (higher=on top)" }
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "character": {
+                  "type": "string",
+                  "maxLength": 1,
+                  "description": "ASCII character (@=player, M=merchant, D=dragon)"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "player",
+                    "npc",
+                    "creature",
+                    "merchant",
+                    "guard",
+                    "enemy"
+                  ]
+                },
+                "z": {
+                  "type": "integer",
+                  "description": "Rendering depth (higher=on top)"
+                }
               },
-              "required": ["id", "character"]
+              "required": [
+                "id",
+                "character"
+              ]
             }
           },
           "markers": {
@@ -102,11 +178,30 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": { "type": "string" },
-                "character": { "type": "string", "maxLength": 1, "description": "Flag, star, X, etc." },
-                "kind": { "type": "string", "enum": ["waypoint", "quest", "treasure", "danger", "safe"] }
+                "id": {
+                  "type": "string"
+                },
+                "character": {
+                  "type": "string",
+                  "maxLength": 1,
+                  "description": "Flag, star, X, etc."
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "waypoint",
+                    "quest",
+                    "treasure",
+                    "danger",
+                    "safe"
+                  ]
+                }
               },
-              "required": ["id", "character", "kind"]
+              "required": [
+                "id",
+                "character",
+                "kind"
+              ]
             }
           },
           "connections": {
@@ -115,7 +210,7 @@
             "additionalProperties": {
               "type": "string",
               "pattern": "^L[0-9]{3}-[A-Z]{2}[0-9]{2}$",
-              "description": "Direction (N, E, S, W, NE, NW, SE, SW) → adjacent location ID"
+              "description": "Direction (N, E, S, W, NE, NW, SE, SW) \u2192 adjacent location ID"
             },
             "examples": {
               "N": "L300-AA11",
@@ -128,8 +223,16 @@
             "type": "object",
             "description": "Sextant/teletext map data for this location",
             "properties": {
-              "width": { "type": "integer", "const": 80, "description": "Viewport width" },
-              "height": { "type": "integer", "const": 30, "description": "Viewport height" },
+              "width": {
+                "type": "integer",
+                "const": 80,
+                "description": "Viewport width"
+              },
+              "height": {
+                "type": "integer",
+                "const": 30,
+                "description": "Viewport height"
+              },
               "data": {
                 "type": "string",
                 "description": "Encoded sextant grid (base64 or hex)"
@@ -142,8 +245,19 @@
             "items": {
               "type": "object",
               "properties": {
-                "trigger": { "type": "string", "enum": ["enter", "exit", "interact", "time"] },
-                "action": { "type": "string", "description": "JavaScript/uPy code to execute" }
+                "trigger": {
+                  "type": "string",
+                  "enum": [
+                    "enter",
+                    "exit",
+                    "interact",
+                    "time"
+                  ]
+                },
+                "action": {
+                  "type": "string",
+                  "description": "JavaScript/uPy code to execute"
+                }
               }
             }
           },
@@ -153,7 +267,10 @@
             "additionalProperties": true
           }
         },
-        "required": ["id", "name"]
+        "required": [
+          "id",
+          "name"
+        ]
       }
     },
     "terrain_types": {
@@ -162,18 +279,53 @@
       "items": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "description": "Unique terrain type ID" },
-          "name": { "type": "string" },
-          "character": { "type": "string", "maxLength": 1, "description": "ASCII representation" },
-          "sextant_block": { "type": "string", "description": "Unicode sextant/block character" },
-          "color": { "type": "string", "enum": ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"] },
-          "traversable": { "type": "boolean", "default": true },
-          "description": { "type": "string" }
+          "id": {
+            "type": "string",
+            "description": "Unique terrain type ID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "character": {
+            "type": "string",
+            "maxLength": 1,
+            "description": "ASCII representation"
+          },
+          "sextant_block": {
+            "type": "string",
+            "description": "Unicode sextant/block character"
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "black",
+              "red",
+              "green",
+              "yellow",
+              "blue",
+              "magenta",
+              "cyan",
+              "white"
+            ]
+          },
+          "traversable": {
+            "type": "boolean",
+            "default": true
+          },
+          "description": {
+            "type": "string"
+          }
         },
-        "required": ["id", "character"]
+        "required": [
+          "id",
+          "character"
+        ]
       }
     }
   },
-  "required": ["version", "locations"],
+  "required": [
+    "version",
+    "locations"
+  ],
   "additionalProperties": false
 }

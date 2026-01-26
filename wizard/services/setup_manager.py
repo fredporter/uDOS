@@ -10,9 +10,10 @@ from __future__ import annotations
 import os
 import json
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from wizard.services.path_utils import get_repo_root, get_memory_dir
+from core.location_service import LocationService
 from wizard.services.setup_state import setup_state
 
 
@@ -154,6 +155,52 @@ def _load_wizard_config() -> Dict[str, Any]:
             "web_proxy_enabled": False,
             "hubspot_enabled": False,
         }
+
+
+_location_service: LocationService | None = None
+
+
+def _get_location_service() -> LocationService:
+    global _location_service
+    if _location_service is None:
+        _location_service = LocationService()
+    return _location_service
+
+
+def search_locations(query: str, timezone_hint: str | None = None, limit: int = 10) -> List[Dict[str, Any]]:
+    service = _get_location_service()
+    query_norm = (query or "").strip().lower()
+    matches = []
+    for loc in service.get_all_locations():
+        name = loc.get("name", "")
+        if query_norm and query_norm not in name.lower():
+            continue
+        score = 0
+        if query_norm and name.lower().startswith(query_norm):
+            score += 2
+        if timezone_hint and str(loc.get("timezone", "")).lower() == timezone_hint.lower():
+            score += 1
+        matches.append(
+            {
+                "id": loc.get("id"),
+                "name": name,
+                "timezone": loc.get("timezone"),
+                "region": loc.get("region"),
+                "type": loc.get("type"),
+                "layer": loc.get("layer"),
+                "cell": loc.get("cell"),
+                "score": score,
+            }
+        )
+    matches.sort(key=lambda m: (-m["score"], m["name"]))
+    return matches[: max(1, limit)]
+
+
+def get_default_location_for_timezone(timezone_hint: str | None) -> Optional[Dict[str, Any]]:
+    if not timezone_hint:
+        return None
+    matches = search_locations("", timezone_hint=timezone_hint, limit=1)
+    return matches[0] if matches else None
     try:
         return json.loads(config_path.read_text())
     except Exception:

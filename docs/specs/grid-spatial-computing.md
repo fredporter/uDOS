@@ -168,7 +168,7 @@ L{EffectiveLayer}-{FinalCell}
 Where:
 ```
 EffectiveLayer = BaseLayer + Depth
-Depth = number of Cell segments
+Depth = number of additional Cell segments (beyond the first)
 ```
 
 ### 6.3 Spatial Equivalence
@@ -1194,4 +1194,3 @@ When the host environment supports Unicode sextant glyphs, implementations may p
 - `mask (0..63) → glyph`
 
 The mask table above remains canonical; glyph binding is an implementation detail that may vary by font/terminal support.
-

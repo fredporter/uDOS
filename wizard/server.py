@@ -1376,20 +1376,23 @@ class WizardServer:
             raise HTTPException(status_code=401, detail="Missing authorization")
 
         token = auth_header[7:]
+        env_token = os.getenv("WIZARD_ADMIN_TOKEN")
+        if env_token and hmac.compare_digest(token, env_token):
+            return
+
+        entry = None
+        store_locked = False
         try:
             store = get_secret_store()
             store.unlock()
             entry = store.get(key_id)
         except SecretStoreError:
-            entry = None
+            store_locked = True
 
-        env_token = os.getenv("WIZARD_ADMIN_TOKEN")
         if entry and entry.value and hmac.compare_digest(token, entry.value):
             return
-        if env_token and hmac.compare_digest(token, env_token):
-            return
 
-        if entry is None and not env_token:
+        if store_locked and not env_token:
             raise HTTPException(status_code=503, detail="admin secret store locked")
         raise HTTPException(status_code=403, detail="Invalid admin token")
 

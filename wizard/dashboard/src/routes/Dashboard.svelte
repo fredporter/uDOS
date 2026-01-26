@@ -1,5 +1,6 @@
 <script>
   import { onDestroy, onMount } from "svelte";
+  import { getAdminToken, buildAuthHeaders } from "../lib/services/auth";
 
   let dashboardData = null;
   let systemStats = null;
@@ -7,6 +8,9 @@
   let githubHealth = null;
   let schedulerStatus = null;
   let schedulerError = null;
+  let installProfile = null;
+  let installMetrics = null;
+  let installError = null;
   let schedulerSettings = {
     max_tasks_per_tick: 2,
     tick_seconds: 60,
@@ -24,8 +28,7 @@
   let adminToken = "";
   let hasAdminToken = false;
 
-  const authHeaders = () =>
-    adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
+  const authHeaders = () => buildAuthHeaders();
 
   const overloadLabels = {
     cpu_load_high: "CPU load is elevated",
@@ -116,6 +119,23 @@
     }
   }
 
+  async function loadInstallState() {
+    try {
+      const res = await fetch("/api/v1/setup/profiles", {
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      installProfile = data.install_profile || null;
+      installMetrics = data.install_metrics || null;
+      installError = null;
+    } catch (err) {
+      installError = `Failed to load installation data: ${err.message}`;
+      installProfile = null;
+      installMetrics = null;
+    }
+  }
+
   async function updateSchedulerSettings() {
     try {
       const res = await fetch("/api/v1/tasks/settings", {
@@ -163,11 +183,12 @@
   }
 
   onMount(() => {
-    adminToken = localStorage.getItem("wizardAdminToken") || "";
+    adminToken = getAdminToken();
     hasAdminToken = !!adminToken;
     loadDashboard();
     loadGitHubHealth();
     loadSchedulerStatus();
+    loadInstallState();
     refreshTimer = setInterval(loadSystemStats, 15000);
   });
 
@@ -563,6 +584,64 @@
         {/if}
       {:else}
         <div class="text-sm text-gray-400">Loading scheduler status...</div>
+      {/if}
+    </div>
+
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 space-y-4">
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-white">Installation</h3>
+          <p class="text-sm text-gray-400">Lifespan + move tracking</p>
+        </div>
+        <button
+          class="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
+          on:click={loadInstallState}
+        >
+          Refresh
+        </button>
+      </div>
+
+      {#if installError}
+        <div class="bg-red-900/60 border border-red-700 text-red-100 p-3 rounded text-sm">
+          {installError}
+        </div>
+      {:else if installMetrics}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">
+          <div>
+            <div class="text-gray-400">Lifespan</div>
+            <div class="text-lg font-semibold">
+              {installMetrics.lifespan_mode === "moves"
+                ? `Moves (${installMetrics.moves_limit ?? "∞"})`
+                : "Infinite"}
+            </div>
+          </div>
+          <div>
+            <div class="text-gray-400">Moves used</div>
+            <div class="text-lg font-semibold">{installMetrics.moves_used ?? 0}</div>
+          </div>
+          <div>
+            <div class="text-gray-400">Last move</div>
+            <div class="text-lg font-semibold">
+              {installMetrics.last_move_at
+                ? new Date(installMetrics.last_move_at).toLocaleString()
+                : "—"}
+            </div>
+          </div>
+        </div>
+        {#if installProfile}
+          <div class="mt-3 border-t border-gray-700 pt-3 text-sm text-gray-300 space-y-1">
+            <div class="flex justify-between">
+              <span class="text-gray-400">Installation ID</span>
+              <span class="font-semibold">{installProfile.installation_id || "—"}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">OS Type</span>
+              <span class="font-semibold">{installProfile.os_type || "—"}</span>
+            </div>
+          </div>
+        {/if}
+      {:else}
+        <div class="text-sm text-gray-400">No installation data yet.</div>
       {/if}
     </div>
 

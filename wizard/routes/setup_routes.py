@@ -15,13 +15,99 @@ from wizard.services.setup_manager import (
     get_required_variables,
     validate_database_paths,
     get_paths,
+    search_locations,
+    get_default_location_for_timezone,
 )
+from wizard.services.setup_profiles import (
+    load_user_profile,
+    load_install_profile,
+    save_user_profile,
+    save_install_profile,
+    load_install_metrics,
+    sync_metrics_from_profile,
+    increment_moves,
+)
+
+from wizard.services.path_utils import get_repo_root, get_memory_dir
+from core.location_service import LocationService
+import json
 
 
 class ConfigVariable(BaseModel):
     name: str
     value: str
     description: Optional[str] = None
+
+
+class UserProfilePayload(BaseModel):
+    username: str
+    date_of_birth: str
+    role: str
+    timezone: str
+    local_time: str
+    location_id: Optional[str] = None
+    location_name: Optional[str] = None
+    permissions: Optional[Dict[str, Any]] = None
+
+
+class InstallProfilePayload(BaseModel):
+    installation_id: Optional[str] = None
+    os_type: Optional[str] = None
+    lifespan_mode: Optional[str] = None
+    moves_limit: Optional[int] = None
+    capabilities: Optional[Dict[str, bool]] = None
+    permissions: Optional[Dict[str, Any]] = None
+
+
+class StorySubmitPayload(BaseModel):
+    answers: Dict[str, Any]
+
+
+def _apply_capabilities_to_wizard_config(capabilities: Dict[str, bool]) -> None:
+    if not capabilities:
+        return
+    config_path = get_repo_root() / "wizard" / "config" / "wizard.json"
+    if not config_path.exists():
+        return
+    try:
+        config = json.loads(config_path.read_text())
+    except json.JSONDecodeError:
+        return
+    mapping = {
+        "web_proxy": "web_proxy_enabled",
+        "gmail_relay": "gmail_relay_enabled",
+        "ai_gateway": "ai_gateway_enabled",
+        "github_push": "github_push_enabled",
+        "notion": "notion_enabled",
+        "hubspot": "hubspot_enabled",
+        "icloud": "icloud_enabled",
+        "plugin_repo": "plugin_repo_enabled",
+        "plugin_auto_update": "plugin_auto_update",
+    }
+    updated = False
+    for cap_key, config_key in mapping.items():
+        if cap_key in capabilities:
+            config[config_key] = bool(capabilities[cap_key])
+            updated = True
+    if updated:
+        config_path.write_text(json.dumps(config, indent=2))
+
+
+def _validate_location_id(location_id: Optional[str]) -> None:
+    if not location_id:
+        raise HTTPException(status_code=400, detail="Location must be selected")
+    service = LocationService()
+    if not service.get_location(location_id):
+        raise HTTPException(
+            status_code=400,
+            detail="Location must be a valid uDOS grid code from the core dataset",
+        )
+
+
+def _resolve_location_name(location_id: str) -> str:
+    service = LocationService()
+    loc = service.get_location(location_id)
+    return loc.get("name") if loc else location_id
 
 
 def create_setup_routes(auth_guard=None):
@@ -175,5 +261,130 @@ def create_setup_routes(auth_guard=None):
                 except Exception as exc:
                     errors.append({"path": path, "error": str(exc)})
         return {"status": "complete", "created_directories": created, "errors": errors or None}
+
+    @router.get("/profiles")
+    async def get_profiles():
+        user = load_user_profile()
+        install = load_install_profile()
+        return {
+            "user_profile": user.data,
+            "install_profile": install.data,
+            "secret_store_locked": user.locked or install.locked,
+            "errors": [e for e in [user.error, install.error] if e],
+            "install_metrics": load_install_metrics(),
+        }
+
+    @router.post("/profile/user")
+    async def set_user_profile(payload: UserProfilePayload):
+        _validate_location_id(payload.location_id)
+        payload_dict = payload.dict()
+        payload_dict["location_name"] = _resolve_location_name(payload.location_id)
+        result = save_user_profile(payload_dict)
+        if result.locked:
+            raise HTTPException(status_code=503, detail=result.error or "secret store locked")
+        setup_state.mark_variable_configured("user_profile")
+        return {"status": "success", "user_profile": result.data}
+
+    @router.post("/profile/install")
+    async def set_install_profile(payload: InstallProfilePayload):
+        result = save_install_profile(payload.dict())
+        if result.locked:
+            raise HTTPException(status_code=503, detail=result.error or "secret store locked")
+        capabilities = (result.data or {}).get("capabilities") or {}
+        _apply_capabilities_to_wizard_config(capabilities)
+        metrics = sync_metrics_from_profile(result.data or {})
+        setup_state.mark_variable_configured("install_profile")
+        return {"status": "success", "install_profile": result.data, "install_metrics": metrics}
+
+    @router.get("/installation/metrics")
+    async def get_install_metrics():
+        return {"status": "success", "metrics": load_install_metrics()}
+
+    @router.post("/installation/moves")
+    async def add_install_move():
+        return {"status": "success", "metrics": increment_moves()}
+
+    @router.get("/locations/search")
+    async def search_locations_endpoint(query: str = "", timezone: Optional[str] = None, limit: int = 10):
+        return {"results": search_locations(query, timezone_hint=timezone, limit=limit)}
+
+    @router.get("/locations/default")
+    async def default_location_endpoint(timezone: Optional[str] = None):
+        default = get_default_location_for_timezone(timezone)
+        return {"result": default}
+
+    @router.post("/story/bootstrap")
+    async def bootstrap_setup_story(force: bool = False):
+        repo_root = get_repo_root()
+        template_path = repo_root / "wizard" / "templates" / "setup-wizard-story.md"
+        if not template_path.exists():
+            raise HTTPException(status_code=404, detail="Setup story template missing")
+        memory_root = get_memory_dir()
+        story_dir = memory_root / "story"
+        story_dir.mkdir(parents=True, exist_ok=True)
+        story_path = story_dir / "wizard-setup-story.md"
+        if force or not story_path.exists():
+            story_path.write_text(template_path.read_text())
+        return {
+            "status": "success",
+            "path": story_path.relative_to(memory_root).as_posix(),
+            "overwritten": bool(force),
+        }
+
+    @router.post("/story/submit")
+    async def submit_setup_story(payload: StorySubmitPayload):
+        answers = payload.answers or {}
+
+        user_profile = {
+            "username": answers.get("user_username"),
+            "date_of_birth": answers.get("user_dob"),
+            "role": answers.get("user_role"),
+            "timezone": answers.get("user_timezone"),
+            "local_time": answers.get("user_local_time"),
+            "location_id": answers.get("user_location_id"),
+            "location_name": None,
+            "permissions": answers.get("user_permissions"),
+        }
+        _validate_location_id(user_profile.get("location_id"))
+        user_profile["location_name"] = _resolve_location_name(
+            user_profile.get("location_id")
+        )
+
+        install_profile = {
+            "installation_id": answers.get("install_id"),
+            "os_type": answers.get("install_os_type"),
+            "lifespan_mode": answers.get("install_lifespan_mode"),
+            "moves_limit": answers.get("install_moves_limit"),
+            "permissions": answers.get("install_permissions"),
+            "capabilities": {
+                "web_proxy": bool(answers.get("capability_web_proxy")),
+                "gmail_relay": bool(answers.get("capability_gmail_relay")),
+                "ai_gateway": bool(answers.get("capability_ai_gateway")),
+                "github_push": bool(answers.get("capability_github_push")),
+                "notion": bool(answers.get("capability_notion")),
+                "hubspot": bool(answers.get("capability_hubspot")),
+                "icloud": bool(answers.get("capability_icloud")),
+                "plugin_repo": bool(answers.get("capability_plugin_repo")),
+                "plugin_auto_update": bool(answers.get("capability_plugin_auto_update")),
+            },
+        }
+
+        user_result = save_user_profile(user_profile)
+        if user_result.locked:
+            raise HTTPException(status_code=503, detail=user_result.error or "secret store locked")
+
+        install_result = save_install_profile(install_profile)
+        if install_result.locked:
+            raise HTTPException(status_code=503, detail=install_result.error or "secret store locked")
+
+        _apply_capabilities_to_wizard_config((install_result.data or {}).get("capabilities") or {})
+        metrics = sync_metrics_from_profile(install_result.data or {})
+
+        return {
+            "status": "success",
+            "user_profile": user_result.data,
+            "install_profile": install_result.data,
+            "install_metrics": metrics,
+        }
 
     return router
