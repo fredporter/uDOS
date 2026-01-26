@@ -6,7 +6,7 @@ ASCII/sextant graphics. Supports viewing current location or any location by ID.
 """
 
 from typing import Dict, List, Optional, Tuple
-from core.commands.base import BaseCommandHandler
+from .base import BaseCommandHandler
 from core.locations import load_locations, Location
 from core.services.map_renderer import MapRenderer
 from core.tui.output import OutputToolkit
