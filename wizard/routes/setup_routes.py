@@ -108,6 +108,8 @@ def _apply_setup_defaults(
     answers = story_state.get("answers") or {}
     for section in story_state.get("sections", []):
         for question in section.get("questions", []):
+            if not question:
+                continue
             name = question.get("name")
             if not name:
                 continue
