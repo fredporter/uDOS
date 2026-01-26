@@ -18,6 +18,7 @@ Commands:
   git        - Git shortcuts (status/pull/push)
   workflow   - Workflow/todo helper
   logs       - Tail logs from memory/logs
+  peek       - Convert URL to Markdown (PEEK <url> [filename])
   backup     - Create .backup snapshot (scope-aware)
   restore    - Restore latest backup (use --force)
   tidy       - Move junk into .archive
@@ -63,6 +64,7 @@ from core.services.maintenance_utils import (
     default_memory_allowlist,
     get_memory_root,
 )
+from wizard.services.url_to_markdown_service import get_url_to_markdown_service
 
 
 class WizardConsole:
@@ -87,6 +89,7 @@ class WizardConsole:
             "ai": self.cmd_ai,
             "git": self.cmd_git,
             "logs": self.cmd_logs,
+            "peek": self.cmd_peek,
             "new": self.cmd_new,
             "edit": self.cmd_edit,
             "load": self.cmd_load,
@@ -502,6 +505,36 @@ class WizardConsole:
         except Exception as exc:
             print(f"\nFailed to read log: {exc}\n")
 
+    async def cmd_peek(self, args: list) -> None:
+        """Convert URL to Markdown and save to outbox.
+        
+        Usage: peek <url> [filename]
+        
+        Examples:
+            peek https://example.com
+            peek https://github.com/fredporter/uDOS my-readme
+        """
+        if not args:
+            print("\n❌ PEEK requires a URL")
+            print("   Usage: peek <url> [optional-filename]\n")
+            return
+        
+        url = args[0]
+        filename = args[1] if len(args) > 1 else None
+        
+        service = get_url_to_markdown_service()
+        
+        print(f"\n⏳ Converting {url}...")
+        success, output_path, message = await service.convert(url, filename)
+        
+        if success:
+            print(f"   {message}")
+            print(f"   📄 File: {output_path.relative_to(self.repo_root)}")
+        else:
+            print(f"   ❌ {message}")
+        
+        print()
+
     async def cmd_workflow(self, args: list) -> None:
         """Workflow manager commands."""
         manager = WorkflowManager()
@@ -611,6 +644,7 @@ class WizardConsole:
         print("  git        - Git shortcuts (status/pull/push/log)")
         print("  workflow   - Workflow/todo helper")
         print("  logs       - Tail logs from memory/logs")
+        print("  peek       - Convert URL to Markdown (peek <url> [filename])")
         print("  new/edit/load/save - Open files in editor (/memory)")
         print("  backup     - Create .backup snapshot (workspace default)")
         print("  restore    - Restore latest backup (use --force to overwrite)")
