@@ -9,7 +9,6 @@ from typing import Dict, List, Optional, Tuple
 from .base import BaseCommandHandler
 from core.locations import load_locations, Location
 from core.services.map_renderer import MapRenderer
-from core.tui.output import OutputToolkit
 
 
 class MapHandler(BaseCommandHandler):
@@ -50,6 +49,9 @@ class MapHandler(BaseCommandHandler):
             grid_display = self._render_grid(location)
         except Exception as e:
             return {"status": "error", "message": f"Failed to render grid: {str(e)}"}
+
+        # Import OutputToolkit only when needed (avoid circular import)
+        from core.tui.output import OutputToolkit
 
         renderer = MapRenderer()
         cols = renderer.cols

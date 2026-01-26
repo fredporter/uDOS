@@ -4,31 +4,96 @@ uDOS Command Handlers
 Location-based and game state command handlers for TUI integration.
 """
 
-from .base import BaseCommandHandler
-from .map_handler import MapHandler
-from .panel_handler import PanelHandler
-from .goto_handler import GotoHandler
-from .find_handler import FindHandler
-from .tell_handler import TellHandler
-from .bag_handler import BagHandler
-from .grab_handler import GrabHandler
-from .spawn_handler import SpawnHandler
-from .save_load_handlers import SaveHandler, LoadHandler
-from .help_handler import HelpHandler
-from .shakedown_handler import ShakedownHandler
-from .repair_handler import RepairHandler
-from .pattern_handler import PatternHandler
-from .dev_mode_handler import DevModeHandler
-from .npc_handler import NPCHandler
-from .dialogue_engine import DialogueEngine, DialogueTree, DialogueNode
-from .talk_handler import TalkHandler
-from .config_handler import ConfigHandler
-from .provider_handler import ProviderHandler
-from .binder_handler import BinderHandler
-from .run_handler import RunHandler
-from .dataset_handler import DatasetHandler
-from .file_editor_handler import FileEditorHandler
-from .maintenance_handler import MaintenanceHandler
+# Delay imports to avoid circular dependencies during module initialization
+# Handlers can be imported when actually needed (lazy loading)
+
+def __getattr__(name):
+    """Lazy load handlers to avoid circular imports."""
+    if name == "BaseCommandHandler":
+        from .base import BaseCommandHandler
+        return BaseCommandHandler
+    elif name == "MapHandler":
+        from .map_handler import MapHandler
+        return MapHandler
+    elif name == "PanelHandler":
+        from .panel_handler import PanelHandler
+        return PanelHandler
+    elif name == "GotoHandler":
+        from .goto_handler import GotoHandler
+        return GotoHandler
+    elif name == "FindHandler":
+        from .find_handler import FindHandler
+        return FindHandler
+    elif name == "TellHandler":
+        from .tell_handler import TellHandler
+        return TellHandler
+    elif name == "BagHandler":
+        from .bag_handler import BagHandler
+        return BagHandler
+    elif name == "GrabHandler":
+        from .grab_handler import GrabHandler
+        return GrabHandler
+    elif name == "SpawnHandler":
+        from .spawn_handler import SpawnHandler
+        return SpawnHandler
+    elif name == "SaveHandler":
+        from .save_load_handlers import SaveHandler
+        return SaveHandler
+    elif name == "LoadHandler":
+        from .save_load_handlers import LoadHandler
+        return LoadHandler
+    elif name == "HelpHandler":
+        from .help_handler import HelpHandler
+        return HelpHandler
+    elif name == "ShakedownHandler":
+        from .shakedown_handler import ShakedownHandler
+        return ShakedownHandler
+    elif name == "RepairHandler":
+        from .repair_handler import RepairHandler
+        return RepairHandler
+    elif name == "PatternHandler":
+        from .pattern_handler import PatternHandler
+        return PatternHandler
+    elif name == "DevModeHandler":
+        from .dev_mode_handler import DevModeHandler
+        return DevModeHandler
+    elif name == "NPCHandler":
+        from .npc_handler import NPCHandler
+        return NPCHandler
+    elif name == "DialogueEngine":
+        from .dialogue_engine import DialogueEngine
+        return DialogueEngine
+    elif name == "DialogueTree":
+        from .dialogue_engine import DialogueTree
+        return DialogueTree
+    elif name == "DialogueNode":
+        from .dialogue_engine import DialogueNode
+        return DialogueNode
+    elif name == "TalkHandler":
+        from .talk_handler import TalkHandler
+        return TalkHandler
+    elif name == "ConfigHandler":
+        from .config_handler import ConfigHandler
+        return ConfigHandler
+    elif name == "ProviderHandler":
+        from .provider_handler import ProviderHandler
+        return ProviderHandler
+    elif name == "BinderHandler":
+        from .binder_handler import BinderHandler
+        return BinderHandler
+    elif name == "RunHandler":
+        from .run_handler import RunHandler
+        return RunHandler
+    elif name == "DatasetHandler":
+        from .dataset_handler import DatasetHandler
+        return DatasetHandler
+    elif name == "FileEditorHandler":
+        from .file_editor_handler import FileEditorHandler
+        return FileEditorHandler
+    elif name == "MaintenanceHandler":
+        from .maintenance_handler import MaintenanceHandler
+        return MaintenanceHandler
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 __all__ = [
     "BaseCommandHandler",

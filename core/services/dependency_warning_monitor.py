@@ -56,6 +56,7 @@ def _invoke_repair(action: str = "--upgrade", quiet: bool = False) -> bool:
     """Trigger the REPAIR handler and return True if it succeeded."""
 
     try:
+        # Import directly to avoid circular import through __init__.py
         from core.commands.repair_handler import RepairHandler
 
         handler = RepairHandler()
