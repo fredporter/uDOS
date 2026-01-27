@@ -51,7 +51,11 @@
       "editor.formatOnSave": true,
       "editor.wordWrap": "on"
     },
-    "chatgpt.openOnStartup": true
+    "github.copilot.enable": {
+      "*": true,
+      "plaintext": false,
+      "markdown": false
+    }
   },
   "extensions": {
     "recommendations": [

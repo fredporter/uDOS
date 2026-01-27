@@ -1,4 +1,4 @@
-1) example.sqlite.db — Schema + Seed (SQL)
+1. example.sqlite.db — Schema + Seed (SQL)
 
 Copy-paste this into a SQLite client (or your app’s DB initialiser) to create and seed the database.
 
@@ -9,109 +9,112 @@ PRAGMA foreign_keys = ON;
 
 -- Simple key/value facts
 CREATE TABLE IF NOT EXISTS facts (
-  key   TEXT PRIMARY KEY,
-  value TEXT NOT NULL
+key TEXT PRIMARY KEY,
+value TEXT NOT NULL
 );
 
 -- NPC directory (for DB-backed narrative content)
 CREATE TABLE IF NOT EXISTS npc (
-  id    TEXT PRIMARY KEY,
-  name  TEXT NOT NULL,
-  bio   TEXT NOT NULL,
-  tile  TEXT NOT NULL,
-  layer INTEGER NOT NULL
+id TEXT PRIMARY KEY,
+name TEXT NOT NULL,
+bio TEXT NOT NULL,
+tile TEXT NOT NULL,
+layer INTEGER NOT NULL
 );
 
 -- Points of interest (POIs) per map layer
 CREATE TABLE IF NOT EXISTS poi (
-  id    TEXT PRIMARY KEY,
-  name  TEXT NOT NULL,
-  kind  TEXT NOT NULL,     -- e.g. "shop", "garden", "gate", "landmark"
-  tile  TEXT NOT NULL,
-  layer INTEGER NOT NULL,
-  note  TEXT DEFAULT ""
+id TEXT PRIMARY KEY,
+name TEXT NOT NULL,
+kind TEXT NOT NULL, -- e.g. "shop", "garden", "gate", "landmark"
+tile TEXT NOT NULL,
+layer INTEGER NOT NULL,
+note TEXT DEFAULT ""
 );
 
 -- Optional: tile adjacency graph (for movement demo)
 -- This allows deterministic moves without needing to compute coordinates.
 CREATE TABLE IF NOT EXISTS tile_edges (
-  layer INTEGER NOT NULL,
-  from_tile TEXT NOT NULL,
-  dir TEXT NOT NULL,       -- "N","S","E","W"
-  to_tile TEXT NOT NULL,
-  PRIMARY KEY (layer, from_tile, dir)
+layer INTEGER NOT NULL,
+from_tile TEXT NOT NULL,
+dir TEXT NOT NULL, -- "N","S","E","W"
+to_tile TEXT NOT NULL,
+PRIMARY KEY (layer, from_tile, dir)
 );
 
 -- Seed facts
 INSERT OR REPLACE INTO facts (key, value) VALUES
-  ('weather', 'Clear skies. Light breeze. Good walking weather.'),
-  ('notice', 'Market toll: 10 coins. Key required.'),
-  ('tip', 'Try the Garden first if you need coins.');
+('weather', 'Clear skies. Light breeze. Good walking weather.'),
+('notice', 'Market toll: 10 coins. Key required.'),
+('tip', 'Try the Garden first if you need coins.');
 
 -- Seed NPCs
 INSERT OR REPLACE INTO npc (id, name, bio, tile, layer) VALUES
-  ('npc_merchant', 'Mara the Merchant', 'A meticulous trader who keeps a ledger of every deal. Knows every rumour in town.', 'AA341-100', 300),
-  ('npc_guard', 'Gate Guard', 'A stoic guard who only respects preparation: a key, and the market toll.', 'AA339-100', 300);
+('npc_merchant', 'Mara the Merchant', 'A meticulous trader who keeps a ledger of every deal. Knows every rumour in town.', 'AA341-100', 300),
+('npc_guard', 'Gate Guard', 'A stoic guard who only respects preparation: a key, and the market toll.', 'AA339-100', 300);
 
 -- Seed POIs (layer 300)
 INSERT OR REPLACE INTO poi (id, name, kind, tile, layer, note) VALUES
-  ('poi_garden', 'Garden', 'garden', 'AA340-100', 300, 'You can scavenge here.'),
-  ('poi_market_gate', 'Market Gate', 'gate', 'AA342-100', 300, 'Locked unless you have a key + 10 coins.'),
-  ('poi_market', 'Market District', 'shop', 'AA343-100', 300, 'Busy stalls and traders.'),
-  ('poi_square', 'Town Square', 'landmark', 'AA341-100', 300, 'A good place to meet people.');
+('poi_garden', 'Garden', 'garden', 'AA340-100', 300, 'You can scavenge here.'),
+('poi_market_gate', 'Market Gate', 'gate', 'AA342-100', 300, 'Locked unless you have a key + 10 coins.'),
+('poi_market', 'Market District', 'shop', 'AA343-100', 300, 'Busy stalls and traders.'),
+('poi_square', 'Town Square', 'landmark', 'AA341-100', 300, 'A good place to meet people.');
 
 -- Seed adjacency edges for layer 300 (a tiny 1D strip for demo)
 -- AA339-100 <-> AA340-100 <-> AA341-100 <-> AA342-100 <-> AA343-100
 INSERT OR REPLACE INTO tile_edges (layer, from_tile, dir, to_tile) VALUES
-  (300, 'AA339-100', 'E', 'AA340-100'),
-  (300, 'AA340-100', 'W', 'AA339-100'),
+(300, 'AA339-100', 'E', 'AA340-100'),
+(300, 'AA340-100', 'W', 'AA339-100'),
 
-  (300, 'AA340-100', 'E', 'AA341-100'),
-  (300, 'AA341-100', 'W', 'AA340-100'),
+(300, 'AA340-100', 'E', 'AA341-100'),
+(300, 'AA341-100', 'W', 'AA340-100'),
 
-  (300, 'AA341-100', 'E', 'AA342-100'),
-  (300, 'AA342-100', 'W', 'AA341-100'),
+(300, 'AA341-100', 'E', 'AA342-100'),
+(300, 'AA342-100', 'W', 'AA341-100'),
 
-  (300, 'AA342-100', 'E', 'AA343-100'),
-  (300, 'AA343-100', 'W', 'AA342-100');
+(300, 'AA342-100', 'E', 'AA343-100'),
+(300, 'AA343-100', 'W', 'AA342-100');
 
 -- Optional: vertical edges (if you want N/S too)
 -- INSERT OR REPLACE INTO tile_edges (layer, from_tile, dir, to_tile) VALUES
---   (300, 'AA340-100', 'N', 'AA340-101'),
---   (300, 'AA340-101', 'S', 'AA340-100');
+-- (300, 'AA340-100', 'N', 'AA340-101'),
+-- (300, 'AA340-101', 'S', 'AA340-100');
 
 This matches the db binding pattern in your earlier example (facts, npc, poi).
 The tile_edges table is included specifically to make movement deterministic without needing coordinate maths.
 
 ⸻
 
-2) movement-demo-script.md — Sprite Movement Demo
+2. movement-demo-script.md — Sprite Movement Demo
 
 This demonstrates:
-	•	structured state for player + sprites
-	•	$variables inside panels
-	•	map viewport rendering
-	•	movement via nav + set
-	•	optional DB-backed move resolution (via tile_edges)
-	•	a simple “blocked gate” rule with if/else
+• structured state for player + sprites
+• $variables inside panels
+• map viewport rendering
+• movement via nav + set
+• optional DB-backed move resolution (via tile_edges)
+• a simple “blocked gate” rule with if/else
 
 Copy-paste as movement-demo-script.md:
 
 ---
+
 title: "Movement Demo (Sprites + Map)"
 id: "movement-demo"
-version: "1.0"
+version: "1.0.0"
 runtime: "udos-md-runtime"
 mode: "teletext"
 stateDefaults: "preserve"
 data:
-  db:
-    primary: "./data/example.sqlite.db"
+db:
+primary: "./data/example.sqlite.db"
+
 ---
 
 # Movement Demo (Sprites + Map)
 
 This script demonstrates **movement** using only:
+
 - `state`, `set`, `if/else`, `nav`, `panel`, `map`
 - optional DB edges lookup for neighbour tiles
 
@@ -121,7 +124,7 @@ No uPY. No loops. Deterministic behaviour.
 
 ## Boot
 
-```state
+````state
 $player = {
   name: "Traveller",
   coins: 0,
@@ -386,11 +389,11 @@ bind:
       tile:  $player.pos.tile
 
 ### 2) Result shape rules (deterministic)
-- **Single row + single column** → scalar  
+- **Single row + single column** → scalar
   e.g. `$db.move.E = "AA341-100"`
-- **Single row + multiple columns** → object  
+- **Single row + multiple columns** → object
   e.g. `$db.npc.merchant = { id, name, bio, tile, layer }`
-- **Multiple rows** → array of objects  
+- **Multiple rows** → array of objects
   e.g. `$db.poi = [ {name,tile,layer}, ... ]`
 - **No rows** → `null` (scalar/object) or `[]` (array), depending on expected shape
 
@@ -406,7 +409,7 @@ Copy-paste as `interaction-demo-script.md`:
 ---
 title: "Interaction Demo (Talk / Pickup / POI)"
 id: "interaction-demo"
-version: "1.0"
+version: "1.0.0"
 runtime: "udos-md-runtime"
 mode: "teletext"
 stateDefaults: "preserve"
@@ -875,3 +878,4 @@ HUD anchor
 
 
 ⸻
+````

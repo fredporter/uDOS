@@ -54,14 +54,25 @@ pip install Pillow python-dotenv prompt_toolkit rich pytest
 
 ## First-Time Launch Options
 
-Choose what you want to run:
+All launchers now use a unified system. Choose what you want to run:
 
 ### Option 1: Core TUI Only (Recommended for Testing)
 
 The lightweight text-based interface, perfect for command testing and embedded systems.
 
+**Terminal (CLI):**
+
 ```bash
 ./bin/start_udos.sh
+# Or directly:
+./bin/start-core-tui.sh
+```
+
+**macOS Finder:**
+
+```bash
+open bin/Launch-uDOS-TUI.command
+# Or double-click in Finder
 ```
 
 **Features:**
@@ -76,8 +87,17 @@ The lightweight text-based interface, perfect for command testing and embedded s
 
 Always-on backend service with web dashboard for APIs, webhooks, and AI model routing.
 
+**Terminal (CLI):**
+
 ```bash
-./bin/start_wizard.sh
+./bin/start-wizard-server.sh
+```
+
+**macOS Finder:**
+
+```bash
+open bin/Launch-Wizard-Server.command
+# Or double-click in Finder
 ```
 
 **What this does:**
@@ -96,13 +116,6 @@ Always-on backend service with web dashboard for APIs, webhooks, and AI model ro
 - Rate limit tracking
 - WebSocket support
 - **Runs as background service** (no blocking console prompt)
-
-**Options:**
-
-```bash
-./bin/start_wizard.sh 8765           # Custom port
-./bin/start_wizard.sh                # Default port 8765
-```
 
 **Dashboard URLs:**
 
@@ -159,11 +172,21 @@ python -m core.version show      # Dashboard
 
 ### Stop a Running Service
 
-All launcher scripts handle `Ctrl+C` cleanly:
+All launchers handle `Ctrl+C` cleanly:
 
 ```bash
 # Press Ctrl+C in the terminal where the service is running
 ^C
+```
+
+For background services started via .command files, find and kill the process:
+
+```bash
+# Find process
+ps aux | grep "wizard.server\|goblin\|empire"
+
+# Kill by PID
+kill <PID>
 ```
 
 ### Debug Logs
@@ -227,10 +250,10 @@ pip install Pillow python-dotenv prompt_toolkit rich
 
 **Problem:** "Address already in use" error
 
-**Solution:** Use a different port:
+**Solution:** The unified launcher system auto-detects port conflicts. If needed, manually specify a port:
 
 ```bash
-./bin/start_wizard.sh 9000   # Instead of default 8765
+./bin/start-wizard-server.sh --port 9000   # Custom port
 ```
 
 ### Browser Won't Open

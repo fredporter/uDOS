@@ -1,7 +1,7 @@
 ---
 title: "Example Interactive Script"
 id: "example-script"
-version: "1.0"
+version: "1.0.0"
 runtime: "udos-md-runtime"
 mode: "teletext"
 stateDefaults: "preserve"
@@ -20,7 +20,7 @@ This file demonstrates:
 - `panel` (ASCII/teletext)
 - `map` (viewport render)
 - Optional sandboxed `.ts` logic (Phase 2 feature)
-- External SQLite `.db` as an *extended variable source* (read-only in v0)
+- External SQLite `.db` as an _extended variable source_ (read-only in v0)
 
 ---
 
@@ -328,3 +328,4 @@ Thanks for testing, $player.name.
 █ per-script file.  █
 ████████████████████
 
+```

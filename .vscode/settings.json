@@ -67,6 +67,12 @@
   },
   "editor.rulers": [100, 120],
   "editor.formatOnSave": false,
+  "python.analysis.autoSearchPaths": true,
+  "python.analysis.extraPaths": [],
+  "pylance.typeCheckingMode": "basic",
+  "github.copilot.advanced": {
+    "debug.overrideCacheDir": ""
+  }
   "editor.trimAutoWhitespace": true,
   "files.trimTrailingWhitespace": true,
   "files.trimFinalNewlines": true,

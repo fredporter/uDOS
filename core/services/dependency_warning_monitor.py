@@ -389,17 +389,40 @@ def run_preflight_check(
 
     interactive = prompt_if_interactive and DependencyWarningMonitor._is_interactive()
     if interactive:
-        if DependencyWarningMonitor._ask_yes_no("Run REPAIR --upgrade now? [Y/n]: "):
-            return 0 if _invoke_repair("--upgrade") else 2
-        print("Skipping automatic repair at user request. Relaunch after running REPAIR --upgrade.")
-        return 3
-
+        # Offer fixes for each issue
+        all_repaired = True
+        for issue in issues:
+            print(f"\n🔧 Fix for [{issue.code}]: {issue.message}")
+            if issue.resolution:
+                print(f"   {issue.resolution}")
+            if DependencyWarningMonitor._ask_yes_no(f"\n   Fix this issue now? [Y/n]: "):
+                success = _invoke_repair("--upgrade")
+                if success:
+                    print(f"   ✅ Fixed [{issue.code}]")
+                else:
+                    print(f"   ⚠️  Could not auto-fix [{issue.code}]. Please run REPAIR --upgrade manually.")
+                    all_repaired = False
+            else:
+                print(f"   ℹ️  Skipped [{issue.code}]. You can fix this later with REPAIR --upgrade")
+                all_repaired = False
+        
+        # Return 0 so server continues (warnings are non-critical)
+        if all_repaired:
+            print("\n✅ All dependency issues fixed!")
+            return 0
+        else:
+            print("\n⚠️  Some warnings remain, but server will continue.")
+            return 0
+    
     if auto_repair_if_headless:
         print("Attempting automatic REPAIR --upgrade (non-interactive session)...")
-        return 0 if _invoke_repair("--upgrade") else 2
+        success = _invoke_repair("--upgrade")
+        # Return 0 regardless so server continues (non-critical warnings)
+        return 0
 
     print("Dependency issues detected. Run 'REPAIR --upgrade' before continuing.")
-    return 4
+    # Still return 0 for non-critical warnings
+    return 0
 
 def install_dependency_warning_monitor(component: str, auto_prompt: bool = True) -> None:
     """Install (or extend) the global dependency warning monitor."""

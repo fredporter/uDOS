@@ -117,7 +117,10 @@ def _apply_setup_defaults(
                 value = overrides[name]
                 answers[name] = value
                 question["value"] = value
-                meta = question.setdefault("meta", {})
+                # Ensure meta is a dict (story parser may set it to None)
+                if question.get("meta") is None:
+                    question["meta"] = {}
+                meta = question["meta"]
                 meta["default_value"] = value
                 meta["previous_value"] = value
                 if name in highlight:
@@ -428,13 +431,18 @@ def create_setup_routes(auth_guard=None):
         if not story_path.exists():
             raise HTTPException(status_code=404, detail="Setup story not found")
         raw_content = story_path.read_text()
+        
         try:
             story_state = parse_story_document(
                 raw_content,
                 required_frontmatter_keys=["title", "type", "submit_endpoint"],
             )
         except ValueError as exc:
+            logger.error("Story parsing failed: %s", exc, exc_info=True)
             raise HTTPException(status_code=422, detail=str(exc))
+        except Exception as exc:
+            logger.error("Unexpected error parsing story: %s", exc, exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Story parsing error: {exc}")
 
         system_info = _get_system_timezone_info()
         timezone_options = _collect_timezone_options()
@@ -457,11 +465,17 @@ def create_setup_routes(auth_guard=None):
             "user_location_id": default_location.get("id") if default_location else None,
             "user_location_name": default_location.get("name") if default_location else None,
         }
-        _apply_setup_defaults(
-            story_state,
-            overrides,
-            highlight_fields=["user_timezone", "user_local_time"],
-        )
+        
+        try:
+            _apply_setup_defaults(
+                story_state,
+                overrides,
+                highlight_fields=["user_timezone", "user_local_time"],
+            )
+        except Exception as exc:
+            logger.error("Failed to apply setup defaults: %s", exc, exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Failed to apply defaults: {exc}")
+        
         story_state.setdefault("metadata", {})
         story_state["metadata"].update(
             {

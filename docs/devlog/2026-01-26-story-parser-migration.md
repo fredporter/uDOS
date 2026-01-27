@@ -122,7 +122,7 @@ answers = story['answers']
 ---
 title: Setup Story
 type: story
-version: "1.0"
+version: "1.0.0"
 description: "Interactive setup wizard"
 submit_endpoint: "/api/v1/setup/submit"
 submit_requires_admin: true

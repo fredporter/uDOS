@@ -1,7 +1,7 @@
 ---
 title: Wizard Setup Story
 type: story
-version: "1.0"
+version: "1.0.0"
 description: "Securely capture user and installation setup variables for Wizard."
 submit_endpoint: "/api/v1/setup/story/submit"
 submit_requires_admin: true
@@ -193,4 +193,3 @@ type: checkbox
 ```
 
 ---
-

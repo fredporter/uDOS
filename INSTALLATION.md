@@ -32,52 +32,97 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 4. Run Services
+### 4. Launch Components
 
-#### Option A: Wizard Server (always-on services)
+uDOS uses a unified launcher system across all components. All launchers delegate to `bin/udos-common.sh` for consistent behavior.
+
+### Available Launchers
+
+| Component         | macOS Finder (.command)                | Terminal (CLI .sh)                             |
+| ----------------- | -------------------------------------- | ---------------------------------------------- |
+| **Core TUI**      | `bin/Launch-uDOS-TUI.command`          | `bin/start_udos.sh` or `bin/start-core-tui.sh` |
+| **Wizard Server** | `bin/Launch-Wizard-Server.command`     | `bin/start-wizard-server.sh`                   |
+| **Wizard TUI**    | —                                      | `bin/start-wizard-tui.sh`                      |
+| **App Dev**       | `app/bin/Launch uMarkdown-dev.command` | `app/bin/start-app-dev.sh`                     |
+| **Goblin Dev**    | `dev/bin/Launch-Goblin-Dev.command`    | `dev/bin/start-goblin-dev.sh`                  |
+| **Empire Dev**    | `dev/bin/Launch-Empire-Server.command` | `dev/bin/start-empire-dev.sh`                  |
+
+### Quick Start
+
+**Core TUI (recommended for testing):**
 
 ```bash
-python -m wizard.server
-# Starts on port 8765
-# Access: http://localhost:8765
+./bin/start_udos.sh
 ```
 
-#### Option B: API Server
+**Wizard Server (production services):**
 
 ```bash
+./bin/start-wizard-server.sh
+```
+
+**macOS users:** Double-click any `.command` file in Finder, or use `open bin/Launch-*.command` from terminal.
+
+**All launchers automatically:**
+
+- Activate Python virtual environment
+- Install missing dependencies
+- Run self-healing diagnostics
+- Detect and resolve port conflicts
+
+---
+
+## Module Structure & Direct Execution
+
+If you prefer to run services directly without launchers:
+
+### Core TUI
+
+```bash
+source .venv/bin/activate
+python uDOS.py
+```
+
+### Wizard Server (Alternative to Launcher)
+
+```bash
+source .venv/bin/activate
+python -m wizard.server --port 8765
+```
+
+Wizard Server provides:
+
+- REST API on port 8765
+- Interactive web dashboard
+- WebSocket support
+- AI model routing (local-first with optional cloud burst)
+
+### API Extension
+
+```bash
+source .venv/bin/activate
 python -m extensions.api.server
 # Starts on port 5001
 ```
 
-## Module Structure (When Cloned)
+## Directory Structure
 
 After cloning, your directory structure will be:
 
 ```text
-
-uDOS-core/
-├── wizard/ # Wizard Server (port 8765)
-├── extensions/ # API, transport, VSCode extension
-├── knowledge/ # Knowledge bank articles
-├── docs/ # Documentation
-├── requirements.txt # Python dependencies
-└── README.md # This file
-
-```
-
-**Key point:** When you run Python from this directory, use module paths WITHOUT `public/` prefix:
-
-✅ Correct:
-
-```bash
-python -m wizard.server
-python -m extensions.api.server
-```
-
-❌ Incorrect (don't do this):
-
-```bash
-python -m public.wizard.server     # Won't find anything
+uDOS/
+├── bin/                    # Launcher scripts (unified system)
+│   ├── udos-common.sh     # Shared launcher library
+│   ├── start_udos.sh      # Core TUI launcher
+│   ├── start-wizard-server.sh
+│   └── Launch-*.command   # macOS Finder launchers
+├── core/                   # Core TUI runtime
+├── wizard/                 # Wizard Server (port 8765)
+├── extensions/             # API, transport, VSCode extension
+├── docs/                   # Documentation
+├── dev/                    # Private submodule (dev tools)
+├── memory/                 # Local logs and user data
+└── requirements.txt        # Python dependencies
 ```
 
 ## Troubleshooting
@@ -91,13 +136,26 @@ Make sure:
 3. You've run `pip install -r requirements.txt`
 4. You're using the correct module path (WITHOUT `public/`)
 
-#### Port already in use
+### Launcher Not Found or Permission Denied
 
-Wizard Server defaults to port 8765. If already in use:
+**Problem:** `command not found: ./bin/start_udos.sh` or permission error
+
+**Solution:** Make scripts executable:
 
 ```bash
-python wizard/cli_port_manager.py conflicts
-python wizard/cli_port_manager.py kill :8765
+chmod +x bin/*.sh
+chmod +x bin/Launch-*.command
+chmod +x dev/bin/*.sh
+chmod +x app/bin/*.sh
+```
+
+### Virtual Environment Not Found
+
+```bash
+# Recreate virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
 ## For Private Development
