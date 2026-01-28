@@ -6,12 +6,12 @@ Handle conversations with NPCs using the dialogue engine.
 
 from typing import Dict, List, Any
 from .base import BaseCommandHandler
+from .handler_logging_mixin import HandlerLoggingMixin
 from .npc_handler import NPCHandler
 from .dialogue_engine import DialogueEngine
-from core.tui.output import OutputToolkit
 
 
-class TalkHandler(BaseCommandHandler):
+class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
     """Handle TALK command for NPC conversations"""
 
     def __init__(self, npc_handler: NPCHandler, dialogue_engine: DialogueEngine):
@@ -27,12 +27,20 @@ class TalkHandler(BaseCommandHandler):
         self, command: str, params: List[str], grid: Any, parser: Any
     ) -> Dict[str, Any]:
         """Route TALK commands"""
-        if command == "TALK":
-            return self._handle_talk(params)
-        elif command == "REPLY":
-            return self._handle_reply(params)
-        else:
-            return {"status": "error", "message": f"Unknown command: {command}"}
+        with self.trace_command(command, params) as trace:
+            trace.add_event('command_routed', {'command': command})
+            if command == "TALK":
+                result = self._handle_talk(params)
+            elif command == "REPLY":
+                result = self._handle_reply(params)
+            else:
+                trace.set_status('error')
+                return {"status": "error", "message": f"Unknown command: {command}"}
+
+            status = result.get("status") if isinstance(result, dict) else None
+            if status:
+                trace.set_status(status)
+            return result
 
     def _handle_talk(self, params: List[str]) -> Dict[str, Any]:
         """Initiate conversation with NPC"""
@@ -71,6 +79,7 @@ class TalkHandler(BaseCommandHandler):
                 "current_node": result["node_id"],
             }
 
+            from core.tui.output import OutputToolkit
             options = result.get("options", [])
             if options:
                 option_rows = [[str(i + 1), opt.get("text", "")] for i, opt in enumerate(options)]
@@ -154,6 +163,7 @@ class TalkHandler(BaseCommandHandler):
         if not next_node_id:
             # End conversation
             del self.active_conversations[player_id]
+            from core.tui.output import OutputToolkit
             return {
                 "status": "success",
                 "message": "Conversation ended",
@@ -176,6 +186,7 @@ class TalkHandler(BaseCommandHandler):
             if result.get("complete", False):
                 del self.active_conversations[player_id]
 
+            from core.tui.output import OutputToolkit
             options = result.get("options", [])
             if options:
                 option_rows = [[str(i + 1), opt.get("text", "")] for i, opt in enumerate(options)]

@@ -7,7 +7,6 @@ state tracking, and movement between locations.
 
 from typing import Dict, List, Any, Optional
 from .base import BaseCommandHandler
-from core.tui.output import OutputToolkit
 
 
 class NPCHandler(BaseCommandHandler):
@@ -98,6 +97,7 @@ class NPCHandler(BaseCommandHandler):
         ]
 
         if not npcs_at_location:
+            from core.tui.output import OutputToolkit
             output = "\n".join(
                 [
                     OutputToolkit.banner("NPC LIST"),
@@ -111,6 +111,7 @@ class NPCHandler(BaseCommandHandler):
                 "npcs": [],
             }
 
+        from core.tui.output import OutputToolkit
         rows = [
             [
                 npc.get("name", ""),

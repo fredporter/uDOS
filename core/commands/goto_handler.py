@@ -134,46 +134,63 @@ class GotoHandler(BaseCommandHandler, HandlerLoggingMixin):
                     'target_id': target_id
                 })
 
-        # Validate target exists
-        try:
-            target = db.get(target_id)
-        except Exception as e:
+            # Validate target exists
+            try:
+                target = db.get(target_id)
+                trace.add_event('target_loaded', {'target_id': target_id})
+            except Exception as e:
+                trace.record_error(e)
+                trace.set_status('error')
+                self.log_operation(command, 'target_load_failed', {'error': str(e)})
+                return {
+                    "status": "error",
+                    "message": f"Failed to load target location: {str(e)}",
+                }
+
+            if not target:
+                trace.set_status('error')
+                self.log_operation(command, 'target_not_found', {'target_id': target_id})
+                return {
+                    "status": "error",
+                    "message": f"Target location {target_id} not found",
+                }
+
+            # Check if target is reachable from current location
+            if not self._is_connected(current, target_id):
+                trace.set_status('error')
+                self.log_operation(command, 'target_not_connected', {
+                    'current_location': current.name,
+                    'target_location': target.name
+                })
+                return {
+                    "status": "error",
+                    "message": f"Cannot reach {target.name} from {current.name}",
+                    "current_location": current.name,
+                    "target_location": target.name,
+                    "note": "Location is not directly connected. Use pathfinding for multi-step routes.",
+                }
+
+            # Update game state
+            previous_location = self.current_location
+            self.current_location = target_id
+
+            trace.set_status('success')
+            trace.add_event('location_updated', {
+                'previous_location': previous_location,
+                'new_location': target_id
+            })
+
             return {
-                "status": "error",
-                "message": f"Failed to load target location: {str(e)}",
+                "status": "success",
+                "message": f"OK Traveled to {target.name}",
+                "location_id": target_id,
+                "location_name": target.name,
+                "region": target.region,
+                "layer": target.layer,
+                "timezone": target.timezone,
+                "previous_location": previous_location,
+                "available_exits": self._get_available_directions(target),
             }
-
-        if not target:
-            return {
-                "status": "error",
-                "message": f"Target location {target_id} not found",
-            }
-
-        # Check if target is reachable from current location
-        if not self._is_connected(current, target_id):
-            return {
-                "status": "error",
-                "message": f"Cannot reach {target.name} from {current.name}",
-                "current_location": current.name,
-                "target_location": target.name,
-                "note": "Location is not directly connected. Use pathfinding for multi-step routes.",
-            }
-
-        # Update game state
-        previous_location = self.current_location
-        self.current_location = target_id
-
-        return {
-            "status": "success",
-            "message": f"OK Traveled to {target.name}",
-            "location_id": target_id,
-            "location_name": target.name,
-            "region": target.region,
-            "layer": target.layer,
-            "timezone": target.timezone,
-            "previous_location": previous_location,
-            "available_exits": self._get_available_directions(target),
-        }
 
     def _find_connection_by_direction(self, location, direction: str) -> Optional[str]:
         """

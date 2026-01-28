@@ -4,7 +4,7 @@ from typing import List, Dict
 import requests
 from pathlib import Path
 from core.commands.base import BaseCommandHandler
-from core.tui.output import OutputToolkit
+from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.services.logging_manager import get_logger, LogTags
 
 logger = get_logger("config-handler")
@@ -12,32 +12,40 @@ logger = get_logger("config-handler")
 WIZARD_API = "http://localhost:8765/api/v1"
 
 
-class ConfigHandler(BaseCommandHandler):
+class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
     """Handler for CONFIG command - Wizard configuration from TUI."""
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         """Handle CONFIG commands."""
+        with self.trace_command(command, params) as trace:
+            if not params:
+                result = self._show_status()
+                trace.set_status(result.get("status", "success"))
+                return result
 
-        if not params:
-            return self._show_status()
+            subcommand = params[0].upper()
+            args = params[1:] if len(params) > 1 else []
+            trace.add_event('subcommand_parsed', {'subcommand': subcommand})
 
-        subcommand = params[0].upper()
-        args = params[1:] if len(params) > 1 else []
+            if subcommand == "SHOW":
+                result = self._show_status()
+            elif subcommand == "LIST":
+                result = self._list_configs()
+            elif subcommand == "EDIT" and args:
+                result = self._edit_config(args[0])
+            elif subcommand == "SETUP":
+                result = self._run_setup()
+            else:
+                trace.set_status('error')
+                self.log_param_error(command, params, f"Unknown subcommand: {subcommand}")
+                return {
+                    "status": "error",
+                    "message": f"Unknown CONFIG subcommand: {subcommand}",
+                    "output": "Usage: CONFIG [SHOW|LIST|EDIT <file>|SETUP]",
+                }
 
-        if subcommand == "SHOW":
-            return self._show_status()
-        elif subcommand == "LIST":
-            return self._list_configs()
-        elif subcommand == "EDIT" and args:
-            return self._edit_config(args[0])
-        elif subcommand == "SETUP":
-            return self._run_setup()
-        else:
-            return {
-                "status": "error",
-                "message": f"Unknown CONFIG subcommand: {subcommand}",
-                "output": "Usage: CONFIG [SHOW|LIST|EDIT <file>|SETUP]",
-            }
+            trace.set_status(result.get("status", "success"))
+            return result
 
     def _show_status(self) -> Dict:
         """Show current configuration status."""
@@ -45,6 +53,7 @@ class ConfigHandler(BaseCommandHandler):
             response = requests.get(f"{WIZARD_API}/config/status", timeout=5)
             if response.status_code == 200:
                 data = response.json()
+                from core.tui.output import OutputToolkit
                 output = [OutputToolkit.banner("WIZARD CONFIG STATUS"), ""]
 
                 if "enabled_providers" in data:
@@ -87,6 +96,7 @@ class ConfigHandler(BaseCommandHandler):
             response = requests.get(f"{WIZARD_API}/config/list", timeout=5)
             if response.status_code == 200:
                 data = response.json()
+                from core.tui.output import OutputToolkit
                 output = [OutputToolkit.banner("CONFIGURATION FILES"), ""]
 
                 for name, info in data.get("config_files", {}).items():
@@ -158,6 +168,7 @@ class ConfigHandler(BaseCommandHandler):
         """Run provider setup check."""
         import subprocess
 
+        from core.tui.output import OutputToolkit
         output = [OutputToolkit.banner("PROVIDER SETUP CHECK"), ""]
 
         try:
