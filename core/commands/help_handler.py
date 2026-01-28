@@ -23,6 +23,7 @@ class HelpHandler(BaseCommandHandler):
             "DESTROY",
             "DEV",
             "DEV MODE",
+            "LOGS",
         ],
         "Advanced": ["BINDER", "RUN", "STORY", "SETUP", "DATASET", "CONFIG", "PROVIDER"],
     }
@@ -211,6 +212,14 @@ class HelpHandler(BaseCommandHandler):
             "notes": "Dev mode is controlled from Wizard Server TUI. Use: WIZARD start → then DEV ON/OFF in Wizard console. Goblin experimental server runs on port 8767 when enabled",
             "category": "System & Maintenance",
             "syntax": "DEV [MODE]",
+        },
+        "LOGS": {
+            "description": "View and search unified system logs",
+            "usage": "LOGS [options]",
+            "example": "LOGS or LOGS --wizard or LOGS --level ERROR",
+            "notes": "View aggregated logs from Core, Wizard, Goblin, Extensions. Files stored in memory/logs/",
+            "category": "System & Maintenance",
+            "syntax": "LOGS [--last N] [--core|--wizard|--goblin] [--level LEVEL] [--category CATEGORY] [--stats] [--clear] [help]",
         },
         "NPC": {
             "description": "List NPCs at current or specified location",

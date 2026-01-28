@@ -278,3 +278,140 @@ class LogTags:
     AUD = "[AUD]"  # Audio transport
     WIZ = "[WIZ]"  # Wizard Server operation
     GMAIL = "[GMAIL]"  # Gmail relay (Wizard only)
+
+
+# Dev-trace for debugging and performance
+class DevTrace:
+    """Development trace logger for detailed command flow and timing.
+    
+    Usage:
+        trace = DevTrace('command-dispatch')
+        with trace.span('parse_command', {'input': 'MAP tokyo'}):
+            # Code here is timed and traced
+            result = dispatcher.dispatch('MAP tokyo')
+        trace.log('Decision: routing to MapHandler')
+        trace.save()  # Save to dev-trace-YYYY-MM-DD.log
+    """
+    
+    def __init__(self, category: str, enabled: bool = True):
+        """Initialize dev trace.
+        
+        Args:
+            category: Trace category (e.g., 'command-dispatch', 'wizard-routing')
+            enabled: Enable tracing (default: True). Can be disabled via config
+        """
+        self.category = category
+        self.enabled = enabled
+        self.spans: list = []
+        self.decisions: list = []
+        self.start_time = datetime.now()
+        self.logger = get_logger(f"dev-trace-{category}", source="trace")
+    
+    def span(self, name: str, metadata: Optional[Dict] = None):
+        """Context manager for timing a code block.
+        
+        Args:
+            name: Span name (e.g., 'parse_command', 'execute_handler')
+            metadata: Optional metadata dict
+        
+        Usage:
+            with trace.span('handle_pattern', {'location': 'L300-BJ10'}):
+                # Code is timed automatically
+        """
+        if not self.enabled:
+            return self._NoOpContext()
+        return self._SpanContext(self, name, metadata)
+    
+    def log(self, message: str, level: str = "INFO", metadata: Optional[Dict] = None):
+        """Log a trace message.
+        
+        Args:
+            message: Message to log
+            level: Log level (INFO, DEBUG, WARN, ERROR)
+            metadata: Optional metadata dict
+        """
+        if not self.enabled:
+            return
+        
+        entry = {
+            "timestamp": datetime.now().isoformat(),
+            "level": level,
+            "message": message,
+            "metadata": metadata or {}
+        }
+        self.decisions.append(entry)
+        
+        # Also write to logger
+        log_method = getattr(self.logger, level.lower(), self.logger.info)
+        log_method(f"[TRACE] {message} | {metadata or ''}")
+    
+    class _SpanContext:
+        """Context manager for timing spans."""
+        
+        def __init__(self, trace: 'DevTrace', name: str, metadata: Optional[Dict]):
+            self.trace = trace
+            self.name = name
+            self.metadata = metadata or {}
+            self.start = None
+            self.duration = None
+        
+        def __enter__(self):
+            self.start = datetime.now()
+            return self
+        
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            self.duration = (datetime.now() - self.start).total_seconds()
+            span_entry = {
+                "name": self.name,
+                "start": self.start.isoformat(),
+                "duration_ms": self.duration * 1000,
+                "metadata": self.metadata,
+                "error": str(exc_val) if exc_type else None
+            }
+            self.trace.spans.append(span_entry)
+            
+            # Log to trace logger
+            status = "OK" if not exc_type else "ERROR"
+            self.trace.logger.info(
+                f"[SPAN] {self.name} {status} ({self.duration*1000:.2f}ms)",
+                extra={"metadata": self.metadata}
+            )
+    
+    class _NoOpContext:
+        """No-op context manager when tracing disabled."""
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            pass
+    
+    def summary(self) -> Dict:
+        """Get trace summary."""
+        total_duration = (datetime.now() - self.start_time).total_seconds()
+        return {
+            "category": self.category,
+            "total_duration_ms": total_duration * 1000,
+            "spans_count": len(self.spans),
+            "decisions_count": len(self.decisions),
+            "spans": self.spans,
+            "decisions": self.decisions
+        }
+    
+    def save(self, filepath: Optional[Path] = None):
+        """Save trace to file.
+        
+        Args:
+            filepath: Optional custom filepath. Default: memory/logs/dev-trace-{category}-YYYY-MM-DD.log
+        """
+        if not self.enabled:
+            return
+        
+        import json
+        if filepath is None:
+            log_dir = Path(get_repo_root()) / "memory" / "logs"
+            log_dir.mkdir(parents=True, exist_ok=True)
+            date_str = datetime.now().strftime("%Y-%m-%d")
+            filepath = log_dir / f"dev-trace-{self.category}-{date_str}.log"
+        
+        summary = self.summary()
+        with open(filepath, "a") as f:
+            f.write(json.dumps(summary) + "\n")

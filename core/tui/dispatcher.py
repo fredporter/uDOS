@@ -34,6 +34,7 @@ from core.commands import (
     MaintenanceHandler,
     StoryHandler,
     SetupHandler,
+    LogsHandler,
 )
 
 
@@ -73,6 +74,7 @@ class CommandDispatcher:
             "PATTERN": PatternHandler(),
             "DEV MODE": DevModeHandler(),
             "DEV": DevModeHandler(),  # Shortcut for DEV MODE
+            "LOGS": LogsHandler(),  # View unified logs
             # NPC & Dialogue (3)
             "NPC": self.npc_handler,
             "TALK": self.talk_handler,

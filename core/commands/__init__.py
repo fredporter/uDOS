@@ -99,6 +99,9 @@ def __getattr__(name):
     elif name == "SetupHandler":
         from .setup_handler import SetupHandler
         return SetupHandler
+    elif name == "LogsHandler":
+        from .logs_handler import LogsHandler
+        return LogsHandler
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 __all__ = [
@@ -121,6 +124,7 @@ __all__ = [
     "RepairHandler",
     "PatternHandler",
     "DevModeHandler",
+    "LogsHandler",
     # NPC & Dialogue commands
     "NPCHandler",
     "DialogueEngine",
