@@ -21,9 +21,13 @@ class SetupHandler(BaseCommandHandler):
         SETUP command - view or manage setup profiles.
         
         Usage:
-            SETUP              Show setup profile from Wizard
-            SETUP --story      Run the setup story
-            SETUP --wizard     Open Wizard console setup view
+            SETUP              Show your setup profile (from Wizard Server)
+            SETUP --story      Get instructions for running setup story
+            SETUP --wizard     Show how to access setup in Wizard console
+            
+        Quick start:
+            1. STORY wizard-setup       (Answer setup questions)
+            2. SETUP                     (View your profile)
         """
         if not params:
             return self._show_profile()
@@ -66,8 +70,18 @@ class SetupHandler(BaseCommandHandler):
             if response.status_code == 404:
                 return {
                     "status": "warning",
-                    "message": "No setup profile found. Run the setup story first.",
-                    "help": "Command: SETUP --story or STORY wizard-setup"
+                    "output": """
+╔═════════════════════════════════════════════════════════════╗
+║  ⚠️  No Setup Profile Found                                 ║
+╚═════════════════════════════════════════════════════════════╝
+
+You haven't run the setup story yet. To get started:
+
+  STORY wizard-setup
+
+This will ask questions about your setup and save the answers.
+Then use SETUP to view your profile.
+"""
                 }
             
             if response.status_code != 200:
@@ -85,8 +99,18 @@ class SetupHandler(BaseCommandHandler):
             if not user and not install:
                 return {
                     "status": "warning",
-                    "message": "Setup profiles are empty. Run setup story first.",
-                    "help": "Command: SETUP --story"
+                    "output": """
+╔═════════════════════════════════════════════════════════════╗
+║  ⚠️  No Setup Profile Found                                 ║
+╚═════════════════════════════════════════════════════════════╝
+
+You haven't run the setup story yet. To get started:
+
+  STORY wizard-setup
+
+This will ask questions about your setup and save the answers.
+Then use SETUP to view your profile.
+"""
                 }
             
             # Format output
@@ -149,8 +173,28 @@ class SetupHandler(BaseCommandHandler):
         """Launch the setup story."""
         return {
             "status": "info",
-            "message": "To run the setup story, use: STORY wizard-setup",
-            "help": "Note: This requires the TypeScript runtime. Build it with: core/tools/build_ts_runtime.sh"
+            "output": """
+╔═════════════════════════════════════════════════════════════╗
+║  🧙 uDOS Setup Story                                        ║
+╚═════════════════════════════════════════════════════════════╝
+
+To run the setup wizard, use:
+
+  STORY wizard-setup
+
+The story will collect your:
+  • Username
+  • Date of birth
+  • Role (admin/user)
+  • Timezone
+  • Location
+  • OS type
+  • Capabilities preferences
+
+After completing, check profiles with:
+
+  SETUP
+"""
         }
     
     def _show_wizard_help(self) -> Dict:
