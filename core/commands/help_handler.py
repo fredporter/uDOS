@@ -22,7 +22,7 @@ class HelpHandler(BaseCommandHandler):
             "COMPOST",
             "DESTROY",
         ],
-        "Advanced": ["BINDER", "RUN", "DATASET", "CONFIG", "PROVIDER"],
+        "Advanced": ["BINDER", "RUN", "STORY", "SETUP", "DATASET", "CONFIG", "PROVIDER"],
     }
 
     COMMANDS = {
@@ -222,7 +222,7 @@ class HelpHandler(BaseCommandHandler):
             "description": "Manage Wizard configuration",
             "usage": "CONFIG [SHOW|LIST|EDIT <file>|SETUP]",
             "example": "CONFIG SHOW or CONFIG EDIT wizard.json",
-            "notes": "View status, list config files, edit configs, run provider setup",
+            "notes": "Requires Wizard Server running on port 8765",
             "category": "Advanced",
             "syntax": "CONFIG <SHOW|LIST|EDIT|SETUP> [file] [--validate]",
         },
@@ -230,9 +230,25 @@ class HelpHandler(BaseCommandHandler):
             "description": "Manage AI/service providers",
             "usage": "PROVIDER [LIST|STATUS <id>|ENABLE <id>|DISABLE <id>|SETUP <id>]",
             "example": "PROVIDER LIST or PROVIDER ENABLE github",
-            "notes": "Configure AI providers (ollama, github, openai, etc.)",
+            "notes": "Requires Wizard Server running on port 8765",
             "category": "Advanced",
             "syntax": "PROVIDER <LIST|STATUS|ENABLE|DISABLE|SETUP> [<id>] [--test]",
+        },
+        "STORY": {
+            "description": "Run story format files",
+            "usage": "STORY [file] | STORY PARSE <file> | STORY NEW <name>",
+            "example": "STORY new my-onboarding or STORY my-onboarding",
+            "notes": "Runs -story.md files from memory/story/ using the TS runtime",
+            "category": "Advanced",
+            "syntax": "STORY [<file>] | STORY PARSE <file> | STORY NEW <name>",
+        },
+        "SETUP": {
+            "description": "View setup profiles (Wizard-backed)",
+            "usage": "SETUP [--story|--wizard]",
+            "example": "SETUP or SETUP --story",
+            "notes": "Requires Wizard Server running on port 8765",
+            "category": "Advanced",
+            "syntax": "SETUP [--story|--wizard]",
         },
         "BINDER": {
             "description": "Core binder operations",

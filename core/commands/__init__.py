@@ -93,6 +93,12 @@ def __getattr__(name):
     elif name == "MaintenanceHandler":
         from .maintenance_handler import MaintenanceHandler
         return MaintenanceHandler
+    elif name == "StoryHandler":
+        from .story_handler import StoryHandler
+        return StoryHandler
+    elif name == "SetupHandler":
+        from .setup_handler import SetupHandler
+        return SetupHandler
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 __all__ = [
@@ -126,6 +132,7 @@ __all__ = [
     "ProviderHandler",
     "BinderHandler",
     "RunHandler",
+    "StoryHandler",
     "DatasetHandler",
     "FileEditorHandler",
     "MaintenanceHandler",

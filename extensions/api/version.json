@@ -5,10 +5,9 @@
   "version": {
     "major": 1,
     "minor": 0,
-    "patch": 1,
-    "build": 0
+    "patch": 1
   },
-  "display": "v1.0.1.0",
+  "display": "v1.0.1",
   "channel": "alpha",
   "released": "2026-01-10",
   "description": "REST API server - 144 endpoints, WebSocket streaming, command routing",

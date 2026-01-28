@@ -78,7 +78,7 @@ class ConfigHandler(BaseCommandHandler):
             return {
                 "status": "error",
                 "message": "Cannot connect to Wizard Server",
-                "output": f"Error: {str(e)}\n\nStart Wizard: python -m wizard.server",
+                "output": f"Error: {str(e)}",
             }
 
     def _list_configs(self) -> Dict:

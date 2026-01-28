@@ -6,19 +6,19 @@ Leverages Phase 5F command handlers and TypeScript runtime.
 All heavy lifting delegated to Wizard Server.
 
 Components:
-- repl: Main event loop
+- ucode: Unified Terminal TUI (main entry point)
 - dispatcher: Command routing
 - renderer: Output formatting
 - state: Game state management
 """
 
-from .repl import TUIRepl
+from .ucode import uCODETUI
 from .dispatcher import CommandDispatcher
 from .renderer import GridRenderer
 from .state import GameState
 
 __all__ = [
-    "TUIRepl",
+    "uCODETUI",
     "CommandDispatcher",
     "GridRenderer",
     "GameState",

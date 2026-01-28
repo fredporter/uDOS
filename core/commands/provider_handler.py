@@ -80,7 +80,15 @@ class ProviderHandler(BaseCommandHandler):
             return {
                 "status": "error",
                 "message": "Cannot connect to Wizard Server",
-                "output": f"Error: {str(e)}\n\nStart Wizard: python -m wizard.server",
+                "output": (
+                    "❌ Wizard Server is not running.\n\n"
+                    "Start it with one of these launchers:\n"
+                    "  • ./bin/Launch-Wizard-Server.command (interactive)\n"
+                    "  • ./bin/Launch-Dev-Mode.command (full dev stack)\n\n"
+                    "Or manually:\n"
+                    "  source .venv/bin/activate && python -m wizard.server\n\n"
+                    "Then try: PROVIDER"
+                ),
             }
 
     def _provider_status(self, provider_id: str) -> Dict:

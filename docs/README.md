@@ -1,6 +1,6 @@
 # uDOS Documentation Index
 
-**Last Updated:** 2026-01-24  
+**Last Updated:** 2026-01-28  
 **Version:** v1.0.7
 
 ---
@@ -12,8 +12,30 @@
 | Document                                      | Purpose                                                    |
 | --------------------------------------------- | ---------------------------------------------------------- |
 | [AGENTS.md](../AGENTS.md)                     | How work is done in uDOS (architecture, policies, tooling) |
+| [uCODE.md](uCODE.md)                          | **NEW**: Unified Terminal TUI (main entry point)           |
 | [Development Streams](development-streams.md) | Active development planning across all components          |
 | [README.md](README.md)                        | This file                                                  |
+
+---
+
+## 🚀 Getting Started
+
+### Quick Start with uCODE
+
+```bash
+python uDOS.py          # Launch unified TUI
+```
+
+Then:
+
+```
+STATUS                  # Check what's installed
+WIZARD start            # Start Wizard server (if available)
+PLUGIN list             # List extensions (if available)
+HELP                    # Show all commands
+```
+
+See [uCODE.md](uCODE.md) and [uCODE-QUICK-REFERENCE.md](uCODE-QUICK-REFERENCE.md).
 
 ---
 

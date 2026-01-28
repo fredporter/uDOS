@@ -556,4 +556,54 @@ def create_setup_routes(auth_guard=None):
             "install_metrics": metrics,
         }
 
+    @router.get("/profile/user")
+    async def get_user_profile():
+        """Retrieve the stored user profile."""
+        result = load_user_profile()
+        if result.locked:
+            raise HTTPException(status_code=503, detail=result.error or "secret store locked")
+        if not result.data:
+            raise HTTPException(status_code=404, detail="No user profile found. Please complete setup story first.")
+        return {
+            "status": "success",
+            "profile": result.data,
+        }
+
+    @router.get("/profile/install")
+    async def get_install_profile():
+        """Retrieve the stored installation profile."""
+        result = load_install_profile()
+        if result.locked:
+            raise HTTPException(status_code=503, detail=result.error or "secret store locked")
+        if not result.data:
+            raise HTTPException(status_code=404, detail="No installation profile found. Please complete setup story first.")
+        metrics = load_install_metrics()
+        return {
+            "status": "success",
+            "profile": result.data,
+            "metrics": metrics,
+        }
+
+    @router.get("/profile/combined")
+    async def get_combined_profile():
+        """Retrieve both user and installation profiles in a single call."""
+        user_result = load_user_profile()
+        install_result = load_install_profile()
+        
+        if user_result.locked or install_result.locked:
+            raise HTTPException(
+                status_code=503,
+                detail=user_result.error or install_result.error or "secret store locked"
+            )
+        
+        metrics = load_install_metrics()
+        
+        return {
+            "status": "success",
+            "user_profile": user_result.data,
+            "install_profile": install_result.data,
+            "install_metrics": metrics,
+            "setup_complete": bool(user_result.data and install_result.data),
+        }
+
     return router

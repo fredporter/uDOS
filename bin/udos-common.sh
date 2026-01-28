@@ -176,6 +176,13 @@ ensure_python_env() {
     export PYTHONPATH="$UDOS_ROOT:$PYTHONPATH"
     export UDOS_DEV_MODE=1
 
+    # Load .env file if it exists
+    if [ -f "$UDOS_ROOT/.env" ]; then
+        set -a  # Export all variables
+        source "$UDOS_ROOT/.env"
+        set +a
+    fi
+
     # Create log directory
     mkdir -p "$UDOS_ROOT/memory/logs"
 }

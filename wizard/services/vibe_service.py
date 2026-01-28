@@ -130,40 +130,87 @@ class VibeService:
             if self.conversation_history:
                 messages = self.conversation_history + messages
 
-            # Prepare request
-            payload = {
-                "model": self.config.model,
-                "messages": messages,
-                "stream": stream,
-                "temperature": self.config.temperature,
-                "top_p": self.config.top_p,
-                **kwargs,
-            }
-
+            # Ollama has two API formats:
+            # /api/chat - Chat completion (messages array) - newer
+            # /api/generate - Simple prompt - legacy
+            # Try chat first, fallback to generate
+            
             logger.info(f"[LOCAL] Vibe: Generating with {self.config.model}...")
-
-            # Make request
-            resp = requests.post(
-                f"{self.config.endpoint}/api/chat",
-                json=payload,
-                timeout=self.config.timeout_seconds,
-            )
-            resp.raise_for_status()
-
-            if stream:
-                return self._stream_response(resp)
-            else:
-                data = resp.json()
-                response_text = data["message"]["content"]
-
-                # Update history
-                self.conversation_history.append({"role": "user", "content": prompt})
-                self.conversation_history.append(
-                    {"role": "assistant", "content": response_text}
+            
+            # Try /api/chat endpoint first (newer format)
+            try:
+                payload = {
+                    "model": self.config.model,
+                    "messages": messages,
+                    "stream": stream,
+                    "options": {
+                        "temperature": self.config.temperature,
+                        "top_p": self.config.top_p,
+                    },
+                    **kwargs,
+                }
+                
+                resp = requests.post(
+                    f"{self.config.endpoint}/api/chat",
+                    json=payload,
+                    timeout=self.config.timeout_seconds,
                 )
+                resp.raise_for_status()
+                
+                if stream:
+                    return self._stream_response(resp)
+                else:
+                    data = resp.json()
+                    response_text = data["message"]["content"]
+            
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 404:
+                    # Fallback to /api/generate (older Ollama versions)
+                    logger.info("[LOCAL] Vibe: /api/chat not available, using /api/generate")
+                    
+                    # Convert messages to single prompt
+                    prompt_parts = []
+                    for msg in messages:
+                        role = msg.get("role", "user")
+                        content = msg.get("content", "")
+                        if role == "system":
+                            prompt_parts.append(f"System: {content}")
+                        elif role == "user":
+                            prompt_parts.append(f"User: {content}")
+                        elif role == "assistant":
+                            prompt_parts.append(f"Assistant: {content}")
+                    
+                    combined_prompt = "\n\n".join(prompt_parts)
+                    
+                    payload = {
+                        "model": self.config.model,
+                        "prompt": combined_prompt,
+                        "stream": False,
+                        "options": {
+                            "temperature": self.config.temperature,
+                            "top_p": self.config.top_p,
+                        },
+                    }
+                    
+                    resp = requests.post(
+                        f"{self.config.endpoint}/api/generate",
+                        json=payload,
+                        timeout=self.config.timeout_seconds,
+                    )
+                    resp.raise_for_status()
+                    data = resp.json()
+                    response_text = data.get("response", "")
+                else:
+                    raise
 
-                logger.info(f"[LOCAL] Vibe: Generated {len(response_text)} chars")
-                return response_text
+            # Update history
+            self.conversation_history.append({"role": "user", "content": prompt})
+            self.conversation_history.append(
+                {"role": "assistant", "content": response_text}
+            )
+
+            logger.info(f"[LOCAL] Vibe: Generated {len(response_text)} chars")
+            return response_text
 
         except Exception as e:
             logger.error(f"[LOCAL] Vibe: Generation failed: {e}")

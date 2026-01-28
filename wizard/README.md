@@ -12,6 +12,7 @@
 
 - Assistant routing gateway (local-first, optional cloud burst per policy)
 - Interactive console (foreground alongside server) with status, services, GitHub, poke URL, help/exit
+- **Setup profile management** — View user and installation details from TUI story (`setup` command)
 - GitHub monitor + safe sync (webhook + manual `/api/v1/github/*`)
 - Port Manager API/CLI integration
 - Plugin repository (`/api/v1/plugin/*`) backed by `distribution/plugins`
@@ -43,6 +44,7 @@ Dev Mode Recovery TUI now runs initial system health diagnostics on startup and 
 ## API Surface (production `/api/v1/*`)
 
 - Health & status: `/health`, `/api/v1/status`, `/api/v1/rate-limits`
+- Setup profiles: `/api/v1/setup/profile/user`, `/api/v1/setup/profile/install`, `/api/v1/setup/profile/combined`
 - Assistant gateway: `/api/v1/ai/status`, `/api/v1/ai/models`, `/api/v1/ai/complete`
 - Plugin repo: `/api/v1/plugin/list`, `/api/v1/plugin/{id}`, `/api/v1/plugin/{id}/download`
 - Web proxy (stub): `/api/v1/web/fetch`
@@ -133,9 +135,12 @@ Auth: all `/api/v1/*` require device auth (Bearer token). Rate limits apply per 
 - [wizard/ARCHITECTURE.md](ARCHITECTURE.md)
 - [wizard/docs/INTERACTIVE-CONSOLE.md](docs/INTERACTIVE-CONSOLE.md)
 - [wizard/docs/PORT-MANAGER.md](docs/PORT-MANAGER.md)
+- [wizard/docs/SETUP-PROFILE-SYNC.md](docs/SETUP-PROFILE-SYNC.md) — Setup profile synchronization
 - [docs/decisions/wizard-model-routing-policy.md](../docs/decisions/wizard-model-routing-policy.md)
 - [dev/goblin/README.md](../dev/goblin/README.md) (experimental server)
 
 ---
+
+_Updated: 2026-01-28_
 
 _Updated: 2026-01-18_

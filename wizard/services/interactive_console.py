@@ -9,6 +9,7 @@ Commands:
   status     - Show server status and capabilities
   services   - List all services and their versions
   config     - Show current configuration
+  setup      - Show user and installation profile (from TUI story)
   health     - Run health checks
   reload     - Reload configuration
   github     - Show GitHub Actions status
@@ -84,6 +85,7 @@ class WizardConsole:
             "status": self.cmd_status,
             "services": self.cmd_services,
             "config": self.cmd_config,
+            "setup": self.cmd_setup,
             "health": self.cmd_health,
             "reload": self.cmd_reload,
             "reboot": self.cmd_reboot,
@@ -333,6 +335,91 @@ class WizardConsole:
         print(f"    • Web Proxy: {self.config.web_proxy_enabled}")
         print(f"    • Gmail Relay: {self.config.gmail_relay_enabled}")
         print(f"    • AI Gateway: {self.config.ai_gateway_enabled}")
+        print()
+
+    async def cmd_setup(self, args: list) -> None:
+        """Show setup profile information (from TUI story)."""
+        from wizard.services.setup_profiles import load_user_profile, load_install_profile, load_install_metrics
+        import os
+        
+        print("\n🧙 SETUP PROFILE:")
+        
+        # Quick diagnostic
+        wizard_key = os.getenv("WIZARD_KEY")
+        if not wizard_key:
+            print("  ⚠️  WIZARD_KEY environment variable not set!")
+            print()
+            print("  💡 Fix this by:")
+            print("     1. Ensure .env file exists in repo root with WIZARD_KEY=...")
+            print("     2. Restart Wizard Server: ./bin/start_wizard.sh")
+            print("     3. Or set manually: export WIZARD_KEY=<your-key>")
+            print()
+            return
+        
+        # Load user profile
+        user_result = load_user_profile()
+        if user_result.locked:
+            print(f"  ⚠️  Secret store locked: {user_result.error}")
+            print()
+            print("  💡 This means:")
+            print("     • WIZARD_KEY is set but doesn't match the encryption key")
+            print("     • The secrets.tomb file may have been encrypted with a different key")
+            print()
+            print("  💡 To fix:")
+            print("     1. Check .env file: cat .env | grep WIZARD_KEY")
+            print("     2. If you changed the key, you may need to re-run the setup story")
+            print("     3. Or delete wizard/secrets.tomb and re-submit the story")
+            print()
+            return
+        
+        if user_result.data:
+            print("\n  User Identity:")
+            print(f"    • Username: {user_result.data.get('username', 'N/A')}")
+            print(f"    • Role: {user_result.data.get('role', 'N/A')}")
+            print(f"    • Timezone: {user_result.data.get('timezone', 'N/A')}")
+            print(f"    • Location: {user_result.data.get('location_name', 'N/A')} ({user_result.data.get('location_id', 'N/A')})")
+        else:
+            print("  ⚠️  No user profile found. Complete the setup story first.")
+        
+        # Load installation profile
+        install_result = load_install_profile()
+        if install_result.locked:
+            print(f"  ⚠️  Secret store locked: {install_result.error}")
+            print()
+            return
+        
+        if install_result.data:
+            print("\n  Installation:")
+            print(f"    • ID: {install_result.data.get('installation_id', 'N/A')}")
+            print(f"    • OS Type: {install_result.data.get('os_type', 'N/A')}")
+            print(f"    • Lifespan Mode: {install_result.data.get('lifespan_mode', 'infinite')}")
+            
+            moves_limit = install_result.data.get('moves_limit')
+            if moves_limit:
+                print(f"    • Moves Limit: {moves_limit}")
+            
+            # Show capabilities
+            capabilities = install_result.data.get('capabilities', {})
+            if capabilities:
+                print("\n  Capabilities:")
+                for cap, enabled in capabilities.items():
+                    status = "✅" if enabled else "❌"
+                    print(f"    {status} {cap.replace('_', ' ').title()}")
+        else:
+            print("  ⚠️  No installation profile found. Complete the setup story first.")
+        
+        # Load metrics
+        metrics = load_install_metrics()
+        if metrics and metrics.get('moves_used') is not None:
+            print("\n  Metrics:")
+            print(f"    • Moves Used: {metrics.get('moves_used', 0)}")
+            if metrics.get('moves_limit'):
+                remaining = metrics['moves_limit'] - metrics.get('moves_used', 0)
+                print(f"    • Remaining: {remaining}/{metrics['moves_limit']}")
+            last_move = metrics.get('last_move_at')
+            if last_move:
+                print(f"    • Last Move: {last_move}")
+        
         print()
 
     async def cmd_health(self, args: list) -> None:
@@ -642,7 +729,7 @@ class WizardConsole:
             monitor = get_github_monitor()
 
             # Get recent runs
-            runs = monitor.get_recent_runs(limit=5)
+            runs = await monitor.get_recent_runs(limit=5)
 
             if not runs:
                 print("  ⚠️  No recent runs found (GitHub CLI may not be configured)")

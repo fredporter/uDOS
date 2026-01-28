@@ -32,6 +32,8 @@ from core.commands import (
     DatasetHandler,
     FileEditorHandler,
     MaintenanceHandler,
+    StoryHandler,
+    SetupHandler,
 )
 
 
@@ -66,6 +68,8 @@ class CommandDispatcher:
             # System (4)
             "SHAKEDOWN": ShakedownHandler(),
             "REPAIR": RepairHandler(),
+            "REBOOT": RepairHandler(),  # Alias for REPAIR
+            "SETUP": SetupHandler(),
             "PATTERN": PatternHandler(),
             "DEV MODE": DevModeHandler(),
             # NPC & Dialogue (3)
@@ -77,7 +81,8 @@ class CommandDispatcher:
             "PROVIDER": ProviderHandler(),
             # Binder (Core)
             "BINDER": BinderHandler(),
-            # Runtime
+            # Runtime (Story format)
+            "STORY": StoryHandler(),
             "RUN": RunHandler(),
             # Data
             "DATASET": DatasetHandler(),
