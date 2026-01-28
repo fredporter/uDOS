@@ -3,17 +3,19 @@ PANEL command handler - Display location information.
 
 Shows detailed location metadata including timezone, connections,
 and description. Formatted as an informational panel.
+
+Includes instrumentation via HandlerLoggingMixin for performance tracking.
 """
 
 from typing import Dict, List, Optional
 from core.commands.base import BaseCommandHandler
+from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.locations import load_locations, Location
 from core.location_service import LocationService
-from core.tui.output import OutputToolkit
 
 
-class PanelHandler(BaseCommandHandler):
-    """Display location information panel."""
+class PanelHandler(BaseCommandHandler, HandlerLoggingMixin):
+    """Display location information panel with automatic logging."""
 
     def __init__(self):
         """Initialize panel handler."""
@@ -33,43 +35,88 @@ class PanelHandler(BaseCommandHandler):
         Returns:
             Dict with status and formatted panel
         """
-        # Get location ID (from params or player state)
-        if params:
-            location_id = params[0]
-        else:
-            # Default to first location if no current location set
-            location_id = "L300-BJ10"
+        with self.trace_command(command, params) as trace:
+            # Get location ID (from params or player state)
+            if params:
+                location_id = params[0]
+            else:
+                # Default to first location if no current location set
+                location_id = "L300-BJ10"
 
-        # Load location
-        try:
-            db = load_locations()
-            location = db.get(location_id)
-        except Exception as e:
-            return {"status": "error", "message": f"Failed to load locations: {str(e)}"}
+            trace.mark_milestone('location_id_determined')
 
-        if not location:
-            return {"status": "error", "message": f"Location {location_id} not found"}
+            # Load location
+            try:
+                db = load_locations()
+                location = db.get(location_id)
+                trace.add_event('location_loaded', {'location_id': location_id})
+            except Exception as e:
+                trace.record_error(e)
+                trace.set_status('error')
+                self.log_operation(command, 'location_load_failed', {
+                    'location_id': location_id,
+                    'error': str(e)
+                })
+                return {"status": "error", "message": f"Failed to load locations: {str(e)}"}
 
-        # Get local time
-        try:
-            local_time = self.location_service.get_local_time(location_id)
-            time_str = self.location_service.get_local_time_str(location_id)
-        except Exception as e:
-            time_str = f"(Timezone error: {str(e)})"
-            local_time = None
+            if not location:
+                trace.set_status('error')
+                self.log_operation(command, 'location_not_found', {
+                    'location_id': location_id
+                })
+                return {"status": "error", "message": f"Location {location_id} not found"}
 
-        # Build panel
-        panel = self._build_panel(location, time_str)
+            trace.mark_milestone('location_validated')
 
-        return {
-            "status": "success",
-            "location_id": location.id,
-            "location_name": location.name,
-            "panel": panel,
-            "output": panel,
-            "height": 24,
-            "full_location": location,
-        }
+            # Get local time
+            try:
+                local_time = self.location_service.get_local_time(location_id)
+                time_str = self.location_service.get_local_time_str(location_id)
+                trace.add_event('local_time_calculated', {
+                    'timezone': location.timezone,
+                    'time': time_str[:20]
+                })
+            except Exception as e:
+                time_str = f"(Timezone error: {str(e)})"
+                local_time = None
+                trace.add_event('timezone_error', {
+                    'timezone': location.timezone,
+                    'error': str(e)
+                })
+
+            trace.mark_milestone('timezone_resolved')
+
+            # Build panel
+            try:
+                panel = self._build_panel(location, time_str)
+                trace.add_event('panel_built', {
+                    'panel_size': len(panel),
+                    'location_id': location.id,
+                    'location_name': location.name,
+                    'tile_count': len(location.tiles),
+                    'connection_count': len(location.connections) if location.connections else 0
+                })
+            except Exception as e:
+                trace.record_error(e)
+                trace.set_status('error')
+                self.log_operation(command, 'panel_build_failed', {
+                    'location_id': location_id,
+                    'error': str(e)
+                })
+                raise
+
+            trace.mark_milestone('panel_formatted')
+            trace.set_status('success')
+
+            return {
+                "status": "success",
+                "location_id": location.id,
+                "location_name": location.name,
+                "panel": panel,
+                "output": panel,
+                "height": 24,
+                "full_location": location,
+            }
 
     def _build_panel(self, location: Location, time_str: str) -> str:
         """
@@ -82,6 +129,8 @@ class PanelHandler(BaseCommandHandler):
         Returns:
             Formatted panel string
         """
+        from core.tui.output import OutputToolkit
+        
         lines = []
         lines.append(OutputToolkit.banner("LOCATION PANEL"))
         lines.append(f"Name: {location.name}")

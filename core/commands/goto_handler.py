@@ -3,16 +3,19 @@ GOTO command handler - Navigate between locations.
 
 Enables movement to adjacent locations via location ID or direction (north, south, etc).
 Validates connections and updates game state.
+
+Includes instrumentation via HandlerLoggingMixin for performance tracking.
 """
 
 from typing import Dict, List, Optional
 from core.commands.base import BaseCommandHandler
+from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.locations import load_locations
 from core.location_service import LocationService
 
 
-class GotoHandler(BaseCommandHandler):
-    """Navigate to another location."""
+class GotoHandler(BaseCommandHandler, HandlerLoggingMixin):
+    """Navigate to another location with automatic logging."""
 
     def __init__(self):
         """Initialize goto handler."""
@@ -33,70 +36,103 @@ class GotoHandler(BaseCommandHandler):
         Returns:
             Dict with status and navigation result
         """
-        if not params:
-            return {
-                "status": "error",
-                "message": "GOTO requires location ID or direction (north, south, east, west, up, down)",
-            }
-
-        # Load locations
-        try:
-            db = load_locations()
-            current = db.get(self.current_location)
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to load current location: {str(e)}",
-            }
-
-        if not current:
-            return {
-                "status": "error",
-                "message": f"Current location {self.current_location} not found",
-            }
-
-        # Check if params[0] is direction
-        target_param = params[0]  # Preserve case for location IDs
-        direction_keywords = [
-            "north",
-            "south",
-            "east",
-            "west",
-            "up",
-            "down",
-            "n",
-            "s",
-            "e",
-            "w",
-            "u",
-            "d",
-        ]
-
-        if target_param.lower() in direction_keywords:
-            # Expand short directions
-            direction_map = {
-                "n": "north",
-                "s": "south",
-                "e": "east",
-                "w": "west",
-                "u": "up",
-                "d": "down",
-            }
-            target_dir = direction_map.get(target_param.lower(), target_param.lower())
-
-            # Find connection in that direction
-            target_id = self._find_connection_by_direction(current, target_dir)
-
-            if not target_id:
-                available = self._get_available_directions(current)
+        with self.trace_command(command, params) as trace:
+            if not params:
+                trace.set_status('error')
+                self.log_param_error(command, params, "Location ID or direction required")
                 return {
                     "status": "error",
-                    "message": f"Cannot go {target_dir} from here.",
-                    "available_directions": available,
+                    "message": "GOTO requires location ID or direction (north, south, east, west, up, down)",
                 }
-        else:
-            # Treat as location ID
-            target_id = target_param
+
+            # Load locations
+            try:
+                db = load_locations()
+                current = db.get(self.current_location)
+                trace.add_event('current_location_loaded', {
+                    'location_id': self.current_location
+                })
+            except Exception as e:
+                trace.record_error(e)
+                trace.set_status('error')
+                self.log_operation(command, 'current_location_load_failed', {
+                    'error': str(e)
+                })
+                return {
+                    "status": "error",
+                    "message": f"Failed to load current location: {str(e)}",
+                }
+
+            if not current:
+                trace.set_status('error')
+                self.log_operation(command, 'current_location_not_found', {
+                    'location_id': self.current_location
+                })
+                return {
+                    "status": "error",
+                    "message": f"Current location {self.current_location} not found",
+                }
+
+            trace.mark_milestone('current_location_validated')
+
+            # Check if params[0] is direction
+            target_param = params[0]  # Preserve case for location IDs
+            direction_keywords = [
+                "north",
+                "south",
+                "east",
+                "west",
+                "up",
+                "down",
+                "n",
+                "s",
+                "e",
+                "w",
+                "u",
+                "d",
+            ]
+
+            if target_param.lower() in direction_keywords:
+                trace.add_event('direction_navigation', {
+                    'direction': target_param.lower()
+                })
+                
+                # Expand short directions
+                direction_map = {
+                    "n": "north",
+                    "s": "south",
+                    "e": "east",
+                    "w": "west",
+                    "u": "up",
+                    "d": "down",
+                }
+                target_dir = direction_map.get(target_param.lower(), target_param.lower())
+
+                # Find connection in that direction
+                target_id = self._find_connection_by_direction(current, target_dir)
+                trace.add_event('connection_lookup', {
+                    'direction': target_dir,
+                    'found': target_id is not None
+                })
+
+                if not target_id:
+                    available = self._get_available_directions(current)
+                    trace.set_status('error')
+                    self.log_operation(command, 'no_exit_in_direction', {
+                        'direction': target_dir,
+                        'available_directions': available
+                    })
+                    return {
+                        "status": "error",
+                        "message": f"Cannot go {target_dir} from here.",
+                        "available_directions": available,
+                    }
+            else:
+                # Treat as location ID
+                target_id = target_param
+                trace.add_event('location_id_navigation', {
+                    'target_id': target_id
+                })
 
         # Validate target exists
         try:
