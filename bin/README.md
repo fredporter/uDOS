@@ -6,14 +6,14 @@ Quick-start scripts for launching uDOS components.
 
 ### Double-Click Launchers (macOS)
 
-- **`Launch-uDOS-TUI.command`** — TUI interface (offline-first)
+- **`Launch-uCODE.command`** — uCODE Unified TUI (offline-first, recommended)
 - **`Launch-Wizard-Server.command`** — Production API server (port 8765)
 - **For Goblin:** See `/dev/goblin/bin/Launch-Goblin-Dev.command`
 
 ### Terminal Launch
 
 ```bash
-./bin/Launch-uDOS-TUI.command           # TUI
+./bin/Launch-uCODE.command              # uCODE Unified TUI (recommended)
 ./bin/Launch-Wizard-Server.command      # Wizard API
 ./dev/goblin/bin/Launch-Goblin-Dev.command  # Goblin (experimental)
 ```
@@ -65,16 +65,18 @@ Quick-start scripts for launching uDOS components.
 
 ---
 
-### 🖥️ uDOS TUI
+### 🖥️ uCODE - Unified Terminal TUI
 
-**Location:** `Launch-uDOS-TUI.command`
-**Status:** Production (offline-first)
+**Location:** `Launch-uCODE.command`
+**Status:** Production v1.0.1 (offline-first, recommended)
 
 **Features:**
 
-- Interactive terminal interface
-- No network required
+- Auto-detects components (core, wizard, extensions, app)
+- Integrated Wizard server control
+- Extension/plugin management
 - SmartPrompt command parser
+- Graceful fallback to core-only mode
 - Full system access
 
 ---
