@@ -72,6 +72,7 @@ class CommandDispatcher:
             "SETUP": SetupHandler(),
             "PATTERN": PatternHandler(),
             "DEV MODE": DevModeHandler(),
+            "DEV": DevModeHandler(),  # Shortcut for DEV MODE
             # NPC & Dialogue (3)
             "NPC": self.npc_handler,
             "TALK": self.talk_handler,

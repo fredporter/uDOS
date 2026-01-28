@@ -21,6 +21,8 @@ class HelpHandler(BaseCommandHandler):
             "CLEAN",
             "COMPOST",
             "DESTROY",
+            "DEV",
+            "DEV MODE",
         ],
         "Advanced": ["BINDER", "RUN", "STORY", "SETUP", "DATASET", "CONFIG", "PROVIDER"],
     }
@@ -193,6 +195,22 @@ class HelpHandler(BaseCommandHandler):
             "notes": "Use Dev TUI to run DESTROY with confirmation",
             "category": "System & Maintenance",
             "syntax": "DESTROY [--confirm]",
+        },
+        "DEV": {
+            "description": "Access development mode (Wizard-controlled)",
+            "usage": "DEV",
+            "example": "DEV",
+            "notes": "Shows dev mode status. Start Wizard server to activate dev mode",
+            "category": "System & Maintenance",
+            "syntax": "DEV | DEV MODE",
+        },
+        "DEV MODE": {
+            "description": "Manage development mode via Wizard Server",
+            "usage": "DEV MODE",
+            "example": "DEV MODE",
+            "notes": "Dev mode is controlled from Wizard Server TUI. Use: WIZARD start → then DEV ON/OFF in Wizard console. Goblin experimental server runs on port 8767 when enabled",
+            "category": "System & Maintenance",
+            "syntax": "DEV [MODE]",
         },
         "NPC": {
             "description": "List NPCs at current or specified location",
