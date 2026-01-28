@@ -1,7 +1,7 @@
 # Phase 4: User Management & Unified Restart System - COMPLETE ✅
 
-**Commit:** a2960a66  
-**Date:** 2026-01-28  
+**Commit:** a2960a66
+**Date:** 2026-01-28
 **Status:** Implemented and Pushed to GitHub
 
 ---
@@ -13,6 +13,7 @@
 **Purpose:** Manage user identities, roles, and permissions across the system.
 
 **Features:**
+
 - Role-based access control (RBAC) with 3 roles:
   - `admin` - Full system access (14 permissions)
   - `user` - Normal access (6 permissions)
@@ -23,12 +24,14 @@
 - Current user tracking via `memory/private/current_user.txt`
 
 **Key Classes:**
+
 - `UserRole` - Enum: ADMIN, USER, GUEST
 - `Permission` - Enum: ADMIN, REPAIR, CONFIG, DESTROY, READ, WRITE, DELETE, etc.
 - `User` - Dataclass with username, role, created, last_login
 - `UserManager` - Service class with all user operations
 
 **Default Setup:**
+
 - Factory admin user created automatically
 - All users inherit permissions from their role
 - Only admin can create/delete/modify other users
@@ -40,6 +43,7 @@
 **Purpose:** TUI interface for user management.
 
 **Subcommands:**
+
 ```
 USER                          # Show current user
 USER list                     # List all users
@@ -53,6 +57,7 @@ USER help                     # Show help
 ```
 
 **Example Usage:**
+
 ```
 USER                          # Show current user (admin)
 USER list                     # List all users
@@ -70,6 +75,7 @@ USER delete alice             # Delete alice
 **Purpose:** Consolidate RELOAD, REBOOT, and RESTART into one command.
 
 **Commands:**
+
 ```
 RESTART                    # Hot reload + repair (default)
 RESTART --reload-only      # Just hot reload handlers
@@ -82,6 +88,7 @@ REBOOT                     # Alias: RESTART --repair
 ```
 
 **Features:**
+
 - Unified restart sequence builder
 - Shows restart plan before execution
 - Asks for confirmation (unless --confirm)
@@ -89,6 +96,7 @@ REBOOT                     # Alias: RESTART --repair
 - Preserves REPL state
 
 **Example Usage:**
+
 ```
 RESTART                     # Default: reload + repair
 RESTART --reload-only       # Just hot reload (dev)
@@ -103,6 +111,7 @@ RESTART --help              # Show detailed help
 **Purpose:** System cleanup with data wipe and archive options.
 
 **Commands:**
+
 ```
 DESTROY                         # Show cleanup options menu
 DESTROY --wipe-user             # Delete user profiles and keys
@@ -113,6 +122,7 @@ DESTROY --help                  # Show help
 ```
 
 **Features:**
+
 - Role-based permission enforcement (admin/destroy only)
 - Multi-step cleanup: wipe, compost, reload, repair
 - Nuclear reset option (fully reversible, archived to .archive/)
@@ -120,6 +130,7 @@ DESTROY --help                  # Show help
 - All actions logged to audit trail
 
 **Example Usage:**
+
 ```
 DESTROY                           # Show menu
 DESTROY --wipe-user               # Clear user data
@@ -135,6 +146,7 @@ DESTROY --reset-all --confirm     # Full factory reset (admin only)
 **Purpose:** System maintenance with selective reset options.
 
 **Commands:**
+
 ```
 REPAIR                      # Standard health checks (non-destructive)
 REPAIR --reset-user         # Reset user profiles to defaults
@@ -146,6 +158,7 @@ REPAIR --help               # Show help
 ```
 
 **Features:**
+
 - Safe health checks by default (no data loss)
 - Selective reset options (user/keys/config)
 - Preserves admin user
@@ -153,6 +166,7 @@ REPAIR --help               # Show help
 - All actions logged
 
 **Example Usage:**
+
 ```
 REPAIR                      # Health checks (safe)
 REPAIR --reset-user         # Reset users to defaults
@@ -168,6 +182,7 @@ REPAIR --reset-user --confirm  # Auto-proceed
 **Purpose:** File monitoring and handler hot reload (optional, requires watchdog).
 
 **Features:**
+
 - Watches `core/commands/` for Python file changes
 - Auto-reloads handlers on save (if watchdog installed)
 - Validates handlers before swapping
@@ -175,6 +190,7 @@ REPAIR --reset-user --confirm  # Auto-proceed
 - Optional dependency (graceful fallback if watchdog missing)
 
 **Integration:**
+
 - RELOAD command can trigger manual reload
 - Auto-watch can be enabled for development
 - Non-blocking file system monitoring
@@ -183,17 +199,18 @@ REPAIR --reset-user --confirm  # Auto-proceed
 
 ## User Roles & Permissions Matrix
 
-| Role  | Permissions | Use Case |
-|-------|-------------|----------|
-| admin | admin, repair, config, destroy, read, write, delete, dev_mode, hot_reload, debug, wizard, plugin, web | System administration, full control |
-| user | read, write, delete, hot_reload, wizard, plugin | Normal operation, development, plugin installation |
-| guest | read | View-only, no modifications |
+| Role  | Permissions                                                                                           | Use Case                                           |
+| ----- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| admin | admin, repair, config, destroy, read, write, delete, dev_mode, hot_reload, debug, wizard, plugin, web | System administration, full control                |
+| user  | read, write, delete, hot_reload, wizard, plugin                                                       | Normal operation, development, plugin installation |
+| guest | read                                                                                                  | View-only, no modifications                        |
 
 ---
 
 ## Integration Points
 
 ### Dispatcher Updates
+
 - RESTART (unified handler)
 - RELOAD (alias for RESTART --reload-only)
 - REBOOT (alias for RESTART --repair)
@@ -201,12 +218,14 @@ REPAIR --reset-user --confirm  # Auto-proceed
 - USER (new handler)
 
 ### Help Handler Updates
+
 - USER command documentation
 - RESTART command documentation
 - DESTROY command enhancements
 - REPAIR command enhancements
 
 ### Services Integration
+
 - UserManager permissions check
 - UnifiedLogger for all actions
 - DevTrace for timing spans
@@ -244,16 +263,19 @@ REPAIR --reset-user --confirm  # Auto-proceed
 ## What's Next (Phase 5+)
 
 ### Phase 5: Handler Logging Integration
+
 - Hook MapHandler, FindHandler, etc. to unified logger
 - Track all command execution with DevTrace
 - Performance profiling for key operations
 
 ### Phase 6: Unified TUI Dashboard
+
 - Merge Wizard commands into Core dispatcher
 - Context-aware execution (local vs wizard)
 - Web dashboard on port 8766 (optional)
 
 ### Phase 7: Advanced User Management
+
 - Multi-device user sync
 - Permission scoping per device
 - User activity audit reports
@@ -291,7 +313,7 @@ REPAIR --reset-user --confirm  # Auto-proceed
 
 2. `core/commands/__init__.py`
    - Added lazy imports for new handlers
-   - Updated __all__ exports
+   - Updated **all** exports
 
 3. `core/commands/help_handler.py`
    - Added USER, RESTART, DESTROY, REPAIR documentation
@@ -342,6 +364,6 @@ REPAIR --reset-user --confirm  # Auto-proceed
 
 ---
 
-_Generated: 2026-01-28_  
-_uDOS Alpha v1.0.2.0_  
+_Generated: 2026-01-28_
+_uDOS Alpha v1.0.2.0_
 _Phase 4 Complete - User Management & Unified Restart ✅_

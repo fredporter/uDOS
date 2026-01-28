@@ -2,12 +2,12 @@
 
 from typing import List, Dict, Optional
 from core.commands.base import BaseCommandHandler
-from core.tui.output import OutputToolkit
+from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.locations import load_locations
 
 
-class FindHandler(BaseCommandHandler):
-    """Handler for FIND command - search locations by name, type, or region."""
+class FindHandler(BaseCommandHandler, HandlerLoggingMixin):
+    """Handler for FIND command - search locations with logging."""
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         """
@@ -22,114 +22,148 @@ class FindHandler(BaseCommandHandler):
         Returns:
             Dict with status, results, count
         """
-        if not params:
-            return {
-                "status": "error",
-                "message": "FIND requires a search query (name, type, or region)",
-            }
+        with self.trace_command(command, params) as trace:
+            if not params:
+                trace.set_status('error')
+                self.log_param_error(command, params, "Search query required")
+                return {
+                    "status": "error",
+                    "message": "FIND requires a search query (name, type, or region)",
+                }
 
-        try:
-            db = load_locations()
-            all_locations = list(db.get_all())
-        except Exception as e:
-            return {"status": "error", "message": f"Failed to load locations: {str(e)}"}
+            try:
+                db = load_locations()
+                all_locations = list(db.get_all())
+                trace.add_event('locations_loaded', {'count': len(all_locations)})
+            except Exception as e:
+                trace.record_error(e)
+                trace.set_status('error')
+                self.log_operation(command, 'load_failed', {'error': str(e)})
+                return {"status": "error", "message": f"Failed to load locations: {str(e)}"}
 
-        # Parse search parameters
-        search_query = " ".join(params).lower()
+            trace.mark_milestone('data_loaded')
 
-        # Check for flags
-        search_type = None
-        search_region = None
-        query_text = search_query
+            # Parse search parameters
+            search_query = " ".join(params).lower()
 
-        if "--type" in search_query:
-            parts = search_query.split("--type")
-            query_text = parts[0].strip()
-            search_type = parts[1].strip().split()[0] if len(parts) > 1 else None
+            # Check for flags
+            search_type = None
+            search_region = None
+            query_text = search_query
 
-        if "--region" in search_query:
-            parts = search_query.split("--region")
-            query_text = parts[0].strip()
-            search_region = parts[1].strip().split()[0] if len(parts) > 1 else None
+            if "--type" in search_query:
+                parts = search_query.split("--type")
+                query_text = parts[0].strip()
+                search_type = parts[1].strip().split()[0] if len(parts) > 1 else None
 
-        # Perform search
-        results = []
-        for location in all_locations:
-            match = False
+            if "--region" in search_query:
+                parts = search_query.split("--region")
+                query_text = parts[0].strip()
+                search_region = parts[1].strip().split()[0] if len(parts) > 1 else None
 
-            # Search by text
-            if query_text and (
-                query_text in location.name.lower()
-                or query_text in location.description.lower()
-                or query_text in location.type.lower()
-                or query_text in location.region.lower()
-            ):
-                match = True
+            trace.add_event('search_parsed', {
+                'query_text': query_text[:50],
+                'search_type': search_type,
+                'search_region': search_region
+            })
 
-            # Filter by type
-            if search_type and location.type.lower() != search_type.lower():
+            trace.mark_milestone('filters_parsed')
+
+            # Perform search
+            results = []
+            for location in all_locations:
                 match = False
 
-            # Filter by region
-            if search_region and location.region.lower() != search_region.lower():
-                match = False
+                # Search by text
+                if query_text and (
+                    query_text in location.name.lower()
+                    or query_text in location.description.lower()
+                    or query_text in location.type.lower()
+                    or query_text in location.region.lower()
+                ):
+                    match = True
 
-            # If no query_text but filters specified, include if matches filters
-            if not query_text and (search_type or search_region):
-                match = True
+                # Filter by type
                 if search_type and location.type.lower() != search_type.lower():
                     match = False
+
+                # Filter by region
                 if search_region and location.region.lower() != search_region.lower():
                     match = False
 
-            if match:
-                results.append(
-                    {
-                        "id": location.id,
-                        "name": location.name,
-                        "type": location.type,
-                        "region": location.region,
-                        "description_preview": (
-                            location.description[:80] + "..."
-                            if len(location.description) > 80
-                            else location.description
-                        ),
-                    }
-                )
+                # If no query_text but filters specified, include if matches filters
+                if not query_text and (search_type or search_region):
+                    match = True
+                    if search_type and location.type.lower() != search_type.lower():
+                        match = False
+                    if search_region and location.region.lower() != search_region.lower():
+                        match = False
 
-        if not results:
+                if match:
+                    results.append(
+                        {
+                            "id": location.id,
+                            "name": location.name,
+                            "type": location.type,
+                            "region": location.region,
+                            "description_preview": (
+                                location.description[:80] + "..."
+                                if len(location.description) > 80
+                                else location.description
+                            ),
+                        }
+                    )
+
+            trace.add_event('search_completed', {'results_found': len(results)})
+            trace.mark_milestone('results_found')
+
+            if not results:
+                from core.tui.output import OutputToolkit
+                output = "\n".join(
+                    [
+                        OutputToolkit.banner("FIND RESULTS"),
+                        f"No locations found for: {search_query}",
+                    ]
+                )
+                trace.set_status('success')
+                self.log_operation(command, 'no_results', {
+                    'query': search_query[:50],
+                    'search_scope': len(all_locations)
+                })
+                return {
+                    "status": "success",
+                    "message": f"No locations found for: {search_query}",
+                    "output": output,
+                    "query": search_query,
+                    "results": [],
+                }
+
+            from core.tui.output import OutputToolkit
+            rows = [
+                [item["id"], item["name"], item["type"], item["region"]]
+                for item in results[:20]
+            ]
             output = "\n".join(
                 [
                     OutputToolkit.banner("FIND RESULTS"),
-                    f"No locations found for: {search_query}",
+                    OutputToolkit.table(["id", "name", "type", "region"], rows),
+                    "",
+                    f"Count: {len(results)}",
                 ]
             )
+
+            trace.set_status('success')
+            trace.add_event('results_formatted', {
+                'total_found': len(results),
+                'displayed': min(len(results), 20),
+                'output_size': len(output)
+            })
+
             return {
                 "status": "success",
-                "message": f"No locations found for: {search_query}",
+                "message": f"Found {len(results)} locations",
                 "output": output,
+                "count": len(results),
                 "query": search_query,
-                "results": [],
+                "results": results[:20],  # Limit to 20 results
             }
-
-        rows = [
-            [item["id"], item["name"], item["type"], item["region"]]
-            for item in results[:20]
-        ]
-        output = "\n".join(
-            [
-                OutputToolkit.banner("FIND RESULTS"),
-                OutputToolkit.table(["id", "name", "type", "region"], rows),
-                "",
-                f"Count: {len(results)}",
-            ]
-        )
-
-        return {
-            "status": "success",
-            "message": f"Found {len(results)} locations",
-            "output": output,
-            "count": len(results),
-            "query": search_query,
-            "results": results[:20],  # Limit to 20 results
-        }
