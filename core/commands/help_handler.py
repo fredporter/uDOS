@@ -24,6 +24,7 @@ class HelpHandler(BaseCommandHandler):
             "DEV",
             "DEV MODE",
             "LOGS",
+            "RELOAD",
         ],
         "Advanced": ["BINDER", "RUN", "STORY", "SETUP", "DATASET", "CONFIG", "PROVIDER"],
     }

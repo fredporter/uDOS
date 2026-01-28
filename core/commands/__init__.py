@@ -102,6 +102,18 @@ def __getattr__(name):
     elif name == "LogsHandler":
         from .logs_handler import LogsHandler
         return LogsHandler
+    elif name == "ReloadHandler":
+        from .reload_handler import ReloadHandler
+        return ReloadHandler
+    elif name == "RestartHandler":
+        from .restart_handler import RestartHandler
+        return RestartHandler
+    elif name == "DestroyHandler":
+        from .destroy_handler import DestroyHandler
+        return DestroyHandler
+    elif name == "UserHandler":
+        from .user_handler import UserHandler
+        return UserHandler
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 __all__ = [
@@ -125,6 +137,10 @@ __all__ = [
     "PatternHandler",
     "DevModeHandler",
     "LogsHandler",
+    "ReloadHandler",
+    "RestartHandler",
+    "DestroyHandler",
+    "UserHandler",
     # NPC & Dialogue commands
     "NPCHandler",
     "DialogueEngine",

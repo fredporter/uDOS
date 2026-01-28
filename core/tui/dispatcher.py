@@ -35,6 +35,10 @@ from core.commands import (
     StoryHandler,
     SetupHandler,
     LogsHandler,
+    ReloadHandler,
+    RestartHandler,
+    DestroyHandler,
+    UserHandler,
 )
 
 
@@ -66,15 +70,21 @@ class CommandDispatcher:
             "SPAWN": SpawnHandler(),
             "SAVE": SaveHandler(),
             "LOAD": LoadHandler(),
-            # System (4)
+            # System (9)
             "SHAKEDOWN": ShakedownHandler(),
             "REPAIR": RepairHandler(),
-            "REBOOT": RepairHandler(),  # Alias for REPAIR
+            "RESTART": RestartHandler(),  # Unified restart/reload/reboot
+            "RELOAD": RestartHandler(),  # Alias for RESTART --reload-only
+            "REBOOT": RestartHandler(),  # Alias for RESTART --repair
             "SETUP": SetupHandler(),
             "PATTERN": PatternHandler(),
             "DEV MODE": DevModeHandler(),
             "DEV": DevModeHandler(),  # Shortcut for DEV MODE
             "LOGS": LogsHandler(),  # View unified logs
+            # User Management (2)
+            "USER": UserHandler(),  # User profiles and permissions
+            # Cleanup/Reset (1)
+            "DESTROY": DestroyHandler(),  # System cleanup with data wipe options
             # NPC & Dialogue (3)
             "NPC": self.npc_handler,
             "TALK": self.talk_handler,
@@ -98,7 +108,6 @@ class CommandDispatcher:
             "TIDY": maintenance,
             "CLEAN": maintenance,
             "COMPOST": maintenance,
-            "DESTROY": maintenance,
         }
 
         self.file_handler = file_editor
