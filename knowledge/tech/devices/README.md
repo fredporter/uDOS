@@ -10,7 +10,7 @@ last_updated: 2026-01-29
 
 # uDOS-Compatible Devices - Sonic Screwdriver Library
 
-**Last Updated:** 2026-01-29  
+**Last Updated:** 2026-01-29
 **Source:** `/sonic/` device library
 
 ---
@@ -238,7 +238,6 @@ To add a new device to the Sonic library:
 
 ---
 
-**Status:** Active Reference  
-**Source Library:** `/sonic/` (uDOS-sonic repository)  
+**Status:** Active Reference
+**Source Library:** `/sonic/` (uDOS-sonic repository)
 **Last Device Added:** Sonic Screwdriver v1.1.0 (2026-01-26)
-
