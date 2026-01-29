@@ -124,12 +124,12 @@ main() {
     local component="${1:-}"
     local mode=""
     local extra_args=()
-    
+
     # If no component specified, show menu
     if [ -z "$component" ]; then
         component=$(_show_menu)
     fi
-    
+
     # Check if second arg is a mode or flag
     if [ -n "$2" ]; then
         case "$2" in
@@ -147,13 +147,13 @@ main() {
         shift 1 2>/dev/null || true
         extra_args=("$@")
     fi
-    
+
     # Validate component exists
     if ! _check_component "$component"; then
         printf "${RED}✗ Component '$component' not available${NC}\n" >&2
         exit 1
     fi
-    
+
     # Determine default mode if not specified
     if [ -z "$mode" ]; then
         case "$component" in
@@ -163,7 +163,7 @@ main() {
             app) mode="dev" ;;
         esac
     fi
-    
+
     # Dispatch to component launcher
     launch_component "$component" "$mode" "${extra_args[@]}"
 main "$@"

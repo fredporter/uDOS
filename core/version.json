@@ -3,7 +3,8 @@
   "version": {
     "major": 1,
     "minor": 0,
-    "patch": 7
+    "patch": 7,
+    "build": 1
   },
   "status": "development",
   "location": "core/",
@@ -26,6 +27,6 @@
   "notes": "Added ANSI pattern generator service and PATTERN command for visual feedback",
   "name": "core",
   "channel": "dev",
-  "display": "v1.0.7",
-  "released": "2026-01-24"
+  "display": "v1.0.7.1",
+  "released": "2026-01-29"
 }
