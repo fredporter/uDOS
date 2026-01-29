@@ -53,6 +53,15 @@ class DestroyHandler(BaseCommandHandler):
     def handle(self, command, params, grid, parser):
         """Handle DESTROY command.
         
+        Usage:
+            DESTROY              # Show numbered menu
+            DESTROY 0            # Show help
+            DESTROY 1            # Wipe user data
+            DESTROY 2            # Archive memory (compost)
+            DESTROY 3            # Wipe + compost + reload
+            DESTROY 4            # Nuclear reset (factory defaults)
+            DESTROY --help       # Show help (legacy)
+        
         Args:
             command: Command name (DESTROY)
             params: Parameter list
@@ -82,7 +91,8 @@ class DestroyHandler(BaseCommandHandler):
                 'status': 'error'
             }
         
-        # Parse parameters
+        # Parse parameters - support both numeric menu and legacy flags
+        choice = None
         wipe_user = False
         compost = False
         reload_repair = False
@@ -90,26 +100,51 @@ class DestroyHandler(BaseCommandHandler):
         skip_confirm = False
         show_help = False
         
-        for param in params:
-            param_lower = param.lower()
-            if param_lower in ['--wipe-user', '-w']:
-                wipe_user = True
-            elif param_lower in ['--compost', '-c']:
-                compost = True
-            elif param_lower in ['--reload-repair', '-r']:
-                reload_repair = True
-            elif param_lower in ['--reset-all', '-a']:
-                reset_all = True
-            elif param_lower in ['--confirm', '-y']:
-                skip_confirm = True
-            elif param_lower in ['--help', '-h']:
-                show_help = True
+        # Parse first parameter for numeric choice or flags
+        if params:
+            first_param = params[0].lower()
+            
+            # Check for numeric choice (0-4)
+            if first_param in ['0', '1', '2', '3', '4']:
+                choice = int(first_param)
+            else:
+                # Legacy flag support
+                for param in params:
+                    param_lower = param.lower()
+                    if param_lower in ['--wipe-user', '-w']:
+                        wipe_user = True
+                    elif param_lower in ['--compost', '-c']:
+                        compost = True
+                    elif param_lower in ['--reload-repair', '-r']:
+                        reload_repair = True
+                    elif param_lower in ['--reset-all', '-a']:
+                        reset_all = True
+                    elif param_lower in ['--confirm', '-y']:
+                        skip_confirm = True
+                    elif param_lower in ['--help', '-h']:
+                        show_help = True
         
-        # Handle help
+        # Handle numeric choices
+        if choice is not None:
+            if choice == 0:
+                return self._show_help()
+            elif choice == 1:
+                wipe_user = True
+            elif choice == 2:
+                compost = True
+            elif choice == 3:
+                wipe_user = True
+                compost = True
+                reload_repair = True
+            elif choice == 4:
+                reset_all = True
+                skip_confirm = False  # Always require confirmation for nuclear
+        
+        # Handle help (legacy)
         if show_help:
             return self._show_help()
         
-        # Show menu if no options
+        # Show menu if no options or choice
         if not (wipe_user or compost or reload_repair or reset_all):
             return self._show_menu()
         
@@ -133,6 +168,7 @@ class DestroyHandler(BaseCommandHandler):
             category='destroy',
             message=f'DESTROY cleanup initiated by {user.username}',
             metadata={
+                'choice': choice,
                 'wipe_user': wipe_user,
                 'compost': compost,
                 'reload_repair': reload_repair,
@@ -150,7 +186,7 @@ class DestroyHandler(BaseCommandHandler):
         )
     
     def _show_menu(self):
-        """Show cleanup options menu.
+        """Show cleanup options menu with numbered choices.
         
         Returns:
             Output dict
@@ -160,36 +196,44 @@ class DestroyHandler(BaseCommandHandler):
 ║      DESTROY/CLEANUP OPTIONS           ║
 ╚════════════════════════════════════════╝
 
-Choose what to clean up:
+Choose a cleanup option (type number + Enter):
 
-  DESTROY --wipe-user
-    Clear all user profiles, roles, and API keys
-    Resets to default admin user
+  1. WIPE USER DATA
+    • Clear all user profiles, roles, and API keys
+    • Resets to default admin user
+    • Preserves memory/logs
+    Usage: DESTROY 1
     
-  DESTROY --compost
-    Archive /memory to .archive/compost/YYYY-MM-DD
-    Preserves history, frees up space
+  2. ARCHIVE MEMORY (COMPOST)
+    • Archive /memory to .archive/compost/YYYY-MM-DD
+    • Preserves data history
+    • Frees up /memory space
+    • Keeps users intact
+    Usage: DESTROY 2
     
-  DESTROY --wipe-user --compost
-    Both: wipe user data AND archive memory
+  3. WIPE + COMPOST + RELOAD
+    • Both: wipe user data AND archive memory
+    • Hot reload + repair after cleanup
+    • Complete fresh start (keeps framework)
+    Usage: DESTROY 3
     
-  DESTROY --reload-repair
-    Follow wipe/compost with hot reload + repair
-    
-  DESTROY --reset-all --confirm
-    ⚠️  NUCLEAR: Everything (requires --confirm)
-    Wipes users, memory, config, system
-    Returns to factory defaults
-    
-  DESTROY --help
-    Show detailed help
+  4. NUCLEAR RESET (FACTORY RESET)
+    • ⚠️  DANGER: Everything wiped to factory defaults
+    • Deletes: users, memory, config, logs, API keys
+    • Requires additional confirmation
+    • Admin only - cannot be undone easily
+    Usage: DESTROY 4
+
+  0. HELP
+    Show detailed command reference
+    Usage: DESTROY 0
 
 EXAMPLES:
-  DESTROY --wipe-user                    # Clear users
-  DESTROY --compost                      # Archive memory
-  DESTROY --wipe-user --compost          # Both
-  DESTROY --wipe-user --compost --reload-repair  # Plus reload
-  DESTROY --reset-all --confirm          # FULL RESET (admin only)
+  DESTROY 1                    # Clear users
+  DESTROY 2                    # Archive memory
+  DESTROY 3                    # Wipe + archive + reload
+  DESTROY 4                    # FULL RESET (admin only)
+  DESTROY 0                    # Show help
 """
         return {
             'output': menu.strip(),
@@ -212,72 +256,82 @@ DESTROY is the system cleanup and reset command. It safely removes
 user data, archives memory, and optionally reinitializes the system.
 
 SYNTAX:
-  DESTROY [OPTIONS]
+  DESTROY              Show menu with numbered options
+  DESTROY [0-4]       Execute numeric option
+  DESTROY --help      Show this help
 
-OPTIONS:
-  --wipe-user       Clear user profiles and API keys
-  --compost         Archive /memory to .archive/compost/
-  --reload-repair   Hot reload + repair after cleanup
-  --reset-all       NUCLEAR: Complete factory reset
-  --confirm         Skip confirmations (required for --reset-all)
-  --help            Show this help
+NUMERIC OPTIONS:
 
-CLEANUP OPERATIONS:
+  0. HELP
+    Show this help text
+    Usage: DESTROY 0
 
-  --wipe-user
+  1. WIPE USER DATA
     • Deletes all user profiles except admin
     • Clears API keys and credentials
     • Removes OAuth tokens
     • Resets to default admin user
     • Safe: users can be recreated
+    Usage: DESTROY 1
 
-  --compost
+  2. ARCHIVE MEMORY (COMPOST)
     • Archives entire /memory to .archive/compost/YYYY-MM-DD
     • Preserves data history
     • Frees up /memory space
     • Can be restored manually if needed
     • Safe: original preserved in .archive
+    Usage: DESTROY 2
 
-  --reload-repair
-    • After wipe/compost, hot reload handlers
-    • Run system repair checks
-    • Verify integrity
-    • Safe: non-destructive
+  3. WIPE + ARCHIVE + RELOAD (COMPLETE CLEANUP)
+    • Wipes all user data and API keys
+    • Archives /memory to compost
+    • Hot reloads handlers
+    • Runs repair checks
+    • Safe: complete fresh start keeping framework
+    Usage: DESTROY 3
 
-  --reset-all (NUCLEAR)
-    • Wipes: users, memory, config, logs
+  4. NUCLEAR RESET (FACTORY DEFAULT)
+    • ⚠️  DANGER: Complete system wipe
+    • Wipes: users, memory, config, logs, API keys
     • Resets: system to factory defaults
-    • REQUIRES: --confirm flag
+    • REQUIRES: explicit confirmation
     • Admin only: cannot be undone easily
     • Log note: Major reset event
+    Usage: DESTROY 4
 
-EXAMPLES:
-  # Clear user data but keep /memory
+LEGACY FLAG SUPPORT (still works):
+  --wipe-user       Clear user profiles and API keys
+  --compost         Archive /memory to .archive/compost/
+  --reload-repair   Hot reload + repair after cleanup
+  --reset-all       NUCLEAR: Complete factory reset
+  --confirm         Skip confirmations (required for --reset-all)
+
+LEGACY EXAMPLES:
   DESTROY --wipe-user
-  
-  # Archive /memory but keep users
   DESTROY --compost
-  
-  # Both: wipe users AND archive memory
   DESTROY --wipe-user --compost
-  
-  # Wipe/archive then reload system
   DESTROY --wipe-user --compost --reload-repair
-  
-  # FULL RESET to factory defaults
   DESTROY --reset-all --confirm
 
 SAFETY:
   • Requires admin or destroy permission
-  • Most ops ask for confirmation
-  • --reset-all REQUIRES explicit --confirm
+  • Most ops ask for confirmation before proceeding
+  • Nuclear reset (option 4) requires explicit user action
   • All actions logged to audit trail
-  • Archived data preserved in .archive
+  • Archived data preserved in .archive/compost/
 
 RECOVERY:
-  • If you compost, see .archive/compost/
+  • If you compost, see .archive/compost/ for your data
   • Users can be recreated: USER create [name] [role]
   • Config can be restored from git or .archive
+  • Use STORY wizard-setup to reconfigure
+
+NEXT STEPS AFTER CLEANUP:
+  1. DESTROY 1          # Wipe user data
+  2. DESTROY 3          # Complete cleanup
+  3. STORY wizard-setup # Run setup story
+  4. SETUP              # View your profile
+  5. WIZARD start       # Start Wizard Server
 """
         return {
             'output': help_text.strip(),

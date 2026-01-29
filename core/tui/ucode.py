@@ -242,6 +242,9 @@ class uCODETUI:
         self.running = True
         self._show_banner()
         self._show_component_status()
+        
+        # Check if fresh install and run setup if needed
+        self._check_fresh_install()
 
         try:
             while self.running:
@@ -265,6 +268,29 @@ class uCODETUI:
                     # Check for uCODE commands
                     if cmd in self.commands:
                         self.commands[cmd](args)
+                        continue
+
+                    # Special handling for STORY commands with forms
+                    if cmd == "STORY":
+                        result = self.dispatcher.dispatch(user_input)
+                        
+                        # Check if this is a form-based story
+                        if result.get("story_form"):
+                            collected_data = self._handle_story_form(result["story_form"])
+                            print("\n✅ Setup form completed!")
+                            print(f"\nCollected {len(collected_data)} values")
+                            if collected_data:
+                                print("\nData saved. Next steps:")
+                                print("  SETUP              - View your profile")
+                                print("  CONFIG             - View variables")
+                        else:
+                            # Show the result for non-form stories
+                            output = self.renderer.render(result)
+                            print(output)
+                        
+                        self.state.update_from_handler(result)
+                        self.logger.info(f"[COMMAND] {user_input} -> {result.get('status')}")
+                        self.state.add_to_history(user_input)
                         continue
 
                     # Route to core dispatcher (fallback)
@@ -300,6 +326,399 @@ class uCODETUI:
 ╚═══════════════════════════════════════════════════════════════╝
 """
         print(banner)
+
+    def _ask_yes_no(self, question: str, default: bool = True) -> bool:
+        """Ask a standardized yes/no question.
+        
+        Prompt format: "Question? [Yes|No] <"
+        Accepts: Y/Yes for True, N/No for False, Enter for default
+        
+        Args:
+            question: The question to ask (without punctuation)
+            default: Default answer if user just presses Enter
+        
+        Returns:
+            True for yes, False for no
+        """
+        default_str = "Yes" if default else "No"
+        prompt_text = f"{question}? [Yes|No] <"
+        
+        response = self.prompt.ask(prompt_text, default="yes" if default else "no")
+        response_lower = response.lower().strip()
+        
+        # Accept Y/Yes for true, N/No for false, empty string uses default
+        if response_lower in ["y", "yes", ""]:
+            return True
+        elif response_lower in ["n", "no"]:
+            return False
+        else:
+            # Invalid input, ask again
+            print("  ❌ Please enter Y/Yes or N/No")
+            return self._ask_yes_no(question, default)
+    
+    def _handle_story_form(self, form_data: Dict) -> Dict:
+        """Handle interactive story form - collect user responses for all sections.
+        
+        Args:
+            form_data: Form structure with title and sections or fields
+        
+        Returns:
+            Dictionary of collected field values from all sections
+        """
+        collected = {}
+        
+        # Show form title
+        title = form_data.get("title", "Form")
+        print(f"\n📋 {title}")
+        print("=" * 60)
+        
+        # Check if this is multi-section form
+        sections = form_data.get("sections", [])
+        
+        # DEBUG: Log what we received
+        self.logger.debug(f"[STORY] Form sections: {len(sections)} sections, form_data keys: {list(form_data.keys())}")
+        if sections:
+            self.logger.debug(f"[STORY] Section titles: {[s.get('title') for s in sections]}")
+        
+        if sections:
+            # Process each section
+            for section_idx, section in enumerate(sections):
+                section_title = section.get("title", "Section")
+                section_text = section.get("text", "").strip()
+                fields = section.get("fields", [])
+                
+                self.logger.debug(f"[STORY] Processing section {section_idx}: '{section_title}' with {len(fields)} fields")
+                
+                if fields:  # Only show sections that have fields
+                    print(f"\n## {section_title}\n")
+                    if section_text:
+                        print(f"{section_text}\n")
+                        print("-" * 60)
+                    
+                    # Collect responses for each field in section
+                    for field in fields:
+                        response = self._collect_field_response(field)
+                        if response is not None:
+                            field_name = field.get("name", "")
+                            collected[field_name] = response
+        else:
+            # Single section form (backward compatibility)
+            fields = form_data.get("fields", [])
+            text = form_data.get("text", "").strip()
+            
+            if text:
+                print(f"\n{text}\n")
+                print("-" * 60)
+            
+            for field in fields:
+                response = self._collect_field_response(field)
+                if response is not None:
+                    field_name = field.get("name", "")
+                    collected[field_name] = response
+        
+        print("\n" + "=" * 60)
+        return collected
+    
+    def _save_user_profile(self, collected_data: Dict) -> None:
+        """Save collected form data to user profile.
+        
+        Args:
+            collected_data: Dictionary of field names and values from form
+        """
+        try:
+            # Try to save via Wizard API if available
+            try:
+                from wizard.services.setup_profiles import save_user_profile
+                
+                result = save_user_profile(collected_data)
+                if result.success:
+                    self.logger.info(f"[SETUP] User profile saved via Wizard")
+                    return
+            except (ImportError, Exception) as e:
+                self.logger.debug(f"Wizard API not available: {e}")
+            
+            # Fallback: Save to local profile file in memory/
+            profile_dir = self.repo_root / "memory" / "user"
+            profile_dir.mkdir(parents=True, exist_ok=True)
+            profile_file = profile_dir / "profile.json"
+            
+            import json
+            from datetime import datetime
+            
+            # Create profile structure with timestamp
+            profile = {
+                "created": datetime.now().isoformat(),
+                "updated": datetime.now().isoformat(),
+                "data": collected_data
+            }
+            
+            with open(profile_file, "w") as f:
+                json.dump(profile, f, indent=2)
+            
+            self.logger.info(f"[SETUP] User profile saved to {profile_file}")
+            
+        except Exception as e:
+            self.logger.error(f"[SETUP] Failed to save user profile: {e}", exc_info=True)
+            print(f"\n⚠️  Warning: Could not save profile: {e}")
+
+    
+    def _collect_field_response(self, field: Dict) -> Optional[str]:
+        """Collect response for a single form field.
+        
+        Args:
+            field: Field definition with name, label, type, etc.
+        
+        Returns:
+            User's response or None
+        """
+        name = field.get("name", "")
+        label = field.get("label", name)
+        field_type = field.get("type", "text")
+        required = field.get("required", False)
+        placeholder = field.get("placeholder", "")
+        options = field.get("options", [])
+        
+        # Build prompt text
+        prompt_prefix = f"{label}"
+        if not required:
+            prompt_prefix += " (optional)"
+        
+        response = None
+        
+        if field_type == "select" and options:
+            # Show options menu
+            print(f"\n{prompt_prefix}:")
+            for idx, option in enumerate(options, 1):
+                print(f"  {idx}. {option}")
+            
+            # Get selection (simple integer input)
+            response = self.prompt.ask("  Enter number")
+            try:
+                choice_idx = int(response) - 1
+                if 0 <= choice_idx < len(options):
+                    response = options[choice_idx]
+                else:
+                    response = placeholder or ""
+            except (ValueError, TypeError):
+                response = placeholder or ""
+        
+        elif field_type == "checkbox":
+            # Yes/no prompt
+            yn = self._ask_yes_no(prompt_prefix)
+            response = "yes" if yn else "no"
+        
+        else:
+            # Text input (text or textarea)
+            print(f"\n{prompt_prefix}:")
+            response = self.prompt.ask("  > ", default=placeholder or "")
+        
+        return response if response else None
+    
+    def _check_fresh_install(self) -> None:
+        """Check if this is a fresh install and run setup story if needed.
+        
+        A fresh install is detected when:
+        - No user profile exists in Wizard
+        - No setup has been completed
+        
+        Self-healing: Automatically builds TS runtime if missing.
+        """
+        try:
+            # Check if Wizard is available
+            if not self.detector.is_available("wizard"):
+                self.logger.debug("Wizard not available, skipping fresh install check")
+                return
+            
+            # Try to load user profile from Wizard
+            try:
+                from wizard.services.setup_profiles import load_user_profile
+                
+                result = load_user_profile()
+                
+                # If we have user data, not a fresh install
+                if result.data and not result.locked:
+                    self.logger.debug("User profile exists, not a fresh install")
+                    return
+                
+                # If locked due to no encryption key, still consider it fresh
+                if result.locked and "not set" in str(result.error).lower():
+                    self.logger.debug("Wizard not yet initialized, treating as fresh install")
+                
+            except (ImportError, Exception) as e:
+                self.logger.debug(f"Could not check user profile: {e}")
+                return
+            
+            # Fresh install detected
+            print("\n" + "="*60)
+            print("⚙️  FRESH INSTALLATION DETECTED")
+            print("="*60)
+            print("\nNo user profile found. Let's set up your uDOS installation!")
+            print("\nWe'll capture:")
+            print("  • Your identity (username, role, timezone, location)")
+            print("  • Installation settings (OS type, lifespan mode)")
+            print("  • Capability preferences (cloud services, integrations)")
+            print("\nThis data will be stored securely in the Wizard keystore.")
+            print("-"*60)
+            
+            # Check if TS runtime is built
+            ts_runtime_path = self.repo_root / "core" / "grid-runtime" / "dist" / "index.js"
+            if not ts_runtime_path.exists():
+                print("\n🔨 Building TypeScript runtime (auto-heal)...")
+                print("   This may take 30-60 seconds on first build...\n")
+                
+                # Verify Node.js and npm are available before attempting build
+                try:
+                    node_check = subprocess.run(
+                        ["node", "--version"],
+                        capture_output=True,
+                        timeout=5,
+                        text=True
+                    )
+                    npm_check = subprocess.run(
+                        ["npm", "--version"],
+                        capture_output=True,
+                        timeout=5,
+                        text=True
+                    )
+                    
+                    if node_check.returncode != 0 or npm_check.returncode != 0:
+                        print("   ❌ Node.js/npm not available.\n")
+                        print("   The TypeScript runtime requires Node.js and npm.")
+                        print("\n   Please install Node.js from: https://nodejs.org/")
+                        print("   Then try again with:")
+                        print("      bash /Users/fredbook/Code/uDOS/core/tools/build_ts_runtime.sh")
+                        return
+                    
+                except Exception as e:
+                    print("   ⚠️  Could not verify Node.js/npm availability.\n")
+                    print(f"   Error: {e}")
+                    print("\n   Try manually building:")
+                    build_script = self.repo_root / "core" / "tools" / "build_ts_runtime.sh"
+                    print(f"      bash {build_script}")
+                    return
+                
+                # Self-heal: automatically build the TS runtime
+                build_script = self.repo_root / "core" / "tools" / "build_ts_runtime.sh"
+                if build_script.exists():
+                    try:
+                        import threading
+                        
+                        # Spinner animation
+                        spinner_chars = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+                        spinner_idx = [0]
+                        build_complete = [False]
+                        
+                        def show_spinner():
+                            """Show animated spinner while build runs."""
+                            while not build_complete[0]:
+                                sys.stdout.write(f'\r   {spinner_chars[spinner_idx[0]]} Building...')
+                                sys.stdout.flush()
+                                spinner_idx[0] = (spinner_idx[0] + 1) % len(spinner_chars)
+                                time.sleep(0.1)
+                        
+                        # Start spinner in background thread
+                        spinner_thread = threading.Thread(target=show_spinner, daemon=True)
+                        spinner_thread.start()
+                        
+                        # Run build with combined output for better error visibility
+                        result = subprocess.run(
+                            ["bash", str(build_script)],
+                            cwd=str(self.repo_root),
+                            capture_output=True,
+                            timeout=300,  # 5 minute timeout for build
+                            text=True
+                        )
+                        
+                        build_complete[0] = True
+                        spinner_thread.join(timeout=1)
+                        
+                        # Clear the spinner line
+                        sys.stdout.write('\r' + ' ' * 50 + '\r')
+                        sys.stdout.flush()
+                        
+                        if result.returncode == 0:
+                            print("   ✅ TypeScript runtime built successfully!")
+                            self.logger.info("[SETUP] TS runtime auto-built")
+                            
+                            # Small delay for visual clarity
+                            time.sleep(0.5)
+                        else:
+                            print("   ❌ Build failed.\n")
+                            
+                            # Combine stdout and stderr for complete error picture
+                            output_text = result.stdout + result.stderr
+                            
+                            if output_text.strip():
+                                print("   Error details:")
+                                # Show last 20 lines of output
+                                lines = output_text.split("\n")
+                                for line in lines[-20:]:
+                                    if line.strip():
+                                        print("   " + line)
+                            else:
+                                print("   (No error output captured)")
+                            
+                            print("\n   To fix manually, run:")
+                            print(f"      bash {build_script}")
+                            print("\n   Or check the build logs:")
+                            log_path = self.repo_root / "core" / "grid-runtime" / "build.log"
+                            print(f"      tail -100 {log_path}")
+                            return
+                    except subprocess.TimeoutExpired:
+                        build_complete[0] = True
+                        sys.stdout.write('\r' + ' ' * 50 + '\r')
+                        sys.stdout.flush()
+                        print("   ❌ Build timed out (>5 minutes).\n")
+                        print("   The TypeScript runtime is taking too long to build.")
+                        print("   Try manually:")
+                        print(f"      bash {build_script}")
+                        return
+                    except Exception as e:
+                        build_complete[0] = True
+                        sys.stdout.write('\r' + ' ' * 50 + '\r')
+                        sys.stdout.flush()
+                        print(f"   ❌ Build error: {e}\n")
+                        print("   To fix manually, run:")
+                        print(f"      bash {build_script}")
+                        return
+                else:
+                    print(f"   ❌ Build script not found: {build_script}")
+                    return
+            
+            # TS runtime is available - run setup story automatically
+            print()
+            if self._ask_yes_no("Run setup story now"):
+                print("\n🚀 Launching setup story...\n")
+                
+                # Auto-execute the STORY wizard-setup command
+                result = self.dispatcher.dispatch("STORY wizard-setup")
+                
+                # Check if this is a form-based story
+                if result.get("story_form"):
+                    collected_data = self._handle_story_form(result["story_form"])
+                    print("\n✅ Setup form completed!")
+                    print(f"\nCollected {len(collected_data)} values")
+                    
+                    # Save the collected data to user profile
+                    if collected_data:
+                        self._save_user_profile(collected_data)
+                        print("\nData saved. Next steps:")
+                        print("  SETUP              - View your profile")
+                        print("  CONFIG             - View variables")
+                else:
+                    # Show the result for non-form stories
+                    output = self.renderer.render(result)
+                    print(output)
+                
+                self.logger.info("[SETUP] Fresh install setup completed")
+            else:
+                print("\n⏭️  Setup skipped. You can run it anytime with:")
+                print("   STORY wizard-setup")
+                print()
+        
+        except Exception as e:
+            self.logger.error(f"[SETUP] Fresh install check failed: {e}", exc_info=True)
+            # Non-fatal error, continue with startup
 
     def _show_component_status(self) -> None:
         """Show detected components."""

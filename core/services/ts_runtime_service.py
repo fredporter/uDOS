@@ -56,7 +56,17 @@ class TSRuntimeService:
         if not markdown_path.exists():
             return {"status": "error", "message": f"Script not found: {markdown_path}"}
 
-        cmd = [self.node_cmd, str(self.runner_path), str(markdown_path)]
+        cmd = [self.node_cmd, str(self.runner_path)]
+        
+        # Add flags BEFORE the file path
+        if section_id is None:
+            # Pass --all to request all sections for multi-section forms
+            cmd.append("--all")
+        
+        # Always add the file path
+        cmd.append(str(markdown_path))
+        
+        # Add section_id if provided (and not requesting all sections)
         if section_id:
             cmd.append(section_id)
 

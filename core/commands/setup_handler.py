@@ -48,15 +48,30 @@ class SetupHandler(BaseCommandHandler):
             }
     
     def _show_profile(self) -> Dict:
-        """Fetch and display setup profile from Wizard Server."""
+        """Fetch and display setup profile from Wizard Server or local file."""
         try:
-            # Try to get admin token
+            # First, try local profile file
+            local_profile = self._load_local_profile()
+            if local_profile:
+                return self._format_local_profile(local_profile)
+            
+            # Then try Wizard Server
             token_path = get_repo_root() / "memory" / "private" / "wizard_admin_token.txt"
             if not token_path.exists():
                 return {
-                    "status": "error",
-                    "message": "Admin token not found. Is Wizard Server configured?",
-                    "help": "Run Wizard Server first: ./bin/start_wizard.sh"
+                    "status": "warning",
+                    "output": """
+╔═════════════════════════════════════════════════════════════╗
+║  ⚠️  No Setup Profile Found                                 ║
+╚═════════════════════════════════════════════════════════════╝
+
+You haven't run the setup story yet. To get started:
+
+  STORY wizard-setup
+
+This will ask questions about your setup and save the answers.
+Then use SETUP to view your profile.
+"""
                 }
             
             token = token_path.read_text().strip()
@@ -199,6 +214,91 @@ After completing, check profiles with:
 """
         }
     
+    def _load_local_profile(self) -> Dict:
+        """Load user profile from local file (memory/user/profile.json)."""
+        try:
+            import json
+            profile_file = get_repo_root() / "memory" / "user" / "profile.json"
+            
+            if profile_file.exists():
+                with open(profile_file, "r") as f:
+                    return json.load(f)
+        except Exception:
+            pass
+        
+        return None
+    
+    def _format_local_profile(self, profile: Dict) -> Dict:
+        """Format local profile data for display."""
+        try:
+            data = profile.get("data", {})
+            if not data:
+                return {
+                    "status": "warning",
+                    "output": "Profile file exists but is empty. Run STORY wizard-setup to populate it."
+                }
+            
+            lines = ["🧙 YOUR SETUP PROFILE\n", "=" * 60]
+            
+            # User Identity section
+            lines.append("\n📋 User Identity")
+            lines.append("-" * 60)
+            lines.append(f"  • Username:     {data.get('user_username', 'N/A')}")
+            lines.append(f"  • DOB:          {data.get('user_dob', 'N/A')}")
+            lines.append(f"  • Role:         {data.get('user_role', 'N/A')}")
+            lines.append(f"  • Permissions:  {data.get('user_permissions', '(none)')}")
+            
+            # Time & Place section
+            lines.append("\n📍 Time & Place")
+            lines.append("-" * 60)
+            lines.append(f"  • Timezone:     {data.get('user_timezone', 'N/A')}")
+            lines.append(f"  • Local Time:   {data.get('user_local_time', 'N/A')}")
+            lines.append(f"  • Location:     {data.get('user_location', 'N/A')}")
+            
+            # Installation section
+            lines.append("\n⚙️  Installation")
+            lines.append("-" * 60)
+            install_id = data.get('install_id') or "(auto-generated)"
+            lines.append(f"  • Install ID:   {install_id}")
+            lines.append(f"  • OS Type:      {data.get('install_os_type', 'N/A')}")
+            lines.append(f"  • Lifespan:     {data.get('install_lifespan_mode', 'infinite')}")
+            lines.append(f"  • Moves Limit:  {data.get('install_moves_limit', 'N/A')}")
+            
+            # Capabilities section
+            lines.append("\n🔧 Capabilities & Permissions")
+            lines.append("-" * 60)
+            
+            capability_fields = {
+                'capability_web_proxy': 'Web Proxy (APIs + scraping)',
+                'capability_gmail_relay': 'Gmail Relay',
+                'capability_ai_gateway': 'AI Gateway Routing',
+                'capability_github_push': 'GitHub Push',
+                'capability_notion': 'Notion Integration',
+                'capability_hubspot': 'HubSpot Integration',
+                'capability_icloud': 'iCloud Integration',
+                'capability_plugin_repo': 'Plugin Repository',
+                'capability_plugin_auto_update': 'Plugin Auto-Update',
+            }
+            
+            for field_key, field_label in capability_fields.items():
+                value = data.get(field_key, 'N/A')
+                status = "✅" if value in ['yes', 'true', '1', True] else "❌"
+                lines.append(f"  {status} {field_label}")
+            
+            lines.append("\n" + "=" * 60)
+            lines.append(f"Profile updated: {profile.get('updated', 'N/A')}")
+            
+            return {
+                "status": "success",
+                "output": "\n".join(lines)
+            }
+        
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to format profile: {e}"
+            }
+
     def _show_wizard_help(self) -> Dict:
         """Show how to access Wizard console setup."""
         return {

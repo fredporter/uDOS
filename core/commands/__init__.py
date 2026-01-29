@@ -158,6 +158,10 @@ def __getattr__(name):
         from .migrate_handler import MigrateHandler
 
         return MigrateHandler
+    elif name == "SeedHandler":
+        from .seed_handler import SeedHandler
+
+        return SeedHandler
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -188,6 +192,7 @@ __all__ = [
     "UserHandler",
     "UndoHandler",
     "MigrateHandler",
+    "SeedHandler",
     # NPC & Dialogue commands
     "NPCHandler",
     "DialogueEngine",

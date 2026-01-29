@@ -358,6 +358,14 @@ setup_user_directory() {
     mkdir -p "$udos_home/.credentials"
     chmod 700 "$udos_home/.credentials"
 
+    # Create bank directory structure for seed data
+    mkdir -p "$udos_home/memory/bank/locations"
+    mkdir -p "$udos_home/memory/bank/help"
+    mkdir -p "$udos_home/memory/bank/templates"
+    mkdir -p "$udos_home/memory/bank/graphics/diagrams/templates"
+    mkdir -p "$udos_home/memory/bank/workflows"
+    chmod 755 "$udos_home/memory/bank"
+
     # Create default config if not exists
     if [ ! -f "$udos_home/config/user.json" ]; then
         cat > "$udos_home/config/user.json" <<EOF

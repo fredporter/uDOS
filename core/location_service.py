@@ -80,9 +80,28 @@ class LocationService:
                 
             logger.info(f"[LOCAL] Loaded {len(self._locations_by_id)} locations from JSON")
         except FileNotFoundError:
-            raise FileNotFoundError(f"Locations file not found: {self.locations_file}")
+            # Bootstrap from seed data on first run
+            logger.info("[LOCAL] Locations file not found, bootstrapping from seed...")
+            self._bootstrap_from_seed()
+            self._load_from_json()
         except json.JSONDecodeError:
             raise ValueError(f"Invalid JSON in locations file: {self.locations_file}")
+
+    def _bootstrap_from_seed(self):
+        """Bootstrap locations from seed data on first run."""
+        try:
+            from core.framework.seed_installer import SeedInstaller
+
+            installer = SeedInstaller()
+            if installer.ensure_directories() and installer.install_locations_seed():
+                logger.info("[LOCAL] Bootstrap successful")
+            else:
+                raise RuntimeError("Seed installation failed")
+        except Exception as e:
+            logger.error(f"[LOCAL] Bootstrap failed: {e}")
+            raise FileNotFoundError(
+                f"Could not bootstrap locations. Please ensure core/framework/seed/locations-seed.json exists."
+            )
 
     def _load_from_sqlite(self):
         """Load locations from SQLite database."""

@@ -8,8 +8,12 @@
  * Outputs JSON to stdout with execution result.
  */
 
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function main() {
   const args = process.argv.slice(2);
@@ -22,20 +26,24 @@ function main() {
 
   let parseOnly = false;
   let fileArgIndex = 0;
+  let allSections = false;
   if (args[0] === "--parse" || args[0] === "-p") {
     parseOnly = true;
+    fileArgIndex = 1;
+  } else if (args[0] === "--all") {
+    allSections = true;
     fileArgIndex = 1;
   }
 
   if (!args[fileArgIndex]) {
     console.error(
-      "Usage: node ts_runner.js <markdown_file> [section_id] | --parse <markdown_file>"
+      "Usage: node ts_runner.js <markdown_file> [section_id] | --parse <markdown_file> | --all <markdown_file>"
     );
     process.exit(1);
   }
 
   const filePath = path.resolve(args[fileArgIndex]);
-  const sectionId = parseOnly ? null : args[fileArgIndex + 1] || null;
+  const sectionId = parseOnly || allSections ? null : args[fileArgIndex + 1] || null;
 
   if (!fs.existsSync(filePath)) {
     console.error(`File not found: ${filePath}`);
@@ -63,44 +71,45 @@ function main() {
     process.exit(1);
   }
 
-  const runtimeModule = require(runtimeEntry);
-  const Runtime = runtimeModule.Runtime;
+  // Dynamic import for ES module
+  (async () => {
+    try {
+      const runtimeModule = await import(runtimeEntry);
+      const Runtime = runtimeModule.Runtime;
 
-  const markdown = fs.readFileSync(filePath, "utf8");
-  const runtime = new Runtime({ allowScripts: false });
-  runtime.load(markdown);
+      const markdown = fs.readFileSync(filePath, "utf8");
+      const runtime = new Runtime({ allowScripts: false });
+      runtime.load(markdown);
 
-  const doc = runtime.getDocument();
-  const sections = doc ? doc.sections : [];
-  if (!sections || sections.length === 0) {
-    console.error("No sections found in markdown. Add a '## Section' header.");
-    process.exit(1);
-  }
+      const doc = runtime.getDocument();
+      const sections = doc ? doc.sections : [];
+      if (!sections || sections.length === 0) {
+        console.error("No sections found in markdown. Add a '## Section' header.");
+        process.exit(1);
+      }
 
-  if (parseOnly) {
-    const normalized = sections.map((section) => ({
-      id: section.id,
-      title: section.title || section.heading || section.name || "",
-      blocks: Array.isArray(section.blocks) ? section.blocks.length : 0,
-    }));
-    console.log(JSON.stringify({ sections: normalized }));
-    return;
-  }
+      if (parseOnly) {
+        const normalized = sections.map((section) => ({
+          id: section.id,
+          title: section.title || section.heading || section.name || "",
+          blocks: Array.isArray(section.blocks) ? section.blocks.length : 0,
+        }));
+        console.log(JSON.stringify({ sections: normalized }));
+        return;
+      }
 
-  let target = sectionId;
-  if (!target) {
-    target = sections[0].id;
-  }
+      let target = sectionId;
+      if (!target && !allSections) {
+        target = sections[0].id;
+      }
 
-  runtime
-    .execute(target)
-    .then((result) => {
+      const result = await runtime.execute(target);
       console.log(JSON.stringify({ section: target, result }));
-    })
-    .catch((err) => {
+    } catch (err) {
       console.error(String(err));
       process.exit(1);
-    });
+    }
+  })();
 }
 
 main();

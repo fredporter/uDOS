@@ -137,7 +137,7 @@ class StoryHandler(BaseCommandHandler):
         }
 
     def _run_story(self, file_arg: str, section_id: Optional[str] = None) -> Dict:
-        """Execute a story file."""
+        """Execute a story file and return parsed structure."""
         script_path = self._resolve_path(file_arg)
 
         if not script_path.exists():
@@ -147,21 +147,58 @@ class StoryHandler(BaseCommandHandler):
             }
 
         service = TSRuntimeService()
-        result = service.execute(script_path, section_id=section_id)
+        # Call execute with no section_id to get all sections
+        result = service.execute(script_path, section_id=None)
 
         if result.get("status") != "success":
             return result
 
         payload = result.get("payload", {})
         exec_result = payload.get("result", {})
-        output = exec_result.get("output") or ""
-
-        return {
-            "status": "success",
-            "message": "Story executed",
-            "output": output,
-            "runtime": payload,
-        }
+        
+        # Check if this returned all sections (multi-section form)
+        if exec_result.get("allSections"):
+            sections = exec_result.get("sections", [])
+            # Check if any section has fields
+            sections_with_fields = [s for s in sections if s.get("fields")]
+            if sections_with_fields:
+                return {
+                    "status": "success",
+                    "message": "Story form",
+                    "story_form": {
+                        "title": exec_result.get("frontmatter", {}).get("title", "Story"),
+                        "sections": sections,
+                        "text": "",
+                    },
+                    "output": f"Story form ready with {len(sections)} sections.",
+                }
+        
+        # Single section or non-form
+        fields = exec_result.get("fields", [])
+        
+        if fields:
+            # Return structured form data for the TUI to handle interactively
+            return {
+                "status": "success",
+                "message": f"Story form: {exec_result.get('title', 'Untitled')}",
+                "story_form": {
+                    "title": exec_result.get("title"),
+                    "text": exec_result.get("text", "").strip(),
+                    "section_id": exec_result.get("sectionId"),
+                    "fields": fields,
+                },
+                "output": f"Story form ready.",
+            }
+        
+        else:
+            # Non-form story - return output
+            output = exec_result.get("output") or ""
+            return {
+                "status": "success",
+                "message": "Story executed",
+                "output": output,
+                "runtime": payload,
+            }
 
     def _create_story(self, name: str) -> Dict:
         """Create a new story template."""

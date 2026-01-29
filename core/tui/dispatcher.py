@@ -41,6 +41,7 @@ from core.commands import (
     UserHandler,
     UndoHandler,
     MigrateHandler,
+    SeedHandler,
 )
 
 
@@ -90,6 +91,8 @@ class CommandDispatcher:
             "UNDO": UndoHandler(),  # Simple undo via restore from backup
             # Data Migration (1)
             "MIGRATE": MigrateHandler(),  # SQLite migration for location data
+            # Seed Installation (1)
+            "SEED": SeedHandler(),  # Framework seed data installer
             # NPC & Dialogue (3)
             "NPC": self.npc_handler,
             "TALK": self.talk_handler,
