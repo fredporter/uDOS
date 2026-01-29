@@ -1,7 +1,7 @@
 # uDOS Documentation Index
 
 **Last Updated:** 2026-01-30  
-**Version:** v1.0.7.1 (Spatial Filesystem + Wiki Standardization)
+**Version:** v1.0.7 (Wiki Standardization + Rounds Framework)
 
 ---
 
