@@ -1,358 +1,94 @@
 {
 	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "Check Virtual Environment",
-			"type": "shell",
-			"command": "bash",
-			"args": [
-				"-c",
-				"if [ -z \"$VIRTUAL_ENV\" ]; then echo '⚠️  Virtual environment not active! Run: source .venv/bin/activate'; exit 1; else echo '✅ Virtual environment active:' $VIRTUAL_ENV; fi"
-			],
-			"group": "build",
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": false,
-				"panel": "shared",
-				"showReuseMessage": true,
-				"clear": false
+	{
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Check Virtual Environment",
+				"type": "shell",
+				"command": "bash",
+				"args": [
+					"-c",
+					"if [ -z \"$VIRTUAL_ENV\" ]; then echo '⚠️  Virtual environment not active! Run: source .venv/bin/activate'; exit 1; else echo '✅ Virtual environment active:' $VIRTUAL_ENV; fi"
+				],
+				"group": "build",
+				"presentation": {
+					"reveal": "always",
+					"panel": "shared"
+				},
+				"problemMatcher": []
 			},
-			"problemMatcher": []
-		},
-		{
-			"label": "Run uDOS Interactive",
-			"type": "shell",
-			"command": "./start_udos.sh",
-			"group": {
-				"kind": "build",
-				"isDefault": true
+			{
+				"label": "Run uDOS Interactive",
+				"type": "shell",
+				"command": "./start_udos.sh",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"presentation": {
+					"reveal": "always",
+					"panel": "dedicated",
+					"focus": true,
+					"clear": true
+				},
+				"dependsOn": "Check Virtual Environment",
+				"problemMatcher": []
 			},
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated",
-				"focus": true,
-				"clear": true
+			{
+				"label": "Run Shakedown Test",
+				"type": "shell",
+				"command": "./start_udos.sh",
+				"args": [
+					"memory/tests/shakedown.uscript"
+				],
+				"group": {
+					"kind": "test",
+					"isDefault": true
+				},
+				"presentation": {
+					"reveal": "always",
+					"panel": "dedicated",
+					"focus": true,
+					"clear": true
+				},
+				"dependsOn": "Check Virtual Environment",
+				"problemMatcher": []
 			},
-			"dependsOn": "Check Virtual Environment",
-			"problemMatcher": []
-		},
-		{
-			"label": "Run Shakedown Test",
-			"type": "shell",
-			"command": "./start_udos.sh",
-			"args": [
-				"memory/tests/shakedown.uscript"
-			],
-			"group": {
-				"kind": "test",
-				"isDefault": true
+			{
+				"label": "Run uPY Standalone Tests",
+				"type": "shell",
+				"command": "${workspaceFolder}/.venv/bin/python",
+				"args": [
+					"${workspaceFolder}/memory/tests/test_v1_0_2_standalone.py"
+				],
+				"group": "test",
+				"presentation": {
+					"reveal": "always",
+					"panel": "new",
+					"clear": true
+				},
+				"dependsOn": "Check Virtual Environment",
+				"problemMatcher": []
 			},
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated",
-				"focus": true,
-				"clear": true
-			},
-			"dependsOn": "Check Virtual Environment",
-			"problemMatcher": []
-		},
-		{
-			"label": "Run uPY Standalone Tests",
-			"type": "shell",
-			"command": "${workspaceFolder}/.venv/bin/python",
-			"args": [
-				"${workspaceFolder}/memory/tests/test_v1_0_2_standalone.py"
-			],
-			"group": "test",
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": true,
-				"panel": "new",
-				"showReuseMessage": false,
-				"clear": true
-			},
-			"dependsOn": "Check Virtual Environment",
-			"problemMatcher": []
-		},
-		{
-			"label": "Run uPY Integration Tests",
-			"type": "shell",
-			"command": "${workspaceFolder}/.venv/bin/python",
-			"args": [
-				"${workspaceFolder}/memory/tests/integration/test_v1_0_2_integration.py"
-			],
-			"group": "test",
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": true,
-				"panel": "new",
-				"showReuseMessage": false,
-				"clear": true
-			},
-			"dependsOn": "Check Virtual Environment",
-			"problemMatcher": []
-		},
-		{
-			"label": "Activate Virtual Environment",
-			"type": "shell",
-			"command": "source .venv/bin/activate",
-			"presentation": {
-				"reveal": "silent"
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "npm: compile - extensions/vscode",
-			"type": "npm",
-			"script": "compile",
-			"path": "extensions/vscode/",
-			"group": "build",
-			"presentation": {
-				"reveal": "silent"
-			},
-			"problemMatcher": "$tsc"
-		},
-		{
-			"label": "npm: watch - extensions/vscode",
-			"type": "npm",
-			"script": "watch",
-			"path": "extensions/vscode/",
-			"isBackground": true,
-			"group": "build",
-			"presentation": {
-				"reveal": "never"
-			},
-			"problemMatcher": "$tsc-watch"
-		},
-		{
-			"label": "Tail API Logs",
-			"type": "shell",
-			"command": "tail",
-			"args": [
-				"-f",
-				"${workspaceFolder}/memory/logs/api_server.log"
-			],
-			"group": "none",
-			"presentation": {
-				"echo": false,
-				"reveal": "always",
-				"focus": true,
-				"panel": "dedicated",
-				"showReuseMessage": false,
-				"clear": true
-			},
-			"isBackground": true,
-			"problemMatcher": []
-		},
-		{
-			"label": "Tail Tauri Logs",
-			"type": "shell",
-			"command": "bash",
-			"args": [
-				"-c",
-				"tail -f ${workspaceFolder}/memory/logs/tauri-rust-$(date +%Y-%m-%d).log"
-			],
-			"group": "none",
-			"presentation": {
-				"echo": false,
-				"reveal": "always",
-				"focus": true,
-				"panel": "dedicated",
-				"showReuseMessage": false,
-				"clear": true
-			},
-			"isBackground": true,
-			"problemMatcher": []
-		},
-		{
-			"label": "Tail TUI Debug",
-			"type": "shell",
-			"command": "bash",
-			"args": [
-				"-c",
-				"tail -f ${workspaceFolder}/memory/logs/tui-debug-$(date +%Y-%m-%d).log"
-			],
-			"group": "none",
-			"presentation": {
-				"echo": false,
-				"reveal": "always",
-				"focus": true,
-				"panel": "dedicated",
-				"showReuseMessage": false,
-				"clear": true
-			},
-			"isBackground": true,
-			"problemMatcher": []
-		},
-		{
-			"label": "Tail Session Commands",
-			"type": "shell",
-			"command": "bash",
-			"args": [
-				"-c",
-				"tail -f ${workspaceFolder}/memory/logs/session-commands-$(date +%Y-%m-%d).log"
-			],
-			"group": "none",
-			"presentation": {
-				"echo": false,
-				"reveal": "always",
-				"focus": true,
-				"panel": "dedicated",
-				"showReuseMessage": false,
-				"clear": true
-			},
-			"isBackground": true,
-			"problemMatcher": []
-		},
-		{
-			"label": "Open Debug Panel",
-			"type": "shell",
-			"command": "./start_udos.sh",
-			"args": [
-				"-c",
-				"L"
-			],
-			"group": "none",
-			"presentation": {
-				"reveal": "always",
-				"focus": true,
-				"panel": "dedicated",
-				"clear": true
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "Summarize Recent Errors",
-			"type": "shell",
-			"command": "bash",
-			"args": [
-				"-c",
-				"echo '# Recent Errors Summary' && echo '' && echo '```log' && tail -50 ${workspaceFolder}/memory/logs/error.log && echo '```' && echo '' && echo '# GitHub Copilot: Analyze these errors and suggest fixes'"
-			],
-			"group": "none",
-			"presentation": {
-				"reveal": "always",
-				"focus": true,
-				"panel": "new",
-				"showReuseMessage": false,
-				"clear": true
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "View All Logs",
-			"type": "shell",
-			"command": "bash",
-			"args": [
-				"-c",
-				"ls -lht ${workspaceFolder}/memory/logs/*.log | head -20"
-			],
-			"group": "none",
-			"presentation": {
-				"reveal": "always",
-				"focus": true,
-				"panel": "shared",
-				"clear": false
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "Run Integration Tests",
-			"type": "shell",
-			"command": "${workspaceFolder}/.venv/bin/pytest",
-			"args": [
-				"${workspaceFolder}/dev/tests/",
-				"-v",
-				"-m",
-				"integration"
-			],
-			"group": "test",
-			"presentation": {
-				"reveal": "always",
-				"focus": true,
-				"panel": "dedicated",
-				"clear": true
-			},
-			"dependsOn": "Check Virtual Environment",
-			"problemMatcher": []
-		},
-		{
-			"label": "👺 Goblin Dev Server",
-			"type": "shell",
-			"command": "bash",
-			"args": [
-				"-c",
-				"cd ${workspaceFolder} && source .venv/bin/activate && python dev/goblin/goblin_server.py"
-			],
-			"isBackground": true,
-			"presentation": {
-				"reveal": "always",
-				"focus": false,
-				"panel": "dedicated"
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "uDOS API Server",
-			"type": "shell",
-			"command": "${workspaceFolder:🏠 uDOS Root}/.venv/bin/python -m extensions.api.server",
-			"isBackground": true,
-			"problemMatcher": []
-		},
-		{
-			"label": "🧙 Wizard Dev Mode (Server + TUI)",
-			"type": "shell",
-			"command": "bash",
-			"args": [
-				"-c",
-				"cd ${workspaceFolder} && source .venv/bin/activate && python wizard/launch_wizard_dev.py"
-			],
-			"isBackground": false,
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": true,
-				"panel": "dedicated",
-				"clear": true
-			},
-			"group": {
-				"kind": "none",
-				"isDefault": false
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "🧙 Wizard Server Only",
-			"type": "shell",
-			"command": "bash",
-			"args": [
-				"-c",
-				"cd ${workspaceFolder} && source .venv/bin/activate && python wizard/launch_wizard_dev.py --no-tui"
-			],
-			"isBackground": true,
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": false,
-				"panel": "shared",
-				"clear": false
-			},
-			"group": {
-				"kind": "none",
-				"isDefault": false
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "🧙 Wizard TUI Only",
-			"type": "shell",
-			"command": "bash",
-			"args": [
-				"-c",
-				"cd ${workspaceFolder} && source .venv/bin/activate && python wizard/launch_wizard_dev.py --tui"
+			{
+				"label": "Run uPY Integration Tests",
+				"type": "shell",
+				"command": "${workspaceFolder}/.venv/bin/python",
+				"args": [
+					"${workspaceFolder}/memory/tests/integration/test_v1_0_2_integration.py"
+				],
+				"group": "test",
+				"presentation": {
+					"reveal": "always",
+					"panel": "new",
+					"clear": true
+				},
+				"dependsOn": "Check Virtual Environment",
+				"problemMatcher": []
+			}
+		]
+	}
 			],
 			"isBackground": false,
 			"presentation": {

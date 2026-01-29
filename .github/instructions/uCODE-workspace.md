@@ -1,54 +1,16 @@
-# uCODE Workspace Instructions
+## uCODE Workspace Quick Guide
 
-> **Focus:** `/core/` + `/docs/` — TUI Runtime Development
-> **Scope:** Command handlers, services, uPY interpreter, offline-first design
+**Focus:** `/core/`, `/docs/` — TUI runtime
 
----
+### Essentials
+- Launch TUI: `./bin/start_udos.sh`
+- Extend `BaseCommandHandler`; no standalone handlers
+- Use `core/services/` and the canonical logger
+- Offline-first; no cloud calls from Core
 
-## Quick Start
-
-```bash
-# Launch uCODE interactive TUI
-./bin/start_udos.sh
-
-# Or via VS Code task: "Run uDOS Interactive"
-```
-
----
-
-## Core Architecture
-
-### Command Handler Pattern
-
-```python
-from core.commands.base_handler import BaseCommandHandler
-
-class MyHandler(BaseCommandHandler):
-    def handle(self, command, params, grid, parser):
-        if command == "MY_CMD":
-            return self._handle_my_cmd(params)
-```
-
-**NEVER** create standalone handlers. Always extend parent handlers.
-
-### Key Handlers
-
-- `ShakedownHandler` — System validation (47 tests)
-- `RepairHandler` — Self-healing, git sync
-- `FileHandler` — File operations
-- `MaintenanceHandler` — TIDY/CLEAN workspace
-
-### Services Layer
-
-Shared logic lives in `core/services/`:
-
-```python
-from core.services.logging_manager import get_logger
-
-logger = get_logger('feature-name')
-logger.info('[LOCAL] Operation started')
-```
-
+### References
+- [AGENTS.md](../../AGENTS.md)
+- [core/README.md](../../core/README.md)
 ---
 
 ## Version Management

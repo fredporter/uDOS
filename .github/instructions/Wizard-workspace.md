@@ -1,52 +1,20 @@
-# Wizard Workspace Instructions
+## Wizard Workspace Quick Guide
 
-> **Focus:** `/wizard/` + `/docs/` — Server & API Development
-> **Scope:** Always-on services, AI routing, APIs, cloud integration
+**Focus:** `/wizard/`, `/docs/` — server/API dev, always-on services
 
----
+### Essentials
+- Run server: `source .venv/bin/activate && python -m wizard.server`
+- Local-first model routing; cloud per policy
+- Gmail relay is Wizard-only; log cloud with `[CLOUD]`
+- No Core logic duplication; keep offline assumptions intact
 
-## Quick Start
+### Key Endpoints (`/api/v1/*`)
+- `/health`, `/status`, `/ai/models`, `/ai/complete`, `/plugin/*`, `/github/*`
 
-```bash
-# Start Wizard Server (Port 8765)
-source .venv/bin/activate
-python -m wizard.server
-
-# Or via VS Code task: "Wizard: Start Server"
-```
-
----
-
-## Wizard Architecture
-
-### Responsibilities
-
-- AI model routing (Ollama local-first, OpenRouter cloud-optional)
-- Webhooks and APIs
-- Email relay (Gmail) — Wizard ONLY
-- Packaging, distribution, sync
-- Dev tooling and Agent gateways
-
-### Non-Responsibilities
-
-- ❌ Core runtime logic (use Core)
-- ❌ Breaking offline assumptions (Core must work standalone)
-- ❌ Exposing child devices to web
-
----
-
-## API Surface (Production `/api/v1/*`)
-
-| Endpoint              | Purpose               |
-| --------------------- | --------------------- |
-| `/health`             | Health check          |
-| `/api/v1/status`      | Server status         |
-| `/api/v1/ai/models`   | List available models |
-| `/api/v1/ai/complete` | Model completion      |
-| `/api/v1/plugin/*`    | Plugin repository     |
-| `/api/v1/github/*`    | GitHub webhook/sync   |
-
----
+### References
+- [AGENTS.md](../../AGENTS.md)
+- [docs/decisions/wizard-model-routing-policy.md](../../docs/decisions/wizard-model-routing-policy.md)
+- [wizard/README.md](../../wizard/README.md)
 
 ## Model Routing Policy
 

@@ -1,6 +1,0 @@
-{
-  "schemas": {
-    "binder_compiler": "core/binder/schemas/binder_schema.sql",
-    "udos_table": "core/binder/schemas/udos_table_schema.sql"
-  }
-}
