@@ -4,47 +4,46 @@
   "version": {
     "major": 1,
     "minor": 0,
-    "patch": 0,
-    "build": 0
+    "patch": 0
   },
-  "display": "v1.0.0.0",
+  "display": "v1.0.0",
   "type": "tcz",
   "description": "AI provider routing: Mistral, OpenRouter, Ollama (local-first with cloud escalation)",
   "author": "Fred Porter",
   "license": "MIT",
-  
+
   "dependencies": {
     "system": {
       "python": ">=3.10",
       "packages": ["requests>=2.31"]
     },
     "components": {
-      "udos-wizard": ">=1.1.0.0",
-      "udos-secret-store": ">=1.0.0.0"
+      "udos-wizard": ">=1.1.0",
+      "udos-secret-store": ">=1.0.0"
     }
   },
-  
+
   "platform": ["linux", "macos"],
-  "min_udos_version": "1.0.0.0",
-  
+  "min_udos_version": "1.0.0",
+
   "files": {
     "python": ["wizard/services/ai_gateway.py", "wizard/services/model_router.py", "wizard/services/policy_enforcer.py"],
     "config": "wizard/config/ai_keys.example.json"
   },
-  
+
   "installation": {
     "mode": "automatic",
     "script": "install.sh",
     "post_install": "pip install requests && bin/wizard-secrets add --key-id ai-mistral-main --provider mistral"
   },
-  
+
   "api_endpoints": [
     "POST /api/v1/ai/route"
   ],
-  
+
   "auth_scope": "ai:route",
   "routing_policy": "local-first | cloud-escalation | private-only",
-  
+
   "notes": [
     "Requires ai-mistral-main token in secret store",
     "Local-first: Devstral Small 2 via Ollama",
@@ -52,7 +51,7 @@
     "Routing policy enforced (burst, private, internal tags)",
     "Cost tracking + budget limits"
   ],
-  
+
   "released": "2026-01-17",
   "channel": "alpha",
   "signed": false,

@@ -2,9 +2,10 @@
 
 from typing import List, Dict
 from core.commands.base import BaseCommandHandler
+from core.commands.handler_logging_mixin import HandlerLoggingMixin
 
 
-class HelpHandler(BaseCommandHandler):
+class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
     """Handler for HELP command - display command reference."""
 
     COMMAND_CATEGORIES = {
@@ -305,6 +306,16 @@ class HelpHandler(BaseCommandHandler):
     }
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
+        """Handle HELP command with logging."""
+        with self.trace_command(command, params) as trace:
+            result = self._handle_impl(command, params, grid, parser)
+            if isinstance(result, dict):
+                status = result.get("status")
+                if status:
+                    trace.set_status(status)
+            return result
+
+    def _handle_impl(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         """
         Handle HELP command.
 

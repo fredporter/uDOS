@@ -1,5 +1,3 @@
-> **Moved:** See [wiki/BEACON-PORTAL-DELIVERY.md](../../wiki/BEACON-PORTAL-DELIVERY.md)
-
 # Beacon Portal Implementation: Complete Delivery Summary
 
 **Date:** 2026-01-25

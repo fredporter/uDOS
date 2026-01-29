@@ -1,8 +1,6 @@
-> **Moved:** See [wiki/SELF-HEALING-GUIDE.md](../../wiki/SELF-HEALING-GUIDE.md)
-
 # Self-Healing System Quick Reference
 
-**Version:** v1.0.0  
+**Version:** v1.0.0
 **Last Updated:** 2026-01-26
 
 ---
@@ -296,5 +294,5 @@ def _repair_custom(self, issue: Issue) -> bool:
 
 ---
 
-**Status:** Production Ready  
+**Status:** Production Ready
 **Last Updated:** 2026-01-26

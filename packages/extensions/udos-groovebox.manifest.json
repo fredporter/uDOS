@@ -4,40 +4,39 @@
   "version": {
     "major": 0,
     "minor": 1,
-    "patch": 0,
-    "build": 0
+    "patch": 0
   },
-  "display": "v0.1.0.0",
+  "display": "v0.1.0",
   "type": "extension",
-  "description": "Music production: MML sequencer + 808 drum sounds + TUI pattern editor (planned v1.0.7.0)",
+  "description": "Music production: MML sequencer + 808 drum sounds + TUI pattern editor (planned v1.0.7)",
   "author": "Fred Porter",
   "license": "MIT",
-  
+
   "dependencies": {
     "system": {
       "python": ">=3.10",
       "packages": ["music21>=8.0"]
     },
     "components": {
-      "udos-core": ">=1.0.0.0"
+      "udos-core": ">=1.0.0"
     }
   },
-  
+
   "platform": ["linux", "macos"],
-  "min_udos_version": "1.0.7.0",
-  
+  "min_udos_version": "1.0.7",
+
   "files": {
     "python": "extensions/groovebox/",
     "samples": "library/groovebox/",
     "docs": "extensions/groovebox/README.md"
   },
-  
+
   "installation": {
     "mode": "manual",
     "script": "install.sh",
     "post_install": "pip install music21"
   },
-  
+
   "features": [
     "MML (Music Macro Language) sequencer",
     "808 drum sounds (kick, snare, hi-hat, clap, tom, cowbell)",
@@ -45,15 +44,15 @@
     "Real-time playback",
     "Export to MIDI/WAV"
   ],
-  
+
   "commands": [
     "PLAY file.mml",
     "MUSIC record|stop|save"
   ],
-  
-  "target_release": "v1.0.7.0",
+
+  "target_release": "v1.0.7",
   "status": "planned",
-  
+
   "notes": [
     "Requires: music21, pydub for audio",
     "MML syntax: C D E F G A B with octave/duration",
@@ -61,7 +60,7 @@
     "Works offline (no network required)",
     "TUI-native pattern editor"
   ],
-  
+
   "released": "2026-01-17",
   "channel": "alpha",
   "signed": false,

@@ -1,9 +1,7 @@
-> **Moved:** See [wiki/SELF-HEALING-SUMMARY.md](../../wiki/SELF-HEALING-SUMMARY.md)
-
 # Self-Healing System Summary
 
-**Date:** 2026-01-26  
-**Impact:** Ecosystem-wide  
+**Date:** 2026-01-26
+**Impact:** Ecosystem-wide
 **Status:** ✅ Complete
 
 ---
@@ -133,20 +131,20 @@ All launchers now include pre-flight self-healing checks:
 
 ### Goblin Server
 
-**Deprecation Warning:** ✅ Fixed  
-**Port Conflict:** ✅ Auto-resolved  
+**Deprecation Warning:** ✅ Fixed
+**Port Conflict:** ✅ Auto-resolved
 **Startup:** ✅ Clean (no warnings)
 
 ### Wizard Server
 
-**Dependencies:** ✅ Validated  
-**Port Check:** ✅ Working  
+**Dependencies:** ✅ Validated
+**Port Check:** ✅ Working
 **Self-heal Integration:** ✅ Active
 
 ### Core/TUI
 
-**Environment:** ✅ Healthy  
-**Scripts:** ✅ Executable  
+**Environment:** ✅ Healthy
+**Scripts:** ✅ Executable
 **Self-heal Integration:** ✅ Active
 
 ---

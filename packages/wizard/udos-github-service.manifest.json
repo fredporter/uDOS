@@ -4,58 +4,57 @@
   "version": {
     "major": 1,
     "minor": 0,
-    "patch": 0,
-    "build": 4
+    "patch": 4
   },
-  "display": "v1.0.4.0",
-  "type": "tcz",
+  "display": "v1.0.4",
+  "description": "GitHub integration: repo sync, webhooks, PR/issue management, CLI integration (v1.0.4+)",
   "description": "GitHub integration: repo sync, webhooks, PR/issue management, CLI integration (v1.0.4.0+)",
   "author": "Fred Porter",
   "license": "MIT",
-  
+
   "dependencies": {
     "system": {
       "python": ">=3.10",
       "packages": ["PyGithub>=2.0", "pydantic>=2.0"]
     },
     "components": {
-      "udos-wizard": ">=1.1.0.0",
-      "udos-secret-store": ">=1.0.0.0"
+      "udos-wizard": ">=1.1.0",
+      "udos-secret-store": ">=1.0.0"
     }
   },
-  
+
   "platform": ["linux", "macos"],
-  "min_udos_version": "1.0.4.0",
-  
+  "min_udos_version": "1.0.4",
+
   "files": {
     "python": "wizard/services/github_integration.py",
     "routes": "wizard/services/migration_routes.py",
     "config": "wizard/config/github_keys.example.json"
   },
-  
+
   "installation": {
     "mode": "automatic",
     "script": "install.sh",
     "post_install": "pip install PyGithub && bin/wizard-secrets add --key-id github-personal-main --provider github"
   },
-  
+
   "api_endpoints": [
     "POST /api/v1/github/webhook",
     "GET /api/v1/github/status",
     "POST /api/v1/github/sync",
     "GET /api/v1/github/repos/{owner}/{repo}/issues"
   ],
-  
+
   "auth_scope": "github:read|write",
   "webhook_secret": "github-webhook-secret",
-  
+
   "notes": [
     "Requires github-personal-main token in secret store",
     "HMAC-SHA256 webhook verification required",
     "GitHub CLI integration for repo operations",
     "Auto-retry on transient failures"
   ],
-  
+
   "released": "2026-01-17",
   "channel": "alpha",
   "signed": false,

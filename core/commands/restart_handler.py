@@ -33,15 +33,27 @@ Date: 2026-01-28
 """
 
 from .base import BaseCommandHandler
+from .handler_logging_mixin import HandlerLoggingMixin
 import sys
 import time
 from pathlib import Path
 
 
-class RestartHandler(BaseCommandHandler):
+class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
     """Unified restart/reload/reboot handler."""
     
     def handle(self, command, params, grid, parser):
+        """Handle RESTART, RELOAD (alias), REBOOT (alias) commands with logging.
+        """
+        with self.trace_command(command, params) as trace:
+            result = self._handle_impl(command, params, grid, parser)
+            if isinstance(result, dict):
+                status = result.get("status")
+                if status:
+                    trace.set_status(status)
+            return result
+
+    def _handle_impl(self, command, params, grid, parser):
         """Handle RESTART, RELOAD (alias), REBOOT (alias) commands.
         
         Args:

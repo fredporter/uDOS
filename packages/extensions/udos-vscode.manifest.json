@@ -4,41 +4,40 @@
   "version": {
     "major": 1,
     "minor": 0,
-    "patch": 0,
-    "build": 0
+    "patch": 0
   },
-  "display": "v1.0.0.0",
+  "display": "v1.0.0",
   "type": "extension",
   "description": "VS Code extension bridge: port manager, command palette, development integration",
   "author": "Fred Porter",
   "license": "MIT",
-  
+
   "dependencies": {
     "system": {
       "vscode": ">=1.85.0",
       "node": ">=18.0"
     },
     "components": {
-      "udos-api": ">=1.0.0.0",
-      "udos-port-manager": ">=1.0.0.0"
+      "udos-api": ">=1.0.0",
+      "udos-port-manager": ">=1.0.0"
     }
   },
-  
+
   "platform": ["linux", "macos", "windows"],
-  "min_udos_version": "1.0.0.0",
-  
+  "min_udos_version": "1.0.0",
+
   "files": {
     "vscode_extension": "extensions/vscode/",
     "src": "extensions/vscode/src/",
     "package": "extensions/vscode/package.json"
   },
-  
+
   "installation": {
     "mode": "automatic",
     "script": "npm install && npm run compile",
     "post_install": "code --install-extension extensions/vscode/"
   },
-  
+
   "features": [
     "Port manager status in VS Code sidebar",
     "Command palette integration",
@@ -46,21 +45,21 @@
     "Quick launch: Start Wizard/Goblin/TUI",
     "Port conflict detection alerts"
   ],
-  
+
   "commands": [
     "udos.port.status (Show port manager status)",
     "udos.launch.wizard (Launch Wizard Server)",
     "udos.launch.goblin (Launch Goblin Dev)",
     "udos.launch.tui (Launch TUI)"
   ],
-  
+
   "notes": [
     "Connects to /api/v1/ports/* (HTTP)",
     "Real-time updates via WebSocket (when available)",
     "Works with both dev and production Wizard",
     "Requires API server running on localhost:8765"
   ],
-  
+
   "released": "2026-01-17",
   "channel": "alpha",
   "signed": false,

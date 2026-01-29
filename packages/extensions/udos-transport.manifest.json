@@ -4,39 +4,38 @@
   "version": {
     "major": 1,
     "minor": 0,
-    "patch": 1,
-    "build": 0
+    "patch": 1
   },
-  "display": "v1.0.1.0",
+  "display": "v1.0.1",
   "type": "extension",
   "description": "MeshCore P2P, Audio relay, QR relay, NFC, Bluetooth Private (with policy validation enforced)",
   "author": "Fred Porter",
   "license": "MIT",
-  
+
   "dependencies": {
     "system": {
       "python": ">=3.10"
     },
     "components": {
-      "udos-core": ">=1.0.0.0"
+      "udos-core": ">=1.0.0"
     }
   },
-  
+
   "platform": ["linux", "macos", "windows"],
-  "min_udos_version": "1.0.0.0",
-  
+  "min_udos_version": "1.0.0",
+
   "files": {
     "python": "extensions/transport/",
     "policy": "extensions/transport/policy.yaml",
     "docs": "extensions/transport/README.md"
   },
-  
+
   "installation": {
     "mode": "automatic",
     "script": "install.sh",
     "post_install": "python -m extensions.transport.validator --check-policy"
   },
-  
+
   "transports": {
     "private": [
       "meshcore (P2P mesh networking)",
@@ -49,7 +48,7 @@
       "bluetooth_public (beacons/presence, NO DATA)"
     ]
   },
-  
+
   "policy_enforcement": {
     "enabled": true,
     "validator": "extensions/transport/validator.py",
@@ -59,7 +58,7 @@
       "All transports validated before use"
     ]
   },
-  
+
   "logging_tags": [
     "[MESH] MeshCore P2P",
     "[BT-PRIV] Bluetooth Private (paired)",
@@ -68,7 +67,7 @@
     "[QR] QR code relay",
     "[AUD] Audio relay"
   ],
-  
+
   "notes": [
     "Transport policy is non-negotiable",
     "Bluetooth Public ONLY for beacons/presence (no data)",
@@ -76,7 +75,7 @@
     "Policy validator runs on every transport operation",
     "Offline-first: no cloud dependencies"
   ],
-  
+
   "released": "2026-01-10",
   "channel": "alpha",
   "signed": false,

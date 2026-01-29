@@ -1,10 +1,8 @@
-> **Moved:** See [wiki/BEACON-ARCHITECTURE-SUMMARY.md](../../wiki/BEACON-ARCHITECTURE-SUMMARY.md)
-
 # Beacon Portal: Complete Architecture Summary
 
-**Version:** 1.0.0  
-**Date:** 2026-01-25  
-**Status:** ✅ Specification & Implementation Ready  
+**Version:** 1.0.0
+**Date:** 2026-01-25
+**Status:** ✅ Specification & Implementation Ready
 **Owner:** uDOS Engineering
 
 ---
@@ -400,164 +398,56 @@ POST /api/v1/beacon/plugins/{plugin_id}/cache
 
 ```
 docs/wiki/SONIC-SCREWDRIVER.md          (320 lines)
-docs/wiki/BEACON-PORTAL.md              (Already existed, ~226 lines)
-docs/wiki/BEACON-VPN-TUNNEL.md          (Already existed, ~330 lines)
-docs/wiki/ALPINE-CORE.md                (Already existed)
-docs/wiki/BEACON-QUICK-REFERENCE.md     (420 lines, NEW)
-
-wizard/docs/BEACON-IMPLEMENTATION.md    (280 lines, NEW)
-docs/devlog/2026-01-25-beacon-portal.md (350 lines, NEW)
+docs/wiki/BEACON-PORTAL.md              (450 lines)
+docs/wiki/BEACON-VPN-TUNNEL.md           (360 lines)
+docs/wiki/ALPINE-CORE.md                (280 lines)
+docs/wiki/BEACON-QUICK-REFERENCE.md     (420 lines)
+docs/BEACON-ARCHITECTURE-SUMMARY.md     (620 lines)
 ```
 
-### Implementation (2 Python modules)
+### Code (Wizard Server)
 
 ```
-wizard/routes/beacon_routes.py          (350 lines, NEW)
-wizard/services/beacon_service.py       (420 lines, NEW)
+wizard/routes/beacon_routes.py          (350 lines)
+wizard/services/beacon_service.py       (420 lines)
+wizard/tests/test_beacon_portal.py      (500 lines)
 ```
 
-**Total:** ~3000 lines of specifications, guides, and production-ready code
-
----
-
-## Security Model
-
-### Trust Establishment
-
-1. **Proximity is primary** — Physical co-location = initial trust signal
-2. **SSID verification** — User confirms beacon SSID is visible (hardwired)
-3. **Passphrase confirmation** — Shared memorized default (`knockknock`) or custom
-4. **Wizard authentication** — TLS certificates + device tokens (on HTTP upgrade)
-
-### Encryption Layers
+### Devlog
 
 ```
-┌─ Application Layer ─────────────┐
-│ TLS 1.3 (HTTPS)                 │ ← User data encrypted
-├─ Transport Layer ──────────────┤
-│ WireGuard (ChaCha20-Poly1305)   │ ← Tunnel encrypted
-├─ Network Layer ───────────────┤
-│ IP/UDP (headers only)           │ ← Packet structure visible
-└─────────────────────────────────┘
-```
-
-### Key Management
-
-```
-Private Keys:
-  ├─ WireGuard keys (rotated annually)
-  ├─ Stored in /etc/wireguard/ (0600 perms)
-  ├─ Never transmitted except during setup
-  └─ Encrypted with system keyring (optional)
-
-Public Keys:
-  ├─ Shared via HTTPS during setup
-  ├─ Stored in Wizard database
-  └─ Used for tunnel authentication
+docs/devlog/2026-01-25-beacon-portal.md
 ```
 
 ---
 
-## Performance Targets
+## Integration Checklist
 
-| Operation         | Target  | Method               |
-| ----------------- | ------- | -------------------- |
-| Tunnel setup      | < 2s    | Handshake + DB write |
-| Quota check       | < 100ms | SQLite indexed query |
-| Device list (100) | < 200ms | Paginated query      |
-| Beacon status     | < 150ms | Stats aggregation    |
-| Configuration     | < 500ms | Validation + write   |
+### Code Integration
 
----
+- [ ] Register `beacon_routes` in `wizard/server.py`
+- [ ] Initialize `BeaconService` on startup
+- [ ] Wire up config + status endpoints
+- [ ] Add Quota middleware to API
+- [ ] Add plugin cache integration
 
-## Comparison to Alternatives
+### Docs & Testing
 
-### vs. Traditional VPN
-
-| Aspect             | Beacon VPN         | Traditional VPN     |
-| ------------------ | ------------------ | ------------------- |
-| **Setup Time**     | < 2 seconds        | 5-10 minutes        |
-| **Configuration**  | Automatic          | Manual              |
-| **Key Management** | Automatic rotation | Manual renewal      |
-| **Performance**    | Fast (kernel mode) | Slower (user space) |
-| **Code Size**      | 500 LOC            | 100K LOC            |
-
-### vs. Cloud-Only (AWS)
-
-| Aspect              | Beacon       | AWS CloudFront       |
-| ------------------- | ------------ | -------------------- |
-| **Cost**            | $5–$10/month | Pay-per-byte         |
-| **Privacy**         | Local-first  | Cloud-first          |
-| **Offline Support** | ✅ Yes       | ❌ No                |
-| **Setup**           | DIY router   | AWS account + config |
-| **Control**         | Full         | Limited              |
+- [ ] Update docs/README.md (add Beacon section)
+- [ ] Run full test suite
+- [ ] Confirm API doc coverage
+- [ ] Validate performance targets
 
 ---
 
-## Future Enhancements
+## Conclusion
 
-### Phase 2 (Q2 2026)
+The Beacon Portal is **architecturally complete** and **production-ready** at the design level. The remaining work is primarily **integration, wiring, and hardware validation**.
 
-- [ ] Multi-Wizard load balancing
-- [ ] Automatic tunnel failover
-- [ ] Advanced quota models (per-service budgets)
-- [ ] Beacon mesh-to-mesh peering
-- [ ] Plugin pre-caching (background download)
-
-### Phase 3 (Q3 2026)
-
-- [ ] Bandwidth throttling (QoS)
-- [ ] SLA monitoring (uptime tracking)
-- [ ] Device grouping (shared quotas)
-- [ ] Advanced analytics dashboard
-- [ ] Community device marketplace
+This foundation can be integrated into Wizard in phases without risk to Core or App, maintaining uDOS's offline-first principles.
 
 ---
 
-## References
-
-### Specifications
-
-- [SONIC-SCREWDRIVER.md](../../docs/wiki/SONIC-SCREWDRIVER.md)
-- [BEACON-PORTAL.md](../../docs/wiki/BEACON-PORTAL.md)
-- [BEACON-VPN-TUNNEL.md](../../docs/wiki/BEACON-VPN-TUNNEL.md)
-
-### Implementation
-
-- [BEACON-IMPLEMENTATION.md](BEACON-IMPLEMENTATION.md)
-- [BEACON-QUICK-REFERENCE.md](../../docs/wiki/BEACON-QUICK-REFERENCE.md)
-
-### Design
-
-- [AGENTS.md](../../AGENTS.md)
-- [development-streams.md](development-streams.md)
-
----
-
-## Next Steps
-
-**Immediate (this week):**
-
-1. Review and refine specifications
-2. Get team feedback on architecture
-3. Plan implementation schedule
-
-**Short-term (next 2 weeks):**
-
-1. Integrate routes + services into Wizard
-2. Complete hardware setup guides
-3. Start VPN tunnel implementation
-
-**Long-term (Q2 2026):**
-
-1. Production testing + hardening
-2. Community device contributions
-3. Advanced quota analytics
-4. Mesh-to-mesh peering
-
----
-
-**Status:** ✅ Architecture Complete & Ready for Implementation  
-**Owner:** uDOS Engineering  
-**Date:** 2026-01-25  
-**Next Review:** 2026-02-15
+**Status:** ✅ Ready for Integration
+**Owner:** uDOS Engineering
+**Review:** Pending

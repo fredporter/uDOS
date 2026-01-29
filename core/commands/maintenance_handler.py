@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 from core.commands.base import BaseCommandHandler
+from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.tui.output import OutputToolkit
 from core.services.logging_manager import get_repo_root
 from core.services.maintenance_utils import (
@@ -21,10 +22,19 @@ from core.services.maintenance_utils import (
 )
 
 
-class MaintenanceHandler(BaseCommandHandler):
+class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
     """Handle maintenance commands (backup/restore/tidy/clean/compost/destroy)."""
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
+        with self.trace_command(command, params) as trace:
+            result = self._handle_impl(command, params, grid, parser)
+            if isinstance(result, dict):
+                status = result.get("status")
+                if status:
+                    trace.set_status(status)
+            return result
+
+    def _handle_impl(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         cmd = command.upper()
         try:
             if cmd == "BACKUP":

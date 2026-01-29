@@ -22,18 +22,17 @@
     "version": {
       "type": "object",
       "description": "Semantic version components",
-      "required": ["major", "minor", "patch", "build"],
+      "required": ["major", "minor", "patch"],
       "properties": {
         "major": { "type": "integer", "minimum": 0 },
         "minor": { "type": "integer", "minimum": 0 },
-        "patch": { "type": "integer", "minimum": 0 },
-        "build": { "type": "integer", "minimum": 0 }
+        "patch": { "type": "integer", "minimum": 0 }
       }
     },
     "display": {
       "type": "string",
-      "description": "Display version string (e.g., v1.0.0.0)",
-      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$"
+      "description": "Display version string (e.g., v1.0.0)",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
     },
     "channel": {
       "type": "string",

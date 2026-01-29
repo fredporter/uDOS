@@ -27,24 +27,24 @@ from core.commands.handler_logging_mixin import HandlerLoggingMixin
 
 class MapHandler(BaseCommandHandler, HandlerLoggingMixin):
     """Handler for MAP command - now with logging."""
-    
+
     def handle(self, command, params, grid, parser):
         """Execute MAP command with automatic logging."""
-        
+
         with self.trace_command(command, params) as trace:
             # Validate params
             if not self._validate_params(params):
                 self.log_param_error(command, params, "Invalid parameter")
                 trace.set_status('error')
                 return error_output
-            
+
             # Mark milestone
             trace.mark_milestone('params_validated')
-            
+
             # Do work
             result = self._render_map(grid)
             trace.add_event('map_rendered', {'size': len(result)})
-            
+
             # Mark completion
             trace.set_status('success')
             return result
@@ -64,6 +64,7 @@ with self.trace_command(command, params) as trace:
 ```
 
 **Features:**
+
 - ✅ Automatic start/finish logging
 - ✅ Automatic error tracking
 - ✅ Parameter sanitization (removes passwords, API keys)
@@ -111,25 +112,18 @@ Priority order (8 handlers):
 
 1. **MapHandler** - Most frequently used navigation command
    - Track render time, viewport size, layer access
-   
 2. **FindHandler** - Complex search with multiple options
    - Track search scope, results count, execution time
-   
 3. **PanelHandler** - Grid rendering and display
    - Track panel size, interpolation time, cache hits
-   
 4. **GotoHandler** - Location transitions
    - Track transition time, permission checks, pre-post state
-   
 5. **BagHandler** - Inventory management
    - Track item operations, inventory size, state changes
-   
 6. **GrabHandler** - Item pickup operations
    - Track success rate, weight calculations, grid updates
-   
 7. **TalkHandler** - NPC interactions
    - Track dialog parsing, response time, state changes
-   
 8. **ConfigHandler** - Settings management
    - Track config loads/saves, validation time, change impacts
 
@@ -245,14 +239,14 @@ Based on logging data:
 
 Handlers are categorized for better analysis:
 
-| Category | Commands | Purpose |
-|----------|----------|---------|
-| **navigation** | MAP, PANEL, GOTO, FIND, TELL | Movement and viewing |
-| **game_state** | BAG, GRAB, SPAWN, SAVE, LOAD | Game mechanics |
-| **system** | SHAKEDOWN, REPAIR, RESTART, SETUP, USER | System operations |
-| **npc** | NPC, TALK, REPLY | NPC interactions |
-| **wizard** | CONFIG, PROVIDER, WIZARD, AI | Wizard integration |
-| **other** | All others | Miscellaneous |
+| Category       | Commands                                | Purpose              |
+| -------------- | --------------------------------------- | -------------------- |
+| **navigation** | MAP, PANEL, GOTO, FIND, TELL            | Movement and viewing |
+| **game_state** | BAG, GRAB, SPAWN, SAVE, LOAD            | Game mechanics       |
+| **system**     | SHAKEDOWN, REPAIR, RESTART, SETUP, USER | System operations    |
+| **npc**        | NPC, TALK, REPLY                        | NPC interactions     |
+| **wizard**     | CONFIG, PROVIDER, WIZARD, AI            | Wizard integration   |
+| **other**      | All others                              | Miscellaneous        |
 
 ## Sensitive Data Protection
 
@@ -263,6 +257,7 @@ HandlerLoggingMixin automatically redacts:
 - All examples shown as `[REDACTED]` in logs
 
 Example:
+
 ```python
 params = ["--password", "my_secret_123", "--file", "/long/path/to/file.txt"]
 # Logged as:
@@ -312,28 +307,20 @@ pytest core/tests/ --cov=core/commands --cov-report=html
 1. `/core/commands/map_handler.py`
    - Add `HandlerLoggingMixin` inheritance
    - Wrap handle() with `trace_command()`
-   
 2. `/core/commands/find_handler.py`
    - Same pattern as MapHandler
-   
 3. `/core/commands/panel_handler.py`
    - Same pattern as MapHandler
-   
 4. `/core/commands/goto_handler.py`
    - Same pattern as MapHandler
-   
 5. `/core/commands/bag_handler.py`
    - Same pattern as MapHandler
-   
 6. `/core/commands/grab_handler.py`
    - Same pattern as MapHandler
-   
 7. `/core/commands/talk_handler.py`
    - Same pattern as MapHandler
-   
 8. `/core/commands/config_handler.py`
    - Same pattern as MapHandler
-   
 9. `/core/services/unified_logging.py`
    - Enhance LOGS command with stats and filtering
 
@@ -359,6 +346,7 @@ pytest core/tests/ --cov=core/commands --cov-report=html
 ## Git Commits (This Phase)
 
 **Commit 1 (Current):**
+
 ```
 handler_logging_mixin: Create instrumentation framework
 
@@ -385,4 +373,3 @@ handler_logging_mixin: Create instrumentation framework
 **Status:** In Progress (Stage 1 Complete, Stage 2 Starting)  
 **Next:** Instrument MapHandler (highest priority - most frequently used)  
 **Estimated Completion:** 2026-01-28 (same day, 3-4 hours more work)
-

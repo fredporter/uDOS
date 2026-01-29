@@ -13,7 +13,7 @@
   "description": "REST API server - 144 endpoints, WebSocket streaming, command routing",
   "changelog": "dev/roadmap/CHANGELOG-api.md",
   "dependencies": {
-    "core": ">=1.0.0.0",
+    "core": ">=1.0.0",
     "flask": ">=2.0.0",
     "flask-socketio": ">=5.0.0"
   },

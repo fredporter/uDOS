@@ -4,28 +4,27 @@
   "version": {
     "major": 1,
     "minor": 0,
-    "patch": 2,
-    "build": 0
+    "patch": 2
   },
-  "display": "v1.0.2.0",
+  "display": "v1.0.2",
   "type": "knowledge",
   "description": "Comprehensive knowledge bank: 231+ markdown articles covering tools, frameworks, best practices",
   "author": "Fred Porter & Community",
   "license": "CC-BY-4.0",
-  
+
   "dependencies": {
     "system": {},
     "components": {}
   },
-  
+
   "platform": ["linux", "macos", "windows"],
-  "min_udos_version": "1.0.0.0",
-  
+  "min_udos_version": "1.0.0",
+
   "files": {
     "articles": "knowledge/",
     "index": "knowledge/README.md"
   },
-  
+
   "categories": [
     {
       "name": "Developer Tools",
@@ -58,15 +57,15 @@
       "articles": ["testing", "ci-cd", "security", "performance", "scalability", "documentation"]
     }
   ],
-  
+
   "search": {
     "indexed": true,
     "full_text_search": true,
     "tags": true
   },
-  
+
   "usage": "Reference material for developers; offline-accessible, no network required",
-  
+
   "notes": [
     "231+ articles covering essential developer topics",
     "Offline-first: all content bundled locally",
@@ -74,7 +73,7 @@
     "Community contributions welcome",
     "Format: Standard markdown with frontmatter"
   ],
-  
+
   "released": "2026-01-17",
   "channel": "alpha",
   "signed": false,

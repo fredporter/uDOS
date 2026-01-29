@@ -4,29 +4,28 @@
   "version": {
     "major": 1,
     "minor": 0,
-    "patch": 0,
-    "build": 0
+    "patch": 0
   },
-  "display": "v1.0.0.0",
+  "display": "v1.0.0",
   "type": "knowledge",
   "description": "Code samples and templates: handlers, services, extensions, runtime blocks",
   "author": "Fred Porter",
   "license": "MIT",
-  
+
   "dependencies": {
     "system": {},
     "components": {}
   },
-  
+
   "platform": ["linux", "macos", "windows"],
-  "min_udos_version": "1.0.0.0",
-  
+  "min_udos_version": "1.0.0",
+
   "files": {
     "examples": "memory/sandbox/examples/",
     "templates": "memory/sandbox/templates/",
     "docs": "memory/sandbox/README.md"
   },
-  
+
   "example_categories": [
     {
       "name": "Handler Patterns",
@@ -80,7 +79,7 @@
       ]
     }
   ],
-  
+
   "templates": [
     {
       "name": "New Handler",
@@ -99,12 +98,12 @@
       "path": "memory/sandbox/templates/document-ucode.md.template"
     }
   ],
-  
+
   "total_examples": 28,
   "total_templates": 4,
-  
+
   "usage": "Copy-paste starting points for new code; follow established patterns",
-  
+
   "notes": [
     "All examples compile/run successfully",
     "Templates include comments explaining key sections",
@@ -112,7 +111,7 @@
     "TypeScript examples show runtime block structure",
     "Markdown examples show uCode document format"
   ],
-  
+
   "released": "2026-01-17",
   "channel": "alpha",
   "signed": false,

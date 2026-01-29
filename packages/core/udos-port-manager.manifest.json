@@ -8,11 +8,10 @@
     "build": 0
   },
   "display": "v1.0.0.0",
-  "type": "tcz",
-  "description": "Service port conflict detection and health monitoring (v1.0.4.0+)",
+       "patch": 0
   "author": "Fred Porter",
-  "license": "MIT",
-  
+     "display": "v1.0.0",
+     "description": "Service port conflict detection and health monitoring (v1.0.4+)",
   "dependencies": {
     "system": {
       "python": ">=3.10"
@@ -21,28 +20,28 @@
       "udos-api": ">=1.0.0.0"
     }
   },
-  
+         "udos-api": ">=1.0.0"
   "platform": ["tinycore", "linux", "macos"],
   "min_udos_version": "1.0.4.0",
-  
+
   "files": {
-    "python": "wizard/services/port_manager.py",
+     "min_udos_version": "1.0.4",
     "bin": "bin/port-manager",
     "config": "wizard/config/port_registry.json"
   },
-  
+
   "installation": {
     "mode": "automatic",
     "script": "install.sh",
     "post_install": "chmod +x bin/port-manager && bin/port-manager status"
   },
-  
+
   "notes": [
     "REST API: /api/v1/ports/* endpoints",
     "CLI: bin/port-manager status|check|conflicts|kill",
     "Integrated into all launcher scripts"
   ],
-  
+
   "released": "2026-01-17",
   "channel": "alpha",
   "signed": false,

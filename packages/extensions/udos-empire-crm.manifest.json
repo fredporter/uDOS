@@ -4,41 +4,40 @@
   "version": {
     "major": 1,
     "minor": 0,
-    "patch": 0,
-    "build": 4
+    "patch": 4
   },
-  "display": "v1.0.4.0",
-  "type": "extension",
+  "display": "v1.0.4",
+  "description": "Business intelligence foundation: HubSpot integration, contact management DB (v1.0.4+)",
   "description": "Business intelligence foundation: HubSpot integration, contact management DB (v1.0.4.0+)",
   "author": "Fred Porter",
   "license": "MIT",
-  
+
   "dependencies": {
     "system": {
       "python": ">=3.10",
       "packages": ["requests>=2.31", "pydantic>=2.0"]
     },
     "components": {
-      "udos-wizard": ">=1.1.0.0"
+      "udos-wizard": ">=1.1.0"
     }
   },
-  
+
   "platform": ["linux", "macos"],
-  "min_udos_version": "1.0.4.0",
-  
+  "min_udos_version": "1.0.4",
+
   "files": {
     "python": "extensions/empire/",
     "db": "memory/empire/marketing_db.db",
     "config": "extensions/empire/config/",
     "docs": "extensions/empire/README.md"
   },
-  
+
   "installation": {
     "mode": "automatic",
     "script": "install.sh",
     "post_install": "pip install requests pydantic && python -m extensions.empire.services.marketing_db --init-db"
   },
-  
+
   "services": [
     "Contact management (marketing_db.py - 838 lines)",
     "HubSpot API integration (stubs)",
@@ -46,7 +45,7 @@
     "Deduplication",
     "Contact extraction"
   ],
-  
+
   "database": {
     "backend": "SQLite3",
     "path": "memory/empire/marketing_db.db",
@@ -57,7 +56,7 @@
       "campaigns (id, name, status, contacts)"
     ]
   },
-  
+
   "hubspot_integration": {
     "status": "stub",
     "endpoints": [
@@ -68,15 +67,15 @@
     ],
     "auth": "Private app token (secret store)"
   },
-  
+
   "notes": [
-    "Scaffolded v1.0.4.0 (renamed from wizard/tools/bizintel/)",
+    "Scaffolded v1.0.4 (renamed from wizard/tools/bizintel/)",
     "HubSpot integration: stubs ready for implementation",
     "SQLite contact DB operational",
     "Bidirectional sync: local ↔ HubSpot (planned)",
     "Marketing automation foundation"
   ],
-  
+
   "released": "2026-01-17",
   "channel": "alpha",
   "signed": false,

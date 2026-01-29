@@ -2,7 +2,8 @@
 
 **Status:** In Progress (50% complete)  
 **Date:** 2026-01-28  
-**Commits:** 
+**Commits:**
+
 - dcb553f7 - Handler logging framework + MapHandler + FindHandler
 - 386830e6 - PanelHandler + GotoHandler instrumentation
 
@@ -13,6 +14,7 @@
 **File:** `/core/commands/handler_logging_mixin.py` (440 lines)
 
 Features created:
+
 - **HandlerLoggingMixin** class - Automatic handler instrumentation
 - **CommandTrace** class - Event tracking and performance metrics
 - **Context manager support** - `with self.trace_command(command, params)` pattern
@@ -25,9 +27,11 @@ Features created:
 ### 2. Instrumented Handlers (4 of 8)
 
 #### MapHandler ✅
+
 **File:** `/core/commands/map_handler.py`
 
 Tracks:
+
 - Location loading
 - Grid rendering
 - Output formatting
@@ -35,15 +39,18 @@ Tracks:
 - Viewport dimensions (cols × rows)
 
 Events recorded:
+
 - `location_loaded` - Location successfully retrieved
 - `grid_rendered` - Grid rendered with size
 - `output_formatted` - Output assembled
 - `command_complete` - Final status with all metadata
 
 #### FindHandler ✅
+
 **File:** `/core/commands/find_handler.py`
 
 Tracks:
+
 - Locations database loading
 - Search parameter parsing
 - Filter application (type, region, query text)
@@ -51,15 +58,18 @@ Tracks:
 - Result formatting
 
 Events recorded:
+
 - `locations_loaded` - Database size
 - `search_parsed` - Query components extracted
 - `search_completed` - Total results found
 - `results_formatted` - Output generated with display count
 
 #### PanelHandler ✅
+
 **File:** `/core/commands/panel_handler.py`
 
 Tracks:
+
 - Location loading
 - Timezone calculation
 - Panel building
@@ -67,6 +77,7 @@ Tracks:
 - Grid content analysis
 
 Events recorded:
+
 - `location_loaded` - Location retrieved
 - `local_time_calculated` - Timezone resolved
 - `timezone_error` - Timezone failures (non-fatal)
@@ -74,15 +85,18 @@ Events recorded:
 - `command_complete` - Final panel delivery
 
 #### GotoHandler ✅ (Partial)
+
 **File:** `/core/commands/goto_handler.py`
 
 Tracks (started):
+
 - Current location loading
 - Direction vs location ID detection
 - Connection lookup
 - Navigation type (direction vs direct ID)
 
 Events recorded (started):
+
 - `current_location_loaded` - Starting location loaded
 - `direction_navigation` - Direction-based movement
 - `location_id_navigation` - Direct location targeting
@@ -95,7 +109,7 @@ Events recorded (started):
 ### Remaining 4 High-Value Handlers
 
 1. **BagHandler** - Inventory operations
-2. **GrabHandler** - Item pickup mechanics  
+2. **GrabHandler** - Item pickup mechanics
 3. **TalkHandler** - NPC interactions
 4. **ConfigHandler** - Settings management
 
@@ -189,10 +203,12 @@ other       → All others
 ## Parameter Sanitization
 
 Automatically redacts:
+
 - `password`, `key`, `token`, `secret`, `api_key`, `credentials`
 - Long parameters >100 chars are truncated with `...`
 
 Example:
+
 ```python
 params = ["--password", "super_secret_123", "--file", "/path/to/file.json"]
 # Logged as: ["[REDACTED]", "[REDACTED]", "--file", "/path/to/file.json"]
@@ -203,11 +219,12 @@ params = ["--password", "super_secret_123", "--file", "/path/to/file.json"]
 Based on instrumentation analysis:
 
 - **MapHandler trace overhead:** ~0.002s per command
-- **FindHandler trace overhead:** ~0.001s per command  
+- **FindHandler trace overhead:** ~0.001s per command
 - **PanelHandler trace overhead:** ~0.001s per command
 - **Total TUI overhead:** <0.01s per command (negligible)
 
 Tracing is lightweight due to:
+
 - Simple datetime operations
 - Lazy logger initialization
 - No expensive serialization at trace time
@@ -243,8 +260,9 @@ def _build_panel(self, location, time_str):
 ```
 
 This prevents the circular dependency:
+
 ```
-dispatcher → imports handlers → handlers import OutputToolkit 
+dispatcher → imports handlers → handlers import OutputToolkit
 → ucode.py imports dispatcher → circular!
 ```
 
@@ -278,7 +296,6 @@ No circular dependency errors.
    - Average execution time
    - Error rates
    - Slowest commands
-   
 7. **Create logging dashboard** - Real-time performance view
    ```
    [LOGS]
@@ -286,7 +303,7 @@ No circular dependency errors.
      Total Commands: 47
      Success Rate: 97.9%
      Avg Duration: 0.032s
-     
+
    Top 5 Slowest:
      1. PANEL (0.098s avg)
      2. FIND (0.087s avg)
@@ -304,10 +321,12 @@ No circular dependency errors.
 ## Files Modified This Phase
 
 **Created:**
+
 - `/core/commands/handler_logging_mixin.py` (440 lines)
 - `/docs/PHASE5-HANDLER-LOGGING-INTEGRATION.md` (documentation)
 
 **Modified:**
+
 - `/core/commands/map_handler.py` (+70 lines, logging wraps handle())
 - `/core/commands/find_handler.py` (+80 lines, logging with search tracking)
 - `/core/commands/panel_handler.py` (+70 lines, logging with timezone tracking)
@@ -318,6 +337,7 @@ No circular dependency errors.
 ## Git Commits
 
 ### Commit 1: Framework & First 2 Handlers
+
 ```
 dcb553f7 phase5: Handler logging framework + MapHandler + FindHandler
 
@@ -330,6 +350,7 @@ dcb553f7 phase5: Handler logging framework + MapHandler + FindHandler
 ```
 
 ### Commit 2: Next 2 Handlers (Partial)
+
 ```
 386830e6 phase5: Instrument PanelHandler and GotoHandler with logging
 
@@ -342,6 +363,7 @@ dcb553f7 phase5: Handler logging framework + MapHandler + FindHandler
 ## Success Metrics
 
 ✅ **Implementation Quality**
+
 - All handlers import without circular dependencies
 - No breaking changes to command behavior
 - Logging overhead <0.01s per command
@@ -349,17 +371,20 @@ dcb553f7 phase5: Handler logging framework + MapHandler + FindHandler
 - Error tracking complete
 
 ✅ **Code Coverage**
+
 - 4 of 8 high-value handlers instrumented (50%)
 - HandlerLoggingMixin complete and reusable
 - Patterns established for remaining handlers
 
 🟨 **Documentation**
+
 - Phase 5 guide created and comprehensive
 - Instrumentation patterns documented
 - Examples provided
 - Test results documented
 
 ⏳ **Remaining**
+
 - Complete remaining 4 handlers
 - Enhance LOGS command with statistics
 - Performance baseline established
@@ -369,11 +394,11 @@ dcb553f7 phase5: Handler logging framework + MapHandler + FindHandler
 From instrumented handlers (first 50 commands):
 
 | Handler | Avg Time | Min Time | Max Time | Success Rate |
-|---------|----------|----------|----------|--------------|
-| MAP | 0.045s | 0.032s | 0.089s | 100% |
-| FIND | 0.067s | 0.041s | 0.156s | 95.2% |
-| PANEL | 0.032s | 0.018s | 0.089s | 100% |
-| GOTO | 0.028s | 0.015s | 0.067s | 92.5% |
+| ------- | -------- | -------- | -------- | ------------ |
+| MAP     | 0.045s   | 0.032s   | 0.089s   | 100%         |
+| FIND    | 0.067s   | 0.041s   | 0.156s   | 95.2%        |
+| PANEL   | 0.032s   | 0.018s   | 0.089s   | 100%         |
+| GOTO    | 0.028s   | 0.015s   | 0.067s   | 92.5%        |
 
 These baselines enable tracking performance improvements over time.
 
@@ -382,6 +407,7 @@ These baselines enable tracking performance improvements over time.
 **Phase 5 is 50% complete.** The logging framework is solid and extensible. MapHandler, FindHandler, and PanelHandler are instrumented and working. GotoHandler is partially done. The remaining 4 high-value handlers will be instrumented in the next 1-2 hours of work.
 
 The infrastructure is ready to support complete visibility into command execution, enabling:
+
 - Performance optimization
 - Debugging and error analysis
 - User experience improvements
@@ -392,4 +418,3 @@ The infrastructure is ready to support complete visibility into command executio
 **Next Action:** Complete remaining 4 handlers and enhance LOGS command  
 **Estimated Time to Phase 5 Complete:** 2-3 hours  
 **Estimated Time to Phase 6 Ready:** 4-5 hours total
-

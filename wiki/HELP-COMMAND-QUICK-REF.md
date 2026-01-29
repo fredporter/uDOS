@@ -1,8 +1,6 @@
-> **Moved:** See [wiki/HELP-COMMAND-QUICK-REF.md](../../wiki/HELP-COMMAND-QUICK-REF.md)
-
 # TUI Help Command Quick Reference
 
-**Version:** v1.1.0 (Improved)  
+**Version:** v1.1.0 (Improved)
 **Date:** 2026-01-24
 
 ---
@@ -360,5 +358,5 @@ uDOS> HELP[ENTER]
 
 ---
 
-**Status:** v1.1.0 (Current)  
+**Status:** v1.1.0 (Current)
 **Last Updated:** 2026-01-24
