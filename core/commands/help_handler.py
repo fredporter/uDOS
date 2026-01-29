@@ -18,6 +18,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
             "REPAIR",
             "BACKUP",
             "RESTORE",
+            "UNDO",
             "TIDY",
             "CLEAN",
             "COMPOST",
@@ -27,7 +28,15 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
             "LOGS",
             "RELOAD",
         ],
-        "Advanced": ["BINDER", "RUN", "STORY", "SETUP", "DATASET", "CONFIG", "PROVIDER"],
+        "Advanced": [
+            "BINDER",
+            "RUN",
+            "STORY",
+            "SETUP",
+            "DATASET",
+            "CONFIG",
+            "PROVIDER",
+        ],
     }
 
     COMMANDS = {
@@ -166,6 +175,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
             "notes": "Restores the most recent backup (use --force to overwrite)",
             "category": "System & Maintenance",
             "syntax": "RESTORE <current|+subfolders|workspace|all> [--force] [--date YYYY-MM-DD]",
+        },
+        "UNDO": {
+            "description": "Simple undo wrapper (restore from backup)",
+            "usage": "UNDO [RESTORE] [scope] [--force]",
+            "example": "UNDO RESTORE workspace",
+            "notes": "Simple wrapper around RESTORE. Restores from latest backup",
+            "category": "System & Maintenance",
+            "syntax": "UNDO [RESTORE|--help] [<current|+subfolders|workspace|all>] [--force]",
         },
         "TIDY": {
             "description": "Organize junk files into .archive",
@@ -315,7 +332,9 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
                     trace.set_status(status)
             return result
 
-    def _handle_impl(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
+    def _handle_impl(
+        self, command: str, params: List[str], grid=None, parser=None
+    ) -> Dict:
         """
         Handle HELP command.
 
@@ -362,20 +381,24 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
         box_line = "+" + "-" * 69 + "+"
         title = "uDOS Command Reference (v1.1.0)"
         title_line = f"| {title:<67}|"
-        
+
         help_text = f"{box_line}\n{title_line}\n{box_line}\n\n"
-        
+
         # Build output by category
         for category in [
-            "Navigation", "Inventory", "NPCs & Dialogue", "Files & State",
-            "System & Maintenance", "Advanced"
+            "Navigation",
+            "Inventory",
+            "NPCs & Dialogue",
+            "Files & State",
+            "System & Maintenance",
+            "Advanced",
         ]:
             if category not in self.COMMAND_CATEGORIES:
                 continue
-            
+
             commands = self.COMMAND_CATEGORIES[category]
             help_text += f"{category}:\n"
-            
+
             for cmd in commands:
                 if cmd in self.COMMANDS:
                     info = self.COMMANDS[cmd]
@@ -383,9 +406,9 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
                     # Format: "  COMMAND      - description (usage hint)"
                     usage_hint = info.get("usage", "").split("[")[0].strip()
                     help_text += f"  {cmd:<12} - {desc:<45}\n"
-            
+
             help_text += "\n"
-        
+
         # Add usage instructions
         help_text += (
             "Usage:\n"
@@ -410,10 +433,10 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
     def _show_command_help(self, cmd_name: str) -> Dict:
         """Show detailed help for a specific command."""
         cmd_info = self.COMMANDS[cmd_name]
-        
+
         box_line = "+" + "-" * 69 + "+"
         title_line = f"| {cmd_name:<67}|"
-        
+
         help_text = (
             f"{box_line}\n"
             f"{title_line}\n"
@@ -461,11 +484,11 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
             }
 
         commands = self.COMMAND_CATEGORIES[matching_cat]
-        
+
         box_line = "+" + "-" * 69 + "+"
         title = f"{matching_cat} Commands"
         title_line = f"| {title:<67}|"
-        
+
         help_text = f"{box_line}\n{title_line}\n{box_line}\n\n"
 
         for cmd in commands:
@@ -491,7 +514,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
     def _show_syntax(self, cmd_name: str) -> Dict:
         """Show syntax reference for a specific command."""
         cmd_upper = cmd_name.upper()
-        
+
         if cmd_upper not in self.COMMANDS:
             # Try partial match
             matching = [c for c in self.COMMANDS.keys() if c.startswith(cmd_upper)]
@@ -505,10 +528,10 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
 
         cmd_info = self.COMMANDS[cmd_upper]
         syntax = cmd_info.get("syntax", cmd_info["usage"])
-        
+
         box_line = "+" + "-" * 69 + "+"
         syntax_line = f"| {syntax:<67}|"
-        
+
         help_text = (
             f"{box_line}\n"
             f"{syntax_line}\n"

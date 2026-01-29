@@ -39,6 +39,7 @@ from core.commands import (
     RestartHandler,
     DestroyHandler,
     UserHandler,
+    UndoHandler,
 )
 
 
@@ -83,8 +84,9 @@ class CommandDispatcher:
             "LOGS": LogsHandler(),  # View unified logs
             # User Management (2)
             "USER": UserHandler(),  # User profiles and permissions
-            # Cleanup/Reset (1)
+            # Cleanup/Reset (2)
             "DESTROY": DestroyHandler(),  # System cleanup with data wipe options
+            "UNDO": UndoHandler(),  # Simple undo via restore from backup
             # NPC & Dialogue (3)
             "NPC": self.npc_handler,
             "TALK": self.talk_handler,
@@ -140,9 +142,7 @@ class CommandDispatcher:
         handler = self.handlers.get(cmd_name)
         if cmd_name in {"SAVE", "LOAD"}:
             if cmd_params and cmd_params[0].lower() in {"game", "state"}:
-                handler = (
-                    self.save_handler if cmd_name == "SAVE" else self.load_handler
-                )
+                handler = self.save_handler if cmd_name == "SAVE" else self.load_handler
                 cmd_params = cmd_params[1:]
             else:
                 handler = self.file_handler
@@ -193,3 +193,25 @@ class CommandDispatcher:
             # Show all commands
             commands = self.get_command_list()
             return {"status": "success", "commands": commands, "count": len(commands)}
+
+
+# Module-level singleton and helper functions for easier access
+_dispatcher_instance: Optional[CommandDispatcher] = None
+
+
+def get_dispatcher() -> CommandDispatcher:
+    """Get or create the global dispatcher instance."""
+    global _dispatcher_instance
+    if _dispatcher_instance is None:
+        _dispatcher_instance = CommandDispatcher()
+    return _dispatcher_instance
+
+
+def create_handlers() -> Dict[str, Any]:
+    """Create and return all command handlers dict."""
+    return get_dispatcher().handlers
+
+
+def get_handler(cmd_name: str) -> Optional[Any]:
+    """Get a specific handler by command name."""
+    return get_dispatcher().handlers.get(cmd_name.upper())

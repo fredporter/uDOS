@@ -172,6 +172,6 @@ Bank data should be backed up via:
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** 2026-01-29  
+**Version:** 1.0.0
+**Last Updated:** 2026-01-29
 **Gitignored:** User data (except system/ templates)

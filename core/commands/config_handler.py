@@ -19,10 +19,10 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         """
         Handle CONFIG commands for file config and variable management.
-        
+
         Usage:
             CONFIG                     List all variables
-            CONFIG <key>               Get specific variable  
+            CONFIG <key>               Get specific variable
             CONFIG <key> <value>       Set variable value
             CONFIG --delete <key>      Delete variable
             CONFIG --sync              Sync all variables
@@ -40,12 +40,12 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
 
             first_param = params[0]
             args = params[1:] if len(params) > 1 else []
-            
+
             # Handle flag-style commands
             if first_param.startswith("--"):
                 flag = first_param[2:].lower()
-                trace.add_event('flag_parsed', {'flag': flag})
-                
+                trace.add_event("flag_parsed", {"flag": flag})
+
                 if flag == "sync":
                     result = self._sync_variables()
                 elif flag == "export":
@@ -55,19 +55,19 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
                 elif flag == "help":
                     result = self._show_help()
                 else:
-                    trace.set_status('error')
+                    trace.set_status("error")
                     return {
                         "status": "error",
                         "message": f"Unknown flag: --{flag}",
-                        "output": "Usage: CONFIG --sync | --export | --delete <key> | --help"
+                        "output": "Usage: CONFIG --sync | --export | --delete <key> | --help",
                     }
-                    
+
                 trace.set_status(result.get("status", "success"))
                 return result
-            
+
             # Handle legacy subcommands (SHOW, LIST, EDIT, SETUP)
             subcommand = first_param.upper()
-            
+
             if subcommand in ["SHOW", "STATUS"]:
                 result = self._show_status()
             elif subcommand == "LIST":
@@ -99,6 +99,7 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
             if response.status_code == 200:
                 data = response.json()
                 from core.tui.output import OutputToolkit
+
                 output = [OutputToolkit.banner("WIZARD CONFIG STATUS"), ""]
 
                 if "enabled_providers" in data:
@@ -142,6 +143,7 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
             if response.status_code == 200:
                 data = response.json()
                 from core.tui.output import OutputToolkit
+
                 output = [OutputToolkit.banner("CONFIGURATION FILES"), ""]
 
                 for name, info in data.get("config_files", {}).items():
@@ -214,6 +216,7 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
         import subprocess
 
         from core.tui.output import OutputToolkit
+
         output = [OutputToolkit.banner("PROVIDER SETUP CHECK"), ""]
 
         try:
@@ -232,41 +235,40 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
             return {"status": "success", "output": "\n".join(output)}
         except Exception as e:
             return {"status": "error", "message": f"Failed to run setup: {str(e)}"}
-    
+
     # ========================================================================
     # Variable Management Methods
     # ========================================================================
-    
+
     def _list_variables(self) -> Dict:
         """List all variables from Wizard."""
         try:
             token = self._get_admin_token()
             if not token:
                 return self._offline_message()
-            
+
             headers = {"Authorization": f"Bearer {token}"}
             response = requests.get(
-                f"{WIZARD_API}/config/variables",
-                headers=headers,
-                timeout=5
+                f"{WIZARD_API}/config/variables", headers=headers, timeout=5
             )
-            
+
             if response.status_code != 200:
                 return {
                     "status": "error",
-                    "message": f"Failed to list variables: HTTP {response.status_code}"
+                    "message": f"Failed to list variables: HTTP {response.status_code}",
                 }
-            
+
             variables = response.json().get("variables", [])
-            
+
             # Group by type
             system_vars = [v for v in variables if v["type"] == "system"]
             user_vars = [v for v in variables if v["type"] == "user"]
             feature_vars = [v for v in variables if v["type"] == "feature"]
-            
+
             from core.tui.output import OutputToolkit
+
             lines = [OutputToolkit.banner("CONFIGURATION"), ""]
-            
+
             if system_vars:
                 lines.append("System Variables ($):")
                 for var in system_vars:
@@ -277,7 +279,7 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
                     if desc:
                         lines.append(f"    └─ {desc}")
                 lines.append("")
-            
+
             if user_vars:
                 lines.append("User Variables (@):")
                 for var in user_vars:
@@ -288,7 +290,7 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
                     if desc:
                         lines.append(f"    └─ {desc}")
                 lines.append("")
-            
+
             if feature_vars:
                 lines.append("Feature Flags:")
                 for var in feature_vars:
@@ -300,83 +302,72 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
                     if desc:
                         lines.append(f"    └─ {desc}")
                 lines.append("")
-            
+
             lines.append("Use: CONFIG <key> to view details")
             lines.append("Use: CONFIG <key> <value> to update")
-            
-            return {
-                "status": "success",
-                "output": "\n".join(lines)
-            }
-            
+
+            return {"status": "success", "output": "\n".join(lines)}
+
         except requests.exceptions.RequestException:
             return self._offline_message()
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to list variables: {e}"
-            }
-    
+            return {"status": "error", "message": f"Failed to list variables: {e}"}
+
     def _get_variable(self, key: str) -> Dict:
         """Get a specific variable."""
         try:
             token = self._get_admin_token()
             if not token:
                 return self._offline_message()
-            
+
             headers = {"Authorization": f"Bearer {token}"}
             response = requests.get(
-                f"{WIZARD_API}/config/get/{key}",
-                headers=headers,
-                timeout=5
+                f"{WIZARD_API}/config/get/{key}", headers=headers, timeout=5
             )
-            
+
             if response.status_code == 404:
                 return {
                     "status": "error",
                     "message": f"Variable not found: {key}",
-                    "output": "Use CONFIG to list all variables"
+                    "output": "Use CONFIG to list all variables",
                 }
-            
+
             if response.status_code != 200:
                 return {
                     "status": "error",
-                    "message": f"Failed to get variable: HTTP {response.status_code}"
+                    "message": f"Failed to get variable: HTTP {response.status_code}",
                 }
-            
+
             data = response.json()
             var = data.get("variable", {})
-            
+
             from core.tui.output import OutputToolkit
+
             lines = [OutputToolkit.banner(f"VARIABLE: {var['key']}"), ""]
-            lines.append(f"Value: {self._mask_value(var['value']) if var['type'] == 'system' else var['value']}")
+            lines.append(
+                f"Value: {self._mask_value(var['value']) if var['type'] == 'system' else var['value']}"
+            )
             lines.append(f"Type: {var['type']}")
             lines.append(f"Tier: {var['tier']}")
             if var.get("description"):
                 lines.append(f"Description: {var['description']}")
             if var.get("updated_at"):
                 lines.append(f"Updated: {var['updated_at']}")
-            
-            return {
-                "status": "success",
-                "output": "\n".join(lines)
-            }
-            
+
+            return {"status": "success", "output": "\n".join(lines)}
+
         except requests.exceptions.RequestException:
             return self._offline_message()
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to get variable: {e}"
-            }
-    
+            return {"status": "error", "message": f"Failed to get variable: {e}"}
+
     def _set_variable(self, key: str, value: str) -> Dict:
         """Set a variable value."""
         try:
             token = self._get_admin_token()
             if not token:
                 return self._offline_message()
-            
+
             # Parse boolean values
             if value.lower() in ["true", "yes", "1", "on"]:
                 parsed_value = True
@@ -384,160 +375,136 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
                 parsed_value = False
             else:
                 parsed_value = value
-            
+
             headers = {"Authorization": f"Bearer {token}"}
             response = requests.post(
                 f"{WIZARD_API}/config/set",
                 headers=headers,
                 json={"key": key, "value": parsed_value, "sync": True},
-                timeout=5
+                timeout=5,
             )
-            
+
             if response.status_code != 200:
                 return {
                     "status": "error",
                     "message": f"Failed to set variable: HTTP {response.status_code}",
-                    "output": response.json().get("detail", "")
+                    "output": response.json().get("detail", ""),
                 }
-            
+
             return {
                 "status": "success",
-                "output": f"OK Set {key} = {parsed_value}\n\nChanges synchronized across all components"
+                "output": f"OK Set {key} = {parsed_value}\n\nChanges synchronized across all components",
             }
-            
+
         except requests.exceptions.RequestException:
             return self._offline_message()
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to set variable: {e}"
-            }
-    
+            return {"status": "error", "message": f"Failed to set variable: {e}"}
+
     def _delete_variable(self, key: str) -> Dict:
         """Delete a variable."""
         try:
             token = self._get_admin_token()
             if not token:
                 return self._offline_message()
-            
+
             headers = {"Authorization": f"Bearer {token}"}
             response = requests.delete(
-                f"{WIZARD_API}/config/delete/{key}",
-                headers=headers,
-                timeout=5
+                f"{WIZARD_API}/config/delete/{key}", headers=headers, timeout=5
             )
-            
+
             if response.status_code == 404:
-                return {
-                    "status": "error",
-                    "message": f"Variable not found: {key}"
-                }
-            
+                return {"status": "error", "message": f"Variable not found: {key}"}
+
             if response.status_code != 200:
                 return {
                     "status": "error",
-                    "message": f"Failed to delete variable: HTTP {response.status_code}"
+                    "message": f"Failed to delete variable: HTTP {response.status_code}",
                 }
-            
-            return {
-                "status": "success",
-                "output": f"OK Deleted variable: {key}"
-            }
-            
+
+            return {"status": "success", "output": f"OK Deleted variable: {key}"}
+
         except requests.exceptions.RequestException:
             return self._offline_message()
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to delete variable: {e}"
-            }
-    
+            return {"status": "error", "message": f"Failed to delete variable: {e}"}
+
     def _sync_variables(self) -> Dict:
         """Sync all variables across tiers."""
         try:
             token = self._get_admin_token()
             if not token:
                 return self._offline_message()
-            
+
             headers = {"Authorization": f"Bearer {token}"}
             response = requests.post(
-                f"{WIZARD_API}/config/sync",
-                headers=headers,
-                timeout=10
+                f"{WIZARD_API}/config/sync", headers=headers, timeout=10
             )
-            
+
             if response.status_code != 200:
                 return {
                     "status": "error",
-                    "message": f"Failed to sync: HTTP {response.status_code}"
+                    "message": f"Failed to sync: HTTP {response.status_code}",
                 }
-            
+
             data = response.json()
             counts = data.get("counts", {})
-            
+
             from core.tui.output import OutputToolkit
+
             lines = [OutputToolkit.banner("SYNC COMPLETE"), ""]
             lines.append(f"  .env → secrets: {counts.get('env_to_secret', 0)}")
             lines.append(f"  secrets → .env: {counts.get('secret_to_env', 0)}")
             lines.append(f"  Config synced: {counts.get('config_synced', 0)}")
-            
-            return {
-                "status": "success",
-                "output": "\n".join(lines)
-            }
-            
+
+            return {"status": "success", "output": "\n".join(lines)}
+
         except requests.exceptions.RequestException:
             return self._offline_message()
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to sync: {e}"
-            }
-    
+            return {"status": "error", "message": f"Failed to sync: {e}"}
+
     def _export_config(self) -> Dict:
         """Export configuration for backup."""
         try:
             token = self._get_admin_token()
             if not token:
                 return self._offline_message()
-            
+
             headers = {"Authorization": f"Bearer {token}"}
             response = requests.get(
-                f"{WIZARD_API}/config/export",
-                headers=headers,
-                timeout=5
+                f"{WIZARD_API}/config/export", headers=headers, timeout=5
             )
-            
+
             if response.status_code != 200:
                 return {
                     "status": "error",
-                    "message": f"Failed to export: HTTP {response.status_code}"
+                    "message": f"Failed to export: HTTP {response.status_code}",
                 }
-            
+
             data = response.json()
             export_path = get_repo_root() / "memory" / "config-backup.json"
             export_path.parent.mkdir(parents=True, exist_ok=True)
             export_path.write_text(json.dumps(data, indent=2))
-            
+
             return {
                 "status": "success",
-                "output": f"OK Config exported to: {export_path}\n\nNOTE: This backup does NOT include secrets"
+                "output": f"OK Config exported to: {export_path}\n\nNOTE: This backup does NOT include secrets",
             }
-            
+
         except requests.exceptions.RequestException:
             return self._offline_message()
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to export: {e}"
-            }
-    
+            return {"status": "error", "message": f"Failed to export: {e}"}
+
     def _show_help(self) -> Dict:
         """Show detailed help."""
         from core.tui.output import OutputToolkit
+
         return {
-            "status": "info",
-            "output": OutputToolkit.banner("CONFIG HELP") + """
+            "status": "success",
+            "output": OutputToolkit.banner("CONFIG HELP")
+            + """
 
 USAGE:
   CONFIG                    List all variables
@@ -579,13 +546,13 @@ SECURITY:
   • System variables are masked in output
   • Secrets are encrypted at rest
   • Export does NOT include sensitive secrets
-"""
+""",
         }
-    
+
     # ========================================================================
     # Helper Methods
     # ========================================================================
-    
+
     def _get_admin_token(self) -> Optional[str]:
         """Get admin token from file."""
         token_path = get_repo_root() / "memory" / "private" / "wizard_admin_token.txt"
@@ -598,17 +565,17 @@ SECURITY:
                         return line.split("=", 1)[1].strip()
             return None
         return token_path.read_text().strip()
-    
+
     def _mask_value(self, value: str) -> str:
         """Mask sensitive values."""
         if not value or len(value) < 8:
             return "***"
         return value[:4] + "..." + value[-4:]
-    
+
     def _offline_message(self) -> Dict:
         """Message when Wizard is not available."""
         return {
             "status": "error",
             "message": "Wizard Server not available",
-            "output": "Start Wizard: ./bin/start_wizard.sh"
+            "output": "Start Wizard: ./bin/start_wizard.sh",
         }
