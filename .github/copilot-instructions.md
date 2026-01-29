@@ -29,7 +29,7 @@ git submodule update --init --recursive
 
 | Document | Purpose |
 |----------|---------|
-| [AGENTS.md](../AGENTS.md) | How work is done (architecture, policies, tooling) |
+| [AGENTS.md](../AGENTS.md) | **Lean rules** for fast dev rounds (verbose archived) |
 | [docs/README.md](../docs/README.md) | Engineering entry point |
 | [docs/development-streams.md](../docs/development-streams.md) | Current priorities (Now/Next/Later) |
 
