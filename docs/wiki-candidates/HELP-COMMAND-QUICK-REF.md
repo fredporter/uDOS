@@ -1,3 +1,16 @@
+---
+uid: udos-wiki-candidate-help-command-quick-ref-20260128140000-UTC-L300AB52
+title: TUI Help Command Quick Reference
+tags: [wiki, candidate]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Wiki candidate for future integration
+- Pending review for promotion
+- Obsidian-compatible
+---
+
 > **Moved:** See [wiki/HELP-COMMAND-QUICK-REF.md](../../wiki/HELP-COMMAND-QUICK-REF.md)
 
 # TUI Help Command Quick Reference

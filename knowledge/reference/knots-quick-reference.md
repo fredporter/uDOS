@@ -1,12 +1,16 @@
 ---
-title: "Knots Quick Reference Guide"
-id: reference-knots-quick-reference
-type: reference
-category: reference
-tags: [reference, reference]
-difficulty: all
-last_updated: 2026-01-29
+uid: udos-guide-reference-20260129221700-UTC-L300AB95
+title: Knots Quick Reference Guide
+tags: [guide, knowledge, reference]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Knots Quick Reference Guide
 

@@ -1,12 +1,16 @@
 ---
-tier: 2
-category: fire
-title: "Bow Drill Technique"
-complexity: intermediate
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-fire-20251204081800-UTC-L300AB44
+title: Bow Drill Technique
+tags: [guide, knowledge, fire]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Bow Drill Technique
 

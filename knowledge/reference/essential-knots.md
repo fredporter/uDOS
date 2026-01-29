@@ -1,12 +1,16 @@
 ---
-title: "Essential Knots Reference"
-id: reference-essential-knots
-type: reference
-category: reference
-tags: [reference, reference]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-reference-20260129221300-UTC-L300AB91
+title: Essential Knots Reference
+tags: [guide, knowledge, reference]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Essential Knots Reference
 

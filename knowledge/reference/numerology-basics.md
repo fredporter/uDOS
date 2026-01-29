@@ -1,12 +1,16 @@
 ---
-title: "Numerology Basics"
-id: reference-numerology-basics
-type: reference
-category: reference
-tags: [reference, reference]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-reference-20260129221900-UTC-L300AB97
+title: Numerology Basics
+tags: [guide, knowledge, reference]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Numerology Basics
 

@@ -1,12 +1,16 @@
 ---
-tier: 1
-category: water
-title: "Emergency Water Sources"
-complexity: basic
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-water-20251204113800-UTC-L300AB28
+title: Emergency Water Sources
+tags: [guide, knowledge, water]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Emergency Water Sources
 

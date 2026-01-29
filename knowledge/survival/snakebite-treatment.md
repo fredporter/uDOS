@@ -1,12 +1,16 @@
 ---
-title: "Australian Snakebite Treatment Guide"
-id: survival-snakebite-treatment
-type: reference
-category: emergency
-tags: [emergency, survival]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-survival-20260129170300-UTC-L300AB67
+title: Australian Snakebite Treatment Guide
+tags: [guide, knowledge, survival]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Australian Snakebite Treatment Guide
 

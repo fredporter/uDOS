@@ -1,12 +1,16 @@
 ---
-title: "Basic Woodworking & Timber Projects"
-id: making-basic-woodworking
-type: skill
-category: making
-tags: [making, making]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-making-20260129190000-UTC-L300AB86
+title: Basic Woodworking & Timber Projects
+tags: [guide, knowledge, making]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Basic Woodworking & Timber Projects
 

@@ -1,12 +1,16 @@
 ---
-title: "Hand Signals"
-id: communication-hand_signals
-type: reference
-category: communication
-tags: [communication, communication]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-communication-20260129200800-UTC-L300AB34
+title: Hand Signals
+tags: [guide, knowledge, communication]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Hand Signals
 

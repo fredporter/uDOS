@@ -1,11 +1,14 @@
 ---
-tier: 2
-category: shelter
-title: "Shelter Construction & Site Management"
-complexity: intermediate
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-shelter-20251204120000-UTC-L300AB14
+title: Shelter Construction & Site Management
+tags: [guide, knowledge, shelter, survival]
+status: living
+updated: 2025-12-04
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Knowledge guides use 'guide' tag
+  - Survival content organized by technique
+  - File-based, offline-first
 ---
 
 # Shelter Construction & Site Management

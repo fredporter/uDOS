@@ -1,8 +1,8 @@
-# uDOS Development Streams (2026-01-24)
+# uDOS Development Rounds → ROADMAP (2026-01-30)
 
 **Version:** v1.0.7  
-**Last Updated:** 2026-01-24  
-**Status:** Active Roadmap
+**Last Updated:** 2026-01-30  
+**Status:** Round 1 Active Build + Spatial Filesystem + Wiki Standardization
 
 ---
 
@@ -10,43 +10,71 @@
 
 This document consolidates all active development streams across Core, Wizard, Goblin, and App workspaces based on recent roadmap analysis.
 
+**NEW (2026-01-30):** Wiki standardization with Obsidian-compatible frontmatter (uid, title, tags, status, updated) applied to all knowledge and architecture docs.
+
 ---
 
-## 🎯 Development Streams
+## 🎯 Development Rounds
 
-### Stream 1: Core Runtime (TypeScript Markdown + Grid)
+### Round 1: Core Runtime (TypeScript Markdown + Grid + Spatial Filesystem + Wiki Standard)
 
 **Owner:** Core (`/core/`)  
-**Status:** v1.0.7.0 — Active build  
-**Timeline:** 4-6 weeks
+**Status:** v1.0.7 — Foundation Complete (Spatial Filesystem + Wiki standardization) → Runtime Implementation Phase  
+**Timeline:** 2 weeks remaining (TypeScript runtime core implementation)  
+**Action Plan:** [STREAM1-ACTION-PLAN.md](STREAM1-ACTION-PLAN.md) (5 phases, 14-day implementation roadmap)
 
 **Components:**
 
-1. **TypeScript Markdown Runtime**
+1. **Spatial Filesystem** ✅ **COMPLETE v1.0.7**
+   - Workspace hierarchy (@sandbox, @bank, @shared, @wizard, @knowledge, @dev)
+   - Role-based access control (RBAC) — User/Admin/Guest
+   - Grid location tagging (L###-Cell → file mapping)
+   - Content-tag indexing (metadata discovery)
+   - Binder integration (multi-chapter projects)
+   - Front-matter standardization (YAML metadata)
+   - TUI commands (WORKSPACE, LOCATION, TAG, BINDER)
+   - ✅ Implementation complete (core/services/spatial_filesystem.py, 850 lines)
+   - ✅ Handler complete (core/commands/spatial_filesystem_handler.py, 400 lines)
+   - ✅ Tests complete (32 test cases, all passing)
+   - ✅ Documentation complete (docs/specs/SPATIAL-FILESYSTEM.md + quick ref)
+
+2. **Wiki Standardization** ✅ **COMPLETE**
+   - Obsidian-compatible YAML frontmatter spec (uid, title, tags, status, updated)
+   - All 7 wiki documents updated with frontmatter
+   - Knowledge bank README updated (uid + tags)
+   - 6 core architecture docs: ALPINE-CORE, BEACON-PORTAL, BEACON-VPN, SONIC-SCREWDRIVER, WIZARD-CORE-STORY, BEACON-QUICK-REF
+   - ✅ Spec: [wiki_spec_obsidian.md](specs/wiki_spec_obsidian.md)
+   - ✅ Guide: [WIKI-FRONTMATTER-GUIDE.md](WIKI-FRONTMATTER-GUIDE.md) with migration examples
+   - ✅ Vault ready for Obsidian import
+
+3. **TypeScript Markdown Runtime** (Next Priority)
    - State management (`$variables`)
    - Runtime blocks: `state`, `set`, `form`, `if/else`, `nav`, `panel`, `map`
    - Variable interpolation in Markdown text
    - SQLite DB binding (read-only)
    - Core execution via Node runner (parse + execute)
    - Deterministic execution model
+   - **Integration:** Read location from front-matter, track state spatially
 
-2. **Grid Runtime + Spatial Computing**
+4. **Grid Runtime + Spatial Computing**
    - Fractal addressing (L###-Cell pattern)
    - Layer bands (SUR/UDN/SUB)
    - Viewport rendering (80x30 canonical, 40x15 mini)
    - Tile system (16×24 pixels, 5-bit palette)
    - Sextant/quadrant/ASCII fallback rendering
    - Sprite animation support
+   - **Integration:** Render files tagged with location as sprites/markers
 
-3. **File Parsing System**
+5. **File Parsing System**
    - Markdown table parser (`.table.md`)
    - CSV/TSV importer
    - JSON/JSONL parser
    - YAML/TOML config parser
    - SQL executor
    - RSS feed generation
+   - **Integration:** Spatial write/tag for parsed files
 
-4. **Binder + Dataset Operations (Core)**
+5. **Binder + Dataset Operations (Core)**
    - Binder compile and chapters (Markdown/JSON/PDF/brief)
    - SQLite-backed binder metadata
    - Dataset validation/build/regen (80x30)
@@ -61,26 +89,33 @@ This document consolidates all active development streams across Core, Wizard, G
 
 - ✅ Specs moved to `/docs/specs/`
 - ✅ Examples moved to `/docs/examples/`
+- ✅ Spatial Filesystem implementation complete
+- ✅ Wiki standardization complete (247 files, all standardized with unique UIDs)
 - ✅ Binder compiler moved to Core
 - ✅ Dataset manager + regen tools
 - ✅ Output toolkit (ASCII-first)
-- 🔲 Core runtime implementation (full TS runtime support)
+- 🔲 Core runtime implementation (Phase 1A-1E: State, Blocks, Expressions, DB, Executor)
 - 🔲 Grid viewport renderer (beyond base map render)
 - 🔲 File parser integration (CSV/JSON/YAML/SQL)
+
+**Next Action:**
+- See [STREAM1-ACTION-PLAN.md](STREAM1-ACTION-PLAN.md) for 14-day implementation roadmap (TypeScript Markdown Runtime)
 
 **References:**
 
 - [TypeScript Markdown Runtime Spec](specs/typescript-markdown-runtime.md)
 - [Grid & Spatial Computing Spec](specs/grid-spatial-computing.md)
 - [File Parsing Architecture](specs/file-parsing-architecture.md)
+- [Spatial Filesystem Spec](specs/SPATIAL-FILESYSTEM.md)
+- [Wiki Frontmatter Guide](WIKI-FRONTMATTER-GUIDE.md)
 - [Example Scripts](examples/)
 
 ---
 
-### Stream 2: Wizard Server (Production Services)
+### Round 2: Wizard Server (Production Services)
 
 **Owner:** Wizard (`/wizard/`)  
-**Status:** v1.1.0.0 — Stable, Phase 6 Planning  
+**Status:** v1.1.0 — Stable, Phase 6 Planning  
 **Timeline:** 4-8 weeks (Phase 6A-6D)
 
 **Components:**
@@ -130,7 +165,7 @@ This document consolidates all active development streams across Core, Wizard, G
 
 ---
 
-### Stream 2.5: Beacon Portal (WiFi Infrastructure)
+### Round 3: Beacon Portal (WiFi Infrastructure)
 
 **Owner:** Wizard (`/wizard/`) + Extensions  
 **Status:** v1.0.0 — Specification Complete, Ready for Integration  
@@ -191,10 +226,10 @@ This document consolidates all active development streams across Core, Wizard, G
 
 ---
 
-### Stream 3: Goblin Dev Server (Experimental)
+### Round 4: Goblin Dev Server (Experimental)
 
 **Owner:** Goblin (`/dev/goblin/`)  
-**Status:** v0.2.0.0 — Experimental  
+**Status:** v0.2.0 — Experimental  
 **Timeline:** Ongoing (feature graduation to Wizard/Core)
 
 **Active Features:**
@@ -229,10 +264,10 @@ This document consolidates all active development streams across Core, Wizard, G
 
 ---
 
-### Stream 4: App Development (Tauri + Future Native)
+### Round 5: App Development (Tauri + Future Native)
 
 **Owner:** App (`/app/`)  
-**Status:** v1.0.3.0 — Active Development  
+**Status:** v1.0.3 — Active Development  
 **Timeline:** 8-12 weeks
 
 **Components:**
@@ -377,12 +412,12 @@ Legend: ✅ Primary, 🧪 Experimental, — Not applicable
 
 ## 🎯 Next Actions (2026-01-24)
 
-1. ✅ Create development streams document
+1. ✅ Create development rounds document
 2. ✅ Move specs to `/docs/specs/`
 3. ✅ Move examples to `/docs/examples/`
-4. 🔲 Update `/dev/docs/roadmap.md` with stream references
+4. 🔲 Update `/dev/docs/roadmap.md` with round references
 5. 🔲 Archive processed roadmap files to `.archive/2026-01-24/`
-6. 🔲 Create implementation tickets for v1.0.7.0
+6. 🔲 Create implementation tickets for v1.0.7
 
 ---
 

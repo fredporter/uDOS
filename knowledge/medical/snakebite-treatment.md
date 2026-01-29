@@ -1,12 +1,16 @@
 ---
-tier: 3
-category: medical
-title: "Australian Snakebite Treatment Guide"
-complexity: advanced
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-medical-20251204172500-UTC-L300AB63
+title: Australian Snakebite Treatment Guide
+tags: [guide, knowledge, medical]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Australian Snakebite Treatment Guide
 

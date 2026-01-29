@@ -1,12 +1,16 @@
 ---
-title: "Solar Power Basics: Off-Grid Systems"
-id: making-solar-power-basics
-type: skill
-category: making
-tags: [making, making]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-making-20260129190200-UTC-L300AB88
+title: Solar Power Basics: Off-Grid Systems
+tags: [guide, knowledge, making]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Solar Power Basics: Off-Grid Systems
 

@@ -1,12 +1,16 @@
 ---
-tier: 2
-category: shelter
-title: "Knot Tying"
-complexity: intermediate
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-shelter-20251204123100-UTC-L300AB35
+title: Knot Tying
+tags: [guide, knowledge, shelter]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Knot Tying
 

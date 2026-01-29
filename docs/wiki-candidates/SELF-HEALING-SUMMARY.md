@@ -1,3 +1,16 @@
+---
+uid: udos-wiki-candidate-self-healing-summary-20260128160000-UTC-L300AB54
+title: Self-Healing System Summary
+tags: [wiki, candidate]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Wiki candidate for future integration
+- Pending review for promotion
+- Obsidian-compatible
+---
+
 > **Moved:** See [wiki/SELF-HEALING-SUMMARY.md](../../wiki/SELF-HEALING-SUMMARY.md)
 
 # Self-Healing System Summary

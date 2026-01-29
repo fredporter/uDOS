@@ -1,12 +1,16 @@
 ---
-title: "First Aid: Wound Care & Bleeding Control"
-id: survival-wound-care-bleeding
-type: emergency
-category: survival
-tags: [survival, survival]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-survival-20260129171000-UTC-L300AB74
+title: First Aid: Wound Care & Bleeding Control
+tags: [guide, knowledge, survival]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # First Aid: Wound Care & Bleeding Control
 

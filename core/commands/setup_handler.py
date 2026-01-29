@@ -27,7 +27,9 @@ class SetupHandler(BaseCommandHandler):
             
         Quick start:
             1. STORY wizard-setup       (Answer setup questions)
-            2. SETUP                     (View your profile)
+            2. SETUP                    (View your profile)
+            3. WIZARD start             (Start Wizard Server)
+            4. WIZARD setup             (Access setup in dashboard)
         """
         if not params:
             return self._show_profile()

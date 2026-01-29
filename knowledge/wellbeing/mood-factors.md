@@ -1,12 +1,16 @@
 ---
-title: "Mood Factors System"
-id: well-being-mood-factors
-type: reference
-category: well
-tags: [well, well-being]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-wellbeing-20260130022100-UTC-L300AB51
+title: Mood Factors System
+tags: [guide, knowledge, well-being]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Mood Factors System
 

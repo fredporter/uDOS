@@ -1,3 +1,16 @@
+---
+uid: udos-wiki-candidate-beacon-architecture-summary-20260128120000-UTC-L300AB50
+title: Beacon Portal: Complete Architecture Summary
+tags: [wiki, candidate]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Wiki candidate for future integration
+- Pending review for promotion
+- Obsidian-compatible
+---
+
 > **Moved:** See [wiki/BEACON-ARCHITECTURE-SUMMARY.md](../../wiki/BEACON-ARCHITECTURE-SUMMARY.md)
 
 # Beacon Portal: Complete Architecture Summary

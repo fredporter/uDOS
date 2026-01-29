@@ -1,3 +1,12 @@
+---
+uid: udos-wiki-sonic-20260125160000-UTC-L300AB05
+title: Sonic Screwdriver Protocol
+tags: [wiki, guide, experimental]
+status: draft
+updated: 2026-01-25
+spec: wiki_spec_obsidian.md
+---
+
 # Sonic Screwdriver Protocol
 
 **Version:** 1.1.0 (Draft)  

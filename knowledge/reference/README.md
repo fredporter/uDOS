@@ -1,11 +1,14 @@
 ---
-title: "Tools & Equipment"
-id: reference-README
-type: reference
-category: reference
-tags: [reference, reference]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-reference-20260129220000-UTC-L300AB23
+title: Reference & Data
+tags: [guide, knowledge, reference]
+status: living
+updated: 2026-01-29
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Knowledge guides use 'guide' tag
+  - Reference materials organized by type
+  - File-based, offline-first
 ---
 
 # Tools & Equipment

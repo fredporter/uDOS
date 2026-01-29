@@ -1,12 +1,16 @@
 ---
-title: "Semaphore Flag System"
-id: communication-semaphore_flag_system
-type: reference
-category: communication
-tags: [communication, communication]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-communication-20260129201400-UTC-L300AB40
+title: Semaphore Flag System
+tags: [guide, knowledge, communication]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Semaphore Flag System
 

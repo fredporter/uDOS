@@ -1,17 +1,37 @@
-"""SHAKEDOWN command handler - Enhanced system validation and diagnostics."""
+"""SHAKEDOWN command handler - Enhanced system validation and diagnostics.
 
+Validates:
+  - Framework initialization (Dispatcher, State, SmartPrompt)
+  - Component registration and availability
+  - Fresh install setup (on --fresh flag)
+  - DESTROY command readiness (on --destroy-verify flag)
+  - User manager and permissions
+  - Services layer integration
+
+Commands:
+    SHAKEDOWN                   # Standard system validation
+    SHAKEDOWN --detailed        # Show detailed results
+    SHAKEDOWN --fresh           # Validate fresh install
+    SHAKEDOWN --destroy-verify  # Verify DESTROY command works
+
+Author: uDOS Engineering
+Version: v1.1.0
+Date: 2026-01-29
+"""
+
+import os
 from typing import List, Dict
 from pathlib import Path
 from core.commands.base import BaseCommandHandler
-import json
-import os
+from core.locations import load_locations
+from core.tui.output import OutputToolkit
 
 # Dynamic project root detection
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 class ShakedownHandler(BaseCommandHandler):
-    """Handler for SHAKEDOWN command - system validation and diagnostics."""
+    """Handler for SHAKEDOWN command - comprehensive system validation."""
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         """
@@ -29,10 +49,6 @@ class ShakedownHandler(BaseCommandHandler):
         detailed = "--detailed" in params if params else False
         fresh_install = "--fresh" in params if params else False
         destroy_verify = "--destroy-verify" in params if params else False
-
-        # Lazy imports to avoid circular deps
-        from core.locations import load_locations
-        from core.tui.output import OutputToolkit
 
         results = {
             "status": "success",
@@ -79,27 +95,9 @@ class ShakedownHandler(BaseCommandHandler):
 
         # ===== Check 4: Core Command Registration =====
         core_commands = [
-            "MAP",
-            "PANEL",
-            "GOTO",
-            "FIND",
-            "TELL",
-            "BAG",
-            "GRAB",
-            "SPAWN",
-            "SAVE",
-            "LOAD",
-            "HELP",
-            "SHAKEDOWN",
-            "REPAIR",
-            "RESTART",
-            "SETUP",
-            "USER",
-            "DESTROY",
-            "CONFIG",
-            "LOGS",
-            "RELOAD",
-            "REBOOT",
+            "MAP", "PANEL", "GOTO", "FIND", "TELL", "BAG", "GRAB", "SPAWN",
+            "SAVE", "LOAD", "HELP", "SHAKEDOWN", "REPAIR", "RESTART", "SETUP",
+            "USER", "DESTROY", "CONFIG", "LOGS", "RELOAD", "REBOOT"
         ]
         results["checks"]["commands"] = {
             "status": "pass",
@@ -122,7 +120,7 @@ class ShakedownHandler(BaseCommandHandler):
             results["checks"]["directories"] = {
                 "status": "warning",
                 "message": f"{len(missing_dirs)} memory directories missing (will be created on use)",
-                "missing": [str(d) for d in missing_dirs],
+                "missing": [str(d.relative_to(PROJECT_ROOT)) for d in missing_dirs],
             }
             results["warnings"] += 1
         else:
@@ -175,7 +173,7 @@ class ShakedownHandler(BaseCommandHandler):
         else:
             results["warnings"] += 1
 
-        # ===== Check 9: User Manager (if available) =====
+        # ===== Check 9: User Manager =====
         results["checks"]["user_manager"] = self._check_user_manager()
         if results["checks"]["user_manager"]["status"] == "pass":
             results["passed"] += 1
@@ -224,9 +222,9 @@ class ShakedownHandler(BaseCommandHandler):
         output.append("")
         output.append(f"Summary: {results['summary']}")
         if fresh_install:
-            output.append("Status: Fresh install validation enabled")
+            output.append("Mode: Fresh install validation enabled")
         if destroy_verify:
-            output.append("Status: DESTROY verification enabled")
+            output.append("Mode: DESTROY verification enabled")
 
         results["output"] = "\n".join(output)
         return results
@@ -247,218 +245,336 @@ class ShakedownHandler(BaseCommandHandler):
             if not dispatcher.handlers or len(dispatcher.handlers) < 10:
                 return {
                     "status": "warning",
-                    "message": f"Dispatcher initialized with {len(dispatcher.handlers)} handlers (expected ≥10)",
+                    "message": f"Dispatcher initialized with {len(dispatcher.handlers)} handlers (expected ≥10)"
                 }
 
             return {
                 "status": "pass",
                 "message": "Framework initialized (Dispatcher, State, SmartPrompt)",
-                "handlers": len(dispatcher.handlers),
+                "count": len(dispatcher.handlers),
             }
         except Exception as e:
             return {
                 "status": "fail",
-                "message": f"Framework initialization failed: {str(e)}",
+                "message": f"Framework initialization failed: {str(e)}"
             }
 
     def _check_components(self) -> Dict:
         """Check component availability."""
         try:
             components = {}
-
-            # Core (always)
+            
+            # Core (always required)
             components["core"] = (PROJECT_ROOT / "core" / "__init__.py").exists()
-
+            
             # Wizard (optional)
             components["wizard"] = (PROJECT_ROOT / "wizard" / "server.py").exists()
-
+            
             # Extensions (optional)
-            components["extensions"] = (
-                PROJECT_ROOT / "extensions" / "api"
-            ).exists() or (PROJECT_ROOT / "extensions" / "transport").exists()
-
+            components["extensions"] = (PROJECT_ROOT / "extensions" / "api").exists() or \
+                                      (PROJECT_ROOT / "extensions" / "transport").exists()
+            
             # App (optional)
             components["app"] = (PROJECT_ROOT / "app" / "package.json").exists()
 
             available = sum(1 for v in components.values() if v)
-
+            
             return {
                 "status": "pass" if components["core"] else "fail",
                 "message": f"Components: {available}/4 available (core required)",
-                "details": {k: "✓" if v else "✗" for k, v in components.items()},
+                "count": available,
             }
         except Exception as e:
-            return {"status": "fail", "message": f"Component check failed: {str(e)}"}
+            return {
+                "status": "fail",
+                "message": f"Component check failed: {str(e)}"
+            }
 
     def _check_services(self) -> Dict:
         """Check services layer."""
         try:
             services = {}
-
+            
             # Logging manager
             try:
                 from core.services.logging_manager import get_logger
-
                 services["logging"] = True
             except:
                 services["logging"] = False
-
+            
             # User manager
             try:
                 from core.services.user_manager import get_user_manager
-
                 services["user_manager"] = True
             except:
                 services["user_manager"] = False
 
-            # File service (if available)
-            try:
-                from core.services.file_service import FileService
-
-                services["file_service"] = True
-            except:
-                services["file_service"] = False
-
             available = sum(1 for v in services.values() if v)
-
+            
             if available >= 2:
                 return {
                     "status": "pass",
-                    "message": f"Services layer: {available}/3 services available",
-                    "services": services,
+                    "message": f"Services layer: {available}/2 available",
+                    "count": available,
                 }
             else:
                 return {
                     "status": "warning",
-                    "message": f"Services layer: {available}/3 services available",
-                    "services": services,
+                    "message": f"Services layer: {available}/2 available",
+                    "count": available,
                 }
         except Exception as e:
-            return {"status": "fail", "message": f"Services check failed: {str(e)}"}
+            return {
+                "status": "fail",
+                "message": f"Services check failed: {str(e)}"
+            }
 
     def _check_user_manager(self) -> Dict:
         """Check user manager and current user."""
         try:
             from core.services.user_manager import get_user_manager
-
+            
             user_mgr = get_user_manager()
             current = user_mgr.current()
             all_users = list(user_mgr.users.keys())
-
+            
             if not current:
                 return {
                     "status": "warning",
                     "message": f"User manager: {len(all_users)} users, no current user",
+                    "count": len(all_users),
                 }
-
+            
             return {
                 "status": "pass",
                 "message": f"User manager: {len(all_users)} users, current={current.username}",
-                "users": all_users,
-                "current_user": current.username,
+                "count": len(all_users),
             }
         except Exception as e:
-            return {"status": "fail", "message": f"User manager check failed: {str(e)}"}
+            return {
+                "status": "fail",
+                "message": f"User manager check failed: {str(e)}"
+            }
 
     def _check_fresh_install(self) -> Dict:
-        """Validate fresh install initialization."""
+        """Validate fresh install initialization.
+        
+        Validates:
+          - Memory directory structure
+          - Default admin user
+          - Core service initialization
+          - Handler module availability
+          - Logger initialization
+          - Framework components ready
+        """
         try:
             checks = {}
-
+            
             # Check 1: Memory structure
             memory_root = PROJECT_ROOT / "memory"
             checks["memory_exists"] = memory_root.exists()
-
-            # Check 2: Default user exists
-            from core.services.user_manager import get_user_manager
-
-            user_mgr = get_user_manager()
-            checks["default_user"] = "admin" in user_mgr.users
-
-            # Check 3: Core directories
+            
+            # Check 2: Memory subdirectories
             core_dirs = [
                 memory_root / "logs",
                 memory_root / "bank",
-                memory_root / "locations",
+                memory_root / "private",
+                memory_root / "wizard",
             ]
-            checks["core_dirs"] = all(d.exists() for d in core_dirs)
-
-            # Check 4: Config files can be loaded
+            checks["memory_dirs"] = all(d.exists() for d in core_dirs)
+            missing_dirs = [d.name for d in core_dirs if not d.exists()]
+            
+            # Check 3: Default admin user exists and is initialized
+            from core.services.user_manager import get_user_manager
+            user_mgr = get_user_manager()
+            checks["default_user"] = "admin" in user_mgr.users
+            
+            # Verify admin has proper permissions
+            admin = user_mgr.users.get("admin")
+            checks["admin_initialized"] = admin is not None and admin.role == "admin"
+            
+            # Check 4: Core services can be initialized
+            services_ok = True
             try:
                 from core.services.logging_manager import get_logger
-
                 logger = get_logger("shakedown-fresh")
-                checks["logger_init"] = True
             except:
-                checks["logger_init"] = False
-
-            if all(checks.values()):
+                services_ok = False
+            checks["logging_service"] = services_ok
+            
+            # Check 5: User manager ready with current user set
+            checks["user_manager_ready"] = user_mgr.current() is not None
+            
+            # Check 6: Handler directory and critical handlers
+            handler_dir = PROJECT_ROOT / "core" / "commands"
+            critical_handlers = [
+                "shakedown_handler.py",
+                "destroy_handler.py",
+                "help_handler.py",
+                "setup_handler.py",
+            ]
+            handlers_exist = all((handler_dir / h).exists() for h in critical_handlers)
+            checks["critical_handlers"] = handlers_exist
+            
+            # Check 7: Framework can initialize dispatcher
+            try:
+                from core.tui.dispatcher import CommandDispatcher
+                dispatcher = CommandDispatcher()
+                checks["dispatcher_ready"] = len(dispatcher.handlers) >= 10
+            except:
+                checks["dispatcher_ready"] = False
+            
+            # Check 8: GameState can initialize
+            try:
+                from core.tui.state import GameState
+                state = GameState()
+                checks["state_ready"] = state is not None
+            except:
+                checks["state_ready"] = False
+            
+            # Check 9: SmartPrompt available
+            try:
+                from core.input import SmartPrompt
+                prompt = SmartPrompt()
+                checks["smartprompt_ready"] = prompt is not None
+            except:
+                checks["smartprompt_ready"] = False
+            
+            # Summarize results
+            all_passed = all(checks.values())
+            failed = [k for k, v in checks.items() if not v]
+            
+            if all_passed:
                 return {
                     "status": "pass",
-                    "message": "Fresh install: All checks passed",
-                    "checks": checks,
+                    "message": "Fresh install: All 9 checks passed (memory, users, services, framework)",
+                    "count": 9,
                 }
             else:
-                failed = [k for k, v in checks.items() if not v]
+                details = []
+                if missing_dirs:
+                    details.append(f"missing dirs: {', '.join(missing_dirs)}")
+                if failed:
+                    details.append(f"failed checks: {', '.join(failed[:3])}")  # Show first 3
+                
+                detail_str = f" ({', '.join(details)})" if details else ""
                 return {
                     "status": "fail",
-                    "message": f"Fresh install: {len(failed)} checks failed",
-                    "failed": failed,
-                    "checks": checks,
+                    "message": f"Fresh install: {len(failed)}/{len(checks)} checks failed{detail_str}",
                 }
         except Exception as e:
             return {
                 "status": "fail",
-                "message": f"Fresh install validation failed: {str(e)}",
+                "message": f"Fresh install validation failed: {str(e)}"
             }
 
     def _verify_destroy(self) -> Dict:
-        """Verify DESTROY command can function."""
+        """Verify DESTROY command can function and is safe to call.
+        
+        Validates:
+          - DESTROY handler exists and is registered
+          - User manager initialized
+          - Current user has DESTROY permission
+          - Memory directories writable
+          - Archive structure ready for compost
+          - Compost directory can be created
+        """
         try:
-            # Check 1: DESTROY handler exists
-            from core.commands import DestroyHandler
-
-            handler = DestroyHandler()
-
+            # Check 1: DESTROY handler exists and is importable
+            try:
+                from core.commands import DestroyHandler
+                handler = DestroyHandler()
+                check_handler = True
+            except:
+                check_handler = False
+            
             # Check 2: Can access user manager
-            from core.services.user_manager import get_user_manager, Permission
-
-            user_mgr = get_user_manager()
-            current = user_mgr.current()
-
-            # Check 3: Current user has destroy permission
-            has_destroy = (
-                user_mgr.has_permission(Permission.DESTROY) if current else False
-            )
-
-            # Check 4: Memory directories accessible
+            try:
+                from core.services.user_manager import get_user_manager, Permission
+                user_mgr = get_user_manager()
+                check_user_mgr = True
+            except:
+                check_user_mgr = False
+                user_mgr = None
+                Permission = None
+            
+            # Check 3: Current user exists and permissions are available
+            current = user_mgr.current() if user_mgr else None
+            check_current_user = current is not None
+            
+            # Check 4: Current user has destroy permission
+            if user_mgr and Permission and current:
+                has_destroy = user_mgr.has_permission(Permission.DESTROY)
+            else:
+                has_destroy = False
+            
+            # Check 5: Memory directories accessible and writable
             memory_path = PROJECT_ROOT / "memory"
-            can_write = memory_path.exists() and os.access(str(memory_path), os.W_OK)
-
+            can_write_memory = memory_path.exists() and os.access(str(memory_path), os.W_OK)
+            
+            # Check 6: Archive directory exists or parent is writable
+            archive_path = PROJECT_ROOT / ".archive"
+            can_create_archive = archive_path.exists() or os.access(str(PROJECT_ROOT), os.W_OK)
+            
+            # Check 7: Compost subdirectory creatable
+            compost_base = archive_path / "compost" if archive_path.exists() else None
+            can_compost = (
+                (compost_base and compost_base.exists()) or 
+                (archive_path.exists() and os.access(str(archive_path), os.W_OK)) or
+                can_create_archive
+            )
+            
+            # Check 8: Logging available for audit trail
+            try:
+                from core.services.unified_logging import get_unified_logger
+                unified = get_unified_logger()
+                check_logging = True
+            except:
+                check_logging = False
+            
             checks = {
-                "destroy_handler": True,
-                "user_manager": True,
-                "current_user": current is not None,
+                "destroy_handler": check_handler,
+                "user_manager": check_user_mgr,
+                "current_user": check_current_user,
                 "destroy_permission": has_destroy,
-                "memory_writable": can_write,
+                "memory_writable": can_write_memory,
+                "archive_ready": can_create_archive,
+                "compost_ready": can_compost,
+                "audit_logging": check_logging,
             }
-
-            if all(checks.values()):
+            
+            # Determine overall status
+            critical_checks = [
+                "destroy_handler",
+                "user_manager", 
+                "current_user",
+                "destroy_permission",
+                "memory_writable",
+            ]
+            critical_ok = all(checks.get(k, False) for k in critical_checks)
+            
+            all_ok = all(checks.values())
+            
+            if all_ok:
                 return {
                     "status": "pass",
-                    "message": "DESTROY command verified and ready",
-                    "checks": checks,
+                    "message": "DESTROY verified: All 8 checks passed (handler, user, perms, I/O, logging)",
+                    "count": 8,
+                }
+            elif critical_ok:
+                failed = [k for k, v in checks.items() if not v]
+                return {
+                    "status": "warning",
+                    "message": f"DESTROY ready but {len(failed)} optional checks failed: {', '.join(failed)}",
                 }
             else:
                 failed = [k for k, v in checks.items() if not v]
                 return {
                     "status": "fail",
-                    "message": f"DESTROY verification: {len(failed)} checks failed",
-                    "failed": failed,
-                    "checks": checks,
+                    "message": f"DESTROY verification failed: {', '.join(failed)} (critical checks)",
                 }
         except Exception as e:
             return {
                 "status": "fail",
-                "message": f"DESTROY verification failed: {str(e)}",
+                "message": f"DESTROY verification error: {str(e)}"
             }

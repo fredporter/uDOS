@@ -1,12 +1,16 @@
 ---
-title: "Survival Priorities Reference Chart"
-id: reference-survival-priorities-chart
-type: reference
-category: reference
-tags: [reference, reference]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-reference-20260129222100-UTC-L300AB99
+title: Survival Priorities Reference Chart
+tags: [guide, knowledge, reference]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Survival Priorities Reference Chart
 

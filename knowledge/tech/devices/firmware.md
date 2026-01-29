@@ -1,12 +1,16 @@
 ---
-title: "Firmware Management"
-id: tech-devices-firmware
-type: reference
-category: devices
-tags: [devices, devices]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-tech-20260129131400-UTC-L300AB78
+title: Firmware Management
+tags: [guide, knowledge, tech]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Firmware Management
 

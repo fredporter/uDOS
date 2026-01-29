@@ -1,12 +1,16 @@
 ---
-tier: 3
-category: navigation
-title: "Landmark Identification"
-complexity: advanced
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-navigation-20251204193400-UTC-L300AB72
+title: Landmark Identification
+tags: [guide, knowledge, navigation]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Landmark Identification
 

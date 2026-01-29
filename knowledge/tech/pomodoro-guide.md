@@ -1,12 +1,16 @@
 ---
-title: "Pomodoro Technique Guide"
-id: tech-pomodoro-guide
-type: reference
-category: tech
-tags: [tech, tech]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-tech-20260129131700-UTC-L300AB81
+title: Pomodoro Technique Guide
+tags: [guide, knowledge, tech]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Pomodoro Technique Guide
 

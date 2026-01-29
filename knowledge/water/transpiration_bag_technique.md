@@ -1,12 +1,16 @@
 ---
-tier: 3
-category: water
-title: "Transpiration Bag Technique"
-complexity: advanced
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-water-20251204100700-UTC-L300AB37
+title: Transpiration Bag Technique
+tags: [guide, knowledge, water]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Transpiration Bag Technique
 

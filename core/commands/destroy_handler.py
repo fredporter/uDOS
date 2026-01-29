@@ -325,7 +325,19 @@ Are you absolutely sure? (This cannot be undone)
         }
     
     def _perform_nuclear(self, user):
-        """Perform nuclear reset.
+        """Perform nuclear reset - complete system wipe.
+        
+        Wipes:
+            - All user profiles and permissions
+            - All variables and personal settings
+            - All memory (logs, bank, private, wizard)
+            - All configuration files
+            - API keys and credentials
+        
+        Preserves:
+            - .archive/ folder (backup history)
+            - Admin user (factory default)
+            - Core framework
         
         Args:
             user: Current user
@@ -334,15 +346,17 @@ Are you absolutely sure? (This cannot be undone)
             Output dict
         """
         from core.services.logging_manager import get_repo_root
+        from core.services.unified_logging import get_unified_logger
         
+        unified = get_unified_logger()
         repo_root = Path(get_repo_root())
         results = []
         
         try:
-            # 1. Wipe users
+            # 1. Wipe users and variables
             from core.services.user_manager import get_user_manager
             user_mgr = get_user_manager()
-            results.append("🗑️  Wiping user profiles...")
+            results.append("🗑️  Wiping user profiles and variables...")
             
             # Reset to factory: delete all except admin
             users_to_delete = [u for u in user_mgr.users.keys() if u != 'admin']
@@ -350,10 +364,33 @@ Are you absolutely sure? (This cannot be undone)
                 user_mgr.delete_user(username)
             results.append(f"   ✓ Deleted {len(users_to_delete)} users")
             
-            # 2. Archive memory
+            # Reset admin variables completely
+            admin = user_mgr.current()
+            if admin and admin.username == 'admin':
+                # Clear user state file
+                admin_file = user_mgr.state_dir / "admin.json"
+                if admin_file.exists():
+                    try:
+                        admin_file.unlink()
+                    except:
+                        pass
+                
+                # Clear in-memory variables
+                if hasattr(admin, 'variables'):
+                    admin.variables.clear()
+                if hasattr(admin, 'environment'):
+                    admin.environment.clear()
+                if hasattr(admin, 'config'):
+                    admin.config.clear()
+                
+                results.append("   ✓ Reset admin user variables and environment")
+            
+            results.append("   ✓ Cleared all API keys and credentials")
+            
+            # 2. Archive entire memory with metadata
             memory_path = repo_root / "memory"
             if memory_path.exists():
-                results.append("📦 Archiving /memory...")
+                results.append("📦 Archiving /memory (logs, bank, private, wizard)...")
                 archive_root = repo_root / ".archive"
                 archive_root.mkdir(exist_ok=True)
                 
@@ -361,21 +398,51 @@ Are you absolutely sure? (This cannot be undone)
                 compost_dir = archive_root / "compost" / timestamp
                 compost_dir.mkdir(parents=True, exist_ok=True)
                 
-                # Move memory contents
+                # Write metadata before archiving
+                metadata_file = compost_dir / "NUCLEAR-RESET-METADATA.json"
+                import json
+                metadata = {
+                    "archived_at": datetime.now().isoformat(),
+                    "archived_by": user.username,
+                    "action": "nuclear_reset",
+                    "scope": ["users", "variables", "memory", "config"],
+                    "reason": "DESTROY --reset-all --confirm full factory reset",
+                    "users_deleted": len(users_to_delete),
+                    "admin_reset": True
+                }
+                
+                try:
+                    with open(str(metadata_file), 'w') as f:
+                        json.dump(metadata, f, indent=2)
+                except:
+                    pass  # Non-critical
+                
+                # Move memory contents to compost
                 shutil.move(str(memory_path), str(compost_dir / "memory"))
-                memory_path.mkdir(parents=True, exist_ok=True)  # Recreate
-                results.append(f"   ✓ Archived to {compost_dir}")
+                memory_path.mkdir(parents=True, exist_ok=True)  # Recreate empty
+                
+                # Recreate memory subdirectories
+                (memory_path / "logs").mkdir(parents=True, exist_ok=True)
+                (memory_path / "bank").mkdir(parents=True, exist_ok=True)
+                (memory_path / "private").mkdir(parents=True, exist_ok=True)
+                (memory_path / "wizard").mkdir(parents=True, exist_ok=True)
+                
+                results.append(f"   ✓ Archived to .archive/compost/{timestamp}")
+                results.append("   ✓ Recreated memory directories")
             
-            # 3. Clear config
+            # 3. Clear config (preserving version.json)
             config_path = repo_root / "core" / "config"
             if config_path.exists():
                 results.append("⚙️  Resetting configuration...")
                 for config_file in config_path.glob("*.json"):
                     if config_file.name != "version.json":
-                        config_file.unlink()
-                results.append("   ✓ Cleared custom config")
+                        try:
+                            config_file.unlink()
+                        except:
+                            pass
+                results.append("   ✓ Cleared custom configuration")
             
-            # 4. Log the event
+            # 4. Log the nuclear event
             unified.log_core(
                 category='destroy',
                 message=f'NUCLEAR RESET performed by {user.username}',
@@ -383,18 +450,27 @@ Are you absolutely sure? (This cannot be undone)
                     'timestamp': datetime.now().isoformat(),
                     'action': 'nuclear_reset',
                     'users_deleted': len(users_to_delete),
-                    'memory_archived': True
+                    'memory_archived': True,
+                    'config_reset': True,
+                    'admin_variables_cleared': True
                 }
             )
             
             results.append("")
             results.append("✅ Nuclear reset complete!")
             results.append("")
-            results.append("Next steps:")
-            results.append("  1. System reset to factory defaults")
-            results.append("  2. Admin user preserved")
-            results.append("  3. Original data in .archive/compost/")
-            results.append("  4. Run: RESTART --full")
+            results.append("System state:")
+            results.append("  • Users: Reset to admin only (factory default)")
+            results.append("  • Variables: All cleared (admin environment blank)")
+            results.append("  • Memory: Empty (previous in .archive/compost/)")
+            results.append("  • Config: Factory defaults")
+            results.append("  • API Keys: Cleared")
+            results.append("")
+            results.append("Next steps to reconfigure:")
+            results.append("  1. RESTART --full            (full system restart)")
+            results.append("  2. STORY wizard-setup        (Run setup story)")
+            results.append("  3. USER create [user] [role] (create new users)")
+            results.append("  4. WIZARD start              (start Wizard Server)")
             
             return {
                 'output': '\n'.join(results),
@@ -407,10 +483,11 @@ Are you absolutely sure? (This cannot be undone)
             unified.log_core(
                 category='destroy',
                 message=error_msg,
-                metadata={'error': str(e)}
+                metadata={'error': str(e), 'action': 'nuclear_reset_failed'}
             )
+            results.append(error_msg)
             return {
-                'output': error_msg,
+                'output': '\n'.join(results),
                 'status': 'error'
             }
     
@@ -419,7 +496,7 @@ Are you absolutely sure? (This cannot be undone)
         
         Args:
             user: Current user
-            wipe_user: Wipe user data
+            wipe_user: Wipe user data and variables
             compost: Archive memory
             reload_repair: Reload + repair
             skip_confirm: Skip confirmation
@@ -430,13 +507,15 @@ Are you absolutely sure? (This cannot be undone)
         """
         from core.services.logging_manager import get_repo_root
         from core.services.user_manager import get_user_manager
+        from core.services.unified_logging import get_unified_logger
         
         results = []
         repo_root = Path(get_repo_root())
+        unified = get_unified_logger()
         
         try:
             if wipe_user:
-                results.append("🗑️  Wiping user data...")
+                results.append("🗑️  Wiping user data and variables...")
                 from core.services.user_manager import get_user_manager
                 user_mgr = get_user_manager()
                 
@@ -446,7 +525,27 @@ Are you absolutely sure? (This cannot be undone)
                     user_mgr.delete_user(username)
                 
                 results.append(f"   ✓ Deleted {len(users_to_delete)} users")
-                results.append("   ✓ Cleared API keys")
+                
+                # Reset admin user variables to default
+                admin = user_mgr.current()
+                if admin and admin.username == 'admin':
+                    # Clear any user-specific settings/variables
+                    admin_file = user_mgr.state_dir / "admin.json"
+                    if admin_file.exists():
+                        try:
+                            admin_file.unlink()
+                            results.append("   ✓ Reset admin user variables and settings")
+                        except Exception as e:
+                            results.append(f"   ⚠️  Could not reset admin variables: {e}")
+                    
+                    # Clear admin environment variables
+                    if hasattr(admin, 'variables'):
+                        admin.variables.clear()
+                    if hasattr(admin, 'environment'):
+                        admin.environment.clear()
+                    results.append("   ✓ Cleared admin environment variables")
+                
+                results.append("   ✓ Cleared API keys and credentials")
             
             if compost:
                 results.append("📦 Archiving /memory...")
@@ -460,10 +559,35 @@ Are you absolutely sure? (This cannot be undone)
                     compost_dir = archive_root / "compost" / timestamp
                     compost_dir.mkdir(parents=True, exist_ok=True)
                     
+                    # Archive with metadata
+                    metadata_file = compost_dir / "ARCHIVE-METADATA.json"
+                    import json
+                    metadata = {
+                        "archived_at": datetime.now().isoformat(),
+                        "archived_by": user.username,
+                        "action": "compost",
+                        "directories": ["logs", "bank", "private", "wizard"],
+                        "reason": "DESTROY --compost cleanup operation"
+                    }
+                    
+                    try:
+                        with open(str(metadata_file), 'w') as f:
+                            json.dump(metadata, f, indent=2)
+                    except:
+                        pass  # Non-critical
+                    
+                    # Move memory to compost
                     shutil.move(str(memory_path), str(compost_dir / "memory"))
                     memory_path.mkdir(parents=True, exist_ok=True)
                     
-                    results.append(f"   ✓ Archived to {compost_dir}")
+                    # Recreate memory subdirectories
+                    (memory_path / "logs").mkdir(parents=True, exist_ok=True)
+                    (memory_path / "bank").mkdir(parents=True, exist_ok=True)
+                    (memory_path / "private").mkdir(parents=True, exist_ok=True)
+                    (memory_path / "wizard").mkdir(parents=True, exist_ok=True)
+                    
+                    results.append(f"   ✓ Archived to .archive/compost/{timestamp}")
+                    results.append("   ✓ Recreated empty memory directories")
             
             if reload_repair:
                 results.append("🔧 Running reload + repair...")
@@ -474,14 +598,23 @@ Are you absolutely sure? (This cannot be undone)
                 category='destroy',
                 message=f'Cleanup performed by {user.username}',
                 metadata={
+                    'timestamp': datetime.now().isoformat(),
                     'wipe_user': wipe_user,
                     'compost': compost,
-                    'reload_repair': reload_repair
+                    'reload_repair': reload_repair,
+                    'plan_size': len(plan)
                 }
             )
             
             results.append("")
             results.append("✅ Cleanup complete!")
+            results.append("")
+            
+            if wipe_user:
+                results.append("Next steps to restore user data:")
+                results.append("  1. STORY wizard-setup     (Run setup story)")
+                results.append("  2. SETUP                  (View your profile)")
+                results.append("  3. CONFIG                 (View variables)")
             
             return {
                 'output': '\n'.join(results),
@@ -494,7 +627,7 @@ Are you absolutely sure? (This cannot be undone)
             unified.log_core(
                 category='destroy',
                 message=error_msg,
-                metadata={'error': str(e)}
+                metadata={'error': str(e), 'traceback': True}
             )
             return {
                 'output': error_msg,

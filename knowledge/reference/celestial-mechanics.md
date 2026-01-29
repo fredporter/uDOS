@@ -1,12 +1,16 @@
 ---
-title: "Celestial Mechanics Reference"
-id: reference-celestial-mechanics
-type: reference
-category: reference
-tags: [reference, reference]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-reference-20260129221000-UTC-L300AB88
+title: Celestial Mechanics Reference
+tags: [guide, knowledge, reference]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Celestial Mechanics Reference
 

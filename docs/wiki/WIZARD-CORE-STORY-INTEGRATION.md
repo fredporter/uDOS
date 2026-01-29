@@ -1,3 +1,11 @@
+---
+uid: udos-wiki-wizard-20260128090000-UTC-L300AB06
+title: Wizard ↔ Core Storying Process
+tags: [wiki, guide, architecture]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+---
 # Wizard ↔ Core Storying Process
 
 ## Purpose

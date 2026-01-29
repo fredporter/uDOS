@@ -1,3 +1,16 @@
+---
+uid: udos-wiki-candidate-self-healing-guide-20260128150000-UTC-L300AB53
+title: Self-Healing System Quick Reference
+tags: [wiki, candidate]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Wiki candidate for future integration
+- Pending review for promotion
+- Obsidian-compatible
+---
+
 > **Moved:** See [wiki/SELF-HEALING-GUIDE.md](../../wiki/SELF-HEALING-GUIDE.md)
 
 # Self-Healing System Quick Reference

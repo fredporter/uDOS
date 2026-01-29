@@ -1,11 +1,14 @@
 ---
-tier: 2
-category: fire
-title: "Fire Knowledge"
-complexity: intermediate
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-fire-20251204080000-UTC-L300AB12
+title: Fire Knowledge
+tags: [guide, knowledge, fire, survival]
+status: living
+updated: 2025-12-04
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Knowledge guides use 'guide' tag
+  - Survival content organized by technique
+  - File-based, offline-first
 ---
 
 # Fire Knowledge

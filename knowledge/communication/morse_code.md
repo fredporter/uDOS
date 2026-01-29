@@ -1,12 +1,16 @@
 ---
-title: "Morse Code"
-id: communication-morse_code
-type: reference
-category: communication
-tags: [communication, communication]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-communication-20260129201100-UTC-L300AB37
+title: Morse Code
+tags: [guide, knowledge, communication]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Morse Code
 

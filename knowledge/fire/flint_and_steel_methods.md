@@ -1,12 +1,16 @@
 ---
-tier: 3
-category: fire
-title: "Flint And Steel Methods"
-complexity: advanced
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-fire-20251204083100-UTC-L300AB57
+title: Flint And Steel Methods
+tags: [guide, knowledge, fire]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Flint And Steel Methods
 

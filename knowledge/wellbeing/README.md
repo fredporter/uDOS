@@ -1,12 +1,16 @@
 ---
-title: "Well-Being Knowledge"
-id: well-being-README
-type: reference
-category: well-being
-tags: [well-being, well-being]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-wellbeing-20260130021900-UTC-L300AB49
+title: Well-Being Knowledge
+tags: [guide, knowledge, well-being]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Well-Being Knowledge
 

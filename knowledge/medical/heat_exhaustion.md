@@ -1,12 +1,16 @@
 ---
-tier: 2
-category: medical
-title: "Heat Exhaustion"
-complexity: intermediate
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-medical-20251204171500-UTC-L300AB53
+title: Heat Exhaustion
+tags: [guide, knowledge, medical]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Heat Exhaustion
 

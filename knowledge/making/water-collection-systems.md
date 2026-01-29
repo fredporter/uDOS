@@ -1,12 +1,16 @@
 ---
-title: "Water Collection Systems"
-id: making-water-collection-systems
-type: skill
-category: making
-tags: [making, making]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-making-20260129190300-UTC-L300AB89
+title: Water Collection Systems
+tags: [guide, knowledge, making]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Water Collection Systems
 

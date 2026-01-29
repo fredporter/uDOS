@@ -1,11 +1,15 @@
 ---
-title: "uDOS Knowledge Bank"
-id: README
-type: reference
-category: knowledge
-tags: [knowledge, knowledge]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-wiki-knowledge-20260130120000-UTC-L300AB00
+title: uDOS Knowledge Bank
+tags: [wiki, knowledge, reference]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Obsidian-compatible Markdown
+  - File-based, offline-first
+  - Wiki links over file paths
+  - Hierarchical tags (category/topic)
 ---
 
 # uDOS Knowledge Bank

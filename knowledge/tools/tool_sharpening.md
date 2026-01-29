@@ -1,12 +1,16 @@
 ---
-title: "Tool Sharpening"
-id: tools-tool_sharpening
-type: skill
-category: tools
-tags: [tools, tools]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-tools-20260129153300-UTC-L300AB97
+title: Tool Sharpening
+tags: [guide, knowledge, tools]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Tool Sharpening
 

@@ -90,11 +90,11 @@
     alert(`Story submission saved to /memory/${outputPath}`);
   }
 
-  async function rebootstrapStory() {
-    if (!confirm("Re-bootstrap the setup story? This will overwrite the template.")) {
+  async function restartSetup() {
+    if (!confirm("Restart setup story? This will reload the template.")) {
       return;
     }
-    bootstrapStatus = "Rebootstrapping story...";
+    bootstrapStatus = "Restarting setup story...";
     try {
       const res = await fetch("/api/v1/setup/story/bootstrap?force=true", {
         method: "POST",
@@ -181,9 +181,9 @@
       </button>
       <button
         class="px-3 py-2 rounded bg-slate-600"
-        on:click={rebootstrapStory}
+        on:click={restartSetup}
       >
-        Re-bootstrap Setup Story
+        Restart Setup
       </button>
     </div>
 

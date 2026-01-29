@@ -1,12 +1,16 @@
 ---
-tier: 2
-category: water
-title: "Water Contamination Signs"
-complexity: intermediate
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-water-20251204101200-UTC-L300AB42
+title: Water Contamination Signs
+tags: [guide, knowledge, water]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Water Contamination Signs
 

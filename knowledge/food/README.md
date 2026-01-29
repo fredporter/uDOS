@@ -1,11 +1,14 @@
 ---
-tier: 2
-category: food
-title: "Food & Foraging Knowledge"
-complexity: intermediate
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-food-20251204140000-UTC-L300AB15
+title: Food & Foraging Knowledge
+tags: [guide, knowledge, food, survival]
+status: living
+updated: 2025-12-04
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Knowledge guides use 'guide' tag
+  - Survival content organized by technique
+  - File-based, offline-first
 ---
 
 # Food & Foraging Knowledge

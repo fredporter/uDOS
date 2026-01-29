@@ -1,11 +1,14 @@
 ---
-title: "Community Knowledge"
-id: community-README
-type: reference
-category: community
-tags: [community, community]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-community-20260130040000-UTC-L300AB25
+title: Community Knowledge
+tags: [guide, knowledge, community]
+status: living
+updated: 2026-01-29
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Knowledge guides use 'guide' tag
+  - Community content organized by topic
+  - File-based, offline-first
 ---
 
 # Community Knowledge

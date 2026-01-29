@@ -1,12 +1,16 @@
 ---
-title: "Leather Working Basics"
-id: tools-leather_working_basics
-type: skill
-category: tools
-tags: [tools, tools]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-tools-20260129152600-UTC-L300AB90
+title: Leather Working Basics
+tags: [guide, knowledge, tools]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Leather Working Basics
 

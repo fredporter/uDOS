@@ -1,11 +1,14 @@
 ---
-tier: 2
-category: medical
-title: "Medical & First Aid Knowledge"
-complexity: intermediate
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-medical-20251204160000-UTC-L300AB16
+title: Medical & First Aid Knowledge
+tags: [guide, knowledge, medical, survival]
+status: living
+updated: 2025-12-04
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Knowledge guides use 'guide' tag
+  - Medical content organized by technique
+  - File-based, offline-first
 ---
 
 # Medical & First Aid Knowledge

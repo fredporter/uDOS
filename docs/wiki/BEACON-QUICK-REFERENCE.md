@@ -1,3 +1,12 @@
+---
+uid: udos-wiki-beacon-20260125120000-UTC-L300AB03
+title: Beacon Portal Quick Reference
+tags: [wiki, guide, networking]
+status: living
+updated: 2026-01-25
+spec: wiki_spec_obsidian.md
+---
+
 # Beacon Portal Quick Reference
 
 **Version:** 1.0.0  

@@ -1,12 +1,16 @@
 ---
-title: "Water Purification Methods"
-id: survival-water-purification-methods
-type: emergency
-category: water
-tags: [water, survival]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-survival-20260129170700-UTC-L300AB71
+title: Water Purification Methods
+tags: [guide, knowledge, survival]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Water Purification Methods
 

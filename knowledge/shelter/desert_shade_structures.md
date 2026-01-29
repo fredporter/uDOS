@@ -1,12 +1,16 @@
 ---
-tier: 1
-category: shelter
-title: "Desert Shade Structures"
-complexity: basic
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-shelter-20251204122600-UTC-L300AB30
+title: Desert Shade Structures
+tags: [guide, knowledge, shelter]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Desert Shade Structures
 

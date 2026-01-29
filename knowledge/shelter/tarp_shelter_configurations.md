@@ -1,12 +1,16 @@
 ---
-tier: 3
-category: shelter
-title: "Tarp Shelter Configurations"
-complexity: advanced
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-shelter-20251204123900-UTC-L300AB43
+title: Tarp Shelter Configurations
+tags: [guide, knowledge, shelter]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Tarp Shelter Configurations
 

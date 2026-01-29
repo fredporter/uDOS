@@ -1,12 +1,16 @@
 ---
-title: "Variables in uCODE"
-id: tech-variables
-type: reference
-category: tech
-tags: [tech, tech]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-tech-20260129131800-UTC-L300AB82
+title: Variables in uCODE
+tags: [guide, knowledge, tech]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Variables in uCODE
 

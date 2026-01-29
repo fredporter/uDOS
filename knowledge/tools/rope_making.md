@@ -1,12 +1,16 @@
 ---
-title: "Rope Making"
-id: tools-rope_making
-type: skill
-category: tools
-tags: [tools, tools]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-tools-20260129152900-UTC-L300AB93
+title: Rope Making
+tags: [guide, knowledge, tools]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Rope Making
 

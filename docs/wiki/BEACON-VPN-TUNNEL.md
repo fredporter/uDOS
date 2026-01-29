@@ -1,3 +1,12 @@
+---
+uid: udos-wiki-beacon-20260125140000-UTC-L300AB04
+title: uDOS Beacon VPN Tunnel Protocol
+tags: [wiki, spec, networking]
+status: living
+updated: 2026-01-25
+spec: wiki_spec_obsidian.md
+---
+
 # uDOS Beacon VPN Tunnel Protocol
 
 **Version:** 1.0.0  

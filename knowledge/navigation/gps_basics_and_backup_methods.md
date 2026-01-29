@@ -1,12 +1,16 @@
 ---
-tier: 3
-category: navigation
-title: "GPS Basics and Backup Methods"
-complexity: advanced
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-navigation-20251204193300-UTC-L300AB71
+title: GPS Basics and Backup Methods
+tags: [guide, knowledge, navigation]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # GPS Basics and Backup Methods
 

@@ -1,12 +1,16 @@
 ---
-tier: 2
-category: shelter
-title: "Shelter Site Selection"
-complexity: intermediate
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-shelter-20251204123600-UTC-L300AB40
+title: Shelter Site Selection
+tags: [guide, knowledge, shelter]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Shelter Site Selection
 

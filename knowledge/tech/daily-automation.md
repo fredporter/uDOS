@@ -1,12 +1,16 @@
 ---
-title: "Daily Automation Script"
-id: tech-daily-automation
-type: reference
-category: tech
-tags: [tech, tech]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-tech-20260129131200-UTC-L300AB76
+title: Daily Automation Script
+tags: [guide, knowledge, tech]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Daily Automation Script
 

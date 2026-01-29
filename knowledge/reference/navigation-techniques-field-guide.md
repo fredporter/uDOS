@@ -1,12 +1,16 @@
 ---
-title: "Navigation Techniques - Field Guide"
-id: reference-navigation-techniques-field-guide
-type: reference
-category: reference
-tags: [reference, reference]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-reference-20260129221800-UTC-L300AB96
+title: Navigation Techniques - Field Guide
+tags: [guide, knowledge, reference]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Navigation Techniques - Field Guide
 

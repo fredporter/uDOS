@@ -331,18 +331,41 @@ Core Commands:
   HELP                - This help message
   EXIT, QUIT          - Exit uCODE
 
+System Management:
+  SETUP               - View your setup profile from Wizard Server
+  CONFIG              - Manage configuration variables
+  DESTROY             - System cleanup (wipe user, compost, reset)
+  SHAKEDOWN           - Validate system health
+  REPAIR              - Fix issues and self-heal
+  RESTART             - Restart/reload system
+  USER                - User profile and permission management
+  LOGS                - View unified system logs
+
+Data & Stories:
+  BINDER              - Multi-chapter project management
+  STORY [name]        - Run story files (.md with questions/flow)
+  RUN [file]          - Execute uPy scripts or USCRIPT files
+  DATASET             - Manage data imports and datasets
+
+Navigation & Info:
+  MAP                 - Show spatial map
+  GOTO [location]     - Travel to location
+  FIND [query]        - Search for locations
+  TELL [query]        - Get information
+  BAG                 - Inventory management
+
 """
         if self.detector.is_available("wizard"):
-            help_text += """Wizard Commands (if available):
+            help_text += """Wizard Server:
   WIZARD start        - Start Wizard server
   WIZARD stop         - Stop Wizard server
   WIZARD status       - Check Wizard status
   WIZARD console      - Enter Wizard interactive console
-  WIZARD [page]       - Show Wizard page (status, ai, devices, etc.)
+  WIZARD [page]       - Show Wizard page (status, ai, devices, quota, logs)
 
 """
         if self.detector.is_available("extensions"):
-            help_text += """Extension Commands (if available):
+            help_text += """Extensions:
   PLUGIN list         - List installed plugins
   PLUGIN install      - Install new plugin
   PLUGIN remove       - Remove plugin
@@ -351,9 +374,16 @@ Core Commands:
 
 """
         help_text += """
-Core TUI:
-  Any other command is dispatched to the Core TUI handler.
-  See CORE HELP for core command reference.
+Examples:
+  SETUP                      - View your setup profile
+  STORY wizard-setup         - Run setup story
+  DESTROY --wipe-user        - Wipe user data
+  WIZARD start               - Start Wizard Server
+  BINDER open my-project     - Open a project
+  MAP                        - Show spatial map
+
+For detailed help on any command, type the command name followed by --help
+(e.g., CONFIG --help, DESTROY --help)
 
 """
         print(help_text)

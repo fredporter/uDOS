@@ -1,12 +1,16 @@
 ---
-title: "Stress Management & Mental Resilience"
-id: well-being-stress-management-resilience
-type: reference
-category: well
-tags: [well, well-being]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-wellbeing-20260130022300-UTC-L300AB53
+title: Stress Management & Mental Resilience
+tags: [guide, knowledge, well-being]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Stress Management & Mental Resilience
 

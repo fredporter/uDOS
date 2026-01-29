@@ -1,12 +1,16 @@
 ---
-title: "Sleep Hygiene & Rest Optimization"
-id: well-being-sleep-hygiene-optimization
-type: reference
-category: well
-tags: [well, well-being]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-wellbeing-20260130022200-UTC-L300AB52
+title: Sleep Hygiene & Rest Optimization
+tags: [guide, knowledge, well-being]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Sleep Hygiene & Rest Optimization
 

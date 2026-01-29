@@ -1,12 +1,16 @@
 ---
-tier: 1
-category: navigation
-title: "Route Planning"
-complexity: basic
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-navigation-20251204193900-UTC-L300AB77
+title: Route Planning
+tags: [guide, knowledge, navigation]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Route Planning
 

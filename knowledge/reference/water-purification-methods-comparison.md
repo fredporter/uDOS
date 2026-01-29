@@ -1,12 +1,16 @@
 ---
-title: "Water Purification Methods - Comparison Guide"
-id: reference-water-purification-methods-comparison
-type: reference
-category: reference
-tags: [reference, reference]
-difficulty: essential
-last_updated: 2026-01-29
+uid: udos-guide-reference-20260129222200-UTC-L300AB26
+title: Water Purification Methods - Comparison Guide
+tags: [guide, knowledge, reference]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Water Purification Methods - Comparison Guide
 

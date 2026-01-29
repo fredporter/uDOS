@@ -1,11 +1,14 @@
 ---
-title: "Survival Knowledge"
-id: survival-README
-type: emergency
-category: survival
-tags: [survival, survival]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-survival-20260129160000-UTC-L300AB20
+title: Survival Knowledge
+tags: [guide, knowledge, survival]
+status: living
+updated: 2026-01-29
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Knowledge guides use 'guide' tag
+  - Survival guides organized by scenario
+  - File-based, offline-first
 ---
 
 # Survival Knowledge

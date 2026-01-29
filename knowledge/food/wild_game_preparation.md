@@ -1,12 +1,16 @@
 ---
-tier: 2
-category: food
-title: "Wild Game Preparation"
-complexity: intermediate
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-food-20251204145900-UTC-L300AB85
+title: Wild Game Preparation
+tags: [guide, knowledge, food]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Wild Game Preparation
 

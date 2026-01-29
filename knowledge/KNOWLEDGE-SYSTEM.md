@@ -1,11 +1,14 @@
 ---
-title: "📚 Knowledge Base - uDOS v1.2"
-id: KNOWLEDGE-SYSTEM
-type: reference
-category: knowledge
-tags: [knowledge, knowledge]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-knowledge-20260129100000-UTC-L300AB11
+title: Knowledge Base System
+tags: [guide, knowledge, system]
+status: living
+updated: 2026-01-29
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Knowledge guides use 'guide' tag instead of 'wiki'
+  - Offline-first repository
+  - User content stored in personal/ (gitignored)
 ---
 
 # 📚 Knowledge Base - uDOS v1.2

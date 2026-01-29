@@ -1,12 +1,16 @@
 ---
-title: "Multi-Tool Uses"
-id: tools-multi-tool_uses
-type: skill
-category: tools
-tags: [tools, tools]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-tools-20260129152800-UTC-L300AB92
+title: Multi-Tool Uses
+tags: [guide, knowledge, tools]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Multi-Tool Uses
 

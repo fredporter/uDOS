@@ -1,12 +1,16 @@
 ---
-title: "Security Protocols"
-id: communication-security_protocols
-type: reference
-category: communication
-tags: [communication, communication]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-communication-20260129201300-UTC-L300AB39
+title: Security Protocols
+tags: [guide, knowledge, communication]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Security Protocols
 

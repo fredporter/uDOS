@@ -1,12 +1,16 @@
 ---
-title: "Food Preservation: Drying & Dehydration"
-id: survival-drying-dehydration
-type: emergency
-category: survival
-tags: [survival, survival]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-survival-20260129165200-UTC-L300AB56
+title: Food Preservation: Drying & Dehydration
+tags: [guide, knowledge, survival]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Food Preservation: Drying & Dehydration
 

@@ -1,11 +1,14 @@
 ---
-title: "Environment Knowledge"
-id: making-README
-type: skill
-category: making
-tags: [making, making]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-making-20260129180000-UTC-L300AB21
+title: Environment Knowledge
+tags: [guide, knowledge, making]
+status: living
+updated: 2026-01-29
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Knowledge guides use 'guide' tag
+  - Environmental content organized by topic
+  - File-based, offline-first
 ---
 
 # Environment Knowledge

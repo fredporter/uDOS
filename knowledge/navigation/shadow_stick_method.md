@@ -1,12 +1,16 @@
 ---
-tier: 3
-category: navigation
-title: "Shadow Stick Method"
-complexity: advanced
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-navigation-20251204180000-UTC-L300AB78
+title: Shadow Stick Method
+tags: [guide, knowledge, navigation]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Shadow Stick Method
 

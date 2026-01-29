@@ -1,12 +1,16 @@
 ---
-title: "Sonic Screwdriver Device Provisioning"
-id: tech-devices-screwdriver
-type: reference
-category: devices
-tags: [devices, devices]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-tech-20260129131600-UTC-L300AB80
+title: Sonic Screwdriver Device Provisioning
+tags: [guide, knowledge, tech]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Sonic Screwdriver Device Provisioning
 

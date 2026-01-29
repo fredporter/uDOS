@@ -1,11 +1,14 @@
 ---
-title: "Tools & Equipment"
-id: tools-README
-type: skill
-category: tools
-tags: [tools, tools]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-tools-20260129140000-UTC-L300AB19
+title: Tools & Equipment
+tags: [guide, knowledge, tools]
+status: living
+updated: 2026-01-29
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Knowledge guides use 'guide' tag
+  - Tools organized by category
+  - File-based, offline-first
 ---
 
 # Tools & Equipment

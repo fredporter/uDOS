@@ -1,12 +1,16 @@
 ---
-tier: 3
-category: fire
-title: "Hand Drill Fire Making"
-complexity: advanced
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-fire-20251204083300-UTC-L300AB59
+title: Hand Drill Fire Making
+tags: [guide, knowledge, fire]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Hand Drill Fire Making
 

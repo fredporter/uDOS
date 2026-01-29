@@ -1,12 +1,16 @@
 ---
-title: "First Aid Quick Reference"
-id: reference-first-aid-quick-reference
-type: reference
-category: reference
-tags: [reference, reference]
-difficulty: essential
-last_updated: 2026-01-29
+uid: udos-guide-reference-20260129221500-UTC-L300AB93
+title: First Aid Quick Reference
+tags: [guide, knowledge, reference]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # First Aid Quick Reference
 

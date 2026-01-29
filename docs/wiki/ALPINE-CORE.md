@@ -1,3 +1,12 @@
+---
+uid: udos-wiki-alpine-20260125080000-UTC-L300AB01
+title: uDOS Alpine Core Protocol
+tags: [wiki, spec, architecture]
+status: living
+updated: 2026-01-25
+spec: wiki_spec_obsidian.md
+---
+
 # uDOS Alpine Core Protocol
 
 **Version:** 1.0.0  

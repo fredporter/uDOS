@@ -1,12 +1,16 @@
 ---
-title: "Knot Tying Guide"
-id: survival-knot-tying
-type: emergency
-category: survival
-tags: [survival, survival]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-survival-20260129165700-UTC-L300AB61
+title: Knot Tying Guide
+tags: [guide, knowledge, survival]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Knot Tying Guide
 

@@ -1,11 +1,14 @@
 ---
-title: "Tech Knowledge Category"
-id: tech-README
-type: reference
-category: tech
-tags: [tech, tech]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-tech-20260129120000-UTC-L300AB18
+title: Tech Knowledge
+tags: [guide, knowledge, tech]
+status: living
+updated: 2026-01-29
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Knowledge guides use 'guide' tag
+  - Technical content for system setup
+  - File-based, offline-first
 ---
 
 # Tech Knowledge Category

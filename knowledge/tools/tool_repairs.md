@@ -1,12 +1,16 @@
 ---
-title: "Tool Repairs"
-id: tools-tool_repairs
-type: skill
-category: tools
-tags: [tools, tools]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-tools-20260129153200-UTC-L300AB96
+title: Tool Repairs
+tags: [guide, knowledge, tools]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Tool Repairs
 

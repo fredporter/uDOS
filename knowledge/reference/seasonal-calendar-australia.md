@@ -1,12 +1,16 @@
 ---
-title: "Australian Seasonal Calendar & Gardening Guide"
-id: reference-seasonal-calendar-australia
-type: reference
-category: reference
-tags: [reference, reference]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-reference-20260129222000-UTC-L300AB98
+title: Australian Seasonal Calendar & Gardening Guide
+tags: [guide, knowledge, reference]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Australian Seasonal Calendar & Gardening Guide
 

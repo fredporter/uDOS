@@ -1,12 +1,16 @@
 ---
-title: "Community Coordination"
-id: communication-community_coordination
-type: reference
-category: communication
-tags: [communication, communication]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-communication-20260129200300-UTC-L300AB29
+title: Community Coordination
+tags: [guide, knowledge, communication]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Community Coordination
 

@@ -1,11 +1,14 @@
 ---
-title: "Geography-Knowledge Linking System v1.0.0"
-id: GEOGRAPHY-KNOWLEDGE-SPEC
-type: reference
-category: knowledge
-tags: [knowledge, knowledge]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-geography-20260107080000-UTC-L300AB10
+title: Geography-Knowledge Linking System
+tags: [guide, knowledge, geography, spec]
+status: living
+updated: 2026-01-29
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Knowledge guides use 'guide' tag instead of 'wiki'
+  - Geography-tagged for spatial context
+  - Map hierarchies: Universe → Planet → Region → City → Neighbourhood
 ---
 
 # Geography-Knowledge Linking System v1.0.0

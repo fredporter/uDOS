@@ -1,12 +1,16 @@
 ---
-title: "MeshCore Devices"
-id: tech-devices-meshcore
-type: reference
-category: devices
-tags: [devices, devices]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-tech-20260129131500-UTC-L300AB79
+title: MeshCore Devices
+tags: [guide, knowledge, tech]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # MeshCore Devices
 

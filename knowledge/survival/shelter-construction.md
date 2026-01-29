@@ -1,12 +1,16 @@
 ---
-title: "Shelter Construction Guide"
-id: survival-shelter-construction
-type: emergency
-category: survival
-tags: [survival, survival]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-survival-20260129170100-UTC-L300AB65
+title: Shelter Construction Guide
+tags: [guide, knowledge, survival]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Shelter Construction Guide
 

@@ -1,12 +1,16 @@
 ---
-title: "Emergency Debris Hut Construction"
-id: survival-emergency-debris-hut
-type: emergency
-category: survival
-tags: [survival, survival]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-survival-20260129165300-UTC-L300AB57
+title: Emergency Debris Hut Construction
+tags: [guide, knowledge, survival]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Emergency Debris Hut Construction
 

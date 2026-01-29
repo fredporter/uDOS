@@ -1,3 +1,12 @@
+---
+uid: udos-wiki-beacon-20260125100000-UTC-L300AB02
+title: uDOS Beacon Portal Protocol
+tags: [wiki, spec, networking]
+status: living
+updated: 2026-01-25
+spec: wiki_spec_obsidian.md
+---
+
 # uDOS Beacon Portal Protocol
 
 **Version:** 1.0.0  

@@ -1,12 +1,16 @@
 ---
-tier: 3
-category: food
-title: "Traditional Home Cooking Guide"
-complexity: advanced
-last_updated: 2025-12-04
-author: uDOS
-version: 1.1
+uid: udos-guide-food-20251204145500-UTC-L300AB81
+title: Traditional Home Cooking Guide
+tags: [guide, knowledge, food]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Traditional Home Cooking Guide
 

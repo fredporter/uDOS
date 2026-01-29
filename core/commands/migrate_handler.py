@@ -1,315 +1,280 @@
 """
-MIGRATE Command Handler - Trigger and manage SQLite migration
-Part of Phase 8: Location data SQLite migration
+MIGRATE command handler - Manage SQLite migration for location data.
 
-Usage:
-  MIGRATE                        # Show migration status
-  MIGRATE check                  # Check if migration is needed
-  MIGRATE perform                # Perform migration (with backup)
-  MIGRATE perform --no-backup    # Perform migration without backup
-  MIGRATE status                 # Show detailed status
+Provides commands to check migration status, trigger migration, and manage
+the transition from JSON to SQLite for location data.
+
+Commands:
+  MIGRATE              - Show current status and migration options
+  MIGRATE check        - Check if migration is needed
+  MIGRATE status       - Show detailed migration status
+  MIGRATE perform      - Perform migration (with backup)
+  MIGRATE perform --no-backup - Perform migration without backup
+  MIGRATE rollback     - Rollback to JSON backend (delete .db)
 """
 
-from typing import Dict, Any
-from pathlib import Path
-
-from core.commands.base import BaseCommandHandler
-from core.services.logging_manager import get_logger
+from typing import Dict, List, Optional
+from .base import BaseCommandHandler
 from core.services.location_migration_service import LocationMigrator
+from core.services.logging_manager import get_logger
 
-logger = get_logger("migrate-handler")
+logger = get_logger("migrate_handler")
 
 
 class MigrateHandler(BaseCommandHandler):
-    """Handler for location data migration commands."""
+    """Handler for MIGRATE command - Manage SQLite migration."""
 
-    def __init__(self):
-        super().__init__(
-            command_name="MIGRATE",
-            description="Manage location data SQLite migration",
-            usage_examples=[
-                "MIGRATE",
-                "MIGRATE check",
-                "MIGRATE perform",
-                "MIGRATE perform --no-backup",
-                "MIGRATE status",
-            ],
-        )
-
-        # Initialize migrator with default path
-        project_root = Path(__file__).parent.parent.parent
-        data_dir = project_root / "memory" / "bank" / "locations"
-        self.migrator = LocationMigrator(data_dir)
-
-        logger.debug("[LOCAL] MigrateHandler initialized")
-
-    def execute(self, args: list, context: Dict = None) -> str:
+    def handle(self, command: str, params: List[str], grid, parser) -> Dict:
         """
-        Execute MIGRATE command.
+        Handle MIGRATE command.
 
         Args:
-            args: Command arguments
-            context: Execution context (optional)
+            command: "MIGRATE"
+            params: [subcommand] [options]
+                    - (empty) -> show status and options
+                    - check -> check if migration needed
+                    - status -> show detailed status
+                    - perform -> perform migration
+                    - perform --no-backup -> migrate without backup
+                    - rollback -> rollback to JSON
+            grid: TUI grid
+            parser: Command parser
 
         Returns:
-            Command output as string
+            Dict with status and migration information
         """
-        if not args:
-            # No args: show help and status
-            return self._show_help_and_status()
+        try:
+            migrator = LocationMigrator()
+        except Exception as e:
+            logger.error(f"[LOCAL] Failed to initialize LocationMigrator: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to initialize migration service: {e}",
+            }
 
-        subcommand = args[0].lower()
+        # Default: show status
+        if not params:
+            return self._show_status(migrator)
 
-        if subcommand == "help":
-            return self._show_help()
-        elif subcommand == "check":
-            return self._check_migration()
+        subcommand = params[0].lower()
+
+        if subcommand == "check":
+            return self._check_migration(migrator)
         elif subcommand == "status":
-            return self._show_detailed_status()
+            return self._show_detailed_status(migrator)
         elif subcommand == "perform":
-            backup = "--no-backup" not in args
-            return self._perform_migration(backup=backup)
+            backup = "--no-backup" not in params
+            return self._perform_migration(migrator, backup)
+        elif subcommand == "rollback":
+            return self._rollback_migration(migrator)
         else:
-            return f"❌ Unknown subcommand: {subcommand}\n\n{self._show_help()}"
+            return {
+                "status": "error",
+                "message": f"Unknown MIGRATE subcommand: {subcommand}",
+                "usage": "MIGRATE [check|status|perform|rollback]",
+            }
 
-    def _show_help(self) -> str:
-        """Show command help."""
-        return """
-╔════════════════════════════════════════════════════════════════╗
-║                    MIGRATE Command Help                        ║
-╚════════════════════════════════════════════════════════════════╝
+    def _show_status(self, migrator: LocationMigrator) -> Dict:
+        """Show current migration status."""
+        status = migrator.get_migration_status()
 
-Phase 8: SQLite Migration for Location Data
-
-When locations.json exceeds 500KB or 1000 records, uDOS automatically
-migrates to SQLite for better performance. Use this command to check
-status and manually trigger migration.
-
-USAGE:
-  MIGRATE                        Show status
-  MIGRATE check                  Check if migration is needed
-  MIGRATE perform                Perform migration (with backup)
-  MIGRATE perform --no-backup    Perform migration without backup
-  MIGRATE status                 Show detailed status
-
-MIGRATION THRESHOLDS:
-  • File size: 500KB
-  • Record count: 1000 locations
-
-WHAT GETS MIGRATED:
-  • locations.json → locations.db
-  • timezones.json → timezones table
-  • user-locations.json → user_additions table
-  • Connections and tiles data
-
-BACKUP:
-  By default, JSON files are backed up to memory/bank/locations/backups/
-  before migration. Use --no-backup to skip.
-
-EXAMPLES:
-  MIGRATE                        # Quick status check
-  MIGRATE check                  # Detailed migration assessment
-  MIGRATE perform                # Migrate with backup
-"""
-
-    def _show_help_and_status(self) -> str:
-        """Show help and current status."""
-        status = self.migrator.get_migration_status()
-
-        output = [
-            "╔════════════════════════════════════════════════════════════════╗",
-            "║              Location Data Migration Status                    ║",
-            "╚════════════════════════════════════════════════════════════════╝",
+        # Format output
+        lines = [
+            "━" * 60,
+            "Location Data Migration Status",
+            "━" * 60,
+            "",
+            f"Backend:               {status['backend']}",
+            f"Should migrate:        {'Yes' if status['should_migrate'] else 'No'}",
+            f"Reason:                {status['reason']}",
             "",
         ]
 
-        # Current backend
-        if status["db_exists"]:
-            output.append("✅ SQLite Backend: ACTIVE")
-            output.append(f"   Database: {self.migrator.db_path.name}")
-            output.append(f"   Locations: {status['db_stats'].get('locations', 0)}")
-            output.append(f"   Timezones: {status['db_stats'].get('timezones', 0)}")
-            output.append(f"   Connections: {status['db_stats'].get('connections', 0)}")
-        else:
-            output.append("📄 JSON Backend: ACTIVE")
-            output.append(f"   File: {self.migrator.json_path.name}")
-            output.append(f"   Size: {status['file_size_kb']}KB")
-            output.append(f"   Records: {status['record_count']}")
-
-        output.append("")
-
-        # Migration status
-        if status["should_migrate"]:
-            output.append("⚠️  MIGRATION RECOMMENDED")
-            output.append(f"   Reason: {status['reason']}")
-            output.append("")
-            output.append("Run: MIGRATE perform")
-        else:
-            output.append("✅ No migration needed")
-            output.append(f"   {status['reason']}")
-
-        output.append("")
-        output.append("Type 'MIGRATE help' for more options")
-
-        return "\n".join(output)
-
-    def _check_migration(self) -> str:
-        """Check if migration is needed."""
-        should_migrate, reason = self.migrator.should_migrate()
-        status = self.migrator.get_migration_status()
-
-        output = [
-            "╔════════════════════════════════════════════════════════════════╗",
-            "║              Migration Assessment                              ║",
-            "╚════════════════════════════════════════════════════════════════╝",
-            "",
-        ]
-
-        # Thresholds
-        output.append("Migration Thresholds:")
-        output.append(f"  • File size: {LocationMigrator.SIZE_THRESHOLD_KB}KB")
-        output.append(f"  • Record count: {LocationMigrator.RECORD_THRESHOLD}")
-        output.append("")
-
-        # Current stats
-        output.append("Current Data:")
-        output.append(f"  • File size: {status['file_size_kb']}KB")
-        output.append(f"  • Record count: {status['record_count']}")
-        output.append("")
-
-        # Decision
-        if should_migrate:
-            output.append("⚠️  MIGRATION RECOMMENDED")
-            output.append(f"   {reason}")
-            output.append("")
-            output.append("Run: MIGRATE perform")
-        else:
-            output.append("✅ No migration needed")
-            output.append(f"   {reason}")
-
-        return "\n".join(output)
-
-    def _show_detailed_status(self) -> str:
-        """Show detailed migration status."""
-        status = self.migrator.get_migration_status()
-
-        output = [
-            "╔════════════════════════════════════════════════════════════════╗",
-            "║              Detailed Migration Status                         ║",
-            "╚════════════════════════════════════════════════════════════════╝",
-            "",
-        ]
-
-        # File status
-        output.append("JSON Backend:")
-        output.append(f"  Path: {self.migrator.json_path}")
-        output.append(f"  Exists: {'Yes' if status['json_exists'] else 'No'}")
         if status["json_exists"]:
-            output.append(f"  Size: {status['file_size_kb']}KB")
-            output.append(f"  Records: {status['record_count']}")
-        output.append("")
+            lines.extend([
+                f"JSON File:             {status['json_size_kb']:.1f} KB ({status['json_records']} records)",
+                f"  Size threshold:      {status['size_threshold_kb']} KB",
+                f"  Record threshold:    {status['record_threshold']} records",
+            ])
 
-        # Database status
-        output.append("SQLite Backend:")
-        output.append(f"  Path: {self.migrator.db_path}")
-        output.append(f"  Exists: {'Yes' if status['db_exists'] else 'No'}")
         if status["db_exists"]:
-            output.append(f"  Locations: {status['db_stats'].get('locations', 0)}")
-            output.append(f"  Timezones: {status['db_stats'].get('timezones', 0)}")
-            output.append(f"  Connections: {status['db_stats'].get('connections', 0)}")
-            output.append(
-                f"  User Additions: {status['db_stats'].get('user_additions', 0)}"
-            )
-        output.append("")
+            lines.extend([
+                f"SQLite Database:       {status['db_records']} records",
+            ])
 
-        # Migration assessment
-        output.append("Migration Assessment:")
-        output.append(
-            f"  Should migrate: {'Yes' if status['should_migrate'] else 'No'}"
-        )
-        output.append(f"  Reason: {status['reason']}")
+        lines.extend([
+            "",
+            "Available commands:",
+            "  MIGRATE check        - Check if migration is needed",
+            "  MIGRATE status       - Show this detailed status",
+            "  MIGRATE perform      - Perform migration (with backup)",
+            "  MIGRATE rollback     - Rollback to JSON backend",
+        ])
 
-        return "\n".join(output)
+        output = "\n".join(lines)
 
-    def _perform_migration(self, backup: bool = True) -> str:
-        """
-        Perform migration.
+        logger.info(f"[LOCAL] Migration status checked: {status['backend']}")
 
-        Args:
-            backup: Create backup before migration
-        """
-        logger.info("[LOCAL] Starting manual migration...")
+        return {
+            "status": "success",
+            "message": "Migration status displayed",
+            "output": output,
+            **status,
+        }
 
-        output = [
-            "╔════════════════════════════════════════════════════════════════╗",
-            "║              Location Data Migration                           ║",
-            "╚════════════════════════════════════════════════════════════════╝",
+    def _check_migration(self, migrator: LocationMigrator) -> Dict:
+        """Check if migration is needed."""
+        should_migrate, reason = migrator.should_migrate()
+
+        output = "\n".join([
+            "━" * 60,
+            "Migration Check",
+            "━" * 60,
+            "",
+            f"Migration needed:      {'YES' if should_migrate else 'NO'}",
+            f"Reason:                {reason}",
+            "",
+        ])
+
+        if should_migrate:
+            output += "To perform migration: MIGRATE perform\n"
+
+        logger.info(f"[LOCAL] Migration check: {should_migrate} - {reason}")
+
+        return {
+            "status": "success",
+            "message": "Migration check completed",
+            "output": output,
+            "should_migrate": should_migrate,
+            "reason": reason,
+        }
+
+    def _show_detailed_status(self, migrator: LocationMigrator) -> Dict:
+        """Show detailed migration status."""
+        status = migrator.get_migration_status()
+
+        lines = [
+            "━" * 60,
+            "Detailed Migration Status",
+            "━" * 60,
+            "",
+            "Current Backend:",
+            f"  {status['backend']}",
+            "",
+            "JSON Backend (locations.json):",
+            f"  Exists:         {status['json_exists']}",
+            f"  Size:           {status['json_size_kb']:.1f} KB",
+            f"  Records:        {status['json_records']}",
+            "",
+            "SQLite Backend (locations.db):",
+            f"  Exists:         {status['db_exists']}",
+            f"  Records:        {status['db_records']}",
+            "",
+            "Migration Configuration:",
+            f"  Size threshold: {status['size_threshold_kb']} KB",
+            f"  Record threshold: {status['record_threshold']} records",
+            "",
+            "Migration Status:",
+            f"  Needed:         {'Yes' if status['should_migrate'] else 'No'}",
+            f"  Reason:         {status['reason']}",
             "",
         ]
 
-        # Check if already migrated
-        if self.migrator.db_path.exists():
-            output.append("⚠️  SQLite database already exists!")
-            output.append(f"   {self.migrator.db_path}")
-            output.append("")
-            output.append("Migration already completed. No action needed.")
-            return "\n".join(output)
+        output = "\n".join(lines)
 
-        # Check if should migrate
-        should_migrate, reason = self.migrator.should_migrate()
+        return {
+            "status": "success",
+            "message": "Detailed status displayed",
+            "output": output,
+            **status,
+        }
+
+    def _perform_migration(self, migrator: LocationMigrator, backup: bool = True) -> Dict:
+        """Perform migration from JSON to SQLite."""
+        # Check if migration is needed
+        should_migrate, reason = migrator.should_migrate()
         if not should_migrate:
-            output.append("ℹ️  Migration not recommended")
-            output.append(f"   {reason}")
-            output.append("")
-            output.append("To force migration anyway, manual intervention required.")
-            return "\n".join(output)
+            return {
+                "status": "cancelled",
+                "message": f"Migration not needed: {reason}",
+            }
 
         # Perform migration
-        output.append("🚀 Starting migration...")
-        output.append(f"   Backup: {'Enabled' if backup else 'Disabled'}")
-        output.append("")
+        lines = [
+            "━" * 60,
+            "Performing Location Data Migration",
+            "━" * 60,
+            "",
+        ]
 
-        stats = self.migrator.perform_migration(backup=backup)
+        if backup:
+            lines.append("Creating backup... ")
 
-        if stats["success"]:
-            output.append("✅ Migration completed successfully!")
-            output.append("")
-            output.append("Results:")
-            output.append(f"  • Locations migrated: {stats['locations_migrated']}")
-            output.append(f"  • Timezones migrated: {stats['timezones_migrated']}")
-            output.append(f"  • Connections created: {stats['connections_migrated']}")
-            output.append(
-                f"  • User locations migrated: {stats['user_locations_migrated']}"
-            )
-            output.append(
-                f"  • Backup created: {'Yes' if stats['backup_created'] else 'No'}"
-            )
-            output.append("")
-            output.append(f"Database: {self.migrator.db_path}")
+        result = migrator.perform_migration(backup=backup)
 
-            if backup:
-                output.append("")
-                output.append("Original JSON files backed up to:")
-                output.append(f"  {self.migrator.data_dir / 'backups'}")
+        if result["success"]:
+            lines.extend([
+                f"✅ Migration completed successfully!",
+                "",
+                f"Locations migrated:    {result['locations_migrated']}",
+                f"Timezones migrated:    {result['timezones_migrated']}",
+                f"Connections migrated:  {result['connections_migrated']}",
+                f"Tiles migrated:        {result['tiles_migrated']}",
+                f"User additions:        {result['user_additions_migrated']}",
+                "",
+                "JSON backend is preserved for rollback.",
+                "To rollback: MIGRATE rollback",
+            ])
+            logger.info(f"[LOCAL] Migration performed successfully: {result['locations_migrated']} locations")
         else:
-            output.append("❌ Migration failed!")
-            output.append(f"   Error: {stats.get('error', 'Unknown error')}")
-            output.append("")
-            output.append("Check logs for details:")
-            output.append("  memory/logs/session-commands-*.log")
+            lines.extend([
+                f"❌ Migration failed!",
+                f"Error: {result['message']}",
+            ])
+            logger.error(f"[LOCAL] Migration failed: {result['message']}")
 
-        return "\n".join(output)
+        output = "\n".join(lines)
 
+        return {
+            "status": "success" if result["success"] else "error",
+            "message": result["message"],
+            "output": output,
+            **result,
+        }
 
-def main():
-    """Test handler."""
-    handler = MigrateHandler()
+    def _rollback_migration(self, migrator: LocationMigrator) -> Dict:
+        """Rollback to JSON backend by deleting SQLite database."""
+        status = migrator.get_migration_status()
 
-    # Test commands
-    print(handler.execute([]))
-    print("\n" + "=" * 60 + "\n")
-    print(handler.execute(["check"]))
+        if not status["db_exists"]:
+            return {
+                "status": "cancelled",
+                "message": "SQLite database does not exist. Nothing to rollback.",
+            }
 
+        # Delete database
+        success = migrator.delete_database()
 
-if __name__ == "__main__":
-    main()
+        if success:
+            output = "\n".join([
+                "━" * 60,
+                "Migration Rollback",
+                "━" * 60,
+                "",
+                "✅ Rollback completed successfully!",
+                "",
+                "SQLite database has been deleted.",
+                "JSON backend is now active.",
+                "",
+                "To migrate again: MIGRATE perform",
+            ])
+            logger.info("[LOCAL] Migration rollback completed")
+        else:
+            output = "Failed to delete SQLite database."
+            logger.error("[LOCAL] Migration rollback failed")
+
+        return {
+            "status": "success" if success else "error",
+            "message": "Rollback completed" if success else "Rollback failed",
+            "output": output,
+        }

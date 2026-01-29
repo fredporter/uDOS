@@ -1,12 +1,16 @@
 ---
-title: "Control Flow Patterns in uCODE"
-id: tech-control-flow
-type: reference
-category: programming
-tags: [programming, tech]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-tech-20260129131100-UTC-L300AB75
+title: Control Flow Patterns in uCODE
+tags: [guide, knowledge, tech]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Control Flow Patterns in uCODE
 

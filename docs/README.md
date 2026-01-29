@@ -1,7 +1,7 @@
 # uDOS Documentation Index
 
-**Last Updated:** 2026-01-29  
-**Version:** v1.0.7
+**Last Updated:** 2026-01-30  
+**Version:** v1.0.7.1 (Spatial Filesystem + Wiki Standardization)
 
 ---
 
@@ -13,8 +13,11 @@
 | ------------------------------------------------------------- | ---------------------------------------------------------- |
 | [AGENTS.md](../AGENTS.md)                                     | How work is done in uDOS (architecture, policies, tooling) |
 | [uCODE.md](uCODE.md)                                          | **NEW**: Unified Terminal TUI (main entry point)           |
-| [Development Streams](development-streams.md)                 | Active development planning across all components          |
-| [Release Readiness Checklist](RELEASE-READINESS-CHECKLIST.md) | **NEW**: v1.1.0 release gates & timeline                   |
+| [ROADMAP.md](ROADMAP.md)                                      | Development streams (formerly development-streams.md)     |
+| [Spatial Filesystem](specs/SPATIAL-FILESYSTEM.md)            | Grid-integrated filesystem with RBAC & tagging            |
+| [Wiki Frontmatter Standard](WIKI-FRONTMATTER-GUIDE.md)       | **NEW**: Obsidian-compatible YAML frontmatter reference   |
+| [Frontmatter Standardization Summary](FRONTMATTER-STANDARDIZATION-SUMMARY.md) | **COMPLETE**: All 247 docs standardized (wiki, knowledge, candidates) |
+| [Release Readiness Checklist](RELEASE-READINESS-CHECKLIST.md) | v1.1.0 release gates & timeline                           |
 | [README.md](README.md)                                        | This file                                                  |
 
 ---
@@ -33,6 +36,7 @@ Then:
 STATUS                  # Check what's installed
 WIZARD start            # Start Wizard server (if available)
 PLUGIN list             # List extensions (if available)
+WORKSPACE INFO          # Show spatial filesystem & access levels
 HELP                    # Show all commands
 ```
 
@@ -40,7 +44,102 @@ See [uCODE.md](uCODE.md) and [uCODE-QUICK-REFERENCE.md](uCODE-QUICK-REFERENCE.md
 
 ---
 
+## 🗂️ Spatial Filesystem (v1.0.7.1)
+
+**Feature:** Grid-integrated filesystem with role-based access, location tagging, and content discovery.
+
+### Quick Links
+
+- [SPATIAL-FILESYSTEM.md](specs/SPATIAL-FILESYSTEM.md) — Full architecture & API
+- [SPATIAL-FILESYSTEM-QUICK-REF.md](SPATIAL-FILESYSTEM-QUICK-REF.md) — Commands & examples
+- `core/services/spatial_filesystem.py` — Implementation
+- `core/commands/spatial_filesystem_handler.py` — TUI handler
+
+### Key Commands
+
+```
+WORKSPACE list @sandbox              # List files in workspace
+LOCATION tag @sandbox/story.md L300-AB15   # Tag file with grid location
+TAG find forest adventure            # Find files by tags
+BINDER open @sandbox/my-project      # Open multi-chapter project
+```
+
+### Workspaces
+
+| Workspace  | Path            | Access |
+|------------|-----------------|--------|
+| @sandbox   | memory/sandbox  | User   |
+| @bank      | memory/bank     | User   |
+| @shared    | memory/shared   | User   |
+| @wizard    | memory/wizard   | Admin  |
+| @knowledge | /knowledge      | Admin  |
+| @dev       | /dev            | Admin  |
+
+---
+
+## 📖 Wiki Standardization (Obsidian-Compatible)
+
+**Feature:** All documentation uses standardized YAML frontmatter for stable identifiers, categorization, and discovery.
+
+### Quick Links
+
+- [wiki_spec_obsidian.md](specs/wiki_spec_obsidian.md) — Full specification
+- [WIKI-FRONTMATTER-GUIDE.md](WIKI-FRONTMATTER-GUIDE.md) — Migration guide & UID generation
+- [docs/wiki/](wiki/) — Core architecture docs (ALPINE-CORE, BEACON-*, WIZARD-*)
+- [knowledge/](../knowledge/) — Knowledge bank (survival guides, skills)
+
+### Frontmatter Fields
+
+```yaml
+---
+uid: udos-wiki-20260130120000-L300AB00       # Stable, immutable identifier
+title: Document Title                         # Human-readable title (may change)
+tags: [wiki, category, subcategory]          # Categorization & discovery
+status: living                                 # living | draft | frozen | deprecated
+updated: 2026-01-30                          # Last semantic update
+---
+```
+
+### Standard Tags
+
+- `wiki` — All wiki documents
+- `spec` — Specifications
+- `guide` — How-to guides
+- `knowledge` — Knowledge bank
+- `architecture` — System design
+- `networking` — Network protocols
+- Hierarchical: `knowledge/fire/safety`, `spec/architecture/etc.`
+
+---
+
+## 🔍 System Validation & Reset
+
+### SHAKEDOWN & DESTROY Commands
+
+- [SHAKEDOWN-DESTROY-UPDATES.md](SHAKEDOWN-DESTROY-UPDATES.md) — Full documentation of v1.1.0 updates
+- [SHAKEDOWN-DESTROY-QUICK-REFERENCE.md](SHAKEDOWN-DESTROY-QUICK-REFERENCE.md) — Command reference guide
+- [test_shakedown_destroy_v1_1_0.py](../core/tests/test_shakedown_destroy_v1_1_0.py) — Comprehensive test suite
+
+**Quick Commands:**
+```bash
+SHAKEDOWN                    # Validate system
+SHAKEDOWN --fresh            # Validate fresh install
+SHAKEDOWN --destroy-verify   # Verify DESTROY is ready
+DESTROY                      # Show cleanup options
+DESTROY --help               # Show help
+DESTROY --wipe-user          # Clear user data
+DESTROY --compost            # Archive memory
+DESTROY --reset-all --confirm # Factory reset
+```
+
+---
+
 ## 📋 Specifications (`/docs/specs/`)
+
+### Wiki & Documentation
+
+- [wiki_spec_obsidian.md](specs/wiki_spec_obsidian.md) — Obsidian-compatible Markdown with YAML frontmatter
+- [SPATIAL-FILESYSTEM.md](specs/SPATIAL-FILESYSTEM.md) — Grid-integrated filesystem architecture
 
 ### Core Runtime
 

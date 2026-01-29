@@ -1,12 +1,16 @@
 ---
-title: "Water Purification: Boiling Method"
-id: survival-boiling-purification
-type: emergency
-category: survival
-tags: [survival, survival]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-survival-20260129164600-UTC-L300AB50
+title: Water Purification: Boiling Method
+tags: [guide, knowledge, survival]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Water Purification: Boiling Method
 

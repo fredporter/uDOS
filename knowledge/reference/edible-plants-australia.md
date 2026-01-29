@@ -1,12 +1,16 @@
 ---
-title: "Australian Edible Plants Quick Reference"
-id: reference-edible-plants-australia
-type: reference
-category: reference
-tags: [reference, reference]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-reference-20260129221200-UTC-L300AB90
+title: Australian Edible Plants Quick Reference
+tags: [guide, knowledge, reference]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Australian Edible Plants Quick Reference
 

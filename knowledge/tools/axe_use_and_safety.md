@@ -1,12 +1,16 @@
 ---
-title: "Axe Use And Safety"
-id: tools-axe_use_and_safety
-type: skill
-category: tools
-tags: [tools, tools]
-difficulty: beginner
-last_updated: 2026-01-29
+uid: udos-guide-tools-20260129151900-UTC-L300AB83
+title: Axe Use And Safety
+tags: [guide, knowledge, tools]
+status: living
+updated: 2026-01-30
+spec: wiki_spec_obsidian.md
+authoring-rules:
+- Knowledge guides use 'guide' tag
+- Content organized by technique/category
+- File-based, offline-first
 ---
+
 
 # Axe Use And Safety
 

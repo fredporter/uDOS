@@ -1,11 +1,14 @@
 ---
-title: "Communication & Signaling"
-id: communication-README
-type: reference
-category: communication
-tags: [communication, communication]
-difficulty: intermediate
-last_updated: 2026-01-29
+uid: udos-guide-communication-20260129200000-UTC-L300AB22
+title: Communication & Signaling
+tags: [guide, knowledge, communication]
+status: living
+updated: 2026-01-29
+spec: wiki_spec_obsidian.md
+authoring-rules:
+  - Knowledge guides use 'guide' tag
+  - Communication methods organized by medium
+  - File-based, offline-first
 ---
 
 # Communication & Signaling
