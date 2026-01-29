@@ -12,13 +12,13 @@
 | Document                                                      | Purpose                                                    |
 | ------------------------------------------------------------- | ---------------------------------------------------------- |
 | [AGENTS.md](../AGENTS.md)                                     | How work is done in uDOS (architecture, policies, tooling) |
-| [uCODE.md](uCODE.md)                                          | **NEW**: Unified Terminal TUI (main entry point)           |
-| [ROADMAP.md](ROADMAP.md)                                      | Development streams (formerly development-streams.md)     |
+| [uCODE.md](uCODE.md)                                          | Unified Terminal TUI (main entry point)                   |
+| [ROADMAP.md](ROADMAP.md)                                      | Development Rounds (v1.0.7 framework)                     |
+| [STREAM1-ACTION-PLAN.md](STREAM1-ACTION-PLAN.md)             | Round 1 implementation roadmap (14 days, TypeScript Markdown Runtime) |
+| [WIKI-FRONTMATTER-GUIDE.md](WIKI-FRONTMATTER-GUIDE.md)       | Obsidian-compatible YAML frontmatter reference            |
 | [Spatial Filesystem](specs/SPATIAL-FILESYSTEM.md)            | Grid-integrated filesystem with RBAC & tagging            |
-| [Wiki Frontmatter Standard](WIKI-FRONTMATTER-GUIDE.md)       | **NEW**: Obsidian-compatible YAML frontmatter reference   |
-| [Frontmatter Standardization Summary](FRONTMATTER-STANDARDIZATION-SUMMARY.md) | **COMPLETE**: All 247 docs standardized (wiki, knowledge, candidates) |
 | [Release Readiness Checklist](RELEASE-READINESS-CHECKLIST.md) | v1.1.0 release gates & timeline                           |
-| [README.md](README.md)                                        | This file                                                  |
+| [Development Log](DEVLOG-INDEX.md)                           | Session log (devlog/) with historical context              |
 
 ---
 
@@ -44,7 +44,7 @@ See [uCODE.md](uCODE.md) and [uCODE-QUICK-REFERENCE.md](uCODE-QUICK-REFERENCE.md
 
 ---
 
-## 🗂️ Spatial Filesystem (v1.0.7.1)
+## 🗂️ Spatial Filesystem (v1.0.7)
 
 **Feature:** Grid-integrated filesystem with role-based access, location tagging, and content discovery.
 
