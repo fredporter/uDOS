@@ -40,9 +40,6 @@ _check_component() {
         goblin)
             [ -d "$UDOS_ROOT/dev/goblin" ] && [ -f "$UDOS_ROOT/dev/goblin/dev_server.py" ] && return 0
             ;;
-        app)
-            [ -d "$UDOS_ROOT/app" ] && [ -f "$UDOS_ROOT/app/package.json" ] && return 0
-            ;;
         *)
             return 1
             ;;
@@ -55,7 +52,6 @@ _get_available_components() {
     _check_component "core" && available+=("core")
     _check_component "wizard" && available+=("wizard")
     _check_component "goblin" && available+=("goblin")
-    _check_component "app" && available+=("app")
     echo "${available[@]}"
 }
 
@@ -76,26 +72,25 @@ _show_menu() {
     local available=($(_get_available_components))
     local role=$(_get_user_role)
 
-    printf "\n"
-    printf "${BLUE}${TL}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${TR}${NC}\n"
-    printf "${BLUE}${V_LINE}${NC}${WHITE}${BOLD}        uCODE - Unified Launcher${NC}${BLUE}${V_LINE}${NC}\n"
-    printf "${BLUE}${V_LINE}${NC}      Role: ${CYAN}${role}${NC}${BLUE}${V_LINE}${NC}\n"
-    printf "${BLUE}${BL}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${BR}${NC}\n\n"
+    printf "\n" >&2
+    printf "${BLUE}${TL}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${TR}${NC}\n" >&2
+    printf "${BLUE}${V_LINE}${NC}${WHITE}${BOLD}        uCODE - Unified Launcher${NC}${BLUE}${V_LINE}${NC}\n" >&2
+    printf "${BLUE}${V_LINE}${NC}      Role: ${CYAN}${role}${NC}${BLUE}${V_LINE}${NC}\n" >&2
+    printf "${BLUE}${BL}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${H_LINE}${BR}${NC}\n\n" >&2
 
     local idx=1
     for component in "${available[@]}"; do
         case "$component" in
-            core) echo "  ${CYAN}${idx}${NC}) ${WHITE}Core TUI${NC} - Terminal interface (offline-first)" ;;
-            wizard) echo "  ${CYAN}${idx}${NC}) ${WHITE}Wizard Server${NC} - Always-on services (port 8765)" ;;
-            goblin) [ "$role" = "dev" ] && echo "  ${CYAN}${idx}${NC}) ${WHITE}Goblin Dev Server${NC} - Experimental features (port 8767)" ;;
-            app) [ "$role" = "dev" ] && echo "  ${CYAN}${idx}${NC}) ${WHITE}App Dev${NC} - uMarkdown app development" ;;
+            core) printf "  ${CYAN}${idx}${NC}) ${WHITE}Core TUI${NC} - Terminal interface (offline-first)\n" >&2 ;;
+            wizard) printf "  ${CYAN}${idx}${NC}) ${WHITE}Wizard Server${NC} - Always-on services (port 8765)\n" >&2 ;;
+            goblin) [ "$role" = "dev" ] && printf "  ${CYAN}${idx}${NC}) ${WHITE}Goblin Dev Server${NC} - Experimental features (port 8767)\n" >&2 ;;
         esac
         ((idx++))
     done
 
-    echo ""
-    printf "  ${YELLOW}q${NC}) Quit\n"
-    printf "\n"
+    printf "\n" >&2
+    printf "  ${YELLOW}q${NC}) Quit\n" >&2
+    printf "\n" >&2
 
     read -p "Select component [1-$((${#available[@]}))]: " choice
 
@@ -166,4 +161,6 @@ main() {
 
     # Dispatch to component launcher
     launch_component "$component" "$mode" "${extra_args[@]}"
+}
+
 main "$@"

@@ -24,6 +24,18 @@ source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 pip install -r requirements.txt
 ```
 
+### VS Code Workspaces (Optimized for Fast Development)
+
+To avoid Copilot timeouts, use focused workspaces instead of the full workspace:
+
+| Workspace                 | Purpose                       | Folders            | Use When                            |
+| ------------------------- | ----------------------------- | ------------------ | ----------------------------------- |
+| **uCODE.code-workspace**  | Core TUI development          | Root, Core, Docs   | Building handlers, services, TUI    |
+| **Wizard.code-workspace** | Server & API development      | Root, Wizard, Docs | Building APIs, AI routing, webhooks |
+| **uDOS.code-workspace**   | Full codebase (large context) | All 8 folders      | Full system exploration/refactoring |
+
+**See [WORKSPACE-SPLIT.md](WORKSPACE-SPLIT.md) for details.**
+
 ### Platform Support
 
 | Platform         | Status     | TUI     | Server | GUI  | Notes                           |

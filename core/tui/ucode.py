@@ -247,6 +247,11 @@ class uCODETUI:
             while self.running:
                 try:
                     plain_prompt = "[uCODE] > "
+                    
+                    # Ensure terminal is in good state before asking for input
+                    sys.stdout.flush()
+                    sys.stderr.flush()
+                    
                     user_input = self.prompt.ask(plain_prompt)
 
                     if not user_input:
@@ -402,16 +407,21 @@ Core TUI:
             else:
                 cmd = "python wizard/server.py"
 
-            # Start in background
-            with open(os.devnull, 'w') as devnull:
-                proc = subprocess.Popen(
-                    cmd,
-                    shell=True,
-                    cwd=str(self.repo_root),
-                    stdout=devnull,
-                    stderr=devnull,
-                    preexec_fn=os.setsid if sys.platform != 'win32' else None
-                )
+            # Start in background with proper I/O isolation
+            try:
+                with open(os.devnull, 'w') as devnull:
+                    with open(os.devnull, 'r') as devnull_in:
+                        proc = subprocess.Popen(
+                            cmd,
+                            shell=True,
+                            cwd=str(self.repo_root),
+                            stdin=devnull_in,
+                            stdout=devnull,
+                            stderr=devnull,
+                            preexec_fn=os.setsid if sys.platform != 'win32' else None
+                        )
+            except Exception as start_err:
+                raise Exception(f"Failed to spawn wizard process: {start_err}")
             
             # Wait for server to be ready
             max_wait = 10
@@ -421,15 +431,18 @@ Core TUI:
                     resp = requests.get("http://127.0.0.1:8765/health", timeout=1)
                     if resp.status_code == 200:
                         print(f"  ✅ Wizard Server started (PID: {proc.pid})")
+                        sys.stdout.flush()  # Ensure output is flushed
                         return
                 except requests.exceptions.ConnectionError:
                     time.sleep(0.5)
 
             print("  ⚠️  Wizard Server started but not responding (timeout)")
+            sys.stdout.flush()
 
         except Exception as e:
             self.logger.error(f"Failed to start Wizard: {e}")
             print(f"  ❌ Error: {e}")
+            sys.stdout.flush()
 
     def _wizard_stop(self) -> None:
         """Stop Wizard server."""
@@ -442,11 +455,13 @@ Core TUI:
             
             subprocess.run(cmd, shell=True, timeout=5)
             print("  ✅ Wizard Server stopped")
+            sys.stdout.flush()  # Ensure output is flushed
             time.sleep(0.5)
 
         except Exception as e:
             self.logger.error(f"Failed to stop Wizard: {e}")
             print(f"  ❌ Error: {e}")
+            sys.stdout.flush()
 
     def _wizard_status(self) -> None:
         """Check Wizard status."""

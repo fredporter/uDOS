@@ -454,7 +454,7 @@ launch_core_tui() {
     echo ""
 
     # Launch the TUI
-    "$UDOS_ROOT/bin/start_udos.sh" "$@" || return 1
+    python "$UDOS_ROOT/uDOS.py" "$@" || return 1
 }
 
 launch_wizard_server() {
@@ -463,12 +463,41 @@ launch_wizard_server() {
 
     _setup_component_environment "wizard" || return 1
 
+    echo -e "${CYAN}[INFO]${NC} Starting Wizard Server in background..."
+
+    # Check if already running
+    if curl -s http://127.0.0.1:8765/health >/dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC} Wizard already running on http://localhost:8765"
+    else
+        # Start in background with proper I/O isolation
+        nohup python "$UDOS_ROOT/wizard/server.py" > /dev/null 2>&1 &
+        local wizard_pid=$!
+
+        # Wait for server to be ready (max 10 seconds)
+        local max_wait=10
+        local waited=0
+        while [ $waited -lt $max_wait ]; do
+            if curl -s http://127.0.0.1:8765/health >/dev/null 2>&1; then
+                echo -e "${GREEN}✓${NC} Wizard Server started (PID: $wizard_pid)"
+                break
+            fi
+            sleep 0.5
+            waited=$((waited + 1))
+        done
+
+        if [ $waited -ge $max_wait ]; then
+            echo -e "${YELLOW}⚠${NC}  Wizard Server started but not responding (timeout)"
+        fi
+    fi
+
     print_service_url "Server" "http://localhost:8765"
     print_service_url "Dashboard" "http://localhost:8765/dashboard"
     echo ""
+    echo -e "${CYAN}[INFO]${NC} Launching uCODE TUI..."
+    echo ""
 
-    # Delegate to wizard server launcher
-    "$UDOS_ROOT/bin/start_wizard.sh" "$@" || return 1
+    # Launch Core TUI with Wizard available
+    python "$UDOS_ROOT/uDOS.py" "$@" || return 1
 }
 
 launch_wizard_tui() {
@@ -510,25 +539,8 @@ launch_empire_dev() {
     "$UDOS_ROOT/dev/bin/start-empire-dev.sh" "$@" || return 1
 }
 
-launch_app_dev() {
-    local title="uMarkdown App - Tauri Development"
-    print_header "$title"
-
-    # App dev doesn't need full Python setup (uses Node/Tauri)
-    echo -e "${CYAN}[INFO]${NC} Checking Node.js environment..."
-
-    if ! command -v npm >/dev/null 2>&1; then
-        echo -e "${RED}[ERROR]${NC} Node.js/npm not found"
-        echo "Install from https://nodejs.org or: brew install node"
-        return 1
-    fi
-
-    echo -e "${GREEN}✓${NC} Node.js: $(node --version)"
-    echo ""
-
-    # Delegate to app launcher
-    "$UDOS_ROOT/app/bin/start_umarkdown_dev.sh" "$@" || return 1
-}
+# Note: App (Tauri) launcher moved to dev/app/bin/
+# /app is a private submodule for commercial release via Xcode/Mac App Store
 
 launch_component() {
     local component="${1:-core}"
@@ -550,7 +562,6 @@ launch_component() {
         wizard:tui)     launch_wizard_tui "$@" ;;
         goblin:dev)     launch_goblin_dev "$@" ;;
         empire:dev)     launch_empire_dev "$@" ;;
-        app:dev)        launch_app_dev "$@" ;;
         *)
             echo -e "${RED}[ERROR]${NC} Unknown component:mode: $component:$mode"
             echo ""
@@ -560,7 +571,8 @@ launch_component() {
             echo "  wizard:tui      - Wizard TUI console"
             echo "  goblin:dev      - Goblin Dev Server"
             echo "  empire:dev      - Empire CRM Server"
-            echo "  app:dev         - App (Tauri) development"
+            echo ""
+            echo "Note: App (Tauri) launcher is in dev/app/bin/"
             return 1
             ;;
     esac
