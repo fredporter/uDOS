@@ -1,3 +1,13 @@
+---
+title: "Communication & Signaling"
+id: communication-README
+type: reference
+category: communication
+tags: [communication, communication]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Communication & Signaling
 
 **Progress: 15 guides completed | 15.0% of 100 target**

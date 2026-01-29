@@ -1,3 +1,13 @@
+---
+title: "Axe Use And Safety"
+id: tools-axe_use_and_safety
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Axe Use And Safety
 
 **Category:** tools

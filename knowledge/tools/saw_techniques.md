@@ -1,3 +1,13 @@
+---
+title: "Saw Techniques"
+id: tools-saw_techniques
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Saw Techniques
 
 **Category:** tools

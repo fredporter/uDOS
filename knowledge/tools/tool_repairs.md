@@ -1,3 +1,13 @@
+---
+title: "Tool Repairs"
+id: tools-tool_repairs
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Tool Repairs
 
 **Category:** tools

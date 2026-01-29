@@ -1,3 +1,13 @@
+---
+title: "Sleep Hygiene & Rest Optimization"
+id: well-being-sleep-hygiene-optimization
+type: reference
+category: well
+tags: [well, well-being]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Sleep Hygiene & Rest Optimization
 
 **Category:** Well-being - Physical Health

@@ -1,3 +1,13 @@
+---
+title: "Solar Power Basics: Off-Grid Systems"
+id: survival-solar-power-basics
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Solar Power Basics: Off-Grid Systems
 
 **Category**: Energy & Power

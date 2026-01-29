@@ -1,3 +1,13 @@
+---
+title: "Sonic Screwdriver Device Provisioning"
+id: tech-devices-screwdriver
+type: reference
+category: devices
+tags: [devices, devices]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Sonic Screwdriver Device Provisioning
 
 Device discovery, flashing, and mesh enrollment for uDOS nodes.

@@ -1,3 +1,13 @@
+---
+title: "Survival Guide Library Index"
+id: survival-INDEX
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Survival Guide Library Index
 
 **Version**: 1.0.21

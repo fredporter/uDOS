@@ -1,3 +1,13 @@
+---
+title: "Equipment Care"
+id: tools-equipment_care
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Equipment Care
 
 **Category:** tools

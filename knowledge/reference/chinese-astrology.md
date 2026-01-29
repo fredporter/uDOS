@@ -1,3 +1,13 @@
+---
+title: "Chinese Astrology Reference"
+id: reference-chinese-astrology
+type: reference
+category: reference
+tags: [reference, reference]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Chinese Astrology Reference
 
 **Category:** Reference  

@@ -1,3 +1,13 @@
+---
+title: "📚 Knowledge Base - uDOS v1.2"
+id: KNOWLEDGE-SYSTEM
+type: reference
+category: knowledge
+tags: [knowledge, knowledge]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # 📚 Knowledge Base - uDOS v1.2
 
 **Purpose**: Offline-first knowledge repository for uDOS system and user content

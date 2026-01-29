@@ -1,3 +1,13 @@
+---
+title: "First Aid: Wound Care & Bleeding Control"
+id: survival-wound-care-bleeding
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # First Aid: Wound Care & Bleeding Control
 
 **Category**: Medical Knowledge

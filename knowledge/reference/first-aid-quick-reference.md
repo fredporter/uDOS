@@ -1,3 +1,13 @@
+---
+title: "First Aid Quick Reference"
+id: reference-first-aid-quick-reference
+type: reference
+category: reference
+tags: [reference, reference]
+difficulty: essential
+last_updated: 2026-01-29
+---
+
 # First Aid Quick Reference
 
 **Category:** Reference

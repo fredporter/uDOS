@@ -1,3 +1,13 @@
+---
+title: "Basic Tool Skills & Maintenance"
+id: skills-tool-skills-maintenance
+type: skill
+category: skills
+tags: [skills, skills]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Basic Tool Skills & Maintenance
 
 **Category:** Skills - Practical Knowledge

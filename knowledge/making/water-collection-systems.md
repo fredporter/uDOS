@@ -1,3 +1,13 @@
+---
+title: "Water Collection Systems"
+id: making-water-collection-systems
+type: skill
+category: making
+tags: [making, making]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Water Collection Systems
 
 **Category:** Making - Water Infrastructure

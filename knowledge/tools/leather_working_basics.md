@@ -1,3 +1,13 @@
+---
+title: "Leather Working Basics"
+id: tools-leather_working_basics
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Leather Working Basics
 
 **Category:** tools

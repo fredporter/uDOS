@@ -1,3 +1,13 @@
+---
+title: "MeshCore Devices"
+id: tech-devices-meshcore
+type: reference
+category: devices
+tags: [devices, devices]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # MeshCore Devices
 
 Hardware devices for uDOS mesh networking layer.

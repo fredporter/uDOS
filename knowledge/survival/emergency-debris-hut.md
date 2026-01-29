@@ -1,3 +1,13 @@
+---
+title: "Emergency Debris Hut Construction"
+id: survival-emergency-debris-hut
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Emergency Debris Hut Construction
 
 **Category**: Shelter & Building

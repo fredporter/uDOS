@@ -1,3 +1,13 @@
+---
+title: "Survival Knowledge"
+id: survival-README
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Survival Knowledge
 
 **Category Focus**: Essential skills and information for meeting basic needs and handling emergencies.

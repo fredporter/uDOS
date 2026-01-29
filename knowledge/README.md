@@ -1,3 +1,13 @@
+---
+title: "uDOS Knowledge Bank"
+id: README
+type: reference
+category: knowledge
+tags: [knowledge, knowledge]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # uDOS Knowledge Bank
 
 **The People's Knowledge Commons - v1.4.0 Comprehensive Survival Library**

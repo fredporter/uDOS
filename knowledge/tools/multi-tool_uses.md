@@ -1,3 +1,13 @@
+---
+title: "Multi-Tool Uses"
+id: tools-multi-tool_uses
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Multi-Tool Uses
 
 **Category:** tools

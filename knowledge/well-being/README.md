@@ -1,3 +1,13 @@
+---
+title: "Well-Being Knowledge"
+id: well-being-README
+type: reference
+category: well-being
+tags: [well-being, well-being]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Well-Being Knowledge
 
 **Category Focus**: Physical, mental, and emotional health for a balanced, fulfilling life.

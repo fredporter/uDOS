@@ -1,3 +1,13 @@
+---
+title: "Snow Shelters: Quinzhee & Snow Cave"
+id: survival-snow-shelters
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Snow Shelters: Quinzhee & Snow Cave
 
 **Category**: Shelter & Building

@@ -1,3 +1,13 @@
+---
+title: "Map & Compass Navigation"
+id: survival-map-compass-basics
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Map & Compass Navigation
 
 **Category**: Communication & Navigation

@@ -1,3 +1,13 @@
+---
+title: "Knots Quick Reference Guide"
+id: reference-knots-quick-reference
+type: reference
+category: reference
+tags: [reference, reference]
+difficulty: all
+last_updated: 2026-01-29
+---
+
 # Knots Quick Reference Guide
 
 **Category:** Reference

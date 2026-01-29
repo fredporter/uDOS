@@ -1,3 +1,13 @@
+---
+title: "Solar Power Basics: Off-Grid Systems"
+id: making-solar-power-basics
+type: skill
+category: making
+tags: [making, making]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Solar Power Basics: Off-Grid Systems
 
 **Category**: Energy & Power

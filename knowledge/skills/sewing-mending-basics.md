@@ -1,3 +1,13 @@
+---
+title: "Basic Sewing & Mending Skills"
+id: skills-sewing-mending-basics
+type: skill
+category: skills
+tags: [skills, skills]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Basic Sewing & Mending Skills
 
 **Category:** Skills - Practical Knowledge

@@ -1,3 +1,13 @@
+---
+title: "Situational Awareness & Threat Assessment"
+id: survival-situational-awareness
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Situational Awareness & Threat Assessment
 
 **Category**: Security & Defense

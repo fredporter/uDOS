@@ -1,3 +1,13 @@
+---
+title: "Australian Edible Plants Quick Reference"
+id: reference-edible-plants-australia
+type: reference
+category: reference
+tags: [reference, reference]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Australian Edible Plants Quick Reference
 
 **Category:** Reference

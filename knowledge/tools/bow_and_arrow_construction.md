@@ -1,3 +1,13 @@
+---
+title: "Bow And Arrow Construction"
+id: tools-bow_and_arrow_construction
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Bow And Arrow Construction
 
 **Category:** tools

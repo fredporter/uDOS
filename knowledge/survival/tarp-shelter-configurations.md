@@ -1,3 +1,13 @@
+---
+title: "Tarp Shelter Configurations"
+id: survival-tarp-shelter-configurations
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Tarp Shelter Configurations
 
 **Category**: Shelter & Building

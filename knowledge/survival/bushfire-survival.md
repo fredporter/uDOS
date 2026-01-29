@@ -1,3 +1,13 @@
+---
+title: "Bushfire Survival Guide"
+id: survival-bushfire-survival
+type: reference
+category: emergency
+tags: [emergency, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Bushfire Survival Guide
 
 **Category:** Emergency Response | Priority: Critical

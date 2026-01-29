@@ -1,3 +1,13 @@
+---
+title: "Message Systems"
+id: communication-message_systems
+type: reference
+category: communication
+tags: [communication, communication]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Message Systems
 
 **Category:** communication

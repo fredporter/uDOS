@@ -1,3 +1,13 @@
+---
+title: "Radio Basics"
+id: communication-radio_basics
+type: reference
+category: communication
+tags: [communication, communication]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Radio Basics
 
 **Category:** communication

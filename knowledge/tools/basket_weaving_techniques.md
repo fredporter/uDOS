@@ -1,3 +1,13 @@
+---
+title: "Basket Weaving Techniques"
+id: tools-basket_weaving_techniques
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Basket Weaving Techniques
 
 **Category:** tools

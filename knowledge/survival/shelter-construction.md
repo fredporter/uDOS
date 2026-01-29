@@ -1,3 +1,13 @@
+---
+title: "Shelter Construction Guide"
+id: survival-shelter-construction
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Shelter Construction Guide
 
 **Category:** Survival Skills

@@ -1,3 +1,13 @@
+---
+title: "Geography-Knowledge Linking System v1.0.0"
+id: GEOGRAPHY-KNOWLEDGE-SPEC
+type: reference
+category: knowledge
+tags: [knowledge, knowledge]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Geography-Knowledge Linking System v1.0.0
 
 **uDOS Alpha v1.0.0.67+ | Date: 2026-01-07**

@@ -1,3 +1,13 @@
+---
+title: "Tools & Equipment"
+id: tools-README
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Tools & Equipment
 
 **Progress: 15 guides completed | 15.0% of 100 target**

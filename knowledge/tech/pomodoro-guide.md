@@ -1,3 +1,13 @@
+---
+title: "Pomodoro Technique Guide"
+id: tech-pomodoro-guide
+type: reference
+category: tech
+tags: [tech, tech]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Pomodoro Technique Guide
 
 **Category**: Productivity > Time Management

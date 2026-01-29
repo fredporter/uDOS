@@ -1,3 +1,13 @@
+---
+title: "Security Protocols"
+id: communication-security_protocols
+type: reference
+category: communication
+tags: [communication, communication]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Security Protocols
 
 **Category:** communication

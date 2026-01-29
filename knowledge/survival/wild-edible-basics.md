@@ -1,3 +1,13 @@
+---
+title: "Wild Edible Plants: Basics & Safety"
+id: survival-wild-edible-basics
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Wild Edible Plants: Basics & Safety
 
 **Category**: Food Production

@@ -1,3 +1,13 @@
+---
+title: "Composting Basics"
+id: survival-composting-basics
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Composting Basics
 
 **Category**: Food Production

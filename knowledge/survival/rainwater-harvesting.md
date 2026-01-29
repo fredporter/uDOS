@@ -1,3 +1,13 @@
+---
+title: "Rainwater Harvesting Systems"
+id: survival-rainwater-harvesting
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Rainwater Harvesting Systems
 
 **Category**: Water Systems

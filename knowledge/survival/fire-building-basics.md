@@ -1,3 +1,13 @@
+---
+title: "Fire Building Basics"
+id: survival-fire-building-basics
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Fire Building Basics
 
 **Category**: Essential Skills

@@ -1,3 +1,13 @@
+---
+title: "Food Preservation: Drying & Dehydration"
+id: survival-drying-dehydration
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Food Preservation: Drying & Dehydration
 
 **Category**: Food Production

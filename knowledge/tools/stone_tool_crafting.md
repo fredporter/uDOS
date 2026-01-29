@@ -1,3 +1,13 @@
+---
+title: "Stone Tool Crafting"
+id: tools-stone_tool_crafting
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Stone Tool Crafting
 
 **Category:** tools

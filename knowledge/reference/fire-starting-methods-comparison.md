@@ -1,3 +1,13 @@
+---
+title: "Fire Starting Methods - Comparison Chart"
+id: reference-fire-starting-methods-comparison
+type: reference
+category: reference
+tags: [reference, reference]
+difficulty: all
+last_updated: 2026-01-29
+---
+
 # Fire Starting Methods - Comparison Chart
 
 **Category:** Reference

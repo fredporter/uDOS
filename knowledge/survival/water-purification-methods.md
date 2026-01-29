@@ -1,3 +1,13 @@
+---
+title: "Water Purification Methods"
+id: survival-water-purification-methods
+type: emergency
+category: water
+tags: [water, survival]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Water Purification Methods
 
 **Category:** Water Safety  

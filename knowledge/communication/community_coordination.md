@@ -1,3 +1,13 @@
+---
+title: "Community Coordination"
+id: communication-community_coordination
+type: reference
+category: communication
+tags: [communication, communication]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Community Coordination
 
 **Category:** communication

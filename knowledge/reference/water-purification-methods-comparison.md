@@ -1,3 +1,13 @@
+---
+title: "Water Purification Methods - Comparison Guide"
+id: reference-water-purification-methods-comparison
+type: reference
+category: reference
+tags: [reference, reference]
+difficulty: essential
+last_updated: 2026-01-29
+---
+
 # Water Purification Methods - Comparison Guide
 
 **Category:** Reference

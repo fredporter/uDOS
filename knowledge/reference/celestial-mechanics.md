@@ -1,3 +1,13 @@
+---
+title: "Celestial Mechanics Reference"
+id: reference-celestial-mechanics
+type: reference
+category: reference
+tags: [reference, reference]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Celestial Mechanics Reference
 
 **Category:** Reference  

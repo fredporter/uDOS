@@ -1,3 +1,13 @@
+---
+title: "Visual Distress Signals"
+id: communication-visual_distress_signals
+type: reference
+category: communication
+tags: [communication, communication]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Visual Distress Signals
 
 **Category:** communication

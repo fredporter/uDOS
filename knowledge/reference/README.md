@@ -1,3 +1,13 @@
+---
+title: "Tools & Equipment"
+id: reference-README
+type: reference
+category: reference
+tags: [reference, reference]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Tools & Equipment
 
 Tool making, maintenance, and usage.

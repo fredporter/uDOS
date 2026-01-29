@@ -1,3 +1,13 @@
+---
+title: "Tech Knowledge Category"
+id: tech-README
+type: reference
+category: tech
+tags: [tech, tech]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Tech Knowledge Category
 
 Hardware, devices, networking, and communication systems for uDOS.

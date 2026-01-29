@@ -1,3 +1,13 @@
+---
+title: "Firmware Management"
+id: tech-devices-firmware
+type: reference
+category: devices
+tags: [devices, devices]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Firmware Management
 
 Managing firmware for uDOS mesh devices.

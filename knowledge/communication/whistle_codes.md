@@ -1,3 +1,13 @@
+---
+title: "Whistle Codes"
+id: communication-whistle_codes
+type: reference
+category: communication
+tags: [communication, communication]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Whistle Codes
 
 **Category:** communication

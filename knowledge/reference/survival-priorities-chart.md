@@ -1,3 +1,13 @@
+---
+title: "Survival Priorities Reference Chart"
+id: reference-survival-priorities-chart
+type: reference
+category: reference
+tags: [reference, reference]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Survival Priorities Reference Chart
 
 **Quick Reference:** Critical survival priorities and timelines

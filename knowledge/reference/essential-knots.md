@@ -1,3 +1,13 @@
+---
+title: "Essential Knots Reference"
+id: reference-essential-knots
+type: reference
+category: reference
+tags: [reference, reference]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Essential Knots Reference
 
 **Category:** Reference - Quick Visual Guide

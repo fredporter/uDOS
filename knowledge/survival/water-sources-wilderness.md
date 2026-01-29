@@ -1,3 +1,13 @@
+---
+title: "Australian Water Sources & Purification"
+id: survival-water-sources-wilderness
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Australian Water Sources & Purification
 
 **Category:** Survival - Water

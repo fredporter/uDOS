@@ -1,3 +1,13 @@
+---
+title: "Environment Knowledge"
+id: making-README
+type: skill
+category: making
+tags: [making, making]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Environment Knowledge
 
 **Category Focus**: Sustainable living, ecological awareness, and harmonious relationship with nature.

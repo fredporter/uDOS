@@ -1,3 +1,13 @@
+---
+title: "Basic Woodworking & Timber Projects"
+id: making-basic-woodworking
+type: skill
+category: making
+tags: [making, making]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Basic Woodworking & Timber Projects
 
 **Category:** Making - Practical Construction

@@ -1,3 +1,13 @@
+---
+title: "Australian Native Edible Plants (Bush Tucker)"
+id: survival-bush-tucker-foraging
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Australian Native Edible Plants (Bush Tucker)
 
 **Category:** Survival - Food

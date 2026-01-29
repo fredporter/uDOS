@@ -1,3 +1,13 @@
+---
+title: "Knot Tying Guide"
+id: survival-knot-tying
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Knot Tying Guide
 
 **Category:** Survival Skills

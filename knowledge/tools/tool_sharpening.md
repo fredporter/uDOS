@@ -1,3 +1,13 @@
+---
+title: "Tool Sharpening"
+id: tools-tool_sharpening
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Tool Sharpening
 
 **Category:** tools

@@ -1,3 +1,13 @@
+---
+title: "Knife Maintenance"
+id: tools-knife_maintenance
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Knife Maintenance
 
 **Category:** tools

@@ -1,3 +1,13 @@
+---
+title: "Water Purification: Boiling Method"
+id: survival-boiling-purification
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Water Purification: Boiling Method
 
 **Category**: Water Systems

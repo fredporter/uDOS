@@ -1,3 +1,13 @@
+---
+title: "Knife Sharpening Fundamentals"
+id: survival-knife-sharpening
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Knife Sharpening Fundamentals
 
 **Category**: Tools & Skills

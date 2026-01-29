@@ -1,3 +1,13 @@
+---
+title: "Form Example"
+id: reference-form-example
+type: reference
+category: reference
+tags: [reference, reference]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Form Example
 
 This is an example of a Typeform-style form defined in markdown.

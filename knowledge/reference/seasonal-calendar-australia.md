@@ -1,3 +1,13 @@
+---
+title: "Australian Seasonal Calendar & Gardening Guide"
+id: reference-seasonal-calendar-australia
+type: reference
+category: reference
+tags: [reference, reference]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Australian Seasonal Calendar & Gardening Guide
 
 **Category:** Reference - Planning & Timing

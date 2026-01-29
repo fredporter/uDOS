@@ -1,3 +1,13 @@
+---
+title: "Dead Drop Techniques"
+id: communication-dead_drop_techniques
+type: reference
+category: communication
+tags: [communication, communication]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Dead Drop Techniques
 
 **Category:** communication

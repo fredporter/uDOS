@@ -1,3 +1,13 @@
+---
+title: "Control Flow Patterns in uCODE"
+id: tech-control-flow
+type: reference
+category: programming
+tags: [programming, tech]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Control Flow Patterns in uCODE
 
 **Category:** Programming Fundamentals

@@ -1,3 +1,13 @@
+---
+title: "Australian Bush Navigation Guide"
+id: survival-bush-navigation
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Australian Bush Navigation Guide
 
 **Category:** Survival - Navigation

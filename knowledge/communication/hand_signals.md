@@ -1,3 +1,13 @@
+---
+title: "Hand Signals"
+id: communication-hand_signals
+type: reference
+category: communication
+tags: [communication, communication]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Hand Signals
 
 **Category:** communication

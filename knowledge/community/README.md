@@ -1,3 +1,13 @@
+---
+title: "Community Knowledge"
+id: community-README
+type: reference
+category: community
+tags: [community, community]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Community Knowledge
 
 **Category Focus**: Working together, mutual support, and building resilient local communities.

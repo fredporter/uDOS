@@ -1,3 +1,13 @@
+---
+title: "Ground-To-Air Signals"
+id: communication-ground-to-air_signals
+type: reference
+category: communication
+tags: [communication, communication]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Ground-To-Air Signals
 
 **Category:** communication

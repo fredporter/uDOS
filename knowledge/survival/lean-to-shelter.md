@@ -1,3 +1,13 @@
+---
+title: "Lean-To Shelter Construction"
+id: survival-lean-to-shelter
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Lean-To Shelter Construction
 
 **Category**: Shelter & Building

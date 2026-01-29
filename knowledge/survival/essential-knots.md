@@ -1,3 +1,13 @@
+---
+title: "Essential Knots for Survival"
+id: survival-essential-knots
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Essential Knots for Survival
 
 **Category**: Tools & Skills

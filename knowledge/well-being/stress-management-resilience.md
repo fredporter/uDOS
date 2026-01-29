@@ -1,3 +1,13 @@
+---
+title: "Stress Management & Mental Resilience"
+id: well-being-stress-management-resilience
+type: reference
+category: well
+tags: [well, well-being]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Stress Management & Mental Resilience
 
 **Category:** Well-being - Mental Health

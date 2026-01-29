@@ -1,3 +1,13 @@
+---
+title: "Semaphore Flag System"
+id: communication-semaphore_flag_system
+type: reference
+category: communication
+tags: [communication, communication]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Semaphore Flag System
 
 **Category:** communication

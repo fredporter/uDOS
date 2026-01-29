@@ -1,3 +1,13 @@
+---
+title: "Australian Snakebite Treatment Guide"
+id: survival-snakebite-treatment
+type: reference
+category: emergency
+tags: [emergency, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Australian Snakebite Treatment Guide
 
 **Category:** Emergency Medical

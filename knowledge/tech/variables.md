@@ -1,3 +1,13 @@
+---
+title: "Variables in uCODE"
+id: tech-variables
+type: reference
+category: tech
+tags: [tech, tech]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Variables in uCODE
 
 **Level**: Beginner

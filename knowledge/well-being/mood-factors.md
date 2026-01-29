@@ -1,3 +1,13 @@
+---
+title: "Mood Factors System"
+id: well-being-mood-factors
+type: reference
+category: well
+tags: [well, well-being]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Mood Factors System
 
 **Category:** Well-Being  

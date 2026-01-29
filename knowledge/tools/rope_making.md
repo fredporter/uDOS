@@ -1,3 +1,13 @@
+---
+title: "Rope Making"
+id: tools-rope_making
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Rope Making
 
 **Category:** tools

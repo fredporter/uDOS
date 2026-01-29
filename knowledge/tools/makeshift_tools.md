@@ -1,3 +1,13 @@
+---
+title: "Makeshift Tools"
+id: tools-makeshift_tools
+type: skill
+category: tools
+tags: [tools, tools]
+difficulty: beginner
+last_updated: 2026-01-29
+---
+
 # Makeshift Tools
 
 **Category:** tools

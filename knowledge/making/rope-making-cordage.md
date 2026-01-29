@@ -1,3 +1,13 @@
+---
+title: "Rope Making & Natural Cordage"
+id: making-rope-making-cordage
+type: skill
+category: making
+tags: [making, making]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Rope Making & Natural Cordage
 
 **Category:** Making - Practical Crafts

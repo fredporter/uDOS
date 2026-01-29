@@ -1,3 +1,13 @@
+---
+title: "Water Purification: Chemical Methods"
+id: survival-chemical-purification
+type: emergency
+category: survival
+tags: [survival, survival]
+difficulty: intermediate
+last_updated: 2026-01-29
+---
+
 # Water Purification: Chemical Methods
 
 **Category**: Water Systems
