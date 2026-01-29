@@ -1,6 +1,6 @@
 # uDOS Documentation Index
 
-**Last Updated:** 2026-01-28  
+**Last Updated:** 2026-01-29  
 **Version:** v1.0.7
 
 ---
@@ -9,12 +9,13 @@
 
 ### Primary References
 
-| Document                                      | Purpose                                                    |
-| --------------------------------------------- | ---------------------------------------------------------- |
-| [AGENTS.md](../AGENTS.md)                     | How work is done in uDOS (architecture, policies, tooling) |
-| [uCODE.md](uCODE.md)                          | **NEW**: Unified Terminal TUI (main entry point)           |
-| [Development Streams](development-streams.md) | Active development planning across all components          |
-| [README.md](README.md)                        | This file                                                  |
+| Document                                                      | Purpose                                                    |
+| ------------------------------------------------------------- | ---------------------------------------------------------- |
+| [AGENTS.md](../AGENTS.md)                                     | How work is done in uDOS (architecture, policies, tooling) |
+| [uCODE.md](uCODE.md)                                          | **NEW**: Unified Terminal TUI (main entry point)           |
+| [Development Streams](development-streams.md)                 | Active development planning across all components          |
+| [Release Readiness Checklist](RELEASE-READINESS-CHECKLIST.md) | **NEW**: v1.1.0 release gates & timeline                   |
+| [README.md](README.md)                                        | This file                                                  |
 
 ---
 

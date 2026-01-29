@@ -1,104 +1,226 @@
-# uDOS Launcher Scripts
+# uDOS Unified Launcher
 
-Quick-start scripts for launching uDOS components.
+One entry point for everything: **Launch-uCODE.command**
+
+---
 
 ## 🚀 Quick Start
 
-### Double-Click Launchers (macOS)
+### Single Entry Point (macOS)
 
-- **`Launch-uCODE.command`** — uCODE Unified TUI (offline-first, recommended)
-- **`Launch-Wizard-Server.command`** — Production API server (port 8765)
-- **For Goblin:** See `/dev/goblin/bin/Launch-Goblin-Dev.command`
+**Double-click:** `Launch-uCODE.command`
 
-### Terminal Launch
+Shows an interactive menu:
+
+```
+╔═════════════════════════════════════════════════════╗
+║       uCODE - Unified Launcher                      ║
+║      Role: dev                                      ║
+╚═════════════════════════════════════════════════════╝
+
+  1) Core TUI - Terminal interface (offline-first)
+  2) Wizard Server - Always-on services (port 8765)
+  3) Goblin Dev Server - Experimental features (port 8767)
+  4) App Dev - uMarkdown app development
+
+  q) Quit
+
+Select component [1-4]:
+```
+
+### Command-Line Launch
 
 ```bash
-./bin/Launch-uCODE.command              # uCODE Unified TUI (recommended)
-./bin/Launch-Wizard-Server.command      # Wizard API
-./dev/goblin/bin/Launch-Goblin-Dev.command  # Goblin (experimental)
+# Interactive menu
+./Launch-uCODE.command
+
+# Direct component launch
+./Launch-uCODE.command core              # Core TUI (default)
+./Launch-uCODE.command wizard            # Wizard Server
+./Launch-uCODE.command goblin            # Goblin Dev (dev role only)
+./Launch-uCODE.command app               # App Dev (dev role only)
+
+# With explicit mode
+./Launch-uCODE.command wizard server     # Equivalent to: wizard server
+./Launch-uCODE.command core tui          # Equivalent to: core tui
 ```
 
 ---
 
-## 📊 Server Overview
+## 🎯 What's Available
 
-### 🧙 Wizard Production Server
+### Core TUI (Recommended)
 
-**Location:** `Launch-Wizard-Server.command`
-**Port:** 8765
-**Status:** Production v1.1.0.0 (stable, frozen)
+- **Offline-first** terminal interface
+- No network required
+- Full command system
+- Game/exploration system
+- Smart command parser
+- Always available
 
-**Features:**
+### Wizard Server (Production)
 
-- AI Gateway (Ollama, OpenRouter, Vibe)
-- Device Authentication + Sessions
-- Extension Repository
-- Notion Sync + Task Scheduler
-- Binder Compiler
-- GitHub Integration
-- Dev Mode Coordination
+- **Port:** 8765
+- **Status:** v1.1.0.0 (stable, frozen)
+- AI model routing (Ollama → OpenRouter)
+- Device authentication & sessions
+- Extension repository & management
+- GitHub integration & monitoring
+- Webhooks & API endpoints
+- Binder compilation
+- Cost tracking & quotas
 
-**Access:**
+### Goblin Dev Server (Experimental)
 
-- API: `http://localhost:8765/api/v1/*`
-- Docs: `http://localhost:8765/docs`
-
----
-
-### 👺 Goblin Experimental Server
-
-**Location:** `/dev/goblin/bin/Launch-Goblin-Dev.command`
-**Port:** 8767
-**Status:** Experimental v0.2.0 (unstable, breaking changes OK)
-
-**Features:**
-
-- Runtime Executor (TS Markdown)
-- Svelte Dashboard
+- **Port:** 8767
+- **Status:** v0.2.0 (unstable, experimental)
+- TS Markdown runtime executor
+- Notion sync & webhooks
+- Task scheduling (organic cron)
+- Binder compilation
 - Experimental `/api/v0/*` routes
-- Local-only (127.0.0.1)
+- **Dev role only** (requires `/dev/.git`)
 
-**Access:**
+### App Dev (Tauri + Svelte)
 
-- Dashboard: `http://127.0.0.1:8767`
-- Docs: `http://127.0.0.1:8767/docs`
-
----
-
-### 🖥️ uCODE - Unified Terminal TUI
-
-**Location:** `Launch-uCODE.command`
-**Status:** Production v1.0.1 (offline-first, recommended)
-
-**Features:**
-
-- Auto-detects components (core, wizard, extensions, app)
-- Integrated Wizard server control
-- Extension/plugin management
-- SmartPrompt command parser
-- Graceful fallback to core-only mode
-- Full system access
+- uMarkdown editor development
+- macOS native app
+- Future: iOS/iPadOS
+- **Dev role only**
 
 ---
 
-## 📋 Boot Sequence
+## 🔒 User Roles
 
-All launchers show environment checks before starting:
+### **dev** role
+
+- Access to all components
+- Required: `/dev/.git` submodule or `DEV_MODE=1`
+- Can run Core, Wizard, Goblin, App
+
+### **user** role
+
+- Core TUI only
+- Offline-first experience
+- Default when `/dev` is not present
+
+---
+
+## 📁 Consolidated File Structure
+
+After cleanup (2026-01-29):
 
 ```
-╔═══════════════════════════════════════════════════════════════╗
-║            🧙 Wizard Production Server v1.1.0.0               ║
-║      Always-On • AI Routing • Webhooks • Device Auth          ║
-╚═══════════════════════════════════════════════════════════════╝
+bin/
+├── Launch-uCODE.command      # ← Single unified entry point
+├── udos-common.sh            # Shared helper functions
+├── udos                       # Python script launcher
+├── install.sh                # Installation setup
+├── port-manager              # Port conflict detection
+├── udos-self-heal.sh         # Self-healing utilities
+└── README.md                 # This file
+```
 
-[BOOT] Checking environment...
-[BOOT] uDOS Root: ~/uDOS
-[BOOT] Python: Python 3.9.6
+**Archived:** All other `.command` and `.sh` files moved to `.archive/bin-launchers-2026-01-29/`
 
+---
+
+## 🔧 Technical Details
+
+### Component Detection
+
+The launcher automatically detects:
+
+```bash
+Core:      /uDOS/uDOS.py + /uDOS/core/
+Wizard:    /uDOS/wizard/server.py
+Goblin:    /uDOS/dev/goblin/dev_server.py
+App:       /uDOS/app/package.json
+```
+
+### Role Detection
+
+```bash
+dev:   if $DEV_MODE=1 OR /dev/.git exists
+user:  otherwise (default)
+```
+
+### Environment Setup
+
+All launchers:
+
+1. Source `udos-common.sh` for paths and colors
+2. Resolve `UDOS_ROOT` intelligently (works from anywhere)
+3. Check Python environment (uses `.venv` if available)
+4. Validate dependencies before launch
+5. Show boot sequence with environment info
+
+---
+
+## 📖 Boot Sequence Example
+
+```
+╔═══════════════════════════════════════════════════════╗
+║       uCODE - Unified Terminal TUI                    ║
+║      Offline-First • Game System • Full Commands      ║
+╚═══════════════════════════════════════════════════════╝
+
+[BOOT] Resolving uDOS root...
+[BOOT] uDOS Root: /Users/you/Code/uDOS
+[BOOT] Python: 3.9.6 (.venv/bin/python)
 [✓] Virtual environment activated
-[✓] Dependencies installed and ready
-[BOOT] Starting Wizard Server on port 8765...
+[✓] Dependencies validated
+[BOOT] User role: dev
+[BOOT] Available: core, wizard, goblin, app
+
+🧙 uCODE Ready
+Type HELP for commands
 ```
+
+---
+
+## 🚀 For Developers
+
+### Quick development workflow
+
+```bash
+# Start Core TUI
+./Launch-uCODE.command core
+
+# In another terminal, start Wizard
+./Launch-uCODE.command wizard
+
+# In another, start Goblin for experimental work
+./Launch-uCODE.command goblin
+
+# In another, develop the App
+./Launch-uCODE.command app
+```
+
+### Integration with VS Code
+
+The workspace includes tasks for each component (see `uDOS.code-workspace`).
+
+---
+
+## ✨ Why Unified Launcher?
+
+**Before:** 4+ separate `.command` files, confusing menu, unclear which to use
+**After:** 1 smart entry point, auto-detects components, shows what's available
+
+**Benefits:**
+
+- ✅ Single entry point (less confusion)
+- ✅ Smart role/component detection
+- ✅ Works from anywhere
+- ✅ No hardcoded paths
+- ✅ Interactive menu when needed
+- ✅ CLI automation friendly
+- ✅ Future-proof (easy to add new components)
+
+---
+
+**Last Updated:** 2026-01-29
 
 ---
 
