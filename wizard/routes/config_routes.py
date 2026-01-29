@@ -1038,4 +1038,150 @@ def create_config_routes(auth_guard=None):
                 status_code=500, detail=f"Failed to import configs: {str(e)}"
             )
 
+    # ========================================================================
+    # Variable Management Endpoints
+    # ========================================================================
+
+    @router.get("/variables")
+    async def list_variables():
+        """List all environment variables (system, user, feature)."""
+        try:
+            from wizard.services.env_manager import get_env_manager
+
+            env_mgr = get_env_manager()
+            variables = env_mgr.list_all()
+
+            return {
+                "status": "success",
+                "variables": [
+                    {
+                        "key": v.key,
+                        "value": v.value,
+                        "tier": v.tier,
+                        "type": v.type,
+                        "description": v.description,
+                        "required": v.required,
+                        "updated_at": v.updated_at
+                    }
+                    for v in variables
+                ]
+            }
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to list variables: {str(e)}")
+
+    @router.get("/get/{key}")
+    async def get_variable(key: str):
+        """Get a specific variable by key."""
+        try:
+            from wizard.services.env_manager import get_env_manager
+
+            env_mgr = get_env_manager()
+            variable = env_mgr.get(key)
+
+            if not variable:
+                raise HTTPException(status_code=404, detail=f"Variable not found: {key}")
+
+            return {
+                "status": "success",
+                "variable": {
+                    "key": variable.key,
+                    "value": variable.value,
+                    "tier": variable.tier,
+                    "type": variable.type,
+                    "description": variable.description,
+                    "required": variable.required,
+                    "updated_at": variable.updated_at
+                }
+            }
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to get variable: {str(e)}")
+
+    @router.post("/set")
+    async def set_variable(request: Dict[str, Any]):
+        """Set a variable value with automatic tier routing and sync."""
+        try:
+            from wizard.services.env_manager import get_env_manager
+
+            key = request.get("key")
+            value = request.get("value")
+            sync = request.get("sync", True)
+
+            if not key:
+                raise HTTPException(status_code=400, detail="Missing 'key' parameter")
+            if value is None:
+                raise HTTPException(status_code=400, detail="Missing 'value' parameter")
+
+            env_mgr = get_env_manager()
+            success = env_mgr.set(key, value, sync=sync)
+
+            if not success:
+                raise HTTPException(status_code=500, detail="Failed to set variable")
+
+            return {
+                "status": "success",
+                "message": f"Variable {key} updated",
+                "sync_enabled": sync
+            }
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to set variable: {str(e)}")
+
+    @router.delete("/delete/{key}")
+    async def delete_variable(key: str):
+        """Delete a variable from its tier."""
+        try:
+            from wizard.services.env_manager import get_env_manager
+
+            env_mgr = get_env_manager()
+            success = env_mgr.delete(key)
+
+            if not success:
+                raise HTTPException(status_code=404, detail=f"Variable not found or could not be deleted: {key}")
+
+            return {
+                "status": "success",
+                "message": f"Variable {key} deleted"
+            }
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to delete variable: {str(e)}")
+
+    @router.post("/sync")
+    async def sync_all_variables():
+        """Sync all variables across tiers (.env ↔ secrets ↔ config)."""
+        try:
+            from wizard.services.env_manager import get_env_manager
+
+            env_mgr = get_env_manager()
+            counts = env_mgr.sync_all()
+
+            return {
+                "status": "success",
+                "message": "Variables synchronized",
+                "counts": counts
+            }
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to sync variables: {str(e)}")
+
+    @router.get("/export")
+    async def export_config_backup():
+        """Export configuration for backup (does not include secrets)."""
+        try:
+            from wizard.services.env_manager import get_env_manager
+
+            env_mgr = get_env_manager()
+            export_data = env_mgr.export_config()
+
+            return {
+                "status": "success",
+                "data": export_data,
+                "warning": "This export does NOT include encrypted secrets"
+            }
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to export config: {str(e)}")
+
     return router
