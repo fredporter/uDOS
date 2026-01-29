@@ -1,0 +1,331 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "uDOS Location Schema v1.0.7",
+  "description": "Canonical location data format for v1.0.7 grid runtime. Grid-only internal format (no lat/long).",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0.7.0",
+      "description": "Schema version - must be 1.0.7.0"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "World title"
+        },
+        "author": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "locations": {
+      "type": "array",
+      "description": "Sparse collection of authored/discovered locations",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^L[0-9]{3}-[A-Z]{2}[0-9]{2}$",
+            "description": "Canonical location ID: L{LAYER}-{CELL}. Example: L300-AA10, L305-DC39"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable location name. Example: 'Town Square', 'Dark Cave'"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "landmark",
+              "town",
+              "village",
+              "poi",
+              "dungeon",
+              "cave",
+              "forest",
+              "mountain",
+              "water",
+              "building",
+              "room",
+              "marker"
+            ],
+            "description": "Location type classification"
+          },
+          "layer": {
+            "type": "integer",
+            "minimum": 300,
+            "maximum": 305,
+            "description": "Layer number (SUR: 300-305, UDN: 299-294, SUB: 293+)"
+          },
+          "cell": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}[0-9]{2}$",
+            "description": "Grid cell: Columns AA-DC, Rows 10-39. Example: AA10, DC39"
+          },
+          "terrain": {
+            "type": "string",
+            "description": "Terrain type. Example: 'grass', 'water', 'stone', 'sand'"
+          },
+          "elevation_m": {
+            "type": "number",
+            "description": "Elevation in meters (for topographic features)"
+          },
+          "population": {
+            "type": "integer",
+            "description": "Approximate population (for towns/villages)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Long-form location description"
+          },
+          "objects": {
+            "type": "array",
+            "description": "Static objects at this location",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Unique object ID"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "character": {
+                  "type": "string",
+                  "maxLength": 1,
+                  "description": "ASCII/Unicode character to display"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "door",
+                    "chest",
+                    "tree",
+                    "rock",
+                    "sign",
+                    "altar",
+                    "statue"
+                  ]
+                },
+                "interactive": {
+                  "type": "boolean",
+                  "default": true
+                }
+              },
+              "required": [
+                "id",
+                "character"
+              ]
+            }
+          },
+          "sprites": {
+            "type": "array",
+            "description": "Dynamic entities (NPCs, creatures, etc.)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "character": {
+                  "type": "string",
+                  "maxLength": 1,
+                  "description": "ASCII character (@=player, M=merchant, D=dragon)"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "player",
+                    "npc",
+                    "creature",
+                    "merchant",
+                    "guard",
+                    "enemy"
+                  ]
+                },
+                "z": {
+                  "type": "integer",
+                  "description": "Rendering depth (higher=on top)"
+                }
+              },
+              "required": [
+                "id",
+                "character"
+              ]
+            }
+          },
+          "markers": {
+            "type": "array",
+            "description": "Navigation waypoints, quest markers, etc.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "character": {
+                  "type": "string",
+                  "maxLength": 1,
+                  "description": "Flag, star, X, etc."
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "waypoint",
+                    "quest",
+                    "treasure",
+                    "danger",
+                    "safe"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "character",
+                "kind"
+              ]
+            }
+          },
+          "connections": {
+            "type": "object",
+            "description": "Adjacent locations (tile edges)",
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^L[0-9]{3}-[A-Z]{2}[0-9]{2}$",
+              "description": "Direction (N, E, S, W, NE, NW, SE, SW) \u2192 adjacent location ID"
+            },
+            "examples": {
+              "N": "L300-AA11",
+              "E": "L300-AB10",
+              "S": "L300-AA09",
+              "W": "L300-ZZ10"
+            }
+          },
+          "connections_teletext": {
+            "type": "object",
+            "description": "Sextant/teletext map data for this location",
+            "properties": {
+              "width": {
+                "type": "integer",
+                "const": 80,
+                "description": "Viewport width"
+              },
+              "height": {
+                "type": "integer",
+                "const": 30,
+                "description": "Viewport height"
+              },
+              "data": {
+                "type": "string",
+                "description": "Encoded sextant grid (base64 or hex)"
+              }
+            }
+          },
+          "events": {
+            "type": "array",
+            "description": "Location-triggered events or scripts",
+            "items": {
+              "type": "object",
+              "properties": {
+                "trigger": {
+                  "type": "string",
+                  "enum": [
+                    "enter",
+                    "exit",
+                    "interact",
+                    "time"
+                  ]
+                },
+                "action": {
+                  "type": "string",
+                  "description": "JavaScript/uPy code to execute"
+                }
+              }
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Arbitrary metadata",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      }
+    },
+    "terrain_types": {
+      "type": "array",
+      "description": "Terrain definitions for this world",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique terrain type ID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "character": {
+            "type": "string",
+            "maxLength": 1,
+            "description": "ASCII representation"
+          },
+          "sextant_block": {
+            "type": "string",
+            "description": "Unicode sextant/block character"
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "black",
+              "red",
+              "green",
+              "yellow",
+              "blue",
+              "magenta",
+              "cyan",
+              "white"
+            ]
+          },
+          "traversable": {
+            "type": "boolean",
+            "default": true
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "character"
+        ]
+      }
+    }
+  },
+  "required": [
+    "version",
+    "locations"
+  ],
+  "additionalProperties": false
+}

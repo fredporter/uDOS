@@ -19,6 +19,19 @@ memory/
 !memory/README.md
 !memory/WORKSPACE-STRUCTURE.md
 
+# Bank structure: templates tracked, user data ignored
+!memory/bank/
+!memory/bank/system/
+!memory/bank/system/README.md
+!memory/bank/system/startup-script.md
+!memory/bank/system/reboot-script.md
+
+# User data (never tracked)
+memory/bank/locations/
+memory/bank/knowledge/
+memory/bank/checklists/
+memory/bank/binders/
+
 # Local scratch folders
 .archive/
 **/.archive/

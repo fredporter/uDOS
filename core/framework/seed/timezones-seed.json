@@ -1,0 +1,28 @@
+{
+  "version": "1.0.0",
+  "description": "uDOS Timezone Seed Data - Common timezone examples",
+  "note": "Full timezone data available at /memory/bank/locations/timezones.json",
+  "zones": {
+    "UTC": {
+      "name": "UTC",
+      "cities": ["Alpha Centauri", "Andromeda Galaxy", "Forest Clearing", "Low Earth Orbit"]
+    },
+    "Asia/Tokyo": {
+      "name": "Asia/Tokyo",
+      "cities": ["Tokyo - Shibuya Crossing", "Tokyo - Asakusa Temple", "Mount Fuji"]
+    },
+    "America/New_York": {
+      "name": "America/New_York",
+      "cities": ["New York City", "Niagara Falls"]
+    },
+    "Europe/London": {
+      "name": "Europe/London",
+      "cities": ["London - Westminster", "Scottish Highlands"]
+    }
+  },
+  "locations": {
+    "L300-AA10": "UTC",
+    "L300-BJ10": "Asia/Tokyo",
+    "L306-AA00": "UTC"
+  }
+}

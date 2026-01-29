@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://udos.dev/schemas/version.schema.json",
+  "title": "uDOS Component Version",
+  "description": "Schema for uDOS component version files (version.json)",
+  "type": "object",
+  "required": ["component", "name", "version", "display", "channel"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Path to this schema file"
+    },
+    "component": {
+      "type": "string",
+      "description": "Unique component identifier",
+      "enum": ["core", "api", "tauri-udos", "tauri-typo", "cloud", "knowledge", "transport", "meshcore"]
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable component name"
+    },
+    "version": {
+      "type": "object",
+      "description": "Semantic version components",
+      "required": ["major", "minor", "patch"],
+      "properties": {
+        "major": { "type": "integer", "minimum": 0 },
+        "minor": { "type": "integer", "minimum": 0 },
+        "patch": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "display": {
+      "type": "string",
+      "description": "Display version string (e.g., v1.0.0)",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "channel": {
+      "type": "string",
+      "description": "Release channel",
+      "enum": ["alpha", "beta", "stable", "dev"]
+    },
+    "released": {
+      "type": "string",
+      "format": "date",
+      "description": "Release date (YYYY-MM-DD)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Release description"
+    },
+    "changelog": {
+      "type": "string",
+      "description": "Path to changelog file"
+    },
+    "dependencies": {
+      "type": "object",
+      "description": "Component dependencies with version requirements",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Component-specific metadata",
+      "additionalProperties": true
+    },
+    "versioning_note": {
+      "type": "string",
+      "description": "Special versioning notes (e.g., for knowledge which uses timestamp)"
+    }
+  }
+}
