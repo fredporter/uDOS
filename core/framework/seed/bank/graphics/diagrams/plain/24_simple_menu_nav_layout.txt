@@ -1,0 +1,3 @@
+[ MAIN NAV ]
+------------
+[ HOME ]  [ EVENTS ]  [ REPORTS ]  [ SETTINGS ]

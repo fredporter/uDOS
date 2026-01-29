@@ -13,9 +13,13 @@ core/framework/
 │   └── version.schema.json
 ├── templates/         # Default templates for customization
 │   └── location-template.json
-└── seed/              # Minimal seed data for new installations
+└── seed/              # Seed data for new installations
     ├── locations-seed.json     (< 10KB)
-    └── timezones-seed.json     (< 5KB)
+    ├── timezones-seed.json     (< 5KB)
+    └── bank/                   # Bank seed data (distributed)
+        ├── graphics/           # Themes, diagrams, teletext
+        ├── help/               # Help template seeds
+        └── templates/          # Runtime template seeds
 ```
 
 ---
@@ -40,6 +44,15 @@ core/framework/
 - **Usage:** Automatically loaded on first run
 - **Distribution:** Part of public repo distribution
 - **Note:** Full data lives in `/memory/bank/` after installation
+
+#### Bank Seeds (`seed/bank/`)
+- **Purpose:** Rich seed data for `/memory/bank/` initialization
+- **Content:**
+  - Graphics: Themes, diagrams (ASCII/teletext/SVG), teletext palettes
+  - Help: Command reference templates
+  - Templates: Runtime templates (story, setup, forms)
+- **Usage:** Copied to `/memory/bank/` on first run or via `REPAIR --seed`
+- **Distribution:** Tracked in framework, user overrides gitignored
 
 ---
 

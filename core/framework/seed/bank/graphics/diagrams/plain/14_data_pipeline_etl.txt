@@ -1,0 +1,15 @@
+[ DATA PIPELINE ]
+-----------------
+[ SOURCES ]
+     |
+     v
+[ RAW STORAGE ]
+     |
+     v
+[ TRANSFORM / CLEAN ]
+     |
+     v
+[ CURATED DATA ]
+     |
+     v
+[ ANALYTICS / BI ]

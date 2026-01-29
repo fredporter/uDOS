@@ -40,6 +40,7 @@ from core.commands import (
     DestroyHandler,
     UserHandler,
     UndoHandler,
+    MigrateHandler,
 )
 
 
@@ -87,6 +88,8 @@ class CommandDispatcher:
             # Cleanup/Reset (2)
             "DESTROY": DestroyHandler(),  # System cleanup with data wipe options
             "UNDO": UndoHandler(),  # Simple undo via restore from backup
+            # Data Migration (1)
+            "MIGRATE": MigrateHandler(),  # SQLite migration for location data
             # NPC & Dialogue (3)
             "NPC": self.npc_handler,
             "TALK": self.talk_handler,

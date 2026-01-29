@@ -1,0 +1,235 @@
+{
+  "name": "Hand-Illustrative",
+  "version": "2.0.0",
+  "description": "Organic flowing lines with natural variation for botanical illustrations and organic subjects",
+  "color_palette": {
+    "background": "#FFFFFF",
+    "primary": "#000000",
+    "secondary": "none",
+    "prohibited": ["#gray", "#808080", "gradients", "raster_effects"],
+    "notes": "STRICT monochrome only - black (#000000) and white (#FFFFFF). No grays, no gradients."
+  },
+  "geometry": {
+    "style": "organic",
+    "description": "Natural, flowing forms with intentional irregularity",
+    "characteristics": {
+      "curves": "smooth bezier, variable radius",
+      "angles": "natural (not constrained to 45° increments)",
+      "symmetry": "approximate (bilateral for plants)",
+      "variation": "intentional slight irregularity"
+    },
+    "encouraged": {
+      "flowing_lines": true,
+      "natural_curves": true,
+      "organic_shapes": true,
+      "textural_detail": true
+    }
+  },
+  "stroke": {
+    "width_range": [2.0, 3.5],
+    "default": 2.5,
+    "variation": "natural (thinner for details, thicker for emphasis)",
+    "structure": 2.5,
+    "emphasis": 3.5,
+    "detail": 2.0,
+    "fine_detail": 1.5,
+    "line_cap": "round",
+    "line_join": "round",
+    "quality": "smooth (avoid jagged edges)"
+  },
+  "patterns": {
+    "wavy_lines": {
+      "description": "Parallel wavy lines following contour for shading",
+      "wavelength": 12,
+      "amplitude": "2-4",
+      "spacing": "5-7",
+      "stroke_width": 1.0,
+      "use_cases": ["leaf_surfaces", "skin_texture", "fabric", "organic_shading"]
+    },
+    "undulating": {
+      "description": "Irregular organic texture lines",
+      "variation": "high",
+      "spacing": "4-6",
+      "stroke_width": 1.0,
+      "follow_contour": true,
+      "use_cases": ["bark_texture", "rough_surfaces", "rock", "ground"]
+    },
+    "stipple": {
+      "description": "Irregularly spaced dots for soft shading",
+      "density": {
+        "light": "12px average spacing, random variation",
+        "medium": "8px average spacing",
+        "heavy": "5px average spacing"
+      },
+      "dot_radius": "0.5-1.0",
+      "variation": "random placement within grid",
+      "use_cases": ["soft_shadows", "flower_centers", "granular_textures"]
+    },
+    "cross_contour": {
+      "description": "Lines following 3D form curves",
+      "direction": "perpendicular to form axis",
+      "spacing": "6-10",
+      "stroke_width": 1.0,
+      "curve_variation": "natural",
+      "use_cases": ["cylindrical_forms", "rounded_objects", "depth_indication"]
+    },
+    "feathering": {
+      "description": "Short tapering strokes radiating from edge",
+      "length": "5-15",
+      "spacing": "3-5",
+      "taper": "gradual",
+      "stroke_width": "1.0-2.0",
+      "use_cases": ["soft_edges", "fur_texture", "feather_detail", "grass"]
+    }
+  },
+  "organic_elements": {
+    "description": "Natural forms and textures",
+    "leaves": {
+      "structure": "midrib with branching veins",
+      "edge_style": "smooth, serrated, or lobed",
+      "vein_pattern": "parallel, pinnate, or palmate",
+      "stroke_width": 2.5,
+      "detail_veins": 1.5
+    },
+    "stems": {
+      "style": "slightly irregular cylinder",
+      "texture": "smooth or textured with lines",
+      "nodes": "slight thickening at joints",
+      "stroke_width": "2.5-3.0"
+    },
+    "roots": {
+      "style": "branching, tapering",
+      "texture": "undulating lines for bark",
+      "root_hairs": "fine lines (1.0px)",
+      "stroke_width": "2.5 (main), 2.0 (branches), 1.5 (hairs)"
+    },
+    "flowers": {
+      "petals": "organic curves, slight asymmetry",
+      "center": "stipple or radial lines",
+      "stamens": "fine lines with dot anthers",
+      "stroke_width": "2.0 (petals), 1.5 (details)"
+    }
+  },
+  "typography": {
+    "font_family": "Helvetica, Arial, sans-serif",
+    "weights": {
+      "normal": 400,
+      "bold": 700
+    },
+    "sizes": {
+      "title": 16,
+      "header": 14,
+      "primary_label": 10,
+      "secondary_label": 8,
+      "detail_label": 7,
+      "annotation": 6
+    },
+    "alignment": {
+      "default": "start",
+      "curved_path": "follow organic form"
+    },
+    "leader_lines": {
+      "stroke_width": 1.0,
+      "style": "gently curved (bezier)",
+      "terminator": "small dot or arrow"
+    },
+    "integration": {
+      "placement": "flowing with composition",
+      "whitespace": "respect organic forms"
+    }
+  },
+  "composition": {
+    "viewBox_recommended": {
+      "square": "800×800",
+      "landscape": "1000×800",
+      "portrait": "600×1000",
+      "tall_plant": "600×1200"
+    },
+    "margins": {
+      "outer": 30,
+      "inner": 15
+    },
+    "layout": {
+      "style": "naturalistic",
+      "balance": "asymmetric but visually balanced",
+      "focal_point": "largest/most detailed element"
+    },
+    "whitespace": {
+      "importance": "critical",
+      "breathing_room": "generous around main subject"
+    }
+  },
+  "botanical_accuracy": {
+    "proportion": {
+      "rule": "Accurate relative sizes of parts",
+      "enforcement": "high",
+      "note": "Simplify but maintain proportions"
+    },
+    "structure": {
+      "rule": "Correct botanical structure (leaf attachment, flower parts)",
+      "enforcement": "medium",
+      "note": "Simplified but recognizable"
+    },
+    "detail_level": {
+      "overall_form": "accurate silhouette",
+      "key_features": "distinctive characteristics prominent",
+      "fine_detail": "suggested rather than complete"
+    }
+  },
+  "shading_technique": {
+    "light_source": {
+      "position": "top-left (convention)",
+      "consistency": "maintain throughout diagram"
+    },
+    "value_range": {
+      "highlight": "white (no marks)",
+      "mid_tone": "light wavy lines or sparse stipple",
+      "shadow": "dense wavy lines or heavy stipple",
+      "core_shadow": "cross-hatched wavy lines"
+    },
+    "blending": {
+      "method": "gradual density change in patterns",
+      "transition": "soft (fade pattern spacing)"
+    }
+  },
+  "validation_rules": {
+    "monochrome_check": {
+      "rule": "Only #000000 and #FFFFFF allowed",
+      "enforcement": "strict",
+      "error": "Color values outside black/white range detected"
+    },
+    "stroke_variation_check": {
+      "rule": "Stroke width variation should appear natural (1.5-3.5px)",
+      "enforcement": "warning",
+      "error": "Stroke width too uniform or too variable"
+    },
+    "pattern_validation": {
+      "rule": "Shading must use wavy, undulating, or stipple patterns",
+      "enforcement": "strict",
+      "error": "Solid gray fill detected - use organic patterns instead"
+    },
+    "organic_quality": {
+      "rule": "Forms should appear natural, not geometric",
+      "enforcement": "warning",
+      "error": "Overly geometric forms detected in organic style"
+    },
+    "svg_wellformed": {
+      "rule": "Valid SVG XML structure",
+      "enforcement": "strict",
+      "error": "Malformed SVG - must be valid XML"
+    }
+  },
+  "usage_examples": {
+    "plant_identification": "Whole plant with roots, leaves, flowers. Wavy line shading, stipple for textures",
+    "botanical_detail": "Close-up of flower or leaf structure. Fine detail lines, cross-contour shading",
+    "natural_materials": "Wood, stone, organic materials. Undulating textures, varied line weight",
+    "organism_illustration": "Insects, fungi, etc. Organic forms with appropriate textures"
+  },
+  "optimization_notes": [
+    "Vectorization: Use 'organic' preset (potrace: white policy, higher tolerance for smooth curves)",
+    "File size: Target <75KB per diagram (more complex than technical)",
+    "Detail balance: Show enough for identification without overcrowding",
+    "Texture efficiency: Use patterns strategically, not everywhere",
+    "Natural variation: Slight irregularity adds authenticity"
+  ]
+}

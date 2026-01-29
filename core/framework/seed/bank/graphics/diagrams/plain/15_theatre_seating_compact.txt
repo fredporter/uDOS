@@ -1,0 +1,10 @@
+[ THEATRE LAYOUT ]
+------------------
+          [ STAGE ]
+          =========
+FRONT ROW (VIP)
+V V V V V V V V
+MIDDLE ROW (PREMIUM)
+P P P P P P P P P P
+REAR ROW (STANDARD)
+S S S S S S S S S S

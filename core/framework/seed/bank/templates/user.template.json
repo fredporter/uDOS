@@ -1,0 +1,32 @@
+{
+    "SYSTEM_NAME": "uDOS",
+    "VERSION": "1.0.0",
+    "USER_PROFILE": {
+        "NAME": "",
+        "LOCATION": "",
+        "TIMEZONE": "UTC",
+        "PREFERRED_MODE": "STANDARD"
+    },
+    "PROJECT": {
+        "NAME": "",
+        "DESCRIPTION": "",
+        "START_DATE": ""
+    },
+    "LOCATION_DATA": {
+        "CITY": "",
+        "COUNTRY": "",
+        "LATITUDE": 0,
+        "LONGITUDE": 0,
+        "MAP_POSITION": {
+            "X": 0,
+            "Y": 0
+        },
+        "CURRENT_LAYER": "SURFACE"
+    },
+    "SESSION_DATA": {
+        "CURRENT_SESSION": "",
+        "SESSION_COUNT": 0,
+        "LAST_LOGIN": "",
+        "VIEWPORT": {}
+    }
+}

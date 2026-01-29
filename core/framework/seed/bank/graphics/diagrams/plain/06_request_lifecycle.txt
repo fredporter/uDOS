@@ -1,0 +1,21 @@
+[ REQUEST LIFECYCLE ]
+---------------------
+CLIENT
+  |
+  v
+[ HTTP REQUEST ]
+  |
+  v
+[ API GATEWAY ]
+  |
+  v
+[ SERVICE HANDLER ]
+  |
+  v
+[ DATABASE QUERY ]
+  |
+  v
+[ HTTP RESPONSE ]
+  |
+  v
+CLIENT

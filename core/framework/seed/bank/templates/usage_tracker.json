@@ -1,0 +1,19 @@
+{
+  "command_counts": {
+    "SHAKEDOWN": 1
+  },
+  "success_counts": {
+    "SHAKEDOWN": 1
+  },
+  "failure_counts": {},
+  "recent_commands": [
+    {
+      "command": "SHAKEDOWN",
+      "timestamp": "2025-11-26T17:59:44.363689",
+      "params": [],
+      "success": true,
+      "context": {}
+    }
+  ],
+  "last_updated": "2025-11-26T17:59:59.975631"
+}

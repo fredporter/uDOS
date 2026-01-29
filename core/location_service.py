@@ -1,34 +1,201 @@
 """
 Location Service - Query and manipulate location data
 Provides utilities for timezone calculations, distance, pathfinding, etc.
+
+Phase 8: SQLite Migration Support
+- Auto-detects JSON vs SQLite backend
+- Maintains same API surface for backward compatibility
+- Auto-triggers migration when JSON > 500KB
 """
 
 import json
 import os
+import sqlite3
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, List, Tuple, Any
 from pathlib import Path
+
+from core.services.logging_manager import get_logger
+
+logger = get_logger("location-service")
 
 
 class LocationService:
     """Service for managing game world locations and timezone calculations."""
 
-    def __init__(self, locations_file: Optional[str] = None):
+    def __init__(
+        self, locations_file: Optional[str] = None, data_dir: Optional[Path] = None
+    ):
         """
         Initialize location service.
 
         Args:
-            locations_file: Path to locations.json (defaults to core/locations.json)
+            locations_file: Path to locations.json (deprecated, use data_dir)
+            data_dir: Path to data directory (defaults to memory/bank/locations/)
         """
-        if locations_file is None:
-            # Auto-locate from core directory
-            core_path = Path(__file__).parent
-            locations_file = core_path / "locations.json"
+        # Determine data directory
+        if data_dir is None:
+            if locations_file is not None:
+                # Legacy: use provided locations_file
+                self.data_dir = Path(locations_file).parent
+                self.json_path = Path(locations_file)
+            else:
+                # Default to memory/bank/locations/
+                project_root = Path(__file__).parent.parent
+                self.data_dir = project_root / "memory" / "bank" / "locations"
+                self.json_path = self.data_dir / "locations.json"
+        else:
+            self.data_dir = Path(data_dir)
+            self.json_path = self.data_dir / "locations.json"
 
-        self.locations_file = locations_file
+        self.db_path = self.data_dir / "locations.db"
+
+        # Storage backend
+        self.use_sqlite = False
+        self._conn = None
         self._locations_data = None
         self._locations_by_id = None
+
+        # Determine which backend to use
+        self._init_backend()
+
+        # Load data
         self._load_locations()
+
+    def _init_backend(self):
+        """Determine whether to use SQLite or JSON backend."""
+        # If SQLite DB exists, use it
+        if self.db_path.exists():
+            self.use_sqlite = True
+            logger.info(f"[LOCAL] Using SQLite backend: {self.db_path}")
+            return
+
+        # Check if migration should be triggered
+        if self.json_path.exists():
+            from core.services.location_migration_service import LocationMigrator
+
+            migrator = LocationMigrator(self.data_dir)
+            should_migrate, reason = migrator.should_migrate()
+
+            if should_migrate:
+                logger.warning(f"[LOCAL] Location data exceeds threshold: {reason}")
+                logger.info("[LOCAL] Auto-triggering SQLite migration...")
+
+                stats = migrator.perform_migration(backup=True)
+
+                if stats["success"]:
+                    logger.info(
+                        f"[LOCAL] Migration completed: "
+                        f"{stats['locations_migrated']} locations migrated"
+                    )
+                    self.use_sqlite = True
+                else:
+                    logger.error(f"[LOCAL] Migration failed: {stats.get('error')}")
+                    logger.warning("[LOCAL] Falling back to JSON backend")
+                    self.use_sqlite = False
+            else:
+                logger.info(f"[LOCAL] Using JSON backend: {self.json_path}")
+                self.use_sqlite = False
+        else:
+            logger.warning(f"[LOCAL] No location data found in {self.data_dir}")
+            self.use_sqlite = False
+
+    def _load_locations(self):
+        """Load locations from appropriate backend (JSON or SQLite)."""
+        if self.use_sqlite:
+            self._load_from_sqlite()
+        else:
+            self._load_from_json()
+
+    def _load_from_json(self):
+        """Load locations from JSON file."""
+        try:
+            with open(self.json_path, "r") as f:
+                self._locations_data = json.load(f)
+
+            # Build index by ID for fast lookup
+            self._locations_by_id = {}
+            for loc in self._locations_data.get("locations", []):
+                self._locations_by_id[loc["id"]] = loc
+
+            logger.info(
+                f"[LOCAL] Loaded {len(self._locations_by_id)} locations from JSON"
+            )
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Locations file not found: {self.json_path}")
+        except json.JSONDecodeError:
+            raise ValueError(f"Invalid JSON in locations file: {self.json_path}")
+
+    def _load_from_sqlite(self):
+        """Load locations from SQLite database."""
+        try:
+            self._conn = sqlite3.connect(str(self.db_path))
+            self._conn.row_factory = sqlite3.Row
+
+            cursor = self._conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM locations")
+            count = cursor.fetchone()[0]
+
+            logger.info(f"[LOCAL] Connected to SQLite database: {count} locations")
+
+            # Build in-memory index for fast lookup
+            self._locations_by_id = {}
+            cursor.execute("SELECT * FROM locations")
+            for row in cursor.fetchall():
+                loc_dict = dict(row)
+
+                # Parse JSON fields
+                if loc_dict.get("coordinates"):
+                    loc_dict["coordinates"] = json.loads(loc_dict["coordinates"])
+                if loc_dict.get("metadata"):
+                    metadata = json.loads(loc_dict["metadata"])
+                    loc_dict.update(metadata)
+                    del loc_dict["metadata"]
+
+                # Load connections
+                cursor.execute(
+                    """
+                    SELECT to_location, direction, distance_km, label, requires
+                    FROM connections 
+                    WHERE from_location = ?
+                """,
+                    (loc_dict["id"],),
+                )
+
+                connections = []
+                for conn_row in cursor.fetchall():
+                    conn_dict = {
+                        "to": conn_row[0],
+                        "direction": conn_row[1],
+                        "distance_km": conn_row[2],
+                        "label": conn_row[3],
+                    }
+                    if conn_row[4]:  # requires
+                        conn_dict["requires"] = json.loads(conn_row[4])
+                    connections.append(conn_dict)
+
+                loc_dict["connections"] = connections
+
+                # Load tiles
+                cursor.execute(
+                    """
+                    SELECT tile_key, content 
+                    FROM tiles 
+                    WHERE location_id = ?
+                """,
+                    (loc_dict["id"],),
+                )
+
+                tiles = {}
+                for tile_row in cursor.fetchall():
+                    tiles[tile_row[0]] = json.loads(tile_row[1])
+
+                loc_dict["tiles"] = tiles
+
+                self._locations_by_id[loc_dict["id"]] = loc_dict
+
+        except sqlite3.Error as e:
+            raise RuntimeError(f"SQLite error: {e}")
 
     def _load_locations(self):
         """Load locations from JSON file."""
@@ -51,7 +218,10 @@ class LocationService:
 
     def get_all_locations(self) -> List[Dict]:
         """Get all locations."""
-        return self._locations_data.get("locations", [])
+        if self.use_sqlite:
+            return list(self._locations_by_id.values())
+        else:
+            return self._locations_data.get("locations", [])
 
     def get_locations_by_region(self, region: str) -> List[Dict]:
         """Get all locations in a region."""
@@ -271,9 +441,15 @@ class LocationService:
             "landmarks": len(
                 [l for l in locations if l.get("type") == "geographical-landmark"]
             ),
+            "backend": "SQLite" if self.use_sqlite else "JSON",
         }
 
         return stats
+
+    def __del__(self):
+        """Clean up SQLite connection on destruction."""
+        if self._conn:
+            self._conn.close()
 
 
 def main():

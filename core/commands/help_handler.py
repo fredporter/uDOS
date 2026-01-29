@@ -23,6 +23,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
             "CLEAN",
             "COMPOST",
             "DESTROY",
+            "MIGRATE",
             "DEV",
             "DEV MODE",
             "LOGS",
@@ -146,11 +147,16 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
         },
         "SHAKEDOWN": {
             "description": "System validation and diagnostics",
-            "usage": "SHAKEDOWN",
-            "example": "SHAKEDOWN",
-            "notes": "Checks core components, handlers, locations",
+            "usage": "SHAKEDOWN [--fresh] [--destroy-verify] [--detailed]",
+            "example": "SHAKEDOWN\nSHAKEDOWN --fresh\nSHAKEDOWN --destroy-verify",
+            "notes": "Framework init, component validation, fresh install checks, DESTROY verification",
             "category": "System & Maintenance",
-            "syntax": "SHAKEDOWN [--verbose] [--focus <module>]",
+            "syntax": "SHAKEDOWN [--fresh] [--destroy-verify] [--detailed]",
+            "flags": {
+                "--fresh": "Validate fresh install initialization (memory dirs, default user, logger)",
+                "--destroy-verify": "Verify DESTROY command prerequisites (handler, permissions, write access)",
+                "--detailed": "Show extended output with metadata and check details",
+            },
         },
         "REPAIR": {
             "description": "Self-healing and system maintenance",
@@ -239,6 +245,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
             "notes": "View aggregated logs from Core, Wizard, Goblin, Extensions. Files stored in memory/logs/",
             "category": "System & Maintenance",
             "syntax": "LOGS [--last N] [--core|--wizard|--goblin] [--level LEVEL] [--category CATEGORY] [--stats] [--clear] [help]",
+        },
+        "MIGRATE": {
+            "description": "Manage location data SQLite migration",
+            "usage": "MIGRATE [check|status|perform] [--no-backup]",
+            "example": "MIGRATE or MIGRATE perform",
+            "notes": "Auto-migrates when locations.json > 500KB or 1000 records. Phase 8: SQLite Migration",
+            "category": "System & Maintenance",
+            "syntax": "MIGRATE [check|status|perform] [--no-backup]",
         },
         "NPC": {
             "description": "List NPCs at current or specified location",

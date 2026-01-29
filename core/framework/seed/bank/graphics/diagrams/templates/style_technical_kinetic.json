@@ -1,0 +1,237 @@
+{
+  "name": "Technical-Kinetic",
+  "version": "2.0.0",
+  "description": "Precision MCM geometry with kinetic flow elements for technical diagrams (flowcharts, schematics, architecture)",
+  "color_palette": {
+    "background": "#FFFFFF",
+    "primary": "#000000",
+    "secondary": "none",
+    "prohibited": ["#gray", "#808080", "gradients", "raster_effects"],
+    "notes": "STRICT monochrome only - black (#000000) and white (#FFFFFF). No grays, no gradients."
+  },
+  "geometry": {
+    "style": "MCM",
+    "description": "Minimal Complexity Modernism - clean circles, rectangles, precise angles",
+    "constraints": {
+      "angles": [0, 45, 90, 135, 180, 225, 270, 315],
+      "shapes": ["circle", "rectangle", "triangle", "polygon"],
+      "radius_constraint": "clean multiples of 5px",
+      "alignment": "grid-based",
+      "symmetry": "encouraged"
+    },
+    "prohibited": {
+      "organic_curves": false,
+      "irregular_shapes": false,
+      "random_angles": true,
+      "hand_drawn_style": true
+    }
+  },
+  "stroke": {
+    "width_range": [2.0, 3.0],
+    "default": 2.5,
+    "structure": 2.0,
+    "emphasis": 3.0,
+    "detail": 1.5,
+    "line_cap": "round",
+    "line_join": "round",
+    "dash_array": {
+      "solid": "none",
+      "dashed": "5,5",
+      "dotted": "2,3"
+    }
+  },
+  "patterns": {
+    "hatching": {
+      "description": "Parallel diagonal lines for shading",
+      "density": {
+        "light": "8px spacing",
+        "medium": "5px spacing",
+        "heavy": "3px spacing"
+      },
+      "angle": 45,
+      "stroke_width": 1.0,
+      "use_cases": ["shadows", "structural_members", "solid_materials"]
+    },
+    "stipple": {
+      "description": "Evenly spaced dots for texture",
+      "density": {
+        "light": "10px grid",
+        "medium": "6px grid",
+        "heavy": "4px grid"
+      },
+      "dot_radius": 0.75,
+      "use_cases": ["ground_surfaces", "granular_materials", "rough_textures"]
+    },
+    "wavy": {
+      "description": "Parallel wavy lines for flow",
+      "wavelength": 15,
+      "amplitude": 3,
+      "spacing": 6,
+      "stroke_width": 1.0,
+      "use_cases": ["water_flow", "air_movement", "heat_radiation"]
+    },
+    "undulating": {
+      "description": "Irregular organic texture",
+      "variation": "controlled",
+      "spacing": 5,
+      "stroke_width": 1.0,
+      "use_cases": ["organic_materials", "plant_textures", "irregular_surfaces"]
+    },
+    "cross_hatch": {
+      "description": "Perpendicular hatching for heavy shading",
+      "angle_1": 45,
+      "angle_2": 135,
+      "spacing": 5,
+      "stroke_width": 1.0,
+      "use_cases": ["deep_shadows", "very_dark_areas", "emphasis"]
+    }
+  },
+  "kinetic_elements": {
+    "description": "Symbols suggesting movement, mechanism, energy flow",
+    "gears": {
+      "use": "decision points, mechanical connections, pivots",
+      "teeth_count": [8, 12, 16],
+      "style": "simple geometric",
+      "stroke_width": 2.0
+    },
+    "conduits": {
+      "use": "flow paths, connections, processes",
+      "style": "curved lines with directional arrows",
+      "arrow_style": "filled triangle",
+      "curve_radius": "smooth (bezier)",
+      "stroke_width": 2.5
+    },
+    "levers": {
+      "use": "mechanical advantage, force direction",
+      "style": "straight line with fulcrum point",
+      "fulcrum_symbol": "small circle or triangle",
+      "stroke_width": 3.0
+    },
+    "arrows": {
+      "direction": {
+        "style": "filled triangle head",
+        "size": "6-8px",
+        "stroke_width": 2.5
+      },
+      "motion": {
+        "style": "curved arc with arrow",
+        "motion_lines": "2-3",
+        "spacing": 4,
+        "stroke_width": 2.0
+      }
+    }
+  },
+  "typography": {
+    "font_family": "Helvetica, Arial, sans-serif",
+    "weights": {
+      "normal": 400,
+      "bold": 700
+    },
+    "sizes": {
+      "title": 18,
+      "header": 16,
+      "primary_label": 12,
+      "secondary_label": 10,
+      "detail_label": 8,
+      "annotation": 7
+    },
+    "alignment": {
+      "default": "start",
+      "centered": "middle",
+      "right_aligned": "end"
+    },
+    "leader_lines": {
+      "stroke_width": 1.0,
+      "style": "straight or elbow (90° bend)",
+      "terminator": "dot or arrow"
+    },
+    "spacing": {
+      "line_height": 1.2,
+      "letter_spacing": "normal"
+    }
+  },
+  "composition": {
+    "viewBox_recommended": {
+      "square": "800×800",
+      "landscape": "1000×800",
+      "portrait": "600×1000"
+    },
+    "margins": {
+      "outer": 40,
+      "inner": 20
+    },
+    "grid_system": {
+      "enabled": true,
+      "spacing": 20,
+      "alignment": "snap to grid encouraged"
+    },
+    "whitespace": {
+      "importance": "high",
+      "minimum_element_spacing": 10
+    }
+  },
+  "technical_elements": {
+    "dimension_lines": {
+      "stroke_width": 1.5,
+      "arrow_style": "filled triangle",
+      "extension_line_overhang": 5,
+      "text_offset": 3
+    },
+    "callouts": {
+      "leader_line": "elbow or straight",
+      "bubble_style": "rectangle or circle",
+      "padding": 5,
+      "stroke_width": 2.0
+    },
+    "scale_indicators": {
+      "style": "segmented bar with labels",
+      "position": "bottom-right",
+      "stroke_width": 2.0
+    },
+    "section_cuts": {
+      "line_style": "chain line (long-short-short)",
+      "arrow_direction": "viewing direction",
+      "label": "SECTION A-A"
+    }
+  },
+  "validation_rules": {
+    "monochrome_check": {
+      "rule": "Only #000000 and #FFFFFF allowed",
+      "enforcement": "strict",
+      "error": "Color values outside black/white range detected"
+    },
+    "stroke_width_check": {
+      "rule": "Stroke width must be 1.0-3.0px range",
+      "enforcement": "warning",
+      "error": "Stroke width outside recommended range"
+    },
+    "pattern_validation": {
+      "rule": "All fills must use defined patterns, no solid gray",
+      "enforcement": "strict",
+      "error": "Solid gray fill detected - use patterns instead"
+    },
+    "geometry_validation": {
+      "rule": "Angles should be multiples of 45°",
+      "enforcement": "warning",
+      "error": "Non-standard angles may reduce clarity"
+    },
+    "svg_wellformed": {
+      "rule": "Valid SVG XML structure",
+      "enforcement": "strict",
+      "error": "Malformed SVG - must be valid XML"
+    }
+  },
+  "usage_examples": {
+    "flowchart": "Use gears at decision points, curved conduits for flow, hatching for process boxes",
+    "schematic": "Dimension lines with measurements, callouts for components, hatching for cross-sections",
+    "architecture": "Clean geometric shapes, hierarchical layout, minimal decoration, grid alignment",
+    "technical_illustration": "Precise proportions, dimension indicators, scale reference, section views"
+  },
+  "optimization_notes": [
+    "Vectorization: Use 'technical' preset (potrace: majority policy, low tolerance)",
+    "File size: Target <50KB per diagram through minimal path complexity",
+    "Readability: Ensure 8pt text is legible at 100% zoom",
+    "Print-ready: All elements should work at 300dpi black & white printing",
+    "Accessibility: High contrast ensures visibility in all lighting conditions"
+  ]
+}

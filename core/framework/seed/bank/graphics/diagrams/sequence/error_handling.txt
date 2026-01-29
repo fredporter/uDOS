@@ -1,0 +1,14 @@
+# Error Handling Sequence
+# Demonstrates error conditions and fallbacks
+
+Title: Payment Processing with Error Handling
+
+User->Frontend: Submit Payment
+Frontend->API: POST /payment
+API->PaymentGateway: Process Card
+PaymentGateway-->API: DECLINED
+API->Database: Log Failed Attempt
+API-->Frontend: Error: Payment Declined
+Frontend-->User: Show Error Message
+
+Note right of API: Retry logic could go here

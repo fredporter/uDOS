@@ -1,0 +1,17 @@
+{
+  "name": "Earth Tones Palette",
+  "description": "Warm earthy colors suitable for survival and nature content",
+  "colors": {
+    "black": "#1A1A1A",
+    "red": "#D2691E",
+    "green": "#228B22",
+    "yellow": "#DAA520",
+    "blue": "#4682B4",
+    "magenta": "#8B4513",
+    "cyan": "#5F9EA0",
+    "white": "#F5DEB3"
+  },
+  "background": "#1A1A1A",
+  "foreground": "#F5DEB3",
+  "usage": "Natural, warm palette for outdoor and survival guides"
+}

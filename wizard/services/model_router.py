@@ -143,6 +143,7 @@ class ModelRouter:
     def _load_config(self) -> None:
         """Load router configuration."""
         self.config = {
+            "local_enabled": False,  # Disabled: no local model service running
             "local_endpoint": "http://127.0.0.1:11434",
             "local_model": "devstral-small-2",
             "cloud_enabled": False,  # Disabled by default
@@ -258,13 +259,16 @@ class ModelRouter:
             )
             return self._route_local(classification)
 
-        # Rule 3: Try local first (unless it's failed twice)
-        if task_id not in self.local_failures:
-            self.local_failures[task_id] = 0
+        # Rule 3: Try local first (unless disabled or failed twice)
+        if self.config["local_enabled"]:
+            if task_id not in self.local_failures:
+                self.local_failures[task_id] = 0
 
-        if self.local_failures[task_id] < 2:
-            logger.info(f"[LOCAL] Attempting local route for {task_id}")
-            return self._route_local(classification)
+            if self.local_failures[task_id] < 2:
+                logger.info(f"[LOCAL] Attempting local route for {task_id}")
+                return self._route_local(classification)
+        else:
+            logger.info(f"[LOCAL] Local routing disabled, skipping for {task_id}")
 
         # Rule 4: Local failed 2x, escalate if allowed
         if self.config["cloud_enabled"] and classification.privacy != Privacy.PRIVATE:

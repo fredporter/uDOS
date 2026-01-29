@@ -1,0 +1,15 @@
+[ CUSTOMER LIFECYCLE ]
+----------------------
+[ NEW ]
+  |
+  v
+[ ACTIVE ]
+  |
+  v
+[ PURCHASER ]
+  |
+  v
+[ REPEAT BUYER ]
+  |
+  v
+[ ADVOCATE ]

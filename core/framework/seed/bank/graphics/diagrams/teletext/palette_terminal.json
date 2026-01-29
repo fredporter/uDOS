@@ -1,0 +1,17 @@
+{
+  "name": "Terminal Green Palette",
+  "description": "Classic green monochrome terminal aesthetic",
+  "colors": {
+    "black": "#0D1117",
+    "red": "#00FF00",
+    "green": "#00FF00",
+    "yellow": "#7FFF7F",
+    "blue": "#00AA00",
+    "magenta": "#00FF00",
+    "cyan": "#7FFF7F",
+    "white": "#C9D1D9"
+  },
+  "background": "#0D1117",
+  "foreground": "#00FF00",
+  "usage": "Retro terminal look with green phosphor aesthetic"
+}

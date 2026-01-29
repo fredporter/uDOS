@@ -1,0 +1,20 @@
+[ SUPPORT TICKET FLOW ]
+-----------------------
+[ TICKET CREATED ]
+        |
+        v
+[ TRIAGE ]
+        |
+        v
+[ ASSIGNED ]
+        |
+        v
+[ IN PROGRESS ]
+        |
+   +----+----------------+
+   |                     |
+   v                     v
+[ RESOLVED ]       [ WAITING ON USER ]
+        |                     |
+        v                     v
+[ CLOSED ]             [ AUTO CLOSE ]

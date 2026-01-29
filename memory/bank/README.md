@@ -12,6 +12,17 @@ memory/bank/
 │   ├── startup-script.md
 │   └── reboot-script.md
 │
+├── graphics/            # Graphics seed data (copied from framework)
+│   ├── themes/          # TUI/runtime themes
+│   ├── diagrams/        # ASCII/teletext/SVG templates
+│   └── teletext/        # Teletext palettes
+│
+├── help/                # Help templates (copied from framework)
+│   └── ...
+│
+├── templates/           # Runtime templates (copied from framework)
+│   └── ...
+│
 ├── locations/           # Location and timezone data
 │   ├── locations.json           # Full location database
 │   ├── timezones.json           # Timezone mappings
@@ -36,6 +47,9 @@ memory/bank/
 | Path | Git Status | Sync Method | Notes |
 |------|-----------|-------------|-------|
 | `system/*.md` | ✅ **TRACKED** | Git | Framework templates only |
+| `graphics/` | ❌ Gitignored | Seeded from framework | User can customize |
+| `help/` | ❌ Gitignored | Seeded from framework | User can customize |
+| `templates/` | ❌ Gitignored | Seeded from framework | User can customize |
 | `locations/` | ❌ Gitignored | P2P via MeshCore/QR/Audio | User location data |
 | `knowledge/` | ❌ Gitignored | P2P via MeshCore/QR/Audio | User additions |
 | `checklists/` | ❌ Gitignored | P2P via MeshCore/QR/Audio | User templates |
@@ -64,10 +78,14 @@ memory/bank/
 - Merged with main locations at runtime
 
 **SQLite Migration (`locations.db`)**
-- When location data exceeds 500KB
+- When location data exceeds 500KB or 1000 records
 - Tables: locations, timezones, connections, user_additions
 - Better performance for large datasets
-- Migration happens automatically
+- **Automatic migration** when threshold reached
+- **Backup created** before migration
+- **Transparent to user** — LocationService handles both formats
+- Check status: `MIGRATE status` or `MIGRATE`
+- See: [Phase 8 SQLite Migration](../../docs/PHASE8-SQLITE-MIGRATION.md)
 
 ---
 
@@ -137,9 +155,40 @@ Bank data can be synced across installations using:
 ## 🚀 Getting Started
 
 ### First Run (Automatic)
-1. Framework seed data copied to bank
-2. System scripts initialized
-3. Empty user data directories created
+1. Framework seed data copied to bank from `core/framework/seed/bank/`
+2. Graphics/themes/diagrams/help templates initialized
+3. System scripts initialized
+4. Empty user data directories created
+
+### Managing Location Data
+
+**Check migration status:**
+```bash
+MIGRATE              # Show current status
+MIGRATE check        # Check if migration needed
+MIGRATE status       # Detailed status report
+MIGRATE perform      # Perform migration manually
+```
+
+**Automatic migration:**
+- Triggered when `locations.json` > 500KB or > 1000 records
+- Automatic backup created before migration
+- Seamless — LocationService handles both formats
+- No user action needed
+
+**Rollback to JSON:**
+```bash
+rm memory/bank/locations/locations.db
+# Restart uDOS to use JSON backend
+```
+
+### Re-seeding
+
+If graphics or templates are missing:
+
+```bash
+REPAIR --seed    # Re-copy seed data from framework
+```
 
 ### Adding Data
 
@@ -157,6 +206,13 @@ echo "# My Note" > memory/bank/knowledge/personal/note.md
 **Checklist:**
 ```bash
 echo "- [ ] Task 1" > memory/bank/checklists/todo.md
+```
+
+**Custom Theme:**
+```bash
+cp memory/bank/graphics/themes/default.json \
+   memory/bank/graphics/themes/my-theme.json
+# Edit my-theme.json
 ```
 
 ---

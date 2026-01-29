@@ -1,0 +1,6 @@
+[ KANBAN BOARD ]
+----------------
+TODO        | IN PROGRESS | REVIEW      | DONE
+------------+-------------+-------------+-----------
+Task A      | Task C      | Task E      | Task G
+Task B      | Task D      |             | Task H

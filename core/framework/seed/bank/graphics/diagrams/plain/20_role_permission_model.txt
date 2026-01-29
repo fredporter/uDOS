@@ -1,0 +1,16 @@
+[ PERMISSION MODEL ]
+--------------------
+USERS
+  |
+  v
+ROLES
+  |
+  v
+PERMISSIONS
+  |
+  v
+RESOURCES
+Example:
+User -> Role: "Admin"
+Role -> Permission: "edit_events"
+Permission -> Resource: "Event"

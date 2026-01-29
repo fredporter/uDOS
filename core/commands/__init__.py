@@ -154,6 +154,10 @@ def __getattr__(name):
         from .undo_handler import UndoHandler
 
         return UndoHandler
+    elif name == "MigrateHandler":
+        from .migrate_handler import MigrateHandler
+
+        return MigrateHandler
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -183,6 +187,7 @@ __all__ = [
     "DestroyHandler",
     "UserHandler",
     "UndoHandler",
+    "MigrateHandler",
     # NPC & Dialogue commands
     "NPCHandler",
     "DialogueEngine",

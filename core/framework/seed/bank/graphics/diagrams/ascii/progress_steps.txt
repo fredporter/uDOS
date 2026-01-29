@@ -1,0 +1,10 @@
+Step Progress:
+
+[✓] Step 1: Initialize
+[✓] Step 2: Configure
+[▶] Step 3: Execute (In Progress)
+[ ] Step 4: Validate
+[ ] Step 5: Complete
+
+Pipeline: ●━━━●━━━◉━━━○━━━○
+          Done  Done Active Wait Wait

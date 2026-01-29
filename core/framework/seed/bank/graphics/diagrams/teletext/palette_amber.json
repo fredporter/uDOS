@@ -1,0 +1,17 @@
+{
+  "name": "Amber Monochrome Palette",
+  "description": "Vintage amber CRT monitor aesthetic",
+  "colors": {
+    "black": "#1A0F00",
+    "red": "#FFBF00",
+    "green": "#FFBF00",
+    "yellow": "#FFD700",
+    "blue": "#CC9900",
+    "magenta": "#FFBF00",
+    "cyan": "#FFD700",
+    "white": "#FFEDD0"
+  },
+  "background": "#1A0F00",
+  "foreground": "#FFBF00",
+  "usage": "Warm vintage CRT display aesthetic"
+}

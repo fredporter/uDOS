@@ -1,0 +1,210 @@
+{
+  "category": "File Operations",
+  "description": "File and workspace management commands",
+  "commands": {
+    "LIST": {
+      "name": "LIST",
+      "syntax": [
+        "LIST",
+        "LIST <directory>",
+        "LIST <pattern>"
+      ],
+      "description": "List files in current or specified directory",
+      "detailed": "LIST displays files and directories with formatting and can filter by patterns. Supports recursive listing and detailed file information.",
+      "parameters": [
+        {
+          "name": "directory",
+          "type": "string",
+          "optional": true,
+          "description": "Directory path to list"
+        },
+        {
+          "name": "pattern",
+          "type": "string",
+          "optional": true,
+          "description": "Glob pattern for filtering (e.g., *.md)"
+        }
+      ],
+      "examples": [
+        {
+          "command": "LIST",
+          "description": "List files in current directory"
+        },
+        {
+          "command": "LIST sandbox",
+          "description": "List files in sandbox directory"
+        },
+        {
+          "command": "LIST *.uscript",
+          "description": "List all .uscript files"
+        }
+      ],
+      "related": ["LOAD", "SAVE", "EDIT"],
+      "notes": [
+        "Shows file sizes and modification times",
+        "Directories are shown with trailing /",
+        "Hidden files (starting with .) are not shown by default"
+      ],
+      "version_added": "1.0.0"
+    },
+    "LOAD": {
+      "name": "LOAD",
+      "syntax": [
+        "LOAD <filename>",
+        "LOAD <filename> TO <panel>"
+      ],
+      "description": "Load file content into grid panel",
+      "detailed": "LOAD reads a file and displays its content in a grid panel. Supports various file formats and can target specific panels.",
+      "parameters": [
+        {
+          "name": "filename",
+          "type": "string",
+          "optional": false,
+          "description": "File to load"
+        },
+        {
+          "name": "panel",
+          "type": "string",
+          "optional": true,
+          "description": "Target panel identifier"
+        }
+      ],
+      "examples": [
+        {
+          "command": "LOAD README.md",
+          "description": "Load README.md into current panel"
+        },
+        {
+          "command": "LOAD data.json TO A1",
+          "description": "Load data.json into panel A1"
+        }
+      ],
+      "related": ["SAVE", "EDIT", "LIST"],
+      "notes": [
+        "Automatically detects file encoding",
+        "Large files may be truncated for display",
+        "Use EDIT for interactive file modification"
+      ],
+      "version_added": "1.0.0"
+    },
+    "SAVE": {
+      "name": "SAVE",
+      "syntax": [
+        "SAVE <filename>",
+        "SAVE <panel> TO <filename>"
+      ],
+      "description": "Save grid panel content to file",
+      "detailed": "SAVE writes panel content to a file. Creates directories as needed and backs up existing files.",
+      "parameters": [
+        {
+          "name": "filename",
+          "type": "string",
+          "optional": false,
+          "description": "Destination filename"
+        },
+        {
+          "name": "panel",
+          "type": "string",
+          "optional": true,
+          "description": "Source panel identifier"
+        }
+      ],
+      "examples": [
+        {
+          "command": "SAVE output.txt",
+          "description": "Save current panel to output.txt"
+        },
+        {
+          "command": "SAVE B2 TO backup.json",
+          "description": "Save panel B2 to backup.json"
+        }
+      ],
+      "related": ["LOAD", "EDIT", "LIST"],
+      "notes": [
+        "Existing files are backed up with .bak extension",
+        "Creates parent directories automatically",
+        "Preserves file permissions when overwriting"
+      ],
+      "version_added": "1.0.0"
+    },
+    "EDIT": {
+      "name": "EDIT",
+      "syntax": [
+        "EDIT <filename>",
+        "EDIT <filename> --editor <editor>",
+        "EDIT <filename> --web"
+      ],
+      "description": "Open file in configured editor",
+      "detailed": "EDIT launches your preferred text editor or web-based editor for file modification. Supports multiple editor backends.",
+      "parameters": [
+        {
+          "name": "filename",
+          "type": "string",
+          "optional": false,
+          "description": "File to edit"
+        },
+        {
+          "name": "editor",
+          "type": "string",
+          "optional": true,
+          "description": "Specific editor to use (nano, vim, micro)"
+        }
+      ],
+      "examples": [
+        {
+          "command": "EDIT config.json",
+          "description": "Edit config.json in default editor"
+        },
+        {
+          "command": "EDIT script.py --editor nano",
+          "description": "Edit script.py in nano"
+        },
+        {
+          "command": "EDIT document.md --web",
+          "description": "Edit document.md in web editor"
+        }
+      ],
+      "related": ["LOAD", "SAVE", "LIST"],
+      "notes": [
+        "Default editor is nano, configurable in settings",
+        "Web editor requires typo extension",
+        "Creates new files if they don't exist"
+      ],
+      "version_added": "1.0.0"
+    },
+    "RUN": {
+      "name": "RUN",
+      "syntax": [
+        "RUN <script>",
+        "RUN"
+      ],
+      "description": "Execute .uscript automation file",
+      "detailed": "RUN executes uDOS script files (.uscript) line by line, enabling automation workflows. Supports both uCODE format and plain text commands.",
+      "parameters": [
+        {
+          "name": "script",
+          "type": "string",
+          "optional": true,
+          "description": "Script filename to execute"
+        }
+      ],
+      "examples": [
+        {
+          "command": "RUN automation.uscript",
+          "description": "Execute automation.uscript"
+        },
+        {
+          "command": "RUN",
+          "description": "Interactive file picker for script selection"
+        }
+      ],
+      "related": ["EDIT", "LOAD"],
+      "notes": [
+        "Scripts can contain comments starting with #",
+        "Supports both [MODULE|COMMAND] and plain text format",
+        "Errors in scripts don't stop execution"
+      ],
+      "version_added": "1.0.6"
+    }
+  }
+}

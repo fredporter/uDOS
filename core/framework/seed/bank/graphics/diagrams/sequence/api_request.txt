@@ -1,0 +1,14 @@
+# API Request-Response Pattern
+# Shows typical RESTful API interaction
+
+Title: REST API Call Sequence
+
+Client->API: GET /users/123
+API->Auth: Validate Token
+Auth-->API: Token Valid
+API->Database: SELECT user WHERE id=123
+Database-->API: User Record
+API->Cache: Store in Redis
+API-->Client: 200 OK + User JSON
+
+Note over Client,API: Response cached for 5min

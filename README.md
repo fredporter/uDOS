@@ -81,31 +81,53 @@ For setup guide and troubleshooting, see [INSTALLATION.md](INSTALLATION.md).
 
 ```
 🏠 uDOS Root (PUBLIC)/
-├── core/                # TypeScript runtime + Python TUI
-│   ├── services/       # OS-aware services (detector, adapters)
-│   ├── commands/       # 30+ command handlers
-│   ├── os_specific/    # Platform adapters (Alpine/macOS/Ubuntu/Windows)
-│   └── tests/          # OS detector & adapter tests
-├── wizard/             # Production server (Python, port 8765)
-├── extensions/         # Public plugins & APIs
-│   ├── api/            # REST/WebSocket server
-│   ├── transport/      # MeshCore, Bluetooth, NFC, QR, Audio
-│   └── vscode/         # VS Code extension
-├── docs/               # Engineering documentation (canonical)
-├── knowledge/          # Knowledge base (guides, specs)
-├── library/            # Alpine package definitions
-├── distribution/       # Release artifacts
-├── requirements.txt    # Python dependencies
-└── LICENSE.txt         # MIT License
+├── core/                      # TypeScript runtime + Python TUI
+│   ├── framework/            # Distribution layer (NEW v1.1.0)
+│   │   ├── schemas/          # JSON validation schemas
+│   │   ├── templates/        # Customization templates
+│   │   └── seed/             # Bootstrap data (~5KB)
+│   ├── services/             # OS-aware services
+│   ├── commands/             # 30+ command handlers
+│   ├── os_specific/          # Platform adapters
+│   └── tests/                # Test suites
+├── wizard/                    # Production server (port 8765)
+├── extensions/                # Public plugins & APIs
+│   ├── api/                  # REST/WebSocket server
+│   ├── transport/            # MeshCore, Bluetooth, NFC, QR, Audio
+│   └── vscode/               # VS Code extension
+├── memory/                    # User data layer (gitignored)
+│   ├── bank/                 # User-customizable data
+│   │   ├── ai/              # AI prompts & instructions
+│   │   ├── checklists/      # User checklists
+│   │   ├── code/            # uCODE scripts
+│   │   ├── locations/       # Location database + places
+│   │   ├── system/          # System scripts (startup/reboot)
+│   │   └── .archive/        # Deprecated content
+│   ├── logs/                # Runtime logs
+│   └── wizard/              # Wizard server data
+├── docs/                     # Engineering documentation
+├── knowledge/                # Static reference library (237 entries)
+│   ├── _index.json          # Searchable catalog (154KB)
+│   ├── fire/, water/, shelter/, tools/, medical/, etc.
+│   └── (frontmatter-tagged markdown files)
+├── sonic/                    # Device library (Sonic Screwdriver)
+├── library/                  # Alpine package definitions
+├── distribution/             # Release artifacts
+└── LICENSE.txt               # MIT License
 
 🔒 dev/ (PRIVATE SUBMODULE)/
-├── goblin/            # Experimental dev server (port 8767)
-├── app/               # Tauri+Svelte desktop GUI
-├── empire/            # CRM system
-├── groovebox/         # Music production tools
-├── tests/             # Integration tests
-└── tools/             # Dev utilities
+├── goblin/                   # Experimental dev server (port 8767)
+├── app/                      # Tauri+Svelte desktop GUI
+├── empire/                   # CRM system
+├── groovebox/                # Music production tools
+├── tests/                    # Integration tests
+└── tools/                    # Dev utilities
 ```
+
+**Three-Tier Architecture** (v1.1.0):
+- **TIER 1 - Framework** (`/core/framework/`): Public, git-tracked, distributable
+- **TIER 2 - Knowledge** (`/knowledge/`): Static reference library with searchable catalog
+- **TIER 3 - Bank** (`/memory/bank/`): User data, P2P syncable, gitignored
 
 ---
 

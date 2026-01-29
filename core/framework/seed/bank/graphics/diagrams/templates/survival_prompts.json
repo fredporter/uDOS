@@ -1,0 +1,264 @@
+{
+  "version": "1.0.0",
+  "description": "Survival-specific diagram prompts for Nano Banana optimization (Gemini 2.5 Flash Image → PNG → SVG)",
+  "categories": {
+    "water": {
+      "name": "Water Systems",
+      "style": "technical_kinetic",
+      "prompts": {
+        "purification_flow": {
+          "subject": "water purification process diagram",
+          "diagram_type": "flowchart",
+          "template": "Create a flowchart SVG showing water purification steps:\n\n**Process Flow**:\n1. Source identification (stream, pond, rain catchment, snow melt)\n2. Pre-filtration (debris removal, settling)\n3. Treatment method selection:\n   - Boiling (1-3 min depending on altitude)\n   - Filtration (ceramic, carbon, membrane)\n   - Chemical treatment (chlorine, iodine)\n   - UV sterilization\n4. Post-treatment storage\n5. Verification (clarity, taste, safety indicators)\n\n**TECHNICAL-KINETIC REQUIREMENTS**:\n- Use CURVED CONDUITS with arrows for water flow\n- Add GEARS at decision points (treatment method selection)\n- HATCHING pattern for filtration media\n- STIPPLE pattern for contaminated vs. clean water areas\n- WAVY LINES for water in motion\n- Labels: 10pt Helvetica for steps, 8pt for details\n- STRICT: Black & white only, 2-3px strokes, MCM geometry\n\n**Dimensions**: 800×600px viewBox\n**Output**: Valid SVG with xmlns, monochrome compliance",
+          "parameters": {
+            "stroke_width": 2.5,
+            "pattern_density": "medium",
+            "label_size": 10,
+            "flow_emphasis": "high"
+          }
+        },
+        "collection_system": {
+          "subject": "water collection system schematic",
+          "diagram_type": "schematic",
+          "template": "Create a schematic SVG of a rainwater collection system:\n\n**Components**:\n- Catchment surface (roof, tarp) with dimensions\n- Gutter system with slope angles\n- First-flush diverter mechanism\n- Storage container (capacity labeled)\n- Overflow outlet\n- Filtration point\n- Distribution tap\n\n**TECHNICAL-KINETIC REQUIREMENTS**:\n- Perfect RECTANGLES for containers (MCM geometry)\n- DIMENSION LINES with arrows and measurements\n- HATCHING for cross-sections\n- ANNOTATION CALLOUTS with leaders\n- GEAR symbols at diverter mechanism\n- Scale indicator (1:10 or appropriate)\n- STRICT: Monochrome, 2px structure lines, 3px emphasis\n\n**Dimensions**: 800×600px viewBox",
+          "parameters": {
+            "stroke_width": 2.0,
+            "annotation_style": "callout",
+            "dimension_arrows": true,
+            "scale_indicator": true
+          }
+        },
+        "filtration_detail": {
+          "subject": "water filter cross-section",
+          "diagram_type": "schematic",
+          "template": "Create a detailed cross-section SVG of a multi-stage water filter:\n\n**Layers (top to bottom)**:\n1. Pre-filter mesh (coarse debris)\n2. Gravel layer (1-2cm stones)\n3. Sand layer (fine sediment removal)\n4. Activated carbon (chemical/odor removal)\n5. Ceramic element (bacteria/protozoa)\n6. Collection chamber\n\n**TECHNICAL-KINETIC REQUIREMENTS**:\n- HATCHING patterns: different angles for each layer\n- STIPPLE for activated carbon\n- WAVY LINES for water flow through media\n- DIMENSION LINES showing layer thickness\n- ARROWS indicating flow direction (curved conduits)\n- LABELS: 10pt for layers, 8pt for materials\n- STRICT: Black & white, vector patterns only, MCM geometry\n\n**Dimensions**: 600×800px viewBox (vertical)",
+          "parameters": {
+            "stroke_width": 2.5,
+            "pattern_variation": "high",
+            "cross_section_style": "technical",
+            "flow_arrows": "curved"
+          }
+        }
+      }
+    },
+    "fire": {
+      "name": "Fire Systems",
+      "style": "technical_kinetic",
+      "prompts": {
+        "fire_triangle": {
+          "subject": "fire triangle diagram",
+          "diagram_type": "architecture",
+          "template": "Create an architectural SVG of the fire triangle concept:\n\n**Elements**:\n- Center: FLAME symbol (stylized)\n- Three sides:\n  1. HEAT (top) - sun/spark symbols\n  2. FUEL (bottom-left) - wood/tinder icons\n  3. OXYGEN (bottom-right) - wind/air flow\n- Connections: curved conduits showing interdependence\n- Remove any element: flame extinguishes (show with dashed version)\n\n**TECHNICAL-KINETIC REQUIREMENTS**:\n- Perfect EQUILATERAL TRIANGLE (MCM geometry)\n- GEAR symbols at each vertex\n- CURVED ARROWS showing circular interdependence\n- HATCHING for heat radiation\n- STIPPLE for fuel materials\n- WAVY LINES for oxygen flow\n- STRICT: Monochrome, 2-3px strokes, clean geometry\n\n**Dimensions**: 800×800px viewBox (square)",
+          "parameters": {
+            "stroke_width": 3.0,
+            "symmetry": "perfect",
+            "symbol_style": "geometric",
+            "emphasis": "vertices"
+          }
+        },
+        "fire_lay_types": {
+          "subject": "fire lay configurations",
+          "diagram_type": "schematic",
+          "template": "Create a schematic SVG showing 4 fire lay types:\n\n**Layouts (2×2 grid)**:\n1. Teepee: vertical logs converging at top\n2. Log cabin: stacked square layers\n3. Lean-to: logs angled against support\n4. Platform: raised fire on green wood base\n\n**TECHNICAL-KINETIC REQUIREMENTS**:\n- Each layout in clean RECTANGLE frame\n- DIMENSION INDICATORS for spacing\n- ARROWS showing air flow (curved conduits)\n- WAVY LINES for flame/heat rising\n- LABELS: 12pt for type names, 8pt for details\n- HATCHING for wood grain direction\n- STRICT: Black & white, MCM geometry, 2px strokes\n\n**Dimensions**: 800×800px viewBox",
+          "parameters": {
+            "stroke_width": 2.0,
+            "grid_layout": "2x2",
+            "wood_texture": "hatching",
+            "air_flow_style": "curved_arrows"
+          }
+        }
+      }
+    },
+    "shelter": {
+      "name": "Shelter Systems",
+      "style": "technical_kinetic",
+      "prompts": {
+        "a_frame_construction": {
+          "subject": "A-frame shelter construction diagram",
+          "diagram_type": "schematic",
+          "template": "Create a schematic SVG of A-frame shelter construction:\n\n**Views**:\n1. Front elevation: triangle profile with dimensions\n2. Side view: ridge pole and rafter placement\n3. Floor plan: footprint and entry\n4. Detail callout: ridge connection\n\n**TECHNICAL-KINETIC REQUIREMENTS**:\n- DIMENSION LINES: height, width, angle (45°)\n- HATCHING for structural members\n- ANNOTATION CALLOUTS with leaders\n- GEAR symbol at ridge connection\n- STIPPLE for ground/floor\n- Scale indicator (1:20 or appropriate)\n- STRICT: Monochrome, 2-3px strokes, precise angles\n\n**Dimensions**: 800×1000px viewBox (vertical)",
+          "parameters": {
+            "stroke_width": 2.5,
+            "view_count": 3,
+            "detail_callout": true,
+            "dimension_precision": "high"
+          }
+        },
+        "insulation_layers": {
+          "subject": "shelter insulation layering system",
+          "diagram_type": "schematic",
+          "template": "Create a cross-section SVG of shelter insulation layers:\n\n**Layers (outside to inside)**:\n1. Waterproof outer shell (tarp/bark)\n2. Air gap (dead air space)\n3. Insulation layer (leaves/grass/debris)\n4. Inner vapor barrier (plastic/bark)\n5. Living space\n\n**TECHNICAL-KINETIC REQUIREMENTS**:\n- HATCHING patterns: different for each material\n- UNDULATING LINES for organic insulation\n- ARROWS showing heat flow (curved conduits)\n- DIMENSION LINES for layer thickness\n- TEMPERATURE GRADIENT indicators\n- LABELS: 10pt for layers, 8pt for R-values\n- STRICT: Black & white, vector patterns, MCM geometry\n\n**Dimensions**: 800×600px viewBox",
+          "parameters": {
+            "stroke_width": 2.0,
+            "pattern_diversity": "high",
+            "thermal_indicators": true,
+            "layer_clarity": "maximum"
+          }
+        }
+      }
+    },
+    "food": {
+      "name": "Food Systems",
+      "style": "hand_illustrative",
+      "prompts": {
+        "edible_plant_anatomy": {
+          "subject": "edible plant identification diagram",
+          "diagram_type": "organic",
+          "template": "Create an organic SVG of an edible plant (dandelion):\n\n**Parts to show**:\n- Taproot (long, thick)\n- Basal rosette (leaves radiating from center)\n- Leaf detail: toothed edges\n- Flower: yellow composite head\n- Seed head: white puffball\n\n**HAND-ILLUSTRATIVE REQUIREMENTS**:\n- FLOWING, IRREGULAR outlines (natural, not geometric)\n- WAVY LINE SHADING for leaf texture\n- UNDULATING PATTERNS for root bark\n- VARIED LINE WEIGHT (2-3px) for depth\n- STIPPLE for flower center\n- LABELS: 10pt sans-serif with leader lines\n- STRICT: Black & white, vector shading only\n\n**Dimensions**: 600×800px viewBox (vertical)",
+          "parameters": {
+            "stroke_width": 2.5,
+            "organic_style": true,
+            "line_variation": "natural",
+            "shading_technique": "wavy_lines"
+          }
+        },
+        "food_preservation_flow": {
+          "subject": "food preservation methods flowchart",
+          "diagram_type": "flowchart",
+          "template": "Create a flowchart SVG for food preservation selection:\n\n**Decision Flow**:\n1. Food type (meat, fish, plant, fruit)\n2. Available resources (sun, fire, salt, smoke)\n3. Climate conditions (hot/dry, cold, humid)\n4. Time constraints (immediate, short-term, long-term)\n5. Method selection:\n   - Drying (sun, fire, smoke)\n   - Salting (dry, brine)\n   - Smoking (hot, cold)\n   - Freezing (snow/ice)\n   - Fermentation\n\n**TECHNICAL-KINETIC REQUIREMENTS**:\n- CURVED CONDUITS for decision flow\n- GEARS at major decision points\n- HATCHING for different food types\n- WAVY LINES for smoke/heat\n- STIPPLE for preserved vs. fresh\n- LABELS: 10pt for methods, 8pt for details\n- STRICT: Monochrome, 2-3px strokes, MCM geometry\n\n**Dimensions**: 1000×800px viewBox (horizontal)",
+          "parameters": {
+            "stroke_width": 2.5,
+            "decision_symbols": "gears",
+            "flow_style": "curved",
+            "method_icons": "simple"
+          }
+        }
+      }
+    },
+    "navigation": {
+      "name": "Navigation Systems",
+      "style": "technical_kinetic",
+      "prompts": {
+        "compass_rose_detailed": {
+          "subject": "detailed compass rose diagram",
+          "diagram_type": "architecture",
+          "template": "Create an architectural SVG of a detailed compass rose:\n\n**Elements**:\n- Center: perfect CIRCLE with 2px stroke\n- Cardinal points: N, E, S, W (16pt bold)\n- Intercardinal: NE, SE, SW, NW (12pt)\n- 16-point rose: all intermediate directions\n- Degree markings: 0°, 90°, 180°, 270° (and subdivisions)\n- Magnetic declination indicator\n\n**TECHNICAL-KINETIC REQUIREMENTS**:\n- Perfect CIRCULAR geometry (MCM precision)\n- HATCHING for N pointer (traditional)\n- STIPPLE for different direction sectors\n- GEAR symbol at center pivot point\n- DIMENSION LINES for degree increments\n- STRICT: Monochrome, 2-3px strokes, perfect symmetry\n\n**Dimensions**: 800×800px viewBox (square)",
+          "parameters": {
+            "stroke_width": 2.0,
+            "symmetry": "perfect_16",
+            "degree_precision": "high",
+            "traditional_styling": true
+          }
+        },
+        "sun_navigation": {
+          "subject": "sun navigation shadow stick method",
+          "diagram_type": "schematic",
+          "template": "Create a schematic SVG of shadow stick navigation:\n\n**Steps (sequential)**:\n1. Stick placement (vertical in ground)\n2. First shadow mark (morning)\n3. Arc scribed (shadow length)\n4. Second shadow mark (afternoon where arc intersects)\n5. Line between marks = East-West\n6. Perpendicular = North-South\n\n**TECHNICAL-KINETIC REQUIREMENTS**:\n- DIMENSION LINES for stick height, shadow length\n- CURVED ARROWS showing sun path\n- HATCHING for shadow areas\n- STIPPLE for ground surface\n- ANNOTATION CALLOUTS with time markers\n- GEAR symbol at intersection point\n- STRICT: Monochrome, 2-3px strokes, clear angles\n\n**Dimensions**: 800×600px viewBox",
+          "parameters": {
+            "stroke_width": 2.5,
+            "sequential_numbering": true,
+            "sun_path_arc": true,
+            "time_labels": "detailed"
+          }
+        }
+      }
+    },
+    "medical": {
+      "name": "Medical Systems",
+      "style": "technical_kinetic",
+      "prompts": {
+        "wound_care_flow": {
+          "subject": "wound care procedure flowchart",
+          "diagram_type": "flowchart",
+          "template": "Create a flowchart SVG for wound care procedure:\n\n**Process Flow**:\n1. Assessment (bleeding, depth, contamination)\n2. Stop bleeding: direct pressure → elevation → pressure point\n3. Clean wound: water irrigation → debris removal\n4. Disinfect: clean water → antiseptic if available\n5. Close if needed: butterfly strips → stitches (if trained)\n6. Dress: sterile pad → secure bandage\n7. Monitor: infection signs → change dressing\n\n**TECHNICAL-KINETIC REQUIREMENTS**:\n- CURVED CONDUITS for procedure flow\n- GEARS at decision points (severity assessment)\n- HATCHING for wound areas\n- WAVY LINES for water/fluid\n- STIPPLE for bandage materials\n- ARROWS showing pressure direction\n- STRICT: Monochrome, 2-3px strokes, MCM geometry\n\n**Dimensions**: 1000×800px viewBox",
+          "parameters": {
+            "stroke_width": 2.5,
+            "urgency_indicators": true,
+            "decision_emphasis": "high",
+            "medical_symbols": "standardized"
+          }
+        },
+        "human_anatomy_reference": {
+          "subject": "human anatomy reference for first aid",
+          "diagram_type": "schematic",
+          "template": "Create a schematic SVG of human figure with injury zones:\n\n**Body Map**:\n- Front view: anatomical position\n- Color zones by severity:\n  - Critical: head, neck, chest, abdomen (heavy hatching)\n  - Serious: major joints, limbs (medium hatching)\n  - Minor: extremities (light hatching)\n- Pressure points marked with GEAR symbols\n- Major arteries shown with CURVED LINES\n- Pulse check locations marked\n\n**TECHNICAL-KINETIC REQUIREMENTS**:\n- Clean GEOMETRIC body outline (MCM simplified)\n- HATCHING density for severity zones\n- ANNOTATION CALLOUTS for key anatomical points\n- GEAR symbols for pressure points\n- DIMENSION LINES for body proportions\n- STRICT: Monochrome, 2-3px strokes, clear zones\n\n**Dimensions**: 600×1000px viewBox (vertical)",
+          "parameters": {
+            "stroke_width": 2.0,
+            "anatomical_accuracy": "simplified",
+            "zone_clarity": "maximum",
+            "pressure_point_emphasis": true
+          }
+        }
+      }
+    }
+  },
+  "style_parameters": {
+    "technical_kinetic": {
+      "stroke_width_range": [2.0, 3.0],
+      "pattern_types": ["hatching", "stipple", "wavy", "undulating"],
+      "geometry_style": "MCM",
+      "color_mode": "monochrome",
+      "kinetic_emphasis": "high",
+      "label_font": "Helvetica, sans-serif",
+      "label_sizes": {"header": 16, "primary": 12, "secondary": 10, "detail": 8}
+    },
+    "hand_illustrative": {
+      "stroke_width_range": [2.0, 3.5],
+      "line_variation": "natural",
+      "pattern_types": ["wavy", "undulating", "stipple"],
+      "geometry_style": "organic",
+      "color_mode": "monochrome",
+      "texture_emphasis": "high",
+      "label_font": "Helvetica, sans-serif",
+      "label_sizes": {"header": 14, "primary": 10, "secondary": 8, "detail": 7}
+    }
+  },
+  "vectorization_presets": {
+    "technical": {
+      "description": "For flowcharts, schematics, architecture diagrams",
+      "potrace": {
+        "turnpolicy": "majority",
+        "turdsize": 2,
+        "alphamax": 1.0,
+        "opttolerance": 0.2
+      },
+      "vtracer": {
+        "colormode": "binary",
+        "hierarchical": "stacked",
+        "mode": "polygon",
+        "filter_speckle": 4
+      }
+    },
+    "organic": {
+      "description": "For natural subjects, plants, organic forms",
+      "potrace": {
+        "turnpolicy": "white",
+        "turdsize": 5,
+        "alphamax": 0.0,
+        "opttolerance": 0.5
+      },
+      "vtracer": {
+        "colormode": "binary",
+        "hierarchical": "cutout",
+        "mode": "spline",
+        "filter_speckle": 8
+      }
+    },
+    "hybrid": {
+      "description": "For mixed technical and organic elements",
+      "potrace": {
+        "turnpolicy": "black",
+        "turdsize": 3,
+        "alphamax": 0.5,
+        "opttolerance": 0.3
+      },
+      "vtracer": {
+        "colormode": "binary",
+        "hierarchical": "stacked",
+        "mode": "polygon",
+        "filter_speckle": 6
+      }
+    }
+  },
+  "usage_notes": [
+    "All prompts enforce Technical-Kinetic monochrome constraints",
+    "Use 'technical' vectorization preset for flowcharts and schematics",
+    "Use 'organic' preset for plant/natural subject illustrations",
+    "Use 'hybrid' preset when combining technical and organic elements",
+    "Stroke width 2-3px ensures clarity at various scales",
+    "Pattern density should match subject complexity",
+    "Labels must be sans-serif for consistency",
+    "All diagrams must validate as well-formed SVG",
+    "Maximum file size target: 50KB per diagram"
+  ]
+}

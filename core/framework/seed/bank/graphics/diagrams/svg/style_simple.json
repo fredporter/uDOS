@@ -1,0 +1,45 @@
+{
+  "name": "Simple Style",
+  "description": "Minimalist black and white with basic shapes",
+  "settings": {
+    "font_family": "Courier, monospace",
+    "font_size": 14,
+    "line_width": 1,
+    "arrow_size": 6,
+    "padding": 15,
+    "spacing": 30
+  },
+  "colors": {
+    "background": "#FFFFFF",
+    "foreground": "#000000",
+    "primary": "#000000",
+    "secondary": "#666666",
+    "accent": "#000000",
+    "grid": "#CCCCCC",
+    "text": "#000000"
+  },
+  "shapes": {
+    "rectangle": {
+      "fill": "none",
+      "stroke": "#000000",
+      "stroke_width": 1,
+      "rx": 0
+    },
+    "circle": {
+      "fill": "none",
+      "stroke": "#000000",
+      "stroke_width": 1
+    },
+    "diamond": {
+      "fill": "none",
+      "stroke": "#000000",
+      "stroke_width": 1
+    },
+    "arrow": {
+      "stroke": "#000000",
+      "stroke_width": 1,
+      "marker_fill": "#000000"
+    }
+  },
+  "usage": "Minimalist diagrams, print-friendly, high-contrast"
+}

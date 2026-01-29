@@ -1,13 +1,19 @@
 {
   "folders": [
     { "name": "🏠 Root", "path": "." },
-    { "name": "⚡ Core Runtime", "path": "core" },
-    { "name": "📚 Docs", "path": "docs" }
+    { "name": "⚡ Core", "path": "core" },
+    { "name": "🔌 API", "path": "extensions/api" },
+    { "name": "🧙 Wizard", "path": "wizard" },
+    { "name": "📚 Docs", "path": "docs" },
+    { "name": "📖 Knowledge", "path": "knowledge" },
+    { "name": "🚚 Transport", "path": "extensions/transport" },
+    { "name": "🎮 Sonic", "path": "sonic" }
   ],
   "settings": {
     "python.defaultInterpreterPath": "${workspaceFolder:🏠 Root}/.venv/bin/python",
-    "typescript.tsdk": "${workspaceFolder:⚡ Core Runtime}/node_modules/typescript/lib",
-    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "python.analysis.extraPaths": [],
+    "python.analysis.indexing": false,
+    "python.linting.enabled": false,
     "files.exclude": {
       "**/.venv": true,
       "**/node_modules": true,
@@ -15,18 +21,21 @@
       "**/*.pyc": true,
       "**/.DS_Store": true,
       "wizard": true,
-      "extensions": true,
       "app": true,
       "dev": true,
-      "memory": true,
-      "knowledge": true,
+      "core": true,
       "library": true,
-      "distribution": true
+      "distribution": true,
+      "tests": true,
+      "packages": true,
+      "extensions": true
     },
     "search.exclude": {
       "**/.venv": true,
       "**/node_modules": true,
-      "**/.archive": true
+      "**/__pycache__": true,
+      "**/.archive": true,
+      "memory": true
     },
     "files.associations": {
       "*-ucode.md": "markdown",
@@ -35,23 +44,16 @@
     },
     "[python]": {
       "editor.defaultFormatter": "ms-python.black-formatter",
-      "editor.formatOnSave": true
-    },
-    "[typescript]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode",
-      "editor.formatOnSave": true
+      "editor.formatOnSave": false
     },
     "[markdown]": {
       "editor.wordWrap": "on"
     },
-    "editor.rulers": [80, 120]
+    "editor.rulers": [80]
   },
   "extensions": {
     "recommendations": [
       "ms-python.python",
-      "ms-python.vscode-pylance",
-      "ms-python.black-formatter",
-      "esbenp.prettier-vscode",
       "GitHub.copilot",
       "GitHub.copilot-chat"
     ]
@@ -65,16 +67,8 @@
         "request": "launch",
         "program": "${workspaceFolder:🏠 Root}/uDOS.py",
         "console": "integratedTerminal",
-        "justMyCode": false,
+        "justMyCode": true,
         "cwd": "${workspaceFolder:🏠 Root}"
-      },
-      {
-        "name": "🐍 Python: Current File",
-        "type": "debugpy",
-        "request": "launch",
-        "program": "${file}",
-        "console": "integratedTerminal",
-        "justMyCode": false
       }
     ]
   }

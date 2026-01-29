@@ -1,0 +1,63 @@
+{
+  "name": "Detailed Style",
+  "description": "Rich colors and gradients for presentation-quality diagrams",
+  "settings": {
+    "font_family": "Helvetica, Arial, sans-serif",
+    "font_size": 11,
+    "line_width": 2.5,
+    "arrow_size": 10,
+    "padding": 25,
+    "spacing": 50
+  },
+  "colors": {
+    "background": "#F8F9FA",
+    "foreground": "#212529",
+    "primary": "#0D6EFD",
+    "secondary": "#6C757D",
+    "accent": "#FFC107",
+    "grid": "#DEE2E6",
+    "text": "#212529",
+    "shadow": "rgba(0,0,0,0.1)"
+  },
+  "shapes": {
+    "rectangle": {
+      "fill": "url(#gradient-blue)",
+      "stroke": "#0D6EFD",
+      "stroke_width": 2,
+      "rx": 8,
+      "shadow": "0 2px 4px rgba(0,0,0,0.1)"
+    },
+    "circle": {
+      "fill": "url(#gradient-grey)",
+      "stroke": "#6C757D",
+      "stroke_width": 2,
+      "shadow": "0 2px 4px rgba(0,0,0,0.1)"
+    },
+    "diamond": {
+      "fill": "url(#gradient-yellow)",
+      "stroke": "#FFC107",
+      "stroke_width": 2,
+      "shadow": "0 2px 4px rgba(0,0,0,0.1)"
+    },
+    "arrow": {
+      "stroke": "#495057",
+      "stroke_width": 2.5,
+      "marker_fill": "#495057"
+    }
+  },
+  "gradients": {
+    "gradient-blue": {
+      "start": "#E7F1FF",
+      "end": "#CCE5FF"
+    },
+    "gradient-grey": {
+      "start": "#F8F9FA",
+      "end": "#E9ECEF"
+    },
+    "gradient-yellow": {
+      "start": "#FFF3CD",
+      "end": "#FFE69C"
+    }
+  },
+  "usage": "High-quality presentations, reports, documentation with polish"
+}

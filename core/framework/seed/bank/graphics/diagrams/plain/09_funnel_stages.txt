@@ -1,0 +1,12 @@
+[ FUNNEL ]
+----------
+[ AWARENESS ]
+      |
+      v
+[ CONSIDERATION ]
+      |
+      v
+[ PURCHASE ]
+      |
+      v
+[ RETENTION ]

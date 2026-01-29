@@ -1,0 +1,21 @@
+# User Login Process
+# Complete authentication flowchart
+
+st=>start: User Opens App
+login=>inputoutput: Enter Credentials
+validate=>condition: Valid?
+checkAuth=>condition: Already Authenticated?
+dashboard=>operation: Load Dashboard
+getToken=>operation: Request Auth Token
+storeToken=>operation: Store Token
+errorMsg=>operation: Show Error
+retry=>condition: Retry?
+e=>end: End
+
+st->checkAuth
+checkAuth(yes)->dashboard->e
+checkAuth(no)->login->validate
+validate(yes)->getToken->storeToken->dashboard->e
+validate(no)->errorMsg->retry
+retry(yes)->login
+retry(no)->e
