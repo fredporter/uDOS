@@ -81,17 +81,42 @@ Shows additional details for each check.
 
 ## DESTROY Command
 
-### Show Options
+### Interactive Menu (Recommended)
 ```bash
 DESTROY
 ```
-Displays cleanup menu.
+Shows an **interactive menu** that guides you through cleanup options step-by-step:
 
-### Show Help
-```bash
-DESTROY --help
 ```
-Shows detailed help and examples.
+╔════════════════════════════════════════╗
+║      DESTROY/CLEANUP OPTIONS           ║
+╚════════════════════════════════════════╝
+
+  1. Wipe User Data (clear users, API keys)
+  2. Archive Memory (compost /memory)
+  3. Wipe + Archive + Reload (complete cleanup)
+  4. Nuclear Reset (factory defaults - DANGER!)
+  0. Help
+
+Choose an option [0-4]
+```
+
+Just **type the number** and press Enter. The TUI will confirm before executing.
+
+### Direct Options (Legacy)
+```bash
+DESTROY 1                    # Wipe user data
+DESTROY 2                    # Archive memory
+DESTROY 3                    # Wipe + archive + reload
+DESTROY 4                    # Nuclear reset
+DESTROY --help               # Show help
+```
+
+### Show Detailed Help
+```bash
+DESTROY 0                    # Show help from menu
+DESTROY --help               # Show help directly
+```
 
 ---
 
@@ -99,6 +124,82 @@ Shows detailed help and examples.
 
 ### Option 1: Wipe User Data Only
 ```bash
+DESTROY 1
+```
+**What it does:**
+- Deletes all user profiles except admin
+- Clears all API keys and credentials
+- Removes OAuth tokens
+- Resets to default admin user
+
+**Safe:** Users can be recreated with `USER create [name] [role]`
+
+### Option 2: Archive Memory (COMPOST)
+```bash
+DESTROY 2
+```
+**What it does:**
+- Archives entire `/memory` to `.archive/compost/YYYY-MM-DD`
+- Preserves data history
+- Frees up `/memory` space
+- Keeps users intact
+
+**Safe:** Original data preserved in `.archive/`
+
+### Option 3: Wipe + Archive + Reload
+```bash
+DESTROY 3
+```
+**What it does:**
+- Wipes all user data and API keys
+- Archives `/memory` to compost
+- Hot reloads handlers
+- Runs repair checks
+
+**Safe:** Complete fresh start (keeps framework)
+
+### Option 4: Nuclear Reset (FACTORY DEFAULT)
+```bash
+DESTROY 4
+```
+**⚠️ DANGER:** Complete system wipe:
+- Deletes: users, memory, config, logs, API keys
+- Resets: system to factory defaults
+- **Requires additional confirmation**
+- **Admin only** - cannot be undone easily
+
+**Confirmation:**
+```
+Are you absolutely sure? [Yes/No/OK] (Enter=NO)
+```
+
+Type `yes` or `ok` to proceed.
+
+---
+
+## Examples
+
+**Interactive (Recommended):**
+```
+DESTROY
+Choose an option [0-4]  1
+```
+
+**Direct (Legacy):**
+```
+DESTROY 1
+DESTROY 2
+DESTROY 3
+DESTROY 4
+```
+
+**With Flags (Legacy):**
+```
+DESTROY --wipe-user --compost
+DESTROY --reset-all --confirm
+```
+
+---```bash
 DESTROY --wipe-user
 ```
 **Clears:**
