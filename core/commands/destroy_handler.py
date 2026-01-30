@@ -50,6 +50,11 @@ def get_repo_root_safe():
 class DestroyHandler(BaseCommandHandler):
     """Destroy/cleanup handler with user management options."""
     
+    def __init__(self):
+        """Initialize handler."""
+        super().__init__()
+        self.prompt = None  # Will be set before use
+    
     def handle(self, command, params, grid, parser):
         """Handle DESTROY command.
         
@@ -66,11 +71,14 @@ class DestroyHandler(BaseCommandHandler):
             command: Command name (DESTROY)
             params: Parameter list
             grid: Grid object
-            parser: Parser object
+            parser: Parser object with prompt access
         
         Returns:
             Output dict
         """
+        # Store parser for use in confirmation prompts
+        self.prompt = parser
+        
         # Import here to avoid circular deps
         from core.services.logging_manager import get_logger
         from core.services.unified_logging import get_unified_logger
@@ -83,8 +91,7 @@ class DestroyHandler(BaseCommandHandler):
         
         # Check permissions
         user_mgr = get_user_manager()
-        user = user_mgr.current()
-        
+        user = user_mgr.current()        
         if not user_mgr.has_permission(Permission.DESTROY):
             return {
                 'output': f'❌ DESTROY permission denied for user {user.username if user else "unknown"}',
@@ -340,10 +347,10 @@ NEXT STEPS AFTER CLEANUP:
         }
     
     def _confirm_nuclear(self):
-        """Confirm nuclear reset.
+        """Confirm nuclear reset - prompt for confirmation.
         
         Returns:
-            Output dict
+            Output dict (either confirmation warning or actual reset)
         """
         msg = """
 ╔════════════════════════════════════════╗
@@ -361,22 +368,37 @@ This is IRREVERSIBLE (though .archive/ is preserved).
 
 Only admin users can perform this action.
 
-To proceed, type:
-  DESTROY --reset-all --confirm
-
 Current status:
   Users: Multiple
   Memory: Populated
   Config: Custom
-
-Are you absolutely sure? (This cannot be undone)
 """
-        return {
-            'output': msg.strip(),
-            'status': 'warning',
-            'needs_confirm': True,
-            'action': 'nuclear_reset'
-        }
+        print("\n" + msg.strip() + "\n")
+        
+        # Prompt for confirmation
+        if self.prompt and hasattr(self.prompt, '_ask_yes_no'):
+            confirmed = self.prompt._ask_yes_no("Are you absolutely sure", default=False)
+        else:
+            # Fallback: ask for explicit confirmation text
+            print("To proceed, type: DESTROY --reset-all --confirm")
+            return {
+                'output': msg.strip() + "\n\nTo proceed, type: DESTROY --reset-all --confirm",
+                'status': 'warning',
+                'needs_confirm': True,
+                'action': 'nuclear_reset'
+            }
+        
+        # If confirmed, proceed with nuclear reset
+        if confirmed:
+            from core.services.user_manager import get_user_manager
+            user = get_user_manager().current()
+            return self._perform_nuclear(user)
+        else:
+            return {
+                'output': "❌ Nuclear reset cancelled.",
+                'status': 'cancelled',
+                'command': 'DESTROY'
+            }
     
     def _perform_nuclear(self, user):
         """Perform nuclear reset - complete system wipe.
