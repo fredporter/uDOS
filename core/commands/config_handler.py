@@ -635,18 +635,41 @@ SECURITY:
             
             lines = [OutputToolkit.banner("LOCAL CONFIGURATION (.env)"), ""]
             
-            if not variables:
-                lines.append("(no variables configured)")
-            else:
-                for key, value in sorted(variables.items()):
-                    if key.startswith("_"):
-                        continue  # Skip private vars
+            # Separate local setup vs other config
+            setup_keys = {'USER_NAME', 'USER_DOB', 'USER_ROLE', 'USER_LOCATION', 
+                         'USER_TIMEZONE', 'OS_TYPE', 'WIZARD_KEY'}
+            setup_vars = {k: v for k, v in variables.items() if k in setup_keys}
+            other_vars = {k: v for k, v in variables.items() if k not in setup_keys}
+            
+            if setup_vars:
+                lines.append("LOCAL USER SETUP:")
+                lines.append("-" * 60)
+                for key in sorted(setup_keys):
+                    if key in setup_vars:
+                        value = setup_vars[key]
+                        if key == 'WIZARD_KEY':
+                            value = value[:8] + "..." if len(value) > 8 else "***"
+                        elif key == 'USER_PASSWORD':
+                            value = "***" if value else "(none)"
+                        lines.append(f"  {key} = {value}")
+                lines.append("")
+            
+            if other_vars:
+                lines.append("OTHER CONFIGURATION:")
+                lines.append("-" * 60)
+                for key, value in sorted(other_vars.items()):
                     masked = self._mask_value(value)
                     lines.append(f"  {key} = {masked}")
+                lines.append("")
             
+            if not setup_vars and not other_vars:
+                lines.append("(no configuration found in .env)")
+            
+            lines.append("-" * 60)
+            lines.append("Local settings stored in: .env")
+            lines.append("When Wizard Server is installed, it imports these settings.")
             lines.append("")
-            lines.append("Local variables stored in: .env")
-            lines.append("When Wizard Server is installed, it will import these.")
+            lines.append("To edit: nano .env")
             
             return {"status": "success", "output": "\n".join(lines)}
         except Exception as e:

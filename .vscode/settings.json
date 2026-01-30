@@ -1,25 +1,13 @@
 {
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
-  "python.linting.enabled": true,
-  "python.linting.pylintEnabled": true,
-  "python.linting.pylintArgs": [
-    "--disable=C0111,C0103,C0301,R0913,R0914,R0915,W0703",
-    "--max-line-length=120",
-    "--good-names=i,j,k,x,y,z,w,h,id,ok,db,up,ui,on,vm,db"
-  ],
-  "python.analysis.typeCheckingMode": "basic",
-  "python.analysis.diagnosticSeverityOverrides": {
-    "reportUnusedImport": "warning",
-    "reportDuplicateImport": "error",
-    "reportUnusedVariable": "warning"
-  },
+  "python.linting.enabled": false,
+  "python.analysis.typeCheckingMode": "off",
+  "python.analysis.indexing": false,
+  "python.analysis.autoSearchPaths": false,
+  "python.analysis.extraPaths": [],
+  "pylance.typeCheckingMode": "off",
   "[python]": {
-    "editor.rulers": [80, 120],
-    "editor.defaultFormatter": "ms-python.python",
-    "editor.formatOnSave": false,
-    "editor.codeActionsOnSave": {
-      "source.organizeImports": "explicit"
-    }
+    "editor.formatOnSave": false
   },
   "files.exclude": {
     "**/.DS_Store": true,
@@ -29,26 +17,15 @@
     "**/.pytest_cache": true,
     "**/.cache": true,
     ".venv": true,
-    ".archive": true,
     "**/.archive": true,
-    ".dev": true,
     "**/.dev": true,
-    "app/.svelte-kit": true,
-    "app/build": true,
-    "app-tauri/target": true,
-    "dev/goblin/.svelte-kit": true,
-    "dev/goblin/build": true,
-    "distribution/build": true,
-    "distribution/dist": true
+    "**/target": true
   },
   "files.watcherExclude": {
-    "**/node_modules/**": true,
     "**/.venv/**": true,
-    "app/.svelte-kit/**": true,
-    "app/build/**": true,
-    "dev/goblin/.svelte-kit/**": true,
-    "**/target/**": true,
+    "**/node_modules/**": true,
     "**/__pycache__/**": true,
+    "**/target/**": true,
     "**/.cache/**": true
   },
   "search.exclude": {
@@ -57,33 +34,20 @@
     "**/target": true,
     "**/__pycache__": true,
     "**/.cache": true,
-    ".archive": true,
     "**/.archive": true,
-    ".dev": true,
     "**/.dev": true,
-    "app/.svelte-kit": true,
-    "app/build": true,
-    "dev/goblin/.svelte-kit": true,
     "memory/**": true,
-    "**/logs/**": true,
-    "**/*.pyc": true,
-    "distribution/**": true,
-    "library/**": true,
-    "**/package-lock.json": true,
     "**/.git": true
   },
-  "editor.rulers": [100, 120],
   "editor.formatOnSave": false,
-  "python.analysis.autoSearchPaths": true,
-  "python.analysis.extraPaths": [],
-  "pylance.typeCheckingMode": "basic",
-  "github.copilot.advanced": {
-    "debug.overrideCacheDir": "",
-    "inlineSuggest.count": 1,
-    "length": 500
-  },
   "editor.trimAutoWhitespace": true,
   "files.trimTrailingWhitespace": true,
   "files.trimFinalNewlines": true,
-  "extensions.ignoreRecommendations": false
+  "extensions.ignoreRecommendations": true,
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": false,
+    "plaintext": false,
+    "markdown": false
+  }
 }

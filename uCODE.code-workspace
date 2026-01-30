@@ -7,62 +7,64 @@
   ],
   "settings": {
     "python.defaultInterpreterPath": "${workspaceFolder:🏠 Root}/.venv/bin/python",
-    "python.analysis.extraPaths": [],
     "python.analysis.indexing": false,
     "python.linting.enabled": false,
+    "python.analysis.typeCheckingMode": "off",
+    "pylance.typeCheckingMode": "off",
     "files.exclude": {
       "**/.venv": true,
       "**/node_modules": true,
       "**/__pycache__": true,
       "**/*.pyc": true,
       "**/.DS_Store": true,
-      "**/.vibe": true,
-      "**/.vscode": true,
-      "**/.github": true,
-      "**/.compost": true,
-      "**/.backup": true,
-      "**/.tmp": true,
       "**/.archive": true,
+      "**/.dev": true,
       "wizard": true,
       "app": true,
       "dev": true,
-      "core": true,
       "library": true,
       "distribution": true,
       "tests": true,
       "packages": true,
       "extensions": true,
       "sonic": true,
-      "memory/**": true,
-      "memory/bank": false
+      "memory/**": true
+    },
+    "files.watcherExclude": {
+      "**/.venv/**": true,
+      "**/node_modules/**": true,
+      "**/__pycache__/**": true,
+      "**/target/**": true,
+      "**/.cache/**": true
     },
     "search.exclude": {
       "**/.venv": true,
       "**/node_modules": true,
       "**/__pycache__": true,
       "**/.archive": true,
-      "memory/**": true,
-      "memory/bank": false
+      "memory/**": true
     },
     "files.associations": {
-      "*-ucode.md": "markdown",
-      "*-story.md": "markdown",
       "*.uscript": "python"
     },
     "[python]": {
-      "editor.defaultFormatter": "ms-python.black-formatter",
       "editor.formatOnSave": false
     },
     "[markdown]": {
       "editor.wordWrap": "on"
     },
-    "editor.rulers": [80]
+    "editor.formatOnSave": false,
+    "github.copilot.enable": {
+      "*": true,
+      "yaml": false,
+      "plaintext": false,
+      "markdown": false
+    }
   },
   "extensions": {
     "recommendations": [
       "ms-python.python",
-      "GitHub.copilot",
-      "GitHub.copilot-chat"
+      "GitHub.copilot"
     ]
   },
   "launch": {

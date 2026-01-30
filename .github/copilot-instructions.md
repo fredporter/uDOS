@@ -1,17 +1,17 @@
-# GitHub Copilot Instructions for uDOS
+# Copilot Instructions — uDOS
 
-Keep responses short and impersonal. Follow repository boundaries:
+**Style:** Short, direct. Lean responses. No long docs.
 
-- Core (core/**): offline TUI only, no cloud or GUI.
-- Wizard (wizard/**): server + cloud integrations only.
-- App (app/**): UI only, no business logic.
-- Extensions (extensions/**): API + transport only.
+**Boundaries:**
+- **Core** (core/): offline TUI, no cloud/GUI
+- **Wizard** (wizard/): services + cloud only
+- **App** (app/): UI only, no logic
+- **Extensions**: API + transport
 
-Use the canonical logger in Core:
-from core.services.logging_manager import get_logger
+**Logger:** `from core.services.logging_manager import get_logger`
 
-Never hardcode versions; use: python -m core.version
+**Versions:** `python -m core.version` (never hardcode)
 
-When unsure, check:
-- AGENTS.md
-- docs/README.md
+**Unsure?** Check AGENTS.md or docs/README.md
+
+**KEY:** Keep moving. No long docs. No deep recursion.
