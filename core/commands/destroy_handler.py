@@ -151,9 +151,9 @@ class DestroyHandler(BaseCommandHandler):
         if show_help:
             return self._show_help()
         
-        # Show menu if no options or choice
+        # Show interactive menu if no options or choice
         if not (wipe_user or compost or reload_repair or reset_all):
-            return self._show_menu()
+            return self._show_interactive_menu()
         
         # Handle nuclear option
         if reset_all:
@@ -247,6 +247,92 @@ EXAMPLES:
             'status': 'info',
             'command': 'DESTROY'
         }
+    
+    def _show_interactive_menu(self):
+        """Show interactive cleanup menu and guide user through options.
+        
+        Uses the standard menu choice handler to guide the user.
+        Recursively handles selected options.
+        
+        Returns:
+            Output dict (either menu display or action result)
+        """
+        # Check if we have a prompt available
+        if not self.prompt or not hasattr(self.prompt, 'ask_menu_choice'):
+            # Fallback to static menu if no prompt available
+            return self._show_menu()
+        
+        # Display the menu
+        menu_text = """
+╔════════════════════════════════════════╗
+║      DESTROY/CLEANUP OPTIONS           ║
+╚════════════════════════════════════════╝
+
+  1. Wipe User Data (clear users, API keys)
+  2. Archive Memory (compost /memory)
+  3. Wipe + Archive + Reload (complete cleanup)
+  4. Nuclear Reset (factory defaults - DANGER!)
+  0. Help
+"""
+        print(menu_text)
+        
+        # Ask user to choose
+        choice = self.prompt.ask_menu_choice(
+            "Choose an option",
+            num_options=4,
+            allow_zero=True
+        )
+        
+        if choice is None or choice == 0:
+            # User pressed enter or selected 0 - show help
+            return self._show_help()
+        
+        # Recursively handle the choice by calling handle with the choice as param
+        from core.services.user_manager import get_user_manager
+        user_mgr = get_user_manager()
+        user = user_mgr.current()
+        
+        # Map choice to action
+        if choice == 1:
+            # Wipe user data
+            return self._perform_cleanup(
+                user=user,
+                wipe_user=True,
+                compost=False,
+                reload_repair=False,
+                skip_confirm=False,
+                plan=["🗑️  Wipe user profiles and API keys"]
+            )
+        elif choice == 2:
+            # Archive memory
+            return self._perform_cleanup(
+                user=user,
+                wipe_user=False,
+                compost=True,
+                reload_repair=False,
+                skip_confirm=False,
+                plan=["🗑️  Archive /memory to compost"]
+            )
+        elif choice == 3:
+            # Wipe + archive + reload
+            return self._perform_cleanup(
+                user=user,
+                wipe_user=True,
+                compost=True,
+                reload_repair=True,
+                skip_confirm=False,
+                plan=[
+                    "🗑️  Wipe user profiles and API keys",
+                    "🗑️  Archive /memory to compost",
+                    "🔧 Hot reload and run repair"
+                ]
+            )
+        elif choice == 4:
+            # Nuclear reset - prompt for confirmation
+            return self._confirm_nuclear()
+        
+        # Shouldn't get here
+        return self._show_menu()
     
     def _show_help(self):
         """Show detailed help.
