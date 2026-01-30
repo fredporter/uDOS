@@ -9,10 +9,22 @@ source "$SCRIPT_DIR/udos-common.sh"
 component="${1:-core}"
 mode="${2:-}"
 
+# Check for --rebuild flag in any position
+for arg in "$@"; do
+    if [ "$arg" = "--rebuild" ]; then
+        export UDOS_REBUILD=1
+        echo "🔄 Rebuild mode: Clearing Python cache..."
+    fi
+done
+
 case "$component" in
     core|wizard|goblin) ;;
+    --rebuild)
+        # If --rebuild is first arg, default to core
+        component="core"
+        ;;
     *)
-        echo "Usage: ./Launch-uCODE.command [core|wizard|goblin] [mode]" >&2
+        echo "Usage: ./Launch-uCODE.command [core|wizard|goblin] [mode] [--rebuild]" >&2
         exit 1
         ;;
 esac
@@ -25,5 +37,12 @@ if [ -z "$mode" ]; then
     esac
 fi
 
-shift 2 2>/dev/null || true
-launch_component "$component" "$mode" "$@"
+# Strip --rebuild from args before passing to launch
+args=()
+for arg in "$@"; do
+    if [ "$arg" != "--rebuild" ] && [ "$arg" != "$component" ] && [ "$arg" != "$mode" ]; then
+        args+=("$arg")
+    fi
+done
+
+launch_component "$component" "$mode" "${args[@]}"

@@ -139,9 +139,32 @@ run_with_spinner() {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Python Cache Management
+# ═══════════════════════════════════════════════════════════════════════════
+clear_python_cache() {
+    echo -e "${YELLOW}🧹 Clearing Python cache...${NC}"
+
+    # Remove __pycache__ directories
+    find "$UDOS_ROOT" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+
+    # Remove .pyc files
+    find "$UDOS_ROOT" -type f -name "*.pyc" -delete 2>/dev/null || true
+
+    # Remove .pyo files
+    find "$UDOS_ROOT" -type f -name "*.pyo" -delete 2>/dev/null || true
+
+    echo -e "  ${GREEN}✓${NC} Python cache cleared"
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
 # Python Environment Setup
 # ═══════════════════════════════════════════════════════════════════════════
 ensure_python_env() {
+    # Check for --rebuild flag
+    if [ "$UDOS_REBUILD" = "1" ]; then
+        clear_python_cache
+    fi
+
     # Check venv - auto-create if missing
     if [ ! -d "$UDOS_ROOT/.venv" ]; then
         echo -e "${YELLOW}⚠️  Virtual environment not found - creating...${NC}"
@@ -175,6 +198,9 @@ ensure_python_env() {
     # Set environment
     export PYTHONPATH="$UDOS_ROOT:$PYTHONPATH"
     export UDOS_DEV_MODE=1
+    
+    # Prevent Python from writing .pyc files (helps with hot reload)
+    export PYTHONDONTWRITEBYTECODE=1
 
     # Load .env file if it exists
     if [ -f "$UDOS_ROOT/.env" ]; then
