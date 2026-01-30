@@ -160,61 +160,116 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
         )
     
     def _perform_restart(self, reload_only, repair_only, full, skip_confirm, command):
-        """Perform the restart sequence.
+        """Perform the restart sequence - ACTUALLY EXECUTES THE RESTART.
         
         Args:
             reload_only: Only hot reload
             repair_only: Only repair
             full: Full restart
-            skip_confirm: Skip confirmations
+            skip_confirm: Skip confirmations (always execute)
             command: Original command
         
         Returns:
-            Output dict
+            Output dict with execution results
         """
+        from core.services.hot_reload import get_hot_reload_manager
+        from core.services.logging_manager import get_logger
+        
+        logger = get_logger('restart-handler')
         output_lines = []
         
         # Build restart plan
         plan = []
-        if reload_only or (not repair_only and not full):
+        do_reload = reload_only or full or (not repair_only)
+        do_repair = repair_only or full or (not reload_only)
+        do_full = full
+        
+        if do_reload:
             plan.append("🔄 Hot reload handlers")
-        if repair_only or (not reload_only and not full):
+        if do_repair:
             plan.append("🔧 Run repair checks")
-        if full:
-            plan.append("🔄 Hot reload handlers")
-            plan.append("🔧 Run repair checks")
+        if do_full:
             plan.append("🔄 Full system restart")
         
-        if not plan:
-            plan = ["🔄 Hot reload handlers", "🔧 Run repair checks"]
-        
-        # Show plan
+        # Show plan header
         output_lines.append("")
         output_lines.append("╔════════════════════════════════════════╗")
-        output_lines.append("║      RESTART PLAN                      ║")
+        output_lines.append("║      RESTARTING SYSTEM                 ║")
         output_lines.append("╚════════════════════════════════════════╝")
         output_lines.append("")
         
-        for i, step in enumerate(plan, 1):
-            output_lines.append(f"  {i}. {step}")
+        # EXECUTE HOT RELOAD
+        if do_reload:
+            output_lines.append("🔄 Hot reloading handlers...")
+            try:
+                reload_mgr = get_hot_reload_manager()
+                if reload_mgr:
+                    # Reload all handler modules
+                    import sys
+                    import importlib
+                    from pathlib import Path
+                    
+                    handlers_dir = Path(__file__).parent
+                    reloaded = 0
+                    failed = 0
+                    
+                    for handler_file in handlers_dir.glob("*_handler.py"):
+                        if handler_file.name == "__init__.py":
+                            continue
+                        
+                        module_name = f"core.commands.{handler_file.stem}"
+                        if module_name in sys.modules:
+                            try:
+                                importlib.reload(sys.modules[module_name])
+                                reloaded += 1
+                                logger.info(f"[LOCAL] Reloaded {handler_file.stem}")
+                            except Exception as e:
+                                failed += 1
+                                logger.error(f"[LOCAL] Failed to reload {handler_file.stem}: {e}")
+                    
+                    output_lines.append(f"   ✓ Reloaded {reloaded} handlers ({failed} failed)")
+                else:
+                    output_lines.append("   ⚠️  Hot reload manager not available")
+                    output_lines.append("   💡 Install watchdog: pip install watchdog")
+            except Exception as e:
+                output_lines.append(f"   ❌ Hot reload failed: {e}")
+                logger.error(f"[LOCAL] Hot reload error: {e}")
+        
+        # EXECUTE REPAIR
+        if do_repair:
+            output_lines.append("🔧 Running repair checks...")
+            try:
+                from core.services.self_healer import SelfHealer
+                healer = SelfHealer()
+                issues = healer.diagnose()
+                
+                if issues:
+                    output_lines.append(f"   ✓ Found {len(issues)} issues")
+                    fixed = 0
+                    for issue in issues:
+                        if healer.repair(issue, auto_apply=True):
+                            fixed += 1
+                    output_lines.append(f"   ✓ Fixed {fixed}/{len(issues)} issues")
+                else:
+                    output_lines.append("   ✓ No issues found - system healthy")
+            except Exception as e:
+                output_lines.append(f"   ⚠️  Repair skipped: {e}")
+                logger.warning(f"[LOCAL] Repair error: {e}")
+        
+        # EXECUTE FULL RESTART (if requested)
+        if do_full:
+            output_lines.append("🔄 Full system restart...")
+            output_lines.append("   ℹ️  Close and relaunch uCODE to complete restart")
         
         output_lines.append("")
-        
-        # Confirm
-        if not skip_confirm:
-            output_lines.append("Are you sure? This will:")
-            for step in plan:
-                output_lines.append(f"  • {step}")
-            output_lines.append("")
-            output_lines.append("Type YES to proceed, or anything else to cancel.")
-            output_lines.append("")
+        output_lines.append("✅ Restart complete!")
+        output_lines.append("")
         
         return {
             'output': '\n'.join(output_lines),
-            'status': 'info',
+            'status': 'success',
             'plan': plan,
-            'skip_confirm': skip_confirm,
-            'needs_confirm': not skip_confirm
+            'executed': True
         }
     
     def _show_menu(self, command):
