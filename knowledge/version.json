@@ -4,20 +4,20 @@
   "name": "uDOS Knowledge Bank",
   "version": {
     "major": 1,
-    "minor": 0,
-    "patch": 2
+    "minor": 1,
+    "patch": 0
   },
-  "display": "v1.0.2",
+  "display": "v1.1.0",
   "channel": "alpha",
-  "released": "2026-01-13",
-  "description": "Geography-linked knowledge - City & celestial GUIDEs with TILE coordinates",
+  "released": "2026-01-30",
+  "description": "Geography-linked knowledge - City & celestial GUIDEs with TILE coordinates + Astronomy & World Mapping System",
   "changelog": "dev/roadmap/CHANGELOG-knowledge.md",
   "dependencies": {},
   "metadata": {
-    "categories": 17,
-    "guides": 240,
+    "categories": 18,
+    "guides": 249,
     "format": "markdown",
-    "last_updated": "2026-01-13T00:00:00Z",
+    "last_updated": "2026-01-30T00:00:00Z",
     "contributors": [
       "Fred Porter"
     ],
