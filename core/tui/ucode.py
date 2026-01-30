@@ -329,32 +329,30 @@ class uCODETUI:
 
     def _ask_yes_no(self, question: str, default: bool = True) -> bool:
         """Ask a standardized yes/no question.
-        
-        Prompt format: "Question? [Yes|No] <"
-        Accepts: Y/Yes for True, N/No for False, Enter for default
-        
+
+        Prompt format: "Question? [Y/N] (Enter=default)"
+        Accepts: Y/N (single key), Enter for default
+
         Args:
             question: The question to ask (without punctuation)
             default: Default answer if user just presses Enter
-        
+
         Returns:
             True for yes, False for no
         """
-        default_str = "Yes" if default else "No"
-        prompt_text = f"{question}? [Yes|No] <"
-        
-        response = self.prompt.ask(prompt_text, default="yes" if default else "no")
+        default_key = "y" if default else "n"
+        prompt_text = f"{question}? [Y/N] (Enter={default_key.upper()}) "
+
+        response = self.prompt.ask_single_key(prompt_text, valid_keys=["y", "n"], default=default_key)
         response_lower = response.lower().strip()
-        
-        # Accept Y/Yes for true, N/No for false, empty string uses default
-        if response_lower in ["y", "yes", ""]:
+
+        if response_lower == "y":
             return True
-        elif response_lower in ["n", "no"]:
+        if response_lower == "n":
             return False
-        else:
-            # Invalid input, ask again
-            print("  ❌ Please enter Y/Yes or N/No")
-            return self._ask_yes_no(question, default)
+
+        # Should not happen, but fall back to default
+        return default
     
     def _handle_story_form(self, form_data: Dict) -> Dict:
         """Handle interactive story form - collect user responses for all sections.
@@ -422,22 +420,105 @@ class uCODETUI:
     def _save_user_profile(self, collected_data: Dict) -> None:
         """Save collected form data to user profile.
         
+        This submits to the Wizard's /api/v1/setup/story/submit endpoint,
+        which properly splits the data into user and install profiles.
+        
         Args:
             collected_data: Dictionary of field names and values from form
         """
         try:
-            # Try to save via Wizard API if available
+            # Try to save via Wizard API endpoint (preferred method)
             try:
-                from wizard.services.setup_profiles import save_user_profile
+                import requests
                 
-                result = save_user_profile(collected_data)
-                if result.success:
-                    self.logger.info(f"[SETUP] User profile saved via Wizard")
-                    return
-            except (ImportError, Exception) as e:
-                self.logger.debug(f"Wizard API not available: {e}")
+                # Get the token
+                token_path = self.repo_root / "memory" / "private" / "wizard_admin_token.txt"
+                
+                if token_path.exists():
+                    token = token_path.read_text().strip()
+                    headers = {
+                        "Authorization": f"Bearer {token}",
+                        "Content-Type": "application/json"
+                    }
+                    
+                    # Submit to the story endpoint which handles splitting
+                    response = requests.post(
+                        "http://localhost:8765/api/v1/setup/story/submit",
+                        headers=headers,
+                        json={"answers": collected_data},
+                        timeout=10
+                    )
+                    
+                    if response.status_code == 200:
+                        self.logger.info("[SETUP] Setup data submitted to Wizard API")
+                        print("\n✅ Setup data saved to Wizard keystore.")
+                        return
+                    elif response.status_code == 503:
+                        self.logger.warning(f"[SETUP] Wizard secret store locked")
+                        print(f"\n⚠️  Wizard secret store is locked. Please ensure WIZARD_KEY is set.")
+                    else:
+                        error_detail = response.json().get("detail", f"HTTP {response.status_code}")
+                        self.logger.warning(f"[SETUP] Wizard API error: {error_detail}")
+                        print(f"\n⚠️  Could not save to Wizard: {error_detail}")
+                        
+            except requests.exceptions.ConnectionError:
+                self.logger.debug("Wizard server not running, trying direct save")
+            except Exception as e:
+                self.logger.debug(f"Wizard API submission failed: {e}")
             
-            # Fallback: Save to local profile file in memory/
+            # Fallback: Try direct save via Wizard services (if Wizard is available but server isn't running)
+            try:
+                from wizard.services.setup_profiles import save_user_profile, save_install_profile
+                
+                # Split the collected data into user and install sections
+                # User profile fields
+                user_profile = {
+                    "username": collected_data.get("user_username"),
+                    "date_of_birth": collected_data.get("user_dob"),
+                    "role": collected_data.get("user_role"),
+                    "timezone": collected_data.get("user_timezone"),
+                    "local_time": collected_data.get("user_local_time"),
+                    "location_id": collected_data.get("user_location_id"),
+                    "permissions": collected_data.get("user_permissions"),
+                }
+                
+                # Install profile fields
+                install_profile = {
+                    "installation_id": collected_data.get("install_id"),
+                    "os_type": collected_data.get("install_os_type"),
+                    "lifespan_mode": collected_data.get("install_lifespan_mode"),
+                    "moves_limit": collected_data.get("install_moves_limit"),
+                    "permissions": collected_data.get("install_permissions"),
+                    "capabilities": {
+                        "web_proxy": bool(collected_data.get("capability_web_proxy")),
+                        "gmail_relay": bool(collected_data.get("capability_gmail_relay")),
+                        "ai_gateway": bool(collected_data.get("capability_ai_gateway")),
+                        "github_push": bool(collected_data.get("capability_github_push")),
+                        "notion": bool(collected_data.get("capability_notion")),
+                        "hubspot": bool(collected_data.get("capability_hubspot")),
+                        "icloud": bool(collected_data.get("capability_icloud")),
+                        "plugin_repo": bool(collected_data.get("capability_plugin_repo")),
+                        "plugin_auto_update": bool(collected_data.get("capability_plugin_auto_update")),
+                    },
+                }
+                
+                user_result = save_user_profile(user_profile)
+                install_result = save_install_profile(install_profile)
+                
+                if user_result.data and install_result.data:
+                    self.logger.info("[SETUP] Setup data saved via direct Wizard services")
+                    print("\n✅ Setup data saved to Wizard keystore.")
+                    return
+                elif user_result.locked or install_result.locked:
+                    error = user_result.error or install_result.error
+                    self.logger.warning(f"[SETUP] Secret store locked: {error}")
+                    print(f"\n⚠️  Secret store is locked: {error}")
+                    print("Please ensure WIZARD_KEY is set in .env file.")
+                    
+            except (ImportError, Exception) as e:
+                self.logger.debug(f"Wizard direct save not available: {e}")
+            
+            # Final fallback: Save to local profile file in memory/
             profile_dir = self.repo_root / "memory" / "user"
             profile_dir.mkdir(parents=True, exist_ok=True)
             profile_file = profile_dir / "profile.json"
@@ -455,7 +536,9 @@ class uCODETUI:
             with open(profile_file, "w") as f:
                 json.dump(profile, f, indent=2)
             
-            self.logger.info(f"[SETUP] User profile saved to {profile_file}")
+            self.logger.info(f"[SETUP] User profile saved to local file: {profile_file}")
+            print(f"\n💾 Setup data saved locally to {profile_file}")
+            print("⚠️  Note: Start Wizard server to sync this data to the keystore.")
             
         except Exception as e:
             self.logger.error(f"[SETUP] Failed to save user profile: {e}", exc_info=True)
