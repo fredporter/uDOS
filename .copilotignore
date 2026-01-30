@@ -1,0 +1,50 @@
+# Copilot Context Exclusions
+# Reduce request size by ignoring large/irrelevant directories
+
+# Archives and backups
+.archive/
+**/.archive/
+.compost/
+
+# Development and drafts
+.dev/
+**/.dev/
+
+# User data and logs
+memory/
+**/logs/
+
+# Dependencies
+node_modules/
+**/.venv/
+library/
+distribution/
+
+# Build artifacts
+**/build/
+**/dist/
+**/target/
+**/.svelte-kit/
+**/__pycache__/
+
+# Lock files
+**/package-lock.json
+**/yarn.lock
+
+# Git internals
+.git/
+
+# Binary and compiled files
+**/*.pyc
+**/*.pyo
+**/*.so
+**/*.dylib
+**/*.dll
+**/*.exe
+**/*.class
+**/*.jar
+
+# Large data files
+**/*.db
+**/*.sqlite
+**/*.log

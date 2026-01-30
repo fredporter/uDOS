@@ -63,7 +63,14 @@
     "**/.dev": true,
     "app/.svelte-kit": true,
     "app/build": true,
-    "dev/goblin/.svelte-kit": true
+    "dev/goblin/.svelte-kit": true,
+    "memory/**": true,
+    "**/logs/**": true,
+    "**/*.pyc": true,
+    "distribution/**": true,
+    "library/**": true,
+    "**/package-lock.json": true,
+    "**/.git": true
   },
   "editor.rulers": [100, 120],
   "editor.formatOnSave": false,
@@ -71,8 +78,10 @@
   "python.analysis.extraPaths": [],
   "pylance.typeCheckingMode": "basic",
   "github.copilot.advanced": {
-    "debug.overrideCacheDir": ""
-  }
+    "debug.overrideCacheDir": "",
+    "inlineSuggest.count": 1,
+    "length": 500
+  },
   "editor.trimAutoWhitespace": true,
   "files.trimTrailingWhitespace": true,
   "files.trimFinalNewlines": true,

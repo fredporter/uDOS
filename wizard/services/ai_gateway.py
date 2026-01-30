@@ -320,8 +320,15 @@ class AIGateway:
             providers["anthropic"] = True
 
         # Check for local Ollama
-        # TODO: Actually ping Ollama
-        providers["ollama"] = False
+        try:
+            import requests
+            resp = requests.get("http://127.0.0.1:11434/api/tags", timeout=2)
+            providers["ollama"] = resp.status_code == 200
+            if providers["ollama"]:
+                logger.info("[LOCAL] Ollama endpoint detected and available")
+        except Exception as e:
+            providers["ollama"] = False
+            logger.debug(f"[LOCAL] Ollama not available: {e}")
 
         return providers
 
