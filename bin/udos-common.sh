@@ -198,7 +198,7 @@ ensure_python_env() {
     # Set environment
     export PYTHONPATH="$UDOS_ROOT:$PYTHONPATH"
     export UDOS_DEV_MODE=1
-    
+
     # Prevent Python from writing .pyc files (helps with hot reload)
     export PYTHONDONTWRITEBYTECODE=1
 

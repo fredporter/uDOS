@@ -178,17 +178,22 @@ class UserManager:
             print(f"Error saving current user: {e}")
     
     def _ensure_default_user(self) -> None:
-        """Ensure default admin user exists."""
+        """Ensure default ghost user exists when no users present.
+        
+        When user variables are destroyed/reset, the system defaults to
+        ghost mode (demo/test) and prompts the user to run SETUP to exit.
+        """
         from datetime import datetime
         
         if not self.users:
-            admin = User(
-                username="admin",
-                role=UserRole.ADMIN,
+            # Create default ghost user for demo/test mode
+            ghost = User(
+                username="ghost",
+                role=UserRole.GUEST,
                 created=datetime.now().isoformat()
             )
-            self.users["admin"] = admin
-            self.current_username = "admin"
+            self.users["ghost"] = ghost
+            self.current_username = "ghost"
             self._save()
             self._save_current()
     
@@ -213,6 +218,12 @@ class UserManager:
             Tuple of (success, message)
         """
         from datetime import datetime
+        from core.services.name_validator import validate_username
+        
+        # Validate username
+        is_valid, error = validate_username(username)
+        if not is_valid:
+            return False, error
         
         if username in self.users:
             return False, f"User {username} already exists"

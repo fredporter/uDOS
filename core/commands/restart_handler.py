@@ -35,9 +35,17 @@ from pathlib import Path
 class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
     """Unified restart/reload/reboot handler."""
     
+    def __init__(self):
+        """Initialize handler."""
+        super().__init__()
+        self.prompt = None  # Will be set by parser
+    
     def handle(self, command, params, grid, parser):
         """Handle RESTART, RELOAD (alias), REBOOT (alias) commands with logging.
         """
+        # Store parser for interactive prompts
+        self.prompt = parser
+        
         with self.trace_command(command, params) as trace:
             result = self._handle_impl(command, params, grid, parser)
             if isinstance(result, dict):
@@ -127,9 +135,9 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
         if show_help:
             return self._show_help(command)
         
-        # Show menu if no options or choice
+        # Show interactive menu if no options or choice
         if not (reload_only or repair_only or full):
-            return self._show_menu(command)
+            return self._show_interactive_menu(command)
         
         # Determine mode
         if command.upper() == "RELOAD":
@@ -240,16 +248,15 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
             output_lines.append("🔧 Running repair checks...")
             try:
                 from core.services.self_healer import SelfHealer
-                healer = SelfHealer()
-                issues = healer.diagnose()
+                healer = SelfHealer(component='core', auto_repair=True)
+                result = healer.diagnose_and_repair()
                 
-                if issues:
-                    output_lines.append(f"   ✓ Found {len(issues)} issues")
-                    fixed = 0
-                    for issue in issues:
-                        if healer.repair(issue, auto_apply=True):
-                            fixed += 1
-                    output_lines.append(f"   ✓ Fixed {fixed}/{len(issues)} issues")
+                if result.issues_found:
+                    output_lines.append(f"   ✓ Found {len(result.issues_found)} issues")
+                    if result.issues_repaired:
+                        output_lines.append(f"   ✓ Fixed {len(result.issues_repaired)}/{len(result.issues_found)} issues")
+                    if result.issues_remaining:
+                        output_lines.append(f"   ⚠️  {len(result.issues_remaining)} issues remaining (require manual fix)")
                 else:
                     output_lines.append("   ✓ No issues found - system healthy")
             except Exception as e:
@@ -333,6 +340,93 @@ EXAMPLES:
             'status': 'info',
             'command': command
         }
+    
+    def _show_interactive_menu(self, command):
+        """Show interactive restart menu and guide user through options.
+        
+        Uses the standard menu choice handler to guide the user.
+        Actually executes the selected option.
+        
+        Args:
+            command: Command name
+        
+        Returns:
+            Output dict (execution result)
+        """
+        # Check if we have a prompt available
+        if not self.prompt or not hasattr(self.prompt, 'ask_menu_choice'):
+            # Fallback to static menu if no prompt available
+            return self._show_menu(command)
+        
+        # Display the menu
+        menu_text = """
+╔════════════════════════════════════════╗
+║       RESTART/RELOAD/REBOOT            ║
+╚════════════════════════════════════════╝
+
+  1. Reload (hot reload handlers only)
+  2. Repair (run repair checks only)
+  3. Reload + Repair (recommended)
+  4. Full Restart (complete reset)
+  0. Help
+"""
+        print(menu_text)
+        
+        # Ask user to choose
+        choice = self.prompt.ask_menu_choice(
+            "Choose an option",
+            num_options=4,
+            allow_zero=True
+        )
+        
+        if choice is None or choice == 0:
+            # User pressed enter or selected 0 - show help
+            return self._show_help(command)
+        
+        # Map choice to action and EXECUTE
+        reload_only = False
+        repair_only = False
+        full = False
+        
+        if choice == 1:
+            reload_only = True
+        elif choice == 2:
+            repair_only = True
+        elif choice == 3:
+            reload_only = True
+            repair_only = True
+        elif choice == 4:
+            full = True
+        
+        # Execute the restart NOW
+        from core.services.unified_logging import get_unified_logger
+        from core.services.user_manager import get_user_manager
+        
+        unified = get_unified_logger()
+        user_mgr = get_user_manager()
+        user = user_mgr.current()
+        
+        # Log the action
+        unified.log_core(
+            category='restart',
+            message=f'Restart initiated by {user.username if user else "unknown"}',
+            metadata={
+                'command': command,
+                'choice': choice,
+                'reload_only': reload_only,
+                'repair_only': repair_only,
+                'full': full
+            }
+        )
+        
+        # Execute restart
+        return self._perform_restart(
+            reload_only=reload_only,
+            repair_only=repair_only,
+            full=full,
+            skip_confirm=True,  # Already confirmed by choosing
+            command=command
+        )
     
     def _show_help(self, command):
         """Show help for restart command.

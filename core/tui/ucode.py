@@ -51,7 +51,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from core.tui.dispatcher import CommandDispatcher
 from core.tui.renderer import GridRenderer
 from core.tui.state import GameState
-from core.input import SmartPrompt
+from core.tui.status_bar import TUIStatusBar
+from core.tui.fkey_handler import FKeyHandler
+from core.input import SmartPrompt, EnhancedPrompt
 from core.services.logging_manager import get_logger
 
 
@@ -212,7 +214,13 @@ class uCODETUI:
         self.dispatcher = CommandDispatcher()
         self.renderer = GridRenderer()
         self.state = GameState()
-        self.prompt = SmartPrompt()
+        
+        # Use EnhancedPrompt for better UX
+        self.prompt = EnhancedPrompt()
+        
+        # Status bar and function key handler
+        self.status_bar = TUIStatusBar()
+        self.fkey_handler = FKeyHandler(dispatcher=self.dispatcher, prompt=self.prompt)
 
         # Command registry
         self.commands: Dict[str, Callable] = {
@@ -220,6 +228,9 @@ class uCODETUI:
             "HELP": self._cmd_help,
             "EXIT": self._cmd_exit,
             "QUIT": self._cmd_exit,
+            "FKEYS": self._cmd_fkeys,
+            "FKEY": self._cmd_fkeys,
+            "F": self._cmd_fkeys,
         }
 
         # Conditional commands
@@ -233,22 +244,33 @@ class uCODETUI:
             self.commands["EXTENSION"] = self._cmd_plugin
 
         if self.prompt.use_fallback:
-            self.logger.info(f"[SmartPrompt] Using fallback mode: {self.prompt.fallback_reason}")
+            self.logger.info(f"[EnhancedPrompt] Using fallback mode: {self.prompt.fallback_reason}")
         else:
-            self.logger.info("[SmartPrompt] Initialized with prompt_toolkit")
+            self.logger.info("[EnhancedPrompt] Initialized with 2-line context display")
 
     def run(self) -> None:
         """Start uCODE TUI."""
         self.running = True
         self._show_banner()
-        self._show_component_status()
         
-        # Check if fresh install and run setup if needed
-        self._check_fresh_install()
+        # Check if in ghost mode and prompt for setup
+        self._check_ghost_mode()
+        
+        # Get current user role for status bar
+        try:
+            from core.services.user_manager import get_current_user
+            current_user = get_current_user()
+            user_role = current_user.role.name.lower() if current_user else "ghost"
+        except Exception:
+            user_role = "ghost"
 
         try:
             while self.running:
                 try:
+                    # Show status bar line above prompt
+                    status_line = self.status_bar.get_status_line(user_role)
+                    print(f"\n{status_line}")
+                    
                     plain_prompt = "[uCODE] > "
                     
                     # Ensure terminal is in good state before asking for input
@@ -272,7 +294,7 @@ class uCODETUI:
 
                     # Special handling for STORY commands with forms
                     if cmd == "STORY":
-                        result = self.dispatcher.dispatch(user_input)
+                        result = self.dispatcher.dispatch(user_input, parser=self.prompt)
                         
                         # Check if this is a form-based story
                         if result.get("story_form"):
@@ -294,7 +316,7 @@ class uCODETUI:
                         continue
 
                     # Route to core dispatcher (fallback)
-                    result = self.dispatcher.dispatch(user_input)
+                    result = self.dispatcher.dispatch(user_input, parser=self.prompt)
                     self.state.update_from_handler(result)
                     self.logger.info(f"[COMMAND] {user_input} -> {result.get('status')}")
                     self.state.add_to_history(user_input)
@@ -327,36 +349,62 @@ class uCODETUI:
 """
         print(banner)
 
-    def _ask_yes_no(self, question: str, default: bool = True) -> bool:
-        """Ask a standardized [Yes|No|OK] question.
+    def _ask_yes_no(self, question: str, default: bool = True, help_text: str = None, context: str = None) -> bool:
+        """Ask a standardized [1|0|Yes|No|OK|Cancel] question.
 
-        Prompt format: "Question? [Yes/No/OK] (Enter=default)"
-        Accepts: Y/Yes, N/No, OK (where OK = Yes)
+        Prompt format with 2-line context display:
+          ╭─ Context or current state
+          ╰─ [1|0|Yes|No|OK|Cancel]
+          Question? [YES] 
+
+        Accepts: 
+          - 1, y, yes, ok, Enter (if default=True) = True
+          - 0, n, no, x, cancel, Enter (if default=False) = False
 
         Args:
             question: The question to ask (without punctuation)
             default: Default answer if user just presses Enter
+            help_text: Optional help text for line 2
+            context: Optional context for line 1
 
         Returns:
-            True for yes/ok, False for no
+            True for yes/ok, False for no/cancel
         """
-        default_str = "yes" if default else "no"
-        response = self.prompt.ask_yes_no_ok(question, default=default_str)
-        
-        # Convert response to boolean (ok counts as yes)
-        return response in ["yes", "ok"]
+        return self.prompt.ask_confirmation(
+            question=question,
+            default=default,
+            help_text=help_text,
+            context=context,
+        )
     
-    def _ask_menu_choice(self, prompt: str, num_options: int, allow_cancel: bool = True) -> Optional[int]:
-        """Ask for a numbered menu choice (1-N).
+    def _ask_menu_choice(self, prompt: str, num_options: int, allow_cancel: bool = True, help_text: str = None) -> Optional[int]:
+        """Ask user to select from a numbered menu with 2-line context display.
+
+        Shows:
+          ╭─ Valid choices: 1-N or 0 to cancel
+          ╰─ Enter number and press Enter
         
         Args:
             prompt: Prompt to display
             num_options: Number of valid options
             allow_cancel: If True, 0/Enter cancels; if False, user must pick 1-N
+            help_text: Optional help text for line 2
         
         Returns:
             Selected number (1-N), or None if cancelled
         """
+        # Build context display
+        range_display = f"1-{num_options}" + (" or 0 to cancel" if allow_cancel else "")
+        
+        # Display context lines
+        if self.prompt.show_context:
+            print(f"\n  ╭─ Valid choices: {range_display}")
+            if help_text:
+                print(f"  ╰─ {help_text}")
+            else:
+                print(f"  ╰─ Enter number and press Enter")
+
+        # Get choice using standard menu handler
         return self.prompt.ask_menu_choice(prompt, num_options, allow_zero=allow_cancel)
     
     def _handle_story_form(self, form_data: Dict) -> Dict:
@@ -550,53 +598,22 @@ class uCODETUI:
             print(f"\n⚠️  Warning: Could not save profile: {e}")
 
     
-    def _collect_field_response(self, field: Dict) -> Optional[str]:
-        """Collect response for a single form field.
+    def _collect_field_response(self, field: Dict, previous_value: Optional[str] = None) -> Optional[str]:
+        """Collect response for a single form field using EnhancedPrompt.
+        
+        Uses 2-line context display:
+          ╭─ Current: value or Not set
+          ╰─ Help text (required/optional)
         
         Args:
             field: Field definition with name, label, type, etc.
+            previous_value: Previous value if editing
         
         Returns:
             User's response or None
         """
-        name = field.get("name", "")
-        label = field.get("label", name)
-        field_type = field.get("type", "text")
-        required = field.get("required", False)
-        placeholder = field.get("placeholder", "")
-        options = field.get("options", [])
-        
-        # Build prompt text
-        prompt_prefix = f"{label}"
-        if not required:
-            prompt_prefix += " (optional)"
-        
-        response = None
-        
-        if field_type == "select" and options:
-            # Show options menu
-            print(f"\n{prompt_prefix}:")
-            for idx, option in enumerate(options, 1):
-                print(f"  {idx}. {option}")
-            
-            # Get selection using standard menu handler
-            choice = self._ask_menu_choice("  Choose an option", len(options), allow_cancel=False)
-            if choice and 1 <= choice <= len(options):
-                response = options[choice - 1]
-            else:
-                response = placeholder or ""
-        
-        elif field_type == "checkbox":
-            # Yes/no prompt
-            yn = self._ask_yes_no(prompt_prefix)
-            response = "yes" if yn else "no"
-        
-        else:
-            # Text input (text or textarea)
-            print(f"\n{prompt_prefix}:")
-            response = self.prompt.ask("  > ", default=placeholder or "")
-        
-        return response if response else None
+        # Use the enhanced prompt's story field handler
+        return self.prompt.ask_story_field(field, previous_value)
     
     def _check_fresh_install(self) -> None:
         """Check if this is a fresh install and run setup story if needed.
@@ -1174,6 +1191,31 @@ For detailed help on any command, type the command name followed by --help
     def _cleanup(self) -> None:
         """Cleanup on exit."""
         self.logger.info("uCODE TUI shutting down")
+
+    def _check_ghost_mode(self) -> None:
+        """Check if running in ghost mode and prompt for setup.
+        
+        When user variables are destroyed/reset, the system defaults to
+        ghost mode (demo/test access only). This method detects that and
+        prompts the user to run SETUP to establish their identity.
+        """
+        from core.services.user_manager import get_user_manager, UserRole
+        
+        user_mgr = get_user_manager()
+        current = user_mgr.current()
+        
+        if current and current.role == UserRole.GUEST and current.username == "ghost":
+            # In ghost mode
+            print("\n" + "="*60)
+            print("👻 Ghost Mode (Demo/Test Access)")
+            print("="*60)
+            print("\nYou're currently in ghost mode with limited access.")
+            print("To set up your identity and unlock full features:\n")
+            print("  SETUP --story\n")
+            print("Or view this setup prompt later:")
+            print("  SETUP\n")
+            print("="*60 + "\n")
+
 
 
 def main():

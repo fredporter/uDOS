@@ -27,6 +27,6 @@
   "notes": "Added ANSI pattern generator service and PATTERN command for visual feedback",
   "name": "core",
   "channel": "dev",
-  "display": "v1.0.7.1",
+  "display": "v1.0.7",
   "released": "2026-01-29"
 }
