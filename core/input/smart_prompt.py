@@ -366,7 +366,8 @@ class SmartPrompt:
         default: Optional[str] = None,
     ) -> str:
         """
-        Prompt for a single keypress and return it immediately.
+        Prompt for a single key/choice input (y/n, number selection, etc).
+        Accepts the key directly or uses default on Enter.
 
         Args:
             prompt_text: Prompt to display
@@ -374,20 +375,31 @@ class SmartPrompt:
             default: Default key to return on Enter (lowercase)
 
         Returns:
-            The selected key (lowercase)
+            The selected key (lowercase), or empty string
         """
         valid = [k.lower() for k in valid_keys]
         default_key = default.lower() if default else None
 
         try:
-            if self.use_fallback:
-                return self._ask_single_key_fallback(prompt_text, valid, default_key)
-            return self._ask_single_key_advanced(prompt_text, valid, default_key)
+            # Use normal input
+            response = self.ask(prompt_text, default="")
+            response_lower = response.lower().strip()
+            
+            # Empty input returns default
+            if response_lower == "" and default_key:
+                return default_key
+            
+            # Valid key
+            if response_lower in valid:
+                return response_lower
+            
+            # Invalid - return empty
+            return ""
         except (KeyboardInterrupt, EOFError):
             return ""
         except Exception as e:
-            debug_logger.exception(f"  Exception in ask_single_key(): {e}")
-            return self._ask_single_key_fallback(prompt_text, valid, default_key)
+            debug_logger.exception(f"Exception in ask_single_key(): {e}")
+            return ""
 
     def _ask_advanced(self, prompt_text: str) -> str:
         """
@@ -436,64 +448,6 @@ class SmartPrompt:
             return user_input
         except (KeyboardInterrupt, EOFError):
             return ""
-
-    def _ask_single_key_advanced(self, prompt_text: str, valid: List[str], default: Optional[str]) -> str:
-        """Single-key prompt using prompt_toolkit with key bindings."""
-        bindings = KeyBindings()
-
-        @bindings.add(Keys.ControlC)
-        def _(event):
-            raise KeyboardInterrupt()
-
-        @bindings.add(Keys.ControlD)
-        def _(event):
-            raise EOFError()
-
-        if default:
-            @bindings.add(Keys.Enter)
-            def _(event):
-                event.app.exit(result=default)
-
-        for key in valid:
-            @bindings.add(key)
-            def _(event, key=key):
-                event.app.exit(result=key)
-
-        return self.session.prompt(prompt_text, key_bindings=bindings).strip().lower()
-
-    def _ask_single_key_fallback(self, prompt_text: str, valid: List[str], default: Optional[str]) -> str:
-        """Single-key prompt using raw terminal input (fallback)."""
-        sys.stdout.write(prompt_text)
-        sys.stdout.flush()
-
-        if not hasattr(sys.stdin, "fileno"):
-            user_input = input(" ").strip().lower()
-            if user_input == "" and default:
-                return default
-            return user_input if user_input in valid else ""
-
-        import termios
-        import tty
-
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(fd)
-            while True:
-                ch = sys.stdin.read(1)
-                if ch in ("\r", "\n"):
-                    if default:
-                        sys.stdout.write("\n")
-                        sys.stdout.flush()
-                        return default
-                    continue
-                ch = ch.lower()
-                if ch in valid:
-                    sys.stdout.write(ch + "\n")
-                    sys.stdout.flush()
-                    return ch
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
     def get_predictions(self, partial: str, max_results: int = 5) -> List:
         """

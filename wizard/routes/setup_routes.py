@@ -179,6 +179,12 @@ def _resolve_location_name(location_id: str) -> str:
     return loc.get("name") if loc else location_id
 
 
+def _is_ghost_mode(username: Optional[str], role: Optional[str]) -> bool:
+    username_norm = (username or "").strip().lower()
+    role_norm = (role or "").strip().lower()
+    return username_norm == "ghost" or role_norm == "ghost"
+
+
 def _is_local_request(request: Request) -> bool:
     client_host = request.client.host if request.client else ""
     return client_host in {"127.0.0.1", "::1", "localhost"}
@@ -310,6 +316,18 @@ def create_setup_routes(auth_guard=None):
 
     @router.post("/wizard/complete")
     async def complete_setup_wizard():
+        user_result = load_user_profile()
+        if user_result.data and _is_ghost_mode(
+            user_result.data.get("username"),
+            user_result.data.get("role"),
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "Ghost Mode is active. Run the setup story to select Admin or User "
+                    "and change the username from Ghost to exit Ghost/test mode."
+                ),
+            )
         db_validation = validate_database_paths()
         all_ready = all(db["writable"] for db in db_validation.values())
         if not all_ready:
@@ -352,6 +370,10 @@ def create_setup_routes(auth_guard=None):
         return {
             "user_profile": user.data,
             "install_profile": install.data,
+            "ghost_mode": _is_ghost_mode(
+                (user.data or {}).get("username"),
+                (user.data or {}).get("role"),
+            ),
             "secret_store_locked": user.locked or install.locked,
             "errors": [e for e in [user.error, install.error] if e],
             "install_metrics": load_install_metrics(),
@@ -362,6 +384,10 @@ def create_setup_routes(auth_guard=None):
         _validate_location_id(payload.location_id)
         payload_dict = payload.dict()
         payload_dict["location_name"] = _resolve_location_name(payload.location_id)
+        payload_dict["ghost_mode"] = _is_ghost_mode(
+            payload_dict.get("username"),
+            payload_dict.get("role"),
+        )
         result = save_user_profile(payload_dict)
         if result.locked:
             raise HTTPException(status_code=503, detail=result.error or "secret store locked")
@@ -465,6 +491,46 @@ def create_setup_routes(auth_guard=None):
             "user_location_id": default_location.get("id") if default_location else None,
             "user_location_name": default_location.get("name") if default_location else None,
         }
+
+        user_result = load_user_profile()
+        install_result = load_install_profile()
+        if user_result.data:
+            overrides.update(
+                {
+                    "user_username": user_result.data.get("username"),
+                    "user_dob": user_result.data.get("date_of_birth"),
+                    "user_role": user_result.data.get("role"),
+                    "user_permissions": user_result.data.get("permissions"),
+                    "user_timezone": user_result.data.get("timezone") or overrides.get("user_timezone"),
+                    "user_local_time": user_result.data.get("local_time") or overrides.get("user_local_time"),
+                    "user_location_id": user_result.data.get("location_id") or overrides.get("user_location_id"),
+                    "user_location_name": user_result.data.get("location_name") or overrides.get("user_location_name"),
+                }
+            )
+        if install_result.data:
+            overrides.update(
+                {
+                    "install_id": install_result.data.get("installation_id"),
+                    "install_os_type": install_result.data.get("os_type"),
+                    "install_lifespan_mode": install_result.data.get("lifespan_mode"),
+                    "install_moves_limit": install_result.data.get("moves_limit"),
+                    "install_permissions": install_result.data.get("permissions"),
+                }
+            )
+            capabilities = (install_result.data.get("capabilities") or {})
+            overrides.update(
+                {
+                    "capability_web_proxy": capabilities.get("web_proxy"),
+                    "capability_gmail_relay": capabilities.get("gmail_relay"),
+                    "capability_ai_gateway": capabilities.get("ai_gateway"),
+                    "capability_github_push": capabilities.get("github_push"),
+                    "capability_notion": capabilities.get("notion"),
+                    "capability_hubspot": capabilities.get("hubspot"),
+                    "capability_icloud": capabilities.get("icloud"),
+                    "capability_plugin_repo": capabilities.get("plugin_repo"),
+                    "capability_plugin_auto_update": capabilities.get("plugin_auto_update"),
+                }
+            )
         
         try:
             _apply_setup_defaults(
@@ -518,6 +584,8 @@ def create_setup_routes(auth_guard=None):
         user_profile["location_name"] = _resolve_location_name(
             user_profile.get("location_id")
         )
+        ghost_mode = _is_ghost_mode(user_profile.get("username"), user_profile.get("role"))
+        user_profile["ghost_mode"] = ghost_mode
 
         install_profile = {
             "installation_id": answers.get("install_id"),
@@ -536,6 +604,7 @@ def create_setup_routes(auth_guard=None):
                 "plugin_repo": bool(answers.get("capability_plugin_repo")),
                 "plugin_auto_update": bool(answers.get("capability_plugin_auto_update")),
             },
+            "ghost_mode": ghost_mode,
         }
 
         user_result = save_user_profile(user_profile)

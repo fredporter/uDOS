@@ -17,7 +17,7 @@ name: user_username
 label: Username (no spaces or special characters)
 type: text
 required: true
-placeholder: "fred"
+placeholder: "Ghost"
 ```
 
 ```story
@@ -25,7 +25,7 @@ name: user_dob
 label: Date of birth (YYYY-MM-DD)
 type: text
 required: true
-placeholder: "1980-01-15"
+placeholder: "1980-01-01"
 ```
 
 ```story
@@ -36,14 +36,7 @@ required: true
 options:
   - admin
   - user
-```
-
-```story
-name: user_permissions
-label: User permissions (optional)
-type: textarea
-required: false
-placeholder: "Describe any custom permissions or notes"
+  - ghost *default/test-user
 ```
 
 ---
@@ -112,8 +105,8 @@ label: Lifespan mode
 type: select
 required: true
 options:
-  - infinite
-  - moves
+  - infinite *default = 0
+  - moves * = number of moves lifespan
 ```
 
 ```story
@@ -121,7 +114,7 @@ name: install_moves_limit
 label: Moves limit (required if lifespan is moves)
 type: number
 required: false
-placeholder: "1000"
+placeholder: "1000" ** not required
 ```
 
 ---

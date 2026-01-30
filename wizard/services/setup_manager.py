@@ -15,6 +15,7 @@ from typing import Dict, Any, List, Optional
 from wizard.services.path_utils import get_repo_root, get_memory_dir
 from core.location_service import LocationService
 from wizard.services.setup_state import setup_state
+from wizard.services.setup_profiles import load_user_profile, load_install_profile
 
 
 def validate_database_paths() -> Dict[str, Any]:
@@ -81,8 +82,20 @@ def get_required_variables() -> Dict[str, Dict[str, Any]]:
     }
 
 
+def _is_ghost_mode(username: Optional[str], role: Optional[str]) -> bool:
+    username_norm = (username or "").strip().lower()
+    role_norm = (role or "").strip().lower()
+    return username_norm == "ghost" or role_norm == "ghost"
+
+
 def get_full_config_status() -> Dict[str, Any]:
     config = _load_wizard_config()
+    user_result = load_user_profile()
+    install_result = load_install_profile()
+    ghost_mode = _is_ghost_mode(
+        (user_result.data or {}).get("username"),
+        (user_result.data or {}).get("role"),
+    )
     return {
         "server": {
             "host": config.get("host", "0.0.0.0"),
@@ -108,7 +121,15 @@ def get_full_config_status() -> Dict[str, Any]:
             },
         },
         "databases": validate_database_paths(),
-        "setup": setup_state.get_status(),
+        "setup": {
+            **setup_state.get_status(),
+            "ghost_mode": ghost_mode,
+        },
+        "profiles": {
+            "user": user_result.data,
+            "install": install_result.data,
+            "ghost_mode": ghost_mode,
+        },
         "features": {
             "notion_enabled": config.get("notion_enabled", False),
             "ai_gateway_enabled": config.get("ai_gateway_enabled", False),
