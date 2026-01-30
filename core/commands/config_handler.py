@@ -241,8 +241,14 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
     # ========================================================================
 
     def _list_variables(self) -> Dict:
-        """List all variables from Wizard."""
+        """List all variables - first try local .env, fallback to Wizard."""
         try:
+            # First try local .env file
+            env_data = self._load_env_file()
+            if env_data:
+                return self._format_env_variables(env_data)
+            
+            # Then try Wizard Server if available
             token = self._get_admin_token()
             if not token:
                 return self._offline_message()
@@ -258,6 +264,12 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
                     error_detail = response.json().get("detail", "")
                 except:
                     error_detail = response.text[:200] if response.text else ""
+                
+                # If Wizard failed, show local env instead
+                env_data = self._load_env_file()
+                if env_data:
+                    return self._format_env_variables(env_data)
+                
                 return {
                     "status": "error",
                     "message": f"Failed to list variables: HTTP {response.status_code}",
@@ -267,6 +279,11 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
             try:
                 variables = response.json().get("variables", [])
             except json.JSONDecodeError:
+                # If JSON parse fails, show local env
+                env_data = self._load_env_file()
+                if env_data:
+                    return self._format_env_variables(env_data)
+                
                 return {
                     "status": "error",
                     "message": "Invalid response from Wizard Server",
@@ -592,3 +609,45 @@ SECURITY:
             "message": "Wizard Server not available",
             "output": "Start Wizard: ./bin/start_wizard.sh",
         }
+    def _load_env_file(self) -> Dict:
+        """Load variables from .env file (offline fallback)."""
+        try:
+            env_path = get_repo_root() / ".env"
+            if not env_path.exists():
+                return {}
+            
+            variables = {}
+            for line in env_path.read_text().splitlines():
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    key, value = line.split("=", 1)
+                    variables[key.strip()] = value.strip()
+            return variables
+        except Exception:
+            return {}
+    
+    def _format_env_variables(self, variables: Dict) -> Dict:
+        """Format .env variables for display."""
+        try:
+            from core.tui.output import OutputToolkit
+            
+            lines = [OutputToolkit.banner("LOCAL CONFIGURATION (.env)"), ""]
+            
+            if not variables:
+                lines.append("(no variables configured)")
+            else:
+                for key, value in sorted(variables.items()):
+                    if key.startswith("_"):
+                        continue  # Skip private vars
+                    masked = self._mask_value(value)
+                    lines.append(f"  {key} = {masked}")
+            
+            lines.append("")
+            lines.append("Local variables stored in: .env")
+            lines.append("When Wizard Server is installed, it will import these.")
+            
+            return {"status": "success", "output": "\n".join(lines)}
+        except Exception as e:
+            return {"status": "error", "message": f"Failed to format variables: {e}"}

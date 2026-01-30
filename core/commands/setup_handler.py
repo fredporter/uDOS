@@ -1,66 +1,75 @@
 """
-SETUP command handler - View and manage setup profiles.
+SETUP command handler - Local offline setup for TUI.
 
-This command provides access to setup information stored in the Wizard Server.
-It can display user and installation profiles, or launch the setup story.
+This command manages user identity and installation settings stored locally
+in Core. It does NOT require Wizard Server to be running.
+
+When Wizard Server is eventually installed, it can import this local setup data.
 """
 
 from pathlib import Path
 from typing import Dict, List
-import requests
+import json
+from datetime import datetime
 
 from core.commands.base import BaseCommandHandler
 from core.services.logging_manager import get_repo_root
 
 
 class SetupHandler(BaseCommandHandler):
-    """Handler for SETUP command - view setup profiles."""
+    """Handler for SETUP command - local offline setup."""
+
+    def __init__(self):
+        """Initialize storage paths."""
+        super().__init__()
+        repo_root = get_repo_root()
+        self.setup_file = repo_root / "memory" / "user" / "setup.json"
+        self.setup_file.parent.mkdir(parents=True, exist_ok=True)
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         """
-        SETUP command - view or manage setup profiles.
+        SETUP command - manage local offline user setup.
         
         Usage:
-            SETUP              Run the setup story (default)
-            SETUP --profile    Show your setup profile (from Wizard Server)
-            SETUP --story      Run the setup story
-            SETUP --wizard     Show how to access setup in Wizard console
+            SETUP              Run the setup story (configure user + timezone + location)
+            SETUP --profile    Show your current setup profile
+            SETUP --edit       Edit setup interactively
+            SETUP --clear      Clear setup data (start over)
+            SETUP --help       Show help
             
-        Quick start:
-            1. SETUP                    (Run setup story)
-            2. SETUP --profile          (View your profile)
-            3. WIZARD start             (Start Wizard Server)
-            4. WIZARD setup             (Access setup in dashboard)
+        Data stored locally in:
+            - memory/user/setup.json   (user identity, timezone, location)
+        
+        When Wizard Server is installed later, it imports this data.
         """
         if not params:
             return self._run_story()
         
         action = params[0].lower()
         
-        if action in {"--story", "--run"}:
+        if action in {"--story", "--run", "--wizard-setup"}:
             return self._run_story()
-        elif action in {"--profile", "--view"}:
+        elif action in {"--profile", "--view", "--show"}:
             return self._show_profile()
-        elif action == "--wizard":
-            return self._show_wizard_help()
+        elif action == "--edit":
+            return self._edit_interactively()
+        elif action == "--clear":
+            return self._clear_setup()
+        elif action == "--help":
+            return self._show_help()
         else:
             return {
                 "status": "error",
                 "message": f"Unknown option: {action}",
-                "help": "Usage: SETUP [--profile|--story|--wizard]"
+                "help": "Usage: SETUP [--profile|--edit|--clear|--help]"
             }
     
     def _show_profile(self) -> Dict:
-        """Fetch and display setup profile from Wizard Server or local file."""
+        """Display the current setup profile from local storage."""
         try:
-            # First, try local profile file
-            local_profile = self._load_local_profile()
-            if local_profile:
-                return self._format_local_profile(local_profile)
+            setup_data = self._load_setup()
             
-            # Then try Wizard Server
-            token_path = get_repo_root() / "memory" / "private" / "wizard_admin_token.txt"
-            if not token_path.exists():
+            if not setup_data:
                 return {
                     "status": "warning",
                     "output": """
@@ -68,236 +77,184 @@ class SetupHandler(BaseCommandHandler):
 ║  ⚠️  No Setup Profile Found                                 ║
 ╚═════════════════════════════════════════════════════════════╝
 
-You haven't run the setup story yet. To get started:
+You haven't configured your identity yet. To get started:
 
-  STORY wizard-setup
+  SETUP
 
-This will ask questions about your setup and save the answers.
-Then use SETUP to view your profile.
+This will run the setup story and ask you for:
+  • Name and role
+  • Timezone and location
+  • Installation preferences
+
+Your settings are stored locally in:
+  memory/user/setup.json
+
+When Wizard Server is installed later, it will import this data.
 """
                 }
             
-            token = token_path.read_text().strip()
-            headers = {"Authorization": f"Bearer {token}"}
+            lines = ["\n🧙 YOUR LOCAL SETUP PROFILE\n", "=" * 60]
             
-            # Try to fetch profile
-            response = requests.get(
-                "http://localhost:8765/api/v1/setup/profile/combined",
-                headers=headers,
-                timeout=5
-            )
-            
-            if response.status_code == 404:
-                return {
-                    "status": "warning",
-                    "output": """
-╔═════════════════════════════════════════════════════════════╗
-║  ⚠️  No Setup Profile Found                                 ║
-╚═════════════════════════════════════════════════════════════╝
-
-You haven't run the setup story yet. To get started:
-
-  STORY wizard-setup
-
-This will ask questions about your setup and save the answers.
-Then use SETUP to view your profile.
-"""
-                }
-            
-            if response.status_code != 200:
-                return {
-                    "status": "error",
-                    "message": f"Failed to fetch profile: HTTP {response.status_code}",
-                    "help": "Is Wizard Server running? ./bin/start_wizard.sh"
-                }
-            
-            data = response.json()
-            user = data.get("user_profile", {})
-            install = data.get("install_profile", {})
-            metrics = data.get("install_metrics", {})
-            
-            if not user and not install:
-                return {
-                    "status": "warning",
-                    "output": """
-╔═════════════════════════════════════════════════════════════╗
-║  ⚠️  No Setup Profile Found                                 ║
-╚═════════════════════════════════════════════════════════════╝
-
-You haven't run the setup story yet. To get started:
-
-  STORY wizard-setup
-
-This will ask questions about your setup and save the answers.
-Then use SETUP to view your profile.
-"""
-                }
-            
-            # Format output
-            lines = ["\n🧙 SETUP PROFILE:\n"]
-            
-            if user:
-                lines.append("  User Identity:")
-                lines.append(f"    • Username: {user.get('username', 'N/A')}")
-                lines.append(f"    • Role: {user.get('role', 'N/A')}")
-                lines.append(f"    • Timezone: {user.get('timezone', 'N/A')}")
-                lines.append(f"    • Location: {user.get('location_name', 'N/A')} ({user.get('location_id', 'N/A')})")
-                lines.append("")
-            
-            if install:
-                lines.append("  Installation:")
-                lines.append(f"    • ID: {install.get('installation_id', 'N/A')}")
-                lines.append(f"    • OS Type: {install.get('os_type', 'N/A')}")
-                lines.append(f"    • Lifespan: {install.get('lifespan_mode', 'infinite')}")
-                
-                caps = install.get("capabilities", {})
-                if caps:
-                    lines.append("")
-                    lines.append("  Capabilities:")
-                    for cap, enabled in sorted(caps.items()):
-                        status = "✅" if enabled else "❌"
-                        cap_name = cap.replace('_', ' ').title()
-                        lines.append(f"    {status} {cap_name}")
-                lines.append("")
-            
-            if metrics:
-                moves_used = metrics.get("moves_used", 0)
-                moves_limit = metrics.get("moves_limit")
-                if moves_used > 0 or moves_limit:
-                    lines.append("  Metrics:")
-                    lines.append(f"    • Moves Used: {moves_used}")
-                    if moves_limit:
-                        remaining = moves_limit - moves_used
-                        lines.append(f"    • Remaining: {remaining}/{moves_limit}")
-                    lines.append("")
-            
-            return {
-                "status": "success",
-                "message": "\n".join(lines)
-            }
-            
-        except requests.exceptions.ConnectionError:
-            return {
-                "status": "error",
-                "message": "Cannot connect to Wizard Server",
-                "help": "Start Wizard Server: ./bin/start_wizard.sh"
-            }
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to fetch profile: {e}",
-                "help": "Check Wizard Server status"
-            }
-    
-    def _run_story(self) -> Dict:
-        """Launch the setup story."""
-        try:
-            from core.commands.story_handler import StoryHandler
-
-            return StoryHandler().handle("STORY", ["wizard-setup"])
-        except Exception as exc:
-            return {
-                "status": "error",
-                "message": f"Failed to start setup story: {exc}",
-                "help": "Ensure the wizard-setup story exists in seed data or memory/story",
-            }
-    
-    def _load_local_profile(self) -> Dict:
-        """Load user profile from local file (memory/user/profile.json)."""
-        try:
-            import json
-            profile_file = get_repo_root() / "memory" / "user" / "profile.json"
-            
-            if profile_file.exists():
-                with open(profile_file, "r") as f:
-                    return json.load(f)
-        except Exception:
-            pass
-        
-        return None
-    
-    def _format_local_profile(self, profile: Dict) -> Dict:
-        """Format local profile data for display."""
-        try:
-            data = profile.get("data", {})
-            if not data:
-                return {
-                    "status": "warning",
-                    "output": "Profile file exists but is empty. Run STORY wizard-setup to populate it."
-                }
-            
-            lines = ["🧙 YOUR SETUP PROFILE\n", "=" * 60]
-            
-            # User Identity section
+            # User Identity
             lines.append("\n📋 User Identity")
             lines.append("-" * 60)
-            lines.append(f"  • Username:     {data.get('user_username', 'N/A')}")
-            lines.append(f"  • DOB:          {data.get('user_dob', 'N/A')}")
-            lines.append(f"  • Role:         {data.get('user_role', 'N/A')}")
-            lines.append(f"  • Permissions:  {data.get('user_permissions', '(none)')}")
+            lines.append(f"  • Name:         {setup_data.get('name', 'Not set')}")
+            lines.append(f"  • DOB:          {setup_data.get('dob', 'Not set')}")
+            lines.append(f"  • Role:         {setup_data.get('role', 'Not set')}")
             
-            # Time & Place section
+            # Time & Place
             lines.append("\n📍 Time & Place")
             lines.append("-" * 60)
-            lines.append(f"  • Timezone:     {data.get('user_timezone', 'N/A')}")
-            lines.append(f"  • Local Time:   {data.get('user_local_time', 'N/A')}")
-            lines.append(f"  • Location:     {data.get('user_location', 'N/A')}")
+            lines.append(f"  • Timezone:     {setup_data.get('timezone', 'Not set')}")
+            lines.append(f"  • Local Time:   {setup_data.get('local_time', 'Not set')}")
+            lines.append(f"  • Location:     {setup_data.get('location', 'Not set')}")
             
-            # Installation section
+            # Installation
             lines.append("\n⚙️  Installation")
             lines.append("-" * 60)
-            install_id = data.get('install_id') or "(auto-generated)"
-            lines.append(f"  • Install ID:   {install_id}")
-            lines.append(f"  • OS Type:      {data.get('install_os_type', 'N/A')}")
-            lines.append(f"  • Lifespan:     {data.get('install_lifespan_mode', 'infinite')}")
-            lines.append(f"  • Moves Limit:  {data.get('install_moves_limit', 'N/A')}")
-            
-            # Capabilities section
-            lines.append("\n🔧 Capabilities & Permissions")
-            lines.append("-" * 60)
-            
-            capability_fields = {
-                'capability_web_proxy': 'Web Proxy (APIs + scraping)',
-                'capability_gmail_relay': 'Gmail Relay',
-                'capability_ai_gateway': 'AI Gateway Routing',
-                'capability_github_push': 'GitHub Push',
-                'capability_notion': 'Notion Integration',
-                'capability_hubspot': 'HubSpot Integration',
-                'capability_icloud': 'iCloud Integration',
-                'capability_plugin_repo': 'Plugin Repository',
-                'capability_plugin_auto_update': 'Plugin Auto-Update',
-            }
-            
-            for field_key, field_label in capability_fields.items():
-                value = data.get(field_key, 'N/A')
-                status = "✅" if value in ['yes', 'true', '1', True] else "❌"
-                lines.append(f"  {status} {field_label}")
+            lines.append(f"  • OS Type:      {setup_data.get('os_type', 'Not set')}")
+            lines.append(f"  • Lifespan:     {setup_data.get('lifespan_mode', 'infinite')}")
             
             lines.append("\n" + "=" * 60)
-            lines.append(f"Profile updated: {profile.get('updated', 'N/A')}")
+            lines.append(f"Last updated: {setup_data.get('updated', 'unknown')}")
+            lines.append("Data stored in: memory/user/setup.json")
+            lines.append("When Wizard Server is installed, it will import this.")
             
             return {
                 "status": "success",
                 "output": "\n".join(lines)
             }
-        
         except Exception as e:
             return {
                 "status": "error",
-                "message": f"Failed to format profile: {e}"
+                "message": f"Failed to load profile: {e}"
             }
+    
+    def _run_story(self) -> Dict:
+        """Launch the setup story to configure user identity."""
+        try:
+            from core.commands.story_handler import StoryHandler
+            
+            # Run the wizard-setup story
+            result = StoryHandler().handle("STORY", ["wizard-setup"])
+            
+            # If story was successful and returned form data, save it
+            if result.get("status") == "success" and "form_data" in result:
+                self._save_setup(result["form_data"])
+                return {
+                    "status": "success",
+                    "output": "✅ Setup complete! Your profile has been saved.\n\nRun 'SETUP --profile' to view your settings."
+                }
+            
+            return result
+            
+        except Exception as exc:
+            return {
+                "status": "error",
+                "message": f"Failed to start setup story: {exc}",
+                "help": "Ensure memory/story/wizard-setup-story.md exists"
+            }
+    
+    def _edit_interactively(self) -> Dict:
+        """Edit setup interactively (prompts for each field)."""
+        try:
+            return {
+                "status": "info",
+                "output": """
+To configure your setup interactively, run:
 
-    def _show_wizard_help(self) -> Dict:
-        """Show how to access Wizard console setup."""
+  SETUP
+
+This will guide you through setting up:
+  ✓ Your identity (name, DOB, role)
+  ✓ Your location and timezone
+  ✓ Installation preferences
+
+Your answers are saved to: memory/user/setup.json
+
+Alternatively, edit the file directly:
+  nano memory/user/setup.json
+"""
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Edit failed: {e}"
+            }
+    
+    def _clear_setup(self) -> Dict:
+        """Clear all setup data (start fresh)."""
+        try:
+            if self.setup_file.exists():
+                self.setup_file.unlink()
+            return {
+                "status": "success",
+                "output": "✅ Setup data cleared. Run 'SETUP' to configure again."
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to clear setup: {e}"
+            }
+    
+    def _show_help(self) -> Dict:
+        """Show help for SETUP command."""
         return {
-            "status": "info",
-            "message": "\n".join([
-                "",
-                "To view setup in Wizard console:",
-                "  1. Start Wizard Server: ./bin/start_wizard.sh",
-                "  2. In the console, type: setup",
-                "",
-                "Or use SETUP (without --wizard) to view here in TUI.",
-                ""
-            ])
+            "status": "success",
+            "output": """
+╔═════════════════════════════════════════════════════════════╗
+║              SETUP - Local Offline Configuration            ║
+╚═════════════════════════════════════════════════════════════╝
+
+SETUP configures your user identity and installation settings
+locally in Core. This works WITHOUT needing Wizard Server.
+
+When Wizard Server is later installed, it imports this data.
+
+USAGE:
+  SETUP              Run setup story (interactive questions)
+  SETUP --profile    Show your current setup
+  SETUP --edit       Edit setup (manually)
+  SETUP --clear      Clear all setup data
+  SETUP --help       Show this help
+
+WHAT GETS CONFIGURED:
+  ✓ Your name and date of birth
+  ✓ Your role (admin/user/ghost)
+  ✓ Timezone and location
+  ✓ Installation OS type and lifespan
+  ✓ Feature capabilities
+
+DATA STORAGE:
+  Location: memory/user/setup.json
+  Later: Wizard Server imports and extends this data
+
+EXAMPLES:
+  SETUP                     # Start interactive setup
+  SETUP --profile           # View current settings
+  SETUP --clear && SETUP    # Reset and reconfigure
+"""
         }
+    
+    # ========================================================================
+    # Helper Methods - Local Storage
+    # ========================================================================
+    
+    def _load_setup(self) -> Dict:
+        """Load setup data from local JSON file."""
+        try:
+            if self.setup_file.exists():
+                return json.loads(self.setup_file.read_text())
+        except Exception:
+            pass
+        return None
+    
+    def _save_setup(self, data: Dict) -> bool:
+        """Save setup data to local JSON file."""
+        try:
+            self.setup_file.parent.mkdir(parents=True, exist_ok=True)
+            data['updated'] = datetime.now().isoformat()
+            self.setup_file.write_text(json.dumps(data, indent=2))
+            return True
+        except Exception:
+            return False
