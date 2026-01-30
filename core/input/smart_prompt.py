@@ -359,6 +359,97 @@ class SmartPrompt:
                 self.fallback_reason = f"Error in advanced prompt: {e}"
             return self._ask_fallback(prompt_text)
 
+    def ask_yes_no_ok(
+        self,
+        question: str,
+        default: str = "no",
+    ) -> str:
+        """
+        Ask a standardized Yes/No/OK question.
+        
+        Format: "Question? [Yes/No/OK] (Enter=default)"
+        Accepts: Y, N, OK (where OK maps to Yes)
+        
+        Args:
+            question: The question to ask (without punctuation)
+            default: Default answer (yes, no, ok) - 'no' is safest default
+        
+        Returns:
+            'yes', 'no', or 'ok' (ok is equivalent to yes)
+        """
+        default_lower = default.lower() if default else "no"
+        default_display = default_lower.upper()
+        
+        prompt_text = f"{question}? [Yes/No/OK] (Enter={default_display}) "
+        
+        response = self.ask(prompt_text, default="")
+        response_lower = response.lower().strip()
+        
+        # Empty input returns default
+        if response_lower == "":
+            return default_lower
+        
+        # Normalize responses
+        if response_lower in ["y", "yes"]:
+            return "yes"
+        elif response_lower in ["n", "no"]:
+            return "no"
+        elif response_lower in ["ok", "okay"]:
+            return "ok"  # ok is treated as yes
+        else:
+            # Invalid input - ask again
+            print("  ❌ Please enter Yes, No, or OK")
+            return self.ask_yes_no_ok(question, default)
+    
+    def ask_menu_choice(
+        self,
+        prompt_text: str,
+        num_options: int,
+        allow_zero: bool = False,
+    ) -> Optional[int]:
+        """
+        Prompt for a numbered menu choice.
+        
+        Format: "Choose an option [1-N] (Enter=0 for cancel): "
+        
+        Args:
+            prompt_text: Prompt to display (e.g., "Choose an option")
+            num_options: Number of valid options (1 to N)
+            allow_zero: If True, 0 is a valid choice (cancel/exit)
+        
+        Returns:
+            Selected number (1-N), or None if cancelled
+        """
+        valid_range = f"0-{num_options}" if allow_zero else f"1-{num_options}"
+        full_prompt = f"{prompt_text} [{valid_range}] "
+        
+        response = self.ask(full_prompt, default="")
+        response = response.strip()
+        
+        # Empty defaults to cancel (0)
+        if response == "":
+            return 0 if allow_zero else None
+        
+        try:
+            choice = int(response)
+            
+            # Validate range
+            if allow_zero:
+                if 0 <= choice <= num_options:
+                    return choice
+            else:
+                if 1 <= choice <= num_options:
+                    return choice
+            
+            # Out of range
+            print(f"  ❌ Please enter a number between {valid_range}")
+            return self.ask_menu_choice(prompt_text, num_options, allow_zero)
+        
+        except ValueError:
+            # Not a number
+            print(f"  ❌ Please enter a valid number (1-{num_options})")
+            return self.ask_menu_choice(prompt_text, num_options, allow_zero)
+
     def ask_single_key(
         self,
         prompt_text: str,

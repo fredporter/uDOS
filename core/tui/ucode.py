@@ -328,31 +328,36 @@ class uCODETUI:
         print(banner)
 
     def _ask_yes_no(self, question: str, default: bool = True) -> bool:
-        """Ask a standardized yes/no question.
+        """Ask a standardized [Yes|No|OK] question.
 
-        Prompt format: "Question? [Y/N] (Enter=default)"
-        Accepts: Y/N (single key), Enter for default
+        Prompt format: "Question? [Yes/No/OK] (Enter=default)"
+        Accepts: Y/Yes, N/No, OK (where OK = Yes)
 
         Args:
             question: The question to ask (without punctuation)
             default: Default answer if user just presses Enter
 
         Returns:
-            True for yes, False for no
+            True for yes/ok, False for no
         """
-        default_key = "y" if default else "n"
-        prompt_text = f"{question}? [Y/N] (Enter={default_key.upper()}) "
-
-        response = self.prompt.ask_single_key(prompt_text, valid_keys=["y", "n"], default=default_key)
-        response_lower = response.lower().strip()
-
-        if response_lower == "y":
-            return True
-        if response_lower == "n":
-            return False
-
-        # Should not happen, but fall back to default
-        return default
+        default_str = "yes" if default else "no"
+        response = self.prompt.ask_yes_no_ok(question, default=default_str)
+        
+        # Convert response to boolean (ok counts as yes)
+        return response in ["yes", "ok"]
+    
+    def _ask_menu_choice(self, prompt: str, num_options: int, allow_cancel: bool = True) -> Optional[int]:
+        """Ask for a numbered menu choice (1-N).
+        
+        Args:
+            prompt: Prompt to display
+            num_options: Number of valid options
+            allow_cancel: If True, 0/Enter cancels; if False, user must pick 1-N
+        
+        Returns:
+            Selected number (1-N), or None if cancelled
+        """
+        return self.prompt.ask_menu_choice(prompt, num_options, allow_zero=allow_cancel)
     
     def _handle_story_form(self, form_data: Dict) -> Dict:
         """Handle interactive story form - collect user responses for all sections.
@@ -574,15 +579,11 @@ class uCODETUI:
             for idx, option in enumerate(options, 1):
                 print(f"  {idx}. {option}")
             
-            # Get selection (simple integer input)
-            response = self.prompt.ask("  Enter number")
-            try:
-                choice_idx = int(response) - 1
-                if 0 <= choice_idx < len(options):
-                    response = options[choice_idx]
-                else:
-                    response = placeholder or ""
-            except (ValueError, TypeError):
+            # Get selection using standard menu handler
+            choice = self._ask_menu_choice("  Choose an option", len(options), allow_cancel=False)
+            if choice and 1 <= choice <= len(options):
+                response = options[choice - 1]
+            else:
                 response = placeholder or ""
         
         elif field_type == "checkbox":
