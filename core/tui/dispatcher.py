@@ -57,6 +57,10 @@ class CommandDispatcher:
 
         file_editor = FileEditorHandler()
         maintenance = MaintenanceHandler()
+        
+        # Import FileHandler here to avoid circular import
+        # (FileHandler → OutputToolkit → ucode → dispatcher → FileHandler)
+        from core.commands.file_handler import FileHandler
 
         self.handlers: Dict[str, Any] = {
             # Navigation (4)
@@ -107,7 +111,8 @@ class CommandDispatcher:
             "RUN": RunHandler(),
             # Data
             "DATASET": DatasetHandler(),
-            # File editor
+            # File operations
+            "FILE": FileHandler(),  # Phase 2: Workspace picker integration
             "NEW": file_editor,
             "EDIT": file_editor,
             # Maintenance

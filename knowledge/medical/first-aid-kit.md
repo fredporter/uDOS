@@ -815,15 +815,11 @@ Then build from there.
 
 ## Diagram
 
-```
-▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌
-▐   Category  ▌▐ Essential Items ▌▐   Priority  ▌
-▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌
-═════════════════════════════════════════════
-┃  Wound care ┃ Bandages, gauze, tape ┃   Critical  ┃
-┃ Medications ┃ Pain relief, antibiotic ┃     High    ┃
-┃    Tools    ┃ Scissors, tweezers ┃     High    ┃
-┃  Protection ┃ Gloves, mask ┃    Medium   ┃
+```diagram flowchart
+START: Wound care — bandages, gauze, tape (Critical)
+STEP: Medications — pain relief, antibiotic (High)
+STEP: Tools — scissors, tweezers (High)
+END: Protection — gloves, mask (Medium)
 ```
 
 ---

@@ -21,8 +21,7 @@
     "programming",
     "devices",
     "tools",
-    "well-being",
-    "well"
+    "wellbeing",
   ],
   "types": [
     "reference",
@@ -43,8 +42,7 @@
     "programming",
     "devices",
     "tools",
-    "well-being",
-    "well"
+    "wellbeing",
   ],
   "entries": {
     "GEOGRAPHY-KNOWLEDGE-SPEC": {
@@ -2878,71 +2876,71 @@
       "last_updated": "2025-12-04",
       "summary": "In emergency survival scenarios where safe drinking water is scarce or inaccessible, understanding basic well digging can provide a critical..."
     },
-    "well-being-README": {
-      "id": "well-being-README",
+    "wellbeing-README": {
+      "id": "wellbeing-README",
       "title": "Well-Being Knowledge",
-      "path": "well-being/README.md",
+      "path": "wellbeing/README.md",
       "type": "reference",
-      "category": "well-being",
+      "category": "wellbeing",
       "tags": [
-        "well-being",
-        "well-being"
+        "wellbeing",
+        "wellbeing"
       ],
       "difficulty": "intermediate",
       "last_updated": "2026-01-29",
       "summary": "Practical knowledge for: - **Mental health** - Stress management, anxiety, depression, therapy - **Physical health** - Exercise, nutrition, sleep,..."
     },
-    "well-being-circadian-rhythms": {
-      "id": "well-being-circadian-rhythms",
+    "wellbeing-circadian-rhythms": {
+      "id": "wellbeing-circadian-rhythms",
       "title": "Circadian Rhythms",
-      "path": "well-being/circadian-rhythms.md",
+      "path": "wellbeing/circadian-rhythms.md",
       "type": "reference",
-      "category": "well",
+      "category": "wellbeing",
       "tags": [
-        "well",
-        "well-being"
+        "wellbeing",
+        "wellbeing"
       ],
       "difficulty": "beginner",
       "last_updated": "2026-01-29",
       "summary": "--- Circadian rhythms are 24-hour cycles that regulate physiological processes including sleep-wake cycles, hormone release, body temperature, and..."
     },
-    "well-being-mood-factors": {
-      "id": "well-being-mood-factors",
+    "wellbeing-mood-factors": {
+      "id": "wellbeing-mood-factors",
       "title": "Mood Factors System",
-      "path": "well-being/mood-factors.md",
+      "path": "wellbeing/mood-factors.md",
       "type": "reference",
-      "category": "well",
+      "category": "wellbeing",
       "tags": [
-        "well",
-        "well-being"
+        "wellbeing",
+        "wellbeing"
       ],
       "difficulty": "intermediate",
       "last_updated": "2026-01-29",
       "summary": "--- The uDOS Mood Factors System calculates a composite wellbeing score from multiple input sources. The system is designed to be: - **Mathematical**..."
     },
-    "well-being-sleep-hygiene-optimization": {
-      "id": "well-being-sleep-hygiene-optimization",
+    "wellbeing-sleep-hygiene-optimization": {
+      "id": "wellbeing-sleep-hygiene-optimization",
       "title": "Sleep Hygiene & Rest Optimization",
-      "path": "well-being/sleep-hygiene-optimization.md",
+      "path": "wellbeing/sleep-hygiene-optimization.md",
       "type": "reference",
-      "category": "well",
+      "category": "wellbeing",
       "tags": [
-        "well",
-        "well-being"
+        "wellbeing",
+        "wellbeing"
       ],
       "difficulty": "beginner",
       "last_updated": "2026-01-29",
-      "summary": "--- Sleep is not optional—it's essential for survival, health, cognitive function, and emotional well-being. Poor sleep contributes to obesity,..."
+      "summary": "--- Sleep is not optional—it's essential for survival, health, cognitive function, and emotional wellbeing. Poor sleep contributes to obesity,..."
     },
-    "well-being-stress-management-resilience": {
-      "id": "well-being-stress-management-resilience",
+    "wellbeing-stress-management-resilience": {
+      "id": "wellbeing-stress-management-resilience",
       "title": "Stress Management & Mental Resilience",
-      "path": "well-being/stress-management-resilience.md",
+      "path": "wellbeing/stress-management-resilience.md",
       "type": "reference",
-      "category": "well",
+      "category": "wellbeing",
       "tags": [
-        "well",
-        "well-being"
+        "wellbeing",
+        "wellbeing"
       ],
       "difficulty": "beginner",
       "last_updated": "2026-01-29",
@@ -3219,14 +3217,14 @@
         "tools-tool_repairs",
         "tools-tool_sharpening"
       ],
-      "well-being": [
-        "well-being-README"
+      "wellbeing": [
+        "wellbeing-README"
       ],
       "well": [
-        "well-being-circadian-rhythms",
-        "well-being-mood-factors",
-        "well-being-sleep-hygiene-optimization",
-        "well-being-stress-management-resilience"
+        "wellbeing-circadian-rhythms",
+        "wellbeing-mood-factors",
+        "wellbeing-sleep-hygiene-optimization",
+        "wellbeing-stress-management-resilience"
       ]
     },
     "by_type": {
@@ -3415,11 +3413,11 @@
         "water-water_rationing_strategies",
         "water-water_storage_techniques",
         "water-well_digging_basics",
-        "well-being-README",
-        "well-being-circadian-rhythms",
-        "well-being-mood-factors",
-        "well-being-sleep-hygiene-optimization",
-        "well-being-stress-management-resilience"
+        "wellbeing-README",
+        "wellbeing-circadian-rhythms",
+        "wellbeing-mood-factors",
+        "wellbeing-sleep-hygiene-optimization",
+        "wellbeing-stress-management-resilience"
       ],
       "skill": [
         "making-README",
@@ -3687,19 +3685,19 @@
         "tools-tool_sharpening",
         "tools-tool_sharpening"
       ],
-      "well-being": [
-        "well-being-README",
-        "well-being-README",
-        "well-being-circadian-rhythms",
-        "well-being-mood-factors",
-        "well-being-sleep-hygiene-optimization",
-        "well-being-stress-management-resilience"
+      "wellbeing": [
+        "wellbeing-README",
+        "wellbeing-README",
+        "wellbeing-circadian-rhythms",
+        "wellbeing-mood-factors",
+        "wellbeing-sleep-hygiene-optimization",
+        "wellbeing-stress-management-resilience"
       ],
       "well": [
-        "well-being-circadian-rhythms",
-        "well-being-mood-factors",
-        "well-being-sleep-hygiene-optimization",
-        "well-being-stress-management-resilience"
+        "wellbeing-circadian-rhythms",
+        "wellbeing-mood-factors",
+        "wellbeing-sleep-hygiene-optimization",
+        "wellbeing-stress-management-resilience"
       ]
     },
     "by_difficulty": {
@@ -3890,8 +3888,8 @@
         "water-water_rationing_strategies",
         "water-water_storage_techniques",
         "water-well_digging_basics",
-        "well-being-README",
-        "well-being-mood-factors"
+        "wellbeing-README",
+        "wellbeing-mood-factors"
       ],
       "beginner": [
         "communication-community_coordination",
@@ -3936,9 +3934,9 @@
         "tools-stone_tool_crafting",
         "tools-tool_repairs",
         "tools-tool_sharpening",
-        "well-being-circadian-rhythms",
-        "well-being-sleep-hygiene-optimization",
-        "well-being-stress-management-resilience"
+        "wellbeing-circadian-rhythms",
+        "wellbeing-sleep-hygiene-optimization",
+        "wellbeing-stress-management-resilience"
       ],
       "all": [
         "reference-fire-starting-methods-comparison",
@@ -3971,7 +3969,7 @@
       "programming": 1,
       "devices": 4,
       "tools": 16,
-      "well-being": 1,
+      "wellbeing": 1,
       "well": 4
     },
     "by_type": {

@@ -253,12 +253,25 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
             )
 
             if response.status_code != 200:
+                error_detail = ""
+                try:
+                    error_detail = response.json().get("detail", "")
+                except:
+                    error_detail = response.text[:200] if response.text else ""
                 return {
                     "status": "error",
                     "message": f"Failed to list variables: HTTP {response.status_code}",
+                    "output": f"Detail: {error_detail}" if error_detail else "Check Wizard Server logs",
                 }
 
-            variables = response.json().get("variables", [])
+            try:
+                variables = response.json().get("variables", [])
+            except json.JSONDecodeError:
+                return {
+                    "status": "error",
+                    "message": "Invalid response from Wizard Server",
+                    "output": "Response was not valid JSON. Check Wizard Server logs.",
+                }
 
             # Group by type
             system_vars = [v for v in variables if v["type"] == "system"]

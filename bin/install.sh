@@ -355,6 +355,11 @@ setup_user_directory() {
     mkdir -p "$udos_home/memory/.backups"
     chmod 755 "$udos_home/memory"
 
+    # Provide ~/memory convenience link for logs/workspace
+    if [ ! -e "$home/memory" ]; then
+        ln -s "$udos_home/memory" "$home/memory" 2>/dev/null || true
+    fi
+
     mkdir -p "$udos_home/.credentials"
     chmod 700 "$udos_home/.credentials"
 

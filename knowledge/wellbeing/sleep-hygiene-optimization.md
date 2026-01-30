@@ -1,7 +1,7 @@
 ---
 uid: udos-guide-wellbeing-20260130022200-UTC-L300AB52
 title: Sleep Hygiene & Rest Optimization
-tags: [guide, knowledge, well-being]
+tags: [guide, knowledge, wellbeing]
 status: living
 updated: 2026-01-30
 spec: wiki_spec_obsidian.md

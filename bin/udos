@@ -10,6 +10,15 @@ set -e
 UDOS_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export UDOS_HOME
 
+# Load shared launcher helpers
+if [ -f "$UDOS_HOME/bin/udos-common.sh" ]; then
+    # shellcheck source=/dev/null
+    source "$UDOS_HOME/bin/udos-common.sh"
+    UDOS_ROOT="$(resolve_udos_root)" || exit 1
+    export UDOS_ROOT
+    _setup_component_environment "core" || exit 1
+fi
+
 # Add uDOS to PATH if not already there
 if [[ ":$PATH:" != *":$UDOS_HOME/bin:"* ]]; then
     export PATH="$UDOS_HOME/bin:$PATH"

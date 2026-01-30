@@ -601,15 +601,11 @@ Composting transforms kitchen scraps and yard waste into nutrient-rich soil amen
 
 ## Diagram
 
-```
-▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌
-▐    Method   ▌▐     Time    ▌▐    Effort   ▌▐ Kills Seeds ▌▐   Best For  ▌
-▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌
-═══════════════════════════════════════════════════════════════════════════
-┃     Hot     ┃    2-3 mo   ┃     High    ┃     Yes     ┃ Fast results ┃
-┃     Cold    ┃   6-12 mo   ┃     Low     ┃      No     ┃  Easy/lazy  ┃
-┃     Worm    ┃    3-6 mo   ┃    Medium   ┃      No     ┃   Indoors   ┃
-┃    Trench   ┃   6-12 mo   ┃     Low     ┃      No     ┃  In-ground  ┃
+```diagram flowchart
+START: Hot — 2-3 mo, high effort, kills seeds, fast results
+STEP: Cold — 6-12 mo, low effort, no seed kill, easy/lazy
+STEP: Worm — 3-6 mo, medium effort, no seed kill, indoors
+END: Trench — 6-12 mo, low effort, no seed kill, in-ground
 ```
 
 ---

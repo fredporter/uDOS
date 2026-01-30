@@ -162,6 +162,10 @@ def __getattr__(name):
         from .seed_handler import SeedHandler
 
         return SeedHandler
+    elif name == "FileHandler":
+        from .file_handler import FileHandler
+
+        return FileHandler
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -207,5 +211,7 @@ __all__ = [
     "StoryHandler",
     "DatasetHandler",
     "FileEditorHandler",
+    "FileHandler",  # Phase 2: Workspace picker integration
     "MaintenanceHandler",
+    "SetupHandler",
 ]

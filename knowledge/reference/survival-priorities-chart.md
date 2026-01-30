@@ -28,6 +28,27 @@ authoring-rules:
 | **Food** | 3 weeks | Foraging, hunting, fishing, rationing |
 | **Hope/Morale** | 3 months | Mental health, purpose, community |
 
+### Priority Pyramid (Visual)
+
+```
+					[ AIR ]      3 minutes
+				[ SHELTER ]    3 hours
+			[  WATER  ]      3 days
+		[   FOOD   ]       3 weeks
+	[ HOPE/MORALE ]      3 months
+```
+
+### Immediate Priority Flowchart
+
+```diagram flowchart
+START: Assess immediate survival risks
+STEP: Is airway/breathing compromised? → Secure AIR first
+STEP: Is exposure life-threatening? → Build SHELTER
+STEP: Is dehydration imminent? → Find and purify WATER
+STEP: Is energy failing over days? → Source FOOD
+END: Stabilize morale and long-term plan
+```
+
 ---
 
 ## Priority Matrix by Environment

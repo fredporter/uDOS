@@ -274,7 +274,7 @@ set $user.completed true
         }
 
     def _resolve_path(self, file_arg: str) -> Path:
-        """Resolve file path - check memory/story/ first, then absolute."""
+        """Resolve file path - check memory/story/ first, then wizard/templates/, then absolute."""
         repo_root = get_repo_root()
 
         # If no extension, assume -story.md
@@ -288,6 +288,17 @@ set $user.completed true
             story_path = repo_root / "memory" / "story" / file_arg
             if story_path.exists():
                 return story_path
+
+            bank_system_path = repo_root / "memory" / "bank" / "system" / file_arg
+            if bank_system_path.exists():
+                return bank_system_path
+            
+            # Fallback: check wizard/templates/ for built-in stories
+            template_name = file_arg.replace("-story.md", "-wizard-story.md")
+            template_path = repo_root / "wizard" / "templates" / template_name
+            if template_path.exists():
+                return template_path
+            
             # Otherwise resolve from repo root
             return repo_root / path
 

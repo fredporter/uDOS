@@ -123,15 +123,11 @@ These marks are designed to be seen by search teams, often from a distance or fr
 
 ## Diagram
 
-```
-▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌
-▐     Mark    ▌▐   Meaning   ▌▐   Material  ▌▐     Use     ▌
-▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌
-════════════════════════════════════════════════════════════
-┃    Cairn    ┃ Path continues ┃    Rocks    ┃ Above treeline ┃
-┃    Blaze    ┃ Trail marker ┃ Paint/carve ┃    Trees    ┃
-┃    Arrow    ┃  Direction  ┃ Sticks/rocks ┃  Junctions  ┃
-┃      X      ┃  Wrong way  ┃     Any     ┃   Warnings  ┃
+```diagram flowchart
+START: Cairn — path continues; rocks; above treeline
+STEP: Blaze — trail marker; paint/carve; trees
+STEP: Arrow — direction; sticks/rocks; junctions
+END: X — wrong way; any; warnings
 ```
 
 ---

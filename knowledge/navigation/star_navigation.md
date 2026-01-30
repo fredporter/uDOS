@@ -59,19 +59,49 @@ This method relies on locating Polaris, the North Star, which remains relatively
     *   **Procedure:** Once you have confidently identified Polaris, the direction you are facing when looking directly at it is True North. From this, you can deduce the other cardinal directions: East will be to your right, West to your left, and South behind you.
     *   **Safety Warning:** Before moving, take a moment to establish landmarks or a clear path in your desired direction. Double-check your bearings if possible using other celestial methods (e.g., moon or sun position at dawn/dusk, if applicable) or a compass if available.
 
-### Quick Reference Diagram
+### Polaris Finding Visual (ASCII Diagram)
 
-```[ASCII Diagram]```
-Big Dipper Pointer Stars:
-  * (Dubhe)
-  |
-  * (Merak)
-  |
-  |  (Imagine 5x distance)
-  |
-  V
-  * (Polaris - North)
 ```
+Big Dipper & Pointer Star Method:
+
+        * Dubhe (top of bowl)
+        │
+        │ ← Pointer stars
+        │
+        * Merak (bottom of bowl)
+        │
+        │ (extend 5x this distance)
+        │
+        │
+        │
+        │
+        │
+        ↓
+        * Polaris (THE NORTH STAR)
+        
+        This star stays nearly fixed!
+        All others rotate around it.
+```
+
+### Polaris Finding Decision Flowchart
+
+```diagram flowchart
+START
+STEP: Look toward northern sky
+DECISION: Can you see Big Dipper?
+  YES → GOTO: Identify Pointer Stars
+  NO → STEP: Look for Little Dipper instead
+STEP: Identify Pointer Stars
+STEP: Extend line 5x distance outward
+DECISION: See moderately bright stationary star?
+  YES → STEP: Confirm - it doesn't move
+  NO → STEP: Recalculate distance, try again
+STEP: You found Polaris!
+STEP: Direction to Polaris = True North
+END
+```
+
+### Quick Reference Diagram
 
 ### Safety Considerations
 

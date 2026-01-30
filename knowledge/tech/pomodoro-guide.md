@@ -50,6 +50,37 @@ A time management method using a timer to break work into intervals (traditional
 [Pomodoro 1]      [Short]            [Pomodoro 2]  [Short]  [Pomodoro 3]  [Short]  [Pomodoro 4]  [After 4]
 ```
 
+### Timer Visualization
+
+```
+     25:00                    20:00                    05:00
+   ┌───────┐                ┌───────┐                ┌───────┐
+   │   🍅  │                │   🍅  │                │   🍅  │
+   │ ████  │   Working...   │ ███░  │   Almost...    │ █░░░  │
+   │ START │                │ 80%   │                │ 20%   │
+   └───────┘                └───────┘                └───────┘
+
+     00:00                    05:00
+   ┌───────┐                ┌───────┐
+   │   ✓   │   Complete!    │   ☕  │   Break time
+   │ DONE  │                │ REST  │
+   └───────┘                └───────┘
+```
+
+### Workflow Flowchart
+
+```diagram flowchart
+START: Begin work session
+STEP: Choose one task from prioritized list
+STEP: Set timer for 25 minutes (1 Pomodoro)
+STEP: Work with full focus until timer rings
+STEP: Mark Pomodoro complete (✓)
+STEP: Completed 4 Pomodoros? NO → Take 5 min break, return to STEP
+STEP: Completed 4 Pomodoros? YES → Take 15-30 min long break
+STEP: More tasks remaining? YES → Return to START
+END: Session complete - review accomplishments
+```
+
 ---
 
 ## Detailed Steps

@@ -99,7 +99,7 @@ When adding survival knowledge:
 ## Related Categories
 
 - **[Productivity](../productivity/README.md)** - Once survival needs met, productivity systems
-- **[Well-Being](../well-being/README.md)** - Physical and mental health beyond emergencies
+- **[Well-Being](../wellbeing/README.md)** - Physical and mental health beyond emergencies
 - **[Skills](../skills/README.md)** - Long-term skill development
 - **[Environment](../environment/README.md)** - Sustainable living practices
 

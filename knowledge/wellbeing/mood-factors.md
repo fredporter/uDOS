@@ -1,7 +1,7 @@
 ---
 uid: udos-guide-wellbeing-20260130022100-UTC-L300AB51
 title: Mood Factors System
-tags: [guide, knowledge, well-being]
+tags: [guide, knowledge, wellbeing]
 status: living
 updated: 2026-01-30
 spec: wiki_spec_obsidian.md

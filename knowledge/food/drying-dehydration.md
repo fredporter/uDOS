@@ -600,15 +600,11 @@ Drying is one of the oldest, simplest, and most reliable food preservation metho
 
 ## Diagram
 
-```
-▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌
-▐    Method   ▌▐     Time    ▌▐     Temp    ▌▐   Best For  ▌
-▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌
-════════════════════════════════════════════════════════════
-┃   Sun dry   ┃   2-4 days  ┃   Natural   ┃ Fruit/herbs ┃
-┃     Oven    ┃   6-12 hrs  ┃   50-70°C   ┃  All foods  ┃
-┃  Dehydrator ┃   4-12 hrs  ┃   60-70°C   ┃  Consistent ┃
-┃   Air dry   ┃  1-2 weeks  ┃  Room temp  ┃    Herbs    ┃
+```diagram flowchart
+START: Sun dry — 2-4 days, natural, fruit/herbs
+STEP: Oven — 6-12 hrs, 50-70°C, all foods
+STEP: Dehydrator — 4-12 hrs, 60-70°C, consistent
+END: Air dry — 1-2 weeks, room temp, herbs
 ```
 
 ---

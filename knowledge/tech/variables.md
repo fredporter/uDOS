@@ -41,6 +41,31 @@ SET age = 25
 SET active = true
 ```
 
+### Variable Lifecycle (Visual)
+
+```
+Input Value
+  │
+  ▼
+┌───────────┐      Read/Use       ┌───────────┐
+│  SET x    │ ───────────────▶    │  $x       │
+│  = value  │                     │  in code  │
+└───────────┘      Update         └───────────┘
+     ▲             ▲
+     └─────────────┘
+      SET x = new
+```
+
+### Variable Use Flowchart
+
+```diagram flowchart
+START: Need to store a value
+STEP: Define it with SET name = value
+STEP: Use it with $name in output or logic
+STEP: Update it with SET name = new_value
+END: Reuse the latest value
+```
+
 ---
 
 ## 📊 Data Types

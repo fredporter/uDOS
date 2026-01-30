@@ -21,30 +21,33 @@ class SetupHandler(BaseCommandHandler):
         SETUP command - view or manage setup profiles.
         
         Usage:
-            SETUP              Show your setup profile (from Wizard Server)
-            SETUP --story      Get instructions for running setup story
+            SETUP              Run the setup story (default)
+            SETUP --profile    Show your setup profile (from Wizard Server)
+            SETUP --story      Run the setup story
             SETUP --wizard     Show how to access setup in Wizard console
             
         Quick start:
-            1. STORY wizard-setup       (Answer setup questions)
-            2. SETUP                    (View your profile)
+            1. SETUP                    (Run setup story)
+            2. SETUP --profile          (View your profile)
             3. WIZARD start             (Start Wizard Server)
             4. WIZARD setup             (Access setup in dashboard)
         """
         if not params:
-            return self._show_profile()
+            return self._run_story()
         
         action = params[0].lower()
         
-        if action == "--story":
+        if action in {"--story", "--run"}:
             return self._run_story()
+        elif action in {"--profile", "--view"}:
+            return self._show_profile()
         elif action == "--wizard":
             return self._show_wizard_help()
         else:
             return {
                 "status": "error",
                 "message": f"Unknown option: {action}",
-                "help": "Usage: SETUP [--story|--wizard]"
+                "help": "Usage: SETUP [--profile|--story|--wizard]"
             }
     
     def _show_profile(self) -> Dict:
@@ -188,31 +191,16 @@ Then use SETUP to view your profile.
     
     def _run_story(self) -> Dict:
         """Launch the setup story."""
-        return {
-            "status": "info",
-            "output": """
-╔═════════════════════════════════════════════════════════════╗
-║  🧙 uDOS Setup Story                                        ║
-╚═════════════════════════════════════════════════════════════╝
+        try:
+            from core.commands.story_handler import StoryHandler
 
-To run the setup wizard, use:
-
-  STORY wizard-setup
-
-The story will collect your:
-  • Username
-  • Date of birth
-  • Role (admin/user)
-  • Timezone
-  • Location
-  • OS type
-  • Capabilities preferences
-
-After completing, check profiles with:
-
-  SETUP
-"""
-        }
+            return StoryHandler().handle("STORY", ["wizard-setup"])
+        except Exception as exc:
+            return {
+                "status": "error",
+                "message": f"Failed to start setup story: {exc}",
+                "help": "Ensure the wizard-setup story exists in seed data or memory/story",
+            }
     
     def _load_local_profile(self) -> Dict:
         """Load user profile from local file (memory/user/profile.json)."""

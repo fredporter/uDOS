@@ -140,7 +140,7 @@ When adding environmental knowledge:
 - **[Skills](../skills/README.md)** - Building environmental capabilities
 - **[Community](../community/README.md)** - Collective environmental action
 - **[Productivity](../productivity/README.md)** - Efficient resource use
-- **[Well-Being](../well-being/README.md)** - Health benefits of nature connection
+- **[Well-Being](../wellbeing/README.md)** - Health benefits of nature connection
 
 ---
 

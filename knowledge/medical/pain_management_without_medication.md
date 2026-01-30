@@ -112,15 +112,11 @@ This guide focuses on non-pharmacological methods to alleviate or reduce pain in
 
 ## Diagram
 
-```
-▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▌
-▐    Method   ▌▐     Type    ▌▐ Effectiveness ▌▐     Time    ▌
-▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌▐▄▄▄▄▄▄▄▄▄▄▄▄▄▌
-════════════════════════════════════════════════════════════
-┃ Cold compress ┃    Acute    ┃     High    ┃   Minutes   ┃
-┃     Heat    ┃   Chronic   ┃    Medium   ┃  15-20 min  ┃
-┃   Pressure  ┃    Acute    ┃    Medium   ┃  Immediate  ┃
-┃ Distraction ┃     Any     ┃   Low-Med   ┃   Ongoing   ┃
+```diagram flowchart
+START: Cold compress — acute, high, minutes
+STEP: Heat — chronic, medium, 15-20 min
+STEP: Pressure — acute, medium, immediate
+END: Distraction — any, low-med, ongoing
 ```
 
 ---

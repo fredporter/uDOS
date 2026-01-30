@@ -9,6 +9,13 @@ from .selector_framework import (
     SelectionMode,
     NavigationMode,
 )
+from .workspace_selector import (
+    WorkspacePicker,
+    WorkspaceOption,
+    pick_workspace,
+    pick_workspace_then_file,
+)
+from .command_selector import CommandSelector
 
 __all__ = [
     "SelectorFramework",
@@ -16,4 +23,9 @@ __all__ = [
     "SelectorConfig",
     "SelectionMode",
     "NavigationMode",
+    "WorkspacePicker",
+    "WorkspaceOption",
+    "pick_workspace",
+    "pick_workspace_then_file",
+    "CommandSelector",
 ]

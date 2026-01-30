@@ -26,6 +26,25 @@ authoring-rules:
 
 Practical field reference for navigation without GPS or modern tools. Designed for quick consultation during actual navigation scenarios.
 
+### Navigation Method Selector (Visual)
+
+```
+Sky visible?         Landmarks visible?        Compass available?
+   YES ──▶ Use Sun/Stars     YES ──▶ Use Terrain Assoc.   YES ──▶ Use Compass
+	NO ──▶ Use Compass       NO ──▶ Use Dead Reckoning    NO ──▶ Use Pacing
+```
+
+### Quick Method Flowchart
+
+```diagram flowchart
+START: Need to navigate without GPS
+STEP: Can you see sun/stars? YES → Use solar/celestial methods
+STEP: Can you see landmarks? YES → Use terrain association
+STEP: Do you have a compass? YES → Use bearing navigation
+STEP: None of the above? → Use dead reckoning and pace count
+END: Re-check position every 15-30 minutes
+```
+
 ---
 
 ## Solar Navigation

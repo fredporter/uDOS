@@ -109,7 +109,7 @@ uDOS/ --part local only
 │   ├── tech/
 │   ├── tools/
 │   ├── water/
-│   ├── well-being/
+│   ├── wellbeing/
 │   ├── __init__.py
 │   ├── GEOGRAPHY-KNOWLEDGE-SPEC.md
 │   ├── KNOWLEDGE-SYSTEM.md

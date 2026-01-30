@@ -1,7 +1,7 @@
 ---
 uid: udos-guide-wellbeing-20260130022300-UTC-L300AB53
 title: Stress Management & Mental Resilience
-tags: [guide, knowledge, well-being]
+tags: [guide, knowledge, wellbeing]
 status: living
 updated: 2026-01-30
 spec: wiki_spec_obsidian.md

@@ -61,6 +61,21 @@ Before you even look at the terrain, understand the map itself.
 
 Contour lines are the most distinguishing feature of a topographic map, representing elevation and terrain shape.
 
+**Contour Shapes (Visual):**
+
+```
+Hill (closed loops):          Valley (V points uphill):
+        _____                         
+    _/     \_                      /\
+ /         \                    /  \
+ \_       _/                   /    \
+     \_____/                   _/      \_
+
+Ridge (V points downhill):     Saddle (hourglass):
+\        /                     __    __
+ \______/                     /  \__/  \
+```
+
 *   **Definition:** Imaginary lines connecting points of equal elevation above a specific datum (usually sea level).
 *   **Contour Interval:** The vertical distance (in feet or meters) between adjacent contour lines. This is stated in the map's legend. A smaller interval means more detail.
 *   **Index Contours:** Every fifth contour line is usually thicker and labeled with its elevation for easier reading.
@@ -105,6 +120,17 @@ Knowing where you are on the map is paramount.
     5.  Draw a line on the map along the compass's straight edge *from the landmark towards you*.
     6.  Repeat for a second (and ideally a third) landmark. Your position is where these lines intersect.
 *   **Inspection/Terrain Association:** Continuously compare the contour patterns and other features on your map with the actual terrain you see around you. "I'm walking up a steep slope (tight contours), toward a saddle (hourglass shape) with a stream (blue line V'ing upstream) to my left."
+
+### Position Fix Flowchart
+
+```diagram flowchart
+START: Need your location on the map
+STEP: At a known feature? YES → Mark it directly
+STEP: See 2-3 landmarks? YES → Use resection (back-bearings)
+STEP: No landmarks? → Use terrain association and handrails
+STEP: Confirm position with multiple features
+END: Plot route from confirmed position
+```
 
 ### 6. Plan a Route
 
@@ -153,33 +179,11 @@ Once you know your position and understand the terrain, you can plan your moveme
 
 ## Diagram
 
-```
-▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
-▐ Understand the Map's Basic Information ▌
-▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
-                   ┃
-                   ▼
-▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
-▐       Interpret Contour Lines        ▌
-▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
-                   ┃
-                   ▼
-▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
-▐ Identify Other Terrain and Man-Made Features ▌
-▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
-                   ┃
-                   ▼
-▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
-▐            Orient the Map            ▌
-▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
-                   ┃
-                   ▼
-▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
-▐ Determine Your Position (Fixing Your Location) ▌
-▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
-                   ┃
-                   ▼
-▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
-▐             Plan a Route             ▌
-▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+```diagram flowchart
+START: Understand the Map's Basic Information
+STEP: Interpret Contour Lines
+STEP: Identify Other Terrain and Man-Made Features
+STEP: Orient the Map
+STEP: Determine Your Position (Fixing Your Location)
+END: Plan a Route
 ```

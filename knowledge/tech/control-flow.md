@@ -94,6 +94,16 @@ END
 Action intensity: ████ Critical, ███ Moderate, ██ Minor, █ Minimal
 ```
 
+### Decision Path Flowchart
+
+```diagram flowchart
+START: Need to choose between multiple conditions?
+STEP: Use IF-ELSE for 2-3 branches (simple decisions)
+STEP: Use SWITCH for 4+ branches (menu-style selection)
+STEP: Nest IF statements for complex multi-factor logic
+END: Execute appropriate code path
+```
+
 ---
 
 ## While Loop
@@ -231,6 +241,17 @@ END
 ╚══════╩═══════════════════════════════════╝
 
 Completion: █████ 100%
+```
+
+### Loop Selection Flowchart
+
+```diagram flowchart
+START: Need to repeat code?
+STEP: Know exact number of iterations? → Use FOR loop
+STEP: Repeat while condition true? → Use WHILE loop
+STEP: Need to check condition after first run? → Use DO-WHILE loop
+STEP: Iterating over collection? → Use FOR-EACH loop
+END: Choose appropriate loop structure
 ```
 
 ---

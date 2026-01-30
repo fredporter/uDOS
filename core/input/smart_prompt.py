@@ -238,6 +238,7 @@ class SmartPrompt:
 
         self.use_fallback = use_fallback or not HAS_PROMPT_TOOLKIT or not is_tty
         self.fallback_reason = None
+        self.tab_handler = None
 
         if self.use_fallback and not HAS_PROMPT_TOOLKIT:
             self.fallback_reason = "prompt_toolkit not installed"
@@ -323,7 +324,26 @@ class SmartPrompt:
             """Handle Ctrl+D (EOF)"""
             raise EOFError()
 
+        @bindings.add(Keys.Tab)
+        def _(event):
+            """Handle Tab for command selector"""
+            if not self.tab_handler:
+                return
+
+            selection = {"value": None}
+
+            def run_selector():
+                selection["value"] = self.tab_handler()
+
+            event.app.run_in_terminal(run_selector)
+            if selection["value"]:
+                event.app.current_buffer.insert_text(selection["value"])
+
         return bindings
+
+    def set_tab_handler(self, handler) -> None:
+        """Register a callback for Tab key in advanced prompt mode."""
+        self.tab_handler = handler
 
     def ask(
         self,

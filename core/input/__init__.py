@@ -17,6 +17,12 @@ from .mouse_handler import (
     MousePosition,
     ClickableRegion,
 )
+from .command_prompt import (
+    CommandRegistry,
+    CommandMetadata,
+    ContextualCommandPrompt,
+    create_default_registry,
+)
 
 __all__ = [
     "SmartPrompt",
@@ -34,4 +40,8 @@ __all__ = [
     "MouseEventType",
     "MousePosition",
     "ClickableRegion",
+    "CommandRegistry",
+    "CommandMetadata",
+    "ContextualCommandPrompt",
+    "create_default_registry",
 ]

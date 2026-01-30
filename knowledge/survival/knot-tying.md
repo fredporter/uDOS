@@ -689,6 +689,35 @@ Tightened:
 ╚══════════════════════════╩═══════════════════════════╝
 ```
 
+### Quick Selection Flowchart
+
+```diagram flowchart
+START: What do you need?
+STEP: Need a fixed loop? → Bowline (easy) or Figure 8 (climbing)
+STEP: Need adjustable tension? → Taut-Line Hitch (tent lines)
+STEP: Need to join ropes? → Same size: Double Fisherman's | Different sizes: Sheet Bend
+STEP: Need to secure something? → Around pole/tree: Clove Hitch | Pull tight: Trucker's Hitch
+STEP: Need mechanical advantage? → Hauling: Trucker's Hitch | Ascending rope: Prusik Knot
+END: Choose and practice
+```
+
+---
+
+## General Knot-Tying Process
+
+```diagram flowchart
+START: Preparation
+STEP: Inspect rope for damage
+STEP: Identify the right knot for your task
+STEP: Review the step-by-step diagram
+STEP: Position rope/cordage correctly
+STEP: Execute each step slowly and deliberately
+STEP: Tighten and dress the knot (seat it properly)
+STEP: Test the knot under load before trusting it
+STEP: Verify it matches the final diagram
+END: Knot is secure and ready to use
+```
+
 ---
 
 ## Practice Progression
@@ -716,6 +745,24 @@ Week 3: Advanced
 └─────────────────────────────────┘
 ```
 
+### Learning Path Flowchart
+
+```diagram flowchart
+START: Week 1 - Foundation (Muscle Memory)
+STEP: Day 1-2 Learn Bowline ("Rabbit out of hole")
+STEP: Day 3-4 Learn Square Knot (right-over-left rule)
+STEP: Day 5-7 Learn Clove Hitch (two loop method)
+STEP: Week 2 - Practical Utility
+STEP: Day 1-2 Learn Taut-Line (tent camping essential)
+STEP: Day 3-4 Learn Sheet Bend (rope joining)
+STEP: Day 5-7 Learn Trucker's Hitch (mechanical advantage)
+STEP: Week 3 - Mastery & Strength
+STEP: Day 1-2 Learn Figure 8 (climbing critical)
+STEP: Day 3-4 Learn Prusik (rope ascending)
+STEP: Day 5-7 Review & Refine all knots
+END: Goal achieved: 30 seconds per knot, eyes closed
+```
+
 **Practice Target:** 30 seconds per knot, eyes closed
 
 ---
@@ -730,6 +777,17 @@ Good Rope:         Bad Rope:
 Smooth            ═══  ═══  ← Broken
 ════════          ═══▓▓═══  ← Dirty/degraded
 Uniform           ═══╳╳═══  ← Damaged
+```
+
+### Inspection Flowchart
+
+```diagram flowchart
+START: Before each use
+STEP: Is rope smooth and uniform? NO → Discard or retire
+STEP: Are there cuts or fraying? YES → Discard or retire
+STEP: Any discoloration or degradation? YES → Discard or retire
+STEP: Is rope clean and dry? NO → Clean & dry before use
+END: Ready for critical tasks
 ```
 
 ### Storage

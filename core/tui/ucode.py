@@ -53,7 +53,8 @@ from core.tui.renderer import GridRenderer
 from core.tui.state import GameState
 from core.tui.status_bar import TUIStatusBar
 from core.tui.fkey_handler import FKeyHandler
-from core.input import SmartPrompt, EnhancedPrompt
+from core.ui.command_selector import CommandSelector
+from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, create_default_registry
 from core.services.logging_manager import get_logger
 
 
@@ -215,8 +216,13 @@ class uCODETUI:
         self.renderer = GridRenderer()
         self.state = GameState()
         
-        # Use EnhancedPrompt for better UX
-        self.prompt = EnhancedPrompt()
+        # Create command registry and contextual prompt (Phase 1)
+        self.command_registry = create_default_registry()
+        self.prompt = ContextualCommandPrompt(registry=self.command_registry)
+        
+        # Command selector (Phase 3)
+        self.command_selector = CommandSelector(self.command_registry)
+        self.prompt.set_tab_handler(self._open_command_selector)
         
         # Status bar and function key handler
         self.status_bar = TUIStatusBar()
@@ -244,9 +250,9 @@ class uCODETUI:
             self.commands["EXTENSION"] = self._cmd_plugin
 
         if self.prompt.use_fallback:
-            self.logger.info(f"[EnhancedPrompt] Using fallback mode: {self.prompt.fallback_reason}")
+            self.logger.info(f"[ContextualPrompt] Using fallback mode: {self.prompt.fallback_reason}")
         else:
-            self.logger.info("[EnhancedPrompt] Initialized with 2-line context display")
+            self.logger.info("[ContextualPrompt] Initialized with command suggestions")
 
     def run(self) -> None:
         """Start uCODE TUI."""
@@ -271,13 +277,8 @@ class uCODETUI:
                     status_line = self.status_bar.get_status_line(user_role)
                     print(f"\n{status_line}")
                     
-                    plain_prompt = "[uCODE] > "
-                    
-                    # Ensure terminal is in good state before asking for input
-                    sys.stdout.flush()
-                    sys.stderr.flush()
-                    
-                    user_input = self.prompt.ask(plain_prompt)
+                    # Use contextual command prompt with suggestions (Phase 1)
+                    user_input = self.prompt.ask_command("▶ ")
 
                     if not user_input:
                         continue
@@ -337,6 +338,14 @@ class uCODETUI:
             self.running = False
         finally:
             self._cleanup()
+
+    def _open_command_selector(self) -> Optional[str]:
+        """Open TAB command selector and return selected command text."""
+        try:
+            return self.command_selector.pick()
+        except Exception as exc:
+            self.logger.error(f"[COMMAND_SELECTOR] Failed: {exc}")
+            return None
 
     def _show_banner(self) -> None:
         """Show startup banner."""
@@ -852,7 +861,8 @@ Core Commands:
   EXIT, QUIT          - Exit uCODE
 
 System Management:
-  SETUP               - View your setup profile from Wizard Server
+  SETUP               - Run setup story (default)
+  SETUP --profile     - View your setup profile
   CONFIG              - Manage configuration variables
   DESTROY             - System cleanup (wipe user, compost, reset)
   SHAKEDOWN           - Validate system health
@@ -895,7 +905,8 @@ Navigation & Info:
 """
         help_text += """
 Examples:
-  SETUP                      - View your setup profile
+  SETUP                      - Run setup story
+  SETUP --profile            - View your setup profile
   STORY wizard-setup         - Run setup story
   DESTROY --wipe-user        - Wipe user data
   WIZARD start               - Start Wizard Server
@@ -907,6 +918,36 @@ For detailed help on any command, type the command name followed by --help
 
 """
         print(help_text)
+
+    def _cmd_fkeys(self, args: str) -> None:
+        """Show or trigger function key actions."""
+        arg = args.strip().upper()
+
+        if not arg or arg in ("HELP", "?"):
+            result = self.fkey_handler._handle_fkey_help()
+            if result and result.get("output"):
+                print(result["output"])
+            else:
+                print("No function key help available.")
+            return
+
+        if arg.isdigit():
+            arg = f"F{arg}"
+
+        if not arg.startswith("F"):
+            print("Usage: FKEYS [F1-F8]")
+            return
+
+        handler = self.fkey_handler.handlers.get(arg)
+        if not handler:
+            print("Unknown function key. Use FKEYS for help.")
+            return
+
+        result = handler()
+        if result:
+            output = result.get("output") or result.get("message")
+            if output:
+                print(output)
 
     def _cmd_wizard(self, args: str) -> None:
         """Wizard server control."""
@@ -1211,9 +1252,9 @@ For detailed help on any command, type the command name followed by --help
             print("="*60)
             print("\nYou're currently in ghost mode with limited access.")
             print("To set up your identity and unlock full features:\n")
-            print("  SETUP --story\n")
-            print("Or view this setup prompt later:")
             print("  SETUP\n")
+            print("Or view this setup prompt later:")
+            print("  SETUP --profile\n")
             print("="*60 + "\n")
 
 

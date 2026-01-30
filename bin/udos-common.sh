@@ -101,6 +101,47 @@ resolve_udos_root() {
     echo "$resolved"
 }
 
+resolve_memory_root() {
+    if [ -n "$UDOS_MEMORY_ROOT" ]; then
+        echo "$UDOS_MEMORY_ROOT"
+        return 0
+    fi
+
+    local home_memory="$HOME/memory"
+    local dot_memory="$HOME/.udos/memory"
+    local repo_memory="$UDOS_ROOT/memory"
+
+    if [ -d "$home_memory" ] || [ -L "$home_memory" ]; then
+        echo "$home_memory"
+        return 0
+    fi
+
+    if [ -d "$dot_memory" ]; then
+        echo "$dot_memory"
+        return 0
+    fi
+
+    if [ -d "$repo_memory" ]; then
+        echo "$repo_memory"
+        return 0
+    fi
+
+    echo "$repo_memory"
+}
+
+ensure_home_memory_link() {
+    local target_root="$1"
+    local home_memory="$HOME/memory"
+
+    if [ -e "$home_memory" ]; then
+        return 0
+    fi
+
+    if [ -n "$target_root" ] && [ -d "$target_root" ]; then
+        ln -s "$target_root" "$home_memory" 2>/dev/null || true
+    fi
+}
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Spinner Function
 # ═══════════════════════════════════════════════════════════════════════════
@@ -459,14 +500,18 @@ _setup_component_environment() {
     echo -e "${CYAN}[INFO]${NC} Checking Python environment and dependencies..."
     ensure_python_env || return 1
 
+    # Setup memory/logs directory (prefer ~/memory/logs)
+    local memory_root
+    memory_root="$(resolve_memory_root)"
+    mkdir -p "$memory_root/logs"
+    ensure_home_memory_link "$memory_root"
+    export UDOS_MEMORY_ROOT="$memory_root"
+    export UDOS_LOG_DIR="$memory_root/logs"
+
     # Run self-healing diagnostics
     run_with_spinner "Running self-healing diagnostics for ${component}..." "python -m core.services.self_healer $component" || {
         echo -e "${YELLOW}[WARN]${NC} Some dependency issues detected (non-blocking)"
     }
-
-    # Setup log directory
-    mkdir -p "$UDOS_ROOT/memory/logs"
-    export UDOS_LOG_DIR="$UDOS_ROOT/memory/logs"
 }
 
 launch_core_tui() {

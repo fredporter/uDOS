@@ -50,6 +50,7 @@ class SeedInstaller:
             (self.bank_dir / "locations").mkdir(parents=True, exist_ok=True)
             (self.bank_dir / "help").mkdir(parents=True, exist_ok=True)
             (self.bank_dir / "templates").mkdir(parents=True, exist_ok=True)
+            (self.bank_dir / "system").mkdir(parents=True, exist_ok=True)
             (self.bank_dir / "graphics" / "diagrams" / "templates").mkdir(
                 parents=True, exist_ok=True
             )

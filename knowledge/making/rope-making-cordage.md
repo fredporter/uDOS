@@ -255,6 +255,36 @@ Repeat...
 
 **Result:** Continuous rope of any length
 
+### 2-Ply Twist Technique (Visual)
+
+```
+Step 1: Two fiber bundles        Step 2: Twist each clockwise
+   A    B                            A↻   B↻
+   │    │                            ╲    ╱
+   │    │                             ╲  ╱
+   │    │                              ╲╱
+
+Step 3: Wrap counter-clockwise    Step 4: Result - locked twist
+   A ╲  ↺ B                          ═══╗
+      ╲╱                              ╔══╝ ← Twist locks
+       ╳                              ╚══╗   against
+      ╱╲                              ╔══╝   itself
+   B ╱  A                            ═══╝
+```
+
+### Cordage Construction Flowchart
+
+```diagram flowchart
+START: Gather plant fibers
+STEP: Process fibers (ret or scrape) to remove pulp
+STEP: Divide into bundles based on desired thickness
+STEP: Choose technique: 2-ply twist (general use) or 3-ply braid (strength)
+STEP: Twist individual bundles clockwise while wrapping counter-clockwise
+STEP: Add new fibers by splicing (stagger joins for strength)
+STEP: Maintain tension and evenness throughout
+END: Finished cordage ready for use
+```
+
 ---
 
 ## 3-Ply Braided Cordage
