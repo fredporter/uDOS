@@ -8,7 +8,7 @@ Useful for first-run initialization or REPAIR operations.
 from typing import Dict, List
 from core.commands.base import BaseCommandHandler
 from core.framework.seed_installer import SeedInstaller
-from core.services.logging_manager import get_logger
+from core.services.logging_service import get_logger
 
 logger = get_logger("seed_handler")
 

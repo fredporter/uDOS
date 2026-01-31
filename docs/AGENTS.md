@@ -1,6 +1,6 @@
 # uDOS Agent Rules (Lean)
 
-> **Fast dev rounds**: Essential rules only. See `.archive/2026-01-29/AGENTS-verbose.md` for full context.
+> **Fast dev rounds**: Essential rules only. 
 
 ---
 

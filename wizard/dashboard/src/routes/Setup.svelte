@@ -52,10 +52,10 @@
     loading = true;
     error = null;
     try {
-      status = await fetchJson("/api/v1/setup/status");
-      progress = await fetchJson("/api/v1/setup/progress");
-      variables = await fetchJson("/api/v1/setup/required-variables");
-      paths = await fetchJson("/api/v1/setup/paths");
+      status = await fetchJson("/api/setup/status");
+      progress = await fetchJson("/api/setup/progress");
+      variables = await fetchJson("/api/setup/required-variables");
+      paths = await fetchJson("/api/setup/paths");
       if (!wizardSteps.length) {
         await loadWizardSteps();
       }
@@ -68,14 +68,14 @@
 
   async function loadWizardSteps() {
     try {
-      const data = await fetchJson("/api/v1/setup/wizard/start", {
+      const data = await fetchJson("/api/setup/wizard/start", {
         method: "POST",
       });
       wizardSteps = data.steps || [];
     } catch (err) {
       wizardSteps = [];
       notifyError("Setup wizard failed", err.message || "Unable to load steps", {
-        path: "/api/v1/setup/wizard/start",
+        path: "/api/setup/wizard/start",
       });
     }
   }
@@ -84,7 +84,7 @@
     storyLoading = true;
     storyError = null;
     try {
-      const res = await fetch("/api/v1/setup/story/read", {
+      const res = await fetch("/api/setup/story/read", {
         headers: authHeaders(),
       });
       const data = await res.json();
@@ -94,39 +94,27 @@
       setupStory = null;
       storyError = err.message || String(err);
       notifyError("Story load failed", storyError, {
-        path: "/api/v1/setup/story/read",
+        path: "/api/setup/story/read",
       });
     } finally {
       storyLoading = false;
     }
   }
 
-  async function rebootstrapStory() {
-    if (!confirm("Re-bootstrap the setup story? This will overwrite the template.")) {
-      return;
-    }
-    storyBootstrapStatus = "Rebootstrapping story...";
-    try {
-      const res = await fetch("/api/v1/setup/story/bootstrap?force=true", {
-        method: "POST",
-        headers: authHeaders(),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
-      storyBootstrapStatus = "✅ Setup story reloaded.";
-      await loadSetupStory();
-    } catch (err) {
-      storyBootstrapStatus = `❌ ${err.message || err}`;
-      notifyError("Story bootstrap failed", err.message || `${err}`, {
-        path: "/api/v1/setup/story/bootstrap",
-      });
-    }
+  async function openEnvEditor() {
+    // Open .env configuration guide
+    const res = await fetch("/api/setup/paths", {
+      headers: authHeaders(),
+    });
+    const data = await res.json();
+    const envPath = data.paths?.env_file || ".env";
+    alert(`📝 Edit your .env file:\n\n${envPath}\n\nRequired variables:\n• WIZARD_KEY (for encrypting setup data)\n• Python environment variables\n\nRestart Wizard after changes.`);
   }
 
   async function handleStorySubmit(answers) {
     storySubmitStatus = null;
     try {
-      const res = await fetch("/api/v1/setup/story/submit", {
+      const res = await fetch("/api/setup/story/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ answers }),
@@ -138,7 +126,7 @@
     } catch (err) {
       storySubmitStatus = `❌ Failed to store setup data: ${err.message || err}`;
       notifyError("Story submit failed", err.message || `${err}`, {
-        path: "/api/v1/setup/story/submit",
+        path: "/api/setup/story/submit",
       });
     }
   }
@@ -146,7 +134,7 @@
   async function runWizardStart() {
     actionResult = null;
     try {
-      actionResult = await fetchJson("/api/v1/setup/wizard/start", {
+      actionResult = await fetchJson("/api/setup/wizard/start", {
         method: "POST",
       });
       wizardSteps = actionResult.steps || wizardSteps;
@@ -159,7 +147,7 @@
   async function runWizardComplete() {
     actionResult = null;
     try {
-      actionResult = await fetchJson("/api/v1/setup/wizard/complete", {
+      actionResult = await fetchJson("/api/setup/wizard/complete", {
         method: "POST",
       });
       await loadSetup();
@@ -172,7 +160,7 @@
     if (!configName || !configValue) return;
     actionResult = null;
     try {
-      actionResult = await fetchJson("/api/v1/setup/configure", {
+      actionResult = await fetchJson("/api/setup/configure", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ name: configName, value: configValue }),
@@ -188,7 +176,7 @@
   async function initializePaths() {
     actionResult = null;
     try {
-      actionResult = await fetchJson("/api/v1/setup/paths/initialize", {
+      actionResult = await fetchJson("/api/setup/paths/initialize", {
         method: "POST",
       });
       await loadSetup();
@@ -203,7 +191,7 @@
     stepUpdates = { ...stepUpdates, [stepId]: true };
     actionResult = null;
     try {
-      actionResult = await fetchJson("/api/v1/setup/steps/complete", {
+      actionResult = await fetchJson("/api/setup/steps/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ step_id: stepId, completed }),
@@ -271,9 +259,40 @@
     <p class="muted">
       First-time configuration questions (user + installation profiles).
     </p>
-    <div class="story-actions">
-      <button on:click={rebootstrapStory}>Re-bootstrap Setup Story</button>
+    
+    <!-- ENV Variables Setup First -->
+    <div class="setup-section">
+      <h3>1. Environment Variables (.env)</h3>
+      <p class="section-description">
+        Required: Set WIZARD_KEY and other environment variables before running setup story.
+      </p>
+      <div class="story-actions">
+        <button on:click={openEnvEditor} class="btn-primary">Configure .env</button>
+      </div>
     </div>
+
+    <!-- Wizard Keys & Integration Setup -->
+    <div class="setup-section">
+      <h3>2. Wizard Key & Integration Setup</h3>
+      <p class="section-description">
+        After .env is configured, set up your wizard credentials and integration keys.
+      </p>
+      <div class="story-actions">
+        <button on:click={runWizardStart} class="btn-secondary">Setup Integrations</button>
+      </div>
+    </div>
+
+    <!-- Setup Story -->
+    <div class="setup-section">
+      <h3>3. User & Installation Profile</h3>
+      <p class="section-description">
+        Complete the setup story to capture user identity and installation details.
+      </p>
+      <p class="section-description" style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.7;">
+        💡 To reset: Use <code>DESTROY</code> or <code>REPAIR</code> commands in uDOS TUI to clear .env variables or reset wizard tokens.
+      </p>
+    </div>
+
     {#if storyError}
       <div class="story-status error">{storyError}</div>
     {/if}
@@ -696,5 +715,83 @@
     padding: 0.5rem 0.9rem;
     border-radius: 0.5rem;
     cursor: pointer;
+  }
+
+  .btn-primary {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .btn-primary:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+  }
+
+  .btn-secondary {
+    background: #10b981;
+    border-color: #10b981;
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .btn-secondary:hover {
+    background: #059669;
+    border-color: #059669;
+  }
+
+  :global(html.light) .btn-primary {
+    background: #2563eb;
+    border-color: #2563eb;
+  }
+
+  :global(html.light) .btn-primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+  }
+
+  :global(html.light) .btn-secondary {
+    background: #059669;
+    border-color: #059669;
+  }
+
+  :global(html.light) .btn-secondary:hover {
+    background: #047857;
+    border-color: #047857;
+  }
+
+  .setup-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 0.75rem;
+  }
+
+  :global(html.light) .setup-section {
+    background: rgba(226, 232, 240, 0.3);
+    border-color: rgba(15, 23, 42, 0.1);
+  }
+
+  .setup-section h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #cbd5f5;
+  }
+
+  :global(html.light) .setup-section h3 {
+    color: #1e293b;
+  }
+
+  .section-description {
+    margin: 0 0 1rem 0;
+    font-size: 0.875rem;
+    color: rgba(248, 250, 252, 0.6);
+  }
+
+  :global(html.light) .section-description {
+    color: #64748b;
   }
 </style>

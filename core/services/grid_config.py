@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Dict, Any
 
-from core.services.logging_manager import get_logger, get_repo_root
+from core.services.logging_service import get_logger, get_repo_root
 
 logger = get_logger("core.grid_config")
 

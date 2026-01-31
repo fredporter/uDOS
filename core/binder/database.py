@@ -40,7 +40,7 @@ from enum import Enum
 from contextlib import contextmanager
 from dataclasses import dataclass
 
-from core.services.sqlite_manager import SQLiteManager
+from core.services.sqlite_service import SQLiteManager
 
 
 class AccessMode(Enum):

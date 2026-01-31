@@ -83,7 +83,7 @@
       const headers = adminToken
         ? { Authorization: `Bearer ${adminToken}` }
         : {};
-      const res = await fetch("/api/v1/setup/progress", { headers });
+      const res = await fetch("/api/setup/progress", { headers });
       if (!res.ok) return;
       setupProgress = await res.json();
     } catch (err) {

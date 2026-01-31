@@ -51,7 +51,7 @@ class UserHandler(BaseCommandHandler):
         Returns:
             Output dict
         """
-        from core.services.user_manager import get_user_manager
+        from core.services.user_service import get_user_manager
         # No params: show current user
         if not params:
             return self._show_current_user()
@@ -88,7 +88,7 @@ class UserHandler(BaseCommandHandler):
         Returns:
             Output dict
         """
-        from core.services.user_manager import get_user_manager
+        from core.services.user_service import get_user_manager
         from core.tui.output import OutputToolkit
         
         user_mgr = get_user_manager()
@@ -141,7 +141,7 @@ Commands:
         Returns:
             Output dict
         """
-        from core.services.user_manager import get_user_manager
+        from core.services.user_service import get_user_manager
         
         user_mgr = get_user_manager()
         users = user_mgr.list_users()

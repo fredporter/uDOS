@@ -1,9 +1,9 @@
 ---
 title: Wizard Setup Story
 type: story
-version: "1.0.0"
-description: "Securely capture user and installation setup variables for Wizard."
-submit_endpoint: "/api/v1/setup/story/submit"
+version: "1.0.1"
+description: "Core identity setup - captures essential .env variables only"
+submit_endpoint: "/api/setup/story/submit"
 submit_requires_admin: false
 ---
 
@@ -23,9 +23,12 @@ placeholder: "Ghost"
 ```story
 name: user_dob
 label: Date of birth (YYYY-MM-DD)
-type: text
+type: date
 required: true
 placeholder: "1980-01-01"
+validation:
+  pattern: "^\d{4}-\d{2}-\d{2}$"
+  message: "Please enter date as YYYY-MM-DD"
 ```
 
 ```story
@@ -36,7 +39,20 @@ required: true
 options:
   - admin
   - user
-  - ghost *default/test-user
+  - ghost
+display_format: dropdown
+show_all_options: true
+```
+
+```story
+name: user_password
+label: Local Password (optional for user/admin, leave blank for ghost)
+type: password
+required: false
+placeholder: "Leave blank for no password"
+show_if:
+  field: user_role
+  values: [admin, user]
 ```
 
 ---
@@ -49,17 +65,26 @@ timezone city and can be refined by typing a more precise place.
 ```story
 name: user_timezone
 label: Timezone (e.g. America/Los_Angeles or UTC-8)
-type: text
+type: select
 required: true
-placeholder: "America/Los_Angeles"
+placeholder: "(Press Enter for system timezone)"
+options_endpoint: "/api/v1/setup/data/timezones"
+allow_custom: true
+default_from_system: true
+validation:
+  message: "Invalid timezone - check spelling or use system default"
 ```
 
 ```story
 name: user_local_time
 label: Local time now (YYYY-MM-DD HH:MM)
-type: text
+type: datetime
 required: true
-placeholder: "2026-01-26 13:45"
+placeholder: "(Press Enter for current system time)"
+default_from_system: true
+validation:
+  pattern: "^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$"
+  message: "Please enter time as YYYY-MM-DD HH:MM"
 ```
 
 ```story
@@ -67,25 +92,18 @@ name: user_location_id
 label: Location (uDOS grid)
 type: location
 required: true
-placeholder: "Start typing a city..."
+placeholder: "Start typing a city or press Enter for timezone default"
 timezone_field: user_timezone
 name_field: user_location_name
+options_endpoint: "/api/v1/setup/data/locations"
+searchable: true
+default_from_timezone: true
+allow_custom: false
 ```
 
 ---
 
-## Installation
-
-Installation variables are scoped to this device only and stored securely. Lifespan is
-tracked by move-count; if set to moves, the Wizard Dashboard will show progress toward EOL.
-
-```story
-name: install_id
-label: Installation ID (leave blank to auto-generate)
-type: text
-required: false
-placeholder: "auto"
-```
+## Operating System
 
 ```story
 name: install_os_type
@@ -97,92 +115,6 @@ options:
   - ubuntu
   - mac
   - windows
-```
-
-```story
-name: install_lifespan_mode
-label: Lifespan mode
-type: select
-required: true
-options:
-  - infinite *default = 0
-  - moves * = number of moves lifespan
-```
-
-```story
-name: install_moves_limit
-label: Moves limit (required if lifespan is moves)
-type: number
-required: false
-placeholder: "1000" ** not required
-```
-
----
-
-## Capabilities & Permissions
-
-Toggle installation-level capabilities. These map to Wizard config settings.
-
-```story
-name: install_permissions
-label: Installation permissions (optional)
-type: textarea
-required: false
-placeholder: "Notes or policies for this installation"
-```
-
-```story
-name: capability_web_proxy
-label: Allow web proxy (APIs + scraping)
-type: checkbox
-```
-
-```story
-name: capability_gmail_relay
-label: Allow Gmail relay
-type: checkbox
-```
-
-```story
-name: capability_ai_gateway
-label: Allow AI gateway routing
-type: checkbox
-```
-
-```story
-name: capability_github_push
-label: Allow GitHub push
-type: checkbox
-```
-
-```story
-name: capability_notion
-label: Allow Notion integration
-type: checkbox
-```
-
-```story
-name: capability_hubspot
-label: Allow HubSpot integration
-type: checkbox
-```
-
-```story
-name: capability_icloud
-label: Allow iCloud integration
-type: checkbox
-```
-
-```story
-name: capability_plugin_repo
-label: Allow plugin repository
-type: checkbox
-```
-
-```story
-name: capability_plugin_auto_update
-label: Allow plugin auto-update
-type: checkbox
 ```
 
 ---

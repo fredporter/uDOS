@@ -246,3 +246,10 @@ wizard/config/github_keys.json
 wizard/config/slack_keys.json
 wizard/config/oauth_providers.json
 wizard/config/notion_keys.json
+
+# ---------- BACKUP FILES & TEMP ----------
+*.bak
+*.backup
+*.backup.*
+*~
+.DS_Store

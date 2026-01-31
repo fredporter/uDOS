@@ -1,16 +1,13 @@
-"""CONFIG command handler - Wizard configuration and variable management from TUI."""
+"""CONFIG command handler - local configuration and variable management from TUI."""
 
-from typing import List, Dict, Optional
-import requests
+from typing import List, Dict
 import json
 from pathlib import Path
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
-from core.services.logging_manager import get_logger, get_repo_root, LogTags
+from core.services.logging_service import get_logger, get_repo_root, LogTags
 
 logger = get_logger("config-handler")
-
-WIZARD_API = "http://localhost:8765/api/v1"
 
 
 class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
@@ -94,79 +91,60 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
 
     def _show_status(self) -> Dict:
         """Show current configuration status."""
-        try:
-            response = requests.get(f"{WIZARD_API}/config/status", timeout=5)
-            if response.status_code == 200:
-                data = response.json()
-                from core.tui.output import OutputToolkit
+        from core.tui.output import OutputToolkit
 
-                output = [OutputToolkit.banner("WIZARD CONFIG STATUS"), ""]
+        output = [OutputToolkit.banner("LOCAL CONFIG STATUS"), ""]
 
-                if "enabled_providers" in data:
-                    providers = data.get("enabled_providers", [])
-                    if providers:
-                        output.append("Enabled Providers:")
-                        for provider in providers:
-                            output.append(f"  OK {provider}")
-                    else:
-                        output.append("Enabled Providers: (none)")
-                    output.append("")
+        env_path = get_repo_root() / ".env"
+        env_status = "OK" if env_path.exists() else "X"
+        output.append("Environment File:")
+        output.append(f"  {env_status} .env")
+        output.append("")
 
-                if "config_files" in data:
-                    output.append("Configuration Files:")
-                    for name, info in data.get("config_files", {}).items():
-                        status = "OK" if info.get("exists") else "X"
-                        output.append(f"  {status} {name}")
-                    output.append("")
-
-                output.append("Use 'CONFIG LIST' to see all config files")
-                output.append("Use 'PROVIDER LIST' to manage providers")
-
-                return {"status": "success", "output": "\n".join(output)}
+        config_dir = get_repo_root() / "wizard" / "config"
+        output.append("Configuration Files:")
+        if config_dir.exists():
+            files = sorted([p for p in config_dir.iterdir() if p.is_file()])
+            if files:
+                for file_path in files:
+                    output.append(f"  OK {file_path.name}")
             else:
-                return {
-                    "status": "error",
-                    "message": f"Failed to get config status: {response.status_code}",
-                    "output": "Is Wizard Server running? (port 8765)",
-                }
-        except requests.exceptions.RequestException as e:
-            return {
-                "status": "error",
-                "message": "Cannot connect to Wizard Server",
-                "output": f"Error: {str(e)}",
-            }
+                output.append("  (none)")
+        else:
+            output.append("  (config directory not found)")
+        output.append("")
+
+        output.append("Use 'CONFIG LIST' to see all config files")
+        output.append("Use 'CONFIG EDIT <file>' to edit locally")
+
+        return {"status": "success", "output": "\n".join(output)}
 
     def _list_configs(self) -> Dict:
         """List all configuration files."""
-        try:
-            response = requests.get(f"{WIZARD_API}/config/list", timeout=5)
-            if response.status_code == 200:
-                data = response.json()
-                from core.tui.output import OutputToolkit
+        from core.tui.output import OutputToolkit
 
-                output = [OutputToolkit.banner("CONFIGURATION FILES"), ""]
-
-                for name, info in data.get("config_files", {}).items():
-                    status = "OK" if info.get("exists") else "X"
-                    path = info.get("path", "")
-                    output.append(f"{status} {name}")
-                    output.append(f"   {path}")
-                    output.append("")
-
-                output.append("Use 'CONFIG EDIT <filename>' to edit a config file")
-
-                return {"status": "success", "output": "\n".join(output)}
-            else:
-                return {
-                    "status": "error",
-                    "message": f"Failed to list configs: {response.status_code}",
-                }
-        except requests.exceptions.RequestException as e:
+        config_dir = get_repo_root() / "wizard" / "config"
+        if not config_dir.exists():
             return {
                 "status": "error",
-                "message": "Cannot connect to Wizard Server",
-                "output": f"Error: {str(e)}",
+                "message": "Config directory not found",
+                "output": "Expected: wizard/config",
             }
+
+        output = [OutputToolkit.banner("CONFIGURATION FILES"), ""]
+        files = sorted([p for p in config_dir.iterdir() if p.is_file()])
+
+        if not files:
+            output.append("(no config files found)")
+        else:
+            for file_path in files:
+                output.append(f"OK {file_path.name}")
+                output.append(f"   {file_path}")
+                output.append("")
+
+        output.append("Use 'CONFIG EDIT <filename>' to edit a config file")
+
+        return {"status": "success", "output": "\n".join(output)}
 
     def _edit_config(self, filename: str) -> Dict:
         """Open config file in editor."""
@@ -241,163 +219,46 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
     # ========================================================================
 
     def _list_variables(self) -> Dict:
-        """List all variables - first try local .env, fallback to Wizard."""
+        """List all variables from local .env."""
         try:
-            # First try local .env file
             env_data = self._load_env_file()
-            if env_data:
-                return self._format_env_variables(env_data)
-            
-            # Then try Wizard Server if available
-            token = self._get_admin_token()
-            if not token:
-                return self._offline_message()
-
-            headers = {"Authorization": f"Bearer {token}"}
-            response = requests.get(
-                f"{WIZARD_API}/config/variables", headers=headers, timeout=5
-            )
-
-            if response.status_code != 200:
-                error_detail = ""
-                try:
-                    error_detail = response.json().get("detail", "")
-                except:
-                    error_detail = response.text[:200] if response.text else ""
-                
-                # If Wizard failed, show local env instead
-                env_data = self._load_env_file()
-                if env_data:
-                    return self._format_env_variables(env_data)
-                
-                return {
-                    "status": "error",
-                    "message": f"Failed to list variables: HTTP {response.status_code}",
-                    "output": f"Detail: {error_detail}" if error_detail else "Check Wizard Server logs",
-                }
-
-            try:
-                variables = response.json().get("variables", [])
-            except json.JSONDecodeError:
-                # If JSON parse fails, show local env
-                env_data = self._load_env_file()
-                if env_data:
-                    return self._format_env_variables(env_data)
-                
-                return {
-                    "status": "error",
-                    "message": "Invalid response from Wizard Server",
-                    "output": "Response was not valid JSON. Check Wizard Server logs.",
-                }
-
-            # Group by type
-            system_vars = [v for v in variables if v["type"] == "system"]
-            user_vars = [v for v in variables if v["type"] == "user"]
-            feature_vars = [v for v in variables if v["type"] == "feature"]
-
-            from core.tui.output import OutputToolkit
-
-            lines = [OutputToolkit.banner("CONFIGURATION"), ""]
-
-            if system_vars:
-                lines.append("System Variables ($):")
-                for var in system_vars:
-                    key = var["key"]
-                    value = self._mask_value(var["value"])
-                    desc = var.get("description", "")
-                    lines.append(f"  {key} = {value}")
-                    if desc:
-                        lines.append(f"    └─ {desc}")
-                lines.append("")
-
-            if user_vars:
-                lines.append("User Variables (@):")
-                for var in user_vars:
-                    key = var["key"]
-                    value = var["value"]
-                    desc = var.get("description", "")
-                    lines.append(f"  {key} = {value}")
-                    if desc:
-                        lines.append(f"    └─ {desc}")
-                lines.append("")
-
-            if feature_vars:
-                lines.append("Feature Flags:")
-                for var in feature_vars:
-                    key = var["key"]
-                    value = var["value"]
-                    status = "OK" if value else "X"
-                    desc = var.get("description", "")
-                    lines.append(f"  {status} {key} = {value}")
-                    if desc:
-                        lines.append(f"    └─ {desc}")
-                lines.append("")
-
-            lines.append("Use: CONFIG <key> to view details")
-            lines.append("Use: CONFIG <key> <value> to update")
-
-            return {"status": "success", "output": "\n".join(lines)}
-
-        except requests.exceptions.RequestException:
-            return self._offline_message()
+            return self._format_env_variables(env_data)
         except Exception as e:
             return {"status": "error", "message": f"Failed to list variables: {e}"}
 
     def _get_variable(self, key: str) -> Dict:
         """Get a specific variable."""
         try:
-            token = self._get_admin_token()
-            if not token:
-                return self._offline_message()
+            env_data = self._load_env_file()
+            if not env_data:
+                return {
+                    "status": "error",
+                    "message": "No local configuration found",
+                    "output": "Create .env or use CONFIG <key> <value>",
+                }
 
-            headers = {"Authorization": f"Bearer {token}"}
-            response = requests.get(
-                f"{WIZARD_API}/config/get/{key}", headers=headers, timeout=5
-            )
-
-            if response.status_code == 404:
+            if key not in env_data:
                 return {
                     "status": "error",
                     "message": f"Variable not found: {key}",
                     "output": "Use CONFIG to list all variables",
                 }
 
-            if response.status_code != 200:
-                return {
-                    "status": "error",
-                    "message": f"Failed to get variable: HTTP {response.status_code}",
-                }
-
-            data = response.json()
-            var = data.get("variable", {})
-
+            value = env_data.get(key)
             from core.tui.output import OutputToolkit
 
-            lines = [OutputToolkit.banner(f"VARIABLE: {var['key']}"), ""]
-            lines.append(
-                f"Value: {self._mask_value(var['value']) if var['type'] == 'system' else var['value']}"
-            )
-            lines.append(f"Type: {var['type']}")
-            lines.append(f"Tier: {var['tier']}")
-            if var.get("description"):
-                lines.append(f"Description: {var['description']}")
-            if var.get("updated_at"):
-                lines.append(f"Updated: {var['updated_at']}")
+            lines = [OutputToolkit.banner(f"VARIABLE: {key}"), ""]
+            lines.append(f"Value: {self._mask_value(value)}")
+            lines.append("Source: .env")
 
             return {"status": "success", "output": "\n".join(lines)}
 
-        except requests.exceptions.RequestException:
-            return self._offline_message()
         except Exception as e:
             return {"status": "error", "message": f"Failed to get variable: {e}"}
 
     def _set_variable(self, key: str, value: str) -> Dict:
         """Set a variable value."""
         try:
-            token = self._get_admin_token()
-            if not token:
-                return self._offline_message()
-
             # Parse boolean values
             if value.lower() in ["true", "yes", "1", "on"]:
                 parsed_value = True
@@ -406,113 +267,116 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
             else:
                 parsed_value = value
 
-            headers = {"Authorization": f"Bearer {token}"}
-            response = requests.post(
-                f"{WIZARD_API}/config/set",
-                headers=headers,
-                json={"key": key, "value": parsed_value, "sync": True},
-                timeout=5,
-            )
+            env_path = get_repo_root() / ".env"
+            lines = env_path.read_text().splitlines() if env_path.exists() else []
+            new_lines = []
+            updated = False
 
-            if response.status_code != 200:
-                return {
-                    "status": "error",
-                    "message": f"Failed to set variable: HTTP {response.status_code}",
-                    "output": response.json().get("detail", ""),
-                }
+            for line in lines:
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#") or "=" not in line:
+                    new_lines.append(line)
+                    continue
+
+                existing_key = line.split("=", 1)[0].strip()
+                if existing_key == key:
+                    new_lines.append(f"{key}={self._serialize_env_value(parsed_value)}")
+                    updated = True
+                else:
+                    new_lines.append(line)
+
+            if not updated:
+                if new_lines and new_lines[-1].strip() != "":
+                    new_lines.append("")
+                new_lines.append(f"{key}={self._serialize_env_value(parsed_value)}")
+
+            env_path.write_text("\n".join(new_lines) + ("\n" if new_lines else ""))
 
             return {
                 "status": "success",
-                "output": f"OK Set {key} = {parsed_value}\n\nChanges synchronized across all components",
+                "output": f"OK Set {key} = {self._serialize_env_value(parsed_value)}\n\nStored in .env",
             }
 
-        except requests.exceptions.RequestException:
-            return self._offline_message()
         except Exception as e:
             return {"status": "error", "message": f"Failed to set variable: {e}"}
 
     def _delete_variable(self, key: str) -> Dict:
         """Delete a variable."""
         try:
-            token = self._get_admin_token()
-            if not token:
-                return self._offline_message()
-
-            headers = {"Authorization": f"Bearer {token}"}
-            response = requests.delete(
-                f"{WIZARD_API}/config/delete/{key}", headers=headers, timeout=5
-            )
-
-            if response.status_code == 404:
-                return {"status": "error", "message": f"Variable not found: {key}"}
-
-            if response.status_code != 200:
+            env_path = get_repo_root() / ".env"
+            if not env_path.exists():
                 return {
                     "status": "error",
-                    "message": f"Failed to delete variable: HTTP {response.status_code}",
+                    "message": "No local configuration found",
+                    "output": "Create .env or use CONFIG <key> <value>",
                 }
+
+            lines = env_path.read_text().splitlines()
+            new_lines = []
+            removed = False
+
+            for line in lines:
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#") or "=" not in line:
+                    new_lines.append(line)
+                    continue
+
+                existing_key = line.split("=", 1)[0].strip()
+                if existing_key == key:
+                    removed = True
+                    continue
+
+                new_lines.append(line)
+
+            if not removed:
+                return {"status": "error", "message": f"Variable not found: {key}"}
+
+            env_path.write_text("\n".join(new_lines) + ("\n" if new_lines else ""))
 
             return {"status": "success", "output": f"OK Deleted variable: {key}"}
 
-        except requests.exceptions.RequestException:
-            return self._offline_message()
         except Exception as e:
             return {"status": "error", "message": f"Failed to delete variable: {e}"}
 
     def _sync_variables(self) -> Dict:
         """Sync all variables across tiers."""
         try:
-            token = self._get_admin_token()
-            if not token:
-                return self._offline_message()
-
-            headers = {"Authorization": f"Bearer {token}"}
-            response = requests.post(
-                f"{WIZARD_API}/config/sync", headers=headers, timeout=10
-            )
-
-            if response.status_code != 200:
-                return {
-                    "status": "error",
-                    "message": f"Failed to sync: HTTP {response.status_code}",
-                }
-
-            data = response.json()
-            counts = data.get("counts", {})
-
             from core.tui.output import OutputToolkit
 
+            env_path = get_repo_root() / ".env"
+            if not env_path.exists():
+                return {
+                    "status": "error",
+                    "message": "No local configuration found",
+                    "output": "Create .env or use CONFIG <key> <value>",
+                }
+
             lines = [OutputToolkit.banner("SYNC COMPLETE"), ""]
-            lines.append(f"  .env → secrets: {counts.get('env_to_secret', 0)}")
-            lines.append(f"  secrets → .env: {counts.get('secret_to_env', 0)}")
-            lines.append(f"  Config synced: {counts.get('config_synced', 0)}")
+            lines.append("  Local .env is authoritative")
+            lines.append("  No remote sync required")
 
             return {"status": "success", "output": "\n".join(lines)}
 
-        except requests.exceptions.RequestException:
-            return self._offline_message()
         except Exception as e:
             return {"status": "error", "message": f"Failed to sync: {e}"}
 
     def _export_config(self) -> Dict:
         """Export configuration for backup."""
         try:
-            token = self._get_admin_token()
-            if not token:
-                return self._offline_message()
+            env_data = self._load_env_file()
+            safe_env = {}
+            masked_keys = []
+            for key, value in env_data.items():
+                if self._is_sensitive_key(key):
+                    safe_env[key] = "***"
+                    masked_keys.append(key)
+                else:
+                    safe_env[key] = value
 
-            headers = {"Authorization": f"Bearer {token}"}
-            response = requests.get(
-                f"{WIZARD_API}/config/export", headers=headers, timeout=5
-            )
-
-            if response.status_code != 200:
-                return {
-                    "status": "error",
-                    "message": f"Failed to export: HTTP {response.status_code}",
-                }
-
-            data = response.json()
+            data = {
+                "env": safe_env,
+                "masked_keys": sorted(masked_keys),
+            }
             export_path = get_repo_root() / "memory" / "config-backup.json"
             export_path.parent.mkdir(parents=True, exist_ok=True)
             export_path.write_text(json.dumps(data, indent=2))
@@ -521,9 +385,6 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
                 "status": "success",
                 "output": f"OK Config exported to: {export_path}\n\nNOTE: This backup does NOT include secrets",
             }
-
-        except requests.exceptions.RequestException:
-            return self._offline_message()
         except Exception as e:
             return {"status": "error", "message": f"Failed to export: {e}"}
 
@@ -583,32 +444,23 @@ SECURITY:
     # Helper Methods
     # ========================================================================
 
-    def _get_admin_token(self) -> Optional[str]:
-        """Get admin token from file."""
-        token_path = get_repo_root() / "memory" / "private" / "wizard_admin_token.txt"
-        if not token_path.exists():
-            # Try .env
-            env_path = get_repo_root() / ".env"
-            if env_path.exists():
-                for line in env_path.read_text().splitlines():
-                    if line.startswith("WIZARD_ADMIN_TOKEN="):
-                        return line.split("=", 1)[1].strip()
-            return None
-        return token_path.read_text().strip()
-
     def _mask_value(self, value: str) -> str:
         """Mask sensitive values."""
         if not value or len(value) < 8:
             return "***"
         return value[:4] + "..." + value[-4:]
 
-    def _offline_message(self) -> Dict:
-        """Message when Wizard is not available."""
-        return {
-            "status": "error",
-            "message": "Wizard Server not available",
-            "output": "Start Wizard: ./bin/start_wizard.sh",
-        }
+    def _serialize_env_value(self, value) -> str:
+        """Serialize values for .env storage."""
+        if isinstance(value, bool):
+            return "true" if value else "false"
+        return str(value)
+
+    def _is_sensitive_key(self, key: str) -> bool:
+        """Basic heuristic for sensitive keys."""
+        upper_key = key.upper()
+        sensitive_markers = ["SECRET", "TOKEN", "PASSWORD", "KEY"]
+        return any(marker in upper_key for marker in sensitive_markers)
     def _load_env_file(self) -> Dict:
         """Load variables from .env file (offline fallback)."""
         try:
@@ -636,8 +488,8 @@ SECURITY:
             lines = [OutputToolkit.banner("LOCAL CONFIGURATION (.env)"), ""]
             
             # Separate local setup vs other config
-            setup_keys = {'USER_NAME', 'USER_DOB', 'USER_ROLE', 'USER_LOCATION', 
-                         'USER_TIMEZONE', 'OS_TYPE', 'WIZARD_KEY'}
+            setup_keys = {'USER_NAME', 'USER_DOB', 'USER_ROLE', 'USER_PASSWORD',
+                         'USER_LOCATION', 'USER_TIMEZONE', 'OS_TYPE', 'WIZARD_KEY'}
             setup_vars = {k: v for k, v in variables.items() if k in setup_keys}
             other_vars = {k: v for k, v in variables.items() if k not in setup_keys}
             
@@ -667,7 +519,7 @@ SECURITY:
             
             lines.append("-" * 60)
             lines.append("Local settings stored in: .env")
-            lines.append("When Wizard Server is installed, it imports these settings.")
+            lines.append("Extended settings stored in local config files when present")
             lines.append("")
             lines.append("To edit: nano .env")
             

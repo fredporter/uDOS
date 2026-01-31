@@ -126,7 +126,7 @@ def _apply_setup_defaults(
                 if name in highlight:
                     meta["show_previous_overlay"] = True
                 if name == "user_timezone":
-                    meta["options_endpoint"] = "/api/v1/setup/data/timezones"
+                    meta["options_endpoint"] = "/api/setup/data/timezones"
             elif name in overrides and overrides[name] is None:
                 answers.pop(name, None)
     story_state["answers"] = answers
@@ -190,6 +190,52 @@ def _is_local_request(request: Request) -> bool:
     return client_host in {"127.0.0.1", "::1", "localhost"}
 
 
+def _load_env_identity() -> Dict[str, str]:
+    """Load identity fields from .env file (Core boundary).
+
+    Returns:
+        Dictionary with identity fields from .env, or empty dict if not found
+    """
+    try:
+        from pathlib import Path
+
+        repo_root = get_repo_root()
+        env_path = repo_root / ".env"
+
+        if not env_path.exists():
+            return {}
+
+        env_vars = {}
+        with open(env_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                if '=' in line:
+                    key, value = line.split('=', 1)
+                    env_vars[key.strip()] = value.strip().strip('"\'')
+
+        # Map .env fields to setup story fields
+        identity = {}
+        if env_vars.get('USER_NAME'):
+            identity['user_username'] = env_vars['USER_NAME']
+        if env_vars.get('USER_DOB'):
+            identity['user_dob'] = env_vars['USER_DOB']
+        if env_vars.get('USER_ROLE'):
+            identity['user_role'] = env_vars['USER_ROLE']
+        if env_vars.get('USER_TIMEZONE'):
+            identity['user_timezone'] = env_vars['USER_TIMEZONE']
+        if env_vars.get('USER_LOCATION'):
+            identity['user_location'] = env_vars['USER_LOCATION']
+        if env_vars.get('OS_TYPE'):
+            identity['install_os_type'] = env_vars['OS_TYPE']
+
+        return identity
+    except Exception as e:
+        logger.debug(f"Could not load identity from .env: {e}")
+        return {}
+
+
 def create_setup_routes(auth_guard=None):
     async def setup_guard(request: Request) -> None:
         if not auth_guard:
@@ -201,7 +247,7 @@ def create_setup_routes(auth_guard=None):
         await auth_guard(request)
 
     dependencies = [Depends(setup_guard)] if auth_guard else []
-    router = APIRouter(prefix="/api/v1/setup", tags=["setup"], dependencies=dependencies)
+    router = APIRouter(prefix="/api/setup", tags=["setup"], dependencies=dependencies)
 
     @router.get("/status")
     async def get_setup_status():
@@ -338,7 +384,7 @@ def create_setup_routes(auth_guard=None):
             "message": "Setup wizard completed successfully!",
             "next_steps": [
                 "Open Wizard dashboard at /",
-                "Check /api/v1/setup/status for configuration overview",
+                "Check /api/setup/status for configuration overview",
                 "Review docs in /docs",
             ],
         }
@@ -457,7 +503,7 @@ def create_setup_routes(auth_guard=None):
         if not story_path.exists():
             raise HTTPException(status_code=404, detail="Setup story not found")
         raw_content = story_path.read_text()
-        
+
         try:
             story_state = parse_story_document(
                 raw_content,
@@ -485,6 +531,7 @@ def create_setup_routes(auth_guard=None):
                     "name": match.get("location_name"),
                 }
 
+        # Step 1: Start with system defaults
         overrides = {
             "user_timezone": system_info["timezone"],
             "user_local_time": system_info["local_time"],
@@ -492,6 +539,13 @@ def create_setup_routes(auth_guard=None):
             "user_location_name": default_location.get("name") if default_location else None,
         }
 
+        # Step 2: Load from .env (Core boundary - highest priority for existing data)
+        env_identity = _load_env_identity()
+        if env_identity:
+            overrides.update(env_identity)
+            logger.debug(f"[SETUP] Loaded identity from .env: {list(env_identity.keys())}")
+
+        # Step 3: Load from Wizard keystore (if different from .env)
         user_result = load_user_profile()
         install_result = load_install_profile()
         if user_result.data:
@@ -531,7 +585,7 @@ def create_setup_routes(auth_guard=None):
                     "capability_plugin_auto_update": capabilities.get("plugin_auto_update"),
                 }
             )
-        
+
         try:
             _apply_setup_defaults(
                 story_state,
@@ -541,7 +595,7 @@ def create_setup_routes(auth_guard=None):
         except Exception as exc:
             logger.error("Failed to apply setup defaults: %s", exc, exc_info=True)
             raise HTTPException(status_code=500, detail=f"Failed to apply defaults: {exc}")
-        
+
         story_state.setdefault("metadata", {})
         story_state["metadata"].update(
             {
@@ -658,15 +712,15 @@ def create_setup_routes(auth_guard=None):
         """Retrieve both user and installation profiles in a single call."""
         user_result = load_user_profile()
         install_result = load_install_profile()
-        
+
         if user_result.locked or install_result.locked:
             raise HTTPException(
                 status_code=503,
                 detail=user_result.error or install_result.error or "secret store locked"
             )
-        
+
         metrics = load_install_metrics()
-        
+
         return {
             "status": "success",
             "user_profile": user_result.data,

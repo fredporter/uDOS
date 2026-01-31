@@ -121,7 +121,7 @@
 
   async function loadInstallState() {
     try {
-      const res = await fetch("/api/v1/setup/profiles", {
+      const res = await fetch("/api/setup/profiles", {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

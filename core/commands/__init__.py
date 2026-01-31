@@ -130,6 +130,10 @@ def __getattr__(name):
         from .setup_handler import SetupHandler
 
         return SetupHandler
+    elif name == "UIDHandler":
+        from .uid_handler import UIDHandler
+
+        return UIDHandler
     elif name == "LogsHandler":
         from .logs_handler import LogsHandler
 
@@ -166,6 +170,10 @@ def __getattr__(name):
         from .file_handler import FileHandler
 
         return FileHandler
+    elif name == "InteractiveMenuMixin":
+        from .interactive_menu_mixin import InteractiveMenuMixin
+
+        return InteractiveMenuMixin
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -214,4 +222,7 @@ __all__ = [
     "FileHandler",  # Phase 2: Workspace picker integration
     "MaintenanceHandler",
     "SetupHandler",
+    "UIDHandler",
+    # UI Mixins
+    "InteractiveMenuMixin",
 ]

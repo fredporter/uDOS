@@ -31,7 +31,7 @@ from enum import Enum
 from pathlib import Path
 import threading
 
-from core.services.logging_manager import get_logger
+from core.services.logging_service import get_logger
 
 logger = get_logger("node-discovery")
 

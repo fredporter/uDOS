@@ -25,7 +25,7 @@ from typing import Optional, Dict, Any, List, Tuple
 from datetime import datetime
 import json
 
-from core.services.logging_manager import get_logger, LogTags
+from core.services.logging_service import get_logger, LogTags
 
 logger = get_logger("tui-form-handler")
 

@@ -17,7 +17,7 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from core.services.logging_manager import get_logger
+from core.services.logging_service import get_logger
 
 logger = get_logger("location_migration")
 

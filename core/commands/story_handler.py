@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from core.commands.base import BaseCommandHandler
-from core.services.logging_manager import get_repo_root
+from core.services.logging_service import get_repo_root
 from core.services.ts_runtime_service import TSRuntimeService
 from core.tui.output import OutputToolkit
 
@@ -178,17 +178,25 @@ class StoryHandler(BaseCommandHandler):
         
         if fields:
             # Return structured form data for the TUI to handle interactively
-            return {
-                "status": "success",
-                "message": f"Story form: {exec_result.get('title', 'Untitled')}",
-                "story_form": {
-                    "title": exec_result.get("title"),
-                    "text": exec_result.get("text", "").strip(),
-                    "section_id": exec_result.get("sectionId"),
-                    "fields": fields,
-                },
-                "output": f"Story form ready.",
+            form_spec = {
+                "title": exec_result.get("title", "Story Form"),
+                "description": exec_result.get("text", "").strip(),
+                "section_id": exec_result.get("sectionId"),
+                "fields": fields,
             }
+            
+            # Process with interactive form handler
+            form_result = self._process_interactive_form(form_spec)
+            
+            if form_result.get("status") == "success":
+                return {
+                    "status": "success",
+                    "message": "Story form submitted",
+                    "form_data": form_result.get("data", {}),
+                    "output": "Form submitted successfully.",
+                }
+            else:
+                return form_result
         
         else:
             # Non-form story - return output
@@ -273,8 +281,36 @@ set $user.completed true
             "output": f"Created: {story_file}\n\nRun with: STORY {safe_name}\nEdit with: EDIT {story_file.relative_to(repo_root)}",
         }
 
+    def _process_interactive_form(self, form_spec: Dict) -> Dict:
+        """
+        Process interactive form with TUI form handler.
+        
+        Args:
+            form_spec: Form specification with title, description, fields
+            
+        Returns:
+            Dictionary with status and collected data
+        """
+        try:
+            from core.tui.story_form_handler import get_form_handler
+            
+            handler = get_form_handler()
+            result = handler.process_story_form(form_spec)
+            return result
+        
+        except Exception as e:
+            from core.services.logging_service import get_logger
+            logger = get_logger("story")
+            logger.error(f"[LOCAL] Failed to process interactive form: {e}")
+            
+            # Fallback to basic message
+            return {
+                "status": "error",
+                "message": f"Form processing failed: {e}",
+            }
+
     def _resolve_path(self, file_arg: str) -> Path:
-        """Resolve file path - check memory/story/ first, then wizard/templates/, then absolute."""
+        """Resolve file path - check memory/story/ first, then memory/bank/system, then absolute."""
         repo_root = get_repo_root()
 
         # If no extension, assume -story.md
@@ -292,12 +328,6 @@ set $user.completed true
             bank_system_path = repo_root / "memory" / "bank" / "system" / file_arg
             if bank_system_path.exists():
                 return bank_system_path
-            
-            # Fallback: check wizard/templates/ for built-in stories
-            template_name = file_arg.replace("-story.md", "-wizard-story.md")
-            template_path = repo_root / "wizard" / "templates" / template_name
-            if template_path.exists():
-                return template_path
             
             # Otherwise resolve from repo root
             return repo_root / path

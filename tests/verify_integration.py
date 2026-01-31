@@ -23,7 +23,7 @@ def check_imports():
     print("🔍 Checking imports...")
 
     try:
-        from core.services.config_sync_manager import ConfigSyncManager
+        from core.services.config_sync_service import ConfigSyncManager
         print("  ✅ ConfigSyncManager imported")
     except ImportError as e:
         print(f"  ❌ ConfigSyncManager import failed: {e}")
@@ -100,7 +100,7 @@ def check_config_sync_manager():
     print("\n🔍 Testing Config Sync Manager...")
 
     try:
-        from core.services.config_sync_manager import ConfigSyncManager
+        from core.services.config_sync_service import ConfigSyncManager
 
         sync_manager = ConfigSyncManager()
 
@@ -251,7 +251,7 @@ def check_ucode_integration():
             return False
 
         # Check for ConfigSyncManager usage
-        if "from core.services.config_sync_manager import ConfigSyncManager" in content:
+        if "from core.services.config_sync_service import ConfigSyncManager" in content:
             print("  ✅ ConfigSyncManager import present")
         else:
             print("  ❌ ConfigSyncManager import missing")

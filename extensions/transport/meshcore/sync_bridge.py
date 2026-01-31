@@ -28,7 +28,7 @@ from typing import Dict, Any, Optional, List, Callable
 from dataclasses import dataclass, asdict
 from enum import Enum
 
-from core.services.logging_manager import get_logger
+from core.services.logging_service import get_logger
 
 logger = get_logger("mesh-sync-transport")
 

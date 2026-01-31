@@ -5,7 +5,8 @@
     { "name": "📚 Docs", "path": "docs" },
     { "name": "💾 Memory", "path": "memory" },
     { "name": "🔌 Extensions", "path": "extensions" },
-    { "name": "📦 Library", "path": "library" }
+    { "name": "📦 Library", "path": "library" },
+    { "name": "🚀 Distribution", "path": "distribution" }
   ],
   "settings": {
     "python.defaultInterpreterPath": "${workspaceFolder:🏠 Root}/.venv/bin/python",

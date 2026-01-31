@@ -90,36 +90,12 @@
     alert(`Story submission saved to /memory/${outputPath}`);
   }
 
-  async function restartSetup() {
-    if (!confirm("Restart setup story? This will reload the template.")) {
-      return;
-    }
-    bootstrapStatus = "Restarting setup story...";
-    try {
-      const res = await fetch("/api/v1/setup/story/bootstrap?force=true", {
-        method: "POST",
-        headers: authHeaders(),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.detail || `HTTP ${res.status}`);
-      }
-      bootstrapStatus = "✅ Setup story reloaded.";
-      await loadStoryList();
-      if (data.path) {
-        await loadStory(data.path);
-      }
-    } catch (err) {
-      bootstrapStatus = `❌ ${err.message || err}`;
-    }
-  }
-
   onMount(async () => {
     adminToken = getAdminToken();
     try {
       await loadStoryList();
       if (!storyFiles.length) {
-        const bootstrap = await fetch("/api/v1/setup/story/bootstrap", {
+        const bootstrap = await fetch("/api/setup/story/bootstrap", {
           method: "POST",
           headers: authHeaders(),
         });
@@ -178,12 +154,6 @@
         on:click={() => loadStory(selectedStoryPath)}
       >
         Reload
-      </button>
-      <button
-        class="px-3 py-2 rounded bg-slate-600"
-        on:click={restartSetup}
-      >
-        Restart Setup
       </button>
     </div>
 

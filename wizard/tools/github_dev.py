@@ -36,7 +36,7 @@ from enum import Enum
 
 # Import logging
 try:
-    from core.services.logging_manager import get_logger
+    from core.services.logging_service import get_logger
 
     logger = get_logger("wizard-github")
 except ImportError:

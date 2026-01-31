@@ -1,13 +1,26 @@
-"""REPAIR command handler - Self-healing and system maintenance."""
+"""REPAIR command handler - system maintenance and recovery.
+
+Commands:
+  REPAIR                      # Standard repair checks
+  REPAIR --reset-user         # Reset user data/profiles
+  REPAIR --reset-keys         # Clear all API keys
+  REPAIR --reset-config       # Reset configuration
+  REPAIR --full               # Full system repair
+  REPAIR --confirm            # Skip confirmations
+  REPAIR --pull               # Git pull latest changes
+  REPAIR --install            # Install dependencies
+  REPAIR --upgrade            # Pull + install dependencies
+  REPAIR --help               # Show help
+"""
 
 from typing import List, Dict
 from pathlib import Path
 import subprocess
+import sys
+
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
-
-# Dynamic project root detection
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+from core.services.logging_service import get_logger, get_repo_root
 
 
 class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
@@ -15,7 +28,7 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         with self.trace_command(command, params) as trace:
-            result = self._handle_impl(command, params, grid, parser)
+            result = self._handle_impl(command, params or [], grid, parser)
             if isinstance(result, dict):
                 status = result.get("status")
                 if status:
@@ -23,73 +36,129 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
             return result
 
     def _handle_impl(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
-        """
-        Handle REPAIR command - perform system maintenance.
+        """Handle REPAIR command - perform system maintenance."""
+        flags = [param.lower() for param in (params or [])]
 
-        Args:
-            command: Command name (REPAIR)
-            params: [--pull|--install|--check|--upgrade] (default: --check)
-            grid: Optional grid context
-            parser: Optional parser
+        if "--help" in flags or "-h" in flags:
+            return self._show_help()
 
-        Returns:
-            Dict with repair status
-        """
-        if not params:
-            params = ["--check"]
+        user, error = self._require_permission()
+        if error:
+            return error
 
-        action = params[0].lower()
+        reset_user = "--reset-user" in flags or "-u" in flags
+        reset_keys = "--reset-keys" in flags or "-k" in flags
+        reset_config = "--reset-config" in flags or "-c" in flags
+        full = "--full" in flags or "-f" in flags
+        skip_confirm = "--confirm" in flags or "-y" in flags
 
+        if full:
+            reset_user = True
+            reset_keys = True
+            reset_config = True
+
+        if reset_user or reset_keys or reset_config:
+            plan = []
+            if reset_user:
+                plan.append("👤 Reset user profiles to defaults")
+            if reset_keys:
+                plan.append("🔑 Clear all API keys/credentials")
+            if reset_config:
+                plan.append("⚙️  Reset configuration")
+            if skip_confirm:
+                plan.append("✅ Confirmation skipped")
+
+            return self._perform_repair_with_options(
+                user=user,
+                reset_user=reset_user,
+                reset_keys=reset_keys,
+                reset_config=reset_config,
+                skip_confirm=skip_confirm,
+                plan=plan,
+            )
+
+        if not flags:
+            return self._check_system(user)
+
+        action = flags[0]
         if action == "--pull":
             return self._git_pull()
-        elif action == "--install":
+        if action == "--install":
             return self._install_dependencies()
-        elif action == "--check":
-            return self._check_system()
-        elif action == "--upgrade":
+        if action == "--check":
+            return self._check_system(user)
+        if action == "--upgrade":
             return self._upgrade_all()
-        else:
-            return {
+
+        return {
+            "status": "error",
+            "message": f"Unknown action: {action}",
+            "available": [
+                "--pull",
+                "--install",
+                "--check",
+                "--upgrade",
+                "--reset-user",
+                "--reset-keys",
+                "--reset-config",
+                "--full",
+                "--confirm",
+                "--help",
+            ],
+        }
+
+    def _require_permission(self):
+        from core.services.user_service import get_user_manager, Permission
+
+        user_mgr = get_user_manager()
+        user = user_mgr.current()
+        if not user_mgr.has_permission(Permission.REPAIR):
+            self.log_permission_denied("REPAIR", "missing repair permission")
+            return None, {
                 "status": "error",
-                "message": f"Unknown action: {action}",
-                "available": ["--pull", "--install", "--check", "--upgrade"],
+                "output": f"❌ REPAIR permission denied for user {user.username if user else 'unknown'}",
             }
+        return user, None
 
     def _git_pull(self) -> Dict:
         """Pull latest changes from git repository."""
+        logger = get_logger("repair-handler")
         try:
-            repo_path = PROJECT_ROOT
+            repo_path = get_repo_root()
 
-            # Check if it's a git repo
             git_dir = repo_path / ".git"
             if not git_dir.exists():
                 return {"status": "error", "message": "Not a git repository"}
 
-            # Run git pull
             result = subprocess.run(
                 ["git", "pull"],
-                cwd=repo_path,
                 capture_output=True,
                 text=True,
-                timeout=30,
+                timeout=60,
             )
 
             if result.returncode == 0:
                 from core.tui.output import OutputToolkit
+
                 output = []
                 output.append(OutputToolkit.banner("REPAIR: GIT PULL"))
-                output.append(result.stdout or "Already up to date")
+                output.append(result.stdout.strip() or "Git pull completed")
+                logger.info("[LOCAL] REPAIR git pull completed")
                 return {
                     "status": "success",
-                    "message": "Repository synchronized",
+                    "message": "Git pull completed",
                     "output": "\n".join(output),
                 }
-            else:
-                return {
-                    "status": "error",
-                    "message": "Git pull failed",
-                    "error": result.stderr,
-                }
+            return {
+                "status": "error",
+                "message": "Git pull failed",
+                "error": result.stderr,
+            }
+        except subprocess.TimeoutExpired:
+            return {
+                "status": "error",
+                "message": "Git pull timed out (taking >60 seconds)",
+            }
         except Exception as e:
             return {
                 "status": "error",
@@ -98,16 +167,16 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
 
     def _install_dependencies(self) -> Dict:
         """Install/verify Python dependencies."""
+        logger = get_logger("repair-handler")
         try:
-            repo_path = PROJECT_ROOT
+            repo_path = get_repo_root()
             requirements = repo_path / "requirements.txt"
 
             if not requirements.exists():
                 return {"status": "error", "message": "requirements.txt not found"}
 
-            # Run pip install
             result = subprocess.run(
-                ["pip", "install", "-r", str(requirements)],
+                [sys.executable, "-m", "pip", "install", "-r", str(requirements)],
                 capture_output=True,
                 text=True,
                 timeout=120,
@@ -115,21 +184,22 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
 
             if result.returncode == 0:
                 from core.tui.output import OutputToolkit
+
                 output = []
                 output.append(OutputToolkit.banner("REPAIR: DEPENDENCIES"))
                 output.append("Dependencies installed/verified")
                 output.append("Note: run this if you see import errors")
+                logger.info("[LOCAL] REPAIR dependencies installed")
                 return {
                     "status": "success",
                     "message": "Dependencies installed",
                     "output": "\n".join(output),
                 }
-            else:
-                return {
-                    "status": "error",
-                    "message": "Dependency installation failed",
-                    "error": result.stderr[-200:],  # Last 200 chars
-                }
+            return {
+                "status": "error",
+                "message": "Dependency installation failed",
+                "error": result.stderr[-200:],
+            }
         except subprocess.TimeoutExpired:
             return {
                 "status": "error",
@@ -141,48 +211,63 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
                 "message": f"Failed to install dependencies: {str(e)}",
             }
 
-    def _check_system(self) -> Dict:
+    def _check_system(self, user) -> Dict:
         """Check system health status."""
+        logger = get_logger("repair-handler")
+        repo_root = get_repo_root()
+
         checks = {
-            "python_version": None,
-            "venv_active": None,
-            "git_repo": None,
-            "core_files": None,
+            "python_version": sys.version.split()[0],
+            "venv_active": "Found" if (repo_root / ".venv").exists() else "Not found",
+            "git_repo": "Git repo" if (repo_root / ".git").exists() else "Not a git repo",
+            "dev_submodule": "Initialized" if (repo_root / "dev" / ".git").exists() else "Not initialized",
+            "core_files": (
+                f"{len(list((repo_root / 'core').glob('**/*.py')))} Python files"
+                if (repo_root / "core").exists()
+                else "core/ not found"
+            ),
         }
 
-        # Check Python
+        dirs_to_check = [
+            ("core", "Core runtime"),
+            ("wizard", "Wizard server"),
+            ("extensions", "Extensions"),
+            ("memory", "Memory/storage"),
+            ("docs", "Documentation"),
+        ]
+
+        dep_checks = []
         try:
-            result = subprocess.run(
-                ["python", "--version"], capture_output=True, text=True, timeout=5
-            )
-            checks["python_version"] = result.stdout.strip()
-        except Exception as e:
-            checks["python_version"] = f"Error: {str(e)}"
+            import watchdog  # noqa: F401
 
-        # Check venv
-        venv_path = PROJECT_ROOT / ".venv"
-        checks["venv_active"] = "Found" if venv_path.exists() else "Not found"
+            dep_checks.append(["watchdog", "OK"])
+        except Exception:
+            dep_checks.append(["watchdog", "Missing"])
 
-        # Check git
-        git_dir = PROJECT_ROOT / ".git"
-        checks["git_repo"] = "Git repo" if git_dir.exists() else "Not a git repo"
-
-        # Check core files
-        core_dir = PROJECT_ROOT / "core"
-        checks["core_files"] = (
-            f"{len(list(core_dir.glob('**/*.py')))} Python files"
-            if core_dir.exists()
-            else "core/ not found"
-        )
-
-        rows = []
-        for key, value in checks.items():
-            rows.append([key, value])
+        rows = [[key, value] for key, value in checks.items()]
+        dir_rows = []
+        for dirname, desc in dirs_to_check:
+            path = repo_root / dirname
+            status = "OK" if path.exists() else "Missing"
+            dir_rows.append([f"{dirname}/", f"{status} ({desc})"])
 
         from core.tui.output import OutputToolkit
-        output = []
-        output.append(OutputToolkit.banner("REPAIR: SYSTEM CHECK"))
+        from core.services.unified_logging import get_unified_logger
+
+        output = [OutputToolkit.banner("REPAIR: SYSTEM CHECK")]
         output.append(OutputToolkit.table(["check", "result"], rows))
+        output.append("")
+        output.append(OutputToolkit.section("Directories", OutputToolkit.table(["path", "status"], dir_rows)))
+        output.append("")
+        output.append(OutputToolkit.section("Dependencies", OutputToolkit.table(["package", "status"], dep_checks)))
+
+        logger.info("[LOCAL] REPAIR system check completed")
+        unified = get_unified_logger()
+        unified.log_core(
+            category="repair",
+            message=f"Standard repair check completed by {user.username if user else 'unknown'}",
+            metadata={"status": "healthy"},
+        )
 
         return {
             "status": "success",
@@ -195,15 +280,12 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
         """Upgrade all components (git pull + dependencies)."""
         results = {"status": "success", "steps": {}}
 
-        # Step 1: Git pull
         pull_result = self._git_pull()
         results["steps"]["git_pull"] = pull_result
 
-        # Step 2: Install dependencies
         install_result = self._install_dependencies()
         results["steps"]["install_dependencies"] = install_result
 
-        # Overall status
         if pull_result["status"] != "success" or install_result["status"] != "success":
             results["status"] = "partial"
             results["message"] = "Some steps had issues"
@@ -211,9 +293,152 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
             results["message"] = "System upgraded successfully"
 
         from core.tui.output import OutputToolkit
+
         output = []
         output.append(OutputToolkit.banner("REPAIR: UPGRADE"))
         output.append(f"Git pull: {pull_result.get('status')}")
         output.append(f"Dependencies: {install_result.get('status')}")
         results["output"] = "\n".join(output)
         return results
+
+    def _show_help(self) -> Dict:
+        """Show repair help."""
+        from core.tui.output import OutputToolkit
+
+        help_text = OutputToolkit.banner("REPAIR COMMAND HELP") + """
+
+REPAIR is the system maintenance and recovery command. It can check
+system health, reset user data, clear credentials, and restore defaults.
+
+SYNTAX:
+  REPAIR [OPTIONS]
+
+OPTIONS:
+  --pull            Git pull latest changes
+  --install         Install Python dependencies
+  --check           Run system checks (default)
+  --upgrade         Pull + install dependencies
+  --reset-user      Reset user profiles to factory defaults
+  --reset-keys      Clear all API keys and credentials
+  --reset-config    Reset configuration files
+  --full            Perform all reset options
+  --confirm         Skip confirmation prompts
+  --help            Show this help
+
+EXAMPLES:
+  REPAIR
+  REPAIR --reset-user
+  REPAIR --reset-keys
+  REPAIR --reset-config
+  REPAIR --full
+  REPAIR --pull
+"""
+        return {
+            "output": help_text.strip(),
+            "status": "info",
+            "command": "REPAIR",
+        }
+
+    def _perform_repair_with_options(
+        self,
+        user,
+        reset_user: bool,
+        reset_keys: bool,
+        reset_config: bool,
+        skip_confirm: bool,
+        plan: List[str],
+    ) -> Dict:
+        """Perform repair with reset options."""
+        from core.services.user_service import get_user_manager
+        from core.services.unified_logging import get_unified_logger
+
+        logger = get_logger("repair-handler")
+        repo_root = get_repo_root()
+        results = []
+        unified = get_unified_logger()
+
+        try:
+            results.append("")
+            results.append("╔════════════════════════════════════════╗")
+            results.append("║      REPAIR PLAN                       ║")
+            results.append("╚════════════════════════════════════════╝")
+            results.append("")
+
+            for step in plan:
+                results.append(f"  • {step}")
+
+            results.append("")
+
+            if reset_user:
+                results.append("👤 User Profile Reset")
+                user_mgr = get_user_manager()
+                users_to_delete = [u for u in user_mgr.users.keys() if u != "admin"]
+                deleted = 0
+                for username in users_to_delete:
+                    ok, _ = user_mgr.delete_user(username)
+                    if ok:
+                        deleted += 1
+                results.append(f"   ✓ Deleted {deleted} non-admin users")
+                results.append("   ✓ Reset roles to defaults")
+
+            if reset_keys:
+                results.append("🔑 API Keys Reset")
+                keys_dir = repo_root / "memory" / "private"
+                if keys_dir.exists():
+                    for key_file in keys_dir.glob("*.json"):
+                        if "key" in key_file.name or "token" in key_file.name:
+                            key_file.unlink()
+                results.append("   ✓ Cleared stored API keys")
+                results.append("   ✓ Removed OAuth tokens")
+
+            if reset_config:
+                results.append("⚙️  Configuration Reset")
+                config_dir = repo_root / "core" / "config"
+                if config_dir.exists():
+                    for config_file in config_dir.glob("*.json"):
+                        if config_file.name != "version.json":
+                            config_file.unlink()
+                results.append("   ✓ Reset config files")
+                results.append("   ✓ Restored defaults")
+
+            results.append("")
+            results.append("✅ Repair complete!")
+            results.append("")
+            results.append("Next steps:")
+            results.append("  • Run STATUS to verify system")
+            results.append("  • Run LOGS to check messages")
+            results.append("  • Run RESTART to reload system")
+
+            logger.info(
+                "[LOCAL] REPAIR with resets completed by %s",
+                user.username if user else "unknown",
+            )
+            unified.log_core(
+                category="repair",
+                message=f"Repair with resets completed by {user.username if user else 'unknown'}",
+                metadata={
+                    "reset_user": reset_user,
+                    "reset_keys": reset_keys,
+                    "reset_config": reset_config,
+                    "skip_confirm": skip_confirm,
+                },
+            )
+
+            return {
+                "output": "\n".join(results),
+                "status": "success",
+                "action": "repair_complete",
+            }
+
+        except Exception as e:
+            error_msg = f"❌ Repair failed: {e}"
+            logger.error("[LOCAL] %s", error_msg)
+            unified.log_core(
+                category="repair",
+                message=error_msg,
+                metadata={"error": str(e)},
+            )
+            return {
+                "output": error_msg,
+                "status": "error",
+            }

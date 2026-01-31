@@ -16,7 +16,7 @@ from core.binder import BinderCompiler
 from core.commands.base import BaseCommandHandler
 from core.tui.file_browser import FileBrowser
 from core.tui.output import OutputToolkit
-from core.services.logging_manager import get_repo_root
+from core.services.logging_service import get_repo_root
 
 
 class BinderHandler(BaseCommandHandler):

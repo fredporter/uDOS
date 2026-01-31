@@ -48,7 +48,7 @@ except ImportError:
 from core.services.unified_logging import get_unified_logger, LogLevel
 
 try:
-    from core.services.logging_manager import get_logger, DevTrace
+    from core.services.logging_service import get_logger, DevTrace
     logger = get_logger("hot-reload")
 except ImportError:
     import logging

@@ -6,7 +6,7 @@ from core.commands.base import BaseCommandHandler
 from core.services.unified_logging import get_unified_logger, LogSource, LogLevel
 
 try:
-    from core.services.logging_manager import get_logger
+    from core.services.logging_service import get_logger
     logger = get_logger("logs-handler")
 except ImportError:
     import logging

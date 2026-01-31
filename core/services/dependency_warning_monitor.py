@@ -16,7 +16,7 @@ import warnings
 from dataclasses import dataclass
 from typing import List, Optional, Set, Tuple
 
-from core.services.logging_manager import get_logger, LogTags, get_repo_root
+from core.services.logging_service import get_logger, LogTags, get_repo_root
 
 _REQUIREMENT_CACHE: Optional[Set[str]] = None
 _monitor_instance: "DependencyWarningMonitor" | None = None

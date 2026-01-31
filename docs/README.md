@@ -12,13 +12,11 @@
 | Document                                                      | Purpose                                                    |
 | ------------------------------------------------------------- | ---------------------------------------------------------- |
 | [AGENTS.md](../AGENTS.md)                                     | How work is done in uDOS (architecture, policies, tooling) |
-| [uCODE.md](uCODE.md)                                          | Unified Terminal TUI (main entry point)                   |
+| [uCODE.md](specs/uCODE.md)                                    | Unified Terminal TUI (main entry point)                   |
 | [ROADMAP.md](ROADMAP.md)                                      | Development Rounds (v1.0.7 framework)                     |
-| [STREAM1-ACTION-PLAN.md](STREAM1-ACTION-PLAN.md)             | Round 1 implementation roadmap (14 days, TypeScript Markdown Runtime) |
-| [WIKI-FRONTMATTER-GUIDE.md](WIKI-FRONTMATTER-GUIDE.md)       | Obsidian-compatible YAML frontmatter reference            |
+| [WIKI-FRONTMATTER-GUIDE.md](wiki-candidates/WIKI-FRONTMATTER-GUIDE.md) | Obsidian-compatible YAML frontmatter reference            |
 | [Spatial Filesystem](specs/SPATIAL-FILESYSTEM.md)            | Grid-integrated filesystem with RBAC & tagging            |
-| [Release Readiness Checklist](RELEASE-READINESS-CHECKLIST.md) | v1.1.0 release gates & timeline                           |
-| [Development Log](DEVLOG-INDEX.md)                           | Session log (devlog/) with historical context              |
+| [Development Log Index](DEVLOG-INDEX.md)                     | Session log index (archived devlog)                        |
 
 ---
 
@@ -40,7 +38,7 @@ WORKSPACE INFO          # Show spatial filesystem & access levels
 HELP                    # Show all commands
 ```
 
-See [uCODE.md](uCODE.md) and [uCODE-QUICK-REFERENCE.md](uCODE-QUICK-REFERENCE.md).
+See [uCODE.md](specs/uCODE.md) and [uCODE-QUICK-REFERENCE.md](wiki-candidates/uCODE-QUICK-REFERENCE.md).
 
 ---
 
@@ -51,7 +49,7 @@ See [uCODE.md](uCODE.md) and [uCODE-QUICK-REFERENCE.md](uCODE-QUICK-REFERENCE.md
 ### Quick Links
 
 - [SPATIAL-FILESYSTEM.md](specs/SPATIAL-FILESYSTEM.md) — Full architecture & API
-- [SPATIAL-FILESYSTEM-QUICK-REF.md](SPATIAL-FILESYSTEM-QUICK-REF.md) — Commands & examples
+- [SPATIAL-FILESYSTEM-QUICK-REF.md](wiki-candidates/SPATIAL-FILESYSTEM-QUICK-REF.md) — Commands & examples
 - `core/services/spatial_filesystem.py` — Implementation
 - `core/commands/spatial_filesystem_handler.py` — TUI handler
 
@@ -84,7 +82,7 @@ BINDER open @sandbox/my-project      # Open multi-chapter project
 ### Quick Links
 
 - [wiki_spec_obsidian.md](specs/wiki_spec_obsidian.md) — Full specification
-- [WIKI-FRONTMATTER-GUIDE.md](WIKI-FRONTMATTER-GUIDE.md) — Migration guide & UID generation
+- [WIKI-FRONTMATTER-GUIDE.md](wiki-candidates/WIKI-FRONTMATTER-GUIDE.md) — Migration guide & UID generation
 - [docs/wiki/](wiki/) — Core architecture docs (ALPINE-CORE, BEACON-*, WIZARD-*)
 - [knowledge/](../knowledge/) — Knowledge bank (survival guides, skills)
 
@@ -116,8 +114,7 @@ updated: 2026-01-30                          # Last semantic update
 
 ### SHAKEDOWN & DESTROY Commands
 
-- [SHAKEDOWN-DESTROY-UPDATES.md](SHAKEDOWN-DESTROY-UPDATES.md) — Full documentation of v1.1.0 updates
-- [SHAKEDOWN-DESTROY-QUICK-REFERENCE.md](SHAKEDOWN-DESTROY-QUICK-REFERENCE.md) — Command reference guide
+- [SHAKEDOWN-DESTROY-QUICK-REFERENCE.md](wiki-candidates/SHAKEDOWN-DESTROY-QUICK-REFERENCE.md) — Command reference guide
 - [test_shakedown_destroy_v1_1_0.py](../core/tests/test_shakedown_destroy_v1_1_0.py) — Comprehensive test suite
 
 **Quick Commands:**
@@ -164,20 +161,14 @@ DESTROY --reset-all --confirm # Factory reset
 ### Runtime Examples
 
 - [Complete Example Script](examples/example-script.md) — All TS Markdown features demonstrated
-- [SQLite Database Examples](examples/example-sqlite-db.md) — Schema, seeds, edges for runtime
+- [SQLite Database Examples](examples/example-sqlite.db.md) — Schema, seeds, edges for runtime
 - [Grid Runtime Examples](examples/grid-runtime-examples.md) — Teletext, sprites, viewports, animation
 
 ---
 
-## 🗓️ Development Logs (`/docs/devlog/`)
+## 🗓️ Development Logs (Archived)
 
-Chronological development notes organized by month (YYYY-MM.md format).
-
-**Recent:**
-
-- 2026-01-22: Dev Mode Migration
-- 2026-01-22: Goblin-Wizard Migration
-- 2026-01-22: Wizard Dashboard Integration
+- Archived devlogs live in [docs/.archive/devlog](.archive/devlog/).
 
 ---
 
@@ -253,7 +244,7 @@ Chronological development notes organized by month (YYYY-MM.md format).
 - **Active docs** — Live in `/docs/`
 - **Component docs** — Live in component folders
 - **Drafts** — Live in `.dev/` (gitignored)
-- **Archive** — Moved to `.archive/YYYY-MM-DD/` or component `.archive/`
+- **Archive** — Moved to `.archive/` (by category) or component `.archive/`
 
 **Promotion timeline:** Useful drafts are promoted to `/docs/` after ~2 weeks of validation.
 

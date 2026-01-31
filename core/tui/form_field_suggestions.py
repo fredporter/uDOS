@@ -19,7 +19,7 @@ import os
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime
 
-from core.services.logging_manager import get_logger
+from core.services.logging_service import get_logger
 
 logger = get_logger('form-suggestions')
 

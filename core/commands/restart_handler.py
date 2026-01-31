@@ -1,14 +1,14 @@
 """
-Unified Restart Handler - RESTART/RELOAD/REBOOT with numbered options
+Unified Restart Handler - RESTART/REBOOT with numbered options
 
 Commands (Numeric):
     RESTART              # Show numbered menu
     RESTART 0            # Show help
-    RESTART 1            # Hot reload handlers (RELOAD)
+    RESTART 1            # Hot reload handlers (one-time)
     RESTART 2            # Repair checks (REBOOT)
     RESTART 3            # Hot reload + repair (default)
     RESTART 4            # Full system restart
-    
+
 Commands (Legacy Flags - still supported):
     RESTART --reload-only      # Hot reload handlers only
     RESTART --repair           # Run repair checks (no reload)
@@ -17,7 +17,6 @@ Commands (Legacy Flags - still supported):
     RESTART --help             # Show help
 
 Aliases:
-    RELOAD                     # Equivalent to RESTART 1
     REBOOT                     # Equivalent to RESTART 2
 
 Author: uDOS Engineering
@@ -33,7 +32,7 @@ from pathlib import Path
 
 
 class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
-    """Unified restart/reload/reboot handler."""
+    """Unified restart/reboot handler."""
     
     def __init__(self):
         """Initialize handler."""
@@ -41,8 +40,7 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
         self.prompt = None  # Will be set by parser
     
     def handle(self, command, params, grid, parser):
-        """Handle RESTART, RELOAD (alias), REBOOT (alias) commands with logging.
-        """
+        """Handle RESTART and REBOOT commands with logging."""
         # Store parser for interactive prompts
         self.prompt = parser
         
@@ -55,7 +53,7 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
             return result
 
     def _handle_impl(self, command, params, grid, parser):
-        """Handle RESTART, RELOAD (alias), REBOOT (alias) commands.
+        """Handle RESTART and REBOOT commands.
         
         Usage:
             RESTART              # Show numbered menu
@@ -67,7 +65,7 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
             RESTART --help       # Show help (legacy)
         
         Args:
-            command: Command name (RESTART, RELOAD, REBOOT)
+            command: Command name (RESTART, REBOOT)
             params: Parameter list
             grid: Grid object
             parser: Parser object
@@ -76,9 +74,9 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
             Output dict
         """
         # Import here to avoid circular deps
-        from core.services.logging_manager import get_logger
+        from core.services.logging_service import get_logger
         from core.services.unified_logging import get_unified_logger
-        from core.services.user_manager import get_user_manager, Permission
+        from core.services.user_service import get_user_manager, Permission
         from core.tui.output import OutputToolkit
         
         logger = get_logger('restart-handler')
@@ -140,9 +138,7 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
             return self._show_interactive_menu(command)
         
         # Determine mode
-        if command.upper() == "RELOAD":
-            reload_only = True
-        elif command.upper() == "REBOOT":
+        if command.upper() == "REBOOT":
             repair_only = True
         
         # Log the action
@@ -181,7 +177,7 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
             Output dict with execution results
         """
         from core.services.hot_reload import get_hot_reload_manager
-        from core.services.logging_manager import get_logger
+        from core.services.logging_service import get_logger
         
         logger = get_logger('restart-handler')
         output_lines = []
@@ -289,9 +285,9 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
             Output dict
         """
         menu = f"""
-╔════════════════════════════════════════╗
-║       RESTART/RELOAD/REBOOT            ║
-╚════════════════════════════════════════╝
+    ╔════════════════════════════════════════╗
+    ║          RESTART/REBOOT                ║
+    ╚════════════════════════════════════════╝
 
 Choose a restart option (type number + Enter):
 
@@ -299,12 +295,12 @@ Choose a restart option (type number + Enter):
     Show detailed command reference
     Usage: RESTART 0
 
-  1. RELOAD (HOT RELOAD ONLY)
+    1. HOT RELOAD (ONE-TIME)
     • Hot reload Python handlers
     • Preserves REPL state
     • No system changes
     • Fastest option
-    Usage: RESTART 1 (or RELOAD)
+    Usage: RESTART 1
     
   2. REBOOT (REPAIR ONLY)
     • Run system repair checks
@@ -332,7 +328,6 @@ EXAMPLES:
   RESTART 2                    # Just repair
   RESTART 3                    # Reload + repair (default)
   RESTART 4                    # Full restart
-  RELOAD                       # Shortcut for RESTART 1
   REBOOT                       # Shortcut for RESTART 2
 """
         return {
@@ -360,11 +355,11 @@ EXAMPLES:
         
         # Display the menu
         menu_text = """
-╔════════════════════════════════════════╗
-║       RESTART/RELOAD/REBOOT            ║
-╚════════════════════════════════════════╝
+    ╔════════════════════════════════════════╗
+    ║          RESTART/REBOOT                ║
+    ╚════════════════════════════════════════╝
 
-  1. Reload (hot reload handlers only)
+    1. Hot reload handlers (one-time)
   2. Repair (run repair checks only)
   3. Reload + Repair (recommended)
   4. Full Restart (complete reset)
@@ -400,7 +395,7 @@ EXAMPLES:
         
         # Execute the restart NOW
         from core.services.unified_logging import get_unified_logger
-        from core.services.user_manager import get_user_manager
+        from core.services.user_service import get_user_manager
         
         unified = get_unified_logger()
         user_mgr = get_user_manager()
@@ -438,11 +433,11 @@ EXAMPLES:
             Output dict
         """
         help_text = """
-╔════════════════════════════════════════╗
-║        RESTART COMMAND HELP            ║
-╚════════════════════════════════════════╝
+    ╔════════════════════════════════════════╗
+    ║        RESTART COMMAND HELP            ║
+    ╚════════════════════════════════════════╝
 
-RESTART is the unified restart/reload/reboot command with numbered options.
+    RESTART is the unified restart/reboot command with numbered options.
 
 SYNTAX:
   RESTART              Show numbered menu (0-4)
@@ -455,13 +450,13 @@ NUMERIC OPTIONS:
     Show this help text
     Usage: RESTART 0
 
-  1. RELOAD (HOT RELOAD ONLY)
+    1. HOT RELOAD (ONE-TIME)
     • Hot reloads Python handlers
     • Preserves REPL state
     • No system changes
     • Safe for development
     • Fastest operation
-    Usage: RESTART 1 (or RELOAD)
+    Usage: RESTART 1
 
   2. REBOOT (REPAIR ONLY)
     • Runs system repair checks
@@ -487,9 +482,8 @@ NUMERIC OPTIONS:
     • Use when system is stuck
     Usage: RESTART 4
 
-ALIASES:
-  RELOAD           = RESTART 1 (hot reload only)
-  REBOOT           = RESTART 2 (repair only)
+ALIAS:
+    REBOOT           = RESTART 2 (repair only)
 
 LEGACY FLAG SUPPORT (still works):
   --reload-only    Hot reload handlers only
@@ -513,9 +507,8 @@ EXAMPLES:
   RESTART 1            # Just reload handlers
   RESTART 2            # Just repair checks
   RESTART 3            # Reload + repair (safest)
-  RESTART 4            # Full system restart
-  RELOAD               # Shortcut for RESTART 1
-  REBOOT               # Shortcut for RESTART 2
+    RESTART 4            # Full system restart
+    REBOOT               # Shortcut for RESTART 2
 
 WHAT'S HAPPENING:
 
@@ -527,9 +520,12 @@ WHAT'S HAPPENING:
     5. Return to prompt
 
 STATUS:
-  Type 'STATUS' to check system health before restart.
-  Type 'LOGS' to view restart operations.
-  Type 'SHAKEDOWN' to diagnose issues before repair.
+    Type 'STATUS' to check system health before restart.
+    Type 'LOGS' to view restart operations.
+    Type 'SHAKEDOWN' to diagnose issues before repair.
+
+HOT RELOAD CONTROL:
+    Use RELOAD on/off/status to control the hot reload watcher.
 """
         return {
             'output': help_text.strip(),
@@ -538,21 +534,11 @@ STATUS:
         }
 
 
-
-# Alias handlers for backward compatibility
-class ReloadAliasHandler(BaseCommandHandler):
-    """RELOAD command - alias for RESTART --reload-only."""
-    
-    def handle(self, command, params, grid, parser):
-        """Handle RELOAD as alias."""
-        restart_handler = RestartHandler()
-        return restart_handler.handle('RELOAD', params, grid, parser)
-
-
+# Alias handler for backward compatibility
 class RebootAliasHandler(BaseCommandHandler):
     """REBOOT command - alias for RESTART --repair."""
-    
+
     def handle(self, command, params, grid, parser):
         """Handle REBOOT as alias."""
         restart_handler = RestartHandler()
-        return restart_handler.handle('REBOOT', params, grid, parser)
+        return restart_handler.handle("REBOOT", params, grid, parser)

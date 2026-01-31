@@ -297,14 +297,14 @@ class ShakedownHandler(BaseCommandHandler):
             
             # Logging manager
             try:
-                from core.services.logging_manager import get_logger
+                from core.services.logging_service import get_logger
                 services["logging"] = True
             except:
                 services["logging"] = False
             
             # User manager
             try:
-                from core.services.user_manager import get_user_manager
+                from core.services.user_service import get_user_manager
                 services["user_manager"] = True
             except:
                 services["user_manager"] = False
@@ -332,7 +332,7 @@ class ShakedownHandler(BaseCommandHandler):
     def _check_user_manager(self) -> Dict:
         """Check user manager and current user."""
         try:
-            from core.services.user_manager import get_user_manager
+            from core.services.user_service import get_user_manager
             
             user_mgr = get_user_manager()
             current = user_mgr.current()
@@ -385,7 +385,7 @@ class ShakedownHandler(BaseCommandHandler):
             missing_dirs = [d.name for d in core_dirs if not d.exists()]
             
             # Check 3: Default admin user exists and is initialized
-            from core.services.user_manager import get_user_manager
+            from core.services.user_service import get_user_manager
             user_mgr = get_user_manager()
             checks["default_user"] = "admin" in user_mgr.users
             
@@ -396,7 +396,7 @@ class ShakedownHandler(BaseCommandHandler):
             # Check 4: Core services can be initialized
             services_ok = True
             try:
-                from core.services.logging_manager import get_logger
+                from core.services.logging_service import get_logger
                 logger = get_logger("shakedown-fresh")
             except:
                 services_ok = False
@@ -490,7 +490,7 @@ class ShakedownHandler(BaseCommandHandler):
             
             # Check 2: Can access user manager
             try:
-                from core.services.user_manager import get_user_manager, Permission
+                from core.services.user_service import get_user_manager, Permission
                 user_mgr = get_user_manager()
                 check_user_mgr = True
             except:

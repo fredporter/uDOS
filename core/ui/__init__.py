@@ -16,6 +16,14 @@ from .workspace_selector import (
     pick_workspace_then_file,
 )
 from .command_selector import CommandSelector
+from .interactive_menu import (
+    InteractiveMenu,
+    MenuItem,
+    MenuBuilder,
+    MenuStyle,
+    show_menu,
+    show_confirm,
+)
 
 __all__ = [
     "SelectorFramework",
@@ -28,4 +36,10 @@ __all__ = [
     "pick_workspace",
     "pick_workspace_then_file",
     "CommandSelector",
+    "InteractiveMenu",
+    "MenuItem",
+    "MenuBuilder",
+    "MenuStyle",
+    "show_menu",
+    "show_confirm",
 ]

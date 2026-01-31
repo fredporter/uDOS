@@ -17,7 +17,7 @@ from core.ui.selector_framework import (
 )
 from core.input.keypad_handler import KeypadHandler, KeypadMode
 from core.input.command_prompt import CommandRegistry, CommandMetadata
-from core.services.logging_manager import get_logger
+from core.services.logging_service import get_logger
 
 
 _CONTINUE = object()

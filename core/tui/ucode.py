@@ -51,11 +51,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from core.tui.dispatcher import CommandDispatcher
 from core.tui.renderer import GridRenderer
 from core.tui.state import GameState
-from core.tui.status_bar import TUIStatusBar
 from core.tui.fkey_handler import FKeyHandler
 from core.ui.command_selector import CommandSelector
 from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, create_default_registry
-from core.services.logging_manager import get_logger
+from core.services.logging_service import get_logger
+from core.tui.advanced_form_handler import AdvancedFormField
 
 
 def get_repo_root() -> Path:
@@ -215,21 +215,20 @@ class uCODETUI:
         self.dispatcher = CommandDispatcher()
         self.renderer = GridRenderer()
         self.state = GameState()
-        
+
         # Create command registry and contextual prompt (Phase 1)
         self.command_registry = create_default_registry()
         self.prompt = ContextualCommandPrompt(registry=self.command_registry)
-        
+
         # Command selector (Phase 3)
         self.command_selector = CommandSelector(self.command_registry)
         self.prompt.set_tab_handler(self._open_command_selector)
-        
-        # Status bar and function key handler
-        self.status_bar = TUIStatusBar()
+
+        # Function key handler
         self.fkey_handler = FKeyHandler(dispatcher=self.dispatcher, prompt=self.prompt)
 
-        # Command registry
-        self.commands: Dict[str, Callable] = {
+        # Command registry (maps commands to methods)
+        self.commands = {
             "STATUS": self._cmd_status,
             "HELP": self._cmd_help,
             "EXIT": self._cmd_exit,
@@ -258,13 +257,14 @@ class uCODETUI:
         """Start uCODE TUI."""
         self.running = True
         self._show_banner()
-        
+        self._show_startup_hints()
+
         # Check if in ghost mode and prompt for setup
         self._check_ghost_mode()
-        
+
         # Get current user role for status bar
         try:
-            from core.services.user_manager import get_current_user
+            from core.services.user_service import get_current_user
             current_user = get_current_user()
             user_role = current_user.role.name.lower() if current_user else "ghost"
         except Exception:
@@ -273,10 +273,6 @@ class uCODETUI:
         try:
             while self.running:
                 try:
-                    # Show status bar line above prompt
-                    status_line = self.status_bar.get_status_line(user_role)
-                    print(f"\n{status_line}")
-                    
                     # Use contextual command prompt with suggestions (Phase 1)
                     user_input = self.prompt.ask_command("▶ ")
 
@@ -293,30 +289,36 @@ class uCODETUI:
                         self.commands[cmd](args)
                         continue
 
-                    # Special handling for STORY commands with forms
-                    if cmd == "STORY":
+                    # Special handling for STORY and SETUP commands with forms
+                    if cmd in ("STORY", "SETUP"):
                         result = self.dispatcher.dispatch(user_input, parser=self.prompt)
-                        
+
                         # Check if this is a form-based story
                         if result.get("story_form"):
                             collected_data = self._handle_story_form(result["story_form"])
+                            
+                            # Save collected data if this came from SETUP command
+                            if cmd == "SETUP" and collected_data:
+                                self._save_user_profile(collected_data)
+                            
                             print("\n✅ Setup form completed!")
                             print(f"\nCollected {len(collected_data)} values")
                             if collected_data:
                                 print("\nData saved. Next steps:")
-                                print("  SETUP              - View your profile")
+                                print("  SETUP --profile    - View your profile")
                                 print("  CONFIG             - View variables")
                         else:
                             # Show the result for non-form stories
                             output = self.renderer.render(result)
                             print(output)
-                        
+
                         self.state.update_from_handler(result)
                         self.logger.info(f"[COMMAND] {user_input} -> {result.get('status')}")
                         self.state.add_to_history(user_input)
                         continue
 
-                    # Route to core dispatcher (fallback)
+                    # Route to core dispatcher with smart parsing
+                    # Pass parser so handlers can show interactive menus
                     result = self.dispatcher.dispatch(user_input, parser=self.prompt)
                     self.state.update_from_handler(result)
                     self.logger.info(f"[COMMAND] {user_input} -> {result.get('status')}")
@@ -347,6 +349,12 @@ class uCODETUI:
             self.logger.error(f"[COMMAND_SELECTOR] Failed: {exc}")
             return None
 
+    def _show_startup_hints(self) -> None:
+        """Show startup hints once at beginning."""
+        print("\n  💡 Start with: SETUP (first-time) | HELP (all commands) | STORY tui-setup (quick setup)")
+        print("     Or try: MAP | TELL location | GOTO location | WIZARD start")
+        print("     Press TAB for command selection | Type command for suggestions\n")
+
     def _show_banner(self) -> None:
         """Show startup banner."""
         banner = """
@@ -364,9 +372,9 @@ class uCODETUI:
         Prompt format with 2-line context display:
           ╭─ Context or current state
           ╰─ [1|0|Yes|No|OK|Cancel]
-          Question? [YES] 
+          Question? [YES]
 
-        Accepts: 
+        Accepts:
           - 1, y, yes, ok, Enter (if default=True) = True
           - 0, n, no, x, cancel, Enter (if default=False) = False
 
@@ -385,26 +393,26 @@ class uCODETUI:
             help_text=help_text,
             context=context,
         )
-    
+
     def _ask_menu_choice(self, prompt: str, num_options: int, allow_cancel: bool = True, help_text: str = None) -> Optional[int]:
         """Ask user to select from a numbered menu with 2-line context display.
 
         Shows:
           ╭─ Valid choices: 1-N or 0 to cancel
           ╰─ Enter number and press Enter
-        
+
         Args:
             prompt: Prompt to display
             num_options: Number of valid options
             allow_cancel: If True, 0/Enter cancels; if False, user must pick 1-N
             help_text: Optional help text for line 2
-        
+
         Returns:
             Selected number (1-N), or None if cancelled
         """
         # Build context display
         range_display = f"1-{num_options}" + (" or 0 to cancel" if allow_cancel else "")
-        
+
         # Display context lines
         if self.prompt.show_context:
             print(f"\n  ╭─ Valid choices: {range_display}")
@@ -415,46 +423,46 @@ class uCODETUI:
 
         # Get choice using standard menu handler
         return self.prompt.ask_menu_choice(prompt, num_options, allow_zero=allow_cancel)
-    
+
     def _handle_story_form(self, form_data: Dict) -> Dict:
         """Handle interactive story form - collect user responses for all sections.
-        
+
         Args:
             form_data: Form structure with title and sections or fields
-        
+
         Returns:
             Dictionary of collected field values from all sections
         """
         collected = {}
-        
+
         # Show form title
         title = form_data.get("title", "Form")
         print(f"\n📋 {title}")
         print("=" * 60)
-        
+
         # Check if this is multi-section form
         sections = form_data.get("sections", [])
-        
+
         # DEBUG: Log what we received
         self.logger.debug(f"[STORY] Form sections: {len(sections)} sections, form_data keys: {list(form_data.keys())}")
         if sections:
             self.logger.debug(f"[STORY] Section titles: {[s.get('title') for s in sections]}")
-        
+
         if sections:
             # Process each section
             for section_idx, section in enumerate(sections):
                 section_title = section.get("title", "Section")
                 section_text = section.get("text", "").strip()
                 fields = section.get("fields", [])
-                
+
                 self.logger.debug(f"[STORY] Processing section {section_idx}: '{section_title}' with {len(fields)} fields")
-                
+
                 if fields:  # Only show sections that have fields
                     print(f"\n## {section_title}\n")
                     if section_text:
                         print(f"{section_text}\n")
                         print("-" * 60)
-                    
+
                     # Collect responses for each field in section
                     for field in fields:
                         response = self._collect_field_response(field)
@@ -465,55 +473,89 @@ class uCODETUI:
             # Single section form (backward compatibility)
             fields = form_data.get("fields", [])
             text = form_data.get("text", "").strip()
-            
+
             if text:
                 print(f"\n{text}\n")
                 print("-" * 60)
-            
+
             for field in fields:
                 response = self._collect_field_response(field)
                 if response is not None:
                     field_name = field.get("name", "")
                     collected[field_name] = response
-        
+
         print("\n" + "=" * 60)
         return collected
-    
+
     def _save_user_profile(self, collected_data: Dict) -> None:
         """Save collected form data to user profile.
-        
-        This submits to the Wizard's /api/v1/setup/story/submit endpoint,
-        which properly splits the data into user and install profiles.
-        
+
+        Enhanced to use ConfigSyncManager for bidirectional .env ↔ Wizard sync:
+        1. Save identity fields to .env (local boundary: 7 fields)
+        2. Sync to Wizard keystore via API (extended fields + identity)
+        3. Enrich with UDOS Crypt ID and Profile ID
+
         Args:
             collected_data: Dictionary of field names and values from form
         """
         try:
-            # Try to save via Wizard API endpoint (preferred method)
+            # Step 1: Enrich identity with UDOS Crypt fields
+            from core.services.identity_encryption import IdentityEncryption
+
+            # Extract location for Profile ID generation
+            location = collected_data.get("user_location", "Earth")
+            identity_enc = IdentityEncryption()
+            enriched_data = identity_enc.enrich_identity(collected_data, location=location)
+
+            # Step 2: Save identity fields to .env using ConfigSyncManager
+            try:
+                from core.services.config_sync_service import ConfigSyncManager
+
+                sync_manager = ConfigSyncManager()
+
+                # Validate and save identity to .env (7-field boundary enforced)
+                if sync_manager.validate_identity(enriched_data):
+                    sync_manager.save_identity_to_env(enriched_data)
+                    self.logger.info("[SETUP] Identity saved to .env (7 fields)")
+                    print("\n✅ Identity saved to .env file")
+                else:
+                    self.logger.warning("[SETUP] Identity validation failed")
+                    print("\n⚠️  Some required fields are missing")
+
+            except Exception as e:
+                self.logger.warning(f"[SETUP] Could not save to .env: {e}")
+                print(f"\n⚠️  Could not save to .env: {e}")
+
+            # Step 3: Sync to Wizard keystore (if available)
             try:
                 import requests
-                
+
                 # Get the token
                 token_path = self.repo_root / "memory" / "private" / "wizard_admin_token.txt"
-                
+
                 if token_path.exists():
                     token = token_path.read_text().strip()
                     headers = {
                         "Authorization": f"Bearer {token}",
                         "Content-Type": "application/json"
                     }
-                    
+
                     # Submit to the story endpoint which handles splitting
                     response = requests.post(
                         "http://localhost:8765/api/v1/setup/story/submit",
                         headers=headers,
-                        json={"answers": collected_data},
+                        json={"answers": enriched_data},  # Include enriched fields
                         timeout=10
                     )
-                    
+
                     if response.status_code == 200:
-                        self.logger.info("[SETUP] Setup data submitted to Wizard API")
-                        print("\n✅ Setup data saved to Wizard keystore.")
+                        self.logger.info("[SETUP] Setup data synced to Wizard keystore")
+                        print("✅ Data synced to Wizard keystore")
+
+                        # Display UDOS Crypt identity
+                        if enriched_data.get("_crypt_id"):
+                            identity_enc.print_identity_summary(enriched_data, location=location)
+
                         return
                     elif response.status_code == 503:
                         self.logger.warning(f"[SETUP] Wizard secret store locked")
@@ -521,17 +563,18 @@ class uCODETUI:
                     else:
                         error_detail = response.json().get("detail", f"HTTP {response.status_code}")
                         self.logger.warning(f"[SETUP] Wizard API error: {error_detail}")
-                        print(f"\n⚠️  Could not save to Wizard: {error_detail}")
-                        
+                        print(f"\n⚠️  Could not sync to Wizard: {error_detail}")
+
             except requests.exceptions.ConnectionError:
                 self.logger.debug("Wizard server not running, trying direct save")
+                print("⚠️  Wizard server not running - data saved locally only")
             except Exception as e:
                 self.logger.debug(f"Wizard API submission failed: {e}")
-            
+
             # Fallback: Try direct save via Wizard services (if Wizard is available but server isn't running)
             try:
                 from wizard.services.setup_profiles import save_user_profile, save_install_profile
-                
+
                 # Split the collected data into user and install sections
                 # User profile fields
                 user_profile = {
@@ -543,7 +586,7 @@ class uCODETUI:
                     "location_id": collected_data.get("user_location_id"),
                     "permissions": collected_data.get("user_permissions"),
                 }
-                
+
                 # Install profile fields
                 install_profile = {
                     "installation_id": collected_data.get("install_id"),
@@ -563,10 +606,10 @@ class uCODETUI:
                         "plugin_auto_update": bool(collected_data.get("capability_plugin_auto_update")),
                     },
                 }
-                
+
                 user_result = save_user_profile(user_profile)
                 install_result = save_install_profile(install_profile)
-                
+
                 if user_result.data and install_result.data:
                     self.logger.info("[SETUP] Setup data saved via direct Wizard services")
                     print("\n✅ Setup data saved to Wizard keystore.")
@@ -576,61 +619,96 @@ class uCODETUI:
                     self.logger.warning(f"[SETUP] Secret store locked: {error}")
                     print(f"\n⚠️  Secret store is locked: {error}")
                     print("Please ensure WIZARD_KEY is set in .env file.")
-                    
+
             except (ImportError, Exception) as e:
                 self.logger.debug(f"Wizard direct save not available: {e}")
-            
+
             # Final fallback: Save to local profile file in memory/
             profile_dir = self.repo_root / "memory" / "user"
             profile_dir.mkdir(parents=True, exist_ok=True)
             profile_file = profile_dir / "profile.json"
-            
+
             import json
             from datetime import datetime
-            
+
             # Create profile structure with timestamp
             profile = {
                 "created": datetime.now().isoformat(),
                 "updated": datetime.now().isoformat(),
                 "data": collected_data
             }
-            
+
             with open(profile_file, "w") as f:
                 json.dump(profile, f, indent=2)
-            
+
             self.logger.info(f"[SETUP] User profile saved to local file: {profile_file}")
             print(f"\n💾 Setup data saved locally to {profile_file}")
             print("⚠️  Note: Start Wizard server to sync this data to the keystore.")
-            
+
         except Exception as e:
             self.logger.error(f"[SETUP] Failed to save user profile: {e}", exc_info=True)
             print(f"\n⚠️  Warning: Could not save profile: {e}")
 
-    
+
     def _collect_field_response(self, field: Dict, previous_value: Optional[str] = None) -> Optional[str]:
-        """Collect response for a single form field using EnhancedPrompt.
-        
-        Uses 2-line context display:
-          ╭─ Current: value or Not set
-          ╰─ Help text (required/optional)
-        
+        """Collect response for a single form field using AdvancedFormField.
+
+        Enhanced with:
+        - Syntax-highlighted field display
+        - System-detected suggestions (timezone, date, etc.)
+        - Tab/Enter to accept suggestions
+        - Per-field validation
+
         Args:
             field: Field definition with name, label, type, etc.
             previous_value: Previous value if editing
-        
+
         Returns:
             User's response or None
         """
-        # Use the enhanced prompt's story field handler
-        return self.prompt.ask_story_field(field, previous_value)
-    
+        try:
+            # Create AdvancedFormField instance
+            form_field = AdvancedFormField()
+
+            # Load system suggestions for relevant fields
+            suggestions = form_field.load_system_suggestions()
+
+            # Determine suggestion for this specific field
+            field_name = field.get("name", "").lower()
+            suggestion = None
+
+            # Check for explicit default in field definition
+            if field.get("default"):
+                suggestion = field.get("default")
+            # Check for system-based suggestions
+            elif "timezone" in field_name:
+                suggestion = suggestions.get("timezone") or suggestions.get("user_timezone")
+            elif "time" in field_name:
+                suggestion = suggestions.get("time") or suggestions.get("user_local_time")
+            elif "date" in field_name or "dob" in field_name:
+                suggestion = suggestions.get("date") or suggestions.get("user_date")
+
+            # Use previous value as suggestion if available
+            if previous_value:
+                suggestion = previous_value
+
+            # Collect field input with enhanced UI
+            value = form_field.collect_field_input(field, suggestion)
+
+            return value
+
+        except Exception as e:
+            # Fallback to basic prompt if advanced form handler fails
+            self.logger.warning(f"[FORM] Advanced form handler failed, using fallback: {e}")
+            return self.prompt.ask_story_field(field, previous_value)
+
     def _check_fresh_install(self) -> None:
         """Check if this is a fresh install and run setup story if needed.
-        
+
         A fresh install is detected when:
         - No user profile exists in Wizard
         - No setup has been completed
-        
+
         Self-healing: Automatically builds TS runtime if missing.
         """
         try:
@@ -638,26 +716,26 @@ class uCODETUI:
             if not self.detector.is_available("wizard"):
                 self.logger.debug("Wizard not available, skipping fresh install check")
                 return
-            
+
             # Try to load user profile from Wizard
             try:
                 from wizard.services.setup_profiles import load_user_profile
-                
+
                 result = load_user_profile()
-                
+
                 # If we have user data, not a fresh install
                 if result.data and not result.locked:
                     self.logger.debug("User profile exists, not a fresh install")
                     return
-                
+
                 # If locked due to no encryption key, still consider it fresh
                 if result.locked and "not set" in str(result.error).lower():
                     self.logger.debug("Wizard not yet initialized, treating as fresh install")
-                
+
             except (ImportError, Exception) as e:
                 self.logger.debug(f"Could not check user profile: {e}")
                 return
-            
+
             # Fresh install detected
             print("\n" + "="*60)
             print("⚙️  FRESH INSTALLATION DETECTED")
@@ -669,13 +747,13 @@ class uCODETUI:
             print("  • Capability preferences (cloud services, integrations)")
             print("\nThis data will be stored securely in the Wizard keystore.")
             print("-"*60)
-            
+
             # Check if TS runtime is built
             ts_runtime_path = self.repo_root / "core" / "grid-runtime" / "dist" / "index.js"
             if not ts_runtime_path.exists():
                 print("\n🔨 Building TypeScript runtime (auto-heal)...")
                 print("   This may take 30-60 seconds on first build...\n")
-                
+
                 # Verify Node.js and npm are available before attempting build
                 try:
                     node_check = subprocess.run(
@@ -690,7 +768,7 @@ class uCODETUI:
                         timeout=5,
                         text=True
                     )
-                    
+
                     if node_check.returncode != 0 or npm_check.returncode != 0:
                         print("   ❌ Node.js/npm not available.\n")
                         print("   The TypeScript runtime requires Node.js and npm.")
@@ -698,7 +776,7 @@ class uCODETUI:
                         print("   Then try again with:")
                         print("      bash /Users/fredbook/Code/uDOS/core/tools/build_ts_runtime.sh")
                         return
-                    
+
                 except Exception as e:
                     print("   ⚠️  Could not verify Node.js/npm availability.\n")
                     print(f"   Error: {e}")
@@ -706,18 +784,18 @@ class uCODETUI:
                     build_script = self.repo_root / "core" / "tools" / "build_ts_runtime.sh"
                     print(f"      bash {build_script}")
                     return
-                
+
                 # Self-heal: automatically build the TS runtime
                 build_script = self.repo_root / "core" / "tools" / "build_ts_runtime.sh"
                 if build_script.exists():
                     try:
                         import threading
-                        
+
                         # Spinner animation
                         spinner_chars = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
                         spinner_idx = [0]
                         build_complete = [False]
-                        
+
                         def show_spinner():
                             """Show animated spinner while build runs."""
                             while not build_complete[0]:
@@ -725,11 +803,11 @@ class uCODETUI:
                                 sys.stdout.flush()
                                 spinner_idx[0] = (spinner_idx[0] + 1) % len(spinner_chars)
                                 time.sleep(0.1)
-                        
+
                         # Start spinner in background thread
                         spinner_thread = threading.Thread(target=show_spinner, daemon=True)
                         spinner_thread.start()
-                        
+
                         # Run build with combined output for better error visibility
                         result = subprocess.run(
                             ["bash", str(build_script)],
@@ -738,26 +816,26 @@ class uCODETUI:
                             timeout=300,  # 5 minute timeout for build
                             text=True
                         )
-                        
+
                         build_complete[0] = True
                         spinner_thread.join(timeout=1)
-                        
+
                         # Clear the spinner line
                         sys.stdout.write('\r' + ' ' * 50 + '\r')
                         sys.stdout.flush()
-                        
+
                         if result.returncode == 0:
                             print("   ✅ TypeScript runtime built successfully!")
                             self.logger.info("[SETUP] TS runtime auto-built")
-                            
+
                             # Small delay for visual clarity
                             time.sleep(0.5)
                         else:
                             print("   ❌ Build failed.\n")
-                            
+
                             # Combine stdout and stderr for complete error picture
                             output_text = result.stdout + result.stderr
-                            
+
                             if output_text.strip():
                                 print("   Error details:")
                                 # Show last 20 lines of output
@@ -767,7 +845,7 @@ class uCODETUI:
                                         print("   " + line)
                             else:
                                 print("   (No error output captured)")
-                            
+
                             print("\n   To fix manually, run:")
                             print(f"      bash {build_script}")
                             print("\n   Or check the build logs:")
@@ -794,21 +872,21 @@ class uCODETUI:
                 else:
                     print(f"   ❌ Build script not found: {build_script}")
                     return
-            
+
             # TS runtime is available - run setup story automatically
             print()
             if self._ask_yes_no("Run setup story now"):
                 print("\n🚀 Launching setup story...\n")
-                
-                # Auto-execute the STORY wizard-setup command
-                result = self.dispatcher.dispatch("STORY wizard-setup")
-                
+
+                # Auto-execute the STORY tui-setup command
+                result = self.dispatcher.dispatch("STORY tui-setup")
+
                 # Check if this is a form-based story
                 if result.get("story_form"):
                     collected_data = self._handle_story_form(result["story_form"])
                     print("\n✅ Setup form completed!")
                     print(f"\nCollected {len(collected_data)} values")
-                    
+
                     # Save the collected data to user profile
                     if collected_data:
                         self._save_user_profile(collected_data)
@@ -819,13 +897,13 @@ class uCODETUI:
                     # Show the result for non-form stories
                     output = self.renderer.render(result)
                     print(output)
-                
+
                 self.logger.info("[SETUP] Fresh install setup completed")
             else:
                 print("\n⏭️  Setup skipped. You can run it anytime with:")
-                print("   STORY wizard-setup")
+                print("   STORY tui-setup")
                 print()
-        
+
         except Exception as e:
             self.logger.error(f"[SETUP] Fresh install check failed: {e}", exc_info=True)
             # Non-fatal error, continue with startup
@@ -907,7 +985,8 @@ Navigation & Info:
 Examples:
   SETUP                      - Run setup story
   SETUP --profile            - View your setup profile
-  STORY wizard-setup         - Run setup story
+  UID                        - Show your User ID
+  STORY tui-setup            - Run setup story
   DESTROY --wipe-user        - Wipe user data
   WIZARD start               - Start Wizard Server
   BINDER open my-project     - Open a project
@@ -991,7 +1070,7 @@ For detailed help on any command, type the command name followed by --help
 
             print("  Starting Wizard Server...")
             venv_activate = self.repo_root / ".venv" / "bin" / "activate"
-            
+
             # Build command
             if venv_activate.exists():
                 cmd = f"source {venv_activate} && python wizard/server.py"
@@ -1013,7 +1092,7 @@ For detailed help on any command, type the command name followed by --help
                         )
             except Exception as start_err:
                 raise Exception(f"Failed to spawn wizard process: {start_err}")
-            
+
             # Wait for server to be ready
             max_wait = 10
             start = time.time()
@@ -1043,7 +1122,7 @@ For detailed help on any command, type the command name followed by --help
                 cmd = "taskkill /F /IM python.exe"
             else:
                 cmd = "pkill -f 'wizard/server.py' || pkill -f 'wizard.server' || true"
-            
+
             subprocess.run(cmd, shell=True, timeout=5)
             print("  ✅ Wizard Server stopped")
             sys.stdout.flush()  # Ensure output is flushed
@@ -1075,7 +1154,7 @@ For detailed help on any command, type the command name followed by --help
         try:
             print("  Launching Wizard interactive console...")
             venv_activate = self.repo_root / ".venv" / "bin" / "activate"
-            
+
             if venv_activate.exists():
                 cmd = f"source {venv_activate} && python wizard/wizard_tui.py"
             else:
@@ -1216,7 +1295,7 @@ For detailed help on any command, type the command name followed by --help
             # Create distribution package
             dist_path = self.repo_root / "distribution" / "plugins" / name
             print(f"  📦 Packaging {name}...")
-            
+
             # TODO: Real packaging logic (copy to distribution, create manifest, etc)
             print(f"  [TODO] Package {name} for distribution")
             print(f"         Output: {dist_path}")
@@ -1235,16 +1314,16 @@ For detailed help on any command, type the command name followed by --help
 
     def _check_ghost_mode(self) -> None:
         """Check if running in ghost mode and prompt for setup.
-        
+
         When user variables are destroyed/reset, the system defaults to
         ghost mode (demo/test access only). This method detects that and
         prompts the user to run SETUP to establish their identity.
         """
-        from core.services.user_manager import get_user_manager, UserRole
-        
+        from core.services.user_service import get_user_manager, UserRole
+
         user_mgr = get_user_manager()
         current = user_mgr.current()
-        
+
         if current and current.role == UserRole.GUEST and current.username == "ghost":
             # In ghost mode
             print("\n" + "="*60)

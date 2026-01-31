@@ -20,7 +20,7 @@ from datetime import datetime, date
 from typing import Tuple, Optional, List
 from pathlib import Path
 
-from core.services.logging_manager import get_logger
+from core.services.logging_service import get_logger
 
 logger = get_logger('form-validator')
 

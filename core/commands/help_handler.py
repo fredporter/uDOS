@@ -3,9 +3,10 @@
 from typing import List, Dict
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
+from core.commands.interactive_menu_mixin import InteractiveMenuMixin
 
 
-class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
+class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin):
     """Handler for HELP command - display command reference."""
 
     COMMAND_CATEGORIES = {
@@ -377,58 +378,73 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin):
         return self._show_command_help(main_arg)
 
     def _show_all_commands(self) -> Dict:
-        """Show all available commands grouped by category."""
-        box_line = "+" + "-" * 69 + "+"
-        title = "uDOS Command Reference (v1.1.0)"
-        title_line = f"| {title:<67}|"
-
-        help_text = f"{box_line}\n{title_line}\n{box_line}\n\n"
-
-        # Build output by category
-        for category in [
+        """Show all available commands grouped by category with interactive menu."""
+        # Show menu of command categories
+        categories = [
             "Navigation",
             "Inventory",
             "NPCs & Dialogue",
             "Files & State",
             "System & Maintenance",
             "Advanced",
-        ]:
-            if category not in self.COMMAND_CATEGORIES:
-                continue
-
-            commands = self.COMMAND_CATEGORIES[category]
-            help_text += f"{category}:\n"
-
-            for cmd in commands:
-                if cmd in self.COMMANDS:
-                    info = self.COMMANDS[cmd]
-                    desc = info.get("description", "")
-                    # Format: "  COMMAND      - description (usage hint)"
-                    usage_hint = info.get("usage", "").split("[")[0].strip()
-                    help_text += f"  {cmd:<12} - {desc:<45}\n"
-
-            help_text += "\n"
-
-        # Add usage instructions
-        help_text += (
-            "Usage:\n"
-            "  HELP [command]              Show detailed help for a command\n"
-            "  HELP CATEGORY <category>    List commands in a category\n"
-            "  HELP SYNTAX <command>       Show full syntax with options\n"
-            "\n"
-            "Examples:\n"
-            "  HELP GOTO                   Detailed help for GOTO\n"
-            "  HELP CATEGORY Navigation    All navigation commands\n"
-            "  HELP SYNTAX SAVE            Full SAVE syntax with options\n"
+        ]
+        
+        # Create menu options with descriptions
+        menu_options = []
+        for category in categories:
+            if category in self.COMMAND_CATEGORIES:
+                count = len(self.COMMAND_CATEGORIES[category])
+                menu_options.append(
+                    (category, category, f"{count} commands")
+                )
+        
+        # Show interactive menu
+        selected_category = self.show_menu(
+            "Command Categories",
+            menu_options,
+            allow_cancel=True
         )
+        
+        if selected_category:
+            return self._show_category(selected_category)
+        else:
+            # Return help text if cancelled
+            box_line = "+" + "-" * 69 + "+"
+            title = "uDOS Command Reference (v1.1.0)"
+            title_line = f"| {title:<67}|"
 
-        return {
-            "status": "success",
-            "message": f"Found {len(self.COMMANDS)} commands",
-            "help": help_text.strip(),
-            "commands": list(self.COMMANDS.keys()),
-            "categories": list(self.COMMAND_CATEGORIES.keys()),
-        }
+            help_text = f"{box_line}\n{title_line}\n{box_line}\n\n"
+
+            # Build output by category
+            for category in categories:
+                if category not in self.COMMAND_CATEGORIES:
+                    continue
+
+                commands = self.COMMAND_CATEGORIES[category]
+                help_text += f"{category}:\n"
+
+                for cmd in commands:
+                    if cmd in self.COMMANDS:
+                        info = self.COMMANDS[cmd]
+                        desc = info.get("description", "")
+                        help_text += f"  {cmd:<12} - {desc:<45}\n"
+
+                help_text += "\n"
+
+            # Add usage instructions
+            help_text += (
+                "💡 Use menu navigation for interactive help\n"
+                "   Or type: HELP [command] to search\n"
+            )
+
+            return {
+                "status": "success",
+                "message": f"Found {len(self.COMMANDS)} commands",
+                "help": help_text.strip(),
+                "commands": list(self.COMMANDS.keys()),
+                "categories": list(self.COMMAND_CATEGORIES.keys()),
+            }
+
 
     def _show_command_help(self, cmd_name: str) -> Dict:
         """Show detailed help for a specific command."""

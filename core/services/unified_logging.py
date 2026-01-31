@@ -26,6 +26,10 @@ Usage:
     # View unified log
     unified.view_last(50)  # Last 50 entries across all systems
 
+When to use this vs logging_manager:
+    - Use unified_logging for cross-system aggregation or dashboards.
+    - Use logging_manager (get_logger) for Core TUI runtime logs.
+
 Author: uDOS Engineering
 Version: v1.0.0
 Date: 2026-01-28
@@ -117,7 +121,7 @@ class UnifiedLogger:
             log_dir: Log directory (default: memory/logs)
         """
         if log_dir is None:
-            from core.services.logging_manager import get_repo_root
+            from core.services.logging_service import get_repo_root
             log_dir = Path(get_repo_root()) / "memory" / "logs"
         
         self.log_dir = Path(log_dir)

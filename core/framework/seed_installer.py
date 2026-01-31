@@ -12,7 +12,7 @@ import json
 import shutil
 from pathlib import Path
 from typing import Dict, List, Tuple
-from core.services.logging_manager import get_logger
+from core.services.logging_service import get_logger
 
 logger = get_logger("seed_installer")
 

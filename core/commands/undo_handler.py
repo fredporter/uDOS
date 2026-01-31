@@ -150,7 +150,7 @@ RECOVERY:
         # Call RESTORE handler
         try:
             from core.commands.maintenance_handler import MaintenanceHandler
-            from core.services.logging_manager import get_logger
+            from core.services.logging_service import get_logger
             from core.services.unified_logging import get_unified_logger
 
             logger = get_logger("undo-handler")

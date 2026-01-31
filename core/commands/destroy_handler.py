@@ -41,7 +41,7 @@ import shutil
 def get_repo_root_safe():
     """Get repo root safely."""
     try:
-        from core.services.logging_manager import get_repo_root
+        from core.services.logging_service import get_repo_root
         return get_repo_root()
     except:
         return Path(__file__).parent.parent.parent
@@ -80,9 +80,9 @@ class DestroyHandler(BaseCommandHandler):
         self.prompt = parser
         
         # Import here to avoid circular deps
-        from core.services.logging_manager import get_logger
+        from core.services.logging_service import get_logger
         from core.services.unified_logging import get_unified_logger
-        from core.services.user_manager import get_user_manager, Permission
+        from core.services.user_service import get_user_manager, Permission
         from core.tui.output import OutputToolkit
         
         logger = get_logger('destroy-handler')
@@ -289,7 +289,7 @@ EXAMPLES:
             return self._show_help()
         
         # Recursively handle the choice by calling handle with the choice as param
-        from core.services.user_manager import get_user_manager
+        from core.services.user_service import get_user_manager
         user_mgr = get_user_manager()
         user = user_mgr.current()
         
@@ -418,12 +418,12 @@ RECOVERY:
   • If you compost, see .archive/compost/ for your data
   • Users can be recreated: USER create [name] [role]
   • Config can be restored from git or .archive
-  • Use STORY wizard-setup to reconfigure
+  • Use STORY tui-setup to reconfigure
 
 NEXT STEPS AFTER CLEANUP:
   1. DESTROY 1          # Wipe user data
   2. DESTROY 3          # Complete cleanup
-  3. STORY wizard-setup # Run setup story
+  3. STORY tui-setup    # Run setup story
   4. SETUP              # View your profile
   5. WIZARD start       # Start Wizard Server
 """
@@ -477,7 +477,7 @@ Current status:
         
         # If confirmed, proceed with nuclear reset
         if confirmed:
-            from core.services.user_manager import get_user_manager
+            from core.services.user_service import get_user_manager
             user = get_user_manager().current()
             return self._perform_nuclear(user)
         else:
@@ -508,7 +508,7 @@ Current status:
         Returns:
             Output dict
         """
-        from core.services.logging_manager import get_repo_root
+        from core.services.logging_service import get_repo_root
         from core.services.unified_logging import get_unified_logger
         
         unified = get_unified_logger()
@@ -517,7 +517,7 @@ Current status:
         
         try:
             # 1. Wipe users and variables
-            from core.services.user_manager import get_user_manager
+            from core.services.user_service import get_user_manager
             user_mgr = get_user_manager()
             results.append("🗑️  Wiping user profiles and variables...")
             
@@ -631,7 +631,7 @@ Current status:
             results.append("")
             results.append("Next steps to reconfigure:")
             results.append("  1. RESTART --full            (full system restart)")
-            results.append("  2. STORY wizard-setup        (Run setup story)")
+            results.append("  2. STORY tui-setup           (Run setup story)")
             results.append("  3. USER create [user] [role] (create new users)")
             results.append("  4. WIZARD start              (start Wizard Server)")
             
@@ -668,8 +668,8 @@ Current status:
         Returns:
             Output dict
         """
-        from core.services.logging_manager import get_repo_root
-        from core.services.user_manager import get_user_manager
+        from core.services.logging_service import get_repo_root
+        from core.services.user_service import get_user_manager
         from core.services.unified_logging import get_unified_logger
         
         results = []
@@ -679,7 +679,7 @@ Current status:
         try:
             if wipe_user:
                 results.append("🗑️  Wiping user data and variables...")
-                from core.services.user_manager import get_user_manager
+                from core.services.user_service import get_user_manager
                 user_mgr = get_user_manager()
                 
                 # Delete all non-admin users
@@ -775,7 +775,7 @@ Current status:
             
             if wipe_user:
                 results.append("Next steps to restore user data:")
-                results.append("  1. STORY wizard-setup     (Run setup story)")
+                results.append("  1. STORY tui-setup        (Run setup story)")
                 results.append("  2. SETUP                  (View your profile)")
                 results.append("  3. CONFIG                 (View variables)")
             

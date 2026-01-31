@@ -14,7 +14,7 @@ import json
 from .workflow_runner import WorkflowRunner, WorkflowStatus, WorkflowConclusion
 from .release_manager import ReleaseManager
 from .client import GitHubClient, GitHubError
-from core.services.logging_manager import get_logger
+from core.services.logging_service import get_logger
 
 logger = get_logger("cicd-manager")
 

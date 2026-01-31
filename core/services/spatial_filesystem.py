@@ -44,7 +44,7 @@ from datetime import datetime
 import re
 from collections import defaultdict
 
-from core.services.logging_manager import get_logger
+from core.services.logging_service import get_logger
 
 logger = get_logger('spatial-filesystem')
 

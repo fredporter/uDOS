@@ -36,7 +36,7 @@ from .base_provider import (
     AuthenticationError,
     ProviderError,
 )
-from core.services.logging_manager import get_logger
+from core.services.logging_service import get_logger
 
 logger = get_logger("gmail-client")
 

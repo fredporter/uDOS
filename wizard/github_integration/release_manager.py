@@ -12,7 +12,7 @@ from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 
 from .client import GitHubClient, GitHubError
-from core.services.logging_manager import get_logger
+from core.services.logging_service import get_logger
 
 logger = get_logger("github-releases")
 

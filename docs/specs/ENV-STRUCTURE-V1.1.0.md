@@ -1,0 +1,221 @@
+# .env Structure & Data Boundaries (v1.1.0)
+
+**Date:** 2026-01-30  
+**Status:** Active
+
+---
+
+## Overview
+
+This document defines the clear boundary between local Core identity data (stored in `.env`) and extended sensitive data (stored in Wizard keystore).
+
+## Data Boundaries
+
+### Core .env (Local Identity Only)
+
+The `.env` file contains **ONLY** essential local identity and system settings:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `USER_NAME` | string | Yes | Username |
+| `USER_DOB` | date | Yes | Date of birth (YYYY-MM-DD) |
+| `USER_ROLE` | enum | Yes | `ghost` \| `user` \| `admin` |
+| `USER_PASSWORD` | string | Optional | Local password (can be blank, user/admin only) |
+| `USER_LOCATION` | string | Yes | City name or uDIS grid coordinates |
+| `USER_TIMEZONE` | string | Yes | IANA timezone (e.g., America/Los_Angeles) |
+| `OS_TYPE` | enum | Yes | `alpine` \| `ubuntu` \| `mac` \| `windows` |
+| `WIZARD_KEY` | uuid | Auto | Gateway to Wizard keystore (auto-generated) |
+
+**Key Points:**
+- Password is **optional** - can be blank for any role
+- These values stay local and are never synced
+- Works completely offline without Wizard Server
+
+### Wizard Keystore (Extended Data)
+
+All other sensitive data goes in the Wizard keystore:
+
+**API Keys:**
+- GitHub personal access tokens
+- Notion API keys
+- Anthropic API keys
+- OpenAI API keys
+- HubSpot API keys
+
+**OAuth Tokens:**
+- Gmail OAuth refresh tokens
+- Google Calendar tokens
+- Google Drive credentials
+
+**Cloud Credentials:**
+- AWS access keys
+- GCP service account keys
+- Azure credentials
+
+**Integrations:**
+- Webhook URLs and secrets
+- AI gateway routing config
+- Provider credentials
+- Custom integration settings
+
+**Installation Extended Settings:**
+- Installation ID
+- Lifespan mode and moves limit
+- Capability flags (web proxy, gmail relay, etc.)
+- Installation-level permissions
+
+---
+
+## Password Policy
+
+The `USER_PASSWORD` field is **optional** and can be left blank:
+
+- **Ghost role:** Password ignored (no local auth needed for demo/test)
+- **User role:** Can set password or leave blank (protects local functions)
+- **Admin role:** Can set password or leave blank (protects admin operations)
+
+**Important:**
+- Password protects **local Core functions only**
+- Cloud services use Wizard keystore credentials (separate)
+- Empty string or omitted = no local password required
+
+---
+
+## File Locations
+
+| Data Type | Storage Location | Format |
+|-----------|------------------|--------|
+| Local Identity | `/uDOS/.env` | Plain text env vars |
+| Wizard Key | `/uDOS/.env` | UUID (unencrypted) |
+| Extended Data | `wizard/secrets.tomb` | Encrypted keystore |
+| Admin Token | `memory/private/wizard_admin_token.txt` | Token file |
+
+---
+
+## Setup Workflows
+
+### 1. Local Core Setup (Offline)
+
+```bash
+SETUP                    # Run interactive setup
+SETUP --profile          # View current settings
+nano .env                # Manual edit
+```
+
+Creates `.env` with core identity fields only.
+
+### 2. Wizard Server Setup (Online)
+
+```bash
+cd wizard
+./launch.sh              # Start Wizard Server
+# Visit http://localhost:8765/dashboard
+# Navigate to Settings > Integrations
+```
+
+Imports `.env` identity and adds extended settings to keystore.
+
+### 3. DESTROY/REPAIR Operations
+
+**DESTROY:**
+- Wipes user profiles via user_manager (NOT .env)
+- Can archive memory to `.archive/compost/`
+- Does NOT touch `.env` identity fields
+- Can clear Wizard keystore (separate operation)
+
+**REPAIR:**
+- Checks system health
+- Does NOT modify `.env`
+- Can reinstall dependencies
+
+---
+
+## Security Model
+
+### Local (.env)
+- **Plaintext** - not encrypted
+- **Local only** - never committed to git
+- **Minimal PII** - only name, DOB, location
+- **No credentials** - no API keys or tokens (except WIZARD_KEY which is just a UUID)
+
+### Wizard Keystore
+- **Encrypted** - secrets.tomb uses Fernet encryption
+- **Unlocked by WIZARD_KEY** - from .env
+- **Full credentials** - API keys, OAuth, cloud credentials
+- **Access controlled** - requires admin token
+
+---
+
+## Commands Reference
+
+### Core Commands
+
+```bash
+SETUP                       # Configure local identity
+SETUP --profile             # Show current .env settings
+SETUP --clear               # Clear .env identity data
+CONFIG SHOW                 # Show all settings (local + extended)
+```
+
+### Wizard Commands
+
+```bash
+WIZARD start                # Start Wizard Server
+WIZARD stop                 # Stop Wizard Server
+WIZARD setup                # Run Wizard setup wizard
+```
+
+### Cleanup Commands
+
+```bash
+DESTROY 1                   # Wipe user data (not .env)
+DESTROY 2                   # Archive memory
+DESTROY 3                   # Wipe + archive + reload
+DESTROY 4                   # NUCLEAR: Full reset (includes .env)
+```
+
+---
+
+## Files Updated (v1.1.0)
+
+| File | Change | Status |
+|------|--------|--------|
+| `.env.example` | Simplified, clarified boundaries, removed old fields | ✅ |
+| `core/tui/setup-story.md` | Added optional password field | ✅ |
+| `core/framework/seed/bank/system/wizard-setup-story.md` | Canonical wizard setup story | ✅ |
+| `core/commands/setup_handler.py` | Updated docs and password handling | ✅ |
+| `core/commands/config_handler.py` | Updated to include USER_PASSWORD in setup keys | ✅ |
+
+**Removed (v1.1.0):**
+- `wizard-setup-story.md` - Removed duplicate (seed is canonical)
+- `wizard/templates/setup-wizard-story.md` - Removed duplicate (seed is canonical)
+- `wizard/templates/setup-wizard-advanced-story.md` - Removed orphaned template
+- `core/commands/tui_setup_handler.py` - Removed duplicate setup handler
+
+---
+
+## Testing Checklist
+
+- [ ] `SETUP` creates .env with correct fields
+- [ ] Password field is optional (can be blank)
+- [ ] `SETUP --profile` shows password status (yes/blank)
+- [ ] `CONFIG SHOW` displays .env correctly
+- [ ] `DESTROY 1` does NOT delete .env identity
+- [ ] `DESTROY 4` CAN reset .env (with confirmation)
+- [ ] Wizard Server imports .env on first run
+- [ ] Extended settings go to Wizard keystore
+
+---
+
+## References
+
+- [.env.example](/.env.example) - Template file
+- [setup_handler.py](/core/commands/setup_handler.py) - Setup command
+- [config_handler.py](/core/commands/config_handler.py) - Config management
+- [wizard/README.md](/wizard/README.md) - Wizard Server docs
+- [AGENTS.md](/AGENTS.md) - System boundaries
+
+---
+
+_Last Updated: 2026-01-30_  
+_Version: 1.1.0_

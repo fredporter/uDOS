@@ -2,12 +2,17 @@
 SETUP command handler - Local offline setup for Core.
 
 Stores user identity in .env (local, never shared):
-  - Name, DOB, Role, Location, Timezone, OS-Type
-  - Optional password (User/Admin roles only)
+    - Username, DOB, Role, Location, Timezone, OS-Type
+  - Optional password (User/Admin roles only - can be blank)
   - Wizard Key (gateway to keystore for sensitive extensions)
 
+All other sensitive data goes in Wizard keystore:
+  - API keys (GitHub, Notion, OpenAI, etc.)
+  - OAuth tokens (Gmail, Calendar, etc.)
+  - Cloud credentials and webhooks
+  - Integration activation settings
+
 When Wizard Server is installed, it imports these local settings.
-Sensitive extensions (AI routes, webhooks, etc.) use Wizard keystore.
 """
 
 from pathlib import Path
@@ -16,7 +21,7 @@ import os
 from datetime import datetime
 
 from core.commands.base import BaseCommandHandler
-from core.services.logging_manager import get_repo_root
+from core.services.logging_service import get_repo_root
 
 
 class SetupHandler(BaseCommandHandler):
@@ -40,19 +45,19 @@ class SetupHandler(BaseCommandHandler):
             SETUP --help       Show help
             
         Local data stored in .env:
-            USER_NAME          Your name
+            USER_NAME          Username
             USER_DOB           Date of birth (YYYY-MM-DD)
             USER_ROLE          admin | user | ghost
+            USER_PASSWORD      Optional password (user/admin only, can be blank)
             USER_LOCATION      City / grid location
             USER_TIMEZONE      Timezone (e.g. America/Los_Angeles)
             OS_TYPE            alpine | ubuntu | mac | windows
-            USER_PASSWORD      Optional password (user/admin only, leave blank for ghost)
             WIZARD_KEY         Gateway to Wizard keystore (auto-generated)
         
-        Sensitive extensions go in Wizard keystore (when installed):
+        Extended data in Wizard keystore (when installed):
             - API keys, OAuth tokens, credentials
             - Integrations (GitHub, Gmail, Notion, etc.)
-            - Cloud routing and webhooks
+            - Cloud routing, webhooks, activation settings
         """
         if not params:
             return self._run_story()
@@ -79,6 +84,8 @@ class SetupHandler(BaseCommandHandler):
     def _show_profile(self) -> Dict:
         """Display the current setup profile from .env."""
         try:
+            from core.services.uid_generator import descramble_uid
+            
             env_data = self._load_env_vars()
             
             if not env_data.get('USER_NAME'):
@@ -94,7 +101,7 @@ You haven't configured your identity yet. To get started:
   SETUP
 
 This will run the setup story and ask you for:
-  • Your name and date of birth
+    • Your username and date of birth
   • Your role (ghost/user/admin)
   • Your timezone and location
   • OS type and optional password (user/admin only)
@@ -110,11 +117,19 @@ When Wizard Server is installed, it imports this data.
             # User Identity
             lines.append("\n📋 User Identity")
             lines.append("-" * 60)
-            lines.append(f"  • Name:         {env_data.get('USER_NAME', 'Not set')}")
+            lines.append(f"  • Username:     {env_data.get('USER_NAME', 'Not set')}")
             lines.append(f"  • DOB:          {env_data.get('USER_DOB', 'Not set')}")
             lines.append(f"  • Role:         {env_data.get('USER_ROLE', 'ghost')}")
-            has_password = "yes" if env_data.get('USER_PASSWORD') else "no"
+            has_password = "yes" if env_data.get('USER_PASSWORD') else "no (blank)"
             lines.append(f"  • Password:     {has_password}")
+            
+            # User ID (descrambled for viewing)
+            if env_data.get('USER_ID'):
+                try:
+                    uid_plain = descramble_uid(env_data['USER_ID'])
+                    lines.append(f"  • User ID:      {uid_plain}")
+                except Exception:
+                    lines.append(f"  • User ID:      {env_data['USER_ID'][:20]}... (scrambled)")
             
             # Location & Time
             lines.append("\n📍 Location & Time")
@@ -138,7 +153,10 @@ When Wizard Server is installed, it imports this data.
             
             lines.append("\n" + "=" * 60)
             lines.append("Data stored in: .env (local, never shared)")
-            lines.append("When Wizard Server is installed, it will import this.")
+            lines.append("Extended data stored in: Wizard keystore (when installed)")
+            lines.append("\nTo manage extended settings:")
+            lines.append("  • Install Wizard Server (see wizard/README.md)")
+            lines.append("  • Access: http://localhost:8765/dashboard")
             
             return {
                 "status": "success",
@@ -153,17 +171,23 @@ When Wizard Server is installed, it imports this data.
     def _run_story(self) -> Dict:
         """Launch the setup story to configure user identity in .env."""
         try:
+            # Initialize .env from .example if it doesn't exist
+            self._initialize_env_from_example()
             from core.commands.story_handler import StoryHandler
             
-            # Run the wizard-setup story
-            result = StoryHandler().handle("STORY", ["wizard-setup"])
+            # Run the tui-setup story (minimal, focused setup)
+            result = StoryHandler().handle("STORY", ["tui-setup"])
             
             # If story was successful and returned form data, save to .env
             if result.get("status") == "success" and "form_data" in result:
-                self._save_to_env(result["form_data"])
+                form_data = result["form_data"]
+                form_data = self._apply_system_datetime(form_data)
+                self._save_to_env(form_data)
                 return {
                     "status": "success",
-                    "output": "✅ Setup complete! Your profile has been saved to .env\n\nRun 'SETUP --profile' to view your settings."
+                    "output": "✅ Setup complete! Your profile has been saved to .env\n\n"
+                              "Run 'SETUP --profile' to view your settings.\n\n"
+                              f"{self._seed_confirmation()}"
                 }
             
             return result
@@ -172,8 +196,95 @@ When Wizard Server is installed, it imports this data.
             return {
                 "status": "error",
                 "message": f"Failed to start setup story: {exc}",
-                "help": "Ensure memory/story/wizard-setup-story.md exists"
+                "help": "Ensure core/framework/seed/bank/system/tui-setup-story.md exists"
             }
+
+    def _apply_system_datetime(self, form_data: Dict) -> Dict:
+        """Apply system datetime approval or collect overrides when needed."""
+        approval = form_data.get("system_datetime_approve")
+        if isinstance(approval, dict):
+            if approval.get("approved"):
+                form_data["user_timezone"] = approval.get("timezone")
+                form_data["current_date"] = approval.get("date")
+                form_data["current_time"] = approval.get("time")
+                return form_data
+
+            # User declined: collect overrides
+            overrides = self._run_datetime_override_form(approval)
+            if overrides.get("status") == "success":
+                form_data.update(overrides.get("data", {}))
+        if "user_timezone" not in form_data:
+            form_data["user_timezone"] = self._get_system_timezone()
+        return form_data
+
+    def _get_system_timezone(self) -> str:
+        now = datetime.now().astimezone()
+        tzinfo = now.tzinfo
+        if hasattr(tzinfo, "key"):
+            return str(tzinfo.key)
+        return str(tzinfo) or "UTC"
+
+    def _run_datetime_override_form(self, approval: Dict) -> Dict:
+        """Run a short override form for date/time/timezone."""
+        try:
+            from core.tui.story_form_handler import get_form_handler
+            handler = get_form_handler()
+            form_spec = {
+                "title": "Adjust Local Date/Time",
+                "description": "Edit local date, time, and timezone if auto-detected values are incorrect.",
+                "fields": [
+                    {
+                        "name": "user_timezone",
+                        "label": "Timezone",
+                        "type": "select",
+                        "required": True,
+                        "options": [
+                            "UTC",
+                            "America/New_York",
+                            "America/Los_Angeles",
+                            "America/Chicago",
+                            "Europe/London",
+                            "Europe/Paris",
+                            "Asia/Tokyo",
+                            "Australia/Sydney",
+                        ],
+                        "default": approval.get("timezone") or "UTC",
+                    },
+                    {
+                        "name": "current_date",
+                        "label": "Current Date",
+                        "type": "date",
+                        "required": True,
+                        "default": approval.get("date"),
+                    },
+                    {
+                        "name": "current_time",
+                        "label": "Current Time",
+                        "type": "time",
+                        "required": True,
+                        "default": approval.get("time"),
+                    },
+                ],
+            }
+            return handler.process_story_form(form_spec)
+        except Exception as e:
+            return {"status": "error", "message": f"Override form failed: {e}"}
+
+    def _seed_confirmation(self) -> str:
+        """Confirm local memory/bank and seed structure after setup."""
+        repo_root = get_repo_root()
+        memory_bank = repo_root / "memory" / "bank"
+        seed_dir = repo_root / "core" / "framework" / "seed"
+        locations_seed = seed_dir / "locations-seed.json"
+
+        lines = [
+            "LOCAL SEED CONFIRMATION",
+            "-" * 60,
+            f"  • memory/bank: {'✅' if memory_bank.exists() else '❌'}",
+            f"  • core/framework/seed: {'✅' if seed_dir.exists() else '❌'}",
+            f"  • seed file (locations): {'✅' if locations_seed.exists() else '❌'}",
+        ]
+        return "\n".join(lines)
     
     def _edit_interactively(self) -> Dict:
         """Edit setup in .env file."""
@@ -189,13 +300,13 @@ Or edit .env directly:
   nano .env
 
 Key fields to edit:
-  USER_NAME              Your name
+    USER_NAME              Username
   USER_DOB               YYYY-MM-DD
   USER_ROLE              ghost | user | admin
+  USER_PASSWORD          Optional (can be blank)
   USER_LOCATION          City / grid location
   USER_TIMEZONE          America/Los_Angeles, etc.
   OS_TYPE                alpine | ubuntu | mac | windows
-  USER_PASSWORD          Optional (leave blank for ghost)
 """
         }
     
@@ -205,7 +316,7 @@ Key fields to edit:
             env_vars = [
                 'USER_NAME', 'USER_DOB', 'USER_ROLE', 
                 'USER_LOCATION', 'USER_TIMEZONE', 'OS_TYPE',
-                'USER_PASSWORD'
+                'USER_PASSWORD', 'USER_ID'
             ]
             
             # Remove these variables from .env while keeping others
@@ -252,19 +363,22 @@ USAGE:
   SETUP --help       Show this help
 
 LOCAL SETTINGS (.env):
-  USER_NAME          Your name
+    USER_NAME          Username
   USER_DOB           Birth date (YYYY-MM-DD)
   USER_ROLE          ghost | user | admin
+  USER_PASSWORD      Optional password (user/admin - can be blank)
   USER_LOCATION      City or grid coordinates
   USER_TIMEZONE      Timezone identifier
   OS_TYPE            alpine | ubuntu | mac | windows
-  USER_PASSWORD      Optional password (user/admin only)
   WIZARD_KEY         Gateway to Wizard keystore
 
 EXTENDED SETTINGS (Wizard Keystore - installed later):
-  GitHub tokens, Gmail OAuth, Notion API keys
-  Cloud integrations, webhooks, AI routing
-  Provider credentials and activation settings
+  API Keys:          GitHub, Notion, OpenAI, Anthropic, etc.
+  OAuth Tokens:      Gmail, Calendar, Google Drive, etc.
+  Cloud Services:    AWS, GCP, Azure credentials
+  Webhooks:          Custom webhooks and secrets
+  AI Routing:        Provider credentials and endpoints
+  Activations:       Integration activation settings
 
 EXAMPLES:
   SETUP                     # Start interactive setup
@@ -276,6 +390,25 @@ EXAMPLES:
     
     # ========================================================================
     # Helper Methods - .env Storage
+    
+        def _initialize_env_from_example(self) -> None:
+            """Initialize .env from .env.example if it doesn't exist."""
+            if self.env_file.exists():
+                return
+        
+            example_file = self.env_file.parent / ".env.example"
+            if not example_file.exists():
+                return
+        
+            try:
+                # Copy .env.example to .env
+                example_content = example_file.read_text()
+                self.env_file.write_text(example_content)
+                from core.services.logging_service import get_logger
+                get_logger("setup").info("[LOCAL] Initialized .env from .env.example")
+            except Exception as e:
+                from core.services.logging_service import get_logger
+                get_logger("setup").warning(f"[LOCAL] Could not initialize .env: {e}")
     # ========================================================================
     
     def _load_env_vars(self) -> Dict:
@@ -303,6 +436,9 @@ EXAMPLES:
     def _save_to_env(self, data: Dict) -> bool:
         """Save setup data to .env file, preserving other vars."""
         try:
+            from core.services.uid_generator import generate_uid, scramble_uid
+            from datetime import datetime
+            
             # Map form data to .env keys
             key_mapping = {
                 'user_username': 'USER_NAME',
@@ -332,6 +468,26 @@ EXAMPLES:
                     else:
                         existing.pop(env_key, None)
             
+            # Generate unique User ID from DOB, timezone, and current time
+            if 'USER_ID' not in existing and 'user_dob' in data and 'user_timezone' in data:
+                timestamp = datetime.now()
+                if data.get('current_date') and data.get('current_time'):
+                    try:
+                        timestamp = datetime.strptime(
+                            f"{data['current_date']} {data['current_time']}",
+                            "%Y-%m-%d %H:%M:%S"
+                        )
+                    except ValueError:
+                        pass
+
+                uid = generate_uid(
+                    dob=data['user_dob'],
+                    timezone=data['user_timezone'],
+                    timestamp=timestamp
+                )
+                scrambled_uid = scramble_uid(uid)
+                existing['USER_ID'] = f'"{scrambled_uid}"'
+            
             # Generate or keep Wizard Key
             if 'WIZARD_KEY' not in existing:
                 import uuid
@@ -345,6 +501,6 @@ EXAMPLES:
             self.env_file.write_text("\n".join(lines) + "\n")
             return True
         except Exception as e:
-            from core.services.logging_manager import get_logger
+            from core.services.logging_service import get_logger
             get_logger("setup").error(f"Failed to save to .env: {e}")
             return False

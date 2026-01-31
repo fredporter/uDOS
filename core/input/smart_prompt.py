@@ -26,7 +26,7 @@ except ImportError:
 import sys
 import os
 import logging
-from typing import Optional, List, Iterable, Tuple
+from typing import Optional, List, Iterable, Tuple, Dict
 
 from .autocomplete import AutocompleteService
 from .command_predictor import CommandPredictor
@@ -48,14 +48,16 @@ else:
 class CoreCompleter(Completer):
     """Dynamic autocomplete for Core TUI commands with syntax hints"""
 
-    def __init__(self, autocomplete_service: AutocompleteService):
+    def __init__(self, autocomplete_service: AutocompleteService, registry=None):
         """
         Initialize completer.
 
         Args:
             autocomplete_service: AutocompleteService instance
+            registry: Optional CommandRegistry for enhanced completions
         """
         self.autocomplete = autocomplete_service
+        self.registry = registry
         self._command_cache = {}
 
     def get_completions(
@@ -89,15 +91,34 @@ class CoreCompleter(Completer):
         if len(words) == 1:
             partial_cmd = words[0].upper()
             debug_logger.debug(f"  Completing command: partial_cmd='{partial_cmd}'")
-            completions_list = self.autocomplete.get_completions(partial_cmd)
-            debug_logger.debug(
-                f"  Got {len(completions_list)} completions: {completions_list}"
-            )
-
-            for completion in completions_list:
+            
+            # Use registry if available, otherwise fall back to autocomplete service
+            if self.registry:
+                suggestions = self.registry.get_suggestions(partial_cmd, limit=10)
+                debug_logger.debug(f"  Got {len(suggestions)} suggestions from registry")
+                
+                for suggestion in suggestions:
+                    completion_text = suggestion.name[len(partial_cmd):]
+                    display_meta = f"{suggestion.icon} {suggestion.help_text}"
+                    debug_logger.debug(
+                        f"    Yielding registry completion: {suggestion.name}, meta={display_meta}"
+                    )
+                    yield Completion(
+                        completion_text,
+                        start_position=-len(partial_cmd),
+                        display=suggestion.name,
+                        display_meta=display_meta,
+                    )
+            else:
+                completions_list = self.autocomplete.get_completions(partial_cmd)
                 debug_logger.debug(
-                    f"    Yielding completion: {completion}, start_position=-{len(partial_cmd)}"
+                    f"  Got {len(completions_list)} completions from autocomplete: {completions_list}"
                 )
+
+                for completion in completions_list:
+                    debug_logger.debug(
+                        f"    Yielding completion: {completion}, start_position=-{len(partial_cmd)}"
+                    )
 
                 # Get help text for the command
                 help_text = self._get_command_help(completion)
@@ -219,12 +240,13 @@ class SmartPrompt:
     - Graceful fallback to basic input()
     """
 
-    def __init__(self, use_fallback: bool = False):
+    def __init__(self, use_fallback: bool = False, registry=None):
         """
         Initialize SmartPrompt.
 
         Args:
             use_fallback: Force fallback to basic input() (default: auto-detect)
+            registry: Optional CommandRegistry for enhanced completions
         """
         debug_logger.debug(
             f"SmartPrompt.__init__() called, use_fallback={use_fallback}"
@@ -239,6 +261,7 @@ class SmartPrompt:
         self.use_fallback = use_fallback or not HAS_PROMPT_TOOLKIT or not is_tty
         self.fallback_reason = None
         self.tab_handler = None
+        self.registry = registry
 
         if self.use_fallback and not HAS_PROMPT_TOOLKIT:
             self.fallback_reason = "prompt_toolkit not installed"
@@ -264,7 +287,7 @@ class SmartPrompt:
         """Initialize advanced prompt_toolkit features"""
         self.autocomplete_service = AutocompleteService()
         self.predictor = CommandPredictor(self.autocomplete_service)
-        self.completer = CoreCompleter(self.autocomplete_service)
+        self.completer = CoreCompleter(self.autocomplete_service, registry=self.registry)
         self.history = InMemoryHistory()
 
         # Create key bindings
@@ -678,6 +701,52 @@ class SmartPrompt:
             pass
 
         return []
+
+    def ask_story_field(self, field: Dict, previous_value: Optional[str] = None) -> Optional[str]:
+        """
+        Basic story field input (fallback method).
+        
+        Used when AdvancedFormField is not available or fails.
+        Provides simple labeled input for story forms.
+        
+        Args:
+            field: Field definition with name, label, type, required, etc.
+            previous_value: Previous value if editing
+            
+        Returns:
+            User input string or None if skipped
+        """
+        label = field.get('label', field.get('name', 'Field'))
+        required = field.get('required', False)
+        field_type = field.get('type', 'text')
+        placeholder = field.get('placeholder', '')
+        
+        # Build prompt
+        req_marker = " *" if required else ""
+        prompt_text = f"{label}{req_marker}"
+        
+        # Show previous value if available
+        if previous_value:
+            prompt_text += f" [{previous_value}]"
+        elif placeholder:
+            prompt_text += f" ({placeholder})"
+            
+        prompt_text += ": "
+        
+        # Get input
+        value = self.ask(prompt_text)
+        
+        # Handle empty input
+        if not value:
+            if previous_value:
+                return previous_value
+            elif required:
+                print("  ⚠️  This field is required")
+                return self.ask_story_field(field, previous_value)
+            else:
+                return None
+                
+        return value
 
     def __repr__(self) -> str:
         """String representation"""

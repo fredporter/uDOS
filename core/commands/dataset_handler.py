@@ -5,7 +5,7 @@ DATASET command handler - dataset listing and validation.
 from typing import Dict, List
 
 from core.commands.base import BaseCommandHandler
-from core.services.dataset_manager import DatasetManager
+from core.services.dataset_service import DatasetManager
 from core.tools.dataset_builder import build_dataset
 from core.services.grid_config import load_grid_config
 from core.services.map_renderer import MapRenderer

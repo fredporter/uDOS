@@ -34,6 +34,7 @@ from core.commands import (
     MaintenanceHandler,
     StoryHandler,
     SetupHandler,
+    UIDHandler,
     LogsHandler,
     ReloadHandler,
     RestartHandler,
@@ -80,10 +81,11 @@ class CommandDispatcher:
             # System (9)
             "SHAKEDOWN": ShakedownHandler(),
             "REPAIR": RepairHandler(),
-            "RESTART": RestartHandler(),  # Unified restart/reload/reboot
-            "RELOAD": RestartHandler(),  # Alias for RESTART --reload-only
+            "RESTART": RestartHandler(),  # Unified restart/reboot
             "REBOOT": RestartHandler(),  # Alias for RESTART --repair
+            "RELOAD": ReloadHandler(),  # Control hot reload watcher
             "SETUP": SetupHandler(),
+            "UID": UIDHandler(),  # User ID management
             "PATTERN": PatternHandler(),
             "DEV MODE": DevModeHandler(),
             "DEV": DevModeHandler(),  # Shortcut for DEV MODE

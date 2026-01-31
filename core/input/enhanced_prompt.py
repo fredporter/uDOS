@@ -19,9 +19,9 @@ from .smart_prompt import SmartPrompt
 class EnhancedPrompt(SmartPrompt):
     """Enhanced prompt with 2-line context display."""
 
-    def __init__(self):
+    def __init__(self, registry=None):
         """Initialize enhanced prompt."""
-        super().__init__()
+        super().__init__(registry=registry)
         self.show_context = True
         self.show_predictions = True
 
