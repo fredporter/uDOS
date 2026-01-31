@@ -2,11 +2,10 @@
   "component": "core",
   "version": {
     "major": 1,
-    "minor": 0,
-    "patch": 7,
-    "build": 0
+    "minor": 1,
+    "patch": 0
   },
-  "status": "development",
+  "status": "stable",
   "location": "core/",
   "description": "Lean TypeScript Runtime for markdown script execution + ANSI pattern generator",
   "features": [
@@ -27,6 +26,6 @@
   "notes": "Added ANSI pattern generator service and PATTERN command for visual feedback",
   "name": "core",
   "channel": "dev",
-  "display": "v1.0.7",
-  "released": "2026-01-29"
+  "display": "v1.1.0",
+  "released": "2026-01-31"
 }

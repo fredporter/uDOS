@@ -1,5 +1,10 @@
 {
-  "version": "1.0.6",
+  "version": {
+    "major": 1,
+    "minor": 0,
+    "patch": 6
+  },
+    "display": "v1.0.6",
   "component": "binder",
   "release_type": "alpha",
   "dependencies": {
