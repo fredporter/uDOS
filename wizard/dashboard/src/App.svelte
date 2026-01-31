@@ -23,7 +23,7 @@
   import PixelEditor from "./routes/PixelEditor.svelte";
   import LayerEditor from "./routes/LayerEditor.svelte";
   import SvgProcessor from "./routes/SvgProcessor.svelte";
-  import Setup from "./routes/Setup.svelte";
+  import Hotkeys from "./routes/Hotkeys.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
   import WizardBottomBar from "./components/WizardBottomBar.svelte";
   import ToastContainer from "./lib/components/ToastContainer.svelte";
@@ -153,8 +153,6 @@
         <Library />
       {:else if currentRoute === "repair"}
         <Repair />
-      {:else if currentRoute === "setup"}
-        <Setup />
       {:else if currentRoute === "font-manager"}
         <FontManager />
       {:else if currentRoute === "emoji-pipeline"}
@@ -167,6 +165,8 @@
         <Files />
       {:else if currentRoute === "svg-processor"}
         <SvgProcessor />
+      {:else if currentRoute === "hotkeys"}
+        <Hotkeys />
       {/if}
     </main>
   </div>

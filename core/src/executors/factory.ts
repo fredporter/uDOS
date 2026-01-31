@@ -11,6 +11,7 @@ import { ConditionalExecutor, ElseExecutor } from './conditional-executor'
 import { NavigationExecutor } from './nav-executor'
 import { PanelExecutor } from './panel-executor'
 import { MapExecutor } from './map-executor'
+import { ScriptExecutor } from './script-executor'
 import { BaseExecutor } from './base'
 
 /**
@@ -35,6 +36,8 @@ export class ExecutorFactory {
         return new PanelExecutor()
       case 'map':
         return new MapExecutor()
+      case 'script':
+        return new ScriptExecutor()
       default:
         return null
     }

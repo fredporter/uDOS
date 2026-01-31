@@ -237,3 +237,24 @@
     {/if}
   {/if}
 </div>
+
+<div class="tool-notes">
+  <p>
+    Use the workspace selector or the GUI file picker to import font files and seed collections
+    from <code>core/framework/seed/bank/graphics</code>. Font Manager renders those assets in the
+    workspace while the Pixel/Layer editors use the same file picker hooks for seeded map layers.
+  </p>
+</div>
+
+<style>
+  .tool-notes {
+    max-width: 960px;
+    margin: 1.5rem auto 0;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    color: #cbd5f5;
+    font-size: 0.95rem;
+  }
+</style>

@@ -9,14 +9,12 @@
   let isFullscreen = false;
   let adminToken = "";
   let tokenSaved = false;
-  let setupProgress = null;
 
   const topNavRoutes = [
     { id: "dashboard", label: "Dashboard" },
     { id: "devices", label: "Devices" },
     { id: "catalog", label: "Catalog" },
     { id: "webhooks", label: "Webhooks" },
-    { id: "setup", label: "Setup" },
   ];
 
   const allMenuRoutes = [
@@ -24,9 +22,9 @@
     { id: "devices", label: "Devices" },
     { id: "catalog", label: "Catalog" },
     { id: "webhooks", label: "Webhooks" },
-    { id: "setup", label: "Setup" },
     { id: "logs", label: "Logs" },
     { id: "config", label: "Config" },
+    { id: "hotkeys", label: "⌨️ Hotkeys" },
     { separator: true, label: "Documentation" },
     { id: "wiki", label: "📖 Wiki" },
     { id: "files", label: "🗂 Files" },
@@ -72,28 +70,13 @@
   function saveToken() {
     setAdminToken(adminToken);
     tokenSaved = true;
-    loadSetupProgress();
     setTimeout(() => {
       tokenSaved = false;
     }, 1500);
   }
 
-  async function loadSetupProgress() {
-    try {
-      const headers = adminToken
-        ? { Authorization: `Bearer ${adminToken}` }
-        : {};
-      const res = await fetch("/api/setup/progress", { headers });
-      if (!res.ok) return;
-      setupProgress = await res.json();
-    } catch (err) {
-      setupProgress = null;
-    }
-  }
-
   onMount(() => {
     adminToken = getAdminToken();
-    loadSetupProgress();
     const handleFullscreenChange = () => {
       isFullscreen = !!document.fullscreenElement;
     };
@@ -109,13 +92,6 @@
     <!-- Logo/Title -->
     <div class="wizard-bar-left">
       <h1 class="wizard-title">Wizard Server</h1>
-      {#if setupProgress}
-        <span class="setup-badge">
-          {setupProgress.setup_complete
-            ? "Setup Complete"
-            : `Setup ${setupProgress.progress_percent ?? 0}%`}
-        </span>
-      {/if}
     </div>
 
     <!-- Center: Desktop Nav -->
@@ -241,25 +217,6 @@
     font-weight: 700;
     color: #ffffff;
     margin: 0;
-  }
-
-  .setup-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.2rem 0.6rem;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    background: rgba(59, 130, 246, 0.2);
-    color: #bfdbfe;
-    border: 1px solid rgba(59, 130, 246, 0.4);
-  }
-
-  :global(html.light) .setup-badge {
-    background: rgba(37, 99, 235, 0.12);
-    color: #1d4ed8;
-    border-color: rgba(37, 99, 235, 0.35);
   }
 
   :global(html.light) .wizard-title {

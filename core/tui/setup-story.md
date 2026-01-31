@@ -4,7 +4,7 @@ format: story
 version: 1.3.0
 author: uDOS Engineering
 tags: [setup, interactive, core]
-description: "Core identity setup for .env file. Extended settings via Wizard."
+description: "Core identity setup for .env file. Extended settings via Wizard and hot-reload/self-heal training per the v1.1+ roadmap."
 ---
 
 # Core Setup
@@ -12,6 +12,8 @@ description: "Core identity setup for .env file. Extended settings via Wizard."
 Quick setup: 5 essential fields for your local .env file.
 
 **Extended settings** (API keys, cloud services, etc.) are configured later via Wizard.
+
+This story also runs the hot reload/self-heal verification described in `ROUNDS-3-10.md` so `REPAIR`, `RESTART`, and `PLUGIN` keep logging healthy stats to `memory/logs/health-training.log` as part of the v1.1+ roadmap.
 
 ---
 
@@ -52,40 +54,66 @@ options:
 help: "Your access level"
 default: user
 ```
+---
+---
 
-```form
-name: user_location
-label: Location
-type: text
+## Location & System
+
+```story
+name: system_datetime_approve
+label: Confirm local date/time/zone
+type: datetime_approve
 required: true
-placeholder: "e.g. Sydney, New York, Tokyo"
-help: "City or region. Used for timezone detection."
-minlength: 2
+help: >
+  Approve the detected date/time/timezone. Decline (0/No) to adjust
+  the values immediately, then continue with the rest of the questions.
 ```
 
-```form
-name: user_timezone
-label: Timezone
-type: text
+```story
+name: install_os_type
+label: OS Type
+type: select
 required: true
-placeholder: "AEST, EST, Asia/Tokyo, or blank for auto"
-help: "IANA timezone or alias. Leave blank to auto-detect from system."
-allow_aliases: true
-default: [system_timezone]
+options:
+  - mac: macOS workstation
+  - alpine: Alpine edge node
+  - ubuntu: Linux server
+  - windows: Windows media/gaming target
+default: mac
+help: "Used for optional tooling and build scripts."
+```
+
+```story
+name: user_location_id
+label: Location
+type: location
+required: true
+timezone_field: user_timezone
+help: >
+  Choose your home grid/location (final question).
+  The fuzzy selector shows matching nodes + timezones.
 ```
 
 ---
+
+## Training & Dev Ops
+
+- This story writes the latest hot reload/self-heal summary to `memory/logs/health-training.log` so automation can verify the training round before moving on.
+- Completing the flow confirms the local repo/memory/bank/seed structure plus the CLI dev operations (REPAIR/RESTART/PLUGIN) remain ready per the v1.1+ roadmap.
+- After submission, a completion banner lists each directory (local repo, memory, bank, framework seed) with its status and references `docs/SEED-INSTALLATION-GUIDE.md` so you can verify every piece of the runtime structure.
 
 ## Complete
 
 ✅ **Core identity saved to .env!**
 
 Your local setup is complete. These values are stored in:
-- `.env` file (local Core boundary - 5 fields)
+- `.env` file (local Core boundary)
+- `memory/bank` (seed data, zipped by REPAIR --seed)
+- `local/memory` storage (verified via `docs/SEED-INSTALLATION-GUIDE.md`)
 
 **Next:**
 - **SETUP --profile** → View your settings
-- **WIZARD start** → Configure extended settings (API keys, cloud services, etc.)
+- **STORY wizard-setup** → Continue with Wizard identity & keystore
 - **HELP** → See all commands
 
 ---

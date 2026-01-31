@@ -26,9 +26,7 @@ Date: 2026-01-30
 
 from .base import BaseCommandHandler
 from .handler_logging_mixin import HandlerLoggingMixin
-import sys
-import time
-from pathlib import Path
+from core.services.system_script_runner import SystemScriptRunner
 
 
 class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
@@ -176,11 +174,11 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
         Returns:
             Output dict with execution results
         """
-        from core.services.hot_reload import get_hot_reload_manager
         from core.services.logging_service import get_logger
         
         logger = get_logger('restart-handler')
         output_lines = []
+        script_runner = SystemScriptRunner()
         
         # Build restart plan
         plan = []
@@ -206,34 +204,17 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
         if do_reload:
             output_lines.append("🔄 Hot reloading handlers...")
             try:
+                from core.services.hot_reload import get_hot_reload_manager, reload_all_handlers
+
                 reload_mgr = get_hot_reload_manager()
-                if reload_mgr:
-                    # Reload all handler modules
-                    import sys
-                    import importlib
-                    from pathlib import Path
-                    
-                    handlers_dir = Path(__file__).parent
-                    reloaded = 0
-                    failed = 0
-                    
-                    for handler_file in handlers_dir.glob("*_handler.py"):
-                        if handler_file.name == "__init__.py":
-                            continue
-                        
-                        module_name = f"core.commands.{handler_file.stem}"
-                        if module_name in sys.modules:
-                            try:
-                                importlib.reload(sys.modules[module_name])
-                                reloaded += 1
-                                logger.info(f"[LOCAL] Reloaded {handler_file.stem}")
-                            except Exception as e:
-                                failed += 1
-                                logger.error(f"[LOCAL] Failed to reload {handler_file.stem}: {e}")
-                    
-                    output_lines.append(f"   ✓ Reloaded {reloaded} handlers ({failed} failed)")
-                else:
-                    output_lines.append("   ⚠️  Hot reload manager not available")
+                stats = reload_all_handlers(logger=logger)
+                reloaded = stats.get("reloaded", 0)
+                failed = stats.get("failed", 0)
+
+                output_lines.append(f"   ✓ Reloaded {reloaded} handlers ({failed} failed)")
+
+                if reload_mgr is None:
+                    output_lines.append("   ⚠️  Hot reload watcher not initialized")
                     output_lines.append("   💡 Install watchdog: pip install watchdog")
             except Exception as e:
                 output_lines.append(f"   ❌ Hot reload failed: {e}")
@@ -243,17 +224,19 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
         if do_repair:
             output_lines.append("🔧 Running repair checks...")
             try:
-                from core.services.self_healer import SelfHealer
-                healer = SelfHealer(component='core', auto_repair=True)
-                result = healer.diagnose_and_repair()
-                
-                if result.issues_found:
-                    output_lines.append(f"   ✓ Found {len(result.issues_found)} issues")
-                    if result.issues_repaired:
-                        output_lines.append(f"   ✓ Fixed {len(result.issues_repaired)}/{len(result.issues_found)} issues")
-                    if result.issues_remaining:
-                        output_lines.append(f"   ⚠️  {len(result.issues_remaining)} issues remaining (require manual fix)")
-                else:
+                from core.services.self_healer import run_self_heal
+
+                result = run_self_heal(component='core', auto_repair=True)
+                found = len(result.issues_found)
+                repaired = len(result.issues_repaired)
+                remaining = len(result.issues_remaining)
+
+                output_lines.append(f"   ✓ Found {found} issue(s)")
+                if repaired:
+                    output_lines.append(f"   ✓ Fixed {repaired}/{found} issue(s)")
+                if remaining:
+                    output_lines.append(f"   ⚠️  {remaining} remaining issue(s) (manual help required)")
+                if not found:
                     output_lines.append("   ✓ No issues found - system healthy")
             except Exception as e:
                 output_lines.append(f"   ⚠️  Repair skipped: {e}")
@@ -264,7 +247,23 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
             output_lines.append("🔄 Full system restart...")
             output_lines.append("   ℹ️  Close and relaunch uCODE to complete restart")
         
+        should_run_reboot_script = command.upper() == "REBOOT" or do_full
+        script_result = None
+        if should_run_reboot_script:
+            script_result = script_runner.run_reboot_script()
+
         output_lines.append("")
+
+        if script_result:
+            if script_result.get("status") == "success":
+                script_output = script_result.get("output")
+                if script_output:
+                    output_lines.append(f"   ⟳ Reboot script output:\n{script_output}")
+                else:
+                    output_lines.append("   ⟳ Reboot script ran successfully")
+            else:
+                output_lines.append(f"   ⚠️  Reboot script: {script_result.get('message')}")
+
         output_lines.append("✅ Restart complete!")
         output_lines.append("")
         

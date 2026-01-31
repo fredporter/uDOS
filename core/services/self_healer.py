@@ -539,6 +539,26 @@ def run_self_heal(component: str, auto_repair: bool = True) -> RepairResult:
     return healer.diagnose_and_repair()
 
 
+def summarize_self_heal_result(result: RepairResult) -> Dict[str, Any]:
+    """Return a serializable summary of a RepairResult."""
+    return {
+        "success": result.success,
+        "issues": len(result.issues_found),
+        "repaired": len(result.issues_repaired),
+        "remaining": len(result.issues_remaining),
+        "messages": result.messages,
+        "issues_found": [issue.description for issue in result.issues_found],
+    }
+
+
+def collect_self_heal_summary(component: str = "core", auto_repair: bool = False) -> Dict[str, Any]:
+    """Run SelfHealer and return both the result and the summary."""
+    result = run_self_heal(component=component, auto_repair=auto_repair)
+    summary = summarize_self_heal_result(result)
+    summary["component"] = component
+    return summary
+
+
 if __name__ == "__main__":
     import sys
     

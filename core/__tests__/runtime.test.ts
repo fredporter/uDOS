@@ -3,6 +3,10 @@
  * Using example-script.md as test case
  */
 
+jest.mock('marked', () => ({
+  marked: jest.fn(() => ''),
+}))
+
 import { Runtime, MarkdownParser, StateManager } from '../src/index'
 
 describe('StateManager', () => {
@@ -232,6 +236,49 @@ Welcome, $player.name!
     if (doc) {
       const result = await runtime.execute(doc.sections[0].id)
       expect(result.output).toContain('Welcome, Alice!')
+    }
+  })
+
+  test('execute script block when enabled', async () => {
+    runtime = new Runtime({ allowScripts: true })
+    const markdown = `---
+title: Script Test
+---
+
+## Start
+\`\`\`script
+helper.setState('game.score', 10)
+return 'score:' + helper.getState('game.score')
+\`\`\`
+`
+    runtime.load(markdown)
+    const doc = runtime.getDocument()
+    if (doc) {
+      const result = await runtime.execute(doc.sections[0].id)
+      expect(result.success).toBe(true)
+      expect(result.output?.trim()).toBe('score:10')
+      const state = runtime.getState()
+      expect(state.game.score).toBe(10)
+    }
+  })
+
+  test('script block rejected when disabled', async () => {
+    runtime = new Runtime({ allowScripts: false })
+    const markdown = `---
+title: Script Fail
+---
+
+## Start
+\`\`\`script
+helper.setState('game.score', 5)
+\`\`\`
+`
+    runtime.load(markdown)
+    const doc = runtime.getDocument()
+    if (doc) {
+      const result = await runtime.execute(doc.sections[0].id)
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('Script blocks are disabled')
     }
   })
 

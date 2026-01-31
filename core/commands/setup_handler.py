@@ -202,6 +202,8 @@ When Wizard Server is installed, it imports this data.
     def _apply_system_datetime(self, form_data: Dict) -> Dict:
         """Apply system datetime approval or collect overrides when needed."""
         approval = form_data.get("system_datetime_approve")
+        manual_override_keys = {"user_timezone", "current_date", "current_time"}
+        has_manual_overrides = manual_override_keys.issubset(form_data.keys())
         if isinstance(approval, dict):
             if approval.get("approved"):
                 form_data["user_timezone"] = approval.get("timezone")
@@ -210,6 +212,8 @@ When Wizard Server is installed, it imports this data.
                 return form_data
 
             # User declined: collect overrides
+            if has_manual_overrides:
+                return form_data
             overrides = self._run_datetime_override_form(approval)
             if overrides.get("status") == "success":
                 form_data.update(overrides.get("data", {}))

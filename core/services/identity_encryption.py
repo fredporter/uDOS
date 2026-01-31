@@ -260,39 +260,17 @@ class IdentityEncryption:
     # ========================================================================
 
     def enrich_identity(self, identity: Dict, location: str = None) -> Dict:
-        """Add calculated fields (starsign, generation, UDOS Crypt) to identity.
+        """Add calculated fields to identity (UDOS Crypt enrichment deprecated).
 
         Args:
             identity: Identity dictionary with user_dob
             location: Location for profile ID generation (optional)
 
         Returns:
-            Enhanced identity with calculated fields
+            Copy of identity (crypt enrichment removed)
         """
-        dob = identity.get('user_dob')
-        if not dob:
-            return identity
-
-        # Create enriched copy
+        # Create enriched copy (crypt-code enrichment has been deprecated)
         enriched = identity.copy()
-
-        # Get UDOS Crypt instance
-        crypt = get_udos_crypt()
-
-        # Add UDOS Crypt components
-        crypt_components = crypt.get_crypt_components(dob)
-        enriched['_starsign'] = crypt_components.get('starsign')
-        enriched['_color'] = crypt_components.get('color')
-        enriched['_generation'] = crypt_components.get('generation')
-        enriched['_animal'] = crypt_components.get('animal')
-        enriched['_adjective'] = crypt_components.get('adjective')
-        enriched['_crypt_id'] = crypt_components.get('crypt_id')  # "blue-mongoose-swift"
-
-        # Generate unique profile ID if location provided
-        if location:
-            profile_id = crypt.generate_profile_id(dob, location)
-            enriched['_profile_id'] = profile_id
-
         return enriched
 
     def get_age(self, dob: str) -> Optional[int]:

@@ -253,3 +253,24 @@ wizard/config/notion_keys.json
 *.backup.*
 *~
 .DS_Store
+
+# ---------- ADDITIONAL LOCAL FILE PROTECTIONS (2026-01-31) ----------
+# Ensure all memory/ subdirectories are blocked
+memory/**
+memory/logs/**
+memory/binders/**
+memory/library/**
+memory/private/**
+memory/story/**
+memory/tests/**
+memory/user/**
+memory/wizard/**
+
+# Wizard secrets (redundant but explicit)
+wizard/secrets.tomb
+
+# Core sonic directory if it contains local/test files
+core/sonic/**/*.log
+core/sonic/**/*.state
+core/sonic/**/private/
+

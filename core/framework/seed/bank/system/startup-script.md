@@ -13,9 +13,11 @@ This script is executed on system startup to perform basic checks and initializa
 ```script
 $system.status = "startup"
 $system.last_startup = $now
+PATTERN TEXT "Startup ready"
 ```
 
 # Notes
 
 - Extend this script with additional startup checks as needed.
 - Use RUN to execute: RUN memory/bank/system/startup-script.md
+- This script now runs automatically at boot and renders a PATTERN banner for demo/testing confirmation.

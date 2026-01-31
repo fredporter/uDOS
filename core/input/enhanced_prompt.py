@@ -49,20 +49,13 @@ class EnhancedPrompt(SmartPrompt):
         Returns:
             User input string
         """
-        # Display context lines if enabled
         if self.show_context:
-            # Line 1: Current value or predictions
-            if current_value:
-                print(f"  ╭─ Current: {current_value}")
-            elif predictions and self.show_predictions:
-                pred_display = ", ".join(predictions[:3])
-                if len(predictions) > 3:
-                    pred_display += f" (+{len(predictions) - 3} more)"
-                print(f"  ╭─ Suggestions: {pred_display}")
-            else:
-                print(f"  ╭─ ...")
-
-            # Line 2: Help text
+            self._print_suggestions_line(
+                current_value,
+                predictions,
+                fallback_label="Suggestions",
+                default_label="...",
+            )
             if help_text:
                 print(f"  ╰─ {help_text}")
             else:
@@ -198,18 +191,23 @@ class EnhancedPrompt(SmartPrompt):
         """
         # Display context lines
         if self.show_context:
-            # Line 1: Current value
-            if current_value:
-                print(f"  ╭─ Current: {current_value}")
-            else:
-                print(f"  ╭─ Not set")
+            predictions = []
+            if not current_value and hasattr(self, "predictor"):
+                try:
+                    preds = self.predictor.predict(var_name, max_results=3)
+                    predictions = [p.text for p in preds]
+                except Exception:
+                    predictions = []
 
-            # Line 2: Help text with type and requirement
+            self._print_suggestions_line(
+                current_value,
+                predictions,
+                fallback_label="Suggestions",
+                default_label="Not set",
+            )
+
             help_display = help_text or f"Enter {var_type} value"
-            if required:
-                help_display += " (required)"
-            else:
-                help_display += " (optional, Enter to skip)"
+            help_display += " (required)" if required else " (optional, Enter to skip)"
             print(f"  ╰─ {help_display}")
 
         # Build prompt
@@ -226,6 +224,30 @@ class EnhancedPrompt(SmartPrompt):
             )
 
         return response if response else None
+
+    def _print_suggestions_line(
+        self,
+        current_value: Optional[str],
+        predictions: Optional[List[str]],
+        *,
+        fallback_label: str = "Suggestions",
+        default_label: str = "...",
+    ) -> None:
+        """Render the first context line consistently."""
+        if current_value:
+            print(f"  ╭─ Current: {current_value}")
+            return
+
+        if self.show_predictions:
+            if predictions:
+                pred_display = ", ".join(predictions[:3])
+                if len(predictions) > 3:
+                    pred_display += f" (+{len(predictions) - 3} more)"
+                print(f"  ╭─ {fallback_label}: {pred_display}")
+            else:
+                print(f"  ╭─ {fallback_label} unavailable")
+        else:
+            print(f"  ╭─ {default_label}")
 
     def ask_story_field(
         self,

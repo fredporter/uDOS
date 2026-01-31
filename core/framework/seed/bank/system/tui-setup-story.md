@@ -49,6 +49,7 @@ name: system_datetime_approve
 label: Confirm local date/time/zone
 type: datetime_approve
 required: true
+help: "Approve the detected date/time/timezone; choose No to edit them manually afterwards."
 ```
 
 ```story
@@ -70,6 +71,11 @@ label: Location
 type: location
 timezone_field: user_timezone
 required: true
+help: "Choose your home grid/location (final question before completion). The selector stays last so you confirm your date/time approval before picking a grid."
 ```
 
 ---
+
+## Completion Confirmation
+
+- The TUI prints the local repo/memory/bank/seed structure summary (see docs/SEED-INSTALLATION-GUIDE.md) once the story completes so you can verify seeds/memory align with the new round’s training narrative.

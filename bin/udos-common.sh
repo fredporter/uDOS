@@ -236,6 +236,14 @@ ensure_python_env() {
         fi
     fi
 
+    if ! python -c "import prompt_toolkit" 2>/dev/null; then
+        echo -e "${YELLOW}⚠️  prompt_toolkit missing - installing advanced CLI helper...${NC}"
+        if ! pip install --progress-bar on "prompt_toolkit>=3.0.0"; then
+            echo -e "  ${RED}❌ Failed to install prompt_toolkit${NC}"
+            return 1
+        fi
+    fi
+
     # Set environment
     export PYTHONPATH="$UDOS_ROOT:$PYTHONPATH"
     export UDOS_DEV_MODE=1
@@ -494,6 +502,10 @@ rebuild_after_dev() {
 # ═════════════════════════════════════════════════════════════════════════════
 
 _setup_component_environment() {
+    if [ ! -t 0 ] || [ ! -t 1 ]; then
+        echo -e "${YELLOW}⚠️  Launcher requires an interactive terminal (stdin and stdout must be TTYs).${NC}"
+        return 1
+    fi
     local component="$1"
 
     # Ensure venv and dependencies

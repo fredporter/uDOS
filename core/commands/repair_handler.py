@@ -21,6 +21,7 @@ import sys
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.services.logging_service import get_logger, get_repo_root
+from core.services.self_healer import collect_self_heal_summary
 
 
 class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
@@ -214,65 +215,38 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
     def _check_system(self, user) -> Dict:
         """Check system health status."""
         logger = get_logger("repair-handler")
-        repo_root = get_repo_root()
-
-        checks = {
-            "python_version": sys.version.split()[0],
-            "venv_active": "Found" if (repo_root / ".venv").exists() else "Not found",
-            "git_repo": "Git repo" if (repo_root / ".git").exists() else "Not a git repo",
-            "dev_submodule": "Initialized" if (repo_root / "dev" / ".git").exists() else "Not initialized",
-            "core_files": (
-                f"{len(list((repo_root / 'core').glob('**/*.py')))} Python files"
-                if (repo_root / "core").exists()
-                else "core/ not found"
-            ),
-        }
-
-        dirs_to_check = [
-            ("core", "Core runtime"),
-            ("wizard", "Wizard server"),
-            ("extensions", "Extensions"),
-            ("memory", "Memory/storage"),
-            ("docs", "Documentation"),
-        ]
-
-        dep_checks = []
-        try:
-            import watchdog  # noqa: F401
-
-            dep_checks.append(["watchdog", "OK"])
-        except Exception:
-            dep_checks.append(["watchdog", "Missing"])
-
-        rows = [[key, value] for key, value in checks.items()]
-        dir_rows = []
-        for dirname, desc in dirs_to_check:
-            path = repo_root / dirname
-            status = "OK" if path.exists() else "Missing"
-            dir_rows.append([f"{dirname}/", f"{status} ({desc})"])
-
         from core.tui.output import OutputToolkit
         from core.services.unified_logging import get_unified_logger
 
-        output = [OutputToolkit.banner("REPAIR: SYSTEM CHECK")]
-        output.append(OutputToolkit.table(["check", "result"], rows))
-        output.append("")
-        output.append(OutputToolkit.section("Directories", OutputToolkit.table(["path", "status"], dir_rows)))
-        output.append("")
-        output.append(OutputToolkit.section("Dependencies", OutputToolkit.table(["package", "status"], dep_checks)))
+        summary = collect_self_heal_summary(component="core", auto_repair=False)
+        summary_rows = [
+            ["success", "yes" if summary.get("success") else "no"],
+            ["issues_found", summary.get("issues", 0)],
+            ["issues_repaired", summary.get("repaired", 0)],
+            ["issues_remaining", summary.get("remaining", 0)],
+        ]
 
-        logger.info("[LOCAL] REPAIR system check completed")
+        output = [OutputToolkit.banner("REPAIR: SELF-HEAL CHECK")]
+        output.append(OutputToolkit.table(["metric", "value"], summary_rows))
+        output.append("")
+        output.append(OutputToolkit.section("Details", "\n".join(summary.get("messages", []))))
+
+        logger.info("[LOCAL] REPAIR self-heal check completed (success=%s)", summary.get("success"))
         unified = get_unified_logger()
         unified.log_core(
             category="repair",
-            message=f"Standard repair check completed by {user.username if user else 'unknown'}",
-            metadata={"status": "healthy"},
+            message=f"Self-heal diagnostics completed by {user.username if user else 'unknown'}",
+            metadata=summary,
         )
 
         return {
-            "status": "success",
-            "message": "System check complete",
-            "checks": checks,
+            "status": "success" if summary.get("success") else "warning",
+            "message": "Self-heal diagnostics complete",
+            "checks": {
+                "issues_found": summary.get("issues", 0),
+                "issues_repaired": summary.get("repaired", 0),
+                "issues_remaining": summary.get("remaining", 0),
+            },
             "output": "\n".join(output),
         }
 

@@ -32,6 +32,8 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+> **Note:** `prompt_toolkit` (already listed in `requirements.txt`) powers the SmartPrompt enhanced mode. Always launch uDOS through the provided launcher or `python uDOS.py` from a terminal where both stdin and stdout are TTYs so the TAB-based command selector, history keys, and predictor suggestions remain active.
+
 ### 4. Launch Components
 
 uDOS uses a unified launcher system across all components. All launchers delegate to `bin/udos-common.sh` for consistent behavior.

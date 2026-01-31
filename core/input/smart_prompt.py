@@ -262,6 +262,7 @@ class SmartPrompt:
         self.fallback_reason = None
         self.tab_handler = None
         self.registry = registry
+        self.fkey_handler = None
 
         if self.use_fallback and not HAS_PROMPT_TOOLKIT:
             self.fallback_reason = "prompt_toolkit not installed"
@@ -347,6 +348,16 @@ class SmartPrompt:
             """Handle Ctrl+D (EOF)"""
             raise EOFError()
 
+        function_key_names = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"]
+
+        def _bind_function_key(key_name: str):
+            @bindings.add(getattr(Keys, key_name))
+            def _handle(event, _key=key_name):
+                self._trigger_function_key(_key)
+
+        for key_name in function_key_names:
+            _bind_function_key(key_name)
+
         @bindings.add(Keys.Tab)
         def _(event):
             """Handle Tab for command selector"""
@@ -367,6 +378,11 @@ class SmartPrompt:
     def set_tab_handler(self, handler) -> None:
         """Register a callback for Tab key in advanced prompt mode."""
         self.tab_handler = handler
+
+    def set_function_key_handler(self, handler) -> None:
+        """Register a handler that responds to F1-F8 presses."""
+        self.fkey_handler = handler
+
 
     def ask(
         self,
@@ -573,15 +589,56 @@ class SmartPrompt:
             User input
         """
         try:
-            user_input = input(prompt_text).strip()
+            raw_input = input(prompt_text)
+            if "\t" in raw_input:
+                tab_selection = self._handle_tab_shortcut()
+                if tab_selection:
+                    return tab_selection.strip()
+                # Continue prompting
+                return self._ask_fallback(prompt_text)
 
-            # Track for history
+            user_input = raw_input.strip()
+
             if user_input:
                 self.predictor.record_command(user_input)
 
             return user_input
         except (KeyboardInterrupt, EOFError):
             return ""
+
+    def _handle_tab_shortcut(self) -> Optional[str]:
+        """Invoke command selector via Tab even in fallback mode."""
+        if not self.tab_handler:
+            return None
+
+        try:
+            selection = self.tab_handler()
+            if selection:
+                print(f"\n  → Selected command: {selection.strip()}")
+                return selection
+        except Exception as exc:
+            debug_logger.debug(f"Tab handler failed in fallback: {exc}")
+        return None
+
+    def _trigger_function_key(self, key_name: str) -> None:
+        """Run a handler when the user presses F1-F8."""
+        if not self.fkey_handler:
+            return
+
+        handler = self.fkey_handler.handlers.get(key_name)
+        if not handler:
+            return
+
+        try:
+            result = handler()
+        except Exception as exc:
+            debug_logger.debug(f"Function key handler {key_name} failed: {exc}")
+            return
+
+        if result:
+            output = result.get("output") or result.get("message") or ""
+            if output:
+                print(f"\n{output}")
 
     def get_predictions(self, partial: str, max_results: int = 5) -> List:
         """

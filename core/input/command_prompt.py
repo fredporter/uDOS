@@ -174,6 +174,9 @@ class ContextualCommandPrompt(EnhancedPrompt):
         """
         self.logger.debug("Asking for command with contextual help")
 
+        # Display context lines before the prompt (suggestions + help)
+        self._display_context_for_command("")
+
         # Use SmartPrompt directly - don't duplicate context printing
         # Hints are shown once at startup via _show_startup_hints()
         user_input = self.ask(prompt_text, default="")

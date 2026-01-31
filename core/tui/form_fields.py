@@ -21,6 +21,10 @@ import sys
 import calendar
 from datetime import datetime
 from typing import Optional, Dict, List, Any, Callable
+from pathlib import Path
+
+from core.services.logging_service import get_repo_root
+from core.services.maintenance_utils import get_memory_root
 from dataclasses import dataclass
 from enum import Enum
 
@@ -391,62 +395,24 @@ class DateTimeApproval:
         date_str = now.strftime("%Y-%m-%d")
         time_str = now.strftime("%H:%M:%S")
 
-        if key in ("1", "y", "Y", "\n", "\r"):
-            return {
-                "approved": True,
-                "date": date_str,
-                "time": time_str,
-                "timezone": tz,
-            }
-        if key in ("0", "n", "N", "x", "X"):
-            return {
-                "approved": False,
-                "date": date_str,
-                "time": time_str,
-                "timezone": tz,
-            }
+        normalized = key.strip().lower()
+        payload = {
+            "approved": None,
+            "date": date_str,
+            "time": time_str,
+            "timezone": tz,
+        }
+
+        if normalized in {"1", "y", "yes", "ok", ""} or key in ("\n", "\r"):
+            payload["approved"] = True
+            return payload
+
+        if normalized in {"0", "n", "no", "x", "cancel"}:
+            payload["approved"] = False
+            return payload
+
         return None
     
-    def handle_input(self, key: str) -> Optional[str]:
-        """Handle keyboard input. Returns time string if complete."""
-        current_picker = self.pickers[self.current_field]
-        
-        if key == '\t':  # Tab - move to next field
-            current_picker._finalize_input()
-            if self.current_field < len(self.pickers) - 1:
-                self.current_field += 1
-            return None
-        
-        elif key == '\n' or key == '\r':  # Enter - confirm
-            self._finalize()
-            return self.get_value()
-        
-        elif key == 'up':  # Arrow up
-            current_picker.arrow_up()
-            return None
-        
-        elif key == 'down':  # Arrow down
-            current_picker.arrow_down()
-            return None
-        
-        else:
-            current_picker.handle_input(key)
-            return None
-    
-    def _finalize(self) -> None:
-        """Finalize all pickers."""
-        for picker in self.pickers:
-            picker._finalize_input()
-    
-    def get_value(self) -> str:
-        """Get time as HH:MM:SS string."""
-        self._finalize()
-        hour = self.hour_picker.get_value()
-        minute = self.minute_picker.get_value()
-        second = self.second_picker.get_value()
-        return f"{hour:02d}:{minute:02d}:{second:02d}"
-
-
 class BarSelector:
     """Bar-style selector for multiple options."""
     
@@ -776,10 +742,37 @@ class TUIFormRenderer:
         
         for field in self.fields:
             lines.append(f"  • {field['label']}: {field['value']}")
-        
+
         lines.append("\n" + "=" * 60)
+        lines.extend(self._render_structure_summary())
+        lines.append("\n  ✳️  See docs/SEED-INSTALLATION-GUIDE.md for expectations")
+        lines.append("=" * 60)
         
         return "\n".join(lines)
+
+    def _render_structure_summary(self) -> List[str]:
+        """Render the local/memory/bank/seed structure confirmation."""
+        repo_root = get_repo_root()
+        memory_root = get_memory_root()
+        bank_root = memory_root / "bank"
+        seed_root = repo_root / "core" / "framework" / "seed"
+        seed_bank = seed_root / "bank"
+        guide_doc = repo_root / "docs" / "SEED-INSTALLATION-GUIDE.md"
+
+        def fmt(label: str, path: Path) -> str:
+            status = "✅" if path.exists() else "❌"
+            return f"  • {label}: {status} ({path})"
+
+        summary = [
+            "\nSystem structure summary:",
+            fmt("local repo root", repo_root),
+            fmt("memory root", memory_root),
+            fmt("memory/bank", bank_root),
+            fmt("framework seed root", seed_root),
+            fmt("seed bank data", seed_bank),
+            fmt("seed installation guide", guide_doc),
+        ]
+        return summary
     
     def handle_input(self, key: str) -> bool:
         """

@@ -28,7 +28,26 @@
     <p class="text-gray-400">24×24 tile editor with SVG/ASCII export</p>
   </div>
 
-  <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-    <div id="wizard-pixel-editor"></div>
-  </div>
+<div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+  <div id="wizard-pixel-editor"></div>
 </div>
+</div>
+
+<div class="tool-notes">
+  Seeded map layers live under <code>core/framework/seed/bank/graphics</code> and the workspace selector
+  lets you pick a layer or font bundle before opening this editor. Every export can be pushed to the
+  GUI file picker so Sonic/Font tooling stays in sync.
+</div>
+
+<style>
+  .tool-notes {
+    max-width: 960px;
+    margin: 1.25rem auto 0;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    color: #cbd5f5;
+    font-size: 0.95rem;
+  }
+</style>

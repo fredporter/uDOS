@@ -431,7 +431,7 @@
         <div class="text-gray-400">No active layer.</div>
       {/if}
     </section>
-  </div>
+</div>
 </div>
 
 {#if linkTarget}
@@ -443,3 +443,21 @@
     onClose={closeLinker}
   />
 {/if}
+
+<div class="tool-notes">
+  Layer Editor reads seeded map layers (core/framework/seed/bank/graphics) and pushes revisions into the workspace selector.
+  Use the GUI file picker to import/export layers so Sonic USB payloads and Font Manager presets stay aligned.
+</div>
+
+<style>
+  .tool-notes {
+    max-width: 960px;
+    margin: 1.5rem auto;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    color: #cbd5f5;
+    font-size: 0.95rem;
+  }
+</style>

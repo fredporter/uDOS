@@ -81,6 +81,13 @@ export class Runtime {
         continue;
       }
 
+      if (block.type === "script" && !this.config.allowScripts) {
+        return {
+          success: false,
+          error: "Script blocks are disabled (set allowScripts: true to enable)",
+        };
+      }
+
       const result = await this.executeBlock(block, context);
 
       if (!result.success) {

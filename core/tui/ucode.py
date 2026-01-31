@@ -39,11 +39,13 @@ import json
 import logging
 import subprocess
 import time
+import shutil
 import requests
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Callable
 from dataclasses import dataclass
 from enum import Enum
+from datetime import datetime
 
 # Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -54,8 +56,11 @@ from core.tui.state import GameState
 from core.tui.fkey_handler import FKeyHandler
 from core.ui.command_selector import CommandSelector
 from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, create_default_registry
+from core.services.health_training import read_last_summary
 from core.services.logging_service import get_logger
+from core.services.self_healer import collect_self_heal_summary
 from core.tui.advanced_form_handler import AdvancedFormField
+from core.services.system_script_runner import SystemScriptRunner
 
 
 def get_repo_root() -> Path:
@@ -145,15 +150,23 @@ class ComponentDetector:
     def _detect_extensions(self) -> Component:
         """Detect extensions component."""
         path = self.repo_root / "extensions"
-        # Extensions folder exists and has subdirectories like api, transport
-        if path.exists() and ((path / "api").exists() or (path / "transport").exists()):
+        plugin_repo_path = self.repo_root / "wizard" / "distribution" / "plugins"
+        has_extension_dirs = path.exists() and (
+            (path / "api").exists() or (path / "transport").exists()
+        )
+        has_plugin_catalog = plugin_repo_path.exists()
+
+        if has_extension_dirs or has_plugin_catalog:
             version = self._get_version(path / "version.json")
+            if not version:
+                wizard_version = self._get_version(self.repo_root / "wizard" / "version.json")
+                version = wizard_version or "0.0.0"
             return Component(
                 name="extensions",
                 path=path,
                 state=ComponentState.AVAILABLE,
                 version=version,
-                description="Extensible plugin system"
+                description="Extensions + Wizard plugin catalog"
             )
         return Component(
             name="extensions",
@@ -226,6 +239,7 @@ class uCODETUI:
 
         # Function key handler
         self.fkey_handler = FKeyHandler(dispatcher=self.dispatcher, prompt=self.prompt)
+        self.prompt.set_function_key_handler(self.fkey_handler)
 
         # Command registry (maps commands to methods)
         self.commands = {
@@ -248,6 +262,15 @@ class uCODETUI:
             self.commands["EXT"] = self._cmd_plugin
             self.commands["EXTENSION"] = self._cmd_plugin
 
+        self.health_log_path = self.repo_root / "memory" / "logs" / "health-training.log"
+        self.health_log_path.parent.mkdir(parents=True, exist_ok=True)
+        self.self_heal_summary: Optional[Dict[str, Any]] = None
+        self.hot_reload_mgr = None
+        self.hot_reload_stats: Optional[Dict[str, Any]] = None
+        self.previous_health_log: Optional[Dict[str, Any]] = None
+        self._setup_health_monitoring()
+        self.system_script_runner = SystemScriptRunner()
+
         if self.prompt.use_fallback:
             self.logger.info(f"[ContextualPrompt] Using fallback mode: {self.prompt.fallback_reason}")
         else:
@@ -256,7 +279,9 @@ class uCODETUI:
     def run(self) -> None:
         """Start uCODE TUI."""
         self.running = True
+        self._run_startup_script()
         self._show_banner()
+        self._show_health_summary()
         self._show_startup_hints()
 
         # Check if in ghost mode and prompt for setup
@@ -365,6 +390,98 @@ class uCODETUI:
 ╚═══════════════════════════════════════════════════════════════╝
 """
         print(banner)
+
+    def _run_startup_script(self) -> None:
+        """Execute the system startup script once per launch."""
+        result = self.system_script_runner.run_startup_script()
+        if result.get("status") == "success":
+            output = result.get("output")
+            if output:
+                print(output)
+        else:
+            message = result.get("message")
+            if message:
+                print(f"\n⚡ {message}")
+
+    def _show_health_summary(self) -> None:
+        """Show Self-Heal + Hot Reload overview (banner/log hook)."""
+        if not self.self_heal_summary and not self.hot_reload_stats:
+            return
+
+        print("\n📊 System Health Training Summary")
+        print("-" * 60)
+
+        if self.self_heal_summary:
+            success = self.self_heal_summary.get("success", False)
+            status = "✅ Healthy" if success else "⚠️ Attention"
+            issues = self.self_heal_summary.get("issues", 0)
+            repaired = self.self_heal_summary.get("repaired", 0)
+            remaining = self.self_heal_summary.get("remaining", 0)
+            print(f"  Self-Heal: {status} | Issues: {issues} | Repaired: {repaired} | Remaining: {remaining}")
+
+        if self.hot_reload_stats:
+            enabled = "enabled" if self.hot_reload_stats.get("enabled") else "disabled"
+            running = "running" if self.hot_reload_stats.get("running") else "stopped"
+            reloads = self.hot_reload_stats.get("reload_count", 0)
+            success_rate = self.hot_reload_stats.get("success_rate", 0.0)
+            print(
+                f"  Hot Reload: {enabled}, {running} | Reloads: {reloads} | Success: {success_rate:0.1f}%"
+            )
+
+        print(f"  Training log: {self.health_log_path}")
+
+        prev_remaining = (self.previous_health_log or {}).get("self_heal", {}).get("remaining", 0)
+        if prev_remaining > 0:
+            print(f"  ⚠️ Last health log recorded {prev_remaining} remaining issues; automation will rerun diagnostics on drift.")
+
+        if self.self_heal_summary and self.self_heal_summary.get("remaining", 0) > 0:
+            print("  ⚠️ Automation will rerun REPAIR/SHAKEDOWN until remaining issues drop to zero.")
+
+        print("-" * 60 + "\n")
+
+    def _setup_health_monitoring(self) -> None:
+        """Initialize Self-Healer diagnostics + Hot Reload stats for automation."""
+        self.previous_health_log = read_last_summary()
+        self.self_heal_summary = self._run_self_healer()
+        self.hot_reload_mgr = self._init_hot_reload_manager()
+        self.hot_reload_stats = self.hot_reload_mgr.stats() if self.hot_reload_mgr else None
+        self._log_health_training_summary()
+
+    def _run_self_healer(self) -> Dict[str, Any]:
+        """Run Self-Healer diagnostics (no auto repair) and summarise."""
+        try:
+            summary = collect_self_heal_summary(component="core", auto_repair=False)
+            self.logger.info(f"[Self-Heal] {summary}")
+            return summary
+        except Exception as exc:
+            self.logger.warning(f"[Self-Heal] Diagnostics unavailable: {exc}")
+            return {"success": False, "error": str(exc)}
+
+    def _init_hot_reload_manager(self):
+        """Initialize global hot reload manager (stats only)."""
+        try:
+            from core.services.hot_reload import init_hot_reload
+
+            manager = init_hot_reload(self.dispatcher, enabled=True)
+            if manager:
+                self.logger.info("[Hot Reload] Manager ready")
+            return manager
+        except Exception as exc:
+            self.logger.warning(f"[Hot Reload] Manager not available: {exc}")
+            return None
+
+    def _log_health_training_summary(self) -> None:
+        """Append health training summary to memory/logs/health-training.log."""
+        try:
+            payload = {
+                "timestamp": datetime.now().isoformat(),
+                "self_heal": self.self_heal_summary or {},
+                "hot_reload": self.hot_reload_stats or {},
+            }
+            with open(self.health_log_path, "a") as log_file:
+                log_file.write(json.dumps(payload) + "\n")
+        except Exception as exc:
+            self.logger.warning(f"[Health Log] Failed to write summary: {exc}")
 
     def _ask_yes_no(self, question: str, default: bool = True, help_text: str = None, context: str = None) -> bool:
         """Ask a standardized [1|0|Yes|No|OK|Cancel] question.
@@ -1208,10 +1325,10 @@ For detailed help on any command, type the command name followed by --help
         subargs = parts[1] if len(parts) > 1 else ""
 
         if action == "list":
-            print("\n🔌 Installed Plugins:\n")
+            print("\n🔌 Plugin catalog & installed extensions:\n")
             self._plugin_list()
         elif action == "install":
-            print(f"\n🔌 Installing plugin: {subargs}")
+            print(f"\n🔌 Installing plugin from Wizard catalog: {subargs}")
             self._plugin_install(subargs)
         elif action == "remove":
             print(f"\n🔌 Removing plugin: {subargs}")
@@ -1220,48 +1337,123 @@ For detailed help on any command, type the command name followed by --help
             print(f"\n🔌 Packaging plugin: {subargs}")
             self._plugin_pack(subargs)
         elif action in ("help", "info"):
-            print("\nPlugin commands: list, install <name>, remove <name>, pack <name>")
+            print("\nPlugin commands: list, install <id>, remove <name>, pack <name>")
         else:
             print(f"\n🔌 Unknown plugin action: {action}")
 
     def _plugin_list(self) -> None:
-        """List installed plugins."""
+        """List Wizard plugin catalog plus any installed extensions."""
         try:
-            ext_path = self.repo_root / "extensions"
-            if not ext_path.exists():
-                print("  ❌ Extensions folder not found")
-                return
+            plugin_root = self.repo_root / "wizard" / "distribution" / "plugins"
+            remote_plugins = self._load_remote_plugins(plugin_root)
 
-            # Scan for extensions
-            extensions = []
-            for item in ext_path.iterdir():
-                if item.is_dir() and (item / "version.json").exists():
-                    try:
-                        with open(item / "version.json") as f:
-                            data = json.load(f)
-                            version = data.get("display") or data.get("version", "unknown")
-                            extensions.append((item.name, version))
-                    except Exception:
-                        extensions.append((item.name, "error reading version"))
-
-            if extensions:
-                print("  Installed Extensions:")
-                for name, version in sorted(extensions):
-                    print(f"    ✅ {name:15} {version}")
+            if remote_plugins:
+                print("  Wizard Plugin Catalog:")
+                for entry in remote_plugins:
+                    status = "✅" if entry["installed"] else "  "
+                    print(
+                        f"    {status} {entry['id']:<16} {entry['version']:<8} {entry['name']}"
+                    )
+                    description = entry.get("description")
+                    if description:
+                        print(f"       {description}")
+                print()
+                print("  Use `PLUGIN install <id>` to copy a catalog entry into extensions.")
             else:
-                print("  No extensions installed")
+                print("  Wizard plugin catalog is empty or missing.")
 
-        except Exception as e:
-            print(f"  ❌ Error listing extensions: {e}")
+            ext_path = self.repo_root / "extensions"
+            if ext_path.exists():
+                installed = []
+                for item in ext_path.iterdir():
+                    if item.is_dir():
+                        version = "unknown"
+                        version_file = item / "version.json"
+                        if version_file.exists():
+                            try:
+                                data = json.loads(version_file.read_text())
+                                version = data.get("display") or data.get("version", "unknown")
+                            except Exception:
+                                version = "error reading version"
+                        installed.append((item.name, version))
+
+                if installed:
+                    print("\n  Installed Extensions:")
+                    for name, version in sorted(installed):
+                        print(f"    ✅ {name:15} {version}")
+                else:
+                    print("\n  No extensions currently installed.")
+            else:
+                print("\n  Extensions folder not found.")
+        except Exception as exc:
+            print(f"  ❌ Error listing plugins: {exc}")
 
     def _plugin_install(self, name: str) -> None:
-        """Install a plugin."""
+        """Install a plugin from Wizard's distribution catalog."""
+        if not name:
+            print("  ❌ Specify a plugin ID to install (use `PLUGIN list`).")
+            return
+
+        plugin_src = self.repo_root / "wizard" / "distribution" / "plugins" / name
+        if not plugin_src.exists():
+            print(f"  ❌ Plugin not found in catalog: {name}")
+            return
+
         try:
-            print(f"  🔌 Installing plugin: {name}")
-            print("  [TODO] Implement plugin install from registry")
-            print("         Use PLUGIN list to see available plugins")
-        except Exception as e:
-            print(f"  ❌ Error: {e}")
+            from wizard.services.plugin_repository import get_repository
+            from wizard.services.library_manager_service import get_library_manager
+        except ImportError as exc:
+            print(f"  ❌ Wizard services unavailable: {exc}")
+            return
+
+        repo = get_repository()
+        repo_entry = repo.get_plugin(name)
+        if not repo_entry:
+            print(f"  ❌ Plugin registry entry missing for: {name}")
+            return
+
+        evidence = plugin_src / "manifest.json"
+        manifest_data = {}
+        if evidence.exists():
+            try:
+                manifest_data = json.loads(evidence.read_text())
+            except Exception:
+                pass
+
+        library_root = self.repo_root / "library"
+        library_root.mkdir(parents=True, exist_ok=True)
+        library_target = library_root / name
+
+        if library_target.exists():
+            print(f"  ⚠️  Plugin already copied to library: {name}")
+        else:
+            try:
+                shutil.copytree(plugin_src, library_target)
+            except Exception as exc:
+                print(f"  ❌ Failed to copy plugin to library: {exc}")
+                return
+
+        container_payload = {
+            "container": {
+                "description": manifest_data.get("description", repo_entry.description),
+                "version": manifest_data.get("version", repo_entry.version),
+            },
+            "repo_path": str(library_target),
+        }
+        container_file = library_target / "container.json"
+        try:
+            container_file.write_text(json.dumps(container_payload, indent=2))
+        except Exception as exc:
+            print(f"  ❌ Failed to write container metadata: {exc}")
+            return
+
+        manager = get_library_manager(self.repo_root)
+        result = manager.install_integration(name)
+        if result.success:
+            print(f"  ✅ Plugin installed via LibraryManager: {name}")
+            print(f"  → {result.message}")
+        else:
+            print(f"  ❌ Installation failed: {result.error}")
 
     def _plugin_remove(self, name: str) -> None:
         """Remove a plugin."""
@@ -1302,6 +1494,37 @@ For detailed help on any command, type the command name followed by --help
 
         except Exception as e:
             print(f"  ❌ Error: {e}")
+
+    def _load_remote_plugins(self, plugin_root: Path) -> List[Dict[str, Any]]:
+        """Read wizard/distribution/plugins manifest entries."""
+        entries = []
+
+        if not plugin_root.exists():
+            return entries
+
+        for item in sorted(plugin_root.iterdir()):
+            if not item.is_dir():
+                continue
+            manifest_file = item / "manifest.json"
+            if not manifest_file.exists():
+                continue
+            try:
+                payload = json.loads(manifest_file.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+
+            plugin_id = payload.get("id", item.name)
+            installed = (self.repo_root / "extensions" / plugin_id).exists()
+            entries.append(
+                {
+                    "id": plugin_id,
+                    "name": payload.get("name", plugin_id),
+                    "version": payload.get("version", "unknown"),
+                    "description": payload.get("description", ""),
+                    "installed": installed,
+                }
+            )
+        return entries
 
     def _cmd_exit(self, args: str) -> None:
         """Exit uCODE."""

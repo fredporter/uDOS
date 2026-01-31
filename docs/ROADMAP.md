@@ -885,7 +885,7 @@ Legend: ✅ Primary, 🧪 Experimental, — Not applicable
 
 ## 🎯 Next Actions (2026-01-31)
 
-1. ✅ Create development rounds document
+1. ✅ Document development rounds 3–10 (`docs/specs/ROUNDS-3-10.md`)
 2. ✅ Move specs to `/docs/specs/`
 3. ✅ Move examples to `/docs/examples/`
 4. 🔲 Create Round 3 design spec: `docs/specs/WIZARD-WEB-UI-NOTION.md`
@@ -895,6 +895,8 @@ Legend: ✅ Primary, 🧪 Experimental, — Not applicable
 8. 🔲 Create Round 10 design spec: `docs/specs/GROOVEBOX-SONGSCRIBE.md`
 9. 🔲 Update `/dev/docs/roadmap.md` with new rounds
 10. 🔲 Create implementation tickets for Q1 2026 (Rounds 3-5) and Q2 2026 (Rounds 8-10)
+11. 🔲 Add regression tests for `DateTimeApproval`/TUI approval flows (`tui/tests/test_form_fields.py`)
+12. 🔲 Keep `docs/ROADMAP-TODO.md` synced with roadmap outstanding items
 
 ---
 

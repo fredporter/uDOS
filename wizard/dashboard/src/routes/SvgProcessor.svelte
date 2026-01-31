@@ -173,8 +173,29 @@
 
       <div class="text-xs text-gray-500">
         Colors found: {colorMap.length}
-      </div>
-    </div>
+</div>
+</div>
+
+<div class="tool-notes">
+  <p>
+    SVG Processor outputs diagrams that feed the Font Manager/Pixel/Layer editors via the GUI file picker.
+    Use the workspace selector to load seeded SVG prompts from <code>core/framework/seed/bank/graphics/diagrams</code>
+    before exporting to Sonic USB payloads or the media player.
+  </p>
+</div>
+
+<style>
+  .tool-notes {
+    max-width: 960px;
+    margin: 1.5rem auto;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    color: #cbd5f5;
+    font-size: 0.95rem;
+  }
+</style>
 
     <div class="space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

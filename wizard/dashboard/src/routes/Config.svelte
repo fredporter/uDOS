@@ -689,6 +689,13 @@
     Edit API keys, webhooks, and system settings (local machine only)
   </p>
 
+  <div class="config-summary mb-6">
+    <strong>Wizard All-In-One Panel:</strong>
+    Manage the Python <code>.venv</code>, synchronize the API/secret store, and invoke plugin installers without leaving this page.
+    Use the Plugin Repository section to validate manifests from <code>wizard/distribution/plugins/</code> or jump to the
+    <a href="#hotkeys" on:click={() => (window.location.hash = "hotkeys")}>Hotkey Center</a> for F-key and TAB bindings.
+  </div>
+
   <!-- Status message -->
   {#if statusMessage}
     <div
@@ -1422,5 +1429,17 @@
   }
   textarea::-webkit-scrollbar-thumb:hover {
     background: #6b7280;
+  }
+  .config-summary {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: #cbd5f5;
+    font-size: 0.95rem;
+  }
+  .config-summary a {
+    color: #93c5fd;
+    text-decoration: underline;
   }
 </style>

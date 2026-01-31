@@ -13,6 +13,7 @@ import termios
 import tty
 from typing import Dict, List, Optional, Any
 from pathlib import Path
+from datetime import datetime
 
 from core.tui.form_fields import (
     TUIFormRenderer,
@@ -34,6 +35,8 @@ class StoryFormHandler:
         """Initialize story form handler."""
         self.renderer: Optional[TUIFormRenderer] = None
         self.original_settings = None
+        self._override_fields_inserted = False
+        self._pending_location_specs: List[Dict[str, Any]] = []
     
     def process_story_form(self, form_spec: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -49,17 +52,25 @@ class StoryFormHandler:
         renderer = TUIFormRenderer(
             title=form_spec.get('title', 'Form'),
             description=form_spec.get('description', ''),
+            on_field_complete=self._on_field_complete,
         )
-        
-        # Add fields
+        self.renderer = renderer
+        self._override_fields_inserted = False
+        self._pending_location_specs = []
+
+        # Add fields (non-location first, location fields queued for last)
         fields = form_spec.get('fields', [])
         for field_spec in fields:
             self._add_field_from_spec(renderer, field_spec)
+
+        for location_spec in self._pending_location_specs:
+            self._add_field_from_spec(renderer, location_spec, force_add=True)
+        self._reorder_location_fields()
         
         # Run interactive form
         return self._run_interactive_form(renderer)
     
-    def _add_field_from_spec(self, renderer: TUIFormRenderer, spec: Dict) -> None:
+    def _add_field_from_spec(self, renderer: TUIFormRenderer, spec: Dict, force_add: bool = False) -> None:
         """Add field to renderer from specification."""
         name = spec.get('name', 'unknown')
         label = spec.get('label', name)
@@ -79,6 +90,10 @@ class StoryFormHandler:
         }
         
         ftype = type_map.get(ftype_str, FieldType.TEXT)
+
+        if ftype == FieldType.LOCATION and not force_add:
+            self._pending_location_specs.append(spec)
+            return
         
         # Build kwargs from spec
         kwargs = {
@@ -98,6 +113,16 @@ class StoryFormHandler:
             kwargs['timezone_field'] = spec.get('timezone_field', 'user_timezone')
         
         renderer.add_field(name, label, ftype, **kwargs)
+
+    def _reorder_location_fields(self) -> None:
+        """Ensure location fields render last."""
+        if not self.renderer:
+            return
+        location_fields = [f for f in self.renderer.fields if f['type'] == FieldType.LOCATION]
+        if not location_fields:
+            return
+        non_location = [f for f in self.renderer.fields if f['type'] != FieldType.LOCATION]
+        self.renderer.fields = non_location + location_fields
     
     def _run_interactive_form(self, renderer: TUIFormRenderer) -> Dict[str, Any]:
         """
@@ -135,6 +160,91 @@ class StoryFormHandler:
             # Restore terminal
             self._restore_terminal()
     
+    def _on_field_complete(self, name: str, result: Any, submitted_data: Dict[str, Any]) -> None:
+        """Hook called after each field is completed."""
+        if name != "system_datetime_approve" or not isinstance(result, dict):
+            return
+
+        tz = result.get("timezone")
+        if tz:
+            submitted_data.setdefault("user_timezone", tz)
+
+        if not result.get("approved"):
+            self._insert_datetime_override_fields(result)
+
+    def _insert_datetime_override_fields(self, approval_payload: Dict[str, Any]) -> None:
+        """Insert manual override fields after the datetime approval question."""
+        if self._override_fields_inserted or not self.renderer:
+            return
+
+        idx = self.renderer.current_field_index + 1
+        override_fields = self._build_datetime_override_fields(approval_payload)
+        self.renderer.fields[idx:idx] = override_fields
+        self._override_fields_inserted = True
+        self._reorder_location_fields()
+
+    def _build_datetime_override_fields(self, approval_payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Build the override field definitions."""
+        timezone_default = approval_payload.get("timezone", "UTC")
+        date_default = approval_payload.get("date")
+        time_default = approval_payload.get("time")
+
+        return [
+            self._create_field_record(
+                name="user_timezone",
+                label="Timezone (override)",
+                field_type=FieldType.SELECT,
+                config={
+                    "required": True,
+                    "options": [
+                        "UTC",
+                        "America/New_York",
+                        "America/Los_Angeles",
+                        "America/Chicago",
+                        "Europe/London",
+                        "Europe/Paris",
+                        "Asia/Tokyo",
+                        "Australia/Sydney",
+                    ],
+                    "default": timezone_default,
+                    "placeholder": "Select timezone",
+                },
+            ),
+            self._create_field_record(
+                name="current_date",
+                label="Current date (override)",
+                field_type=FieldType.DATE,
+                config={
+                    "required": True,
+                    "default": date_default,
+                    "placeholder": "YYYY-MM-DD",
+                },
+            ),
+            self._create_field_record(
+                name="current_time",
+                label="Current time (override)",
+                field_type=FieldType.TIME,
+                config={
+                    "required": True,
+                    "default": time_default,
+                    "placeholder": "HH:MM:SS",
+                },
+            ),
+        ]
+
+    def _create_field_record(
+        self, name: str, label: str, field_type: FieldType, config: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Create a renderer field record."""
+        return {
+            "name": name,
+            "label": label,
+            "type": field_type,
+            "config": config,
+            "widget": None,
+            "value": None,
+        }
+
     def _setup_terminal(self) -> None:
         """Setup terminal for raw input capture."""
         try:
@@ -213,6 +323,23 @@ class SimpleFallbackFormHandler:
                 prompt = f"{label} ({default}): "
                 value = input(prompt).strip() or default
                 data[name] = value
+            elif ftype == 'datetime_approve':
+                now = datetime.now().astimezone()
+                date_str = now.strftime("%Y-%m-%d")
+                time_str = now.strftime("%H:%M:%S")
+                tz = now.tzname() or str(now.tzinfo) or "UTC"
+                prompt = (
+                    f"\n{label} (Detected {date_str} {time_str} {tz})\n"
+                    "Approve? [Y/n]: "
+                )
+                choice = input(prompt).strip().lower()
+                approved = choice in ("1", "y", "yes", "")
+                data[name] = {
+                    "approved": approved,
+                    "date": date_str,
+                    "time": time_str,
+                    "timezone": tz,
+                }
             
             else:
                 # Simple text input
@@ -227,10 +354,21 @@ class SimpleFallbackFormHandler:
 
 def get_form_handler() -> StoryFormHandler:
     """Get appropriate form handler (interactive or fallback)."""
+    if not _interactive_tty_available():
+        logger.warning("[LOCAL] Terminal not interactive; using fallback form handler.")
+        return SimpleFallbackFormHandler()
+
     try:
-        # Try interactive handler
         handler = StoryFormHandler()
         return handler
     except Exception as e:
         logger.warning(f"[LOCAL] Interactive form unavailable: {e}, using fallback")
         return SimpleFallbackFormHandler()
+
+
+def _interactive_tty_available() -> bool:
+    """Detect if stdin and stdout support interactive TTY."""
+    try:
+        return sys.stdin.isatty() and sys.stdout.isatty()
+    except Exception:
+        return False

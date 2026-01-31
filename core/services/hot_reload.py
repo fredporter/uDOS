@@ -30,13 +30,6 @@ from pathlib import Path
 from typing import Optional, Dict, Any, Callable
 from datetime import datetime
 
-import sys
-import importlib
-import threading
-from pathlib import Path
-from typing import Optional, Dict, Any, Callable
-from datetime import datetime
-
 try:
     from watchdog.observers import Observer
     from watchdog.events import FileSystemEventHandler
@@ -53,6 +46,57 @@ try:
 except ImportError:
     import logging
     logger = logging.getLogger("hot-reload")
+
+
+def _guess_handler_class(module_name: str) -> str:
+    """Convert a module name (snake_case) into a handler class name (PascalCase)."""
+    parts = module_name.split('_')
+    return ''.join(word.capitalize() for word in parts)
+
+
+def _command_name_from_class(class_name: str) -> str:
+    """Derive the canonical command name from a handler class."""
+    return class_name.replace('Handler', '').upper()
+
+
+COMMANDS_DIR = Path(__file__).resolve().parent.parent / "commands"
+
+
+def _should_reload_file(filepath: str, last_modified: Dict[str, float], cooldown: float = 1.0) -> bool:
+    """Debounce file reload requests so handlers do not reload multiple times per save."""
+    now = datetime.now().timestamp()
+    last = last_modified.get(filepath, 0)
+    if now - last < cooldown:
+        return False
+    last_modified[filepath] = now
+    return True
+
+
+def reload_all_handlers(logger: Optional[Any] = None) -> Dict[str, int]:
+    """Reload every command handler module; returns reload/fail counts."""
+    log = logger or globals().get("logger")
+    reloaded = 0
+    failed = 0
+
+    for handler_file in sorted(COMMANDS_DIR.glob("*_handler.py")):
+        if handler_file.name == "__init__.py":
+            continue
+        module_name = f"core.commands.{handler_file.stem}"
+        try:
+            if module_name in sys.modules:
+                importlib.reload(sys.modules[module_name])
+            else:
+                importlib.import_module(module_name)
+            reloaded += 1
+            if log:
+                log.debug(f"Reloaded handler module: {module_name}")
+        except Exception as exc:
+            failed += 1
+            if log:
+                log.warning(f"Failed to reload {module_name}: {exc}")
+
+    return {"reloaded": reloaded, "failed": failed}
+
 
 
 class HandlerReloadEvent(FileSystemEventHandler):
@@ -75,14 +119,10 @@ class HandlerReloadEvent(FileSystemEventHandler):
         filepath = event.src_path
         if not filepath.endswith('.py'):
             return
-        
-        # Debounce: ignore if modified less than 1 second ago
-        now = datetime.now().timestamp()
-        last = self.last_modified.get(filepath, 0)
-        if now - last < 1.0:
+
+        if not _should_reload_file(filepath, self.last_modified):
             return
-        
-        self.last_modified[filepath] = now
+
         self.reload_callback(filepath)
 
 
@@ -214,51 +254,27 @@ class HotReloadManager:
         try:
             # Construct module path
             module_name = f"core.commands.{handler_name}"
-            
-            # Check if module exists
             if module_name not in sys.modules:
                 logger.warning(f"[LOCAL] Module not loaded: {module_name}")
                 return False
-            
-            # Reload module
+
             module = sys.modules[module_name]
             importlib.reload(module)
-            
-            # Find handler class (assume CapitalCase from snake_case)
-            # e.g., map_handler -> MapHandler
-            class_name = self._guess_handler_class(handler_name)
-            
-            if not hasattr(module, class_name):
-                logger.warning(f"[LOCAL] Handler class not found: {class_name}")
+
+            if not hasattr(module, _guess_handler_class(handler_name)):
+                logger.warning(f"[LOCAL] Handler class not found: {_guess_handler_class(handler_name)}")
                 return False
-            
+
+            class_name = _guess_handler_class(handler_name)
             handler_class = getattr(module, class_name)
-            
-            # Re-instantiate handler
             new_handler = handler_class()
-            
-            # Update dispatcher (preserve old handler reference if in use)
             self._update_dispatcher(class_name, new_handler)
-            
             logger.info(f"[LOCAL] ✓ Reloaded {class_name}")
             return True
         
         except Exception as e:
             logger.error(f"[LOCAL] Failed to reload {handler_name}: {e}")
             return False
-    
-    def _guess_handler_class(self, module_name: str) -> str:
-        """Guess handler class name from module name.
-        
-        Args:
-            module_name: Module name (e.g., 'map_handler')
-        
-        Returns:
-            Class name (e.g., 'MapHandler')
-        """
-        # Convert snake_case to PascalCase
-        parts = module_name.split('_')
-        return ''.join(word.capitalize() for word in parts)
     
     def _update_dispatcher(self, class_name: str, new_handler: Any) -> None:
         """Update dispatcher with new handler instance.
@@ -267,20 +283,24 @@ class HotReloadManager:
             class_name: Handler class name
             new_handler: New handler instance
         """
-        # Map class name to command name
-        # MapHandler -> MAP, FindHandler -> FIND, etc.
-        command_name = class_name.replace('Handler', '').upper()
-        
-        if command_name in self.dispatcher.handlers:
-            self.dispatcher.handlers[command_name] = new_handler
-            logger.info(f"[LOCAL] Updated dispatcher: {command_name}")
-        else:
-            # Try common aliases
-            for cmd in self.dispatcher.handlers:
-                if cmd.startswith(command_name):
-                    self.dispatcher.handlers[cmd] = new_handler
-                    logger.info(f"[LOCAL] Updated dispatcher: {cmd}")
-                    break
+        command_name = _command_name_from_class(class_name)
+        updated = False
+
+        for cmd in self._dispatcher_aliases(command_name):
+            if cmd in self.dispatcher.handlers:
+                self.dispatcher.handlers[cmd] = new_handler
+                logger.info(f"[LOCAL] Updated dispatcher: {cmd}")
+                updated = True
+
+        if not updated:
+            logger.warning(f"[LOCAL] Dispatcher did not contain {command_name} to update")
+
+    def _dispatcher_aliases(self, command_name: str):
+        """Generate command names that should map back to a handler."""
+        yield command_name
+        for cmd in self.dispatcher.handlers:
+            if cmd.startswith(command_name) and cmd != command_name:
+                yield cmd
     
     def stats(self) -> Dict[str, Any]:
         """Get hot reload statistics.
