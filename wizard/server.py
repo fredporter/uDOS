@@ -250,7 +250,7 @@ class WizardServer:
         app.include_router(vscode_router)
 
         # Register Port Manager routes
-        from wizard.services.port_manager_service import create_port_manager_router
+        from wizard.services.port_manager import create_port_manager_router
 
         port_router = create_port_manager_router(auth_guard=self._authenticate_admin)
         app.include_router(port_router)
@@ -278,6 +278,12 @@ class WizardServer:
 
         notion_router = create_notion_routes(auth_guard=self._authenticate_admin)
         app.include_router(notion_router)
+
+        # Register Unified Settings (v1.1.0)
+        from wizard.routes.settings_unified import create_settings_unified_router
+
+        settings_router = create_settings_unified_router(auth_guard=self._authenticate_admin)
+        app.include_router(settings_router)
 
         # Register Task scheduler routes
         from wizard.routes.task_routes import create_task_routes
