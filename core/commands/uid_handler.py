@@ -8,11 +8,11 @@ Usage:
 """
 from pathlib import Path
 from typing import Dict, List
-from core.commands.base import BaseCommand
-from core.utils.repo import get_repo_root
+from core.commands.base import BaseCommandHandler
+from core.services.logging_service import get_repo_root
 
 
-class UIDHandler(BaseCommand):
+class UIDHandler(BaseCommandHandler):
     """Handler for UID command."""
     
     def __init__(self):

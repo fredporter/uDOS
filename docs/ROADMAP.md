@@ -165,7 +165,239 @@ This document consolidates all active development streams across Core, Wizard, G
 
 ---
 
-### Round 3: Beacon Portal (WiFi Infrastructure)
+### Round 3: Wizard Web UI — Svelt + Notion Styling + Webhooks
+
+**Owner:** Wizard (`/wizard/dashboard/`)
+**Status:** v1.0.0 — Design Complete, Implementation Ready
+**Timeline:** 2-3 weeks (component library + Notion webhook wiring)
+
+**Components:**
+
+1. **Svelt Component Library for Notion Blocks**
+   - Block rendering components (paragraph, heading, bullet, code, etc.)
+   - Interactive form blocks (text, select, checkbox, date)
+   - Styled using Tailwind CSS (consistent with dashboard)
+   - Real-time preview of Notion block changes
+   - Editable inline with validation
+
+2. **Notion Webhook Integration Panel**
+   - Visual queue status (pending, processing, completed, failed)
+   - Block change history timeline
+   - Manual sync trigger with progress indicator
+   - Conflict detection & resolution UI
+   - Sync statistics dashboard
+
+3. **Tailwind + Svelt Theme System**
+   - Notion-inspired color palette (gray, blue, red, yellow)
+   - Light/dark mode toggle
+   - Responsive grid layouts (mobile → desktop)
+   - Typography scale (H1-H6, body, code)
+   - Component state styles (hover, active, disabled, error)
+
+4. **Bi-Directional Block Mapper UI**
+   - Visual mapping editor (uDOS markdown ↔ Notion blocks)
+   - Drag-and-drop property assignment
+   - Real-time preview of mapped output
+   - Save/load mapping profiles
+
+**Key Deliverables:**
+
+- 🔲 Svelt block components (12+ components)
+- 🔲 Notion webhook status panel
+- 🔲 Tailwind theme configuration
+- 🔲 Block mapper UI with drag-and-drop
+- 🔲 Sync history timeline component
+- 🔲 Conflict resolution modal
+- 🔲 Integration with `notion_routes.py` endpoints
+- 🔲 Dark mode toggle persistence
+
+**References:**
+
+- [Tailwind CSS Docs](https://tailwindcss.com/docs)
+- [Svelte Component Guide](https://svelte.dev/docs)
+- [Notion Block Types](https://developers.notion.com/reference/block)
+- [WIKI-FRONTMATTER-GUIDE.md](WIKI-FRONTMATTER-GUIDE.md) (block metadata)
+
+---
+
+### Round 4: Wizard Web Browser — SQLite Dataset Rendering
+
+**Owner:** Wizard (`/wizard/dashboard/`)
+**Status:** v1.0.0 — Specification Ready
+**Timeline:** 2-3 weeks (table components + data binding)
+
+**Components:**
+
+1. **Interactive Dataset Table Component**
+   - Sortable columns (click header to toggle ASC/DESC)
+   - Filterable rows (search, column filters)
+   - Pagination (configurable page size: 10, 25, 50, 100)
+   - Row selection (checkbox for bulk operations)
+   - Responsive design (horizontal scroll on mobile)
+
+2. **SQLite Data Binding**
+   - `/api/v1/data/tables` — List available tables from memory/wizard/*.db
+   - `/api/v1/data/query` — Execute parameterized SQL (SELECT only)
+   - `/api/v1/data/schema` — Fetch table schema (columns, types, constraints)
+   - `/api/v1/data/export` — Export to CSV, JSON, XLSX
+   - Caching layer to avoid repeated queries
+
+3. **Data Visualization Options**
+   - Table (default, sortable, filterable)
+   - Cards (grid view with custom templates)
+   - Timeline (date-based rows)
+   - Kanban (group by column, drag-to-update)
+   - Chart (bar, line, pie — via Chart.js)
+
+4. **Spatial Filesystem Integration**
+   - Render @workspace/@location tagged datasets
+   - Location-aware cell highlighting (L###-Cell pattern)
+   - Grid overlay for spatial reference
+   - Tag-based filtering (show rows matching selected tags)
+
+5. **Tailwind + Svelt Styling**
+   - Table header with sort/filter icons
+   - Alternating row colors (zebra striping)
+   - Hover effects (row highlight, cell expansion)
+   - Cell formatting (currency, date, boolean, links)
+   - Empty state message (no data)
+
+**Key Deliverables:**
+
+- 🔲 DataTable Svelt component (core sorting/filtering)
+- 🔲 DataVisualization wrapper (toggle table → cards → chart)
+- 🔲 `/api/v1/data/*` endpoint implementation
+- 🔲 ChartJS integration (bar, line, pie, scatter)
+- 🔲 CSV/JSON/XLSX export pipeline
+- 🔲 Spatial tagging selector (filter by @location/@workspace)
+- 🔲 SQL query builder UI (for power users)
+- 🔲 Data refresh controls (poll interval, manual refresh)
+- 🔲 Performance tests (1M+ row datasets)
+
+**References:**
+
+- [SvelteKit Tutorial](https://learn.svelte.dev/)
+- [Tailwind Table Patterns](https://tailwindcss.com/docs/table)
+- [Chart.js Documentation](https://www.chartjs.org/docs/latest/)
+- [File Parsing Architecture Spec](specs/file-parsing-architecture.md)
+- [Spatial Filesystem Spec](specs/SPATIAL-FILESYSTEM.md)
+
+---
+
+### Round 5: Wizard Web Browser — Teletext Mode Display
+
+**Owner:** Wizard (`/wizard/dashboard/`) + Extensions (`/extensions/api/`)
+**Status:** v0.5.0 — Design Phase (Exploring NES Button Integration)
+**Timeline:** 3-4 weeks (grid rendering + button styling exploration)
+
+**Components:**
+
+1. **Teletext Grid Renderer**
+   - 12×16 character grid (120×240 pixels at 10×15px per char)
+   - SIXEL graphics support (VT340 palette: 262,144 colors)
+   - Monospace font (Courier, Monaco, or custom bitmap font)
+   - No CSS/Tailwind — pure pixel-perfect rendering
+   - Color palette: 8-bit ANSI + custom RGB (24-bit)
+   - Line drawing characters (box, angles, shading)
+
+2. **Teletext Content Modes**
+   - **Text Mode**: ASCII + line drawing (240×240 character viewport)
+   - **Graphics Mode**: SIXEL or UDG (user-defined graphics)
+   - **Mixed Mode**: Text + inline SIXEL graphics
+   - **Cursor**: Blinking block or underline
+   - **Scrolling**: Smooth vertical/horizontal scroll
+
+3. **NES-Style Button Exploration** ⚠️ *Design TBD*
+   - Question: Use SVG buttons or simulate with ANSI box characters?
+   - Option A: SVG overlay on teletext grid (lose authenticity, easy styling)
+   - Option B: Teletext-native buttons (text + line-drawing chars, pixel-perfect)
+   - Option C: Hybrid (teletext content + NES-styled button bar at bottom)
+   - **Recommendation**: Start with Option B (line-drawing chars as button borders)
+   - Button styles: Raised (top-left light), sunken (bottom-right dark)
+   - Labels: Center-aligned, fixed-width (8-10 chars)
+   - States: Normal, hover (inverted), pressed (reversed video)
+
+4. **Input & Interaction**
+   - Keyboard navigation (arrow keys, ENTER, ESC, F-keys)
+   - Numpad support (0-9 for menu selection)
+   - Mouse click detection (map screen coords → grid cell)
+   - Terminal resize handling (preserve content, reflow layout)
+
+5. **Wizard Integration Points**
+   - `/api/v0/teletext/render` — Render `.tty` or `.ans` file to SIXEL/HTML5 canvas
+   - `/api/v0/teletext/input` — Submit user input (key press, mouse click)
+   - `/api/v0/teletext/session` — Manage persistent terminal state (session ID, scrollback)
+   - Serve retro dashboard: Status, Tasks, Messages, Maps as teletext pages
+   - Navigation menu: Teletext-native (nested lists, numbered options)
+
+6. **Implementation Options**
+   - **Canvas (HTML5 Canvas API)**: Full control, pixel-perfect, no CSS
+   - **SVG**: Scalable, DOM elements, harder for performance
+   - **xterm.js**: Full terminal emulator, but heavyweight
+   - **Custom WebGL**: Overkill unless 4K rendering needed
+   - **Recommendation**: Start with Canvas API (2D context), fallback to SVG
+
+7. **Sveltekit Integration Questions** 🤔
+   - Can we bind a Canvas to a Svelt reactive component?
+   - How to handle real-time updates (scroll, input)?
+   - Mouse/keyboard event delegation (capture in component)?
+   - Dark mode support (swap color palette, not CSS)?
+   - Printing support (teletext → PDF, preserve layout)?
+
+**Key Deliverables:**
+
+- 🔲 TeletextRenderer class (Canvas-based, 12×16 grid)
+- 🔲 SIXEL palette definition (262k colors)
+- 🔲 Character bitmap font (10×15px monospace)
+- 🔲 Line-drawing character set (box, corners, shading)
+- 🔲 NES-button simulator (using teletext chars or SVG overlay — TBD)
+- 🔲 Input event handler (keyboard, mouse, numpad)
+- 🔲 Svelt component wrapper (TeletextDisplay)
+- 🔲 Sveltekit routes for teletext endpoints
+- 🔲 Example teletext pages (Status, Tasks, Map)
+- 🔲 Dark mode palette (preserve authenticity)
+- 🔲 Design doc: "NES Buttons in Teletext Mode" (recommendations)
+
+**Open Questions:**
+
+1. **Button Style**: Use ASCII line-drawing or SVG overlay?
+   - Line-drawing (authentic, pixel-perfect, no CSS styling)
+   - SVG overlay (easier to style, less authentic, potential z-order issues)
+   - Hybrid (content in teletext, buttons in SVG at bottom)?
+
+2. **Sveltekit Binding**: How to manage Canvas state in Svelt reactivity?
+   - Use `onMount()` to initialize Canvas context?
+   - How to trigger re-renders on model changes?
+   - Can we use Svelt stores for teletext state?
+
+3. **Font**: Bitmap or web font?
+   - Bitmap (perfect pixels, fixed size, fast rendering)
+   - Web font (scalable, supports Unicode, slower)
+   - Recommendation: Start with bitmap (10×15px), upgrade to web font later
+
+4. **Color Palette**: Full 262k SIXEL or reduced 256-color ANSI?
+   - 262k (authentic VT340, flexible styling)
+   - 256-color (smaller, still vibrant, better compatibility)
+   - Recommendation: Start with 256-color, upgrade to 262k if needed
+
+5. **Performance**: How to handle large scrollback (1000+ lines)?
+   - Canvas render on-demand (only visible viewport)
+   - Scrollback storage (circular buffer in memory)
+   - Lazy load from database (historical logs)
+
+**References:**
+
+- [VT340 Sixel Graphics](https://en.wikipedia.org/wiki/Sixel)
+- [ANSI Escape Codes](https://en.wikipedia.org/wiki/ANSI_escape_code)
+- [Teletext (Videotext) Standard](https://en.wikipedia.org/wiki/Teletext)
+- [HTML5 Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
+- [NES UI Design](https://www.pixelationsgame.com/the-nes-user-interface-operating-system/)
+- [Sveltekit Component Binding](https://svelte.dev/docs/component-instance-exports)
+- [Grid Computing Spec](specs/grid-spatial-computing.md) (related: spatial addressing)
+
+---
+
+### Round 6: Beacon Portal (WiFi Infrastructure)
 
 **Owner:** Wizard (`/wizard/`) + Extensions  
 **Status:** v1.0.0 — Specification Complete, Ready for Integration  
@@ -226,7 +458,7 @@ This document consolidates all active development streams across Core, Wizard, G
 
 ---
 
-### Round 4: Goblin Dev Server (Experimental)
+### Round 7: Goblin Dev Server (Experimental)
 
 **Owner:** Goblin (`/dev/goblin/`)  
 **Status:** v0.2.0 — Experimental  
@@ -264,7 +496,97 @@ This document consolidates all active development streams across Core, Wizard, G
 
 ---
 
-### Round 5: App Development (Tauri + Future Native)
+### Round 8: Wizard Plugin Ecosystem — Modular Distribution & Bolt-Ons
+
+**Owner:** Wizard (`/wizard/`) + Extensions (`/extensions/`)  
+**Status:** v0.8.0 — Architecture Design Phase  
+**Timeline:** 3-4 weeks (plugin system + distribution library)
+
+**Components:**
+
+1. **Plugin Architecture (Bolt-On Repos)**
+   - Plugin manifest spec (YAML/JSON: name, version, dependencies, entry points)
+   - Containerized plugin loading (isolate dependencies, sandboxed execution)
+   - Mod overlay system (override Core/Wizard behavior without forking)
+   - Plugin lifecycle hooks (init, activate, deactivate, uninstall)
+   - API surface for plugins (core services, wizard endpoints, UI components)
+   - Permission model (filesystem, network, database, UI access control)
+
+2. **Wizard Plugins Management UI**
+   - Plugin browser dashboard (`/wizard/dashboard/routes/Plugins.svelte`)
+   - Visual plugin cards (name, description, version, author, status)
+   - Toggle controls (enable/disable per plugin)
+   - Update checker (compare local version vs remote)
+   - Install/uninstall with dependency resolution
+   - Plugin settings panel (per-plugin configuration)
+   - Health status (running, crashed, disabled, outdated)
+
+3. **Distribution & Packaging Library**
+   - `PackageManager` service (`/wizard/services/package_manager.py`)
+   - Track online repo (GitHub releases, git tags, manifest URLs)
+   - Track local cloned version (installed path, commit hash, version)
+   - Version comparison (semver-aware: major.minor.patch)
+   - Auto-update scheduler (check daily, prompt user, apply updates)
+   - Rollback support (revert to previous version on failure)
+   - Multi-source registries (GitHub, GitLab, custom CDN)
+
+4. **Bolt-On Repo Structure**
+   - Standard plugin template (cookiecutter or scaffold CLI)
+   - Plugin metadata file: `plugin.yaml` (name, version, entry, dependencies)
+   - Entry point convention: `plugin/__init__.py` (register routes/services)
+   - Mod overlay convention: `mods/` directory (overrides for core files)
+   - Documentation: `README.md` + `CHANGELOG.md` + `LICENSE`
+   - Distribution: GitHub releases with versioned tarballs
+
+5. **Immediate Bolt-On Candidates**
+   - **uDOS-sonic** (Sonic Screwdriver device catalog)
+   - **Groovebox** (sample library + music scripting)
+   - **Beacon Portal** (WiFi + VPN infrastructure)
+   - **MeshCore** (P2P mesh networking)
+   - **Community Extensions** (user-contributed plugins)
+
+6. **Mod Overlay System**
+   - Overlay spec: `mods/core/commands/custom_handler.py` → replaces Core handler
+   - Wizard checks `mods/` directory before loading default modules
+   - Precedence: Plugin Mods → Local Mods → Core Defaults
+   - Conflict detection (multiple plugins overriding same file)
+   - Versioning: Tag mod overlays with compatible uDOS versions
+
+**Key Deliverables:**
+
+- 🔲 Plugin manifest spec (`docs/specs/PLUGIN-ARCHITECTURE.md`)
+- 🔲 `PackageManager` service implementation
+- 🔲 Plugin browser UI (Wizard dashboard)
+- 🔲 Install/update/uninstall workflows
+- 🔲 Mod overlay loader (check `mods/` before defaults)
+- 🔲 Plugin template repository (cookiecutter scaffold)
+- 🔲 Bolt-on packaging for uDOS-sonic (first external plugin)
+- 🔲 Version tracking database (`memory/wizard/plugins.db`)
+- 🔲 Auto-update scheduler with rollback
+- 🔲 Permission model enforcement (sandbox plugins)
+- 🔲 Integration tests (install, enable, disable, update, uninstall)
+
+**API Endpoints:**
+
+- `/api/v1/plugins/list` — List installed plugins
+- `/api/v1/plugins/available` — List available plugins from registry
+- `/api/v1/plugins/install` — Install plugin by name/URL
+- `/api/v1/plugins/update` — Update plugin to latest version
+- `/api/v1/plugins/uninstall` — Remove plugin
+- `/api/v1/plugins/toggle` — Enable/disable plugin
+- `/api/v1/plugins/config` — Get/set plugin configuration
+- `/api/v1/plugins/check-updates` — Check for updates
+
+**References:**
+
+- [Wizard Architecture](../wizard/ARCHITECTURE.md) (services + routes)
+- [Extensions API](../extensions/api/) (transport + server_manager)
+- [Mod Overlay Pattern](https://flask.palletsprojects.com/en/2.3.x/blueprints/) (Flask blueprints)
+- [Semantic Versioning](https://semver.org/) (version comparison)
+
+---
+
+### Round 9: App Development (Tauri + Future Native)
 
 **Owner:** App (`/app/`)  
 **Status:** v1.0.3 — Active Development  
@@ -325,25 +647,159 @@ This document consolidates all active development streams across Core, Wizard, G
 - [Mac App Roadmap](specs/mac-app-roadmap.md)
 - [File Extensions & Parsing](specs/app-file-extensions.md)
 
+**Components:**
+
+1. **Sample Library Management**
+   - Audio sample database (`memory/groovebox/samples.db`)
+   - Sample metadata (name, duration, BPM, key, genre, tags, waveform)
+   - Waveform preview generation (PNG thumbnail, 800×100px)
+   - Audio file formats (WAV, MP3, FLAC, OGG)
+   - Sample packs (collections of related samples)
+   - Tagging system (instrument, mood, genre, energy level)
+   - Search & filter (by BPM, key, tags, duration)
+   - Import/export sample packs (ZIP archive with manifest)
+
+2. **Songscribe — Music Notation in Markdown**
+   - Music notation syntax (inspired by ABC notation, adapted for Markdown)
+   - Inline notation blocks (triple backticks: ```music)
+   - Chord notation (C, Dm, G7, Cmaj7, etc.)
+   - Melody notation (C4 D4 E4 F4 G4 A4 B4 C5)
+   - Rhythm notation (whole, half, quarter, eighth notes)
+   - Time signatures (4/4, 3/4, 6/8)
+   - Key signatures (C major, A minor, etc.)
+   - Lyrics alignment (sync text with melody)
+
+3. **Music Rendering**
+   - **Markdown → Sheet Music**: Render notation blocks as SVG staff notation
+   - **Markdown → Audio**: Synthesize MIDI from notation (via FluidSynth or similar)
+   - **Markdown → Tablature**: Guitar/bass tabs from notation
+   - **Markdown → Chord Charts**: Visual chord diagrams
+   - Export formats: PDF, MIDI, MusicXML, Lilypond
+
+4. **Groovebox Integration**
+   - Load samples from library into groovebox tracks
+   - Step sequencer (16-step, 8 tracks, BPM control)
+   - Pattern editor (create loops, save patterns)
+   - Song arrangement (sequence patterns into full songs)
+   - Real-time playback (via Web Audio API or ALSA)
+   - Export to WAV, MP3, or MIDI
+
+5. **Songscribe Markdown Syntax (Draft)**
+   ```markdown
+   # My Song Title
+   
+   **Tempo:** 120 BPM  
+   **Key:** C Major  
+   **Time:** 4/4
+   
+   ## Verse
+   ```music
+   | C     | Am    | F     | G     |
+   | C4 E4 | G4 A4 | F4 A4 | G4 B4 |
+   Lyrics: "This is the first line of my song"
+   ```
+   
+   ## Chorus
+   ```music
+   | F     | G     | C     | Am    |
+   | F4 A4 | G4 B4 | C5 E5 | A4 C5 |
+   Lyrics: "This is the chorus line"
+   ```
+   ```
+
+6. **Wizard Integration**
+   - `/api/v1/groovebox/samples` — List samples
+   - `/api/v1/groovebox/samples/upload` — Add new sample
+   - `/api/v1/groovebox/samples/waveform` — Generate waveform PNG
+   - `/api/v1/groovebox/render` — Render songscribe Markdown → audio/sheet
+   - `/api/v1/groovebox/export` — Export song as WAV/MIDI
+   - `/api/v1/groovebox/patterns` — CRUD for patterns
+   - `/api/v1/groovebox/play` — Real-time playback
+
+7. **UI Components (Wizard Dashboard)**
+   - Sample browser (grid view, waveform previews, play button)
+   - Pattern editor (step sequencer grid, 16×8 matrix)
+   - Song arranger (timeline view, drag-and-drop patterns)
+   - Songscribe editor (Markdown preview + audio playback)
+   - Export modal (format selection, quality settings)
+
+**Key Deliverables:**
+
+- 🔲 Sample database schema + migration
+- 🔲 Sample library service (`groovebox/services/sample_manager.py`)
+- 🔲 Waveform generator (audio → PNG)
+- 🔲 Songscribe parser (Markdown → music AST)
+- 🔲 Music renderer (AST → SVG staff notation)
+- 🔲 Audio synthesizer (AST → MIDI → WAV)
+- 🔲 Step sequencer component (Svelt grid UI)
+- 🔲 Pattern storage (SQLite patterns table)
+- 🔲 Song arrangement service
+- 🔲 Real-time audio playback (Web Audio API)
+- 🔲 Export pipeline (WAV, MP3, MIDI, PDF)
+- 🔲 Sample browser UI (Wizard dashboard)
+- 🔲 Integration with Wizard file picker (import samples)
+- 🔲 Documentation: Songscribe syntax guide
+
+**Open Questions:**
+
+1. **Music Notation Standard**: Use ABC notation as-is, or create custom syntax?
+   - ABC (established, tool support, learning curve)
+   - Custom (Markdown-native, simpler, less tooling)
+   - Recommendation: Start with ABC-inspired, simplify for MVP
+
+2. **Audio Synthesis**: Server-side (FluidSynth) or client-side (Web Audio API)?
+   - Server-side (better quality, CPU-intensive, latency)
+   - Client-side (lower latency, browser support, limited quality)
+   - Recommendation: Client-side for preview, server-side for export
+
+3. **Sample Storage**: Store in filesystem or embed in database?
+   - Filesystem (better for large files, harder to sync)
+   - Database (easier to sync, size limits, slower access)
+   - Recommendation: Filesystem with metadata in database
+
+4. **Real-Time Collaboration**: Support multi-user pattern editing?
+   - Deferred to later phase (requires WebSocket + conflict resolution)
+
+**References:**
+
+- [ABC Notation Standard](https://abcnotation.com/)
+- [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
+- [VexFlow](https://www.vexflow.com/) (music notation rendering in JS)
+- [FluidSynth](https://www.fluidsynth.org/) (MIDI synthesizer)
+- [MusicXML](https://www.musicxml.com/) (interchange format)
+
 ---
 
 ## 📊 Feature Matrix
 
-| Feature             | Core | Wizard | Wizard (Beacon)  | Goblin | App   |
-| ------------------- | ---- | ------ | ---------------- | ------ | ----- |
-| TS Markdown Runtime | ✅   | —      | —                | —      | ✅    |
-| Grid/Spatial System | ✅   | —      | —                | —      | ✅    |
-| File Parsing        | ✅   | ✅ API | —                | —      | ✅ UI |
-| OAuth Integration   | —    | ✅     | —                | —      | —     |
-| Workflow Management | —    | ✅     | —                | 🧪     | —     |
-| Binder Compilation  | —    | ✅     | —                | 🧪     | —     |
-| Device Provisioning | —    | —      | —                | 🧪     | —     |
-| MeshCore Manager    | —    | —      | —                | 🧪     | —     |
-| Beacon Portal       | —    | —      | ✅ (In progress) | —      | —     |
-| Device Quota        | —    | —      | ✅ (In progress) | —      | —     |
-| VPN Tunneling       | —    | —      | ✅ (In progress) | —      | —     |
-| Typography System   | —    | —      | —                | —      | ✅    |
-| Converters          | —    | —      | —                | —      | ✅    |
+| Feature             | Core | Wizard | Wizard (Beacon)  | Wizard (Web UI) | Wizard (Plugins) | Groovebox | Goblin | App   |
+| ------------------- | ---- | ------ | ---------------- | --------------- | ---------------- | --------- | ------ | ----- |
+| TS Markdown Runtime | ✅   | —      | —                | —               | —                | —         | —      | ✅    |
+| Grid/Spatial System | ✅   | —      | —                | —               | —                | —         | —      | ✅    |
+| File Parsing        | ✅   | ✅ API | —                | —               | —                | —         | —      | ✅ UI |
+| OAuth Integration   | —    | ✅     | —                | —               | —                | —         | —      | —     |
+| Workflow Management | —    | ✅     | —                | —               | —                | —         | 🧪     | —     |
+| Binder Compilation  | —    | ✅     | —                | —               | —                | —         | 🧪     | —     |
+| Notion Webhooks     | —    | ✅     | —                | ✅ (Round 3)    | —                | —         | —      | —     |
+| Svelt Components    | —    | —      | —                | ✅ (Round 3)    | ✅ (Round 8)     | ✅ (R10)  | —      | —     |
+| Dataset Tables      | —    | —      | —                | ✅ (Round 4)    | —                | —         | —      | —     |
+| SQLite Binding      | —    | ✅ API | —                | ✅ (Round 4)    | —                | ✅ (R10)  | —      | —     |
+| Teletext Mode       | —    | —      | —                | ✅ (Round 5)    | —                | —         | —      | —     |
+| NES Buttons (R5)    | —    | —      | —                | 🤔 Exploring    | —                | —         | —      | —     |
+| Plugin System       | —    | —      | —                | —               | ✅ (Round 8)     | —         | —      | —     |
+| Mod Overlays        | —    | —      | —                | —               | ✅ (Round 8)     | —         | —      | —     |
+| Package Manager     | —    | ✅     | —                | ✅ UI           | ✅ (Round 8)     | —         | —      | —     |
+| Sample Library      | —    | —      | —                | —               | —                | ✅ (R10)  | —      | —     |
+| Music Notation      | —    | —      | —                | —               | —                | ✅ (R10)  | —      | —     |
+| Step Sequencer      | —    | —      | —                | —               | —                | ✅ (R10)  | —      | —     |
+| Audio Synthesis     | —    | —      | —                | —               | —                | ✅ (R10)  | —      | —     |
+| Device Provisioning | —    | —      | —                | —               | 🧪 (Plugin)      | —         | 🧪     | —     |
+| MeshCore Manager    | —    | —      | —                | —               | 🧪 (Plugin)      | —         | 🧪     | —     |
+| Beacon Portal       | —    | —      | ✅ (Round 6)     | —               | 🧪 (Plugin)      | —         | —      | —     |
+| Device Quota        | —    | —      | ✅ (Round 6)     | —               | —                | —         | —      | —     |
+| VPN Tunneling       | —    | —      | ✅ (Round 6)     | —               | —                | —         | —      | —     |
+| Typography System   | —    | —      | —                | —               | —                | —         | —      | ✅    |
+| Converters          | —    | —      | —                | —               | —                | —         | —      | ✅    |
 
 Legend: ✅ Primary, 🧪 Experimental, — Not applicable
 
@@ -362,17 +818,24 @@ Legend: ✅ Primary, 🧪 Experimental, — Not applicable
 
 **February:**
 
-- 🔲 Beacon Portal integration (Week 1-2)
-  - Register routes in Wizard Server
-  - Initialize service + database
-  - Hardware setup guides
+- 🔲 Round 3: Wizard Web UI — Svelt + Notion Styling (Weeks 1-2)
+  - Notion block components
+  - Webhook status panel
+  - Tailwind theme system
 - 🔲 Core: TS Markdown Runtime (Weeks 1-4)
 - 🔲 Core: Grid Runtime Phase 1 (Weeks 3-6)
 - 🔲 Wizard: OAuth Foundation (Phase 6A, Weeks 1-2)
-- 🔲 Wizard: HubSpot Integration (Phase 6B, Weeks 3-4)
 
 **March:**
 
+- 🔲 Round 4: Wizard Web Browser — Dataset Tables (Weeks 1-2)
+  - SQLite data binding
+  - Sortable/filterable table component
+  - Chart visualization
+- 🔲 Round 5: Wizard Web Browser — Teletext Mode (Weeks 3-4)
+  - Canvas-based grid renderer
+  - NES button exploration
+  - Sveltekit component integration
 - 🔲 Core: File Parsing System
 - 🔲 Wizard: Notion Integration (Phase 6C)
 - 🔲 Wizard: iCloud Relay (Phase 6D)
@@ -380,8 +843,18 @@ Legend: ✅ Primary, 🧪 Experimental, — Not applicable
 
 ### Q2 2026 (Apr-Jun)
 
-- 🔲 App: Converter Pipeline
-- 🔲 App: Monaspace Typography
+- 🔲 Round 6: Beacon Portal integration
+- 🔲 Round 8: Wizard Plugin Ecosystem (Weeks 1-3)
+  - Plugin architecture + manifest spec
+  - Package manager service
+  - Plugins management UI
+  - Mod overlay system
+- 🔲 Round 10: Groovebox + Songscribe (Weeks 4-9)
+  - Sample library management
+  - Music notation parser (Markdown → music)
+  - Step sequencer + pattern editor
+  - Audio synthesis + export
+- 🔲 Round 9: App (Typo Editor + Converters)
 - 🔲 Wizard: Workflow Management
 - 🔲 Core: Grid Runtime Phase 2 (Animation, Sprites)
 
@@ -410,17 +883,22 @@ Legend: ✅ Primary, 🧪 Experimental, — Not applicable
 
 ---
 
-## 🎯 Next Actions (2026-01-24)
+## 🎯 Next Actions (2026-01-31)
 
 1. ✅ Create development rounds document
 2. ✅ Move specs to `/docs/specs/`
 3. ✅ Move examples to `/docs/examples/`
-4. 🔲 Update `/dev/docs/roadmap.md` with round references
-5. 🔲 Archive processed roadmap files to `.archive/2026-01-24/`
-6. 🔲 Create implementation tickets for v1.0.7
+4. 🔲 Create Round 3 design spec: `docs/specs/WIZARD-WEB-UI-NOTION.md`
+5. 🔲 Create Round 4 design spec: `docs/specs/WIZARD-DATASET-TABLES.md`
+6. 🔲 Create Round 5 design doc: `docs/specs/WIZARD-TELETEXT-MODE.md` (with NES button exploration)
+7. 🔲 Create Round 8 design spec: `docs/specs/PLUGIN-ARCHITECTURE.md`
+8. 🔲 Create Round 10 design spec: `docs/specs/GROOVEBOX-SONGSCRIBE.md`
+9. 🔲 Update `/dev/docs/roadmap.md` with new rounds
+10. 🔲 Create implementation tickets for Q1 2026 (Rounds 3-5) and Q2 2026 (Rounds 8-10)
 
 ---
 
-**Status:** Active Planning Document  
+**Status:** Active Planning Document (v1.2.0 Roadmap Updated)  
 **Maintained by:** uDOS Engineering Team  
-**Next Review:** 2026-02-01
+**Next Review:** 2026-02-07
+**Recent Updates:** Added Rounds 8-10 (Plugin Ecosystem, Groovebox + Songscribe, App Development)

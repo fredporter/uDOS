@@ -10,8 +10,7 @@ Includes instrumentation via HandlerLoggingMixin for performance tracking.
 from typing import Dict, List, Optional
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
-from core.locations import load_locations, Location
-from core.location_service import LocationService
+from core.locations import load_locations, Location, LocationService
 
 
 class PanelHandler(BaseCommandHandler, HandlerLoggingMixin):

@@ -391,24 +391,25 @@ EXAMPLES:
     # ========================================================================
     # Helper Methods - .env Storage
     
-        def _initialize_env_from_example(self) -> None:
-            """Initialize .env from .env.example if it doesn't exist."""
-            if self.env_file.exists():
-                return
-        
-            example_file = self.env_file.parent / ".env.example"
-            if not example_file.exists():
-                return
-        
-            try:
-                # Copy .env.example to .env
-                example_content = example_file.read_text()
-                self.env_file.write_text(example_content)
-                from core.services.logging_service import get_logger
-                get_logger("setup").info("[LOCAL] Initialized .env from .env.example")
-            except Exception as e:
-                from core.services.logging_service import get_logger
-                get_logger("setup").warning(f"[LOCAL] Could not initialize .env: {e}")
+    def _initialize_env_from_example(self) -> None:
+        """Initialize .env from .env.example if it doesn't exist."""
+        if self.env_file.exists():
+            return
+    
+        example_file = self.env_file.parent / ".env.example"
+        if not example_file.exists():
+            return
+    
+        try:
+            # Copy .env.example to .env
+            example_content = example_file.read_text()
+            self.env_file.write_text(example_content)
+            from core.services.logging_service import get_logger
+            get_logger("setup").info("[LOCAL] Initialized .env from .env.example")
+        except Exception as e:
+            from core.services.logging_service import get_logger
+            get_logger("setup").warning(f"[LOCAL] Could not initialize .env: {e}")
+    
     # ========================================================================
     
     def _load_env_vars(self) -> Dict:

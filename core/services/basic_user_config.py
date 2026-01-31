@@ -15,7 +15,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from core.location_service import LocationService
+from core.locations import LocationService
 from core.services.logging_service import get_logger, get_repo_root
 
 logger = get_logger("basic-user-config")

@@ -1,0 +1,62 @@
+
+{
+  "folders": [
+    {
+      "path": "core",
+      "name": "Core (PUBLIC)"
+    },
+    {
+      "path": "wizard",
+      "name": "Wizard (PUBLIC)"
+    },
+    {
+      "path": "extensions",
+      "name": "Extensions (PUBLIC)"
+    },
+    {
+      "path": "docs",
+      "name": "Docs (PUBLIC)"
+    },
+    {
+      "path": "knowledge",
+      "name": "Knowledge (PUBLIC)"
+    },
+    {
+      "path": "library",
+      "name": "Library (PUBLIC)"
+    },
+    {
+      "path": "dev/goblin",
+      "name": "Goblin (PRIVATE)"
+    },
+    {
+      "path": "dev/empire",
+      "name": "Empire (PRIVATE)"
+    },
+    {
+      "path": "app",
+      "name": "App (PRIVATE)"
+    },
+    {
+      "path": "dev/groovebox",
+      "name": "Groovebox (PRIVATE)"
+    },
+    {
+      "path": "tests",
+      "name": "Tests (PRIVATE)"
+    },
+    {
+      "path": "dev/tools",
+      "name": "Tools (PRIVATE)"
+    },
+    {
+      "path": "memory",
+      "name": "Memory (LOCAL)"
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder:Core}/.venv/bin/python",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true
+  }
+}

@@ -114,7 +114,7 @@ class FormFieldSuggestions:
         
         try:
             # Try to use location_service if available
-            from core.location_service import LocationService
+            from core.locations import LocationService
             service = LocationService()
             
             # Search for matching cities
@@ -266,7 +266,7 @@ class FormFieldSuggestions:
         
         # Try location_service for more accurate mapping
         try:
-            from core.location_service import LocationService
+            from core.locations import LocationService
             service = LocationService()
             location_data = service.lookup(location)
             

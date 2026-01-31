@@ -711,7 +711,7 @@ class TUIFormRenderer:
                 default=config.get('default'),
             )
         elif ftype == FieldType.LOCATION:
-            from core.location_service import LocationService
+            from core.locations import LocationService
             tz_field = config.get('timezone_field', 'user_timezone')
             timezone_hint = self.submitted_data.get(tz_field)
             if not timezone_hint:

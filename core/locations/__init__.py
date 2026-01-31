@@ -32,6 +32,7 @@ Quick Start:
 """
 
 from .loader import LocationLoader, load_locations, get_location, get_default_database
+from .service import LocationService
 from .types import (
     Coordinate,
     Location,
@@ -54,6 +55,8 @@ __all__ = [
     "TileMarker",
     "TileObject",
     "TileSprite",
+    # Service
+    "LocationService",
     # Loader
     "LocationLoader",
     "load_locations",

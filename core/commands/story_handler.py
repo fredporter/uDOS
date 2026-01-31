@@ -310,7 +310,7 @@ set $user.completed true
             }
 
     def _resolve_path(self, file_arg: str) -> Path:
-        """Resolve file path - check memory/story/ first, then memory/bank/system, then absolute."""
+        """Resolve file path - check memory/story/, memory/bank/system/, core/framework/seed/bank/system/, then absolute."""
         repo_root = get_repo_root()
 
         # If no extension, assume -story.md
@@ -319,15 +319,22 @@ set $user.completed true
 
         path = Path(file_arg)
 
-        # If relative, check memory/story/ first
+        # If relative, check multiple locations
         if not path.is_absolute():
+            # 1. Check memory/story/ first
             story_path = repo_root / "memory" / "story" / file_arg
             if story_path.exists():
                 return story_path
 
+            # 2. Check memory/bank/system/
             bank_system_path = repo_root / "memory" / "bank" / "system" / file_arg
             if bank_system_path.exists():
                 return bank_system_path
+            
+            # 3. Check core/framework/seed/bank/system/
+            core_seed_path = repo_root / "core" / "framework" / "seed" / "bank" / "system" / file_arg
+            if core_seed_path.exists():
+                return core_seed_path
             
             # Otherwise resolve from repo root
             return repo_root / path
