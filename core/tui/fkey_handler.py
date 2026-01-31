@@ -334,7 +334,7 @@ Tips:
             # Start in background
             import subprocess
             subprocess.Popen(
-                [sys.executable, "wizard/server.py"],
+                [sys.executable, "-m", "wizard.server", "--no-interactive"],
                 cwd=self.repo_root,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,

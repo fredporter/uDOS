@@ -31,7 +31,7 @@ from wizard.services.setup_profiles import (
 
 from wizard.services.path_utils import get_repo_root, get_memory_dir
 from wizard.services.logging_manager import get_logger
-from core.location_service import LocationService
+from core.locations import LocationService
 from core.services.story_service import parse_story_document
 import json
 

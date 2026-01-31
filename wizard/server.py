@@ -317,11 +317,15 @@ class WizardServer:
         binder_router = create_binder_routes(auth_guard=self._authenticate_admin)
         app.include_router(binder_router)
 
-        # Register GitHub integration routes
-        from wizard.routes.github_routes import create_github_routes
+        # Register GitHub integration routes (optional)
+        try:
+            from wizard.routes.github_routes import create_github_routes
 
-        github_router = create_github_routes(auth_guard=self._authenticate_admin)
-        app.include_router(github_router)
+            github_router = create_github_routes(auth_guard=self._authenticate_admin)
+            app.include_router(github_router)
+        except ImportError as exc:
+            logger = self.logging_manager.get_logger("wizard-server")
+            logger.warning(f"[WIZ] GitHub routes disabled: {exc}")
 
         # Register AI routes (Mistral/Vibe)
         from wizard.routes.ai_routes import create_ai_routes

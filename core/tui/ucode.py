@@ -1071,11 +1071,11 @@ For detailed help on any command, type the command name followed by --help
             print("  Starting Wizard Server...")
             venv_activate = self.repo_root / ".venv" / "bin" / "activate"
 
-            # Build command
+            # Build command - use module execution for correct imports
             if venv_activate.exists():
-                cmd = f"source {venv_activate} && python wizard/server.py"
+                cmd = f"source {venv_activate} && python -m wizard.server --no-interactive"
             else:
-                cmd = "python wizard/server.py"
+                cmd = "python -m wizard.server --no-interactive"
 
             # Start in background with proper I/O isolation
             try:

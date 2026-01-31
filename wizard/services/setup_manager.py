@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 from wizard.services.path_utils import get_repo_root, get_memory_dir
-from core.location_service import LocationService
+from core.locations import LocationService
 from wizard.services.setup_state import setup_state
 from wizard.services.setup_profiles import load_user_profile, load_install_profile
 

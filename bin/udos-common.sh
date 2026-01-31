@@ -541,7 +541,7 @@ launch_wizard_server() {
         echo -e "${GREEN}✓${NC} Wizard already running on http://localhost:8765"
     else
         # Start in background with proper I/O isolation
-        nohup python "$UDOS_ROOT/wizard/server.py" > /dev/null 2>&1 &
+        nohup python -m wizard.server --no-interactive > /dev/null 2>&1 &
         local wizard_pid=$!
 
         # Wait for server to be ready (max 10 seconds)
