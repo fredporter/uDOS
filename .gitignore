@@ -14,7 +14,9 @@
 # The submodule reference is in .gitmodules
 
 # ---------- Local workspace data (never commit) ----------
-memory/
+# Ignore memory/ EXCEPT for tracked subdirectories
+memory/*
+memory/**
 !memory/.gitkeep
 !memory/README.md
 !memory/WORKSPACE-STRUCTURE.md
@@ -179,6 +181,10 @@ memory/system/user/.gmail_token.enc
 test_*.py
 test_*.sh
 /test_*.uscript
+
+# EXCEPT: memory/tests/ contains tracked test definitions
+!memory/tests/test_*.py
+!memory/tests/**/test_*.py
 
 # ---------- IDE / OS detritus ----------
 .DS_Store
