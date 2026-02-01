@@ -1,169 +1,150 @@
-# uDOS Public Wiki
+# uDOS Wiki
 
-**Version:** v1.0.7.0
-**Last Updated:** 2026-01-24
-**Status:** Active Reference
+**Version:** v1.0.7
+**Last Updated:** February 2, 2026
 
-The uDOS public wiki contains user guides, development documentation, and community resources.
+> 👋 **New here?** Start with [**START-HERE.md**](START-HERE.md)
+
+---
+
+## 🚀 Getting Started
+
+- **[START-HERE.md](START-HERE.md)** — First time? Read this (2 min)
+- **[../QUICKSTART.md](../QUICKSTART.md)** — Install & run uDOS (5 min)
+- **[../INSTALLATION.md](../INSTALLATION.md)** — Detailed installation guide
+- **[CONFIGURATION.md](CONFIGURATION.md)** — Setup & system config
 
 ---
 
 ## 📚 Core Documentation
 
-### Getting Started
+### Architecture & Design
+Understand how uDOS works:
 
-- **[QUICKSTART.md](../QUICKSTART.md)** — Get uDOS running in 5 minutes
-- **[INSTALLATION.md](../INSTALLATION.md)** — Detailed installation guide
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** — System design and component organization
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** — System overview
+- **[LAYER-ARCHITECTURE.md](LAYER-ARCHITECTURE.md)** — Fractal grid system (layers 000-799)
+- **[FILESYSTEM-ARCHITECTURE.md](FILESYSTEM-ARCHITECTURE.md)** — Data organization
+- **[DATABASE-ARCHITECTURE.md](DATABASE-ARCHITECTURE.md)** — SQLite ecosystem
+- **[KNOWLEDGE-LINKING-SYSTEM.md](KNOWLEDGE-LINKING-SYSTEM.md)** — Document linking & self-indexing
 
-### Contributing
+### Developer Guides
+Build features and extensions:
 
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** — How to contribute code and documentation
-- **[STYLE-GUIDE.md](STYLE-GUIDE.md)** — Code style and standards
-- **[VISION.md](VISION.md)** — Vision and philosophy
-- **[CONFIGURATION.md](CONFIGURATION.md)** — System configuration and variables
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — How to contribute
+- **[STYLE-GUIDE.md](STYLE-GUIDE.md)** — Code & docs standards
+- **[UDOS-MD-FORMAT.md](UDOS-MD-FORMAT.md)** — Executable document format
+- **[UDOS-MD-TEMPLATE-SPEC.md](UDOS-MD-TEMPLATE-SPEC.md)** — Templates & shortcodes
 
----
+### Reference Guides
+Quick lookups:
 
-## 🏗️ Architecture Standards
-
-Core architectural specifications for understanding how uDOS is designed:
-
-- **[Layer Architecture](architecture/LAYER-ARCHITECTURE.md)** — Fractal grid system, 000-799 layers, coordinate precision
-- **[Filesystem Architecture](architecture/FILESYSTEM-ARCHITECTURE.md)** — System vs user data, directory structure
-- **[Database Architecture](architecture/DATABASE-ARCHITECTURE.md)** — SQLite ecosystem, schema, cross-linking
-- **[Knowledge Linking System](architecture/KNOWLEDGE-LINKING-SYSTEM.md)** — Self-indexing documents, frontmatter schema
-- **[uDOS.md Format](architecture/UDOS-MD-FORMAT.md)** — Executable document format
-- **[uDOS.md Templates](architecture/UDOS-MD-TEMPLATE-SPEC.md)** — Shortcodes, variable interpolation
-
-See **[architecture/README.md](architecture/README.md)** for full architecture index.
+- **[quick-refs/README.md](quick-refs/README.md)** — All quick references
+- **[HELP-COMMAND-QUICK-REF.md](HELP-COMMAND-QUICK-REF.md)** — Commands (90+)
 
 ---
 
-## 📖 Topics by Category
+## 🎯 Feature Guides
 
-### Commands & TUI
+### 🎵 Groovebox (Music Engine)
+- **[GROOVEBOX-PLAYBACK.md](GROOVEBOX-PLAYBACK.md)** — Playback & controls
+- **[CORE-CAPABILITIES-v1.0.7.md](CORE-CAPABILITIES-v1.0.7.md)** — All features
 
-- [Command Reference](commands/README.md) — All 92+ commands
-- [TUI Guide](tui/README.md) — Terminal UI usage
+### 🧙 Wizard (Server & Plugins)
+- **[CORE-CAPABILITIES-v1.0.7.md](CORE-CAPABILITIES-v1.0.7.md)** — Features & plugins
+- **[CONFIGURATION.md](CONFIGURATION.md)** — Setup
 
-### App Development
-
-- [App Guide](app/README.md) — Tauri/Svelte frontend
-
-### Wizard Server
-
-- [Wizard Guide](wizard/README.md) — Always-on server features
+### 🎨 Beacon Portal (UI)
+- **[BEACON-ARCHITECTURE-SUMMARY.md](BEACON-ARCHITECTURE-SUMMARY.md)** — Portal design
+- **[BEACON-PORTAL-DELIVERY.md](BEACON-PORTAL-DELIVERY.md)** — Delivery plan
 
 ---
 
-## 📋 Directory Structure
+## 📊 Status & Roadmap
+
+- **[CORE-CAPABILITIES-v1.0.7.md](CORE-CAPABILITIES-v1.0.7.md)** — What's built
+- **[CORE-IMPLEMENTATION-STATUS-v1.0.7.md](CORE-IMPLEMENTATION-STATUS-v1.0.7.md)** — Feature checklist
+- **[../docs/ROADMAP-TODO.md](../docs/ROADMAP-TODO.md)** — Future plans
+- **[VISION.md](VISION.md)** — Philosophy & goals
+
+---
+
+## 👥 Community
+
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — How to contribute
+- **[STYLE-GUIDE.md](STYLE-GUIDE.md)** — Coding standards
+- **[VISION.md](VISION.md)** — Project philosophy
+
+---
+
+## 🔍 Advanced Topics
+
+### Self-Healing & Monitoring
+- **[SELF-HEALING-GUIDE.md](SELF-HEALING-GUIDE.md)** — Auto-repair features
+- **[SELF-HEALING-SUMMARY.md](SELF-HEALING-SUMMARY.md)** — Quick overview
+
+### Architecture Deep Dives
+- **[LAYER-ARCHITECTURE.md](LAYER-ARCHITECTURE.md)** — Grid coordinate system
+- **[KNOWLEDGE-LINKING-SYSTEM.md](KNOWLEDGE-LINKING-SYSTEM.md)** — Cross-document linking
+
+---
+
+## 📂 Documentation Structure
 
 ```
-wiki/
-├── README.md                    # This file
-├── ARCHITECTURE.md              # Component organization
-├── CONTRIBUTING.md              # How to contribute
-├── STYLE-GUIDE.md              # Code standards
-├── VISION.md                    # Philosophy
-├── CONFIGURATION.md            # System configuration
-├── CREDITS.md                  # Attribution
-├── architecture/               # Architecture standards
+/wiki                           # Public user guide
+├── START-HERE.md              # First-time guide
+├── ARCHITECTURE.md            # System design
+├── CONFIGURATION.md           # Setup guide
+├── CONTRIBUTING.md            # Contributing guide
+├── STYLE-GUIDE.md             # Standards
+├── quick-refs/                # Quick lookups
 │   ├── README.md
-│   ├── LAYER-ARCHITECTURE.md
-│   ├── FILESYSTEM-ARCHITECTURE.md
-│   ├── DATABASE-ARCHITECTURE.md
-│   ├── KNOWLEDGE-LINKING-SYSTEM.md
-│   ├── UDOS-MD-FORMAT.md
-│   └── UDOS-MD-TEMPLATE-SPEC.md
-├── commands/                   # Command docs
-│   └── README.md
-├── app/                        # App development
-│   └── README.md
-├── tui/                        # TUI guide
-│   └── README.md
-├── wizard/                     # Wizard Server
-│   └── README.md
-└── tinycore/                   # Deployment
-    └── README.md
+│   └── ...
+└── [Feature guides]           # Groovebox, Wizard, etc.
+
+/docs                           # Developer reference
+├── README.md                  # Docs index
+├── specs/                     # Architecture specs
+├── howto/                     # How-to guides
+├── features/                  # Feature planning
+├── archive/                   # Old docs (historical)
+└── ...
+
+/root/
+├── README.md                  # Project overview
+├── QUICKSTART.md              # Get started (5 min)
+├── INSTALLATION.md            # Detailed setup
+└── AGENTS.md                  # How work is organized
 ```
 
 ---
 
-## 🔍 See Also
+## 🎯 Navigation Tips
 
-**Root Repository:**
+- **Start here:** [START-HERE.md](START-HERE.md)
+- **Quick lookups:** [quick-refs/README.md](quick-refs/README.md)
+- **Back to root:** [../README.md](../README.md)
+- **All docs index:** [../docs/README.md](../docs/README.md)
+- **For developers:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
-- [README.md](../README.md) — Project overview
-- [AGENTS.md](../AGENTS.md) — How work is done
-- [QUICKSTART.md](../QUICKSTART.md) — 5-minute start
-- [INSTALLATION.md](../INSTALLATION.md) — Installation guide
+---
 
-**Engineering Documentation:**
+## 📝 Documentation Standards
 
-- [docs/](../docs/) — Engineering spine
-- [docs/development-streams.md](../docs/development-streams.md) — Current roadmap
-- [.github/copilot-instructions.md](../.github/copilot-instructions.md) — AI guidelines
+All wiki documents follow these standards:
 
-**Private Development:**
+- **Beginner-friendly** — No jargon without explanation
+- **Navigable** — Links between related docs
+- **Scannable** — Clear headers and bullet points
+- **Focused** — One topic per document
+- **Current** — Dated and version-noted
 
-- [dev/wiki/](../dev/wiki/) — Development wiki
-- [dev/roadmap/](../dev/roadmap/) — Detailed roadmap
+See [STYLE-GUIDE.md](STYLE-GUIDE.md) for details.
 
 ---
 
 **Status:** Active Wiki
-**Version:** v1.0.7.0
-**Updated:** 2026-01-24
-**Maintained by:** uDOS Community
+**Version:** v1.0.7
+**Updated:** February 2, 2026
 **Repository:** https://github.com/fredporter/uDOS
 **License:** [LICENSE.txt](../LICENSE.txt)
-
-- **MeshCore Deployment** - Deploying and running MeshCore
-- **Plugin Installation** - Installing and managing plugins
-- **Library Management** - Managing local /library integrations
-
----
-
-## 🔍 Troubleshooting
-
-Common issues, debugging, and recovery procedures.
-
-- **Disk Issues** - Diagnosing and fixing disk-related problems
-- **Network Issues** - Troubleshooting network connectivity problems
-- **Boot Problems** - Recovering from boot failures
-- **System Recovery** - Advanced recovery and repair procedures
-- **Getting Help** - Resources for asking questions and reporting issues
-
----
-
-## 📚 Reference
-
-Technical specifications and reference material.
-
-- **Alpine Packages** - Common Alpine APK packages and their usage
-- **Command Reference** - Complete reference of uDOS commands
-- **File Structure** - Overview of uDOS file and directory structure
-- **Glossary** - Terms and definitions used in uDOS
-
----
-
-## Contributing
-
-This wiki is provisioned via the **Wizard Server** at `/api/wiki/provision`.
-
-**Content Status:** 📝 All pages are currently stubs and need content
-
-**Wiki Structure:** Auto-generated by WikiProvisioningService
-**Last Update:** Auto-managed via Wizard Server API
-
-**To contribute:**
-
-1. Access Wizard Dashboard → Wiki section
-2. Use "Provision Wiki" to initialize structure
-3. Edit markdown files in `/wiki/pages/`
-4. Submit pull requests via GitHub
-
----
-
-_For engineering documentation and specifications, see the main [docs/](../docs/) directory._

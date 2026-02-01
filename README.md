@@ -5,6 +5,11 @@
 **Primary Platform**: 🐧 **Alpine Linux** | **Multi-OS Support**: macOS, Ubuntu, Windows
 **Current Status**: ✅ **Alpha v1.0.7** (January 25, 2026)
 
+> 📚 **Documentation Hub:**
+> - **👤 Users/Beginners** → [**wiki/START-HERE.md**](wiki/START-HERE.md) (2 min guide)
+> - **🛠️ Developers** → [**docs/README.md**](docs/README.md) (specs & architecture)
+> - **📖 Full Wiki** → [**wiki/README.md**](wiki/README.md) (all guides)
+
 ---
 
 ## 🚀 Quick Start

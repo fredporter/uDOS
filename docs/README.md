@@ -1,264 +1,190 @@
-# uDOS Documentation Index
+# uDOS Documentation — Developer Reference
 
-**Last Updated:** 2026-01-30  
-**Version:** v1.0.7 (Wiki Standardization + Rounds Framework)
+**Last Updated:** February 2, 2026
+**Version:** v1.0.7
 
----
-
-## 📚 Documentation Structure
-
-### Primary References
-
-| Document                                                      | Purpose                                                    |
-| ------------------------------------------------------------- | ---------------------------------------------------------- |
-| [AGENTS.md](../AGENTS.md)                                     | How work is done in uDOS (architecture, policies, tooling) |
-| [uCODE.md](specs/uCODE.md)                                    | Unified Terminal TUI (main entry point)                   |
-| [ROADMAP.md](ROADMAP.md)                                      | Development Rounds (v1.0.7 framework)                     |
-| [WIKI-FRONTMATTER-GUIDE.md](wiki-candidates/WIKI-FRONTMATTER-GUIDE.md) | Obsidian-compatible YAML frontmatter reference            |
-| [Spatial Filesystem](specs/SPATIAL-FILESYSTEM.md)            | Grid-integrated filesystem with RBAC & tagging            |
-| [Development Log Index](DEVLOG-INDEX.md)                     | Session log index (archived devlog)                        |
+> 🎯 **For users?** Go to [/wiki/START-HERE.md](../wiki/START-HERE.md)
+> 🚀 **For getting started?** Read [/QUICKSTART.md](../QUICKSTART.md)
+> 📝 **For contributing?** See [/wiki/CONTRIBUTING.md](../wiki/CONTRIBUTING.md)
 
 ---
 
-## 🚀 Getting Started
+## 🎯 Core References (Start Here)
 
-### Quick Start with uCODE
+| Document | Purpose |
+|----------|---------|
+| [/AGENTS.md](../AGENTS.md) | How work is organized (boundaries, policies, tools) |
+| [/QUICKSTART.md](../QUICKSTART.md) | Install & run uDOS (5 min) |
+| [/INSTALLATION.md](../INSTALLATION.md) | Detailed setup for all platforms |
+| [ROADMAP-TODO.md](ROADMAP-TODO.md) | Current development roadmap |
+| [specs/uCODE.md](specs/uCODE.md) | Unified Terminal TUI (main entry) |
+
+---
+
+## 🚀 Quick Start
 
 ```bash
 python uDOS.py          # Launch unified TUI
 ```
 
-Then:
-
+Then run:
 ```
-STATUS                  # Check what's installed
-WIZARD start            # Start Wizard server (if available)
-PLUGIN list             # List extensions (if available)
-WORKSPACE INFO          # Show spatial filesystem & access levels
 HELP                    # Show all commands
+STATUS                  # Check installed components
 ```
 
-See [uCODE.md](specs/uCODE.md) and [uCODE-QUICK-REFERENCE.md](wiki-candidates/uCODE-QUICK-REFERENCE.md).
+See [specs/uCODE.md](specs/uCODE.md) for all commands.
 
 ---
 
-## 🗂️ Spatial Filesystem (v1.0.7)
+## 📚 Specifications & Architecture
 
-**Feature:** Grid-integrated filesystem with role-based access, location tagging, and content discovery.
+### Core Systems
 
-### Quick Links
+- **[specs/uCODE.md](specs/uCODE.md)** — Terminal TUI & commands
+- **[specs/SPATIAL-FILESYSTEM.md](specs/SPATIAL-FILESYSTEM.md)** — Grid filesystem with RBAC
+- **[specs/grid-spatial-computing.md](specs/grid-spatial-computing.md)** — Fractal addressing & layers
+- **[specs/LAYER-ARCHITECTURE.md](specs/LAYER-ARCHITECTURE.md)** — Layer system (000-799)
+- **[specs/database-architecture.md](specs/DATABASE-ARCHITECTURE.md)** — SQLite ecosystem
 
-- [SPATIAL-FILESYSTEM.md](specs/SPATIAL-FILESYSTEM.md) — Full architecture & API
-- [SPATIAL-FILESYSTEM-QUICK-REF.md](wiki-candidates/SPATIAL-FILESYSTEM-QUICK-REF.md) — Commands & examples
-- `core/services/spatial_filesystem.py` — Implementation
-- `core/commands/spatial_filesystem_handler.py` — TUI handler
+### Document & Data
 
-### Key Commands
+- **[specs/typescript-markdown-runtime.md](specs/typescript-markdown-runtime.md)** — Executable Markdown
+- **[specs/file-parsing-architecture.md](specs/file-parsing-architecture.md)** — CSV, JSON, YAML, SQL parsing
+- **[specs/wiki_spec_obsidian.md](specs/wiki_spec_obsidian.md)** — Obsidian-compatible YAML frontmatter
+
+### Features
+
+- **[specs/workflow-management.md](specs/workflow-management.md)** — Projects, tasks, automation
+- **[specs/TUI-FORM-SYSTEM.md](specs/TUI-FORM-SYSTEM.md)** — Form builder & validation
+- **[specs/INTERACTIVE-MENUS-IMPLEMENTATION.md](specs/INTERACTIVE-MENUS-IMPLEMENTATION.md)** — Menu system
+
+### Deployment
+
+- **[specs/app-file-extensions.md](specs/app-file-extensions.md)** — File types & syntax highlighting
+- **[specs/mac-app-roadmap.md](specs/mac-app-roadmap.md)** — macOS Tauri app
+
+---
+
+## 🔧 How-To Guides
+
+- **[howto/alpine-install.md](howto/alpine-install.md)** — Install on Alpine Linux
+- **[howto/SEED-INSTALLATION-GUIDE.md](howto/SEED-INSTALLATION-GUIDE.md)** — SEED protocol setup
+- **[howto/goblin-wizard-migration-checklist.md](howto/goblin-wizard-migration-checklist.md)** — Migration guide
+
+---
+
+## 🎵 Feature Guides
+
+- **[features/TUI-ENHANCEMENT-ROADMAP.md](features/TUI-ENHANCEMENT-ROADMAP.md)** — TUI improvements
+- **[features/config-import-export.md](features/config-import-export.md)** — Configuration system
+
+---
+
+## 📊 Status & Examples
+
+### Reference & Examples
+
+- **[examples/example-script.md](examples/example-script.md)** — Markdown runtime demo
+- **[examples/grid-runtime-examples.md](examples/grid-runtime-examples.md)** — Grid system examples
+- **[examples/INTERACTIVE-MENU-DEMO.md](examples/INTERACTIVE-MENU-DEMO.md)** — Menu system examples
+
+### Decision Records
+
+- **[decisions/ADR-0003-alpine-linux-migration.md](decisions/ADR-0003-alpine-linux-migration.md)** — Alpine migration
+- **[decisions/ADR-0004-data-layer-architecture.md](decisions/ADR-0004-data-layer-architecture.md)** — Data architecture
+- **[decisions/ADR-006-UDOS-ROOT-ENVIRONMENT-VARIABLE.md](decisions/ADR-006-UDOS-ROOT-ENVIRONMENT-VARIABLE.md)** — Root variable
+
+---
+
+## 📁 Archived Documentation
+
+Old development notes, assessments, and historical planning are in **[.archive/](.archive/README.md)**.
+
+Do NOT use for current development. Use for:
+- ✅ Historical context
+- ✅ Understanding evolution
+- ✅ Reference old approaches
+
+---
+
+## 🗂️ Documentation Structure
 
 ```
-WORKSPACE list @sandbox              # List files in workspace
-LOCATION tag @sandbox/story.md L300-AB15   # Tag file with grid location
-TAG find forest adventure            # Find files by tags
-BINDER open @sandbox/my-project      # Open multi-chapter project
-```
+/docs                               # Developer reference
+├── README.md                       # This file
+├── ROADMAP-TODO.md                 # Current work
+├── specs/                          # Architecture specs
+├── howto/                          # How-to guides
+├── features/                       # Feature planning
+├── examples/                       # Code examples
+├── decisions/                      # Decision records
+└── archive/                        # Old docs
 
-### Workspaces
+/wiki                               # User guide (public)
+├── README.md                       # Index
+├── START-HERE.md                   # Beginner guide
+├── ARCHITECTURE.md                 # System design
+├── CONFIGURATION.md                # Setup
+├── quick-refs/                     # Quick lookups
+└── [Feature guides]
 
-| Workspace  | Path            | Access |
-|------------|-----------------|--------|
-| @sandbox   | memory/sandbox  | User   |
-| @bank      | memory/bank     | User   |
-| @shared    | memory/shared   | User   |
-| @wizard    | memory/wizard   | Admin  |
-| @knowledge | /knowledge      | Admin  |
-| @dev       | /dev            | Admin  |
-
----
-
-## 📖 Wiki Standardization (Obsidian-Compatible)
-
-**Feature:** All documentation uses standardized YAML frontmatter for stable identifiers, categorization, and discovery.
-
-### Quick Links
-
-- [wiki_spec_obsidian.md](specs/wiki_spec_obsidian.md) — Full specification
-- [WIKI-FRONTMATTER-GUIDE.md](wiki-candidates/WIKI-FRONTMATTER-GUIDE.md) — Migration guide & UID generation
-- [docs/wiki/](wiki/) — Core architecture docs (ALPINE-CORE, BEACON-*, WIZARD-*)
-- [knowledge/](../knowledge/) — Knowledge bank (survival guides, skills)
-
-### Frontmatter Fields
-
-```yaml
----
-uid: udos-wiki-20260130120000-L300AB00       # Stable, immutable identifier
-title: Document Title                         # Human-readable title (may change)
-tags: [wiki, category, subcategory]          # Categorization & discovery
-status: living                                 # living | draft | frozen | deprecated
-updated: 2026-01-30                          # Last semantic update
----
-```
-
-### Standard Tags
-
-- `wiki` — All wiki documents
-- `spec` — Specifications
-- `guide` — How-to guides
-- `knowledge` — Knowledge bank
-- `architecture` — System design
-- `networking` — Network protocols
-- Hierarchical: `knowledge/fire/safety`, `spec/architecture/etc.`
-
----
-
-## 🔍 System Validation & Reset
-
-### SHAKEDOWN & DESTROY Commands
-
-- [SHAKEDOWN-DESTROY-QUICK-REFERENCE.md](wiki-candidates/SHAKEDOWN-DESTROY-QUICK-REFERENCE.md) — Command reference guide
-- [test_shakedown_destroy_v1_1_0.py](../core/tests/test_shakedown_destroy_v1_1_0.py) — Comprehensive test suite
-
-**Quick Commands:**
-```bash
-SHAKEDOWN                    # Validate system
-SHAKEDOWN --fresh            # Validate fresh install
-SHAKEDOWN --destroy-verify   # Verify DESTROY is ready
-DESTROY                      # Show cleanup options
-DESTROY --help               # Show help
-DESTROY --wipe-user          # Clear user data
-DESTROY --compost            # Archive memory
-DESTROY --reset-all --confirm # Factory reset
+/root
+├── README.md                       # Project overview
+├── QUICKSTART.md                   # Get started
+├── INSTALLATION.md                 # Install
+├── AGENTS.md                       # How work is organized
+└── [Release notes]
 ```
 
 ---
 
-## 📋 Specifications (`/docs/specs/`)
+## 🎯 By Role
 
-### Wiki & Documentation
+### 👤 **User/Administrator**
+1. [/QUICKSTART.md](../QUICKSTART.md) — Get it running
+2. [/INSTALLATION.md](../INSTALLATION.md) — Full setup
+3. [/wiki/START-HERE.md](../wiki/START-HERE.md) — Beginner guide
+4. [/wiki/CONFIGURATION.md](../wiki/CONFIGURATION.md) — Configure system
 
-- [wiki_spec_obsidian.md](specs/wiki_spec_obsidian.md) — Obsidian-compatible Markdown with YAML frontmatter
-- [SPATIAL-FILESYSTEM.md](specs/SPATIAL-FILESYSTEM.md) — Grid-integrated filesystem architecture
+### 🛠️ **Developer/Contributor**
+1. [/QUICKSTART.md](../QUICKSTART.md) — Get it running
+2. [/AGENTS.md](../AGENTS.md) — Development guidelines
+3. [specs/uCODE.md](specs/uCODE.md) — Main entry point
+4. [/wiki/CONTRIBUTING.md](../wiki/CONTRIBUTING.md) — How to contribute
+5. Pick specs/features relevant to your work
 
-### Core Runtime
+### 📦 **Component-Specific**
 
-- [TypeScript Markdown Runtime](specs/typescript-markdown-runtime.md) — State, blocks, execution model
-- [Grid & Spatial Computing](specs/grid-spatial-computing.md) — Fractal addressing, layers, viewports, tiles
-- [File Parsing Architecture](specs/file-parsing-architecture.md) — CSV, JSON, YAML, SQL, Markdown tables
-- [Core Runtime Status](specs/core-runtime-status.md) — Command set, runtime state, gaps
-
-### Wizard Server
-
-- [Workflow Management](specs/workflow-management.md) — Projects, organic cron, provider rotation, binders
-
-### App
-
-- [Mac App Roadmap](specs/mac-app-roadmap.md) — Typo editor, converters, uCode, Marp, forms
-- [App File Extensions](specs/app-file-extensions.md) — File types, syntax highlighting, predictive coding
-
----
-
-## 📝 Examples (`/docs/examples/`)
-
-### Runtime Examples
-
-- [Complete Example Script](examples/example-script.md) — All TS Markdown features demonstrated
-- [SQLite Database Examples](examples/example-sqlite.db.md) — Schema, seeds, edges for runtime
-- [Grid Runtime Examples](examples/grid-runtime-examples.md) — Teletext, sprites, viewports, animation
+- **Core (TUI):** [/core/README.md](../core/README.md)
+- **Wizard (Server):** [/wizard/README.md](../wizard/README.md)
+- **Groovebox (Music):** [/groovebox/README.md](../groovebox/README.md)
+- **App (UI):** [/app/docs/README.md](../app/docs/README.md) (if exists)
 
 ---
 
-## 🗓️ Development Logs (Archived)
+## ❓ Documentation Standards
 
-- Archived devlogs live in [docs/.archive/devlog](.archive/devlog/).
-
----
-
-## 🎯 Engineering Spine
-
-### Core Documents (Root)
-
-1. [AGENTS.md](../AGENTS.md) — Primary operational reference
-2. [INSTALLATION.md](../INSTALLATION.md) — Setup instructions
-3. [QUICKSTART.md](../QUICKSTART.md) — Getting started guide
-
-### Architecture & Decisions
-
-- [Development Streams](development-streams.md) — Feature planning
-- Private submodule decisions in `/dev/docs/`
-
-### Wizard↔Core Integration
-
-- Alpine-style packaging: plugins and tools are distributed via Wizard-managed `apk` or plugin bundles.
-- Distribution: Wizard handles packaging, publishing, and quota-aware updates; Core remains offline-first.
-- Plugin registry: Wizard exposes an extensions repository; Core installs/activates via handlers.
-- Local library management: public definitions in `/library/`, promoted from `/dev/library/` after validation.
-- Versioning: all components use `python -m core.version`; never hardcode versions.
-
-### Component-Specific Docs
-
-- **Core:** `/core/docs/` — TUI, handlers, services
-- **Wizard:** `/wizard/docs/` — Server architecture, APIs
-- **Goblin:** `/dev/goblin/docs/` — Experimental features
-- **App:** `/app/docs/` — Tauri app, UI components (public scaffold)
+All docs should be:
+- **Current** — Dated & version-noted
+- **Navigable** — Links between related docs
+- **Scannable** — Clear headers & bullets
+- **Beginner-friendly** — Explain jargon
+- **Focused** — One main topic
 
 ---
 
-## 🔍 Quick Reference
+## 🔗 Navigation
 
-### For Users
-
-- [QUICKSTART.md](../QUICKSTART.md) — Get started with uDOS
-- [INSTALLATION.md](../INSTALLATION.md) — Install and configure
-
-### For Developers
-
-- [AGENTS.md](../AGENTS.md) — Development philosophy and boundaries
-- [Development Streams](development-streams.md) — What's being built
-- [Specifications](specs/) — Technical details
-- [Examples](examples/) — Reference implementations
-
-### For Contributors
-
-- Component instructions:
-  - [Core Instructions](../.github/instructions/core.instructions.md)
-  - [Wizard Instructions](../.github/instructions/wizard.instructions.md)
-  - [App Instructions](../.github/instructions/app.instructions.md)
-  - [Extensions Instructions](../.github/instructions/extensions.instructions.md)
+- **Home:** [/README.md](../README.md)
+- **Wiki:** [/wiki/README.md](../wiki/README.md)
+- **Quick Start:** [/QUICKSTART.md](../QUICKSTART.md)
+- **Contributing:** [/wiki/CONTRIBUTING.md](../wiki/CONTRIBUTING.md)
+- **Archive:** [.archive/README.md](.archive/README.md)
 
 ---
 
-## 📊 Version Information
-
-| Component | Version  | Status       |
-| --------- | -------- | ------------ |
-| Core      | v1.1.1.1 | Dev          |
-| API       | v1.0.1.0 | Alpha        |
-| Wizard    | v1.1.0.2 | Alpha        |
-| Goblin    | v0.2.0.0 | Experimental |
-| App       | v1.0.6.1 | Alpha        |
-| TUI       | v1.0.0.0 | Stable       |
-
----
-
-## 🗂️ Archive Policy
-
-- **Active docs** — Live in `/docs/`
-- **Component docs** — Live in component folders
-- **Drafts** — Live in `.dev/` (gitignored)
-- **Archive** — Moved to `.archive/` (by category) or component `.archive/`
-
-**Promotion timeline:** Useful drafts are promoted to `/docs/` after ~2 weeks of validation.
-
----
-
-## 🚀 Next Steps
-
-1. Review [Development Streams](development-streams.md) for roadmap
-2. Check [Specifications](specs/) for technical details
-3. Explore [Examples](examples/) for implementation patterns
-4. Read [AGENTS.md](../AGENTS.md) for development guidelines
-
----
-
-**Status:** Active Index  
-**Maintained by:** uDOS Engineering  
-**Next Review:** 2026-02-01
+**Status:** Active Developer Reference
+**Version:** v1.0.7
+**Updated:** February 2, 2026
+**Maintained by:** uDOS Engineering
