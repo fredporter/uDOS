@@ -21,6 +21,7 @@ from core.services.health_training import needs_self_heal_training
 from core.services.hotkey_map import read_hotkey_payload, write_hotkey_payload
 from core.services.logging_service import get_logger, get_repo_root
 from core.services.ts_runtime_service import TSRuntimeService
+from core.services.automation_monitor import AutomationMonitor
 from wizard.services.monitoring_manager import MonitoringManager
 from core.services.notification_history_service import remind_if_pending
 
@@ -54,6 +55,21 @@ class SystemScriptRunner:
 
     def _run_script(self, script_name: str, label: str) -> Dict[str, Any]:
         hotkey_payload = write_hotkey_payload(self.memory_root)
+        automation_monitor = AutomationMonitor(self.memory_root)
+        automation_summary = automation_monitor.summary()
+        if automation_summary.get("should_gate"):
+            message = (
+                "Automation gating active: "
+                f"{automation_summary.get('gate_reason') or 'monitoring throttle'}"
+            )
+            logger.warning(f"[SYSTEM SCRIPT] {message}")
+            return {
+                "status": "gated",
+                "message": message,
+                "script": script_name,
+                "automation_monitor": automation_summary,
+                "hotkey_snapshot": hotkey_payload.get("snapshot"),
+            }
         notification_reminder = remind_if_pending()
         script_path = self._ensure_script(script_name)
         if not script_path:
@@ -77,6 +93,7 @@ class SystemScriptRunner:
                 "script": script_name,
                 "monitoring_summary": monitoring_summary,
                 "notification_reminder": notification_reminder,
+                "automation_monitor": automation_summary,
             }
 
         service = TSRuntimeService()
@@ -85,14 +102,15 @@ class SystemScriptRunner:
             message = result.get("message", "Unknown error")
             details = result.get("details", "")
             logger.warning(f"[SYSTEM SCRIPT] {label.title()} failed: {message}")
-            return {
-                "status": "error",
-                "message": message,
-                "details": details,
-                "script": script_name,
-                "monitoring_summary": monitoring_summary,
-                "notification_reminder": notification_reminder,
-            }
+        return {
+            "status": "error",
+            "message": message,
+            "details": details,
+            "script": script_name,
+            "monitoring_summary": monitoring_summary,
+            "notification_reminder": notification_reminder,
+            "automation_monitor": automation_summary,
+        }
 
         payload = result.get("payload", {})
         exec_result = payload.get("result", {})
@@ -113,6 +131,7 @@ class SystemScriptRunner:
             "hotkey_last_updated": hotkey_last,
             "monitoring_summary": monitoring_summary,
             "notification_reminder": reminder,
+            "automation_monitor": automation_summary,
         }
 
     def _ensure_script(self, script_name: str) -> Optional[Path]:
