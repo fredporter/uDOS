@@ -174,8 +174,8 @@ The private `/dev/` submodule includes:
 
 - `uMarkdown-app` — Desktop app source (Tauri + Svelte), mounted at `/app`
 - `/dev/goblin/` — Experimental dev server
-- `/dev/empire/` — CRM system
-- `/dev/groovebox/` — Music production tools
+- `/empire/` — CRM system (private submodule)
+- `/groovebox/` — Music production tools (private submodule)
 - Full development tools and CI/CD
 
 ## Next Steps
