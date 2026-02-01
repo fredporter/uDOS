@@ -32,6 +32,12 @@ memory/bank/knowledge/
 memory/bank/checklists/
 memory/bank/binders/
 
+# Container clones (local, never tracked)
+# /library/*/container.json are definitions (tracked)
+# /memory/library/containers/* are clones (not tracked)
+memory/library/containers/
+!memory/library/containers/.gitkeep
+
 # Local scratch folders
 .archive/
 **/.archive/
@@ -273,4 +279,3 @@ wizard/secrets.tomb
 core/sonic/**/*.log
 core/sonic/**/*.state
 core/sonic/**/private/
-
