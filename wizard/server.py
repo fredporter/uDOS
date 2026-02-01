@@ -292,10 +292,6 @@ class WizardServer:
         app.include_router(task_router)
 
         # Register Setup wizard routes
-        from wizard.routes.setup_routes import create_setup_routes
-
-        setup_router = create_setup_routes(auth_guard=self._authenticate_admin)
-        app.include_router(setup_router)
 
         # Register Workflow manager routes
         from wizard.routes.workflow_routes import create_workflow_routes

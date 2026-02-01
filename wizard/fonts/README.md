@@ -1,5 +1,7 @@
 # Wizard Font Manager - Font Repository
 
+> **Note:** The binary font cache is stored outside this repo at `~/uDOS/fonts` and mirrored to `https://cdn.fredporter.com/`. See `docs/WIZARD-FONT-SYNC.md` for the sync process and CDN URLs.
+
 **Version:** 1.0.0  
 **Part of:** uDOS Alpha v1.0.2.0  
 **Last Updated:** 2026-01-25

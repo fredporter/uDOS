@@ -76,9 +76,9 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
 
 | Cycle | Date | Focus & Deliverables | Assigned Squad | Dependencies |
 | --- | --- | --- | --- | --- |
-| 1 | Jan 31 | Baseline gateway telemetry: enable `monitoring_manager` metrics, warm provider fingerprints, log `memory/logs/health-training.log` snapshots for next-day automation gating. | Gateway/Telemetry Squad | `wizard/services/ai_gateway.py`, `wizard/services/monitoring_manager.py` |
+| 1 | Jan 31 | Baseline gateway telemetry: run `tools/cycle1_gateway_telemetry.py` to capture provider fingerprints, quota summaries, `monitoring_summary`, and `notification_history` entries before automation gates Cycle 2. | Gateway/Telemetry Squad | `tools/cycle1_gateway_telemetry.py`, `wizard/services/monitoring_manager.py` |
 | 2 | Feb 1 | Add per-provider circuit breakers + quota/cost tracking instrumentation; verify `quota_tracker` emits priority distribution summaries. | Gateway/Telemetry Squad | `wizard/services/quota_tracker.py`, `wizard/services/cost_tracking.py` |
-| 3 | Feb 2 | Harden the first rate limiter/policy hooks on `/api/v1/library/*` and parser endpoints; ensure `memory/logs/provider-load.log` records burst throttles. | Workflow/Policy Squad | `wizard/services/rate_limiter.py`, `wizard/services/policy_enforcer.py` |
+| 3 | Feb 2 | Harden the first rate limiter/policy hooks on `/api/v1/library/*` and parser endpoints; populate `memory/logs/provider-load.log` via `tools/trigger_library_throttles.py` so automation can replay throttling history. | Workflow/Policy Squad | `wizard/services/rate_limiter.py`, `wizard/services/policy_enforcer.py` |
 | 4 | Feb 3 | Initiate OAuth key audits: secret rotation logging via `wizard/services/secret_store.py`, `key_store` encryption verification, CLI config route gating. | Security/OAuth Squad | `wizard/security/key_store.py`, `wizard/routes/config_routes.py` |
 | 5 | Feb 4 | PKCE callback enforcement + refresh token hygiene for Google/Microsoft/GitHub/Apple; log `[WIZ]` markers for each provider handshake. | Security/OAuth Squad | `wizard/services/oauth_manager.py` |
 | 6 | Feb 5 | Instrument `workflow_manager` + `sync_executor` to surface mission container priorities to automation logs; gate binder requests via `core/services/spatial_filesystem.py`. | Workflow/Policy Squad | `wizard/services/workflow_manager.py`, `core/services/spatial_filesystem.py` |
@@ -86,7 +86,7 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
 | 8 | Feb 7 | Strengthen plugin manifest verification: manifest signature checks, dependency wiring, rejection logging before library copy. | Plugin/Sonic Squad | `wizard/services/plugin_repository.py`, `wizard/services/library_manager_service.py` |
 | 9 | Feb 8 | Sync `memory/logs/health-training.log` with plugin installs and `sonic` hotkey snapshots; ensure the `PLUGIN` command logs to the same payload. | Plugin/Sonic Squad | `docs/TUI-HOTKEY-AUTOMATION.md`, `wizard/services/plugin_repository.py` |
 | 10 | Feb 9 | Update Sonic automation docs and dashboards; highlight `sonic/docs/specs/sonic-screwdriver-v1.1.0.md` expectations plus media log gating. | Plugin/Sonic Squad | `docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md`, `sonic/docs/specs/sonic-screwdriver-v1.1.0.md` |
-| 11 | Feb 10 | Harden integration API abuse prevention: apply rate limiting to `/api/v1/library/*` and parser endpoints, log throttle events, and confirm policy enforcement on parser jobs. | Workflow/Policy Squad | `wizard/routes/library_routes.py`, `wizard/services/rate_limiter.py` |
+| 11 | Feb 10 | Harden integration API abuse prevention: gate `/api/v1/library/*` and parser endpoints with the shared rate limiter, replay the throttle history from `memory/logs/provider-load.log`, and ensure policy enforcement feeds back into `/dev/` restart gating. | Workflow/Policy Squad | `wizard/routes/library_routes.py`, `wizard/services/rate_limiter.py` |
 | 12 | Feb 11 | Expand automation watchers for `startup-script.md`/`reboot-script.md`: they must read `health-training.log`, confirm hotkey snapshot match, and emit PATTERN banners. | Integration/Operations Squad | `wizard/services/monitoring_manager.py`, `wizard/services/notification_history_service.py` |
 | 13 | Feb 12 | Tune `monitoring_manager`/`logging_manager` dashboards: surface remaining issues, automation logs, and provider rotation events for daily reviews. | Integration/Operations Squad | `wizard/services/logging_manager.py`, `wizard/services/monitoring_manager.py` |
 | 14 | Feb 13 | Begin HubSpot/Notion/iCloud sync ramp-up with quota gating while continuing to monitor SLOs and `health-training` state; prepare language for next round. | Integration/Operations Squad | `wizard/services/task_scheduler.py`, `wizard/services/sync_executor.py` |
@@ -96,6 +96,11 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
 > **Dev mode config applied:** `wizard/config/init_dev_config.py` now generates `wizard/config/dev.json` (host=127.0.0.1, port=8766, debug=True, service toggles + AI routing hints) so `/dev/` mode boots with the documented developer settings from `dev/docs/howto/wizard-dev-mode.md`.
 
 > **Cycle 2 telemetry:** `tools/cycle1_gateway_telemetry.py` now also captures quota summaries, circuit-breaker hints, recent `memory/logs/provider-load.log` entries, and the new `MonitoringManager` summary so `health-training.log` mirrors what gets logged to `logging_manager` and `notification_history` downstream.
+
+## Assets & Font Distribution
+
+- The curated font binaries (Chicago FLF, PetMe64, Player2up, Teletext50, plus the few resolver-friendly retro collections) are kept in a local cache at `~/uDOS/fonts` and mirrored to `https://cdn.fredporter.com/*` as documented in `docs/WIZARD-FONT-SYNC.md`. The `wizard/fonts` directory now only ships the manifest, attribution, and metadata so the public repo stays light while installs pull fonts from the canonical CDN or the developer cache.
+- Keep the font manifest, credits, and REST endpoints aligned with the CDN copy so automation can rebuild `wizard/fonts` bundles from the signed files stored in S3 when needed.
 
 ## References
 

@@ -4,16 +4,8 @@ from typing import List, Dict, Optional
 import requests
 from core.commands.base import BaseCommandHandler
 from core.tui.output import OutputToolkit
-from core.services.logging_service import get_logger, LogTags
-
-try:
-    from wizard.services.rate_limiter import rate_limiter
-except ImportError:
-    class _NoopRateLimiter:
-        def allow(self, endpoint: str, provider: str = "wizard-api") -> bool:
-            return True
-
-    rate_limiter = _NoopRateLimiter()
+from core.services.logging_service import get_logger
+from core.services.rate_limit_helpers import guard_wizard_endpoint
 
 logger = get_logger("provider-handler")
 
@@ -50,18 +42,7 @@ class ProviderHandler(BaseCommandHandler):
             }
 
     def _throttle_guard(self, endpoint: str) -> Optional[Dict]:
-        if not rate_limiter.allow(endpoint, provider="wizard-api"):
-            message = f"Wizard API rate limit hit for {endpoint}"
-            return {
-                "status": "throttled",
-                "message": message,
-                "output": (
-                    "Too many provider orchestration calls in a short window. "
-                    "Wait a few seconds before retrying."
-                ),
-                "hint": "Check provider automation scripts and slow the loop.",
-            }
-        return None
+        return guard_wizard_endpoint(endpoint)
 
     def _list_providers(self) -> Dict:
         """List all providers with status."""

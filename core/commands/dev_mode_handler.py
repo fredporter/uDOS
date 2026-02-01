@@ -7,20 +7,14 @@ import json
 
 try:
     from wizard.services.logging_manager import get_logger
-    from wizard.services.rate_limiter import rate_limiter
 except ImportError:
-    # Fallback if wizard module not available
     import logging
 
     logger = logging.getLogger("dev-mode-handler")
-
-    class _NoopRateLimiter:
-        def allow(self, endpoint: str, provider: str = "wizard-api") -> bool:
-            return True
-
-    rate_limiter = _NoopRateLimiter()
 else:
     logger = get_logger("dev-mode-handler")
+
+from core.services.rate_limit_helpers import guard_wizard_endpoint
 
 from core.commands.base import BaseCommandHandler
 from core.tui.output import OutputToolkit
@@ -37,18 +31,7 @@ class DevModeHandler(BaseCommandHandler):
 
     def _throttle_guard(self, endpoint: str) -> Optional[Dict]:
         """Return throttle response when rate limit exceeded."""
-        if not rate_limiter.allow(endpoint, provider="wizard-api"):
-            message = f"Rate limit reached for {endpoint} (momentary window)."
-            return {
-                "status": "throttled",
-                "message": message,
-                "output": (
-                    "⚠️ You're hitting the Wizard API too fast. "
-                    "Wait a few seconds and try again."
-                ),
-                "hint": "Reduce dev mode toggles or wait for rate limit window to reset.",
-            }
-        return None
+        return guard_wizard_endpoint(endpoint)
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         """
