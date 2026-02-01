@@ -15,6 +15,8 @@ from core.services.hotkey_map import write_hotkey_payload
 from core.services.self_healer import collect_self_heal_summary
 from wizard.services.ai_gateway import AIProvider
 from wizard.services.monitoring_manager import MonitoringManager, HealthStatus
+from wizard.services.quota_tracker import get_quotas_summary
+from wizard.services.provider_load_logger import read_recent_provider_events
 
 
 def _latest_gateway_log(memory_root: Path) -> Path:
@@ -61,12 +63,27 @@ def main():
         "gateway_telemetry",
         lambda: (status, message, metadata),
     )
+    training_payload = monitoring.log_training_summary()
 
     fingerprint, providers = _provider_fingerprint()
 
     self_heal_summary = collect_self_heal_summary(component="wizard", auto_repair=False)
 
     hotkey_payload = write_hotkey_payload(memory_root)
+    quota_summary = get_quotas_summary()
+    provider_events = read_recent_provider_events(limit=5)
+    circuit_breakers = []
+    for provider_id, details in quota_summary.get("providers", {}).items():
+        status = details.get("status")
+        if status in {"warning", "critical", "exceeded", "rate_limited"}:
+            circuit_breakers.append(
+                {
+                    "provider": provider_id,
+                    "status": status,
+                    "usage_percent": details.get("daily", {}).get("usage_percent"),
+                    "reason": f"{status} threshold reached",
+                }
+            )
 
     payload = {
         "timestamp": datetime.utcnow().isoformat(),
@@ -75,8 +92,12 @@ def main():
             "health": health_record.to_dict(),
             "provider_fingerprint": fingerprint,
             "providers": providers,
+            "quota_summary": quota_summary,
+            "circuit_breakers": circuit_breakers,
+            "recent_provider_loads": provider_events,
         },
         "hotkeys": hotkey_payload,
+        "monitoring_summary": training_payload,
     }
 
     health_log_path = get_health_log_path()
@@ -90,6 +111,11 @@ def main():
     print(f"  Providers: {providers}")
     print(f"  Fingerprint: {fingerprint}")
     print(f"  Self-Heal remaining issues: {self_heal_summary.get('remaining')}")
+    if circuit_breakers:
+        print(
+            "  Circuit breakers:",
+            [f"{c['provider']} ({c['status']})" for c in circuit_breakers],
+        )
 
 
 if __name__ == "__main__":

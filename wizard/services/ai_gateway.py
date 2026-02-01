@@ -41,6 +41,11 @@ from dataclasses import dataclass, asdict, field
 from enum import Enum
 
 from wizard.services.logging_manager import get_logger
+from wizard.services.quota_tracker import (
+    APIProvider as QuotaAPIProvider,
+    get_quota_tracker,
+    record_usage,
+)
 from wizard.security.key_store import get_wizard_key
 from .model_router import ModelRouter, Backend
 from .policy_enforcer import PolicyEnforcer
@@ -218,6 +223,7 @@ class AIGateway:
 
         # Available providers
         self.providers = self._detect_providers()
+        self.quota_tracker = get_quota_tracker()
 
         # Routing + policy stack
         self.classifier = TaskClassifier()
@@ -538,6 +544,28 @@ class AIGateway:
                     latency_ms=latency,
                 )
 
+        # Determine provider for quota tracking
+        provider_name = (
+            "vibe"
+            if route.backend == Backend.LOCAL
+            else self._select_provider(request.model) or route.backend.value
+        )
+        quota_provider = self._map_to_quota_provider(provider_name)
+        if quota_provider and not self.quota_tracker.can_request(
+            quota_provider, classification.estimated_tokens
+        ):
+            latency = int((time.time() - start_time) * 1000)
+            return AIResponse(
+                success=False,
+                error=f"Quota limits hit for {provider_name}; request refused",
+                model=route.model,
+                provider=provider_name,
+                backend=route.backend.value,
+                route=route.to_dict(),
+                classification=self._classification_to_dict(classification),
+                latency_ms=latency,
+            )
+
         # Execute route
         try:
             if route.backend == Backend.LOCAL:
@@ -551,7 +579,7 @@ class AIGateway:
                 )
                 provider = "vibe"
             else:
-                provider = self._select_provider(request.model) or "cloud"
+                provider = provider_name
                 content = "Cloud routing not yet implemented; provider routing pending."
                 if route.estimated_cost:
                     self.policy.record_cloud_cost(route.estimated_cost)
@@ -576,6 +604,14 @@ class AIGateway:
         self.costs.total_requests += 1
         self._save_costs()
         self.router.record_route(route)
+
+        if quota_provider:
+            record_usage(
+                provider_name,
+                input_tokens=classification.estimated_tokens,
+                output_tokens=completion_tokens,
+                cost=route.estimated_cost or 0.0,
+            )
 
         return AIResponse(
             success=True,
@@ -611,6 +647,22 @@ class AIGateway:
                 return provider
 
         return None
+
+    def _map_to_quota_provider(self, provider_name: str) -> Optional[QuotaAPIProvider]:
+        """Map gateway provider name to quota tracker enum."""
+        if not provider_name:
+            return None
+        try:
+            return QuotaAPIProvider(provider_name)
+        except ValueError:
+            fallback = {
+                "vibe": QuotaAPIProvider.OFFLINE,
+                "local": QuotaAPIProvider.OFFLINE,
+                "cloud": QuotaAPIProvider.OPENAI,
+                "openrouter": QuotaAPIProvider.OPENAI,
+                "ollama": QuotaAPIProvider.OLLAMA,
+            }
+            return fallback.get(provider_name.lower())
 
     def list_models(self) -> List[Dict[str, Any]]:
         """List available models."""

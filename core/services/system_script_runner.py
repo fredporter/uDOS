@@ -21,6 +21,7 @@ from core.services.health_training import needs_self_heal_training
 from core.services.hotkey_map import read_hotkey_payload, write_hotkey_payload
 from core.services.logging_service import get_logger, get_repo_root
 from core.services.ts_runtime_service import TSRuntimeService
+from wizard.services.monitoring_manager import MonitoringManager
 
 logger = get_logger("system-script")
 
@@ -38,6 +39,7 @@ class SystemScriptRunner:
         else:
             self.memory_root = self.repo_root / "memory"
         self.system_dir = self.memory_root / "system"
+        self.monitoring = MonitoringManager()
         self.system_dir.mkdir(parents=True, exist_ok=True)
         self.template_dir = self.repo_root / self.SCRIPT_TEMPLATE_DIR
 
@@ -57,10 +59,16 @@ class SystemScriptRunner:
             logger.warning(f"[SYSTEM SCRIPT] {message}")
             return {"status": "error", "message": message, "script": script_name}
 
+        monitoring_summary = self.monitoring.log_training_summary()
         if not needs_self_heal_training():
             message = f"{label.title()} script skipped (Self-Heal clean)"
             logger.info(f"[SYSTEM SCRIPT] {message}")
-            return {"status": "skipped", "message": message, "script": script_name}
+            return {
+                "status": "skipped",
+                "message": message,
+                "script": script_name,
+                "monitoring_summary": monitoring_summary,
+            }
 
         service = TSRuntimeService()
         result = service.execute(script_path)
@@ -73,6 +81,7 @@ class SystemScriptRunner:
                 "message": message,
                 "details": details,
                 "script": script_name,
+                "monitoring_summary": monitoring_summary,
             }
 
         payload = result.get("payload", {})
@@ -91,6 +100,7 @@ class SystemScriptRunner:
             "output": output,
             "hotkey_snapshot": hotkey_snapshot,
             "hotkey_last_updated": hotkey_last,
+            "monitoring_summary": monitoring_summary,
         }
 
     def _ensure_script(self, script_name: str) -> Optional[Path]:

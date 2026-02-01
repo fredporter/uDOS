@@ -94,6 +94,8 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
 
 > **Dev mode config applied:** `wizard/config/init_dev_config.py` now generates `wizard/config/dev.json` (host=127.0.0.1, port=8766, debug=True, service toggles + AI routing hints) so `/dev/` mode boots with the documented developer settings from `dev/docs/howto/wizard-dev-mode.md`.
 
+> **Cycle 2 telemetry:** `tools/cycle1_gateway_telemetry.py` now also captures quota summaries, circuit-breaker hints, recent `memory/logs/provider-load.log` entries, and the new `MonitoringManager` summary so `health-training.log` mirrors what gets logged to `logging_manager` and `notification_history` downstream.
+
 ## References
 
 - [docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md](WIZARD-SONIC-PLUGIN-ECOSYSTEM.md) — plugin catalog + sonic blueprint

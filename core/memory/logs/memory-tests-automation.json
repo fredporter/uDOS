@@ -1,0 +1,7 @@
+{
+  "timestamp": "2026-02-01T14:26:53.065088",
+  "command": "npm test -- memory/tests/phase1/interpolation.test.ts memory/tests/phase1/sql-executor.test.ts memory/tests/phase1/sql-runner-chain.test.ts",
+  "returncode": 0,
+  "stdout": "\n> @udos/core@1.0.0-lean test\n> jest memory/tests/phase1/interpolation.test.ts memory/tests/phase1/sql-executor.test.ts memory/tests/phase1/sql-runner-chain.test.ts\n\n",
+  "stderr": "ts-jest[ts-jest-transformer] (WARN) Define `ts-jest` config under `globals` is deprecated. Please do\ntransform: {\n    <transform_regex>: ['ts-jest', { /* ts-jest config goes here in Jest */ }],\n},\nSee more at https://kulshekhar.github.io/ts-jest/docs/getting-started/presets#advanced\nPASS memory/tests/phase1/sql-runner-chain.test.ts\nPASS memory/tests/phase1/sql-executor.test.ts\nPASS memory/tests/phase1/interpolation.test.ts\n\nTest Suites: 3 passed, 3 total\nTests:       3 passed, 3 total\nSnapshots:   0 total\nTime:        0.728 s, estimated 1 s\nRan all test suites matching /memory\\/tests\\/phase1\\/interpolation.test.ts|memory\\/tests\\/phase1\\/sql-executor.test.ts|memory\\/tests\\/phase1\\/sql-runner-chain.test.ts/i.\n"
+}

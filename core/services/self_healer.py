@@ -11,7 +11,7 @@ Detects and automatically repairs common issues:
 
 Usage:
     from core.services.self_healer import SelfHealer
-    
+
     healer = SelfHealer(component="wizard")
     result = healer.diagnose_and_repair()
     if result.success:
@@ -116,11 +116,11 @@ class RepairResult:
 
 class SelfHealer:
     """Self-healing system for uDOS components."""
-    
+
     def __init__(self, component: str = "core", auto_repair: bool = True):
         """
         Initialize self-healer.
-        
+
         Args:
             component: Component name (core, wizard, goblin, app)
             auto_repair: Whether to automatically repair issues
@@ -129,7 +129,7 @@ class SelfHealer:
         self.auto_repair = auto_repair
         self.repo_root = self._find_repo_root()
         self.issues: List[Issue] = []
-        
+
     def _find_repo_root(self) -> Path:
         """Find uDOS repository root."""
         current = Path(__file__).resolve()
@@ -138,16 +138,16 @@ class SelfHealer:
                 return current
             current = current.parent
         return Path.cwd()
-    
+
     def diagnose_and_repair(self) -> RepairResult:
         """
         Run full diagnostic and repair cycle.
-        
+
         Returns:
             RepairResult with details of issues found and repaired
         """
         logger.info(f"[HEAL] Running diagnostics for {self.component}...")
-        
+
         # Run all diagnostic checks
         self._check_dependencies()
         self._check_ssl_backend()
@@ -155,11 +155,11 @@ class SelfHealer:
         self._check_configuration()
         self._check_ports()
         self._check_permissions()
-        
+
         # Attempt repairs if auto_repair is enabled
         repaired = []
         remaining = []
-        
+
         if self.auto_repair:
             for issue in self.issues:
                 if issue.repairable:
@@ -173,11 +173,11 @@ class SelfHealer:
                     remaining.append(issue)
         else:
             remaining = self.issues
-        
+
         success = len(remaining) == 0 or all(
             i.severity != IssueSeverity.CRITICAL for i in remaining
         )
-        
+
         return RepairResult(
             success=success,
             issues_found=self.issues,
@@ -185,11 +185,11 @@ class SelfHealer:
             issues_remaining=remaining,
             messages=self._generate_summary(repaired, remaining)
         )
-    
+
     def _check_dependencies(self):
         """Check for missing Python dependencies."""
         required_deps = self._get_required_dependencies()
-        
+
         for dep, version in required_deps.items():
             try:
                 mod = importlib.import_module(dep)
@@ -216,7 +216,7 @@ class SelfHealer:
                     repair_action=f"pip install {dep}{f'=={version}' if version else ''}",
                     details={"dependency": dep, "version": version}
                 ))
-    
+
     def _check_deprecations(self):
         """Check for deprecated code patterns."""
         deprecation_patterns = {
@@ -237,7 +237,7 @@ class SelfHealer:
                 }
             ]
         }
-        
+
         patterns = deprecation_patterns.get(self.component, [])
         for pattern in patterns:
             file_path = self.repo_root / pattern["file"]
@@ -253,7 +253,7 @@ class SelfHealer:
                         repair_action="migrate_to_lifespan",
                         details={"file": str(file_path), "pattern": pattern["pattern"]}
                     ))
-    
+
     def _check_configuration(self):
         """Check configuration files."""
         config_files = {
@@ -261,7 +261,7 @@ class SelfHealer:
             "goblin": ["dev/goblin/config/goblin.json"],
             "core": ["core/config/core.json"]
         }
-        
+
         files = config_files.get(self.component, [])
         for config_file in files:
             config_path = self.repo_root / config_file
@@ -294,24 +294,24 @@ class SelfHealer:
                 ))
         except Exception as e:
             logger.debug(f"[HEAL] SSL backend check skipped: {e}")
-    
+
     def _check_ports(self):
         """Check for port conflicts."""
         try:
             import socket
-            
+
             port_map = {
                 "wizard": 8765,
                 "goblin": 8767,
                 "api": 8766
             }
-            
+
             port = port_map.get(self.component)
             if port:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 result = sock.connect_ex(("127.0.0.1", port))
                 sock.close()
-                
+
                 if result == 0:
                     self.issues.append(Issue(
                         type=IssueType.PORT_CONFLICT,
@@ -324,7 +324,7 @@ class SelfHealer:
                     ))
         except Exception as e:
             logger.debug(f"[HEAL] Port check failed: {e}")
-    
+
     def _check_permissions(self):
         """Check file permissions."""
         script_dirs = [
@@ -332,11 +332,11 @@ class SelfHealer:
             self.repo_root / "dev" / "bin",
             self.repo_root / "dev" / "goblin" / "bin"
         ]
-        
+
         for script_dir in script_dirs:
             if not script_dir.exists():
                 continue
-                
+
             for script in script_dir.glob("*.sh"):
                 if not script.stat().st_mode & 0o111:  # Not executable
                     self.issues.append(Issue(
@@ -348,14 +348,14 @@ class SelfHealer:
                         repair_action=f"chmod +x {script}",
                         details={"file": str(script)}
                     ))
-    
+
     def _attempt_repair(self, issue: Issue) -> bool:
         """
         Attempt to repair an issue.
-        
+
         Args:
             issue: Issue to repair
-            
+
         Returns:
             True if repair succeeded
         """
@@ -381,18 +381,18 @@ class SelfHealer:
         except Exception as e:
             logger.error(f"[HEAL] Repair failed: {e}")
             return False
-    
+
     def _repair_dependency(self, issue: Issue) -> bool:
         """Install missing dependency."""
         dep = issue.details.get("dependency")
         version = issue.details.get("version")
-        
+
         if not dep:
             return False
-        
+
         package = f"{dep}{f'=={version}' if version else ''}"
         logger.info(f"[HEAL] Installing {package}...")
-        
+
         try:
             subprocess.run(
                 [sys.executable, "-m", "pip", "install", "-q", package],
@@ -403,13 +403,13 @@ class SelfHealer:
         except subprocess.CalledProcessError as e:
             logger.error(f"[HEAL] Failed to install {package}: {e}")
             return False
-    
+
     def _repair_port_conflict(self, issue: Issue) -> bool:
         """Kill process using conflicting port."""
         port = issue.details.get("port")
         if not port:
             return False
-        
+
         try:
             # Try using port manager
             subprocess.run(
@@ -421,13 +421,13 @@ class SelfHealer:
         except subprocess.CalledProcessError:
             logger.warning(f"[HEAL] Could not kill port {port} - may require manual intervention")
             return False
-    
+
     def _repair_permission(self, issue: Issue) -> bool:
         """Fix file permissions."""
         file_path = Path(issue.details.get("file", ""))
         if not file_path.exists():
             return False
-        
+
         try:
             file_path.chmod(0o755)
             return True
@@ -468,7 +468,7 @@ class SelfHealer:
             return decision
         except Exception:
             return False
-    
+
     def _get_required_dependencies(self) -> Dict[str, Optional[str]]:
         """Get required dependencies for component."""
         deps = {
@@ -487,51 +487,51 @@ class SelfHealer:
             }
         }
         return deps.get(self.component, {})
-    
+
     def _version_matches(self, installed: str, required: str) -> bool:
         """Check if installed version matches requirement."""
         # Simple version check (can be enhanced)
         return installed.startswith(required.split(".")[0])
-    
+
     def _generate_summary(
         self, repaired: List[Issue], remaining: List[Issue]
     ) -> List[str]:
         """Generate human-readable summary."""
         messages = []
-        
+
         if repaired:
             messages.append(f"✅ Repaired {len(repaired)} issue(s)")
             for issue in repaired:
                 messages.append(f"  - {issue.description}")
-        
+
         if remaining:
             critical = [i for i in remaining if i.severity == IssueSeverity.CRITICAL]
             warnings = [i for i in remaining if i.severity == IssueSeverity.WARNING]
-            
+
             if critical:
                 messages.append(f"❌ {len(critical)} critical issue(s) remaining:")
                 for issue in critical:
                     messages.append(f"  - {issue.description}")
-            
+
             if warnings:
                 messages.append(f"⚠️  {len(warnings)} warning(s):")
                 for issue in warnings:
                     messages.append(f"  - {issue.description}")
-        
+
         if not repaired and not remaining:
             messages.append("✅ No issues detected - system healthy!")
-        
+
         return messages
 
 
 def run_self_heal(component: str, auto_repair: bool = True) -> RepairResult:
     """
     Convenience function to run self-healing check.
-    
+
     Args:
         component: Component name (core, wizard, goblin, app)
         auto_repair: Whether to automatically repair issues
-        
+
     Returns:
         RepairResult
     """
@@ -561,15 +561,15 @@ def collect_self_heal_summary(component: str = "core", auto_repair: bool = False
 
 if __name__ == "__main__":
     import sys
-    
+
     component = sys.argv[1] if len(sys.argv) > 1 else "core"
     result = run_self_heal(component)
-    
+
     print("\n" + "=" * 60)
     print(f"Self-Healing Report: {component}")
     print("=" * 60)
     for msg in result.messages:
         print(msg)
     print("=" * 60)
-    
+
     sys.exit(0 if result.success else 1)

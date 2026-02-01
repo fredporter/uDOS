@@ -379,14 +379,25 @@ class SmartPrompt:
             if not self.tab_handler:
                 return
 
-            selection = {"value": None}
+            try:
+                # Try to use run_in_terminal if available
+                if hasattr(event.app, 'run_in_terminal'):
+                    selection = {"value": None}
 
-            def run_selector():
-                selection["value"] = self.tab_handler()
+                    def run_selector():
+                        selection["value"] = self.tab_handler()
 
-            event.app.run_in_terminal(run_selector)
-            if selection["value"]:
-                event.app.current_buffer.insert_text(selection["value"])
+                    event.app.run_in_terminal(run_selector)
+                    if selection["value"]:
+                        event.app.current_buffer.insert_text(selection["value"])
+                else:
+                    # Fallback: run directly in current context
+                    selection = self.tab_handler()
+                    if selection:
+                        event.app.current_buffer.insert_text(selection)
+            except Exception as e:
+                # On any error, just suppress tab handling
+                debug_logger.debug(f"Tab handler error: {e}")
 
         return bindings
 

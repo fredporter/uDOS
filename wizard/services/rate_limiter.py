@@ -19,6 +19,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Dict, Any, Optional, Tuple
 from enum import Enum
+from wizard.services.provider_load_logger import log_provider_event
 
 
 class RateLimitTier(Enum):
@@ -81,6 +82,12 @@ ENDPOINT_TIERS: Dict[str, RateLimitTier] = {
     "/api/v1/plugin/list": RateLimitTier.STANDARD,
     "/api/v1/plugin/{id}": RateLimitTier.STANDARD,
     "/api/v1/plugin/search": RateLimitTier.STANDARD,
+    "/api/v1/library/status": RateLimitTier.STANDARD,
+    "/api/v1/library/integration/{name}": RateLimitTier.STANDARD,
+    "/api/v1/library/integration/{name}/install": RateLimitTier.HEAVY,
+    "/api/v1/library/integration/{name}/enable": RateLimitTier.STANDARD,
+    "/api/v1/library/integration/{name}/disable": RateLimitTier.STANDARD,
+    "/api/v1/library/integration/{name}/delete": RateLimitTier.HEAVY,
     # Heavy tier (bandwidth intensive)
     "/api/v1/plugin/{id}/download": RateLimitTier.HEAVY,
     "/api/v1/web/fetch": RateLimitTier.HEAVY,
@@ -91,6 +98,10 @@ ENDPOINT_TIERS: Dict[str, RateLimitTier] = {
     "/api/v1/ai/chat": RateLimitTier.EXPENSIVE,
     "/api/v1/ai/embed": RateLimitTier.EXPENSIVE,
     "/api/v1/gmail/send": RateLimitTier.EXPENSIVE,
+    "/api/v1/parse/table": RateLimitTier.HEAVY,
+    "/api/v1/parse/csv": RateLimitTier.HEAVY,
+    "/api/v1/parse/json": RateLimitTier.HEAVY,
+    "/api/v1/parse/yaml": RateLimitTier.HEAVY,
 }
 
 
@@ -521,6 +532,15 @@ def create_rate_limit_middleware(rate_limiter: RateLimiter = None):
 
         if not result.allowed:
             # Return 429 Too Many Requests
+            log_provider_event(
+                endpoint,
+                result.tier.value,
+                result.reason or "rate_limit_exceeded",
+                metadata={
+                    "device_id": device_id,
+                    "tier": result.tier.value,
+                },
+            )
             from fastapi.responses import JSONResponse
 
             return JSONResponse(

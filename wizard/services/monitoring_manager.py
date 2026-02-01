@@ -7,6 +7,7 @@ and comprehensive audit logging for Wizard Server operations.
 
 import json
 import time
+import asyncio
 import requests
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Callable
@@ -15,7 +16,9 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 from collections import defaultdict
 
+from core.services.health_training import read_last_summary
 from wizard.services.logging_manager import get_logger
+from wizard.services.notification_history_service import NotificationHistoryService
 
 logger = get_logger("monitoring")
 
@@ -179,6 +182,45 @@ class MonitoringManager:
 
         logger.info("[WIZ] MonitoringManager initialized")
 
+    def log_training_summary(self) -> Dict[str, Any]:
+        """Emit health summary into logging_manager and notify automation."""
+        summary = self.get_health_summary()
+        health_log = read_last_summary() or {}
+        payload = {
+            "summary": summary,
+            "health_log": health_log,
+            "alerts": [alert.to_dict() for alert in self.alerts],
+            "rate_limits": {k: v.to_dict() for k, v in self.rate_limits.items()},
+            "cost_metrics": {k: v.to_dict() for k, v in self.cost_metrics.items()},
+        }
+        logger = get_logger("monitoring-summary")
+        logger.info("Health training summary", extra={"payload": payload})
+        self._notify_on_drift(health_log, summary)
+        return payload
+
+    def _notify_on_drift(
+        self, health_log: Dict[str, Any], summary: Dict[str, Any]
+    ) -> None:
+        """Notify history service when issues remain."""
+        remaining = health_log.get("self_heal", {}).get("remaining", 0)
+        if remaining > 0:
+            notif = NotificationHistoryService()
+            message = (
+                f"Self-Heal drift detected: {remaining} issue(s) remain (status {summary.get('status')})"
+            )
+            try:
+                asyncio.run(
+                    notif.save_notification(
+                        "warning",
+                        "Self-Heal training alert",
+                        message,
+                        duration_ms=8000,
+                        sticky=True,
+                    )
+                )
+            except RuntimeError:
+                # Already running loop; skip notification
+                pass
     # -------------------------------------------------------------------------
     # Health Checks
     # -------------------------------------------------------------------------

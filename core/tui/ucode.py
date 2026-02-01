@@ -1262,24 +1262,26 @@ For detailed help on any command, type the command name followed by --help
             else:
                 cmd = "python -m wizard.server --no-interactive"
 
-            # Start in background with proper I/O isolation
+            # Create a log file for debugging
+            log_file = self.repo_root / ".wizard_startup.log"
+            
+            # Start in background with log capture for debugging
             try:
-                with open(os.devnull, 'w') as devnull:
-                    with open(os.devnull, 'r') as devnull_in:
-                        proc = subprocess.Popen(
-                            cmd,
-                            shell=True,
-                            cwd=str(self.repo_root),
-                            stdin=devnull_in,
-                            stdout=devnull,
-                            stderr=devnull,
-                            preexec_fn=os.setsid if sys.platform != 'win32' else None
-                        )
+                with open(str(log_file), 'w') as log:
+                    proc = subprocess.Popen(
+                        cmd,
+                        shell=True,
+                        cwd=str(self.repo_root),
+                        stdin=subprocess.DEVNULL,
+                        stdout=log,
+                        stderr=subprocess.STDOUT,
+                        preexec_fn=os.setsid if sys.platform != 'win32' else None
+                    )
             except Exception as start_err:
                 raise Exception(f"Failed to spawn wizard process: {start_err}")
 
             # Wait for server to be ready
-            max_wait = 10
+            max_wait = 15
             start = time.time()
             while time.time() - start < max_wait:
                 try:
@@ -1290,8 +1292,12 @@ For detailed help on any command, type the command name followed by --help
                         return
                 except requests.exceptions.ConnectionError:
                     time.sleep(0.5)
+                except Exception:
+                    time.sleep(0.5)
 
+            # If we get here, server didn't respond
             print("  ⚠️  Wizard Server started but not responding (timeout)")
+            print(f"  📝 Check {log_file} for startup logs")
             sys.stdout.flush()
 
         except Exception as e:

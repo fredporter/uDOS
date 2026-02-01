@@ -28,3 +28,4 @@ Rounds 3‑10 rely on the Hotkey Center as the canonical source of truth for TAB
 1. When updating `core/tui/fkey_handler.py` or any `SmartPrompt` bindings, regenerate the hotkey page screenshot (save to `memory/logs/hotkey-center.png`) and rerun the `/hotkeys/data` endpoint to capture the new JSON.
 2. The config page under `/config` now links to this hotkey route so testers can see the same table while rotating secrets or installing plugins.
 3. Record the JSON payload and snapshot path in `memory/logs/health-training.log` (alongside Self-Healer stats) so automation can assert key stability before rerunning `REPAIR`/`SHAKEDOWN`.
+4. Keep this doc synced with `docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md` (plugin catalog + Sonic roadmap) so the Round 2 daily-cycle table can cite the latest install/hotkey state when gating automation runs.

@@ -27,6 +27,7 @@ from enum import Enum
 from collections import defaultdict
 
 from wizard.services.logging_manager import get_logger
+from wizard.services.provider_load_logger import log_provider_event
 
 logger = get_logger("quota-tracker")
 
@@ -463,18 +464,56 @@ class QuotaTracker:
             quota.minute_window_start = now
 
         if quota.requests_this_minute >= quota.requests_per_minute:
+            log_provider_event(
+                provider.value,
+                QuotaStatus.RATE_LIMITED.value,
+                "Requests per minute threshold reached",
+                metadata={
+                    "requests_this_minute": quota.requests_this_minute,
+                    "limit": quota.requests_per_minute,
+                },
+            )
             return False
 
         # Check daily limits
         if quota.requests_today >= quota.requests_per_day:
+            log_provider_event(
+                provider.value,
+                QuotaStatus.EXCEEDED.value,
+                "Daily requests limit reached",
+                metadata={
+                    "requests_today": quota.requests_today,
+                    "daily_limit": quota.requests_per_day,
+                },
+            )
             return False
 
         if quota.tokens_today + estimated_tokens > quota.tokens_per_day:
+            log_provider_event(
+                provider.value,
+                QuotaStatus.CRITICAL.value,
+                "Token allowance would be exceeded",
+                metadata={
+                    "tokens_today": quota.tokens_today,
+                    "tokens_limit": quota.tokens_per_day,
+                    "estimated_tokens": estimated_tokens,
+                },
+            )
             return False
 
         # Estimate cost and check budget
         estimated_cost = self._estimate_cost(provider, estimated_tokens)
         if quota.cost_today + estimated_cost > quota.daily_budget:
+            log_provider_event(
+                provider.value,
+                QuotaStatus.EXCEEDED.value,
+                "Daily budget would be exceeded",
+                metadata={
+                    "cost_today": quota.cost_today,
+                    "daily_budget": quota.daily_budget,
+                    "estimated_cost": estimated_cost,
+                },
+            )
             return False
 
         return True
