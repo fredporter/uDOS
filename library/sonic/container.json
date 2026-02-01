@@ -1,0 +1,36 @@
+{
+  "$schema": "../container.schema.json",
+  "container": {
+    "id": "sonic",
+    "name": "Sonic Screwdriver - USB Boot Stick Builder",
+    "description": "Linux-only USB multi-boot stick build system. Separates manifest planning (Core) from bash execution. Supports dry-run and custom partition layouts.",
+    "type": "git",
+    "source": "https://github.com/fredporter/uDOS",
+    "ref": "main",
+    "entry_point": "sonic/core/sonic_cli.py",
+    "cloned_at": "2026-02-01T00:00:00Z",
+    "last_update": "2026-02-01T00:00:00Z"
+  },
+  "policy": {
+    "status": "active",
+    "containerized": true,
+    "requires_init": false,
+    "allow_direct_imports": false,
+    "service_interface": "SonicScrewdriver"
+  },
+  "udos": {
+    "import_style": "service-client",
+    "example": "sonic = ServiceClient('sonic', 'SonicScrewdriver')",
+    "legacy_imports": [
+      "from sonic.core.sonic_cli import SonicCLI",
+      "from sonic.core.manifest import Manifest",
+      "from sonic.core.plan import PlanManager"
+    ],
+    "platforms": "linux",
+    "requires": {
+      "linux_kernel": "required",
+      "bash": "required",
+      "parted": "optional"
+    }
+  }
+}

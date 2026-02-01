@@ -32,10 +32,13 @@ _service_loaders = {
     'dataset': lambda: __import__('core.services.dataset_service', fromlist=['DatasetManager']).DatasetManager(),
     'user': lambda: __import__('core.services.user_service', fromlist=['get_user_manager']).get_user_manager(),
     'history': lambda: __import__('core.services.history_service', fromlist=['get_history_manager']).get_history_manager(),
-    
+
     # Containerized modules
     'groovebox': lambda: _load_groovebox_module(),
     'empire': lambda: _load_empire_module(),
+    'sonic': lambda: _load_sonic_module(),
+    'distribution': lambda: _load_distribution_module(),
+    'extensions': lambda: _load_extensions_module(),
 }
 
 
@@ -149,3 +152,53 @@ def list_services() -> list:
 def get_logger(category: str, source: Optional[str] = None):
     """Shortcut to logging service."""
     return get_service('logging').get_logger(category, source=source)
+
+
+def _load_sonic_module():
+    """Load sonic container module."""
+    try:
+        # Try direct import first (if in-repo)
+        from sonic.core import sonic_cli, manifest, plan
+        return type('SonicScrewdriver', (), {
+            'sonic_cli': sonic_cli,
+            'manifest': manifest,
+            'plan': plan,
+            'SonicCLI': sonic_cli.SonicCLI if hasattr(sonic_cli, 'SonicCLI') else None,
+            'Manifest': manifest.Manifest if hasattr(manifest, 'Manifest') else None,
+            'PlanManager': plan.PlanManager if hasattr(plan, 'PlanManager') else None,
+        })()
+    except ImportError:
+        raise RuntimeError("Sonic module not found in sonic/core path")
+
+
+def _load_distribution_module():
+    """Load distribution container module."""
+    try:
+        # Try direct import first (if in-repo)
+        from distribution import packages, schemas
+        return type('DistributionBuilder', (), {
+            'packages': packages,
+            'schemas': schemas,
+            'PackageManager': packages.PackageManager if hasattr(packages, 'PackageManager') else None,
+            'validate_schema': schemas.validate_schema if hasattr(schemas, 'validate_schema') else None,
+        })()
+    except ImportError:
+        raise RuntimeError("Distribution module not found in distribution path")
+
+
+def _load_extensions_module():
+    """Load extensions container module."""
+    try:
+        # Try direct import first (if in-repo)
+        from extensions import server_manager
+        from extensions.api import server as api_server
+        from extensions.transport import meshcore
+        return type('ExtensionManager', (), {
+            'server_manager': server_manager,
+            'api_server': api_server,
+            'meshcore': meshcore,
+            'ServerManager': server_manager.ServerManager if hasattr(server_manager, 'ServerManager') else None,
+            'APIServer': api_server.APIServer if hasattr(api_server, 'APIServer') else None,
+        })()
+    except ImportError:
+        raise RuntimeError("Extensions module not found in extensions path")

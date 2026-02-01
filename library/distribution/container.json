@@ -1,0 +1,35 @@
+{
+  "$schema": "../container.schema.json",
+  "container": {
+    "id": "distribution",
+    "name": "Distribution - Package & ISO Builder",
+    "description": "uDOS distribution packaging system. Builds installers, ISOs, and package tiers. Handles schema validation, package management, and remaster operations.",
+    "type": "git",
+    "source": "https://github.com/fredporter/uDOS",
+    "ref": "main",
+    "entry_point": "distribution/installer.sh",
+    "cloned_at": "2026-02-01T00:00:00Z",
+    "last_update": "2026-02-01T00:00:00Z"
+  },
+  "policy": {
+    "status": "active",
+    "containerized": true,
+    "requires_init": false,
+    "allow_direct_imports": false,
+    "service_interface": "DistributionBuilder"
+  },
+  "udos": {
+    "import_style": "service-client",
+    "example": "distro = ServiceClient('distribution', 'DistributionBuilder')",
+    "legacy_imports": [
+      "from distribution.packages import PackageManager",
+      "from distribution.schemas import validate_schema"
+    ],
+    "platforms": "linux,macos",
+    "requires": {
+      "bash": "required",
+      "iso_tools": "optional",
+      "docker": "optional"
+    }
+  }
+}

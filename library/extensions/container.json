@@ -1,0 +1,42 @@
+{
+  "$schema": "../container.schema.json",
+  "container": {
+    "id": "extensions",
+    "name": "uDOS Extensions - API, Transport, Plugins",
+    "description": "Distributable extension system. REST/WebSocket API server, transport layer (MeshCore, QR, Audio, NFC, Bluetooth), and plugin infrastructure.",
+    "type": "git",
+    "source": "https://github.com/fredporter/uDOS",
+    "ref": "main",
+    "entry_point": "extensions/server_manager.py",
+    "cloned_at": "2026-02-01T00:00:00Z",
+    "last_update": "2026-02-01T00:00:00Z"
+  },
+  "policy": {
+    "status": "active",
+    "containerized": true,
+    "requires_init": true,
+    "allow_direct_imports": false,
+    "service_interface": "ExtensionManager"
+  },
+  "udos": {
+    "import_style": "service-client",
+    "example": "ext = ServiceClient('extensions', 'ExtensionManager')",
+    "legacy_imports": [
+      "from extensions.api.server import APIServer",
+      "from extensions.transport.meshcore import MeshCoreTransport",
+      "from extensions.server_manager import ServerManager"
+    ],
+    "transports": [
+      "meshcore",
+      "qr",
+      "audio",
+      "nfc",
+      "bluetooth"
+    ],
+    "requires": {
+      "python": "3.8+",
+      "websockets": "optional",
+      "flask": "optional"
+    }
+  }
+}
