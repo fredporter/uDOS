@@ -13,8 +13,7 @@
 # /dev is tracked as a git submodule, not directly
 # The submodule reference is in .gitmodules
 
-# ---------- Local workspace data (never commit) ----------
-# Ignore memory/ EXCEPT for tracked subdirectories
+# ---------- Local workspace data (never commit anything here) ----------
 memory/*
 memory/**
 !memory/.gitkeep
@@ -32,9 +31,8 @@ memory/bank/knowledge/
 memory/bank/checklists/
 memory/bank/binders/
 
-# Test definitions: tracked (test code), not user data
-!memory/tests/
-!memory/tests/**
+# Tests: local-only workspace (never commit)
+memory/tests/
 
 # Container clones (local, never tracked)
 # /library/*/container.json are definitions (tracked)
@@ -181,10 +179,6 @@ memory/system/user/.gmail_token.enc
 test_*.py
 test_*.sh
 /test_*.uscript
-
-# EXCEPT: memory/tests/ contains tracked test definitions
-!memory/tests/test_*.py
-!memory/tests/**/test_*.py
 
 # ---------- IDE / OS detritus ----------
 .DS_Store
