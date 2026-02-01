@@ -1258,9 +1258,9 @@ For detailed help on any command, type the command name followed by --help
 
             # Build command - use module execution for correct imports
             if venv_activate.exists():
-                cmd = f"source {venv_activate} && python -m wizard.server --no-interactive"
+                cmd = f"source {venv_activate} && python -m wizard.server --no-interactive 2>&1"
             else:
-                cmd = "python -m wizard.server --no-interactive"
+                cmd = "python -m wizard.server --no-interactive 2>&1"
 
             # Create a log file for debugging
             log_file = self.repo_root / ".wizard_startup.log"
@@ -1268,21 +1268,23 @@ For detailed help on any command, type the command name followed by --help
             # Start in background with log capture for debugging
             try:
                 with open(str(log_file), 'w') as log:
+                    # Redirect stderr to stdout in the shell command so we capture it
                     proc = subprocess.Popen(
                         cmd,
                         shell=True,
                         cwd=str(self.repo_root),
                         stdin=subprocess.DEVNULL,
                         stdout=log,
-                        stderr=subprocess.STDOUT,
+                        stderr=log,
                         preexec_fn=os.setsid if sys.platform != 'win32' else None
                     )
             except Exception as start_err:
                 raise Exception(f"Failed to spawn wizard process: {start_err}")
 
-            # Wait for server to be ready
-            max_wait = 15
+            # Wait for server to be ready (increased to 30 seconds to allow slow initialization)
+            max_wait = 30
             start = time.time()
+            attempt = 0
             while time.time() - start < max_wait:
                 try:
                     resp = requests.get("http://127.0.0.1:8765/health", timeout=1)
@@ -1290,14 +1292,17 @@ For detailed help on any command, type the command name followed by --help
                         print(f"  ✅ Wizard Server started (PID: {proc.pid})")
                         sys.stdout.flush()  # Ensure output is flushed
                         return
-                except requests.exceptions.ConnectionError:
+                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+                    attempt += 1
                     time.sleep(0.5)
-                except Exception:
+                except Exception as e:
+                    # Other request errors, keep trying
                     time.sleep(0.5)
 
             # If we get here, server didn't respond
-            print("  ⚠️  Wizard Server started but not responding (timeout)")
+            print("  ⚠️  Wizard Server started but not responding (timeout after 30s)")
             print(f"  📝 Check {log_file} for startup logs")
+            print(f"  💡 Try: tail -f {log_file}")
             sys.stdout.flush()
 
         except Exception as e:
