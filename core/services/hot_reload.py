@@ -26,6 +26,7 @@ Date: 2026-01-28
 import sys
 import importlib
 import threading
+import os
 from pathlib import Path
 from typing import Optional, Dict, Any, Callable
 from datetime import datetime
@@ -62,13 +63,63 @@ def _command_name_from_class(class_name: str) -> str:
 COMMANDS_DIR = Path(__file__).resolve().parent.parent / "commands"
 
 
-def _should_reload_file(filepath: str, last_modified: Dict[str, float], cooldown: float = 1.0) -> bool:
-    """Debounce file reload requests so handlers do not reload multiple times per save."""
-    now = datetime.now().timestamp()
-    last = last_modified.get(filepath, 0)
-    if now - last < cooldown:
+def _should_reload_file(
+    filepath: str,
+    reload_state: Dict[str, Dict[str, float]],
+    cooldown: float = 0.5,
+    stability_delay: float = 0.3,
+) -> bool:
+    """Debounce file reload requests using cooldown + stability checks."""
+    if not os.path.exists(filepath):
         return False
-    last_modified[filepath] = now
+
+    try:
+        stat = os.stat(filepath)
+    except OSError:
+        return False
+
+    if stat.st_size == 0:
+        logger.debug("[LOCAL] Skipping reload for %s: file empty", Path(filepath).name)
+        return False
+
+    now = datetime.now().timestamp()
+    entry = reload_state.get(filepath, {})
+    last_mtime = entry.get("mtime")
+    last_size = entry.get("size")
+
+    if last_mtime != stat.st_mtime or last_size != stat.st_size:
+        entry.update(
+            {
+                "mtime": stat.st_mtime,
+                "size": stat.st_size,
+                "updated_at": now,
+            }
+        )
+        reload_state[filepath] = entry
+        logger.debug("[LOCAL] Hot reload awaiting stable write for %s", Path(filepath).name)
+        return False
+
+    stable_since = now - entry.get("updated_at", now)
+    if stable_since < stability_delay:
+        logger.debug(
+            "[LOCAL] Hot reload waiting %.2fs stability for %s",
+            stability_delay - stable_since,
+            Path(filepath).name,
+        )
+        return False
+
+    last_reload = entry.get("last_reload", 0.0)
+    if now - last_reload < cooldown:
+        logger.debug(
+            "[LOCAL] Hot reload cooldown %.2fs remaining for %s",
+            cooldown - (now - last_reload),
+            Path(filepath).name,
+        )
+        return False
+
+    entry["last_reload"] = now
+    entry["updated_at"] = now
+    reload_state[filepath] = entry
     return True
 
 
@@ -102,14 +153,16 @@ def reload_all_handlers(logger: Optional[Any] = None) -> Dict[str, int]:
 class HandlerReloadEvent(FileSystemEventHandler):
     """File system event handler for Python files."""
     
-    def __init__(self, reload_callback: Callable[[str], None]):
+    def __init__(self, reload_callback: Callable[[str], None], delete_callback: Optional[Callable[[str], None]] = None):
         """Initialize event handler.
         
         Args:
             reload_callback: Function to call with filepath on change
+            delete_callback: Optional function to call on delete
         """
         self.reload_callback = reload_callback
-        self.last_modified: Dict[str, float] = {}
+        self.delete_callback = delete_callback
+        self.reload_state: Dict[str, Dict[str, float]] = {}
     
     def on_modified(self, event):
         """Handle file modification event."""
@@ -120,10 +173,57 @@ class HandlerReloadEvent(FileSystemEventHandler):
         if not filepath.endswith('.py'):
             return
 
-        if not _should_reload_file(filepath, self.last_modified):
+        if not _should_reload_file(filepath, self.reload_state):
+            return
+        try:
+            self.reload_callback(filepath)
+        except Exception as exc:
+            logger.error("[LOCAL] Hot reload callback error for %s: %s", Path(filepath).name, exc)
+
+    def on_created(self, event):
+        """Handle new file creation event."""
+        if event.is_directory:
             return
 
-        self.reload_callback(filepath)
+        filepath = event.src_path
+        if not filepath.endswith('.py'):
+            return
+
+        if not _should_reload_file(filepath, self.reload_state):
+            return
+        try:
+            self.reload_callback(filepath)
+        except Exception as exc:
+            logger.error("[LOCAL] Hot reload callback error for %s: %s", Path(filepath).name, exc)
+
+    def on_moved(self, event):
+        """Handle file move/rename event."""
+        if event.is_directory:
+            return
+
+        filepath = getattr(event, 'dest_path', None) or event.src_path
+        if not filepath.endswith('.py'):
+            return
+
+        if not _should_reload_file(filepath, self.reload_state):
+            return
+        try:
+            self.reload_callback(filepath)
+        except Exception as exc:
+            logger.error("[LOCAL] Hot reload callback error for %s: %s", Path(filepath).name, exc)
+
+    def on_deleted(self, event):
+        """Handle file deletion event."""
+        if event.is_directory:
+            return
+
+        filepath = event.src_path
+        if not filepath.endswith('.py'):
+            return
+
+        self.reload_state.pop(filepath, None)
+        if self.delete_callback:
+            self.delete_callback(filepath)
 
 
 class HotReloadManager:
@@ -164,7 +264,7 @@ class HotReloadManager:
             return False
         
         try:
-            event_handler = HandlerReloadEvent(self._on_file_changed)
+            event_handler = HandlerReloadEvent(self._on_file_changed, self._on_file_deleted)
             self.observer = Observer()
             self.observer.schedule(event_handler, str(self.watch_dir), recursive=False)
             self.observer.start()
@@ -255,10 +355,15 @@ class HotReloadManager:
             # Construct module path
             module_name = f"core.commands.{handler_name}"
             if module_name not in sys.modules:
-                logger.warning(f"[LOCAL] Module not loaded: {module_name}")
-                return False
+                try:
+                    module = importlib.import_module(module_name)
+                    logger.info(f"[LOCAL] Imported new handler module: {module_name}")
+                except Exception as exc:
+                    logger.warning(f"[LOCAL] Module not loaded: {module_name} ({exc})")
+                    return False
+            else:
+                module = sys.modules[module_name]
 
-            module = sys.modules[module_name]
             importlib.reload(module)
 
             if not hasattr(module, _guess_handler_class(handler_name)):
@@ -275,6 +380,30 @@ class HotReloadManager:
         except Exception as e:
             logger.error(f"[LOCAL] Failed to reload {handler_name}: {e}")
             return False
+
+    def _on_file_deleted(self, filepath: str) -> None:
+        """Handle handler deletion by removing from dispatcher."""
+        path = Path(filepath)
+        handler_name = path.stem
+        class_name = _guess_handler_class(handler_name)
+        command_name = _command_name_from_class(class_name)
+
+        removed = False
+        for cmd in list(self._dispatcher_aliases(command_name)):
+            if cmd in self.dispatcher.handlers:
+                self.dispatcher.handlers.pop(cmd, None)
+                removed = True
+
+        if removed:
+            logger.info(f"[LOCAL] Removed dispatcher handlers for {command_name}")
+            self.unified.log_core(
+                'hot-reload',
+                f'Removed handler {command_name}',
+                level=LogLevel.INFO,
+                handler=handler_name
+            )
+        else:
+            logger.warning(f"[LOCAL] No dispatcher handlers found for {command_name}")
     
     def _update_dispatcher(self, class_name: str, new_handler: Any) -> None:
         """Update dispatcher with new handler instance.

@@ -7,12 +7,13 @@ Private configuration files for API keys, secrets, and system settings.
 
 ### Web Dashboard (Recommended)
 
-Open [http://localhost:8765/#config](http://localhost:8765/#config) to:
+Open [http://localhost:8765/config](http://localhost:8765/config) to:
 
 - View all available configs
 - Edit API keys in a secure, user-friendly interface
 - See example/template formats
 - Save changes locally
+- Manage the `.venv`, secret store, and plugin installers from one All-In-One view
 
 ### REST API
 
@@ -71,7 +72,7 @@ The `file_locations` section controls where Wizard stores local data:
 
 ## 🚀 Quick Start
 
-1. Open [http://localhost:8765/#config](http://localhost:8765/#config)
+1. Open [http://localhost:8765/config](http://localhost:8765/config)
 2. Select a configuration (e.g., "AI Provider Keys")
 3. Click "📋 View Example" to see the format
 4. Get your API key from the provider

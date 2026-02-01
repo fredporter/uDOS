@@ -50,26 +50,4 @@ export class ScriptExecutor extends BaseExecutor {
     }
   }
 
-  private getNested(obj: any, path: string): any {
-    const parts = path.split('.')
-    let current = obj
-    for (const part of parts) {
-      if (current == null) return undefined
-      current = current[part]
-    }
-    return current
-  }
-
-  private setNested(obj: any, path: string, value: any): void {
-    const parts = path.split('.')
-    let current = obj
-    for (let i = 0; i < parts.length - 1; i++) {
-      const part = parts[i]
-      if (!(part in current)) {
-        current[part] = {}
-      }
-      current = current[part]
-    }
-    current[parts[parts.length - 1]] = value
-  }
 }

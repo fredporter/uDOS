@@ -198,6 +198,37 @@ Choose an option [1-3]  abc
 Choose an option [1-3]  2
 ```
 
+## Interactivity Guardrail & Fallback
+
+Every interactive handler consults the shared `core.utils.tty.interactive_tty_status` helper before entering raw, menu, or prediction modes.
+
+```python
+from core.utils.tty import interactive_tty_status
+
+interactive, reason = interactive_tty_status()
+if not interactive:
+    logger.info("[LOCAL] Non-interactive terminal detected (%s), using fallback", reason or "unknown")
+    # StoryFormHandler → SimpleFallbackFormHandler
+```
+
+The helper returns `(interactive, reason)` and enforces:
+
+1. `sys.stdin` and `sys.stdout` must be TTYs.
+2. `TERM` must be set and not `dumb`.
+3. The `CI` flag must not be truthy.
+
+Modules that rely on this guardrail:
+
+- `SmartPrompt` / `EnhancedPrompt`: fallback `input()` prompts with saved reason for automation.
+- `StoryFormHandler`: switches to `SimpleFallbackFormHandler` and records the reason so health logs explain why.
+- `AdvancedFormField`: disables ANSI colors when no interactive session exists.
+- `InteractiveMenu`: reverts to numeric-only input and documents the reason in the log.
+- `DependencyWarningMonitor`: skips interactive repairs but logs the detected reason.
+
+Fallback branches always surface the reason, e.g., `logger.info("[LOCAL] SmartPrompt fallback: Non-interactive terminal (CI=true)")`, so downstream health logs and automation can repeat exactly why the interactive UI was disabled.
+
+`SimpleFallbackFormHandler`, `SmartPrompt.ask_menu_choice()`, and the backup prompts continue to work in headless or redirected runs, ensuring workflows stay stable even when `isatty()` fails.
+
 ## Design Principles
 
 1. **Consistent Format** — Both handlers use standardized prompts and behavior

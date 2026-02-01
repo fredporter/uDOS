@@ -18,6 +18,7 @@ Version: v1.0.0
 
 from typing import Optional, List, Dict, Any, Callable
 from dataclasses import dataclass
+from core.utils.tty import interactive_tty_status
 from .enhanced_prompt import EnhancedPrompt
 from core.services.logging_service import get_logger
 
@@ -240,6 +241,13 @@ class ContextualCommandPrompt(EnhancedPrompt):
         self.logger.debug("Interactive command prompt (with context)")
         return self.ask_command(prompt_text)
 
+    def _is_interactive(self) -> bool:
+        """Check if running in interactive terminal."""
+        interactive, reason = interactive_tty_status()
+        if not interactive and reason:
+            self.logger.debug("[LOCAL] Interactive check failed: %s", reason)
+        return interactive
+
 
 def create_default_registry() -> CommandRegistry:
     """
@@ -309,6 +317,15 @@ def create_default_registry() -> CommandRegistry:
         examples=["CONFIG", "CONFIG seed 12345"],
         icon="🔧",
         category="Management",
+    )
+
+    registry.register(
+        name="INTEGRATION",
+        help_text="Show GitHub and Mistral/Ollama wiring details",
+        syntax="INTEGRATION [status|github|mistral|ollama]",
+        examples=["INTEGRATION status", "INTEGRATION mistral"],
+        icon="🔗",
+        category="System",
     )
 
     registry.register(

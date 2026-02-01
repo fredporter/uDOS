@@ -38,6 +38,25 @@ export class SextantCharacterSet {
 }
 
 /**
+ * Simplified renderer that wraps the RenderPipeline with a preset mode.
+ */
+export class SextantRenderer {
+  private pipeline: RenderPipeline;
+
+  constructor(mode: GraphicsMode = GraphicsMode.Sextant) {
+    this.pipeline = new RenderPipeline(mode);
+  }
+
+  renderCharacter(sextantIndex: number): string {
+    return this.pipeline.renderCharacterWithFallback(sextantIndex);
+  }
+
+  renderTile(tile: Tile, colorIndex: number = 7) {
+    return this.pipeline.renderTile(tile, colorIndex);
+  }
+}
+
+/**
  * Render Pipeline: Compose viewport layers
  *
  * Handles: tile lookup, character selection, fallback rendering
@@ -286,4 +305,8 @@ export class GraphicsModeSupport {
         return [GraphicsMode.ASCII];
     }
   }
+}
+
+if (typeof globalThis !== 'undefined' && !(globalThis as any).SextantCharacterSet) {
+  (globalThis as any).SextantCharacterSet = SextantCharacterSet;
 }

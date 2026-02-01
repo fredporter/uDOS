@@ -57,7 +57,9 @@ from core.tui.fkey_handler import FKeyHandler
 from core.ui.command_selector import CommandSelector
 from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, create_default_registry
 from core.services.health_training import read_last_summary
+from core.services.hotkey_map import write_hotkey_payload
 from core.services.logging_service import get_logger
+from core.services.memory_test_scheduler import MemoryTestScheduler
 from core.services.self_healer import collect_self_heal_summary
 from core.tui.advanced_form_handler import AdvancedFormField
 from core.services.system_script_runner import SystemScriptRunner
@@ -219,6 +221,7 @@ class uCODETUI:
         self.repo_root = get_repo_root()
         self.logger = get_logger("ucode-tui")
         self.running = False
+        self.ghost_mode = False
 
         # Component detection
         self.detector = ComponentDetector(self.repo_root)
@@ -270,6 +273,8 @@ class uCODETUI:
         self.previous_health_log: Optional[Dict[str, Any]] = None
         self._setup_health_monitoring()
         self.system_script_runner = SystemScriptRunner()
+        self.memory_test_scheduler: Optional[MemoryTestScheduler] = None
+        self.memory_test_summary: Optional[Dict[str, Any]] = None
 
         if self.prompt.use_fallback:
             self.logger.info(f"[ContextualPrompt] Using fallback mode: {self.prompt.fallback_reason}")
@@ -437,6 +442,23 @@ class uCODETUI:
         if self.self_heal_summary and self.self_heal_summary.get("remaining", 0) > 0:
             print("  ⚠️ Automation will rerun REPAIR/SHAKEDOWN until remaining issues drop to zero.")
 
+        if self.memory_test_summary:
+            status = self.memory_test_summary.get("status", "idle")
+            pending = self.memory_test_summary.get("pending", 0)
+            result = self.memory_test_summary.get("result") or "pending"
+            last_run_ts = self.memory_test_summary.get("last_run")
+            last_run = (
+                datetime.fromtimestamp(last_run_ts).isoformat()
+                if isinstance(last_run_ts, (int, float)) and last_run_ts > 0
+                else "never"
+            )
+            print(f"  Memory Tests: {status} | Result: {result} | Pending: {pending} | Last run: {last_run}")
+            log_path = self.memory_test_summary.get("log_path")
+            if log_path:
+                print(f"    Logs: {log_path}")
+            if status in ("scheduled", "running"):
+                print("    ✅ Tests are running in the background as part of startup health checks.")
+
         print("-" * 60 + "\n")
 
     def _setup_health_monitoring(self) -> None:
@@ -445,7 +467,27 @@ class uCODETUI:
         self.self_heal_summary = self._run_self_healer()
         self.hot_reload_mgr = self._init_hot_reload_manager()
         self.hot_reload_stats = self.hot_reload_mgr.stats() if self.hot_reload_mgr else None
+        self.memory_test_summary = self._schedule_memory_tests()
         self._log_health_training_summary()
+
+    def _schedule_memory_tests(self) -> Dict[str, Any]:
+        """Run memory/tests automation if new or modified files exist."""
+        tests_root = self.repo_root / 'memory' / 'tests'
+        try:
+            scheduler = MemoryTestScheduler(self.repo_root, logger=self.logger)
+            self.memory_test_scheduler = scheduler
+            return scheduler.schedule()
+        except Exception as exc:
+            log_path = tests_root.parent / 'logs' / 'memory-tests.log'
+            self.logger.warning("[MemoryTests] Scheduler unavailable: %s", exc)
+            return {
+                'status': 'error',
+                'pending': 0,
+                'last_run': None,
+                'result': None,
+                'log_path': str(log_path),
+                'error': str(exc),
+            }
 
     def _run_self_healer(self) -> Dict[str, Any]:
         """Run Self-Healer diagnostics (no auto repair) and summarise."""
@@ -473,10 +515,13 @@ class uCODETUI:
     def _log_health_training_summary(self) -> None:
         """Append health training summary to memory/logs/health-training.log."""
         try:
+            memory_root = self.health_log_path.parent.parent
+            hotkey_payload = write_hotkey_payload(memory_root)
             payload = {
                 "timestamp": datetime.now().isoformat(),
                 "self_heal": self.self_heal_summary or {},
                 "hot_reload": self.hot_reload_stats or {},
+                "hotkeys": hotkey_payload,
             }
             with open(self.health_log_path, "a") as log_file:
                 log_file.write(json.dumps(payload) + "\n")
@@ -1155,6 +1200,11 @@ For detailed help on any command, type the command name followed by --help
         action = parts[0].lower() if parts else "status"
         subargs = parts[1] if len(parts) > 1 else ""
 
+        if action in ("start", "stop") and self._is_ghost_user():
+            print("\n  👻 Ghost mode prevents Wizard server control.")
+            print("  Run SETUP in uCODE to unlock a full profile before starting/stopping Wizard.\n")
+            return
+
         if action == "start":
             print("\n🧙 Starting Wizard Server...")
             self._wizard_start()
@@ -1535,6 +1585,15 @@ For detailed help on any command, type the command name followed by --help
         """Cleanup on exit."""
         self.logger.info("uCODE TUI shutting down")
 
+    def _is_ghost_user(self) -> bool:
+        """Return True if current user is the demo ghost profile."""
+        from core.services.user_service import get_user_manager, UserRole
+
+        user_mgr = get_user_manager()
+        current = user_mgr.current()
+
+        return bool(current and current.role == UserRole.GUEST and current.username == "ghost")
+
     def _check_ghost_mode(self) -> None:
         """Check if running in ghost mode and prompt for setup.
 
@@ -1542,12 +1601,9 @@ For detailed help on any command, type the command name followed by --help
         ghost mode (demo/test access only). This method detects that and
         prompts the user to run SETUP to establish their identity.
         """
-        from core.services.user_service import get_user_manager, UserRole
+        self.ghost_mode = self._is_ghost_user()
 
-        user_mgr = get_user_manager()
-        current = user_mgr.current()
-
-        if current and current.role == UserRole.GUEST and current.username == "ghost":
+        if self.ghost_mode:
             # In ghost mode
             print("\n" + "="*60)
             print("👻 Ghost Mode (Demo/Test Access)")

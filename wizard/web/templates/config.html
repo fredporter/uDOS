@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="px-4 sm:px-0 mb-8">
+    <h1 class="text-3xl font-bold text-white">Wizard Configuration</h1>
+    <p class="mt-1 text-gray-400">All-in-one .venv, secret store, and plugin installer management.</p>
+</div>
+
+<div class="rounded-lg bg-white/5 p-4 mb-6">
+    <h2 class="text-lg font-semibold text-white mb-2">0. .env user variable configuration</h2>
+    <p class="text-gray-300 text-sm mb-3">
+        These identity variables live exclusively in <code>.env</code> and are updated from the
+        uCODE terminal only. Run <code>SETUP</code> to edit them and <code>DESTROY</code> to start over.
+    </p>
+    {% if env_identity_fields %}
+    <div class="grid gap-2 text-sm text-gray-300">
+        {% for field in env_identity_fields %}
+        <div class="flex items-center justify-between rounded border border-white/5 px-3 py-2">
+            <span class="font-semibold text-gray-200">{{ field.label }}</span>
+            <span class="text-right text-gray-400">{{ field.value }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-xs text-gray-500">No identity values have been captured yet.</p>
+    {% endif %}
+    <div class="mt-4 text-sm text-gray-200">
+        <p class="font-semibold">Wizard Key</p>
+        <p class="font-mono text-xs text-gray-400">{{ wizard_key_value }}</p>
+        <p class="text-xs text-gray-500 mt-1">Stored at: <code>{{ env_path }}</code></p>
+    </div>
+    <p class="text-xs text-blue-300 mt-3">{{ env_notice }}</p>
+</div>
+
+<div class="grid gap-6 md:grid-cols-2 mb-6">
+    <div class="rounded-lg bg-white/5 p-4">
+        <h2 class="text-lg font-semibold text-white">1. Python .venv</h2>
+        <p class="text-gray-300 text-sm mb-2">
+            Manage the runtime isolation that boots the dashboard, CLI helpers, and plugin installers.
+        </p>
+        <ul class="text-sm text-gray-200 space-y-1">
+            <li>Path: <code>{{ venv_status.path }}</code></li>
+            <li>Status:
+                <strong class="{% if venv_status.exists %}text-green-400{% else %}text-yellow-300{% endif %}">
+                    {{ "Available" if venv_status.exists else "Missing" }}
+                </strong>
+            </li>
+            {% if venv_status.python %}
+            <li>Python interpreter: <code>{{ venv_status.python }}</code></li>
+            {% endif %}
+        </ul>
+        <p class="text-xs text-gray-400 mt-2">
+            Use the launcher to recreate/activate the venv (`./bin/Launch-uCODE.command`), then revisit this page to continue.
+        </p>
+    </div>
+
+    <div class="rounded-lg bg-white/5 p-4">
+        <h2 class="text-lg font-semibold text-white">2. Wizard Key & Secret Store</h2>
+        <p class="text-gray-300 text-sm mb-2">
+            Wizard Key is the gateway to the secret store; rotate API keys here to keep vault entries in sync.
+        </p>
+        {% if secret_state.unlocked %}
+        <p class="text-xs text-green-300 mb-1">Secret store unlocked</p>
+        <ul class="text-sm text-gray-200 space-y-2">
+            {% for entry in secret_state.entries %}
+            <li class="flex items-center justify-between">
+                <span>{{ entry.key_id }} ({{ entry.provider }})</span>
+                <div class="flex items-center gap-2">
+                    <button
+                        type="button"
+                        class="rounded bg-blue-500 px-3 py-1 text-xs font-semibold"
+                        onclick="rotateSecret('{{ entry.key_id }}', this)"
+                    >
+                        Rotate
+                    </button>
+                    <span id="secret-msg-{{ entry.key_id }}" class="text-xs text-gray-300"></span>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-xs text-yellow-300 mb-2">
+            {{ secret_state.error or "Secret store locked" }}
+        </p>
+        {% endif %}
+        <p class="text-xs text-gray-400 mt-2">
+            Secrets sync occurs via the dashboard widgets and CLI commands (see <code>wizard/services/secret_store.py</code>).
+        </p>
+    </div>
+</div>
+
+<div class="rounded-lg bg-white/5 p-4 mb-6">
+    <h2 class="text-lg font-semibold text-white">3. One-click OAuth connections</h2>
+    <p class="text-gray-300 text-sm mb-3">{{ oauth_note }}</p>
+    <div class="overflow-x-auto rounded-lg bg-white/10 p-2">
+        <table class="min-w-full text-left text-sm text-gray-300">
+            <thead>
+                <tr class="border-b border-white/10">
+                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Provider</th>
+                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Status</th>
+                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Details</th>
+                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400 text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for conn in oauth_connections %}
+                <tr class="border-b border-white/5">
+                    <td class="px-3 py-3 font-semibold text-white">{{ conn.name }}</td>
+                    <td class="px-3 py-3">
+                        <span class="inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-semibold {% if conn.status == 'connected' %}bg-green-500/20 text-green-300{% elif conn.status == 'pending_auth' %}bg-yellow-500/20 text-yellow-300{% elif conn.status == 'expired' %}bg-orange-500/20 text-orange-300{% else %}bg-red-500/10 text-red-300{% endif %}">
+                            {{ conn.label }}
+                        </span>
+                        <div class="text-xs text-gray-400 mt-1">{{ conn.user }}</div>
+                    </td>
+                    <td class="px-3 py-3 text-gray-400">{{ conn.note }}</td>
+                    <td class="px-3 py-3 text-right">
+                        {% if conn.can_connect %}
+                        <a
+                            href="/api/v1/oauth/connect/{{ conn.slug }}"
+                            target="_blank"
+                            class="inline-flex items-center rounded bg-blue-500 px-3 py-1 text-xs font-semibold transition hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400"
+                        >
+                            Connect
+                        </a>
+                        {% else %}
+                        <span
+                            class="inline-flex cursor-not-allowed items-center rounded bg-white/10 px-3 py-1 text-xs font-semibold text-gray-500"
+                        >
+                            Configure
+                        </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="px-3 py-4 text-gray-400">No OAuth connections configured yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="rounded-lg bg-white/5 p-4 mb-6">
+    <h2 class="text-lg font-semibold text-white mb-3">4. Extension + API Installers</h2>
+    <p class="text-gray-300 text-sm mb-4">
+        Manifests in <code>wizard/distribution/plugins/</code> feed the <code>LibraryManagerService</code> so CLI <code>PLUGIN install</code> and dashboard buttons share validation, signature checks, and dependency wiring.
+    </p>
+    <div class="overflow-x-auto rounded-lg bg-white/10 p-3">
+        <table class="min-w-full text-left text-sm text-gray-300">
+            <thead>
+                <tr class="border-b border-white/10">
+                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Plugin</th>
+                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Version</th>
+                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Description</th>
+                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for plugin in plugin_catalog %}
+                <tr class="border-b border-white/5">
+                    <td class="px-3 py-3 font-semibold text-white">{{ plugin.name }}</td>
+                    <td class="px-3 py-3">
+                        {{ plugin.manifest.version or "Unknown" }}
+                    </td>
+                    <td class="px-3 py-3 text-gray-400">
+                        {{ plugin.manifest.description or "No manifest yet" }}
+                    </td>
+                    <td class="px-3 py-3">
+                        <button
+                            type="button"
+                            class="rounded bg-green-500 px-3 py-1 text-xs font-semibold"
+                            onclick="installPlugin('{{ plugin.name }}', this)"
+                        >
+                            Install
+                        </button>
+                        <div id="plugin-msg-{{ plugin.name }}" class="text-xs text-gray-300 mt-1"></div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" class="px-3 py-4 text-gray-400">No plugins discovered in the catalog.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="text-xs text-gray-400">
+        Copy plugin payloads into <code>/library/&lt;id&gt;</code> (uCODE CLI handles this automatically) before invoking <code>LibraryManagerService.install_integration</code>.
+    </p>
+</div>
+{% block scripts %}
+<script>
+async function rotateSecret(keyId, btn) {
+    const msg = document.getElementById(`secret-msg-${keyId}`);
+    if (msg) msg.textContent = "Rotating...";
+    btn.disabled = true;
+    try {
+        const resp = await fetch(`/api/v1/config/secret/${keyId}/rotate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+            if (msg) msg.textContent = "Rotated";
+        } else {
+            throw new Error(data.detail || "Rotate failed");
+        }
+    } catch (err) {
+        if (msg) msg.textContent = err.message;
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+async function installPlugin(name, btn) {
+    const msg = document.getElementById(`plugin-msg-${name}`);
+    if (msg) msg.textContent = "Installing...";
+    btn.disabled = true;
+    try {
+        const resp = await fetch(`/api/v1/library/integration/${name}/install`, {
+            method: "POST",
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+            if (msg) msg.textContent = data.result.message || "Installed";
+        } else {
+            throw new Error(data.detail || (data.result && data.result.error) || "Install failed");
+        }
+    } catch (err) {
+        if (msg) msg.textContent = err.message;
+    } finally {
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}
+
+<div class="rounded-lg bg-white/5 p-4">
+    <h2 class="text-lg font-semibold text-white">Hotkey Center</h2>
+    <p class="text-gray-300 text-sm">
+        Keep the TAB/F1–F8 bindings in sync by visiting the <a class="text-blue-300 underline" href="{{ hotkey_link }}">Hotkey Center</a>. It documents the SmartPrompt/TUI shortcuts that automation scripts replay each round.
+    </p>
+</div>
+{% endblock %}

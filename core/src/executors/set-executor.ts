@@ -13,43 +13,38 @@ export class SetExecutor extends BaseExecutor {
       for (const line of lines) {
         const trimmed = line.trim()
 
-        // set $var value
-        if (trimmed.startsWith('set ')) {
-          const [, rest] = trimmed.split('set ', 2)
-          const parts = rest.trim().split(/\s+/, 2)
-          if (parts.length >= 2) {
-            const varPath = parts[0].replace('$', '')
-            const value = parts[1]
-            this.setNested(context.state, varPath, isNaN(Number(value)) ? value : Number(value))
-          }
+        const setMatch = trimmed.match(/^set\s+\$([a-zA-Z_][\w.]*)\s*(?:=\s*)?(.+)$/)
+        if (setMatch) {
+          const [, varPath, rawValue] = setMatch
+          const parsedValue = this.resolveLiteral(rawValue, context.state)
+          this.setNested(context.state, varPath, parsedValue)
+          continue
         }
 
-        // inc $var [amount]
-        if (trimmed.startsWith('inc ')) {
-          const [, rest] = trimmed.split('inc ', 2)
-          const parts = rest.trim().split(/\s+/)
-          const varPath = parts[0].replace('$', '')
-          const amount = parseInt(parts[1] || '1')
-          const current = this.getNested(context.state, varPath) || 0
+        const incMatch = trimmed.match(/^inc\s+\$([a-zA-Z_][\w.]*)(?:\s+(.+))?$/)
+        if (incMatch) {
+          const [, varPath, deltaRaw] = incMatch
+          const amount = this.parseNumber(deltaRaw, context.state, 1)
+          const current = Number(this.getNested(context.state, varPath) ?? 0)
           this.setNested(context.state, varPath, current + amount)
+          continue
         }
 
-        // dec $var [amount]
-        if (trimmed.startsWith('dec ')) {
-          const [, rest] = trimmed.split('dec ', 2)
-          const parts = rest.trim().split(/\s+/)
-          const varPath = parts[0].replace('$', '')
-          const amount = parseInt(parts[1] || '1')
-          const current = this.getNested(context.state, varPath) || 0
+        const decMatch = trimmed.match(/^dec\s+\$([a-zA-Z_][\w.]*)(?:\s+(.+))?$/)
+        if (decMatch) {
+          const [, varPath, deltaRaw] = decMatch
+          const amount = this.parseNumber(deltaRaw, context.state, 1)
+          const current = Number(this.getNested(context.state, varPath) ?? 0)
           this.setNested(context.state, varPath, current - amount)
+          continue
         }
 
-        // toggle $var
-        if (trimmed.startsWith('toggle ')) {
-          const [, varPath] = trimmed.split('toggle ', 2)
-          const path = varPath.trim().replace('$', '')
-          const current = this.getNested(context.state, path)
-          this.setNested(context.state, path, !current)
+        const toggleMatch = trimmed.match(/^toggle\s+\$([a-zA-Z_][\w.]*)$/)
+        if (toggleMatch) {
+          const [, varPath] = toggleMatch
+          const current = this.getNested(context.state, varPath)
+          const normalized = typeof current === 'boolean' ? current : Boolean(current)
+          this.setNested(context.state, varPath, !normalized)
         }
       }
 
@@ -62,29 +57,4 @@ export class SetExecutor extends BaseExecutor {
     }
   }
 
-  private getNested(obj: any, path: string): any {
-    const parts = path.split('.')
-    let current = obj
-    for (const part of parts) {
-      if (current?.[part] !== undefined) {
-        current = current[part]
-      } else {
-        return undefined
-      }
-    }
-    return current
-  }
-
-  private setNested(obj: any, path: string, value: any): void {
-    const parts = path.split('.')
-    let current = obj
-    for (let i = 0; i < parts.length - 1; i++) {
-      const part = parts[i]
-      if (current[part] === undefined) {
-        current[part] = {}
-      }
-      current = current[part]
-    }
-    current[parts[parts.length - 1]] = value
-  }
 }

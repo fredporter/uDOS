@@ -2,6 +2,27 @@
  * Core Types for uDOS Markdown Runtime
  */
 
+export type RuntimeValue = string | number | boolean | null
+
+export interface RuntimeSnapshot {
+  [key: string]: RuntimeValue
+}
+
+export interface RuntimeState {
+  get(name: string): RuntimeValue
+  set(name: string, value: RuntimeValue): void
+  has(name: string): boolean
+  delete(name: string): void
+  snapshot(): RuntimeSnapshot
+  restore(snapshot: RuntimeSnapshot): void
+  clear(): void
+}
+
+export interface StatePersistence {
+  save(snapshot: RuntimeSnapshot): Promise<void> | void
+  load(): Promise<RuntimeSnapshot | null> | RuntimeSnapshot | null
+}
+
 export interface Frontmatter {
   title: string
   id: string
@@ -20,7 +41,7 @@ export interface Frontmatter {
 }
 
 export interface RuntimeBlock {
-  type: 'state' | 'set' | 'form' | 'if' | 'else' | 'nav' | 'panel' | 'map' | 'script'
+  type: 'state' | 'set' | 'form' | 'if' | 'else' | 'nav' | 'panel' | 'map' | 'script' | 'sql'
   content: string
   metadata?: Record<string, any>
 }
@@ -105,6 +126,7 @@ export interface ExecutorResult {
   isNavigation?: boolean
   mapConfig?: any
   [key: string]: any // Allow additional executor-specific properties
+  rows?: any[]
 }
 
 export interface RuntimeConfig {

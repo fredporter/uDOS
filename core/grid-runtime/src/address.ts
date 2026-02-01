@@ -87,7 +87,7 @@ export function getLayerBand(layer: number): LayerBand {
   if (layer <= LAYER_BANDS.SUB.max) {
     return "SUB";
   }
-  throw new Error(`Layer out of valid ranges: ${layer}`);
+  throw new Error(`Layer ${layer} out of valid ranges`);
 }
 
 /**

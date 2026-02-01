@@ -365,6 +365,16 @@ class DateTimeApproval:
             return str(tzinfo.key)
         return str(tzinfo) or "UTC"
 
+    def _current_payload(self) -> Dict[str, Any]:
+        now = self._get_now()
+        tz = self._get_timezone(now)
+        return {
+            "approved": None,
+            "date": now.strftime("%Y-%m-%d"),
+            "time": now.strftime("%H:%M:%S"),
+            "timezone": tz,
+        }
+
     def _render_clock(self, now: datetime) -> List[str]:
         time_str = now.strftime("%H:%M:%S")
         return [
@@ -390,25 +400,35 @@ class DateTimeApproval:
         return "\n".join(lines)
 
     def handle_input(self, key: str) -> Optional[Dict[str, Any]]:
-        now = self._get_now()
-        tz = self._get_timezone(now)
-        date_str = now.strftime("%Y-%m-%d")
-        time_str = now.strftime("%H:%M:%S")
+        """Process key input and return status for overlay handling."""
+        payload = self._current_payload()
+        normalized = (key or "").strip().lower()
 
-        normalized = key.strip().lower()
-        payload = {
-            "approved": None,
-            "date": date_str,
-            "time": time_str,
-            "timezone": tz,
-        }
+        approve_keys = {"", "1", "y", "yes", "ok"}
+        deny_keys = {"0", "n", "no", "x", "cancel"}
+        newline_keys = {"\n", "\r"}
 
-        if normalized in {"1", "y", "yes", "ok", ""} or key in ("\n", "\r"):
-            payload["approved"] = True
+        if key in newline_keys:
+            normalized = ""
+
+        if normalized in approve_keys:
+            payload.update(
+                {
+                    "approved": True,
+                    "status": "approved",
+                    "override_required": False,
+                }
+            )
             return payload
 
-        if normalized in {"0", "n", "no", "x", "cancel"}:
-            payload["approved"] = False
+        if normalized in deny_keys:
+            payload.update(
+                {
+                    "approved": False,
+                    "status": "denied",
+                    "override_required": True,
+                }
+            )
             return payload
 
         return None

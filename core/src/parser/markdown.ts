@@ -127,17 +127,18 @@ export class MarkdownParser {
   }
 
   private static isRuntimeBlock(type: string): boolean {
-    return [
-      'state',
-      'set',
-      'form',
-      'if',
-      'else',
-      'nav',
-      'panel',
-      'map',
-      'script',
-    ].includes(type)
+      return [
+        'state',
+        'set',
+        'form',
+        'if',
+        'else',
+        'nav',
+        'panel',
+        'map',
+        'script',
+        'sql',
+      ].includes(type)
   }
 
   private static extractBlockContent(

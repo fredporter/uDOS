@@ -35,7 +35,10 @@ export interface TileObject {
   char: string;
 
   /** Descriptive label */
-  label: string;
+  label?: string;
+
+  /** Optional identifier (for referencing in tests or metadata) */
+  id?: string;
 
   /** Z-index layer (0-2) */
   z?: number;
@@ -61,7 +64,7 @@ export interface TileSprite {
   char: string;
 
   /** Descriptive label */
-  label: string;
+  label?: string;
 
   /** Z-index layer (0-2, sprites usually z=1) */
   z?: number;
@@ -74,6 +77,9 @@ export interface TileSprite {
 
   /** Whether sprite blocks movement */
   blocks?: boolean;
+
+  /** Optional state indicator (used by tile tests) */
+  state?: string;
 
   /** Animation frames (alternating characters) */
   animation?: string[];

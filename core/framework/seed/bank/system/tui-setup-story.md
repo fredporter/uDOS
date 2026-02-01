@@ -46,10 +46,11 @@ default: "ghost"
 
 ```story
 name: system_datetime_approve
-label: Confirm local date/time/zone
+label: Confirm local date/time/zone (with approval)
 type: datetime_approve
 required: true
-help: "Approve the detected date/time/timezone; choose No to edit them manually afterwards."
+help: |
+  Approve the detected date/time/timezone and view the ASCII clock. Approving keeps the values, decline to immediately edit the timezone, date, and time overrides.
 ```
 
 ```story
@@ -71,11 +72,12 @@ label: Location
 type: location
 timezone_field: user_timezone
 required: true
-help: "Choose your home grid/location (final question before completion). The selector stays last so you confirm your date/time approval before picking a grid."
+help: |
+  Choose your home grid/location. This selector always renders last so the approval (and optional overrides) are locked in before you confirm your grid.
 ```
 
 ---
 
 ## Completion Confirmation
 
-- The TUI prints the local repo/memory/bank/seed structure summary (see docs/SEED-INSTALLATION-GUIDE.md) once the story completes so you can verify seeds/memory align with the new round’s training narrative.
+- The TUI prints the local repo/memory/bank/seed structure summary (see docs/SEED-INSTALLATION-GUIDE.md) once the story completes so you can confirm seeds, banks, and memory structure before the next training round.

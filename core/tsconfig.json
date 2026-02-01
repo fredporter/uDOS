@@ -16,6 +16,6 @@
     "rootDir": "./src",
     "baseUrl": "."
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../memory/tests/**/*.ts", "memory/tests/**/*.ts", "grid-runtime/src/global.d.ts"],
   "exclude": ["node_modules", "**/*.test.ts", "__tests__"]
 }

@@ -13,8 +13,9 @@ Commands:
   REPAIR --help               # Show help
 """
 
-from typing import List, Dict
+from typing import List, Dict, Tuple, Any, Optional
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 
@@ -57,6 +58,16 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
             reset_user = True
             reset_keys = True
             reset_config = True
+
+        plugin_flag_idx = self._find_flag_index("--install-plugin", params or [])
+        if plugin_flag_idx is not None:
+            plugin_name = None
+            if plugin_flag_idx + 1 < len(params):
+                plugin_name = params[plugin_flag_idx + 1]
+            return self._install_plugin(plugin_name)
+
+        if "--refresh-runtime" in flags or "--refresh-extensions" in flags:
+            return self._refresh_runtime(user)
 
         if reset_user or reset_keys or reset_config:
             plan = []
@@ -298,6 +309,10 @@ OPTIONS:
   --full            Perform all reset options
   --confirm         Skip confirmation prompts
   --help            Show this help
+  --refresh-runtime, --refresh-extensions
+                    Clean runtime caches (venv, extensions, dashboard assets) and reinstall enabled plugins
+  --install-plugin <name>
+                    Reinstall a specific integration via the Wizard library manager
 
 EXAMPLES:
   REPAIR
@@ -412,7 +427,145 @@ EXAMPLES:
                 message=error_msg,
                 metadata={"error": str(e)},
             )
+        return {
+            "output": error_msg,
+            "status": "error",
+        }
+
+    def _find_flag_index(self, flag: str, params: List[str]) -> Optional[int]:
+        """Return index of flag in params (case-insensitive)."""
+        for idx, param in enumerate(params):
+            if param.lower() == flag.lower():
+                return idx
+        return None
+
+    def _refresh_runtime(self, user) -> Dict:
+        """Clean runtime artifacts and reinstall enabled integrations."""
+        from core.tui.output import OutputToolkit
+        from core.services.logging_service import get_logger
+
+        logger = get_logger("repair-handler")
+        cleaned, errors = self._clean_runtime_targets()
+        reinstall = self._reinstall_integrations()
+        updates = self._collect_plugin_updates()
+
+        output = [OutputToolkit.banner("REPAIR: REFRESH RUNTIME")]
+        output.append(f"  Cleaned: {', '.join(cleaned) if cleaned else 'none'}")
+        if errors:
+            output.append(f"  Errors: {len(errors)} ({'; '.join(errors)})")
+        if reinstall["available"]:
+            output.append(f"  Reinstalled integrations: {len(reinstall.get('results', []))}")
+            for line in reinstall.get("results", [])[:5]:
+                output.append(f"    {line}")
+            if len(reinstall.get("results", [])) > 5:
+                output.append("    ...")
+        else:
+            output.append("  Wizard integrations unavailable (wizard component missing)")
+        if updates is not None:
+            output.append(f"  Plugin updates available: {len(updates)}")
+        output.append("")
+        output.append("Next steps:")
+        output.append("  • Run REPAIR --install-plugin <name>")
+        output.append("  • Run SHAKEDOWN to re-run diagnostics")
+
+        logger.info("[LOCAL] REPAIR runtime refresh completed by %s", user.username if user else "unknown")
+        return {
+            "status": "success" if not errors else "warning",
+            "message": "Runtime caches refreshed",
+            "output": "\n".join(output),
+        }
+
+    def _runtime_cleanup_targets(self) -> List[Tuple[str, Path]]:
+        repo_root = get_repo_root()
+        root_parent = repo_root.parent
+        return [
+            ("Virtualenv (.venv)", repo_root / ".venv"),
+            ("Extensions runtime copies", repo_root / "extensions"),
+            ("Wizard dashboard node_modules", repo_root / "wizard" / "dashboard" / "node_modules"),
+            ("Wizard dashboard dist", repo_root / "wizard" / "dashboard" / "dist"),
+            ("Wizard web static assets", repo_root / "wizard" / "web" / "static"),
+            ("Memory wizard cache", repo_root / "memory" / "wizard"),
+            ("Memory tests cache", repo_root / "memory" / "tests"),
+            ("Wizard plugin cache", repo_root / "wizard" / "distribution" / "plugins" / "cache"),
+            ("GitHub integration folder", root_parent / "wizard" / "github_integration"),
+            ("Local AI assets (Mistral/Vibe)", root_parent / "library" / "mistral-vibe"),
+            ("Local Ollama container", root_parent / "library" / "ollama"),
+        ]
+
+    def _clean_runtime_targets(self) -> Tuple[List[str], List[str]]:
+        cleaned = []
+        errors = []
+        for label, path in self._runtime_cleanup_targets():
+            try:
+                if not path.exists():
+                    continue
+                if path.is_file():
+                    path.unlink()
+                else:
+                    shutil.rmtree(path)
+                cleaned.append(label)
+            except Exception as exc:
+                errors.append(f"{label}: {exc}")
+        return cleaned, errors
+
+    def _reinstall_integrations(self) -> Dict[str, Any]:
+        """Reinstall enabled or installed integrations via the Wizard library manager."""
+        try:
+            from wizard.services.library_manager_service import get_library_manager
+        except ImportError:
+            return {"available": False, "results": []}
+
+        manager = get_library_manager()
+        status = manager.get_library_status()
+        results = []
+        for integration in status.integrations:
+            if not integration.enabled and not integration.installed:
+                continue
+            result = manager.install_integration(integration.name)
+            status_label = "OK" if result.success else "FAIL"
+            detail = result.message or result.error or "no details"
+            results.append(f"{integration.name}: {result.action} ({status_label}) {detail}")
+        return {"available": True, "results": results}
+
+    def _collect_plugin_updates(self) -> Optional[List[Any]]:
+        try:
+            from wizard.services.plugin_repository import get_repository
+        except ImportError:
+            return None
+
+        repo = get_repository()
+        return repo.check_updates()
+
+    def _install_plugin(self, plugin_name: Optional[str]) -> Dict:
+        if not plugin_name:
             return {
-                "output": error_msg,
                 "status": "error",
+                "message": "Usage: REPAIR --install-plugin <integration_name>",
             }
+
+        try:
+            from wizard.services.library_manager_service import get_library_manager
+        except ImportError:
+            return {
+                "status": "error",
+                "message": "Wizard component unavailable; cannot manage plugins",
+            }
+
+        manager = get_library_manager()
+        integration = manager.get_integration(plugin_name)
+        if not integration:
+            return {
+                "status": "error",
+                "message": f"Integration not found: {plugin_name}",
+            }
+
+        result = manager.install_integration(plugin_name)
+        status = "success" if result.success else "error"
+        output = result.message or result.error or "Installation attempted"
+        return {
+            "status": status,
+            "message": output,
+            "integration": plugin_name,
+            "action": result.action,
+            "details": output,
+        }

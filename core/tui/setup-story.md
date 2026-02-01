@@ -17,6 +17,27 @@ This story also runs the hot reload/self-heal verification described in `ROUNDS-
 
 ---
 
+## Repository Root Setup
+
+```story
+name: setup_udos_root
+label: Configure repository root (UDOS_ROOT)
+type: text
+required: true
+placeholder: "/home/user/uDOS or /Users/yourname/Code/uDOS"
+help: >
+  Path to uDOS repository root (contains uDOS.py marker file).
+
+  For container deployments: /home/user/uDOS (standard Docker path)
+  For local development: ~/Code/uDOS or your actual repo location
+
+  This enables proper path resolution across Core, Wizard, Goblin, and App components.
+  Auto-detected from local setup, but required for container or unusual installations.
+validation: path
+```
+
+---
+
 ## Identity (5 fields)
 
 ```form
@@ -61,12 +82,11 @@ default: user
 
 ```story
 name: system_datetime_approve
-label: Confirm local date/time/zone
+label: Confirm local date/time/zone (with ASCII clock)
 type: datetime_approve
 required: true
 help: >
-  Approve the detected date/time/timezone. Decline (0/No) to adjust
-  the values immediately, then continue with the rest of the questions.
+  Approve the detected date/time/timezone while viewing the ASCII clock. Decline to adjust timezone/date/time edits immediately before continuing.
 ```
 
 ```story
@@ -90,8 +110,7 @@ type: location
 required: true
 timezone_field: user_timezone
 help: >
-  Choose your home grid/location (final question).
-  The fuzzy selector shows matching nodes + timezones.
+  Choose your home grid/location (final question). The selector renders last so the approval (or overrides) are confirmed before you pick a grid.
 ```
 
 ---
@@ -100,7 +119,7 @@ help: >
 
 - This story writes the latest hot reload/self-heal summary to `memory/logs/health-training.log` so automation can verify the training round before moving on.
 - Completing the flow confirms the local repo/memory/bank/seed structure plus the CLI dev operations (REPAIR/RESTART/PLUGIN) remain ready per the v1.1+ roadmap.
-- After submission, a completion banner lists each directory (local repo, memory, bank, framework seed) with its status and references `docs/SEED-INSTALLATION-GUIDE.md` so you can verify every piece of the runtime structure.
+- After submission, the completion banner reprints the directories (local repo, memory, bank, framework seed) with status indicators and references `docs/SEED-INSTALLATION-GUIDE.md`, ensuring the “local/memory/bank/seed structure” is explicitly confirmed before resuming the next round.
 
 ## Complete
 

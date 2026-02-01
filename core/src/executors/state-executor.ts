@@ -8,62 +8,20 @@ import { BaseExecutor } from './base'
 export class StateExecutor extends BaseExecutor {
   async execute(block: RuntimeBlock, context: ExecutionContext): Promise<ExecutorResult> {
     try {
-      const content = block.content.trim()
+      const content = block.content
+      const assignments = this.extractAssignments(content)
 
-      // Handle multi-line assignments (arrays, objects spanning multiple lines)
-      let processedContent = ''
-      let inMultiline = false
-      let currentLine = ''
-
-      for (const line of content.split('\n')) {
-        const trimmed = line.trim()
-        if (!trimmed || trimmed.startsWith('/*')) continue
-
-        currentLine += line + '\n'
-
-        // Check if we're in a multi-line structure
-        const openBrackets = (currentLine.match(/[\[\{]/g) || []).length
-        const closeBrackets = (currentLine.match(/[\]\}]/g) || []).length
-
-        if (openBrackets > closeBrackets) {
-          inMultiline = true
-        } else if (inMultiline && openBrackets === closeBrackets && currentLine.includes('=')) {
-          inMultiline = false
-          processedContent += currentLine
-          currentLine = ''
-        } else if (!inMultiline && currentLine.includes('=')) {
-          processedContent += currentLine
-          currentLine = ''
+      for (const { varName, rawValue } of assignments) {
+        if (!rawValue) {
+          continue
         }
-      }
 
-      if (currentLine.trim()) {
-        processedContent += currentLine
-      }
-
-      // Parse assignments
-      const assignmentRegex = /\$([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*([\s\S]+?)(?=\n\$|$)/g
-      let match
-
-      while ((match = assignmentRegex.exec(processedContent)) !== null) {
-        const varName = match[1]
-        const valueStr = match[2].trim()
-
-        try {
-          // Try JSON parse first
-          const value = JSON.parse(valueStr)
-          context.state[varName] = value
-        } catch {
-          // Try evaluating as JavaScript (for unquoted keys)
-          try {
-            // eslint-disable-next-line no-eval
-            const value = eval(`(${valueStr})`)
-            context.state[varName] = value
-          } catch {
-            // Fallback: treat as string
-            context.state[varName] = valueStr.trim()
-          }
+        if (this.getNested(context.state, varName) !== undefined) {
+          continue
         }
+
+        const parsed = this.resolveLiteral(rawValue, context.state)
+        this.setNested(context.state, varName, parsed)
       }
 
       return { success: true }
@@ -73,5 +31,51 @@ export class StateExecutor extends BaseExecutor {
         error: `StateExecutor error: ${error instanceof Error ? error.message : String(error)}`,
       }
     }
+  }
+
+  private extractAssignments(content: string): Array<{ varName: string; rawValue: string }> {
+    const assignments: Array<{ varName: string; rawValue: string }> = []
+    let currentVar: string | null = null
+    let buffer = ''
+
+    const flush = () => {
+      if (currentVar) {
+        assignments.push({ varName: currentVar, rawValue: buffer.trim() })
+        currentVar = null
+        buffer = ''
+      }
+    }
+
+    for (const rawLine of content.split('\n')) {
+      const trimmed = rawLine.trim()
+      if (!trimmed) {
+        if (currentVar) {
+          buffer += rawLine + '\n'
+        }
+        continue
+      }
+
+      if (trimmed.startsWith('//') || trimmed.startsWith('/*')) {
+        if (currentVar) {
+          buffer += rawLine + '\n'
+        }
+        continue
+      }
+
+      const match = trimmed.match(/^\$([a-zA-Z_][\w.]*)\s*=\s*(.*)$/)
+      if (match) {
+        flush()
+        currentVar = match[1]
+        buffer = match[2]
+        continue
+      }
+
+      if (currentVar) {
+        buffer += rawLine + '\n'
+      }
+    }
+
+    flush()
+    return assignments
   }
 }

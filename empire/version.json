@@ -1,0 +1,34 @@
+{
+  "name": "Empire Private Server",
+  "version": "1.0.1",
+  "description": "Private CRM and business intelligence system with Gmail, Google Places, website parsing, social enrichment, and email enrichment",
+  "type": "core",
+  "status": "production",
+  "homepage": "https://github.com/fredporter/uDOS",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fredporter/uDOS",
+    "directory": "empire"
+  },
+  "author": {
+    "name": "Fred Porter",
+    "url": "https://github.com/fredporter"
+  },
+  "keywords": [
+    "crm",
+    "business-intelligence",
+    "contact-management",
+    "enrichment",
+    "gmail",
+    "social-media"
+  ],
+  "changelog": {
+    "1.0.0.1": {
+      "date": "2026-01-18",
+      "changes": [
+        "Initial release - renamed from BIZINTEL to Empire Private Server",
+        "v1.0.0.1 - Private CRM server with integrated data enrichment"
+      ]
+    }
+  }
+}

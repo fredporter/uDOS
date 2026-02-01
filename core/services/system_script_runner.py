@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Dict, Optional, Any
 
 from core.services.health_training import needs_self_heal_training
+from core.services.hotkey_map import read_hotkey_payload, write_hotkey_payload
 from core.services.logging_service import get_logger, get_repo_root
 from core.services.ts_runtime_service import TSRuntimeService
 
@@ -49,6 +50,7 @@ class SystemScriptRunner:
         return self._run_script("reboot-script.md", "reboot")
 
     def _run_script(self, script_name: str, label: str) -> Dict[str, Any]:
+        hotkey_payload = write_hotkey_payload(self.memory_root)
         script_path = self._ensure_script(script_name)
         if not script_path:
             message = f"{label.title()} script not found ({script_name})"
@@ -76,13 +78,19 @@ class SystemScriptRunner:
         payload = result.get("payload", {})
         exec_result = payload.get("result", {})
         output = exec_result.get("output", "").strip()
+        hotkey_snapshot = hotkey_payload.get("snapshot")
+        hotkey_last = hotkey_payload.get("last_updated")
         message = f"{label.title()} script executed"
         logger.info(f"[SYSTEM SCRIPT] {message} ({script_path})")
+        if hotkey_snapshot:
+            logger.info(f"[SYSTEM SCRIPT] Hotkey snapshot: {hotkey_snapshot} ({hotkey_last})")
         return {
             "status": "success",
             "message": message,
             "script": script_name,
             "output": output,
+            "hotkey_snapshot": hotkey_snapshot,
+            "hotkey_last_updated": hotkey_last,
         }
 
     def _ensure_script(self, script_name: str) -> Optional[Path]:

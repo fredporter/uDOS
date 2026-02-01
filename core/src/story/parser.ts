@@ -9,7 +9,6 @@
  */
 
 import YAML from "js-yaml";
-import { marked } from "marked";
 import type {
   StoryFrontmatter,
   StorySection,
@@ -171,10 +170,24 @@ export function parseStoryBlock(content: string): FormField | null {
 /**
  * Render markdown content to HTML
  */
+type MarkedFn = (content: string) => string | Promise<string>;
+let cachedMarked: MarkedFn | null = null;
+
+async function loadMarked(): Promise<MarkedFn> {
+  if (cachedMarked) {
+    return cachedMarked;
+  }
+
+  const module = await import("marked");
+  cachedMarked = module.marked;
+  return cachedMarked;
+}
+
 export async function renderMarkdown(content: string): Promise<string> {
   // Remove ```story blocks before rendering
   const cleanContent = content.replace(/```story\n[\s\S]*?\n```\n?/g, "");
-  return await marked(cleanContent);
+  const markedFn = await loadMarked();
+  return await markedFn(cleanContent);
 }
 
 /**

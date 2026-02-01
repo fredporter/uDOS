@@ -55,14 +55,54 @@ def _enforce_home_root(candidate: Path) -> Path:
 
 
 def get_repo_root() -> Path:
-    """Get repository root from current file location or UDOS_ROOT."""
+    """
+    Get repository root, preferring UDOS_ROOT environment variable.
+
+    Supports:
+    - Container deployments (UDOS_ROOT set by container)
+    - Local development (falls back to relative path)
+    - Subprocess isolation (inherited UDOS_ROOT from parent)
+
+    Returns:
+        Path: Absolute path to uDOS repository root
+
+    Raises:
+        RuntimeError: If UDOS_ROOT is set but invalid
+    """
     env_root = os.getenv("UDOS_ROOT")
     if env_root:
-        env_path = Path(env_root).expanduser()
-        if (env_path / "uDOS.py").exists():
+        env_path = Path(env_root).expanduser().resolve()
+        marker = env_path / "uDOS.py"
+
+        if marker.exists():
+            # Container path: env var points to valid root
             return _enforce_home_root(env_path)
-    current = Path(__file__).resolve()
-    return _enforce_home_root(current.parent.parent.parent)
+        else:
+            # Invalid container setup
+            raise RuntimeError(
+                f"UDOS_ROOT={env_root} does not contain uDOS.py marker. "
+                "Invalid container configuration or .env corruption."
+            )
+
+    # Local development fallback: Use relative path from this file
+    try:
+        current = Path(__file__).resolve()
+        candidate = current.parent.parent.parent
+        marker = candidate / "uDOS.py"
+
+        if marker.exists():
+            return _enforce_home_root(candidate)
+        else:
+            # This file is outside a valid uDOS repo
+            raise RuntimeError(
+                f"Cannot find uDOS.py at expected location: {candidate / 'uDOS.py'}. "
+                "Set UDOS_ROOT environment variable or move repo to ~/uDOS."
+            )
+    except Exception as e:
+        raise RuntimeError(
+            f"Failed to detect repository root: {e}\n"
+            "Set UDOS_ROOT environment variable or check repo structure."
+        )
 
 
 class FlatFileHandler(logging.FileHandler):
@@ -288,7 +328,7 @@ class LogTags:
 # Dev-trace for debugging and performance
 class DevTrace:
     """Development trace logger for detailed command flow and timing.
-    
+
     Usage:
         trace = DevTrace('command-dispatch')
         with trace.span('parse_command', {'input': 'MAP tokyo'}):
@@ -297,10 +337,10 @@ class DevTrace:
         trace.log('Decision: routing to MapHandler')
         trace.save()  # Save to dev-trace-YYYY-MM-DD.log
     """
-    
+
     def __init__(self, category: str, enabled: bool = True):
         """Initialize dev trace.
-        
+
         Args:
             category: Trace category (e.g., 'command-dispatch', 'wizard-routing')
             enabled: Enable tracing (default: True). Can be disabled via config
@@ -311,14 +351,14 @@ class DevTrace:
         self.decisions: list = []
         self.start_time = datetime.now()
         self.logger = get_logger(f"dev-trace-{category}", source="trace")
-    
+
     def span(self, name: str, metadata: Optional[Dict] = None):
         """Context manager for timing a code block.
-        
+
         Args:
             name: Span name (e.g., 'parse_command', 'execute_handler')
             metadata: Optional metadata dict
-        
+
         Usage:
             with trace.span('handle_pattern', {'location': 'L300-BJ10'}):
                 # Code is timed automatically
@@ -326,10 +366,10 @@ class DevTrace:
         if not self.enabled:
             return self._NoOpContext()
         return self._SpanContext(self, name, metadata)
-    
+
     def log(self, message: str, level: str = "INFO", metadata: Optional[Dict] = None):
         """Log a trace message.
-        
+
         Args:
             message: Message to log
             level: Log level (INFO, DEBUG, WARN, ERROR)
@@ -337,7 +377,7 @@ class DevTrace:
         """
         if not self.enabled:
             return
-        
+
         entry = {
             "timestamp": datetime.now().isoformat(),
             "level": level,
@@ -345,25 +385,25 @@ class DevTrace:
             "metadata": metadata or {}
         }
         self.decisions.append(entry)
-        
+
         # Also write to logger
         log_method = getattr(self.logger, level.lower(), self.logger.info)
         log_method(f"[TRACE] {message} | {metadata or ''}")
-    
+
     class _SpanContext:
         """Context manager for timing spans."""
-        
+
         def __init__(self, trace: 'DevTrace', name: str, metadata: Optional[Dict]):
             self.trace = trace
             self.name = name
             self.metadata = metadata or {}
             self.start = None
             self.duration = None
-        
+
         def __enter__(self):
             self.start = datetime.now()
             return self
-        
+
         def __exit__(self, exc_type, exc_val, exc_tb):
             self.duration = (datetime.now() - self.start).total_seconds()
             span_entry = {
@@ -374,21 +414,21 @@ class DevTrace:
                 "error": str(exc_val) if exc_type else None
             }
             self.trace.spans.append(span_entry)
-            
+
             # Log to trace logger
             status = "OK" if not exc_type else "ERROR"
             self.trace.logger.info(
                 f"[SPAN] {self.name} {status} ({self.duration*1000:.2f}ms)",
                 extra={"metadata": self.metadata}
             )
-    
+
     class _NoOpContext:
         """No-op context manager when tracing disabled."""
         def __enter__(self):
             return self
         def __exit__(self, *args):
             pass
-    
+
     def summary(self) -> Dict:
         """Get trace summary."""
         total_duration = (datetime.now() - self.start_time).total_seconds()
@@ -400,23 +440,23 @@ class DevTrace:
             "spans": self.spans,
             "decisions": self.decisions
         }
-    
+
     def save(self, filepath: Optional[Path] = None):
         """Save trace to file.
-        
+
         Args:
             filepath: Optional custom filepath. Default: memory/logs/dev-trace-{category}-YYYY-MM-DD.log
         """
         if not self.enabled:
             return
-        
+
         import json
         if filepath is None:
             log_dir = Path(get_repo_root()) / "memory" / "logs"
             log_dir.mkdir(parents=True, exist_ok=True)
             date_str = datetime.now().strftime("%Y-%m-%d")
             filepath = log_dir / f"dev-trace-{self.category}-{date_str}.log"
-        
+
         summary = self.summary()
         with open(filepath, "a") as f:
             f.write(json.dumps(summary) + "\n")

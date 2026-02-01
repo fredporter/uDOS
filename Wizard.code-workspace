@@ -9,35 +9,59 @@
     { "name": "🚀 Distribution", "path": "distribution" }
   ],
   "settings": {
-    "python.defaultInterpreterPath": "${workspaceFolder:🏠 Root}/.venv/bin/python",
-    "files.exclude": {
-      "**/.venv": true,
-      "**/node_modules": true,
-      "**/__pycache__": true,
-      "**/*.pyc": true,
-      "**/.DS_Store": true,
-      "core": true,
-      "extensions": true,
-      "app": true,
-      "dev": true,
-      "memory": true,
-      "knowledge": true,
-      "library": true,
-      "distribution": true
+    "python.defaultInterpreterPath": "${workspaceFolder:🏠 Root}/venv/bin/python",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.terminal.executeInFileDir": true,
+    "terminal.integrated.defaultProfile.osx": "bash",
+    "terminal.integrated.profiles.osx": {
+      "bash": {
+        "path": "/bin/bash",
+        "args": [
+          "-l"
+        ],
+        "icon": "terminal-bash"
+      }
     },
-    "search.exclude": {
-      "**/.venv": true,
-      "**/node_modules": true,
-      "**/.archive": true
+    "terminal.integrated.env.osx": {
+      "VIRTUAL_ENV": "${workspaceFolder:🏠 Root}/venv",
+      "PATH": "${workspaceFolder:🏠 Root}/venv/bin:${env:PATH}",
+      "PYTHONPATH": "${workspaceFolder:🏠 Root}"
     },
-    "[python]": {
-      "editor.defaultFormatter": "ms-python.black-formatter",
+    "terminal.integrated.shellArgs.osx": [
+      "-l",
+      "-i"
+    ],
+    "git.autofetch": false,
+    "git.confirmSync": false,
+    "editor.formatOnSave": false,
+    "[svelte]": {
+      "editor.defaultFormatter": "svelte.svelte-vscode",
       "editor.formatOnSave": true
     },
-    "[markdown]": {
-      "editor.wordWrap": "on"
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true
     },
-    "editor.rulers": [80, 120]
+    "typescript.tsdk": "${workspaceFolder:📱 App}/node_modules/typescript/lib",
+    "github.copilot.enable": {
+      "*": true,
+      "plaintext": false,
+      "markdown": false,
+      "python": true,
+      "typescript": true,
+      "javascript": true,
+      "svelte": true
+    },
+    "github.copilot.advanced.debug.overrideChatModel": "gpt-4-turbo",
+    "github.copilot.advanced.debug.overrideChatApiUrl": "https://api.openai.com/v1/chat/completions",
+    "extensions.recommendations": [
+      "ms-python.python",
+      "github.copilot",
+      "github.copilot-chat",
+      "svelte.svelte-vscode",
+      "adam-bender.commit-message-editor"
+    ]
   },
   "extensions": {
     "recommendations": [

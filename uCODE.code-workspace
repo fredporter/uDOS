@@ -1,70 +1,95 @@
 {
   "folders": [
-    { "name": "🏠 Root", "path": "." },
-    { "name": "⚡ Core", "path": "core" },
-    { "name": "� Docs", "path": "docs" },
-    { "name": "📖 Knowledge", "path": "knowledge" }
+    {
+      "name": "\ud83c\udfe0 Root",
+      "path": "."
+    },
+    {
+      "name": "\u26a1 Core",
+      "path": "core"
+    },
+    {
+      "name": "\ud83e\uddd9 Wizard",
+      "path": "wizard"
+    },
+    {
+      "name": "\ud83d\udd0c Extensions",
+      "path": "extensions"
+    },
+    {
+      "name": "\ud83d\udcf1 App",
+      "path": "app"
+    },
+    {
+      "name": "\ud83d\udc79 Goblin",
+      "path": "dev/goblin"
+    },
+    {
+      "name": "\ud83d\udcd6 Docs",
+      "path": "docs"
+    },
+    {
+      "name": "\ud83e\udde0 Knowledge",
+      "path": "knowledge"
+    },
+    {
+      "name": "\ud83d\udcda Library",
+      "path": "library"
+    }
   ],
   "settings": {
-    "python.defaultInterpreterPath": "${workspaceFolder:🏠 Root}/.venv/bin/python",
-    "python.analysis.indexing": false,
-    "python.linting.enabled": false,
-    "python.analysis.typeCheckingMode": "off",
-    "pylance.typeCheckingMode": "off",
-    "files.exclude": {
-      "**/.venv": true,
-      "**/node_modules": true,
-      "**/__pycache__": true,
-      "**/*.pyc": true,
-      "**/.DS_Store": true,
-      "**/.archive": true,
-      "**/.dev": true,
-      "wizard": true,
-      "app": true,
-      "dev": true,
-      "library": true,
-      "distribution": true,
-      "tests": true,
-      "packages": true,
-      "extensions": true,
-      "sonic": true,
-      "memory/**": true
+    "python.defaultInterpreterPath": "${workspaceFolder:\ud83c\udfe0 Root}/venv/bin/python",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.terminal.executeInFileDir": true,
+    "terminal.integrated.defaultProfile.osx": "bash",
+    "terminal.integrated.profiles.osx": {
+      "bash": {
+        "path": "/bin/bash",
+        "args": [
+          "-l"
+        ],
+        "icon": "terminal-bash"
+      }
     },
-    "files.watcherExclude": {
-      "**/.venv/**": true,
-      "**/node_modules/**": true,
-      "**/__pycache__/**": true,
-      "**/target/**": true,
-      "**/.cache/**": true
+    "terminal.integrated.env.osx": {
+      "VIRTUAL_ENV": "${workspaceFolder:\ud83c\udfe0 Root}/venv",
+      "PATH": "${workspaceFolder:\ud83c\udfe0 Root}/venv/bin:${env:PATH}",
+      "PYTHONPATH": "${workspaceFolder:\ud83c\udfe0 Root}"
     },
-    "search.exclude": {
-      "**/.venv": true,
-      "**/node_modules": true,
-      "**/__pycache__": true,
-      "**/.archive": true,
-      "memory/**": true
-    },
-    "files.associations": {
-      "*.uscript": "python"
-    },
-    "[python]": {
-      "editor.formatOnSave": false
-    },
-    "[markdown]": {
-      "editor.wordWrap": "on"
-    },
+    "terminal.integrated.shellArgs.osx": [
+      "-l",
+      "-i"
+    ],
+    "git.autofetch": false,
+    "git.confirmSync": false,
     "editor.formatOnSave": false,
+    "[svelte]": {
+      "editor.defaultFormatter": "svelte.svelte-vscode",
+      "editor.formatOnSave": true
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true
+    },
+    "typescript.tsdk": "${workspaceFolder:\ud83d\udcf1 App}/node_modules/typescript/lib",
     "github.copilot.enable": {
       "*": true,
-      "yaml": false,
       "plaintext": false,
-      "markdown": false
-    }
-  },
-  "extensions": {
-    "recommendations": [
+      "markdown": false,
+      "python": true,
+      "typescript": true,
+      "javascript": true,
+      "svelte": true
+    },
+    "github.copilot.advanced.debug.overrideChatModel": "gpt-4-turbo",
+    "github.copilot.advanced.debug.overrideChatApiUrl": "https://api.openai.com/v1/chat/completions",
+    "extensions.recommendations": [
       "ms-python.python",
-      "GitHub.copilot"
+      "github.copilot",
+      "github.copilot-chat",
+      "svelte.svelte-vscode",
+      "adam-bender.commit-message-editor"
     ]
   },
   "launch": {
@@ -74,10 +99,10 @@
         "name": "uCODE: Run Interactive",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:🏠 Root}/uDOS.py",
+        "program": "${workspaceFolder:\ud83c\udfe0 Root}/core/tui/ucode.py",
         "console": "integratedTerminal",
         "justMyCode": true,
-        "cwd": "${workspaceFolder:🏠 Root}"
+        "cwd": "${workspaceFolder:\ud83c\udfe0 Root}"
       }
     ]
   }

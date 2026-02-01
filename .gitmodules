@@ -28,3 +28,14 @@
 	path = sonic
 	url = git@github.com:fredporter/uDOS-sonic.git
 	branch = main
+
+# PRIVATE SUBSYSTEMS (Moved from /dev to root for hardening)
+[submodule "empire"]
+	path = empire
+	url = git@github.com:fredporter/uDOS-empire.git
+	branch = main
+
+[submodule "groovebox"]
+	path = groovebox
+	url = git@github.com:fredporter/uDOS-groovebox.git
+	branch = main

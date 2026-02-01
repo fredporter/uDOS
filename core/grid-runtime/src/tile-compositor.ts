@@ -213,12 +213,13 @@ export function compositeGrid(
   options: CompositorOptions = {}
 ): RenderedTile[][] {
   const grid: RenderedTile[][] = [];
+  const emptyChar = options.showTerrain ? options.defaultTerrain || ' ' : ' ';
   
   // Initialize empty grid
   for (let row = 0; row < height; row++) {
     const rowTiles: RenderedTile[] = [];
     for (let col = 0; col < width; col++) {
-      rowTiles.push({ char: ' ', z: 0 });
+      rowTiles.push({ char: emptyChar, z: 0 });
     }
     grid.push(rowTiles);
   }
@@ -232,10 +233,14 @@ export function compositeGrid(
     const col = (colStr.charCodeAt(0) - 65) * 26 + (colStr.charCodeAt(1) - 65);
     const row = parseInt(rowStr, 10);
     
-    // Validate bounds
-    if (col >= 0 && col < width && row >= 0 && row < height) {
-      grid[row][col] = compositeTile(content, options);
+    // Validate row before clamping (must be within grid height)
+    if (isNaN(row) || row < 0 || row >= height) {
+      continue;
     }
+
+    const safeCol = Math.min(Math.max(col, 0), width - 1);
+    const safeRow = Math.min(Math.max(row, 0), height - 1);
+    grid[safeRow][safeCol] = compositeTile(content, options);
   }
   
   return grid;

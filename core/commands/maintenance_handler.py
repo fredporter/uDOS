@@ -49,6 +49,8 @@ class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
                 return self._handle_compost(params)
             if cmd == "DESTROY":
                 return self._handle_destroy(params)
+            if cmd == "UNDO":
+                return self._handle_undo(params)
         except Exception as exc:
             return {"status": "error", "message": f"{cmd} failed: {exc}"}
 
@@ -190,3 +192,40 @@ class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
             "message": "DESTROY is only available from the Dev TUI.",
             "hint": "Launch the Dev TUI and run DESTROY there (requires confirmation).",
         }
+
+    def _handle_undo(self, params: List[str]) -> Dict:
+        scope, remaining = self._parse_scope(params)
+        target_root, _recursive = self._resolve_scope(scope)
+
+        backups = list_backups(target_root)
+        if not backups:
+            return {
+                "status": "error",
+                "message": f"No backups found to undo in {target_root / '.backup'}",
+            }
+
+        latest = backups[0]
+        try:
+            message = restore_backup(latest, target_root, force=True)
+        except FileExistsError as exc:
+            return {
+                "status": "error",
+                "message": str(exc),
+                "hint": "Use RESTORE --force if you need to overwrite existing files",
+            }
+        except Exception as exc:
+            return {
+                "status": "error",
+                "message": f"UNDO failed: {exc}",
+            }
+
+        output = "\n".join(
+            [
+                OutputToolkit.banner("UNDO"),
+                f"Scope: {scope}",
+                f"Archive: {latest.name}",
+                f"Target: {target_root}",
+                f"Message: {message}",
+            ]
+        )
+        return {"status": "success", "message": "Restored last backup", "output": output}

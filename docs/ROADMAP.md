@@ -1,8 +1,37 @@
-# uDOS Development Rounds → ROADMAP (2026-01-30)
+# uDOS Development Rounds → ROADMAP (2026-02-01)
 
-**Version:** v1.0.7  
-**Last Updated:** 2026-01-30  
-**Status:** Round 1 Active Build + Spatial Filesystem + Wiki Standardization
+**Version:** v1.1.14 (Target)  
+**Last Updated:** 2026-02-01  
+**Status:** 🚀 ACCELERATION PLAN ACTIVE — Round 2 expedited at 2x rounds/day
+
+---
+
+## 🎯 ACCELERATION PLAN: v1.1.14 by Sunday, Feb 7, 2026
+
+**Duration:** 6 days (Feb 1-7, 2026)  
+**Acceleration:** 2x complete rounds per day = **12 total rounds**  
+**Target:** Core v1.1.0 (Day 4) → Wizard v1.1.0 (Day 5) → Release v1.1.14 (Day 7)
+
+### Critical Path
+
+```
+Day 1 (Sun) → Rounds 1-2   : Setup + Phase 1B Planning
+Day 2 (Mon) → Rounds 3-4   : Phase 1B Executors (state, set, form, if/else, nav, panel, map)
+Day 3 (Tue) → Rounds 5-6   : Phase 1C Interpolation + Phase 1D SQLite
+Day 4 (Wed) → Rounds 7-8   : Phase 1E Document Runner (Core v1.1.0) + Wizard OAuth Part 1
+Day 5 (Thu) → Rounds 9-10  : Wizard OAuth Part 2 + Workflow System (Wizard v1.1.0)
+Day 6 (Fri) → Round 11     : Wizard Phase 6B-6C (HubSpot + Notion)
+Day 7 (Sat) → Round 12     : Final Hardening + v1.1.14 Release
+```
+
+### Resources
+
+- **Daily Sprint Plan:** [memory/logs/daily-sprint-plan-2026-02-01-to-07.md](../../memory/logs/daily-sprint-plan-2026-02-01-to-07.md)
+- **Weekly Devlog:** [memory/logs/devlog-2026-W05.md](../../memory/logs/devlog-2026-W05.md)
+- **CI/CD Checkpoints:** [memory/logs/ci-integration.json](../../memory/logs/ci-integration.json)
+- **Test Health Dashboard:** [memory/tests/health_dashboard.py](../../memory/tests/health_dashboard.py)
+
+**Daily Checkpoints:** Create `memory/logs/daily-2026-02-0X.md` for each day with round status, blockers, and metrics.
 
 ---
 
@@ -10,7 +39,7 @@
 
 This document consolidates all active development streams across Core, Wizard, Goblin, and App workspaces based on recent roadmap analysis.
 
-**NEW (2026-01-30):** Wiki standardization with Obsidian-compatible frontmatter (uid, title, tags, status, updated) applied to all knowledge and architecture docs.
+**NEW (2026-02-01):** Shift to **accelerated 2x rounds/day schedule** for v1.1.14 delivery. Core runtime groundwork is stable (Phase 1A complete), so focus is Phase 1B-1E completion in Days 1-4, followed by Wizard Phase 6A-6C in Days 4-6, with final hardening on Day 7. Weekly logs replace monthly; daily cycles replace weekly planning.
 
 ---
 
@@ -48,7 +77,7 @@ This document consolidates all active development streams across Core, Wizard, G
    - ✅ Vault ready for Obsidian import
 
 3. **TypeScript Markdown Runtime** (Next Priority)
-   - State management (`$variables`)
+   - State management (`$variables`) — **Phase 1A complete** (RuntimeState/StateStore + persistence contracts + regression tests); Phase 1B block executors now next.
    - Runtime blocks: `state`, `set`, `form`, `if/else`, `nav`, `panel`, `map`
    - Variable interpolation in Markdown text
    - SQLite DB binding (read-only)
@@ -95,8 +124,14 @@ This document consolidates all active development streams across Core, Wizard, G
 - ✅ Dataset manager + regen tools
 - ✅ Output toolkit (ASCII-first)
 - 🔲 Core runtime implementation (Phase 1A-1E: State, Blocks, Expressions, DB, Executor)
+- 🔲 **Outstanding Phase 1 work:** interpolation layer (`core/src/interpolation/*` + Markdown text renderer), read-only SQLite binding (`core/src/database/sqlite-adapter.ts`), and the Node-based document runner cannot yet execute the parsed Markdown documents. These pieces are still tracked under [STREAM1-ACTION-PLAN.md](STREAM1-ACTION-PLAN.md) before transitioning into Phase 2.
 - 🔲 Grid viewport renderer (beyond base map render)
 - 🔲 File parser integration (CSV/JSON/YAML/SQL)
+- ✅ Phase 1A (state store + persistence API) implemented; Phase 1B (block executors) now next focus.
+
+Recent progress:
+- DocumentRunner now wires the Phase 1B `state` and `set` executors end-to-end, backed by the new `memory/tests/phase1b_*` suites (legacy `__tests__` files moved into `memory/tests/legacy`). 
+- The TUI startup/self-heal loop now watches `~/memory/tests/` for new or modified scripts, launches `automation.py`, and surfaces the status/log path in the health summary so regressions and prep work are flagged before interpolation/DB phases begin.
 
 **Next Action:**
 - See [STREAM1-ACTION-PLAN.md](STREAM1-ACTION-PLAN.md) for 14-day implementation roadmap (TypeScript Markdown Runtime)
@@ -112,11 +147,13 @@ This document consolidates all active development streams across Core, Wizard, G
 
 ---
 
-### Round 2: Wizard Server (Production Services)
+### Round 2: Wizard Server (Production Services) — Optimizations & Hardening
 
 **Owner:** Wizard (`/wizard/`)  
-**Status:** v1.1.0 — Stable, Phase 6 Planning  
-**Timeline:** 4-8 weeks (Phase 6A-6D)
+**Status:** v1.1.0 — Optimization/hardening sprint, Phase 6 lock-in  
+**Timeline:** 4-8 weeks (Phase 6A-6D + follow-up tuning)  
+**Focus:** Harden the OAuth/workflow surface, optimize gateway throughput, lock down secrets/authorization, and expand observability so Wizard can safely bridge Core runtime and Sonic plugin automation.  
+**Round 2 Plan:** [Wizard Round 2 Optimization & Hardening Plan](WIZARD-ROUND2-PLAN.md) keeps the checklist, metrics, and references in one location and now enumerates the work as **critical daily cycles** (Jan 31–Feb 13) rather than weekly windows so automation knows what to expect each day.
 
 **Components:**
 
@@ -157,6 +194,7 @@ This document consolidates all active development streams across Core, Wizard, G
 - 🔲 iCloud relay
 - 🔲 Workflow management system
 - 🔲 File parsing API endpoints
+- 🔲 Optimization, reliability, and hardening checklist completed (see Round 2 plan)
 
 **References:**
 

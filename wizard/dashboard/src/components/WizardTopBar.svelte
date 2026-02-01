@@ -13,6 +13,7 @@
   const topNavRoutes = [
     { id: "dashboard", label: "Dashboard" },
     { id: "devices", label: "Devices" },
+    { id: "plugins", label: "🧙 Plugins" },
     { id: "catalog", label: "Catalog" },
     { id: "webhooks", label: "Webhooks" },
   ];
@@ -20,6 +21,7 @@
   const allMenuRoutes = [
     { id: "dashboard", label: "Dashboard" },
     { id: "devices", label: "Devices" },
+    { id: "plugins", label: "🧙 Plugins" },
     { id: "catalog", label: "Catalog" },
     { id: "webhooks", label: "Webhooks" },
     { id: "logs", label: "Logs" },

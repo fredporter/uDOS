@@ -89,9 +89,9 @@ export class ViewportManager {
 
     return {
       minCol: Math.max(0, this.state.center.col - halfCols),
-      maxCol: Math.min(GRID_CELL_COLS - 1, this.state.center.col + halfCols),
+      maxCol: Math.min(GRID_CELL_COLS, this.state.center.col + halfCols),
       minRow: Math.max(0, this.state.center.row - halfRows),
-      maxRow: Math.min(GRID_CELL_ROWS - 1, this.state.center.row + halfRows)
+      maxRow: Math.min(GRID_CELL_ROWS, this.state.center.row + halfRows)
     };
   }
 
@@ -132,7 +132,11 @@ export class ViewportManager {
 
     switch (this.state.renderMode) {
       case GraphicsMode.Sextant:
-        return SEXTANT_CHARS[index];
+        const sextantChar = SEXTANT_CHARS[index];
+        if (sextantChar.length === 1) {
+          return sextantChar;
+        }
+        return ASCII_CHARS[Math.floor(index / 4) % ASCII_CHARS.length];
       case GraphicsMode.Quadrant:
         // Map sextant → quadrant (every other sextant segment)
         return QUADRANT_CHARS[Math.floor(index / 2) % 16];

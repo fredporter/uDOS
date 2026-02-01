@@ -17,6 +17,7 @@ from dataclasses import dataclass
 from typing import List, Optional, Set, Tuple
 
 from core.services.logging_service import get_logger, LogTags, get_repo_root
+from core.utils.tty import interactive_tty_status
 
 _REQUIREMENT_CACHE: Optional[Set[str]] = None
 _monitor_instance: "DependencyWarningMonitor" | None = None
@@ -209,8 +210,9 @@ class DependencyWarningMonitor:
             self._emit_notice(headline, guidance)
             return
 
-        if not self._is_interactive():
-            self._emit_notice(headline, guidance)
+        interactive, reason = self._is_interactive()
+        if not interactive:
+            self._emit_notice(headline, guidance, reason)
             return
 
         print(f"\n⚠️  {headline}")
@@ -223,10 +225,12 @@ class DependencyWarningMonitor:
         else:
             print("   Skipping auto-upgrade. Run 'REPAIR --upgrade' later if needed.")
 
-    def _emit_notice(self, headline: str, guidance: Optional[str]):
+    def _emit_notice(self, headline: str, guidance: Optional[str], reason: Optional[str] = None):
         print(f"\n⚠️  {headline}")
         if guidance:
             print(f"   {guidance}")
+        if reason:
+            print(f"   Reason: {reason}")
         print("   Non-interactive session detected; run 'REPAIR --upgrade' manually.")
 
     def _run_repair(self) -> None:
@@ -242,11 +246,9 @@ class DependencyWarningMonitor:
         return answer in {"y", "yes"}
 
     @staticmethod
-    def _is_interactive() -> bool:
-        try:
-            return sys.stdin.isatty() and sys.stdout.isatty()
-        except Exception:
-            return False
+    def _is_interactive() -> Tuple[bool, Optional[str]]:
+        interactive, reason = interactive_tty_status()
+        return interactive, reason
 
 
 def _load_requirement_names() -> Set[str]:
@@ -387,7 +389,11 @@ def run_preflight_check(
 
     _print_issue_summary(component, issues)
 
-    interactive = prompt_if_interactive and DependencyWarningMonitor._is_interactive()
+    if prompt_if_interactive:
+        interactive, reason = DependencyWarningMonitor._is_interactive()
+    else:
+        interactive = False
+        reason = None
     if interactive:
         # Offer fixes for each issue
         all_repaired = True

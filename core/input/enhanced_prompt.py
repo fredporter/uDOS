@@ -14,6 +14,7 @@ Date: 2026-01-30
 
 from typing import Optional, List, Dict, Any, Tuple
 from .smart_prompt import SmartPrompt
+from core.utils.tty import interactive_tty_status
 
 
 class EnhancedPrompt(SmartPrompt):
@@ -238,16 +239,19 @@ class EnhancedPrompt(SmartPrompt):
             print(f"  ╭─ Current: {current_value}")
             return
 
-        if self.show_predictions:
-            if predictions:
-                pred_display = ", ".join(predictions[:3])
-                if len(predictions) > 3:
-                    pred_display += f" (+{len(predictions) - 3} more)"
-                print(f"  ╭─ {fallback_label}: {pred_display}")
-            else:
-                print(f"  ╭─ {fallback_label} unavailable")
-        else:
-            print(f"  ╭─ {default_label}")
+        candidate_preds = predictions or []
+        if self.show_predictions and candidate_preds:
+            pred_display = ", ".join(candidate_preds[:3])
+            if len(candidate_preds) > 3:
+                pred_display += f" (+{len(candidate_preds) - 3} more)"
+            print(f"  ╭─ {fallback_label}: {pred_display}")
+            return
+
+        if not self.show_predictions:
+            print(f"  ╭─ {fallback_label}: disabled (fallback prompt)")
+            return
+
+        print(f"  ╭─ {fallback_label} unavailable" if not candidate_preds else f"  ╭─ {fallback_label}: {candidate_preds[0]}")
 
     def ask_story_field(
         self,
@@ -396,3 +400,10 @@ class EnhancedPrompt(SmartPrompt):
         else:
             self.show_predictions = enabled
         return self.show_predictions
+    def _is_interactive(self) -> bool:
+        """Check if running in interactive terminal."""
+        interactive, reason = interactive_tty_status()
+        if not interactive and reason:
+            # Log debug info but don't raise
+            pass
+        return interactive

@@ -4,10 +4,19 @@ from typing import List, Dict
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.commands.interactive_menu_mixin import InteractiveMenuMixin
+from core.services.user_service import get_user_manager, UserRole
 
 
 class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin):
     """Handler for HELP command - display command reference."""
+
+    GHOST_TEST_COMMANDS = [
+        "AI TEST mistral",
+        "AI TEST claude",
+        "AI TEST status",
+        "TEST all",
+        "TEST core",
+    ]
 
     COMMAND_CATEGORIES = {
         "Navigation": ["MAP", "PANEL", "GOTO", "FIND", "TELL"],
@@ -28,6 +37,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "DEV MODE",
             "LOGS",
             "RELOAD",
+            "INTEGRATION",
         ],
         "Advanced": [
             "BINDER",
@@ -273,6 +283,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "category": "Advanced",
             "syntax": "CONFIG <SHOW|LIST|EDIT|SETUP> [file] [--validate]",
         },
+        "INTEGRATION": {
+            "description": "Report GitHub + Mistral/Ollama integration wiring",
+            "usage": "INTEGRATION [status|github|mistral|ollama]",
+            "example": "INTEGRATION status",
+            "notes": "Works offline; checks folders, tokens, and Wizard AI settings",
+            "category": "Advanced",
+            "syntax": "INTEGRATION [status|github|mistral|ollama]",
+        },
         "PROVIDER": {
             "description": "Manage AI/service providers",
             "usage": "PROVIDER [LIST|STATUS <id>|ENABLE <id>|DISABLE <id>|SETUP <id>]",
@@ -348,6 +366,9 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         Returns:
             Dict with help text
         """
+        if self._is_ghost_user():
+            return self._show_ghost_help()
+
         if not params:
             return self._show_all_commands()
 
@@ -444,6 +465,27 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
                 "commands": list(self.COMMANDS.keys()),
                 "categories": list(self.COMMAND_CATEGORIES.keys()),
             }
+
+    def _is_ghost_user(self) -> bool:
+        """Return True when the current session is the demo ghost profile."""
+        user = get_user_manager().current()
+        return bool(user and user.role == UserRole.GUEST and user.username == "ghost")
+
+    def _show_ghost_help(self) -> Dict:
+        """Return the limited help view that is shown to ghost/test users."""
+        command_lines = "\n".join(f"  • {cmd}" for cmd in self.GHOST_TEST_COMMANDS)
+        help_text = (
+            "👻 Ghost mode only exposes the TEST command suites below:\n\n"
+            f"{command_lines}\n\n"
+            "Run SETUP to establish a full profile and unlock the rest of the CLI."
+        )
+
+        return {
+            "status": "success",
+            "message": "Ghost mode TEST commands",
+            "help": help_text,
+            "commands": self.GHOST_TEST_COMMANDS,
+        }
 
 
     def _show_command_help(self, cmd_name: str) -> Dict:

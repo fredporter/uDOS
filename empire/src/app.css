@@ -1,0 +1,181 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Font utility classes */
+.font-old-style {
+  font-family:
+    "Iowan Old Style", "Palatino Linotype", "URW Palladio L", P052, serif;
+}
+
+.font-sans-rounded {
+  font-family:
+    ui-rounded, "Hiragino Maru Gothic ProN", Quicksand, Comfortaa, Manjari,
+    "Arial Rounded MT", "Arial Rounded MT Bold", Calibri, source-sans-pro,
+    sans-serif;
+}
+
+.font-humanist {
+  font-family:
+    Seravek, "Gill Sans Nova", Ubuntu, Calibri, "DejaVu Sans", source-sans-pro,
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  background: #18181b;
+  color-scheme: light;
+}
+
+html.dark {
+  background: #0f172a;
+  color-scheme: dark;
+}
+html.prose-sm,
+.prose-sm {
+  font-size: 14px;
+}
+html.prose-base,
+.prose-base {
+  font-size: 16px;
+}
+html.prose-lg,
+.prose-lg {
+  font-size: 18px;
+}
+html.prose-xl,
+.prose-xl {
+  font-size: 20px;
+}
+html.prose-2xl,
+.prose-2xl {
+  font-size: 24px;
+}
+
+/* Font family utilities - ensure inheritance */
+html.font-sans,
+.font-sans {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+}
+html.font-serif,
+.font-serif {
+  font-family:
+    "Iowan Old Style", "Palatino Linotype", "URW Palladio L", P052, serif;
+}
+html.font-mono,
+.font-mono {
+  font-family: "IBM Plex Mono", "Menlo", "Monaco", "Consolas", monospace;
+}
+html.font-humanist,
+.font-humanist {
+  font-family:
+    Seravek, "Gill Sans Nova", Ubuntu, Calibri, "DejaVu Sans", source-sans-pro,
+    sans-serif;
+}
+html.font-old-style,
+.font-old-style {
+  font-family:
+    "Iowan Old Style", "Palatino Linotype", "URW Palladio L", P052, serif;
+}
+
+body {
+  font-family: inherit;
+  font-size: inherit;
+  background-color: #ffffff;
+  color: #0f172a;
+  transition:
+    background-color 200ms,
+    color 200ms;
+  margin: 0;
+  padding: 0;
+  padding-bottom: 44px;
+}
+
+html.dark body {
+  background-color: #0f172a;
+  color: #e5e7eb;
+}
+
+html.light {
+  background: #f8fafc;
+}
+
+html.light body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+pre,
+.prose code,
+/* App Layout */
+#app {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mdk-app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+html.dark .mdk-app {
+  background-color: #0f172a;
+  color: #e5e7eb;
+}
+
+html.light .mdk-app {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+.mdk-shell {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.mdk-main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding-bottom: 44px;
+  width: 100%;
+}
+
+html {
+  color-scheme: light;
+}
+
+/* App Layout */
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Toast notifications - position at bottom right */
+:global(.toast-container) {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+:global(.toast) {
+  pointer-events: auto;
+  margin-bottom: 0.5rem;
+}

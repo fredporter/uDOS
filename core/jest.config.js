@@ -1,8 +1,8 @@
 export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>'],
-  testMatch: ['**/__tests__/**/*.test.ts'],
+  roots: ['<rootDir>', '<rootDir>/../memory/tests', '<rootDir>/memory/tests'],
+  testMatch: ['**/__tests__/**/*.test.ts', '<rootDir>/../memory/tests/**/*.test.ts', '<rootDir>/memory/tests/**/*.test.ts'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   collectCoverageFrom: [
     'src/**/*.ts',
@@ -24,7 +24,12 @@ export default {
   },
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
+    '^marked$': '<rootDir>/__mocks__/marked.js',
   },
+  testPathIgnorePatterns: [
+    'memory/tests/legacy/.*',
+    '\\.\\!\\d+\\!tile-compositor\\.test\\.ts$',
+  ],
   transformIgnorePatterns: [
     'node_modules/(?!(marked)/)',
   ],

@@ -36,6 +36,7 @@ from core.commands import (
     SetupHandler,
     UIDHandler,
     LogsHandler,
+    HotkeyHandler,
     ReloadHandler,
     RestartHandler,
     DestroyHandler,
@@ -43,6 +44,8 @@ from core.commands import (
     UndoHandler,
     MigrateHandler,
     SeedHandler,
+    HotkeyHandler,
+    IntegrationHandler,
 )
 
 
@@ -90,6 +93,8 @@ class CommandDispatcher:
             "DEV MODE": DevModeHandler(),
             "DEV": DevModeHandler(),  # Shortcut for DEV MODE
             "LOGS": LogsHandler(),  # View unified logs
+            "HOTKEYS": HotkeyHandler(),
+            "HOTKEY": HotkeyHandler(),
             # User Management (2)
             "USER": UserHandler(),  # User profiles and permissions
             # Cleanup/Reset (2)
@@ -106,6 +111,7 @@ class CommandDispatcher:
             # Wizard Management (2)
             "CONFIG": ConfigHandler(),
             "PROVIDER": ProviderHandler(),
+            "INTEGRATION": IntegrationHandler(),
             # Binder (Core)
             "BINDER": BinderHandler(),
             # Runtime (Story format)

@@ -11,6 +11,7 @@ Provides:
 
 import sys
 from typing import List, Dict, Optional, Tuple, Callable, Any
+from core.utils.tty import interactive_tty_status
 from dataclasses import dataclass
 from enum import Enum
 
@@ -167,6 +168,10 @@ class InteractiveMenu:
         """
         try:
             if self.style == MenuStyle.ARROW or self.style == MenuStyle.HYBRID:
+                if not self._is_interactive():
+                    if self.logger:
+                        self.logger.info("[LOCAL] Non-interactive terminal detected, using numeric menu input")
+                    return self._get_choice_numeric()
                 return self._get_choice_arrow()
             else:
                 return self._get_choice_numeric()
@@ -198,6 +203,8 @@ class InteractiveMenu:
 
     def _get_choice_arrow(self) -> Optional[int]:
         """Get input with arrow key support."""
+        if not self._is_interactive():
+            return self._get_choice_numeric()
         try:
             # Try to use readline for arrow key support
             import tty
@@ -252,6 +259,13 @@ class InteractiveMenu:
         except Exception:
             # Fallback to numeric
             return self._get_choice_numeric()
+
+    def _is_interactive(self) -> bool:
+        """Check if running in interactive menu mode."""
+        interactive, reason = interactive_tty_status()
+        if not interactive and reason and self.logger:
+            self.logger.debug("[LOCAL] Interactive menu check failed: %s", reason)
+        return interactive
 
 
 class MenuBuilder:

@@ -25,6 +25,8 @@ from typing import Optional, Dict, Any, List, Tuple
 from datetime import datetime
 import json
 
+from core.utils.tty import interactive_tty_status
+
 from core.services.logging_service import get_logger, LogTags
 
 logger = get_logger("tui-form-handler")
@@ -221,6 +223,10 @@ class AdvancedFormField:
         Returns:
             User input (or suggestion if accepted), or None if skipped
         """
+        if not self._is_interactive():
+            logger.info("[LOCAL] Non-interactive mode detected for field input, using basic input()")
+            return self._collect_field_input_fallback(field, suggestion)
+
         name = field.get('name', 'unknown')
         field_type = field.get('type', 'text')
         required = field.get('required', False)
@@ -505,19 +511,87 @@ class AdvancedFormField:
             True if colors are supported, False otherwise
         """
         try:
-            import sys
-            # Check if stdout is a TTY
-            if not hasattr(sys.stdout, 'isatty') or not sys.stdout.isatty():
+            interactive, reason = interactive_tty_status()
+            if not interactive:
+                logger.debug("[LOCAL] ANSI color support skipped: %s", reason)
                 return False
 
-            # Check NO_COLOR environment variable
             import os
             if os.environ.get('NO_COLOR'):
                 return False
 
             return True
-        except:
+        except Exception as exc:
+            logger.debug("[LOCAL] ANSI color check failed: %s", exc)
             return False
+
+    def _is_interactive(self) -> bool:
+        """Check if running in interactive terminal."""
+        try:
+            interactive, reason = interactive_tty_status()
+            if not interactive and reason:
+                logger.debug("[LOCAL] Interactive check failed: %s", reason)
+            return interactive
+        except Exception:
+            return False
+
+    def _collect_field_input_fallback(self, field: Dict, suggestion: Optional[str] = None) -> Optional[str]:
+        """Fallback field input collection using basic input().
+
+        Used when terminal is non-interactive.
+
+        Args:
+            field: Field definition
+            suggestion: Optional suggested value
+
+        Returns:
+            User input or None if skipped
+        """
+        name = field.get('name', 'unknown')
+        label = field.get('label', name)
+        required = field.get('required', False)
+
+        # Print field label
+        req_label = "*" if required else " "
+        print(f"\n{req_label} {label}:")
+
+        # Show suggestion if available
+        if suggestion:
+            print(f"  Suggestion: {suggestion}")
+            print(f"  (Press Enter to accept, or type to override)")
+
+        # Get input using basic input()
+        try:
+            user_input = input("> ").strip()
+
+            # If user just pressed Enter with suggestion, use it
+            if not user_input and suggestion:
+                return suggestion
+
+            # Handle empty input
+            if not user_input:
+                if required:
+                    print(f"  (Required field)")
+                    return self._collect_field_input_fallback(field, suggestion)
+                else:
+                    print(f"  (Skipped)")
+                    return None
+
+            return user_input
+        except EOFError:
+            # Handle EOF (pipe/redirect)
+            if suggestion:
+                logger.debug("[LOCAL] EOF detected, using suggestion for %s", name)
+                return suggestion
+            if not required:
+                logger.debug("[LOCAL] EOF detected, skipping optional field %s", name)
+                return None
+            logger.warning("[LOCAL] EOF in required field %s", name)
+            return None
+        except Exception as e:
+            logger.warning("[LOCAL] Fallback field input failed for %s: %s", name, e)
+            return None
+
 
 
 # Singleton instance

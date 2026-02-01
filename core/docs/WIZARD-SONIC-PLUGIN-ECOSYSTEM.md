@@ -1,40 +1,73 @@
 # Wizard + Sonic Plugin Ecosystem (v1.1+)
-
-This reference describes the restored All-In-One Wizard config panel, the Sonic Screwdriver document API surface, and the hotkey + GUI tooling coverage that keeps the Plugin Ecosystem story visible for rounds 3‑10.
+This reference describes the restored all-in-one Wizard config dashboard, the Sonic Screwdriver device/media APIs, and the hotkey + GUI tooling coverage that keeps the Plugin Ecosystem story visible for rounds 3‑10.
 
 ## Wizard Central Config
 
-The Wizard config page now highlights:
+The config page (`http://127.0.0.1:8765/config`) now owns the full lifecycle:
 
-- **.venv management** (create/delete) so Python dependencies that power the dashboards, CLI, and plugin installers stay isolated.
-- **Wizard API / Secret Store** entries that show each key/secret name plus rotate buttons, forcing all sensitive values through the unified keystore instead of ad-hoc text files.
-- **Plugin repository view** that reads the manifests from `wizard/distribution/plugins/`, surfaces name/description/version, and installs them through the `LibraryManagerService`. These installs run the same manifest/verification logic that the Core `PLUGIN install` command consumes.
-- **Hotkey link** to the new `hotkeys` route so TAB, F1-F8, and arrow bindings documented in `core/tui/fkey_handler.py` stay synchronized between the GUI and CLI.
+- **.venv management** at the top ensures dependency isolation is complete before any Wizard helpers run. You can create, inspect, or recreate the `.venv` that powers the dashboard, CLI helpers, and plugin installers.
+- **Wizard API / Secret store** entries follow, showing each key/secret name with rotate buttons powered by `wizard/services/secret_store.py`. All updates go through the keystore so nothing leaks into ad-hoc files.
+- **Extension / API installers** sit next. They read manifests from `wizard/distribution/plugins/`, validate them with `wizard/services/plugin_repository.py`, and install through `wizard/services/library_manager_service.py`. The Core `PLUGIN install` command (see `core/tui/ucode.py::_plugin_install`) calls the same services so CLI installs share manifest validation, signature checks, and dependency wiring with the GUI buttons, and the config page buttons call `/api/v1/config/secret/<key_id>/rotate` and `/api/v1/library/integration/<name>/install` for the same effects.
+- **Hotkey Center** perches beside the installers so every config change stays tethered to key bindings that expose TAB, F1‑F8, and arrow-history behavior.
 
-> The config panel is the single place to manage the runtime’s plugin lifecycle, secret store, and `.venv` bootstrap with explicit references to the plugin catalog and hotkey center.
+Ordering the panel as `.venv → secrets → installers → hotkeys` makes the config view the single place for runtime bootstrap, credential rotation, and extension lifecycle control.
 
-## Sonic Screwdriver APIs and Roadmap
+## Wizard Hotkey Center
 
-### USB builder and device database
+The Hotkey Center (`http://127.0.0.1:8765/hotkeys`) mirrors the key bindings embedded in `core/tui/fkey_handler.py`, `input/smart_prompt.py`, and `core/ui/command_selector.py`:
 
-- The Sonic CLI (`sonic/core/sonic_cli.py --plan`/`--run`) orchestrates USB builds and produces signed manifests plus `sha256(layout)` digests for UI verification.
-- Device data lives in `sonic/datasets/sonic-devices.sql` + `sonic/datasets/sonic-devices.schema.json`; the runtime loads it into the SQLite `memory/sonic/sonic-devices.db`, which Wizard shares so the dashboard can show available targets and the `Sonic Device DB` panel.
-- For Windows deployments the payload pipeline injects `payloads/windows/scripts/launch-windows.sh`, updates `devices.db` with `windows10_boot` flags, and pushes QoS/driver prep scripts before handing control to the Sonic media player.
+- Documents the F1–F8 shortcuts and highlights the Tab command selector so users know which keys keep the prompt lively even when `prompt_toolkit` is unavailable.
+- Explains how the two-line context display uses `EnhancedPrompt` and why automation scripts that inspect `memory/logs/health-training.log` rely on the same keys to re-run hot reload/self-heal rounds.
+- Gives quick links to the CLI fallback bindings (Arrow ↑/↓ history, Tab variants) so ghost or headless sessions can still surface suggestions.
+- Mentions the `HOTKEYS` CLI command introduced in `core/commands/hotkey_handler.py` and the `/hotkeys/data` JSON payload so the same key map is traceable from both CLI and dashboard surfaces.
 
-### Media, Windows games, and Sonic launcher hooks
+Keeping hotkey mappings centralized makes the dashboard the authoritative reference for CLI key bindings and automation scripts that train hot reload/self-heal behavior every round.
 
-- Media playback uses `memory/sonic/sonic-media.log` and `sonic-stick-media-addon-brief.md` to surface media errors; the Wizard dashboard reads that log to report playback health.
-- Windows/gaming payloads include the `media-player` and `Sonic Launcher` hooks described in `sonic/docs/specs/sonic-screwdriver-v1.1.0.md`; the dashboard surfaces the planned capability list so contributors can see what still needs wiring.
-- The Sonic/Sonic CLI plan-run contract (two-phase manifest/execute) is surfaced via the Wizard plugin installer so the Core `PLUGIN` command can orchestrate `Sonic` stories within the same UI – everything shares the `LibraryManagerService` validation pipeline.
+## Plugin Installer & Manifest Flow
 
-## Hotkeys, Font & Graphics Tool Coverage
+Plugin installation now flows through Wizard-native services:
 
-- The new Wizard `Hotkey Center` page documents the F1-F8, TAB, and history keystrokes that Core’s `SmartPrompt` and `FKeyHandler` rely on. It keeps hotkey mappings visible to automation scripts that inspect `memory/logs/health-training.log` before retraining hot reload/self-heal flows.
-- `Font Manager`, `SVG Processor`, `Pixel Editor`, and `Layer Editor` now include notes stating they read assets from `core/framework/seed/bank/graphics` and send exports through the GUI file picker/workspace selector so Sonic USB payloads, map layers, and font collections stay aligned with seeded data.
-- The workspace selector, GUI file picker, and media/player dashboards all share plugin metadata pulled from the `Wizard LibraryManagerService`, ensuring new extension installs automatically register fonts, map tiles, and tool palettes for use inside these editors.
+- `core/tui/ucode.py` copies `wizard/distribution/plugins/<id>` into `/library/<id>`, writes a `container.json` payload, then calls `wizard/services/library_manager_service.LibraryManagerService.install_integration`. That service validates the manifest, runs dependency wiring hooks, and emits a `result` object with `success`, `message`, and `error`.
+- `wizard/services/plugin_repository.get_repository()` powers both the config page and the CLI `PLUGIN` command, so every install fetches the same metadata and version hints.
+- The Dashboard buttons, the CLI `PLUGIN install`, and automation scripts all log plugin installations to `memory/logs/health-training.log`, ensuring manifest/verification errors appear in the same health summary the TUI banner prints.
 
-## Next Steps for Rounds 3‑10
 
-1. Link the Core `PLUGIN` command to the same manifest validation pipeline (`wizard/plugin_repository` + `LibraryManagerService`) so installs via CLI or GUI obey the same signatures.
-2. Surface Sonic USB build plan logs, device DB updates, and media player events within the Wizard dashboard so each Hot Reload / Self Heal round can confirm those capabilities from the same `memory/logs/health-training.log` entries.
-3. Keep the Hotkey Center, config page, and Sonic documentation updated whenever new Wizard bolt-ons (Font/Pixel/Layer editors) or Sonic payloads are added so the roadmap remains visible to contributors.
+## Repair + Backup Flow
+
+- `REPAIR --refresh-runtime` clears runtime caches (`.venv`, `extensions/`, dashboard bundles, `memory/wizard`, plugin caches) and calls `wizard/services/library_manager_service.LibraryManagerService` to reinstall every enabled integration with the same dependency wiring that the config page uses.
+- `REPAIR --install-plugin <id>` speaks directly to the Wizard plugin catalog so maintenance scripts can force a reinstall of a single integration using the same manifest validation hooks that power the GUI buttons.
+- `BACKUP`, `RESTORE`, and the new `UNDO` command all work with `<scope>/.backup/<timestamp>-<label>.tar.gz` archives (tar + gzip) so we follow Alpine’s conventions; `UNDO` simply re-applies the most recent archive and can be run from scripts or the TUI to roll back the last backup point.
+
+These maintenance paths keep caches aligned with Wizard’s plugin/distribution library (`wizard/services/plugin_repository.py` + `wizard/services/library_manager_service.py`) so the repair command can always reach back into the same catalog the config page and Sonic workflows rely on.
+
+## Sonic Device Database & USB Builder APIs
+
+The Sonic Screwdriver wiring spans CLI, datasets, and runtime state:
+
+- `sonic/core/sonic_cli.py` exposes `plan` and `run` subcommands. `plan` accepts `--usb-device`, `--layout-file`, `--ventoy-version`, `--payloads-dir`, `--format-mode`, and `--dry-run` to emit a signed manifest using `sonic/core/manifest.py` and `sonic/core/plan.py`.
+- Manifest validation references `sonic/datasets/sonic-devices.schema.json`, while the data itself originates from `sonic/datasets/sonic-devices.sql`. At runtime this dataset syncs into `memory/sonic/sonic-devices.db`, which the Wizard dashboard’s Sonic Device DB panel reads to show BIOS, Windows flags, media expectations, and `udos_launcher` readiness.
+- Partitioning and payload scripts (`sonic/scripts/partition-layout.sh`, `sonic/scripts/apply-payloads-v2.sh`) read the manifest to build GPT layouts, write the Alpine squashfs image, and copy Windows/media payloads. Each run writes a `sha256(layout)` digest so the dashboard can confirm the builder output before handing off to `Sonic Launcher`.
+
+Documenting these APIs lets the plugin catalog, launchers, and automation scripts share the same manifest signing, device catalog, and wizard-friendly metadata that drives future Sonic bolt-ons.
+
+## Sonic Media Player & Windows Launch Requirements
+
+- The Windows and media payload expectations live in `sonic/docs/specs/sonic-screwdriver-v1.1.0.md`. That spec details the multi-partition layout, `payloads/windows/scripts/launch-windows.sh`, and the three-mode boot priority (uDOS → Windows → Wizard).
+- `memory/sonic/sonic-media.log` plus `sonic/docs/sonic-stick-media-addon-brief.md` capture the media player launch parameters and error codes; the Wizard dashboard pulls those logs so each hot reload/self-heal round can confirm the media-player story remains stable.
+- Sonic also sets `windows10_boot`, `media_mode`, and `udos_launcher` flags in the device DB, letting the dashboard highlight whether a USB build contains the gaming launcher, Kodi kiosk, or Windows To Go profile.
+
+Surfacing this information keeps the Sonic build plan, media player, and Windows launcher facts visible to contributors and automation hooks alike.
+
+## Graphics, Font & Workspace Tools
+
+- The dashboard’s `Font Manager`, `SVG Processor`, `Pixel Editor`, and `Layer Editor` all read seeds from `core/framework/seed/bank/graphics` and push exports back through the GUI file picker/workspace selector.
+- Each tool shares plugin metadata with the `Wizard LibraryManagerService`, so imported fonts, SVG layers, and map tiles register with the same catalog the Sonic USB builder and plugin installers depend on.
+- `wizard/routes/font_routes.py`, `wizard/routes/pixel_editor_routes.py`, and `wizard/routes/layer_editor_routes.py` surface the GUI file picker and workspace selectors so the editors always point at the seeded graphics, font collections, and tiled map layers stored in `memory/seed`.
+
+This keeps the graphics toolchain aligned with seeded assets, Sonic media payloads, and future plugin installers that expect consistent map and font collections.
+
+## Automation & Roadmap Visibility
+
+- The TUI startup banner writes the Self-Healer summary + Hot Reload stats to `memory/logs/health-training.log`, and automation scripts reread that payload before running `REPAIR`, `SHAKEDOWN`, or the `startup-script`/`reboot-script`. They rerun diagnostics only when the log shows remaining issues, so every training round is accountable.
+- `memory/system/startup-script.md` and `.../reboot-script.md` now live in the seeded templates, execute automatically, and emit `PATTERN TEXT "Startup ready"` or `PATTERN TEXT "Reboot ready"` for tooling to detect the run without extra logging.
+- Keeping the Hotkey Center, config page, and Sonic documentation updated keeps rounds 3‑10 pointing at this doc as the canonical slab described in `ROUNDS-3-10.md`.

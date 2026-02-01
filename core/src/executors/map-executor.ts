@@ -116,25 +116,6 @@ export class MapExecutor extends BaseExecutor {
     }
   }
 
-  private getNested(obj: any, path: string): any {
-    if (!obj || !path) {
-      return undefined
-    }
-
-    const parts = path.split('.')
-    let current = obj
-
-    for (const part of parts) {
-      if (current && typeof current === 'object' && part in current) {
-        current = current[part]
-      } else {
-        return undefined
-      }
-    }
-
-    return current
-  }
-
   private renderMap(config: any): string {
     const { width, height, sprites } = config
     const grid: string[][] = Array(height)

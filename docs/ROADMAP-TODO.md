@@ -15,6 +15,8 @@ This live tracker lists the remaining development items referenced by `docs/ROAD
 | Update `docs/specs/ROUNDS-3-10.md` | Documentation | Done | New spec created to summarize the rounds. |
 | Add DateTimeApproval + TUI story tests | Core | Done | Added regression coverage for approval/override flows. |
 | Build script executor + safety guard | Core | Done | Added ScriptExecutor, allowScripts guard, and runtime tests. |
-| Hot reload/self-heal training & docs | Core | Pending | Highlight services/hot-reload and training so TUI stays stable for future rounds. |
+| Hot reload/self-heal training & docs | Core | Done | Automation logging plus `tui` stability guards added, hot-reload debouncing tested and documented. |
+| Phase 1B DocumentRunner state/set coverage | Core | Done | DocumentRunner now exercises state/set blocks end-to-end and new TypeScript tests live in `memory/tests/phase1b_*.test.ts`; legacy `__tests__` moved into `memory/tests/legacy`. |
+| Memory test scheduler & startup health hook | Core | Done | TUI now polls `~/memory/tests/` for new/changed test files, runs `automation.py`, and surfaces outcomes in the health summary/log. |
 
 > 🔁 Keep this file synchronized with the next actions section of `docs/ROADMAP.md`.

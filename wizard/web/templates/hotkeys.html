@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="px-4 sm:px-0 mb-8">
+    <h1 class="text-3xl font-bold text-white">Hotkey Center</h1>
+    <p class="mt-1 text-gray-400">Documented F1-F8, Tab, and history bindings tied to the SmartPrompt/FKey stack.</p>
+</div>
+
+<div class="mb-6">
+    <div class="rounded-lg bg-white/5 p-4">
+        <p class="text-sm text-gray-300">
+            The CLI + dashboard share the same key map so automation scripts (starting from `memory/logs/health-training.log`) can replay the hot-reload/self-heal training banner. The Tab selector works even when `prompt_toolkit` is missing, and the Enter key approves the combined datetime/time/timezone prompt.
+            <br>
+            Health log: <strong>{{ health_log }}</strong>
+        </p>
+    </div>
+</div>
+
+<div class="overflow-x-auto rounded-lg bg-white/5 p-4">
+    <table class="min-w-full text-left text-sm text-gray-300">
+        <thead>
+            <tr class="border-b border-white/10">
+                <th class="px-3 py-2 font-semibold text-white">Key</th>
+                <th class="px-3 py-2 font-semibold text-white">Action</th>
+                <th class="px-3 py-2 font-semibold text-white">Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key in key_map %}
+            <tr class="border-b border-white/5">
+                <td class="px-3 py-3 font-semibold text-white">{{ key.key }}</td>
+                <td class="px-3 py-3">{{ key.action }}</td>
+                <td class="px-3 py-3 text-gray-400">{{ key.notes }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="mt-6 rounded-lg border border-dashed border-white/20 bg-white/5 p-4">
+    <h2 class="text-sm font-semibold uppercase text-gray-400">Automation-friendly snapshot</h2>
+    <p class="text-xs text-gray-400 mb-2">
+        Automation scripts capture this layout for rounds 3‑10. The JSON endpoint <code>/hotkeys/data</code> exposes the same table plus the current snapshot path below.
+    </p>
+    <p class="text-xs text-white">Snapshot file: <code>{{ hotkey_snapshot }}</code></p>
+    <p class="text-xs text-gray-400 mt-1">
+        Use <code>curl http://localhost:8080/hotkeys/data</code> to compare each deployment’s key bindings before retraining hot reload/self-heal loops.
+    </p>
+</div>
+{% endblock %}

@@ -45,6 +45,13 @@ from wizard.services.mesh_sync import get_mesh_sync, SyncItemType
 from wizard.services.rate_limiter import get_rate_limiter
 from wizard.services.logging_manager import get_logger
 from wizard.services.secret_store import get_secret_store, SecretStoreError
+from core.services.hotkey_map import get_hotkey_payload
+from core.services.config_sync_service import ConfigSyncManager
+from wizard.services.oauth_manager import (
+    get_oauth_manager,
+    OAuthProvider,
+    ConnectionStatus,
+)
 
 # Gmail OAuth (Flask blueprint - convert to FastAPI)
 try:
@@ -152,6 +159,176 @@ async def dashboard(request: Request):
         "dashboard.html",
         {"request": request, "stats": stats, "page_title": "Wizard Server Dashboard"},
     )
+
+
+@app.get("/config", response_class=HTMLResponse)
+async def config_dashboard(request: Request):
+    """All-in-one Wizard config page with venv, secrets, and installer actions."""
+    repo_root = Path(__file__).parent.parent
+    venv_path = repo_root / ".venv"
+    venv_status = {
+        "exists": venv_path.exists(),
+        "python": None,
+        "path": str(venv_path),
+    }
+    if (venv_path / "bin" / "python").exists():
+        venv_status["python"] = str((venv_path / "bin" / "python").resolve())
+
+    secret_state = {"unlocked": False, "entries": []}
+    try:
+        store = get_secret_store()
+        store.unlock(os.environ.get("WIZARD_KEY", ""))
+        secret_state["unlocked"] = True
+        secret_state["entries"] = [
+            {"key_id": entry.key_id, "provider": entry.provider}
+            for entry in store.list()
+        ]
+    except Exception:
+        secret_state["error"] = "Secret store locked or missing WIZARD_KEY"
+
+    plugin_catalog = []
+    plugin_dir = repo_root / "wizard" / "distribution" / "plugins"
+    if plugin_dir.exists():
+        for plugin_path in sorted(plugin_dir.iterdir()):
+            manifest_file = plugin_path / "manifest.json"
+            plugin_catalog.append(
+                {
+                    "name": plugin_path.name,
+                    "manifest": json.loads(manifest_file.read_text())
+                    if manifest_file.exists()
+                    else {},
+                }
+            )
+
+    # .env user variable configuration (identity boundary)
+    config_sync = ConfigSyncManager()
+    env_dict = config_sync.load_env_dict()
+    identity_fields = []
+    for env_key in sorted(config_sync.ENV_ONLY_FIELDS.keys()):
+        if env_key == "WIZARD_KEY":
+            continue
+        identity_fields.append(
+            {
+                "key": env_key,
+                "label": env_key.replace("_", " ").title(),
+                "value": env_dict.get(env_key) or "Not set",
+            }
+        )
+
+    wizard_key_value = (
+        env_dict.get("WIZARD_KEY") or os.environ.get("WIZARD_KEY") or "Not set"
+    )
+    env_notice = (
+        "Run command SETUP in the uCODE terminal to update these identity variables. "
+        "Use DESTROY to start over (CLI only)."
+    )
+
+    # OAuth connection overview
+    oauth_manager = get_oauth_manager()
+    raw_connections = oauth_manager.get_all_connections()
+    oauth_connections: List[Dict[str, Any]] = []
+    status_notes = {
+        ConnectionStatus.NOT_CONFIGURED: "Add client ID/secret in wizard/config/oauth_providers.json",
+        ConnectionStatus.PENDING_AUTH: "Awaiting browser authorization",
+        ConnectionStatus.EXPIRED: "Token expired — reconnect to refresh",
+        ConnectionStatus.CONNECTED: "Connected",
+    }
+
+    for provider_key, connection in raw_connections.items():
+        try:
+            provider_enum = OAuthProvider(provider_key)
+        except ValueError:
+            continue
+
+        note = status_notes.get(connection.status, "")
+        oauth_connections.append(
+            {
+                "slug": provider_enum.value,
+                "name": connection.display_name,
+                "status": connection.status.value,
+                "label": connection.status.name.replace("_", " ").title(),
+                "note": note,
+                "user": connection.user_display,
+                "can_connect": connection.status != ConnectionStatus.NOT_CONFIGURED,
+            }
+        )
+
+    return templates.TemplateResponse(
+        "config.html",
+        {
+            "request": request,
+            "page_title": "Wizard Configuration",
+            "venv_status": venv_status,
+            "secret_state": secret_state,
+            "plugin_catalog": plugin_catalog,
+            "hotkey_link": "/hotkeys",
+            "env_identity_fields": identity_fields,
+            "wizard_key_value": wizard_key_value,
+            "env_path": str(repo_root / ".env"),
+            "env_notice": env_notice,
+            "oauth_connections": oauth_connections,
+            "oauth_note": "One-click OAuth connectors open the provider consent flows via the Wizard OAuth gateway.",
+        },
+    )
+
+
+@app.get("/api/v1/oauth/connect/{provider}")
+async def oauth_connect(provider: str):
+    """Redirect to the OAuth authorization URL for a provider."""
+    try:
+        provider_enum = OAuthProvider(provider.lower())
+    except ValueError:
+        raise HTTPException(status_code=404, detail="OAuth provider not supported")
+
+    manager = get_oauth_manager()
+    auth_url = manager.get_auth_url(provider_enum)
+
+    if not auth_url:
+        raise HTTPException(
+            status_code=400,
+            detail="Provider not configured. Add client_id/client_secret to wizard/config/oauth_providers.json",
+        )
+
+    return RedirectResponse(auth_url)
+
+
+def _hotkey_map():
+    return [
+        {"key": "Tab", "action": "Command Selector", "notes": "Opens the TAB menu even in fallback mode (SmartPrompt handles <kbd>Tab</kbd>)."},
+        {"key": "F1", "action": "Status / Help banner", "notes": "Bound by `core/tui/fkey_handler.py` to show self-heal stats."},
+        {"key": "F2", "action": "Logs / Diagnostics", "notes": "Replays health logs pulled from `memory/logs/health-training.log`."},
+        {"key": "F3", "action": "REPAIR shortcut", "notes": "Runs `SelfHealer` helpers via the CLI handler."},
+        {"key": "F4", "action": "RESTART / HOT RELOAD", "notes": "Triggers watcher stats and automatic reloads via `core/services/hot_reload.py`."},
+        {"key": "F5", "action": "Extension palette", "notes": "Opens the plugin menu in the CLI; uses `LibraryManagerService` metadata."},
+        {"key": "F6", "action": "Pattern / Script runner", "notes": "Repeats the `PATTERN` banner logic defined in `memory/system/startup-script.md`."},
+        {"key": "F7", "action": "Sonic Device DB", "notes": "Displays supported USB/media targets read from `memory/sonic/sonic-devices.db`."},
+        {"key": "F8", "action": "Hotkey Center", "notes": "Proxies this same page from within the CLI and automation loops."},
+        {"key": "↑ / ↓", "action": "Command history", "notes": "Shared with `SmartPrompt` history and predictor logging."},
+        {"key": "Enter", "action": "Confirm input", "notes": "Approves the date/time/timezone block and records overrides when refused."},
+    ]
+
+
+@app.get("/hotkeys", response_class=HTMLResponse)
+async def hotkey_center(request: Request):
+    """Hotkey center page documenting CLI/automation keys."""
+    payload = get_hotkey_payload(MEMORY_ROOT)
+    return templates.TemplateResponse(
+        "hotkeys.html",
+        {
+            "request": request,
+            "key_map": payload["key_map"],
+            "page_title": "Hotkey Center",
+            "health_log": str(LOGS_DIR / "health-training.log"),
+            "hotkey_snapshot": payload["snapshot"],
+        },
+    )
+
+
+@app.get("/hotkeys/data", response_class=JSONResponse)
+async def hotkey_data():
+    """Machine-readable key binding data + snapshot path."""
+    payload = get_hotkey_payload(MEMORY_ROOT)
+    return JSONResponse(payload)
 
 
 @app.get("/api/stats")

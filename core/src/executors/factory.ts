@@ -12,6 +12,7 @@ import { NavigationExecutor } from './nav-executor'
 import { PanelExecutor } from './panel-executor'
 import { MapExecutor } from './map-executor'
 import { ScriptExecutor } from './script-executor'
+import { SqlExecutor } from './sql-executor'
 import { BaseExecutor } from './base'
 
 /**
@@ -38,6 +39,8 @@ export class ExecutorFactory {
         return new MapExecutor()
       case 'script':
         return new ScriptExecutor()
+      case 'sql':
+        return new SqlExecutor()
       default:
         return null
     }

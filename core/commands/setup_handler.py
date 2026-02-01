@@ -21,7 +21,56 @@ import os
 from datetime import datetime
 
 from core.commands.base import BaseCommandHandler
-from core.services.logging_service import get_repo_root
+from core.services.logging_service import get_repo_root, get_logger
+
+logger = get_logger('setup-handler')
+
+
+def _detect_udos_root() -> Path:
+    """
+    Auto-detect uDOS repository root for UDOS_ROOT .env variable.
+
+    Tries in order:
+    1. UDOS_ROOT environment variable (container override)
+    2. Relative path from this file (local development)
+    3. Raise error if not found
+
+    Returns:
+        Path: Absolute path to uDOS repository root
+
+    Raises:
+        RuntimeError: If root cannot be detected
+    """
+    # Try environment first (containers will set this)
+    env_root = os.getenv("UDOS_ROOT")
+    if env_root:
+        env_path = Path(env_root).expanduser()
+        marker = env_path / "uDOS.py"
+        if marker.exists():
+            logger.info(f"[LOCAL] UDOS_ROOT detected from environment: {env_path}")
+            return env_path
+        else:
+            logger.warning(f"[LOCAL] UDOS_ROOT env var set but uDOS.py not found at {env_path}")
+
+    # Fall back to relative path discovery
+    try:
+        current_file = Path(__file__).resolve()
+        # setup_handler.py → core/commands → core → root
+        candidate = current_file.parent.parent.parent
+        marker = candidate / "uDOS.py"
+
+        if marker.exists():
+            logger.info(f"[LOCAL] UDOS_ROOT auto-detected: {candidate}")
+            return candidate
+    except Exception as e:
+        logger.warning(f"[LOCAL] Relative path detection failed: {e}")
+
+    raise RuntimeError(
+        "Cannot auto-detect uDOS root. Please:\n"
+        "1. Ensure uDOS.py exists at repository root\n"
+        "2. Or set UDOS_ROOT environment variable\n"
+        "3. Or run setup from repository root directory"
+    )
 
 
 class SetupHandler(BaseCommandHandler):
@@ -36,14 +85,14 @@ class SetupHandler(BaseCommandHandler):
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         """
         SETUP command - manage local offline user setup in .env.
-        
+
         Usage:
             SETUP              Run the setup story (configure local identity)
             SETUP --profile    Show your current setup profile
             SETUP --edit       Edit setup values
             SETUP --clear      Clear setup data (start over)
             SETUP --help       Show help
-            
+
         Local data stored in .env:
             USER_NAME          Username
             USER_DOB           Date of birth (YYYY-MM-DD)
@@ -53,7 +102,7 @@ class SetupHandler(BaseCommandHandler):
             USER_TIMEZONE      Timezone (e.g. America/Los_Angeles)
             OS_TYPE            alpine | ubuntu | mac | windows
             WIZARD_KEY         Gateway to Wizard keystore (auto-generated)
-        
+
         Extended data in Wizard keystore (when installed):
             - API keys, OAuth tokens, credentials
             - Integrations (GitHub, Gmail, Notion, etc.)
@@ -61,9 +110,9 @@ class SetupHandler(BaseCommandHandler):
         """
         if not params:
             return self._run_story()
-        
+
         action = params[0].lower()
-        
+
         if action in {"--story", "--run", "--wizard-setup"}:
             return self._run_story()
         elif action in {"--profile", "--view", "--show"}:
@@ -80,14 +129,14 @@ class SetupHandler(BaseCommandHandler):
                 "message": f"Unknown option: {action}",
                 "help": "Usage: SETUP [--profile|--edit|--clear|--help]"
             }
-    
+
     def _show_profile(self) -> Dict:
         """Display the current setup profile from .env."""
         try:
             from core.services.uid_generator import descramble_uid
-            
+
             env_data = self._load_env_vars()
-            
+
             if not env_data.get('USER_NAME'):
                 return {
                     "status": "warning",
@@ -111,9 +160,9 @@ Your settings are stored locally in: .env
 When Wizard Server is installed, it imports this data.
 """
                 }
-            
+
             lines = ["\n🧙 YOUR LOCAL SETUP PROFILE\n", "=" * 60]
-            
+
             # User Identity
             lines.append("\n📋 User Identity")
             lines.append("-" * 60)
@@ -122,7 +171,7 @@ When Wizard Server is installed, it imports this data.
             lines.append(f"  • Role:         {env_data.get('USER_ROLE', 'ghost')}")
             has_password = "yes" if env_data.get('USER_PASSWORD') else "no (blank)"
             lines.append(f"  • Password:     {has_password}")
-            
+
             # User ID (descrambled for viewing)
             if env_data.get('USER_ID'):
                 try:
@@ -130,18 +179,18 @@ When Wizard Server is installed, it imports this data.
                     lines.append(f"  • User ID:      {uid_plain}")
                 except Exception:
                     lines.append(f"  • User ID:      {env_data['USER_ID'][:20]}... (scrambled)")
-            
+
             # Location & Time
             lines.append("\n📍 Location & Time")
             lines.append("-" * 60)
             lines.append(f"  • Location:     {env_data.get('USER_LOCATION', 'Not set')}")
             lines.append(f"  • Timezone:     {env_data.get('USER_TIMEZONE', 'Not set')}")
-            
+
             # Installation
             lines.append("\n⚙️  Installation")
             lines.append("-" * 60)
             lines.append(f"  • OS Type:      {env_data.get('OS_TYPE', 'Not set')}")
-            
+
             # Security
             lines.append("\n🔐 Security")
             lines.append("-" * 60)
@@ -150,14 +199,14 @@ When Wizard Server is installed, it imports this data.
                 wizard_key = wizard_key[:8] + "..." if len(wizard_key) > 8 else "***"
             lines.append(f"  • Wizard Key:   {wizard_key}")
             lines.append("    (Gateway to Wizard keystore)")
-            
+
             lines.append("\n" + "=" * 60)
             lines.append("Data stored in: .env (local, never shared)")
             lines.append("Extended data stored in: Wizard keystore (when installed)")
             lines.append("\nTo manage extended settings:")
             lines.append("  • Install Wizard Server (see wizard/README.md)")
             lines.append("  • Access: http://localhost:8765/dashboard")
-            
+
             return {
                 "status": "success",
                 "output": "\n".join(lines)
@@ -167,17 +216,17 @@ When Wizard Server is installed, it imports this data.
                 "status": "error",
                 "message": f"Failed to load profile: {e}"
             }
-    
+
     def _run_story(self) -> Dict:
         """Launch the setup story to configure user identity in .env."""
         try:
             # Initialize .env from .example if it doesn't exist
             self._initialize_env_from_example()
             from core.commands.story_handler import StoryHandler
-            
+
             # Run the tui-setup story (minimal, focused setup)
             result = StoryHandler().handle("STORY", ["tui-setup"])
-            
+
             # If story was successful and returned form data, save to .env
             if result.get("status") == "success" and "form_data" in result:
                 form_data = result["form_data"]
@@ -189,9 +238,9 @@ When Wizard Server is installed, it imports this data.
                               "Run 'SETUP --profile' to view your settings.\n\n"
                               f"{self._seed_confirmation()}"
                 }
-            
+
             return result
-            
+
         except Exception as exc:
             return {
                 "status": "error",
@@ -289,7 +338,7 @@ When Wizard Server is installed, it imports this data.
             f"  • seed file (locations): {'✅' if locations_seed.exists() else '❌'}",
         ]
         return "\n".join(lines)
-    
+
     def _edit_interactively(self) -> Dict:
         """Edit setup in .env file."""
         return {
@@ -313,16 +362,16 @@ Key fields to edit:
   OS_TYPE                alpine | ubuntu | mac | windows
 """
         }
-    
+
     def _clear_setup(self) -> Dict:
         """Clear setup data from .env."""
         try:
             env_vars = [
-                'USER_NAME', 'USER_DOB', 'USER_ROLE', 
+                'USER_NAME', 'USER_DOB', 'USER_ROLE',
                 'USER_LOCATION', 'USER_TIMEZONE', 'OS_TYPE',
                 'USER_PASSWORD', 'USER_ID'
             ]
-            
+
             # Remove these variables from .env while keeping others
             lines = []
             if self.env_file.exists():
@@ -330,9 +379,9 @@ Key fields to edit:
                     key = line.split('=')[0].strip() if '=' in line else None
                     if key not in env_vars:
                         lines.append(line)
-            
+
             self.env_file.write_text('\n'.join(lines))
-            
+
             return {
                 "status": "success",
                 "output": "✅ Setup data cleared from .env. Run 'SETUP' to configure again."
@@ -342,7 +391,7 @@ Key fields to edit:
                 "status": "error",
                 "message": f"Failed to clear setup: {e}"
             }
-    
+
     def _show_help(self) -> Dict:
         """Show help for SETUP command."""
         return {
@@ -391,19 +440,19 @@ EXAMPLES:
   nano .env                 # Manual editing
 """
         }
-    
+
     # ========================================================================
     # Helper Methods - .env Storage
-    
+
     def _initialize_env_from_example(self) -> None:
         """Initialize .env from .env.example if it doesn't exist."""
         if self.env_file.exists():
             return
-    
+
         example_file = self.env_file.parent / ".env.example"
         if not example_file.exists():
             return
-    
+
         try:
             # Copy .env.example to .env
             example_content = example_file.read_text()
@@ -413,15 +462,15 @@ EXAMPLES:
         except Exception as e:
             from core.services.logging_service import get_logger
             get_logger("setup").warning(f"[LOCAL] Could not initialize .env: {e}")
-    
+
     # ========================================================================
-    
+
     def _load_env_vars(self) -> Dict:
         """Load setup variables from .env file."""
         try:
             if not self.env_file.exists():
                 return {}
-            
+
             env_vars = {}
             for line in self.env_file.read_text().splitlines():
                 line = line.strip()
@@ -437,13 +486,21 @@ EXAMPLES:
             return env_vars
         except Exception:
             return {}
-    
+
     def _save_to_env(self, data: Dict) -> bool:
         """Save setup data to .env file, preserving other vars."""
         try:
             from core.services.uid_generator import generate_uid, scramble_uid
             from datetime import datetime
-            
+
+            # Auto-detect and save UDOS_ROOT
+            try:
+                udos_root = _detect_udos_root()
+                data['udos_root'] = str(udos_root)
+                logger.info(f"[LOCAL] UDOS_ROOT will be saved: {udos_root}")
+            except RuntimeError as e:
+                logger.warning(f"[LOCAL] UDOS_ROOT detection failed: {e}")
+
             # Map form data to .env keys
             key_mapping = {
                 'user_username': 'USER_NAME',
@@ -453,8 +510,9 @@ EXAMPLES:
                 'user_timezone': 'USER_TIMEZONE',
                 'install_os_type': 'OS_TYPE',
                 'user_password': 'USER_PASSWORD',
+                'udos_root': 'UDOS_ROOT',
             }
-            
+
             # Load existing .env
             existing = {}
             if self.env_file.exists():
@@ -462,7 +520,7 @@ EXAMPLES:
                     if "=" in line and not line.strip().startswith("#"):
                         key, value = line.split("=", 1)
                         existing[key.strip()] = value.strip()
-            
+
             # Update with new data
             for form_key, env_key in key_mapping.items():
                 if form_key in data:
@@ -472,7 +530,7 @@ EXAMPLES:
                         existing[env_key] = f'"{value}"' if isinstance(value, str) else str(value)
                     else:
                         existing.pop(env_key, None)
-            
+
             # Generate unique User ID from DOB, timezone, and current time
             if 'USER_ID' not in existing and 'user_dob' in data and 'user_timezone' in data:
                 timestamp = datetime.now()
@@ -492,17 +550,17 @@ EXAMPLES:
                 )
                 scrambled_uid = scramble_uid(uid)
                 existing['USER_ID'] = f'"{scrambled_uid}"'
-            
+
             # Generate or keep Wizard Key
             if 'WIZARD_KEY' not in existing:
                 import uuid
                 existing['WIZARD_KEY'] = f'"{str(uuid.uuid4())}"'
-            
+
             # Write back to .env
             lines = []
             for key, value in sorted(existing.items()):
                 lines.append(f"{key}={value}")
-            
+
             self.env_file.write_text("\n".join(lines) + "\n")
             return True
         except Exception as e:

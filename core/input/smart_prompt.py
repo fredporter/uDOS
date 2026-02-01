@@ -30,9 +30,10 @@ from typing import Optional, List, Iterable, Tuple, Dict
 
 from .autocomplete import AutocompleteService
 from .command_predictor import CommandPredictor
+from core.services.logging_service import get_logger
+from core.utils.tty import interactive_tty_status
 
 # Setup debug logging (silent by default, enable with DEBUG env var)
-import os
 
 debug_logger = logging.getLogger("smartprompt")
 if os.environ.get("DEBUG_SMARTPROMPT"):
@@ -43,6 +44,8 @@ if os.environ.get("DEBUG_SMARTPROMPT"):
         debug_logger.addHandler(handler)
 else:
     debug_logger.setLevel(logging.CRITICAL)  # Silent unless DEBUG_SMARTPROMPT=1
+
+logger = get_logger("smartprompt")
 
 
 class CoreCompleter(Completer):
@@ -252,8 +255,9 @@ class SmartPrompt:
             f"SmartPrompt.__init__() called, use_fallback={use_fallback}"
         )
 
-        # Check if stdin is a TTY (interactive terminal)
-        is_tty = sys.stdin.isatty() if hasattr(sys.stdin, "isatty") else False
+        # Check if terminal is interactive
+        self.interactive_reason: Optional[str] = None
+        is_tty = self._is_interactive()
         debug_logger.debug(
             f"  is_tty={is_tty}, HAS_PROMPT_TOOLKIT={HAS_PROMPT_TOOLKIT}"
         )
@@ -263,11 +267,14 @@ class SmartPrompt:
         self.tab_handler = None
         self.registry = registry
         self.fkey_handler = None
+        self.logger = logger
 
         if self.use_fallback and not HAS_PROMPT_TOOLKIT:
             self.fallback_reason = "prompt_toolkit not installed"
         elif self.use_fallback and not is_tty:
-            self.fallback_reason = "Non-interactive terminal (stdin not a TTY)"
+            reason = self.interactive_reason or "stdin/stdout not a TTY or TERM=dumb"
+            self.fallback_reason = f"Non-interactive terminal ({reason})"
+            self.logger.info("[LOCAL] SmartPrompt fallback: %s", self.fallback_reason)
 
         debug_logger.debug(
             f"  use_fallback={self.use_fallback}, reason={self.fallback_reason}"
@@ -328,6 +335,14 @@ class SmartPrompt:
         """Initialize basic fallback prompt"""
         self.autocomplete_service = AutocompleteService()
         self.predictor = CommandPredictor(self.autocomplete_service)
+
+    def _is_interactive(self) -> bool:
+        """Check if running in an interactive terminal session."""
+        interactive, reason = interactive_tty_status()
+        self.interactive_reason = reason
+        if not interactive and reason:
+            debug_logger.debug("Interactive check failed: %s", reason)
+        return interactive
 
     def _create_key_bindings(self) -> KeyBindings:
         """

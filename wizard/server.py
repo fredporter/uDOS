@@ -368,6 +368,16 @@ class WizardServer:
         library_router = get_library_router(auth_guard=self._authenticate_admin)
         app.include_router(library_router)
 
+        # Register Container Launcher routes (home-assistant, songscribe, etc)
+        from wizard.routes.container_launcher_routes import router as container_launcher_router
+
+        app.include_router(container_launcher_router)
+
+        # Register Container Proxy routes for browser UI access
+        from wizard.routes.container_proxy_routes import router as container_proxy_router
+
+        app.include_router(container_proxy_router)
+
         # Register Workspace routes
         from wizard.routes.workspace_routes import create_workspace_routes
 
@@ -400,6 +410,12 @@ class WizardServer:
 
         catalog_router = create_catalog_routes(auth_guard=self._authenticate_admin)
         app.include_router(catalog_router)
+
+        # Register Enhanced Plugin routes (discovery, git, installation)
+        from wizard.routes.enhanced_plugin_routes import create_enhanced_plugin_routes
+
+        enhanced_plugin_router = create_enhanced_plugin_routes(auth_guard=self._authenticate_admin)
+        app.include_router(enhanced_plugin_router)
 
         # Register Webhook status routes
         from wizard.routes.webhook_routes import create_webhook_routes

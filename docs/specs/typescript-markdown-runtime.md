@@ -1890,3 +1890,11 @@ This model:
 	•	gives Wizard room to evolve without breaking users
 
 It’s a clean, modern, and very hard-to-break architecture.
+
+## Phase 1A / 1B Test Artifacts
+
+- `memory/tests/phase1a_runtime_state.test.ts`: Covers the `StateStore` CRUD, snapshot, and persistence helpers.
+- `memory/tests/phase1b_state_executor.test.ts`: Validates literal parsing plus default-only assignments inside the `state` block.
+- `memory/tests/phase1b_set_executor.test.ts`: Exercises `set`, `inc`, `dec`, and `toggle` commands (dot-path and coercion rules).
+
+Those files live in `memory/tests/` and execute through the `core` jest runner because `core/jest.config.js` includes `../memory/tests` as a root source.

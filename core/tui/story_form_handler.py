@@ -48,6 +48,10 @@ class StoryFormHandler:
         Returns:
             Dictionary with collected data
         """
+        if not self._is_interactive():
+            logger.info("[LOCAL] Non-interactive terminal detected, using fallback form handler")
+            return SimpleFallbackFormHandler().process_story_form(form_spec)
+
         # Build form from spec
         renderer = TUIFormRenderer(
             title=form_spec.get('title', 'Form'),
@@ -68,7 +72,7 @@ class StoryFormHandler:
         self._reorder_location_fields()
         
         # Run interactive form
-        return self._run_interactive_form(renderer)
+        return self._run_interactive_form(renderer, form_spec)
     
     def _add_field_from_spec(self, renderer: TUIFormRenderer, spec: Dict, force_add: bool = False) -> None:
         """Add field to renderer from specification."""
@@ -124,7 +128,7 @@ class StoryFormHandler:
         non_location = [f for f in self.renderer.fields if f['type'] != FieldType.LOCATION]
         self.renderer.fields = non_location + location_fields
     
-    def _run_interactive_form(self, renderer: TUIFormRenderer) -> Dict[str, Any]:
+    def _run_interactive_form(self, renderer: TUIFormRenderer, form_spec: Dict[str, Any]) -> Dict[str, Any]:
         """
         Run interactive form with keyboard input.
         
@@ -132,7 +136,9 @@ class StoryFormHandler:
             Collected form data
         """
         # Setup terminal
-        self._setup_terminal()
+        if not self._setup_terminal():
+            logger.warning("[LOCAL] Terminal not interactive, using fallback form handler")
+            return SimpleFallbackFormHandler().process_story_form(form_spec)
         
         try:
             while not renderer.current_field_index >= len(renderer.fields):
@@ -169,7 +175,7 @@ class StoryFormHandler:
         if tz:
             submitted_data.setdefault("user_timezone", tz)
 
-        if not result.get("approved"):
+        if result.get("override_required"):
             self._insert_datetime_override_fields(result)
 
     def _insert_datetime_override_fields(self, approval_payload: Dict[str, Any]) -> None:
@@ -245,13 +251,17 @@ class StoryFormHandler:
             "value": None,
         }
 
-    def _setup_terminal(self) -> None:
+    def _setup_terminal(self) -> bool:
         """Setup terminal for raw input capture."""
         try:
+            if not self._is_interactive():
+                return False
             self.original_settings = termios.tcgetattr(sys.stdin)
             tty.setraw(sys.stdin.fileno())
+            return True
         except Exception as e:
             logger.warning(f"[LOCAL] Could not setup terminal: {e}")
+            return False
     
     def _restore_terminal(self) -> None:
         """Restore terminal to original settings."""
@@ -260,6 +270,13 @@ class StoryFormHandler:
                 termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.original_settings)
             except Exception as e:
                 logger.warning(f"[LOCAL] Could not restore terminal: {e}")
+
+    def _is_interactive(self) -> bool:
+        """Check if running in interactive terminal."""
+        try:
+            return sys.stdin.isatty() and sys.stdout.isatty()
+        except Exception:
+            return False
     
     def _read_key(self) -> str:
         """
@@ -334,12 +351,17 @@ class SimpleFallbackFormHandler:
                 )
                 choice = input(prompt).strip().lower()
                 approved = choice in ("1", "y", "yes", "")
-                data[name] = {
+                payload = {
                     "approved": approved,
                     "date": date_str,
                     "time": time_str,
                     "timezone": tz,
                 }
+                data[name] = payload
+                data.setdefault("user_timezone", tz)
+                if not approved:
+                    overrides = self._collect_datetime_overrides(payload)
+                    data.update(overrides)
             
             else:
                 # Simple text input
@@ -350,6 +372,28 @@ class SimpleFallbackFormHandler:
                 data[name] = value
         
         return {"status": "success", "data": data}
+
+    def _collect_datetime_overrides(self, base_payload: Dict[str, str]) -> Dict[str, str]:
+        """Prompt for timezone, date, and time overrides when approval is declined."""
+        overrides = {}
+        tz_default = base_payload.get("timezone", "UTC")
+        date_default = base_payload.get("date", "")
+        time_default = base_payload.get("time", "")
+
+        overrides["user_timezone"] = self._prompt_override("Timezone (override)", tz_default)
+        overrides["current_date"] = self._prompt_override("Current date (override)", date_default)
+        overrides["current_time"] = self._prompt_override("Current time (override)", time_default)
+
+        return overrides
+
+    def _prompt_override(self, label: str, default: str) -> str:
+        """Prompt for an override value, falling back to the provided default."""
+        prompt = f"{label} [{default}]: "
+        try:
+            value = input(prompt).strip()
+        except EOFError:
+            return default
+        return value or default
 
 
 def get_form_handler() -> StoryFormHandler:

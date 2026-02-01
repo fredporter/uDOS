@@ -5,6 +5,7 @@
   import Webhooks from "./routes/Webhooks.svelte";
   import Logs from "./routes/Logs.svelte";
   import Catalog from "./routes/Catalog.svelte";
+  import Plugins from "./routes/Plugins.svelte";
   import Config from "./routes/Config.svelte";
   import DevMode from "./routes/DevMode.svelte";
   import Tasks from "./routes/Tasks.svelte";
@@ -127,6 +128,8 @@
         <Logs />
       {:else if currentRoute === "catalog"}
         <Catalog />
+      {:else if currentRoute === "plugins"}
+        <Plugins />
       {:else if currentRoute === "config"}
         <Config />
       {:else if currentRoute === "devmode"}

@@ -127,6 +127,10 @@ Imports `.env` identity and adds extended settings to keystore.
 - Checks system health
 - Does NOT modify `.env`
 - Can reinstall dependencies
+- `REPAIR --refresh-runtime` removes runtime caches (.venv, extensions, dashboard builds, human caches)
+  and re-installs any enabled integrations via the Wizard `LibraryManagerService`.
+- `REPAIR --install-plugin <name>` talks directly to the Wizard plugin catalog so you
+  can reinstall or upgrade individual integrations with the same safety checks that power the GUI config panel.
 
 ---
 
@@ -173,6 +177,16 @@ DESTROY 2                   # Archive memory
 DESTROY 3                   # Wipe + archive + reload
 DESTROY 4                   # NUCLEAR: Full reset (includes .env)
 ```
+
+### Maintenance Commands
+
+```bash
+BACKUP [scope]              # Creates a <timestamp>-<label>.tar.gz under <scope>/.backup
+RESTORE [scope] [archive]   # Extracts the .tar.gz into <scope>; use --force to overwrite
+UNDO [scope]                # Re-applies the latest .tar.gz backup for <scope> (Alpine-style tar/gzip)
+```
+
+Backups, restores, and undo migrations all serialize to `.tar.gz` (tar + gzip) archives under each scope’s `.backup` folder so they follow Alpine conventions. `BACKUP` writes a manifest, `RESTORE` extracts the archive (and respects `--force`), and `UNDO` simply runs the most recent `tar.gz` again to roll back to the last checkpoint.
 
 ---
 

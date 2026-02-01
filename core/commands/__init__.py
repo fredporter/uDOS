@@ -70,6 +70,10 @@ def __getattr__(name):
         from .pattern_handler import PatternHandler
 
         return PatternHandler
+    elif name == "IntegrationHandler":
+        from .integration_handler import IntegrationHandler
+
+        return IntegrationHandler
     elif name == "DevModeHandler":
         from .dev_mode_handler import DevModeHandler
 
@@ -166,6 +170,10 @@ def __getattr__(name):
         from .seed_handler import SeedHandler
 
         return SeedHandler
+    elif name == "HotkeyHandler":
+        from .hotkey_handler import HotkeyHandler
+
+        return HotkeyHandler
     elif name == "FileHandler":
         from .file_handler import FileHandler
 
@@ -193,11 +201,13 @@ __all__ = [
     "LoadHandler",
     # System commands
     "HelpHandler",
+    "IntegrationHandler",
     "ShakedownHandler",
     "RepairHandler",
     "PatternHandler",
     "DevModeHandler",
     "LogsHandler",
+    "HotkeyHandler",
     "ReloadHandler",
     "RestartHandler",
     "DestroyHandler",
