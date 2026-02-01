@@ -1184,31 +1184,31 @@ def create_config_routes(auth_guard=None):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to export config: {str(e)}")
 
+    @router.post("/secret/{key_id}/rotate")
+    async def rotate_secret_entry(key_id: str, request: Request):
+        """Rotate a secret store entry (auto-generates if no payload provided)."""
+        try:
+            payload = await request.json()
+        except Exception:
+            payload = {}
+
+        new_value = payload.get("new_value") or secrets.token_urlsafe(32)
+        rotated_at = datetime.utcnow().isoformat()
+
+        try:
+            store = get_secret_store()
+            store.unlock(os.environ.get("WIZARD_KEY", ""))
+            store.rotate(key_id, new_value, rotated_at)
+            return {
+                "success": True,
+                "key_id": key_id,
+                "new_value": new_value,
+                "rotated_at": rotated_at,
+            }
+        except SecretStoreError as exc:
+            raise HTTPException(status_code=500, detail=str(exc))
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Failed to rotate secret: {exc}")
+
     return router
 
-
-@router.post("/secret/{key_id}/rotate")
-async def rotate_secret_entry(key_id: str, request: Request):
-    """Rotate a secret store entry (auto-generates if no payload provided)."""
-    try:
-        payload = await request.json()
-    except Exception:
-        payload = {}
-
-    new_value = payload.get("new_value") or secrets.token_urlsafe(32)
-    rotated_at = datetime.utcnow().isoformat()
-
-    try:
-        store = get_secret_store()
-        store.unlock(os.environ.get("WIZARD_KEY", ""))
-        store.rotate(key_id, new_value, rotated_at)
-        return {
-            "success": True,
-            "key_id": key_id,
-            "new_value": new_value,
-            "rotated_at": rotated_at,
-        }
-    except SecretStoreError as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Failed to rotate secret: {exc}")
