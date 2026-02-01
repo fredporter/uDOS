@@ -44,3 +44,13 @@ def remind_if_pending() -> Optional[Dict]:
     logger.warning("[Notification] %s", entry["message"])
     _append_entry(entry)
     return entry
+
+
+def record_notification(entry: Dict) -> None:
+    """Store arbitrary notification entries (e.g., todo reminders)."""
+    if "timestamp" not in entry:
+        entry["timestamp"] = datetime.utcnow().isoformat()
+    if "message" not in entry:
+        entry["message"] = "Notification triggered"
+    logger.info("[Notification] %s", entry["message"])
+    _append_entry(entry)

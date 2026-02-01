@@ -13,7 +13,7 @@ AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
 
 
 def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
-    router = APIRouter(prefix="/api/v1/dev", tags=["dev-mode"])
+    router = APIRouter(prefix="/api/dev", tags=["dev-mode"])
     dev_mode = get_dev_mode_service()
 
     @router.get("/health")

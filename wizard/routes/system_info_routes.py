@@ -15,9 +15,11 @@ from wizard.services.system_info_service import get_system_info_service
 from wizard.services.path_utils import get_repo_root
 
 
-def create_system_info_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
+def create_system_info_routes(
+    auth_guard: Optional[Callable] = None, prefix: str = "/api/system"
+) -> APIRouter:
     """Create system info routes."""
-    router = APIRouter(prefix="/api/v1/system", tags=["system"])
+    router = APIRouter(prefix=prefix, tags=["system"])
 
     system_service = get_system_info_service(get_repo_root())
 

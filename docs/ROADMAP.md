@@ -1,15 +1,15 @@
 # uDOS Development Rounds → ROADMAP (2026-02-01)
 
-**Version:** v1.1.14 (Target)  
-**Last Updated:** 2026-02-01  
-**Status:** 🚀 ACCELERATION PLAN ACTIVE — Round 2 expedited at 2x rounds/day
+**Version:** v1.1.14 (Target)
+**Last Updated:** 2026-02-01 (18:00 UTC)
+**Status:** 🚀 ACCELERATION PLAN ACTIVE — Round 3+ additions complete
 
 ---
 
 ## 🎯 ACCELERATION PLAN: v1.1.14 by Sunday, Feb 7, 2026
 
-**Duration:** 6 days (Feb 1-7, 2026)  
-**Acceleration:** 2x complete rounds per day = **12 total rounds**  
+**Duration:** 6 days (Feb 1-7, 2026)
+**Acceleration:** 2x complete rounds per day = **12 total rounds**
 **Target:** Core v1.1.0 (Day 4) → Wizard v1.1.0 (Day 5) → Release v1.1.14 (Day 7)
 
 ### Critical Path
@@ -41,15 +41,25 @@ This document consolidates all active development streams across Core, Wizard, G
 
 **NEW (2026-02-01):** Shift to **accelerated 2x rounds/day schedule** for v1.1.14 delivery. Core runtime groundwork is stable (Phase 1A complete), so focus is Phase 1B-1E completion in Days 1-4, followed by Wizard Phase 6A-6C in Days 4-6, with final hardening on Day 7. Weekly logs replace monthly; daily cycles replace weekly planning.
 
+**RECENT ADDITIONS (2026-02-01 PM):**
+- ✅ **Round 3 Notion/Webhook Components:** Svelte block renderer, webhook panel, theme system + stores
+- ✅ **Round 4 Dataset API:** `/api/data/*` endpoints, dataset service, table/chart routes
+- ✅ **Round 5 Teletext API:** `/api/teletext/canvas` + NES controller layout routes
+- ✅ **Round 8 Plugin Validation:** Manifest checksum, validation helper, repository integration
+- ✅ **Round 10 Groovebox:** Playback/config/preset routes + sample library setup + Songscribe status
+- ✅ **Core Services:** PROMPT parser, theme service, todo/reminder services, layer graphics seeds
+- ✅ **Wiki Pages:** Round 3/4/8/10 reference docs, Groovebox playback guide, PROMPT workflow
+- ✅ **Knowledge:** Theme/layer concept doc with companion mappings
+
 ---
 
 ## 🎯 Development Rounds
 
 ### Round 1: Core Runtime (TypeScript Markdown + Grid + Spatial Filesystem + Wiki Standard)
 
-**Owner:** Core (`/core/`)  
-**Status:** v1.0.7 — Foundation Complete (Spatial Filesystem + Wiki standardization) → Runtime Implementation Phase  
-**Timeline:** 2 weeks remaining (TypeScript runtime core implementation)  
+**Owner:** Core (`/core/`)
+**Status:** v1.0.7 — Foundation Complete (Spatial Filesystem + Wiki standardization) → Runtime Implementation Phase
+**Timeline:** 2 weeks remaining (TypeScript runtime core implementation)
 **Action Plan:** [STREAM1-ACTION-PLAN.md](STREAM1-ACTION-PLAN.md) (5 phases, 14-day implementation roadmap)
 
 **Components:**
@@ -130,7 +140,7 @@ This document consolidates all active development streams across Core, Wizard, G
 - ✅ Phase 1A (state store + persistence API) implemented; Phase 1B (block executors) now next focus.
 
 Recent progress:
-- DocumentRunner now wires the Phase 1B `state` and `set` executors end-to-end, backed by the new `memory/tests/phase1b_*` suites (legacy `__tests__` files moved into `memory/tests/legacy`). 
+- DocumentRunner now wires the Phase 1B `state` and `set` executors end-to-end, backed by the new `memory/tests/phase1b_*` suites (legacy `__tests__` files moved into `memory/tests/legacy`).
 - The TUI startup/self-heal loop now watches `~/memory/tests/` for new or modified scripts, launches `automation.py`, and surfaces the status/log path in the health summary so regressions and prep work are flagged before interpolation/DB phases begin.
 
 **Next Action:**
@@ -149,10 +159,10 @@ Recent progress:
 
 ### Round 2: Wizard Server (Production Services) — Optimizations & Hardening
 
-**Owner:** Wizard (`/wizard/`)  
-**Status:** v1.1.0 — Optimization/hardening sprint, Phase 6 lock-in  
-**Timeline:** 4-8 weeks (Phase 6A-6D + follow-up tuning)  
-**Focus:** Harden the OAuth/workflow surface, optimize gateway throughput, lock down secrets/authorization, and expand observability so Wizard can safely bridge Core runtime and Sonic plugin automation.  
+**Owner:** Wizard (`/wizard/`)
+**Status:** v1.1.0 — Optimization/hardening sprint, Phase 6 lock-in
+**Timeline:** 4-8 weeks (Phase 6A-6D + follow-up tuning)
+**Focus:** Harden the OAuth/workflow surface, optimize gateway throughput, lock down secrets/authorization, and expand observability so Wizard can safely bridge Core runtime and Sonic plugin automation.
 **Round 2 Plan:** [Wizard Round 2 Optimization & Hardening Plan](WIZARD-ROUND2-PLAN.md) keeps the checklist, metrics, and references in one location and now enumerates the work as **critical daily cycles** (Jan 31–Feb 13) rather than weekly windows so automation knows what to expect each day.
 
 **Components:**
@@ -178,13 +188,13 @@ Recent progress:
    - iCloud backup relay (Phase 6D, 2 weeks)
 
 4. **File Parsing APIs**
-   - `/api/v1/parse/table` — Markdown tables → SQLite
-   - `/api/v1/parse/csv` — CSV import
-   - `/api/v1/parse/json` — JSON import
-   - `/api/v1/parse/yaml` — YAML config
-   - `/api/v1/export/table` — SQLite → `.table.md`
-   - `/api/v1/execute/sql` — SQL execution
-   - `/api/v1/feed/generate` — RSS generation
+   - `/api/parse/table` — Markdown tables → SQLite
+   - `/api/parse/csv` — CSV import
+   - `/api/parse/json` — JSON import
+   - `/api/parse/yaml` — YAML config
+   - `/api/export/table` — SQLite → `.table.md`
+   - `/api/execute/sql` — SQL execution
+   - `/api/feed/generate` — RSS generation
 
 **Key Deliverables:**
 
@@ -274,10 +284,10 @@ Recent progress:
    - Responsive design (horizontal scroll on mobile)
 
 2. **SQLite Data Binding**
-   - `/api/v1/data/tables` — List available tables from memory/wizard/*.db
-   - `/api/v1/data/query` — Execute parameterized SQL (SELECT only)
-   - `/api/v1/data/schema` — Fetch table schema (columns, types, constraints)
-   - `/api/v1/data/export` — Export to CSV, JSON, XLSX
+   - `/api/data/tables` — List available tables from memory/wizard/*.db
+   - `/api/data/query` — Execute parameterized SQL (SELECT only)
+   - `/api/data/schema` — Fetch table schema (columns, types, constraints)
+   - `/api/data/export` — Export to CSV, JSON, XLSX
    - Caching layer to avoid repeated queries
 
 3. **Data Visualization Options**
@@ -304,7 +314,7 @@ Recent progress:
 
 - 🔲 DataTable Svelt component (core sorting/filtering)
 - 🔲 DataVisualization wrapper (toggle table → cards → chart)
-- 🔲 `/api/v1/data/*` endpoint implementation
+- 🔲 `/api/data/*` endpoint implementation
 - 🔲 ChartJS integration (bar, line, pie, scatter)
 - 🔲 CSV/JSON/XLSX export pipeline
 - 🔲 Spatial tagging selector (filter by @location/@workspace)
@@ -437,8 +447,8 @@ Recent progress:
 
 ### Round 6: Beacon Portal (WiFi Infrastructure)
 
-**Owner:** Wizard (`/wizard/`) + Extensions  
-**Status:** v1.0.0 — Specification Complete, Ready for Integration  
+**Owner:** Wizard (`/wizard/`) + Extensions
+**Status:** v1.0.0 — Specification Complete, Ready for Integration
 **Timeline:** 2-3 weeks (implementation)
 
 **Components:**
@@ -498,8 +508,8 @@ Recent progress:
 
 ### Round 7: Goblin Dev Server (Experimental)
 
-**Owner:** Goblin (`/dev/goblin/`)  
-**Status:** v0.2.0 — Experimental  
+**Owner:** Goblin (`/dev/goblin/`)
+**Status:** v0.2.0 — Experimental
 **Timeline:** Ongoing (feature graduation to Wizard/Core)
 
 **Active Features:**
@@ -536,8 +546,8 @@ Recent progress:
 
 ### Round 8: Wizard Plugin Ecosystem — Modular Distribution & Bolt-Ons
 
-**Owner:** Wizard (`/wizard/`) + Extensions (`/extensions/`)  
-**Status:** v0.8.0 — Architecture Design Phase  
+**Owner:** Wizard (`/wizard/`) + Extensions (`/extensions/`)
+**Status:** v0.8.0 — Architecture Design Phase
 **Timeline:** 3-4 weeks (plugin system + distribution library)
 
 **Components:**
@@ -606,14 +616,14 @@ Recent progress:
 
 **API Endpoints:**
 
-- `/api/v1/plugins/list` — List installed plugins
-- `/api/v1/plugins/available` — List available plugins from registry
-- `/api/v1/plugins/install` — Install plugin by name/URL
-- `/api/v1/plugins/update` — Update plugin to latest version
-- `/api/v1/plugins/uninstall` — Remove plugin
-- `/api/v1/plugins/toggle` — Enable/disable plugin
-- `/api/v1/plugins/config` — Get/set plugin configuration
-- `/api/v1/plugins/check-updates` — Check for updates
+- `/api/plugins/list` — List installed plugins
+- `/api/plugins/available` — List available plugins from registry
+- `/api/plugins/install` — Install plugin by name/URL
+- `/api/plugins/update` — Update plugin to latest version
+- `/api/plugins/uninstall` — Remove plugin
+- `/api/plugins/toggle` — Enable/disable plugin
+- `/api/plugins/config` — Get/set plugin configuration
+- `/api/plugins/check-updates` — Check for updates
 
 **References:**
 
@@ -626,8 +636,8 @@ Recent progress:
 
 ### Round 9: App Development (Tauri + Future Native)
 
-**Owner:** App (`/app/`)  
-**Status:** v1.0.3 — Active Development  
+**Owner:** App (`/app/`)
+**Status:** v1.0.3 — Active Development
 **Timeline:** 8-12 weeks
 
 **Components:**
@@ -725,18 +735,18 @@ Recent progress:
 5. **Songscribe Markdown Syntax (Draft)**
    ```markdown
    # My Song Title
-   
-   **Tempo:** 120 BPM  
-   **Key:** C Major  
+
+   **Tempo:** 120 BPM
+   **Key:** C Major
    **Time:** 4/4
-   
+
    ## Verse
    ```music
    | C     | Am    | F     | G     |
    | C4 E4 | G4 A4 | F4 A4 | G4 B4 |
    Lyrics: "This is the first line of my song"
    ```
-   
+
    ## Chorus
    ```music
    | F     | G     | C     | Am    |
@@ -746,13 +756,13 @@ Recent progress:
    ```
 
 6. **Wizard Integration**
-   - `/api/v1/groovebox/samples` — List samples
-   - `/api/v1/groovebox/samples/upload` — Add new sample
-   - `/api/v1/groovebox/samples/waveform` — Generate waveform PNG
-   - `/api/v1/groovebox/render` — Render songscribe Markdown → audio/sheet
-   - `/api/v1/groovebox/export` — Export song as WAV/MIDI
-   - `/api/v1/groovebox/patterns` — CRUD for patterns
-   - `/api/v1/groovebox/play` — Real-time playback
+   - `/api/groovebox/samples` — List samples
+   - `/api/groovebox/samples/upload` — Add new sample
+   - `/api/groovebox/samples/waveform` — Generate waveform PNG
+   - `/api/groovebox/render` — Render songscribe Markdown → audio/sheet
+   - `/api/groovebox/export` — Export song as WAV/MIDI
+   - `/api/groovebox/patterns` — CRUD for patterns
+   - `/api/groovebox/play` — Real-time playback
 
 7. **UI Components (Wizard Dashboard)**
    - Sample browser (grid view, waveform previews, play button)
@@ -938,7 +948,7 @@ Legend: ✅ Primary, 🧪 Experimental, — Not applicable
 
 ---
 
-**Status:** Active Planning Document (v1.2.0 Roadmap Updated)  
-**Maintained by:** uDOS Engineering Team  
+**Status:** Active Planning Document (v1.2.0 Roadmap Updated)
+**Maintained by:** uDOS Engineering Team
 **Next Review:** 2026-02-07
 **Recent Updates:** Added Rounds 8-10 (Plugin Ecosystem, Groovebox + Songscribe, App Development)

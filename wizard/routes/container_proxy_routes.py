@@ -74,7 +74,7 @@ class ContainerProxy:
             logger.warn(f"[PROXY] Container {container_id} not available on port {port}")
             raise HTTPException(
                 status_code=503,
-                detail=f"Container {container_id} is not running. Use /api/v1/containers/{container_id}/launch to start it."
+                detail=f"Container {container_id} is not running. Use /api/containers/{container_id}/launch to start it."
             )
         except Exception as e:
             logger.error(f"[PROXY] Error proxying to {container_id}: {str(e)}")

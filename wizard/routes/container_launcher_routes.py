@@ -18,7 +18,7 @@ from wizard.services.logging_manager import get_logger
 
 logger = get_logger("container-launcher")
 
-router = APIRouter(prefix="/api/v1/containers", tags=["containers"])
+router = APIRouter(prefix="/api/containers", tags=["containers"])
 
 
 class ContainerLauncher:

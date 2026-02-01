@@ -100,7 +100,7 @@ All endpoints require `Authorization: Bearer <ADMIN_TOKEN>` header (except publi
 
 #### Get Complete Catalog
 ```bash
-GET /api/v1/plugins/catalog
+GET /api/plugins/catalog
 
 Response:
 {
@@ -118,7 +118,7 @@ Response:
 
 #### Get Plugins by Tier
 ```bash
-GET /api/v1/plugins/tiers
+GET /api/plugins/tiers
 
 Response:
 {
@@ -134,7 +134,7 @@ Response:
 
 #### Get Plugins by Category
 ```bash
-GET /api/v1/plugins/categories
+GET /api/plugins/categories
 
 Response:
 {
@@ -150,7 +150,7 @@ Response:
 
 #### Search Plugins
 ```bash
-GET /api/v1/plugins/search?q=home
+GET /api/plugins/search?q=home
 
 Response:
 {
@@ -168,7 +168,7 @@ Response:
 
 #### Get Plugin Details
 ```bash
-GET /api/v1/plugins/{plugin_id}
+GET /api/plugins/{plugin_id}
 
 Response:
 {
@@ -199,7 +199,7 @@ Response:
 
 #### Get Git Status
 ```bash
-GET /api/v1/plugins/{plugin_id}/git/status
+GET /api/plugins/{plugin_id}/git/status
 
 Response:
 {
@@ -217,7 +217,7 @@ Response:
 
 #### Pull Updates from Git
 ```bash
-POST /api/v1/plugins/{plugin_id}/git/pull
+POST /api/plugins/{plugin_id}/git/pull
 
 Response:
 {
@@ -230,7 +230,7 @@ Response:
 
 #### Clone from Git
 ```bash
-POST /api/v1/plugins/{plugin_id}/git/clone
+POST /api/plugins/{plugin_id}/git/clone
 Body:
 {
   "git_url": "https://github.com/owner/repo.git"
@@ -249,7 +249,7 @@ Response:
 
 #### Install/Update Plugin
 ```bash
-POST /api/v1/plugins/{plugin_id}/install
+POST /api/plugins/{plugin_id}/install
 
 Response:
 {
@@ -261,7 +261,7 @@ Response:
 
 Behavior:
 - **Git-based** → Clone if not exists, pull if already cloned
-- **Container** → Redirect to `/api/v1/containers/{id}/launch`
+- **Container** → Redirect to `/api/containers/{id}/launch`
 - **APK** → Run installer script from `wizard/tools/{id}_setup.py`
 - **Custom script** → Execute installer from plugin manifest
 
@@ -384,12 +384,12 @@ class GitMetadata:
 **Example:**
 ```bash
 # First install (clones)
-POST /api/v1/plugins/meshcore/install
+POST /api/plugins/meshcore/install
 → git clone https://github.com/meshcore-dev/MeshCore \
            /Users/.../uDOS/extensions/meshcore
 
 # Update (pulls)
-POST /api/v1/plugins/meshcore/install
+POST /api/plugins/meshcore/install
 → git pull origin main
 ```
 
@@ -400,13 +400,13 @@ POST /api/v1/plugins/meshcore/install
 **Process:**
 1. Validate container is in `library/`
 2. Read `container.json` for launch config
-3. Redirect to `/api/v1/containers/{id}/launch`
+3. Redirect to `/api/containers/{id}/launch`
 4. Container launcher handles startup
 
 **Example:**
 ```bash
-POST /api/v1/plugins/home-assistant/install
-→ Redirect to: /api/v1/containers/home-assistant/launch
+POST /api/plugins/home-assistant/install
+→ Redirect to: /api/containers/home-assistant/launch
 → Service starts on localhost:8123
 ```
 
@@ -421,7 +421,7 @@ POST /api/v1/plugins/home-assistant/install
 
 **Example:**
 ```bash
-POST /api/v1/plugins/devstral/install
+POST /api/plugins/devstral/install
 → python wizard/tools/devstral_setup.py
 ```
 
@@ -613,11 +613,11 @@ uDOS/
 ### Manual Testing Checklist
 
 - [ ] Wizard server starts without errors
-- [ ] `/api/v1/plugins/catalog` returns all plugins
-- [ ] `/api/v1/plugins/tiers` shows correct tier grouping
-- [ ] `/api/v1/plugins/categories` shows correct category grouping
-- [ ] `/api/v1/plugins/search?q=home` finds home-assistant
-- [ ] `/api/v1/plugins/meshcore` shows git metadata
+- [ ] `/api/plugins/catalog` returns all plugins
+- [ ] `/api/plugins/tiers` shows correct tier grouping
+- [ ] `/api/plugins/categories` shows correct category grouping
+- [ ] `/api/plugins/search?q=home` finds home-assistant
+- [ ] `/api/plugins/meshcore` shows git metadata
 - [ ] Plugins page loads in Wizard Dashboard
 - [ ] Grid/List/Tiers/Categories views work
 - [ ] Install button triggers git clone/pull
@@ -629,14 +629,14 @@ uDOS/
 
 ```bash
 # Test discovery
-curl http://localhost:8765/api/v1/plugins/catalog \
+curl http://localhost:8765/api/plugins/catalog \
   -H "Authorization: Bearer <ADMIN_TOKEN>" | jq .
 
 # Test git status
-curl http://localhost:8765/api/v1/plugins/meshcore/git/status
+curl http://localhost:8765/api/plugins/meshcore/git/status
 
 # Test update
-curl -X POST http://localhost:8765/api/v1/plugins/meshcore/git/pull \
+curl -X POST http://localhost:8765/api/plugins/meshcore/git/pull \
   -H "Authorization: Bearer <ADMIN_TOKEN>"
 ```
 

@@ -172,7 +172,7 @@ PLAY workflow/knowledge_learning.story
 MISSION START complete_knowledge_bank
 
 # Generate content
-RUN workflow/knowledge_generation.uscript
+RUN workflow/knowledge_generation-script.md
 
 # Or create manually
 GENERATE GUIDE water/new_topic --mode ok-assist

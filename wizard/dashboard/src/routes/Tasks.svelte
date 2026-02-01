@@ -10,7 +10,7 @@
 
   async function loadTasks() {
     try {
-      const res = await fetch("/api/v1/tasks/all");
+      const res = await fetch("/api/tasks/all");
       if (res.ok) {
         tasks = await res.json();
       }
@@ -21,7 +21,7 @@
 
   async function loadQueue() {
     try {
-      const res = await fetch("/api/v1/tasks/queue");
+      const res = await fetch("/api/tasks/queue");
       if (res.ok) {
         queue = await res.json();
       }
@@ -34,7 +34,7 @@
 
   async function createTask() {
     try {
-      const res = await fetch("/api/v1/tasks/create", {
+      const res = await fetch("/api/tasks/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newTask),

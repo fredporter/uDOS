@@ -9,10 +9,10 @@ Runs on dedicated always-on machine with internet access.
 
 Endpoints:
   /health          - Health check
-  /api/v1/plugin/* - Plugin repository API
-  /api/v1/web/*    - Web proxy API
-  /api/v1/ai/*     - AI gateway API
-  /api/v1/gmail/*  - Gmail relay API
+  /api/plugin/* - Plugin repository API
+  /api/web/*    - Web proxy API
+  /api/ai/*     - AI gateway API
+  /api/gmail/*  - Gmail relay API
   /ws              - WebSocket for real-time updates
 
 Security:
@@ -290,6 +290,12 @@ class WizardServer:
 
         task_router = create_task_routes(auth_guard=self._authenticate_admin)
         app.include_router(task_router)
+        from wizard.routes.dataset_routes import router as dataset_router
+        app.include_router(dataset_router)
+        from wizard.routes.teletext_routes import router as teletext_router
+        app.include_router(teletext_router)
+        from wizard.routes.groovebox_routes import router as groovebox_router
+        app.include_router(groovebox_router)
 
         # Register Setup wizard routes
 
@@ -349,7 +355,13 @@ class WizardServer:
         # Register System Info routes (OS detection, library status)
         from wizard.routes.system_info_routes import create_system_info_routes
 
-        system_info_router = create_system_info_routes(auth_guard=self._authenticate)
+        system_info_router_v1 = create_system_info_routes(
+            auth_guard=self._authenticate, prefix="/api/system"
+        )
+        app.include_router(system_info_router_v1)
+        system_info_router = create_system_info_routes(
+            auth_guard=self._authenticate, prefix="/api/system"
+        )
         app.include_router(system_info_router)
 
         # Register Wiki provisioning routes
@@ -377,7 +389,13 @@ class WizardServer:
         # Register Workspace routes
         from wizard.routes.workspace_routes import create_workspace_routes
 
-        workspace_router = create_workspace_routes(auth_guard=self._authenticate_admin)
+        workspace_router_v1 = create_workspace_routes(
+            auth_guard=self._authenticate_admin, prefix="/api/workspace"
+        )
+        app.include_router(workspace_router_v1)
+        workspace_router = create_workspace_routes(
+            auth_guard=self._authenticate_admin, prefix="/api/workspace"
+        )
         app.include_router(workspace_router)
 
         # Register Font routes
@@ -571,31 +589,31 @@ class WizardServer:
             <div class="endpoint">
                 <h3>📊 Dashboard Index</h3>
                 <p>Features and configuration overview</p>
-                <div class="code">/api/v1/index</div>
+                <div class="code">/api/index</div>
             </div>
 
             <div class="endpoint">
                 <h3>📡 Server Status</h3>
                 <p>Rate limits, sessions, and costs</p>
-                <div class="code">/api/v1/status</div>
+                <div class="code">/api/status</div>
             </div>
 
             <div class="endpoint">
                 <h3>🤖 AI Models</h3>
                 <p>Available AI models for routing</p>
-                <div class="code">/api/v1/ai/models</div>
+                <div class="code">/api/ai/models</div>
             </div>
 
             <div class="endpoint">
                 <h3>🔌 Port Manager</h3>
                 <p>Manage connected devices and ports</p>
-                <div class="code">/api/v1/ports/status</div>
+                <div class="code">/api/ports/status</div>
             </div>
 
             <div class="endpoint">
                 <h3>🔗 VS Code Bridge</h3>
                 <p>Integration with VS Code extension</p>
-                <div class="code">/api/v1/vscode/status</div>
+                <div class="code">/api/vscode/status</div>
             </div>
         </div>
 
@@ -664,7 +682,7 @@ class WizardServer:
                 },
             }
 
-        @app.get("/api/v1/index")
+        @app.get("/api/index")
         async def dashboard_index():
             """Dashboard index data."""
             from wizard.services.system_info_service import get_system_info_service
@@ -725,7 +743,7 @@ class WizardServer:
                 "log_stats": log_stats,
             }
 
-        @app.get("/api/v1/github/health")
+        @app.get("/api/github/health")
         async def github_health():
             """GitHub integration health: CLI, webhook secret, repo settings."""
             try:
@@ -751,12 +769,12 @@ class WizardServer:
             except Exception as exc:
                 return {"status": "error", "error": str(exc)}
 
-        @app.get("/api/v1/system/stats")
+        @app.get("/api/system/stats")
         async def system_stats():
             """Return current system resource stats."""
             return self._get_system_stats()
 
-        @app.get("/api/v1/status")
+        @app.get("/api/status")
         async def server_status(request: Request):
             """Get server status (authenticated)."""
             device_id = await self._authenticate(request)
@@ -779,14 +797,14 @@ class WizardServer:
                 },
             }
 
-        @app.get("/api/v1/rate-limits")
+        @app.get("/api/rate-limits")
         async def get_rate_limits(request: Request):
             """Get current rate limit status."""
             device_id = await self._authenticate(request)
             return self.rate_limiter.get_device_stats(device_id)
 
         # AI gateway routes
-        @app.get("/api/v1/ai/status")
+        @app.get("/api/ai/status")
         async def ai_status(request: Request):
             """Return AI gateway + routing status."""
             device_id = await self._authenticate(request)
@@ -795,13 +813,13 @@ class WizardServer:
                 "gateway": self.ai_gateway.get_status(),
             }
 
-        @app.get("/api/v1/ai/models")
+        @app.get("/api/ai/models")
         async def ai_models(request: Request):
             """List available AI models (local-first)."""
             await self._authenticate(request)
             return {"models": self.ai_gateway.list_models()}
 
-        @app.post("/api/v1/ai/complete")
+        @app.post("/api/ai/complete")
         async def ai_complete(request: Request):
             """Run AI completion through the routed gateway."""
             device_id = await self._authenticate(request)
@@ -828,26 +846,26 @@ class WizardServer:
             return JSONResponse(status_code=status_code, content=response.to_dict())
 
         # Plugin repository routes
-        @app.get("/api/v1/plugin/list")
+        @app.get("/api/plugin/list")
         async def list_plugins(request: Request):
             """List available plugins."""
             await self._authenticate(request)
             return await self._list_plugins()
 
-        @app.get("/api/v1/plugin/{plugin_id}")
+        @app.get("/api/plugin/{plugin_id}")
         async def get_plugin_info(plugin_id: str, request: Request):
             """Get plugin information."""
             await self._authenticate(request)
             return await self._get_plugin_info(plugin_id)
 
-        @app.get("/api/v1/plugin/{plugin_id}/download")
+        @app.get("/api/plugin/{plugin_id}/download")
         async def download_plugin(plugin_id: str, request: Request):
             """Download plugin package."""
             await self._authenticate(request)
             return await self._download_plugin(plugin_id)
 
         # Web proxy routes
-        @app.post("/api/v1/web/fetch")
+        @app.post("/api/web/fetch")
         async def fetch_url(request: Request):
             """Fetch web content (proxy)."""
             if not self.config.web_proxy_enabled:
@@ -857,7 +875,7 @@ class WizardServer:
             return await self._fetch_url(body.get("url"), body.get("options", {}))
 
         # GitHub webhook (actions + repo sync)
-        @app.post("/api/v1/github/webhook")
+        @app.post("/api/github/webhook")
         async def github_webhook(request: Request):
             """
             Receive GitHub webhooks for CI self-healing and safe repo sync.
@@ -918,7 +936,7 @@ class WizardServer:
             }
 
         # Manual GitHub sync endpoint
-        @app.post("/api/v1/github/sync")
+        @app.post("/api/github/sync")
         async def github_sync(request: Request):
             """
             Manually trigger a safe sync (pull by default) for the allowed repo.
@@ -940,7 +958,7 @@ class WizardServer:
             return result.__dict__
 
         # Mesh device management (dashboard)
-        @app.get("/api/v1/mesh/devices")
+        @app.get("/api/mesh/devices")
         async def list_mesh_devices(request: Request):
             """List paired mesh devices."""
             await self._authenticate_admin(request)
@@ -965,7 +983,7 @@ class WizardServer:
                 "count": len(devices),
             }
 
-        @app.post("/api/v1/mesh/pairing-code")
+        @app.post("/api/mesh/pairing-code")
         async def mesh_pairing_code(request: Request):
             """Generate pairing code for mesh device."""
             await self._authenticate_admin(request)
@@ -974,7 +992,7 @@ class WizardServer:
             pairing = auth.create_pairing_request(wizard_address=wizard_address)
             return {"code": pairing.code, "qr_data": pairing.qr_data}
 
-        @app.get("/api/v1/mesh/pairing-qr")
+        @app.get("/api/mesh/pairing-qr")
         async def mesh_pairing_qr(request: Request, data: str):
             """Generate QR SVG for pairing payload."""
             await self._authenticate_admin(request)
@@ -991,7 +1009,7 @@ class WizardServer:
             svg = img.to_string().decode("utf-8")
             return JSONResponse(content={"svg": svg})
 
-        @app.post("/api/v1/mesh/pair")
+        @app.post("/api/mesh/pair")
         async def mesh_pair(request: Request):
             """Complete device pairing."""
             await self._authenticate_admin(request)
@@ -1008,7 +1026,7 @@ class WizardServer:
                 raise HTTPException(status_code=400, detail="Invalid or expired code")
             return {"status": "success", "device": device.to_dict()}
 
-        @app.post("/api/v1/mesh/devices/{device_id}/sync")
+        @app.post("/api/mesh/devices/{device_id}/sync")
         async def mesh_sync_device(device_id: str, request: Request):
             """Trigger sync for a specific device."""
             await self._authenticate_admin(request)
@@ -1026,7 +1044,7 @@ class WizardServer:
                 "to_version": delta.to_version,
             }
 
-        @app.post("/api/v1/mesh/devices/sync-all")
+        @app.post("/api/mesh/devices/sync-all")
         async def mesh_sync_all(request: Request):
             """Trigger sync for all online devices."""
             await self._authenticate_admin(request)
@@ -1048,7 +1066,7 @@ class WizardServer:
                 "results": results,
             }
 
-        @app.post("/api/v1/mesh/devices/{device_id}/ping")
+        @app.post("/api/mesh/devices/{device_id}/ping")
         async def mesh_ping(device_id: str, request: Request):
             """Ping a device (placeholder)."""
             await self._authenticate_admin(request)
@@ -1064,7 +1082,7 @@ class WizardServer:
             }
 
         # TUI Control Routes (for Wizard TUI interface)
-        @app.get("/api/v1/devices")
+        @app.get("/api/devices")
         async def list_devices(request: Request):
             """List connected devices (TUI endpoint)."""
             await self._authenticate_admin(request)
@@ -1081,7 +1099,7 @@ class WizardServer:
                 )
             return {"devices": devices, "count": len(devices)}
 
-        @app.get("/api/v1/logs")
+        @app.get("/api/logs")
         async def get_logs(
             request: Request,
             category: str = "all",
@@ -1094,7 +1112,7 @@ class WizardServer:
             selected_category = filter or category or "all"
             return self._read_logs(selected_category, limit=limit, level=level)
 
-        @app.post("/api/v1/models/switch")
+        @app.post("/api/models/switch")
         async def switch_model(request: Request):
             """Switch AI model (TUI endpoint)."""
             await self._authenticate_admin(request)
@@ -1106,7 +1124,7 @@ class WizardServer:
             # TODO: Implement actual model switching in AI gateway
             return {"success": True, "model": model, "message": f"Switched to {model}"}
 
-        @app.post("/api/v1/services/{service}/{action}")
+        @app.post("/api/services/{service}/{action}")
         async def control_service(service: str, action: str, request: Request):
             """Control service start/stop (TUI endpoint)."""
             await self._authenticate_admin(request)

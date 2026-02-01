@@ -15,8 +15,8 @@ Capture the new responsibilities split between Core and Wizard so everyone knows
 ## Process
 
 1. **Core owns story parsing.** `core/services/story_service.py` now reads the YAML front matter (via `markdown_frontmatter`) and emits `sections`, `questions`, and a normalized `answers` object. Clients receive the same payload irrespective of whether the story is the setup wizard or a general workspace document.
-2. **Wizard setup routes return the parsed state.** `/api/v1/setup/story/read` boots the template, passes it through the core story service, and enforces required keys (`title`, `type`, `submit_endpoint`). Errors are surfaced with HTTP 422 so the dashboard gets precise toast feedback instead of “invalid pattern” noise.
-3. **Workspace files also reuse the service.** `/api/v1/workspace/story/parse` lets the dashboard request any `-story.md` from `/memory` and get the validated structure straight from Core—no client-side YAML parsing needed anymore.
+2. **Wizard setup routes return the parsed state.** `/api/setup/story/read` boots the template, passes it through the core story service, and enforces required keys (`title`, `type`, `submit_endpoint`). Errors are surfaced with HTTP 422 so the dashboard gets precise toast feedback instead of “invalid pattern” noise.
+3. **Workspace files also reuse the service.** `/api/workspace/story/parse` lets the dashboard request any `-story.md` from `/memory` and get the validated structure straight from Core—no client-side YAML parsing needed anymore.
 
 ## Responsibilities
 
@@ -41,7 +41,7 @@ Capture the new responsibilities split between Core and Wizard so everyone knows
 - [x] `npm --prefix wizard/dashboard run build` rebuilds the dashboard successfully (✓ Verified 2026-01-26)
 - [x] Core story parser migrated to `/core/src/story/` and exported from runtime (✓ Complete)
 - [x] Python story service in Core at `core/services/story_service.py` (✓ Complete)
-- [ ] `/api/v1/setup/story/read` response includes the `story` payload (requires server running)
+- [ ] `/api/setup/story/read` response includes the `story` payload (requires server running)
 - [ ] The dashboard no longer runs `parseStoryFile` locally; receives `story` directly from backend (requires testing with server)
 - [ ] `Launch-Wizard-Server.command --rebuild` toggles the dashboard rebuild marker, and the console's `reboot` command reloads configuration/logging banners (requires server testing)
 

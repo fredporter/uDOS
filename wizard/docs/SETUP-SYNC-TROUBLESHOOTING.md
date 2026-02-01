@@ -83,7 +83,7 @@ python wizard/tools/check_secrets_tomb.py
 1. **Setup story submission** creates encrypted profiles:
 
    ```
-   TUI Story → POST /api/v1/setup/story/submit → secrets.tomb
+   TUI Story → POST /api/setup/story/submit → secrets.tomb
                                                   (encrypted with WIZARD_KEY)
    ```
 

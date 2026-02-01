@@ -310,7 +310,7 @@ Next steps:
 - **CONFIG SYNC** - Manually trigger .env ↔ Wizard sync
 
 ### 2. Wizard Routes
-- **/api/v1/setup/story/submit** - Receives form data, splits into profiles
+- **/api/setup/story/submit** - Receives form data, splits into profiles
 
 ### 3. Services
 - ConfigSyncManager - Manages bidirectional sync

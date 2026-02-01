@@ -77,7 +77,7 @@ def create_vscode_bridge_router() -> APIRouter:
 
     @router.post("/execute/script")
     async def execute_script(request: ExecuteScriptRequest):
-        """Execute a uPY script file."""
+        """Execute a TypeScript script file (embedded in .md)."""
         if not UDOS_AVAILABLE:
             raise HTTPException(
                 status_code=503,
@@ -98,7 +98,7 @@ def create_vscode_bridge_router() -> APIRouter:
 
     @router.post("/execute/code")
     async def execute_code(request: ExecuteCodeRequest):
-        """Execute uPY code snippet."""
+        """Execute TypeScript code snippet."""
         if not UDOS_AVAILABLE:
             raise HTTPException(status_code=503, detail="uDOS core not available")
 
@@ -130,9 +130,9 @@ def create_vscode_bridge_router() -> APIRouter:
             "result": "Use uDOS TUI for command execution",
         }
 
-    @router.post("/upy/check")
+    @router.post("/script/check")
     async def check_syntax(request: SyntaxCheckRequest):
-        """Check uPY syntax."""
+        """Check TypeScript syntax."""
         # Basic validation - can be enhanced later
         lines = request.code.split("\n")
         errors = []

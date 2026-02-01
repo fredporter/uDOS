@@ -185,8 +185,8 @@ All fonts retain original credits and attribution.
 
 ### Wizard Dashboard
 
-- Reads fonts from `/api/v1/fonts/manifest`
-- Loads font files via `/api/v1/fonts/file?path=...`
+- Reads fonts from `/api/fonts/manifest`
+- Loads font files via `/api/fonts/file?path=...`
 - Uses manifest metadata for rendering
 
 ### Future Mac App

@@ -46,7 +46,7 @@ class Device(BaseModel):
 
 def create_sonic_routes(auth_guard: AuthGuard = None) -> APIRouter:
     """Create Sonic Screwdriver device database routes."""
-    router = APIRouter(prefix="/api/v1/sonic", tags=["sonic"])
+    router = APIRouter(prefix="/api/sonic", tags=["sonic"])
 
     def _get_db():
         """Get SQLite connection to device database."""
@@ -89,8 +89,8 @@ def create_sonic_routes(auth_guard: AuthGuard = None) -> APIRouter:
             "schema_available": schema_exists,
             "database_compiled": db_exists,
             "next_steps": [
-                "Load device catalog: GET /api/v1/sonic/devices",
-                "Get schema: GET /api/v1/sonic/schema",
+                "Load device catalog: GET /api/sonic/devices",
+                "Get schema: GET /api/sonic/schema",
                 "Compile DB: sqlite3 ... < sonic/datasets/sonic-devices.sql",
             ]
             if not db_exists

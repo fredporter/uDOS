@@ -62,11 +62,11 @@ class DevModeHandler(BaseCommandHandler):
     def _activate_dev_mode(self) -> Dict:
         """Activate dev mode via Wizard."""
         try:
-            guard = self._throttle_guard("/api/v1/dev/activate")
+            guard = self._throttle_guard("/api/dev/activate")
             if guard:
                 return guard
             response = requests.post(
-                f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/activate",
+                f"http://{self.wizard_host}:{self.wizard_port}/api/dev/activate",
                 timeout=10,
             )
             result = response.json()
@@ -108,11 +108,11 @@ class DevModeHandler(BaseCommandHandler):
     def _deactivate_dev_mode(self) -> Dict:
         """Deactivate dev mode via Wizard."""
         try:
-            guard = self._throttle_guard("/api/v1/dev/deactivate")
+            guard = self._throttle_guard("/api/dev/deactivate")
             if guard:
                 return guard
             response = requests.post(
-                f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/deactivate",
+                f"http://{self.wizard_host}:{self.wizard_port}/api/dev/deactivate",
                 timeout=10,
             )
             result = response.json()
@@ -144,11 +144,11 @@ class DevModeHandler(BaseCommandHandler):
     def _get_dev_status(self) -> Dict:
         """Get dev mode status from Wizard."""
         try:
-            guard = self._throttle_guard("/api/v1/dev/status")
+            guard = self._throttle_guard("/api/dev/status")
             if guard:
                 return guard
             response = requests.get(
-                f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/status",
+                f"http://{self.wizard_host}:{self.wizard_port}/api/dev/status",
                 timeout=5,
             )
             result = response.json()
@@ -199,11 +199,11 @@ class DevModeHandler(BaseCommandHandler):
     def _restart_dev_mode(self) -> Dict:
         """Restart dev mode via Wizard."""
         try:
-            guard = self._throttle_guard("/api/v1/dev/restart")
+            guard = self._throttle_guard("/api/dev/restart")
             if guard:
                 return guard
             response = requests.post(
-                f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/restart",
+                f"http://{self.wizard_host}:{self.wizard_port}/api/dev/restart",
                 timeout=15,
             )
             result = response.json()
@@ -235,11 +235,11 @@ class DevModeHandler(BaseCommandHandler):
     def _get_dev_logs(self, lines: int = 50) -> Dict:
         """Get dev mode logs from Wizard."""
         try:
-            guard = self._throttle_guard("/api/v1/dev/logs")
+            guard = self._throttle_guard("/api/dev/logs")
             if guard:
                 return guard
             response = requests.get(
-                f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/logs?lines={lines}",
+                f"http://{self.wizard_host}:{self.wizard_port}/api/dev/logs?lines={lines}",
                 timeout=5,
             )
             result = response.json()
@@ -270,11 +270,11 @@ class DevModeHandler(BaseCommandHandler):
     def _get_dev_health(self) -> Dict:
         """Get dev mode health from Wizard."""
         try:
-            guard = self._throttle_guard("/api/v1/dev/health")
+            guard = self._throttle_guard("/api/dev/health")
             if guard:
                 return guard
             response = requests.get(
-                f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/health",
+                f"http://{self.wizard_host}:{self.wizard_port}/api/dev/health",
                 timeout=5,
             )
             result = response.json()

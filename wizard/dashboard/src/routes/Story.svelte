@@ -16,7 +16,7 @@
     buildAuthHeaders();
 
   async function loadStoryList() {
-    const res = await fetch(`/api/v1/workspace/list?path=`, {
+    const res = await fetch(`/api/workspace/list?path=`, {
       headers: authHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -28,7 +28,7 @@
     const storyDir = rootEntries.find((entry) => entry.name === "story" && entry.type === "dir");
     let nestedStories = [];
     if (storyDir) {
-      const storyRes = await fetch(`/api/v1/workspace/list?path=story`, {
+      const storyRes = await fetch(`/api/workspace/list?path=story`, {
         headers: authHeaders(),
       });
       if (storyRes.ok) {
@@ -45,7 +45,7 @@
     loading = true;
     error = null;
     try {
-      const res = await fetch(`/api/v1/workspace/story/parse?path=${encodeURIComponent(path)}`, {
+      const res = await fetch(`/api/workspace/story/parse?path=${encodeURIComponent(path)}`, {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -82,7 +82,7 @@
       ? selectedStoryPath.split("/").pop().replace(/\.md$/, "")
       : "story";
     const outputPath = `story-submissions/${baseName}-${timestamp}.json`;
-    await fetch("/api/v1/workspace/write", {
+    await fetch("/api/workspace/write", {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({ path: outputPath, content: JSON.stringify(answers, null, 2) }),

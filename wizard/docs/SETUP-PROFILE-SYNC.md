@@ -19,7 +19,7 @@ TUI Setup Story
      ↓
 [User answers questions]
      ↓
-POST /api/v1/setup/story/submit
+POST /api/setup/story/submit
      ↓
 Secret Store (encrypted)
      ├─ wizard-user-profile
@@ -29,7 +29,7 @@ Secret Store (encrypted)
      └─ wizard/config/wizard.json (capabilities only)
      ↓
 [Display in Console/Dashboard]
-     └─ GET /api/v1/setup/profile/combined
+     └─ GET /api/setup/profile/combined
 ```
 
 ---
@@ -100,7 +100,7 @@ Stored in filesystem: `memory/wizard/installation-metrics.json`
 
 ## API Endpoints
 
-### GET /api/v1/setup/profile/user
+### GET /api/setup/profile/user
 
 Retrieve user profile.
 
@@ -115,7 +115,7 @@ Retrieve user profile.
 }
 ```
 
-### GET /api/v1/setup/profile/install
+### GET /api/setup/profile/install
 
 Retrieve installation profile and metrics.
 
@@ -133,7 +133,7 @@ Retrieve installation profile and metrics.
 }
 ```
 
-### GET /api/v1/setup/profile/combined
+### GET /api/setup/profile/combined
 
 Retrieve all profiles in a single call.
 
@@ -238,7 +238,7 @@ This ensures Wizard Server services reflect user preferences from the TUI story.
 ```bash
 # Via curl (requires admin token)
 curl -H "Authorization: Bearer $(cat memory/private/wizard_admin_token.txt)" \
-  http://localhost:8765/api/v1/setup/profile/combined
+  http://localhost:8765/api/setup/profile/combined
 
 # Via interactive console
 ./bin/start_wizard.sh

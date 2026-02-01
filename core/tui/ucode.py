@@ -56,14 +56,23 @@ from core.tui.state import GameState
 from core.tui.fkey_handler import FKeyHandler
 from core.ui.command_selector import CommandSelector
 from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, create_default_registry
-from core.services.health_training import read_last_summary
+from core.services.health_training import read_last_summary, log_plugin_install_event
 from core.services.hotkey_map import write_hotkey_payload
+from core.services.theme_service import get_theme_service
 from core.services.logging_service import get_logger
 from core.services.memory_test_scheduler import MemoryTestScheduler
 from core.services.self_healer import collect_self_heal_summary
+from core.services.prompt_parser_service import get_prompt_parser_service
+from core.services.todo_reminder_service import get_reminder_service
+from core.services.todo_service import (
+    CalendarGridRenderer as TodoCalendarGridRenderer,
+    GanttGridRenderer as TodoGanttGridRenderer,
+    get_service as get_todo_manager,
+)
 from core.tui.advanced_form_handler import AdvancedFormField
 from core.services.system_script_runner import SystemScriptRunner
 from wizard.services.monitoring_manager import MonitoringManager
+from wizard.services.plugin_validation import load_manifest, validate_manifest
 
 
 def get_repo_root() -> Path:
@@ -249,6 +258,7 @@ class uCODETUI:
         self.commands = {
             "STATUS": self._cmd_status,
             "HELP": self._cmd_help,
+            "PROMPT": self._cmd_prompt,
             "EXIT": self._cmd_exit,
             "QUIT": self._cmd_exit,
             "FKEYS": self._cmd_fkeys,
@@ -276,6 +286,12 @@ class uCODETUI:
         self.system_script_runner = SystemScriptRunner()
         self.memory_test_scheduler: Optional[MemoryTestScheduler] = None
         self.memory_test_summary: Optional[Dict[str, Any]] = None
+        self.theme = get_theme_service()
+        self.todo_manager = get_todo_manager()
+        self.calendar_renderer = TodoCalendarGridRenderer()
+        self.gantt_renderer = TodoGanttGridRenderer()
+        self.prompt_parser = get_prompt_parser_service()
+        self.todo_reminder = get_reminder_service(self.todo_manager)
 
         if self.prompt.use_fallback:
             self.logger.info(f"[ContextualPrompt] Using fallback mode: {self.prompt.fallback_reason}")
@@ -382,9 +398,9 @@ class uCODETUI:
 
     def _show_startup_hints(self) -> None:
         """Show startup hints once at beginning."""
-        print("\n  💡 Start with: SETUP (first-time) | HELP (all commands) | STORY tui-setup (quick setup)")
-        print("     Or try: MAP | TELL location | GOTO location | WIZARD start")
-        print("     Press TAB for command selection | Type command for suggestions\n")
+        print(self._theme_text("\n  💡 Start with: SETUP (first-time) | HELP (all commands) | STORY tui-setup (quick setup)"))
+        print(self._theme_text("     Or try: MAP | TELL location | GOTO location | WIZARD start"))
+        print(self._theme_text("     Press TAB for command selection | Type command for suggestions\n"))
 
     def _show_banner(self) -> None:
         """Show startup banner."""
@@ -395,7 +411,7 @@ class uCODETUI:
 ║                    Type HELP for commands                     ║
 ╚═══════════════════════════════════════════════════════════════╝
 """
-        print(banner)
+        print(self._theme_text(banner))
 
     def _run_startup_script(self) -> None:
         """Execute the system startup script once per launch."""
@@ -731,7 +747,7 @@ class uCODETUI:
 
                     # Submit to the story endpoint which handles splitting
                     response = requests.post(
-                        "http://localhost:8765/api/v1/setup/story/submit",
+                        "http://localhost:8765/api/setup/story/submit",
                         headers=headers,
                         json={"answers": enriched_data},  # Include enriched fields
                         timeout=10
@@ -1097,24 +1113,29 @@ class uCODETUI:
             self.logger.error(f"[SETUP] Fresh install check failed: {e}", exc_info=True)
             # Non-fatal error, continue with startup
 
+    def _theme_text(self, text: str) -> str:
+        """Apply the active theme to the provided message."""
+        return self.theme.format(text)
+
     def _show_component_status(self) -> None:
         """Show detected components."""
         print("\n📦 Component Detection:\n")
         for comp_name, comp in self.components.items():
             status = "✅" if comp.state == ComponentState.AVAILABLE else "❌"
             version_str = f" ({comp.version})" if comp.version else ""
-            print(f"  {status} {comp.name.upper():12} {comp.description}{version_str}")
+            line = f"  {status} {comp.name.upper():12} {comp.description}{version_str}"
+            print(self._theme_text(line))
         print()
 
     def _cmd_status(self, args: str) -> None:
         """Show system status."""
-        print("\n═══ uCODE STATUS ═══\n")
+        print(self._theme_text("\n═══ uCODE STATUS ═══\n"))
         self._show_component_status()
 
         if self.detector.is_available("wizard"):
-            print("🧙 Wizard Server control available: Use WIZARD [start|stop|status]")
+            print(self._theme_text("🧙 Wizard Server control available: Use WIZARD [start|stop|status]"))
         if self.detector.is_available("extensions"):
-            print("🔌 Extension management available: Use PLUGIN [list|install|remove]")
+            print(self._theme_text("🔌 Extension management available: Use PLUGIN [list|install|remove]"))
         print()
 
     def _cmd_help(self, args: str) -> None:
@@ -1141,7 +1162,7 @@ System Management:
 Data & Stories:
   BINDER              - Multi-chapter project management
   STORY [name]        - Run story files (.md with questions/flow)
-  RUN [file]          - Execute uPy scripts or USCRIPT files
+  RUN [file]          - Execute TypeScript scripts or Python files
   DATASET             - Manage data imports and datasets
 
 Navigation & Info:
@@ -1185,7 +1206,57 @@ For detailed help on any command, type the command name followed by --help
 (e.g., CONFIG --help, DESTROY --help)
 
 """
-        print(help_text)
+        print(self._theme_text(help_text))
+
+    def _cmd_prompt(self, args: str) -> None:
+        """Parse an instruction using the PROMPT parser."""
+        instruction = args.strip()
+        if not instruction:
+            print(self._theme_text("Usage: PROMPT <instruction text>"))
+            return
+
+        result = self.prompt_parser.parse(instruction)
+        tasks = result.get("tasks", [])
+        for task in tasks:
+            self.todo_manager.add(task)
+
+        calendar_lines = self.calendar_renderer.render_calendar(
+            self.todo_manager.list_pending(), view="weekly"
+        )
+        gantt_lines = self.gantt_renderer.render_gantt(
+            self.todo_manager.list_pending(), window_days=30
+        )
+        reminder = self.todo_reminder.log_reminder(
+            horizon_hours=result.get("reminder", {}).get("horizon_hours")
+        )
+
+        print(self._theme_text(""))
+        print(self._theme_text(f"🔍 Instruction type: {result['instruction_label']}"))
+        print(self._theme_text(f"   {result['instruction_description']}"))
+        if result.get("story_guidance"):
+            print(self._theme_text(f"   Guidance: {result['story_guidance']}"))
+        if result.get("reference_links"):
+            print(self._theme_text(f"   References: {', '.join(result['reference_links'])}"))
+
+        if tasks:
+            print(self._theme_text("\n📝 Tasks added:"))
+            for idx, task in enumerate(tasks, start=1):
+                block = task.to_notion_block()
+                print(self._theme_text(f" {idx}. {task.title} (due {task.due_date.isoformat()})"))
+                print(self._theme_text(f"    Notion block: {json.dumps(block)}"))
+        else:
+            print(self._theme_text("No actionable tasks detected."))
+
+        print(self._theme_text("\n📅 Calendar preview (weekly):"))
+        for line in calendar_lines:
+            print(self._theme_text(line))
+
+        print(self._theme_text("\n🧮 Gantt preview:"))
+        for line in gantt_lines:
+            print(self._theme_text(line))
+
+        if reminder:
+            print(self._theme_text(f"\n⏰ Reminder: {reminder['message']}"))
 
     def _cmd_fkeys(self, args: str) -> None:
         """Show or trigger function key actions."""
@@ -1395,11 +1466,11 @@ For detailed help on any command, type the command name followed by --help
             # Map page names to API endpoints
             page_map = {
                 "status": "/health",
-                "ai": "/api/v1/ai/status",
-                "services": "/api/v1/status",
-                "devices": "/api/v1/devices",
-                "quota": "/api/v1/ai/quota",
-                "logs": "/api/v1/logs",
+                "ai": "/api/ai/status",
+                "services": "/api/status",
+                "devices": "/api/devices",
+                "quota": "/api/ai/quota",
+                "logs": "/api/logs",
             }
 
             endpoint = page_map.get(page.lower())
@@ -1518,13 +1589,9 @@ For detailed help on any command, type the command name followed by --help
             print(f"  ❌ Plugin registry entry missing for: {name}")
             return
 
-        evidence = plugin_src / "manifest.json"
-        manifest_data = {}
-        if evidence.exists():
-            try:
-                manifest_data = json.loads(evidence.read_text())
-            except Exception:
-                pass
+        repo_entry_dict = repo_entry.to_dict()
+        manifest_data = load_manifest(plugin_src)
+        validation = validate_manifest(manifest_data, name, repo_entry_dict)
 
         library_root = self.repo_root / "library"
         library_root.mkdir(parents=True, exist_ok=True)
@@ -1555,6 +1622,13 @@ For detailed help on any command, type the command name followed by --help
 
         manager = get_library_manager(self.repo_root)
         result = manager.install_integration(name)
+        log_plugin_install_event(
+            name,
+            "uCODE CLI",
+            result,
+            manifest=manifest_data,
+            validation=validation,
+        )
         if result.success:
             print(f"  ✅ Plugin installed via LibraryManager: {name}")
             print(f"  → {result.message}")

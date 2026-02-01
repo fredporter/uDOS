@@ -24,6 +24,7 @@ from core.services.ts_runtime_service import TSRuntimeService
 from core.services.automation_monitor import AutomationMonitor
 from wizard.services.monitoring_manager import MonitoringManager
 from core.services.notification_history_service import remind_if_pending
+from core.services.todo_reminder_service import get_reminder_service
 
 logger = get_logger("system-script")
 
@@ -44,6 +45,7 @@ class SystemScriptRunner:
         self.monitoring = MonitoringManager()
         self.system_dir.mkdir(parents=True, exist_ok=True)
         self.template_dir = self.repo_root / self.SCRIPT_TEMPLATE_DIR
+        self.todo_reminder = get_reminder_service()
 
     def run_startup_script(self) -> Dict[str, Any]:
         """Run the startup script and return the execution summary."""
@@ -71,6 +73,7 @@ class SystemScriptRunner:
                 "hotkey_snapshot": hotkey_payload.get("snapshot"),
             }
         notification_reminder = remind_if_pending()
+        todo_reminder = self.todo_reminder.log_reminder()
         script_path = self._ensure_script(script_name)
         if not script_path:
             message = f"{label.title()} script not found ({script_name})"
@@ -80,6 +83,7 @@ class SystemScriptRunner:
                 "message": message,
                 "script": script_name,
                 "notification_reminder": notification_reminder,
+                "todo_reminder": todo_reminder,
             }
 
         monitoring_summary = self.monitoring.log_training_summary()
@@ -94,6 +98,7 @@ class SystemScriptRunner:
                 "monitoring_summary": monitoring_summary,
                 "notification_reminder": notification_reminder,
                 "automation_monitor": automation_summary,
+                "todo_reminder": todo_reminder,
             }
 
         service = TSRuntimeService()
@@ -110,6 +115,7 @@ class SystemScriptRunner:
             "monitoring_summary": monitoring_summary,
             "notification_reminder": notification_reminder,
             "automation_monitor": automation_summary,
+            "todo_reminder": todo_reminder,
         }
 
         payload = result.get("payload", {})
@@ -132,6 +138,7 @@ class SystemScriptRunner:
             "monitoring_summary": monitoring_summary,
             "notification_reminder": reminder,
             "automation_monitor": automation_summary,
+            "todo_reminder": todo_reminder,
         }
 
     def _ensure_script(self, script_name: str) -> Optional[Path]:

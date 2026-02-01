@@ -33,31 +33,31 @@ http://localhost:8765/dashboard#/plugins
 ```bash
 ADMIN_TOKEN="your_token"
 
-curl http://localhost:8765/api/v1/plugins/catalog \
+curl http://localhost:8765/api/plugins/catalog \
   -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
 ```
 
 ### Search Plugins
 ```bash
-curl "http://localhost:8765/api/v1/plugins/search?q=home" \
+curl "http://localhost:8765/api/plugins/search?q=home" \
   -H "Authorization: Bearer $ADMIN_TOKEN" | jq .plugins
 ```
 
 ### Get Plugin Details
 ```bash
-curl http://localhost:8765/api/v1/plugins/home-assistant \
+curl http://localhost:8765/api/plugins/home-assistant \
   -H "Authorization: Bearer $ADMIN_TOKEN" | jq .plugin
 ```
 
 ### Install Plugin
 ```bash
-curl -X POST http://localhost:8765/api/v1/plugins/meshcore/install \
+curl -X POST http://localhost:8765/api/plugins/meshcore/install \
   -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
 ```
 
 ### Update Plugin
 ```bash
-curl -X POST http://localhost:8765/api/v1/plugins/meshcore/git/pull \
+curl -X POST http://localhost:8765/api/plugins/meshcore/git/pull \
   -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
 ```
 
@@ -208,7 +208,7 @@ EOF
 ### Request Format
 ```bash
 curl -X METHOD \
-  http://localhost:8765/api/v1/plugins/... \
+  http://localhost:8765/api/plugins/... \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -d '{"key": "value"}'
@@ -271,11 +271,11 @@ for plugin in discovery.get_plugins_by_tier("library"):
 ADMIN_TOKEN=$(grep WIZARD_ADMIN_TOKEN .env | cut -d= -f2)
 
 # List all
-curl http://localhost:8765/api/v1/plugins/catalog \
+curl http://localhost:8765/api/plugins/catalog \
   -H "Authorization: Bearer $ADMIN_TOKEN" | jq '.plugins | keys'
 
 # Install plugin
-curl -X POST http://localhost:8765/api/v1/plugins/meshcore/install \
+curl -X POST http://localhost:8765/api/plugins/meshcore/install \
   -H "Authorization: Bearer $ADMIN_TOKEN"
 ```
 
@@ -298,7 +298,7 @@ curl -X POST http://localhost:8765/api/v1/plugins/meshcore/install \
 ## Getting Help
 
 1. **Check logs:** `tail -f memory/logs/wizard.log`
-2. **Test API:** `curl http://localhost:8765/api/v1/plugins/catalog`
+2. **Test API:** `curl http://localhost:8765/api/plugins/catalog`
 3. **Debug discovery:** Run Python script above
 4. **Read docs:** [WIZARD-PLUGIN-SYSTEM.md](../WIZARD-PLUGIN-SYSTEM.md)
 

@@ -30,7 +30,7 @@
 
   async function loadDevices() {
     try {
-      const res = await fetch("/api/v1/mesh/devices", {
+      const res = await fetch("/api/mesh/devices", {
         headers: authHeaders(),
       });
       if (!res.ok) {
@@ -50,7 +50,7 @@
 
   async function generatePairingCode() {
     try {
-      const res = await fetch("/api/v1/mesh/pairing-code", {
+      const res = await fetch("/api/mesh/pairing-code", {
         method: "POST",
         headers: authHeaders(),
       });
@@ -66,7 +66,7 @@
       pairingSvg = "";
       if (pairingQR) {
         const qrRes = await fetch(
-          `/api/v1/mesh/pairing-qr?data=${encodeURIComponent(pairingQR)}`,
+          `/api/mesh/pairing-qr?data=${encodeURIComponent(pairingQR)}`,
           { headers: authHeaders() },
         );
         if (qrRes.ok) {
@@ -81,7 +81,7 @@
 
   async function syncDevice(deviceId) {
     try {
-      await fetch(`/api/v1/mesh/devices/${deviceId}/sync`, {
+      await fetch(`/api/mesh/devices/${deviceId}/sync`, {
         method: "POST",
         headers: authHeaders(),
       });
@@ -93,7 +93,7 @@
 
   async function syncAll() {
     try {
-      await fetch("/api/v1/mesh/devices/sync-all", {
+      await fetch("/api/mesh/devices/sync-all", {
         method: "POST",
         headers: authHeaders(),
       });

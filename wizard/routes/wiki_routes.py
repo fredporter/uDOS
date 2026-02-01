@@ -16,7 +16,7 @@ from wizard.services.path_utils import get_repo_root
 
 def create_wiki_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
     """Create wiki routes."""
-    router = APIRouter(prefix="/api/v1/wiki", tags=["wiki"])
+    router = APIRouter(prefix="/api/wiki", tags=["wiki"])
 
     wiki_root = get_repo_root() / "wiki"
     wiki_service = get_wiki_service(wiki_root)

@@ -40,6 +40,12 @@
     --shiki-token-link: rgb(209 213 219); /* gray-300 */
   }
 
+  :root {
+    --theme-accent: #38bdf8;
+    --theme-surface: #0f172a;
+    --theme-accent-contrast: #0f172a;
+  }
+
   /* Base typography & rendering */
   :root {
     font-synthesis: none;

@@ -51,7 +51,7 @@
   }
 
   async function loadManifest() {
-    const res = await fetch("/api/v1/fonts/manifest", {
+    const res = await fetch("/api/fonts/manifest", {
       headers: authHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -85,7 +85,7 @@
   }
 
   async function loadSample() {
-    const res = await fetch("/api/v1/fonts/sample", {
+    const res = await fetch("/api/fonts/sample", {
       headers: authHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -98,7 +98,7 @@
     try {
       const fontFace = new FontFace(
         font.name,
-        `url(/api/v1/fonts/file?path=${encodeURIComponent(font.file)})`
+        `url(/api/fonts/file?path=${encodeURIComponent(font.file)})`
       );
       const loaded = await fontFace.load();
       document.fonts.add(loaded);

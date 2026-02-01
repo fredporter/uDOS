@@ -58,13 +58,13 @@ wizard/
 │   ├── workflow_manager.py    # Local project/task management
 │   └── gmail_relay.py (hooks) # Wizard-only relay
 ├── routes/
-│   ├── ai_routes.py           # /api/v1/ai/* routes
-│   ├── binder_routes.py       # /api/v1/binder/* routes
-│   ├── dev_routes.py          # /api/v1/dev/* routes (Dev Mode control)
-│   ├── github_routes.py       # /api/v1/github/* routes
+│   ├── ai_routes.py           # /api/ai/* routes
+│   ├── binder_routes.py       # /api/binder/* routes
+│   ├── dev_routes.py          # /api/dev/* routes (Dev Mode control)
+│   ├── github_routes.py       # /api/github/* routes
 │   └── notification_history_routes.py
 ├── providers/                 # Assistant provider integrations
-├── distribution/              # Plugin packages (served via /api/v1/plugin/*)
+├── distribution/              # Plugin packages (served via /api/plugin/*)
 ├── docs/                      # INTERACTIVE-CONSOLE.md, PORT-MANAGER.md
 ├── extensions/                # Wizard-only feature packs
 ├── tools/                     # Utilities (e.g., port-manager CLI wrapper)
@@ -77,7 +77,7 @@ wizard/
 ## 🎯 Responsibilities (Production)
 
 - Assistant routing gateway (local-first, policy-controlled cloud burst)
-- Dev Mode management (activate/deactivate Goblin dev server via `/api/v1/dev/*`)
+- Dev Mode management (activate/deactivate Goblin dev server via `/api/dev/*`)
 - Plugin repository distribution (from `distribution/plugins`)
 - Web proxy (stubbed, validated; disabled if toggled off)
 - Gmail relay (Wizard-only)
@@ -98,7 +98,7 @@ Not in Wizard: TUI command handlers, core business logic, runtime execution (liv
 ## 🎮 Dev Mode
 
 **Activated via:** `DEV MODE activate` (in Core TUI)
-**Controlled by:** `/api/v1/dev/*` routes
+**Controlled by:** `/api/dev/*` routes
 **Backend:** Wizard starts/stops Goblin dev server (localhost:8767)
 
 Dev Mode includes:
@@ -112,21 +112,21 @@ Dev Mode is activated on-demand; Goblin runs independently on port 8767.
 
 ---
 
-## Endpoints (Production `/api/v1/*`)
+## Endpoints (Production `/api/*`)
 
-- `/health` (no auth), `/api/v1/status`, `/api/v1/rate-limits`
-- Assistant: `/api/v1/ai/status`, `/api/v1/ai/models`, `/api/v1/ai/complete`, `/api/v1/ai/query`, `/api/v1/ai/context`, `/api/v1/ai/analyze-logs`, `/api/v1/ai/suggest`, `/api/v1/ai/explain`
-- Plugins: `/api/v1/plugin/list`, `/api/v1/plugin/{id}`, `/api/v1/plugin/{id}/download`
-- Proxy: `/api/v1/web/fetch` (stub, gated by config)
-- GitHub: `/api/v1/github/health`, `/api/v1/github/sync-cli`, `/api/v1/github/issues`, `/api/v1/github/pulls`, `/api/v1/github/context/*` (devlog, roadmap, agents, copilot), `/api/v1/github/logs/{log_type}`
-- Dev Mode: `/api/v1/dev/health`, `/api/v1/dev/status`, `/api/v1/dev/activate`, `/api/v1/dev/deactivate`, `/api/v1/dev/restart`, `/api/v1/dev/logs`
-- Binder: `/api/v1/binder/compile`, `/api/v1/binder/chapters`, `/api/v1/binder/export`
-- Console/TUI helpers: `/api/v1/devices`, `/api/v1/logs`, `/api/v1/models/switch`, `/api/v1/services/{service}/{action}`
-- Port Manager: `/api/v1/ports/*` (via router include)
-- Notification history: `/api/v1/notifications/*`
+- `/health` (no auth), `/api/status`, `/api/rate-limits`
+- Assistant: `/api/ai/status`, `/api/ai/models`, `/api/ai/complete`, `/api/ai/query`, `/api/ai/context`, `/api/ai/analyze-logs`, `/api/ai/suggest`, `/api/ai/explain`
+- Plugins: `/api/plugin/list`, `/api/plugin/{id}`, `/api/plugin/{id}/download`
+- Proxy: `/api/web/fetch` (stub, gated by config)
+- GitHub: `/api/github/health`, `/api/github/sync-cli`, `/api/github/issues`, `/api/github/pulls`, `/api/github/context/*` (devlog, roadmap, agents, copilot), `/api/github/logs/{log_type}`
+- Dev Mode: `/api/dev/health`, `/api/dev/status`, `/api/dev/activate`, `/api/dev/deactivate`, `/api/dev/restart`, `/api/dev/logs`
+- Binder: `/api/binder/compile`, `/api/binder/chapters`, `/api/binder/export`
+- Console/TUI helpers: `/api/devices`, `/api/logs`, `/api/models/switch`, `/api/services/{service}/{action}`
+- Port Manager: `/api/ports/*` (via router include)
+- Notification history: `/api/notifications/*`
 - VS Code bridge routes (included router)
 
-Authentication: Bearer token required for `/api/v1/*`; rate limits per device. GitHub webhook uses signature if configured.
+Authentication: Bearer token required for `/api/*`; rate limits per device. GitHub webhook uses signature if configured.
 
 ---
 
@@ -175,7 +175,7 @@ To activate Dev Mode:
 > DEV MODE activate
 
 # Via REST API
-curl -X POST http://localhost:8765/api/v1/dev/activate
+curl -X POST http://localhost:8765/api/dev/activate
 ```
 
 ---

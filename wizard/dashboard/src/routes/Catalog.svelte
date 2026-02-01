@@ -14,7 +14,7 @@
     adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
 
   async function loadStats() {
-    const res = await fetch("/api/v1/catalog/stats", { headers: authHeaders() });
+    const res = await fetch("/api/catalog/stats", { headers: authHeaders() });
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
         throw new Error("Admin token required");
@@ -26,7 +26,7 @@
   }
 
   async function loadCategories() {
-    const res = await fetch("/api/v1/catalog/categories", {
+    const res = await fetch("/api/catalog/categories", {
       headers: authHeaders(),
     });
     if (!res.ok) {
@@ -40,7 +40,7 @@
   }
 
   async function loadPlugins() {
-    const url = new URL("/api/v1/catalog/plugins", window.location.origin);
+    const url = new URL("/api/catalog/plugins", window.location.origin);
     if (categoryFilter) url.searchParams.set("category", categoryFilter);
     const res = await fetch(url.toString(), { headers: authHeaders() });
     if (!res.ok) {
@@ -58,7 +58,7 @@
       await loadPlugins();
       return;
     }
-    const url = new URL("/api/v1/catalog/search", window.location.origin);
+    const url = new URL("/api/catalog/search", window.location.origin);
     url.searchParams.set("q", searchQuery);
     const res = await fetch(url.toString(), { headers: authHeaders() });
     if (!res.ok) {

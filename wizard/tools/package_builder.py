@@ -51,7 +51,7 @@ class PackageBuilder:
         return {
             "core": {
                 "name": "udos-core",
-                "description": "uDOS TUI and uPY Runtime",
+                "description": "uDOS TUI and TypeScript Runtime",
                 "version_module": "core",
                 "sources": [
                     ("core", "opt/udos/core"),

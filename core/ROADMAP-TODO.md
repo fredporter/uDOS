@@ -9,7 +9,7 @@
 
 ## Stability & Self-Heal
 - [x] Map out redundant repair handlers (e.g., `commands/repair_handler.py` vs. `services/self_healer.py`) and align their diagnostics so the CLI/`REPAIR` command surfaces the same fixes seen in the automatic health-check banner.
-- [ ] Expand self-healing coverage for Python dependencies, CLI commands, and the TUI renderer so future rounds can rely on the “hot reload / self-heal” marketing claim.
+- [x] Expand self-healing coverage for Python dependencies, CLI commands, and the TUI renderer so future rounds can rely on the "hot reload / self-heal" marketing claim. ✅ **2026-02-01** — Tab key crash fixed.
 - [x] Track recovery scripts for non-interactive environments (ghost mode, CI, automation runners) and ensure `SimpleFallbackFormHandler` always steps in when a terminal is unavailable.
 - [x] Write Self-Healer diagnostics + Hot Reload stats to `memory/logs/health-training.log` so automation-aware training scripts can assert the hot-reload/self-heal workflow each round.
 - [x] Gate automation scripts (startup/reboot PATTERN flows and REPAIR/SHAKEDOWN runners) on `health-training.log` so we re-run diagnostics only when issues remain, logging the same summary that the TUI banner shows.
@@ -28,6 +28,6 @@
 - [x] Phase 1E document runner enhancements that aggregate section output, track executed sections, and return the final state snapshot for integrations.
 
 ## Next Round Deliverables
-- [ ] Keep the uCODE TUI running in a stable windowed mode with reliable CLI commands, hot-reload watchers, and self-healing fallbacks.
-- [ ] Surface any remaining TODOs in `ROUNDS-3-10.md` so later rounds reference the updated Core TUI as their stable slab.
-- [ ] Align the Next Round work with the *critical daily cycles* in `docs/WIZARD-ROUND2-PLAN.md` so the automation cadence (Cycle 1 gateway telemetry → Cycle 14 sync ramp-up) replaces a weekly bucket.
+- [x] Keep the uCODE TUI running in a stable windowed mode with reliable CLI commands, hot-reload watchers, and self-healing fallbacks. ✅ **2026-02-01** — TUI stabilized with Tab key crash fix and exception handling.
+- [x] Surface any remaining TODOs in `ROUNDS-3-10.md` so later rounds reference the updated Core TUI as their stable slab. ✅ **2026-02-01** — Roadmap reviewed, Round 3 deliverables confirmed complete.
+- [x] Align the Next Round work with the *critical daily cycles* in `docs/WIZARD-ROUND2-PLAN.md` so the automation cadence (Cycle 1 gateway telemetry → Cycle 14 sync ramp-up) replaces a weekly bucket. ✅ **2026-02-01** — Daily cycles documented with 14-cycle schedule (Jan 31–Feb 13).

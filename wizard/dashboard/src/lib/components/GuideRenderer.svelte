@@ -43,7 +43,7 @@
 
   async function loadIndex() {
     try {
-      const response = await fetch("/api/v1/wiki/files");
+      const response = await fetch("/api/wiki/files");
       if (response.ok) {
         const data = await response.json();
         categories = buildCategories(data.files || []);
@@ -57,7 +57,7 @@
 
   async function loadArticle(file) {
     try {
-      const response = await fetch(`/api/v1/wiki/file?path=${encodeURIComponent(file)}`);
+      const response = await fetch(`/api/wiki/file?path=${encodeURIComponent(file)}`);
       if (response.ok) {
         const text = await response.text();
         const { frontmatter: fm, body } = extractFrontmatter(text);

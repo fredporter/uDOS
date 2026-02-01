@@ -10,7 +10,7 @@
 
   async function loadBinders() {
     try {
-      const res = await fetch("/api/v1/binder/all");
+      const res = await fetch("/api/binder/all");
       if (res.ok) {
         binders = await res.json();
       }
@@ -24,7 +24,7 @@
   async function compileBinder(binderId, format) {
     compiling = true;
     try {
-      const res = await fetch(`/api/v1/binder/compile`, {
+      const res = await fetch(`/api/binder/compile`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ binder_id: binderId, formats: [format] }),
@@ -42,7 +42,7 @@
 
   async function loadFileLocations() {
     try {
-      const res = await fetch("/api/v1/config/wizard");
+      const res = await fetch("/api/config/wizard");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       fileLocations = data?.content?.file_locations || null;

@@ -214,7 +214,7 @@ Google Place → Website → Staff → Social → Enrichment → Workflow Automa
 6. **🆕 Workflow Automation** (v1.2.21+)
    - **Keyword Generation:** AI-powered search terms via Gemini API
    - **Location Resolution:** Address → TILE codes + MeshCore positions
-   - **uPY Integration:** Export data for .upy workflow scripts
+   - **Script Integration:** Export data for TypeScript workflow scripts
    - ⚡ Gemini: 1,500 requests/day free tier, Geocoding: 28,500/month
 
 ---

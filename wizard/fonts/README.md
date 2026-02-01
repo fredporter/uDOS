@@ -153,8 +153,8 @@ See [FONT-CREDITS.md](FONT-CREDITS.md) for complete licensing information and at
 Wizard serves fonts via:
 
 ```
-/api/v1/fonts/manifest
-/api/v1/fonts/file?path=retro/apple/ChicagoFLF.ttf
+/api/fonts/manifest
+/api/fonts/file?path=retro/apple/ChicagoFLF.ttf
 ```
 
 Optional distribution targets can still be used via `distribute.sh` if needed.

@@ -470,15 +470,15 @@ def create_port_manager_router(auth_guard=None):
     """Create FastAPI router for port manager API endpoints."""
     from fastapi import APIRouter, HTTPException
     from typing import Callable, Optional
-    
-    router = APIRouter(prefix="/api/v1/ports", tags=["Port Manager"])
-    
+
+    router = APIRouter(prefix="/api/ports", tags=["Port Manager"])
+
     async def check_auth(request):
         """Verify authentication if guard is provided."""
         if auth_guard and callable(auth_guard):
             return await auth_guard(request)
         return True
-    
+
     @router.get("/status")
     async def get_status(request = None):
         """Get status of all services and ports."""
@@ -497,7 +497,7 @@ def create_port_manager_router(auth_guard=None):
             },
             "report": pm.generate_report(),
         }
-    
+
     @router.get("/conflicts")
     async def get_conflicts(request = None):
         """Get port conflicts."""
@@ -515,7 +515,7 @@ def create_port_manager_router(auth_guard=None):
             ],
             "has_conflicts": len(conflicts) > 0,
         }
-    
+
     @router.post("/heal")
     async def heal_conflicts(request = None):
         """Automatically heal port conflicts."""
@@ -523,12 +523,12 @@ def create_port_manager_router(auth_guard=None):
         pm = get_port_manager()
         results = pm.heal_conflicts()
         return {"healed": results}
-    
+
     @router.get("/env-script")
     async def get_env_script(request = None):
         """Get shell script with port environment variables."""
         await check_auth(request)
         pm = get_port_manager()
         return {"script": pm.generate_env_script()}
-    
+
     return router

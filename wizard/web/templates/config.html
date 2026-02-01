@@ -3,7 +3,11 @@
 {% block content %}
 <div class="px-4 sm:px-0 mb-8">
     <h1 class="text-3xl font-bold text-white">Wizard Configuration</h1>
-    <p class="mt-1 text-gray-400">All-in-one .venv, secret store, and plugin installer management.</p>
+    <p class="mt-1 text-gray-400">
+        Walk through the <strong>.venv → secrets → installers → hotkeys</strong> flow so the CLI and GUI
+        share the same plugin_repository + LibraryManagerService pipeline. Every install result is recorded
+        to <code>memory/logs/health-training.log</code> so automation can replay manifest validation and hot-reload/self-heal summaries.
+    </p>
 </div>
 
 <div class="rounded-lg bg-white/5 p-4 mb-6">
@@ -32,11 +36,54 @@
     <p class="text-xs text-blue-300 mt-3">{{ env_notice }}</p>
 </div>
 
+<div class="grid gap-4 md:grid-cols-4 mb-6 text-gray-300">
+    <div class="rounded-lg border border-white/5 bg-white/5 p-4">
+        <p class="text-xs uppercase tracking-wide text-gray-400">1. Python .venv</p>
+        <p class="text-xl font-semibold text-white mt-2">
+            {{ "Available" if venv_status.exists else "Missing" }}
+        </p>
+        <p class="text-xs text-gray-400 mt-1">Path: <code>{{ venv_status.path }}</code></p>
+        {% if venv_status.python %}
+        <p class="text-xs text-gray-400">Python: <code>{{ venv_status.python }}</code></p>
+        {% endif %}
+    </div>
+    <div class="rounded-lg border border-white/5 bg-white/5 p-4">
+        <p class="text-xs uppercase tracking-wide text-gray-400">2. Secret Store</p>
+        <p class="text-xl font-semibold text-white mt-2">
+            {{ "Unlocked" if secret_state.unlocked else "Locked" }}
+        </p>
+        <p class="text-xs text-gray-400 mt-1">
+            Entries: {{ (secret_state.entries | default([])) | length }}
+        </p>
+        {% if secret_state.unlocked %}
+        <p class="text-xs text-gray-500 mt-1">Rotate keys below to refresh vault entries.</p>
+        {% else %}
+        <p class="text-xs text-yellow-300 mt-1">{{ secret_state.error or "Unlock the Wizard key to edit secrets." }}</p>
+        {% endif %}
+    </div>
+    <div class="rounded-lg border border-white/5 bg-white/5 p-4">
+        <p class="text-xs uppercase tracking-wide text-gray-400">3. Installers</p>
+        <p class="text-xl font-semibold text-white mt-2">
+            {{ repository_stats.total_plugins or (plugin_catalog | length) }} catalogues
+        </p>
+        <p class="text-xs text-gray-400 mt-1">
+            Installed: {{ repository_stats.installed or 0 }}
+            {% if repository_stats.updates_available %} · Updates: {{ repository_stats.updates_available }}{% endif %}
+        </p>
+    </div>
+    <div class="rounded-lg border border-white/5 bg-white/5 p-4">
+        <p class="text-xs uppercase tracking-wide text-gray-400">4. Hotkeys</p>
+        <p class="text-xl font-semibold text-white mt-2">TAB · F1–F8</p>
+        <p class="text-xs text-gray-400 mt-1">View the Hotkey Center for automation-safe bindings.</p>
+        <a class="text-xs text-blue-300 underline mt-2 inline-flex" href="{{ hotkey_link }}">Open Hotkey Center</a>
+    </div>
+</div>
+
 <div class="grid gap-6 md:grid-cols-2 mb-6">
-    <div class="rounded-lg bg-white/5 p-4">
-        <h2 class="text-lg font-semibold text-white">1. Python .venv</h2>
-        <p class="text-gray-300 text-sm mb-2">
-            Manage the runtime isolation that boots the dashboard, CLI helpers, and plugin installers.
+    <div class="rounded-lg bg-white/5 border border-white/5 p-4">
+        <h2 class="text-lg font-semibold text-white mb-2">1. Python .venv</h2>
+        <p class="text-gray-300 text-sm mb-3">
+            Manage the runtime isolation that boots the dashboard, CLI helpers, and plugin installers. Rebuild it via <code>./scripts/setup-venv.sh</code> or the launcher when dependencies drift.
         </p>
         <ul class="text-sm text-gray-200 space-y-1">
             <li>Path: <code>{{ venv_status.path }}</code></li>
@@ -48,23 +95,28 @@
             {% if venv_status.python %}
             <li>Python interpreter: <code>{{ venv_status.python }}</code></li>
             {% endif %}
+            <li>Use <code>REPAIR --refresh-runtime</code> or <code>./bin/Launch-uCODE.command</code> to rebuild the venv whenever the status flips.</li>
         </ul>
-        <p class="text-xs text-gray-400 mt-2">
-            Use the launcher to recreate/activate the venv (`./bin/Launch-uCODE.command`), then revisit this page to continue.
-        </p>
     </div>
 
-    <div class="rounded-lg bg-white/5 p-4">
-        <h2 class="text-lg font-semibold text-white">2. Wizard Key & Secret Store</h2>
+    <div class="rounded-lg bg-white/5 border border-white/5 p-4">
+        <h2 class="text-lg font-semibold text-white mb-2">2. Wizard Key & Secret Store</h2>
         <p class="text-gray-300 text-sm mb-2">
-            Wizard Key is the gateway to the secret store; rotate API keys here to keep vault entries in sync.
+            Wizard Key unlocks the local secret store so every rotate button here feeds the same vault that both the dashboard and CLI <code>PLUGIN</code> workflows share.
         </p>
+        <div class="text-xs text-gray-400 mb-3">
+            <span class="font-semibold">Wizard Key</span>: <code>{{ wizard_key_value }}</code>
+            <span class="text-gray-500">({{ env_path }})</span>
+        </div>
         {% if secret_state.unlocked %}
-        <p class="text-xs text-green-300 mb-1">Secret store unlocked</p>
+        <p class="text-xs text-green-300 mb-2">Secret store unlocked</p>
         <ul class="text-sm text-gray-200 space-y-2">
             {% for entry in secret_state.entries %}
             <li class="flex items-center justify-between">
-                <span>{{ entry.key_id }} ({{ entry.provider }})</span>
+                <div>
+                    <span class="font-semibold text-white">{{ entry.key_id }}</span>
+                    <span class="text-xs text-gray-400 ml-2">({{ entry.provider }})</span>
+                </div>
                 <div class="flex items-center gap-2">
                     <button
                         type="button"
@@ -83,13 +135,86 @@
             {{ secret_state.error or "Secret store locked" }}
         </p>
         {% endif %}
-        <p class="text-xs text-gray-400 mt-2">
-            Secrets sync occurs via the dashboard widgets and CLI commands (see <code>wizard/services/secret_store.py</code>).
+        <p class="text-xs text-gray-400 mt-3">
+            Secrets sync through <code>wizard/services/secret_store.py</code> so the same vault unlockers (CLI, dashboard, automation) reuse the local API/secret store pipeline.
         </p>
     </div>
 </div>
 
-<div class="rounded-lg bg-white/5 p-4 mb-6">
+<div class="rounded-lg bg-white/5 border border-white/5 p-4 mb-6">
+    <h2 class="text-lg font-semibold text-white mb-3">3. Extension + API Installers</h2>
+    <p class="text-gray-300 text-sm mb-4">
+        Manifests from <code>wizard/distribution/plugins/</code> feed <code>wizard/services/plugin_repository.py</code> so both the dashboard buttons and <code>PLUGIN install</code> share validation, signature checks, and dependency wiring via <code>wizard/services/library_manager_service.py</code>. Every installation result is appended to <code>memory/logs/health-training.log</code> for automation visibility.
+    </p>
+    <div class="overflow-x-auto rounded-lg bg-white/10 p-3">
+        <table class="min-w-full text-left text-sm text-gray-300">
+            <thead>
+                <tr class="border-b border-white/10">
+                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Plugin</th>
+                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Version</th>
+                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Manifest</th>
+                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for plugin in plugin_catalog %}
+                {% set repo_entry = plugin.repository_entry or {} %}
+                {% set plugin_title = plugin.manifest.get("name") or repo_entry.get("name") or plugin.name %}
+                {% set manifest_description = plugin.manifest.get("description") or repo_entry.get("description") or "No manifest yet" %}
+                {% set manifest_version = plugin.manifest.get("version") or repo_entry.get("version") or "Unknown" %}
+                <tr class="border-b border-white/5">
+                    <td class="px-3 py-3">
+                        <div class="font-semibold text-white">{{ plugin_title }}</div>
+                        <div class="text-xs text-gray-400">{{ plugin.name }} · {{ manifest_description }}</div>
+                    </td>
+                    <td class="px-3 py-3">
+                        <div class="font-semibold">{{ manifest_version }}</div>
+                        {% if plugin.manifest_checksum %}
+                        <div class="text-[10px] text-gray-500 mt-1">sha256: {{ plugin.manifest_checksum }}</div>
+                        {% endif %}
+                    </td>
+                    <td class="px-3 py-3">
+                        {% if plugin.validation.valid %}
+                        <span class="inline-flex items-center rounded-full px-2 py-1 text-[11px] font-semibold bg-green-500/20 text-green-300">
+                            Validated
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center rounded-full px-2 py-1 text-[11px] font-semibold bg-red-500/20 text-red-300">
+                            Needs review
+                        </span>
+                        {% endif %}
+                        <div class="text-[11px] text-gray-400 mt-1">{{ plugin.validation.message }}</div>
+                    </td>
+                    <td class="px-3 py-3">
+                        <button
+                            type="button"
+                            class="rounded bg-green-500 px-3 py-1 text-xs font-semibold"
+                            onclick="installPlugin('{{ plugin.name }}', this)"
+                        >
+                            Install
+                        </button>
+                        <div id="plugin-msg-{{ plugin.name }}" class="text-xs text-gray-300 mt-1"></div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="px-3 py-4 text-gray-400">No plugins discovered in the catalog.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="text-xs text-gray-400 mt-3">
+        Copy plugin payloads into <code>/library/&lt;id&gt;</code> (uCODE CLI handles this automatically) before invoking <code>LibraryManagerService.install_integration</code> so the dashboard, CLI, and automation scripts stay aligned.
+    </p>
+<div class="rounded-lg bg-white/5 border border-white/5 p-4 mb-6">
+    <h2 class="text-lg font-semibold text-white">Hotkey Center</h2>
+    <p class="text-gray-300 text-sm">
+        Keep the TAB/F1–F8 bindings aligned by visiting the <a class="text-blue-300 underline" href="{{ hotkey_link }}">Hotkey Center</a>. Automation scripts read the latest entry in <code>memory/logs/health-training.log</code> before rerunning PATTERN/REPAIR or plugin installer batches.
+    </p>
+</div>
+
+<div class="rounded-lg bg-white/5 border border-white/5 p-4">
     <h2 class="text-lg font-semibold text-white">3. One-click OAuth connections</h2>
     <p class="text-gray-300 text-sm mb-3">{{ oauth_note }}</p>
     <div class="overflow-x-auto rounded-lg bg-white/10 p-2">
@@ -116,7 +241,7 @@
                     <td class="px-3 py-3 text-right">
                         {% if conn.can_connect %}
                         <a
-                            href="/api/v1/oauth/connect/{{ conn.slug }}"
+                            href="/api/oauth/connect/{{ conn.slug }}"
                             target="_blank"
                             class="inline-flex items-center rounded bg-blue-500 px-3 py-1 text-xs font-semibold transition hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400"
                         >
@@ -140,55 +265,6 @@
         </table>
     </div>
 </div>
-
-<div class="rounded-lg bg-white/5 p-4 mb-6">
-    <h2 class="text-lg font-semibold text-white mb-3">4. Extension + API Installers</h2>
-    <p class="text-gray-300 text-sm mb-4">
-        Manifests in <code>wizard/distribution/plugins/</code> feed the <code>LibraryManagerService</code> so CLI <code>PLUGIN install</code> and dashboard buttons share validation, signature checks, and dependency wiring.
-    </p>
-    <div class="overflow-x-auto rounded-lg bg-white/10 p-3">
-        <table class="min-w-full text-left text-sm text-gray-300">
-            <thead>
-                <tr class="border-b border-white/10">
-                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Plugin</th>
-                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Version</th>
-                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Description</th>
-                    <th class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for plugin in plugin_catalog %}
-                <tr class="border-b border-white/5">
-                    <td class="px-3 py-3 font-semibold text-white">{{ plugin.name }}</td>
-                    <td class="px-3 py-3">
-                        {{ plugin.manifest.version or "Unknown" }}
-                    </td>
-                    <td class="px-3 py-3 text-gray-400">
-                        {{ plugin.manifest.description or "No manifest yet" }}
-                    </td>
-                    <td class="px-3 py-3">
-                        <button
-                            type="button"
-                            class="rounded bg-green-500 px-3 py-1 text-xs font-semibold"
-                            onclick="installPlugin('{{ plugin.name }}', this)"
-                        >
-                            Install
-                        </button>
-                        <div id="plugin-msg-{{ plugin.name }}" class="text-xs text-gray-300 mt-1"></div>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="3" class="px-3 py-4 text-gray-400">No plugins discovered in the catalog.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <p class="text-xs text-gray-400">
-        Copy plugin payloads into <code>/library/&lt;id&gt;</code> (uCODE CLI handles this automatically) before invoking <code>LibraryManagerService.install_integration</code>.
-    </p>
-</div>
 {% block scripts %}
 <script>
 async function rotateSecret(keyId, btn) {
@@ -196,7 +272,7 @@ async function rotateSecret(keyId, btn) {
     if (msg) msg.textContent = "Rotating...";
     btn.disabled = true;
     try {
-        const resp = await fetch(`/api/v1/config/secret/${keyId}/rotate`, {
+        const resp = await fetch(`/api/config/secret/${keyId}/rotate`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({}),
@@ -219,7 +295,7 @@ async function installPlugin(name, btn) {
     if (msg) msg.textContent = "Installing...";
     btn.disabled = true;
     try {
-        const resp = await fetch(`/api/v1/library/integration/${name}/install`, {
+        const resp = await fetch(`/api/library/integration/${name}/install`, {
             method: "POST",
         });
         const data = await resp.json();
@@ -236,11 +312,4 @@ async function installPlugin(name, btn) {
 }
 </script>
 {% endblock %}
-
-<div class="rounded-lg bg-white/5 p-4">
-    <h2 class="text-lg font-semibold text-white">Hotkey Center</h2>
-    <p class="text-gray-300 text-sm">
-        Keep the TAB/F1–F8 bindings in sync by visiting the <a class="text-blue-300 underline" href="{{ hotkey_link }}">Hotkey Center</a>. It documents the SmartPrompt/TUI shortcuts that automation scripts replay each round.
-    </p>
-</div>
 {% endblock %}

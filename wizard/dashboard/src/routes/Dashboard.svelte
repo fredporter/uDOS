@@ -36,6 +36,8 @@
     disk_high: "Disk usage is high",
   };
 
+  const PLAYHOLDER = "—";
+
   const levelClass = (value) => {
     if (value >= 90 || value >= 1.5) return "bg-red-900/70 text-red-100";
     if (value >= 75 || value >= 1.1) return "bg-amber-900/70 text-amber-100";
@@ -54,11 +56,20 @@
     return `${minutes}m`;
   };
 
+  const formatStatValue = (value, suffix = "") =>
+    value === undefined || value === null ? "—" : `${value}${suffix}`;
+
+  const formatRange = (used, total, unit) => {
+    const safeUsed = used === undefined || used === null ? "—" : `${used} ${unit}`;
+    const safeTotal = total === undefined || total === null ? "—" : `${total} ${unit}`;
+    return `${safeUsed} / ${safeTotal}`;
+  };
+
   async function loadDashboard() {
     loading = true;
     error = null;
     try {
-      const res = await fetch("/api/v1/index");
+      const res = await fetch("/api/index");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       dashboardData = data;
@@ -74,7 +85,7 @@
 
   async function loadGitHubHealth() {
     try {
-      const res = await fetch("/api/v1/github/health", {
+      const res = await fetch("/api/github/health", {
         headers: authHeaders(),
       });
       if (res.ok) {
@@ -87,10 +98,18 @@
 
   async function loadSystemStats() {
     systemLoading = true;
+    const endpoints = ["/api/system/stats", "/api/system/stats"];
     try {
-      const res = await fetch("/api/v1/system/stats");
-      if (res.ok) {
-        systemStats = await res.json();
+      let res;
+      for (const endpoint of endpoints) {
+        res = await fetch(endpoint);
+        if (res && res.ok) {
+          systemStats = await res.json();
+          break;
+        }
+      }
+      if (res && !res.ok) {
+        console.warn("System stats endpoint failing with", res.status);
       }
     } catch (err) {
       console.error("Failed to refresh system stats", err);
@@ -101,7 +120,7 @@
 
   async function loadSchedulerStatus() {
     try {
-      const res = await fetch("/api/v1/tasks/status", {
+      const res = await fetch("/api/tasks/status", {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -138,7 +157,7 @@
 
   async function updateSchedulerSettings() {
     try {
-      const res = await fetch("/api/v1/tasks/settings", {
+      const res = await fetch("/api/tasks/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify(schedulerSettings),
@@ -158,8 +177,8 @@
     selectedTask = null;
     try {
       const [taskRes, runsRes] = await Promise.all([
-        fetch(`/api/v1/tasks/task/${taskId}`, { headers: authHeaders() }),
-        fetch(`/api/v1/tasks/runs/${taskId}?limit=5`, { headers: authHeaders() }),
+        fetch(`/api/tasks/task/${taskId}`, { headers: authHeaders() }),
+        fetch(`/api/tasks/runs/${taskId}?limit=5`, { headers: authHeaders() }),
       ]);
       if (!taskRes.ok) throw new Error(`Task HTTP ${taskRes.status}`);
       selectedTask = await taskRes.json();
@@ -323,12 +342,12 @@
             <div class="bg-slate-900/60 rounded-lg p-4 border border-slate-700">
               <div class="text-gray-400 text-sm mb-1">CPU Load</div>
               <div class="text-2xl font-semibold text-white mb-1">
-                {systemStats.cpu?.load1 ?? 0}
+                {formatStatValue(systemStats.cpu?.load1)}
               </div>
               <div class="text-xs text-gray-400 flex justify-between">
                 <span>1m</span>
-                <span>5m {systemStats.cpu?.load5 ?? 0}</span>
-                <span>15m {systemStats.cpu?.load15 ?? 0}</span>
+                <span>5m {formatStatValue(systemStats.cpu?.load5)}</span>
+                <span>15m {formatStatValue(systemStats.cpu?.load15)}</span>
               </div>
               <p class="text-xs text-gray-500 mt-2">
                 {systemStats.cpu?.count} cores
@@ -337,13 +356,12 @@
             <div class="bg-slate-900/60 rounded-lg p-4 border border-slate-700">
               <div class="text-gray-400 text-sm mb-1">Memory</div>
               <div class="flex items-baseline gap-2">
-                <div class="text-2xl font-semibold text-white">
-                  {systemStats.memory?.used_percent ?? 0}%
-                </div>
-                <span class="text-xs text-gray-400"
-                  >{systemStats.memory?.used_mb ?? 0} MB / {systemStats.memory
-                    ?.total_mb ?? 0} MB</span
-                >
+              <div class="text-2xl font-semibold text-white">
+                {formatStatValue(systemStats.memory?.used_percent, "%")}
+              </div>
+              <span class="text-xs text-gray-400"
+                >{formatRange(systemStats.memory?.used_mb, systemStats.memory?.total_mb, "MB")}</span
+              >
               </div>
               <div class="w-full bg-slate-800 rounded-full h-2 mt-2">
                 <div
@@ -356,13 +374,12 @@
               <div class="text-gray-400 text-sm mb-1">Swap</div>
               {#if systemStats.swap?.active}
                 <div class="flex items-baseline gap-2">
-                  <div class="text-2xl font-semibold text-white">
-                    {systemStats.swap?.used_percent ?? 0}%
-                  </div>
-                  <span class="text-xs text-gray-400"
-                    >{systemStats.swap?.used_gb ?? 0} GB / {systemStats.swap
-                      ?.total_gb ?? 0} GB</span
-                  >
+              <div class="text-2xl font-semibold text-white">
+                {formatStatValue(systemStats.swap?.used_percent, "%")}
+              </div>
+              <span class="text-xs text-gray-400"
+                >{formatRange(systemStats.swap?.used_gb, systemStats.swap?.total_gb, "GB")}</span
+              >
                 </div>
                 <div class="w-full bg-slate-800 rounded-full h-2 mt-2">
                   <div
@@ -378,13 +395,12 @@
             <div class="bg-slate-900/60 rounded-lg p-4 border border-slate-700">
               <div class="text-gray-400 text-sm mb-1">Disk</div>
               <div class="flex items-baseline gap-2">
-                <div class="text-2xl font-semibold text-white">
-                  {systemStats.disk?.used_percent ?? 0}%
-                </div>
-                <span class="text-xs text-gray-400"
-                  >{systemStats.disk?.used_gb ?? 0} GB / {systemStats.disk
-                    ?.total_gb ?? 0} GB</span
-                >
+              <div class="text-2xl font-semibold text-white">
+                {formatStatValue(systemStats.disk?.used_percent, "%")}
+              </div>
+              <span class="text-xs text-gray-400"
+                >{formatRange(systemStats.disk?.used_gb, systemStats.disk?.total_gb, "GB")}</span
+              >
               </div>
               <div class="w-full bg-slate-800 rounded-full h-2 mt-2">
                 <div
@@ -401,13 +417,13 @@
             <div class="bg-slate-900/40 rounded-lg p-4 border border-slate-800">
               <div class="text-gray-400">Uptime</div>
               <div class="text-lg font-semibold text-white">
-                {formatUptime(systemStats.uptime_seconds)}
+                {formatUptime(systemStats?.uptime_seconds)}
               </div>
             </div>
             <div class="bg-slate-900/40 rounded-lg p-4 border border-slate-800">
               <div class="text-gray-400">Processes</div>
               <div class="text-lg font-semibold text-white">
-                {systemStats.process_count ?? "?"}
+                {formatStatValue(systemStats.process_count)}
               </div>
             </div>
             <div class="bg-slate-900/40 rounded-lg p-4 border border-slate-800">

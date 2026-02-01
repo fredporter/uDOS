@@ -19,6 +19,8 @@ Rounds 3‑10 rely on the Hotkey Center as the canonical source of truth for TAB
   }
   ```
 
+- **Reminder signal:** The JSON payload now carries `status.todo_reminder`, which is the latest todo reminder logged via `PROMPT` or `/api/tasks/prompt`. Round 6 Beacon/Sonic doc watchers should POST new instructions before each automation cycle (CLI `PROMPT "<text>"` is available too) and confirm the reminder message appears in `/hotkeys/data`/`memory/logs/hotkey-center.json` before rerunning PATTERN, REPAIR, or any doc-monitoring flows. This surfaces due-soon alerts directly in the Hotkey Center banner so automation sees the reminder before gating the next round.
+
 - **Automation tip:** Round scripts should download `/hotkeys/data` before each training window, verify the key_map matches the expected bindings, and store/compare the `snapshot` path plus JSON hash so UI changes cannot accidentally reroute TAB or F1 keys, and copy the same payload into `memory/logs/hotkey-center.json` for offline inspection. Automation runners (startup/reboot/rebuild) should read `memory/logs/hotkey-center.json` before each run to confirm the bindings still match the snapshot referenced in the health log and to echo the file path in the automation banner.
 - **CLI helper:** `HOTKEYS` prints the same payload (via `core/commands/hotkey_handler.py`), so headless automation or ghost sessions can read the key map even when the dashboard isn’t running.
 - **Local file:** `memory/logs/hotkey-center.json` mirrors the payload so the automation scripts (startup/reboot) can just read it before deciding to retrain the health story.

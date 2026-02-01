@@ -29,7 +29,7 @@ def _resolve_fonts_root() -> Optional[Path]:
 
 def create_font_routes(auth_guard=None) -> APIRouter:
     dependencies = [Depends(auth_guard)] if auth_guard else []
-    router = APIRouter(prefix="/api/v1/fonts", tags=["fonts"], dependencies=dependencies)
+    router = APIRouter(prefix="/api/fonts", tags=["fonts"], dependencies=dependencies)
 
     @router.get("/manifest")
     async def get_manifest():

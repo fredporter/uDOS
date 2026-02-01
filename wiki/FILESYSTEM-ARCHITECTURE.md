@@ -70,7 +70,7 @@ uDOS/
 │   ├── user.json            # User profile & settings
 │   ├── state.json           # Session state
 │   ├── logs/                # Log files
-│   ├── ucode/               # User scripts (.upy)
+│   ├── ucode/               # User scripts (TypeScript in .md)
 │   ├── documents/           # User documents
 │   ├── contributions/       # Pending wiki contributions
 │   │   ├── knowledge/       # Knowledge bank edits
@@ -183,7 +183,7 @@ mapdata/
 │           │   ├── AA11.json
 │           │   └── ...
 │           ├── entities/        # NPCs, items, enemies
-│           └── scripts/         # Dungeon logic (.upy)
+│           └── scripts/         # Dungeon logic (TypeScript in .md)
 ├── earth/
 │   └── L300/
 │       ├── manifest.json

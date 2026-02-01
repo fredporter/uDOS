@@ -15,7 +15,7 @@ from wizard.services.path_utils import get_repo_root
 
 def create_catalog_routes(auth_guard=None):
     dependencies = [Depends(auth_guard)] if auth_guard else []
-    router = APIRouter(prefix="/api/v1/catalog", tags=["catalog"], dependencies=dependencies)
+    router = APIRouter(prefix="/api/catalog", tags=["catalog"], dependencies=dependencies)
 
     @router.get("/stats")
     async def get_stats():

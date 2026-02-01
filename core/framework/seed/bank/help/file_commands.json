@@ -4,11 +4,7 @@
   "commands": {
     "LIST": {
       "name": "LIST",
-      "syntax": [
-        "LIST",
-        "LIST <directory>",
-        "LIST <pattern>"
-      ],
+      "syntax": ["LIST", "LIST <directory>", "LIST <pattern>"],
       "description": "List files in current or specified directory",
       "detailed": "LIST displays files and directories with formatting and can filter by patterns. Supports recursive listing and detailed file information.",
       "parameters": [
@@ -35,8 +31,8 @@
           "description": "List files in sandbox directory"
         },
         {
-          "command": "LIST *.uscript",
-          "description": "List all .uscript files"
+          "command": "LIST *-script.md",
+          "description": "List all script files"
         }
       ],
       "related": ["LOAD", "SAVE", "EDIT"],
@@ -49,10 +45,7 @@
     },
     "LOAD": {
       "name": "LOAD",
-      "syntax": [
-        "LOAD <filename>",
-        "LOAD <filename> TO <panel>"
-      ],
+      "syntax": ["LOAD <filename>", "LOAD <filename> TO <panel>"],
       "description": "Load file content into grid panel",
       "detailed": "LOAD reads a file and displays its content in a grid panel. Supports various file formats and can target specific panels.",
       "parameters": [
@@ -89,10 +82,7 @@
     },
     "SAVE": {
       "name": "SAVE",
-      "syntax": [
-        "SAVE <filename>",
-        "SAVE <panel> TO <filename>"
-      ],
+      "syntax": ["SAVE <filename>", "SAVE <panel> TO <filename>"],
       "description": "Save grid panel content to file",
       "detailed": "SAVE writes panel content to a file. Creates directories as needed and backs up existing files.",
       "parameters": [
@@ -174,12 +164,9 @@
     },
     "RUN": {
       "name": "RUN",
-      "syntax": [
-        "RUN <script>",
-        "RUN"
-      ],
-      "description": "Execute .uscript automation file",
-      "detailed": "RUN executes uDOS script files (.uscript) line by line, enabling automation workflows. Supports both uCODE format and plain text commands.",
+      "syntax": ["RUN <script>", "RUN"],
+      "description": "Execute TypeScript script file",
+      "detailed": "RUN executes uDOS script files (TypeScript embedded in .md) line by line, enabling automation workflows. Supports both uCODE format and plain text commands.",
       "parameters": [
         {
           "name": "script",
@@ -190,8 +177,8 @@
       ],
       "examples": [
         {
-          "command": "RUN automation.uscript",
-          "description": "Execute automation.uscript"
+          "command": "RUN automation-script.md",
+          "description": "Execute automation-script.md"
         },
         {
           "command": "RUN",

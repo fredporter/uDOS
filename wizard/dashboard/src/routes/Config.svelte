@@ -160,7 +160,7 @@
   async function loadFileList() {
     isLoading = true;
     try {
-      const response = await apiFetch("/api/v1/config/files");
+      const response = await apiFetch("/api/config/files");
       const data = await response.json();
       fileList = data.files || [];
 
@@ -180,7 +180,7 @@
     isLoading = true;
     hasChanges = false;
     try {
-      const response = await apiFetch(`/api/v1/config/${fileId}`);
+      const response = await apiFetch(`/api/config/${fileId}`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -229,7 +229,7 @@
         throw new Error(`Invalid JSON: ${err.message}`);
       }
 
-      const response = await apiFetch(`/api/v1/config/${selectedFile}`, {
+      const response = await apiFetch(`/api/config/${selectedFile}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: parsedContent }),
@@ -259,7 +259,7 @@
 
     isLoading = true;
     try {
-      const response = await apiFetch(`/api/v1/config/${selectedFile}/reset`, {
+      const response = await apiFetch(`/api/config/${selectedFile}/reset`, {
         method: "POST",
       });
 
@@ -281,7 +281,7 @@
     if (!selectedFile) return;
 
     try {
-      const response = await apiFetch(`/api/v1/config/${selectedFile}/example`);
+      const response = await apiFetch(`/api/config/${selectedFile}/example`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -315,7 +315,7 @@
   async function loadProviders() {
     isLoadingProviders = true;
     try {
-      const response = await apiFetch("/api/v1/providers/list");
+      const response = await apiFetch("/api/providers/list");
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       providers = data.providers || [];
@@ -329,7 +329,7 @@
   async function generateAdminToken() {
     tokenStatus = "Generating token…";
     try {
-      const response = await fetch("/api/v1/admin-token/generate", { method: "POST" });
+      const response = await fetch("/api/admin-token/generate", { method: "POST" });
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.detail || `HTTP ${response.status}`);
@@ -434,7 +434,7 @@
 
     isExporting = true;
     try {
-      const response = await apiFetch("/api/v1/config/export", {
+      const response = await apiFetch("/api/config/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -457,7 +457,7 @@
 
       // Download the file
       const downloadLink = document.createElement("a");
-      downloadLink.href = `/api/v1/config/export/${result.filename}`;
+      downloadLink.href = `/api/config/export/${result.filename}`;
       downloadLink.download = result.filename;
       downloadLink.click();
 
@@ -487,7 +487,7 @@
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await apiFetch("/api/v1/config/import", {
+      const response = await apiFetch("/api/config/import", {
         method: "POST",
         body: formData,
       });
@@ -535,7 +535,7 @@
         file_ids: Object.keys(importPreview),
       };
 
-      const response = await apiFetch("/api/v1/config/import/chunked", {
+      const response = await apiFetch("/api/config/import/chunked", {
         method: "POST",
         body: formData,
       });

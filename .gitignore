@@ -178,7 +178,7 @@ memory/system/user/.gmail_token.enc
 **/.pytest_cache/
 test_*.py
 test_*.sh
-/test_*.uscript
+/test_*-script.md
 
 # ---------- IDE / OS detritus ----------
 .DS_Store
@@ -205,6 +205,9 @@ sandbox/
 data/
 scripts/
 uDOS.wiki/
+
+# Groovebox sample library (downloaded at setup)
+groovebox/library/
 
 # ---------- External repos (local clones, not tracked) ----------
 # Both /library and /dev/library follow the same rules:

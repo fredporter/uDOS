@@ -106,12 +106,12 @@ export UDOS_VITE_URL=http://localhost:5173
 
 ## REST API Endpoints
 
-All endpoints available at `/api/v1/ports/`:
+All endpoints available at `/api/ports/`:
 
 ### Get Port Status Dashboard
 
 ```bash
-GET /api/v1/ports/status
+GET /api/ports/status
 
 Response:
 {
@@ -135,43 +135,43 @@ Response:
 ### List All Services
 
 ```bash
-GET /api/v1/ports/services
+GET /api/ports/services
 ```
 
 ### Check Specific Service
 
 ```bash
-GET /api/v1/ports/services/wizard
+GET /api/ports/services/wizard
 ```
 
 ### Get Port Conflicts
 
 ```bash
-GET /api/v1/ports/conflicts
+GET /api/ports/conflicts
 ```
 
 ### Kill Service
 
 ```bash
-POST /api/v1/ports/services/goblin/kill
+POST /api/ports/services/goblin/kill
 ```
 
 ### Kill Port
 
 ```bash
-POST /api/v1/ports/ports/8767/kill
+POST /api/ports/ports/8767/kill
 ```
 
 ### Get Status Report
 
 ```bash
-GET /api/v1/ports/report
+GET /api/ports/report
 ```
 
 ### Get Environment Script
 
 ```bash
-GET /api/v1/ports/env
+GET /api/ports/env
 ```
 
 ## Python API
@@ -272,9 +272,9 @@ Port registry stored in: `wizard/config/port_registry.json`
 
 The port manager is automatically integrated into Wizard Server. Access the port management dashboard:
 
-1. **Web Dashboard**: `/api/v1/ports/status`
-2. **Service List**: `/api/v1/ports/services`
-3. **Formatted Report**: `/api/v1/ports/report`
+1. **Web Dashboard**: `/api/ports/status`
+2. **Service List**: `/api/ports/services`
+3. **Formatted Report**: `/api/ports/report`
 
 ## Troubleshooting
 

@@ -28,17 +28,17 @@ This document guides implementation of the Beacon Portal in Wizard Server.
 **Endpoints:**
 
 ```
-POST   /api/v1/beacon/configure               — Configure WiFi + network mode
-POST   /api/v1/beacon/setup-hardware          — Get device-specific setup instructions
-GET    /api/v1/beacon/status                  — Beacon health + connected devices
-GET    /api/v1/beacon/devices                 — List recommended router hardware
-POST   /api/v1/beacon/tunnel/enable           — Create VPN tunnel
-GET    /api/v1/beacon/tunnel/{id}/status      — Monitor tunnel health
-POST   /api/v1/beacon/tunnel/{id}/disable     — Disable tunnel
-GET    /api/v1/beacon/devices/{id}/quota      — Check device cloud budget
-POST   /api/v1/beacon/devices/{id}/quota/add-funds  — Add emergency funds
-GET    /api/v1/beacon/plugins/{id}            — Fetch cached plugin
-POST   /api/v1/beacon/plugins/{id}/cache      — Pre-cache plugin
+POST   /api/beacon/configure               — Configure WiFi + network mode
+POST   /api/beacon/setup-hardware          — Get device-specific setup instructions
+GET    /api/beacon/status                  — Beacon health + connected devices
+GET    /api/beacon/devices                 — List recommended router hardware
+POST   /api/beacon/tunnel/enable           — Create VPN tunnel
+GET    /api/beacon/tunnel/{id}/status      — Monitor tunnel health
+POST   /api/beacon/tunnel/{id}/disable     — Disable tunnel
+GET    /api/beacon/devices/{id}/quota      — Check device cloud budget
+POST   /api/beacon/devices/{id}/quota/add-funds  — Add emergency funds
+GET    /api/beacon/plugins/{id}            — Fetch cached plugin
+POST   /api/beacon/plugins/{id}/cache      — Pre-cache plugin
 ```
 
 ### 3. Beacon Service Layer
@@ -283,14 +283,14 @@ pytest wizard/tests/test_beacon_routes.py -v
 pytest wizard/tests/test_hardware_guides.py -v
 
 # Load Testing (Multiple Beacons)
-ab -n 1000 -c 10 http://localhost:8765/api/v1/beacon/status?beacon_id=beacon-1
+ab -n 1000 -c 10 http://localhost:8765/api/beacon/status?beacon_id=beacon-1
 ```
 
 ## Security Considerations
 
 ### API Authentication
 
-All `/api/v1/beacon/*` endpoints require device authentication:
+All `/api/beacon/*` endpoints require device authentication:
 
 ```python
 from wizard.security.auth_middleware import auth_guard

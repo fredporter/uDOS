@@ -57,7 +57,7 @@ The Wizard Server can now monitor GitHub Actions workflows and automatically res
 
 #### Webhook Endpoint
 
-**URL:** `http://[wizard-host]:8765/api/v1/github/webhook`
+**URL:** `http://[wizard-host]:8765/api/github/webhook`
 
 **Subscribe at:** https://github.com/[owner]/[repo]/settings/hooks
 
@@ -166,7 +166,7 @@ python wizard/server.py --host 0.0.0.0 --port 8765 --debug
 
 🌐 ENDPOINTS:
   • Health:         http://0.0.0.0:8765/health
-  • API:            http://0.0.0.0:8765/api/v1/
+  • API:            http://0.0.0.0:8765/api/
   • WebSocket:      ws://0.0.0.0:8765/ws
   • Documentation:  http://0.0.0.0:8765/docs
 
@@ -197,7 +197,7 @@ wizard> github
     • Deploy:build_failure: 3x
     • CI Tests:test_failure: 1x
 
-  Webhook URL: http://0.0.0.0:8765/api/v1/github/webhook
+  Webhook URL: http://0.0.0.0:8765/api/github/webhook
   Configure at: https://github.com/[owner]/[repo]/settings/hooks
 
 wizard> 🔔 GitHub Webhook Received:
@@ -273,7 +273,7 @@ wizard> exit
    - Added `interactive` parameter to `run()` method
    - Async server startup with concurrent console
    - New CLI flag: `--no-interactive`
-   - New webhook endpoint: `/api/v1/github/webhook`
+   - New webhook endpoint: `/api/github/webhook`
 
 ### Async Design
 

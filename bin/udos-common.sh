@@ -142,6 +142,22 @@ ensure_home_memory_link() {
     fi
 }
 
+# Shared flag parser for all launchers
+parse_common_flags() {
+    for arg in "$@"; do
+        case "$arg" in
+            --rebuild)
+                export UDOS_REBUILD=1
+                echo -e "${YELLOW}🔄 Rebuild mode: Clearing Python cache...${NC}"
+                ;;
+            --flag)
+                export UDOS_FLAG_MODE=1
+                echo -e "${CYAN}⚙️ Flag mode: enabling auto launcher hooks${NC}"
+                ;;
+        esac
+    done
+}
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Spinner Function
 # ═══════════════════════════════════════════════════════════════════════════

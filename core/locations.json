@@ -1,0 +1,828 @@
+{
+  "version": "1.0.7.0",
+  "locations": [
+    {
+      "id": "L300-AA10",
+      "layer": 300,
+      "name": "Forest Clearing",
+      "type": "wilderness",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\ud83c\udf32",
+              "label": "tree",
+              "z": 1
+            }
+          ]
+        },
+        "AA10": {
+          "objects": [
+            {
+              "char": "\ud83c\udf3f",
+              "label": "clearing",
+              "z": 2
+            }
+          ],
+          "sprites": [
+            {
+              "id": "player",
+              "char": "\ud83d\udeb6",
+              "label": "player",
+              "z": 5
+            }
+          ],
+          "markers": [
+            {
+              "type": "spawn",
+              "label": "Player Spawn"
+            }
+          ]
+        },
+        "AB00": {
+          "sprites": [
+            {
+              "id": "terrain-dot",
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        },
+        "DB00": {
+          "sprites": [
+            {
+              "id": "edge",
+              "char": "|",
+              "label": "edge",
+              "z": 1
+            }
+          ]
+        }
+      },
+      "connections": [
+        {
+          "to": "L300-AB10",
+          "direction": "east"
+        }
+      ],
+      "center": "AA00",
+      "metadata": {
+        "name": "Forest Clearing",
+        "description": "Forest Clearing details",
+        "type": "wilderness"
+      },
+      "continent": "North America"
+    },
+    {
+      "id": "L300-AB10",
+      "layer": 300,
+      "name": "Forest Path",
+      "type": "route",
+      "tiles": {
+        "AA10": {
+          "objects": [
+            {
+              "char": "\u2581",
+              "label": "path",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [
+        {
+          "to": "L300-AA10",
+          "direction": "west"
+        }
+      ],
+      "center": "AA00",
+      "metadata": {
+        "name": "Forest Path",
+        "description": "Forest Path details",
+        "type": "route"
+      },
+      "continent": "North America"
+    },
+    {
+      "id": "L300-AC10",
+      "layer": 300,
+      "name": "Obsidian Bridge",
+      "type": "structure",
+      "tiles": {
+        "AB10": {
+          "objects": [
+            {
+              "char": "\u2656",
+              "label": "stone",
+              "z": 2,
+              "fg": "gray"
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Obsidian Bridge",
+        "description": "Obsidian Bridge details",
+        "type": "structure"
+      },
+      "continent": "North America"
+    },
+    {
+      "id": "L306-BB01",
+      "layer": 306,
+      "name": "International Space Station",
+      "type": "orbital",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [
+        {
+          "to": "L300-AA10",
+          "requires": "re-entry vehicle"
+        }
+      ],
+      "center": "AA00",
+      "metadata": {
+        "name": "International Space Station",
+        "description": "International Space Station details",
+        "type": "orbital"
+      },
+      "continent": "Space"
+    },
+    {
+      "id": "L311-CC02",
+      "layer": 311,
+      "name": "Mars Surface",
+      "type": "planetary",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u26f0",
+              "label": "mountain",
+              "z": 1
+            }
+          ],
+          "markers": [
+            {
+              "type": "landmark",
+              "label": "Olympus Mons summit"
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Mars Surface",
+        "description": "Mars Surface details",
+        "type": "planetary"
+      },
+      "continent": "Mars"
+    },
+    {
+      "id": "L321-DD03",
+      "layer": 321,
+      "name": "Alpha Centauri System",
+      "type": "stellar",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Alpha Centauri System",
+        "description": "Alpha Centauri System details",
+        "type": "stellar"
+      },
+      "continent": "Alpha Centauri"
+    },
+    {
+      "id": "L351-EE04",
+      "layer": 351,
+      "name": "Sagittarius A*",
+      "type": "black-hole",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Sagittarius A*",
+        "description": "Sagittarius A* details",
+        "type": "black-hole"
+      },
+      "continent": "Galactic Core"
+    },
+    {
+      "id": "L401-FF05",
+      "layer": 401,
+      "name": "Andromeda Galaxy (M31)",
+      "type": "cosmic",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Andromeda Galaxy (M31)",
+        "description": "Andromeda Galaxy (M31) details",
+        "type": "cosmic"
+      },
+      "continent": "Andromeda"
+    },
+    {
+      "id": "L300-MC01",
+      "layer": 301,
+      "name": "Zhengzhou Core",
+      "type": "major-city",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Zhengzhou Core",
+        "description": "Zhengzhou Core details",
+        "type": "major-city"
+      },
+      "continent": "Asia"
+    },
+    {
+      "id": "L300-MC02",
+      "layer": 302,
+      "name": "Lagos Harbor",
+      "type": "major-city",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Lagos Harbor",
+        "description": "Lagos Harbor details",
+        "type": "major-city"
+      },
+      "continent": "Africa"
+    },
+    {
+      "id": "L300-MC03",
+      "layer": 300,
+      "name": "New Cascadia",
+      "type": "major-city",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "New Cascadia",
+        "description": "New Cascadia details",
+        "type": "major-city"
+      },
+      "continent": "North America"
+    },
+    {
+      "id": "L300-MC04",
+      "layer": 301,
+      "name": "Nueva Esperanza",
+      "type": "major-city",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Nueva Esperanza",
+        "description": "Nueva Esperanza details",
+        "type": "major-city"
+      },
+      "continent": "South America"
+    },
+    {
+      "id": "L300-MC05",
+      "layer": 302,
+      "name": "Port Avaloria",
+      "type": "major-city",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Port Avaloria",
+        "description": "Port Avaloria details",
+        "type": "major-city"
+      },
+      "continent": "Europe"
+    },
+    {
+      "id": "L300-MC06",
+      "layer": 300,
+      "name": "Pacifica Atoll",
+      "type": "major-city",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Pacifica Atoll",
+        "description": "Pacifica Atoll details",
+        "type": "major-city"
+      },
+      "continent": "Oceania"
+    },
+    {
+      "id": "L300-LA01",
+      "layer": 301,
+      "name": "Mount Ember",
+      "type": "geographical-landmark",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Mount Ember",
+        "description": "Mount Ember details",
+        "type": "geographical-landmark"
+      }
+    },
+    {
+      "id": "L300-LA02",
+      "layer": 302,
+      "name": "Beachside Haven",
+      "type": "geographical-landmark",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Beachside Haven",
+        "description": "Beachside Haven details",
+        "type": "geographical-landmark"
+      }
+    },
+    {
+      "id": "L300-LA03",
+      "layer": 303,
+      "name": "Crystal Reef",
+      "type": "geographical-landmark",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Crystal Reef",
+        "description": "Crystal Reef details",
+        "type": "geographical-landmark"
+      }
+    },
+    {
+      "id": "L300-LA04",
+      "layer": 300,
+      "name": "Dusty Desert",
+      "type": "geographical-landmark",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Dusty Desert",
+        "description": "Dusty Desert details",
+        "type": "geographical-landmark"
+      }
+    },
+    {
+      "id": "L300-LA05",
+      "layer": 301,
+      "name": "Silver Falls",
+      "type": "geographical-landmark",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Silver Falls",
+        "description": "Silver Falls details",
+        "type": "geographical-landmark"
+      }
+    },
+    {
+      "id": "L300-LA06",
+      "layer": 302,
+      "name": "Emerald Rainforest",
+      "type": "geographical-landmark",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Emerald Rainforest",
+        "description": "Emerald Rainforest details",
+        "type": "geographical-landmark"
+      }
+    },
+    {
+      "id": "L300-LA07",
+      "layer": 303,
+      "name": "Mount Serenity",
+      "type": "geographical-landmark",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Mount Serenity",
+        "description": "Mount Serenity details",
+        "type": "geographical-landmark"
+      }
+    },
+    {
+      "id": "L300-LA08",
+      "layer": 300,
+      "name": "Golden Beach",
+      "type": "geographical-landmark",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Golden Beach",
+        "description": "Golden Beach details",
+        "type": "geographical-landmark"
+      }
+    },
+    {
+      "id": "L300-LA09",
+      "layer": 301,
+      "name": "Coral Reef",
+      "type": "geographical-landmark",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Coral Reef",
+        "description": "Coral Reef details",
+        "type": "geographical-landmark"
+      }
+    },
+    {
+      "id": "L300-LA10",
+      "layer": 302,
+      "name": "Singing Desert",
+      "type": "geographical-landmark",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Singing Desert",
+        "description": "Singing Desert details",
+        "type": "geographical-landmark"
+      }
+    },
+    {
+      "id": "L300-LA11",
+      "layer": 303,
+      "name": "Thunder Falls",
+      "type": "geographical-landmark",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Thunder Falls",
+        "description": "Thunder Falls details",
+        "type": "geographical-landmark"
+      }
+    },
+    {
+      "id": "L300-LA12",
+      "layer": 300,
+      "name": "Twilight Rainforest",
+      "type": "geographical-landmark",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Twilight Rainforest",
+        "description": "Twilight Rainforest details",
+        "type": "geographical-landmark"
+      }
+    },
+    {
+      "id": "L301-GEN01",
+      "layer": 302,
+      "name": "Generic Locale 1",
+      "type": "wilderness",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Generic Locale 1",
+        "description": "Generic Locale 1 details",
+        "type": "wilderness"
+      }
+    },
+    {
+      "id": "L301-GEN02",
+      "layer": 303,
+      "name": "Generic Locale 2",
+      "type": "wilderness",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Generic Locale 2",
+        "description": "Generic Locale 2 details",
+        "type": "wilderness"
+      }
+    },
+    {
+      "id": "L301-GEN03",
+      "layer": 301,
+      "name": "Generic Locale 3",
+      "type": "wilderness",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Generic Locale 3",
+        "description": "Generic Locale 3 details",
+        "type": "wilderness"
+      }
+    },
+    {
+      "id": "L301-GEN04",
+      "layer": 302,
+      "name": "Generic Locale 4",
+      "type": "wilderness",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Generic Locale 4",
+        "description": "Generic Locale 4 details",
+        "type": "wilderness"
+      }
+    },
+    {
+      "id": "L301-GEN05",
+      "layer": 303,
+      "name": "Generic Locale 5",
+      "type": "wilderness",
+      "tiles": {
+        "AA00": {
+          "objects": [
+            {
+              "char": "\u00b7",
+              "label": "terrain",
+              "z": 0
+            }
+          ]
+        }
+      },
+      "connections": [],
+      "center": "AA00",
+      "metadata": {
+        "name": "Generic Locale 5",
+        "description": "Generic Locale 5 details",
+        "type": "wilderness"
+      }
+    }
+  ]
+}

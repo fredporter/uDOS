@@ -33,9 +33,9 @@ def _resolve_path(relative_path: str) -> Path:
     return candidate
 
 
-def create_workspace_routes(auth_guard=None) -> APIRouter:
+def create_workspace_routes(auth_guard=None, prefix="/api/workspace") -> APIRouter:
     dependencies = [Depends(auth_guard)] if auth_guard else []
-    router = APIRouter(prefix="/api/v1/workspace", tags=["workspace"], dependencies=dependencies)
+    router = APIRouter(prefix=prefix, tags=["workspace"], dependencies=dependencies)
 
     @router.get("/roots")
     async def get_roots():

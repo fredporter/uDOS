@@ -10,19 +10,78 @@ from typing import Dict, Any, List, Optional
 from pathlib import Path
 from typing import Callable, Awaitable
 
+from core.services.prompt_parser_service import get_prompt_parser_service
+from core.services.todo_service import (
+    CalendarGridRenderer,
+    GanttGridRenderer,
+    get_service as get_todo_manager,
+)
+from core.services.todo_reminder_service import get_reminder_service
+
+from core.services.health_training import log_plugin_install_event
 from wizard.services.library_manager_service import get_library_manager, InstallResult
 from wizard.services.system_info_service import LibraryStatus, LibraryIntegration
+from wizard.services.plugin_repository import PluginRepository
+from wizard.services.plugin_validation import load_manifest, validate_manifest
+from wizard.services.path_utils import get_repo_root
 from wizard.tools.github_dev import PluginFactory
 from wizard.services.plugin_factory import APKBuilder
-from wizard.services.path_utils import get_repo_root
 import shutil
 import os
 
 
 AuthGuard = Optional[Callable[[Request], Awaitable[None]]]
 
-router = APIRouter(prefix="/api/v1/library", tags=["library"])
+router = APIRouter(prefix="/api/library", tags=["library"])
 _auth_guard: AuthGuard = None
+_todo_manager = get_todo_manager()
+_calendar_renderer = CalendarGridRenderer()
+_gantt_renderer = GanttGridRenderer()
+_prompt_parser = get_prompt_parser_service()
+_reminder_service = get_reminder_service(_todo_manager)
+
+
+def _build_prompt_instruction(name: str, manifest: Dict[str, Any]) -> str:
+    version = manifest.get("version") or manifest.get("manifest_version") or "latest"
+    description = manifest.get("description", "No description provided.")
+    return (
+        f"Install plugin {name} (version {version}). "
+        f"Verify the manifest checksum, apply dependencies, and register the integration with Wizard, logging the outcome for operators. "
+        f"Description: {description}"
+    )
+
+
+def _generate_prompt_payload(name: str, manifest: Dict[str, Any]) -> Dict[str, Any]:
+    instruction_text = _build_prompt_instruction(name, manifest)
+    parsed = _prompt_parser.parse(instruction_text)
+    tasks = parsed.get("tasks", [])
+    for task in tasks:
+        _todo_manager.add(task)
+
+    calendar_lines = _calendar_renderer.render_calendar(
+        _todo_manager.list_pending(), view="weekly"
+    )
+    gantt_lines = _gantt_renderer.render_gantt(
+        _todo_manager.list_pending(), window_days=30
+    )
+    reminder_payload = _reminder_service.log_reminder(
+        horizon_hours=parsed.get("reminder", {}).get("horizon_hours")
+    )
+
+    payload = {
+        "instruction": {
+            "id": parsed["instruction_id"],
+            "label": parsed["instruction_label"],
+            "description": parsed["instruction_description"],
+            "story_guidance": parsed.get("story_guidance", ""),
+            "reference_links": parsed.get("reference_links", []),
+        },
+        "tasks": [task.to_notion_block() for task in tasks],
+        "calendar": {"view": "weekly", "lines": calendar_lines, "output": "\n".join(calendar_lines)},
+        "gantt": {"window_days": 30, "lines": gantt_lines, "output": "\n".join(gantt_lines)},
+        "reminder": reminder_payload,
+    }
+    return payload
 
 
 async def _run_guard(request: Request) -> None:
@@ -154,7 +213,23 @@ async def install_integration(
                 detail="Integration cannot be installed (missing container.json)",
             )
 
+        manifest_data = load_manifest(Path(integration.path))
+        repo = PluginRepository(
+            base_dir=get_repo_root() / "wizard" / "distribution" / "plugins"
+        )
+        repo_entry = repo.get_plugin(name)
+        repo_entry_dict = repo_entry.to_dict() if repo_entry else {}
+        validation = validate_manifest(manifest_data, name, repo_entry_dict)
+
+        prompt_payload = _generate_prompt_payload(name, manifest_data)
         if integration.installed:
+            log_plugin_install_event(
+                name,
+                "wizard-api",
+                {"success": True, "action": "install", "message": "Already installed"},
+                manifest=manifest_data,
+                validation=validation,
+            )
             return {
                 "success": True,
                 "result": {
@@ -163,10 +238,18 @@ async def install_integration(
                     "action": "install",
                     "message": "Already installed",
                 },
+                "prompt": prompt_payload,
             }
 
         # Perform installation
         result = manager.install_integration(name)
+        log_plugin_install_event(
+            name,
+            "wizard-api",
+            result,
+            manifest=manifest_data,
+            validation=validation,
+        )
 
         return {
             "success": result.success,
@@ -177,6 +260,7 @@ async def install_integration(
                 "message": result.message,
                 "error": result.error,
             },
+            "prompt": prompt_payload,
         }
 
     except HTTPException:

@@ -1,0 +1,17 @@
+{
+  "name": "hitchhikers",
+  "description": "Pan-galactic sense of absurd guidance for immediate space layers.",
+  "companions": ["galaxy_layers"],
+  "replacements": {
+    "uDOS": "DeepGuide",
+    "UDOS": "DeepGuide",
+    "Self-Heal": "Pan-Galactic Care",
+    "SELF-HEAL": "Pan-Galactic Care",
+    "Hotkey": "42 Button",
+    "HOTKEY": "42 Button",
+    "Wizard": "Starship Console",
+    "WIZARD": "Starship Console",
+    "Repair": "Clover Patch",
+    "REPAIR": "Clover Patch"
+  }
+}

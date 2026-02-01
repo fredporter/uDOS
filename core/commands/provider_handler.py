@@ -47,7 +47,7 @@ class ProviderHandler(BaseCommandHandler):
     def _list_providers(self) -> Dict:
         """List all providers with status."""
         try:
-            guard = self._throttle_guard("/api/v1/providers/list")
+            guard = self._throttle_guard("/api/providers/list")
             if guard:
                 return guard
             response = requests.get(f"{WIZARD_API}/providers/list", timeout=5)
@@ -101,7 +101,7 @@ class ProviderHandler(BaseCommandHandler):
     def _provider_status(self, provider_id: str) -> Dict:
         """Get detailed provider status."""
         try:
-            guard = self._throttle_guard(f"/api/v1/providers/{provider_id}/status")
+            guard = self._throttle_guard(f"/api/providers/{provider_id}/status")
             if guard:
                 return guard
             response = requests.get(
@@ -168,7 +168,7 @@ class ProviderHandler(BaseCommandHandler):
     def _enable_provider(self, provider_id: str) -> Dict:
         """Enable a provider."""
         try:
-            guard = self._throttle_guard(f"/api/v1/providers/{provider_id}/enable")
+            guard = self._throttle_guard(f"/api/providers/{provider_id}/enable")
             if guard:
                 return guard
             response = requests.post(
@@ -184,7 +184,7 @@ class ProviderHandler(BaseCommandHandler):
                     output.append("")
                     output.append("Or flag for next startup:")
                     flag_guard = self._throttle_guard(
-                        f"/api/v1/providers/{provider_id}/flag"
+                        f"/api/providers/{provider_id}/flag"
                     )
                     if flag_guard:
                         return flag_guard
@@ -215,7 +215,7 @@ class ProviderHandler(BaseCommandHandler):
     def _disable_provider(self, provider_id: str) -> Dict:
         """Disable a provider."""
         try:
-            guard = self._throttle_guard(f"/api/v1/providers/{provider_id}/disable")
+            guard = self._throttle_guard(f"/api/providers/{provider_id}/disable")
             if guard:
                 return guard
             response = requests.post(

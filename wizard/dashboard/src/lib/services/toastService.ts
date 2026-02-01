@@ -8,7 +8,7 @@ interface LogPayload {
   meta?: Record<string, unknown>;
 }
 
-const LOG_ENDPOINT = "/api/v1/logs/toast";
+const LOG_ENDPOINT = "/api/logs/toast";
 
 async function logToast(payload: LogPayload) {
   try {

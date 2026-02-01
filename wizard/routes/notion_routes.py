@@ -12,7 +12,7 @@ AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
 
 
 def create_notion_routes(auth_guard: AuthGuard = None) -> APIRouter:
-    router = APIRouter(prefix="/api/v1/notion", tags=["notion-sync"])
+    router = APIRouter(prefix="/api/notion", tags=["notion-sync"])
     notion_sync = NotionSyncService()
 
     class WebhookVerify(BaseModel):
@@ -63,11 +63,11 @@ def create_notion_routes(auth_guard: AuthGuard = None) -> APIRouter:
             raise HTTPException(status_code=500, detail=str(exc))
 
     @router.get("/maps")
-    async def get_mappings(request: Request):
+    async def get_mappings(request: Request, limit: int = 12):
         if auth_guard:
             await auth_guard(request)
         try:
-            return notion_sync.get_local_notion_maps()
+            return notion_sync.get_local_notion_maps(limit=limit)
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
 

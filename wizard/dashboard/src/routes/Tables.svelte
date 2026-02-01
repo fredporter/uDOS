@@ -30,7 +30,7 @@
   }
 
   async function loadEntries() {
-    const res = await fetch(`/api/v1/workspace/list?path=`, {
+    const res = await fetch(`/api/workspace/list?path=`, {
       headers: authHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -44,7 +44,7 @@
     loading = true;
     error = null;
     try {
-      const res = await fetch(`/api/v1/workspace/read?path=${encodeURIComponent(path)}`, {
+      const res = await fetch(`/api/workspace/read?path=${encodeURIComponent(path)}`, {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

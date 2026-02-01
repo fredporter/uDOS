@@ -280,9 +280,9 @@ pytest public/wizard/tests/ -v
 **Wizard Server (Port 8765)**
 
 - `GET /health` - Health check
-- `POST /api/v1/devices/auth` - Device authentication
-- `GET /api/v1/ai/route` - Model routing
-- `GET /api/v1/extensions/` - Extension repository
+- `POST /api/devices/auth` - Device authentication
+- `GET /api/ai/route` - Model routing
+- `GET /api/extensions/` - Extension repository
 
 **API Server (Port 8000)**
 

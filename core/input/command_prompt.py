@@ -395,9 +395,9 @@ def create_default_registry() -> CommandRegistry:
 
     registry.register(
         name="RUN",
-        help_text="Execute scripts (uPy or uSCRIPT)",
+        help_text="Execute TypeScript scripts (embedded in .md files)",
         syntax="RUN <file>",
-        examples=["RUN script.py", "RUN automation.uscript"],
+        examples=["RUN script.py", "RUN automation-script.md"],
         icon="▶️",
         category="Data",
     )

@@ -342,7 +342,7 @@ Features:
 | ----------- | --------------------------------- |
 | `.md`       | Standard Markdown (no shortcodes) |
 | `.udos.md`  | uDOS.md with shortcodes           |
-| `.upy`      | Pure uPY script (no Markdown)     |
+| `.md`       | TypeScript script (with -script/-template suffix) |
 | `.guide.md` | Knowledge guide (auto-template)   |
 | `.story.md` | Interactive story                 |
 | `.form.md`  | Form template                     |

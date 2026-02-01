@@ -28,7 +28,7 @@
   async function loadLayers() {
     loading = true;
     try {
-      const res = await fetch("/api/v1/layers/core/list", {
+      const res = await fetch("/api/layers/core/list", {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -46,7 +46,7 @@
 
     try {
       const res = await fetch(
-        `/api/v1/layers/core/load?name=${encodeURIComponent(filename)}`,
+        `/api/layers/core/load?name=${encodeURIComponent(filename)}`,
         { headers: authHeaders() }
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

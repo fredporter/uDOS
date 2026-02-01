@@ -15,7 +15,7 @@ The `/sonic/datasets` folder in the public `sonic` submodule contains:
 
 - **Manifest:** `packages/sonic/udos-sonic-datasets.manifest.json`
 - **Scope:** Wizard Server distribution (included in package index)
-- **Integration:** Exposed via `/api/v1/sonic/*` endpoints (auth required)
+- **Integration:** Exposed via `/api/sonic/*` endpoints (auth required)
 
 ## Usage
 
@@ -23,7 +23,7 @@ The `/sonic/datasets` folder in the public `sonic` submodule contains:
 
 ```bash
 curl -H "Authorization: Bearer $DEVICE_TOKEN" \
-  http://localhost:8765/api/v1/sonic/devices?vendor=Dell
+  http://localhost:8765/api/sonic/devices?vendor=Dell
 ```
 
 ### Query Devices
@@ -41,20 +41,20 @@ Supported filters:
 
 ```bash
 curl -H "Authorization: Bearer $DEVICE_TOKEN" \
-  http://localhost:8765/api/v1/sonic/devices/dell-optiplex-9020
+  http://localhost:8765/api/sonic/devices/dell-optiplex-9020
 ```
 
 ### Schema and Raw Data
 
 ```bash
 # JSON Schema
-curl http://localhost:8765/api/v1/sonic/schema
+curl http://localhost:8765/api/sonic/schema
 
 # Raw Markdown table
-curl http://localhost:8765/api/v1/sonic/table
+curl http://localhost:8765/api/sonic/table
 
 # Catalog statistics
-curl http://localhost:8765/api/v1/sonic/stats
+curl http://localhost:8765/api/sonic/stats
 ```
 
 ## Building the Database
@@ -70,7 +70,7 @@ Or via Wizard routes (triggers auto-compile):
 
 ```bash
 # Health check will show next steps if DB missing
-curl http://localhost:8765/api/v1/sonic/health
+curl http://localhost:8765/api/sonic/health
 ```
 
 ## Adding Devices

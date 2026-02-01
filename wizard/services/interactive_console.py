@@ -205,7 +205,7 @@ class WizardConsole:
             f"  • Health:         http://{self.config.host}:{self.config.port}/health"
         )
         print(
-            f"  • API:            http://{self.config.host}:{self.config.port}/api/v1/"
+            f"  • API:            http://{self.config.host}:{self.config.port}/api/"
         )
         print(f"  • WebSocket:      ws://{self.config.host}:{self.config.port}/ws")
         print(f"  • Documentation:  http://{self.config.host}:{self.config.port}/docs")
@@ -764,7 +764,7 @@ class WizardConsole:
                     print(f"    • {pattern}: {count}x")
 
             print(
-                f"\n  Webhook URL: http://{self.config.host}:{self.config.port}/api/v1/github/webhook"
+                f"\n  Webhook URL: http://{self.config.host}:{self.config.port}/api/github/webhook"
             )
             print("  Configure at: https://github.com/[owner]/[repo]/settings/hooks")
         except Exception as e:
@@ -1007,7 +1007,7 @@ class WizardConsole:
         loop = asyncio.get_event_loop()
         try:
             result = await loop.run_in_executor(
-                None, lambda: self._api_request("GET", "/api/v1/providers/list")
+                None, lambda: self._api_request("GET", "/api/providers/list")
             )
         except Exception as e:
             print(f"\n❌ Provider list failed: {e}\n")
@@ -1042,7 +1042,7 @@ class WizardConsole:
                 result = await loop.run_in_executor(
                     None,
                     lambda: self._api_request(
-                        "GET", f"/api/v1/providers/{provider_id}/status"
+                        "GET", f"/api/providers/{provider_id}/status"
                     ),
                 )
                 status = result.get("status", {})
@@ -1054,7 +1054,7 @@ class WizardConsole:
                 result = await loop.run_in_executor(
                     None,
                     lambda: self._api_request(
-                        "POST", f"/api/v1/providers/{provider_id}/flag"
+                        "POST", f"/api/providers/{provider_id}/flag"
                     ),
                 )
                 print(f"\n{result.get('message','Flagged')}\n")
@@ -1063,7 +1063,7 @@ class WizardConsole:
                 result = await loop.run_in_executor(
                     None,
                     lambda: self._api_request(
-                        "POST", f"/api/v1/providers/{provider_id}/unflag"
+                        "POST", f"/api/providers/{provider_id}/unflag"
                     ),
                 )
                 print(f"\n{result.get('message','Unflagged')}\n")
@@ -1071,7 +1071,7 @@ class WizardConsole:
             elif action == "setup":
                 # POST with query param
                 query = urllib.parse.urlencode({"provider_id": provider_id})
-                path = f"/api/v1/providers/setup/run?{query}"
+                path = f"/api/providers/setup/run?{query}"
                 result = await loop.run_in_executor(
                     None, lambda: self._api_request("POST", path)
                 )

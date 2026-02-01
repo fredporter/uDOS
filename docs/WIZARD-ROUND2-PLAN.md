@@ -36,7 +36,7 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
    - Extend `wizard/services/task_classifier.py` and `workflow_manager` to plumb new automation hints (F9 -> `PLUGIN install`, F8 -> `wizard` page) so CLI/TUI flows share the same scheduling signals.
 
 3. **Automation-Friendly APIs** (`wizard/routes/*`, `wizard/services/secret_store.py`, `wizard/services/extension_handler.py`)
-   - Harden each `/api/v1/library/*` and `/api/v1/parser/*` endpoint with request validation, policy gating, and the shared rate limiter (`wizard/services/rate_limiter.py`); every throttle/error now writes to `memory/logs/provider-load.log` so automation can gate `/dev/` restarts before the `logging_manager` or PATTERN flows resume.
+   - Harden each `/api/library/*` and `/api/parser/*` endpoint with request validation, policy gating, and the shared rate limiter (`wizard/services/rate_limiter.py`); every throttle/error now writes to `memory/logs/provider-load.log` so automation can gate `/dev/` restarts before the `logging_manager` or PATTERN flows resume.
    - Log plugin/extension installs alongside `memory/logs/health-training.log` and the Sonic `/hotkeys/data` snapshot so automation knows what changed each round.
 
 ## Hardening & Security
@@ -47,7 +47,7 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
    - Push CLI secrets visibility through the config page (`wizard/routes/config_routes.py`) but gate access with `wizard/services/policy_enforcer.py` and `AccessLevel.ADMIN` checks in `commands/config_handler.py`.
 
 2. **API Abuse Prevention**
-   - Gate `/api/v1/library/*` and `/api/v1/config/*` through `wizard/services/rate_limiter.py` and `logging_manager.py` so repeated churn surfaces in `monitoring_manager` dashboards.
+   - Gate `/api/library/*` and `/api/config/*` through `wizard/services/rate_limiter.py` and `logging_manager.py` so repeated churn surfaces in `monitoring_manager` dashboards.
    - Validate plugin manifests with `wizard/services/plugin_repository.py`, verify signatures/cert chains, and reject mismatched dependencies before copying into `/library/`.
    - Harden `wizard/services/repair_service.py` and `health_diagnostics.py` so Self-Healer events include the failing module, logged under `[WIZ]` tags.
 
@@ -62,7 +62,7 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
 - Feed `monitoring_manager` output into `wizard/services/logging_manager.py` so CLI `LOGS --wizard` mirrors the dashboard timeline.
 - Add `memory/logs/health-training.log` watchers that notify `wizard/services/notification_history_service.py` when a training round sees `remaining > 0`, creating a PATTERN entry for automation scripts (`startup-script.md`, `reboot-script.md`).
 - Ensure `wizard/services/monitoring_manager.py` snapshots `/hotkeys/data` before each `REPAIR`/`startup-script` run so the key bindings cited in `docs/TUI-HOTKEY-AUTOMATION.md` stay consistent with the live map.
-- Log `provider-load.log` and throttle history into automation triggers so `/dev/` restarts read the same entries that get written into `provisioning` dashboards; `tools/trigger_library_throttles.py` already exercises `/api/v1/library/*` and parser endpoints so the throttle history reflects what automation scripts will gate on the next PATTERN/REPAIR pass.
+- Log `provider-load.log` and throttle history into automation triggers so `/dev/` restarts read the same entries that get written into `provisioning` dashboards; `tools/trigger_library_throttles.py` already exercises `/api/library/*` and parser endpoints so the throttle history reflects what automation scripts will gate on the next PATTERN/REPAIR pass.
 
 ## Next Steps
 
@@ -78,7 +78,7 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
 | --- | --- | --- | --- | --- |
 | 1 | Jan 31 | Baseline gateway telemetry: run `tools/cycle1_gateway_telemetry.py` to capture provider fingerprints, quota summaries, `monitoring_summary`, and `notification_history` entries before automation gates Cycle 2. | Gateway/Telemetry Squad | `tools/cycle1_gateway_telemetry.py`, `wizard/services/monitoring_manager.py` |
 | 2 | Feb 1 | Add per-provider circuit breakers + quota/cost tracking instrumentation; verify `quota_tracker` emits priority distribution summaries. | Gateway/Telemetry Squad | `wizard/services/quota_tracker.py`, `wizard/services/cost_tracking.py` |
-| 3 | Feb 2 | Harden the first rate limiter/policy hooks on `/api/v1/library/*` and parser endpoints; populate `memory/logs/provider-load.log` via `tools/trigger_library_throttles.py` so automation can replay throttling history. | Workflow/Policy Squad | `wizard/services/rate_limiter.py`, `wizard/services/policy_enforcer.py` |
+| 3 | Feb 2 | Harden the first rate limiter/policy hooks on `/api/library/*` and parser endpoints; populate `memory/logs/provider-load.log` via `tools/trigger_library_throttles.py` so automation can replay throttling history. | Workflow/Policy Squad | `wizard/services/rate_limiter.py`, `wizard/services/policy_enforcer.py` |
 | 4 | Feb 3 | Initiate OAuth key audits: secret rotation logging via `wizard/services/secret_store.py`, `key_store` encryption verification, CLI config route gating. | Security/OAuth Squad | `wizard/security/key_store.py`, `wizard/routes/config_routes.py` |
 | 5 | Feb 4 | PKCE callback enforcement + refresh token hygiene for Google/Microsoft/GitHub/Apple; log `[WIZ]` markers for each provider handshake. | Security/OAuth Squad | `wizard/services/oauth_manager.py` |
 | 6 | Feb 5 | Instrument `workflow_manager` + `sync_executor` to surface mission container priorities to automation logs; gate binder requests via `core/services/spatial_filesystem.py`. | Workflow/Policy Squad | `wizard/services/workflow_manager.py`, `core/services/spatial_filesystem.py` |
@@ -86,7 +86,7 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
 | 8 | Feb 7 | Strengthen plugin manifest verification: manifest signature checks, dependency wiring, rejection logging before library copy. | Plugin/Sonic Squad | `wizard/services/plugin_repository.py`, `wizard/services/library_manager_service.py` |
 | 9 | Feb 8 | Sync `memory/logs/health-training.log` with plugin installs and `sonic` hotkey snapshots; ensure the `PLUGIN` command logs to the same payload. | Plugin/Sonic Squad | `docs/TUI-HOTKEY-AUTOMATION.md`, `wizard/services/plugin_repository.py` |
 | 10 | Feb 9 | Update Sonic automation docs and dashboards; highlight `sonic/docs/specs/sonic-screwdriver-v1.1.0.md` expectations plus media log gating. | Plugin/Sonic Squad | `docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md`, `sonic/docs/specs/sonic-screwdriver-v1.1.0.md` |
-| 11 | Feb 10 | Harden integration API abuse prevention: gate `/api/v1/library/*` and parser endpoints with the shared rate limiter, replay the throttle history from `memory/logs/provider-load.log`, and ensure policy enforcement feeds back into `/dev/` restart gating. | Workflow/Policy Squad | `wizard/routes/library_routes.py`, `wizard/services/rate_limiter.py` |
+| 11 | Feb 10 | Harden integration API abuse prevention: gate `/api/library/*` and parser endpoints with the shared rate limiter, replay the throttle history from `memory/logs/provider-load.log`, and ensure policy enforcement feeds back into `/dev/` restart gating. | Workflow/Policy Squad | `wizard/routes/library_routes.py`, `wizard/services/rate_limiter.py` |
 | 12 | Feb 11 | Expand automation watchers for `startup-script.md`/`reboot-script.md`: they must read `health-training.log`, confirm hotkey snapshot match, and emit PATTERN banners. | Integration/Operations Squad | `wizard/services/monitoring_manager.py`, `wizard/services/notification_history_service.py` |
 | 13 | Feb 12 | Tune `monitoring_manager`/`logging_manager` dashboards: surface remaining issues, automation logs, and provider rotation events for daily reviews. | Integration/Operations Squad | `wizard/services/logging_manager.py`, `wizard/services/monitoring_manager.py` |
 | 14 | Feb 13 | Begin HubSpot/Notion/iCloud sync ramp-up with quota gating while continuing to monitor SLOs and `health-training` state; prepare language for next round. | Integration/Operations Squad | `wizard/services/task_scheduler.py`, `wizard/services/sync_executor.py` |

@@ -13,7 +13,7 @@ AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
 
 
 def create_ai_routes(auth_guard: AuthGuard = None) -> APIRouter:
-    router = APIRouter(prefix="/api/v1/ai", tags=["ai"])
+    router = APIRouter(prefix="/api/ai", tags=["ai"])
     ai_instance: Optional[MistralVibeIntegration] = None
 
     def get_ai() -> MistralVibeIntegration:

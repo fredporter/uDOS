@@ -270,6 +270,19 @@ class TaskScheduler:
                     (task_id,),
                 )
                 task_row = cursor.fetchone() or (5, 5, 1, 0)
+                # Prevent scheduling duplicates for the same task if a pending run already exists
+                dup_check = conn.execute(
+                    "SELECT run_id FROM task_queue WHERE task_id = ? AND state = 'pending'",
+                    (task_id,),
+                ).fetchone()
+                if dup_check:
+                    return {
+                        "task_id": task_id,
+                        "run_id": dup_check["run_id"],
+                        "state": "pending",
+                        "scheduled_for": scheduled_for.isoformat(),
+                        "note": "duplicate avoided",
+                    }
                 conn.execute(
                     """INSERT INTO task_runs (id, task_id, state) VALUES (?, ?, ?)""",
                     (run_id, task_id, "sprout"),

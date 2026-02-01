@@ -1,0 +1,45 @@
+{
+  "PROMPT_PARSER": {
+    "DEFAULT_TYPE": "todo.checklist",
+    "INSTRUCTION_TYPES": [
+      {
+        "id": "todo.checklist",
+        "label": "Todo checklist",
+        "description": "Actionable, short-term tasks or reminders transformed into TodoManager/Notion blocks and calendar events.",
+        "primary_signals": ["todo", "reminder", "due", "next", "deliverable", "finish", "checklist"],
+        "secondary_signals": ["today", "tomorrow", "week", "schedule", "list", "project"],
+        "output_target": "core.services.todo_service.TodoManager.to_notion_block",
+        "reminder": {
+          "horizon_hours": 24,
+          "notify": true,
+          "log_event": "todo_reminder"
+        },
+        "story_guidance": "Seed minimal actionable steps, mark urgency vs. nice-to-have, and call the PROMPT workflow again if the user adds new items.",
+        "reference_links": []
+      },
+      {
+        "id": "novel.outline",
+        "label": "Novel outline",
+        "description": "High-level chapters, arcs, and pacing guidance for fiction or narrative projects (reference Squibler/Novel templates).",
+        "primary_signals": ["novel", "story", "outline", "chapter", "plot", "arc", "character"],
+        "secondary_signals": ["template", "write", "draft", "tonal", "voice"],
+        "output_target": "docs/wiki-candidates/BOOK-WRITING-TEMPLATE.md",
+        "story_guidance": "Generate a scaffold with chapter titles, loglines, and character beats; mention https://www.squibler.io/learn/templates/book-writing-templates/ for reference.",
+        "reference_links": [
+          "https://www.novel-software.com/novel-outline-template/",
+          "https://www.squibler.io/learn/templates/book-writing-templates/"
+        ]
+      },
+      {
+        "id": "workflow.schedule",
+        "label": "Workflow / schedule build",
+        "description": "Structured workflow with timelines, dependencies, or resource briefs; expected to feed scheduling automation or coordination stories.",
+        "primary_signals": ["workflow", "schedule", "plan", "cycle", "step", "phase", "velocity"],
+        "secondary_signals": ["meta ad spend", "google ads", "call", "programmatic"],
+        "output_target": "wizard/routes/task_routes.calendar",
+        "story_guidance": "Break the instruction into windows (day/week/month), include owners/blocks, and reference the 80×30 calendar/Gantt renderers before asking for approval.",
+        "reference_links": []
+      }
+    ]
+  }
+}

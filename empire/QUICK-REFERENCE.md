@@ -35,10 +35,10 @@ CLOUD GENERATE KEYWORDS "live music venues"
 CLOUD GENERATE KEYWORDS "live music venues" --location "Sydney"
 
 # Export for workflows (uPY variables)
-CLOUD GENERATE KEYWORDS "live music venues" --location "Sydney" --upy
+CLOUD GENERATE KEYWORDS "live music venues" --location "Sydney" --export
 ```
 
-**Output (--upy):**
+**Output (--export):**
 ```upy
 {$KEYWORDS.PRIMARY} = ["live music venues", "concert halls", ...]
 {$KEYWORDS.LOCATION} = ["Sydney live music", "Sydney venues", ...]
@@ -57,10 +57,10 @@ CLOUD RESOLVE LOCATION "Opera House, Sydney NSW"
 CLOUD RESOLVE LOCATION "Opera House, Sydney" --layer 300
 
 # Export for workflows (uPY variables)
-CLOUD RESOLVE LOCATION "Opera House, Sydney" --upy
+CLOUD RESOLVE LOCATION "Opera House, Sydney" --export
 ```
 
-**Output (--upy):**
+**Output (--export):**
 ```upy
 {$LOCATION.TILE} = "DN340"              # Grid position
 {$LOCATION.TILE_FULL} = "DN340-300"     # With layer
@@ -78,7 +78,7 @@ CLOUD RESOLVE LOCATION "Opera House, Sydney" --upy
 
 ```upy
 # Generate keywords
-(CLOUD GENERATE KEYWORDS|cafes|--location|Brooklyn|--upy)
+(CLOUD GENERATE KEYWORDS|cafes|--location|Brooklyn|--export)
 
 # Search using keywords
 FOR {$keyword} IN {$KEYWORDS.PRIMARY}
@@ -96,7 +96,7 @@ END FOR
 # Resolve and map each location
 FOR {$bid} IN {$business_ids}
   (CLOUD GET|{$bid}|--field|address) → {$address}
-  (CLOUD RESOLVE LOCATION|{$address}|--upy)
+  (CLOUD RESOLVE LOCATION|{$address}|--export)
   (CLOUD UPDATE|{$bid}|--tile|{$LOCATION.TILE})
   (MAP ADD|{$LOCATION.TILE}|business|{$bid})
 END FOR
@@ -106,7 +106,7 @@ END FOR
 
 ```upy
 # 1. Generate keywords
-(CLOUD GENERATE KEYWORDS|live music venues|--location|Sydney|--upy)
+(CLOUD GENERATE KEYWORDS|live music venues|--location|Sydney|--export)
 
 # 2. Search
 FOR {$keyword} IN {$KEYWORDS.PRIMARY}
@@ -117,7 +117,7 @@ END FOR
 (CLOUD LIST|businesses|--format|ids) → {$business_ids}
 FOR {$bid} IN {$business_ids}
   (CLOUD GET|{$bid}|--field|address) → {$address}
-  (CLOUD RESOLVE LOCATION|{$address}|--upy)
+  (CLOUD RESOLVE LOCATION|{$address}|--export)
   (CLOUD UPDATE|{$bid}|--tile|{$LOCATION.TILE})
 END FOR
 
@@ -184,23 +184,23 @@ Generated keywords include 5 categories:
 
 ### Business Discovery
 ```bash
-CLOUD GENERATE KEYWORDS "gyms" --location "Manhattan" --upy
+CLOUD GENERATE KEYWORDS "gyms" --location "Manhattan" --export
 ```
 
 ### Address Validation
 ```bash
-CLOUD RESOLVE LOCATION "123 Main St, City, State" --upy
+CLOUD RESOLVE LOCATION "123 Main St, City, State" --export
 ```
 
 ### Mapping
 ```bash
-CLOUD RESOLVE LOCATION "Business Address" --layer 300 --upy
+CLOUD RESOLVE LOCATION "Business Address" --layer 300 --export
 # Use {$LOCATION.TILE} in MAP ADD command
 ```
 
 ### Competitor Research
 ```bash
-CLOUD GENERATE KEYWORDS "coffee shops" --type "specialty coffee" --upy
+CLOUD GENERATE KEYWORDS "coffee shops" --type "specialty coffee" --export
 # Check {$KEYWORDS.COMPETITOR} for known brands
 ```
 
@@ -236,7 +236,7 @@ CLOUD GENERATE KEYWORDS "coffee shops" --type "specialty coffee" --upy
 Run the test workflow:
 
 ```bash
-./start_udos.sh memory/workflows/test-workflow-automation.upy
+./start_udos.sh memory/workflows/test-workflow-automation-script.md
 ```
 
 Tests:

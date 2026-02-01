@@ -192,7 +192,7 @@ BEACON DEVICES
 ### Configure Beacon
 
 ```bash
-curl -X POST http://localhost:8765/api/v1/beacon/configure \
+curl -X POST http://localhost:8765/api/beacon/configure \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{
@@ -209,7 +209,7 @@ curl -X POST http://localhost:8765/api/v1/beacon/configure \
 ### Get Hardware Setup Guide
 
 ```bash
-curl http://localhost:8765/api/v1/beacon/setup-hardware \
+curl http://localhost:8765/api/beacon/setup-hardware \
   -d '{"hardware": "tplink-wr841n"}' \
   -H "Content-Type: application/json"
 ```
@@ -217,14 +217,14 @@ curl http://localhost:8765/api/v1/beacon/setup-hardware \
 ### Check Device Quota
 
 ```bash
-curl http://localhost:8765/api/v1/beacon/devices/mobile-a1b2c3/quota \
+curl http://localhost:8765/api/beacon/devices/mobile-a1b2c3/quota \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 ### Get Recommended Routers
 
 ```bash
-curl http://localhost:8765/api/v1/beacon/devices?cost_tier=budget
+curl http://localhost:8765/api/beacon/devices?cost_tier=budget
 ```
 
 ## Troubleshooting
@@ -294,7 +294,7 @@ QUOTA RESET [device-id]
 ### Add Emergency Funds
 
 ```bash
-curl -X POST http://localhost:8765/api/v1/beacon/devices/mobile-a1b2c3/quota/add-funds \
+curl -X POST http://localhost:8765/api/beacon/devices/mobile-a1b2c3/quota/add-funds \
   -d '{"amount_usd": 10.0}' \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN"

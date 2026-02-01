@@ -19,7 +19,7 @@ When assisting with uDOS development:
 2. **Entry point**: `core/uDOS_main.py` → `core/uDOS_commands.py` (router)
 3. **Command flow**: Router → Handler (`core/commands/*_handler.py`) → Service
 4. **Configuration**: `core/config.py` (unified .env + user.json)
-5. **Test validation**: Run `./start_udos.sh memory/ucode/tests/shakedown.upy`
+5. **Test validation**: Run `./start_udos.sh memory/tests/shakedown-script.md`
 
 ## Workspace Structure (v1.2.21)
 
@@ -57,8 +57,9 @@ When assisting with uDOS development:
 - Full git tracking
 - Examples: handlers, services, utilities
 
-**uPY (.upy) - User Scripts (mostly gitignored):**
+**TypeScript Scripts (embedded in .md files):**
 - User automation: `memory/ucode/scripts/`, `memory/ucode/sandbox/`
+- Format: TypeScript embedded in Markdown (e.g., `workflow-script.md`, `quest-template.md`)
 - Users edit directly
 - Gitignored (except stdlib/examples/adventures)
 - Examples: workflows, missions, game scripts
@@ -81,7 +82,7 @@ from core.commands.my_handler import MyHandler
 self.my_handler = MyHandler(**handler_kwargs)
 
 # In execute():
-elif cmd in ['MYCOMMAND']: 
+elif cmd in ['MYCOMMAND']:
     return self.my_handler.handle_command(cmd_parts)
 
 # 3. Add to core/data/commands.json
@@ -199,7 +200,7 @@ Context available in OK commands includes:
 ✅ **Do:**
 - Use error_helper for all exceptions
 - Check logs before suggesting fixes
-- Test with `./start_udos.sh script.upy`
+- Test with `./start_udos.sh script-example.md`
 - Run SHAKEDOWN after changes
 - Follow handler pattern for commands
 - Document all public APIs
@@ -208,7 +209,7 @@ Context available in OK commands includes:
 
 ```bash
 # Core validation
-./start_udos.sh memory/ucode/tests/shakedown.upy
+./start_udos.sh memory/tests/shakedown-script.md
 
 # Unit tests
 pytest memory/ucode/tests/ -v

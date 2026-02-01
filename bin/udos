@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # uDOS Shell Launcher
-# Provides command-line interface for running .upy scripts and interactive mode
+# Provides command-line interface for running TypeScript scripts (in .md files) and interactive mode
 #
 
 set -e
@@ -45,7 +45,7 @@ uDOS - Offline-First Operating System for Survival Knowledge
 
 Usage:
     udos                        Start interactive mode
-    udos <script.upy>          Execute a .upy script
+    udos <script-name.md>      Execute a TypeScript script
     udos --version             Show version information
     udos --help                Show this help message
 
@@ -53,7 +53,7 @@ Options:
     -i, --interactive          Force interactive mode after script
     -v, --verbose              Enable verbose output
     --no-color                 Disable colored output
-    --validate <script.upy>    Validate script syntax only
+    --validate <script.md>     Validate script syntax only
 
 Environment:
     UDOS_HOME                  Installation directory
@@ -62,9 +62,9 @@ Environment:
 
 Examples:
     udos                                    # Start interactive mode
-    udos memory/ucode/examples/water-quest.upy  # Run water quest
-    udos --validate my-script.upy          # Check syntax
-    udos -i shelter-quest.upy              # Run then go interactive
+    udos memory/ucode/examples/water-quest-script.md  # Run water quest
+    udos --validate my-script.md               # Check syntax
+    udos -i shelter-quest-script.md            # Run then go interactive
 
 For more information, visit: https://github.com/fredporter/uDOS-dev
 EOF
@@ -114,7 +114,7 @@ while [[ $# -gt 0 ]]; do
             SCRIPT="$2"
             shift 2
             ;;
-        *.upy)
+        *-script.md|*-template.md)
             SCRIPT="$1"
             shift
             ;;
@@ -141,17 +141,16 @@ if [ -n "$SCRIPT" ]; then
 import sys
 sys.path.insert(0, '$UDOS_HOME')
 from pathlib import Path
-from core.runtime.upy import UPYInterpreter
+from core.runtime.script_runner import ScriptRunner
 
 try:
     # Just check if the script can be parsed
     with open('$SCRIPT', 'r') as f:
         code = f.read()
-    interpreter = UPYInterpreter(timeout=5)
-    # Validate without executing
+    # Validate script syntax
     import ast
     ast.parse(code)
-    print('✅ Valid .upy script')
+    print('✅ Valid TypeScript script')
     sys.exit(0)
 except Exception as e:
     print(f'❌ Invalid: {e}', file=sys.stderr)

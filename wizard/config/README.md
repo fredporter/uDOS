@@ -19,21 +19,21 @@ Open [http://localhost:8765/config](http://localhost:8765/config) to:
 
 ```bash
 # List all config files
-curl http://localhost:8765/api/v1/config/files
+curl http://localhost:8765/api/config/files
 
 # Get a config (loads example if missing)
-curl http://localhost:8765/api/v1/config/assistant_keys
+curl http://localhost:8765/api/config/assistant_keys
 
 # Save a config
-curl -X POST http://localhost:8765/api/v1/config/assistant_keys \
+curl -X POST http://localhost:8765/api/config/assistant_keys \
   -H "Content-Type: application/json" \
   -d '{"content": {...}}'
 
 # View example/template
-curl http://localhost:8765/api/v1/config/assistant_keys/example
+curl http://localhost:8765/api/config/assistant_keys/example
 
 # Reset to example/template
-curl -X POST http://localhost:8765/api/v1/config/assistant_keys/reset
+curl -X POST http://localhost:8765/api/config/assistant_keys/reset
 ```
 
 ## 📋 Configuration Files
@@ -137,16 +137,16 @@ The easiest way is using the included setup script:
 
 ```bash
 # Check SSH key status
-curl http://localhost:8765/api/v1/config/ssh/status
+curl http://localhost:8765/api/config/ssh/status
 
 # Get public key
-curl http://localhost:8765/api/v1/config/ssh/public-key
+curl http://localhost:8765/api/config/ssh/public-key
 
 # Test GitHub connection
-curl -X POST http://localhost:8765/api/v1/config/ssh/test-connection
+curl -X POST http://localhost:8765/api/config/ssh/test-connection
 
 # View setup instructions
-curl http://localhost:8765/api/v1/config/ssh/setup-instructions
+curl http://localhost:8765/api/config/ssh/setup-instructions
 ```
 
 ### Key Locations

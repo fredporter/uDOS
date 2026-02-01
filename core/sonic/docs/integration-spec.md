@@ -25,17 +25,17 @@ Sonic Screwdriver publishes its curated device catalog via `wizard.routes.sonic_
 | `last_seen` | Last update timestamp |
 
 ### Wizard API Endpoints
-- `GET /api/v1/sonic/health` – quick availability summary & rebuild hints.
-- `GET /api/v1/sonic/schema` – JSON schema for validation.
-- `GET /api/v1/sonic/table` – Markdown table for dashboards/docs.
-- `GET /api/v1/sonic/devices` – paginated catalog with filters: `vendor`, `reflash_potential`, `usb_boot`, `ventoy`.
+- `GET /api/sonic/health` – quick availability summary & rebuild hints.
+- `GET /api/sonic/schema` – JSON schema for validation.
+- `GET /api/sonic/table` – Markdown table for dashboards/docs.
+- `GET /api/sonic/devices` – paginated catalog with filters: `vendor`, `reflash_potential`, `usb_boot`, `ventoy`.
 
 Consumers should respect the `methods` array to know whether a device supports `windows10_boot`, `media_mode`, `sonic_usb`, or `ventoy`. The `wizard.routes.sonic_routes` router can also return `manifest_verified` and `dependencies` fields so installers can enforce manifest validation and dependency wiring before calling the library manager.
 
 ### Syncing Plan
 1. Build tool (`wizard.routes.sonic_routes`) exports `devices` so dashboards show current catalog.
 2. Any `devices.db` refresh should overwrite `memory/sonic/sonic-devices.db` and trigger `sqlite3 ... < sonic/datasets/sonic-devices.sql`.
-3. UI/automation can poll `/api/v1/sonic/health` and show quick instructions when the DB is stale.
+3. UI/automation can poll `/api/sonic/health` and show quick instructions when the DB is stale.
 
 ## 2. USB Builder API (Plan + Run)
 
@@ -102,7 +102,7 @@ Sonic expects a Windows payload to include the following bits so Wizard can scri
 Wizard interfaces should expose a “Media Launch” panel that:
 1. Lists available launchers per platform (Kodi, WantMyMTV, Plex).
 2. Provides `Start/Stop` buttons that call `scripts/media-controller.sh <launcher>`.
-3. Shows auto-detected device capabilities (via `/api/v1/sonic/devices?media_mode=htpc`).
+3. Shows auto-detected device capabilities (via `/api/sonic/devices?media_mode=htpc`).
 
 ## 4. Wizard Plugin Installation Flow
 
@@ -111,12 +111,12 @@ Plugin installs flowing through the Core `PLUGIN install <id>` command should re
 1. `core/tui/ucode.py` copies `/wizard/distribution/plugins/<id>` into `/library/<id>` and writes `container.json` metadata so the Wizard `LibraryManagerService` can load it.
 2. The CLI then calls `LibraryManagerService.install_integration`, which enforces dependency wiring, runs setup scripts, and optionally builds APK bundles for the plugin.
 3. `wizard.services.plugin_repository.PluginRepository` keeps track of available plugins, manifest checksums, and whether a plugin is already installed so the CLI can report upgrade availability.
-4. Add hooks from the Wizard `plugin_repository` into _the same_ Sonic/USB story so plugin install actions can trigger schema validation (`GET /api/v1/sonic/schema`) before enabling new media/USB tooling.
+4. Add hooks from the Wizard `plugin_repository` into _the same_ Sonic/USB story so plugin install actions can trigger schema validation (`GET /api/sonic/schema`) before enabling new media/USB tooling.
 
 ## 5. Sonic Gap Catalog & Roadmap
 
 To keep the Sonic/UWizard capability visible to future rounds:
 
 - Track missing APIs and feature gaps (USB builder scripts, device database syncing, Windows media launcher) by updating this doc and linking to `ROUNDS-3-10.md`.
-- Document the Sonic Screwdriver ″gap targets″ for USB flashing (`core/sonic_cli.py plan|run`), the device DB sync webhook (`/api/v1/sonic/sync`), and the Windows media launcher contract (`payloads/windows/settings.json` plus `media-controller.sh`).
+- Document the Sonic Screwdriver ″gap targets″ for USB flashing (`core/sonic_cli.py plan|run`), the device DB sync webhook (`/api/sonic/sync`), and the Windows media launcher contract (`payloads/windows/settings.json` plus `media-controller.sh`).
 - Surface `memory/sonic/sonic-devices.db` updates (new columns `wizard_profile`, `media_launcher`) in the Wizard dashboard so the TUI/Wizard story can display the planned capability list.

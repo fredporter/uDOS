@@ -5,13 +5,13 @@ Enhanced Plugin Routes
 Extended plugin API with full discovery, git/version control, and installer pathways.
 
 Endpoints:
-- GET  /api/v1/plugins/catalog - All plugins with metadata
-- GET  /api/v1/plugins/{id} - Specific plugin details
-- GET  /api/v1/plugins/search - Search plugins
-- POST /api/v1/plugins/{id}/install - Install/update plugin
-- GET  /api/v1/plugins/{id}/git/status - Git status
-- POST /api/v1/plugins/{id}/git/pull - Update from upstream
-- POST /api/v1/plugins/{id}/git/clone - Clone from git
+- GET  /api/plugins/catalog - All plugins with metadata
+- GET  /api/plugins/{id} - Specific plugin details
+- GET  /api/plugins/search - Search plugins
+- POST /api/plugins/{id}/install - Install/update plugin
+- GET  /api/plugins/{id}/git/status - Git status
+- POST /api/plugins/{id}/git/pull - Update from upstream
+- POST /api/plugins/{id}/git/clone - Clone from git
 """
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends, Request
@@ -35,7 +35,7 @@ def create_enhanced_plugin_routes(auth_guard=None):
 
     dependencies = [Depends(auth_guard)] if auth_guard else []
     router = APIRouter(
-        prefix="/api/v1/plugins",
+        prefix="/api/plugins",
         tags=["plugins-enhanced"],
         dependencies=dependencies,
     )
@@ -269,7 +269,7 @@ def create_enhanced_plugin_routes(auth_guard=None):
                 # Container installations use container launcher routes
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Plugin {plugin_id} is containerized. Use /api/v1/containers/{plugin_id}/launch instead.",
+                    detail=f"Plugin {plugin_id} is containerized. Use /api/containers/{plugin_id}/launch instead.",
                 )
 
             elif plugin.installer_type == "git":

@@ -1,0 +1,27 @@
+{
+  "title": "Public Domain Sample Library",
+  "description": "Curated public-domain samples for Groovebox playback testing.",
+  "samples": [
+    {
+      "id": "loch-ness-bass",
+      "name": "Loch Ness Bass Pulse",
+      "source": "https://archive.org/download/public-domain-samples/loch-ness-bass.wav",
+      "license": "Public Domain",
+      "duration": "00:18"
+    },
+    {
+      "id": "typewriter-chatter",
+      "name": "Typewriter Chatter",
+      "source": "https://archive.org/download/public-domain-samples/typewriter-chatter.wav",
+      "license": "Public Domain",
+      "duration": "00:12"
+    },
+    {
+      "id": "relaxing-harp",
+      "name": "Relaxing Harp Plucks",
+      "source": "https://archive.org/download/public-domain-samples/relaxing-harp.wav",
+      "license": "Public Domain",
+      "duration": "00:20"
+    }
+  ]
+}

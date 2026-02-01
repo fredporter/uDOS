@@ -266,7 +266,7 @@ class ConfigSyncManager:
             }
 
             # Submit to Wizard API
-            guard = guard_wizard_endpoint("/api/v1/setup/story/submit")
+            guard = guard_wizard_endpoint("/api/setup/story/submit")
             if guard:
                 return False, guard.get("message", "⚠️ Wizard sync rate limited")
             response = requests.post(

@@ -6,7 +6,7 @@ This live tracker lists the remaining development items referenced by `docs/ROAD
 | --- | --- | --- | --- |
 | Clean up Wizard dashboard navigation | Wizard | Done | Round 2 quick win: removed Setup menu from top nav and hamburger menu; rebuilt production assets. |
 | Finish Wizard Notion UI + plugin dashboard | Wizard | In progress | Round 3 components (Notion blocks, plugin cards, mod UI). |
-| Implement Wizard dataset table + chart UI | Wizard | Pending | Requires `/api/v1/data/*` endpoints from Round 4 doc. |
+| Implement Wizard dataset table + chart UI | Wizard | Pending | Requires `/api/data/*` endpoints from Round 4 doc. |
 | Prototype Canvas-based teletext renderer | Wizard | Pending | Round 5 NES button recommendation needs final decision. |
 | Harden Beacon Portal + Sonic device catalog APIs | Wizard/Sonic | Pending | Round 6 quota + VPN tasks. |
 | Migrate Goblin binder/Sonic features to Wizard | Goblin/Open | Experimental | Round 7 experiments waiting consolidation. |

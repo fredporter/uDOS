@@ -155,7 +155,12 @@ class CommandSelector:
         return item.value
 
     def search(self) -> None:
-        query = input("Search: ").strip()
+        try:
+            query = input("Search: ").strip()
+        except (KeyboardInterrupt, EOFError):
+            # User cancelled search
+            return
+
         if query:
             self.selector.filter_items(query)
         else:
@@ -178,17 +183,33 @@ class CommandSelector:
         print("  /              Search commands")
         print("  q              Cancel")
         print()
-        input("Press Enter to continue...")
+        try:
+            input("Press Enter to continue...")
+        except (KeyboardInterrupt, EOFError):
+            pass  # User cancelled, just return
 
     def pick(self) -> Optional[str]:
         """Open command selector and return selected command or None."""
-        while True:
-            self.display()
-            key = input("Command: ").strip().lower()
-            if key == "":
-                key = "5"
-            result = self.handle_input(key[0] if key else "")
-            if result is None:
-                return None
-            if isinstance(result, str):
-                return f"{result} "
+        try:
+            while True:
+                self.display()
+                try:
+                    key = input("Command: ").strip().lower()
+                except (KeyboardInterrupt, EOFError):
+                    # User cancelled with Ctrl+C or Ctrl+D
+                    return None
+
+                if key == "":
+                    key = "5"
+
+                # Safely get first character
+                first_char = key[0] if key else ""
+                result = self.handle_input(first_char)
+
+                if result is None:
+                    return None
+                if result is not _CONTINUE and isinstance(result, str):
+                    return f"{result} "
+        except Exception as e:
+            self.logger.error(f"Command selector error: {e}")
+            return None

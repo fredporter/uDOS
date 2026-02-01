@@ -24,7 +24,7 @@ class ArtifactAddRequest(BaseModel):
 def create_artifact_routes(auth_guard=None):
     dependencies = [Depends(auth_guard)] if auth_guard else []
     router = APIRouter(
-        prefix="/api/v1/artifacts", tags=["artifacts"], dependencies=dependencies
+        prefix="/api/artifacts", tags=["artifacts"], dependencies=dependencies
     )
 
     @router.get("")

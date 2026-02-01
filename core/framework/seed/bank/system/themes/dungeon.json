@@ -1,0 +1,19 @@
+{
+  "name": "dungeon",
+  "description": "Night vault and rune-worn voicings for nether explorations beneath the surface.",
+  "companions": ["earth_layers_subterranean"],
+  "replacements": {
+    "uDOS": "NightVault",
+    "UDOS": "NightVault",
+    "Self-Heal": "Bone-Mend",
+    "SELF-HEAL": "Bone-Mend",
+    "Hotkey": "Rune Key",
+    "HOTKEY": "Rune Key",
+    "Pattern": "Ritual",
+    "PATTERN": "Ritual",
+    "Repair": "Bandage Run",
+    "REPAIR": "Bandage Run",
+    "Wizard": "Golem",
+    "WIZARD": "Golem"
+  }
+}

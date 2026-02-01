@@ -28,7 +28,7 @@ class ToastLogPayload(BaseModel):
 
 def create_log_routes(auth_guard=None):
     dependencies = [Depends(auth_guard)] if auth_guard else []
-    router = APIRouter(prefix="/api/v1/logs", tags=["logs"], dependencies=dependencies)
+    router = APIRouter(prefix="/api/logs", tags=["logs"], dependencies=dependencies)
 
     @router.post("/toast")
     async def log_toast(payload: ToastLogPayload):

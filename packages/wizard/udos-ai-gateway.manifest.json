@@ -38,7 +38,7 @@
   },
 
   "api_endpoints": [
-    "POST /api/v1/ai/route"
+    "POST /api/ai/route"
   ],
 
   "auth_scope": "ai:route",

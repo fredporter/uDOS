@@ -39,12 +39,12 @@
   },
 
   "api_endpoints": [
-    "GET /api/v1/workflows/",
-    "POST /api/v1/workflows/",
-    "GET /api/v1/workflows/{id}",
-    "PUT /api/v1/workflows/{id}",
-    "DELETE /api/v1/workflows/{id}",
-    "POST /api/v1/workflows/{id}/execute"
+    "GET /api/workflows/",
+    "POST /api/workflows/",
+    "GET /api/workflows/{id}",
+    "PUT /api/workflows/{id}",
+    "DELETE /api/workflows/{id}",
+    "POST /api/workflows/{id}/execute"
   ],
 
   "auth_scope": "workflow:read|write",

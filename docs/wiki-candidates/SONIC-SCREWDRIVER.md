@@ -98,7 +98,7 @@ Devices with:
 
 ## API Endpoints (Wizard Server)
 
-### GET `/api/v1/sonic/devices`
+### GET `/api/sonic/devices`
 
 **Query params:**
 
@@ -131,19 +131,19 @@ Devices with:
 }
 ```
 
-### GET `/api/v1/sonic/devices/{device_id}`
+### GET `/api/sonic/devices/{device_id}`
 
 Fetch details for a specific device.
 
-### GET `/api/v1/sonic/schema`
+### GET `/api/sonic/schema`
 
 Return JSON Schema for device records.
 
-### GET `/api/v1/sonic/table`
+### GET `/api/sonic/table`
 
 Return raw Markdown table (for local storage / offline access).
 
-### GET `/api/v1/sonic/stats`
+### GET `/api/sonic/stats`
 
 **Response:**
 
@@ -214,7 +214,7 @@ Link to manufacturer support pages:
 
 ## Distribution
 
-**Public availability:** Via Wizard Server `/api/v1/sonic/*`
+**Public availability:** Via Wizard Server `/api/sonic/*`
 
 **Offline access:** Download Markdown table + JSON from distribution system
 

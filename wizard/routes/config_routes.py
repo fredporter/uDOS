@@ -53,7 +53,7 @@ def _write_env_var(env_path: Path, key: str, value: str) -> None:
 
 
 def create_admin_token_routes():
-    router = APIRouter(prefix="/api/v1/admin-token", tags=["admin-token"])
+    router = APIRouter(prefix="/api/admin-token", tags=["admin-token"])
 
     @router.post("/generate")
     async def generate_admin_token(request: Request):
@@ -116,7 +116,7 @@ def create_config_routes(auth_guard=None):
     """Create configuration management routes."""
     dependencies = [Depends(auth_guard)] if auth_guard else []
     router = APIRouter(
-        prefix="/api/v1/config", tags=["config"], dependencies=dependencies
+        prefix="/api/config", tags=["config"], dependencies=dependencies
     )
 
     CONFIG_PATH = Path(__file__).parent.parent / "config"
@@ -904,7 +904,7 @@ def create_config_routes(auth_guard=None):
                 "timestamp": import_data.get("export_timestamp"),
                 "exported_from": import_data.get("exported_from"),
                 "message": (
-                    "Preview: Use POST /api/v1/config/import/apply to import these configs"
+                    "Preview: Use POST /api/config/import/apply to import these configs"
                 ),
             }
 
@@ -928,8 +928,8 @@ def create_config_routes(auth_guard=None):
             }
 
         This is a two-step process to prevent accidental overwrites:
-        1. POST /api/v1/config/import (validate)
-        2. POST /api/v1/config/import/apply (confirm)
+        1. POST /api/config/import (validate)
+        2. POST /api/config/import/apply (confirm)
         """
         raise HTTPException(
             status_code=501,

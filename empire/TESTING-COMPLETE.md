@@ -15,9 +15,9 @@
 - ✅ `location_resolver.py` (380 lines) - TILE code conversion
 
 ### 2. Production Workflows (469 lines)
-- ✅ `discover-brooklyn-cafes.upy` (119 lines)
-- ✅ `discover-sydney-music-venues.upy` (237 lines)
-- ✅ `test-workflow-automation.upy` (113 lines)
+- ✅ `discover-brooklyn-cafes-script.md` (119 lines)
+- ✅ `discover-sydney-music-venues-script.md` (237 lines)
+- ✅ `test-workflow-automation-script.md` (113 lines)
 
 ### 3. Documentation (900+ lines)
 - ✅ WORKFLOW-AUTOMATION.md
@@ -37,7 +37,7 @@
 | 2 | TILE Codes | ✅ PASS | 5 real-world locations converted accurately |
 | 3 | Round-Trip | ✅ PASS | 12/12 conversions preserved data |
 | 4 | Keywords | ✅ PASS | Offline generation produces 11 keywords |
-| 5 | uPY Export | ✅ PASS | 13-line variable export format valid |
+| 5 | Script Export | ✅ PASS | 13-line variable export format valid |
 | 6 | Commands | ✅ PASS | CLOUD commands output correct format |
 | 7 | Grid Coverage | ✅ PASS | All 129,600 cells addressable |
 
@@ -82,7 +82,7 @@ For precise location work, use layer 300 (city layer, ~93m cells)
 ## Workflow Commands
 
 ### CLOUD GENERATE KEYWORDS
-```upy
+```typescript
 CLOUD GENERATE KEYWORDS ("live music venues", "Sydney", 20) → {$KEYWORDS}
 ```
 
@@ -94,7 +94,7 @@ CLOUD GENERATE KEYWORDS ("live music venues", "Sydney", 20) → {$KEYWORDS}
 - `{$KEYWORDS.TOTAL_COUNT}` - Total keyword count
 
 ### CLOUD RESOLVE LOCATION
-```upy
+```typescript
 CLOUD RESOLVE LOCATION ("123 George St, Sydney NSW 2000") → {$LOCATION}
 ```
 
@@ -112,23 +112,23 @@ CLOUD RESOLVE LOCATION ("123 George St, Sydney NSW 2000") → {$LOCATION}
 
 ### Quick Example (2-5 minutes)
 ```bash
-./start_udos.sh memory/workflows/missions/discover-brooklyn-cafes.upy
+./start_udos.sh memory/workflows/missions/discover-brooklyn-cafes-script.md
 ```
 
 **Features:**
 - 8 CLOUD commands
 - 4 phases (keywords → search → map → export)
-- 119 lines of uPY code
+- 119 lines of TypeScript code
 
 ### Comprehensive Example (5-10 minutes)
 ```bash
-./start_udos.sh memory/workflows/missions/discover-sydney-music-venues.upy
+./start_udos.sh memory/workflows/missions/discover-sydney-music-venues-script.md
 ```
 
 **Features:**
 - 16 CLOUD commands
 - 6 phases (keywords → search → map → enrich → export → summary)
-- 237 lines of uPY code
+- 237 lines of TypeScript code
 - Email enrichment
 - Social media discovery
 
@@ -149,16 +149,16 @@ GOOGLE_GEOCODING_API_KEY=your_google_key_here
 
 ### 2. Run Test Workflow
 ```bash
-./start_udos.sh memory/workflows/test-workflow-automation.upy
+./start_udos.sh memory/workflows/test-workflow-automation-script.md
 ```
 
 ### 3. Try Production Example
 ```bash
 # Start with quick example
-./start_udos.sh memory/workflows/missions/discover-brooklyn-cafes.upy
+./start_udos.sh memory/workflows/missions/discover-brooklyn-cafes-script.md
 
 # Then try comprehensive example
-./start_udos.sh memory/workflows/missions/discover-sydney-music-venues.upy
+./start_udos.sh memory/workflows/missions/discover-sydney-music-venues-script.md
 ```
 
 ---
@@ -170,9 +170,9 @@ GOOGLE_GEOCODING_API_KEY=your_google_key_here
 - `extensions/cloud/bizintel/location_resolver.py` (380 lines)
 
 ### Workflows (469 lines)
-- `memory/workflows/missions/discover-brooklyn-cafes.upy` (119 lines)
-- `memory/workflows/missions/discover-sydney-music-venues.upy` (237 lines)
-- `memory/workflows/test-workflow-automation.upy` (113 lines)
+- `memory/workflows/missions/discover-brooklyn-cafes-script.md` (119 lines)
+- `memory/workflows/missions/discover-sydney-music-venues-script.md` (237 lines)
+- `memory/workflows/test-workflow-automation-script.md` (113 lines)
 
 ### Documentation (1,400+ lines)
 - `extensions/cloud/bizintel/WORKFLOW-AUTOMATION.md` (320 lines)
@@ -280,12 +280,12 @@ GOOGLE_GEOCODING_API_KEY=your_google_key_here
 
 2. **Run test workflow:**
    ```bash
-   ./start_udos.sh memory/workflows/test-workflow-automation.upy
+   ./start_udos.sh memory/workflows/test-workflow-automation-script.md
    ```
 
 3. **Review examples:**
-   - discover-brooklyn-cafes.upy (simple)
-   - discover-sydney-music-venues.upy (comprehensive)
+   - discover-brooklyn-cafes-script.md (simple)
+   - discover-sydney-music-venues-script.md (comprehensive)
 
 ---
 

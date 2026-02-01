@@ -30,5 +30,6 @@
   },
   "SYSTEM_OPTIONS": {
     "THEME": "DEFAULT"
-  }
+  },
+  "PROMPT_PARSER_SEED": "prompt_parser_seed.json"
 }

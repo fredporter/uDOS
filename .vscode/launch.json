@@ -29,7 +29,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/uDOS.py",
-            "args": ["memory/tests/shakedown.uscript"],
+            "args": ["memory/tests/shakedown-script.md"],
             "console": "integratedTerminal",
             "justMyCode": true,
             "envFile": "${workspaceFolder}/.env",
@@ -37,7 +37,7 @@
             "cwd": "${workspaceFolder}"
         },
         {
-            "name": "uDOS: Integration Tests (uPY)",
+            "name": "uDOS: Integration Tests (TypeScript)",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/memory/tests/integration/test_v1_0_2_integration.py",
@@ -47,7 +47,7 @@
             "cwd": "${workspaceFolder}"
         },
         {
-            "name": "uDOS: Standalone Tests (uPY)",
+            "name": "uDOS: Standalone Tests (TypeScript)",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/memory/tests/test_v1_0_2_standalone.py",
@@ -91,7 +91,7 @@
             "cwd": "${workspaceFolder}"
         },
         {
-            "name": "uPY: Debug Script",
+            "name": "TypeScript: Debug Script",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/uDOS.py",

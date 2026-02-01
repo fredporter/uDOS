@@ -271,7 +271,7 @@ VOICE TRANSCRIBE recording.wav  # Transcribe file
 ### Voice Workflow Example
 
 ```python
-# voice-assistant.upy
+# voice-assistant-script.md
 VOICE SAY "How can I help you?"
 SET input VOICE LISTEN
 VOICE SAY "I heard: $(input)"

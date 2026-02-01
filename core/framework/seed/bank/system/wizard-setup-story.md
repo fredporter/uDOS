@@ -68,7 +68,7 @@ label: Timezone (e.g. America/Los_Angeles or UTC-8)
 type: select
 required: true
 placeholder: "(Press Enter for system timezone)"
-options_endpoint: "/api/v1/setup/data/timezones"
+options_endpoint: "/api/setup/data/timezones"
 allow_custom: true
 default_from_system: true
 validation:
@@ -95,7 +95,7 @@ required: true
 placeholder: "Start typing a city or press Enter for timezone default"
 timezone_field: user_timezone
 name_field: user_location_name
-options_endpoint: "/api/v1/setup/data/locations"
+options_endpoint: "/api/setup/data/locations"
 searchable: true
 default_from_timezone: true
 allow_custom: false

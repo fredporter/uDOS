@@ -69,7 +69,7 @@ class NotificationResponse(BaseModel):
 
 def create_notification_history_routes(service: NotificationHistoryService) -> APIRouter:
     """Create notification history routes."""
-    router = APIRouter(prefix="/api/v1/notification-history", tags=["history"])
+    router = APIRouter(prefix="/api/notification-history", tags=["history"])
 
     # ============================================================
     # Save Notification
@@ -82,7 +82,7 @@ def create_notification_history_routes(service: NotificationHistoryService) -> A
 
         **curl example:**
         ```bash
-        curl -X POST http://localhost:8765/api/v1/notification-history/save \\
+        curl -X POST http://localhost:8765/api/notification-history/save \\
           -H "Content-Type: application/json" \\
           -d '{
             "type": "success",
@@ -119,7 +119,7 @@ def create_notification_history_routes(service: NotificationHistoryService) -> A
 
         **curl example:**
         ```bash
-        curl -X POST http://localhost:8765/api/v1/notification-history/list \\
+        curl -X POST http://localhost:8765/api/notification-history/list \\
           -H "Content-Type: application/json" \\
           -d '{"limit": 20, "offset": 0}'
         ```
@@ -151,7 +151,7 @@ def create_notification_history_routes(service: NotificationHistoryService) -> A
 
         **curl example:**
         ```bash
-        curl -X POST http://localhost:8765/api/v1/notification-history/search \\
+        curl -X POST http://localhost:8765/api/notification-history/search \\
           -H "Content-Type: application/json" \\
           -d '{
             "query": "saved",
@@ -186,7 +186,7 @@ def create_notification_history_routes(service: NotificationHistoryService) -> A
 
         **curl example:**
         ```bash
-        curl -X DELETE http://localhost:8765/api/v1/notification-history/toast-abc123
+        curl -X DELETE http://localhost:8765/api/notification-history/toast-abc123
         ```
         """
         try:
@@ -209,7 +209,7 @@ def create_notification_history_routes(service: NotificationHistoryService) -> A
 
         **curl example:**
         ```bash
-        curl -X POST http://localhost:8765/api/v1/notification-history/clear \\
+        curl -X POST http://localhost:8765/api/notification-history/clear \\
           -H "Content-Type: application/json" \\
           -d '{"days": 30}'
         ```
@@ -234,7 +234,7 @@ def create_notification_history_routes(service: NotificationHistoryService) -> A
 
         **curl example:**
         ```bash
-        curl -X POST http://localhost:8765/api/v1/notification-history/export \\
+        curl -X POST http://localhost:8765/api/notification-history/export \\
           -H "Content-Type: application/json" \\
           -d '{
             "format": "json",
@@ -270,7 +270,7 @@ def create_notification_history_routes(service: NotificationHistoryService) -> A
 
         **curl example:**
         ```bash
-        curl http://localhost:8765/api/v1/notification-history/stats
+        curl http://localhost:8765/api/notification-history/stats
         ```
         """
         try:

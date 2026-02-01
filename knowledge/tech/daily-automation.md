@@ -17,7 +17,7 @@ authoring-rules:
 **Pattern**: Daily Workflow Automation
 **Level**: Intermediate
 **Time**: 10 minutes to setup
-**Category**: uSCRIPT Patterns
+**Category**: TypeScript Script Patterns
 
 ---
 
@@ -34,12 +34,12 @@ Automates your daily uDOS startup routine:
 
 ## 📝 The Script
 
-Save as `daily-routine.uscript`:
+Save as `daily-routine-script.md`:
 
 ```ucode
 #!/usr/bin/env uDOS
 # Daily automation script
-# Run: [RUN|daily-routine.uscript]
+# Run: [RUN|daily-routine-script.md]
 
 # ==========================================
 # 1. DISPLAY HEADER
@@ -170,7 +170,7 @@ PRINT ""
 PROMPT "Choose action (1-5, or Enter to skip): " choice
 
 IF $choice == "1"
-  [RUN|task_manager.uscript]
+  [RUN|task_manager-script.md]
 ELSE IF $choice == "2"
   PROMPT "Search for: " query
   [KB|SEARCH|$query]
@@ -196,24 +196,24 @@ PRINT "════════════════════════�
 
 1. **Save the script**:
 ```ucode
-[SAVE|daily-routine.uscript]
+[SAVE|daily-routine-script.md]
 ```
 
 2. **Make it executable**:
 ```ucode
-[CHMOD|+x|daily-routine.uscript]
+[CHMOD|+x|daily-routine-script.md]
 ```
 
 3. **Test run**:
 ```ucode
-[RUN|daily-routine.uscript]
+[RUN|daily-routine-script.md]
 ```
 
 ### Daily Usage
 
 Run every morning:
 ```ucode
-[RUN|daily-routine.uscript]
+[RUN|daily-routine-script.md]
 ```
 
 Or add to auto-start (see automation guide).

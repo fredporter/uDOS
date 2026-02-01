@@ -37,6 +37,23 @@
     </table>
 </div>
 <div class="mt-6 rounded-lg border border-dashed border-white/20 bg-white/5 p-4">
+    <h2 class="text-sm font-semibold uppercase text-gray-400">Plugin + Sonic Status</h2>
+    <p class="text-xs text-gray-400 mb-1">
+        The canonical status doc is <code>{{ status.doc_path or "core/docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md" }}</code>
+        {% if status.doc_last_modified %}
+        (last updated {{ status.doc_last_modified }})
+        {% endif %}
+    </p>
+    <ul class="text-xs text-gray-300 list-disc pl-4 space-y-1 mb-2">
+        {% for note in status.deliverables or [] %}
+        <li>{{ note }}</li>
+        {% endfor %}
+    </ul>
+    <p class="text-xs text-gray-400">
+        Hotkey register JSON: <code>{{ status.hotkey_register or "/memory/logs/hotkey-center.json" }}</code>
+    </p>
+</div>
+<div class="mt-6 rounded-lg border border-dashed border-white/20 bg-white/5 p-4">
     <h2 class="text-sm font-semibold uppercase text-gray-400">Automation-friendly snapshot</h2>
     <p class="text-xs text-gray-400 mb-2">
         Automation scripts capture this layout for rounds 3‑10. The JSON endpoint <code>/hotkeys/data</code> exposes the same table plus the current snapshot path below.

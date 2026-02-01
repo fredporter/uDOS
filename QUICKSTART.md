@@ -143,7 +143,7 @@ python -m extensions.api.server
 **API URLs:**
 
 - `http://localhost:5001/docs` — Swagger API documentation
-- `http://localhost:5001/api/v1/*` — REST endpoints
+- `http://localhost:5001/api/*` — REST endpoints
 
 ---
 

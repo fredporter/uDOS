@@ -39,7 +39,7 @@
     error = null;
     try {
       const res = await fetch(
-        `/api/v1/logs?category=${encodeURIComponent(selectedCategory)}&limit=${limit}`,
+        `/api/logs?category=${encodeURIComponent(selectedCategory)}&limit=${limit}`,
         { headers: authHeaders() },
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

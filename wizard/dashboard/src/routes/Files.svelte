@@ -33,7 +33,7 @@
     loading = true;
     error = null;
     try {
-      const res = await fetch(`/api/v1/workspace/list?path=${encodeURIComponent(path)}`, {
+      const res = await fetch(`/api/workspace/list?path=${encodeURIComponent(path)}`, {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -52,7 +52,7 @@
     loading = true;
     error = null;
     try {
-      const res = await fetch(`/api/v1/workspace/read?path=${encodeURIComponent(entry.path)}`, {
+      const res = await fetch(`/api/workspace/read?path=${encodeURIComponent(entry.path)}`, {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -82,7 +82,7 @@
       targetPath = currentPath ? `${currentPath}/${filename}` : filename;
       selectedFilePath = targetPath;
     }
-    const res = await fetch("/api/v1/workspace/write", {
+    const res = await fetch("/api/workspace/write", {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({ path: targetPath, content }),

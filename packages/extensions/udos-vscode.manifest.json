@@ -54,7 +54,7 @@
   ],
 
   "notes": [
-    "Connects to /api/v1/ports/* (HTTP)",
+    "Connects to /api/ports/* (HTTP)",
     "Real-time updates via WebSocket (when available)",
     "Works with both dev and production Wizard",
     "Requires API server running on localhost:8765"

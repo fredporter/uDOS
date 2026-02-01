@@ -6,6 +6,8 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/udos-common.sh"
 
+parse_common_flags "$@"
+
 component="${1:-core}"
 mode="${2:-}"
 

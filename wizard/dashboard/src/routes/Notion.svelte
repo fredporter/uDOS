@@ -1,15 +1,31 @@
 <script>
   import { onMount } from "svelte";
+  import { mappingStore, exportMappings } from "$lib/stores/mappingStore";
 
   let syncStatus = null;
   let queue = [];
   let mappings = [];
   let loading = true;
   let error = null;
+  let mappingExportMessage = "";
+
+  async function copyMappingExport() {
+    try {
+      const payload = exportMappings();
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(payload);
+      }
+      mappingExportMessage = "Mapping export copied to clipboard.";
+      setTimeout(() => (mappingExportMessage = ""), 3000);
+    } catch (err) {
+      mappingExportMessage =
+        err instanceof Error ? err.message : "Failed to copy mapping export.";
+    }
+  }
 
   async function loadStatus() {
     try {
-      const res = await fetch("/api/v1/notion/sync/status");
+      const res = await fetch("/api/notion/sync/status");
       if (res.ok) {
         syncStatus = await res.json();
       }
@@ -20,7 +36,7 @@
 
   async function loadQueue() {
     try {
-      const res = await fetch("/api/v1/notion/sync/queue");
+      const res = await fetch("/api/notion/sync/queue");
       if (res.ok) {
         queue = await res.json();
       }
@@ -31,7 +47,7 @@
 
   async function loadMappings() {
     try {
-      const res = await fetch("/api/v1/notion/sync/mappings");
+      const res = await fetch("/api/notion/sync/mappings");
       if (res.ok) {
         mappings = await res.json();
       }
@@ -188,6 +204,44 @@
       {/if}
     </div>
   {/if}
+
+  <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 mt-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-white">Round 3 Slot Mappings</h3>
+      <button class="text-xs text-blue-300" on:click={copyMappingExport}>
+        Export JSON
+      </button>
+    </div>
+    {#if mappingExportMessage}
+      <div class="text-sm text-emerald-300 mb-2">{mappingExportMessage}</div>
+    {/if}
+    {#if $mappingStore.mappings.length === 0}
+      <p class="text-gray-400 text-sm">
+        No runtime slots have been mapped yet. Use the Round 3 mapper to assign Notion blocks to slots.
+      </p>
+    {:else}
+      <div class="space-y-3">
+        {#each $mappingStore.mappings as entry}
+          <div class="bg-gray-900 border border-gray-700 rounded p-3 flex flex-col gap-1">
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <span>Slot</span>
+              <span>{entry.slot}</span>
+            </div>
+            <div class="text-sm text-white font-mono break-all">
+              {entry.blockId}
+            </div>
+            <p class="text-gray-300 text-sm">
+              Note: {entry.note || "no note yet"}
+            </p>
+            <p class="text-gray-500 text-xs">
+              {entry.blockType || "block"} · {entry.runtimeType || "runtime"} ·
+              Mapped at {new Date(entry.lastMapped).toLocaleString()}
+            </p>
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </div>
 
   <!-- Bottom padding spacer -->
   <div class="h-32"></div>

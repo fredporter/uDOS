@@ -18,7 +18,7 @@
 
   async function checkHealth() {
     try {
-      const res = await fetch("/api/v1/github/health", {
+      const res = await fetch("/api/github/health", {
         headers: authHeaders(),
       });
       if (res.ok) {
@@ -44,7 +44,7 @@
 
   async function loadRepos() {
     try {
-      const res = await fetch("/api/v1/github/health", {
+      const res = await fetch("/api/github/health", {
         headers: authHeaders(),
       });
       if (res.ok) {
@@ -69,7 +69,7 @@
 
   async function loadIssues() {
     try {
-      const res = await fetch("/api/v1/github/issues", {
+      const res = await fetch("/api/github/issues", {
         headers: authHeaders(),
       });
       if (res.ok) {
@@ -85,7 +85,7 @@
 
   async function loadPullRequests() {
     try {
-      const res = await fetch("/api/v1/github/pulls", {
+      const res = await fetch("/api/github/pulls", {
         headers: authHeaders(),
       });
       if (res.ok) {
@@ -101,7 +101,7 @@
 
   async function loadDevlog() {
     try {
-      const res = await fetch("/api/v1/github/context/devlog", {
+      const res = await fetch("/api/github/context/devlog", {
         headers: authHeaders(),
       });
       if (res.ok) {

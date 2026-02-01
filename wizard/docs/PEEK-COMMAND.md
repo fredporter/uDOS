@@ -496,7 +496,7 @@ A: Not yet (v1.1 feature). Use a shell loop for now:
 
 ```bash
 for url in "https://example.com" "https://example.org"; do
-  curl -X POST http://localhost:8765/api/v1/web/peek -d "{\"url\": \"$url\"}"
+  curl -X POST http://localhost:8765/api/web/peek -d "{\"url\": \"$url\"}"
 done
 ```
 

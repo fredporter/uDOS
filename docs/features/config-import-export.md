@@ -64,7 +64,7 @@ The import/export feature allows you to backup and transfer Wizard configuration
 
 ## API Endpoints
 
-### POST `/api/v1/config/export`
+### POST `/api/config/export`
 
 **Request:**
 
@@ -90,7 +90,7 @@ The import/export feature allows you to backup and transfer Wizard configuration
 }
 ```
 
-### GET `/api/v1/config/export/list`
+### GET `/api/config/export/list`
 
 Lists all previous exports (for re-downloading).
 
@@ -109,11 +109,11 @@ Lists all previous exports (for re-downloading).
 }
 ```
 
-### GET `/api/v1/config/export/{filename}`
+### GET `/api/config/export/{filename}`
 
 Download a previously exported file.
 
-### POST `/api/v1/config/import`
+### POST `/api/config/import`
 
 Preview what will be imported (validates file, shows conflicts).
 
@@ -142,7 +142,7 @@ Preview what will be imported (validates file, shows conflicts).
 }
 ```
 
-### POST `/api/v1/config/import/chunked`
+### POST `/api/config/import/chunked`
 
 Import configs from file (one-step process).
 

@@ -39,10 +39,10 @@
   },
 
   "api_endpoints": [
-    "POST /api/v1/github/webhook",
-    "GET /api/v1/github/status",
-    "POST /api/v1/github/sync",
-    "GET /api/v1/github/repos/{owner}/{repo}/issues"
+    "POST /api/github/webhook",
+    "GET /api/github/status",
+    "POST /api/github/sync",
+    "GET /api/github/repos/{owner}/{repo}/issues"
   ],
 
   "auth_scope": "github:read|write",

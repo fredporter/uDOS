@@ -73,35 +73,35 @@ DEFAULT_TIER_LIMITS: Dict[RateLimitTier, TierLimits] = {
 ENDPOINT_TIERS: Dict[str, RateLimitTier] = {
     # Light tier (high throughput)
     "/health": RateLimitTier.LIGHT,
-    "/api/v1/status": RateLimitTier.LIGHT,
-    "/api/v1/ping": RateLimitTier.LIGHT,
-    "/api/v1/index": RateLimitTier.LIGHT,
+    "/api/status": RateLimitTier.LIGHT,
+    "/api/ping": RateLimitTier.LIGHT,
+    "/api/index": RateLimitTier.LIGHT,
     "/": RateLimitTier.LIGHT,
     "/assets": RateLimitTier.LIGHT,
     # Standard tier
-    "/api/v1/plugin/list": RateLimitTier.STANDARD,
-    "/api/v1/plugin/{id}": RateLimitTier.STANDARD,
-    "/api/v1/plugin/search": RateLimitTier.STANDARD,
-    "/api/v1/library/status": RateLimitTier.STANDARD,
-    "/api/v1/library/integration/{name}": RateLimitTier.STANDARD,
-    "/api/v1/library/integration/{name}/install": RateLimitTier.HEAVY,
-    "/api/v1/library/integration/{name}/enable": RateLimitTier.STANDARD,
-    "/api/v1/library/integration/{name}/disable": RateLimitTier.STANDARD,
-    "/api/v1/library/integration/{name}/delete": RateLimitTier.HEAVY,
+    "/api/plugin/list": RateLimitTier.STANDARD,
+    "/api/plugin/{id}": RateLimitTier.STANDARD,
+    "/api/plugin/search": RateLimitTier.STANDARD,
+    "/api/library/status": RateLimitTier.STANDARD,
+    "/api/library/integration/{name}": RateLimitTier.STANDARD,
+    "/api/library/integration/{name}/install": RateLimitTier.HEAVY,
+    "/api/library/integration/{name}/enable": RateLimitTier.STANDARD,
+    "/api/library/integration/{name}/disable": RateLimitTier.STANDARD,
+    "/api/library/integration/{name}/delete": RateLimitTier.HEAVY,
     # Heavy tier (bandwidth intensive)
-    "/api/v1/plugin/{id}/download": RateLimitTier.HEAVY,
-    "/api/v1/web/fetch": RateLimitTier.HEAVY,
-    "/api/v1/web/scrape": RateLimitTier.HEAVY,
-    "/api/v1/image/convert": RateLimitTier.HEAVY,
+    "/api/plugin/{id}/download": RateLimitTier.HEAVY,
+    "/api/web/fetch": RateLimitTier.HEAVY,
+    "/api/web/scrape": RateLimitTier.HEAVY,
+    "/api/image/convert": RateLimitTier.HEAVY,
     # Expensive tier (cost incurring)
-    "/api/v1/ai/complete": RateLimitTier.EXPENSIVE,
-    "/api/v1/ai/chat": RateLimitTier.EXPENSIVE,
-    "/api/v1/ai/embed": RateLimitTier.EXPENSIVE,
-    "/api/v1/gmail/send": RateLimitTier.EXPENSIVE,
-    "/api/v1/parse/table": RateLimitTier.HEAVY,
-    "/api/v1/parse/csv": RateLimitTier.HEAVY,
-    "/api/v1/parse/json": RateLimitTier.HEAVY,
-    "/api/v1/parse/yaml": RateLimitTier.HEAVY,
+    "/api/ai/complete": RateLimitTier.EXPENSIVE,
+    "/api/ai/chat": RateLimitTier.EXPENSIVE,
+    "/api/ai/embed": RateLimitTier.EXPENSIVE,
+    "/api/gmail/send": RateLimitTier.EXPENSIVE,
+    "/api/parse/table": RateLimitTier.HEAVY,
+    "/api/parse/csv": RateLimitTier.HEAVY,
+    "/api/parse/json": RateLimitTier.HEAVY,
+    "/api/parse/yaml": RateLimitTier.HEAVY,
 }
 
 
@@ -196,7 +196,7 @@ class RateLimiter:
         if endpoint in self.endpoint_tiers:
             return self.endpoint_tiers[endpoint]
 
-        # Pattern match (e.g., /api/v1/plugin/{id} matches /api/v1/plugin/micro)
+        # Pattern match (e.g., /api/plugin/{id} matches /api/plugin/micro)
         for pattern, tier in self.endpoint_tiers.items():
             if "{" in pattern:
                 # Simple pattern matching

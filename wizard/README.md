@@ -13,10 +13,10 @@
 - Assistant routing gateway (local-first, optional cloud burst per policy)
 - Interactive console (foreground alongside server) with status, services, GitHub, poke URL, help/exit
 - **Setup profile management** — View user and installation details from TUI story (`setup` command)
-- GitHub monitor + safe sync (webhook + manual `/api/v1/github/*`)
+- GitHub monitor + safe sync (webhook + manual `/api/github/*`)
 - Port Manager API/CLI integration
-- Plugin repository (`/api/v1/plugin/*`) backed by `distribution/plugins`
-- Web proxy placeholder (`/api/v1/web/fetch`) with validation stubs
+- Plugin repository (`/api/plugin/*`) backed by `distribution/plugins`
+- Web proxy placeholder (`/api/web/fetch`) with validation stubs
 - Gmail relay toggle (Wizard-only), plus space for Notion/iCloud/OAuth/sync handlers
 - VS Code bridge + notification history routes
 - Cost tracking + rate limiting, device sessions, assistant model listing/completion
@@ -41,20 +41,20 @@ Dev Mode Recovery TUI now runs initial system health diagnostics on startup and 
 
 ---
 
-## API Surface (production `/api/v1/*`)
+## API Surface (production `/api/*`)
 
-- Health & status: `/health`, `/api/v1/status`, `/api/v1/rate-limits`
-- Setup profiles: `/api/v1/setup/profile/user`, `/api/v1/setup/profile/install`, `/api/v1/setup/profile/combined`
-- Assistant gateway: `/api/v1/ai/status`, `/api/v1/ai/models`, `/api/v1/ai/complete`
-- Plugin repo: `/api/v1/plugin/list`, `/api/v1/plugin/{id}`, `/api/v1/plugin/{id}/download`
-- Web proxy (stub): `/api/v1/web/fetch`
-- GitHub: `/api/v1/github/webhook`, `/api/v1/github/sync`
-- TUI/console helpers: `/api/v1/devices`, `/api/v1/logs`, `/api/v1/models/switch`, `/api/v1/services/{service}/{action}`
+- Health & status: `/health`, `/api/status`, `/api/rate-limits`
+- Setup profiles: `/api/setup/profile/user`, `/api/setup/profile/install`, `/api/setup/profile/combined`
+- Assistant gateway: `/api/ai/status`, `/api/ai/models`, `/api/ai/complete`
+- Plugin repo: `/api/plugin/list`, `/api/plugin/{id}`, `/api/plugin/{id}/download`
+- Web proxy (stub): `/api/web/fetch`
+- GitHub: `/api/github/webhook`, `/api/github/sync`
+- TUI/console helpers: `/api/devices`, `/api/logs`, `/api/models/switch`, `/api/services/{service}/{action}`
 - Port Manager routes: included via `wizard.services.port_manager_service`
 - VS Code bridge: included via `wizard.services.vscode_bridge`
-- Notification history: `/api/v1/notifications/*`
+- Notification history: `/api/notifications/*`
 
-Auth: all `/api/v1/*` require device auth (Bearer token). Rate limits apply per device.
+Auth: all `/api/*` require device auth (Bearer token). Rate limits apply per device.
 
 ---
 
@@ -99,14 +99,14 @@ Auth: all `/api/v1/*` require device auth (Bearer token). Rate limits apply per 
 ## Port Manager (Wizard-owned)
 
 - CLI: `bin/port-manager status|conflicts|kill|available|reassign|env`
-- API: exposed via `wizard.services.port_manager_service` under `/api/v1/ports/*`
+- API: exposed via `wizard.services.port_manager_service` under `/api/ports/*`
 - Integrated into launchers (Wizard/Goblin/Tauri dev scripts) for pre-flight conflict checks.
 
 ---
 
 ## GitHub Monitor & Sync
 
-- Webhook endpoint `/api/v1/github/webhook` (workflow_run, check_run, push on allowed repo)
+- Webhook endpoint `/api/github/webhook` (workflow_run, check_run, push on allowed repo)
 - Self-healing Actions retry + pattern detection (via `wizard.services.github_monitor`)
 - Safe sync service (`wizard.services.github_sync`) with pull default; push requires enable flag.
 
@@ -114,7 +114,7 @@ Auth: all `/api/v1/*` require device auth (Bearer token). Rate limits apply per 
 
 ## Security
 
-- Device authentication required for all `/api/v1/*` endpoints.
+- Device authentication required for all `/api/*` endpoints.
 - Rate limits per device; budgets enforced for assistant gateway calls.
 - Signature validation for GitHub webhooks when secret is configured.
 - Production-only network access; user devices connect via private transports (mesh/QR/audio/Bluetooth-private/NFC).

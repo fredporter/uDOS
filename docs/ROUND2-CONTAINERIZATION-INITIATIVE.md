@@ -229,7 +229,7 @@ $ docker-compose up
 $ curl http://localhost:8765
 
 # Plugins available
-$ curl http://localhost:8765/api/v1/plugins
+$ curl http://localhost:8765/api/plugins
 ```
 
 ---

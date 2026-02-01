@@ -37,7 +37,7 @@
   },
 
   "notes": [
-    "REST API: /api/v1/ports/* endpoints",
+    "REST API: /api/ports/* endpoints",
     "CLI: bin/port-manager status|check|conflicts|kill",
     "Integrated into all launcher scripts"
   ],

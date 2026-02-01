@@ -8,7 +8,7 @@
 
   async function loadStatus() {
     try {
-      const res = await fetch("/api/v1/dev/status");
+      const res = await fetch("/api/dev/status");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       status = await res.json();
       loading = false;
@@ -20,7 +20,7 @@
 
   async function loadLogs() {
     try {
-      const res = await fetch("/api/v1/dev/logs?lines=100");
+      const res = await fetch("/api/dev/logs?lines=100");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       logs = data.logs || [];
@@ -32,7 +32,7 @@
   async function activate() {
     loading = true;
     try {
-      const res = await fetch("/api/v1/dev/activate", { method: "POST" });
+      const res = await fetch("/api/dev/activate", { method: "POST" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await loadStatus();
       await loadLogs();
@@ -45,7 +45,7 @@
   async function deactivate() {
     loading = true;
     try {
-      const res = await fetch("/api/v1/dev/deactivate", { method: "POST" });
+      const res = await fetch("/api/dev/deactivate", { method: "POST" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await loadStatus();
     } catch (err) {
@@ -57,7 +57,7 @@
   async function restart() {
     loading = true;
     try {
-      const res = await fetch("/api/v1/dev/restart", { method: "POST" });
+      const res = await fetch("/api/dev/restart", { method: "POST" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await loadStatus();
       await loadLogs();

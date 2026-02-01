@@ -5,11 +5,11 @@ Manages beacon node configuration, WiFi setup, VPN tunnel control,
 and device registration for local mesh networks.
 
 Endpoints:
-  - /api/v1/beacon/configure       — Setup beacon WiFi + network mode
-  - /api/v1/beacon/status          — Beacon health + connected devices
-  - /api/v1/beacon/devices         — List recommended router hardware
-  - /api/v1/beacon/tunnel/*        — VPN tunnel management
-  - /api/v1/beacon/plugins/*       — Local plugin caching
+  - /api/beacon/configure       — Setup beacon WiFi + network mode
+  - /api/beacon/status          — Beacon health + connected devices
+  - /api/beacon/devices         — List recommended router hardware
+  - /api/beacon/tunnel/*        — VPN tunnel management
+  - /api/beacon/plugins/*       — Local plugin caching
 """
 
 from pathlib import Path
@@ -115,7 +115,7 @@ class PluginCache(BaseModel):
 
 def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
     """Create Beacon Portal routes."""
-    router = APIRouter(prefix="/api/v1/beacon", tags=["beacon"])
+    router = APIRouter(prefix="/api/beacon", tags=["beacon"])
 
     # ========================================================================
     # CONFIGURATION ENDPOINTS
@@ -426,7 +426,7 @@ def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
             version="1.0.0",
             cached_at=datetime.now().isoformat(),
             size_mb=2.5,
-            download_url=f"http://beacon.local:8765/api/v1/beacon/plugins/{plugin_id}",
+            download_url=f"http://beacon.local:8765/api/beacon/plugins/{plugin_id}",
         )
 
     @router.post("/plugins/{plugin_id}/cache")

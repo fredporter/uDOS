@@ -54,7 +54,7 @@ class CompostCleanupRequest(BaseModel):
 
 def create_repair_routes(auth_guard=None):
     dependencies = [Depends(auth_guard)] if auth_guard else []
-    router = APIRouter(prefix="/api/v1/repair", tags=["repair"], dependencies=dependencies)
+    router = APIRouter(prefix="/api/repair", tags=["repair"], dependencies=dependencies)
 
     @router.get("/status")
     async def get_status():

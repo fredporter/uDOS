@@ -20,7 +20,7 @@ def create_provider_routes(auth_guard=None):
     """Create provider management routes."""
     dependencies = [Depends(auth_guard)] if auth_guard else []
     router = APIRouter(
-        prefix="/api/v1/providers", tags=["providers"], dependencies=dependencies
+        prefix="/api/providers", tags=["providers"], dependencies=dependencies
     )
 
     CONFIG_PATH = Path(__file__).parent.parent / "config"

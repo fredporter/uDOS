@@ -17,7 +17,7 @@ def create_webhook_routes(
     notion_secret_provider: Optional[Callable[[], Optional[str]]] = None,
 ):
     dependencies = [Depends(auth_guard)] if auth_guard else []
-    router = APIRouter(prefix="/api/v1/webhooks", tags=["webhooks"], dependencies=dependencies)
+    router = APIRouter(prefix="/api/webhooks", tags=["webhooks"], dependencies=dependencies)
 
     def _base_url() -> str:
         return base_url_provider() if base_url_provider else ""
@@ -32,12 +32,12 @@ def create_webhook_routes(
             "base_url": base_url,
             "webhooks": {
                 "github": {
-                    "url": f"{base_url}/api/v1/github/webhook" if base_url else "/api/v1/github/webhook",
+                    "url": f"{base_url}/api/github/webhook" if base_url else "/api/github/webhook",
                     "secret_configured": bool(github_secret),
                     "secret_source": "secret_store" if github_secret else "unset",
                 },
                 "notion": {
-                    "url": f"{base_url}/api/v1/notion/webhook" if base_url else "/api/v1/notion/webhook",
+                    "url": f"{base_url}/api/notion/webhook" if base_url else "/api/notion/webhook",
                     "secret_configured": bool(notion_secret),
                     "secret_source": "env" if notion_secret else "unset",
                 },

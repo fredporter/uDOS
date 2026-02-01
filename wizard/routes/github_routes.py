@@ -13,7 +13,7 @@ AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
 
 
 def create_github_routes(auth_guard: AuthGuard = None) -> APIRouter:
-    router = APIRouter(prefix="/api/v1/github", tags=["github"])
+    router = APIRouter(prefix="/api/github", tags=["github"])
     gh = GitHubIntegration()
 
     class IssueCreate(BaseModel):

@@ -1,0 +1,70 @@
+{
+  "category": "earth_layers",
+  "description": "Layer catalog capturing ASCII/teletext/SVG templates for Earth layers.",
+  "layers": [
+    {
+      "layer_id": "L100",
+      "title": "Surface Neighborhoods",
+      "format": "teletext",
+      "palette": "terrestrial",
+      "template": {
+        "teletext": {
+          "grid": [
+            "┏━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┓",
+            "┃ Forest   ┃ City     ┃ Harbor   ┃",
+            "┃ Clearing ┃ District ┃ Terminal ┃",
+            "┣━━━━━━┳━━━┻━━━━━━┳━━━━━━┫",
+            "┃ Park ┃ Market ┃ Canal  ┃",
+            ""]
+        }
+      }
+    },
+    {
+      "layer_id": "L200",
+      "title": "Urban Infrastructure",
+      "format": "ASCII",
+      "palette": "civic",
+      "template": {
+        "ascii": [
+          "      ╔════════════╗",
+          "      ║  Transit   ║",
+          "          ║  Mesh  ║",
+          "╔═══╦══════╩══════╦═══╗",
+          "║ A ║ Power Grid ║ B ║",
+          "║   ╚══════╦═════╝   ║",
+          "║       ╔══╩══╗      ║",
+          "║       ║ Hub ║      ║",
+          "╚═══════╩═══════╝"
+        ]
+      }
+    },
+    {
+      "layer_id": "L300",
+      "title": "Layered Economy",
+      "format": "svg",
+      "palette": "industrial",
+      "template": {
+        "svg": "<svg width=300 height=160 xmlns='http://www.w3.org/2000/svg'><rect x=10 y=10 width=280 height=50 fill='#2d3748'/><text x=20 y=40 fill='#e2e8f0' font-family='monospace'>Data Centers</text><rect x=10 y=70 width=280 height=50 fill='#1a202c'/><text x=20 y=100 fill='#a0aec0'>Finance Grid</text><rect x=10 y=130 width=280 height=20 fill='#0f172a'/></svg>"
+      }
+    },
+    {
+      "layer_id": "L400",
+      "title": "Subterranean Grid",
+      "format": "diagram",
+      "palette": "deep",
+      "template": {
+        "diagram": {
+          "nodes": [
+            {"id": "A", "label": "Bunker"},
+            {"id": "B", "label": "Tunnel"},
+            {"id": "C", "label": "Utility"}
+          ],
+          "edges": [
+            {"from": "A", "to": "B"},
+            {"from": "B", "to": "C"}
+          ]
+        }
+      }
+    }
+  ]
+}

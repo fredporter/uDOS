@@ -1,7 +1,7 @@
 # Container System Quick Reference
 
 **Purpose:** Manage home-assistant, songscribe, and other containerized plugins  
-**Endpoints:** `/api/v1/containers/` + `/ui/`  
+**Endpoints:** `/api/containers/` + `/ui/`  
 **Status:** Implemented & Ready for Testing
 
 ---
@@ -10,9 +10,9 @@
 
 ### Launch Container
 ```bash
-POST /api/v1/containers/{container_id}/launch
+POST /api/containers/{container_id}/launch
 
-curl -X POST http://localhost:8765/api/v1/containers/home-assistant/launch
+curl -X POST http://localhost:8765/api/containers/home-assistant/launch
 ```
 
 Response:
@@ -30,9 +30,9 @@ Response:
 
 ### Check Status
 ```bash
-GET /api/v1/containers/{container_id}/status
+GET /api/containers/{container_id}/status
 
-curl http://localhost:8765/api/v1/containers/home-assistant/status
+curl http://localhost:8765/api/containers/home-assistant/status
 ```
 
 Response:
@@ -49,16 +49,16 @@ Response:
 
 ### Stop Container
 ```bash
-POST /api/v1/containers/{container_id}/stop
+POST /api/containers/{container_id}/stop
 
-curl -X POST http://localhost:8765/api/v1/containers/home-assistant/stop
+curl -X POST http://localhost:8765/api/containers/home-assistant/stop
 ```
 
 ### List Available Containers
 ```bash
-GET /api/v1/containers/list/available
+GET /api/containers/list/available
 
-curl http://localhost:8765/api/v1/containers/list/available
+curl http://localhost:8765/api/containers/list/available
 ```
 
 Response:
@@ -167,7 +167,7 @@ MUSIC SCORE <file.mid>
 │  │ ├─ /{container_id}/...      [container_proxy.py]   │  │
 │  │ └─ Proxies to localhost:PORT                        │  │
 │  │                                                      │  │
-│  │ Router: /api/v1/containers/                         │  │
+│  │ Router: /api/containers/                         │  │
 │  │ ├─ /{container_id}/launch  [launcher.py]           │  │
 │  │ ├─ /{container_id}/stop    [launcher.py]           │  │
 │  │ ├─ /{container_id}/status  [launcher.py]           │  │
@@ -223,10 +223,10 @@ tail -f memory/logs/containers.log
 ```json
 {
   "status_code": 503,
-  "detail": "Container home-assistant is not running. Use /api/v1/containers/home-assistant/launch to start it."
+  "detail": "Container home-assistant is not running. Use /api/containers/home-assistant/launch to start it."
 }
 ```
-→ Launch the container first using `/api/v1/containers/{id}/launch`
+→ Launch the container first using `/api/containers/{id}/launch`
 
 ### Health check timeout
 Container started but isn't responding to HTTP. Common causes:

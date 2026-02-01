@@ -22,7 +22,7 @@
 - [core/docs/](../core/docs/)
 - Command handlers: `core/commands/`
 - Services: `core/services/`
-- uPY interpreter: `core/interpreters/`
+- TypeScript runtime: `core/interpreters/`
 
 ### App (GUI Client) — PRIVATE (/dev submodule)
 

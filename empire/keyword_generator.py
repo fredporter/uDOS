@@ -3,7 +3,7 @@ Keyword Generator for Business Intelligence Automation
 Uses Gemini API to generate contextual search keywords for website scraping and business discovery.
 
 Integration:
-- uDOS workflows (.upy scripts)
+- uDOS workflows (TypeScript in .md files)
 - Automated business research
 - Market analysis campaigns
 - Competitor discovery
@@ -363,14 +363,14 @@ Return ONLY the JSON, no explanation."""
             additional_context=json.dumps(workflow_config.get('filters', {}))
         )
     
-    def export_for_upy(self, keyword_set: KeywordSet) -> str:
-        """Export keywords in uPY variable format.
+    def export_for_script(self, keyword_set: KeywordSet) -> str:
+        """Export keywords for TypeScript script embedding.
         
         Args:
             keyword_set: KeywordSet to export
             
         Returns:
-            uPY script snippet with keyword variables
+            TypeScript script snippet with keyword variables
         """
         output = [
             "# Generated Keywords",

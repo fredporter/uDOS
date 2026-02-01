@@ -21,7 +21,7 @@ seed/bank/
 └── templates/          # Runtime template seeds (TRACKED)
     ├── story.template.json
     ├── user.template.json
-    └── setup.upy
+    └── setup-script.md
 ```
 
 ---
@@ -69,10 +69,10 @@ Command reference templates for TUI:
 Runtime templates for scripting:
 - `story.template.json` — Interactive story format
 - `user.template.json` — User profile template
-- `setup.upy` — Setup/onboarding script
-- `adventure.template.upy` — Adventure game template
-- `form_validation.upy` — Form validation example
-- `menu_system.upy` — Menu system template
+- `setup-script.md` — Setup/onboarding script
+- `adventure-template.md` — Adventure game template
+- `form_validation-script.md` — Form validation example
+- `menu_system-script.md` — Menu system template
 
 ---
 
@@ -112,6 +112,8 @@ Themes define TUI appearance and variable mappings:
 - Organization charts (hierarchical, flat)
 - Network diagrams (star, mesh, hierarchy)
 - Data visualization (tables, matrices)
+
+**Layer maps:** Detailed layer templates (Earth surface, infrastructure, subterranean, virtual, galaxy relays) reside under `graphics/layers/` and align with the docs’ L300-L899 “fractal” layer references; edit those JSON files to update the catalogs.
 
 ---
 
@@ -170,6 +172,6 @@ Users can reset to defaults via `REPAIR --seed`.
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** 2026-01-29  
+**Version:** 1.0.0
+**Last Updated:** 2026-01-29
 **Tracked:** Yes (canonical seed data)

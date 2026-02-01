@@ -40,7 +40,7 @@
 				"type": "shell",
 				"command": "./start_udos.sh",
 				"args": [
-					"memory/tests/shakedown.uscript"
+					"memory/tests/shakedown-script.md"
 				],
 				"group": {
 					"kind": "test",
@@ -56,7 +56,7 @@
 				"problemMatcher": []
 			},
 			{
-				"label": "Run uPY Standalone Tests",
+				"label": "Run TypeScript Standalone Tests",
 				"type": "shell",
 				"command": "${workspaceFolder}/.venv/bin/python",
 				"args": [
@@ -72,7 +72,7 @@
 				"problemMatcher": []
 			},
 			{
-				"label": "Run uPY Integration Tests",
+				"label": "Run TypeScript Integration Tests",
 				"type": "shell",
 				"command": "${workspaceFolder}/.venv/bin/python",
 				"args": [

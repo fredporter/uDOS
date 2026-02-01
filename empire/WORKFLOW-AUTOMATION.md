@@ -9,7 +9,7 @@ BIZINTEL workflow automation provides two key capabilities:
 1. **Keyword Generation**: AI-powered search keyword generation using Google Gemini
 2. **Location Resolution**: Convert addresses to TILE codes and MeshCore grid positions
 
-Both features integrate with uDOS workflows (.upy scripts) via variable export.
+Both features integrate with uDOS workflows (TypeScript scripts in .md files) via variable export.
 
 ---
 
@@ -23,14 +23,14 @@ Generate intelligent search keywords for business discovery workflows using:
 ### Command Syntax
 
 ```bash
-CLOUD GENERATE KEYWORDS <industry> [--location <location>] [--type <business_type>] [--upy]
+CLOUD GENERATE KEYWORDS <industry> [--location <location>] [--type <business_type>] [--export]
 ```
 
 **Arguments:**
 - `<industry>` - Required. Industry category (e.g., "live music venues", "cafes", "gyms")
 - `--location <location>` - Optional. Geographic context (e.g., "Sydney", "Brooklyn NYC")
 - `--type <business_type>` - Optional. Business subcategory (e.g., "jazz club", "organic cafe")
-- `--upy` - Optional. Export as uPY variables for workflow automation
+- `--export` - Optional. Export as TypeScript variables for workflow automation
 
 ### Examples
 
@@ -67,7 +67,7 @@ uDOS> CLOUD GENERATE KEYWORDS "cafes" --location "Sydney CBD"
 
 **Export for workflow automation:**
 ```bash
-uDOS> CLOUD GENERATE KEYWORDS "live music venues" --location "Sydney" --upy
+uDOS> CLOUD GENERATE KEYWORDS "live music venues" --location "Sydney" --export
 ```
 
 Output (uPY variable format):
@@ -106,13 +106,13 @@ Output (uPY variable format):
 
 ### Workflow Integration
 
-**Example .upy workflow:**
+**Example TypeScript workflow:**
 
-```upy
-# memory/workflows/missions/find-music-venues.upy
+```typescript
+# memory/workflows/missions/find-music-venues-script.md
 
 # Generate keywords with Gemini AI
-(CLOUD GENERATE KEYWORDS|live music venues|--location|Sydney|--upy)
+(CLOUD GENERATE KEYWORDS|live music venues|--location|Sydney|--export)
 
 # Keywords now available as variables:
 # {$KEYWORDS.PRIMARY}, {$KEYWORDS.LOCATION}, etc.
@@ -161,13 +161,13 @@ Convert addresses to:
 ### Command Syntax
 
 ```bash
-CLOUD RESOLVE LOCATION <address> [--layer <100-500>] [--upy]
+CLOUD RESOLVE LOCATION <address> [--layer <100-500>] [--export]
 ```
 
 **Arguments:**
 - `<address>` - Required. Full address or landmark (e.g., "123 George St, Sydney NSW")
 - `--layer <100-500>` - Optional. TILE layer (default: 300 city layer)
-- `--upy` - Optional. Export as uPY variables for workflow automation
+- `--export` - Optional. Export as TypeScript variables for workflow automation
 
 ### Examples
 
@@ -200,7 +200,7 @@ uDOS> CLOUD RESOLVE LOCATION "123 George St, Sydney" --layer 400
 
 **Export for workflow automation:**
 ```bash
-uDOS> CLOUD RESOLVE LOCATION "Opera House, Sydney" --upy
+uDOS> CLOUD RESOLVE LOCATION "Opera House, Sydney" --export
 ```
 
 Output (uPY variable format):
@@ -275,13 +275,13 @@ RL = 479 (R=17, L=11) → 17*18 + 11 = 479
 
 ### Workflow Integration
 
-**Example .upy workflow:**
+**Example TypeScript workflow:**
 
-```upy
-# memory/workflows/missions/map-sydney-venues.upy
+```typescript
+# memory/workflows/missions/map-sydney-venues-script.md
 
 # Resolve business address
-(CLOUD RESOLVE LOCATION|Opera House, Sydney NSW|--layer|300|--upy)
+(CLOUD RESOLVE LOCATION|Opera House, Sydney NSW|--layer|300|--export)
 
 # Location data now available:
 # {$LOCATION.TILE}, {$LOCATION.MESHCORE_X}, etc.
@@ -301,11 +301,11 @@ RL = 479 (R=17, L=11) → 17*18 + 11 = 479
 **Full business discovery workflow with keywords + locations:**
 
 ```upy
-# memory/workflows/missions/discover-sydney-music.upy
+# memory/workflows/missions/discover-sydney-music-script.md
 
 # PHASE 1: Generate search keywords
 (PRINT|Generating keywords for Sydney live music venues...)
-(CLOUD GENERATE KEYWORDS|live music venues|--location|Sydney|--upy)
+(CLOUD GENERATE KEYWORDS|live music venues|--location|Sydney|--export)
 
 # PHASE 2: Search using keywords
 (PRINT|Searching Google Business Profiles...)
@@ -322,7 +322,7 @@ FOR {$bid} IN {$business_ids}
   (CLOUD GET|{$bid}|--field|address) → {$address}
   
   # Resolve to TILE code
-  (CLOUD RESOLVE LOCATION|{$address}|--layer|300|--upy)
+  (CLOUD RESOLVE LOCATION|{$address}|--layer|300|--export)
   
   # Update business record
   (CLOUD UPDATE|{$bid}|--tile|{$LOCATION.TILE})
@@ -401,8 +401,8 @@ print(keywords.primary_keywords)
 print(keywords.location_variants)
 # ['Sydney live music', 'Sydney concert venues', ...]
 
-# Export for uPY
-upy_code = generator.export_for_upy(keywords)
+# Export for TypeScript scripts
+script_code = generator.export_for_script(keywords)
 # Returns: "{$KEYWORDS.PRIMARY} = [...]\n..."
 
 # Location resolution
@@ -464,7 +464,7 @@ uDOS> CLOUD GENERATE KEYWORDS "live music venues" --location "Sydney"
 uDOS> CLOUD GENERATE KEYWORDS "cafes" --location "Brooklyn"
 
 # Export for workflow
-uDOS> CLOUD GENERATE KEYWORDS "gyms" --upy
+uDOS> CLOUD GENERATE KEYWORDS "gyms" --export
 ```
 
 ### Test Location Resolution
@@ -481,25 +481,25 @@ uDOS> CLOUD RESOLVE LOCATION "Opera House, Sydney" --layer 200
 uDOS> CLOUD RESOLVE LOCATION "Opera House, Sydney" --layer 400
 
 # Export for workflow
-uDOS> CLOUD RESOLVE LOCATION "Opera House, Sydney" --upy
+uDOS> CLOUD RESOLVE LOCATION "Opera House, Sydney" --export
 ```
 
 ### Test Workflow Integration
 
-Create `memory/workflows/test-automation.upy`:
+Create `memory/workflows/test-automation-script.md`:
 
 ```upy
 # Test keyword generation
-(CLOUD GENERATE KEYWORDS|cafes|--location|Sydney|--upy)
+(CLOUD GENERATE KEYWORDS|cafes|--location|Sydney|--export)
 (PRINT|Primary keywords: {$KEYWORDS.PRIMARY})
 
 # Test location resolution
-(CLOUD RESOLVE LOCATION|Opera House, Sydney|--upy)
+(CLOUD RESOLVE LOCATION|Opera House, Sydney|--export)
 (PRINT|TILE code: {$LOCATION.TILE})
 (PRINT|MeshCore position: {$LOCATION.MESHCORE_X},{$LOCATION.MESHCORE_Y})
 ```
 
-Run: `./start_udos.sh memory/workflows/test-automation.upy`
+Run: `./start_udos.sh memory/workflows/test-automation-script.md`
 
 ---
 

@@ -12,7 +12,7 @@ AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
 
 
 def create_workflow_routes(auth_guard: AuthGuard = None) -> APIRouter:
-    router = APIRouter(prefix="/api/v1/workflows", tags=["workflow-manager"])
+    router = APIRouter(prefix="/api/workflows", tags=["workflow-manager"])
     manager = WorkflowManager()
 
     class WorkflowCreate(BaseModel):

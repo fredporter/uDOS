@@ -5,7 +5,6 @@
   import Webhooks from "./routes/Webhooks.svelte";
   import Logs from "./routes/Logs.svelte";
   import Catalog from "./routes/Catalog.svelte";
-  import Plugins from "./routes/Plugins.svelte";
   import Config from "./routes/Config.svelte";
   import DevMode from "./routes/DevMode.svelte";
   import Tasks from "./routes/Tasks.svelte";
@@ -13,18 +12,20 @@
   import Binder from "./routes/Binder.svelte";
   import Notion from "./routes/Notion.svelte";
   import GitHub from "./routes/GitHub.svelte";
-  import Wiki from "./routes/Wiki.svelte";
-  import Library from "./routes/Library.svelte";
-  import Files from "./routes/Files.svelte";
-  import Story from "./routes/Story.svelte";
-  import Tables from "./routes/Tables.svelte";
-  import Repair from "./routes/Repair.svelte";
-  import FontManager from "./routes/FontManager.svelte";
-  import EmojiPipeline from "./routes/EmojiPipeline.svelte";
-  import PixelEditor from "./routes/PixelEditor.svelte";
-  import LayerEditor from "./routes/LayerEditor.svelte";
-  import SvgProcessor from "./routes/SvgProcessor.svelte";
-  import Hotkeys from "./routes/Hotkeys.svelte";
+import Wiki from "./routes/Wiki.svelte";
+import Library from "./routes/Library.svelte";
+import Files from "./routes/Files.svelte";
+import Story from "./routes/Story.svelte";
+import Tables from "./routes/Tables.svelte";
+import Repair from "./routes/Repair.svelte";
+import FontManager from "./routes/FontManager.svelte";
+import EmojiPipeline from "./routes/EmojiPipeline.svelte";
+import PixelEditor from "./routes/PixelEditor.svelte";
+import LayerEditor from "./routes/LayerEditor.svelte";
+import SvgProcessor from "./routes/SvgProcessor.svelte";
+import Hotkeys from "./routes/Hotkeys.svelte";
+import Round3 from "./routes/Round3.svelte";
+import Groovebox from "./routes/Groovebox.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
   import WizardBottomBar from "./components/WizardBottomBar.svelte";
   import ToastContainer from "./lib/components/ToastContainer.svelte";
@@ -128,8 +129,6 @@
         <Logs />
       {:else if currentRoute === "catalog"}
         <Catalog />
-      {:else if currentRoute === "plugins"}
-        <Plugins />
       {:else if currentRoute === "config"}
         <Config />
       {:else if currentRoute === "devmode"}
@@ -170,6 +169,10 @@
         <SvgProcessor />
       {:else if currentRoute === "hotkeys"}
         <Hotkeys />
+      {:else if currentRoute === "round3"}
+        <Round3 />
+      {:else if currentRoute === "groovebox"}
+        <Groovebox />
       {/if}
     </main>
   </div>

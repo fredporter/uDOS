@@ -41,7 +41,7 @@ def _resolve_path(path: str) -> Path:
 def create_layer_editor_routes(auth_guard=None) -> APIRouter:
     dependencies = [Depends(auth_guard)] if auth_guard else []
     router = APIRouter(
-        prefix="/api/v1/layers", tags=["layers"], dependencies=dependencies
+        prefix="/api/layers", tags=["layers"], dependencies=dependencies
     )
 
     @router.get("/roots")

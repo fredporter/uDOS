@@ -151,7 +151,7 @@ sources            JSON ARRAY        -- Links to drivers, firmware
 last_seen          DATE              -- Last verified working
 ```
 
-**Distribution:** Wizard Server `/api/v1/sonic/devices` → Cached locally
+**Distribution:** Wizard Server `/api/sonic/devices` → Cached locally
 
 **Community:** Open for contributions (pull requests with new hardware)
 
@@ -282,7 +282,7 @@ except:
 ### Configuration
 
 ```bash
-POST /api/v1/beacon/configure
+POST /api/beacon/configure
   → Setup WiFi SSID, passphrase, network mode
   ← Beacon ID, instructions
 ```
@@ -290,7 +290,7 @@ POST /api/v1/beacon/configure
 ### Hardware Setup
 
 ```bash
-POST /api/v1/beacon/setup-hardware?hardware=tplink-wr841n
+POST /api/beacon/setup-hardware?hardware=tplink-wr841n
   → Get installation guide for specific hardware
   ← Step-by-step instructions + driver links
 ```
@@ -298,11 +298,11 @@ POST /api/v1/beacon/setup-hardware?hardware=tplink-wr841n
 ### Status & Monitoring
 
 ```bash
-GET /api/v1/beacon/status?beacon_id=beacon-home-01
+GET /api/beacon/status?beacon_id=beacon-home-01
   → Check beacon health, connected devices, tunnel status
   ← Status, uptime, services, metrics
 
-GET /api/v1/beacon/devices
+GET /api/beacon/devices
   → List recommended router hardware
   ← Device specs, prices, OpenWrt support
 ```
@@ -310,25 +310,25 @@ GET /api/v1/beacon/devices
 ### VPN Tunnel
 
 ```bash
-POST /api/v1/beacon/tunnel/enable
+POST /api/beacon/tunnel/enable
   Request:  { beacon_id, beacon_public_key, beacon_endpoint }
   → Setup WireGuard tunnel
   ← Wizard public key, config download URL
 
-GET /api/v1/beacon/tunnel/{tunnel_id}/status
+GET /api/beacon/tunnel/{tunnel_id}/status
   → Monitor tunnel health, latency, bytes transferred
 
-POST /api/v1/beacon/tunnel/{tunnel_id}/disable
+POST /api/beacon/tunnel/{tunnel_id}/disable
   → Gracefully disable tunnel
 ```
 
 ### Device Quotas
 
 ```bash
-GET /api/v1/beacon/devices/{device_id}/quota
+GET /api/beacon/devices/{device_id}/quota
   → Check cloud budget, spending, reset date
 
-POST /api/v1/beacon/devices/{device_id}/quota/add-funds
+POST /api/beacon/devices/{device_id}/quota/add-funds
   Request:  { amount_usd }
   → Add emergency funds
 ```
@@ -336,10 +336,10 @@ POST /api/v1/beacon/devices/{device_id}/quota/add-funds
 ### Plugin Cache
 
 ```bash
-GET /api/v1/beacon/plugins/{plugin_id}
+GET /api/beacon/plugins/{plugin_id}
   → Fetch plugin from local cache (or Wizard mirror)
 
-POST /api/v1/beacon/plugins/{plugin_id}/cache
+POST /api/beacon/plugins/{plugin_id}/cache
   → Pre-cache plugin for faster distribution
 ```
 

@@ -179,7 +179,7 @@ $ docker-compose up
 
 ### Phase 3 (16 hours, week 3)
 ```bash
-$ curl http://localhost:8765/api/v1/plugins
+$ curl http://localhost:8765/api/plugins
 [
   { "name": "ai-plugin", "status": "active" },
   { "name": "oauth-plugin", "status": "active" }

@@ -92,34 +92,34 @@ Wizard Server (cloud, optional)
 
 **Configuration (2 endpoints)**
 
-- `POST /api/v1/beacon/configure` — Setup WiFi
-- `POST /api/v1/beacon/setup-hardware` — Hardware guides
+- `POST /api/beacon/configure` — Setup WiFi
+- `POST /api/beacon/setup-hardware` — Hardware guides
 
 **Monitoring (2 endpoints)**
 
-- `GET /api/v1/beacon/status` — Beacon health
-- `GET /api/v1/beacon/devices` — Hardware catalog
+- `GET /api/beacon/status` — Beacon health
+- `GET /api/beacon/devices` — Hardware catalog
 
 **VPN Tunneling (3 endpoints)**
 
-- `POST /api/v1/beacon/tunnel/enable` — Create tunnel
-- `GET /api/v1/beacon/tunnel/{id}/status` — Monitor tunnel
-- `POST /api/v1/beacon/tunnel/{id}/disable` — Close tunnel
+- `POST /api/beacon/tunnel/enable` — Create tunnel
+- `GET /api/beacon/tunnel/{id}/status` — Monitor tunnel
+- `POST /api/beacon/tunnel/{id}/disable` — Close tunnel
 
 **Quotas (2 endpoints)**
 
-- `GET /api/v1/beacon/devices/{id}/quota` — Check budget
-- `POST /api/v1/beacon/devices/{id}/quota/add-funds` — Top-up budget
+- `GET /api/beacon/devices/{id}/quota` — Check budget
+- `POST /api/beacon/devices/{id}/quota/add-funds` — Top-up budget
 
 **Plugins (2 endpoints)**
 
-- `GET /api/v1/beacon/plugins/{id}` — Fetch cached plugin
-- `POST /api/v1/beacon/plugins/{id}/cache` — Pre-cache plugin
+- `GET /api/beacon/plugins/{id}` — Fetch cached plugin
+- `POST /api/beacon/plugins/{id}/cache` — Pre-cache plugin
 
 **Extras (2 endpoints)**
 
-- `GET /api/v1/sonic/devices` — Sonic device database
-- `GET /api/v1/sonic/devices/{id}/drivers` — Driver links
+- `GET /api/sonic/devices` — Sonic device database
+- `GET /api/sonic/devices/{id}/drivers` — Driver links
 
 ---
 

@@ -80,7 +80,7 @@ python memory/tests/test_groovebox.py  # Imports via registry
 python memory/tests/test_empire.py     # Imports via registry
 
 # Shakedown (full system)
-./start_udos.sh memory/tests/shakedown.uscript
+./start_udos.sh memory/tests/shakedown-script.md
 ```
 
 ## Why This Helps

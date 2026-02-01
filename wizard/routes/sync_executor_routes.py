@@ -12,7 +12,7 @@ AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
 
 
 def create_sync_executor_routes(auth_guard: AuthGuard = None) -> APIRouter:
-    router = APIRouter(prefix="/api/v1/sync-executor", tags=["sync-executor"])
+    router = APIRouter(prefix="/api/sync-executor", tags=["sync-executor"])
     executor = SyncExecutor()
 
     @router.get("/health")

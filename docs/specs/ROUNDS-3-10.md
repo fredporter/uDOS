@@ -12,7 +12,7 @@ This spec consolidates the outstanding development rounds outlined in `docs/ROAD
 ## Round 4 — Wizard Web Browser / Dataset Tables + SQLite Binding
 - **Owner:** Wizard (Dashboard)
 - **Status:** Planning
-- **Deliverables:** Sortable/filterable dataset table, chart view, `/api/v1/data/*` endpoints for tables/query/schema/export, spatial tagging filters.
+- **Deliverables:** Sortable/filterable dataset table, chart view, `/api/data/*` endpoints for tables/query/schema/export, spatial tagging filters.
 - **References:** `docs/specs/file-parsing-architecture.md`, `specs/grid-spatial-computing.md`
 - **Next actions:** Implement FastAPI routes, build Svelte Table + Chart components, add pagination/performance guardrails.
 
@@ -28,7 +28,7 @@ This spec consolidates the outstanding development rounds outlined in `docs/ROAD
 - **Status:** Specification ready
 - **Deliverables:** Beacon portal APIs, device database routes, WireGuard configs, quota throttles, Sonic/Beacon docs (`docs/wiki/BEACON-...`), Sonic DB integration in `wizard/routes/sonic_routes.py`.
 - **References:** `sonic/docs/specs/sonic-screwdriver-v1.1.0.md`, `docs/wiki/BEACON-PORTAL-DELIVERY.md`
-- **Next actions:** Harden `/api/v1/sonic` DB, add quota enforcement middleware, publish Sonic dataset updates.
+- **Next actions:** Harden `/api/sonic` DB, add quota enforcement middleware, publish Sonic dataset updates.
 
 ## Round 7 — Goblin Dev Server Experiments
 - **Owner:** Goblin team

@@ -1,0 +1,35 @@
+{
+  "category": "galaxy_layers",
+  "description": "Fractal galaxy relay templates (SVG + diagram).",
+  "layers": [
+    {
+      "layer_id": "G700",
+      "title": "Orbital Relay",
+      "format": "svg",
+      "palette": "stellar",
+      "template": {
+        "svg": "<svg width=360 height=200 xmlns='http://www.w3.org/2000/svg'><rect width=360 height=200 fill='#020617'/><circle cx=60 cy=100 r=40 fill='#38bdf8'/><circle cx=180 cy=100 r=40 fill='#a855f7'/><circle cx=300 cy=100 r=40 fill='#facc15'/><line x1=60 y1=100 x2=300 y2=100 stroke='#94a3b8' stroke-width=2 stroke-dasharray='5,5'/><text x=180 y=190 fill='#cbd5f5' font-family='SFMono-Regular' text-anchor='middle'>Orbital Relay Web</text></svg>"
+      }
+    },
+    {
+      "layer_id": "G800",
+      "title": "Deep Galaxy",
+      "format": "diagram",
+      "palette": "cosmic",
+      "template": {
+        "diagram": {
+          "nodes": [
+            {"id": "X", "label": "Probe Cluster"},
+            {"id": "Y", "label": "Hyperlane"},
+            {"id": "Z", "label": "Core Archive"}
+          ],
+          "edges": [
+            {"from": "X", "to": "Y"},
+            {"from": "Y", "to": "Z"},
+            {"from": "X", "to": "Z"}
+          ]
+        }
+      }
+    }
+  ]
+}

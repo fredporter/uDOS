@@ -12,9 +12,9 @@ from core.services.rate_limit_helpers import guard_wizard_endpoint
 from wizard.services.provider_load_logger import read_recent_provider_events
 
 ENDPOINTS = [
-    "/api/v1/library/integration/demo/install",
-    "/api/v1/library/parser/execute",
-    "/api/v1/library/items/list",
+    "/api/library/integration/demo/install",
+    "/api/library/parser/execute",
+    "/api/library/items/list",
 ]
 
 

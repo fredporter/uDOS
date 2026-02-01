@@ -45,6 +45,12 @@ from wizard.services.mesh_sync import get_mesh_sync, SyncItemType
 from wizard.services.rate_limiter import get_rate_limiter
 from wizard.services.logging_manager import get_logger
 from wizard.services.secret_store import get_secret_store, SecretStoreError
+from wizard.services.plugin_repository import get_repository
+from wizard.services.plugin_validation import (
+    compute_manifest_checksum,
+    load_manifest,
+    validate_manifest,
+)
 from core.services.hotkey_map import get_hotkey_payload
 from core.services.config_sync_service import ConfigSyncManager
 from wizard.services.oauth_manager import (
@@ -186,17 +192,29 @@ async def config_dashboard(request: Request):
     except Exception:
         secret_state["error"] = "Secret store locked or missing WIZARD_KEY"
 
+    repository = get_repository()
+    repository_stats = repository.get_stats()
+    repo_entries = {entry.id: entry.to_dict() for entry in repository.list_plugins()}
     plugin_catalog = []
-    plugin_dir = repo_root / "wizard" / "distribution" / "plugins"
+    plugin_dir = repository.repo_base
     if plugin_dir.exists():
         for plugin_path in sorted(plugin_dir.iterdir()):
-            manifest_file = plugin_path / "manifest.json"
+            if not plugin_path.is_dir():
+                continue
+            manifest_path = plugin_path / "manifest.json"
+            manifest = load_manifest(plugin_path)
+            manifest_checksum = compute_manifest_checksum(manifest_path)
+            repo_entry = repo_entries.get(plugin_path.name) or {}
+            validation = validate_manifest(
+                manifest, plugin_path.name, repo_entry
+            )
             plugin_catalog.append(
                 {
                     "name": plugin_path.name,
-                    "manifest": json.loads(manifest_file.read_text())
-                    if manifest_file.exists()
-                    else {},
+                    "manifest": manifest,
+                    "manifest_checksum": manifest_checksum,
+                    "validation": validation,
+                    "repository_entry": repo_entry,
                 }
             )
 
@@ -268,6 +286,7 @@ async def config_dashboard(request: Request):
             "env_notice": env_notice,
             "oauth_connections": oauth_connections,
             "oauth_note": "One-click OAuth connectors open the provider consent flows via the Wizard OAuth gateway.",
+            "repository_stats": repository_stats,
         },
     )
 

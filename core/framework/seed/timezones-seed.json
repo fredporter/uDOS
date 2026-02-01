@@ -5,24 +5,133 @@
   "zones": {
     "UTC": {
       "name": "UTC",
-      "cities": ["Alpha Centauri", "Andromeda Galaxy", "Forest Clearing", "Low Earth Orbit"]
+      "offset": "+00:00",
+      "dst": false,
+      "cities": [
+        { "name": "Forest Clearing", "country": "Tutorial Realm" },
+        { "name": "Low Earth Orbit", "country": "Orbital" },
+        { "name": "Reykjavík", "country": "Iceland" }
+      ]
     },
     "Asia/Tokyo": {
       "name": "Asia/Tokyo",
-      "cities": ["Tokyo - Shibuya Crossing", "Tokyo - Asakusa Temple", "Mount Fuji"]
+      "offset": "+09:00",
+      "dst": false,
+      "cities": [
+        { "name": "Tokyo - Shibuya Crossing", "country": "Japan" },
+        { "name": "Osaka - Dōtonbori", "country": "Japan" },
+        { "name": "Kyoto - Fushimi", "country": "Japan" }
+      ]
     },
     "America/New_York": {
       "name": "America/New_York",
-      "cities": ["New York City", "Niagara Falls"]
+      "offset": "-05:00",
+      "dst": true,
+      "dst_rules": "Second Sunday March → First Sunday November",
+      "cities": [
+        { "name": "New York City - Times Square", "country": "USA" },
+        { "name": "Washington, D.C.", "country": "USA" },
+        { "name": "Boston", "country": "USA" }
+      ]
+    },
+    "America/Los_Angeles": {
+      "name": "America/Los_Angeles",
+      "offset": "-08:00",
+      "dst": true,
+      "dst_rules": "Second Sunday March → First Sunday November",
+      "cities": [
+        { "name": "Los Angeles - Downtown", "country": "USA" },
+        { "name": "San Francisco", "country": "USA" },
+        { "name": "Seattle", "country": "USA" }
+      ]
     },
     "Europe/London": {
       "name": "Europe/London",
-      "cities": ["London - Westminster", "Scottish Highlands"]
+      "offset": "+00:00",
+      "dst": true,
+      "dst_rules": "Last Sunday March → Last Sunday October",
+      "cities": [
+        { "name": "London - Westminster", "country": "UK" },
+        { "name": "Glasgow", "country": "UK" },
+        { "name": "Belfast", "country": "UK" }
+      ]
+    },
+    "Europe/Paris": {
+      "name": "Europe/Paris",
+      "offset": "+01:00",
+      "dst": true,
+      "dst_rules": "Last Sunday March → Last Sunday October",
+      "cities": [
+        { "name": "Paris - Champs-Élysées", "country": "France" },
+        { "name": "Lyon", "country": "France" },
+        { "name": "Marseille", "country": "France" }
+      ]
+    },
+    "America/Sao_Paulo": {
+      "name": "America/Sao_Paulo",
+      "offset": "-03:00",
+      "dst": false,
+      "cities": [
+        { "name": "São Paulo - Paulista", "country": "Brazil" },
+        { "name": "Rio de Janeiro", "country": "Brazil" },
+        { "name": "Brasília", "country": "Brazil" }
+      ]
+    },
+    "Asia/Kolkata": {
+      "name": "Asia/Kolkata",
+      "offset": "+05:30",
+      "dst": false,
+      "cities": [
+        { "name": "Mumbai - Gateway", "country": "India" },
+        { "name": "Delhi", "country": "India" },
+        { "name": "Kolkata", "country": "India" }
+      ]
+    },
+    "Australia/Sydney": {
+      "name": "Australia/Sydney",
+      "offset": "+10:00",
+      "dst": true,
+      "dst_rules": "First Sunday October → First Sunday April",
+      "cities": [
+        { "name": "Sydney - Harbour", "country": "Australia" },
+        { "name": "Melbourne", "country": "Australia" },
+        { "name": "Brisbane", "country": "Australia" }
+      ]
+    },
+    "Africa/Johannesburg": {
+      "name": "Africa/Johannesburg",
+      "offset": "+02:00",
+      "dst": false,
+      "cities": [
+        { "name": "Johannesburg - Maboneng", "country": "South Africa" },
+        { "name": "Cape Town", "country": "South Africa" },
+        { "name": "Durban", "country": "South Africa" }
+      ]
+    },
+    "Pacific/Auckland": {
+      "name": "Pacific/Auckland",
+      "offset": "+12:00",
+      "dst": true,
+      "dst_rules": "Last Sunday September → First Sunday April",
+      "cities": [
+        { "name": "Auckland - Viaduct", "country": "New Zealand" },
+        { "name": "Wellington", "country": "New Zealand" },
+        { "name": "Christchurch", "country": "New Zealand" }
+      ]
     }
   },
   "locations": {
     "L300-AA10": "UTC",
     "L300-BJ10": "Asia/Tokyo",
-    "L306-AA00": "UTC"
+    "L306-AA00": "UTC",
+    "L300-NA01": "America/New_York",
+    "L300-NA02": "America/Los_Angeles",
+    "L300-EU01": "Europe/London",
+    "L300-EU02": "Europe/Paris",
+    "L300-SA01": "America/Sao_Paulo",
+    "L300-AS01": "Asia/Kolkata",
+    "L300-AU01": "Australia/Sydney",
+    "L300-AF01": "Africa/Johannesburg",
+    "L300-OC01": "Pacific/Auckland"
   }
 }

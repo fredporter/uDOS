@@ -13,7 +13,6 @@
   const topNavRoutes = [
     { id: "dashboard", label: "Dashboard" },
     { id: "devices", label: "Devices" },
-    { id: "plugins", label: "🧙 Plugins" },
     { id: "catalog", label: "Catalog" },
     { id: "webhooks", label: "Webhooks" },
   ];
@@ -21,7 +20,6 @@
   const allMenuRoutes = [
     { id: "dashboard", label: "Dashboard" },
     { id: "devices", label: "Devices" },
-    { id: "plugins", label: "🧙 Plugins" },
     { id: "catalog", label: "Catalog" },
     { id: "webhooks", label: "Webhooks" },
     { id: "logs", label: "Logs" },
@@ -46,6 +44,8 @@
     { id: "workflow", label: "✅ Workflow" },
     { id: "binder", label: "📚 Binder Compiler" },
     { id: "notion", label: "📝 Notion Sync" },
+    { id: "round3", label: "🔮 Round 3 UI" },
+    { id: "groovebox", label: "🎛 Groovebox" },
     { id: "github", label: "🐙 GitHub" },
   ];
 

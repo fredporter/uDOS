@@ -1,0 +1,17 @@
+{
+  "name": "doomsday",
+  "description": "Apocalypse radio language for scorched Earth survivors.",
+  "companions": ["earth_layers"],
+  "replacements": {
+    "uDOS": "Wasteland Shell",
+    "UDOS": "Wasteland Shell",
+    "Self-Heal": "Medic Scavenge",
+    "SELF-HEAL": "Medic Scavenge",
+    "Hotkey": "Signal",
+    "HOTKEY": "Signal",
+    "Wizard": "Overwatch",
+    "WIZARD": "Overwatch",
+    "Repair": "Patch-Up",
+    "REPAIR": "Patch-Up"
+  }
+}

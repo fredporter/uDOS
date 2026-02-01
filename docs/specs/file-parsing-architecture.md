@@ -60,14 +60,14 @@ MyBinder/
 
 | Endpoint                  | Method | Purpose                         |
 | ------------------------- | ------ | ------------------------------- |
-| `/api/v1/parse/table`     | POST   | Parse Markdown table → SQLite   |
-| `/api/v1/parse/csv`       | POST   | Import CSV → SQLite             |
-| `/api/v1/parse/json`      | POST   | Import JSON → SQLite            |
-| `/api/v1/parse/yaml`      | POST   | Import YAML → config/table      |
-| `/api/v1/binders/{id}/db` | GET    | Access binder database          |
-| `/api/v1/export/table`    | POST   | Export SQLite table → .table.md |
-| `/api/v1/execute/sql`     | POST   | Execute SQL script              |
-| `/api/v1/feed/generate`   | POST   | Generate RSS from local content |
+| `/api/parse/table`     | POST   | Parse Markdown table → SQLite   |
+| `/api/parse/csv`       | POST   | Import CSV → SQLite             |
+| `/api/parse/json`      | POST   | Import JSON → SQLite            |
+| `/api/parse/yaml`      | POST   | Import YAML → config/table      |
+| `/api/binders/{id}/db` | GET    | Access binder database          |
+| `/api/export/table`    | POST   | Export SQLite table → .table.md |
+| `/api/execute/sql`     | POST   | Execute SQL script              |
+| `/api/feed/generate`   | POST   | Generate RSS from local content |
 
 **Goblin Dev Server (Port 8767) - v1.0.6.0 Experimental:**
 
@@ -485,9 +485,9 @@ FEED --serve --port 8765 --path /feeds/main
 **API Endpoint:**
 
 ```bash
-GET /api/v1/feeds/list              # List available feeds
-POST /api/v1/feeds/generate         # Generate new feed
-GET /api/v1/feeds/{id}/rss          # Get RSS XML
+GET /api/feeds/list              # List available feeds
+POST /api/feeds/generate         # Generate new feed
+GET /api/feeds/{id}/rss          # Get RSS XML
 ```
 
 **Tests:** 10+ unit tests (feed generation, filtering, XML validity)

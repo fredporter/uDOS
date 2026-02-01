@@ -15,7 +15,7 @@ import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from wizard.services.block_mapper import BlockMapper
 from wizard.services.logging_manager import get_logger
@@ -157,6 +157,9 @@ class NotionSyncService:
         )
         return [dict(row) for row in cursor.fetchall()]
 
+    def get_pending_items(self, limit: int = 10) -> List[Dict[str, Any]]:
+        return self.list_pending_syncs(limit=limit)
+
     def mark_processing(self, queue_id: int) -> None:
         self.conn.execute(
             "UPDATE sync_queue SET status='processing' WHERE id=?", (queue_id,)
@@ -195,6 +198,62 @@ class NotionSyncService:
             (error_message, queue_id),
         )
         self.conn.commit()
+
+    def get_local_notion_maps(self, limit: int = 12) -> List[Dict[str, Any]]:
+        cursor = self.conn.execute(
+            """
+            SELECT q.id, q.notion_block_id, q.block_type, q.runtime_type,
+                   q.action, q.status, q.payload, q.created_at, q.processed_at,
+                   bm.local_file_path, bm.last_synced
+            FROM sync_queue q
+            LEFT JOIN block_mappings bm ON q.notion_block_id = bm.notion_block_id
+            ORDER BY q.created_at DESC
+            LIMIT ?
+            """,
+            (limit,),
+        )
+        entries: List[Dict[str, Any]] = []
+        for row in cursor.fetchall():
+            payload = json.loads(row["payload"]) if row["payload"] else {}
+            entries.append(
+                {
+                    "queue_id": row["id"],
+                    "notion_block_id": row["notion_block_id"],
+                    "block_type": row["block_type"],
+                    "runtime_type": row["runtime_type"],
+                    "action": row["action"],
+                    "status": row["status"],
+                    "payload_preview": self._preview_from_payload(payload),
+                    "created_at": row["created_at"],
+                    "processed_at": row["processed_at"],
+                    "local_file_path": row["local_file_path"],
+                    "last_synced": row["last_synced"],
+                }
+            )
+        return entries
+
+    def _preview_from_payload(self, payload: Dict[str, Any]) -> str:
+        if not payload:
+            return ""
+
+        fragments: List[str] = []
+
+        def collect_text(node: Any) -> None:
+            if isinstance(node, str):
+                fragments.append(node)
+            elif isinstance(node, dict):
+                for value in node.values():
+                    collect_text(value)
+            elif isinstance(node, list):
+                for item in node:
+                    collect_text(item)
+
+        collect_text(payload)
+        combined = " ".join(item.strip() for item in fragments if item.strip())
+        if combined:
+            return combined[:200]
+
+        return json.dumps(payload, ensure_ascii=False)[:200]
 
     def close(self) -> None:
         if hasattr(self, "conn"):

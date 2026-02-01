@@ -5,7 +5,7 @@
 /* Bundled font faces (served via Wizard font manager) */
 @font-face {
   font-family: "ChicagoFLF";
-  src: url("/api/v1/fonts/file?path=retro/apple/ChicagoFLF.ttf")
+  src: url("/api/fonts/file?path=retro/apple/ChicagoFLF.ttf")
     format("truetype");
   font-weight: 400;
   font-style: normal;
@@ -14,7 +14,7 @@
 
 @font-face {
   font-family: "Chicago";
-  src: url("/api/v1/fonts/file?path=retro/apple/Chicago.ttf")
+  src: url("/api/fonts/file?path=retro/apple/Chicago.ttf")
     format("truetype");
   font-weight: 400;
   font-style: normal;
@@ -23,7 +23,7 @@
 
 @font-face {
   font-family: "Monaco";
-  src: url("/api/v1/fonts/file?path=retro/apple/monaco.ttf")
+  src: url("/api/fonts/file?path=retro/apple/monaco.ttf")
     format("truetype");
   font-weight: 400;
   font-style: normal;
@@ -32,7 +32,7 @@
 
 @font-face {
   font-family: "Los Altos";
-  src: url("/api/v1/fonts/file?path=retro/apple/Los%20Altos.ttf")
+  src: url("/api/fonts/file?path=retro/apple/Los%20Altos.ttf")
     format("truetype");
   font-weight: 400;
   font-style: normal;
@@ -41,7 +41,7 @@
 
 @font-face {
   font-family: "Sanfrisco";
-  src: url("/api/v1/fonts/file?path=retro/apple/Sanfrisco.ttf")
+  src: url("/api/fonts/file?path=retro/apple/Sanfrisco.ttf")
     format("truetype");
   font-weight: 400;
   font-style: normal;
@@ -50,7 +50,7 @@
 
 @font-face {
   font-family: "PetMe64";
-  src: url("/api/v1/fonts/file?path=retro/c64/PetMe64.ttf")
+  src: url("/api/fonts/file?path=retro/c64/PetMe64.ttf")
     format("truetype");
   font-weight: 400;
   font-style: normal;
@@ -59,7 +59,7 @@
 
 @font-face {
   font-family: "Press Start 2P";
-  src: url("/api/v1/fonts/file?path=retro/gaming/PressStart2P-Regular.ttf")
+  src: url("/api/fonts/file?path=retro/gaming/PressStart2P-Regular.ttf")
     format("truetype");
   font-weight: 400;
   font-style: normal;
@@ -68,7 +68,7 @@
 
 @font-face {
   font-family: "Teletext50";
-  src: url("/api/v1/fonts/file?path=retro/teletext/Teletext50.otf")
+  src: url("/api/fonts/file?path=retro/teletext/Teletext50.otf")
     format("opentype");
   font-weight: 400;
   font-style: normal;
@@ -77,7 +77,7 @@
 
 @font-face {
   font-family: "Noto Color Emoji";
-  src: url("/api/v1/fonts/file?path=emoji/NotoColorEmoji.ttf")
+  src: url("/api/fonts/file?path=emoji/NotoColorEmoji.ttf")
     format("truetype");
   font-weight: 400;
   font-style: normal;
@@ -86,7 +86,7 @@
 
 @font-face {
   font-family: "Noto Emoji";
-  src: url("/api/v1/fonts/file?path=emoji/NotoEmoji-Regular.ttf")
+  src: url("/api/fonts/file?path=emoji/NotoEmoji-Regular.ttf")
     format("truetype");
   font-weight: 400;
   font-style: normal;
@@ -150,8 +150,8 @@ html.prose-2xl,
 body {
   font-family: inherit;
   font-size: inherit;
-  background-color: #ffffff;
-  color: #0f172a;
+  background-color: var(--theme-surface, #ffffff);
+  color: var(--theme-accent-contrast, #0f172a);
   transition:
     background-color 200ms,
     color 200ms;
@@ -204,8 +204,8 @@ pre,
   height: calc(100% - 44px);
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
-  color: #0f172a;
+  background-color: var(--theme-surface, #ffffff);
+  color: var(--theme-accent-contrast, #0f172a);
   overflow: hidden;
 }
 

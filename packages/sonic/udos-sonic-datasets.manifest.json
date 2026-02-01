@@ -69,7 +69,7 @@
   "integrations": [
     {
       "target": "wizard-server",
-      "endpoint": "/api/v1/sonic/devices",
+      "endpoint": "/api/sonic/devices",
       "method": "GET",
       "description": "Query device catalog (future integration)"
     },

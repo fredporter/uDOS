@@ -22,7 +22,7 @@
     loading = true;
     error = null;
     try {
-      const res = await fetch("/api/v1/library/status", {
+      const res = await fetch("/api/library/status", {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -36,7 +36,7 @@
 
   async function loadInventory() {
     try {
-      const res = await fetch("/api/v1/library/inventory", {
+      const res = await fetch("/api/library/inventory", {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -49,7 +49,7 @@
 
   async function loadRepos() {
     try {
-      const res = await fetch("/api/v1/library/repos", {
+      const res = await fetch("/api/library/repos", {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -62,7 +62,7 @@
 
   async function loadPackages() {
     try {
-      const res = await fetch("/api/v1/library/packages", {
+      const res = await fetch("/api/library/packages", {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -75,7 +75,7 @@
 
   async function loadApkStatus() {
     try {
-      const res = await fetch("/api/v1/library/apk/status", {
+      const res = await fetch("/api/library/apk/status", {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -89,7 +89,7 @@
   async function installIntegration(name) {
     actionInProgress = `install-${name}`;
     try {
-      const res = await fetch(`/api/v1/library/integration/${name}/install`, {
+      const res = await fetch(`/api/library/integration/${name}/install`, {
         method: "POST",
         headers: authHeaders(),
       });
@@ -110,7 +110,7 @@
   async function enableIntegration(name) {
     actionInProgress = `enable-${name}`;
     try {
-      const res = await fetch(`/api/v1/library/integration/${name}/enable`, {
+      const res = await fetch(`/api/library/integration/${name}/enable`, {
         method: "POST",
         headers: authHeaders(),
       });
@@ -131,7 +131,7 @@
   async function disableIntegration(name) {
     actionInProgress = `disable-${name}`;
     try {
-      const res = await fetch(`/api/v1/library/integration/${name}/disable`, {
+      const res = await fetch(`/api/library/integration/${name}/disable`, {
         method: "POST",
         headers: authHeaders(),
       });
@@ -154,7 +154,7 @@
 
     actionInProgress = `uninstall-${name}`;
     try {
-      const res = await fetch(`/api/v1/library/integration/${name}`, {
+      const res = await fetch(`/api/library/integration/${name}`, {
         method: "DELETE",
         headers: authHeaders(),
       });
@@ -207,7 +207,7 @@
   async function updateRepo(name) {
     actionInProgress = `repo-update-${name}`;
     try {
-      const res = await fetch(`/api/v1/library/repos/${name}/update`, {
+      const res = await fetch(`/api/library/repos/${name}/update`, {
         method: "POST",
         headers: authHeaders(),
       });
@@ -224,7 +224,7 @@
     actionInProgress = `repo-build-${name}-${format}`;
     try {
       const res = await fetch(
-        `/api/v1/library/repos/${name}/build?format=${format}`,
+        `/api/library/repos/${name}/build?format=${format}`,
         {
           method: "POST",
           headers: authHeaders(),
@@ -243,7 +243,7 @@
   async function buildApk(name) {
     actionInProgress = `repo-build-apk-${name}`;
     try {
-      const res = await fetch(`/api/v1/library/repos/${name}/build-apk`, {
+      const res = await fetch(`/api/library/repos/${name}/build-apk`, {
         method: "POST",
         headers: authHeaders(),
       });
@@ -260,7 +260,7 @@
   async function generateApkIndex() {
     actionInProgress = "apk-index";
     try {
-      const res = await fetch("/api/v1/library/apk/index", {
+      const res = await fetch("/api/library/apk/index", {
         method: "POST",
         headers: authHeaders(),
       });
@@ -282,7 +282,7 @@
         .split(" ")
         .map((p) => p.trim())
         .filter(Boolean);
-      const res = await fetch("/api/v1/library/toolchain/update", {
+      const res = await fetch("/api/library/toolchain/update", {
         method: "POST",
         headers: { ...authHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify({ packages }),

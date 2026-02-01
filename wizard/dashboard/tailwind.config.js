@@ -17,6 +17,10 @@ export default {
           800: "#075985",
           900: "#0c4a6e",
         },
+        accent: "var(--theme-accent, #38bdf8)",
+        surface: {
+          DEFAULT: "var(--theme-surface, #0f172a)",
+        },
       },
       typography: () => ({
         DEFAULT: {

@@ -5,14 +5,14 @@ Slack API Routes
 FastAPI routes for Slack Web API integration.
 
 Endpoints:
-  POST   /api/v1/slack/send        - Send notification to Slack
-  GET    /api/v1/slack/channels    - List available channels
-  GET    /api/v1/slack/channels/{id} - Get channel info
-  POST   /api/v1/slack/thread      - Reply in thread
-  POST   /api/v1/slack/upload      - Upload file to Slack
-  GET    /api/v1/slack/user/{id}   - Get user info
-  GET    /api/v1/slack/health      - Check Slack connectivity
-  GET    /api/v1/slack/config      - Get Slack config status
+  POST   /api/slack/send        - Send notification to Slack
+  GET    /api/slack/channels    - List available channels
+  GET    /api/slack/channels/{id} - Get channel info
+  POST   /api/slack/thread      - Reply in thread
+  POST   /api/slack/upload      - Upload file to Slack
+  GET    /api/slack/user/{id}   - Get user info
+  GET    /api/slack/health      - Check Slack connectivity
+  GET    /api/slack/config      - Get Slack config status
 """
 
 from typing import Optional, Dict, Any
@@ -56,7 +56,7 @@ def create_slack_routes(slack_service: SlackService) -> "APIRouter":
     if not APIRouter:
         raise RuntimeError("FastAPI not available")
 
-    router = APIRouter(prefix="/api/v1/slack", tags=["slack"])
+    router = APIRouter(prefix="/api/slack", tags=["slack"])
 
     @router.post("/send", response_model=SlackResponse)
     async def send_notification(req: SendMessageRequest):

@@ -71,7 +71,7 @@ def list_files():
         data = request.get_json()
         workspace = data.get("workspace", "scripts")
         path = data.get("path", "")
-        extensions = data.get("extensions", [".upy", ".md", ".json"])
+        extensions = data.get("extensions", [".md", ".json"])
         show_hidden = data.get("show_hidden", False)
 
         api_logger.info(f"[{correlation_id}] Listing files: {workspace}/{path}")

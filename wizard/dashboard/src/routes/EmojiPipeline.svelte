@@ -57,7 +57,7 @@
   }
 
   async function loadManifest() {
-    const res = await fetch("/api/v1/fonts/manifest", {
+    const res = await fetch("/api/fonts/manifest", {
       headers: authHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -82,7 +82,7 @@
   }
 
   function getFontUrl(font) {
-    return `/api/v1/fonts/file?path=${encodeURIComponent(font.file)}`;
+    return `/api/fonts/file?path=${encodeURIComponent(font.file)}`;
   }
 
   async function loadGlyphs() {

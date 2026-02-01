@@ -40,7 +40,7 @@ def _build_binder_config() -> Dict[str, Any]:
 
 
 def create_binder_routes(auth_guard: AuthGuard = None) -> APIRouter:
-    router = APIRouter(prefix="/api/v1/binder", tags=["binder"])
+    router = APIRouter(prefix="/api/binder", tags=["binder"])
     compiler = BinderCompiler(
         config=_build_binder_config(), command_runner=subprocess.run
     )

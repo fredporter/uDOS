@@ -13,7 +13,7 @@
     loading = true;
     error = null;
     try {
-      const res = await fetch("/api/v1/webhooks/status", {
+      const res = await fetch("/api/webhooks/status", {
         headers: authHeaders(),
       });
       if (!res.ok) {

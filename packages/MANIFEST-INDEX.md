@@ -277,7 +277,7 @@ udos-goblin (v0.2.0.0, port 8767, localhost-only)
 
 ### v1.0.5.0+
 
-- **Plugin Repository:** Wizard v1.1.0.0+ API (/api/v1/plugins/\*)
+- **Plugin Repository:** Wizard v1.1.0.0+ API (/api/plugins/\*)
 - **Package Manager:** brew/apt (Linux/macOS)
 
 ### v2.0.0+ (Future)

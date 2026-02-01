@@ -150,7 +150,7 @@ Technical specifications and reference material.
 
 ## Contributing
 
-This wiki is provisioned via the **Wizard Server** at `/api/v1/wiki/provision`.
+This wiki is provisioned via the **Wizard Server** at `/api/wiki/provision`.
 
 **Content Status:** 📝 All pages are currently stubs and need content
 

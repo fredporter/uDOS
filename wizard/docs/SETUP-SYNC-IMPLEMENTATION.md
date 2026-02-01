@@ -17,11 +17,11 @@ Implemented a complete synchronization system with three components:
 
 ### 1. **API Endpoints** (New)
 
-Added three new endpoints to `/api/v1/setup/profile/*`:
+Added three new endpoints to `/api/setup/profile/*`:
 
-- **GET /api/v1/setup/profile/user** — Retrieve user profile
-- **GET /api/v1/setup/profile/install** — Retrieve installation profile + metrics
-- **GET /api/v1/setup/profile/combined** — Get everything in one call
+- **GET /api/setup/profile/user** — Retrieve user profile
+- **GET /api/setup/profile/install** — Retrieve installation profile + metrics
+- **GET /api/setup/profile/combined** — Get everything in one call
 
 ### 2. **Interactive Console Command** (New)
 
@@ -94,7 +94,7 @@ Created comprehensive documentation:
               ↓ User completes story
               │
 ┌─────────────▼───────────────┐
-│  POST /api/v1/setup/        │
+│  POST /api/setup/        │
 │       story/submit          │
 └─────────────┬───────────────┘
               │
@@ -118,7 +118,7 @@ Created comprehensive documentation:
               ↓ Retrieve via API/Console
               │
 ┌─────────────▼───────────────┐
-│  GET /api/v1/setup/         │
+│  GET /api/setup/         │
 │       profile/combined      │
 │         OR                  │
 │  wizard> setup              │
@@ -134,15 +134,15 @@ Created comprehensive documentation:
 ```bash
 # Get combined profile
 curl -H "Authorization: Bearer $(cat memory/private/wizard_admin_token.txt)" \
-  http://localhost:8765/api/v1/setup/profile/combined | jq
+  http://localhost:8765/api/setup/profile/combined | jq
 
 # Get user profile only
 curl -H "Authorization: Bearer $(cat memory/private/wizard_admin_token.txt)" \
-  http://localhost:8765/api/v1/setup/profile/user | jq
+  http://localhost:8765/api/setup/profile/user | jq
 
 # Get install profile only
 curl -H "Authorization: Bearer $(cat memory/private/wizard_admin_token.txt)" \
-  http://localhost:8765/api/v1/setup/profile/install | jq
+  http://localhost:8765/api/setup/profile/install | jq
 ```
 
 ### Test Console Command
@@ -250,11 +250,11 @@ wizard> setup
 
 ### Wizard Dashboard Integration
 
-The new `/api/v1/setup/profile/combined` endpoint can be integrated into the Wizard dashboard UI:
+The new `/api/setup/profile/combined` endpoint can be integrated into the Wizard dashboard UI:
 
 ```typescript
 // Example dashboard integration
-const response = await fetch('/api/v1/setup/profile/combined');
+const response = await fetch('/api/setup/profile/combined');
 const { user_profile, install_profile, install_metrics } = await response.json();
 
 // Display in dashboard
@@ -274,7 +274,7 @@ The setup command can also be exposed in the Core TUI:
 class SetupHandler:
     def handle_show_profile(self):
         # Call Wizard API to get profile
-        response = requests.get('http://localhost:8765/api/v1/setup/profile/combined')
+        response = requests.get('http://localhost:8765/api/setup/profile/combined')
         profile = response.json()
         # Display in TUI format
         ...

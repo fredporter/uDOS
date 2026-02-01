@@ -59,6 +59,7 @@ Programming and system design concepts explained in the uDOS context.
 - Command parsing architecture
 - uCODE language reference
 - Theme system internals
+  (see `knowledge/concepts/THEME.md`)
 - Variable resolution system
 - Extension development
 

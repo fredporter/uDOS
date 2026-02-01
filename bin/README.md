@@ -317,7 +317,7 @@ The following scripts are still available for direct use:
 ### `start_udos.sh` — Core TUI
 
 ```bash
-./bin/start_udos.sh [uscript-file]
+./bin/start_udos.sh [script-file.md]
 ```
 
 Features: Offline, no dependencies, minimal footprint
@@ -508,9 +508,9 @@ tail -f memory/logs/dev-*.log
 
 - `/` — Web dashboard
 - `/health` — Health check
-- `/api/v1/` — REST API
-- `/api/v1/ai/models` — AI models
-- `/api/v1/status` — Server status
+- `/api/` — REST API
+- `/api/ai/models` — AI models
+- `/api/status` — Server status
 - `/ws` — WebSocket
 
 ### Goblin Dev (`http://localhost:8767`)

@@ -487,7 +487,7 @@ class BeaconService:
                     plugin_id, version, cached_at, size_mb, download_url
                 ) VALUES (?, ?, ?, ?, ?)
             """,
-                (plugin_id, version, datetime.now().isoformat(), size_mb, f"http://beacon.local:8765/api/v1/beacon/plugins/{plugin_id}"),
+                (plugin_id, version, datetime.now().isoformat(), size_mb, f"http://beacon.local:8765/api/beacon/plugins/{plugin_id}"),
             )
             conn.commit()
 
