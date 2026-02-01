@@ -1,4 +1,3 @@
-
 {
   "folders": [
     {
@@ -55,8 +54,41 @@
     }
   ],
   "settings": {
-    "python.defaultInterpreterPath": "${workspaceFolder:Core}/.venv/bin/python",
+    "python.defaultInterpreterPath": "${workspaceFolder:Core (PUBLIC)}/venv/bin/python",
     "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true
+    "python.linting.pylintEnabled": true,
+    "python.terminal.executeInFileDir": true,
+    "terminal.integrated.defaultProfile.osx": "bash",
+    "terminal.integrated.profiles.osx": {
+      "bash": {
+        "path": "/bin/bash",
+        "args": [
+          "-l"
+        ],
+        "icon": "terminal-bash"
+      }
+    },
+    "terminal.integrated.env.osx": {
+      "VIRTUAL_ENV": "${workspaceFolder:Core (PUBLIC)}/../venv",
+      "PATH": "${workspaceFolder:Core (PUBLIC)}/../venv/bin:${env:PATH}",
+      "PYTHONPATH": "${workspaceFolder:Core (PUBLIC)}"
+    },
+    "terminal.integrated.shellArgs.osx": [
+      "-l",
+      "-i"
+    ],
+    "git.autofetch": false,
+    "git.confirmSync": false,
+    "editor.formatOnSave": false,
+    "github.copilot.enable": {
+      "*": false
+    },
+    "openai.apiKey": "${env:OPENAI_API_KEY}",
+    "openai.model": "code-davinci-002",
+    "extensions.recommendations": [
+      "ms-python.python",
+      "openai.openai",
+      "adam-bender.commit-message-editor"
+    ]
   }
 }
