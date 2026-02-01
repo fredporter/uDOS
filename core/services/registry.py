@@ -26,12 +26,74 @@ from pathlib import Path
 # Lazy-loaded services
 _services: Dict[str, Any] = {}
 _service_loaders = {
+    # Core infrastructure services
     'logging': lambda: __import__('core.services.logging_service', fromlist=['get_logging_manager']).get_logging_manager(),
     'grid': lambda: __import__('core.services.grid_config', fromlist=['load_grid_config']),
     'dataset': lambda: __import__('core.services.dataset_service', fromlist=['DatasetManager']).DatasetManager(),
     'user': lambda: __import__('core.services.user_service', fromlist=['get_user_manager']).get_user_manager(),
     'history': lambda: __import__('core.services.history_service', fromlist=['get_history_manager']).get_history_manager(),
+    
+    # Containerized modules
+    'groovebox': lambda: _load_groovebox_module(),
+    'empire': lambda: _load_empire_module(),
 }
+
+
+def _load_groovebox_module():
+    """Load groovebox container module."""
+    try:
+        # Try direct import first (if in-repo)
+        from groovebox.engine import sequencer, mml_parser, midi_export
+        from groovebox.instruments import drum_808
+        return type('GrooveboxEngine', (), {
+            'sequencer': sequencer,
+            'mml_parser': mml_parser,
+            'midi_export': midi_export,
+            'instruments': type('Instruments', (), {'drum_808': drum_808})(),
+            'Sequencer': sequencer.Sequencer,
+            'MMLParser': mml_parser.MMLParser,
+            'MidiExporter': midi_export.MidiExporter,
+        })()
+    except ImportError:
+        # Try extensions path (if loaded from containers)
+        from extensions.groovebox.engine import sequencer, mml_parser, midi_export
+        from extensions.groovebox.instruments import drum_808
+        return type('GrooveboxEngine', (), {
+            'sequencer': sequencer,
+            'mml_parser': mml_parser,
+            'midi_export': midi_export,
+            'instruments': type('Instruments', (), {'drum_808': drum_808})(),
+            'Sequencer': sequencer.Sequencer,
+            'MMLParser': mml_parser.MMLParser,
+            'MidiExporter': midi_export.MidiExporter,
+        })()
+
+
+def _load_empire_module():
+    """Load empire container module."""
+    try:
+        # Try direct import first (if in-repo)
+        from empire import entity_resolver, contact_extractor
+        from empire.enrichment_client import EnrichmentClient
+        return type('EmpireAPI', (), {
+            'entity_resolver': entity_resolver,
+            'contact_extractor': contact_extractor,
+            'EnrichmentClient': EnrichmentClient,
+            'EntityResolver': entity_resolver.EntityResolver if hasattr(entity_resolver, 'EntityResolver') else None,
+        })()
+    except ImportError:
+        # Try extensions path (if loaded from containers)
+        try:
+            from extensions.empire import entity_resolver, contact_extractor
+            from extensions.empire.enrichment_client import EnrichmentClient
+            return type('EmpireAPI', (), {
+                'entity_resolver': entity_resolver,
+                'contact_extractor': contact_extractor,
+                'EnrichmentClient': EnrichmentClient,
+                'EntityResolver': entity_resolver.EntityResolver if hasattr(entity_resolver, 'EntityResolver') else None,
+            })()
+        except ImportError:
+            raise RuntimeError("Empire module not found in groovebox or extensions paths")
 
 
 def get_service(service_name: str) -> Any:
