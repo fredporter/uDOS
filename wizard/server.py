@@ -1580,7 +1580,7 @@ class WizardServer:
             asyncio.run(run_with_console())
         else:
             # Run server without interactive console (daemon mode)
-            # This will start uvicorn and block, which is expected for a daemon
+            # Use uvicorn.run() which properly initializes and starts the server
             uvicorn.run(
                 app,
                 host=host or self.config.host,

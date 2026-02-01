@@ -94,12 +94,12 @@ class CoreCompleter(Completer):
         if len(words) == 1:
             partial_cmd = words[0].upper()
             debug_logger.debug(f"  Completing command: partial_cmd='{partial_cmd}'")
-            
+
             # Use registry if available, otherwise fall back to autocomplete service
             if self.registry:
                 suggestions = self.registry.get_suggestions(partial_cmd, limit=10)
                 debug_logger.debug(f"  Got {len(suggestions)} suggestions from registry")
-                
+
                 for suggestion in suggestions:
                     completion_text = suggestion.name[len(partial_cmd):]
                     display_meta = f"{suggestion.icon} {suggestion.help_text}"
@@ -451,29 +451,29 @@ class SmartPrompt:
     ) -> str:
         """
         Ask a standardized Yes/No/OK question.
-        
+
         Format: "Question? [Yes/No/OK] (Enter=default)"
         Accepts: Y, N, OK (where OK maps to Yes)
-        
+
         Args:
             question: The question to ask (without punctuation)
             default: Default answer (yes, no, ok) - 'no' is safest default
-        
+
         Returns:
             'yes', 'no', or 'ok' (ok is equivalent to yes)
         """
         default_lower = default.lower() if default else "no"
         default_display = default_lower.upper()
-        
+
         prompt_text = f"{question}? [Yes/No/OK] (Enter={default_display}) "
-        
+
         response = self.ask(prompt_text, default="")
         response_lower = response.lower().strip()
-        
+
         # Empty input returns default
         if response_lower == "":
             return default_lower
-        
+
         # Normalize responses
         if response_lower in ["y", "yes"]:
             return "yes"
@@ -485,7 +485,7 @@ class SmartPrompt:
             # Invalid input - ask again
             print("  ❌ Please enter Yes, No, or OK")
             return self.ask_yes_no_ok(question, default)
-    
+
     def ask_menu_choice(
         self,
         prompt_text: str,
@@ -494,30 +494,30 @@ class SmartPrompt:
     ) -> Optional[int]:
         """
         Prompt for a numbered menu choice.
-        
+
         Format: "Choose an option [1-N] (Enter=0 for cancel): "
-        
+
         Args:
             prompt_text: Prompt to display (e.g., "Choose an option")
             num_options: Number of valid options (1 to N)
             allow_zero: If True, 0 is a valid choice (cancel/exit)
-        
+
         Returns:
             Selected number (1-N), or None if cancelled
         """
         valid_range = f"0-{num_options}" if allow_zero else f"1-{num_options}"
         full_prompt = f"{prompt_text} [{valid_range}] "
-        
+
         response = self.ask(full_prompt, default="")
         response = response.strip()
-        
+
         # Empty defaults to cancel (0)
         if response == "":
             return 0 if allow_zero else None
-        
+
         try:
             choice = int(response)
-            
+
             # Validate range
             if allow_zero:
                 if 0 <= choice <= num_options:
@@ -525,11 +525,11 @@ class SmartPrompt:
             else:
                 if 1 <= choice <= num_options:
                     return choice
-            
+
             # Out of range
             print(f"  ❌ Please enter a number between {valid_range}")
             return self.ask_menu_choice(prompt_text, num_options, allow_zero)
-        
+
         except ValueError:
             # Not a number
             print(f"  ❌ Please enter a valid number (1-{num_options})")
@@ -560,15 +560,15 @@ class SmartPrompt:
             # Use normal input
             response = self.ask(prompt_text, default="")
             response_lower = response.lower().strip()
-            
+
             # Empty input returns default
             if response_lower == "" and default_key:
                 return default_key
-            
+
             # Valid key
             if response_lower in valid:
                 return response_lower
-            
+
             # Invalid - return empty
             return ""
         except (KeyboardInterrupt, EOFError):
@@ -788,14 +788,14 @@ class SmartPrompt:
     def ask_story_field(self, field: Dict, previous_value: Optional[str] = None) -> Optional[str]:
         """
         Basic story field input (fallback method).
-        
+
         Used when AdvancedFormField is not available or fails.
         Provides simple labeled input for story forms.
-        
+
         Args:
             field: Field definition with name, label, type, required, etc.
             previous_value: Previous value if editing
-            
+
         Returns:
             User input string or None if skipped
         """
@@ -803,22 +803,22 @@ class SmartPrompt:
         required = field.get('required', False)
         field_type = field.get('type', 'text')
         placeholder = field.get('placeholder', '')
-        
+
         # Build prompt
         req_marker = " *" if required else ""
         prompt_text = f"{label}{req_marker}"
-        
+
         # Show previous value if available
         if previous_value:
             prompt_text += f" [{previous_value}]"
         elif placeholder:
             prompt_text += f" ({placeholder})"
-            
+
         prompt_text += ": "
-        
+
         # Get input
         value = self.ask(prompt_text)
-        
+
         # Handle empty input
         if not value:
             if previous_value:
@@ -828,7 +828,7 @@ class SmartPrompt:
                 return self.ask_story_field(field, previous_value)
             else:
                 return None
-                
+
         return value
 
     def __repr__(self) -> str:

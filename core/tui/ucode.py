@@ -1264,7 +1264,7 @@ For detailed help on any command, type the command name followed by --help
 
             # Create a log file for debugging
             log_file = self.repo_root / ".wizard_startup.log"
-            
+
             # Start in background with log capture for debugging
             try:
                 with open(str(log_file), 'w') as log:

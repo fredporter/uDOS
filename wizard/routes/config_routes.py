@@ -1211,4 +1211,3 @@ def create_config_routes(auth_guard=None):
             raise HTTPException(status_code=500, detail=f"Failed to rotate secret: {exc}")
 
     return router
-
