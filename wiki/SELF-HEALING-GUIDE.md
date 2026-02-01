@@ -115,16 +115,52 @@ All launchers now include self-healing checks:
 
 ### Missing Dependencies
 
+**Core Component** - Minimal requirements (standard library + basic packages)
+
+**Wizard Component** - Requires:
+- `fastapi` - Web server framework
+- `uvicorn` - ASGI server
+- `aiohttp` - Async HTTP client for external integrations
+
 **Detected:**
 
 ```
-❌ Missing required dependency: fastapi
+❌ Missing required dependency: aiohttp
 ```
 
 **Repaired:**
 
 ```bash
-pip install fastapi
+pip install aiohttp
+# Or install all requirements:
+pip install -r requirements.txt
+```
+
+**Installation:**
+
+```bash
+# Standard install (recommended)
+pip install -r requirements.txt
+
+# Upgrade existing packages
+pip install --upgrade -r requirements.txt
+
+# In virtual environment
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+**Health Check:**
+
+```bash
+# Python API
+python3 -m core.services.self_healer
+
+# Or via health script
+python3 core/uDOS_health.py
+
+# Or via CLI (if available)
+./bin/udos-self-heal.sh
 ```
 
 ### Port Conflicts

@@ -1,5 +1,19 @@
 # uDOS Alpha v1.0.0.17 Requirements
 # Core dependencies for uDOS operation with flexible versioning
+# 
+# Installation:
+#   1. Basic install:     pip install -r requirements.txt
+#   2. With upgrades:     pip install --upgrade -r requirements.txt
+#   3. In dev/test mode:  pip install -r requirements.txt --no-deps (then install selectively)
+#
+# Health Check:
+#   python3 -m core.services.self_healer
+#   or: python3 core/uDOS_health.py
+#
+# Virtual Environment:
+#   Create:  python3 -m venv .venv
+#   Activate: source .venv/bin/activate  (macOS/Linux)
+#             .venv\Scripts\activate     (Windows)
 
 # =====================
 # AI PROVIDERS (Wizard Server)
@@ -119,11 +133,4 @@ pytest-asyncio>=0.23.0
 # - All packages use minimum version constraints (>=) for flexibility
 # - Python 3.8+ required (3.10+ recommended)
 # - Node.js and npm required for Tauri apps (separate installation)
-
-# Installation:
-#   pip install -r requirements.txt
-# Or with upgrade:
-#   pip install --upgrade -r requirements.txt
-
-# Health Check:
-#   python3 core/uDOS_health.py
+# - See INSTALLATION.md for detailed setup instructions

@@ -473,17 +473,17 @@ class SelfHealer:
         """Get required dependencies for component."""
         deps = {
             "core": {
-                "fastapi": None,
-                "uvicorn": None,
+                # Core has minimal dependencies, uses standard library & pip packages
+                # FastAPI/uvicorn are only needed for wizard/web components
             },
             "wizard": {
+                # Wizard server requirements
                 "fastapi": None,
                 "uvicorn": None,
                 "aiohttp": None,
             },
             "goblin": {
-                "fastapi": None,
-                "uvicorn": None,
+                # Goblin mode requirements (minimal)
             }
         }
         return deps.get(self.component, {})
