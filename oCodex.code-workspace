@@ -1,94 +1,57 @@
 {
-  "folders": [
-    {
-      "path": "core",
-      "name": "Core (PUBLIC)"
-    },
-    {
-      "path": "wizard",
-      "name": "Wizard (PUBLIC)"
-    },
-    {
-      "path": "extensions",
-      "name": "Extensions (PUBLIC)"
-    },
-    {
-      "path": "docs",
-      "name": "Docs (PUBLIC)"
-    },
-    {
-      "path": "knowledge",
-      "name": "Knowledge (PUBLIC)"
-    },
-    {
-      "path": "library",
-      "name": "Library (PUBLIC)"
-    },
-    {
-      "path": "dev/goblin",
-      "name": "Goblin (PRIVATE)"
-    },
-    {
-      "path": "dev/empire",
-      "name": "Empire (PRIVATE)"
-    },
-    {
-      "path": "app",
-      "name": "App (PRIVATE)"
-    },
-    {
-      "path": "dev/groovebox",
-      "name": "Groovebox (PRIVATE)"
-    },
-    {
-      "path": "tests",
-      "name": "Tests (PRIVATE)"
-    },
-    {
-      "path": "dev/tools",
-      "name": "Tools (PRIVATE)"
-    },
-    {
-      "path": "memory",
-      "name": "Memory (LOCAL)"
-    }
-  ],
-  "settings": {
-    "python.defaultInterpreterPath": "${workspaceFolder:Core (PUBLIC)}/venv/bin/python",
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true,
-    "python.terminal.executeInFileDir": true,
-    "terminal.integrated.defaultProfile.osx": "bash",
-    "terminal.integrated.profiles.osx": {
-      "bash": {
-        "path": "/bin/bash",
-        "args": [
-          "-l"
-        ],
-        "icon": "terminal-bash"
-      }
-    },
-    "terminal.integrated.env.osx": {
-      "VIRTUAL_ENV": "${workspaceFolder:Core (PUBLIC)}/../venv",
-      "PATH": "${workspaceFolder:Core (PUBLIC)}/../venv/bin:${env:PATH}",
-      "PYTHONPATH": "${workspaceFolder:Core (PUBLIC)}"
-    },
-    "terminal.integrated.shellArgs.osx": [
-      "-l",
-      "-i"
+    "folders": [
+        {
+            "name": "Root",
+            "path": "."
+        },
+        {
+            "name": "Dev",
+            "path": "dev"
+        },
+        {
+            "name": "Core",
+            "path": "core"
+        },
+        {
+            "name": "Empire",
+            "path": "empire"
+        },
+        {
+            "name": "Groovebox",
+            "path": "groovebox"
+        },
+        {
+            "name": "Wizard",
+            "path": "wizard"
+        },
+        {
+            "name": "Sonic",
+            "path": "sonic"
+        },
+        {
+            "name": "Distribution",
+            "path": "distribution"
+        },
+        {
+            "name": "Library",
+            "path": "library"
+        },
+        {
+            "name": "Knowledge",
+            "path": "knowledge"
+        },
+        {
+            "name": "Memory",
+            "path": "memory"
+        }
     ],
-    "git.autofetch": false,
-    "git.confirmSync": false,
-    "editor.formatOnSave": false,
-    "github.copilot.enable": {
-      "*": false
-    },
-    "openai.apiKey": "${env:OPENAI_API_KEY}",
-    "openai.model": "code-davinci-002",
-    "extensions.recommendations": [
-      "ms-python.python",
-      "openai.openai",
-      "adam-bender.commit-message-editor"
-    ]
-  }
+    "settings": {
+        "files.exclude": {
+            "**/node_modules": true
+        },
+        "explorer.excludeGitIgnore": true,
+        "git.autofetch": false,
+        "git.confirmSync": false,
+        "editor.formatOnSave": false
+    }
 }
