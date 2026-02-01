@@ -30,7 +30,7 @@ Plugin installation now flows through Wizard-native services:
 - `core/tui/ucode.py` copies `wizard/distribution/plugins/<id>` into `/library/<id>`, writes a `container.json` payload, then calls `wizard/services/library_manager_service.LibraryManagerService.install_integration`. That service validates the manifest, runs dependency wiring hooks, and emits a `result` object with `success`, `message`, and `error`.
 - `wizard/services/plugin_repository.get_repository()` powers both the config page and the CLI `PLUGIN` command, so every install fetches the same metadata and version hints.
 - The Dashboard buttons, the CLI `PLUGIN install`, and automation scripts all log plugin installations to `memory/logs/health-training.log`, ensuring manifest/verification errors appear in the same health summary the TUI banner prints.
-- The plugin install API (`/api/library/integration/<name>/install`) now also uses the Apertus-guided PROMPT parser so each install response includes Notion `to_do` blocks, weekly calendar/Gantt previews, and the due-soon reminder payload that the Hotkey Center can surface before automation runs.
+- The plugin install API (`/api/library/integration/<name>/install`) now also uses the Apertus-guided PROMPT parser so each install response includes Notion `to_do` blocks, weekly calendar/Gantt previews, and the due-soon reminder payload that the Hotkey Center can surface before automation runs. Songscribe-specific guidance now lives in `docs/GROOVEBOX-SONGSCRIBE.md`, which describes the grammar, API hooks, and reminder links so future rounds can tie Songscribe playlists to `todo_reminder` entries before firing PATTERN/REPAIR cycles.
 
 
 ## Repair + Backup Flow

@@ -19,6 +19,7 @@ Canonical font repository for Wizard dashboard tooling and typography. This dire
 ```
 /wizard/fonts/
 ├── manifest.json          # Central registry with credits, settings
+├── manifest-sync.json     # Seeded mirror manifest linking repo → ~/uDOS/fonts (used for sync checks)
 ├── README.md             # This file
 ├── distribute.sh         # Optional distribution script (legacy)
 ├── bundled/              # Production fonts

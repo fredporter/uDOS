@@ -12,7 +12,7 @@ This spec consolidates the outstanding development rounds outlined in `docs/ROAD
 ## Round 4 — Wizard Web Browser / Dataset Tables + SQLite Binding
 - **Owner:** Wizard (Dashboard)
 - **Status:** Planning
-- **Deliverables:** Sortable/filterable dataset table, chart view, `/api/data/*` endpoints for tables/query/schema/export, spatial tagging filters.
+- **Deliverables:** Sortable/filterable dataset table, chart view, `/api/data/*` endpoints for tables/query/schema/export (with pagination, filters like `filter=column:value`, and ordering), spatial tagging filters, and the teletext/Canvas endpoints so Svelte components can render the 80×30 grids once the backend feeds `/api/teletext/*`.
 - **References:** `docs/specs/file-parsing-architecture.md`, `specs/grid-spatial-computing.md`
 - **Next actions:** Implement FastAPI routes, build Svelte Table + Chart components, add pagination/performance guardrails.
 

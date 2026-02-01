@@ -10,7 +10,7 @@ Round 4 calls for the Wizard Browser to expose structured dataset tables (with s
 
 ## Round 4 API surface
 
-These endpoints need to exist (see `docs/specs/file-parsing-architecture.md:63-205` for the full workflow and helper components):
+These endpoints need to exist (see `docs/specs/file-parsing-architecture.md:63-205` for the full workflow and helper components). Round 4 now ships `/api/data/tables/{table}?filter=column:value&order_by=<column>&desc=<bool>` so dashboards can page, sort, and filter real SQLite tables, and the teletext/NES canvas flows can consume `/api/teletext/canvas`/`/nes-buttons` (see Round 5) for retro previews as soon as the grids are rendered.
 
 | Path | Method | Purpose |
 | --- | --- | --- |

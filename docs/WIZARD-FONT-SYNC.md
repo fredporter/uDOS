@@ -20,13 +20,14 @@
 
 ## CDN Sync (`https://cdn.fredporter.com/`)
 
-1. **Target bucket**: Sync the local cache to `s3://fredporter-cdn/fonts/` (resolves at `https://cdn.fredporter.com/fonts/`). Prefer `aws s3 sync ~/uDOS/fonts s3://fredporter-cdn/fonts --acl public-read --delete` when you have AWS credentials.
+1. **Target bucket**: Sync the local cache to `s3://fredporter-cdn/fonts/` (resolves at `https://cdn.fredporter.com/fonts/`). Prefer `aws s3 sync ~/uDOS/fonts s3://fredporter-cdn/fonts --acl public-read --delete` when you have AWS credentials, or run the new `wizard.services.cdn_upload_handler.CdnUploadHandler` (see `wizard/services/cdn_upload_handler.py`) to script uploads inside uDOS with `UDOS_CDN_*` environment variables.
 2. **Placement**: Files may be addressed at `https://cdn.fredporter.com/fonts/<collection>/<file>.ttf`. The Font Manager should rewrite distribution URLs to this CDN when requesting fonts in preflight or offline contexts.
 3. **Monitoring**: Each sync run should append a line to `~/uDOS/fonts/_sync.log` with the timestamp, file count, and CDN URL base so the Font Tooling can detect drift and re-sync when needed.
 
 ## Repository Hygiene
 
 - The `wizard/fonts` tree now contains only metadata, scripts, and manifest files. The binaries are replaced by CDN URLs documented in `manifest.json` and this guide.
+- To keep the repo folders in sync with the home-root cache, we seed `wizard/fonts/manifest-sync.json`. It records the expected downloads (retro, emoji, etc.) and mirrors the relative paths inside `~/uDOS/fonts`; automation scripts can load this manifest to verify that every collection exists before calling `wizard.services.cdn_upload_handler.CdnUploadHandler`.
 - `docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md` and `docs/WIZARD-ROUND2-PLAN.md` reference this workflow so every round cites the same asset story.
 - Automations (e.g., font installers or the config page) should read `manifest.json`, detect whether `~/uDOS/fonts` has the files, and fall back to the CDN copy when the local cache is missing.
 

@@ -21,6 +21,7 @@ Use this page as the guide for wiring the Groovebox playback/config views and ti
 ## Sample library
 
 - Public-domain samples live in `wizard/groovebox/sample-library.json`; run `bash wizard/groovebox/setup-samples.sh` to download them into `groovebox/library/`. The folder is gitignored so each dev can refresh the samples locally without polluting the repo.
+- The `docs/GROOVEBOX-SAMPLE-LIBRARY-SPEC.md` file contains the downloadable spec, curated free-pack links, kit folder tree, and licensing guidance so audio leads can share the manifest with dev teammates.
 
 ## Songscribe plugin linkage
 
