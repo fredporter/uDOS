@@ -30,3 +30,4 @@
 ## Next Round Deliverables
 - [ ] Keep the uCODE TUI running in a stable windowed mode with reliable CLI commands, hot-reload watchers, and self-healing fallbacks.
 - [ ] Surface any remaining TODOs in `ROUNDS-3-10.md` so later rounds reference the updated Core TUI as their stable slab.
+- [ ] Align the Next Round work with the *critical daily cycles* in `docs/WIZARD-ROUND2-PLAN.md` so the automation cadence (Cycle 1 gateway telemetry → Cycle 14 sync ramp-up) replaces a weekly bucket.

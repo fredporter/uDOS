@@ -1,10 +1,19 @@
 """PROVIDER command handler - Provider management from TUI."""
 
-from typing import List, Dict
+from typing import List, Dict, Optional
 import requests
 from core.commands.base import BaseCommandHandler
 from core.tui.output import OutputToolkit
 from core.services.logging_service import get_logger, LogTags
+
+try:
+    from wizard.services.rate_limiter import rate_limiter
+except ImportError:
+    class _NoopRateLimiter:
+        def allow(self, endpoint: str, provider: str = "wizard-api") -> bool:
+            return True
+
+    rate_limiter = _NoopRateLimiter()
 
 logger = get_logger("provider-handler")
 
@@ -40,9 +49,26 @@ class ProviderHandler(BaseCommandHandler):
                 "output": "Usage: PROVIDER [LIST|STATUS <id>|ENABLE <id>|DISABLE <id>|SETUP <id>]",
             }
 
+    def _throttle_guard(self, endpoint: str) -> Optional[Dict]:
+        if not rate_limiter.allow(endpoint, provider="wizard-api"):
+            message = f"Wizard API rate limit hit for {endpoint}"
+            return {
+                "status": "throttled",
+                "message": message,
+                "output": (
+                    "Too many provider orchestration calls in a short window. "
+                    "Wait a few seconds before retrying."
+                ),
+                "hint": "Check provider automation scripts and slow the loop.",
+            }
+        return None
+
     def _list_providers(self) -> Dict:
         """List all providers with status."""
         try:
+            guard = self._throttle_guard("/api/v1/providers/list")
+            if guard:
+                return guard
             response = requests.get(f"{WIZARD_API}/providers/list", timeout=5)
             if response.status_code == 200:
                 data = response.json()
@@ -94,6 +120,9 @@ class ProviderHandler(BaseCommandHandler):
     def _provider_status(self, provider_id: str) -> Dict:
         """Get detailed provider status."""
         try:
+            guard = self._throttle_guard(f"/api/v1/providers/{provider_id}/status")
+            if guard:
+                return guard
             response = requests.get(
                 f"{WIZARD_API}/providers/{provider_id}/status", timeout=5
             )
@@ -158,6 +187,9 @@ class ProviderHandler(BaseCommandHandler):
     def _enable_provider(self, provider_id: str) -> Dict:
         """Enable a provider."""
         try:
+            guard = self._throttle_guard(f"/api/v1/providers/{provider_id}/enable")
+            if guard:
+                return guard
             response = requests.post(
                 f"{WIZARD_API}/providers/{provider_id}/enable", timeout=5
             )
@@ -170,6 +202,11 @@ class ProviderHandler(BaseCommandHandler):
                     output.append("   python -m wizard.check_provider_setup")
                     output.append("")
                     output.append("Or flag for next startup:")
+                    flag_guard = self._throttle_guard(
+                        f"/api/v1/providers/{provider_id}/flag"
+                    )
+                    if flag_guard:
+                        return flag_guard
                     response = requests.post(
                         f"{WIZARD_API}/providers/{provider_id}/flag", timeout=5
                     )
@@ -197,6 +234,9 @@ class ProviderHandler(BaseCommandHandler):
     def _disable_provider(self, provider_id: str) -> Dict:
         """Disable a provider."""
         try:
+            guard = self._throttle_guard(f"/api/v1/providers/{provider_id}/disable")
+            if guard:
+                return guard
             response = requests.post(
                 f"{WIZARD_API}/providers/{provider_id}/disable", timeout=5
             )

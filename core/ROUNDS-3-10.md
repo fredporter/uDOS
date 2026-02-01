@@ -1,5 +1,7 @@
 # Rounds 3-10 Guidance
 
+Refer to `docs/WIZARD-ROUND2-PLAN.md` for the Cycle 1‑14 daily schedule that keeps the Round 2 / 3 handoff accountable (Cycle 1 anchors the Core telemetry snapshot while later rows call out plugin/sonic gating for later rounds).
+
 ## Round 3 – Core TUI Stabilization
 - Harden the uCODE TUI window so it runs as the stable “slab” for downstream projects. Validate that the renderer, prompts, and selectors stay visible (even under limited terminals), that `SETUP` / `STORY tui-setup` finishes every question with the combined Date/Time/Timezone approval + override path, and that the completion banner lists the local/memory/bank/seed structure (reference `docs/SEED-INSTALLATION-GUIDE.md`).
 - Train the new executor pipeline to ensure CLI commands and developer workflows (hot reload triggers, `REPAIR`, `CONFIG`, `PLUGIN`, etc.) stay available from within the TUI and from headless shells.

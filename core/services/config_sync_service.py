@@ -26,6 +26,15 @@ from typing import Dict, Optional, Tuple, Any
 from datetime import datetime
 import uuid
 
+try:
+    from wizard.services.rate_limiter import rate_limiter
+except ImportError:
+    class _NoopRateLimiter:
+        def allow(self, endpoint: str, provider: str = "wizard-api") -> bool:
+            return True
+
+    rate_limiter = _NoopRateLimiter()
+
 from core.services.logging_service import get_logger, get_repo_root, LogTags
 
 logger = get_logger("config-sync-manager")
@@ -264,6 +273,8 @@ class ConfigSyncManager:
             }
 
             # Submit to Wizard API
+            if not rate_limiter.allow("/api/v1/setup/story/submit"):
+                return False, "⚠️ Wizard sync rate limited (try again shortly)"
             response = requests.post(
                 f"{wizard_api_url}/setup/story/submit",
                 headers=headers,

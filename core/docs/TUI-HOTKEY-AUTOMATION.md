@@ -29,3 +29,8 @@ Rounds 3‑10 rely on the Hotkey Center as the canonical source of truth for TAB
 2. The config page under `/config` now links to this hotkey route so testers can see the same table while rotating secrets or installing plugins.
 3. Record the JSON payload and snapshot path in `memory/logs/health-training.log` (alongside Self-Healer stats) so automation can assert key stability before rerunning `REPAIR`/`SHAKEDOWN`.
 4. Keep this doc synced with `docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md` (plugin catalog + Sonic roadmap) so the Round 2 daily-cycle table can cite the latest install/hotkey state when gating automation runs.
+
+## Round 2 Daily Cycle Reference
+
+- The Cycle 1-14 table in `docs/WIZARD-ROUND2-PLAN.md` explicitly points to this hotkey guide before each automation/pattern pass so the key binding snapshot always precedes PATTERN/REPAIR flows. The newest `monitoring_summary` and `notification_history` payloads now sit alongside the hotkey payload in `memory/logs/health-training.log`, letting automation confirm both health metrics and key stability before rebooting.
+- Batch jobs that reissue `REPAIR`, `REBOOT`, or `startup-script.md` checks now surface any throttling recorded in `memory/logs/provider-load.log` once the hotkey payload confirms the bindings referenced here; if throttles exist, automation reroutes into the throttling recovery path before replaying key bindings.

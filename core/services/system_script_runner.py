@@ -22,6 +22,7 @@ from core.services.hotkey_map import read_hotkey_payload, write_hotkey_payload
 from core.services.logging_service import get_logger, get_repo_root
 from core.services.ts_runtime_service import TSRuntimeService
 from wizard.services.monitoring_manager import MonitoringManager
+from core.services.notification_history_service import remind_if_pending
 
 logger = get_logger("system-script")
 
@@ -53,13 +54,20 @@ class SystemScriptRunner:
 
     def _run_script(self, script_name: str, label: str) -> Dict[str, Any]:
         hotkey_payload = write_hotkey_payload(self.memory_root)
+        notification_reminder = remind_if_pending()
         script_path = self._ensure_script(script_name)
         if not script_path:
             message = f"{label.title()} script not found ({script_name})"
             logger.warning(f"[SYSTEM SCRIPT] {message}")
-            return {"status": "error", "message": message, "script": script_name}
+            return {
+                "status": "error",
+                "message": message,
+                "script": script_name,
+                "notification_reminder": notification_reminder,
+            }
 
         monitoring_summary = self.monitoring.log_training_summary()
+        notification_reminder = remind_if_pending()
         if not needs_self_heal_training():
             message = f"{label.title()} script skipped (Self-Heal clean)"
             logger.info(f"[SYSTEM SCRIPT] {message}")
@@ -68,6 +76,7 @@ class SystemScriptRunner:
                 "message": message,
                 "script": script_name,
                 "monitoring_summary": monitoring_summary,
+                "notification_reminder": notification_reminder,
             }
 
         service = TSRuntimeService()
@@ -82,6 +91,7 @@ class SystemScriptRunner:
                 "details": details,
                 "script": script_name,
                 "monitoring_summary": monitoring_summary,
+                "notification_reminder": notification_reminder,
             }
 
         payload = result.get("payload", {})
@@ -93,6 +103,7 @@ class SystemScriptRunner:
         logger.info(f"[SYSTEM SCRIPT] {message} ({script_path})")
         if hotkey_snapshot:
             logger.info(f"[SYSTEM SCRIPT] Hotkey snapshot: {hotkey_snapshot} ({hotkey_last})")
+        reminder = remind_if_pending()
         return {
             "status": "success",
             "message": message,
@@ -101,6 +112,7 @@ class SystemScriptRunner:
             "hotkey_snapshot": hotkey_snapshot,
             "hotkey_last_updated": hotkey_last,
             "monitoring_summary": monitoring_summary,
+            "notification_reminder": reminder,
         }
 
     def _ensure_script(self, script_name: str) -> Optional[Path]:

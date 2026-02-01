@@ -63,6 +63,7 @@ from core.services.memory_test_scheduler import MemoryTestScheduler
 from core.services.self_healer import collect_self_heal_summary
 from core.tui.advanced_form_handler import AdvancedFormField
 from core.services.system_script_runner import SystemScriptRunner
+from wizard.services.monitoring_manager import MonitoringManager
 
 
 def get_repo_root() -> Path:
@@ -517,16 +518,42 @@ class uCODETUI:
         try:
             memory_root = self.health_log_path.parent.parent
             hotkey_payload = write_hotkey_payload(memory_root)
+            monitoring_summary = self._load_monitoring_summary(memory_root)
+            notification_history = self._read_notification_history(memory_root)
             payload = {
                 "timestamp": datetime.now().isoformat(),
                 "self_heal": self.self_heal_summary or {},
                 "hot_reload": self.hot_reload_stats or {},
                 "hotkeys": hotkey_payload,
+                "monitoring_summary": monitoring_summary,
+                "notification_history": notification_history,
             }
             with open(self.health_log_path, "a") as log_file:
                 log_file.write(json.dumps(payload) + "\n")
         except Exception as exc:
             self.logger.warning(f"[Health Log] Failed to write summary: {exc}")
+
+    def _load_monitoring_summary(self, memory_root: Path) -> Dict[str, Any]:
+        summary_path = memory_root / "monitoring" / "monitoring-summary.json"
+        if summary_path.exists():
+            try:
+                return json.loads(summary_path.read_text())
+            except Exception as exc:
+                self.logger.warning("[Monitoring] Failed to read summary: %s", exc)
+        monitoring = MonitoringManager(data_dir=memory_root / "monitoring")
+        return monitoring.log_training_summary()
+
+    def _read_notification_history(self, memory_root: Path, limit: int = 5) -> list[Dict[str, Any]]:
+        log_path = memory_root / "logs" / "notification-history.log"
+        if not log_path.exists():
+            return []
+        try:
+            lines = [line.strip() for line in log_path.read_text().splitlines() if line.strip()]
+            recent = lines[-limit:]
+            return [json.loads(line) for line in recent]
+        except Exception as exc:
+            self.logger.warning("[Notification] Failed to read history: %s", exc)
+            return []
 
     def _ask_yes_no(self, question: str, default: bool = True, help_text: str = None, context: str = None) -> bool:
         """Ask a standardized [1|0|Yes|No|OK|Cancel] question.

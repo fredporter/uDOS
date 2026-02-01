@@ -36,7 +36,7 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
    - Extend `wizard/services/task_classifier.py` and `workflow_manager` to plumb new automation hints (F9 -> `PLUGIN install`, F8 -> `wizard` page) so CLI/TUI flows share the same scheduling signals.
 
 3. **Automation-Friendly APIs** (`wizard/routes/*`, `wizard/services/secret_store.py`, `wizard/services/extension_handler.py`)
-   - Harden each `/api/v1/parser/*` endpoint with request validation and rate limiting backed by `wizard/services/rate_limiter.py` + `wizard/services/policy_enforcer.py`.
+   - Harden each `/api/v1/library/*` and `/api/v1/parser/*` endpoint with request validation, policy gating, and the shared rate limiter (`wizard/services/rate_limiter.py`); every throttle/error now writes to `memory/logs/provider-load.log` so automation can gate `/dev/` restarts before the `logging_manager` or PATTERN flows resume.
    - Log plugin/extension installs alongside `memory/logs/health-training.log` and the Sonic `/hotkeys/data` snapshot so automation knows what changed each round.
 
 ## Hardening & Security
@@ -58,10 +58,11 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
 
 ## Reliability & Observability
 
-- Expand `wizard/services/monitoring_manager.py` to emit SLO/latency metrics and report to `memory/logs/health-training.log` along with the hot reload/self-heal stats consumed by Round 3+ banners.
+- Expand `wizard/services/monitoring_manager.py` to emit SLO/latency metrics and report them alongside `monitoring_summary`, `notification_history`, and throttle history into `memory/logs/health-training.log` so every banner and automation run sees the same dataset.
 - Feed `monitoring_manager` output into `wizard/services/logging_manager.py` so CLI `LOGS --wizard` mirrors the dashboard timeline.
 - Add `memory/logs/health-training.log` watchers that notify `wizard/services/notification_history_service.py` when a training round sees `remaining > 0`, creating a PATTERN entry for automation scripts (`startup-script.md`, `reboot-script.md`).
 - Ensure `wizard/services/monitoring_manager.py` snapshots `/hotkeys/data` before each `REPAIR`/`startup-script` run so the key bindings cited in `docs/TUI-HOTKEY-AUTOMATION.md` stay consistent with the live map.
+- Log `provider-load.log` and throttle history into automation triggers so `/dev/` restarts read the same entries that get written into `provisioning` dashboards; `tools/trigger_library_throttles.py` already exercises `/api/v1/library/*` and parser endpoints so the throttle history reflects what automation scripts will gate on the next PATTERN/REPAIR pass.
 
 ## Next Steps
 

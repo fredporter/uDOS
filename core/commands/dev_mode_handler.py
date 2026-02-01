@@ -7,13 +7,20 @@ import json
 
 try:
     from wizard.services.logging_manager import get_logger
-
-    logger = get_logger("dev-mode-handler")
+    from wizard.services.rate_limiter import rate_limiter
 except ImportError:
     # Fallback if wizard module not available
     import logging
 
     logger = logging.getLogger("dev-mode-handler")
+
+    class _NoopRateLimiter:
+        def allow(self, endpoint: str, provider: str = "wizard-api") -> bool:
+            return True
+
+    rate_limiter = _NoopRateLimiter()
+else:
+    logger = get_logger("dev-mode-handler")
 
 from core.commands.base import BaseCommandHandler
 from core.tui.output import OutputToolkit
@@ -27,6 +34,21 @@ class DevModeHandler(BaseCommandHandler):
         super().__init__()
         self.wizard_host = "127.0.0.1"
         self.wizard_port = 8765
+
+    def _throttle_guard(self, endpoint: str) -> Optional[Dict]:
+        """Return throttle response when rate limit exceeded."""
+        if not rate_limiter.allow(endpoint, provider="wizard-api"):
+            message = f"Rate limit reached for {endpoint} (momentary window)."
+            return {
+                "status": "throttled",
+                "message": message,
+                "output": (
+                    "⚠️ You're hitting the Wizard API too fast. "
+                    "Wait a few seconds and try again."
+                ),
+                "hint": "Reduce dev mode toggles or wait for rate limit window to reset.",
+            }
+        return None
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         """
@@ -57,6 +79,9 @@ class DevModeHandler(BaseCommandHandler):
     def _activate_dev_mode(self) -> Dict:
         """Activate dev mode via Wizard."""
         try:
+            guard = self._throttle_guard("/api/v1/dev/activate")
+            if guard:
+                return guard
             response = requests.post(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/activate",
                 timeout=10,
@@ -100,6 +125,9 @@ class DevModeHandler(BaseCommandHandler):
     def _deactivate_dev_mode(self) -> Dict:
         """Deactivate dev mode via Wizard."""
         try:
+            guard = self._throttle_guard("/api/v1/dev/deactivate")
+            if guard:
+                return guard
             response = requests.post(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/deactivate",
                 timeout=10,
@@ -133,6 +161,9 @@ class DevModeHandler(BaseCommandHandler):
     def _get_dev_status(self) -> Dict:
         """Get dev mode status from Wizard."""
         try:
+            guard = self._throttle_guard("/api/v1/dev/status")
+            if guard:
+                return guard
             response = requests.get(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/status",
                 timeout=5,
@@ -185,6 +216,9 @@ class DevModeHandler(BaseCommandHandler):
     def _restart_dev_mode(self) -> Dict:
         """Restart dev mode via Wizard."""
         try:
+            guard = self._throttle_guard("/api/v1/dev/restart")
+            if guard:
+                return guard
             response = requests.post(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/restart",
                 timeout=15,
@@ -218,6 +252,9 @@ class DevModeHandler(BaseCommandHandler):
     def _get_dev_logs(self, lines: int = 50) -> Dict:
         """Get dev mode logs from Wizard."""
         try:
+            guard = self._throttle_guard("/api/v1/dev/logs")
+            if guard:
+                return guard
             response = requests.get(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/logs?lines={lines}",
                 timeout=5,
@@ -250,6 +287,9 @@ class DevModeHandler(BaseCommandHandler):
     def _get_dev_health(self) -> Dict:
         """Get dev mode health from Wizard."""
         try:
+            guard = self._throttle_guard("/api/v1/dev/health")
+            if guard:
+                return guard
             response = requests.get(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/v1/dev/health",
                 timeout=5,
