@@ -624,8 +624,13 @@ def create_setup_routes(auth_guard=None):
     async def submit_setup_story(payload: StorySubmitPayload):
         answers = payload.answers or {}
 
+        # Normalize username to lowercase for case-insensitive handling
+        username = answers.get("user_username")
+        if username:
+            username = username.lower()
+
         user_profile = {
-            "username": answers.get("user_username"),
+            "username": username,
             "date_of_birth": answers.get("user_dob"),
             "role": answers.get("user_role"),
             "timezone": answers.get("user_timezone"),

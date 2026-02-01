@@ -326,11 +326,11 @@ class uCODETUI:
                         # Check if this is a form-based story
                         if result.get("story_form"):
                             collected_data = self._handle_story_form(result["story_form"])
-                            
+
                             # Save collected data if this came from SETUP command
                             if cmd == "SETUP" and collected_data:
                                 self._save_user_profile(collected_data)
-                            
+
                             print("\n✅ Setup form completed!")
                             print(f"\nCollected {len(collected_data)} values")
                             if collected_data:
@@ -1200,10 +1200,28 @@ For detailed help on any command, type the command name followed by --help
         action = parts[0].lower() if parts else "status"
         subargs = parts[1] if len(parts) > 1 else ""
 
-        if action in ("start", "stop") and self._is_ghost_user():
-            print("\n  👻 Ghost mode prevents Wizard server control.")
-            print("  Run SETUP in uCODE to unlock a full profile before starting/stopping Wizard.\n")
-            return
+        # Check if user is in ghost mode (not yet set up)
+        # OR if they don't have admin role (for non-wizard-control actions)
+        if action in ("start", "stop"):
+            if self._is_ghost_user():
+                print("\n  👻 Ghost mode prevents Wizard server control.")
+                print("  Run SETUP in uCODE to unlock a full profile before starting/stopping Wizard.\n")
+                return
+
+            # Also check if user has admin role
+            try:
+                from core.services.config_sync_service import ConfigSyncManager
+                sync_mgr = ConfigSyncManager()
+                identity = sync_mgr.load_identity_from_env()
+                user_role = identity.get('user_role', 'user').lower()
+
+                if user_role != "admin":
+                    print("\n  🔒 Only admin users can control Wizard server.")
+                    print("  Current role: " + user_role + "\n")
+                    return
+            except Exception:
+                # If we can't check role, allow it (better safe than sorry)
+                pass
 
         if action == "start":
             print("\n🧙 Starting Wizard Server...")
@@ -1586,13 +1604,40 @@ For detailed help on any command, type the command name followed by --help
         self.logger.info("uCODE TUI shutting down")
 
     def _is_ghost_user(self) -> bool:
-        """Return True if current user is the demo ghost profile."""
-        from core.services.user_service import get_user_manager, UserRole
+        """Return True if current user is the demo ghost profile.
 
+        A user is considered "ghost" (demo mode) only if:
+        1. Current user in service is "ghost" with GUEST role, AND
+        2. No configured user identity exists in .env
+
+        Once user runs SETUP and configures identity in .env, they're no longer ghost.
+        """
+        from core.services.user_service import get_user_manager, UserRole
+        from core.services.config_sync_service import ConfigSyncManager
+
+        # Check user service
         user_mgr = get_user_manager()
         current = user_mgr.current()
 
-        return bool(current and current.role == UserRole.GUEST and current.username == "ghost")
+        # If not ghost in service, definitely not ghost
+        if not (current and current.role == UserRole.GUEST and current.username == "ghost"):
+            return False
+
+        # If ghost in service, check if they've configured identity in .env
+        try:
+            sync_mgr = ConfigSyncManager()
+            identity = sync_mgr.load_identity_from_env()
+
+            # If they have a username configured in .env, they've run SETUP
+            # and are no longer in ghost mode
+            if identity.get('user_username'):
+                return False
+        except Exception:
+            # If we can't load config, assume they're ghost
+            pass
+
+        return True
+
 
     def _check_ghost_mode(self) -> None:
         """Check if running in ghost mode and prompt for setup.

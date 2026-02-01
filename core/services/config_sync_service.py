@@ -124,6 +124,9 @@ class ConfigSyncManager:
                 if form_key in data:
                     value = data[form_key]
                     if value:
+                        # Normalize username to lowercase for case-insensitive handling
+                        if form_key == 'user_username':
+                            value = value.lower()
                         env_dict[env_key] = str(value)
                     else:
                         env_dict.pop(env_key, None)
