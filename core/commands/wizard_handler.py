@@ -214,7 +214,7 @@ class WizardHandler(BaseCommandHandler):
         try:
             # Kill wizard processes
             subprocess.run(
-                ["pkill", "-f", "python.*wizard.server"],
+                ["pkill", "-f", "wizard\\.server"],
                 capture_output=True,
                 timeout=5,
             )

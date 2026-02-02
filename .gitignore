@@ -281,3 +281,6 @@ wizard/secrets.tomb
 core/sonic/**/*.log
 core/sonic/**/*.state
 core/sonic/**/private/
+
+# HubSpot config file
+hubspot.config.yml

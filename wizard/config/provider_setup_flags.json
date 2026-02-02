@@ -1,6 +1,7 @@
 {
   "flagged": [],
   "completed": [
-    "ollama"
+    "ollama",
+    "hubspot_cli"
   ]
 }

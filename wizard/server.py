@@ -1364,10 +1364,7 @@ class WizardServer:
                     continue
                 entries.append(parsed)
 
-        entries.sort(
-            key=lambda e: e.get("timestamp_sort") or e.get("timestamp"),
-            reverse=True,
-        )
+        entries.sort(key=lambda e: e["timestamp_sort"], reverse=True)
         trimmed = entries[:limit]
         for entry in trimmed:
             entry.pop("timestamp_sort", None)
@@ -1402,7 +1399,7 @@ class WizardServer:
             ts_dt = datetime.strptime(ts_raw, "%Y-%m-%d %H:%M:%S")
             ts_iso = ts_dt.isoformat()
         except ValueError:
-            ts_dt = None
+            ts_dt = datetime.min
             ts_iso = ts_raw
 
         return {
