@@ -64,7 +64,8 @@ class AutomationMonitor:
         if remaining:
             gate_reasons.append(f"{remaining} Self-Heal issue(s)")
         summary_status = monitoring_summary.get("summary", {}).get("status")
-        if summary_status and summary_status != "healthy":
+        # Allow "unknown" status (fresh install) - only gate on degraded/unhealthy
+        if summary_status and summary_status not in ("healthy", "unknown"):
             gate_reasons.append(f"Monitoring status: {summary_status}")
         if throttles:
             gate_reasons.append(f"{len(throttles)} throttle event(s)")
