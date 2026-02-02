@@ -293,6 +293,20 @@ EOF
         fi
     fi
 
+    # Build TypeScript runtime if Node.js is available
+    if command -v node &>/dev/null && command -v npm &>/dev/null; then
+        info "Building TypeScript runtime..."
+        cd "$PROJECT_ROOT"
+        if bash core/tools/build_ts_runtime.sh; then
+            success "TypeScript runtime built"
+        else
+            warn "TypeScript runtime build failed (non-fatal)"
+        fi
+    else
+        warn "Skipping TypeScript runtime build (Node.js/npm not found)"
+        info "Run 'bash core/tools/build_ts_runtime.sh' after installing Node.js"
+    fi
+
     # Wizard mode: additional setup
     if [ "$mode" = "wizard" ]; then
         info "Setting up Wizard Server..."

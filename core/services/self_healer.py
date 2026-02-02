@@ -155,6 +155,7 @@ class SelfHealer:
         self._check_configuration()
         self._check_ports()
         self._check_permissions()
+        self._check_ts_runtime()  # Add TS runtime check
 
         # Attempt repairs if auto_repair is enabled
         repaired = []
@@ -349,6 +350,55 @@ class SelfHealer:
                         details={"file": str(script)}
                     ))
 
+    def _check_ts_runtime(self):
+        """Check if TypeScript runtime is built."""
+        runtime_dist = self.repo_root / "core" / "grid-runtime" / "dist" / "index.js"
+
+        if not runtime_dist.exists():
+            # Check if Node.js/npm are available
+            try:
+                node_check = subprocess.run(
+                    ["node", "--version"],
+                    capture_output=True,
+                    timeout=5
+                )
+                npm_check = subprocess.run(
+                    ["npm", "--version"],
+                    capture_output=True,
+                    timeout=5
+                )
+
+                if node_check.returncode == 0 and npm_check.returncode == 0:
+                    self.issues.append(Issue(
+                        type=IssueType.CONFIG_ERROR,
+                        severity=IssueSeverity.WARNING,
+                        description="TypeScript runtime not built (Node.js available)",
+                        component=self.component,
+                        repairable=True,
+                        repair_action="build_ts_runtime",
+                        details={"runtime_dist": str(runtime_dist)}
+                    ))
+                else:
+                    self.issues.append(Issue(
+                        type=IssueType.MISSING_DEPENDENCY,
+                        severity=IssueSeverity.WARNING,
+                        description="TypeScript runtime not built (Node.js/npm not available)",
+                        component=self.component,
+                        repairable=False,
+                        repair_action="install Node.js/npm and run: bash core/tools/build_ts_runtime.sh",
+                        details={"runtime_dist": str(runtime_dist)}
+                    ))
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                self.issues.append(Issue(
+                    type=IssueType.MISSING_DEPENDENCY,
+                    severity=IssueSeverity.WARNING,
+                    description="TypeScript runtime not built (Node.js/npm check failed)",
+                    component=self.component,
+                    repairable=False,
+                    repair_action="install Node.js/npm and run: bash core/tools/build_ts_runtime.sh",
+                    details={"runtime_dist": str(runtime_dist)}
+                ))
+
     def _attempt_repair(self, issue: Issue) -> bool:
         """
         Attempt to repair an issue.
@@ -366,6 +416,8 @@ class SelfHealer:
                 return self._repair_port_conflict(issue)
             elif issue.type == IssueType.FILE_PERMISSION:
                 return self._repair_permission(issue)
+            elif issue.type == IssueType.CONFIG_ERROR and issue.repair_action == "build_ts_runtime":
+                return self._repair_ts_runtime(issue)
             elif issue.type == IssueType.CONFIG_ERROR and issue.repair_action:
                 # Ask user before applying config-related fixes
                 if self._confirm_repair(issue):
@@ -433,6 +485,42 @@ class SelfHealer:
             return True
         except Exception as e:
             logger.error(f"[HEAL] Failed to chmod {file_path}: {e}")
+            return False
+
+    def _repair_ts_runtime(self, issue: Issue) -> bool:
+        """Build TypeScript runtime."""
+        build_script = self.repo_root / "core" / "tools" / "build_ts_runtime.sh"
+
+        if not build_script.exists():
+            logger.error(f"[HEAL] Build script not found: {build_script}")
+            return False
+
+        spinner = Spinner("Building TypeScript runtime")
+        spinner.start()
+
+        try:
+            result = subprocess.run(
+                ["bash", str(build_script)],
+                cwd=str(self.repo_root),
+                capture_output=True,
+                timeout=300,  # 5 minute timeout
+                text=True
+            )
+
+            if result.returncode == 0:
+                spinner.stop("✓ TypeScript runtime built successfully")
+                return True
+            else:
+                spinner.stop(f"✗ Build failed: {result.stderr[:200]}")
+                logger.error(f"[HEAL] TS runtime build failed: {result.stderr}")
+                return False
+        except subprocess.TimeoutExpired:
+            spinner.stop("✗ Build timeout (5 minutes)")
+            logger.error("[HEAL] TS runtime build timed out")
+            return False
+        except Exception as e:
+            spinner.stop(f"✗ Build error: {e}")
+            logger.error(f"[HEAL] TS runtime build error: {e}")
             return False
 
     def _repair_command(self, command: str) -> bool:
