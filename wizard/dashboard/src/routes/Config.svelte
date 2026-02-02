@@ -1480,13 +1480,16 @@
           <div class="font-semibold text-gray-200">CLI setup (uCODE)</div>
           <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">PROVIDER SETUP github</code>
+              <code class="text-green-400">SETUP github</code>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">PROVIDER SETUP ollama</code>
+              <code class="text-green-400">SETUP ollama</code>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">PROVIDER SETUP hubspot_cli</code>
+              <code class="text-green-400">SETUP mistral</code>
+            </div>
+            <div class="bg-gray-950 rounded p-2 border border-gray-700">
+              <code class="text-green-400">SETUP hubspot</code>
             </div>
           </div>
           <div class="mt-2 text-gray-400">
@@ -1806,8 +1809,8 @@
             <div class="text-xs text-gray-500 space-y-1">
               <div>CONFIG SHOW - View config status</div>
               <div>CONFIG LIST - List all configs</div>
-              <div>PROVIDER LIST - Show all providers</div>
-              <div>PROVIDER SETUP &lt;name&gt; - Run setup</div>
+              <div>SETUP &lt;provider&gt; - Setup github, ollama, mistral, hubspot, etc.</div>
+              <div>SETUP --help - Show all SETUP options</div>
             </div>
           </div>
         </div>
@@ -1982,7 +1985,7 @@
           <h4 class="text-sm font-semibold text-white mb-2">uCODE Setup</h4>
           <div class="space-y-2 text-xs text-gray-400">
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">PROVIDER SETUP ollama</code>
+              <code class="text-green-400">SETUP ollama</code>
               <div class="text-gray-500">Detect Ollama service + open model tools</div>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
