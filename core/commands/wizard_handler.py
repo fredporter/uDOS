@@ -71,34 +71,28 @@ class WizardHandler(BaseCommandHandler):
                 "&& rebuild_wizard_dashboard"
             )
 
-            # Add timeout to prevent hanging
+            # Run without capturing output so spinner can use terminal directly
             result = subprocess.run(
                 ["bash", "-lc", rebuild_cmd],
-                capture_output=True,
+                capture_output=False,  # Let spinner write to terminal
                 text=True,
                 check=False,
                 timeout=300,  # 5 minute timeout
                 cwd=str(repo_root),
             )
 
-            if result.stdout:
-                output_lines.append(result.stdout.strip())
-            if result.stderr:
-                output_lines.append(result.stderr.strip())
-
             if result.returncode != 0:
                 logger.error(f"[LOCAL] Wizard rebuild failed with code {result.returncode}")
                 return {
                     "status": "error",
                     "message": f"Rebuild failed (exit {result.returncode})",
-                    "output": "\n".join(output_lines),
+                    "output": banner + "\n❌ Build failed - check output above",
                 }
 
-            output_lines.append("\n✅ Wizard rebuild complete")
             logger.info("[LOCAL] Wizard rebuild successful")
             return {
                 "status": "success",
-                "output": "\n".join(output_lines),
+                "output": banner + "\n✅ Wizard rebuild complete",
             }
         except subprocess.TimeoutExpired:
             logger.error("[LOCAL] Wizard rebuild timed out (300s)")
