@@ -149,6 +149,8 @@
   let importConflicts = [];
   let adminTokenValue = "";
   let tokenStatus = null;
+  let envData = {};
+  let isLoadingEnv = false;
 
   let typography = { ...defaultTypography };
   let typographyLabels = getTypographyLabels(typography);
@@ -156,9 +158,11 @@
 
   onMount(async () => {
     adminToken = getAdminToken();
+    adminTokenValue = adminToken;
     initDisplaySettings();
     await loadFileList();
     await loadProviders();
+    await loadEnvData();
   });
 
   async function loadFileList() {
@@ -337,6 +341,24 @@
     }
   }
 
+  async function loadEnvData() {
+    isLoadingEnv = true;
+    try {
+      const response = await apiFetch("/api/admin-token/status");
+      if (!response.ok) {
+        envData = {};
+        return;
+      }
+      const data = await response.json();
+      envData = data.env || {};
+    } catch (err) {
+      console.error("Failed to load .env data:", err);
+      envData = {};
+    } finally {
+      isLoadingEnv = false;
+    }
+  }
+
   async function generateAdminToken() {
     tokenStatus = "Generating token…";
     try {
@@ -351,8 +373,39 @@
       setAdminToken(data.token);
       adminToken = data.token;
       tokenStatus = `✅ Token generated and saved to .env${data.key_created ? " (WIZARD_KEY created)" : ""}`;
+      await loadEnvData();
     } catch (err) {
       tokenStatus = `❌ Failed to generate token: ${err.message}`;
+    }
+  }
+
+  async function saveAdminToken() {
+    const trimmed = adminToken.trim();
+    if (!trimmed) {
+      tokenStatus = "❌ Paste a token first.";
+      return;
+    }
+    setAdminToken(trimmed);
+    adminTokenValue = trimmed;
+    tokenStatus = "✅ Token saved to browser session.";
+    await loadEnvData();
+  }
+
+  async function saveAndRefresh() {
+    const trimmed = adminToken.trim();
+    if (!trimmed) {
+      tokenStatus = "❌ Paste a token first.";
+      return;
+    }
+    tokenStatus = "Saving and refreshing…";
+    try {
+      setAdminToken(trimmed);
+      adminTokenValue = trimmed;
+      await loadEnvData();
+      tokenStatus = "✅ Token saved. Refreshing page…";
+      setTimeout(() => window.location.reload(), 800);
+    } catch (err) {
+      tokenStatus = `❌ Failed: ${err.message}`;
     }
   }
 
@@ -747,6 +800,66 @@
     </div>
   {/if}
 
+  <div class="mb-6 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+      <h3 class="text-sm font-semibold text-white mb-2">Admin Token</h3>
+      <p class="text-xs text-gray-400 mb-3">
+        Generate or paste a local admin token for protected Wizard endpoints.
+        Stored in .env and copied to your browser session.
+      </p>
+      <div class="flex flex-wrap items-center gap-2">
+        <input
+          class="px-3 py-1.5 text-sm rounded-md bg-gray-900 text-gray-200 border border-gray-700 placeholder:text-gray-500"
+          type="password"
+          bind:value={adminToken}
+          placeholder="Paste admin token"
+        />
+        <button
+          on:click={saveAndRefresh}
+          class="px-3 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-500 transition-colors"
+        >
+          Save + Refresh
+        </button>
+        <button
+          on:click={generateAdminToken}
+          class="px-3 py-1.5 text-sm rounded-md bg-emerald-600 text-white hover:bg-emerald-500 transition-colors"
+        >
+          🔑 {adminTokenValue ? "Regenerate" : "Generate"} Admin Token
+        </button>
+      </div>
+      {#if tokenStatus}
+        <div class="mt-3 text-xs text-gray-300">{tokenStatus}</div>
+      {/if}
+
+      <!-- .env Summary -->
+      {#if isLoadingEnv}
+        <div class="mt-4 text-xs text-gray-400">Loading .env data...</div>
+      {:else if Object.keys(envData).length > 0}
+        <div class="mt-4 pt-4 border-t border-gray-700">
+          <p class="text-xs font-semibold text-gray-300 mb-2">.env Summary:</p>
+          <div class="space-y-1">
+            {#each Object.entries(envData) as [key, value]}
+              <div class="text-xs text-gray-400">
+                <span class="text-gray-500">{key}:</span>
+                {#if key.toLowerCase().includes("token") || key
+                    .toLowerCase()
+                    .includes("key") || key.toLowerCase().includes("secret")}
+                  <span class="text-gray-500">••••••••</span>
+                {:else}
+                  <span>{value}</span>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
+
+      {#if adminTokenValue}
+        <div class="mt-3 text-xs text-gray-400">✓ Token stored in browser.</div>
+      {/if}
+    </div>
+  </div>
+
   <div class="config-summary mb-6">
     <strong>Wizard All-In-One Panel:</strong>
     Manage the Python <code>.venv</code>, synchronize the API/secret store, and
@@ -839,32 +952,6 @@
           Reset
         </button>
       </div>
-    </div>
-  </div>
-
-  <div class="mb-6 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
-    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
-      <h3 class="text-sm font-semibold text-white mb-2">Admin Token</h3>
-      <p class="text-xs text-gray-400 mb-3">
-        Generate a local admin token for protected Wizard endpoints. Stored in
-        .env and copied to your browser session.
-      </p>
-      <div class="flex flex-wrap gap-2">
-        <button
-          on:click={generateAdminToken}
-          class="px-3 py-1.5 text-sm rounded-md bg-emerald-600 text-white hover:bg-emerald-500 transition-colors"
-        >
-          🔑 Generate Admin Token
-        </button>
-      </div>
-      {#if tokenStatus}
-        <div class="mt-3 text-xs text-gray-300">{tokenStatus}</div>
-      {/if}
-      {#if adminTokenValue}
-        <div class="mt-3 text-xs text-gray-400">
-          Token stored in browser. Use the menu token field if needed.
-        </div>
-      {/if}
     </div>
   </div>
 

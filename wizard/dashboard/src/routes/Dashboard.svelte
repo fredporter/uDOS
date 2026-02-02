@@ -60,8 +60,10 @@
     value === undefined || value === null ? "—" : `${value}${suffix}`;
 
   const formatRange = (used, total, unit) => {
-    const safeUsed = used === undefined || used === null ? "—" : `${used} ${unit}`;
-    const safeTotal = total === undefined || total === null ? "—" : `${total} ${unit}`;
+    const safeUsed =
+      used === undefined || used === null ? "—" : `${used} ${unit}`;
+    const safeTotal =
+      total === undefined || total === null ? "—" : `${total} ${unit}`;
     return `${safeUsed} / ${safeTotal}`;
   };
 
@@ -239,10 +241,13 @@
   </div>
 
   {#if !hasAdminToken}
-    <div class="bg-amber-900/40 border border-amber-700 text-amber-100 rounded-lg p-4 text-sm">
+    <div
+      class="bg-amber-900/40 border border-amber-700 text-amber-100 rounded-lg p-4 text-sm"
+    >
       <div class="font-semibold">Admin token missing</div>
       <div class="text-xs text-amber-200 mt-1">
-        Protected endpoints (devices, logs, config, library, GitHub) will fail until you set an admin token in the menu.
+        Protected endpoints (devices, logs, config, library, GitHub) will fail
+        until you set an admin token on the Config page.
       </div>
     </div>
   {/if}
@@ -356,12 +361,16 @@
             <div class="bg-slate-900/60 rounded-lg p-4 border border-slate-700">
               <div class="text-gray-400 text-sm mb-1">Memory</div>
               <div class="flex items-baseline gap-2">
-              <div class="text-2xl font-semibold text-white">
-                {formatStatValue(systemStats.memory?.used_percent, "%")}
-              </div>
-              <span class="text-xs text-gray-400"
-                >{formatRange(systemStats.memory?.used_mb, systemStats.memory?.total_mb, "MB")}</span
-              >
+                <div class="text-2xl font-semibold text-white">
+                  {formatStatValue(systemStats.memory?.used_percent, "%")}
+                </div>
+                <span class="text-xs text-gray-400"
+                  >{formatRange(
+                    systemStats.memory?.used_mb,
+                    systemStats.memory?.total_mb,
+                    "MB",
+                  )}</span
+                >
               </div>
               <div class="w-full bg-slate-800 rounded-full h-2 mt-2">
                 <div
@@ -374,12 +383,16 @@
               <div class="text-gray-400 text-sm mb-1">Swap</div>
               {#if systemStats.swap?.active}
                 <div class="flex items-baseline gap-2">
-              <div class="text-2xl font-semibold text-white">
-                {formatStatValue(systemStats.swap?.used_percent, "%")}
-              </div>
-              <span class="text-xs text-gray-400"
-                >{formatRange(systemStats.swap?.used_gb, systemStats.swap?.total_gb, "GB")}</span
-              >
+                  <div class="text-2xl font-semibold text-white">
+                    {formatStatValue(systemStats.swap?.used_percent, "%")}
+                  </div>
+                  <span class="text-xs text-gray-400"
+                    >{formatRange(
+                      systemStats.swap?.used_gb,
+                      systemStats.swap?.total_gb,
+                      "GB",
+                    )}</span
+                  >
                 </div>
                 <div class="w-full bg-slate-800 rounded-full h-2 mt-2">
                   <div
@@ -395,12 +408,16 @@
             <div class="bg-slate-900/60 rounded-lg p-4 border border-slate-700">
               <div class="text-gray-400 text-sm mb-1">Disk</div>
               <div class="flex items-baseline gap-2">
-              <div class="text-2xl font-semibold text-white">
-                {formatStatValue(systemStats.disk?.used_percent, "%")}
-              </div>
-              <span class="text-xs text-gray-400"
-                >{formatRange(systemStats.disk?.used_gb, systemStats.disk?.total_gb, "GB")}</span
-              >
+                <div class="text-2xl font-semibold text-white">
+                  {formatStatValue(systemStats.disk?.used_percent, "%")}
+                </div>
+                <span class="text-xs text-gray-400"
+                  >{formatRange(
+                    systemStats.disk?.used_gb,
+                    systemStats.disk?.total_gb,
+                    "GB",
+                  )}</span
+                >
               </div>
               <div class="w-full bg-slate-800 rounded-full h-2 mt-2">
                 <div
@@ -454,18 +471,26 @@
       </div>
 
       {#if schedulerError}
-        <div class="bg-red-900/60 border border-red-700 text-red-100 p-3 rounded text-sm">
+        <div
+          class="bg-red-900/60 border border-red-700 text-red-100 p-3 rounded text-sm"
+        >
           {schedulerError}
         </div>
       {:else if schedulerStatus}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">
+        <div
+          class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300"
+        >
           <div>
             <div class="text-gray-400">Pending queue</div>
-            <div class="text-lg font-semibold">{schedulerStatus.stats?.pending_queue}</div>
+            <div class="text-lg font-semibold">
+              {schedulerStatus.stats?.pending_queue}
+            </div>
           </div>
           <div>
             <div class="text-gray-400">Successful (24h)</div>
-            <div class="text-lg font-semibold">{schedulerStatus.stats?.successful_today}</div>
+            <div class="text-lg font-semibold">
+              {schedulerStatus.stats?.successful_today}
+            </div>
           </div>
           <div>
             <div class="text-gray-400">Tasks</div>
@@ -477,7 +502,9 @@
 
         <div class="mt-4 border-t border-gray-700 pt-4">
           <div class="text-sm text-gray-400 mb-2">Scheduler controls</div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-gray-300">
+          <div
+            class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-gray-300"
+          >
             <label class="flex flex-col gap-1">
               <span class="text-gray-400">Max tasks / tick</span>
               <input
@@ -543,13 +570,21 @@
         {#if selectedTask}
           <div class="mt-4 border-t border-gray-700 pt-4">
             <div class="text-sm text-gray-400 mb-2">Selected task</div>
-            <div class="bg-slate-900/60 border border-slate-700 rounded p-3 text-sm text-gray-200 space-y-2">
+            <div
+              class="bg-slate-900/60 border border-slate-700 rounded p-3 text-sm text-gray-200 space-y-2"
+            >
               <div class="font-semibold text-white">{selectedTask.name}</div>
               <div class="text-xs text-gray-400">
-                {selectedTask.kind || "task"} • priority {selectedTask.priority} • need {selectedTask.need}
+                {selectedTask.kind || "task"} • priority {selectedTask.priority}
+                • need {selectedTask.need}
               </div>
               {#if selectedTask.payload}
-                <pre class="text-xs text-gray-300 whitespace-pre-wrap">{JSON.stringify(selectedTask.payload, null, 2)}</pre>
+                <pre
+                  class="text-xs text-gray-300 whitespace-pre-wrap">{JSON.stringify(
+                    selectedTask.payload,
+                    null,
+                    2,
+                  )}</pre>
               {/if}
               {#if selectedTaskRuns?.length}
                 <div class="text-xs text-gray-400">Recent runs</div>
@@ -563,7 +598,9 @@
                           showRunOutput = true;
                         }}
                       >
-                        {run.created_at} → {run.result || run.state || "pending"}
+                        {run.created_at} → {run.result ||
+                          run.state ||
+                          "pending"}
                       </button>
                     </li>
                   {/each}
@@ -618,11 +655,15 @@
       </div>
 
       {#if installError}
-        <div class="bg-red-900/60 border border-red-700 text-red-100 p-3 rounded text-sm">
+        <div
+          class="bg-red-900/60 border border-red-700 text-red-100 p-3 rounded text-sm"
+        >
           {installError}
         </div>
       {:else if installMetrics}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">
+        <div
+          class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300"
+        >
           <div>
             <div class="text-gray-400">Lifespan</div>
             <div class="text-lg font-semibold">
@@ -633,7 +674,9 @@
           </div>
           <div>
             <div class="text-gray-400">Moves used</div>
-            <div class="text-lg font-semibold">{installMetrics.moves_used ?? 0}</div>
+            <div class="text-lg font-semibold">
+              {installMetrics.moves_used ?? 0}
+            </div>
           </div>
           <div>
             <div class="text-gray-400">Last move</div>
@@ -645,10 +688,14 @@
           </div>
         </div>
         {#if installProfile}
-          <div class="mt-3 border-t border-gray-700 pt-3 text-sm text-gray-300 space-y-1">
+          <div
+            class="mt-3 border-t border-gray-700 pt-3 text-sm text-gray-300 space-y-1"
+          >
             <div class="flex justify-between">
               <span class="text-gray-400">Installation ID</span>
-              <span class="font-semibold">{installProfile.installation_id || "—"}</span>
+              <span class="font-semibold"
+                >{installProfile.installation_id || "—"}</span
+              >
             </div>
             <div class="flex justify-between">
               <span class="text-gray-400">OS Type</span>
@@ -693,22 +740,50 @@
           <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
             <div class="flex items-start justify-between mb-2">
               <h3 class="text-lg font-semibold text-white">Health</h3>
-              <span class={`px-2 py-1 rounded text-xs font-medium ${
-                githubHealth.status === "ok"
-                  ? "bg-green-900 text-green-300"
-                  : githubHealth.status === "unavailable"
-                    ? "bg-gray-700 text-gray-300"
-                    : "bg-amber-900 text-amber-200"
-              }`}>
+              <span
+                class={`px-2 py-1 rounded text-xs font-medium ${
+                  githubHealth.status === "ok"
+                    ? "bg-green-900 text-green-300"
+                    : githubHealth.status === "unavailable"
+                      ? "bg-gray-700 text-gray-300"
+                      : "bg-amber-900 text-amber-200"
+                }`}
+              >
                 {githubHealth.status}
               </span>
             </div>
             <div class="text-sm text-gray-300 space-y-2">
-              <div class="flex justify-between"><span class="text-gray-400">CLI</span><span class="font-semibold">{githubHealth.cli?.available ? "ready" : "auth needed"}</span></div>
-              <div class="flex justify-between"><span class="text-gray-400">Webhook Secret</span><span class="font-semibold">{githubHealth.webhook?.secret_configured ? "configured" : "missing"}</span></div>
-              <div class="flex justify-between"><span class="text-gray-400">Allowed Repo</span><span class="font-semibold">{githubHealth.repo?.allowed}</span></div>
-              <div class="flex justify-between"><span class="text-gray-400">Default Branch</span><span class="font-semibold">{githubHealth.repo?.default_branch}</span></div>
-              <div class="flex justify-between"><span class="text-gray-400">Push Enabled</span><span class="font-semibold">{githubHealth.repo?.push_enabled ? "yes" : "no"}</span></div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">CLI</span><span
+                  class="font-semibold"
+                  >{githubHealth.cli?.available ? "ready" : "auth needed"}</span
+                >
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Webhook Secret</span><span
+                  class="font-semibold"
+                  >{githubHealth.webhook?.secret_configured
+                    ? "configured"
+                    : "missing"}</span
+                >
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Allowed Repo</span><span
+                  class="font-semibold">{githubHealth.repo?.allowed}</span
+                >
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Default Branch</span><span
+                  class="font-semibold"
+                  >{githubHealth.repo?.default_branch}</span
+                >
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Push Enabled</span><span
+                  class="font-semibold"
+                  >{githubHealth.repo?.push_enabled ? "yes" : "no"}</span
+                >
+              </div>
             </div>
           </div>
         </div>

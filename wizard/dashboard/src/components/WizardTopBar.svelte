@@ -1,14 +1,11 @@
 <script>
   import { onMount } from "svelte";
-  import { getAdminToken, setAdminToken } from "../lib/services/auth";
 
   export let currentRoute = "dashboard";
   export let onNavigate = (route) => {};
 
   let menuOpen = false;
   let isFullscreen = false;
-  let adminToken = "";
-  let tokenSaved = false;
 
   const topNavRoutes = [
     { id: "dashboard", label: "Dashboard" },
@@ -69,16 +66,7 @@
     menuOpen = false;
   }
 
-  function saveToken() {
-    setAdminToken(adminToken);
-    tokenSaved = true;
-    setTimeout(() => {
-      tokenSaved = false;
-    }, 1500);
-  }
-
   onMount(() => {
-    adminToken = getAdminToken();
     const handleFullscreenChange = () => {
       isFullscreen = !!document.fullscreenElement;
     };
@@ -152,18 +140,6 @@
       }}
     ></div>
     <div class="wizard-menu-dropdown">
-      <div class="menu-token">
-        <div class="menu-token-label">Admin Token</div>
-        <input
-          class="menu-token-input"
-          type="password"
-          bind:value={adminToken}
-          placeholder="Paste admin token"
-        />
-        <button class="menu-token-save" on:click={saveToken}>
-          {tokenSaved ? "Saved" : "Save"}
-        </button>
-      </div>
       <nav class="menu-nav">
         {#each allMenuRoutes as route}
           {#if route.separator}
@@ -328,45 +304,6 @@
     border-radius: 0.75rem;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
     animation: slideDown 0.2s ease-out;
-  }
-
-  .menu-token {
-    padding: 0.75rem;
-    border-bottom: 1px solid #1f2937;
-    display: grid;
-    gap: 0.5rem;
-  }
-
-  .menu-token-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    color: #94a3b8;
-    letter-spacing: 0.04em;
-  }
-
-  .menu-token-input {
-    width: 100%;
-    background: #0f172a;
-    border: 1px solid #1f2937;
-    color: #e2e8f0;
-    border-radius: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.75rem;
-  }
-
-  .menu-token-save {
-    background: #059669;
-    color: #fff;
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.4rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .menu-token-save:hover {
-    background: #10b981;
   }
 
   :global(html.light) .wizard-menu-dropdown {

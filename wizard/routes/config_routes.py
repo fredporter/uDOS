@@ -109,6 +109,48 @@ def create_admin_token_routes():
             "key_created": key_created,
         }
 
+    @router.get("/status")
+    async def get_admin_token_status(request: Request):
+        """Get admin token status and .env data summary (local access only)."""
+        client_host = request.client.host if request.client else ""
+        if client_host not in {"127.0.0.1", "::1", "localhost"}:
+            raise HTTPException(status_code=403, detail="local requests only")
+
+        repo_root = get_repo_root()
+        env_path = repo_root / ".env"
+        env_data = {}
+
+        # Read .env file and build summary
+        if env_path.exists():
+            try:
+                for line in env_path.read_text().splitlines():
+                    if not line or line.strip().startswith("#"):
+                        continue
+                    if "=" not in line:
+                        continue
+                    key, value = line.split("=", 1)
+                    key = key.strip()
+                    value = value.strip().strip('"').strip("'")
+                    if key:
+                        env_data[key] = value
+            except Exception as e:
+                return {
+                    "status": "error",
+                    "message": f"Failed to read .env: {str(e)}",
+                    "env": {},
+                }
+
+        # Check if admin token exists
+        has_admin_token = "WIZARD_ADMIN_TOKEN" in env_data
+        has_wizard_key = "WIZARD_KEY" in env_data
+
+        return {
+            "status": "success",
+            "env": env_data,
+            "has_admin_token": has_admin_token,
+            "has_wizard_key": has_wizard_key,
+        }
+
     return router
 
 

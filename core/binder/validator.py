@@ -219,17 +219,20 @@ class BinderValidator:
         index_path = binder_path / "index.md"
         if not index_path.exists():
             index_path.write_text(
-                """---\n"
-                "binder_id: binder\n"
-                "title: New Binder\n"
-                "status: draft\n"
-                "workspace: sandbox\n"
-                "tags: [binder]\n"
-                "created_at: 1970-01-01T00:00:00Z\n"
-                "updated_at: 1970-01-01T00:00:00Z\n"
-                "---\n\n"
-                "# Binder Index\n\n"
-                "Describe this binder, its scope, and key documents.\n"
+                """---
+binder_id: binder
+title: New Binder
+status: draft
+workspace: sandbox
+tags: [binder]
+created_at: 1970-01-01T00:00:00Z
+updated_at: 1970-01-01T00:00:00Z
+---
+
+# Binder Index
+
+Describe this binder, its scope, and key documents.
+"""
             )
 
         # Create recommended folders
