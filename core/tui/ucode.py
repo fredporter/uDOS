@@ -415,6 +415,9 @@ class uCODETUI:
 
     def _run_startup_script(self) -> None:
         """Execute the system startup script once per launch."""
+        # Pre-flight check: Ensure TS runtime is built
+        self._check_and_build_ts_runtime()
+
         result = self.system_script_runner.run_startup_script()
         if result.get("status") == "success":
             output = result.get("output")
@@ -558,6 +561,27 @@ class uCODETUI:
                 self.logger.warning("[Monitoring] Failed to read summary: %s", exc)
         monitoring = MonitoringManager(data_dir=memory_root / "monitoring")
         return monitoring.log_training_summary()
+
+    def _check_and_build_ts_runtime(self) -> None:
+        """Check if TS runtime is built, auto-build if missing (first-time setup)."""
+        try:
+            from core.services.ts_runtime_service import TSRuntimeService
+            service = TSRuntimeService()
+
+            # Check with auto_build=True to trigger automatic build if missing
+            check_result = service._check_runtime_entry(auto_build=True)
+
+            if check_result and check_result.get("status") == "error":
+                # Auto-build failed or runtime still missing
+                print("\n⚠️  TypeScript Runtime Issue:")
+                print(f"   {check_result.get('message')}")
+                if check_result.get('details'):
+                    print(f"   Details: {check_result.get('details')}")
+                if check_result.get('suggestion'):
+                    print(f"   -> {check_result.get('suggestion')}")
+                print()
+        except Exception as exc:
+            self.logger.warning(f"[STARTUP] TS runtime check failed: {exc}")
 
     def _read_notification_history(self, memory_root: Path, limit: int = 5) -> list[Dict[str, Any]]:
         log_path = memory_root / "logs" / "notification-history.log"
