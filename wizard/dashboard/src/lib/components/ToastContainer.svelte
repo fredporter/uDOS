@@ -16,9 +16,14 @@
       <div class="toast-body">
         <div class="toast-title">{toast.title}</div>
         <div class="toast-message">{toast.message}</div>
-        <div class="toast-time">{new Date(toast.timestamp).toLocaleTimeString()}</div>
+        <div class="toast-time">
+          {new Date(toast.timestamp).toLocaleTimeString()}
+        </div>
       </div>
-      <button class="toast-dismiss" on:click={() => toastStore.dismiss(toast.id)}>×</button>
+      <button
+        class="toast-dismiss"
+        on:click={() => toastStore.dismiss(toast.id)}>×</button
+      >
     </article>
   {/each}
 </div>
@@ -26,26 +31,28 @@
 <style>
   .toast-overlay {
     position: fixed;
-    top: 1rem;
-    right: 1rem;
+    bottom: 4.5rem;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 0.5rem;
     z-index: 200;
     pointer-events: none;
+    width: min(90vw, 440px);
   }
 
   .toast {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    min-width: 260px;
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(148, 163, 184, 0.5);
+    width: 100%;
+    background: rgba(17, 24, 39, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.35);
     border-radius: 0.75rem;
     padding: 0.75rem 1rem;
     color: #f8fafc;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.4);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.45);
     pointer-events: auto;
     animation: fadein 0.2s ease;
   }

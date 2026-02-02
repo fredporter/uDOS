@@ -282,7 +282,7 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
                     category=category,
                     is_set=is_set,
                     masked_value=masked_value,
-                    updated_at=entry.metadata.get("updated_at") if is_set else None
+                    updated_at=entry.metadata.get("updated_at") if entry else None,
                 ))
             except SecretStoreError:
                 legacy_value = legacy_values.get(key)

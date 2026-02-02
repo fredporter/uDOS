@@ -10,8 +10,8 @@ export interface ToastEntry {
   timestamp: string;
 }
 
-const MAX_TOASTS = 5;
-const DEFAULT_TTL = 6000;
+const MAX_TOASTS = 20;
+const DEFAULT_TTL = 4500;
 
 let nextToastId = 1;
 
