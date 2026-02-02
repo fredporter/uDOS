@@ -2,8 +2,8 @@
 
 > **Note:** The binary font cache is stored outside this repo at `~/uDOS/fonts` and mirrored to `https://cdn.fredporter.com/`. See `docs/WIZARD-FONT-SYNC.md` for the sync process and CDN URLs.
 
-**Version:** 1.0.0  
-**Part of:** uDOS Alpha v1.0.2.0  
+**Version:** 1.0.0
+**Part of:** uDOS Alpha v1.0.2.0
 **Last Updated:** 2026-01-25
 
 ---
@@ -77,7 +77,7 @@ Five programming fonts with distinct typographic voices for code rendering:
 
 **Usage:** Code blocks ONLY (not available for prose H/P switchers)
 
-Source: [GitHub Next Monaspace](https://monaspace.githubnext.com)  
+Source: [GitHub Next Monaspace](https://monaspace.githubnext.com)
 License: OFL (SIL Open Font License)
 
 ### Prose Fonts — H (Heading) & P (Paragraph) Switchers
@@ -266,5 +266,5 @@ All fonts must maintain their original credits and license information when dist
 
 ---
 
-**Part of uDOS Alpha v1.0.2.0**  
+**Part of uDOS Alpha v1.0.2.0**
 **uFont Manager Beta - Font Repository System**

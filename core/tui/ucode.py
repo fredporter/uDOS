@@ -269,7 +269,7 @@ class uCODETUI:
 
         # Conditional commands
         # WIZARD command now handled by dispatcher (WizardHandler)
-        
+
         if self.detector.is_available("extensions"):
             self.commands["PLUGIN"] = self._cmd_plugin
             self.commands["EXT"] = self._cmd_plugin

@@ -170,6 +170,7 @@ prompt_permission() {
 }
 
 check_wizard_updates() {
+    # Skip if not a git repo or git not available
     if [ -z "$UDOS_ROOT" ] || [ ! -d "$UDOS_ROOT/.git" ]; then
         return 0
     fi
@@ -184,8 +185,9 @@ check_wizard_updates() {
         branch="main"
     fi
 
-    if ! git -C "$UDOS_ROOT" fetch --quiet origin "$branch"; then
-        echo -e "${YELLOW}⚠️  Could not check updates (git fetch failed).${NC}"
+    # Fetch quietly, ignore network errors
+    if ! git -C "$UDOS_ROOT" fetch --quiet origin "$branch" 2>/dev/null; then
+        # Silent fail - no network or repo issue
         return 0
     fi
 
@@ -195,12 +197,21 @@ check_wizard_updates() {
     if [ "$behind" -gt 0 ]; then
         echo -e "${YELLOW}⚠️  Wizard updates available (${behind} commits).${NC}"
         if prompt_permission "Update Wizard now?"; then
-            if git -C "$UDOS_ROOT" pull --ff-only origin "$branch"; then
+            # Pull with ff-only to prevent merge conflicts
+            if git -C "$UDOS_ROOT" pull --ff-only origin "$branch" 2>/dev/null; then
+                echo -e "${GREEN}✓${NC} Wizard updated successfully"
                 export UDOS_FORCE_REBUILD=1
-                rebuild_wizard_dashboard || return 1
+                if rebuild_wizard_dashboard; then
+                    echo -e "${GREEN}✓${NC} Dashboard rebuilt"
+                    return 0
+                else
+                    echo -e "${YELLOW}⚠️  Dashboard rebuild had issues${NC}"
+                    return 0  # Still return success - server can start
+                fi
             else
-                echo -e "${RED}❌ Update failed.${NC}"
-                return 1
+                echo -e "${RED}❌ Update failed (merge conflict or network error).${NC}"
+                echo -e "${DIM}ℹ️  Run 'git pull origin ${branch}' manually to fix${NC}"
+                return 0  # Don't block server startup
             fi
         else
             echo -e "${DIM}ℹ️  Skipping update.${NC}"
@@ -613,23 +624,30 @@ launch_wizard_server() {
     print_header "$title"
 
     _setup_component_environment "wizard" || return 1
-    check_wizard_updates || return 1
+    check_wizard_updates || true  # Don't block startup on update failures
 
     echo -e "${CYAN}[INFO]${NC} Starting Wizard Server in background..."
 
     # Check if already running
-    if curl -s http://127.0.0.1:8765/health >/dev/null 2>&1; then
+    if curl -s --connect-timeout 2 http://127.0.0.1:8765/health >/dev/null 2>&1; then
         echo -e "${GREEN}✓${NC} Wizard already running on http://localhost:8765"
     else
+        # Validate python module exists
+        if ! python -c "import wizard.server" 2>/dev/null; then
+            echo -e "${RED}❌ Wizard module not found${NC}"
+            return 1
+        fi
+
         # Start in background with proper I/O isolation
-        nohup python -m wizard.server --no-interactive > /dev/null 2>&1 &
+        mkdir -p "$UDOS_ROOT/memory/logs"
+        nohup python -m wizard.server --no-interactive > "$UDOS_ROOT/memory/logs/wizard-server.log" 2>&1 &
         local wizard_pid=$!
 
         # Wait for server to be ready (max 10 seconds)
         local max_wait=10
         local waited=0
         while [ $waited -lt $max_wait ]; do
-            if curl -s http://127.0.0.1:8765/health >/dev/null 2>&1; then
+            if curl -s --connect-timeout 1 http://127.0.0.1:8765/health >/dev/null 2>&1; then
                 echo -e "${GREEN}✓${NC} Wizard Server started (PID: $wizard_pid)"
                 break
             fi
@@ -638,7 +656,8 @@ launch_wizard_server() {
         done
 
         if [ $waited -ge $max_wait ]; then
-            echo -e "${YELLOW}⚠${NC}  Wizard Server started but not responding (timeout)"
+            echo -e "${YELLOW}⚠${NC}  Wizard Server started but slow to respond (PID: $wizard_pid)"
+            echo -e "${DIM}ℹ️  Check logs: tail -f $UDOS_ROOT/memory/logs/wizard-server.log${NC}"
         fi
     fi
 

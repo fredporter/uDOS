@@ -197,5 +197,5 @@ All fonts retain original credits and attribution.
 
 ---
 
-**Part of uDOS Alpha v1.0.2.0**  
+**Part of uDOS Alpha v1.0.2.0**
 **uFont Manager Beta**

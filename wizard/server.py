@@ -146,11 +146,18 @@ class WizardConfig:
 
     @classmethod
     def load(cls, path: Path = None) -> "WizardConfig":
-        """Load config from file."""
+        """Load config from file with validation."""
         config_file = path or (CONFIG_PATH / "wizard.json")
         if config_file.exists():
-            with open(config_file) as f:
-                return cls.from_dict(json.load(f))
+            try:
+                with open(config_file) as f:
+                    data = json.load(f)
+                    if not isinstance(data, dict):
+                        return cls()
+                    return cls.from_dict(data)
+            except (json.JSONDecodeError, IOError, ValueError):
+                # Return defaults if config is invalid
+                return cls()
         return cls()
 
     def save(self, path: Path = None):
@@ -223,10 +230,10 @@ class WizardServer:
         # Ensure micro editor is available in /library
         try:
             from wizard.services.editor_utils import ensure_micro_repo
-
             ensure_micro_repo()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger = self.logging_manager.get_logger("wizard-server")
+            logger.warning(f"[WIZ] Failed to ensure micro editor: {exc}")
 
         # CORS (restricted to known origins in production)
         app.add_middleware(
@@ -1426,34 +1433,40 @@ class WizardServer:
         return device_id
 
     async def _authenticate_admin(self, request: Request) -> None:
-        """Authenticate admin request using secret store key."""
+        """Authenticate admin request using secret store key or WIZARD_ADMIN_TOKEN."""
         key_id = self.config.admin_api_key_id
-        if not key_id:
-            raise HTTPException(status_code=503, detail="admin api key not configured")
+        auth_header = request.headers.get("Authorization", "").strip()
 
-        auth_header = request.headers.get("Authorization", "")
-        if not auth_header.startswith("Bearer "):
-            raise HTTPException(status_code=401, detail="Missing authorization")
+        # Validate header format
+        if not auth_header or not auth_header.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
 
-        token = auth_header[7:]
-        env_token = os.getenv("WIZARD_ADMIN_TOKEN")
+        token = auth_header[7:].strip()
+        if not token or len(token) < 8:
+            raise HTTPException(status_code=401, detail="Invalid token format")
+
+        # Try environment token first (faster path)
+        env_token = os.getenv("WIZARD_ADMIN_TOKEN", "").strip()
         if env_token and hmac.compare_digest(token, env_token):
             return
 
-        entry = None
-        store_locked = False
+        # Try secret store if key_id configured
+        if not key_id:
+            raise HTTPException(status_code=503, detail="Admin authentication not configured")
+
         try:
             store = get_secret_store()
             store.unlock()
             entry = store.get(key_id)
-        except SecretStoreError:
-            store_locked = True
+            if entry and entry.value and hmac.compare_digest(token, entry.value):
+                return
+        except SecretStoreError as exc:
+            logger = self.logging_manager.get_logger("wizard-server")
+            logger.warning(f"[WIZ] Secret store error during auth: {exc}")
+            if not env_token:
+                raise HTTPException(status_code=503, detail="Admin secret store locked")
 
-        if entry and entry.value and hmac.compare_digest(token, entry.value):
-            return
-
-        if store_locked and not env_token:
-            raise HTTPException(status_code=503, detail="admin secret store locked")
+        # Token validation failed
         raise HTTPException(status_code=403, detail="Invalid admin token")
 
     async def _list_plugins(self) -> Dict[str, Any]:
@@ -1480,18 +1493,18 @@ class WizardServer:
 
     async def _get_plugin_info(self, plugin_id: str) -> Dict[str, Any]:
         """Get detailed plugin information."""
+        # Validate plugin ID to prevent path traversal
+        if not plugin_id or "/" in plugin_id or ".." in plugin_id:
+            raise HTTPException(status_code=400, detail="Invalid plugin ID")
+
         plugin_path = PLUGIN_REPO_PATH / plugin_id
 
         if not plugin_path.exists():
-            raise HTTPException(
-                status_code=404, detail=f"Plugin not found: {plugin_id}"
-            )
+            raise HTTPException(status_code=404, detail=f"Plugin not found: {plugin_id}")
 
         manifest_path = plugin_path / "manifest.json"
         if not manifest_path.exists():
-            raise HTTPException(
-                status_code=404, detail=f"Plugin manifest not found: {plugin_id}"
-            )
+            raise HTTPException(status_code=404, detail=f"No manifest for plugin: {plugin_id}")
 
         with open(manifest_path) as f:
             manifest = json.load(f)
@@ -1514,18 +1527,18 @@ class WizardServer:
 
     async def _download_plugin(self, plugin_id: str) -> Dict[str, Any]:
         """Get download URL/data for plugin."""
+        # Validate plugin ID
+        if not plugin_id or "/" in plugin_id or ".." in plugin_id:
+            raise HTTPException(status_code=400, detail="Invalid plugin ID")
+
         plugin_path = PLUGIN_REPO_PATH / plugin_id
 
         if not plugin_path.exists():
-            raise HTTPException(
-                status_code=404, detail=f"Plugin not found: {plugin_id}"
-            )
+            raise HTTPException(status_code=404, detail=f"Plugin not found: {plugin_id}")
 
         packages = list(plugin_path.glob("*.tar.gz")) + list(plugin_path.glob("*.tcz"))
         if not packages:
-            raise HTTPException(
-                status_code=404, detail=f"No package found for: {plugin_id}"
-            )
+            raise HTTPException(status_code=404, detail=f"No downloadable package for: {plugin_id}")
 
         pkg = packages[0]
 
@@ -1540,12 +1553,17 @@ class WizardServer:
 
     async def _fetch_url(self, url: str, options: Dict[str, Any]) -> Dict[str, Any]:
         """Fetch URL content for user device."""
-        if not url:
-            raise HTTPException(status_code=400, detail="URL required")
+        if not url or not isinstance(url, str):
+            raise HTTPException(status_code=400, detail="URL required and must be a string")
+
+        # Validate URL format
+        url = url.strip()
+        if len(url) > 2048:
+            raise HTTPException(status_code=400, detail="URL too long (max 2048 chars)")
 
         # Security checks
         if not url.startswith(("http://", "https://")):
-            raise HTTPException(status_code=400, detail="Invalid URL scheme")
+            raise HTTPException(status_code=400, detail="Only HTTP/HTTPS URLs allowed")
 
         # TODO: Implement actual fetching with httpx/aiohttp
         # For now, return placeholder
