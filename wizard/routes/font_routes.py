@@ -15,11 +15,14 @@ from wizard.services.path_utils import get_repo_root
 
 
 def _resolve_fonts_root() -> Optional[Path]:
+    """Resolve fonts root with new structure at /fonts (root level)."""
     repo_root = get_repo_root()
+    # Check for new root-level /fonts location first (primary)
     candidates = [
-        repo_root / "wizard" / "font-manager" / "fonts",
-        repo_root / "dev" / "goblin" / "fonts",
-        repo_root / "library" / "fonts",
+        repo_root / "fonts",  # New canonical location (root level)
+        repo_root / "wizard" / "font-manager" / "fonts",  # Legacy
+        repo_root / "dev" / "goblin" / "fonts",  # Legacy
+        repo_root / "library" / "fonts",  # Legacy
     ]
     for candidate in candidates:
         if candidate.exists():

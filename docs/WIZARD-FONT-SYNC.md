@@ -14,7 +14,7 @@
    └── teletext50/
    ```
 
-2. **Content**: Each folder holds the canonical `.ttf`/`.otf` files plus a small `metadata.json` describing the source URL, license, and attribution. Keep the metadata consistent with `wizard/fonts/manifest.json` so the Font Manager can rehydrate the same credit list.
+2. **Content**: Each folder holds the canonical `.ttf`/`.otf` files plus a small `metadata.json` describing the source URL, license, and attribution. Keep the metadata consistent with `/fonts/manifest.json` so the Font Manager can rehydrate the same credit list.
 
 3. **Updates**: When new fonts are added (e.g., new fan-made teletext packs), drop them into `~/uDOS/fonts/<collection>` and update `manifest.json`. Do not commit the binaries—only commit the updated manifest/credits.
 
@@ -26,14 +26,14 @@
 
 ## Repository Hygiene
 
-- The `wizard/fonts` tree now contains only metadata, scripts, and manifest files. The binaries are replaced by CDN URLs documented in `manifest.json` and this guide.
-- To keep the repo folders in sync with the home-root cache, we seed `wizard/fonts/manifest-sync.json`. It records the expected downloads (retro, emoji, etc.) and mirrors the relative paths inside `~/uDOS/fonts`; automation scripts can load this manifest to verify that every collection exists before calling `wizard.services.cdn_upload_handler.CdnUploadHandler`.
+- The `/fonts` tree now contains only metadata, scripts, and manifest files. The binaries are replaced by CDN URLs documented in `manifest.json` and this guide.
+- To keep the repo folders in sync with the home-root cache, we seed `/fonts/manifest-sync.json`. It records the expected downloads (retro, emoji, etc.) and mirrors the relative paths inside `~/uDOS/fonts`; automation scripts can load this manifest to verify that every collection exists before calling `wizard.services.cdn_upload_handler.CdnUploadHandler`.
 - `docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md` and `docs/WIZARD-ROUND2-PLAN.md` reference this workflow so every round cites the same asset story.
 - Automations (e.g., font installers or the config page) should read `manifest.json`, detect whether `~/uDOS/fonts` has the files, and fall back to the CDN copy when the local cache is missing.
 
 ## Attribution
 
-Keep the following attributions visible in `wizard/fonts/manifest.json` and `docs/WIZARD-FONT-SYNC.md`:
+Keep the following attributions visible in `/fonts/manifest.json` and `docs/WIZARD-FONT-SYNC.md`:
 
 | Font | Source | License | Remarks |
 | --- | --- | --- | --- |
@@ -48,5 +48,5 @@ Keep the following attributions visible in `wizard/fonts/manifest.json` and `doc
 
 1. `aws s3 sync ~/uDOS/fonts s3://fredporter-cdn/fonts --acl public-read --delete`
 2. Tag the sync run: `date -u '+%Y-%m-%dT%H:%M:%SZ' >> ~/uDOS/fonts/_sync.log`
-3. Confirm `wizard/fonts/manifest.json` references the CDN URLs and same licenses.
+3. Confirm `/fonts/manifest.json` references the CDN URLs and same licenses.
 4. Rebuild the Font Manager preflight snapshot if the manifest changed.

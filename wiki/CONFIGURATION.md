@@ -293,7 +293,7 @@ storage (system-first, no server state).
 Bundled font files are served from the Wizard Font Manager at:
 
 ```
-wizard/fonts/
+/fonts/
 ```
 
 ---

@@ -144,13 +144,13 @@ Emoji fallback is always appended via:
 Bundled fonts live in:
 
 ```
-wizard/fonts/
+/fonts/
 ```
 
 The manifest is:
 
 ```
-wizard/fonts/manifest.json
+/fonts/manifest.json
 ```
 
 ### Tailwind + Typography Rules

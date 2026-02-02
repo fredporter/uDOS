@@ -99,8 +99,8 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
 
 ## Assets & Font Distribution
 
-- The curated font binaries (Chicago FLF, PetMe64, Player2up, Teletext50, plus the few resolver-friendly retro collections) are kept in a local cache at `~/uDOS/fonts` and mirrored to `https://cdn.fredporter.com/*` as documented in `docs/WIZARD-FONT-SYNC.md`. The `wizard/fonts` directory now only ships the manifest, attribution, and metadata so the public repo stays light while installs pull fonts from the canonical CDN or the developer cache.
-- Keep the font manifest, credits, and REST endpoints aligned with the CDN copy so automation can rebuild `wizard/fonts` bundles from the signed files stored in S3 when needed.
+- The curated font binaries (Chicago FLF, PetMe64, Player2up, Teletext50, plus the few resolver-friendly retro collections) are kept in a local cache at `~/uDOS/fonts` and mirrored to `https://cdn.fredporter.com/*` as documented in `docs/WIZARD-FONT-SYNC.md`. The `/fonts` directory (root level) now only ships the manifest, attribution, and metadata so the public repo stays light while installs pull fonts from the canonical CDN or the developer cache.
+- Keep the font manifest, credits, and REST endpoints aligned with the CDN copy so automation can rebuild `/fonts` bundles from the signed files stored in S3 when needed.
 
 ## References
 
