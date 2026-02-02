@@ -65,6 +65,7 @@ class PluginEntry:
     installed: bool = False
     installed_version: str = ""
     update_available: bool = False
+    enabled: bool = False
 
     # Dependencies
     dependencies: List[str] = field(default_factory=list)
@@ -316,7 +317,7 @@ class PluginRepository:
 
         plugin.enabled = True
         self._save_index()
-        self.logger.info(f"[PLUGIN] Enabled plugin: {plugin_id}")
+        logger.info(f"[PLUGIN] Enabled plugin: {plugin_id}")
         return True
 
     def disable_plugin(self, plugin_id: str) -> bool:
@@ -335,7 +336,7 @@ class PluginRepository:
 
         plugin.enabled = False
         self._save_index()
-        self.logger.info(f"[PLUGIN] Disabled plugin: {plugin_id}")
+        logger.info(f"[PLUGIN] Disabled plugin: {plugin_id}")
         return True
 
 
