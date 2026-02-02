@@ -20,6 +20,7 @@
 
 import { getAllColors } from "./util/udosPalette";
 import { CHARACTER_DATASETS } from "./util/characterDatasets";
+import { apiFetch } from "$lib/services/apiBase";
 
 class TileEditor {
     constructor(containerId, options = {}) {
@@ -281,7 +282,7 @@ class TileEditor {
 
     async loadFontManifest() {
         try {
-            const res = await fetch('/api/fonts/manifest');
+            const res = await apiFetch('/api/fonts/manifest');
             if (!res.ok) {
                 throw new Error(`HTTP ${res.status}`);
             }

@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
   import StoryRenderer from "$lib/components/StoryRenderer.svelte";
   import { getAdminToken, buildAuthHeaders } from "../lib/services/auth";
@@ -29,7 +30,7 @@
 
   async function fetchJson(path, options = {}) {
     try {
-      const res = await fetch(path, { headers: authHeaders(), ...options });
+      const res = await apiFetch(path, { headers: authHeaders(), ...options });
       const data = await res.json();
       if (!res.ok) {
         const message = data.detail || `HTTP ${res.status}`;
@@ -84,7 +85,7 @@
     storyLoading = true;
     storyError = null;
     try {
-      const res = await fetch("/api/setup/story/read", {
+      const res = await apiFetch("/api/setup/story/read", {
         headers: authHeaders(),
       });
       const data = await res.json();
@@ -103,7 +104,7 @@
 
   async function openEnvEditor() {
     // Open .env configuration guide
-    const res = await fetch("/api/setup/paths", {
+    const res = await apiFetch("/api/setup/paths", {
       headers: authHeaders(),
     });
     const data = await res.json();
@@ -114,7 +115,7 @@
   async function handleStorySubmit(answers) {
     storySubmitStatus = null;
     try {
-      const res = await fetch("/api/setup/story/submit", {
+      const res = await apiFetch("/api/setup/story/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ answers }),

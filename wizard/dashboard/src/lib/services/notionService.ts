@@ -1,3 +1,5 @@
+import { apiFetch } from "$lib/services/apiBase";
+
 export type NotionBlockMap = {
   queue_id?: number;
   notion_block_id: string;
@@ -38,7 +40,7 @@ export async function fetchNotionBlockMaps(options: {
   signal?: AbortSignal | null;
 } = {}): Promise<NotionBlockMap[]> {
   const { limit = 12, signal = null } = options;
-  const response = await fetch(`${API_BASE}/sync/maps?limit=${limit}`, {
+  const response = await apiFetch(`${API_BASE}/sync/maps?limit=${limit}`, {
     signal: signal || undefined,
   });
   const data = await handleResponse(response);
@@ -53,7 +55,7 @@ export async function fetchNotionPendingSyncs(options: {
   signal?: AbortSignal | null;
 } = {}): Promise<NotionPendingItem[]> {
   const { limit = 12, signal = null } = options;
-  const response = await fetch(`${API_BASE}/sync/pending?limit=${limit}`, {
+  const response = await apiFetch(`${API_BASE}/sync/pending?limit=${limit}`, {
     signal: signal || undefined,
   });
   const data = await handleResponse(response);
@@ -64,7 +66,7 @@ export async function fetchNotionPendingSyncs(options: {
 }
 
 export async function triggerNotionManualSync(): Promise<{ result: string }> {
-  const response = await fetch(`${API_BASE}/sync/manual`, {
+  const response = await apiFetch(`${API_BASE}/sync/manual`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -74,6 +76,6 @@ export async function triggerNotionManualSync(): Promise<{ result: string }> {
 }
 
 export async function fetchNotionSyncStatus() {
-  const response = await fetch(`${API_BASE}/sync/status`);
+  const response = await apiFetch(`${API_BASE}/sync/status`);
   return handleResponse(response);
 }

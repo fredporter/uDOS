@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
   import { mappingStore, exportMappings } from "$lib/stores/mappingStore";
 
@@ -25,7 +26,7 @@
 
   async function loadStatus() {
     try {
-      const res = await fetch("/api/notion/sync/status");
+      const res = await apiFetch("/api/notion/sync/status");
       if (res.ok) {
         syncStatus = await res.json();
       }
@@ -36,7 +37,7 @@
 
   async function loadQueue() {
     try {
-      const res = await fetch("/api/notion/sync/queue");
+      const res = await apiFetch("/api/notion/sync/queue");
       if (res.ok) {
         queue = await res.json();
       }
@@ -47,7 +48,7 @@
 
   async function loadMappings() {
     try {
-      const res = await fetch("/api/notion/sync/mappings");
+      const res = await apiFetch("/api/notion/sync/mappings");
       if (res.ok) {
         mappings = await res.json();
       }

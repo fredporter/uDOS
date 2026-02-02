@@ -11,6 +11,7 @@ Provides library/plugin management capabilities:
 import os
 import json
 import subprocess
+import shutil
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass
@@ -448,6 +449,8 @@ class LibraryManagerService:
     def _install_apk_packages(self, packages: List[str]) -> Tuple[bool, str]:
         """Install APK packages on Alpine."""
         try:
+            if shutil.which("apk") is None:
+                return False, "apk not found. This installer requires Alpine APK tools."
             cmd = ["apk", "add"] + packages
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
 
@@ -461,6 +464,8 @@ class LibraryManagerService:
     def _install_brew_packages(self, packages: List[str]) -> Tuple[bool, str]:
         """Install Homebrew packages on macOS."""
         try:
+            if shutil.which("brew") is None:
+                return False, "Homebrew not found. Install Homebrew or use a supported package manager."
             cmd = ["brew", "install"] + packages
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
 
@@ -474,10 +479,14 @@ class LibraryManagerService:
     def _install_apt_packages(self, packages: List[str]) -> Tuple[bool, str]:
         """Install APT packages on Ubuntu."""
         try:
+            if shutil.which("apt") is None and shutil.which("apt-get") is None:
+                return False, "apt not found. This installer requires APT on Ubuntu/Debian."
             # Update package list first
-            subprocess.run(["apt", "update"], capture_output=True, timeout=60)
+            update_cmd = ["apt", "update"] if shutil.which("apt") else ["apt-get", "update"]
+            subprocess.run(update_cmd, capture_output=True, timeout=60)
 
-            cmd = ["apt", "install", "-y"] + packages
+            install_cmd = ["apt", "install", "-y"] if shutil.which("apt") else ["apt-get", "install", "-y"]
+            cmd = install_cmd + packages
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
 
             if result.returncode != 0:

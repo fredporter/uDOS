@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
 
   let status = null;
@@ -8,7 +9,7 @@
 
   async function loadStatus() {
     try {
-      const res = await fetch("/api/dev/status");
+      const res = await apiFetch("/api/dev/status");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       status = await res.json();
       loading = false;
@@ -20,7 +21,7 @@
 
   async function loadLogs() {
     try {
-      const res = await fetch("/api/dev/logs?lines=100");
+      const res = await apiFetch("/api/dev/logs?lines=100");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       logs = data.logs || [];
@@ -32,7 +33,7 @@
   async function activate() {
     loading = true;
     try {
-      const res = await fetch("/api/dev/activate", { method: "POST" });
+      const res = await apiFetch("/api/dev/activate", { method: "POST" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await loadStatus();
       await loadLogs();
@@ -45,7 +46,7 @@
   async function deactivate() {
     loading = true;
     try {
-      const res = await fetch("/api/dev/deactivate", { method: "POST" });
+      const res = await apiFetch("/api/dev/deactivate", { method: "POST" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await loadStatus();
     } catch (err) {
@@ -57,7 +58,7 @@
   async function restart() {
     loading = true;
     try {
-      const res = await fetch("/api/dev/restart", { method: "POST" });
+      const res = await apiFetch("/api/dev/restart", { method: "POST" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await loadStatus();
       await loadLogs();

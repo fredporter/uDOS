@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   /**
    * FormField Component
    * 
@@ -63,7 +64,7 @@
     if (tz) params.set('timezone', tz);
     params.set('limit', field?.meta?.limit || 8);
     try {
-      const res = await fetch(`/api/setup/locations/search?${params.toString()}`, {
+      const res = await apiFetch(`/api/setup/locations/search?${params.toString()}`, {
         headers: buildAuthHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -80,7 +81,7 @@
     const tz = resolveTimezone();
     if (!tz) return;
     try {
-      const res = await fetch(`/api/setup/locations/default?timezone=${encodeURIComponent(tz)}`, {
+      const res = await apiFetch(`/api/setup/locations/default?timezone=${encodeURIComponent(tz)}`, {
         headers: buildAuthHeaders(),
       });
       if (!res.ok) return;
@@ -98,7 +99,7 @@
     if (timezoneOptionsLoaded) return;
     timezoneLoading = true;
     try {
-      const res = await fetch("/api/setup/data/timezones", {
+      const res = await apiFetch("/api/setup/data/timezones", {
         headers: buildAuthHeaders(),
       });
       if (!res.ok) {

@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
 
   let projects = [];
@@ -13,7 +14,7 @@
 
   async function loadProjects() {
     try {
-      const res = await fetch("/api/workflow/projects");
+      const res = await apiFetch("/api/workflow/projects");
       if (res.ok) {
         projects = await res.json();
       }
@@ -27,7 +28,7 @@
       const url = projectId
         ? `/api/workflow/tasks?project_id=${projectId}`
         : "/api/workflow/tasks";
-      const res = await fetch(url);
+      const res = await apiFetch(url);
       if (res.ok) {
         tasks = await res.json();
       }
@@ -40,7 +41,7 @@
 
   async function createProject() {
     try {
-      const res = await fetch("/api/workflow/projects", {
+      const res = await apiFetch("/api/workflow/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newProject),
@@ -56,7 +57,7 @@
 
   async function createTask() {
     try {
-      const res = await fetch("/api/workflow/tasks", {
+      const res = await apiFetch("/api/workflow/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newTask),
@@ -72,7 +73,7 @@
 
   async function updateTaskStatus(taskId, status) {
     try {
-      const res = await fetch(`/api/workflow/tasks/${taskId}/status`, {
+      const res = await apiFetch(`/api/workflow/tasks/${taskId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
 
   let adminToken = "";
@@ -13,7 +14,7 @@
     loading = true;
     error = null;
     try {
-      const res = await fetch("/api/webhooks/status", {
+      const res = await apiFetch("/api/webhooks/status", {
         headers: authHeaders(),
       });
       if (!res.ok) {

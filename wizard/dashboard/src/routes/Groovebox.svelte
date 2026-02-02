@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
 
   type Playback = {
@@ -32,9 +33,9 @@
     error = null;
     try {
       const [playbackResp, configResp, presetsResp] = await Promise.all([
-        fetch("/api/groovebox/playback"),
-        fetch("/api/groovebox/config"),
-        fetch("/api/groovebox/presets"),
+        apiFetch("/api/groovebox/playback"),
+        apiFetch("/api/groovebox/config"),
+        apiFetch("/api/groovebox/presets"),
       ]);
       if (!playbackResp.ok || !configResp.ok || !presetsResp.ok) {
         throw new Error("Groovebox API unavailable");

@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
   import { extractGlyphsFromFont } from "$lib/util/fontToSvg";
   import {
@@ -57,7 +58,7 @@
   }
 
   async function loadManifest() {
-    const res = await fetch("/api/fonts/manifest", {
+    const res = await apiFetch("/api/fonts/manifest", {
       headers: authHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

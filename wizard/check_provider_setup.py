@@ -472,19 +472,19 @@ def _setup_slack() -> bool:
     except (subprocess.CalledProcessError, FileNotFoundError):
         skip_to_auth = False
         print("Slack CLI not found.\n")
-        
+
         print(f"{BLUE}Installation Options:{NC}")
         print("  1. Automatic (via install script)")
         print("  2. Homebrew (brew install slackhq/tap/slack)")
         print("  3. Skip (install manually later)\n")
-        
+
         choice = input(f"{YELLOW}?{NC} Choose installation method (1/2/3): ").strip()
-        
+
         if choice == "1":
             # Install via official script
             print(f"\n{BLUE}Installing Slack CLI via official script...{NC}")
             print("Running: curl -fsSL https://downloads.slack-edge.com/slack-cli/install.sh | bash\n")
-            
+
             try:
                 result = subprocess.run(
                     ["bash", "-c", "curl -fsSL https://downloads.slack-edge.com/slack-cli/install.sh | bash"],
@@ -492,10 +492,10 @@ def _setup_slack() -> bool:
                     check=False,
                     capture_output=False  # Show output to user
                 )
-                
+
                 if result.returncode == 0:
                     print(f"\n{GREEN}✓{NC} Slack CLI installed successfully")
-                    
+
                     # Verify installation
                     verify = subprocess.run(["slack", "version"], capture_output=True, text=True, timeout=5)
                     if verify.returncode == 0:
@@ -514,18 +514,18 @@ def _setup_slack() -> bool:
             except Exception as e:
                 print(f"{YELLOW}⚠{NC}  Installation error: {e}")
                 return False
-                
+
         elif choice == "2":
             # Install via Homebrew
             print(f"\n{BLUE}Installing via Homebrew...{NC}")
-            
+
             # Check if brew is available
             try:
                 subprocess.run(["brew", "--version"], capture_output=True, check=True, timeout=5)
             except (subprocess.CalledProcessError, FileNotFoundError):
                 print(f"{YELLOW}⚠{NC}  Homebrew not found. Install from: https://brew.sh")
                 return False
-            
+
             try:
                 print("Running: brew install slackhq/tap/slack\n")
                 result = subprocess.run(
@@ -534,7 +534,7 @@ def _setup_slack() -> bool:
                     check=False,
                     capture_output=False  # Show output
                 )
-                
+
                 if result.returncode == 0:
                     print(f"\n{GREEN}✓{NC} Slack CLI installed successfully\n")
                 else:

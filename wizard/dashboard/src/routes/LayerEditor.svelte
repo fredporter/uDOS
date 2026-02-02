@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
   import LayerPanel from "$lib/components/LayerPanel.svelte";
   import TileGrid from "$lib/components/TileGrid.svelte";
@@ -160,7 +161,7 @@
   }
 
   async function loadRoots() {
-    const res = await fetch("/api/layers/roots", {
+    const res = await apiFetch("/api/layers/roots", {
       headers: authHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -169,7 +170,7 @@
   }
 
   async function loadFiles() {
-    const res = await fetch(`/api/layers/list?scope=${scope}`, {
+    const res = await apiFetch(`/api/layers/list?scope=${scope}`, {
       headers: authHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -179,7 +180,7 @@
 
   async function loadDocument(file) {
     const path = `${roots[scope]}/${file}`;
-    const res = await fetch(`/api/layers/load?path=${encodeURIComponent(path)}`, {
+    const res = await apiFetch(`/api/layers/load?path=${encodeURIComponent(path)}`, {
       headers: authHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -193,7 +194,7 @@
       return;
     }
     const path = `${roots[scope]}/${filename}`;
-    const res = await fetch("/api/layers/save", {
+    const res = await apiFetch("/api/layers/save", {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({ path, document }),

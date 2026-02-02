@@ -15,6 +15,9 @@ from fastapi import APIRouter, HTTPException, Depends, Query
 from fastapi.responses import JSONResponse
 from datetime import datetime
 from wizard.services.secret_store import get_secret_store, SecretStoreError
+from wizard.services.logging_manager import get_logger
+from wizard.services.system_info_service import get_system_info_service
+from wizard.services.path_utils import get_repo_root
 
 
 def create_provider_routes(auth_guard=None):
@@ -23,6 +26,7 @@ def create_provider_routes(auth_guard=None):
     router = APIRouter(
         prefix="/api/providers", tags=["providers"], dependencies=dependencies
     )
+    logger = get_logger("provider-routes")
 
     CONFIG_PATH = Path(__file__).parent.parent / "config"
     SETUP_FLAGS_FILE = CONFIG_PATH / "provider_setup_flags.json"
@@ -135,7 +139,59 @@ def create_provider_routes(auth_guard=None):
             "check_cmd": "slack auth test",
             "config_file": "slack_keys.json",
         },
+        "hubspot_cli": {
+            "name": "HubSpot CLI",
+            "description": "HubSpot developer CLI (hs)",
+            "type": "cli",
+            "automation": "cli",
+            "cli_required": True,
+            "cli_name": "hs",
+            "install_cmd": "npm install -g @hubspot/cli",
+            "setup_cmd": "hs init",
+            "check_cmd": "hs account list",
+            "config_file": "hubspot_keys.json",
+        },
     }
+
+    def _get_os_info():
+        return get_system_info_service(get_repo_root()).get_os_info()
+
+    def _resolve_install_cmd(provider_id: str) -> Optional[str]:
+        """Choose an OS-appropriate install command when possible."""
+        os_info = _get_os_info()
+
+        if provider_id == "github":
+            if os_info.is_macos and shutil.which("brew"):
+                return "brew install gh"
+            if os_info.is_ubuntu and shutil.which("apt-get"):
+                return "sudo apt-get update && sudo apt-get install -y gh"
+            if os_info.is_alpine and shutil.which("apk"):
+                return "apk add github-cli"
+            if shutil.which("dnf"):
+                return "sudo dnf install -y gh"
+            if shutil.which("yum"):
+                return "sudo yum install -y gh"
+            if shutil.which("pacman"):
+                return "sudo pacman -S --noconfirm github-cli"
+            if os_info.is_windows and shutil.which("winget"):
+                return "winget install --id GitHub.cli -e"
+            if os_info.is_windows and shutil.which("choco"):
+                return "choco install gh -y"
+            return None
+
+        if provider_id == "slack":
+            if shutil.which("curl"):
+                return "curl -fsSL https://downloads.slack-edge.com/slack-cli/install.sh | bash"
+            if shutil.which("npm"):
+                return "npm install -g @slack/cli"
+            return None
+
+        if provider_id == "hubspot_cli":
+            if shutil.which("npm"):
+                return "npm install -g @hubspot/cli"
+            return None
+
+        return PROVIDERS.get(provider_id, {}).get("install_cmd")
 
     def load_setup_flags() -> Dict[str, Any]:
         """Load provider setup flags."""
@@ -386,8 +442,15 @@ def create_provider_routes(auth_guard=None):
 
         # For automated/CLI providers, return commands to run
         commands = []
-        if provider.get("install_cmd"):
+        if provider.get("cli_required"):
+            cli_name = provider.get("cli_name")
+            if cli_name and shutil.which(cli_name) is None:
+                install_cmd = _resolve_install_cmd(provider_id)
+                if install_cmd:
+                    commands.append({"type": "install", "cmd": install_cmd})
+        elif provider.get("install_cmd"):
             commands.append({"type": "install", "cmd": provider["install_cmd"]})
+
         if provider.get("setup_cmd"):
             commands.append({"type": "setup", "cmd": provider["setup_cmd"]})
 
@@ -564,7 +627,7 @@ def create_provider_routes(auth_guard=None):
                 text=True,
                 timeout=5,
             )
-            if response.returncode == 200:
+            if response.returncode == 0:
                 lines = response.stdout.strip().split("\n")
                 if len(lines) < 2:
                     return {"success": True, "models": [], "count": 0}
@@ -617,6 +680,13 @@ def create_provider_routes(auth_guard=None):
             raise HTTPException(status_code=400, detail="Invalid model name")
 
         try:
+            if shutil.which("ollama") is None:
+                return {
+                    "success": False,
+                    "error": "ollama CLI not found",
+                    "help": "Install: https://ollama.ai",
+                }
+
             # Check if already installed
             list_result = subprocess.run(
                 ["ollama", "list"],
@@ -624,6 +694,15 @@ def create_provider_routes(auth_guard=None):
                 text=True,
                 timeout=5,
             )
+            if list_result.returncode != 0:
+                logger.warning(
+                    "[WIZ] Ollama list failed: %s", list_result.stderr.strip()[:200]
+                )
+                return {
+                    "success": False,
+                    "error": "Ollama not reachable. Is it running?",
+                    "help": "Start Ollama: ollama serve",
+                }
             if model in list_result.stdout:
                 return {
                     "success": False,
@@ -637,6 +716,7 @@ def create_provider_routes(auth_guard=None):
                 stderr=subprocess.PIPE,
                 text=True,
             )
+            logger.info("[WIZ] Ollama pull started for %s (pid=%s)", model, process.pid)
 
             return {
                 "success": True,
@@ -1026,9 +1106,22 @@ def create_public_ollama_routes():
             raise HTTPException(status_code=400, detail="Invalid model name")
 
         try:
+            if shutil.which("ollama") is None:
+                return {
+                    "success": False,
+                    "error": "ollama CLI not found",
+                    "help": "Install: https://ollama.ai",
+                }
+
             list_result = subprocess.run(
                 ["ollama", "list"], capture_output=True, text=True, timeout=5
             )
+            if list_result.returncode != 0:
+                return {
+                    "success": False,
+                    "error": "Ollama not reachable. Is it running?",
+                    "help": "Start Ollama: ollama serve",
+                }
             if model in list_result.stdout:
                 return {
                     "success": False,

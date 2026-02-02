@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
 
   let tasks = [];
@@ -10,7 +11,7 @@
 
   async function loadTasks() {
     try {
-      const res = await fetch("/api/tasks/all");
+      const res = await apiFetch("/api/tasks/all");
       if (res.ok) {
         tasks = await res.json();
       }
@@ -21,7 +22,7 @@
 
   async function loadQueue() {
     try {
-      const res = await fetch("/api/tasks/queue");
+      const res = await apiFetch("/api/tasks/queue");
       if (res.ok) {
         queue = await res.json();
       }
@@ -34,7 +35,7 @@
 
   async function createTask() {
     try {
-      const res = await fetch("/api/tasks/create", {
+      const res = await apiFetch("/api/tasks/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newTask),

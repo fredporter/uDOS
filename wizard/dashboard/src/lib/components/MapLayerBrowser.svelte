@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   /**
    * MapLayerBrowser - File picker style panel for selecting map layers
    *
@@ -28,7 +29,7 @@
   async function loadLayers() {
     loading = true;
     try {
-      const res = await fetch("/api/layers/core/list", {
+      const res = await apiFetch("/api/layers/core/list", {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -45,7 +46,7 @@
     selectedFile = filename;
 
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `/api/layers/core/load?name=${encodeURIComponent(filename)}`,
         { headers: authHeaders() }
       );

@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
   import { parseMarkdown, extractFrontmatter } from "$lib/utils/markdown";
   import "$styles/prose.css";
@@ -43,7 +44,7 @@
 
   async function loadIndex() {
     try {
-      const response = await fetch("/api/wiki/files");
+      const response = await apiFetch("/api/wiki/files");
       if (response.ok) {
         const data = await response.json();
         categories = buildCategories(data.files || []);
@@ -57,7 +58,7 @@
 
   async function loadArticle(file) {
     try {
-      const response = await fetch(`/api/wiki/file?path=${encodeURIComponent(file)}`);
+      const response = await apiFetch(`/api/wiki/file?path=${encodeURIComponent(file)}`);
       if (response.ok) {
         const text = await response.text();
         const { frontmatter: fm, body } = extractFrontmatter(text);

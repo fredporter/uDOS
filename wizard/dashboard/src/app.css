@@ -241,17 +241,3 @@ html.light .mdk-app {
   display: flex;
   flex-direction: column;
 }
-
-/* Toast notifications - position at bottom right */
-:global(.toast-container) {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  z-index: 9999;
-  pointer-events: none;
-}
-
-:global(.toast) {
-  pointer-events: auto;
-  margin-bottom: 0.5rem;
-}

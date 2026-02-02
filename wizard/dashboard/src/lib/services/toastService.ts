@@ -1,5 +1,6 @@
 import toastStore, { ToastEntry, ToastTier } from "$lib/stores/toastStore";
 import { buildAuthHeaders } from "./auth";
+import { apiFetch } from "$lib/services/apiBase";
 
 interface LogPayload {
   tier: ToastTier;
@@ -8,11 +9,15 @@ interface LogPayload {
   meta?: Record<string, unknown>;
 }
 
+interface NotifyOptions {
+  logToServer?: boolean;
+}
+
 const LOG_ENDPOINT = "/api/logs/toast";
 
 async function logToast(payload: LogPayload) {
   try {
-    await fetch(LOG_ENDPOINT, {
+    await apiFetch(LOG_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -30,9 +35,17 @@ async function logToast(payload: LogPayload) {
   }
 }
 
-function notify(tier: ToastTier, title: string, message: string, meta?: Record<string, unknown>) {
+function notify(
+  tier: ToastTier,
+  title: string,
+  message: string,
+  meta?: Record<string, unknown>,
+  options: NotifyOptions = {},
+) {
   toastStore.push({ tier, title, message });
-  logToast({ tier, title, message, meta });
+  if (options.logToServer !== false) {
+    logToast({ tier, title, message, meta });
+  }
 }
 
 export function notifyInfo(title: string, message: string, meta?: Record<string, unknown>) {
@@ -49,6 +62,15 @@ export function notifyWarning(title: string, message: string, meta?: Record<stri
 
 export function notifyError(title: string, message: string, meta?: Record<string, unknown>) {
   notify("error", title, message, meta);
+}
+
+export function notifyFromLog(
+  tier: ToastTier,
+  title: string,
+  message: string,
+  meta?: Record<string, unknown>,
+) {
+  notify(tier, title, message, meta, { logToServer: false });
 }
 
 export type { ToastEntry };

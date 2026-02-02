@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
 
   let adminToken = "";
@@ -30,7 +31,7 @@
     loading = true;
     error = null;
     try {
-      const res = await fetch("/api/repair/status", {
+      const res = await apiFetch("/api/repair/status", {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -51,7 +52,7 @@
   async function loadArtifacts(kind = "") {
     try {
       const query = kind ? `?kind=${encodeURIComponent(kind)}` : "";
-      const res = await fetch(`/api/artifacts${query}`, {
+      const res = await apiFetch(`/api/artifacts${query}`, {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -67,7 +68,7 @@
   async function runAction(action, payload = {}) {
     actionResult = null;
     try {
-      const res = await fetch("/api/repair/run", {
+      const res = await apiFetch("/api/repair/run", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ action, ...payload }),
@@ -84,7 +85,7 @@
   async function runBackup() {
     actionResult = null;
     try {
-      const res = await fetch("/api/repair/backup", {
+      const res = await apiFetch("/api/repair/backup", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ target: backupTarget, notes: backupNotes }),
@@ -102,7 +103,7 @@
   async function runBackupQueue() {
     actionResult = null;
     try {
-      const res = await fetch("/api/repair/backup/queue", {
+      const res = await apiFetch("/api/repair/backup/queue", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({
@@ -126,7 +127,7 @@
     if (!restoreArtifact) return;
     actionResult = null;
     try {
-      const res = await fetch("/api/repair/restore", {
+      const res = await apiFetch("/api/repair/restore", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({
@@ -154,7 +155,7 @@
   async function runMaintenance(action) {
     actionResult = null;
     try {
-      const res = await fetch("/api/repair/maintenance", {
+      const res = await apiFetch("/api/repair/maintenance", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ action, scope: maintenanceScope }),
@@ -171,7 +172,7 @@
   async function runCompostCleanup() {
     actionResult = null;
     try {
-      const res = await fetch("/api/repair/compost/cleanup", {
+      const res = await apiFetch("/api/repair/compost/cleanup", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ days: Number(compostDays), dry_run: compostDryRun }),
@@ -188,7 +189,7 @@
   async function addArtifact() {
     actionResult = null;
     try {
-      const res = await fetch("/api/artifacts/add", {
+      const res = await apiFetch("/api/artifacts/add", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({
@@ -211,7 +212,7 @@
   async function deleteArtifact(id) {
     if (!confirm(`Delete ${id}?`)) return;
     try {
-      const res = await fetch(`/api/artifacts/${id}`, {
+      const res = await apiFetch(`/api/artifacts/${id}`, {
         method: "DELETE",
         headers: authHeaders(),
       });

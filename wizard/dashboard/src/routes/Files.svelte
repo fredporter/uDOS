@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
   import TypoEditor from "$lib/components/TypoEditor.svelte";
 
@@ -33,7 +34,7 @@
     loading = true;
     error = null;
     try {
-      const res = await fetch(`/api/workspace/list?path=${encodeURIComponent(path)}`, {
+      const res = await apiFetch(`/api/workspace/list?path=${encodeURIComponent(path)}`, {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -52,7 +53,7 @@
     loading = true;
     error = null;
     try {
-      const res = await fetch(`/api/workspace/read?path=${encodeURIComponent(entry.path)}`, {
+      const res = await apiFetch(`/api/workspace/read?path=${encodeURIComponent(entry.path)}`, {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -82,7 +83,7 @@
       targetPath = currentPath ? `${currentPath}/${filename}` : filename;
       selectedFilePath = targetPath;
     }
-    const res = await fetch("/api/workspace/write", {
+    const res = await apiFetch("/api/workspace/write", {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({ path: targetPath, content }),

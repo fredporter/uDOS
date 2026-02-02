@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte";
+  import { apiFetch, resolveApiBase } from "$lib/services/apiBase";
 
   let adminToken = "";
   let stats = null;
@@ -16,7 +17,7 @@
   async function togglePlugin(pluginId, currentlyEnabled) {
     const action = currentlyEnabled ? "disable" : "enable";
     try {
-      const res = await fetch(`/api/catalog/plugins/${pluginId}/${action}`, {
+      const res = await apiFetch(`/api/catalog/plugins/${pluginId}/${action}`, {
         method: "POST",
         headers: authHeaders(),
       });
@@ -28,7 +29,7 @@
   }
 
   async function loadStats() {
-    const res = await fetch("/api/catalog/stats", { headers: authHeaders() });
+    const res = await apiFetch("/api/catalog/stats", { headers: authHeaders() });
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
         throw new Error("Admin token required");
@@ -40,7 +41,7 @@
   }
 
   async function loadCategories() {
-    const res = await fetch("/api/catalog/categories", {
+    const res = await apiFetch("/api/catalog/categories", {
       headers: authHeaders(),
     });
     if (!res.ok) {
@@ -54,9 +55,15 @@
   }
 
   async function loadPlugins() {
-    const url = new URL("/api/catalog/plugins", window.location.origin);
+    const apiBase = resolveApiBase();
+    if (!apiBase) {
+      throw new Error(
+        "Wizard API base not configured. Set VITE_WIZARD_API_BASE or wizardApiBase in localStorage.",
+      );
+    }
+    const url = new URL("/api/catalog/plugins", apiBase);
     if (categoryFilter) url.searchParams.set("category", categoryFilter);
-    const res = await fetch(url.toString(), { headers: authHeaders() });
+    const res = await apiFetch(url.toString(), { headers: authHeaders() });
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
         throw new Error("Admin token required");
@@ -72,9 +79,15 @@
       await loadPlugins();
       return;
     }
-    const url = new URL("/api/catalog/search", window.location.origin);
+    const apiBase = resolveApiBase();
+    if (!apiBase) {
+      throw new Error(
+        "Wizard API base not configured. Set VITE_WIZARD_API_BASE or wizardApiBase in localStorage.",
+      );
+    }
+    const url = new URL("/api/catalog/search", apiBase);
     url.searchParams.set("q", searchQuery);
-    const res = await fetch(url.toString(), { headers: authHeaders() });
+    const res = await apiFetch(url.toString(), { headers: authHeaders() });
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
         throw new Error("Admin token required");
@@ -93,7 +106,13 @@
       await loadCategories();
       await loadPlugins();
     } catch (err) {
-      error = `Failed to load catalog: ${err.message}`;
+      const message = err?.message || "Unknown error";
+      if (message.includes("NetworkError")) {
+        error =
+          "Failed to load catalog: Wizard API unreachable. Check VITE_WIZARD_API_BASE or wizardApiBase in localStorage.";
+      } else {
+        error = `Failed to load catalog: ${message}`;
+      }
     } finally {
       loading = false;
     }

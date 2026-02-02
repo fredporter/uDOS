@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch as baseApiFetch } from "$lib/services/apiBase";
   /**
    * Config/Settings Page
    * Edit configuration files, API keys, and system settings
@@ -43,15 +44,17 @@
   let secretStoreError = "";
   let isRepairingSecrets = false;
   let repairStatus = "";
+  let isBootstrapping = false;
+  let bootstrapStatus = "";
   let quickKeyDrafts = {};
   let quickKeyStatus = {};
   let showAdvancedConfig = false;
 
-  const authHeaders = () => buildAuthHeaders();
+  const authHeaders = () => buildAuthHeaders(adminToken);
 
   function apiFetch(url, options = {}) {
     const headers = { ...(options.headers || {}), ...authHeaders() };
-    return fetch(url, { ...options, headers });
+    return baseApiFetch(url, { ...options, headers });
   }
 
   // Configuration files available
@@ -229,14 +232,31 @@
     adminToken = getAdminToken();
     adminTokenValue = adminToken;
     initDisplaySettings();
-    await loadFileList();
-    await loadProviders();
-    await loadEnvData();
-    await loadSecretsStatus();
-    await loadSecrets();
+    await bootstrapConfig();
   });
 
+  async function bootstrapConfig() {
+    isBootstrapping = true;
+    bootstrapStatus = "Syncing with uCODE .env and secret store...";
+    await loadEnvData();
+    if (adminToken) {
+      await loadSecretsStatus();
+      await loadSecrets();
+      await loadFileList();
+      await loadProviders();
+    } else {
+      secretStoreLocked = true;
+      secretStoreError = "Admin token required to sync secrets";
+      secretsIndex = {};
+      fileList = [];
+      providers = [];
+    }
+    isBootstrapping = false;
+    bootstrapStatus = "";
+  }
+
   async function loadSecretsStatus() {
+    if (!adminToken) return;
     try {
       const response = await apiFetch("/api/settings-unified/secrets/status");
       if (!response.ok) {
@@ -252,6 +272,7 @@
   }
 
   async function loadSecrets() {
+    if (!adminToken) return;
     isLoadingSecrets = true;
     try {
       const response = await apiFetch("/api/settings-unified/secrets");
@@ -334,6 +355,7 @@
   }
 
   async function loadFileList() {
+    if (!adminToken) return;
     isLoading = true;
     try {
       const response = await apiFetch("/api/config/files");
@@ -496,6 +518,7 @@
   }
 
   async function loadProviders() {
+    if (!adminToken) return;
     isLoadingProviders = true;
     try {
       const response = await apiFetch("/api/providers/list");
@@ -530,7 +553,7 @@
   async function generateAdminToken() {
     tokenStatus = "Generating token…";
     try {
-      const response = await fetch("/api/admin-token/generate", {
+      const response = await apiFetch("/api/admin-token/generate", {
         method: "POST",
       });
       const data = await response.json();
@@ -541,7 +564,7 @@
       setAdminToken(data.token);
       adminToken = data.token;
       tokenStatus = `✅ Token generated and saved to .env${data.key_created ? " (WIZARD_KEY created)" : ""}`;
-      await loadEnvData();
+      await bootstrapConfig();
     } catch (err) {
       tokenStatus = `❌ Failed to generate token: ${err.message}`;
     }
@@ -575,6 +598,14 @@
     } catch (err) {
       tokenStatus = `❌ Failed: ${err.message}`;
     }
+  }
+
+  function clearAdminToken() {
+    setAdminToken("");
+    adminToken = "";
+    adminTokenValue = "";
+    tokenStatus = "Cleared local admin token.";
+    bootstrapConfig();
   }
 
   function initDisplaySettings() {
@@ -1032,7 +1063,7 @@
       return {
         type: "tui",
         command: `PROVIDER SETUP ${provider.id}`,
-        label: "Use Wizard TUI Command",
+        label: "Use uCODE Command",
       };
     }
 
@@ -1111,16 +1142,11 @@
           </p>
           <div class="bg-gray-900/50 rounded-lg p-4 mb-4">
             <p class="text-sm text-gray-300 mb-2 font-semibold">
-              From your terminal:
+              In uCODE:
             </p>
             <ol
               class="text-sm text-gray-300 space-y-2 list-decimal list-inside"
             >
-              <li>
-                Launch uCODE: <code class="px-2 py-1 bg-gray-800 rounded"
-                  >./bin/Launch-uCODE.command</code
-                >
-              </li>
               <li>
                 Run command: <code class="px-2 py-1 bg-gray-800 rounded"
                   >WIZARD admin-token</code
@@ -1128,7 +1154,7 @@
               </li>
               <li>Copy the generated token</li>
               <li>Paste it in the "Admin Token" section below</li>
-              <li>Click "Save Token" and refresh this page</li>
+              <li>Click "Save + Refresh"</li>
             </ol>
           </div>
           <p class="text-xs text-yellow-300">
@@ -1159,6 +1185,12 @@
           class="px-3 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-500 transition-colors"
         >
           Save + Refresh
+        </button>
+        <button
+          on:click={clearAdminToken}
+          class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+        >
+          Clear Token
         </button>
         <button
           on:click={generateAdminToken}
@@ -1198,6 +1230,43 @@
         <div class="mt-3 text-xs text-gray-400">✓ Token stored in browser.</div>
       {/if}
     </div>
+
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+      <h3 class="text-sm font-semibold text-white mb-2">
+        Connection & Sync
+      </h3>
+      <p class="text-xs text-gray-400 mb-3">
+        Syncs with the uCODE .env + secret store before loading providers.
+      </p>
+      <div class="space-y-2 text-xs text-gray-300">
+        <div class="flex items-center justify-between">
+          <span>Admin token</span>
+          <span class={adminToken ? "text-emerald-300" : "text-yellow-300"}>
+            {adminToken ? "Connected" : "Missing"}
+          </span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span>Secret store</span>
+          <span
+            class={secretStoreLocked ? "text-yellow-300" : "text-emerald-300"}
+          >
+            {secretStoreLocked ? "Locked" : "Unlocked"}
+          </span>
+        </div>
+      </div>
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <button
+          on:click={bootstrapConfig}
+          class="px-3 py-1.5 text-xs rounded bg-blue-600 text-white hover:bg-blue-500 transition-colors disabled:opacity-60"
+          disabled={isBootstrapping}
+        >
+          {isBootstrapping ? "Syncing..." : "Sync Now"}
+        </button>
+        {#if bootstrapStatus}
+          <span class="text-xs text-gray-400">{bootstrapStatus}</span>
+        {/if}
+      </div>
+    </div>
   </div>
 
   <div class="config-summary mb-6">
@@ -1222,6 +1291,12 @@
           : 'bg-blue-900 border-blue-700 text-blue-200'}"
     >
       {statusMessage}
+    </div>
+  {/if}
+
+  {#if isBootstrapping}
+    <div class="mb-6 p-4 rounded-lg border border-blue-700 bg-blue-900/30 text-blue-200 text-sm">
+      Syncing with uCODE .env + secret store… configuration panels will refresh when ready.
     </div>
   {/if}
 
@@ -1337,6 +1412,29 @@
             keys are configured here.
           </div>
         </div>
+
+        <div
+          class="mt-3 rounded-lg border border-gray-700 bg-gray-900/60 p-3 text-xs text-gray-300"
+        >
+          <div class="font-semibold text-gray-200">CLI setup (uCODE)</div>
+          <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div class="bg-gray-950 rounded p-2 border border-gray-700">
+              <code class="text-green-400">PROVIDER SETUP github</code>
+            </div>
+            <div class="bg-gray-950 rounded p-2 border border-gray-700">
+              <code class="text-green-400">PROVIDER SETUP slack</code>
+            </div>
+            <div class="bg-gray-950 rounded p-2 border border-gray-700">
+              <code class="text-green-400">PROVIDER SETUP ollama</code>
+            </div>
+            <div class="bg-gray-950 rounded p-2 border border-gray-700">
+              <code class="text-green-400">PROVIDER SETUP hubspot_cli</code>
+            </div>
+          </div>
+          <div class="mt-2 text-gray-400">
+            uCODE will detect missing CLIs, install dependencies, and guide setup.
+          </div>
+        </div>
       </div>
       <button
         class="px-3 py-1.5 text-sm rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
@@ -1355,18 +1453,24 @@
           {secretStoreError ||
             "Wizard cannot unlock encrypted secrets. You can repair and reset the secret store."}
         </div>
-        <div class="mt-3 flex flex-wrap items-center gap-2">
-          <button
-            class="px-3 py-1.5 text-xs rounded bg-amber-700 text-white hover:bg-amber-600 transition-colors"
-            on:click={repairSecretStore}
-            disabled={isRepairingSecrets}
-          >
-            {isRepairingSecrets ? "Repairing..." : "Repair Secret Store"}
-          </button>
-          {#if repairStatus}
-            <span class="text-xs text-amber-100">{repairStatus}</span>
-          {/if}
-        </div>
+        {#if adminToken}
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              class="px-3 py-1.5 text-xs rounded bg-amber-700 text-white hover:bg-amber-600 transition-colors"
+              on:click={repairSecretStore}
+              disabled={isRepairingSecrets}
+            >
+              {isRepairingSecrets ? "Repairing..." : "Repair Secret Store"}
+            </button>
+            {#if repairStatus}
+              <span class="text-xs text-amber-100">{repairStatus}</span>
+            {/if}
+          </div>
+        {:else}
+          <div class="mt-3 text-xs text-amber-200">
+            Add an admin token to unlock and sync secrets.
+          </div>
+        {/if}
       </div>
     {/if}
 
@@ -1639,7 +1743,7 @@
 
           <div class="mt-4 pt-3 border-t border-gray-700">
             <h4 class="text-xs font-semibold text-gray-400 mb-2">
-              Wizard Commands
+              uCODE Commands
             </h4>
             <div class="text-xs text-gray-500 space-y-1">
               <div>CONFIG SHOW - View config status</div>
@@ -1774,42 +1878,32 @@
         {/if}
       </div>
 
-      <!-- Quick Commands -->
+      <!-- uCODE Commands -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-          <h4 class="text-sm font-semibold text-white mb-2">Model Library</h4>
+          <h4 class="text-sm font-semibold text-white mb-2">uCODE Setup</h4>
           <div class="space-y-2 text-xs text-gray-400">
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">ollama list</code>
-              <div class="text-gray-500">List installed models</div>
+              <code class="text-green-400">PROVIDER SETUP ollama</code>
+              <div class="text-gray-500">Detect Ollama service + open model tools</div>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">ollama pull &lt;model&gt;</code>
-              <div class="text-gray-500">Download/install a model</div>
-            </div>
-            <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">ollama rm &lt;model&gt;</code>
-              <div class="text-gray-500">Remove a model from disk</div>
+              <code class="text-green-400">AI OLLAMA status</code>
+              <div class="text-gray-500">Check local Ollama status</div>
             </div>
           </div>
         </div>
 
         <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-          <h4 class="text-sm font-semibold text-white mb-2">
-            Activation & Status
-          </h4>
+          <h4 class="text-sm font-semibold text-white mb-2">uCODE Models</h4>
           <div class="space-y-2 text-xs text-gray-400">
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">ollama run &lt;model&gt;</code>
-              <div class="text-gray-500">Start a model session</div>
+              <code class="text-green-400">AI OLLAMA pull &lt;model&gt;</code>
+              <div class="text-gray-500">Pull a model by name</div>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">ollama ps</code>
-              <div class="text-gray-500">Show active model sessions</div>
-            </div>
-            <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">ollama stop &lt;model&gt;</code>
-              <div class="text-gray-500">Stop a running model</div>
+              <code class="text-green-400">AI OLLAMA status</code>
+              <div class="text-gray-500">Verify available models</div>
             </div>
           </div>
         </div>
@@ -1819,7 +1913,7 @@
         Tip: Use <code class="px-1 py-0.5 bg-gray-900 rounded"
           >PROVIDER SETUP ollama</code
         >
-        in the Wizard TUI to verify the local service is running and browse models
+        in uCODE to verify the local service is running and browse models
         interactively.
       </div>
     {/if}
@@ -1900,9 +1994,7 @@
                     : "📥 Install HubSpot CLI"}
                 </button>
                 <p class="text-xs text-gray-500 mt-2">
-                  Installs: <code class="text-orange-400"
-                    >npm install -g @hubspot/cli</code
-                  >
+                  Installs via uCODE provider setup (HubSpot CLI)
                 </p>
               </div>
             {/if}
@@ -1911,11 +2003,11 @@
       </div>
 
       <!-- Authenticated Accounts -->
-      {#if hubspotCliStatus?.installed}
-        <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4">
-          <h4 class="text-sm font-semibold text-white mb-3">
-            🔑 Authenticated Accounts ({hubspotAccounts.length})
-          </h4>
+        {#if hubspotCliStatus?.installed}
+          <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4">
+            <h4 class="text-sm font-semibold text-white mb-3">
+              🔑 Authenticated Accounts ({hubspotAccounts.length})
+            </h4>
 
           {#if hubspotAccounts.length > 0}
             <div class="space-y-2">
@@ -1933,13 +2025,15 @@
             </div>
             <div class="bg-gray-950 border border-yellow-700/50 rounded-lg p-3">
               <div class="text-sm font-semibold text-yellow-400 mb-2">
-                → Run in Terminal:
+                → Use uCODE:
               </div>
-              <code class="text-xs text-gray-300 block">hs init</code>
+              <code class="text-xs text-gray-300 block"
+                >PROVIDER SETUP hubspot_cli</code
+              >
               <ol class="mt-2 space-y-1 text-xs text-gray-400">
-                <li>1. Generate Personal Access Key in HubSpot account</li>
-                <li>2. Copy and paste key into terminal</li>
-                <li>3. Set as default account</li>
+                <li>1. Authenticate with HubSpot in the browser</li>
+                <li>2. Paste the Personal Access Key when prompted</li>
+                <li>3. Set the default account</li>
               </ol>
             </div>
           {/if}
@@ -1949,49 +2043,24 @@
       <!-- Quickstart Guide -->
       <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
         <h4 class="text-sm font-semibold text-white mb-3">
-          📚 Quick Start Commands
+          📚 uCODE Commands
         </h4>
 
         <div class="space-y-3 text-xs">
           <div class="bg-gray-950 rounded p-3 border border-gray-700">
             <div class="flex items-center justify-between mb-1">
-              <code class="text-orange-400">hs get-started</code>
-              <span class="text-gray-500">Create new project</span>
+              <code class="text-orange-400">PROVIDER SETUP hubspot_cli</code>
+              <span class="text-gray-500">Install + authenticate CLI</span>
             </div>
-            <p class="text-gray-500">
-              Interactive wizard to create and deploy a HubSpot app with
-              boilerplate
-            </p>
+            <p class="text-gray-500">Runs CLI setup and verifies account access</p>
           </div>
 
           <div class="bg-gray-950 rounded p-3 border border-gray-700">
             <div class="flex items-center justify-between mb-1">
-              <code class="text-orange-400">hs project dev</code>
-              <span class="text-gray-500">Local development</span>
+              <code class="text-orange-400">Quick Keys → HubSpot API Key</code>
+              <span class="text-gray-500">Configure API keys</span>
             </div>
-            <p class="text-gray-500">
-              Start local dev server with hot-reload for testing app cards
-            </p>
-          </div>
-
-          <div class="bg-gray-950 rounded p-3 border border-gray-700">
-            <div class="flex items-center justify-between mb-1">
-              <code class="text-orange-400">hs project upload</code>
-              <span class="text-gray-500">Deploy changes</span>
-            </div>
-            <p class="text-gray-500">
-              Upload local changes to HubSpot for production deployment
-            </p>
-          </div>
-
-          <div class="bg-gray-950 rounded p-3 border border-gray-700">
-            <div class="flex items-center justify-between mb-1">
-              <code class="text-orange-400">hs account list</code>
-              <span class="text-gray-500">Show accounts</span>
-            </div>
-            <p class="text-gray-500">
-              List all authenticated HubSpot accounts in CLI
-            </p>
+            <p class="text-gray-500">Stores HubSpot CRM API key in secrets</p>
           </div>
         </div>
 
@@ -2021,8 +2090,7 @@
       </div>
 
       <div class="mt-4 text-xs text-gray-500">
-        Tip: Most HubSpot CLI commands are interactive and work best when run
-        directly in a terminal.
+        Tip: uCODE commands manage installs + auth while keeping secrets local.
       </div>
     {/if}
   </div>
@@ -2103,11 +2171,7 @@
                 </div>
               </div>
 
-              {#if !isProviderEnabled(provider)}
-                <div class="mt-2 text-xs text-yellow-300">
-                  Enable first to view setup steps.
-                </div>
-              {:else if getProviderSetupInstructions(provider)}
+              {#if getProviderSetupInstructions(provider)}
                 {@const setup = getProviderSetupInstructions(provider)}
 
                 {#if setup.type === "web"}
@@ -2122,7 +2186,7 @@
                 {:else if setup.type === "tui"}
                   <div class="mt-2">
                     <p class="text-sm text-gray-400 mb-1">
-                      In Wizard TUI, run:
+                      In uCODE, run:
                     </p>
                     <div class="bg-gray-950 rounded p-2 border border-gray-700">
                       <code class="text-green-400 text-xs">{setup.command}</code
@@ -2132,7 +2196,7 @@
                 {:else if setup.type === "auto"}
                   <div class="mt-2">
                     <p class="text-sm text-gray-400 mb-1">
-                      Auto-configure via TUI:
+                      Auto-configure via uCODE:
                     </p>
                     <div class="bg-gray-950 rounded p-2 border border-gray-700">
                       <code class="text-green-400 text-xs">{setup.command}</code

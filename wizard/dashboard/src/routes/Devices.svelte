@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
 
   let devices = [];
@@ -30,7 +31,7 @@
 
   async function loadDevices() {
     try {
-      const res = await fetch("/api/mesh/devices", {
+      const res = await apiFetch("/api/mesh/devices", {
         headers: authHeaders(),
       });
       if (!res.ok) {
@@ -50,7 +51,7 @@
 
   async function generatePairingCode() {
     try {
-      const res = await fetch("/api/mesh/pairing-code", {
+      const res = await apiFetch("/api/mesh/pairing-code", {
         method: "POST",
         headers: authHeaders(),
       });
@@ -65,7 +66,7 @@
       pairingQR = data.qr_data;
       pairingSvg = "";
       if (pairingQR) {
-        const qrRes = await fetch(
+        const qrRes = await apiFetch(
           `/api/mesh/pairing-qr?data=${encodeURIComponent(pairingQR)}`,
           { headers: authHeaders() },
         );
@@ -81,7 +82,7 @@
 
   async function syncDevice(deviceId) {
     try {
-      await fetch(`/api/mesh/devices/${deviceId}/sync`, {
+      await apiFetch(`/api/mesh/devices/${deviceId}/sync`, {
         method: "POST",
         headers: authHeaders(),
       });
@@ -93,7 +94,7 @@
 
   async function syncAll() {
     try {
-      await fetch("/api/mesh/devices/sync-all", {
+      await apiFetch("/api/mesh/devices/sync-all", {
         method: "POST",
         headers: authHeaders(),
       });

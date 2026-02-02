@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
 
   let binders = [];
@@ -10,7 +11,7 @@
 
   async function loadBinders() {
     try {
-      const res = await fetch("/api/binder/all");
+      const res = await apiFetch("/api/binder/all");
       if (res.ok) {
         binders = await res.json();
       }
@@ -24,7 +25,7 @@
   async function compileBinder(binderId, format) {
     compiling = true;
     try {
-      const res = await fetch(`/api/binder/compile`, {
+      const res = await apiFetch(`/api/binder/compile`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ binder_id: binderId, formats: [format] }),
@@ -42,7 +43,7 @@
 
   async function loadFileLocations() {
     try {
-      const res = await fetch("/api/config/wizard");
+      const res = await apiFetch("/api/config/wizard");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       fileLocations = data?.content?.file_locations || null;

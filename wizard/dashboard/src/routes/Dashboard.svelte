@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onDestroy, onMount } from "svelte";
   import { getAdminToken, buildAuthHeaders } from "../lib/services/auth";
 
@@ -71,7 +72,7 @@
     loading = true;
     error = null;
     try {
-      const res = await fetch("/api/index");
+      const res = await apiFetch("/api/index");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       dashboardData = data;
@@ -87,7 +88,7 @@
 
   async function loadGitHubHealth() {
     try {
-      const res = await fetch("/api/github/health", {
+      const res = await apiFetch("/api/github/health", {
         headers: authHeaders(),
       });
       if (res.ok) {
@@ -104,7 +105,7 @@
     try {
       let res;
       for (const endpoint of endpoints) {
-        res = await fetch(endpoint);
+        res = await apiFetch(endpoint);
         if (res && res.ok) {
           systemStats = await res.json();
           break;
@@ -122,7 +123,7 @@
 
   async function loadSchedulerStatus() {
     try {
-      const res = await fetch("/api/tasks/status", {
+      const res = await apiFetch("/api/tasks/status", {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -142,7 +143,7 @@
 
   async function loadInstallState() {
     try {
-      const res = await fetch("/api/setup/profiles", {
+      const res = await apiFetch("/api/setup/profiles", {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -159,7 +160,7 @@
 
   async function updateSchedulerSettings() {
     try {
-      const res = await fetch("/api/tasks/settings", {
+      const res = await apiFetch("/api/tasks/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify(schedulerSettings),
@@ -179,8 +180,8 @@
     selectedTask = null;
     try {
       const [taskRes, runsRes] = await Promise.all([
-        fetch(`/api/tasks/task/${taskId}`, { headers: authHeaders() }),
-        fetch(`/api/tasks/runs/${taskId}?limit=5`, { headers: authHeaders() }),
+        apiFetch(`/api/tasks/task/${taskId}`, { headers: authHeaders() }),
+        apiFetch(`/api/tasks/runs/${taskId}?limit=5`, { headers: authHeaders() }),
       ]);
       if (!taskRes.ok) throw new Error(`Task HTTP ${taskRes.status}`);
       selectedTask = await taskRes.json();

@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onDestroy, onMount } from "svelte";
 
   let logs = [];
@@ -38,7 +39,7 @@
     loading = true;
     error = null;
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `/api/logs?category=${encodeURIComponent(selectedCategory)}&limit=${limit}`,
         { headers: authHeaders() },
       );

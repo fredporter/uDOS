@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount, onDestroy } from "svelte";
   import Dashboard from "./routes/Dashboard.svelte";
   import Devices from "./routes/Devices.svelte";
@@ -30,7 +31,8 @@
   import WizardBottomBar from "./components/WizardBottomBar.svelte";
   import ToastContainer from "./lib/components/ToastContainer.svelte";
   import { initTypography } from "./lib/typography.js";
-  import { notifyError } from "$lib/services/toastService";
+  import { notifyError, notifyFromLog } from "$lib/services/toastService";
+  import { buildAuthHeaders } from "$lib/services/auth";
 
   // Simple hash-based routing
   let currentRoute = "dashboard";
@@ -92,6 +94,80 @@
     notifyError("Unhandled rejection", message, meta);
   }
 
+  let logTimer;
+  let logBootstrapDone = false;
+  let logSeen = new Set();
+  let logToken = "";
+
+  const logTierFromLevel = (level) => {
+    const lvl = (level || "").toUpperCase();
+    if (lvl === "ERROR" || lvl === "CRITICAL") return "error";
+    if (lvl === "WARN" || lvl === "WARNING") return "warning";
+    if (lvl === "SUCCESS") return "success";
+    return "info";
+  };
+
+  function buildLogKey(entry) {
+    return `${entry.timestamp}|${entry.category}|${entry.message}`;
+  }
+
+  async function pollLogs() {
+    const token = localStorage.getItem("wizardAdminToken") || "";
+    if (!token) {
+      logBootstrapDone = false;
+      logSeen.clear();
+      logToken = "";
+      return;
+    }
+
+    if (token !== logToken) {
+      logToken = token;
+      logBootstrapDone = false;
+      logSeen.clear();
+    }
+
+    try {
+      const res = await apiFetch("/api/logs?category=all&limit=50", {
+        headers: buildAuthHeaders(token),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const entries = data.logs || [];
+      if (!entries.length) return;
+
+      if (!logBootstrapDone) {
+        entries.forEach((entry) => logSeen.add(buildLogKey(entry)));
+        logBootstrapDone = true;
+        return;
+      }
+
+      const newEntries = [];
+      for (const entry of entries) {
+        const key = buildLogKey(entry);
+        if (!logSeen.has(key)) {
+          logSeen.add(key);
+          newEntries.push(entry);
+        }
+      }
+
+      if (logSeen.size > 5000) {
+        logSeen = new Set(entries.map(buildLogKey));
+      }
+
+      newEntries.reverse().forEach((entry) => {
+        const tier = logTierFromLevel(entry.level);
+        const title = `${entry.level || "LOG"} · ${entry.category || "wizard"}`;
+        notifyFromLog(tier, title, entry.message || "New log entry", {
+          source: entry.source,
+          file: entry.file,
+          timestamp: entry.timestamp,
+        });
+      });
+    } catch (err) {
+      // Silent: log polling shouldn't interrupt UI.
+    }
+  }
+
   onMount(() => {
     handleHashChange();
     // Load theme preference
@@ -103,11 +179,14 @@
     initTypography();
     window.addEventListener("error", handleGlobalError);
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
+    pollLogs();
+    logTimer = setInterval(pollLogs, 6000);
   });
 
   onDestroy(() => {
     window.removeEventListener("error", handleGlobalError);
     window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+    if (logTimer) clearInterval(logTimer);
   });
 </script>
 

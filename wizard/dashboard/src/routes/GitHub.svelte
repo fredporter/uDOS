@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
 
   let repos = [];
@@ -18,7 +19,7 @@
 
   async function checkHealth() {
     try {
-      const res = await fetch("/api/github/health", {
+      const res = await apiFetch("/api/github/health", {
         headers: authHeaders(),
       });
       if (res.ok) {
@@ -44,7 +45,7 @@
 
   async function loadRepos() {
     try {
-      const res = await fetch("/api/github/health", {
+      const res = await apiFetch("/api/github/health", {
         headers: authHeaders(),
       });
       if (res.ok) {
@@ -69,7 +70,7 @@
 
   async function loadIssues() {
     try {
-      const res = await fetch("/api/github/issues", {
+      const res = await apiFetch("/api/github/issues", {
         headers: authHeaders(),
       });
       if (res.ok) {
@@ -85,7 +86,7 @@
 
   async function loadPullRequests() {
     try {
-      const res = await fetch("/api/github/pulls", {
+      const res = await apiFetch("/api/github/pulls", {
         headers: authHeaders(),
       });
       if (res.ok) {
@@ -101,7 +102,7 @@
 
   async function loadDevlog() {
     try {
-      const res = await fetch("/api/github/context/devlog", {
+      const res = await apiFetch("/api/github/context/devlog", {
         headers: authHeaders(),
       });
       if (res.ok) {

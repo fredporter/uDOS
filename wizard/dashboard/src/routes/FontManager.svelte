@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
   import { teletextFonts } from "../lib/typography.js";
 
@@ -51,7 +52,7 @@
   }
 
   async function loadManifest() {
-    const res = await fetch("/api/fonts/manifest", {
+    const res = await apiFetch("/api/fonts/manifest", {
       headers: authHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -85,7 +86,7 @@
   }
 
   async function loadSample() {
-    const res = await fetch("/api/fonts/sample", {
+    const res = await apiFetch("/api/fonts/sample", {
       headers: authHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

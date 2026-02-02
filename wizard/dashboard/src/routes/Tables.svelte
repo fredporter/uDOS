@@ -1,4 +1,5 @@
 <script>
+  import { apiFetch } from "$lib/services/apiBase";
   import { onMount } from "svelte";
 
   let tables = [];
@@ -24,7 +25,7 @@
     loadingTables = true;
     tableError = null;
     try {
-      const res = await fetch("/api/data/tables");
+      const res = await apiFetch("/api/data/tables");
       if (!res.ok) throw new Error(`Failed to load tables (${res.status})`);
       const data = await res.json();
       tables = data.tables || [];
@@ -61,7 +62,7 @@
     if (desc) params.set("desc", "true");
     buildFilters().forEach((filter) => params.append("filter", filter));
     try {
-      const res = await fetch(`${API_BASE}/${encodeURIComponent(selectedTable)}?${params.toString()}`);
+      const res = await apiFetch(`${API_BASE}/${encodeURIComponent(selectedTable)}?${params.toString()}`);
       if (!res.ok) throw new Error(`Failed to load table (${res.status})`);
       tableData = await res.json();
     } catch (err) {
@@ -75,7 +76,7 @@
   async function loadChart() {
     loadingChart = true;
     try {
-      const res = await fetch("/api/data/chart");
+      const res = await apiFetch("/api/data/chart");
       if (!res.ok) throw new Error(`Chart load failed (${res.status})`);
       const data = await res.json();
       chart = data.chart;
@@ -90,8 +91,8 @@
     loadingTeletext = true;
     try {
       const [canvasRes, buttonsRes] = await Promise.all([
-        fetch("/api/teletext/canvas"),
-        fetch("/api/teletext/nes-buttons"),
+        apiFetch("/api/teletext/canvas"),
+        apiFetch("/api/teletext/nes-buttons"),
       ]);
       if (canvasRes.ok) {
         teletext = await canvasRes.json();
