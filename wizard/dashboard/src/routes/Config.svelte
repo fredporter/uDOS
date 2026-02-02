@@ -39,6 +39,10 @@
   let adminToken = "";
   let secretsIndex = {};
   let isLoadingSecrets = false;
+  let secretStoreLocked = false;
+  let secretStoreError = "";
+  let isRepairingSecrets = false;
+  let repairStatus = "";
   let quickKeyDrafts = {};
   let quickKeyStatus = {};
   let showAdvancedConfig = false;
@@ -213,8 +217,24 @@
     await loadFileList();
     await loadProviders();
     await loadEnvData();
+    await loadSecretsStatus();
     await loadSecrets();
   });
+
+  async function loadSecretsStatus() {
+    try {
+      const response = await apiFetch("/api/settings-unified/secrets/status");
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      secretStoreLocked = !!data.locked;
+      secretStoreError = data.error || "";
+    } catch (err) {
+      secretStoreLocked = true;
+      secretStoreError = err.message || "Unknown error";
+    }
+  }
 
   async function loadSecrets() {
     isLoadingSecrets = true;
@@ -236,6 +256,35 @@
       setStatus(`Failed to load secrets: ${err.message}`, "error");
     } finally {
       isLoadingSecrets = false;
+    }
+  }
+
+  async function repairSecretStore() {
+    if (!confirm("Reset secret store and clear all saved keys?")) return;
+    isRepairingSecrets = true;
+    repairStatus = "Repairing secret store...";
+    try {
+      const response = await apiFetch("/api/settings-unified/secrets/repair", {
+        method: "POST",
+      });
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || `HTTP ${response.status}`);
+      }
+      if (data.admin_token) {
+        setAdminToken(data.admin_token);
+        adminToken = data.admin_token;
+        adminTokenValue = data.admin_token;
+      }
+      repairStatus =
+        "Secret store reset. Please re-enter all API keys and provider secrets.";
+      await loadSecretsStatus();
+      await loadSecrets();
+      await loadProviders();
+    } catch (err) {
+      repairStatus = `Repair failed: ${err.message}`;
+    } finally {
+      isRepairingSecrets = false;
     }
   }
 
@@ -1099,6 +1148,28 @@
       </button>
     </div>
 
+    {#if secretStoreLocked}
+      <div class="mt-4 bg-amber-900/40 border border-amber-700 text-amber-100 rounded-lg p-4 text-sm">
+        <div class="font-semibold">Secret store locked</div>
+        <div class="text-xs text-amber-200 mt-1">
+          {secretStoreError ||
+            "Wizard cannot unlock encrypted secrets. You can repair and reset the secret store."}
+        </div>
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <button
+            class="px-3 py-1.5 text-xs rounded bg-amber-700 text-white hover:bg-amber-600 transition-colors"
+            on:click={repairSecretStore}
+            disabled={isRepairingSecrets}
+          >
+            {isRepairingSecrets ? "Repairing..." : "Repair Secret Store"}
+          </button>
+          {#if repairStatus}
+            <span class="text-xs text-amber-100">{repairStatus}</span>
+          {/if}
+        </div>
+      </div>
+    {/if}
+
     {#if isLoadingSecrets}
       <div class="mt-4 text-xs text-gray-400">Loading secrets...</div>
     {:else}
@@ -1434,7 +1505,9 @@
       </div>
 
       <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-        <h4 class="text-sm font-semibold text-white mb-2">Activation & Status</h4>
+        <h4 class="text-sm font-semibold text-white mb-2">
+          Activation & Status
+        </h4>
         <div class="space-y-2 text-xs text-gray-400">
           <div class="bg-gray-950 rounded p-2 border border-gray-700">
             <code class="text-green-400">ollama run &lt;model&gt;</code>
@@ -1453,7 +1526,9 @@
     </div>
 
     <div class="mt-4 text-xs text-gray-500">
-      Tip: Use <code class="px-1 py-0.5 bg-gray-900 rounded">PROVIDER SETUP ollama</code>
+      Tip: Use <code class="px-1 py-0.5 bg-gray-900 rounded"
+        >PROVIDER SETUP ollama</code
+      >
       in the Wizard TUI to verify the local service is running.
     </div>
   </div>

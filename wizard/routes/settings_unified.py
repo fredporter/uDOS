@@ -14,6 +14,7 @@ streamlined dashboard-first settings interface.
 
 import json
 import os
+import secrets
 import subprocess
 import sys
 import venv
@@ -25,7 +26,7 @@ from pydantic import BaseModel
 
 from wizard.services.logging_manager import get_logger
 from wizard.services.path_utils import get_repo_root, get_memory_dir
-from wizard.services.secret_store import get_secret_store, SecretStoreError
+from wizard.services.secret_store import get_secret_store, SecretStoreError, SecretEntry
 
 logger = get_logger("settings-unified")
 
@@ -209,6 +210,94 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
                 ))
 
     return result
+
+
+def _write_env_var(env_path: Path, key: str, value: str) -> None:
+    env_path.parent.mkdir(parents=True, exist_ok=True)
+    lines = []
+    if env_path.exists():
+        lines = env_path.read_text().splitlines()
+    updated = False
+    new_lines = []
+    for line in lines:
+        if not line or line.strip().startswith("#") or "=" not in line:
+            new_lines.append(line)
+            continue
+        k, _ = line.split("=", 1)
+        if k.strip() == key:
+            new_lines.append(f"{key}={value}")
+            updated = True
+        else:
+            new_lines.append(line)
+    if not updated:
+        new_lines.append(f"{key}={value}")
+    env_path.write_text("\n".join(new_lines) + "\n")
+
+
+def _get_admin_key_id() -> str:
+    repo_root = get_repo_root()
+    wizard_config_path = repo_root / "wizard" / "config" / "wizard.json"
+    if wizard_config_path.exists():
+        try:
+            config = json.loads(wizard_config_path.read_text())
+            key_id = config.get("admin_api_key_id")
+            if key_id:
+                return key_id
+        except Exception:
+            pass
+    return "wizard-admin-token"
+
+
+def repair_secret_store() -> Dict[str, Any]:
+    """Flush secret store tomb and regenerate Wizard keys."""
+    repo_root = get_repo_root()
+    env_path = repo_root / ".env"
+    tomb_path = repo_root / "wizard" / "secrets.tomb"
+    key_path = repo_root / "memory" / "bank" / "private" / "wizard_secret_store.key"
+    key_path.parent.mkdir(parents=True, exist_ok=True)
+
+    new_key = secrets.token_urlsafe(48)
+    new_admin_token = secrets.token_urlsafe(48)
+
+    # Update env and process
+    _write_env_var(env_path, "WIZARD_KEY", new_key)
+    _write_env_var(env_path, "WIZARD_ADMIN_TOKEN", new_admin_token)
+    os.environ["WIZARD_KEY"] = new_key
+    os.environ["WIZARD_ADMIN_TOKEN"] = new_admin_token
+
+    # Persist key file for fallback unlock
+    key_path.write_text(new_key)
+    try:
+        os.chmod(key_path, 0o600)
+    except Exception:
+        pass
+
+    # Remove old tomb to flush secrets
+    if tomb_path.exists():
+        tomb_path.unlink()
+
+    # Reset secret store singleton
+    if hasattr(get_secret_store, "_instance"):
+        delattr(get_secret_store, "_instance")
+
+    # Create fresh tomb with new admin token
+    store = get_secret_store()
+    store.unlock(new_key)
+    entry = SecretEntry(
+        key_id=_get_admin_key_id(),
+        provider="wizard-admin",
+        value=new_admin_token,
+        created_at=datetime.utcnow().isoformat(),
+        metadata={"source": "wizard-repair"},
+    )
+    store.set(entry)
+
+    return {
+        "status": "repaired",
+        "admin_token": new_admin_token,
+        "tomb_path": str(tomb_path),
+        "key_path": str(key_path),
+    }
 
 
 def set_secret(key: str, value: str) -> Dict[str, Any]:
@@ -428,6 +517,23 @@ def create_settings_unified_router(auth_guard=None):
         """Get all configured secrets (masked values only)."""
         await check_auth(request)
         return get_secrets_config()
+
+    @router.get("/secrets/status")
+    async def secrets_status(request: Request = None):
+        """Check whether secret store is unlocked."""
+        await check_auth(request)
+        store = get_secret_store()
+        try:
+            store.unlock()
+            return {"locked": False}
+        except SecretStoreError as exc:
+            return {"locked": True, "error": str(exc)}
+
+    @router.post("/secrets/repair")
+    async def secrets_repair(request: Request = None):
+        """Repair secret store by flushing tomb and regenerating keys."""
+        await check_auth(request)
+        return repair_secret_store()
 
     @router.post("/secrets/{key}")
     async def set_secret_endpoint(key: str, value: str, request: Request = None):
