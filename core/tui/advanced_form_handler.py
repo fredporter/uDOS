@@ -85,10 +85,10 @@ class AdvancedFormField:
     @staticmethod
     def _clean_input(raw_input: str) -> str:
         """Remove ANSI escape sequences from input (e.g., arrow keys).
-        
+
         Args:
             raw_input: Raw input string that may contain escape sequences
-            
+
         Returns:
             Cleaned input string with escape sequences removed
         """
