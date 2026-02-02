@@ -26,6 +26,7 @@ from core.commands import (
     TalkHandler,
     ConfigHandler,
     ProviderHandler,
+    WizardHandler,
     PatternHandler,
     BinderHandler,
     RunHandler,
@@ -61,7 +62,7 @@ class CommandDispatcher:
 
         file_editor = FileEditorHandler()
         maintenance = MaintenanceHandler()
-        
+
         # Import FileHandler here to avoid circular import
         # (FileHandler → OutputToolkit → ucode → dispatcher → FileHandler)
         from core.commands.file_handler import FileHandler
@@ -108,9 +109,10 @@ class CommandDispatcher:
             "NPC": self.npc_handler,
             "TALK": self.talk_handler,
             "REPLY": self.talk_handler,
-            # Wizard Management (2)
+            # Wizard Management (3)
             "CONFIG": ConfigHandler(),
             "PROVIDER": ProviderHandler(),
+            "WIZARD": WizardHandler(),
             "INTEGRATION": IntegrationHandler(),
             # Binder (Core)
             "BINDER": BinderHandler(),

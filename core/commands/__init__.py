@@ -178,6 +178,10 @@ def __getattr__(name):
         from .file_handler import FileHandler
 
         return FileHandler
+    elif name == "WizardHandler":
+        from .wizard_handler import WizardHandler
+
+        return WizardHandler
     elif name == "InteractiveMenuMixin":
         from .interactive_menu_mixin import InteractiveMenuMixin
 
@@ -224,6 +228,7 @@ __all__ = [
     # Wizard commands
     "ConfigHandler",
     "ProviderHandler",
+    "WizardHandler",
     "BinderHandler",
     "RunHandler",
     "StoryHandler",

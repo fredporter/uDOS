@@ -47,6 +47,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "DATASET",
             "CONFIG",
             "PROVIDER",
+            "WIZARD",
         ],
     }
 
@@ -299,6 +300,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "category": "Advanced",
             "syntax": "PROVIDER <LIST|STATUS|ENABLE|DISABLE|SETUP> [<id>] [--test]",
         },
+        "WIZARD": {
+            "description": "Wizard server maintenance",
+            "usage": "WIZARD REBUILD",
+            "example": "WIZARD REBUILD",
+            "notes": "Rebuilds Wizard dashboard artifacts",
+            "category": "Advanced",
+            "syntax": "WIZARD <REBUILD>",
+        },
         "STORY": {
             "description": "Run story format files",
             "usage": "STORY [file] | STORY PARSE <file> | STORY NEW <name>",
@@ -409,7 +418,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "System & Maintenance",
             "Advanced",
         ]
-        
+
         # Create menu options with descriptions
         menu_options = []
         for category in categories:
@@ -418,14 +427,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
                 menu_options.append(
                     (category, category, f"{count} commands")
                 )
-        
+
         # Show interactive menu
         selected_category = self.show_menu(
             "Command Categories",
             menu_options,
             allow_cancel=True
         )
-        
+
         if selected_category:
             return self._show_category(selected_category)
         else:

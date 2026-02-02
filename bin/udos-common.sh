@@ -158,6 +158,58 @@ parse_common_flags() {
     done
 }
 
+prompt_permission() {
+    local prompt="$1"
+    local choice
+    echo -n "${prompt} [1-Yes|0-No|Enter-OK] "
+    read -r choice
+    if [ -z "$choice" ] || [ "$choice" = "1" ]; then
+        return 0
+    fi
+    return 1
+}
+
+check_wizard_updates() {
+    if [ -z "$UDOS_ROOT" ] || [ ! -d "$UDOS_ROOT/.git" ]; then
+        return 0
+    fi
+
+    if ! command -v git >/dev/null 2>&1; then
+        return 0
+    fi
+
+    local branch
+    branch="$(git -C "$UDOS_ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null)"
+    if [ -z "$branch" ]; then
+        branch="main"
+    fi
+
+    if ! git -C "$UDOS_ROOT" fetch --quiet origin "$branch"; then
+        echo -e "${YELLOW}⚠️  Could not check updates (git fetch failed).${NC}"
+        return 0
+    fi
+
+    local behind
+    behind="$(git -C "$UDOS_ROOT" rev-list --count HEAD..origin/$branch 2>/dev/null || echo 0)"
+
+    if [ "$behind" -gt 0 ]; then
+        echo -e "${YELLOW}⚠️  Wizard updates available (${behind} commits).${NC}"
+        if prompt_permission "Update Wizard now?"; then
+            if git -C "$UDOS_ROOT" pull --ff-only origin "$branch"; then
+                export UDOS_FORCE_REBUILD=1
+                rebuild_wizard_dashboard || return 1
+            else
+                echo -e "${RED}❌ Update failed.${NC}"
+                return 1
+            fi
+        else
+            echo -e "${DIM}ℹ️  Skipping update.${NC}"
+        fi
+    fi
+
+    return 0
+}
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Spinner Function
 # ═══════════════════════════════════════════════════════════════════════════
@@ -561,6 +613,7 @@ launch_wizard_server() {
     print_header "$title"
 
     _setup_component_environment "wizard" || return 1
+    check_wizard_updates || return 1
 
     echo -e "${CYAN}[INFO]${NC} Starting Wizard Server in background..."
 
@@ -604,6 +657,7 @@ launch_wizard_tui() {
     print_header "$title"
 
     _setup_component_environment "wizard" || return 1
+    check_wizard_updates || return 1
 
     # Delegate to wizard TUI launcher
     "$UDOS_ROOT/wizard/launch_wizard_tui.sh" "$@" || return 1

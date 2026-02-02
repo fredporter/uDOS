@@ -18,6 +18,7 @@ import base64
 import json
 import os
 import hashlib
+from datetime import datetime
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
 from typing import Dict, Optional, List, Any
@@ -131,9 +132,31 @@ class SecretStore:
         self._ensure_loaded()
         return list(self._cache.values())
 
+    def get_entry(self, key_id: str) -> Optional[SecretEntry]:
+        self._ensure_loaded()
+        return self._cache.get(key_id)
+
     def get(self, key_id: str) -> Optional[SecretEntry]:
         self._ensure_loaded()
         return self._cache.get(key_id)
+
+    def set_entry(
+        self,
+        key_id: str,
+        value: str,
+        metadata: Optional[Dict[str, Any]] = None,
+        provider: str = "manual",
+    ):
+        self._ensure_loaded()
+        entry = SecretEntry(
+            key_id=key_id,
+            provider=provider,
+            value=value,
+            created_at=datetime.utcnow().isoformat(),
+            metadata=metadata or {},
+        )
+        self._cache[key_id] = entry
+        self._persist()
 
     def set(self, entry: SecretEntry):
         self._ensure_loaded()

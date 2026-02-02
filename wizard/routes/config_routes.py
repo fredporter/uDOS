@@ -185,6 +185,99 @@ def create_config_routes(auth_guard=None):
         "wizard": "Wizard",
     }
 
+    def _load_wizard_config() -> Dict[str, Any]:
+        wizard_path = CONFIG_PATH / "wizard.json"
+        if wizard_path.exists():
+            try:
+                return json.loads(wizard_path.read_text())
+            except Exception:
+                return {}
+        return {}
+
+    def _save_wizard_config(config: Dict[str, Any]) -> None:
+        wizard_path = CONFIG_PATH / "wizard.json"
+        wizard_path.parent.mkdir(parents=True, exist_ok=True)
+        wizard_path.write_text(json.dumps(config, indent=2))
+
+    def _enable_provider(config: Dict[str, Any], provider_id: str) -> bool:
+        enabled = config.get("enabled_providers") or []
+        if provider_id not in enabled:
+            enabled.append(provider_id)
+            config["enabled_providers"] = enabled
+            return True
+        return False
+
+    def _get_nested(data: Dict[str, Any], path: List[str]) -> Optional[Any]:
+        current = data
+        for part in path:
+            if not isinstance(current, dict) or part not in current:
+                return None
+            current = current[part]
+        return current
+
+    def _sync_wizard_from_config(file_id: str, content: Dict[str, Any]) -> bool:
+        if file_id == "wizard":
+            return False
+
+        config = _load_wizard_config()
+        changed = False
+
+        if file_id == "github_keys":
+            has_key = bool(
+                _get_nested(content, ["tokens", "default", "key_id"])
+                or _get_nested(content, ["webhooks", "secret_key_id"])
+            )
+            if has_key:
+                changed |= _enable_provider(config, "github")
+                if not config.get("github_push_enabled"):
+                    config["github_push_enabled"] = True
+                    changed = True
+
+        elif file_id == "slack_keys":
+            if content.get("SLACK_BOT_TOKEN") or content.get("SLACK_WEBHOOK_URL"):
+                changed |= _enable_provider(config, "slack")
+
+        elif file_id == "notion_keys":
+            has_key = bool(
+                _get_nested(content, ["integration", "key_id"])
+                or _get_nested(content, ["integration", "api_key"])
+                or _get_nested(content, ["integration", "token"])
+            )
+            if has_key:
+                changed |= _enable_provider(config, "notion")
+                if not config.get("notion_enabled"):
+                    config["notion_enabled"] = True
+                    changed = True
+
+        elif file_id == "hubspot_keys":
+            has_key = bool(content.get("api_key_id") or content.get("api_key"))
+            if has_key:
+                changed |= _enable_provider(config, "hubspot")
+                if not config.get("hubspot_enabled"):
+                    config["hubspot_enabled"] = True
+                    changed = True
+
+        elif file_id == "assistant_keys":
+            ai_key_map = {
+                "OPENAI_API_KEY": "openai",
+                "ANTHROPIC_API_KEY": "anthropic",
+                "MISTRAL_API_KEY": "mistral",
+                "OPENROUTER_API_KEY": "openrouter",
+                "GEMINI_API_KEY": "gemini",
+                "OLLAMA_HOST": "ollama",
+            }
+            for key, provider_id in ai_key_map.items():
+                if content.get(key):
+                    changed |= _enable_provider(config, provider_id)
+            if any(content.get(k) for k in ai_key_map.keys()):
+                if not config.get("ai_gateway_enabled"):
+                    config["ai_gateway_enabled"] = True
+                    changed = True
+
+        if changed:
+            _save_wizard_config(config)
+        return changed
+
     @router.get("/files")
     async def get_config_files():
         """List available config files with their status."""
@@ -408,11 +501,14 @@ def create_config_routes(auth_guard=None):
             with open(file_path, "w") as f:
                 json.dump(content, f, indent=2)
 
+            wizard_synced = _sync_wizard_from_config(file_id, content)
+
             return {
                 "success": True,
                 "message": f"Saved {filename}",
                 "file": filename,
                 "path": str(file_path),
+                "wizard_config_updated": wizard_synced,
             }
 
         except Exception as e:

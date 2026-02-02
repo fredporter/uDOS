@@ -37,6 +37,11 @@
   let currentFileInfo = {};
   let wizardSettings = {};
   let adminToken = "";
+  let secretsIndex = {};
+  let isLoadingSecrets = false;
+  let quickKeyDrafts = {};
+  let quickKeyStatus = {};
+  let showAdvancedConfig = false;
 
   const authHeaders = () => buildAuthHeaders();
 
@@ -132,6 +137,51 @@
     },
   ];
 
+  const quickKeyFields = [
+    {
+      key: "github_token",
+      label: "GitHub Token",
+      helper: "PAT used for API access + webhooks",
+      provider: "github",
+    },
+    {
+      key: "github_webhook_secret",
+      label: "GitHub Webhook Secret",
+      helper: "Shared secret for webhook validation",
+      provider: "github",
+    },
+    {
+      key: "slack_bot_token",
+      label: "Slack Bot Token",
+      helper: "Bot token for Slack notifications",
+      provider: "slack",
+    },
+    {
+      key: "notion_api_key",
+      label: "Notion API Key",
+      helper: "Notion integration token",
+      provider: "notion",
+    },
+    {
+      key: "hubspot_api_key",
+      label: "HubSpot API Key",
+      helper: "HubSpot CRM API key",
+      provider: "hubspot",
+    },
+    {
+      key: "mistral_api_key",
+      label: "Mistral API Key",
+      helper: "Mistral cloud models",
+      provider: "mistral",
+    },
+    {
+      key: "openrouter_api_key",
+      label: "OpenRouter API Key",
+      helper: "OpenRouter multi-model gateway",
+      provider: "openrouter",
+    },
+  ];
+
   // Provider setup
   let providers = [];
   let showProviders = false;
@@ -163,7 +213,61 @@
     await loadFileList();
     await loadProviders();
     await loadEnvData();
+    await loadSecrets();
   });
+
+  async function loadSecrets() {
+    isLoadingSecrets = true;
+    try {
+      const response = await apiFetch("/api/settings-unified/secrets");
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      const nextIndex = {};
+      Object.values(data || {}).forEach((group) => {
+        (group || []).forEach((entry) => {
+          nextIndex[entry.key] = entry;
+        });
+      });
+      secretsIndex = nextIndex;
+    } catch (err) {
+      secretsIndex = {};
+      setStatus(`Failed to load secrets: ${err.message}`, "error");
+    } finally {
+      isLoadingSecrets = false;
+    }
+  }
+
+  async function saveQuickKey(key) {
+    const value = (quickKeyDrafts[key] || "").trim();
+    if (!value) {
+      quickKeyStatus = { ...quickKeyStatus, [key]: "Value required" };
+      return;
+    }
+    quickKeyStatus = { ...quickKeyStatus, [key]: "Saving..." };
+    try {
+      const response = await apiFetch(
+        `/api/settings-unified/secrets/${key}?value=${encodeURIComponent(
+          value,
+        )}`,
+        { method: "POST" },
+      );
+      const result = await response.json();
+      if (!response.ok || result.error) {
+        throw new Error(result.error || `HTTP ${response.status}`);
+      }
+      quickKeyDrafts = { ...quickKeyDrafts, [key]: "" };
+      quickKeyStatus = { ...quickKeyStatus, [key]: "Saved" };
+      if (result.wizard_config_updated) {
+        setStatus("Wizard config updated from saved key", "success");
+      }
+      await loadSecrets();
+      await loadProviders();
+    } catch (err) {
+      quickKeyStatus = { ...quickKeyStatus, [key]: err.message };
+    }
+  }
 
   async function loadFileList() {
     isLoading = true;
@@ -677,6 +781,29 @@
     showProviders = !showProviders;
   }
 
+  function isProviderEnabled(provider) {
+    if (provider?.enabled === undefined) return true;
+    return provider.enabled;
+  }
+
+  async function toggleProviderEnabled(provider) {
+    if (!provider?.id) return;
+    const nextState = !isProviderEnabled(provider);
+    try {
+      const response = await apiFetch(
+        `/api/providers/${provider.id}/${nextState ? "enable" : "disable"}`,
+        { method: "POST" },
+      );
+      const result = await response.json();
+      if (!response.ok || result.error) {
+        throw new Error(result.error || `HTTP ${response.status}`);
+      }
+      await loadProviders();
+    } catch (err) {
+      setStatus(`Provider update failed: ${err.message}`, "error");
+    }
+  }
+
   function getProviderSetupInstructions(provider) {
     // Web/OAuth setup
     if (provider.web_url) {
@@ -955,223 +1082,309 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-12 gap-6">
-    <!-- Left: File selector -->
-    <div class="col-span-3">
-      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
-        <h2 class="text-sm font-semibold text-gray-400 uppercase mb-3">
-          Configuration Files
-        </h2>
-        <div class="space-y-2">
-          {#if isLoading && fileList.length === 0}
-            <div class="text-gray-500 text-sm">Loading...</div>
-          {:else if fileList.length === 0}
-            <div class="text-gray-500 text-sm">No config files found</div>
-          {:else}
-            {#each fileList as file}
-              <button
-                class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors {selectedFile ===
-                file.id
-                  ? 'bg-blue-700 text-white border border-blue-600'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
-                on:click={() => loadFile(file.id)}
+  <div class="mb-6 bg-gray-800 border border-gray-700 rounded-lg p-4">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h3 class="text-sm font-semibold text-white mb-1">Quick Keys</h3>
+        <p class="text-xs text-gray-400">
+          Add your most common keys once. Wizard auto-enables matching providers
+          and syncs config behind the scenes.
+        </p>
+      </div>
+      <button
+        class="px-3 py-1.5 text-sm rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
+        on:click={() => (showAdvancedConfig = !showAdvancedConfig)}
+      >
+        {showAdvancedConfig ? "Hide" : "Show"} Advanced Config
+      </button>
+    </div>
+
+    {#if isLoadingSecrets}
+      <div class="mt-4 text-xs text-gray-400">Loading secrets...</div>
+    {:else}
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+        {#each quickKeyFields as field}
+          {@const entry = secretsIndex[field.key]}
+          <div class="bg-gray-900 border border-gray-700 rounded-lg p-3">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="text-sm text-white font-semibold">
+                  {field.label}
+                </div>
+                <p class="text-xs text-gray-400 mt-1">{field.helper}</p>
+              </div>
+              <span
+                class={`px-2 py-1 text-xs rounded ${
+                  entry?.is_set
+                    ? "bg-green-900 text-green-200"
+                    : "bg-gray-700 text-gray-300"
+                }`}
               >
-                <div class="font-medium flex items-center justify-between">
-                  <span
-                    >{typeof file.label === "string"
-                      ? file.label.replace(/ \(.*\)/, "")
-                      : file.id}</span
-                  >
-                  <span
-                    class="text-xs px-2 py-1 rounded {getStatusBadgeClass(
-                      file,
-                    )}"
-                  >
-                    {getFileStatus(file)}
-                  </span>
-                </div>
-                <div class="text-xs text-gray-500">
-                  {typeof file.description === "string" ? file.description : ""}
-                </div>
+                {entry?.is_set ? "Configured" : "Not set"}
+              </span>
+            </div>
+
+            {#if entry?.is_set}
+              <div class="text-xs text-gray-500 mt-2">
+                Stored: {entry.masked_value}
+              </div>
+            {/if}
+
+            <div class="mt-2 flex flex-wrap items-center gap-2">
+              <input
+                class="flex-1 px-3 py-1.5 text-sm rounded-md bg-gray-950 text-gray-200 border border-gray-700 placeholder:text-gray-500"
+                type="password"
+                bind:value={quickKeyDrafts[field.key]}
+                placeholder="Paste key"
+              />
+              <button
+                on:click={() => saveQuickKey(field.key)}
+                class="px-3 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-500 transition-colors"
+              >
+                Save
               </button>
-            {/each}
-          {/if}
+            </div>
+            {#if quickKeyStatus[field.key]}
+              <div class="mt-2 text-xs text-gray-400">
+                {quickKeyStatus[field.key]}
+              </div>
+            {/if}
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </div>
+
+  {#if showAdvancedConfig}
+    <div class="grid grid-cols-12 gap-6">
+      <!-- Left: File selector -->
+      <div class="col-span-3">
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+          <h2 class="text-sm font-semibold text-gray-400 uppercase mb-3">
+            Configuration Files
+          </h2>
+          <div class="space-y-2">
+            {#if isLoading && fileList.length === 0}
+              <div class="text-gray-500 text-sm">Loading...</div>
+            {:else if fileList.length === 0}
+              <div class="text-gray-500 text-sm">No config files found</div>
+            {:else}
+              {#each fileList as file}
+                <button
+                  class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors {selectedFile ===
+                  file.id
+                    ? 'bg-blue-700 text-white border border-blue-600'
+                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
+                  on:click={() => loadFile(file.id)}
+                >
+                  <div class="font-medium flex items-center justify-between">
+                    <span
+                      >{typeof file.label === "string"
+                        ? file.label.replace(/ \(.*\)/, "")
+                        : file.id}</span
+                    >
+                    <span
+                      class="text-xs px-2 py-1 rounded {getStatusBadgeClass(
+                        file,
+                      )}"
+                    >
+                      {getFileStatus(file)}
+                    </span>
+                  </div>
+                  <div class="text-xs text-gray-500">
+                    {typeof file.description === "string"
+                      ? file.description
+                      : ""}
+                  </div>
+                </button>
+              {/each}
+            {/if}
+          </div>
+        </div>
+
+        <!-- Info panel -->
+        <div class="mt-6 p-4 bg-gray-800 border border-gray-700 rounded-lg">
+          <h3 class="text-sm font-semibold text-white mb-3">🔒 Security</h3>
+          <ul class="text-xs text-gray-400 space-y-2">
+            <li class="flex gap-2">
+              <span>✓</span>
+              <span>Configs stay on local machine</span>
+            </li>
+            <li class="flex gap-2">
+              <span>✓</span>
+              <span>Never committed to git</span>
+            </li>
+            <li class="flex gap-2">
+              <span>✓</span>
+              <span>Only examples in public repo</span>
+            </li>
+            <li class="flex gap-2">
+              <span>⚠</span>
+              <span>Backup your configs</span>
+            </li>
+          </ul>
         </div>
       </div>
 
-      <!-- Info panel -->
-      <div class="mt-6 p-4 bg-gray-800 border border-gray-700 rounded-lg">
-        <h3 class="text-sm font-semibold text-white mb-3">🔒 Security</h3>
-        <ul class="text-xs text-gray-400 space-y-2">
-          <li class="flex gap-2">
-            <span>✓</span>
-            <span>Configs stay on local machine</span>
-          </li>
-          <li class="flex gap-2">
-            <span>✓</span>
-            <span>Never committed to git</span>
-          </li>
-          <li class="flex gap-2">
-            <span>✓</span>
-            <span>Only examples in public repo</span>
-          </li>
-          <li class="flex gap-2">
-            <span>⚠</span>
-            <span>Backup your configs</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Right: Editor -->
-    <div class="col-span-9">
-      <div
-        class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden flex flex-col"
-        style="height: 450px;"
-      >
-        <!-- Editor header -->
+      <!-- Right: Editor -->
+      <div class="col-span-9">
         <div
-          class="flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-gray-900"
+          class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden flex flex-col"
+          style="height: 450px;"
         >
-          <div>
-            <h2 class="text-white font-medium">
-              {selectedFile
-                ? configFiles[selectedFile]?.label || selectedFile
-                : "Select a config file"}
-            </h2>
-            <p class="text-xs text-gray-500">
-              {selectedFile ? configFiles[selectedFile]?.description || "" : ""}
-            </p>
-          </div>
-          <div class="flex gap-2">
-            {#if selectedFile && !currentFileInfo.is_example && !currentFileInfo.is_template}
-              <button
-                on:click={viewExample}
-                class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
-                disabled={isLoading}
-              >
-                📋 View Example
-              </button>
-            {/if}
-            {#if selectedFile}
-              {#if hasChanges}
+          <!-- Editor header -->
+          <div
+            class="flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-gray-900"
+          >
+            <div>
+              <h2 class="text-white font-medium">
+                {selectedFile
+                  ? configFiles[selectedFile]?.label || selectedFile
+                  : "Select a config file"}
+              </h2>
+              <p class="text-xs text-gray-500">
+                {selectedFile
+                  ? configFiles[selectedFile]?.description || ""
+                  : ""}
+              </p>
+            </div>
+            <div class="flex gap-2">
+              {#if selectedFile && !currentFileInfo.is_example && !currentFileInfo.is_template}
                 <button
-                  on:click={resetFile}
+                  on:click={viewExample}
                   class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
                   disabled={isLoading}
                 >
-                  ↻ Reset
+                  📋 View Example
                 </button>
               {/if}
-              <button
-                on:click={saveFile}
-                class="px-3 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
-                disabled={!hasChanges || isSaving || isLoading}
-              >
-                {isSaving ? "Saving..." : "💾 Save Changes"}
-              </button>
-            {/if}
+              {#if selectedFile}
+                {#if hasChanges}
+                  <button
+                    on:click={resetFile}
+                    class="px-3 py-1.5 text-sm rounded-md bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
+                    disabled={isLoading}
+                  >
+                    ↻ Reset
+                  </button>
+                {/if}
+                <button
+                  on:click={saveFile}
+                  class="px-3 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  disabled={!hasChanges || isSaving || isLoading}
+                >
+                  {isSaving ? "Saving..." : "💾 Save Changes"}
+                </button>
+              {/if}
+            </div>
           </div>
+
+          <!-- Editor -->
+          {#if isWizardFileSelected()}
+            <div class="border-b border-gray-700 bg-gray-900 px-4 py-3">
+              <h3 class="text-white font-medium mb-2">Quick Toggles</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {#each wizardToggleFields as field}
+                  <div
+                    class="bg-gray-800 border border-gray-700 rounded-lg p-3"
+                  >
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <div class="text-sm text-white font-semibold">
+                          {field.label}
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">
+                          {field.description}
+                        </p>
+                      </div>
+                      <button
+                        class={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          wizardSettings?.[field.key]
+                            ? "bg-blue-500"
+                            : "bg-gray-600"
+                        }`}
+                        on:click={() =>
+                          updateWizardToggle(
+                            field.key,
+                            !wizardSettings?.[field.key],
+                          )}
+                        aria-label={`Toggle ${field.label}`}
+                      >
+                        <span
+                          class={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                            wizardSettings?.[field.key]
+                              ? "translate-x-5"
+                              : "translate-x-1"
+                          }`}
+                        ></span>
+                      </button>
+                    </div>
+                  </div>
+                {/each}
+              </div>
+              <p class="text-xs text-gray-500 mt-3">
+                Changes here update the wizard.json preview below. Click "Save
+                Changes" to persist.
+              </p>
+            </div>
+          {/if}
+          <textarea
+            value={content}
+            on:input={(e) => {
+              content = e.target.value;
+              hasChanges = true;
+            }}
+            class="flex-1 p-4 bg-gray-900 text-gray-100 font-mono text-sm resize-none focus:outline-none"
+            placeholder="Select a config file to edit..."
+            disabled={isLoading || !selectedFile}
+          ></textarea>
         </div>
 
-        <!-- Editor -->
-        {#if isWizardFileSelected()}
-          <div class="border-b border-gray-700 bg-gray-900 px-4 py-3">
-            <h3 class="text-white font-medium mb-2">Quick Toggles</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {#each wizardToggleFields as field}
-                <div class="bg-gray-800 border border-gray-700 rounded-lg p-3">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <div class="text-sm text-white font-semibold">
-                        {field.label}
-                      </div>
-                      <p class="text-xs text-gray-400 mt-1">
-                        {field.description}
-                      </p>
-                    </div>
-                    <button
-                      class={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        wizardSettings?.[field.key]
-                          ? "bg-blue-500"
-                          : "bg-gray-600"
-                      }`}
-                      on:click={() =>
-                        updateWizardToggle(
-                          field.key,
-                          !wizardSettings?.[field.key],
-                        )}
-                      aria-label={`Toggle ${field.label}`}
-                    >
-                      <span
-                        class={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                          wizardSettings?.[field.key]
-                            ? "translate-x-5"
-                            : "translate-x-1"
-                        }`}
-                      ></span>
-                    </button>
-                  </div>
-                </div>
-              {/each}
+        <!-- Tips panel -->
+        <div class="mt-4 p-4 bg-gray-800 border border-gray-700 rounded-lg">
+          <h3 class="text-sm font-semibold text-white mb-2">
+            💡 Getting Started
+          </h3>
+          <ol class="text-sm text-gray-400 space-y-2">
+            <li>
+              <strong>1. Select a config file</strong> - Choose an integration from
+              the left
+            </li>
+            <li>
+              <strong>2. View example</strong> - Click "📋 View Example" to see the
+              template
+            </li>
+            <li>
+              <strong>3. Add your keys</strong> - Copy values from your API provider
+            </li>
+            <li>
+              <strong>4. Save locally</strong> - Click "💾 Save Changes" when done
+            </li>
+            <li>
+              <strong>5. Setup providers</strong> - Scroll down to Provider Setup
+              section
+            </li>
+          </ol>
+
+          <div class="mt-4 pt-3 border-t border-gray-700">
+            <h4 class="text-xs font-semibold text-gray-400 mb-2">
+              Wizard Commands
+            </h4>
+            <div class="text-xs text-gray-500 space-y-1">
+              <div>CONFIG SHOW - View config status</div>
+              <div>CONFIG LIST - List all configs</div>
+              <div>PROVIDER LIST - Show all providers</div>
+              <div>PROVIDER SETUP &lt;name&gt; - Run setup</div>
             </div>
-            <p class="text-xs text-gray-500 mt-3">
-              Changes here update the wizard.json preview below. Click "Save
-              Changes" to persist.
-            </p>
-          </div>
-        {/if}
-        <textarea
-          value={content}
-          on:input={(e) => {
-            content = e.target.value;
-            hasChanges = true;
-          }}
-          class="flex-1 p-4 bg-gray-900 text-gray-100 font-mono text-sm resize-none focus:outline-none"
-          placeholder="Select a config file to edit..."
-          disabled={isLoading || !selectedFile}
-        ></textarea>
-      </div>
-
-      <!-- Tips panel -->
-      <div class="mt-4 p-4 bg-gray-800 border border-gray-700 rounded-lg">
-        <h3 class="text-sm font-semibold text-white mb-2">
-          💡 Getting Started
-        </h3>
-        <ol class="text-sm text-gray-400 space-y-2">
-          <li>
-            <strong>1. Select a config file</strong> - Choose an integration from
-            the left
-          </li>
-          <li>
-            <strong>2. View example</strong> - Click "📋 View Example" to see the
-            template
-          </li>
-          <li>
-            <strong>3. Add your keys</strong> - Copy values from your API provider
-          </li>
-          <li>
-            <strong>4. Save locally</strong> - Click "💾 Save Changes" when done
-          </li>
-          <li>
-            <strong>5. Setup providers</strong> - Scroll down to Provider Setup section
-          </li>
-        </ol>
-
-        <div class="mt-4 pt-3 border-t border-gray-700">
-          <h4 class="text-xs font-semibold text-gray-400 mb-2">
-            Wizard Commands
-          </h4>
-          <div class="text-xs text-gray-500 space-y-1">
-            <div>CONFIG SHOW - View config status</div>
-            <div>CONFIG LIST - List all configs</div>
-            <div>PROVIDER LIST - Show all providers</div>
-            <div>PROVIDER SETUP &lt;name&gt; - Run setup</div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  {:else}
+    <div class="mb-6 text-xs text-gray-500">
+      Advanced config files are hidden. Use Quick Keys above for most setups.
+    </div>
+  {/if}
 
   <!-- Providers Setup Section -->
   <div class="mt-6 bg-gray-800 border border-gray-700 rounded-lg p-6">
@@ -1234,6 +1447,11 @@
                   <span class={`px-2 py-1 rounded ${badge.availableClass}`}>
                     {badge.availableText}
                   </span>
+                  {#if !isProviderEnabled(provider)}
+                    <span class="px-2 py-1 rounded bg-gray-800 text-gray-400">
+                      Disabled
+                    </span>
+                  {/if}
                   {#if provider.status?.cli_installed === false}
                     <span
                       class="px-2 py-1 rounded bg-yellow-900 text-yellow-200"
@@ -1244,7 +1462,11 @@
                 </div>
               </div>
 
-              {#if getProviderSetupInstructions(provider)}
+              {#if !isProviderEnabled(provider)}
+                <div class="mt-2 text-xs text-yellow-300">
+                  Enable first to view setup steps.
+                </div>
+              {:else if getProviderSetupInstructions(provider)}
                 {@const setup = getProviderSetupInstructions(provider)}
 
                 {#if setup.type === "web"}
@@ -1278,6 +1500,19 @@
                   </div>
                 {/if}
               {/if}
+
+              <div class="mt-3">
+                <button
+                  on:click={() => toggleProviderEnabled(provider)}
+                  class={`px-3 py-1.5 text-xs rounded ${
+                    isProviderEnabled(provider)
+                      ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                      : "bg-blue-600 text-white hover:bg-blue-500"
+                  } transition-colors`}
+                >
+                  {isProviderEnabled(provider) ? "Disable" : "Enable"}
+                </button>
+              </div>
             </div>
           {/each}
         {/if}

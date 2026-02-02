@@ -14,6 +14,7 @@ from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from datetime import datetime
+from wizard.services.secret_store import get_secret_store, SecretStoreError
 
 
 def create_provider_routes(auth_guard=None):
@@ -143,6 +144,44 @@ def create_provider_routes(auth_guard=None):
                 return json.load(f)
         return {"flagged": [], "completed": [], "timestamp": None}
 
+    def _load_wizard_config() -> Dict[str, Any]:
+        wizard_config = CONFIG_PATH / "wizard.json"
+        if wizard_config.exists():
+            try:
+                return json.loads(wizard_config.read_text())
+            except Exception:
+                return {}
+        return {}
+
+    def _get_enabled_providers() -> List[str]:
+        config = _load_wizard_config()
+        enabled = set(config.get("enabled_providers") or [])
+
+        if config.get("github_push_enabled"):
+            enabled.add("github")
+        if config.get("notion_enabled"):
+            enabled.add("notion")
+        if config.get("hubspot_enabled"):
+            enabled.add("hubspot")
+        if config.get("ai_gateway_enabled"):
+            enabled.update(
+                ["openai", "anthropic", "mistral", "openrouter", "gemini", "ollama"]
+            )
+
+        return sorted(enabled)
+
+    def _secret_available(key_id: str) -> bool:
+        try:
+            store = get_secret_store()
+            try:
+                store.unlock()
+            except SecretStoreError:
+                pass
+            entry = store.get_entry(key_id)
+            return entry is not None and bool(entry.value)
+        except SecretStoreError:
+            return False
+
     def save_setup_flags(flags: Dict[str, Any]):
         """Save provider setup flags."""
         flags["timestamp"] = datetime.utcnow().isoformat()
@@ -160,6 +199,7 @@ def create_provider_routes(auth_guard=None):
             }
 
         config_file = CONFIG_PATH / provider["config_file"]
+        enabled_ids = set(_get_enabled_providers())
         status = {
             "provider_id": provider_id,
             "name": provider["name"],
@@ -167,6 +207,7 @@ def create_provider_routes(auth_guard=None):
             "available": False,
             "cli_installed": None,
             "needs_restart": False,
+            "enabled": provider_id in enabled_ids,
         }
 
         # Check if CLI is installed (for CLI providers)
@@ -233,6 +274,21 @@ def create_provider_routes(auth_guard=None):
                 except:
                     pass
 
+        if not status.get("configured"):
+            secret_key_map = {
+                "github": ["github_token", "github_webhook_secret"],
+                "slack": ["slack_bot_token"],
+                "notion": ["notion_api_key"],
+                "hubspot": ["hubspot_api_key"],
+                "mistral": ["mistral_api_key"],
+                "openrouter": ["openrouter_api_key"],
+                "ollama": ["ollama_api_key"],
+            }
+            for key_id in secret_key_map.get(provider_id, []):
+                if _secret_available(key_id):
+                    status["configured"] = True
+                    break
+
         # Check if service is available
         if provider.get("check_cmd"):
             try:
@@ -252,6 +308,7 @@ def create_provider_routes(auth_guard=None):
     async def list_providers():
         """List all available providers with status."""
         providers_list = []
+        enabled_ids = set(_get_enabled_providers())
         for provider_id, provider in PROVIDERS.items():
             status = check_provider_status(provider_id)
             providers_list.append(
@@ -259,6 +316,7 @@ def create_provider_routes(auth_guard=None):
                     **provider,
                     "id": provider_id,
                     "status": status,
+                    "enabled": provider_id in enabled_ids,
                 }
             )
         return {"providers": providers_list}
@@ -276,6 +334,7 @@ def create_provider_routes(auth_guard=None):
             **provider,
             "id": provider_id,
             "status": status,
+            "enabled": status.get("enabled", False),
         }
 
     @router.post("/{provider_id}/flag")

@@ -181,6 +181,11 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
     result = {}
     store = get_secret_store()
 
+    try:
+        store.unlock()
+    except SecretStoreError:
+        pass
+
     for category, keys in categories.items():
         result[category] = []
         for key in keys:
@@ -213,12 +218,73 @@ def set_secret(key: str, value: str) -> Dict[str, Any]:
 
     try:
         store = get_secret_store()
+        try:
+            store.unlock()
+        except SecretStoreError:
+            pass
         store.set_entry(key, value, metadata={"updated_at": datetime.now().isoformat()})
+        wizard_update = _sync_wizard_config_from_secret(key)
         logger.info(f"[LOCAL] Secret updated: {key}")
-        return {"status": "set", "key": key}
+        return {"status": "set", "key": key, **wizard_update}
     except SecretStoreError as e:
         logger.error(f"[LOCAL] Failed to set secret {key}: {e}")
         return {"error": str(e)}
+
+
+def _load_wizard_config() -> Dict[str, Any]:
+    repo_root = get_repo_root()
+    config_path = repo_root / "wizard" / "config" / "wizard.json"
+    if config_path.exists():
+        try:
+            return json.loads(config_path.read_text())
+        except Exception:
+            return {}
+    return {}
+
+
+def _save_wizard_config(config: Dict[str, Any]) -> None:
+    repo_root = get_repo_root()
+    config_path = repo_root / "wizard" / "config" / "wizard.json"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(json.dumps(config, indent=2))
+
+
+def _enable_provider(config: Dict[str, Any], provider_id: str) -> None:
+    enabled = config.get("enabled_providers") or []
+    if provider_id not in enabled:
+        enabled.append(provider_id)
+    config["enabled_providers"] = enabled
+
+
+def _sync_wizard_config_from_secret(key: str) -> Dict[str, Any]:
+    mapping = {
+        "github_token": {"providers": ["github"], "toggles": ["github_push_enabled"]},
+        "github_webhook_secret": {"providers": ["github"], "toggles": ["github_push_enabled"]},
+        "slack_bot_token": {"providers": ["slack"], "toggles": []},
+        "slack_workspace_id": {"providers": ["slack"], "toggles": []},
+        "notion_api_key": {"providers": ["notion"], "toggles": ["notion_enabled"]},
+        "notion_workspace_id": {"providers": ["notion"], "toggles": ["notion_enabled"]},
+        "hubspot_api_key": {"providers": ["hubspot"], "toggles": ["hubspot_enabled"]},
+        "mistral_api_key": {"providers": ["mistral"], "toggles": ["ai_gateway_enabled"]},
+        "openrouter_api_key": {"providers": ["openrouter"], "toggles": ["ai_gateway_enabled"]},
+        "ollama_api_key": {"providers": ["ollama"], "toggles": ["ai_gateway_enabled"]},
+    }
+
+    if key not in mapping:
+        return {"wizard_config_updated": False}
+
+    config = _load_wizard_config()
+    data = mapping[key]
+    for provider_id in data.get("providers", []):
+        _enable_provider(config, provider_id)
+    for toggle in data.get("toggles", []):
+        config[toggle] = True
+
+    _save_wizard_config(config)
+    return {
+        "wizard_config_updated": True,
+        "enabled_providers": config.get("enabled_providers", []),
+    }
 
 
 # ═══════════════════════════════════════════════════════════════════════════
