@@ -201,6 +201,8 @@
   let installedCount = 0;
   let loadingInstalled = false;
   let pullingModel = null;
+  let pullProgress = {};
+  let pullPollers = {};
 
   // HubSpot CLI management
   let showHubSpot = false;
@@ -929,14 +931,56 @@
           data.error || data.message || `HTTP ${response.status}`,
         );
       }
-      setStatus(`Pulling ${modelName}... Monitor in logs.`, "info");
-      // Reload models after a delay to show progress
-      setTimeout(() => loadInstalledModels(), 2000);
+      pullProgress = {
+        ...pullProgress,
+        [modelName]: { state: "queued", percent: 0 },
+      };
+      setStatus(`Pulling ${modelName}...`, "info");
+      startPullPolling(modelName);
     } catch (err) {
       setStatus(`Failed to pull ${modelName}: ${err.message}`, "error");
     } finally {
       pullingModel = null;
     }
+  }
+
+  function stopPullPolling(modelName) {
+    const timer = pullPollers[modelName];
+    if (timer) {
+      clearInterval(timer);
+      const next = { ...pullPollers };
+      delete next[modelName];
+      pullPollers = next;
+    }
+  }
+
+  function startPullPolling(modelName) {
+    if (pullPollers[modelName]) return;
+    const poller = setInterval(async () => {
+      try {
+        const res = await apiFetch(
+          `/api/providers/ollama/models/pull/status?model=${encodeURIComponent(
+            modelName,
+          )}`,
+        );
+        const data = await res.json();
+        if (res.ok && data.success && data.status) {
+          pullProgress = {
+            ...pullProgress,
+            [modelName]: data.status,
+          };
+          const state = data.status.state;
+          if (state === "done" || state === "error") {
+            stopPullPolling(modelName);
+            await loadInstalledModels();
+            await loadOllamaModels();
+          }
+        }
+      } catch (err) {
+        stopPullPolling(modelName);
+      }
+    }, 1200);
+    pullPollers = { ...pullPollers, [modelName]: poller };
   }
 
   async function removeModel(modelName) {
@@ -1826,6 +1870,17 @@
                     {/if}
                   </div>
                   <p class="text-xs text-gray-400">{model.description}</p>
+                  {#if pullProgress[model.name]}
+                    <div class="mt-2 text-xs text-emerald-300">
+                      {#if pullProgress[model.name].state === "error"}
+                        Pull failed: {pullProgress[model.name].error || "Unknown error"}
+                      {:else if pullProgress[model.name].percent !== null && pullProgress[model.name].percent !== undefined}
+                        Pulling… {pullProgress[model.name].percent}%
+                      {:else}
+                        Pulling…
+                      {/if}
+                    </div>
+                  {/if}
                 </div>
                 {#if !model.installed}
                   <button
@@ -1833,7 +1888,13 @@
                     on:click={() => pullModel(model.name)}
                     disabled={pullingModel === model.name}
                   >
-                    {pullingModel === model.name ? "⏳ Pulling..." : "⬇ Pull"}
+                    {#if pullingModel === model.name}
+                      ⏳ Pulling...
+                    {:else if pullProgress[model.name]?.percent !== undefined && pullProgress[model.name]?.percent !== null}
+                      {pullProgress[model.name].percent}%
+                    {:else}
+                      ⬇ Pull
+                    {/if}
                   </button>
                 {/if}
               </div>

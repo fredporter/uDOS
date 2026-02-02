@@ -30,6 +30,7 @@
   "enabled_providers": [
     "slack",
     "github",
-    "notion"
+    "notion",
+    "hubspot_cli"
   ]
 }

@@ -8,9 +8,12 @@ Called by Wizard Server startup or manually via TUI.
 """
 
 import json
+import os
 import subprocess
 import sys
 import shutil
+import urllib.request
+import urllib.error
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Optional
@@ -224,12 +227,17 @@ def _validate_slack_auth() -> bool:
     """Validate that Slack CLI is properly authenticated."""
     try:
         result = subprocess.run(
-            ["slack", "auth", "test"],
+            ["slack", "auth", "list"],
             capture_output=True,
             text=True,
             timeout=5,
         )
-        return result.returncode == 0
+        if result.returncode == 0 and result.stdout.strip():
+            # Check for actual workspace entries (not just headers)
+            lines = [l.strip() for l in result.stdout.strip().split('\n') if l.strip()]
+            workspace_lines = [l for l in lines if l and not l.startswith('Team') and not l.startswith('---')]
+            return len(workspace_lines) > 0
+        return False
     except Exception:
         return False
 
@@ -237,8 +245,9 @@ def _validate_slack_auth() -> bool:
 def _validate_ollama() -> bool:
     """Validate that Ollama is running locally."""
     try:
+        host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
         if shutil.which("curl"):
-            return _run_check("curl -s http://localhost:11434/api/tags")
+            return _run_check(f"curl -s {host}/api/tags")
         if shutil.which("ollama"):
             result = subprocess.run(
                 ["ollama", "list"],
@@ -250,6 +259,58 @@ def _validate_ollama() -> bool:
     except Exception:
         return False
     return False
+
+
+def _ollama_api_request(path: str, payload: Optional[Dict] = None) -> Optional[Dict]:
+    host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
+    url = f"{host}{path}"
+    data = json.dumps(payload).encode("utf-8") if payload is not None else None
+    req = urllib.request.Request(
+        url,
+        method="POST" if data is not None else "GET",
+        data=data,
+        headers={"Content-Type": "application/json"} if data is not None else {},
+    )
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        body = resp.read().decode("utf-8")
+        return json.loads(body) if body else {}
+
+
+def _ollama_api_stream_pull(model: str) -> bool:
+    host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
+    url = f"{host}/api/pull"
+    data = json.dumps({"name": model}).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        method="POST",
+        data=data,
+        headers={"Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            for raw in resp:
+                line = raw.decode("utf-8").strip()
+                if not line:
+                    continue
+                try:
+                    payload = json.loads(line)
+                except Exception:
+                    continue
+                if payload.get("error"):
+                    print(f"{YELLOW}⚠{NC} {payload.get('error')}")
+                    return False
+                status = payload.get("status") or "pulling"
+                total = payload.get("total")
+                completed = payload.get("completed")
+                if isinstance(total, (int, float)) and total:
+                    pct = int((completed or 0) / total * 100)
+                    print(f"  {status}… {pct}%")
+                else:
+                    print(f"  {status}…")
+        return True
+    except Exception as exc:
+        print(f"{YELLOW}⚠{NC} Failed to pull via API: {exc}")
+        return False
 
 
 def _setup_hubspot() -> bool:
@@ -558,35 +619,44 @@ def _setup_slack() -> bool:
     if skip_to_auth or True:  # Always show auth guide after successful install
         print(f"{BLUE}━━━ AUTHENTICATION GUIDE ━━━{NC}\n")
         print("To authenticate the Slack CLI:")
-        print("  1. Run: slack login")
-        print("  2. Select your workspace")
-        print("  3. Authorize in browser when prompted")
-        print("  4. Return to terminal when complete\n")
+        print(f"  1. Run: {GREEN}slack auth login{NC}")
+        print("  2. CLI will display a /slackauthticket command")
+        print("  3. Copy and paste that command into any Slack channel/DM")
+        print("  4. Click 'Allow' in the Slack modal that appears")
+        print("  5. Copy the challenge code from Slack")
+        print("  6. Paste the challenge code back into the terminal\n")
 
         print(f"{BLUE}Quick Start Commands:{NC}")
-        print("  slack login           - Authenticate with workspace")
-        print("  slack create          - Create a new Slack app")
-        print("  slack run             - Start local development")
-        print("  slack deploy          - Deploy app to workspace")
-        print("  slack auth test       - Test authentication\n")
+        print(f"  {GREEN}slack auth login{NC}      - Authenticate with workspace")
+        print(f"  {GREEN}slack auth list{NC}       - Show authenticated accounts")
+        print(f"  {GREEN}slack create{NC}          - Create a new Slack app")
+        print(f"  {GREEN}slack run{NC}             - Start local development")
+        print(f"  {GREEN}slack deploy{NC}          - Deploy app to workspace\n")
 
-        print(f"📖 Full guide: https://api.slack.com/automation/cli/install\n")
+        print(f"📖 Full guide: https://api.slack.com/automation/cli\n")
 
-        auto_auth = input(f"{YELLOW}?{NC} Run 'slack login' now? (y/N): ").strip().lower()
+        auto_auth = input(f"{YELLOW}?{NC} Run 'slack auth login' now? (y/N): ").strip().lower()
         if auto_auth == "y":
             try:
-                result = subprocess.run(["slack", "login"], check=False)
+                print(f"\n{BLUE}Starting authentication...{NC}")
+                print(f"{YELLOW}→{NC} Copy the /slackauthticket command and paste it into Slack\n")
+                result = subprocess.run(["slack", "auth", "login"], check=False)
                 if result.returncode == 0:
-                    print(f"\n{GREEN}✓{NC} Slack CLI authenticated successfully")
-                    return True
+                    if _validate_slack_auth():
+                        print(f"\n{GREEN}✓{NC} Slack CLI authenticated successfully")
+                        _scrub_provider("slack")
+                        return True
+                    else:
+                        print(f"\n{YELLOW}⚠{NC}  Authentication may not have completed. Run 'slack auth list' to verify.")
+                        return False
                 else:
-                    print(f"\n{YELLOW}⚠{NC}  Authentication didn't complete. Run 'slack login' again.")
+                    print(f"\n{YELLOW}⚠{NC}  Authentication didn't complete. Run 'slack auth login' again.")
                     return False
             except Exception as e:
                 print(f"{YELLOW}⚠{NC}  Interactive auth failed: {e}")
                 return False
 
-        print(f"{GREEN}✓{NC} Slack CLI ready. Run 'slack login' when ready to authenticate.")
+        print(f"{GREEN}✓{NC} Slack CLI ready. Run 'slack auth login' when ready to authenticate.")
         return True
 
 
@@ -619,19 +689,30 @@ def _show_ollama_model_library() -> bool:
 
     # Check installed models
     try:
-        result = subprocess.run(
-            ["ollama", "list"],
-            capture_output=True,
-            text=True,
-            timeout=5,
-        )
-        if result.returncode == 0:
-            installed = result.stdout.strip().split("\n")[1:]
-            if installed and installed[0].strip():
-                print(f"{GREEN}✓ INSTALLED MODELS:{NC}\n")
-                for line in installed:
-                    if line.strip():
-                        print(f"  {line}")
+        if shutil.which("ollama"):
+            result = subprocess.run(
+                ["ollama", "list"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if result.returncode == 0:
+                installed = result.stdout.strip().split("\n")[1:]
+                if installed and installed[0].strip():
+                    print(f"{GREEN}✓ INSTALLED MODELS:{NC}\n")
+                    for line in installed:
+                        if line.strip():
+                            print(f"  {line}")
+                    print()
+        else:
+            data = _ollama_api_request("/api/tags")
+            models_data = (data or {}).get("models", [])
+            if models_data:
+                print(f"{GREEN}✓ INSTALLED MODELS (API):{NC}\n")
+                for item in models_data:
+                    name = item.get("name", "")
+                    if name:
+                        print(f"  {name}")
                 print()
     except Exception:
         pass
@@ -645,13 +726,18 @@ def _show_ollama_model_library() -> bool:
             if choice in [m[0] for m in models]:
                 print(f"\nPulling {choice}...\n")
                 try:
-                    result = subprocess.run(
-                        ["ollama", "pull", choice],
-                        check=False,
-                    )
-                    if result.returncode == 0:
-                        print(f"\n{GREEN}✓{NC} {choice} installed successfully!")
-                        return True
+                    if shutil.which("ollama"):
+                        result = subprocess.run(
+                            ["ollama", "pull", choice],
+                            check=False,
+                        )
+                        if result.returncode == 0:
+                            print(f"\n{GREEN}✓{NC} {choice} installed successfully!")
+                            return True
+                    else:
+                        if _ollama_api_stream_pull(choice):
+                            print(f"\n{GREEN}✓{NC} {choice} pull started via API.")
+                            return True
                 except Exception as e:
                     print(f"{YELLOW}⚠{NC} Failed to pull {choice}: {e}")
                     return False
@@ -669,16 +755,25 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     if provider_id == "hubspot":
         return _setup_hubspot()
 
+    if provider_id == "hubspot_cli":
+        return _setup_hubspot_cli()
+
     if provider_id == "slack":
         return _setup_slack()
 
     if provider_id == "ollama":
         # Check if Ollama is installed
         if not shutil.which("ollama"):
+            if _validate_ollama():
+                host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
+                print(f"{GREEN}✓{NC} Ollama API reachable at {host}\n")
+                _show_ollama_model_library()
+                return True
             print(f"{YELLOW}⚠{NC} ollama CLI not found")
             print("   Install from: https://ollama.ai")
             print("\n   macOS/Linux: brew install ollama")
             print("   Windows: Download from https://ollama.ai/download")
+            print(f"\n   Or set OLLAMA_HOST to a running Ollama server")
             return False
 
         # Check if running
@@ -701,6 +796,7 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
         "ollama": None,  # Has dedicated setup function
         "slack": None,   # Has dedicated setup function
         "hubspot": None, # Has dedicated setup function
+        "hubspot_cli": None, # Has dedicated setup function
         "notion": None,  # Interactive browser flow
     }
 
