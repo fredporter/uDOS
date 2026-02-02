@@ -967,21 +967,24 @@
 
   async function installHubSpotCLI() {
     if (isInstallingHubSpot) return;
-    if (!confirm("Install @hubspot/cli via npm? This may take 1-2 minutes.")) return;
-    
+    if (!confirm("Install @hubspot/cli via npm? This may take 1-2 minutes."))
+      return;
+
     isInstallingHubSpot = true;
     setStatus("Installing HubSpot CLI...", "info");
-    
+
     try {
       const response = await apiFetch("/api/providers/hubspot/cli/install", {
         method: "POST",
       });
       const data = await response.json();
-      
+
       if (!response.ok || data.error) {
-        throw new Error(data.error || data.message || `HTTP ${response.status}`);
+        throw new Error(
+          data.error || data.message || `HTTP ${response.status}`,
+        );
       }
-      
+
       setStatus(data.message + " - " + data.next_step, "success");
       await loadHubSpotStatus();
     } catch (err) {
@@ -1866,12 +1869,14 @@
             <div class="flex items-center justify-between text-sm">
               <span class="text-gray-400">Installed:</span>
               {#if hubspotCliStatus.installed}
-                <span class="text-emerald-400">✓ {hubspotCliStatus.version || "Yes"}</span>
+                <span class="text-emerald-400"
+                  >✓ {hubspotCliStatus.version || "Yes"}</span
+                >
               {:else}
                 <span class="text-red-400">✗ Not installed</span>
               {/if}
             </div>
-            
+
             {#if hubspotCliStatus.installed}
               <div class="flex items-center justify-between text-sm">
                 <span class="text-gray-400">Authenticated:</span>
@@ -1890,10 +1895,14 @@
                   on:click={installHubSpotCLI}
                   disabled={isInstallingHubSpot}
                 >
-                  {isInstallingHubSpot ? "⏳ Installing..." : "📥 Install HubSpot CLI"}
+                  {isInstallingHubSpot
+                    ? "⏳ Installing..."
+                    : "📥 Install HubSpot CLI"}
                 </button>
                 <p class="text-xs text-gray-500 mt-2">
-                  Installs: <code class="text-orange-400">npm install -g @hubspot/cli</code>
+                  Installs: <code class="text-orange-400"
+                    >npm install -g @hubspot/cli</code
+                  >
                 </p>
               </div>
             {/if}
@@ -1911,7 +1920,9 @@
           {#if hubspotAccounts.length > 0}
             <div class="space-y-2">
               {#each hubspotAccounts as account}
-                <div class="bg-gray-950 border border-gray-700 rounded p-2 text-xs">
+                <div
+                  class="bg-gray-950 border border-gray-700 rounded p-2 text-xs"
+                >
                   <code class="text-orange-400">{account}</code>
                 </div>
               {/each}
@@ -1937,7 +1948,9 @@
 
       <!-- Quickstart Guide -->
       <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-        <h4 class="text-sm font-semibold text-white mb-3">📚 Quick Start Commands</h4>
+        <h4 class="text-sm font-semibold text-white mb-3">
+          📚 Quick Start Commands
+        </h4>
 
         <div class="space-y-3 text-xs">
           <div class="bg-gray-950 rounded p-3 border border-gray-700">
@@ -1946,7 +1959,8 @@
               <span class="text-gray-500">Create new project</span>
             </div>
             <p class="text-gray-500">
-              Interactive wizard to create and deploy a HubSpot app with boilerplate
+              Interactive wizard to create and deploy a HubSpot app with
+              boilerplate
             </p>
           </div>
 
@@ -1989,15 +2003,26 @@
             class="inline-flex items-center gap-1 text-sm text-orange-400 hover:text-orange-300 transition-colors"
           >
             📖 View Full Quickstart Guide
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+              />
             </svg>
           </a>
         </div>
       </div>
 
       <div class="mt-4 text-xs text-gray-500">
-        Tip: Most HubSpot CLI commands are interactive and work best when run directly in a terminal.
+        Tip: Most HubSpot CLI commands are interactive and work best when run
+        directly in a terminal.
       </div>
     {/if}
   </div>

@@ -303,7 +303,7 @@ def _setup_hubspot_cli() -> bool:
     except (subprocess.CalledProcessError, FileNotFoundError):
         print("HubSpot CLI not found. Installing...\n")
         install = input(f"{YELLOW}?{NC} Install @hubspot/cli via npm? (y/N): ").strip().lower()
-        
+
         if install != "y":
             print(f"{YELLOW}⚠{NC}  CLI installation skipped.")
             return False
@@ -449,6 +449,90 @@ def _setup_hubspot_api() -> bool:
         return False
 
 
+def _setup_slack() -> bool:
+    """Interactive Slack CLI installation and authentication."""
+    print(f"{BLUE}━━━ SLACK CLI SETUP ━━━{NC}\n")
+
+    print("The Slack Platform CLI lets you build Slack apps locally.")
+    print("Documentation: https://api.slack.com/automation/cli\n")
+
+    # Check if npm is available
+    try:
+        subprocess.run(["npm", "--version"], capture_output=True, check=True, timeout=5)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print(f"{YELLOW}⚠{NC}  npm not found. Install Node.js first: https://nodejs.org/")
+        return False
+
+    # Check if Slack CLI is already installed
+    try:
+        result = subprocess.run(
+            ["slack", "version"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            print(f"{GREEN}✓{NC} Slack CLI already installed: {result.stdout.strip()}\n")
+        else:
+            raise FileNotFoundError
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("Slack CLI not found. Installing...\n")
+        install = input(f"{YELLOW}?{NC} Install @slack/cli via npm? (y/N): ").strip().lower()
+
+        if install != "y":
+            print(f"{YELLOW}⚠{NC}  CLI installation skipped.")
+            return False
+
+        print(f"\n{BLUE}Installing @slack/cli (this may take 1-2 minutes)...{NC}")
+        try:
+            subprocess.run(
+                ["npm", "install", "-g", "@slack/cli"],
+                timeout=180,
+                check=True
+            )
+            print(f"{GREEN}✓{NC} Slack CLI installed successfully\n")
+        except subprocess.TimeoutExpired:
+            print(f"{YELLOW}⚠{NC}  Installation timed out. Try manually: npm install -g @slack/cli")
+            return False
+        except subprocess.CalledProcessError as e:
+            print(f"{YELLOW}⚠{NC}  Installation failed: {e}")
+            return False
+
+    # Guide through authentication
+    print(f"{BLUE}━━━ AUTHENTICATION GUIDE ━━━{NC}\n")
+    print("To authenticate the Slack CLI:")
+    print("  1. Run: slack login")
+    print("  2. Select your workspace")
+    print("  3. Authorize in browser when prompted")
+    print("  4. Return to terminal when complete\n")
+
+    print(f"{BLUE}Quick Start Commands:{NC}")
+    print("  slack login           - Authenticate with workspace")
+    print("  slack create          - Create a new Slack app")
+    print("  slack run             - Start local development")
+    print("  slack deploy          - Deploy app to workspace")
+    print("  slack auth test       - Test authentication\n")
+
+    print(f"📖 Full guide: https://api.slack.com/automation/cli/install\n")
+
+    auto_auth = input(f"{YELLOW}?{NC} Run 'slack login' now? (y/N): ").strip().lower()
+    if auto_auth == "y":
+        try:
+            result = subprocess.run(["slack", "login"], check=False)
+            if result.returncode == 0:
+                print(f"\n{GREEN}✓{NC} Slack CLI authenticated successfully")
+                return True
+            else:
+                print(f"\n{YELLOW}⚠{NC}  Authentication didn't complete. Run 'slack login' again.")
+                return False
+        except Exception as e:
+            print(f"{YELLOW}⚠{NC}  Interactive auth failed: {e}")
+            return False
+
+    print(f"{GREEN}✓{NC} Slack CLI ready. Run 'slack login' when ready to authenticate.")
+    return True
+
+
 def _show_ollama_model_library() -> bool:
     """Interactive Ollama model library browser and installer."""
     print(f"{BLUE}━━━ OLLAMA MODEL LIBRARY ━━━{NC}\n")
@@ -528,6 +612,9 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     if provider_id == "hubspot":
         return _setup_hubspot()
 
+    if provider_id == "slack":
+        return _setup_slack()
+
     if provider_id == "ollama":
         # Check if Ollama is installed
         if not shutil.which("ollama"):
@@ -554,8 +641,9 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     # Map provider IDs to setup commands
     setup_commands = {
         "github": ["gh", "auth", "login"],
-        "ollama": None,  # Auto-detected
-        "slack": ["slack", "login"],
+        "ollama": None,  # Has dedicated setup function
+        "slack": None,   # Has dedicated setup function
+        "hubspot": None, # Has dedicated setup function
         "notion": None,  # Interactive browser flow
     }
 

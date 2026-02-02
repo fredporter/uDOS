@@ -701,10 +701,10 @@ def create_provider_routes(auth_guard=None):
                 text=True,
                 timeout=5,
             )
-            
+
             if version_result.returncode == 0:
                 version = version_result.stdout.strip()
-                
+
                 # Check if CLI is authenticated
                 auth_result = subprocess.run(
                     ["hs", "account", "list"],
@@ -712,9 +712,9 @@ def create_provider_routes(auth_guard=None):
                     text=True,
                     timeout=5,
                 )
-                
+
                 authenticated = auth_result.returncode == 0 and len(auth_result.stdout.strip()) > 0
-                
+
                 return {
                     "success": True,
                     "installed": True,
@@ -756,14 +756,14 @@ def create_provider_routes(auth_guard=None):
                 capture_output=True,
                 timeout=5,
             )
-            
+
             if npm_check.returncode != 0:
                 return {
                     "success": False,
                     "error": "npm not found",
                     "help": "Install Node.js and npm first",
                 }
-            
+
             # Install @hubspot/cli globally
             install_result = subprocess.run(
                 ["npm", "install", "-g", "@hubspot/cli"],
@@ -771,7 +771,7 @@ def create_provider_routes(auth_guard=None):
                 text=True,
                 timeout=120,
             )
-            
+
             if install_result.returncode == 0:
                 return {
                     "success": True,
@@ -823,7 +823,7 @@ def create_provider_routes(auth_guard=None):
                 text=True,
                 timeout=5,
             )
-            
+
             if result.returncode == 0:
                 # Parse account list output
                 accounts = []
@@ -831,7 +831,7 @@ def create_provider_routes(auth_guard=None):
                     line = line.strip()
                     if line and not line.startswith("=") and "Account" not in line:
                         accounts.append(line)
-                
+
                 return {
                     "success": True,
                     "accounts": accounts,
