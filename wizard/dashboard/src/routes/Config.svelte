@@ -8,7 +8,11 @@
    */
 
   import { onMount } from "svelte";
-  import { getAdminToken, setAdminToken, buildAuthHeaders } from "../lib/services/auth";
+  import {
+    getAdminToken,
+    setAdminToken,
+    buildAuthHeaders,
+  } from "../lib/services/auth";
   import {
     applyTypographyState,
     bodyFonts,
@@ -162,7 +166,9 @@
     try {
       const response = await apiFetch("/api/config/files");
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: `HTTP ${response.status}` }));
+        const errorData = await response
+          .json()
+          .catch(() => ({ detail: `HTTP ${response.status}` }));
         throw new Error(errorData.detail || `HTTP ${response.status}`);
       }
       const data = await response.json();
@@ -334,7 +340,9 @@
   async function generateAdminToken() {
     tokenStatus = "Generating token…";
     try {
-      const response = await fetch("/api/admin-token/generate", { method: "POST" });
+      const response = await fetch("/api/admin-token/generate", {
+        method: "POST",
+      });
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.detail || `HTTP ${response.status}`);
@@ -397,7 +405,6 @@
     const nextSize = cycleOption(sizePresets, typography.size);
     syncTypography({ ...typography, size: nextSize.id });
   }
-
 
   function resetTypography() {
     typography = resetTypographyState();
@@ -696,26 +703,44 @@
 
   <!-- First-time setup banner -->
   {#if !adminToken}
-    <div class="mb-6 p-6 rounded-lg border-2 border-yellow-600 bg-yellow-900/20">
+    <div
+      class="mb-6 p-6 rounded-lg border-2 border-yellow-600 bg-yellow-900/20"
+    >
       <div class="flex items-start gap-4">
         <div class="text-4xl">🔑</div>
         <div class="flex-1">
-          <h2 class="text-xl font-bold text-yellow-200 mb-2">Welcome to Wizard Server!</h2>
+          <h2 class="text-xl font-bold text-yellow-200 mb-2">
+            Welcome to Wizard Server!
+          </h2>
           <p class="text-yellow-100 mb-4">
-            To access protected configuration endpoints, you need to generate an admin token.
+            To access protected configuration endpoints, you need to generate an
+            admin token.
           </p>
           <div class="bg-gray-900/50 rounded-lg p-4 mb-4">
-            <p class="text-sm text-gray-300 mb-2 font-semibold">From your terminal:</p>
-            <ol class="text-sm text-gray-300 space-y-2 list-decimal list-inside">
-              <li>Launch uCODE: <code class="px-2 py-1 bg-gray-800 rounded">./bin/Launch-uCODE.command</code></li>
-              <li>Run command: <code class="px-2 py-1 bg-gray-800 rounded">WIZARD admin-token</code></li>
+            <p class="text-sm text-gray-300 mb-2 font-semibold">
+              From your terminal:
+            </p>
+            <ol
+              class="text-sm text-gray-300 space-y-2 list-decimal list-inside"
+            >
+              <li>
+                Launch uCODE: <code class="px-2 py-1 bg-gray-800 rounded"
+                  >./bin/Launch-uCODE.command</code
+                >
+              </li>
+              <li>
+                Run command: <code class="px-2 py-1 bg-gray-800 rounded"
+                  >WIZARD admin-token</code
+                >
+              </li>
               <li>Copy the generated token</li>
               <li>Paste it in the "Admin Token" section below</li>
               <li>Click "Save Token" and refresh this page</li>
             </ol>
           </div>
           <p class="text-xs text-yellow-300">
-            💡 The token is stored locally in your browser and never sent to remote servers.
+            💡 The token is stored locally in your browser and never sent to
+            remote servers.
           </p>
         </div>
       </div>
@@ -724,9 +749,14 @@
 
   <div class="config-summary mb-6">
     <strong>Wizard All-In-One Panel:</strong>
-    Manage the Python <code>.venv</code>, synchronize the API/secret store, and invoke plugin installers without leaving this page.
-    Use the Plugin Repository section to validate manifests from <code>wizard/distribution/plugins/</code> or jump to the
-    <a href="#hotkeys" on:click={() => (window.location.hash = "hotkeys")}>Hotkey Center</a> for F-key and TAB bindings.
+    Manage the Python <code>.venv</code>, synchronize the API/secret store, and
+    invoke plugin installers without leaving this page. Use the Plugin
+    Repository section to validate manifests from
+    <code>wizard/distribution/plugins/</code>
+    or jump to the
+    <a href="#hotkeys" on:click={() => (window.location.hash = "hotkeys")}
+      >Hotkey Center</a
+    > for F-key and TAB bindings.
   </div>
 
   <!-- Status message -->
@@ -762,7 +792,8 @@
     <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
       <h3 class="text-sm font-semibold text-white mb-2">Display Settings</h3>
       <p class="text-xs text-gray-400 mb-4">
-        Theme, typography, and fullscreen controls (mirrored with the bottom bar).
+        Theme, typography, and fullscreen controls (mirrored with the bottom
+        bar).
       </p>
       <div class="flex flex-wrap items-center gap-3">
         <button
