@@ -109,6 +109,16 @@ class SecretStore:
         tomb = self.config.tomb_path
         if not tomb.exists():
             logger.warning("[WIZ] secret tomb not found; starting empty store")
+            # Still need to set up _fernet for persistence even if tomb doesn't exist
+            # Use the provided key or env key
+            if env_key:
+                self._fernet = self._get_fernet(env_key)
+            elif fallback_key:
+                self._fernet = self._get_fernet(fallback_key)
+            elif file_key:
+                self._fernet = self._get_fernet(file_key)
+            else:
+                raise SecretStoreError("No key material provided to unlock tomb")
             self._cache = {}
             self._loaded = True
             return

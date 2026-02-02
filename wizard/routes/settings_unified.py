@@ -309,8 +309,9 @@ def set_secret(key: str, value: str) -> Dict[str, Any]:
         store = get_secret_store()
         try:
             store.unlock()
-        except SecretStoreError:
-            pass
+        except SecretStoreError as e:
+            logger.error(f"[LOCAL] Failed to unlock secret store: {e}")
+            return {"error": f"Secret store is locked: {str(e)}"}
         store.set_entry(key, value, metadata={"updated_at": datetime.now().isoformat()})
         wizard_update = _sync_wizard_config_from_secret(key)
         logger.info(f"[LOCAL] Secret updated: {key}")
@@ -525,9 +526,10 @@ def create_settings_unified_router(auth_guard=None):
         store = get_secret_store()
         try:
             store.unlock()
-            return {"locked": False}
+            return {"locked": False, "status": "unlocked"}
         except SecretStoreError as exc:
-            return {"locked": True, "error": str(exc)}
+            logger.warning(f"[WIZ] Secret store unlock failed: {exc}")
+            return {"locked": True, "error": str(exc), "can_repair": True}
 
     @router.post("/secrets/repair")
     async def secrets_repair(request: Request = None):
