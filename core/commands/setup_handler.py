@@ -84,10 +84,11 @@ class SetupHandler(BaseCommandHandler):
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         """
-        SETUP command - manage local offline user setup in .env.
+        SETUP command - manage local offline user setup in .env, and provider configuration.
 
         Usage:
             SETUP              Run the setup story (configure local identity)
+            SETUP <provider>   Setup a specific provider (github, ollama, mistral, etc.)
             SETUP --profile    Show your current setup profile
             SETUP --edit       Edit setup values
             SETUP --clear      Clear setup data (start over)
@@ -103,6 +104,9 @@ class SetupHandler(BaseCommandHandler):
             OS_TYPE            alpine | ubuntu | mac | windows
             WIZARD_KEY         Gateway to Wizard keystore (auto-generated)
 
+        Provider Setup (delegates to Wizard):
+            Supported: github, ollama, mistral, openrouter, notion, hubspot, gmail
+
         Extended data in Wizard keystore (when installed):
             - API keys, OAuth tokens, credentials
             - Integrations (GitHub, Gmail, Notion, etc.)
@@ -112,6 +116,11 @@ class SetupHandler(BaseCommandHandler):
             return self._run_story()
 
         action = params[0].lower()
+
+        # Check if this is a provider setup request
+        provider_names = {"github", "ollama", "mistral", "openrouter", "notion", "hubspot", "gmail"}
+        if action in provider_names:
+            return self._setup_provider(action)
 
         if action in {"--story", "--run", "--wizard-setup"}:
             return self._run_story()
@@ -127,7 +136,7 @@ class SetupHandler(BaseCommandHandler):
             return {
                 "status": "error",
                 "message": f"Unknown option: {action}",
-                "help": "Usage: SETUP [--profile|--edit|--clear|--help]"
+                "help": "Usage: SETUP [provider|--profile|--edit|--clear|--help]\n       Providers: github, ollama, mistral, openrouter, notion, hubspot, gmail"
             }
 
     def _show_profile(self) -> Dict:
@@ -410,10 +419,20 @@ stored in the Wizard keystore.
 
 USAGE:
   SETUP              Run setup story (interactive questions)
+  SETUP <provider>   Setup a provider (github, ollama, mistral, etc.)
   SETUP --profile    Show your current setup
   SETUP --edit       Edit setup manually
   SETUP --clear      Clear all setup data
   SETUP --help       Show this help
+
+PROVIDERS:
+  SETUP github       Configure GitHub authentication
+  SETUP ollama       Setup local Ollama AI model
+  SETUP mistral      Configure Mistral AI provider
+  SETUP openrouter   Configure OpenRouter gateway
+  SETUP notion       Setup Notion integration
+  SETUP hubspot      Configure HubSpot CRM
+  SETUP gmail        Setup Gmail OAuth
 
 LOCAL SETTINGS (.env):
     USER_NAME          Username
@@ -435,11 +454,46 @@ EXTENDED SETTINGS (Wizard Keystore - installed later):
 
 EXAMPLES:
   SETUP                     # Start interactive setup
+  SETUP github              # Setup GitHub authentication
+  SETUP ollama              # Setup local Ollama
   SETUP --profile           # View current settings
   SETUP --clear && SETUP    # Reset and reconfigure
   nano .env                 # Manual editing
 """
         }
+
+    def _setup_provider(self, provider_id: str) -> Dict:
+        """Setup a provider (github, ollama, mistral, etc.)."""
+        import subprocess
+        import sys
+
+        output = [f"\n🔧 Setting up {provider_id.upper()}\n", "=" * 60]
+
+        try:
+            # Run the provider setup via wizard.check_provider_setup
+            result = subprocess.run(
+                [sys.executable, "-m", "wizard.check_provider_setup", "--provider", provider_id],
+                capture_output=False,  # Show interactive output
+                text=True,
+            )
+
+            if result.returncode == 0:
+                output.append(f"\n✅ {provider_id} setup completed successfully")
+                return {"status": "success", "output": "\n".join(output)}
+            else:
+                output.append(f"\n⚠️  {provider_id} setup had issues")
+                output.append("Check the output above for details.")
+                return {"status": "error", "output": "\n".join(output)}
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "message": f"Provider setup not available: {provider_id}"
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to setup {provider_id}: {str(e)}"
+            }
 
     # ========================================================================
     # Helper Methods - .env Storage
