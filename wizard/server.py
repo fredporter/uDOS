@@ -358,15 +358,18 @@ class WizardServer:
         public_export_router = create_public_export_routes()
         app.include_router(public_export_router)
 
+        # Register public Ollama routes FIRST (no auth required for local operations)
+        # Must be registered before protected provider routes due to route matching
+        from wizard.routes.provider_routes import create_public_ollama_routes
+
+        public_ollama_router = create_public_ollama_routes()
+        app.include_router(public_ollama_router)
+
         # Register Provider management routes
-        from wizard.routes.provider_routes import create_provider_routes, create_public_ollama_routes
+        from wizard.routes.provider_routes import create_provider_routes
 
         provider_router = create_provider_routes(auth_guard=self._authenticate_admin)
         app.include_router(provider_router)
-
-        # Register public Ollama routes (no auth required for local operations)
-        public_ollama_router = create_public_ollama_routes()
-        app.include_router(public_ollama_router)
 
         # Register System Info routes (OS detection, library status)
         from wizard.routes.system_info_routes import create_system_info_routes
