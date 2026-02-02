@@ -54,6 +54,6 @@ When automating Songscribe workflows:
 
 ## 4. Delivery Steps
 
-1. Keep `docs/GROOVEBOX-SAMPLE-LIBRARY-SPEC.md` and this spec aligned: the playlists or samples referenced in Songscribe sequences should exist in `wizard/groovebox/library/`.  
+1. Keep `docs/GROOVEBOX-SAMPLE-LIBRARY-SPEC.md` and this spec aligned: the playlists or samples referenced in Songscribe sequences should exist in `wizard/groovebox/sounds/`.  
 2. Use `/api/teletext/canvas` (Round 5) to render Songscribe grids; telemetry watchers can fetch `groovebox` data plus teletext layers to draw retro step boards.  
 3. When new Songscribe grammar features land (per the Songscribe plugin manifest), update this spec and the Hotkey Center register so automation round watchers know which keys or tasks to run next.

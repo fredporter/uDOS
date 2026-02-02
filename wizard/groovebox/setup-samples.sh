@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-LIB_ROOT="$(dirname "$0")/library"
+LIB_ROOT="$(dirname "$0")/sounds"
 SAMPLES_JSON="$(dirname "$0")/sample-library.json"
 mkdir -p "$LIB_ROOT"
 

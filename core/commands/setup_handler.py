@@ -556,6 +556,12 @@ EXAMPLES:
                 import uuid
                 existing['WIZARD_KEY'] = f'"{str(uuid.uuid4())}"'
 
+            # Add UDOS_ROOT (absolute path to repo root)
+            if 'UDOS_ROOT' not in existing:
+                from pathlib import Path
+                repo_root = Path(__file__).parent.parent.parent.resolve()
+                existing['UDOS_ROOT'] = f'"{str(repo_root)}"'
+
             # Write back to .env
             lines = []
             for key, value in sorted(existing.items()):

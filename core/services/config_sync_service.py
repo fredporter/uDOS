@@ -56,6 +56,7 @@ class ConfigSyncManager:
         'ENVIRONMENT',
         'LOG_LEVEL',
         'CORE_ROOT',
+        'UDOS_ROOT',
     }
 
     def __init__(self):
@@ -137,6 +138,11 @@ class ConfigSyncManager:
             if 'WIZARD_KEY' not in env_dict:
                 env_dict['WIZARD_KEY'] = str(uuid.uuid4())
                 logger.info(f"[LOCAL] Generated new WIZARD_KEY")
+
+            # Ensure UDOS_ROOT exists (absolute path to repo)
+            if 'UDOS_ROOT' not in env_dict:
+                env_dict['UDOS_ROOT'] = str(self.repo_root.resolve())
+                logger.info(f"[LOCAL] Set UDOS_ROOT={env_dict['UDOS_ROOT']}")
 
             # Write .env file
             self._write_env_file(env_dict)

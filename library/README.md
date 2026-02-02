@@ -7,12 +7,17 @@ This directory contains **approved production extensions** and their container d
 
 ## 🏗️ Library Structure
 
-uDOS has **two library folders**:
+uDOS has **three library locations**:
 
 | Path | Purpose | Status | Management |
 |------|---------|--------|------------|
 | **`/library/`** (root) | Approved production extensions | ✅ Tracked | Wizard function |
 | **`/dev/library/`** | Extensions in development/testing | 🚧 Private | Wizard + Dev server |
+| **`/memory/library/containers/`** | Local clones of external repos (dev reference) | 🗂️ Runtime | Gitignored, not distributed |
+
+**Additional Runtime Folders:**
+- **`/groovebox/sounds/`** — Audio samples for Groovebox (downloaded at setup, gitignored)
+- **`/memory/`** — All runtime data (logs, user files, clones, etc.) — NEVER committed
 
 **Management Roles:**
 - **Wizard Server:** Manages both `/library/` and `/dev/library/`

@@ -207,7 +207,7 @@ scripts/
 uDOS.wiki/
 
 # Groovebox sample library (downloaded at setup)
-groovebox/library/
+groovebox/sounds/
 
 # ---------- External repos (local clones, not tracked) ----------
 # Both /library and /dev/library follow the same rules:
