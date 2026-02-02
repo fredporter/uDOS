@@ -26,5 +26,10 @@
   "file_locations": {
     "memory_root": "memory",
     "repo_root": "auto"
-  }
+  },
+  "enabled_providers": [
+    "slack",
+    "github",
+    "notion"
+  ]
 }

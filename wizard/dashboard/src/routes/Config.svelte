@@ -191,6 +191,14 @@
   let showProviders = false;
   let isLoadingProviders = false;
 
+  // Ollama model management
+  let showOllama = false;
+  let popularModels = [];
+  let installedModels = [];
+  let installedCount = 0;
+  let loadingInstalled = false;
+  let pullingModel = null;
+
   // Import/Export
   let showExportModal = false;
   let showImportModal = false;
@@ -828,6 +836,92 @@
 
   function toggleProviders() {
     showProviders = !showProviders;
+  }
+
+  function toggleOllama() {
+    showOllama = !showOllama;
+    if (showOllama) {
+      loadOllamaModels();
+      loadInstalledModels();
+    }
+  }
+
+  async function loadOllamaModels() {
+    try {
+      const response = await apiFetch("/api/providers/ollama/models/available");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      popularModels = data.models || [];
+    } catch (err) {
+      setStatus(`Failed to load Ollama models: ${err.message}`, "error");
+      popularModels = [];
+    }
+  }
+
+  async function loadInstalledModels() {
+    loadingInstalled = true;
+    try {
+      const response = await apiFetch("/api/providers/ollama/models/installed");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      installedModels = data.models || [];
+      installedCount = data.count || 0;
+    } catch (err) {
+      setStatus(`Failed to load installed models: ${err.message}`, "error");
+      installedModels = [];
+      installedCount = 0;
+    } finally {
+      loadingInstalled = false;
+    }
+  }
+
+  async function pullModel(modelName) {
+    if (pullingModel) return; // Prevent multiple pulls
+    pullingModel = modelName;
+    try {
+      const response = await apiFetch(
+        `/api/providers/ollama/models/pull?model=${encodeURIComponent(
+          modelName,
+        )}`,
+        { method: "POST" },
+      );
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(
+          data.error || data.message || `HTTP ${response.status}`,
+        );
+      }
+      setStatus(`Pulling ${modelName}... Monitor in logs.`, "info");
+      // Reload models after a delay to show progress
+      setTimeout(() => loadInstalledModels(), 2000);
+    } catch (err) {
+      setStatus(`Failed to pull ${modelName}: ${err.message}`, "error");
+    } finally {
+      pullingModel = null;
+    }
+  }
+
+  async function removeModel(modelName) {
+    if (!confirm(`Remove ${modelName} from Ollama?`)) return;
+    try {
+      const response = await apiFetch(
+        `/api/providers/ollama/models/remove?model=${encodeURIComponent(
+          modelName,
+        )}`,
+        { method: "POST" },
+      );
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(
+          data.error || data.message || `HTTP ${response.status}`,
+        );
+      }
+      setStatus(`Removed ${modelName}`, "success");
+      await loadInstalledModels();
+      await loadOllamaModels(); // Refresh available models to update installed status
+    } catch (err) {
+      setStatus(`Failed to remove ${modelName}: ${err.message}`, "error");
+    }
   }
 
   function isProviderEnabled(provider) {
@@ -1512,61 +1606,153 @@
         </svg>
         <h3 class="text-lg font-semibold text-white">OLLAMA Offline Models</h3>
       </div>
-      <span class="text-xs text-gray-400">Local model library</span>
-    </div>
-
-    <p class="text-sm text-gray-400 mb-4">
-      OLLAMA maintains its own offline model library. Use the CLI to install,
-      activate, and manage models locally—similar to how Wizard manages plugins
-      and extensions.
-    </p>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-        <h4 class="text-sm font-semibold text-white mb-2">Model Library</h4>
-        <div class="space-y-2 text-xs text-gray-400">
-          <div class="bg-gray-950 rounded p-2 border border-gray-700">
-            <code class="text-green-400">ollama list</code>
-            <div class="text-gray-500">List installed models</div>
-          </div>
-          <div class="bg-gray-950 rounded p-2 border border-gray-700">
-            <code class="text-green-400">ollama pull &lt;model&gt;</code>
-            <div class="text-gray-500">Download/install a model</div>
-          </div>
-          <div class="bg-gray-950 rounded p-2 border border-gray-700">
-            <code class="text-green-400">ollama rm &lt;model&gt;</code>
-            <div class="text-gray-500">Remove a model from disk</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-        <h4 class="text-sm font-semibold text-white mb-2">
-          Activation & Status
-        </h4>
-        <div class="space-y-2 text-xs text-gray-400">
-          <div class="bg-gray-950 rounded p-2 border border-gray-700">
-            <code class="text-green-400">ollama run &lt;model&gt;</code>
-            <div class="text-gray-500">Start a model session</div>
-          </div>
-          <div class="bg-gray-950 rounded p-2 border border-gray-700">
-            <code class="text-green-400">ollama ps</code>
-            <div class="text-gray-500">Show active model sessions</div>
-          </div>
-          <div class="bg-gray-950 rounded p-2 border border-gray-700">
-            <code class="text-green-400">ollama stop &lt;model&gt;</code>
-            <div class="text-gray-500">Stop a running model</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="mt-4 text-xs text-gray-500">
-      Tip: Use <code class="px-1 py-0.5 bg-gray-900 rounded"
-        >PROVIDER SETUP ollama</code
+      <button
+        class="px-3 py-1.5 text-sm rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
+        on:click={toggleOllama}
       >
-      in the Wizard TUI to verify the local service is running.
+        {showOllama ? "▼ Hide" : "▶ Show"}
+      </button>
     </div>
+
+    {#if showOllama}
+      <p class="text-sm text-gray-400 mb-4">
+        OLLAMA maintains its own offline model library. Browse, install, and
+        manage models locally—similar to how Wizard manages plugins and
+        extensions.
+      </p>
+
+      <!-- Popular Models Browser -->
+      <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4">
+        <h4 class="text-sm font-semibold text-white mb-3">📚 Popular Models</h4>
+
+        <div class="grid grid-cols-1 gap-3 mb-4 max-h-96 overflow-y-auto">
+          {#each popularModels as model (model.name)}
+            <div
+              class="bg-gray-950 border border-gray-700 rounded-lg p-3 hover:border-emerald-500/50 transition-colors"
+            >
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <code class="text-emerald-400 font-semibold"
+                      >{model.name}</code
+                    >
+                    <span
+                      class="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded"
+                      >{model.size}</span
+                    >
+                    <span
+                      class="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded"
+                      >{model.category}</span
+                    >
+                    {#if model.installed}
+                      <span
+                        class="text-xs bg-emerald-900 text-emerald-300 px-2 py-0.5 rounded"
+                        >✓ Installed</span
+                      >
+                    {/if}
+                  </div>
+                  <p class="text-xs text-gray-400">{model.description}</p>
+                </div>
+                {#if !model.installed}
+                  <button
+                    class="ml-2 px-2 py-1 text-xs rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-colors whitespace-nowrap"
+                    on:click={() => pullModel(model.name)}
+                    disabled={pullingModel === model.name}
+                  >
+                    {pullingModel === model.name ? "⏳ Pulling..." : "⬇ Pull"}
+                  </button>
+                {/if}
+              </div>
+            </div>
+          {/each}
+        </div>
+      </div>
+
+      <!-- Installed Models -->
+      <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4">
+        <h4 class="text-sm font-semibold text-white mb-3">
+          ✓ Installed Models ({installedCount})
+        </h4>
+
+        {#if loadingInstalled}
+          <div class="text-xs text-gray-500">Loading installed models...</div>
+        {:else if installedModels.length > 0}
+          <div class="space-y-2">
+            {#each installedModels as model (model.id)}
+              <div
+                class="bg-gray-950 border border-gray-700 rounded p-2 text-xs"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <code class="text-emerald-400">{model.name}</code>
+                    <span class="text-gray-500 ml-2">({model.size})</span>
+                  </div>
+                  <button
+                    class="px-2 py-1 rounded bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-colors text-xs"
+                    on:click={() => removeModel(model.name)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            {/each}
+          </div>
+        {:else}
+          <p class="text-xs text-gray-500">
+            No models installed. Pull one above!
+          </p>
+        {/if}
+      </div>
+
+      <!-- Quick Commands -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+          <h4 class="text-sm font-semibold text-white mb-2">Model Library</h4>
+          <div class="space-y-2 text-xs text-gray-400">
+            <div class="bg-gray-950 rounded p-2 border border-gray-700">
+              <code class="text-green-400">ollama list</code>
+              <div class="text-gray-500">List installed models</div>
+            </div>
+            <div class="bg-gray-950 rounded p-2 border border-gray-700">
+              <code class="text-green-400">ollama pull &lt;model&gt;</code>
+              <div class="text-gray-500">Download/install a model</div>
+            </div>
+            <div class="bg-gray-950 rounded p-2 border border-gray-700">
+              <code class="text-green-400">ollama rm &lt;model&gt;</code>
+              <div class="text-gray-500">Remove a model from disk</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+          <h4 class="text-sm font-semibold text-white mb-2">
+            Activation & Status
+          </h4>
+          <div class="space-y-2 text-xs text-gray-400">
+            <div class="bg-gray-950 rounded p-2 border border-gray-700">
+              <code class="text-green-400">ollama run &lt;model&gt;</code>
+              <div class="text-gray-500">Start a model session</div>
+            </div>
+            <div class="bg-gray-950 rounded p-2 border border-gray-700">
+              <code class="text-green-400">ollama ps</code>
+              <div class="text-gray-500">Show active model sessions</div>
+            </div>
+            <div class="bg-gray-950 rounded p-2 border border-gray-700">
+              <code class="text-green-400">ollama stop &lt;model&gt;</code>
+              <div class="text-gray-500">Stop a running model</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-xs text-gray-500">
+        Tip: Use <code class="px-1 py-0.5 bg-gray-900 rounded"
+          >PROVIDER SETUP ollama</code
+        >
+        in the Wizard TUI to verify the local service is running and browse models
+        interactively.
+      </div>
+    {/if}
   </div>
 
   <!-- Providers Setup Section -->

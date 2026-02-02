@@ -89,6 +89,24 @@ def check_requirements() -> Dict[str, Any]:
     }
 
 
+def check_fastapi() -> Dict[str, Any]:
+    """Verify FastAPI and uvicorn are installed (required for Wizard Server)."""
+    try:
+        import fastapi  # noqa: F401
+        import uvicorn  # noqa: F401
+        return {
+            "name": "fastapi",
+            "status": "healthy",
+            "message": "FastAPI + uvicorn installed",
+        }
+    except ImportError as e:
+        return {
+            "name": "fastapi",
+            "status": "unhealthy",
+            "message": f"FastAPI/uvicorn missing: {str(e)}. Run: pip install -r requirements.txt",
+        }
+
+
 def check_wizard_config() -> Dict[str, Any]:
     cfg = _repo_root() / "wizard" / "config" / "wizard.json"
     if not cfg.exists():
@@ -150,6 +168,7 @@ def run_all() -> Dict[str, Any]:
     checks = [
         check_venv(),
         check_requirements(),
+        check_fastapi(),
         check_wizard_config(),
         check_core_versions(),
         check_git_status(),

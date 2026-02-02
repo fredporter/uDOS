@@ -85,30 +85,37 @@ psutil>=5.9.0
 bcrypt>=4.0.0
 
 # =====================
-# WEB SERVER
+# WEB SERVER (OPTIONAL - Wizard Server only)
 # =====================
+# NOTE: These are ONLY needed if running Wizard Server (port 8765)
+# For Core TUI offline mode, you can skip these:
+#   pip install -r requirements.txt --no-deps
+#   pip install google-generativeai cryptography keyring python-dotenv ...
+#
+# OR use extras:
+#   pip install -e .[wizard]     # Install with Wizard Server
+#   pip install -e .[lite]       # Core only (no Wizard)
 
-# FastAPI (Wizard Server)
+# FastAPI (Wizard Server) - REQUIRED
 fastapi>=0.109.0
 uvicorn>=0.27.0
 python-multipart>=0.0.6
-qrcode>=7.4.2
 
-# Flask web framework
-flask>=2.0.0
-flask-cors>=5.0.0
+# Flask web framework - OPTIONAL
+# flask>=2.0.0
+# flask-cors>=5.0.0
 
-# WebSocket support
-flask-socketio>=5.0.0
-simple-websocket>=1.0.0
+# WebSocket support - OPTIONAL
+# flask-socketio>=5.0.0
+# simple-websocket>=1.0.0
 
-# Async HTTP client
-aiohttp>=3.9.0
-hypercorn>=0.17.0
+# Async HTTP client - OPTIONAL
+# aiohttp>=3.9.0
+# hypercorn>=0.17.0
 
-# Markdown rendering
-markdown2>=2.4.0
-pygments>=2.10.0
+# Markdown rendering - OPTIONAL
+# markdown2>=2.4.0
+# pygments>=2.10.0
 
 # Fuzzy string matching
 thefuzz>=0.19.0

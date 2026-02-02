@@ -65,25 +65,73 @@ setup(
     python_requires=">=3.9",
     install_requires=requirements,
     extras_require={
-        # Ultra-minimal (~8MB) - Core only, no knowledge, no extensions
+        # ============================================================
+        # ENVIRONMENT PROFILES
+        # ============================================================
+
+        # Ultra-minimal (~8MB) - Core TUI only, no Wizard Server
+        # Perfect for: Offline survival mode, embedded systems, minimal install
         "ultra": [],
-        # Lite (~16MB) - Core + Knowledge (DEFAULT) - NO EXTENSIONS
-        # Excludes: extensions/, dev/, wiki/, memory/
-        # Perfect for: Offline survival, minimal installs, embedded systems
+
+        # Lite (~16MB) - Core TUI + Knowledge (DEFAULT)
+        # Perfect for: Offline survival, no cloud features
         "lite": [],
-        # Standard (~28MB) - Core + Knowledge + AI + Essential Extensions
-        # Includes: extensions/assistant/ (OK Assistant)
-        # Requires: Gemini API key for AI features
-        "standard": [
-            "google-generativeai>=0.3.0",  # OK Assistant
+
+        # Wizard Server (~45MB) - Core + Wizard APIs for cloud/local network
+        # Needed if you want: Dashboard, APIs, OAuth, Gmail relay, GitHub integration
+        "wizard": [
+            "fastapi>=0.109.0",
+            "uvicorn>=0.27.0",
+            "python-multipart>=0.0.6",
+            "qrcode>=7.4.2",
+            "flask>=2.0.0",
+            "flask-cors>=5.0.0",
+            "flask-socketio>=5.0.0",
+            "simple-websocket>=1.0.0",
+            "aiohttp>=3.9.0",
+            "hypercorn>=0.17.0",
+            "markdown2>=2.4.0",
+            "pygments>=2.10.0",
         ],
+
+        # Standard (~28MB) - Core + Wizard + AI
+        # Includes: Gemini API support for OK Assistant
+        "standard": [
+            "google-generativeai>=0.3.0",
+            "fastapi>=0.109.0",
+            "uvicorn>=0.27.0",
+            "python-multipart>=0.0.6",
+            "qrcode>=7.4.2",
+            "flask>=2.0.0",
+            "flask-cors>=5.0.0",
+            "flask-socketio>=5.0.0",
+            "simple-websocket>=1.0.0",
+            "aiohttp>=3.9.0",
+            "hypercorn>=0.17.0",
+            "markdown2>=2.4.0",
+            "pygments>=2.10.0",
+        ],
+
         # Full (~58MB) - Complete system + Gameplay + Graphics
         # Includes: extensions/play/, extensions/assets/fonts/
         # Features: XP system, map engine, ASCII graphics, font rendering
         "full": [
             "google-generativeai>=0.3.0",
-            "pillow>=10.0.0",  # Image processing for graphics
+            "pillow>=10.0.0",
+            "fastapi>=0.109.0",
+            "uvicorn>=0.27.0",
+            "python-multipart>=0.0.6",
+            "qrcode>=7.4.2",
+            "flask>=2.0.0",
+            "flask-cors>=5.0.0",
+            "flask-socketio>=5.0.0",
+            "simple-websocket>=1.0.0",
+            "aiohttp>=3.9.0",
+            "hypercorn>=0.17.0",
+            "markdown2>=2.4.0",
+            "pygments>=2.10.0",
         ],
+
         # Enterprise (~120MB+) - Everything including Cloud + BIZINTEL
         # Includes: extensions/cloud/, extensions/cloud/bizintel/
         # Features: Group sharing, tunneling, business intelligence, entity resolution
@@ -94,10 +142,23 @@ setup(
             "google-auth-oauthlib>=1.0.0",
             "google-auth-httplib2>=0.1.0",
             "google-api-python-client>=2.0.0",
-            "sqlalchemy>=2.0.0",  # BIZINTEL database
-            "fuzzywuzzy>=0.18.0",  # Entity resolution
-            "python-Levenshtein>=0.21.0",  # Fuzzy matching speedup
+            "sqlalchemy>=2.0.0",
+            "fuzzywuzzy>=0.18.0",
+            "python-Levenshtein>=0.21.0",
+            "fastapi>=0.109.0",
+            "uvicorn>=0.27.0",
+            "python-multipart>=0.0.6",
+            "qrcode>=7.4.2",
+            "flask>=2.0.0",
+            "flask-cors>=5.0.0",
+            "flask-socketio>=5.0.0",
+            "simple-websocket>=1.0.0",
+            "aiohttp>=3.9.0",
+            "hypercorn>=0.17.0",
+            "markdown2>=2.4.0",
+            "pygments>=2.10.0",
         ],
+
         # Development tools (not included in any tier)
         "dev": [
             "pytest>=7.4.0",
@@ -105,6 +166,7 @@ setup(
             "flake8>=6.0.0",
             "black>=23.0.0",
         ],
+
         # Legacy AI option (alias for standard)
         "ai": [
             "google-generativeai>=0.3.0",

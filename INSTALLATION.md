@@ -32,9 +32,24 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-> **Note:** `prompt_toolkit` (already listed in `requirements.txt`) powers the SmartPrompt enhanced mode. Always launch uDOS through the provided launcher or `python uDOS.py` from a terminal where both stdin and stdout are TTYs so the TAB-based command selector, history keys, and predictor suggestions remain active.
+> **IMPORTANT:** `requirements.txt` includes **FastAPI** and **uvicorn** — these are now REQUIRED for the Wizard Server. If you previously ran `pip install` before this update, FastAPI may not be installed. Run `pip install -r requirements.txt` again to ensure all dependencies are present.
 
-### 4. Launch Components
+> **SmartPrompt:** `prompt_toolkit` (in `requirements.txt`) powers the SmartPrompt enhanced mode. Always launch uDOS through the provided launcher or `python uDOS.py` from a terminal where both stdin and stdout are TTYs so the TAB-based command selector, history keys, and predictor suggestions remain active.
+
+### 4. Verify Installation
+
+```bash
+python3 -m pip list | grep -i fastapi
+# Should show: fastapi>=0.109.0, uvicorn>=0.27.0
+```
+
+If FastAPI is missing, the system health check will alert you on next startup. To manually check health:
+
+```bash
+python3 wizard/services/health_diagnostics.py  # Not executable yet, but shows diagnostic method
+```
+
+### 5. Launch Components
 
 uDOS uses a unified launcher system across all components. All launchers delegate to `bin/udos-common.sh` for consistent behavior.
 

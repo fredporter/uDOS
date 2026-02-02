@@ -114,6 +114,14 @@ def _provider_is_configured(provider_id: str) -> bool:
             or _get_nested(config, ["providers", "ollama", "key_id"])
         )
 
+    if provider_id == "hubspot":
+        config = _load_config_file("hubspot_keys.json") or {}
+        return bool(
+            config.get("api_key")
+            or config.get("private_app_access_token")
+            or _get_nested(config, ["providers", "hubspot", "key_id"])
+        )
+
     return False
 
 
@@ -244,17 +252,211 @@ def _validate_ollama() -> bool:
     return False
 
 
+def _setup_hubspot() -> bool:
+    """Interactive HubSpot Developer Platform app setup.
+
+    Guides users through creating a HubSpot app on the new Developer Platform:
+    https://developers.hubspot.com/docs/apps/developer-platform/build-apps/create-an-app
+    """
+    print(f"{BLUE}━━━ HUBSPOT DEVELOPER PLATFORM SETUP ━━━{NC}\n")
+
+    print("HubSpot has migrated to the Developer Platform for app management.")
+    print("This guide will help you create and configure an app.\n")
+
+    print("STEP 1: Create a HubSpot App")
+    print("─" * 50)
+    print("  1. Visit: https://developers.hubspot.com/apps")
+    print("  2. Click 'Create app' button")
+    print("  3. Enter app name (e.g., 'uDOS Integration')")
+    print("  4. Click 'Create'\n")
+
+    print("STEP 2: Configure App Permissions")
+    print("─" * 50)
+    print("  In the app dashboard, go to 'Scopes' tab and select:")
+    print("    • crm.objects.contacts.read & write")
+    print("    • crm.objects.deals.read & write")
+    print("    • crm.objects.companies.read & write")
+    print("    • crm.lists.read & write")
+    print("    • automation.actions.create & execute")
+    print("  Then click 'Save'\n")
+
+    print("STEP 3: Get Your Private App Token")
+    print("─" * 50)
+    print("  1. In the app settings, go to 'Auth' tab")
+    print("  2. Under 'Access tokens', copy your 'Private App Access Token'")
+    print("  3. This token grants full API access\n")
+
+    app_token = input(f"{YELLOW}?{NC} Paste your Private App Access Token (or press Enter to skip): ").strip()
+
+    if not app_token:
+        print(f"\n{YELLOW}⚠{NC}  Setup skipped. You can configure HubSpot later via the dashboard.")
+        return False
+
+    # Validate token format (HubSpot tokens start with 'pat-' or are long hex strings)
+    if len(app_token) < 20:
+        print(f"\n{YELLOW}⚠{NC}  Token seems too short. Please verify and try again.")
+        return False
+
+    # Save to hubspot_keys.json
+    try:
+        config_path = CONFIG_PATH / "hubspot_keys.json"
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+
+        hubspot_config = {
+            "app_type": "developer_platform",
+            "api_key": app_token,
+            "private_app_access_token": app_token,
+            "metadata": {
+                "setup_date": datetime.now().isoformat(),
+                "source": "tui_setup",
+                "api_version": "v3",
+                "platform": "developer_platform",
+            }
+        }
+
+        config_path.write_text(json.dumps(hubspot_config, indent=2))
+        print(f"\n{GREEN}✓{NC} HubSpot token saved to config")
+
+        # Verify token by making a simple API call
+        print(f"\n{BLUE}Verifying token...{NC}")
+        try:
+            import requests
+            headers = {
+                "Authorization": f"Bearer {app_token}",
+                "Content-Type": "application/json"
+            }
+            response = requests.get(
+                "https://api.hubapi.com/crm/v3/objects/contacts?limit=1",
+                headers=headers,
+                timeout=5
+            )
+
+            if response.status_code == 200:
+                print(f"{GREEN}✓{NC} Token verified! API access confirmed.\n")
+                return True
+            elif response.status_code == 401:
+                print(f"{YELLOW}⚠{NC}  Token is invalid or expired. Please check and try again.")
+                config_path.unlink()  # Delete the invalid config
+                return False
+            else:
+                print(f"{YELLOW}⚠{NC}  API verification returned: {response.status_code}")
+                print("   Token was saved but couldn't verify. Try accessing via dashboard.")
+                return True
+        except requests.exceptions.RequestException as e:
+            print(f"{YELLOW}⚠{NC}  Could not verify token (network issue): {str(e)}")
+            print("   Token was saved. You can verify manually via the dashboard.")
+            return True
+        except ImportError:
+            print(f"{YELLOW}⚠{NC}  requests library not available for verification")
+            print("   Token was saved. You can verify via the dashboard.")
+            return True
+
+    except Exception as e:
+        print(f"{YELLOW}⚠{NC}  Failed to save HubSpot config: {str(e)}")
+        return False
+
+
+def _show_ollama_model_library() -> bool:
+    """Interactive Ollama model library browser and installer."""
+    print(f"{BLUE}━━━ OLLAMA MODEL LIBRARY ━━━{NC}\n")
+
+    # Popular models with recommendations
+    models = [
+        ("devstral-small-2", "10.7B", "Coding", "🟢 Mistral's lightweight coding assistant (8GB RAM)", True),
+        ("mistral", "7.3B", "General", "⭐ Fast general purpose model (4GB RAM)", True),
+        ("neural-chat", "13B", "Chat", "💬 Intel Neural Chat optimized (8GB RAM)", False),
+        ("llama2", "7B", "General", "Meta's open foundation model (4GB RAM)", False),
+        ("openchat", "7B", "Chat", "Lightweight conversation (4GB RAM)", False),
+        ("zephyr", "7B", "General", "Fine-tuned Mistral (4GB RAM)", False),
+        ("orca-mini", "3B", "General", "Tiny but capable (2GB RAM)", False),
+        ("dolphin-mixtral", "46.7B", "Advanced", "Mixture of experts (24GB+ RAM)", False),
+    ]
+
+    print("POPULAR MODELS:\n")
+    for i, (name, size, category, desc, recommend) in enumerate(models, 1):
+        star = "⭐" if recommend else "  "
+        print(f"  {star} {i:2d}. {name:<20s} ({size:>6s}) {category}")
+        print(f"      {desc}\n")
+
+    print("COMMANDS:")
+    print("  • OLLAMA PULL <model>   - Download a model by name (e.g., 'ollama pull mistral')")
+    print("  • OLLAMA LIST           - Show installed models")
+    print("  • OLLAMA RUN <model>    - Start an interactive session\n")
+
+    # Check installed models
+    try:
+        result = subprocess.run(
+            ["ollama", "list"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            installed = result.stdout.strip().split("\n")[1:]
+            if installed and installed[0].strip():
+                print(f"{GREEN}✓ INSTALLED MODELS:{NC}\n")
+                for line in installed:
+                    if line.strip():
+                        print(f"  {line}")
+                print()
+    except Exception:
+        pass
+
+    # Offer to pull a model
+    if not auto_yes:
+        print(f"Want to download a model now?")
+        choice = input("Enter model name or 'skip' (e.g., mistral): ").strip().lower()
+
+        if choice and choice != "skip":
+            if choice in [m[0] for m in models]:
+                print(f"\nPulling {choice}...\n")
+                try:
+                    result = subprocess.run(
+                        ["ollama", "pull", choice],
+                        check=False,
+                    )
+                    if result.returncode == 0:
+                        print(f"\n{GREEN}✓{NC} {choice} installed successfully!")
+                        return True
+                except Exception as e:
+                    print(f"{YELLOW}⚠{NC} Failed to pull {choice}: {e}")
+                    return False
+            else:
+                print(f"{YELLOW}⚠{NC} Unknown model: {choice}")
+                return False
+
+    return True
+
+
 def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     """Run setup for a specific provider."""
     print(f"\n{BLUE}━━━ Setting up {provider_id} ━━━{NC}\n")
 
+    if provider_id == "hubspot":
+        return _setup_hubspot()
+
     if provider_id == "ollama":
-        if _provider_is_configured("ollama"):
-            print(f"{GREEN}✓{NC} ollama setup complete")
-            return True
-        print(f"{YELLOW}⚠{NC} ollama requires manual setup via dashboard")
-        print("   Visit: http://localhost:8765/#config")
-        return False
+        # Check if Ollama is installed
+        if not shutil.which("ollama"):
+            print(f"{YELLOW}⚠{NC} ollama CLI not found")
+            print("   Install from: https://ollama.ai")
+            print("\n   macOS/Linux: brew install ollama")
+            print("   Windows: Download from https://ollama.ai/download")
+            return False
+
+        # Check if running
+        if not _validate_ollama():
+            print(f"{YELLOW}⚠{NC} ollama server is not running")
+            print("   Start it with: ollama serve")
+            print("   Or install background service from https://ollama.ai")
+            return False
+
+        print(f"{GREEN}✓{NC} ollama server is running!\n")
+
+        # Show model library
+        _show_ollama_model_library()
+
+        return True
 
     # Map provider IDs to setup commands
     setup_commands = {

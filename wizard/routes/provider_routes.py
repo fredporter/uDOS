@@ -99,7 +99,7 @@ def create_provider_routes(auth_guard=None):
             "type": "api_key",
             "automation": "manual",
             "cli_required": False,
-            "web_url": "https://app.hubspot.com/private-apps",
+            "web_url": "https://developers.hubspot.com/docs/apps/developer-platform/build-apps/overview",
             "config_file": "hubspot_keys.json",
             "config_key": "HUBSPOT_API_KEY",
         },
@@ -441,5 +441,246 @@ def create_provider_routes(auth_guard=None):
                 json.dump(config, f, indent=2)
 
         return {"success": True, "message": f"Provider disabled"}
+
+    # ─────────────────────────────────────────────────────────────
+    # Ollama Model Management
+    # ─────────────────────────────────────────────────────────────
+
+    @router.get("/ollama/models/available")
+    async def get_available_ollama_models():
+        """
+        Get list of popular Ollama models.
+        Returns: List of recommended models with sizes and descriptions
+        """
+        popular_models = [
+            {
+                "name": "devstral-small-2",
+                "size": "10.7B",
+                "category": "coding",
+                "description": "Mistral's lightweight coding assistant (8GB RAM)",
+                "command": "ollama pull devstral-small-2",
+                "installed": False,
+            },
+            {
+                "name": "mistral",
+                "size": "7.3B",
+                "category": "general",
+                "description": "Mistral 7B - fast general purpose model (4GB RAM)",
+                "command": "ollama pull mistral",
+                "installed": False,
+            },
+            {
+                "name": "neural-chat",
+                "size": "13B",
+                "category": "chat",
+                "description": "Intel Neural Chat - conversation optimized (8GB RAM)",
+                "command": "ollama pull neural-chat",
+                "installed": False,
+            },
+            {
+                "name": "llama2",
+                "size": "7B",
+                "category": "general",
+                "description": "Llama 2 - Meta's open foundation model (4GB RAM)",
+                "command": "ollama pull llama2",
+                "installed": False,
+            },
+            {
+                "name": "openchat",
+                "size": "7B",
+                "category": "chat",
+                "description": "OpenChat - lightweight conversation model (4GB RAM)",
+                "command": "ollama pull openchat",
+                "installed": False,
+            },
+            {
+                "name": "zephyr",
+                "size": "7B",
+                "category": "general",
+                "description": "Zephyr - fine-tuned Mistral (4GB RAM)",
+                "command": "ollama pull zephyr",
+                "installed": False,
+            },
+            {
+                "name": "orca-mini",
+                "size": "3B",
+                "category": "general",
+                "description": "Orca Mini - tiny but capable (2GB RAM)",
+                "command": "ollama pull orca-mini",
+                "installed": False,
+            },
+            {
+                "name": "dolphin-mixtral",
+                "size": "46.7B",
+                "category": "advanced",
+                "description": "Dolphin Mixtral - mixture of experts (24GB+ RAM)",
+                "command": "ollama pull dolphin-mixtral",
+                "installed": False,
+            },
+        ]
+
+        # Check which models are installed locally
+        try:
+            response = subprocess.run(
+                ["ollama", "list"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if response.returncode == 0:
+                installed_lines = response.stdout.strip().split("\n")[1:]  # Skip header
+                installed_names = set()
+                for line in installed_lines:
+                    if line.strip():
+                        parts = line.split()
+                        if parts:
+                            # Extract base model name (e.g., "mistral" from "mistral:latest")
+                            model_name = parts[0].split(":")[0]
+                            installed_names.add(model_name)
+
+                # Mark installed models
+                for model in popular_models:
+                    if model["name"] in installed_names:
+                        model["installed"] = True
+        except Exception:
+            pass  # Ollama may not be running, that's OK
+
+        return {
+            "success": True,
+            "models": popular_models,
+            "categories": ["coding", "general", "chat", "advanced"],
+        }
+
+    @router.get("/ollama/models/installed")
+    async def get_installed_ollama_models():
+        """
+        Get list of currently installed Ollama models.
+        Returns: List of installed models with details
+        """
+        try:
+            response = subprocess.run(
+                ["ollama", "list"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if response.returncode == 200:
+                lines = response.stdout.strip().split("\n")
+                if len(lines) < 2:
+                    return {"success": True, "models": [], "count": 0}
+
+                models = []
+                for line in lines[1:]:  # Skip header
+                    if line.strip():
+                        parts = line.split()
+                        if len(parts) >= 2:
+                            models.append(
+                                {
+                                    "name": parts[0],
+                                    "id": parts[0],
+                                    "size": parts[1] if len(parts) > 1 else "?",
+                                    "modified": " ".join(parts[2:]) if len(parts) > 2 else "",
+                                }
+                            )
+
+                return {
+                    "success": True,
+                    "models": models,
+                    "count": len(models),
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": "Ollama not reachable. Is it running?",
+                    "help": "Start Ollama: ollama serve",
+                }
+        except FileNotFoundError:
+            return {
+                "success": False,
+                "error": "ollama CLI not found",
+                "help": "Install Ollama: https://ollama.ai",
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    @router.post("/ollama/models/pull")
+    async def pull_ollama_model(model: str):
+        """
+        Pull (download) an Ollama model.
+        Args: model - Model name (e.g., 'mistral', 'devstral-small-2')
+        """
+        if not model or not isinstance(model, str):
+            raise HTTPException(status_code=400, detail="model parameter required")
+
+        # Validate model name (prevent injection)
+        if not all(c.isalnum() or c in "-_:." for c in model):
+            raise HTTPException(status_code=400, detail="Invalid model name")
+
+        try:
+            # Check if already installed
+            list_result = subprocess.run(
+                ["ollama", "list"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if model in list_result.stdout:
+                return {
+                    "success": False,
+                    "message": f"Model {model} is already installed",
+                }
+
+            # Start pull in background
+            process = subprocess.Popen(
+                ["ollama", "pull", model],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+
+            return {
+                "success": True,
+                "message": f"Started pulling {model}...",
+                "model": model,
+                "note": "Monitor progress via 'ollama ps' or dashboard logs",
+            }
+        except FileNotFoundError:
+            return {
+                "success": False,
+                "error": "ollama CLI not found",
+                "help": "Install: https://ollama.ai",
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    @router.post("/ollama/models/remove")
+    async def remove_ollama_model(model: str):
+        """Remove an installed Ollama model."""
+        if not model or not isinstance(model, str):
+            raise HTTPException(status_code=400, detail="model parameter required")
+
+        # Validate model name
+        if not all(c.isalnum() or c in "-_:." for c in model):
+            raise HTTPException(status_code=400, detail="Invalid model name")
+
+        try:
+            result = subprocess.run(
+                ["ollama", "rm", model],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+
+            if result.returncode == 0:
+                return {"success": True, "message": f"Removed {model}"}
+            else:
+                return {"success": False, "error": result.stderr}
+        except FileNotFoundError:
+            return {
+                "success": False,
+                "error": "ollama CLI not found",
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     return router

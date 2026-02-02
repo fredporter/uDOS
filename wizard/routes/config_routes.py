@@ -378,6 +378,205 @@ def create_config_routes(auth_guard=None):
 
         return {"files": files}
 
+    # ─────────────────────────────────────────────────────────────
+    # Export/Import Routes (must come before /{file_id} to avoid conflicts)
+    # ─────────────────────────────────────────────────────────────
+
+    @router.post("/export")
+    async def export_configs(body: Dict[str, Any]):
+        """Export selected configs to a transferable file.
+
+        Allows backing up or transferring settings to another device.
+
+        Request body:
+            {
+                "file_ids": ["wizard", "github_keys", ...],  # Configs to export
+                "include_secrets": false  # Whether to include API keys
+            }
+
+        Returns:
+            {
+                "success": true,
+                "filename": "udos-config-export-2026-01-24T15-30-45Z.json",
+                "path": "/path/to/file",
+                "size": 1234,
+                "timestamp": "2026-01-24T15:30:45Z",
+                "exported_configs": ["wizard", "github_keys"],
+                "warning": "⚠️ This file contains secrets. Keep it secure!"
+            }
+        """
+        EXPORT_DIR = Path(__file__).parent.parent.parent / "memory" / "config_exports"
+        try:
+            file_ids = body.get("file_ids", [])
+            include_secrets = body.get("include_secrets", False)
+
+            if not file_ids:
+                raise HTTPException(
+                    status_code=400, detail="No config files specified for export"
+                )
+
+            # Validate file_ids
+            invalid_ids = [fid for fid in file_ids if fid not in CONFIG_FILES]
+            if invalid_ids:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid config file IDs: {', '.join(invalid_ids)}",
+                )
+
+            # Create export directory
+            EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+
+            # Collect configs
+            export_data = {
+                "export_timestamp": datetime.utcnow().isoformat() + "Z",
+                "exported_from": "uDOS Wizard Server",
+                "version": "1.0",
+                "include_secrets": include_secrets,
+                "configs": {},
+            }
+
+            has_secrets = False
+
+            for file_id in file_ids:
+                filename = CONFIG_FILES[file_id]
+                file_path = CONFIG_PATH / filename
+
+                # Try actual file first
+                content = None
+                if file_path.exists():
+                    try:
+                        with open(file_path, "r") as f:
+                            content = json.load(f)
+                    except json.JSONDecodeError:
+                        pass
+
+                if content is None:
+                    # Try example
+                    example_path = CONFIG_PATH / filename.replace(
+                        ".json", ".example.json"
+                    )
+                    if example_path.exists():
+                        try:
+                            with open(example_path, "r") as f:
+                                content = json.load(f)
+                        except json.JSONDecodeError:
+                            pass
+
+                if content is None:
+                    # Try template
+                    template_path = CONFIG_PATH / filename.replace(
+                        ".json", ".template.json"
+                    )
+                    if template_path.exists():
+                        try:
+                            with open(template_path, "r") as f:
+                                content = json.load(f)
+                        except json.JSONDecodeError:
+                            pass
+
+                if content:
+                    # Filter secrets if not included
+                    if not include_secrets and file_id != "wizard":
+                        has_secrets = True
+                        # Keep structure but redact values
+                        content = {k: "***REDACTED***" for k in content.keys()}
+
+                    export_data["configs"][file_id] = {
+                        "filename": filename,
+                        "content": content,
+                    }
+
+            if not export_data["configs"]:
+                raise HTTPException(
+                    status_code=404, detail="No config files found to export"
+                )
+
+            # Write export file
+            timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%SZ")
+            export_filename = f"udos-config-export-{timestamp}.json"
+            export_path = EXPORT_DIR / export_filename
+
+            with open(export_path, "w") as f:
+                json.dump(export_data, f, indent=2)
+
+            warning = None
+            if has_secrets or include_secrets:
+                warning = "⚠️ This file contains secrets or redacted values. Keep it secure and never commit to git!"
+
+            return {
+                "success": True,
+                "filename": export_filename,
+                "path": str(export_path),
+                "size": export_path.stat().st_size,
+                "timestamp": export_data["export_timestamp"],
+                "exported_configs": list(export_data["configs"].keys()),
+                "include_secrets": include_secrets,
+                "warning": warning,
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Failed to export configs: {str(e)}"
+            )
+
+    @router.get("/export/list")
+    async def list_exports():
+        """List available export files."""
+        EXPORT_DIR = Path(__file__).parent.parent.parent / "memory" / "config_exports"
+        if not EXPORT_DIR.exists():
+            return {"exports": []}
+
+        exports = []
+        for export_file in sorted(
+            EXPORT_DIR.glob("udos-config-export-*.json"), reverse=True
+        ):
+            try:
+                stat = export_file.stat()
+                exports.append(
+                    {
+                        "filename": export_file.name,
+                        "path": str(export_file),
+                        "size": stat.st_size,
+                        "modified": datetime.fromtimestamp(stat.st_mtime).isoformat()
+                        + "Z",
+                    }
+                )
+            except Exception:
+                pass
+
+        return {"exports": exports}
+
+    @router.get("/export/{filename}")
+    async def download_export(filename: str):
+        """Download an export file.
+
+        Safety check: only allows downloading from export directory.
+        """
+        EXPORT_DIR = Path(__file__).parent.parent.parent / "memory" / "config_exports"
+        # Validate filename to prevent path traversal
+        if not filename.startswith("udos-config-export-") or not filename.endswith(
+            ".json"
+        ):
+            raise HTTPException(status_code=400, detail="Invalid export filename")
+
+        if ".." in filename:
+            raise HTTPException(status_code=400, detail="Invalid path")
+
+        export_path = EXPORT_DIR / filename
+
+        if not export_path.exists():
+            raise HTTPException(
+                status_code=404, detail=f"Export file not found: {filename}"
+            )
+
+        return FileResponse(
+            path=export_path,
+            filename=filename,
+            media_type="application/json",
+        )
+
     @router.get("/{file_id}")
     async def get_config(file_id: str):
         """Get configuration file content.
@@ -780,203 +979,6 @@ def create_config_routes(auth_guard=None):
                 "Protect your private key with file permissions (700)",
             ],
         }
-
-    # ===== IMPORT/EXPORT SETTINGS =====
-    # Transfer settings between devices
-
-    EXPORT_DIR = Path(__file__).parent.parent.parent / "memory" / "config_exports"
-
-    @router.post("/export")
-    async def export_configs(body: Dict[str, Any]):
-        """Export selected configs to a transferable file.
-
-        Allows backing up or transferring settings to another device.
-
-        Request body:
-            {
-                "file_ids": ["wizard", "github_keys", ...],  # Configs to export
-                "include_secrets": false  # Whether to include API keys
-            }
-
-        Returns:
-            {
-                "success": true,
-                "filename": "udos-config-export-2026-01-24T15-30-45Z.json",
-                "path": "/path/to/file",
-                "size": 1234,
-                "timestamp": "2026-01-24T15:30:45Z",
-                "exported_configs": ["wizard", "github_keys"],
-                "warning": "⚠️ This file contains secrets. Keep it secure!"
-            }
-        """
-        try:
-            file_ids = body.get("file_ids", [])
-            include_secrets = body.get("include_secrets", False)
-
-            if not file_ids:
-                raise HTTPException(
-                    status_code=400, detail="No config files specified for export"
-                )
-
-            # Validate file_ids
-            invalid_ids = [fid for fid in file_ids if fid not in CONFIG_FILES]
-            if invalid_ids:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Invalid config file IDs: {', '.join(invalid_ids)}",
-                )
-
-            # Create export directory
-            EXPORT_DIR.mkdir(parents=True, exist_ok=True)
-
-            # Collect configs
-            export_data = {
-                "export_timestamp": datetime.utcnow().isoformat() + "Z",
-                "exported_from": "uDOS Wizard Server",
-                "version": "1.0",
-                "include_secrets": include_secrets,
-                "configs": {},
-            }
-
-            has_secrets = False
-
-            for file_id in file_ids:
-                filename = CONFIG_FILES[file_id]
-                file_path = CONFIG_PATH / filename
-
-                # Try actual file first
-                content = None
-                if file_path.exists():
-                    try:
-                        with open(file_path, "r") as f:
-                            content = json.load(f)
-                    except json.JSONDecodeError:
-                        pass
-
-                if content is None:
-                    # Try example
-                    example_path = CONFIG_PATH / filename.replace(
-                        ".json", ".example.json"
-                    )
-                    if example_path.exists():
-                        try:
-                            with open(example_path, "r") as f:
-                                content = json.load(f)
-                        except json.JSONDecodeError:
-                            pass
-
-                if content is None:
-                    # Try template
-                    template_path = CONFIG_PATH / filename.replace(
-                        ".json", ".template.json"
-                    )
-                    if template_path.exists():
-                        try:
-                            with open(template_path, "r") as f:
-                                content = json.load(f)
-                        except json.JSONDecodeError:
-                            pass
-
-                if content:
-                    # Filter secrets if not included
-                    if not include_secrets and file_id != "wizard":
-                        has_secrets = True
-                        # Keep structure but redact values
-                        content = {k: "***REDACTED***" for k in content.keys()}
-
-                    export_data["configs"][file_id] = {
-                        "filename": filename,
-                        "content": content,
-                    }
-
-            if not export_data["configs"]:
-                raise HTTPException(
-                    status_code=404, detail="No config files found to export"
-                )
-
-            # Write export file
-            timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%SZ")
-            export_filename = f"udos-config-export-{timestamp}.json"
-            export_path = EXPORT_DIR / export_filename
-
-            with open(export_path, "w") as f:
-                json.dump(export_data, f, indent=2)
-
-            warning = None
-            if has_secrets or include_secrets:
-                warning = "⚠️ This file contains secrets or redacted values. Keep it secure and never commit to git!"
-
-            return {
-                "success": True,
-                "filename": export_filename,
-                "path": str(export_path),
-                "size": export_path.stat().st_size,
-                "timestamp": export_data["export_timestamp"],
-                "exported_configs": list(export_data["configs"].keys()),
-                "include_secrets": include_secrets,
-                "warning": warning,
-            }
-
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Failed to export configs: {str(e)}"
-            )
-
-    @router.get("/export/list")
-    async def list_exports():
-        """List available export files."""
-        if not EXPORT_DIR.exists():
-            return {"exports": []}
-
-        exports = []
-        for export_file in sorted(
-            EXPORT_DIR.glob("udos-config-export-*.json"), reverse=True
-        ):
-            try:
-                stat = export_file.stat()
-                exports.append(
-                    {
-                        "filename": export_file.name,
-                        "path": str(export_file),
-                        "size": stat.st_size,
-                        "modified": datetime.fromtimestamp(stat.st_mtime).isoformat()
-                        + "Z",
-                    }
-                )
-            except Exception:
-                pass
-
-        return {"exports": exports}
-
-    @router.get("/export/{filename}")
-    async def download_export(filename: str):
-        """Download an export file.
-
-        Safety check: only allows downloading from export directory.
-        """
-        # Validate filename to prevent path traversal
-        if not filename.startswith("udos-config-export-") or not filename.endswith(
-            ".json"
-        ):
-            raise HTTPException(status_code=400, detail="Invalid export filename")
-
-        if ".." in filename:
-            raise HTTPException(status_code=400, detail="Invalid path")
-
-        export_path = EXPORT_DIR / filename
-
-        if not export_path.exists():
-            raise HTTPException(
-                status_code=404, detail=f"Export file not found: {filename}"
-            )
-
-        return FileResponse(
-            path=export_path,
-            filename=filename,
-            media_type="application/json",
-        )
 
     @router.post("/import")
     async def import_configs(file: UploadFile = File(...)):
