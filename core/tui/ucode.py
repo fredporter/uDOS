@@ -268,10 +268,8 @@ class uCODETUI:
         }
 
         # Conditional commands
-        if self.detector.is_available("wizard"):
-            self.commands["WIZARD"] = self._cmd_wizard
-            self.commands["WIZ"] = self._cmd_wizard
-
+        # WIZARD command now handled by dispatcher (WizardHandler)
+        
         if self.detector.is_available("extensions"):
             self.commands["PLUGIN"] = self._cmd_plugin
             self.commands["EXT"] = self._cmd_plugin
@@ -1335,56 +1333,7 @@ For detailed help on any command, type the command name followed by --help
             if output:
                 print(output)
 
-    def _cmd_wizard(self, args: str) -> None:
-        """Wizard server control."""
-        if not self.detector.is_available("wizard"):
-            print("❌ Wizard component not available.")
-            return
-
-        parts = args.split(None, 1)
-        action = parts[0].lower() if parts else "status"
-        subargs = parts[1] if len(parts) > 1 else ""
-
-        # Check if user is in ghost mode (not yet set up)
-        # OR if they don't have admin role (for non-wizard-control actions)
-        if action in ("start", "stop"):
-            if self._is_ghost_user():
-                print("\n  👻 Ghost mode prevents Wizard server control.")
-                print("  Run SETUP in uCODE to unlock a full profile before starting/stopping Wizard.\n")
-                return
-
-            # Also check if user has admin role
-            try:
-                from core.services.config_sync_service import ConfigSyncManager
-                sync_mgr = ConfigSyncManager()
-                identity = sync_mgr.load_identity_from_env()
-                user_role = identity.get('user_role', 'user').lower()
-
-                if user_role != "admin":
-                    print("\n  🔒 Only admin users can control Wizard server.")
-                    print("  Current role: " + user_role + "\n")
-                    return
-            except Exception:
-                # If we can't check role, allow it (better safe than sorry)
-                pass
-
-        if action == "start":
-            print("\n🧙 Starting Wizard Server...")
-            self._wizard_start()
-        elif action == "stop":
-            print("\n🧙 Stopping Wizard Server...")
-            self._wizard_stop()
-        elif action == "status":
-            print("\n🧙 Wizard Server Status:")
-            self._wizard_status()
-        elif action == "console":
-            print("\n🧙 Entering Wizard interactive console...")
-            self._wizard_console()
-        elif action in ("pages", "help"):
-            print("\nWizard pages: status, ai, services, quota, devices, logs, config")
-        else:
-            print(f"\n🧙 Wizard [{action}]:")
-            self._wizard_page(action)
+    # Legacy _cmd_wizard removed - now handled by dispatcher WizardHandler
 
     def _wizard_start(self) -> None:
         """Start Wizard server."""
