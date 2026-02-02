@@ -456,13 +456,6 @@ def _setup_slack() -> bool:
     print("The Slack Platform CLI lets you build Slack apps locally.")
     print("Documentation: https://api.slack.com/automation/cli\n")
 
-    # Check if npm is available
-    try:
-        subprocess.run(["npm", "--version"], capture_output=True, check=True, timeout=5)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print(f"{YELLOW}⚠{NC}  npm not found. Install Node.js first: https://nodejs.org/")
-        return False
-
     # Check if Slack CLI is already installed
     try:
         result = subprocess.run(
@@ -473,64 +466,128 @@ def _setup_slack() -> bool:
         )
         if result.returncode == 0:
             print(f"{GREEN}✓{NC} Slack CLI already installed: {result.stdout.strip()}\n")
+            skip_to_auth = True
         else:
             raise FileNotFoundError
     except (subprocess.CalledProcessError, FileNotFoundError):
-        print("Slack CLI not found. Installing...\n")
-        install = input(f"{YELLOW}?{NC} Install @slack/cli via npm? (y/N): ").strip().lower()
-
-        if install != "y":
-            print(f"{YELLOW}⚠{NC}  CLI installation skipped.")
-            return False
-
-        print(f"\n{BLUE}Installing @slack/cli (this may take 1-2 minutes)...{NC}")
-        try:
-            subprocess.run(
-                ["npm", "install", "-g", "@slack/cli"],
-                timeout=180,
-                check=True
-            )
-            print(f"{GREEN}✓{NC} Slack CLI installed successfully\n")
-        except subprocess.TimeoutExpired:
-            print(f"{YELLOW}⚠{NC}  Installation timed out. Try manually: npm install -g @slack/cli")
-            return False
-        except subprocess.CalledProcessError as e:
-            print(f"{YELLOW}⚠{NC}  Installation failed: {e}")
+        skip_to_auth = False
+        print("Slack CLI not found.\n")
+        
+        print(f"{BLUE}Installation Options:{NC}")
+        print("  1. Automatic (via install script)")
+        print("  2. Homebrew (brew install slackhq/tap/slack)")
+        print("  3. Skip (install manually later)\n")
+        
+        choice = input(f"{YELLOW}?{NC} Choose installation method (1/2/3): ").strip()
+        
+        if choice == "1":
+            # Install via official script
+            print(f"\n{BLUE}Installing Slack CLI via official script...{NC}")
+            print("Running: curl -fsSL https://downloads.slack-edge.com/slack-cli/install.sh | bash\n")
+            
+            try:
+                result = subprocess.run(
+                    ["bash", "-c", "curl -fsSL https://downloads.slack-edge.com/slack-cli/install.sh | bash"],
+                    timeout=120,
+                    check=False,
+                    capture_output=False  # Show output to user
+                )
+                
+                if result.returncode == 0:
+                    print(f"\n{GREEN}✓{NC} Slack CLI installed successfully")
+                    
+                    # Verify installation
+                    verify = subprocess.run(["slack", "version"], capture_output=True, text=True, timeout=5)
+                    if verify.returncode == 0:
+                        print(f"{GREEN}✓{NC} Verified: {verify.stdout.strip()}\n")
+                    else:
+                        print(f"{YELLOW}⚠{NC}  Installation completed but 'slack' command not found.")
+                        print("   You may need to restart your terminal or add to PATH.\n")
+                        return False
+                else:
+                    print(f"\n{YELLOW}⚠{NC}  Installation script failed.")
+                    print("   Try Homebrew: brew install slackhq/tap/slack")
+                    return False
+            except subprocess.TimeoutExpired:
+                print(f"{YELLOW}⚠{NC}  Installation timed out.")
+                return False
+            except Exception as e:
+                print(f"{YELLOW}⚠{NC}  Installation error: {e}")
+                return False
+                
+        elif choice == "2":
+            # Install via Homebrew
+            print(f"\n{BLUE}Installing via Homebrew...{NC}")
+            
+            # Check if brew is available
+            try:
+                subprocess.run(["brew", "--version"], capture_output=True, check=True, timeout=5)
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                print(f"{YELLOW}⚠{NC}  Homebrew not found. Install from: https://brew.sh")
+                return False
+            
+            try:
+                print("Running: brew install slackhq/tap/slack\n")
+                result = subprocess.run(
+                    ["brew", "install", "slackhq/tap/slack"],
+                    timeout=180,
+                    check=False,
+                    capture_output=False  # Show output
+                )
+                
+                if result.returncode == 0:
+                    print(f"\n{GREEN}✓{NC} Slack CLI installed successfully\n")
+                else:
+                    print(f"\n{YELLOW}⚠{NC}  Homebrew installation failed.")
+                    return False
+            except subprocess.TimeoutExpired:
+                print(f"{YELLOW}⚠{NC}  Installation timed out.")
+                return False
+            except Exception as e:
+                print(f"{YELLOW}⚠{NC}  Installation error: {e}")
+                return False
+        else:
+            print(f"\n{YELLOW}⚠{NC}  Installation skipped.")
+            print("\nManual installation:")
+            print("  • Script: curl -fsSL https://downloads.slack-edge.com/slack-cli/install.sh | bash")
+            print("  • Homebrew: brew install slackhq/tap/slack")
+            print("  • Manual: https://api.slack.com/automation/cli/install\n")
             return False
 
     # Guide through authentication
-    print(f"{BLUE}━━━ AUTHENTICATION GUIDE ━━━{NC}\n")
-    print("To authenticate the Slack CLI:")
-    print("  1. Run: slack login")
-    print("  2. Select your workspace")
-    print("  3. Authorize in browser when prompted")
-    print("  4. Return to terminal when complete\n")
+    if skip_to_auth or True:  # Always show auth guide after successful install
+        print(f"{BLUE}━━━ AUTHENTICATION GUIDE ━━━{NC}\n")
+        print("To authenticate the Slack CLI:")
+        print("  1. Run: slack login")
+        print("  2. Select your workspace")
+        print("  3. Authorize in browser when prompted")
+        print("  4. Return to terminal when complete\n")
 
-    print(f"{BLUE}Quick Start Commands:{NC}")
-    print("  slack login           - Authenticate with workspace")
-    print("  slack create          - Create a new Slack app")
-    print("  slack run             - Start local development")
-    print("  slack deploy          - Deploy app to workspace")
-    print("  slack auth test       - Test authentication\n")
+        print(f"{BLUE}Quick Start Commands:{NC}")
+        print("  slack login           - Authenticate with workspace")
+        print("  slack create          - Create a new Slack app")
+        print("  slack run             - Start local development")
+        print("  slack deploy          - Deploy app to workspace")
+        print("  slack auth test       - Test authentication\n")
 
-    print(f"📖 Full guide: https://api.slack.com/automation/cli/install\n")
+        print(f"📖 Full guide: https://api.slack.com/automation/cli/install\n")
 
-    auto_auth = input(f"{YELLOW}?{NC} Run 'slack login' now? (y/N): ").strip().lower()
-    if auto_auth == "y":
-        try:
-            result = subprocess.run(["slack", "login"], check=False)
-            if result.returncode == 0:
-                print(f"\n{GREEN}✓{NC} Slack CLI authenticated successfully")
-                return True
-            else:
-                print(f"\n{YELLOW}⚠{NC}  Authentication didn't complete. Run 'slack login' again.")
+        auto_auth = input(f"{YELLOW}?{NC} Run 'slack login' now? (y/N): ").strip().lower()
+        if auto_auth == "y":
+            try:
+                result = subprocess.run(["slack", "login"], check=False)
+                if result.returncode == 0:
+                    print(f"\n{GREEN}✓{NC} Slack CLI authenticated successfully")
+                    return True
+                else:
+                    print(f"\n{YELLOW}⚠{NC}  Authentication didn't complete. Run 'slack login' again.")
+                    return False
+            except Exception as e:
+                print(f"{YELLOW}⚠{NC}  Interactive auth failed: {e}")
                 return False
-        except Exception as e:
-            print(f"{YELLOW}⚠{NC}  Interactive auth failed: {e}")
-            return False
 
-    print(f"{GREEN}✓{NC} Slack CLI ready. Run 'slack login' when ready to authenticate.")
-    return True
+        print(f"{GREEN}✓{NC} Slack CLI ready. Run 'slack login' when ready to authenticate.")
+        return True
 
 
 def _show_ollama_model_library() -> bool:
