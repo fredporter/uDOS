@@ -22,7 +22,6 @@ try:
     from core_beta.services.webhook_manager import get_webhook_manager
     from core_beta.services.github_webhook_handler import get_github_handler
     from core_beta.services.platform_webhook_handlers import (
-        get_slack_handler,
         get_notion_handler,
         get_clickup_handler,
     )

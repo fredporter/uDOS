@@ -340,7 +340,6 @@ To validate GitHub webhook signatures:
 - [ ] Implement GitHub webhook signature validation
 - [ ] Add `retry [run-id]` command for manual workflow retry
 - [ ] Support custom auto-fix scripts per failure pattern
-- [ ] Integration with Slack/Discord for notifications
 - [ ] Dashboard web UI (alternative to CLI)
 
 ---

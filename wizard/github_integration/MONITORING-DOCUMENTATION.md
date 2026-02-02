@@ -262,7 +262,6 @@ Receive notifications when alerts are created:
 def on_critical_alert(alert):
     """Custom alert handler"""
     if alert.severity == "critical":
-        send_slack_message(f"🔴 {alert.message}")
         log_to_external_system(alert)
 
 # Register callback
@@ -675,7 +674,6 @@ def on_critical_alert(alert):
     """Handle critical alerts"""
     if alert.severity == "critical":
         # Send notification
-        notify_slack(alert.message)
         notify_email(alert.message)
         log_to_monitoring_service(alert)
 

@@ -22,7 +22,6 @@ else:
 
 **Testing:**
 - `PROVIDER SETUP ollama` (no CLI) → Shows `WARN Setup had issues` ✓
-- `PROVIDER SETUP slack` (no CLI) → Shows `WARN Setup had issues` ✓
 - `PROVIDER SETUP hubspot` → Shows 4-step wizard ✓
 
 ---
@@ -64,7 +63,7 @@ else:
 - ✓ Has TUI installer via _setup_hubspot() function
 - ✓ Shows in PROVIDER LIST command
 
-**Note:** The "CLI" confusion comes from HubSpot being an API-based provider (like OpenAI, Mistral, etc.), not a CLI tool like Slack/GitHub. HubSpot setup uses a 4-step interactive guide instead of running a CLI command.
+**Note:** The "CLI" confusion comes from HubSpot being an API-based provider (like OpenAI, Mistral, etc.), not a CLI tool like GitHub. HubSpot setup uses a 4-step interactive guide instead of running a CLI command.
 
 ---
 
@@ -95,7 +94,6 @@ else:
 | Provider | Type | How Setup Works | CLI Required |
 |----------|------|-----------------|--------------|
 | **Ollama** | Local | Validates CLI + running server | Yes |
-| **Slack** | OAuth | Runs `slack login` command | Yes |
 | **GitHub** | OAuth | Runs `gh auth login` command | Yes |
 | **HubSpot** | API | Interactive 4-step wizard | No |
 | **OpenAI** | API | Manual setup via dashboard | No |
@@ -140,11 +138,10 @@ curl http://192.168.1.100:8765/api/config/export/{filename}
 ✅ export endpoints: Public routes registered in server
 ✅ export auth: Local-only access control implemented
 ✅ ollama setup: Shows failure message when CLI missing
-✅ slack setup: Shows failure message when CLI missing
 ✅ hubspot: Visible in provider list and TUI installer works
 
 ---
 
 **Status:** Ready for testing
 **Commit:** eb2da79
-**Related Issues:** Slack/Ollama/HubSpot setup + export download failures
+**Related Issues:** Ollama/HubSpot setup + export download failures

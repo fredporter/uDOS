@@ -28,7 +28,6 @@
     "repo_root": "auto"
   },
   "enabled_providers": [
-    "slack",
     "github",
     "notion",
     "hubspot_cli"

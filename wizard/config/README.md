@@ -44,7 +44,6 @@ curl -X POST http://localhost:8765/api/config/assistant_keys/reset
 - `github_keys.json` — GitHub token and webhooks
 - `notion_keys.json` — Notion API credentials
 - `oauth_providers.json` — OAuth provider configs
-- `slack_keys.json` — Slack bot token and secrets
 - `wizard.json` — Server settings and policies
 
 ### File Locations (wizard.json)

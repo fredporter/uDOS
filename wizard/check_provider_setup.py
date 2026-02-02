@@ -100,11 +100,6 @@ def _provider_is_configured(provider_id: str) -> bool:
             or _get_nested(config, ["webhooks", "secret_key_id"])
         )
 
-    if provider_id == "slack":
-        if shutil.which("slack") and _run_check("slack auth test"):
-            return True
-        config = _load_config_file("slack_keys.json") or {}
-        return bool(config.get("SLACK_BOT_TOKEN") or config.get("SLACK_WEBHOOK_URL"))
 
     if provider_id == "ollama":
         if _validate_ollama():
@@ -132,11 +127,6 @@ def _scrub_provider(provider_id: str) -> None:
     if provider_id == "github" and shutil.which("gh"):
         try:
             subprocess.run(["gh", "auth", "logout", "-h", "github.com"], check=False)
-        except Exception:
-            pass
-    elif provider_id == "slack" and shutil.which("slack"):
-        try:
-            subprocess.run(["slack", "auth", "logout"], check=False)
         except Exception:
             pass
 
@@ -223,31 +213,18 @@ def _populate_github_keys(token: str) -> bool:
         return False
 
 
-def _validate_slack_auth() -> bool:
-    """Validate that Slack CLI is properly authenticated."""
-    try:
-        result = subprocess.run(
-            ["slack", "auth", "list"],
-            capture_output=True,
-            text=True,
-            timeout=5,
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            # Check for actual workspace entries (not just headers)
-            lines = [l.strip() for l in result.stdout.strip().split('\n') if l.strip()]
-            workspace_lines = [l for l in lines if l and not l.startswith('Team') and not l.startswith('---')]
-            return len(workspace_lines) > 0
-        return False
-    except Exception:
-        return False
-
-
 def _validate_ollama() -> bool:
     """Validate that Ollama is running locally."""
     try:
         host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
         if shutil.which("curl"):
             return _run_check(f"curl -s {host}/api/tags")
+        try:
+            # Avoid requiring curl/CLI when OLLAMA_HOST is reachable.
+            _ollama_api_request("/api/tags")
+            return True
+        except Exception:
+            pass
         if shutil.which("ollama"):
             result = subprocess.run(
                 ["ollama", "list"],
@@ -374,15 +351,41 @@ def _setup_hubspot_cli() -> bool:
             subprocess.run(
                 ["npm", "install", "-g", "@hubspot/cli"],
                 timeout=180,
-                check=True
+                check=True,
+                capture_output=True,
+                text=True,
             )
             print(f"{GREEN}✓{NC} HubSpot CLI installed successfully\n")
         except subprocess.TimeoutExpired:
             print(f"{YELLOW}⚠{NC}  Installation timed out. Try manually: npm install -g @hubspot/cli")
             return False
         except subprocess.CalledProcessError as e:
-            print(f"{YELLOW}⚠{NC}  Installation failed: {e}")
-            return False
+            stderr = ""
+            try:
+                stderr = getattr(e, "stderr", "") or ""
+            except Exception:
+                stderr = ""
+            if "EACCES" in str(e) or "EACCES" in stderr:
+                user_prefix = os.path.expanduser("~/.local")
+                print(f"{YELLOW}⚠{NC}  Permission denied installing globally.")
+                print(f"{BLUE}→{NC} Retrying with user prefix: {user_prefix}\n")
+                try:
+                    subprocess.run(
+                        ["npm", "install", "-g", "@hubspot/cli", "--prefix", user_prefix],
+                        timeout=180,
+                        check=True,
+                        capture_output=True,
+                        text=True,
+                    )
+                    print(f"{GREEN}✓{NC} HubSpot CLI installed to {user_prefix}/bin\n")
+                    _ensure_path_export(f"{user_prefix}/bin")
+                    print(f"{GREEN}✓{NC} PATH updated in shell profiles for {user_prefix}/bin\n")
+                except Exception as inner:
+                    print(f"{YELLOW}⚠{NC}  Installation failed: {inner}")
+                    return False
+            else:
+                print(f"{YELLOW}⚠{NC}  Installation failed: {e}")
+                return False
 
     # Guide through authentication
     print(f"{BLUE}━━━ AUTHENTICATION GUIDE ━━━{NC}\n")
@@ -510,156 +513,6 @@ def _setup_hubspot_api() -> bool:
         return False
 
 
-def _setup_slack() -> bool:
-    """Interactive Slack CLI installation and authentication."""
-    print(f"{BLUE}━━━ SLACK CLI SETUP ━━━{NC}\n")
-
-    print("The Slack Platform CLI lets you build Slack apps locally.")
-    print("Documentation: https://api.slack.com/automation/cli\n")
-
-    # Check if Slack CLI is already installed
-    try:
-        result = subprocess.run(
-            ["slack", "version"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        if result.returncode == 0:
-            print(f"{GREEN}✓{NC} Slack CLI already installed: {result.stdout.strip()}\n")
-            skip_to_auth = True
-        else:
-            raise FileNotFoundError
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        skip_to_auth = False
-        print("Slack CLI not found.\n")
-
-        print(f"{BLUE}Installation Options:{NC}")
-        print("  1. Automatic (via install script)")
-        print("  2. Homebrew (brew install slackhq/tap/slack)")
-        print("  3. Skip (install manually later)\n")
-
-        choice = input(f"{YELLOW}?{NC} Choose installation method (1/2/3): ").strip()
-
-        if choice == "1":
-            # Install via official script
-            print(f"\n{BLUE}Installing Slack CLI via official script...{NC}")
-            print("Running: curl -fsSL https://downloads.slack-edge.com/slack-cli/install.sh | bash\n")
-
-            try:
-                result = subprocess.run(
-                    ["bash", "-c", "curl -fsSL https://downloads.slack-edge.com/slack-cli/install.sh | bash"],
-                    timeout=120,
-                    check=False,
-                    capture_output=False  # Show output to user
-                )
-
-                if result.returncode == 0:
-                    print(f"\n{GREEN}✓{NC} Slack CLI installed successfully")
-
-                    # Verify installation
-                    verify = subprocess.run(["slack", "version"], capture_output=True, text=True, timeout=5)
-                    if verify.returncode == 0:
-                        print(f"{GREEN}✓{NC} Verified: {verify.stdout.strip()}\n")
-                    else:
-                        print(f"{YELLOW}⚠{NC}  Installation completed but 'slack' command not found.")
-                        print("   You may need to restart your terminal or add to PATH.\n")
-                        return False
-                else:
-                    print(f"\n{YELLOW}⚠{NC}  Installation script failed.")
-                    print("   Try Homebrew: brew install slackhq/tap/slack")
-                    return False
-            except subprocess.TimeoutExpired:
-                print(f"{YELLOW}⚠{NC}  Installation timed out.")
-                return False
-            except Exception as e:
-                print(f"{YELLOW}⚠{NC}  Installation error: {e}")
-                return False
-
-        elif choice == "2":
-            # Install via Homebrew
-            print(f"\n{BLUE}Installing via Homebrew...{NC}")
-
-            # Check if brew is available
-            try:
-                subprocess.run(["brew", "--version"], capture_output=True, check=True, timeout=5)
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                print(f"{YELLOW}⚠{NC}  Homebrew not found. Install from: https://brew.sh")
-                return False
-
-            try:
-                print("Running: brew install slackhq/tap/slack\n")
-                result = subprocess.run(
-                    ["brew", "install", "slackhq/tap/slack"],
-                    timeout=180,
-                    check=False,
-                    capture_output=False  # Show output
-                )
-
-                if result.returncode == 0:
-                    print(f"\n{GREEN}✓{NC} Slack CLI installed successfully\n")
-                else:
-                    print(f"\n{YELLOW}⚠{NC}  Homebrew installation failed.")
-                    return False
-            except subprocess.TimeoutExpired:
-                print(f"{YELLOW}⚠{NC}  Installation timed out.")
-                return False
-            except Exception as e:
-                print(f"{YELLOW}⚠{NC}  Installation error: {e}")
-                return False
-        else:
-            print(f"\n{YELLOW}⚠{NC}  Installation skipped.")
-            print("\nManual installation:")
-            print("  • Script: curl -fsSL https://downloads.slack-edge.com/slack-cli/install.sh | bash")
-            print("  • Homebrew: brew install slackhq/tap/slack")
-            print("  • Manual: https://api.slack.com/automation/cli/install\n")
-            return False
-
-    # Guide through authentication
-    if skip_to_auth or True:  # Always show auth guide after successful install
-        print(f"{BLUE}━━━ AUTHENTICATION GUIDE ━━━{NC}\n")
-        print("To authenticate the Slack CLI:")
-        print(f"  1. Run: {GREEN}slack auth login{NC}")
-        print("  2. CLI will display a /slackauthticket command")
-        print("  3. Copy and paste that command into any Slack channel/DM")
-        print("  4. Click 'Allow' in the Slack modal that appears")
-        print("  5. Copy the challenge code from Slack")
-        print("  6. Paste the challenge code back into the terminal\n")
-
-        print(f"{BLUE}Quick Start Commands:{NC}")
-        print(f"  {GREEN}slack auth login{NC}      - Authenticate with workspace")
-        print(f"  {GREEN}slack auth list{NC}       - Show authenticated accounts")
-        print(f"  {GREEN}slack create{NC}          - Create a new Slack app")
-        print(f"  {GREEN}slack run{NC}             - Start local development")
-        print(f"  {GREEN}slack deploy{NC}          - Deploy app to workspace\n")
-
-        print(f"📖 Full guide: https://api.slack.com/automation/cli\n")
-
-        auto_auth = input(f"{YELLOW}?{NC} Run 'slack auth login' now? (y/N): ").strip().lower()
-        if auto_auth == "y":
-            try:
-                print(f"\n{BLUE}Starting authentication...{NC}")
-                print(f"{YELLOW}→{NC} Copy the /slackauthticket command and paste it into Slack\n")
-                result = subprocess.run(["slack", "auth", "login"], check=False)
-                if result.returncode == 0:
-                    if _validate_slack_auth():
-                        print(f"\n{GREEN}✓{NC} Slack CLI authenticated successfully")
-                        _scrub_provider("slack")
-                        return True
-                    else:
-                        print(f"\n{YELLOW}⚠{NC}  Authentication may not have completed. Run 'slack auth list' to verify.")
-                        return False
-                else:
-                    print(f"\n{YELLOW}⚠{NC}  Authentication didn't complete. Run 'slack auth login' again.")
-                    return False
-            except Exception as e:
-                print(f"{YELLOW}⚠{NC}  Interactive auth failed: {e}")
-                return False
-
-        print(f"{GREEN}✓{NC} Slack CLI ready. Run 'slack auth login' when ready to authenticate.")
-        return True
-
-
 def _show_ollama_model_library() -> bool:
     """Interactive Ollama model library browser and installer."""
     print(f"{BLUE}━━━ OLLAMA MODEL LIBRARY ━━━{NC}\n")
@@ -748,6 +601,30 @@ def _show_ollama_model_library() -> bool:
     return True
 
 
+def _ensure_path_export(bin_path: str) -> None:
+    """Ensure PATH export for bin_path is present in common shell profiles."""
+    export_line = f'export PATH="{bin_path}:$PATH"'
+    candidates = [
+        os.path.expanduser("~/.bashrc"),
+        os.path.expanduser("~/.zshrc"),
+        os.path.expanduser("~/.profile"),
+    ]
+    for path in candidates:
+        try:
+            if os.path.exists(path):
+                content = ""
+                try:
+                    content = Path(path).read_text()
+                except Exception:
+                    content = ""
+                if export_line in content:
+                    continue
+            with open(path, "a") as handle:
+                handle.write(f"\n# Added by uDOS HubSpot CLI setup\n{export_line}\n")
+        except Exception:
+            continue
+
+
 def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     """Run setup for a specific provider."""
     print(f"\n{BLUE}━━━ Setting up {provider_id} ━━━{NC}\n")
@@ -758,9 +635,6 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     if provider_id == "hubspot_cli":
         return _setup_hubspot_cli()
 
-    if provider_id == "slack":
-        return _setup_slack()
-
     if provider_id == "ollama":
         # Check if Ollama is installed
         if not shutil.which("ollama"):
@@ -769,6 +643,10 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
                 print(f"{GREEN}✓{NC} Ollama API reachable at {host}\n")
                 _show_ollama_model_library()
                 return True
+            sys.stderr.write(
+                "ERROR: Ollama CLI not found and Ollama API unreachable. "
+                "Install Ollama or set OLLAMA_HOST to a running server.\n"
+            )
             print(f"{YELLOW}⚠{NC} ollama CLI not found")
             print("   Install from: https://ollama.ai")
             print("\n   macOS/Linux: brew install ollama")
@@ -794,7 +672,6 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     setup_commands = {
         "github": ["gh", "auth", "login"],
         "ollama": None,  # Has dedicated setup function
-        "slack": None,   # Has dedicated setup function
         "hubspot": None, # Has dedicated setup function
         "hubspot_cli": None, # Has dedicated setup function
         "notion": None,  # Interactive browser flow
@@ -842,9 +719,6 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
             if provider_id == "github":
                 # Validate GitHub auth
                 setup_valid = _validate_github_auth()
-            elif provider_id == "slack":
-                # Validate Slack auth
-                setup_valid = _validate_slack_auth()
             else:
                 # For other providers, trust returncode
                 setup_valid = True
@@ -863,15 +737,7 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
             return True
         else:
             print(f"{YELLOW}⚠{NC} {provider_id} setup did not complete successfully")
-            if provider_id == "slack":
-                output = f"{result.stdout}\n{result.stderr}".lower()
-                if "missing_authorization" in output:
-                    print("   Slack CLI is not authorized in that workspace.")
-                    print("   Approve the Slack modal, then run: slack login")
-                else:
-                    print("   Please run: slack login")
-            else:
-                print(f"   Please run: {' '.join(cmd)} again")
+            print(f"   Please run: {' '.join(cmd)} again")
             return False
     except FileNotFoundError:
         print(f"{YELLOW}⚠{NC} CLI not found: {cmd[0]}")

@@ -67,12 +67,10 @@ private/
 # Config files with secrets
 wizard/config/assistant_keys.json
 wizard/config/github_keys.json
-wizard/config/slack_keys.json
 wizard/config/oauth_providers.json
 wizard/config/notion_keys.json
 public/wizard/config/assistant_keys.json
 public/wizard/config/github_keys.json
-public/wizard/config/slack_keys.json
 public/wizard/config/oauth_providers.json
 public/wizard/config/notion_keys.json
 **/config/*_keys.json
@@ -169,7 +167,6 @@ nohup.out
 assistant_keys.json
 wizard/config/assistant_keys.json
 wizard/config/oauth_providers.json
-wizard/config/slack_keys.json
 memory/bank/user/gmail_credentials.json
 memory/bank/user/.gmail_token.enc
 *.gmail_token*
@@ -257,7 +254,6 @@ dev/library/**/
 # These must come AFTER !*.json to take precedence
 wizard/config/assistant_keys.json
 wizard/config/github_keys.json
-wizard/config/slack_keys.json
 wizard/config/oauth_providers.json
 wizard/config/notion_keys.json
 

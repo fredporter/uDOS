@@ -39,6 +39,28 @@ def create_provider_routes(auth_guard=None):
     SETUP_FLAGS_FILE = CONFIG_PATH / "provider_setup_flags.json"
     SCRIPT_DIR = Path(__file__).parent.parent.parent / "bin"
 
+    def _ensure_path_export(bin_path: str) -> None:
+        export_line = f'export PATH="{bin_path}:$PATH"'
+        candidates = [
+            os.path.expanduser("~/.bashrc"),
+            os.path.expanduser("~/.zshrc"),
+            os.path.expanduser("~/.profile"),
+        ]
+        for path in candidates:
+            try:
+                if os.path.exists(path):
+                    content = ""
+                    try:
+                        content = Path(path).read_text()
+                    except Exception:
+                        content = ""
+                    if export_line in content:
+                        continue
+                with open(path, "a") as handle:
+                    handle.write(f"\n# Added by uDOS HubSpot CLI install\n{export_line}\n")
+            except Exception:
+                continue
+
     # Provider definitions
     PROVIDERS = {
         "ollama": {
@@ -134,18 +156,6 @@ def create_provider_routes(auth_guard=None):
             "config_file": "notion_keys.json",
             "config_key": "notion_token",
         },
-        "slack": {
-            "name": "Slack",
-            "description": "Team communication",
-            "type": "oauth",
-            "automation": "cli",
-            "cli_required": True,
-            "cli_name": "slack",
-            "install_cmd": "curl -fsSL https://downloads.slack-edge.com/slack-cli/install.sh | bash",
-            "setup_cmd": "slack login",
-            "check_cmd": "slack auth test",
-            "config_file": "slack_keys.json",
-        },
         "hubspot_cli": {
             "name": "HubSpot CLI",
             "description": "HubSpot developer CLI (hs)",
@@ -184,13 +194,6 @@ def create_provider_routes(auth_guard=None):
                 return "winget install --id GitHub.cli -e"
             if os_info.is_windows and shutil.which("choco"):
                 return "choco install gh -y"
-            return None
-
-        if provider_id == "slack":
-            if shutil.which("curl"):
-                return "curl -fsSL https://downloads.slack-edge.com/slack-cli/install.sh | bash"
-            if shutil.which("npm"):
-                return "npm install -g @slack/cli"
             return None
 
         if provider_id == "hubspot_cli":
@@ -457,7 +460,6 @@ def create_provider_routes(auth_guard=None):
         if not status.get("configured"):
             secret_key_map = {
                 "github": ["github_token", "github_webhook_secret"],
-                "slack": ["slack_bot_token"],
                 "notion": ["notion_api_key"],
                 "hubspot": ["hubspot_api_key"],
                 "mistral": ["mistral_api_key"],
@@ -965,6 +967,28 @@ def create_provider_routes(auth_guard=None):
                     "message": "HubSpot CLI installed successfully",
                     "next_step": "Run 'hs init' to authenticate",
                 }
+            if "EACCES" in (install_result.stderr or ""):
+                user_prefix = os.path.expanduser("~/.local")
+                fallback = subprocess.run(
+                    [
+                        "npm",
+                        "install",
+                        "-g",
+                        "@hubspot/cli",
+                        "--prefix",
+                        user_prefix,
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                )
+                if fallback.returncode == 0:
+                    _ensure_path_export(f"{user_prefix}/bin")
+                    return {
+                        "success": True,
+                        "message": "HubSpot CLI installed to user prefix",
+                        "next_step": f"PATH updated for {user_prefix}/bin; run 'hs init'",
+                    }
             else:
                 return {
                     "success": False,
@@ -1138,6 +1162,53 @@ def create_public_ollama_routes():
             _set_pull_status(model, state="done", percent=100, status="complete")
         except Exception as exc:
             _set_pull_status(model, state="error", error=str(exc))
+
+    def _pull_via_cli(model: str) -> None:
+        _set_pull_status(model, state="pulling", percent=None)
+        percent_re = re.compile(r"(\\d{1,3})%")
+        try:
+            process = subprocess.Popen(
+                ["ollama", "pull", model],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            for stream in (process.stdout, process.stderr):
+                if not stream:
+                    continue
+                for line in stream:
+                    match = percent_re.search(line)
+                    if match:
+                        pct = min(max(int(match.group(1)), 0), 100)
+                        _set_pull_status(model, percent=pct, status=line.strip())
+            code = process.wait()
+            if code == 0:
+                _set_pull_status(model, state="done", percent=100, status="complete")
+            else:
+                _set_pull_status(
+                    model,
+                    state="error",
+                    error=f"ollama pull exited {code}",
+                )
+        except Exception as exc:
+            _set_pull_status(model, state="error", error=str(exc))
+
+    def _start_pull(model: str) -> None:
+        # Prefer API for progress if reachable
+        try:
+            _ollama_api_request("/api/tags")
+            thread = threading.Thread(target=_pull_via_api, args=(model,), daemon=True)
+        except Exception:
+            if shutil.which("ollama"):
+                thread = threading.Thread(target=_pull_via_cli, args=(model,), daemon=True)
+            else:
+                _set_pull_status(
+                    model,
+                    state="error",
+                    error="ollama CLI not found and Ollama API unreachable",
+                )
+                return
+        thread.start()
 
     @router.get("/models/available")
     async def get_available_ollama_models_public():

@@ -79,11 +79,6 @@
       label: "OAuth Providers",
       description: "Google, Microsoft, and other OAuth configs",
     },
-    slack_keys: {
-      id: "slack_keys",
-      label: "Slack Integration",
-      description: "Slack bot token and workspace config",
-    },
     hubspot_keys: {
       id: "hubspot_keys",
       label: "HubSpot",
@@ -158,12 +153,6 @@
       provider: "github",
     },
     {
-      key: "slack_bot_token",
-      label: "Slack Bot Token",
-      helper: "Bot token for Slack notifications",
-      provider: "slack",
-    },
-    {
       key: "notion_api_key",
       label: "Notion API Key",
       helper: "Notion integration token",
@@ -200,9 +189,9 @@
   let installedModels = [];
   let installedCount = 0;
   let loadingInstalled = false;
-  let pullingModel = null;
   let pullProgress = {};
   let pullPollers = {};
+  let copiedModel = null;
 
   // HubSpot CLI management
   let showHubSpot = false;
@@ -915,9 +904,13 @@
     }
   }
 
+  function isPulling(modelName) {
+    const state = pullProgress[modelName]?.state;
+    return state === "queued" || state === "connecting" || state === "pulling";
+  }
+
   async function pullModel(modelName) {
-    if (pullingModel) return; // Prevent multiple pulls
-    pullingModel = modelName;
+    if (isPulling(modelName)) return;
     try {
       const response = await apiFetch(
         `/api/providers/ollama/models/pull?model=${encodeURIComponent(
@@ -939,8 +932,19 @@
       startPullPolling(modelName);
     } catch (err) {
       setStatus(`Failed to pull ${modelName}: ${err.message}`, "error");
-    } finally {
-      pullingModel = null;
+    }
+  }
+
+  async function copyPullCommand(modelName) {
+    const command = `ollama pull ${modelName}`;
+    try {
+      await navigator.clipboard.writeText(command);
+      copiedModel = modelName;
+      setTimeout(() => {
+        if (copiedModel === modelName) copiedModel = null;
+      }, 1500);
+    } catch (err) {
+      setStatus("Failed to copy command to clipboard", "error");
     }
   }
 
@@ -975,8 +979,21 @@
             await loadInstalledModels();
             await loadOllamaModels();
           }
+        } else if (!res.ok || data.error) {
+          pullProgress = {
+            ...pullProgress,
+            [modelName]: {
+              state: "error",
+              error: data?.error || `HTTP ${res.status}`,
+            },
+          };
+          stopPullPolling(modelName);
         }
       } catch (err) {
+        pullProgress = {
+          ...pullProgress,
+          [modelName]: { state: "error", error: err.message || String(err) },
+        };
         stopPullPolling(modelName);
       }
     }, 1200);
@@ -1466,9 +1483,6 @@
               <code class="text-green-400">PROVIDER SETUP github</code>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">PROVIDER SETUP slack</code>
-            </div>
-            <div class="bg-gray-950 rounded p-2 border border-gray-700">
               <code class="text-green-400">PROVIDER SETUP ollama</code>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
@@ -1841,7 +1855,14 @@
 
       <!-- Popular Models Browser -->
       <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4">
-        <h4 class="text-sm font-semibold text-white mb-3">📚 Popular Models</h4>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
+          <h4 class="text-sm font-semibold text-white">📚 Popular Models</h4>
+          <div class="text-[11px] text-gray-400">
+            Remote: set <code>OLLAMA_HOST=http://host:11434</code> in the same
+            shell as uCODE/TUI. Local: install Ollama or run
+            <code>ollama serve</code>.
+          </div>
+        </div>
 
         <div class="grid grid-cols-1 gap-3 mb-4 max-h-96 overflow-y-auto">
           {#each popularModels as model (model.name)}
@@ -1881,14 +1902,30 @@
                       {/if}
                     </div>
                   {/if}
+                  <div class="mt-2 text-[11px] text-gray-500">
+                    Command: <code>ollama pull {model.name}</code>
+                  </div>
+                  <div class="mt-2 flex items-center gap-2 text-[11px]">
+                    <button
+                      class="px-2 py-1 rounded bg-slate-800 text-gray-200 hover:bg-slate-700"
+                      on:click={() => copyPullCommand(model.name)}
+                    >
+                      {#if copiedModel === model.name}
+                        Copied
+                      {:else}
+                        Copy command
+                      {/if}
+                    </button>
+                    <span class="text-gray-500">or use inline pull</span>
+                  </div>
                 </div>
                 {#if !model.installed}
                   <button
                     class="ml-2 px-2 py-1 text-xs rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-colors whitespace-nowrap"
                     on:click={() => pullModel(model.name)}
-                    disabled={pullingModel === model.name}
+                    disabled={isPulling(model.name)}
                   >
-                    {#if pullingModel === model.name}
+                    {#if isPulling(model.name)}
                       ⏳ Pulling...
                     {:else if pullProgress[model.name]?.percent !== undefined && pullProgress[model.name]?.percent !== null}
                       {pullProgress[model.name].percent}%

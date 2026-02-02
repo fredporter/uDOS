@@ -33,7 +33,6 @@
                     <option value="generic">Generic</option>
                     <option value="github">GitHub</option>
                     <option value="stripe">Stripe</option>
-                    <option value="slack">Slack</option>
                     <option value="zapier">Zapier</option>
                 </select>
             </div>
@@ -58,7 +57,6 @@
                     <span class="text-2xl mr-3">
                         {% if webhook.service == 'github' %}🐙
                         {% elif webhook.service == 'stripe' %}💳
-                        {% elif webhook.service == 'slack' %}💬
                         {% else %}🔗{% endif %}
                     </span>
                     <div>

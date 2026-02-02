@@ -1085,7 +1085,6 @@ class WizardConsole:
                     return
 
                 print(f"\n{provider_id} setup running...")
-                slack_install_attempted = False
                 for cmd in commands:
                     raw_cmd = cmd.get("cmd", "")
                     if not raw_cmd:
@@ -1122,85 +1121,6 @@ class WizardConsole:
                         else:
                             print("  • setup: setup_wizard.sh not found")
                             continue
-
-                    # Slack CLI handling: avoid failing installs; prompt manual steps
-                    if provider_id == "slack" and "@slack/cli" in raw_cmd:
-                        if shutil.which("slack"):
-                            print("  • install: slack CLI already present; skipping")
-                            continue
-
-                        install_cmd = None
-                        if shutil.which("curl"):
-                            install_cmd = "curl -fsSL https://downloads.slack-edge.com/slack-cli/install.sh | bash"
-                        elif shutil.which("npm"):
-                            install_cmd = "npm install -g @slack/cli"
-
-                        if not install_cmd:
-                            print(
-                                "  • install: slack CLI missing and no installer available (needs npm or curl)"
-                            )
-                            continue
-
-                        print(f"  • install: {install_cmd}")
-                        slack_install_attempted = True
-                        completed = await loop.run_in_executor(
-                            None,
-                            lambda: subprocess.run(
-                                install_cmd,
-                                shell=True,
-                                cwd=self.repo_root,
-                                check=False,
-                            ),
-                        )
-                        if completed.returncode != 0:
-                            print(
-                                "    ⚠️  slack CLI install failed; download the binary from https://api.slack.com/automation/cli"
-                            )
-                            continue
-                        else:
-                            print("    ✅ slack CLI installed")
-                        continue
-                    if (
-                        provider_id == "slack"
-                        and raw_cmd.startswith("slack ")
-                        and shutil.which("slack") is None
-                    ):
-                        if slack_install_attempted:
-                            print(
-                                "  • setup: slack CLI still missing; download the binary from https://api.slack.com/automation/cli"
-                            )
-                            continue
-
-                        # Attempt a quick install before bailing (prefer curl script)
-                        install_cmd = None
-                        if shutil.which("curl"):
-                            install_cmd = "curl -fsSL https://downloads.slack-edge.com/slack-cli/install.sh | bash"
-                        elif shutil.which("npm"):
-                            install_cmd = "npm install -g @slack/cli"
-
-                        if install_cmd:
-                            print(f"  • install: {install_cmd}")
-                            slack_install_attempted = True
-                            completed = await loop.run_in_executor(
-                                None,
-                                lambda: subprocess.run(
-                                    install_cmd,
-                                    shell=True,
-                                    cwd=self.repo_root,
-                                    check=False,
-                                ),
-                            )
-                            if completed.returncode != 0:
-                                print(
-                                    "    ⚠️  slack CLI install failed; download the binary from https://api.slack.com/automation/cli"
-                                )
-                                continue
-                            print("    ✅ slack CLI installed")
-                        else:
-                            print(
-                                "  • setup: slack CLI missing and no installer available (needs npm or curl)"
-                            )
-                        continue
 
                     print(f"  • {cmd.get('type','cmd')}: {cmd_str}")
                     try:

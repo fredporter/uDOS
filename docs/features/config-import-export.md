@@ -33,7 +33,6 @@ The import/export feature allows you to backup and transfer Wizard configuration
    - 🐙 GitHub Keys
    - 📔 Notion Integration
    - 🔐 OAuth Providers
-   - 💬 Slack Integration
    - 📈 HubSpot
 4. Choose security level:
    - **Redacted (default)**: API keys replaced with `***REDACTED***` — safe to share

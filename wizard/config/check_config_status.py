@@ -21,10 +21,6 @@ REQUIRED_KEYS: Dict[str, List[Tuple[str, ...]]] = {
         ("MISTRAL_API_KEY",),
         ("OLLAMA_HOST",),
     ],
-    "slack_keys.json": [
-        ("SLACK_BOT_TOKEN",),
-        ("SLACK_DEFAULT_CHANNEL",),
-    ],
     "oauth_providers.json": [
         ("google", "client_id"),
         ("google", "client_secret"),

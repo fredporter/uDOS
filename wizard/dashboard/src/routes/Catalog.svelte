@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { apiFetch, resolveApiBase } from "$lib/services/apiBase";
+  import { apiFetch } from "$lib/services/apiBase";
 
   let adminToken = "";
   let stats = null;
@@ -55,15 +55,13 @@
   }
 
   async function loadPlugins() {
-    const apiBase = resolveApiBase();
-    if (!apiBase) {
-      throw new Error(
-        "Wizard API base not configured. Set VITE_WIZARD_API_BASE or wizardApiBase in localStorage.",
-      );
-    }
-    const url = new URL("/api/catalog/plugins", apiBase);
-    if (categoryFilter) url.searchParams.set("category", categoryFilter);
-    const res = await apiFetch(url.toString(), { headers: authHeaders() });
+    const params = new URLSearchParams();
+    if (categoryFilter) params.set("category", categoryFilter);
+    const suffix = params.toString();
+    const res = await apiFetch(
+      `/api/catalog/plugins${suffix ? `?${suffix}` : ""}`,
+      { headers: authHeaders() },
+    );
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
         throw new Error("Admin token required");
@@ -79,15 +77,11 @@
       await loadPlugins();
       return;
     }
-    const apiBase = resolveApiBase();
-    if (!apiBase) {
-      throw new Error(
-        "Wizard API base not configured. Set VITE_WIZARD_API_BASE or wizardApiBase in localStorage.",
-      );
-    }
-    const url = new URL("/api/catalog/search", apiBase);
-    url.searchParams.set("q", searchQuery);
-    const res = await apiFetch(url.toString(), { headers: authHeaders() });
+    const params = new URLSearchParams();
+    params.set("q", searchQuery);
+    const res = await apiFetch(`/api/catalog/search?${params.toString()}`, {
+      headers: authHeaders(),
+    });
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
         throw new Error("Admin token required");

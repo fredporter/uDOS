@@ -14,9 +14,28 @@
   let refreshMs = 10000;
   let timer;
   let adminToken = "";
+  let needsAdminToken = false;
 
   const authHeaders = () =>
     adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
+
+  async function bootstrapAdminToken() {
+    if (adminToken) return true;
+    try {
+      const res = await apiFetch("/api/admin-token/status");
+      if (!res.ok) return false;
+      const data = await res.json();
+      const token = data?.env?.WIZARD_ADMIN_TOKEN;
+      if (token) {
+        adminToken = token;
+        localStorage.setItem("wizardAdminToken", token);
+        return true;
+      }
+    } catch (err) {
+      return false;
+    }
+    return false;
+  }
 
 
   const levelTone = (level) => {
@@ -38,12 +57,26 @@
   async function loadLogs() {
     loading = true;
     error = null;
+    needsAdminToken = false;
     try {
+      const hasToken = await bootstrapAdminToken();
+      if (!hasToken) {
+        needsAdminToken = true;
+        throw new Error("Admin token required");
+      }
       const res = await apiFetch(
         `/api/logs?category=${encodeURIComponent(selectedCategory)}&limit=${limit}`,
         { headers: authHeaders() },
       );
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem("wizardAdminToken");
+          adminToken = "";
+          needsAdminToken = true;
+          throw new Error("Admin token required");
+        }
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = await res.json();
       logs = data.logs || [];
       categories = data.categories || [];
@@ -159,7 +192,19 @@
 
   {#if error}
     <div class="bg-red-900 text-red-100 border border-red-700 rounded-lg p-4">
-      {error}
+      <div class="font-semibold">{error}</div>
+      {#if needsAdminToken}
+        <div class="mt-2 text-sm text-red-200">
+          Generate an admin token in Config → Admin Token, then refresh this
+          page.
+        </div>
+        <button
+          class="mt-3 inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-500"
+          on:click={() => (window.location.hash = "#config")}
+        >
+          Open Config
+        </button>
+      {/if}
     </div>
   {/if}
 

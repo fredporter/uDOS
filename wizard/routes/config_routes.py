@@ -169,7 +169,6 @@ def create_config_routes(auth_guard=None):
         "github_keys": "github_keys.json",
         "notion_keys": "notion_keys.json",
         "oauth": "oauth_providers.json",
-        "slack_keys": "slack_keys.json",
         "hubspot_keys": "hubspot_keys.json",
         "wizard": "wizard.json",
     }
@@ -180,7 +179,6 @@ def create_config_routes(auth_guard=None):
         "github_keys": "GitHub Keys",
         "notion_keys": "Notion Keys",
         "oauth": "OAuth Providers",
-        "slack_keys": "Slack Keys",
         "hubspot_keys": "HubSpot Keys",
         "wizard": "Wizard",
     }
@@ -233,9 +231,6 @@ def create_config_routes(auth_guard=None):
                     config["github_push_enabled"] = True
                     changed = True
 
-        elif file_id == "slack_keys":
-            if content.get("SLACK_BOT_TOKEN") or content.get("SLACK_WEBHOOK_URL"):
-                changed |= _enable_provider(config, "slack")
 
         elif file_id == "notion_keys":
             has_key = bool(
