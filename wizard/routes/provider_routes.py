@@ -11,7 +11,7 @@ import subprocess
 import shutil
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from fastapi.responses import JSONResponse
 from datetime import datetime
 from wizard.services.secret_store import get_secret_store, SecretStoreError
@@ -604,7 +604,7 @@ def create_provider_routes(auth_guard=None):
             return {"success": False, "error": str(e)}
 
     @router.post("/ollama/models/pull")
-    async def pull_ollama_model(model: str):
+    async def pull_ollama_model(model: str = Query(..., description="Model name to pull")):
         """
         Pull (download) an Ollama model.
         Args: model - Model name (e.g., 'mistral', 'devstral-small-2')
@@ -654,7 +654,7 @@ def create_provider_routes(auth_guard=None):
             return {"success": False, "error": str(e)}
 
     @router.post("/ollama/models/remove")
-    async def remove_ollama_model(model: str):
+    async def remove_ollama_model(model: str = Query(..., description="Model name to remove")):
         """Remove an installed Ollama model."""
         if not model or not isinstance(model, str):
             raise HTTPException(status_code=400, detail="model parameter required")
