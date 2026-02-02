@@ -1437,17 +1437,14 @@ For detailed help on any command, type the command name followed by --help
         """Stop Wizard server."""
         try:
             # Kill all python processes running wizard server
-            # Match both 'wizard/server.py' and 'wizard.server' (module form)
+            # Match both 'wizard/server.py' and 'python -m wizard.server' (module form)
             if sys.platform == 'win32':
                 cmd = "taskkill /F /IM python.exe"
             else:
-                cmd = "pkill -f 'wizard.server' || pkill -f 'wizard/server.py' || true"
-
-            subprocess.run(cmd, shell=True, timeout=5)
-            
-            # Wait a moment for processes to die
+                # Use more specific pattern to avoid matching avahi-daemon
+                cmd = "pkill -f 'python.*wizard.server' || pkill -f 'python.*wizard/server.py' || true"
             time.sleep(0.5)
-            
+
             # Verify it stopped
             try:
                 resp = requests.get("http://127.0.0.1:8765/health", timeout=1)
@@ -1457,7 +1454,7 @@ For detailed help on any command, type the command name followed by --help
                     print("  ✅ Wizard Server stopped")
             except requests.exceptions.ConnectionError:
                 print("  ✅ Wizard Server stopped")
-            
+
             sys.stdout.flush()
 
         except Exception as e:
