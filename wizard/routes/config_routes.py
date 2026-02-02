@@ -524,6 +524,7 @@ def create_config_routes(auth_guard=None):
     # Note: GET /export/list and /export/{filename} are now in create_public_export_routes()
     # for local-only access without auth
 
+    @router.get("/{file_id}")
     async def get_config(file_id: str):
         """Get configuration file content.
 
