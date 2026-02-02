@@ -11,6 +11,6 @@
     "secret_key_id": "github-webhook-secret"
   },
   "repos": [
-    "fredporter/uDOS-dev"
+    "fredporter/uDOS"
   ]
 }
