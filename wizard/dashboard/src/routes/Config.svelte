@@ -161,8 +161,12 @@
     isLoading = true;
     try {
       const response = await apiFetch("/api/config/files");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ detail: `HTTP ${response.status}` }));
+        throw new Error(errorData.detail || `HTTP ${response.status}`);
+      }
       const data = await response.json();
-      fileList = data.files || [];
+      fileList = Array.isArray(data.files) ? data.files : [];
 
       // Select first file by default
       if (fileList.length > 0) {
@@ -170,6 +174,7 @@
         await loadFile(fileList[0].id);
       }
     } catch (err) {
+      fileList = []; // Ensure fileList is always an array
       setStatus(`Failed to load config list: ${err.message}`, "error");
     } finally {
       isLoading = false;
@@ -688,6 +693,34 @@
   <p class="text-gray-400 mb-8">
     Edit API keys, webhooks, and system settings (local machine only)
   </p>
+
+  <!-- First-time setup banner -->
+  {#if !adminToken}
+    <div class="mb-6 p-6 rounded-lg border-2 border-yellow-600 bg-yellow-900/20">
+      <div class="flex items-start gap-4">
+        <div class="text-4xl">🔑</div>
+        <div class="flex-1">
+          <h2 class="text-xl font-bold text-yellow-200 mb-2">Welcome to Wizard Server!</h2>
+          <p class="text-yellow-100 mb-4">
+            To access protected configuration endpoints, you need to generate an admin token.
+          </p>
+          <div class="bg-gray-900/50 rounded-lg p-4 mb-4">
+            <p class="text-sm text-gray-300 mb-2 font-semibold">From your terminal:</p>
+            <ol class="text-sm text-gray-300 space-y-2 list-decimal list-inside">
+              <li>Launch uCODE: <code class="px-2 py-1 bg-gray-800 rounded">./bin/Launch-uCODE.command</code></li>
+              <li>Run command: <code class="px-2 py-1 bg-gray-800 rounded">WIZARD admin-token</code></li>
+              <li>Copy the generated token</li>
+              <li>Paste it in the "Admin Token" section below</li>
+              <li>Click "Save Token" and refresh this page</li>
+            </ol>
+          </div>
+          <p class="text-xs text-yellow-300">
+            💡 The token is stored locally in your browser and never sent to remote servers.
+          </p>
+        </div>
+      </div>
+    </div>
+  {/if}
 
   <div class="config-summary mb-6">
     <strong>Wizard All-In-One Panel:</strong>

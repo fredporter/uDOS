@@ -19,7 +19,9 @@
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",
     "svelte": "^5.45.6",
+    "svelte-preprocess": "^6.0.3",
     "tailwindcss": "^3.4.0",
+    "typescript": "^5.9.3",
     "vite": "^7.0.0"
   }
 }

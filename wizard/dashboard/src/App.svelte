@@ -25,7 +25,7 @@ import LayerEditor from "./routes/LayerEditor.svelte";
 import SvgProcessor from "./routes/SvgProcessor.svelte";
 import Hotkeys from "./routes/Hotkeys.svelte";
 import Round3 from "./routes/Round3.svelte";
-import Groovebox from "./routes/Groovebox.svelte";
+  import Groovebox from "./routes/Groovebox.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
   import WizardBottomBar from "./components/WizardBottomBar.svelte";
   import ToastContainer from "./lib/components/ToastContainer.svelte";
