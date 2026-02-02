@@ -66,9 +66,30 @@ def _run_check(cmd: str) -> bool:
         return False
 
 
+def _validate_github_auth() -> bool:
+    """Validate that gh CLI is authenticated for github.com."""
+    try:
+        result = subprocess.run(
+            ["gh", "auth", "status", "-h", "github.com"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            return True
+        output = f"{result.stdout}\n{result.stderr}".lower()
+        if "logged in to github.com" in output:
+            return True
+        if "logged in to" in output and "github.com" in output:
+            return True
+        return False
+    except Exception:
+        return False
+
+
 def _provider_is_configured(provider_id: str) -> bool:
     if provider_id == "github":
-        if shutil.which("gh") and _run_check("gh auth status"):
+        if shutil.which("gh") and _validate_github_auth():
             return True
         config = _load_config_file("github_keys.json") or {}
         return bool(
@@ -247,20 +268,20 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     try:
         print(f"Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, check=False)
-        
+
         # Validate that setup actually succeeded
         setup_valid = False
         if result.returncode == 0:
             if provider_id == "github":
                 # Validate GitHub auth
-                setup_valid = _run_check("gh auth status")
+                setup_valid = _validate_github_auth()
             elif provider_id == "slack":
                 # Validate Slack auth
                 setup_valid = _validate_slack_auth()
             else:
                 # For other providers, trust returncode
                 setup_valid = True
-        
+
         if setup_valid:
             print(f"{GREEN}✓{NC} {provider_id} setup complete")
 
