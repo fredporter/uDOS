@@ -32,7 +32,7 @@ logger = get_logger("system-script")
 class SystemScriptRunner:
     """Runs the startup/reboot scripts stored under /memory/system."""
 
-    SCRIPT_TEMPLATE_DIR = Path("framework/seed/bank/system")
+    SCRIPT_TEMPLATE_DIR = Path("core/framework/seed/bank/system")
 
     def __init__(self):
         self.repo_root = get_repo_root()
@@ -46,6 +46,26 @@ class SystemScriptRunner:
         self.system_dir.mkdir(parents=True, exist_ok=True)
         self.template_dir = self.repo_root / self.SCRIPT_TEMPLATE_DIR
         self.todo_reminder = get_reminder_service()
+
+        # Seed system scripts on first run
+        self._seed_system_scripts()
+
+    def _seed_system_scripts(self) -> None:
+        """Seed system scripts from templates if they don't exist."""
+        script_templates = ["startup-script.md", "reboot-script.md"]
+
+        for script_name in script_templates:
+            target = self.system_dir / script_name
+            if not target.exists():
+                template = self.template_dir / script_name
+                if template.exists():
+                    try:
+                        shutil.copy(template, target)
+                        logger.info(f"[SYSTEM SCRIPT] Seeded {script_name} from template")
+                    except Exception as exc:
+                        logger.warning(f"[SYSTEM SCRIPT] Failed to seed {script_name}: {exc}")
+                else:
+                    logger.warning(f"[SYSTEM SCRIPT] Template not found: {template}")
 
     def run_startup_script(self) -> Dict[str, Any]:
         """Run the startup script and return the execution summary."""
