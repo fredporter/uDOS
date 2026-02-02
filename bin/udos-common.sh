@@ -458,8 +458,13 @@ needs_rebuild() {
 maybe_npm_install() {
     local dir="$1"
     if [ "$UDOS_FORCE_REBUILD" = "1" ] || [ ! -d "$dir/node_modules" ] || [ "$dir/package.json" -nt "$dir/package-lock.json" ]; then
+        local log_file="$UDOS_ROOT/memory/logs/npm-install-$(date +%Y%m%d-%H%M%S).log"
+        mkdir -p "$(dirname "$log_file")"
         run_with_spinner "Installing dependencies in ${dir}" \
-            "cd '$dir' && npm install --no-fund --no-audit --silent" || return 1
+            "cd '$dir' && npm install --no-fund --no-audit --silent >>'$log_file' 2>&1" || {
+            echo -e "${RED}Build log saved to: $log_file${NC}"
+            return 1
+        }
     fi
     return 0
 }
@@ -469,18 +474,26 @@ run_npm_build_if_needed() {
     local src_dir="$1"
     local dist_dir="$2"
     local build_cmd="$3"   # e.g. "npm run build"
+    local log_file="$UDOS_ROOT/memory/logs/npm-build-$(date +%Y%m%d-%H%M%S).log"
+    mkdir -p "$(dirname "$log_file")"
 
     # If dist missing, always build
     if [ ! -d "$dist_dir" ]; then
         run_with_spinner "Building (output not found)" \
-            "cd '$src_dir' && $build_cmd" || return 1
+            "cd '$src_dir' && $build_cmd >>'$log_file' 2>&1" || {
+            echo -e "${RED}Build log saved to: $log_file${NC}"
+            return 1
+        }
         return 0
     fi
 
     # Force rebuild via flag
     if [ "$UDOS_FORCE_REBUILD" = "1" ]; then
         run_with_spinner "Building (--rebuild requested)" \
-            "cd '$src_dir' && $build_cmd" || return 1
+            "cd '$src_dir' && $build_cmd >>'$log_file' 2>&1" || {
+            echo -e "${RED}Build log saved to: $log_file${NC}"
+            return 1
+        }
         return 0
     fi
 
@@ -492,7 +505,10 @@ run_npm_build_if_needed() {
 
     if [ -n "$newest_src" ] && [ -n "$newest_dist" ] && [ "$newest_src" -nt "$newest_dist" ]; then
         run_with_spinner "Building (sources changed)" \
-            "cd '$src_dir' && $build_cmd" || return 1
+            "cd '$src_dir' && $build_cmd >>'$log_file' 2>&1" || {
+            echo -e "${RED}Build log saved to: $log_file${NC}"
+            return 1
+        }
     fi
 
     return 0
