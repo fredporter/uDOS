@@ -190,3 +190,56 @@ _All fixes tested and pushed to main branch_
 **Total Issues Resolved:** 11  
 **Session Duration:** ~2 hours  
 **Status:** All fresh install issues fixed and tested ✅
+
+---
+
+## Additional Architecture Changes (Session Continued)
+
+### File Organization Fixes
+
+**System Scripts Path Update:**
+- **Old:** `memory/system/startup-script.md`, `memory/system/reboot-script.md`
+- **New:** `memory/bank/system/startup-script.md`, `memory/bank/system/reboot-script.md`
+- **Migration:** Automatic migration on first run
+- **Rationale:** Follows uDOS file structure convention where `memory/bank/` stores seed/template data
+
+**Changes Made:**
+- Updated `SystemScriptRunner` to use `memory/bank/system/` path
+- Added `_migrate_old_scripts()` to automatically move existing scripts
+- Updated all documentation references
+
+### Optional Components Architecture
+
+**Core Principle:** Only `/core/` is required. All other components (wizard, extensions, plugins) are optional and must gracefully handle absence.
+
+**Implementation:**
+1. **Wizard Services Made Optional:**
+   - Wrapped `MonitoringManager` import in try-except
+   - Added `WIZARD_AVAILABLE` flag
+   - Null-safe checks before calling wizard services
+
+2. **Plugin/Extension Controls:**
+   - Added `enable_plugin()` and `disable_plugin()` to PluginRepository
+   - Created `/api/catalog/plugins/{id}/enable` endpoint
+   - Created `/api/catalog/plugins/{id}/disable` endpoint
+   - Added ON/OFF toggle in Wizard Catalog UI
+
+**UI Changes:**
+- Each plugin in catalog shows toggle button (green when ON, gray when OFF)
+- Click to enable/disable without uninstalling
+- Stats dashboard shows enabled vs installed counts
+
+**Files Changed:**
+- `core/services/system_script_runner.py` - Path fix + wizard optional
+- `wizard/services/plugin_repository.py` - Added enable/disable methods
+- `wizard/routes/catalog_routes.py` - Added enable/disable endpoints
+- `wizard/dashboard/src/routes/Catalog.svelte` - Added toggle UI
+
+**Commits:**
+- `cc6cc72` - Make Wizard optional and fix system script paths
+- `185bafd` - Add plugin/extension ON/OFF controls to Wizard Catalog
+
+---
+
+**Session Total:** 13 issues resolved, architecture improved ✅  
+**Status:** All fresh install issues fixed, optional components implemented
