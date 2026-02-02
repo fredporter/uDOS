@@ -35,7 +35,7 @@ sonic/                  # → /library/sonic/container.json (coming)
 ```
 
 **Definition tracked:** `/library/groovebox/container.json` (git)
-**Clone stored:** `/memory/library/containers/groovebox/` (gitignored)
+**Clone stored:** `/library/containers/groovebox/` (gitignored)
 
 Import via service client:
 ```python
@@ -157,7 +157,7 @@ A: No. Direct imports still work. Start with new code.
 **Q: When can I delete `__init__.py`?**
 A: Only in containerized modules (groovebox, empire). Core modules keep them.
 
-**Q: What's `/memory/library/containers/`?**
+**Q: What's `/library/containers/`?**
 A: Local clones of containerized repos. Never committed. Used for testing/development.
 
 **Q: How do I test a containerized module?**

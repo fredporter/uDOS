@@ -1,23 +1,23 @@
 # uDOS Library
 
 **Version:** Alpha v1.0.0.38+  
-**Location:** `/library/` (tracked definitions) + `/memory/library/containers/` (local clones)
+**Location:** `/library/` (tracked definitions) + `/library/containers/` (local clones)
 
 This directory contains **approved production extensions** and their container definitions.
 
 ## 🏗️ Library Structure
 
-uDOS has **three library locations**:
+uDOS has **two library locations** (plus runtime folder):
 
 | Path | Purpose | Status | Management |
 |------|---------|--------|------------|
 | **`/library/`** (root) | Approved production extensions | ✅ Tracked | Wizard function |
+| **`/library/containers/`** | Local clones for dev reference | 🗂️ Runtime | Gitignored, not distributed |
 | **`/dev/library/`** | Extensions in development/testing | 🚧 Private | Wizard + Dev server |
-| **`/memory/library/containers/`** | Local clones of external repos (dev reference) | 🗂️ Runtime | Gitignored, not distributed |
 
 **Additional Runtime Folders:**
 - **`/groovebox/sounds/`** — Audio samples for Groovebox (downloaded at setup, gitignored)
-- **`/memory/`** — All runtime data (logs, user files, clones, etc.) — NEVER committed
+- **`/memory/`** — All runtime data (logs, user files, etc.) — NEVER committed
 
 **Management Roles:**
 - **Wizard Server:** Manages both `/library/` and `/dev/library/`
@@ -31,15 +31,15 @@ uDOS has **three library locations**:
 | Path                                | Purpose                                      | Git Tracked | Distribution      |
 | ----------------------------------- | -------------------------------------------- | ----------- | ----------------- |
 | **`/library/<tool>/container.json`**| uDOS container definition + metadata         | ✅ Yes      | Public repo       |
-| **`/memory/library/containers/<tool>`** | Local clone of external repo (dev reference) | ❌ No       | Never distributed |
+| **`/library/containers/<tool>`** | Local clone of external repo (dev reference) | ❌ No       | Never distributed |
 | **`/dev/library/<tool>/`**          | Extension under development                  | ❌ No       | Private only      |
 
 **Examples:**
 
 - `/library/typo/container.json` — uDOS container definition for Typo (approved)
 - `/library/micro/container.json` — uDOS container definition for Micro editor (approved)
-- `/memory/library/containers/typo/` — Local clone of `rossrobino/typo`
-- `/memory/library/containers/micro/` — Local clone of `zyedidia/micro`
+- `/library/containers/typo/` — Local clone of `rossrobino/typo`
+- `/library/containers/micro/` — Local clone of `zyedidia/micro`
 - `/dev/library/experimental-tool/` — New extension being tested (private)
 
 ---
@@ -52,14 +52,14 @@ When a tool graduates from local experimentation to public distribution:
 
 ```bash
 # Clone external repo for testing
-mkdir -p /memory/library/containers
-cd /memory/library/containers
+mkdir -p /library/containers
+cd /library/containers
 git clone https://github.com/external/tool
 cd tool/
 # Test, modify, evaluate...
 ```
 
-**Status:** Tool in `/memory/library/containers/tool/` (gitignored, not distributed)
+**Status:** Tool in `/library/containers/tool/` (gitignored, not distributed)
 
 ### Phase 2: Create Container Definition (Public Distribution)
 
@@ -187,7 +187,7 @@ See: [docs/howto/alpine-install.md](../docs/howto/alpine-install.md)
 **Type:** Code Container (Wizard-managed)  
 **Purpose:** P2P mesh networking for offline communication
 
-**Container Location:** `/memory/library/containers/meshcore/`
+**Container Location:** `/library/containers/meshcore/`
 
 **uDOS Wrapper Layers:**
 | Layer | Location | Purpose |
@@ -216,7 +216,7 @@ python extensions/setup/install_meshcore.py --install
 **Type:** Code Container  
 **Purpose:** Markdown editing with .udos.md support
 
-**Container Location:** `/memory/library/containers/typo/`
+**Container Location:** `/library/containers/typo/`
 
 ---
 
@@ -226,7 +226,7 @@ python extensions/setup/install_meshcore.py --install
 **Type:** Code Container  
 **Purpose:** Terminal text editor
 
-**Container Location:** `/memory/library/containers/micro/`
+**Container Location:** `/library/containers/micro/`
 
 ---
 
@@ -239,7 +239,7 @@ python extensions/setup/install_meshcore.py --install
 **Type:** Neural TTS Engine  
 **Purpose:** Fast, local text-to-speech for 30+ languages
 
-**Container Location:** `/memory/library/containers/piper/`
+**Container Location:** `/library/containers/piper/`
 
 **Features:**
 
@@ -265,7 +265,7 @@ VOICE VOICES                         # List voices
 **Type:** Speech Recognition Engine  
 **Purpose:** Offline speech-to-text using Whisper/Parakeet models
 
-**Container Location:** `/memory/library/containers/handy/`
+**Container Location:** `/library/containers/handy/`
 
 **Features:**
 
@@ -311,7 +311,7 @@ VOICE SAY "I heard: $(input)"
 **Type:** Music Transcription Engine  
 **Purpose:** Turn any song into sheet music using ML-powered transcription
 
-**Container Location:** `/memory/library/containers/songscribe/`
+**Container Location:** `/library/containers/songscribe/`
 
 **Features:**
 
@@ -442,7 +442,7 @@ Each container should have a `container.json`:
 └── meshcore/
     └── container.json
 
-/memory/library/containers/
+/library/containers/
 ├── micro/          # git clone https://github.com/zyedidia/micro
 ├── typo/           # git clone https://github.com/rossrobino/typo
 └── meshcore/       # git clone https://github.com/meshcore-dev/MeshCore

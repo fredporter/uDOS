@@ -36,9 +36,9 @@ memory/tests/
 
 # Container clones (local, never tracked)
 # /library/*/container.json are definitions (tracked)
-# /memory/library/containers/* are clones (not tracked)
-memory/library/containers/
-!memory/library/containers/.gitkeep
+# /library/containers/* are clones (not tracked)
+library/containers/
+!library/containers/.gitkeep
 
 # Local scratch folders
 .archive/
@@ -269,7 +269,7 @@ wizard/config/notion_keys.json
 # Ensure all memory/ subdirectories are blocked (except whitelisted tests above)
 memory/logs/**
 memory/binders/**
-memory/library/**
+# Removed - moved to library/containers/
 memory/private/**
 memory/story/**
 memory/user/**
