@@ -104,7 +104,7 @@ def _provider_is_configured(provider_id: str) -> bool:
         return bool(config.get("SLACK_BOT_TOKEN") or config.get("SLACK_WEBHOOK_URL"))
 
     if provider_id == "ollama":
-        if _run_check("curl -s http://localhost:11434/api/tags"):
+        if _validate_ollama():
             return True
         config = _load_config_file("assistant_keys.json") or {}
         return bool(config.get("OLLAMA_HOST"))
@@ -221,9 +221,35 @@ def _validate_slack_auth() -> bool:
         return False
 
 
+def _validate_ollama() -> bool:
+    """Validate that Ollama is running locally."""
+    try:
+        if shutil.which("curl"):
+            return _run_check("curl -s http://localhost:11434/api/tags")
+        if shutil.which("ollama"):
+            result = subprocess.run(
+                ["ollama", "list"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            return result.returncode == 0
+    except Exception:
+        return False
+    return False
+
+
 def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     """Run setup for a specific provider."""
     print(f"\n{BLUE}━━━ Setting up {provider_id} ━━━{NC}\n")
+
+    if provider_id == "ollama":
+        if _provider_is_configured("ollama"):
+            print(f"{GREEN}✓{NC} ollama setup complete")
+            return True
+        print(f"{YELLOW}⚠{NC} ollama requires manual setup via dashboard")
+        print("   Visit: http://localhost:8765/#config")
+        return False
 
     # Map provider IDs to setup commands
     setup_commands = {
@@ -267,7 +293,7 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     # Run command
     try:
         print(f"Running: {' '.join(cmd)}")
-        result = subprocess.run(cmd, check=False)
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
 
         # Validate that setup actually succeeded
         setup_valid = False
@@ -296,7 +322,15 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
             return True
         else:
             print(f"{YELLOW}⚠{NC} {provider_id} setup did not complete successfully")
-            print(f"   Please run: {' '.join(cmd)} again")
+            if provider_id == "slack":
+                output = f"{result.stdout}\n{result.stderr}".lower()
+                if "missing_authorization" in output:
+                    print("   Slack CLI is not authorized in that workspace.")
+                    print("   Approve the Slack modal, then run: slack login")
+                else:
+                    print("   Please run: slack login")
+            else:
+                print(f"   Please run: {' '.join(cmd)} again")
             return False
     except FileNotFoundError:
         print(f"{YELLOW}⚠{NC} CLI not found: {cmd[0]}")
