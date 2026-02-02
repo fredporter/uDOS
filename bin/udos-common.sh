@@ -458,8 +458,8 @@ needs_rebuild() {
 maybe_npm_install() {
     local dir="$1"
     if [ "$UDOS_FORCE_REBUILD" = "1" ] || [ ! -d "$dir/node_modules" ] || [ "$dir/package.json" -nt "$dir/package-lock.json" ]; then
-        echo -e "${YELLOW}⚠️  Installing dependencies in ${dir}...${NC}"
-        (cd "$dir" && npm install --no-fund --no-audit) || return 1
+        run_with_spinner "Installing dependencies in ${dir}" \
+            "cd '$dir' && npm install --no-fund --no-audit --silent" || return 1
     fi
     return 0
 }
@@ -472,15 +472,15 @@ run_npm_build_if_needed() {
 
     # If dist missing, always build
     if [ ! -d "$dist_dir" ]; then
-        echo -e "${YELLOW}⚠️  Output not found, building...${NC}"
-        (cd "$src_dir" && eval "$build_cmd") || return 1
+        run_with_spinner "Building (output not found)" \
+            "cd '$src_dir' && $build_cmd" || return 1
         return 0
     fi
 
     # Force rebuild via flag
     if [ "$UDOS_FORCE_REBUILD" = "1" ]; then
-        echo -e "${YELLOW}⚠️  --rebuild requested, building...${NC}"
-        (cd "$src_dir" && eval "$build_cmd") || return 1
+        run_with_spinner "Building (--rebuild requested)" \
+            "cd '$src_dir' && $build_cmd" || return 1
         return 0
     fi
 
@@ -491,8 +491,8 @@ run_npm_build_if_needed() {
     newest_dist=$(find "$dist_dir" -type f -print0 | xargs -0 -I{} stat -f "%m %N" {} 2>/dev/null | sort -nr | head -n1 | awk '{print $2}')
 
     if [ -n "$newest_src" ] && [ -n "$newest_dist" ] && [ "$newest_src" -nt "$newest_dist" ]; then
-        echo -e "${YELLOW}⚠️  Sources changed since last build, rebuilding...${NC}"
-        (cd "$src_dir" && eval "$build_cmd") || return 1
+        run_with_spinner "Building (sources changed)" \
+            "cd '$src_dir' && $build_cmd" || return 1
     fi
 
     return 0
