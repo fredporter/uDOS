@@ -107,7 +107,12 @@ def _provider_is_configured(provider_id: str) -> bool:
         if _validate_ollama():
             return True
         config = _load_config_file("assistant_keys.json") or {}
-        return bool(config.get("OLLAMA_HOST"))
+        if config.get("OLLAMA_HOST"):
+            return True
+        return bool(
+            _get_nested(config, ["providers", "ollama", "endpoint"])
+            or _get_nested(config, ["providers", "ollama", "key_id"])
+        )
 
     return False
 

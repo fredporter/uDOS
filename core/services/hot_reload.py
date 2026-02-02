@@ -6,13 +6,13 @@ Preserves REPL state and command history.
 
 Usage:
     from core.services.hot_reload import HotReloadManager
-    
+
     reload_mgr = HotReloadManager(dispatcher)
     reload_mgr.start()  # Start watching
-    
+
     # Handlers auto-reload on save
     # REPL continues running
-    
+
     reload_mgr.stop()   # Stop watching
 
 Dependencies:
@@ -123,7 +123,10 @@ def _should_reload_file(
     return True
 
 
-def reload_all_handlers(logger: Optional[Any] = None) -> Dict[str, int]:
+def reload_all_handlers(
+    logger: Optional[Any] = None,
+    dispatcher: Optional[Any] = None,
+) -> Dict[str, int]:
     """Reload every command handler module; returns reload/fail counts."""
     log = logger or globals().get("logger")
     reloaded = 0
@@ -135,12 +138,43 @@ def reload_all_handlers(logger: Optional[Any] = None) -> Dict[str, int]:
         module_name = f"core.commands.{handler_file.stem}"
         try:
             if module_name in sys.modules:
-                importlib.reload(sys.modules[module_name])
+                module = importlib.reload(sys.modules[module_name])
             else:
-                importlib.import_module(module_name)
-            reloaded += 1
-            if log:
-                log.debug(f"Reloaded handler module: {module_name}")
+                module = importlib.import_module(module_name)
+
+            success = True
+            if dispatcher is not None:
+                class_name = _guess_handler_class(handler_file.stem)
+                if not hasattr(module, class_name):
+                    success = False
+                    if log:
+                        log.warning(f"Handler class not found: {class_name}")
+                else:
+                    handler_class = getattr(module, class_name)
+                    try:
+                        new_handler = handler_class()
+                    except Exception as exc:
+                        success = False
+                        if log:
+                            log.warning(f"Failed to init {class_name}: {exc}")
+                    else:
+                        command_name = _command_name_from_class(class_name)
+                        updated = False
+                        for cmd in list(dispatcher.handlers.keys()):
+                            if cmd == command_name or cmd.startswith(command_name):
+                                dispatcher.handlers[cmd] = new_handler
+                                updated = True
+                        if not updated:
+                            success = False
+                            if log:
+                                log.warning(f"Dispatcher did not contain {command_name} to update")
+
+            if success:
+                reloaded += 1
+                if log:
+                    log.debug(f"Reloaded handler module: {module_name}")
+            else:
+                failed += 1
         except Exception as exc:
             failed += 1
             if log:
@@ -152,10 +186,10 @@ def reload_all_handlers(logger: Optional[Any] = None) -> Dict[str, int]:
 
 class HandlerReloadEvent(FileSystemEventHandler):
     """File system event handler for Python files."""
-    
+
     def __init__(self, reload_callback: Callable[[str], None], delete_callback: Optional[Callable[[str], None]] = None):
         """Initialize event handler.
-        
+
         Args:
             reload_callback: Function to call with filepath on change
             delete_callback: Optional function to call on delete
@@ -163,12 +197,12 @@ class HandlerReloadEvent(FileSystemEventHandler):
         self.reload_callback = reload_callback
         self.delete_callback = delete_callback
         self.reload_state: Dict[str, Dict[str, float]] = {}
-    
+
     def on_modified(self, event):
         """Handle file modification event."""
         if event.is_directory:
             return
-        
+
         filepath = event.src_path
         if not filepath.endswith('.py'):
             return
@@ -228,10 +262,10 @@ class HandlerReloadEvent(FileSystemEventHandler):
 
 class HotReloadManager:
     """Manages hot reload of command handlers."""
-    
+
     def __init__(self, dispatcher: Any, enabled: bool = True):
         """Initialize hot reload manager.
-        
+
         Args:
             dispatcher: CommandDispatcher instance
             enabled: Enable hot reload (default: True)
@@ -242,33 +276,33 @@ class HotReloadManager:
         self.watch_dir = Path(__file__).parent.parent / "commands"
         self.reload_count = 0
         self.failed_reloads = 0
-        
+
         self.unified = get_unified_logger()
-        
+
         if not WATCHDOG_AVAILABLE:
             logger.warning("[LOCAL] Hot reload disabled: watchdog not installed")
             logger.warning("[LOCAL] Install with: pip install watchdog")
-    
+
     def start(self) -> bool:
         """Start watching for file changes.
-        
+
         Returns:
             True if started successfully, False otherwise
         """
         if not self.enabled:
             logger.info("[LOCAL] Hot reload not enabled")
             return False
-        
+
         if self.observer is not None:
             logger.warning("[LOCAL] Hot reload already running")
             return False
-        
+
         try:
             event_handler = HandlerReloadEvent(self._on_file_changed, self._on_file_deleted)
             self.observer = Observer()
             self.observer.schedule(event_handler, str(self.watch_dir), recursive=False)
             self.observer.start()
-            
+
             logger.info(f"[LOCAL] Hot reload started: watching {self.watch_dir}")
             self.unified.log_core(
                 'hot-reload',
@@ -277,7 +311,7 @@ class HotReloadManager:
                 watch_dir=str(self.watch_dir)
             )
             return True
-        
+
         except Exception as e:
             logger.error(f"[LOCAL] Failed to start hot reload: {e}")
             self.unified.log_core(
@@ -286,16 +320,16 @@ class HotReloadManager:
                 level=LogLevel.ERROR
             )
             return False
-    
+
     def stop(self) -> None:
         """Stop watching for file changes."""
         if self.observer is None:
             return
-        
+
         self.observer.stop()
         self.observer.join()
         self.observer = None
-        
+
         logger.info("[LOCAL] Hot reload stopped")
         self.unified.log_core(
             'hot-reload',
@@ -304,31 +338,31 @@ class HotReloadManager:
             reload_count=self.reload_count,
             failed_count=self.failed_reloads
         )
-    
+
     def _on_file_changed(self, filepath: str) -> None:
         """Handle file change event.
-        
+
         Args:
             filepath: Path to changed file
         """
         path = Path(filepath)
         handler_name = path.stem  # e.g., 'map_handler' from 'map_handler.py'
-        
+
         logger.info(f"[LOCAL] File changed: {path.name}")
-        
+
         # Start dev trace for reload operation
         trace = DevTrace('hot-reload', enabled=True)
-        
+
         with trace.span('reload_handler', {'file': path.name, 'handler': handler_name}):
             success = self._reload_handler(path, handler_name)
-        
+
         trace.log(
             f"Reload {'SUCCESS' if success else 'FAILED'}: {path.name}",
             level="INFO" if success else "ERROR",
             metadata={'handler': handler_name}
         )
         trace.save()
-        
+
         if success:
             self.reload_count += 1
             self.unified.log_core(
@@ -340,14 +374,14 @@ class HotReloadManager:
             )
         else:
             self.failed_reloads += 1
-    
+
     def _reload_handler(self, filepath: Path, handler_name: str) -> bool:
         """Reload a specific handler.
-        
+
         Args:
             filepath: Path to handler file
             handler_name: Handler module name
-        
+
         Returns:
             True if reload successful, False otherwise
         """
@@ -376,7 +410,7 @@ class HotReloadManager:
             self._update_dispatcher(class_name, new_handler)
             logger.info(f"[LOCAL] ✓ Reloaded {class_name}")
             return True
-        
+
         except Exception as e:
             logger.error(f"[LOCAL] Failed to reload {handler_name}: {e}")
             return False
@@ -404,10 +438,10 @@ class HotReloadManager:
             )
         else:
             logger.warning(f"[LOCAL] No dispatcher handlers found for {command_name}")
-    
+
     def _update_dispatcher(self, class_name: str, new_handler: Any) -> None:
         """Update dispatcher with new handler instance.
-        
+
         Args:
             class_name: Handler class name
             new_handler: New handler instance
@@ -430,10 +464,10 @@ class HotReloadManager:
         for cmd in self.dispatcher.handlers:
             if cmd.startswith(command_name) and cmd != command_name:
                 yield cmd
-    
+
     def stats(self) -> Dict[str, Any]:
         """Get hot reload statistics.
-        
+
         Returns:
             Dict with stats
         """
@@ -462,11 +496,11 @@ def get_hot_reload_manager() -> Optional[HotReloadManager]:
 
 def init_hot_reload(dispatcher: Any, enabled: bool = True) -> HotReloadManager:
     """Initialize hot reload manager.
-    
+
     Args:
         dispatcher: CommandDispatcher instance
         enabled: Enable hot reload
-    
+
     Returns:
         HotReloadManager instance
     """

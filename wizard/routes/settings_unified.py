@@ -179,6 +179,83 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
         "hubspot": ["hubspot_api_key"],
     }
 
+    def _load_config_file(filename: str) -> Dict[str, Any]:
+        repo_root = get_repo_root()
+        config_path = repo_root / "wizard" / "config" / filename
+        if not config_path.exists():
+            return {}
+        try:
+            return json.loads(config_path.read_text())
+        except Exception:
+            return {}
+
+    def _get_nested(data: Dict[str, Any], path: List[str]) -> Optional[Any]:
+        current: Any = data
+        for part in path:
+            if not isinstance(current, dict) or part not in current:
+                return None
+            current = current[part]
+        return current
+
+    legacy_config = {
+        "assistant": _load_config_file("assistant_keys.json"),
+        "github": _load_config_file("github_keys.json"),
+        "notion": _load_config_file("notion_keys.json"),
+        "slack": _load_config_file("slack_keys.json"),
+        "hubspot": _load_config_file("hubspot_keys.json"),
+        "oauth": _load_config_file("oauth_providers.json"),
+    }
+
+    legacy_values: Dict[str, Any] = {
+        "mistral_api_key": (
+            _get_nested(legacy_config["assistant"], ["providers", "mistral", "key_id"])
+            or legacy_config["assistant"].get("MISTRAL_API_KEY")
+        ),
+        "openrouter_api_key": (
+            _get_nested(legacy_config["assistant"], ["providers", "openrouter", "key_id"])
+            or legacy_config["assistant"].get("OPENROUTER_API_KEY")
+        ),
+        "ollama_api_key": (
+            _get_nested(legacy_config["assistant"], ["providers", "ollama", "key_id"])
+            or legacy_config["assistant"].get("OLLAMA_API_KEY")
+        ),
+        "github_token": (
+            legacy_config["github"].get("token")
+            or _get_nested(legacy_config["github"], ["tokens", "default", "key_id"])
+            or _get_nested(legacy_config["github"], ["tokens", "default", "token"])
+        ),
+        "github_webhook_secret": (
+            _get_nested(legacy_config["github"], ["webhooks", "secret_key_id"])
+            or _get_nested(legacy_config["github"], ["webhooks", "secret"])
+        ),
+        "slack_bot_token": legacy_config["slack"].get("SLACK_BOT_TOKEN"),
+        "slack_workspace_id": legacy_config["slack"].get("SLACK_WORKSPACE_ID"),
+        "notion_api_key": (
+            _get_nested(legacy_config["notion"], ["integration", "api_key"])
+            or _get_nested(legacy_config["notion"], ["integration", "token"])
+            or _get_nested(legacy_config["notion"], ["integration", "key_id"])
+        ),
+        "notion_workspace_id": (
+            _get_nested(legacy_config["notion"], ["integration", "workspace_id"])
+            or _get_nested(legacy_config["notion"], ["integration", "database_id_key_id"])
+        ),
+        "hubspot_api_key": (
+            legacy_config["hubspot"].get("api_key")
+            or legacy_config["hubspot"].get("api_key_id")
+        ),
+    }
+
+    oauth_client_id = None
+    oauth_client_secret = None
+    if isinstance(legacy_config["oauth"], dict):
+        for provider in legacy_config["oauth"].values():
+            if not isinstance(provider, dict):
+                continue
+            oauth_client_id = oauth_client_id or provider.get("client_id")
+            oauth_client_secret = oauth_client_secret or provider.get("client_secret")
+    legacy_values["oauth_client_id"] = oauth_client_id
+    legacy_values["oauth_client_secret"] = oauth_client_secret
+
     result = {}
     store = get_secret_store()
 
@@ -194,6 +271,11 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
                 entry = store.get_entry(key)
                 is_set = entry is not None
                 masked_value = ("●" * 8 + entry.value[-4:]) if is_set else None
+                if not is_set:
+                    legacy_value = legacy_values.get(key)
+                    if legacy_value:
+                        is_set = True
+                        masked_value = "●" * 8 + str(legacy_value)[-4:]
 
                 result[category].append(SecretConfig(
                     key=key,
@@ -203,10 +285,12 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
                     updated_at=entry.metadata.get("updated_at") if is_set else None
                 ))
             except SecretStoreError:
+                legacy_value = legacy_values.get(key)
                 result[category].append(SecretConfig(
                     key=key,
                     category=category,
-                    is_set=False
+                    is_set=bool(legacy_value),
+                    masked_value=("●" * 8 + str(legacy_value)[-4:]) if legacy_value else None,
                 ))
 
     return result

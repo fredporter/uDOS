@@ -99,7 +99,7 @@ def create_provider_routes(auth_guard=None):
             "type": "api_key",
             "automation": "manual",
             "cli_required": False,
-            "web_url": "https://app.hubspot.com/l/api-key",
+            "web_url": "https://app.hubspot.com/private-apps",
             "config_file": "hubspot_keys.json",
             "config_key": "HUBSPOT_API_KEY",
         },

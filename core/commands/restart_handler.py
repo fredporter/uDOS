@@ -17,7 +17,7 @@ Commands (Legacy Flags - still supported):
     RESTART --help             # Show help
 
 Aliases:
-    REBOOT                     # Equivalent to RESTART 2
+    REBOOT                     # Defaults to RESTART 2 (repair only)
 
 Author: uDOS Engineering
 Version: v2.0.0 (Numeric Options)
@@ -31,17 +31,17 @@ from core.services.system_script_runner import SystemScriptRunner
 
 class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
     """Unified restart/reboot handler."""
-    
+
     def __init__(self):
         """Initialize handler."""
         super().__init__()
         self.prompt = None  # Will be set by parser
-    
+
     def handle(self, command, params, grid, parser):
         """Handle RESTART and REBOOT commands with logging."""
         # Store parser for interactive prompts
         self.prompt = parser
-        
+
         with self.trace_command(command, params) as trace:
             result = self._handle_impl(command, params, grid, parser)
             if isinstance(result, dict):
@@ -52,7 +52,7 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
 
     def _handle_impl(self, command, params, grid, parser):
         """Handle RESTART and REBOOT commands.
-        
+
         Usage:
             RESTART              # Show numbered menu
             RESTART 0            # Show help
@@ -61,13 +61,13 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
             RESTART 3            # Hot reload + repair
             RESTART 4            # Full system restart
             RESTART --help       # Show help (legacy)
-        
+
         Args:
             command: Command name (RESTART, REBOOT)
             params: Parameter list
             grid: Grid object
             parser: Parser object
-        
+
         Returns:
             Output dict
         """
@@ -76,13 +76,13 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
         from core.services.unified_logging import get_unified_logger
         from core.services.user_service import get_user_manager, Permission
         from core.tui.output import OutputToolkit
-        
+
         logger = get_logger('restart-handler')
         unified = get_unified_logger()
         output = OutputToolkit()
         user_mgr = get_user_manager()
         user = user_mgr.current()
-        
+
         # Parse parameters - support both numeric menu and legacy flags
         choice = None
         reload_only = False
@@ -90,11 +90,11 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
         full = False
         skip_confirm = False
         show_help = False
-        
+
         # Parse first parameter for numeric choice or flags
         if params:
             first_param = params[0].lower()
-            
+
             # Check for numeric choice (0-4)
             if first_param in ['0', '1', '2', '3', '4']:
                 choice = int(first_param)
@@ -102,7 +102,7 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
                 # Legacy flag support
                 for param in params:
                     param_lower = param.lower()
-                    if param_lower in ['--reload-only', '-r']:
+                    if param_lower in ['--reload-only', '--hot-reload', '--reload', '-r']:
                         reload_only = True
                     elif param_lower in ['--repair', '-p']:
                         repair_only = True
@@ -112,7 +112,7 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
                         skip_confirm = True
                     elif param_lower in ['--help', '-h']:
                         show_help = True
-        
+
         # Handle numeric choices
         if choice is not None:
             if choice == 0:
@@ -126,19 +126,19 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
                 repair_only = True
             elif choice == 4:
                 full = True
-        
+
         # Handle help (legacy)
         if show_help:
             return self._show_help(command)
-        
+
         # Show interactive menu if no options or choice
         if not (reload_only or repair_only or full):
             return self._show_interactive_menu(command)
-        
+
         # Determine mode
-        if command.upper() == "REBOOT":
+        if command.upper() == "REBOOT" and not (reload_only or full):
             repair_only = True
-        
+
         # Log the action
         unified.log_core(
             category='restart',
@@ -152,7 +152,7 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
                 'skip_confirm': skip_confirm
             }
         )
-        
+
         return self._perform_restart(
             reload_only=reload_only,
             repair_only=repair_only,
@@ -160,46 +160,46 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
             skip_confirm=skip_confirm,
             command=command
         )
-    
+
     def _perform_restart(self, reload_only, repair_only, full, skip_confirm, command):
         """Perform the restart sequence - ACTUALLY EXECUTES THE RESTART.
-        
+
         Args:
             reload_only: Only hot reload
             repair_only: Only repair
             full: Full restart
             skip_confirm: Skip confirmations (always execute)
             command: Original command
-        
+
         Returns:
             Output dict with execution results
         """
         from core.services.logging_service import get_logger
-        
+
         logger = get_logger('restart-handler')
         output_lines = []
         script_runner = SystemScriptRunner()
-        
+
         # Build restart plan
         plan = []
         do_reload = reload_only or full or (not repair_only)
         do_repair = repair_only or full or (not reload_only)
         do_full = full
-        
+
         if do_reload:
             plan.append("🔄 Hot reload handlers")
         if do_repair:
             plan.append("🔧 Run repair checks")
         if do_full:
             plan.append("🔄 Full system restart")
-        
+
         # Show plan header
         output_lines.append("")
         output_lines.append("╔════════════════════════════════════════╗")
         output_lines.append("║      RESTARTING SYSTEM                 ║")
         output_lines.append("╚════════════════════════════════════════╝")
         output_lines.append("")
-        
+
         # EXECUTE HOT RELOAD
         if do_reload:
             output_lines.append("🔄 Hot reloading handlers...")
@@ -207,7 +207,8 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
                 from core.services.hot_reload import get_hot_reload_manager, reload_all_handlers
 
                 reload_mgr = get_hot_reload_manager()
-                stats = reload_all_handlers(logger=logger)
+                dispatcher = reload_mgr.dispatcher if reload_mgr else None
+                stats = reload_all_handlers(logger=logger, dispatcher=dispatcher)
                 reloaded = stats.get("reloaded", 0)
                 failed = stats.get("failed", 0)
 
@@ -219,7 +220,7 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
             except Exception as e:
                 output_lines.append(f"   ❌ Hot reload failed: {e}")
                 logger.error(f"[LOCAL] Hot reload error: {e}")
-        
+
         # EXECUTE REPAIR
         if do_repair:
             output_lines.append("🔧 Running repair checks...")
@@ -241,12 +242,12 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
             except Exception as e:
                 output_lines.append(f"   ⚠️  Repair skipped: {e}")
                 logger.warning(f"[LOCAL] Repair error: {e}")
-        
+
         # EXECUTE FULL RESTART (if requested)
         if do_full:
             output_lines.append("🔄 Full system restart...")
             output_lines.append("   ℹ️  Close and relaunch uCODE to complete restart")
-        
+
         should_run_reboot_script = command.upper() == "REBOOT" or do_full
         script_result = None
         if should_run_reboot_script:
@@ -266,20 +267,20 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
 
         output_lines.append("✅ Restart complete!")
         output_lines.append("")
-        
+
         return {
             'output': '\n'.join(output_lines),
             'status': 'success',
             'plan': plan,
             'executed': True
         }
-    
+
     def _show_menu(self, command):
         """Show numbered menu options.
-        
+
         Args:
             command: Command name
-        
+
         Returns:
             Output dict
         """
@@ -300,21 +301,22 @@ Choose a restart option (type number + Enter):
     • No system changes
     • Fastest option
     Usage: RESTART 1
-    
+
   2. REBOOT (REPAIR ONLY)
     • Run system repair checks
     • Fix broken state
     • Clean up old files
     • No handler reload
     Usage: RESTART 2 (or REBOOT)
-    
+    Tip: add hot reload with REBOOT 1 or REBOOT --reload-only
+
   3. HOT RELOAD + REPAIR (DEFAULT)
     • Hot reload handlers
     • Run repair checks
     • Safe and thorough
     • Recommended default
     Usage: RESTART 3 (or just RESTART)
-    
+
   4. FULL SYSTEM RESTART
     • Everything: reload + repair + restart
     • Complete fresh start
@@ -334,16 +336,16 @@ EXAMPLES:
             'status': 'info',
             'command': command
         }
-    
+
     def _show_interactive_menu(self, command):
         """Show interactive restart menu and guide user through options.
-        
+
         Uses the standard menu choice handler to guide the user.
         Actually executes the selected option.
-        
+
         Args:
             command: Command name
-        
+
         Returns:
             Output dict (execution result)
         """
@@ -351,7 +353,7 @@ EXAMPLES:
         if not self.prompt or not hasattr(self.prompt, 'ask_menu_choice'):
             # Fallback to static menu if no prompt available
             return self._show_menu(command)
-        
+
         # Display the menu
         menu_text = """
     ╔════════════════════════════════════════╗
@@ -365,23 +367,23 @@ EXAMPLES:
   0. Help
 """
         print(menu_text)
-        
+
         # Ask user to choose
         choice = self.prompt.ask_menu_choice(
             "Choose an option",
             num_options=4,
             allow_zero=True
         )
-        
+
         if choice is None or choice == 0:
             # User pressed enter or selected 0 - show help
             return self._show_help(command)
-        
+
         # Map choice to action and EXECUTE
         reload_only = False
         repair_only = False
         full = False
-        
+
         if choice == 1:
             reload_only = True
         elif choice == 2:
@@ -391,15 +393,15 @@ EXAMPLES:
             repair_only = True
         elif choice == 4:
             full = True
-        
+
         # Execute the restart NOW
         from core.services.unified_logging import get_unified_logger
         from core.services.user_service import get_user_manager
-        
+
         unified = get_unified_logger()
         user_mgr = get_user_manager()
         user = user_mgr.current()
-        
+
         # Log the action
         unified.log_core(
             category='restart',
@@ -412,7 +414,7 @@ EXAMPLES:
                 'full': full
             }
         )
-        
+
         # Execute restart
         return self._perform_restart(
             reload_only=reload_only,
@@ -421,13 +423,13 @@ EXAMPLES:
             skip_confirm=True,  # Already confirmed by choosing
             command=command
         )
-    
+
     def _show_help(self, command):
         """Show help for restart command.
-        
+
         Args:
             command: Command name
-        
+
         Returns:
             Output dict
         """
@@ -482,10 +484,12 @@ NUMERIC OPTIONS:
     Usage: RESTART 4
 
 ALIAS:
-    REBOOT           = RESTART 2 (repair only)
+    REBOOT           = RESTART 2 (repair only by default)
 
 LEGACY FLAG SUPPORT (still works):
   --reload-only    Hot reload handlers only
+    --hot-reload     Alias for --reload-only
+    --reload         Alias for --reload-only
   --repair         Run repair without reload
   --full           Complete system restart
   --confirm        Skip confirmation prompts
@@ -505,9 +509,10 @@ EXAMPLES:
   RESTART              # Show menu
   RESTART 1            # Just reload handlers
   RESTART 2            # Just repair checks
-  RESTART 3            # Reload + repair (safest)
+    RESTART 3            # Reload + repair (safest)
     RESTART 4            # Full system restart
-    REBOOT               # Shortcut for RESTART 2
+    REBOOT               # Defaults to RESTART 2 (repair only)
+    REBOOT 1             # Hot reload handlers only
 
 WHAT'S HAPPENING:
 

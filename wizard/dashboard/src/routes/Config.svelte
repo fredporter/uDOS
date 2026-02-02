@@ -1139,6 +1139,40 @@
           Add your most common keys once. Wizard auto-enables matching providers
           and syncs config behind the scenes.
         </p>
+        <div
+          class="mt-3 rounded-lg border border-gray-700 bg-gray-900/60 p-3 text-xs text-gray-300"
+        >
+          <div class="font-semibold text-gray-200">GitHub setup checklist</div>
+          <ol class="mt-2 space-y-1 list-decimal list-inside">
+            <li>
+              Create a GitHub token (PAT):
+              <a
+                class="text-blue-300 hover:text-blue-200 underline"
+                href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token"
+                target="_blank"
+                rel="noreferrer">GitHub PAT docs</a
+              >
+            </li>
+            <li>
+              Save the token in Quick Keys (GitHub Token) so Wizard stores it in
+              the secret store.
+            </li>
+            <li>
+              Add a GitHub webhook pointing to the Wizard URL shown on the
+              <a
+                class="text-blue-300 hover:text-blue-200 underline"
+                href="/#webhooks"
+                target="_blank"
+                rel="noreferrer">Webhooks page</a
+              > and paste the same secret into GitHub Webhook Secret above.
+            </li>
+          </ol>
+          <div class="mt-2 text-gray-400">
+            Note: github_keys.json stores references only. Secrets live in the
+            encrypted secret store, so the config file can look empty even when
+            keys are configured here.
+          </div>
+        </div>
       </div>
       <button
         class="px-3 py-1.5 text-sm rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
@@ -1149,7 +1183,9 @@
     </div>
 
     {#if secretStoreLocked}
-      <div class="mt-4 bg-amber-900/40 border border-amber-700 text-amber-100 rounded-lg p-4 text-sm">
+      <div
+        class="mt-4 bg-amber-900/40 border border-amber-700 text-amber-100 rounded-lg p-4 text-sm"
+      >
         <div class="font-semibold">Secret store locked</div>
         <div class="text-xs text-amber-200 mt-1">
           {secretStoreError ||
