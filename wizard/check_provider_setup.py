@@ -125,10 +125,10 @@ def _extract_github_token() -> Optional[str]:
 def _populate_github_keys(token: str) -> bool:
     """
     Populate github_keys.json with token and metadata from gh CLI.
-    
+
     Args:
         token: GitHub personal access token
-        
+
     Returns:
         True if successfully populated
     """
@@ -140,14 +140,14 @@ def _populate_github_keys(token: str) -> bool:
             text=True,
             timeout=5,
         )
-        
+
         user_data = {}
         if user_result.returncode == 0:
             try:
                 user_data = json.loads(user_result.stdout)
             except json.JSONDecodeError:
                 pass
-        
+
         # Build github_keys.json structure
         github_keys = {
             "profile": "default",
@@ -170,19 +170,33 @@ def _populate_github_keys(token: str) -> bool:
                 "user_id": user_data.get("id"),
             }
         }
-        
+
         # Save to config
         config_path = CONFIG_PATH / "github_keys.json"
         config_path.parent.mkdir(parents=True, exist_ok=True)
         config_path.write_text(json.dumps(github_keys, indent=2))
-        
+
         print(f"{GREEN}✓{NC} GitHub keys populated from gh CLI")
         if user_data.get("login"):
             print(f"   Authenticated as: {user_data['login']}")
         return True
-        
+
     except Exception as e:
         print(f"{YELLOW}⚠{NC} Failed to populate github_keys.json: {e}")
+        return False
+
+
+def _validate_slack_auth() -> bool:
+    """Validate that Slack CLI is properly authenticated."""
+    try:
+        result = subprocess.run(
+            ["slack", "auth", "test"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        return result.returncode == 0
+    except Exception:
         return False
 
 
@@ -194,7 +208,7 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     setup_commands = {
         "github": ["gh", "auth", "login"],
         "ollama": None,  # Auto-detected
-        "slack": ["slack", "auth"],
+        "slack": ["slack", "login"],
         "notion": None,  # Interactive browser flow
     }
 
@@ -233,9 +247,23 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     try:
         print(f"Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, check=False)
+        
+        # Validate that setup actually succeeded
+        setup_valid = False
         if result.returncode == 0:
+            if provider_id == "github":
+                # Validate GitHub auth
+                setup_valid = _run_check("gh auth status")
+            elif provider_id == "slack":
+                # Validate Slack auth
+                setup_valid = _validate_slack_auth()
+            else:
+                # For other providers, trust returncode
+                setup_valid = True
+        
+        if setup_valid:
             print(f"{GREEN}✓{NC} {provider_id} setup complete")
-            
+
             # Auto-populate GitHub keys after successful gh auth login
             if provider_id == "github":
                 token = _extract_github_token()
@@ -243,10 +271,11 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
                     _populate_github_keys(token)
                 else:
                     print(f"{YELLOW}⚠{NC} Could not extract token from gh CLI")
-            
+
             return True
         else:
-            print(f"{YELLOW}⚠{NC} {provider_id} setup failed or incomplete")
+            print(f"{YELLOW}⚠{NC} {provider_id} setup did not complete successfully")
+            print(f"   Please run: {' '.join(cmd)} again")
             return False
     except FileNotFoundError:
         print(f"{YELLOW}⚠{NC} CLI not found: {cmd[0]}")
