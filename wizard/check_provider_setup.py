@@ -253,17 +253,110 @@ def _validate_ollama() -> bool:
 
 
 def _setup_hubspot() -> bool:
-    """Interactive HubSpot Developer Platform app setup.
+    """Interactive HubSpot Developer Platform CLI and API setup.
 
-    Guides users through creating a HubSpot app on the new Developer Platform:
-    https://developers.hubspot.com/docs/apps/developer-platform/build-apps/create-an-app
+    Guides users through:
+    1. Installing HubSpot CLI (@hubspot/cli)
+    2. Authenticating with Personal Access Key
+    3. OR manually configuring API token
     """
     print(f"{BLUE}━━━ HUBSPOT DEVELOPER PLATFORM SETUP ━━━{NC}\n")
 
-    print("HubSpot has migrated to the Developer Platform for app management.")
-    print("This guide will help you create and configure an app.\n")
+    print("HubSpot offers two integration paths:")
+    print("  1. CLI Workflow - Build and deploy apps (recommended for developers)")
+    print("  2. API Token Only - Direct API access (simple integration)\n")
 
-    print("STEP 1: Create a HubSpot App")
+    choice = input(f"{YELLOW}?{NC} Choose setup type (1=CLI, 2=API Token, Enter=skip): ").strip()
+
+    if choice == "1":
+        return _setup_hubspot_cli()
+    elif choice == "2":
+        return _setup_hubspot_api()
+    else:
+        print(f"\n{YELLOW}⚠{NC}  Setup skipped. You can configure HubSpot later via the dashboard.")
+        return False
+
+
+def _setup_hubspot_cli() -> bool:
+    """Interactive HubSpot CLI installation and authentication."""
+    print(f"\n{BLUE}━━━ HUBSPOT CLI SETUP ━━━{NC}\n")
+
+    # Check if npm is available
+    try:
+        subprocess.run(["npm", "--version"], capture_output=True, check=True, timeout=5)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print(f"{YELLOW}⚠{NC}  npm not found. Install Node.js first: https://nodejs.org/")
+        return False
+
+    # Check if CLI is already installed
+    try:
+        result = subprocess.run(
+            ["hs", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            print(f"{GREEN}✓{NC} HubSpot CLI already installed: {result.stdout.strip()}\n")
+        else:
+            raise FileNotFoundError
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("HubSpot CLI not found. Installing...\n")
+        install = input(f"{YELLOW}?{NC} Install @hubspot/cli via npm? (y/N): ").strip().lower()
+        
+        if install != "y":
+            print(f"{YELLOW}⚠{NC}  CLI installation skipped.")
+            return False
+
+        print(f"\n{BLUE}Installing @hubspot/cli (this may take 1-2 minutes)...{NC}")
+        try:
+            subprocess.run(
+                ["npm", "install", "-g", "@hubspot/cli"],
+                timeout=180,
+                check=True
+            )
+            print(f"{GREEN}✓{NC} HubSpot CLI installed successfully\n")
+        except subprocess.TimeoutExpired:
+            print(f"{YELLOW}⚠{NC}  Installation timed out. Try manually: npm install -g @hubspot/cli")
+            return False
+        except subprocess.CalledProcessError as e:
+            print(f"{YELLOW}⚠{NC}  Installation failed: {e}")
+            return False
+
+    # Guide through authentication
+    print(f"{BLUE}━━━ AUTHENTICATION GUIDE ━━━{NC}\n")
+    print("To authenticate the HubSpot CLI:")
+    print("  1. Run: hs init")
+    print("  2. Follow browser prompt to generate Personal Access Key")
+    print("  3. Copy and paste the key when prompted")
+    print("  4. Set as default account when asked\n")
+
+    print(f"{BLUE}Quick Start Commands:{NC}")
+    print("  hs get-started     - Create a new HubSpot app project")
+    print("  hs project dev     - Start local development server")
+    print("  hs project upload  - Deploy to HubSpot")
+    print("  hs account list    - Show authenticated accounts\n")
+
+    print(f"📖 Full guide: https://developers.hubspot.com/docs/getting-started/quickstart\n")
+
+    auto_auth = input(f"{YELLOW}?{NC} Run 'hs init' now? (y/N): ").strip().lower()
+    if auto_auth == "y":
+        try:
+            subprocess.run(["hs", "init"], check=False)
+            return True
+        except Exception as e:
+            print(f"{YELLOW}⚠{NC}  Interactive auth failed: {e}")
+            return False
+
+    print(f"{GREEN}✓{NC} HubSpot CLI ready. Run 'hs init' when ready to authenticate.")
+    return True
+
+
+def _setup_hubspot_api() -> bool:
+    """Interactive HubSpot API token setup (legacy/simple integration)."""
+    print(f"\n{BLUE}━━━ HUBSPOT API TOKEN SETUP ━━━{NC}\n")
+
+    print("STEP 1: Create a HubSpot Private App")
     print("─" * 50)
     print("  1. Visit: https://developers.hubspot.com/apps")
     print("  2. Click 'Create app' button")
