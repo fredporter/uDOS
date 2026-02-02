@@ -13,6 +13,20 @@
   const authHeaders = () =>
     adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
 
+  async function togglePlugin(pluginId, currentlyEnabled) {
+    const action = currentlyEnabled ? "disable" : "enable";
+    try {
+      const res = await fetch(`/api/catalog/plugins/${pluginId}/${action}`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await refreshCatalog();
+    } catch (err) {
+      error = `Failed to ${action} plugin: ${err.message}`;
+    }
+  }
+
   async function loadStats() {
     const res = await fetch("/api/catalog/stats", { headers: authHeaders() });
     if (!res.ok) {
@@ -187,7 +201,7 @@
             </span>
           </div>
           <p class="text-sm text-gray-300 mb-3">{plugin.description}</p>
-          <div class="text-xs text-gray-400 space-y-1">
+          <div class="text-xs text-gray-400 space-y-1 mb-4">
             <div>Category: {plugin.category || "—"}</div>
             <div>License: {plugin.license || "—"}</div>
             <div>
@@ -195,6 +209,17 @@
                 .update_available
                 ? "(Update available)"
                 : ""}
+            </div>
+            <div class="flex items-center gap-2 mt-2">
+              <span class="text-xs">Enabled:</span>
+              <button
+                class="px-3 py-1 rounded text-xs {plugin.enabled
+                  ? 'bg-green-700 hover:bg-green-600 text-white'
+                  : 'bg-gray-700 hover:bg-gray-600 text-gray-300'}"
+                on:click={() => togglePlugin(plugin.id, plugin.enabled)}
+              >
+                {plugin.enabled ? "ON" : "OFF"}
+              </button>
             </div>
           </div>
         </div>

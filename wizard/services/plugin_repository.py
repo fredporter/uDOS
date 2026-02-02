@@ -289,14 +289,54 @@ class PluginRepository:
         """Get repository statistics."""
         installed = sum(1 for p in self._index.plugins.values() if p.installed)
         updates = sum(1 for p in self._index.plugins.values() if p.update_available)
+        enabled = sum(1 for p in self._index.plugins.values() if p.enabled)
 
         return {
             "total_plugins": len(self._index.plugins),
             "installed": installed,
+            "enabled": enabled,
             "updates_available": updates,
             "categories": len(self.get_categories()),
             "last_updated": self._index.updated_at,
         }
+
+    def enable_plugin(self, plugin_id: str) -> bool:
+        """
+        Enable a plugin.
+        
+        Args:
+            plugin_id: Plugin identifier
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        plugin = self._index.plugins.get(plugin_id)
+        if not plugin:
+            return False
+        
+        plugin.enabled = True
+        self._save_index()
+        self.logger.info(f"[PLUGIN] Enabled plugin: {plugin_id}")
+        return True
+
+    def disable_plugin(self, plugin_id: str) -> bool:
+        """
+        Disable a plugin.
+        
+        Args:
+            plugin_id: Plugin identifier
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        plugin = self._index.plugins.get(plugin_id)
+        if not plugin:
+            return False
+        
+        plugin.enabled = False
+        self._save_index()
+        self.logger.info(f"[PLUGIN] Disabled plugin: {plugin_id}")
+        return True
 
 
 # Singleton instance

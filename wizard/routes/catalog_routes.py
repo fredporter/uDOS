@@ -71,4 +71,38 @@ def create_catalog_routes(auth_guard=None):
             "path": str(package_path),
         }
 
+    @router.post("/plugins/{plugin_id}/enable")
+    async def enable_plugin(plugin_id: str):
+        """Enable a plugin in the catalog."""
+        repo = get_repository()
+        plugin = repo.get_plugin(plugin_id)
+        if not plugin:
+            raise HTTPException(status_code=404, detail="Plugin not found")
+
+        try:
+            result = repo.enable_plugin(plugin_id)
+            return {
+                "success": result,
+                "message": f"Plugin {plugin_id} enabled" if result else "Failed to enable plugin",
+            }
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc))
+
+    @router.post("/plugins/{plugin_id}/disable")
+    async def disable_plugin(plugin_id: str):
+        """Disable a plugin in the catalog."""
+        repo = get_repository()
+        plugin = repo.get_plugin(plugin_id)
+        if not plugin:
+            raise HTTPException(status_code=404, detail="Plugin not found")
+
+        try:
+            result = repo.disable_plugin(plugin_id)
+            return {
+                "success": result,
+                "message": f"Plugin {plugin_id} disabled" if result else "Failed to disable plugin",
+            }
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc))
+
     return router
