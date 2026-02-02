@@ -2,8 +2,8 @@
 
 Complete monitoring, alerting, and observability system for uDOS Wizard Server.
 
-**Version:** v1.0.0  
-**Location:** `wizard/services/monitoring_manager.py`  
+**Version:** v1.0.0
+**Location:** `wizard/services/monitoring_manager.py`
 **Date:** 2026-01-14
 
 ---
@@ -48,7 +48,7 @@ Complete monitoring, alerting, and observability system for uDOS Wizard Server.
 │    Persistence Layer (Data Storage)     │
 │  • alerts.json                          │
 │  • audit-YYYY-MM-DD.json                │
-│  • memory/monitoring/ directory         │
+│  • memory/logs/monitoring/ directory    │
 └─────────────────────────────────────────┘
 ```
 
@@ -65,7 +65,7 @@ from wizard.services.monitoring_manager import MonitoringManager
 
 # Initialize with optional callbacks
 monitoring = MonitoringManager(
-    data_dir=Path("memory/monitoring"),
+    data_dir=Path("memory/logs/monitoring"),
     check_interval=60,
     alert_callbacks=[on_alert_critical]  # Optional
 )
@@ -462,7 +462,7 @@ HEALTH
 
 # Output:
 # ✅ Overall Status: HEALTHY
-# 
+#
 # Service Health Details:
 # wizard_server      ✅ Healthy    45.2ms    Server responding
 # ollama             ✅ Healthy    125.8ms   3 models available
@@ -487,7 +487,7 @@ ALERTS RESOLVE alert-1705243600000
 
 # Output:
 # ⚠️  ALERTS
-# 
+#
 # ID                 Type           Severity   Service      Message
 # ─────────────────  ──────────────  ─────────  ────────────  ───────────────────
 # alert-1705243600   rate_limit      warning    github_api    Rate limit: 500/5000 remaining
@@ -503,7 +503,7 @@ RATELIMIT
 
 # Output:
 # ⚡ RATE LIMIT STATUS
-# 
+#
 # Service          Limit    Remaining  Usage %  Resets At
 # ─────────────────  ────────  ─────────  ────────  ──────────────────
 # github_api         5000     4500       10.0%    2026-01-14 18:00
@@ -518,7 +518,7 @@ COSTS
 
 # Output:
 # 💰 COST MONITORING
-# 
+#
 # Service         Daily Cost      Daily Budget  Usage %  Monthly Cost      Monthly Budget  Usage %
 # ─────────────────  ──────────────  ──────────────  ───────  ──────────────────  ────────────────  ───────
 # openrouter         $2.50           $10.00         25.0%    $45.00              $100.00           45.0%
@@ -539,7 +539,7 @@ AUDIT SERVICE core
 
 # Output:
 # 📝 AUDIT LOG
-# 
+#
 # Timestamp                 Operation         Service       User     Status   Duration
 # ─────────────────────────  ─────────────────  ─────────────  ─────────  ───────  ────────────
 # 2026-01-14 15:30:45       build              core           ci        ✅ OK    2450ms
@@ -560,19 +560,19 @@ from wizard.services.monitoring_manager import MonitoringManager
 async def monitor_continuously():
     """Run continuous health checks"""
     monitoring = MonitoringManager()
-    
+
     while True:
         # Check all services
         wizard_health = monitoring.check_wizard_server()
         ollama_health = monitoring.check_ollama()
         github_health = monitoring.check_github_api(token=os.getenv("GITHUB_TOKEN"))
-        
+
         # Get summary
         summary = monitoring.get_health_summary()
-        
+
         if summary["status"] != "healthy":
             print(f"⚠️ System degraded: {summary['unhealthy']} unhealthy services")
-        
+
         await asyncio.sleep(60)  # Check every minute
 ```
 
@@ -582,7 +582,7 @@ async def monitor_continuously():
 def track_ai_costs(daily_budget=10.0, monthly_budget=100.0):
     """Track OpenRouter costs"""
     monitoring = MonitoringManager()
-    
+
     # After each API call
     def on_api_call(cost):
         monitoring.track_cost(
@@ -592,7 +592,7 @@ def track_ai_costs(daily_budget=10.0, monthly_budget=100.0):
             budget_monthly=monthly_budget,
             warn_threshold=0.8,
         )
-    
+
     # In your API handler:
     response = openrouter.chat.completions.create(...)
     cost = response.usage.cost  # From API response
@@ -605,17 +605,17 @@ def track_ai_costs(daily_budget=10.0, monthly_budget=100.0):
 def deploy_application(version, user="system"):
     """Deploy with audit trail"""
     monitoring = MonitoringManager()
-    
+
     start_time = time.time()
-    
+
     try:
         # Deployment steps
         build_app()
         run_tests()
         push_to_prod()
-        
+
         duration = (time.time() - start_time) * 1000
-        
+
         monitoring.audit_log(
             operation="deploy",
             service="app",
@@ -624,12 +624,12 @@ def deploy_application(version, user="system"):
             duration_ms=duration,
             metadata={"version": version},
         )
-        
+
         return True
-        
+
     except Exception as e:
         duration = (time.time() - start_time) * 1000
-        
+
         monitoring.audit_log(
             operation="deploy",
             service="app",
@@ -639,7 +639,7 @@ def deploy_application(version, user="system"):
             error=str(e),
             metadata={"version": version},
         )
-        
+
         return False
 ```
 
@@ -654,7 +654,7 @@ def deploy_application(version, user="system"):
 export GITHUB_TOKEN="ghp_..."
 
 # Monitoring data directory
-export UDOS_MONITORING_DIR="memory/monitoring"
+export UDOS_MONITORING_DIR="memory/logs/monitoring"
 
 # Health check interval (seconds)
 export HEALTH_CHECK_INTERVAL=60
@@ -754,7 +754,7 @@ monitoring.track_cost(
 monitoring.export_state(Path("memory/audit-archive.json"))
 
 # Clear old audit logs
-rm memory/monitoring/audit-*.json
+rm memory/logs/monitoring/audit-*.json
 ```
 
 ### Debug Commands
@@ -829,5 +829,5 @@ python -m pytest wizard/github_integration/test_monitoring_manager.py --cov=wiza
 
 ---
 
-*Last Updated: 2026-01-14*  
+*Last Updated: 2026-01-14*
 *Version: 1.0.0*

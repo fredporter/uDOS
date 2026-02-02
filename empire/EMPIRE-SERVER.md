@@ -28,7 +28,7 @@
 
 **UI & Automation:**
 - Svelte + Tailwind dashboard (port 5175)
-- Scripts constrained to `memory/inbox/` processing
+- Scripts read from `memory/inbox/` and write to `memory/sandbox/processed/`
 - Aligned with Wizard global styles
 
 ---
@@ -110,7 +110,8 @@ await empire.sync_hubspot(direction="export")
 ## Scripts
 
 **Location:** `empire/scripts/`
-**Constraint:** All file operations restricted to `memory/inbox/`
+**Input:** `memory/inbox/`
+**Output:** `memory/sandbox/processed/`
 
 **Example:**
 ```bash

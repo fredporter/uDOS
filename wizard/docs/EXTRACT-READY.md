@@ -1,7 +1,7 @@
 # EXTRACT Command - Implementation Complete ✅
 
-**Commit:** `63e6ea46`  
-**Date:** 2026-01-25  
+**Commit:** `63e6ea46`
+**Date:** 2026-01-25
 **Status:** Pushed to GitHub
 
 ---
@@ -102,19 +102,19 @@ output.md + images/ + ocr_response.json
 ### Input/Output
 
 ```
-memory/sandbox/
+memory/
 ├── inbox/                    ← Drop PDFs here
 │   ├── invoice.pdf
 │   └── report.pdf
-└── outbox/                   ← Output here
-    ├── invoice/
-    │   ├── output.md         ← Markdown
-    │   ├── ocr_response.json ← Raw response
-    │   └── images/           ← Extracted images
-    └── report/
-        ├── output.md
-        ├── ocr_response.json
-        └── images/
+└── sandbox/processed/         ← Output here
+  ├── invoice/
+  │   ├── output.md         ← Markdown
+  │   ├── ocr_response.json ← Raw response
+  │   └── images/           ← Extracted images
+  └── report/
+    ├── output.md
+    ├── ocr_response.json
+    └── images/
 ```
 
 ### Mistral Integration
@@ -143,8 +143,8 @@ bash bin/test_extract.sh
 ```bash
 wizard> extract invoice.pdf
 ⏳ Extracting invoice.pdf...
-   ✅ Extracted invoice.pdf to memory/sandbox/outbox/invoice/output.md
-   📄 File: memory/sandbox/outbox/invoice/output.md
+  ✅ Extracted invoice.pdf to memory/sandbox/processed/invoice/output.md
+  📄 File: memory/sandbox/processed/invoice/output.md
 ```
 
 ### Batch Mode
@@ -189,7 +189,7 @@ wizard> extract
 ### Mirrors PEEK Command
 
 - Same single/batch pattern
-- Same outbox directory structure
+- Output to sandbox processed directory
 - Same async command implementation
 - Same service singleton pattern
 
@@ -247,17 +247,17 @@ wizard> extract
 
 ## 📊 Summary
 
-**Lines of Code:** 900+  
-**Documentation:** 600+ lines  
-**Test Coverage:** Full setup validation  
-**Status:** ✅ Production Ready  
+**Lines of Code:** 900+
+**Documentation:** 600+ lines
+**Test Coverage:** Full setup validation
+**Status:** ✅ Production Ready
 **Deployed:** GitHub main branch
 
 The EXTRACT command is ready for use. Users can now convert PDF files to Markdown with automatic image extraction and metadata preservation, all integrated seamlessly into the Wizard Server interactive console.
 
 ---
 
-_Implemented by: GitHub Copilot_  
-_Date: 2026-01-25_  
-_Commit: 63e6ea46_  
+_Implemented by: GitHub Copilot_
+_Date: 2026-01-25_
+_Commit: 63e6ea46_
 _Status: Complete ✅_

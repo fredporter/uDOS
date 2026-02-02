@@ -56,6 +56,8 @@ class SeedInstaller:
             )
             (self.bank_dir / "workflows").mkdir(parents=True, exist_ok=True)
             (self.memory_dir / "logs").mkdir(parents=True, exist_ok=True)
+            (self.memory_dir / "logs" / "monitoring").mkdir(parents=True, exist_ok=True)
+            (self.memory_dir / "logs" / "quotas").mkdir(parents=True, exist_ok=True)
 
             logger.info("[LOCAL] Directory structure created in memory/bank/")
             return True
@@ -218,10 +220,18 @@ class SeedInstaller:
         Returns:
             Dict with status of each seed component
         """
+        system_dir = self.bank_dir / "system"
+        system_required = [
+            system_dir / "startup-script.md",
+            system_dir / "reboot-script.md",
+            system_dir / "tui-setup-story.md",
+            system_dir / "wizard-setup-story.md",
+        ]
         return {
             "directories_exist": (self.bank_dir / "locations").exists(),
             "locations_seeded": (self.bank_dir / "locations" / "locations.json").exists(),
             "timezones_seeded": (self.bank_dir / "timezones.json").exists(),
+            "system_seeds": all(path.exists() for path in system_required),
             "framework_seed_dir_exists": self.seed_dir.exists(),
         }
 

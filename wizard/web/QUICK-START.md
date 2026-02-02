@@ -28,13 +28,13 @@ Follow: [wiki/Google-Cloud-Console-Setup.md](../../wiki/Google-Cloud-Console-Set
 3. Enable APIs: Gmail, Drive, People
 4. Configure OAuth consent screen
 5. Create "Desktop app" credentials
-6. Download JSON → `memory/system/user/gmail_credentials.json`
+6. Download JSON → `memory/bank/user/gmail_credentials.json`
 
 ### 2. Verify Setup
 
 ```bash
 # Check credentials exist
-ls -lh memory/system/user/gmail_credentials.json
+ls -lh memory/bank/user/gmail_credentials.json
 
 # Should show ~1-2 KB file
 ```
@@ -56,7 +56,7 @@ Big blue button with Google logo
 1. **Select your Google account**
 2. **Review permissions:**
    - 📧 Read Gmail
-   - ✉️ Send Gmail  
+   - ✉️ Send Gmail
    - 💾 App Data Folder (hidden folder, NOT your files)
    - 👤 User Info (email/name)
 3. **Click "Continue"**
@@ -76,7 +76,7 @@ Shows:
 ## 🔐 Security Notes
 
 - **Tokens encrypted** with AES-256
-- **Stored locally** at `memory/system/user/.gmail_token.enc`
+- **Stored locally** at `memory/bank/user/.gmail_token.enc`
 - **Auto-refresh** when expired
 - **Revoke anytime** via [myaccount.google.com/permissions](https://myaccount.google.com/permissions)
 
@@ -109,7 +109,7 @@ uDOS> EMAIL SEND test@example.com "Subject" "Body"
 ### "Credentials file not found"
 
 ```bash
-ls memory/system/user/gmail_credentials.json
+ls memory/bank/user/gmail_credentials.json
 # If missing, download from Google Cloud Console
 ```
 
@@ -168,5 +168,5 @@ python wizard/web/gmail_oauth_server.py
 
 ---
 
-*Version: v1.0.1.0*  
+*Version: v1.0.1.0*
 *Date: 2026-01-05*

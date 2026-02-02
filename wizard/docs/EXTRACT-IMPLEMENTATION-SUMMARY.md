@@ -1,8 +1,8 @@
 # EXTRACT Command Implementation Summary
 
-**Date:** 2026-01-25  
-**Status:** ✅ Complete and Ready for Testing  
-**Version:** 1.0.0  
+**Date:** 2026-01-25
+**Status:** ✅ Complete and Ready for Testing
+**Version:** 1.0.0
 **Author:** GitHub Copilot
 
 ---
@@ -32,7 +32,7 @@ Successfully implemented the **EXTRACT** command for Wizard Server, which conver
 ```bash
 wizard> extract invoice.pdf
 ⏳ Extracting invoice.pdf...
-   ✅ Extracted invoice.pdf to memory/sandbox/outbox/invoice/output.md
+    ✅ Extracted invoice.pdf to memory/sandbox/processed/invoice/output.md
 ```
 
 ### ✅ Batch Processing
@@ -110,7 +110,7 @@ class PDFOCRService:
 1. **Thread-based Processing** — Uses `asyncio.to_thread()` to avoid blocking console
 2. **Setup Validation** — Checks API key and dependencies before processing
 3. **Singleton Pattern** — `get_pdf_ocr_service()` returns cached instance
-4. **Standardized Paths** — inbox/outbox structure matches PEEK command
+4. **Standardized Paths** — inbox + sandbox/processed structure for extraction
 5. **Error Recovery** — Batch mode processes remaining PDFs even if one fails
 
 ### Console Integration
@@ -227,9 +227,9 @@ cmd_extract(["invoice.pdf"])
 **Automatically Created:**
 
 ```
-memory/sandbox/
-├── inbox/       (input PDFs)
-└── outbox/      (output markdown + images)
+memory/
+├── inbox/                (input PDFs)
+└── sandbox/processed/    (output markdown + images)
 ```
 
 ---
@@ -256,7 +256,7 @@ bash bin/test_extract.sh
 1. **Place PDF in inbox**
 
    ```bash
-   cp ~/Downloads/sample.pdf memory/sandbox/inbox/
+    cp ~/Downloads/sample.pdf memory/inbox/
    ```
 
 2. **Start Wizard Server**
@@ -273,8 +273,8 @@ bash bin/test_extract.sh
 
 4. **Verify output**
    ```bash
-   ls memory/sandbox/outbox/sample/
-   cat memory/sandbox/outbox/sample/output.md
+    ls memory/sandbox/processed/sample/
+    cat memory/sandbox/processed/sample/output.md
    ```
 
 ---
@@ -357,7 +357,7 @@ logger.info("[WIZ] Extracting PDF: document.pdf")
 from wizard.services.path_utils import get_repo_root
 
 repo_root = get_repo_root()
-inbox_path = repo_root / "memory" / "sandbox" / "inbox"
+inbox_path = repo_root / "memory" / "inbox"
 ```
 
 ---
@@ -481,5 +481,5 @@ The implementation follows the same architectural patterns as the PEEK command, 
 
 ---
 
-_Last Updated: 2026-01-25_  
+_Last Updated: 2026-01-25_
 _Implementation Complete ✅_

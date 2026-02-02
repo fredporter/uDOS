@@ -56,6 +56,7 @@ class SeedHandler(BaseCommandHandler):
             output += f"Directories:       {'✅' if status['directories_exist'] else '❌'}\n"
             output += f"Locations seeded:  {'✅' if status['locations_seeded'] else '❌'}\n"
             output += f"Timezones seeded:  {'✅' if status['timezones_seeded'] else '❌'}\n"
+            output += f"System seeds:     {'✅' if status.get('system_seeds') else '❌'}\n"
             output += f"Framework seed dir: {'✅' if status['framework_seed_dir_exists'] else '❌'}\n"
 
             return {

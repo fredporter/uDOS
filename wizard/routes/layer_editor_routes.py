@@ -18,7 +18,7 @@ from wizard.services.path_utils import get_repo_root, get_memory_dir
 ALLOWED_ROOTS = {
     "sandbox": "memory/sandbox",
     "core": "memory/knowledge/maps",
-    "drafts": "memory/drafts",
+    "drafts": "memory/sandbox",
 }
 
 CORE_MAPS_ROOT = "core/data/maps/layers"

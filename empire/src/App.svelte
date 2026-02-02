@@ -56,7 +56,8 @@
               Inbox processing
             </p>
             <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
-              Scripts live in empire/scripts and are locked to memory/inbox.
+              Scripts read from memory/inbox and write to
+              memory/sandbox/processed.
             </p>
           </div>
           <div

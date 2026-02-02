@@ -55,15 +55,15 @@ wizard> extract ~/Downloads/document.pdf
 
 | Direction  | Location                 | Description                              |
 | ---------- | ------------------------ | ---------------------------------------- |
-| **Input**  | `memory/sandbox/inbox/`  | Drop PDF files here for batch processing |
-| **Output** | `memory/sandbox/outbox/` | Markdown + images saved here             |
+| **Input**  | `memory/inbox/`          | Drop PDF files here for batch processing |
+| **Output** | `memory/sandbox/processed/` | Markdown + images saved here          |
 
 ---
 
 ## Output Format
 
 ```
-outbox/
+processed/
 ├── document-name/
     ├── output.md          ← Markdown with YAML metadata
     ├── ocr_response.json  ← Raw OCR response
@@ -101,8 +101,8 @@ Page 2 content with images:
 ```bash
 wizard> extract invoice.pdf
 ⏳ Extracting invoice.pdf...
-   ✅ Extracted invoice.pdf to memory/sandbox/outbox/invoice/output.md
-   📄 File: memory/sandbox/outbox/invoice/output.md
+     ✅ Extracted invoice.pdf to memory/sandbox/processed/invoice/output.md
+     📄 File: memory/sandbox/processed/invoice/output.md
 ```
 
 ### Batch Process 3 PDFs
@@ -112,13 +112,13 @@ wizard> extract
 ⏳ Processing PDFs from inbox...
    ✅ Processed 3 PDFs
    ✅ invoice.pdf
-      📄 memory/sandbox/outbox/invoice/output.md
+     📄 memory/sandbox/processed/invoice/output.md
       🖼️  2 images, 5 pages
    ✅ report.pdf
-      📄 memory/sandbox/outbox/report/output.md
+     📄 memory/sandbox/processed/report/output.md
       🖼️  0 images, 12 pages
    ✅ menu.pdf
-      📄 memory/sandbox/outbox/menu/output.md
+     📄 memory/sandbox/processed/menu/output.md
       🖼️  8 images, 3 pages
 ```
 

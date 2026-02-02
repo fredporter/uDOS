@@ -134,8 +134,8 @@ CREATE TABLE script_knowledge_links (
 
 | Type        | Language   | Location                   | Example            |
 | ----------- | ---------- | -------------------------- | ------------------ |
-| `command`   | uPY        | `memory/ucode/`            | Workflow scripts   |
-| `workflow`  | uPY        | `memory/ucode/adventures/` | Mission templates  |
+| `command`   | uPY        | `memory/bank/scripts/`     | Workflow scripts   |
+| `workflow`  | uPY        | `memory/sandbox/adventures/` | Mission templates  |
 | `template`  | uPY        | `memory/templates/`        | .udos.md templates |
 | `function`  | uPY        | `core/runtime/`            | Reusable functions |
 | `component` | TypeScript | `app/`                 | Svelte components  |

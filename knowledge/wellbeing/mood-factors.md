@@ -174,7 +174,7 @@ The system weights empirical factors higher than pattern-based factors.
 
 Birth date, time, and place are:
 
-- Stored encrypted in `memory/private/identity.enc`
+- Stored encrypted in `memory/bank/private/identity.enc`
 - Never transmitted
 - Hashed in logs (you see `[hash:a1b2c3d4]` not the actual data)
 

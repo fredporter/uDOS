@@ -1,7 +1,7 @@
 # EXTRACT Command Documentation
 
-**Version:** 1.0.0  
-**Status:** Ready (Requires MISTRAL_API_KEY configuration)  
+**Version:** 1.0.0
+**Status:** Ready (Requires MISTRAL_API_KEY configuration)
 **Location:** `wizard/services/pdf_ocr_service.py` + `wizard/services/interactive_console.py`
 
 ---
@@ -40,9 +40,9 @@ The **EXTRACT** command converts PDF files to Markdown using Mistral AI's OCR (O
 
 3. **Directory Structure** — Automatically created by EXTRACT service
    ```
-   memory/sandbox/
-   ├── inbox/       ← Drop PDF files here for batch processing
-   └── outbox/      ← Markdown output saved here
+   memory/
+   ├── inbox/                 ← Drop PDF files here for batch processing
+   └── sandbox/processed/     ← Markdown output saved here
    ```
 
 ### Single File Extraction
@@ -50,8 +50,8 @@ The **EXTRACT** command converts PDF files to Markdown using Mistral AI's OCR (O
 ```bash
 wizard> extract invoice.pdf
 ⏳ Extracting invoice.pdf...
-   ✅ Extracted invoice.pdf to memory/sandbox/outbox/invoice/output.md
-   📄 File: memory/sandbox/outbox/invoice/output.md
+   ✅ Extracted invoice.pdf to memory/sandbox/processed/invoice/output.md
+   📄 File: memory/sandbox/processed/invoice/output.md
 ```
 
 ### Batch Processing
@@ -63,13 +63,13 @@ wizard> extract
 ⏳ Processing PDFs from inbox...
    ✅ Processed 3 PDFs
    ✅ invoice.pdf
-      📄 memory/sandbox/outbox/invoice/output.md
+      📄 memory/sandbox/processed/invoice/output.md
       🖼️  2 images, 5 pages
    ✅ report.pdf
-      📄 memory/sandbox/outbox/report/output.md
+      📄 memory/sandbox/processed/report/output.md
       🖼️  0 images, 12 pages
    ✅ menu.pdf
-      📄 memory/sandbox/outbox/menu/output.md
+      📄 memory/sandbox/processed/menu/output.md
       🖼️  8 images, 3 pages
 ```
 
@@ -78,7 +78,7 @@ wizard> extract
 ```bash
 wizard> extract /path/to/document.pdf
 ⏳ Extracting /path/to/document.pdf...
-   ✅ Extracted document.pdf to memory/sandbox/outbox/document/output.md
+   ✅ Extracted document.pdf to memory/sandbox/processed/document/output.md
 ```
 
 ---
@@ -122,7 +122,7 @@ help
 ### Single File Extraction
 
 ```
-memory/sandbox/outbox/document-name/
+memory/sandbox/processed/document-name/
 ├── output.md              ← Extracted markdown with metadata
 ├── ocr_response.json      ← Raw OCR response (for debugging)
 └── images/
@@ -347,7 +347,7 @@ bash bin/test_extract.sh
 1. **Place test PDF in inbox**
 
    ```bash
-   cp ~/Downloads/sample.pdf memory/sandbox/inbox/
+   cp ~/Downloads/sample.pdf memory/inbox/
    ```
 
 2. **Extract single file**
@@ -461,5 +461,5 @@ For issues or questions:
 
 ---
 
-_Last Updated: 2026-01-25_  
+_Last Updated: 2026-01-25_
 _uDOS Wizard Server v1.1.0.0_

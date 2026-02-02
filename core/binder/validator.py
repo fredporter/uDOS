@@ -6,13 +6,14 @@ Validates binder folder layout and reports issues.
 **Required Structure:**
 ```
 MyBinder/
-  uDOS-table.db          # Required (can be empty)
+    index.md               # Required (binder frontmatter + index)
 ```
 
 **Optional Structure:**
 ```
 MyBinder/
-  binder.md              # Optional home/metadata
+    binder.md              # Optional legacy home/metadata
+    uDOS-table.db           # Optional SQLite database
   .binder-config         # Optional metadata file
   imports/               # Optional source folder
   tables/                # Optional export folder
@@ -102,13 +103,13 @@ class BinderValidator:
     """Validates binder folder structure."""
 
     # Required structure
-    REQUIRED_FILES = ["uDOS-table.db"]
+    REQUIRED_FILES = ["index.md"]
 
     # Optional but recommended folders
-    RECOMMENDED_FOLDERS = ["imports", "tables", "scripts"]
+    RECOMMENDED_FOLDERS = ["docs", "imports", "tables", "scripts"]
 
     # Optional files
-    OPTIONAL_FILES = ["binder.md", ".binder-config"]
+    OPTIONAL_FILES = ["binder.md", ".binder-config", "uDOS-table.db"]
 
     @staticmethod
     def validate(binder_path: Path) -> ValidationReport:
@@ -215,9 +216,21 @@ class BinderValidator:
         binder_path.mkdir(parents=True, exist_ok=True)
 
         # Create required files
-        db_path = binder_path / "uDOS-table.db"
-        if not db_path.exists():
-            db_path.touch()
+        index_path = binder_path / "index.md"
+        if not index_path.exists():
+            index_path.write_text(
+                """---\n"
+                "binder_id: binder\n"
+                "title: New Binder\n"
+                "status: draft\n"
+                "workspace: sandbox\n"
+                "tags: [binder]\n"
+                "created_at: 1970-01-01T00:00:00Z\n"
+                "updated_at: 1970-01-01T00:00:00Z\n"
+                "---\n\n"
+                "# Binder Index\n\n"
+                "Describe this binder, its scope, and key documents.\n"
+            )
 
         # Create recommended folders
         for folder in BinderValidator.RECOMMENDED_FOLDERS:
@@ -241,10 +254,10 @@ class BinderValidator:
     def discover_binders(root_path: Path) -> List[Path]:
         """Discover all valid binder folders under root path.
 
-        Looks for folders containing uDOS-table.db
+        Looks for folders containing index.md
 
         **Args:**
-            root_path: Path to search under (typically memory/binders/)
+            root_path: Path to search under (typically memory/sandbox/binders/)
 
         **Returns:**
             List of discovered binder paths
@@ -256,8 +269,8 @@ class BinderValidator:
         binders = []
         for item in root_path.iterdir():
             if item.is_dir():
-                db_path = item / "uDOS-table.db"
-                if db_path.exists():
+                index_path = item / "index.md"
+                if index_path.exists():
                     binders.append(item)
 
         return sorted(binders)

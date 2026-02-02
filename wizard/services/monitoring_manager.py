@@ -157,7 +157,7 @@ class MonitoringManager:
             check_interval: Health check interval in seconds
             alert_callbacks: Optional callback functions for alerts
         """
-        self.data_dir = data_dir or Path("memory/monitoring")
+        self.data_dir = data_dir or Path("memory/logs/monitoring")
         self.data_dir.mkdir(parents=True, exist_ok=True)
 
         self.check_interval = check_interval

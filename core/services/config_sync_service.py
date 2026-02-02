@@ -240,7 +240,7 @@ class ConfigSyncManager:
             import requests
 
             # Get admin token from file
-            token_path = self.repo_root / "memory" / "private" / "wizard_admin_token.txt"
+            token_path = self.repo_root / "memory" / "bank" / "private" / "wizard_admin_token.txt"
             if not token_path.exists():
                 return False, "⚠️  Wizard admin token not found (Wizard not initialized?)"
 

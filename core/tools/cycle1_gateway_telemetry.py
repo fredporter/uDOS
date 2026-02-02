@@ -56,7 +56,7 @@ def main():
     logs_dir = memory_root / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
 
-    monitoring = MonitoringManager(data_dir=memory_root / "monitoring", check_interval=60)
+    monitoring = MonitoringManager(data_dir=memory_root / "logs" / "monitoring", check_interval=60)
     latest_log = _latest_gateway_log(memory_root)
     status, message, metadata = _gateway_health_check(latest_log)
     health_record = monitoring.check_health(

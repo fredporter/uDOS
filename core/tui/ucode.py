@@ -232,7 +232,8 @@ class uCODETUI:
         self.logger = get_logger("ucode-tui")
         self.running = False
         self.ghost_mode = False
-
+        # Ensure bank/system seeds are present (startup/reboot/setup stories)
+        self._ensure_bank_system_seeds()
         # Component detection
         self.detector = ComponentDetector(self.repo_root)
         self.components = self.detector.detect_all()
@@ -297,6 +298,28 @@ class uCODETUI:
             self.logger.info(f"[ContextualPrompt] Using fallback mode: {self.prompt.fallback_reason}")
         else:
             self.logger.info("[ContextualPrompt] Initialized with command suggestions")
+
+    def _ensure_bank_system_seeds(self) -> None:
+        """Seed /memory/bank/system files if they are missing."""
+        try:
+            from core.framework.seed_installer import SeedInstaller
+
+            system_dir = self.repo_root / "memory" / "bank" / "system"
+            required = [
+                "startup-script.md",
+                "reboot-script.md",
+                "tui-setup-story.md",
+                "wizard-setup-story.md",
+            ]
+            missing = [name for name in required if not (system_dir / name).exists()]
+            if missing:
+                installer = SeedInstaller()
+                installer.install_bank_seeds(force=False)
+                self.logger.info(
+                    f"[LOCAL] Seeded memory/bank/system files: {', '.join(missing)}"
+                )
+        except Exception as e:
+            self.logger.warning(f"[LOCAL] Bank/system seed check failed: {e}")
 
     def run(self) -> None:
         """Start uCODE TUI."""
@@ -760,7 +783,7 @@ class uCODETUI:
                 import requests
 
                 # Get the token
-                token_path = self.repo_root / "memory" / "private" / "wizard_admin_token.txt"
+                token_path = self.repo_root / "memory" / "bank" / "private" / "wizard_admin_token.txt"
 
                 if token_path.exists():
                     token = token_path.read_text().strip()

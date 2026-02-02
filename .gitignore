@@ -19,6 +19,7 @@ memory/**
 !memory/.gitkeep
 !memory/README.md
 !memory/WORKSPACE-STRUCTURE.md
+!memory/inbox/README.md
 
 # Bank structure: templates tracked, user data ignored
 !memory/bank/
@@ -169,8 +170,8 @@ assistant_keys.json
 wizard/config/assistant_keys.json
 wizard/config/oauth_providers.json
 wizard/config/slack_keys.json
-memory/system/user/gmail_credentials.json
-memory/system/user/.gmail_token.enc
+memory/bank/user/gmail_credentials.json
+memory/bank/user/.gmail_token.enc
 *.gmail_token*
 
 # ---------- Tests & fixtures (generated) ----------
@@ -218,6 +219,8 @@ library/**/
 !library/container.template.json
 !library/README.md
 !library/*.md
+!library/binders/*.md
+!library/binders/.gitkeep
 !library/*/setup.sh
 !library/*/setup.py
 !library/*/README.md
@@ -268,11 +271,11 @@ wizard/config/notion_keys.json
 # ---------- ADDITIONAL LOCAL FILE PROTECTIONS (2026-01-31) ----------
 # Ensure all memory/ subdirectories are blocked (except whitelisted tests above)
 memory/logs/**
-memory/binders/**
+memory/sandbox/binders/**
 # Removed - moved to library/containers/
-memory/private/**
+memory/bank/private/**
 memory/story/**
-memory/user/**
+memory/bank/user/**
 memory/wizard/**
 
 # Wizard secrets (redundant but explicit)

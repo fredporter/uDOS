@@ -259,7 +259,7 @@ Cmd+Shift+P → "Run Task: 🐛 Goblin: Start Dev Server"
 ## 🔐 Security Notes
 
 ### Private Credentials
-- Stored in `memory/private/` (gitignored)
+- Stored in `memory/bank/private/` (gitignored)
 - Never committed to repository
 - Loaded at runtime from environment
 

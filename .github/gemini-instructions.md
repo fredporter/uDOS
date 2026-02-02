@@ -58,7 +58,7 @@ When assisting with uDOS development:
 - Examples: handlers, services, utilities
 
 **TypeScript Scripts (embedded in .md files):**
-- User automation: `memory/ucode/scripts/`, `memory/ucode/sandbox/`
+- User automation: `memory/bank/scripts/`, `memory/sandbox/`
 - Format: TypeScript embedded in Markdown (e.g., `workflow-script.md`, `quest-template.md`)
 - Users edit directly
 - Gitignored (except stdlib/examples/adventures)
@@ -212,7 +212,7 @@ Context available in OK commands includes:
 ./start_udos.sh memory/tests/shakedown-script.md
 
 # Unit tests
-pytest memory/ucode/tests/ -v
+pytest core/memory/tests/ -v
 
 # Quick smoke test
 echo -e "STATUS\nTREE\nEXIT" | python uDOS.py

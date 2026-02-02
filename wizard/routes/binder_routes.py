@@ -35,7 +35,7 @@ def _build_binder_config() -> Dict[str, Any]:
     if not memory_path.is_absolute():
         memory_path = get_repo_root() / memory_path
 
-    binder_dir = memory_path / "binders"
+    binder_dir = memory_path / "sandbox" / "binders"
     return {"db_path": binder_dir / "binders.db", "output_dir": binder_dir}
 
 

@@ -125,7 +125,7 @@ actions:
 
 | Status       | Location                | Indexed         | Editable           | Visible To              |
 | ------------ | ----------------------- | --------------- | ------------------ | ----------------------- |
-| `draft`      | `memory/drafts/`        | No              | Author only        | Author                  |
+| `draft`      | `memory/sandbox/`       | No              | Author only        | Author                  |
 | `submitted`  | `memory/contributions/` | No              | Author + Reviewers | Reviewers               |
 | `published`  | `knowledge/`            | Yes             | Per permissions    | Everyone                |
 | `archived`   | `knowledge/.archive/`   | Historical only | No                 | Everyone                |

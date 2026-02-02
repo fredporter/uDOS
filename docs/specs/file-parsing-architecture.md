@@ -337,7 +337,7 @@ columns:
 
 #### Task 7: Binder Folder Structure ✓
 
-**Component:** `core/binders/binder_manager.py`
+**Component:** `core/binder/manager.py`
 
 **Responsibility:**
 
@@ -348,7 +348,7 @@ columns:
 **API:**
 
 ```python
-binder = BinderManager.create("MyBinder")
+binder = BinderManager.create_binder("MyBinder")
 binder.add_import("contacts.csv")       # → imports/
 binder.add_table("contacts_table.md")   # → tables/
 binder.add_script("cleanup.script.md")  # → scripts/
@@ -359,36 +359,43 @@ binder.get_database()                   # → uDOS-table.db handle
 
 ```
 MyBinder/
-├── .binder.json              # Metadata
-├── uDOS-table.db             # SQLite database (created)
-├── imports/                  # User adds files here
-├── tables/                   # Exported .table.md files
-├── scripts/                  # .script.md executables
-└── README.md                 # Auto-generated guide
+├── index.md                  # Binder frontmatter + index (required)
+├── docs/                     # uDOS-formatted markdown docs
+├── uDOS-table.db             # Optional SQLite database
+├── imports/                  # User adds files here (optional)
+├── tables/                   # Exported .table.md files (optional)
+├── scripts/                  # .script.md executables (optional)
+├── media/                    # Optional images/media
+└── .binder-config            # Optional metadata file
 ```
 
-**Binder Metadata (.binder.json):**
+**Binder Metadata (index.md frontmatter):**
 
 ```json
-{
-  "id": "mybinder-2026-01-17",
-  "name": "MyBinder",
-  "created_at": "2026-01-17T10:00:00Z",
-  "updated_at": "2026-01-17T10:30:00Z",
-  "tables": ["contacts", "orders", "products"],
-  "imports": ["contacts.csv", "settings.yaml"],
-  "scripts": ["cleanup.script.md"],
-  "db_version": "1.0.6.0"
-}
+---
+binder_id: mybinder-2026-01-17
+title: MyBinder
+status: draft
+workspace: sandbox
+tags: [binder, research]
+created_at: 2026-01-17T10:00:00Z
+updated_at: 2026-01-17T10:30:00Z
+index: docs/README.md
+db: uDOS-table.db
+---
 ```
 
 **Tests:** 8+ unit tests (creation, structure, metadata)
+
+**Workspace Flow:**
+- Draft/compile in `memory/sandbox/binders/`
+- Move to `memory/bank/binders/{public|private|shared|submit}`
 
 ---
 
 #### Task 8: Binder-Local DB Context ✓
 
-**Component:** `core/binders/binder_database.py`
+**Component:** `core/binder/database.py`
 
 **Responsibility:**
 
@@ -400,8 +407,9 @@ MyBinder/
 **API:**
 
 ```python
-binder = BinderManager.get("MyBinder")
-db = binder.get_database()
+mgr = BinderManager()
+binder_path = mgr.get_workspace_dir(BinderWorkspace.SANDBOX) / "MyBinder"
+db = BinderDatabase(binder_path)
 
 # Access tables
 contacts = db.query("SELECT * FROM contacts WHERE email LIKE '%@example.com'")
@@ -442,7 +450,7 @@ db.export_table("contacts", "tables/contacts.table.md")
 
 ```bash
 # Generate RSS from recent documents
-FEED --sources /binders/news --title "uDOS News" --output feed.xml
+FEED --sources /memory/sandbox/binders/news --title "uDOS News" --output feed.xml
 
 # Include multiple sources
 FEED --sources /docs --sources /memory/logs --title "All Updates"

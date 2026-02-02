@@ -37,7 +37,7 @@ class BinderCompiler:
         repo_root = get_repo_root()
         self.config = config or {}
 
-        default_db = repo_root / "memory" / "binders" / "binders.db"
+        default_db = repo_root / "memory" / "sandbox" / "binders" / "binders.db"
         if db_path is None:
             db_path = self.config.get("db_path", default_db)
 
@@ -45,7 +45,7 @@ class BinderCompiler:
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
         self.output_dir = Path(
-            self.config.get("output_dir", repo_root / "memory" / "binders")
+            self.config.get("output_dir", repo_root / "memory" / "sandbox" / "binders")
         )
         self.formats = self.config.get("formats", ["markdown", "json"])
         self.output_dir.mkdir(parents=True, exist_ok=True)

@@ -263,22 +263,22 @@ class ShakedownHandler(BaseCommandHandler):
         """Check component availability."""
         try:
             components = {}
-            
+
             # Core (always required)
             components["core"] = (PROJECT_ROOT / "core" / "__init__.py").exists()
-            
+
             # Wizard (optional)
             components["wizard"] = (PROJECT_ROOT / "wizard" / "server.py").exists()
-            
+
             # Extensions (optional)
             components["extensions"] = (PROJECT_ROOT / "extensions" / "api").exists() or \
                                       (PROJECT_ROOT / "extensions" / "transport").exists()
-            
+
             # App (optional)
             components["app"] = (PROJECT_ROOT / "app" / "package.json").exists()
 
             available = sum(1 for v in components.values() if v)
-            
+
             return {
                 "status": "pass" if components["core"] else "fail",
                 "message": f"Components: {available}/4 available (core required)",
@@ -294,14 +294,14 @@ class ShakedownHandler(BaseCommandHandler):
         """Check services layer."""
         try:
             services = {}
-            
+
             # Logging manager
             try:
                 from core.services.logging_service import get_logger
                 services["logging"] = True
             except:
                 services["logging"] = False
-            
+
             # User manager
             try:
                 from core.services.user_service import get_user_manager
@@ -310,7 +310,7 @@ class ShakedownHandler(BaseCommandHandler):
                 services["user_manager"] = False
 
             available = sum(1 for v in services.values() if v)
-            
+
             if available >= 2:
                 return {
                     "status": "pass",
@@ -333,18 +333,18 @@ class ShakedownHandler(BaseCommandHandler):
         """Check user manager and current user."""
         try:
             from core.services.user_service import get_user_manager
-            
+
             user_mgr = get_user_manager()
             current = user_mgr.current()
             all_users = list(user_mgr.users.keys())
-            
+
             if not current:
                 return {
                     "status": "warning",
                     "message": f"User manager: {len(all_users)} users, no current user",
                     "count": len(all_users),
                 }
-            
+
             return {
                 "status": "pass",
                 "message": f"User manager: {len(all_users)} users, current={current.username}",
@@ -358,7 +358,7 @@ class ShakedownHandler(BaseCommandHandler):
 
     def _check_fresh_install(self) -> Dict:
         """Validate fresh install initialization.
-        
+
         Validates:
           - Memory directory structure
           - Default admin user
@@ -369,30 +369,35 @@ class ShakedownHandler(BaseCommandHandler):
         """
         try:
             checks = {}
-            
+
             # Check 1: Memory structure
             memory_root = PROJECT_ROOT / "memory"
             checks["memory_exists"] = memory_root.exists()
-            
+
             # Check 2: Memory subdirectories
             core_dirs = [
                 memory_root / "logs",
+                memory_root / "logs" / "monitoring",
+                memory_root / "logs" / "quotas",
                 memory_root / "bank",
-                memory_root / "private",
+                memory_root / "bank" / "private",
+                memory_root / "bank" / "user",
+                memory_root / "sandbox",
+                memory_root / "sandbox" / "binders",
                 memory_root / "wizard",
             ]
             checks["memory_dirs"] = all(d.exists() for d in core_dirs)
             missing_dirs = [d.name for d in core_dirs if not d.exists()]
-            
+
             # Check 3: Default admin user exists and is initialized
             from core.services.user_service import get_user_manager
             user_mgr = get_user_manager()
             checks["default_user"] = "admin" in user_mgr.users
-            
+
             # Verify admin has proper permissions
             admin = user_mgr.users.get("admin")
             checks["admin_initialized"] = admin is not None and admin.role == "admin"
-            
+
             # Check 4: Core services can be initialized
             services_ok = True
             try:
@@ -401,10 +406,10 @@ class ShakedownHandler(BaseCommandHandler):
             except:
                 services_ok = False
             checks["logging_service"] = services_ok
-            
+
             # Check 5: User manager ready with current user set
             checks["user_manager_ready"] = user_mgr.current() is not None
-            
+
             # Check 6: Handler directory and critical handlers
             handler_dir = PROJECT_ROOT / "core" / "commands"
             critical_handlers = [
@@ -415,7 +420,7 @@ class ShakedownHandler(BaseCommandHandler):
             ]
             handlers_exist = all((handler_dir / h).exists() for h in critical_handlers)
             checks["critical_handlers"] = handlers_exist
-            
+
             # Check 7: Framework can initialize dispatcher
             try:
                 from core.tui.dispatcher import CommandDispatcher
@@ -423,7 +428,7 @@ class ShakedownHandler(BaseCommandHandler):
                 checks["dispatcher_ready"] = len(dispatcher.handlers) >= 10
             except:
                 checks["dispatcher_ready"] = False
-            
+
             # Check 8: GameState can initialize
             try:
                 from core.tui.state import GameState
@@ -431,7 +436,7 @@ class ShakedownHandler(BaseCommandHandler):
                 checks["state_ready"] = state is not None
             except:
                 checks["state_ready"] = False
-            
+
             # Check 9: SmartPrompt available
             try:
                 from core.input import SmartPrompt
@@ -439,11 +444,11 @@ class ShakedownHandler(BaseCommandHandler):
                 checks["smartprompt_ready"] = prompt is not None
             except:
                 checks["smartprompt_ready"] = False
-            
+
             # Summarize results
             all_passed = all(checks.values())
             failed = [k for k, v in checks.items() if not v]
-            
+
             if all_passed:
                 return {
                     "status": "pass",
@@ -456,7 +461,7 @@ class ShakedownHandler(BaseCommandHandler):
                     details.append(f"missing dirs: {', '.join(missing_dirs)}")
                 if failed:
                     details.append(f"failed checks: {', '.join(failed[:3])}")  # Show first 3
-                
+
                 detail_str = f" ({', '.join(details)})" if details else ""
                 return {
                     "status": "fail",
@@ -470,7 +475,7 @@ class ShakedownHandler(BaseCommandHandler):
 
     def _verify_destroy(self) -> Dict:
         """Verify DESTROY command can function and is safe to call.
-        
+
         Validates:
           - DESTROY handler exists and is registered
           - User manager initialized
@@ -487,7 +492,7 @@ class ShakedownHandler(BaseCommandHandler):
                 check_handler = True
             except:
                 check_handler = False
-            
+
             # Check 2: Can access user manager
             try:
                 from core.services.user_service import get_user_manager, Permission
@@ -497,33 +502,33 @@ class ShakedownHandler(BaseCommandHandler):
                 check_user_mgr = False
                 user_mgr = None
                 Permission = None
-            
+
             # Check 3: Current user exists and permissions are available
             current = user_mgr.current() if user_mgr else None
             check_current_user = current is not None
-            
+
             # Check 4: Current user has destroy permission
             if user_mgr and Permission and current:
                 has_destroy = user_mgr.has_permission(Permission.DESTROY)
             else:
                 has_destroy = False
-            
+
             # Check 5: Memory directories accessible and writable
             memory_path = PROJECT_ROOT / "memory"
             can_write_memory = memory_path.exists() and os.access(str(memory_path), os.W_OK)
-            
+
             # Check 6: Archive directory exists or parent is writable
             archive_path = PROJECT_ROOT / ".archive"
             can_create_archive = archive_path.exists() or os.access(str(PROJECT_ROOT), os.W_OK)
-            
+
             # Check 7: Compost subdirectory creatable
             compost_base = archive_path / "compost" if archive_path.exists() else None
             can_compost = (
-                (compost_base and compost_base.exists()) or 
+                (compost_base and compost_base.exists()) or
                 (archive_path.exists() and os.access(str(archive_path), os.W_OK)) or
                 can_create_archive
             )
-            
+
             # Check 8: Logging available for audit trail
             try:
                 from core.services.unified_logging import get_unified_logger
@@ -531,7 +536,7 @@ class ShakedownHandler(BaseCommandHandler):
                 check_logging = True
             except:
                 check_logging = False
-            
+
             checks = {
                 "destroy_handler": check_handler,
                 "user_manager": check_user_mgr,
@@ -542,19 +547,19 @@ class ShakedownHandler(BaseCommandHandler):
                 "compost_ready": can_compost,
                 "audit_logging": check_logging,
             }
-            
+
             # Determine overall status
             critical_checks = [
                 "destroy_handler",
-                "user_manager", 
+                "user_manager",
                 "current_user",
                 "destroy_permission",
                 "memory_writable",
             ]
             critical_ok = all(checks.get(k, False) for k in critical_checks)
-            
+
             all_ok = all(checks.values())
-            
+
             if all_ok:
                 return {
                     "status": "pass",

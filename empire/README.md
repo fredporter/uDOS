@@ -19,10 +19,10 @@ Use this shell as the starting point for Empire dashboards; add Svelte component
 
 ## Scripts
 
-All runnable scripts now live under `empire/scripts/` and are constrained to `memory/inbox/` via `path_guard.resolve_inbox_path()`.
+All runnable scripts now live under `empire/scripts/` and read input from `memory/inbox/`.
 
 - Example: `python -m dev.empire.scripts.process_inbox --pattern "*.csv"`
-- Output: defaults to `memory/inbox/processed/`
+- Output: defaults to `memory/sandbox/processed/`
 
 ## HubSpot Integration
 

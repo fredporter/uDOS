@@ -1,7 +1,7 @@
 # Setup Profile Synchronization
 
-**Version:** 1.0.0  
-**Date:** 2026-01-28  
+**Version:** 1.0.0
+**Date:** 2026-01-28
 **Status:** Active
 
 ---
@@ -237,7 +237,7 @@ This ensures Wizard Server services reflect user preferences from the TUI story.
 
 ```bash
 # Via curl (requires admin token)
-curl -H "Authorization: Bearer $(cat memory/private/wizard_admin_token.txt)" \
+curl -H "Authorization: Bearer $(cat memory/bank/private/wizard_admin_token.txt)" \
   http://localhost:8765/api/setup/profile/combined
 
 # Via interactive console
@@ -260,6 +260,6 @@ Profiles can only be updated by re-submitting the setup story or manually editin
 
 ---
 
-**Status:** Active Documentation  
-**Maintained by:** Wizard Engineering  
+**Status:** Active Documentation
+**Maintained by:** Wizard Engineering
 **Next Review:** 2026-02-28

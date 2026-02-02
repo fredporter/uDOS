@@ -78,7 +78,13 @@ uDOS needs a clear data architecture that supports:
 │    ├── knowledge/        # User knowledge additions             │
 │    │   ├── personal/     # User notes                           │
 │    │   └── imported/     # Downloaded content                   │
-│    └── binders/          # User binder projects                 │
+│                                                                  │
+│  /memory/logs/                                                   │
+│    ├── monitoring/       # Health checks, audits, alerts         │
+│    └── quotas/           # Provider quota snapshots              │
+│                                                                  │
+│  /memory/sandbox/                                               │
+│    └── binders/          # User binder projects (sandbox)        │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -233,7 +239,9 @@ version: 1.0.0
 │  ────────────────────────                                       │
 │  /memory/bank/locations/     → Via MeshCore/QR/Audio transport  │
 │  /memory/bank/knowledge/     → Via MeshCore/QR/Audio transport  │
-│  /memory/bank/binders/       → Via MeshCore/QR/Audio transport  │
+│  /memory/bank/binders/public/ → Via MeshCore/QR/Audio transport │
+│  /memory/bank/binders/shared/ → Via MeshCore/QR/Audio transport │
+│  /memory/bank/binders/submit/ → Via MeshCore/QR/Audio transport │
 │                                                                 │
 └────────────────────────────────────────────────────────────────┘
 ```

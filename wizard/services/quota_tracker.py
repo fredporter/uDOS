@@ -307,7 +307,7 @@ class QuotaTracker:
     """
 
     CONFIG_DIR = Path(__file__).parent.parent / "config"
-    DATA_DIR = Path(__file__).parent.parent.parent / "memory" / "quotas"
+    DATA_DIR = Path(__file__).parent.parent.parent / "memory" / "logs" / "quotas"
 
     def __init__(self):
         """Initialize quota tracker."""

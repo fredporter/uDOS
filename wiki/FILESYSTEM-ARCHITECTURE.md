@@ -67,20 +67,24 @@ uDOS/
 │   └── vscode/              # VS Code extension
 │
 ├── memory/                  # [USER] User workspace (gitignored)
-│   ├── user.json            # User profile & settings
-│   ├── state.json           # Session state
+│   ├── inbox/               # Dropbox-style input for processing
 │   ├── logs/                # Log files
-│   ├── ucode/               # User scripts (TypeScript in .md)
-│   ├── documents/           # User documents
-│   ├── contributions/       # Pending wiki contributions
-│   │   ├── knowledge/       # Knowledge bank edits
-│   │   ├── waypoints/       # Waypoint proposals
-│   │   └── mapfixes/        # Map correction reports
-│   ├── mapdata/             # User map discoveries
-│   │   ├── explored/        # Explored tile cache
-│   │   ├── custom/          # User-created content
-│   │   └── bookmarks/       # Saved locations
-│   └── saves/               # Game saves / checkpoints
+│   │   ├── monitoring/      # System monitoring
+│   │   └── quotas/          # Usage quotas
+│   ├── bank/                # Seeded + user-managed data
+│   │   ├── system/          # Seeded system data (scripts, themes)
+│   │   ├── scripts/         # User scripts (final)
+│   │   ├── workflows/       # Saved workflows
+│   │   ├── private/         # Private user data
+│   │   └── user/            # User profile/settings
+│   ├── sandbox/             # Drafts + compile area
+│   │   ├── binders/         # Binder workspaces
+│   │   ├── workflows/       # Draft workflows
+│   │   └── processed/       # Completed processing output
+│   ├── knowledge/           # Local knowledge cache
+│   ├── wizard/              # Wizard runtime data
+│   ├── .cache/              # Local cache
+│   └── .backups/            # Local backups
 │
 ├── wizard/                  # [SYSTEM] Wizard Server (optional)
 │   ├── providers/           # AI providers
@@ -116,12 +120,12 @@ uDOS/
 
 | Directory               | Content                | Backup Method  |
 | ----------------------- | ---------------------- | -------------- |
-| `memory/user.json`      | Profile, settings      | User backup    |
-| `memory/state.json`     | Session state          | Auto-save      |
-| `memory/ucode/`         | User scripts           | User backup    |
-| `memory/contributions/` | Wiki submissions       | Sync to server |
-| `memory/mapdata/`       | Discoveries, bookmarks | User backup    |
-| `memory/saves/`         | Game checkpoints       | User backup    |
+| `memory/bank/user/profile.json` | Profile, settings | User backup |
+| `memory/bank/scripts/`  | User scripts (final)   | User backup    |
+| `memory/inbox/`         | Drop files for processing | User backup |
+| `memory/sandbox/`       | Drafts & staging area  | User backup    |
+| `memory/sandbox/processed/` | Processed outputs | User backup    |
+| `memory/logs/`          | Local logs             | User backup    |
 
 **Characteristics**:
 

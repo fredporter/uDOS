@@ -38,7 +38,7 @@ Once running, open in your browser:
 2. Enable Gmail, Drive, People APIs
 3. Configure OAuth consent screen
 4. Create Desktop app credentials
-5. Download JSON → `memory/system/user/gmail_credentials.json`
+5. Download JSON → `memory/bank/user/gmail_credentials.json`
 
 ### 2. Python Dependencies
 
@@ -87,7 +87,7 @@ pip install fastapi uvicorn python-multipart jinja2 \
 
 ### Token Storage
 
-- **Location:** `memory/system/user/.gmail_token.enc`
+- **Location:** `memory/bank/user/.gmail_token.enc`
 - **Encryption:** AES-256 (Fernet)
 - **Key:** `.env` file (gitignored)
 
@@ -146,7 +146,7 @@ curl http://127.0.0.1:8080/gmail/status
 **Fix:**
 ```bash
 # Check file exists
-ls -lh memory/system/user/gmail_credentials.json
+ls -lh memory/bank/user/gmail_credentials.json
 
 # If missing, download from Google Cloud Console
 # Follow: wiki/Google-Cloud-Console-Setup.md
@@ -243,5 +243,5 @@ uDOS> EMAIL SEND test@example.com "Hello" "Test from uDOS"
 
 ---
 
-*Version: v1.0.1.0*  
+*Version: v1.0.1.0*
 *Last Updated: 2026-01-05*

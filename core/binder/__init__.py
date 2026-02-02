@@ -11,11 +11,14 @@ Provides isolated document organization with local databases, offline-first desi
 
 **Architecture:**
 Each binder is a self-contained folder with:
-- uDOS-table.db: Local SQLite database
-- imports/: CSV, JSON, YAML sources
-- tables/: Exported .table.md files
-- scripts/: Markdown executables
-- .binder-config: Metadata file (optional)
+- index.md: Required binder frontmatter + index
+- docs/: uDOS-formatted markdown documents
+- uDOS-table.db: Optional SQLite database
+- imports/: Optional CSV/JSON/YAML sources
+- tables/: Optional .table.md exports
+- scripts/: Optional Markdown executables
+- media/: Optional media folder (TBD)
+- .binder-config: Optional metadata file
 
 **Isolation Model:**
 - Each binder has its own database (no sharing)
@@ -36,6 +39,7 @@ from .feed import (
     ContentPreview,
 )
 from .compiler import BinderCompiler
+from .manager import BinderManager, BinderWorkspace, BinderLocation
 
 __all__ = [
     # Config
@@ -61,6 +65,10 @@ __all__ = [
     "ContentPreview",
     # Compiler
     "BinderCompiler",
+    # Manager
+    "BinderManager",
+    "BinderWorkspace",
+    "BinderLocation",
 ]
 
 __version__ = "1.0.0"
