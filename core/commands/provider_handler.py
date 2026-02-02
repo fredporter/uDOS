@@ -262,9 +262,10 @@ class ProviderHandler(BaseCommandHandler):
 
             if result.returncode == 0:
                 output.append(f"OK Setup completed for {provider_id}")
+                return {"status": "success", "output": "\n".join(output)}
             else:
                 output.append(f"WARN Setup had issues for {provider_id}")
-
-            return {"status": "success", "output": "\n".join(output)}
+                output.append("\nCheck the output above for details.")
+                return {"status": "error", "output": "\n".join(output)}
         except Exception as e:
             return {"status": "error", "message": f"Failed to run setup: {str(e)}"}

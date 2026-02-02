@@ -521,63 +521,9 @@ def create_config_routes(auth_guard=None):
                 status_code=500, detail=f"Failed to export configs: {str(e)}"
             )
 
-    @router.get("/export/list")
-    async def list_exports():
-        """List available export files."""
-        EXPORT_DIR = Path(__file__).parent.parent.parent / "memory" / "config_exports"
-        if not EXPORT_DIR.exists():
-            return {"exports": []}
+    # Note: GET /export/list and /export/{filename} are now in create_public_export_routes()
+    # for local-only access without auth
 
-        exports = []
-        for export_file in sorted(
-            EXPORT_DIR.glob("udos-config-export-*.json"), reverse=True
-        ):
-            try:
-                stat = export_file.stat()
-                exports.append(
-                    {
-                        "filename": export_file.name,
-                        "path": str(export_file),
-                        "size": stat.st_size,
-                        "modified": datetime.fromtimestamp(stat.st_mtime).isoformat()
-                        + "Z",
-                    }
-                )
-            except Exception:
-                pass
-
-        return {"exports": exports}
-
-    @router.get("/export/{filename}")
-    async def download_export(filename: str):
-        """Download an export file.
-
-        Safety check: only allows downloading from export directory.
-        """
-        EXPORT_DIR = Path(__file__).parent.parent.parent / "memory" / "config_exports"
-        # Validate filename to prevent path traversal
-        if not filename.startswith("udos-config-export-") or not filename.endswith(
-            ".json"
-        ):
-            raise HTTPException(status_code=400, detail="Invalid export filename")
-
-        if ".." in filename:
-            raise HTTPException(status_code=400, detail="Invalid path")
-
-        export_path = EXPORT_DIR / filename
-
-        if not export_path.exists():
-            raise HTTPException(
-                status_code=404, detail=f"Export file not found: {filename}"
-            )
-
-        return FileResponse(
-            path=export_path,
-            filename=filename,
-            media_type="application/json",
-        )
-
-    @router.get("/{file_id}")
     async def get_config(file_id: str):
         """Get configuration file content.
 
@@ -1349,5 +1295,68 @@ def create_config_routes(auth_guard=None):
             raise HTTPException(status_code=500, detail=str(exc))
         except Exception as exc:
             raise HTTPException(status_code=500, detail=f"Failed to rotate secret: {exc}")
+
+    return router
+
+def create_public_export_routes():
+    """Create public export download routes (no auth required for local clients)."""
+    router = APIRouter(prefix="/api/config", tags=["config"])
+
+    @router.get("/export/list")
+    async def list_exports(request: Request):
+        """List available export files (local access only)."""
+        client_host = request.client.host if request.client else ""
+        if client_host not in {"127.0.0.1", "::1", "localhost"}:
+            raise HTTPException(status_code=403, detail="local requests only")
+
+        EXPORT_DIR = Path(__file__).parent.parent.parent / "memory" / "config_exports"
+        exports = []
+        if EXPORT_DIR.exists():
+            for export_file in EXPORT_DIR.glob("udos-config-export-*.json"):
+                try:
+                    stat = export_file.stat()
+                    exports.append(
+                        {
+                            "filename": export_file.name,
+                            "path": str(export_file),
+                            "size": stat.st_size,
+                            "modified": datetime.fromtimestamp(stat.st_mtime).isoformat()
+                            + "Z",
+                        }
+                    )
+                except Exception:
+                    pass
+
+        return {"exports": exports}
+
+    @router.get("/export/{filename}")
+    async def download_export(filename: str, request: Request):
+        """Download an export file (local access only)."""
+        client_host = request.client.host if request.client else ""
+        if client_host not in {"127.0.0.1", "::1", "localhost"}:
+            raise HTTPException(status_code=403, detail="local requests only")
+
+        EXPORT_DIR = Path(__file__).parent.parent.parent / "memory" / "config_exports"
+        # Validate filename to prevent path traversal
+        if not filename.startswith("udos-config-export-") or not filename.endswith(
+            ".json"
+        ):
+            raise HTTPException(status_code=400, detail="Invalid export filename")
+
+        if ".." in filename:
+            raise HTTPException(status_code=400, detail="Invalid path")
+
+        export_path = EXPORT_DIR / filename
+
+        if not export_path.exists():
+            raise HTTPException(
+                status_code=404, detail=f"Export file not found: {filename}"
+            )
+
+        return FileResponse(
+            path=export_path,
+            filename=filename,
+            media_type="application/json",
+        )
 
     return router

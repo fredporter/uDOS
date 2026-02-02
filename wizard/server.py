@@ -346,6 +346,7 @@ class WizardServer:
         from wizard.routes.config_routes import (
             create_config_routes,
             create_admin_token_routes,
+            create_public_export_routes,
         )
 
         config_router = create_config_routes(auth_guard=self._authenticate_admin)
@@ -353,6 +354,10 @@ class WizardServer:
 
         admin_token_router = create_admin_token_routes()
         app.include_router(admin_token_router)
+
+        public_export_router = create_public_export_routes()
+        app.include_router(public_export_router)
+
         # Register Provider management routes
         from wizard.routes.provider_routes import create_provider_routes
 
