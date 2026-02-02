@@ -496,10 +496,20 @@ class WizardServer:
             async def serve_dashboard():
                 return FileResponse(str(dashboard_path / "index.html"))
 
+            @app.get("/dashboard")
+            async def serve_dashboard_alt():
+                """Serve dashboard at /dashboard for compatibility."""
+                return FileResponse(str(dashboard_path / "index.html"))
+
         else:
             # Fallback: serve basic dashboard when build isn't available
             @app.get("/")
             async def serve_dashboard_fallback():
+                return HTMLResponse(self._get_fallback_dashboard_html())
+
+            @app.get("/dashboard")
+            async def serve_dashboard_fallback_alt():
+                """Fallback dashboard at /dashboard for compatibility."""
                 return HTMLResponse(self._get_fallback_dashboard_html())
 
         self.app = app
