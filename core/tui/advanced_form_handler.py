@@ -82,6 +82,25 @@ class AdvancedFormField:
         self.history = []
         self.predictions = {}
 
+    @staticmethod
+    def _clean_input(raw_input: str) -> str:
+        """Remove ANSI escape sequences from input (e.g., arrow keys).
+        
+        Args:
+            raw_input: Raw input string that may contain escape sequences
+            
+        Returns:
+            Cleaned input string with escape sequences removed
+        """
+        import re
+        # Remove ANSI escape sequences (arrow keys, etc.)
+        # Pattern matches ESC [ followed by any characters up to a letter
+        ansi_escape = re.compile(r'\x1b\[[0-9;]*[A-Za-z]')
+        cleaned = ansi_escape.sub('', raw_input)
+        # Also remove any remaining control characters
+        cleaned = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', cleaned)
+        return cleaned.strip()
+
     # ========================================================================
     # PREDICTIVE SUGGESTIONS
     # ========================================================================
@@ -134,7 +153,7 @@ class AdvancedFormField:
         try:
             import subprocess
             # Try to get current timezone from timedatectl
-            result = subprocess.check_output(['timedatectl', 'show', '-p', 'Timezone', '--value'], 
+            result = subprocess.check_output(['timedatectl', 'show', '-p', 'Timezone', '--value'],
                                             text=True, stderr=subprocess.DEVNULL)
             if result:
                 return result.strip()
@@ -254,7 +273,8 @@ class AdvancedFormField:
         # Get input
         if suggestion:
             print(f"\n{Colors.BRIGHT_CYAN}❯{Colors.RESET} ", end="", flush=True)
-            user_input = input()
+            raw_input = input()
+            user_input = self._clean_input(raw_input)
 
             # If user just pressed Enter/Tab with suggestion, use it
             if not user_input and suggestion:
@@ -262,7 +282,8 @@ class AdvancedFormField:
                 return suggestion
         else:
             print(f"\n{Colors.BRIGHT_CYAN}❯{Colors.RESET} ", end="", flush=True)
-            user_input = input()
+            raw_input = input()
+            user_input = self._clean_input(raw_input)
 
         # Handle empty input
         if not user_input:
@@ -300,36 +321,36 @@ class AdvancedFormField:
         # Use specialized validators for known field types
         try:
             from core.tui.form_field_validator import FormFieldValidator
-            
+
             # Detect field type from name
             if 'username' in field_name.lower():
                 is_valid, error = FormFieldValidator.validate_username(value)
                 return is_valid, error or "Valid"
-            
+
             elif 'dob' in field_name.lower() or 'birth' in field_name.lower():
                 is_valid, error = FormFieldValidator.validate_dob(value)
                 return is_valid, error or "Valid"
-            
+
             elif 'timezone' in field_name.lower() or 'tz' in field_name.lower():
                 is_valid, error = FormFieldValidator.validate_timezone(value)
                 return is_valid, error or "Valid"
-            
+
             elif 'location' in field_name.lower() or 'city' in field_name.lower():
                 is_valid, error = FormFieldValidator.validate_location(value)
                 return is_valid, error or "Valid"
-            
+
             elif 'role' in field_name.lower():
                 is_valid, error = FormFieldValidator.validate_role(value)
                 return is_valid, error or "Valid"
-            
+
             elif 'os' in field_name.lower() or 'operating' in field_name.lower():
                 is_valid, error = FormFieldValidator.validate_os_type(value)
                 return is_valid, error or "Valid"
-            
+
             elif 'password' in field_name.lower() or 'pwd' in field_name.lower():
                 is_valid, error = FormFieldValidator.validate_password(value)
                 return is_valid, error or "Valid"
-        
+
         except ImportError:
             logger.debug("FormFieldValidator not available, using basic validation")
 
@@ -410,7 +431,8 @@ class AdvancedFormField:
         # Get choice
         print(f"\n{Colors.DIM}Choose 1-{len(options)}" + (f" or Enter for default" if suggestion else "") + f"{Colors.RESET}")
         print(f"{Colors.BRIGHT_CYAN}❯{Colors.RESET} ", end="", flush=True)
-        user_input = input().strip()
+        raw_input = input()
+        user_input = self._clean_input(raw_input)
 
         # Accept Enter for default
         if not user_input and suggestion:
