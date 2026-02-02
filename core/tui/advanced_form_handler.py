@@ -133,11 +133,11 @@ class AdvancedFormField:
         """
         try:
             import subprocess
-            # Try different methods to get timezone
-            tz = subprocess.check_output(['timedatectl', 'show-timezones'])
-            if tz:
-                # Get the current timezone (this is a stub - real implementation varies by OS)
-                pass
+            # Try to get current timezone from timedatectl
+            result = subprocess.check_output(['timedatectl', 'show', '-p', 'Timezone', '--value'], 
+                                            text=True, stderr=subprocess.DEVNULL)
+            if result:
+                return result.strip()
         except:
             pass
 
