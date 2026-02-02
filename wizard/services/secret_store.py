@@ -61,6 +61,13 @@ class SecretStoreConfig:
     tomb_path: Path = Path(__file__).parent.parent / "secrets.tomb"
     key_env: str = "WIZARD_KEY"
     secondary_key_env: Optional[str] = "WIZARD_KEY_PEER"
+    key_file_path: Path = (
+        Path(__file__).resolve().parents[2]
+        / "memory"
+        / "bank"
+        / "private"
+        / "wizard_secret_store.key"
+    )
 
 
 class SecretStore:
@@ -92,8 +99,12 @@ class SecretStore:
             return
         env_key = key_material or os.getenv(self.config.key_env)
         fallback_key = os.getenv(self.config.secondary_key_env) if not env_key else None
-        use_key = env_key or fallback_key
-        self._fernet = self._get_fernet(use_key)
+        file_key = None
+        if self.config.key_file_path.exists():
+            try:
+                file_key = self.config.key_file_path.read_text().strip()
+            except Exception:
+                file_key = None
 
         tomb = self.config.tomb_path
         if not tomb.exists():
@@ -103,10 +114,22 @@ class SecretStore:
             return
 
         data = tomb.read_bytes()
-        try:
-            decrypted = self._fernet.decrypt(data)
-        except InvalidToken as exc:
-            raise SecretStoreError("Unable to decrypt tomb with provided key") from exc
+        decrypted = None
+        last_error: Optional[Exception] = None
+        for candidate in (env_key, fallback_key, file_key):
+            if not candidate:
+                continue
+            try:
+                self._fernet = self._get_fernet(candidate)
+                decrypted = self._fernet.decrypt(data)
+                break
+            except InvalidToken as exc:
+                last_error = exc
+            except SecretStoreError as exc:
+                last_error = exc
+
+        if decrypted is None:
+            raise SecretStoreError("Unable to decrypt tomb with provided key") from last_error
 
         payload = json.loads(decrypted.decode("utf-8"))
         secrets = payload.get("secrets", [])
