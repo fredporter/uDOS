@@ -57,7 +57,7 @@ class SystemScriptRunner:
 
         # Migrate old scripts from memory/system to memory/bank/system
         self._migrate_old_scripts()
-        
+
         # Seed system scripts on first run
         self._seed_system_scripts()
 

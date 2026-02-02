@@ -303,17 +303,17 @@ class PluginRepository:
     def enable_plugin(self, plugin_id: str) -> bool:
         """
         Enable a plugin.
-        
+
         Args:
             plugin_id: Plugin identifier
-            
+
         Returns:
             True if successful, False otherwise
         """
         plugin = self._index.plugins.get(plugin_id)
         if not plugin:
             return False
-        
+
         plugin.enabled = True
         self._save_index()
         self.logger.info(f"[PLUGIN] Enabled plugin: {plugin_id}")
@@ -322,17 +322,17 @@ class PluginRepository:
     def disable_plugin(self, plugin_id: str) -> bool:
         """
         Disable a plugin.
-        
+
         Args:
             plugin_id: Plugin identifier
-            
+
         Returns:
             True if successful, False otherwise
         """
         plugin = self._index.plugins.get(plugin_id)
         if not plugin:
             return False
-        
+
         plugin.enabled = False
         self._save_index()
         self.logger.info(f"[PLUGIN] Disabled plugin: {plugin_id}")

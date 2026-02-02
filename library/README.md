@@ -3,7 +3,23 @@
 **Version:** Alpha v1.0.0.38+  
 **Location:** `/library/` (tracked definitions) + `/memory/library/containers/` (local clones)
 
-This directory contains **tool container definitions** (manifest files in `container.json`). The actual cloned repos live under `/memory/library/containers/` so they are never committed.
+This directory contains **approved production extensions** and their container definitions.
+
+## 🏗️ Library Structure
+
+uDOS has **two library folders**:
+
+| Path | Purpose | Status | Management |
+|------|---------|--------|------------|
+| **`/library/`** (root) | Approved production extensions | ✅ Tracked | Wizard function |
+| **`/dev/library/`** | Extensions in development/testing | 🚧 Private | Wizard + Dev server |
+
+**Management Roles:**
+- **Wizard Server:** Manages both `/library/` and `/dev/library/`
+- **Dev Server (Goblin):** Can manage `/dev/library/` for testing (if in `/dev/` folder)
+- **Core:** Does **not** manage libraries (uses them if present, but management is Wizard-only)
+
+---
 
 ## 📚 Library Organization
 
@@ -11,13 +27,15 @@ This directory contains **tool container definitions** (manifest files in `conta
 | ----------------------------------- | -------------------------------------------- | ----------- | ----------------- |
 | **`/library/<tool>/container.json`**| uDOS container definition + metadata         | ✅ Yes      | Public repo       |
 | **`/memory/library/containers/<tool>`** | Local clone of external repo (dev reference) | ❌ No       | Never distributed |
+| **`/dev/library/<tool>/`**          | Extension under development                  | ❌ No       | Private only      |
 
 **Examples:**
 
-- `/library/typo/container.json` — uDOS container definition for Typo
-- `/library/micro/container.json` — uDOS container definition for Micro editor
+- `/library/typo/container.json` — uDOS container definition for Typo (approved)
+- `/library/micro/container.json` — uDOS container definition for Micro editor (approved)
 - `/memory/library/containers/typo/` — Local clone of `rossrobino/typo`
 - `/memory/library/containers/micro/` — Local clone of `zyedidia/micro`
+- `/dev/library/experimental-tool/` — New extension being tested (private)
 
 ---
 

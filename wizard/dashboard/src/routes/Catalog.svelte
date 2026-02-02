@@ -121,7 +121,9 @@
   <p class="text-gray-400 mb-8">Browse and verify plugin packages</p>
 
   {#if error}
-    <div class="bg-red-900 text-red-200 p-4 rounded-lg mb-6 border border-red-700">
+    <div
+      class="bg-red-900 text-red-200 p-4 rounded-lg mb-6 border border-red-700"
+    >
       {error}
     </div>
   {/if}
@@ -147,7 +149,9 @@
     </div>
   {/if}
 
-  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+  <div
+    class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6"
+  >
     <div class="flex gap-2 flex-wrap">
       <input
         type="text"
@@ -196,7 +200,9 @@
               <h2 class="text-lg font-semibold text-white">{plugin.name}</h2>
               <p class="text-xs text-gray-400">{plugin.id}</p>
             </div>
-            <span class="text-xs px-2 py-1 rounded-full bg-gray-700 text-gray-300">
+            <span
+              class="text-xs px-2 py-1 rounded-full bg-gray-700 text-gray-300"
+            >
               {plugin.version}
             </span>
           </div>
@@ -205,10 +211,8 @@
             <div>Category: {plugin.category || "—"}</div>
             <div>License: {plugin.license || "—"}</div>
             <div>
-              Status: {plugin.installed ? "Installed" : "Available"} {plugin
-                .update_available
-                ? "(Update available)"
-                : ""}
+              Status: {plugin.installed ? "Installed" : "Available"}
+              {plugin.update_available ? "(Update available)" : ""}
             </div>
             <div class="flex items-center gap-2 mt-2">
               <span class="text-xs">Enabled:</span>
