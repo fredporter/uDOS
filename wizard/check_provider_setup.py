@@ -14,6 +14,9 @@ import sys
 import shutil
 import urllib.request
 import urllib.error
+import threading
+import time
+import platform
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Optional
@@ -26,6 +29,22 @@ NC = "\033[0m"  # No Color
 
 CONFIG_PATH = Path(__file__).parent / "config"
 SETUP_FLAGS_FILE = CONFIG_PATH / "provider_setup_flags.json"
+
+
+def _read_env_os_type() -> Optional[str]:
+    env_path = Path(__file__).parent.parent / ".env"
+    if not env_path.exists():
+        return None
+    try:
+        for line in env_path.read_text().splitlines():
+            if not line or line.strip().startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            if key.strip() == "OS_TYPE":
+                return value.strip().strip('"').strip("'").lower()
+    except Exception:
+        return None
+    return None
 
 
 def load_flagged_providers() -> List[str]:
@@ -347,7 +366,26 @@ def _setup_hubspot_cli() -> bool:
             return False
 
         print(f"\n{BLUE}Installing @hubspot/cli (this may take 1-2 minutes)...{NC}")
+        spinner_running = True
+
+        def _spinner_loop(label: str) -> None:
+            frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+            idx = 0
+            while spinner_running:
+                frame = frames[idx % len(frames)]
+                sys.stdout.write(f"\r{frame} {label}")
+                sys.stdout.flush()
+                idx += 1
+                time.sleep(0.12)
+            sys.stdout.write("\r")
+            sys.stdout.flush()
         try:
+            spin_thread = threading.Thread(
+                target=_spinner_loop,
+                args=("Installing HubSpot CLI...",),
+                daemon=True,
+            )
+            spin_thread.start()
             subprocess.run(
                 ["npm", "install", "-g", "@hubspot/cli"],
                 timeout=180,
@@ -355,11 +393,17 @@ def _setup_hubspot_cli() -> bool:
                 capture_output=True,
                 text=True,
             )
+            spinner_running = False
+            time.sleep(0.01)
             print(f"{GREEN}✓{NC} HubSpot CLI installed successfully\n")
         except subprocess.TimeoutExpired:
+            spinner_running = False
+            time.sleep(0.01)
             print(f"{YELLOW}⚠{NC}  Installation timed out. Try manually: npm install -g @hubspot/cli")
             return False
         except subprocess.CalledProcessError as e:
+            spinner_running = False
+            time.sleep(0.01)
             stderr = ""
             try:
                 stderr = getattr(e, "stderr", "") or ""
@@ -370,6 +414,13 @@ def _setup_hubspot_cli() -> bool:
                 print(f"{YELLOW}⚠{NC}  Permission denied installing globally.")
                 print(f"{BLUE}→{NC} Retrying with user prefix: {user_prefix}\n")
                 try:
+                    spinner_running = True
+                    spin_thread = threading.Thread(
+                        target=_spinner_loop,
+                        args=("Installing HubSpot CLI (user prefix)...",),
+                        daemon=True,
+                    )
+                    spin_thread.start()
                     subprocess.run(
                         ["npm", "install", "-g", "@hubspot/cli", "--prefix", user_prefix],
                         timeout=180,
@@ -377,13 +428,19 @@ def _setup_hubspot_cli() -> bool:
                         capture_output=True,
                         text=True,
                     )
+                    spinner_running = False
+                    time.sleep(0.01)
                     print(f"{GREEN}✓{NC} HubSpot CLI installed to {user_prefix}/bin\n")
                     _ensure_path_export(f"{user_prefix}/bin")
                     print(f"{GREEN}✓{NC} PATH updated in shell profiles for {user_prefix}/bin\n")
                 except Exception as inner:
+                    spinner_running = False
+                    time.sleep(0.01)
                     print(f"{YELLOW}⚠{NC}  Installation failed: {inner}")
                     return False
             else:
+                spinner_running = False
+                time.sleep(0.01)
                 print(f"{YELLOW}⚠{NC}  Installation failed: {e}")
                 return False
 
@@ -625,6 +682,97 @@ def _ensure_path_export(bin_path: str) -> None:
             continue
 
 
+def _run_with_spinner(cmd: str, label: str, timeout: int = 600) -> subprocess.CompletedProcess:
+    spinner_running = True
+
+    def _spinner_loop() -> None:
+        frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+        idx = 0
+        while spinner_running:
+            frame = frames[idx % len(frames)]
+            sys.stdout.write(f"\r{frame} {label}")
+            sys.stdout.flush()
+            idx += 1
+            time.sleep(0.12)
+        sys.stdout.write("\r")
+        sys.stdout.flush()
+
+    spin_thread = threading.Thread(target=_spinner_loop, daemon=True)
+    spin_thread.start()
+    try:
+        result = subprocess.run(
+            cmd,
+            shell=True,
+            timeout=timeout,
+            capture_output=True,
+            text=True,
+        )
+    finally:
+        spinner_running = False
+        time.sleep(0.02)
+    return result
+
+
+def _install_ollama_local() -> bool:
+    os_type = _read_env_os_type()
+    system = (os_type or platform.system()).lower()
+    if system in ("linux", "ubuntu", "alpine"):
+        confirm = input("Run automatic install now? (y/N): ").strip().lower()
+        if confirm != "y":
+            return False
+        print(f"\n{BLUE}Installing Ollama for Linux...{NC}")
+        result = _run_with_spinner(
+            "curl -fsSL https://ollama.com/install.sh | sh",
+            "Installing Ollama...",
+            timeout=900,
+        )
+        if result.returncode != 0:
+            print(f"{YELLOW}⚠{NC}  Install failed: {result.stderr.strip() or result.stdout.strip()}")
+            return False
+        if shutil.which("systemctl"):
+            subprocess.run(
+                ["systemctl", "start", "ollama"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        return _validate_ollama()
+
+    if system in ("darwin", "macos"):
+        if shutil.which("brew"):
+            confirm = input("Run brew install ollama now? (y/N): ").strip().lower()
+            if confirm != "y":
+                return False
+            print(f"\n{BLUE}Installing Ollama via Homebrew...{NC}")
+            result = _run_with_spinner(
+                "brew install ollama",
+                "Installing Ollama...",
+                timeout=900,
+            )
+            if result.returncode != 0:
+                print(f"{YELLOW}⚠{NC}  Install failed: {result.stderr.strip() or result.stdout.strip()}")
+                return False
+            try:
+                subprocess.Popen(
+                    ["ollama", "serve"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+            except Exception:
+                pass
+            time.sleep(1.0)
+            return _validate_ollama()
+        print(f"{YELLOW}⚠{NC}  Homebrew not found. Download Ollama for macOS from ollama.com/download")
+        return False
+
+    if system in ("windows", "win32"):
+        print(f"{YELLOW}⚠{NC}  Windows install requires the official installer. Download from ollama.com/download")
+        return False
+
+    print(f"{YELLOW}⚠{NC}  Unsupported OS for auto-install: {system}")
+    return False
+
+
 def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     """Run setup for a specific provider."""
     print(f"\n{BLUE}━━━ Setting up {provider_id} ━━━{NC}\n")
@@ -648,10 +796,36 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
                 "Install Ollama or set OLLAMA_HOST to a running server.\n"
             )
             print(f"{YELLOW}⚠{NC} ollama CLI not found")
-            print("   Install from: https://ollama.ai")
-            print("\n   macOS/Linux: brew install ollama")
-            print("   Windows: Download from https://ollama.ai/download")
-            print(f"\n   Or set OLLAMA_HOST to a running Ollama server")
+            print("\nChoose setup type:")
+            print("  1) Local Ollama (install CLI + run ollama serve)")
+            print("  2) Remote Ollama (set OLLAMA_HOST)")
+            print("  Enter to skip\n")
+            choice = input("Select option [1/2]: ").strip()
+            if choice == "1":
+                print("\nLocal setup steps:")
+                print("  Linux: automatic install will run (curl | sh)")
+                print("  macOS: uses Homebrew if available")
+                print("  Windows: opens download guidance")
+                if _install_ollama_local():
+                    host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
+                    print(f"{GREEN}✓{NC} Ollama API reachable at {host}\n")
+                    _show_ollama_model_library()
+                    return True
+                recheck = input("\nRe-check now after install/start? (y/N): ").strip().lower()
+                if recheck == "y":
+                    if _validate_ollama():
+                        host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
+                        print(f"{GREEN}✓{NC} Ollama API reachable at {host}\n")
+                        _show_ollama_model_library()
+                        return True
+                    print(f"{YELLOW}⚠{NC} Ollama still not reachable. Try again after it is running.")
+                return False
+            if choice == "2":
+                print("\nRemote setup steps:")
+                print("  export OLLAMA_HOST=http://host:11434")
+                print("  (Use the same shell that runs uCODE/TUI)")
+                return False
+            print(f"\n{YELLOW}⚠{NC}  Setup skipped. You can retry later.")
             return False
 
         # Check if running

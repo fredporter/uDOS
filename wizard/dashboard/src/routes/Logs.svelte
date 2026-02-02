@@ -19,10 +19,20 @@
   const authHeaders = () =>
     adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
 
+  async function fetchWithTimeout(url, options = {}, timeoutMs = 5000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await apiFetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   async function bootstrapAdminToken() {
     if (adminToken) return true;
     try {
-      const res = await apiFetch("/api/admin-token/status");
+      const res = await fetchWithTimeout("/api/admin-token/status");
       if (!res.ok) return false;
       const data = await res.json();
       const token = data?.env?.WIZARD_ADMIN_TOKEN;
@@ -36,7 +46,6 @@
     }
     return false;
   }
-
 
   const levelTone = (level) => {
     const lvl = (level || "").toUpperCase();
@@ -54,7 +63,7 @@
     return date.toLocaleString();
   };
 
-  async function loadLogs() {
+  async function loadLogs(retry = true) {
     loading = true;
     error = null;
     needsAdminToken = false;
@@ -64,14 +73,21 @@
         needsAdminToken = true;
         throw new Error("Admin token required");
       }
-      const res = await apiFetch(
+      const res = await fetchWithTimeout(
         `/api/logs?category=${encodeURIComponent(selectedCategory)}&limit=${limit}`,
         { headers: authHeaders() },
+        7000,
       );
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem("wizardAdminToken");
           adminToken = "";
+          if (retry) {
+            const refreshed = await bootstrapAdminToken();
+            if (refreshed) {
+              return loadLogs(false);
+            }
+          }
           needsAdminToken = true;
           throw new Error("Admin token required");
         }
