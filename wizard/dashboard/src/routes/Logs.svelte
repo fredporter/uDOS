@@ -15,6 +15,7 @@
   let timer;
   let adminToken = "";
   let needsAdminToken = false;
+  let initialLoadFailed = false;
 
   const authHeaders = () =>
     adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
@@ -94,20 +95,26 @@
         throw new Error(`HTTP ${res.status}`);
       }
       const data = await res.json();
-      logs = data.logs || [];
-      categories = data.categories || [];
+      logs = Array.isArray(data.logs) ? data.logs : [];
+      categories = Array.isArray(data.categories) ? data.categories : [];
       stats = data.stats || null;
       lastUpdated = new Date();
     } catch (err) {
       error = `Failed to load logs: ${err.message}`;
+      initialLoadFailed = true;
+      stopTimer();
     } finally {
       loading = false;
     }
   }
 
-  function restartTimer() {
+  function stopTimer() {
     if (timer) clearInterval(timer);
-    if (autoRefresh) {
+  }
+
+  function restartTimer() {
+    stopTimer();
+    if (autoRefresh && !initialLoadFailed) {
       timer = setInterval(loadLogs, refreshMs);
     }
   }
@@ -139,7 +146,7 @@
   });
 
   onDestroy(() => {
-    if (timer) clearInterval(timer);
+    stopTimer();
   });
 </script>
 

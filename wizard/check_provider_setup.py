@@ -570,7 +570,7 @@ def _setup_hubspot_api() -> bool:
         return False
 
 
-def _show_ollama_model_library() -> bool:
+def _show_ollama_model_library(auto_yes: bool = False) -> bool:
     """Interactive Ollama model library browser and installer."""
     print(f"{BLUE}━━━ OLLAMA MODEL LIBRARY ━━━{NC}\n")
 
@@ -789,7 +789,7 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
             if _validate_ollama():
                 host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
                 print(f"{GREEN}✓{NC} Ollama API reachable at {host}\n")
-                _show_ollama_model_library()
+                _show_ollama_model_library(auto_yes)
                 return True
             sys.stderr.write(
                 "ERROR: Ollama CLI not found and Ollama API unreachable. "
@@ -809,14 +809,14 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
                 if _install_ollama_local():
                     host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
                     print(f"{GREEN}✓{NC} Ollama API reachable at {host}\n")
-                    _show_ollama_model_library()
+                    _show_ollama_model_library(auto_yes)
                     return True
                 recheck = input("\nRe-check now after install/start? (y/N): ").strip().lower()
                 if recheck == "y":
                     if _validate_ollama():
                         host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
                         print(f"{GREEN}✓{NC} Ollama API reachable at {host}\n")
-                        _show_ollama_model_library()
+                        _show_ollama_model_library(auto_yes)
                         return True
                     print(f"{YELLOW}⚠{NC} Ollama still not reachable. Try again after it is running.")
                 return False
@@ -838,7 +838,7 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
         print(f"{GREEN}✓{NC} ollama server is running!\n")
 
         # Show model library
-        _show_ollama_model_library()
+        _show_ollama_model_library(auto_yes)
 
         return True
 
