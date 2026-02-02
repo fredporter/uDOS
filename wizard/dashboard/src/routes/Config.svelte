@@ -1386,6 +1386,78 @@
     </div>
   {/if}
 
+  <!-- OLLAMA Section -->
+  <div class="mt-6 bg-gray-800 border border-gray-700 rounded-lg p-6">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2">
+        <svg
+          class="w-5 h-5 text-emerald-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
+          />
+        </svg>
+        <h3 class="text-lg font-semibold text-white">OLLAMA Offline Models</h3>
+      </div>
+      <span class="text-xs text-gray-400">Local model library</span>
+    </div>
+
+    <p class="text-sm text-gray-400 mb-4">
+      OLLAMA maintains its own offline model library. Use the CLI to install,
+      activate, and manage models locally—similar to how Wizard manages plugins
+      and extensions.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+        <h4 class="text-sm font-semibold text-white mb-2">Model Library</h4>
+        <div class="space-y-2 text-xs text-gray-400">
+          <div class="bg-gray-950 rounded p-2 border border-gray-700">
+            <code class="text-green-400">ollama list</code>
+            <div class="text-gray-500">List installed models</div>
+          </div>
+          <div class="bg-gray-950 rounded p-2 border border-gray-700">
+            <code class="text-green-400">ollama pull &lt;model&gt;</code>
+            <div class="text-gray-500">Download/install a model</div>
+          </div>
+          <div class="bg-gray-950 rounded p-2 border border-gray-700">
+            <code class="text-green-400">ollama rm &lt;model&gt;</code>
+            <div class="text-gray-500">Remove a model from disk</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+        <h4 class="text-sm font-semibold text-white mb-2">Activation & Status</h4>
+        <div class="space-y-2 text-xs text-gray-400">
+          <div class="bg-gray-950 rounded p-2 border border-gray-700">
+            <code class="text-green-400">ollama run &lt;model&gt;</code>
+            <div class="text-gray-500">Start a model session</div>
+          </div>
+          <div class="bg-gray-950 rounded p-2 border border-gray-700">
+            <code class="text-green-400">ollama ps</code>
+            <div class="text-gray-500">Show active model sessions</div>
+          </div>
+          <div class="bg-gray-950 rounded p-2 border border-gray-700">
+            <code class="text-green-400">ollama stop &lt;model&gt;</code>
+            <div class="text-gray-500">Stop a running model</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 text-xs text-gray-500">
+      Tip: Use <code class="px-1 py-0.5 bg-gray-900 rounded">PROVIDER SETUP ollama</code>
+      in the Wizard TUI to verify the local service is running.
+    </div>
+  </div>
+
   <!-- Providers Setup Section -->
   <div class="mt-6 bg-gray-800 border border-gray-700 rounded-lg p-6">
     <div class="flex items-center justify-between mb-4">
