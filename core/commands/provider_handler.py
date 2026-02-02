@@ -34,11 +34,13 @@ class ProviderHandler(BaseCommandHandler):
             return self._disable_provider(args[0])
         elif subcommand == "SETUP" and args:
             return self._setup_provider(args[0])
+        elif subcommand == "GENSECRET" and args:
+            return self._generate_secret(args[0])
         else:
             return {
                 "status": "error",
                 "message": f"Unknown PROVIDER subcommand: {subcommand}",
-                "output": "Usage: PROVIDER [LIST|STATUS <id>|ENABLE <id>|DISABLE <id>|SETUP <id>]",
+                "output": "Usage: PROVIDER [LIST|STATUS <id>|ENABLE <id>|DISABLE <id>|SETUP <id>|GENSECRET <id>]",
             }
 
     def _throttle_guard(self, endpoint: str) -> Optional[Dict]:
@@ -75,6 +77,7 @@ class ProviderHandler(BaseCommandHandler):
                 output.append("  PROVIDER STATUS <id>  - Detailed status")
                 output.append("  PROVIDER ENABLE <id>  - Enable provider")
                 output.append("  PROVIDER SETUP <id>   - Run setup")
+                output.append("  PROVIDER GENSECRET <id> - Generate secrets (github)")
 
                 return {"status": "success", "output": "\n".join(output)}
             else:
@@ -269,3 +272,32 @@ class ProviderHandler(BaseCommandHandler):
                 return {"status": "error", "output": "\n".join(output)}
         except Exception as e:
             return {"status": "error", "message": f"Failed to run setup: {str(e)}"}
+
+    def _generate_secret(self, provider_id: str) -> Dict:
+        """Generate secrets for a provider."""
+        import subprocess
+        import sys
+
+        output = [OutputToolkit.banner(f"GENERATE SECRETS FOR {provider_id.upper()}"), ""]
+
+        if provider_id == "github":
+            try:
+                # Run the secret generator
+                result = subprocess.run(
+                    [sys.executable, "-m", "wizard.tools.generate_github_secrets"],
+                    capture_output=False,  # Show output directly
+                    text=True,
+                )
+
+                if result.returncode == 0:
+                    return {"status": "success", "output": "\n".join(output)}
+                else:
+                    output.append(f"WARN Secret generation had issues")
+                    return {"status": "error", "output": "\n".join(output)}
+            except Exception as e:
+                return {"status": "error", "message": f"Failed to generate secret: {str(e)}"}
+        else:
+            output.append(f"Secret generation not available for {provider_id}")
+            output.append("\nCurrently supported:")
+            output.append("  • github - Generate webhook secret")
+            return {"status": "error", "output": "\n".join(output)}

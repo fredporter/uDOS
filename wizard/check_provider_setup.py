@@ -831,9 +831,34 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
         # Check if running
         if not _validate_ollama():
             print(f"{YELLOW}⚠{NC} ollama server is not running")
-            print("   Start it with: ollama serve")
-            print("   Or install background service from https://ollama.ai")
-            return False
+            print("   Auto-starting ollama serve in background...")
+
+            # Self-heal: auto-start ollama serve
+            try:
+                subprocess.Popen(
+                    ["ollama", "serve"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True  # Detach from parent
+                )
+                print(f"{BLUE}→{NC} Waiting for ollama to start...")
+
+                # Wait up to 10 seconds for ollama to become available
+                for i in range(20):
+                    time.sleep(0.5)
+                    if _validate_ollama():
+                        print(f"{GREEN}✓{NC} ollama server started!\n")
+                        break
+                else:
+                    print(f"{YELLOW}⚠{NC} ollama didn't start in time")
+                    print("   Try manually: ollama serve")
+                    print("   Or install background service from https://ollama.ai")
+                    return False
+            except Exception as e:
+                print(f"{YELLOW}⚠{NC} Failed to auto-start ollama: {e}")
+                print("   Try manually: ollama serve")
+                print("   Or install background service from https://ollama.ai")
+                return False
 
         print(f"{GREEN}✓{NC} ollama server is running!\n")
 
@@ -860,6 +885,7 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     if _provider_is_configured(provider_id):
         if auto_yes:
             print(f"{YELLOW}⚠{NC} Existing setup detected; re-installing (--yes).")
+            print(f"{BLUE}→{NC} Logging out of existing session...")
             _scrub_provider(provider_id)
         else:
             response = input(
@@ -869,10 +895,12 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
                 print(f"Keeping existing setup for {provider_id}.")
                 # Still try to auto-populate GitHub keys if available
                 if provider_id == "github" and shutil.which("gh"):
+                    print(f"{BLUE}→{NC} Refreshing GitHub configuration...")
                     token = _extract_github_token()
                     if token:
                         _populate_github_keys(token)
                 return True
+            print(f"{BLUE}→{NC} Logging out of existing session...")
             _scrub_provider(provider_id)
 
     # Confirm before running
@@ -884,29 +912,42 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
 
     # Run command
     try:
-        print(f"Running: {' '.join(cmd)}")
-        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
+        print(f"\n{BLUE}━━━ Running {provider_id} authentication ━━━{NC}")
+        print(f"Command: {' '.join(cmd)}\n")
+
+        # For interactive commands like gh auth login, don't capture output
+        if provider_id == "github":
+            result = subprocess.run(cmd, check=False)
+        else:
+            result = subprocess.run(cmd, check=False, capture_output=True, text=True)
 
         # Validate that setup actually succeeded
+        print(f"\n{BLUE}→{NC} Validating authentication...")
         setup_valid = False
         if result.returncode == 0:
             if provider_id == "github":
                 # Validate GitHub auth
                 setup_valid = _validate_github_auth()
+                if setup_valid:
+                    print(f"{GREEN}✓{NC} GitHub authentication verified")
             else:
                 # For other providers, trust returncode
                 setup_valid = True
 
         if setup_valid:
-            print(f"{GREEN}✓{NC} {provider_id} setup complete")
-
             # Auto-populate GitHub keys after successful gh auth login
             if provider_id == "github":
+                print(f"{BLUE}→{NC} Extracting authentication token...")
                 token = _extract_github_token()
                 if token:
+                    print(f"{BLUE}→{NC} Populating configuration files...")
                     _populate_github_keys(token)
+                    print(f"\n{GREEN}✓{NC} {provider_id} setup complete")
                 else:
                     print(f"{YELLOW}⚠{NC} Could not extract token from gh CLI")
+                    print(f"   You may need to run: gh auth refresh")
+            else:
+                print(f"{GREEN}✓{NC} {provider_id} setup complete")
 
             return True
         else:
