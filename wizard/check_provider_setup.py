@@ -12,6 +12,7 @@ import subprocess
 import sys
 import shutil
 from pathlib import Path
+from datetime import datetime
 from typing import List, Dict, Optional
 
 # Colors
@@ -103,6 +104,88 @@ def _scrub_provider(provider_id: str) -> None:
             pass
 
 
+def _extract_github_token() -> Optional[str]:
+    """Extract GitHub token from gh CLI and save to github_keys.json."""
+    try:
+        result = subprocess.run(
+            ["gh", "auth", "token"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            token = result.stdout.strip()
+            if token and len(token) > 10:
+                return token
+    except Exception:
+        pass
+    return None
+
+
+def _populate_github_keys(token: str) -> bool:
+    """
+    Populate github_keys.json with token and metadata from gh CLI.
+    
+    Args:
+        token: GitHub personal access token
+        
+    Returns:
+        True if successfully populated
+    """
+    try:
+        # Get authenticated user info from gh CLI
+        user_result = subprocess.run(
+            ["gh", "api", "user"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        
+        user_data = {}
+        if user_result.returncode == 0:
+            try:
+                user_data = json.loads(user_result.stdout)
+            except json.JSONDecodeError:
+                pass
+        
+        # Build github_keys.json structure
+        github_keys = {
+            "profile": "default",
+            "description": "GitHub CLI integration - auto-populated by Wizard setup",
+            "tokens": {
+                "default": {
+                    "key_id": "github-personal-main",
+                    "scopes": ["repo", "workflow", "admin:repo_hook", "user"],
+                    "token": token,  # Store token in local-only config
+                    "authenticated_user": user_data.get("login", "unknown"),
+                }
+            },
+            "webhooks": {
+                "secret_key_id": "github-webhook-secret"
+            },
+            "metadata": {
+                "setup_date": datetime.now().isoformat(),
+                "source": "gh-cli",
+                "authenticated_user": user_data.get("login"),
+                "user_id": user_data.get("id"),
+            }
+        }
+        
+        # Save to config
+        config_path = CONFIG_PATH / "github_keys.json"
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        config_path.write_text(json.dumps(github_keys, indent=2))
+        
+        print(f"{GREEN}✓{NC} GitHub keys populated from gh CLI")
+        if user_data.get("login"):
+            print(f"   Authenticated as: {user_data['login']}")
+        return True
+        
+    except Exception as e:
+        print(f"{YELLOW}⚠{NC} Failed to populate github_keys.json: {e}")
+        return False
+
+
 def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     """Run setup for a specific provider."""
     print(f"\n{BLUE}━━━ Setting up {provider_id} ━━━{NC}\n")
@@ -131,6 +214,11 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
             )
             if response.lower() != "y":
                 print(f"Keeping existing setup for {provider_id}.")
+                # Still try to auto-populate GitHub keys if available
+                if provider_id == "github" and shutil.which("gh"):
+                    token = _extract_github_token()
+                    if token:
+                        _populate_github_keys(token)
                 return True
             _scrub_provider(provider_id)
 
@@ -147,6 +235,15 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
         result = subprocess.run(cmd, check=False)
         if result.returncode == 0:
             print(f"{GREEN}✓{NC} {provider_id} setup complete")
+            
+            # Auto-populate GitHub keys after successful gh auth login
+            if provider_id == "github":
+                token = _extract_github_token()
+                if token:
+                    _populate_github_keys(token)
+                else:
+                    print(f"{YELLOW}⚠{NC} Could not extract token from gh CLI")
+            
             return True
         else:
             print(f"{YELLOW}⚠{NC} {provider_id} setup failed or incomplete")
