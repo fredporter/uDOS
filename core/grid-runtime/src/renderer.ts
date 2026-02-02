@@ -5,8 +5,8 @@
  * Supports: Sextant (16) → Quadrant (16) → Shade (4) → ASCII (4)
  */
 
-import { Tile, RenderOptions } from "./index";
-import { GraphicsMode, SEXTANT_CHARS, QUADRANT_CHARS, SHADE_CHARS, ASCII_CHARS } from "./geometry";
+import { Tile, RenderOptions } from "./index.js";
+import { GraphicsMode, SEXTANT_CHARS, QUADRANT_CHARS, SHADE_CHARS, ASCII_CHARS } from "./geometry.js";
 
 /**
  * Sextant Graphics Character Bank

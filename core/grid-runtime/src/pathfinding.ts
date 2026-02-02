@@ -6,9 +6,9 @@
  * - Returns list of canonical addresses including start and goal
  */
 
-import { GRID_CELL_COLS, GRID_CELL_ROWS } from "./geometry";
-import { parseCanonicalAddress, formatCanonicalAddress } from "./address";
-import { SparseWorld } from "./sparse-world";
+import { GRID_CELL_COLS, GRID_CELL_ROWS } from "./geometry.js";
+import { parseCanonicalAddress, formatCanonicalAddress } from "./address.js";
+import { SparseWorld } from "./sparse-world.js";
 
 export interface PathResult {
   path: string[];

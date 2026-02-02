@@ -8,7 +8,7 @@
  * 3. tiles - YAML array of tile manifests
  */
 
-import { ExpressionEvaluator } from "./expression-evaluator";
+import { ExpressionEvaluator } from "./expression-evaluator.js";
 
 /**
  * Raw code block from markdown

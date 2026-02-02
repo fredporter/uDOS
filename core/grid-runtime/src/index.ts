@@ -1,27 +1,27 @@
 /**
  * Main Grid Runtime Module
- * 
+ *
  * Exports all grid runtime types, utilities, and rendering pipeline
  */
 
-export * from "./geometry";
-export * from "./address";
-export * from "./renderer";
-export * from "./viewport";
+export * from "./geometry.js";
+export * from "./address.js";
+export * from "./renderer.js";
+export * from "./viewport.js";
 
 // Phase 3: Code Block Parser exports
-export * from "./expression-evaluator";
-export * from "./code-block-parser";
-export * from "./markdown-extractor";
+export * from "./expression-evaluator.js";
+export * from "./code-block-parser.js";
+export * from "./markdown-extractor.js";
 
 // Phase 4: Location + Sparse World
-export * from "./location-manager";
-export * from "./sparse-world";
-export * from "./pathfinding";
+export * from "./location-manager.js";
+export * from "./sparse-world.js";
+export * from "./pathfinding.js";
 
 /**
  * Minimal Runtime stub for story execution.
- * 
+ *
  * This provides markdown parsing with story block extraction
  * for interactive form stories (.md with --- frontmatter and ```story blocks).
  */
@@ -102,7 +102,7 @@ export class Runtime {
 
     while (i < lines.length) {
       const line = lines[i];
-      
+
       if (line.startsWith("## ")) {
         // Save previous section
         if (currentSection) {
@@ -164,10 +164,10 @@ export class Runtime {
       if (colonIdx > 0) {
         const key = line.substring(0, colonIdx).trim();
         let value = line.substring(colonIdx + 1).trim();
-        
+
         // Remove quotes
         value = value.replace(/^["']|["']$/g, "");
-        
+
         // Parse special types
         if (key === "required") {
           field[key] = value.toLowerCase() === "true";

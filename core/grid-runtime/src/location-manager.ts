@@ -14,7 +14,7 @@ import {
   LAYER_BANDS,
   FOOTPRINT_STANDARD,
   FOOTPRINT_WIDE,
-} from "./geometry";
+} from "./geometry.js";
 import {
   CanonicalAddress,
   LayerBand,
@@ -26,9 +26,9 @@ import {
   getEffectiveLayer,
   getLayerBand,
   validateLayerInBand,
-} from "./address";
-import { GridBlock } from "./code-block-parser";
-import { SparseWorld, TilePlacement } from "./sparse-world";
+} from "./address.js";
+import { GridBlock } from "./code-block-parser.js";
+import { SparseWorld, TilePlacement } from "./sparse-world.js";
 
 /**
  * LocationRecord captures normalized location metadata

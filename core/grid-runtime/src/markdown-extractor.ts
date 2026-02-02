@@ -16,7 +16,7 @@
  * ```
  */
 
-import { CodeBlock } from "./code-block-parser";
+import { CodeBlock } from "./code-block-parser.js";
 
 /**
  * Extracted code block with metadata

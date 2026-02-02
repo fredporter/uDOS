@@ -8,8 +8,8 @@
  * - Provide serialization/deserialization for persistence
  */
 
-import { FOOTPRINT_STANDARD, GRID_CELL_COLS, GRID_CELL_ROWS } from "./geometry";
-import { parseCanonicalAddress, formatCanonicalAddress } from "./address";
+import { FOOTPRINT_STANDARD, GRID_CELL_COLS, GRID_CELL_ROWS } from "./geometry.js";
+import { parseCanonicalAddress, formatCanonicalAddress } from "./address.js";
 
 export type TileType = "object" | "sprite" | "marker";
 

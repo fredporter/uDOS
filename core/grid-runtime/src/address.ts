@@ -4,7 +4,7 @@
  * Handles cell addressing (AA10), layer bands, and canonical address normalization
  */
 
-import { GRID_CELL_COLS, GRID_CELL_ROWS, GRID_CELL_ROW_OFFSET, LAYER_BANDS } from "./geometry";
+import { GRID_CELL_COLS, GRID_CELL_ROWS, GRID_CELL_ROW_OFFSET, LAYER_BANDS } from "./geometry.js";
 
 /**
  * Cell Format: AA10 (2 letters + 2 digits)

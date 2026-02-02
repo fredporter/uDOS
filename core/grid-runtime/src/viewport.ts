@@ -4,8 +4,8 @@
  * Manages viewport composition, layering, and rendering bounds
  */
 
-import { Viewport, RenderOptions } from "./index";
-import { Cell, CanonicalAddress, getEffectiveLayer, formatCell } from "./address";
+import { Viewport, RenderOptions } from "./index.js";
+import { Cell, CanonicalAddress, getEffectiveLayer, formatCell } from "./address.js";
 import {
   VIEWPORT_STANDARD,
   VIEWPORT_MINI,
@@ -19,7 +19,7 @@ import {
   QUADRANT_CHARS,
   SHADE_CHARS,
   ASCII_CHARS
-} from "./geometry";
+} from "./geometry.js";
 
 /**
  * Render state: what layers are visible at this viewport
