@@ -147,3 +147,46 @@ The self-healer now checks and repairs:
 
 _Last Updated: 2026-02-02_
 _All fixes tested and pushed to main branch_
+
+---
+
+## Follow-Up Issues Fixed (Session Continued)
+
+### Issue #10: Dashboard Config Page Error
+**Problem:** "Failed to load config list: can't access property 'length', i is undefined"
+
+**Root Cause:** When `/api/config/files` returned auth error `{"detail": "Missing authorization"}`, the code tried to access `data.files` on the error response, causing undefined variable during iteration.
+
+**Solution:**
+- Fixed `loadFileList()` to check `response.ok` before parsing JSON
+- Added proper error handling for auth failures  
+- Ensured `fileList` is always initialized as an array
+- Added first-time setup banner when admin token not set
+- Banner provides step-by-step terminal instructions
+
+**Files Changed:**
+- `wizard/dashboard/src/routes/Config.svelte`
+
+### Issue #11: Dashboard TypeScript Build Failure
+**Problem:** Build failing with "Unexpected token" on TypeScript Svelte components
+
+**Root Cause:** Dashboard had `<script lang="ts">` syntax but no TypeScript preprocessor configured in Vite.
+
+**Solution:**
+- Installed `svelte-preprocess` and `typescript` npm packages
+- Updated `vite.config.js` to use `sveltePreprocess()`
+- All TypeScript components (Groovebox, Notion panels, icons) now compile
+
+**Files Changed:**
+- `wizard/dashboard/vite.config.js`
+- `wizard/dashboard/package.json`
+- Rebuilt `wizard/dashboard/dist/` assets
+
+**Commits:**
+- `545726a` - Fix Config page + TypeScript support
+
+---
+
+**Total Issues Resolved:** 11  
+**Session Duration:** ~2 hours  
+**Status:** All fresh install issues fixed and tested ✅
