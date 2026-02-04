@@ -66,8 +66,6 @@
     "typescript": true,
     "javascript": true
   },
-  "github.copilot.advanced.debug.overrideChatModel": "gpt-4-turbo",
-  "github.copilot.advanced.debug.overrideChatApiUrl": "https://api.openai.com/v1/chat/completions",
   "files.trimTrailingWhitespace": true,
   "files.trimFinalNewlines": true,
   "files.insertFinalNewline": true,

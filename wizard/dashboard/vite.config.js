@@ -9,6 +9,9 @@ export default defineConfig({
       preprocess: sveltePreprocess(),
     }),
   ],
+  css: {
+    url: false,
+  },
   resolve: {
     alias: {
       $lib: path.resolve(__dirname, "src/lib"),

@@ -36,7 +36,6 @@ from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict, field
 from collections import deque
 
-from fastapi import Request
 from wizard.services.ai_gateway import AIRequest, AIGateway
 from wizard.services.logging_manager import get_logging_manager
 from wizard.services.path_utils import get_repo_root
@@ -325,6 +324,15 @@ class WizardServer:
 
         binder_router = create_binder_routes(auth_guard=self._authenticate_admin)
         app.include_router(binder_router)
+
+        from wizard.routes.renderer_routes import create_renderer_routes
+
+        renderer_public = os.getenv("WIZARD_RENDERER_PUBLIC", "1").strip().lower()
+        renderer_auth_guard = None
+        if renderer_public in {"0", "false", "no"}:
+            renderer_auth_guard = self._authenticate_admin
+        renderer_router = create_renderer_routes(auth_guard=renderer_auth_guard)
+        app.include_router(renderer_router)
 
         # Register GitHub integration routes (optional)
         try:

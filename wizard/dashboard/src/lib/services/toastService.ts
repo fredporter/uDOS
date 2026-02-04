@@ -1,7 +1,16 @@
 import toastStore from "$lib/stores/toastStore";
-import type { ToastEntry, ToastTier } from "$lib/stores/toastStore";
 import { buildAuthHeaders } from "./auth";
 import { apiFetch } from "$lib/services/apiBase";
+
+type ToastTier = "info" | "success" | "warning" | "error";
+
+type ToastEntry = {
+  id: number;
+  tier: ToastTier;
+  title: string;
+  message: string;
+  timestamp: string;
+};
 
 interface LogPayload {
   tier: ToastTier;

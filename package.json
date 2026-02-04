@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "build:themes": "npx tailwindcss -c themes/prose/tailwind.config.js -i themes/prose/src/tw-input.css -o themes/prose/tw-prose.css --minify"
+  },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.1.18",

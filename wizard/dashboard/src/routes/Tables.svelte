@@ -1,6 +1,6 @@
 <script>
   import { apiFetch } from "$lib/services/apiBase";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
 
   let tables = [];
   let selectedTable = "";
@@ -13,6 +13,10 @@
   let loadingTeletext = false;
   let chart = null;
   let teletext = null;
+  let teletextCanvas = null;
+  let lastInput = "—";
+  let activeInputs = new Set();
+  let canvasError = "";
   let nesButtons = [];
   let limit = 20;
   let offset = 0;
@@ -145,6 +149,115 @@
     }
   }
 
+  const INPUT_LABELS = {
+    up: "Up",
+    down: "Down",
+    left: "Left",
+    right: "Right",
+    a: "A",
+    b: "B",
+    start: "Start",
+    select: "Select",
+  };
+
+  const KEY_BINDINGS = {
+    ArrowUp: "up",
+    ArrowDown: "down",
+    ArrowLeft: "left",
+    ArrowRight: "right",
+    Enter: "start",
+    " ": "select",
+    z: "a",
+    x: "b",
+    a: "a",
+    b: "b",
+  };
+
+  function resolveButtonLabel(id) {
+    const match = nesButtons.find((button) => button.id === id);
+    return match?.label || INPUT_LABELS[id] || id;
+  }
+
+  function markInput(id, active) {
+    if (!id) return;
+    const next = new Set(activeInputs);
+    if (active) {
+      next.add(id);
+      lastInput = id;
+    } else {
+      next.delete(id);
+    }
+    activeInputs = next;
+  }
+
+  function shouldIgnoreKey(event) {
+    const target = event.target;
+    return (
+      target &&
+      (target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable)
+    );
+  }
+
+  function resolveKeyBinding(event) {
+    if (event.code === "Space") return "select";
+    const key = event.key;
+    if (!key) return null;
+    if (KEY_BINDINGS[key]) return KEY_BINDINGS[key];
+    const lower = key.toLowerCase();
+    return KEY_BINDINGS[lower] || null;
+  }
+
+  function handleKeyDown(event) {
+    if (shouldIgnoreKey(event)) return;
+    const id = resolveKeyBinding(event);
+    if (!id) return;
+    event.preventDefault();
+    markInput(id, true);
+  }
+
+  function handleKeyUp(event) {
+    if (shouldIgnoreKey(event)) return;
+    const id = resolveKeyBinding(event);
+    if (!id) return;
+    event.preventDefault();
+    markInput(id, false);
+  }
+
+  function renderTeletextCanvas() {
+    if (!teletextCanvas || !teletext?.canvas?.length) return;
+    const rows = teletext.canvas;
+    const columns = rows.reduce(
+      (max, row) => Math.max(max, row.length || 0),
+      0,
+    );
+    if (!columns) return;
+    const cellWidth = 10;
+    const cellHeight = 16;
+    const width = columns * cellWidth;
+    const height = rows.length * cellHeight;
+    teletextCanvas.width = width;
+    teletextCanvas.height = height;
+    const ctx = teletextCanvas.getContext("2d");
+    if (!ctx) {
+      canvasError = "Canvas unavailable.";
+      return;
+    }
+    canvasError = "";
+    ctx.fillStyle = "#020617";
+    ctx.fillRect(0, 0, width, height);
+    ctx.font = `${cellHeight - 2}px Teletext50, "SF Mono", ui-monospace, monospace`;
+    ctx.textBaseline = "top";
+    ctx.fillStyle = "#34d399";
+    rows.forEach((row, rowIndex) => {
+      for (let colIndex = 0; colIndex < columns; colIndex += 1) {
+        const char = row[colIndex] ?? " ";
+        ctx.fillText(char, colIndex * cellWidth, rowIndex * cellHeight);
+      }
+    });
+  }
+
   function refreshRows() {
     offset = 0;
     loadTable();
@@ -184,10 +297,29 @@
     localStorage.setItem(GUARDRAIL_STORAGE_KEY, JSON.stringify(guardrailPrefs));
   }
 
+  function resetGuardrails() {
+    guardrailPrefs = {};
+    persistGuardrailPrefs();
+    overrideLarge = false;
+    dontShowAgain = false;
+    tableWarning = "Guardrail overrides cleared.";
+  }
+
   onMount(async () => {
     loadGuardrailPrefs();
     await Promise.all([fetchTables(), loadChart(), loadTeletext()]);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
   });
+
+  onDestroy(() => {
+    window.removeEventListener("keydown", handleKeyDown);
+    window.removeEventListener("keyup", handleKeyUp);
+  });
+
+  $: if (teletext?.canvas && teletextCanvas) {
+    renderTeletextCanvas();
+  }
 </script>
 
 <div class="max-w-6xl mx-auto px-4 py-8 text-white space-y-8">
@@ -323,6 +455,12 @@
         </div>
       {/if}
 
+      <div class="text-right">
+        <button class="text-xs text-gray-400 underline" on:click={resetGuardrails}>
+          Reset guardrails
+        </button>
+      </div>
+
       {#if showDangerModal}
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div class="max-w-lg w-full bg-gray-900 border border-amber-700 rounded-lg p-5 space-y-3">
@@ -432,27 +570,259 @@
           >{/if}
       </div>
       {#if teletext?.canvas}
-        <pre
-          class="bg-black text-green-300 text-xs leading-tight p-3 rounded shadow-inner overflow-auto"
-          style="max-height: 320px;">
-{teletext.canvas.join("\n")}
-</pre>
+        <div class="space-y-3">
+          <div class="teletext-screen">
+            <canvas
+              class="teletext-canvas"
+              bind:this={teletextCanvas}
+              aria-label="Teletext preview canvas"
+            ></canvas>
+          </div>
+          {#if canvasError}
+            <div class="text-xs text-red-300">{canvasError}</div>
+          {/if}
+          <div class="nes-shell">
+            <div class="nes-info">
+              <div class="text-xs text-gray-400">Input monitor</div>
+              <div class="text-sm text-gray-200">
+                Last input:
+                <span class="font-semibold">
+                  {lastInput === "—" ? "—" : resolveButtonLabel(lastInput)}
+                </span>
+              </div>
+              <p class="text-xs text-gray-500">
+                Keyboard: arrows, Z/X (A/B), Enter (Start), Space (Select).
+              </p>
+              {#if nesButtons.length}
+                <div class="text-xs text-gray-400 mt-2">API labels</div>
+                <div class="text-xs text-gray-500 space-y-1">
+                  {#each nesButtons as button}
+                    <div>{button.id}: {button.label}</div>
+                  {/each}
+                </div>
+              {/if}
+            </div>
+            <div class="nes-dpad">
+              <button
+                type="button"
+                class={`nes-button dpad up ${activeInputs.has("up") ? "active" : ""}`}
+                on:mousedown={() => markInput("up", true)}
+                on:mouseup={() => markInput("up", false)}
+                on:mouseleave={() => markInput("up", false)}
+              >
+                ▲
+              </button>
+              <button
+                type="button"
+                class={`nes-button dpad left ${activeInputs.has("left") ? "active" : ""}`}
+                on:mousedown={() => markInput("left", true)}
+                on:mouseup={() => markInput("left", false)}
+                on:mouseleave={() => markInput("left", false)}
+              >
+                ◀
+              </button>
+              <button type="button" class="nes-button dpad center" disabled>
+                •
+              </button>
+              <button
+                type="button"
+                class={`nes-button dpad right ${activeInputs.has("right") ? "active" : ""}`}
+                on:mousedown={() => markInput("right", true)}
+                on:mouseup={() => markInput("right", false)}
+                on:mouseleave={() => markInput("right", false)}
+              >
+                ▶
+              </button>
+              <button
+                type="button"
+                class={`nes-button dpad down ${activeInputs.has("down") ? "active" : ""}`}
+                on:mousedown={() => markInput("down", true)}
+                on:mouseup={() => markInput("down", false)}
+                on:mouseleave={() => markInput("down", false)}
+              >
+                ▼
+              </button>
+            </div>
+            <div class="nes-actions">
+              <div class="nes-actions-row">
+                <button
+                  type="button"
+                  class={`nes-button action ${activeInputs.has("b") ? "active" : ""}`}
+                  on:mousedown={() => markInput("b", true)}
+                  on:mouseup={() => markInput("b", false)}
+                  on:mouseleave={() => markInput("b", false)}
+                >
+                  {INPUT_LABELS.b}
+                </button>
+                <button
+                  type="button"
+                  class={`nes-button action ${activeInputs.has("a") ? "active" : ""}`}
+                  on:mousedown={() => markInput("a", true)}
+                  on:mouseup={() => markInput("a", false)}
+                  on:mouseleave={() => markInput("a", false)}
+                >
+                  {INPUT_LABELS.a}
+                </button>
+              </div>
+              <div class="nes-meta">
+                <button
+                  type="button"
+                  class={`nes-button meta ${activeInputs.has("select") ? "active" : ""}`}
+                  on:mousedown={() => markInput("select", true)}
+                  on:mouseup={() => markInput("select", false)}
+                  on:mouseleave={() => markInput("select", false)}
+                >
+                  {INPUT_LABELS.select}
+                </button>
+                <button
+                  type="button"
+                  class={`nes-button meta ${activeInputs.has("start") ? "active" : ""}`}
+                  on:mousedown={() => markInput("start", true)}
+                  on:mouseup={() => markInput("start", false)}
+                  on:mouseleave={() => markInput("start", false)}
+                >
+                  {INPUT_LABELS.start}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       {:else}
         <div class="text-gray-500 text-sm">Teletext layout unavailable.</div>
-      {/if}
-      {#if nesButtons.length}
-        <div class="text-xs text-gray-400">NES Buttons</div>
-        <div class="grid grid-cols-2 gap-2">
-          {#each nesButtons as button}
-            <div
-              class="px-3 py-2 bg-gray-800 rounded text-xs flex justify-between"
-            >
-              <span>{button.id}</span>
-              <span>{button.label}</span>
-            </div>
-          {/each}
-        </div>
       {/if}
     </section>
   </div>
 </div>
+
+<style>
+  .teletext-screen {
+    background: #020617;
+    border: 1px solid #0f172a;
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  .teletext-canvas {
+    width: 100%;
+    height: auto;
+    max-height: 320px;
+    image-rendering: pixelated;
+    display: block;
+  }
+
+  .nes-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .nes-info {
+    min-width: 0;
+  }
+
+  .nes-dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 42px);
+    grid-template-rows: repeat(3, 42px);
+    gap: 6px;
+    place-items: center;
+  }
+
+  .nes-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .nes-actions-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .nes-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .nes-button {
+    background: #111827;
+    border: 1px solid #374151;
+    color: #f8fafc;
+    border-radius: 999px;
+    width: 42px;
+    height: 42px;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  }
+
+  .nes-button.action {
+    width: 56px;
+    height: 56px;
+    font-size: 13px;
+  }
+
+  .nes-button.meta {
+    width: 76px;
+    height: 28px;
+    border-radius: 14px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .nes-button.active {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    color: #020617;
+    box-shadow: 0 0 12px rgba(52, 211, 153, 0.5);
+    transform: translateY(1px);
+  }
+
+  .nes-button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .nes-button.dpad.up {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .nes-button.dpad.left {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .nes-button.dpad.center {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .nes-button.dpad.right {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .nes-button.dpad.down {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  @media (max-width: 900px) {
+    .nes-shell {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    .nes-dpad,
+    .nes-actions {
+      justify-content: flex-start;
+    }
+  }
+</style>

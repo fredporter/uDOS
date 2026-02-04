@@ -2,6 +2,8 @@
   import NotionBlockRenderer from "../lib/components/round3/NotionBlockRenderer.svelte";
   import NotionWebhookPanel from "../lib/components/round3/NotionWebhookPanel.svelte";
   import ThemeSystemPanel from "../lib/components/round3/ThemeSystemPanel.svelte";
+  import PluginDashboardPanel from "../lib/components/round3/PluginDashboardPanel.svelte";
+  import ModOverlayPanel from "../lib/components/round3/ModOverlayPanel.svelte";
   import { themePalettes } from "$lib/constants/themePalettes";
   import { setThemePalette, themePaletteStore } from "$lib/stores/themeStore";
 
@@ -72,6 +74,24 @@
       <div class="notes">
         <p>
           Persist the selected palette to `localStorage` and wire the CSS tokens into the Svelte/Tailwind config for responsive theming.
+        </p>
+      </div>
+    </div>
+
+    <div class="column">
+      <PluginDashboardPanel />
+      <div class="notes">
+        <p>
+          The plugin dashboard mirrors the catalog status: updates, enabled toggles, and quick links to the full plugin registry.
+        </p>
+      </div>
+    </div>
+
+    <div class="column">
+      <ModOverlayPanel />
+      <div class="notes">
+        <p>
+          Mod overlays are staged here before they become formal plugin bundles. Use priorities + scopes to test layering behavior.
         </p>
       </div>
     </div>

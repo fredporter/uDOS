@@ -446,6 +446,7 @@ location_guides = users_fs.find_by_location('L300-DB20')
 3. **Front-matter is metadata only** — validate in application logic
 4. **Grid locations are application-defined** — no enforcement of format
 5. **Tags are case-insensitive** — normalize to lowercase for queries
+6. **Seed data sync** — Migration/seeder services now import `memory/bank/spatial/anchors.json` + `memory/bank/spatial/places.json` into the spatial SQLite (via `.udos/state.db` or `05_DATA/sqlite/udos.db`), ensuring new anchor/place refs are available to `/api/renderer/spatial/*`.
 
 ---
 

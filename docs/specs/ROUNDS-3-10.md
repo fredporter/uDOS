@@ -4,17 +4,17 @@ This spec consolidates the outstanding development rounds outlined in `docs/ROAD
 
 ## Round 3 — Wizard Web UI / Notion Blocks + Plugin Dashboard (Svelte + Tailwind)
 - **Owner:** Wizard
-- **Status:** Design complete, implementation ongoing
+- **Status:** ✅ Complete (dashboard panels + Obsidian-first mapping)
 - **Deliverables:** Notion block components, webhook status panel, theme system, plugin browser (cards, enable/disable, update checks) and mod overlay controls.
 - **References:** `docs/specs/wiki_spec_obsidian.md`, `wizard/docs/INTERACTIVE-CONSOLE.md`, `wizard/ARCHITECTURE.md`
-- **Next actions:** Build Svelte components, hook plugin API routes (`wizard/server.py`), wire plugin install/update/uninstall workflows.
+- **Next actions:** Maintain mapping persistence + plug-in update scan flow; migrate overlay configs into plugin registry when ready.
 
 ## Round 4 — Wizard Web Browser / Dataset Tables + SQLite Binding
 - **Owner:** Wizard (Dashboard)
-- **Status:** Planning
+- **Status:** ✅ Complete (schema/query + guardrails)
 - **Deliverables:** Sortable/filterable dataset table, chart view, `/api/data/*` endpoints for tables/query/schema/export (with pagination, filters like `filter=column:value`, and ordering), spatial tagging filters, and the teletext/Canvas endpoints so Svelte components can render the 80×30 grids once the backend feeds `/api/teletext/*`.
 - **References:** `docs/specs/file-parsing-architecture.md`, `specs/grid-spatial-computing.md`
-- **Next actions:** Implement FastAPI routes, build Svelte Table + Chart components, add pagination/performance guardrails.
+- **Next actions:** Move to Round 5 teletext/NES UI implementation.
 
 ## Round 5 — Wizard Web Browser / Teletext Mode + NES Buttons
 - **Owner:** Wizard (Dashboard)

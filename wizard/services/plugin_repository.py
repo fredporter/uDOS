@@ -23,6 +23,7 @@ Repository Structure:
 
 import json
 import hashlib
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
@@ -243,6 +244,39 @@ class PluginRepository:
                 updates.append(plugin)
 
         return updates
+
+    def refresh_update_flags(self) -> Dict[str, Any]:
+        """Recalculate update flags by comparing installed_version to version."""
+        updated = 0
+        for plugin in self._index.plugins.values():
+            if not plugin.installed:
+                plugin.update_available = False
+                continue
+            if not plugin.installed_version or not plugin.version:
+                plugin.update_available = False
+                continue
+            available = _is_version_newer(plugin.version, plugin.installed_version)
+            plugin.update_available = available
+            if available:
+                updated += 1
+        self._save_index()
+        return {"updated": updated, "total": len(self._index.plugins)}
+
+
+def _version_tuple(value: str) -> Tuple[int, ...]:
+    parts = re.findall(r"\d+", value or "")
+    return tuple(int(part) for part in parts)
+
+
+def _is_version_newer(candidate: str, installed: str) -> bool:
+    cand = _version_tuple(candidate)
+    inst = _version_tuple(installed)
+    if not cand or not inst:
+        return False
+    length = max(len(cand), len(inst))
+    cand += (0,) * (length - len(cand))
+    inst += (0,) * (length - len(inst))
+    return cand > inst
 
     def verify_package(self, package_path: Path) -> bool:
         """

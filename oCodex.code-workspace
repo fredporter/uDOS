@@ -1,57 +1,121 @@
 {
     "folders": [
         {
-            "name": "Root",
+            "name": "🏠 Root",
             "path": "."
         },
         {
-            "name": "Dev",
+            "name": "⚡ Dev",
             "path": "dev"
         },
         {
-            "name": "Core",
+            "name": "⚙️ Core",
             "path": "core"
         },
         {
-            "name": "Empire",
+            "name": "🏰 Empire",
             "path": "empire"
         },
         {
-            "name": "Groovebox",
+            "name": "🎹 Groovebox",
             "path": "groovebox"
         },
         {
-            "name": "Wizard",
+            "name": "🧙 Wizard",
             "path": "wizard"
         },
         {
-            "name": "Sonic",
+            "name": "🎙️ Sonic",
             "path": "sonic"
         },
         {
-            "name": "Distribution",
+            "name": "📦 Distribution",
             "path": "distribution"
         },
         {
-            "name": "Library",
+            "name": "📚 Library",
             "path": "library"
         },
         {
-            "name": "Knowledge",
+            "name": "🧠 Knowledge",
             "path": "knowledge"
         },
         {
-            "name": "Memory",
+            "name": "💾 Memory",
             "path": "memory"
         }
     ],
     "settings": {
+        "python.defaultInterpreterPath": "${workspaceFolder:🏠 Root}/venv/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.terminal.executeInFileDir": true,
+        "terminal.integrated.defaultProfile.osx": "bash",
+        "terminal.integrated.profiles.osx": {
+            "bash": {
+                "path": "/bin/bash",
+                "args": [
+                    "-l"
+                ],
+                "icon": "terminal-bash"
+            }
+        },
+        "terminal.integrated.env.osx": {
+            "VIRTUAL_ENV": "${workspaceFolder:🏠 Root}/.venv",
+            "PATH": "${workspaceFolder:🏠 Root}/.venv/bin:${env:PATH}",
+            "PYTHONPATH": "${workspaceFolder:🏠 Root}"
+        },
+        "terminal.integrated.shellArgs.osx": [
+            "-l",
+            "-i"
+        ],
         "files.exclude": {
-            "**/node_modules": true
+            "**/node_modules": true,
+            "**/__pycache__": true,
+            "**/*.pyc": true
         },
         "explorer.excludeGitIgnore": true,
         "git.autofetch": false,
         "git.confirmSync": false,
-        "editor.formatOnSave": false
+        "editor.formatOnSave": false,
+        "[python]": {
+            "editor.defaultFormatter": "ms-python.python",
+            "editor.formatOnSave": true
+        },
+        "[typescript]": {
+            "editor.defaultFormatter": "esbenp.prettier-vscode",
+            "editor.formatOnSave": true
+        },
+        "[javascript]": {
+            "editor.defaultFormatter": "esbenp.prettier-vscode",
+            "editor.formatOnSave": true
+        },
+        "[svelte]": {
+            "editor.defaultFormatter": "svelte.svelte-vscode",
+            "editor.formatOnSave": true
+        },
+        "github.copilot.enable": {
+            "*": true,
+            "plaintext": false,
+            "markdown": false,
+            "python": true,
+            "typescript": true,
+            "javascript": true,
+            "svelte": true
+        },
+        "github.copilot.advanced.debug.overrideChatModel": "gpt-4-turbo",
+        "github.copilot.advanced.debug.overrideChatApiUrl": "https://api.openai.com/v1/chat/completions"
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-python.python",
+            "ms-python.vscode-pylance",
+            "ms-python.black-formatter",
+            "esbenp.prettier-vscode",
+            "GitHub.copilot",
+            "GitHub.copilot-chat",
+            "svelte.svelte-vscode",
+            "adam-bender.commit-message-editor"
+        ]
     }
 }

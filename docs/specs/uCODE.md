@@ -11,6 +11,8 @@ status: Production
 
 **uCODE** is the pivotal single-entry-point Terminal TUI for uDOS. It's the recommended way to launch, configure, and manage all uDOS components from a unified command interface.
 
+> **See also:** [VIBE-CLI-ROADMAP-ALIGNMENT.md](../../VIBE-CLI-ROADMAP-ALIGNMENT.md) for the roadmap of Mistral Vibe CLI integration into uCODE (v1.3.2+). This doc lists all recommended commands for document execution, Obsidian/Notion sync, scheduling, and scripting workflows.
+
 ### Key Features
 
 - ✅ **Auto-detection** of available components (core, wizard, extensions, app)
@@ -386,6 +388,6 @@ python uDOS.py
 
 ---
 
-**Status**: Production v1.0.1  
-**Maintained by**: uDOS Engineering  
+**Status**: Production v1.0.1
+**Maintained by**: uDOS Engineering
 **Last Updated**: 2026-01-28
