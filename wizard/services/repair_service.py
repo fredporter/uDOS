@@ -53,6 +53,8 @@ class RepairService:
         self.allowed_backup_targets = {
             "wizard-config": repo_root / "wizard" / "config",
             "wizard-memory": repo_root / "memory" / "wizard",
+            "memory-private": repo_root / "memory" / "private",
+            "memory-binders": repo_root / "memory" / "binders",
             "library": repo_root / "library",
         }
 

@@ -86,6 +86,8 @@ You already have TypoEditor.svelte. Promote it to the centre of the app:
 
 Key refactor: editor works directly on vault files, not in-memory demo content.
 
+Scope detail: [app/docs/TYPO-INTEGRATION-SCOPE.md](app/docs/TYPO-INTEGRATION-SCOPE.md)
+
 Phase 3 — Obsidian-style tasks/workflow (local-first)
 
 Two-layer model (strong + simple):
@@ -176,4 +178,4 @@ Based on what’s already present in the folder you uploaded:
 
 ⸻
 
-If you want, I can also produce a v1-3/app/MIGRATION.md that maps your current components (TypoEditor, FontManager, MarpRenderer, UCodeRenderer) into the new lib-ui module layout, plus a proposed SQLite schema for tasks/workflow.
+If you want, I can also produce a migration note that maps your current components (TypoEditor, FontManager, MarpRenderer, UCodeRenderer) into the new lib-ui module layout, plus a proposed SQLite schema for tasks/workflow. (The legacy staging MIGRATION doc is archived under `docs/.archive/2026-02/root-legacy/`.)

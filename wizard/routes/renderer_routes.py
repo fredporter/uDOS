@@ -26,6 +26,9 @@ from wizard.services.spatial_store import get_spatial_db_path, fetch_spatial_row
 
 
 def _themes_root() -> Path:
+    env_root = os.getenv("THEMES_ROOT") or os.getenv("UDOS_THEMES_ROOT")
+    if env_root:
+        return Path(env_root)
     return get_repo_root() / "themes"
 
 

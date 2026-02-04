@@ -1,6 +1,6 @@
 Yep — here’s a v1.3 spec for an 80×30 “Grid Canvas” text renderer that core + Vibe CLI can use to output maps, calendars, schedules, tables, dashboards in a consistent uDOS teletext-style format.
 
-You can drop this into v1-3/docs/07-grid-canvas-rendering.md.
+You can drop this into docs/specs/07-grid-canvas-rendering.md.
 
 ⸻
 

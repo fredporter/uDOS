@@ -13,3 +13,13 @@ uDOS publishes Markdown via a universal Theme Pack contract (`docs/Theme-Pack-Co
 - `assets/token.css` defines shared CSS tokens.
 
 Deliverables emit HTML to `vault/_site/<theme>/...` so Wizard can serve them directly. Keep each pack framework-free so static publishing remains independent of SvelteKit control surfaces.
+
+## Stub Theme Generator
+
+Need placeholder themes for UI wiring or tests? Run:
+
+```bash
+python3 themes/scripts/generate_stub_themes.py
+```
+
+This clones the `prose` theme into `nes`, `c64`, `medium`, and `teletext` stubs with updated `theme.json` metadata.

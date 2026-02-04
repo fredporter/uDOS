@@ -22,7 +22,18 @@ from core.utils.tty import interactive_tty_status
 from .enhanced_prompt import EnhancedPrompt
 from core.services.logging_service import get_logger
 
-logger = get_logger("command-prompt")
+
+def _get_safe_logger():
+    """Best-effort logger init (avoid import-time failures in tests)."""
+    try:
+        return get_logger("command-prompt")
+    except Exception:
+        import logging
+
+        return logging.getLogger("command-prompt")
+
+
+logger = _get_safe_logger()
 
 
 @dataclass
@@ -51,7 +62,12 @@ class CommandRegistry:
     def __init__(self):
         """Initialize command registry."""
         self.commands: Dict[str, CommandMetadata] = {}
-        self.logger = get_logger("command-registry")
+        try:
+            self.logger = get_logger("command-registry")
+        except Exception:
+            import logging
+
+            self.logger = logging.getLogger("command-registry")
 
     def register(
         self,
@@ -154,9 +170,14 @@ class ContextualCommandPrompt(EnhancedPrompt):
         Args:
             registry: CommandRegistry instance (uses default if None)
         """
+        try:
+            self.logger = get_logger("contextual-prompt")
+        except Exception:
+            import logging
+
+            self.logger = logging.getLogger("contextual-prompt")
         self.registry = registry or CommandRegistry()
         super().__init__(registry=self.registry)
-        self.logger = get_logger("contextual-prompt")
 
     def ask_command(self, prompt_text: str = "▶ ") -> str:
         """
@@ -245,7 +266,8 @@ class ContextualCommandPrompt(EnhancedPrompt):
         """Check if running in interactive terminal."""
         interactive, reason = interactive_tty_status()
         if not interactive and reason:
-            self.logger.debug("[LOCAL] Interactive check failed: %s", reason)
+            log = getattr(self, "logger", logger)
+            log.debug("[LOCAL] Interactive check failed: %s", reason)
         return interactive
 
 
@@ -366,6 +388,19 @@ def create_default_registry() -> CommandRegistry:
     )
 
     registry.register(
+        name="SONIC",
+        help_text="Sonic Screwdriver USB builder + device catalog",
+        syntax="SONIC [status|plan|run] [options]",
+        examples=[
+            "SONIC STATUS",
+            "SONIC PLAN --dry-run",
+            "SONIC RUN --manifest config/sonic-manifest.json --dry-run",
+        ],
+        icon="🛠️",
+        category="System",
+    )
+
+    registry.register(
         name="FILE",
         help_text="Interactive workspace and file browser",
         syntax="FILE [BROWSE|LIST|SHOW] [path]",
@@ -400,6 +435,19 @@ def create_default_registry() -> CommandRegistry:
         examples=["RUN script.py", "RUN automation-script.md"],
         icon="▶️",
         category="Data",
+    )
+
+    registry.register(
+        name="MUSIC",
+        help_text="Songscribe transcription + Groovebox import",
+        syntax="MUSIC <transcribe|separate|stems|score|import> <file or url>",
+        examples=[
+            "MUSIC TRANSCRIBE song.mp3",
+            "MUSIC SEPARATE song.mp3 --preset full_band",
+            "MUSIC SCORE track.mid",
+        ],
+        icon="🎵",
+        category="Media",
     )
 
     # Navigation Commands

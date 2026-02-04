@@ -4,6 +4,7 @@
 
   export let siteExports: { theme: string; files: number; lastModified: string | null }[] = [];
 
+  const apiBase = (import.meta.env.VITE_WIZARD_API_URL ?? "http://localhost:8765").replace(/\/$/, "");
   let selectedTheme = siteExports[0]?.theme ?? "";
   let files: { path: string; size: number; updatedAt: string | null }[] = [];
   let loading = false;
@@ -35,6 +36,11 @@
       <option value={export.theme}>{export.theme}</option>
     {/each}
   </select>
+  {#if selectedTheme}
+    <a class="preview-link" href={`${apiBase}/_site/${selectedTheme}/`} target="_blank" rel="noreferrer">
+      Open _site/{selectedTheme}/
+    </a>
+  {/if}
   <div class="summary">
     {#if loading}
       <p>Loading...</p>
@@ -42,7 +48,12 @@
       <p>{files.length} files for {selectedTheme}</p>
       <ul>
         {#each files as file}
-          <li>{file.path} ({Math.round(file.size / 1024)} KB) {file.updatedAt}</li>
+          <li>
+            <a href={`${apiBase}/_site/${selectedTheme}/${file.path}`} target="_blank" rel="noreferrer">
+              {file.path}
+            </a>
+            <span>({Math.round(file.size / 1024)} KB) {file.updatedAt}</span>
+          </li>
         {/each}
       </ul>
     {:else}
@@ -64,6 +75,13 @@
     margin-bottom: 0.75rem;
   }
 
+  .renderer-preview .preview-link {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    color: #60a5fa;
+    text-decoration: underline;
+  }
+
   .renderer-preview ul {
     list-style: none;
     padding: 0;
@@ -74,5 +92,11 @@
     font-size: 0.85rem;
     color: #cbd5f5;
     margin-bottom: 0.25rem;
+  }
+
+  .renderer-preview li a {
+    color: #cbd5f5;
+    text-decoration: underline;
+    margin-right: 0.35rem;
   }
 </style>

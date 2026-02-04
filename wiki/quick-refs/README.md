@@ -1,34 +1,12 @@
-# Quick Reference Guides
+# Quick Reference Guides (v1.3)
 
-Fast lookups for common tasks. Pick what you need:
+These quick refs are being rebuilt for v1.3.
 
----
+In the meantime, use:
 
-## 🎮 **[Commands & Keyboard Shortcuts](COMMANDS.md)**
-All 90+ uDOS commands at a glance
+- `wiki/Start-Here.md`
+- `docs/README.md`
+- `docs/specs/uCODE-v1.3.md`
+- `docs/ARCHITECTURE-v1.3.md`
 
-## ⚙️ **[Configuration Settings](CONFIGURATION-QUICK-REF.md)**
-All config variables and how to set them
-
-## 🗂️ **[Filesystem Structure](FILESYSTEM-QUICK-REF.md)**
-Where everything lives in uDOS
-
-## 📝 **[uDOS.md Format](UDOS-MD-FORMAT.md)**
-Document syntax and shortcodes
-
-## 🔗 **[Document Linking](KNOWLEDGE-LINKING-QUICK-REF.md)**
-How to link and reference documents
-
-## 🎵 **[Groovebox Playback](GROOVEBOX-PLAYBACK-REF.md)**
-Music engine commands and controls
-
-## 🧙 **[Wizard Plugins](WIZARD-PLUGINS-REF.md)**
-Plugin system and extensions
-
-## 🏗️ **[Layer Architecture](LAYER-ARCHITECTURE-QUICK-REF.md)**
-Grid coordinates and layer numbers
-
----
-
-**Want full docs?** → Go to [README.md](../README.md)
-**Just getting started?** → Try [START-HERE.md](../START-HERE.md)
+If you need a specific quick reference, open an issue and we’ll prioritize it.

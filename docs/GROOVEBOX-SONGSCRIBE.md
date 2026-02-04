@@ -34,13 +34,20 @@ Automations may convert each Songscribe pattern into `groovebox` playlists, tele
 
 1. **Groovebox routes**  
    - `/api/groovebox/playback`, `/api/groovebox/presets`, and `/api/groovebox/config` supply the transport, color, and monitoring data.  
-   - `/api/groovebox/songscribe` (already implemented) reads `WizardLibraryManagerService.get_integration("songscribe")` to return install status. Use this endpoint to gate UI features (enable pattern editor only when the plugin is installed/enabled). citewizard/routes/groovebox_routes.py:87-102
+   - `/api/groovebox/songscribe` reads `WizardLibraryManagerService.get_integration("songscribe")` to return install status. Use this endpoint to gate UI features (enable pattern editor only when the plugin is installed/enabled). citewizard/routes/groovebox_routes.py:87-102
 
-2. **Plugin installs**  
+2. **Songscribe parsing + Groovebox pattern endpoints**  
+   - `/api/songscribe/parse` returns structured Songscribe metadata/tracks.  
+   - `/api/songscribe/render` renders either `ascii` grids or raw Groovebox pattern JSON.  
+   - `/api/songscribe/pattern` converts Songscribe markdown into Groovebox-ready patterns.  
+   - `/api/groovebox/songscribe/parse` returns `{document, pattern, ascii}` and can persist patterns when `save=true`.  
+   - `/api/groovebox/patterns` and `/api/groovebox/pattern` store patterns in `memory/groovebox/patterns/` for UI + CLI reuse.
+
+3. **Plugin installs**  
    - Use `/api/library/integration/songscribe/install` or the CLI `PLUGIN install songscribe` command. Both share `wizard/services/plugin_repository.py` + `wizard/services/library_manager_service.py` so manifest validation, dependency wiring, and health logging stay centralized (per `core/docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md`).  
    - Every install response should include: Notion `to_do` blocks, weekly calendar/Gantt output, and the `todo_reminder` payload from the Apertus-guided PROMPT parser so the Hotkey Center can show the due-soon alert before the UI/automation cycles run. citecore/docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md:28-34
 
-3. **Reminder + health log sync**  
+4. **Reminder + health log sync**  
    - `core/services/todo_reminder_service` logs due-soon alerts into `memory/logs/health-training.log` and `notification-history.log`. The Groovebox page should read the latest `status.todo_reminder` from `/hotkeys/data` and surface the ASCII clock banners alongside transport controls.  
    - Mention the reminder payload whenever Songscribe tasks are created so future rounds (Beacon/Sonic watchers, automation scripts) know that a playlist render, WAV export, or Songscribe review is due soon.
 

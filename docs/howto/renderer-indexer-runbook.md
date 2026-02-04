@@ -7,7 +7,7 @@ Operational checklist for the static renderer, task indexer, and Wizard renderer
 ## 1. Build Core
 
 ```bash
-cd v1-3/core
+cd core
 npm run build
 ```
 
@@ -47,7 +47,7 @@ Expected outputs:
 ## 4. Renderer + Indexer Tests
 
 ```bash
-cd v1-3/core
+cd core
 npm run test:renderer
 npm run test:renderer-cli
 npm run test:tasks

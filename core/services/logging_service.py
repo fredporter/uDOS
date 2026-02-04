@@ -71,7 +71,9 @@ def get_repo_root() -> Path:
     """
     env_root = os.getenv("UDOS_ROOT")
     if env_root:
-        env_path = Path(env_root).expanduser().resolve()
+        env_path = Path(env_root).expanduser()
+        if not env_path.is_absolute():
+            env_path = (Path.cwd() / env_path).resolve()
         marker = env_path / "uDOS.py"
 
         if marker.exists():

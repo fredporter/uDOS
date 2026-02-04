@@ -1,5 +1,5 @@
 Absolutely — here’s a clean, drop-in Dev Brief for uDOS v1.3 Fractal Grid & Universe Mapping, written to lock the decision and guide implementation.
-You can paste this straight into v1-3/docs/06-fractal-grid-universe.md (or similar).
+You can paste this straight into docs/specs/ (or similar).
 
 ⸻
 

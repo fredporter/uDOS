@@ -99,8 +99,9 @@ class AIRequest:
     model: str = ""
     system_prompt: str = ""
     max_tokens: int = 1024
-    temperature: float = 0.7
+    temperature: Optional[float] = None
     stream: bool = False
+    mode: Optional[str] = None
 
     # Routing metadata
     task_id: Optional[str] = None
@@ -190,6 +191,32 @@ MODEL_COSTS = {
     # Local (free)
     "llama2": (0.0, 0.0),
     "mistral": (0.0, 0.0),
+}
+
+# Wizard AI mode presets (applied when mode is set and no explicit overrides)
+MODE_PRESETS: Dict[str, Dict[str, Any]] = {
+    "conversation": {
+        "temperature": 0.7,
+        "system_prompt": (
+            "You are a helpful conversational assistant for uDOS. "
+            "Be concise, friendly, and practical. Ask clarifying questions "
+            "when requirements are ambiguous."
+        ),
+    },
+    "creative": {
+        "temperature": 1.0,
+        "system_prompt": (
+            "You are a creative assistant for uDOS. Generate multiple options "
+            "and bold ideas while staying grounded in project context."
+        ),
+    },
+    "code": {
+        "temperature": 0.2,
+        "system_prompt": (
+            "You are a precise coding assistant for uDOS. Prefer deterministic, "
+            "actionable responses and avoid speculation."
+        ),
+    },
 }
 
 
@@ -424,6 +451,19 @@ class AIGateway:
             "timestamp": classification.timestamp,
         }
 
+    def _apply_mode_preset(self, request: AIRequest) -> None:
+        """Apply Wizard mode presets to an AI request (conversation/creative/etc)."""
+        if not request.mode:
+            return
+        mode_key = str(request.mode).strip().lower()
+        preset = MODE_PRESETS.get(mode_key)
+        if not preset:
+            return
+        if not request.system_prompt:
+            request.system_prompt = preset.get("system_prompt", "")
+        if request.temperature is None:
+            request.temperature = preset.get("temperature", None)
+
     async def complete(self, request: AIRequest, device_id: str) -> AIResponse:
         """Complete an AI request via local-first routing."""
         start_time = time.time()
@@ -432,6 +472,9 @@ class AIGateway:
         task_id = request.task_id or self._generate_task_id(device_id)
         request.task_id = task_id
         request.model = request.model or self._default_model()
+        self._apply_mode_preset(request)
+        if request.temperature is None:
+            request.temperature = 0.7
 
         # Budget + rate guardrails
         self._check_resets()

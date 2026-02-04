@@ -1,12 +1,13 @@
-# uDOS .gitignore for PUBLIC Repo (fredporter/uDOS)
+# uDOS .gitignore (v1.3.0)
 # Root repo is PUBLIC - open source components only
 # /dev/ is a GIT SUBMODULE pointing to private repo (fredporter/uDOS-dev)
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# STRUCTURE:
-#   PUBLIC (root):   core, wizard, extensions, docs, knowledge, library
+# STRUCTURE (v1.3):
+#   PUBLIC (root):   core, wizard, extensions, docs, knowledge, library, sonic
 #   PRIVATE (/dev):  goblin, empire, app, groovebox - as git submodule
 #   LOCAL (memory):  user data, logs, credentials - never committed
+#   STAGING (v1-3):  version-specific staging - excluded from releases
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # ---------- PRIVATE SUBMODULE ----------
@@ -21,6 +22,12 @@ memory/**
 !memory/WORKSPACE-STRUCTURE.md
 !memory/inbox/README.md
 
+# Vault: user workspace (never commit)
+vault/*
+vault/**
+!vault/README.md
+!vault/.gitkeep
+
 # Bank structure: templates tracked, user data ignored
 !memory/bank/
 !memory/bank/system/
@@ -34,6 +41,11 @@ memory/bank/binders/
 
 # Tests: local-only workspace (never commit)
 memory/tests/
+
+# V1.3 staging directory (local development only)
+v1-3/**
+!v1-3/README.md
+!v1-3/*.md
 
 # Container clones (local, never tracked)
 # /library/*/container.json are definitions (tracked)
@@ -207,6 +219,21 @@ uDOS.wiki/
 # Groovebox sample library (downloaded at setup)
 groovebox/sounds/
 
+# V1.3 UI components (private dev)
+app/
+empire/
+groovebox/
+web-admin/
+web-portal/
+tauri-ui/
+wiki/
+
+# Node/npm artifacts (local builds)
+node/
+packages/
+node_modules/
+**/node_modules/
+
 # ---------- External repos (local clones, not tracked) ----------
 # Both /library and /dev/library follow the same rules:
 # TRACK ONLY: container.json, container.template.json, *.md docs, setup scripts
@@ -282,5 +309,26 @@ core/sonic/**/*.log
 core/sonic/**/*.state
 core/sonic/**/private/
 
+# Sonic submodule (tracked separately)
+# Sonic is now a git submodule or standalone component
+sonic/.git
+sonic/**/.DS_Store
+sonic/**/private/
+
+# Theme and TUI dev (private)
+themes/dev/
+themes/.dev/
+tui/dev/
+tui/.dev/
+
 # HubSpot config file
 hubspot.config.yml
+
+# Compost (local dev artifacts)
+.compost/
+
+# V1.3 release artifacts (generated)
+*.tar.gz
+*.zip
+distribution/releases/
+distribution/build/

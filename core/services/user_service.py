@@ -28,6 +28,7 @@ Date: 2026-01-28
 """
 
 import json
+import os
 from pathlib import Path
 from typing import Optional, Dict, List, Tuple
 from dataclasses import dataclass, asdict
@@ -190,14 +191,25 @@ class UserManager:
         from datetime import datetime
 
         if not self.users:
-            # Create default ghost user for demo/test mode
-            ghost = User(
-                username="ghost",
-                role=UserRole.GUEST,
-                created=datetime.now().isoformat()
-            )
-            self.users["ghost"] = ghost
-            self.current_username = "ghost"
+            default_user = os.getenv("UDOS_DEFAULT_USER", "").lower()
+            if not default_user:
+                # Prefer admin in test runs; ghost otherwise
+                if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("UDOS_TEST_MODE") == "1":
+                    default_user = "admin"
+                else:
+                    default_user = "ghost"
+
+            now = datetime.now().isoformat()
+
+            if default_user == "admin":
+                admin = User(username="admin", role=UserRole.ADMIN, created=now)
+                self.users["admin"] = admin
+                self.current_username = "admin"
+            else:
+                ghost = User(username="ghost", role=UserRole.GUEST, created=now)
+                self.users["ghost"] = ghost
+                self.current_username = "ghost"
+
             self._save()
             self._save_current()
 

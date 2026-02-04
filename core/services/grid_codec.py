@@ -27,22 +27,31 @@ GRID_ROW_MAX = 39
 def _col_to_index(cell_col: str) -> Optional[int]:
     if len(cell_col) != 2 or not cell_col.isalpha():
         return None
-    a = ord(cell_col[0].upper()) - ord("A")
-    b = ord(cell_col[1].upper()) - ord("A")
+    cell_col = cell_col.upper()
+    if cell_col == "DC":
+        return _max_col_index()
+    a = ord(cell_col[0]) - ord("A")
+    b = ord(cell_col[1]) - ord("A")
     if a < 0 or b < 0:
         return None
-    return a * 26 + b
+    index = a * 26 + b
+    col_max = _max_col_index()
+    if index > col_max:
+        index = index % (col_max + 1)
+    return index
 
 
 def _index_to_col(index: int) -> str:
+    if index == 79:
+        return "DC"
     a = index // 26
     b = index % 26
     return f"{chr(ord('A') + a)}{chr(ord('A') + b)}"
 
 
 def _max_col_index() -> int:
-    # Schema range: AA..DC (AA..AZ, BA..BZ, CA..CZ, DA..DC)
-    return 26 * 3 + 2  # 0-based index of DC
+    # Schema range: AA..DC (0-79; DC is a special-case at 79)
+    return 79
 
 
 def parse_grid_code(code: str) -> Optional[GridCoordinate]:
@@ -62,8 +71,6 @@ def parse_grid_code(code: str) -> Optional[GridCoordinate]:
             cell_row = int(cell_part[2:])
             col_index = _col_to_index(cell_col)
             if col_index is None:
-                return None
-            if col_index > _max_col_index():
                 return None
             if cell_row < GRID_ROW_MIN or cell_row > GRID_ROW_MAX:
                 return None

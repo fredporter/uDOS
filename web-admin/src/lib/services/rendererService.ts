@@ -1,8 +1,12 @@
+import { buildAuthHeaders } from "$lib/services/auth";
+
 const API_BASE = import.meta.env.VITE_WIZARD_API_URL ?? "http://localhost:8765";
 
 async function fetchJson<T>(fetcher: typeof window.fetch, path: string): Promise<T | null> {
   try {
-    const response = await fetcher(`${API_BASE}${path}`);
+    const response = await fetcher(`${API_BASE}${path}`, {
+      headers: buildAuthHeaders(),
+    });
     if (!response.ok) {
       console.warn(`Renderer API ${path} failed: ${response.status}`);
       return null;
@@ -49,6 +53,7 @@ export async function updateContributionStatus(
       headers: {
         "Content-Type": "application/json",
         "X-UDOS-Role": "maintainer",
+        ...buildAuthHeaders(),
       },
       body: JSON.stringify({ status, reviewer, note }),
     },

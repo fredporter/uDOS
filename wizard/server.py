@@ -302,6 +302,8 @@ class WizardServer:
         app.include_router(teletext_router)
         from wizard.routes.groovebox_routes import router as groovebox_router
         app.include_router(groovebox_router)
+        from wizard.routes.songscribe_routes import router as songscribe_router
+        app.include_router(songscribe_router)
 
         # Register Setup wizard routes
 
@@ -324,6 +326,15 @@ class WizardServer:
 
         binder_router = create_binder_routes(auth_guard=self._authenticate_admin)
         app.include_router(binder_router)
+
+        from wizard.routes.beacon_routes import create_beacon_routes
+
+        beacon_public = os.getenv("WIZARD_BEACON_PUBLIC", "1").strip().lower()
+        beacon_auth_guard = None
+        if beacon_public in {"0", "false", "no"}:
+            beacon_auth_guard = self._authenticate_admin
+        beacon_router = create_beacon_routes(auth_guard=beacon_auth_guard)
+        app.include_router(beacon_router)
 
         from wizard.routes.renderer_routes import create_renderer_routes
 
@@ -458,6 +469,12 @@ class WizardServer:
         enhanced_plugin_router = create_enhanced_plugin_routes(auth_guard=self._authenticate_admin)
         app.include_router(enhanced_plugin_router)
 
+        # Register Plugin Manifest Registry routes
+        from wizard.routes.plugin_registry_routes import create_plugin_registry_routes
+
+        plugin_registry_router = create_plugin_registry_routes(auth_guard=self._authenticate_admin)
+        app.include_router(plugin_registry_router)
+
         # Register Webhook status routes
         from wizard.routes.webhook_routes import create_webhook_routes
 
@@ -512,6 +529,13 @@ class WizardServer:
         from fastapi.responses import FileResponse, HTMLResponse
 
         dashboard_path = Path(__file__).parent / "dashboard" / "dist"
+        site_root = REPO_ROOT / "vault" / "_site"
+        if site_root.exists():
+            app.mount(
+                "/_site",
+                StaticFiles(directory=str(site_root)),
+                name="vault-site",
+            )
         if dashboard_path.exists():
             app.mount(
                 "/assets",
@@ -867,8 +891,9 @@ class WizardServer:
                 model=body.get("model", ""),
                 system_prompt=body.get("system") or body.get("system_prompt", ""),
                 max_tokens=body.get("max_tokens", 1024),
-                temperature=body.get("temperature", 0.7),
+                temperature=body.get("temperature"),
                 stream=body.get("stream", False),
+                mode=body.get("mode"),
                 task_id=body.get("task_id"),
                 workspace=body.get("workspace", "core"),
                 privacy=body.get("privacy", "internal"),

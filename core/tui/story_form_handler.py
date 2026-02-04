@@ -24,6 +24,7 @@ from core.tui.form_fields import (
     SmartNumberPicker,
 )
 from core.services.logging_service import get_logger
+from core.utils.tty import interactive_tty_status
 
 logger = get_logger("story-form")
 
@@ -37,6 +38,7 @@ class StoryFormHandler:
         self.original_settings = None
         self._override_fields_inserted = False
         self._pending_location_specs: List[Dict[str, Any]] = []
+        self.interactive_reason: Optional[str] = None
     
     def process_story_form(self, form_spec: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -274,7 +276,9 @@ class StoryFormHandler:
     def _is_interactive(self) -> bool:
         """Check if running in interactive terminal."""
         try:
-            return sys.stdin.isatty() and sys.stdout.isatty()
+            interactive, reason = interactive_tty_status()
+            self.interactive_reason = reason
+            return interactive
         except Exception:
             return False
     

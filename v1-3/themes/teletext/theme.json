@@ -1,7 +1,0 @@
-{
-  "id": "teletext",
-  "name": "Teletext wrapper",
-  "mode": "article",
-  "contentClass": "teletext",
-  "notes": "Starter theme pack."
-}

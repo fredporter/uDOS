@@ -1,5 +1,7 @@
 # TUI Setup Story ↔ Vibe CLI Integration
 
+> **See also:** [specs/UCODE-PROMPT-SPEC.md](specs/UCODE-PROMPT-SPEC.md) for the uCODE prompt contract (OK/: commands, slash routing, dynamic autocomplete).
+
 This note ensures the new v1.3 architecture keeps the existing `.env` + Wizard keystore boundary alive while letting the Core TUI setup story speak the same IO language as the Vibe CLI (the interactive agent console referenced in `docs/uDOS-v1-3.md`).
 
 ## 1. Preserve the `.env` + Wizard keystore boundary
@@ -28,5 +30,20 @@ This note ensures the new v1.3 architecture keeps the existing `.env` + Wizard k
 2. `Vibe CLI` (local lane) validates that the `.env` values exist and that the keystore contains any referenced secrets before allowing missions or contributions to run.
 3. Any lane (Core, Wizard, renderer, web-admin) that needs to rehydrate identity can simply load `.env` + the keystore bundle that the story generated, so the new folders still share the same root secrets without duplicating them.
 4. If the TUI story is ever replayed (e.g., `SETUP` command), the manifest provides a deterministic diff so Vibe CLI can offer an automated “re-run story?” path while the `.env` changes remain mininal and auditable.
+
+## 4. uCODE Vibe Commands (v1.3)
+
+uCODE exposes Vibe CLI integration directly:
+
+```
+VIBE CHAT <prompt> [--no-context] [--model <name>]
+VIBE CONTEXT [--files a,b,c] [--notes "..."]
+VIBE HISTORY [--limit N]
+VIBE CONFIG
+```
+
+Routing:
+- **Goblin dev**: `/api/dev/vibe/*` (preferred for local workflows)
+- **Wizard**: `/api/ai/*` (requires `WIZARD_ADMIN_TOKEN`)
 
 By keeping the `.env`/Wizard keystore boundary and the Vibe CLI IO hooks explicit in the story, the v1.3 scaffolding can evolve without breaking the identity or onboarding experience.

@@ -10,6 +10,9 @@ Handles:
 """
 
 from typing import Dict, Any, List
+import os
+import sys
+import time
 
 
 class GridRenderer:
@@ -46,7 +49,7 @@ class GridRenderer:
 
     def _render_success(self, result: Dict[str, Any]) -> str:
         """Format successful response"""
-        output = f"{self.GREEN}*{self.RESET} {result.get('message', 'Success')}\n"
+        output = f"{self.GREEN}✓{self.RESET} {result.get('message', 'Success')}\n"
 
         # Add command-specific output
         if "help" in result:
@@ -67,7 +70,7 @@ class GridRenderer:
     def _render_error(self, result: Dict[str, Any]) -> str:
         """Format error response"""
         output = (
-            f"{self.RED}x{self.RESET} Error: {result.get('message', 'Unknown error')}\n"
+            f"{self.RED}✗{self.RESET} Error: {result.get('message', 'Unknown error')}\n"
         )
 
         if "output" in result:
@@ -83,7 +86,7 @@ class GridRenderer:
 
     def _render_warning(self, result: Dict[str, Any]) -> str:
         """Format warning response"""
-        output = f"{self.YELLOW}!{self.RESET} {result.get('message', 'Warning')}\n"
+        output = f"{self.YELLOW}⚠{self.RESET} {result.get('message', 'Warning')}\n"
         if "output" in result:
             output += result["output"] + "\n"
         return output
@@ -123,7 +126,7 @@ class GridRenderer:
 
     def format_error(self, message: str, details: str = "") -> str:
         """Format an error message"""
-        output = f"{self.RED}x{self.RESET} {message}\n"
+        output = f"{self.RED}✗{self.RESET} {message}\n"
         if details:
             output += f"  {details}\n"
         return output
@@ -131,6 +134,16 @@ class GridRenderer:
     def format_prompt(self, location: str) -> str:
         """Format the REPL prompt"""
         return f"{self.BOLD}[{location}]{self.RESET} > "
+
+    def stream_text(self, text: str, prefix: str = "vibe> ") -> None:
+        """Stream text line-by-line with a prefix (used for Vibe-style output)."""
+        delay_ms = int(os.getenv("VIBE_STREAM_DELAY_MS", "0") or "0")
+        lines = text.splitlines() if text else [""]
+        for line in lines:
+            sys.stdout.write(f"{self.CYAN}{prefix}{self.RESET}{line}\n")
+            sys.stdout.flush()
+            if delay_ms > 0:
+                time.sleep(delay_ms / 1000.0)
 
     @staticmethod
     def clear_screen() -> None:
@@ -141,3 +154,7 @@ class GridRenderer:
     def separator(char: str = "-", width: int = 60) -> str:
         """Create a separator line"""
         return char * width
+
+
+# Legacy alias for older imports/tests
+Renderer = GridRenderer

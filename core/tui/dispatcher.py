@@ -28,6 +28,8 @@ from core.commands import (
     ProviderHandler,
     WizardHandler,
     PatternHandler,
+    SonicHandler,
+    MusicHandler,
     BinderHandler,
     RunHandler,
     DatasetHandler,
@@ -91,6 +93,8 @@ class CommandDispatcher:
             "SETUP": SetupHandler(),
             "UID": UIDHandler(),  # User ID management
             "PATTERN": PatternHandler(),
+            "SONIC": SonicHandler(),
+            "MUSIC": MusicHandler(),
             "DEV MODE": DevModeHandler(),
             "DEV": DevModeHandler(),  # Shortcut for DEV MODE
             "LOGS": LogsHandler(),  # View unified logs

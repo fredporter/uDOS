@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    font-feature-settings: "ss01" on, "ss02" on;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+}
+
+@layer components {
+  .grid-header {
+    @apply text-sm uppercase tracking-[0.3em];
+  }
+
+  .grid-table {
+    @apply text-xs;
+  }
+}

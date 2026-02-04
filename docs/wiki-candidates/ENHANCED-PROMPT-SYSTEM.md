@@ -430,7 +430,7 @@ class EnhancedPrompt(SmartPrompt):
 ## See Also
 
 - [STANDARD-INPUT-HANDLERS.md](STANDARD-INPUT-HANDLERS.md) — Original input system
-- [uCODE.md](uCODE.md) — Unified Terminal TUI
+- [specs/uCODE-v1.3.md](../specs/uCODE-v1.3.md) — Unified Terminal TUI
 - [QUICKSTART.md](../QUICKSTART.md) — Getting started guide
 
 ---

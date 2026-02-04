@@ -474,6 +474,27 @@ class BeaconService:
         logger.info(f"[QUOTA] Reset quota for device: {device_id}")
         return True
 
+    def add_device_funds(self, device_id: str, amount_usd: float) -> Optional[DeviceQuotaEntry]:
+        """Add budget to an existing device quota."""
+        if amount_usd <= 0:
+            return None
+        quota = self.get_device_quota(device_id)
+        if not quota:
+            return None
+
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                """
+                UPDATE device_quotas
+                SET budget_monthly_usd = budget_monthly_usd + ?
+                WHERE device_id = ?
+            """,
+                (amount_usd, device_id),
+            )
+            conn.commit()
+
+        return self.get_device_quota(device_id)
+
     # ========================================================================
     # PLUGIN CACHING
     # ========================================================================
@@ -529,6 +550,35 @@ class BeaconService:
             }
             for row in rows
         ]
+
+    # ========================================================================
+    # TUNNEL STATS
+    # ========================================================================
+
+    def get_latest_tunnel_stats(self, tunnel_id: str) -> Optional[Dict[str, Any]]:
+        """Fetch latest tunnel stats entry."""
+        with sqlite3.connect(self.db_path) as conn:
+            row = conn.execute(
+                """
+                SELECT bytes_sent, bytes_received, packets_lost, latency_ms, handshake_age_sec
+                FROM tunnel_statistics
+                WHERE tunnel_id = ?
+                ORDER BY timestamp DESC
+                LIMIT 1
+            """,
+                (tunnel_id,),
+            ).fetchone()
+
+        if not row:
+            return None
+
+        return {
+            "bytes_sent": row[0] or 0,
+            "bytes_received": row[1] or 0,
+            "packets_lost": row[2] or 0,
+            "latency_ms": row[3] or 0,
+            "handshake_age_sec": row[4] or 0,
+        }
 
 
 # ============================================================================

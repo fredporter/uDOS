@@ -5,6 +5,13 @@ Short answer: yes, and you should.
 
 ⸻
 
+Version Target (Pinned)
+
+	•	v1.3.4 — Godot 2D/2.5D adapter MVP
+	•	v1.3.5 — O3DE prototype (single region / deep lens)
+
+⸻
+
 The big idea (why this works so well)
 
 The trick is this:

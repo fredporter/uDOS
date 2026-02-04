@@ -6,6 +6,14 @@ This contract codifies the “vault is truth” principle from `docs/uDOS-v1-3.m
    - Markdown files (`*.md`) and assets (images, attachments) live in the vault root or nested folders.
    - The vault remains readable without uDOS installed (open-box guarantee).
    - No proprietary database may replace the Markdown source; state is derived/persisted separately.
+   - Recommended vault spaces (Obsidian-first):
+     - `vault/bank/` — primary knowledge store
+     - `vault/sandbox/` — drafts/experiments
+     - `vault/inbox-dropbox/` — intake/imports
+     - `vault/public-open-published/` — public/open content
+       - `submissions/pending/`, `submissions/submitted/`, `submissions/wiki-update-submitted/`
+     - `vault/private-explicit/` — explicit private shares
+     - `vault/private-shared/` — proximity-verified shares
 
 2. **App state**
    - `.udos/` optionally holds settings, task indexes, fonts, and other uDOS state.

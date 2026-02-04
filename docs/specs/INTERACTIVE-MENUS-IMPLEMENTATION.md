@@ -17,6 +17,29 @@ Successfully implemented an **integrated interactive menu system** for uDOS TUI 
 
 ---
 
+## v1.3 Prompt Standard Alignment
+
+Interactive menus now sit behind the uCODE prompt contract (see `docs/specs/UCODE-PROMPT-SPEC.md`).
+
+**Entry rules:**
+- Menus are launched only from **command mode** (`OK ` or `:`).
+- Example: `OK HELP` or `:HELP` shows the Help categories menu.
+- If the user types `HELP` without a prefix, that is **question mode** and should not open a menu.
+
+**Input capture boundaries:**
+- Menus are **non‑blocking**: the first keypress decides routing.
+- Numeric‑first input (`0-9`, `-`, `=`), `Enter`, or arrows route to the menu.
+- Any letter or other printable character **dismisses menu focus** and continues normal typing.
+- Arrow keys are reserved for menu navigation when the menu captures input.
+- `Tab` remains menu‑local (if used) and must not trigger global autocomplete.
+- Command names must **not** start with digits to keep numeric capture unambiguous.
+
+**Autocomplete interaction:**
+- Command autocomplete runs **at the prompt**, not inside menus.
+- Menu options can still be **shown as suggestions** at the prompt (e.g., `OK HELP` → `OK HELP NAV`, `OK HELP FILES`), but once a menu is visible, global suggestions are suppressed.
+
+---
+
 ## What Was Built
 
 ### 1. Interactive Menu System (`core/ui/interactive_menu.py`)
@@ -278,7 +301,7 @@ Result: Just text instructions...
 
 **AFTER** (New TUI with Menus):
 ```
-▶ HELP
+▶ OK HELP
 
 ╔════════════════════╗
 ║ Command Categories ║
@@ -330,10 +353,10 @@ Choice: 1
 
 ### For End Users
 
-Just type commands normally. When a command has options:
+Use command mode prefixes. When a command has options:
 
 ```
-▶ HELP
+▶ OK HELP
 ```
 
 A menu appears. Use numbers or arrow keys to navigate.
@@ -381,6 +404,7 @@ The TUI now features:
 3. **Handler Integration** - Mixin makes it easy to add menus
 4. **Flexible UI** - Supports submenus, actions, confirmations
 5. **Terminal Compatible** - Works in any terminal with fallbacks
+6. **Prompt-Compliant** - Menus are entered only via `OK`/`:` command mode
 
 **Status:** ✅ Production Ready
 **Test Coverage:** ✅ 100% (all components tested)

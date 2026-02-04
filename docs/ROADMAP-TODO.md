@@ -7,10 +7,14 @@ This live tracker lists the remaining development items referenced by `docs/ROAD
 | Clean up Wizard dashboard navigation | Wizard | Done | Round 2 quick win: removed Setup menu from top nav and hamburger menu; rebuilt production assets. |
 | Finish Wizard Notion UI + plugin dashboard | Wizard | Done | Round 3 components (Notion blocks, plugin cards, mod overlay controls, Obsidian-first mapping). |
 | Implement Wizard dataset table + chart UI | Wizard | Done | `/api/data/schema` + `/api/data/query` wired with guardrails + export. |
-| Prototype Canvas-based teletext renderer | Wizard | Pending | Round 5 NES button recommendation needs final decision. |
-| Harden Beacon Portal + Sonic device catalog APIs | Wizard/Sonic | Pending | Round 6 quota + VPN tasks. |
-| Migrate Goblin binder/Sonic features to Wizard | Goblin/Open | Experimental | Round 7 experiments waiting consolidation. |
-| Ship plugin manifest service + registry | Wizard/Extensions | Pending | Round 8 plugin architecture + mod overlay loader. |
+| Prototype Canvas-based teletext renderer | Wizard | Done | Round 5: teletext canvas + NES button kit wired in Tables.svelte (`/api/teletext/*`). |
+| Harden Beacon Portal + Sonic device catalog APIs | Wizard/Sonic | Done | Beacon routes wired + persisted (configs/quotas/tunnels/cache), auth toggle added, Sonic APIs already admin-guarded. |
+| Migrate Goblin binder/Sonic features to Wizard | Goblin/Open | Done | Binder file-backed endpoints + Screwdriver flash-pack routes now live in Wizard. |
+| Round 7: Binder compiler dev endpoints | Goblin | Done | `/api/dev/binders` wired to filesystem + compiler sync. |
+| Round 7: Screwdriver flash pack scaffolding | Goblin | Done | Flash-pack endpoints + payload schema scaffolded. |
+| Round 7: MeshCore device manager scaffolding | Goblin | Done | Device manager + pairing API scaffolded. |
+| Round 7: Dev workflow endpoints | Goblin | Done | Containers/vibe/logs/vault sync endpoints wired. |
+| Ship plugin manifest service + registry | Wizard/Extensions | Done | Registry routes + manifest validation service added. |
 | Begin App Typo Editor + converters | App | Early dev | Round 9 Tauri + converter pipeline. |
 | Build Groovebox Songscribe stack | Wizard | Planning | Round 10 Songscribe Markdown, audio synthesis, sample libs. |
 | Update `docs/specs/ROUNDS-3-10.md` | Documentation | Done | New spec created to summarize the rounds. |
@@ -62,14 +66,28 @@ Integrate the attached specs/guides into the future roadmap.
 - **Engine-Agnostic World Contract**: enforce LocId invariants. See [docs/uDOS-Engine-Agnostic-World-Contract.md](docs/uDOS-Engine-Agnostic-World-Contract.md).
 
 ## Spatial universe + anchors
-- **Fractal grid + universe mapping**: formalize anchor registry + LocId parser. See [docs/v1-3%20UNIVERSE.md](docs/v1-3%20UNIVERSE.md).
-- **Gameplay anchors**: implement Anchor registry + runtime interfaces. See [docs/uDOS-Gameplay-Anchors-v1.3-Spec.md](docs/uDOS-Gameplay-Anchors-v1.3-Spec.md).
-- **World lenses**: Godot 2D/2.5D adapter MVP, O3DE prototype later. See [docs/v1-3%20-4%203dworld.md](docs/v1-3%20-4%203dworld.md).
+- **Fractal grid + universe mapping** (v1.3.4): formalize anchor registry + LocId parser. See [docs/v1-3%20UNIVERSE.md](docs/v1-3%20UNIVERSE.md).
+- **UGRID core (grid canvas + overlays)** (v1.3.4): implement grid canvas primitives + LocId overlays. See [docs/v1-3%20UGRID-CORE.md](docs/v1-3%20UGRID-CORE.md).
+- **Gameplay anchors** (v1.3.5): implement Anchor registry + runtime interfaces. See [sonic/docs/specs/uDOS-Gameplay-Anchors-v1.3-Spec.md](../sonic/docs/specs/uDOS-Gameplay-Anchors-v1.3-Spec.md).
+- **World lenses**: Godot 2D/2.5D adapter MVP (v1.3.4), O3DE prototype (v1.3.5). See [docs/v1-3%20-4%203dworld.md](docs/v1-3%20-4%203dworld.md).
 
 ## App + TUI alignment
 - **App v1.3 refactor**: external vault path, Typo editor, tasks index, export UI. See [docs/uDOS-app-v1-3.md](docs/uDOS-app-v1-3.md).
 - **TUI ↔ Vibe integration**: shared IO + keystore boundary. See [docs/TUI-Vibe-Integration.md](docs/TUI-Vibe-Integration.md).
 - **Vibe CLI workflow alignment**: Mistral Vibe CLI recommendations mapped to uCODE TUI. See [VIBE-CLI-ROADMAP-ALIGNMENT.md](../VIBE-CLI-ROADMAP-ALIGNMENT.md) for gaps + action plan (v1.3.2+).
+- **Vibe capabilities track**: natural language routing, code assistance, and code analysis surfaces. Prototype → testing → feedback loop. See [VIBE-CLI-ROADMAP-ALIGNMENT.md](../VIBE-CLI-ROADMAP-ALIGNMENT.md).
+- **uCODE prompt spec**: OK/: commands, slash routing, dynamic autocomplete. See [docs/specs/UCODE-PROMPT-SPEC.md](docs/specs/UCODE-PROMPT-SPEC.md).
+
+## Wizard AI Modes (v1.3.2+)
+
+Define a **Wizard mode contract** and local model defaults for assistant use:
+
+- **Conversation mode**: chat UX + `conversation_id`
+- **Creative mode**: prompt templates + temperature preset
+- **Local model defaults**: small/fast Ollama models
+- **Core access**: route via `/api/ai/complete` with strict offline-first policy
+
+Spec: [docs/specs/AI-MODES-v1.3.md](docs/specs/AI-MODES-v1.3.md)
 
 ## Publishing + themes expansion
 - Add theme validation tooling based on contract.
@@ -83,6 +101,7 @@ Integrate the attached specs/guides into the future roadmap.
 Core infrastructure components for distributed, modular architecture.
 
 ## Groovebox → Songscribe Stack (library/groovebox + /songscribe container)
+- **Status:** ✅ Complete (v1.3.3 scaffolding + APIs + storage)
 - **Refactor Groovebox extension** for v1.3 module system:
   - Detach audio synthesis engine from UI layer.
   - Standardize plugin API for sample libraries + effects chains.
@@ -94,6 +113,7 @@ Core infrastructure components for distributed, modular architecture.
   - Integration with Wizard task/document renderers.
 
 ## Sonic → TUI Entry Point (library/sonic + sonic extension)
+- **Status:** ✅ Complete (container manifest + plugin catalog + CLI scaffolding)
 - **Refactor Sonic extension** as primary entry to uDOS TUI v1.3:
   - `vibe-cli` powered command-line layer + device catalog.
   - Replace legacy screwdriver toolchain with modular plugin system.
@@ -129,12 +149,13 @@ Offline-first, proximity-based architecture for hardware ecosystems.
   - Recovery/failure mode handling.
 
 ## Windows 10 Entertainment Stack (distribution/windows10-entertainment)
+- **Status:** 🧱 Scaffolded (layout + controller map + build placeholders)
 - **Dual-mode Windows 10 living-room system** (Xbox One form factor reference):
   - Controller-first input grammar (Xbox One controller standard).
   - Media Mode: locked-down Plex Media Player, Kodi, RetroArch, casual games.
   - Game Mode: full performance Windows partition for AAA titles + mods.
   - uDOS bootloader orchestrates mode switching + recovery layer.
-  - See [docs/specs/uDOS_Xbox_Entertainment_Spec.md](docs/specs/uDOS_Xbox_Entertainment_Spec.md).
+  - See [sonic/docs/specs/uDOS_Xbox_Entertainment_Spec.md](../sonic/docs/specs/uDOS_Xbox_Entertainment_Spec.md).
 - **Deliverables**:
   - Partition layout (uDOS_BOOT, uDOS_CORE, WINDOWS_MEDIA, WINDOWS_GAMES).
   - Controller input mapper (Xbox One XInput) + system overlay.

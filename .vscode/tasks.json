@@ -1,108 +1,198 @@
 {
-	"version": "2.0.0",
-	{
-		"version": "2.0.0",
-		"tasks": [
-			{
-				"label": "Check Virtual Environment",
-				"type": "shell",
-				"command": "bash",
-				"args": [
-					"-c",
-					"if [ -z \"$VIRTUAL_ENV\" ]; then echo '⚠️  Virtual environment not active! Run: source .venv/bin/activate'; exit 1; else echo '✅ Virtual environment active:' $VIRTUAL_ENV; fi"
-				],
-				"group": "build",
-				"presentation": {
-					"reveal": "always",
-					"panel": "shared"
-				},
-				"problemMatcher": []
-			},
-			{
-				"label": "Run uDOS Interactive",
-				"type": "shell",
-				"command": "./start_udos.sh",
-				"group": {
-					"kind": "build",
-					"isDefault": true
-				},
-				"presentation": {
-					"reveal": "always",
-					"panel": "dedicated",
-					"focus": true,
-					"clear": true
-				},
-				"dependsOn": "Check Virtual Environment",
-				"problemMatcher": []
-			},
-			{
-				"label": "Run Shakedown Test",
-				"type": "shell",
-				"command": "./start_udos.sh",
-				"args": [
-					"memory/tests/shakedown-script.md"
-				],
-				"group": {
-					"kind": "test",
-					"isDefault": true
-				},
-				"presentation": {
-					"reveal": "always",
-					"panel": "dedicated",
-					"focus": true,
-					"clear": true
-				},
-				"dependsOn": "Check Virtual Environment",
-				"problemMatcher": []
-			},
-			{
-				"label": "Run TypeScript Standalone Tests",
-				"type": "shell",
-				"command": "${workspaceFolder}/.venv/bin/python",
-				"args": [
-					"${workspaceFolder}/memory/tests/test_v1_0_2_standalone.py"
-				],
-				"group": "test",
-				"presentation": {
-					"reveal": "always",
-					"panel": "new",
-					"clear": true
-				},
-				"dependsOn": "Check Virtual Environment",
-				"problemMatcher": []
-			},
-			{
-				"label": "Run TypeScript Integration Tests",
-				"type": "shell",
-				"command": "${workspaceFolder}/.venv/bin/python",
-				"args": [
-					"${workspaceFolder}/memory/tests/integration/test_v1_0_2_integration.py"
-				],
-				"group": "test",
-				"presentation": {
-					"reveal": "always",
-					"panel": "new",
-					"clear": true
-				},
-				"dependsOn": "Check Virtual Environment",
-				"problemMatcher": []
-			}
-		]
-	}
-			],
-			"isBackground": false,
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": true,
-				"panel": "dedicated",
-				"clear": true
-			},
-			"group": {
-				"kind": "none",
-				"isDefault": false
-			},
-			"problemMatcher": []
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Check Virtual Environment",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "if [ -z \"$VIRTUAL_ENV\" ]; then echo '⚠️  Virtual environment not active! Run: source .venv/bin/activate'; exit 1; else echo '✅ Virtual environment active:' $VIRTUAL_ENV; fi"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run uDOS Interactive",
+      "type": "shell",
+      "command": "./start_udos.sh",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true,
+        "clear": true
+      },
+      "dependsOn": "Check Virtual Environment",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Shakedown Test",
+      "type": "shell",
+      "command": "./start_udos.sh",
+      "args": [
+        "memory/tests/shakedown-script.md"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true,
+        "clear": true
+      },
+      "dependsOn": "Check Virtual Environment",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run TypeScript Standalone Tests",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "${workspaceFolder}/memory/tests/test_v1_0_2_standalone.py"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      },
+      "dependsOn": "Check Virtual Environment",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run TypeScript Integration Tests",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "${workspaceFolder}/memory/tests/integration/test_v1_0_2_integration.py"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      },
+      "dependsOn": "Check Virtual Environment",
+      "problemMatcher": []
+    },
+    {
+      "label": "Vibe Chat (interactive)",
+      "type": "shell",
+      "command": "vibe",
+      "args": [
+        "chat"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Vibe Chat (prompt)",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "vibe chat \"${input:vibePrompt}\""
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Vibe Chat (with context)",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "vibe chat --with-context \"${input:vibePrompt}\""
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Vibe Chat (with context, stream)",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "vibe chat --with-context --stream \"${input:vibePrompt}\""
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Vibe Chat (model)",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "vibe chat --model \"${input:vibeModel}\" \"${input:vibePrompt}\""
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Vibe Chat (with context, model, stream)",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "vibe chat --with-context --stream --model \"${input:vibeModel}\" \"${input:vibePrompt}\""
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true,
+        "clear": true
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "vibePrompt",
+      "type": "promptString",
+      "description": "Vibe prompt",
+      "default": "What is uDOS?"
+    },
+    {
+      "id": "vibeModel",
+      "type": "promptString",
+      "description": "Vibe model",
+      "default": "devstral-small"
+    }
+  ]
 }

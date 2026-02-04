@@ -1,13 +1,19 @@
-# .env Structure & Data Boundaries (v1.1.0)
+# .env Structure & Data Boundaries (v1.1.0, v1.3-aligned)
 
 **Date:** 2026-01-30  
-**Status:** Active
+**Status:** Active (v1.3 alignment)
 
 ---
 
 ## Overview
 
 This document defines the clear boundary between local Core identity data (stored in `.env`) and extended sensitive data (stored in Wizard keystore).
+
+## v1.3 Alignment (Preserve v1.2 Setup Flow)
+
+- The **v1.2 setup story flow** remains canonical in v1.3 (`core/tui/setup-story.md`).
+- `SETUP` is still the single entry-point; it writes `.env` + Wizard keystore the same way as v1.2.
+- `USER_LOCATION` is still free text, but it must resolve to coordinates in the spatial layer (see `docs/specs/SPATIAL-FILESYSTEM.md`).
 
 ## Data Boundaries
 
@@ -21,7 +27,7 @@ The `.env` file contains **ONLY** essential local identity and system settings:
 | `USER_DOB` | date | Yes | Date of birth (YYYY-MM-DD) |
 | `USER_ROLE` | enum | Yes | `ghost` \| `user` \| `admin` |
 | `USER_PASSWORD` | string | Optional | Local password (can be blank, user/admin only) |
-| `USER_LOCATION` | string | Yes | City name or uDIS grid coordinates |
+| `USER_LOCATION` | string | Yes | City name or grid coordinates (must resolve to spatial coordinates) |
 | `USER_TIMEZONE` | string | Yes | IANA timezone (e.g., America/Los_Angeles) |
 | `OS_TYPE` | enum | Yes | `alpine` \| `ubuntu` \| `mac` \| `windows` |
 | `WIZARD_KEY` | uuid | Auto | Gateway to Wizard keystore (auto-generated) |
@@ -107,8 +113,7 @@ Creates `.env` with core identity fields only.
 ### 2. Wizard Server Setup (Online)
 
 ```bash
-cd wizard
-./launch.sh              # Start Wizard Server
+python -m wizard.server --no-interactive
 # Visit http://localhost:8765/dashboard
 # Navigate to Settings > Integrations
 ```
@@ -188,6 +193,13 @@ UNDO [scope]                # Re-applies the latest .tar.gz backup for <scope> (
 
 Backups, restores, and undo migrations all serialize to `.tar.gz` (tar + gzip) archives under each scope’s `.backup` folder so they follow Alpine conventions. `BACKUP` writes a manifest, `RESTORE` extracts the archive (and respects `--force`), and `UNDO` simply runs the most recent `tar.gz` again to roll back to the last checkpoint.
 
+**Default backup targets (Wizard Repair UI):**
+- `wizard-config` → `wizard/config/`
+- `wizard-memory` → `memory/wizard/`
+- `memory-private` → `memory/private/`
+- `memory-binders` → `memory/binders/`
+- `library` → `library/`
+
 ---
 
 ## Files Updated (v1.1.0)
@@ -231,5 +243,5 @@ Backups, restores, and undo migrations all serialize to `.tar.gz` (tar + gzip) a
 
 ---
 
-_Last Updated: 2026-01-30_  
+_Last Updated: 2026-02-04_  
 _Version: 1.1.0_

@@ -259,6 +259,8 @@ class uCODETUI:
         self.commands = {
             "STATUS": self._cmd_status,
             "HELP": self._cmd_help,
+            "VIBE": self._cmd_vibe,
+            "NL": self._cmd_nl,
             "PROMPT": self._cmd_prompt,
             "EXIT": self._cmd_exit,
             "QUIT": self._cmd_exit,
@@ -318,6 +320,34 @@ class uCODETUI:
                 )
         except Exception as e:
             self.logger.warning(f"[LOCAL] Bank/system seed check failed: {e}")
+
+    def _handle_special_commands(self, command: str) -> bool:
+        """Handle special REPL commands (EXIT/QUIT/STATUS/HISTORY)."""
+        if not command:
+            return False
+        parts = command.strip().split(None, 1)
+        cmd = parts[0].upper()
+        args = parts[1] if len(parts) > 1 else ""
+
+        if cmd in self.commands:
+            self.commands[cmd](args)
+            return True
+
+        if cmd == "HISTORY":
+            self._show_history()
+            return True
+
+        return False
+
+    def _show_history(self, limit: int = 10) -> None:
+        """Print recent command history."""
+        history = self.state.session_history[-limit:]
+        if not history:
+            print("No history yet.")
+            return
+        print("Recent history:")
+        for entry in history:
+            print(f"  {entry}")
 
     def run(self) -> None:
         """Start uCODE TUI."""
@@ -1216,6 +1246,8 @@ Navigation & Info:
   FIND [query]        - Search for locations
   TELL [query]        - Get information
   BAG                 - Inventory management
+  VIBE                - Vibe CLI integration (chat/context/history)
+  NL                  - Natural language routing (prototype)
 
 """
         if self.detector.is_available("wizard"):
@@ -1252,6 +1284,416 @@ For detailed help on any command, type the command name followed by --help
 
 """
         print(self._theme_text(help_text))
+
+    def _cmd_vibe(self, args: str) -> None:
+        """Vibe CLI integration commands."""
+        tokens = [t for t in args.split() if t.strip()]
+        if not tokens or tokens[0].lower() in {"help", "--help", "?"}:
+            print(self._theme_text(self._vibe_help_text()))
+            return
+
+        action = tokens[0].lower()
+        rest = tokens[1:]
+
+        if action == "chat":
+            self._vibe_chat(rest)
+            return
+        if action == "context":
+            self._vibe_context(rest)
+            return
+        if action == "history":
+            self._vibe_history(rest)
+            return
+        if action == "config":
+            self._vibe_config()
+            return
+        if action == "analyze":
+            self._vibe_analyze(rest)
+            return
+        if action == "explain":
+            self._vibe_explain(rest)
+            return
+        if action == "suggest":
+            self._vibe_suggest(rest)
+            return
+
+        print(self._theme_text(f"Unknown VIBE action '{tokens[0]}'. Use VIBE HELP."))
+
+    def _vibe_help_text(self) -> str:
+        return """
+═══ VIBE HELP ═══
+
+VIBE CHAT <prompt> [--no-context] [--model <name>] [--format text|json]
+VIBE CONTEXT [--files a,b,c] [--notes \"...\"] 
+VIBE HISTORY [--limit N]
+VIBE CONFIG
+VIBE ANALYZE <path>
+VIBE EXPLAIN <symbol>
+VIBE SUGGEST <task>
+
+Notes:
+  - Goblin endpoints are preferred for local dev: http://localhost:8767
+  - Wizard endpoints are used if Goblin is unavailable: http://localhost:8765
+  - Wizard may require WIZARD_ADMIN_TOKEN in the environment.
+"""
+
+    def _vibe_chat(self, args: List[str]) -> None:
+        flags, prompt = self._parse_vibe_flags(args)
+        if not prompt:
+            prompt = self.prompt.ask_command("vibe> ").strip()
+            if not prompt:
+                print(self._theme_text("No prompt provided."))
+                return
+
+        provider, base_url = self._resolve_vibe_provider()
+        if not provider:
+            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
+            return
+
+        if provider == "goblin":
+            payload = {
+                "prompt": prompt,
+                "system": flags.get("system", ""),
+                "format": flags.get("format") or "text",
+                "with_context": flags.get("with_context", True),
+            }
+            result = self._vibe_request("POST", f"{base_url}/api/dev/vibe/chat", json=payload)
+            if not result:
+                return
+            response = result.get("response", "")
+        else:
+            payload = {
+                "prompt": prompt,
+                "include_context": flags.get("with_context", True),
+                "model": flags.get("model") or "devstral-small",
+            }
+            result = self._vibe_request("POST", f"{base_url}/api/ai/query", json=payload, use_auth=True)
+            if not result:
+                return
+            response = result.get("response", "")
+
+        self.renderer.stream_text(str(response), prefix="vibe> ")
+
+    def _vibe_context(self, args: List[str]) -> None:
+        flags, _ = self._parse_vibe_flags(args)
+        provider, base_url = self._resolve_vibe_provider()
+        if not provider:
+            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
+            return
+
+        if provider == "goblin":
+            payload = {
+                "files": flags.get("files"),
+                "notes": flags.get("notes"),
+            }
+            result = self._vibe_request("POST", f"{base_url}/api/dev/vibe/context-inject", json=payload)
+            if result:
+                print(self._theme_text(f"Context updated. Files: {result.get('files', 0)}"))
+            return
+
+        # Wizard context is managed server-side
+        result = self._vibe_request("GET", f"{base_url}/api/ai/context", use_auth=True)
+        if result:
+            files = result.get("files", [])
+            print(self._theme_text(f"Wizard context files ({len(files)}):"))
+            for item in files:
+                print(f"  - {item}")
+
+    def _vibe_history(self, args: List[str]) -> None:
+        flags, _ = self._parse_vibe_flags(args)
+        provider, base_url = self._resolve_vibe_provider()
+        if not provider:
+            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
+            return
+
+        if provider != "goblin":
+            print(self._theme_text("History is available via Goblin only."))
+            return
+
+        limit = flags.get("limit") or 10
+        result = self._vibe_request("GET", f"{base_url}/api/dev/vibe/history", params={"limit": limit})
+        if not result:
+            return
+        history = result.get("history", [])
+        print(self._theme_text(f"Vibe history (last {len(history)}):"))
+        for entry in history:
+            ts = entry.get("timestamp", "")
+            status = entry.get("status", "")
+            prompt = entry.get("prompt", "")
+            print(f"  - {ts} [{status}] {prompt}")
+
+    def _vibe_config(self) -> None:
+        provider, base_url = self._resolve_vibe_provider(check_only=True)
+        token = os.getenv("WIZARD_ADMIN_TOKEN") or os.getenv("ADMIN_TOKEN") or ""
+        print(self._theme_text("Vibe configuration:"))
+        print(f"  Provider: {provider or 'unknown'}")
+        print(f"  Goblin URL: {os.getenv('GOBLIN_URL', 'http://localhost:8767')}")
+        print(f"  Wizard URL: {os.getenv('WIZARD_URL', 'http://localhost:8765')}")
+        print(f"  Wizard admin token set: {'yes' if token else 'no'}")
+        print(f"  Active base URL: {base_url or '-'}")
+
+    def _vibe_analyze(self, args: List[str]) -> None:
+        flags, prompt = self._parse_vibe_flags(args)
+        target = prompt.strip()
+        if not target:
+            target = self.prompt.ask_command("vibe/analyze> ").strip()
+            if not target:
+                print(self._theme_text("No target provided."))
+                return
+
+        provider, base_url = self._resolve_vibe_provider()
+        if not provider:
+            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
+            return
+
+        if provider == "goblin":
+            payload = {"path": target, "with_context": flags.get("with_context", True)}
+            result = self._vibe_request("POST", f"{base_url}/api/dev/vibe/analyze", json=payload)
+        else:
+            payload = {"path": target, "include_context": flags.get("with_context", True)}
+            result = self._vibe_request("POST", f"{base_url}/api/ai/analyze", json=payload, use_auth=True)
+
+        if result is None:
+            return
+        response = result.get("response", result)
+        self.renderer.stream_text(str(response), prefix="vibe> ")
+
+    def _vibe_explain(self, args: List[str]) -> None:
+        flags, prompt = self._parse_vibe_flags(args)
+        target = prompt.strip()
+        if not target:
+            target = self.prompt.ask_command("vibe/explain> ").strip()
+            if not target:
+                print(self._theme_text("No target provided."))
+                return
+
+        provider, base_url = self._resolve_vibe_provider()
+        if not provider:
+            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
+            return
+
+        if provider == "goblin":
+            payload = {"symbol": target, "with_context": flags.get("with_context", True)}
+            result = self._vibe_request("POST", f"{base_url}/api/dev/vibe/explain", json=payload)
+        else:
+            payload = {"symbol": target, "include_context": flags.get("with_context", True)}
+            result = self._vibe_request("POST", f"{base_url}/api/ai/explain", json=payload, use_auth=True)
+
+        if result is None:
+            return
+        response = result.get("response", result)
+        self.renderer.stream_text(str(response), prefix="vibe> ")
+
+    def _vibe_suggest(self, args: List[str]) -> None:
+        flags, prompt = self._parse_vibe_flags(args)
+        target = prompt.strip()
+        if not target:
+            target = self.prompt.ask_command("vibe/suggest> ").strip()
+            if not target:
+                print(self._theme_text("No task provided."))
+                return
+
+        provider, base_url = self._resolve_vibe_provider()
+        if not provider:
+            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
+            return
+
+        if provider == "goblin":
+            payload = {"task": target, "with_context": flags.get("with_context", True)}
+            result = self._vibe_request("POST", f"{base_url}/api/dev/vibe/suggest", json=payload)
+        else:
+            payload = {"task": target, "include_context": flags.get("with_context", True)}
+            result = self._vibe_request("POST", f"{base_url}/api/ai/suggest", json=payload, use_auth=True)
+
+        if result is None:
+            return
+        response = result.get("response", result)
+        self.renderer.stream_text(str(response), prefix="vibe> ")
+
+    def _cmd_nl(self, args: str) -> None:
+        """Natural language routing prototype."""
+        tokens = [t for t in args.split() if t.strip()]
+        if not tokens or tokens[0].lower() in {"help", "--help", "?"}:
+            print(self._theme_text(self._nl_help_text()))
+            return
+
+        action = tokens[0].lower()
+        rest = tokens[1:]
+
+        if action == "route":
+            self._nl_route(rest)
+            return
+
+        print(self._theme_text(f"Unknown NL action '{tokens[0]}'. Use NL HELP."))
+
+    def _nl_help_text(self) -> str:
+        return """
+═══ NL HELP ═══
+
+NL ROUTE <prompt> [--dry-run] [--no-context]
+
+Notes:
+  - Uses the same Vibe transport as VIBE commands.
+  - Returns a route plan and optional execution (unless --dry-run).
+"""
+
+    def _nl_route(self, args: List[str]) -> None:
+        flags, prompt = self._parse_vibe_flags(args)
+        dry_run = bool(flags.get("dry_run"))
+        prompt_text = prompt.strip()
+        if not prompt_text:
+            prompt_text = self.prompt.ask_command("nl> ").strip()
+            if not prompt_text:
+                print(self._theme_text("No prompt provided."))
+                return
+
+        provider, base_url = self._resolve_vibe_provider()
+        if not provider:
+            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
+            return
+
+        if provider == "goblin":
+            payload = {
+                "prompt": prompt_text,
+                "with_context": flags.get("with_context", True),
+                "dry_run": dry_run,
+            }
+            result = self._vibe_request("POST", f"{base_url}/api/dev/vibe/nl-route", json=payload)
+        else:
+            payload = {
+                "prompt": prompt_text,
+                "include_context": flags.get("with_context", True),
+                "dry_run": dry_run,
+            }
+            result = self._vibe_request("POST", f"{base_url}/api/ai/nl-route", json=payload, use_auth=True)
+
+        if result is None:
+            return
+
+        plan = result.get("plan") or result.get("route") or result.get("response", result)
+        self.renderer.stream_text(str(plan), prefix="vibe> ")
+
+    def _parse_vibe_flags(self, args: List[str]) -> (Dict[str, Any], str):
+        flags: Dict[str, Any] = {"with_context": True}
+        parts: List[str] = []
+        it = iter(args)
+        for token in it:
+            if token == "--dry-run":
+                flags["dry_run"] = True
+                continue
+            if token == "--no-context":
+                flags["with_context"] = False
+                continue
+            if token == "--context":
+                flags["with_context"] = True
+                continue
+            if token == "--model":
+                flags["model"] = next(it, None)
+                continue
+            if token == "--format":
+                flags["format"] = next(it, None)
+                continue
+            if token == "--files":
+                raw = next(it, None) or ""
+                flags["files"] = [v.strip() for v in raw.split(",") if v.strip()]
+                continue
+            if token == "--notes":
+                flags["notes"] = next(it, None)
+                continue
+            if token == "--limit":
+                raw = next(it, None) or "10"
+                try:
+                    flags["limit"] = int(raw)
+                except ValueError:
+                    flags["limit"] = 10
+                continue
+            parts.append(token)
+        return flags, " ".join(parts)
+
+    def _resolve_vibe_provider(self, check_only: bool = False) -> (Optional[str], Optional[str]):
+        if os.getenv("UDOS_VIBE_TEST_MODE") == "1":
+            provider = os.getenv("UDOS_VIBE_TEST_PROVIDER", "goblin")
+            url = os.getenv("UDOS_VIBE_TEST_URL", "http://localhost:8767")
+            return provider, url
+
+        goblin_url = os.getenv("GOBLIN_URL", "http://localhost:8767")
+        wizard_url = os.getenv("WIZARD_URL", "http://localhost:8765")
+
+        def _ok(url: str) -> bool:
+            try:
+                resp = requests.get(url, timeout=1.0)
+                return resp.status_code == 200
+            except Exception:
+                return False
+
+        if _ok(f"{goblin_url}/health"):
+            return "goblin", goblin_url
+        if _ok(f"{wizard_url}/health"):
+            return "wizard", wizard_url
+        return (None, None)
+
+    def _vibe_request(self, method: str, url: str, json: Optional[Dict[str, Any]] = None,
+                      params: Optional[Dict[str, Any]] = None, use_auth: bool = False) -> Optional[Dict[str, Any]]:
+        if os.getenv("UDOS_VIBE_TEST_MODE") == "1":
+            return self._vibe_test_stub_response(method, url, payload=json, params=params)
+
+        headers = {}
+        if use_auth:
+            token = os.getenv("WIZARD_ADMIN_TOKEN") or os.getenv("ADMIN_TOKEN") or ""
+            if token:
+                headers["Authorization"] = f"Bearer {token}"
+
+        try:
+            resp = requests.request(method, url, json=json, params=params, headers=headers, timeout=10)
+        except Exception as exc:
+            print(self._theme_text(f"Vibe request failed: {exc}"))
+            return None
+
+        if resp.status_code in {401, 403}:
+            print(self._theme_text("Wizard auth required. Set WIZARD_ADMIN_TOKEN."))
+            return None
+        if resp.status_code >= 400:
+            print(self._theme_text(f"Vibe request error: HTTP {resp.status_code}"))
+            return None
+
+        try:
+            return resp.json()
+        except Exception:
+            return {"response": resp.text}
+
+    def _vibe_test_stub_response(self, method: str, url: str,
+                                 payload: Optional[Dict[str, Any]] = None,
+                                 params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        capture_path = os.getenv("UDOS_VIBE_TEST_CAPTURE_FILE")
+        if capture_path:
+            try:
+                payload = {
+                    "method": method,
+                    "url": url,
+                    "json": payload,
+                    "params": params,
+                }
+                Path(capture_path).write_text(json.dumps(payload, indent=2))
+            except Exception:
+                pass
+
+        raw = os.getenv("UDOS_VIBE_TEST_RESPONSE")
+        if not raw:
+            response_file = os.getenv("UDOS_VIBE_TEST_RESPONSE_FILE")
+            if response_file and Path(response_file).exists():
+                raw = Path(response_file).read_text()
+
+        if raw:
+            try:
+                return json.loads(raw)
+            except Exception:
+                return {"response": raw}
+
+        if "history" in url:
+            return {"history": []}
+        if "context" in url:
+            return {"files": []}
+        return {"response": "TEST_STUB"}
 
     def _cmd_prompt(self, args: str) -> None:
         """Parse an instruction using the PROMPT parser."""

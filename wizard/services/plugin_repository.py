@@ -117,12 +117,12 @@ class PluginRepository:
     - Package verification
     """
 
-    def __init__(self):
+    def __init__(self, base_dir: Optional[Path] = None):
         """Initialize repository."""
-        self.repo_base = REPO_BASE
-        self.index_path = INDEX_PATH
-        self.packages_path = PACKAGES_PATH
-        self.cache_path = CACHE_PATH
+        self.repo_base = Path(base_dir) if base_dir else REPO_BASE
+        self.index_path = self.repo_base / "index.json"
+        self.packages_path = self.repo_base / "packages"
+        self.cache_path = self.repo_base / "cache"
 
         # Ensure directories
         self.repo_base.mkdir(parents=True, exist_ok=True)
@@ -268,16 +268,6 @@ def _version_tuple(value: str) -> Tuple[int, ...]:
     return tuple(int(part) for part in parts)
 
 
-def _is_version_newer(candidate: str, installed: str) -> bool:
-    cand = _version_tuple(candidate)
-    inst = _version_tuple(installed)
-    if not cand or not inst:
-        return False
-    length = max(len(cand), len(inst))
-    cand += (0,) * (length - len(cand))
-    inst += (0,) * (length - len(inst))
-    return cand > inst
-
     def verify_package(self, package_path: Path) -> bool:
         """
         Verify package integrity.
@@ -372,6 +362,17 @@ def _is_version_newer(candidate: str, installed: str) -> bool:
         self._save_index()
         logger.info(f"[PLUGIN] Disabled plugin: {plugin_id}")
         return True
+
+
+def _is_version_newer(candidate: str, installed: str) -> bool:
+    cand = _version_tuple(candidate)
+    inst = _version_tuple(installed)
+    if not cand or not inst:
+        return False
+    length = max(len(cand), len(inst))
+    cand += (0,) * (length - len(cand))
+    inst += (0,) * (length - len(inst))
+    return cand > inst
 
 
 # Singleton instance

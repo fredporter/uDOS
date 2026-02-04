@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Optional
 
 from fastapi import HTTPException, Request
 
@@ -7,7 +7,7 @@ ROLE_HEADER = "X-UDOS-Role"
 DEFAULT_ROLE = os.getenv("UDOS_DEFAULT_ROLE", "maintainer")
 
 
-def _normalize_role(role: str | None) -> str:
+def _normalize_role(role: Optional[str]) -> str:
     if not role:
         return DEFAULT_ROLE.lower()
     return role.strip().lower()

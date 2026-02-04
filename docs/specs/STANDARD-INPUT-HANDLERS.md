@@ -275,6 +275,21 @@ class MyHandler:
 - `ask_yes_no_ok(question, default="no")` → "yes" | "no" | "ok"
 - `ask_menu_choice(prompt_text, num_options, allow_zero=False)` → int | None
 
+### SmartPrompt First-Input Routing (v1.3)
+
+SmartPrompt follows the uCODE prompt contract (see `docs/specs/UCODE-PROMPT-SPEC.md`) and reserves **numeric‑first input** for menu selection. This enables fast, non‑blocking menus without hijacking normal typing.
+
+**When a menu is visible:**
+- First keypress in `0-9`, `-`, `=` → route to menu selection.
+- `↑/↓` → move menu highlight.
+- `Enter` → select highlighted item.
+- Any letter or other printable character **dismisses menu focus** and continues normal typing.
+
+**Constraints:**
+- Command names **must not** start with digits or `-`/`=` to avoid ambiguity.
+- Autocomplete is **visual only**; suggestions never take over the input buffer and require explicit accept (`→`).
+- `Enter` submits the current input as‑typed; it never auto‑accepts suggestions.
+
 ### uCODE TUI (core/tui/ucode.py)
 
 - `_ask_yes_no(question, default=True)` → bool
@@ -283,5 +298,5 @@ class MyHandler:
 ---
 
 **Status:** Live reference  
-**Last Updated:** 2026-01-30  
-**Version:** v1.0.0
+**Last Updated:** 2026-02-04  
+**Version:** v1.0.1
