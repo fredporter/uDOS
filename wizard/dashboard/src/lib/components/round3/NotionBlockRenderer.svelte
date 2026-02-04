@@ -4,15 +4,7 @@
   import { setSlotMapping } from "$lib/stores/mappingStore";
   import type { NotionBlockMap } from "$lib/services/notionService";
 
-  const runtimeSlots = [
-    "FORM",
-    "STATE",
-    "NAV",
-    "PANEL",
-    "MAP",
-    "SET",
-    "IF",
-  ];
+  const runtimeSlots = ["FORM", "STATE", "NAV", "PANEL", "MAP", "SET", "IF"];
 
   let notionBlocks: NotionBlockMap[] = [];
   let loading = false;
@@ -25,7 +17,7 @@
   let dragOverSlot: string | null = null;
 
   const instructions =
-    "Drag a Notion block onto a runtime slot to map it, then add mapping notes to explain the transformation.";
+    "Drag a Notion block onto a runtime slot to map it, then add mapping notes. Obsidian file paths are stored as the primary persistence key when available.";
 
   onMount(() => {
     loadBlocks();
@@ -39,7 +31,8 @@
       notionBlocks = data;
       selectedBlock = notionBlocks[0] ?? null;
     } catch (exc) {
-      error = exc instanceof Error ? exc.message : "Unable to fetch Notion blocks.";
+      error =
+        exc instanceof Error ? exc.message : "Unable to fetch Notion blocks.";
     } finally {
       loading = false;
     }
@@ -56,7 +49,9 @@
   function handleSlotDrop(slot: string) {
     if (!draggedBlockId) return;
     mappings = { ...mappings, [slot]: draggedBlockId };
-    const block = notionBlocks.find((entry) => entry.notion_block_id === draggedBlockId);
+    const block = notionBlocks.find(
+      (entry) => entry.notion_block_id === draggedBlockId,
+    );
     if (block) {
       selectedBlock = block;
     }
@@ -79,7 +74,9 @@
 
   function getSlotBlock(slot: string) {
     const blockId = mappings[slot];
-    return notionBlocks.find((block) => block.notion_block_id === blockId) ?? null;
+    return (
+      notionBlocks.find((block) => block.notion_block_id === blockId) ?? null
+    );
   }
 
   function handleNoteInput(event: Event) {
@@ -94,15 +91,18 @@
     const slot = Object.keys(mappings).find(
       (key) => mappings[key] === selectedBlock.notion_block_id,
     );
+    const obsidianPath = selectedBlock.local_file_path || "";
     console.log("Saving mapping", {
       blockId: selectedBlock.notion_block_id,
+      obsidianPath,
       note: noteDraft,
       slot,
     });
     if (slot) {
       setSlotMapping({
         slot,
-        blockId: selectedBlock.notion_block_id,
+        notionBlockId: selectedBlock.notion_block_id,
+        obsidianPath: obsidianPath || undefined,
         note: noteDraft,
         payloadPreview: selectedBlock.payload_preview ?? "",
         blockType: selectedBlock.block_type,
@@ -158,7 +158,8 @@
       {:else}
         <div class="block-stack">
           {#each notionBlocks as block}
-            <article
+            <button
+              type="button"
               class={`block-item ${selectedBlock?.notion_block_id === block.notion_block_id ? "active" : ""}`}
               draggable
               on:dragstart={() => handleDragStart(block)}
@@ -167,14 +168,18 @@
             >
               <div class="block-meta">
                 <span class="label">{block.block_type ?? "block"}</span>
-                <span class="runtime">{block.runtime_type ?? "runtime: unknown"}</span>
+                <span class="runtime"
+                  >{block.runtime_type ?? "runtime: unknown"}</span
+                >
               </div>
-              <p class="preview">{block.payload_preview || "No preview available."}</p>
+              <p class="preview">
+                {block.payload_preview || "No preview available."}
+              </p>
               <div class="timestamps">
                 <span>Created: {formatTimestamp(block.created_at)}</span>
                 <span>Synced: {formatTimestamp(block.last_synced)}</span>
               </div>
-            </article>
+            </button>
           {/each}
         </div>
       {/if}
@@ -189,6 +194,8 @@
         {#each runtimeSlots as slot}
           <div
             class={`slot ${dragOverSlot === slot ? "drag-over" : ""}`}
+            role="group"
+            aria-label={`Drop target for ${slot}`}
             on:dragover={(event) => handleSlotDragOver(slot, event)}
             on:dragleave={handleSlotDragLeave}
             on:drop|preventDefault={() => handleSlotDrop(slot)}
@@ -212,8 +219,21 @@
         </header>
         {#if selectedBlock}
           <div class="form-info">
-            <p><strong>Block ID:</strong> {selectedBlock.notion_block_id}</p>
-            <p><strong>Slot:</strong> {Object.keys(mappings).find((key) => mappings[key] === selectedBlock.notion_block_id) ?? "unmapped"}</p>
+            <p>
+              <strong>Notion Block ID:</strong>
+              {selectedBlock.notion_block_id}
+            </p>
+            <p>
+              <strong>Obsidian File:</strong>
+              {selectedBlock.local_file_path ||
+                "Not mapped yet (Notion fallback)"}
+            </p>
+            <p>
+              <strong>Slot:</strong>
+              {Object.keys(mappings).find(
+                (key) => mappings[key] === selectedBlock.notion_block_id,
+              ) ?? "unmapped"}
+            </p>
           </div>
           <label>
             <span>Explain what this block controls:</span>
@@ -222,11 +242,13 @@
               bind:value={noteDraft}
               on:input={handleNoteInput}
               placeholder="Describe the uDOS runtime expectation"
-            />
+            ></textarea>
           </label>
           <button class="save" on:click={saveMapping}>Record mapping</button>
         {:else}
-          <p class="empty-state">Select or drop a block to capture mapping notes.</p>
+          <p class="empty-state">
+            Select or drop a block to capture mapping notes.
+          </p>
         {/if}
       </section>
     </div>

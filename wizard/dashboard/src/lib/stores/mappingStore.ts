@@ -2,7 +2,9 @@ import { get, writable } from "svelte/store";
 
 export type SlotMapping = {
   slot: string;
-  blockId: string;
+  source: "obsidian" | "notion";
+  obsidianPath?: string;
+  notionBlockId?: string;
   note: string;
   payload?: string;
   blockType?: string;
@@ -15,20 +17,45 @@ export type MappingState = {
   lastExported?: string;
 };
 
-const STORAGE_KEY = "wizard-round3-slot-mappings";
+const STORAGE_KEY = "wizard-round3-obsidian-slot-mappings";
+const LEGACY_STORAGE_KEY = "wizard-round3-slot-mappings";
 
 function readStoredState(): MappingState {
   if (typeof window === "undefined") {
     return { mappings: [] };
   }
   const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) {
+  if (raw) {
+    try {
+      return JSON.parse(raw);
+    } catch (err) {
+      console.warn("Failed to parse stored mapping state", err);
+      return { mappings: [] };
+    }
+  }
+  const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+  if (!legacy) {
     return { mappings: [] };
   }
   try {
-    return JSON.parse(raw);
+    const parsed = JSON.parse(legacy);
+    const legacyMappings = Array.isArray(parsed.mappings) ? parsed.mappings : [];
+    return {
+      mappings: legacyMappings.map((entry: any) => ({
+        slot: entry.slot,
+        source: "notion",
+        obsidianPath: entry.localFilePath ?? entry.obsidianPath,
+        notionBlockId: entry.blockId,
+        note: entry.note ?? "",
+        payload: entry.payload,
+        blockType: entry.blockType,
+        runtimeType: entry.runtimeType,
+        lastMapped: entry.lastMapped ?? new Date().toISOString(),
+      })),
+      lastExported: parsed.lastExported,
+    };
   } catch (err) {
-    console.warn("Failed to parse stored mapping state", err);
+    console.warn("Failed to parse legacy mapping state", err);
     return { mappings: [] };
   }
 }
@@ -44,7 +71,8 @@ mappingStore.subscribe((state) => persistState(state));
 
 export function setSlotMapping(payload: {
   slot: string;
-  blockId: string;
+  notionBlockId?: string;
+  obsidianPath?: string;
   note: string;
   payloadPreview?: string;
   blockType?: string;
@@ -53,11 +81,14 @@ export function setSlotMapping(payload: {
   mappingStore.update((state) => {
     const timestamp = new Date().toISOString();
     const existing = state.mappings.filter((entry) => entry.slot !== payload.slot);
+    const hasObsidian = Boolean(payload.obsidianPath);
     const updated = [
       ...existing,
       {
         slot: payload.slot,
-        blockId: payload.blockId,
+        source: hasObsidian ? "obsidian" : "notion",
+        obsidianPath: payload.obsidianPath,
+        notionBlockId: payload.notionBlockId,
         note: payload.note,
         payload: payload.payloadPreview,
         blockType: payload.blockType,

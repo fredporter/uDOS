@@ -249,17 +249,22 @@ Quick Commands:
   FILE HELP                  Show this help
 
 Workspaces:
-  @sandbox    Personal workspace (default)
-  @bank       Data vault
-  @shared     Collaborative workspace
-  @knowledge  Knowledge base (admin only)
-  @wizard     Wizard config (admin only)
-  @dev        Development (admin only)
+  @sandbox     Vault sandbox (default)
+  @bank        Vault bank
+  @inbox       Inbox/Dropbox intake
+  @public      Public/open/published
+  @submissions Submission intake
+  @private     Private explicit share
+  @shared      Private shared
+  @knowledge   Knowledge base (admin only)
+  @wizard      Wizard config (admin only)
+  @dev         Development (admin only)
 
 Examples:
   FILE                              # Open picker
   FILE LIST @sandbox                # List sandbox files
   FILE LIST @bank                   # List bank files
+  FILE LIST @public                 # List public files
   FILE SHOW @sandbox/readme.md      # Show file content
 
 Related Commands:

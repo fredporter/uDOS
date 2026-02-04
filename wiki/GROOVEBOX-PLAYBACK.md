@@ -1,4 +1,8 @@
-# Groovebox Playback & Config Pages (Round 10)
+# Groovebox Playback & Config Pages (v1.3 Extension)
+
+**Version:** v1.3.0  
+**Last Updated:** 2026-02-04  
+**Status:** Extension (Groovebox)
 
 These endpoints provide the data needed for the Groovebox playback and configuration UI while the Sonics/audio team builds the full sequencer.
 

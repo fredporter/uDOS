@@ -4,37 +4,41 @@ This spec consolidates the outstanding development rounds outlined in `docs/ROAD
 
 ## Round 3 — Wizard Web UI / Notion Blocks + Plugin Dashboard (Svelte + Tailwind)
 - **Owner:** Wizard
-- **Status:** Design complete, implementation ongoing
+- **Status:** ✅ Complete (dashboard panels + Obsidian-first mapping)
 - **Deliverables:** Notion block components, webhook status panel, theme system, plugin browser (cards, enable/disable, update checks) and mod overlay controls.
 - **References:** `docs/specs/wiki_spec_obsidian.md`, `wizard/docs/INTERACTIVE-CONSOLE.md`, `wizard/ARCHITECTURE.md`
-- **Next actions:** Build Svelte components, hook plugin API routes (`wizard/server.py`), wire plugin install/update/uninstall workflows.
+- **Next actions:** Maintain mapping persistence + plug-in update scan flow; migrate overlay configs into plugin registry when ready.
 
 ## Round 4 — Wizard Web Browser / Dataset Tables + SQLite Binding
 - **Owner:** Wizard (Dashboard)
-- **Status:** Planning
+- **Status:** ✅ Complete (schema/query + guardrails)
 - **Deliverables:** Sortable/filterable dataset table, chart view, `/api/data/*` endpoints for tables/query/schema/export (with pagination, filters like `filter=column:value`, and ordering), spatial tagging filters, and the teletext/Canvas endpoints so Svelte components can render the 80×30 grids once the backend feeds `/api/teletext/*`.
-- **References:** `docs/specs/file-parsing-architecture.md`, `specs/grid-spatial-computing.md`
-- **Next actions:** Implement FastAPI routes, build Svelte Table + Chart components, add pagination/performance guardrails.
+- **References:** `docs/.archive/v1.2-earlier/file-parsing-architecture.md` (legacy), `specs/grid-spatial-computing.md`
+- **Next actions:** Move to Round 5 teletext/NES UI implementation.
 
 ## Round 5 — Wizard Web Browser / Teletext Mode + NES Buttons
 - **Owner:** Wizard (Dashboard)
-- **Status:** Design phase
+- **Status:** ✅ Complete (teletext canvas + NES kit wired)
 - **Deliverables:** Canvas-based teletext renderer, NES-style button kit, input handling (keyboard/mouse), Svelte wrapper, dark-mode palette.
 - **References:** `docs/specs/grid-spatial-computing.md`, teletext/VT340 references.
-- **Next actions:** Prototype Canvas renderer, finalize NES button recommendation, connect to teletext API endpoints.
+- **Next actions:** Maintain teletext API alignment and evolve overlays once grid-canvas data sources expand.
 
 ## Round 6 — Beacon Portal + Sonic Device Catalog (WiFi + VPN)
 - **Owner:** Wizard + Sonic documentation
-- **Status:** Specification ready
-- **Deliverables:** Beacon portal APIs, device database routes, WireGuard configs, quota throttles, Sonic/Beacon docs (`docs/wiki/BEACON-...`), Sonic DB integration in `wizard/routes/sonic_routes.py`.
-- **References:** `sonic/docs/specs/sonic-screwdriver-v1.1.0.md`, `docs/wiki/BEACON-PORTAL-DELIVERY.md`
-- **Next actions:** Harden `/api/sonic` DB, add quota enforcement middleware, publish Sonic dataset updates.
+- **Status:** ✅ Complete (API hardening + auth toggle)
+- **Deliverables:** Beacon portal APIs, device database routes, WireGuard configs, quota throttles, Sonic/Beacon docs (`docs/wiki-candidates/BEACON-...`), Sonic DB integration in `wizard/routes/sonic_routes.py`.
+- **References:** `sonic/docs/specs/sonic-screwdriver-v1.1.0.md`, `docs/wiki-candidates/BEACON-PORTAL.md`
+- **Next actions:** Round 7 kickoff underway; keep inventory of Goblin binder/mesh features and lock migration candidates.
 
 ## Round 7 — Goblin Dev Server Experiments
 - **Owner:** Goblin team
-- **Status:** Experimental
-- **Deliverables:** Binder compiler service, Screwdriver flash pack, MeshCore device manager; features that graduate to Wizard/Core.
-- **Next actions:** Surface stable features to Wizard (binder, device manager), archive experiments once migrated.
+- **Status:** 🚧 In progress (Kickoff)
+- **Deliverables:** Binder compiler dev endpoints + services, Screwdriver flash pack scaffolding, MeshCore device manager scaffolding; features that graduate to Wizard/Core.
+**Next actions:**
+1. Ship `/api/dev/binders/*` endpoints + binder compiler integration.
+2. Define Screwdriver flash-pack endpoints + payload schema. (scaffolded)
+3. Define MeshCore device manager API + pairing flow. (scaffolded)
+4. Map migration path into Wizard/Core and archive experiments after graduation.
 
 ## Round 8 — Wizard Plugin Ecosystem + Bolt-On Distribution
 - **Owner:** Wizard (and extensions)
@@ -66,7 +70,8 @@ This spec consolidates the outstanding development rounds outlined in `docs/ROAD
 - **Next actions:** 
   1. Record how to start/stop the hot reload watcher and interpret self-heal output for Core contributors.  
   2. Keep regression coverage for DateTime approval/override inputs and the script executor guard current.  
-  3. Monitor fallback execution so SimpleFallbackFormHandler remains reliable on non-interactive terminals.
+  3. Monitor fallback execution so SimpleFallbackFormHandler remains reliable on non-interactive terminals.  
+  4. Implement `docs/specs/UCODE-PROMPT-SPEC.md` (OK/: commands, slash routing, dynamic autocomplete).
 
 ---
 **Tracking note:** Publish this spec via `/docs/specs/ROUNDS-3-10.md` and keep it updated whenever the referenced rounds advance.

@@ -139,6 +139,7 @@ class SetupHandler(BaseCommandHandler):
                 "help": "Usage: SETUP [provider|--profile|--edit|--clear|--help]\n       Providers: github, ollama, mistral, openrouter, notion, hubspot, gmail"
             }
 
+
     def _show_profile(self) -> Dict:
         """Display the current setup profile from .env."""
         try:
@@ -627,3 +628,9 @@ EXAMPLES:
             from core.services.logging_service import get_logger
             get_logger("setup").error(f"Failed to save to .env: {e}")
             return False
+
+
+def setup(*params: str) -> Dict:
+    """Convenience wrapper for tests/scripts: run SETUP with params."""
+    handler = SetupHandler()
+    return handler.handle("SETUP", list(params), None, None)

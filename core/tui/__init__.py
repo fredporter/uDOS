@@ -14,13 +14,18 @@ Components:
 
 from .ucode import uCODETUI
 from .dispatcher import CommandDispatcher
-from .renderer import GridRenderer
+from .renderer import GridRenderer, Renderer
 from .state import GameState
+
+# Legacy alias expected by older tests
+TUIRepl = uCODETUI
 
 __all__ = [
     "uCODETUI",
+    "TUIRepl",
     "CommandDispatcher",
     "GridRenderer",
+    "Renderer",
     "GameState",
 ]
 

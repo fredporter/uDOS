@@ -1,11 +1,11 @@
 # uDOS Documentation — Developer Reference
 
-**Last Updated:** February 2, 2026
-**Version:** v1.0.7
+**Last Updated:** February 4, 2026
+**Version:** v1.3.0
 
-> 🎯 **For users?** Go to [/wiki/START-HERE.md](../wiki/START-HERE.md)
+> 🎯 **For users?** Go to [/wiki/Start-Here.md](../wiki/Start-Here.md)
 > 🚀 **For getting started?** Read [/QUICKSTART.md](../QUICKSTART.md)
-> 📝 **For contributing?** See [/wiki/CONTRIBUTING.md](../wiki/CONTRIBUTING.md)
+> 📝 **For contributing?** See [/wiki/Contributing.md](../wiki/Contributing.md)
 
 ---
 
@@ -17,7 +17,9 @@
 | [/QUICKSTART.md](../QUICKSTART.md) | Install & run uDOS (5 min) |
 | [/INSTALLATION.md](../INSTALLATION.md) | Detailed setup for all platforms |
 | [ROADMAP-TODO.md](ROADMAP-TODO.md) | Current development roadmap |
-| [specs/uCODE.md](specs/uCODE.md) | Unified Terminal TUI (main entry) |
+| [specs/uCODE-v1.3.md](specs/uCODE-v1.3.md) | Unified Terminal TUI (main entry) |
+| [ARCHITECTURE-v1.3.md](ARCHITECTURE-v1.3.md) | System overview for v1.3 |
+| [DOCS-SPINE-v1.3.md](DOCS-SPINE-v1.3.md) | Minimal documentation spine |
 
 ---
 
@@ -33,7 +35,7 @@ HELP                    # Show all commands
 STATUS                  # Check installed components
 ```
 
-See [specs/uCODE.md](specs/uCODE.md) for all commands.
+See [specs/uCODE-v1.3.md](specs/uCODE-v1.3.md) for all commands.
 
 ---
 
@@ -41,17 +43,32 @@ See [specs/uCODE.md](specs/uCODE.md) for all commands.
 
 ### Core Systems
 
-- **[specs/uCODE.md](specs/uCODE.md)** — Terminal TUI & commands
+- **[specs/uCODE-v1.3.md](specs/uCODE-v1.3.md)** — Terminal TUI & commands
 - **[specs/SPATIAL-FILESYSTEM.md](specs/SPATIAL-FILESYSTEM.md)** — Grid filesystem with RBAC
 - **[specs/grid-spatial-computing.md](specs/grid-spatial-computing.md)** — Fractal addressing & layers
 - **[specs/LAYER-ARCHITECTURE.md](specs/LAYER-ARCHITECTURE.md)** — Layer system (000-799)
 - **[specs/database-architecture.md](specs/DATABASE-ARCHITECTURE.md)** — SQLite ecosystem
+- **[RUNTIME-INTERFACE-SPEC.md](RUNTIME-INTERFACE-SPEC.md)** — TUI + App runtime contract
 
 ### Document & Data
 
 - **[specs/typescript-markdown-runtime.md](specs/typescript-markdown-runtime.md)** — Executable Markdown
-- **[specs/file-parsing-architecture.md](specs/file-parsing-architecture.md)** — CSV, JSON, YAML, SQL parsing
 - **[specs/wiki_spec_obsidian.md](specs/wiki_spec_obsidian.md)** — Obsidian-compatible YAML frontmatter
+- **[specs/07-grid-canvas-rendering.md](specs/07-grid-canvas-rendering.md)** — 80×30 grid canvas rendering spec for CLI, Vibe, logs
+- **[v1-3 UNIVERSE.md](v1-3 UNIVERSE.md)** — v1.3 Fractal Grid & universe mapping + location standards
+
+### Contracts & Shared Guidance
+
+- **[Vault-Contract.md](Vault-Contract.md)** — Vault-as-truth, export conventions, SQLite state expectations
+- **[Theme-Pack-Contract.md](Theme-Pack-Contract.md)** — Theme structure, slots, metadata, exports
+- **[Universal-Components-Contract.md](Universal-Components-Contract.md)** — Slot/data/CSS token alignment for static + Svelte UI lanes
+- **[CSS-Tokens.md](CSS-Tokens.md)** — Shared typography, spacing, color, and elevation tokens
+- **[Contributions-Contract.md](Contributions-Contract.md)** — Patch bundle format and review workflow
+- **[AI-Policy-Contract.md](AI-Policy-Contract.md)** — Local vs online model governance and logging
+- **[Mission-Job-Schema.md](Mission-Job-Schema.md)** — Mission/job fields, artifacts, and storage paths
+- **[TUI-Vibe-Integration.md](TUI-Vibe-Integration.md)** — `.env` + Wizard keystore boundary and Vibe CLI IO hooks
+- **[wizard/docs/renderer-ui-standards.md](../wizard/docs/renderer-ui-standards.md)** — Wizard renderer + Svelte module expectations
+- **[Mission-Scheduler-Integration.md](Mission-Scheduler-Integration.md)** — How Vibe CLI + mission scheduler trigger renderer/export jobs
 
 ### Features
 
@@ -63,12 +80,17 @@ See [specs/uCODE.md](specs/uCODE.md) for all commands.
 
 - **[specs/app-file-extensions.md](specs/app-file-extensions.md)** — File types & syntax highlighting
 - **[specs/mac-app-roadmap.md](specs/mac-app-roadmap.md)** — macOS Tauri app
+- **[DISTRIBUTION-GUIDE.md](DISTRIBUTION-GUIDE.md)** — Deployment + release channels
+- **[SUBMODULE-STRATEGY.md](SUBMODULE-STRATEGY.md)** — Public vs private repos
+- **[CONTRIBUTION-PROCESS.md](CONTRIBUTION-PROCESS.md)** — Community container process
+- **[HOME-ASSISTANT-BRIDGE.md](HOME-ASSISTANT-BRIDGE.md)** — HA bridge contract (stub). Service definition: `../library/home-assistant/bridge.json`.
 
 ---
 
 ## 🔧 How-To Guides
 
 - **[howto/alpine-install.md](howto/alpine-install.md)** — Install on Alpine Linux
+- **[howto/renderer-indexer-runbook.md](howto/renderer-indexer-runbook.md)** — Renderer + task indexer runbook
 - **[howto/SEED-INSTALLATION-GUIDE.md](howto/SEED-INSTALLATION-GUIDE.md)** — SEED protocol setup
 - **[howto/goblin-wizard-migration-checklist.md](howto/goblin-wizard-migration-checklist.md)** — Migration guide
 
@@ -123,9 +145,9 @@ Do NOT use for current development. Use for:
 
 /wiki                               # User guide (public)
 ├── README.md                       # Index
-├── START-HERE.md                   # Beginner guide
+├── Start-Here.md                   # Beginner guide
 ├── ARCHITECTURE.md                 # System design
-├── CONFIGURATION.md                # Setup
+├── Configuration.md                # Setup
 ├── quick-refs/                     # Quick lookups
 └── [Feature guides]
 
@@ -144,14 +166,14 @@ Do NOT use for current development. Use for:
 ### 👤 **User/Administrator**
 1. [/QUICKSTART.md](../QUICKSTART.md) — Get it running
 2. [/INSTALLATION.md](../INSTALLATION.md) — Full setup
-3. [/wiki/START-HERE.md](../wiki/START-HERE.md) — Beginner guide
-4. [/wiki/CONFIGURATION.md](../wiki/CONFIGURATION.md) — Configure system
+3. [/wiki/Start-Here.md](../wiki/Start-Here.md) — Beginner guide
+4. [/wiki/Configuration.md](../wiki/Configuration.md) — Configure system
 
 ### 🛠️ **Developer/Contributor**
 1. [/QUICKSTART.md](../QUICKSTART.md) — Get it running
 2. [/AGENTS.md](../AGENTS.md) — Development guidelines
-3. [specs/uCODE.md](specs/uCODE.md) — Main entry point
-4. [/wiki/CONTRIBUTING.md](../wiki/CONTRIBUTING.md) — How to contribute
+3. [specs/uCODE-v1.3.md](specs/uCODE-v1.3.md) — Main entry point
+4. [/wiki/Contributing.md](../wiki/Contributing.md) — How to contribute
 5. Pick specs/features relevant to your work
 
 ### 📦 **Component-Specific**
@@ -179,7 +201,7 @@ All docs should be:
 - **Home:** [/README.md](../README.md)
 - **Wiki:** [/wiki/README.md](../wiki/README.md)
 - **Quick Start:** [/QUICKSTART.md](../QUICKSTART.md)
-- **Contributing:** [/wiki/CONTRIBUTING.md](../wiki/CONTRIBUTING.md)
+- **Contributing:** [/wiki/Contributing.md](../wiki/Contributing.md)
 - **Archive:** [.archive/README.md](.archive/README.md)
 
 ---

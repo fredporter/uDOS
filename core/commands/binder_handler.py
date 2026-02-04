@@ -122,7 +122,7 @@ class BinderHandler(BaseCommandHandler):
         }
 
     def _default_binder_root(self) -> Path:
-        return get_repo_root() / "memory" / "binders"
+        return get_repo_root() / "vault" / "bank" / "binders"
 
 
 def _run_async(coro):

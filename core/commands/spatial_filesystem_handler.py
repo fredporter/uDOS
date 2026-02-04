@@ -293,13 +293,17 @@ class SpatialFilesystemHandler:
   WORKSPACE INFO                         - Show config & access levels
   WORKSPACE HELP                         - Show this help
 
-Workspaces:
-  @sandbox   - Personal sandbox (memory/sandbox)
-  @bank      - Data vault (memory/bank)
-  @shared    - Shared workspace (memory/shared)
-  @wizard    - Wizard service (memory/wizard) [admin only]
-  @knowledge - Knowledge base (/knowledge) [admin only]
-  @dev       - Development (/dev) [admin only]
+Workspaces (vault-first):
+  @sandbox     - Vault sandbox (vault/sandbox)
+  @bank        - Vault bank (vault/bank)
+  @inbox       - Inbox/Dropbox intake (vault/inbox-dropbox)
+  @public      - Public/open/published (vault/public-open-published)
+  @submissions - Submissions intake (vault/public-open-published/submissions)
+  @private     - Private explicit share (vault/private-explicit)
+  @shared      - Private shared (vault/private-shared)
+  @wizard      - Wizard service (memory/wizard) [admin only]
+  @knowledge   - Knowledge base (/knowledge) [admin only]
+  @dev         - Development (/dev) [admin only]
 """.strip()
 
 

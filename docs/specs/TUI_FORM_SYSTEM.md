@@ -10,6 +10,20 @@ The TUI Form System provides a modern, feature-rich framework for collecting dat
 - **BarSelector**: Multi-option visual selector
 - **TUIFormRenderer**: Complete form management system
 
+## v1.3 Prompt Standard Alignment
+
+Forms are launched **only from command mode** (see `docs/specs/UCODE-PROMPT-SPEC.md`):
+
+- `OK SETUP` or `:SETUP` launches the setup form.
+- `OK STORY tui-setup` launches a story-driven form.
+- If the user types `SETUP` without a prefix, that is **question mode** and should not launch a form.
+
+**Input capture boundaries:**
+- Once a form is active, **form input owns the keyboard** until submit/cancel.
+- Global prompt autocomplete is **suppressed** during form entry.
+- `Tab` remains a **field-navigation key** inside forms (do not treat it as prompt autocomplete).
+- Slash mode (`/`) is ignored while a form is active to avoid accidental shell execution.
+
 ## Components
 
 ### SmartNumberPicker
@@ -194,7 +208,7 @@ Story forms are automatically detected and processed by the TUI when:
 
 **Example Workflow:**
 ```
-STORY tui-setup
+OK STORY tui-setup
   ↓
 Story handler parses fields
   ↓
@@ -249,10 +263,10 @@ Test individual components:
 python -m core.tui.form_fields
 
 # Test with setup story
-SETUP
+OK SETUP
 
 # Test with custom story
-STORY tui-setup
+OK STORY tui-setup
 ```
 
 ## Future Enhancements

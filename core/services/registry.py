@@ -45,6 +45,9 @@ _service_loaders = {
 def _load_groovebox_module():
     """Load groovebox container module."""
     try:
+        repo_root = Path(__file__).resolve().parents[2]
+        if str(repo_root) not in sys.path:
+            sys.path.insert(0, str(repo_root))
         # Try direct import first (if in-repo)
         from groovebox.engine import sequencer, mml_parser, midi_export
         from groovebox.instruments import drum_808
@@ -57,19 +60,24 @@ def _load_groovebox_module():
             'MMLParser': mml_parser.MMLParser,
             'MidiExporter': midi_export.MidiExporter,
         })()
-    except ImportError:
+    except ImportError as exc:
         # Try extensions path (if loaded from containers)
-        from extensions.groovebox.engine import sequencer, mml_parser, midi_export
-        from extensions.groovebox.instruments import drum_808
-        return type('GrooveboxEngine', (), {
-            'sequencer': sequencer,
-            'mml_parser': mml_parser,
-            'midi_export': midi_export,
-            'instruments': type('Instruments', (), {'drum_808': drum_808})(),
-            'Sequencer': sequencer.Sequencer,
-            'MMLParser': mml_parser.MMLParser,
-            'MidiExporter': midi_export.MidiExporter,
-        })()
+        try:
+            from extensions.groovebox.engine import sequencer, mml_parser, midi_export
+            from extensions.groovebox.instruments import drum_808
+            return type('GrooveboxEngine', (), {
+                'sequencer': sequencer,
+                'mml_parser': mml_parser,
+                'midi_export': midi_export,
+                'instruments': type('Instruments', (), {'drum_808': drum_808})(),
+                'Sequencer': sequencer.Sequencer,
+                'MMLParser': mml_parser.MMLParser,
+                'MidiExporter': midi_export.MidiExporter,
+            })()
+        except ImportError as exc2:
+            raise RuntimeError(
+                f"Groovebox module not found (direct import failed: {exc})"
+            ) from exc2
 
 
 def _load_empire_module():

@@ -14,6 +14,10 @@ Distributable extension set for uDOS (API + Transport). Local-only tooling lives
 extensions/
 ├── api/                      # REST/WebSocket API server (public)
 ├── transport/                # Private transport layer (MeshCore, QR, Audio, NFC, BT)
+├── <extension>/              # Extension command + logic modules (v1.3)
+│   ├── manifest.json          # Extension metadata + commands
+│   ├── commands/              # uCODE command handlers
+│   └── services/              # Extension services (local-only)
 ├── vscode/                   # VS Code language support (grammar + snippets)
 ├── docs/                     # Extension docs (public)
 │   ├── PORT-REGISTRY.md
@@ -22,6 +26,12 @@ extensions/
 ├── server_manager.py         # Unified server control
 └── .archive/                 # Legacy snapshots (git-tracked only)
 ```
+
+## v1.3 Extension Command Structure
+
+Extension commands should live under `/extensions/<extension>/commands/` and be
+loaded dynamically by uCODE. Core only holds thin stubs that check availability
+and route to the extension when installed.
 
 ## Recent Changes
 

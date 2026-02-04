@@ -4,7 +4,7 @@ Spatial Filesystem for uDOS v1.0.7+
 Integrates filesystem paths with grid locations, Binders, content-tagging, and role-based access.
 
 Architecture:
-- Workspace hierarchy (memory/sandbox, memory/bank, memory/shared, memory/wizard, /knowledge, /dev)
+- Workspace hierarchy (vault/* for content, memory/* for runtime state)
 - Grid location tagging (L###-Cell mappings)
 - Content-tag indexing (front-matter extraction, metadata)
 - Role-based access control (RBAC) — admin-only folders
@@ -14,7 +14,7 @@ Example:
     fs = SpatialFilesystem(user_role='user')
     
     # Workspace operations
-    fs.list_workspace('@sandbox')      # memory/sandbox
+    fs.list_workspace('@sandbox')      # vault/sandbox
     fs.write_to_workspace('@bank', 'story.md', content)
     
     # Grid location tagging
@@ -62,30 +62,54 @@ class UserRole(Enum):
 
 class WorkspaceType(Enum):
     """Workspace types and their access requirements."""
-    SANDBOX = 'sandbox'      # memory/sandbox — user writable
-    BANK = 'bank'            # memory/bank — user writable
-    SHARED = 'shared'        # memory/shared — user read/write
-    WIZARD = 'wizard'        # memory/wizard — wizard service only
-    KNOWLEDGE = 'knowledge'  # /knowledge — admin only
-    DEV = 'dev'              # /dev — admin only
+    SANDBOX = 'sandbox'        # vault/sandbox — user writable
+    BANK = 'bank'              # vault/bank — user writable
+    INBOX = 'inbox'            # vault/inbox-dropbox — intake
+    PUBLIC = 'public'          # vault/public-open-published — published/open
+    SUBMISSIONS = 'submissions'  # vault/public-open-published/submissions — intake
+    PRIVATE = 'private'        # vault/private-explicit — explicit/private share
+    SHARED = 'shared'          # vault/private-shared — proximity verified share
+    WIZARD = 'wizard'          # memory/wizard — wizard service only
+    KNOWLEDGE = 'knowledge'    # /knowledge — admin only
+    DEV = 'dev'                # /dev — admin only
 
 
 # Workspace configuration
 WORKSPACE_CONFIG = {
     WorkspaceType.SANDBOX: {
-        'path': 'memory/sandbox',
+        'path': 'vault/sandbox',
         'roles': [UserRole.ADMIN, UserRole.USER],
-        'description': 'Personal sandbox for experimentation'
+        'description': 'Vault sandbox for experimentation'
     },
     WorkspaceType.BANK: {
-        'path': 'memory/bank',
+        'path': 'vault/bank',
         'roles': [UserRole.ADMIN, UserRole.USER],
-        'description': 'Personal data vault'
+        'description': 'Vault bank (primary knowledge store)'
+    },
+    WorkspaceType.INBOX: {
+        'path': 'vault/inbox-dropbox',
+        'roles': [UserRole.ADMIN, UserRole.USER],
+        'description': 'Inbox/Dropbox intake (raw notes, imports)'
+    },
+    WorkspaceType.PUBLIC: {
+        'path': 'vault/public-open-published',
+        'roles': [UserRole.ADMIN, UserRole.USER],
+        'description': 'Public/open/published content'
+    },
+    WorkspaceType.SUBMISSIONS: {
+        'path': 'vault/public-open-published/submissions',
+        'roles': [UserRole.ADMIN, UserRole.USER],
+        'description': 'Submission intake (pending/submitted/wiki-update-submitted)'
+    },
+    WorkspaceType.PRIVATE: {
+        'path': 'vault/private-explicit',
+        'roles': [UserRole.ADMIN, UserRole.USER],
+        'description': 'Private explicit sharing (proximity verified)'
     },
     WorkspaceType.SHARED: {
-        'path': 'memory/shared',
+        'path': 'vault/private-shared',
         'roles': [UserRole.ADMIN, UserRole.USER],
-        'description': 'Shared workspace for collaboration'
+        'description': 'Shared vault space (verified proximity)'
     },
     WorkspaceType.WIZARD: {
         'path': 'memory/wizard',
@@ -175,13 +199,19 @@ class SpatialFilesystem:
         """
         self.root_dir = Path(root_dir)
         self.user_role = user_role if isinstance(user_role, UserRole) else UserRole(user_role)
-        
+
         # Metadata indexes
         self.location_index: Dict[str, Set[str]] = defaultdict(set)  # L###-Cell → file paths
         self.tag_index: Dict[str, Set[str]] = defaultdict(set)       # tag → file paths
         self.binder_index: Dict[str, List[str]] = defaultdict(list)  # binder_id → chapters
         self.metadata_cache: Dict[str, ContentMetadata] = {}         # path → metadata
         
+        # Ensure vault workspace folders exist (open-box layout)
+        for config in WORKSPACE_CONFIG.values():
+            path = config.get('path', '')
+            if isinstance(path, str) and path.startswith('vault/'):
+                (self.root_dir / path).mkdir(parents=True, exist_ok=True)
+
         logger.info(f'[LOCAL] Spatial filesystem initialized (role: {self.user_role.value})')
     
     # =========================================================================
@@ -323,38 +353,75 @@ class SpatialFilesystem:
         try:
             content = file_path.read_text(encoding='utf-8')
             
+            frontmatter_str = ''
+            body = content
+
             # Extract YAML front-matter
             if content.startswith('---'):
                 parts = content.split('---', 2)
                 if len(parts) >= 3:
                     frontmatter_str = parts[1]
-                    metadata_dict = yaml.safe_load(frontmatter_str) or {}
-                    
-                    metadata = ContentMetadata(
-                        title=metadata_dict.get('title', ''),
-                        description=metadata_dict.get('description', ''),
-                        tags=metadata_dict.get('tags', []),
-                        grid_locations=metadata_dict.get('grid_locations', []),
-                        binder_id=metadata_dict.get('binder_id'),
-                        chapter=metadata_dict.get('chapter'),
-                        created_at=metadata_dict.get('created_at', ''),
-                        updated_at=metadata_dict.get('updated_at', str(datetime.now().isoformat())),
-                        author=metadata_dict.get('author', ''),
-                        custom_fields={
-                            k: v for k, v in metadata_dict.items()
-                            if k not in [
-                                'title', 'description', 'tags', 'grid_locations',
-                                'binder_id', 'chapter', 'created_at', 'updated_at', 'author'
-                            ]
-                        }
-                    )
-                    
-                    self.metadata_cache[cache_key] = metadata
-                    return metadata
+                    body = parts[2]
+
+            metadata_dict = yaml.safe_load(frontmatter_str) or {}
+
+            tags = metadata_dict.get('tags', [])
+            if isinstance(tags, str):
+                tags = [t.strip().lstrip('#') for t in re.split(r'[ ,]+', tags) if t.strip()]
+            elif tags is None:
+                tags = []
+
+            inline_tags = self._extract_inline_tags(body)
+            merged_tags: List[str] = []
+            seen: Set[str] = set()
+            for tag in tags + inline_tags:
+                tag_clean = str(tag).strip().lstrip('#')
+                if not tag_clean:
+                    continue
+                key = tag_clean.lower()
+                if key not in seen:
+                    seen.add(key)
+                    merged_tags.append(tag_clean)
+
+            metadata = ContentMetadata(
+                title=metadata_dict.get('title', ''),
+                description=metadata_dict.get('description', ''),
+                tags=merged_tags,
+                grid_locations=metadata_dict.get('grid_locations', []),
+                binder_id=metadata_dict.get('binder_id'),
+                chapter=metadata_dict.get('chapter'),
+                created_at=metadata_dict.get('created_at', ''),
+                updated_at=metadata_dict.get('updated_at', str(datetime.now().isoformat())),
+                author=metadata_dict.get('author', ''),
+                custom_fields={
+                    k: v for k, v in metadata_dict.items()
+                    if k not in [
+                        'title', 'description', 'tags', 'grid_locations',
+                        'binder_id', 'chapter', 'created_at', 'updated_at', 'author'
+                    ]
+                }
+            )
+
+            self.metadata_cache[cache_key] = metadata
+            return metadata
         except Exception as e:
             logger.warning(f'[LOCAL] Failed to extract metadata from {file_path}: {e}')
         
         return None
+
+    def _extract_inline_tags(self, body: str) -> List[str]:
+        """Extract Obsidian-style inline tags (#tag) from content body."""
+        tags: List[str] = []
+        in_code = False
+        for line in body.splitlines():
+            if line.strip().startswith("```"):
+                in_code = not in_code
+                continue
+            if in_code:
+                continue
+            for match in re.finditer(r'(?<!\w)#([A-Za-z0-9_-]+)', line):
+                tags.append(match.group(1))
+        return tags
     
     def _index_file(self, file_path: Path, workspace: WorkspaceType, relative_path: str) -> None:
         """Index file in location/tag indexes."""

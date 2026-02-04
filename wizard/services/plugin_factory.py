@@ -503,7 +503,7 @@ class APKBuilder:
                 return BuildResult(
                     success=False,
                     plugin_id=plugin_id,
-                    error="abuild not found (install abuild on Alpine)",
+                    error="Not yet implemented: abuild not found (install abuild on Alpine)",
                     build_time_seconds=time.time() - start_time,
                 )
 
@@ -607,7 +607,7 @@ class APKBuilder:
             (valid: bool, message: str)
         """
         if not apk_path.exists():
-            return False, "APK not found"
+            return False, "Not yet implemented: APK verification (APK not found)"
         try:
             import tarfile
 
@@ -636,10 +636,10 @@ class APKBuilder:
 
         apk_files = list(Path(repo_path).rglob("*.apk"))
         if not apk_files:
-            return False, "No APKs found for index"
+            return False, "Not yet implemented: No APKs found for index"
 
         if shutil.which("apk") is None:
-            return False, "apk tool not found"
+            return False, "Not yet implemented: apk tool not found"
 
         index_path = Path(repo_path) / "APKINDEX.tar.gz"
         cmd = ["apk", "index", "-o", str(index_path)] + [str(p) for p in apk_files]

@@ -70,6 +70,14 @@ def __getattr__(name):
         from .pattern_handler import PatternHandler
 
         return PatternHandler
+    elif name == "SonicHandler":
+        from .sonic_handler import SonicHandler
+
+        return SonicHandler
+    elif name == "MusicHandler":
+        from .music_handler import MusicHandler
+
+        return MusicHandler
     elif name == "IntegrationHandler":
         from .integration_handler import IntegrationHandler
 
@@ -209,6 +217,8 @@ __all__ = [
     "ShakedownHandler",
     "RepairHandler",
     "PatternHandler",
+    "SonicHandler",
+    "MusicHandler",
     "DevModeHandler",
     "LogsHandler",
     "HotkeyHandler",

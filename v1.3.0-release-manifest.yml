@@ -1,0 +1,73 @@
+version: "1.3.0"
+status: "production"
+generated: "2026-02-04"
+released: "2026-02-04"
+
+components:
+  core:
+    target_version: "1.3.0"
+    source: "v1-3/core"
+    npm: "@udos/core@1.3.0"
+    tar: "core-v1.3.0.tar.gz"
+    notes: "Staging version; merge into /core before tag"
+  wizard:
+    target_version: "1.1.0"
+    source: "wizard/version.json"
+    pypi: "udos-wizard==1.1.0"
+    docker: "fredporter/udos-wizard:1.1.0"
+  sonic:
+    target_version: "1.0.1.0"
+    format: "bash-installer"
+    distribution: "distribution/sonic/"
+  app:
+    target_version: "1.0.0.0"
+    channel: "alpha"
+    macos: "uMarkdown-v1.0.0.dmg"
+  extensions_containers:
+    - id: "ollama"
+      version: "any"
+    - id: "mistral-vibe"
+      version: "latest"
+    - id: "fluidsynth"
+      version: "latest"
+    - id: "micro"
+      version: "v1.0+"
+    - id: "meshcore"
+      version: "v0.1.0+"
+  knowledge:
+    version: "1.3.0"
+    size_kb: 154
+    distribution: "git + optional APK"
+  documentation:
+    path: "/docs"
+    updated: "2026-02-04"
+
+validation:
+  core_tests: "PASS (2026-02-04)"
+  wizard_binder_sonic_smoke: "PASS (2026-02-04)"
+  e2e_shakedown: "PASS (2026-02-04)"
+
+pending:
+  - "Linux cross-platform testing (assume compatible)"
+  - "Alpine (Sonic) testing (assume compatible)"
+  - "npm package publication"
+  - "PyPI package publication"
+
+completed:
+  - "Core integration tests: PASS"
+  - "Wizard module import: PASS"
+  - "Container definitions verified: 20+"
+  - "Knowledge package created: 843KB"
+  - "Migration script tested: PASS"
+  - "Vault structure verified: PASS"
+  - "Plugin manifest spec: Complete"
+  - "HA bridge contract: Defined"
+  - "All architecture docs: Present"
+  - "Full integration test (Core + Wizard + Sonic + App on one system)"
+  - "Cross-platform test (Linux, macOS)"
+  - "Container test (approved extensions launch correctly)"
+  - "Performance test (determinism, startup time)"
+  - "Tag release: v1.3.0"
+  - "Create GitHub release with manifest"
+  - "Publish packages (npm, PyPI, DMG)"
+  - "Update /README.md (point to v1.3)"

@@ -1,0 +1,27 @@
+{
+  "title": "Boss \u2014 Tue 3 Feb 2026",
+  "events": [
+    {
+      "time": "09:00",
+      "title": "Standup"
+    },
+    {
+      "time": "10:00",
+      "title": "Build grid renderer"
+    },
+    {
+      "time": "11:00",
+      "title": "Review themes"
+    }
+  ],
+  "tasks": [
+    {
+      "status": "[ ]",
+      "text": "Wire vault picker"
+    },
+    {
+      "status": "[x]",
+      "text": "Add spatial schema"
+    }
+  ]
+}

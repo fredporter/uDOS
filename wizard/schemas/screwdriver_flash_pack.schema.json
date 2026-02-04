@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScrewdriverFlashPack",
+  "type": "object",
+  "required": ["name", "layout", "payloads"],
+  "properties": {
+    "pack_id": { "type": "string" },
+    "name": { "type": "string" },
+    "version": { "type": "string", "default": "0.1.0" },
+    "description": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "target": {
+      "type": "object",
+      "properties": {
+        "device": { "type": "string" },
+        "size_gb": { "type": "number" },
+        "platform": {
+          "type": "string",
+          "enum": ["linux", "macos", "windows", "unknown"]
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "required": ["partitions"],
+      "properties": {
+        "format_mode": { "type": "string", "enum": ["gpt", "mbr"], "default": "gpt" },
+        "auto_scale": { "type": "boolean", "default": true },
+        "partitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "fs", "size_gb", "role"],
+            "properties": {
+              "label": { "type": "string" },
+              "fs": {
+                "type": "string",
+                "enum": ["fat32", "ext4", "ntfs", "exfat", "swap", "squashfs"]
+              },
+              "size_gb": { "type": "number" },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "esp",
+                  "udos_ro",
+                  "udos_rw",
+                  "swap",
+                  "wizard",
+                  "win10",
+                  "media",
+                  "cache",
+                  "custom"
+                ]
+              },
+              "payload_dir": { "type": "string" },
+              "image_path": { "type": "string" },
+              "read_only": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "payloads": {
+      "type": "object",
+      "properties": {
+        "base_dir": { "type": "string" },
+        "validate": { "type": "boolean", "default": true },
+        "partitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label"],
+            "properties": {
+              "label": { "type": "string" },
+              "source_dir": { "type": "string" },
+              "mode": { "type": "string", "enum": ["copy", "rsync", "squashfs", "iso"] },
+              "include": { "type": "array", "items": { "type": "string" } },
+              "exclude": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "windows": {
+      "type": "object",
+      "properties": {
+        "mode": { "type": "string", "enum": ["none", "install", "wtg"], "default": "none" },
+        "iso_path": { "type": "string" },
+        "drivers_dir": { "type": "string" }
+      }
+    },
+    "wizard": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean", "default": false },
+        "image_path": { "type": "string" }
+      }
+    }
+  }
+}

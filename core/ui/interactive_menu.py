@@ -86,6 +86,19 @@ class InteractiveMenu:
         Returns:
             Selected item's value, or None if cancelled
         """
+        try:
+            interactive, reason = interactive_tty_status()
+            if not interactive:
+                if self.logger:
+                    self.logger.info(
+                        "[LOCAL] Non-interactive terminal detected, skipping menu (%s)",
+                        reason,
+                    )
+                return None
+        except Exception:
+            # If detection fails, proceed with default behavior
+            pass
+
         while True:
             self._display()
             

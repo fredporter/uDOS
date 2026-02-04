@@ -1,21 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ES2020",
-    "lib": ["ES2020", "DOM"],
-    "moduleResolution": "node",
+    "target": "ES2021",
+    "module": "Node16",
+    "moduleResolution": "node16",
+    "rootDir": "src",
+    "outDir": "dist",
     "esModuleInterop": true,
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "resolveJsonModule": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "baseUrl": "."
+    "skipLibCheck": true,
+    "types": ["node"]
   },
-  "include": ["src/**/*", "../memory/tests/**/*.ts", "memory/tests/**/*.ts", "grid-runtime/src/global.d.ts"],
-  "exclude": ["node_modules", "**/*.test.ts", "__tests__"]
+  "include": ["src"]
 }

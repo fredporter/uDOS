@@ -1,6 +1,10 @@
 # uDOS Vision
 
-> **Version:** Core v1.1.0.0 | **Updated:** 2026-01-24
+**Version:** v1.3.0  
+**Last Updated:** 2026-02-04  
+**Status:** Vision / Aspirational
+
+> This document describes the long‑term direction. Not every feature listed is part of the v1.3 release manifest.
 
 **A text-first computing environment for humans who value privacy, simplicity, and offline capability.**
 
@@ -11,8 +15,10 @@
 uDOS is a **Python-venv OS layer** targeting Alpine Linux for minimal hardware while providing powerful features:
 
 - **230+ offline survival guides** in markdown format
-- **AI-powered content generation** (online via Gemini, offline via Ollama)
+- **AI-powered content generation** (local-first via Ollama, optional cloud models)
 - **Terminal and desktop interfaces** (TUI + uCode Markdown App)
+- **Grid-native navigation** for spatial docs, anchors, and map views
+- **Project workflows** (missions) with structured, inspectable outputs
 - **Private mesh networking** without internet dependency
 
 ## 🏛️ Core Principles
@@ -24,6 +30,11 @@ Text → Markdown → ASCII/Teletext → SVG (only when essential)
 ```
 
 Every output starts as text. Graphics exist to serve communication, not decoration.
+
+### 1.1 Retro + Grid Native
+
+- **Retro-first UI** for focus and speed
+- **Grid and spatial thinking** built into navigation and layout
 
 ### 2. Offline-First / Privacy-First
 
@@ -46,6 +57,40 @@ The Wizard Server handles web-dependent tasks (Gemini AI, web scraping, email) a
 - **Drip, don't smash** - Content delivered at sustainable pace
 - **Wellbeing awareness** - Tasks adapt to user energy levels
 - **Simple over clever** - Obvious beats elegant
+
+---
+
+## AI That Helps (Balanced + Controlled)
+
+uDOS treats AI as a **tool, not a replacement**. It should be useful, bounded, and transparent.
+
+- **Local-first** with explicit opt-in for cloud models
+- **Workflow-aligned**: assists planning, summarizing, refactoring, and drafting
+- **Balanced outputs**: helpful, concise, and grounded in the current project
+- **Controlled behavior**: clear prompts, explicit modes, and predictable output
+
+AI is used to support missions and projects without obscuring how results were produced.
+
+---
+
+## Database Extensions (Projects + Missions)
+
+The core uses SQLite for indexing and storage. Extensions can add **project-oriented tables** and **mission/workflow data** when needed.
+
+- **Core stays simple**: minimal schema, deterministic behavior
+- **Extensions add power**: project metadata, task states, mission pipelines
+- **Inspectable data**: always readable, exportable, and local-first
+
+---
+
+## Unified TUI Experience (Vibe Integration)
+
+Vibe CLI integration is a key part of a **beginner-friendly** and **powerful** TUI:
+
+- **Guided interactions** for beginners
+- **Fast commands** for power users
+- **Educational by default** (explainable outputs)
+- **Open-box platform**: users can inspect, learn, and extend
 
 ---
 
@@ -131,13 +176,8 @@ wellbeing:
 
 1. **TUI Users**: Run `./start_udos.sh` and type `HELP`
 2. **Desktop Users**: Launch uCode Markdown App
-3. **Developers**: See [Contributing](../wiki/CONTRIBUTING.md)
+3. **Developers**: See [Contributing](../wiki/Contributing.md)
 
 ---
 
 _"Computing should serve humans, not surveil them."_
-
----
-
-**Last Updated:** 2026-01-24
-**Version:** Core v1.1.0.0

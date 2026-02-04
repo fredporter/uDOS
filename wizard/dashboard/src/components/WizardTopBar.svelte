@@ -10,6 +10,7 @@
   const topNavRoutes = [
     { id: "dashboard", label: "Dashboard" },
     { id: "devices", label: "Devices" },
+    { id: "renderer", label: "Renderer" },
     { id: "catalog", label: "Catalog" },
     { id: "webhooks", label: "Webhooks" },
   ];
@@ -26,6 +27,7 @@
     { id: "wiki", label: "📖 Wiki" },
     { id: "files", label: "🗂 Files" },
     { id: "story", label: "📝 Story" },
+    { id: "renderer", label: "🧱 Renderer" },
     { id: "tables", label: "📊 Tables" },
     { id: "library", label: "📚 Library" },
     { separator: true, label: "Services" },

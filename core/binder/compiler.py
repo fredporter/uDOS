@@ -37,7 +37,8 @@ class BinderCompiler:
         repo_root = get_repo_root()
         self.config = config or {}
 
-        default_db = repo_root / "memory" / "sandbox" / "binders" / "binders.db"
+        vault_root = repo_root / "vault"
+        default_db = vault_root / ".udos" / "binders.db"
         if db_path is None:
             db_path = self.config.get("db_path", default_db)
 
@@ -45,7 +46,9 @@ class BinderCompiler:
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
         self.output_dir = Path(
-            self.config.get("output_dir", repo_root / "memory" / "sandbox" / "binders")
+            self.config.get(
+                "output_dir", vault_root / "sandbox" / "binders"
+            )
         )
         self.formats = self.config.get("formats", ["markdown", "json"])
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -57,7 +60,53 @@ class BinderCompiler:
         )
 
     def _init_db(self) -> None:
-        SQLiteManager.init_db("binder_compiler", self.db_path)
+        if SQLiteManager.init_db("binder_compiler", self.db_path):
+            return
+
+        schema_path = get_repo_root() / "core" / "binder" / "schemas" / "binder_schema.sql"
+        if schema_path.exists():
+            applied = SQLiteManager.apply_schema(self.db_path, schema_path)
+            if applied:
+                logger.info(
+                    f"[LOCAL] Applied fallback binder schema (db={self.db_path})"
+                )
+            else:
+                logger.warning(
+                    f"[LOCAL] Binder schema fallback failed (db={self.db_path})"
+                )
+        else:
+            logger.warning(
+                f"[LOCAL] Binder schema not found at {schema_path} (db={self.db_path})"
+            )
+
+    async def ensure_binder(
+        self, binder_id: str, name: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Ensure binder exists in compiler database."""
+        name = name or binder_id
+        try:
+            conn = sqlite3.connect(str(self.db_path))
+            try:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT id, name, status FROM binders WHERE id = ?",
+                    (binder_id,),
+                )
+                row = cursor.fetchone()
+                if row:
+                    return {"status": "exists", "binder_id": row[0], "name": row[1]}
+
+                cursor.execute(
+                    "INSERT INTO binders (id, name, status) VALUES (?, ?, ?)",
+                    (binder_id, name, "draft"),
+                )
+                conn.commit()
+                return {"status": "created", "binder_id": binder_id, "name": name}
+            finally:
+                conn.close()
+        except Exception as exc:
+            logger.error(f"[LOCAL] Ensure binder failed: {exc}")
+            return {"status": "error", "error": str(exc)}
 
     async def compile_binder(
         self, binder_id: str, formats: Optional[List[str]] = None
@@ -65,8 +114,51 @@ class BinderCompiler:
         if formats is None:
             formats = self.formats
 
+        await self.ensure_binder(binder_id)
+
         logger.info(f"[LOCAL] Compiling binder {binder_id} -> {formats}")
         chapters = await self.get_chapters(binder_id)
+        outputs: List[Dict[str, Any]] = []
+
+        if "markdown" in formats:
+            md_output = await self._compile_markdown(binder_id, chapters)
+            if md_output:
+                outputs.append(md_output)
+
+        if "json" in formats:
+            json_output = await self._compile_json(binder_id, chapters)
+            if json_output:
+                outputs.append(json_output)
+
+        if "pdf" in formats:
+            pdf_output = await self._compile_pdf(binder_id, chapters)
+            if pdf_output:
+                outputs.append(pdf_output)
+
+        if "brief" in formats:
+            brief_output = await self._compile_brief(binder_id, chapters)
+            if brief_output:
+                outputs.append(brief_output)
+
+        return {
+            "status": "compiled",
+            "binder_id": binder_id,
+            "compiled_at": datetime.now().isoformat(),
+            "outputs": outputs,
+        }
+
+    async def compile_chapters(
+        self,
+        binder_id: str,
+        chapters: List[Dict[str, Any]],
+        formats: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        """Compile binder outputs from provided chapter list."""
+        if formats is None:
+            formats = self.formats
+
+        await self.ensure_binder(binder_id)
+
         outputs: List[Dict[str, Any]] = []
 
         if "markdown" in formats:
@@ -138,6 +230,7 @@ class BinderCompiler:
         self, binder_id: str, chapter: Dict[str, Any]
     ) -> Dict[str, Any]:
         try:
+            await self.ensure_binder(binder_id)
             conn = sqlite3.connect(str(self.db_path))
             cursor = conn.cursor()
 
@@ -183,6 +276,99 @@ class BinderCompiler:
         except Exception as exc:
             logger.error(f"[LOCAL] Add chapter failed: {exc}")
             return {"status": "error", "error": str(exc)}
+
+    async def upsert_chapter(
+        self, binder_id: str, chapter: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Insert or update a chapter."""
+        try:
+            await self.ensure_binder(binder_id)
+            conn = sqlite3.connect(str(self.db_path))
+            cursor = conn.cursor()
+
+            title = chapter.get("title") or "Untitled"
+            content = chapter.get("content", "")
+            order_index = chapter.get("order") or chapter.get("order_index") or 1
+            chapter_id = chapter.get("chapter_id") or self._generate_id("chap")
+
+            word_count = self._calculate_word_count(content)
+            has_code = "```" in content
+            has_images = "![" in content
+            has_tables = "|" in content and "\n|" in content
+
+            cursor.execute(
+                """
+                SELECT id FROM chapters WHERE binder_id = ? AND chapter_id = ?
+                """,
+                (binder_id, chapter_id),
+            )
+            row = cursor.fetchone()
+
+            if row:
+                cursor.execute(
+                    """
+                    UPDATE chapters
+                    SET title = ?, content = ?, order_index = ?, word_count = ?,
+                        has_code = ?, has_images = ?, has_tables = ?
+                    WHERE binder_id = ? AND chapter_id = ?
+                    """,
+                    (
+                        title,
+                        content,
+                        order_index,
+                        word_count,
+                        has_code,
+                        has_images,
+                        has_tables,
+                        binder_id,
+                        chapter_id,
+                    ),
+                )
+                status = "updated"
+            else:
+                row_id = self._generate_id("chap")
+                cursor.execute(
+                    """
+                    INSERT INTO chapters (
+                        id, binder_id, chapter_id, title, content, order_index,
+                        word_count, has_code, has_images, has_tables
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        row_id,
+                        binder_id,
+                        chapter_id,
+                        title,
+                        content,
+                        order_index,
+                        word_count,
+                        has_code,
+                        has_images,
+                        has_tables,
+                    ),
+                )
+                status = "created"
+
+            conn.commit()
+            conn.close()
+            return {
+                "status": status,
+                "binder_id": binder_id,
+                "chapter_id": chapter_id,
+                "title": title,
+            }
+        except Exception as exc:
+            logger.error(f"[LOCAL] Upsert chapter failed: {exc}")
+            return {"status": "error", "error": str(exc)}
+
+    async def sync_chapters(
+        self, binder_id: str, chapters: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """Sync chapters into compiler DB."""
+        results: List[Dict[str, Any]] = []
+        for chapter in chapters:
+            results.append(await self.upsert_chapter(binder_id, chapter))
+        return {"status": "synced", "binder_id": binder_id, "chapters": results}
 
     async def update_chapter(
         self, binder_id: str, chapter_id: str, content: str

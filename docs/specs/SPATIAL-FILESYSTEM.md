@@ -1,6 +1,6 @@
 # Spatial Filesystem Architecture
 
-**Status:** v1.0.7.0 — Integrated with Stream 1  
+**Status:** v1.0.7.0 — v1.3-aligned (coordinates required)  
 **Date:** 2026-01-30  
 **Author:** uDOS Development Team
 
@@ -20,20 +20,24 @@ The **Spatial Filesystem** bridges filesystem organization with grid-based spati
 
 ## Workspace Hierarchy
 
-Six primary workspaces, accessed via `@workspace` syntax:
+Vault-first workspaces, accessed via `@workspace` syntax:
 
-| Workspace  | Path                | Access Level   | Purpose |
-|------------|-------------------|----------------|---------|
-| `@sandbox` | `memory/sandbox`  | User / Admin   | Personal experimentation |
-| `@bank`    | `memory/bank`     | User / Admin   | Personal data vault |
-| `@shared`  | `memory/shared`   | User / Admin   | Collaboration space |
-| `@wizard`  | `memory/wizard`   | Admin only     | Wizard service (internal) |
-| `@knowledge` | `/knowledge`    | Admin only     | Knowledge base (curated) |
-| `@dev`     | `/dev`            | Admin only     | Development workspace |
+| Workspace  | Path                                   | Access Level   | Purpose |
+|------------|----------------------------------------|----------------|---------|
+| `@sandbox` | `vault/sandbox`                        | User / Admin   | Drafts & experimentation |
+| `@bank`    | `vault/bank`                           | User / Admin   | Primary knowledge store |
+| `@inbox`   | `vault/inbox-dropbox`                  | User / Admin   | Intake/imports |
+| `@public`  | `vault/public-open-published`          | User / Admin   | Public/open/published |
+| `@submissions` | `vault/public-open-published/submissions` | User / Admin | Submission intake |
+| `@private` | `vault/private-explicit`               | User / Admin   | Explicit private shares |
+| `@shared`  | `vault/private-shared`                 | User / Admin   | Proximity-verified sharing |
+| `@wizard`  | `memory/wizard`                        | Admin only     | Wizard service (internal) |
+| `@knowledge` | `/knowledge`                         | Admin only     | Knowledge base (curated) |
+| `@dev`     | `/dev`                                 | Admin only     | Development workspace |
 
 **Role Hierarchy:**
-- **Guest**: Read-only access to @shared
-- **User**: Read/write @sandbox, @bank, @shared; read /knowledge
+- **Guest**: Read-only access to @public/@shared
+- **User**: Read/write vault workspaces; read /knowledge
 - **Admin**: All workspaces, all operations
 
 ---
@@ -96,8 +100,23 @@ title: Forest Entrance
 grid_locations:
   - L300-AB15
   - L300-AC20
+coordinates:
+  system: WGS84
+  lat: 37.7749
+  lon: -122.4194
 ---
 ```
+
+### 2A. Coordinate Requirement (v1.3)
+
+Every spatially-tagged note **must include coordinates**. Grid codes alone are not sufficient.
+
+Required fields for spatial notes:
+
+- `grid_locations`: one or more grid cells (L###-AB##)
+- `coordinates`: a coordinate block with `system`, `lat`, and `lon`
+
+If a note has `grid_locations` but no `coordinates`, treat it as incomplete and do not index it into spatial overlays until resolved.
 
 ---
 
@@ -208,7 +227,7 @@ BINDER add @sandbox/my-novel ch2.md     # Add chapter
 
 **Directory Structure:**
 ```
-memory/sandbox/my-novel/
+vault/sandbox/my-novel/
 ├── intro.md              # Chapter 1
 ├── ch1.md                # Chapter 2
 ├── ch2.md                # Chapter 3
@@ -414,25 +433,34 @@ location_guides = users_fs.find_by_location('L300-DB20')
 ```
 ┌─────────────────────────────────────────────────┐
 │ Admin                                           │
-│  ├─ memory/sandbox (own)                        │
-│  ├─ memory/bank (own)                           │
-│  ├─ memory/shared (read/write)                  │
+│  ├─ vault/sandbox (own)                         │
+│  ├─ vault/bank (own)                            │
+│  ├─ vault/inbox-dropbox (read/write)            │
+│  ├─ vault/public-open-published (read/write)    │
+│  ├─ vault/private-explicit (read/write)         │
+│  ├─ vault/private-shared (read/write)           │
 │  ├─ memory/wizard (read/write) [admin workspace]│
 │  ├─ /knowledge (curate/manage)                  │
 │  └─ /dev (development)                          │
 ├─────────────────────────────────────────────────┤
 │ User                                            │
-│  ├─ memory/sandbox (read/write own)             │
-│  ├─ memory/bank (read/write own)                │
-│  ├─ memory/shared (read/write)                  │
+│  ├─ vault/sandbox (read/write own)              │
+│  ├─ vault/bank (read/write own)                 │
+│  ├─ vault/inbox-dropbox (read/write)            │
+│  ├─ vault/public-open-published (read/write)    │
+│  ├─ vault/private-explicit (read/write)         │
+│  ├─ vault/private-shared (read/write)           │
 │  ├─ memory/wizard (denied)                      │
 │  ├─ /knowledge (read only)                      │
 │  └─ /dev (denied)                               │
 ├─────────────────────────────────────────────────┤
 │ Guest                                           │
-│  ├─ memory/sandbox (denied)                     │
-│  ├─ memory/bank (denied)                        │
-│  ├─ memory/shared (read only)                   │
+│  ├─ vault/sandbox (denied)                      │
+│  ├─ vault/bank (denied)                         │
+│  ├─ vault/inbox-dropbox (denied)                │
+│  ├─ vault/public-open-published (read only)     │
+│  ├─ vault/private-explicit (denied)             │
+│  ├─ vault/private-shared (read only)            │
 │  ├─ memory/wizard (denied)                      │
 │  ├─ /knowledge (read only)                      │
 │  └─ /dev (denied)                               │
@@ -446,6 +474,7 @@ location_guides = users_fs.find_by_location('L300-DB20')
 3. **Front-matter is metadata only** — validate in application logic
 4. **Grid locations are application-defined** — no enforcement of format
 5. **Tags are case-insensitive** — normalize to lowercase for queries
+6. **Seed data sync** — Migration/seeder services now import `vault/bank/spatial/anchors.json` + `vault/bank/spatial/places.json` into the spatial SQLite (via `.udos/state.db` or `05_DATA/sqlite/udos.db`), ensuring new anchor/place refs are available to `/api/renderer/spatial/*`.
 
 ---
 
@@ -495,7 +524,7 @@ pytest core/tests/test_spatial_filesystem.py -v
 ## See Also
 
 - [ROADMAP.md](ROADMAP.md) — Development streams
-- [uCODE.md](uCODE.md) — Command reference
+- [uCODE-v1.3.md](uCODE-v1.3.md) — Command reference
 - [core/README.md](../core/README.md) — Core TUI documentation
 
 ---

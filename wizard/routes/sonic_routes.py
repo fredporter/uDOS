@@ -9,15 +9,20 @@ from pathlib import Path
 from typing import Callable, Awaitable, Optional, List, Dict, Any
 import json
 import sqlite3
+import uuid
+from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Request, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
 
 # Paths
 SONIC_DATASETS_PATH = Path(__file__).parent.parent.parent / "sonic" / "datasets"
 SONIC_DB_PATH = Path(__file__).parent.parent.parent / "memory" / "sonic" / "sonic-devices.db"
+REPO_ROOT = Path(__file__).parent.parent.parent
+SCREWDRIVER_PACK_ROOT = REPO_ROOT / "memory" / "sandbox" / "screwdriver" / "flash_packs"
+SCREWDRIVER_SCHEMA_PATH = REPO_ROOT / "wizard" / "schemas" / "screwdriver_flash_pack.schema.json"
 
 
 class Device(BaseModel):
@@ -42,6 +47,87 @@ class Device(BaseModel):
     notes: Optional[str] = None
     sources: Optional[List[str]] = None
     last_seen: Optional[str] = None
+
+
+class PartitionSpec(BaseModel):
+    label: str
+    fs: str
+    size_gb: float
+    role: str
+    payload_dir: Optional[str] = None
+    image_path: Optional[str] = None
+    read_only: Optional[bool] = None
+
+
+class LayoutSpec(BaseModel):
+    format_mode: str = "gpt"
+    auto_scale: bool = True
+    partitions: List[PartitionSpec]
+
+
+class PayloadPartitionSpec(BaseModel):
+    label: str
+    source_dir: Optional[str] = None
+    mode: Optional[str] = None
+    include: Optional[List[str]] = None
+    exclude: Optional[List[str]] = None
+
+
+class PayloadSpec(BaseModel):
+    base_dir: Optional[str] = None
+    validate: bool = True
+    partitions: Optional[List[PayloadPartitionSpec]] = None
+
+
+class WindowsSpec(BaseModel):
+    mode: str = "none"
+    iso_path: Optional[str] = None
+    drivers_dir: Optional[str] = None
+
+
+class WizardSpec(BaseModel):
+    enabled: bool = False
+    image_path: Optional[str] = None
+
+
+class FlashPackSpec(BaseModel):
+    pack_id: Optional[str] = None
+    name: str = Field(..., min_length=1)
+    version: str = "0.1.0"
+    description: Optional[str] = None
+    created_at: Optional[str] = None
+    target: Optional[Dict[str, object]] = None
+    layout: LayoutSpec
+    payloads: PayloadSpec
+    windows: Optional[WindowsSpec] = None
+    wizard: Optional[WizardSpec] = None
+
+
+def _pack_path(pack_id: str) -> Path:
+    return SCREWDRIVER_PACK_ROOT / f"{pack_id}.json"
+
+
+def _load_pack(pack_id: str) -> Dict[str, object]:
+    pack_file = _pack_path(pack_id)
+    if not pack_file.exists():
+        raise HTTPException(status_code=404, detail="Flash pack not found")
+    return json.loads(pack_file.read_text(encoding="utf-8"))
+
+
+def _write_pack(data: Dict[str, object]) -> Path:
+    SCREWDRIVER_PACK_ROOT.mkdir(parents=True, exist_ok=True)
+    pack_id = str(data.get("pack_id"))
+    if not pack_id:
+        raise ValueError("pack_id missing")
+    pack_file = _pack_path(pack_id)
+    pack_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    return pack_file
+
+
+def _model_dump(model: BaseModel) -> Dict[str, object]:
+    if hasattr(model, "model_dump"):
+        return model.model_dump()
+    return model.dict()
 
 
 def create_sonic_routes(auth_guard: AuthGuard = None) -> APIRouter:
@@ -292,5 +378,107 @@ def create_sonic_routes(auth_guard: AuthGuard = None) -> APIRouter:
 
         except sqlite3.OperationalError as e:
             raise HTTPException(status_code=503, detail=f"Database error: {e}")
+
+    # ----------------------------------------------------------------------
+    # Screwdriver Flash Pack Endpoints (Migrated from Goblin)
+    # ----------------------------------------------------------------------
+
+    @router.get("/screwdriver")
+    async def screwdriver_index(request: Request):
+        if auth_guard:
+            await auth_guard(request)
+        return {
+            "status": "ok",
+            "feature": "screwdriver",
+            "version": "0.1",
+            "endpoints": [
+                "/api/sonic/screwdriver/schema",
+                "/api/sonic/screwdriver/flash-packs",
+                "/api/sonic/screwdriver/flash-packs/{pack_id}",
+                "/api/sonic/screwdriver/flash-packs/{pack_id}/plan",
+                "/api/sonic/screwdriver/flash-packs/{pack_id}/build",
+            ],
+        }
+
+    @router.get("/screwdriver/schema")
+    async def get_screwdriver_schema(request: Request):
+        if auth_guard:
+            await auth_guard(request)
+        if not SCREWDRIVER_SCHEMA_PATH.exists():
+            raise HTTPException(status_code=404, detail="Schema file not found")
+        return json.loads(SCREWDRIVER_SCHEMA_PATH.read_text(encoding="utf-8"))
+
+    @router.get("/screwdriver/flash-packs")
+    async def list_flash_packs(request: Request):
+        if auth_guard:
+            await auth_guard(request)
+        if not SCREWDRIVER_PACK_ROOT.exists():
+            return {"count": 0, "packs": []}
+        packs = []
+        for pack_file in sorted(SCREWDRIVER_PACK_ROOT.glob("*.json")):
+            try:
+                data = json.loads(pack_file.read_text(encoding="utf-8"))
+                packs.append(
+                    {
+                        "pack_id": data.get("pack_id", pack_file.stem),
+                        "name": data.get("name"),
+                        "version": data.get("version"),
+                        "created_at": data.get("created_at"),
+                    }
+                )
+            except json.JSONDecodeError:
+                continue
+        return {"count": len(packs), "packs": packs}
+
+    @router.post("/screwdriver/flash-packs")
+    async def create_flash_pack(request: Request, payload: FlashPackSpec):
+        if auth_guard:
+            await auth_guard(request)
+        pack_id = payload.pack_id or f"pack-{uuid.uuid4().hex[:8]}"
+        created_at = payload.created_at or datetime.utcnow().isoformat() + "Z"
+
+        data = _model_dump(payload)
+        data["pack_id"] = pack_id
+        data["created_at"] = created_at
+
+        pack_file = _write_pack(data)
+        return {"status": "created", "pack_id": pack_id, "path": str(pack_file)}
+
+    @router.get("/screwdriver/flash-packs/{pack_id}")
+    async def get_flash_pack(request: Request, pack_id: str):
+        if auth_guard:
+            await auth_guard(request)
+        return _load_pack(pack_id)
+
+    @router.post("/screwdriver/flash-packs/{pack_id}/plan")
+    async def plan_flash_pack(request: Request, pack_id: str):
+        if auth_guard:
+            await auth_guard(request)
+        pack = _load_pack(pack_id)
+        return {
+            "status": "planned",
+            "pack_id": pack_id,
+            "layout": pack.get("layout"),
+            "payloads": pack.get("payloads"),
+            "notes": "Planning scaffold only. No disk operations executed.",
+        }
+
+    @router.post("/screwdriver/flash-packs/{pack_id}/build")
+    async def build_flash_pack(request: Request, pack_id: str):
+        if auth_guard:
+            await auth_guard(request)
+        _load_pack(pack_id)
+        return {
+            "status": "queued",
+            "pack_id": pack_id,
+            "notes": "Build execution not implemented yet.",
+        }
+
+    @router.post("/screwdriver/flash-packs/validate")
+    async def validate_flash_pack(request: Request, payload: FlashPackSpec):
+        if auth_guard:
+            await auth_guard(request)
+        data = _model_dump(payload)
+        return {"status": "valid", "pack": data}
 
     return router

@@ -1,0 +1,44 @@
+@import "./assets/tokens.css";
+@import "./tw-prose.css";
+
+:root {
+  font-family: var(--font-body);
+}
+
+body.prose-shell {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  min-height: 100vh;
+  margin: 0;
+}
+
+.prose-main {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+  line-height: 1.7;
+}
+
+.prose-header,
+.prose-footer {
+  padding: 1rem 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.prose-main h1,
+.prose-main h2,
+.prose-main h3 {
+  font-family: var(--font-heading);
+  color: var(--color-accent);
+}
+
+.prose-main pre,
+.prose-main code {
+  font-family: var(--font-code);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-base);
+}

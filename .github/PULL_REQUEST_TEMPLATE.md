@@ -101,6 +101,6 @@ Specific areas you'd like reviewers to focus on:
 **By submitting this PR, I confirm that:**
 
 - [ ] I have read and agree to the [Code of Conduct](CODE_OF_CONDUCT.md)
-- [ ] I have read the [Contributing Guidelines](CONTRIBUTING.md)
+- [ ] I have read the [Contributing Guidelines](../wiki/Contributing.md)
 - [ ] My contribution is my own original work
 - [ ] I license my contribution under the project's [MIT License](LICENSE.txt)

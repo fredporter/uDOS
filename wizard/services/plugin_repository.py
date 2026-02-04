@@ -23,6 +23,7 @@ Repository Structure:
 
 import json
 import hashlib
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
@@ -116,12 +117,12 @@ class PluginRepository:
     - Package verification
     """
 
-    def __init__(self):
+    def __init__(self, base_dir: Optional[Path] = None):
         """Initialize repository."""
-        self.repo_base = REPO_BASE
-        self.index_path = INDEX_PATH
-        self.packages_path = PACKAGES_PATH
-        self.cache_path = CACHE_PATH
+        self.repo_base = Path(base_dir) if base_dir else REPO_BASE
+        self.index_path = self.repo_base / "index.json"
+        self.packages_path = self.repo_base / "packages"
+        self.cache_path = self.repo_base / "cache"
 
         # Ensure directories
         self.repo_base.mkdir(parents=True, exist_ok=True)
@@ -244,6 +245,29 @@ class PluginRepository:
 
         return updates
 
+    def refresh_update_flags(self) -> Dict[str, Any]:
+        """Recalculate update flags by comparing installed_version to version."""
+        updated = 0
+        for plugin in self._index.plugins.values():
+            if not plugin.installed:
+                plugin.update_available = False
+                continue
+            if not plugin.installed_version or not plugin.version:
+                plugin.update_available = False
+                continue
+            available = _is_version_newer(plugin.version, plugin.installed_version)
+            plugin.update_available = available
+            if available:
+                updated += 1
+        self._save_index()
+        return {"updated": updated, "total": len(self._index.plugins)}
+
+
+def _version_tuple(value: str) -> Tuple[int, ...]:
+    parts = re.findall(r"\d+", value or "")
+    return tuple(int(part) for part in parts)
+
+
     def verify_package(self, package_path: Path) -> bool:
         """
         Verify package integrity.
@@ -338,6 +362,17 @@ class PluginRepository:
         self._save_index()
         logger.info(f"[PLUGIN] Disabled plugin: {plugin_id}")
         return True
+
+
+def _is_version_newer(candidate: str, installed: str) -> bool:
+    cand = _version_tuple(candidate)
+    inst = _version_tuple(installed)
+    if not cand or not inst:
+        return False
+    length = max(len(cand), len(inst))
+    cand += (0,) * (length - len(cand))
+    inst += (0,) * (length - len(inst))
+    return cand > inst
 
 
 # Singleton instance

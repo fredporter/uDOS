@@ -1,0 +1,4 @@
+[2026-02-03T18:00:00Z] Mission job-static-export started
+[2026-02-03T18:00:10Z] Renderer parsed vault/notes/welcome.md
+[2026-02-03T18:00:25Z] Renderer wrote vault/_site/prose/welcome/index.html
+[2026-02-03T18:00:30Z] Mission completed (status=completed)

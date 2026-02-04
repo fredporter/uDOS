@@ -9,6 +9,12 @@ This guide explains how the new setup system integrates:
 3. **Advanced Form Handler** - Enhanced TUI form fields with predictions
 4. **Identity Encryption** - Unified identity management
 
+## v1.3 Alignment
+
+- Preserve the **v1.2 setup story flow** and field order.
+- Canonical story file remains: `core/tui/setup-story.md`.
+- `SETUP` continues to be the single entry-point for identity collection.
+
 ## Architecture
 
 ```

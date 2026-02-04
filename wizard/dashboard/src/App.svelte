@@ -27,6 +27,7 @@
   import Hotkeys from "./routes/Hotkeys.svelte";
   import Round3 from "./routes/Round3.svelte";
   import Groovebox from "./routes/Groovebox.svelte";
+  import Renderer from "./routes/Renderer.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
   import WizardBottomBar from "./components/WizardBottomBar.svelte";
   import ToastContainer from "./lib/components/ToastContainer.svelte";
@@ -252,6 +253,8 @@
         <Round3 />
       {:else if currentRoute === "groovebox"}
         <Groovebox />
+      {:else if currentRoute === "renderer"}
+        <Renderer />
       {/if}
     </main>
   </div>

@@ -260,17 +260,39 @@ class IdentityEncryption:
     # ========================================================================
 
     def enrich_identity(self, identity: Dict, location: str = None) -> Dict:
-        """Add calculated fields to identity (UDOS Crypt enrichment deprecated).
+        """Add UDOS Crypt fields to identity (deterministic, non-secret).
 
         Args:
             identity: Identity dictionary with user_dob
             location: Location for profile ID generation (optional)
 
         Returns:
-            Copy of identity (crypt enrichment removed)
+            Enriched identity copy with _crypt_* fields when possible
         """
-        # Create enriched copy (crypt-code enrichment has been deprecated)
         enriched = identity.copy()
+
+        dob = identity.get("user_dob")
+        if not dob:
+            return enriched
+
+        try:
+            from core.services.udos_crypt import get_udos_crypt
+
+            crypt = get_udos_crypt()
+            components = crypt.get_crypt_components(dob)
+            if components.get("crypt_id"):
+                enriched["_crypt_id"] = components.get("crypt_id")
+                enriched["_starsign"] = components.get("starsign")
+                enriched["_color"] = components.get("color")
+                enriched["_generation"] = components.get("generation")
+                enriched["_animal"] = components.get("animal")
+                enriched["_adjective"] = components.get("adjective")
+
+                if location:
+                    enriched["_profile_id"] = crypt.generate_profile_id(dob, location)
+        except Exception as exc:
+            logger.debug(f"[LOCAL] UDOS Crypt enrichment skipped: {exc}")
+
         return enriched
 
     def get_age(self, dob: str) -> Optional[int]:

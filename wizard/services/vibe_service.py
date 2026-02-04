@@ -137,16 +137,24 @@ class VibeService:
             
             logger.info(f"[LOCAL] Vibe: Generating with {self.config.model}...")
             
+            temperature = kwargs.pop("temperature", None)
+            top_p = kwargs.pop("top_p", None)
+            max_tokens = kwargs.pop("max_tokens", None)
+
+            options = {
+                "temperature": self.config.temperature if temperature is None else temperature,
+                "top_p": self.config.top_p if top_p is None else top_p,
+            }
+            if max_tokens is not None:
+                options["num_predict"] = max_tokens
+
             # Try /api/chat endpoint first (newer format)
             try:
                 payload = {
                     "model": self.config.model,
                     "messages": messages,
                     "stream": stream,
-                    "options": {
-                        "temperature": self.config.temperature,
-                        "top_p": self.config.top_p,
-                    },
+                    "options": options,
                     **kwargs,
                 }
                 
@@ -186,10 +194,7 @@ class VibeService:
                         "model": self.config.model,
                         "prompt": combined_prompt,
                         "stream": False,
-                        "options": {
-                            "temperature": self.config.temperature,
-                            "top_p": self.config.top_p,
-                        },
+                        "options": options,
                     }
                     
                     resp = requests.post(

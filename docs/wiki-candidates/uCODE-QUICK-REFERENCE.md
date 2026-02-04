@@ -51,4 +51,4 @@ EXIT, QUIT          Leave uCODE
 
 **Core-only mode**: If WIZARD/EXTENSIONS missing, uCODE runs seamlessly without them.
 
-See [specs/uCODE.md](../specs/uCODE.md) for full documentation.
+See [specs/uCODE-v1.3.md](../specs/uCODE-v1.3.md) for full documentation.

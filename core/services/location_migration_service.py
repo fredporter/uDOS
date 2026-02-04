@@ -12,14 +12,50 @@ Thresholds (ADR-0004):
   - Rollback support (delete .db to revert)
 """
 
+import hashlib
 import json
+import re
 import sqlite3
+import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from core.services.logging_service import get_logger
 
 logger = get_logger("location_migration")
+
+SPATIAL_SCHEMA_PATH = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "schema.sql"
+MEMORY_SPATIAL_DIR = Path("memory") / "bank" / "spatial"
+DEFAULT_ANCHOR_REGISTRY = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "anchors.default.json"
+
+PLACE_REF_RE = re.compile(r"^(?P<anchor>[^:]+)(?::(?P<subanchor>[^:]+))?:(?P<space>SUR|UDN|SUB):(?P<loc>L\d{3}-[A-Z]{2}\d{2})(?::D(?P<depth>\d+))?(?::I(?P<instance>.+))?$")
+
+
+def _parse_place_ref(ref: str) -> Optional[Dict[str, Any]]:
+    match = PLACE_REF_RE.match(ref)
+    if not match:
+        return None
+    anchor = match.group("anchor")
+    subanchor = match.group("subanchor")
+    if anchor in {"BODY", "GAME", "CATALOG"} and subanchor:
+        anchor_id = f"{anchor}:{subanchor}"
+    else:
+        anchor_id = anchor
+    space = match.group("space")
+    loc_id = match.group("loc")
+    depth = int(match.group("depth")) if match.group("depth") else None
+    instance = match.group("instance")
+    layer = int(loc_id[1:4])
+    final_cell = loc_id.split("-")[1]
+    return {
+        "anchor_id": anchor_id,
+        "space": space,
+        "loc_id": loc_id,
+        "effective_layer": layer,
+        "final_cell": final_cell,
+        "depth": depth,
+        "instance": instance,
+    }
 
 
 class LocationMigrator:
@@ -327,6 +363,153 @@ class LocationMigrator:
         conn.commit()
         conn.close()
 
+    def _seed_spatial_index(self) -> Dict[str, int]:
+        spatial_db = self._get_spatial_db_path()
+        if not spatial_db:
+            return {"spatial_places_seeded": 0}
+
+        conn = sqlite3.connect(spatial_db)
+        conn.execute("PRAGMA foreign_keys = ON")
+        self._apply_spatial_schema(conn)
+        self._seed_spatial_anchors(conn)
+        places = self._load_spatial_places()
+        seeded = self._insert_spatial_places(conn, places)
+        conn.commit()
+        conn.close()
+        return {"spatial_places_seeded": seeded}
+
+    def _get_spatial_db_path(self) -> Optional[Path]:
+        candidates = [
+            Path("vault") / ".udos" / "state.db",
+            Path("vault") / "05_DATA" / "sqlite" / "udos.db",
+        ]
+        root = Path(__file__).parents[2]
+        vault_root = root / "vault"
+        candidates = [
+            vault_root / ".udos" / "state.db",
+            vault_root / "05_DATA" / "sqlite" / "udos.db",
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                return candidate
+        if not candidates[0].parent.exists():
+            candidates[0].parent.mkdir(parents=True, exist_ok=True)
+        return candidates[0]
+
+    def _apply_spatial_schema(self, conn: sqlite3.Connection):
+        if SPATIAL_SCHEMA_PATH.exists():
+            conn.executescript(SPATIAL_SCHEMA_PATH.read_text())
+
+    def _seed_spatial_anchors(self, conn: sqlite3.Connection):
+        registry = MEMORY_SPATIAL_DIR / "anchors.json"
+        if not registry.exists():
+            registry = DEFAULT_ANCHOR_REGISTRY
+        if not registry.exists():
+            return
+        anchors = json.loads(registry.read_text()).get("anchors", [])
+        now = int(time.time())
+        cursor = conn.cursor()
+        for anchor in anchors:
+            cursor.execute(
+                """
+                INSERT INTO anchors(anchor_id, kind, title, status, config_json, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(anchor_id) DO UPDATE SET
+                    kind = excluded.kind,
+                    title = excluded.title,
+                    status = excluded.status,
+                    config_json = excluded.config_json,
+                    updated_at = excluded.updated_at
+                """,
+                (
+                    anchor.get("anchorId"),
+                    anchor.get("kind"),
+                    anchor.get("title"),
+                    anchor.get("status", "active"),
+                    json.dumps(anchor.get("config", {})),
+                    now,
+                    now,
+                ),
+            )
+
+    def _load_spatial_places(self) -> List[Dict[str, Any]]:
+        catalog = MEMORY_SPATIAL_DIR / "places.json"
+        if not catalog.exists():
+            return []
+        try:
+            payload = json.loads(catalog.read_text())
+            return payload.get("places", [])
+        except (json.JSONDecodeError, IOError):
+            return []
+
+    def _insert_spatial_places(
+        self, conn: sqlite3.Connection, places: List[Dict[str, Any]]
+    ) -> int:
+        if not places:
+            return 0
+        cursor = conn.cursor()
+        now = int(time.time())
+        inserted = 0
+        for place in places:
+            place_ref = place.get("placeRef") or ""
+            parsed = _parse_place_ref(place_ref)
+            if not parsed:
+                continue
+            self._ensure_locid(conn, parsed["loc_id"], parsed["effective_layer"], parsed["final_cell"])
+            place_id = place.get("placeId") or self._build_place_id(
+                parsed["anchor_id"],
+                parsed["space"],
+                parsed["loc_id"],
+                parsed.get("depth"),
+                parsed.get("instance"),
+            )
+            cursor.execute(
+                """
+                INSERT INTO places(place_id, anchor_id, space, loc_id, depth, instance, label, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(place_id) DO UPDATE SET
+                  anchor_id = excluded.anchor_id,
+                  space = excluded.space,
+                  loc_id = excluded.loc_id,
+                  depth = excluded.depth,
+                  instance = excluded.instance,
+                  label = excluded.label,
+                  updated_at = excluded.updated_at
+                """,
+                (
+                    place_id,
+                    parsed["anchor_id"],
+                    parsed["space"],
+                    parsed["loc_id"],
+                    parsed.get("depth"),
+                    parsed.get("instance"),
+                    place.get("label"),
+                    now,
+                    now,
+                ),
+            )
+            inserted += 1
+        return inserted
+
+    def _ensure_locid(self, conn: sqlite3.Connection, loc_id: str, layer: int, cell: str):
+        now = int(time.time())
+        conn.execute(
+            """
+            INSERT INTO locids(loc_id, effective_layer, final_cell, created_at)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(loc_id) DO UPDATE SET
+              effective_layer = excluded.effective_layer,
+              final_cell = excluded.final_cell
+            """,
+            (loc_id, layer, cell, now),
+        )
+
+    def _build_place_id(
+        self, anchor_id: str, space: str, loc_id: str, depth: Optional[int], instance: Optional[str]
+    ) -> str:
+        base = [anchor_id, space, loc_id, str(depth or ""), instance or ""]
+        return hashlib.sha1(":".join(base).encode("utf-8")).hexdigest()
+
     def _migrate_data(self, json_data: Dict) -> Dict:
         """
         Migrate location data from JSON to SQLite.
@@ -467,6 +650,8 @@ class LocationMigrator:
 
         conn.commit()
         conn.close()
+        spatial_stats = self._seed_spatial_index()
+        stats.update(spatial_stats)
 
         return stats
 

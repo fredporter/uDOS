@@ -274,7 +274,7 @@ open http://localhost:8765
 1. **Read Architecture** — See [AGENTS.md](AGENTS.md) for system design
 2. **Explore Components** — Check [core/](core/), [wizard/](wizard/), [extensions/](extensions/)
 3. **Write Your First Script** — uDOS supports `.ucode.md` and uPY scripting
-4. **Join Development** — See [CONTRIBUTING.md](docs/contributing.md)
+4. **Join Development** — See [Contributing](wiki/Contributing.md)
 
 ---
 

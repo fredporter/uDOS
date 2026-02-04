@@ -40,15 +40,26 @@ class BinderManager:
 
     def __init__(self, repo_root: Optional[Path] = None):
         self.repo_root = repo_root or get_repo_root()
-        self.sandbox_root = self.repo_root / "memory" / "sandbox" / "binders"
-        self.workspace_root = self.repo_root / "memory" / "bank" / "binders"
+        vault_root = self.repo_root / "vault"
+        self.sandbox_root = vault_root / "sandbox" / "binders"
+        self.workspace_root = vault_root / "bank" / "binders"
         self.sandbox_root.mkdir(parents=True, exist_ok=True)
         self.workspace_root.mkdir(parents=True, exist_ok=True)
 
     def get_workspace_dir(self, workspace: BinderWorkspace) -> Path:
+        vault_root = self.repo_root / "vault"
         if workspace == BinderWorkspace.SANDBOX:
             return self.sandbox_root
-        target = self.workspace_root / workspace.value
+        if workspace == BinderWorkspace.PUBLIC:
+            target = vault_root / "public-open-published" / "published" / "binders"
+        elif workspace == BinderWorkspace.PRIVATE:
+            target = vault_root / "private-explicit" / "binders"
+        elif workspace == BinderWorkspace.SHARED:
+            target = vault_root / "private-shared" / "binders"
+        elif workspace == BinderWorkspace.SUBMIT:
+            target = vault_root / "public-open-published" / "submissions" / "pending" / "binders"
+        else:
+            target = self.workspace_root / workspace.value
         target.mkdir(parents=True, exist_ok=True)
         return target
 
@@ -130,8 +141,8 @@ class BinderManager:
     def describe_workspaces(self) -> Dict[str, str]:
         return {
             "sandbox": str(self.sandbox_root),
-            "public": str(self.workspace_root / "public"),
-            "private": str(self.workspace_root / "private"),
-            "shared": str(self.workspace_root / "shared"),
-            "submit": str(self.workspace_root / "submit"),
+            "public": str(self.get_workspace_dir(BinderWorkspace.PUBLIC)),
+            "private": str(self.get_workspace_dir(BinderWorkspace.PRIVATE)),
+            "shared": str(self.get_workspace_dir(BinderWorkspace.SHARED)),
+            "submit": str(self.get_workspace_dir(BinderWorkspace.SUBMIT)),
         }

@@ -208,7 +208,7 @@
 
   <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 mt-6">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-semibold text-white">Round 3 Slot Mappings</h3>
+      <h3 class="text-lg font-semibold text-white">Round 3 Slot Mappings (Obsidian-first)</h3>
       <button class="text-xs text-blue-300" on:click={copyMappingExport}>
         Export JSON
       </button>
@@ -218,7 +218,7 @@
     {/if}
     {#if $mappingStore.mappings.length === 0}
       <p class="text-gray-400 text-sm">
-        No runtime slots have been mapped yet. Use the Round 3 mapper to assign Notion blocks to slots.
+        No runtime slots have been mapped yet. Use the Round 3 mapper to assign Obsidian files (preferred) or Notion blocks to slots.
       </p>
     {:else}
       <div class="space-y-3">
@@ -229,13 +229,13 @@
               <span>{entry.slot}</span>
             </div>
             <div class="text-sm text-white font-mono break-all">
-              {entry.blockId}
+              {entry.obsidianPath || entry.notionBlockId || "unmapped"}
             </div>
             <p class="text-gray-300 text-sm">
               Note: {entry.note || "no note yet"}
             </p>
             <p class="text-gray-500 text-xs">
-              {entry.blockType || "block"} · {entry.runtimeType || "runtime"} ·
+              {entry.source || "obsidian"} · {entry.blockType || "block"} · {entry.runtimeType || "runtime"} ·
               Mapped at {new Date(entry.lastMapped).toLocaleString()}
             </p>
           </div>

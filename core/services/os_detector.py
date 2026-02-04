@@ -29,7 +29,6 @@ import platform
 import subprocess
 from pathlib import Path
 from typing import Dict, List, Optional
-from functools import lru_cache
 
 
 class OSDetector:
@@ -373,15 +372,19 @@ class OSDetector:
 
 
 # Singleton accessor
-@lru_cache(maxsize=1)
 def get_os_detector() -> OSDetector:
     """
     Get OSDetector singleton instance.
 
-    Returns:
-        OSDetector instance
+    Respects UDOS_PLATFORM overrides across test runs.
     """
-    return OSDetector()
+    override = os.environ.get("UDOS_PLATFORM", "").lower()
+    if OSDetector._instance is None:
+        return OSDetector()
+    if override and override != OSDetector._instance.get_platform():
+        OSDetector._instance = None
+        return OSDetector()
+    return OSDetector._instance
 
 
 # Convenience functions for handlers

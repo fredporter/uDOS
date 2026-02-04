@@ -39,6 +39,12 @@ def create_catalog_routes(auth_guard=None):
         plugins = repo.search_plugins(q)
         return {"success": True, "plugins": [p.to_dict() for p in plugins]}
 
+    @router.post("/updates/refresh")
+    async def refresh_updates():
+        repo = get_repository()
+        result = repo.refresh_update_flags()
+        return {"success": True, "result": result}
+
     @router.get("/plugins/{plugin_id}")
     async def get_plugin(plugin_id: str):
         repo = get_repository()
