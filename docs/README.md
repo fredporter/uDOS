@@ -87,6 +87,13 @@ See [specs/uCODE-v1.3.md](specs/uCODE-v1.3.md) for all commands.
 
 ---
 
+## 🧪 Testing & Release
+
+- **[ROUND-11-RELEASE-TEST.md](ROUND-11-RELEASE-TEST.md)** — Extensive v1.3.0 release test round
+- **[howto/renderer-indexer-runbook.md](howto/renderer-indexer-runbook.md)** — Renderer + task indexer runbook
+
+---
+
 ## 🔧 How-To Guides
 
 - **[howto/alpine-install.md](howto/alpine-install.md)** — Install on Alpine Linux

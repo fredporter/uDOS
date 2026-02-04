@@ -19,7 +19,9 @@ This file defines the minimal documentation spine for the v1.3 release.
 - `docs/DISTRIBUTION-GUIDE.md`
 - `v1.3.0-release-manifest.yml`
 
+## Testing
+- `docs/ROUND-11-RELEASE-TEST.md`
+
 ## Submodules + Extensions
 - `docs/SUBMODULE-STRATEGY.md`
 - `docs/CONTRIBUTION-PROCESS.md`
-

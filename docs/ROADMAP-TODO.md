@@ -23,6 +23,7 @@ This live tracker lists the remaining development items referenced by `docs/ROAD
 | Hot reload/self-heal training & docs | Core | Done | Automation logging plus `tui` stability guards added, hot-reload debouncing tested and documented. |
 | Phase 1B DocumentRunner state/set coverage | Core | Done | DocumentRunner now exercises state/set blocks end-to-end and new TypeScript tests live in `memory/tests/phase1b_*.test.ts`; legacy `__tests__` moved into `memory/tests/legacy`. |
 | Memory test scheduler & startup health hook | Core | Done | TUI now polls `~/memory/tests/` for new/changed test files, runs `automation.py`, and surfaces outcomes in the health summary/log. |
+| Prepare v1.3.0 release test round | Documentation | Done | Test plan published in `docs/ROUND-11-RELEASE-TEST.md`. |
 
 > 🔁 Keep this file synchronized with the next actions section of `docs/ROADMAP.md`.
 

@@ -2,7 +2,7 @@
 
 Offline-first OS layer for knowledge systems, tools, and portable environments.
 
-**Status:** v1.3.0 (release transition)  
+**Status:** v1.3.0 (released)  
 **Primary target:** Alpine Linux (Sonic USB)  
 **Also supported:** macOS, Ubuntu, Windows (dev)
 
