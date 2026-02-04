@@ -1,0 +1,89 @@
+version: "3.9"
+services:
+  wizard-core:
+    image: udos/wizard-core:latest
+    ports:
+      - "8765:8765"
+    environment:
+      - UDOS_ROOT=/workspace/uDOS
+      - ENVIRONMENT=production
+    volumes:
+      - ../vault:/workspace/vault
+      - ../wizard/config:/workspace/config
+    restart: unless-stopped
+
+  renderer:
+    image: udos/renderer:latest
+    depends_on:
+      - wizard-core
+    volumes:
+      - ../vault:/workspace/vault
+      - ../themes:/workspace/themes
+    command: ["/workspace/renderer/run.sh", "--watch" ]
+
+  portal-static:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ../vault/_site:/usr/share/nginx/html:ro
+    depends_on:
+      - renderer
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+
+  ai-router:
+    image: udos/ai-router:latest
+    depends_on:
+      - wizard-core
+      - ollama
+    environment:
+      - OLLAMA_ENDPOINT=http://ollama:11434
+
+  vibe-cli:
+    build: ./vibe-cli
+    depends_on:
+      - wizard-core
+    volumes:
+      - ../vault:/workspace/vault
+    environment:
+      - WIZARD_ENDPOINT=http://wizard-core:8765
+      - VIBE_SETTINGS=/workspace/vault/.udos/vibe.json
+    restart: unless-stopped
+
+  web-admin:
+    build: ../web-admin
+    ports:
+      - "3000:3000"
+    depends_on:
+      - wizard-core
+    environment:
+      - THEME_PACKS_PATH=/workspace/themes
+    volumes:
+      - ../web-admin:/workspace/web-admin
+
+  vault-service:
+    image: udos/vault-service:latest
+    volumes:
+      - ../vault:/workspace/vault
+    depends_on:
+      - wizard-core
+
+  mission-scheduler:
+    build: ./mission-scheduler
+    depends_on:
+      - wizard-core
+      - renderer
+      - ai-router
+    volumes:
+      - ../vault:/workspace/vault
+    environment:
+      - WIZARD_RENDER_URL=http://wizard-core:8765/api/renderer/render
+      - CONTRIBUTIONS_DIR=/workspace/vault/contributions/pending
+      - THEME=prose
+      - INTERVAL_SECONDS=60
+    restart: unless-stopped

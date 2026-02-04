@@ -1,0 +1,35 @@
+{
+  "mission_id": "renderer-cli-test-b",
+  "job_id": "job-1770133410825",
+  "runner": "renderer-cli",
+  "status": "completed",
+  "theme": "prose",
+  "started_at": "2026-02-03T15:43:30.824Z",
+  "completed_at": "2026-02-03T15:43:30.845Z",
+  "output_root": "/var/folders/nf/6543n_7j3d552n6fjbdrp2m00000gn/T/udos-renderer-out-84wFoj",
+  "artifacts": {
+    "site_root": "/var/folders/nf/6543n_7j3d552n6fjbdrp2m00000gn/T/udos-renderer-out-84wFoj/prose"
+  },
+  "rendered_files": [
+    {
+      "path": "notes/alpha/index.html",
+      "size": 917,
+      "updatedAt": "2026-02-03T15:43:30.843Z"
+    },
+    {
+      "path": "notes/beta/index.html",
+      "size": 915,
+      "updatedAt": "2026-02-03T15:43:30.846Z"
+    }
+  ],
+  "nav": [
+    {
+      "title": "Alpha Note",
+      "href": "./notes/alpha/"
+    },
+    {
+      "title": "Beta Note",
+      "href": "./notes/beta/"
+    }
+  ]
+}

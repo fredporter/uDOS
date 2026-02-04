@@ -1,0 +1,62 @@
+{
+  "version": "1.3.0",
+  "anchors": [
+    {
+      "anchorId": "EARTH",
+      "kind": "earth",
+      "title": "Earth (Web Mercator adapter)",
+      "status": "active",
+      "config": {
+        "projection": "web_mercator",
+        "notes": "Internal-only lat/long adapter; users primarily see LocIds."
+      }
+    },
+    {
+      "anchorId": "BODY:MOON",
+      "kind": "body",
+      "title": "Moon",
+      "status": "active",
+      "config": {
+        "frame": "selenographic",
+        "notes": "Surface grid on lunar body; computed sky still applies."
+      }
+    },
+    {
+      "anchorId": "BODY:MARS",
+      "kind": "body",
+      "title": "Mars",
+      "status": "active",
+      "config": {
+        "frame": "areographic",
+        "notes": "Surface grid on Mars; sparse authored tiles and metadata."
+      }
+    },
+    {
+      "anchorId": "CATALOG:iau",
+      "kind": "catalog",
+      "title": "IAU Naming Catalogue",
+      "status": "active",
+      "config": {
+        "notes": "Namespace for celestial naming/designations; intended for sparse refs."
+      }
+    },
+    {
+      "anchorId": "CATALOG:stars",
+      "kind": "catalog",
+      "title": "Stars (generic catalogue)",
+      "status": "active",
+      "config": {
+        "notes": "Computed sky views reference catalogues; do not store dense star tiles."
+      }
+    },
+    {
+      "anchorId": "CATALOG:planets",
+      "kind": "catalog",
+      "title": "Planets (ephemeris-backed)",
+      "status": "active",
+      "config": {
+        "notes": "Ephemeris references for computed sky and planetary positions."
+      }
+    }
+  ]
+}

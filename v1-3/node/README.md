@@ -1,0 +1,3 @@
+# node
+
+Container deployment skeleton.

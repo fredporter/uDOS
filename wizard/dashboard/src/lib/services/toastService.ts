@@ -1,4 +1,5 @@
-import toastStore, { ToastEntry, ToastTier } from "$lib/stores/toastStore";
+import toastStore from "$lib/stores/toastStore";
+import type { ToastEntry, ToastTier } from "$lib/stores/toastStore";
 import { buildAuthHeaders } from "./auth";
 import { apiFetch } from "$lib/services/apiBase";
 
@@ -48,19 +49,35 @@ function notify(
   }
 }
 
-export function notifyInfo(title: string, message: string, meta?: Record<string, unknown>) {
+export function notifyInfo(
+  title: string,
+  message: string,
+  meta?: Record<string, unknown>,
+) {
   notify("info", title, message, meta);
 }
 
-export function notifySuccess(title: string, message: string, meta?: Record<string, unknown>) {
+export function notifySuccess(
+  title: string,
+  message: string,
+  meta?: Record<string, unknown>,
+) {
   notify("success", title, message, meta);
 }
 
-export function notifyWarning(title: string, message: string, meta?: Record<string, unknown>) {
+export function notifyWarning(
+  title: string,
+  message: string,
+  meta?: Record<string, unknown>,
+) {
   notify("warning", title, message, meta);
 }
 
-export function notifyError(title: string, message: string, meta?: Record<string, unknown>) {
+export function notifyError(
+  title: string,
+  message: string,
+  meta?: Record<string, unknown>,
+) {
   notify("error", title, message, meta);
 }
 

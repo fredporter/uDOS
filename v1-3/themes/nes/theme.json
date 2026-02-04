@@ -1,0 +1,7 @@
+{
+  "id": "nes",
+  "name": "NES.css wrapper",
+  "mode": "article",
+  "contentClass": "nes-container",
+  "notes": "Starter theme pack."
+}

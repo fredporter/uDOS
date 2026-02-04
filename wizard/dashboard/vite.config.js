@@ -18,6 +18,13 @@ export default defineConfig({
   build: {
     outDir: "dist",
     emptyOutDir: true,
+    chunkSizeWarningLimit: 2000,
+    rollupOptions: {
+      output: {
+        assetFileNames: "assets/[name]-[hash][extname]",
+      },
+      external: [/^\/api\/fonts\/file/],
+    },
   },
   server: {
     port: 5174,
