@@ -2,8 +2,8 @@
 
 Offline-first OS layer for knowledge systems, tools, and portable environments.
 
-**Status:** v1.3.0 (released)  
-**Primary target:** Alpine Linux (Sonic USB)  
+**Status:** v1.3.0 (released)
+**Primary target:** Alpine Linux (Sonic USB)
 **Also supported:** macOS, Ubuntu, Windows (dev)
 
 **Start here:**
@@ -24,13 +24,15 @@ Common first commands:
 - `STATUS`
 - `WIZARD start`
 
+**Note:** uDOS is designed as a local Obsidian companion app. We recommend using [Obsidian](https://obsidian.md) as your independent text editor and vault reader. uDOS shares your vault using an open-box format—no sync required!
+
 ---
 
 ## What Ships in v1.3
 
 - **Core** — Deterministic Markdown → HTML runtime (offline)
 - **Wizard** — LAN gateway (AI routing, plugins, sync)
-- **Sonic** — Bootable USB builder  
+- **Sonic** — Bootable USB builder
   Repo: `https://github.com/fredporter/uDOS-sonic`
 - **App** — macOS Tauri editor (alpha)
 - **Extensions** — Container/plugin ecosystem

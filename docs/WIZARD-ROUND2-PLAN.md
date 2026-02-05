@@ -68,7 +68,7 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
 
 1. Run `python -m wizard.server --no-interactive` with the new rate limiter/policy enforcer hooks and record baseline latency & error metrics (target < 1% 500 responses).
 2. Complete OAuth Phase 6A (Google, Microsoft, GitHub, Apple) with PKCE/callback validations and refresh token cleanup scripts; log results under `[WIZ]` tags via `logging_manager`.
-3. Expand workflow automation (Phase 6B-6D) to include HubSpot CRM, Notion, and iCloud syncs, ensuring each sync job is visible through `monitoring_manager` timelines and gating them via `quota_tracker` to avoid drift.
+3. Expand workflow automation (Phase 6B-6D) to include HubSpot CRM and iCloud syncs, ensuring each sync job is visible through `monitoring_manager` timelines and gating them via `quota_tracker` to avoid drift.
 4. Harden plugin installs by wiring manifest verification code into `wizard/services/plugin_repository.py` and `LibraryManagerService`, and add automation acceptance tests that replay the Sonic catalog drive (see `sonic/docs/specs/sonic-screwdriver-v1.1.0.md`).
 5. Document every optimization/hardening change in `docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md` so later rounds inspect the same references before building UI surfaces.
 
@@ -89,7 +89,7 @@ Delivering Round 2 means Wizard must feel faster, more reliable, and harder to t
 | 11 | Feb 10 | Harden integration API abuse prevention: gate `/api/library/*` and parser endpoints with the shared rate limiter, replay the throttle history from `memory/logs/provider-load.log`, and ensure policy enforcement feeds back into `/dev/` restart gating. | Workflow/Policy Squad | `wizard/routes/library_routes.py`, `wizard/services/rate_limiter.py` |
 | 12 | Feb 11 | Expand automation watchers for `startup-script.md`/`reboot-script.md`: they must read `health-training.log`, confirm hotkey snapshot match, and emit PATTERN banners. | Integration/Operations Squad | `wizard/services/monitoring_manager.py`, `wizard/services/notification_history_service.py` |
 | 13 | Feb 12 | Tune `monitoring_manager`/`logging_manager` dashboards: surface remaining issues, automation logs, and provider rotation events for daily reviews. | Integration/Operations Squad | `wizard/services/logging_manager.py`, `wizard/services/monitoring_manager.py` |
-| 14 | Feb 13 | Begin HubSpot/Notion/iCloud sync ramp-up with quota gating while continuing to monitor SLOs and `health-training` state; prepare language for next round. | Integration/Operations Squad | `wizard/services/task_scheduler.py`, `wizard/services/sync_executor.py` |
+| 14 | Feb 13 | Begin HubSpot/iCloud sync ramp-up with quota gating while continuing to monitor SLOs and `health-training` state; prepare language for next round. | Integration/Operations Squad | `wizard/services/task_scheduler.py` |
 
 > **Cycle 1 snapshot:** `tools/cycle1_gateway_telemetry.py` runs the gateway telemetry health check, records the provider fingerprint, and appends the latest summary (timestamp: 2026-01-31T14:35:39Z) to `memory/logs/health-training.log` so automation has the baseline it needs before Cycle 2.
 

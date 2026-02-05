@@ -2,6 +2,8 @@
 
 Get up and running with uDOS in 5 minutes.
 
+**Note:** uDOS is designed as a local Obsidian companion app. We recommend using [Obsidian](https://obsidian.md) as your independent text editor and vault reader. uDOS shares your vault using an open-box format—no sync required!
+
 ---
 
 ## Prerequisites

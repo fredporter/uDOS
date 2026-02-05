@@ -2,9 +2,9 @@ import { get, writable } from "svelte/store";
 
 export type SlotMapping = {
   slot: string;
-  source: "obsidian" | "notion";
+  source: "obsidian" | "notion"; // "notion" = legacy/imported data
   obsidianPath?: string;
-  notionBlockId?: string;
+  notionBlockId?: string; // Legacy: imported from old Notion sync
   note: string;
   payload?: string;
   blockType?: string;
@@ -39,7 +39,9 @@ function readStoredState(): MappingState {
   }
   try {
     const parsed = JSON.parse(legacy);
-    const legacyMappings = Array.isArray(parsed.mappings) ? parsed.mappings : [];
+    const legacyMappings = Array.isArray(parsed.mappings)
+      ? parsed.mappings
+      : [];
     return {
       mappings: legacyMappings.map((entry: any) => ({
         slot: entry.slot,
@@ -80,7 +82,9 @@ export function setSlotMapping(payload: {
 }) {
   mappingStore.update((state) => {
     const timestamp = new Date().toISOString();
-    const existing = state.mappings.filter((entry) => entry.slot !== payload.slot);
+    const existing = state.mappings.filter(
+      (entry) => entry.slot !== payload.slot,
+    );
     const hasObsidian = Boolean(payload.obsidianPath);
     const updated = [
       ...existing,

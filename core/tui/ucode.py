@@ -349,6 +349,129 @@ class uCODETUI:
         for entry in history:
             print(f"  {entry}")
 
+    def _route_input(self, user_input: str) -> Dict[str, Any]:
+        """
+        Route input based on prefix: ':', 'OK', '/', or question mode.
+
+        Returns:
+            Dict with status, message, and routed result
+        """
+        user_input = user_input.strip()
+        if not user_input:
+            return {"status": "error", "message": "Empty input"}
+
+        # Mode 1: Command mode (OK ... or :...)
+        if user_input.startswith("OK ") or user_input.startswith(":"):
+            # Normalize : to remove the colon and pass the rest as a normal command
+            if user_input.startswith(":"):
+                # Remove the : and pass the rest to dispatcher
+                normalized = user_input[1:].strip()
+            else:
+                # Remove "OK " prefix and pass the rest to dispatcher
+                normalized = user_input[3:].strip()
+
+            # Now route the normalized command to dispatcher
+            return self.dispatcher.dispatch(normalized, parser=self.prompt)
+
+        # Mode 2: Slash mode
+        if user_input.startswith("/"):
+            return self._handle_slash_input(user_input)
+
+        # Mode 3: Question mode (natural language routing)
+        return self._handle_question_mode(user_input)
+
+    def _handle_slash_input(self, user_input: str) -> Dict[str, Any]:
+        """
+        Handle slash-prefixed input.
+
+        If first token is a known slash command, route to uCODE.
+        Otherwise, treat as shell command.
+        """
+        tokens = user_input[1:].strip().split(None, 1)  # Remove leading /
+        if not tokens:
+            return {"status": "error", "message": "Empty slash command"}
+
+        first_token = tokens[0].lower()
+        rest_of_line = tokens[1] if len(tokens) > 1 else ""
+
+        # Known slash commands (from UCODE-PROMPT-SPEC.md)
+        slash_commands = {
+            "render": "RENDER",
+            "help": "HELP",
+            "whoami": "WHOAMI",
+        }
+
+        if first_token in slash_commands:
+            # Route to uCODE command (without OK prefix)
+            ucode_cmd = slash_commands[first_token]
+            if rest_of_line:
+                ucode_cmd += " " + rest_of_line
+            return self.dispatcher.dispatch(ucode_cmd, parser=self.prompt)
+        else:
+            # Treat as shell command
+            return self._execute_shell_command(user_input[1:].strip())
+
+    def _execute_shell_command(self, shell_cmd: str) -> Dict[str, Any]:
+        """
+        Execute a shell command safely.
+
+        Logs destructive patterns and requires confirmation.
+        """
+        # Log the command
+        self.logger.info(f"[SHELL] {shell_cmd}")
+
+        # Detect destructive patterns
+        destructive_keywords = {"rm", "mv", ">", "|", "sudo", "rmdir", "dd", "format"}
+        cmd_lower = shell_cmd.lower()
+
+        if any(kw in cmd_lower for kw in destructive_keywords):
+            # Ask for confirmation
+            confirm = self.prompt.ask_yes_no(
+                f"Destructive command detected: {shell_cmd}\nProceed?",
+                default=False
+            )
+            if not confirm:
+                return {"status": "cancelled", "message": "Command cancelled by user"}
+
+        try:
+            result = subprocess.run(
+                shell_cmd,
+                shell=True,
+                cwd=str(self.repo_root),
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+
+            output = result.stdout or result.stderr
+            if result.returncode == 0:
+                return {
+                    "status": "success",
+                    "message": output or "Command executed successfully",
+                    "shell_output": output
+                }
+            else:
+                return {
+                    "status": "error",
+                    "message": output or f"Command failed with exit code {result.returncode}",
+                    "shell_output": output
+                }
+        except subprocess.TimeoutExpired:
+            return {"status": "error", "message": "Command timed out (30s limit)"}
+        except Exception as e:
+            return {"status": "error", "message": f"Shell execution failed: {str(e)}"}
+
+
+    def _handle_question_mode(self, user_input: str) -> Dict[str, Any]:
+        """
+        Handle question mode (natural language routing via Vibe CLI).
+
+        Routes to 'NL ROUTE' command for Vibe-powered analysis.
+        """
+        # Try to use NL ROUTE if vibe is available
+        vibe_cmd = f"NL ROUTE {user_input}"
+        return self.dispatcher.dispatch(vibe_cmd, parser=self.prompt)
+
     def run(self) -> None:
         """Start uCODE TUI."""
         self.running = True
@@ -377,26 +500,19 @@ class uCODETUI:
                     if not user_input:
                         continue
 
-                    # Parse command
-                    parts = user_input.split(None, 1)
-                    cmd = parts[0].upper()
-                    args = parts[1] if len(parts) > 1 else ""
-
-                    # Check for uCODE commands
-                    if cmd in self.commands:
-                        self.commands[cmd](args)
-                        continue
+                    # Route input based on prefix (: / OK) or question mode
+                    # This implements the uCODE Prompt Spec
+                    result = self._route_input(user_input)
 
                     # Special handling for STORY and SETUP commands with forms
-                    if cmd in ("STORY", "SETUP"):
-                        result = self.dispatcher.dispatch(user_input, parser=self.prompt)
-
+                    normalized_cmd = result.get("command", "").upper()
+                    if normalized_cmd in ("STORY", "SETUP"):
                         # Check if this is a form-based story
                         if result.get("story_form"):
                             collected_data = self._handle_story_form(result["story_form"])
 
                             # Save collected data if this came from SETUP command
-                            if cmd == "SETUP" and collected_data:
+                            if normalized_cmd == "SETUP" and collected_data:
                                 self._save_user_profile(collected_data)
 
                             print("\n✅ Setup form completed!")
@@ -409,21 +525,14 @@ class uCODETUI:
                             # Show the result for non-form stories
                             output = self.renderer.render(result)
                             print(output)
+                    else:
+                        # Render normal command output
+                        output = self.renderer.render(result)
+                        print(output)
 
-                        self.state.update_from_handler(result)
-                        self.logger.info(f"[COMMAND] {user_input} -> {result.get('status')}")
-                        self.state.add_to_history(user_input)
-                        continue
-
-                    # Route to core dispatcher with smart parsing
-                    # Pass parser so handlers can show interactive menus
-                    result = self.dispatcher.dispatch(user_input, parser=self.prompt)
                     self.state.update_from_handler(result)
                     self.logger.info(f"[COMMAND] {user_input} -> {result.get('status')}")
                     self.state.add_to_history(user_input)
-
-                    output = self.renderer.render(result)
-                    print(output)
 
                 except KeyboardInterrupt:
                     print()
@@ -1324,7 +1433,7 @@ For detailed help on any command, type the command name followed by --help
 ═══ VIBE HELP ═══
 
 VIBE CHAT <prompt> [--no-context] [--model <name>] [--format text|json]
-VIBE CONTEXT [--files a,b,c] [--notes \"...\"] 
+VIBE CONTEXT [--files a,b,c] [--notes \"...\"]
 VIBE HISTORY [--limit N]
 VIBE CONFIG
 VIBE ANALYZE <path>

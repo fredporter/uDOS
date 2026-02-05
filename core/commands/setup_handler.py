@@ -88,6 +88,7 @@ class SetupHandler(BaseCommandHandler):
 
         Usage:
             SETUP              Run the setup story (configure local identity)
+            SETUP webhook      Interactive GitHub & HubSpot webhook setup (vibe-cli style)
             SETUP <provider>   Setup a specific provider (github, ollama, mistral, etc.)
             SETUP --profile    Show your current setup profile
             SETUP --edit       Edit setup values
@@ -104,6 +105,11 @@ class SetupHandler(BaseCommandHandler):
             OS_TYPE            alpine | ubuntu | mac | windows
             WIZARD_KEY         Gateway to Wizard keystore (auto-generated)
 
+        Webhook Setup (interactive, vibe-cli style):
+            SETUP webhook           Full setup (GitHub + HubSpot)
+            SETUP webhook github    GitHub webhooks only
+            SETUP webhook hubspot   HubSpot CRM only
+
         Provider Setup (delegates to Wizard):
             Supported: github, ollama, mistral, openrouter, notion, hubspot, gmail
 
@@ -116,6 +122,12 @@ class SetupHandler(BaseCommandHandler):
             return self._run_story()
 
         action = params[0].lower()
+
+        # Check if this is a webhook setup request (new!)
+        if action == "webhook":
+            from core.commands.webhook_setup_handler import WebhookSetupHandler
+            handler = WebhookSetupHandler()
+            return handler.handle("SETUP", params, grid, parser)
 
         # Check if this is a provider setup request
         provider_names = {"github", "ollama", "mistral", "openrouter", "notion", "hubspot", "gmail"}
@@ -136,7 +148,7 @@ class SetupHandler(BaseCommandHandler):
             return {
                 "status": "error",
                 "message": f"Unknown option: {action}",
-                "help": "Usage: SETUP [provider|--profile|--edit|--clear|--help]\n       Providers: github, ollama, mistral, openrouter, notion, hubspot, gmail"
+                "help": "Usage: SETUP [webhook|provider|--profile|--edit|--clear|--help]\n       Webhook: SETUP webhook [github|hubspot]\n       Providers: github, ollama, mistral, openrouter, notion, hubspot, gmail"
             }
 
 

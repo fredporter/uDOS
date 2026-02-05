@@ -317,12 +317,12 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "syntax": "STORY [<file>] | STORY PARSE <file> | STORY NEW <name>",
         },
         "SETUP": {
-            "description": "Local setup & provider configuration",
-            "usage": "SETUP [provider|--story|--profile|--edit|--clear|--help]",
-            "example": "SETUP github or SETUP ollama or SETUP --profile",
-            "notes": "Configure local identity or setup providers (github, ollama, mistral, hubspot, notion, openrouter, gmail)",
+            "description": "Local setup & webhook configuration (vibe-cli interactive)",
+            "usage": "SETUP [webhook|provider|--profile|--edit|--clear|--help]",
+            "example": "SETUP webhook or SETUP github or SETUP --profile",
+            "notes": "Configure local identity, webhooks (interactive), or providers",
             "category": "Advanced",
-            "syntax": "SETUP [<provider>] [--profile|--edit|--clear|--help]",
+            "syntax": "SETUP [webhook|<provider>|--profile|--edit|--clear|--help]",
         },
         "BINDER": {
             "description": "Core binder operations",

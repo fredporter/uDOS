@@ -1,9 +1,11 @@
 # 👋 START HERE — uDOS v1.3
 
-**Version:** v1.3.0  
+**Version:** v1.3.0
 **Last Updated:** 2026-02-04
 
 Welcome! This guide gets you oriented quickly and points you to the right place.
+
+**Note:** uDOS is designed as a local Obsidian companion app. We recommend using [Obsidian](https://obsidian.md) as your independent text editor and vault reader. uDOS shares your vault using an open-box format—no sync required!
 
 ---
 

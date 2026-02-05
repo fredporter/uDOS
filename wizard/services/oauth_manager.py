@@ -11,7 +11,6 @@ Supported Providers:
 - GitHub
 - Spotify
 - Discord
-- Notion
 - Custom OAuth2 providers
 
 Security:
@@ -63,7 +62,6 @@ class OAuthProvider(Enum):
     GITHUB = "github"
     SPOTIFY = "spotify"
     DISCORD = "discord"
-    NOTION = "notion"
     CUSTOM = "custom"
 
 
@@ -169,7 +167,6 @@ class Connection:
             OAuthProvider.GITHUB: "GitHub",
             OAuthProvider.SPOTIFY: "Spotify",
             OAuthProvider.DISCORD: "Discord",
-            OAuthProvider.NOTION: "Notion",
             OAuthProvider.CUSTOM: "Custom",
         }
         return names.get(self.provider, self.provider.value)
@@ -220,12 +217,6 @@ PROVIDER_CONFIGS = {
         "api_base_url": "https://discord.com/api/v10",
         "user_info_url": "https://discord.com/api/v10/users/@me",
         "default_scopes": ["identify", "email"],
-    },
-    OAuthProvider.NOTION: {
-        "auth_url": "https://api.notion.com/v1/oauth/authorize",
-        "token_url": "https://api.notion.com/v1/oauth/token",
-        "api_base_url": "https://api.notion.com/v1",
-        "default_scopes": [],  # Notion uses workspace permissions
     },
 }
 

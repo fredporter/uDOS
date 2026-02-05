@@ -47,7 +47,6 @@ class APIProvider(Enum):
     GITHUB = "github"
     SPOTIFY = "spotify"
     DISCORD = "discord"
-    NOTION = "notion"
 
     # Local/Free
     OFFLINE = "offline"

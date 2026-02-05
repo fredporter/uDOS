@@ -207,7 +207,6 @@ Monaspace gives you:
 	•	Trust signals (what did I write vs what was suggested)
 
 This is exactly how uDOS differentiates from:
-	•	Notion (no semantics)
 	•	VS Code (no narrative)
 	•	Jupyter (no typographic truth)
 
@@ -294,7 +293,7 @@ Practical effect
 	•	Drop a .csv into /imports
 	•	Run scripts/sync.script.md
 	•	It imports into uDOS-table.db
-	•	Then tables can be exported back to .table.md for human review (or rendered as Notion-style tables later)
+	•	Then tables can be exported back to .table.md for human review
 
 ⸻
 

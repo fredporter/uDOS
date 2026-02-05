@@ -21,16 +21,10 @@
   "compost_cleanup_days": 30,
   "compost_cleanup_dry_run": false,
   "hubspot_enabled": true,
-  "notion_enabled": true,
   "icloud_enabled": true,
   "file_locations": {
     "memory_root": "memory",
     "repo_root": "auto"
   },
-  "enabled_providers": [
-    "github",
-    "notion",
-    "hubspot_cli",
-    "hubspot"
-  ]
+  "enabled_providers": ["github", "hubspot_cli", "hubspot"]
 }
