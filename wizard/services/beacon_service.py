@@ -17,15 +17,34 @@ from typing import Optional, List, Dict, Any, Tuple
 from datetime import datetime, timedelta
 import json
 import sqlite3
-import logging
 from dataclasses import dataclass, asdict
 from enum import Enum
 
-logger = logging.getLogger(__name__)
+from wizard.services.logging_manager import get_logger
+
+logger = get_logger("beacon-service")
 
 # Paths
 BEACON_DB_PATH = Path(__file__).parent.parent.parent / "memory" / "beacon" / "beacon.db"
 BEACON_CONFIG_PATH = Path(__file__).parent / "config" / "beacon.json"
+
+DEFAULT_PORTAL_CONFIG = {
+    "beacon_portal": {
+        "defaults": {
+            "device_quota_monthly_usd": 5.0,
+            "min_request_usd": 0.01,
+            "auto_reset_quota": True,
+        },
+        "tunnel": {
+            "wizard_endpoint": "wizard.udos.cloud",
+            "wizard_public_key": "",
+            "interface_address": "10.64.1.1/32",
+            "listen_port": 51820,
+            "allowed_ips": ["10.64.2.0/24", "192.168.100.0/24"],
+            "persistent_keepalive": 25,
+        },
+    }
+}
 
 
 # ============================================================================
@@ -127,7 +146,67 @@ class BeaconService:
         """Initialize beacon service with optional custom database path."""
         self.db_path = db_path or BEACON_DB_PATH
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self.config_path = BEACON_CONFIG_PATH
+        self.portal_config = self._load_portal_config()
         self._init_db()
+
+    def _deep_merge(self, base: Dict[str, Any], updates: Dict[str, Any]) -> Dict[str, Any]:
+        for key, value in updates.items():
+            if isinstance(value, dict) and isinstance(base.get(key), dict):
+                base[key] = self._deep_merge(base[key], value)
+            else:
+                base[key] = value
+        return base
+
+    def _load_portal_config(self) -> Dict[str, Any]:
+        self.config_path.parent.mkdir(parents=True, exist_ok=True)
+
+        if not self.config_path.exists():
+            self.config_path.write_text(json.dumps(DEFAULT_PORTAL_CONFIG, indent=2))
+            return json.loads(json.dumps(DEFAULT_PORTAL_CONFIG))
+
+        try:
+            data = json.loads(self.config_path.read_text())
+        except Exception as exc:
+            logger.warning(f"[BEACON] Failed to read portal config: {exc}")
+            self.config_path.write_text(json.dumps(DEFAULT_PORTAL_CONFIG, indent=2))
+            return json.loads(json.dumps(DEFAULT_PORTAL_CONFIG))
+
+        merged = self._deep_merge(json.loads(json.dumps(DEFAULT_PORTAL_CONFIG)), data)
+        if merged != data:
+            self.config_path.write_text(json.dumps(merged, indent=2))
+        return merged
+
+    def _save_portal_config(self, config: Dict[str, Any]) -> None:
+        self.config_path.write_text(json.dumps(config, indent=2))
+
+    def get_portal_config(self) -> Dict[str, Any]:
+        return json.loads(json.dumps(self.portal_config))
+
+    def update_portal_config(self, updates: Dict[str, Any]) -> Dict[str, Any]:
+        self.portal_config = self._deep_merge(self.portal_config, updates)
+        self._save_portal_config(self.portal_config)
+        logger.info("[BEACON] Updated portal config")
+        return self.get_portal_config()
+
+    def _get_quota_defaults(self) -> Dict[str, Any]:
+        defaults = self.portal_config.get("beacon_portal", {}).get("defaults", {})
+        return {
+            "device_quota_monthly_usd": float(defaults.get("device_quota_monthly_usd", 5.0)),
+            "min_request_usd": float(defaults.get("min_request_usd", 0.01)),
+            "auto_reset_quota": bool(defaults.get("auto_reset_quota", True)),
+        }
+
+    def _get_tunnel_defaults(self) -> Dict[str, Any]:
+        tunnel = self.portal_config.get("beacon_portal", {}).get("tunnel", {})
+        return {
+            "wizard_endpoint": tunnel.get("wizard_endpoint", "wizard.udos.cloud"),
+            "wizard_public_key": tunnel.get("wizard_public_key", ""),
+            "interface_address": tunnel.get("interface_address", "10.64.1.1/32"),
+            "listen_port": int(tunnel.get("listen_port", 51820)),
+            "allowed_ips": tunnel.get("allowed_ips", ["10.64.2.0/24", "192.168.100.0/24"]),
+            "persistent_keepalive": int(tunnel.get("persistent_keepalive", 25)),
+        }
 
     def _init_db(self):
         """Initialize SQLite database schema."""
@@ -358,8 +437,28 @@ class BeaconService:
         logger.info(f"[WG] Updated tunnel status: {tunnel_id} → {status.value}")
         return True
 
+    def touch_tunnel_heartbeat(self, tunnel_id: str, status: TunnelStatus) -> bool:
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                """
+                UPDATE vpn_tunnels
+                SET status = ?, last_heartbeat = ?
+                WHERE tunnel_id = ?
+            """,
+                (status.value, datetime.now().isoformat(), tunnel_id),
+            )
+            conn.commit()
+
+        return True
+
     def record_tunnel_stats(
-        self, tunnel_id: str, bytes_sent: int, bytes_received: int, latency_ms: int
+        self,
+        tunnel_id: str,
+        bytes_sent: int,
+        bytes_received: int,
+        latency_ms: int,
+        packets_lost: int = 0,
+        handshake_age_sec: int = 3600,
     ) -> bool:
         """Record tunnel statistics for monitoring."""
         with sqlite3.connect(self.db_path) as conn:
@@ -370,11 +469,40 @@ class BeaconService:
                     packets_lost, latency_ms, handshake_age_sec
                 ) VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-                (tunnel_id, datetime.now().isoformat(), bytes_sent, bytes_received, 0, latency_ms, 3600),
+                (
+                    tunnel_id,
+                    datetime.now().isoformat(),
+                    bytes_sent,
+                    bytes_received,
+                    packets_lost,
+                    latency_ms,
+                    handshake_age_sec,
+                ),
             )
             conn.commit()
 
         return True
+
+    def generate_wireguard_config(self, tunnel: VPNTunnel, beacon_private_key: Optional[str] = None) -> str:
+        defaults = self._get_tunnel_defaults()
+        allowed_ips = ", ".join(defaults["allowed_ips"])
+        private_key = beacon_private_key or "<beacon-private-key>"
+        wizard_public_key = defaults["wizard_public_key"] or tunnel.wizard_public_key
+        wizard_endpoint = defaults["wizard_endpoint"] or tunnel.wizard_endpoint
+
+        config = (
+            "[Interface]\n"
+            f"Address = {defaults['interface_address']}\n"
+            f"ListenPort = {defaults['listen_port']}\n"
+            f"PrivateKey = {private_key}\n"
+            "SaveCounters = true\n\n"
+            "[Peer]\n"
+            f"PublicKey = {wizard_public_key}\n"
+            f"Endpoint = {wizard_endpoint}:{defaults['listen_port']}\n"
+            f"AllowedIPs = {allowed_ips}\n"
+            f"PersistentKeepalive = {defaults['persistent_keepalive']}\n"
+        )
+        return config
 
     # ========================================================================
     # DEVICE QUOTA MANAGEMENT
@@ -414,7 +542,7 @@ class BeaconService:
         if not row:
             return None
 
-        return DeviceQuotaEntry(
+        quota = DeviceQuotaEntry(
             device_id=row[0],
             budget_monthly_usd=row[1],
             spent_this_month_usd=row[2],
@@ -422,12 +550,49 @@ class BeaconService:
             month_start=row[4],
             month_end=row[5],
         )
+        return self._refresh_quota_if_needed(quota)
+
+    def get_or_create_device_quota(self, device_id: str) -> DeviceQuotaEntry:
+        quota = self.get_device_quota(device_id)
+        if quota:
+            return quota
+
+        defaults = self._get_quota_defaults()
+        return self.create_device_quota(
+            DeviceQuotaEntry(
+                device_id=device_id,
+                budget_monthly_usd=defaults["device_quota_monthly_usd"],
+            )
+        )
+
+    def _refresh_quota_if_needed(self, quota: DeviceQuotaEntry) -> DeviceQuotaEntry:
+        defaults = self._get_quota_defaults()
+        if not defaults["auto_reset_quota"]:
+            return quota
+
+        try:
+            month_end = datetime.fromisoformat(quota.month_end)
+        except Exception:
+            return quota
+
+        if datetime.now() <= month_end:
+            return quota
+
+        self.reset_device_quota(quota.device_id)
+        return self.get_device_quota(quota.device_id) or quota
 
     def deduct_quota(self, device_id: str, amount_usd: float) -> bool:
         """Deduct amount from device quota."""
+        if amount_usd <= 0:
+            return False
         quota = self.get_device_quota(device_id)
         if not quota:
             return False
+
+        defaults = self._get_quota_defaults()
+        min_request_usd = defaults["min_request_usd"]
+        if 0 < amount_usd < min_request_usd:
+            amount_usd = min_request_usd
 
         if quota.spent_this_month_usd + amount_usd > quota.budget_monthly_usd:
             logger.warning(

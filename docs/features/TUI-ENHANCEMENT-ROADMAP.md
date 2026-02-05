@@ -1,16 +1,14 @@
 ---
-uid: udos-tui-enhancement-2026-01-30
+uid: udos-tui-enhancement
 title: TUI Command Prompt Enhancement Roadmap
 tags: [tui, enhancement, input, commands, filepicker, help]
 status: living
-updated: 2026-01-30
 ---
 
 # uDOS TUI Command Prompt Enhancement Roadmap
 
-**Date:** 2026-01-30  
-**Current State:** Analysis & Planning  
-**Target Parity:** Vibe-CLI / Claude Code TUI  
+**Current State:** Analysis & Planning
+**Target Parity:** Vibe-CLI / Claude Code TUI
 **Scope:** Make the global command prompt as advanced as the existing FilePicker
 
 ---
@@ -47,20 +45,20 @@ The TUI command prompt (`uCODE.py`, `EnhancedPrompt`, `SmartPrompt`) exists but 
 ### Architecture Pattern (FileBrowser)
 ```python
 FileBrowser (display + input loop)
-    ↓
+ ↓
 SelectorFramework (state + navigation)
-    ↓
+ ↓
 KeypadHandler (numpad input)
-    ↓
+ ↓
 Selector items (display lines)
 ```
 
 ### Problem: Command Prompt doesn't follow this pattern
 ```python
 uCODE REPL
-    ↓
+ ↓
 input() [basic, no context, no selector]
-    ↓
+ ↓
 CommandDispatcher (dumb parsing)
 ```
 
@@ -68,14 +66,14 @@ CommandDispatcher (dumb parsing)
 
 ## 🏗️ Enhancement Architecture
 
-### Phase 1: Input Helper Lines (Foundation)
+### Move 1: Input Helper Lines (Foundation)
 **Goal**: Add predictive auto-fill + help/syntax lines below prompt.
 
 **Implementation**:
 ```
 ▶ command_prefix... ← User typing (SmartPrompt autocomplete)
-  ╭─ Suggestions: STATUS, SHAKEDOWN, HELP, WIZARD (+47 more)
-  ╰─ Syntax: COMMAND [options...] | Type '?' for HELP
+ ╭─ Suggestions: STATUS, SHAKEDOWN, HELP, WIZARD (+47 more)
+ ╰─ Syntax: COMMAND [options...] | Type '?' for HELP
 ```
 
 **Files to Create/Update**:
@@ -90,18 +88,18 @@ CommandDispatcher (dumb parsing)
 
 ---
 
-### Phase 2: Workspace Picker (FileBrowser Pattern)
+### Move 2: Workspace Picker (FileBrowser Pattern)
 **Goal**: Modular workspace selector at top of file picker.
 
 **Implementation**:
 ```
 ╔═══════════════════════════════════════════╗
-║  Select Workspace (Before File Picker)   ║
+║ Select Workspace (Before File Picker) ║
 ╠═══════════════════════════════════════════╣
-║  1. 📁 memory/sandbox     (Your workspace) ║
-║  2. 📁 memory/bank        (Saved data)     ║
-║  3. 📁 /knowledge         (Admin: guides)  ║
-║  0. Next page / ? Help                    ║
+║ 1. 📁 memory/sandbox (Your workspace) ║
+║ 2. 📁 memory/bank (Saved data) ║
+║ 3. 📁 /knowledge (Admin: guides) ║
+║ 0. Next page / ? Help ║
 ╚═══════════════════════════════════════════╝
 ```
 
@@ -118,21 +116,21 @@ CommandDispatcher (dumb parsing)
 
 ---
 
-### Phase 3: Global Menu Selector (ModularCommand Menu)
+### Move 3: Global Menu Selector (ModularCommand Menu)
 **Goal**: Command selection menu using SelectorFramework (like FileBrowser).
 
 **Implementation**:
 ```
 ▶ Enter command (or press TAB for menu):
-  
+
 ╔═══════════════════════════════════════════╗
-║  Available Commands                       ║
+║ Available Commands ║
 ╠═══════════════════════════════════════════╣
-║  1. STATUS   - System health check        ║
-║  2. HELP     - Show available commands    ║
-║  3. SHAKEDOWN - Full system validation    ║
-║  4. WIZARD   - Start/stop server          ║
-║  0. Next / ? Help                         ║
+║ 1. STATUS - System health check ║
+║ 2. HELP - Show available commands ║
+║ 3. SHAKEDOWN - Full system validation ║
+║ 4. WIZARD - Start/stop server ║
+║ 0. Next / ? Help ║
 ╚═══════════════════════════════════════════╝
 ```
 
@@ -150,17 +148,17 @@ CommandDispatcher (dumb parsing)
 
 ---
 
-### Phase 4: F-Key Integration
+### Move 4: F-Key Integration
 **Goal**: Wire FKeyHandler into REPL loop for quick actions.
 
 **Implementation**:
 ```
-F1  → HELP
-F2  → STATUS (system check)
-F3  → Recent commands
-F4  → Workspace picker
-F5  → Refresh/reload
-F6  → Wizard controls
+F1 → HELP
+F2 → STATUS (system check)
+F3 → Recent commands
+F4 → Workspace picker
+F5 → Refresh/reload
+F6 → Wizard controls
 F12 → Debug/developer mode
 ```
 
@@ -177,7 +175,7 @@ F12 → Debug/developer mode
 
 ---
 
-### Phase 5: Advanced Help System (Dynamic Docs)
+### Move 5: Advanced Help System (Dynamic Docs)
 **Goal**: Real-time, context-aware help panel.
 
 **Implementation**:
@@ -185,17 +183,17 @@ F12 → Debug/developer mode
 ▶ help <command>
 
 ╔═══════════════════════════════════════════╗
-║  HELP: WIZARD                             ║
+║ HELP: WIZARD ║
 ╠═══════════════════════════════════════════╣
-║  Status: Wizard server management         ║
-║  Syntax: WIZARD [start|stop|status|logs]  ║
-║  Options:                                 ║
-║    --port N    Override default (8765)    ║
-║    --debug     Show server debug logs     ║
-║  Examples:                                ║
-║    WIZARD start       ← Start server      ║
-║    WIZARD status      ← Check if running  ║
-║    WIZARD logs --tail ← Follow logs       ║
+║ Status: Wizard server management ║
+║ Syntax: WIZARD [start|stop|status|logs] ║
+║ Options: ║
+║ --port N Override default (8765) ║
+║ --debug Show server debug logs ║
+║ Examples: ║
+║ WIZARD start ← Start server ║
+║ WIZARD status ← Check if running ║
+║ WIZARD logs --tail ← Follow logs ║
 ╚═══════════════════════════════════════════╝
 ```
 
@@ -214,7 +212,7 @@ F12 → Debug/developer mode
 
 ## 📋 Detailed Implementation Plan
 
-### ✅ Step 1: ContextualCommandPrompt (Phase 1) — COMPLETED 2026-01-30
+### ✅ Step 1: ContextualCommandPrompt (Move 1) — COMPLETED
 
 **Status**: ✅ Implemented and integrated into uCODE REPL
 
@@ -225,34 +223,34 @@ F12 → Debug/developer mode
 
 **What Changed**:
 1. **Created CommandRegistry** — Centralized command metadata storage
-   - Registered 15+ core commands (STATUS, HELP, WIZARD, BINDER, etc.)
-   - Each command has: name, help_text, syntax, options, examples, icon, category
-   - Smart fuzzy matching for suggestions (prefix + substring)
+ - Registered 15+ core commands (STATUS, HELP, WIZARD, BINDER, etc.)
+ - Each command has: name, help_text, syntax, options, examples, icon, category
+ - Smart fuzzy matching for suggestions (prefix + substring)
 
 2. **Created ContextualCommandPrompt** — Extends EnhancedPrompt
-   - `ask_command()` method replaces plain `input()`
-   - Integrates with SmartPrompt for autocomplete
-   - Foundation for future 2-line context display
+ - `ask_command()` method replaces plain `input()`
+ - Integrates with SmartPrompt for autocomplete
+ - Foundation for future 2-line context display
 
 3. **Integrated into uCODE REPL** — Line 267 in `ucode.py`
-   - Changed from: `user_input = self.prompt.ask(plain_prompt)`
-   - Changed to: `user_input = self.prompt.ask_command("▶ ")`
-   - Command registry created during TUI initialization
+ - Changed from: `user_input = self.prompt.ask(plain_prompt)`
+ - Changed to: `user_input = self.prompt.ask_command("▶ ")`
+ - Command registry created during TUI initialization
 
-**Next Steps for Phase 1 Completion**:
+**Next Steps for Move 1 Completion**:
 - [ ] Add real-time suggestion display (requires terminal control)
 - [ ] Display 2-line context as user types:
-  ```
-  ▶ wiz_
-    ╭─ Suggestions: WIZARD (+1 more)
-    ╰─ 🧙 Wizard server management (start/stop/status)
-  ```
+ ```
+ ▶ wiz_
+ ╭─ Suggestions: WIZARD (+1 more)
+ ╰─ 🧙 Wizard server management (start/stop/status)
+ ```
 - [ ] Test with prompt_toolkit integration
 - [ ] Add unit tests for CommandRegistry
 
 ---
 
-### ✅ Step 2: WorkspacePicker (Phase 2) — COMPLETED 2026-01-30
+### ✅ Step 2: WorkspacePicker (Move 2) — COMPLETED
 
 **Status**: ✅ Implemented and integrated into FILE command
 
@@ -266,42 +264,42 @@ F12 → Debug/developer mode
 
 **What Changed**:
 1. **Created WorkspacePicker** — Interactive workspace selector
-   - Shows: @sandbox, @bank, @shared (always)
-   - Admin-only: @wizard, @knowledge, @dev
-   - Uses SelectorFramework pattern (consistent with FileBrowser)
-   - Number selection (1-9), pagination, search
-   - Help overlay with workspace descriptions
+ - Shows: @sandbox, @bank, @shared (always)
+ - Admin-only: @wizard, @knowledge, @dev
+ - Uses SelectorFramework pattern (consistent with FileBrowser)
+ - Number selection (1-9), pagination, search
+ - Help overlay with workspace descriptions
 
 2. **Created FileHandler** — FILE command with two modes
-   - Interactive: `FILE` opens WorkspacePicker → FileBrowser
-   - Quick: `FILE LIST @sandbox`, `FILE SHOW @sandbox/file.md`
-   - Help: `FILE HELP` shows complete usage
-   - Role-aware: Respects admin vs user permissions
+ - Interactive: `FILE` opens WorkspacePicker → FileBrowser
+ - Quick: `FILE LIST @sandbox`, `FILE SHOW @sandbox/file.md`
+ - Help: `FILE HELP` shows complete usage
+ - Role-aware: Respects admin vs user permissions
 
 3. **Integration Functions** — Convenience helpers
-   - `pick_workspace()` — Select workspace only
-   - `pick_workspace_then_file()` — Two-stage picker
-   - Auto-detects project root, handles cancellation
+ - `pick_workspace()` — Select workspace only
+ - `pick_workspace_then_file()` — Two-stage picker
+ - Auto-detects project root, handles cancellation
 
 **User Experience**:
 ```
 ▶ FILE
-  → Workspace picker appears
-  → User selects @sandbox (or other workspace)
-  → File browser opens in that workspace
-  → User navigates and selects file
-  → File info displayed
+ → Workspace picker appears
+ → User selects @sandbox (or other workspace)
+ → File browser opens in that workspace
+ → User navigates and selects file
+ → File info displayed
 ```
 
 **Next Steps**:
 - [ ] Add workspace statistics to picker (file count, size)
 - [ ] Add recent workspaces quick-access
-- [ ] Add F4 hotkey integration (Phase 4)
+- [ ] Add F4 hotkey integration (Move 4)
 - [ ] Test with admin vs user roles
 
 ---
 
-### Step 3: CommandSelector (Phase 3)
+### Step 3: CommandSelector (Move 3)
 
 **File**: `core/input/command_prompt.py`
 
@@ -317,36 +315,36 @@ Wrapper around SmartPrompt that adds:
 """
 
 class CommandRegistry:
-    """Registry of all available commands."""
-    def __init__(self):
-        self.commands: Dict[str, CommandMetadata] = {}
-    
-    def register(self, name: str, help_text: str, options: List[str]):
-        """Register a command with metadata."""
-        pass
-    
-    def get_suggestions(self, prefix: str) -> List[str]:
-        """Get command suggestions for prefix."""
-        pass
+ """Registry of all available commands."""
+ def __init__(self):
+ self.commands: Dict[str, CommandMetadata] = {}
+
+ def register(self, name: str, help_text: str, options: List[str]):
+ """Register a command with metadata."""
+ pass
+
+ def get_suggestions(self, prefix: str) -> List[str]:
+ """Get command suggestions for prefix."""
+ pass
 
 class ContextualCommandPrompt(EnhancedPrompt):
-    """Enhanced prompt with command registry integration."""
-    
-    def __init__(self, registry: CommandRegistry):
-        super().__init__()
-        self.registry = registry
-    
-    def ask_command(self, prompt_text: str = "▶ ") -> str:
-        """Ask for command with predictive help."""
-        # As user types, update suggestions/help
-        # Display:
-        #   ▶ user_input...
-        #   ╭─ Suggestions: CMD1, CMD2, CMD3
-        #   ╰─ Help: Command syntax...
-        pass
+ """Enhanced prompt with command registry integration."""
+
+ def __init__(self, registry: CommandRegistry):
+ super().__init__()
+ self.registry = registry
+
+ def ask_command(self, prompt_text: str = "▶ ") -> str:
+ """Ask for command with predictive help."""
+ # As user types, update suggestions/help
+ # Display:
+ # ▶ user_input...
+ # ╭─ Suggestions: CMD1, CMD2, CMD3
+ # ╰─ Help: Command syntax...
+ pass
 ```
 
-### Step 2: WorkspacePicker (Phase 2)
+### Step 2: WorkspacePicker (Move 2)
 
 **File**: `core/ui/workspace_selector.py`
 
@@ -359,49 +357,49 @@ Shows at top of FilePicker or as standalone.
 """
 
 class WorkspacePicker:
-    """Workspace selection using SelectorFramework."""
-    
-    def __init__(self, admin: bool = False):
-        self.selector = SelectorFramework(
-            config=SelectorConfig(
-                mode=SelectionMode.SINGLE,
-                page_size=3,  # Show: sandbox, bank, knowledge
-            )
-        )
-        self._init_items(admin)
-    
-    def _init_items(self, admin: bool):
-        """Load workspace items."""
-        items = [
-            SelectableItem(
-                id="sandbox",
-                label="memory/sandbox",
-                icon="📁",
-                metadata={"path": "memory/sandbox"}
-            ),
-            SelectableItem(
-                id="bank",
-                label="memory/bank",
-                icon="📁",
-                metadata={"path": "memory/bank"}
-            ),
-        ]
-        if admin:
-            items.append(SelectableItem(
-                id="knowledge",
-                label="/knowledge",
-                icon="📚",
-                metadata={"path": "/knowledge"}
-            ))
-        self.selector.set_items(items)
-    
-    def pick(self) -> Optional[str]:
-        """Run picker, return selected workspace path."""
-        # Use FileBrowser pattern: display + input loop
-        pass
+ """Workspace selection using SelectorFramework."""
+
+ def __init__(self, admin: bool = False):
+ self.selector = SelectorFramework(
+ config=SelectorConfig(
+ mode=SelectionMode.SINGLE,
+ page_size=3, # Show: sandbox, bank, knowledge
+ )
+ )
+ self._init_items(admin)
+
+ def _init_items(self, admin: bool):
+ """Load workspace items."""
+ items = [
+ SelectableItem(
+ id="sandbox",
+ label="memory/sandbox",
+ icon="📁",
+ metadata={"path": "memory/sandbox"}
+ ),
+ SelectableItem(
+ id="bank",
+ label="memory/bank",
+ icon="📁",
+ metadata={"path": "memory/bank"}
+ ),
+ ]
+ if admin:
+ items.append(SelectableItem(
+ id="knowledge",
+ label="/knowledge",
+ icon="📚",
+ metadata={"path": "/knowledge"}
+ ))
+ self.selector.set_items(items)
+
+ def pick(self) -> Optional[str]:
+ """Run picker, return selected workspace path."""
+ # Use FileBrowser pattern: display + input loop
+ pass
 ```
 
-### Step 3: CommandSelector (Phase 3)
+### Step 3: CommandSelector (Move 3)
 
 **File**: `core/ui/command_selector.py`
 
@@ -414,64 +412,64 @@ Invoked by TAB key in command prompt.
 """
 
 class CommandSelector:
-    """Modal command selection menu."""
-    
-    def __init__(self, dispatcher: CommandDispatcher):
-        self.selector = SelectorFramework(
-            config=SelectorConfig(
-                mode=SelectionMode.SINGLE,
-                page_size=9,
-                enable_search=True,
-            )
-        )
-        self._load_commands(dispatcher)
-    
-    def _load_commands(self, dispatcher: CommandDispatcher):
-        """Load commands from dispatcher."""
-        items = []
-        for cmd_name, handler in dispatcher.commands.items():
-            help_text = handler.__doc__ or "No help"
-            items.append(SelectableItem(
-                id=cmd_name,
-                label=cmd_name,
-                metadata={"help": help_text},
-            ))
-        self.selector.set_items(items)
-    
-    def pick(self) -> Optional[str]:
-        """Show menu, return selected command name."""
-        # Use FileBrowser display pattern
-        pass
+ """Modal command selection menu."""
+
+ def __init__(self, dispatcher: CommandDispatcher):
+ self.selector = SelectorFramework(
+ config=SelectorConfig(
+ mode=SelectionMode.SINGLE,
+ page_size=9,
+ enable_search=True,
+ )
+ )
+ self._load_commands(dispatcher)
+
+ def _load_commands(self, dispatcher: CommandDispatcher):
+ """Load commands from dispatcher."""
+ items = []
+ for cmd_name, handler in dispatcher.commands.items():
+ help_text = handler.__doc__ or "No help"
+ items.append(SelectableItem(
+ id=cmd_name,
+ label=cmd_name,
+ metadata={"help": help_text},
+ ))
+ self.selector.set_items(items)
+
+ def pick(self) -> Optional[str]:
+ """Show menu, return selected command name."""
+ # Use FileBrowser display pattern
+ pass
 ```
 
-### Step 4: FKey Integration (Phase 4)
+### Step 4: FKey Integration (Move 4)
 
 **Update**: `core/tui/ucode.py`
 
 ```python
 def main_repl_loop(self):
-    """Main REPL loop with F-key support."""
-    while True:
-        # Get input with F-key capture
-        key = self._read_raw_key()  # Read raw input
-        
-        if key.startswith("F"):  # F1-F12
-            self._handle_fkey(key)
-            continue
-        
-        if key == "TAB":  # Open command selector
-            cmd = self.command_selector.pick()
-            if cmd:
-                # Continue with command
-                pass
-            continue
-        
-        # Normal command processing
-        command_input = self.prompt.ask_command()
-        self.dispatcher.execute(command_input)
+ """Main REPL loop with F-key support."""
+ while True:
+ # Get input with F-key capture
+ key = self._read_raw_key() # Read raw input
+
+ if key.startswith("F"): # F1-F12
+ self._handle_fkey(key)
+ continue
+
+ if key == "TAB": # Open command selector
+ cmd = self.command_selector.pick()
+ if cmd:
+ # Continue with command
+ pass
+ continue
+
+ # Normal command processing
+ command_input = self.prompt.ask_command()
+ self.dispatcher.execute(command_input)
 ```
 
-### Step 5: Help System (Phase 5)
+### Step 5: Help System (Move 5)
 
 **File**: `core/services/help_system.py`
 
@@ -484,34 +482,34 @@ Pulls help from command metadata.
 """
 
 class HelpSystem:
-    """Centralized help provider."""
-    
-    def __init__(self, dispatcher: CommandDispatcher):
-        self.dispatcher = dispatcher
-    
-    def get_help(self, command: str) -> HelpContent:
-        """Get help for a command."""
-        handler = self.dispatcher.commands.get(command)
-        if not handler:
-            return None
-        return HelpContent(
-            name=command,
-            description=handler.__doc__,
-            syntax=getattr(handler, "syntax", ""),
-            options=getattr(handler, "options", []),
-            examples=getattr(handler, "examples", []),
-        )
-    
-    def display_help(self, command: str):
-        """Display help in formatted panel."""
-        help_content = self.get_help(command)
-        if not help_content:
-            print(f"No help for '{command}'")
-            return
-        
-        # Format and display help panel
-        # (scrollable if long)
-        pass
+ """Centralized help provider."""
+
+ def __init__(self, dispatcher: CommandDispatcher):
+ self.dispatcher = dispatcher
+
+ def get_help(self, command: str) -> HelpContent:
+ """Get help for a command."""
+ handler = self.dispatcher.commands.get(command)
+ if not handler:
+ return None
+ return HelpContent(
+ name=command,
+ description=handler.__doc__,
+ syntax=getattr(handler, "syntax", ""),
+ options=getattr(handler, "options", []),
+ examples=getattr(handler, "examples", []),
+ )
+
+ def display_help(self, command: str):
+ """Display help in formatted panel."""
+ help_content = self.get_help(command)
+ if not help_content:
+ print(f"No help for '{command}'")
+ return
+
+ # Format and display help panel
+ # (scrollable if long)
+ pass
 ```
 
 ---
@@ -550,26 +548,26 @@ class HelpSystem:
 ```
 core/
 ├── input/
-│   ├── command_prompt.py        ← NEW (Phase 1)
-│   ├── enhanced_prompt.py       ← UPDATE (2-line context complete)
-│   ├── smart_prompt.py          ← REFERENCE (autocomplete)
-│   └── ...
+│ ├── command_prompt.py ← NEW (Move 1)
+│ ├── enhanced_prompt.py ← UPDATE (2-line context complete)
+│ ├── smart_prompt.py ← REFERENCE (autocomplete)
+│ └── ...
 ├── ui/
-│   ├── workspace_selector.py    ← NEW (Phase 2)
-│   ├── command_selector.py      ← NEW (Phase 3)
-│   ├── selector_framework.py    ← REFERENCE
-│   └── ...
+│ ├── workspace_selector.py ← NEW (Move 2)
+│ ├── command_selector.py ← NEW (Move 3)
+│ ├── selector_framework.py ← REFERENCE
+│ └── ...
 ├── services/
-│   ├── help_system.py           ← NEW (Phase 5)
-│   └── ...
+│ ├── help_system.py ← NEW (Move 5)
+│ └── ...
 ├── tui/
-│   ├── ucode.py                 ← UPDATE (F-key integration, Phase 4)
-│   ├── fkey_handler.py          ← REFERENCE (already exists)
-│   ├── file_browser.py          ← UPDATE (workspace picker header, Phase 2)
-│   └── ...
+│ ├── ucode.py ← UPDATE (F-key integration, Move 4)
+│ ├── fkey_handler.py ← REFERENCE (already exists)
+│ ├── file_browser.py ← UPDATE (workspace picker header, Move 2)
+│ └── ...
 └── commands/
-    ├── command_registry.py      ← NEW (metadata for all commands)
-    └── */handler.py             ← UPDATE (add help metadata)
+ ├── command_registry.py ← NEW (metadata for all commands)
+ └── */handler.py ← UPDATE (add help metadata)
 ```
 
 ---
@@ -620,17 +618,16 @@ core/
 
 ---
 
-## 🚀 Timeline
+## 🚀 Move Scorecard
 
-| Phase | Component | Effort | Target | Status |
-|-------|-----------|--------|--------|--------|
-| 1 | ContextualCommandPrompt | 3h | Week 1 | 📋 Planning |
-| 2 | WorkspacePicker | 2h | Week 2 | 📋 Planning |
-| 3 | CommandSelector | 3h | Week 2 | 📋 Planning |
-| 4 | FKey Integration | 2h | Week 3 | 📋 Planning |
-| 5 | HelpSystem | 2h | Week 3 | 📋 Planning |
-| QA | Integration + Polish | 2h | Week 4 | 📋 Planning |
-| **Total** | | **14h** | **4 weeks** | 📋 Planning |
+| Move | Component | Status |
+|-------|-----------|--------|
+| 1 | ContextualCommandPrompt | 📋 Planning |
+| 2 | WorkspacePicker | 📋 Planning |
+| 3 | CommandSelector | 📋 Planning |
+| 4 | FKey Integration | 📋 Planning |
+| 5 | HelpSystem | 📋 Planning |
+| QA | Integration + Polish | 📋 Planning |
 
 ---
 
@@ -660,6 +657,5 @@ core/
 
 ---
 
-**Status**: Living Document  
-**Last Updated**: 2026-01-30  
-**Next Review**: After Phase 1 completion
+**Status**: Living Document
+**Next Review**: After Move 1 completion

@@ -327,7 +327,7 @@
     <h1 class="text-3xl font-bold">Dataset Console</h1>
     <p class="text-gray-400">
       Fetches `/api/data/schema`, `/api/data/query`, `/api/data/chart`, and `/api/teletext/*`
-      for the Round 4/5 roadmap.
+      for the milestone roadmap.
     </p>
   </header>
 

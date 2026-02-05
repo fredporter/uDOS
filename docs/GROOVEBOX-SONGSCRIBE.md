@@ -1,6 +1,6 @@
 # Groovebox Songscribe Spec
 
-Round 10 pairs the Groovebox sequencer with the Songscribe pattern editor so audio rounds can capture both tidy playback data _and_ narrative task guidance. This spec covers the Songscribe grammar, the Groovebox → plugin flows, and how every install/reminder event feeds the shared health/hotkey story described in `core/docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md`.
+The Groovebox + Songscribe milestone pairs the Groovebox sequencer with the Songscribe pattern editor so audio passes can capture both tidy playback data _and_ narrative task guidance. This spec covers the Songscribe grammar, the Groovebox → plugin flows, and how every install/reminder event feeds the shared health/hotkey story described in `core/docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md`.
 
 ## 1. Songscribe Markdown Grammar (Samples + Patterns)
 
@@ -45,11 +45,11 @@ Automations may convert each Songscribe pattern into `groovebox` playlists, tele
 
 3. **Plugin installs**  
    - Use `/api/library/integration/songscribe/install` or the CLI `PLUGIN install songscribe` command. Both share `wizard/services/plugin_repository.py` + `wizard/services/library_manager_service.py` so manifest validation, dependency wiring, and health logging stay centralized (per `core/docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md`).  
-   - Every install response should include: Notion `to_do` blocks, weekly calendar/Gantt output, and the `todo_reminder` payload from the Apertus-guided PROMPT parser so the Hotkey Center can show the due-soon alert before the UI/automation cycles run. citecore/docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md:28-34
+  - Every install response should include: Notion `to_do` blocks, weekly calendar/Gantt output, and the `todo_reminder` payload from the Apertus-guided PROMPT parser so the Hotkey Center can show the due-soon alert before the UI/automation passes run. citecore/docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md:28-34
 
 4. **Reminder + health log sync**  
    - `core/services/todo_reminder_service` logs due-soon alerts into `memory/logs/health-training.log` and `notification-history.log`. The Groovebox page should read the latest `status.todo_reminder` from `/hotkeys/data` and surface the ASCII clock banners alongside transport controls.  
-   - Mention the reminder payload whenever Songscribe tasks are created so future rounds (Beacon/Sonic watchers, automation scripts) know that a playlist render, WAV export, or Songscribe review is due soon.
+  - Mention the reminder payload whenever Songscribe tasks are created so future milestones (Beacon/Sonic watchers, automation scripts) know that a playlist render, WAV export, or Songscribe review is due soon.
 
 ## 3. Checklist & Workflow Integration
 
@@ -62,5 +62,5 @@ When automating Songscribe workflows:
 ## 4. Delivery Steps
 
 1. Keep `docs/GROOVEBOX-SAMPLE-LIBRARY-SPEC.md` and this spec aligned: the playlists or samples referenced in Songscribe sequences should exist in `wizard/groovebox/sounds/`.  
-2. Use `/api/teletext/canvas` (Round 5) to render Songscribe grids; telemetry watchers can fetch `groovebox` data plus teletext layers to draw retro step boards.  
-3. When new Songscribe grammar features land (per the Songscribe plugin manifest), update this spec and the Hotkey Center register so automation round watchers know which keys or tasks to run next.
+2. Use `/api/teletext/canvas` to render Songscribe grids; telemetry watchers can fetch `groovebox` data plus teletext layers to draw retro step boards.  
+3. When new Songscribe grammar features land (per the Songscribe plugin manifest), update this spec and the Hotkey Center register so automation watchers know which keys or tasks to run next.

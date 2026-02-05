@@ -1,5 +1,5 @@
 """
-Groovebox playback + configuration routes for Round 10.
+Groovebox playback + configuration routes for the v1.3 audio tooling lane.
 """
 
 from datetime import datetime

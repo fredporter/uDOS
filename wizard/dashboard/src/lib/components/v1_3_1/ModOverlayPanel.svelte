@@ -15,7 +15,8 @@
     lastSaved?: string;
   };
 
-  const STORAGE_KEY = "wizard-round3-mod-overlays";
+  const STORAGE_KEY = "wizard-v1-3-1-mod-overlays";
+  const LEGACY_STORAGE_KEY = "wizard-round3-mod-overlays";
 
   let state: OverlayState = {
     enabled: true,
@@ -30,9 +31,11 @@
   onMount(() => {
     if (typeof localStorage === "undefined") return;
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
+    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+    const payload = raw ?? legacy;
+    if (!payload) return;
     try {
-      const parsed = JSON.parse(raw);
+      const parsed = JSON.parse(payload);
       if (parsed && typeof parsed === "object") {
         state = { ...state, ...parsed };
       }
@@ -88,7 +91,7 @@
 <section class="overlay-panel">
   <header>
     <div>
-      <p class="eyebrow">Round 3 • Mod Overlay Controls</p>
+      <p class="eyebrow">v1.3.1 • Mod Overlay Controls</p>
       <h2>Overlay loader knobs</h2>
       <p class="muted">
         Manage overlay packs for the renderer + dashboard preview pipeline. These configs

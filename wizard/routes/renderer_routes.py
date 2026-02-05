@@ -10,6 +10,7 @@ and `docs/Mission-Job-Schema.md`.
 import json
 import os
 import subprocess
+import sys
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -195,23 +196,65 @@ def _invoke_renderer(theme: str, mission_id: Optional[str] = None) -> Dict[str, 
     env["THEME"] = theme
     if mission_id:
         env["MISSION_ID"] = mission_id
+
+    started_at = datetime.utcnow().isoformat() + "Z"
     result = subprocess.run(
         ["node", str(cli_path)],
         capture_output=True,
         text=True,
         env=env,
     )
+
     if result.returncode != 0:
+        # Write error report to 06_RUNS even on failure
+        missionid = mission_id or f"renderer-{theme}"
+        job_id = f"job-{uuid.uuid4()}"
+        error_report = {
+            "mission_id": missionid,
+            "job_id": job_id,
+            "status": "failed",
+            "runner": "renderer-cli",
+            "theme": theme,
+            "started_at": started_at,
+            "completed_at": datetime.utcnow().isoformat() + "Z",
+            "error": result.stderr.strip(),
+        }
+        _write_mission_output(error_report)
         raise HTTPException(
             status_code=500,
             detail=f"Renderer failed: {result.stderr.strip()}",
         )
     try:
-        return json.loads(result.stdout)
+        result_payload = json.loads(result.stdout)
     except json.JSONDecodeError:
         raise HTTPException(
             status_code=500, detail="Renderer returned invalid JSON payload."
         )
+
+    # Write success report to 06_RUNS
+    result_payload["started_at"] = started_at
+    result_payload["completed_at"] = datetime.utcnow().isoformat() + "Z"
+    _write_mission_output(result_payload)
+
+    return result_payload
+
+
+def _write_mission_output(report: Dict[str, Any]) -> Optional[Path]:
+    """Write mission output/report to vault/06_RUNS/<mission_id>/"""
+    try:
+        mission_id = report.get("mission_id", "unknown")
+        job_id = report.get("job_id", f"job-{uuid.uuid4()}")
+        runs_root = _missions_root()
+        mission_dir = runs_root / mission_id
+        mission_dir.mkdir(parents=True, exist_ok=True)
+        report_path = mission_dir / f"{job_id}.json"
+        report_path.write_text(json.dumps(report, indent=2))
+        return report_path
+    except Exception as e:
+        import traceback
+        print(f"[WARN] Failed to write mission output: {e}", file=sys.stderr)
+        traceback.print_exc()
+        return None
 
 
 class ContributionSubmission(BaseModel):
@@ -356,14 +399,17 @@ def create_renderer_routes(auth_guard=None) -> APIRouter:
         mission_id = payload.mission_id if payload else None
         result = _invoke_renderer(resolved_theme, mission_id)
         job_id = result.get("job_id") or f"job-{uuid.uuid4()}"
+        real_mission_id = result.get("mission_id") or mission_id or f"renderer-{resolved_theme}"
         return {
             "status": result.get("status", "completed"),
             "job_id": job_id,
-            "mission_id": result.get("mission_id") or mission_id,
+            "mission_id": real_mission_id,
             "theme": resolved_theme,
-            "rendered": result.get("files", []),
+            "rendered": result.get("renderedFiles", result.get("files", [])),
             "nav": result.get("nav", []),
-            "report_path": result.get("report_path"),
+            "started_at": result.get("started_at"),
+            "completed_at": result.get("completed_at"),
+            "mission_output_path": f"06_RUNS/{real_mission_id}/{job_id}.json",
             "submitted_at": datetime.utcnow().isoformat() + "Z",
         }
 

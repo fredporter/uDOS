@@ -60,7 +60,7 @@
 <section class="groovebox-page">
   <header class="groovebox-header">
     <h2>Groovebox Playback Console</h2>
-    <p>Round 10 audio controls + config. Use the transport bar below to preview the sequences.</p>
+    <p>Groovebox audio controls + config. Use the transport bar below to preview the sequences.</p>
   </header>
 
   {#if error}

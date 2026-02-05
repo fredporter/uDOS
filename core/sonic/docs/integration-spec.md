@@ -115,8 +115,8 @@ Plugin installs flowing through the Core `PLUGIN install <id>` command should re
 
 ## 5. Sonic Gap Catalog & Roadmap
 
-To keep the Sonic/UWizard capability visible to future rounds:
+To keep the Sonic/UWizard capability visible to future milestones:
 
-- Track missing APIs and feature gaps (USB builder scripts, device database syncing, Windows media launcher) by updating this doc and linking to `ROUNDS-3-10.md`.
+- Track missing APIs and feature gaps (USB builder scripts, device database syncing, Windows media launcher) by updating this doc and linking to `v1.3.1-milestones.md`.
 - Document the Sonic Screwdriver ″gap targets″ for USB flashing (`core/sonic_cli.py plan|run`), the device DB sync webhook (`/api/sonic/sync`), and the Windows media launcher contract (`payloads/windows/settings.json` plus `media-controller.sh`).
 - Surface `memory/sonic/sonic-devices.db` updates (new columns `wizard_profile`, `media_launcher`) in the Wizard dashboard so the TUI/Wizard story can display the planned capability list.

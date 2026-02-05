@@ -2,10 +2,15 @@
 Task scheduling routes for Wizard Server.
 """
 
+import json
+import os
+import subprocess
+import time
 from datetime import datetime
-from typing import Callable, Awaitable, Optional
+from pathlib import Path
+from typing import Callable, Awaitable, Optional, Dict, Any, List, Tuple
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Query, Body
 from pydantic import BaseModel
 
 from core.services.prompt_parser_service import get_prompt_parser_service
@@ -16,6 +21,7 @@ from core.services.todo_service import (
     get_service,
 )
 from wizard.services.task_scheduler import TaskScheduler
+from wizard.services.path_utils import get_repo_root
 
 AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
 
@@ -28,6 +34,88 @@ def create_task_routes(auth_guard: AuthGuard = None) -> APIRouter:
     gantt_renderer = GanttGridRenderer()
     prompt_parser = get_prompt_parser_service()
     reminder_service = get_reminder_service(todo_manager)
+
+    def _vault_root() -> Path:
+        return get_repo_root() / "vault"
+
+    def _tasks_db_path() -> Path:
+        return _vault_root() / ".udos" / "state.db"
+
+    def _task_indexer_cli() -> Path:
+        return get_repo_root() / "core" / "dist" / "tasks" / "cli.js"
+
+    indexer_cache: Dict[str, Tuple[float, Any]] = {}
+    search_cache: Dict[Tuple[Optional[str], Optional[str], Optional[str], Optional[int]], Tuple[float, Any]] = {}
+    cache_ttl_seconds = 5.0
+
+    def _cache_get(cache_key: str) -> Optional[Any]:
+        entry = indexer_cache.get(cache_key)
+        if not entry:
+            return None
+        timestamp, payload = entry
+        if (time.time() - timestamp) > cache_ttl_seconds:
+            indexer_cache.pop(cache_key, None)
+            return None
+        return payload
+
+    def _cache_set(cache_key: str, payload: Any) -> None:
+        indexer_cache[cache_key] = (time.time(), payload)
+
+    def _search_cache_get(
+        key: Tuple[Optional[str], Optional[str], Optional[str], Optional[int]]
+    ) -> Optional[Any]:
+        entry = search_cache.get(key)
+        if not entry:
+            return None
+        timestamp, payload = entry
+        if (time.time() - timestamp) > cache_ttl_seconds:
+            search_cache.pop(key, None)
+            return None
+        return payload
+
+    def _search_cache_set(
+        key: Tuple[Optional[str], Optional[str], Optional[str], Optional[int]],
+        payload: Any,
+    ) -> None:
+        search_cache[key] = (time.time(), payload)
+
+    def _parse_json_lines(stdout: str) -> List[Dict[str, Any]]:
+        payloads: List[Dict[str, Any]] = []
+        for line in stdout.splitlines():
+            line = line.strip()
+            if not line.startswith("{"):
+                continue
+            try:
+                payloads.append(json.loads(line))
+            except Exception:
+                continue
+        return payloads
+
+    def _run_task_indexer(args: List[str], env: Dict[str, str]) -> Dict[str, Any]:
+        cli_path = _task_indexer_cli()
+        if not cli_path.exists():
+            raise HTTPException(
+                status_code=500,
+                detail="Task indexer binary missing; run npm run build under core.",
+            )
+
+        result = subprocess.run(
+            ["node", str(cli_path), *args],
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+        if result.returncode != 0:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Task indexer failed: {result.stderr.strip()}",
+            )
+
+        payloads = _parse_json_lines(result.stdout)
+        return {
+            "payloads": payloads,
+            "stdout": result.stdout.strip(),
+        }
 
     class TaskCreate(BaseModel):
         name: str
@@ -107,6 +195,9 @@ def create_task_routes(auth_guard: AuthGuard = None) -> APIRouter:
         calendar_format: Optional[str] = "text"
         gantt_window_days: Optional[int] = 30
         gantt_format: Optional[str] = "text"
+
+    class IndexerRunPayload(BaseModel):
+        mission_id: Optional[str] = None
 
     @router.post("/settings")
     async def update_settings(request: Request, payload: SchedulerSettings):
@@ -256,5 +347,96 @@ def create_task_routes(auth_guard: AuthGuard = None) -> APIRouter:
             response["gantt"]["output"] = "\n".join(gantt_lines)
 
         return response
+
+    @router.post("/indexer/run")
+    async def run_task_indexer(
+        request: Request,
+        payload: IndexerRunPayload = Body(default=IndexerRunPayload()),
+    ):
+        if auth_guard:
+            await auth_guard(request)
+
+        env = os.environ.copy()
+        env["VAULT_ROOT"] = str(_vault_root())
+        env["DB_PATH"] = str(_tasks_db_path())
+        env["RUNS_ROOT"] = str(_vault_root() / "06_RUNS")
+        if payload.mission_id:
+            env["MISSION_ID"] = payload.mission_id
+
+        result = _run_task_indexer([], env)
+        payloads = result["payloads"]
+        report = next(
+            (item for item in reversed(payloads) if item.get("runner") == "task-indexer-cli"),
+            None,
+        )
+
+        return {
+            "status": "completed",
+            "output": report or result["stdout"],
+        }
+
+    @router.get("/indexer/summary")
+    async def task_indexer_summary(request: Request):
+        if auth_guard:
+            await auth_guard(request)
+
+        cached = _cache_get("summary")
+        if cached is not None:
+            return cached
+
+        env = os.environ.copy()
+        env["VAULT_ROOT"] = str(_vault_root())
+        env["DB_PATH"] = str(_tasks_db_path())
+
+        result = _run_task_indexer(["--summary"], env)
+        payloads = result["payloads"]
+        summary = next((item.get("summary") for item in payloads if "summary" in item), None)
+        if not summary:
+            raise HTTPException(status_code=500, detail="Task indexer summary missing")
+
+        _cache_set("summary", summary)
+        return summary
+
+    @router.get("/indexer/search")
+    async def task_indexer_search(
+        request: Request,
+        status: Optional[str] = Query(None),
+        due: Optional[str] = Query(None),
+        tag: Optional[str] = Query(None),
+        priority: Optional[int] = Query(None),
+    ):
+        if auth_guard:
+            await auth_guard(request)
+
+        cache_key = (status, due, tag, priority)
+        cached = _search_cache_get(cache_key)
+        if cached is not None:
+            return {"results": cached}
+
+        env = os.environ.copy()
+        env["VAULT_ROOT"] = str(_vault_root())
+        env["DB_PATH"] = str(_tasks_db_path())
+
+        args: List[str] = ["--search"]
+        if status:
+            args.extend(["--status", status])
+        if due:
+            args.extend(["--due", due])
+        if tag:
+            args.extend(["--tag", tag])
+        if priority is not None:
+            args.extend(["--priority", str(priority)])
+
+        result = _run_task_indexer(args, env)
+        payloads = result["payloads"]
+        results_payload = next(
+            (item.get("results") for item in payloads if "results" in item),
+            None,
+        )
+        if results_payload is None:
+            raise HTTPException(status_code=500, detail="Task indexer search missing")
+
+        _search_cache_set(cache_key, results_payload)
+        return {"results": results_payload}
 
     return router

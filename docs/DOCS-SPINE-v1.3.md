@@ -20,7 +20,7 @@ This file defines the minimal documentation spine for the v1.3 release.
 - `v1.3.0-release-manifest.yml`
 
 ## Testing
-- `docs/ROUND-11-RELEASE-TEST.md`
+- `docs/v1.3.0-release-test.md`
 
 ## Submodules + Extensions
 - `docs/SUBMODULE-STRATEGY.md`

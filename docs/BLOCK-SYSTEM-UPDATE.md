@@ -137,7 +137,7 @@ All are Markdown-based, Obsidian-readable, and locally stored.
 
 ### Kept Components
 - `mappingStore.ts` — Updated with legacy comments (handles imported data)
-- Other Round 3 components remain
+- Other Wizard UI components remain
 
 ---
 

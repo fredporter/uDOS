@@ -13,7 +13,7 @@
 <section class="theme-panel">
   <header>
     <div>
-      <p class="eyebrow">Round 3 • Theme System</p>
+      <p class="eyebrow">v1.3.1 • Theme System</p>
       <h2>Notion-Inspired Palette</h2>
     </div>
     <p class="hint">Persisted via `localStorage` + Tailwind tokens.</p>

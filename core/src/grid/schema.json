@@ -1,0 +1,202 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UGRID Grid Canvas Input Schema",
+  "description": "Schema for grid renderer input specifications",
+  "type": "object",
+  "definitions": {
+    "GridCanvasSpec": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "const": 80, "type": "integer" },
+        "height": { "const": 30, "type": "integer" },
+        "title": { "type": "string", "maxLength": 70 },
+        "theme": { "type": "string", "enum": ["mono", "dark", "light"] },
+        "mode": {
+          "type": "string",
+          "enum": ["dashboard", "calendar", "schedule", "table", "map"]
+        },
+        "ts": { "type": "string", "format": "date-time" }
+      }
+    },
+    "CalendarInput": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["time", "title"],
+            "properties": {
+              "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+              "title": { "type": "string" }
+            }
+          }
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["status", "text"],
+            "properties": {
+              "status": { "type": "string", "pattern": "^\\[[x ]\\]$|^✓|^○" },
+              "text": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "TableColumn": {
+      "type": "object",
+      "required": ["key", "title"],
+      "properties": {
+        "key": { "type": "string" },
+        "title": { "type": "string" },
+        "width": { "type": "integer", "minimum": 3, "maximum": 40 }
+      }
+    },
+    "TableInput": {
+      "type": "object",
+      "properties": {
+        "query": { "type": "string" },
+        "columns": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/TableColumn" },
+          "minItems": 1,
+          "maxItems": 10
+        },
+        "rows": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "page": { "type": "integer", "minimum": 1 },
+        "perPage": { "type": "integer", "minimum": 1, "maximum": 100 }
+      }
+    },
+    "ScheduleEvent": {
+      "type": "object",
+      "required": ["time", "item", "location"],
+      "properties": {
+        "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+        "item": { "type": "string" },
+        "location": { "type": "string", "maxLength": 30 }
+      }
+    },
+    "ScheduleInput": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ScheduleEvent" }
+        },
+        "filters": { "type": "object" }
+      }
+    },
+    "LocIdOverlay": {
+      "type": "object",
+      "required": ["locId", "icon"],
+      "properties": {
+        "locId": {
+          "type": "string",
+          "pattern": "^[A-Z0-9]+:[A-Z0-9]+:[A-Z]+[0-9]+-[A-Z]+[0-9]+$"
+        },
+        "icon": { "type": "string", "enum": ["T", "N", "E", "!", "*"] },
+        "label": { "type": "string", "maxLength": 20 }
+      }
+    },
+    "MapInput": {
+      "type": "object",
+      "properties": {
+        "focusLocId": { "type": "string", "pattern": "^[A-Z0-9]+:[A-Z0-9]+:[A-Z]+[0-9]+-[A-Z]+[0-9]+$" },
+        "overlays": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/LocIdOverlay" }
+        }
+      }
+    },
+    "DashboardInput": {
+      "type": "object",
+      "properties": {
+        "missions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          }
+        },
+        "stats": { "type": "object" },
+        "apiQuota": {
+          "type": "object",
+          "properties": {
+            "used": { "type": "integer" },
+            "limit": { "type": "integer" }
+          }
+        },
+        "nodeState": {
+          "type": "object",
+          "properties": {
+            "status": { "type": "string" },
+            "uptime": { "type": "string" }
+          }
+        },
+        "logs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "time": { "type": "string" },
+              "level": { "type": "string", "enum": ["DEBUG", "INFO", "WARN", "ERROR"] },
+              "message": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "required": ["spec", "data", "mode"],
+      "properties": {
+        "spec": { "$ref": "#/definitions/GridCanvasSpec" },
+        "mode": { "type": "string", "enum": ["calendar", "table", "schedule", "map", "dashboard"] }
+      }
+    },
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "mode": { "const": "calendar" },
+            "data": { "$ref": "#/definitions/CalendarInput" }
+          }
+        },
+        {
+          "properties": {
+            "mode": { "const": "table" },
+            "data": { "$ref": "#/definitions/TableInput" }
+          }
+        },
+        {
+          "properties": {
+            "mode": { "const": "schedule" },
+            "data": { "$ref": "#/definitions/ScheduleInput" }
+          }
+        },
+        {
+          "properties": {
+            "mode": { "const": "map" },
+            "data": { "$ref": "#/definitions/MapInput" }
+          }
+        },
+        {
+          "properties": {
+            "mode": { "const": "dashboard" },
+            "data": { "$ref": "#/definitions/DashboardInput" }
+          }
+        }
+      ]
+    }
+  ]
+}

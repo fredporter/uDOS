@@ -25,7 +25,7 @@
   import LayerEditor from "./routes/LayerEditor.svelte";
   import SvgProcessor from "./routes/SvgProcessor.svelte";
   import Hotkeys from "./routes/Hotkeys.svelte";
-  import Round3 from "./routes/Round3.svelte";
+  import WizardUI_v1_3_1 from "./routes/WizardUI_v1_3_1.svelte";
   import Groovebox from "./routes/Groovebox.svelte";
   import Renderer from "./routes/Renderer.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
@@ -249,8 +249,8 @@
         <SvgProcessor />
       {:else if currentRoute === "hotkeys"}
         <Hotkeys />
-      {:else if currentRoute === "round3"}
-        <Round3 />
+      {:else if currentRoute === "wizard-ui-v1-3-1"}
+        <WizardUI_v1_3_1 />
       {:else if currentRoute === "groovebox"}
         <Groovebox />
       {:else if currentRoute === "renderer"}

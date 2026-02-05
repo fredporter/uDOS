@@ -1,7 +1,6 @@
 # VS Code Unlimited Workspace - Complete Setup Summary
 
 **Status:** ✅ COMPLETE  
-**Date:** February 1, 2026  
 **Workspace:** `uDOS.code-workspace` (root level)
 
 ---
@@ -51,7 +50,7 @@ Creates unified view of all 14 project folders:
 📦 Install Dependencies      → pip install -r requirements.txt
 ✅ Setup Venv               → python3 -m venv venv
 📝 Health Check             → python memory/tests/health_dashboard.py
-🚀 Round 2: Full Setup      → Complete initialization
+🚀 Full Setup      → Complete initialization
 ```
 
 ### 4. Debug Configurations (4 Total)
@@ -192,7 +191,7 @@ which python
 ### Run Full Setup
 ```bash
 # Via task:
-Cmd+Shift+P → "Run Task: 🚀 Round 2: Full Setup"
+Cmd+Shift+P → "Run Task: 🚀 Full Setup"
 
 # Or manually:
 source venv/bin/activate
@@ -277,7 +276,7 @@ Cmd+Shift+P → "Run Task: 🐛 Goblin: Start Dev Server"
 
 ## ✅ Verification Checklist
 
-Before starting Round 2, verify:
+Before starting Core Setup, verify:
 
 - [ ] `code uDOS.code-workspace` opens successfully
 - [ ] All 14 folders appear in Explorer sidebar
@@ -310,7 +309,7 @@ Before starting Round 2, verify:
 ### For Architecture
 - **[AGENTS.md](../AGENTS.md)** — System rules
 - **[ROADMAP.md](../ROADMAP.md)** — Development timeline
-- **[WIZARD-ROUND2-PLAN.md](../WIZARD-ROUND2-PLAN.md)** — Round 2 objectives
+- **[WIZARD-OPTIMIZATION-v1.3.1.md](../WIZARD-OPTIMIZATION-v1.3.1.md)** — Core Setup objectives
 
 ---
 
@@ -383,7 +382,7 @@ If issues persist:
 
 ## 🎉 You're Ready!
 
-Everything is configured for expedited Round 2 development:
+Everything is configured for expedited Core Setup development:
 
 ✅ Unlimited workspace view (all 14 folders visible)  
 ✅ Python venv auto-activation in every terminal  
@@ -393,7 +392,7 @@ Everything is configured for expedited Round 2 development:
 ✅ 4 debug configurations ready  
 ✅ Comprehensive documentation complete  
 
-**Next Step:** Open the workspace and start Round 2!
+**Next Step:** Open the workspace and start Core Setup!
 
 ```bash
 code uDOS.code-workspace
@@ -403,5 +402,5 @@ code uDOS.code-workspace
 
 **Created:** 2026-02-01  
 **Workspace:** uDOS.code-workspace  
-**Status:** ✅ Complete & Ready for Round 2  
+**Status:** ✅ Complete & Ready for Core Setup  
 **Documentation:** Full (VSCODE-SETUP.md + VSCODE-QUICKSTART.md)

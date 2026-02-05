@@ -20,7 +20,7 @@
 **Start here if you just want to:**
 ```bash
 code uDOS.code-workspace
-# ... and get started with Round 2
+# ... and get started with Core Setup
 ```
 
 ---
@@ -63,7 +63,7 @@ code uDOS.code-workspace
 
 **Read this for:**
 - Overview of everything that was done
-- Verification before starting Round 2
+- Verification before starting Core Setup
 - Explanation of multi-folder workspace concept
 - Configuration inheritance details
 
@@ -167,7 +167,7 @@ Cmd+Shift+P → "Run Task: 🧪 Python: Run Tests"
 Cmd+Shift+P → "Run Task: 💻 Core: Start TUI"
 
 # Full setup
-Cmd+Shift+P → "Run Task: 🚀 Round 2: Full Setup"
+Cmd+Shift+P → "Run Task: 🚀 Full Setup"
 ```
 
 ---
@@ -209,7 +209,7 @@ Cmd+Shift+P → "Run Task: 🚀 Round 2: Full Setup"
 📦 Install Dependencies
 ✅ Setup Venv
 📝 Health Check
-🚀 Round 2: Full Setup
+🚀 Full Setup
 ```
 
 ### Debug Configurations (4)
@@ -231,11 +231,11 @@ Makefile Tools, Svelte, Tauri, Rust, Marp, and more
 
 ## 🔍 Quick Reference
 
-### Before Starting Round 2
+### Before Starting Core Setup
 1. ✅ Run: `code uDOS.code-workspace`
 2. ✅ Verify: Terminal shows `(venv)` prefix
 3. ✅ Check: `python --version` shows venv Python
-4. ✅ Run: `Cmd+Shift+P` → "Run Task: 🚀 Round 2: Full Setup"
+4. ✅ Run: `Cmd+Shift+P` → "Run Task: 🚀 Full Setup"
 5. ✅ Log: Session startup to `memory/logs/health-training.log`
 
 ### If Something Goes Wrong
@@ -259,11 +259,11 @@ Makefile Tools, Svelte, Tauri, Rust, Marp, and more
 For additional context, also see:
 - [../AGENTS.md](../AGENTS.md) — Architecture rules
 - [../ROADMAP.md](../ROADMAP.md) — Development timeline
-- [../WIZARD-ROUND2-PLAN.md](../WIZARD-ROUND2-PLAN.md) — Round 2 objectives
+- [../WIZARD-OPTIMIZATION-v1.3.1.md](../WIZARD-OPTIMIZATION-v1.3.1.md) — Core Setup objectives
 
 ---
 
-## 🎯 Round 2 Checklist
+## 🎯 Setup Checklist
 
 ### VS Code Setup
 - [ ] Opened `uDOS.code-workspace`
@@ -285,7 +285,7 @@ For additional context, also see:
 - [ ] No commits hang
 - [ ] Can push/pull successfully
 
-### Ready for Round 2
+### Ready for Core Setup
 - [ ] All above items complete
 - [ ] Logged setup to `memory/logs/health-training.log`
 - [ ] Ready to start TUI and run tests
@@ -358,4 +358,4 @@ F5
 
 **Status:** ✅ Complete  
 **Last Updated:** 2026-02-01  
-**Next Step:** `code uDOS.code-workspace` → Run Round 2 setup
+**Next Step:** `code uDOS.code-workspace` → Run Core Setup setup

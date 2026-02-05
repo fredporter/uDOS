@@ -2,7 +2,7 @@
 
 **Status:** Authoritative  
 **Audience:** uDOS core developers / maintainers  
-**Scope:** Development framework, logging, dev-rounds, and workflow integration
+**Scope:** Development framework, logging, dev-milestones, and workflow integration
 
 ---
 
@@ -43,7 +43,7 @@ No roadmaps, priorities, or future plans.
 
 ### Purpose
 Private, ephemeral development workspaces used for:
-- dev-round inputs and outputs
+- dev-milestone inputs and outputs
 - local plans, notes, and experiments
 - prompt drafts and agent experiments
 - build, test, and debug artefacts
@@ -108,7 +108,7 @@ All system logs and devlogs are unified under:
 This path is the **authoritative source of truth** for:
 - runtime diagnostics
 - debugging and error handling
-- dev-round inputs
+- dev-milestone inputs
 - historical analysis
 
 ### Suggested Structure
@@ -159,17 +159,17 @@ Collect → Normalise → Deduplicate → Summarise → Act → Archive
 ```
 
 ### Outputs (Local-Only)
-- `.dev/rounds/outputs/`
+- `.dev/milestones/outputs/`
 - `~/dev/docs/uDOS/summaries/`
 
 ---
 
-## 8. DEV Rounds (Primary Unit of Progress)
+## 8. DEV Milestones (Primary Unit of Progress)
 
-A **DEV Round** is a bounded, repeatable loop:
+A **DEV Milestone** is a bounded, repeatable loop:
 
 ```
-Inputs → Analysis → Actions → Review → Outputs → Queue Next Round
+Inputs → Analysis → Actions → Review → Outputs → Queue Next Move
 ```
 
 Typical inputs:
@@ -182,19 +182,18 @@ Outputs remain local unless explicitly sanitised for public release.
 
 ---
 
-## 9. Four Speeds of Operation
+## 9. Four Operating Modes
 
 ### 1. Sprint
-- multiple rounds per day
+- rapid multi-move bursts
 - aggressive automation
 - urgent fixes and spikes
 
 ### 2. Run
-- one round per day
+- steady multi-move execution
 - accelerated, disciplined delivery
 
 ### 3. Walk
-- one round per week
 - maintenance, refactors, documentation
 
 ### 4. Pace (uDOS Ideal)
@@ -221,5 +220,5 @@ If absent, uDOS operates normally.
 - Public repos stay clean and timeless
 - All real planning lives locally
 - Logs and devlogs share one memory system
-- DEV Rounds are the atomic unit of progress
+- DEV Milestones are the atomic unit of progress
 - Pace mode is the long-term optimisation target

@@ -1,4 +1,4 @@
-# Wizard Font Sync & CDN Publish (Round 2)
+# Wizard Font Sync & CDN Publish
 
 **Purpose**: Keep the *critical retro fonts* (Chicago FLF, PetMe64, Player2up, Teletext50, etc.) under local control while streaming them to automation-friendly CDNs so the Wizard Font Manager doesn't rely on unstable upstream URLs.
 
@@ -28,7 +28,7 @@
 
 - The `/fonts` tree now contains only metadata, scripts, and manifest files. The binaries are replaced by CDN URLs documented in `manifest.json` and this guide.
 - To keep the repo folders in sync with the home-root cache, we seed `/fonts/manifest-sync.json`. It records the expected downloads (retro, emoji, etc.) and mirrors the relative paths inside `~/uDOS/fonts`; automation scripts can load this manifest to verify that every collection exists before calling `wizard.services.cdn_upload_handler.CdnUploadHandler`.
-- `docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md` and `docs/WIZARD-ROUND2-PLAN.md` reference this workflow so every round cites the same asset story.
+- `docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md` and `docs/WIZARD-OPTIMIZATION-v1.3.1.md` reference this workflow so every milestone cites the same asset story.
 - Automations (e.g., font installers or the config page) should read `manifest.json`, detect whether `~/uDOS/fonts` has the files, and fall back to the CDN copy when the local cache is missing.
 
 ## Attribution

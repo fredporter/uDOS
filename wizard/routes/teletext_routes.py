@@ -1,5 +1,5 @@
 """
-Teletext/NES canvas API for Round 5 plumbing.
+Teletext/NES canvas API for the v1.3 UI lane.
 """
 
 from typing import Dict, List
@@ -21,7 +21,7 @@ async def teletext_canvas(request: Request):
         "height": 30,
         "canvas": grid,
         "layers": [
-            {"name": "header", "text": "Round 5 Teletext Preview"},
+            {"name": "header", "text": "Teletext Preview"},
             {"name": "grid", "pattern": "checker"},
         ],
     }

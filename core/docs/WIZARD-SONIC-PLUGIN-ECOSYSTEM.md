@@ -1,5 +1,5 @@
 # Wizard + Sonic Plugin Ecosystem (v1.1+)
-This reference describes the restored all-in-one Wizard config dashboard, the Sonic Screwdriver device/media APIs, and the hotkey + GUI tooling coverage that keeps the Plugin Ecosystem story visible for rounds 3‑10.
+This reference describes the restored all-in-one Wizard config dashboard, the Sonic Screwdriver device/media APIs, and the hotkey + GUI tooling coverage that keeps the Plugin Ecosystem story visible for current milestones.
 
 ## Wizard Central Config
 
@@ -17,11 +17,11 @@ Ordering the panel as `.venv → secrets → installers → hotkeys` makes the c
 The Hotkey Center (`http://127.0.0.1:8765/hotkeys`) mirrors the key bindings embedded in `core/tui/fkey_handler.py`, `input/smart_prompt.py`, and `core/ui/command_selector.py`:
 
 - Documents the F1–F8 shortcuts and highlights the Tab command selector so users know which keys keep the prompt lively even when `prompt_toolkit` is unavailable.
-- Explains how the two-line context display uses `EnhancedPrompt` and why automation scripts that inspect `memory/logs/health-training.log` rely on the same keys to re-run hot reload/self-heal rounds.
+- Explains how the two-line context display uses `EnhancedPrompt` and why automation scripts that inspect `memory/logs/health-training.log` rely on the same keys to re-run hot reload/self-heal passes.
 - Gives quick links to the CLI fallback bindings (Arrow ↑/↓ history, Tab variants) so ghost or headless sessions can still surface suggestions.
 - Mentions the `HOTKEYS` CLI command introduced in `core/commands/hotkey_handler.py` and the `/hotkeys/data` JSON payload so the same key map is traceable from both CLI and dashboard surfaces.
 
-Keeping hotkey mappings centralized makes the dashboard the authoritative reference for CLI key bindings and automation scripts that train hot reload/self-heal behavior every round.
+Keeping hotkey mappings centralized makes the dashboard the authoritative reference for CLI key bindings and automation scripts that train hot reload/self-heal behavior every pass.
 
 ## Plugin Installer & Manifest Flow
 
@@ -30,7 +30,7 @@ Plugin installation now flows through Wizard-native services:
 - `core/tui/ucode.py` copies `wizard/distribution/plugins/<id>` into `/library/<id>`, writes a `container.json` payload, then calls `wizard/services/library_manager_service.LibraryManagerService.install_integration`. That service validates the manifest, runs dependency wiring hooks, and emits a `result` object with `success`, `message`, and `error`.
 - `wizard/services/plugin_repository.get_repository()` powers both the config page and the CLI `PLUGIN` command, so every install fetches the same metadata and version hints.
 - The Dashboard buttons, the CLI `PLUGIN install`, and automation scripts all log plugin installations to `memory/logs/health-training.log`, ensuring manifest/verification errors appear in the same health summary the TUI banner prints.
-- The plugin install API (`/api/library/integration/<name>/install`) now also uses the Apertus-guided PROMPT parser so each install response includes Notion `to_do` blocks, weekly calendar/Gantt previews, and the due-soon reminder payload that the Hotkey Center can surface before automation runs. Songscribe-specific guidance now lives in `docs/GROOVEBOX-SONGSCRIBE.md`, which describes the grammar, API hooks, and reminder links so future rounds can tie Songscribe playlists to `todo_reminder` entries before firing PATTERN/REPAIR cycles.
+- The plugin install API (`/api/library/integration/<name>/install`) now also uses the Apertus-guided PROMPT parser so each install response includes Notion `to_do` blocks, weekly calendar/Gantt previews, and the due-soon reminder payload that the Hotkey Center can surface before automation runs. Songscribe-specific guidance now lives in `docs/GROOVEBOX-SONGSCRIBE.md`, which describes the grammar, API hooks, and reminder links so future milestones can tie Songscribe playlists to `todo_reminder` entries before firing PATTERN/REPAIR runs.
 
 
 ## Repair + Backup Flow
@@ -48,7 +48,7 @@ The Sonic Screwdriver wiring spans CLI, datasets, and runtime state:
 - **Deliverables**
   - `sonic/scripts/partition-layout.sh`, `sonic/scripts/apply-payloads-v2.sh`: USB builder scripts that craft GPT tables, write Alpine squashfs, copy Windows/media payloads, and emit `sha256(layout)` digests before handing off to Sonic Launcher.
   - `sonic/datasets/sonic-devices.sql` / `.schema.json` → `memory/sonic/sonic-devices.db`: Device database sync that feeds the Wizard Sonic Device panel with BIOS flags, Windows configuration hints, media mode expectations, and `udos_launcher` readiness metadata.
-  - `memory/sonic/sonic-media.log` plus `sonic/docs/sonic-stick-media-addon-brief.md`: Media-player logs that record USB build diagnostics and Windows/media launcher outcomes so automation can replay the same checks each round.
+  - `memory/sonic/sonic-media.log` plus `sonic/docs/sonic-stick-media-addon-brief.md`: Media-player logs that record USB build diagnostics and Windows/media launcher outcomes so automation can replay the same checks each pass.
   - `sonic/docs/specs/sonic-screwdriver-v1.1.0.md` & `payloads/windows/scripts/launch-windows.sh`: Windows launch parameters, multi-partition layout, and launcher handoff guidelines that keep the media-gaming/To-Go story in sync with the Wizard dashboard.
 
 - `sonic/core/sonic_cli.py` exposes `plan` and `run` subcommands. `plan` accepts `--usb-device`, `--layout-file`, `--ventoy-version`, `--payloads-dir`, `--format-mode`, and `--dry-run` to emit a signed manifest using `sonic/core/manifest.py` and `sonic/core/plan.py`.
@@ -60,7 +60,7 @@ Documenting these APIs lets the plugin catalog, launchers, and automation script
 ## Sonic Media Player & Windows Launch Requirements
 
 - The Windows and media payload expectations live in `sonic/docs/specs/sonic-screwdriver-v1.1.0.md`. That spec details the multi-partition layout, `payloads/windows/scripts/launch-windows.sh`, and the three-mode boot priority (uDOS → Windows → Wizard).
-- `memory/sonic/sonic-media.log` plus `sonic/docs/sonic-stick-media-addon-brief.md` capture the media player launch parameters and error codes; the Wizard dashboard pulls those logs so each hot reload/self-heal round can confirm the media-player story remains stable.
+- `memory/sonic/sonic-media.log` plus `sonic/docs/sonic-stick-media-addon-brief.md` capture the media player launch parameters and error codes; the Wizard dashboard pulls those logs so each hot reload/self-heal pass can confirm the media-player story remains stable.
 - Sonic also sets `windows10_boot`, `media_mode`, and `udos_launcher` flags in the device DB, letting the dashboard highlight whether a USB build contains the gaming launcher, Kodi kiosk, or Windows To Go profile.
 
 Surfacing this information keeps the Sonic build plan, media player, and Windows launcher facts visible to contributors and automation hooks alike.
@@ -76,9 +76,9 @@ This keeps the graphics toolchain aligned with seeded assets, Sonic media payloa
 
 ## Automation & Roadmap Visibility
 
-- The TUI startup banner writes the Self-Healer summary + Hot Reload stats to `memory/logs/health-training.log`, and automation scripts reread that payload before running `REPAIR`, `SHAKEDOWN`, or the `startup-script`/`reboot-script`. They rerun diagnostics only when the log shows remaining issues, so every training round is accountable.
+- The TUI startup banner writes the Self-Healer summary + Hot Reload stats to `memory/logs/health-training.log`, and automation scripts reread that payload before running `REPAIR`, `SHAKEDOWN`, or the `startup-script`/`reboot-script`. They rerun diagnostics only when the log shows remaining issues, so every training pass is accountable.
 - `memory/bank/system/startup-script.md` and `.../reboot-script.md` now live in the seeded templates, execute automatically, and emit `PATTERN TEXT "Startup ready"` or `PATTERN TEXT "Reboot ready"` for tooling to detect the run without extra logging.
-- Keeping the Hotkey Center, config page, and Sonic documentation updated keeps rounds 3‑10 pointing at this doc as the canonical slab described in `ROUNDS-3-10.md`.
-- Maintain this doc and `docs/TUI-HOTKEY-AUTOMATION.md` whenever new plugin/Sonic milestones land so the Round 2 daily-cycle table always references the freshest installer/status/hotkey story.
-- The health log now surfaces `monitoring_summary`, `notification_history`, and the latest `provider-load.log` entries so automation banners, PATTERN runs, and the monitoring_manager dashboard all see the same throttling/issue state before gating PATTERN/REPAIR flows. `tools/trigger_library_throttles.py` exercises `/api/library/*` and parser endpoints to populate `provider-load.log` before Cycle 2 so automation can replay throttling history during `/dev/` restarts.
-- The Hotkey Center register (`memory/logs/hotkey-center.json`) now mirrors every plugin/Sonic milestone mentioned here, so please append status updates there whenever new deliverables land; future rounds will read that payload plus the doc to confirm the single source of truth before kicking off a new automation cycle.
+- Keeping the Hotkey Center, config page, and Sonic documentation updated keeps milestones pointing at this doc as the canonical slab described in `v1.3.1-milestones.md`.
+- Maintain this doc and `docs/TUI-HOTKEY-AUTOMATION.md` whenever new plugin/Sonic milestones land so the Wizard optimization plan always references the freshest installer/status/hotkey story.
+- The health log now surfaces `monitoring_summary`, `notification_history`, and the latest `provider-load.log` entries so automation banners, PATTERN runs, and the monitoring_manager dashboard all see the same throttling/issue state before gating PATTERN/REPAIR flows. `tools/trigger_library_throttles.py` exercises `/api/library/*` and parser endpoints to populate `provider-load.log` before automation runs so recovery steps can replay throttling history during `/dev/` restarts.
+- The Hotkey Center register (`memory/logs/hotkey-center.json`) now mirrors every plugin/Sonic milestone mentioned here, so please append status updates there whenever new deliverables land; future milestones will read that payload plus the doc to confirm the single source of truth before kicking off a new automation pass.

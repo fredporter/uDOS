@@ -1,14 +1,14 @@
 <script>
-  import NotionBlockRenderer from "../lib/components/round3/NotionBlockRenderer.svelte";
-  import NotionWebhookPanel from "../lib/components/round3/NotionWebhookPanel.svelte";
-  import ThemeSystemPanel from "../lib/components/round3/ThemeSystemPanel.svelte";
-  import PluginDashboardPanel from "../lib/components/round3/PluginDashboardPanel.svelte";
-  import ModOverlayPanel from "../lib/components/round3/ModOverlayPanel.svelte";
+  import NotionBlockRenderer from "../lib/components/v1_3_1/NotionBlockRenderer.svelte";
+  import NotionWebhookPanel from "../lib/components/v1_3_1/NotionWebhookPanel.svelte";
+  import ThemeSystemPanel from "../lib/components/v1_3_1/ThemeSystemPanel.svelte";
+  import PluginDashboardPanel from "../lib/components/v1_3_1/PluginDashboardPanel.svelte";
+  import ModOverlayPanel from "../lib/components/v1_3_1/ModOverlayPanel.svelte";
   import { themePalettes } from "$lib/constants/themePalettes";
   import { setThemePalette, themePaletteStore } from "$lib/stores/themeStore";
 
   const blocks = [
-    { type: "heading", content: "Round 3: Wizard UI" },
+    { type: "heading", content: "Wizard UI v1.3.1" },
     {
       type: "paragraph",
       content: "Svelte + Notion blocks share a single component library so previews stay synched with live editing."
@@ -28,13 +28,13 @@
   }
 </script>
 
-<section class="round3-shell">
+<section class="wizard-ui-shell">
   <header>
     <div>
-      <p class="eyebrow">Round 3 • Wizard Web UI</p>
+      <p class="eyebrow">Wizard UI • v1.3.1</p>
       <h1>Compose Svelte/Notion block components + webhook experience</h1>
       <p>
-        Tracking the deliverables from `docs/ROADMAP.md` (Svelte block library, Notion webhook panel,
+        Tracking the deliverables from `docs/specs/v1.3.1-milestones.md` (Svelte block library, Notion webhook panel,
         Tailwind theme system). These placeholders outline the components before adding live data.
       </p>
     </div>
@@ -99,7 +99,7 @@
 </section>
 
 <style>
-  .round3-shell {
+  .wizard-ui-shell {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;

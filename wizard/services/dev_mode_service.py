@@ -98,9 +98,9 @@ class DevModeService:
             self.start_time = time.time()
             self.services_status["goblin"] = True
 
-            # Create a Dev Round project for task tracking
+            # Create a Dev Milestone project for task tracking
             workflow = WorkflowManager()
-            round_name = f"Dev Round {datetime.now().strftime('%Y-%m-%d')}"
+            round_name = f"Dev Milestone {datetime.now().strftime('%Y-%m-%d')}"
             workflow.get_or_create_project(
                 round_name,
                 description="Auto-created when DEV MODE is activated.",

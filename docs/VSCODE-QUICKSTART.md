@@ -1,7 +1,6 @@
 # VS Code Setup - Quick Start Guide
 
 **Status:** ✅ Complete  
-**Date:** 2026-02-01  
 **Workspace:** `uDOS.code-workspace` (unlimitedly expanded)
 
 ---
@@ -23,10 +22,10 @@ code uDOS.code-workspace
 Cmd+Shift+P → "Run Task: 📝 Health Check"
 ```
 
-### Step 3: Start Round 2 Setup
+### Step 3: Start Core Setup
 ```bash
 # Option A: Full automated setup
-Cmd+Shift+P → "Run Task: 🚀 Round 2: Full Setup"
+Cmd+Shift+P → "Run Task: 🚀 Full Setup"
 
 # Option B: Manual steps
 1. Cmd+Shift+P → "Run Task: ✅ Setup Venv"
@@ -115,7 +114,7 @@ Cmd+Shift+P → "Run Task: ✅ Setup Venv"
 Cmd+Shift+P → "Run Task: 📦 Install Dependencies"
 
 # Complete setup
-Cmd+Shift+P → "Run Task: 🚀 Round 2: Full Setup"
+Cmd+Shift+P → "Run Task: 🚀 Full Setup"
 ```
 
 ---
@@ -227,7 +226,7 @@ code uDOS.code-workspace
 
 ---
 
-## 📋 Pre-Round 2 Checklist
+## 📋 Pre-Setup Checklist
 
 - [ ] Opened `uDOS.code-workspace`
 - [ ] Terminal shows `(venv)` prefix
@@ -247,7 +246,7 @@ code uDOS.code-workspace
 For detailed information, see:
 
 - [VSCODE-SETUP.md](VSCODE-SETUP.md) — Complete guide
-- [WIZARD-ROUND2-PLAN.md](WIZARD-ROUND2-PLAN.md) — Round 2 plan
+- [WIZARD-OPTIMIZATION-v1.3.1.md](WIZARD-OPTIMIZATION-v1.3.1.md) — Core Setup plan
 - [AGENTS.md](AGENTS.md) — Architecture rules
 - [ROADMAP.md](ROADMAP.md) — Development timeline
 
@@ -268,10 +267,9 @@ For detailed information, see:
 
 ---
 
-**Ready for Round 2!**
+**Ready for Core Setup!**
 
 ```bash
 code uDOS.code-workspace
-Cmd+Shift+P → "Run Task: 🚀 Round 2: Full Setup"
+Cmd+Shift+P → "Run Task: 🚀 Full Setup"
 ```
-

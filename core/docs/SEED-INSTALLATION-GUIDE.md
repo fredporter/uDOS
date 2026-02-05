@@ -1,7 +1,7 @@
 # Seed Installation Guide
 
 This guide ensures the local memory/bank/seed structure is healthy so the Core
-TUI can rely on consistent data after every setup round.
+TUI can rely on consistent data after every setup pass.
 
 ## 1. Directory layout
 
@@ -36,4 +36,4 @@ After running the TUI setup story:
   Self-Healer diagnostics.
 
 Keeping this structure healthy is a prerequisite for the hot-reload/self-heal
-training workflow described in `ROUNDS-3-10.md`.
+training workflow described in `v1.3.1-milestones.md`.

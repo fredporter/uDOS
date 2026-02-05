@@ -17,8 +17,9 @@ export type MappingState = {
   lastExported?: string;
 };
 
-const STORAGE_KEY = "wizard-round3-obsidian-slot-mappings";
-const LEGACY_STORAGE_KEY = "wizard-round3-slot-mappings";
+const STORAGE_KEY = "wizard-v1-3-1-obsidian-slot-mappings";
+const LEGACY_STORAGE_KEY = "wizard-round3-obsidian-slot-mappings";
+const LEGACY_STORAGE_KEY_ALT = "wizard-round3-slot-mappings";
 
 function readStoredState(): MappingState {
   if (typeof window === "undefined") {
@@ -34,11 +35,18 @@ function readStoredState(): MappingState {
     }
   }
   const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+  const legacyAlt = localStorage.getItem(LEGACY_STORAGE_KEY_ALT);
   if (!legacy) {
+    if (!legacyAlt) {
+      return { mappings: [] };
+    }
+  }
+  const legacyPayload = legacy ?? legacyAlt;
+  if (!legacyPayload) {
     return { mappings: [] };
   }
   try {
-    const parsed = JSON.parse(legacy);
+    const parsed = JSON.parse(legacyPayload);
     const legacyMappings = Array.isArray(parsed.mappings)
       ? parsed.mappings
       : [];

@@ -1,31 +1,31 @@
 # Roadmap TODO Tracker
 
-This live tracker lists the remaining development items referenced by `docs/ROADMAP.md` and the new `ROUNDS-3-10` spec. Update statuses as work progresses.
+This live tracker lists the remaining development items referenced by `docs/DEV-WORKFLOW-v1.3.1.md` and the milestones map in `docs/specs/v1.3.1-milestones.md`. Update statuses as work progresses.
 
 | Item | Owner | Status | Notes |
 | --- | --- | --- | --- |
-| Clean up Wizard dashboard navigation | Wizard | Done | Round 2 quick win: removed Setup menu from top nav and hamburger menu; rebuilt production assets. |
-| Finish Wizard Notion UI + plugin dashboard | Wizard | Done | Round 3 components (Notion blocks, plugin cards, mod overlay controls, Obsidian-first mapping). |
+| Clean up Wizard dashboard navigation | Wizard | Done | Removed Setup menu from top nav and hamburger menu; rebuilt production assets. |
+| Finish Wizard Notion UI + plugin dashboard | Wizard | Done | Notion blocks, plugin cards, mod overlay controls, Obsidian-first mapping. |
 | Implement Wizard dataset table + chart UI | Wizard | Done | `/api/data/schema` + `/api/data/query` wired with guardrails + export. |
-| Prototype Canvas-based teletext renderer | Wizard | Done | Round 5: teletext canvas + NES button kit wired in Tables.svelte (`/api/teletext/*`). |
+| Prototype Canvas-based teletext renderer | Wizard | Done | Teletext canvas + NES button kit wired in Tables.svelte (`/api/teletext/*`). |
 | Harden Beacon Portal + Sonic device catalog APIs | Wizard/Sonic | Done | Beacon routes wired + persisted (configs/quotas/tunnels/cache), auth toggle added, Sonic APIs already admin-guarded. |
 | Migrate Goblin binder/Sonic features to Wizard | Goblin/Open | Done | Binder file-backed endpoints + Screwdriver flash-pack routes now live in Wizard. |
-| Round 7: Binder compiler dev endpoints | Goblin | Done | `/api/dev/binders` wired to filesystem + compiler sync. |
-| Round 7: Screwdriver flash pack scaffolding | Goblin | Done | Flash-pack endpoints + payload schema scaffolded. |
-| Round 7: MeshCore device manager scaffolding | Goblin | Done | Device manager + pairing API scaffolded. |
-| Round 7: Dev workflow endpoints | Goblin | Done | Containers/vibe/logs/vault sync endpoints wired. |
+| Binder compiler dev endpoints | Goblin | Done | `/api/dev/binders` wired to filesystem + compiler sync. |
+| Screwdriver flash pack scaffolding | Goblin | Done | Flash-pack endpoints + payload schema scaffolded. |
+| MeshCore device manager scaffolding | Goblin | Done | Device manager + pairing API scaffolded. |
+| Dev workflow endpoints | Goblin | Done | Containers/vibe/logs/vault sync endpoints wired. |
 | Ship plugin manifest service + registry | Wizard/Extensions | Done | Registry routes + manifest validation service added. |
-| Begin App Typo Editor + converters | App | Early dev | Round 9 Tauri + converter pipeline. |
-| Build Groovebox Songscribe stack | Wizard | Planning | Round 10 Songscribe Markdown, audio synthesis, sample libs. |
-| Update `docs/specs/ROUNDS-3-10.md` | Documentation | Done | New spec created to summarize the rounds. |
+| Begin App Typo Editor + converters | App | Early dev | Tauri + converter pipeline. |
+| Build Groovebox Songscribe stack | Wizard | Planning | Songscribe Markdown, audio synthesis, sample libs. |
+| Update `docs/specs/v1.3.1-milestones.md` | Documentation | Done | Milestones summary created. |
 | Add DateTimeApproval + TUI story tests | Core | Done | Added regression coverage for approval/override flows. |
 | Build script executor + safety guard | Core | Done | Added ScriptExecutor, allowScripts guard, and runtime tests. |
 | Hot reload/self-heal training & docs | Core | Done | Automation logging plus `tui` stability guards added, hot-reload debouncing tested and documented. |
 | Phase 1B DocumentRunner state/set coverage | Core | Done | DocumentRunner now exercises state/set blocks end-to-end and new TypeScript tests live in `memory/tests/phase1b_*.test.ts`; legacy `__tests__` moved into `memory/tests/legacy`. |
 | Memory test scheduler & startup health hook | Core | Done | TUI now polls `~/memory/tests/` for new/changed test files, runs `automation.py`, and surfaces outcomes in the health summary/log. |
-| Prepare v1.3.0 release test round | Documentation | Done | Test plan published in `docs/ROUND-11-RELEASE-TEST.md`. |
+| Prepare v1.3.0 release test plan | Documentation | Done | Test plan published in `docs/v1.3.0-release-test.md`. |
 
-> 🔁 Keep this file synchronized with the next actions section of `docs/ROADMAP.md`.
+> 🔁 Keep this file synchronized with the milestone moves in `docs/DEV-WORKFLOW-v1.3.1.md`.
 
 ---
 
@@ -67,7 +67,7 @@ Integrate the attached specs/guides into the future roadmap.
 - **Engine-Agnostic World Contract**: enforce LocId invariants. See [docs/uDOS-Engine-Agnostic-World-Contract.md](docs/uDOS-Engine-Agnostic-World-Contract.md).
 
 ## Spatial universe + anchors
-- **Fractal grid + universe mapping** (v1.3.4): formalize anchor registry + LocId parser. See [docs/v1-3%20UNIVERSE.md](docs/v1-3%20UNIVERSE.md).
+- **Fractal grid + universe mapping** (v1.3.4): ✅ COMPLETE. Anchor registry + LocId parser + validation. See [docs/FRACTAL-GRID-IMPLEMENTATION.md](docs/FRACTAL-GRID-IMPLEMENTATION.md) and [docs/SPATIAL-QUICK-REF.md](docs/SPATIAL-QUICK-REF.md).
 - **UGRID core (grid canvas + overlays)** (v1.3.4): implement grid canvas primitives + LocId overlays. See [docs/v1-3%20UGRID-CORE.md](docs/v1-3%20UGRID-CORE.md).
 - **Gameplay anchors** (v1.3.5): implement Anchor registry + runtime interfaces. See [sonic/docs/specs/uDOS-Gameplay-Anchors-v1.3-Spec.md](../sonic/docs/specs/uDOS-Gameplay-Anchors-v1.3-Spec.md).
 - **World lenses**: Godot 2D/2.5D adapter MVP (v1.3.4), O3DE prototype (v1.3.5). See [docs/v1-3%20-4%203dworld.md](docs/v1-3%20-4%203dworld.md).

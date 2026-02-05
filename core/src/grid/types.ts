@@ -15,21 +15,19 @@ export interface RenderResult {
   rawText: string;
 }
 
-export type BorderStyle = "single" | "none";
-
-export interface TextOptions {
-  align?: "left" | "centre" | "right";
-  wrap?: boolean;
-  ellipsis?: boolean;
+export interface LocIdOverlay {
+  locId: string;
+  icon: string; // T|N|E|!|*
+  label?: string;
 }
 
-export interface TableColumn {
-  key: string;
-  title: string;
-  width?: number;
+export interface MinimapCell {
+  type: "empty" | "occupied" | "selected" | "tagged";
+  content?: string;
+  overlay?: LocIdOverlay;
 }
 
-export interface TableOptions {
-  header?: boolean;
-  rowSep?: boolean;
+export interface MinimapOptions {
+  showLabels?: boolean;
+  focusCell?: { x: number; y: number };
 }

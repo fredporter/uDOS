@@ -20,6 +20,7 @@
 | [specs/uCODE-v1.3.md](specs/uCODE-v1.3.md) | Unified Terminal TUI (main entry) |
 | [ARCHITECTURE-v1.3.md](ARCHITECTURE-v1.3.md) | System overview for v1.3 |
 | [DOCS-SPINE-v1.3.md](DOCS-SPINE-v1.3.md) | Minimal documentation spine |
+| [Dev Workspace Practices](../dev/wiki/DEV-WORKSPACE-PRACTICES.md) | uDOS dev practices + tooling defaults (Codex/Copilot) |
 
 ---
 
@@ -89,7 +90,7 @@ See [specs/uCODE-v1.3.md](specs/uCODE-v1.3.md) for all commands.
 
 ## 🧪 Testing & Release
 
-- **[ROUND-11-RELEASE-TEST.md](ROUND-11-RELEASE-TEST.md)** — Extensive v1.3.0 release test round
+- **[v1.3.0-release-test.md](v1.3.0-release-test.md)** — Extensive v1.3.0 release test plan
 - **[howto/renderer-indexer-runbook.md](howto/renderer-indexer-runbook.md)** — Renderer + task indexer runbook
 
 ---

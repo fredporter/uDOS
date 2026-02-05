@@ -120,10 +120,10 @@
 <section class="plugin-panel">
   <header>
     <div>
-      <p class="eyebrow">Round 3 • Plugin Dashboard</p>
+      <p class="eyebrow">v1.3.1 • Plugin Dashboard</p>
       <h2>Catalog snapshot</h2>
       <p class="muted">
-        Track plugin availability, updates, and enable/disable toggles without leaving the Round 3 lane.
+        Track plugin availability, updates, and enable/disable toggles without leaving the v1.3.1 lane.
       </p>
     </div>
     <div class="header-actions">

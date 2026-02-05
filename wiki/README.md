@@ -1,9 +1,11 @@
 # uDOS Wiki
 
 **Version:** v1.3.0
-**Last Updated:** February 4, 2026
+**Last Updated:** February 5, 2026
 
 Welcome to the uDOS wiki—your guide to getting started with the Universal Data Operations System.
+
+> **📖 Main Entry:** [**Home**](Home.md) | [View Wiki Online](https://github.com/fredporter/uDOS/wiki)
 
 ---
 

@@ -20,7 +20,7 @@ Chronological development sessions, project milestones, and infrastructure updat
 - Applied unique UIDs to all 247 documentation files (format: `udos-{type}-{component}-{YYYYMMDDHHMMSS}-UTC`)
 - Renamed `knowledge/well-being/` → `knowledge/wellbeing/` with 1000+ index updates
 - Converted version numbers to 3-digit format (v1.0.7 vs v1.0.7.1)
-- Reframed development model: Streams → Rounds (see ROADMAP.md)
+- Reframed development model: Streams → Milestones (see `docs/specs/v1.3.1-milestones.md`)
 - Created STREAM1-ACTION-PLAN.md (14-day TypeScript Markdown Runtime roadmap)
 
 ## 2026-01-28: uCODE Implementation
@@ -67,7 +67,7 @@ Sessions:
 
 ## Navigation
 
-- **[ROADMAP](ROADMAP.md)** — Development Rounds overview
+- **[Milestones](specs/v1.3.1-milestones.md)** — Development milestones overview
 - **[README](README.md)** — Documentation index & quick start
 
 ---

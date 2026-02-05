@@ -1,0 +1,17 @@
+{
+  "beacon_portal": {
+    "defaults": {
+      "device_quota_monthly_usd": 5.0,
+      "min_request_usd": 0.01,
+      "auto_reset_quota": true
+    },
+    "tunnel": {
+      "wizard_endpoint": "wizard.udos.cloud",
+      "wizard_public_key": "6X9LKp8Q7mN2vB3dFrJ4sT9wKc5hL0pJx8yG2eW1qU=",
+      "interface_address": "10.64.1.1/32",
+      "listen_port": 51820,
+      "allowed_ips": ["10.64.2.0/24", "192.168.100.0/24"],
+      "persistent_keepalive": 25
+    }
+  }
+}

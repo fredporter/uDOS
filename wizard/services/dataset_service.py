@@ -1,5 +1,5 @@
 """
-Dataset service for Round 4 API routes backed by `wizard/data/udos-table.db`.
+Dataset service for the v1.3 data lane backed by `wizard/data/udos-table.db`.
 """
 
 import sqlite3

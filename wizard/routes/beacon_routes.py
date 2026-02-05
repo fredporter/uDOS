@@ -16,25 +16,21 @@ from pathlib import Path
 from typing import Callable, Awaitable, Optional, List, Dict, Any
 from datetime import datetime, timedelta
 import uuid
-import json
-import sqlite3
 
 from fastapi import APIRouter, HTTPException, Request, Query, Body
 from pydantic import BaseModel, Field
 
 from wizard.services.beacon_service import (
-    BeaconService,
     BeaconConfig,
     BeaconMode,
     VPNTunnel,
     TunnelStatus,
-    DeviceQuotaEntry,
+    get_beacon_service,
 )
 AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
 
 # Paths
 BEACON_DB_PATH = Path(__file__).parent.parent.parent / "memory" / "beacon" / "beacon.db"
-BEACON_CONFIG_PATH = Path(__file__).parent.parent / "config" / "beacon.json"
 
 
 # ============================================================================
@@ -81,6 +77,23 @@ class VPNTunnelConfig(BaseModel):
     interface_address: str = Field(default="10.64.1.1/32")
     listen_port: int = Field(default=51820)
     status: str = Field(default="pending")  # pending | active | disabled
+    beacon_wg_config: Optional[str] = None
+
+
+class TunnelStatsIn(BaseModel):
+    """Tunnel statistics payload."""
+
+    bytes_sent: int
+    bytes_received: int
+    latency_ms: int
+    packets_lost: int = 0
+    handshake_age_sec: int = 3600
+
+
+class TunnelHeartbeatIn(BaseModel):
+    """Tunnel heartbeat payload."""
+
+    status: str = Field(default="active", description="active | error | disabled")
 
 
 class DeviceQuota(BaseModel):
@@ -125,7 +138,7 @@ class PluginCache(BaseModel):
 def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
     """Create Beacon Portal routes."""
     router = APIRouter(prefix="/api/beacon", tags=["beacon"])
-    beacon_service = BeaconService(BEACON_DB_PATH)
+    beacon_service = get_beacon_service(BEACON_DB_PATH)
 
     def _validate_config(config: BeaconNetworkConfig) -> None:
         if config.mode not in {"private-home", "public-secure"}:
@@ -138,6 +151,27 @@ def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
     # ========================================================================
     # CONFIGURATION ENDPOINTS
     # ========================================================================
+
+    @router.get("/config", response_model=Dict[str, Any])
+    async def get_portal_config(request: Request = None):
+        """Get Beacon Portal configuration defaults."""
+        if auth_guard:
+            await auth_guard(request)
+
+        return beacon_service.get_portal_config()
+
+    @router.post("/config", response_model=Dict[str, Any])
+    async def update_portal_config(
+        updates: Dict[str, Any] = Body(...), request: Request = None
+    ):
+        """Update Beacon Portal configuration defaults."""
+        if auth_guard:
+            await auth_guard(request)
+
+        if not isinstance(updates, dict):
+            raise HTTPException(status_code=400, detail="Invalid config payload")
+
+        return beacon_service.update_portal_config(updates)
 
     @router.post("/configure", response_model=Dict[str, Any])
     async def configure_beacon(config: BeaconNetworkConfig, request: Request):
@@ -401,18 +435,26 @@ def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
 
         tunnel_id = f"tunnel-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
+        tunnel_defaults = beacon_service._get_tunnel_defaults()
+        wizard_public_key = tunnel_defaults["wizard_public_key"] or "<wizard-generated-key>"
+        wizard_endpoint = tunnel_defaults["wizard_endpoint"]
+
         tunnel = VPNTunnel(
             tunnel_id=tunnel_id,
             beacon_id=beacon_id,
             beacon_public_key=beacon_public_key,
             beacon_endpoint=beacon_endpoint,
-            wizard_public_key="<wizard-generated-key>",  # Would generate in real impl
-            wizard_endpoint="wizard.udos.cloud",
+            wizard_public_key=wizard_public_key,
+            wizard_endpoint=wizard_endpoint,
+            interface_address=tunnel_defaults["interface_address"],
+            listen_port=tunnel_defaults["listen_port"],
             status=TunnelStatus.PENDING,
         )
 
         beacon_service.create_vpn_tunnel(tunnel)
         beacon_service.update_beacon_config(beacon_id, {"vpn_tunnel_enabled": True})
+
+        beacon_wg_config = beacon_service.generate_wireguard_config(tunnel)
 
         return VPNTunnelConfig(
             tunnel_id=tunnel_id,
@@ -424,7 +466,23 @@ def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
             interface_address=tunnel.interface_address,
             listen_port=tunnel.listen_port,
             status=tunnel.status.value,
+            beacon_wg_config=beacon_wg_config,
         )
+
+    @router.get("/tunnel/{tunnel_id}/config")
+    async def get_tunnel_config(tunnel_id: str, request: Request = None):
+        """Get WireGuard config for the beacon side."""
+        if auth_guard:
+            await auth_guard(request)
+
+        tunnel = beacon_service.get_vpn_tunnel(tunnel_id)
+        if not tunnel:
+            raise HTTPException(status_code=404, detail="Tunnel not found")
+
+        return {
+            "tunnel_id": tunnel_id,
+            "beacon_config": beacon_service.generate_wireguard_config(tunnel),
+        }
 
     @router.get("/tunnel/{tunnel_id}/status")
     async def get_tunnel_status(tunnel_id: str, request: Request = None):
@@ -465,6 +523,59 @@ def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
             "timestamp": datetime.now().isoformat(),
         }
 
+    @router.post("/tunnel/{tunnel_id}/heartbeat")
+    async def update_tunnel_heartbeat(
+        tunnel_id: str,
+        payload: TunnelHeartbeatIn,
+        request: Request = None,
+    ):
+        """Update tunnel heartbeat and status."""
+        if auth_guard:
+            await auth_guard(request)
+
+        status_map = {
+            "active": TunnelStatus.ACTIVE,
+            "error": TunnelStatus.ERROR,
+            "disabled": TunnelStatus.DISABLED,
+        }
+        status = status_map.get(payload.status, TunnelStatus.ACTIVE)
+        beacon_service.touch_tunnel_heartbeat(tunnel_id, status)
+
+        return {
+            "status": "success",
+            "tunnel_id": tunnel_id,
+            "state": status.value,
+            "timestamp": datetime.now().isoformat(),
+        }
+
+    @router.post("/tunnel/{tunnel_id}/stats")
+    async def record_tunnel_stats(
+        tunnel_id: str,
+        payload: TunnelStatsIn,
+        request: Request = None,
+    ):
+        """Record tunnel stats for monitoring."""
+        if auth_guard:
+            await auth_guard(request)
+
+        if not beacon_service.get_vpn_tunnel(tunnel_id):
+            raise HTTPException(status_code=404, detail="Tunnel not found")
+
+        beacon_service.record_tunnel_stats(
+            tunnel_id=tunnel_id,
+            bytes_sent=payload.bytes_sent,
+            bytes_received=payload.bytes_received,
+            latency_ms=payload.latency_ms,
+            packets_lost=payload.packets_lost,
+            handshake_age_sec=payload.handshake_age_sec,
+        )
+
+        return {
+            "status": "success",
+            "tunnel_id": tunnel_id,
+            "timestamp": datetime.now().isoformat(),
+        }
+
     # ========================================================================
     # DEVICE QUOTA MANAGEMENT
     # ========================================================================
@@ -475,11 +586,7 @@ def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
 
-        quota = beacon_service.get_device_quota(device_id)
-        if not quota:
-            quota = beacon_service.create_device_quota(
-                DeviceQuotaEntry(device_id=device_id, budget_monthly_usd=5.0)
-            )
+        quota = beacon_service.get_or_create_device_quota(device_id)
 
         remaining = max(0.0, quota.budget_monthly_usd - quota.spent_this_month_usd)
         return DeviceQuota(
