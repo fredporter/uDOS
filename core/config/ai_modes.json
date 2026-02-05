@@ -1,0 +1,71 @@
+{
+  "modes": {
+    "ofvibe": {
+      "label": "OFVIBE",
+      "description": "Local/offline Vibe CLI (Ollama-backed)",
+      "ollama_endpoint": "http://127.0.0.1:11434",
+      "default_models": {
+        "core": "mistral-small2",
+        "dev": "devstral-small-2"
+      },
+      "models": [
+        {
+          "name": "mistral-small2",
+          "availability": ["core"]
+        },
+        {
+          "name": "devstral-small-2",
+          "availability": ["dev"]
+        }
+      ]
+    },
+    "onvibe": {
+      "label": "ONVIBE",
+      "description": "Vibe CLI (Mistral cloud)",
+      "default_model": "mistral-small-latest",
+      "models": [
+        {
+          "name": "mistral-small-latest",
+          "availability": ["wizard", "dev"]
+        }
+      ]
+    },
+    "prompt": {
+      "label": "PROMPT",
+      "description": "Wizard AI gateway (Gemini primary, OpenAI fallback)",
+      "provider_order": ["gemini", "openai"],
+      "models": [
+        {
+          "name": "gemini-1.5-flash",
+          "provider": "gemini",
+          "availability": ["wizard"]
+        },
+        {
+          "name": "gemini-pro",
+          "provider": "gemini",
+          "availability": ["wizard"]
+        },
+        {
+          "name": "gemini-ultra",
+          "provider": "gemini",
+          "availability": ["wizard"]
+        },
+        {
+          "name": "gpt-4-turbo",
+          "provider": "openai",
+          "availability": ["wizard"]
+        },
+        {
+          "name": "gpt-4",
+          "provider": "openai",
+          "availability": ["wizard"]
+        },
+        {
+          "name": "gpt-3.5-turbo",
+          "provider": "openai",
+          "availability": ["wizard"]
+        }
+      ]
+    }
+  }
+}

@@ -304,6 +304,8 @@ class WizardServer:
         app.include_router(groovebox_router)
         from wizard.routes.songscribe_routes import router as songscribe_router
         app.include_router(songscribe_router)
+        from wizard.routes.songscribe_export_routes import router as songscribe_export_router
+        app.include_router(songscribe_export_router)
 
         # Register Setup wizard routes
 
@@ -518,10 +520,10 @@ class WizardServer:
         repair_router = create_repair_routes(auth_guard=self._authenticate_admin)
         app.include_router(repair_router)
 
-        # Register Sonic Screwdriver device database routes
-        from wizard.routes.sonic_routes import create_sonic_routes
+        # Register Sonic Screwdriver device database routes (modular plugin system)
+        from wizard.routes.sonic_plugin_routes import create_sonic_plugin_routes
 
-        sonic_router = create_sonic_routes(auth_guard=self._authenticate_admin)
+        sonic_router = create_sonic_plugin_routes(auth_guard=self._authenticate_admin)
         app.include_router(sonic_router)
 
         # Mount dashboard static files

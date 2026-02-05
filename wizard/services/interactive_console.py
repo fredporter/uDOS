@@ -46,6 +46,7 @@ from wizard.services.path_utils import get_repo_root
 from typing import Optional, Dict, Any, Callable
 from datetime import datetime
 from pathlib import Path
+import os
 from wizard.services.dev_mode_service import get_dev_mode_service
 from wizard.services.vibe_service import VibeService
 from wizard.services.mistral_api import MistralAPI
@@ -70,6 +71,7 @@ from core.services.maintenance_utils import (
 from wizard.services.url_to_markdown_service import get_url_to_markdown_service
 from wizard.services.pdf_ocr_service import get_pdf_ocr_service
 from wizard.services.tree_service import TreeStructureService
+from wizard.services.secret_store import get_secret_store, SecretStoreError
 
 
 class WizardConsole:
@@ -158,11 +160,134 @@ class WizardConsole:
         dashboard_index = Path(__file__).parent.parent / "dashboard" / "dist" / "index.html"
         return dashboard_index.exists()
 
+    def _assistant_keys_path(self) -> Path:
+        return Path(__file__).parent.parent / "config" / "assistant_keys.json"
+
+    def _load_assistant_keys(self) -> Dict[str, Any]:
+        path = self._assistant_keys_path()
+        if not path.exists():
+            return {}
+        try:
+            return json.loads(path.read_text())
+        except Exception:
+            return {}
+
+    def _resolve_secret_store(self):
+        try:
+            store = get_secret_store()
+            store.unlock()
+            return store, None
+        except SecretStoreError as exc:
+            return None, str(exc)
+
+    def _secret_has_value(self, store, key_id: str) -> bool:
+        if not store or not key_id:
+            return False
+        entry = store.get_entry(key_id)
+        return entry is not None and bool(entry.value)
+
+    def _ollama_host(self) -> str:
+        host = (os.getenv("OLLAMA_HOST") or "http://127.0.0.1:11434").strip()
+        return host.rstrip("/")
+
+    def _check_ollama_status(self) -> Dict[str, Any]:
+        """Return ollama reachability + available models."""
+        endpoint = self._ollama_host()
+        try:
+            with urllib.request.urlopen(f"{endpoint}/api/tags", timeout=4) as resp:
+                if resp.status != 200:
+                    return {"reachable": False, "models": [], "error": f"HTTP {resp.status}"}
+                payload = json.loads(resp.read().decode("utf-8"))
+                models = [m.get("name", "") for m in payload.get("models", [])]
+                return {"reachable": True, "models": models, "error": None}
+        except Exception as exc:
+            return {"reachable": False, "models": [], "error": str(exc)}
+
+    def _check_openrouter_key(self) -> Dict[str, Any]:
+        """Check if OpenRouter key is configured via assistant_keys or secret store."""
+        assistant_keys = self._load_assistant_keys()
+        providers_map = assistant_keys.get("providers", {})
+        entry = providers_map.get("openrouter")
+        key_id = None
+        direct_key = None
+
+        if isinstance(entry, dict):
+            direct_key = entry.get("api_key") or entry.get("key")
+            key_id = entry.get("key_id")
+        elif isinstance(entry, str):
+            direct_key = entry
+
+        if direct_key:
+            return {"configured": True, "source": "assistant_keys.json"}
+
+        store, err = self._resolve_secret_store()
+        if key_id and self._secret_has_value(store, key_id):
+            return {"configured": True, "source": f"secret_store:{key_id}"}
+
+        for candidate in ("openrouter_api_key", "ai-openrouter"):
+            if self._secret_has_value(store, candidate):
+                return {"configured": True, "source": f"secret_store:{candidate}"}
+
+        if err:
+            return {"configured": False, "locked": True, "error": err}
+
+        return {"configured": False, "locked": False, "error": "Missing OpenRouter key"}
+
+    def _check_default_ai_setup(self) -> Dict[str, Any]:
+        """Check default AI providers (OF/OL/PR) readiness."""
+        ollama = self._check_ollama_status()
+        models = [m.split(":")[0] for m in ollama.get("models", [])]
+        devstral_ready = "devstral-small-2" in models
+
+        openrouter = self._check_openrouter_key()
+
+        return {
+            "ollama": ollama,
+            "devstral": {"ready": devstral_ready, "model": "devstral-small-2"},
+            "openrouter": openrouter,
+        }
+
+    def _print_default_ai_startup_checks(self) -> None:
+        checks = self._check_default_ai_setup()
+        base_host = "localhost" if self.config.host == "0.0.0.0" else self.config.host
+        config_url = f"http://{base_host}:{self.config.port}/#config"
+
+        print("\n🤖 DEFAULT AI STARTUP CHECKS (OF / OL / PR):")
+
+        # OL: Ollama service
+        if checks["ollama"]["reachable"]:
+            print("  • OL (Ollama service): ✅ Reachable")
+        else:
+            print("  • OL (Ollama service): ⚠️  Not reachable")
+            print(f"    - Start Ollama or set OLLAMA_HOST (currently {self._ollama_host()})")
+            print(f"    - Visit Wizard Config to complete setup: {config_url}")
+
+        # OF: Offline Devstral model
+        if checks["devstral"]["ready"]:
+            print("  • OF (Offline Devstral): ✅ Model ready")
+        else:
+            print("  • OF (Offline Devstral): ⚠️  Model missing")
+            print("    - Install: ollama pull devstral-small-2")
+            print(f"    - Or use Wizard Config: {config_url}")
+
+        # PR: OpenRouter key
+        if checks["openrouter"].get("configured"):
+            print("  • PR (OpenRouter): ✅ Key configured")
+        else:
+            if checks["openrouter"].get("locked"):
+                print("  • PR (OpenRouter): ⚠️  Secret store locked")
+            else:
+                print("  • PR (OpenRouter): ⚠️  Key missing")
+            print("    - Add OpenRouter API key in Wizard Config → Quick Keys")
+            print(f"    - Open: {config_url}")
+        print()
+
     def _startup_checks(self) -> None:
         self._run_with_spinner("Preparing editor (micro)", ensure_micro_repo)
         self._dashboard_ready = self._run_with_spinner(
             "Checking dashboard build", self._check_dashboard_build
         )
+        self._print_default_ai_startup_checks()
 
     def print_banner(self):
         """Display startup banner with capabilities."""

@@ -1,10 +1,11 @@
 """
-Songscribe service wrapper for parsing Songscribe markdown and rendering Groovebox data.
+Songscribe service wrapper for parsing Songscribe markdown, rendering Groovebox data, and audio transcription.
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from core.services.songscribe_parser import (
     SongscribeDocument,
@@ -61,6 +62,71 @@ class SongscribeService:
         payload["pattern"] = to_groovebox_pattern(doc)
         payload["ascii"] = to_ascii_grid(doc, width=width)
         return payload
+
+    def transcribe_audio(
+        self,
+        audio_path: str | Path,
+        output_dir: Optional[str | Path] = None,
+        preset: str = "full_band",
+        backends: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Transcribe audio file using ML backends.
+
+        Args:
+            audio_path: Path to audio file (mp3, wav, flac, ogg)
+            output_dir: Output directory (default: memory/groovebox/transcriptions/{stem})
+            preset: Transcription preset (solo, duet, small_band, full_band)
+            backends: List of backends to use (demucs, basic-pitch, adtof)
+
+        Returns:
+            Transcription result dict with status, results from each backend
+        """
+        try:
+            from library.songscribe.transcription import get_transcription_engine
+            from core.services.logging_service import get_repo_root
+
+            audio_path = Path(audio_path)
+
+            if not output_dir:
+                output_dir = get_repo_root() / "memory" / "groovebox" / "transcriptions" / audio_path.stem
+
+            output_dir = Path(output_dir)
+
+            engine = get_transcription_engine()
+            result = engine.transcribe_audio(audio_path, output_dir, preset, backends)
+
+            logger.info(f"[TRANSCRIPTION] Service: {audio_path.name} → {output_dir}")
+            return result
+
+        except ImportError as e:
+            logger.error(f"[TRANSCRIPTION] Import error: {e}")
+            return {
+                "status": "error",
+                "message": "Transcription backend not available",
+                "error": str(e),
+            }
+        except Exception as e:
+            logger.error(f"[TRANSCRIPTION] Error: {e}")
+            return {
+                "status": "error",
+                "message": f"Transcription failed: {str(e)}",
+                "error": str(e),
+            }
+
+    def transcription_status(self) -> Dict[str, Any]:
+        """Get status of all transcription backends."""
+        try:
+            from library.songscribe.transcription import get_transcription_engine
+
+            engine = get_transcription_engine()
+            return engine.get_status()
+
+        except ImportError:
+            return {
+                "status": "error",
+                "message": "Transcription backend not available",
+            }
 
 
 def get_songscribe_service() -> SongscribeService:

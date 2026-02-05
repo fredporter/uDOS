@@ -23,6 +23,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         "Inventory": ["BAG", "GRAB", "SPAWN"],
         "NPCs & Dialogue": ["NPC", "TALK", "REPLY"],
         "Files & State": ["SAVE", "LOAD", "NEW", "EDIT"],
+        "AI & Models": ["OK"],
         "System & Maintenance": [
             "SHAKEDOWN",
             "REPAIR",
@@ -155,6 +156,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "notes": "Shows all commands or specific command details",
             "category": "System & Maintenance",
             "syntax": "HELP [<command>] | HELP CATEGORY <category> | HELP SEARCH <query>",
+        },
+        "OK": {
+            "description": "Local Vibe helpers (offline-first)",
+            "usage": "OK <LOCAL|EXPLAIN|DIFF|PATCH|VIBE> [args]",
+            "example": "OK EXPLAIN core/tui/ucode.py",
+            "notes": "Routes to local Vibe (Ollama-backed) and stores outputs for OK LOCAL",
+            "category": "AI & Models",
+            "syntax": "OK <LOCAL|EXPLAIN|DIFF|PATCH|VIBE> [args] [--cloud]",
         },
         "SHAKEDOWN": {
             "description": "System validation and diagnostics",
@@ -415,6 +424,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "Inventory",
             "NPCs & Dialogue",
             "Files & State",
+            "AI & Models",
             "System & Maintenance",
             "Advanced",
         ]

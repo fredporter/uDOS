@@ -10,6 +10,8 @@ Provides:
 """
 
 import sys
+import os
+import shutil
 from typing import List, Dict, Optional, Tuple, Callable, Any
 from core.utils.tty import interactive_tty_status
 from dataclasses import dataclass
@@ -67,18 +69,61 @@ class InteractiveMenu:
         """
         self.title = title
         self.items = items
-        self.style = style
+        self.style = self._resolve_style(style)
         self.allow_cancel = allow_cancel
         self.show_help = show_help
         self.selected_index = 0
         self.logger = None
         self._raw_mode = False
+        self._alt_screen = False
+        self._use_alt_screen = os.getenv("UDOS_MENU_ALT_SCREEN", "1").lower() not in ("0", "false", "no")
+        self._ascii_only = self._should_use_ascii()
         
         try:
             from core.services.logging_service import get_logger
             self.logger = get_logger("interactive-menu")
         except Exception:
             pass
+
+    def _resolve_style(self, style: MenuStyle) -> MenuStyle:
+        """Apply env overrides for menu style."""
+        env_style = os.getenv("UDOS_MENU_STYLE", "").strip().lower()
+        if env_style in ("numbered", "numeric"):
+            return MenuStyle.NUMBERED
+        if env_style == "arrow":
+            return MenuStyle.ARROW
+        if env_style == "hybrid":
+            return MenuStyle.HYBRID
+        if os.getenv("UDOS_MENU_NO_ARROWS", "").strip().lower() in ("1", "true", "yes"):
+            return MenuStyle.NUMBERED
+        return style
+
+    def _should_use_ascii(self) -> bool:
+        """Return True if we should avoid emoji/box-drawing glyphs."""
+        ascii_only = os.getenv("UDOS_ASCII_ONLY", "").strip().lower() in ("1", "true", "yes")
+        encoding = (getattr(sys.stdout, "encoding", "") or "").lower()
+        return ascii_only or not encoding.startswith("utf")
+
+    def _enter_alt_screen(self) -> None:
+        """Switch to alternate screen buffer for stable redraws."""
+        if self._alt_screen or not self._use_alt_screen:
+            return
+        sys.stdout.write("\033[?1049h\033[H")
+        sys.stdout.flush()
+        self._alt_screen = True
+
+    def _exit_alt_screen(self) -> None:
+        """Return from alternate screen buffer."""
+        if not self._alt_screen:
+            return
+        sys.stdout.write("\033[?1049l\033[H")
+        sys.stdout.flush()
+        self._alt_screen = False
+
+    def _clear_screen(self) -> None:
+        """Clear visible screen area."""
+        sys.stdout.write("\033[2J\033[H")
+        sys.stdout.flush()
 
     def show(self) -> Optional[str]:
         """
@@ -100,63 +145,78 @@ class InteractiveMenu:
             # If detection fails, proceed with default behavior
             pass
 
-        while True:
-            self._display()
-            
-            choice = self._get_choice()
-            if choice is None:
-                return None
-            
-            if choice < 0 or choice >= len(self.items):
-                if choice == -1 and self.allow_cancel:
+        if self.style in (MenuStyle.ARROW, MenuStyle.HYBRID):
+            self._enter_alt_screen()
+
+        try:
+            while True:
+                self._display()
+
+                choice = self._get_choice()
+                if choice is None:
                     return None
-                print("  ❌ Invalid choice")
-                continue
-            
-            item = self.items[choice]
-            if not item.enabled:
-                print("  ❌ That option is not available")
-                continue
-            
-            # Handle submenus
-            if item.submenu:
-                result = item.submenu.show()
-                if result is not None:
-                    return result
-                continue
-            
-            # Handle direct actions
-            if item.action:
-                try:
-                    item.action()
-                except Exception as e:
-                    print(f"  ❌ Action failed: {e}")
-                    if self.logger:
-                        self.logger.error(f"Menu action failed: {e}")
+
+                if choice < 0 or choice >= len(self.items):
+                    if choice == -1 and self.allow_cancel:
+                        return None
+                    print("  ❌ Invalid choice")
                     continue
-            
-            # Return value
-            return item.value or item.label
+
+                item = self.items[choice]
+                if not item.enabled:
+                    print("  ❌ That option is not available")
+                    continue
+
+                # Handle submenus
+                if item.submenu:
+                    result = item.submenu.show()
+                    if result is not None:
+                        return result
+                    continue
+
+                # Handle direct actions
+                if item.action:
+                    try:
+                        item.action()
+                    except Exception as e:
+                        print(f"  ❌ Action failed: {e}")
+                        if self.logger:
+                            self.logger.error(f"Menu action failed: {e}")
+                        continue
+
+                # Return value
+                return item.value or item.label
+        finally:
+            self._exit_alt_screen()
 
     def _display(self) -> None:
         """Display menu on screen."""
         # For arrow/hybrid menus we re-render on navigation; clear the screen
         # to avoid stacked/garbled layouts when handling arrow keys.
         if self.style in (MenuStyle.ARROW, MenuStyle.HYBRID):
-            sys.stdout.write("\033[2J\033[H")
-            sys.stdout.flush()
+            self._clear_screen()
         lines: List[str] = []
+        if self._ascii_only:
+            tl, tr, bl, br = "+", "+", "+", "+"
+            hline, vline = "-", "|"
+        else:
+            tl, tr, bl, br = "╔", "╗", "╚", "╝"
+            hline, vline = "═", "║"
         lines.append("")
-        lines.append("╔" + "═" * (len(self.title) + 2) + "╗")
-        lines.append(f"║ {self.title} ║")
-        lines.append("╚" + "═" * (len(self.title) + 2) + "╝")
+        lines.append(tl + hline * (len(self.title) + 2) + tr)
+        lines.append(f"{vline} {self.title} {vline}")
+        lines.append(bl + hline * (len(self.title) + 2) + br)
         lines.append("")
 
         # Display items
         for idx, item in enumerate(self.items):
             num = idx + 1
-            indicator = "▶ " if idx == self.selected_index else "  "
-            status = "✅" if item.enabled else "⊘"
+            if self._ascii_only:
+                indicator = "> " if idx == self.selected_index else "  "
+                status = "[x]" if item.enabled else "[ ]"
+            else:
+                indicator = "▶ " if idx == self.selected_index else "  "
+                status = "✅" if item.enabled else "⊘"
             lines.append(f"{indicator}{status} {num}. {item.label}")
             if self.show_help and item.help_text:
                 lines.append(f"      {item.help_text}")
@@ -164,7 +224,9 @@ class InteractiveMenu:
         # Display cancel option
         if self.allow_cancel:
             cancel_idx = len(self.items)
-            indicator = "▶ " if cancel_idx == self.selected_index else "  "
+            indicator = "> " if (self._ascii_only and cancel_idx == self.selected_index) else (
+                "▶ " if cancel_idx == self.selected_index else "  "
+            )
             lines.append(f"{indicator}  0. Cancel")
 
         lines.append("")
@@ -176,14 +238,16 @@ class InteractiveMenu:
         if self.style == MenuStyle.NUMBERED:
             return ["  Enter number and press Enter (0-9)"]
         elif self.style == MenuStyle.ARROW:
-            return ["  Use ↑↓ arrows, then press Enter"]
+            return ["  Use up/down arrows, then press Enter" if self._ascii_only else "  Use ↑↓ arrows, then press Enter"]
         # HYBRID
-        return ["  Use 1-9 or ↑↓ arrows, then press Enter"]
+        return ["  Use 1-9 or up/down arrows, then press Enter" if self._ascii_only else "  Use 1-9 or ↑↓ arrows, then press Enter"]
 
     def _emit_lines(self, lines: List[str]) -> None:
         """Write menu output with correct newlines for raw mode."""
         newline = "\r\n" if self._raw_mode else "\n"
-        sys.stdout.write(newline.join(lines) + newline)
+        width = shutil.get_terminal_size((80, 20)).columns
+        padded = [line.ljust(width) for line in lines]
+        sys.stdout.write(newline.join(padded) + newline)
         sys.stdout.flush()
 
     def _get_choice(self) -> Optional[int]:

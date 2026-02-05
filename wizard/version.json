@@ -5,12 +5,12 @@
   "version": {
     "major": 1,
     "minor": 1,
-    "patch": 0
+    "patch": 1
   },
-  "display": "v1.1.0",
+  "display": "v1.1.1",
   "channel": "stable",
-  "released": "2026-01-31",
-  "description": "AI Gateway + Model Routing (Local-First): Integrated ModelRouter, PolicyEnforcer, VibeService, TaskClassifier for Devstral-first routing with OpenRouter escalation + policy validation",
+  "released": "2026-02-05",
+  "description": "Sonic Screwdriver modular plugin routes integrated - server.py uses create_sonic_plugin_routes()",
   "changelog": "dev/roadmap/CHANGELOG-wizard.md",
   "dependencies": {
     "core": ">=1.0.0"

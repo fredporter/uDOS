@@ -18,6 +18,7 @@ Version: v1.0.0
 
 from typing import Optional, List, Dict, Any, Callable
 from dataclasses import dataclass
+import shutil
 from core.utils.tty import interactive_tty_status
 from .enhanced_prompt import EnhancedPrompt
 from core.services.logging_service import get_logger
@@ -178,6 +179,8 @@ class ContextualCommandPrompt(EnhancedPrompt):
             self.logger = logging.getLogger("contextual-prompt")
         self.registry = registry or CommandRegistry()
         super().__init__(registry=self.registry)
+        self.toolbar_fixed_lines = True
+        self.set_bottom_toolbar_provider(self._build_command_toolbar)
 
     def ask_command(self, prompt_text: str = "▶ ") -> str:
         """
@@ -196,8 +199,9 @@ class ContextualCommandPrompt(EnhancedPrompt):
         """
         self.logger.debug("Asking for command with contextual help")
 
-        # Display context lines before the prompt (suggestions + help)
-        self._display_context_for_command("")
+        # Display context lines only in fallback mode; prompt_toolkit renders live toolbar.
+        if self.use_fallback:
+            self._display_context_for_command("")
 
         # Use SmartPrompt directly - don't duplicate context printing
         # Hints are shown once at startup via _show_startup_hints()
@@ -233,6 +237,185 @@ class ContextualCommandPrompt(EnhancedPrompt):
             print(f"  ╰─ {first_cmd.icon} {first_cmd.help_text}")
         else:
             print(f"  ╰─ Type a command name to see suggestions")
+
+    def _build_command_toolbar(self, text: str):
+        """
+        Build a dynamic, 2-line toolbar for prompt_toolkit.
+
+        Line 1: Suggestions or options
+        Line 2: Help text or tip
+        """
+        if not self.show_context:
+            return ""
+        raw = text or ""
+        stripped = raw.strip()
+        tokens = stripped.split()
+        term_width = shutil.get_terminal_size(fallback=(120, 24)).columns
+        ok_model = getattr(self, "ok_model", "devstral-small-2")
+        ok_ctx = getattr(self, "ok_context_window", 8192)
+
+        def _format_line(line: str) -> str:
+            if not self.toolbar_fixed_lines:
+                if len(line) <= term_width:
+                    return line
+                return line[: max(0, term_width - 1)] + "…"
+            if len(line) > term_width:
+                return line[: max(0, term_width - 1)] + "…"
+            return line.ljust(term_width)
+
+        def _prefix_symbol() -> str:
+            if raw.startswith(":"):
+                return ":"
+            if raw.startswith("/"):
+                return "/"
+            return ""
+
+        prefix_symbol = _prefix_symbol()
+
+        # No input yet: show general suggestions + a rotating tip
+        if not tokens:
+            suggestions = self.registry.get_suggestions("", limit=5)
+            line1 = self._format_suggestions_line(suggestions, prefix_symbol)
+            line2 = self._format_tip_line(stripped)
+            return [_format_line(line1), _format_line(line2)]
+
+        cmd_token = tokens[0].lstrip(":/")
+        cmd_key = cmd_token.upper()
+        cmd_meta = self.registry.get_command(cmd_key)
+
+        # If user is still typing the command name
+        if len(tokens) == 1 and not raw.endswith(" "):
+            suggestions = self.registry.get_suggestions(cmd_key, limit=5)
+            line1 = self._format_suggestions_line(suggestions, prefix_symbol)
+            if cmd_meta:
+                syntax = f"{prefix_symbol}{cmd_meta.syntax}" if prefix_symbol else cmd_meta.syntax
+                line2 = f"  ╰─ {cmd_meta.icon} {cmd_meta.help_text}  |  {syntax}"
+            else:
+                line2 = self._format_tip_line(stripped)
+            return [_format_line(line1), _format_line(line2)]
+
+        if cmd_key == "OK":
+            options = ["LOCAL", "EXPLAIN", "DIFF", "PATCH", "VIBE"]
+            opt_preview = ", ".join(options[:4])
+            if len(options) > 4:
+                opt_preview += f" (+{len(options) - 4} more)"
+            line1 = f"  ╭─ Options: {opt_preview}"
+            line2 = f"  ╰─ 🧭 Local Vibe ({ok_model}, ctx {ok_ctx})"
+            return [_format_line(line1), _format_line(line2)]
+
+        # Otherwise, show options/next hints for the chosen command
+        options = self._collect_option_hints(cmd_key, cmd_meta)
+
+        if options:
+            opt_preview = ", ".join(options[:4])
+            if len(options) > 4:
+                opt_preview += f" (+{len(options) - 4} more)"
+            line1 = f"  ╭─ Options: {opt_preview}"
+        else:
+            line1 = "  ╭─ Options: (none)"
+
+        if cmd_meta and cmd_meta.examples:
+            line2 = f"  ╰─ Example: {cmd_meta.examples[0]}"
+        elif cmd_meta:
+            line2 = f"  ╰─ {cmd_meta.icon} {cmd_meta.help_text}  |  Try: HELP {cmd_meta.name}"
+        else:
+            line2 = self._format_tip_line(stripped)
+
+        return [_format_line(line1), _format_line(line2)]
+
+    def _format_suggestions_line(
+        self, suggestions: List[CommandMetadata], prefix_symbol: str = ""
+    ) -> str:
+        """Format suggestions line for toolbar."""
+        if suggestions:
+            names = [f"{prefix_symbol}{s.name}" for s in suggestions[:3]]
+            suggestion_text = ", ".join(names)
+            if len(suggestions) > 3:
+                suggestion_text += f" (+{len(suggestions) - 3} more)"
+            return f"  ╭─ Suggestions: {suggestion_text}"
+        return "  ╭─ No matching commands"
+
+    def _format_tip_line(self, prefix: str) -> str:
+        """Return a rotating tip/help line for variety."""
+        tips = [
+            "  ╰─ Tip: Use ↑/↓ for history, → to accept suggestions",
+            "  ╰─ Tip: Press Tab to open the command selector",
+            "  ╰─ Tip: Add --help to see command options",
+            "  ╰─ Tip: Prefix OK for local Vibe (e.g., OK EXPLAIN)",
+            "  ╰─ Tip: Try HELP <command> for full docs",
+        ]
+        idx = (len(prefix) + sum(ord(c) for c in prefix)) % len(tips) if prefix else 0
+        return tips[idx]
+
+    def set_toolbar_fixed_lines(self, enabled: bool = True) -> None:
+        """Enable or disable fixed-width toolbar lines to prevent wrapping."""
+        self.toolbar_fixed_lines = enabled
+
+    def _collect_option_hints(
+        self, cmd_key: str, cmd_meta: Optional[CommandMetadata]
+    ) -> List[str]:
+        """
+        Combine options from registry, autocomplete, and recent history.
+        """
+        merged: List[str] = []
+
+        def _add(values: List[str]) -> None:
+            for value in values:
+                if value and value not in merged:
+                    merged.append(value)
+
+        if cmd_meta and cmd_meta.options:
+            _add(cmd_meta.options)
+
+        # Recent history/logs-derived options
+        _add(self._extract_recent_options(cmd_key))
+
+        # Autocomplete options
+        if hasattr(self, "autocomplete_service"):
+            try:
+                _add(self.autocomplete_service.get_options(cmd_key))
+            except Exception:
+                pass
+
+        return merged
+
+    def _extract_recent_options(self, cmd_key: str) -> List[str]:
+        """Extract recently used options/args from input history."""
+        history: List[str] = []
+        if hasattr(self, "input_history") and self.input_history:
+            history = list(self.input_history)
+        elif hasattr(self, "history") and hasattr(self.history, "get_strings"):
+            try:
+                history = list(self.history.get_strings())
+            except Exception:
+                history = []
+
+        recent = history[-100:]
+        options: List[str] = []
+        args: List[str] = []
+
+        for line in recent:
+            if not line:
+                continue
+            parts = line.strip().split()
+            if not parts:
+                continue
+            token = parts[0].lstrip(":/").upper()
+            if token != cmd_key:
+                continue
+
+            for part in parts[1:]:
+                if part.startswith("--") or part.startswith("-"):
+                    if part not in options:
+                        options.append(part)
+                else:
+                    if part not in args:
+                        args.append(part)
+
+        merged = options[:6]
+        # Include a couple of frequent args as soft hints
+        merged.extend([arg for arg in args[:3] if arg not in merged])
+        return merged
 
     def ask_command_interactive(
         self,
@@ -348,6 +531,50 @@ def create_default_registry() -> CommandRegistry:
         examples=["INTEGRATION status", "INTEGRATION mistral"],
         icon="🔗",
         category="System",
+    )
+
+    # AI Modes
+    registry.register(
+        name="OFVIBE",
+        help_text="Local/offline Vibe CLI (Ollama-backed)",
+        syntax=":OFVIBE [status|setup|models]",
+        examples=[":OFVIBE status", ":OFVIBE setup"],
+        icon="🧭",
+        category="AI",
+    )
+
+    registry.register(
+        name="ONVIBE",
+        help_text="Vibe CLI (Mistral cloud)",
+        syntax=":ONVIBE [status|setup|models]",
+        examples=[":ONVIBE status", ":ONVIBE setup"],
+        icon="☁️",
+        category="AI",
+    )
+
+    registry.register(
+        name="PROMPT",
+        help_text="Wizard AI gateway (Gemini primary, OpenAI fallback)",
+        syntax=":PROMPT [status|setup|models|parse] | :PROMPT <instruction>",
+        examples=[":PROMPT status", ":PROMPT parse \"Review errors\""],
+        icon="🧠",
+        category="AI",
+    )
+
+    registry.register(
+        name="OK",
+        help_text="Local Vibe helpers (EXPLAIN, DIFF, PATCH, LOCAL)",
+        syntax="OK <LOCAL|EXPLAIN|DIFF|PATCH|VIBE> [args]",
+        options=[
+            "LOCAL: Show recent local outputs",
+            "EXPLAIN: Summarize code in a file",
+            "DIFF: Propose a diff for a file",
+            "PATCH: Draft a patch with preview",
+            "VIBE: Alias for LOCAL",
+        ],
+        examples=["OK EXPLAIN core/tui/ucode.py", "OK LOCAL 5"],
+        icon="🧭",
+        category="AI",
     )
 
     registry.register(

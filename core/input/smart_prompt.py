@@ -267,6 +267,8 @@ class SmartPrompt:
         self.tab_handler = None
         self.registry = registry
         self.fkey_handler = None
+        self.bottom_toolbar_provider = None
+        self.input_history: List[str] = []
         self.logger = logger
 
         if self.use_fallback and not HAS_PROMPT_TOOLKIT:
@@ -309,6 +311,10 @@ class SmartPrompt:
                 "completion.meta": "ansiyellow",       # Yellow hints
                 "scrollbar": "ansicyan",               # Cyan scrollbar
                 "scrollbar.background": "ansiblack",   # Dark background
+                "bottom-toolbar": "ansiblack",
+                "bottom-toolbar.suggestion": "ansibrightblue",
+                "bottom-toolbar.help": "ansiyellow",
+                "bottom-toolbar.tip": "ansicyan",
             }
         )
 
@@ -408,6 +414,40 @@ class SmartPrompt:
     def set_function_key_handler(self, handler) -> None:
         """Register a handler that responds to F1-F8 presses."""
         self.fkey_handler = handler
+
+    def set_bottom_toolbar_provider(self, provider) -> None:
+        """
+        Register a callable that returns dynamic bottom toolbar lines.
+
+        Provider signature: provider(text: str) -> Iterable[str] | str
+        """
+        self.bottom_toolbar_provider = provider
+
+    def _get_bottom_toolbar(self):
+        """Build bottom toolbar text for prompt_toolkit."""
+        if not self.bottom_toolbar_provider:
+            return ""
+
+        try:
+            buffer = None
+            if self.session:
+                app = getattr(self.session, "app", None)
+                if app and getattr(app, "current_buffer", None):
+                    buffer = app.current_buffer
+                else:
+                    buffer = self.session.default_buffer
+            doc = buffer.document if buffer else None
+            text = doc.text if doc else ""
+            lines = self.bottom_toolbar_provider(text)
+            if lines is None:
+                return ""
+            if isinstance(lines, str):
+                return lines
+            # Join multiple lines for a multi-line toolbar
+            return "\n".join([str(line) for line in lines if line is not None])
+        except Exception as exc:
+            debug_logger.debug(f"Bottom toolbar provider failed: {exc}")
+            return ""
 
 
     def ask(
@@ -590,12 +630,13 @@ class SmartPrompt:
         debug_logger.debug(f"_ask_advanced() called")
         try:
             debug_logger.debug(f"  Calling session.prompt('{prompt_text}')")
-            user_input = self.session.prompt(prompt_text)
+            bottom_toolbar = self._get_bottom_toolbar if self.bottom_toolbar_provider else None
+            user_input = self.session.prompt(prompt_text, bottom_toolbar=bottom_toolbar)
             debug_logger.debug(f"  Got input: '{user_input}'")
 
             # Track for history
             if user_input.strip():
-                self.predictor.record_command(user_input)
+                self._record_input(user_input)
                 debug_logger.debug(f"  Recorded command in history")
 
             return user_input.strip()
@@ -626,7 +667,7 @@ class SmartPrompt:
             user_input = raw_input.strip()
 
             if user_input:
-                self.predictor.record_command(user_input)
+                self._record_input(user_input)
 
             return user_input
         except (KeyboardInterrupt, EOFError):
@@ -665,6 +706,12 @@ class SmartPrompt:
             output = result.get("output") or result.get("message") or ""
             if output:
                 print(f"\n{output}")
+
+    def _record_input(self, user_input: str) -> None:
+        """Track input for predictions and recent history."""
+        self.predictor.record_command(user_input)
+        self.input_history.append(user_input)
+        self.input_history = self.input_history[-200:]
 
     def get_predictions(self, partial: str, max_results: int = 5) -> List:
         """

@@ -40,6 +40,7 @@ import logging
 import subprocess
 import time
 import shutil
+import warnings
 import requests
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Callable
@@ -73,6 +74,7 @@ from core.tui.advanced_form_handler import AdvancedFormField
 from core.services.system_script_runner import SystemScriptRunner
 from wizard.services.monitoring_manager import MonitoringManager
 from wizard.services.plugin_validation import load_manifest, validate_manifest
+from core.services.unified_logging import get_unified_logger, LogLevel
 
 
 def get_repo_root() -> Path:
@@ -230,6 +232,7 @@ class uCODETUI:
         """Initialize uCODE TUI."""
         self.repo_root = get_repo_root()
         self.logger = get_logger("ucode-tui")
+        self.quiet = os.getenv("UDOS_QUIET", "").strip() in ("1", "true", "yes")
         self.running = False
         self.ghost_mode = False
         # Ensure bank/system seeds are present (startup/reboot/setup stories)
@@ -237,6 +240,7 @@ class uCODETUI:
         # Component detection
         self.detector = ComponentDetector(self.repo_root)
         self.components = self.detector.detect_all()
+        self.ai_modes_config = self._load_ai_modes_config()
 
         # Core components (always available)
         self.dispatcher = CommandDispatcher()
@@ -259,9 +263,14 @@ class uCODETUI:
         self.commands = {
             "STATUS": self._cmd_status,
             "HELP": self._cmd_help,
-            "VIBE": self._cmd_vibe,
-            "NL": self._cmd_nl,
             "PROMPT": self._cmd_prompt,
+            "OFVIBE": self._cmd_ofvibe,
+            "ONVIBE": self._cmd_onvibe,
+            "LOCAL": self._cmd_ok_local,
+            "VIBE": self._cmd_ok_local,
+            "EXPLAIN": self._cmd_ok_explain,
+            "DIFF": self._cmd_ok_diff,
+            "PATCH": self._cmd_ok_patch,
             "EXIT": self._cmd_exit,
             "QUIT": self._cmd_exit,
             "FKEYS": self._cmd_fkeys,
@@ -283,6 +292,9 @@ class uCODETUI:
         self.hot_reload_mgr = None
         self.hot_reload_stats: Optional[Dict[str, Any]] = None
         self.previous_health_log: Optional[Dict[str, Any]] = None
+        self.ok_local_outputs: List[Dict[str, Any]] = []
+        self.ok_local_counter = 0
+        self.ok_local_limit = 50
         self._setup_health_monitoring()
         self.system_script_runner = SystemScriptRunner()
         self.memory_test_scheduler: Optional[MemoryTestScheduler] = None
@@ -293,6 +305,7 @@ class uCODETUI:
         self.gantt_renderer = TodoGanttGridRenderer()
         self.prompt_parser = get_prompt_parser_service()
         self.todo_reminder = get_reminder_service(self.todo_manager)
+        self._init_ok_prompt_context()
 
         if self.prompt.use_fallback:
             self.logger.info(f"[ContextualPrompt] Using fallback mode: {self.prompt.fallback_reason}")
@@ -369,6 +382,25 @@ class uCODETUI:
             else:
                 # Remove "OK " prefix and pass the rest to dispatcher
                 normalized = user_input[3:].strip()
+
+                if normalized:
+                    parts = normalized.split(None, 1)
+                    cmd_name = parts[0].upper()
+                    args = parts[1] if len(parts) > 1 else ""
+                    if cmd_name in {"LOCAL", "VIBE", "EXPLAIN", "DIFF", "PATCH"}:
+                        self.commands[cmd_name](args)
+                        return {"status": "success", "command": cmd_name}
+                    # Treat other OK input as a local prompt
+                    self._run_ok_request(normalized, mode="LOCAL")
+                    return {"status": "success", "command": "OK"}
+
+            if normalized:
+                parts = normalized.split(None, 1)
+                cmd_name = parts[0].upper()
+                args = parts[1] if len(parts) > 1 else ""
+                if cmd_name in self.commands and cmd_name not in self.dispatcher.handlers:
+                    self.commands[cmd_name](args)
+                    return {"status": "success", "command": cmd_name}
 
             # Now route the normalized command to dispatcher
             return self.dispatcher.dispatch(normalized, parser=self.prompt)
@@ -472,10 +504,10 @@ class uCODETUI:
         words = user_input.strip().split(None, 1)
         if not words:
             return {"status": "error", "message": "Empty input"}
-        
+
         first_word = words[0].upper()
         rest = words[1] if len(words) > 1 else ""
-        
+
         # Map common commands (case insensitive shortcuts)
         cmd_map = {
             "HELP": "HELP",
@@ -499,14 +531,22 @@ class uCODETUI:
             "RUN": "RUN",
             "REPAIR": "REPAIR",
             "SHAKEDOWN": "SHAKEDOWN",
+            "OFVIBE": "OFVIBE",
+            "ONVIBE": "ONVIBE",
+            "PROMPT": "PROMPT",
         }
-        
+
         # Try to resolve to known command
         cmd = cmd_map.get(first_word, first_word)
-        
+
         # Build command with arguments
         full_cmd = f"{cmd} {rest}".strip()
-        
+
+        # Handle internal commands not in dispatcher
+        if cmd in self.commands and cmd not in self.dispatcher.handlers:
+            self.commands[cmd](rest)
+            return {"status": "success", "command": cmd}
+
         # Dispatch the command
         return self.dispatcher.dispatch(full_cmd, parser=self.prompt)
 
@@ -516,7 +556,7 @@ class uCODETUI:
         self._run_startup_script()
         self._show_banner()
         self._show_health_summary()
-        self._show_vibe_startup_sequence()
+        self._show_ai_startup_sequence()
         self._show_startup_hints()
 
         # Check if in ghost mode and prompt for setup
@@ -542,7 +582,7 @@ class uCODETUI:
                     # Route input based on prefix (: / OK) or question mode
                     # This implements the uCODE Prompt Spec
                     result = self._route_input(user_input)
-                    
+
                     # Check for EXIT/QUIT before processing
                     normalized_input = user_input.strip().upper()
                     if normalized_input in ("EXIT", "QUIT", ":EXIT", ":QUIT", "OK EXIT", "OK QUIT"):
@@ -604,62 +644,17 @@ class uCODETUI:
 
     def _show_startup_hints(self) -> None:
         """Show startup hints once at beginning."""
+        if self.quiet:
+            return
         print(self._theme_text("\n  💡 Start with: SETUP (first-time) | HELP (all commands) | STORY tui-setup (quick setup)"))
         print(self._theme_text("     Or try: MAP | TELL location | GOTO location | WIZARD start"))
+        print(self._theme_text("     Try: OK EXPLAIN <file> | OK LOCAL (local Vibe outputs)"))
         print(self._theme_text("     Press TAB for command selection | Type command for suggestions\n"))
-
-    def _show_vibe_startup_sequence(self) -> None:
-        """If Vibe CLI is installed, show the Vibe startup sequence."""
-        try:
-            vibe_path = shutil.which("vibe") or shutil.which("vibe-cli")
-            if not vibe_path:
-                return
-
-            repo_config = self.repo_root / ".vibe" / "config.toml"
-            home_config = Path.home() / ".vibe" / "config.toml"
-            config_path = repo_config if repo_config.exists() else (home_config if home_config.exists() else None)
-
-            provider = None
-            model = None
-            endpoint = None
-            if config_path:
-                try:
-                    for raw_line in config_path.read_text().splitlines():
-                        line = raw_line.split("#", 1)[0].strip()
-                        if not line or "=" not in line:
-                            continue
-                        key, value = [part.strip() for part in line.split("=", 1)]
-                        value = value.strip('"').strip("'")
-                        if key == "provider":
-                            provider = value
-                        elif key == "model":
-                            model = value
-                        elif key == "endpoint":
-                            endpoint = value
-                except Exception as exc:
-                    self.logger.debug("[VIBE] Failed to parse config: %s", exc)
-
-            print(self._theme_text("\n🎛 Vibe CLI detected"))
-            print(self._theme_text("-" * 60))
-            print(self._theme_text(f"  Binary: {vibe_path}"))
-            if config_path:
-                print(self._theme_text(f"  Config: {config_path}"))
-            if provider:
-                print(self._theme_text(f"  Provider: {provider}"))
-            if model:
-                print(self._theme_text(f"  Model: {model}"))
-            if endpoint:
-                print(self._theme_text(f"  Endpoint: {endpoint}"))
-            print(self._theme_text("  Startup sequence:"))
-            print(self._theme_text("  1. vibe chat"))
-            print(self._theme_text("  2. vibe chat \"What should I do next?\""))
-            print(self._theme_text("  3. VIBE CHAT <prompt>  (inside uCODE)"))
-            print(self._theme_text("-" * 60 + "\n"))
-        except Exception as exc:
-            self.logger.warning("[VIBE] Startup check failed: %s", exc)
 
     def _show_banner(self) -> None:
         """Show startup banner."""
+        if self.quiet:
+            return
         banner = """
 ╔═══════════════════════════════════════════════════════════════╗
 ║                        uCODE v1.0.1                           ║
@@ -677,15 +672,17 @@ class uCODETUI:
         result = self.system_script_runner.run_startup_script()
         if result.get("status") == "success":
             output = result.get("output")
-            if output:
+            if output and not self.quiet:
                 print(output)
         else:
             message = result.get("message")
-            if message:
+            if message and not self.quiet:
                 print(f"\n⚡ {message}")
 
     def _show_health_summary(self) -> None:
         """Show Self-Heal + Hot Reload overview (banner/log hook)."""
+        if self.quiet:
+            return
         if not self.self_heal_summary and not self.hot_reload_stats:
             return
 
@@ -736,6 +733,294 @@ class uCODETUI:
                 print("    ✅ Tests are running in the background as part of startup health checks.")
 
         print("-" * 60 + "\n")
+
+    def _get_ai_modes_path(self) -> Path:
+        """Return path to AI modes configuration."""
+        return self.repo_root / "core" / "config" / "ai_modes.json"
+
+    def _load_ai_modes_config(self) -> Dict[str, Any]:
+        """Load AI modes configuration (safe fallback)."""
+        path = self._get_ai_modes_path()
+        if not path.exists():
+            return {"modes": {}}
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                return json.load(handle)
+        except Exception as exc:
+            self.logger.warning("[AI] Failed to load ai_modes.json: %s", exc)
+            return {"modes": {}}
+
+    def _get_ok_default_model(self) -> str:
+        """Return the default local model for OK commands."""
+        mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
+        default_models = mode.get("default_models") or {}
+        model = default_models.get("core") or default_models.get("dev")
+        if os.getenv("UDOS_DEV_MODE") in ("1", "true", "yes"):
+            model = default_models.get("dev") or model
+        return model or "devstral-small-2"
+
+    def _get_ok_context_window(self) -> int:
+        """Return the local Vibe context window size."""
+        try:
+            from wizard.services.vibe_service import VibeConfig
+
+            return VibeConfig().context_window
+        except Exception:
+            return 8192
+
+    def _init_ok_prompt_context(self) -> None:
+        """Expose OK local model info to the prompt toolbar."""
+        try:
+            self.prompt.ok_model = self._get_ok_default_model()
+            self.prompt.ok_context_window = self._get_ok_context_window()
+        except Exception as exc:
+            self.logger.debug(f"[OK] Failed to set prompt context: {exc}")
+
+    def _show_ai_startup_sequence(self) -> None:
+        """Show Vibe startup summary if Vibe CLI is installed."""
+        if self.quiet:
+            return
+        ok_status = self._get_ok_local_status()
+        model = ok_status.get("model") or self._get_ok_default_model()
+        ctx = self._get_ok_context_window()
+
+        print(self._theme_text("\n🤖 Vibe (Local)"))
+        if ok_status.get("ready"):
+            print(self._theme_text(f"  ✅ Vibe: ready ({model}, ctx {ctx})"))
+        else:
+            issue = ok_status.get("issue") or "setup required"
+            print(self._theme_text(f"  ⚠️  Vibe: {issue} ({model}, ctx {ctx})"))
+        print(self._theme_text("  Tip: OK EXPLAIN <file> | OK LOCAL"))
+
+    def _format_ai_status_line(self, label: str, status: Dict[str, Any]) -> str:
+        """Format a single AI mode status line."""
+        if status.get("ready"):
+            return f"  ✅ {label}: ready"
+        issues = status.get("issues") or []
+        if issues:
+            return f"  ⚠️ {label}: " + ", ".join(issues)
+        return f"  ⚠️ {label}: setup required"
+
+    def _is_vibe_cli_installed(self) -> Dict[str, Any]:
+        """Check for Vibe CLI binary on PATH."""
+        for name in ("vibe", "mistral-vibe"):
+            path = shutil.which(name)
+            if path:
+                return {"installed": True, "command": name, "path": path}
+        return {"installed": False}
+
+    def _get_vibe_config_path(self) -> Optional[str]:
+        """Locate Vibe CLI config file."""
+        candidates = [
+            os.getenv("VIBE_CONFIG"),
+            os.getenv("VIBE_CONFIG_PATH"),
+            str(Path.home() / ".vibe" / "config.toml"),
+            str(Path.home() / ".config" / "vibe" / "config.toml"),
+            str(self.repo_root / ".vibe" / "config.toml"),
+        ]
+        for candidate in candidates:
+            if candidate and Path(candidate).exists():
+                return candidate
+        return None
+
+    def _get_vibe_env_path(self) -> Optional[str]:
+        """Locate Vibe CLI .env file."""
+        candidates = [
+            os.getenv("VIBE_ENV"),
+            os.getenv("VIBE_ENV_PATH"),
+            str(Path.home() / ".vibe" / ".env"),
+            str(Path.home() / ".config" / "vibe" / ".env"),
+            str(self.repo_root / ".vibe" / ".env"),
+        ]
+        for candidate in candidates:
+            if candidate and Path(candidate).exists():
+                return candidate
+        return None
+
+    def _read_env_key(self, path: Optional[str], key: str) -> Optional[str]:
+        """Read a key=value entry from a .env file."""
+        if not path:
+            return None
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                for line in handle:
+                    stripped = line.strip()
+                    if not stripped or stripped.startswith("#"):
+                        continue
+                    if stripped.startswith(f"{key}="):
+                        return stripped.split("=", 1)[1].strip().strip('"').strip("'")
+        except Exception:
+            return None
+        return None
+
+    def _fetch_ollama_models(self, endpoint: str) -> Dict[str, Any]:
+        """Query Ollama tags endpoint."""
+        url = endpoint.rstrip("/") + "/api/tags"
+        try:
+            with warnings.catch_warnings():
+                try:
+                    from urllib3.exceptions import NotOpenSSLWarning
+                    warnings.simplefilter("ignore", NotOpenSSLWarning)
+                except Exception:
+                    pass
+                response = requests.get(url, timeout=1.5)
+            if response.status_code != 200:
+                return {"reachable": False, "error": f"HTTP {response.status_code}"}
+            data = response.json()
+            models = [m.get("name") for m in data.get("models", []) if m.get("name")]
+            return {"reachable": True, "models": models}
+        except Exception as exc:
+            return {"reachable": False, "error": str(exc)}
+
+    def _get_ok_local_status(self) -> Dict[str, Any]:
+        """Return OK local Vibe status (Ollama + model)."""
+        mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
+        endpoint = mode.get("ollama_endpoint", "http://127.0.0.1:11434")
+        model = self._get_ok_default_model()
+        tags = self._fetch_ollama_models(endpoint)
+        if not tags.get("reachable"):
+            return {
+                "ready": False,
+                "issue": "ollama down",
+                "model": model,
+                "ollama_endpoint": endpoint,
+                "detail": tags.get("error"),
+            }
+        models = tags.get("models") or []
+        if model and model not in models:
+            return {
+                "ready": False,
+                "issue": "missing model",
+                "model": model,
+                "ollama_endpoint": endpoint,
+                "detail": None,
+            }
+        return {
+            "ready": True,
+            "issue": None,
+            "model": model,
+            "ollama_endpoint": endpoint,
+            "detail": None,
+        }
+
+    def _get_ofvibe_status(self) -> Dict[str, Any]:
+        """Return OFVIBE health status."""
+        issues: List[str] = []
+        vibe = self._is_vibe_cli_installed()
+        if not vibe.get("installed"):
+            issues.append("vibe-cli missing")
+
+        ollama_cli = bool(shutil.which("ollama"))
+        if not ollama_cli:
+            issues.append("ollama missing")
+
+        mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
+        endpoint = mode.get("ollama_endpoint", "http://127.0.0.1:11434")
+        tags = self._fetch_ollama_models(endpoint) if ollama_cli else {"reachable": False}
+        if not tags.get("reachable"):
+            issues.append("ollama offline")
+
+        default_models = mode.get("default_models") or {}
+        default_model = default_models.get("core") or default_models.get("dev")
+        if os.getenv("UDOS_DEV_MODE") in ("1", "true", "yes"):
+            default_model = default_models.get("dev") or default_model
+
+        model_available = False
+        if tags.get("reachable") and default_model:
+            model_available = default_model in (tags.get("models") or [])
+            if not model_available:
+                issues.append(f"model {default_model} missing")
+
+        return {
+            "ready": len(issues) == 0,
+            "issues": issues,
+            "model": default_model,
+            "ollama_endpoint": endpoint,
+            "detail": tags.get("error"),
+        }
+
+    def _get_onvibe_status(self) -> Dict[str, Any]:
+        """Return ONVIBE health status."""
+        issues: List[str] = []
+        vibe = self._is_vibe_cli_installed()
+        if not vibe.get("installed"):
+            issues.append("vibe-cli missing")
+
+        api_key = os.getenv("MISTRAL_API_KEY")
+        if not api_key:
+            api_key = self._read_env_key(self._get_vibe_env_path(), "MISTRAL_API_KEY")
+        if not api_key:
+            issues.append("MISTRAL_API_KEY missing")
+
+        return {
+            "ready": len(issues) == 0,
+            "issues": issues,
+            "detail": None,
+        }
+
+    def _get_prompt_status(self) -> Dict[str, Any]:
+        """Return PROMPT (Wizard AI gateway) health status."""
+        issues: List[str] = []
+        wizard_url = os.getenv("UDOS_WIZARD_URL", "http://127.0.0.1:8765").rstrip("/")
+        reachable = False
+        try:
+            with warnings.catch_warnings():
+                try:
+                    from urllib3.exceptions import NotOpenSSLWarning
+                    warnings.simplefilter("ignore", NotOpenSSLWarning)
+                except Exception:
+                    pass
+                resp = requests.get(f"{wizard_url}/health", timeout=1.5)
+            reachable = resp.status_code == 200
+        except Exception:
+            reachable = False
+        if not reachable:
+            issues.append("wizard offline")
+
+        providers = self._load_wizard_provider_keys()
+        gemini_ready = providers.get("gemini", False)
+        openai_ready = providers.get("openai", False)
+        if not (gemini_ready or openai_ready):
+            issues.append("no provider keys")
+        elif not gemini_ready:
+            issues.append("gemini key missing")
+
+        return {
+            "ready": reachable and (gemini_ready or openai_ready),
+            "issues": issues,
+            "wizard_url": wizard_url,
+            "reachable": reachable,
+            "providers": {
+                "gemini": gemini_ready,
+                "openai": openai_ready,
+            },
+        }
+
+    def _load_wizard_provider_keys(self) -> Dict[str, bool]:
+        """Check Wizard provider keys without exposing secrets."""
+        keys_path = self.repo_root / "wizard" / "config" / "assistant_keys.json"
+        if not keys_path.exists():
+            return {"gemini": False, "openai": False}
+        try:
+            data = json.loads(keys_path.read_text(encoding="utf-8"))
+        except Exception:
+            return {"gemini": False, "openai": False}
+
+        providers = data.get("providers") or {}
+
+        def has_key(provider_data: Any) -> bool:
+            if not isinstance(provider_data, dict):
+                return False
+            for field in ("api_key", "key", "key_id", "token", "access_token"):
+                value = provider_data.get(field)
+                if isinstance(value, str) and value.strip():
+                    return True
+            return False
+
+        return {
+            "gemini": has_key(providers.get("gemini")),
+            "openai": has_key(providers.get("openai")),
+        }
 
     def _setup_health_monitoring(self) -> None:
         """Initialize Self-Healer diagnostics + Hot Reload stats for automation."""
@@ -829,13 +1114,14 @@ class uCODETUI:
 
             if check_result and check_result.get("status") == "error":
                 # Auto-build failed or runtime still missing
-                print("\n⚠️  TypeScript Runtime Issue:")
-                print(f"   {check_result.get('message')}")
-                if check_result.get('details'):
-                    print(f"   Details: {check_result.get('details')}")
-                if check_result.get('suggestion'):
-                    print(f"   -> {check_result.get('suggestion')}")
-                print()
+                if not self.quiet:
+                    print("\n⚠️  TypeScript Runtime Issue:")
+                    print(f"   {check_result.get('message')}")
+                    if check_result.get('details'):
+                        print(f"   Details: {check_result.get('details')}")
+                    if check_result.get('suggestion'):
+                        print(f"   -> {check_result.get('suggestion')}")
+                    print()
         except Exception as exc:
             self.logger.warning(f"[STARTUP] TS runtime check failed: {exc}")
 
@@ -1451,8 +1737,15 @@ Navigation & Info:
   FIND [query]        - Search for locations
   TELL [query]        - Get information
   BAG                 - Inventory management
-  VIBE                - Vibe CLI integration (chat/context/history)
-  NL                  - Natural language routing (prototype)
+
+AI Modes:
+  OFVIBE              - Local/offline Vibe CLI (Ollama-backed)
+  ONVIBE              - Vibe CLI (Mistral cloud)
+  PROMPT              - Wizard AI gateway (Gemini primary, OpenAI fallback)
+  OK EXPLAIN <file>   - Explain code via local Vibe (offline)
+  OK DIFF <file>      - Propose a diff via local Vibe
+  OK PATCH <file>     - Draft a patch via local Vibe
+  OK LOCAL [N]        - Show recent OK local outputs
 
 """
         if self.detector.is_available("wizard"):
@@ -1490,421 +1783,150 @@ For detailed help on any command, type the command name followed by --help
 """
         print(self._theme_text(help_text))
 
-    def _cmd_vibe(self, args: str) -> None:
-        """Vibe CLI integration commands."""
-        tokens = [t for t in args.split() if t.strip()]
-        if not tokens or tokens[0].lower() in {"help", "--help", "?"}:
-            print(self._theme_text(self._vibe_help_text()))
+    def _cmd_ofvibe(self, args: str) -> None:
+        """Local/offline Vibe CLI (Ollama-backed) status/setup."""
+        tokens = args.strip().split()
+        action = tokens[0].upper() if tokens else "STATUS"
+
+        if action in ("HELP", "?"):
+            print(self._theme_text(":OFVIBE [STATUS|SETUP|MODELS]"))
             return
 
-        action = tokens[0].lower()
-        rest = tokens[1:]
-
-        if action == "chat":
-            self._vibe_chat(rest)
-            return
-        if action == "context":
-            self._vibe_context(rest)
-            return
-        if action == "history":
-            self._vibe_history(rest)
-            return
-        if action == "config":
-            self._vibe_config()
-            return
-        if action == "analyze":
-            self._vibe_analyze(rest)
-            return
-        if action == "explain":
-            self._vibe_explain(rest)
-            return
-        if action == "suggest":
-            self._vibe_suggest(rest)
+        if action == "SETUP":
+            print(self._theme_text("\n═══ OFVIBE SETUP ═══\n"))
+            print(self._theme_text("1. Install Ollama (macOS): brew install ollama"))
+            print(self._theme_text("2. Start Ollama: brew services start ollama"))
+            print(self._theme_text("3. Pull model: ollama pull mistral-small2"))
+            print(self._theme_text("   (dev option: ollama pull devstral-small-2)"))
+            print(self._theme_text("4. Install Vibe CLI: pip install mistral-vibe"))
+            print(self._theme_text("5. Confirm .vibe/config.toml points to Ollama"))
+            print(self._theme_text("6. Run: :OFVIBE STATUS"))
             return
 
-        print(self._theme_text(f"Unknown VIBE action '{tokens[0]}'. Use VIBE HELP."))
-
-    def _vibe_help_text(self) -> str:
-        return """
-═══ VIBE HELP ═══
-
-VIBE CHAT <prompt> [--no-context] [--model <name>] [--format text|json]
-VIBE CONTEXT [--files a,b,c] [--notes \"...\"]
-VIBE HISTORY [--limit N]
-VIBE CONFIG
-VIBE ANALYZE <path>
-VIBE EXPLAIN <symbol>
-VIBE SUGGEST <task>
-
-Notes:
-  - Goblin endpoints are preferred for local dev: http://localhost:8767
-  - Wizard endpoints are used if Goblin is unavailable: http://localhost:8765
-  - Wizard may require WIZARD_ADMIN_TOKEN in the environment.
-"""
-
-    def _vibe_chat(self, args: List[str]) -> None:
-        flags, prompt = self._parse_vibe_flags(args)
-        if not prompt:
-            prompt = self.prompt.ask_command("vibe> ").strip()
-            if not prompt:
-                print(self._theme_text("No prompt provided."))
+        if action == "MODELS":
+            mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
+            models = mode.get("models") or []
+            print(self._theme_text("\n═══ OFVIBE MODELS ═══\n"))
+            if not models:
+                print(self._theme_text("No models configured. See core/config/ai_modes.json"))
                 return
-
-        provider, base_url = self._resolve_vibe_provider()
-        if not provider:
-            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
+            for entry in models:
+                name = entry.get("name", "unknown")
+                availability = ", ".join(entry.get("availability") or [])
+                print(self._theme_text(f"  - {name} ({availability})"))
             return
 
-        if provider == "goblin":
-            payload = {
-                "prompt": prompt,
-                "system": flags.get("system", ""),
-                "format": flags.get("format") or "text",
-                "with_context": flags.get("with_context", True),
-            }
-            result = self._vibe_request("POST", f"{base_url}/api/dev/vibe/chat", json=payload)
-            if not result:
+        status = self._get_ofvibe_status()
+        print(self._theme_text("\n═══ OFVIBE STATUS ═══\n"))
+        print(self._theme_text(self._format_ai_status_line("OFVIBE", status)))
+        if status.get("detail"):
+            print(self._theme_text(f"  Detail: {status['detail']}"))
+        config_path = self._get_vibe_config_path()
+        if config_path:
+            print(self._theme_text(f"  Config: {config_path}"))
+        endpoint = (self.ai_modes_config.get("modes") or {}).get(
+            "ofvibe", {}
+        ).get("ollama_endpoint", "http://127.0.0.1:11434")
+        print(self._theme_text(f"  Ollama: {endpoint}"))
+
+    def _cmd_onvibe(self, args: str) -> None:
+        """Vibe CLI (Mistral cloud) status/setup."""
+        tokens = args.strip().split()
+        action = tokens[0].upper() if tokens else "STATUS"
+
+        if action in ("HELP", "?"):
+            print(self._theme_text(":ONVIBE [STATUS|SETUP|MODELS]"))
+            return
+
+        if action == "SETUP":
+            print(self._theme_text("\n═══ ONVIBE SETUP ═══\n"))
+            print(self._theme_text("1. Install Vibe CLI: pip install mistral-vibe"))
+            print(self._theme_text("2. Set MISTRAL_API_KEY (env or ~/.vibe/.env)"))
+            print(self._theme_text("3. Ensure model: mistral-small-latest"))
+            print(self._theme_text("4. Run: :ONVIBE STATUS"))
+            return
+
+        if action == "MODELS":
+            mode = (self.ai_modes_config.get("modes") or {}).get("onvibe", {})
+            models = mode.get("models") or []
+            print(self._theme_text("\n═══ ONVIBE MODELS ═══\n"))
+            if not models:
+                print(self._theme_text("No models configured. See core/config/ai_modes.json"))
                 return
-            response = result.get("response", "")
-        else:
-            payload = {
-                "prompt": prompt,
-                "include_context": flags.get("with_context", True),
-                "model": flags.get("model") or "devstral-small",
-            }
-            result = self._vibe_request("POST", f"{base_url}/api/ai/query", json=payload, use_auth=True)
-            if not result:
-                return
-            response = result.get("response", "")
-
-        self.renderer.stream_text(str(response), prefix="vibe> ")
-
-    def _vibe_context(self, args: List[str]) -> None:
-        flags, _ = self._parse_vibe_flags(args)
-        provider, base_url = self._resolve_vibe_provider()
-        if not provider:
-            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
+            for entry in models:
+                name = entry.get("name", "unknown")
+                availability = ", ".join(entry.get("availability") or [])
+                print(self._theme_text(f"  - {name} ({availability})"))
             return
 
-        if provider == "goblin":
-            payload = {
-                "files": flags.get("files"),
-                "notes": flags.get("notes"),
-            }
-            result = self._vibe_request("POST", f"{base_url}/api/dev/vibe/context-inject", json=payload)
-            if result:
-                print(self._theme_text(f"Context updated. Files: {result.get('files', 0)}"))
-            return
-
-        # Wizard context is managed server-side
-        result = self._vibe_request("GET", f"{base_url}/api/ai/context", use_auth=True)
-        if result:
-            files = result.get("files", [])
-            print(self._theme_text(f"Wizard context files ({len(files)}):"))
-            for item in files:
-                print(f"  - {item}")
-
-    def _vibe_history(self, args: List[str]) -> None:
-        flags, _ = self._parse_vibe_flags(args)
-        provider, base_url = self._resolve_vibe_provider()
-        if not provider:
-            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
-            return
-
-        if provider != "goblin":
-            print(self._theme_text("History is available via Goblin only."))
-            return
-
-        limit = flags.get("limit") or 10
-        result = self._vibe_request("GET", f"{base_url}/api/dev/vibe/history", params={"limit": limit})
-        if not result:
-            return
-        history = result.get("history", [])
-        print(self._theme_text(f"Vibe history (last {len(history)}):"))
-        for entry in history:
-            ts = entry.get("timestamp", "")
-            status = entry.get("status", "")
-            prompt = entry.get("prompt", "")
-            print(f"  - {ts} [{status}] {prompt}")
-
-    def _vibe_config(self) -> None:
-        provider, base_url = self._resolve_vibe_provider(check_only=True)
-        token = os.getenv("WIZARD_ADMIN_TOKEN") or os.getenv("ADMIN_TOKEN") or ""
-        print(self._theme_text("Vibe configuration:"))
-        print(f"  Provider: {provider or 'unknown'}")
-        print(f"  Goblin URL: {os.getenv('GOBLIN_URL', 'http://localhost:8767')}")
-        print(f"  Wizard URL: {os.getenv('WIZARD_URL', 'http://localhost:8765')}")
-        print(f"  Wizard admin token set: {'yes' if token else 'no'}")
-        print(f"  Active base URL: {base_url or '-'}")
-
-    def _vibe_analyze(self, args: List[str]) -> None:
-        flags, prompt = self._parse_vibe_flags(args)
-        target = prompt.strip()
-        if not target:
-            target = self.prompt.ask_command("vibe/analyze> ").strip()
-            if not target:
-                print(self._theme_text("No target provided."))
-                return
-
-        provider, base_url = self._resolve_vibe_provider()
-        if not provider:
-            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
-            return
-
-        if provider == "goblin":
-            payload = {"path": target, "with_context": flags.get("with_context", True)}
-            result = self._vibe_request("POST", f"{base_url}/api/dev/vibe/analyze", json=payload)
-        else:
-            payload = {"path": target, "include_context": flags.get("with_context", True)}
-            result = self._vibe_request("POST", f"{base_url}/api/ai/analyze", json=payload, use_auth=True)
-
-        if result is None:
-            return
-        response = result.get("response", result)
-        self.renderer.stream_text(str(response), prefix="vibe> ")
-
-    def _vibe_explain(self, args: List[str]) -> None:
-        flags, prompt = self._parse_vibe_flags(args)
-        target = prompt.strip()
-        if not target:
-            target = self.prompt.ask_command("vibe/explain> ").strip()
-            if not target:
-                print(self._theme_text("No target provided."))
-                return
-
-        provider, base_url = self._resolve_vibe_provider()
-        if not provider:
-            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
-            return
-
-        if provider == "goblin":
-            payload = {"symbol": target, "with_context": flags.get("with_context", True)}
-            result = self._vibe_request("POST", f"{base_url}/api/dev/vibe/explain", json=payload)
-        else:
-            payload = {"symbol": target, "include_context": flags.get("with_context", True)}
-            result = self._vibe_request("POST", f"{base_url}/api/ai/explain", json=payload, use_auth=True)
-
-        if result is None:
-            return
-        response = result.get("response", result)
-        self.renderer.stream_text(str(response), prefix="vibe> ")
-
-    def _vibe_suggest(self, args: List[str]) -> None:
-        flags, prompt = self._parse_vibe_flags(args)
-        target = prompt.strip()
-        if not target:
-            target = self.prompt.ask_command("vibe/suggest> ").strip()
-            if not target:
-                print(self._theme_text("No task provided."))
-                return
-
-        provider, base_url = self._resolve_vibe_provider()
-        if not provider:
-            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
-            return
-
-        if provider == "goblin":
-            payload = {"task": target, "with_context": flags.get("with_context", True)}
-            result = self._vibe_request("POST", f"{base_url}/api/dev/vibe/suggest", json=payload)
-        else:
-            payload = {"task": target, "include_context": flags.get("with_context", True)}
-            result = self._vibe_request("POST", f"{base_url}/api/ai/suggest", json=payload, use_auth=True)
-
-        if result is None:
-            return
-        response = result.get("response", result)
-        self.renderer.stream_text(str(response), prefix="vibe> ")
-
-    def _cmd_nl(self, args: str) -> None:
-        """Natural language routing prototype."""
-        tokens = [t for t in args.split() if t.strip()]
-        if not tokens or tokens[0].lower() in {"help", "--help", "?"}:
-            print(self._theme_text(self._nl_help_text()))
-            return
-
-        action = tokens[0].lower()
-        rest = tokens[1:]
-
-        if action == "route":
-            self._nl_route(rest)
-            return
-
-        print(self._theme_text(f"Unknown NL action '{tokens[0]}'. Use NL HELP."))
-
-    def _nl_help_text(self) -> str:
-        return """
-═══ NL HELP ═══
-
-NL ROUTE <prompt> [--dry-run] [--no-context]
-
-Notes:
-  - Uses the same Vibe transport as VIBE commands.
-  - Returns a route plan and optional execution (unless --dry-run).
-"""
-
-    def _nl_route(self, args: List[str]) -> None:
-        flags, prompt = self._parse_vibe_flags(args)
-        dry_run = bool(flags.get("dry_run"))
-        prompt_text = prompt.strip()
-        if not prompt_text:
-            prompt_text = self.prompt.ask_command("nl> ").strip()
-            if not prompt_text:
-                print(self._theme_text("No prompt provided."))
-                return
-
-        provider, base_url = self._resolve_vibe_provider()
-        if not provider:
-            print(self._theme_text("Vibe service unavailable (Goblin/Wizard not reachable)."))
-            return
-
-        if provider == "goblin":
-            payload = {
-                "prompt": prompt_text,
-                "with_context": flags.get("with_context", True),
-                "dry_run": dry_run,
-            }
-            result = self._vibe_request("POST", f"{base_url}/api/dev/vibe/nl-route", json=payload)
-        else:
-            payload = {
-                "prompt": prompt_text,
-                "include_context": flags.get("with_context", True),
-                "dry_run": dry_run,
-            }
-            result = self._vibe_request("POST", f"{base_url}/api/ai/nl-route", json=payload, use_auth=True)
-
-        if result is None:
-            return
-
-        plan = result.get("plan") or result.get("route") or result.get("response", result)
-        self.renderer.stream_text(str(plan), prefix="vibe> ")
-
-    def _parse_vibe_flags(self, args: List[str]) -> (Dict[str, Any], str):
-        flags: Dict[str, Any] = {"with_context": True}
-        parts: List[str] = []
-        it = iter(args)
-        for token in it:
-            if token == "--dry-run":
-                flags["dry_run"] = True
-                continue
-            if token == "--no-context":
-                flags["with_context"] = False
-                continue
-            if token == "--context":
-                flags["with_context"] = True
-                continue
-            if token == "--model":
-                flags["model"] = next(it, None)
-                continue
-            if token == "--format":
-                flags["format"] = next(it, None)
-                continue
-            if token == "--files":
-                raw = next(it, None) or ""
-                flags["files"] = [v.strip() for v in raw.split(",") if v.strip()]
-                continue
-            if token == "--notes":
-                flags["notes"] = next(it, None)
-                continue
-            if token == "--limit":
-                raw = next(it, None) or "10"
-                try:
-                    flags["limit"] = int(raw)
-                except ValueError:
-                    flags["limit"] = 10
-                continue
-            parts.append(token)
-        return flags, " ".join(parts)
-
-    def _resolve_vibe_provider(self, check_only: bool = False) -> (Optional[str], Optional[str]):
-        if os.getenv("UDOS_VIBE_TEST_MODE") == "1":
-            provider = os.getenv("UDOS_VIBE_TEST_PROVIDER", "goblin")
-            url = os.getenv("UDOS_VIBE_TEST_URL", "http://localhost:8767")
-            return provider, url
-
-        goblin_url = os.getenv("GOBLIN_URL", "http://localhost:8767")
-        wizard_url = os.getenv("WIZARD_URL", "http://localhost:8765")
-
-        def _ok(url: str) -> bool:
-            try:
-                resp = requests.get(url, timeout=1.0)
-                return resp.status_code == 200
-            except Exception:
-                return False
-
-        if _ok(f"{goblin_url}/health"):
-            return "goblin", goblin_url
-        if _ok(f"{wizard_url}/health"):
-            return "wizard", wizard_url
-        return (None, None)
-
-    def _vibe_request(self, method: str, url: str, json: Optional[Dict[str, Any]] = None,
-                      params: Optional[Dict[str, Any]] = None, use_auth: bool = False) -> Optional[Dict[str, Any]]:
-        if os.getenv("UDOS_VIBE_TEST_MODE") == "1":
-            return self._vibe_test_stub_response(method, url, payload=json, params=params)
-
-        headers = {}
-        if use_auth:
-            token = os.getenv("WIZARD_ADMIN_TOKEN") or os.getenv("ADMIN_TOKEN") or ""
-            if token:
-                headers["Authorization"] = f"Bearer {token}"
-
-        try:
-            resp = requests.request(method, url, json=json, params=params, headers=headers, timeout=10)
-        except Exception as exc:
-            print(self._theme_text(f"Vibe request failed: {exc}"))
-            return None
-
-        if resp.status_code in {401, 403}:
-            print(self._theme_text("Wizard auth required. Set WIZARD_ADMIN_TOKEN."))
-            return None
-        if resp.status_code >= 400:
-            print(self._theme_text(f"Vibe request error: HTTP {resp.status_code}"))
-            return None
-
-        try:
-            return resp.json()
-        except Exception:
-            return {"response": resp.text}
-
-    def _vibe_test_stub_response(self, method: str, url: str,
-                                 payload: Optional[Dict[str, Any]] = None,
-                                 params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        capture_path = os.getenv("UDOS_VIBE_TEST_CAPTURE_FILE")
-        if capture_path:
-            try:
-                payload = {
-                    "method": method,
-                    "url": url,
-                    "json": payload,
-                    "params": params,
-                }
-                Path(capture_path).write_text(json.dumps(payload, indent=2))
-            except Exception:
-                pass
-
-        raw = os.getenv("UDOS_VIBE_TEST_RESPONSE")
-        if not raw:
-            response_file = os.getenv("UDOS_VIBE_TEST_RESPONSE_FILE")
-            if response_file and Path(response_file).exists():
-                raw = Path(response_file).read_text()
-
-        if raw:
-            try:
-                return json.loads(raw)
-            except Exception:
-                return {"response": raw}
-
-        if "history" in url:
-            return {"history": []}
-        if "context" in url:
-            return {"files": []}
-        return {"response": "TEST_STUB"}
+        status = self._get_onvibe_status()
+        print(self._theme_text("\n═══ ONVIBE STATUS ═══\n"))
+        print(self._theme_text(self._format_ai_status_line("ONVIBE", status)))
+        if status.get("detail"):
+            print(self._theme_text(f"  Detail: {status['detail']}"))
+        config_path = self._get_vibe_config_path()
+        if config_path:
+            print(self._theme_text(f"  Config: {config_path}"))
 
     def _cmd_prompt(self, args: str) -> None:
+        """Wizard AI gateway status/setup; falls back to prompt parser for free text."""
+        tokens = args.strip().split()
+        action = tokens[0].upper() if tokens else "STATUS"
+
+        if action in ("HELP", "?"):
+            print(self._theme_text(":PROMPT [STATUS|SETUP|MODELS|PARSE] | :PROMPT <instruction>"))
+            return
+
+        if action == "SETUP":
+            print(self._theme_text("\n═══ PROMPT SETUP ═══\n"))
+            print(self._theme_text("1. Start Wizard server: WIZARD start"))
+            print(self._theme_text("2. Configure Gemini + OpenAI keys in Wizard"))
+            print(self._theme_text("   - wizard/config/assistant_keys.json"))
+            print(self._theme_text("   - or Wizard keystore via ADMIN token"))
+            print(self._theme_text("3. Set WIZARD_ADMIN_TOKEN (env) for status checks"))
+            print(self._theme_text("4. Run: :PROMPT STATUS"))
+            return
+
+        if action == "MODELS":
+            mode = (self.ai_modes_config.get("modes") or {}).get("prompt", {})
+            models = mode.get("models") or []
+            print(self._theme_text("\n═══ PROMPT MODELS ═══\n"))
+            if not models:
+                print(self._theme_text("No models configured. See core/config/ai_modes.json"))
+                return
+            for entry in models:
+                name = entry.get("name", "unknown")
+                provider = entry.get("provider", "")
+                availability = ", ".join(entry.get("availability") or [])
+                provider_tag = f"{provider} " if provider else ""
+                print(self._theme_text(f"  - {provider_tag}{name} ({availability})"))
+            return
+
+        if action == "PARSE":
+            remaining = " ".join(tokens[1:]) if len(tokens) > 1 else ""
+            if not remaining:
+                print(self._theme_text("Usage: :PROMPT PARSE <instruction text>"))
+                return
+            return self._cmd_prompt_parse(remaining)
+
+        if tokens and action not in {"STATUS", "SETUP", "MODELS", "PARSE"}:
+            return self._cmd_prompt_parse(args)
+
+        status = self._get_prompt_status()
+        print(self._theme_text("\n═══ PROMPT STATUS ═══\n"))
+        print(self._theme_text(self._format_ai_status_line("PROMPT", status)))
+        if status.get("detail"):
+            print(self._theme_text(f"  Detail: {status['detail']}"))
+        print(self._theme_text(f"  Wizard URL: {status.get('wizard_url')}"))
+        print(self._theme_text(f"  Wizard reachable: {'yes' if status.get('reachable') else 'no'}"))
+        print(self._theme_text(f"  Gemini key: {'yes' if status.get('providers', {}).get('gemini') else 'no'}"))
+        print(self._theme_text(f"  OpenAI key: {'yes' if status.get('providers', {}).get('openai') else 'no'}"))
+
+    def _cmd_prompt_parse(self, args: str) -> None:
         """Parse an instruction using the PROMPT parser."""
         instruction = args.strip()
         if not instruction:
-            print(self._theme_text("Usage: PROMPT <instruction text>"))
+            print(self._theme_text("Usage: :PROMPT PARSE <instruction text>"))
             return
 
         result = self.prompt_parser.parse(instruction)
@@ -1949,6 +1971,290 @@ Notes:
 
         if reminder:
             print(self._theme_text(f"\n⏰ Reminder: {reminder['message']}"))
+
+    def _record_ok_output(
+        self,
+        prompt: str,
+        response: str,
+        model: str,
+        source: str,
+        mode: str,
+        file_path: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Store OK local output and emit a unified log entry."""
+        self.ok_local_counter += 1
+        entry = {
+            "id": self.ok_local_counter,
+            "timestamp": datetime.now().isoformat(),
+            "prompt": prompt,
+            "response": response,
+            "model": model,
+            "source": source,
+            "mode": mode,
+            "file_path": file_path,
+        }
+        self.ok_local_outputs.append(entry)
+        if len(self.ok_local_outputs) > self.ok_local_limit:
+            self.ok_local_outputs = self.ok_local_outputs[-self.ok_local_limit :]
+
+        try:
+            unified = get_unified_logger()
+            preview = (response or "").strip().splitlines()
+            unified.log_core(
+                "ok-local-output",
+                f"OK {mode} output stored",
+                level=LogLevel.INFO,
+                model=model,
+                source=source,
+                file_path=file_path,
+                prompt_preview=(prompt or "")[:120],
+                response_preview=" ".join(preview[:2])[:160] if preview else "",
+            )
+        except Exception:
+            pass
+
+        return entry
+
+    def _format_ok_output_summary(self, entry: Dict[str, Any]) -> str:
+        """Return a collapsed summary line for an OK output entry."""
+        prompt = (entry.get("prompt") or "").replace("\n", " ").strip()
+        response = (entry.get("response") or "").strip().splitlines()
+        preview = " ".join(response[:2]).strip()
+        if len(preview) > 120:
+            preview = preview[:117] + "..."
+        if len(prompt) > 80:
+            prompt = prompt[:77] + "..."
+        return (
+            f"[{entry.get('id')}] {entry.get('timestamp')} "
+            f"{entry.get('model')} ({entry.get('source')})\n"
+            f"  Prompt: {prompt}\n"
+            f"  Preview: {preview or '(no output)'}\n"
+            f"  Tip: OK LOCAL SHOW {entry.get('id')}"
+        )
+
+    def _format_ok_output_full(self, entry: Dict[str, Any]) -> str:
+        """Return full output text for an OK output entry."""
+        header = [
+            "═══ OK LOCAL OUTPUT ═══",
+            f"ID: {entry.get('id')}",
+            f"Time: {entry.get('timestamp')}",
+            f"Model: {entry.get('model')} ({entry.get('source')})",
+        ]
+        if entry.get("file_path"):
+            header.append(f"File: {entry.get('file_path')}")
+        header.append("")
+        header.append("Prompt:")
+        header.append(entry.get("prompt") or "")
+        header.append("")
+        header.append("Response:")
+        header.append(entry.get("response") or "")
+        return "\n".join(header)
+
+    def _cmd_ok_local(self, args: str) -> None:
+        """Show stored OK local outputs."""
+        tokens = args.strip().split()
+        if not tokens:
+            limit = 5
+            entries = self.ok_local_outputs[-limit:]
+        elif tokens[0].upper() in ("SHOW", "OPEN"):
+            if len(tokens) < 2 or not tokens[1].isdigit():
+                print(self._theme_text("Usage: OK LOCAL SHOW <id>"))
+                return
+            entry_id = int(tokens[1])
+            entry = next((e for e in self.ok_local_outputs if e["id"] == entry_id), None)
+            if not entry:
+                print(self._theme_text(f"No OK output with id {entry_id}"))
+                return
+            print(self._theme_text(self._format_ok_output_full(entry)))
+            return
+        elif tokens[0].upper() == "CLEAR":
+            self.ok_local_outputs = []
+            print(self._theme_text("OK local output log cleared."))
+            return
+        else:
+            try:
+                limit = int(tokens[0])
+            except ValueError:
+                print(self._theme_text("Usage: OK LOCAL [N] | OK LOCAL SHOW <id> | OK LOCAL CLEAR"))
+                return
+            entries = self.ok_local_outputs[-limit:]
+
+        if not entries:
+            print(self._theme_text("No OK local outputs yet."))
+            return
+        print(self._theme_text("\n═══ OK LOCAL OUTPUTS ═══\n"))
+        for entry in entries:
+            print(self._theme_text(self._format_ok_output_summary(entry)))
+            print(self._theme_text(""))
+
+    def _parse_ok_file_args(self, args: str) -> Dict[str, Any]:
+        """Parse OK command args for file + optional range + cloud flag."""
+        tokens = args.strip().split()
+        use_cloud = False
+        clean_tokens: List[str] = []
+        for token in tokens:
+            if token.lower() in ("--cloud", "--onvibe"):
+                use_cloud = True
+            else:
+                clean_tokens.append(token)
+        if not clean_tokens:
+            return {"error": "Missing file path", "use_cloud": use_cloud}
+
+        file_token = clean_tokens[0]
+        line_start = None
+        line_end = None
+
+        if len(clean_tokens) >= 3 and clean_tokens[1].isdigit() and clean_tokens[2].isdigit():
+            line_start = int(clean_tokens[1])
+            line_end = int(clean_tokens[2])
+        elif len(clean_tokens) >= 2 and any(sep in clean_tokens[1] for sep in (":", "-", "..")):
+            parts = (
+                clean_tokens[1]
+                .replace("..", ":")
+                .replace("-", ":")
+                .split(":")
+            )
+            if len(parts) >= 2 and parts[0].isdigit() and parts[1].isdigit():
+                line_start = int(parts[0])
+                line_end = int(parts[1])
+
+        path = Path(file_token)
+        if not path.is_absolute():
+            path = self.repo_root / path
+        return {
+            "path": path,
+            "line_start": line_start,
+            "line_end": line_end,
+            "use_cloud": use_cloud,
+        }
+
+    def _run_ok_cloud(self, prompt: str) -> Dict[str, Any]:
+        """Run a cloud AI request (Mistral) for OK commands."""
+        from wizard.services.mistral_api import MistralAPI
+
+        mode = (self.ai_modes_config.get("modes") or {}).get("onvibe", {})
+        model = mode.get("default_model") or "mistral-small-latest"
+        client = MistralAPI()
+        return {"response": client.chat(prompt, model=model), "model": model}
+
+    def _run_ok_local(self, prompt: str, model: Optional[str] = None) -> str:
+        """Run a local Vibe request via Ollama."""
+        from wizard.services.vibe_service import VibeService, VibeConfig
+
+        config = VibeConfig(model=model or self._get_ok_default_model())
+        vibe = VibeService(config=config)
+        return vibe.generate(prompt, format="markdown")
+
+    def _run_ok_request(
+        self,
+        prompt: str,
+        mode: str,
+        file_path: Optional[str] = None,
+        use_cloud: bool = False,
+    ) -> None:
+        """Execute OK request with optional cloud fallback."""
+        model = self._get_ok_default_model()
+        source = "local"
+        response = None
+
+        if use_cloud:
+            try:
+                print(self._theme_text("OK → Cloud (Mistral)"))
+                cloud_result = self._run_ok_cloud(prompt)
+                response = cloud_result.get("response")
+                model = cloud_result.get("model") or model
+                source = "cloud"
+            except Exception as exc:
+                print(self._theme_text(f"⚠️  Cloud failed ({exc}). Falling back to Vibe (offline)."))
+                response = None
+
+        if response is None:
+            print(self._theme_text(f"OK → Vibe ({model}, local)"))
+            try:
+                response = self._run_ok_local(prompt, model=model)
+            except Exception as exc:
+                print(self._theme_text(f"❌ Vibe local failed: {exc}"))
+                return
+
+        entry = self._record_ok_output(
+            prompt=prompt,
+            response=response,
+            model=model,
+            source=source,
+            mode=mode,
+            file_path=str(file_path) if file_path else None,
+        )
+        print(self._theme_text(""))
+        self.renderer.stream_text(entry.get("response") or "", prefix="ok> ")
+
+    def _cmd_ok_explain(self, args: str) -> None:
+        """OK EXPLAIN <file> [start end] [--cloud]."""
+        parsed = self._parse_ok_file_args(args)
+        if parsed.get("error"):
+            print(self._theme_text("Usage: OK EXPLAIN <file> [start end] [--cloud]"))
+            return
+        path = parsed["path"]
+        if not path.exists():
+            print(self._theme_text(f"File not found: {path}"))
+            return
+        content = path.read_text(encoding="utf-8", errors="ignore")
+        if parsed.get("line_start") and parsed.get("line_end"):
+            lines = content.splitlines()
+            content = "\n".join(
+                lines[parsed["line_start"] - 1 : parsed["line_end"]]
+            )
+        prompt = (
+            f"Explain this code from {path}:\n\n"
+            f"```python\n{content}\n```\n\n"
+            "Provide: 1) purpose, 2) key logic, 3) risks or follow-ups."
+        )
+        self._run_ok_request(prompt, mode="EXPLAIN", file_path=path, use_cloud=parsed.get("use_cloud"))
+
+    def _cmd_ok_diff(self, args: str) -> None:
+        """OK DIFF <file> [start end] [--cloud]."""
+        parsed = self._parse_ok_file_args(args)
+        if parsed.get("error"):
+            print(self._theme_text("Usage: OK DIFF <file> [start end] [--cloud]"))
+            return
+        path = parsed["path"]
+        if not path.exists():
+            print(self._theme_text(f"File not found: {path}"))
+            return
+        content = path.read_text(encoding="utf-8", errors="ignore")
+        if parsed.get("line_start") and parsed.get("line_end"):
+            lines = content.splitlines()
+            content = "\n".join(
+                lines[parsed["line_start"] - 1 : parsed["line_end"]]
+            )
+        prompt = (
+            f"Propose a unified diff for improvements to {path}.\n\n"
+            f"```python\n{content}\n```\n\n"
+            "Return a unified diff only (no commentary)."
+        )
+        self._run_ok_request(prompt, mode="DIFF", file_path=path, use_cloud=parsed.get("use_cloud"))
+
+    def _cmd_ok_patch(self, args: str) -> None:
+        """OK PATCH <file> [start end] [--cloud]."""
+        parsed = self._parse_ok_file_args(args)
+        if parsed.get("error"):
+            print(self._theme_text("Usage: OK PATCH <file> [start end] [--cloud]"))
+            return
+        path = parsed["path"]
+        if not path.exists():
+            print(self._theme_text(f"File not found: {path}"))
+            return
+        content = path.read_text(encoding="utf-8", errors="ignore")
+        if parsed.get("line_start") and parsed.get("line_end"):
+            lines = content.splitlines()
+            content = "\n".join(
+                lines[parsed["line_start"] - 1 : parsed["line_end"]]
+            )
+        prompt = (
+            f"Draft a patch (unified diff) for {path}. Keep the diff minimal.\n\n"
+            f"```python\n{content}\n```\n\n"
+            "Return a unified diff only."
+        )
+        self._run_ok_request(prompt, mode="PATCH", file_path=path, use_cloud=parsed.get("use_cloud"))
 
     def _cmd_fkeys(self, args: str) -> None:
         """Show or trigger function key actions."""

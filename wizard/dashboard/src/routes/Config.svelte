@@ -62,7 +62,8 @@
     assistant_keys: {
       id: "assistant_keys",
       label: "Assistant Keys",
-      description: "Mistral, OpenRouter, Ollama API credentials",
+      description:
+        "Default AI routing (Ollama + OpenRouter) and optional provider keys",
     },
     github_keys: {
       id: "github_keys",
@@ -165,16 +166,16 @@
       provider: "hubspot",
     },
     {
-      key: "mistral_api_key",
-      label: "Mistral API Key",
-      helper: "Mistral cloud models",
-      provider: "mistral",
-    },
-    {
       key: "openrouter_api_key",
       label: "OpenRouter API Key",
-      helper: "OpenRouter multi-model gateway",
+      helper: "Optional burst cloud routing",
       provider: "openrouter",
+    },
+    {
+      key: "mistral_api_key",
+      label: "Mistral API Key",
+      helper: "Optional direct Mistral cloud models",
+      provider: "mistral",
     },
   ];
 
@@ -182,6 +183,16 @@
   let providers = [];
   let showProviders = false;
   let isLoadingProviders = false;
+  const DEFAULT_AI_PROVIDER_IDS = ["ollama", "openrouter"];
+  const isAiProvider = (provider) =>
+    provider?.config_file === "assistant_keys.json" ||
+    ["openai", "anthropic", "gemini", "mistral", "openrouter", "ollama"].includes(
+      provider?.id,
+    );
+  const isDefaultAiProvider = (provider) =>
+    DEFAULT_AI_PROVIDER_IDS.includes(provider?.id);
+  const isOptionalAiProvider = (provider) =>
+    isAiProvider(provider) && !isDefaultAiProvider(provider);
 
   // Ollama model management
   let showOllama = false;
@@ -218,6 +229,38 @@
   let typography = { ...defaultTypography };
   let typographyLabels = getTypographyLabels(typography);
   let isDarkMode = true;
+
+  $: defaultAiProviders = (providers || []).filter((provider) =>
+    isDefaultAiProvider(provider),
+  );
+  $: optionalAiProviders = (providers || []).filter((provider) =>
+    isOptionalAiProvider(provider),
+  );
+  $: nonAiProviders = (providers || []).filter(
+    (provider) => !isAiProvider(provider),
+  );
+  $: providerGroups = [
+    {
+      id: "ai-defaults",
+      title: "AI Defaults",
+      description:
+        "Local-first routing uses Ollama (Devstral Small 2). OpenRouter is the optional burst cloud path.",
+      providers: defaultAiProviders,
+    },
+    {
+      id: "integrations",
+      title: "Integrations & Tools",
+      description: "GitHub, Notion, HubSpot, and other non-AI services.",
+      providers: nonAiProviders,
+    },
+    {
+      id: "optional-ai",
+      title: "Optional AI Providers",
+      description:
+        "Only configure if you need direct access to these APIs outside the default routing.",
+      providers: optionalAiProviders,
+    },
+  ];
 
   onMount(async () => {
     adminToken = getAdminToken();
@@ -2222,6 +2265,11 @@
         {showProviders ? "▼ Hide" : "▶ Show"}
       </button>
     </div>
+    <p class="text-xs text-gray-400">
+      Default AI routing is local-first (Ollama + Devstral). OpenRouter is the
+      optional burst cloud path. All other AI providers are listed at the
+      bottom.
+    </p>
 
     {#if showProviders}
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
@@ -2234,92 +2282,115 @@
             No providers available
           </p>
         {:else}
-          {#each providers as provider}
-            {@const badge = providerStatusBadge(provider)}
-            <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-              <div class="flex items-start justify-between mb-2">
+          {#each providerGroups as group (group.id)}
+            <div class="col-span-full mt-2">
+              <div class="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <h4 class="text-white font-medium">
-                    {typeof provider.name === "string"
-                      ? provider.name
-                      : provider.id || "Unknown"}
+                  <h4 class="text-sm font-semibold text-white">
+                    {group.title}
                   </h4>
-                  <p class="text-sm text-gray-400">
-                    {typeof provider.description === "string"
-                      ? provider.description
-                      : ""}
+                  <p class="text-xs text-gray-500 mt-1">
+                    {group.description}
                   </p>
                 </div>
-                <div class="flex flex-col items-end gap-1 text-xs">
-                  <span class={`px-2 py-1 rounded ${badge.configuredClass}`}>
-                    {badge.configuredText}
-                  </span>
-                  <span class={`px-2 py-1 rounded ${badge.availableClass}`}>
-                    {badge.availableText}
-                  </span>
-                  {#if !isProviderEnabled(provider)}
-                    <span class="px-2 py-1 rounded bg-gray-800 text-gray-400">
-                      Disabled
-                    </span>
-                  {/if}
-                  {#if provider.status?.cli_installed === false}
-                    <span
-                      class="px-2 py-1 rounded bg-yellow-900 text-yellow-200"
-                    >
-                      CLI missing
-                    </span>
-                  {/if}
-                </div>
-              </div>
-
-              {#if getProviderSetupInstructions(provider)}
-                {@const setup = getProviderSetupInstructions(provider)}
-
-                {#if setup.type === "web"}
-                  <a
-                    href={setup.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
-                  >
-                    🌐 {setup.label} →
-                  </a>
-                {:else if setup.type === "tui"}
-                  <div class="mt-2">
-                    <p class="text-sm text-gray-400 mb-1">
-                      In uCODE, run:
-                    </p>
-                    <div class="bg-gray-950 rounded p-2 border border-gray-700">
-                      <code class="text-green-400 text-xs">{setup.command}</code
-                      >
-                    </div>
-                  </div>
-                {:else if setup.type === "auto"}
-                  <div class="mt-2">
-                    <p class="text-sm text-gray-400 mb-1">
-                      Auto-configure via uCODE:
-                    </p>
-                    <div class="bg-gray-950 rounded p-2 border border-gray-700">
-                      <code class="text-green-400 text-xs">{setup.command}</code
-                      >
-                    </div>
-                  </div>
-                {/if}
-              {/if}
-
-              <div class="mt-3">
-                <button
-                  on:click={() => toggleProviderEnabled(provider)}
-                  class={`px-3 py-1.5 text-xs rounded ${
-                    isProviderEnabled(provider)
-                      ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                      : "bg-blue-600 text-white hover:bg-blue-500"
-                  } transition-colors`}
-                >
-                  {isProviderEnabled(provider) ? "Disable" : "Enable"}
-                </button>
+                <span class="text-[11px] text-gray-500">
+                  {group.providers.length} providers
+                </span>
               </div>
             </div>
+            {#if group.providers.length === 0}
+              <p class="text-xs text-gray-500 col-span-full">
+                No providers in this group.
+              </p>
+            {:else}
+              {#each group.providers as provider}
+                {@const badge = providerStatusBadge(provider)}
+                <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+                  <div class="flex items-start justify-between mb-2">
+                    <div>
+                      <h4 class="text-white font-medium">
+                        {typeof provider.name === "string"
+                          ? provider.name
+                          : provider.id || "Unknown"}
+                      </h4>
+                      <p class="text-sm text-gray-400">
+                        {typeof provider.description === "string"
+                          ? provider.description
+                          : ""}
+                      </p>
+                    </div>
+                    <div class="flex flex-col items-end gap-1 text-xs">
+                      <span class={`px-2 py-1 rounded ${badge.configuredClass}`}>
+                        {badge.configuredText}
+                      </span>
+                      <span class={`px-2 py-1 rounded ${badge.availableClass}`}>
+                        {badge.availableText}
+                      </span>
+                      {#if !isProviderEnabled(provider)}
+                        <span class="px-2 py-1 rounded bg-gray-800 text-gray-400">
+                          Disabled
+                        </span>
+                      {/if}
+                      {#if provider.status?.cli_installed === false}
+                        <span
+                          class="px-2 py-1 rounded bg-yellow-900 text-yellow-200"
+                        >
+                          CLI missing
+                        </span>
+                      {/if}
+                    </div>
+                  </div>
+
+                  {#if getProviderSetupInstructions(provider)}
+                    {@const setup = getProviderSetupInstructions(provider)}
+
+                    {#if setup.type === "web"}
+                      <a
+                        href={setup.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
+                      >
+                        🌐 {setup.label} →
+                      </a>
+                    {:else if setup.type === "tui"}
+                      <div class="mt-2">
+                        <p class="text-sm text-gray-400 mb-1">
+                          In uCODE, run:
+                        </p>
+                        <div class="bg-gray-950 rounded p-2 border border-gray-700">
+                          <code class="text-green-400 text-xs">{setup.command}</code
+                          >
+                        </div>
+                      </div>
+                    {:else if setup.type === "auto"}
+                      <div class="mt-2">
+                        <p class="text-sm text-gray-400 mb-1">
+                          Auto-configure via uCODE:
+                        </p>
+                        <div class="bg-gray-950 rounded p-2 border border-gray-700">
+                          <code class="text-green-400 text-xs">{setup.command}</code
+                          >
+                        </div>
+                      </div>
+                    {/if}
+                  {/if}
+
+                  <div class="mt-3">
+                    <button
+                      on:click={() => toggleProviderEnabled(provider)}
+                      class={`px-3 py-1.5 text-xs rounded ${
+                        isProviderEnabled(provider)
+                          ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                          : "bg-blue-600 text-white hover:bg-blue-500"
+                      } transition-colors`}
+                    >
+                      {isProviderEnabled(provider) ? "Disable" : "Enable"}
+                    </button>
+                  </div>
+                </div>
+              {/each}
+            {/if}
           {/each}
         {/if}
       </div>

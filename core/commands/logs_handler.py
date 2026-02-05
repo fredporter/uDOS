@@ -79,7 +79,10 @@ class LogsHandler(BaseCommandHandler):
         
         elif subcommand == "--stats":
             return self._show_stats()
-        
+
+        elif subcommand == "--ok":
+            return self._show_ok_outputs(limit=50)
+
         elif subcommand == "--clear":
             return self._clear_logs()
         
@@ -261,6 +264,46 @@ class LogsHandler(BaseCommandHandler):
             )
         }
 
+    def _show_ok_outputs(self, limit: int = 50) -> Dict:
+        """Show recent OK local output summaries."""
+        from core.tui.output import OutputToolkit
+
+        unified = get_unified_logger()
+        entries = unified.filter(category="ok-local-output", limit=limit)
+
+        if not entries:
+            return {
+                "status": "info",
+                "output": OutputToolkit.section(
+                    "🧭 OK LOCAL OUTPUTS",
+                    "No OK local outputs found yet.\nRun: OK EXPLAIN <file> or OK LOCAL",
+                ),
+            }
+
+        lines = [
+            OutputToolkit.banner("🧭 OK LOCAL OUTPUTS"),
+            f"Showing {len(entries)} entries\n",
+        ]
+
+        headers = ["TIME", "MODE", "MODEL", "SOURCE", "FILE", "PREVIEW"]
+        rows = []
+        for entry in reversed(entries):
+            time_str = entry.timestamp.strftime("%H:%M:%S")
+            meta = entry.metadata or {}
+            mode = meta.get("mode") or "LOCAL"
+            model = meta.get("model") or "-"
+            source = meta.get("source") or "-"
+            file_path = meta.get("file_path") or ""
+            file_short = file_path.split("/")[-1] if file_path else "-"
+            preview = meta.get("response_preview") or ""
+            preview = (preview[:50] + "...") if len(preview) > 50 else preview
+            rows.append([time_str, mode, model, source, file_short, preview])
+
+        lines.append(OutputToolkit.table(headers, rows))
+        lines.append("\nTip: OK LOCAL SHOW <id> for full output")
+
+        return {"status": "success", "output": "\n".join(lines)}
+
     def _help_text(self) -> str:
         """Help text for LOGS command."""
         return """
@@ -274,6 +317,7 @@ USAGE:
   LOGS --core                   Show Core TUI logs only
   LOGS --wizard                 Show Wizard Server logs only
   LOGS --goblin                 Show Goblin Dev Server logs only
+  LOGS --ok                     Show OK local output summaries
   LOGS --level LEVEL            Filter by level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
   LOGS --category CATEGORY      Filter by category
   LOGS --stats                  Show log statistics (counts by source/level)
@@ -284,6 +328,7 @@ EXAMPLES:
   LOGS                          Last 50 entries
   LOGS --last 100               Last 100 entries
   LOGS --wizard                 Only Wizard logs
+  LOGS --ok                     Recent OK local output summaries
   LOGS --level ERROR            Only errors
   LOGS --category ai-routing    Only AI routing logs
   LOGS --stats                  Statistics

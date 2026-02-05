@@ -313,7 +313,7 @@ ensure_python_env() {
 
     # Check venv - auto-create if missing
     if [ ! -d "$UDOS_ROOT/.venv" ]; then
-        echo -e "${YELLOW}⚠️  Virtual environment not found - creating...${NC}"
+        _udos_echo "${YELLOW}⚠️  Virtual environment not found - creating...${NC}"
         local venv_log="$log_dir/venv-create-$(date +%Y%m%d-%H%M%S).log"
         if run_with_spinner "Creating virtual environment..." "python3 -m venv $UDOS_ROOT/.venv >>\"$venv_log\" 2>&1"; then
             _udos_echo "  ${GREEN}✅ Virtual environment created${NC}"
@@ -330,19 +330,21 @@ ensure_python_env() {
 
     # Check dependencies - auto-install if missing
     if ! python -c "import flask" 2>/dev/null; then
-        echo -e "${YELLOW}⚠️  Dependencies missing - installing (first time setup)...${NC}"
-        echo ""
+        _udos_echo "${YELLOW}⚠️  Dependencies missing - installing (first time setup)...${NC}"
+        _udos_echo ""
         local pip_log="$UDOS_ROOT/memory/logs/pip-install-$(date +%Y%m%d-%H%M%S).log"
         mkdir -p "$(dirname "$pip_log")"
-        if [ "$UDOS_PIP_VERBOSE" = "1" ]; then
-            pip install --progress-bar on -r "$UDOS_ROOT/requirements.txt"
+        local pip_cmd="PIP_DISABLE_PIP_VERSION_CHECK=1 PIP_NO_PYTHON_VERSION_WARNING=1 pip install --progress-bar off -r \"$UDOS_ROOT/requirements.txt\""
+        if [ "$UDOS_PIP_VERBOSE" = "1" ] && [ "$UDOS_QUIET" != "1" ]; then
+            run_with_spinner "Installing dependencies..." \
+                "$pip_cmd 2>&1 | tee -a \"$pip_log\""
         else
             run_with_spinner "Installing dependencies..." \
-                "PIP_DISABLE_PIP_VERSION_CHECK=1 pip install --progress-bar off -r \"$UDOS_ROOT/requirements.txt\" >>\"$pip_log\" 2>&1"
+                "$pip_cmd >>\"$pip_log\" 2>&1"
         fi
         if [ $? -eq 0 ]; then
-            echo ""
-            _udos_echo "  ${GREEN}✅ Dependencies installed${NC}"
+        _udos_echo ""
+        _udos_echo "  ${GREEN}✅ Dependencies installed${NC}"
         else
             echo ""
             echo -e "  ${RED}❌ Failed to install dependencies${NC}"
@@ -352,14 +354,16 @@ ensure_python_env() {
     fi
 
     if ! python -c "import prompt_toolkit" 2>/dev/null; then
-        echo -e "${YELLOW}⚠️  prompt_toolkit missing - installing advanced CLI helper...${NC}"
+        _udos_echo "${YELLOW}⚠️  prompt_toolkit missing - installing advanced CLI helper...${NC}"
         local pip_log="$UDOS_ROOT/memory/logs/pip-install-$(date +%Y%m%d-%H%M%S).log"
         mkdir -p "$(dirname "$pip_log")"
-        if [ "$UDOS_PIP_VERBOSE" = "1" ]; then
-            pip install --progress-bar on "prompt_toolkit>=3.0.0"
+        local pip_cmd="PIP_DISABLE_PIP_VERSION_CHECK=1 PIP_NO_PYTHON_VERSION_WARNING=1 pip install --progress-bar off \"prompt_toolkit>=3.0.0\""
+        if [ "$UDOS_PIP_VERBOSE" = "1" ] && [ "$UDOS_QUIET" != "1" ]; then
+            run_with_spinner "Installing prompt_toolkit..." \
+                "$pip_cmd 2>&1 | tee -a \"$pip_log\""
         else
             run_with_spinner "Installing prompt_toolkit..." \
-                "PIP_DISABLE_PIP_VERSION_CHECK=1 pip install --progress-bar off \"prompt_toolkit>=3.0.0\" >>\"$pip_log\" 2>&1"
+                "$pip_cmd >>\"$pip_log\" 2>&1"
         fi
         if [ $? -ne 0 ]; then
             echo -e "  ${RED}❌ Failed to install prompt_toolkit${NC}"
