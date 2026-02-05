@@ -223,9 +223,8 @@ uDOS.wiki/
 groovebox/sounds/
 
 # V1.3 UI components (private dev)
+# Note: app, empire, groovebox are tracked as git submodules
 app/
-empire/
-groovebox/
 web-admin/
 web-portal/
 tauri-ui/
