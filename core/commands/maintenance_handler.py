@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+import sys
 from typing import Dict, List, Tuple
 
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.tui.output import OutputToolkit
+from core.tui.ui_elements import ProgressBar
 from core.services.logging_service import get_repo_root
 from core.services.maintenance_utils import (
     create_backup,
@@ -78,7 +80,8 @@ class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
         label = "backup" if not remaining else " ".join(remaining)
         target_root, _recursive = self._resolve_scope(scope)
 
-        archive_path, manifest_path = create_backup(target_root, label)
+        progress = self._progress_callback("BACKUP")
+        archive_path, manifest_path = create_backup(target_root, label, on_progress=progress)
         output = "\n".join(
             [
                 OutputToolkit.banner("BACKUP"),
@@ -113,7 +116,8 @@ class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
             archive = backups[0]
 
         try:
-            message = restore_backup(archive, target_root, force=force)
+            progress = self._progress_callback("RESTORE")
+            message = restore_backup(archive, target_root, force=force, on_progress=progress)
         except FileExistsError as exc:
             return {
                 "status": "error",
@@ -206,7 +210,8 @@ class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
 
         latest = backups[0]
         try:
-            message = restore_backup(latest, target_root, force=True)
+            progress = self._progress_callback("RESTORE")
+            message = restore_backup(latest, target_root, force=True, on_progress=progress)
         except FileExistsError as exc:
             return {
                 "status": "error",
@@ -229,3 +234,34 @@ class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
             ]
         )
         return {"status": "success", "message": "Restored last backup", "output": output}
+
+    def _progress_callback(self, label: str):
+        if not sys.stdout.isatty():
+            return None
+
+        bar = ProgressBar(total=1, width=28)
+
+        def _callback(current: int, total: int, detail: str) -> None:
+            if total > 0:
+                bar.total = total
+            detail_label = self._format_progress_detail(detail)
+            line = bar.render(current, label=label)
+            if detail_label:
+                line = f"{line} {detail_label}"
+            sys.stdout.write("\r" + line)
+            sys.stdout.flush()
+            if total > 0 and current >= total:
+                sys.stdout.write("\n")
+                sys.stdout.flush()
+
+        return _callback
+
+    @staticmethod
+    def _format_progress_detail(detail: str) -> str:
+        if not detail:
+            return ""
+        if "/" in detail or "\\" in detail:
+            detail = Path(detail).name
+        if len(detail) > 32:
+            return detail[:29] + "..."
+        return detail

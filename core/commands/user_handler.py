@@ -486,14 +486,14 @@ ROLES:
     • Full system access
     • Can create/delete users
     • Can change roles
-    • Can REPAIR, DESTROY, RESTART
+    • Can REPAIR, DESTROY, REBOOT
     • Can access DEV MODE
     • Default: factory admin user
 
   user
     • Normal access
     • Read/write files
-    • Can use RELOAD, RESTART --reload
+    • Can use REBOOT
     • Can create plugins
     • Cannot modify system config
     • Cannot create/delete users

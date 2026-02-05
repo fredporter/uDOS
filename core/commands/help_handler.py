@@ -22,14 +22,13 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         "Navigation": ["MAP", "PANEL", "GOTO", "FIND", "TELL"],
         "Inventory": ["BAG", "GRAB", "SPAWN"],
         "NPCs & Dialogue": ["NPC", "TALK", "REPLY"],
-        "Files & State": ["SAVE", "LOAD", "NEW", "EDIT"],
+        "Files & State": ["SAVE", "LOAD", "NEW", "EDIT", "UNDO"],
         "AI & Models": ["OK"],
         "System & Maintenance": [
-            "SHAKEDOWN",
+            "REBOOT",
             "REPAIR",
             "BACKUP",
             "RESTORE",
-            "UNDO",
             "TIDY",
             "CLEAN",
             "COMPOST",
@@ -37,7 +36,6 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "DEV",
             "DEV MODE",
             "LOGS",
-            "RELOAD",
             "INTEGRATION",
         ],
         "Advanced": [
@@ -173,6 +171,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "category": "System & Maintenance",
             "syntax": "SHAKEDOWN [--verbose] [--focus <module>]",
         },
+        "REBOOT": {
+            "description": "Hot reload handlers and restart the TUI",
+            "usage": "REBOOT",
+            "example": "REBOOT",
+            "notes": "Single-path reboot: hot reload + TUI restart",
+            "category": "System & Maintenance",
+            "syntax": "REBOOT",
+        },
         "REPAIR": {
             "description": "Self-healing and system maintenance",
             "usage": "REPAIR [--pull|--install|--check]",
@@ -202,7 +208,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "usage": "UNDO [RESTORE] [scope] [--force]",
             "example": "UNDO RESTORE workspace",
             "notes": "Simple wrapper around RESTORE. Restores from latest backup",
-            "category": "System & Maintenance",
+            "category": "Files & State",
             "syntax": "UNDO [RESTORE|--help] [<current|+subfolders|workspace|all>] [--force]",
         },
         "TIDY": {

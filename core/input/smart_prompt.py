@@ -30,6 +30,12 @@ from typing import Optional, List, Iterable, Tuple, Dict
 
 from .autocomplete import AutocompleteService
 from .command_predictor import CommandPredictor
+from core.input.confirmation_utils import (
+    normalize_default,
+    parse_confirmation,
+    format_prompt,
+    format_error,
+)
 from core.services.logging_service import get_logger
 from core.utils.tty import interactive_tty_status
 
@@ -311,7 +317,7 @@ class SmartPrompt:
                 "completion.meta": "ansiyellow",       # Yellow hints
                 "scrollbar": "ansicyan",               # Cyan scrollbar
                 "scrollbar.background": "ansiblack",   # Dark background
-                "bottom-toolbar": "ansiblack",
+                "bottom-toolbar": "ansibrightblack bg:ansiblack",
                 "bottom-toolbar.suggestion": "ansibrightblue",
                 "bottom-toolbar.help": "ansiyellow",
                 "bottom-toolbar.tip": "ansicyan",
@@ -487,44 +493,57 @@ class SmartPrompt:
     def ask_yes_no_ok(
         self,
         question: str,
-        default: str = "no",
+        default: str = "yes",
     ) -> str:
         """
         Ask a standardized Yes/No/OK question.
 
-        Format: "Question? [Yes/No/OK] (Enter=default)"
-        Accepts: Y, N, OK (where OK maps to Yes)
+        Format: "Question? [Yes/No/OK]"
+        Accepts: Y/1, N/0, OK (OK maps to Yes). Enter returns default.
 
         Args:
             question: The question to ask (without punctuation)
-            default: Default answer (yes, no, ok) - 'no' is safest default
+        default: Default answer (yes, no, ok)
 
         Returns:
             'yes', 'no', or 'ok' (ok is equivalent to yes)
         """
-        default_lower = default.lower() if default else "no"
-        default_display = default_lower.upper()
-
-        prompt_text = f"{question}? [Yes/No/OK] (Enter={default_display}) "
+        default_choice = normalize_default(default, "ok")
+        prompt_text = format_prompt(question, default_choice, "ok")
 
         response = self.ask(prompt_text, default="")
-        response_lower = response.lower().strip()
+        choice = parse_confirmation(response, default_choice, "ok")
+        if choice is None:
+            print(format_error("ok"))
+            return self.ask_yes_no_ok(question, default_choice)
+        return choice
 
-        # Empty input returns default
-        if response_lower == "":
-            return default_lower
+    def ask_yes_no_choice(
+        self,
+        question: str,
+        default: Optional[str] = None,
+        variant: str = "ok",
+    ) -> str:
+        """Ask a standardized Yes/No/OK or Yes/No/SKIP question."""
+        default_choice = normalize_default(default, variant)
+        prompt_text = format_prompt(question, default_choice, variant)
 
-        # Normalize responses
-        if response_lower in ["y", "yes"]:
-            return "yes"
-        elif response_lower in ["n", "no"]:
-            return "no"
-        elif response_lower in ["ok", "okay"]:
-            return "ok"  # ok is treated as yes
-        else:
-            # Invalid input - ask again
-            print("  ❌ Please enter Yes, No, or OK")
-            return self.ask_yes_no_ok(question, default)
+        response = self.ask(prompt_text, default="")
+        choice = parse_confirmation(response, default_choice, variant)
+        if choice is None:
+            print(format_error(variant))
+            return self.ask_yes_no_choice(question, default_choice, variant)
+        return choice
+
+    def ask_yes_no(
+        self,
+        question: str,
+        default: bool = True,
+        variant: str = "ok",
+    ) -> bool:
+        """Ask a standardized confirmation question and return True/False."""
+        choice = self.ask_yes_no_choice(question, default, variant)
+        return choice in {"yes", "ok"}
 
     def ask_menu_choice(
         self,

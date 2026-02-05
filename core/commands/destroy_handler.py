@@ -219,7 +219,7 @@ Choose a cleanup option (type number + Enter):
     • Keeps users intact
     Usage: DESTROY 2
     
-  3. WIPE + COMPOST + RELOAD
+  3. WIPE + COMPOST + REBOOT
     • Both: wipe user data AND archive memory
     • Hot reload + repair after cleanup
     • Complete fresh start (keeps framework)
@@ -376,7 +376,7 @@ NUMERIC OPTIONS:
     • Safe: original preserved in .archive
     Usage: DESTROY 2
 
-  3. WIPE + ARCHIVE + RELOAD (COMPLETE CLEANUP)
+  3. WIPE + ARCHIVE + REBOOT (COMPLETE CLEANUP)
     • Wipes all user data and API keys
     • Archives /memory to compost
     • Hot reloads handlers
@@ -463,7 +463,20 @@ Current status:
         print("\n" + msg.strip() + "\n")
         
         # Prompt for confirmation
-        if self.prompt and hasattr(self.prompt, '_ask_yes_no'):
+        if self.prompt and hasattr(self.prompt, '_ask_confirm'):
+            choice = self.prompt._ask_confirm(
+                "Are you absolutely sure",
+                default=False,
+                variant="skip",
+            )
+            confirmed = choice == "yes"
+            if choice == "skip":
+                return {
+                    'output': "⏭️  Nuclear reset skipped.",
+                    'status': 'cancelled',
+                    'command': 'DESTROY'
+                }
+        elif self.prompt and hasattr(self.prompt, '_ask_yes_no'):
             confirmed = self.prompt._ask_yes_no("Are you absolutely sure", default=False)
         else:
             # Fallback: ask for explicit confirmation text
@@ -630,7 +643,7 @@ Current status:
             results.append("  • API Keys: Cleared")
             results.append("")
             results.append("Next steps to reconfigure:")
-            results.append("  1. RESTART --full            (full system restart)")
+            results.append("  1. REBOOT                    (hot reload + TUI restart)")
             results.append("  2. STORY tui-setup           (Run setup story)")
             results.append("  3. USER create [user] [role] (create new users)")
             results.append("  4. WIZARD start              (start Wizard Server)")

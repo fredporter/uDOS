@@ -96,8 +96,8 @@ class ShakedownHandler(BaseCommandHandler):
         # ===== Check 4: Core Command Registration =====
         core_commands = [
             "MAP", "PANEL", "GOTO", "FIND", "TELL", "BAG", "GRAB", "SPAWN",
-            "SAVE", "LOAD", "HELP", "SHAKEDOWN", "REPAIR", "RESTART", "SETUP",
-            "USER", "DESTROY", "CONFIG", "LOGS", "RELOAD", "REBOOT"
+            "SAVE", "LOAD", "HELP", "SHAKEDOWN", "REPAIR", "SETUP",
+            "USER", "DESTROY", "CONFIG", "LOGS", "REBOOT"
         ]
         results["checks"]["commands"] = {
             "status": "pass",

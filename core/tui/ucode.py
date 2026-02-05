@@ -38,6 +38,7 @@ import os
 import json
 import logging
 import subprocess
+import threading
 import time
 import shutil
 import warnings
@@ -233,6 +234,7 @@ class uCODETUI:
         self.repo_root = get_repo_root()
         self.logger = get_logger("ucode-tui")
         self.quiet = os.getenv("UDOS_QUIET", "").strip() in ("1", "true", "yes")
+        self.ucode_version = os.getenv("UCODE_VERSION", "1.0.1")
         self.running = False
         self.ghost_mode = False
         # Ensure bank/system seeds are present (startup/reboot/setup stories)
@@ -245,6 +247,7 @@ class uCODETUI:
         # Core components (always available)
         self.dispatcher = CommandDispatcher()
         self.renderer = GridRenderer()
+        self.renderer.set_mood("idle", pace=0.7, blink=True)
         self.state = GameState()
 
         # Create command registry and contextual prompt (Phase 1)
@@ -374,7 +377,8 @@ class uCODETUI:
             return {"status": "error", "message": "Empty input"}
 
         # Mode 1: Command mode (OK ... or :...)
-        if user_input.startswith("OK ") or user_input.startswith(":"):
+        is_ok = user_input.lower().startswith("ok ")
+        if is_ok or user_input.startswith(":"):
             # Normalize : to remove the colon and pass the rest as a normal command
             if user_input.startswith(":"):
                 # Remove the : and pass the rest to dispatcher
@@ -460,7 +464,8 @@ class uCODETUI:
             # Ask for confirmation
             confirm = self.prompt.ask_yes_no(
                 f"Destructive command detected: {shell_cmd}\nProceed?",
-                default=False
+                default=False,
+                variant="skip",
             )
             if not confirm:
                 return {"status": "cancelled", "message": "Command cancelled by user"}
@@ -655,14 +660,71 @@ class uCODETUI:
         """Show startup banner."""
         if self.quiet:
             return
-        banner = """
-╔═══════════════════════════════════════════════════════════════╗
-║                        uCODE v1.0.1                           ║
-║                 Unified Terminal TUI for uDOS                 ║
-║                    Type HELP for commands                     ║
-╚═══════════════════════════════════════════════════════════════╝
-"""
-        print(self._theme_text(banner))
+        grid = self._build_startup_grid()
+        print(self._theme_text(grid))
+
+    def _build_startup_grid(self) -> str:
+        """Build a 40x15 startup grid with ASCII art and color."""
+        width = 40
+        height = 15
+        pattern = [".", ":"]
+        grid = [
+            [pattern[(r + c) % len(pattern)] for c in range(width)]
+            for r in range(height)
+        ]
+
+        art = [
+            " _   _  ____   ___  ____ ",
+            "| | | |/ ___| / _ \\|  _ \\",
+            "| |_| | |    | | | | | | |",
+            "|  _  | |___ | |_| | |_| |",
+            "|_| |_|\\____| \\___/|____/",
+        ]
+
+        start_row = 3
+        start_col = (width - max(len(line) for line in art)) // 2
+        for row_idx, line in enumerate(art):
+            grid_row = start_row + row_idx
+            if grid_row >= height:
+                break
+            for col_idx, ch in enumerate(line):
+                if ch == " ":
+                    continue
+                col = start_col + col_idx
+                if 0 <= col < width:
+                    grid[grid_row][col] = ch
+
+        version_line = f"uCODE v{self.ucode_version}"
+        version_row = height - 3
+        version_col = max(0, (width - len(version_line)) // 2)
+        for idx, ch in enumerate(version_line):
+            if version_col + idx < width:
+                grid[version_row][version_col + idx] = ch
+
+        hint = "Type HELP for commands"
+        hint_row = height - 2
+        hint_col = max(0, (width - len(hint)) // 2)
+        for idx, ch in enumerate(hint):
+            if hint_col + idx < width:
+                grid[hint_row][hint_col + idx] = ch
+
+        colors = [
+            "\033[91m",
+            "\033[93m",
+            "\033[92m",
+            "\033[96m",
+            "\033[94m",
+            "\033[95m",
+        ]
+        reset = "\033[0m"
+
+        lines = []
+        for row_idx, row in enumerate(grid):
+            color = colors[row_idx % len(colors)]
+            line = "".join(row)
+            lines.append(f"{color}{line}{reset}")
+
+        return "\n".join(lines)
 
     def _run_startup_script(self) -> None:
         """Execute the system startup script once per launch."""
@@ -784,13 +846,22 @@ class uCODETUI:
         model = ok_status.get("model") or self._get_ok_default_model()
         ctx = self._get_ok_context_window()
 
-        print(self._theme_text("\n🤖 Vibe (Local)"))
+        lines = []
         if ok_status.get("ready"):
-            print(self._theme_text(f"  ✅ Vibe: ready ({model}, ctx {ctx})"))
+            lines.append(f"✅ Vibe ready ({model}, ctx {ctx})")
         else:
             issue = ok_status.get("issue") or "setup required"
-            print(self._theme_text(f"  ⚠️  Vibe: {issue} ({model}, ctx {ctx})"))
-        print(self._theme_text("  Tip: OK EXPLAIN <file> | OK LOCAL"))
+            lines.append(f"⚠️ Vibe attention: {issue} ({model}, ctx {ctx})")
+            if ok_status.get("ollama_endpoint"):
+                lines.append(f"ℹ️  Ollama endpoint: {ok_status.get('ollama_endpoint')}")
+            if issue == "ollama down":
+                lines.append("💡 Start Ollama: `ollama serve`")
+            if issue == "missing model":
+                lines.append(f"💡 Pull model: `ollama pull {model}`")
+        lines.append("Tip: OK EXPLAIN <file> | OK LOCAL")
+
+        print(self._theme_text("\n🤖 Vibe (Local)"))
+        self.renderer.stream_text("\n".join(lines), prefix="vibe> ")
 
     def _format_ai_status_line(self, label: str, status: Dict[str, Any]) -> str:
         """Format a single AI mode status line."""
@@ -1137,17 +1208,38 @@ class uCODETUI:
             self.logger.warning("[Notification] Failed to read history: %s", exc)
             return []
 
+    def _ask_confirm(
+        self,
+        question: str,
+        default: bool = True,
+        help_text: str = None,
+        context: str = None,
+        variant: str = "ok",
+    ) -> str:
+        """Ask a standardized confirmation question and return the choice."""
+        if hasattr(self.prompt, "ask_confirmation_choice"):
+            return self.prompt.ask_confirmation_choice(
+                question=question,
+                default=default,
+                help_text=help_text,
+                context=context,
+                variant=variant,
+            )
+        # Fallback to simple prompt
+        response = input(f"{question}? ").strip().lower()
+        return "yes" if response in {"y", "yes", "1", "ok"} else "no"
+
     def _ask_yes_no(self, question: str, default: bool = True, help_text: str = None, context: str = None) -> bool:
-        """Ask a standardized [1|0|Yes|No|OK|Cancel] question.
+        """Ask a standardized [Yes|No|OK] question.
 
         Prompt format with 2-line context display:
           ╭─ Context or current state
-          ╰─ [1|0|Yes|No|OK|Cancel]
+          ╰─ [Yes|No|OK]
           Question? [YES]
 
         Accepts:
           - 1, y, yes, ok, Enter (if default=True) = True
-          - 0, n, no, x, cancel, Enter (if default=False) = False
+          - 0, n, no, Enter (if default=False) = False
 
         Args:
             question: The question to ask (without punctuation)
@@ -1158,12 +1250,14 @@ class uCODETUI:
         Returns:
             True for yes/ok, False for no/cancel
         """
-        return self.prompt.ask_confirmation(
+        choice = self._ask_confirm(
             question=question,
             default=default,
             help_text=help_text,
             context=context,
+            variant="ok",
         )
+        return choice in {"yes", "ok"}
 
     def _ask_menu_choice(self, prompt: str, num_options: int, allow_cancel: bool = True, help_text: str = None) -> Optional[int]:
         """Ask user to select from a numbered menu with 2-line context display.
@@ -2145,6 +2239,37 @@ For detailed help on any command, type the command name followed by --help
         vibe = VibeService(config=config)
         return vibe.generate(prompt, format="markdown")
 
+    def _run_with_spinner(self, label: str, func: Callable[[], Any], mood: str = "busy") -> Any:
+        """Run a long action with a lightweight spinner + elapsed seconds."""
+        from core.tui.ui_elements import Spinner
+
+        spinner = Spinner(label=label, show_elapsed=True)
+        previous_mood = self.renderer.get_mood()
+        self.renderer.set_mood(mood, pace=0.4, blink=True)
+
+        stop = threading.Event()
+
+        def spin() -> None:
+            spinner.start()
+            while not stop.is_set():
+                spinner.tick()
+                time.sleep(spinner.interval)
+            spinner.stop(f"{label} done")
+
+        thread = threading.Thread(target=spin, daemon=True)
+        thread.start()
+        try:
+            result = func()
+        except Exception:
+            self.renderer.set_mood(previous_mood, pace=0.7, blink=True)
+            stop.set()
+            thread.join(timeout=0.5)
+            raise
+        stop.set()
+        thread.join(timeout=0.5)
+        self.renderer.set_mood(previous_mood, pace=0.7, blink=True)
+        return result
+
     def _run_ok_request(
         self,
         prompt: str,
@@ -2160,7 +2285,10 @@ For detailed help on any command, type the command name followed by --help
         if use_cloud:
             try:
                 print(self._theme_text("OK → Cloud (Mistral)"))
-                cloud_result = self._run_ok_cloud(prompt)
+                cloud_result = self._run_with_spinner(
+                    "⏳ OK cloud",
+                    lambda: self._run_ok_cloud(prompt),
+                )
                 response = cloud_result.get("response")
                 model = cloud_result.get("model") or model
                 source = "cloud"
@@ -2171,7 +2299,10 @@ For detailed help on any command, type the command name followed by --help
         if response is None:
             print(self._theme_text(f"OK → Vibe ({model}, local)"))
             try:
-                response = self._run_ok_local(prompt, model=model)
+                response = self._run_with_spinner(
+                    "⏳ OK local",
+                    lambda: self._run_ok_local(prompt, model=model),
+                )
             except Exception as exc:
                 print(self._theme_text(f"❌ Vibe local failed: {exc}"))
                 return

@@ -105,7 +105,7 @@ class HandlerLoggingMixin:
         """
         nav_commands = {'MAP', 'PANEL', 'GOTO', 'FIND', 'TELL'}
         game_commands = {'BAG', 'GRAB', 'SPAWN', 'SAVE', 'LOAD'}
-        system_commands = {'SHAKEDOWN', 'REPAIR', 'RESTART', 'RELOAD', 'REBOOT', 'SETUP', 'USER', 'DESTROY'}
+        system_commands = {'REPAIR', 'REBOOT', 'DESTROY', 'BACKUP', 'RESTORE'}
         npc_commands = {'NPC', 'TALK', 'REPLY'}
         wizard_commands = {'CONFIG', 'PROVIDER', 'WIZARD', 'AI'}
         

@@ -9,10 +9,12 @@ Handles:
 - Different result types (descriptions, lists, etc.)
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Sequence, Iterable, Tuple
 import os
 import sys
 import time
+
+from core.tui.ui_elements import format_table
 
 
 class GridRenderer:
@@ -25,6 +27,21 @@ class GridRenderer:
     CYAN = "\033[96m"
     RESET = "\033[0m"
     BOLD = "\033[1m"
+    DIM = "\033[2m"
+
+    MOODS = {
+        "idle": ["🙂", "😌", "🫧"],
+        "think": ["🤔", "🧠", "📝"],
+        "busy": ["⏳", "⚙️", "🧵", "🛰️"],
+        "success": ["✅", "✨", "🌟"],
+        "warn": ["⚠️", "🟡", "🚧"],
+        "error": ["❌", "🛑", "🔥"],
+    }
+
+    def __init__(self):
+        self._mood = "idle"
+        self._pace = 0.6  # seconds per frame
+        self._blink = True
 
     def render(self, result: Dict[str, Any]) -> str:
         """
@@ -56,6 +73,9 @@ class GridRenderer:
             output += "\n" + result["help"] + "\n"
         elif "description" in result:
             output += result["description"]
+        elif "table" in result:
+            headers, rows = self._normalize_table(result["table"])
+            output += self.render_table(headers, rows) + "\n"
         elif "output" in result:
             output += result["output"] + "\n"
         elif "items" in result:
@@ -124,6 +144,22 @@ class GridRenderer:
             output += f"  {i}. {name}\n     {loc_id}\n"
         return output
 
+    def render_table(self, headers: Sequence[str], rows: Iterable[Sequence[Any]]) -> str:
+        """Render a basic table for command outputs."""
+        return format_table(headers, rows)
+
+    @staticmethod
+    def _normalize_table(
+        table_data: Any,
+    ) -> Tuple[Sequence[str], Iterable[Sequence[Any]]]:
+        if isinstance(table_data, dict):
+            headers = table_data.get("headers", [])
+            rows = table_data.get("rows", [])
+            return headers, rows
+        if isinstance(table_data, (list, tuple)) and len(table_data) == 2:
+            return table_data[0], table_data[1]
+        return [], []
+
     def format_error(self, message: str, details: str = "") -> str:
         """Format an error message"""
         output = f"{self.RED}✗{self.RESET} {message}\n"
@@ -133,7 +169,33 @@ class GridRenderer:
 
     def format_prompt(self, location: str) -> str:
         """Format the REPL prompt"""
-        return f"{self.BOLD}[{location}]{self.RESET} > "
+        indicator = self.get_prompt_indicator()
+        return f"{indicator} {self.BOLD}[{location}]{self.RESET} > "
+
+    def set_mood(self, mood: str, pace: float = 0.6, blink: bool = True) -> None:
+        """Set the mood and animation pace for the prompt indicator."""
+        if mood not in self.MOODS:
+            mood = "idle"
+        self._mood = mood
+        self._pace = max(0.1, float(pace))
+        self._blink = bool(blink)
+
+    def get_mood(self) -> str:
+        """Return the current mood name."""
+        return self._mood
+
+    def get_prompt_indicator(self) -> str:
+        """Return the animated prompt indicator emoji."""
+        return self.get_mood_frame(self._mood, self._pace, self._blink)
+
+    def get_mood_frame(self, mood: str, pace: float, blink: bool) -> str:
+        """Return a single emoji frame for the given mood."""
+        frames = self.MOODS.get(mood) or self.MOODS["idle"]
+        now = time.time()
+        idx = int(now / pace) % len(frames)
+        if blink and int(now / (pace * 2)) % 2 == 1:
+            return " "
+        return f"{self.DIM}{frames[idx]}{self.RESET}"
 
     def stream_text(self, text: str, prefix: str = "vibe> ") -> None:
         """Stream text line-by-line with a prefix (used for Vibe-style output)."""

@@ -15,8 +15,11 @@ This live tracker lists the remaining development items referenced by `docs/DEV-
 | MeshCore device manager scaffolding | Goblin | Done | Device manager + pairing API scaffolded. |
 | Dev workflow endpoints | Goblin | Done | Containers/vibe/logs/vault sync endpoints wired. |
 | Ship plugin manifest service + registry | Wizard/Extensions | Done | Registry routes + manifest validation service added. |
-| Begin App Typo Editor + converters | App | Early dev | Tauri + converter pipeline. |
-| Build Groovebox Songscribe stack | Wizard | Planning | Songscribe Markdown, audio synthesis, sample libs. |
+
+## Post v1.3.10 (Deferred)
+
+| Begin App Typo Editor + converters | App | Deferred (post v1.3.10) | Tauri + converter pipeline. |
+| Build Groovebox Songscribe stack | Wizard | Deferred (post v1.3.10) | Songscribe Markdown, audio synthesis, sample libs. |
 | Update `docs/specs/v1.3.1-milestones.md` | Documentation | Done | Milestones summary created. |
 | Add DateTimeApproval + TUI story tests | Core | Done | Added regression coverage for approval/override flows. |
 | Build script executor + safety guard | Core | Done | Added ScriptExecutor, allowScripts guard, and runtime tests. |
@@ -57,9 +60,9 @@ Focus: harden publishing + indexing, stabilize Wizard renderer lane, and lock de
 
 ---
 
-# v1.3.2+ Roadmap (Spec-Aligned)
+# v1.3.2+ Roadmap (Spec-Aligned) — Next Up
 
-Integrate the attached specs/guides into the future roadmap.
+Integrate the attached specs/guides into the next roadmap window (post v1.3.10).
 
 ## Canonical contracts to implement
 - **Vault Contract**: enforce layout, deterministic indices, and exports. See [docs/Vault-Contract.md](docs/Vault-Contract.md).
@@ -94,6 +97,19 @@ Spec: [docs/specs/AI-MODES-v1.3.md](docs/specs/AI-MODES-v1.3.md)
 - Add theme validation tooling based on contract.
 - Add additional theme packs (NES/teletext/C64/medium) and test export.
 - Add theme preview endpoints for app + wizard dashboard.
+
+## v1.3.2+ Execution Plan (No Dates)
+
+1. **P0 — Contract Foundation (Core/Docs)**. Dependencies: none. Breakdown: implement Vault Contract validation, Theme Pack Contract validation, Engine-Agnostic World Contract enforcement in core runtime and docs cross-links.
+2. **P0 — UGRID Core (Core)**. Dependencies: Fractal grid + universe mapping complete. Breakdown: grid canvas primitives, LocId overlays, deterministic render tests, runtime hooks for map blocks.
+3. **P0 — Gameplay Anchors (Core/Sonic)**. Dependencies: UGRID Core, Engine-Agnostic World Contract. Breakdown: anchor registry runtime interfaces, validation rules, adapter surface for Sonic/TUI access.
+4. **P1 — World Lenses (Core/Extensions)**. Dependencies: UGRID Core. Breakdown: Godot 2D/2.5D adapter MVP, O3DE prototype adapter, minimal integration test harness.
+5. **P1 — uCODE Prompt Spec (Core/TUI)**. Dependencies: none. Breakdown: OK/: commands, slash routing, dynamic autocomplete, shared parser updates.
+6. **P1 — TUI ↔ Vibe Integration (Core/Extensions)**. Dependencies: uCODE Prompt Spec, ENV boundary contract. Breakdown: shared IO boundary, keystore access rules, runtime router wiring.
+7. **P1 — Vibe CLI Workflow Alignment (Core)**. Dependencies: TUI ↔ Vibe Integration. Breakdown: map recommended flows to uCODE commands, close gaps in CLI routing, add UX notes to roadmap.
+8. **P1 — Wizard AI Modes (Wizard)**. Dependencies: AI-MODES spec. Breakdown: mode contract (conversation/creative), local model defaults, `/api/ai/complete` policy enforcement.
+9. **P1 — Theme Validation Tooling (Wizard/Extensions)**. Dependencies: Theme Pack Contract. Breakdown: pack validator, CLI/endpoint integration, failure reporting.
+10. **P2 — Theme Packs + Previews (Wizard/App)**. Dependencies: Theme Validation Tooling. Breakdown: NES/teletext/C64/medium packs, export tests, preview endpoints for app + dashboard.
 
 ---
 

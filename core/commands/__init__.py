@@ -150,10 +150,6 @@ def __getattr__(name):
         from .logs_handler import LogsHandler
 
         return LogsHandler
-    elif name == "ReloadHandler":
-        from .reload_handler import ReloadHandler
-
-        return ReloadHandler
     elif name == "RestartHandler":
         from .restart_handler import RestartHandler
 
@@ -222,7 +218,6 @@ __all__ = [
     "DevModeHandler",
     "LogsHandler",
     "HotkeyHandler",
-    "ReloadHandler",
     "RestartHandler",
     "DestroyHandler",
     "UserHandler",

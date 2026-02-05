@@ -14,7 +14,7 @@ import tarfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable, List, Optional, Tuple
+from typing import Callable, Iterable, List, Optional, Tuple
 
 from core.services.logging_service import get_repo_root
 
@@ -102,6 +102,7 @@ def create_backup(
     target_root: Path,
     label: str,
     excludes: Optional[List[str]] = None,
+    on_progress: Optional[Callable[[int, int, str], None]] = None,
 ) -> Tuple[Path, Path]:
     """Create a tar.gz backup in target_root/.backup and return (archive, manifest)."""
     excludes = excludes or []
@@ -118,16 +119,26 @@ def create_backup(
             return False
         return True
 
+    files_to_add: List[Path] = []
+    for root, dirs, files in os.walk(target_root):
+        root_path = Path(root)
+        dirs[:] = [d for d in dirs if _include(root_path / d)]
+        for file in files:
+            file_path = root_path / file
+            if not _include(file_path):
+                continue
+            files_to_add.append(file_path)
+
+    total_files = len(files_to_add)
+    if on_progress:
+        on_progress(0, total_files, "collecting")
+
     with tarfile.open(archive_path, "w:gz") as tar:
-        for root, dirs, files in os.walk(target_root):
-            root_path = Path(root)
-            dirs[:] = [d for d in dirs if _include(root_path / d)]
-            for file in files:
-                file_path = root_path / file
-                if not _include(file_path):
-                    continue
-                rel = file_path.relative_to(target_root)
-                tar.add(file_path, arcname=str(rel))
+        for idx, file_path in enumerate(files_to_add, 1):
+            rel = file_path.relative_to(target_root)
+            tar.add(file_path, arcname=str(rel))
+            if on_progress:
+                on_progress(idx, total_files, str(rel))
 
     manifest = {
         "label": label,
@@ -137,20 +148,34 @@ def create_backup(
         "excludes": excludes,
     }
     manifest_path.write_text(json.dumps(manifest, indent=2))
+    if on_progress:
+        on_progress(total_files, total_files, "manifest")
     return archive_path, manifest_path
 
 
-def restore_backup(archive_path: Path, target_root: Path, force: bool = False) -> str:
+def restore_backup(
+    archive_path: Path,
+    target_root: Path,
+    force: bool = False,
+    on_progress: Optional[Callable[[int, int, str], None]] = None,
+) -> str:
     if not archive_path.exists():
         raise FileNotFoundError(f"Backup not found: {archive_path}")
     _ensure_dir(target_root)
     with tarfile.open(archive_path, "r:gz") as tar:
+        members = tar.getmembers()
+        total_members = len(members)
+        if on_progress:
+            on_progress(0, total_members, "checking")
         if not force:
-            for member in tar.getmembers():
+            for member in members:
                 dest = target_root / member.name
                 if dest.exists():
                     raise FileExistsError(f"Restore conflict: {dest}")
-        tar.extractall(path=target_root)
+        for idx, member in enumerate(members, 1):
+            tar.extract(member, path=target_root)
+            if on_progress:
+                on_progress(idx, total_members, member.name)
     return f"Restored {archive_path.name} to {target_root}"
 
 

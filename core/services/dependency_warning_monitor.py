@@ -18,6 +18,12 @@ from typing import List, Optional, Set, Tuple
 
 from core.services.logging_service import get_logger, LogTags, get_repo_root
 from core.utils.tty import interactive_tty_status
+from core.input.confirmation_utils import (
+    normalize_default,
+    parse_confirmation,
+    format_prompt,
+    format_error,
+)
 
 _REQUIREMENT_CACHE: Optional[Set[str]] = None
 _monitor_instance: "DependencyWarningMonitor" | None = None
@@ -220,7 +226,7 @@ class DependencyWarningMonitor:
             print(f"   {guidance}")
         print("   Run 'REPAIR --upgrade' to refresh all requirements.")
 
-        if self._ask_yes_no("   Proceed with REPAIR --upgrade now? [y/N]: "):
+        if self._ask_yes_no("   Proceed with REPAIR --upgrade now? [Yes|No|OK]: "):
             self._run_repair()
         else:
             print("   Skipping auto-upgrade. Run 'REPAIR --upgrade' later if needed.")
@@ -240,10 +246,15 @@ class DependencyWarningMonitor:
     @staticmethod
     def _ask_yes_no(prompt: str) -> bool:
         try:
-            answer = input(prompt).strip().lower()
+            answer = input(prompt)
         except EOFError:
             return False
-        return answer in {"y", "yes"}
+        default_choice = normalize_default(True, "ok")
+        choice = parse_confirmation(answer, default_choice, "ok")
+        if choice is None:
+            print(format_error("ok"))
+            return DependencyWarningMonitor._ask_yes_no(prompt)
+        return choice in {"yes", "ok"}
 
     @staticmethod
     def _is_interactive() -> Tuple[bool, Optional[str]]:
@@ -401,7 +412,7 @@ def run_preflight_check(
             print(f"\n🔧 Fix for [{issue.code}]: {issue.message}")
             if issue.resolution:
                 print(f"   {issue.resolution}")
-            if DependencyWarningMonitor._ask_yes_no(f"\n   Fix this issue now? [Y/n]: "):
+            if DependencyWarningMonitor._ask_yes_no(f"\n   Fix this issue now? [Yes|No|OK]: "):
                 success = _invoke_repair("--upgrade")
                 if success:
                     print(f"   ✅ Fixed [{issue.code}]")

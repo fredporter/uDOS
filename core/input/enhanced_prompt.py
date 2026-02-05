@@ -5,7 +5,7 @@ Enhanced Prompt with 2-Line Context Display
 Provides rich input prompts with:
 - Line 1: Current value/predictive text
 - Line 2: Help context/syntax/options
-- Standardized [1|0|Yes|No|OK|Cancel] confirmations
+- Standardized [Yes|No|OK] confirmations
 
 Author: uDOS Engineering
 Version: v1.0.0
@@ -15,6 +15,13 @@ Date: 2026-01-30
 from typing import Optional, List, Dict, Any, Tuple
 from .smart_prompt import SmartPrompt
 from core.utils.tty import interactive_tty_status
+from core.input.confirmation_utils import (
+    normalize_default,
+    parse_confirmation,
+    format_prompt,
+    format_options,
+    format_error,
+)
 
 
 class EnhancedPrompt(SmartPrompt):
@@ -68,17 +75,17 @@ class EnhancedPrompt(SmartPrompt):
     def ask_confirmation(
         self,
         question: str,
-        default: bool = False,
+        default: bool = True,
         help_text: Optional[str] = None,
         context: Optional[str] = None,
     ) -> bool:
         """
         Ask a confirmation question with standardized format.
 
-        Format: [1|0|Yes|No|OK|Cancel]
+        Format: [Yes|No|OK]
         Mappings:
           - 1, y, yes, ok, Enter (if default=True) → True
-          - 0, n, no, x, Enter (if default=False) → False
+          - 0, n, no, Enter (if default=False) → False
 
         Args:
             question: Question to ask
@@ -89,40 +96,50 @@ class EnhancedPrompt(SmartPrompt):
         Returns:
             True for yes/ok, False for no/cancel
         """
-        # Display context lines
+        choice = self.ask_confirmation_choice(
+            question=question,
+            default=default,
+            help_text=help_text,
+            context=context,
+            variant="ok",
+        )
+        return choice in {"yes", "ok"}
+
+    def ask_confirmation_choice(
+        self,
+        question: str,
+        default: Optional[bool] = True,
+        help_text: Optional[str] = None,
+        context: Optional[str] = None,
+        variant: str = "ok",
+    ) -> str:
+        """Ask a confirmation question and return the normalized choice."""
+        default_choice = normalize_default(default, variant)
+
         if self.show_context:
-            # Line 1: Context or current state
             if context:
                 print(f"  ╭─ {context}")
             else:
                 print(f"  ╭─ Please confirm your choice")
 
-            # Line 2: Help text with format
             if help_text:
                 print(f"  ╰─ {help_text}")
             else:
-                print(f"  ╰─ [1|0|Yes|No|OK|Cancel]")
+                print(f"  ╰─ {format_options(variant)}")
 
-        # Build prompt
-        default_str = "Yes" if default else "No"
-        prompt_text = f"{question}? [{default_str.upper()}] "
-
-        # Get response
-        response = self.ask(prompt_text, default="").strip().lower()
-
-        # Empty = default
-        if response == "":
-            return default
-
-        # Map inputs to boolean
-        if response in ["1", "y", "yes", "ok"]:
-            return True
-        elif response in ["0", "n", "no", "x", "cancel"]:
-            return False
-        else:
-            # Invalid - show error and retry
-            print("  ❌ Please enter: 1 (Yes), 0 (No), Yes, No, OK, or Cancel")
-            return self.ask_confirmation(question, default, help_text, context)
+        prompt_text = format_prompt(question, default_choice, variant)
+        response = self.ask(prompt_text, default="")
+        choice = parse_confirmation(response, default_choice, variant)
+        if choice is None:
+            print(format_error(variant))
+            return self.ask_confirmation_choice(
+                question=question,
+                default=default_choice,
+                help_text=help_text,
+                context=context,
+                variant=variant,
+            )
+        return choice
 
     def ask_menu(
         self,

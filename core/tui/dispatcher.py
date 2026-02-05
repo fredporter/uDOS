@@ -40,7 +40,6 @@ from core.commands import (
     UIDHandler,
     LogsHandler,
     HotkeyHandler,
-    ReloadHandler,
     RestartHandler,
     DestroyHandler,
     UserHandler,
@@ -87,9 +86,7 @@ class CommandDispatcher:
             # System (9)
             "SHAKEDOWN": ShakedownHandler(),
             "REPAIR": RepairHandler(),
-            "RESTART": RestartHandler(),  # Unified restart/reboot
-            "REBOOT": RestartHandler(),  # Alias for RESTART --repair
-            "RELOAD": ReloadHandler(),  # Control hot reload watcher
+            "REBOOT": RestartHandler(),  # Hot reload + TUI restart
             "SETUP": SetupHandler(),
             "UID": UIDHandler(),  # User ID management
             "PATTERN": PatternHandler(),
