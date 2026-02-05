@@ -100,6 +100,7 @@ class Issue:
     description: str
     component: str
     repairable: bool = False
+    auto_repairable: bool = False  # Can be fixed without user confirmation
     repair_action: Optional[str] = None
     details: Dict[str, Any] = field(default_factory=dict)
 
@@ -286,11 +287,12 @@ class SelfHealer:
                     description="urllib3 v2 requires OpenSSL >=1.1.1; current backend is LibreSSL",
                     component=self.component,
                     repairable=True,
+                    auto_repairable=True,  # Safe to auto-repair on macOS LibreSSL
                     repair_action="pip install 'urllib3<2.0.0'",
                     details={
                         "openssl_version": ssl_version,
                         "urllib3_version": urllib3_version,
-                        "recommendation": "Install Python linked to OpenSSL 1.1+/3 or downgrade urllib3"
+                        "recommendation": "Downgrading urllib3 to <2.0 for LibreSSL compatibility"
                     }
                 ))
         except Exception as e:
@@ -539,7 +541,17 @@ class SelfHealer:
 
     def _confirm_repair(self, issue: Issue) -> bool:
         """Prompt user before applying a repair that may change environments."""
+        # Auto-repair if marked safe or if stdin is unavailable
+        if issue.auto_repairable:
+            logger.info(f"[HEAL] Auto-repairing safe issue: {issue.description}")
+            return True
+
         try:
+            # Check if stdin is available
+            if not sys.stdin.isatty():
+                logger.warning(f"[HEAL] stdin unavailable; auto-repairing: {issue.description}")
+                return True
+
             print("\n" + "-" * 60)
             print("Self-Heal: Action Available")
             print(f"Issue: {issue.description}")
@@ -554,8 +566,10 @@ class SelfHealer:
             decision = choice in ("y", "yes")
             logger.info(f"[HEAL] User decision: {'apply' if decision else 'skip'} repair")
             return decision
-        except Exception:
-            return False
+        except (EOFError, OSError, ValueError):
+            # stdin not available or other I/O error; auto-repair if safe
+            logger.warning(f"[HEAL] stdin error; auto-repairing if safe: {issue.description}")
+            return issue.auto_repairable
 
     def _get_required_dependencies(self) -> Dict[str, Optional[str]]:
         """Get required dependencies for component."""

@@ -464,13 +464,51 @@ class uCODETUI:
 
     def _handle_question_mode(self, user_input: str) -> Dict[str, Any]:
         """
-        Handle question mode (natural language routing via Vibe CLI).
+        Handle question mode (natural language routing).
 
-        Routes to 'NL ROUTE' command for Vibe-powered analysis.
+        Simple: Uppercase first word and dispatch as command.
+        Complex sentences are treated as HELP queries.
         """
-        # Try to use NL ROUTE if vibe is available
-        vibe_cmd = f"NL ROUTE {user_input}"
-        return self.dispatcher.dispatch(vibe_cmd, parser=self.prompt)
+        words = user_input.strip().split(None, 1)
+        if not words:
+            return {"status": "error", "message": "Empty input"}
+        
+        first_word = words[0].upper()
+        rest = words[1] if len(words) > 1 else ""
+        
+        # Map common commands (case insensitive shortcuts)
+        cmd_map = {
+            "HELP": "HELP",
+            "H": "HELP",
+            "?": "HELP",
+            "STATUS": "STATUS",
+            "STAT": "STATUS",
+            "STATE": "STATUS",
+            "WIZARD": "WIZARD",
+            "CONFIG": "CONFIG",
+            "SETUP": "SETUP",
+            "FILE": "FILE",
+            "NEW": "NEW",
+            "EDIT": "EDIT",
+            "MAP": "MAP",
+            "FIND": "FIND",
+            "SEARCH": "FIND",
+            "LOGS": "LOGS",
+            "BINDER": "BINDER",
+            "STORY": "STORY",
+            "RUN": "RUN",
+            "REPAIR": "REPAIR",
+            "SHAKEDOWN": "SHAKEDOWN",
+        }
+        
+        # Try to resolve to known command
+        cmd = cmd_map.get(first_word, first_word)
+        
+        # Build command with arguments
+        full_cmd = f"{cmd} {rest}".strip()
+        
+        # Dispatch the command
+        return self.dispatcher.dispatch(full_cmd, parser=self.prompt)
 
     def run(self) -> None:
         """Start uCODE TUI."""
@@ -478,6 +516,7 @@ class uCODETUI:
         self._run_startup_script()
         self._show_banner()
         self._show_health_summary()
+        self._show_vibe_startup_sequence()
         self._show_startup_hints()
 
         # Check if in ghost mode and prompt for setup
@@ -503,6 +542,13 @@ class uCODETUI:
                     # Route input based on prefix (: / OK) or question mode
                     # This implements the uCODE Prompt Spec
                     result = self._route_input(user_input)
+                    
+                    # Check for EXIT/QUIT before processing
+                    normalized_input = user_input.strip().upper()
+                    if normalized_input in ("EXIT", "QUIT", ":EXIT", ":QUIT", "OK EXIT", "OK QUIT"):
+                        self.running = False
+                        print("👋 See you later!")
+                        break
 
                     # Special handling for STORY and SETUP commands with forms
                     normalized_cmd = result.get("command", "").upper()
@@ -561,6 +607,56 @@ class uCODETUI:
         print(self._theme_text("\n  💡 Start with: SETUP (first-time) | HELP (all commands) | STORY tui-setup (quick setup)"))
         print(self._theme_text("     Or try: MAP | TELL location | GOTO location | WIZARD start"))
         print(self._theme_text("     Press TAB for command selection | Type command for suggestions\n"))
+
+    def _show_vibe_startup_sequence(self) -> None:
+        """If Vibe CLI is installed, show the Vibe startup sequence."""
+        try:
+            vibe_path = shutil.which("vibe") or shutil.which("vibe-cli")
+            if not vibe_path:
+                return
+
+            repo_config = self.repo_root / ".vibe" / "config.toml"
+            home_config = Path.home() / ".vibe" / "config.toml"
+            config_path = repo_config if repo_config.exists() else (home_config if home_config.exists() else None)
+
+            provider = None
+            model = None
+            endpoint = None
+            if config_path:
+                try:
+                    for raw_line in config_path.read_text().splitlines():
+                        line = raw_line.split("#", 1)[0].strip()
+                        if not line or "=" not in line:
+                            continue
+                        key, value = [part.strip() for part in line.split("=", 1)]
+                        value = value.strip('"').strip("'")
+                        if key == "provider":
+                            provider = value
+                        elif key == "model":
+                            model = value
+                        elif key == "endpoint":
+                            endpoint = value
+                except Exception as exc:
+                    self.logger.debug("[VIBE] Failed to parse config: %s", exc)
+
+            print(self._theme_text("\n🎛 Vibe CLI detected"))
+            print(self._theme_text("-" * 60))
+            print(self._theme_text(f"  Binary: {vibe_path}"))
+            if config_path:
+                print(self._theme_text(f"  Config: {config_path}"))
+            if provider:
+                print(self._theme_text(f"  Provider: {provider}"))
+            if model:
+                print(self._theme_text(f"  Model: {model}"))
+            if endpoint:
+                print(self._theme_text(f"  Endpoint: {endpoint}"))
+            print(self._theme_text("  Startup sequence:"))
+            print(self._theme_text("  1. vibe chat"))
+            print(self._theme_text("  2. vibe chat \"What should I do next?\""))
+            print(self._theme_text("  3. VIBE CHAT <prompt>  (inside uCODE)"))
+            print(self._theme_text("-" * 60 + "\n"))
+        except Exception as exc:
+            self.logger.warning("[VIBE] Startup check failed: %s", exc)
 
     def _show_banner(self) -> None:
         """Show startup banner."""

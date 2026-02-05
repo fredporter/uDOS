@@ -47,6 +47,9 @@ v1-3/**
 !v1-3/README.md
 !v1-3/*.md
 
+# Roadmaps (local development planning only)
+/docs/roadmaps/
+
 # Container clones (local, never tracked)
 # /library/*/container.json are definitions (tracked)
 # /library/containers/* are clones (not tracked)

@@ -30,6 +30,19 @@ BL="┗"
 BR="┛"
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Quiet-mode helpers
+# ═══════════════════════════════════════════════════════════════════════════
+_udos_is_quiet() {
+    [ "$UDOS_QUIET" = "1" ]
+}
+
+_udos_echo() {
+    if ! _udos_is_quiet; then
+        echo -e "$@"
+    fi
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
 # Path Detection (works regardless of where uDOS is installed)
 # ═══════════════════════════════════════════════════════════════════════════
 UDOS_BIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -148,11 +161,14 @@ parse_common_flags() {
         case "$arg" in
             --rebuild)
                 export UDOS_REBUILD=1
-                echo -e "${YELLOW}🔄 Rebuild mode: Clearing Python cache...${NC}"
+                _udos_echo "${YELLOW}🔄 Rebuild mode: Clearing Python cache...${NC}"
                 ;;
             --flag)
                 export UDOS_FLAG_MODE=1
-                echo -e "${CYAN}⚙️ Flag mode: enabling auto launcher hooks${NC}"
+                _udos_echo "${CYAN}⚙️ Flag mode: enabling auto launcher hooks${NC}"
+                ;;
+            --quiet|-q)
+                export UDOS_QUIET=1
                 ;;
         esac
     done
@@ -228,6 +244,14 @@ run_with_spinner() {
     local message="$1"
     shift
     local cmd="$@"
+    if _udos_is_quiet; then
+        eval "$cmd"
+        local exit_code=$?
+        if [ $exit_code -ne 0 ]; then
+            echo -e "  ${RED}✗${NC} ${message}"
+        fi
+        return $exit_code
+    fi
     local spin_chars='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
     local i=0
     local start_time
@@ -262,7 +286,7 @@ run_with_spinner() {
 # Python Cache Management
 # ═══════════════════════════════════════════════════════════════════════════
 clear_python_cache() {
-    echo -e "${YELLOW}🧹 Clearing Python cache...${NC}"
+    _udos_echo "${YELLOW}🧹 Clearing Python cache...${NC}"
 
     # Remove __pycache__ directories
     find "$UDOS_ROOT" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
@@ -273,7 +297,7 @@ clear_python_cache() {
     # Remove .pyo files
     find "$UDOS_ROOT" -type f -name "*.pyo" -delete 2>/dev/null || true
 
-    echo -e "  ${GREEN}✓${NC} Python cache cleared"
+    _udos_echo "  ${GREEN}✓${NC} Python cache cleared"
 }
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -284,41 +308,62 @@ ensure_python_env() {
     if [ "$UDOS_REBUILD" = "1" ]; then
         clear_python_cache
     fi
+    local log_dir="$UDOS_ROOT/memory/logs"
+    mkdir -p "$log_dir"
 
     # Check venv - auto-create if missing
     if [ ! -d "$UDOS_ROOT/.venv" ]; then
         echo -e "${YELLOW}⚠️  Virtual environment not found - creating...${NC}"
-        if run_with_spinner "Creating virtual environment..." "python3 -m venv $UDOS_ROOT/.venv"; then
-            echo -e "  ${GREEN}✅ Virtual environment created${NC}"
+        local venv_log="$log_dir/venv-create-$(date +%Y%m%d-%H%M%S).log"
+        if run_with_spinner "Creating virtual environment..." "python3 -m venv $UDOS_ROOT/.venv >>\"$venv_log\" 2>&1"; then
+            _udos_echo "  ${GREEN}✅ Virtual environment created${NC}"
         else
             echo -e "  ${RED}❌ Failed to create virtual environment${NC}"
+            echo -e "  ${YELLOW}ℹ️  See log: ${venv_log}${NC}"
             return 1
         fi
     fi
 
     # Activate venv
     source "$UDOS_ROOT/.venv/bin/activate"
-    echo -e "${GREEN}✅ Python venv activated${NC}"
+    _udos_echo "${GREEN}✅ Python venv activated${NC}"
 
     # Check dependencies - auto-install if missing
     if ! python -c "import flask" 2>/dev/null; then
         echo -e "${YELLOW}⚠️  Dependencies missing - installing (first time setup)...${NC}"
         echo ""
-        pip install --progress-bar on -r "$UDOS_ROOT/requirements.txt"
+        local pip_log="$UDOS_ROOT/memory/logs/pip-install-$(date +%Y%m%d-%H%M%S).log"
+        mkdir -p "$(dirname "$pip_log")"
+        if [ "$UDOS_PIP_VERBOSE" = "1" ]; then
+            pip install --progress-bar on -r "$UDOS_ROOT/requirements.txt"
+        else
+            run_with_spinner "Installing dependencies..." \
+                "PIP_DISABLE_PIP_VERSION_CHECK=1 pip install --progress-bar off -r \"$UDOS_ROOT/requirements.txt\" >>\"$pip_log\" 2>&1"
+        fi
         if [ $? -eq 0 ]; then
             echo ""
-            echo -e "  ${GREEN}✅ Dependencies installed${NC}"
+            _udos_echo "  ${GREEN}✅ Dependencies installed${NC}"
         else
             echo ""
             echo -e "  ${RED}❌ Failed to install dependencies${NC}"
+            echo -e "  ${YELLOW}ℹ️  See log: ${pip_log}${NC}"
             return 1
         fi
     fi
 
     if ! python -c "import prompt_toolkit" 2>/dev/null; then
         echo -e "${YELLOW}⚠️  prompt_toolkit missing - installing advanced CLI helper...${NC}"
-        if ! pip install --progress-bar on "prompt_toolkit>=3.0.0"; then
+        local pip_log="$UDOS_ROOT/memory/logs/pip-install-$(date +%Y%m%d-%H%M%S).log"
+        mkdir -p "$(dirname "$pip_log")"
+        if [ "$UDOS_PIP_VERBOSE" = "1" ]; then
+            pip install --progress-bar on "prompt_toolkit>=3.0.0"
+        else
+            run_with_spinner "Installing prompt_toolkit..." \
+                "PIP_DISABLE_PIP_VERSION_CHECK=1 pip install --progress-bar off \"prompt_toolkit>=3.0.0\" >>\"$pip_log\" 2>&1"
+        fi
+        if [ $? -ne 0 ]; then
             echo -e "  ${RED}❌ Failed to install prompt_toolkit${NC}"
+            echo -e "  ${YELLOW}ℹ️  See log: ${pip_log}${NC}"
             return 1
         fi
     fi
@@ -395,6 +440,10 @@ print_header() {
     local width=75
     local padding=$(( (width - ${#title} - 2) / 2 ))
 
+    if _udos_is_quiet; then
+        return 0
+    fi
+
     echo ""
     echo -e "${CYAN}${BOLD}╔═══════════════════════════════════════════════════════════════════════╗${NC}"
     printf "${CYAN}${BOLD}║%*s%s%*s║${NC}\n" $padding "" "$title" $((padding + (width - ${#title} - 2) % 2)) ""
@@ -420,7 +469,9 @@ kill_port() {
 print_service_url() {
     local label="$1"
     local url="$2"
-    printf "  ${DIM}%-14s${NC} ${GREEN}%s${NC}\n" "$label:" "$url"
+    if ! _udos_is_quiet; then
+        printf "  ${DIM}%-14s${NC} ${GREEN}%s${NC}\n" "$label:" "$url"
+    fi
 }
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -604,7 +655,7 @@ _setup_component_environment() {
     local component="$1"
 
     # Ensure venv and dependencies
-    echo -e "${CYAN}[INFO]${NC} Checking Python environment and dependencies..."
+    _udos_echo "${CYAN}[INFO]${NC} Checking Python environment and dependencies..."
     ensure_python_env || return 1
 
     # Setup memory/logs directory (prefer ~/memory/logs)
@@ -615,9 +666,12 @@ _setup_component_environment() {
     export UDOS_MEMORY_ROOT="$memory_root"
     export UDOS_LOG_DIR="$memory_root/logs"
 
-    # Run self-healing diagnostics
-    run_with_spinner "Running self-healing diagnostics for ${component}..." "python -m core.services.self_healer $component" || {
+    # Run self-healing diagnostics (log output)
+    local self_heal_log="$memory_root/logs/self-heal-${component}-$(date +%Y%m%d-%H%M%S).log"
+    run_with_spinner "Running self-healing diagnostics for ${component}..." \
+        "python -m core.services.self_healer $component >>\"$self_heal_log\" 2>&1" || {
         echo -e "${YELLOW}[WARN]${NC} Some dependency issues detected (non-blocking)"
+        echo -e "${YELLOW}ℹ️  See log: ${self_heal_log}${NC}"
     }
 }
 
@@ -627,9 +681,9 @@ launch_core_tui() {
 
     _setup_component_environment "core" || return 1
 
-    echo -e "${CYAN}[BOOT]${NC} uDOS Root: $UDOS_ROOT"
-    echo -e "${CYAN}[BOOT]${NC} Python: $(python --version)"
-    echo ""
+    _udos_echo "${CYAN}[BOOT]${NC} uDOS Root: $UDOS_ROOT"
+    _udos_echo "${CYAN}[BOOT]${NC} Python: $(python --version)"
+    _udos_echo ""
 
     # Launch the TUI
     python "$UDOS_ROOT/uDOS.py" "$@" || return 1
@@ -642,11 +696,11 @@ launch_wizard_server() {
     _setup_component_environment "wizard" || return 1
     check_wizard_updates || true  # Don't block startup on update failures
 
-    echo -e "${CYAN}[INFO]${NC} Starting Wizard Server in background..."
+    _udos_echo "${CYAN}[INFO]${NC} Starting Wizard Server in background..."
 
     # Check if already running
     if curl -s --connect-timeout 2 http://127.0.0.1:8765/health >/dev/null 2>&1; then
-        echo -e "${GREEN}✓${NC} Wizard already running on http://localhost:8765"
+        _udos_echo "${GREEN}✓${NC} Wizard already running on http://localhost:8765"
     else
         # Validate python module exists
         if ! python -c "import wizard.server" 2>/dev/null; then
@@ -664,7 +718,7 @@ launch_wizard_server() {
         local waited=0
         while [ $waited -lt $max_wait ]; do
             if curl -s --connect-timeout 1 http://127.0.0.1:8765/health >/dev/null 2>&1; then
-                echo -e "${GREEN}✓${NC} Wizard Server started (PID: $wizard_pid)"
+                _udos_echo "${GREEN}✓${NC} Wizard Server started (PID: $wizard_pid)"
                 break
             fi
             sleep 0.5
@@ -673,15 +727,15 @@ launch_wizard_server() {
 
         if [ $waited -ge $max_wait ]; then
             echo -e "${YELLOW}⚠${NC}  Wizard Server started but slow to respond (PID: $wizard_pid)"
-            echo -e "${DIM}ℹ️  Check logs: tail -f $UDOS_ROOT/memory/logs/wizard-server.log${NC}"
+            _udos_echo "${DIM}ℹ️  Check logs: tail -f $UDOS_ROOT/memory/logs/wizard-server.log${NC}"
         fi
     fi
 
     print_service_url "Server" "http://localhost:8765"
     print_service_url "Dashboard" "http://localhost:8765/dashboard"
-    echo ""
-    echo -e "${CYAN}[INFO]${NC} Launching uCODE TUI..."
-    echo ""
+    _udos_echo ""
+    _udos_echo "${CYAN}[INFO]${NC} Launching uCODE TUI..."
+    _udos_echo ""
 
     # Launch Core TUI with Wizard available
     python "$UDOS_ROOT/uDOS.py" "$@" || return 1
@@ -707,7 +761,7 @@ launch_goblin_dev() {
     print_service_url "Server" "http://localhost:8767"
     print_service_url "Dashboard" "http://localhost:5174"
     print_service_url "Swagger" "http://localhost:8767/docs"
-    echo ""
+    _udos_echo ""
 
     # Delegate to goblin launcher
     "$UDOS_ROOT/dev/bin/start-goblin-dev.sh" "$@" || return 1
@@ -721,7 +775,7 @@ launch_empire_dev() {
 
     print_service_url "Server" "http://localhost:8768"
     print_service_url "Dashboard" "http://localhost:8768/dashboard"
-    echo ""
+    _udos_echo ""
 
     # Delegate to empire launcher
     "$UDOS_ROOT/dev/bin/start-empire-dev.sh" "$@" || return 1

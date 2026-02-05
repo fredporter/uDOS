@@ -72,6 +72,7 @@ class InteractiveMenu:
         self.show_help = show_help
         self.selected_index = 0
         self.logger = None
+        self._raw_mode = False
         
         try:
             from core.services.logging_service import get_logger
@@ -139,38 +140,51 @@ class InteractiveMenu:
 
     def _display(self) -> None:
         """Display menu on screen."""
-        print("\n" + "╔" + "═" * (len(self.title) + 2) + "╗")
-        print(f"║ {self.title} ║")
-        print("╚" + "═" * (len(self.title) + 2) + "╝\n")
-        
+        # For arrow/hybrid menus we re-render on navigation; clear the screen
+        # to avoid stacked/garbled layouts when handling arrow keys.
+        if self.style in (MenuStyle.ARROW, MenuStyle.HYBRID):
+            sys.stdout.write("\033[2J\033[H")
+            sys.stdout.flush()
+        lines: List[str] = []
+        lines.append("")
+        lines.append("╔" + "═" * (len(self.title) + 2) + "╗")
+        lines.append(f"║ {self.title} ║")
+        lines.append("╚" + "═" * (len(self.title) + 2) + "╝")
+        lines.append("")
+
         # Display items
         for idx, item in enumerate(self.items):
             num = idx + 1
             indicator = "▶ " if idx == self.selected_index else "  "
             status = "✅" if item.enabled else "⊘"
-            
-            print(f"{indicator}{status} {num}. {item.label}")
-            
+            lines.append(f"{indicator}{status} {num}. {item.label}")
             if self.show_help and item.help_text:
-                print(f"      {item.help_text}")
-        
+                lines.append(f"      {item.help_text}")
+
         # Display cancel option
         if self.allow_cancel:
             cancel_idx = len(self.items)
             indicator = "▶ " if cancel_idx == self.selected_index else "  "
-            print(f"{indicator}  0. Cancel")
-        
-        print()
-        self._show_instructions()
+            lines.append(f"{indicator}  0. Cancel")
 
-    def _show_instructions(self) -> None:
-        """Show input instructions."""
+        lines.append("")
+        lines.extend(self._get_instructions_lines())
+        self._emit_lines(lines)
+
+    def _get_instructions_lines(self) -> List[str]:
+        """Get input instructions."""
         if self.style == MenuStyle.NUMBERED:
-            print("  Enter number and press Enter (0-9)")
+            return ["  Enter number and press Enter (0-9)"]
         elif self.style == MenuStyle.ARROW:
-            print("  Use ↑↓ arrows, then press Enter")
-        else:  # HYBRID
-            print("  Use 1-9 or ↑↓ arrows, then press Enter")
+            return ["  Use ↑↓ arrows, then press Enter"]
+        # HYBRID
+        return ["  Use 1-9 or ↑↓ arrows, then press Enter"]
+
+    def _emit_lines(self, lines: List[str]) -> None:
+        """Write menu output with correct newlines for raw mode."""
+        newline = "\r\n" if self._raw_mode else "\n"
+        sys.stdout.write(newline.join(lines) + newline)
+        sys.stdout.flush()
 
     def _get_choice(self) -> Optional[int]:
         """
@@ -227,6 +241,7 @@ class InteractiveMenu:
             
             try:
                 tty.setraw(sys.stdin.fileno())
+                self._raw_mode = True
                 
                 while True:
                     char = sys.stdin.read(1)
@@ -267,6 +282,7 @@ class InteractiveMenu:
                         return -1
                         
             finally:
+                self._raw_mode = False
                 termios.tcsetattr(sys.stdin, termios.TCSADRAIN, original_settings)
                 
         except Exception:
