@@ -10,10 +10,7 @@ import {
 function resolveDefaults() {
   const cwd = process.cwd();
   return {
-    vaultRoot:
-      process.env.VAULT_MD_ROOT ??
-      process.env.VAULT_ROOT ??
-      path.resolve(cwd, "..", "..", "vault"),
+    vaultRoot: process.env.VAULT_ROOT ?? path.resolve(cwd, "..", "..", "vault"),
     dbPath:
       process.env.DB_PATH ??
       path.resolve(cwd, "..", "..", "vault", ".udos", "state.db"),

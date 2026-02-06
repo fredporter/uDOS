@@ -36,7 +36,7 @@ Common first commands:
   Repo: `https://github.com/fredporter/uDOS-sonic`
 - **App** — macOS Tauri editor (alpha)
 - **Extensions** — Container/plugin ecosystem
-- **Vault-MD** — Local docs vault (external, user-owned)
+- **Knowledge** — Static reference catalog
 
 ---
 
@@ -49,6 +49,7 @@ sonic/       Bootable USB builder (Sonic)
 app/         Tauri native app (macOS)
 extensions/  Transport API definitions
 library/     Container definitions
+knowledge/   Static catalog
 wiki/        User docs
 docs/        Architecture + specs
 ```

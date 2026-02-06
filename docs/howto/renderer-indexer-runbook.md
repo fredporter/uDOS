@@ -20,7 +20,7 @@ node dist/renderer/cli.js --theme prose --vault /path/to/vault --themes /path/to
 ```
 
 Defaults:
-- `VAULT_MD_ROOT` → `~/Documents/uDOS Vault` (vault-md)
+- `VAULT_ROOT` → `../vault`
 - `THEMES_ROOT` → `../themes`
 - `OUTPUT_ROOT` → `../vault/_site`
 - `MISSION_ID` → `renderer-<theme>`

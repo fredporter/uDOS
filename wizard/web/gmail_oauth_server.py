@@ -59,7 +59,7 @@ if __name__ == "__main__":
     print()
     print("Prerequisites:")
     print("  1. Download gmail_credentials.json from Google Cloud Console")
-    print("  2. Save to: memory/private/gmail_credentials.json")
+    print("  2. Save to: memory/bank/user/gmail_credentials.json")
     print("  3. Follow: wiki/Google-Cloud-Console-Setup.md")
     print()
     print("=" * 60)

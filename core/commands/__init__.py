@@ -74,10 +74,6 @@ def __getattr__(name):
         from .sonic_handler import SonicHandler
 
         return SonicHandler
-    elif name == "SonicPluginHandler":
-        from .sonic_plugin_handler import SonicPluginHandler
-
-        return SonicPluginHandler
     elif name == "MusicHandler":
         from .music_handler import MusicHandler
 
@@ -218,7 +214,6 @@ __all__ = [
     "RepairHandler",
     "PatternHandler",
     "SonicHandler",
-    "SonicPluginHandler",
     "MusicHandler",
     "DevModeHandler",
     "LogsHandler",

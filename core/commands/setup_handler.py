@@ -346,16 +346,16 @@ When Wizard Server is installed, it imports this data.
             return {"status": "error", "message": f"Override form failed: {e}"}
 
     def _seed_confirmation(self) -> str:
-        """Confirm local memory/system and seed structure after setup."""
+        """Confirm local memory/bank and seed structure after setup."""
         repo_root = get_repo_root()
-        memory_system = repo_root / "memory" / "system"
+        memory_bank = repo_root / "memory" / "bank"
         seed_dir = repo_root / "core" / "framework" / "seed"
         locations_seed = seed_dir / "locations-seed.json"
 
         lines = [
             "LOCAL SEED CONFIRMATION",
             "-" * 60,
-            f"  • memory/system: {'✅' if memory_system.exists() else '❌'}",
+            f"  • memory/bank: {'✅' if memory_bank.exists() else '❌'}",
             f"  • core/framework/seed: {'✅' if seed_dir.exists() else '❌'}",
             f"  • seed file (locations): {'✅' if locations_seed.exists() else '❌'}",
         ]

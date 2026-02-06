@@ -361,7 +361,7 @@ _TODO_MANAGER: Optional[TodoManager] = None
 
 def _load_seed_tasks() -> List[Task]:
     repo_root = get_repo_root()
-    seed_path = repo_root / "memory" / "system" / "todos.json"
+    seed_path = repo_root / "core" / "framework" / "seed" / "bank" / "system" / "todos.json"
     tasks: List[Task] = []
     if seed_path.exists():
         try:

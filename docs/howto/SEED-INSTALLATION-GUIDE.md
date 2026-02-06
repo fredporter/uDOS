@@ -2,21 +2,14 @@
 uid: udos-installer-guide-20260130014500-UTC-L301AB02
 title: Seed Installation & Initialization Guide
 tags: [guide, installation, bootstrap, seed, infrastructure]
-status: legacy
-updated: 2026-02-06
+status: living
+updated: 2026-01-30
 ---
 
 # Seed Installation & Initialization Guide
 
-> **⚠️ LEGACY DOCUMENT:** This guide references `memory/bank/` paths which have been migrated to:
-> - `memory/system/` for system templates (tracked)
-> - `vault-md/bank/` for user data (local only)
-> - `memory/private/` for secrets/credentials
->
-> See [ADR-0004](../decisions/ADR-0004-data-layer-architecture.md) for current architecture.
-
 **Last Updated:** 2026-01-30  
-**Status:** Legacy (paths updated 2026-02-06)  
+**Status:** Complete  
 **Components:** Seed Installer, Bootstrap Handler, TUI Integration
 
 ---

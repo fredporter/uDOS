@@ -2,7 +2,7 @@
 System Script Runner
 =====================
 
-Ensures `/memory/system` scripts exist and invokes them via the TS runtime.
+Ensures `/memory/bank/system` scripts exist and invokes them via the TS runtime.
 Provides startup/reboot hooks that seed the runtime with simple PATTERN output
 so the Core TUI and automation logs always show a visible signal when each run
 executes.
@@ -35,7 +35,7 @@ logger = get_logger("system-script")
 
 
 class SystemScriptRunner:
-    """Runs the startup/reboot scripts stored under /memory/system."""
+    """Runs the startup/reboot scripts stored under /memory/bank/system."""
 
     SCRIPT_TEMPLATE_DIR = Path("core/framework/seed/bank/system")
 
@@ -46,7 +46,7 @@ class SystemScriptRunner:
             self.memory_root = Path(env_memory)
         else:
             self.memory_root = self.repo_root / "memory"
-        self.system_dir = self.memory_root / "system"
+        self.system_dir = self.memory_root / "bank" / "system"
         if WIZARD_AVAILABLE and MonitoringManager:
             self.monitoring = MonitoringManager()
         else:
@@ -55,8 +55,26 @@ class SystemScriptRunner:
         self.template_dir = self.repo_root / self.SCRIPT_TEMPLATE_DIR
         self.todo_reminder = get_reminder_service()
 
+        # Migrate old scripts from memory/system to memory/bank/system
+        self._migrate_old_scripts()
+
         # Seed system scripts on first run
         self._seed_system_scripts()
+
+    def _migrate_old_scripts(self) -> None:
+        """Migrate scripts from old memory/system to new memory/bank/system location."""
+        old_system_dir = self.memory_root / "system"
+        if old_system_dir.exists() and old_system_dir.is_dir():
+            for script_name in ["startup-script.md", "reboot-script.md"]:
+                old_script = old_system_dir / script_name
+                if old_script.exists():
+                    new_script = self.system_dir / script_name
+                    if not new_script.exists():
+                        try:
+                            shutil.move(str(old_script), str(new_script))
+                            logger.info(f"[MIGRATION] Moved {script_name} to memory/bank/system/")
+                        except Exception as exc:
+                            logger.warning(f"[MIGRATION] Failed to move {script_name}: {exc}")
 
     def _seed_system_scripts(self) -> None:
         """Seed system scripts from templates if they don't exist."""

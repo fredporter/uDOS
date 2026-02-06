@@ -92,7 +92,7 @@ def display_secret_with_instructions(secret: str, wizard_url: str = "http://loca
 
 def save_to_temp_file(secret: str) -> Path:
     """Save secret to a temporary file for easy copying."""
-    temp_dir = Path(__file__).parent.parent.parent / "memory" / "private"
+    temp_dir = Path(__file__).parent.parent.parent / "memory" / "bank" / "private"
     temp_dir.mkdir(parents=True, exist_ok=True)
 
     temp_file = temp_dir / f"github-webhook-secret-{datetime.now().strftime('%Y%m%d-%H%M%S')}.txt"

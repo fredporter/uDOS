@@ -20,7 +20,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from pydantic import BaseModel
 
 from wizard.services.contribution_service import ContributionService
-from wizard.services.path_utils import get_repo_root, get_vault_md_root
+from wizard.services.path_utils import get_repo_root
 from wizard.services.permission_guard import require_role
 from wizard.services.spatial_parser import scan_vault_places
 from wizard.services.spatial_store import get_spatial_db_path, fetch_spatial_rows
@@ -34,7 +34,7 @@ def _themes_root() -> Path:
 
 
 def _vault_root() -> Path:
-    return get_vault_md_root()
+    return get_repo_root() / "vault"
 
 
 def _site_root() -> Path:

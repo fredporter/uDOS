@@ -30,7 +30,7 @@ class ThemeService:
         else:
             self.memory_root = self.repo_root / "memory"
 
-        self.theme_dir = self.memory_root / "system" / "themes"
+        self.theme_dir = self.memory_root / "bank" / "system" / "themes"
         self.seed_dir = self.repo_root / self.SEED_DIR
         self.theme_dir.mkdir(parents=True, exist_ok=True)
         self._seed_templates()

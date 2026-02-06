@@ -21,7 +21,7 @@ from core.services.todo_service import (
     get_service,
 )
 from wizard.services.task_scheduler import TaskScheduler
-from wizard.services.path_utils import get_repo_root, get_vault_md_root
+from wizard.services.path_utils import get_repo_root
 
 AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
 
@@ -36,7 +36,7 @@ def create_task_routes(auth_guard: AuthGuard = None) -> APIRouter:
     reminder_service = get_reminder_service(todo_manager)
 
     def _vault_root() -> Path:
-        return get_vault_md_root()
+        return get_repo_root() / "vault"
 
     def _tasks_db_path() -> Path:
         return _vault_root() / ".udos" / "state.db"

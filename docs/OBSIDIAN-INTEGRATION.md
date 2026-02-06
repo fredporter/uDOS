@@ -1,11 +1,7 @@
 # uDOS + Obsidian Integration Guide
 
 **Version:** v1.3  
-**Updated:** 2026-02-06
-
-> **⚠️ PATH UPDATE:** References to `memory/bank/` in older docs should be updated to:
-> - User vault: `vault-md/` or `~/Documents/uDOS Vault/`
-> - System templates: `memory/system/`
+**Updated:** 2026-02-05
 
 ---
 
@@ -41,7 +37,7 @@ Download from [obsidian.md](https://obsidian.md)
 In Obsidian:
 1. Click "Open folder as vault"
 2. Navigate to your uDOS vault location:
-   - Default: `~/Documents/uDOS Vault/` (vault-md)
+   - Default: `~/Documents/uDOS/memory/user/`
    - Or your custom vault location
 
 ### 3. Start Using Both
@@ -74,18 +70,18 @@ Both apps share the same files in real-time!
 ## Vault Structure
 
 ```
-~/Documents/uDOS Vault/    # vault-md (local docs vault)
-├── bank/                  # Primary knowledge store
-├── inbox-dropbox/         # Intake/imports
-├── sandbox/               # Drafts & experiments
-├── public-open-published/ # Public/published content
-├── private-explicit/      # Explicit private shares
-├── private-shared/        # Proximity-verified shares
-├── 05_DATA/sqlite/        # Local indices (tasks/workflow)
-└── _site/                 # Static HTML exports
+memory/user/               # Your personal vault
+├── daily/                 # Daily notes
+├── projects/              # Project folders
+├── templates/             # Note templates
+├── scripts/               # Executable scripts
+└── ...
+
+memory/bank/               # System knowledge base
+memory/binders/            # Structured containers
 ```
 
-**Tip:** Use Obsidian's template system with vault-md templates for consistent workflows.
+**Tip:** Use Obsidian's template system with uDOS script templates for powerful workflows.
 
 ---
 

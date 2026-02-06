@@ -29,7 +29,6 @@ from core.commands import (
     WizardHandler,
     PatternHandler,
     SonicHandler,
-    SonicPluginHandler,
     MusicHandler,
     BinderHandler,
     RunHandler,
@@ -92,7 +91,6 @@ class CommandDispatcher:
             "UID": UIDHandler(),  # User ID management
             "PATTERN": PatternHandler(),
             "SONIC": SonicHandler(),
-            "SONIC+": SonicPluginHandler(),
             "MUSIC": MusicHandler(),
             "DEV MODE": DevModeHandler(),
             "DEV": DevModeHandler(),  # Shortcut for DEV MODE

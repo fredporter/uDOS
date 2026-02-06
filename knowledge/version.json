@@ -1,0 +1,31 @@
+{
+  "$schema": "../core/version.schema.json",
+  "component": "knowledge",
+  "name": "uDOS Knowledge Bank",
+  "version": {
+    "major": 1,
+    "minor": 1,
+    "patch": 0
+  },
+  "display": "v1.1.0",
+  "channel": "alpha",
+  "released": "2026-01-30",
+  "description": "Geography-linked knowledge - City & celestial GUIDEs with TILE coordinates + Astronomy & World Mapping System",
+  "changelog": "dev/roadmap/CHANGELOG-knowledge.md",
+  "dependencies": {},
+  "metadata": {
+    "categories": 18,
+    "guides": 249,
+    "format": "markdown",
+    "last_updated": "2026-01-30T00:00:00Z",
+    "contributors": [
+      "Fred Porter"
+    ],
+    "places": {
+      "cities": 4,
+      "planets": 2,
+      "total": 6
+    }
+  },
+  "versioning_note": "Knowledge uses timestamp/contributor updates rather than semantic versioning"
+}

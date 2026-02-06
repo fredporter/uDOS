@@ -1,6 +1,6 @@
 # uDOS v1.3 — Wizard AI Modes + Local Model Defaults (Short Spec)
 
-**Status:** Implemented
+**Status:** Draft
 **Scope:** Wizard AI gateway + Core access
 
 ## 1) Goals
@@ -71,3 +71,4 @@ Hard rules:
 - `/api/ai/complete` supports `mode` + `conversation_id`.
 - Wizard applies prompt templates + temperature presets.
 - Core uses `/api/ai/complete` for all assistant calls (no direct cloud).
+

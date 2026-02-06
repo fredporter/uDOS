@@ -1,9 +1,5 @@
 # TUI Setup Story ↔ Vibe CLI Integration
 
-> **⚠️ LEGACY PATHS:** References to `memory/bank/system/` and `core/framework/seed/bank/` are now:
-> - `memory/system/` for system templates
-> - `core/framework/seed/` for seed data
-
 > **See also:** [specs/UCODE-PROMPT-SPEC.md](specs/UCODE-PROMPT-SPEC.md) for the uCODE prompt contract (OK/: commands, slash routing, dynamic autocomplete).
 
 This note ensures the new v1.3 architecture keeps the existing `.env` + Wizard keystore boundary alive while letting the Core TUI setup story speak the same IO language as the Vibe CLI (the interactive agent console referenced in `docs/uDOS-v1-3.md`).
@@ -22,9 +18,6 @@ This note ensures the new v1.3 architecture keeps the existing `.env` + Wizard k
 - The new `Vibe CLI` agent console is also a runner (see `docs/uDOS-v1-3.md:175-194` and `docs/AI-Policy-Contract.md`), so the setup story should expose its prompts via the shared `Vibe CLI IO` channel:
   - Wrap each question in the story with `vibe_input`/`vibe_output` envelopes so the CLI can replay them when operating headlessly or when the mission scheduler (Vibe) re-runs the onboarding content.
   - Provide `story.get_prompt()`/`story.submit_response()` hooks in `core/tui/story_form_handler.py` so both the traditional TUI and Vibe CLI (via the `wizard/extensions/assistant/vibe_cli_service.py`) can drive the same conversation.
-
-**Implementation note (current):**
-- `core/tui/story_form_handler.py` includes `StoryFormSession` with `get_prompt()` and `submit_response()` returning `vibe_input`/`vibe_output` envelopes for headless runners.
 - When the story finishes, it should write a manifest (e.g., `memory/logs/setup-story.json`) that lists:
   - `.env` updates applied
   - Keystore entries recorded

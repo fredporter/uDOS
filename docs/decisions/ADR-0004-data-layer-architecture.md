@@ -1,178 +1,218 @@
 # ADR-0004: Data Layer Architecture
 
-**Status:** APPROVED  
+**Status:** PROPOSED  
 **Date:** 2026-01-29  
-**Updated:** 2026-02-06  
 **Author:** uDOS Engineering  
-**Scope:** Data organization, storage layers, distribution model, vault-first design
+**Scope:** Data organization, storage layers, distribution model
 
 ---
 
 ## Context
 
-uDOS follows a **vault-first, offline-local** architecture:
-1. **Markdown is truth** — All content lives as `.md` files + assets on disk
-2. **Vault-first** — Main vault at `~/Documents/uDOS Vault/` (not in repo)
-3. **Seed data** in `/memory/system/` — Framework bootstrap templates (tracked)
-4. **Local memory** in `/memory/` — User data, logs, secrets (gitignored)
-5. **Public docs** in `/docs/` and `/wiki/` — Distributed via git (no `/knowledge/`)
-6. **P2P sync** — User-to-user sharing via MeshCore, NFC, QR, Audio (not git)
+uDOS needs a clear data architecture that supports:
+1. **Consistent formats** across all layers
+2. **Distributable public content** (base layers)
+3. **User-customized layers** in `/memory/` (not synced with git)
+4. **Optional user-to-user sync** (P2P, not via git)
+5. **Processing of extended `.md` script format** in Core
+6. **Support for tables and databases** (JSON → SQLite migration path)
 
-### Current State (Problems Solved)
+### Current State (Problems)
 
-| Layer | Location | Status |
-|-------|----------|--------|
-| Framework | `/core/framework/` | ✅ Centralized schemas, templates, seeds |
-| Docs | `/docs/`, `/wiki/` | ✅ Versioned reference only |
-| User Vault | `~/Documents/uDOS Vault/` | ✅ Private/shared/submissions/publication |
-| System Seeds | `/memory/system/` | ✅ Implemented in v1.3 |
-| Local Data | `/memory/logs`, `/memory/private`, `/memory/user`, etc. | ✅ Gitignored |
+| Location | Contents | Issues |
+|----------|----------|--------|
+| `/core/data/` | timezones.json (4KB) | Inconsistent placement |
+| `/core/locations*.json` | Location data (60KB+) | Growing, needs structure |
+| `/knowledge/` | Mixed: guides, checklists, places, runtime | Needs cleanup—should be static only |
+| `/memory/` | User data, logs | Needs `bank/` structure for templates |
 
 ---
 
 ## Decision
 
-### 1. Four-Tier Data Model
+### 1. Three-Tier Data Model
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                    VAULT-FIRST ARCHITECTURE                       │
-├──────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  TIER 1: FRAMEWORK (Public, Git-Distributed)                     │
-│  ──────────────────────────────────────────                      │
-│  /core/framework/                                                 │
-│    ├── schemas/          # JSON schemas for validation            │
-│    │   ├── location.schema.json                                   │
-│    │   ├── binder.schema.json                                     │
-│    │   └── knowledge.schema.json                                  │
-│    ├── templates/        # Default templates                      │
-│    │   ├── location-template.json                                 │
-│    │   ├── binder-template.json                                   │
-│    │   └── knowledge-entry.md                                     │
-│    └── seed/             # Minimal seed data (examples)           │
-│        ├── locations-seed.json     (< 10KB)                       │
-│        └── timezones-seed.json     (< 5KB)                        │
-│                                                                   │
-│  TIER 2: DOCS (Public, Git-Distributed)                          │
-│  ─────────────────────────────────────────────────               │
-│  /docs/                                                          │
-│  /wiki/                                                          │
-│                                                                   │
-│  TIER 3: SYSTEM SEEDS (Tracked Templates, Local)                 │
-│  ────────────────────────────────────────────────                │
-│  /memory/system/                                                  │
-│    ├── startup-script.md        # System startup hooks            │
-│    ├── reboot-script.md         # Reboot hooks                    │
-│    ├── locations/               # Seed location data              │
-│    │   ├── locations-seed.json  # Initial location data           │
-│    │   └── timezones-seed.json  # Timezone mappings               │
-│    └── themes/                  # Default theme packs             │
-│        └── prose/               # Tailwind prose theme            │
-│                                                                   │
-│  TIER 4: LOCAL DATA (User, Gitignored)                           │
-│  ──────────────────────────────────────                          │
-│  /memory/                                                         │
-│    ├── private/          # User secrets (never commit)            │
-│    │   ├── wizard_secret_store.key                                │
-│    │   ├── github-webhook-secret.txt                              │
-│    │   └── current_user.txt                                       │
-│    ├── user/             # User credentials  (gitignored)         │
-│    │   ├── gmail_credentials.json                                 │
-│    │   └── .gmail_token.enc                                       │
-│    ├── logs/             # Runtime logs                           │
-│    │   ├── monitoring/   # Health checks, audits                  │
-│    │   └── quotas/       # Provider quota snapshots               │
-│    ├── story/            # User workflows                         │
-│    ├── sandbox/          # Drafts & experiments                   │
-│    ├── wizard/           # Wizard daemon state                    │
-│    └── [other]/          # User projects                          │
-│                                                                   │
-│  TIER 5: VAULT-MD (User's Main Vault, External)                  │
-│  ──────────────────────────────────────────────────              │
-│  ~/Documents/uDOS Vault/ (Obsidian-compatible, not in repo)      │
-│    ├── bank/             # Primary knowledge store                │
-│    │   ├── personal.md   # User notes                             │
-│    │   └── [...].md      # User curated content                   │
-│    ├── sandbox/          # Drafts & experiments                   │
-│    ├── inbox/            # Intake/imports                         │
-│    ├── public-open/      # Public/published content               │
-│    │   └── submissions/  # Contribution intake                    │
-│    ├── private-explicit/ # Explicit private shares                │
-│    ├── private-shared/   # Proximity-verified shares              │
-│    ├── 05_DATA/          # User data & indexes                    │
-│    │   └── sqlite/       # Task/workflow databases                │
-│    └── _site/            # Static HTML exports (theme/)           │
-│        ├── prose/        # Rendered Markdown (default theme)      │
-│        └── [theme]/      # Other theme exports                    │
-│                                                                   │
-└──────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                    DATA LAYER ARCHITECTURE                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  TIER 1: FRAMEWORK (Public, Distributed via Git)                │
+│  ─────────────────────────────────────────────────              │
+│  /core/framework/                                                │
+│    ├── schemas/          # JSON schemas for validation          │
+│    │   ├── location.schema.json                                 │
+│    │   ├── binder.schema.json                                   │
+│    │   └── knowledge.schema.json                                │
+│    ├── templates/        # Default templates                    │
+│    │   ├── location-template.json                               │
+│    │   ├── binder-template.json                                 │
+│    │   └── knowledge-entry.md                                   │
+│    └── seed/             # Minimal seed data (examples)         │
+│        ├── locations-seed.json     (< 10KB)                     │
+│        └── timezones-seed.json     (< 5KB)                      │
+│                                                                  │
+│  TIER 2: KNOWLEDGE (Public, Static Reference Library)           │
+│  ─────────────────────────────────────────────────              │
+│  /knowledge/                                                     │
+│    ├── guides/           # How-to guides (static .md)           │
+│    ├── reference/        # Technical reference (static .md)     │
+│    ├── places/           # Geographic knowledge (static .md)    │
+│    │   ├── cities/       # City guides (tokyo.md, etc.)         │
+│    │   ├── landmarks/    # Famous places                        │
+│    │   └── regions/      # Geographic regions                   │
+│    ├── skills/           # Survival/practical skills            │
+│    └── _index.json       # Catalog of all knowledge entries     │
+│                                                                  │
+│  TIER 3: BANK (User Data, Local/Syncable)                       │
+│  ─────────────────────────────────────────────────              │
+│  /memory/bank/                                                   │
+│    ├── system/           # System scripts (tracked as templates)│
+│    │   ├── startup-script.md                                    │
+│    │   └── reboot-script.md                                     │
+│    ├── locations/        # User location data (extended)        │
+│    │   ├── locations.json      # Full location database         │
+│    │   ├── timezones.json      # Full timezone mappings         │
+│    │   ├── user-locations.json # User-added locations           │
+│    │   └── locations.db        # SQLite when > 500KB            │
+│    ├── knowledge/        # User knowledge additions             │
+│    │   ├── personal/     # User notes                           │
+│    │   └── imported/     # Downloaded content                   │
+│                                                                  │
+│  /memory/logs/                                                   │
+│    ├── monitoring/       # Health checks, audits, alerts         │
+│    └── quotas/           # Provider quota snapshots              │
+│                                                                  │
+│  /memory/sandbox/                                               │
+│    └── binders/          # User binder projects (sandbox)        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### 2. Vault-MD Role (User's Obsidian Vault)
+### 2. JSON → SQLite Migration Threshold
 
-The **vault-md** at `~/Documents/uDOS Vault/` is the **user's primary knowledge store**, handling:
+**Rule:** Migrate JSON to SQLite when file exceeds **500KB** or **1000 records**.
 
-| Feature | Location | Sync Method |
-|---------|----------|-------------|
-| **Private content** | `vault/private-explicit/` | Manual, encrypted P2P |
-| **Shared content** | `vault/private-shared/` | NFC, Bluetooth (proximity-verified) |
-| **Submissions** | `vault/public-open/submissions/` | QR code, MeshCore |
-| **Published docs** | `vault/public-open/` | Static export to Wizard |
-| **User notes** | `vault-md/` | Local only, optional backup |
-| **Task database** | `vault/05_DATA/sqlite/` | Optional, local SQLite |
-| **Rendered output** | `vault/_site/{theme}/` | Static HTML, served by Wizard |
+| Data Type | Current Size | Format | Action |
+|-----------|--------------|--------|--------|
+| timezones.json | 4KB | JSON | Keep as JSON |
+| locations.json | 60KB | JSON | Keep as JSON (monitor) |
+| locations-full | 35KB | JSON | Keep as JSON |
+| User locations | Variable | JSON | Migrate at 500KB |
 
-**Important:** This vault is **NOT in the repo** and remains readable without uDOS installed.
-
----
-
-### 3. Docs + Vault-MD Organization
-
-**Current rule:** Local docs live in **vault-md** at `~/Documents/uDOS Vault/` (system Documents folder).  
-Public reference docs live in `docs/` and `wiki/` (repo-tracked).
-
-**Change:** Docs previously staged in `/memory/` or `/knowledge/` are now consolidated into vault-md or `docs/`/`wiki/`. The `/knowledge/` directory is no longer part of the active architecture.
-
-**Vault-MD structure (local):**
+**Migration Path:**
 ```
-~/Documents/uDOS Vault/
-├── bank/
-├── inbox-dropbox/
-├── sandbox/
-├── public-open-published/
-├── private-explicit/
-├── private-shared/
-├── 05_DATA/sqlite/
-└── _site/
+locations.json (< 500KB)  →  locations.db (≥ 500KB)
+                              ├── table: locations
+                              ├── table: timezones
+                              ├── table: connections
+                              └── table: user_additions
 ```
 
 ---
 
-### 4. Location Data Linking
+### 3. Knowledge Directory Cleanup
 
-**Vault-MD → Location Data Flow:**
+**REMOVE from `/knowledge/`:** (Move to appropriate tier)
+
+| Current | Move To | Reason |
+|---------|---------|--------|
+| `checklists/` | `/memory/bank/checklists/` | Runtime/user data |
+| Runtime scripts | `/core/` or `/memory/bank/system/` | Not static knowledge |
+| User templates | `/core/framework/templates/` | Framework component |
+
+**KEEP in `/knowledge/`:** (Static reference only)
+
+- `guides/` — How-to documentation
+- `reference/` — Technical reference
+- `places/` — Geographic knowledge (Markdown descriptions)
+- `skills/` — Survival/practical skills
+- `survival/`, `food/`, `water/`, `shelter/` — Emergency knowledge
+
+**NEW Structure:**
 ```
-~/Documents/uDOS Vault/01_KNOWLEDGE/places/cities/tokyo.md
+/knowledge/
+├── _index.json              # Catalog with tags, categories
+├── README.md
+│
+├── guides/                  # How-to guides
+│   ├── getting-started.md
+│   └── command-reference.md
+│
+├── reference/               # Technical reference
+│   ├── ucODE-syntax.md
+│   └── transport-policy.md
+│
+├── places/                  # Geographic knowledge
+│   ├── _index.json          # Place catalog with coordinates
+│   ├── cities/              # City descriptions
+│   ├── landmarks/           # Famous places
+│   └── regions/             # Geographic regions
+│
+├── skills/                  # Practical skills
+│   ├── survival/
+│   ├── navigation/
+│   └── communication/
+│
+└── emergency/               # Critical offline knowledge
+    ├── first-aid/
+    ├── shelter/
+    └── water/
+```
+
+---
+
+### 4. Knowledge Entry Format (Frontmatter Tags)
+
+Every `.md` file in `/knowledge/` should have:
+
+```yaml
+---
+title: "Tokyo City Guide"
+id: tokyo-guide
+type: place           # guide | reference | place | skill | emergency
+category: cities
+region: asia
+tags: [japan, asia, megacity, technology]
+location_id: L300-BB00      # Link to location data
+coordinates: [35.6762, 139.6503]
+last_updated: 2026-01-29
+version: 1.0.0
+---
+```
+
+**Tag Categories:**
+- `type`: guide, reference, place, skill, emergency
+- `category`: cities, landmarks, regions, survival, navigation, etc.
+- `region`: asia, europe, americas, africa, oceania, space, etc.
+- `tags`: freeform keywords for search
+
+---
+
+### 5. Location Data Linking
+
+**Knowledge → Location Data Flow:**
+```
+/knowledge/places/cities/tokyo.md
   └── frontmatter: location_id: L300-BB00
         ↓
-/vault-md/bank/locations/locations.json
+/memory/bank/locations/locations.json
   └── { "id": "L300-BB00", "name": "Tokyo Metropolitan", ... }
         ↓
-/vault-md/bank/locations/timezones.json
+/memory/bank/locations/timezones.json
   └── "L300-BB00": "Asia/Tokyo"
 ```
 
 **Runtime Resolution:**
-1. User queries vault-md knowledge → Get `location_id` from frontmatter
-2. Lookup location data in vault-md/bank → Get coordinates, connections
+1. User queries knowledge → Get `location_id` from frontmatter
+2. Lookup location data in bank → Get coordinates, connections
 3. Display combined rich information
 
 ---
 
-### 5. Distribution Model
+### 6. Distribution Model
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -182,8 +222,8 @@ Public reference docs live in `docs/` and `wiki/` (repo-tracked).
 │  PUBLIC (Git Distributed):                                      │
 │  ────────────────────────                                       │
 │  /core/framework/       → Schemas, templates, seed data         │
-│  /docs/                → Engineering documentation             │
-│  /wiki/                → User documentation                    │
+│  /knowledge/            → Static reference library              │
+│  /docs/                 → Engineering documentation             │
 │                                                                 │
 │  PRIVATE (Git Submodule):                                       │
 │  ─────────────────────────                                      │
@@ -193,20 +233,22 @@ Public reference docs live in `docs/` and `wiki/` (repo-tracked).
 │  ───────────────────                                            │
 │  /memory/               → User data, logs, credentials          │
 │    EXCEPT:                                                      │
-│    /memory/system/*.md  → Templates (tracked)                   │
+│    /memory/bank/system/*.md  → Templates (tracked)              │
 │                                                                 │
 │  SYNCABLE (P2P, Not Git):                                       │
 │  ────────────────────────                                       │
-│  /vault-md/bank/locations/   → Via MeshCore/QR/Audio transport  │
-│  ~/Documents/uDOS Vault/01_KNOWLEDGE/ → Via MeshCore/QR/Audio transport │
-│  /vault-md/bank/binders/     → Via MeshCore/QR/Audio transport  │
+│  /memory/bank/locations/     → Via MeshCore/QR/Audio transport  │
+│  /memory/bank/knowledge/     → Via MeshCore/QR/Audio transport  │
+│  /memory/bank/binders/public/ → Via MeshCore/QR/Audio transport │
+│  /memory/bank/binders/shared/ → Via MeshCore/QR/Audio transport │
+│  /memory/bank/binders/submit/ → Via MeshCore/QR/Audio transport │
 │                                                                 │
 └────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### 6. File Migration Plan
+### 7. File Migration Plan
 
 **Phase 1: Create Framework Structure**
 ```bash
@@ -226,26 +268,32 @@ mv core/location.example.json core/framework/seed/
 # Create minimal seed from locations.json (first 10 entries)
 ```
 
-**Phase 3: Setup Vault Structure**
+**Phase 3: Setup Bank Structure**
 ```bash
-mkdir -p vault-md/bank/locations
-mkdir -p vault-md/bank/spatial
-mkdir -p vault-md/bank/binders
+mkdir -p memory/bank/locations
+mkdir -p memory/bank/knowledge/personal
+mkdir -p memory/bank/knowledge/imported
+mkdir -p memory/bank/checklists
 
-# Move runtime location data to vault
-# (Legacy: data previously in memory/bank/locations/)
+# Move runtime location data to bank
+mv core/locations.json memory/bank/locations/
+mv core/data/timezones.json memory/bank/locations/
+
+# Create symlink or copy seed on first run
 ```
 
-**Phase 4: Vault-MD Knowledge Setup**
+**Phase 4: Cleanup Knowledge**
 ```bash
-# Vault-MD knowledge paths (local docs vault)
-mkdir -p ~/Documents/uDOS\\ Vault/01_KNOWLEDGE
-mkdir -p ~/Documents/uDOS\\ Vault/01_KNOWLEDGE/places
+# Move checklists to bank
+mv knowledge/checklists memory/bank/
+
+# Create _index.json catalog
+# Add frontmatter to all .md files
 ```
 
 ---
 
-### 7. Consistent Formats
+### 8. Consistent Formats
 
 | Data Type | Primary Format | When to Use | Migration |
 |-----------|----------------|-------------|-----------|
@@ -254,14 +302,14 @@ mkdir -p ~/Documents/uDOS\\ Vault/01_KNOWLEDGE/places
 | Seed Data | `.json` (< 10KB) | Framework distribution | — |
 | Location Data | `.json` (< 500KB) | Runtime data | → SQLite |
 | Location Data | `.db` (≥ 500KB) | Large datasets | Final |
-| Vault-MD Notes | `.md` with frontmatter | Local knowledge | — |
+| Knowledge | `.md` with frontmatter | Static reference | — |
 | User Data | `.json` or `.db` | User additions | → SQLite |
 | Scripts | `-script.md` | Executable uCODE | — |
 | Binders | `.binder/` folder | Document projects | — |
 
 ---
 
-### 8. Extended .md Script Support
+### 9. Extended .md Script Support
 
 **Core should process these script formats:**
 
@@ -298,20 +346,20 @@ SELECT * FROM locations WHERE layer = 300 LIMIT 10;
 ## Consequences
 
 ### Benefits
-1. **Clear separation** between framework, vault-md, and local runtime data
+1. **Clear separation** between framework, knowledge, and user data
 2. **Consistent distribution** model across all installations
 3. **Scalable storage** with JSON → SQLite migration path
 4. **P2P syncable** user data without touching git
-5. **Maintainable** vault-md docs with consistent structure
+5. **Maintainable** knowledge base with proper tagging
 
 ### Trade-offs
 1. **Migration effort** — Need to move existing files
-2. **Two location lookups** — Vault-MD → Location data resolution
+2. **Two location lookups** — Knowledge → Location data resolution
 3. **Symlink management** — Seed data copied on first run
 
 ### Risks
 1. **Breaking existing paths** — Need compatibility layer during migration
-2. **Vault-MD catalog maintenance** — indexes must be kept updated
+2. **Knowledge catalog maintenance** — _index.json must be kept updated
 
 ---
 
@@ -322,12 +370,12 @@ SELECT * FROM locations WHERE layer = 300 LIMIT 10;
 | 1 | Create `/core/framework/` structure | 30 min | HIGH |
 | 2 | Move schemas and templates | 30 min | HIGH |
 | 3 | Create seed data (minimal) | 1 hour | HIGH |
-| 4 | Setup `/vault-md/bank/` | 30 min | HIGH |
-| 5 | Setup vault-md structure | 1 hour | MEDIUM |
-| 6 | Add frontmatter to vault-md docs | 2 hours | MEDIUM |
+| 4 | Setup `/memory/bank/locations/` | 30 min | HIGH |
+| 5 | Cleanup `/knowledge/` | 2 hours | MEDIUM |
+| 6 | Add frontmatter to knowledge .md files | 2 hours | MEDIUM |
 | 7 | Create `_index.json` catalogs | 1 hour | MEDIUM |
 | 8 | Implement JSON → SQLite migration | 4 hours | LOW |
-| 9 | P2P sync for vault-md data | 8 hours | FUTURE |
+| 9 | P2P sync for bank data | 8 hours | FUTURE |
 
 ---
 
@@ -335,16 +383,17 @@ SELECT * FROM locations WHERE layer = 300 LIMIT 10;
 
 | Question | Decision |
 |----------|----------|
-| Move data files to vault? | **YES** — `/vault-md/bank/` for user data, `/memory/system/` for system templates |
-| Include templates in public repo? | **YES** — `/memory/system/` templates tracked in git |
-| Consolidate to `/core/data/`? | **NO** — Split into system (tracked) and vault (local) |
-| Move location data to vault? | **YES** — Full location/timezone data goes to `/vault-md/bank/locations/` |
+| Move `/data/` to `/memory/bank/system/`? | **NO** — Move to `/core/framework/` for schemas/templates, `/memory/bank/locations/` for runtime data |
+| Include templates in public repo? | **YES** — `/core/framework/templates/` and `/core/framework/seed/` |
+| Consolidate to `/core/data/`? | **NO** — Split into framework (public) and bank (local) |
+| Move location data to `/memory/bank/`? | **YES** — Full location/timezone data goes to `/memory/bank/locations/` |
 | Keep location data in `/core/`? | **PARTIAL** — Only minimal seed data in `/core/framework/seed/` |
-| Link to vault-md? | **YES** — Via `location_id` in frontmatter |
-| Keep `/knowledge/`? | **NO** — Deprecated in favor of vault-md |
+| Link to `/knowledge/`? | **YES** — Via `location_id` in frontmatter |
+| Cleanup `/knowledge/`? | **YES** — Static knowledge only, no runtime/checklists/templates |
 | JSON size threshold for SQLite? | **500KB** or **1000 records** |
 
 ---
 
 **Status:** Ready for Review  
 **Next Step:** Approve and begin Phase 1 implementation
+

@@ -6,7 +6,7 @@ usage() {
 Usage: migrate-v1.2-to-v1.3.sh [--source <path>] [--dest <path>] [--apply]
 
 Defaults:
-  --source: ./vault-md (if present) or ~/Documents/uDOS Vault
+  --source: ./memory/bank (if present) or ~/memory/bank
   --dest:   ~/Documents/uDOS Vault
 
 Behavior:
@@ -38,10 +38,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$SOURCE" ]]; then
-  if [[ -d "vault-md" ]]; then
-    SOURCE="vault-md"
-  elif [[ -d "$HOME/Documents/uDOS Vault" ]]; then
-    SOURCE="$HOME/Documents/uDOS Vault"
+  if [[ -d "memory/bank" ]]; then
+    SOURCE="memory/bank"
+  elif [[ -d "$HOME/memory/bank" ]]; then
+    SOURCE="$HOME/memory/bank"
   fi
 fi
 
@@ -62,7 +62,7 @@ REPORT="migration-report-${TIMESTAMP}.txt"
 
   if [[ -z "${SOURCE}" || ! -d "${SOURCE}" ]]; then
     echo "ERROR: Source directory not found."
-    echo "Provide --source <path> to your v1.2 vault or vault-md directory."
+    echo "Provide --source <path> to your v1.2 vault or memory/bank."
     exit 2
   fi
 

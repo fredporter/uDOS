@@ -155,13 +155,7 @@ memory/sonic/
   ├── sonic-devices.db        # Runtime device database
   ├── sync.log                # Sync operations log
   └── flash_packs/            # Flash pack storage
-      └── {pack_id}/flash-pack.json  # Individual flash packs
-```
-
-### Flash Pack Templates
-```
-sonic/config/flash-packs/
-  └── windows10-entertainment.json
+      └── {pack_id}.json      # Individual flash packs
 ```
 
 ### Existing Source Paths

@@ -37,7 +37,7 @@ Phase 0 — Stabilise current /app/
 
 Goal: make the current app runnable with a real vault path and no assumptions about being inside /udos.
 	1.	Add “Vault Path” concept everywhere
-	•	Default vault path for Mac: ~/Documents/uDOS Vault (vault-md, create on first run)
+	•	Default vault path for Mac: ~/Documents/uDOS Vault (create on first run)
 	•	Allow picking any folder (Tauri dialog)
 	•	Store the chosen path in app settings (Tauri store)
 	2.	Make the vault external by design

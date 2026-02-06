@@ -25,7 +25,7 @@ from core.services.logging_service import get_logger
 logger = get_logger("location_migration")
 
 SPATIAL_SCHEMA_PATH = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "schema.sql"
-MEMORY_SPATIAL_DIR = Path("vault-md") / "bank" / "spatial"
+MEMORY_SPATIAL_DIR = Path("memory") / "bank" / "spatial"
 DEFAULT_ANCHOR_REGISTRY = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "anchors.default.json"
 
 PLACE_REF_RE = re.compile(r"^(?P<anchor>[^:]+)(?::(?P<subanchor>[^:]+))?:(?P<space>SUR|UDN|SUB):(?P<loc>L\d{3}-[A-Z]{2}\d{2})(?::D(?P<depth>\d+))?(?::I(?P<instance>.+))?$")
@@ -71,11 +71,11 @@ class LocationMigrator:
 
         Args:
             data_dir: Path to location data directory
-                     (defaults to vault-md/bank/locations/)
+                     (defaults to memory/bank/locations/)
         """
         if data_dir is None:
-            # Try: vault-md/bank/locations/
-            data_dir = Path("vault-md/bank/locations")
+            # Try: memory/bank/locations/
+            data_dir = Path("memory/bank/locations")
             if not data_dir.exists():
                 # Fallback to absolute path from root
                 root = Path(__file__).parent.parent.parent

@@ -1,7 +1,12 @@
 /**
- * uDOS Core entry exports.
+ * uDOS Core (placeholder)
+ * Deterministic transforms live here (md/json/sqlite/diff/render).
  *
- * Keep outputs stable and deterministic.
+ * Intentionally minimal scaffold — wire up your chosen libs:
+ * - Markdown parser (remark/markdown-it)
+ * - HTML templating for theme shells
+ * - SQLite (better-sqlite3/sqlite3)
+ *
+ * Keep outputs stable and testable.
  */
-
-export * from "./grid/index.js";
+console.log("udos-core scaffold: implement commands here.");

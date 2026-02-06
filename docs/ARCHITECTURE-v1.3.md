@@ -61,17 +61,7 @@
 
 ---
 
-## 6) Vault-MD (Local Docs Vault)
-**Location:** `~/Documents/uDOS Vault/` (system Documents folder)
-
-**Responsibilities**
-- Primary Markdown vault for user docs and knowledge.
-- Obsidian-compatible structure + exports.
-- External to repo (user-owned, local-first).
-
----
-
-## 7) Extensions + Containers
+## 6) Extensions + Containers
 **Location:** `library/`
 
 **Responsibilities**
@@ -80,11 +70,12 @@
 
 ---
 
-## 8) Silos + Bridges
+## 7) Silos + Bridges
 See `V1.3-FINAL-TRANSITION-PLAN.md` for the authoritative layout.
 
 ---
 
-## 9) Versioning + Release
+## 8) Versioning + Release
 - Manifest: `v1.3.0-release-manifest.yml`.
 - Version locks across Core + Wizard.
+

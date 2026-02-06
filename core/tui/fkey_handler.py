@@ -188,7 +188,7 @@ Write your content here...
         # List available workspaces
         workspaces = [
             ("@sandbox", "memory/sandbox", "User test area"),
-            ("@vault", "vault-md", "User vault"),
+            ("@bank", "memory/bank", "Saved data"),
             ("@shared", "memory/shared", "Shared with others"),
             ("@knowledge", "knowledge", "Knowledge bank"),
             ("@dev", "dev", "Development area (admin only)"),

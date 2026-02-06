@@ -109,7 +109,7 @@ class ShakedownHandler(BaseCommandHandler):
         # ===== Check 5: Memory Directories =====
         memory_dirs = [
             PROJECT_ROOT / "memory" / "logs",
-            PROJECT_ROOT / "memory" / "system",
+            PROJECT_ROOT / "memory" / "bank",
         ]
         missing_dirs = []
         for dir_path in memory_dirs:
@@ -379,8 +379,9 @@ class ShakedownHandler(BaseCommandHandler):
                 memory_root / "logs",
                 memory_root / "logs" / "monitoring",
                 memory_root / "logs" / "quotas",
-                memory_root / "system",
-                memory_root / "private",
+                memory_root / "bank",
+                memory_root / "bank" / "private",
+                memory_root / "bank" / "user",
                 memory_root / "sandbox",
                 memory_root / "sandbox" / "binders",
                 memory_root / "wizard",

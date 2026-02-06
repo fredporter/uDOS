@@ -20,7 +20,7 @@ uDOS/
 ├── extensions/    # Transport API contracts
 ├── docs/          # Architecture + specs
 ├── wiki/          # Beginner-friendly docs
-└── (vault-md)     # Local docs vault (external, ~/Documents/uDOS Vault)
+└── knowledge/     # Static knowledge catalog
 ```
 
 ---
@@ -72,16 +72,6 @@ uDOS/
 - Vault picker + editor
 - Local preview using Core runtime
 - Optional Wizard connection
-
----
-
-## Vault-MD (Local Docs Vault)
-**Location:** `~/Documents/uDOS Vault/` (system Documents folder)
-
-**Responsibilities**
-- Primary Markdown vault for user docs and knowledge.
-- Obsidian-compatible structure and exports.
-- External to the repo (user-owned, local-first).
 
 ---
 

@@ -18,10 +18,7 @@ type RenderCliOptions = RenderOptions & {
 
 function resolveDefaults(): CliOptions {
   const cwd = process.cwd();
-  const vaultRoot =
-    process.env.VAULT_MD_ROOT ??
-    process.env.VAULT_ROOT ??
-    path.resolve(cwd, "..", "vault");
+  const vaultRoot = process.env.VAULT_ROOT ?? path.resolve(cwd, "..", "vault");
   const themesRoot =
     process.env.THEMES_ROOT ?? path.resolve(cwd, "..", "themes");
   const outputRoot =

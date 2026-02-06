@@ -315,12 +315,12 @@ class uCODETUI:
         else:
             self.logger.info("[ContextualPrompt] Initialized with command suggestions")
 
-    def _ensure_system_seeds(self) -> None:
-        """Seed /memory/system files if they are missing."""
+    def _ensure_bank_system_seeds(self) -> None:
+        """Seed /memory/bank/system files if they are missing."""
         try:
             from core.framework.seed_installer import SeedInstaller
 
-            system_dir = self.repo_root / "memory" / "system"
+            system_dir = self.repo_root / "memory" / "bank" / "system"
             required = [
                 "startup-script.md",
                 "reboot-script.md",
@@ -330,12 +330,12 @@ class uCODETUI:
             missing = [name for name in required if not (system_dir / name).exists()]
             if missing:
                 installer = SeedInstaller()
-                installer.install_system_seeds(force=False)
+                installer.install_bank_seeds(force=False)
                 self.logger.info(
-                    f"[LOCAL] Seeded memory/system files: {', '.join(missing)}"
+                    f"[LOCAL] Seeded memory/bank/system files: {', '.join(missing)}"
                 )
         except Exception as e:
-            self.logger.warning(f"[LOCAL] System seed check failed: {e}")
+            self.logger.warning(f"[LOCAL] Bank/system seed check failed: {e}")
 
     def _handle_special_commands(self, command: str) -> bool:
         """Handle special REPL commands (EXIT/QUIT/STATUS/HISTORY)."""
@@ -651,16 +651,6 @@ class uCODETUI:
         """Show startup hints once at beginning."""
         if self.quiet:
             return
-        try:
-            from core.services.vault_md_validator import validate_vault_md
-
-            _, warnings = validate_vault_md()
-            if warnings:
-                print(self._theme_text("\n  ⚠ Vault-MD checks:"))
-                for line in warnings:
-                    print(self._theme_text(f"     - {line}"))
-        except Exception:
-            pass
         print(self._theme_text("\n  💡 Start with: SETUP (first-time) | HELP (all commands) | STORY tui-setup (quick setup)"))
         print(self._theme_text("     Or try: MAP | TELL location | GOTO location | WIZARD start"))
         print(self._theme_text("     Try: OK EXPLAIN <file> | OK LOCAL (local Vibe outputs)"))
@@ -805,51 +795,6 @@ class uCODETUI:
                 print("    ✅ Tests are running in the background as part of startup health checks.")
 
         print("-" * 60 + "\n")
-
-        self._prompt_health_actions()
-
-    def _prompt_health_actions(self) -> None:
-        """Prompt for REPAIR/RESTORE/DESTROY when health checks report issues."""
-        # Skip prompts for non-interactive or automation runs.
-        if self.quiet or os.getenv("UDOS_AUTOMATION") == "1":
-            return
-        has_self_heal_issue = False
-        has_test_failure = False
-
-        if self.self_heal_summary:
-            success = self.self_heal_summary.get("success", False)
-            remaining = self.self_heal_summary.get("remaining", 0)
-            if not success or remaining > 0:
-                has_self_heal_issue = True
-
-        if self.memory_test_summary:
-            result = (self.memory_test_summary.get("result") or "").lower()
-            if result in {"failed", "error"}:
-                has_test_failure = True
-
-        if not (has_self_heal_issue or has_test_failure):
-            return
-
-        try:
-            choice = input(
-                "Health check issues detected. Choose: REPAIR | RESTORE | DESTROY | SKIP: "
-            ).strip().upper()
-        except Exception:
-            return
-
-        if choice in {"", "SKIP"}:
-            return
-
-        if choice == "DESTROY":
-            try:
-                confirm = input("Type DESTROY to confirm reset: ").strip().upper()
-            except Exception:
-                return
-            if confirm != "DESTROY":
-                return
-
-        if choice in {"REPAIR", "RESTORE", "DESTROY"}:
-            self.dispatcher.dispatch(choice, parser=self.prompt)
 
     def _get_ai_modes_path(self) -> Path:
         """Return path to AI modes configuration."""
@@ -1451,7 +1396,7 @@ class uCODETUI:
                 import requests
 
                 # Get the token
-                token_path = self.repo_root / "memory" / "private" / "wizard_admin_token.txt"
+                token_path = self.repo_root / "memory" / "bank" / "private" / "wizard_admin_token.txt"
 
                 if token_path.exists():
                     token = token_path.read_text().strip()

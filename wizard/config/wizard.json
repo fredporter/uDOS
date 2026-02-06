@@ -24,8 +24,7 @@
   "icloud_enabled": true,
   "file_locations": {
     "memory_root": "memory",
-    "repo_root": "auto",
-    "vault_md_root": "~/Documents/uDOS Vault"
+    "repo_root": "auto"
   },
   "enabled_providers": ["github", "hubspot_cli", "hubspot"]
 }

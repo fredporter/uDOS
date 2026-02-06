@@ -17,7 +17,7 @@ from wizard.services.secret_store import get_secret_store, SecretEntry, SecretSt
 
 
 def _ensure_private_dir(repo_root: Path) -> Path:
-    private_dir = repo_root / "memory" / "private"
+    private_dir = repo_root / "memory" / "bank" / "private"
     private_dir.mkdir(parents=True, exist_ok=True)
     return private_dir
 
@@ -95,14 +95,14 @@ def main() -> None:
     init_parser = sub.add_parser("init-key", help="Generate a new secret store key")
     init_parser.add_argument(
         "--path",
-        default=str(repo_root / "memory" / "private" / "wizard_secret_store.key"),
+        default=str(repo_root / "memory" / "bank" / "private" / "wizard_secret_store.key"),
     )
 
     admin_parser = sub.add_parser("set-admin-token", help="Generate and store admin token")
     admin_parser.add_argument("--key-id", default="wizard-admin-token")
     admin_parser.add_argument(
         "--output",
-        default=str(repo_root / "memory" / "private" / "wizard_admin_token.txt"),
+        default=str(repo_root / "memory" / "bank" / "private" / "wizard_admin_token.txt"),
     )
     admin_parser.add_argument(
         "--init-if-missing",
