@@ -57,6 +57,24 @@ show_if:
   values: [admin, user]
 ```
 
+```story
+name: mistral_api_key
+label: Mistral API Key (optional)
+type: password
+required: false
+placeholder: "sk-..."
+help: "Optional. Enables Mistral online checks and stability fallback."
+```
+
+```story
+name: mistral_api_key
+label: Mistral API Key (optional)
+type: password
+required: false
+placeholder: "sk-..."
+help: "Optional. Enables Mistral online checks and stability fallback."
+```
+
 ---
 
 ## Time & Place

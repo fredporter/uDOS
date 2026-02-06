@@ -164,6 +164,23 @@ run_with_log() {
     local log_file="$log_dir/${name}.log"
     _udos_echo "${DIM}[udos] logging to ${log_file}${NC}"
 
+    if [ "$UDOS_NO_LOG" = "1" ]; then
+        "$@"
+        return $?
+    fi
+
+    if [ "$UDOS_TTY" = "1" ]; then
+        if command -v script >/dev/null 2>&1; then
+            # Preserve TTY for interactive UI while capturing output.
+            script -q "$log_file" "$@"
+            return $?
+        else
+            _udos_echo "${YELLOW}[WARN]${NC} script(1) not found; running without log to preserve TTY"
+            "$@"
+            return $?
+        fi
+    fi
+
     "$@" 2>&1 | tee -a "$log_file"
     return ${PIPESTATUS[0]}
 }
@@ -192,6 +209,12 @@ parse_common_flags() {
             --flag)
                 export UDOS_FLAG_MODE=1
                 _udos_echo "${CYAN}⚙️ Flag mode: enabling auto launcher hooks${NC}"
+                ;;
+            --tty)
+                export UDOS_TTY=1
+                ;;
+            --no-log)
+                export UDOS_NO_LOG=1
                 ;;
             --quiet|-q)
                 export UDOS_QUIET=1

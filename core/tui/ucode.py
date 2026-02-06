@@ -574,6 +574,7 @@ class uCODETUI:
 
         # Check if in ghost mode and prompt for setup
         self._check_ghost_mode()
+        self._show_first_run_ai_setup_hint()
 
         # Get current user role for status bar
         try:
@@ -691,6 +692,24 @@ class uCODETUI:
             print(self._theme_text(status_line))
         except Exception:
             pass
+
+    def _show_first_run_ai_setup_hint(self) -> None:
+        """Show a first-run hint for local AI setup."""
+        try:
+            if self.quiet:
+                return
+            # Only hint on first run: no identity configured yet.
+            from core.services.config_sync_service import ConfigSyncManager
+
+            identity = ConfigSyncManager().load_identity_from_env()
+            if identity.get("user_username"):
+                return
+        except Exception:
+            pass
+
+        print(self._theme_text("\n🧠 First-Run AI Setup"))
+        print(self._theme_text("  Run: SETUP  → add Mistral API key + local models"))
+        print(self._theme_text("  Check: :OFVIBE STATUS  (local) | :ONVIBE STATUS (cloud)\n"))
 
     def _show_banner(self) -> None:
         """Show startup banner."""
@@ -939,6 +958,10 @@ class uCODETUI:
                 lines.append("💡 Start Ollama: `ollama serve`")
             if issue == "missing model":
                 lines.append(f"💡 Pull model: `ollama pull {model}`")
+            if issue == "vibe-cli missing":
+                lines.append("💡 Install Vibe CLI: `pip install mistral-vibe`")
+            if issue in {"setup required", "ollama down", "missing model", "vibe-cli missing"}:
+                lines.append("💡 First run: SETUP to configure Mistral key + local models")
         lines.append("Tip: OK EXPLAIN <file> | OK LOCAL")
 
         print(self._theme_text("\n🤖 Vibe (Local)"))
@@ -1453,7 +1476,7 @@ class uCODETUI:
             identity_enc = IdentityEncryption()
             enriched_data = identity_enc.enrich_identity(collected_data, location=location)
 
-            # Step 2: Save identity fields to .env using ConfigSyncManager
+            # Step 2: Save identity fields + optional API keys to .env using ConfigSyncManager
             try:
                 from core.services.config_sync_service import ConfigSyncManager
 
@@ -1464,6 +1487,7 @@ class uCODETUI:
                     sync_manager.save_identity_to_env(enriched_data)
                     self.logger.info("[SETUP] Identity saved to .env (7 fields)")
                     print("\n✅ Identity saved to .env file")
+                    # Mistral key is now part of .env boundary (optional)
                     try:
                         from core.services.user_service import is_ghost_identity
 
@@ -2138,9 +2162,9 @@ For detailed help on any command, type the command name followed by --help
         if tasks:
             print(self._theme_text("\n📝 Tasks added:"))
             for idx, task in enumerate(tasks, start=1):
-                block = task.to_notion_block()
+                block = task.to_task_block()
                 print(self._theme_text(f" {idx}. {task.title} (due {task.due_date.isoformat()})"))
-                print(self._theme_text(f"    Notion block: {json.dumps(block)}"))
+                print(self._theme_text(f"    Task block: {json.dumps(block)}"))
         else:
             print(self._theme_text("No actionable tasks detected."))
 

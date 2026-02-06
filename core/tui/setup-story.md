@@ -12,6 +12,7 @@ description: "Core identity setup for .env file. Extended settings via Wizard an
 Quick setup: 5 essential fields for your local .env file.
 
 **Extended settings** (API keys, cloud services, etc.) are configured later via Wizard.
+Mistral API key can be provided at first run to unlock local/online AI stabilization.
 
 This story also runs the hot reload/self-heal verification described in `v1.3.1-milestones.md` so `REPAIR`, `RESTART`, and `PLUGIN` keep logging healthy stats to `memory/logs/health-training.log` as part of the v1.1+ roadmap.
 
@@ -74,6 +75,15 @@ options:
   - ghost: Demo mode (limited)
 help: "Your access level. Role 'ghost' forces Ghost Mode."
 default: user
+```
+```form
+name: mistral_api_key
+label: Mistral API Key (optional)
+type: password
+required: false
+placeholder: "sk-..."
+help: "Optional. Enables online Mistral checks and stability fallback. You can skip and add later."
+validation: none
 ```
 ---
 ---

@@ -26,7 +26,7 @@ case "$component" in
         component="core"
         ;;
     *)
-        echo "Usage: ./Launch-uCODE.command [core|wizard|goblin] [mode] [--rebuild] [--quiet]" >&2
+        echo "Usage: ./Launch-uCODE.command [core|wizard|goblin] [mode] [--rebuild] [--quiet] [--tty] [--no-log]" >&2
         exit 1
         ;;
 esac

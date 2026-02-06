@@ -46,6 +46,7 @@ class ConfigSyncManager:
         'USER_TIMEZONE': 'user_timezone',
         'OS_TYPE': 'install_os_type',
         'WIZARD_KEY': 'wizard_key',
+        'MISTRAL_API_KEY': 'mistral_api_key',
     }
 
     # Reverse mapping

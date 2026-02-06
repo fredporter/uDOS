@@ -42,6 +42,15 @@ default: "ghost"
 help: "Role 'ghost' forces Ghost Mode."
 ```
 
+```story
+name: mistral_api_key
+label: Mistral API Key (optional)
+type: password
+required: false
+placeholder: "sk-..."
+help: "Optional. Enables Mistral online checks and stability fallback."
+```
+
 ---
 
 ## Location & System
