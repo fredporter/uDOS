@@ -88,7 +88,7 @@ python -m wizard.tools.secret_store_cli set hubspot_api_key "pat-YOUR_TOKEN"
 ls -la library/
 
 # If missing:
-mkdir -p library themes vault memory/bank
+mkdir -p library themes vault-md vault-md/bank memory/system
 chmod 755 library themes vault
 
 # Verify catalog works
@@ -135,7 +135,7 @@ Before running Wizard, ensure:
 
 ```bash
 ✅ Required directories exist
-mkdir -p library wizard/config themes vault memory/bank
+mkdir -p library wizard/config themes vault-md vault-md/bank memory/system
 
 ✅ Permissions are correct
 chmod 755 library wizard themes vault

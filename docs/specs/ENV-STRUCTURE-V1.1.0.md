@@ -94,7 +94,7 @@ The `USER_PASSWORD` field is **optional** and can be left blank:
 | Local Identity | `/uDOS/.env` | Plain text env vars |
 | Wizard Key | `/uDOS/.env` | UUID (unencrypted) |
 | Extended Data | `wizard/secrets.tomb` | Encrypted keystore |
-| Admin Token | `memory/bank/private/wizard_admin_token.txt` | Token file |
+| Admin Token | `memory/private/wizard_admin_token.txt` | Token file |
 
 ---
 

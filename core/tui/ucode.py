@@ -41,6 +41,8 @@ import subprocess
 import threading
 import time
 import shutil
+import tarfile
+import hashlib
 import warnings
 import requests
 from pathlib import Path
@@ -56,6 +58,7 @@ from core.tui.dispatcher import CommandDispatcher
 from core.tui.renderer import GridRenderer
 from core.tui.state import GameState
 from core.tui.fkey_handler import FKeyHandler
+from core.tui.status_bar import TUIStatusBar
 from core.ui.command_selector import CommandSelector
 from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, create_default_registry
 from core.services.health_training import read_last_summary, log_plugin_install_event
@@ -237,8 +240,8 @@ class uCODETUI:
         self.ucode_version = os.getenv("UCODE_VERSION", "1.0.1")
         self.running = False
         self.ghost_mode = False
-        # Ensure bank/system seeds are present (startup/reboot/setup stories)
-        self._ensure_bank_system_seeds()
+        # Ensure system seeds are present (startup/reboot/setup stories)
+        self._ensure_system_seeds()
         # Component detection
         self.detector = ComponentDetector(self.repo_root)
         self.components = self.detector.detect_all()
@@ -259,8 +262,13 @@ class uCODETUI:
         self.prompt.set_tab_handler(self._open_command_selector)
 
         # Function key handler
-        self.fkey_handler = FKeyHandler(dispatcher=self.dispatcher, prompt=self.prompt)
+        self.fkey_handler = FKeyHandler(
+            dispatcher=self.dispatcher,
+            prompt=self.prompt,
+            game_state=self.state,
+        )
         self.prompt.set_function_key_handler(self.fkey_handler)
+        self.status_bar = TUIStatusBar()
 
         # Command registry (maps commands to methods)
         self.commands = {
@@ -315,12 +323,12 @@ class uCODETUI:
         else:
             self.logger.info("[ContextualPrompt] Initialized with command suggestions")
 
-    def _ensure_bank_system_seeds(self) -> None:
-        """Seed /memory/bank/system files if they are missing."""
+    def _ensure_system_seeds(self) -> None:
+        """Seed /memory/system files if they are missing."""
         try:
             from core.framework.seed_installer import SeedInstaller
 
-            system_dir = self.repo_root / "memory" / "bank" / "system"
+            system_dir = self.repo_root / "memory" / "system"
             required = [
                 "startup-script.md",
                 "reboot-script.md",
@@ -330,12 +338,12 @@ class uCODETUI:
             missing = [name for name in required if not (system_dir / name).exists()]
             if missing:
                 installer = SeedInstaller()
-                installer.install_bank_seeds(force=False)
+                installer.install_system_seeds(force=False)
                 self.logger.info(
-                    f"[LOCAL] Seeded memory/bank/system files: {', '.join(missing)}"
+                    f"[LOCAL] Seeded memory/system files: {', '.join(missing)}"
                 )
         except Exception as e:
-            self.logger.warning(f"[LOCAL] Bank/system seed check failed: {e}")
+            self.logger.warning(f"[LOCAL] System seed check failed: {e}")
 
     def _handle_special_commands(self, command: str) -> bool:
         """Handle special REPL commands (EXIT/QUIT/STATUS/HISTORY)."""
@@ -407,7 +415,7 @@ class uCODETUI:
                     return {"status": "success", "command": cmd_name}
 
             # Now route the normalized command to dispatcher
-            return self.dispatcher.dispatch(normalized, parser=self.prompt)
+            return self.dispatcher.dispatch(normalized, parser=self.prompt, game_state=self.state)
 
         # Mode 2: Slash mode
         if user_input.startswith("/"):
@@ -442,7 +450,7 @@ class uCODETUI:
             ucode_cmd = slash_commands[first_token]
             if rest_of_line:
                 ucode_cmd += " " + rest_of_line
-            return self.dispatcher.dispatch(ucode_cmd, parser=self.prompt)
+            return self.dispatcher.dispatch(ucode_cmd, parser=self.prompt, game_state=self.state)
         else:
             # Treat as shell command
             return self._execute_shell_command(user_input[1:].strip())
@@ -553,7 +561,7 @@ class uCODETUI:
             return {"status": "success", "command": cmd}
 
         # Dispatch the command
-        return self.dispatcher.dispatch(full_cmd, parser=self.prompt)
+        return self.dispatcher.dispatch(full_cmd, parser=self.prompt, game_state=self.state)
 
     def run(self) -> None:
         """Start uCODE TUI."""
@@ -579,6 +587,7 @@ class uCODETUI:
             while self.running:
                 try:
                     # Use contextual command prompt with suggestions (Phase 1)
+                    self._show_status_bar()
                     user_input = self.prompt.ask_command("▶ ")
 
                     if not user_input:
@@ -651,10 +660,37 @@ class uCODETUI:
         """Show startup hints once at beginning."""
         if self.quiet:
             return
+        try:
+            from core.services.vault_md_validator import validate_vault_md
+
+            _, warnings = validate_vault_md()
+            if warnings:
+                print(self._theme_text("\n  ⚠ Vault-MD checks:"))
+                for line in warnings:
+                    print(self._theme_text(f"     - {line}"))
+        except Exception:
+            pass
         print(self._theme_text("\n  💡 Start with: SETUP (first-time) | HELP (all commands) | STORY tui-setup (quick setup)"))
         print(self._theme_text("     Or try: MAP | TELL location | GOTO location | WIZARD start"))
         print(self._theme_text("     Try: OK EXPLAIN <file> | OK LOCAL (local Vibe outputs)"))
         print(self._theme_text("     Press TAB for command selection | Type command for suggestions\n"))
+
+    def _show_status_bar(self) -> None:
+        """Render status bar line for the current session."""
+        if self.quiet or not sys.stdout.isatty():
+            return
+        try:
+            from core.services.user_service import get_user_manager, is_ghost_mode
+
+            user = get_user_manager().current()
+            user_role = user.role.value if user else "ghost"
+            status_line = self.status_bar.get_status_line(
+                user_role=user_role,
+                ghost_mode=is_ghost_mode(),
+            )
+            print(self._theme_text(status_line))
+        except Exception:
+            pass
 
     def _show_banner(self) -> None:
         """Show startup banner."""
@@ -795,6 +831,51 @@ class uCODETUI:
                 print("    ✅ Tests are running in the background as part of startup health checks.")
 
         print("-" * 60 + "\n")
+
+        self._prompt_health_actions()
+
+    def _prompt_health_actions(self) -> None:
+        """Prompt for REPAIR/RESTORE/DESTROY when health checks report issues."""
+        # Skip prompts for non-interactive or automation runs.
+        if self.quiet or os.getenv("UDOS_AUTOMATION") == "1":
+            return
+        has_self_heal_issue = False
+        has_test_failure = False
+
+        if self.self_heal_summary:
+            success = self.self_heal_summary.get("success", False)
+            remaining = self.self_heal_summary.get("remaining", 0)
+            if not success or remaining > 0:
+                has_self_heal_issue = True
+
+        if self.memory_test_summary:
+            result = (self.memory_test_summary.get("result") or "").lower()
+            if result in {"failed", "error"}:
+                has_test_failure = True
+
+        if not (has_self_heal_issue or has_test_failure):
+            return
+
+        try:
+            choice = input(
+                "Health check issues detected. Choose: REPAIR | RESTORE | DESTROY | SKIP: "
+            ).strip().upper()
+        except Exception:
+            return
+
+        if choice in {"", "SKIP"}:
+            return
+
+        if choice == "DESTROY":
+            try:
+                confirm = input("Type DESTROY to confirm reset: ").strip().upper()
+            except Exception:
+                return
+            if confirm != "DESTROY":
+                return
+
+        if choice in {"REPAIR", "RESTORE", "DESTROY"}:
+            self.dispatcher.dispatch(choice, parser=self.prompt, game_state=self.state)
 
     def _get_ai_modes_path(self) -> Path:
         """Return path to AI modes configuration."""
@@ -1383,6 +1464,14 @@ class uCODETUI:
                     sync_manager.save_identity_to_env(enriched_data)
                     self.logger.info("[SETUP] Identity saved to .env (7 fields)")
                     print("\n✅ Identity saved to .env file")
+                    try:
+                        from core.services.user_service import is_ghost_identity
+
+                        if is_ghost_identity(enriched_data.get("user_username"), enriched_data.get("user_role")):
+                            print("👻 Ghost Mode remains active (role or username is Ghost).")
+                            print("   To exit Ghost Mode, change role to user/admin and set a non-Ghost username.")
+                    except Exception:
+                        pass
                 else:
                     self.logger.warning("[SETUP] Identity validation failed")
                     print("\n⚠️  Some required fields are missing")
@@ -1396,7 +1485,7 @@ class uCODETUI:
                 import requests
 
                 # Get the token
-                token_path = self.repo_root / "memory" / "bank" / "private" / "wizard_admin_token.txt"
+                token_path = self.repo_root / "memory" / "private" / "wizard_admin_token.txt"
 
                 if token_path.exists():
                     token = token_path.read_text().strip()
@@ -1744,7 +1833,7 @@ class uCODETUI:
                 print("\n🚀 Launching setup story...\n")
 
                 # Auto-execute the STORY tui-setup command
-                result = self.dispatcher.dispatch("STORY tui-setup")
+                result = self.dispatcher.dispatch("STORY tui-setup", game_state=self.state)
 
                 # Check if this is a form-based story
                 if result.get("story_form"):
@@ -2592,6 +2681,16 @@ For detailed help on any command, type the command name followed by --help
         action = parts[0].lower() if parts else "list"
         subargs = parts[1] if len(parts) > 1 else ""
 
+        try:
+            from core.commands.ghost_mode_guard import ghost_mode_block
+
+            block = ghost_mode_block("PLUGIN", [action] + (subargs.split() if subargs else []))
+            if block:
+                print(f"❌ {block.get('message')}")
+                return
+        except Exception:
+            pass
+
         if action == "list":
             print("\n🔌 Plugin catalog & installed extensions:\n")
             self._plugin_list()
@@ -2612,7 +2711,7 @@ For detailed help on any command, type the command name followed by --help
     def _plugin_list(self) -> None:
         """List Wizard plugin catalog plus any installed extensions."""
         try:
-            plugin_root = self.repo_root / "wizard" / "distribution" / "plugins"
+            plugin_root = self.repo_root / "distribution" / "plugins"
             remote_plugins = self._load_remote_plugins(plugin_root)
 
             if remote_plugins:
@@ -2662,7 +2761,7 @@ For detailed help on any command, type the command name followed by --help
             print("  ❌ Specify a plugin ID to install (use `PLUGIN list`).")
             return
 
-        plugin_src = self.repo_root / "wizard" / "distribution" / "plugins" / name
+        plugin_src = self.repo_root / "distribution" / "plugins" / name
         if not plugin_src.exists():
             print(f"  ❌ Plugin not found in catalog: {name}")
             return
@@ -2756,12 +2855,127 @@ For detailed help on any command, type the command name followed by --help
                 return
 
             # Create distribution package
-            dist_path = self.repo_root / "distribution" / "plugins" / name
+            dist_root = self.repo_root / "distribution" / "plugins"
+            dist_path = dist_root / name
             print(f"  📦 Packaging {name}...")
 
-            # TODO: Real packaging logic (copy to distribution, create manifest, etc)
-            print(f"  [TODO] Package {name} for distribution")
-            print(f"         Output: {dist_path}")
+            # Read version metadata if available
+            version_file = ext_path / "version.json"
+            version = "1.0.0"
+            display_name = name.replace("-", " ").title()
+            description = f"uDOS extension: {name}"
+            author = "Fred Porter"
+            license_id = "MIT"
+
+            if version_file.exists():
+                try:
+                    payload = json.loads(version_file.read_text(encoding="utf-8"))
+                    display_name = payload.get("name") or display_name
+                    description = payload.get("description") or description
+                    author = payload.get("author") or author
+                    if isinstance(payload.get("version"), dict):
+                        v = payload["version"]
+                        version = f"{v.get('major', 1)}.{v.get('minor', 0)}.{v.get('patch', 0)}"
+                    elif isinstance(payload.get("display"), str):
+                        version = payload["display"].lstrip("v")
+                except Exception:
+                    pass
+
+            category_map = {
+                "api": "web",
+                "transport": "transport",
+                "groovebox": "games",
+                "docs": "documentation",
+            }
+            category = category_map.get(name, "utility")
+
+            # Recreate output directory
+            if dist_path.exists():
+                shutil.rmtree(dist_path)
+            dist_path.mkdir(parents=True, exist_ok=True)
+
+            # Copy extension contents
+            shutil.copytree(
+                ext_path,
+                dist_path,
+                dirs_exist_ok=True,
+                ignore=shutil.ignore_patterns("__pycache__", ".git", ".venv", "node_modules"),
+            )
+
+            # Build package tarball
+            packages_dir = dist_root / "packages" / name
+            packages_dir.mkdir(parents=True, exist_ok=True)
+            package_path = packages_dir / f"{name}-{version}.tar.gz"
+            with tarfile.open(package_path, "w:gz") as tar:
+                tar.add(dist_path, arcname=name)
+
+            package_size = package_path.stat().st_size
+            hasher = hashlib.sha256()
+            with package_path.open("rb") as fh:
+                for chunk in iter(lambda: fh.read(8192), b""):
+                    hasher.update(chunk)
+            package_checksum = hasher.hexdigest()
+
+            # Write manifest
+            manifest = {
+                "$schema": "https://udos.dev/schemas/plugin.schema.json",
+                "id": name,
+                "name": display_name,
+                "version": version,
+                "description": description,
+                "category": category,
+                "license": license_id,
+                "author": author,
+                "source": f"extensions/{name}",
+                "package_type": "tar.gz",
+                "package_size": package_size,
+                "package_checksum": package_checksum,
+            }
+
+            readme_path = ext_path / "README.md"
+            if readme_path.exists():
+                manifest["documentation"] = f"extensions/{name}/README.md"
+
+            (dist_path / "manifest.json").write_text(
+                json.dumps(manifest, indent=2),
+                encoding="utf-8",
+            )
+
+            # Update index.json
+            index_path = dist_root / "index.json"
+            if index_path.exists():
+                index_data = json.loads(index_path.read_text(encoding="utf-8"))
+            else:
+                index_data = {"version": "1.0.0", "updated_at": "", "plugins": {}}
+
+            plugins = index_data.setdefault("plugins", {})
+            existing = plugins.get(name, {})
+
+            plugins[name] = {
+                **existing,
+                "id": name,
+                "name": display_name,
+                "description": description,
+                "version": version,
+                "category": category,
+                "license": license_id,
+                "package_file": str(package_path.relative_to(dist_root)),
+                "package_size": package_size,
+                "checksum": package_checksum,
+                "author": author,
+                "documentation": manifest.get("documentation", existing.get("documentation", "")),
+                "installed": existing.get("installed", False),
+                "installed_version": existing.get("installed_version", ""),
+                "update_available": existing.get("update_available", False),
+                "dependencies": existing.get("dependencies", []),
+            }
+
+            index_data["updated_at"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+            index_path.write_text(json.dumps(index_data, indent=2), encoding="utf-8")
+
+            print(f"  ✅ Packaged: {name} v{version}")
+            print(f"     Manifest: {dist_path / 'manifest.json'}")
+            print(f"     Package:  {package_path}")
 
         except Exception as e:
             print(f"  ❌ Error: {e}")
@@ -2810,36 +3024,12 @@ For detailed help on any command, type the command name followed by --help
         """Return True if current user is the demo ghost profile.
 
         A user is considered "ghost" (demo mode) only if:
-        1. Current user in service is "ghost" with GUEST role, AND
-        2. No configured user identity exists in .env
-
-        Once user runs SETUP and configures identity in .env, they're no longer ghost.
+        - .env identity sets role or username to Ghost, OR
+        - Current user is guest role or username ghost.
         """
-        from core.services.user_service import get_user_manager, UserRole
-        from core.services.config_sync_service import ConfigSyncManager
+        from core.services.user_service import is_ghost_mode
 
-        # Check user service
-        user_mgr = get_user_manager()
-        current = user_mgr.current()
-
-        # If not ghost in service, definitely not ghost
-        if not (current and current.role == UserRole.GUEST and current.username == "ghost"):
-            return False
-
-        # If ghost in service, check if they've configured identity in .env
-        try:
-            sync_mgr = ConfigSyncManager()
-            identity = sync_mgr.load_identity_from_env()
-
-            # If they have a username configured in .env, they've run SETUP
-            # and are no longer in ghost mode
-            if identity.get('user_username'):
-                return False
-        except Exception:
-            # If we can't load config, assume they're ghost
-            pass
-
-        return True
+        return is_ghost_mode()
 
 
     def _check_ghost_mode(self) -> None:

@@ -47,7 +47,9 @@
   <p class="text-gray-400 mb-8">Webhook endpoints and configuration status</p>
 
   {#if error}
-    <div class="bg-red-900 text-red-200 p-4 rounded-lg mb-6 border border-red-700">
+    <div
+      class="bg-red-900 text-red-200 p-4 rounded-lg mb-6 border border-red-700"
+    >
       {error}
     </div>
   {/if}
@@ -65,7 +67,9 @@
                 ? 'bg-green-900 text-green-300'
                 : 'bg-red-900 text-red-300'}"
             >
-              {config.secret_configured ? "Secret configured" : "Secret missing"}
+              {config.secret_configured
+                ? "Secret configured"
+                : "Secret missing"}
             </span>
           </div>
           <p class="text-sm text-gray-400 mb-4">
@@ -92,7 +96,6 @@
     <h2 class="text-lg font-semibold text-white mb-2">Notes</h2>
     <ul class="text-sm text-gray-400 space-y-1">
       <li>• GitHub webhooks require the X-Hub-Signature-256 header.</li>
-      <li>• Notion webhooks use NOTION_WEBHOOK_SECRET in the Wizard environment.</li>
       <li>• Base URL is derived from the Wizard host/port configuration.</li>
     </ul>
   </div>

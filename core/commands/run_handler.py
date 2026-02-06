@@ -50,6 +50,15 @@ class RunHandler(BaseCommandHandler):
                 "sections": sections,
             }
 
+        from core.services.user_service import is_ghost_mode
+
+        if is_ghost_mode():
+            return {
+                "status": "warning",
+                "message": "Ghost Mode is read-only (RUN blocked)",
+                "output": "Ghost Mode active: RUN execution is disabled. Use RUN PARSE to inspect scripts.",
+            }
+
         file_arg = params[0]
         section_id = params[1] if len(params) > 1 else None
 

@@ -46,7 +46,7 @@ label: Username
 type: text
 required: true
 placeholder: "e.g. Ghost"
-help: "3-32 characters. Letters, numbers, underscore, hyphen only."
+help: "3-32 characters. Letters, numbers, underscore, hyphen only. Username 'Ghost' forces Ghost Mode."
 validation: name
 minlength: 3
 maxlength: 32
@@ -72,7 +72,7 @@ options:
   - admin: Full system access
   - user: Standard access (recommended)
   - ghost: Demo mode (limited)
-help: "Your access level"
+help: "Your access level. Role 'ghost' forces Ghost Mode."
 default: user
 ```
 ---
@@ -118,8 +118,8 @@ help: >
 ## Training & Dev Ops
 
 - This story writes the latest hot reload/self-heal summary to `memory/logs/health-training.log` so automation can verify the training pass before moving on.
-- Completing the flow confirms the local repo/memory/bank/seed structure plus the CLI dev operations (REPAIR/RESTART/PLUGIN) remain ready per the v1.1+ roadmap.
-- After submission, the completion banner reprints the directories (local repo, memory, bank, framework seed) with status indicators and references `docs/SEED-INSTALLATION-GUIDE.md`, ensuring the “local/memory/bank/seed structure” is explicitly confirmed before resuming the next milestone.
+- Completing the flow confirms the local repo/memory/system/vault structure plus the CLI dev operations (REPAIR/RESTART/PLUGIN) remain ready per the v1.1+ roadmap.
+- After submission, the completion banner reprints the directories (local repo, memory, system, vault, framework seed) with status indicators and references `docs/SEED-INSTALLATION-GUIDE.md`, ensuring the “local memory/system + vault structure” is explicitly confirmed before resuming the next milestone.
 
 ## Complete
 
@@ -127,7 +127,7 @@ help: >
 
 Your local setup is complete. These values are stored in:
 - `.env` file (local Core boundary)
-- `memory/bank` (seed data, zipped by REPAIR --seed)
+- `memory/system` (seed templates, zipped by REPAIR --seed)
 - `local/memory` storage (verified via `docs/SEED-INSTALLATION-GUIDE.md`)
 
 **Next:**

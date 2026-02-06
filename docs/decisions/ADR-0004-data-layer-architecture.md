@@ -275,9 +275,9 @@ mkdir -p memory/bank/knowledge/personal
 mkdir -p memory/bank/knowledge/imported
 mkdir -p memory/bank/checklists
 
-# Move runtime location data to bank
-mv core/locations.json memory/bank/locations/
-mv core/data/timezones.json memory/bank/locations/
+# Move runtime location data to vault
+mv core/locations.json vault-md/bank/locations/
+mv core/data/timezones.json vault-md/bank/locations/
 
 # Create symlink or copy seed on first run
 ```
@@ -396,4 +396,3 @@ SELECT * FROM locations WHERE layer = 300 LIMIT 10;
 
 **Status:** Ready for Review  
 **Next Step:** Approve and begin Phase 1 implementation
-

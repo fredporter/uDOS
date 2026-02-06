@@ -46,6 +46,7 @@ class SaveHandler(BaseCommandHandler, HandlerLoggingMixin):
                     "current_location": self.get_state("current_location") or "L300-BJ10",
                     "inventory": self.get_state("inventory") or [],
                     "discovered_locations": self.get_state("discovered_locations") or [],
+                    "player_id": self.get_state("player_id") or "player1",
                     "player_stats": self.get_state("player_stats")
                     or {"name": "Player", "level": 1, "health": 100, "max_health": 100},
                 }
@@ -142,6 +143,7 @@ class LoadHandler(BaseCommandHandler, HandlerLoggingMixin):
                 self.set_state(
                     "discovered_locations", game_state.get("discovered_locations", [])
                 )
+                self.set_state("player_id", game_state.get("player_id", "player1"))
                 self.set_state("player_stats", game_state.get("player_stats"))
                 trace.mark_milestone('state_restored')
 

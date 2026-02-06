@@ -120,6 +120,11 @@ resolve_memory_root() {
         return 0
     fi
 
+    if [ -n "$UDOS_ROOT" ] && [ -d "$UDOS_ROOT/memory" ]; then
+        echo "$UDOS_ROOT/memory"
+        return 0
+    fi
+
     local home_memory="$HOME/memory"
     local dot_memory="$HOME/.udos/memory"
     local repo_memory="$UDOS_ROOT/memory"
@@ -140,6 +145,27 @@ resolve_memory_root() {
     fi
 
     echo "$repo_memory"
+}
+
+resolve_log_dir() {
+    local memory_root
+    memory_root="$(resolve_memory_root)"
+    echo "$memory_root/logs"
+}
+
+run_with_log() {
+    local name="$1"
+    shift
+
+    local log_dir
+    log_dir="$(resolve_log_dir)"
+    mkdir -p "$log_dir"
+
+    local log_file="$log_dir/${name}.log"
+    _udos_echo "${DIM}[udos] logging to ${log_file}${NC}"
+
+    "$@" 2>&1 | tee -a "$log_file"
+    return ${PIPESTATUS[0]}
 }
 
 ensure_home_memory_link() {
@@ -652,8 +678,8 @@ rebuild_after_dev() {
 # ═════════════════════════════════════════════════════════════════════════════
 
 _setup_component_environment() {
-    if [ ! -t 0 ] || [ ! -t 1 ]; then
-        echo -e "${YELLOW}⚠️  Launcher requires an interactive terminal (stdin and stdout must be TTYs).${NC}"
+    if [ ! -t 0 ] && [ ! -w /dev/tty ]; then
+        echo -e "${YELLOW}⚠️  Launcher requires an interactive terminal (stdin must be a TTY).${NC}"
         return 1
     fi
     local component="$1"
@@ -803,11 +829,11 @@ launch_component() {
 
     # Dispatch to component-specific launcher
     case "$component:$mode" in
-        core:tui)       launch_core_tui "$@" ;;
-        wizard:server)  launch_wizard_server "$@" ;;
-        wizard:tui)     launch_wizard_tui "$@" ;;
-        goblin:dev)     launch_goblin_dev "$@" ;;
-        empire:dev)     launch_empire_dev "$@" ;;
+        core:tui)       run_with_log "core-tui" launch_core_tui "$@" ;;
+        wizard:server)  run_with_log "wizard-server" launch_wizard_server "$@" ;;
+        wizard:tui)     run_with_log "wizard-tui" launch_wizard_tui "$@" ;;
+        goblin:dev)     run_with_log "goblin-dev" launch_goblin_dev "$@" ;;
+        empire:dev)     run_with_log "empire-dev" launch_empire_dev "$@" ;;
         *)
             echo -e "${RED}[ERROR]${NC} Unknown component:mode: $component:$mode"
             echo ""

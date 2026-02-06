@@ -305,6 +305,11 @@ class SpatialFilesystem:
     
     def write_file(self, workspace_ref: str, content: str) -> FileLocation:
         """Write file to workspace."""
+        from core.services.user_service import is_ghost_mode
+
+        if is_ghost_mode():
+            raise PermissionError("Ghost Mode is read-only (write blocked)")
+
         ws_type, relative_path = self.resolve_workspace_reference(workspace_ref)
         self.ensure_access(ws_type)
         
@@ -329,6 +334,11 @@ class SpatialFilesystem:
     
     def delete_file(self, workspace_ref: str) -> None:
         """Delete file from workspace."""
+        from core.services.user_service import is_ghost_mode
+
+        if is_ghost_mode():
+            raise PermissionError("Ghost Mode is read-only (delete blocked)")
+
         ws_type, relative_path = self.resolve_workspace_reference(workspace_ref)
         self.ensure_access(ws_type)
         

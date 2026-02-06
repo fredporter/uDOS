@@ -4,7 +4,6 @@ from typing import List, Dict
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.commands.interactive_menu_mixin import InteractiveMenuMixin
-from core.services.user_service import get_user_manager, UserRole
 
 
 class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin):
@@ -492,9 +491,10 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             }
 
     def _is_ghost_user(self) -> bool:
-        """Return True when the current session is the demo ghost profile."""
-        user = get_user_manager().current()
-        return bool(user and user.role == UserRole.GUEST and user.username == "ghost")
+        """Return True when the current session is in Ghost Mode."""
+        from core.services.user_service import is_ghost_mode
+
+        return is_ghost_mode()
 
     def _show_ghost_help(self) -> Dict:
         """Return the limited help view that is shown to ghost/test users."""

@@ -1,0 +1,83 @@
+{
+  "version": "1.0.0",
+  "description": "uDOS Location Seed Data - Minimal examples for framework distribution",
+  "note": "Full location data available at /memory/bank/locations/locations.json",
+  "regions": {
+    "tutorial": "Forest Clearing area (game start)",
+    "asia_east": "East Asia - Japan, Korea, China",
+    "orbital": "Space - Earth Orbit, Stations"
+  },
+  "locations": [
+    {
+      "id": "L300-AA10",
+      "placeRef": "EARTH:SUR:L300-AA10",
+      "anchor": "EARTH",
+      "space": "SUR",
+      "name": "Forest Clearing",
+      "region": "tutorial",
+      "description": "A sunlit clearing in an ancient forest. Tall pines surround the space.",
+      "layer": 300,
+      "cell": "AA10",
+      "scale": "terrestrial",
+      "continent": "global",
+      "timezone": "UTC",
+      "type": "spawn",
+      "connections": [
+        {
+          "to": "L300-BJ10",
+          "direction": "east",
+          "label": "Travel East to Tokyo"
+        }
+      ]
+    },
+    {
+      "id": "L300-BJ10",
+      "placeRef": "EARTH:SUR:L300-BJ10",
+      "anchor": "EARTH",
+      "space": "SUR",
+      "name": "Tokyo - Shibuya Crossing",
+      "region": "asia_east",
+      "description": "The world's busiest pedestrian crossing. Neon lights illuminate the organized chaos.",
+      "layer": 300,
+      "cell": "BJ10",
+      "scale": "terrestrial",
+      "continent": "Asia",
+      "timezone": "Asia/Tokyo",
+      "type": "major-city",
+      "connections": [
+        {
+          "to": "L300-AA10",
+          "direction": "west",
+          "label": "Travel West to Forest"
+        },
+        {
+          "to": "L300-BK10",
+          "direction": "north",
+          "label": "To Asakusa Temple"
+        }
+      ]
+    },
+    {
+      "id": "L306-AA00",
+      "placeRef": "EARTH:UDN:L306-AA00",
+      "anchor": "EARTH",
+      "space": "UDN",
+      "name": "Low Earth Orbit",
+      "region": "orbital",
+      "description": "Floating above Earth's atmosphere. The planet's blue oceans shimmer below.",
+      "layer": 306,
+      "cell": "AA00",
+      "scale": "orbital",
+      "continent": "space",
+      "timezone": "UTC",
+      "type": "orbital-station",
+      "connections": [
+        {
+          "to": "L300-AA10",
+          "direction": "down",
+          "label": "Descend to Earth"
+        }
+      ]
+    }
+  ]
+}

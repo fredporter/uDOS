@@ -38,7 +38,7 @@ class TUIStatusBar:
         self.last_update = None
         self.cache_ttl = 2  # seconds
 
-    def get_status_line(self, user_role: str = "ghost") -> str:
+    def get_status_line(self, user_role: str = "ghost", ghost_mode: bool = False) -> str:
         """
         Get a one-line status bar for persistent display.
 
@@ -54,9 +54,11 @@ class TUIStatusBar:
         parts = []
 
         # Mode indicator
-        mode_emoji = "👻" if user_role == "ghost" else "👤" if user_role == "user" else "🔐"
+        mode_emoji = "👻" if ghost_mode or user_role == "ghost" else "👤" if user_role == "user" else "🔐"
         mode_display = f"{mode_emoji} {user_role.upper()}"
         parts.append(f"[{mode_display}]")
+        if ghost_mode:
+            parts.append("[GHOST MODE]")
 
         # Server status
         wizard_status = self._check_server("localhost", self.wizard_port)
@@ -76,7 +78,7 @@ class TUIStatusBar:
 
         return " ".join(parts)
 
-    def get_status_panel(self, user_role: str = "ghost") -> str:
+    def get_status_panel(self, user_role: str = "ghost", ghost_mode: bool = False) -> str:
         """
         Get a detailed multi-line status panel for full display.
 
@@ -89,8 +91,9 @@ class TUIStatusBar:
         lines.append("=" * 70)
 
         # User mode
-        mode_emoji = "👻" if user_role == "ghost" else "👤" if user_role == "user" else "🔐"
-        lines.append(f"\nMode:             {mode_emoji} {user_role.upper()}")
+        mode_emoji = "👻" if ghost_mode or user_role == "ghost" else "👤" if user_role == "user" else "🔐"
+        mode_label = "GHOST MODE" if ghost_mode else user_role.upper()
+        lines.append(f"\nMode:             {mode_emoji} {mode_label}")
 
         # Server status details
         lines.append("\n📡 Servers:")

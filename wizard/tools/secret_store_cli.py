@@ -3,7 +3,7 @@
 Wizard Secret Store CLI
 
 Manage secrets.tomb safely (admin token, provider keys).
-Defaults to storing generated keys/tokens in memory/bank/private (local-only).
+Defaults to storing generated keys/tokens in memory/private (local-only).
 """
 
 from __future__ import annotations

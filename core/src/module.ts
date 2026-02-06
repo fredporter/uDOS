@@ -10,7 +10,7 @@
  * - All type definitions
  */
 
-export { Runtime } from './index'
+export { Runtime } from './runtime/runtime'
 export { MarkdownParser } from './parser/markdown'
 export { StateManager } from './state/manager'
 export {

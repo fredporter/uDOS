@@ -44,6 +44,18 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
         if "--help" in flags or "-h" in flags:
             return self._show_help()
 
+        from core.services.user_service import get_user_manager, is_ghost_mode
+
+        user_mgr = get_user_manager()
+        user = user_mgr.current()
+
+        if is_ghost_mode():
+            ignored_flags = [flag for flag in flags if flag != "--check"]
+            notice = "Ghost Mode active: REPAIR runs in check-only (dry-run) mode."
+            if ignored_flags:
+                notice += f" Ignored flags: {', '.join(ignored_flags)}."
+            return self._check_system(user, ghost_notice=notice)
+
         user, error = self._require_permission()
         if error:
             return error
@@ -223,7 +235,7 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
                 "message": f"Failed to install dependencies: {str(e)}",
             }
 
-    def _check_system(self, user) -> Dict:
+    def _check_system(self, user, ghost_notice: Optional[str] = None) -> Dict:
         """Check system health status."""
         logger = get_logger("repair-handler")
         from core.tui.output import OutputToolkit
@@ -241,6 +253,9 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
         output.append(OutputToolkit.table(["metric", "value"], summary_rows))
         output.append("")
         output.append(OutputToolkit.section("Details", "\n".join(summary.get("messages", []))))
+        if ghost_notice:
+            output.append("")
+            output.append(OutputToolkit.section("Ghost Mode", ghost_notice))
 
         logger.info("[LOCAL] REPAIR self-heal check completed (success=%s)", summary.get("success"))
         unified = get_unified_logger()

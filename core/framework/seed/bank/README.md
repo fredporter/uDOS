@@ -1,6 +1,6 @@
 # Bank Seed Data
 
-**Purpose:** Canonical seed data for `/memory/bank/` initialization
+**Purpose:** Canonical seed data for `memory/system/` + `vault-md/bank/` initialization
 
 ---
 
@@ -30,9 +30,9 @@ seed/bank/
 
 **On first run or `REPAIR --seed`:**
 
-1. Check if `/memory/bank/graphics/` exists
+1. Check if `memory/system/graphics/` exists
 2. If missing → copy from `core/framework/seed/bank/graphics/`
-3. User can then customize in `/memory/bank/` (gitignored)
+3. User can then customize in `vault-md/bank/` (gitignored)
 4. Original seeds remain tracked in framework
 
 ---
@@ -123,10 +123,10 @@ Themes define TUI appearance and variable mappings:
 
 ```bash
 # Copy all seed data to bank
-cp -r core/framework/seed/bank/* memory/bank/
+cp -r core/framework/seed/bank/* memory/system/
 
 # Copy specific category
-cp -r core/framework/seed/bank/graphics memory/bank/
+cp -r core/framework/seed/bank/graphics memory/system/
 ```
 
 ### Programmatic Seed (Handler)
@@ -136,7 +136,7 @@ from core.services.file_service import FileService
 from pathlib import Path
 
 seed_path = Path("core/framework/seed/bank/graphics")
-bank_path = Path("memory/bank/graphics")
+bank_path = Path("memory/system/graphics")
 
 if not bank_path.exists():
     FileService.copy_directory(seed_path, bank_path)
@@ -155,7 +155,7 @@ REPAIR --seed    # Re-seed missing bank data
 | Path | Git Status | Purpose |
 |------|-----------|---------|
 | `core/framework/seed/bank/` | ✅ **TRACKED** | Canonical seed data |
-| `/memory/bank/` | ❌ Gitignored | User customizations |
+| `vault-md/bank/` | ❌ Gitignored | User customizations |
 
 **Rule:** Seeds are version-controlled, user data is not.
 

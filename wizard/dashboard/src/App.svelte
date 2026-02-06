@@ -11,7 +11,6 @@
   import Tasks from "./routes/Tasks.svelte";
   import Workflow from "./routes/Workflow.svelte";
   import Binder from "./routes/Binder.svelte";
-  import Notion from "./routes/Notion.svelte";
   import GitHub from "./routes/GitHub.svelte";
   import Wiki from "./routes/Wiki.svelte";
   import Library from "./routes/Library.svelte";
@@ -219,8 +218,6 @@
         <Workflow />
       {:else if currentRoute === "binder"}
         <Binder />
-      {:else if currentRoute === "notion"}
-        <Notion />
       {:else if currentRoute === "github"}
         <GitHub />
       {:else if currentRoute === "wiki"}

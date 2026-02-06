@@ -124,7 +124,7 @@ type PluginType =
 ```
 
 **Reserved Paths (Denied by Default):**
-- `/memory/bank/private/` — User secrets
+- `/memory/private/` — User secrets
 - `/wizard/config/` — Wizard configuration
 - `~/.ssh/` — SSH keys
 - System directories (`/etc/`, `/bin/`, `/usr/`)

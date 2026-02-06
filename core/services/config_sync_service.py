@@ -351,6 +351,7 @@ class ConfigSyncManager:
             return False, f"Missing required fields: {', '.join(missing)}"
 
         # Validate role
+        data['user_role'] = str(data['user_role']).lower()
         if data['user_role'] not in {'admin', 'user', 'ghost'}:
             return False, f"Invalid role: {data['user_role']}"
 

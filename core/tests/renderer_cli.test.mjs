@@ -7,7 +7,7 @@ import { spawn } from "node:child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE_VAULT = path.join(__dirname, "fixtures", "vault");
-const THEMES_ROOT = path.join(__dirname, "..", "..", "..", "themes");
+const THEMES_ROOT = path.join(__dirname, "..", "..", "themes");
 const CLI_PATH = fileURLToPath(new URL("../dist/renderer/cli.js", import.meta.url));
 
 async function copyVaultFixture() {

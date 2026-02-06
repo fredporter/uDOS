@@ -33,6 +33,15 @@ class BinderHandler(BaseCommandHandler):
             return self._pick_binder(start_dir)
 
         if subcommand == "COMPILE":
+            from core.services.user_service import is_ghost_mode
+
+            if is_ghost_mode():
+                return {
+                    "status": "warning",
+                    "message": "Ghost Mode is read-only (BINDER COMPILE blocked)",
+                    "output": "Ghost Mode active: compilation is disabled.",
+                }
+
             if len(params) < 2:
                 picker = FileBrowser(start_dir=str(self._default_binder_root()), pick_directories=True)
                 selected = picker.pick()

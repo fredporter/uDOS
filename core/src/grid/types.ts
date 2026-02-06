@@ -31,3 +31,20 @@ export interface MinimapOptions {
   showLabels?: boolean;
   focusCell?: { x: number; y: number };
 }
+
+export type BorderStyle = "single" | "none";
+
+export interface TextOptions {
+  wrap?: boolean;
+}
+
+export interface TableColumn {
+  key: string;
+  title: string;
+  width?: number;
+}
+
+export interface TableOptions {
+  header?: boolean;
+  rowSep?: boolean;
+}

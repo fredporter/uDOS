@@ -18,6 +18,7 @@ label: Username (no spaces or special characters)
 type: text
 required: true
 placeholder: "Ghost"
+help: "Username 'Ghost' forces Ghost Mode (case-insensitive exact match)."
 ```
 
 ```story
@@ -42,6 +43,7 @@ options:
   - ghost
 display_format: dropdown
 show_all_options: true
+help: "Role 'ghost' forces Ghost Mode."
 ```
 
 ```story

@@ -7,7 +7,7 @@ This file defines the minimal documentation spine for the v1.3 release.
 ## Core
 - `docs/ARCHITECTURE-v1.3.md`
 - `docs/README.md`
-- `docs/ROADMAP-TODO.md`
+- `docs/ROADMAP-STATUS.md`
 - `docs/Vault-Contract.md`
 
 ## Runtime + Interface

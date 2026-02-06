@@ -97,7 +97,7 @@ CommandDispatcher (dumb parsing)
 ║ Select Workspace (Before File Picker) ║
 ╠═══════════════════════════════════════════╣
 ║ 1. 📁 memory/sandbox (Your workspace) ║
-║ 2. 📁 memory/bank (Saved data) ║
+║ 2. 📁 vault-md/bank (Saved data) ║
 ║ 3. 📁 /knowledge (Admin: guides) ║
 ║ 0. Next page / ? Help ║
 ╚═══════════════════════════════════════════╝
@@ -379,9 +379,9 @@ class WorkspacePicker:
  ),
  SelectableItem(
  id="bank",
- label="memory/bank",
+ label="vault-md/bank",
  icon="📁",
- metadata={"path": "memory/bank"}
+ metadata={"path": "vault-md/bank"}
  ),
  ]
  if admin:

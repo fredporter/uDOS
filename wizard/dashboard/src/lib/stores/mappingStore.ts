@@ -2,9 +2,8 @@ import { get, writable } from "svelte/store";
 
 export type SlotMapping = {
   slot: string;
-  source: "obsidian" | "notion"; // "notion" = legacy/imported data
+  source: "obsidian";
   obsidianPath?: string;
-  notionBlockId?: string; // Legacy: imported from old Notion sync
   note: string;
   payload?: string;
   blockType?: string;
@@ -53,9 +52,8 @@ function readStoredState(): MappingState {
     return {
       mappings: legacyMappings.map((entry: any) => ({
         slot: entry.slot,
-        source: "notion",
+        source: "obsidian",
         obsidianPath: entry.localFilePath ?? entry.obsidianPath,
-        notionBlockId: entry.blockId,
         note: entry.note ?? "",
         payload: entry.payload,
         blockType: entry.blockType,
@@ -81,7 +79,6 @@ mappingStore.subscribe((state) => persistState(state));
 
 export function setSlotMapping(payload: {
   slot: string;
-  notionBlockId?: string;
   obsidianPath?: string;
   note: string;
   payloadPreview?: string;
@@ -93,14 +90,12 @@ export function setSlotMapping(payload: {
     const existing = state.mappings.filter(
       (entry) => entry.slot !== payload.slot,
     );
-    const hasObsidian = Boolean(payload.obsidianPath);
     const updated = [
       ...existing,
       {
         slot: payload.slot,
-        source: hasObsidian ? "obsidian" : "notion",
+        source: "obsidian",
         obsidianPath: payload.obsidianPath,
-        notionBlockId: payload.notionBlockId,
         note: payload.note,
         payload: payload.payloadPreview,
         blockType: payload.blockType,

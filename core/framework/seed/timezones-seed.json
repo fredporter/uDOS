@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "description": "uDOS Timezone Seed Data - Common timezone examples",
-  "note": "Full timezone data available at /memory/bank/locations/timezones.json",
+  "note": "Full timezone data available at vault-md/bank/locations/timezones.json",
   "zones": {
     "UTC": {
       "name": "UTC",

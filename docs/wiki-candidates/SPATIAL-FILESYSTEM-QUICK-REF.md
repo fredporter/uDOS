@@ -12,7 +12,7 @@ Access workspaces with `@name/path` notation:
 
 ```
 @sandbox/file.md      → memory/sandbox/file.md (user writable)
-@bank/data.db         → memory/bank/data.db (user writable)
+@bank/data.db         → vault-md/bank/data.db (user writable)
 @shared/docs          → memory/shared/docs (collaborative)
 @wizard/config.json   → memory/wizard/config.json (admin only)
 @knowledge/guide.md   → /knowledge/guide.md (admin curated)
@@ -334,7 +334,7 @@ location_guides = user_fs.find_by_location('L300-DB20')
 
   ✅ @sandbox  (memory/sandbox)
       Personal sandbox for experimentation
-  ✅ @bank     (memory/bank)
+  ✅ @bank     (vault-md/bank)
       Personal data vault
   ✅ @shared   (memory/shared)
       Shared workspace for collaboration

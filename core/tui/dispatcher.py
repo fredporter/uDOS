@@ -139,7 +139,11 @@ class CommandDispatcher:
         self.load_handler = LoadHandler()
 
     def dispatch(
-        self, command_text: str, grid: Any = None, parser: Any = None
+        self,
+        command_text: str,
+        grid: Any = None,
+        parser: Any = None,
+        game_state: Any = None,
     ) -> Dict[str, Any]:
         """
         Parse command and route to handler
@@ -175,9 +179,25 @@ class CommandDispatcher:
                 "suggestion": "Type HELP for command list",
             }
 
+        # Ghost Mode guard for destructive commands
+        try:
+            from core.commands.ghost_mode_guard import ghost_mode_block
+
+            block = ghost_mode_block(cmd_name, cmd_params)
+            if block:
+                return block
+        except Exception:
+            pass
+
+        # Sync handler state from shared game state
+        if game_state is not None:
+            self._sync_handler_state(handler, game_state)
+
         # Execute handler
         try:
             result = handler.handle(cmd_name, cmd_params, grid, parser)
+            if game_state is not None:
+                self._sync_game_state_from_handler(handler, game_state)
             return result
         except Exception as e:
             return {
@@ -185,6 +205,36 @@ class CommandDispatcher:
                 "message": f"Command failed: {str(e)}",
                 "command": cmd_name,
             }
+
+    def _sync_handler_state(self, handler: Any, game_state: Any) -> None:
+        """Push shared game state into a handler."""
+        if not hasattr(handler, "set_state"):
+            return
+        handler.set_state("current_location", getattr(game_state, "current_location", None))
+        handler.set_state("inventory", getattr(game_state, "inventory", None))
+        handler.set_state("discovered_locations", getattr(game_state, "discovered_locations", None))
+        handler.set_state("player_stats", getattr(game_state, "player_stats", None))
+        handler.set_state("player_id", getattr(game_state, "player_id", None))
+
+    def _sync_game_state_from_handler(self, handler: Any, game_state: Any) -> None:
+        """Pull updated state from a handler into shared game state."""
+        if not hasattr(handler, "get_state"):
+            return
+        current_location = handler.get_state("current_location")
+        if current_location:
+            game_state.current_location = current_location
+        inventory = handler.get_state("inventory")
+        if inventory is not None:
+            game_state.inventory = inventory
+        discovered = handler.get_state("discovered_locations")
+        if discovered is not None:
+            game_state.discovered_locations = discovered
+        player_stats = handler.get_state("player_stats")
+        if player_stats is not None:
+            game_state.player_stats = player_stats
+        player_id = handler.get_state("player_id")
+        if player_id:
+            game_state.player_id = player_id
 
     def get_command_list(self) -> List[str]:
         """Get list of available commands"""

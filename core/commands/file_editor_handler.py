@@ -18,6 +18,16 @@ class FileEditorHandler(BaseCommandHandler):
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         cmd = command.upper()
         filename = " ".join(params).strip() if params else ""
+        try:
+            from core.services.user_service import is_ghost_mode
+
+            if is_ghost_mode():
+                return {
+                    "status": "error",
+                    "message": "Ghost Mode is read-only (file editing disabled)",
+                }
+        except Exception:
+            pass
 
         if cmd == "NEW":
             return self._open_editor(filename or "untitled")

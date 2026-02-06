@@ -12,7 +12,7 @@ This note ensures the new v1.3 architecture keeps the existing `.env` + Wizard k
 
 ## 2. Refactor the TUI setup story for Vibe CLI IOs
 
-- The existing story (`memory/bank/system/tui-setup-story.md` and `core/framework/seed/bank/system/tui-setup-story.md`) already collects identity/location/timezone data. Extend each step to emit both:
+- The existing story (`memory/system/tui-setup-story.md` and `core/framework/seed/system/tui-setup-story.md`) already collects identity/location/timezone data. Extend each step to emit both:
   1. A deterministic `.env` fragment (set `USER_NAME`, `USER_DOB`, `USER_LOCATION`, `USER_TIMEZONE`, `OS_TYPE`).
   2. A keystore bundle (Wizard secrets) that holds non-shared metadata like `USER_PASSWORD` or `OAuth` tokens.
 - The new `Vibe CLI` agent console is also a runner (see `docs/uDOS-v1-3.md:175-194` and `docs/AI-Policy-Contract.md`), so the setup story should expose its prompts via the shared `Vibe CLI IO` channel:
@@ -24,7 +24,7 @@ This note ensures the new v1.3 architecture keeps the existing `.env` + Wizard k
   - `Vibe CLI` prompt IDs (so the agent can resume or replay the story)
 - This manifest lets the Vibe CLI replicate the TUI experience even outside a terminal, and it keeps the `.env`/Wizard keystore boundary explicit in the new architecture (per `docs/Vault-Contract.md` and `docs/Contributions-Contract.md`).
 
-## 3. Operational checklist for the new arcitecture
+## 3. Operational checklist for the new architecture
 
 1. On first boot, run the TUI setup story (`python -m core.tui` or `./bin/Launch-uDOS-TUI.command`). It dumps identity into `.env` and the keystore, then signals the same `WIZARD_KEY` to the Vibe CLI.
 2. `Vibe CLI` (local lane) validates that the `.env` values exist and that the keystore contains any referenced secrets before allowing missions or contributions to run.

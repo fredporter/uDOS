@@ -31,6 +31,10 @@ export interface RenderSummary {
   nav: { title: string; href: string }[];
 }
 
+type ThemeMeta = {
+  contentClass?: string;
+};
+
 export class RenderError extends Error {
   constructor(
     message: string,
@@ -105,10 +109,10 @@ export async function renderVault(
     }
 
     // Load theme metadata
-    let themeMeta: Record<string, unknown>;
+    let themeMeta: ThemeMeta;
     try {
       const metaText = await fs.readFile(themeMetaPath, "utf-8");
-      themeMeta = JSON.parse(metaText);
+      themeMeta = JSON.parse(metaText) as ThemeMeta;
     } catch (err) {
       throw new RenderError(
         `Theme metadata invalid or not found: ${themeMetaPath}`,

@@ -237,7 +237,7 @@ This ensures Wizard Server services reflect user preferences from the TUI story.
 
 ```bash
 # Via curl (requires admin token)
-curl -H "Authorization: Bearer $(cat memory/bank/private/wizard_admin_token.txt)" \
+curl -H "Authorization: Bearer $(cat memory/private/wizard_admin_token.txt)" \
   http://localhost:8765/api/setup/profile/combined
 
 # Via interactive console

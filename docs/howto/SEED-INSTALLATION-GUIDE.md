@@ -2,14 +2,14 @@
 uid: udos-installer-guide-20260130014500-UTC-L301AB02
 title: Seed Installation & Initialization Guide
 tags: [guide, installation, bootstrap, seed, infrastructure]
-status: living
-updated: 2026-01-30
+status: active
+updated: 2026-02-06
 ---
 
 # Seed Installation & Initialization Guide
 
-**Last Updated:** 2026-01-30  
-**Status:** Complete  
+**Last Updated:** 2026-02-06  
+**Status:** Complete (v1.3+ seed flows)  
 **Components:** Seed Installer, Bootstrap Handler, TUI Integration
 
 ---
@@ -37,10 +37,10 @@ When you launch uDOS for the first time:
 python uDOS.py
 ```
 
-The system automatically detects missing `memory/bank/locations/locations.json` and:
+The system automatically detects missing `vault-md/bank/locations/locations.json` and:
 
-1. Creates required directory structure (`memory/bank/locations/`, `memory/bank/help/`, etc.)
-2. Copies `core/framework/seed/locations-seed.json` to `memory/bank/locations/locations.json`
+1. Creates required directory structure (`vault-md/bank/locations/`, `memory/system/help/`, etc.)
+2. Copies `core/framework/seed/locations-seed.json` to `vault-md/bank/locations/locations.json`
 3. Installs additional seed data (timezones, templates, graphics)
 4. Logs bootstrap progress
 
@@ -81,7 +81,7 @@ Output:
 ✅ Directory structure created
 ✅ Locations seed installed
 ✅ Timezones seed installed
-✅ Bank seeds installed (15 files)
+✅ Seed files installed (15 files)
 ```
 
 #### Get Help
@@ -148,12 +148,12 @@ The `bin/install.sh` script now creates seed-ready directory structure:
 setup_user_directory() {
     # ... existing code ...
     
-    # Create bank directory structure for seed data
-    mkdir -p "$udos_home/memory/bank/locations"
-    mkdir -p "$udos_home/memory/bank/help"
-    mkdir -p "$udos_home/memory/bank/templates"
-    mkdir -p "$udos_home/memory/bank/graphics/diagrams/templates"
-    mkdir -p "$udos_home/memory/bank/workflows"
+    # Create seed-ready directory structure
+    mkdir -p "$udos_home/vault-md/bank/locations"
+    mkdir -p "$udos_home/memory/system/help"
+    mkdir -p "$udos_home/memory/system/templates"
+    mkdir -p "$udos_home/memory/system/graphics/diagrams/templates"
+    mkdir -p "$udos_home/memory/system/workflows"
 }
 ```
 
@@ -194,13 +194,16 @@ core/framework/seed/
 ### Installation Target
 
 ```
-memory/bank/
+vault-md/bank/
 ├── locations/
-│   └── locations.json            # Installed from locations-seed.json
-├── timezones.json                # Installed from timezones-seed.json
-├── help/                         # Installed bank seeds
-├── templates/                    # Installed bank seeds
-└── graphics/                     # Installed bank seeds
+│   ├── locations.json            # Installed from locations-seed.json
+│   └── timezones.json            # Installed from timezones-seed.json
+└── binders/                      # User binders (seeded as needed)
+
+memory/system/
+├── help/                         # Installed system templates
+├── templates/                    # Installed system templates
+└── graphics/                     # Installed system templates
 ```
 
 ---
@@ -216,7 +219,7 @@ Location: `core/framework/seed_installer.py`
 | Method | Purpose |
 |--------|---------|
 | `__init__(framework_dir, memory_dir)` | Initialize with paths |
-| `ensure_directories()` | Create memory/bank/ structure |
+| `ensure_directories()` | Create vault-md/bank/ + memory/system/ structure |
 | `install_locations_seed(force=False)` | Bootstrap locations data |
 | `install_timezones_seed(force=False)` | Bootstrap timezone data |
 | `install_bank_seeds(force=False)` | Copy bank seed files |
@@ -364,7 +367,7 @@ python bin/install-seed.py --force
 
 ```bash
 # Fix permissions
-chmod 755 memory/bank
+chmod 755 memory/system vault-md/bank
 chmod 755 memory
 
 # Or reinstall as correct user

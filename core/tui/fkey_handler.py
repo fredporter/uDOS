@@ -43,16 +43,18 @@ class FunctionKeyCode(Enum):
 class FKeyHandler:
     """Handler for function key shortcuts in uCODE TUI."""
 
-    def __init__(self, dispatcher=None, prompt=None):
+    def __init__(self, dispatcher=None, prompt=None, game_state=None):
         """
         Initialize function key handler.
 
         Args:
             dispatcher: CommandDispatcher instance
             prompt: Prompt instance for user interaction
+            game_state: Shared GameState instance
         """
         self.dispatcher = dispatcher
         self.prompt = prompt
+        self.game_state = game_state
         self.repo_root = self._get_repo_root()
         self.handlers = {
             "F1": self._handle_new_file,
@@ -170,7 +172,7 @@ Write your content here...
         """F2: Open TUI file picker."""
         # Route to file picker command
         if self.dispatcher:
-            return self.dispatcher.dispatch("FILEPICKER")
+            return self.dispatcher.dispatch("FILEPICKER", game_state=self.game_state)
         else:
             return {
                 "status": "error",
@@ -213,7 +215,7 @@ Write your content here...
     def _handle_binder(self) -> Dict:
         """F4: Open binder."""
         if self.dispatcher:
-            return self.dispatcher.dispatch("BINDER list")
+            return self.dispatcher.dispatch("BINDER list", game_state=self.game_state)
         else:
             return {
                 "status": "error",
@@ -223,7 +225,7 @@ Write your content here...
     def _handle_workflows(self) -> Dict:
         """F5: Show workflows."""
         if self.dispatcher:
-            return self.dispatcher.dispatch("WORKFLOW list")
+            return self.dispatcher.dispatch("WORKFLOW list", game_state=self.game_state)
         else:
             return {
                 "status": "error",
@@ -233,7 +235,7 @@ Write your content here...
     def _handle_settings(self) -> Dict:
         """F6: TUI settings and status."""
         if self.dispatcher:
-            return self.dispatcher.dispatch("SETUP")
+            return self.dispatcher.dispatch("SETUP", game_state=self.game_state)
         else:
             return {
                 "status": "error",

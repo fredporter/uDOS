@@ -1,8 +1,9 @@
 import fs from 'fs'
 import path from 'path'
-import type { SqlValue } from 'sql.js'
 import { RuntimeBlock, ExecutionContext, ExecutorResult, RuntimeValue } from '../types'
 import { BaseExecutor } from './base'
+
+type SqlValue = string | number | Uint8Array | null
 
 export class SqlExecutor extends BaseExecutor {
   private betterSqliteModule?: any | null

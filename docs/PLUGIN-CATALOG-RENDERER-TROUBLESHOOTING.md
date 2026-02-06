@@ -49,7 +49,7 @@ curl -v http://localhost:8765/api/render/status
 ```bash
 # Ensure all required paths exist
 ls -la library/            # Plugin definitions
-ls -la memory/bank/        # Asset bank
+ls -la vault-md/bank/      # Vault bank
 ls -la wizard/config/      # Configuration
 ls -la themes/             # Theme definitions (if rendering enabled)
 ls -la vault/              # Content vault (if missions enabled)
@@ -183,7 +183,7 @@ Before starting Wizard, ensure:
 
 ```bash
 # ✅ Required directories exist
-mkdir -p library wizard/config themes vault memory/bank
+mkdir -p library wizard/config themes vault-md vault-md/bank memory/system
 
 # ✅ File permissions are correct (rwxr-xr-x)
 chmod 755 library wizard themes vault
@@ -271,7 +271,7 @@ rm -rf wizard/.cache wizard/__pycache__ .pytest_cache
 rm -f memory/logs/wizard-* memory/logs/unified-*
 
 # Recreate directories
-mkdir -p library wizard/config themes vault memory/bank
+mkdir -p library wizard/config themes vault-md vault-md/bank memory/system
 chmod 755 library wizard themes vault
 
 # Reinstall dependencies

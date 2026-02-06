@@ -19,5 +19,5 @@ PATTERN TEXT "Startup ready"
 # Notes
 
 - Extend this script with additional startup checks as needed.
-- Use RUN to execute: RUN memory/bank/system/startup-script.md
+- Use RUN to execute: RUN memory/system/startup-script.md
 - This script now runs automatically at boot and renders a PATTERN banner for demo/testing confirmation.

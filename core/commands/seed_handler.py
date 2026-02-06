@@ -39,6 +39,15 @@ class SeedHandler(BaseCommandHandler):
         subcommand = params[0].upper() if params else "STATUS"
         force = "--force" in params
 
+        from core.services.user_service import is_ghost_mode
+
+        if subcommand == "INSTALL" and is_ghost_mode():
+            return {
+                "status": "warning",
+                "output": "Ghost Mode active: SEED INSTALL is disabled (read-only).",
+                "type": "text",
+            }
+
         installer = SeedInstaller()
 
         if subcommand == "INSTALL":

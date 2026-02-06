@@ -17,7 +17,7 @@ Each binder is a self-contained folder with:
 - imports/: Optional CSV/JSON/YAML sources
 - tables/: Optional .table.md exports
 - scripts/: Optional Markdown executables
-- media/: Optional media folder (TBD)
+    - media/: Optional media folder for non-uDOS-standard files (everything except .md with uDOS frontmatter, .json, and .sqlite/.db)
 - .binder-config: Optional metadata file
 
 **Isolation Model:**

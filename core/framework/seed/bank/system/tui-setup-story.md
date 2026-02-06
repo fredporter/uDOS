@@ -18,6 +18,7 @@ type: text
 required: true
 placeholder: "Ghost"
 default: "Ghost"
+help: "Username 'Ghost' forces Ghost Mode (case-insensitive exact match)."
 ```
 
 ```story
@@ -38,6 +39,7 @@ options:
   - user
   - admin
 default: "ghost"
+help: "Role 'ghost' forces Ghost Mode."
 ```
 
 ---
@@ -80,4 +82,4 @@ help: |
 
 ## Completion Confirmation
 
-- The TUI prints the local repo/memory/bank/seed structure summary (see docs/SEED-INSTALLATION-GUIDE.md) once the story completes so you can confirm seeds, banks, and memory structure before the next training round.
+- The TUI prints the local repo/memory/system/vault structure summary (see docs/SEED-INSTALLATION-GUIDE.md) once the story completes so you can confirm seeds, vault, and memory structure before the next training round.

@@ -14,7 +14,7 @@
   <header>
     <div>
       <p class="eyebrow">v1.3.1 • Theme System</p>
-      <h2>Notion-Inspired Palette</h2>
+      <h2>Editorial Palette</h2>
     </div>
     <p class="hint">Persisted via `localStorage` + Tailwind tokens.</p>
   </header>
@@ -89,7 +89,10 @@
     background: rgba(15, 23, 42, 0.6);
     color: inherit;
     text-align: left;
-    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    transition:
+      transform 0.15s ease,
+      border-color 0.15s ease,
+      background 0.15s ease;
   }
 
   .theme-card.active {

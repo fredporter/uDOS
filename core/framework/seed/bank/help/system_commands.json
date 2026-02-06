@@ -135,7 +135,8 @@
       "notes": [
         "Always backs up files before making changes",
         "Can fix missing directories, corrupted configs, and broken links",
-        "Run after major updates or if system behaves unexpectedly"
+        "Run after major updates or if system behaves unexpectedly",
+        "In Ghost Mode, REPAIR runs in check-only (dry-run) mode"
       ],
       "version_added": "1.0.1"
     },

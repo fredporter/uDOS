@@ -14,7 +14,6 @@ import {
   AnchorCoord,
   AnchorTransform,
   QuantiseOptions,
-  LocId,
 } from "./anchors.js";
 import { parseLocId } from "./parse.js";
 

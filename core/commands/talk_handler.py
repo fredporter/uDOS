@@ -42,6 +42,53 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
                 trace.set_status(status)
             return result
 
+    def _get_player_id(self) -> str:
+        """Resolve player id from user/session state."""
+        player_id = self.get_state("player_id")
+        if player_id:
+            return player_id
+
+        try:
+            from core.services.user_service import get_user_manager
+
+            user = get_user_manager().current()
+            if user and user.username:
+                player_id = user.username
+        except Exception:
+            player_id = None
+
+        if not player_id:
+            player_id = "player1"
+
+        self.set_state("player_id", player_id)
+        return player_id
+
+    def _get_player_stats(self) -> Dict[str, Any]:
+        """Resolve player stats from handler state."""
+        stats = self.get_state("player_stats") or {}
+        if not stats:
+            try:
+                from core.services.user_service import get_user_manager
+
+                user = get_user_manager().current()
+                if user and user.username:
+                    stats["name"] = user.username
+            except Exception:
+                pass
+
+        stats.setdefault("name", "Player")
+        stats.setdefault("level", 1)
+        stats.setdefault("health", 100)
+        stats.setdefault("gold", 100)
+        self.set_state("player_stats", stats)
+        return stats
+
+    def _get_player_inventory(self) -> List[Any]:
+        """Resolve player inventory from handler state."""
+        inventory = self.get_state("inventory") or []
+        self.set_state("inventory", inventory)
+        return inventory
+
     def _handle_talk(self, params: List[str]) -> Dict[str, Any]:
         """Initiate conversation with NPC"""
         if not params:
@@ -52,7 +99,7 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
             }
 
         npc_name = " ".join(params)
-        player_id = "player1"  # TODO: Get from game state
+        player_id = self._get_player_id()
 
         # Find NPC by name
         npc = self._find_npc_by_name(npc_name)
@@ -117,7 +164,7 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
                 "suggestion": "Example: REPLY 1",
             }
 
-        player_id = "player1"  # TODO: Get from game state
+        player_id = self._get_player_id()
 
         # Check if conversation is active
         if player_id not in self.active_conversations:
@@ -228,12 +275,14 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
 
     def _build_context(self, npc: Dict[str, Any], player_id: str) -> Dict[str, Any]:
         """Build context for dialogue conditions"""
+        stats = self._get_player_stats()
+        inventory = self._get_player_inventory()
         return {
             "npc": npc,
             "player_id": player_id,
-            "player_level": 1,  # TODO: Get from game state
-            "player_gold": 100,  # TODO: Get from game state
-            "player_inventory": [],  # TODO: Get from game state
+            "player_level": stats.get("level", 1),
+            "player_gold": stats.get("gold", 100),
+            "player_inventory": inventory,
         }
 
     def end_conversation(self, player_id: str):

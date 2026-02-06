@@ -25,6 +25,7 @@ class GameState:
         self.current_location: str = "L300-BJ10"
         self.inventory: List[Dict[str, Any]] = []
         self.discovered_locations: List[str] = ["L300-BJ10"]
+        self.player_id: str = "player1"
         self.player_stats: Dict[str, Any] = {
             "name": "Player",
             "level": 1,
@@ -72,6 +73,7 @@ class GameState:
             "current_location": self.current_location,
             "inventory": self.inventory,
             "discovered_locations": self.discovered_locations,
+            "player_id": self.player_id,
             "player_stats": self.player_stats,
         }
 
@@ -80,6 +82,7 @@ class GameState:
         self.current_location = data.get("current_location", "L300-BJ10")
         self.inventory = data.get("inventory", [])
         self.discovered_locations = data.get("discovered_locations", ["L300-BJ10"])
+        self.player_id = data.get("player_id", "player1")
         self.player_stats.update(data.get("player_stats", {}))
 
     def save_to_file(self, slot: str = "quicksave") -> bool:

@@ -1,6 +1,6 @@
 # Theme ↔ Layer Mapping
 
-The Core theme service (`core/services/theme_service.py`) seeds a handful of voice templates from `core/framework/seed/bank/system/themes/` into `/memory/bank/system/themes/` on first boot. Each JSON file contains a `companions` array that links the template to the layer categories it was designed to colorize, and the service applies the replacements just before the text hits the terminal so log files and health reports stay verbatim.
+The Core theme service (`core/services/theme_service.py`) seeds a handful of voice templates from `core/framework/seed/bank/system/themes/` into `memory/system/themes/` on first boot. Each JSON file contains a `companions` array that links the template to the layer categories it was designed to colorize, and the service applies the replacements just before the text hits the terminal so log files and health reports stay verbatim.
 
 | Theme | Target Layer(s) | Notes |
 | --- | --- | --- |
@@ -16,7 +16,7 @@ Virtual layers reuse these galaxy/outer-space themes today (Foundation and Hitch
 ## Working with the seeds
 - Add or update a theme JSON in `core/framework/seed/bank/system/themes/` with a `name`, `description`, `companions`, and `replacements`.
 - Keep replacements narrowly scoped (core strings such as `uDOS`, `Wizard`, `Hotkey`, `Self-Heal`) so you’re only shifting jargon, not altering diagnostic output.
-- The theme service copies these seeds into `memory/bank/system/themes/`; edit the copy there for live tweaks, then commit them back into the seed folder if you want the changes to ship.
+- The theme service copies these seeds into `memory/system/themes/`; edit the copy there for live tweaks, then commit them back into the seed folder if you want the changes to ship.
 - Switch the active theme by setting `UDOS_THEME=<theme-name>` when launching uCODE or by calling `core/services/theme_service.ThemeService.load_theme`.
 
 Dreamed themes are companions to layers, not requirements—if you render an Earth layer but the current theme is `hitchhikers`, the service still applies the replacements but the map data itself stays unchanged. Use the table above as the single-source reference when aligning future Wizard rounds, Hotkey Center briefs, or docs with the theme/layer pairings.

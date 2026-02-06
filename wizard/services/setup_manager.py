@@ -47,22 +47,6 @@ def get_required_variables() -> Dict[str, Dict[str, Any]]:
             "status": "configured" if os.getenv("GITHUB_TOKEN") else "optional",
             "documentation": "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token",
         },
-        "notion_api_key": {
-            "name": "Notion API Key",
-            "description": "API key for Notion workspace access",
-            "env_var": "NOTION_API_KEY",
-            "required": config.get("notion_enabled", False),
-            "status": "configured" if os.getenv("NOTION_API_KEY") else "not-configured",
-            "documentation": "https://developers.notion.com/docs/getting-started",
-        },
-        "notion_database_id": {
-            "name": "Notion Database ID",
-            "description": "ID of your main Notion database",
-            "env_var": "NOTION_DATABASE_ID",
-            "required": config.get("notion_enabled", False),
-            "status": "configured" if os.getenv("NOTION_DATABASE_ID") else "not-configured",
-            "documentation": "https://developers.notion.com/docs/working-with-databases",
-        },
         "mistral_api_key": {
             "name": "Mistral API Key (Optional)",
             "description": "API key for cloud AI features via Mistral",
@@ -107,10 +91,6 @@ def get_full_config_status() -> Dict[str, Any]:
                 "configured": bool(os.getenv("GITHUB_TOKEN")),
                 "status": "ready" if os.getenv("GITHUB_TOKEN") else "not-configured",
             },
-            "notion": {
-                "configured": bool(os.getenv("NOTION_API_KEY")),
-                "status": "ready" if os.getenv("NOTION_API_KEY") else "not-configured",
-            },
             "ai": {
                 "configured": bool(os.getenv("MISTRAL_API_KEY")),
                 "status": "ready" if os.getenv("MISTRAL_API_KEY") else "not-configured",
@@ -131,7 +111,6 @@ def get_full_config_status() -> Dict[str, Any]:
             "ghost_mode": ghost_mode,
         },
         "features": {
-            "notion_enabled": config.get("notion_enabled", False),
             "ai_gateway_enabled": config.get("ai_gateway_enabled", False),
             "github_push_enabled": config.get("github_push_enabled", False),
             "web_proxy_enabled": config.get("web_proxy_enabled", False),
@@ -169,7 +148,6 @@ def get_paths() -> Dict[str, Any]:
 def _load_wizard_config() -> Dict[str, Any]:
     config_path = get_repo_root() / "wizard" / "config" / "wizard.json"
     defaults = {
-        "notion_enabled": False,
         "ai_gateway_enabled": False,
         "github_push_enabled": False,
         "web_proxy_enabled": False,

@@ -146,16 +146,6 @@ def create_provider_routes(auth_guard=None):
             "config_file": "assistant_keys.json",
             "config_key": "GEMINI_API_KEY",
         },
-        "notion": {
-            "name": "Notion",
-            "description": "Workspace integration",
-            "type": "integration",
-            "automation": "semi",
-            "cli_required": False,
-            "web_url": "https://www.notion.so/my-integrations",
-            "config_file": "notion_keys.json",
-            "config_key": "notion_token",
-        },
         "hubspot_cli": {
             "name": "HubSpot CLI",
             "description": "HubSpot developer CLI (hs)",
@@ -342,8 +332,6 @@ def create_provider_routes(auth_guard=None):
 
         if config.get("github_push_enabled"):
             enabled.add("github")
-        if config.get("notion_enabled"):
-            enabled.add("notion")
         if config.get("hubspot_enabled"):
             enabled.add("hubspot")
         if config.get("ai_gateway_enabled"):
@@ -441,7 +429,7 @@ def create_provider_routes(auth_guard=None):
 
                         status["configured"] = has_key
                     elif provider["type"] == "integration":
-                        # For integrations like Notion, check nested integration.key_id
+                        # For integrations with nested credentials.
                         has_key = False
                         integration = config.get("integration", {})
                         if isinstance(integration, dict):
@@ -460,7 +448,6 @@ def create_provider_routes(auth_guard=None):
         if not status.get("configured"):
             secret_key_map = {
                 "github": ["github_token", "github_webhook_secret"],
-                "notion": ["notion_api_key"],
                 "hubspot": ["hubspot_api_key"],
                 "mistral": ["mistral_api_key"],
                 "openrouter": ["openrouter_api_key"],

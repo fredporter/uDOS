@@ -75,9 +75,13 @@
       wizardSteps = data.steps || [];
     } catch (err) {
       wizardSteps = [];
-      notifyError("Setup wizard failed", err.message || "Unable to load steps", {
-        path: "/api/setup/wizard/start",
-      });
+      notifyError(
+        "Setup wizard failed",
+        err.message || "Unable to load steps",
+        {
+          path: "/api/setup/wizard/start",
+        },
+      );
     }
   }
 
@@ -109,7 +113,9 @@
     });
     const data = await res.json();
     const envPath = data.paths?.env_file || ".env";
-    alert(`📝 Edit your .env file:\n\n${envPath}\n\nRequired variables:\n• WIZARD_KEY (for encrypting setup data)\n• Python environment variables\n\nRestart Wizard after changes.`);
+    alert(
+      `📝 Edit your .env file:\n\n${envPath}\n\nRequired variables:\n• WIZARD_KEY (for encrypting setup data)\n• Python environment variables\n\nRestart Wizard after changes.`,
+    );
   }
 
   async function handleStorySubmit(answers) {
@@ -222,7 +228,9 @@
     if (status?.setup?.setup_complete) return "done";
     if (isStepCompleted(step)) return "done";
     const percent = progress?.progress_percent ?? 0;
-    const stepPercent = Math.round((step.step / Math.max(wizardSteps.length, 1)) * 100);
+    const stepPercent = Math.round(
+      (step.step / Math.max(wizardSteps.length, 1)) * 100,
+    );
     if (percent >= stepPercent) return "done";
     return "pending";
   };
@@ -239,7 +247,7 @@
       return { label: "Configure GitHub", action: openConfig };
     }
     if (id === 3) {
-      return { label: "Configure Notion", action: openConfig };
+      return { label: "Configure Docs", action: openConfig };
     }
     if (id === 4) {
       return { label: "Configure AI", action: openConfig };
@@ -260,15 +268,18 @@
     <p class="muted">
       First-time configuration questions (user + installation profiles).
     </p>
-    
+
     <!-- ENV Variables Setup First -->
     <div class="setup-section">
       <h3>1. Environment Variables (.env)</h3>
       <p class="section-description">
-        Required: Set WIZARD_KEY and other environment variables before running setup story.
+        Required: Set WIZARD_KEY and other environment variables before running
+        setup story.
       </p>
       <div class="story-actions">
-        <button on:click={openEnvEditor} class="btn-primary">Configure .env</button>
+        <button on:click={openEnvEditor} class="btn-primary"
+          >Configure .env</button
+        >
       </div>
     </div>
 
@@ -276,10 +287,13 @@
     <div class="setup-section">
       <h3>2. Wizard Key & Integration Setup</h3>
       <p class="section-description">
-        After .env is configured, set up your wizard credentials and integration keys.
+        After .env is configured, set up your wizard credentials and integration
+        keys.
       </p>
       <div class="story-actions">
-        <button on:click={runWizardStart} class="btn-secondary">Setup Integrations</button>
+        <button on:click={runWizardStart} class="btn-secondary"
+          >Setup Integrations</button
+        >
       </div>
     </div>
 
@@ -287,10 +301,15 @@
     <div class="setup-section">
       <h3>3. User & Installation Profile</h3>
       <p class="section-description">
-        Complete the setup story to capture user identity and installation details.
+        Complete the setup story to capture user identity and installation
+        details.
       </p>
-      <p class="section-description" style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.7;">
-        💡 To reset: Use <code>DESTROY</code> or <code>REPAIR</code> commands in uDOS TUI to clear .env variables or reset wizard tokens.
+      <p
+        class="section-description"
+        style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.7;"
+      >
+        💡 To reset: Use <code>DESTROY</code> or <code>REPAIR</code> commands in
+        uDOS TUI to clear .env variables or reset wizard tokens.
       </p>
     </div>
 
@@ -306,7 +325,11 @@
     {#if storyLoading}
       <div class="story-loading">Loading setup story…</div>
     {:else if setupStory}
-      <StoryRenderer story={setupStory} onSubmit={handleStorySubmit} theme={storyTheme} />
+      <StoryRenderer
+        story={setupStory}
+        onSubmit={handleStorySubmit}
+        theme={storyTheme}
+      />
     {:else}
       <div class="story-loading">No setup story loaded.</div>
     {/if}
@@ -339,7 +362,9 @@
           </div>
           <div>
             <div class="label">Services Enabled</div>
-            <div class="value">{status.setup?.services_enabled?.length || 0}</div>
+            <div class="value">
+              {status.setup?.services_enabled?.length || 0}
+            </div>
           </div>
         </div>
         <div class="actions">
@@ -384,10 +409,7 @@
             <div class="step-desc">{step.description}</div>
             <div class="step-actions">
               {#if stepAction(step)}
-                <button
-                  class="step-action"
-                  on:click={stepAction(step).action}
-                >
+                <button class="step-action" on:click={stepAction(step).action}>
                   {stepAction(step).label}
                 </button>
               {/if}
@@ -472,7 +494,7 @@
   {/if}
 </div>
 
-  <style>
+<style>
   .wizard-page {
     max-width: 1100px;
     margin: 0 auto;

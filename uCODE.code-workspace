@@ -7,10 +7,10 @@
     {
       "name": "\u26a1 Core",
       "path": "core"
-    },
     {
-      "name": "\ud83e\uddd9 Wizard",
-      "path": "wizard"
+      "name": "📱 App Docs",
+      "path": "app/docs"
+    },
     },
     {
       "name": "\ud83d\udd0c Extensions",

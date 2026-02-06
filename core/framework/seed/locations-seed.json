@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "description": "uDOS Location Seed Data - Minimal examples for framework distribution",
-  "note": "Full location data available at /memory/bank/locations/locations.json",
+  "note": "Full location data available at vault-md/bank/locations/locations.json",
   "regions": {
     "tutorial": "Forest Clearing area (game start)",
     "asia_east": "East Asia - Japan, Korea, China",

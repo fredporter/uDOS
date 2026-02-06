@@ -7,7 +7,7 @@ Validates usernames and real names for uDOS.
 Rules:
   1. Cannot be blank/empty
   2. Cannot match forbidden names (case-insensitive)
-  3. Forbidden: ghost, wizard, admin, goblin, tomb, crypt, drone, portal, fred, user
+  3. Forbidden: wizard, admin, goblin, tomb, crypt, drone, portal, fred, user
 
 Usage:
     from core.services.name_validator import validate_name, validate_username
@@ -29,7 +29,6 @@ Date: 2026-01-30
 
 # Forbidden usernames - cannot be used (case-insensitive)
 FORBIDDEN_NAMES = {
-    "ghost",    # Reserved for demo/test mode
     "wizard",   # Reserved for wizard component
     "admin",    # Reserved for system admin
     "goblin",   # Reserved for Goblin MODE

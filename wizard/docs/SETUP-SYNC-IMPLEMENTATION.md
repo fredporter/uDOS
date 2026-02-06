@@ -133,15 +133,15 @@ Created comprehensive documentation:
 
 ```bash
 # Get combined profile
-curl -H "Authorization: Bearer $(cat memory/bank/private/wizard_admin_token.txt)" \
+curl -H "Authorization: Bearer $(cat memory/private/wizard_admin_token.txt)" \
   http://localhost:8765/api/setup/profile/combined | jq
 
 # Get user profile only
-curl -H "Authorization: Bearer $(cat memory/bank/private/wizard_admin_token.txt)" \
+curl -H "Authorization: Bearer $(cat memory/private/wizard_admin_token.txt)" \
   http://localhost:8765/api/setup/profile/user | jq
 
 # Get install profile only
-curl -H "Authorization: Bearer $(cat memory/bank/private/wizard_admin_token.txt)" \
+curl -H "Authorization: Bearer $(cat memory/private/wizard_admin_token.txt)" \
   http://localhost:8765/api/setup/profile/install | jq
 ```
 

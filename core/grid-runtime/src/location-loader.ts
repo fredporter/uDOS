@@ -77,6 +77,27 @@ export function getCellDistance(scale: DistanceScale): number {
 }
 
 /**
+ * Parse a cell address (e.g., "AA10") into grid coordinates.
+ * Columns are base-26 (A=0), rows are numeric.
+ */
+function parseCellAddress(cell: string): { col: number; row: number } | null {
+  const match = cell.match(/^([A-Z]{2})(\d+)$/);
+  if (!match) return null;
+
+  const letters = match[1];
+  const row = parseInt(match[2], 10);
+  if (Number.isNaN(row)) return null;
+
+  const col =
+    (letters.charCodeAt(0) - 65) * 26 +
+    (letters.charCodeAt(1) - 65);
+
+  if (col < 0) return null;
+
+  return { col, row };
+}
+
+/**
  * World model - manages all locations and spatial relationships
  */
 export class World {
@@ -251,15 +272,21 @@ export class World {
       return null;
     }
     
-    // Parse cell addresses (simplified: calculate Manhattan distance)
     const parsed1 = parseLocationId(locationId1);
     const parsed2 = parseLocationId(locationId2);
     
     if (!parsed1 || !parsed2) return null;
-    
-    // For now, return null (would need full cell coordinate parsing)
-    // TODO: Implement full coordinate distance calculation
-    return null;
+
+    const cell1 = parseCellAddress(parsed1.cell);
+    const cell2 = parseCellAddress(parsed2.cell);
+    if (!cell1 || !cell2) return null;
+
+    const dx = cell2.col - cell1.col;
+    const dy = cell2.row - cell1.row;
+    const distanceCells = Math.sqrt(dx * dx + dy * dy);
+
+    const scale = getDistanceScale(loc1.layer);
+    return distanceCells * getCellDistance(scale);
   }
   
   /**

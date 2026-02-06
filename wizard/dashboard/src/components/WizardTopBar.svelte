@@ -42,7 +42,6 @@
     { id: "tasks", label: "⏱️ Task Scheduler" },
     { id: "workflow", label: "✅ Workflow" },
     { id: "binder", label: "📚 Binder Compiler" },
-    { id: "notion", label: "📝 Notion Sync" },
     { id: "wizard-ui-v1-3-1", label: "🔮 Wizard UI v1.3.1" },
     { id: "groovebox", label: "🎛 Groovebox" },
     { id: "github", label: "🐙 GitHub" },

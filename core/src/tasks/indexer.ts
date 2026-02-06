@@ -293,7 +293,7 @@ async function updateFileRecord(
   `;
 
   const stmt = db.prepare(insertSql);
-  stmt.run(relPath, Math.floor(stats.mtime / 1000), hash);
+  stmt.run(relPath, Math.floor(stats.mtimeMs / 1000), hash);
 }
 
 export function queryTaskCatalog(dbPath: string): TaskCatalog {

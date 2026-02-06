@@ -13,7 +13,7 @@ export type AnchorId =
 export type SpaceId = "SUR" | "SUB" | "UDN"
 export type EffectiveLayer = `L${number}`
 export type CellId = string
-export type LocId = `${AnchorId}:${SpaceId}:${EffectiveLayer}-${CellId}`
+export type AnchorLocId = `${AnchorId}:${SpaceId}:${EffectiveLayer}-${CellId}`
 
 export interface AnchorCoord {
   kind: string
@@ -46,8 +46,8 @@ export interface QuantiseOptions {
 }
 
 export interface AnchorTransform {
-  toLocId(coord: AnchorCoord, opts?: QuantiseOptions): LocId
-  toCoord(locId: LocId): AnchorCoord | null
+  toLocId(coord: AnchorCoord, opts?: QuantiseOptions): AnchorLocId
+  toCoord(locId: AnchorLocId): AnchorCoord | null
 }
 
 export interface AnchorInstance {
@@ -84,4 +84,58 @@ export interface RenderFrame {
     ref: string
     format: "RGBA8888" | "RGB565" | "INDEXED"
   }
+  overlays?: Array<{
+    locId?: AnchorLocId
+    label?: string
+    icon?: string
+    data?: Record<string, unknown>
+  }>
+}
+
+export interface SaveStateRef {
+  ref: string
+  sizeBytes?: number
+  hash?: string
+  createdAt: string
+}
+
+export interface AnchorEvent {
+  ts: number
+  anchorId: AnchorId
+  instanceId: string
+  type:
+    | "MOVE"
+    | "ENTER_CELL"
+    | "EXIT_CELL"
+    | "PICKUP"
+    | "DROP"
+    | "DIALOGUE"
+    | "QUEST_TRIGGER"
+    | "CUSTOM"
+  locId?: AnchorLocId
+  coord?: AnchorCoord
+  data?: Record<string, unknown>
+}
+
+export interface AnchorRuntime {
+  meta(): Promise<AnchorMeta>
+  transform(): Promise<AnchorTransform>
+
+  createInstance(params?: {
+    seed?: string
+    profileId?: string
+    space?: SpaceId
+    initialLocId?: AnchorLocId
+  }): Promise<AnchorInstance>
+
+  destroyInstance(instanceId: string): Promise<void>
+
+  input(instanceId: string, event: InputEvent): Promise<void>
+  tick(instanceId: string, dtMs: number): Promise<void>
+
+  render(instanceId: string): Promise<RenderFrame>
+
+  saveState?(instanceId: string): Promise<SaveStateRef>
+  loadState?(instanceId: string, state: SaveStateRef): Promise<void>
+  pollEvents?(instanceId: string, sinceTs: number): Promise<AnchorEvent[]>
 }

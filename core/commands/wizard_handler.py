@@ -22,6 +22,15 @@ class WizardHandler(BaseCommandHandler):
         if not action:
             return self._show_help()
 
+        from core.services.user_service import is_ghost_mode
+
+        if is_ghost_mode() and action in {"rebuild", "--rebuild", "start", "--start", "stop", "--stop"}:
+            return {
+                "status": "warning",
+                "message": "Ghost Mode is read-only (Wizard control blocked)",
+                "output": self._help_text(),
+            }
+
         if action in {"rebuild", "--rebuild"}:
             return self._rebuild_wizard()
         elif action in {"start", "--start"}:

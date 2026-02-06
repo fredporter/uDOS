@@ -771,10 +771,11 @@ class TUIFormRenderer:
         return "\n".join(lines)
 
     def _render_structure_summary(self) -> List[str]:
-        """Render the local/memory/bank/seed structure confirmation."""
+        """Render the local/memory/system/vault structure confirmation."""
         repo_root = get_repo_root()
         memory_root = get_memory_root()
-        bank_root = memory_root / "bank"
+        system_root = memory_root / "system"
+        vault_root = repo_root / "vault-md" / "bank"
         seed_root = repo_root / "core" / "framework" / "seed"
         seed_bank = seed_root / "bank"
         guide_doc = repo_root / "docs" / "SEED-INSTALLATION-GUIDE.md"
@@ -787,7 +788,8 @@ class TUIFormRenderer:
             "\nSystem structure summary:",
             fmt("local repo root", repo_root),
             fmt("memory root", memory_root),
-            fmt("memory/bank", bank_root),
+            fmt("memory/system", system_root),
+            fmt("vault-md/bank", vault_root),
             fmt("framework seed root", seed_root),
             fmt("seed bank data", seed_bank),
             fmt("seed installation guide", guide_doc),

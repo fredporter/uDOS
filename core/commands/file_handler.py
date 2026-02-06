@@ -36,8 +36,18 @@ class FileHandler(BaseCommandHandler):
     
     def _get_user_role(self) -> UserRole:
         """Determine user role from state or config."""
-        # Check dev mode or admin state
-        # For now, default to USER (Phase 4 will add proper role detection)
+        try:
+            from core.services.user_service import get_user_manager, is_ghost_mode
+
+            if is_ghost_mode():
+                return UserRole.GUEST
+
+            user = get_user_manager().current()
+            if user and user.role:
+                return UserRole(user.role.value)
+        except Exception:
+            pass
+
         admin_mode = self.get_state("dev_mode", False) or self.get_state("admin_mode", False)
         return UserRole.ADMIN if admin_mode else UserRole.USER
     

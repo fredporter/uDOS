@@ -1,6 +1,6 @@
 # Seed Installation Guide
 
-This guide ensures the local memory/bank/seed structure is healthy so the Core
+This guide ensures the local memory/system + vault-md/bank structure is healthy so the Core
 TUI can rely on consistent data after every setup pass.
 
 ## 1. Directory layout
@@ -8,7 +8,8 @@ TUI can rely on consistent data after every setup pass.
 | Path | Purpose |
 |---|---|
 | `memory/` | Streaming state storage for uDOS components |
-| `memory/bank/` | Seed/bank data used by the CLI, TUI, and Sonic loaders |
+| `vault-md/bank/` | User data used by the CLI, TUI, and Sonic loaders |
+| `memory/system/` | System templates used by the CLI/TUI |
 | `core/framework/seed/` | Canonical seed data tracked inside the repo |
 | `core/framework/seed/bank/` | Rich bank seed content (graphics, files, templates) |
 
@@ -18,9 +19,9 @@ runtime view matches the filesystem.
 
 ## 2. Seed synchronization checklist
 
-1. Run `REPAIR --seed` (or copy `framework/seed/bank/*` into `memory/bank/`) to
-   ensure the bank directory has tracked resources.
-2. Confirm that `memory/bank/graphics/` contains the expected textures and
+1. Run `REPAIR --seed` (or copy `framework/seed/bank/*` into `memory/system/`) to
+   ensure system templates have tracked resources.
+2. Confirm that `memory/system/graphics/` contains the expected textures and
    templates by comparing against `core/framework/seed/bank/graphics/`.
 3. Validate the device and location seeds with `python3 framework/seed_installer.py`
    if you add new entries.

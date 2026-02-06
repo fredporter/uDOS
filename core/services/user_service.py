@@ -42,6 +42,10 @@ class UserRole(Enum):
     GUEST = "guest"       # Read-only access
 
 
+GHOST_USERNAME = "ghost"
+GHOST_ROLE_NAME = "ghost"
+
+
 class Permission(Enum):
     """Permission types."""
     # System
@@ -377,3 +381,41 @@ def get_user_manager() -> UserManager:
     if _user_manager is None:
         _user_manager = UserManager()
     return _user_manager
+
+
+def _is_exact_ghost(value: Optional[str]) -> bool:
+    """Return True if value is an exact case-insensitive match for Ghost."""
+    return bool(value) and str(value).strip().lower() == GHOST_USERNAME
+
+
+def is_ghost_identity(username: Optional[str] = None, role: Optional[str] = None) -> bool:
+    """Return True if identity fields force Ghost Mode."""
+    return _is_exact_ghost(username) or _is_exact_ghost(role)
+
+
+def is_ghost_user(user: Optional[User] = None) -> bool:
+    """Return True if the current user is a Ghost user or guest role."""
+    if user is None:
+        user = get_user_manager().current()
+    if not user:
+        return False
+    return user.role == UserRole.GUEST or _is_exact_ghost(user.username)
+
+
+def is_ghost_mode() -> bool:
+    """Return True if Ghost Mode should be enforced.
+
+    Ghost Mode is enforced when:
+    - .env identity sets user_role=ghost OR user_username=ghost (case-insensitive), or
+    - Current user is guest role or username ghost.
+    """
+    try:
+        from core.services.config_sync_service import ConfigSyncManager
+
+        identity = ConfigSyncManager().load_identity_from_env()
+        if is_ghost_identity(identity.get("user_username"), identity.get("user_role")):
+            return True
+    except Exception:
+        pass
+
+    return is_ghost_user()

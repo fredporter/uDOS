@@ -14,7 +14,9 @@
   "devDependencies": {
     "typescript": "^5.3.0",
     "jest": "^29.0.0",
-    "@types/jest": "^29.0.0"
+    "@types/jest": "^29.0.0",
+    "@types/node": "^20.11.0",
+    "ts-jest": "^29.2.5"
   },
   "keywords": ["uDOS", "grid", "teletext", "spatial", "text-graphics"],
   "author": "uDOS Team",

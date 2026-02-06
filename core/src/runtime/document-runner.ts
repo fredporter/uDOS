@@ -1,4 +1,5 @@
-import { Runtime, RuntimeConfig, ExecutorResult, Document } from '../index'
+import { Runtime } from './runtime'
+import { RuntimeConfig, ExecutorResult, Document } from '../types'
 
 export interface RunnerResult extends ExecutorResult {
   executedSections: string[]

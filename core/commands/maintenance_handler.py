@@ -39,6 +39,11 @@ class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
     def _handle_impl(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         cmd = command.upper()
         try:
+            from core.services.user_service import is_ghost_mode
+
+            if is_ghost_mode():
+                return self._ghost_mode_block(cmd, params)
+
             if cmd == "BACKUP":
                 return self._handle_backup(params)
             if cmd == "RESTORE":
@@ -57,6 +62,28 @@ class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
             return {"status": "error", "message": f"{cmd} failed: {exc}"}
 
         return {"status": "error", "message": f"Unknown command: {cmd}"}
+
+    def _ghost_mode_block(self, cmd: str, params: List[str]) -> Dict:
+        """Return a dry-run response for destructive commands in Ghost Mode."""
+        scope, remaining = self._parse_scope(params)
+        label = " ".join(remaining).strip()
+        output = "\n".join(
+            [
+                OutputToolkit.banner(f"{cmd} (DRY-RUN)"),
+                "Ghost Mode active: destructive commands run in check-only mode.",
+                f"Scope: {scope}",
+                f"Args: {' '.join(params) if params else '(none)'}",
+                f"Note: No files were modified. Run SETUP to exit Ghost Mode.",
+            ]
+        )
+        return {
+            "status": "warning",
+            "message": f"{cmd} blocked in Ghost Mode",
+            "output": output,
+            "dry_run": True,
+            "scope": scope,
+            "label": label,
+        }
 
     def _parse_scope(self, params: List[str]) -> Tuple[str, List[str]]:
         if not params:

@@ -70,11 +70,6 @@
       label: "GitHub Keys",
       description: "GitHub token and webhook secrets",
     },
-    notion_keys: {
-      id: "notion_keys",
-      label: "Notion Integration",
-      description: "Notion API token and workspace config",
-    },
     oauth: {
       id: "oauth",
       label: "OAuth Providers",
@@ -129,11 +124,6 @@
       description: "Enable HubSpot CRM integration",
     },
     {
-      key: "notion_enabled",
-      label: "Notion",
-      description: "Enable Notion workspace integration",
-    },
-    {
       key: "icloud_enabled",
       label: "iCloud",
       description: "Enable iCloud-based sync and features",
@@ -152,12 +142,6 @@
       label: "GitHub Webhook Secret",
       helper: "Shared secret for webhook validation",
       provider: "github",
-    },
-    {
-      key: "notion_api_key",
-      label: "Notion API Key",
-      helper: "Notion integration token",
-      provider: "notion",
     },
     {
       key: "hubspot_api_key",
@@ -186,9 +170,14 @@
   const DEFAULT_AI_PROVIDER_IDS = ["ollama", "openrouter"];
   const isAiProvider = (provider) =>
     provider?.config_file === "assistant_keys.json" ||
-    ["openai", "anthropic", "gemini", "mistral", "openrouter", "ollama"].includes(
-      provider?.id,
-    );
+    [
+      "openai",
+      "anthropic",
+      "gemini",
+      "mistral",
+      "openrouter",
+      "ollama",
+    ].includes(provider?.id);
   const isDefaultAiProvider = (provider) =>
     DEFAULT_AI_PROVIDER_IDS.includes(provider?.id);
   const isOptionalAiProvider = (provider) =>
@@ -250,7 +239,7 @@
     {
       id: "integrations",
       title: "Integrations & Tools",
-      description: "GitHub, Notion, HubSpot, and other non-AI services.",
+      description: "GitHub, HubSpot, and other non-AI services.",
       providers: nonAiProviders,
     },
     {
@@ -1245,9 +1234,7 @@
             admin token.
           </p>
           <div class="bg-gray-900/50 rounded-lg p-4 mb-4">
-            <p class="text-sm text-gray-300 mb-2 font-semibold">
-              In uCODE:
-            </p>
+            <p class="text-sm text-gray-300 mb-2 font-semibold">In uCODE:</p>
             <ol
               class="text-sm text-gray-300 space-y-2 list-decimal list-inside"
             >
@@ -1336,9 +1323,7 @@
     </div>
 
     <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
-      <h3 class="text-sm font-semibold text-white mb-2">
-        Connection & Sync
-      </h3>
+      <h3 class="text-sm font-semibold text-white mb-2">Connection & Sync</h3>
       <p class="text-xs text-gray-400 mb-3">
         Syncs with the uCODE .env + secret store before loading providers.
       </p>
@@ -1399,8 +1384,11 @@
   {/if}
 
   {#if isBootstrapping}
-    <div class="mb-6 p-4 rounded-lg border border-blue-700 bg-blue-900/30 text-blue-200 text-sm">
-      Syncing with uCODE .env + secret store… configuration panels will refresh when ready.
+    <div
+      class="mb-6 p-4 rounded-lg border border-blue-700 bg-blue-900/30 text-blue-200 text-sm"
+    >
+      Syncing with uCODE .env + secret store… configuration panels will refresh
+      when ready.
     </div>
   {/if}
 
@@ -1536,7 +1524,8 @@
             </div>
           </div>
           <div class="mt-2 text-gray-400">
-            uCODE will detect missing CLIs, install dependencies, and guide setup.
+            uCODE will detect missing CLIs, install dependencies, and guide
+            setup.
           </div>
         </div>
       </div>
@@ -1852,7 +1841,10 @@
             <div class="text-xs text-gray-500 space-y-1">
               <div>CONFIG SHOW - View config status</div>
               <div>CONFIG LIST - List all configs</div>
-              <div>SETUP &lt;provider&gt; - Setup github, ollama, mistral, hubspot, etc.</div>
+              <div>
+                SETUP &lt;provider&gt; - Setup github, ollama, mistral, hubspot,
+                etc.
+              </div>
               <div>SETUP --help - Show all SETUP options</div>
             </div>
           </div>
@@ -1901,7 +1893,9 @@
 
       <!-- Popular Models Browser -->
       <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
+        <div
+          class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3"
+        >
           <h4 class="text-sm font-semibold text-white">📚 Popular Models</h4>
           <div class="text-[11px] text-gray-400">
             Remote: set <code>OLLAMA_HOST=http://host:11434</code> in the same
@@ -1940,7 +1934,8 @@
                   {#if pullProgress[model.name]}
                     <div class="mt-2 text-xs text-emerald-300">
                       {#if pullProgress[model.name].state === "error"}
-                        Pull failed: {pullProgress[model.name].error || "Unknown error"}
+                        Pull failed: {pullProgress[model.name].error ||
+                          "Unknown error"}
                       {:else if pullProgress[model.name].percent !== null && pullProgress[model.name].percent !== undefined}
                         Pulling… {pullProgress[model.name].percent}%
                       {:else}
@@ -2029,7 +2024,9 @@
           <div class="space-y-2 text-xs text-gray-400">
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
               <code class="text-green-400">SETUP ollama</code>
-              <div class="text-gray-500">Detect Ollama service + open model tools</div>
+              <div class="text-gray-500">
+                Detect Ollama service + open model tools
+              </div>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
               <code class="text-green-400">AI OLLAMA status</code>
@@ -2057,8 +2054,7 @@
         Tip: Use <code class="px-1 py-0.5 bg-gray-900 rounded"
           >PROVIDER SETUP ollama</code
         >
-        in uCODE to verify the local service is running and browse models
-        interactively.
+        in uCODE to verify the local service is running and browse models interactively.
       </div>
     {/if}
   </div>
@@ -2147,11 +2143,11 @@
       </div>
 
       <!-- Authenticated Accounts -->
-        {#if hubspotCliStatus?.installed}
-          <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4">
-            <h4 class="text-sm font-semibold text-white mb-3">
-              🔑 Authenticated Accounts ({hubspotAccounts.length})
-            </h4>
+      {#if hubspotCliStatus?.installed}
+        <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4">
+          <h4 class="text-sm font-semibold text-white mb-3">
+            🔑 Authenticated Accounts ({hubspotAccounts.length})
+          </h4>
 
           {#if hubspotAccounts.length > 0}
             <div class="space-y-2">
@@ -2186,9 +2182,7 @@
 
       <!-- Quickstart Guide -->
       <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-        <h4 class="text-sm font-semibold text-white mb-3">
-          📚 uCODE Commands
-        </h4>
+        <h4 class="text-sm font-semibold text-white mb-3">📚 uCODE Commands</h4>
 
         <div class="space-y-3 text-xs">
           <div class="bg-gray-950 rounded p-3 border border-gray-700">
@@ -2196,7 +2190,9 @@
               <code class="text-orange-400">PROVIDER SETUP hubspot_cli</code>
               <span class="text-gray-500">Install + authenticate CLI</span>
             </div>
-            <p class="text-gray-500">Runs CLI setup and verifies account access</p>
+            <p class="text-gray-500">
+              Runs CLI setup and verifies account access
+            </p>
           </div>
 
           <div class="bg-gray-950 rounded p-3 border border-gray-700">
@@ -2320,14 +2316,18 @@
                       </p>
                     </div>
                     <div class="flex flex-col items-end gap-1 text-xs">
-                      <span class={`px-2 py-1 rounded ${badge.configuredClass}`}>
+                      <span
+                        class={`px-2 py-1 rounded ${badge.configuredClass}`}
+                      >
                         {badge.configuredText}
                       </span>
                       <span class={`px-2 py-1 rounded ${badge.availableClass}`}>
                         {badge.availableText}
                       </span>
                       {#if !isProviderEnabled(provider)}
-                        <span class="px-2 py-1 rounded bg-gray-800 text-gray-400">
+                        <span
+                          class="px-2 py-1 rounded bg-gray-800 text-gray-400"
+                        >
                           Disabled
                         </span>
                       {/if}
@@ -2355,11 +2355,12 @@
                       </a>
                     {:else if setup.type === "tui"}
                       <div class="mt-2">
-                        <p class="text-sm text-gray-400 mb-1">
-                          In uCODE, run:
-                        </p>
-                        <div class="bg-gray-950 rounded p-2 border border-gray-700">
-                          <code class="text-green-400 text-xs">{setup.command}</code
+                        <p class="text-sm text-gray-400 mb-1">In uCODE, run:</p>
+                        <div
+                          class="bg-gray-950 rounded p-2 border border-gray-700"
+                        >
+                          <code class="text-green-400 text-xs"
+                            >{setup.command}</code
                           >
                         </div>
                       </div>
@@ -2368,8 +2369,11 @@
                         <p class="text-sm text-gray-400 mb-1">
                           Auto-configure via uCODE:
                         </p>
-                        <div class="bg-gray-950 rounded p-2 border border-gray-700">
-                          <code class="text-green-400 text-xs">{setup.command}</code
+                        <div
+                          class="bg-gray-950 rounded p-2 border border-gray-700"
+                        >
+                          <code class="text-green-400 text-xs"
+                            >{setup.command}</code
                           >
                         </div>
                       </div>

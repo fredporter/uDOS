@@ -19,5 +19,5 @@ PATTERN TEXT "Reboot ready"
 # Notes
 
 - Extend this script with additional reboot logic as needed.
-- Use RUN to execute: RUN memory/bank/system/reboot-script.md
+- Use RUN to execute: RUN memory/system/reboot-script.md
 - Auto-run ensures this script fires on every reboot and renders a PATTERN banner for testing visibility.

@@ -16,7 +16,7 @@
 | [/AGENTS.md](../AGENTS.md) | How work is organized (boundaries, policies, tools) |
 | [/QUICKSTART.md](../QUICKSTART.md) | Install & run uDOS (5 min) |
 | [/INSTALLATION.md](../INSTALLATION.md) | Detailed setup for all platforms |
-| [ROADMAP-TODO.md](ROADMAP-TODO.md) | Current development roadmap |
+| [ROADMAP-STATUS.md](ROADMAP-STATUS.md) | Current development roadmap |
 | [specs/uCODE-v1.3.md](specs/uCODE-v1.3.md) | Unified Terminal TUI (main entry) |
 | [ARCHITECTURE-v1.3.md](ARCHITECTURE-v1.3.md) | System overview for v1.3 |
 | [DOCS-SPINE-v1.3.md](DOCS-SPINE-v1.3.md) | Minimal documentation spine |
@@ -143,7 +143,7 @@ Do NOT use for current development. Use for:
 ```
 /docs                               # Developer reference
 ├── README.md                       # This file
-├── ROADMAP-TODO.md                 # Current work
+├── ROADMAP-STATUS.md               # Current work
 ├── specs/                          # Architecture specs
 ├── howto/                          # How-to guides
 ├── features/                       # Feature planning

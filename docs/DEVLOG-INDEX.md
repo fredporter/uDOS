@@ -3,12 +3,16 @@ uid: udos-guide-docs-20260130011500-UTC-L301AB00
 title: Development Log Index
 tags: [wiki, guide, devlog, index]
 status: living
-updated: 2026-01-30
+updated: 2026-02-06
 ---
 
 # Development Log Index
 
 Chronological development sessions, project milestones, and infrastructure updates.
+
+## 2026-02-06: Memory/Bank to System Migration
+
+Session: [2026-02-06-bank-to-system-migration.md](devlog/2026-02-06-bank-to-system-migration.md)
 
 ## 2026-01-30: Wiki Standardization Complete
 
@@ -72,4 +76,4 @@ Sessions:
 
 ---
 
-**Last Updated:** 2026-01-30
+**Last Updated:** 2026-02-06

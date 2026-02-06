@@ -222,7 +222,44 @@ export function computeSkyView(
   longitude: number,
   time: Date
 ): SkyTile[][] {
-  // TODO: Implement sky view computation
-  // Return 16×24 grid of sky tiles based on location and time
-  return [];
+  const rows = 16;
+  const cols = 24;
+  const tiles: SkyTile[][] = [];
+
+  const hour = time.getHours();
+  const isDay = hour >= 6 && hour < 18;
+  const isTwilight = (hour >= 5 && hour < 6) || (hour >= 18 && hour < 19);
+
+  // Deterministic seed based on time + location
+  const seed =
+    Math.floor(time.getTime() / (1000 * 60 * 60)) +
+    Math.round(latitude * 10) * 31 +
+    Math.round(longitude * 10) * 37;
+
+  const dayChar = '·';
+  const nightChar = '.';
+  const starChar = '*';
+
+  const starThreshold = isTwilight ? 0.96 : 0.93;
+
+  for (let r = 0; r < rows; r++) {
+    const row: SkyTile[] = [];
+    for (let c = 0; c < cols; c++) {
+      let character = isDay ? dayChar : nightChar;
+      let color = 0;
+
+      if (!isDay) {
+        const hash = Math.sin((r * 73856093 + c * 19349663 + seed * 83492791) * 0.000001);
+        const value = hash - Math.floor(hash);
+        if (value > starThreshold) {
+          character = starChar;
+        }
+      }
+
+      row.push({ character, color });
+    }
+    tiles.push(row);
+  }
+
+  return tiles;
 }

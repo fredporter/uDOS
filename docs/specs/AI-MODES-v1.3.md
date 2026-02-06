@@ -7,6 +7,7 @@
 - Standardize **AI modes** for consistent behavior across TUI, App, and extensions.
 - Keep **offline-first** routing as the default (Ollama local models).
 - Provide **Core access** via `/api/ai/complete` with strict policy controls.
+- Enforce Ghost Mode policy in `docs/specs/AI-OK-GHOST-MODE-POLICY.md`.
 
 ## 2) AI Modes (Contract)
 
@@ -28,12 +29,17 @@
 
 ## 3) Local Model Defaults (Ollama)
 
-Default small/fast models for local-only:
+Default local set for AI OK:
+- **Chat / summaries:** `mistral-small`
+- **Reasoning / scheduler:** `mistral-large`
+- **Code / repo work:** `devstral-small-2`
+
+Optional local alternatives:
 - **General fast:** `llama3.2:3b`
 - **Tiny / minimal:** `gemma2:2b`
 - **Coding:** `starcoder2:3b` or `qwen2.5-coder:7b` (if available)
 
-These map to `library/ollama/container.json` and are enforced as **local-first**.
+Defaults map to `library/ollama/container.json` (or equivalent) and are enforced as **local-first**.
 
 ## 4) Core Access (Wizard API)
 
@@ -66,6 +72,7 @@ Hard rules:
 - `privacy=private` → local only.
 - `offline_required` tag → local only.
 - If local model unavailable → return clear error with install prompt.
+ - Ghost Mode → local only, destructive commands dry-run only.
 
 ## 6) Deliverables
 - `/api/ai/complete` supports `mode` + `conversation_id`.

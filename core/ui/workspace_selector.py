@@ -7,7 +7,7 @@ for consistent UX.
 
 Workspaces:
 - memory/sandbox (default workspace)
-- memory/bank (data storage)
+- vault-md (user vault data)
 - memory/shared (collaborative space)
 - /knowledge (admin only)
 - memory/wizard (admin only)
@@ -133,8 +133,16 @@ class WorkspacePicker:
                 id="bank",
                 name="Bank",
                 path=memory_dir / "bank",
-                description="Data vault for important files and backups",
+                description="Legacy bank (use Vault for primary storage)",
                 icon="🏦",
+                admin_only=False,
+            ),
+            WorkspaceOption(
+                id="vault",
+                name="Vault",
+                path=self.project_root / "vault-md",
+                description="User vault for markdown and data",
+                icon="🔐",
                 admin_only=False,
             ),
             WorkspaceOption(
@@ -306,7 +314,7 @@ class WorkspacePicker:
         print()
         print("Workspace Types:")
         print("  📦 Sandbox — Your personal workspace")
-        print("  🏦 Bank — Secure storage for important files")
+        print("  🔐 Vault — Secure storage for important files")
         print("  🤝 Shared — Collaborative workspace")
         if self.user_role == UserRole.ADMIN:
             print("  🧙 Wizard — Service configuration (admin)")

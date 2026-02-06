@@ -91,8 +91,15 @@ class DestroyHandler(BaseCommandHandler):
         
         # Check permissions
         user_mgr = get_user_manager()
-        user = user_mgr.current()        
-        # Allow 'ghost' user (test user) or users with DESTROY permission
+        user = user_mgr.current()
+        from core.services.user_service import is_ghost_mode
+
+        if is_ghost_mode():
+            return {
+                'output': '❌ DESTROY is disabled in Ghost Mode (read-only demo mode).',
+                'status': 'error'
+            }
+
         if user and user.username != 'ghost' and not user_mgr.has_permission(Permission.DESTROY):
             return {
                 'output': f'❌ DESTROY permission denied for user {user.username if user else "unknown"}',

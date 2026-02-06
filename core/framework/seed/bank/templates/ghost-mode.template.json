@@ -1,0 +1,44 @@
+{
+  "SYSTEM_NAME": "uDOS",
+  "VERSION": "1.0",
+  "MODE": "GHOST",
+  "GHOST_MODE": {
+    "ENABLED": true,
+    "REASON": "first_run",
+    "READ_ONLY": true,
+    "ALLOW_POWER_COMMANDS": false,
+    "ALLOW_WRITE_COMMANDS": false,
+    "ALLOW_NETWORK": false,
+    "DEMO_CONTENT_ONLY": true,
+    "EXIT_REQUIRES_SETUP": true,
+    "DESTRUCTIVE_COMMANDS_DRY_RUN": true
+  },
+  "GHOST_ROLE": {
+    "ROLE_NAME": "Ghost",
+    "USERNAME": "Ghost",
+    "CASE_INSENSITIVE": true,
+    "EXACT_MATCH_ONLY": true
+  },
+  "SETUP_REQUIREMENTS": {
+    "MISTRAL_API_KEY_REQUIRED": true,
+    "REQUIRED_LOCAL_DEPS": [
+      "ollama",
+      "vibe-cli"
+    ],
+    "REQUIRED_MODELS": [
+      "mistral-small",
+      "mistral-large",
+      "devstral-small-2"
+    ]
+  },
+  "ROUTER_DEFAULTS": {
+    "CHAT_MODEL": "mistral-small",
+    "REASON_MODEL": "mistral-large",
+    "CODE_MODEL": "devstral-small-2",
+    "ONLINE_ALLOWED": false
+  },
+  "POLICY": {
+    "OFFLINE_FIRST": true,
+    "ONLINE_THROUGH_WIZARD_ONLY": true
+  }
+}

@@ -16,6 +16,11 @@ import {
   pixelGridToSextant,
   RenderQuality,
   renderPixelGrid,
+  SEXTANT_CHARS,
+  QUADRANT_CHARS,
+  SHADE_CHARS,
+  ASCII_CHARS,
+  indexToPixelGrid,
 } from './sextant-renderer';
 import { TileContent, TileObject, TileSprite } from './location-types';
 
@@ -58,15 +63,67 @@ function sortByZIndex<T extends { z?: number }>(elements: T[]): T[] {
   return [...elements].sort((a, b) => (a.z || 0) - (b.z || 0));
 }
 
+function densityToGrid(density: number): PixelGrid {
+  const clamped = Math.max(0, Math.min(6, density));
+  const bits = [false, false, false, false, false, false];
+  for (let i = 0; i < clamped; i++) {
+    bits[i] = true;
+  }
+  return {
+    topLeft: bits[0],
+    topRight: bits[1],
+    middleLeft: bits[2],
+    middleRight: bits[3],
+    bottomLeft: bits[4],
+    bottomRight: bits[5],
+  };
+}
+
+function quadrantToGrid(index: number): PixelGrid {
+  const topLeft = (index & 2) !== 0;
+  const topRight = (index & 1) !== 0;
+  const bottomLeft = (index & 8) !== 0;
+  const bottomRight = (index & 4) !== 0;
+
+  return {
+    topLeft,
+    topRight,
+    middleLeft: bottomLeft,
+    middleRight: bottomRight,
+    bottomLeft,
+    bottomRight,
+  };
+}
+
 /**
  * Convert character to pixel grid (simplified - assumes single character)
  * In full implementation, would parse emoji/Unicode to actual pixel patterns
  */
 function charToPixelGrid(char: string): PixelGrid {
-  // For now, treat any character as "full" (all pixels on)
-  // TODO: Implement actual character-to-pixel mapping
   if (!char || char === ' ') {
     return createEmptyGrid();
+  }
+
+  const sextantIndex = SEXTANT_CHARS.indexOf(char);
+  if (sextantIndex >= 0) {
+    return indexToPixelGrid(sextantIndex);
+  }
+
+  const quadrantIndex = QUADRANT_CHARS.indexOf(char);
+  if (quadrantIndex >= 0) {
+    return quadrantToGrid(quadrantIndex);
+  }
+
+  const shadeIndex = SHADE_CHARS.indexOf(char);
+  if (shadeIndex >= 0) {
+    const shadeDensity = [0, 1, 3, 5, 6][shadeIndex] ?? 6;
+    return densityToGrid(shadeDensity);
+  }
+
+  const asciiIndex = ASCII_CHARS.indexOf(char);
+  if (asciiIndex >= 0) {
+    const asciiDensity = [0, 1, 3, 5, 6][asciiIndex] ?? 6;
+    return densityToGrid(asciiDensity);
   }
   
   // Simple heuristic: light chars = partial fill, dense chars = full

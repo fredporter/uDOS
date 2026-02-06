@@ -129,7 +129,6 @@ class WizardConfig:
     github_default_branch: str = "main"
     github_push_enabled: bool = False
     admin_api_key_id: Optional[str] = None
-    notion_enabled: bool = False
     hubspot_enabled: bool = False
     icloud_enabled: bool = False
     oauth_enabled: bool = False
@@ -278,12 +277,6 @@ class WizardServer:
 
         dev_router = create_dev_routes(auth_guard=self._authenticate_admin)
         app.include_router(dev_router)
-
-        # Register Notion sync routes
-        from wizard.routes.notion_routes import create_notion_routes
-
-        notion_router = create_notion_routes(auth_guard=self._authenticate_admin)
-        app.include_router(notion_router)
 
         # Register Unified Settings (v1.1.0)
         from wizard.routes.settings_unified import create_settings_unified_router
@@ -504,7 +497,6 @@ class WizardServer:
             auth_guard=self._authenticate_admin,
             base_url_provider=_get_base_url,
             github_secret_provider=_get_webhook_secret,
-            notion_secret_provider=lambda: os.getenv("NOTION_WEBHOOK_SECRET"),
         )
         app.include_router(webhook_router)
 

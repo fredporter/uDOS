@@ -198,13 +198,13 @@ _All fixes tested and pushed to main branch_
 ### File Organization Fixes
 
 **System Scripts Path Update:**
-- **Old:** `memory/system/startup-script.md`, `memory/system/reboot-script.md`
-- **New:** `memory/bank/system/startup-script.md`, `memory/bank/system/reboot-script.md`
+- **Old (legacy):** Bank system startup/reboot scripts (legacy bank path)
+- **New:** `memory/system/startup-script.md`, `memory/system/reboot-script.md`
 - **Migration:** Automatic migration on first run
-- **Rationale:** Follows uDOS file structure convention where `memory/bank/` stores seed/template data
+- **Rationale:** System templates now live in `memory/system/` (user data moved to `vault-md/bank/`).
 
 **Changes Made:**
-- Updated `SystemScriptRunner` to use `memory/bank/system/` path
+- Updated `SystemScriptRunner` to use `memory/system/` path
 - Added `_migrate_old_scripts()` to automatically move existing scripts
 - Updated all documentation references
 

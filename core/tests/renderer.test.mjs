@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE_VAULT = path.join(__dirname, "fixtures", "vault");
-const THEMES_ROOT = path.join(__dirname, "..", "..", "..", "themes");
+const THEMES_ROOT = path.join(__dirname, "..", "..", "themes");
 
 function buildOptions(outputRoot) {
   return {
