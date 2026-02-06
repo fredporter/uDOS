@@ -1,7 +1,7 @@
 """
 SEED command handler - Install or reset framework seed data.
 
-Allows users to bootstrap or refresh seed data in memory/bank/ directory.
+Allows users to bootstrap or refresh seed data in memory/system/ directory.
 Useful for first-run initialization or REPAIR operations.
 """
 
@@ -56,7 +56,7 @@ class SeedHandler(BaseCommandHandler):
             output += f"Directories:       {'✅' if status['directories_exist'] else '❌'}\n"
             output += f"Locations seeded:  {'✅' if status['locations_seeded'] else '❌'}\n"
             output += f"Timezones seeded:  {'✅' if status['timezones_seeded'] else '❌'}\n"
-            output += f"System seeds:     {'✅' if status.get('system_seeds') else '❌'}\n"
+            output += f"System seeds:      {'✅' if status.get('system_seeds') else '❌'}\n"
             output += f"Framework seed dir: {'✅' if status['framework_seed_dir_exists'] else '❌'}\n"
 
             return {
@@ -78,7 +78,7 @@ Usage:
 Seed data includes:
   - locations-seed.json (minimal location database)
   - timezones-seed.json (timezone examples)
-  - Bank seeds (help templates, graphics, workflows)
+  - System seeds (help templates, graphics, workflows)
 
 First run automatically bootstraps seed data.
 Use SEED INSTALL to manually bootstrap if needed.

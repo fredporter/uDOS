@@ -28,16 +28,17 @@ vault/**
 !vault/README.md
 !vault/.gitkeep
 
-# Bank structure: templates tracked, user data ignored
-!memory/bank/
-!memory/bank/system/
-!memory/bank/system/README.md
-!memory/bank/system/startup-script.md
-!memory/bank/system/reboot-script.md
-memory/bank/locations/
-memory/bank/knowledge/
-memory/bank/checklists/
-memory/bank/binders/
+# Vault-md: user data vault (never commit)
+vault-md/*
+vault-md/**
+!vault-md/README.md
+!vault-md/.gitkeep
+
+# Memory system: templates tracked, user data ignored
+!memory/system/
+!memory/system/*.md
+!memory/system/*.sh
+!memory/system/themes/
 
 # Tests: local-only workspace (never commit)
 memory/tests/
@@ -182,8 +183,8 @@ nohup.out
 assistant_keys.json
 wizard/config/assistant_keys.json
 wizard/config/oauth_providers.json
-memory/bank/user/gmail_credentials.json
-memory/bank/user/.gmail_token.enc
+memory/private/gmail_credentials.json
+memory/private/.gmail_token.enc
 *.gmail_token*
 
 # ---------- Tests & fixtures (generated) ----------
@@ -298,9 +299,9 @@ wizard/config/notion_keys.json
 memory/logs/**
 memory/sandbox/binders/**
 # Removed - moved to library/containers/
-memory/bank/private/**
+memory/private/**
 memory/story/**
-memory/bank/user/**
+memory/user/**
 memory/wizard/**
 
 # Wizard secrets (redundant but explicit)

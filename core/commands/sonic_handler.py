@@ -33,6 +33,8 @@ class SonicHandler(BaseCommandHandler):
             return self._plan(params[1:])
         if action == "run":
             return self._run(params[1:])
+        if action in {"sync", "rebuild", "export", "plugin"}:
+            return self._delegate_plugin(action, params[1:])
 
         return {
             "status": "error",
@@ -178,6 +180,23 @@ class SonicHandler(BaseCommandHandler):
                 "SONIC PLAN [--payloads-dir /path/to/payloads] [--format-mode full|skip]",
                 "SONIC RUN [--manifest config/sonic-manifest.json] [--dry-run] [--v2]",
                 "SONIC RUN [--payloads-dir /path/to/payloads] [--no-validate-payloads] --confirm",
+                "SONIC SYNC",
+                "SONIC REBUILD [--force]",
+                "SONIC EXPORT [path]",
+                "SONIC PLUGIN",
             ],
             "note": "SONIC RUN requires --confirm and Linux for destructive operations.",
         }
+
+    def _delegate_plugin(self, action: str, params: List[str]) -> Dict:
+        """Delegate plugin-specific actions to SonicPluginHandler when available."""
+        try:
+            from core.commands.sonic_plugin_handler import SonicPluginHandler
+
+            handler = SonicPluginHandler()
+            return handler.handle("SONIC", [action, *params])
+        except Exception as exc:
+            return {
+                "status": "error",
+                "message": f"Sonic plugin handler unavailable: {exc}",
+            }

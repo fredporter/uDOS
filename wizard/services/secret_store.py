@@ -64,7 +64,6 @@ class SecretStoreConfig:
     key_file_path: Path = (
         Path(__file__).resolve().parents[2]
         / "memory"
-        / "bank"
         / "private"
         / "wizard_secret_store.key"
     )

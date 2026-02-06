@@ -20,6 +20,8 @@ import uuid
 from fastapi import APIRouter, HTTPException, Request, Query, Body
 from pydantic import BaseModel, Field
 
+import os
+
 from wizard.services.beacon_service import (
     BeaconConfig,
     BeaconMode,
@@ -63,6 +65,16 @@ class BeaconStatus(BaseModel):
     vpn_tunnel_status: Optional[str] = None  # active | inactive | error
     local_services: List[str]
     last_heartbeat: str
+
+
+class BeaconStatusLite(BaseModel):
+    """Minimal beacon status payload for polling."""
+
+    status: str
+    wizard_url: str
+    wizard_ip: str
+    ssid: str
+    updated_at: str
 
 
 class VPNTunnelConfig(BaseModel):
@@ -343,6 +355,36 @@ def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
             vpn_tunnel_status="active" if config.vpn_tunnel_enabled else "inactive",
             local_services=["dns", "dhcp", "http", "meshcore", "ntp"],
             last_heartbeat=config.updated_at,
+        )
+
+    @router.get("/status-lite", response_model=BeaconStatusLite)
+    async def get_beacon_status_lite(
+        beacon_id: Optional[str] = Query(None), request: Request = None
+    ):
+        """Minimal status endpoint for beacon polling."""
+        if auth_guard:
+            await auth_guard(request)
+
+        latest = beacon_service.get_latest_beacon_config()
+        selected = (
+            beacon_service.get_beacon_config(beacon_id) if beacon_id else latest
+        )
+        if beacon_id and not selected:
+            raise HTTPException(status_code=404, detail="Beacon not found")
+        env_ssid = os.getenv("BEACON_SSID")
+        env_host = os.getenv("WIZARD_HOSTNAME", "wizard.local")
+        env_ip = os.getenv("WIZARD_IP", "192.168.1.10")
+
+        return BeaconStatusLite(
+            status="online",
+            wizard_url=f"http://{env_host}",
+            wizard_ip=env_ip,
+            ssid=env_ssid or (selected.ssid if selected else "uDOS-beacon"),
+            updated_at=(
+                selected.updated_at
+                if selected
+                else datetime.utcnow().isoformat() + "Z"
+            ),
         )
 
     @router.get("/devices", response_model=List[RouterHardware])

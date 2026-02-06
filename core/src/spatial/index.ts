@@ -4,6 +4,8 @@ export * from "./types";
 export * from "./parse";
 export * from "./registry";
 export * from "./validation";
+export * from "./runtime";
+export * from "./lenses";
 
 // Re-export commonly used items for convenience
 export {

@@ -157,11 +157,11 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         },
         "OK": {
             "description": "Local Vibe helpers (offline-first)",
-            "usage": "OK <LOCAL|EXPLAIN|DIFF|PATCH|VIBE> [args]",
+            "usage": "OK <LOCAL|EXPLAIN|DIFF|PATCH> [args]",
             "example": "OK EXPLAIN core/tui/ucode.py",
             "notes": "Routes to local Vibe (Ollama-backed) and stores outputs for OK LOCAL",
             "category": "AI & Models",
-            "syntax": "OK <LOCAL|EXPLAIN|DIFF|PATCH|VIBE> [args] [--cloud]",
+            "syntax": "OK <LOCAL|EXPLAIN|DIFF|PATCH> [args] [--cloud]",
         },
         "SHAKEDOWN": {
             "description": "System validation and diagnostics",

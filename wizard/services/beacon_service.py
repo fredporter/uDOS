@@ -349,6 +349,30 @@ class BeaconService:
             updated_at=row[10],
         )
 
+    def get_latest_beacon_config(self) -> Optional[BeaconConfig]:
+        """Retrieve most recently updated beacon configuration."""
+        with sqlite3.connect(self.db_path) as conn:
+            row = conn.execute(
+                "SELECT * FROM beacon_configs ORDER BY updated_at DESC LIMIT 1"
+            ).fetchone()
+
+        if not row:
+            return None
+
+        return BeaconConfig(
+            beacon_id=row[0],
+            mode=BeaconMode(row[1]),
+            ssid=row[2],
+            band=row[3],
+            security=row[4],
+            passphrase=row[5],
+            vpn_tunnel_enabled=bool(row[6]),
+            cloud_enabled=bool(row[7]),
+            upstream_router=row[8],
+            created_at=row[9],
+            updated_at=row[10],
+        )
+
     def update_beacon_config(self, beacon_id: str, updates: Dict[str, Any]) -> bool:
         """Update beacon configuration."""
         updates["updated_at"] = datetime.now().isoformat()

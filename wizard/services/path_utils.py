@@ -102,6 +102,21 @@ def get_logs_dir() -> Path:
     return logs_dir
 
 
+def get_vault_md_root() -> Path:
+    """Get vault-md root path (defaults to ~/Documents/uDOS Vault)."""
+    config = _load_wizard_config()
+    locations = config.get("file_locations", {}) if isinstance(config, dict) else {}
+    env_root = os.getenv("VAULT_MD_ROOT") or os.getenv("VAULT_ROOT")
+    if env_root:
+        return Path(env_root).expanduser()
+
+    config_root = locations.get("vault_md_root")
+    if config_root:
+        return Path(config_root).expanduser()
+
+    return Path.home() / "Documents" / "uDOS Vault"
+
+
 # Cache repo root for performance
 _REPO_ROOT: Optional[Path] = None
 

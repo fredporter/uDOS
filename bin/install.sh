@@ -366,7 +366,8 @@ setup_user_directory() {
     mkdir -p "$udos_home/memory/sandbox/binders"
     mkdir -p "$udos_home/memory/sandbox/workflows"
     mkdir -p "$udos_home/memory/sandbox/processed"
-    mkdir -p "$udos_home/memory/bank/scripts"
+    mkdir -p "$udos_home/memory/system"
+    mkdir -p "$udos_home/memory/private"
     mkdir -p "$udos_home/memory/knowledge"
     mkdir -p "$udos_home/memory/logs"
     mkdir -p "$udos_home/memory/logs/monitoring"
@@ -383,14 +384,11 @@ setup_user_directory() {
     mkdir -p "$udos_home/.credentials"
     chmod 700 "$udos_home/.credentials"
 
-    # Create bank directory structure for seed data
-    mkdir -p "$udos_home/memory/bank/locations"
-    mkdir -p "$udos_home/memory/bank/help"
-    mkdir -p "$udos_home/memory/bank/templates"
-    mkdir -p "$udos_home/memory/bank/graphics/diagrams/templates"
-    mkdir -p "$udos_home/memory/bank/system"
-    mkdir -p "$udos_home/memory/bank/workflows"
-    chmod 755 "$udos_home/memory/bank"
+    # Create vault-md directory structure for user data
+    mkdir -p "$udos_home/vault-md/bank/locations"
+    mkdir -p "$udos_home/vault-md/bank/binders"
+    mkdir -p "$udos_home/vault-md/bank/spatial"
+    chmod 755 "$udos_home/vault-md"
 
     # Create default config if not exists
     if [ ! -f "$udos_home/config/user.json" ]; then

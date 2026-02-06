@@ -7,6 +7,8 @@ Files:
 - `types.ts` — TypeScript interfaces.
 - `parse.ts` — Canonical parsers + frontmatter normalisation.
 - `anchors.default.json` — Launch-ready anchor registry (minimal, expandable).
+- `runtime.ts` — Anchor runtime gateway (engine adapter bridge).
+- `lenses.ts` — World lens adapters (Godot/O3DE scaffolding).
 
 Recommended string format for frontmatter + APIs:
 

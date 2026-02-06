@@ -33,21 +33,21 @@ logger = get_logger("location_service")
 
 class LocationService:
     """Service for managing game world locations with automatic backend switching.
-    
+
     Automatically uses SQLite if locations.db exists, otherwise uses JSON.
     Supports automatic migration from JSON to SQLite at size/record thresholds.
     """
 
     def __init__(self, locations_file: Optional[str] = None):
         """Initialize location service with automatic backend detection.
-        
+
         Args:
-            locations_file: Path to locations.json (defaults to memory/bank/locations/locations.json)
+            locations_file: Path to locations.json (defaults to memory/system/locations/locations.json)
         """
         # Auto-locate locations data directory
         if locations_file is None:
-            # First try: memory/bank/locations/locations.json (from workspace root)
-            possible_path = Path("memory/bank/locations/locations.json")
+            # First try: memory/system/locations/locations.json (from workspace root)
+            possible_path = Path("memory/system/locations/locations.json")
             if possible_path.exists():
                 locations_file = possible_path
             else:
@@ -59,21 +59,21 @@ class LocationService:
                         locations_file = db._file_path
                     else:
                         # Fallback default
-                        locations_file = Path("memory/bank/locations/locations.json")
+                        locations_file = Path("memory/system/locations/locations.json")
                 except Exception:
-                    locations_file = Path("memory/bank/locations/locations.json")
+                    locations_file = Path("memory/system/locations/locations.json")
 
         self.locations_file = Path(locations_file)
         self.data_dir = self.locations_file.parent
         self.db_path = self.data_dir / "locations.db"
-        
+
         # Determine which backend to use
         self.use_sqlite = self.db_path.exists()
-        
+
         self._locations_data = None
         self._locations_by_id = None
         self._db_connection = None
-        
+
         logger.info(f"[LOCAL] LocationService initialized (backend={'SQLite' if self.use_sqlite else 'JSON'})")
         self._load_locations()
 
@@ -94,7 +94,7 @@ class LocationService:
             self._locations_by_id = {}
             for loc in self._locations_data.get("locations", []):
                 self._locations_by_id[loc["id"]] = loc
-                
+
             logger.info(f"[LOCAL] Loaded {len(self._locations_by_id)} locations from JSON")
         except FileNotFoundError:
             # Bootstrap from seed data on first run
@@ -103,12 +103,12 @@ class LocationService:
             self._load_from_json()
         except json.JSONDecodeError:
             raise ValueError(f"Invalid JSON in locations file: {self.locations_file}")
-            
+
     def _bootstrap_from_seed(self):
         """Bootstrap locations from seed data on first run."""
         try:
             from core.framework.seed_installer import SeedInstaller
-            
+
             installer = SeedInstaller()
             if installer.ensure_directories() and installer.install_locations_seed():
                 logger.info("[LOCAL] Bootstrap successful")
@@ -125,19 +125,19 @@ class LocationService:
         try:
             self._db_connection = sqlite3.connect(self.db_path)
             self._db_connection.row_factory = sqlite3.Row
-            
+
             # Query all locations
             cursor = self._db_connection.cursor()
             cursor.execute("SELECT * FROM locations")
             rows = cursor.fetchall()
-            
+
             # Build location objects with connections and tiles
             self._locations_by_id = {}
             self._locations_data = {"locations": []}
-            
+
             for row in rows:
                 loc_dict = self._row_to_dict(row)
-                
+
                 # Load connections for this location
                 cursor.execute(
                     "SELECT * FROM connections WHERE from_location = ?",
@@ -150,7 +150,7 @@ class LocationService:
                     conn_dict.pop("from_location", None)
                     connections.append(conn_dict)
                 loc_dict["connections"] = connections
-                
+
                 # Load tiles for this location
                 cursor.execute(
                     "SELECT tile_key, content FROM tiles WHERE location_id = ?",
@@ -162,18 +162,18 @@ class LocationService:
                     tile_data = json.loads(tile_row[1])
                     tiles[tile_key] = tile_data
                 loc_dict["tiles"] = tiles
-                
+
                 self._locations_by_id[loc_dict["id"]] = loc_dict
                 self._locations_data["locations"].append(loc_dict)
-                
+
             logger.info(f"[LOCAL] Loaded {len(self._locations_by_id)} locations from SQLite")
         except sqlite3.Error as e:
             raise ValueError(f"Error loading from SQLite: {e}")
-                
+
     def _row_to_dict(self, row: sqlite3.Row) -> Dict:
         """Convert SQLite row to dictionary, parsing JSON fields."""
         row_dict = dict(row)
-        
+
         # Parse JSON fields
         json_fields = ["coordinates", "metadata", "requires"]
         for field in json_fields:
@@ -182,7 +182,7 @@ class LocationService:
                     row_dict[field] = json.loads(row_dict[field])
                 except (json.JSONDecodeError, TypeError):
                     pass
-        
+
         return row_dict
 
     def get_location(self, location_id: str) -> Optional[Dict]:
@@ -196,7 +196,7 @@ class LocationService:
     def get_locations_by_region(self, region: str) -> List[Dict]:
         """Get all locations in a region."""
         return [loc for loc in self.get_all_locations() if loc.get("region") == region]
-            
+
     def get_locations_by_continent(self, continent: str) -> List[Dict]:
         """Get all locations on a continent."""
         return [
@@ -212,10 +212,10 @@ class LocationService:
     def get_locations_by_scale(self, scale: str) -> List[Dict]:
         """Get locations by distance scale (terrestrial, orbital, etc.)."""
         return [loc for loc in self.get_all_locations() if loc.get("scale") == scale]
-            
+
     def parse_timezone(self, tz_str: str) -> timezone:
         """Parse timezone string to Python timezone object.
-        
+
         Examples: "UTC+0", "UTC+9", "UTC-5", "UTC+5:30"
         """
         if not tz_str:
@@ -246,13 +246,13 @@ class LocationService:
             offset_seconds = offset_hours * 3600
 
         return timezone(timedelta(seconds=offset_seconds))
-            
+
     def get_local_time(self, location_id: str) -> datetime:
         """Get current local time at a location."""
         location = self.get_location(location_id)
         if not location:
             raise ValueError(f"Location not found: {location_id}")
-            
+
         tz_str = location.get("timezone", "UTC+0")
         tz = self.parse_timezone(tz_str)
 
@@ -274,7 +274,7 @@ class LocationService:
 
     def get_time_difference(self, location1_id: str, location2_id: str) -> float:
         """Get time difference between two locations in hours.
-        
+
         Returns:
             Hours ahead of location2 (negative if behind)
         """
@@ -283,15 +283,15 @@ class LocationService:
 
         if not loc1 or not loc2:
             raise ValueError("One or both locations not found")
-            
+
         tz1 = self.parse_timezone(loc1.get("timezone", "UTC+0"))
         tz2 = self.parse_timezone(loc2.get("timezone", "UTC+0"))
-        
+
         # Get offset in seconds
         now = datetime.now(timezone.utc)
         offset1 = tz1.utcoffset(now).total_seconds() / 3600
         offset2 = tz2.utcoffset(now).total_seconds() / 3600
-        
+
         return offset1 - offset2
 
     def get_location_info(self, location_id: str) -> str:
@@ -301,7 +301,7 @@ class LocationService:
             return f"Location not found: {location_id}"
 
         local_time = self.get_local_time_str(location_id, "%H:%M")
-        
+
         info = [
             f"📍 {location['name']}",
             f"   Region: {location.get('region', 'Unknown')}",
@@ -316,7 +316,7 @@ class LocationService:
 
     def find_path(self, start_id: str, end_id: str) -> Optional[List[str]]:
         """Find shortest path between two locations using BFS.
-        
+
         Returns:
             List of location IDs from start to end, or None if no path exists
         """
@@ -348,7 +348,7 @@ class LocationService:
                 if neighbor not in visited:
                     visited.add(neighbor)
                     queue.append((neighbor, path + [neighbor]))
-                
+
         return None  # No path found
 
     def get_connections(self, location_id: str) -> List[Dict]:
@@ -416,7 +416,7 @@ def main():
     service = LocationService()
 
     print(f"✅ Loaded {service.count_locations()} locations")
-    
+
     # Show statistics
     stats = service.get_statistics()
     print("\nLocation Statistics:")
@@ -440,7 +440,7 @@ def main():
     print("\n" + "=" * 60)
     diff = service.get_time_difference("L300-BJ10", "L300-EA00")
     print(f"Time difference Tokyo → London: {diff:+.1f} hours")
-    
+
     print("\nLocal times:")
     for loc_id in ["L300-BJ10", "L300-EA00", "L300-DA00"]:
         loc = service.get_location(loc_id)

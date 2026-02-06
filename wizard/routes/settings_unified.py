@@ -333,7 +333,7 @@ def repair_secret_store() -> Dict[str, Any]:
     repo_root = get_repo_root()
     env_path = repo_root / ".env"
     tomb_path = repo_root / "wizard" / "secrets.tomb"
-    key_path = repo_root / "memory" / "bank" / "private" / "wizard_secret_store.key"
+    key_path = repo_root / "memory" / "private" / "wizard_secret_store.key"
     key_path.parent.mkdir(parents=True, exist_ok=True)
 
     new_key = secrets.token_urlsafe(48)

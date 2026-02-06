@@ -41,7 +41,6 @@ class PromptParserService:
             / "core"
             / "framework"
             / "seed"
-            / "bank"
             / "templates"
             / "prompt_parser_seed.json"
         )

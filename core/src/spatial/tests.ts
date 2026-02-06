@@ -24,6 +24,9 @@ import {
   LayerBand,
 } from "./validation.js";
 import { AnchorRegistry, loadAnchorsFromJSON } from "./registry.js";
+import { AnchorRuntimeGateway } from "./runtime.js";
+import { createLensAdapter } from "./lenses.js";
+import type { AnchorRuntime, AnchorMeta, AnchorTransform } from "./anchors.js";
 
 /**
  * Test Suite: LocId Parser
@@ -117,6 +120,59 @@ export function testAddressPathParser(): void {
   assert.equal(parseAddressPath("L305-DA09-BB20"), null); // bad cell in path
 
   console.log("✓ Address Path Parser tests passed");
+}
+
+/**
+ * Test Suite: World Lens Adapter
+ */
+export async function testWorldLensAdapter(): Promise<void> {
+  console.log("Testing World Lens Adapter...");
+
+  const gateway = new AnchorRuntimeGateway();
+
+  const runtime: AnchorRuntime = {
+    async meta(): Promise<AnchorMeta> {
+      return { id: "EARTH", title: "Earth", capabilities: { terminal: true } };
+    },
+    async transform(): Promise<AnchorTransform> {
+      return {
+        toLocId: () => "EARTH:SUR:L305-DA11",
+        toCoord: () => ({ kind: "test", data: {} }),
+      };
+    },
+    async createInstance() {
+      return {
+        instanceId: "test",
+        anchorId: "EARTH",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    },
+    async destroyInstance() {},
+    async input() {},
+    async tick() {},
+    async render() {
+      return { ts: Date.now(), terminal: { width: 80, height: 30, lines: [] } };
+    },
+  };
+
+  gateway.registerRuntime("EARTH", runtime);
+
+  const lens = createLensAdapter(
+    { engineId: "godot", anchorId: "EARTH", mode: "2d" },
+    gateway,
+  );
+
+  const meta = await lens.meta();
+  assert.equal(meta?.id, "EARTH");
+
+  const instance = await lens.createInstance();
+  assert.equal(instance.anchorId, "EARTH");
+
+  const frame = await lens.render(instance.instanceId);
+  assert.ok(frame.terminal);
+
+  console.log("✓ World Lens Adapter tests passed");
 }
 
 /**
@@ -411,7 +467,7 @@ export function testFrontmatterNormalization(): void {
 /**
  * Run All Tests
  */
-export function runAllTests(): void {
+export async function runAllTests(): Promise<void> {
   console.log("\n=== uDOS v1.3 Spatial Parsing & Registry Tests ===\n");
 
   testLocIdParser();
@@ -424,11 +480,15 @@ export function runAllTests(): void {
   testAnchorRegistry();
   testLoadAnchorsFromJSON();
   testFrontmatterNormalization();
+  await testWorldLensAdapter();
 
   console.log("\n✅ All spatial tests passed!\n");
 }
 
 // Run if executed directly
 if (require.main === module) {
-  runAllTests();
+  runAllTests().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
 }

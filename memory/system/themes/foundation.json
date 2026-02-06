@@ -1,0 +1,17 @@
+{
+  "name": "foundation",
+  "description": "Spacefaring settlement voice with survival optimism for the outer galaxy.",
+  "companions": ["galaxy_layers"],
+  "replacements": {
+    "uDOS": "Foundation Core",
+    "UDOS": "Foundation Core",
+    "Self-Heal": "Field Repairs",
+    "SELF-HEAL": "Field Repairs",
+    "Hotkey": "Nav Beacon",
+    "HOTKEY": "Nav Beacon",
+    "Wizard": "Orbital",
+    "WIZARD": "Orbital",
+    "Repair": "Settlement Patch",
+    "REPAIR": "Settlement Patch"
+  }
+}

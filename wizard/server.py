@@ -280,10 +280,9 @@ class WizardServer:
         app.include_router(dev_router)
 
         # Register Notion sync routes
-        from wizard.routes.notion_routes import create_notion_routes
-
-        notion_router = create_notion_routes(auth_guard=self._authenticate_admin)
-        app.include_router(notion_router)
+        # from wizard.routes.notion_routes import create_notion_routes
+        # notion_router = create_notion_routes(auth_guard=self._authenticate_admin)
+        # app.include_router(notion_router)
 
         # Register Unified Settings (v1.1.0)
         from wizard.routes.settings_unified import create_settings_unified_router
@@ -337,6 +336,24 @@ class WizardServer:
             beacon_auth_guard = self._authenticate_admin
         beacon_router = create_beacon_routes(auth_guard=beacon_auth_guard)
         app.include_router(beacon_router)
+
+        from wizard.routes.beacon_portal_pages import create_beacon_portal_pages
+
+        app.include_router(create_beacon_portal_pages(auth_guard=beacon_auth_guard))
+
+        from wizard.routes.wizard_networking_routes import create_wizard_networking_routes
+
+        app.include_router(create_wizard_networking_routes(auth_guard=self._authenticate_admin))
+
+        from wizard.routes.meshcore_routes import create_meshcore_routes, create_meshcore_dashboard
+
+        app.include_router(create_meshcore_routes(auth_guard=self._authenticate_admin))
+        app.include_router(create_meshcore_dashboard(auth_guard=self._authenticate_admin))
+
+        from wizard.routes.delivery_routes import create_delivery_routes, create_delivery_dashboard
+
+        app.include_router(create_delivery_routes(auth_guard=self._authenticate_admin))
+        app.include_router(create_delivery_dashboard(auth_guard=self._authenticate_admin))
 
         from wizard.routes.renderer_routes import create_renderer_routes
 
@@ -525,6 +542,12 @@ class WizardServer:
 
         sonic_router = create_sonic_plugin_routes(auth_guard=self._authenticate_admin)
         app.include_router(sonic_router)
+
+        # Register Theme validation routes
+        from wizard.routes.theme_routes import create_theme_routes
+
+        theme_router = create_theme_routes(auth_guard=self._authenticate_admin)
+        app.include_router(theme_router)
 
         # Mount dashboard static files
         from fastapi.staticfiles import StaticFiles

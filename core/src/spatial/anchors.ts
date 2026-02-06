@@ -84,4 +84,58 @@ export interface RenderFrame {
     ref: string
     format: "RGBA8888" | "RGB565" | "INDEXED"
   }
+  overlays?: Array<{
+    locId?: LocId
+    label?: string
+    icon?: string
+    data?: Record<string, unknown>
+  }>
+}
+
+export interface SaveStateRef {
+  ref: string
+  sizeBytes?: number
+  hash?: string
+  createdAt: string
+}
+
+export interface AnchorEvent {
+  ts: number
+  anchorId: AnchorId
+  instanceId: string
+  type:
+    | "MOVE"
+    | "ENTER_CELL"
+    | "EXIT_CELL"
+    | "PICKUP"
+    | "DROP"
+    | "DIALOGUE"
+    | "QUEST_TRIGGER"
+    | "CUSTOM"
+  locId?: LocId
+  coord?: AnchorCoord
+  data?: Record<string, unknown>
+}
+
+export interface AnchorRuntime {
+  meta(): Promise<AnchorMeta>
+  transform(): Promise<AnchorTransform>
+
+  createInstance(params?: {
+    seed?: string
+    profileId?: string
+    space?: SpaceId
+    initialLocId?: LocId
+  }): Promise<AnchorInstance>
+
+  destroyInstance(instanceId: string): Promise<void>
+
+  input(instanceId: string, event: InputEvent): Promise<void>
+  tick(instanceId: string, dtMs: number): Promise<void>
+
+  render(instanceId: string): Promise<RenderFrame>
+
+  saveState?(instanceId: string): Promise<SaveStateRef>
+  loadState?(instanceId: string, state: SaveStateRef): Promise<void>
+  pollEvents?(instanceId: string, sinceTs: number): Promise<AnchorEvent[]>
 }

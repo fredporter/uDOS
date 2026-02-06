@@ -295,7 +295,7 @@ class ContextualCommandPrompt(EnhancedPrompt):
             return [_format_line(line1), _format_line(line2)]
 
         if cmd_key == "OK":
-            options = ["LOCAL", "EXPLAIN", "DIFF", "PATCH", "VIBE"]
+            options = ["LOCAL", "EXPLAIN", "DIFF", "PATCH"]
             opt_preview = ", ".join(options[:4])
             if len(options) > 4:
                 opt_preview += f" (+{len(options) - 4} more)"
@@ -564,15 +564,38 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="OK",
         help_text="Local Vibe helpers (EXPLAIN, DIFF, PATCH, LOCAL)",
-        syntax="OK <LOCAL|EXPLAIN|DIFF|PATCH|VIBE> [args]",
+        syntax="OK <LOCAL|EXPLAIN|DIFF|PATCH> [args]",
         options=[
             "LOCAL: Show recent local outputs",
             "EXPLAIN: Summarize code in a file",
             "DIFF: Propose a diff for a file",
             "PATCH: Draft a patch with preview",
-            "VIBE: Alias for LOCAL",
         ],
         examples=["OK EXPLAIN core/tui/ucode.py", "OK LOCAL 5"],
+        icon="🧭",
+        category="AI",
+    )
+
+    registry.register(
+        name="VIBE",
+        help_text="Vibe capabilities (ANALYZE, EXPLAIN, SUGGEST, CHAT)",
+        syntax="VIBE <ANALYZE|EXPLAIN|SUGGEST|CHAT> <input> [--repo|--vault|--files a,b] [--cloud]",
+        options=[
+            "ANALYZE: Summarize a path or repo",
+            "EXPLAIN: Explain a file",
+            "SUGGEST: Generate suggestions for a task",
+            "CHAT: General chat prompt",
+        ],
+        examples=["VIBE ANALYZE core/ --repo", "VIBE EXPLAIN core/tui/ucode.py --cloud"],
+        icon="🤖",
+        category="AI",
+    )
+
+    registry.register(
+        name="NLROUTE",
+        help_text="Map natural language to uCODE commands",
+        syntax="NLROUTE <prompt>",
+        examples=["NLROUTE summarize wizard status"],
         icon="🧭",
         category="AI",
     )

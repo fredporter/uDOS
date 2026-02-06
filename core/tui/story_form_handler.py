@@ -11,6 +11,7 @@ Handles:
 import sys
 import termios
 import tty
+from dataclasses import dataclass
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 from datetime import datetime
@@ -75,6 +76,10 @@ class StoryFormHandler:
         
         # Run interactive form
         return self._run_interactive_form(renderer, form_spec)
+
+    def create_session(self, form_spec: Dict[str, Any]) -> "StoryFormSession":
+        """Create a reusable session for non-interactive drivers (e.g., Vibe CLI)."""
+        return StoryFormSession(form_spec)
     
     def _add_field_from_spec(self, renderer: TUIFormRenderer, spec: Dict, force_add: bool = False) -> None:
         """Add field to renderer from specification."""
@@ -398,6 +403,134 @@ class SimpleFallbackFormHandler:
         except EOFError:
             return default
         return value or default
+
+
+@dataclass
+class VibePrompt:
+    """Envelope for Vibe CLI input/output."""
+
+    prompt_id: str
+    label: str
+    field_type: str
+    required: bool
+    options: Optional[List[str]]
+    default: Any
+    metadata: Dict[str, Any]
+
+    def to_dict(self) -> Dict[str, Any]:
+        payload = {
+            "id": self.prompt_id,
+            "label": self.label,
+            "type": self.field_type,
+            "required": self.required,
+        }
+        if self.options:
+            payload["options"] = self.options
+        if self.default is not None:
+            payload["default"] = self.default
+        if self.metadata:
+            payload["meta"] = self.metadata
+        return payload
+
+
+class StoryFormSession:
+    """Non-interactive session for replaying story forms via Vibe CLI."""
+
+    def __init__(self, form_spec: Dict[str, Any]):
+        self.form_spec = form_spec
+        self.fields = list(form_spec.get("fields", []))
+        self.index = 0
+        self.data: Dict[str, Any] = {}
+        self._last_prompt_id: Optional[str] = None
+
+    def is_complete(self) -> bool:
+        return self.index >= len(self.fields)
+
+    def get_prompt(self) -> Optional[Dict[str, Any]]:
+        """Return the next prompt envelope or None when complete."""
+        if self.is_complete():
+            return None
+
+        spec = self.fields[self.index]
+        prompt = self._build_prompt(spec)
+        self._last_prompt_id = prompt.prompt_id
+        return {"vibe_input": prompt.to_dict()}
+
+    def submit_response(self, prompt_id: str, response: Any) -> Dict[str, Any]:
+        """Submit a response for the current prompt and advance."""
+        if self.is_complete():
+            return {"status": "complete", "data": self.data}
+
+        spec = self.fields[self.index]
+        expected_id = spec.get("name", "unknown")
+        if prompt_id != expected_id:
+            return {"status": "error", "message": "Prompt id mismatch"}
+
+        required = bool(spec.get("required", False))
+        if required and (response is None or response == ""):
+            return {"status": "error", "message": "Response required"}
+
+        ftype_str = spec.get("type", "text").lower()
+        value = response
+
+        if ftype_str == "datetime_approve":
+            value = self._normalize_datetime_response(response)
+            tz = value.get("timezone")
+            if tz:
+                self.data.setdefault("user_timezone", tz)
+
+        self.data[expected_id] = value
+        self.index += 1
+        return {"status": "ok", "vibe_output": {"id": prompt_id, "value": value}}
+
+    def result(self) -> Dict[str, Any]:
+        """Return collected data (complete or partial)."""
+        return {"status": "success", "data": self.data}
+
+    def _build_prompt(self, spec: Dict[str, Any]) -> VibePrompt:
+        name = spec.get("name", "unknown")
+        label = spec.get("label", name)
+        ftype_str = spec.get("type", "text").lower()
+        options = spec.get("options")
+        default = spec.get("default")
+        required = bool(spec.get("required", False))
+        metadata: Dict[str, Any] = {}
+
+        if ftype_str == "datetime_approve":
+            now = datetime.now().astimezone()
+            metadata["detected"] = {
+                "date": now.strftime("%Y-%m-%d"),
+                "time": now.strftime("%H:%M:%S"),
+                "timezone": now.tzname() or str(now.tzinfo) or "UTC",
+            }
+
+        if ftype_str == "location":
+            metadata["timezone_field"] = spec.get("timezone_field", "user_timezone")
+
+        return VibePrompt(
+            prompt_id=name,
+            label=label,
+            field_type=ftype_str,
+            required=required,
+            options=options,
+            default=default,
+            metadata=metadata,
+        )
+
+    def _normalize_datetime_response(self, response: Any) -> Dict[str, Any]:
+        if isinstance(response, dict):
+            return response
+        now = datetime.now().astimezone()
+        date_str = now.strftime("%Y-%m-%d")
+        time_str = now.strftime("%H:%M:%S")
+        tz = now.tzname() or str(now.tzinfo) or "UTC"
+        approved = str(response).strip().lower() in {"", "y", "yes", "1", "true"}
+        return {
+            "approved": approved,
+            "date": date_str,
+            "time": time_str,
+            "timezone": tz,
+        }
 
 
 def get_form_handler() -> StoryFormHandler:

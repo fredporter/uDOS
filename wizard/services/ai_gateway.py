@@ -472,6 +472,20 @@ class AIGateway:
         task_id = request.task_id or self._generate_task_id(device_id)
         request.task_id = task_id
         request.model = request.model or self._default_model()
+        if request.mode:
+            mode_key = str(request.mode).strip().lower()
+            if mode_key not in MODE_PRESETS:
+                return AIResponse(
+                    success=False,
+                    error=f"Unknown AI mode: {request.mode}",
+                    backend=Backend.LOCAL.value,
+                )
+            if mode_key == "conversation" and not request.conversation_id:
+                return AIResponse(
+                    success=False,
+                    error="conversation_id is required for conversation mode",
+                    backend=Backend.LOCAL.value,
+                )
         self._apply_mode_preset(request)
         if request.temperature is None:
             request.temperature = 0.7

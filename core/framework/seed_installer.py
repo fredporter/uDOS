@@ -1,11 +1,10 @@
 """
-Seed Installer - Bootstrap initial data into memory/bank/
+Seed Installer - Bootstrap initial data into memory/system/
 
 Handles copying framework seed data to user memory directory on first run
 or via REPAIR --seed command.
 
-Ensures /memory/bank/locations/, /memory/bank/help/, and other required
-directories exist with initial data.
+Ensures /memory/system/locations/ and other seed templates exist.
 """
 
 import json
@@ -36,30 +35,23 @@ class SeedInstaller:
         self.framework_dir = Path(framework_dir)
         self.memory_dir = Path(memory_dir)
         self.seed_dir = self.framework_dir / "seed"
-        self.bank_dir = self.memory_dir / "bank"
+        self.system_dir = self.memory_dir / "system"
 
     def ensure_directories(self) -> bool:
         """
-        Create required memory/bank/ directory structure.
+        Create required memory/system/ directory structure.
 
         Returns:
             True if successful
         """
         try:
             # Core directories
-            (self.bank_dir / "locations").mkdir(parents=True, exist_ok=True)
-            (self.bank_dir / "help").mkdir(parents=True, exist_ok=True)
-            (self.bank_dir / "templates").mkdir(parents=True, exist_ok=True)
-            (self.bank_dir / "system").mkdir(parents=True, exist_ok=True)
-            (self.bank_dir / "graphics" / "diagrams" / "templates").mkdir(
-                parents=True, exist_ok=True
-            )
-            (self.bank_dir / "workflows").mkdir(parents=True, exist_ok=True)
+            (self.system_dir / "locations").mkdir(parents=True, exist_ok=True)
             (self.memory_dir / "logs").mkdir(parents=True, exist_ok=True)
             (self.memory_dir / "logs" / "monitoring").mkdir(parents=True, exist_ok=True)
             (self.memory_dir / "logs" / "quotas").mkdir(parents=True, exist_ok=True)
 
-            logger.info("[LOCAL] Directory structure created in memory/bank/")
+            logger.info("[LOCAL] Directory structure created in memory/system/")
             return True
         except Exception as e:
             logger.error(f"[LOCAL] Failed to create directories: {e}")
@@ -67,7 +59,7 @@ class SeedInstaller:
 
     def install_locations_seed(self, force: bool = False) -> bool:
         """
-        Install locations-seed.json to memory/bank/locations/locations.json
+        Install locations-seed.json to memory/system/locations/locations.json
 
         Args:
             force: Overwrite if exists
@@ -76,7 +68,7 @@ class SeedInstaller:
             True if successful
         """
         seed_file = self.seed_dir / "locations-seed.json"
-        target_file = self.bank_dir / "locations" / "locations.json"
+        target_file = self.system_dir / "locations" / "locations.json"
 
         if not seed_file.exists():
             logger.error(f"[LOCAL] Seed file not found: {seed_file}")
@@ -104,7 +96,7 @@ class SeedInstaller:
 
     def install_timezones_seed(self, force: bool = False) -> bool:
         """
-        Install timezones-seed.json to memory/bank/timezones.json
+        Install timezones-seed.json to memory/system/timezones.json
 
         Args:
             force: Overwrite if exists
@@ -113,7 +105,7 @@ class SeedInstaller:
             True if successful
         """
         seed_file = self.seed_dir / "timezones-seed.json"
-        target_file = self.bank_dir / "timezones.json"
+        target_file = self.system_dir / "timezones.json"
 
         if not seed_file.exists():
             logger.error(f"[LOCAL] Seed file not found: {seed_file}")
@@ -136,9 +128,9 @@ class SeedInstaller:
             logger.error(f"[LOCAL] Failed to install timezones seed: {e}")
             return False
 
-    def install_bank_seeds(self, force: bool = False) -> Dict[str, bool]:
+    def install_system_seeds(self, force: bool = False) -> Dict[str, bool]:
         """
-        Install all bank seeds (help, templates, graphics).
+        Install all system seeds (help, templates, graphics, workflows).
 
         Args:
             force: Overwrite if exists
@@ -147,17 +139,17 @@ class SeedInstaller:
             Dict with status of each seed type
         """
         results = {}
-        bank_seed_dir = self.seed_dir / "bank"
+        seed_root = self.seed_dir / "bank"
 
-        if not bank_seed_dir.exists():
-            logger.warning(f"[LOCAL] Bank seed directory not found: {bank_seed_dir}")
+        if not seed_root.exists():
+            logger.warning(f"[LOCAL] Seed directory not found: {seed_root}")
             return results
 
         try:
             # Recursively copy seed structure
-            for seed_subdir in bank_seed_dir.iterdir():
+            for seed_subdir in seed_root.iterdir():
                 if seed_subdir.is_dir():
-                    target_subdir = self.bank_dir / seed_subdir.name
+                    target_subdir = self.system_dir / seed_subdir.name
                     target_subdir.mkdir(parents=True, exist_ok=True)
 
                     # Copy files from seed
@@ -171,10 +163,10 @@ class SeedInstaller:
                                 shutil.copy2(item, target_file)
                                 results[f"{seed_subdir.name}/{rel_path}"] = True
 
-            logger.info(f"[LOCAL] Installed bank seeds ({len(results)} files)")
+            logger.info(f"[LOCAL] Installed system seeds ({len(results)} files)")
             return results
         except Exception as e:
-            logger.error(f"[LOCAL] Failed to install bank seeds: {e}")
+            logger.error(f"[LOCAL] Failed to install system seeds: {e}")
             return results
 
     def install_all(self, force: bool = False) -> Tuple[bool, List[str]]:
@@ -207,9 +199,9 @@ class SeedInstaller:
         else:
             messages.append("⚠️  Timezones seed installation failed")
 
-        # 4. Install bank seeds
-        bank_results = self.install_bank_seeds(force)
-        messages.append(f"✅ Bank seeds installed ({len(bank_results)} files)")
+        # 4. Install system seeds
+        system_results = self.install_system_seeds(force)
+        messages.append(f"✅ System seeds installed ({len(system_results)} files)")
 
         return True, messages
 
@@ -220,17 +212,16 @@ class SeedInstaller:
         Returns:
             Dict with status of each seed component
         """
-        system_dir = self.bank_dir / "system"
         system_required = [
-            system_dir / "startup-script.md",
-            system_dir / "reboot-script.md",
-            system_dir / "tui-setup-story.md",
-            system_dir / "wizard-setup-story.md",
+            self.system_dir / "startup-script.md",
+            self.system_dir / "reboot-script.md",
+            self.system_dir / "tui-setup-story.md",
+            self.system_dir / "wizard-setup-story.md",
         ]
         return {
-            "directories_exist": (self.bank_dir / "locations").exists(),
-            "locations_seeded": (self.bank_dir / "locations" / "locations.json").exists(),
-            "timezones_seeded": (self.bank_dir / "timezones.json").exists(),
+            "directories_exist": (self.system_dir / "locations").exists(),
+            "locations_seeded": (self.system_dir / "locations" / "locations.json").exists(),
+            "timezones_seeded": (self.system_dir / "timezones.json").exists(),
             "system_seeds": all(path.exists() for path in system_required),
             "framework_seed_dir_exists": self.seed_dir.exists(),
         }
