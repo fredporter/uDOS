@@ -5,6 +5,7 @@
     listThemes,
     validateTheme,
     validateAllThemes,
+    validateContracts,
     listSiteExports,
     listSiteFiles,
     listMissions,
@@ -52,6 +53,10 @@
   let themeValidation = {};
   let validatingThemes = false;
   let themeValidationError = "";
+  let contractTheme = "";
+  let contractStatus = null;
+  let contractError = "";
+  let contractBusy = false;
 
   function getMissionId(mission) {
     return mission?.mission_id || mission?.job_id || mission?.id || "";
@@ -192,16 +197,17 @@
   }
 
   async function runThemeValidation(themeName) {
-    if (!themeName) return;
+    const targetTheme = themeName || contractTheme || selectedTheme;
+    if (!targetTheme) return;
     themeValidationError = "";
-    themeValidation = { ...themeValidation, [themeName]: { status: "running" } };
+    themeValidation = { ...themeValidation, [targetTheme]: { status: "running" } };
     try {
-      const result = await validateTheme(themeName, adminToken);
-      themeValidation = { ...themeValidation, [themeName]: result };
+      const result = await validateTheme(targetTheme, adminToken);
+      themeValidation = { ...themeValidation, [targetTheme]: result };
     } catch (err) {
       themeValidationError =
         err instanceof Error ? err.message : "Theme validation failed";
-      themeValidation = { ...themeValidation, [themeName]: { status: "error" } };
+      themeValidation = { ...themeValidation, [targetTheme]: { status: "error" } };
     }
   }
 
@@ -220,6 +226,23 @@
         err instanceof Error ? err.message : "Theme validation failed";
     } finally {
       validatingThemes = false;
+    }
+  }
+
+  async function runContractValidation() {
+    if (!contractTheme) {
+      contractError = "Select a theme to validate contracts.";
+      return;
+    }
+    contractBusy = true;
+    contractError = "";
+    try {
+      contractStatus = await validateContracts(contractTheme, adminToken);
+    } catch (err) {
+      contractError =
+        err instanceof Error ? err.message : "Contract validation failed";
+    } finally {
+      contractBusy = false;
     }
   }
 
@@ -271,6 +294,7 @@
 
   $: missionFiles = extractMissionFiles(missionDetail);
   $: missionLogs = extractMissionLogs(missionDetail);
+  $: contractTheme = contractTheme || selectedTheme;
 </script>
 
 <div class="max-w-7xl mx-auto px-4 py-8 text-white space-y-8">
@@ -340,6 +364,20 @@
     <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 space-y-2">
       <h3 class="text-sm font-semibold">Themes</h3>
       <div class="flex items-center gap-2">
+        <select
+          class="bg-gray-800 text-xs text-gray-200 px-2 py-1 rounded"
+          bind:value={contractTheme}
+        >
+          {#each themes as theme}
+            <option value={theme.name}>{theme.name}</option>
+          {/each}
+        </select>
+        <button
+          class="text-xs px-2 py-1 rounded border border-gray-600 text-gray-200 hover:text-white"
+          on:click={() => runThemeValidation(contractTheme)}
+        >
+          Validate Selected
+        </button>
         <button
           class="text-xs px-2 py-1 rounded border border-gray-600 text-gray-200 hover:text-white"
           on:click={runValidateAllThemes}
@@ -359,6 +397,14 @@
             <div class="font-semibold">{theme.name}</div>
             <div>Slots: {(theme.slots || []).length || "—"}</div>
             <div>Site: {theme.siteExists ? "✅" : "—"}</div>
+            <a
+              class="text-blue-300 underline"
+              href={`/api/renderer/themes/${theme.name}/preview`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Preview theme
+            </a>
             <div class="flex items-center gap-2">
               <button
                 class="text-xs text-blue-300 underline"
@@ -420,6 +466,72 @@
             {/if}
           </div>
         {/each}
+      {/if}
+    </div>
+
+    <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 space-y-3">
+      <h3 class="text-sm font-semibold">Contract Validation</h3>
+      <label class="text-xs text-gray-400">Theme</label>
+      <select
+        class="w-full bg-gray-800 text-xs text-gray-200 px-2 py-1 rounded"
+        bind:value={contractTheme}
+      >
+        {#each themes as theme}
+          <option value={theme.name}>{theme.name}</option>
+        {/each}
+      </select>
+      <button
+        class="text-xs px-3 py-1 bg-blue-600 rounded text-white hover:bg-blue-500"
+        on:click={runContractValidation}
+        disabled={contractBusy}
+      >
+        {contractBusy ? "Validating..." : "Validate Contracts"}
+      </button>
+      {#if contractError}
+        <div class="text-xs text-red-300">{contractError}</div>
+      {/if}
+      {#if contractStatus}
+        <div class="text-xs text-gray-300 space-y-1">
+          <div>
+            Vault: {contractStatus.vault?.valid ? "✅" : "❌"}
+          </div>
+          <div>
+            Theme: {contractStatus.theme?.valid ? "✅" : "❌"} ({contractStatus.theme?.theme})
+          </div>
+          <div>
+            LocId: {contractStatus.locid?.valid ? "✅" : "❌"}
+          </div>
+          {#if contractStatus.vault?.errors?.length}
+            <div class="text-xs text-red-300">
+              Vault errors: {contractStatus.vault.errors.join("; ")}
+            </div>
+          {/if}
+          {#if contractStatus.theme?.errors?.length}
+            <div class="text-xs text-red-300">
+              Theme errors: {contractStatus.theme.errors.join("; ")}
+            </div>
+          {/if}
+          {#if contractStatus.locid?.errors?.length}
+            <div class="text-xs text-red-300">
+              LocId errors: {contractStatus.locid.errors.join("; ")}
+            </div>
+          {/if}
+          {#if contractStatus.vault?.warnings?.length}
+            <div class="text-xs text-amber-300">
+              Vault warnings: {contractStatus.vault.warnings.join("; ")}
+            </div>
+          {/if}
+          {#if contractStatus.theme?.warnings?.length}
+            <div class="text-xs text-amber-300">
+              Theme warnings: {contractStatus.theme.warnings.join("; ")}
+            </div>
+          {/if}
+          {#if contractStatus.locid?.warnings?.length}
+            <div class="text-xs text-amber-300">
+              LocId warnings: {contractStatus.locid.warnings.join("; ")}
+            </div>
+          {/if}
+        </div>
       {/if}
     </div>
 

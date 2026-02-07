@@ -124,7 +124,7 @@ Spec: [docs/specs/AI-MODES-v1.3.md](docs/specs/AI-MODES-v1.3.md)
 7. **P1 — Vibe CLI Workflow Alignment (Core)**. Dependencies: TUI ↔ Vibe Integration. Breakdown: map recommended flows to uCODE commands, close gaps in CLI routing, add UX notes to roadmap.
 8. **P1 — Wizard AI Modes (Wizard)**. ✅ Implemented. Breakdown: mode contract (conversation/creative), local model defaults, `/api/ai/complete` policy enforcement.
 9. **P1 — Theme Validation Tooling (Wizard/Extensions)**. ✅ Complete. Validator wired in core + Wizard endpoint + dashboard hooks.
-10. **P2 — Theme Packs + Previews (Wizard/App)**. Ready. Dependencies: Theme Validation Tooling. Breakdown: NES/teletext/C64/medium packs, export tests, preview endpoints for app + dashboard.
+10. **P2 — Theme Packs + Previews (Wizard/App)**. ✅ Complete. NES/teletext/C64/medium packs present; preview endpoint + dashboard link added.
 
 ---
 

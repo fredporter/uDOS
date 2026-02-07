@@ -169,3 +169,87 @@ class AnchorStore:
             )
             conn.commit()
         return event_id
+
+    def list_instances(self, anchor_id: Optional[str] = None) -> list[AnchorInstanceRecord]:
+        query = "SELECT instance_id, anchor_id, profile_id, space_id, seed, meta_json, created_at, updated_at FROM anchor_instances"
+        params = ()
+        if anchor_id:
+            query += " WHERE anchor_id = ?"
+            params = (anchor_id,)
+        with self._connect() as conn:
+            rows = conn.execute(query, params).fetchall()
+        instances: list[AnchorInstanceRecord] = []
+        for row in rows:
+            try:
+                meta = json.loads(row[5]) if row[5] else {}
+            except json.JSONDecodeError:
+                meta = {}
+            instances.append(
+                AnchorInstanceRecord(
+                    instance_id=row[0],
+                    anchor_id=row[1],
+                    profile_id=row[2],
+                    space_id=row[3],
+                    seed=row[4],
+                    meta_json=meta,
+                    created_at=row[6],
+                    updated_at=row[7],
+                )
+            )
+        return instances
+
+    def list_events(
+        self,
+        anchor_id: Optional[str] = None,
+        instance_id: Optional[str] = None,
+        event_type: Optional[str] = None,
+        limit: int = 50,
+    ) -> list[dict]:
+        clauses = []
+        params: list = []
+        if anchor_id:
+            clauses.append("anchor_id = ?")
+            params.append(anchor_id)
+        if instance_id:
+            clauses.append("instance_id = ?")
+            params.append(instance_id)
+        if event_type:
+            clauses.append("type = ?")
+            params.append(event_type)
+        where_clause = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+        query = f"""
+            SELECT event_id, ts, anchor_id, instance_id, type, locid, coord_kind, coord_json, data_json
+            FROM anchor_events
+            {where_clause}
+            ORDER BY ts DESC
+            LIMIT ?
+        """
+        params.append(limit)
+        with self._connect() as conn:
+            rows = conn.execute(query, tuple(params)).fetchall()
+        events: list[dict] = []
+        for row in rows:
+            coord_payload = None
+            data_payload = None
+            try:
+                coord_payload = json.loads(row[7]) if row[7] else None
+            except json.JSONDecodeError:
+                coord_payload = None
+            try:
+                data_payload = json.loads(row[8]) if row[8] else None
+            except json.JSONDecodeError:
+                data_payload = None
+            events.append(
+                {
+                    "event_id": row[0],
+                    "ts": row[1],
+                    "anchor_id": row[2],
+                    "instance_id": row[3],
+                    "type": row[4],
+                    "locid": row[5],
+                    "coord_kind": row[6],
+                    "coord_json": coord_payload,
+                    "data_json": data_payload,
+                }
+            )
+        return events

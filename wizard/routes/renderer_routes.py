@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from wizard.services.contribution_service import ContributionService
@@ -146,6 +147,50 @@ def _load_theme_metadata(theme_name: str) -> Dict[str, Any]:
     meta["siteExists"] = (_site_root() / theme_name).exists()
     meta["siteStats"] = _site_stats(theme_name)
     return meta
+
+
+def _build_theme_preview_html(theme_name: str) -> str:
+    theme_dir = _themes_root() / theme_name
+    shell_path = theme_dir / "shell.html"
+    css_path = theme_dir / "theme.css"
+    if not shell_path.exists():
+        raise HTTPException(status_code=404, detail="Theme shell not found")
+    shell = shell_path.read_text(encoding="utf-8")
+    css = ""
+    if css_path.exists():
+        css = css_path.read_text(encoding="utf-8")
+
+    sample_title = f"{theme_name} Theme Preview"
+    sample_nav = "<nav><a href=\"#\">Home</a> · <a href=\"#\">Docs</a> · <a href=\"#\">Notes</a></nav>"
+    sample_meta = "<div class=\"meta\">Generated preview</div>"
+    sample_footer = "<footer>uDOS · Theme preview</footer>"
+    sample_content = """
+<main>
+  <h1>Theme Preview</h1>
+  <p>This is a sample preview to validate slots, typography, and layout.</p>
+  <h2>Sample Section</h2>
+  <ul>
+    <li>Bullet one</li>
+    <li>Bullet two</li>
+    <li>Bullet three</li>
+  </ul>
+  <pre><code>const demo = \"udos\";</code></pre>
+</main>
+""".strip()
+
+    html = shell
+    html = html.replace("{{title}}", sample_title)
+    html = html.replace("{{content}}", sample_content)
+    html = html.replace("{{nav}}", sample_nav)
+    html = html.replace("{{meta}}", sample_meta)
+    html = html.replace("{{footer}}", sample_footer)
+
+    if css:
+        if "</head>" in html:
+            html = html.replace("</head>", f"<style>{css}</style></head>")
+        else:
+            html = f"<style>{css}</style>\n{html}"
+    return html
 
 
 def _validate_theme(theme_name: str) -> Dict[str, Any]:
@@ -305,6 +350,11 @@ def create_renderer_routes(auth_guard=None) -> APIRouter:
     @router.get("/themes/{theme_name}")
     async def get_theme(theme_name: str):
         return _load_theme_metadata(theme_name)
+
+    @router.get("/themes/{theme_name}/preview", response_class=HTMLResponse)
+    async def preview_theme(theme_name: str):
+        html = _build_theme_preview_html(theme_name)
+        return HTMLResponse(content=html)
 
     @router.post("/themes/{theme_name}/validate")
     async def validate_theme(theme_name: str):

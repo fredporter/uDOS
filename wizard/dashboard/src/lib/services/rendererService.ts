@@ -30,6 +30,17 @@ export async function validateAllThemes(token?: string) {
   });
 }
 
+export async function validateContracts(theme: string, token?: string) {
+  return fetchJson("/contracts/validate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...buildAuthHeaders(token),
+    },
+    body: JSON.stringify({ theme }),
+  });
+}
+
 export async function listSiteExports(token?: string) {
   return fetchJson("/site", { headers: buildAuthHeaders(token) });
 }
