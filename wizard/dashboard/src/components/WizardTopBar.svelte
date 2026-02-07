@@ -12,6 +12,7 @@
     { id: "devices", label: "Devices" },
     { id: "ucode", label: "uCODE" },
     { id: "renderer", label: "Renderer" },
+    { id: "anchors", label: "Anchors" },
     { id: "catalog", label: "Catalog" },
     { id: "webhooks", label: "Webhooks" },
   ];
@@ -30,6 +31,7 @@
     { id: "files", label: "🗂 Files" },
     { id: "story", label: "📝 Story" },
     { id: "renderer", label: "🧱 Renderer" },
+    { id: "anchors", label: "⚓ Anchors" },
     { id: "tables", label: "📊 Tables" },
     { id: "library", label: "📚 Library" },
     { separator: true, label: "Services" },

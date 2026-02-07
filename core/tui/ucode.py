@@ -703,7 +703,7 @@ class uCODETUI:
         except Exception:
             pass
         print(self._theme_text("\n  💡 Start with: SETUP (first-time) | HELP (all commands) | STORY tui-setup (quick setup)"))
-        print(self._theme_text("     Or try: MAP | TELL location | GOTO location | WIZARD start"))
+        print(self._theme_text("     Or try: MAP | GRID MAP --input memory/system/grid-overlays-sample.json | TELL location | GOTO location | WIZARD start"))
         print(self._theme_text("     AI: '?' or 'OK' (ex: ? explain this)"))
         print(self._theme_text("     Commands: '/' (ucode first, then shell if enabled)"))
         print(self._theme_text("     Auto: no prefix → ucode → shell → AI"))
@@ -2010,6 +2010,44 @@ class uCODETUI:
             print(self._theme_text("🧙 Wizard Server control available: Use WIZARD [start|stop|status]"))
         print()
 
+        # Quick GRID demo (map + overlays)
+        try:
+            from core.tools.generate_grid_overlays_sample import generate_sample_grid_inputs
+
+            demo_root = self.repo_root / "memory" / "system"
+            demos = generate_sample_grid_inputs(demo_root)
+            result = self.dispatcher.dispatch(
+                f"GRID MAP --input {demos['map'].as_posix()}",
+                game_state=self.state,
+            )
+            if result.get("status") == "success" and result.get("output"):
+                print(self._theme_text("🧱 UGRID Demo"))
+                print(result["output"])
+                print()
+                print(
+                    self._theme_text(
+                        "   Demos: GRID CALENDAR --input memory/system/grid-calendar-sample.json"
+                    )
+                )
+                print(
+                    self._theme_text(
+                        "          GRID TABLE --input memory/system/grid-table-sample.json"
+                    )
+                )
+                print(
+                    self._theme_text(
+                        "          GRID SCHEDULE --input memory/system/grid-schedule-sample.json"
+                    )
+                )
+                print()
+            else:
+                print(self._theme_text("🧱 UGRID Demo unavailable (renderer not ready)"))
+                print()
+        except Exception as exc:
+            self.logger.warning(f"[GRID_DEMO] Failed: {exc}")
+            print(self._theme_text("🧱 UGRID Demo unavailable (error)"))
+            print()
+
     def _cmd_help(self, args: str) -> None:
         """Show help."""
         help_text = """
@@ -2030,6 +2068,8 @@ System Management:
   RESTART             - Restart/reload system
   USER                - User profile and permission management
   LOGS                - View unified system logs
+  ANCHOR              - Gameplay anchors (list/show/register/bind)
+  GRID                - UGRID demos (calendar/table/schedule/map)
 
 Data & Stories:
   BINDER              - Multi-chapter project management
@@ -2049,6 +2089,7 @@ AI Modes:
   OK DIFF <file>      - Propose a diff via local Vibe
   OK PATCH <file>     - Draft a patch via local Vibe
   OK LOCAL [N]        - Show recent OK local outputs
+  OK FALLBACK on|off  - Toggle local-first fallback to cloud
 
 """
         if self.detector.is_available("wizard"):

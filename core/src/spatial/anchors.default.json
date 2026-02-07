@@ -57,6 +57,15 @@
       "config": {
         "notes": "Ephemeris references for computed sky and planetary positions."
       }
+    },
+    {
+      "anchorId": "GAME:NETHACK",
+      "kind": "game",
+      "title": "NetHack (stub)",
+      "status": "active",
+      "config": {
+        "notes": "Minimal gameplay anchor stub for terminal runtime scaffolding."
+      }
     }
   ]
 }

@@ -24,7 +24,11 @@ from wizard.services.path_utils import get_repo_root
 from wizard.services.permission_guard import require_role
 from wizard.services.spatial_parser import scan_vault_places
 from wizard.services.spatial_store import get_spatial_db_path, fetch_spatial_rows
-from core.tools.contract_validator import validate_theme_pack
+from core.tools.contract_validator import (
+    validate_theme_pack,
+    validate_vault_contract,
+    validate_world_contract,
+)
 
 
 def _themes_root() -> Path:
@@ -315,6 +319,37 @@ def create_renderer_routes(auth_guard=None) -> APIRouter:
                 continue
             results.append(_validate_theme(name))
         return {"themes": results}
+
+    @router.post("/contracts/validate")
+    async def validate_contracts(payload: Optional[Dict[str, Any]] = Body(None)):
+        theme_name = None
+        if payload and isinstance(payload, dict):
+            theme_name = payload.get("theme")
+        theme_path = _themes_root() / (theme_name or "prose")
+        vault_report = validate_vault_contract(_vault_root())
+        theme_report = validate_theme_pack(theme_path)
+        world_report = validate_world_contract(_vault_root())
+        return {
+            "vault": {
+                "valid": vault_report.valid,
+                "errors": vault_report.errors,
+                "warnings": vault_report.warnings,
+                "details": vault_report.details,
+            },
+            "theme": {
+                "valid": theme_report.valid,
+                "errors": theme_report.errors,
+                "warnings": theme_report.warnings,
+                "details": theme_report.details,
+                "theme": theme_name or "prose",
+            },
+            "locid": {
+                "valid": world_report.valid,
+                "errors": world_report.errors,
+                "warnings": world_report.warnings,
+                "details": world_report.details,
+            },
+        }
 
     @router.get("/site")
     async def list_site_exports():

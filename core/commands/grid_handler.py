@@ -183,7 +183,15 @@ class GridHandler(BaseCommandHandler, HandlerLoggingMixin):
             cmd.extend(["--output", str(output_path)])
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            # Use ESM import to execute cli main (direct node cli.js won't run under ESM)
+            import json as _json
+
+            script = f"import {{main}} from '{self.cli_path.as_posix()}'; main({_json.dumps(cmd[2:])});"
+            result = subprocess.run(
+                [self.node_cmd, "--input-type=module", "-e", script],
+                capture_output=True,
+                text=True,
+            )
         except FileNotFoundError:
             return {
                 "status": "error",

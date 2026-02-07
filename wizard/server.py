@@ -348,6 +348,11 @@ class WizardServer:
         renderer_router = create_renderer_routes(auth_guard=renderer_auth_guard)
         app.include_router(renderer_router)
 
+        from wizard.routes.anchor_routes import create_anchor_routes
+
+        anchor_router = create_anchor_routes(auth_guard=self._authenticate_admin)
+        app.include_router(anchor_router)
+
         # Register GitHub integration routes (optional)
         try:
             from wizard.routes.github_routes import create_github_routes

@@ -108,3 +108,4 @@ help: |
 ## Completion Confirmation
 
 - The TUI prints the local repo/memory/system/vault structure summary (see docs/SEED-INSTALLATION-GUIDE.md) once the story completes so you can confirm seeds, vault, and memory structure before the next training round.
+- Quickstart: `GRID MAP --input memory/system/grid-overlays-sample.json` (UGRID demo with LocId overlays).
