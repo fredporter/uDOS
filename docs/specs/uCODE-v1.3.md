@@ -159,7 +159,7 @@ Notes:
 ## NL Routing (Prototype)
 
 ```
-NL ROUTE <prompt> [--dry-run] [--no-context]
+OK ROUTE <prompt> [--dry-run] [--no-context]
 ```
 
 ## Extension-Bound Commands

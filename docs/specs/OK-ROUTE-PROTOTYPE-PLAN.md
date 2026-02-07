@@ -17,7 +17,7 @@
 ## Command Surface (prototype)
 
 ### New NL routing
-- `NL ROUTE <prompt>`
+- `OK ROUTE <prompt>`
   - Interprets NL and maps to a concrete uCODE command.
   - Outputs a structured route plan before execution.
   - Supports `--dry-run` to return the plan only.
@@ -37,7 +37,7 @@
 ## Routing Pipeline (prototype)
 
 1. **Input capture**
-   - Accept raw NL input from `NL ROUTE`.
+   - Accept raw NL input from `OK ROUTE`.
 
 2. **Intent extraction**
    - Identify intent category (analyze, explain, suggest, execute, sync, schedule).
@@ -79,7 +79,7 @@
 - Add test hooks for Vibe requests.
 
 ### Phase 1: Minimal NL router
-- Implement `NL ROUTE` with a rule-based router.
+- Implement `OK ROUTE` with a rule-based router.
 - Add `--dry-run` and structured plan output.
 
 ### Phase 2: Assistance commands
@@ -114,10 +114,10 @@ These are intended for deterministic tests of the Vibe commands and future NL ro
   - Route plan formatting and `--dry-run` output.
 - **Integration tests**:
   - uCODE Vibe commands with `UDOS_VIBE_TEST_MODE=1`.
-  - Verify routing output for `NL ROUTE` maps to correct command tokens.
+  - Verify routing output for `OK ROUTE` maps to correct command tokens.
 
 ## Acceptance Criteria (prototype)
-- `NL ROUTE` returns a structured plan and can run in `--dry-run` mode.
+- `OK ROUTE` returns a structured plan and can run in `--dry-run` mode.
 - `VIBE ANALYZE/EXPLAIN/SUGGEST` return responses from stubbed hooks.
 - No live network calls occur when test mode is enabled.
 - Commands are documented in `docs/specs/uCODE-v1.3.md` after implementation.
