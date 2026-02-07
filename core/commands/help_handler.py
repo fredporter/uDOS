@@ -18,7 +18,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
     ]
 
     COMMAND_CATEGORIES = {
-        "Navigation": ["MAP", "GRID", "PANEL", "GOTO", "FIND", "TELL"],
+        "Navigation": ["MAP", "GRID", "ANCHOR", "PANEL", "GOTO", "FIND", "TELL"],
         "Inventory": ["BAG", "GRAB", "SPAWN"],
         "NPCs & Dialogue": ["NPC", "TALK", "REPLY"],
         "Files & State": ["SAVE", "LOAD", "NEW", "EDIT", "UNDO"],
@@ -64,6 +64,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "notes": "Uses 80x30 UGRID renderer with LocId overlays for map mode",
             "category": "Navigation",
             "syntax": "GRID <calendar|table|schedule|map|dashboard> [--input <json>] [--loc <locid>] [--title <text>] [--theme <name>]",
+        },
+        "ANCHOR": {
+            "description": "List gameplay anchors or show anchor details",
+            "usage": "ANCHOR [LIST] | ANCHOR SHOW <id> | ANCHOR REGISTER <id> <title>",
+            "example": "ANCHOR REGISTER GAME:NETHACK NetHack",
+            "notes": "Gameplay anchor registry + bindings + events",
+            "category": "Navigation",
+            "syntax": "ANCHOR [LIST] | ANCHOR SHOW <anchor_id> | ANCHOR REGISTER <anchor_id> <title> | ANCHOR INSTANCE CREATE <anchor_id> | ANCHOR BIND <locid> <anchor> <coord_kind> <coord_json>",
         },
         "PANEL": {
             "description": "Show location information panel",

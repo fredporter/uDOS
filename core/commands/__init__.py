@@ -18,6 +18,10 @@ def __getattr__(name):
         from .map_handler import MapHandler
 
         return MapHandler
+    elif name == "AnchorHandler":
+        from .anchor_handler import AnchorHandler
+
+        return AnchorHandler
     elif name == "GridHandler":
         from .grid_handler import GridHandler
 
@@ -205,6 +209,7 @@ __all__ = [
     "BaseCommandHandler",
     # Location commands
     "MapHandler",
+    "AnchorHandler",
     "GridHandler",
     "PanelHandler",
     "GotoHandler",

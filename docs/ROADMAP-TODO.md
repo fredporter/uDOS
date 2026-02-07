@@ -72,9 +72,9 @@ Focus: harden publishing + indexing, stabilize Wizard renderer lane, and lock de
 Integrate the attached specs/guides into the next roadmap window (post v1.3.10).
 
 ## Canonical contracts to implement
-- **Vault Contract**: enforce layout, deterministic indices, and exports. **Status:** in progress (validators not yet wired). See [docs/Vault-Contract.md](docs/Vault-Contract.md).
-- **Theme Pack Contract**: expand pack validation + assets. **Status:** in progress (no core validator found). See [docs/Theme-Pack-Contract.md](docs/Theme-Pack-Contract.md).
-- **Engine-Agnostic World Contract**: enforce LocId invariants. **Status:** in progress (no LocId validator wired). See [docs/uDOS-Engine-Agnostic-World-Contract.md](docs/uDOS-Engine-Agnostic-World-Contract.md).
+- **Vault Contract**: ✅ implemented. Core validator checks Markdown presence + recommended layout. See [docs/Vault-Contract.md](docs/Vault-Contract.md).
+- **Theme Pack Contract**: ✅ implemented. Core validator checks shell/theme metadata + required slots. See [docs/Theme-Pack-Contract.md](docs/Theme-Pack-Contract.md).
+- **Engine-Agnostic World Contract**: ✅ implemented. Core validator enforces LocId invariants in vault content. See [docs/uDOS-Engine-Agnostic-World-Contract.md](docs/uDOS-Engine-Agnostic-World-Contract.md).
 
 ## Spatial universe + anchors
 - **Fractal grid + universe mapping** (v1.3.4): ✅ COMPLETE. Anchor registry + LocId parser + validation. See [docs/FRACTAL-GRID-IMPLEMENTATION.md](docs/FRACTAL-GRID-IMPLEMENTATION.md) and [docs/SPATIAL-QUICK-REF.md](docs/SPATIAL-QUICK-REF.md).
@@ -115,15 +115,15 @@ Spec: [docs/specs/AI-MODES-v1.3.md](docs/specs/AI-MODES-v1.3.md)
 
 ## v1.3.2+ Execution Plan (No Dates)
 
-1. **P0 — Contract Foundation (Core/Docs)**. Dependencies: none. Breakdown: implement Vault Contract validation, Theme Pack Contract validation, Engine-Agnostic World Contract enforcement in core runtime and docs cross-links.
+1. **P0 — Contract Foundation (Core/Docs)**. ✅ Complete. Breakdown: Vault Contract validation, Theme Pack Contract validation, Engine-Agnostic World Contract enforcement in core runtime.
 2. **P0 — UGRID Core (Core)**. ✅ Complete. Dependencies: Fractal grid + universe mapping complete. Breakdown: grid canvas primitives, LocId overlays, deterministic render tests, runtime hooks for map blocks.
-3. **P0 — Gameplay Anchors (Core/Sonic)**. Dependencies: UGRID Core, Engine-Agnostic World Contract. Breakdown: anchor registry runtime interfaces, validation rules, adapter surface for Sonic/TUI access.
+3. **P0 — Gameplay Anchors (Core/Sonic)**. ✅ Complete. Anchor registry runtime interfaces, validation rules, and TUI adapter surface wired.
 4. **P1 — World Lenses (Core/Extensions)**. Dependencies: UGRID Core. Breakdown: Godot 2D/2.5D adapter MVP, O3DE prototype adapter, minimal integration test harness.
 5. **P1 — uCODE Prompt Spec (Core/TUI)**. Dependencies: none. Breakdown: OK/? commands, slash routing, dynamic autocomplete, shared parser updates.
 6. **P1 — TUI ↔ Vibe Integration (Core/Extensions)**. Dependencies: uCODE Prompt Spec, ENV boundary contract. Breakdown: shared IO boundary, keystore access rules, runtime router wiring.
 7. **P1 — Vibe CLI Workflow Alignment (Core)**. Dependencies: TUI ↔ Vibe Integration. Breakdown: map recommended flows to uCODE commands, close gaps in CLI routing, add UX notes to roadmap.
 8. **P1 — Wizard AI Modes (Wizard)**. ✅ Implemented. Breakdown: mode contract (conversation/creative), local model defaults, `/api/ai/complete` policy enforcement.
-9. **P1 — Theme Validation Tooling (Wizard/Extensions)**. Dependencies: Theme Pack Contract. Breakdown: pack validator, CLI/endpoint integration, failure reporting.
+9. **P1 — Theme Validation Tooling (Wizard/Extensions)**. Ready. Dependencies: Theme Pack Contract (validator in core ready). Breakdown: pack validator, CLI/endpoint integration, failure reporting.
 10. **P2 — Theme Packs + Previews (Wizard/App)**. Dependencies: Theme Validation Tooling. Breakdown: NES/teletext/C64/medium packs, export tests, preview endpoints for app + dashboard.
 
 ---

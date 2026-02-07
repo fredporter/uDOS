@@ -9,6 +9,7 @@ from typing import Dict, List, Any, Optional
 from core.commands import (
     MapHandler,
     GridHandler,
+    AnchorHandler,
     PanelHandler,
     GotoHandler,
     FindHandler,
@@ -73,6 +74,7 @@ class CommandDispatcher:
         self.handlers: Dict[str, Any] = {
             # Navigation (5)
             "MAP": MapHandler(),
+            "ANCHOR": AnchorHandler(),
             "GRID": GridHandler(),
             "PANEL": PanelHandler(),
             "GOTO": GotoHandler(),

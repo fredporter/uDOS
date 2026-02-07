@@ -16,6 +16,20 @@ export async function listThemes(token?: string) {
   return fetchJson("/themes", { headers: buildAuthHeaders(token) });
 }
 
+export async function validateTheme(theme: string, token?: string) {
+  return fetchJson(`/themes/${encodeURIComponent(theme)}/validate`, {
+    method: "POST",
+    headers: buildAuthHeaders(token),
+  });
+}
+
+export async function validateAllThemes(token?: string) {
+  return fetchJson(`/themes/validate`, {
+    method: "POST",
+    headers: buildAuthHeaders(token),
+  });
+}
+
 export async function listSiteExports(token?: string) {
   return fetchJson("/site", { headers: buildAuthHeaders(token) });
 }

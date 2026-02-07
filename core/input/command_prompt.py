@@ -682,6 +682,19 @@ def create_default_registry() -> CommandRegistry:
     )
 
     registry.register(
+        name="ANCHOR",
+        help_text="List gameplay anchors or show anchor details",
+        syntax="ANCHOR [LIST] | ANCHOR SHOW <id> | ANCHOR REGISTER <id> <title>",
+        examples=[
+            "ANCHOR",
+            "ANCHOR SHOW EARTH",
+            "ANCHOR REGISTER GAME:NETHACK NetHack",
+        ],
+        icon="⚓",
+        category="Navigation",
+    )
+
+    registry.register(
         name="GOTO",
         help_text="Travel to location",
         syntax="GOTO <location>",

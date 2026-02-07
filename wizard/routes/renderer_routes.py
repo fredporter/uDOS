@@ -24,6 +24,7 @@ from wizard.services.path_utils import get_repo_root
 from wizard.services.permission_guard import require_role
 from wizard.services.spatial_parser import scan_vault_places
 from wizard.services.spatial_store import get_spatial_db_path, fetch_spatial_rows
+from core.tools.contract_validator import validate_theme_pack
 
 
 def _themes_root() -> Path:
@@ -141,6 +142,18 @@ def _load_theme_metadata(theme_name: str) -> Dict[str, Any]:
     meta["siteExists"] = (_site_root() / theme_name).exists()
     meta["siteStats"] = _site_stats(theme_name)
     return meta
+
+
+def _validate_theme(theme_name: str) -> Dict[str, Any]:
+    theme_dir = _themes_root() / theme_name
+    report = validate_theme_pack(theme_dir)
+    return {
+        "theme": theme_name,
+        "valid": report.valid,
+        "errors": report.errors,
+        "warnings": report.warnings,
+        "details": report.details,
+    }
 
 
 def _collect_missions() -> List[Dict[str, Any]]:
@@ -288,6 +301,20 @@ def create_renderer_routes(auth_guard=None) -> APIRouter:
     @router.get("/themes/{theme_name}")
     async def get_theme(theme_name: str):
         return _load_theme_metadata(theme_name)
+
+    @router.post("/themes/{theme_name}/validate")
+    async def validate_theme(theme_name: str):
+        return _validate_theme(theme_name)
+
+    @router.post("/themes/validate")
+    async def validate_themes():
+        results = []
+        for entry in _collect_theme_metadata():
+            name = entry.get("name")
+            if not name:
+                continue
+            results.append(_validate_theme(name))
+        return {"themes": results}
 
     @router.get("/site")
     async def list_site_exports():

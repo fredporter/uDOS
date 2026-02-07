@@ -3,6 +3,8 @@
   import { getAdminToken } from "$lib/services/auth";
   import {
     listThemes,
+    validateTheme,
+    validateAllThemes,
     listSiteExports,
     listSiteFiles,
     listMissions,
@@ -47,6 +49,9 @@
   let siteFiles = {};
   let siteFilesLoading = {};
   let siteFilesError = {};
+  let themeValidation = {};
+  let validatingThemes = false;
+  let themeValidationError = "";
 
   function getMissionId(mission) {
     return mission?.mission_id || mission?.job_id || mission?.id || "";
@@ -186,6 +191,38 @@
     }
   }
 
+  async function runThemeValidation(themeName) {
+    if (!themeName) return;
+    themeValidationError = "";
+    themeValidation = { ...themeValidation, [themeName]: { status: "running" } };
+    try {
+      const result = await validateTheme(themeName, adminToken);
+      themeValidation = { ...themeValidation, [themeName]: result };
+    } catch (err) {
+      themeValidationError =
+        err instanceof Error ? err.message : "Theme validation failed";
+      themeValidation = { ...themeValidation, [themeName]: { status: "error" } };
+    }
+  }
+
+  async function runValidateAllThemes() {
+    validatingThemes = true;
+    themeValidationError = "";
+    try {
+      const result = await validateAllThemes(adminToken);
+      const updated = { ...themeValidation };
+      (result.themes || []).forEach((item) => {
+        if (item?.theme) updated[item.theme] = item;
+      });
+      themeValidation = updated;
+    } catch (err) {
+      themeValidationError =
+        err instanceof Error ? err.message : "Theme validation failed";
+    } finally {
+      validatingThemes = false;
+    }
+  }
+
   async function refreshContributions() {
     try {
       const payload = await listContributions(
@@ -302,6 +339,18 @@
   <section class="grid lg:grid-cols-3 gap-4">
     <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 space-y-2">
       <h3 class="text-sm font-semibold">Themes</h3>
+      <div class="flex items-center gap-2">
+        <button
+          class="text-xs px-2 py-1 rounded border border-gray-600 text-gray-200 hover:text-white"
+          on:click={runValidateAllThemes}
+          disabled={validatingThemes}
+        >
+          {validatingThemes ? "Validating..." : "Validate All"}
+        </button>
+        {#if themeValidationError}
+          <div class="text-xs text-red-300">{themeValidationError}</div>
+        {/if}
+      </div>
       {#if themes.length === 0}
         <div class="text-xs text-gray-500">No themes available.</div>
       {:else}
@@ -310,6 +359,30 @@
             <div class="font-semibold">{theme.name}</div>
             <div>Slots: {(theme.slots || []).length || "—"}</div>
             <div>Site: {theme.siteExists ? "✅" : "—"}</div>
+            <div class="flex items-center gap-2">
+              <button
+                class="text-xs text-blue-300 underline"
+                on:click={() => runThemeValidation(theme.name)}
+              >
+                Validate
+              </button>
+              {#if themeValidation[theme.name]?.valid === true}
+                <span class="text-emerald-300 text-xs">Valid</span>
+              {:else if themeValidation[theme.name]?.valid === false}
+                <span class="text-red-300 text-xs">Invalid</span>
+              {:else if themeValidation[theme.name]?.status === "running"}
+                <span class="text-gray-400 text-xs">Running…</span>
+              {/if}
+            </div>
+            {#if themeValidation[theme.name]?.errors?.length}
+              <div class="text-xs text-red-300">
+                Errors: {themeValidation[theme.name].errors.join("; ")}
+              </div>
+            {:else if themeValidation[theme.name]?.warnings?.length}
+              <div class="text-xs text-amber-300">
+                Warnings: {themeValidation[theme.name].warnings.join("; ")}
+              </div>
+            {/if}
             {#if theme.siteExists}
               <a class="text-blue-300 underline" href={themePreviewUrl(theme.name)} target="_blank" rel="noreferrer">
                 Preview _site/{theme.name}/
