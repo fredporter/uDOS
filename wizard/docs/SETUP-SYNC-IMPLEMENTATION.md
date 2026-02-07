@@ -7,7 +7,7 @@
 
 ## 🎯 Problem
 
-The TUI setup story (`wizard-setup-story.md`) was collecting user information (name, role, timezone, location, etc.), but these values weren't visible in the Wizard Server dashboard or console after submission.
+The TUI setup story (`tui-setup-story.md`) was collecting user information (name, role, timezone, location, etc.), but these values weren't visible in the Wizard Server dashboard or console after submission.
 
 ---
 
@@ -88,7 +88,7 @@ Created comprehensive documentation:
 ┌─────────────────────────────┐
 │   TUI Setup Story           │
 │   (memory/story/            │
-│    wizard-setup-story.md)   │
+│    tui-setup-story.md)   │
 └─────────────┬───────────────┘
               │
               ↓ User completes story
@@ -287,7 +287,7 @@ class SetupHandler:
 - [wizard/services/setup_profiles.py](../wizard/services/setup_profiles.py)
 - [wizard/services/interactive_console.py](../wizard/services/interactive_console.py)
 - [wizard/docs/SETUP-PROFILE-SYNC.md](../wizard/docs/SETUP-PROFILE-SYNC.md)
-- [memory/story/wizard-setup-story.md](../memory/story/wizard-setup-story.md)
+- [memory/story/tui-setup-story.md](../memory/story/tui-setup-story.md)
 
 ---
 

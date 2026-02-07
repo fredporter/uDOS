@@ -315,7 +315,6 @@ class uCODETUI:
                 "startup-script.md",
                 "reboot-script.md",
                 "tui-setup-story.md",
-                "wizard-setup-story.md",
             ]
             missing = [name for name in required if not (system_dir / name).exists()]
             if missing:

@@ -247,6 +247,8 @@ When Wizard Server is installed, it imports this data.
 
             # Run the tui-setup story (minimal, focused setup)
             result = StoryHandler().handle("STORY", ["tui-setup"])
+            if isinstance(result, dict):
+                result.setdefault("command", "SETUP")
 
             # If story was successful and returned form data, save to .env
             if result.get("status") == "success" and "form_data" in result:

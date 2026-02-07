@@ -207,12 +207,12 @@ Backups, restores, and undo migrations all serialize to `.tar.gz` (tar + gzip) a
 |------|--------|--------|
 | `.env.example` | Simplified, clarified boundaries, removed old fields | ✅ |
 | `core/tui/setup-story.md` | Added optional password field | ✅ |
-| `core/framework/seed/bank/system/wizard-setup-story.md` | Canonical wizard setup story | ✅ |
+| `core/framework/seed/bank/system/tui-setup-story.md` | Canonical TUI setup story | ✅ |
 | `core/commands/setup_handler.py` | Updated docs and password handling | ✅ |
 | `core/commands/config_handler.py` | Updated to include USER_PASSWORD in setup keys | ✅ |
 
 **Removed (v1.1.0):**
-- `wizard-setup-story.md` - Removed duplicate (seed is canonical)
+- `tui-setup-story.md` - Removed duplicate (seed is canonical)
 - `wizard/templates/setup-wizard-story.md` - Removed duplicate (seed is canonical)
 - `wizard/templates/setup-wizard-advanced-story.md` - Removed orphaned template
 - `core/commands/tui_setup_handler.py` - Removed duplicate setup handler

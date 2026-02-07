@@ -38,6 +38,7 @@ class ResourceType(Enum):
 
     AI_TOKENS = "ai_tokens"  # LLM API tokens
     AI_REQUESTS = "ai_requests"  # LLM API calls
+    EMAIL_QUOTA = "email_quota"  # Email quota tracking (Gmail, etc.)
     WEB_REQUESTS = "web_requests"  # Web proxy requests
     BANDWIDTH_MB = "bandwidth_mb"  # Data transfer
     STORAGE_MB = "storage_mb"  # Cache/storage usage

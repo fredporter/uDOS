@@ -244,14 +244,14 @@ def create_ucode_routes(auth_guard=None):
 
         repo_root = wiz_repo_root()
         template_candidates = [
-            repo_root / "wizard" / "templates" / "setup-wizard-story.md",
-            repo_root / "core" / "framework" / "seed" / "bank" / "system" / "wizard-setup-story.md",
+            repo_root / "core" / "framework" / "seed" / "bank" / "system" / "tui-setup-story.md",
             repo_root / "core" / "tui" / "setup-story.md",
+            repo_root / "wizard" / "templates" / "tui-setup-story.md",
         ]
         memory_root = get_memory_dir()
         story_dir = memory_root / "story"
         story_dir.mkdir(parents=True, exist_ok=True)
-        story_path = story_dir / "wizard-setup-story.md"
+        story_path = story_dir / "tui-setup-story.md"
         if not story_path.exists():
             template_path = next((p for p in template_candidates if p.exists()), None)
             if not template_path:

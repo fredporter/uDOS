@@ -40,7 +40,7 @@ def ghost_mode_block(command: str, params: Optional[List[str]] = None) -> Option
             "SETUP",
         }:
             return None
-    if cmd == "SETUP" and tokens[:1] in ([], ["--PROFILE"], ["--VIEW"], ["--SHOW"], ["--HELP"]):
+    if cmd == "SETUP" and tokens[:1] in ([], ["--PROFILE"], ["--VIEW"], ["--SHOW"], ["--HELP"], ["HELP"]):
         return None
     if cmd == "PROVIDER" and tokens[:1] in ([], ["LIST"]):
         return None

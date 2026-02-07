@@ -225,7 +225,6 @@ class SeedInstaller:
             system_dir / "startup-script.md",
             system_dir / "reboot-script.md",
             system_dir / "tui-setup-story.md",
-            system_dir / "wizard-setup-story.md",
         ]
         return {
             "directories_exist": (self.bank_dir / "locations").exists(),

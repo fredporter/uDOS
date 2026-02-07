@@ -25,7 +25,7 @@ from core.services.automation_monitor import AutomationMonitor
 try:
     from wizard.services.monitoring_manager import MonitoringManager
     WIZARD_AVAILABLE = True
-except ImportError:
+except Exception:
     WIZARD_AVAILABLE = False
     MonitoringManager = None
 from core.services.notification_history_service import remind_if_pending

@@ -8,7 +8,7 @@
 
 ## Overview
 
-The TUI setup story (`memory/story/wizard-setup-story.md`) collects user and installation details during first-time setup. These values are stored securely in the Wizard secret store and can be accessed via API endpoints or the interactive console.
+The TUI setup story (`memory/story/tui-setup-story.md`) collects user and installation details during first-time setup. These values are stored securely in the Wizard secret store and can be accessed via API endpoints or the interactive console.
 
 ---
 
@@ -249,7 +249,7 @@ Profiles can only be updated by re-submitting the setup story or manually editin
 - [wizard/routes/setup_routes.py](../routes/setup_routes.py) — API endpoints
 - [wizard/services/setup_profiles.py](../services/setup_profiles.py) — Profile storage
 - [wizard/services/interactive_console.py](../services/interactive_console.py) — Console command
-- [memory/story/wizard-setup-story.md](../../memory/story/wizard-setup-story.md) — TUI story
+- [memory/story/tui-setup-story.md](../../memory/story/tui-setup-story.md) — TUI story
 
 ---
 

@@ -471,13 +471,20 @@ def create_setup_routes(auth_guard=None):
     @router.post("/story/bootstrap")
     async def bootstrap_setup_story(force: bool = False):
         repo_root = get_repo_root()
-        template_path = repo_root / "wizard" / "templates" / "setup-wizard-story.md"
-        if not template_path.exists():
+        template_candidates = [
+            repo_root / "core" / "framework" / "seed" / "bank" / "system" / "tui-setup-story.md",
+            repo_root / "core" / "tui" / "setup-story.md",
+            repo_root / "wizard" / "templates" / "tui-setup-story.md",
+            # Deprecated (fallback only)
+            repo_root / "wizard" / "templates" / "setup-wizard-story.md",
+        ]
+        template_path = next((p for p in template_candidates if p.exists()), None)
+        if not template_path:
             raise HTTPException(status_code=404, detail="Setup story template missing")
         memory_root = get_memory_dir()
         story_dir = memory_root / "story"
         story_dir.mkdir(parents=True, exist_ok=True)
-        story_path = story_dir / "wizard-setup-story.md"
+        story_path = story_dir / "tui-setup-story.md"
         if force or not story_path.exists():
             story_path.write_text(template_path.read_text())
             logger.info("Story template bootstrapped (force=%s)", force)
@@ -490,7 +497,7 @@ def create_setup_routes(auth_guard=None):
     @router.get("/story/read")
     async def read_setup_story():
         memory_root = get_memory_dir()
-        story_path = memory_root / "story" / "wizard-setup-story.md"
+        story_path = memory_root / "story" / "tui-setup-story.md"
         if not story_path.exists():
             bootstrap = await bootstrap_setup_story(force=False)
             story_path = memory_root / bootstrap["path"]

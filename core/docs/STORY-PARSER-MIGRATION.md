@@ -48,4 +48,4 @@ None for external consumers. Goblin's internal story dashboard needs updating to
 ---
 
 **Status:** Complete  
-**Verified:** Story parser error fixed (wizard-setup-story.md trailing --- removed)
+**Verified:** Story parser error fixed (tui-setup-story.md trailing --- removed)
