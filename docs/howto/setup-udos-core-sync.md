@@ -252,7 +252,6 @@ EOF
 # 4. Push to public repo
 cd "$TEMP_DIR"
 git init
-git config user.email "you@example.com"
 git config user.name "Your Name"
 git add -A
 git commit -m "Sync from private repo: public/, core/, docs/, LICENSE"

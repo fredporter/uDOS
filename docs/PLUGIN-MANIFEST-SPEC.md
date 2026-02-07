@@ -24,7 +24,7 @@ All uDOS plugins/extensions distributed via Wizard must include a `manifest.json
   "description": "string (optional)",
   "author": {
     "name": "string (required)",
-    "email": "string (optional)",
+    "maintainer": "string (optional)",
     "url": "string (optional)"
   },
   "homepage": "string (optional, URL)",

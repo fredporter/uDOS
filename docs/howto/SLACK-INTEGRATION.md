@@ -288,7 +288,7 @@ curl http://localhost:8765/api/slack/user/U87654321
         "skype": "john.doe",
         "real_name": "John Doe",
         "display_name": "John",
-        "email": "john@example.com",
+        "username": "johnporter",
         "image_24": "https://...",
         "image_32": "https://...",
         "image_48": "https://...",

@@ -71,7 +71,7 @@ variable_name = "value"
 
 ```form
 name: text
-email: email
+message: message
 submit: "Send"
 ```
 

@@ -127,7 +127,7 @@ Please return later or consult the steward.
 | ----------------------------- | ---------------- | ------------------------ |
 | SSID (pre-connect)            | ≤ 32 bytes       | Network identity         |
 | Captive portal (if supported) | ~200–1,000 bytes | Offline message          |
-| Router description            | ~64–256 bytes    | Version / hash / contact |
+| Router description            | ~64–256 bytes    | Version / hash / support |
 
 **Key insight:** The beacon must never depend on internal storage. All meaning must fit in broadcast channels.
 

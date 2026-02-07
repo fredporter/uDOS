@@ -26,6 +26,7 @@ from pydantic import BaseModel
 
 from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root, get_memory_dir
+from services.integration_registry import get_wizard_secret_sync_map
 from wizard.services.secret_store import get_secret_store, SecretStoreError, SecretEntry
 
 logger = get_logger("settings-unified")
@@ -410,13 +411,7 @@ def _enable_provider(config: Dict[str, Any], provider_id: str) -> None:
 
 
 def _sync_wizard_config_from_secret(key: str) -> Dict[str, Any]:
-    mapping = {
-        "github_token": {"providers": ["github"], "toggles": ["github_push_enabled"]},
-        "github_webhook_secret": {"providers": ["github"], "toggles": ["github_push_enabled"]},
-        "mistral_api_key": {"providers": ["mistral"], "toggles": ["ok_gateway_enabled"]},
-        "openrouter_api_key": {"providers": ["openrouter"], "toggles": ["ok_gateway_enabled"]},
-        "ollama_api_key": {"providers": ["ollama"], "toggles": ["ok_gateway_enabled"]},
-    }
+    mapping = get_wizard_secret_sync_map()
 
     if key not in mapping:
         return {"wizard_config_updated": False}

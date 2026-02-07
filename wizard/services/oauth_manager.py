@@ -34,6 +34,7 @@ from enum import Enum
 from urllib.parse import urlencode, parse_qs, urlparse
 
 from wizard.services.logging_api import get_logger
+from services.integration_registry import get_oauth_provider_definitions
 
 logger = get_logger("oauth-manager")
 
@@ -185,39 +186,12 @@ class Connection:
 
 
 # Pre-configured OAuth endpoints
+_OAUTH_DEFINITIONS = get_oauth_provider_definitions()
 PROVIDER_CONFIGS = {
-    OAuthProvider.GOOGLE: {
-        "auth_url": "https://accounts.google.com/o/oauth2/v2/auth",
-        "token_url": "https://oauth2.googleapis.com/token",
-        "api_base_url": "https://www.googleapis.com",
-        "user_info_url": "https://www.googleapis.com/oauth2/v2/userinfo",
-        "default_scopes": [
-            "https://www.googleapis.com/auth/userinfo.email",
-            "https://www.googleapis.com/auth/userinfo.profile",
-        ],
-        "extra_params": {"access_type": "offline", "prompt": "consent"},
-    },
-    OAuthProvider.GITHUB: {
-        "auth_url": "https://github.com/login/oauth/authorize",
-        "token_url": "https://github.com/login/oauth/access_token",
-        "api_base_url": "https://api.github.com",
-        "user_info_url": "https://api.github.com/user",
-        "default_scopes": ["read:user", "user:email"],
-    },
-    OAuthProvider.SPOTIFY: {
-        "auth_url": "https://accounts.spotify.com/authorize",
-        "token_url": "https://accounts.spotify.com/api/token",
-        "api_base_url": "https://api.spotify.com/v1",
-        "user_info_url": "https://api.spotify.com/v1/me",
-        "default_scopes": ["user-read-private", "user-read-email"],
-    },
-    OAuthProvider.DISCORD: {
-        "auth_url": "https://discord.com/api/oauth2/authorize",
-        "token_url": "https://discord.com/api/oauth2/token",
-        "api_base_url": "https://discord.com/api/v10",
-        "user_info_url": "https://discord.com/api/v10/users/@me",
-        "default_scopes": ["identify", "email"],
-    },
+    OAuthProvider.GOOGLE: _OAUTH_DEFINITIONS["google"],
+    OAuthProvider.GITHUB: _OAUTH_DEFINITIONS["github"],
+    OAuthProvider.SPOTIFY: _OAUTH_DEFINITIONS["spotify"],
+    OAuthProvider.DISCORD: _OAUTH_DEFINITIONS["discord"],
 }
 
 

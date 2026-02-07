@@ -6,19 +6,19 @@ Parses .table.md files with frontmatter metadata into SQLite tables.
 Format:
 --------
 ---
-table_name: contacts
+table_name: records
 columns:
   - name: id
     type: integer
     primary_key: true
-  - name: email
+  - name: label
     type: text
 ---
 
-| id | email | created_at |
+| id | label | created_at |
 |----|-------|-----------|
-| 1 | alice@example.com | 2026-01-01 |
-| 2 | bob@example.com | 2026-01-02 |
+| 1 | Alpha | 2026-01-01 |
+| 2 | Beta | 2026-01-02 |
 """
 
 import re

@@ -42,3 +42,16 @@ body.prose-shell {
   padding: 0.25rem 0.5rem;
   border-radius: var(--radius-base);
 }
+
+.emoji {
+  display: inline-block;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: rgba(127, 127, 127, 0.12);
+  color: inherit;
+  font-family: var(--font-code);
+  font-size: 0.85em;
+  line-height: 1.4;
+  white-space: nowrap;
+  vertical-align: baseline;
+}

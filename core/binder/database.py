@@ -17,13 +17,13 @@ from core.binder import BinderDatabase
 # Open binder database
 with BinderDatabase(binder_path) as db:
     # Query within binder scope
-    result = db.query("SELECT * FROM contacts")
+    result = db.query("SELECT * FROM items")
 
     # Import data
-    db.import_csv("imports/contacts.csv", "contacts")
+    db.import_csv("imports/items.csv", "items")
 
     # Export data
-    db.export_table("contacts", "tables/contacts.table.md")
+    db.export_table("items", "tables/items.table.md")
 ```
 
 **Scope Rules:**

@@ -38,6 +38,7 @@ _service_loaders = {
     'sonic': lambda: _load_sonic_module(),
     'distribution': lambda: _load_distribution_module(),
     'extensions': lambda: _load_extensions_module(),
+    'empire': lambda: _load_empire_module(),
 }
 
 
@@ -186,3 +187,27 @@ def _load_extensions_module():
         })()
     except ImportError:
         raise RuntimeError("Extensions module not found in extensions path")
+
+
+def _load_empire_module():
+    """Load optional private extension (soft-fail when unavailable)."""
+    repo_root = Path(__file__).resolve().parents[2]
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+
+    try:
+        import empire  # type: ignore
+        return type('PrivateExtension', (), {
+            'available': True,
+            'module': empire,
+            'message': None,
+        })()
+    except Exception:
+        return type('PrivateExtension', (), {
+            'available': False,
+            'module': None,
+            'message': (
+                "Optional private extension not available. "
+                "Install the private extension to enable this module."
+            ),
+        })()

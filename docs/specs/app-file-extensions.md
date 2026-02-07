@@ -410,8 +410,8 @@ These are very uDOS-friendly in the long run:
 	•	Essentially “many EMLs” in one file → import to emails table
 	•	.ics (calendar events)
 	•	Import into events table (great for Binders tied to projects)
-	•	.vcf (contacts)
-	•	Import into contacts table
+	•	.vcf (address book)
+	•	Import into address_book table
 	•	.html (tables on webpages / saved exports)
 	•	Extract <table> → .table.md → DB
 	•	.log / .txt (structured logs)

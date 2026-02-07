@@ -17,27 +17,12 @@
 # ---------- Local workspace data (never commit anything here) ----------
 memory/*
 memory/**
-!memory/.gitkeep
-!memory/README.md
-!memory/WORKSPACE-STRUCTURE.md
-!memory/inbox/README.md
 
 # Vault: user workspace (never commit)
 vault/*
 vault/**
 !vault/README.md
 !vault/.gitkeep
-
-# Bank structure: templates tracked, user data ignored
-!memory/bank/
-!memory/bank/system/
-!memory/bank/system/README.md
-!memory/bank/system/startup-script.md
-!memory/bank/system/reboot-script.md
-memory/bank/locations/
-memory/bank/knowledge/
-memory/bank/checklists/
-memory/bank/binders/
 
 # Tests: local-only workspace (never commit)
 memory/tests/
@@ -69,6 +54,7 @@ library/containers/
 **/.build/
 private/
 **/private/
+.venv-mcp/
 
 # ---------- SECRETS & CREDENTIALS (CRITICAL) ----------
 # Environment files with secrets

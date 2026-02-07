@@ -16,6 +16,7 @@ from wizard.services.path_utils import get_repo_root, get_memory_dir
 from core.locations import LocationService
 from wizard.services.setup_state import setup_state
 from wizard.services.setup_profiles import load_user_profile, load_install_profile
+from services.integration_registry import get_wizard_required_variables
 
 
 def validate_database_paths() -> Dict[str, Any]:
@@ -38,24 +39,11 @@ def validate_database_paths() -> Dict[str, Any]:
 
 def get_required_variables() -> Dict[str, Dict[str, Any]]:
     config = _load_wizard_config()
-    return {
-        "github_token": {
-            "name": "GitHub API Token",
-            "description": "Personal access token for GitHub API access",
-            "env_var": "GITHUB_TOKEN",
-            "required": False,
-            "status": "configured" if os.getenv("GITHUB_TOKEN") else "optional",
-            "documentation": "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token",
-        },
-        "mistral_api_key": {
-            "name": "Mistral API Key (Optional)",
-            "description": "API key for cloud AI features via Mistral",
-            "env_var": "MISTRAL_API_KEY",
-            "required": False,
-            "status": "configured" if os.getenv("MISTRAL_API_KEY") else "optional",
-            "documentation": "https://docs.mistral.ai/",
-        },
-    }
+    variables = get_wizard_required_variables()
+    for key, data in variables.items():
+        env_var = data.get("env_var")
+        data["status"] = "configured" if env_var and os.getenv(env_var) else "optional"
+    return variables
 
 
 def _is_ghost_mode(username: Optional[str], role: Optional[str]) -> bool:

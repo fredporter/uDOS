@@ -29,6 +29,7 @@ from wizard.services.secret_store import (
     SecretEntry,
     SecretStoreError,
 )
+from services.integration_registry import get_assistant_config_key_map
 
 
 def _write_env_var(env_path: Path, key: str, value: str) -> None:
@@ -252,14 +253,7 @@ def create_config_routes(auth_guard=None):
                     changed = True
 
         elif file_id == "assistant_keys":
-            ai_key_map = {
-                "OPENAI_API_KEY": "openai",
-                "ANTHROPIC_API_KEY": "anthropic",
-                "MISTRAL_API_KEY": "mistral",
-                "OPENROUTER_API_KEY": "openrouter",
-                "GEMINI_API_KEY": "gemini",
-                "OLLAMA_HOST": "ollama",
-            }
+            ai_key_map = get_assistant_config_key_map()
             for key, provider_id in ai_key_map.items():
                 if content.get(key):
                     changed |= _enable_provider(config, provider_id)

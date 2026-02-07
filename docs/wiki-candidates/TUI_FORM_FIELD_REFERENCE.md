@@ -284,7 +284,6 @@ def _finalize(self) -> None:
 ### Custom Validators
 ```python
 renderer.add_field(
-    "email",
     "Email Address",
     FieldType.TEXT,
     validation=lambda x: "@" in x  # Basic validation

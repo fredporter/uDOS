@@ -63,23 +63,23 @@ from core.binder import BinderDatabase
 with BinderDatabase(binder_path) as db:
     # Create table
     db.execute("""
-        CREATE TABLE IF NOT EXISTS contacts (
+        CREATE TABLE IF NOT EXISTS items (
             id INTEGER PRIMARY KEY,
             name TEXT NOT NULL,
-            email TEXT
+            category TEXT
         )
     """)
     
     # Insert data
     db.execute(
-        "INSERT INTO contacts (name, email) VALUES (?, ?)",
-        ("Alice", "alice@example.com")
+        "INSERT INTO items (name, category) VALUES (?, ?)",
+        ("Sample Item", "research")
     )
     
     # Query data
-    results = db.query("SELECT * FROM contacts")
+    results = db.query("SELECT * FROM items")
     for row in results:
-        print(f"{row['name']}: {row['email']}")
+        print(f"{row['name']}: {row['category']}")
 ```
 
 ### 4. Generate RSS Feed
@@ -340,23 +340,23 @@ class FeedFormat(Enum):
 with BinderDatabase(binder_path) as db:
     # Create table from CSV structure
     db.execute("""
-        CREATE TABLE contacts (
+        CREATE TABLE items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
-            email TEXT,
+            category TEXT,
             phone TEXT
         )
     """)
     
     # Import from CSV
     import csv
-    csv_path = binder_path / "imports" / "contacts.csv"
+    csv_path = binder_path / "imports" / "items.csv"
     with open(csv_path) as f:
         reader = csv.DictReader(f)
         for row in reader:
             db.execute(
-                "INSERT INTO contacts (name, email, phone) VALUES (?, ?, ?)",
-                (row['name'], row['email'], row['phone'])
+                "INSERT INTO items (name, category, phone) VALUES (?, ?, ?)",
+                (row['name'], row['category'], row['phone'])
             )
 ```
 
@@ -364,15 +364,15 @@ with BinderDatabase(binder_path) as db:
 
 ```python
 with BinderDatabase(binder_path) as db:
-    results = db.query("SELECT * FROM contacts ORDER BY name")
+    results = db.query("SELECT * FROM items ORDER BY name")
     
     # Generate markdown table
-    md_lines = ["# Contacts\n", "| Name | Email | Phone |", "|------|-------|-------|"]
+    md_lines = ["# Items\n", "| Name | Category | Phone |", "|------|----------|-------|"]
     for row in results:
-        md_lines.append(f"| {row['name']} | {row['email']} | {row['phone']} |")
+        md_lines.append(f"| {row['name']} | {row['category']} | {row['phone']} |")
     
     # Save to tables folder
-    (binder_path / "tables" / "contacts.table.md").write_text("\n".join(md_lines))
+    (binder_path / "tables" / "items.table.md").write_text("\n".join(md_lines))
 ```
 
 ### Pattern 3: Update Config

@@ -12,14 +12,6 @@ Components:
 - state: Game state management
 """
 
-from .ucode import uCODETUI
-from .dispatcher import CommandDispatcher
-from .renderer import GridRenderer, Renderer
-from .state import GameState
-
-# Legacy alias expected by older tests
-TUIRepl = uCODETUI
-
 __all__ = [
     "uCODETUI",
     "TUIRepl",
@@ -28,5 +20,37 @@ __all__ = [
     "Renderer",
     "GameState",
 ]
+
+def __getattr__(name):
+    """Lazy imports to avoid circular dependencies at module import time."""
+    if name == "uCODETUI":
+        from .ucode import uCODETUI
+
+        return uCODETUI
+    if name == "TUIRepl":
+        from .ucode import uCODETUI
+
+        return uCODETUI
+    if name == "CommandDispatcher":
+        from .dispatcher import CommandDispatcher
+
+        return CommandDispatcher
+    if name == "GridRenderer":
+        from .renderer import GridRenderer
+
+        return GridRenderer
+    if name == "Renderer":
+        from .renderer import Renderer
+
+        return Renderer
+    if name == "GameState":
+        from .state import GameState
+
+        return GameState
+    raise AttributeError(name)
+
+# Legacy alias expected by older tests (resolved lazily)
+def __dir__():
+    return sorted(__all__)
 
 __version__ = "1.0.0"

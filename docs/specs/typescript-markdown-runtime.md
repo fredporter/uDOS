@@ -940,7 +940,7 @@ Wizard is where:
 
 | Wizard area | Examples | Output |
 |---|---|---|
-| Capture pipeline | `capture.web`, `capture.pdf`, `capture.email` | binders + `*-script.md` |
+| Capture pipeline | `capture.web`, `capture.pdf`, `capture.message` | binders + `*-script.md` |
 | Providers/integrations | `providers.*`, `quota.*`, `ok.*`, model routing | structured data, doc updates |
 | Build/dev | `build.*`, `stack.*`, `dev.*` | artefacts + releases |
 | Script scaffolding | `guide.generate`, `bundle.compile` | generates `filename-script.md` programmes |
@@ -1365,7 +1365,7 @@ Wizard is where commands are:
 
 | Wizard Domain | Wizard Commands | Outputs |
 |---|---|---|
-| Capture | `capture.web`, `capture.pdf`, `capture.email` | binders + extracted markdown |
+| Capture | `capture.web`, `capture.pdf`, `capture.message` | binders + extracted markdown |
 | Content generation | `guide.generate`, `guide.update` | `*-script.md` programs + assets |
 | Packaging | `bundle.build` | export artefacts |
 | Providers | `providers.*`, `providers.quota.*`, etc. | structured data |
@@ -1482,7 +1482,7 @@ File & Knowledge Maintenance (High-Level)
 Capture & Ingest
 	•	capture.web
 	•	capture.pdf
-	•	capture.email
+	•	capture.message
 
 Content & Script Generation
 	•	guide.generate
@@ -1857,7 +1857,7 @@ Wizard exists to handle:
 	•	experimental features
 	•	in-development core commands
 	•	network access
-	•	integrations (email, providers, quotas)
+	•	integrations (messaging, providers, quotas)
 	•	web capture and ingestion
 	•	build and packaging pipelines
 	•	long-running or asynchronous jobs

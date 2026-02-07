@@ -220,7 +220,7 @@ Export files are standard JSON with metadata:
 
 - **Redacted exports:** Missing actual API keys — you'll need to re-enter them on new device
 - **Full exports:** Contain secrets — keep encrypted and delete after use
-- **File transfers:** Use secure transport (encrypted email, USB drive, etc.)
+- **File transfers:** Use secure transport (encrypted messaging, USB drive, etc.)
 - **Shared configs:** Test on non-production device first
 
 ### 🔒 Implementation Details

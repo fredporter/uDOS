@@ -57,7 +57,7 @@ NFC (Near Field Communication) establishes pairing ritual.
 3. Both devices record pairing timestamp + location hash
 4. Trust: Enabled
 
-**Friction:** Physical contact required (excellent UX, good security)
+**Friction:** Physical touch required (excellent UX, good security)
 
 ### A3: QR "Pairing Capsule" (Works Everywhere)
 

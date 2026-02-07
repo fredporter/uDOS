@@ -24,6 +24,7 @@ from wizard.services.logging_api import get_logger
 from wizard.services.system_info_service import get_system_info_service
 from wizard.services.path_utils import get_repo_root
 from wizard.services.quota_tracker import get_quota_tracker
+from services.integration_registry import get_provider_definitions
 
 
 def create_provider_routes(auth_guard=None):
@@ -41,81 +42,7 @@ def create_provider_routes(auth_guard=None):
     SCRIPT_DIR = Path(__file__).parent.parent.parent / "bin"
 
     # Provider definitions
-    PROVIDERS = {
-        "ollama": {
-            "name": "Ollama",
-            "description": "Local AI models (Mistral, Llama, etc.)",
-            "type": "local",
-            "automation": "full",
-            "cli_required": False,
-            "install_cmd": None,
-            "setup_cmd": "bin/setup_wizard.sh --auto --no-browser",
-            "check_cmd": "curl -s http://localhost:11434/api/tags",
-            "config_file": "assistant_keys.json",
-        },
-        "github": {
-            "name": "GitHub",
-            "description": "Code hosting and version control",
-            "type": "oauth",
-            "automation": "cli",
-            "cli_required": True,
-            "cli_name": "gh",
-            "install_cmd": "brew install gh",  # macOS/Linux
-            "setup_cmd": "gh auth login",
-            "check_cmd": "gh auth status",
-            "config_file": "github_keys.json",
-        },
-        "openai": {
-            "name": "OpenAI",
-            "description": "GPT-4, GPT-3.5, DALL-E",
-            "type": "api_key",
-            "automation": "manual",
-            "cli_required": False,
-            "web_url": "https://platform.openai.com/api-keys",
-            "config_file": "assistant_keys.json",
-            "config_key": "OPENAI_API_KEY",
-        },
-        "anthropic": {
-            "name": "Anthropic",
-            "description": "Claude AI models",
-            "type": "api_key",
-            "automation": "manual",
-            "cli_required": False,
-            "web_url": "https://console.anthropic.com/settings/keys",
-            "config_file": "assistant_keys.json",
-            "config_key": "ANTHROPIC_API_KEY",
-        },
-        "mistral": {
-            "name": "Mistral AI",
-            "description": "Mistral models via API",
-            "type": "api_key",
-            "automation": "manual",
-            "cli_required": False,
-            "web_url": "https://console.mistral.ai/api-keys",
-            "config_file": "assistant_keys.json",
-            "config_key": "MISTRAL_API_KEY",
-        },
-        "openrouter": {
-            "name": "OpenRouter",
-            "description": "Multi-model API gateway",
-            "type": "api_key",
-            "automation": "manual",
-            "cli_required": False,
-            "web_url": "https://openrouter.ai/keys",
-            "config_file": "assistant_keys.json",
-            "config_key": "OPENROUTER_API_KEY",
-        },
-        "gemini": {
-            "name": "Google Gemini",
-            "description": "Google's AI models",
-            "type": "api_key",
-            "automation": "manual",
-            "cli_required": False,
-            "web_url": "https://makersuite.google.com/app/apikey",
-            "config_file": "assistant_keys.json",
-            "config_key": "GEMINI_API_KEY",
-        },
-    }
+    PROVIDERS = get_provider_definitions()
 
     def _get_os_info():
         return get_system_info_service(get_repo_root()).get_os_info()

@@ -29,6 +29,13 @@
 
 ---
 
+## External Add-ons
+- **Clone, don’t fork**: keep upstream intact for credit and future pulls.
+- **Local mirrors only**: store clones locally and update from upstream.
+- **Containerize + layer**: wrap external tools with uDOS UI and policies.
+
+---
+
 ## Versioning Policy
 - Version-lock Core + Wizard in release manifest.
 - Submodules can ship on independent cadence.
