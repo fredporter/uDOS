@@ -39,7 +39,21 @@ print("\\n".join("{},{},{}".format(int(h[0:2],16), int(h[2:4],16), int(h[4:6],16
   local version_text="${UDOS_VERSION_TEXT:-uDOS v1.3.x}"
   if [ -f "$REPO_ROOT/version.json" ]; then
     local version_val
-    version_val="$(python3 -c 'import json; from pathlib import Path; path=Path("'"$REPO_ROOT"'")/"version.json";\ntry:\n    data=json.loads(path.read_text());\n    print(data.get("display") or data.get("version") or "");\nexcept Exception:\n    print("")')"
+    version_val="$(
+      python3 - <<'PY' "$REPO_ROOT"
+import json
+import sys
+from pathlib import Path
+
+repo_root = Path(sys.argv[1])
+path = repo_root / "version.json"
+try:
+    data = json.loads(path.read_text())
+    print(data.get("display") or data.get("version") or "")
+except Exception:
+    print("")
+PY
+    )"
     if [ -n "$version_val" ]; then
       version_text="uDOS $version_val"
     fi

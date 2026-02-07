@@ -562,15 +562,16 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="WIZARD",
         help_text="Wizard server management (start/stop/status)",
-        syntax="WIZARD [start|stop|status|logs|console]",
+        syntax="WIZARD [start|stop|status|logs|console|rebuild]",
         options=[
             "start: Start Wizard server",
             "stop: Stop Wizard server",
             "status: Check server status",
             "logs: View server logs",
             "console: Enter interactive console",
+            "rebuild: Rebuild Wizard dashboard artifacts",
         ],
-        examples=["WIZARD start", "WIZARD status", "WIZARD logs --tail"],
+        examples=["WIZARD start", "WIZARD status", "WIZARD logs --tail", "WIZARD rebuild"],
         icon="🧙",
         category="Server",
     )

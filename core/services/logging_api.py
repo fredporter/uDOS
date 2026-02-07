@@ -15,12 +15,17 @@ import sys
 import threading
 import time
 import traceback
+import contextvars
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional
 
 LOG_SCHEMA_ID = "udos-log-v1.3"
+
+_CORR_ID: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
+    "udos_corr_id", default=None
+)
 
 _LEVEL_ORDER = {
     "trace": 5,
@@ -43,6 +48,16 @@ _REDACT_KEYS = {
     "session",
     "jwt",
     "private_key",
+}
+
+_PAYLOAD_KEYS = {
+    "payload",
+    "payloads",
+    "body",
+    "request",
+    "response",
+    "data",
+    "content",
 }
 
 
@@ -178,6 +193,17 @@ def _redact(obj: Any) -> Any:
     return obj
 
 
+def _drop_payloads(ctx: Dict[str, Any]) -> Dict[str, Any]:
+    if not ctx:
+        return ctx
+    scrubbed = {}
+    for k, v in ctx.items():
+        if k.lower() in _PAYLOAD_KEYS:
+            continue
+        scrubbed[k] = v
+    return scrubbed
+
+
 @dataclass
 class LogConfig:
     level: str = "info"
@@ -295,6 +321,33 @@ class LogManager:
                 print(pretty)
             else:
                 print(payload)
+        if event.get("level") == "fatal":
+            try:
+                crash_path = self.dump_ring()
+                notice = {
+                    "ts": _now_iso(),
+                    "ts_mono_ms": _mono_ms(),
+                    "schema": LOG_SCHEMA_ID,
+                    "level": "fatal",
+                    "msg": "Crash ring buffer dumped",
+                    "component": component,
+                    "category": "crash",
+                    "event": "log.ring_dump",
+                    "session_id": self.session_id,
+                    "corr_id": event.get("corr_id") or "-",
+                    "ctx": {"path": str(crash_path)},
+                }
+                notice_payload = json.dumps(notice, ensure_ascii=False)
+                if self.config.dest in {"file", "both"}:
+                    self._sink(component, name).write(notice_payload)
+                if self.config.dest in {"stdout", "both"}:
+                    if self.config.format == "pretty":
+                        pretty = f"[{notice['ts']}] [fatal] [{component}] Crash ring buffer dumped"
+                        print(pretty)
+                    else:
+                        print(notice_payload)
+            except Exception:
+                pass
 
     def ring(self) -> list[dict[str, Any]]:
         return list(self._ring)
@@ -403,6 +456,23 @@ class Logger:
         merged_ctx = dict(self._base_ctx)
         merged_ctx.update(resolved_ctx)
 
+        # Enforce payload policy before redaction.
+        payloads_policy = self._manager.config.payloads
+        dev_mode = os.getenv("UDOS_DEV_MODE", "").strip().lower() in {"1", "true", "yes"}
+
+        allow_payloads = False
+        if payloads_policy == "on":
+            allow_payloads = True
+        elif payloads_policy == "dev-only":
+            allow_payloads = dev_mode and level in {"trace", "debug"}
+
+        # Payloads are only allowed when redact is enabled.
+        if not self._manager.config.redact:
+            allow_payloads = False
+
+        if not allow_payloads:
+            merged_ctx = _drop_payloads(merged_ctx)
+
         if self._manager.config.redact:
             merged_ctx = _redact(merged_ctx)
 
@@ -438,7 +508,7 @@ class Logger:
             "category": self._category,
             "event": event or "log.message",
             "session_id": self._manager.session_id,
-            "corr_id": self._corr_id or merged_ctx.get("corr_id") or "-",
+            "corr_id": self._corr_id or merged_ctx.get("corr_id") or get_corr_id() or "-",
             "ctx": merged_ctx,
         }
 
@@ -472,6 +542,8 @@ def get_logger(
         component = "core"
 
     manager = get_log_manager()
+    if corr_id is None:
+        corr_id = get_corr_id()
     return Logger(
         manager=manager,
         component=component,
@@ -484,6 +556,21 @@ def get_logger(
 
 def new_corr_id(prefix: str = "C") -> str:
     return _short_id(prefix)
+
+
+def set_corr_id(corr_id: Optional[str]) -> contextvars.Token:
+    """Set corr_id in context for implicit logger usage."""
+    return _CORR_ID.set(corr_id)
+
+
+def reset_corr_id(token: contextvars.Token) -> None:
+    """Reset corr_id context to previous value."""
+    _CORR_ID.reset(token)
+
+
+def get_corr_id() -> Optional[str]:
+    """Get current corr_id from context."""
+    return _CORR_ID.get()
 
 
 class DevTrace:

@@ -4,7 +4,7 @@ Status: Draft
 Audience: uDOS Core + Wizard + script authors
 Language: Australian English
 
-Primary goal: Keep logging in code forever, but make it switchable, structured, cheap when off, and centralised to `~/memory/logs/`.
+Primary goal: Keep logging in code forever, but make it switchable, structured, cheap when off, and centralised to `<repo>/memory/logs/udos`.
 
 ---
 
@@ -36,11 +36,11 @@ Primary goal: Keep logging in code forever, but make it switchable, structured, 
 
 Canonical log root:
 
-- `~/memory/logs/`
+- `<repo>/memory/logs/udos`
 
 Recommended structure:
 
-- `~/memory/logs/udos/`
+- `<repo>/memory/logs/udos/`
   - `core/`
   - `wizard/`
   - `scripts/`
@@ -50,11 +50,11 @@ Recommended structure:
 
 Examples:
 
-- `~/memory/logs/udos/core/core.jsonl`
-- `~/memory/logs/udos/wizard/wizard.jsonl`
-- `~/memory/logs/udos/scripts/<script_name>.jsonl`
-- `~/memory/logs/udos/audit/audit.jsonl`
-- `~/memory/logs/udos/crash/<timestamp>-<session_id>.jsonl`
+- `<repo>/memory/logs/udos/core/core.jsonl`
+- `<repo>/memory/logs/udos/wizard/wizard.jsonl`
+- `<repo>/memory/logs/udos/scripts/<script_name>.jsonl`
+- `<repo>/memory/logs/udos/audit/audit.jsonl`
+- `<repo>/memory/logs/udos/crash/<timestamp>-<session_id>.jsonl`
 
 ---
 
@@ -114,7 +114,7 @@ Configuration can be sourced from env vars, a future config file, or Wizard runt
 - `UDOS_LOG_LEVEL` = `info|warn|error|debug|trace`
 - `UDOS_LOG_FORMAT` = `json|pretty` (default `json`)
 - `UDOS_LOG_DEST` = `file|stdout|both` (default `file`)
-- `UDOS_LOG_ROOT` = `~/memory/logs/udos` (default)
+- `UDOS_LOG_ROOT` = `<repo>/memory/logs/udos` (default)
 - `UDOS_LOG_REDACT` = `on|off` (default `on`)
 - `UDOS_LOG_CATEGORIES` = allow-list (optional)
 - `UDOS_LOG_SAMPLING` = float `0..1` (optional; applies to debug/trace)
@@ -271,4 +271,3 @@ Script start:
 ```json
 {"ts":"2026-02-07T13:02:11+10:00","level":"info","msg":"Script started","component":"script","category":"exec","event":"script.start","session_id":"S-8F3K","corr_id":"C-K2P9","ctx":{"script":"backup-binder","binder":"music-fest-2026"}}
 ```
-

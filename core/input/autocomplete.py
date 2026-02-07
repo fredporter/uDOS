@@ -79,6 +79,10 @@ class AutocompleteService:
                 "description": "Initiate dialogue",
                 "options": [],
             },
+            "WIZARD": {
+                "description": "Wizard server management",
+                "options": ["START", "STOP", "STATUS", "LOGS", "CONSOLE", "REBUILD"],
+            },
         }
 
         # Common global options

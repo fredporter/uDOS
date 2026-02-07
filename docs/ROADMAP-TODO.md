@@ -15,6 +15,7 @@ This live tracker lists the remaining development items referenced by `docs/DEV-
 | MeshCore device manager scaffolding | Goblin | Done | Device manager + pairing API scaffolded. |
 | Dev workflow endpoints | Goblin | Done | Containers/vibe/logs/vault sync endpoints wired. |
 | Ship plugin manifest service + registry | Wizard/Extensions | Done | Registry routes + manifest validation service added. |
+| Empire private spine scaffold | Empire | Done | Submodule initialized; base folders + entrypoint + docs added. |
 
 ## Post v1.3.10 (Deferred)
 
@@ -88,6 +89,7 @@ Integrate the attached specs/guides into the next roadmap window (post v1.3.10).
 - **Plugin policy**: external services/addons should be cloned (not forked/modified), credited, and updated via pulls. uDOS should containerize and overlay UI without modifying upstream repos.
 - **Extensions consolidation**: note that `/extensions/api` has moved; evaluate whether further consolidation is appropriate now that APIs are outside `/extensions/`.
 - **Logging API v1.3**: spec published; implementation pending. See [docs/LOGGING-API-v1.3.md](docs/LOGGING-API-v1.3.md).
+- **Empire business extension**: private submodule; isolate business-only features and keep public paths clean. Track work in Empire docs.
 
 ## Wizard AI Modes (v1.3.2+)
 

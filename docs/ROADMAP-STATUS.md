@@ -12,6 +12,7 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 - **Dev mode policy**: `/dev/` public submodule required and admin-only; see [docs/DEV-MODE-POLICY.md](docs/DEV-MODE-POLICY.md).
 - **Core/Wizard boundary**: `core` is the base runtime; `wizard` is the brand for connected services. Core can run without Wizard (limited). Wizard cannot run without Core.
 - **Logging API v1.3**: spec published; implementation pending. See [docs/LOGGING-API-v1.3.md](docs/LOGGING-API-v1.3.md).
+- **Empire (private)**: submodule initialized; clean spine scaffolded (src/services/integrations/scripts/config/tests/docs). Functional business features not yet reintroduced.
 
 ---
 
@@ -22,6 +23,7 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 - Implemented grid runtime distance calculation, sky view placeholder rendering, and character pixel mapping.
 - Wired Talk handler to shared GameState (player id/stats/inventory).
 - Documented binder `media/` folder support for non-uDOS-standard files.
+- Scaffolded Empire private extension spine with minimal entrypoint and docs.
 
 ---
 

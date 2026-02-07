@@ -59,7 +59,7 @@ from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, cre
 from core.services.health_training import read_last_summary
 from core.services.hotkey_map import write_hotkey_payload
 from core.services.theme_service import get_theme_service
-from core.services.logging_api import get_logger
+from core.services.logging_api import get_logger, new_corr_id, set_corr_id, reset_corr_id
 from core.services.memory_test_scheduler import MemoryTestScheduler
 from core.services.self_healer import collect_self_heal_summary
 from core.services.prompt_parser_service import get_prompt_parser_service
@@ -575,11 +575,15 @@ class uCODETUI:
 
                     # Route input based on prefix (? / OK) or question mode
                     # This implements the uCODE Prompt Spec
-                    result = self._route_input(user_input)
+                    corr_id = new_corr_id("C")
+                    token = set_corr_id(corr_id)
+                    try:
+                        result = self._route_input(user_input)
 
                     # Check for EXIT before processing
                     normalized_input = user_input.strip().upper()
                     if normalized_input in ("EXIT", "?EXIT", "? EXIT", "OK EXIT"):
+                        reset_corr_id(token)
                         self.running = False
                         print("👋 See you later!")
                         break
@@ -611,13 +615,18 @@ class uCODETUI:
                         print(output)
 
                     self.state.update_from_handler(result)
-                    self.logger.info(f"[COMMAND] {user_input} -> {result.get('status')}")
+                    self.logger.info(
+                        f"[COMMAND] {user_input} -> {result.get('status')}",
+                        ctx={"corr_id": corr_id},
+                    )
                     self.state.add_to_history(user_input)
+                    reset_corr_id(token)
 
                 except KeyboardInterrupt:
                     print()
                     continue
                 except Exception as e:
+                    reset_corr_id(token)
                     self.logger.error(f"[ERROR] {e}", exc_info=True)
                     print(f"ERROR: {e}")
 
