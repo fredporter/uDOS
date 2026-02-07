@@ -128,6 +128,11 @@ def create_ucode_routes(auth_guard=None):
             model = default_models.get("dev") or model
         return model or "devstral-small-2"
 
+    def _ok_auto_fallback_enabled() -> bool:
+        config = _load_ai_modes_config()
+        mode = (config.get("modes") or {}).get("ofvibe", {})
+        return bool(mode.get("auto_fallback", True))
+
     def _get_ok_context_window() -> int:
         try:
             from wizard.services.vibe_service import VibeConfig
@@ -402,6 +407,7 @@ def create_ucode_routes(auth_guard=None):
                 "default_models": default_models,
                 "declared_models": declared_models,
                 "cloud": cloud_status,
+                "auto_fallback": _ok_auto_fallback_enabled(),
             },
         }
 
@@ -594,26 +600,39 @@ def create_ucode_routes(auth_guard=None):
                             "Return a unified diff only."
                         )
 
-                    model = payload.ok_model or _get_ok_default_model()
-                    source = "local"
-                    response_text = None
+                model = payload.ok_model or _get_ok_default_model()
+                source = "local"
+                response_text = None
+                auto_fallback = _ok_auto_fallback_enabled()
 
-                    if parsed.get("use_cloud"):
-                        from wizard.services.mistral_api import MistralAPI
-                        if not MistralAPI().available():
-                            logger.warn(
-                                "OK cloud rejected (missing Mistral key)",
-                                ctx={"corr_id": corr_id},
-                            )
-                            raise HTTPException(status_code=400, detail="Mistral API key required for cloud OK")
-                        try:
-                            response_text, model = _run_ok_cloud(prompt)
-                            source = "cloud"
-                        except Exception:
-                            response_text = None
+                if parsed.get("use_cloud"):
+                    from wizard.services.mistral_api import MistralAPI
+                    if not MistralAPI().available():
+                        logger.warn(
+                            "OK cloud rejected (missing Mistral key)",
+                            ctx={"corr_id": corr_id},
+                        )
+                        raise HTTPException(status_code=400, detail="Mistral API key required for cloud OK")
+                    try:
+                        response_text, model = _run_ok_cloud(prompt)
+                        source = "cloud"
+                    except Exception:
+                        response_text = None
 
-                    if response_text is None:
+                if response_text is None:
+                    try:
                         response_text = _run_ok_local(prompt, model=model)
+                    except Exception:
+                        response_text = None
+                        if auto_fallback and not parsed.get("use_cloud"):
+                            from wizard.services.mistral_api import MistralAPI
+                            if MistralAPI().available():
+                                response_text, model = _run_ok_cloud(prompt)
+                                source = "cloud"
+                            else:
+                                raise HTTPException(status_code=400, detail="Mistral API key required for cloud OK")
+                        else:
+                            raise HTTPException(status_code=500, detail="OK local failed")
 
                     entry = _record_ok_output(
                         prompt=prompt,
@@ -650,12 +669,24 @@ def create_ucode_routes(auth_guard=None):
                     logger.warn("OK command not recognized", ctx={"corr_id": corr_id, "mode": ok_mode})
                     raise HTTPException(status_code=400, detail="OK command not recognized")
 
-                model = payload.ok_model or _get_ok_default_model()
-                source = "local"
-                response_text = None
-                try:
-                    response_text = _run_ok_local(prompt, model=model)
-                except Exception as exc:
+            model = payload.ok_model or _get_ok_default_model()
+            source = "local"
+            response_text = None
+            auto_fallback = _ok_auto_fallback_enabled()
+            try:
+                response_text = _run_ok_local(prompt, model=model)
+            except Exception as exc:
+                if auto_fallback:
+                    from wizard.services.mistral_api import MistralAPI
+                    if not MistralAPI().available():
+                        logger.warn(
+                            "OK cloud rejected (missing Mistral key)",
+                            ctx={"corr_id": corr_id},
+                        )
+                        raise HTTPException(status_code=400, detail="Mistral API key required for cloud OK")
+                    response_text, model = _run_ok_cloud(prompt)
+                    source = "cloud"
+                else:
                     logger.warn(
                         "OK prompt failed",
                         ctx={"corr_id": corr_id, "mode": ok_mode, "error": str(exc)},

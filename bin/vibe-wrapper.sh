@@ -182,6 +182,7 @@ endpoint = ok.get("ollama_endpoint")
 cloud = ok.get("cloud") or {}
 cloud_ready = cloud.get("ready")
 cloud_issue = cloud.get("issue")
+auto_fallback = ok.get("auto_fallback")
 
 print("\nVibe Local Status")
 print("------------------")
@@ -199,6 +200,7 @@ else:
 print("Mistral (cloud):", "ready" if cloud_ready else f"required ({cloud_issue or 'missing key'})")
 if not cloud_ready:
     print("Tip: set MISTRAL_API_KEY or run SETUP")
+print("OK fallback:", "auto" if auto_fallback else "manual")
 print("Tip: OK EXPLAIN <file> | OK LOCAL")
 PY
 }

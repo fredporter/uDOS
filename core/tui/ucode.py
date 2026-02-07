@@ -272,6 +272,7 @@ class uCODETUI:
             "EXPLAIN": self._cmd_ok_explain,
             "DIFF": self._cmd_ok_diff,
             "PATCH": self._cmd_ok_patch,
+            "FALLBACK": self._cmd_ok_fallback,
             "EXIT": self._cmd_exit,
         }
 
@@ -382,6 +383,9 @@ class uCODETUI:
                     args = parts[1] if len(parts) > 1 else ""
                     if cmd_name in {"LOCAL", "VIBE", "EXPLAIN", "DIFF", "PATCH"}:
                         self.commands[cmd_name](args)
+                        return {"status": "success", "command": cmd_name}
+                    if cmd_name == "FALLBACK":
+                        self._cmd_ok_fallback(args)
                         return {"status": "success", "command": cmd_name}
                     # Treat other OK input as a local prompt
                     self._run_ok_request(normalized, mode="LOCAL")
@@ -900,6 +904,12 @@ class uCODETUI:
             self.logger.warning("[AI] Failed to load ok_modes.json: %s", exc)
             return {"modes": {}}
 
+    def _write_ai_modes_config(self, config: Dict[str, Any]) -> None:
+        """Persist OK modes configuration safely."""
+        path = self._get_ai_modes_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(config, indent=2))
+
     def _get_ok_default_model(self) -> str:
         """Return the default local model for OK commands."""
         mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
@@ -923,6 +933,20 @@ class uCODETUI:
             return VibeConfig().context_window
         except Exception:
             return 8192
+
+    def _ok_auto_fallback_enabled(self) -> bool:
+        """Return whether OK should auto-fallback between local and cloud."""
+        mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
+        return bool(mode.get("auto_fallback", True))
+
+    def _set_ok_auto_fallback(self, enabled: bool) -> None:
+        """Enable or disable OK auto-fallback between local/cloud."""
+        config = self._load_ai_modes_config()
+        modes = config.setdefault("modes", {})
+        ofvibe = modes.setdefault("ofvibe", {})
+        ofvibe["auto_fallback"] = bool(enabled)
+        self._write_ai_modes_config(config)
+        self.ai_modes_config = config
 
     def _get_ok_cloud_status(self) -> Dict[str, Any]:
         """Return Mistral cloud availability status."""
@@ -1933,6 +1957,21 @@ For detailed help on any command, type the command name followed by --help
             print(self._theme_text(self._format_ok_output_summary(entry)))
             print(self._theme_text(""))
 
+    def _cmd_ok_fallback(self, args: str) -> None:
+        """Configure OK auto-fallback mode."""
+        token = args.strip().lower()
+        if token in {"on", "true", "yes"}:
+            self._set_ok_auto_fallback(True)
+            print(self._theme_text("OK fallback set to auto (on)."))
+            return
+        if token in {"off", "false", "no"}:
+            self._set_ok_auto_fallback(False)
+            print(self._theme_text("OK fallback set to manual (off)."))
+            return
+        current = "on" if self._ok_auto_fallback_enabled() else "off"
+        print(self._theme_text("Usage: OK FALLBACK on|off"))
+        print(self._theme_text(f"Current: {current}"))
+
     def _parse_ok_file_args(self, args: str) -> Dict[str, Any]:
         """Parse OK command args for file + optional range + cloud flag."""
         tokens = args.strip().split()
@@ -2035,6 +2074,7 @@ For detailed help on any command, type the command name followed by --help
         model = self._get_ok_default_model()
         source = "local"
         response = None
+        auto_fallback = self._ok_auto_fallback_enabled()
 
         if use_cloud:
             try:
@@ -2058,8 +2098,23 @@ For detailed help on any command, type the command name followed by --help
                     lambda: self._run_ok_local(prompt, model=model),
                 )
             except Exception as exc:
-                print(self._theme_text(f"❌ Vibe local failed: {exc}"))
-                return
+                if auto_fallback and not use_cloud:
+                    try:
+                        print(self._theme_text("⚠️  Local failed. Trying cloud (Mistral)."))
+                        cloud_result = self._run_with_spinner(
+                            "⏳ OK cloud",
+                            lambda: self._run_ok_cloud(prompt),
+                        )
+                        response = cloud_result.get("response")
+                        model = cloud_result.get("model") or model
+                        source = "cloud"
+                    except Exception as cloud_exc:
+                        print(self._theme_text(f"❌ Vibe local failed: {exc}"))
+                        print(self._theme_text(f"❌ Cloud fallback failed: {cloud_exc}"))
+                        return
+                else:
+                    print(self._theme_text(f"❌ Vibe local failed: {exc}"))
+                    return
 
         entry = self._record_ok_output(
             prompt=prompt,

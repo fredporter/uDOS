@@ -530,15 +530,16 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="OK",
         help_text="Local Vibe helpers (EXPLAIN, DIFF, PATCH, LOCAL)",
-        syntax="OK <LOCAL|EXPLAIN|DIFF|PATCH|VIBE> [args]",
+        syntax="OK <LOCAL|EXPLAIN|DIFF|PATCH|VIBE|FALLBACK> [args]",
         options=[
             "LOCAL: Show recent local outputs",
             "EXPLAIN: Summarize code in a file",
             "DIFF: Propose a diff for a file",
             "PATCH: Draft a patch with preview",
             "VIBE: Alias for LOCAL",
+            "FALLBACK: Toggle auto-fallback (on|off)",
         ],
-        examples=["OK EXPLAIN core/tui/ucode.py", "OK LOCAL 5"],
+        examples=["OK EXPLAIN core/tui/ucode.py", "OK LOCAL 5", "OK FALLBACK on"],
         icon="🧭",
         category="AI",
     )
