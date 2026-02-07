@@ -289,21 +289,23 @@ class EmpireHandler(BaseCommandHandler):
                 "output": banner + "\n❌ Empire submodule not found",
             }
 
-        db_path = str(empire_root / "data" / "empire.db")
-        if "--db" in args:
-            idx = args.index("--db")
-            if idx + 1 < len(args):
-                db_path = args[idx + 1]
+        api_base = "http://127.0.0.1:8991"
+        token = os.getenv("EMPIRE_API_TOKEN")
+        headers = {"Authorization": f"Bearer {token}"} if token else {}
 
-        script = empire_root / "scripts" / "process" / "refresh_overview.py"
-        cmd = ["python3", str(script), "--db", db_path]
-        result = subprocess.run(cmd, capture_output=False, check=False, cwd=str(empire_root))
-        if result.returncode != 0:
-            output_lines.append("❌ Sync failed")
+        try:
+            import requests
+
+            resp = requests.get(f"{api_base}/health", headers=headers, timeout=3)
+            if resp.status_code != 200:
+                output_lines.append(f"❌ API health check failed: HTTP {resp.status_code}")
+                return {"status": "error", "output": "\n".join(output_lines)}
+        except Exception as exc:
+            output_lines.append(f"❌ API unreachable: {exc}")
             return {"status": "error", "output": "\n".join(output_lines)}
 
-        output_lines.append("✅ Overview refreshed")
-        output_lines.append("✅ Sync complete (local)")
+        output_lines.append("✅ Empire API reachable")
+        output_lines.append("✅ UI auto-refreshes from live API")
         return {"status": "success", "output": "\n".join(output_lines)}
 
     def _email(self, args: List[str]) -> Dict:
