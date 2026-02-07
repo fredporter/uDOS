@@ -1,6 +1,6 @@
 """LOGS command handler - View and search v1.3 logs."""
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from core.commands.base import BaseCommandHandler
 
 try:

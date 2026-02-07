@@ -583,50 +583,48 @@ class uCODETUI:
                     token = set_corr_id(corr_id)
                     try:
                         result = self._route_input(user_input)
-                    finally:
-                        pass
 
-                    # Check for EXIT before processing
-                    normalized_input = user_input.strip().upper()
-                    if normalized_input in ("EXIT", "?EXIT", "? EXIT", "OK EXIT"):
-                        reset_corr_id(token)
-                        self.running = False
-                        print("👋 See you later!")
-                        break
+                        # Check for EXIT before processing
+                        normalized_input = user_input.strip().upper()
+                        if normalized_input in ("EXIT", "?EXIT", "? EXIT", "OK EXIT"):
+                            self.running = False
+                            print("👋 See you later!")
+                            break
 
-                    # Special handling for STORY and SETUP commands with forms
-                    normalized_cmd = result.get("command", "").upper()
-                    if normalized_cmd in ("STORY", "SETUP"):
-                        # Check if this is a form-based story
-                        if result.get("story_form"):
-                            collected_data = self._handle_story_form(result["story_form"])
+                        # Special handling for STORY and SETUP commands with forms
+                        normalized_cmd = result.get("command", "").upper()
+                        if normalized_cmd in ("STORY", "SETUP"):
+                            # Check if this is a form-based story
+                            if result.get("story_form"):
+                                collected_data = self._handle_story_form(result["story_form"])
 
-                            # Save collected data if this came from SETUP command
-                            if normalized_cmd == "SETUP" and collected_data:
-                                self._save_user_profile(collected_data)
+                                # Save collected data if this came from SETUP command
+                                if normalized_cmd == "SETUP" and collected_data:
+                                    self._save_user_profile(collected_data)
 
-                            print("\n✅ Setup form completed!")
-                            print(f"\nCollected {len(collected_data)} values")
-                            if collected_data:
-                                print("\nData saved. Next steps:")
-                                print("  SETUP --profile    - View your profile")
-                                print("  CONFIG             - View variables")
+                                print("\n✅ Setup form completed!")
+                                print(f"\nCollected {len(collected_data)} values")
+                                if collected_data:
+                                    print("\nData saved. Next steps:")
+                                    print("  SETUP --profile    - View your profile")
+                                    print("  CONFIG             - View variables")
+                            else:
+                                # Show the result for non-form stories
+                                output = self.renderer.render(result)
+                                print(output)
                         else:
-                            # Show the result for non-form stories
+                            # Render normal command output
                             output = self.renderer.render(result)
                             print(output)
-                    else:
-                        # Render normal command output
-                        output = self.renderer.render(result)
-                        print(output)
 
-                    self.state.update_from_handler(result)
-                    self.logger.info(
-                        f"[COMMAND] {user_input} -> {result.get('status')}",
-                        ctx={"corr_id": corr_id},
-                    )
-                    self.state.add_to_history(user_input)
-                    reset_corr_id(token)
+                        self.state.update_from_handler(result)
+                        self.logger.info(
+                            f"[COMMAND] {user_input} -> {result.get('status')}",
+                            ctx={"corr_id": corr_id},
+                        )
+                        self.state.add_to_history(user_input)
+                    finally:
+                        reset_corr_id(token)
 
                 except KeyboardInterrupt:
                     print()

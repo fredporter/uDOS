@@ -560,6 +560,46 @@ def create_ucode_routes(auth_guard=None):
                         "ok_history": entries,
                     }
 
+                if ok_mode == "FALLBACK":
+                    toggle = ok_tokens[1].lower() if len(ok_tokens) > 1 else ""
+                    config = _load_ai_modes_config()
+                    modes = config.setdefault("modes", {})
+                    ofvibe = modes.setdefault("ofvibe", {})
+                    if toggle in {"on", "true", "yes"}:
+                        ofvibe["auto_fallback"] = True
+                        _write_ok_modes_config(config)
+                        return {
+                            "status": "ok",
+                            "command": command,
+                            "result": {
+                                "status": "success",
+                                "message": "OK fallback set to auto (on)",
+                                "output": "",
+                            },
+                        }
+                    if toggle in {"off", "false", "no"}:
+                        ofvibe["auto_fallback"] = False
+                        _write_ok_modes_config(config)
+                        return {
+                            "status": "ok",
+                            "command": command,
+                            "result": {
+                                "status": "success",
+                                "message": "OK fallback set to manual (off)",
+                                "output": "",
+                            },
+                        }
+                    current = "on" if _ok_auto_fallback_enabled() else "off"
+                    return {
+                        "status": "ok",
+                        "command": command,
+                        "result": {
+                            "status": "success",
+                            "message": f"OK fallback is {current}",
+                            "output": "Usage: OK FALLBACK on|off",
+                        },
+                    }
+
                 if ok_mode in {"EXPLAIN", "DIFF", "PATCH"}:
                     parsed = _parse_ok_file_args(" ".join(ok_tokens[1:]))
                     if parsed.get("error"):
@@ -880,6 +920,52 @@ def create_ucode_routes(auth_guard=None):
                                 "output": "",
                             },
                             "ok_history": entries,
+                        }
+                        yield _sse("result", response)
+                        return
+
+                    if ok_mode == "FALLBACK":
+                        toggle = ok_tokens[1].lower() if len(ok_tokens) > 1 else ""
+                        config = _load_ai_modes_config()
+                        modes = config.setdefault("modes", {})
+                        ofvibe = modes.setdefault("ofvibe", {})
+                        if toggle in {"on", "true", "yes"}:
+                            ofvibe["auto_fallback"] = True
+                            _write_ok_modes_config(config)
+                            response = {
+                                "status": "ok",
+                                "command": working_command,
+                                "result": {
+                                    "status": "success",
+                                    "message": "OK fallback set to auto (on)",
+                                    "output": "",
+                                },
+                            }
+                            yield _sse("result", response)
+                            return
+                        if toggle in {"off", "false", "no"}:
+                            ofvibe["auto_fallback"] = False
+                            _write_ok_modes_config(config)
+                            response = {
+                                "status": "ok",
+                                "command": working_command,
+                                "result": {
+                                    "status": "success",
+                                    "message": "OK fallback set to manual (off)",
+                                    "output": "",
+                                },
+                            }
+                            yield _sse("result", response)
+                            return
+                        current = "on" if _ok_auto_fallback_enabled() else "off"
+                        response = {
+                            "status": "ok",
+                            "command": working_command,
+                            "result": {
+                                "status": "success",
+                                "message": f"OK fallback is {current}",
+                                "output": "Usage: OK FALLBACK on|off",
+                            },
                         }
                         yield _sse("result", response)
                         return
