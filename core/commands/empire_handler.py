@@ -46,6 +46,8 @@ class EmpireHandler(BaseCommandHandler):
             return self._normalize(params[1:])
         if action in {"sync"}:
             return self._sync(params[1:])
+        if action in {"email"}:
+            return self._email(params[1:])
         if action in {"help", "--help", "?"}:
             return self._show_help()
 
@@ -99,6 +101,7 @@ class EmpireHandler(BaseCommandHandler):
                 "EMPIRE INGEST     Ingest raw records into JSONL",
                 "EMPIRE NORMALIZE  Normalize + persist records",
                 "EMPIRE SYNC       Refresh overview + sync state",
+                "EMPIRE EMAIL      Email receive/process scaffolding",
                 "EMPIRE HELP       Show this help",
             ]
         )
@@ -298,4 +301,39 @@ class EmpireHandler(BaseCommandHandler):
 
         output_lines.append("✅ Overview refreshed")
         output_lines.append("✅ Sync complete (local)")
+        return {"status": "success", "output": "\n".join(output_lines)}
+
+    def _email(self, args: List[str]) -> Dict:
+        banner = OutputToolkit.banner("EMPIRE EMAIL")
+        output_lines = [banner, ""]
+
+        empire_root = self._empire_root()
+        if not empire_root:
+            return {
+                "status": "error",
+                "message": "Empire extension not available",
+                "output": banner + "\n❌ Empire submodule not found",
+            }
+
+        if not args:
+            output_lines.append("Usage: EMPIRE EMAIL RECEIVE|PROCESS [options]")
+            return {"status": "error", "output": "\n".join(output_lines)}
+
+        sub = args[0].lower()
+        if sub == "receive":
+            script = empire_root / "scripts" / "email" / "receive_emails.py"
+            cmd = ["python3", str(script)] + args[1:]
+        elif sub == "process":
+            script = empire_root / "scripts" / "email" / "process_emails.py"
+            cmd = ["python3", str(script)] + args[1:]
+        else:
+            output_lines.append("Usage: EMPIRE EMAIL RECEIVE|PROCESS [options]")
+            return {"status": "error", "output": "\n".join(output_lines)}
+
+        result = subprocess.run(cmd, capture_output=False, check=False, cwd=str(empire_root))
+        if result.returncode != 0:
+            output_lines.append("❌ Email command failed")
+            return {"status": "error", "output": "\n".join(output_lines)}
+
+        output_lines.append("✅ Email command complete")
         return {"status": "success", "output": "\n".join(output_lines)}
