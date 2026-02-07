@@ -17,7 +17,7 @@
 
 [submodule "dev"]
 	path = dev
-	url = https://github.com/fredporter/uDOS-dev.git
+	url = https://github.com/fredporter/uDOS-dev
 	branch = main
 
 [submodule "app"]
