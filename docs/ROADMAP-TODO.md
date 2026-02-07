@@ -18,8 +18,10 @@ This live tracker lists the remaining development items referenced by `docs/DEV-
 | Empire private spine scaffold | Empire | Done | Submodule initialized; base folders + entrypoint + docs added. |
 | Empire storage + dedupe + enrichment | Empire | Done | SQLite schema, dedupe rules, enrichment hooks wired. |
 | Empire UI + overview | Empire | Done | Svelte/Tailwind console + overview.json refresh. |
-| Empire API + integrations | Empire | Done | FastAPI `/health|/records|/events` plus Gmail/Places scaffolds. |
+| Empire API + integrations | Empire | Done | FastAPI `/health|/records|/events` + Gmail/Places scaffolds. |
+| Empire API auth + UI live data | Empire | Done | Bearer token auth + UI wired to live `/records|/events|/tasks`. |
 | Empire email scaffolding | Empire | Done | Email receive/process stubs + CLI flow. |
+| Empire email → tasks pipeline | Empire | Done | Task storage + dashboard list + events log. |
 
 ## Post v1.3.10 (Deferred)
 
