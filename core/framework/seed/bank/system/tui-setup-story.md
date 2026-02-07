@@ -43,12 +43,16 @@ help: "Role 'ghost' forces Ghost Mode."
 ```
 
 ```story
-name: mistral_api_key
-label: Mistral API Key (optional)
-type: password
-required: false
-placeholder: "sk-..."
-help: "Optional. Enables Mistral online checks and stability fallback."
+name: ok_helper_install
+label: Download and Install Vibe OK Helper...?
+type: select
+required: true
+options:
+  - yes: Yes (install Ollama, Vibe CLI, Mistral2 small/large, Devstral2 small)
+  - no: No (skip for now)
+  - skip: Skip (ask me later)
+help: "Runs OK SETUP to install Ollama + Vibe CLI + recommended local models. Wizard can later add Mistral online sanity checks and quotas."
+default: no
 ```
 
 ---
@@ -62,6 +66,18 @@ type: datetime_approve
 required: true
 help: |
   Approve the detected date/time/timezone and view the ASCII clock. Approving keeps the values, decline to immediately edit the timezone, date, and time overrides.
+```
+
+```story
+name: udos_shell_enabled
+label: Enable shell routing in TUI (UDOS_SHELL_ENABLED)
+type: select
+required: true
+options:
+  - 1: Enabled (default)
+  - 0: Disabled (no shell routing)
+help: "Controls whether the TUI can execute shell commands. Disable for strict command-only mode."
+default: 1
 ```
 
 ```story

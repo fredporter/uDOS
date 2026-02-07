@@ -39,6 +39,7 @@ import subprocess
 import threading
 import time
 import warnings
+import secrets
 import requests
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Callable
@@ -71,7 +72,12 @@ from core.services.todo_service import (
 )
 from core.tui.advanced_form_handler import AdvancedFormField
 from core.services.system_script_runner import SystemScriptRunner
-from wizard.services.monitoring_manager import MonitoringManager
+try:
+    from wizard.services.monitoring_manager import MonitoringManager
+    WIZARD_MONITORING_AVAILABLE = True
+except Exception:
+    MonitoringManager = None
+    WIZARD_MONITORING_AVAILABLE = False
 
 
 def get_repo_root() -> Path:
@@ -249,6 +255,7 @@ class uCODETUI:
         # Create command registry and contextual prompt (Phase 1)
         self.command_registry = create_default_registry()
         self.prompt = ContextualCommandPrompt(registry=self.command_registry)
+        self.ucode_command_set = {cmd.name.upper() for cmd in self.command_registry.list_all()}
 
         # Command selector (Phase 3)
         self.command_selector = CommandSelector(self.command_registry)
@@ -274,6 +281,14 @@ class uCODETUI:
             "PATCH": self._cmd_ok_patch,
             "FALLBACK": self._cmd_ok_fallback,
             "EXIT": self._cmd_exit,
+        }
+        self.ucode_command_set.update(self.commands.keys())
+        self.ucode_command_set.add("OK")
+        self.shell_enabled = os.getenv("UDOS_SHELL_ENABLED", "1").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
         }
 
         # Conditional commands
@@ -354,6 +369,14 @@ class uCODETUI:
         for entry in history:
             print(f"  {entry}")
 
+    def _is_ucode_command(self, token: str) -> bool:
+        """Return True if token is a known uCODE command."""
+        return token.strip().upper() in self.ucode_command_set
+
+    def _is_shell_enabled(self) -> bool:
+        """Return True if shell routing is enabled."""
+        return bool(self.shell_enabled)
+
     def _route_input(self, user_input: str) -> Dict[str, Any]:
         """
         Route input based on prefix: '?', 'OK', '/', or question mode.
@@ -365,41 +388,49 @@ class uCODETUI:
         if not user_input:
             return {"status": "error", "message": "Empty input"}
 
-        # Mode 1: Command mode (OK ... or ?...)
-        is_ok = user_input.lower().startswith("ok ")
-        if is_ok or user_input.startswith("?"):
-            # Normalize ? to remove the marker and pass the rest as a normal command
-            if user_input.startswith("?"):
-                # Remove the ? and pass the rest to dispatcher
-                normalized = user_input[1:].strip()
-            else:
-                # Remove "OK " prefix and pass the rest to dispatcher
-                normalized = user_input[3:].strip()
+        # Mode 1: AI prompt mode (? or OK)
+        if user_input.startswith("?"):
+            prompt = user_input[1:].strip()
+            if not prompt:
+                return {"status": "error", "message": "OK prompt required"}
+            self._run_ok_request(prompt, mode="LOCAL")
+            return {"status": "success", "command": "OK"}
 
-                if normalized:
-                    parts = normalized.split(None, 1)
-                    cmd_name = parts[0].upper()
-                    args = parts[1] if len(parts) > 1 else ""
-                    if cmd_name in {"LOCAL", "VIBE", "EXPLAIN", "DIFF", "PATCH"}:
-                        self.commands[cmd_name](args)
-                        return {"status": "success", "command": cmd_name}
-                    if cmd_name == "FALLBACK":
-                        self._cmd_ok_fallback(args)
-                        return {"status": "success", "command": cmd_name}
-                    # Treat other OK input as a local prompt
-                    self._run_ok_request(normalized, mode="LOCAL")
-                    return {"status": "success", "command": "OK"}
+        lowered = user_input.lower()
+        if lowered == "ok" or lowered.startswith("ok "):
+            parts = user_input.split(None, 1)
+            if len(parts) < 2:
+                return {"status": "error", "message": "OK prompt required"}
+            normalized = parts[1].strip()
+            if not normalized:
+                return {"status": "error", "message": "OK prompt required"}
 
-            if normalized:
-                parts = normalized.split(None, 1)
-                cmd_name = parts[0].upper()
-                args = parts[1] if len(parts) > 1 else ""
-                if cmd_name in self.commands and cmd_name not in self.dispatcher.handlers:
-                    self.commands[cmd_name](args)
-                    return {"status": "success", "command": cmd_name}
+            use_cloud = False
+            ok_parts = normalized.split(None, 1)
+            cmd_name = ok_parts[0].upper()
+            args = ok_parts[1] if len(ok_parts) > 1 else ""
+            if cmd_name == "CLOUD":
+                use_cloud = True
+                normalized = args
+                ok_parts = normalized.split(None, 1)
+                cmd_name = ok_parts[0].upper() if ok_parts and ok_parts[0] else ""
+                args = ok_parts[1] if len(ok_parts) > 1 else ""
+            if cmd_name == "SETUP":
+                self._run_ok_setup()
+                return {"status": "success", "command": "OK SETUP"}
+            if cmd_name in {"LOCAL", "VIBE", "EXPLAIN", "DIFF", "PATCH"}:
+                if use_cloud and cmd_name in {"EXPLAIN", "DIFF", "PATCH"} and "--cloud" not in args:
+                    args = f"{args} --cloud".strip()
+                self.commands[cmd_name](args)
+                return {"status": "success", "command": cmd_name}
+            if cmd_name == "FALLBACK":
+                self._cmd_ok_fallback(args)
+                return {"status": "success", "command": cmd_name}
 
-            # Now route the normalized command to dispatcher
-            return self.dispatcher.dispatch(normalized, parser=self.prompt, game_state=self.state)
+            if not normalized:
+                return {"status": "error", "message": "OK prompt required"}
+            self._run_ok_request(normalized, mode="LOCAL", use_cloud=use_cloud)
+            return {"status": "success", "command": "OK"}
 
         # Mode 2: Slash mode
         if user_input.startswith("/"):
@@ -419,25 +450,19 @@ class uCODETUI:
         if not tokens:
             return {"status": "error", "message": "Empty slash command"}
 
-        first_token = tokens[0].lower()
+        first_token = tokens[0].upper()
         rest_of_line = tokens[1] if len(tokens) > 1 else ""
 
-        # Known slash commands (from UCODE-PROMPT-SPEC.md)
-        slash_commands = {
-            "render": "RENDER",
-            "help": "HELP",
-            "whoami": "WHOAMI",
-        }
-
-        if first_token in slash_commands:
-            # Route to uCODE command (without OK prefix)
-            ucode_cmd = slash_commands[first_token]
+        if self._is_ucode_command(first_token):
+            ucode_cmd = first_token
             if rest_of_line:
                 ucode_cmd += " " + rest_of_line
             return self.dispatcher.dispatch(ucode_cmd, parser=self.prompt, game_state=self.state)
-        else:
-            # Treat as shell command
-            return self._execute_shell_command(user_input[1:].strip())
+
+        if not self._is_shell_enabled():
+            return {"status": "error", "message": "Shell routing disabled"}
+
+        return self._execute_shell_command(user_input[1:].strip())
 
     def _execute_shell_command(self, shell_cmd: str) -> Dict[str, Any]:
         """
@@ -509,7 +534,6 @@ class uCODETUI:
         cmd_map = {
             "HELP": "HELP",
             "H": "HELP",
-            "?": "HELP",
             "STATUS": "STATUS",
             "STAT": "STATUS",
             "STATE": "STATUS",
@@ -530,19 +554,35 @@ class uCODETUI:
             "SHAKEDOWN": "SHAKEDOWN",
         }
 
-        # Try to resolve to known command
-        cmd = cmd_map.get(first_word, first_word)
+        cmd = cmd_map.get(first_word)
+        if not cmd and self._is_ucode_command(first_word):
+            cmd = first_word
 
-        # Build command with arguments
-        full_cmd = f"{cmd} {rest}".strip()
+        if cmd:
+            full_cmd = f"{cmd} {rest}".strip()
+            if cmd in self.commands and cmd not in self.dispatcher.handlers:
+                self.commands[cmd](rest)
+                return {"status": "success", "command": cmd}
 
-        # Handle internal commands not in dispatcher
-        if cmd in self.commands and cmd not in self.dispatcher.handlers:
-            self.commands[cmd](rest)
-            return {"status": "success", "command": cmd}
+            result = self.dispatcher.dispatch(full_cmd, parser=self.prompt, game_state=self.state)
+            if isinstance(result, dict) and result.get("status") == "error":
+                message = result.get("message", "")
+                if isinstance(message, str) and "Unknown command" in message:
+                    cmd = None
+                else:
+                    return result
+            else:
+                return result
 
-        # Dispatch the command
-        return self.dispatcher.dispatch(full_cmd, parser=self.prompt, game_state=self.state)
+        if self._is_shell_enabled():
+            result = self._execute_shell_command(user_input)
+            if result.get("status") == "success":
+                return result
+            if result.get("status") == "cancelled":
+                return result
+
+        self._run_ok_request(user_input, mode="LOCAL")
+        return {"status": "success", "command": "OK"}
 
     def run(self) -> None:
         """Start uCODE TUI."""
@@ -664,6 +704,9 @@ class uCODETUI:
             pass
         print(self._theme_text("\n  💡 Start with: SETUP (first-time) | HELP (all commands) | STORY tui-setup (quick setup)"))
         print(self._theme_text("     Or try: MAP | TELL location | GOTO location | WIZARD start"))
+        print(self._theme_text("     AI: '?' or 'OK' (ex: ? explain this)"))
+        print(self._theme_text("     Commands: '/' (ucode first, then shell if enabled)"))
+        print(self._theme_text("     Auto: no prefix → ucode → shell → AI"))
         print(self._theme_text("     Try: OK EXPLAIN <file> | OK LOCAL (local Vibe outputs)"))
         print(self._theme_text("     Press TAB for command selection | Type command for suggestions\n"))
 
@@ -706,8 +749,48 @@ class uCODETUI:
         """Show startup banner."""
         if self.quiet:
             return
+        vibe_banner = self._get_vibe_banner()
+        if vibe_banner:
+            print(self._theme_text(vibe_banner))
         grid = self._build_startup_grid()
         print(self._theme_text(grid))
+
+    def _get_repo_display_version(self) -> str:
+        """Get display version from repo version.json."""
+        try:
+            version_file = self.repo_root / "version.json"
+            if version_file.exists():
+                data = json.loads(version_file.read_text())
+                return data.get("display") or data.get("version") or self.ucode_version
+        except Exception:
+            pass
+        return self.ucode_version
+
+    def _get_vibe_banner(self) -> str:
+        """Return the Vibe-style ASCII startup banner."""
+        version = self._get_repo_display_version()
+        if version.lower().startswith("v"):
+            version_text = f"uDOS {version}"
+        else:
+            version_text = f"uDOS v{version}"
+        return "\n".join(
+            [
+                "████████████████████████████████████████████████████████████",
+                "██                                                        ██",
+                "██   ██████████████████████████████████████████████████   ██",
+                "██   ██  ████  ███      ███      ███       ███       ██   ██",
+                "██   ██  ████  ██  ███████  ████  ██  ████  ██  ███████   ██",
+                "██   ██  ████  ██  ███████  ████  ██  ████  ██      ███   ██",
+                "██   ██  ████  ██  ███████  ████  ██  ████  ██  ███████   ██",
+                "██   ███      ████      ███      ███       ███       ██   ██",
+                "██   ██████████████████████████████████████████████████   ██",
+                "██   ███████████████    ███████████    ████████████████   ██",
+                f"██   ████████████████   {version_text}   █████████████████   ██",
+                "██   ██████████████████████████████████████████████████   ██",
+                "██                                                        ██",
+                "████████████████████████████████████████████████████████████",
+            ]
+        )
 
     def _build_startup_grid(self) -> str:
         """Build a 40x15 startup grid with ASCII art and color."""
@@ -947,15 +1030,32 @@ class uCODETUI:
         self._write_ai_modes_config(config)
         self.ai_modes_config = config
 
+    def _wizard_base_url(self) -> str:
+        """Wizard server base URL for brokered cloud access."""
+        return os.getenv("WIZARD_BASE_URL", "http://127.0.0.1:8765")
+
+    def _wizard_headers(self) -> Dict[str, str]:
+        """Authorization headers for Wizard API."""
+        token = os.getenv("WIZARD_ADMIN_TOKEN", "").strip()
+        if not token:
+            return {}
+        return {"Authorization": f"Bearer {token}"}
+
     def _get_ok_cloud_status(self) -> Dict[str, Any]:
         """Return Mistral cloud availability status."""
         try:
-            from wizard.services.mistral_api import MistralAPI
+            import requests
 
-            client = MistralAPI()
-            if client.available():
-                return {"ready": True, "issue": None}
-            return {"ready": False, "issue": "mistral api key missing"}
+            url = f"{self._wizard_base_url()}/api/ucode/ok/status"
+            response = requests.get(url, headers=self._wizard_headers(), timeout=2)
+            if response.status_code != 200:
+                return {"ready": False, "issue": f"wizard status {response.status_code}"}
+            payload = response.json()
+            ok = payload.get("ok") or {}
+            cloud = ok.get("cloud") or {}
+            ready = bool(cloud.get("ready"))
+            issue = cloud.get("issue") or ("mistral api key missing" if not ready else None)
+            return {"ready": ready, "issue": issue}
         except Exception as exc:
             return {"ready": False, "issue": str(exc)}
 
@@ -1140,6 +1240,8 @@ class uCODETUI:
                 return json.loads(summary_path.read_text())
             except Exception as exc:
                 self.logger.warning("[Monitoring] Failed to read summary: %s", exc)
+        if not WIZARD_MONITORING_AVAILABLE or MonitoringManager is None:
+            return {}
         monitoring = MonitoringManager(data_dir=memory_root / "monitoring")
         return monitoring.log_training_summary()
 
@@ -1352,6 +1454,15 @@ class uCODETUI:
                     sync_manager.save_identity_to_env(enriched_data)
                     self.logger.info("[SETUP] Identity saved to .env (7 fields)")
                     print("\n✅ Identity saved to .env file")
+                    token = self._ensure_wizard_admin_token()
+                    if token:
+                        print("🔐 Wizard admin token ready")
+                        print("   Token files: memory/private/wizard_admin_token.txt")
+                        print("                memory/bank/private/wizard_admin_token.txt")
+                    self._sync_local_user(enriched_data)
+                    self.ghost_mode = self._is_ghost_user()
+                    if str(collected_data.get("ok_helper_install", "")).strip().lower() == "yes":
+                        self._run_ok_setup()
                     # Mistral key is now part of .env boundary (optional)
                     try:
                         from core.services.user_service import is_ghost_identity
@@ -1374,23 +1485,38 @@ class uCODETUI:
                 import requests
 
                 # Get the token
-                token_path = self.repo_root / "memory" / "private" / "wizard_admin_token.txt"
+                token = ""
+                token_paths = [
+                    self.repo_root / "memory" / "private" / "wizard_admin_token.txt",
+                    self.repo_root / "memory" / "bank" / "private" / "wizard_admin_token.txt",
+                ]
+                for token_path in token_paths:
+                    if token_path.exists():
+                        token = token_path.read_text().strip()
+                        if token:
+                            break
 
-                if token_path.exists():
-                    token = token_path.read_text().strip()
-                    headers = {
-                        "Authorization": f"Bearer {token}",
-                        "Content-Type": "application/json"
-                    }
+                headers = {"Content-Type": "application/json"}
+                if token:
+                    headers["Authorization"] = f"Bearer {token}"
 
-                    # Submit to the story endpoint which handles splitting
+                base_url = os.getenv("WIZARD_BASE_URL", "http://localhost:8765").rstrip("/")
+                endpoint_candidates = [
+                    f"{base_url}/api/setup/story/submit",
+                    f"{base_url}/api/v1/setup/story/submit",
+                ]
+                response = None
+                for endpoint in endpoint_candidates:
                     response = requests.post(
-                        "http://localhost:8765/api/setup/story/submit",
+                        endpoint,
                         headers=headers,
                         json={"answers": enriched_data},  # Include enriched fields
                         timeout=10
                     )
+                    if response.status_code != 404:
+                        break
 
+                if response is not None:
                     if response.status_code == 200:
                         self.logger.info("[SETUP] Setup data synced to Wizard keystore")
                         print("✅ Data synced to Wizard keystore")
@@ -1404,7 +1530,10 @@ class uCODETUI:
                         self.logger.warning(f"[SETUP] Wizard secret store locked")
                         print(f"\n⚠️  Wizard secret store is locked. Please ensure WIZARD_KEY is set.")
                     else:
-                        error_detail = response.json().get("detail", f"HTTP {response.status_code}")
+                        try:
+                            error_detail = response.json().get("detail", f"HTTP {response.status_code}")
+                        except Exception:
+                            error_detail = f"HTTP {response.status_code}"
                         self.logger.warning(f"[SETUP] Wizard API error: {error_detail}")
                         print(f"\n⚠️  Could not sync to Wizard: {error_detail}")
 
@@ -1488,6 +1617,116 @@ class uCODETUI:
         except Exception as e:
             self.logger.error(f"[SETUP] Failed to save user profile: {e}", exc_info=True)
             print(f"\n⚠️  Warning: Could not save profile: {e}")
+
+    def _ensure_wizard_admin_token(self) -> Optional[str]:
+        """Ensure WIZARD_ADMIN_TOKEN exists and is synced to token files."""
+        env_path = self.repo_root / ".env"
+        token = os.getenv("WIZARD_ADMIN_TOKEN", "").strip()
+
+        try:
+            from core.services.config_sync_service import ConfigSyncManager
+
+            env_data = ConfigSyncManager().load_env_dict()
+            token = token or env_data.get("WIZARD_ADMIN_TOKEN", "").strip()
+        except Exception:
+            env_data = {}
+
+        if not token:
+            token = self._fetch_or_generate_admin_token(env_path)
+        if not token:
+            return None
+
+        os.environ["WIZARD_ADMIN_TOKEN"] = token
+        self._write_env_var(env_path, "WIZARD_ADMIN_TOKEN", token)
+        self._write_admin_token_files(token)
+        return token
+
+    def _fetch_or_generate_admin_token(self, env_path: Path) -> str:
+        """Try Wizard API token generation; fallback to local token."""
+        try:
+            url = f"{self._wizard_base_url()}/api/admin-token/status"
+            resp = requests.get(url, timeout=2)
+            if resp.status_code == 200:
+                payload = resp.json()
+                env_data = payload.get("env") or {}
+                existing = env_data.get("WIZARD_ADMIN_TOKEN", "").strip()
+                if existing:
+                    return existing
+        except Exception:
+            pass
+
+        try:
+            url = f"{self._wizard_base_url()}/api/admin-token/generate"
+            resp = requests.post(url, timeout=4)
+            if resp.status_code == 200:
+                payload = resp.json()
+                token = (payload.get("token") or "").strip()
+                if token:
+                    return token
+        except Exception:
+            pass
+
+        token = secrets.token_urlsafe(32)
+        self._write_env_var(env_path, "WIZARD_ADMIN_TOKEN", token)
+        return token
+
+    def _write_env_var(self, env_path: Path, key: str, value: str) -> None:
+        """Write or update a single env var in .env."""
+        env_path.parent.mkdir(parents=True, exist_ok=True)
+        lines = env_path.read_text().splitlines() if env_path.exists() else []
+        updated = False
+        new_lines = []
+        for line in lines:
+            if not line or line.strip().startswith("#") or "=" not in line:
+                new_lines.append(line)
+                continue
+            k, _ = line.split("=", 1)
+            if k.strip() == key:
+                new_lines.append(f'{key}="{value}"')
+                updated = True
+            else:
+                new_lines.append(line)
+        if not updated:
+            new_lines.append(f'{key}="{value}"')
+        env_path.write_text("\n".join(new_lines) + "\n")
+
+    def _write_admin_token_files(self, token: str) -> None:
+        """Write admin token to canonical token file locations."""
+        token_paths = [
+            self.repo_root / "memory" / "private" / "wizard_admin_token.txt",
+            self.repo_root / "memory" / "bank" / "private" / "wizard_admin_token.txt",
+        ]
+        for path in token_paths:
+            try:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(token)
+            except Exception as exc:
+                self.logger.warning(f"[SETUP] Failed to write admin token {path}: {exc}")
+
+    def _sync_local_user(self, identity: Dict[str, Any]) -> None:
+        """Create/switch local user after setup to exit ghost mode."""
+        try:
+            from core.services.user_service import get_user_manager, UserRole
+
+            username = (identity.get("user_username") or "").strip().lower()
+            role_raw = (identity.get("user_role") or "").strip().lower()
+            if not username:
+                return
+            role = UserRole.USER
+            if role_raw == "admin":
+                role = UserRole.ADMIN
+            elif role_raw == "ghost":
+                role = UserRole.GUEST
+
+            manager = get_user_manager()
+            if username not in manager.users:
+                manager.create_user(username, role=role)
+            else:
+                # Update role if different
+                manager.set_role(username, role)
+            manager.switch_user(username)
+        except Exception as exc:
+            self.logger.warning(f"[SETUP] Failed to sync local user: {exc}")
 
 
     def _collect_field_response(self, field: Dict, previous_value: Optional[str] = None) -> Optional[str]:
@@ -2013,15 +2252,25 @@ For detailed help on any command, type the command name followed by --help
         }
 
     def _run_ok_cloud(self, prompt: str) -> Dict[str, Any]:
-        """Run a cloud AI request (Mistral) for OK commands."""
-        from wizard.services.mistral_api import MistralAPI
+        """Run a cloud AI request via Wizard server."""
+        import requests
 
-        mode = (self.ai_modes_config.get("modes") or {}).get("onvibe", {})
-        model = mode.get("default_model") or "mistral-small-latest"
-        client = MistralAPI()
-        if not client.available():
-            raise RuntimeError("Mistral API key required for cloud OK")
-        return {"response": client.chat(prompt, model=model), "model": model}
+        url = f"{self._wizard_base_url()}/api/ucode/ok/cloud"
+        payload = {"prompt": prompt, "mode": "conversation", "workspace": "core"}
+        response = requests.post(
+            url,
+            headers=self._wizard_headers(),
+            json=payload,
+            timeout=15,
+        )
+        if response.status_code != 200:
+            try:
+                detail = response.json().get("detail")
+            except Exception:
+                detail = response.text[:200]
+            raise RuntimeError(detail or f"Wizard cloud request failed ({response.status_code})")
+        data = response.json()
+        return {"response": data.get("response", ""), "model": data.get("model", "")}
 
     def _run_ok_local(self, prompt: str, model: Optional[str] = None) -> str:
         """Run a local Vibe request via Ollama."""
@@ -2074,6 +2323,9 @@ For detailed help on any command, type the command name followed by --help
         source = "local"
         response = None
         auto_fallback = self._ok_auto_fallback_enabled()
+        dev_mode = os.getenv("UDOS_DEV_MODE", "").strip().lower() in {"1", "true", "yes"}
+        if dev_mode and not use_cloud:
+            auto_fallback = False
 
         if use_cloud:
             try:
@@ -2125,6 +2377,58 @@ For detailed help on any command, type the command name followed by --help
         )
         print(self._theme_text(""))
         self.renderer.stream_text(entry.get("response") or "", prefix="ok> ")
+
+        if not use_cloud and auto_fallback and not dev_mode:
+            if self._needs_cloud_sanity_check(entry.get("response") or ""):
+                try:
+                    print(self._theme_text("\nOK → Cloud sanity check"))
+                    cloud_result = self._run_with_spinner(
+                        "⏳ OK cloud",
+                        lambda: self._run_ok_cloud(prompt),
+                    )
+                    cloud_response = cloud_result.get("response") or ""
+                    if cloud_response:
+                        self.renderer.stream_text(cloud_response, prefix="ok-check> ")
+                except Exception as exc:
+                    print(self._theme_text(f"⚠️  Cloud sanity check failed: {exc}"))
+
+    def _needs_cloud_sanity_check(self, response: str) -> bool:
+        """Heuristic: request cloud sanity check when local confidence is low."""
+        text = (response or "").strip()
+        if len(text) < 160:
+            return True
+        lowered = text.lower()
+        uncertain_phrases = [
+            "i'm not sure",
+            "i am not sure",
+            "not sure",
+            "unsure",
+            "i think",
+            "maybe",
+            "might be",
+            "cannot",
+            "can't",
+            "unable",
+            "no access",
+            "need more information",
+            "not enough context",
+            "as an ai",
+        ]
+        return any(phrase in lowered for phrase in uncertain_phrases)
+
+    def _run_ok_setup(self) -> None:
+        """Install local OK helper stack (ollama, vibe-cli, models) if possible."""
+        print(self._theme_text("\n⚙️  OK SETUP: Installing local AI helpers"))
+        try:
+            from core.services.ok_setup import run_ok_setup
+
+            result = run_ok_setup(self.repo_root, log=lambda msg: print(self._theme_text(msg)))
+            self.ai_modes_config = self._load_ai_modes_config()
+            for warning in result.get("warnings", []):
+                print(self._theme_text(f"  ⚠️  {warning}"))
+        except Exception as exc:
+            print(self._theme_text(f"  ⚠️  OK SETUP failed: {exc}"))
+        print(self._theme_text("✅ OK SETUP complete.\n"))
 
     def _cmd_ok_explain(self, args: str) -> None:
         """OK EXPLAIN <file> [start end] [--cloud]."""

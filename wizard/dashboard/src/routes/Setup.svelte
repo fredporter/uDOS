@@ -25,6 +25,9 @@
 
   let configName = "";
   let configValue = "";
+  let okStatus = null;
+  let okInstallResult = null;
+  let okInstalling = false;
 
   const authHeaders = () => buildAuthHeaders();
 
@@ -103,6 +106,44 @@
       });
     } finally {
       storyLoading = false;
+    }
+  }
+
+  async function loadOkStatus() {
+    try {
+      const res = await apiFetch("/api/ucode/ok/status", {
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+      okStatus = data.ok || null;
+    } catch (err) {
+      okStatus = null;
+      notifyError("OK status failed", err.message || String(err), {
+        path: "/api/ucode/ok/status",
+      });
+    }
+  }
+
+  async function runOkSetup() {
+    okInstallResult = null;
+    okInstalling = true;
+    try {
+      const res = await apiFetch("/api/ucode/ok/setup", {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+      okInstallResult = data.result || { status: "ok" };
+      await loadOkStatus();
+    } catch (err) {
+      okInstallResult = { error: err.message || String(err) };
+      notifyError("OK setup failed", err.message || String(err), {
+        path: "/api/ucode/ok/setup",
+      });
+    } finally {
+      okInstalling = false;
     }
   }
 
@@ -222,6 +263,7 @@
       : "dark";
     loadSetup();
     loadSetupStory();
+    loadOkStatus();
   });
 
   const stepStatus = (step) => {
@@ -311,6 +353,46 @@
         💡 To reset: Use <code>DESTROY</code> or <code>REPAIR</code> commands in
         uDOS TUI to clear .env variables or reset wizard tokens.
       </p>
+    </div>
+
+    <div class="setup-section">
+      <h3>4. OK Helper (Local AI)</h3>
+      <p class="section-description">
+        Install the local OK helper stack (Ollama, Vibe CLI, and recommended
+        models) and verify what is installed.
+      </p>
+      <div class="story-actions">
+        <button class="btn-secondary" on:click={runOkSetup} disabled={okInstalling}>
+          {okInstalling ? "Installing..." : "Run OK Setup"}
+        </button>
+      </div>
+      {#if okStatus}
+        <div class="status-grid" style="margin-top: 0.75rem;">
+          <div>
+            <div class="label">Local OK</div>
+            <div class="value">{okStatus.ready ? "✅ Ready" : "⚠️ " + (okStatus.issue || "Not ready")}</div>
+          </div>
+          <div>
+            <div class="label">Model</div>
+            <div class="value">{okStatus.model || okStatus.default_model || "—"}</div>
+          </div>
+          <div>
+            <div class="label">Installed Models</div>
+            <div class="value">
+              {#if okStatus.models?.length}
+                {okStatus.models.join(", ")}
+              {:else}
+                —
+              {/if}
+            </div>
+          </div>
+        </div>
+      {/if}
+      {#if okInstallResult}
+        <div class="story-status" style="margin-top: 0.75rem;">
+          <pre>{JSON.stringify(okInstallResult, null, 2)}</pre>
+        </div>
+      {/if}
     </div>
 
     {#if storyError}

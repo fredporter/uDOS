@@ -279,7 +279,7 @@ class ContextualCommandPrompt(EnhancedPrompt):
         if not tokens:
             suggestions = self.registry.get_suggestions("", limit=5)
             line1 = self._format_suggestions_line(suggestions, prefix_symbol, label="Commands")
-            line2 = f"  ↳ DEV: {dev_state}  |  Tip: Use ':' or 'OK' for uCODE, '/' for shell"
+            line2 = f"  ↳ DEV: {dev_state}  |  Tip: Use '?' or 'OK' for AI, '/' for commands"
             return [_format_line(line1), _format_line(line2)]
 
         cmd_token = tokens[0].lstrip(":/")

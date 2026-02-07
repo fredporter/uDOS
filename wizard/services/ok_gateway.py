@@ -102,6 +102,9 @@ class OKRequest:
     temperature: Optional[float] = None
     stream: bool = False
     mode: Optional[str] = None
+    force_cloud: bool = False
+    cloud_sanity: bool = False
+    allow_cloud: bool = True
 
     # Routing metadata
     task_id: Optional[str] = None
@@ -147,6 +150,7 @@ class AIResponse:
     latency_ms: int = 0
     error: Optional[str] = None
     timestamp: str = ""
+    sanity_check: Optional[Dict[str, Any]] = None
 
     def __post_init__(self):
         if not self.timestamp:
@@ -257,6 +261,18 @@ class OKGateway:
         self.router = ModelRouter()
         self.policy = PolicyEnforcer()
         self.vibe = VibeService()
+        self.cloud_sanity_enabled = self._load_cloud_sanity_flag()
+
+    def _load_cloud_sanity_flag(self) -> bool:
+        """Read cloud sanity toggle from wizard config."""
+        try:
+            config_path = Path(__file__).parent.parent / "config" / "wizard.json"
+            if config_path.exists():
+                data = json.loads(config_path.read_text())
+                return bool(data.get("ok_cloud_sanity_enabled", True))
+        except Exception:
+            pass
+        return True
 
         logger.info(
             f"[AI] Gateway initialized with providers: {list(self.providers.keys())}"
@@ -524,42 +540,59 @@ class OKGateway:
         )
 
         route = self.router.route(classification)
+        allow_cloud = bool(request.allow_cloud)
+        if request.workspace == "dev" and not request.force_cloud:
+            allow_cloud = False
+            request.cloud_sanity = False
+        # Force local-first unless explicitly forced cloud
+        if not request.force_cloud:
+            route = self.router.force_local_route(classification)
 
         # Guardrail: prevent oversized prompts from being sent to cloud backends
         # Providers like OpenRouter may return "user_request_timeout" when the
         # request body is too large or slow to read. Provide a clear local error
         # and guidance rather than attempting a failing cloud call.
-        if (
-            route.backend == Backend.CLOUD
-            and classification.estimated_tokens > self.MAX_SAFE_CLOUD_TOKENS
-        ):
-            latency = int((time.time() - start_time) * 1000)
-            return AIResponse(
-                success=False,
-                error=(
-                    "Request too large for cloud routing (~"
-                    f"{classification.estimated_tokens} tokens). "
-                    "Reduce input size or split into smaller chunks to avoid "
-                    "provider timeouts (e.g., 'user_request_timeout')."
-                ),
-                model=route.model,
-                provider=route.backend.value,
-                backend=route.backend.value,
-                route=route.to_dict(),
-                classification=self._classification_to_dict(classification),
-                latency_ms=latency,
-            )
+        if request.force_cloud and allow_cloud:
+            if classification.estimated_tokens > self.MAX_SAFE_CLOUD_TOKENS:
+                latency = int((time.time() - start_time) * 1000)
+                return AIResponse(
+                    success=False,
+                    error=(
+                        "Request too large for cloud routing (~"
+                        f"{classification.estimated_tokens} tokens). "
+                        "Reduce input size or split into smaller chunks to avoid "
+                        "provider timeouts (e.g., 'user_request_timeout')."
+                    ),
+                    model=route.model,
+                    provider=route.backend.value,
+                    backend=Backend.CLOUD.value,
+                    route=route.to_dict(),
+                    classification=self._classification_to_dict(classification),
+                    latency_ms=latency,
+                )
 
         # Policy enforcement
         is_valid, reason = self.policy.validate_route(
             task_id=task_id,
             privacy=classification.privacy.value,
-            backend=route.backend.value,
+            backend=route.backend.value if not request.force_cloud else Backend.CLOUD.value,
             estimated_cost=route.estimated_cost,
             prompt=request.prompt,
         )
 
         if not is_valid:
+            if request.force_cloud:
+                latency = int((time.time() - start_time) * 1000)
+                return AIResponse(
+                    success=False,
+                    error=reason or "Policy validation failed",
+                    model=route.model,
+                    provider=Backend.CLOUD.value,
+                    backend=Backend.CLOUD.value,
+                    route=route.to_dict(),
+                    classification=self._classification_to_dict(classification),
+                    latency_ms=latency,
+                )
             # Fallback to local when cloud path is blocked
             if route.backend == Backend.CLOUD:
                 logger.info(
@@ -610,8 +643,18 @@ class OKGateway:
             )
 
         # Execute route
+        model_used = route.model
+        backend_value = route.backend.value
         try:
-            if route.backend == Backend.LOCAL:
+            if request.force_cloud and allow_cloud:
+                cloud_response = self._run_cloud_mistral(request.prompt)
+                if not cloud_response.success:
+                    raise RuntimeError(cloud_response.error or "Cloud request failed")
+                content = cloud_response.content
+                model_used = cloud_response.model or model_used
+                provider = cloud_response.provider or provider_name
+                backend_value = Backend.CLOUD.value
+            else:
                 content = self.vibe.generate(
                     prompt=request.prompt,
                     system=request.system_prompt or None,
@@ -621,11 +664,6 @@ class OKGateway:
                     max_tokens=request.max_tokens,
                 )
                 provider = "vibe"
-            else:
-                provider = provider_name
-                content = "Cloud routing not yet implemented; provider routing pending."
-                if route.estimated_cost:
-                    self.policy.record_cloud_cost(route.estimated_cost)
         except Exception as e:
             latency = int((time.time() - start_time) * 1000)
             logger.error(f"[LOCAL] AI generation failed for {task_id}: {e}")
@@ -656,12 +694,12 @@ class OKGateway:
                 cost=route.estimated_cost or 0.0,
             )
 
-        return AIResponse(
+        response = AIResponse(
             success=True,
             content=content,
-            model=route.model,
+            model=model_used,
             provider=provider,
-            backend=route.backend.value,
+            backend=backend_value,
             prompt_tokens=classification.estimated_tokens,
             completion_tokens=completion_tokens,
             total_tokens=classification.estimated_tokens + completion_tokens,
@@ -670,6 +708,30 @@ class OKGateway:
             classification=self._classification_to_dict(classification),
             latency_ms=latency,
         )
+
+        if not request.force_cloud and allow_cloud and self.cloud_sanity_enabled:
+            if request.cloud_sanity or self._should_sanity_check(response.content):
+                is_valid, reason = self.policy.validate_route(
+                    task_id=task_id,
+                    privacy=classification.privacy.value,
+                    backend=Backend.CLOUD.value,
+                    estimated_cost=route.estimated_cost or 0.0,
+                    prompt=request.prompt,
+                )
+                if is_valid:
+                    sanity = self._run_cloud_mistral(request.prompt)
+                    if sanity.success:
+                        response.sanity_check = {
+                            "model": sanity.model,
+                            "provider": sanity.provider,
+                            "content": sanity.content,
+                        }
+                else:
+                    logger.info(
+                        f"[LOCAL] Cloud sanity check skipped ({reason}) for {task_id}"
+                    )
+
+        return response
 
     def _select_provider(self, model: str) -> Optional[str]:
         """Select provider for model."""
@@ -690,6 +752,64 @@ class OKGateway:
                 return provider
 
         return None
+
+    def _cloud_model(self) -> str:
+        """Return default cloud model for sanity checks."""
+        try:
+            config_path = Path(__file__).parent.parent.parent / "core" / "config" / "ok_modes.json"
+            if config_path.exists():
+                data = json.loads(config_path.read_text())
+                mode = (data.get("modes") or {}).get("onvibe", {})
+                model = mode.get("default_model")
+                if model:
+                    return model
+        except Exception:
+            pass
+        return "mistral-small-latest"
+
+    def _should_sanity_check(self, response: str) -> bool:
+        """Heuristic: request cloud sanity check when local confidence is low."""
+        text = (response or "").strip()
+        if len(text) < 160:
+            return True
+        lowered = text.lower()
+        uncertain_phrases = [
+            "i'm not sure",
+            "i am not sure",
+            "not sure",
+            "unsure",
+            "i think",
+            "maybe",
+            "might be",
+            "cannot",
+            "can't",
+            "unable",
+            "no access",
+            "need more information",
+            "not enough context",
+            "as an ai",
+        ]
+        return any(phrase in lowered for phrase in uncertain_phrases)
+
+    def _run_cloud_mistral(self, prompt: str) -> AIResponse:
+        """Run cloud sanity check via Mistral API."""
+        from wizard.services.mistral_api import MistralAPI
+
+        model = self._cloud_model()
+        client = MistralAPI()
+        if not client.available():
+            return AIResponse(success=False, error="Mistral API key missing", backend=Backend.CLOUD.value)
+
+        content = client.chat(prompt, model=model)
+        completion_tokens = len(content) // 4 if isinstance(content, str) else 0
+        return AIResponse(
+            success=True,
+            content=content,
+            model=model,
+            provider="mistral",
+            backend=Backend.CLOUD.value,
+            completion_tokens=completion_tokens,
+        )
 
     def _map_to_quota_provider(self, provider_name: str) -> Optional[QuotaAPIProvider]:
         """Map gateway provider name to quota tracker enum."""

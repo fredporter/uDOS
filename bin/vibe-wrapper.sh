@@ -3,6 +3,12 @@ set -euo pipefail
 
 REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 WIZARD_BASE_URL="${WIZARD_BASE_URL:-http://localhost:8765}"
+VENV_PY="${REPO_ROOT}/.venv/bin/python"
+if [ -x "$VENV_PY" ]; then
+  PYTHON_BIN="$VENV_PY"
+else
+  PYTHON_BIN="python3"
+fi
 
 if ! command -v vibe >/dev/null 2>&1; then
   echo "vibe CLI not found. Install with: pip install mistral-vibe"
@@ -30,7 +36,7 @@ _fetch_allowlist() {
   ALLOWLIST=()
   while IFS= read -r line; do
     [ -n "$line" ] && ALLOWLIST+=("$line")
-  done < <(python3 - <<'PY' "$payload"
+  done < <("$PYTHON_BIN" - <<'PY' "$payload"
 import json, sys
 raw = sys.argv[1]
 try:
@@ -72,7 +78,7 @@ _ucode_dispatch_raw() {
 
 _ucode_render() {
   local body="$1"
-  python3 - <<'PY' "$body"
+  "$PYTHON_BIN" - <<'PY' "$body"
 import json, sys
 raw = sys.argv[1]
 try:
@@ -103,7 +109,7 @@ PY
 
 _ucode_is_success() {
   local body="$1"
-  python3 - <<'PY' "$body"
+  "$PYTHON_BIN" - <<'PY' "$body"
 import json, sys
 raw = sys.argv[1]
 try:
@@ -165,7 +171,7 @@ _print_ok_startup() {
   if [ -z "$payload" ]; then
     return
   fi
-  python3 - <<'PY' "$payload"
+  "$PYTHON_BIN" - <<'PY' "$payload"
 import json, sys
 raw = sys.argv[1]
 try:
@@ -212,6 +218,42 @@ _vibe_prompt() {
   fi
 }
 
+_run_local_setup() {
+  local raw="$1"
+  "$PYTHON_BIN" - <<'PY' "$REPO_ROOT" "$raw"
+import shlex
+import sys
+from pathlib import Path
+
+repo_root = Path(sys.argv[1])
+raw = sys.argv[2] if len(sys.argv) > 2 else ""
+raw = raw.strip()
+if raw.lower().startswith("setup"):
+    raw = raw[5:].strip()
+args = shlex.split(raw) if raw else []
+sys.path.insert(0, str(repo_root))
+
+from core.commands.setup_handler import SetupHandler
+
+handler = SetupHandler()
+result = handler.handle("SETUP", args, None, None)
+
+def render(res):
+    if isinstance(res, dict):
+        output = res.get("output")
+        if output:
+            print(output)
+            return
+        message = res.get("message")
+        if message:
+            print(message)
+            return
+    print(res)
+
+render(result)
+PY
+}
+
 cd "$REPO_ROOT"
 
 _fetch_allowlist
@@ -252,6 +294,10 @@ while true; do
     cmd="${trimmed:1}"
     cmd="${cmd#"${cmd%%[![:space:]]*}"}"
     if [ -n "$cmd" ]; then
+  if [[ "$cmd" =~ ^[Ss][Ee][Tt][Uu][Pp]($|[[:space:]]) ]]; then
+        _run_local_setup "$cmd" || true
+        continue
+      fi
       first_token="${cmd%% *}"
       if _is_ucode_command "$first_token"; then
         _ucode_dispatch_print "$cmd" || true
@@ -259,6 +305,11 @@ while true; do
         _ucode_dispatch_print "/$cmd" || true
       fi
     fi
+    continue
+  fi
+
+  if [[ "$trimmed" =~ ^[Ss][Ee][Tt][Uu][Pp]($|[[:space:]]) ]]; then
+    _run_local_setup "$trimmed" || true
     continue
   fi
 

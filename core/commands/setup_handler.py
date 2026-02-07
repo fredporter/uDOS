@@ -121,6 +121,17 @@ class SetupHandler(BaseCommandHandler):
             return self._run_story()
 
         action = params[0].lower()
+        alias_map = {
+            "help": "--help",
+            "-h": "--help",
+            "?": "--help",
+            "profile": "--profile",
+            "view": "--view",
+            "show": "--show",
+            "edit": "--edit",
+            "clear": "--clear",
+        }
+        action = alias_map.get(action, action)
 
         # Check if this is a webhook setup request (new!)
         if action == "webhook":

@@ -10,6 +10,7 @@
   "plugin_auto_update": true,
   "web_proxy_enabled": true,
   "ok_gateway_enabled": true,
+  "ok_cloud_sanity_enabled": true,
   "oauth_enabled": false,
   "github_webhook_secret": null,
   "github_webhook_secret_key_id": "github-webhook-secret",

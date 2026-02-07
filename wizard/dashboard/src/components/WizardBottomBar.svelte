@@ -188,7 +188,7 @@
       </div>
       <div class="wizard-status-line">
         <span class="commands-line">⎔ Commands: OK, BINDER, FILE (+2 more)</span>
-        <span class="dev-line">↳ DEV: {devState} | Tip: Use ':' or 'OK' for uCODE, '/' for shell</span>
+        <span class="dev-line">↳ DEV: {devState} | Tip: '?' or 'OK' for AI, '/' for commands</span>
       </div>
     </div>
   </div>

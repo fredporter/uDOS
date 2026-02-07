@@ -89,6 +89,11 @@
       description: "Enable routing to local/cloud AI providers via Wizard",
     },
     {
+      key: "ok_cloud_sanity_enabled",
+      label: "OK Cloud Sanity",
+      description: "Allow cloud sanity checks after local OK responses",
+    },
+    {
       key: "plugin_repo_enabled",
       label: "Plugin Repository",
       description: "Serve extensions from the Wizard plugin repo",

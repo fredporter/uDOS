@@ -419,6 +419,11 @@ def create_ucode_routes(auth_guard=None):
         model: str
         profile: Optional[str] = "core"
 
+    class OkCloudRequest(BaseModel):
+        prompt: str
+        mode: Optional[str] = "conversation"
+        workspace: Optional[str] = "core"
+
     @router.post("/ok/model")
     async def set_ok_model(payload: OkModelRequest) -> Dict[str, Any]:
         model = (payload.model or "").strip()
@@ -443,6 +448,36 @@ def create_ucode_routes(auth_guard=None):
         _write_ok_modes_config(config)
         logger.info("OK model updated", ctx={"model": model, "profile": profile})
         return {"status": "ok", "default_models": default_models}
+
+    @router.post("/ok/cloud")
+    async def run_ok_cloud(payload: OkCloudRequest) -> Dict[str, Any]:
+        prompt = (payload.prompt or "").strip()
+        if not prompt:
+            raise HTTPException(status_code=400, detail="prompt is required")
+
+        status = _get_ok_cloud_status()
+        if not status.get("ready"):
+            raise HTTPException(status_code=400, detail=status.get("issue") or "mistral unavailable")
+
+        try:
+            response, model = _run_ok_cloud(prompt)
+        except Exception as exc:
+            logger.warn("OK cloud request failed", ctx={"error": str(exc)})
+            raise HTTPException(status_code=500, detail=str(exc))
+
+        return {"status": "ok", "response": response, "model": model}
+
+    @router.post("/ok/setup")
+    async def run_ok_setup() -> Dict[str, Any]:
+        try:
+            from core.services.logging_api import get_repo_root
+            from core.services.ok_setup import run_ok_setup as _run_ok_setup
+
+            result = _run_ok_setup(get_repo_root())
+            return {"status": "ok", "result": result}
+        except Exception as exc:
+            logger.warn("OK setup failed", ctx={"error": str(exc)})
+            raise HTTPException(status_code=500, detail=str(exc))
 
     @router.get("/user")
     async def get_current_user() -> Dict[str, Any]:

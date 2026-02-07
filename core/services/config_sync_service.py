@@ -45,6 +45,7 @@ class ConfigSyncManager:
         'USER_LOCATION': 'user_location',
         'USER_TIMEZONE': 'user_timezone',
         'OS_TYPE': 'install_os_type',
+        'UDOS_SHELL_ENABLED': 'udos_shell_enabled',
         'WIZARD_KEY': 'wizard_key',
         'MISTRAL_API_KEY': 'mistral_api_key',
     }
@@ -183,7 +184,8 @@ class ConfigSyncManager:
             lines.append("# USER IDENTITY (Essential Core settings)")
             lines.append("# ============================================================================")
             for key in ['USER_NAME', 'USER_DOB', 'USER_ROLE', 'USER_PASSWORD',
-                       'USER_LOCATION', 'USER_TIMEZONE', 'OS_TYPE', 'WIZARD_KEY']:
+                       'USER_LOCATION', 'USER_TIMEZONE', 'OS_TYPE', 'UDOS_SHELL_ENABLED',
+                       'WIZARD_KEY']:
                 if key in identity_vars:
                     value = identity_vars[key]
                     # Quote strings

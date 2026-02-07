@@ -195,7 +195,7 @@
   function updateHelperLines() {
     if (!suggestions.length) {
       helperLine1 = "-> No matching commands";
-      helperLine2 = "-> Tip: Use ':' or 'OK' for uCODE, '/' for shell";
+      helperLine2 = "-> Tip: '?' or 'OK' for AI, '/' for commands";
       return;
     }
     const names = suggestions.slice(0, 3).map((s) => s.name).join(", ");
