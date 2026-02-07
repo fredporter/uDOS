@@ -12,11 +12,20 @@ This directory hosts the MCP gateway(s) that expose Wizard + uCODE capabilities 
   - `wizard.plugin.command` (stub)
   - `ucode.command` (raw input router)
   - `ucode.dispatch` (allowlisted)
+  - Vibe-style TUI wrapper output via `display` field
 
 ## Files
 
 - `mcp_server.py` — MCP stdio server for Vibe
 - `gateway.py` — HTTP client wrapper for Wizard APIs
+
+## CLI Test Flags
+
+`python mcp/wizard/server.py` supports quick checks:
+
+- `--ucode "STATUS"` (allowlisted dispatch)
+- `--ucode-command "OK explain core/tui/ucode.py"` (raw uCODE input)
+- `--tools` (list MCP tool names from `/api/wizard/tools/mcp-tools.md`)
 
 ## Notes
 

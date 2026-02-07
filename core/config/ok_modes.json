@@ -11,11 +11,21 @@
       "models": [
         {
           "name": "mistral-small2",
-          "availability": ["core"]
+          "availability": [
+            "core"
+          ]
         },
         {
           "name": "devstral-small-2",
-          "availability": ["dev"]
+          "availability": [
+            "dev"
+          ]
+        },
+        {
+          "name": "mistral-large2",
+          "availability": [
+            "core"
+          ]
         }
       ]
     },
@@ -26,44 +36,62 @@
       "models": [
         {
           "name": "mistral-small-latest",
-          "availability": ["wizard", "dev"]
+          "availability": [
+            "wizard",
+            "dev"
+          ]
         }
       ]
     },
     "prompt": {
       "label": "PROMPT",
       "description": "Wizard OK gateway (Gemini primary, OpenAI fallback)",
-      "provider_order": ["gemini", "openai"],
+      "provider_order": [
+        "gemini",
+        "openai"
+      ],
       "models": [
         {
           "name": "gemini-1.5-flash",
           "provider": "gemini",
-          "availability": ["wizard"]
+          "availability": [
+            "wizard"
+          ]
         },
         {
           "name": "gemini-pro",
           "provider": "gemini",
-          "availability": ["wizard"]
+          "availability": [
+            "wizard"
+          ]
         },
         {
           "name": "gemini-ultra",
           "provider": "gemini",
-          "availability": ["wizard"]
+          "availability": [
+            "wizard"
+          ]
         },
         {
           "name": "gpt-4-turbo",
           "provider": "openai",
-          "availability": ["wizard"]
+          "availability": [
+            "wizard"
+          ]
         },
         {
           "name": "gpt-4",
           "provider": "openai",
-          "availability": ["wizard"]
+          "availability": [
+            "wizard"
+          ]
         },
         {
           "name": "gpt-3.5-turbo",
           "provider": "openai",
-          "availability": ["wizard"]
+          "availability": [
+            "wizard"
+          ]
         }
       ]
     }

@@ -442,11 +442,29 @@ ensure_python_env() {
     # Prevent Python from writing .pyc files (helps with hot reload)
     export PYTHONDONTWRITEBYTECODE=1
 
-    # Load .env file if it exists
+    # Load .env file if it exists (safe parsing; no execution)
     if [ -f "$UDOS_ROOT/.env" ]; then
-        set -a  # Export all variables
-        source "$UDOS_ROOT/.env"
-        set +a
+        while IFS= read -r line || [ -n "$line" ]; do
+            line="${line#"${line%%[![:space:]]*}"}"
+            line="${line%"${line##*[![:space:]]}"}"
+            [ -z "$line" ] && continue
+            case "$line" in
+                \#*) continue ;;
+            esac
+            if [[ "$line" == export\ * ]]; then
+                line="${line#export }"
+            fi
+            if [[ "$line" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]]; then
+                key="${line%%=*}"
+                value="${line#*=}"
+                if [[ "$value" =~ ^\".*\"$ ]]; then
+                    value="${value:1:${#value}-2}"
+                elif [[ "$value" =~ ^\'.*\'$ ]]; then
+                    value="${value:1:${#value}-2}"
+                fi
+                export "$key=$value"
+            fi
+        done < "$UDOS_ROOT/.env"
     fi
 
     # Create log directory

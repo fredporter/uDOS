@@ -3,12 +3,16 @@ uid: udos-guide-docs-20260130011500-UTC-L301AB00
 title: Development Log Index
 tags: [wiki, guide, devlog, index]
 status: living
-updated: 2026-02-06
+updated: 2026-02-07
 ---
 
 # Development Log Index
 
 Chronological development sessions, project milestones, and infrastructure updates.
+
+## 2026-02-07: Wizard Server Refactor + Version Bump
+
+Session: [2026-02-07-wizard-refactor.md](devlog/2026-02-07-wizard-refactor.md)
 
 ## 2026-02-06: Memory/Bank to System Migration
 
@@ -76,4 +80,4 @@ Sessions:
 
 ---
 
-**Last Updated:** 2026-02-06
+**Last Updated:** 2026-02-07

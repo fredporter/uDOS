@@ -95,6 +95,37 @@ def _wrap_display(rendered: str) -> str:
     prompt = f"[{_emoji_indicator()}] ▶ "
     return "\n".join([header, prompt, _toolbar_block(), "", rendered or ""])
 
+def _extract_ucode_output(payload: Dict[str, Any]) -> str:
+    if not isinstance(payload, dict):
+        return str(payload)
+    result = payload.get("result")
+    if isinstance(result, dict):
+        for key in ("output", "help", "text", "message"):
+            value = result.get(key)
+            if value:
+                return str(value)
+    rendered = payload.get("rendered")
+    if rendered:
+        return str(rendered)
+    for key in ("output", "help", "text", "message"):
+        value = payload.get(key)
+        if value:
+            return str(value)
+    return ""
+
+def _load_tool_index() -> list[str]:
+    tools_path = REPO_ROOT / "api" / "wizard" / "tools" / "mcp-tools.md"
+    if not tools_path.exists():
+        return []
+    tools: list[str] = []
+    for line in tools_path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("- `") and "`" in stripped[3:]:
+            name = stripped.split("`", 2)[1]
+            if name:
+                tools.append(name)
+    return tools
+
 
 @mcp.tool()
 def wizard_health() -> Dict[str, Any]:
@@ -112,6 +143,29 @@ def wizard_config_get() -> Dict[str, Any]:
 def wizard_config_set(updates: Dict[str, Any]) -> Dict[str, Any]:
     """Patch Wizard config."""
     return _client().config_set(updates)
+
+@mcp.tool()
+def wizard_tools_list() -> Dict[str, Any]:
+    """List MCP tool names."""
+    tools = _load_tool_index()
+    return {
+        "count": len(tools),
+        "tools": tools,
+    }
+
+@mcp.tool()
+def ucode_dispatch(command: str) -> Dict[str, Any]:
+    """Dispatch a uCODE command (allowlisted)."""
+    payload = _client().ucode_dispatch(command)
+    payload["display"] = _wrap_display(_extract_ucode_output(payload))
+    return payload
+
+@mcp.tool()
+def ucode_command(command: str) -> Dict[str, Any]:
+    """Route raw uCODE input (OK/:/auto)."""
+    payload = _client().ucode_dispatch(command)
+    payload["display"] = _wrap_display(_extract_ucode_output(payload))
+    return payload
 
 
 @mcp.tool()
@@ -516,6 +570,250 @@ def wizard_datasets_export(
 def wizard_datasets_import(table: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     """Import/parse payload into a dataset table (stub)."""
     return _client().datasets_parse(table, payload)
+
+
+@mcp.tool()
+def wizard_artifacts_list(kind: str | None = None) -> Dict[str, Any]:
+    """List artifacts."""
+    return _client().artifacts_list(kind=kind)
+
+
+@mcp.tool()
+def wizard_artifacts_summary() -> Dict[str, Any]:
+    """Summarize artifacts."""
+    return _client().artifacts_summary()
+
+
+@mcp.tool()
+def wizard_artifacts_add(kind: str, source_path: str, notes: str | None = None) -> Dict[str, Any]:
+    """Add an artifact."""
+    return _client().artifacts_add(kind=kind, source_path=source_path, notes=notes)
+
+
+@mcp.tool()
+def wizard_artifacts_delete(artifact_id: str) -> Dict[str, Any]:
+    """Delete an artifact."""
+    return _client().artifacts_delete(artifact_id)
+
+
+@mcp.tool()
+def wizard_library_status() -> Dict[str, Any]:
+    """Get library status."""
+    return _client().library_status()
+
+
+@mcp.tool()
+def wizard_wiki_provision() -> Dict[str, Any]:
+    """Provision wiki."""
+    return _client().wiki_provision()
+
+
+@mcp.tool()
+def wizard_wiki_structure() -> Dict[str, Any]:
+    """Get wiki structure."""
+    return _client().wiki_structure()
+
+
+@mcp.tool()
+def wizard_renderer_themes() -> Dict[str, Any]:
+    """List renderer themes."""
+    return _client().renderer_themes()
+
+
+@mcp.tool()
+def wizard_renderer_theme(theme_name: str) -> Dict[str, Any]:
+    """Get renderer theme detail."""
+    return _client().renderer_theme(theme_name)
+
+
+@mcp.tool()
+def wizard_renderer_site_exports() -> Dict[str, Any]:
+    """List renderer site exports."""
+    return _client().renderer_site_exports()
+
+
+@mcp.tool()
+def wizard_renderer_site_files(theme_name: str) -> Dict[str, Any]:
+    """List renderer site files for a theme."""
+    return _client().renderer_site_files(theme_name)
+
+
+@mcp.tool()
+def wizard_renderer_missions() -> Dict[str, Any]:
+    """List renderer missions."""
+    return _client().renderer_missions()
+
+
+@mcp.tool()
+def wizard_renderer_mission(mission_id: str) -> Dict[str, Any]:
+    """Get renderer mission."""
+    return _client().renderer_mission(mission_id)
+
+
+@mcp.tool()
+def wizard_renderer_render(payload: Dict[str, Any] | None = None, theme: str | None = None) -> Dict[str, Any]:
+    """Render site output."""
+    return _client().renderer_render(payload=payload, theme=theme)
+
+
+@mcp.tool()
+def wizard_teletext_canvas() -> Dict[str, Any]:
+    """Get teletext canvas."""
+    return _client().teletext_canvas()
+
+
+@mcp.tool()
+def wizard_teletext_nes_buttons() -> Dict[str, Any]:
+    """Get NES button state."""
+    return _client().teletext_nes_buttons()
+
+
+@mcp.tool()
+def wizard_system_os() -> Dict[str, Any]:
+    """Get OS info."""
+    return _client().system_os()
+
+
+@mcp.tool()
+def wizard_system_stats() -> Dict[str, Any]:
+    """Get system stats."""
+    return _client().system_stats()
+
+
+@mcp.tool()
+def wizard_system_info() -> Dict[str, Any]:
+    """Get system info."""
+    return _client().system_info()
+
+
+@mcp.tool()
+def wizard_system_memory() -> Dict[str, Any]:
+    """Get memory stats."""
+    return _client().system_memory()
+
+
+@mcp.tool()
+def wizard_system_storage() -> Dict[str, Any]:
+    """Get storage stats."""
+    return _client().system_storage()
+
+
+@mcp.tool()
+def wizard_system_uptime() -> Dict[str, Any]:
+    """Get uptime stats."""
+    return _client().system_uptime()
+
+
+@mcp.tool()
+def wizard_fonts_manifest() -> Dict[str, Any]:
+    """Get fonts manifest."""
+    return _client().fonts_manifest()
+
+
+@mcp.tool()
+def wizard_fonts_sample() -> Dict[str, Any]:
+    """Get font samples."""
+    return _client().fonts_sample()
+
+
+@mcp.tool()
+def wizard_fonts_file(path: str) -> Dict[str, Any]:
+    """Fetch font file."""
+    return _client().fonts_file(path)
+
+
+@mcp.tool()
+def wizard_ai_health() -> Dict[str, Any]:
+    """Get AI health."""
+    return _client().ai_health()
+
+
+@mcp.tool()
+def wizard_ai_config() -> Dict[str, Any]:
+    """Get AI config."""
+    return _client().ai_config()
+
+
+@mcp.tool()
+def wizard_ai_context() -> Dict[str, Any]:
+    """Get AI context."""
+    return _client().ai_context()
+
+
+@mcp.tool()
+def wizard_ai_suggest_next() -> Dict[str, Any]:
+    """Suggest next steps."""
+    return _client().ai_suggest_next()
+
+
+@mcp.tool()
+def wizard_ai_analyze_logs(log_type: str = "error") -> Dict[str, Any]:
+    """Analyze logs with AI."""
+    return _client().ai_analyze_logs(log_type=log_type)
+
+
+@mcp.tool()
+def wizard_ai_explain_code(
+    file_path: str,
+    line_start: int | None = None,
+    line_end: int | None = None,
+) -> Dict[str, Any]:
+    """Explain code with AI."""
+    return _client().ai_explain_code(file_path=file_path, line_start=line_start, line_end=line_end)
+
+
+@mcp.tool()
+def wizard_providers_status(provider_id: str) -> Dict[str, Any]:
+    """Get provider status."""
+    return _client().provider_status(provider_id)
+
+
+@mcp.tool()
+def wizard_providers_config(provider_id: str) -> Dict[str, Any]:
+    """Get provider config."""
+    return _client().provider_config(provider_id)
+
+
+@mcp.tool()
+def wizard_providers_enable(provider_id: str) -> Dict[str, Any]:
+    """Enable a provider."""
+    return _client().provider_enable(provider_id)
+
+
+@mcp.tool()
+def wizard_providers_disable(provider_id: str) -> Dict[str, Any]:
+    """Disable a provider."""
+    return _client().provider_disable(provider_id)
+
+
+@mcp.tool()
+def wizard_providers_setup_flags() -> Dict[str, Any]:
+    """Get provider setup flags."""
+    return _client().provider_setup_flags()
+
+
+@mcp.tool()
+def wizard_providers_models_available() -> Dict[str, Any]:
+    """List available provider models."""
+    return _client().provider_models_available()
+
+
+@mcp.tool()
+def wizard_providers_models_installed() -> Dict[str, Any]:
+    """List installed provider models."""
+    return _client().provider_models_installed()
+
+
+@mcp.tool()
+def wizard_providers_models_pull_status() -> Dict[str, Any]:
+    """Get provider model pull status."""
+    return _client().provider_models_pull_status()
+
+
+@mcp.tool()
+def wizard_providers_dashboard() -> Dict[str, Any]:
+    """Get providers dashboard."""
+    return _client().providers_dashboard()
 
 
 @mcp.tool()

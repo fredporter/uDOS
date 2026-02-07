@@ -190,15 +190,25 @@ class SmartNumberPicker:
 class DatePicker:
     """Interactive date picker with YY/MM/DD fields."""
     
-    def __init__(self, label: str, default: Optional[str] = None):
+    def __init__(
+        self,
+        label: str,
+        default: Optional[str] = None,
+        show_calendar: bool = True,
+        compact: bool = False,
+    ):
         """
         Initialize date picker.
         
         Args:
             label: Field label
             default: Default date in YYYY-MM-DD format
+            show_calendar: Render month calendar view
+            compact: Use compact layout (no calendar, single-line emphasis)
         """
         self.label = label
+        self.show_calendar = show_calendar
+        self.compact = compact
         
         # Parse default or use current date
         if default:
@@ -218,7 +228,23 @@ class DatePicker:
     
     def render(self) -> str:
         """Render the date picker."""
-        lines = [f"\n📅 {self.label}"]
+        if self.compact or not self.show_calendar:
+            year = self.year_picker.get_value()
+            month = self.month_picker.get_value()
+            day = self.day_picker.get_value()
+            field_labels = ["Year", "Month", "Day"]
+            active = field_labels[self.current_field]
+            lines = [
+                f"📅 {self.label} (YYYY-MM-DD)",
+                "  " + "=" * 30,
+                f"  {year:04d}-{month:02d}-{day:02d}",
+                f"  Active: {active}",
+                "  " + "=" * 30,
+                "  ▸ Use ↑/↓ to change, ←/→ or Tab to move, Enter to confirm",
+            ]
+            return "\n".join(lines)
+
+        lines = [f"📅 {self.label}"]
         lines.append("=" * 50)
         
         for i, picker in enumerate(self.pickers):
@@ -268,10 +294,15 @@ class DatePicker:
         if key == '\x1b':  # Escape sequence start
             return None  # Let parent handle escape codes
         
-        elif key == '\t':  # Tab - move to next field
+        elif key in ('\t', 'right'):  # Tab/Right - move to next field
             current_picker._finalize_input()
             if self.current_field < len(self.pickers) - 1:
                 self.current_field += 1
+            return None
+        elif key == 'left':  # Left - move to previous field
+            current_picker._finalize_input()
+            if self.current_field > 0:
+                self.current_field -= 1
             return None
         
         elif key == '\n' or key == '\r':  # Enter - confirm

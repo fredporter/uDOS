@@ -21,14 +21,17 @@ Date: 2026-01-30
 """
 
 import sys
+import re
 from typing import Optional, Dict, Any, List, Tuple
 from datetime import datetime
 import json
 import termios
 import tty
+import time
 
 from core.utils.tty import interactive_tty_status
-from core.tui.form_fields import DatePicker
+from core.tui.form_fields import DatePicker, DateTimeApproval, LocationSelector
+from core.locations import LocationService
 
 from core.services.logging_api import get_logger, LogTags
 
@@ -86,6 +89,7 @@ class AdvancedFormField:
         self.predictions = {}
         self.use_typeform_layout = True
         self._terminal_settings = None
+        self._box_width = 64
 
     @staticmethod
     def _clean_input(raw_input: str) -> str:
@@ -207,23 +211,27 @@ class AdvancedFormField:
 
         # Build field display
         lines = []
-        lines.append(f"\n{Colors.BOLD}{req_label} {label}:{Colors.RESET}")
+        title = f"{req_label} {label}:"
+        lines.extend(self._box_header(title))
 
         # Show help text if present
         help_text = field.get('help', '')
         if help_text:
-            lines.append(f"  {Colors.DIM}{help_text}{Colors.RESET}")
+            lines.append(self._box_line(f"{Colors.DIM}{help_text}{Colors.RESET}"))
 
         # Show suggestion if available
         if suggestion:
-            lines.append(f"  {Colors.CYAN}Suggestion:{Colors.RESET} {Colors.BRIGHT_CYAN}{suggestion}{Colors.RESET}")
-            lines.append(f"  {Colors.DIM}(Press Tab to accept, or type to override){Colors.RESET}")
+            lines.append(self._box_line(
+                f"{Colors.CYAN}Suggestion:{Colors.RESET} {Colors.BRIGHT_CYAN}{suggestion}{Colors.RESET}"
+            ))
+            lines.append(self._box_line(f"{Colors.DIM}(Tab to accept, or type to override){Colors.RESET}"))
 
         # Show placeholder
         placeholder = field.get('placeholder', '')
         if placeholder:
-            lines.append(f"  {Colors.DIM}e.g., {placeholder}{Colors.RESET}")
+            lines.append(self._box_line(f"{Colors.DIM}e.g., {placeholder}{Colors.RESET}"))
 
+        lines.extend(self._box_footer())
         return "\n".join(lines)
 
     # ========================================================================
@@ -262,6 +270,14 @@ class AdvancedFormField:
         if field_type == 'date' or 'dob' in name.lower():
             return self._collect_datepicker_field(field, suggestion)
 
+        # Handle datetime approval field with selector
+        if field_type == 'datetime_approve':
+            return self._collect_datetime_approval_field(field)
+
+        # Handle location selector with fuzzy search
+        if field_type == 'location' or 'location' in name.lower():
+            return self._collect_location_field(field)
+
         # Handle select fields with menu
         if field_type == 'select' and options:
             return self._collect_select_field(field, suggestion)
@@ -289,6 +305,7 @@ class AdvancedFormField:
             # If user just pressed Enter/Tab with suggestion, use it
             if not user_input and suggestion:
                 print(f"  {Colors.GREEN}✓{Colors.RESET}")
+                self._print_transition()
                 return suggestion
         else:
             print(f"\n{Colors.BRIGHT_CYAN}❯{Colors.RESET} ", end="", flush=True)
@@ -311,6 +328,7 @@ class AdvancedFormField:
             return self.collect_field_input(field, suggestion)
 
         print(f"  {Colors.GREEN}✓{Colors.RESET}")
+        self._print_transition()
         return user_input
 
     def validate_field(self, field_type: str, value: str, validation: Optional[str] = None, field_name: str = '') -> Tuple[bool, str]:
@@ -331,6 +349,7 @@ class AdvancedFormField:
         # Use specialized validators for known field types
         try:
             from core.tui.form_field_validator import FormFieldValidator
+            tokens = [t for t in re.split(r"[^a-z0-9]+", (field_name or "").lower()) if t]
 
             # Detect field type from name
             if 'username' in field_name.lower():
@@ -353,7 +372,7 @@ class AdvancedFormField:
                 is_valid, error = FormFieldValidator.validate_role(value)
                 return is_valid, error or "Valid"
 
-            elif 'os' in field_name.lower() or 'operating' in field_name.lower():
+            elif 'operating' in field_name.lower() or 'os' in tokens or 'os_type' in tokens:
                 is_valid, error = FormFieldValidator.validate_os_type(value)
                 return is_valid, error or "Valid"
 
@@ -422,7 +441,7 @@ class AdvancedFormField:
             Selected option value or None
         """
         label = field.get('label', field.get('name', 'Select'))
-        options = field.get('options', [])
+        options = self._normalize_select_options(field.get('options', []))
         required = field.get('required', False)
 
         if not options:
@@ -431,13 +450,13 @@ class AdvancedFormField:
 
         # Display label and options
         self._maybe_clear_screen()
-        print(f"\n{Colors.BOLD}* {label}:{Colors.RESET}")
+        print(self._box_header(f"* {label}:")[0])
         for idx, option in enumerate(options, start=1):
             # Highlight suggestion
-            if suggestion and option == suggestion:
-                print(f"  {Colors.BRIGHT_GREEN}{idx}. {option} ← (default){Colors.RESET}")
+            if suggestion and option["value"] == suggestion:
+                print(f"  {Colors.BRIGHT_GREEN}{idx}. {option['label']} ← (default){Colors.RESET}")
             else:
-                print(f"  {idx}. {option}")
+                print(f"  {idx}. {option['label']}")
 
         # Get choice
         print(f"\n{Colors.DIM}Choose 1-{len(options)}" + (f" or Enter for default" if suggestion else "") + f"{Colors.RESET}")
@@ -448,6 +467,7 @@ class AdvancedFormField:
         # Accept Enter for default
         if not user_input and suggestion:
             print(f"  {Colors.GREEN}✓{Colors.RESET}")
+            self._print_transition()
             return suggestion
 
         # Handle numeric choice
@@ -455,16 +475,18 @@ class AdvancedFormField:
             choice = int(user_input)
             if 1 <= choice <= len(options):
                 print(f"  {Colors.GREEN}✓{Colors.RESET}")
-                return options[choice - 1]
+                self._print_transition()
+                return options[choice - 1]["value"]
             else:
                 print(f"  {Colors.RED}✗ Choose a number between 1 and {len(options)}{Colors.RESET}")
                 return self._collect_select_field(field, suggestion)
         except ValueError:
             # Check if they typed the option name
             for option in options:
-                if user_input.lower() == option.lower():
+                if user_input.lower() == option["value"].lower() or user_input.lower() == option["label"].lower():
                     print(f"  {Colors.GREEN}✓{Colors.RESET}")
-                    return option
+                    self._print_transition()
+                    return option["value"]
 
             if required:
                 print(f"  {Colors.RED}✗ Invalid choice. Enter a number 1-{len(options)}{Colors.RESET}")
@@ -638,6 +660,29 @@ class AdvancedFormField:
         except Exception:
             return
 
+    def _print_transition(self) -> None:
+        """Print a short connector between questions."""
+        if not self.use_typeform_layout:
+            return
+        print(f"\n  {Colors.DIM}|{Colors.RESET}\n  {Colors.DIM}v{Colors.RESET}")
+        time.sleep(0.12)
+
+    def _box_header(self, title: str) -> List[str]:
+        width = self._box_width
+        top = "┌" + "─" * (width - 2) + "┐"
+        title_line = f"│ {title.ljust(width - 4)} │"
+        mid = "├" + "─" * (width - 2) + "┤"
+        return [top, title_line, mid]
+
+    def _box_line(self, text: str) -> str:
+        width = self._box_width
+        stripped = text.replace("\n", " ")
+        return f"│ {stripped.ljust(width - 4)} │"
+
+    def _box_footer(self) -> List[str]:
+        width = self._box_width
+        return ["└" + "─" * (width - 2) + "┘"]
+
     def _setup_terminal_raw(self) -> bool:
         """Configure terminal for raw key capture."""
         try:
@@ -667,18 +712,46 @@ class AdvancedFormField:
         ch = sys.stdin.read(1)
         if ch == '\x1b':  # Escape sequence
             next_ch = sys.stdin.read(1)
-            if next_ch == '[':
-                arrow = sys.stdin.read(1)
-                if arrow == 'A':
+            if next_ch in ('[', 'O'):
+                seq = ""
+                # Read until a letter or ~
+                while True:
+                    part = sys.stdin.read(1)
+                    if not part:
+                        break
+                    seq += part
+                    if part.isalpha() or part == '~':
+                        break
+                if seq.endswith('A'):
                     return 'up'
-                if arrow == 'B':
+                if seq.endswith('B'):
                     return 'down'
-                if arrow == 'C':
+                if seq.endswith('C'):
                     return 'right'
-                if arrow == 'D':
+                if seq.endswith('D'):
                     return 'left'
             return '\x1b'
         return ch
+
+    def _normalize_select_options(self, options: Any) -> List[Dict[str, str]]:
+        normalized = []
+        if not isinstance(options, list):
+            return normalized
+        for opt in options:
+            if isinstance(opt, dict):
+                # Expect single key/value
+                if len(opt) == 1:
+                    key = next(iter(opt.keys()))
+                    label = str(opt[key])
+                    normalized.append({"value": str(key), "label": label})
+                else:
+                    label = opt.get("label") or opt.get("name") or opt.get("value")
+                    value = opt.get("value") or opt.get("id") or label
+                    if label is not None:
+                        normalized.append({"value": str(value), "label": str(label)})
+            else:
+                normalized.append({"value": str(opt), "label": str(opt)})
+        return normalized
 
     def _collect_datepicker_field(self, field: Dict, suggestion: Optional[str] = None) -> Optional[str]:
         """Collect input for a date field using the TUI DatePicker."""
@@ -687,7 +760,9 @@ class AdvancedFormField:
 
         label = field.get('label', field.get('name', 'Date'))
         default = suggestion or field.get('default')
-        picker = DatePicker(label, default=default)
+        field_name = field.get('name', '')
+        compact = 'dob' in field_name.lower() or 'birth' in field_name.lower()
+        picker = DatePicker(label, default=default, show_calendar=not compact, compact=compact)
 
         if not self._setup_terminal_raw():
             return self._collect_field_input_fallback(field, suggestion)
@@ -702,6 +777,82 @@ class AdvancedFormField:
                     return None
                 result = picker.handle_input(key)
                 if result:
+                    return result
+        finally:
+            self._restore_terminal_raw()
+
+    def _collect_datetime_approval_field(self, field: Dict) -> Optional[Dict[str, Any]]:
+        """Collect input for datetime approval using a selector widget."""
+        if not self._is_interactive():
+            # Fallback to simple confirmation prompt
+            prompt = "Approve current date/time? [Yes|No|OK] "
+            response = input(prompt).strip().lower()
+            approved = response in {"", "1", "y", "yes", "ok"}
+            now = datetime.now().astimezone()
+            tz = now.tzname() or str(now.tzinfo) or "UTC"
+            return {
+                "approved": approved,
+                "date": now.strftime("%Y-%m-%d"),
+                "time": now.strftime("%H:%M:%S"),
+                "timezone": tz,
+                "status": "approved" if approved else "denied",
+                "override_required": not approved,
+            }
+
+        label = field.get('label', field.get('name', 'Confirm date/time'))
+        timezone_hint = field.get('timezone_hint') or field.get('timezone')
+        widget = DateTimeApproval(label, timezone_hint=timezone_hint)
+
+        if not self._setup_terminal_raw():
+            return self._collect_field_input_fallback(field, None)
+
+        try:
+            while True:
+                self._maybe_clear_screen()
+                print(widget.render(focused=True), end='', flush=True)
+                key = self._read_key()
+                if key == '\x1b':
+                    return None
+                result = widget.handle_input(key)
+                if result is not None:
+                    return result
+        finally:
+            self._restore_terminal_raw()
+
+    def _collect_location_field(self, field: Dict) -> Optional[Dict[str, Any]]:
+        """Collect input for location using LocationSelector with fuzzy search."""
+        if not self._is_interactive():
+            return self._collect_field_input_fallback(field, None)
+
+        label = field.get('label', field.get('name', 'Location'))
+        tz_field = field.get('timezone_field', 'user_timezone')
+        suggestions = self.load_system_suggestions()
+        timezone = suggestions.get(tz_field) or suggestions.get('user_timezone') or suggestions.get('timezone')
+
+        service = LocationService()
+        locations = service.get_all_locations()
+        default_location = service.get_default_location_for_timezone(timezone) if timezone else None
+
+        selector = LocationSelector(
+            label,
+            locations=locations,
+            default_location=default_location,
+            timezone_hint=timezone,
+        )
+
+        if not self._setup_terminal_raw():
+            return self._collect_field_input_fallback(field, None)
+
+        try:
+            while True:
+                self._maybe_clear_screen()
+                print(selector.render(focused=True), end='', flush=True)
+                key = self._read_key()
+                if key == '\x1b':
+                    return None
+                result = selector.handle_input(key)
+                if result is not None:
+                    self._print_transition()
                     return result
         finally:
             self._restore_terminal_raw()

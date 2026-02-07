@@ -31,13 +31,21 @@ Routing:
 
 Vibe‑native commands are not required in uCODE; the OK gateway handles local‑first vs. cloud sanity policy.
 
-## 4. Quick operational checklist
+## 4. MCP TUI replacement (Vibe-compatible)
+
+The MCP gateway (`/mcp/wizard/`) provides a lightweight **Vibe‑style TUI wrapper** for uCODE command output.
+
+- `ucode.dispatch` and `ucode.command` wrap results with a status line, prompt marker, and toolbar block.
+- Output stays JSON-native but includes a `display` field for rendering TUI-like text.
+- This replaces the deprecated Vibe‑TUI without reintroducing a separate TUI runtime.
+
+## 5. Quick operational checklist
 
 1. Run `SETUP` to write identity to `.env` and generate/sync `WIZARD_ADMIN_TOKEN`.
 2. Use `OK` / `?` prompts for AI routing, and `/` for shell when enabled.
 3. Wizard UI provides AI setup + model install status via OK setup.
 
-## 5. Archived Vibe‑TUI materials
+## 6. Archived Vibe‑TUI materials
 
 Vibe‑TUI has been fully archived. Historical reports now live under:
 - `docs/.archive/2026-02/PHASE-1-VIBE-TUI-REPLACEMENT-REPORT.md`

@@ -202,11 +202,9 @@ class InteractiveMenu:
         else:
             tl, tr, bl, br = "╔", "╗", "╚", "╝"
             hline, vline = "═", "║"
-        lines.append("")
         lines.append(tl + hline * (len(self.title) + 2) + tr)
         lines.append(f"{vline} {self.title} {vline}")
         lines.append(bl + hline * (len(self.title) + 2) + br)
-        lines.append("")
 
         # Display items
         for idx, item in enumerate(self.items):
@@ -229,7 +227,6 @@ class InteractiveMenu:
             )
             lines.append(f"{indicator}  0. Cancel")
 
-        lines.append("")
         lines.extend(self._get_instructions_lines())
         self._emit_lines(lines)
 
@@ -313,12 +310,19 @@ class InteractiveMenu:
                     # Escape sequence detected
                     if char == '\x1b':
                         next_char = sys.stdin.read(1)
-                        if next_char == '[':
-                            direction = sys.stdin.read(1)
-                            if direction == 'A':  # Up arrow
+                        if next_char in ('[', 'O'):
+                            seq = ""
+                            while True:
+                                part = sys.stdin.read(1)
+                                if not part:
+                                    break
+                                seq += part
+                                if part.isalpha() or part == '~':
+                                    break
+                            if seq.endswith('A'):  # Up
                                 self.selected_index = (self.selected_index - 1) % len(self.items)
                                 self._display()
-                            elif direction == 'B':  # Down arrow
+                            elif seq.endswith('B'):  # Down
                                 self.selected_index = (self.selected_index + 1) % len(self.items)
                                 self._display()
                             continue
@@ -487,12 +491,15 @@ def show_confirm(title: str, help_text: str = "") -> bool:
     Returns:
         True if confirmed
     """
-    menu = InteractiveMenu(
-        title,
-        items=[
-            MenuItem("Yes", value="yes", help_text=help_text or "Proceed"),
-            MenuItem("No", value="no", help_text="Cancel"),
-        ],
-        allow_cancel=True
-    )
-    return menu.show() == "yes"
+    try:
+        from core.input.confirmation_utils import format_prompt, parse_confirmation
+        prompt = format_prompt(title, "yes", "ok")
+        if help_text:
+            print(f"  {help_text}")
+        response = input(prompt)
+        choice = parse_confirmation(response, "yes", "ok")
+        return choice in {"yes", "ok"}
+    except Exception:
+        # Fallback to simple yes/no input
+        response = input(f"{title}? [Yes|No|OK] ").strip().lower()
+        return response in {"", "1", "y", "yes", "ok"}

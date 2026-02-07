@@ -8,7 +8,7 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 ## Status Summary
 
 - **Milestones v1.3.0 → v1.3.7**: ✅ Complete (see archived records).
-- **Current focus**: version bump + Wizard service split with MCP gateway + Vibe full TUI replacement (high priority refactor).
+- **Current focus**: Wizard service split with MCP gateway + Vibe full TUI replacement (high priority refactor).
 - **Dev mode policy**: `/dev/` public submodule required and admin-only; see [docs/DEV-MODE-POLICY.md](docs/DEV-MODE-POLICY.md).
 - **Core/Wizard boundary**: `core` is the base runtime; `wizard` is the brand for connected services. Core can run without Wizard (limited). Wizard cannot run without Core.
 - **Logging API v1.3**: spec published; implementation pending. See [docs/LOGGING-API-v1.3.md](docs/LOGGING-API-v1.3.md).
@@ -25,13 +25,14 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 - Documented binder `media/` folder support for non-uDOS-standard files.
 - Scaffolded Empire private extension spine with minimal entrypoint and docs.
 - Refactored Wizard server wiring: extracted auth, logging, system stats, scheduler runner, plugin repo, web proxy, and webhook helpers into services.
+- Bumped versions: `uDOS` → `v1.3.9`, `Wizard` → `v1.1.2`.
 
 ---
 
 ## Preferred Next Milestone (Post‑v1.3.7)
 
 ### P0 — Version Bump + Wizard/Vibe Refactor (High Priority)
-- ⏳ Target version: **v1.3.9** (Wizard services split, MCP gateway, Vibe full TUI replacement).
+- ✅ Version bump to **v1.3.9** (Wizard services split, MCP gateway, Vibe full TUI replacement).
 - ✅ Plan service boundaries + initial Wizard server extraction (auth/logs/system stats/scheduler/plugin repo/web proxy/webhooks).
 - ⏳ Bootstrap Vibe integration (embed) and minimal uCODE command exposure for exploration.
 - ⏳ Enforce Dev mode gate (admin-only + `/dev/` presence) and document the policy contract.

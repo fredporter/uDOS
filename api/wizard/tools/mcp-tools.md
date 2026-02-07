@@ -16,6 +16,9 @@ This file documents the initial MCP tool surface exposed to Vibe.
 - `wizard.providers.list`
   - Returns provider list from `/api/providers`.
 
+- `wizard.tools.list`
+  - Returns a list of MCP tool names for discovery.
+
 - `wizard.plugin.command`
   - Calls `/api/plugin/command` (stub during migration).
 
@@ -135,9 +138,11 @@ This file documents the initial MCP tool surface exposed to Vibe.
 - `ucode.dispatch`
   - Dispatch an allowlisted uCODE command via `/api/ucode/dispatch`.
   - Allowlist is controlled by `UCODE_API_ALLOWLIST`.
+  - MCP responses include a `display` field containing a Vibe-style TUI wrapper.
 
 - `ucode.command`
   - Routes raw input (supports `OK`, `:`, `/`) via `/api/ucode/dispatch`.
+  - MCP responses include a `display` field containing a Vibe-style TUI wrapper.
 
 ## Notes
 

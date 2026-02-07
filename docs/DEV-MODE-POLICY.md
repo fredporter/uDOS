@@ -11,6 +11,17 @@ Related: logging policy and diagnostics scaffolding lives in [docs/LOGGING-API-v
 - Dev mode enables the `DEV ON` / `DEV OFF` controls and related developer tooling.
 - If `/dev/` is missing or the user is not `admin`, dev mode must be unavailable and return a friendly soft-failure reason.
 
+## Policy Contract (Gate)
+Dev mode is gated in both Wizard APIs and uCODE clients.
+
+- **Admin-only**: all `/api/dev/*` calls require a valid `X-Admin-Token` and an admin user role.
+- **/dev required**: `/api/dev/status`, `/api/dev/health`, `/api/dev/activate`, `/api/dev/restart`, `/api/dev/clear`, `/api/dev/logs` require `/dev` + templates to exist.
+- **Deactivate exception**: `/api/dev/deactivate` is allowed even if `/dev` is missing (to shut down a stale Goblin process).
+
+### Expected Failure Modes
+- `403` — not admin / missing admin token → return a friendly “admin required” message.
+- `412` — `/dev` missing or templates absent → return a friendly “dev submodule missing” message.
+
 ## System Boundaries (Context)
 - `core` (uCODE runtime) is the base runtime.
 - `wizard` is the brand for connected services (networking, GUI, etc.).

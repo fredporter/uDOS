@@ -78,12 +78,38 @@ start_wizard_if_needed() {
     return 1
 }
 
-if [ -f "$REPO_ROOT/.env" ]; then
-    set -a
-    # shellcheck disable=SC1090
-    . "$REPO_ROOT/.env"
-    set +a
-fi
+load_env_safe() {
+    local env_file="$1"
+    [ -f "$env_file" ] || return 0
+    while IFS= read -r line || [ -n "$line" ]; do
+        # Trim leading/trailing whitespace
+        line="${line#"${line%%[![:space:]]*}"}"
+        line="${line%"${line##*[![:space:]]}"}"
+        # Skip blanks and comments
+        [ -z "$line" ] && continue
+        case "$line" in
+            \#*) continue ;;
+        esac
+        # Strip optional leading export
+        if [[ "$line" == export\ * ]]; then
+            line="${line#export }"
+        fi
+        # Only accept KEY=VALUE lines
+        if [[ "$line" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]]; then
+            local key="${line%%=*}"
+            local value="${line#*=}"
+            # Remove surrounding quotes if present
+            if [[ "$value" =~ ^\".*\"$ ]]; then
+                value="${value:1:${#value}-2}"
+            elif [[ "$value" =~ ^\'.*\'$ ]]; then
+                value="${value:1:${#value}-2}"
+            fi
+            export "$key=$value"
+        fi
+    done < "$env_file"
+}
+
+load_env_safe "$REPO_ROOT/.env"
 
 source "$SCRIPT_DIR/udos-common.sh"
 

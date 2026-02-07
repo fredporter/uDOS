@@ -4,6 +4,7 @@ from typing import List, Dict, Optional
 from pathlib import Path
 import requests
 import json
+import os
 
 try:
     from core.services.logging_api import get_logger
@@ -27,6 +28,85 @@ class DevModeHandler(BaseCommandHandler):
         super().__init__()
         self.wizard_host = "127.0.0.1"
         self.wizard_port = 8765
+
+    def _admin_token(self) -> str:
+        return os.getenv("WIZARD_ADMIN_TOKEN", "").strip()
+
+    def _headers(self) -> Dict[str, str]:
+        headers: Dict[str, str] = {}
+        token = self._admin_token()
+        if token:
+            headers["X-Admin-Token"] = token
+        return headers
+
+    def _admin_guard(self) -> Optional[Dict]:
+        try:
+            from core.services.user_service import get_user_manager, Permission
+
+            user_mgr = get_user_manager()
+            if not user_mgr.has_permission(Permission.ADMIN):
+                output = "\n".join(
+                    [
+                        OutputToolkit.banner("DEV MODE"),
+                        "Dev mode is restricted to admin role users.",
+                        "Tip: Use USER ROLE or SETUP to switch to admin.",
+                    ]
+                )
+                return {
+                    "status": "error",
+                    "message": "Admin role required for dev mode",
+                    "output": output,
+                }
+        except Exception as exc:
+            return {
+                "status": "error",
+                "message": f"Failed to verify admin role: {exc}",
+            }
+        return None
+
+    def _dev_templates_guard(self) -> Optional[Dict]:
+        try:
+            from core.services.logging_api import get_repo_root
+
+            repo_root = get_repo_root()
+            dev_root = repo_root / "dev"
+            if not dev_root.exists():
+                output = "\n".join(
+                    [
+                        OutputToolkit.banner("DEV MODE"),
+                        "Dev submodule not present (/dev missing).",
+                        "Hint: Clone github.com/fredporter/uDOS-dev.",
+                    ]
+                )
+                return {
+                    "status": "error",
+                    "message": "Dev submodule missing",
+                    "output": output,
+                }
+            marker_paths = [
+                dev_root / "README.md",
+                dev_root / "goblin" / "goblin_server.py",
+                dev_root / "tools",
+            ]
+            if not any(path.exists() for path in marker_paths):
+                output = "\n".join(
+                    [
+                        OutputToolkit.banner("DEV MODE"),
+                        "Dev submodule is missing required templates.",
+                        "Hint: Re-clone or update /dev.",
+                    ]
+                )
+                return {
+                    "status": "error",
+                    "message": "Dev templates missing",
+                    "output": output,
+                }
+        except Exception as exc:
+            return {
+                "status": "error",
+                "message": f"Failed to verify /dev templates: {exc}",
+            }
+        return None
 
     def _throttle_guard(self, endpoint: str) -> Optional[Dict]:
         """Return throttle response when rate limit exceeded."""
@@ -70,14 +150,36 @@ class DevModeHandler(BaseCommandHandler):
     def _activate_dev_mode(self) -> Dict:
         """Activate dev mode via Wizard."""
         try:
+            guard = self._admin_guard()
+            if guard:
+                return guard
+            dev_guard = self._dev_templates_guard()
+            if dev_guard:
+                return dev_guard
             guard = self._throttle_guard("/api/dev/activate")
             if guard:
                 return guard
             response = requests.post(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/dev/activate",
+                headers=self._headers(),
                 timeout=10,
             )
+            if response.status_code in {401, 403}:
+                return self._admin_guard() or {
+                    "status": "error",
+                    "message": "Admin token required for dev mode",
+                }
+            if response.status_code == 412:
+                return self._dev_templates_guard() or {
+                    "status": "error",
+                    "message": "Dev submodule missing",
+                }
             result = response.json()
+            if not response.ok:
+                return {
+                    "status": "error",
+                    "message": result.get("detail") or result.get("message") or "Dev mode activation failed",
+                }
             logger.info(f"[DEV] Dev mode activated: {result.get('message')}")
             output = "\n".join(
                 [
@@ -116,14 +218,28 @@ class DevModeHandler(BaseCommandHandler):
     def _deactivate_dev_mode(self) -> Dict:
         """Deactivate dev mode via Wizard."""
         try:
+            guard = self._admin_guard()
+            if guard:
+                return guard
             guard = self._throttle_guard("/api/dev/deactivate")
             if guard:
                 return guard
             response = requests.post(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/dev/deactivate",
+                headers=self._headers(),
                 timeout=10,
             )
+            if response.status_code in {401, 403}:
+                return self._admin_guard() or {
+                    "status": "error",
+                    "message": "Admin token required for dev mode",
+                }
             result = response.json()
+            if not response.ok:
+                return {
+                    "status": "error",
+                    "message": result.get("detail") or result.get("message") or "Dev mode deactivation failed",
+                }
             logger.info(f"[DEV] Dev mode deactivated: {result.get('message')}")
             output = "\n".join(
                 [
@@ -152,14 +268,36 @@ class DevModeHandler(BaseCommandHandler):
     def _get_dev_status(self) -> Dict:
         """Get dev mode status from Wizard."""
         try:
+            guard = self._admin_guard()
+            if guard:
+                return guard
+            dev_guard = self._dev_templates_guard()
+            if dev_guard:
+                return dev_guard
             guard = self._throttle_guard("/api/dev/status")
             if guard:
                 return guard
             response = requests.get(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/dev/status",
+                headers=self._headers(),
                 timeout=5,
             )
+            if response.status_code in {401, 403}:
+                return self._admin_guard() or {
+                    "status": "error",
+                    "message": "Admin token required for dev mode",
+                }
+            if response.status_code == 412:
+                return self._dev_templates_guard() or {
+                    "status": "error",
+                    "message": "Dev submodule missing",
+                }
             result = response.json()
+            if not response.ok:
+                return {
+                    "status": "error",
+                    "message": result.get("detail") or result.get("message") or "Dev mode status failed",
+                }
             services = result.get("services") or {}
             service_rows = [[name, str(active)] for name, active in services.items()]
             output = "\n".join(
@@ -207,14 +345,36 @@ class DevModeHandler(BaseCommandHandler):
     def _restart_dev_mode(self) -> Dict:
         """Restart dev mode via Wizard."""
         try:
+            guard = self._admin_guard()
+            if guard:
+                return guard
+            dev_guard = self._dev_templates_guard()
+            if dev_guard:
+                return dev_guard
             guard = self._throttle_guard("/api/dev/restart")
             if guard:
                 return guard
             response = requests.post(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/dev/restart",
+                headers=self._headers(),
                 timeout=15,
             )
+            if response.status_code in {401, 403}:
+                return self._admin_guard() or {
+                    "status": "error",
+                    "message": "Admin token required for dev mode",
+                }
+            if response.status_code == 412:
+                return self._dev_templates_guard() or {
+                    "status": "error",
+                    "message": "Dev submodule missing",
+                }
             result = response.json()
+            if not response.ok:
+                return {
+                    "status": "error",
+                    "message": result.get("detail") or result.get("message") or "Dev mode restart failed",
+                }
             logger.info(f"[DEV] Dev mode restarted: {result.get('message')}")
             output = "\n".join(
                 [
@@ -243,14 +403,36 @@ class DevModeHandler(BaseCommandHandler):
     def _get_dev_logs(self, lines: int = 50) -> Dict:
         """Get dev mode logs from Wizard."""
         try:
+            guard = self._admin_guard()
+            if guard:
+                return guard
+            dev_guard = self._dev_templates_guard()
+            if dev_guard:
+                return dev_guard
             guard = self._throttle_guard("/api/dev/logs")
             if guard:
                 return guard
             response = requests.get(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/dev/logs?lines={lines}",
+                headers=self._headers(),
                 timeout=5,
             )
+            if response.status_code in {401, 403}:
+                return self._admin_guard() or {
+                    "status": "error",
+                    "message": "Admin token required for dev mode",
+                }
+            if response.status_code == 412:
+                return self._dev_templates_guard() or {
+                    "status": "error",
+                    "message": "Dev submodule missing",
+                }
             result = response.json()
+            if not response.ok:
+                return {
+                    "status": "error",
+                    "message": result.get("detail") or result.get("message") or "Dev mode logs failed",
+                }
             log_lines = result.get("logs", [])
             output = "\n".join(
                 [
@@ -278,14 +460,36 @@ class DevModeHandler(BaseCommandHandler):
     def _get_dev_health(self) -> Dict:
         """Get dev mode health from Wizard."""
         try:
+            guard = self._admin_guard()
+            if guard:
+                return guard
+            dev_guard = self._dev_templates_guard()
+            if dev_guard:
+                return dev_guard
             guard = self._throttle_guard("/api/dev/health")
             if guard:
                 return guard
             response = requests.get(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/dev/health",
+                headers=self._headers(),
                 timeout=5,
             )
+            if response.status_code in {401, 403}:
+                return self._admin_guard() or {
+                    "status": "error",
+                    "message": "Admin token required for dev mode",
+                }
+            if response.status_code == 412:
+                return self._dev_templates_guard() or {
+                    "status": "error",
+                    "message": "Dev submodule missing",
+                }
             result = response.json()
+            if not response.ok:
+                return {
+                    "status": "error",
+                    "message": result.get("detail") or result.get("message") or "Dev mode health failed",
+                }
             services = result.get("services") or {}
             service_rows = [[name, str(active)] for name, active in services.items()]
             output = "\n".join(
