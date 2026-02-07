@@ -3,6 +3,7 @@
 from typing import List, Dict
 import subprocess
 import os
+import webbrowser
 from pathlib import Path
 from core.commands.base import BaseCommandHandler
 from core.tui.output import OutputToolkit
@@ -146,6 +147,7 @@ class WizardHandler(BaseCommandHandler):
             resp = requests.get("http://127.0.0.1:8765/health", timeout=2)
             if resp.status_code == 200:
                 output_lines.append("✅ Wizard already running on http://127.0.0.1:8765")
+                self._maybe_open_dashboard(output_lines)
                 return {
                     "status": "success",
                     "output": "\n".join(output_lines),
@@ -189,6 +191,7 @@ class WizardHandler(BaseCommandHandler):
                         output_lines.append("✅ Wizard Server started")
                         output_lines.append("📍 Server: http://127.0.0.1:8765")
                         output_lines.append("📍 Dashboard: http://127.0.0.1:8765/dashboard")
+                        self._maybe_open_dashboard(output_lines)
                         return {
                             "status": "success",
                             "output": "\n".join(output_lines),
@@ -211,6 +214,24 @@ class WizardHandler(BaseCommandHandler):
                 "message": str(exc),
                 "output": "\n".join(output_lines) + f"\n❌ Error: {exc}",
             }
+
+    def _maybe_open_dashboard(self, output_lines: List[str]) -> None:
+        try:
+            response = input("Open Wizard Dashboard...? [Yes|No|OK] ").strip().lower()
+        except Exception:
+            output_lines.append("No response; Wizard Dashboard not opened")
+            return
+        if response in {"yes", "y", "ok", "okay"}:
+            try:
+                webbrowser.open("http://127.0.0.1:8765/dashboard")
+                output_lines.append("✅ Opened Wizard Dashboard")
+            except Exception as exc:
+                logger.error(f"[LOCAL] Failed to open Wizard Dashboard: {exc}")
+                output_lines.append(f"❌ Failed to open Wizard Dashboard: {exc}")
+        elif response in {"no", "n"}:
+            output_lines.append("Skipped opening Wizard Dashboard")
+        else:
+            output_lines.append("No response; Wizard Dashboard not opened")
 
     def _stop_wizard(self) -> Dict:
         """Stop Wizard server."""
