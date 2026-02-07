@@ -4,7 +4,7 @@
 # Core-only helper that tracks todo tasks, due dates, durations, and exposes 80×40
 # grid renderers, ASCII clocks, calendar views, and Markdown-friendly Gantt schema
 # helpers. Wizard remains the canonical scheduler, but this service lets Core render
-# the results, remind users, and project the same data into Notion-compatible blocks.
+# the results, remind users, and project the same data into task blocks.
 
 import json
 from dataclasses import dataclass, field
@@ -56,7 +56,7 @@ class Task:
             return 0.0
         return _rounded_hours(self.end_date - now)
 
-    def to_notion_block(self) -> Dict[str, object]:
+    def to_task_block(self) -> Dict[str, object]:
         return {
             "type": "to_do",
             "checked": self.status == "done",

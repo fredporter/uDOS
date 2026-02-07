@@ -7,7 +7,7 @@ Stores user identity in .env (local, never shared):
   - Wizard Key (gateway to keystore for sensitive extensions)
 
 All other sensitive data goes in Wizard keystore:
-  - API keys (GitHub, Notion, OpenAI, etc.)
+    - API keys (GitHub, OpenAI, etc.)
   - OAuth tokens (Gmail, Calendar, etc.)
   - Cloud credentials and webhooks
   - Integration activation settings
@@ -111,11 +111,11 @@ class SetupHandler(BaseCommandHandler):
             SETUP webhook hubspot   HubSpot CRM only
 
         Provider Setup (delegates to Wizard):
-            Supported: github, ollama, mistral, openrouter, notion, hubspot, gmail
+            Supported: github, ollama, mistral, openrouter, hubspot, gmail
 
         Extended data in Wizard keystore (when installed):
             - API keys, OAuth tokens, credentials
-            - Integrations (GitHub, Gmail, Notion, etc.)
+            - Integrations (GitHub, Gmail, etc.)
             - Cloud routing, webhooks, activation settings
         """
         if not params:
@@ -130,7 +130,7 @@ class SetupHandler(BaseCommandHandler):
             return handler.handle("SETUP", params, grid, parser)
 
         # Check if this is a provider setup request
-        provider_names = {"github", "ollama", "mistral", "openrouter", "notion", "hubspot", "gmail"}
+        provider_names = {"github", "ollama", "mistral", "openrouter", "hubspot", "gmail"}
         if action in provider_names:
             return self._setup_provider(action)
 
@@ -148,7 +148,7 @@ class SetupHandler(BaseCommandHandler):
             return {
                 "status": "error",
                 "message": f"Unknown option: {action}",
-                "help": "Usage: SETUP [webhook|provider|--profile|--edit|--clear|--help]\n       Webhook: SETUP webhook [github|hubspot]\n       Providers: github, ollama, mistral, openrouter, notion, hubspot, gmail"
+                "help": "Usage: SETUP [webhook|provider|--profile|--edit|--clear|--help]\n       Webhook: SETUP webhook [github|hubspot]\n       Providers: github, ollama, mistral, openrouter, hubspot, gmail"
             }
 
 
@@ -443,7 +443,6 @@ PROVIDERS:
   SETUP ollama       Setup local Ollama AI model
   SETUP mistral      Configure Mistral AI provider
   SETUP openrouter   Configure OpenRouter gateway
-  SETUP notion       Setup Notion integration
   SETUP hubspot      Configure HubSpot CRM
   SETUP gmail        Setup Gmail OAuth
 
@@ -458,7 +457,7 @@ LOCAL SETTINGS (.env):
   WIZARD_KEY         Gateway to Wizard keystore
 
 EXTENDED SETTINGS (Wizard Keystore - installed later):
-  API Keys:          GitHub, Notion, OpenAI, Anthropic, etc.
+    API Keys:          GitHub, OpenAI, Anthropic, etc.
   OAuth Tokens:      Gmail, Calendar, Google Drive, etc.
   Cloud Services:    AWS, GCP, Azure credentials
   Webhooks:          Custom webhooks and secrets

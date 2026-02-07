@@ -94,7 +94,7 @@
 <style>
   .toast-stack {
     position: fixed;
-    bottom: calc(var(--wizard-bottom-bar-height, 44px) + 16px);
+    bottom: calc(var(--wizard-bottom-bar-height, 86px) + 16px);
     left: 50%;
     transform: translateX(-50%);
     display: flex;

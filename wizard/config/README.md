@@ -42,7 +42,6 @@ curl -X POST http://localhost:8765/api/config/assistant_keys/reset
 
 - `assistant_keys.json` — AI provider credentials (Mistral, OpenRouter, Ollama)
 - `github_keys.json` — GitHub token and webhooks
-- `notion_keys.json` — Notion API credentials
 - `oauth_providers.json` — OAuth provider configs
 - `wizard.json` — Server settings and policies
 

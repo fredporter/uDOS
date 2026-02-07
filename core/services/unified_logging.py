@@ -21,7 +21,7 @@ Usage:
     unified.log_wizard('ai-routing', 'Escalated to OpenRouter', model='claude-3.5')
 
     # Log from Goblin
-    unified.log_goblin('notion-sync', 'Synced 5 pages', pages_count=5)
+    unified.log_goblin('sync-queue', 'Synced 5 pages', pages_count=5)
 
     # View unified log
     unified.view_last(50)  # Last 50 entries across all systems

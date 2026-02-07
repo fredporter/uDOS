@@ -3,14 +3,9 @@
   "port": 8766,
   "debug": true,
   "services": {
-    "notion_sync_enabled": true,
     "runtime_execution_enabled": true,
     "task_scheduler_enabled": true,
     "project_management": true
-  },
-  "notion": {
-    "api_token": "YOUR_NOTION_TOKEN_HERE",
-    "database_id": null
   },
   "ai_routing": {
     "local_model": "ollama",

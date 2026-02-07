@@ -8,7 +8,7 @@ Features:
 - Auto-detects available components (core, wizard, extensions)
 - Graceful fallback to core-only mode if components are missing
 - Integrated Wizard server control (start/stop/status)
-- Extension/plugin packaging, installation, and distribution
+- Extension/plugin distribution (via Wizard)
 - Core command dispatch with context-aware pages
 - Dynamic capability loading based on available folders
 
@@ -17,15 +17,13 @@ Architecture:
   2. Build capability registry dynamically
   3. Expose only commands/pages for what's present
   4. If wizard exists, allow server control + Wizard pages
-  5. If extensions exist, allow plugin management
+  5. Plugin management is routed through Wizard distribution tooling
   6. Fallback gracefully to core-only mode
 
 Commands:
   STATUS          - System status and component detection
   HELP            - Show available commands
   WIZARD [cmd]    - Wizard server control (if available)
-  PLUGIN [cmd]    - Extension/plugin management (if available)
-  EXT [cmd]       - Extension management (alias for PLUGIN)
   + Core commands (routed to dispatcher)
 
 Version: v1.0.0 (uCODE Unified)
@@ -40,9 +38,6 @@ import logging
 import subprocess
 import threading
 import time
-import shutil
-import tarfile
-import hashlib
 import warnings
 import requests
 from pathlib import Path
@@ -61,7 +56,7 @@ from core.tui.fkey_handler import FKeyHandler
 from core.tui.status_bar import TUIStatusBar
 from core.ui.command_selector import CommandSelector
 from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, create_default_registry
-from core.services.health_training import read_last_summary, log_plugin_install_event
+from core.services.health_training import read_last_summary
 from core.services.hotkey_map import write_hotkey_payload
 from core.services.theme_service import get_theme_service
 from core.services.logging_service import get_logger
@@ -77,7 +72,6 @@ from core.services.todo_service import (
 from core.tui.advanced_form_handler import AdvancedFormField
 from core.services.system_script_runner import SystemScriptRunner
 from wizard.services.monitoring_manager import MonitoringManager
-from wizard.services.plugin_validation import load_manifest, validate_manifest
 from core.services.unified_logging import get_unified_logger, LogLevel
 
 
@@ -274,28 +268,16 @@ class uCODETUI:
         self.commands = {
             "STATUS": self._cmd_status,
             "HELP": self._cmd_help,
-            "PROMPT": self._cmd_prompt,
-            "OFVIBE": self._cmd_ofvibe,
-            "ONVIBE": self._cmd_onvibe,
             "LOCAL": self._cmd_ok_local,
             "VIBE": self._cmd_ok_local,
             "EXPLAIN": self._cmd_ok_explain,
             "DIFF": self._cmd_ok_diff,
             "PATCH": self._cmd_ok_patch,
             "EXIT": self._cmd_exit,
-            "QUIT": self._cmd_exit,
-            "FKEYS": self._cmd_fkeys,
-            "FKEY": self._cmd_fkeys,
-            "F": self._cmd_fkeys,
         }
 
         # Conditional commands
         # WIZARD command now handled by dispatcher (WizardHandler)
-
-        if self.detector.is_available("extensions"):
-            self.commands["PLUGIN"] = self._cmd_plugin
-            self.commands["EXT"] = self._cmd_plugin
-            self.commands["EXTENSION"] = self._cmd_plugin
 
         self.health_log_path = self.repo_root / "memory" / "logs" / "health-training.log"
         self.health_log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -346,7 +328,7 @@ class uCODETUI:
             self.logger.warning(f"[LOCAL] System seed check failed: {e}")
 
     def _handle_special_commands(self, command: str) -> bool:
-        """Handle special REPL commands (EXIT/QUIT/STATUS/HISTORY)."""
+        """Handle special REPL commands (EXIT/STATUS/HISTORY)."""
         if not command:
             return False
         parts = command.strip().split(None, 1)
@@ -544,9 +526,6 @@ class uCODETUI:
             "RUN": "RUN",
             "REPAIR": "REPAIR",
             "SHAKEDOWN": "SHAKEDOWN",
-            "OFVIBE": "OFVIBE",
-            "ONVIBE": "ONVIBE",
-            "PROMPT": "PROMPT",
         }
 
         # Try to resolve to known command
@@ -589,7 +568,8 @@ class uCODETUI:
                 try:
                     # Use contextual command prompt with suggestions (Phase 1)
                     self._show_status_bar()
-                    user_input = self.prompt.ask_command("▶ ")
+                    indicator = self.renderer.get_prompt_indicator()
+                    user_input = self.prompt.ask_command(f"{indicator} ▶ ")
 
                     if not user_input:
                         continue
@@ -598,9 +578,9 @@ class uCODETUI:
                     # This implements the uCODE Prompt Spec
                     result = self._route_input(user_input)
 
-                    # Check for EXIT/QUIT before processing
+                    # Check for EXIT before processing
                     normalized_input = user_input.strip().upper()
-                    if normalized_input in ("EXIT", "QUIT", ":EXIT", ":QUIT", "OK EXIT", "OK QUIT"):
+                    if normalized_input in ("EXIT", ":EXIT", "OK EXIT"):
                         self.running = False
                         print("👋 See you later!")
                         break
@@ -709,7 +689,7 @@ class uCODETUI:
 
         print(self._theme_text("\n🧠 First-Run AI Setup"))
         print(self._theme_text("  Run: SETUP  → add Mistral API key + local models"))
-        print(self._theme_text("  Check: :OFVIBE STATUS  (local) | :ONVIBE STATUS (cloud)\n"))
+        print(self._theme_text("  Check: WIZARD status  (server)\n"))
 
     def _show_banner(self) -> None:
         """Show startup banner."""
@@ -917,8 +897,14 @@ class uCODETUI:
         mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
         default_models = mode.get("default_models") or {}
         model = default_models.get("core") or default_models.get("dev")
-        if os.getenv("UDOS_DEV_MODE") in ("1", "true", "yes"):
-            model = default_models.get("dev") or model
+        try:
+            from core.services.dev_state import get_dev_active
+
+            if get_dev_active():
+                model = default_models.get("dev") or model
+        except Exception:
+            if os.getenv("UDOS_DEV_MODE") in ("1", "true", "yes"):
+                model = default_models.get("dev") or model
         return model or "devstral-small-2"
 
     def _get_ok_context_window(self) -> int:
@@ -976,58 +962,6 @@ class uCODETUI:
             return f"  ⚠️ {label}: " + ", ".join(issues)
         return f"  ⚠️ {label}: setup required"
 
-    def _is_vibe_cli_installed(self) -> Dict[str, Any]:
-        """Check for Vibe CLI binary on PATH."""
-        for name in ("vibe", "mistral-vibe"):
-            path = shutil.which(name)
-            if path:
-                return {"installed": True, "command": name, "path": path}
-        return {"installed": False}
-
-    def _get_vibe_config_path(self) -> Optional[str]:
-        """Locate Vibe CLI config file."""
-        candidates = [
-            os.getenv("VIBE_CONFIG"),
-            os.getenv("VIBE_CONFIG_PATH"),
-            str(Path.home() / ".vibe" / "config.toml"),
-            str(Path.home() / ".config" / "vibe" / "config.toml"),
-            str(self.repo_root / ".vibe" / "config.toml"),
-        ]
-        for candidate in candidates:
-            if candidate and Path(candidate).exists():
-                return candidate
-        return None
-
-    def _get_vibe_env_path(self) -> Optional[str]:
-        """Locate Vibe CLI .env file."""
-        candidates = [
-            os.getenv("VIBE_ENV"),
-            os.getenv("VIBE_ENV_PATH"),
-            str(Path.home() / ".vibe" / ".env"),
-            str(Path.home() / ".config" / "vibe" / ".env"),
-            str(self.repo_root / ".vibe" / ".env"),
-        ]
-        for candidate in candidates:
-            if candidate and Path(candidate).exists():
-                return candidate
-        return None
-
-    def _read_env_key(self, path: Optional[str], key: str) -> Optional[str]:
-        """Read a key=value entry from a .env file."""
-        if not path:
-            return None
-        try:
-            with open(path, "r", encoding="utf-8") as handle:
-                for line in handle:
-                    stripped = line.strip()
-                    if not stripped or stripped.startswith("#"):
-                        continue
-                    if stripped.startswith(f"{key}="):
-                        return stripped.split("=", 1)[1].strip().strip('"').strip("'")
-        except Exception:
-            return None
-        return None
-
     def _fetch_ollama_models(self, endpoint: str) -> Dict[str, Any]:
         """Query Ollama tags endpoint."""
         url = endpoint.rstrip("/") + "/api/tags"
@@ -1076,125 +1010,6 @@ class uCODETUI:
             "model": model,
             "ollama_endpoint": endpoint,
             "detail": None,
-        }
-
-    def _get_ofvibe_status(self) -> Dict[str, Any]:
-        """Return OFVIBE health status."""
-        issues: List[str] = []
-        vibe = self._is_vibe_cli_installed()
-        if not vibe.get("installed"):
-            issues.append("vibe-cli missing")
-
-        ollama_cli = bool(shutil.which("ollama"))
-        if not ollama_cli:
-            issues.append("ollama missing")
-
-        mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
-        endpoint = mode.get("ollama_endpoint", "http://127.0.0.1:11434")
-        tags = self._fetch_ollama_models(endpoint) if ollama_cli else {"reachable": False}
-        if not tags.get("reachable"):
-            issues.append("ollama offline")
-
-        default_models = mode.get("default_models") or {}
-        default_model = default_models.get("core") or default_models.get("dev")
-        if os.getenv("UDOS_DEV_MODE") in ("1", "true", "yes"):
-            default_model = default_models.get("dev") or default_model
-
-        model_available = False
-        if tags.get("reachable") and default_model:
-            model_available = default_model in (tags.get("models") or [])
-            if not model_available:
-                issues.append(f"model {default_model} missing")
-
-        return {
-            "ready": len(issues) == 0,
-            "issues": issues,
-            "model": default_model,
-            "ollama_endpoint": endpoint,
-            "detail": tags.get("error"),
-        }
-
-    def _get_onvibe_status(self) -> Dict[str, Any]:
-        """Return ONVIBE health status."""
-        issues: List[str] = []
-        vibe = self._is_vibe_cli_installed()
-        if not vibe.get("installed"):
-            issues.append("vibe-cli missing")
-
-        api_key = os.getenv("MISTRAL_API_KEY")
-        if not api_key:
-            api_key = self._read_env_key(self._get_vibe_env_path(), "MISTRAL_API_KEY")
-        if not api_key:
-            issues.append("MISTRAL_API_KEY missing")
-
-        return {
-            "ready": len(issues) == 0,
-            "issues": issues,
-            "detail": None,
-        }
-
-    def _get_prompt_status(self) -> Dict[str, Any]:
-        """Return PROMPT (Wizard AI gateway) health status."""
-        issues: List[str] = []
-        wizard_url = os.getenv("UDOS_WIZARD_URL", "http://127.0.0.1:8765").rstrip("/")
-        reachable = False
-        try:
-            with warnings.catch_warnings():
-                try:
-                    from urllib3.exceptions import NotOpenSSLWarning
-                    warnings.simplefilter("ignore", NotOpenSSLWarning)
-                except Exception:
-                    pass
-                resp = requests.get(f"{wizard_url}/health", timeout=1.5)
-            reachable = resp.status_code == 200
-        except Exception:
-            reachable = False
-        if not reachable:
-            issues.append("wizard offline")
-
-        providers = self._load_wizard_provider_keys()
-        gemini_ready = providers.get("gemini", False)
-        openai_ready = providers.get("openai", False)
-        if not (gemini_ready or openai_ready):
-            issues.append("no provider keys")
-        elif not gemini_ready:
-            issues.append("gemini key missing")
-
-        return {
-            "ready": reachable and (gemini_ready or openai_ready),
-            "issues": issues,
-            "wizard_url": wizard_url,
-            "reachable": reachable,
-            "providers": {
-                "gemini": gemini_ready,
-                "openai": openai_ready,
-            },
-        }
-
-    def _load_wizard_provider_keys(self) -> Dict[str, bool]:
-        """Check Wizard provider keys without exposing secrets."""
-        keys_path = self.repo_root / "wizard" / "config" / "assistant_keys.json"
-        if not keys_path.exists():
-            return {"gemini": False, "openai": False}
-        try:
-            data = json.loads(keys_path.read_text(encoding="utf-8"))
-        except Exception:
-            return {"gemini": False, "openai": False}
-
-        providers = data.get("providers") or {}
-
-        def has_key(provider_data: Any) -> bool:
-            if not isinstance(provider_data, dict):
-                return False
-            for field in ("api_key", "key", "key_id", "token", "access_token"):
-                value = provider_data.get(field)
-                if isinstance(value, str) and value.strip():
-                    return True
-            return False
-
-        return {
-            "gemini": has_key(providers.get("gemini")),
-            "openai": has_key(providers.get("openai")),
         }
 
     def _setup_health_monitoring(self) -> None:
@@ -1577,7 +1392,6 @@ class uCODETUI:
                         "gmail_relay": bool(collected_data.get("capability_gmail_relay")),
                         "ai_gateway": bool(collected_data.get("capability_ai_gateway")),
                         "github_push": bool(collected_data.get("capability_github_push")),
-                        "notion": bool(collected_data.get("capability_notion")),
                         "hubspot": bool(collected_data.get("capability_hubspot")),
                         "icloud": bool(collected_data.get("capability_icloud")),
                         "plugin_repo": bool(collected_data.get("capability_plugin_repo")),
@@ -1907,8 +1721,6 @@ class uCODETUI:
 
         if self.detector.is_available("wizard"):
             print(self._theme_text("🧙 Wizard Server control available: Use WIZARD [start|stop|status]"))
-        if self.detector.is_available("extensions"):
-            print(self._theme_text("🔌 Extension management available: Use PLUGIN [list|install|remove]"))
         print()
 
     def _cmd_help(self, args: str) -> None:
@@ -1919,7 +1731,7 @@ class uCODETUI:
 Core Commands:
   STATUS              - Show system status
   HELP                - This help message
-  EXIT, QUIT          - Exit uCODE
+  EXIT                - Exit uCODE
 
 System Management:
   SETUP               - Run setup story (default)
@@ -1946,9 +1758,6 @@ Navigation & Info:
   BAG                 - Inventory management
 
 AI Modes:
-  OFVIBE              - Local/offline Vibe CLI (Ollama-backed)
-  ONVIBE              - Vibe CLI (Mistral cloud)
-  PROMPT              - Wizard AI gateway (Gemini primary, OpenAI fallback)
   OK EXPLAIN <file>   - Explain code via local Vibe (offline)
   OK DIFF <file>      - Propose a diff via local Vibe
   OK PATCH <file>     - Draft a patch via local Vibe
@@ -1962,15 +1771,6 @@ AI Modes:
   WIZARD status       - Check Wizard status
   WIZARD console      - Enter Wizard interactive console
   WIZARD [page]       - Show Wizard page (status, ai, devices, quota, logs)
-
-"""
-        if self.detector.is_available("extensions"):
-            help_text += """Extensions:
-  PLUGIN list         - List installed plugins
-  PLUGIN install      - Install new plugin
-  PLUGIN remove       - Remove plugin
-  PLUGIN pack         - Package plugin for distribution
-  EXT [cmd]           - Alias for PLUGIN
 
 """
         help_text += """
@@ -1989,195 +1789,6 @@ For detailed help on any command, type the command name followed by --help
 
 """
         print(self._theme_text(help_text))
-
-    def _cmd_ofvibe(self, args: str) -> None:
-        """Local/offline Vibe CLI (Ollama-backed) status/setup."""
-        tokens = args.strip().split()
-        action = tokens[0].upper() if tokens else "STATUS"
-
-        if action in ("HELP", "?"):
-            print(self._theme_text(":OFVIBE [STATUS|SETUP|MODELS]"))
-            return
-
-        if action == "SETUP":
-            print(self._theme_text("\n═══ OFVIBE SETUP ═══\n"))
-            print(self._theme_text("1. Install Ollama (macOS): brew install ollama"))
-            print(self._theme_text("2. Start Ollama: brew services start ollama"))
-            print(self._theme_text("3. Pull model: ollama pull mistral-small2"))
-            print(self._theme_text("   (dev option: ollama pull devstral-small-2)"))
-            print(self._theme_text("4. Install Vibe CLI: pip install mistral-vibe"))
-            print(self._theme_text("5. Confirm .vibe/config.toml points to Ollama"))
-            print(self._theme_text("6. Run: :OFVIBE STATUS"))
-            return
-
-        if action == "MODELS":
-            mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
-            models = mode.get("models") or []
-            print(self._theme_text("\n═══ OFVIBE MODELS ═══\n"))
-            if not models:
-                print(self._theme_text("No models configured. See core/config/ai_modes.json"))
-                return
-            for entry in models:
-                name = entry.get("name", "unknown")
-                availability = ", ".join(entry.get("availability") or [])
-                print(self._theme_text(f"  - {name} ({availability})"))
-            return
-
-        status = self._get_ofvibe_status()
-        print(self._theme_text("\n═══ OFVIBE STATUS ═══\n"))
-        print(self._theme_text(self._format_ai_status_line("OFVIBE", status)))
-        if status.get("detail"):
-            print(self._theme_text(f"  Detail: {status['detail']}"))
-        config_path = self._get_vibe_config_path()
-        if config_path:
-            print(self._theme_text(f"  Config: {config_path}"))
-        endpoint = (self.ai_modes_config.get("modes") or {}).get(
-            "ofvibe", {}
-        ).get("ollama_endpoint", "http://127.0.0.1:11434")
-        print(self._theme_text(f"  Ollama: {endpoint}"))
-
-    def _cmd_onvibe(self, args: str) -> None:
-        """Vibe CLI (Mistral cloud) status/setup."""
-        tokens = args.strip().split()
-        action = tokens[0].upper() if tokens else "STATUS"
-
-        if action in ("HELP", "?"):
-            print(self._theme_text(":ONVIBE [STATUS|SETUP|MODELS]"))
-            return
-
-        if action == "SETUP":
-            print(self._theme_text("\n═══ ONVIBE SETUP ═══\n"))
-            print(self._theme_text("1. Install Vibe CLI: pip install mistral-vibe"))
-            print(self._theme_text("2. Set MISTRAL_API_KEY (env or ~/.vibe/.env)"))
-            print(self._theme_text("3. Ensure model: mistral-small-latest"))
-            print(self._theme_text("4. Run: :ONVIBE STATUS"))
-            return
-
-        if action == "MODELS":
-            mode = (self.ai_modes_config.get("modes") or {}).get("onvibe", {})
-            models = mode.get("models") or []
-            print(self._theme_text("\n═══ ONVIBE MODELS ═══\n"))
-            if not models:
-                print(self._theme_text("No models configured. See core/config/ai_modes.json"))
-                return
-            for entry in models:
-                name = entry.get("name", "unknown")
-                availability = ", ".join(entry.get("availability") or [])
-                print(self._theme_text(f"  - {name} ({availability})"))
-            return
-
-        status = self._get_onvibe_status()
-        print(self._theme_text("\n═══ ONVIBE STATUS ═══\n"))
-        print(self._theme_text(self._format_ai_status_line("ONVIBE", status)))
-        if status.get("detail"):
-            print(self._theme_text(f"  Detail: {status['detail']}"))
-        config_path = self._get_vibe_config_path()
-        if config_path:
-            print(self._theme_text(f"  Config: {config_path}"))
-
-    def _cmd_prompt(self, args: str) -> None:
-        """Wizard AI gateway status/setup; falls back to prompt parser for free text."""
-        tokens = args.strip().split()
-        action = tokens[0].upper() if tokens else "STATUS"
-
-        if action in ("HELP", "?"):
-            print(self._theme_text(":PROMPT [STATUS|SETUP|MODELS|PARSE] | :PROMPT <instruction>"))
-            return
-
-        if action == "SETUP":
-            print(self._theme_text("\n═══ PROMPT SETUP ═══\n"))
-            print(self._theme_text("1. Start Wizard server: WIZARD start"))
-            print(self._theme_text("2. Configure Gemini + OpenAI keys in Wizard"))
-            print(self._theme_text("   - wizard/config/assistant_keys.json"))
-            print(self._theme_text("   - or Wizard keystore via ADMIN token"))
-            print(self._theme_text("3. Set WIZARD_ADMIN_TOKEN (env) for status checks"))
-            print(self._theme_text("4. Run: :PROMPT STATUS"))
-            return
-
-        if action == "MODELS":
-            mode = (self.ai_modes_config.get("modes") or {}).get("prompt", {})
-            models = mode.get("models") or []
-            print(self._theme_text("\n═══ PROMPT MODELS ═══\n"))
-            if not models:
-                print(self._theme_text("No models configured. See core/config/ai_modes.json"))
-                return
-            for entry in models:
-                name = entry.get("name", "unknown")
-                provider = entry.get("provider", "")
-                availability = ", ".join(entry.get("availability") or [])
-                provider_tag = f"{provider} " if provider else ""
-                print(self._theme_text(f"  - {provider_tag}{name} ({availability})"))
-            return
-
-        if action == "PARSE":
-            remaining = " ".join(tokens[1:]) if len(tokens) > 1 else ""
-            if not remaining:
-                print(self._theme_text("Usage: :PROMPT PARSE <instruction text>"))
-                return
-            return self._cmd_prompt_parse(remaining)
-
-        if tokens and action not in {"STATUS", "SETUP", "MODELS", "PARSE"}:
-            return self._cmd_prompt_parse(args)
-
-        status = self._get_prompt_status()
-        print(self._theme_text("\n═══ PROMPT STATUS ═══\n"))
-        print(self._theme_text(self._format_ai_status_line("PROMPT", status)))
-        if status.get("detail"):
-            print(self._theme_text(f"  Detail: {status['detail']}"))
-        print(self._theme_text(f"  Wizard URL: {status.get('wizard_url')}"))
-        print(self._theme_text(f"  Wizard reachable: {'yes' if status.get('reachable') else 'no'}"))
-        print(self._theme_text(f"  Gemini key: {'yes' if status.get('providers', {}).get('gemini') else 'no'}"))
-        print(self._theme_text(f"  OpenAI key: {'yes' if status.get('providers', {}).get('openai') else 'no'}"))
-
-    def _cmd_prompt_parse(self, args: str) -> None:
-        """Parse an instruction using the PROMPT parser."""
-        instruction = args.strip()
-        if not instruction:
-            print(self._theme_text("Usage: :PROMPT PARSE <instruction text>"))
-            return
-
-        result = self.prompt_parser.parse(instruction)
-        tasks = result.get("tasks", [])
-        for task in tasks:
-            self.todo_manager.add(task)
-
-        calendar_lines = self.calendar_renderer.render_calendar(
-            self.todo_manager.list_pending(), view="weekly"
-        )
-        gantt_lines = self.gantt_renderer.render_gantt(
-            self.todo_manager.list_pending(), window_days=30
-        )
-        reminder = self.todo_reminder.log_reminder(
-            horizon_hours=result.get("reminder", {}).get("horizon_hours")
-        )
-
-        print(self._theme_text(""))
-        print(self._theme_text(f"🔍 Instruction type: {result['instruction_label']}"))
-        print(self._theme_text(f"   {result['instruction_description']}"))
-        if result.get("story_guidance"):
-            print(self._theme_text(f"   Guidance: {result['story_guidance']}"))
-        if result.get("reference_links"):
-            print(self._theme_text(f"   References: {', '.join(result['reference_links'])}"))
-
-        if tasks:
-            print(self._theme_text("\n📝 Tasks added:"))
-            for idx, task in enumerate(tasks, start=1):
-                block = task.to_task_block()
-                print(self._theme_text(f" {idx}. {task.title} (due {task.due_date.isoformat()})"))
-                print(self._theme_text(f"    Task block: {json.dumps(block)}"))
-        else:
-            print(self._theme_text("No actionable tasks detected."))
-
-        print(self._theme_text("\n📅 Calendar preview (weekly):"))
-        for line in calendar_lines:
-            print(self._theme_text(line))
-
-        print(self._theme_text("\n🧮 Gantt preview:"))
-        for line in gantt_lines:
-            print(self._theme_text(line))
-
-        if reminder:
-            print(self._theme_text(f"\n⏰ Reminder: {reminder['message']}"))
 
     def _record_ok_output(
         self,
@@ -2694,346 +2305,6 @@ For detailed help on any command, type the command name followed by --help
             print("  ❌ Wizard not running. Start with: WIZARD start")
         except Exception as e:
             print(f"  ❌ Error: {e}")
-
-    def _cmd_plugin(self, args: str) -> None:
-        """Plugin/extension management."""
-        if not self.detector.is_available("extensions"):
-            print("❌ Extensions component not available.")
-            return
-
-        parts = args.split(None, 1)
-        action = parts[0].lower() if parts else "list"
-        subargs = parts[1] if len(parts) > 1 else ""
-
-        try:
-            from core.commands.ghost_mode_guard import ghost_mode_block
-
-            block = ghost_mode_block("PLUGIN", [action] + (subargs.split() if subargs else []))
-            if block:
-                print(f"❌ {block.get('message')}")
-                return
-        except Exception:
-            pass
-
-        if action == "list":
-            print("\n🔌 Plugin catalog & installed extensions:\n")
-            self._plugin_list()
-        elif action == "install":
-            print(f"\n🔌 Installing plugin from Wizard catalog: {subargs}")
-            self._plugin_install(subargs)
-        elif action == "remove":
-            print(f"\n🔌 Removing plugin: {subargs}")
-            self._plugin_remove(subargs)
-        elif action == "pack":
-            print(f"\n🔌 Packaging plugin: {subargs}")
-            self._plugin_pack(subargs)
-        elif action in ("help", "info"):
-            print("\nPlugin commands: list, install <id>, remove <name>, pack <name>")
-        else:
-            print(f"\n🔌 Unknown plugin action: {action}")
-
-    def _plugin_list(self) -> None:
-        """List Wizard plugin catalog plus any installed extensions."""
-        try:
-            plugin_root = self.repo_root / "distribution" / "plugins"
-            remote_plugins = self._load_remote_plugins(plugin_root)
-
-            if remote_plugins:
-                print("  Wizard Plugin Catalog:")
-                for entry in remote_plugins:
-                    status = "✅" if entry["installed"] else "  "
-                    print(
-                        f"    {status} {entry['id']:<16} {entry['version']:<8} {entry['name']}"
-                    )
-                    description = entry.get("description")
-                    if description:
-                        print(f"       {description}")
-                print()
-                print("  Use `PLUGIN install <id>` to copy a catalog entry into extensions.")
-            else:
-                print("  Wizard plugin catalog is empty or missing.")
-
-            ext_path = self.repo_root / "extensions"
-            if ext_path.exists():
-                installed = []
-                for item in ext_path.iterdir():
-                    if item.is_dir():
-                        version = "unknown"
-                        version_file = item / "version.json"
-                        if version_file.exists():
-                            try:
-                                data = json.loads(version_file.read_text())
-                                version = data.get("display") or data.get("version", "unknown")
-                            except Exception:
-                                version = "error reading version"
-                        installed.append((item.name, version))
-
-                if installed:
-                    print("\n  Installed Extensions:")
-                    for name, version in sorted(installed):
-                        print(f"    ✅ {name:15} {version}")
-                else:
-                    print("\n  No extensions currently installed.")
-            else:
-                print("\n  Extensions folder not found.")
-        except Exception as exc:
-            print(f"  ❌ Error listing plugins: {exc}")
-
-    def _plugin_install(self, name: str) -> None:
-        """Install a plugin from Wizard's distribution catalog."""
-        if not name:
-            print("  ❌ Specify a plugin ID to install (use `PLUGIN list`).")
-            return
-
-        plugin_src = self.repo_root / "distribution" / "plugins" / name
-        if not plugin_src.exists():
-            print(f"  ❌ Plugin not found in catalog: {name}")
-            return
-
-        try:
-            from wizard.services.plugin_repository import get_repository
-            from wizard.services.library_manager_service import get_library_manager
-        except ImportError as exc:
-            print(f"  ❌ Wizard services unavailable: {exc}")
-            return
-
-        repo = get_repository()
-        repo_entry = repo.get_plugin(name)
-        if not repo_entry:
-            print(f"  ❌ Plugin registry entry missing for: {name}")
-            return
-
-        repo_entry_dict = repo_entry.to_dict()
-        manifest_data = load_manifest(plugin_src)
-        validation = validate_manifest(manifest_data, name, repo_entry_dict)
-
-        library_root = self.repo_root / "library"
-        library_root.mkdir(parents=True, exist_ok=True)
-        library_target = library_root / name
-
-        if library_target.exists():
-            print(f"  ⚠️  Plugin already copied to library: {name}")
-        else:
-            try:
-                shutil.copytree(plugin_src, library_target)
-            except Exception as exc:
-                print(f"  ❌ Failed to copy plugin to library: {exc}")
-                return
-
-        container_payload = {
-            "container": {
-                "description": manifest_data.get("description", repo_entry.description),
-                "version": manifest_data.get("version", repo_entry.version),
-            },
-            "repo_path": str(library_target),
-        }
-        container_file = library_target / "container.json"
-        try:
-            container_file.write_text(json.dumps(container_payload, indent=2))
-        except Exception as exc:
-            print(f"  ❌ Failed to write container metadata: {exc}")
-            return
-
-        manager = get_library_manager(self.repo_root)
-        result = manager.install_integration(name)
-        log_plugin_install_event(
-            name,
-            "uCODE CLI",
-            result,
-            manifest=manifest_data,
-            validation=validation,
-        )
-        if result.success:
-            print(f"  ✅ Plugin installed via LibraryManager: {name}")
-            print(f"  → {result.message}")
-        else:
-            print(f"  ❌ Installation failed: {result.error}")
-
-    def _plugin_remove(self, name: str) -> None:
-        """Remove a plugin."""
-        try:
-            ext_path = self.repo_root / "extensions" / name
-            if not ext_path.exists():
-                print(f"  ❌ Plugin not found: {name}")
-                return
-
-            # Safety confirmation
-            print(f"  ⚠️  Remove plugin: {name}?")
-            response = input("  Type 'yes' to confirm: ").strip().lower()
-            if response == 'yes':
-                import shutil
-                shutil.rmtree(ext_path)
-                print(f"  ✅ Plugin removed: {name}")
-            else:
-                print("  Cancelled")
-
-        except Exception as e:
-            print(f"  ❌ Error: {e}")
-
-    def _plugin_pack(self, name: str) -> None:
-        """Package a plugin for distribution."""
-        try:
-            ext_path = self.repo_root / "extensions" / name
-            if not ext_path.exists():
-                print(f"  ❌ Extension not found: {name}")
-                return
-
-            # Create distribution package
-            dist_root = self.repo_root / "distribution" / "plugins"
-            dist_path = dist_root / name
-            print(f"  📦 Packaging {name}...")
-
-            # Read version metadata if available
-            version_file = ext_path / "version.json"
-            version = "1.0.0"
-            display_name = name.replace("-", " ").title()
-            description = f"uDOS extension: {name}"
-            author = "Fred Porter"
-            license_id = "MIT"
-
-            if version_file.exists():
-                try:
-                    payload = json.loads(version_file.read_text(encoding="utf-8"))
-                    display_name = payload.get("name") or display_name
-                    description = payload.get("description") or description
-                    author = payload.get("author") or author
-                    if isinstance(payload.get("version"), dict):
-                        v = payload["version"]
-                        version = f"{v.get('major', 1)}.{v.get('minor', 0)}.{v.get('patch', 0)}"
-                    elif isinstance(payload.get("display"), str):
-                        version = payload["display"].lstrip("v")
-                except Exception:
-                    pass
-
-            category_map = {
-                "api": "web",
-                "transport": "transport",
-                "groovebox": "games",
-                "docs": "documentation",
-            }
-            category = category_map.get(name, "utility")
-
-            # Recreate output directory
-            if dist_path.exists():
-                shutil.rmtree(dist_path)
-            dist_path.mkdir(parents=True, exist_ok=True)
-
-            # Copy extension contents
-            shutil.copytree(
-                ext_path,
-                dist_path,
-                dirs_exist_ok=True,
-                ignore=shutil.ignore_patterns("__pycache__", ".git", ".venv", "node_modules"),
-            )
-
-            # Build package tarball
-            packages_dir = dist_root / "packages" / name
-            packages_dir.mkdir(parents=True, exist_ok=True)
-            package_path = packages_dir / f"{name}-{version}.tar.gz"
-            with tarfile.open(package_path, "w:gz") as tar:
-                tar.add(dist_path, arcname=name)
-
-            package_size = package_path.stat().st_size
-            hasher = hashlib.sha256()
-            with package_path.open("rb") as fh:
-                for chunk in iter(lambda: fh.read(8192), b""):
-                    hasher.update(chunk)
-            package_checksum = hasher.hexdigest()
-
-            # Write manifest
-            manifest = {
-                "$schema": "https://udos.dev/schemas/plugin.schema.json",
-                "id": name,
-                "name": display_name,
-                "version": version,
-                "description": description,
-                "category": category,
-                "license": license_id,
-                "author": author,
-                "source": f"extensions/{name}",
-                "package_type": "tar.gz",
-                "package_size": package_size,
-                "package_checksum": package_checksum,
-            }
-
-            readme_path = ext_path / "README.md"
-            if readme_path.exists():
-                manifest["documentation"] = f"extensions/{name}/README.md"
-
-            (dist_path / "manifest.json").write_text(
-                json.dumps(manifest, indent=2),
-                encoding="utf-8",
-            )
-
-            # Update index.json
-            index_path = dist_root / "index.json"
-            if index_path.exists():
-                index_data = json.loads(index_path.read_text(encoding="utf-8"))
-            else:
-                index_data = {"version": "1.0.0", "updated_at": "", "plugins": {}}
-
-            plugins = index_data.setdefault("plugins", {})
-            existing = plugins.get(name, {})
-
-            plugins[name] = {
-                **existing,
-                "id": name,
-                "name": display_name,
-                "description": description,
-                "version": version,
-                "category": category,
-                "license": license_id,
-                "package_file": str(package_path.relative_to(dist_root)),
-                "package_size": package_size,
-                "checksum": package_checksum,
-                "author": author,
-                "documentation": manifest.get("documentation", existing.get("documentation", "")),
-                "installed": existing.get("installed", False),
-                "installed_version": existing.get("installed_version", ""),
-                "update_available": existing.get("update_available", False),
-                "dependencies": existing.get("dependencies", []),
-            }
-
-            index_data["updated_at"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-            index_path.write_text(json.dumps(index_data, indent=2), encoding="utf-8")
-
-            print(f"  ✅ Packaged: {name} v{version}")
-            print(f"     Manifest: {dist_path / 'manifest.json'}")
-            print(f"     Package:  {package_path}")
-
-        except Exception as e:
-            print(f"  ❌ Error: {e}")
-
-    def _load_remote_plugins(self, plugin_root: Path) -> List[Dict[str, Any]]:
-        """Read wizard/distribution/plugins manifest entries."""
-        entries = []
-
-        if not plugin_root.exists():
-            return entries
-
-        for item in sorted(plugin_root.iterdir()):
-            if not item.is_dir():
-                continue
-            manifest_file = item / "manifest.json"
-            if not manifest_file.exists():
-                continue
-            try:
-                payload = json.loads(manifest_file.read_text(encoding="utf-8"))
-            except Exception:
-                continue
-
-            plugin_id = payload.get("id", item.name)
-            installed = (self.repo_root / "extensions" / plugin_id).exists()
-            entries.append(
-                {
-                    "id": plugin_id,
-                    "name": payload.get("name", plugin_id),
-                    "version": payload.get("version", "unknown"),
-                    "description": payload.get("description", ""),
-                    "installed": installed,
-                }
-            )
-        return entries
 
     def _cmd_exit(self, args: str) -> None:
         """Exit uCODE."""

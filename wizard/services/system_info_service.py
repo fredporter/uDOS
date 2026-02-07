@@ -9,6 +9,7 @@ import os
 import json
 import platform
 import psutil
+import time
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, asdict
@@ -162,19 +163,21 @@ class SystemInfoService:
             cpu_percent = psutil.cpu_percent(interval=1)
             memory = psutil.virtual_memory()
             disk = psutil.disk_usage("/")
-            uptime_seconds = int((Path("/proc/uptime").read_text().split()[0]))
+            uptime_seconds = None
+            if Path("/proc/uptime").exists():
+                uptime_seconds = int((Path("/proc/uptime").read_text().split()[0]))
+            else:
+                uptime_seconds = int(time.time() - psutil.boot_time())
+            boot_time = psutil.boot_time()
         except:
             uptime_seconds = 0
             cpu_percent = 0
             memory = None
             disk = None
+            boot_time = 0
 
         return {
-            "timestamp": (
-                str(Path("/proc/uptime").read_text().split()[0])
-                if Path("/proc/uptime").exists()
-                else "unknown"
-            ),
+            "timestamp": time.time(),
             "cpu": {
                 "percent": cpu_percent,
                 "count": os.cpu_count() or 1,
@@ -188,6 +191,10 @@ class SystemInfoService:
                 "percent": disk.percent if disk else 0,
                 "free_mb": (disk.free / (1024**2)) if disk else 0,
                 "total_mb": (disk.total / (1024**2)) if disk else 0,
+            },
+            "uptime": {
+                "seconds": uptime_seconds,
+                "boot_time": boot_time,
             },
             "os": self.get_os_info().to_dict(),
         }

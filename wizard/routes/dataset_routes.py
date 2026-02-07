@@ -66,6 +66,19 @@ async def list_tables(request: Request):
     """
     return {"tables": service.list_tables()}
 
+@router.get("/summary")
+async def dataset_summary(request: Request):
+    """
+    Return a summary for datasets UI.
+    """
+    tables = service.list_tables()
+    total_rows = sum(table.get("row_count", 0) for table in tables)
+    return {
+        "tables": len(tables),
+        "rows": total_rows,
+        "table_names": [table.get("name") for table in tables],
+    }
+
 
 @router.get("/schema")
 async def schema(request: Request):

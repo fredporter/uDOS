@@ -92,11 +92,8 @@ class CommandDispatcher:
             "PATTERN": PatternHandler(),
             "SONIC": SonicHandler(),
             "MUSIC": MusicHandler(),
-            "DEV MODE": DevModeHandler(),
             "DEV": DevModeHandler(),  # Shortcut for DEV MODE
             "LOGS": LogsHandler(),  # View unified logs
-            "HOTKEYS": HotkeyHandler(),
-            "HOTKEY": HotkeyHandler(),
             # User Management (2)
             "USER": UserHandler(),  # User profiles and permissions
             # Cleanup/Reset (2)

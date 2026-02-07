@@ -75,7 +75,7 @@ Select component [1-4]:
 - **Port:** 8767
 - **Status:** v0.2.0 (unstable, experimental)
 - TS Markdown runtime executor
-- Notion sync & webhooks
+- Webhook handling (local)
 - Task scheduling (organic cron)
 - Binder compilation
 - Experimental `/api/v0/*` routes
@@ -326,7 +326,7 @@ Features: Offline, no dependencies, minimal footprint
 
 ### `start_goblin.sh` — Goblin Dev Server (Experimental)
 
-Launches the development server with Notion sync and runtime execution.
+Launches the development server with runtime execution and binder tooling.
 
 ```bash
 ./bin/start_goblin.sh [port]
@@ -336,7 +336,7 @@ Launches the development server with Notion sync and runtime execution.
 
 **Features:**
 
-- Notion webhook integration
+- Webhook integration
 - TypeScript Markdown runtime
 - Task scheduling
 - Localhost-only mode
@@ -518,7 +518,7 @@ tail -f memory/logs/dev-*.log
 - `/` — Dev dashboard
 - `/api/v0/runtime/execute` — Code execution
 - `/api/v0/tasks/schedule` — Task scheduling
-- `/api/v0/notion/sync` — Notion sync
+- `/api/v0/binder/compile` — Binder compilation
 
 ---
 

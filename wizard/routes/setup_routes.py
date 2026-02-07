@@ -147,7 +147,6 @@ def _apply_capabilities_to_wizard_config(capabilities: Dict[str, bool]) -> None:
         "gmail_relay": "gmail_relay_enabled",
         "ai_gateway": "ai_gateway_enabled",
         "github_push": "github_push_enabled",
-        "notion": "notion_enabled",
         "hubspot": "hubspot_enabled",
         "icloud": "icloud_enabled",
         "plugin_repo": "plugin_repo_enabled",
@@ -281,7 +280,6 @@ def create_setup_routes(auth_guard=None):
             "variables": get_required_variables(),
             "instructions": {
                 "github": "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token",
-                "notion": "https://developers.notion.com/docs/getting-started",
                 "mistral": "https://docs.mistral.ai/",
                 "hubspot": "https://developers.hubspot.com/docs/api/overview",
             },
@@ -342,20 +340,19 @@ def create_setup_routes(auth_guard=None):
                 },
                 {
                     "step": 3,
-                    "name": "Notion Integration",
-                    "description": "Configure Notion API access (optional)",
-                },
-                {
-                    "step": 4,
                     "name": "AI Features",
                     "description": "Set up AI/Mistral features (optional)",
                 },
                 {
-                    "step": 5,
+                    "step": 4,
                     "name": "HubSpot CRM",
                     "description": "Configure CRM integration (optional)",
                 },
-                {"step": 6, "name": "Complete", "description": "Finish setup"},
+                {
+                    "step": 5,
+                    "name": "Complete",
+                    "description": "Finish setup",
+                },
             ],
             "current_progress": setup_state.get_status(),
         }
@@ -578,7 +575,6 @@ def create_setup_routes(auth_guard=None):
                     "capability_gmail_relay": capabilities.get("gmail_relay"),
                     "capability_ai_gateway": capabilities.get("ai_gateway"),
                     "capability_github_push": capabilities.get("github_push"),
-                    "capability_notion": capabilities.get("notion"),
                     "capability_hubspot": capabilities.get("hubspot"),
                     "capability_icloud": capabilities.get("icloud"),
                     "capability_plugin_repo": capabilities.get("plugin_repo"),
@@ -657,7 +653,6 @@ def create_setup_routes(auth_guard=None):
                 "gmail_relay": bool(answers.get("capability_gmail_relay")),
                 "ai_gateway": bool(answers.get("capability_ai_gateway")),
                 "github_push": bool(answers.get("capability_github_push")),
-                "notion": bool(answers.get("capability_notion")),
                 "hubspot": bool(answers.get("capability_hubspot")),
                 "icloud": bool(answers.get("capability_icloud")),
                 "plugin_repo": bool(answers.get("capability_plugin_repo")),

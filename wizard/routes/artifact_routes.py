@@ -27,6 +27,22 @@ def create_artifact_routes(auth_guard=None):
         prefix="/api/artifacts", tags=["artifacts"], dependencies=dependencies
     )
 
+    @router.get("/summary")
+    async def artifact_summary():
+        store = get_artifact_store()
+        entries = store.list()
+        totals = {}
+        total_size = 0
+        for entry in entries:
+            totals.setdefault(entry.kind, {"count": 0, "size_bytes": 0})
+            totals[entry.kind]["count"] += 1
+            totals[entry.kind]["size_bytes"] += entry.size_bytes
+            total_size += entry.size_bytes
+        return {
+            "total": {"count": len(entries), "size_bytes": total_size},
+            "by_kind": totals,
+        }
+
     @router.get("")
     async def list_artifacts(kind: Optional[str] = None):
         store = get_artifact_store()

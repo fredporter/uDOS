@@ -43,8 +43,7 @@
   "secrets_required": [
     "github-personal-main",
     "ai-mistral-main",
-    "ai-openrouter",
-    "notion-integration-token"
+    "ai-openrouter"
   ],
 
   "port": 8765,

@@ -65,8 +65,7 @@ Experimental features (port 8767, localhost-only, breaking changes expected):
 
 | Package                   | Version  | Status       | Purpose                                               |
 | ------------------------- | -------- | ------------ | ----------------------------------------------------- |
-| **udos-goblin**           | v0.2.0.0 | unstable     | Dev server: Notion, runtime, tasks, binder            |
-| **udos-notion-sync**      | v0.1.0.0 | experimental | Phase B: queue + schema (Phase C.3/D deferred)        |
+| **udos-goblin**           | v0.2.0.0 | unstable     | Dev server: runtime, tasks, binder                    |
 | **udos-runtime-executor** | v0.1.0.0 | experimental | Python stubs; full TS in /core/ (v1.0.0.0 production) |
 
 **API:** `/api/v0/*` (unstable, breaking changes expected)
@@ -137,7 +136,6 @@ packages/
     ✅ udos-sonic-datasets.manifest.json
   goblin/
     ✅ udos-goblin.manifest.json
-    ✅ udos-notion-sync.manifest.json
     ✅ udos-runtime-executor.manifest.json
   extensions/
     ✅ udos-transport.manifest.json
@@ -150,7 +148,7 @@ packages/
     ✅ udos-code-examples.manifest.json
 ```
 
-**Total Manifests:** 17 ✅ Complete
+**Total Manifests:** 16 ✅ Complete
 
 ---
 
@@ -170,7 +168,6 @@ All manifests reference secret_store (Fernet-encrypted tomb):
 | Wizard      | device-auth-key, rate-limit-budget              |
 | GitHub      | github-personal-main, github-webhook-secret     |
 | AI Gateway  | ai-mistral-main, ai-openrouter, budget-tracking |
-| Notion Sync | notion-integration-token (feature-flagged)      |
 | HubSpot CRM | hubspot-private-app-token                       |
 
 ---
@@ -262,7 +259,6 @@ udos-wizard (v1.1.0.0, port 8765)
 
 ```
 udos-goblin (v0.2.0.0, port 8767, localhost-only)
-  ├─ udos-notion-sync (v0.1.0.0)
   └─ udos-runtime-executor (v0.1.0.0)
 ```
 

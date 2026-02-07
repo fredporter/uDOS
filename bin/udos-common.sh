@@ -172,7 +172,17 @@ run_with_log() {
     if [ "$UDOS_TTY" = "1" ]; then
         if command -v script >/dev/null 2>&1; then
             # Preserve TTY for interactive UI while capturing output.
-            script -q "$log_file" "$@"
+            if [ "$(type -t "$1")" = "function" ]; then
+                local func="$1"
+                shift
+                local cmd="source \"$UDOS_BIN_DIR/udos-common.sh\"; $func"
+                for arg in "$@"; do
+                    cmd+=" $(printf "%q" "$arg")"
+                done
+                script -q "$log_file" bash -lc "$cmd"
+            else
+                script -q "$log_file" "$@"
+            fi
             return $?
         else
             _udos_echo "${YELLOW}[WARN]${NC} script(1) not found; running without log to preserve TTY"

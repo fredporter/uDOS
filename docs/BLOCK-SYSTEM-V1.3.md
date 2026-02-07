@@ -2,13 +2,13 @@
 
 **Version:** v1.3  
 **Updated:** 2026-02-05  
-**Status:** Active (replacing Notion-specific blocks)
+**Status:** Active (local-first blocks)
 
 ---
 
 ## Philosophy
 
-uDOS blocks are **Obsidian-compatible Markdown** with runtime execution capabilities. Unlike Notion blocks (which require API sync), uDOS blocks are:
+uDOS blocks are **Obsidian-compatible Markdown** with runtime execution capabilities. Unlike proprietary cloud blocks (which require API sync), uDOS blocks are:
 
 - ✅ **Local-first** — Pure Markdown files
 - ✅ **Obsidian-readable** — Standard frontmatter + code blocks
@@ -317,7 +317,7 @@ locate(spatial_ref)
 
 ## Block Structure Comparison
 
-| Feature | Notion Blocks | uDOS Blocks |
+| Feature | Legacy Cloud Blocks | uDOS Blocks |
 |---------|--------------|-------------|
 | Format | Proprietary JSON | Markdown + YAML |
 | Storage | Cloud database | Local files |
@@ -332,25 +332,25 @@ locate(spatial_ref)
 
 ---
 
-## Migration from Notion Blocks
+## Migration from Legacy Cloud Blocks
 
-If you have old Notion block data:
+If you have old cloud block data:
 
-1. **Export from Notion** → Markdown
+1. **Export to Markdown** from your previous system
 2. **Convert block types:**
-   - `to_do` → `- [ ] task`
-   - `heading_1` → `# Heading`
-   - `paragraph` → Plain text
-   - `code` → ` ```lang\ncode\n``` `
-   - `bulleted_list` → `- item`
+  - Task → `- [ ] task`
+  - Heading → `# Heading`
+  - Paragraph → Plain text
+  - Code → ` ```lang\ncode\n``` `
+  - Bullet → `- item`
 3. **Add frontmatter:**
-   ```yaml
-   ---
-   title: "From Notion"
-   source: notion
-   migrated: 2026-02-05
-   ---
-   ```
+  ```yaml
+  ---
+  title: "From Legacy Export"
+  source: legacy
+  migrated: 2026-02-05
+  ---
+  ```
 4. **Open in Obsidian** — Works immediately
 5. **Execute in uDOS** — Add runtime blocks as needed
 

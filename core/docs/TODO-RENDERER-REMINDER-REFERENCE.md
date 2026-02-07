@@ -9,7 +9,7 @@ This reference keeps the new Core todo renderers, reminder payloads, and Hotkey/
 | `GridRenderer.render(tasks, window_days=14)` | `(Iterable[Task], window_days: int = 14)` | `List[str]` of 80×40 lines (default) with task bars per row; uses `GRID_WIDTH`/`GRID_HEIGHT`. | Good for retro ASCII/teletext dashboards. |
 | `CalendarGridRenderer.render_calendar(tasks, view="weekly", start_date=None)` | `(Iterable[Task], view: str, start_date: Optional[datetime])` | 30-line 80-column grids covering `daily`, `weekly`, or `monthly` views; pads to `CALENDAR_HEIGHT` so output stays consistent with the Hotkey Center snapshots. | Pass `view` (“daily”/“weekly”/“monthly”) plus optional ISO start date to align with CLI prompts; default weekly view shows dates + counts for the upcoming week. |
 | `GanttGridRenderer.render_gantt(tasks, window_days=30)` | `(Iterable[Task], window_days: int = 30)` | 80×30 Gantt chart with task labels (16-char) and timeline bars (#/=); spans the next `window_days` and caps rows to `CALENDAR_HEIGHT`. | Use for timelines in CLI/dashboards; reuses the same width/height constants as the calendar renderer. |
-| `Task.to_notion_block()` | `Task` method | Notion-style `{"type":"to_do",...}` block | Call before storing or syncing tasks to ensure payloads always include due duration/tags. |
+| `Task.to_task_block()` | `Task` method | Task `{"type":"to_do",...}` block | Call before storing or syncing tasks to ensure payloads always include due duration/tags. |
 
 ## Reminder/notification flow
 
@@ -25,5 +25,5 @@ This reference keeps the new Core todo renderers, reminder payloads, and Hotkey/
 ## Usage notes
 
 - For CLI/dashboard routes, use the `/api/tasks/calendar` and `/api/tasks/gantt` endpoints in `wizard/routes/task_routes.py`; they accept `view`/`start_date` or `window_days` plus optional `format=text|json` to keep the outputs consumable by both ASCII renderers and automation UI layers.
-- Pair the calendar/gantt output with `Task.to_notion_block()` for Notion exports, and use the rendered ASCII clock (via `core/services/todo_service.AsciiClock.render()`) to highlight reminder timestamps in the UI.
+- Pair the calendar/gantt output with `Task.to_task_block()` for task exports, and use the rendered ASCII clock (via `core/services/todo_service.AsciiClock.render()`) to highlight reminder timestamps in the UI.
 - When building new flows (PROMPT classification, Wizard scheduling stories, etc.), let the reminder service emit a `"todo_reminder"` block and log it alongside `notification_reminder`; future Hotkey Center snapshots or monitoring scripts can then show both the botched tasks and the not-yet-closed health issues together.

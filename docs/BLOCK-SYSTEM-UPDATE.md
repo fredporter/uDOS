@@ -1,7 +1,7 @@
 # Block System Update — Obsidian-Aligned v1.3
 
 **Date:** 2026-02-05  
-**Changes:** Removed Notion sync, aligned block system with Obsidian + uDOS runtime
+**Changes:** Removed cloud sync dependencies, aligned block system with Obsidian + uDOS runtime
 
 ---
 
@@ -9,14 +9,14 @@
 
 ### ✅ Kept: Block Concept
 The idea of structured content blocks is valuable and remains in uDOS. However, we've pivoted from:
-- ❌ **Notion-style blocks** (proprietary, cloud-synced, JSON API)
+- ❌ **Proprietary cloud blocks** (vendor-locked, API-synced, JSON format)
 - ✅ **uDOS blocks** (Markdown, Obsidian-compatible, runtime-enabled)
 
-### 🗑️ Removed: Notion Sync Infrastructure
-- All Notion API integration code
-- Webhook handlers for Notion events
-- Block mapper for Notion JSON format
-- Notion-specific dashboard components
+### 🗑️ Removed: Legacy Sync Infrastructure
+- Legacy cloud API integration code
+- Webhook handlers for external sync events
+- Block mapper for proprietary JSON formats
+- Legacy dashboard sync components
 
 ### 🎯 New Focus: Obsidian + uDOS Features
 
@@ -79,19 +79,20 @@ Native grid system for dashboards, calendars, tables, maps:
 
 ## Migration Path
 
-### From Notion Blocks → uDOS Blocks
+### From Legacy Cloud Blocks → uDOS Blocks
 
-1. **Export from Notion** → Markdown
+1. **Export to Markdown** from your previous system
 2. **Convert block types:**
-   - Notion `to_do` → Markdown `- [ ] task`
-   - Notion `heading_1` → Markdown `# Heading`
-   - Notion `code` → Markdown ` ```lang` `
+   - Task → Markdown `- [ ] task`
+   - Heading → Markdown `# Heading`
+   - Code → Markdown ` ```lang` `
+   - Bullets → Markdown `- item`
 3. **Add frontmatter:**
    ```yaml
    ---
-   title: "From Notion"
+   title: "From Legacy Export"
    tags: [migrated]
-   source: notion
+   source: legacy
    ---
    ```
 4. **Open in Obsidian** — Works immediately
@@ -101,7 +102,7 @@ Native grid system for dashboards, calendars, tables, maps:
 
 ## Architecture Benefits
 
-### Before (Notion Sync)
+### Before (Cloud Sync)
 - Required cloud API connection
 - Proprietary block format
 - Sync conflicts
@@ -130,10 +131,7 @@ All are Markdown-based, Obsidian-readable, and locally stored.
 ## Dashboard Updates
 
 ### Removed Components
-- `NotionWebhookPanel.svelte` → Archived
-- `NotionBlockRenderer.svelte` → Archived
-- `Notion.svelte` route → Archived
-- `notionService.ts` → Archived
+- Legacy sync UI and webhook components archived
 
 ### Kept Components
 - `mappingStore.ts` — Updated with legacy comments (handles imported data)

@@ -19,6 +19,8 @@ from collections import defaultdict
 from core.services.health_training import read_last_summary
 from wizard.services.logging_manager import get_logger
 from wizard.services.notification_history_service import NotificationHistoryService
+import os
+from wizard.services.plugin_registry import get_registry
 
 logger = get_logger("monitoring")
 
@@ -266,28 +268,89 @@ class MonitoringManager:
                 f"[WIZ] Health check: {service} = {health.status} ({response_time:.2f}ms)"
             )
             return health
-
-        except Exception as e:
+        except Exception as exc:
             response_time = (time.time() - start_time) * 1000
             health = HealthCheck(
                 service=service,
-                status=HealthStatus.UNKNOWN.value,
+                status=HealthStatus.UNHEALTHY.value,
                 response_time_ms=round(response_time, 2),
                 timestamp=datetime.now().isoformat(),
-                message=f"Health check failed: {str(e)}",
+                message=str(exc),
+                metadata=None,
             )
-
             self.health_checks[service] = health
-
             self.create_alert(
                 type=AlertType.HEALTH_CHECK,
-                severity=AlertSeverity.CRITICAL,
-                message=f"{service} health check failed: {str(e)}",
+                severity=AlertSeverity.ERROR,
+                message=f"{service} check failed: {exc}",
                 service=service,
             )
-
-            logger.error(f"[WIZ] Health check failed for {service}: {e}")
+            logger.error(
+                f"[WIZ] Health check failed: {service} ({response_time:.2f}ms) {exc}"
+            )
             return health
+
+    def check_wizard_core(self) -> HealthCheck:
+        """Check Wizard core health endpoint."""
+        base_url = (os.environ.get("WIZARD_BASE_URL") or "http://localhost:8765").rstrip("/")
+
+        def check():
+            try:
+                resp = requests.get(f"{base_url}/health", timeout=2)
+                if resp.status_code == 200:
+                    return HealthStatus.HEALTHY, "Wizard healthy", {"status_code": resp.status_code}
+                if resp.status_code < 500:
+                    return HealthStatus.DEGRADED, f"HTTP {resp.status_code}", {"status_code": resp.status_code}
+                return HealthStatus.UNHEALTHY, f"HTTP {resp.status_code}", {"status_code": resp.status_code}
+            except requests.RequestException as exc:
+                return HealthStatus.UNHEALTHY, str(exc), None
+
+        return self.check_health("wizard_core", check)
+
+    def check_goblin(self) -> HealthCheck:
+        """Check Goblin dev server health."""
+        host = os.environ.get("GOBLIN_HOST", "127.0.0.1").strip()
+        port = os.environ.get("GOBLIN_PORT", "8767").strip()
+        url = f"http://{host}:{port}/health"
+
+        def check():
+            try:
+                resp = requests.get(url, timeout=2)
+                if resp.status_code == 200:
+                    return HealthStatus.HEALTHY, "Goblin healthy", {"status_code": resp.status_code}
+                if resp.status_code < 500:
+                    return HealthStatus.DEGRADED, f"HTTP {resp.status_code}", {"status_code": resp.status_code}
+                return HealthStatus.UNHEALTHY, f"HTTP {resp.status_code}", {"status_code": resp.status_code}
+            except requests.RequestException as exc:
+                return HealthStatus.UNHEALTHY, str(exc), None
+
+        return self.check_health("goblin", check)
+
+    def check_plugin_registry(self) -> HealthCheck:
+        """Check plugin registry availability."""
+        def check():
+            try:
+                registry = get_registry()
+                if not registry.base_dir.exists():
+                    return HealthStatus.DEGRADED, "Plugin registry base dir missing", {"base_dir": str(registry.base_dir)}
+                data = registry.build_registry(refresh=False, include_manifests=False)
+                count = len(data or {})
+                if count == 0:
+                    return HealthStatus.DEGRADED, "No plugins registered", {"count": 0}
+                return HealthStatus.HEALTHY, f"{count} plugins", {"count": count}
+            except Exception as exc:
+                return HealthStatus.UNHEALTHY, str(exc), None
+
+        return self.check_health("plugin_registry", check)
+
+    def run_default_checks(self) -> Dict[str, HealthCheck]:
+        """Run core Wizard health checks."""
+        results = {
+            "wizard_core": self.check_wizard_core(),
+            "goblin": self.check_goblin(),
+            "plugin_registry": self.check_plugin_registry(),
+        }
+        return results
 
     def check_wizard_server(
         self, host: str = "127.0.0.1", port: int = 8765

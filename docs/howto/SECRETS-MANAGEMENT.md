@@ -131,8 +131,6 @@ SLACK_BOT_TOKEN         # Slack bot token
 SLACK_SIGNING_SECRET    # Slack webhook secret
 SLACK_APP_TOKEN
 
-NOTION_INTEGRATION_TOKEN  # Notion API token
-
 HUBSPOT_API_KEY         # HubSpot CRM
 
 GMAIL_CLIENT_ID         # Gmail OAuth

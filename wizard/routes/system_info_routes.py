@@ -40,6 +40,33 @@ def create_system_info_routes(
 
         return system_service.get_system_stats()
 
+    @router.get("/memory")
+    async def get_memory_stats(request: Request):
+        """Get memory statistics."""
+        if auth_guard:
+            await auth_guard(request)
+
+        stats = system_service.get_system_stats()
+        return {"memory": stats.get("memory", {})}
+
+    @router.get("/storage")
+    async def get_storage_stats(request: Request):
+        """Get storage statistics."""
+        if auth_guard:
+            await auth_guard(request)
+
+        stats = system_service.get_system_stats()
+        return {"disk": stats.get("disk", {})}
+
+    @router.get("/uptime")
+    async def get_uptime(request: Request):
+        """Get system uptime."""
+        if auth_guard:
+            await auth_guard(request)
+
+        stats = system_service.get_system_stats()
+        return {"uptime": stats.get("uptime", {})}
+
     @router.get("/info")
     async def get_full_system_info(request: Request):
         """Get comprehensive system information."""

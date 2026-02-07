@@ -873,7 +873,6 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
         "ollama": None,  # Has dedicated setup function
         "hubspot": None, # Has dedicated setup function
         "hubspot_cli": None, # Has dedicated setup function
-        "notion": None,  # Interactive browser flow
     }
 
     cmd = setup_commands.get(provider_id)

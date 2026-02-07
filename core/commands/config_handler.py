@@ -415,22 +415,20 @@ VARIABLE TYPES:
   $VARIABLE                 System variables (stored in .env)
     $WIZARD_KEY             Encryption key
     $GITHUB_TOKEN           GitHub API token
-    $NOTION_API_KEY         Notion integration
-    
+        $OPENAI_API_KEY         OpenAI API token
+
   @variable                 User variables (encrypted secrets)
     @username               Your username
     @timezone               Your timezone
     @location               Your location
-    
+
   flag_name                 Feature flags (wizard.json)
-    notion_enabled          Enable Notion
     ai_gateway_enabled      Enable AI gateway
 
 EXAMPLES:
   CONFIG                    Show all variables
   CONFIG @username          Show your username
   CONFIG @timezone PST      Set your timezone
-  CONFIG notion_enabled true    Enable Notion integration
   CONFIG --sync             Sync everything
 
 SECURITY:
@@ -467,7 +465,7 @@ SECURITY:
             env_path = get_repo_root() / ".env"
             if not env_path.exists():
                 return {}
-            
+
             variables = {}
             for line in env_path.read_text().splitlines():
                 line = line.strip()
@@ -479,20 +477,20 @@ SECURITY:
             return variables
         except Exception:
             return {}
-    
+
     def _format_env_variables(self, variables: Dict) -> Dict:
         """Format .env variables for display."""
         try:
             from core.tui.output import OutputToolkit
-            
+
             lines = [OutputToolkit.banner("LOCAL CONFIGURATION (.env)"), ""]
-            
+
             # Separate local setup vs other config
             setup_keys = {'USER_NAME', 'USER_DOB', 'USER_ROLE', 'USER_PASSWORD',
                          'USER_LOCATION', 'USER_TIMEZONE', 'OS_TYPE', 'WIZARD_KEY'}
             setup_vars = {k: v for k, v in variables.items() if k in setup_keys}
             other_vars = {k: v for k, v in variables.items() if k not in setup_keys}
-            
+
             if setup_vars:
                 lines.append("LOCAL USER SETUP:")
                 lines.append("-" * 60)
@@ -505,7 +503,7 @@ SECURITY:
                             value = "***" if value else "(none)"
                         lines.append(f"  {key} = {value}")
                 lines.append("")
-            
+
             if other_vars:
                 lines.append("OTHER CONFIGURATION:")
                 lines.append("-" * 60)
@@ -513,16 +511,16 @@ SECURITY:
                     masked = self._mask_value(value)
                     lines.append(f"  {key} = {masked}")
                 lines.append("")
-            
+
             if not setup_vars and not other_vars:
                 lines.append("(no configuration found in .env)")
-            
+
             lines.append("-" * 60)
             lines.append("Local settings stored in: .env")
             lines.append("Extended settings stored in local config files when present")
             lines.append("")
             lines.append("To edit: nano .env")
-            
+
             return {"status": "success", "output": "\n".join(lines)}
         except Exception as e:
             return {"status": "error", "message": f"Failed to format variables: {e}"}

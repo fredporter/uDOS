@@ -26,6 +26,8 @@ from wizard.services.enhanced_plugin_discovery import (
 )
 from wizard.services.logging_manager import get_logger
 from wizard.services.path_utils import get_repo_root
+from wizard.services.plugin_registry import get_registry
+from wizard.services.plugin_repository import get_repository
 
 logger = get_logger("plugin-routes-enhanced")
 
@@ -118,6 +120,88 @@ def create_enhanced_plugin_routes(auth_guard=None):
             }
         except Exception as e:
             logger.error(f"[SEARCH] Error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @router.get("/dashboard")
+    async def get_plugins_dashboard(request: Request):
+        """Aggregate registry + catalog + discovery into a dashboard payload."""
+        try:
+            discovery = get_discovery_service()
+            discovery_plugins = discovery.discover_all()
+            catalog_repo = get_repository()
+            catalog_plugins = {p.id: p for p in catalog_repo.list_plugins()}
+            registry = get_registry().build_registry(refresh=False, include_manifests=False)
+
+            all_ids = set(discovery_plugins.keys()) | set(catalog_plugins.keys()) | set(registry.keys())
+            items: Dict[str, Any] = {}
+
+            for plugin_id in sorted(all_ids):
+                discovery_item = discovery_plugins.get(plugin_id)
+                catalog_item = catalog_plugins.get(plugin_id)
+                registry_item = registry.get(plugin_id) or {}
+                manifest_report = (registry_item.get("manifest_report") or {})
+
+                item = {
+                    "id": plugin_id,
+                    "name": (discovery_item.name if discovery_item else None)
+                    or (catalog_item.name if catalog_item else plugin_id),
+                    "description": (discovery_item.description if discovery_item else None)
+                    or (catalog_item.description if catalog_item else ""),
+                    "category": (discovery_item.category if discovery_item else None)
+                    or (catalog_item.category if catalog_item else "plugin"),
+                    "tier": (discovery_item.tier if discovery_item else None) or "core",
+                    "version": (discovery_item.version if discovery_item else None)
+                    or (catalog_item.version if catalog_item else "0.0.0"),
+                    "installed": (discovery_item.installed if discovery_item else False)
+                    or (catalog_item.installed if catalog_item else False),
+                    "installed_version": (discovery_item.installed_version if discovery_item else None)
+                    or (catalog_item.installed_version if catalog_item else None),
+                    "update_available": (discovery_item.update_available if discovery_item else False)
+                    or (catalog_item.update_available if catalog_item else False),
+                    "enabled": (catalog_item.enabled if catalog_item else False),
+                    "license": (discovery_item.license if discovery_item else None)
+                    or (catalog_item.license if catalog_item else "MIT"),
+                    "author": (discovery_item.author if discovery_item else None)
+                    or (catalog_item.author if catalog_item else ""),
+                    "homepage": (discovery_item.homepage if discovery_item else None)
+                    or (catalog_item.homepage if catalog_item else ""),
+                    "documentation": (discovery_item.documentation if discovery_item else None)
+                    or (catalog_item.documentation if catalog_item else ""),
+                    "source_path": (discovery_item.source_path if discovery_item else None),
+                    "config_path": (discovery_item.config_path if discovery_item else None),
+                    "installer_type": (discovery_item.installer_type if discovery_item else "manual"),
+                    "installer_script": (discovery_item.installer_script if discovery_item else None),
+                    "package_file": (discovery_item.package_file if discovery_item else None)
+                    or (catalog_item.package_file if catalog_item else None),
+                    "dependencies": (discovery_item.dependencies if discovery_item else [])
+                    or (catalog_item.dependencies if catalog_item else []),
+                    "health_check_url": (discovery_item.health_check_url if discovery_item else None),
+                    "running": (discovery_item.running if discovery_item else False),
+                    "git": (discovery_item.git.to_dict() if discovery_item and discovery_item.git else None),
+                    "registry": {
+                        "registered": bool(registry_item),
+                        "manifest_type": manifest_report.get("manifest_type"),
+                        "validation_status": manifest_report.get("validation_status"),
+                        "issues": manifest_report.get("issues", []),
+                        "packages": registry_item.get("packages", []),
+                    },
+                }
+                items[plugin_id] = item
+
+            summary = {
+                "total": len(items),
+                "installed": len([p for p in items.values() if p.get("installed")]),
+                "enabled": len([p for p in items.values() if p.get("enabled")]),
+                "updates": len([p for p in items.values() if p.get("update_available")]),
+            }
+
+            return {
+                "success": True,
+                "summary": summary,
+                "plugins": items,
+            }
+        except Exception as e:
+            logger.error(f"[DASHBOARD] Error: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
 
     @router.get("/{plugin_id}")
@@ -326,6 +410,41 @@ def create_enhanced_plugin_routes(auth_guard=None):
             raise
         except Exception as e:
             logger.error(f"[INSTALL] Error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @router.post("/{plugin_id}/uninstall")
+    async def uninstall_plugin(plugin_id: str, request: Request):
+        """Uninstall a plugin by removing its source directory."""
+        try:
+            discovery = get_discovery_service()
+            discovery.discover_all()
+            plugin = discovery.get_plugin(plugin_id)
+            if not plugin:
+                raise HTTPException(status_code=404, detail=f"Plugin not found: {plugin_id}")
+            plugin_path = discovery.udos_root / plugin.source_path
+            if not plugin_path.exists():
+                return {
+                    "success": True,
+                    "plugin_id": plugin_id,
+                    "status": "not_installed",
+                    "message": "Plugin path not found",
+                }
+            # Safety: only remove known plugin paths
+            plugin_path = plugin_path.resolve()
+            if discovery.udos_root not in plugin_path.parents:
+                raise HTTPException(status_code=400, detail="Invalid plugin path")
+            import shutil
+            shutil.rmtree(plugin_path)
+            return {
+                "success": True,
+                "plugin_id": plugin_id,
+                "status": "uninstalled",
+                "message": "Plugin removed",
+            }
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"[UNINSTALL] Error: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
 
     return router

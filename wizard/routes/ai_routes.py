@@ -32,6 +32,21 @@ def create_ai_routes(auth_guard: AuthGuard = None) -> APIRouter:
         line_start: Optional[int] = None
         line_end: Optional[int] = None
 
+    @router.get("/config")
+    async def get_ai_config(request: Request):
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            ai = get_ai()
+            return {
+                "status": "ok",
+                "vibe_cli_installed": True,
+                "vibe_config_path": str(ai.vibe_config) if ai.vibe_config else None,
+                "default_model": "devstral-small",
+            }
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc))
+
     @router.get("/health")
     async def health_check(request: Request):
         if auth_guard:

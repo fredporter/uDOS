@@ -105,22 +105,21 @@ Both apps use standard Markdown:
 
 ---
 
-## Migration from Notion (if needed)
+## Migration from Other Tools (if needed)
 
-If you were previously using Notion sync:
+If you are coming from another system:
 
-1. **Export from Notion**
-   - Settings → Export → Markdown & CSV
-   - Download your workspace
+1. **Export to Markdown**
+   - Export Markdown (and CSV for tables) from your previous tool
 
 2. **Import to Obsidian**
    - Use Obsidian's Markdown importer
    - Or copy files directly to your vault
 
 3. **Clean up**
-   - Convert Notion databases to Markdown tables
+   - Convert database exports to Markdown tables
    - Update internal links
-   - Remove Notion-specific formatting
+   - Remove vendor-specific formatting
 
 ---
 

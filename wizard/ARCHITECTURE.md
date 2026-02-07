@@ -50,9 +50,9 @@ wizard/
 │   ├── notification_history_service.py
 │   ├── vscode_bridge.py       # VS Code extension bridge
 │   ├── mistral_vibe.py        # Vibe CLI context/log analysis
-│   ├── block_mapper.py        # Markdown↔Notion mapping
+│   ├── block_mapper.py        # Markdown mapping helpers
 │   ├── (core) binder/compiler.py # Binder compilation (md/json/pdf/brief)
-│   ├── notion_sync_service.py # Webhook queue, signature verification
+│   ├── sync_executor.py       # Sync queue processing to local mirrors
 │   ├── sync_executor.py       # Sync queue processing to local mirrors
 │   ├── task_scheduler.py      # Organic cron scheduling
 │   ├── workflow_manager.py    # Local project/task management
@@ -87,7 +87,7 @@ wizard/
 - Interactive console (foreground alongside server)
 - VS Code bridge + notification history endpoints
 - Binder compilation (multi-format output)
-- Notion sync with webhook queue and signature verification
+- Sync queue processing for local mirrors
 - Task scheduling (organic cron under Wizard memory)
 - Workflow management (local projects/tasks)
  - Workflow management (local projects/tasks)
@@ -117,7 +117,7 @@ Not in Wizard: TUI command handlers, core business logic, runtime execution (liv
 Dev Mode includes:
 
 - Goblin dev server with experimental features
-- Notion sync, task scheduling, runtime executor
+- Task scheduling, runtime executor
 - Real-time WebSocket updates
 - Full Wizard API access with dev features
 

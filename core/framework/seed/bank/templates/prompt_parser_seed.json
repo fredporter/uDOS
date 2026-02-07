@@ -5,10 +5,10 @@
       {
         "id": "todo.checklist",
         "label": "Todo checklist",
-        "description": "Actionable, short-term tasks or reminders transformed into TodoManager/Notion blocks and calendar events.",
+        "description": "Actionable, short-term tasks or reminders transformed into TodoManager task blocks and calendar events.",
         "primary_signals": ["todo", "reminder", "due", "next", "deliverable", "finish", "checklist"],
         "secondary_signals": ["today", "tomorrow", "week", "schedule", "list", "project"],
-        "output_target": "core.services.todo_service.TodoManager.to_notion_block",
+        "output_target": "core.services.todo_service.TodoManager.to_task_block",
         "reminder": {
           "horizon_hours": 24,
           "notify": true,

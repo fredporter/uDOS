@@ -11,6 +11,11 @@ parse_common_flags "$@"
 component="${1:-core}"
 mode="${2:-}"
 
+# Preserve TTY for prompt_toolkit (bottom toolbar + live hints)
+if [ -z "$UDOS_TTY" ]; then
+    export UDOS_TTY=1
+fi
+
 # Check for --rebuild flag in any position
 for arg in "$@"; do
     if [ "$arg" = "--rebuild" ]; then

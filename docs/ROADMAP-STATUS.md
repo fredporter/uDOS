@@ -8,7 +8,7 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 ## Status Summary
 
 - **Milestones v1.3.0 → v1.3.7**: ✅ Complete (see archived records).
-- **Current focus**: consolidate on shared GameState, new memory/system + vault-md layout, and app tooling polish.
+- **Current focus**: version bump + Wizard service split with MCP gateway + Vibe full TUI replacement (high priority refactor).
 
 ---
 
@@ -23,6 +23,11 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 ---
 
 ## Preferred Next Milestone (Post‑v1.3.7)
+
+### P0 — Version Bump + Wizard/Vibe Refactor (High Priority)
+- ⏳ Target version: **v1.3.8** (Wizard services split, MCP gateway, Vibe full TUI replacement).
+- ⏳ Plan service boundaries + MCP tool surface (Wizard remains the umbrella name).
+- ⏳ Bootstrap Vibe integration (embed) and minimal uCODE command exposure for exploration.
 
 ### P0 — Consolidation & Verification
 - ✅ Confirmed extension API references after the `memory/system` + `vault-md/` migration (no code refs to legacy bank paths remain).

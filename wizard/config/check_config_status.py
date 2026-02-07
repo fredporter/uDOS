@@ -30,9 +30,6 @@ REQUIRED_KEYS: Dict[str, List[Tuple[str, ...]]] = {
     "github_keys.json": [
         ("tokens", "default", "key_id"),
     ],
-    "notion_keys.json": [
-        ("integration", "key_id"),
-    ],
     "port_registry.json": [],
 }
 

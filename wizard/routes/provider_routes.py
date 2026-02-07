@@ -23,6 +23,7 @@ from wizard.services.secret_store import get_secret_store, SecretStoreError
 from wizard.services.logging_manager import get_logger
 from wizard.services.system_info_service import get_system_info_service
 from wizard.services.path_utils import get_repo_root
+from wizard.services.quota_tracker import get_quota_tracker
 
 
 def create_provider_routes(auth_guard=None):
@@ -473,6 +474,23 @@ def create_provider_routes(auth_guard=None):
 
         return status
 
+    @router.get("")
+    async def list_providers_root():
+        """List all available providers (alias for /list)."""
+        providers_list = []
+        enabled_ids = set(_get_enabled_providers())
+        for provider_id, provider in PROVIDERS.items():
+            status = check_provider_status(provider_id)
+            providers_list.append(
+                {
+                    **provider,
+                    "id": provider_id,
+                    "status": status,
+                    "enabled": provider_id in enabled_ids,
+                }
+            )
+        return {"providers": providers_list}
+
     @router.get("/list")
     async def list_providers():
         """List all available providers with status."""
@@ -490,6 +508,28 @@ def create_provider_routes(auth_guard=None):
             )
         return {"providers": providers_list}
 
+    @router.get("/dashboard")
+    async def providers_dashboard():
+        """Aggregate provider list + status + quota summaries."""
+        providers_list = []
+        enabled_ids = set(_get_enabled_providers())
+        for provider_id, provider in PROVIDERS.items():
+            status = check_provider_status(provider_id)
+            providers_list.append(
+                {
+                    **provider,
+                    "id": provider_id,
+                    "status": status,
+                    "enabled": provider_id in enabled_ids,
+                }
+            )
+
+        quotas = get_quota_tracker().get_all_quotas()
+        return {
+            "providers": providers_list,
+            "quotas": quotas,
+        }
+
     @router.get("/{provider_id}/status")
     async def get_provider_status(provider_id: str):
         """Get detailed status for a specific provider."""
@@ -505,6 +545,36 @@ def create_provider_routes(auth_guard=None):
             "status": status,
             "enabled": status.get("enabled", False),
         }
+
+    @router.get("/{provider_id}/config")
+    async def get_provider_config(provider_id: str):
+        """Get provider config file presence and keys (no secrets)."""
+        if provider_id not in PROVIDERS:
+            raise HTTPException(status_code=404, detail="Provider not found")
+
+        provider = PROVIDERS[provider_id]
+        config_file = provider.get("config_file")
+        config_key = provider.get("config_key")
+        config_path = (CONFIG_PATH / config_file) if config_file else None
+
+        payload = {
+            "provider_id": provider_id,
+            "config_file": str(config_path) if config_path else None,
+            "config_key": config_key,
+            "exists": False,
+            "keys": [],
+        }
+
+        if config_path and config_path.exists():
+            payload["exists"] = True
+            try:
+                data = json.loads(config_path.read_text())
+                if isinstance(data, dict):
+                    payload["keys"] = list(data.keys())
+            except Exception:
+                payload["keys"] = []
+
+        return payload
 
     @router.post("/{provider_id}/flag")
     async def flag_provider_for_setup(provider_id: str):

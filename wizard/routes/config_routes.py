@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends, Request, UploadFile, File
+from pydantic import BaseModel
 from fastapi.responses import JSONResponse, FileResponse
 from wizard.services.path_utils import get_repo_root, get_memory_dir
 from wizard.services.secret_store import (
@@ -167,7 +168,6 @@ def create_config_routes(auth_guard=None):
     CONFIG_FILES = {
         "assistant_keys": "assistant_keys.json",
         "github_keys": "github_keys.json",
-        "notion_keys": "notion_keys.json",
         "oauth": "oauth_providers.json",
         "hubspot_keys": "hubspot_keys.json",
         "wizard": "wizard.json",
@@ -177,7 +177,6 @@ def create_config_routes(auth_guard=None):
     LABEL_MAP = {
         "assistant_keys": "Assistant Keys",
         "github_keys": "GitHub Keys",
-        "notion_keys": "Notion Keys",
         "oauth": "OAuth Providers",
         "hubspot_keys": "HubSpot Keys",
         "wizard": "Wizard",
@@ -196,6 +195,29 @@ def create_config_routes(auth_guard=None):
         wizard_path = CONFIG_PATH / "wizard.json"
         wizard_path.parent.mkdir(parents=True, exist_ok=True)
         wizard_path.write_text(json.dumps(config, indent=2))
+
+    class _ConfigUpdate(BaseModel):
+        updates: Dict[str, Any]
+
+    @router.get("")
+    async def get_wizard_config():
+        """Return Wizard config as a simplified API (phase 1)."""
+        return {
+            "status": "ok",
+            "config": _load_wizard_config(),
+        }
+
+    @router.patch("")
+    async def patch_wizard_config(payload: _ConfigUpdate):
+        """Patch Wizard config (phase 1)."""
+        current = _load_wizard_config()
+        updates = payload.updates or {}
+        current.update(updates)
+        _save_wizard_config(current)
+        return {
+            "status": "ok",
+            "config": current,
+        }
 
     def _enable_provider(config: Dict[str, Any], provider_id: str) -> bool:
         enabled = config.get("enabled_providers") or []
@@ -229,19 +251,6 @@ def create_config_routes(auth_guard=None):
                 changed |= _enable_provider(config, "github")
                 if not config.get("github_push_enabled"):
                     config["github_push_enabled"] = True
-                    changed = True
-
-
-        elif file_id == "notion_keys":
-            has_key = bool(
-                _get_nested(content, ["integration", "key_id"])
-                or _get_nested(content, ["integration", "api_key"])
-                or _get_nested(content, ["integration", "token"])
-            )
-            if has_key:
-                changed |= _enable_provider(config, "notion")
-                if not config.get("notion_enabled"):
-                    config["notion_enabled"] = True
                     changed = True
 
         elif file_id == "hubspot_keys":

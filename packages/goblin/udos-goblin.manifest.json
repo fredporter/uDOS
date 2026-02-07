@@ -8,7 +8,7 @@
   },
   "display": "v0.2.0",
   "type": "tcz",
-  "description": "Development/experimental server: Notion sync, runtime executor, binder compiler (localhost-only, unstable)",
+  "description": "Development/experimental server: runtime executor, task scheduler, binder compiler (localhost-only, unstable)",
   "author": "Fred Porter",
   "license": "MIT",
 
@@ -45,8 +45,6 @@
   "breaking_changes": true,
 
   "api_endpoints": [
-    "POST /api/v0/notion/webhook",
-    "GET /api/v0/notion/sync/status",
     "POST /api/v0/runtime/parse",
     "POST /api/v0/runtime/execute",
     "POST /api/v0/tasks/schedule",
@@ -57,7 +55,6 @@
     "Port 8767 (development, localhost-only)",
     "Breaking changes expected between minor versions",
     "/api/v0/* endpoints are unstable",
-    "Notion sync: Phase B complete (queue + schema), conflict/publish deferred",
     "Binder compiler: functional, exports Markdown/PDF/JSON/dev-briefs",
     "Runtime executor: Python stubs (full TS implementation in /core/)"
   ],

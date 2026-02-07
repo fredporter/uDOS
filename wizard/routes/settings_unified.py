@@ -49,7 +49,7 @@ class VenvStatus(BaseModel):
 class SecretConfig(BaseModel):
     """Secret/API key configuration."""
     key: str
-    category: str  # "ai", "github", "notion", "oauth", "hubspot"
+    category: str  # "ai", "github", "oauth", "hubspot"
     masked_value: Optional[str] = None
     is_set: bool = False
     updated_at: Optional[str] = None
@@ -173,7 +173,6 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
     categories = {
         "ai": ["mistral_api_key", "openrouter_api_key", "ollama_api_key"],
         "github": ["github_token", "github_webhook_secret"],
-        "notion": ["notion_api_key", "notion_workspace_id"],
         "oauth": ["oauth_client_id", "oauth_client_secret"],
         "hubspot": ["hubspot_api_key"],
     }
@@ -199,7 +198,6 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
     legacy_config = {
         "assistant": _load_config_file("assistant_keys.json"),
         "github": _load_config_file("github_keys.json"),
-        "notion": _load_config_file("notion_keys.json"),
         "hubspot": _load_config_file("hubspot_keys.json"),
         "oauth": _load_config_file("oauth_providers.json"),
     }
@@ -225,15 +223,6 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
         "github_webhook_secret": (
             _get_nested(legacy_config["github"], ["webhooks", "secret_key_id"])
             or _get_nested(legacy_config["github"], ["webhooks", "secret"])
-        ),
-        "notion_api_key": (
-            _get_nested(legacy_config["notion"], ["integration", "api_key"])
-            or _get_nested(legacy_config["notion"], ["integration", "token"])
-            or _get_nested(legacy_config["notion"], ["integration", "key_id"])
-        ),
-        "notion_workspace_id": (
-            _get_nested(legacy_config["notion"], ["integration", "workspace_id"])
-            or _get_nested(legacy_config["notion"], ["integration", "database_id_key_id"])
         ),
         "hubspot_api_key": (
             legacy_config["hubspot"].get("api_key")
@@ -430,8 +419,6 @@ def _sync_wizard_config_from_secret(key: str) -> Dict[str, Any]:
     mapping = {
         "github_token": {"providers": ["github"], "toggles": ["github_push_enabled"]},
         "github_webhook_secret": {"providers": ["github"], "toggles": ["github_push_enabled"]},
-        "notion_api_key": {"providers": ["notion"], "toggles": ["notion_enabled"]},
-        "notion_workspace_id": {"providers": ["notion"], "toggles": ["notion_enabled"]},
         "hubspot_api_key": {"providers": ["hubspot"], "toggles": ["hubspot_enabled"]},
         "mistral_api_key": {"providers": ["mistral"], "toggles": ["ai_gateway_enabled"]},
         "openrouter_api_key": {"providers": ["openrouter"], "toggles": ["ai_gateway_enabled"]},
@@ -512,7 +499,6 @@ def migrate_config_from_v1_0() -> Dict[str, Any]:
     config_mapping = {
         "assistant_keys.json": ("ai", ["mistral_api_key", "openrouter_api_key"]),
         "github_keys.json": ("github", ["github_token", "github_webhook_secret"]),
-        "notion_keys.json": ("notion", ["notion_api_key", "notion_workspace_id"]),
         "oauth.json": ("oauth", ["oauth_client_id", "oauth_client_secret"]),
         "hubspot_keys.json": ("hubspot", ["hubspot_api_key"]),
     }

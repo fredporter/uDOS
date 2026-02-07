@@ -76,7 +76,7 @@ def _generate_prompt_payload(name: str, manifest: Dict[str, Any]) -> Dict[str, A
             "story_guidance": parsed.get("story_guidance", ""),
             "reference_links": parsed.get("reference_links", []),
         },
-        "tasks": [task.to_notion_block() for task in tasks],
+        "tasks": [task.to_task_block() for task in tasks],
         "calendar": {"view": "weekly", "lines": calendar_lines, "output": "\n".join(calendar_lines)},
         "gantt": {"window_days": 30, "lines": gantt_lines, "output": "\n".join(gantt_lines)},
         "reminder": reminder_payload,

@@ -6,7 +6,7 @@ Coordinates Goblin dev server, monitoring, and API availability.
 
 Dev Mode includes:
 - Goblin Dev Server (localhost:8767)
-- Notion sync, task scheduling, runtime executor
+- Task scheduling, runtime executor
 - Real-time WebSocket updates
 - TUI interface for monitoring
 """
@@ -40,7 +40,6 @@ class DevModeService:
         self.start_time: Optional[float] = None
         self.services_status = {
             "goblin": False,
-            "notion_sync": False,
             "runtime_executor": False,
             "task_scheduler": False,
             "workflow_manager": False,

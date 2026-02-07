@@ -1,0 +1,5 @@
+# MCP (Model Context Protocol) dependencies for Vibe integration
+# Use Python 3.12+ and install into a dedicated venv (see .venv-mcp).
+
+mcp
+requests

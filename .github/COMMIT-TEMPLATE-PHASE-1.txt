@@ -22,33 +22,31 @@ v1.0.2.0 Phase 1: Architecture Split + uMarkdown App Scaffold
   - tailwind.config.js: Brand colors, typography
   - postcss.config.js: CSS processing
   - vite.config.ts: Svelte plugin integration
-  
+
 - UI Components (Svelte):
   - src/App.svelte: Root layout (header, sidebar, split-pane editor/preview)
   - src/components/BinderNav.svelte: Recursive tree navigation
   - src/components/MarkdownEditor.svelte: Editor with toolbar
   - src/components/Preview.svelte: Live markdown rendering
-  
+
 - Entry point:
   - index.html: Clean Svelte app shell
   - src/main.ts: Svelte initialization
-  
+
 - Complete development guide (app/README.md)
 
 ### Dev Server (Experimental)
 - `wizard/dev_server.py`: Complete FastAPI implementation
-  - Notion webhook endpoints (/api/v0/notion/*)
   - TS runtime endpoints (/api/v0/runtime/*)
   - Task scheduling endpoints (/api/v0/tasks/*)
   - Binder compilation endpoints (/api/v0/binder/*)
   - Health check + service status
 
 - Service stubs (ready for implementation):
-  - wizard/services/dev/notion_sync_service.py
   - wizard/services/dev/runtime_executor.py
   - wizard/services/dev/task_scheduler.py
   - wizard/services/dev/binder_compiler.py
-  
+
 - Shared utilities:
   - wizard/services/shared/__init__.py
 
@@ -63,7 +61,7 @@ uDOS v1.0.2.0
 ├── Core (Python TUI) — Unchanged
 ├── Wizard Server (v1.1.0.0, port 8765) — Production-only, frozen
 ├── Dev Server (v0.1.0, port 8766) — Experimental, unstable
-└── uMarkdown App (Tauri+Svelte) — Notion-style binder, tasks
+└── uMarkdown App (Tauri+Svelte) — Local-first binder, tasks
 ```
 
 ## What's Ready for Phase 2
@@ -77,14 +75,14 @@ uDOS v1.0.2.0
 
 ## Files
 
-**Created:** 22 files  
-**Modified:** 8 files  
+**Created:** 22 files
+**Modified:** 8 files
 **Lines of Code:** 2000+
 
 ## Timeline
 
 - Phase 1 (Week 1-2): Architecture split + app scaffold ✅ COMPLETE
-- Phase 2 (Week 3-4): Notion sync + webhook handling
+- Phase 2 (Week 3-4): Webhook handling + sync queue
 - Phase 3 (Week 5-6): TS runtime execution
 - Phase 4 (Week 7-8): Task scheduling + binder compiler
 

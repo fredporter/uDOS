@@ -43,7 +43,6 @@ All other sensitive data goes in the Wizard keystore:
 
 **API Keys:**
 - GitHub personal access tokens
-- Notion API keys
 - Anthropic API keys
 - OpenAI API keys
 - HubSpot API keys

@@ -372,6 +372,18 @@ class WizardServer:
         public_export_router = create_public_export_routes()
         app.include_router(public_export_router)
 
+        # Register uCODE bridge routes (MCP/Vibe exploration)
+        from wizard.routes.ucode_routes import create_ucode_routes
+
+        ucode_router = create_ucode_routes(auth_guard=self._authenticate_admin)
+        app.include_router(ucode_router)
+
+        # Register Plugin CLI stub routes (migration placeholder)
+        from wizard.routes.plugin_stub_routes import create_plugin_stub_routes
+
+        plugin_stub_router = create_plugin_stub_routes(auth_guard=self._authenticate_admin)
+        app.include_router(plugin_stub_router)
+
         # Register public Ollama routes FIRST (no auth required for local operations)
         # Must be registered before protected provider routes due to route matching
         from wizard.routes.provider_routes import create_public_ollama_routes
@@ -451,6 +463,12 @@ class WizardServer:
 
         log_router = create_log_routes()
         app.include_router(log_router)
+
+        # Register Monitoring routes
+        from wizard.routes.monitoring_routes import create_monitoring_routes
+
+        monitoring_router = create_monitoring_routes(auth_guard=self._authenticate_admin)
+        app.include_router(monitoring_router)
 
         # Register Catalog routes
         from wizard.routes.catalog_routes import create_catalog_routes

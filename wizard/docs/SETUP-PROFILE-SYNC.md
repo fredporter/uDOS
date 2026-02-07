@@ -71,7 +71,6 @@ Stored in secret store with key: `wizard-install-profile`
     "gmail_relay": true,
     "ai_gateway": true,
     "github_push": false,
-    "notion": false,
     "hubspot": false,
     "icloud": false,
     "plugin_repo": true,
@@ -190,7 +189,6 @@ wizard> setup
     ✅ Gmail Relay
     ✅ Ai Gateway
     ❌ GitHub Push
-    ❌ Notion
     ❌ Hubspot
     ❌ Icloud
     ✅ Plugin Repo
@@ -212,7 +210,6 @@ When the setup story is submitted, capabilities are automatically synced to `wiz
 - `gmail_relay` → `gmail_relay_enabled`
 - `ai_gateway` → `ai_gateway_enabled`
 - `github_push` → `github_push_enabled`
-- `notion` → `notion_enabled`
 - `hubspot` → `hubspot_enabled`
 - `icloud` → `icloud_enabled`
 - `plugin_repo` → `plugin_repo_enabled`

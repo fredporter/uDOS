@@ -1,52 +1,7 @@
 -- uMarkdown SQLite Schema
--- Local-first storage for binder documents, tasks, and Notion sync mappings
+-- Local-first storage for binder documents and tasks
 -- Created: 2026-01-15
 -- Version: 1.0.0
-
----
--- NOTION SYNC LAYER
----
-
--- notion_sync_queue: Operations pending Notion sync
--- Supports idempotent retries and error tracking
-CREATE TABLE IF NOT EXISTS notion_sync_queue (
-  id TEXT PRIMARY KEY,
-  operation TEXT NOT NULL CHECK(operation IN ('insert', 'update', 'delete', 'move')),
-  local_type TEXT NOT NULL CHECK(local_type IN ('document', 'task', 'resource')),
-  local_id TEXT NOT NULL,
-  notion_id TEXT,
-  payload JSON,
-  status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'processing', 'success', 'error')),
-  error_message TEXT,
-  retry_count INTEGER DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- notion_maps: Bidirectional mappings between local and Notion IDs
--- Tracks sync mode and conflict metadata
-CREATE TABLE IF NOT EXISTS notion_maps (
-  id TEXT PRIMARY KEY,
-  local_type TEXT NOT NULL CHECK(local_type IN ('document', 'task', 'resource')),
-  local_id TEXT NOT NULL,
-  notion_id TEXT NOT NULL,
-  sync_mode TEXT DEFAULT 'publish' CHECK(sync_mode IN ('publish', 'bidirectional')),
-  remote_last_edited TIMESTAMP,
-  synced_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(local_type, local_id),
-  UNIQUE(notion_id)
-);
-
--- notion_config: Notion API configuration and credentials
--- Store API keys, workspace settings, database IDs
-CREATE TABLE IF NOT EXISTS notion_config (
-  key TEXT PRIMARY KEY,
-  value TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
 ---
 -- LOCAL DOCUMENT LAYER
@@ -83,7 +38,6 @@ CREATE TABLE IF NOT EXISTS binder_tasks (
 );
 
 -- binder_projects: Project grouping
--- Maps to Notion database pages
 CREATE TABLE IF NOT EXISTS binder_projects (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
@@ -118,7 +72,7 @@ CREATE TABLE IF NOT EXISTS sync_log (
   operation TEXT NOT NULL,
   local_type TEXT,
   local_id TEXT,
-  notion_id TEXT,
+  remote_id TEXT,
   status TEXT,
   error_message TEXT,
   duration_ms INTEGER,
@@ -130,7 +84,7 @@ CREATE TABLE IF NOT EXISTS sync_log (
 CREATE TABLE IF NOT EXISTS sync_conflicts (
   id TEXT PRIMARY KEY,
   local_id TEXT NOT NULL,
-  notion_id TEXT NOT NULL,
+  remote_id TEXT NOT NULL,
   conflict_type TEXT CHECK(conflict_type IN ('update', 'delete', 'move')),
   local_version TIMESTAMP NOT NULL,
   remote_version TIMESTAMP NOT NULL,
@@ -142,19 +96,6 @@ CREATE TABLE IF NOT EXISTS sync_conflicts (
 ---
 -- INDEXES FOR COMMON QUERIES
 ---
-
--- notion_sync_queue indexes
-CREATE INDEX IF NOT EXISTS idx_queue_status ON notion_sync_queue(status);
-CREATE INDEX IF NOT EXISTS idx_queue_local_id ON notion_sync_queue(local_id);
-CREATE INDEX IF NOT EXISTS idx_queue_created_at ON notion_sync_queue(created_at);
-CREATE INDEX IF NOT EXISTS idx_queue_by_status_and_type ON notion_sync_queue(status, local_type);
-
--- notion_maps indexes
-CREATE INDEX IF NOT EXISTS idx_maps_local_type ON notion_maps(local_type);
-CREATE INDEX IF NOT EXISTS idx_maps_notion_id ON notion_maps(notion_id);
-
--- notion_config indexes
-CREATE INDEX IF NOT EXISTS idx_config_created_at ON notion_config(created_at);
 
 -- binder_documents indexes
 CREATE INDEX IF NOT EXISTS idx_docs_project_id ON binder_documents(project_id);

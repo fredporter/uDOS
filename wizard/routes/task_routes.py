@@ -183,6 +183,43 @@ def create_task_routes(auth_guard: AuthGuard = None) -> APIRouter:
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
 
+    @router.get("/dashboard")
+    async def get_dashboard(request: Request, limit: int = 20):
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            stats = scheduler.get_stats()
+            queue = scheduler.get_scheduled_queue(limit=limit)
+            runs = scheduler.get_execution_history(limit)
+
+            # Indexer summary (cached)
+            cached = _cache_get("summary")
+            summary = cached
+            if summary is None:
+                env = os.environ.copy()
+                env["VAULT_ROOT"] = str(_vault_root())
+                env["DB_PATH"] = str(_tasks_db_path())
+                try:
+                    result = _run_task_indexer(["--summary"], env)
+                    payloads = result["payloads"]
+                    summary = next(
+                        (item.get("summary") for item in payloads if "summary" in item),
+                        None,
+                    )
+                    if summary:
+                        _cache_set("summary", summary)
+                except Exception:
+                    summary = None
+
+            return {
+                "stats": stats,
+                "queue": queue,
+                "runs": runs,
+                "indexer_summary": summary,
+            }
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc))
+
     class SchedulerSettings(BaseModel):
         max_tasks_per_tick: Optional[int] = None
         tick_seconds: Optional[int] = None
@@ -327,7 +364,7 @@ def create_task_routes(auth_guard: AuthGuard = None) -> APIRouter:
                 "story_guidance": parse_result.get("story_guidance"),
                 "reference_links": parse_result.get("reference_links", []),
             },
-            "tasks": [task.to_notion_block() for task in tasks],
+            "tasks": [task.to_task_block() for task in tasks],
             "calendar": {
                 "view": payload.calendar_view,
                 "format": payload.calendar_format,

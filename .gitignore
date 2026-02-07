@@ -83,11 +83,9 @@ private/
 wizard/config/assistant_keys.json
 wizard/config/github_keys.json
 wizard/config/oauth_providers.json
-wizard/config/notion_keys.json
 public/wizard/config/assistant_keys.json
 public/wizard/config/github_keys.json
 public/wizard/config/oauth_providers.json
-public/wizard/config/notion_keys.json
 **/config/*_keys.json
 **/config/*secret*.json
 **/config/*token*.json
@@ -284,7 +282,6 @@ dev/library/**/
 wizard/config/assistant_keys.json
 wizard/config/github_keys.json
 wizard/config/oauth_providers.json
-wizard/config/notion_keys.json
 
 # ---------- BACKUP FILES & TEMP ----------
 *.bak

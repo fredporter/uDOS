@@ -11,14 +11,9 @@ config = {
     "port": 8766,
     "debug": True,
     "services": {
-        "notion_sync_enabled": True,
         "runtime_execution_enabled": True,
         "task_scheduler_enabled": True,
         "project_management": True,
-    },
-    "notion": {
-        "api_token": "YOUR_NOTION_TOKEN_HERE",
-        "database_id": None,
     },
     "ai_routing": {
         "local_model": "ollama",

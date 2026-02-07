@@ -18,10 +18,12 @@ Version: v1.0.0
 
 from typing import Optional, List, Dict, Any, Callable
 from dataclasses import dataclass
+import os
 import shutil
 from core.utils.tty import interactive_tty_status
 from .enhanced_prompt import EnhancedPrompt
 from core.services.logging_service import get_logger
+from core.services.dev_state import get_dev_state_label
 
 
 def _get_safe_logger():
@@ -242,8 +244,8 @@ class ContextualCommandPrompt(EnhancedPrompt):
         """
         Build a dynamic, 2-line toolbar for prompt_toolkit.
 
-        Line 1: Suggestions or options
-        Line 2: Help text or tip
+        Line 1: Suggestions/options bar
+        Line 2: Help/syntax bar
         """
         if not self.show_context:
             return ""
@@ -271,12 +273,13 @@ class ContextualCommandPrompt(EnhancedPrompt):
             return ""
 
         prefix_symbol = _prefix_symbol()
+        dev_state = get_dev_state_label()
 
         # No input yet: show general suggestions + a rotating tip
         if not tokens:
             suggestions = self.registry.get_suggestions("", limit=5)
-            line1 = self._format_suggestions_line(suggestions, prefix_symbol)
-            line2 = self._format_tip_line(stripped)
+            line1 = self._format_suggestions_line(suggestions, prefix_symbol, label="Commands")
+            line2 = f"  ↳ DEV: {dev_state}  |  Tip: Use ':' or 'OK' for uCODE, '/' for shell"
             return [_format_line(line1), _format_line(line2)]
 
         cmd_token = tokens[0].lstrip(":/")
@@ -289,7 +292,7 @@ class ContextualCommandPrompt(EnhancedPrompt):
             line1 = self._format_suggestions_line(suggestions, prefix_symbol)
             if cmd_meta:
                 syntax = f"{prefix_symbol}{cmd_meta.syntax}" if prefix_symbol else cmd_meta.syntax
-                line2 = f"  ╰─ {cmd_meta.icon} {cmd_meta.help_text}  |  {syntax}"
+                line2 = f"  ↳ {cmd_meta.icon} {cmd_meta.help_text}  |  {syntax}"
             else:
                 line2 = self._format_tip_line(stripped)
             return [_format_line(line1), _format_line(line2)]
@@ -299,8 +302,8 @@ class ContextualCommandPrompt(EnhancedPrompt):
             opt_preview = ", ".join(options[:4])
             if len(options) > 4:
                 opt_preview += f" (+{len(options) - 4} more)"
-            line1 = f"  ╭─ Options: {opt_preview}"
-            line2 = f"  ╰─ 🧭 Local Vibe ({ok_model}, ctx {ok_ctx})"
+            line1 = f"  ⎔ OK: {opt_preview}"
+            line2 = f"  ↳ 🧭 Local Vibe ({ok_model}, ctx {ok_ctx})"
             return [_format_line(line1), _format_line(line2)]
 
         # Otherwise, show options/next hints for the chosen command
@@ -310,21 +313,21 @@ class ContextualCommandPrompt(EnhancedPrompt):
             opt_preview = ", ".join(options[:4])
             if len(options) > 4:
                 opt_preview += f" (+{len(options) - 4} more)"
-            line1 = f"  ╭─ Options: {opt_preview}"
+            line1 = f"  ⎔ Options: {opt_preview}"
         else:
-            line1 = "  ╭─ Options: (none)"
+            line1 = "  ⎔ Options: (none)"
 
         if cmd_meta and cmd_meta.examples:
-            line2 = f"  ╰─ Example: {cmd_meta.examples[0]}"
+            line2 = f"  ↳ Example: {cmd_meta.examples[0]}"
         elif cmd_meta:
-            line2 = f"  ╰─ {cmd_meta.icon} {cmd_meta.help_text}  |  Try: HELP {cmd_meta.name}"
+            line2 = f"  ↳ {cmd_meta.icon} {cmd_meta.help_text}  |  Try: HELP {cmd_meta.name}"
         else:
             line2 = self._format_tip_line(stripped)
 
         return [_format_line(line1), _format_line(line2)]
 
     def _format_suggestions_line(
-        self, suggestions: List[CommandMetadata], prefix_symbol: str = ""
+        self, suggestions: List[CommandMetadata], prefix_symbol: str = "", label: str = "Suggestions"
     ) -> str:
         """Format suggestions line for toolbar."""
         if suggestions:
@@ -332,17 +335,17 @@ class ContextualCommandPrompt(EnhancedPrompt):
             suggestion_text = ", ".join(names)
             if len(suggestions) > 3:
                 suggestion_text += f" (+{len(suggestions) - 3} more)"
-            return f"  ╭─ Suggestions: {suggestion_text}"
-        return "  ╭─ No matching commands"
+            return f"  ⎔ {label}: {suggestion_text}"
+        return f"  ⎔ {label}: (none)"
 
     def _format_tip_line(self, prefix: str) -> str:
         """Return a rotating tip/help line for variety."""
         tips = [
-            "  ╰─ Tip: Use ↑/↓ for history, → to accept suggestions",
-            "  ╰─ Tip: Press Tab to open the command selector",
-            "  ╰─ Tip: Add --help to see command options",
-            "  ╰─ Tip: Prefix OK for local Vibe (e.g., OK EXPLAIN)",
-            "  ╰─ Tip: Try HELP <command> for full docs",
+            "  ↳ Tip: Use ↑/↓ for history, → to accept suggestions",
+            "  ↳ Tip: Press Tab to open the command selector",
+            "  ↳ Tip: Add --help to see command options",
+            "  ↳ Tip: Prefix OK for local Vibe (e.g., OK EXPLAIN)",
+            "  ↳ Tip: Try HELP <command> for full docs",
         ]
         idx = (len(prefix) + sum(ord(c) for c in prefix)) % len(tips) if prefix else 0
         return tips[idx]
@@ -496,15 +499,6 @@ def create_default_registry() -> CommandRegistry:
         category="System",
     )
 
-    registry.register(
-        name="QUIT",
-        help_text="Quit uCODE (alias for EXIT)",
-        syntax="QUIT",
-        examples=["QUIT"],
-        icon="🚪",
-        category="System",
-    )
-
     # Management Commands
     registry.register(
         name="SETUP",
@@ -531,34 +525,6 @@ def create_default_registry() -> CommandRegistry:
         examples=["INTEGRATION status", "INTEGRATION mistral"],
         icon="🔗",
         category="System",
-    )
-
-    # AI Modes
-    registry.register(
-        name="OFVIBE",
-        help_text="Local/offline Vibe CLI (Ollama-backed)",
-        syntax=":OFVIBE [status|setup|models]",
-        examples=[":OFVIBE status", ":OFVIBE setup"],
-        icon="🧭",
-        category="AI",
-    )
-
-    registry.register(
-        name="ONVIBE",
-        help_text="Vibe CLI (Mistral cloud)",
-        syntax=":ONVIBE [status|setup|models]",
-        examples=[":ONVIBE status", ":ONVIBE setup"],
-        icon="☁️",
-        category="AI",
-    )
-
-    registry.register(
-        name="PROMPT",
-        help_text="Wizard AI gateway (Gemini primary, OpenAI fallback)",
-        syntax=":PROMPT [status|setup|models|parse] | :PROMPT <instruction>",
-        examples=[":PROMPT status", ":PROMPT parse \"Review errors\""],
-        icon="🧠",
-        category="AI",
     )
 
     registry.register(
@@ -602,6 +568,15 @@ def create_default_registry() -> CommandRegistry:
         examples=["WIZARD start", "WIZARD status", "WIZARD logs --tail"],
         icon="🧙",
         category="Server",
+    )
+
+    registry.register(
+        name="DEV",
+        help_text="Toggle dev mode (Wizard)",
+        syntax="DEV [on|off|status|restart]",
+        examples=["DEV status", "DEV on", "DEV off"],
+        icon="🛠️",
+        category="System",
     )
 
     # Data Commands

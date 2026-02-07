@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import {
     applyTypographyState,
     cycleOption,
@@ -11,6 +11,8 @@
     sizePresets,
     defaultTypography,
   } from "../lib/typography.js";
+  import { apiFetch } from "$lib/services/apiBase";
+  import { buildAuthHeaders, getAdminToken } from "$lib/services/auth";
 
   export let isDark = true;
   export let onDarkModeToggle = () => {};
@@ -18,6 +20,17 @@
   let typography = { ...defaultTypography };
   let labels = getTypographyLabels(typography);
   let isFullscreen = false;
+  let statusTimer;
+  let emojiTimer;
+  let wizardUp = false;
+  let goblinUp = false;
+  let memPercent = "?";
+  let cpuPercent = "?";
+  let devState = "OFF";
+  let roleLabel = "GUEST";
+  let ghostMode = false;
+  let emojiFrame = "🙂";
+  const emojiFrames = ["🙂", "😌", "🫧", "🤔", "🧠", "📝"];
 
   function syncTypography(next) {
     typography = applyTypographyState(next);
@@ -59,26 +72,138 @@
     }
   }
 
+  function resolveRole() {
+    const token = getAdminToken();
+    roleLabel = token ? "ADMIN" : "GUEST";
+  }
+
+  function resolveGhostMode() {
+    if (typeof localStorage === "undefined") {
+      ghostMode = false;
+      return;
+    }
+    ghostMode = localStorage.getItem("wizardGhostMode") === "1";
+  }
+
+  async function refreshStatus() {
+    resolveRole();
+    resolveGhostMode();
+    try {
+      const healthRes = await apiFetch("/health");
+      wizardUp = healthRes.ok;
+    } catch (err) {
+      wizardUp = false;
+    }
+
+    const token = getAdminToken();
+    if (!token) {
+      devState = "OFF";
+      goblinUp = false;
+      memPercent = "?";
+      cpuPercent = "?";
+      return;
+    }
+
+    try {
+      const devRes = await apiFetch("/api/dev/status", {
+        headers: buildAuthHeaders(token),
+      });
+      if (devRes.ok) {
+        const data = await devRes.json();
+        devState = data.active ? "ON" : "OFF";
+        goblinUp = !!data.active;
+      }
+    } catch (err) {
+      devState = "OFF";
+      goblinUp = false;
+    }
+
+    try {
+      const diagRes = await apiFetch("/api/monitoring/diagnostics", {
+        headers: buildAuthHeaders(token),
+      });
+      if (diagRes.ok) {
+        const data = await diagRes.json();
+        const stats = data?.system?.stats || {};
+        memPercent = stats?.memory?.percent ?? "?";
+        cpuPercent = stats?.cpu?.percent ?? "?";
+      }
+    } catch (err) {
+      memPercent = "?";
+      cpuPercent = "?";
+    }
+  }
+
+  function startEmojiLoop() {
+    let idx = 0;
+    emojiFrame = emojiFrames[idx];
+    emojiTimer = setInterval(() => {
+      idx = (idx + 1) % emojiFrames.length;
+      emojiFrame = emojiFrames[idx];
+    }, 600);
+  }
+
   onMount(() => {
     typography = loadTypographyState();
     syncTypography(typography);
+    refreshStatus();
+    statusTimer = setInterval(refreshStatus, 4000);
+    startEmojiLoop();
+  });
+
+  onDestroy(() => {
+    if (statusTimer) clearInterval(statusTimer);
+    if (emojiTimer) clearInterval(emojiTimer);
   });
 </script>
 
 <div class="wizard-bottom-bar">
   <!-- Left side: Status info -->
   <div class="wizard-bar-left">
-    <span class="status-text">H: {labels.headingLabel}</span>
-    <span class="status-text">·</span>
-    <span class="status-text">B: {labels.bodyLabel}</span>
-    <span class="status-text">·</span>
-    <span class="status-text">{labels.sizeLabel}</span>
-    <span class="status-text">·</span>
-    <span class="status-text">{labels.sizeLabel}</span>
+    <div class="wizard-status-block">
+      <div class="wizard-status-line">
+        <span class="chip">👻 {roleLabel}</span>
+        {#if ghostMode}
+          <span class="chip ghost">GHOST MODE</span>
+        {/if}
+        <span class="chip">
+          WIZ:
+          <span class:good={wizardUp} class:bad={!wizardUp}>
+            {wizardUp ? "🟢" : "🔴"}
+          </span>
+        </span>
+        <span class="chip">
+          GOB:
+          <span class:good={goblinUp} class:bad={!goblinUp}>
+            {goblinUp ? "🟢" : "🔴"}
+          </span>
+        </span>
+        <span class="chip">Mem: {memPercent}%</span>
+        <span class="chip">CPU: {cpuPercent}%</span>
+        <span class="chip">F1-F8</span>
+      </div>
+      <div class="wizard-status-line prompt-line">
+        <span class="emoji-frame">{emojiFrame}</span>
+        <span class="prompt-arrow">▶</span>
+      </div>
+      <div class="wizard-status-line">
+        <span class="commands-line">⎔ Commands: OK, BINDER, FILE (+2 more)</span>
+        <span class="dev-line">↳ DEV: {devState} | Tip: Use ':' or 'OK' for uCODE, '/' for shell</span>
+      </div>
+    </div>
   </div>
 
   <!-- Right side: Controls -->
   <div class="wizard-bar-right">
+    <div class="control-section status-text">
+      H: {labels.headingLabel}
+    </div>
+    <div class="control-section status-text">·</div>
+    <div class="control-section status-text">
+      B: {labels.bodyLabel}
+    </div>
+    <div class="control-section status-text">·</div>
+    <div class="control-section status-text">{labels.sizeLabel}</div>
     <div class="control-section">
       <button
         on:click={resetTypography}
@@ -178,7 +303,7 @@
     bottom: 0;
     left: 0;
     width: 100vw;
-    height: var(--wizard-bottom-bar-height, 44px);
+    height: var(--wizard-bottom-bar-height, 86px);
     background: #1f2937;
     color: #d1d5db;
     display: flex;
@@ -225,6 +350,88 @@
     align-items: center;
     gap: 1rem;
     flex-shrink: 0;
+  }
+
+  .wizard-status-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  .wizard-status-line {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    font-size: 0.72rem;
+    color: #cbd5f5;
+  }
+
+  .prompt-line {
+    font-size: 0.85rem;
+    color: #f8fafc;
+  }
+
+  .emoji-frame {
+    display: inline-flex;
+    min-width: 1.2rem;
+    justify-content: center;
+  }
+
+  .prompt-arrow {
+    font-weight: 700;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    color: inherit;
+    font-size: 0.68rem;
+    letter-spacing: 0.02em;
+  }
+
+  .chip.ghost {
+    background: rgba(148, 163, 184, 0.2);
+  }
+
+  .good {
+    color: #34d399;
+  }
+
+  .bad {
+    color: #f87171;
+  }
+
+  .commands-line,
+  .dev-line {
+    font-size: 0.68rem;
+  }
+
+  .dev-line {
+    color: #a5b4fc;
+  }
+
+  :global(html.light) .wizard-status-line {
+    color: #475569;
+  }
+
+  :global(html.light) .prompt-line {
+    color: #0f172a;
+  }
+
+  :global(html.light) .chip {
+    background: rgba(226, 232, 240, 0.8);
+    border-color: rgba(148, 163, 184, 0.4);
+  }
+
+  :global(html.light) .dev-line {
+    color: #4f46e5;
   }
 
   .control-section {

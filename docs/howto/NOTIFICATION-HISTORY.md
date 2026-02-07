@@ -702,7 +702,7 @@ python wizard/launch_wizard_dev.py --no-tui
 
 ## 📈 Future Enhancements (v1.1.0+)
 
-- [ ] Cloud sync (encrypted Notion/Firebase)
+- [ ] Vault sync (Obsidian/iCloud)
 - [ ] Keyboard shortcut (⏱️ + H)
 - [ ] Advanced filters (duration range, action count)
 - [ ] Batch operations (select multiple, bulk delete)

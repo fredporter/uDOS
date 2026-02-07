@@ -45,11 +45,5 @@
             "guilds"
         ],
         "redirect_uri": "http://localhost:8765/oauth/callback"
-    },
-    "notion": {
-        "client_id": "",
-        "client_secret": "",
-        "scopes": [],
-        "redirect_uri": "http://localhost:8765/oauth/callback"
     }
 }
