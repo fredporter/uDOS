@@ -1,0 +1,214 @@
+"""
+GRID command handler - Render UGRID canvas outputs.
+
+Routes to the TypeScript UGRID renderer (core/dist/grid/cli.js) via Node.
+Supports calendar, table, schedule, map, and dashboard modes with LocId overlays.
+"""
+
+from __future__ import annotations
+
+import subprocess
+from pathlib import Path
+from typing import Dict, List, Optional
+
+from .base import BaseCommandHandler
+from .handler_logging_mixin import HandlerLoggingMixin
+from core.services.logging_api import get_logger, get_repo_root
+
+
+class GridHandler(BaseCommandHandler, HandlerLoggingMixin):
+    """Render 80x30 grid canvas outputs via UGRID."""
+
+    MODES = {"calendar", "table", "schedule", "map", "dashboard"}
+
+    def __init__(self):
+        super().__init__()
+        self.logger = get_logger("core", category="command", name="grid")
+        self.repo_root = get_repo_root()
+        self.node_cmd = self._load_node_cmd()
+        self.cli_path = self.repo_root / "core" / "dist" / "grid" / "cli.js"
+
+    def handle(self, command: str, params: List[str], grid, parser) -> Dict:
+        with self.trace_command(command, params) as trace:
+            if not self.cli_path.exists():
+                trace.set_status("error")
+                return {
+                    "status": "error",
+                    "message": "UGRID renderer not found",
+                    "details": f"Missing: {self.cli_path}",
+                    "suggestion": "Rebuild grid runtime or restore core/dist/grid",
+                }
+
+            try:
+                opts = self._parse_params(params)
+            except ValueError as exc:
+                trace.set_status("error")
+                self.log_param_error(command, params, str(exc))
+                return {"status": "error", "message": str(exc)}
+
+            trace.add_event("grid_options", {"mode": opts["mode"]})
+
+            result = self._run_node_render(opts)
+            if result["status"] != "success":
+                trace.set_status("error")
+                return result
+
+            output = result["output"]
+            from core.tui.output import OutputToolkit
+
+            trace.set_status("success")
+            return {
+                "status": "success",
+                "message": f"GRID render ({opts['mode']})",
+                "output": "\n".join(
+                    [
+                        OutputToolkit.banner(f"GRID {opts['mode'].upper()}"),
+                        output,
+                    ]
+                ),
+                "grid_raw": output,
+                "mode": opts["mode"],
+            }
+
+    def _parse_params(self, params: List[str]) -> Dict[str, Optional[str]]:
+        mode: Optional[str] = None
+        input_path: Optional[str] = None
+        loc: Optional[str] = None
+        layer: Optional[str] = None
+        title: Optional[str] = None
+        theme: Optional[str] = None
+        output_path: Optional[str] = None
+
+        idx = 0
+        while idx < len(params):
+            arg = params[idx]
+            if arg == "--mode":
+                idx += 1
+                if idx >= len(params):
+                    raise ValueError("GRID --mode requires a value")
+                mode = params[idx].lower()
+            elif arg == "--input":
+                idx += 1
+                if idx >= len(params):
+                    raise ValueError("GRID --input requires a file path")
+                input_path = params[idx]
+            elif arg == "--loc":
+                idx += 1
+                if idx >= len(params):
+                    raise ValueError("GRID --loc requires a LocId value")
+                loc = params[idx]
+            elif arg == "--layer":
+                idx += 1
+                if idx >= len(params):
+                    raise ValueError("GRID --layer requires a value")
+                layer = params[idx]
+            elif arg == "--title":
+                idx += 1
+                if idx >= len(params):
+                    raise ValueError("GRID --title requires a value")
+                title = params[idx]
+            elif arg == "--theme":
+                idx += 1
+                if idx >= len(params):
+                    raise ValueError("GRID --theme requires a value")
+                theme = params[idx]
+            elif arg == "--output":
+                idx += 1
+                if idx >= len(params):
+                    raise ValueError("GRID --output requires a file path")
+                output_path = params[idx]
+            else:
+                if mode is None and arg.lower() in self.MODES:
+                    mode = arg.lower()
+                elif input_path is None and arg.lower().endswith(".json"):
+                    input_path = arg
+                elif loc is None and not arg.startswith("--"):
+                    loc = arg
+            idx += 1
+
+        if mode is None:
+            mode = "calendar"
+        if mode not in self.MODES:
+            raise ValueError(
+                f"GRID mode must be one of: {', '.join(sorted(self.MODES))}"
+            )
+
+        return {
+            "mode": mode,
+            "input": input_path,
+            "loc": loc,
+            "layer": layer,
+            "title": title,
+            "theme": theme,
+            "output": output_path,
+        }
+
+    def _load_node_cmd(self) -> str:
+        runtime_config = self.repo_root / "core" / "config" / "runtime.json"
+        if runtime_config.exists():
+            try:
+                import json
+
+                data = json.loads(runtime_config.read_text())
+                return data.get("node_cmd", "node")
+            except Exception:
+                pass
+        return "node"
+
+    def _run_node_render(self, opts: Dict[str, Optional[str]]) -> Dict[str, str]:
+        cmd = [self.node_cmd, str(self.cli_path), "--mode", opts["mode"]]
+
+        if opts.get("input"):
+            input_path = Path(opts["input"])
+            if not input_path.is_absolute():
+                input_path = self.repo_root / input_path
+            if not input_path.exists():
+                return {
+                    "status": "error",
+                    "message": f"Input JSON not found: {input_path}",
+                }
+            cmd.extend(["--input", str(input_path)])
+        if opts.get("loc"):
+            cmd.extend(["--loc", opts["loc"]])
+        if opts.get("layer"):
+            cmd.extend(["--layer", opts["layer"]])
+        if opts.get("title"):
+            cmd.extend(["--title", opts["title"]])
+        if opts.get("theme"):
+            cmd.extend(["--theme", opts["theme"]])
+        if opts.get("output"):
+            output_path = Path(opts["output"])
+            if not output_path.is_absolute():
+                output_path = self.repo_root / output_path
+            cmd.extend(["--output", str(output_path)])
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True)
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "message": "Node.js not available",
+                "details": "Install Node.js and ensure `node` is on PATH",
+            }
+        except Exception as exc:
+            return {
+                "status": "error",
+                "message": "Failed to invoke UGRID renderer",
+                "details": str(exc),
+            }
+
+        if result.returncode != 0:
+            return {
+                "status": "error",
+                "message": "UGRID renderer failed",
+                "details": result.stderr.strip() or result.stdout.strip(),
+            }
+
+        output = result.stdout.strip()
+        if not output:
+            return {
+                "status": "error",
+                "message": "UGRID renderer returned empty output",
+            }
+
+        return {"status": "success", "output": output}

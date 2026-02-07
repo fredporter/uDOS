@@ -18,7 +18,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
     ]
 
     COMMAND_CATEGORIES = {
-        "Navigation": ["MAP", "PANEL", "GOTO", "FIND", "TELL"],
+        "Navigation": ["MAP", "GRID", "PANEL", "GOTO", "FIND", "TELL"],
         "Inventory": ["BAG", "GRAB", "SPAWN"],
         "NPCs & Dialogue": ["NPC", "TALK", "REPLY"],
         "Files & State": ["SAVE", "LOAD", "NEW", "EDIT", "UNDO"],
@@ -56,6 +56,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "notes": "Shows 80x30 grid with tiles, objects, sprites",
             "category": "Navigation",
             "syntax": "MAP [--follow] [--zoom N] [location_id]",
+        },
+        "GRID": {
+            "description": "Render UGRID canvas (calendar/table/schedule/map/dashboard)",
+            "usage": "GRID <mode> [--input file.json] [--loc LOCID]",
+            "example": "GRID MAP --loc EARTH:SUR:L305-DA11",
+            "notes": "Uses 80x30 UGRID renderer with LocId overlays for map mode",
+            "category": "Navigation",
+            "syntax": "GRID <calendar|table|schedule|map|dashboard> [--input <json>] [--loc <locid>] [--title <text>] [--theme <name>]",
         },
         "PANEL": {
             "description": "Show location information panel",

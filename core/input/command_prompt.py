@@ -670,6 +670,18 @@ def create_default_registry() -> CommandRegistry:
     )
 
     registry.register(
+        name="GRID",
+        help_text="Render UGRID canvas (calendar/table/schedule/map/dashboard)",
+        syntax="GRID <mode> [--input file.json] [--loc LOCID]",
+        examples=[
+            "GRID MAP --loc EARTH:SUR:L305-DA11",
+            "GRID CALENDAR --input memory/events.json",
+        ],
+        icon="🧱",
+        category="Navigation",
+    )
+
+    registry.register(
         name="GOTO",
         help_text="Travel to location",
         syntax="GOTO <location>",

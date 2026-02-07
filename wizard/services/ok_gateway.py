@@ -389,6 +389,15 @@ class OKGateway:
         """Return default model (local-first)."""
         return self.vibe.config.model or "devstral-small-2"
 
+    def _default_model_for_mode(self, mode: Optional[str]) -> str:
+        """Return a default local model for a given mode."""
+        mode_key = (mode or "").strip().lower()
+        if mode_key in {"conversation", "creative"}:
+            return "mistral-small2"
+        if mode_key == "code":
+            return "devstral-small-2"
+        return self._default_model()
+
     def is_available(self) -> bool:
         """Check if local Vibe or any cloud provider is available."""
         return self.vibe._verify_connection() or any(self.providers.values())
@@ -487,7 +496,8 @@ class OKGateway:
         # Normalize request
         task_id = request.task_id or self._generate_task_id(device_id)
         request.task_id = task_id
-        request.model = request.model or self._default_model()
+        if not request.model:
+            request.model = self._default_model_for_mode(request.mode)
         self._apply_mode_preset(request)
         if request.temperature is None:
             request.temperature = 0.7

@@ -8,6 +8,7 @@ Manages command handlers including system, NPC, and dev mode.
 from typing import Dict, List, Any, Optional
 from core.commands import (
     MapHandler,
+    GridHandler,
     PanelHandler,
     GotoHandler,
     FindHandler,
@@ -70,8 +71,9 @@ class CommandDispatcher:
         from core.commands.file_handler import FileHandler
 
         self.handlers: Dict[str, Any] = {
-            # Navigation (4)
+            # Navigation (5)
             "MAP": MapHandler(),
+            "GRID": GridHandler(),
             "PANEL": PanelHandler(),
             "GOTO": GotoHandler(),
             "FIND": FindHandler(),

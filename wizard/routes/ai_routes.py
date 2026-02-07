@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from wizard.services.mistral_vibe import MistralVibeIntegration
+from wizard.services.ok_gateway import OKGateway, OKRequest
 
 AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
 
@@ -31,6 +32,20 @@ def create_ai_routes(auth_guard: AuthGuard = None) -> APIRouter:
         file_path: str
         line_start: Optional[int] = None
         line_end: Optional[int] = None
+
+    class CompleteRequest(BaseModel):
+        prompt: str
+        mode: Optional[str] = "conversation"
+        conversation_id: Optional[str] = None
+        max_tokens: Optional[int] = 512
+        workspace: Optional[str] = "core"
+        privacy: Optional[str] = "internal"
+        tags: Optional[list[str]] = None
+        cloud_sanity: Optional[bool] = False
+        force_cloud: Optional[bool] = False
+        allow_cloud: Optional[bool] = True
+        system_prompt: Optional[str] = ""
+        temperature: Optional[float] = None
 
     @router.get("/config")
     async def get_ai_config(request: Request):
@@ -72,6 +87,35 @@ def create_ai_routes(auth_guard: AuthGuard = None) -> APIRouter:
                 body.prompt, include_context=body.include_context, model=body.model
             )
             return {"response": response, "model": body.model}
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc))
+
+    @router.post("/complete")
+    async def complete_ai(request: Request, body: CompleteRequest):
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            gateway = OKGateway()
+            ok_request = OKRequest(
+                prompt=body.prompt,
+                mode=body.mode,
+                conversation_id=body.conversation_id,
+                max_tokens=body.max_tokens or 512,
+                workspace=body.workspace or "core",
+                privacy=body.privacy or "internal",
+                tags=body.tags or [],
+                system_prompt=body.system_prompt or "",
+                temperature=body.temperature,
+                cloud_sanity=bool(body.cloud_sanity),
+                force_cloud=bool(body.force_cloud),
+                allow_cloud=bool(body.allow_cloud),
+            )
+            device_id = request.client.host if request.client else "local"
+            result = await gateway.complete(ok_request, device_id=device_id)
+            return {
+                "status": "ok",
+                "result": result.to_dict(),
+            }
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
 
