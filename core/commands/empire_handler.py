@@ -298,15 +298,44 @@ class EmpireHandler(BaseCommandHandler):
 
             resp = requests.get(f"{api_base}/health", headers=headers, timeout=3)
             if resp.status_code != 200:
-                output_lines.append(f"❌ API health check failed: HTTP {resp.status_code}")
-                return {"status": "error", "output": "\n".join(output_lines)}
-        except Exception as exc:
-            output_lines.append(f"❌ API unreachable: {exc}")
-            return {"status": "error", "output": "\n".join(output_lines)}
+                output_lines.append(f"⚠️  API unhealthy: HTTP {resp.status_code}")
+                return self._start_api_then_check(output_lines, api_base, headers)
+        except Exception:
+            output_lines.append("⚠️  API not running. Starting now...")
+            return self._start_api_then_check(output_lines, api_base, headers)
 
         output_lines.append("✅ Empire API reachable")
         output_lines.append("✅ UI auto-refreshes from live API")
         return {"status": "success", "output": "\n".join(output_lines)}
+
+    def _start_api_then_check(self, output_lines: List[str], api_base: str, headers: Dict[str, str]) -> Dict:
+        empire_root = self._empire_root()
+        if not empire_root:
+            output_lines.append("❌ Empire submodule not found")
+            return {"status": "error", "output": "\n".join(output_lines)}
+
+        cmd = ["python3", "-m", "uvicorn", "empire.api.server:app", "--host", "127.0.0.1", "--port", "8991"]
+        subprocess.Popen(cmd, cwd=str(empire_root), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        try:
+            import time
+            import requests
+
+            for _ in range(10):
+                try:
+                    resp = requests.get(f"{api_base}/health", headers=headers, timeout=2)
+                    if resp.status_code == 200:
+                        output_lines.append("✅ Empire API started")
+                        output_lines.append("✅ UI auto-refreshes from live API")
+                        return {"status": "success", "output": "\n".join(output_lines)}
+                except Exception:
+                    pass
+                time.sleep(0.5)
+        except Exception:
+            pass
+
+        output_lines.append("❌ Failed to start Empire API")
+        return {"status": "error", "output": "\n".join(output_lines)}
 
     def _email(self, args: List[str]) -> Dict:
         banner = OutputToolkit.banner("EMPIRE EMAIL")
