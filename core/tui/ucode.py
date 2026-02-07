@@ -583,6 +583,8 @@ class uCODETUI:
                     token = set_corr_id(corr_id)
                     try:
                         result = self._route_input(user_input)
+                    finally:
+                        pass
 
                     # Check for EXIT before processing
                     normalized_input = user_input.strip().upper()
