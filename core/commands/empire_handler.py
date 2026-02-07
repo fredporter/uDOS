@@ -46,6 +46,8 @@ class EmpireHandler(BaseCommandHandler):
             return self._normalize(params[1:])
         if action in {"sync"}:
             return self._sync(params[1:])
+        if action in {"api"}:
+            return self._api(params[1:])
         if action in {"email"}:
             return self._email(params[1:])
         if action in {"help", "--help", "?"}:
@@ -101,6 +103,7 @@ class EmpireHandler(BaseCommandHandler):
                 "EMPIRE INGEST     Ingest raw records into JSONL",
                 "EMPIRE NORMALIZE  Normalize + persist records",
                 "EMPIRE SYNC       Refresh overview + sync state",
+                "EMPIRE API        Start/stop Empire API server",
                 "EMPIRE EMAIL      Email receive/process scaffolding",
                 "EMPIRE HELP       Show this help",
             ]
@@ -337,3 +340,33 @@ class EmpireHandler(BaseCommandHandler):
 
         output_lines.append("✅ Email command complete")
         return {"status": "success", "output": "\n".join(output_lines)}
+
+    def _api(self, args: List[str]) -> Dict:
+        banner = OutputToolkit.banner("EMPIRE API")
+        output_lines = [banner, ""]
+
+        empire_root = self._empire_root()
+        if not empire_root:
+            return {
+                "status": "error",
+                "message": "Empire extension not available",
+                "output": banner + "\n❌ Empire submodule not found",
+            }
+
+        if not args:
+            output_lines.append("Usage: EMPIRE API START|STOP")
+            return {"status": "error", "output": "\n".join(output_lines)}
+
+        action = args[0].lower()
+        if action == "start":
+            cmd = ["python3", "-m", "uvicorn", "empire.api.server:app", "--host", "127.0.0.1", "--port", "8991"]
+            subprocess.Popen(cmd, cwd=str(empire_root), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            output_lines.append("✅ Empire API started on http://127.0.0.1:8991")
+            return {"status": "success", "output": "\n".join(output_lines)}
+        if action == "stop":
+            subprocess.run(["pkill", "-f", "empire.api.server:app"], capture_output=True)
+            output_lines.append("✅ Empire API stopped")
+            return {"status": "success", "output": "\n".join(output_lines)}
+
+        output_lines.append("Usage: EMPIRE API START|STOP")
+        return {"status": "error", "output": "\n".join(output_lines)}

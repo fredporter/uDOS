@@ -323,11 +323,11 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         },
         "EMPIRE": {
             "description": "Empire extension control (private)",
-            "usage": "EMPIRE START | EMPIRE STOP | EMPIRE REBUILD | EMPIRE INGEST | EMPIRE NORMALIZE | EMPIRE SYNC | EMPIRE EMAIL",
-            "example": "EMPIRE EMAIL RECEIVE",
-            "notes": "Control Empire, ingest data, normalize, sync, and process email intake",
+            "usage": "EMPIRE START | EMPIRE STOP | EMPIRE REBUILD | EMPIRE INGEST | EMPIRE NORMALIZE | EMPIRE SYNC | EMPIRE API | EMPIRE EMAIL",
+            "example": "EMPIRE API START",
+            "notes": "Control Empire, ingest data, run API, and process email intake",
             "category": "Advanced",
-            "syntax": "EMPIRE <START|STOP|REBUILD|INGEST|NORMALIZE|SYNC|EMAIL>",
+            "syntax": "EMPIRE <START|STOP|REBUILD|INGEST|NORMALIZE|SYNC|API|EMAIL>",
         },
         "STORY": {
             "description": "Run story format files",
