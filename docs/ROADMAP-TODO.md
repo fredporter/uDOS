@@ -16,6 +16,10 @@ This live tracker lists the remaining development items referenced by `docs/DEV-
 | Dev workflow endpoints | Goblin | Done | Containers/vibe/logs/vault sync endpoints wired. |
 | Ship plugin manifest service + registry | Wizard/Extensions | Done | Registry routes + manifest validation service added. |
 | Empire private spine scaffold | Empire | Done | Submodule initialized; base folders + entrypoint + docs added. |
+| Empire storage + dedupe + enrichment | Empire | Done | SQLite schema, dedupe rules, enrichment hooks wired. |
+| Empire UI + overview | Empire | Done | Svelte/Tailwind console + overview.json refresh. |
+| Empire API + integrations | Empire | Done | FastAPI `/health|/records|/events` plus Gmail/Places scaffolds. |
+| Empire email scaffolding | Empire | Done | Email receive/process stubs + CLI flow. |
 
 ## Post v1.3.10 (Deferred)
 
@@ -79,16 +83,16 @@ Integrate the attached specs/guides into the next roadmap window (post v1.3.10).
 ## App + TUI alignment
 - **Mac app submodule boundary**: `/app/` is a separate submodule, private, and commercial (Mac App Store). Treat it independently from uDOS/uCode core. Expect Xcode-specific paths/tooling. Current priority is lower because core editing happens in Obsidian; the Mac app remains an offline-first markdown editor aligned with the same local library as Obsidian.
 - **App v1.3 refactor** (submodule): external vault path, Typo editor, tasks index, export UI. See [docs/uDOS-app-v1-3.md](docs/uDOS-app-v1-3.md).
-- **TUI ↔ Vibe integration**: shared IO + keystore boundary. See [docs/TUI-Vibe-Integration.md](docs/TUI-Vibe-Integration.md).
-- **Vibe CLI workflow alignment**: Mistral Vibe CLI recommendations mapped to uCODE TUI. See [VIBE-CLI-ROADMAP-ALIGNMENT.md](../VIBE-CLI-ROADMAP-ALIGNMENT.md) for gaps + action plan (v1.3.2+).
+- **TUI ↔ Vibe integration**: ✅ complete. Wrapper routing merged into uCODE TUI (single entry), OK/? + slash routing live. See [docs/TUI-Vibe-Integration.md](docs/TUI-Vibe-Integration.md).
+- **Vibe CLI workflow alignment**: ✅ complete. uCODE TUI now owns routing and Vibe output. See [VIBE-CLI-ROADMAP-ALIGNMENT.md](../VIBE-CLI-ROADMAP-ALIGNMENT.md).
 - **Vibe capabilities track**: natural language routing, code assistance, and code analysis surfaces. Prototype → testing → feedback loop. See [VIBE-CLI-ROADMAP-ALIGNMENT.md](../VIBE-CLI-ROADMAP-ALIGNMENT.md).
-- **uCODE prompt spec**: OK/? commands, slash routing, dynamic autocomplete. See [docs/specs/UCODE-PROMPT-SPEC.md](docs/specs/UCODE-PROMPT-SPEC.md).
-- **Roadmap note**: develop the new Vibe-CLI and the existing uCODE-TUI in parallel until Vibe reaches parity with uCODE-TUI in a future version.
+- **uCODE prompt spec**: ✅ implemented (OK/? commands, slash routing, dynamic autocomplete). See [docs/specs/UCODE-PROMPT-SPEC.md](docs/specs/UCODE-PROMPT-SPEC.md).
+- **Roadmap note**: uCODE TUI is the single entry point; Vibe CLI now routes through uCODE.
 - **Dev mode gate**: `/dev/` public submodule required and admin-only; see [docs/DEV-MODE-POLICY.md](docs/DEV-MODE-POLICY.md).
 - **Core/Wizard boundary**: `core` (uCODE runtime) is the base runtime; `wizard` is the brand for connected services (networking, GUI, etc.). Both are public OSS in github.com/fredporter/uDOS. Core can run without Wizard (limited). Wizard cannot run without Core. Most extensions/addons require both Core + Wizard.
 - **Plugin policy**: external services/addons should be cloned (not forked/modified), credited, and updated via pulls. uDOS should containerize and overlay UI without modifying upstream repos.
 - **Extensions consolidation**: note that `/extensions/api` has moved; evaluate whether further consolidation is appropriate now that APIs are outside `/extensions/`.
-- **Logging API v1.3**: spec published; implementation pending. See [docs/LOGGING-API-v1.3.md](docs/LOGGING-API-v1.3.md).
+- **Logging API v1.3**: ✅ implemented. See [docs/LOGGING-API-v1.3.md](docs/LOGGING-API-v1.3.md).
 - **Empire business extension**: private submodule; isolate business-only features and keep public paths clean. Track work in Empire docs.
 
 ## Wizard AI Modes (v1.3.2+)
