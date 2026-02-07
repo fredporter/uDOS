@@ -25,8 +25,14 @@ def interactive_tty_status(
     except Exception as exc:
         return False, f"isatty() check failed: {exc}"
 
+    def _truthy(value: Optional[str]) -> bool:
+        if value is None:
+            return False
+        return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
     term = env.get("TERM", "").lower()
-    if term in ("", "dumb"):
+    allow_dumb = _truthy(env.get("UDOS_TTY")) or _truthy(env.get("UDOS_ALLOW_DUMB_TTY"))
+    if term in ("", "dumb") and not allow_dumb:
         return False, f"TERM={env.get('TERM', '<empty>')}"
 
     ci = env.get("CI")

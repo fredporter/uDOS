@@ -90,6 +90,14 @@ def __getattr__(name):
         from .integration_handler import IntegrationHandler
 
         return IntegrationHandler
+    elif name == "SchedulerHandler":
+        from .scheduler_handler import SchedulerHandler
+
+        return SchedulerHandler
+    elif name == "ScriptHandler":
+        from .script_handler import ScriptHandler
+
+        return ScriptHandler
     elif name == "DevModeHandler":
         from .dev_mode_handler import DevModeHandler
 
@@ -224,6 +232,8 @@ __all__ = [
     # System commands
     "HelpHandler",
     "IntegrationHandler",
+    "SchedulerHandler",
+    "ScriptHandler",
     "ShakedownHandler",
     "RepairHandler",
     "PatternHandler",

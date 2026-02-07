@@ -72,7 +72,6 @@ class CommandSelector:
         print("=" * 70)
         print("COMMAND SELECTOR (TAB)")
         print("=" * 70)
-        print()
 
         for line in self.selector.get_display_lines():
             print(line)
@@ -80,14 +79,12 @@ class CommandSelector:
         current = self.selector.get_current_item()
         if current:
             cmd: CommandMetadata = current.metadata.get("command")
-            print()
             print(f"  → {cmd.icon} {cmd.name}  [{cmd.category}]")
             if cmd.syntax:
                 print(f"    Syntax: {cmd.syntax}")
             if cmd.examples:
                 print(f"    Example: {cmd.examples[0]}")
 
-        print()
         print("-" * 70)
         print("Controls:")
         print("  j/k or 2/8   Move down/up")

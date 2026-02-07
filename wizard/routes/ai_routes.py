@@ -46,6 +46,9 @@ def create_ai_routes(auth_guard: AuthGuard = None) -> APIRouter:
         allow_cloud: Optional[bool] = True
         system_prompt: Optional[str] = ""
         temperature: Optional[float] = None
+        offline_required: Optional[bool] = False
+        ghost_mode: Optional[bool] = False
+        task_hint: Optional[str] = None
 
     @router.get("/config")
     async def get_ai_config(request: Request):
@@ -109,6 +112,9 @@ def create_ai_routes(auth_guard: AuthGuard = None) -> APIRouter:
                 cloud_sanity=bool(body.cloud_sanity),
                 force_cloud=bool(body.force_cloud),
                 allow_cloud=bool(body.allow_cloud),
+                offline_required=bool(body.offline_required),
+                ghost_mode=bool(body.ghost_mode),
+                task_hint=body.task_hint,
             )
             device_id = request.client.host if request.client else "local"
             result = await gateway.complete(ok_request, device_id=device_id)

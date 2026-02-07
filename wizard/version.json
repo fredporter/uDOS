@@ -5,12 +5,12 @@
   "version": {
     "major": 1,
     "minor": 1,
-    "patch": 1
+    "patch": 2
   },
-  "display": "v1.1.1",
+  "display": "v1.1.2",
   "channel": "stable",
-  "released": "2026-02-05",
-  "description": "Sonic Screwdriver modular plugin routes integrated - server.py uses create_sonic_plugin_routes()",
+  "released": "2026-02-07",
+  "description": "Wizard server refactor: extracted auth/logs/system stats/scheduler/plugin repo/web proxy/webhook helpers into services.",
   "changelog": "dev/roadmap/CHANGELOG-wizard.md",
   "dependencies": {
     "core": ">=1.0.0"

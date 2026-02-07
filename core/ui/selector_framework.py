@@ -428,7 +428,6 @@ class SelectorFramework:
         if len(self.items) > self.page_size:
             items_total = len(self.filtered_items) if self.filtered_items else len(self.items)
             total_pages = (items_total + self.page_size - 1) // self.page_size
-            lines.append("")
             lines.append(f"  Page {self.page + 1}/{total_pages} | {items_total} items")
         
         # Search info

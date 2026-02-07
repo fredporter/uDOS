@@ -105,6 +105,9 @@ class OKRequest:
     force_cloud: bool = False
     cloud_sanity: bool = False
     allow_cloud: bool = True
+    offline_required: bool = False
+    ghost_mode: bool = False
+    task_hint: Optional[str] = None
 
     # Routing metadata
     task_id: Optional[str] = None
@@ -489,6 +492,57 @@ class OKGateway:
         if request.temperature is None:
             request.temperature = preset.get("temperature", None)
 
+    def _evaluate_vibe_router_contract(
+        self,
+        request: OKRequest,
+        classification,
+    ) -> Dict[str, Any]:
+        """Enforce VIBE-ROUTER-CONTRACT rules and return contract decision."""
+        tags = set(request.tags or [])
+        ghost_mode = bool(request.ghost_mode) or "ghost_mode" in tags or "ghost" in tags
+        offline_required = bool(request.offline_required) or "offline_required" in tags or "offline" in tags
+        privacy = (request.privacy or "internal").lower()
+
+        intent_raw = getattr(classification, "intent", None)
+        intent_value = intent_raw.value if intent_raw else "code"
+        if intent_value in {"design"}:
+            contract_intent = "design"
+        elif intent_value in {"docs"}:
+            contract_intent = "chat"
+        else:
+            contract_intent = "code"
+
+        model_map = {
+            "chat": "mistral-small",
+            "design": "mistral-large",
+            "code": "devstral-small-2",
+        }
+        model = model_map.get(contract_intent, self._default_model_for_mode(request.mode))
+
+        online_allowed = True
+        reason = "policy_allows_online"
+        provider = "wizard"
+        if ghost_mode:
+            online_allowed = False
+            provider = "ollama"
+            reason = "ghost_mode"
+        elif privacy == "private" or offline_required:
+            online_allowed = False
+            provider = "ollama"
+            reason = "offline_required_or_private"
+
+        return {
+            "intent": contract_intent,
+            "mode": (request.mode or "conversation"),
+            "privacy": privacy,
+            "provider": provider,
+            "model": model,
+            "online_allowed": online_allowed,
+            "ghost_mode": ghost_mode,
+            "offline_required": offline_required,
+            "reason": reason,
+        }
+
     async def complete(self, request: OKRequest, device_id: str) -> AIResponse:
         """Complete an AI request via local-first routing."""
         start_time = time.time()
@@ -557,6 +611,54 @@ class OKGateway:
         # Force local-first unless explicitly forced cloud
         if not request.force_cloud:
             route = self.router.force_local_route(classification)
+
+        contract = self._evaluate_vibe_router_contract(request, classification)
+        if not contract.get("online_allowed", True):
+            allow_cloud = False
+            request.cloud_sanity = False
+            if request.force_cloud:
+                latency = int((time.time() - start_time) * 1000)
+                return AIResponse(
+                    success=False,
+                    error="Vibe router contract blocked cloud routing",
+                    model=contract.get("model") or route.model,
+                    provider=contract.get("provider") or route.backend.value,
+                    backend=Backend.LOCAL.value,
+                    route=route.to_dict(),
+                    classification=self._classification_to_dict(classification),
+                    latency_ms=latency,
+                )
+            route = self.router.force_local_route(classification)
+
+        contract_model = contract.get("model")
+        if contract_model:
+            route.model = contract_model
+            if not request.model:
+                request.model = contract_model
+
+        estimated_cost = route.estimated_cost if allow_cloud and (request.force_cloud or route.backend == Backend.CLOUD) else 0.0
+        try:
+            logger.event(
+                "info",
+                "ok.gateway.route",
+                "Vibe router contract decision",
+                ctx={
+                    "intent": contract.get("intent"),
+                    "mode": contract.get("mode"),
+                    "privacy": contract.get("privacy"),
+                    "provider": contract.get("provider"),
+                    "model": contract.get("model"),
+                    "online_allowed": contract.get("online_allowed"),
+                    "ghost_mode": contract.get("ghost_mode"),
+                    "offline_required": contract.get("offline_required"),
+                    "force_cloud": bool(request.force_cloud),
+                    "allow_cloud": bool(allow_cloud),
+                    "estimated_cost": estimated_cost,
+                    "reason": contract.get("reason"),
+                },
+            )
+        except Exception:
+            pass
 
         # Guardrail: prevent oversized prompts from being sent to cloud backends
         # Providers like OpenRouter may return "user_request_timeout" when the

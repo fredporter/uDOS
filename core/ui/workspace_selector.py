@@ -198,9 +198,7 @@ class WorkspacePicker:
         print("=" * 70)
         print("WORKSPACE SELECTOR")
         print("=" * 70)
-        print()
         print("Choose a workspace to browse:")
-        print()
         
         # Display items with selector framework
         for line in self.selector.get_display_lines():
@@ -210,10 +208,8 @@ class WorkspacePicker:
         current = self.selector.get_current_item()
         if current:
             description = current.metadata.get("description", "")
-            print()
             print(f"  → {description}")
         
-        print()
         print("-" * 70)
         print("Controls:")
         print("  j/k or 2/8   Move down/up")

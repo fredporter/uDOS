@@ -36,6 +36,10 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "LOGS",
             "INTEGRATION",
         ],
+        "Automation": [
+            "SCHEDULER",
+            "SCRIPT",
+        ],
         "Advanced": [
             "BINDER",
             "RUN",
@@ -171,11 +175,27 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         },
         "OK": {
             "description": "Local Vibe helpers (offline-first)",
-            "usage": "OK <LOCAL|EXPLAIN|DIFF|PATCH|VIBE|FALLBACK> [args]",
-            "example": "OK FALLBACK on",
-            "notes": "Routes to local Vibe (Ollama-backed). FALLBACK toggles auto-switching to cloud on failure.",
+            "usage": "OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|VIBE|FALLBACK> [args]",
+            "example": "OK ROUTE show scheduler logs",
+            "notes": "Routes to local Vibe (Ollama-backed). ROUTE uses rule-based NL routing. FALLBACK toggles auto-switching to cloud on failure.",
             "category": "AI & Models",
-            "syntax": "OK <LOCAL|EXPLAIN|DIFF|PATCH|VIBE|FALLBACK> [args] [--cloud]",
+            "syntax": "OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|VIBE|FALLBACK> [args] [--cloud]",
+        },
+        "SCHEDULER": {
+            "description": "Manage scheduled tasks in the Wizard queue",
+            "usage": "SCHEDULER <LIST|RUN|LOG> [id]",
+            "example": "SCHEDULER LIST",
+            "notes": "LIST shows tasks. RUN queues a task for immediate execution. LOG shows recent runs.",
+            "category": "Automation",
+            "syntax": "SCHEDULER LIST | SCHEDULER RUN <task_id> | SCHEDULER LOG [task_id|run_id]",
+        },
+        "SCRIPT": {
+            "description": "Manage and execute system scripts",
+            "usage": "SCRIPT <LIST|RUN|LOG> [name]",
+            "example": "SCRIPT RUN startup-script",
+            "notes": "Runs markdown scripts via the TS runtime. LOG reads recent script events.",
+            "category": "Automation",
+            "syntax": "SCRIPT LIST | SCRIPT RUN <name> | SCRIPT LOG [name]",
         },
         "SHAKEDOWN": {
             "description": "System validation and diagnostics",

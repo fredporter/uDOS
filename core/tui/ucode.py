@@ -279,6 +279,7 @@ class uCODETUI:
             "EXPLAIN": self._cmd_ok_explain,
             "DIFF": self._cmd_ok_diff,
             "PATCH": self._cmd_ok_patch,
+            "ROUTE": self._cmd_ok_route,
             "FALLBACK": self._cmd_ok_fallback,
             "EXIT": self._cmd_exit,
         }
@@ -418,7 +419,7 @@ class uCODETUI:
             if cmd_name == "SETUP":
                 self._run_ok_setup()
                 return {"status": "success", "command": "OK SETUP"}
-            if cmd_name in {"LOCAL", "VIBE", "EXPLAIN", "DIFF", "PATCH"}:
+            if cmd_name in {"LOCAL", "VIBE", "EXPLAIN", "DIFF", "PATCH", "ROUTE"}:
                 if use_cloud and cmd_name in {"EXPLAIN", "DIFF", "PATCH"} and "--cloud" not in args:
                     args = f"{args} --cloud".strip()
                 self.commands[cmd_name](args)
@@ -702,13 +703,8 @@ class uCODETUI:
                     print(self._theme_text(f"     - {line}"))
         except Exception:
             pass
-        print(self._theme_text("\n  💡 Start with: SETUP (first-time) | HELP (all commands) | STORY tui-setup (quick setup)"))
-        print(self._theme_text("     Or try: MAP | GRID MAP --input memory/system/grid-overlays-sample.json | TELL location | GOTO location | WIZARD start"))
-        print(self._theme_text("     AI: '?' or 'OK' (ex: ? explain this)"))
-        print(self._theme_text("     Commands: '/' (ucode first, then shell if enabled)"))
-        print(self._theme_text("     Auto: no prefix → ucode → shell → AI"))
-        print(self._theme_text("     Try: OK EXPLAIN <file> | OK LOCAL (local Vibe outputs)"))
-        print(self._theme_text("     Press TAB for command selection | Type command for suggestions\n"))
+        print(self._theme_text("\n  💡 Tips: SETUP | HELP | STORY tui-setup | TAB (commands) | OK EXPLAIN <file>"))
+        print(self._theme_text("     Try: MAP | GRID MAP --input memory/system/grid-overlays-sample.json | WIZARD start\n"))
 
     def _show_status_bar(self) -> None:
         """Render status bar line for the current session."""
@@ -741,9 +737,7 @@ class uCODETUI:
         except Exception:
             pass
 
-        print(self._theme_text("\n🧠 First-Run AI Setup"))
-        print(self._theme_text("  Run: SETUP  → add Mistral API key + local models"))
-        print(self._theme_text("  Check: WIZARD status  (server)\n"))
+        print(self._theme_text("\n🧠 First-Run AI: SETUP to add Mistral key + local models | WIZARD status\n"))
 
     def _show_banner(self) -> None:
         """Show startup banner."""
@@ -752,8 +746,7 @@ class uCODETUI:
         vibe_banner = self._get_vibe_banner()
         if vibe_banner:
             print(self._theme_text(vibe_banner))
-        grid = self._build_startup_grid()
-        print(self._theme_text(grid))
+        # Startup grid art removed (legacy uCODE banner)
 
     def _get_repo_display_version(self) -> str:
         """Get display version from repo version.json."""
@@ -773,24 +766,37 @@ class uCODETUI:
             version_text = f"uDOS {version}"
         else:
             version_text = f"uDOS v{version}"
-        return "\n".join(
-            [
-                "████████████████████████████████████████████████████████████",
-                "██                                                        ██",
-                "██   ██████████████████████████████████████████████████   ██",
-                "██   ██  ████  ███      ███      ███       ███       ██   ██",
-                "██   ██  ████  ██  ███████  ████  ██  ████  ██  ███████   ██",
-                "██   ██  ████  ██  ███████  ████  ██  ████  ██      ███   ██",
-                "██   ██  ████  ██  ███████  ████  ██  ████  ██  ███████   ██",
-                "██   ███      ████      ███      ███       ███       ██   ██",
-                "██   ██████████████████████████████████████████████████   ██",
-                "██   ███████████████    ███████████    ████████████████   ██",
-                f"██   ████████████████   {version_text}   █████████████████   ██",
-                "██   ██████████████████████████████████████████████████   ██",
-                "██                                                        ██",
-                "████████████████████████████████████████████████████████████",
-            ]
-        )
+        lines = [
+            "████████████████████████████████████████████████████████████",
+            "██                                                        ██",
+            "██   ██████████████████████████████████████████████████   ██",
+            "██   ██  ████  ███      ███      ███       ███       ██   ██",
+            "██   ██  ████  ██  ███████  ████  ██  ████  ██  ███████   ██",
+            "██   ██  ████  ██  ███████  ████  ██  ████  ██      ███   ██",
+            "██   ██  ████  ██  ███████  ████  ██  ████  ██  ███████   ██",
+            "██   ███      ████      ███      ███       ███       ██   ██",
+            "██   ██████████████████████████████████████████████████   ██",
+            "██   ███████████████    ███████████    ████████████████   ██",
+            f"██   ████████████████   {version_text}   █████████████████   ██",
+            "██   ██████████████████████████████████████████████████   ██",
+            "██                                                        ██",
+            "████████████████████████████████████████████████████████████",
+        ]
+
+        colors = [
+            "\033[91m",
+            "\033[93m",
+            "\033[92m",
+            "\033[96m",
+            "\033[94m",
+            "\033[95m",
+        ]
+        reset = "\033[0m"
+        tinted = []
+        for idx, line in enumerate(lines):
+            color = colors[idx % len(colors)]
+            tinted.append(f"{color}{line}{reset}")
+        return "\n".join(tinted)
 
     def _build_startup_grid(self) -> str:
         """Build a 40x15 startup grid with ASCII art and color."""
@@ -877,27 +883,28 @@ class uCODETUI:
         if not self.self_heal_summary and not self.hot_reload_stats:
             return
 
-        print("\n📊 System Health Training Summary")
-        print("-" * 60)
-
+        summary_parts = []
         if self.self_heal_summary:
             success = self.self_heal_summary.get("success", False)
-            status = "✅ Healthy" if success else "⚠️ Attention"
+            status = "✅" if success else "⚠️"
             issues = self.self_heal_summary.get("issues", 0)
             repaired = self.self_heal_summary.get("repaired", 0)
             remaining = self.self_heal_summary.get("remaining", 0)
-            print(f"  Self-Heal: {status} | Issues: {issues} | Repaired: {repaired} | Remaining: {remaining}")
-
-        if self.hot_reload_stats:
-            enabled = "enabled" if self.hot_reload_stats.get("enabled") else "disabled"
-            running = "running" if self.hot_reload_stats.get("running") else "stopped"
-            reloads = self.hot_reload_stats.get("reload_count", 0)
-            success_rate = self.hot_reload_stats.get("success_rate", 0.0)
-            print(
-                f"  Hot Reload: {enabled}, {running} | Reloads: {reloads} | Success: {success_rate:0.1f}%"
+            summary_parts.append(
+                f"Self-Heal {status} (issues {issues}, repaired {repaired}, remaining {remaining})"
             )
 
-        print(f"  Training log: {self.health_log_path}")
+        if self.hot_reload_stats:
+            enabled = "on" if self.hot_reload_stats.get("enabled") else "off"
+            running = "running" if self.hot_reload_stats.get("running") else "stopped"
+            reloads = self.hot_reload_stats.get("reload_count", 0)
+            summary_parts.append(
+                f"Hot Reload {enabled}/{running} (reloads {reloads})"
+            )
+
+        summary = " | ".join(summary_parts) if summary_parts else "Health summary unavailable"
+        print(f"\n📊 Health: {summary}")
+        print(f"  Log: {self.health_log_path}")
 
         prev_remaining = (self.previous_health_log or {}).get("self_heal", {}).get("remaining", 0)
         if prev_remaining > 0:
@@ -908,22 +915,11 @@ class uCODETUI:
 
         if self.memory_test_summary:
             status = self.memory_test_summary.get("status", "idle")
-            pending = self.memory_test_summary.get("pending", 0)
-            result = self.memory_test_summary.get("result") or "pending"
-            last_run_ts = self.memory_test_summary.get("last_run")
-            last_run = (
-                datetime.fromtimestamp(last_run_ts).isoformat()
-                if isinstance(last_run_ts, (int, float)) and last_run_ts > 0
-                else "never"
-            )
-            print(f"  Memory Tests: {status} | Result: {result} | Pending: {pending} | Last run: {last_run}")
-            log_path = self.memory_test_summary.get("log_path")
-            if log_path:
-                print(f"    Logs: {log_path}")
-            if status in ("scheduled", "running"):
-                print("    ✅ Tests are running in the background as part of startup health checks.")
-
-        print("-" * 60 + "\n")
+            if status not in ("idle", "none"):
+                pending = self.memory_test_summary.get("pending", 0)
+                result = self.memory_test_summary.get("result") or "pending"
+                print(f"  Memory Tests: {status} | Result: {result} | Pending: {pending}")
+        print("")
 
         self._prompt_health_actions()
 
@@ -2088,6 +2084,7 @@ AI Modes:
   OK EXPLAIN <file>   - Explain code via local Vibe (offline)
   OK DIFF <file>      - Propose a diff via local Vibe
   OK PATCH <file>     - Draft a patch via local Vibe
+  OK ROUTE <prompt>   - Rule-based NL routing (plan + execute)
   OK LOCAL [N]        - Show recent OK local outputs
   OK FALLBACK on|off  - Toggle local-first fallback to cloud
 
@@ -2539,6 +2536,58 @@ For detailed help on any command, type the command name followed by --help
             "Return a unified diff only."
         )
         self._run_ok_request(prompt, mode="PATCH", file_path=path, use_cloud=parsed.get("use_cloud"))
+
+    def _cmd_ok_route(self, args: str) -> None:
+        """OK ROUTE <prompt> [--dry-run]."""
+        from core.services.ok_router import plan_route
+
+        raw = args.strip()
+        if not raw:
+            print(self._theme_text("Usage: OK ROUTE <prompt> [--dry-run]"))
+            return
+        tokens = raw.split()
+        dry_run = False
+        cleaned: List[str] = []
+        for token in tokens:
+            if token.lower() == "--dry-run":
+                dry_run = True
+                continue
+            cleaned.append(token)
+        prompt = " ".join(cleaned).strip()
+        if not prompt:
+            print(self._theme_text("Usage: OK ROUTE <prompt> [--dry-run]"))
+            return
+
+        plan = plan_route(prompt)
+        plan_dict = plan.to_dict()
+
+        lines = [
+            "═══ OK ROUTE PLAN ═══",
+            f"Intent: {plan_dict.get('intent')}",
+            f"Target: {plan_dict.get('target')}",
+            f"Risk: {plan_dict.get('risk_level')}",
+            f"Context: {', '.join(plan_dict.get('context_scope', []))}",
+            "Commands:",
+        ]
+        for cmd in plan_dict.get("commands", []):
+            lines.append(f"  - {cmd}")
+        if plan_dict.get("notes"):
+            lines.append("Notes:")
+            for note in plan_dict.get("notes", []):
+                lines.append(f"  - {note}")
+
+        print(self._theme_text("\n" + "\n".join(lines) + "\n"))
+
+        if dry_run:
+            return
+
+        # Execute mapped commands
+        for cmd in plan_dict.get("commands", []):
+            if not cmd:
+                continue
+            result = self.dispatcher.dispatch(cmd, parser=self.prompt, game_state=self.state)
+            output = self.renderer.render(result)
+            print(output)
 
     def _cmd_fkeys(self, args: str) -> None:
         """Show or trigger function key actions."""

@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from wizard.server import REPO_ROOT
+from wizard.services.path_utils import get_repo_root
 
 
 @dataclass
@@ -37,7 +37,8 @@ class PluginRepository:
     """Manage the distribution/plugins catalog."""
 
     def __init__(self, base_dir: Path = None):
-        self.base_dir = base_dir or (REPO_ROOT / "distribution" / "plugins")
+        repo_root = get_repo_root()
+        self.base_dir = base_dir or (repo_root / "distribution" / "plugins")
         self.index_path = self.base_dir / "index.json"
         self.schema = self.base_dir / "plugin.schema.json"
 

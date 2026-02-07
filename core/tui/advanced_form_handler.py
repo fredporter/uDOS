@@ -24,8 +24,11 @@ import sys
 from typing import Optional, Dict, Any, List, Tuple
 from datetime import datetime
 import json
+import termios
+import tty
 
 from core.utils.tty import interactive_tty_status
+from core.tui.form_fields import DatePicker
 
 from core.services.logging_api import get_logger, LogTags
 
@@ -81,6 +84,8 @@ class AdvancedFormField:
         """Initialize form field handler."""
         self.history = []
         self.predictions = {}
+        self.use_typeform_layout = True
+        self._terminal_settings = None
 
     @staticmethod
     def _clean_input(raw_input: str) -> str:
@@ -253,6 +258,10 @@ class AdvancedFormField:
         default_from_system = field.get('default_from_system', False)
         options = field.get('options', [])
 
+        # Handle date fields with TUI datepicker
+        if field_type == 'date' or 'dob' in name.lower():
+            return self._collect_datepicker_field(field, suggestion)
+
         # Handle select fields with menu
         if field_type == 'select' and options:
             return self._collect_select_field(field, suggestion)
@@ -268,6 +277,7 @@ class AdvancedFormField:
                 suggestion = suggestions.get('time') or datetime.now().strftime("%H:%M")
 
         # Render field with suggestion
+        self._maybe_clear_screen()
         print(self.render_field(field, suggestion))
 
         # Get input
@@ -420,6 +430,7 @@ class AdvancedFormField:
             return None
 
         # Display label and options
+        self._maybe_clear_screen()
         print(f"\n{Colors.BOLD}* {label}:{Colors.RESET}")
         for idx, option in enumerate(options, start=1):
             # Highlight suggestion
@@ -613,6 +624,87 @@ class AdvancedFormField:
         except Exception as e:
             logger.warning("[LOCAL] Fallback field input failed for %s: %s", name, e)
             return None
+
+    def _maybe_clear_screen(self) -> None:
+        """Clear screen between questions to avoid overlapping prompts."""
+        if not self.use_typeform_layout:
+            return
+        try:
+            interactive, _ = interactive_tty_status()
+            if interactive:
+                # ANSI clear for tighter control
+                sys.stdout.write('\033[2J\033[H')
+                sys.stdout.flush()
+        except Exception:
+            return
+
+    def _setup_terminal_raw(self) -> bool:
+        """Configure terminal for raw key capture."""
+        try:
+            interactive, _ = interactive_tty_status()
+            if not interactive:
+                return False
+            self._terminal_settings = termios.tcgetattr(sys.stdin)
+            tty.setraw(sys.stdin.fileno())
+            return True
+        except Exception as exc:
+            logger.debug("[LOCAL] Raw terminal setup failed: %s", exc)
+            return False
+
+    def _restore_terminal_raw(self) -> None:
+        """Restore terminal settings after raw capture."""
+        if not self._terminal_settings:
+            return
+        try:
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self._terminal_settings)
+        except Exception as exc:
+            logger.debug("[LOCAL] Raw terminal restore failed: %s", exc)
+        finally:
+            self._terminal_settings = None
+
+    def _read_key(self) -> str:
+        """Read a single key with arrow-key support."""
+        ch = sys.stdin.read(1)
+        if ch == '\x1b':  # Escape sequence
+            next_ch = sys.stdin.read(1)
+            if next_ch == '[':
+                arrow = sys.stdin.read(1)
+                if arrow == 'A':
+                    return 'up'
+                if arrow == 'B':
+                    return 'down'
+                if arrow == 'C':
+                    return 'right'
+                if arrow == 'D':
+                    return 'left'
+            return '\x1b'
+        return ch
+
+    def _collect_datepicker_field(self, field: Dict, suggestion: Optional[str] = None) -> Optional[str]:
+        """Collect input for a date field using the TUI DatePicker."""
+        if not self._is_interactive():
+            return self._collect_field_input_fallback(field, suggestion)
+
+        label = field.get('label', field.get('name', 'Date'))
+        default = suggestion or field.get('default')
+        picker = DatePicker(label, default=default)
+
+        if not self._setup_terminal_raw():
+            return self._collect_field_input_fallback(field, suggestion)
+
+        try:
+            while True:
+                self._maybe_clear_screen()
+                print(picker.render(), end='', flush=True)
+                key = self._read_key()
+                if key == '\x1b':
+                    # Escape cancels
+                    return None
+                result = picker.handle_input(key)
+                if result:
+                    return result
+        finally:
+            self._restore_terminal_raw()
 
 
 

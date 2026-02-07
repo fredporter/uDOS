@@ -51,6 +51,8 @@ from core.commands import (
     SeedHandler,
     HotkeyHandler,
     IntegrationHandler,
+    SchedulerHandler,
+    ScriptHandler,
 )
 
 
@@ -99,6 +101,8 @@ class CommandDispatcher:
             "MUSIC": MusicHandler(),
             "DEV": DevModeHandler(),  # Shortcut for DEV MODE
             "LOGS": LogsHandler(),  # View unified logs
+            "SCHEDULER": SchedulerHandler(),  # Wizard task scheduler
+            "SCRIPT": ScriptHandler(),  # System script runner
             # User Management (2)
             "USER": UserHandler(),  # User profiles and permissions
             # Cleanup/Reset (2)

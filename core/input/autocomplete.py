@@ -69,7 +69,15 @@ class AutocompleteService:
             },
             "OK": {
                 "description": "Local Vibe helpers",
-                "options": ["LOCAL", "EXPLAIN", "DIFF", "PATCH", "VIBE", "FALLBACK"],
+                "options": ["LOCAL", "EXPLAIN", "DIFF", "PATCH", "ROUTE", "VIBE", "FALLBACK"],
+            },
+            "SCHEDULER": {
+                "description": "Manage scheduled tasks",
+                "options": ["LIST", "RUN", "LOG"],
+            },
+            "SCRIPT": {
+                "description": "Manage system scripts",
+                "options": ["LIST", "RUN", "LOG"],
             },
             "REPAIR": {
                 "description": "Fix system issues",

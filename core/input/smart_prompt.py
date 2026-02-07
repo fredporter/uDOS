@@ -676,6 +676,10 @@ class SmartPrompt:
         """
         try:
             raw_input = input(prompt_text)
+            # Strip arrow-key escape sequences (e.g., ^[[A/^[[B) from fallback input
+            if "\x1b" in raw_input:
+                import re
+                raw_input = re.sub(r"\x1b\\[[0-9;]*[A-Za-z]", "", raw_input)
             if "\t" in raw_input:
                 tab_selection = self._handle_tab_shortcut()
                 if tab_selection:

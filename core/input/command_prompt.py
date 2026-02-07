@@ -298,7 +298,7 @@ class ContextualCommandPrompt(EnhancedPrompt):
             return [_format_line(line1), _format_line(line2)]
 
         if cmd_key == "OK":
-            options = ["LOCAL", "EXPLAIN", "DIFF", "PATCH", "VIBE"]
+            options = ["LOCAL", "EXPLAIN", "DIFF", "PATCH", "ROUTE", "VIBE", "FALLBACK"]
             opt_preview = ", ".join(options[:4])
             if len(options) > 4:
                 opt_preview += f" (+{len(options) - 4} more)"
@@ -530,16 +530,17 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="OK",
         help_text="Local Vibe helpers (EXPLAIN, DIFF, PATCH, LOCAL)",
-        syntax="OK <LOCAL|EXPLAIN|DIFF|PATCH|VIBE|FALLBACK> [args]",
+        syntax="OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|VIBE|FALLBACK> [args]",
         options=[
             "LOCAL: Show recent local outputs",
             "EXPLAIN: Summarize code in a file",
             "DIFF: Propose a diff for a file",
             "PATCH: Draft a patch with preview",
+            "ROUTE: Rule-based NL routing",
             "VIBE: Alias for LOCAL",
             "FALLBACK: Toggle auto-fallback (on|off)",
         ],
-        examples=["OK EXPLAIN core/tui/ucode.py", "OK LOCAL 5", "OK FALLBACK on"],
+        examples=["OK ROUTE show scheduler logs", "OK EXPLAIN core/tui/ucode.py", "OK FALLBACK on"],
         icon="🧭",
         category="AI",
     )
@@ -575,6 +576,34 @@ def create_default_registry() -> CommandRegistry:
         examples=["WIZARD start", "WIZARD status", "WIZARD logs --tail", "WIZARD rebuild"],
         icon="🧙",
         category="Server",
+    )
+
+    registry.register(
+        name="SCHEDULER",
+        help_text="Manage scheduled Wizard tasks",
+        syntax="SCHEDULER <LIST|RUN|LOG> [id]",
+        options=[
+            "LIST: Show scheduled tasks",
+            "RUN [id]: Trigger a task immediately",
+            "LOG [id]: View task run history",
+        ],
+        examples=["SCHEDULER LIST", "SCHEDULER RUN task_123", "SCHEDULER LOG task_123"],
+        icon="🗓️",
+        category="Automation",
+    )
+
+    registry.register(
+        name="SCRIPT",
+        help_text="Manage system scripts (startup/reboot)",
+        syntax="SCRIPT <LIST|RUN|LOG> [name]",
+        options=[
+            "LIST: Show available scripts",
+            "RUN [name]: Execute a script",
+            "LOG [name]: View script log entries",
+        ],
+        examples=["SCRIPT LIST", "SCRIPT RUN startup-script", "SCRIPT LOG reboot-script"],
+        icon="📜",
+        category="Automation",
     )
 
     registry.register(

@@ -24,14 +24,15 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 - Wired Talk handler to shared GameState (player id/stats/inventory).
 - Documented binder `media/` folder support for non-uDOS-standard files.
 - Scaffolded Empire private extension spine with minimal entrypoint and docs.
+- Refactored Wizard server wiring: extracted auth, logging, system stats, scheduler runner, plugin repo, web proxy, and webhook helpers into services.
 
 ---
 
 ## Preferred Next Milestone (Post‑v1.3.7)
 
 ### P0 — Version Bump + Wizard/Vibe Refactor (High Priority)
-- ⏳ Target version: **v1.3.8** (Wizard services split, MCP gateway, Vibe full TUI replacement).
-- ⏳ Plan service boundaries + MCP tool surface (Wizard remains the umbrella name).
+- ⏳ Target version: **v1.3.9** (Wizard services split, MCP gateway, Vibe full TUI replacement).
+- ✅ Plan service boundaries + initial Wizard server extraction (auth/logs/system stats/scheduler/plugin repo/web proxy/webhooks).
 - ⏳ Bootstrap Vibe integration (embed) and minimal uCODE command exposure for exploration.
 - ⏳ Enforce Dev mode gate (admin-only + `/dev/` presence) and document the policy contract.
 

@@ -5,12 +5,13 @@ import json
 from pathlib import Path
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
+from core.commands.interactive_menu_mixin import InteractiveMenuMixin
 from core.services.logging_api import get_logger, get_repo_root, LogTags
 
 logger = get_logger("config-handler")
 
 
-class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
+class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin):
     """Handler for CONFIG command - Wizard configuration and variables from TUI."""
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
@@ -30,8 +31,54 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin):
         """
         with self.trace_command(command, params) as trace:
             if not params:
-                # No params = list all variables
-                result = self._list_variables()
+                choice = self.show_menu(
+                    "CONFIG",
+                    [
+                        ("List variables", "list_vars", "Show all .env variables"),
+                        ("Get variable", "get_var", "Look up a variable"),
+                        ("Set variable", "set_var", "Update a variable"),
+                        ("Delete variable", "delete_var", "Remove a variable"),
+                        ("Sync variables", "sync", "Sync .env and wizard config"),
+                        ("Export config", "export", "Create a masked backup"),
+                        ("Status", "status", "Show config status"),
+                        ("List config files", "list_files", "Show wizard config files"),
+                        ("Edit config file", "edit_file", "Open a config file"),
+                        ("Help", "help", "Show CONFIG help"),
+                    ],
+                )
+                if choice is None:
+                    result = self._list_variables()
+                    trace.set_status(result.get("status", "success"))
+                    return result
+
+                if choice == "list_vars":
+                    result = self._list_variables()
+                elif choice == "get_var":
+                    key = input("Variable key: ").strip()
+                    result = self._get_variable(key) if key else {"status": "warning", "message": "Key required"}
+                elif choice == "set_var":
+                    key = input("Variable key: ").strip()
+                    value = input("Value: ").strip()
+                    result = self._set_variable(key, value) if key else {"status": "warning", "message": "Key required"}
+                elif choice == "delete_var":
+                    key = input("Variable key to delete: ").strip()
+                    result = self._delete_variable(key) if key else {"status": "warning", "message": "Key required"}
+                elif choice == "sync":
+                    result = self._sync_variables()
+                elif choice == "export":
+                    result = self._export_config()
+                elif choice == "status":
+                    result = self._show_status()
+                elif choice == "list_files":
+                    result = self._list_configs()
+                elif choice == "edit_file":
+                    filename = input("Config filename: ").strip()
+                    result = self._edit_config(filename) if filename else {"status": "warning", "message": "Filename required"}
+                elif choice == "help":
+                    result = self._show_help()
+                else:
+                    result = self._list_variables()
+
                 trace.set_status(result.get("status", "success"))
                 return result
 

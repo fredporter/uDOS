@@ -92,7 +92,6 @@ def ghost_mode_block(command: str, params: Optional[List[str]] = None) -> Option
         "CONFIG",
         "PROVIDER",
         "INTEGRATION",
-        "SETUP",
         "MIGRATE",
         "USER",
         "UID",

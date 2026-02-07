@@ -171,6 +171,10 @@ run_with_log() {
 
     if [ "$UDOS_TTY" = "1" ]; then
         if command -v script >/dev/null 2>&1; then
+            local term_effective="${TERM}"
+            if [ -z "$term_effective" ] || [ "$term_effective" = "dumb" ]; then
+                term_effective="xterm-256color"
+            fi
             # Preserve TTY for interactive UI while capturing output.
             if [ "$(type -t "$1")" = "function" ]; then
                 local func="$1"
@@ -179,9 +183,9 @@ run_with_log() {
                 for arg in "$@"; do
                     cmd+=" $(printf "%q" "$arg")"
                 done
-                script -q "$log_file" bash -lc "$cmd"
+                TERM="$term_effective" script -q "$log_file" bash -lc "$cmd"
             else
-                script -q "$log_file" "$@"
+                TERM="$term_effective" script -q "$log_file" "$@"
             fi
             return $?
         else

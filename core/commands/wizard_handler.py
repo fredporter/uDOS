@@ -6,18 +6,34 @@ import os
 import webbrowser
 from pathlib import Path
 from core.commands.base import BaseCommandHandler
+from core.commands.interactive_menu_mixin import InteractiveMenuMixin
 from core.tui.output import OutputToolkit
 from core.services.logging_api import get_logger, get_repo_root
 
 logger = get_logger("wizard-handler")
 
 
-class WizardHandler(BaseCommandHandler):
+class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
     """Handler for WIZARD command - maintenance and rebuild."""
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         if not params:
-            return self._show_help()
+            choice = self.show_menu(
+                "WIZARD",
+                [
+                    ("Start server", "start", "Launch Wizard server"),
+                    ("Stop server", "stop", "Stop Wizard server"),
+                    ("Status", "status", "Check Wizard health"),
+                    ("Rebuild dashboard", "rebuild", "Rebuild dashboard assets"),
+                    ("Open dashboard", "open", "Open http://127.0.0.1:8765/dashboard"),
+                    ("Help", "help", "Show WIZARD help"),
+                ],
+            )
+            if choice is None:
+                return self._show_help()
+            if choice == "open":
+                return self._open_dashboard()
+            params = [choice]
 
         action = params[0].lower().strip()
         if not action:
@@ -133,6 +149,14 @@ class WizardHandler(BaseCommandHandler):
 
     def _show_help(self) -> Dict:
         return {"status": "success", "output": self._help_text()}
+
+    def _open_dashboard(self) -> Dict:
+        banner = OutputToolkit.banner("WIZARD DASHBOARD")
+        try:
+            webbrowser.open("http://127.0.0.1:8765/dashboard")
+            return {"status": "success", "output": banner + "\n✅ Opened Wizard Dashboard"}
+        except Exception as exc:
+            return {"status": "error", "message": str(exc), "output": banner + f"\n❌ {exc}"}
 
     def _start_wizard(self) -> Dict:
         """Start Wizard server."""

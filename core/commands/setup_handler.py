@@ -21,6 +21,7 @@ import os
 from datetime import datetime
 
 from core.commands.base import BaseCommandHandler
+from core.commands.interactive_menu_mixin import InteractiveMenuMixin
 from core.services.logging_api import get_repo_root, get_logger
 
 logger = get_logger('setup-handler')
@@ -73,7 +74,7 @@ def _detect_udos_root() -> Path:
     )
 
 
-class SetupHandler(BaseCommandHandler):
+class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
     """Handler for SETUP command - local offline setup via .env."""
 
     def __init__(self):
@@ -118,6 +119,42 @@ class SetupHandler(BaseCommandHandler):
             - Cloud routing, webhooks, activation settings
         """
         if not params:
+            choice = self.show_menu(
+                "SETUP",
+                [
+                    ("Run setup story", "story", "Configure local identity"),
+                    ("View profile", "profile", "Show current setup profile"),
+                    ("Edit setup", "edit", "Update local .env values"),
+                    ("Clear setup", "clear", "Reset local setup data"),
+                    ("Webhook setup", "webhook", "Configure GitHub webhooks"),
+                    ("Provider setup", "provider", "Configure provider (github/ollama/mistral/openrouter)"),
+                    ("Help", "help", "Show SETUP help"),
+                ],
+            )
+            if choice is None:
+                return self._run_story()
+            if choice == "story":
+                return self._run_story()
+            if choice == "profile":
+                return self._show_profile()
+            if choice == "edit":
+                return self._edit_interactively()
+            if choice == "clear":
+                return self._clear_setup()
+            if choice == "webhook":
+                from core.commands.webhook_setup_handler import WebhookSetupHandler
+                handler = WebhookSetupHandler()
+                return handler.handle("SETUP", ["webhook"], grid, parser)
+            if choice == "provider":
+                try:
+                    provider = input("Provider (github/ollama/mistral/openrouter): ").strip().lower()
+                except Exception:
+                    provider = ""
+                if provider:
+                    return self._setup_provider(provider)
+                return {"status": "warning", "message": "Provider not specified"}
+            if choice == "help":
+                return self._show_help()
             return self._run_story()
 
         action = params[0].lower()
