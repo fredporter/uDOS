@@ -315,11 +315,11 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         },
         "EMPIRE": {
             "description": "Empire extension control (private)",
-            "usage": "EMPIRE START | EMPIRE STOP | EMPIRE REBUILD",
-            "example": "EMPIRE START",
-            "notes": "Starts/stops the private Empire extension and opens the suite",
+            "usage": "EMPIRE START | EMPIRE STOP | EMPIRE REBUILD | EMPIRE INGEST | EMPIRE NORMALIZE | EMPIRE SYNC",
+            "example": "EMPIRE NORMALIZE",
+            "notes": "Control the private Empire extension, ingest data, normalize, and sync",
             "category": "Advanced",
-            "syntax": "EMPIRE <START|STOP|REBUILD>",
+            "syntax": "EMPIRE <START|STOP|REBUILD|INGEST|NORMALIZE|SYNC>",
         },
         "STORY": {
             "description": "Run story format files",

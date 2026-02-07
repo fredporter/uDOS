@@ -40,6 +40,12 @@ class EmpireHandler(BaseCommandHandler):
             return self._start_empire()
         if action in {"stop", "--stop"}:
             return self._stop_empire()
+        if action in {"ingest"}:
+            return self._ingest(params[1:])
+        if action in {"normalize"}:
+            return self._normalize(params[1:])
+        if action in {"sync"}:
+            return self._sync(params[1:])
         if action in {"help", "--help", "?"}:
             return self._show_help()
 
@@ -90,6 +96,9 @@ class EmpireHandler(BaseCommandHandler):
                 "EMPIRE START      Start Empire services",
                 "EMPIRE STOP       Stop Empire services",
                 "EMPIRE REBUILD    Rebuild Empire suite assets",
+                "EMPIRE INGEST     Ingest raw records into JSONL",
+                "EMPIRE NORMALIZE  Normalize + persist records",
+                "EMPIRE SYNC       Refresh overview + sync state",
                 "EMPIRE HELP       Show this help",
             ]
         )
@@ -169,4 +178,124 @@ class EmpireHandler(BaseCommandHandler):
                 return {"status": "error", "output": "\n".join(output_lines)}
 
         output_lines.append("✅ Empire rebuild skipped (no build system detected)")
+        return {"status": "success", "output": "\n".join(output_lines)}
+
+    def _ingest(self, args: List[str]) -> Dict:
+        banner = OutputToolkit.banner("EMPIRE INGEST")
+        output_lines = [banner, ""]
+
+        empire_root = self._empire_root()
+        if not empire_root:
+            return {
+                "status": "error",
+                "message": "Empire extension not available",
+                "output": banner + "\n❌ Empire submodule not found",
+            }
+
+        if not args:
+            output_lines.append("Usage: EMPIRE INGEST <input> [--out <path>] [--source <label>]")
+            return {"status": "error", "output": "\n".join(output_lines)}
+
+        input_path = args[0]
+        out_path = str(empire_root / "data" / "raw" / "records.jsonl")
+        source_label = None
+
+        if "--out" in args:
+            idx = args.index("--out")
+            if idx + 1 < len(args):
+                out_path = args[idx + 1]
+        if "--source" in args:
+            idx = args.index("--source")
+            if idx + 1 < len(args):
+                source_label = args[idx + 1]
+
+        script = empire_root / "scripts" / "ingest" / "run_ingest.py"
+        cmd = ["python3", str(script), input_path, "--out", out_path]
+        if source_label:
+            cmd.extend(["--source", source_label])
+
+        result = subprocess.run(cmd, capture_output=False, check=False, cwd=str(empire_root))
+        if result.returncode != 0:
+            output_lines.append("❌ Ingest failed")
+            return {"status": "error", "output": "\n".join(output_lines)}
+
+        output_lines.append(f"✅ Ingested records -> {out_path}")
+        return {"status": "success", "output": "\n".join(output_lines)}
+
+    def _normalize(self, args: List[str]) -> Dict:
+        banner = OutputToolkit.banner("EMPIRE NORMALIZE")
+        output_lines = [banner, ""]
+
+        empire_root = self._empire_root()
+        if not empire_root:
+            return {
+                "status": "error",
+                "message": "Empire extension not available",
+                "output": banner + "\n❌ Empire submodule not found",
+            }
+
+        input_path = str(empire_root / "data" / "raw" / "records.jsonl")
+        output_path = str(empire_root / "data" / "normalized" / "records.jsonl")
+        db_path = str(empire_root / "data" / "empire.db")
+        persist = True
+
+        if "--in" in args:
+            idx = args.index("--in")
+            if idx + 1 < len(args):
+                input_path = args[idx + 1]
+        if "--out" in args:
+            idx = args.index("--out")
+            if idx + 1 < len(args):
+                output_path = args[idx + 1]
+        if "--db" in args:
+            idx = args.index("--db")
+            if idx + 1 < len(args):
+                db_path = args[idx + 1]
+        if "--no-persist" in args:
+            persist = False
+
+        script = empire_root / "scripts" / "process" / "normalize_records.py"
+        cmd = ["python3", str(script), "--in", input_path, "--out", output_path]
+        if db_path:
+            cmd.extend(["--db", db_path])
+        if not persist:
+            cmd.append("--no-persist")
+
+        result = subprocess.run(cmd, capture_output=False, check=False, cwd=str(empire_root))
+        if result.returncode != 0:
+            output_lines.append("❌ Normalize failed")
+            return {"status": "error", "output": "\n".join(output_lines)}
+
+        output_lines.append(f"✅ Normalized records -> {output_path}")
+        if persist:
+            output_lines.append(f"✅ Persisted to DB -> {db_path}")
+        return {"status": "success", "output": "\n".join(output_lines)}
+
+    def _sync(self, args: List[str]) -> Dict:
+        banner = OutputToolkit.banner("EMPIRE SYNC")
+        output_lines = [banner, ""]
+
+        empire_root = self._empire_root()
+        if not empire_root:
+            return {
+                "status": "error",
+                "message": "Empire extension not available",
+                "output": banner + "\n❌ Empire submodule not found",
+            }
+
+        db_path = str(empire_root / "data" / "empire.db")
+        if "--db" in args:
+            idx = args.index("--db")
+            if idx + 1 < len(args):
+                db_path = args[idx + 1]
+
+        script = empire_root / "scripts" / "process" / "refresh_overview.py"
+        cmd = ["python3", str(script), "--db", db_path]
+        result = subprocess.run(cmd, capture_output=False, check=False, cwd=str(empire_root))
+        if result.returncode != 0:
+            output_lines.append("❌ Sync failed")
+            return {"status": "error", "output": "\n".join(output_lines)}
+
+        output_lines.append("✅ Overview refreshed")
+        output_lines.append("✅ Sync complete (local)")
         return {"status": "success", "output": "\n".join(output_lines)}
