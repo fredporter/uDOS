@@ -1,15 +1,19 @@
 <script>
   import { apiFetch } from "$lib/services/apiBase";
+  import { buildAuthHeaders, getAdminToken } from "$lib/services/auth";
   import { onMount } from "svelte";
 
   let status = null;
   let logs = [];
   let loading = true;
   let error = null;
+  let canDevMode = false;
 
   async function loadStatus() {
     try {
-      const res = await apiFetch("/api/dev/status");
+      const res = await apiFetch("/api/dev/status", {
+        headers: buildAuthHeaders(getAdminToken()),
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       status = await res.json();
       loading = false;
@@ -21,7 +25,9 @@
 
   async function loadLogs() {
     try {
-      const res = await apiFetch("/api/dev/logs?lines=100");
+      const res = await apiFetch("/api/dev/logs?lines=100", {
+        headers: buildAuthHeaders(getAdminToken()),
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       logs = data.logs || [];
@@ -33,7 +39,10 @@
   async function activate() {
     loading = true;
     try {
-      const res = await apiFetch("/api/dev/activate", { method: "POST" });
+      const res = await apiFetch("/api/dev/activate", {
+        method: "POST",
+        headers: buildAuthHeaders(getAdminToken()),
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await loadStatus();
       await loadLogs();
@@ -46,7 +55,10 @@
   async function deactivate() {
     loading = true;
     try {
-      const res = await apiFetch("/api/dev/deactivate", { method: "POST" });
+      const res = await apiFetch("/api/dev/deactivate", {
+        method: "POST",
+        headers: buildAuthHeaders(getAdminToken()),
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await loadStatus();
     } catch (err) {
@@ -58,7 +70,10 @@
   async function restart() {
     loading = true;
     try {
-      const res = await apiFetch("/api/dev/restart", { method: "POST" });
+      const res = await apiFetch("/api/dev/restart", {
+        method: "POST",
+        headers: buildAuthHeaders(getAdminToken()),
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await loadStatus();
       await loadLogs();
@@ -74,6 +89,10 @@
     const interval = setInterval(loadStatus, 5000); // Poll every 5s
     return () => clearInterval(interval);
   });
+
+  $: canDevMode =
+    !!status?.requirements?.dev_root_present &&
+    !!status?.requirements?.dev_template_present;
 </script>
 
 <div class="max-w-7xl mx-auto px-4 py-8">
@@ -135,7 +154,7 @@
         {#if !status.active}
           <button
             on:click={activate}
-            disabled={loading}
+            disabled={loading || !canDevMode}
             class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             Activate Dev Mode
@@ -143,20 +162,29 @@
         {:else}
           <button
             on:click={deactivate}
-            disabled={loading}
+            disabled={loading || !canDevMode}
             class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             Deactivate
           </button>
           <button
             on:click={restart}
-            disabled={loading}
+            disabled={loading || !canDevMode}
             class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             Restart
           </button>
         {/if}
       </div>
+      {#if status?.requirements}
+        <div class="mt-4 text-xs text-gray-400">
+          /dev present: {status.requirements.dev_root_present ? "yes" : "no"} ·
+          templates ok: {status.requirements.dev_template_present ? "yes" : "no"}
+        </div>
+      {/if}
+      {#if !canDevMode}
+        <div class="mt-2 text-xs text-amber-300">Dev mode requires admin access and /dev templates.</div>
+      {/if}
     </div>
 
     <!-- Logs -->

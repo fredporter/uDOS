@@ -150,11 +150,9 @@ RECOVERY:
         # Call RESTORE handler
         try:
             from core.commands.maintenance_handler import MaintenanceHandler
-            from core.services.logging_service import get_logger
-            from core.services.unified_logging import get_unified_logger
+            from core.services.logging_api import get_logger
 
-            logger = get_logger("undo-handler")
-            unified = get_unified_logger()
+            logger = get_logger("core", category="undo", name="undo-handler")
 
             # Build params for RESTORE
             restore_params = [scope]
@@ -166,10 +164,11 @@ RECOVERY:
             result = maintenance._handle_restore(restore_params)
 
             # Log the UNDO action
-            unified.log_core(
-                category="undo",
-                message=f"UNDO RESTORE executed",
-                metadata={
+            logger.event(
+                "info",
+                "undo.restore",
+                "UNDO RESTORE executed",
+                ctx={
                     "scope": scope,
                     "force": force,
                     "status": result.get("status", "unknown"),

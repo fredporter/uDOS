@@ -30,7 +30,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field, asdict
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
 logger = get_logger("wizard-pack-manager")
 

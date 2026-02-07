@@ -43,7 +43,7 @@ import uvicorn
 from wizard.services.device_auth import get_device_auth, DeviceStatus
 from wizard.services.mesh_sync import get_mesh_sync, SyncItemType
 from wizard.services.rate_limiter import get_rate_limiter
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.secret_store import get_secret_store, SecretStoreError
 from wizard.services.plugin_repository import get_repository
 from wizard.services.plugin_validation import (

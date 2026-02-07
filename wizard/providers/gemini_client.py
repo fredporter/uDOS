@@ -31,7 +31,7 @@ from .base_provider import (
     RateLimitError,
     ProviderError,
 )
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 
 logger = get_logger("gemini-client")
 

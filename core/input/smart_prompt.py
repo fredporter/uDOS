@@ -36,7 +36,7 @@ from core.input.confirmation_utils import (
     format_prompt,
     format_error,
 )
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 from core.utils.tty import interactive_tty_status
 
 # Setup debug logging (silent by default, enable with DEBUG env var)
@@ -51,7 +51,7 @@ if os.environ.get("DEBUG_SMARTPROMPT"):
 else:
     debug_logger.setLevel(logging.CRITICAL)  # Silent unless DEBUG_SMARTPROMPT=1
 
-logger = get_logger("smartprompt")
+logger = get_logger("core", category="smartprompt", name="smartprompt")
 
 
 class CoreCompleter(Completer):

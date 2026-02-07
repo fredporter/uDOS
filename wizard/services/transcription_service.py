@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.library_manager_service import get_library_manager
 from wizard.services.songscribe_service import get_songscribe_service
 

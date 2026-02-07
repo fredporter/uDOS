@@ -15,7 +15,7 @@ Read or update Wizard server configuration.
 ```json
 {
   "updates": {
-    "ai_gateway_enabled": true,
+    "ok_gateway_enabled": true,
     "plugin_auto_update": false
   }
 }
@@ -27,7 +27,7 @@ Read or update Wizard server configuration.
 {
   "status": "ok",
   "config": {
-    "ai_gateway_enabled": true,
+    "ok_gateway_enabled": true,
     "plugin_auto_update": false
   }
 }

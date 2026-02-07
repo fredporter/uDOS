@@ -59,7 +59,7 @@ All other sensitive data goes in the Wizard keystore:
 
 **Integrations:**
 - Webhook URLs and secrets
-- AI gateway routing config
+- OK gateway routing config
 - Provider credentials
 - Custom integration settings
 

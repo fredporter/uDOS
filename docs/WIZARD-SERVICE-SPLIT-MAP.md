@@ -39,7 +39,7 @@ Goal: establish clear service boundaries and a migration path to `/api` + `/mcp`
 - Provider routing, model selection, AI request orchestration
 
 **Primary code**
-- `wizard/services/ai_gateway.py`
+- `wizard/services/ok_gateway.py`
 - `wizard/services/model_router.py`
 - `wizard/services/mistral_api.py`
 - `wizard/services/provider_load_logger.py`

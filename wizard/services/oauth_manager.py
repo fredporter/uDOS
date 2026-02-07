@@ -33,7 +33,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from urllib.parse import urlencode, parse_qs, urlparse
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
 logger = get_logger("oauth-manager")
 

@@ -12,7 +12,7 @@ from typing import Optional
 
 import requests
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.ai_context_store import write_context_bundle
 
 logger = get_logger("wizard.mistral-api")

@@ -13,7 +13,7 @@ import subprocess
 from pathlib import Path
 from typing import Optional, Tuple
 
-from core.services.logging_service import get_repo_root
+from core.services.logging_api import get_repo_root
 
 
 def get_memory_root() -> Path:

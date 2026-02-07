@@ -25,9 +25,9 @@ from dataclasses import dataclass, asdict, field
 from enum import Enum
 import threading
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
-logger = get_logger("wizard-device-auth")
+logger = get_logger("wizard", category="device-auth", name="device-auth")
 
 # Paths
 WIZARD_DATA = Path(__file__).parent.parent.parent / "memory" / "wizard"
@@ -127,7 +127,8 @@ class DeviceAuthService:
         self.sessions: Dict[str, Dict[str, Any]] = {}
 
         logger.info(
-            f"[WIZ] DeviceAuthService initialized with {len(self.devices)} devices"
+            "[WIZ] DeviceAuthService initialized with %s devices",
+            len(self.devices),
         )
 
     def _load_devices(self):
@@ -140,7 +141,7 @@ class DeviceAuthService:
                         device = Device.from_dict(device_data)
                         self.devices[device.id] = device
             except Exception as e:
-                logger.error(f"[WIZ] Failed to load devices: {e}")
+                logger.error("[WIZ] Failed to load devices: %s", e)
 
     def _save_devices(self):
         """Save devices to persistent storage."""
@@ -152,7 +153,7 @@ class DeviceAuthService:
             with open(DEVICES_FILE, "w") as f:
                 json.dump(data, f, indent=2)
         except Exception as e:
-            logger.error(f"[WIZ] Failed to save devices: {e}")
+            logger.error("[WIZ] Failed to save devices: %s", e)
 
     # =========================================================================
     # Pairing
@@ -194,7 +195,7 @@ class DeviceAuthService:
 
         self.pairing_requests[code] = request
 
-        logger.info(f"[WIZ] Created pairing request: {code[:4]}****")
+        logger.info("[WIZ] Created pairing request: %s****", code[:4])
 
         return request
 
@@ -225,12 +226,12 @@ class DeviceAuthService:
         # Find matching request
         request = self.pairing_requests.get(code)
         if not request:
-            logger.warning(f"[WIZ] Invalid pairing code: {code[:4]}****")
+            logger.warning("[WIZ] Invalid pairing code: %s****", code[:4])
             return None
 
         # Check expiration
         if datetime.now() > request.expires_at:
-            logger.warning(f"[WIZ] Expired pairing code: {code[:4]}****")
+            logger.warning("[WIZ] Expired pairing code: %s****", code[:4])
             del self.pairing_requests[code]
             return None
 
@@ -252,7 +253,7 @@ class DeviceAuthService:
         # Clean up pairing request
         del self.pairing_requests[code]
 
-        logger.info(f"[WIZ] Device paired: {device_name} ({device_id})")
+        logger.info("[WIZ] Device paired: %s (%s)", device_name, device_id)
 
         return device
 
@@ -303,7 +304,7 @@ class DeviceAuthService:
             device = self.devices[device_id]
             del self.devices[device_id]
             self._save_devices()
-            logger.info(f"[WIZ] Device removed: {device.name} ({device_id})")
+            logger.info("[WIZ] Device removed: %s (%s)", device.name, device_id)
             return True
         return False
 

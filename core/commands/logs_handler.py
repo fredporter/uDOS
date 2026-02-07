@@ -1,20 +1,18 @@
-"""LOGS command handler - View and search unified logs from all systems."""
+"""LOGS command handler - View and search v1.3 logs."""
 
 from typing import List, Dict, Optional
-from pathlib import Path
 from core.commands.base import BaseCommandHandler
-from core.services.unified_logging import get_unified_logger, LogSource, LogLevel
 
 try:
-    from core.services.logging_service import get_logger
-    logger = get_logger("logs-handler")
-except ImportError:
+    from core.services.logging_api import get_logger, get_log_manager
+    logger = get_logger("core", category="logs", name="logs-handler")
+except ImportError:  # pragma: no cover - fallback for minimal runtime
     import logging
     logger = logging.getLogger("logs-handler")
 
 
 class LogsHandler(BaseCommandHandler):
-    """Handler for LOGS command - view and search unified system logs."""
+    """Handler for LOGS command - view and search system logs."""
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         """
@@ -40,9 +38,9 @@ class LogsHandler(BaseCommandHandler):
         """
         if not params:
             return self._show_logs(limit=50)
-        
+
         subcommand = params[0].lower()
-        
+
         if subcommand == "--last":
             if len(params) < 2:
                 return {"status": "error", "message": "Usage: LOGS --last N"}
@@ -51,32 +49,30 @@ class LogsHandler(BaseCommandHandler):
                 return self._show_logs(limit=limit)
             except ValueError:
                 return {"status": "error", "message": f"Invalid number: {params[1]}"}
-        
+
         elif subcommand == "--core":
-            return self._show_logs(source=LogSource.CORE, limit=50)
-        
+            return self._show_logs(component="core", limit=50)
+
         elif subcommand == "--wizard":
-            return self._show_logs(source=LogSource.WIZARD, limit=50)
-        
+            return self._show_logs(component="wizard", limit=50)
+
         elif subcommand == "--goblin":
-            return self._show_logs(source=LogSource.GOBLIN, limit=50)
-        
+            return self._show_logs(component="goblin", limit=50)
+
         elif subcommand == "--level":
             if len(params) < 2:
-                return {"status": "error", "message": "Usage: LOGS --level DEBUG|INFO|WARNING|ERROR|CRITICAL"}
-            level_str = params[1].upper()
-            try:
-                level = LogLevel[level_str]
-                return self._show_logs(level=level, limit=50)
-            except KeyError:
-                return {"status": "error", "message": f"Invalid level: {level_str}"}
-        
+                return {"status": "error", "message": "Usage: LOGS --level DEBUG|INFO|WARN|ERROR|FATAL"}
+            level_str = params[1].lower()
+            if level_str not in {"trace", "debug", "info", "warn", "error", "fatal"}:
+                return {"status": "error", "message": f"Invalid level: {params[1]}"}
+            return self._show_logs(level=level_str, limit=50)
+
         elif subcommand == "--category":
             if len(params) < 2:
                 return {"status": "error", "message": "Usage: LOGS --category CATEGORY"}
             category = params[1]
             return self._show_logs(category=category, limit=50)
-        
+
         elif subcommand == "--stats":
             return self._show_stats()
 
@@ -85,141 +81,135 @@ class LogsHandler(BaseCommandHandler):
 
         elif subcommand == "--clear":
             return self._clear_logs()
-        
+
         elif subcommand == "help":
             return {"status": "info", "output": self._help_text()}
-        
+
         else:
             return {"status": "error", "message": f"Unknown LOGS subcommand: {subcommand}\nType: LOGS help"}
 
     def _show_logs(
         self,
-        source: Optional[LogSource] = None,
+        component: Optional[str] = None,
         category: Optional[str] = None,
-        level: Optional[LogLevel] = None,
-        limit: int = 50
+        level: Optional[str] = None,
+        limit: int = 50,
     ) -> Dict:
         """Show filtered logs."""
         from core.tui.output import OutputToolkit
 
-        unified = get_unified_logger()
-        entries = unified.filter(source=source, category=category, level=level, limit=limit)
-        
+        entries = self._collect_entries(component=component, category=category, level=level, limit=limit)
+
         if not entries:
             return {
                 "status": "info",
-                "output": OutputToolkit.section("📋 LOGS", "No log entries found")
+                "output": OutputToolkit.section("📋 LOGS", "No log entries found"),
             }
-        
-        # Format as table
+
         lines = [
-            OutputToolkit.banner("📋 UNIFIED LOGS"),
-            f"Showing {len(entries)} of {len(unified.entries)} entries\n"
+            OutputToolkit.banner("📋 LOGS"),
+            f"Showing {len(entries)} entries\n",
         ]
-        
-        # Build table
+
         headers = ["TIME", "SOURCE", "LEVEL", "CATEGORY", "MESSAGE"]
         rows = []
         for entry in reversed(entries):
-            time_str = entry.timestamp.strftime("%H:%M:%S")
-            msg = entry.message[:40] + "..." if len(entry.message) > 40 else entry.message
-            rows.append([
-                time_str,
-                entry.source.value,
-                entry.level.value,
-                entry.category,
-                msg
-            ])
-        
+            ts = entry.get("ts", "")
+            time_str = ts.split("T")[-1].split(".")[0] if "T" in ts else ts[:8]
+            msg = entry.get("msg", "")
+            msg = msg[:40] + "..." if len(msg) > 40 else msg
+            rows.append(
+                [
+                    time_str,
+                    entry.get("component", "-"),
+                    entry.get("level", "-").upper(),
+                    entry.get("category", "-"),
+                    msg,
+                ]
+            )
+
         lines.append(OutputToolkit.table(headers, rows))
-        
-        # Add filter info
+
         filter_info = []
-        if source:
-            filter_info.append(f"source={source.value}")
+        if component:
+            filter_info.append(f"component={component}")
         if category:
             filter_info.append(f"category={category}")
         if level:
-            filter_info.append(f"level={level.value}")
-        
+            filter_info.append(f"level={level.upper()}")
+
         if filter_info:
             lines.append(f"\nFilters: {', '.join(filter_info)}")
-        
-        lines.append(f"\nTip: LOGS --last 100 | LOGS --wizard | LOGS --category command-dispatch")
-        
-        logger.info("[LOCAL] Displayed unified logs", extra={"entries": len(entries)})
-        
+
+        lines.append("\nTip: LOGS --last 100 | LOGS --wizard | LOGS --category command-routing")
+
+        logger.event("info", "logs.display", "Displayed logs", ctx={"entries": len(entries)})
+
         return {
             "status": "success",
-            "output": "\n".join(lines)
+            "output": "\n".join(lines),
         }
 
     def _show_stats(self) -> Dict:
         """Show logging statistics."""
         from core.tui.output import OutputToolkit
 
-        unified = get_unified_logger()
-        stats = unified.stats()
-        
+        stats = self._stats()
+
         lines = [
             OutputToolkit.banner("📊 LOG STATISTICS"),
             f"Total entries: {stats['total_entries']}",
-            f"Uptime: {stats['uptime']:.1f}s",
-            ""
+            "",
         ]
-        
-        # By source
-        if stats['by_source']:
+
+        if stats["by_component"]:
             lines.append("By Source:")
-            for source, count in stats['by_source'].items():
-                pct = (count / stats['total_entries'] * 100) if stats['total_entries'] > 0 else 0
+            for source, count in stats["by_component"].items():
+                pct = (count / stats["total_entries"] * 100) if stats["total_entries"] > 0 else 0
                 lines.append(f"  {source:12} {count:5} ({pct:5.1f}%)")
             lines.append("")
-        
-        # By level
-        if stats['by_level']:
+
+        if stats["by_level"]:
             lines.append("By Level:")
-            for level, count in stats['by_level'].items():
-                pct = (count / stats['total_entries'] * 100) if stats['total_entries'] > 0 else 0
+            for level, count in stats["by_level"].items():
+                pct = (count / stats["total_entries"] * 100) if stats["total_entries"] > 0 else 0
                 lines.append(f"  {level:12} {count:5} ({pct:5.1f}%)")
-        
-        # Command performance summary
+
         command_entries = [
-            entry for entry in unified.entries
-            if entry.category.startswith("command_finish_")
+            entry for entry in stats["entries"]
+            if entry.get("event") == "command.finish"
         ]
 
         if command_entries:
             total_commands = len(command_entries)
             success_count = sum(
                 1 for entry in command_entries
-                if entry.metadata.get("status") == "success"
+                if entry.get("ctx", {}).get("status") == "success"
             )
             total_duration = sum(
-                entry.metadata.get("duration_seconds", 0) for entry in command_entries
+                entry.get("ctx", {}).get("duration_seconds", 0) for entry in command_entries
             )
             avg_duration = total_duration / total_commands if total_commands else 0
 
-            # Aggregate per command
-            per_command = {}
+            per_command: Dict[str, Dict[str, float]] = {}
             for entry in command_entries:
-                command_name = entry.metadata.get("command", "UNKNOWN")
-                duration = entry.metadata.get("duration_seconds", 0)
-                status = entry.metadata.get("status", "unknown")
+                ctx = entry.get("ctx", {})
+                command_name = ctx.get("command", "UNKNOWN")
+                duration = ctx.get("duration_seconds", 0)
+                status = ctx.get("status", "unknown")
                 data = per_command.setdefault(
                     command_name,
-                    {"count": 0, "duration": 0.0, "success": 0}
+                    {"count": 0, "duration": 0.0, "success": 0},
                 )
                 data["count"] += 1
                 data["duration"] += duration
                 if status == "success":
                     data["success"] += 1
 
-            # Top slow commands by average duration
             slowest = sorted(
                 per_command.items(),
                 key=lambda item: (item[1]["duration"] / item[1]["count"]) if item[1]["count"] else 0,
-                reverse=True
+                reverse=True,
             )[:5]
 
             lines.extend(
@@ -239,37 +229,34 @@ class LogsHandler(BaseCommandHandler):
                     avg = (data["duration"] / data["count"]) if data["count"] else 0
                     lines.append(f"  {idx}. {cmd} ({avg:.3f}s avg, {data['count']} runs)")
 
-        logger.info("[LOCAL] Displayed log statistics")
-        
+        logger.event("info", "logs.stats", "Displayed log statistics")
+
         return {
             "status": "success",
-            "output": "\n".join(lines)
+            "output": "\n".join(lines),
         }
 
     def _clear_logs(self) -> Dict:
         """Clear in-memory logs (file logs are preserved)."""
         from core.tui.output import OutputToolkit
 
-        unified = get_unified_logger()
-        count = len(unified.entries)
-        unified.entries.clear()
-        
-        logger.info("[LOCAL] Cleared in-memory logs", extra={"cleared": count})
-        
+        count = self._clear_ring()
+
+        logger.event("info", "logs.clear", "Cleared in-memory logs", ctx={"cleared": count})
+
         return {
             "status": "success",
             "output": OutputToolkit.section(
                 "✓ LOGS CLEARED",
-                f"Cleared {count} in-memory entries\nFile logs in memory/logs/ are preserved"
-            )
+                f"Cleared {count} in-memory entries\nFile logs in memory/logs/ are preserved",
+            ),
         }
 
     def _show_ok_outputs(self, limit: int = 50) -> Dict:
         """Show recent OK local output summaries."""
         from core.tui.output import OutputToolkit
 
-        unified = get_unified_logger()
-        entries = unified.filter(category="ok-local-output", limit=limit)
+        entries = self._collect_entries(category="ok-local-output", limit=limit)
 
         if not entries:
             return {
@@ -288,8 +275,9 @@ class LogsHandler(BaseCommandHandler):
         headers = ["TIME", "MODE", "MODEL", "SOURCE", "FILE", "PREVIEW"]
         rows = []
         for entry in reversed(entries):
-            time_str = entry.timestamp.strftime("%H:%M:%S")
-            meta = entry.metadata or {}
+            ts = entry.get("ts", "")
+            time_str = ts.split("T")[-1].split(".")[0] if "T" in ts else ts[:8]
+            meta = entry.get("ctx", {}) or {}
             mode = meta.get("mode") or "LOCAL"
             model = meta.get("model") or "-"
             source = meta.get("source") or "-"
@@ -308,19 +296,19 @@ class LogsHandler(BaseCommandHandler):
         """Help text for LOGS command."""
         return """
 ═════════════════════════════════════════════════════════════
-LOGS - View Unified Logs from All Systems
+LOGS - View Logs from All Systems
 ═════════════════════════════════════════════════════════════
 
 USAGE:
   LOGS                          Show last 50 entries (all systems)
   LOGS --last N                 Show last N entries
-  LOGS --core                   Show Core TUI logs only
-  LOGS --wizard                 Show Wizard Server logs only
-  LOGS --goblin                 Show Goblin Dev Server logs only
+  LOGS --core                   Only Core logs
+  LOGS --wizard                 Only Wizard logs
+  LOGS --goblin                 Only Goblin logs
   LOGS --ok                     Show OK local output summaries
-  LOGS --level LEVEL            Filter by level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  LOGS --level LEVEL            Filter by level (TRACE, DEBUG, INFO, WARN, ERROR, FATAL)
   LOGS --category CATEGORY      Filter by category
-  LOGS --stats                  Show log statistics (counts by source/level)
+  LOGS --stats                  Statistics
   LOGS --clear                  Clear in-memory logs (files preserved)
   LOGS help                     Show this help
 
@@ -330,15 +318,53 @@ EXAMPLES:
   LOGS --wizard                 Only Wizard logs
   LOGS --ok                     Recent OK local output summaries
   LOGS --level ERROR            Only errors
-  LOGS --category ai-routing    Only AI routing logs
+  LOGS --category command       Only command logs
   LOGS --stats                  Statistics
 
 LOG FILES:
-  Core:      memory/logs/core-{category}-YYYY-MM-DD.log
-  Wizard:    memory/logs/unified-wizard-YYYY-MM-DD.log
-  Goblin:    memory/logs/unified-goblin-YYYY-MM-DD.log
-  Unified:   memory/logs/unified-summary-YYYY-MM-DD.json
-  Dev Trace: memory/logs/dev-trace-{category}-YYYY-MM-DD.log
+  Core:      memory/logs/udos/core/{name}-YYYY-MM-DD.jsonl
+  Wizard:    memory/logs/udos/wizard/{name}-YYYY-MM-DD.jsonl
+  Scripts:   memory/logs/udos/scripts/{name}-YYYY-MM-DD.jsonl
 
 ═════════════════════════════════════════════════════════════
 """
+
+    def _collect_entries(
+        self,
+        component: Optional[str] = None,
+        category: Optional[str] = None,
+        level: Optional[str] = None,
+        limit: int = 50,
+    ) -> List[Dict]:
+        manager = get_log_manager()
+        entries = list(manager.ring())
+        if component:
+            entries = [entry for entry in entries if entry.get("component") == component]
+        if category:
+            entries = [entry for entry in entries if entry.get("category") == category]
+        if level:
+            entries = [entry for entry in entries if entry.get("level") == level]
+        if limit:
+            entries = entries[-limit:]
+        return entries
+
+    def _clear_ring(self) -> int:
+        manager = get_log_manager()
+        return manager.clear_ring()
+
+    def _stats(self) -> Dict[str, Any]:
+        manager = get_log_manager()
+        entries = list(manager.ring())
+        by_component: Dict[str, int] = {}
+        by_level: Dict[str, int] = {}
+        for entry in entries:
+            comp = entry.get("component", "unknown")
+            by_component[comp] = by_component.get(comp, 0) + 1
+            level = entry.get("level", "unknown").upper()
+            by_level[level] = by_level.get(level, 0) + 1
+        return {
+            "total_entries": len(entries),
+            "by_component": by_component,
+            "by_level": by_level,
+            "entries": entries,
+        }

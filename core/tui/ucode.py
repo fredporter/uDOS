@@ -59,7 +59,7 @@ from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, cre
 from core.services.health_training import read_last_summary
 from core.services.hotkey_map import write_hotkey_payload
 from core.services.theme_service import get_theme_service
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 from core.services.memory_test_scheduler import MemoryTestScheduler
 from core.services.self_healer import collect_self_heal_summary
 from core.services.prompt_parser_service import get_prompt_parser_service
@@ -72,7 +72,6 @@ from core.services.todo_service import (
 from core.tui.advanced_form_handler import AdvancedFormField
 from core.services.system_script_runner import SystemScriptRunner
 from wizard.services.monitoring_manager import MonitoringManager
-from core.services.unified_logging import get_unified_logger, LogLevel
 
 
 def get_repo_root() -> Path:
@@ -108,7 +107,7 @@ class ComponentDetector:
 
     def __init__(self, repo_root: Path):
         self.repo_root = repo_root
-        self.logger = get_logger("ucode-detector")
+        self.logger = get_logger("core", category="ucode-detector", name="ucode")
         self.components: Dict[str, Component] = {}
 
     def detect_all(self) -> Dict[str, Component]:
@@ -229,7 +228,7 @@ class uCODETUI:
     def __init__(self):
         """Initialize uCODE TUI."""
         self.repo_root = get_repo_root()
-        self.logger = get_logger("ucode-tui")
+        self.logger = get_logger("core", category="ucode-tui", name="ucode")
         self.quiet = os.getenv("UDOS_QUIET", "").strip() in ("1", "true", "yes")
         self.ucode_version = os.getenv("UCODE_VERSION", "1.0.1")
         self.running = False
@@ -357,7 +356,7 @@ class uCODETUI:
 
     def _route_input(self, user_input: str) -> Dict[str, Any]:
         """
-        Route input based on prefix: ':', 'OK', '/', or question mode.
+        Route input based on prefix: '?', 'OK', '/', or question mode.
 
         Returns:
             Dict with status, message, and routed result
@@ -366,12 +365,12 @@ class uCODETUI:
         if not user_input:
             return {"status": "error", "message": "Empty input"}
 
-        # Mode 1: Command mode (OK ... or :...)
+        # Mode 1: Command mode (OK ... or ?...)
         is_ok = user_input.lower().startswith("ok ")
-        if is_ok or user_input.startswith(":"):
-            # Normalize : to remove the colon and pass the rest as a normal command
-            if user_input.startswith(":"):
-                # Remove the : and pass the rest to dispatcher
+        if is_ok or user_input.startswith("?"):
+            # Normalize ? to remove the marker and pass the rest as a normal command
+            if user_input.startswith("?"):
+                # Remove the ? and pass the rest to dispatcher
                 normalized = user_input[1:].strip()
             else:
                 # Remove "OK " prefix and pass the rest to dispatcher
@@ -574,13 +573,13 @@ class uCODETUI:
                     if not user_input:
                         continue
 
-                    # Route input based on prefix (: / OK) or question mode
+                    # Route input based on prefix (? / OK) or question mode
                     # This implements the uCODE Prompt Spec
                     result = self._route_input(user_input)
 
                     # Check for EXIT before processing
                     normalized_input = user_input.strip().upper()
-                    if normalized_input in ("EXIT", ":EXIT", "OK EXIT"):
+                    if normalized_input in ("EXIT", "?EXIT", "? EXIT", "OK EXIT"):
                         self.running = False
                         print("👋 See you later!")
                         break
@@ -877,11 +876,11 @@ class uCODETUI:
             self.dispatcher.dispatch(choice, parser=self.prompt, game_state=self.state)
 
     def _get_ai_modes_path(self) -> Path:
-        """Return path to AI modes configuration."""
-        return self.repo_root / "core" / "config" / "ai_modes.json"
+        """Return path to OK modes configuration."""
+        return self.repo_root / "core" / "config" / "ok_modes.json"
 
     def _load_ai_modes_config(self) -> Dict[str, Any]:
-        """Load AI modes configuration (safe fallback)."""
+        """Load OK modes configuration (safe fallback)."""
         path = self._get_ai_modes_path()
         if not path.exists():
             return {"modes": {}}
@@ -889,7 +888,7 @@ class uCODETUI:
             with open(path, "r", encoding="utf-8") as handle:
                 return json.load(handle)
         except Exception as exc:
-            self.logger.warning("[AI] Failed to load ai_modes.json: %s", exc)
+            self.logger.warning("[AI] Failed to load ok_modes.json: %s", exc)
             return {"modes": {}}
 
     def _get_ok_default_model(self) -> str:
@@ -1390,7 +1389,7 @@ class uCODETUI:
                     "capabilities": {
                         "web_proxy": bool(collected_data.get("capability_web_proxy")),
                         "gmail_relay": bool(collected_data.get("capability_gmail_relay")),
-                        "ai_gateway": bool(collected_data.get("capability_ai_gateway")),
+                        "ok_gateway": bool(collected_data.get("capability_ok_gateway")),
                         "github_push": bool(collected_data.get("capability_github_push")),
                         "hubspot": bool(collected_data.get("capability_hubspot")),
                         "icloud": bool(collected_data.get("capability_icloud")),
@@ -1816,17 +1815,20 @@ For detailed help on any command, type the command name followed by --help
             self.ok_local_outputs = self.ok_local_outputs[-self.ok_local_limit :]
 
         try:
-            unified = get_unified_logger()
+            ok_logger = get_logger("core", category="ok-local-output", name="ucode")
             preview = (response or "").strip().splitlines()
-            unified.log_core(
-                "ok-local-output",
+            ok_logger.event(
+                "info",
+                "ok.local.output",
                 f"OK {mode} output stored",
-                level=LogLevel.INFO,
-                model=model,
-                source=source,
-                file_path=file_path,
-                prompt_preview=(prompt or "")[:120],
-                response_preview=" ".join(preview[:2])[:160] if preview else "",
+                ctx={
+                    "mode": mode,
+                    "model": model,
+                    "source": source,
+                    "file_path": file_path,
+                    "prompt_preview": (prompt or "")[:120],
+                    "response_preview": " ".join(preview[:2])[:160] if preview else "",
+                },
             )
         except Exception:
             pass

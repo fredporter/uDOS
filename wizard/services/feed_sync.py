@@ -30,7 +30,7 @@ from pathlib import Path
 import threading
 import asyncio
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
 logger = get_logger("feed-sync")
 

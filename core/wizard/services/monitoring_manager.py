@@ -7,9 +7,9 @@ from enum import Enum
 from pathlib import Path
 from typing import Callable, Dict, Optional, Any, Tuple, List
 
-from core.services.logging_service import get_repo_root, get_logger
+from core.services.logging_api import get_repo_root, get_logger
 
-logger = get_logger("monitoring-manager", source="wizard")
+logger = get_logger("wizard", category="monitoring-manager", name="monitoring")
 
 
 class HealthStatus(Enum):

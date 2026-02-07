@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Dict, List
 
 from core.commands.base import BaseCommandHandler
-from core.services.logging_service import get_repo_root
+from core.services.logging_api import get_repo_root
 from core.services.ts_runtime_service import TSRuntimeService
 from core.tui.output import OutputToolkit
 

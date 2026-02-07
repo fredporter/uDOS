@@ -20,7 +20,7 @@ from typing import Dict, Optional
 from datetime import datetime
 
 from core.commands.base import BaseCommandHandler
-from core.services.logging_service import get_repo_root, get_logger
+from core.services.logging_api import get_repo_root, get_logger
 
 logger = get_logger('webhook-setup')
 

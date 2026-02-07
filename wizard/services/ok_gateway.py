@@ -1,8 +1,8 @@
 """
-AI Gateway - LLM Access for User Devices
+OK Gateway - LLM Access for User Devices
 =========================================
 
-Provides AI/LLM capabilities for user devices through the Wizard Server.
+Provides OK/LLM capabilities for user devices through the Wizard Server.
 Handles API key management, rate limiting, and cost tracking.
 
 Supported Providers:
@@ -40,7 +40,7 @@ from typing import Dict, Any, Optional, List, AsyncGenerator
 from dataclasses import dataclass, asdict, field
 from enum import Enum
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.quota_tracker import (
     APIProvider as QuotaAPIProvider,
     get_quota_tracker,
@@ -52,7 +52,7 @@ from .policy_enforcer import PolicyEnforcer
 from .vibe_service import VibeService
 from .task_classifier import TaskClassifier
 
-logger = get_logger("ai-gateway")
+logger = get_logger("wizard", category="ok-gateway", name="ok-gateway")
 
 # Configuration paths
 CONFIG_PATH = Path(__file__).parent / "config"
@@ -92,7 +92,7 @@ class AIModel(Enum):
 
 
 @dataclass
-class AIRequest:
+class OKRequest:
     """AI request structure."""
 
     prompt: str
@@ -220,9 +220,9 @@ MODE_PRESETS: Dict[str, Dict[str, Any]] = {
 }
 
 
-class AIGateway:
+class OKGateway:
     """
-    AI gateway service for uDOS.
+    OK gateway service for uDOS.
 
     Routes AI requests to appropriate providers,
     manages costs, and caches responses.
@@ -236,7 +236,7 @@ class AIGateway:
     MAX_SAFE_CLOUD_TOKENS = 6000
 
     def __init__(self):
-        """Initialize AI gateway."""
+        """Initialize OK gateway."""
         self.config_path = CONFIG_PATH
         self.cache_path = CACHE_PATH
         self.cache_path.mkdir(parents=True, exist_ok=True)
@@ -394,12 +394,12 @@ class AIGateway:
             "vibe": self.vibe.get_status(),
         }
 
-    def _get_cache_key(self, request: AIRequest) -> str:
+    def _get_cache_key(self, request: OKRequest) -> str:
         """Generate cache key for request."""
         data = f"{request.model}:{request.prompt}:{request.system_prompt}"
         return hashlib.md5(data.encode()).hexdigest()
 
-    def _check_cache(self, request: AIRequest) -> Optional[AIResponse]:
+    def _check_cache(self, request: OKRequest) -> Optional[AIResponse]:
         """Check if response is cached."""
         cache_key = self._get_cache_key(request)
         cache_file = self.cache_path / f"{cache_key}.json"
@@ -418,7 +418,7 @@ class AIGateway:
 
         return None
 
-    def _save_cache(self, request: AIRequest, response: AIResponse):
+    def _save_cache(self, request: OKRequest, response: AIResponse):
         """Save response to cache."""
         if not response.success:
             return
@@ -451,7 +451,7 @@ class AIGateway:
             "timestamp": classification.timestamp,
         }
 
-    def _apply_mode_preset(self, request: AIRequest) -> None:
+    def _apply_mode_preset(self, request: OKRequest) -> None:
         """Apply Wizard mode presets to an AI request (conversation/creative/etc)."""
         if not request.mode:
             return
@@ -464,7 +464,7 @@ class AIGateway:
         if request.temperature is None:
             request.temperature = preset.get("temperature", None)
 
-    async def complete(self, request: AIRequest, device_id: str) -> AIResponse:
+    async def complete(self, request: OKRequest, device_id: str) -> AIResponse:
         """Complete an AI request via local-first routing."""
         start_time = time.time()
 
@@ -761,12 +761,12 @@ class AIGateway:
 
 
 # Singleton instance
-_gateway: Optional[AIGateway] = None
+_gateway: Optional[OKGateway] = None
 
 
-def get_ai_gateway() -> AIGateway:
-    """Get AI gateway singleton."""
+def get_ok_gateway() -> OKGateway:
+    """Get OK gateway singleton."""
     global _gateway
     if _gateway is None:
-        _gateway = AIGateway()
+        _gateway = OKGateway()
     return _gateway

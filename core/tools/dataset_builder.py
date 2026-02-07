@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 
 from core.services.dataset_service import DatasetManager
 from core.services.grid_config import load_grid_config
-from core.services.logging_service import get_logger, get_repo_root
+from core.services.logging_api import get_logger, get_repo_root
 from core.services.map_renderer import MapRenderer
 
 logger = get_logger("core.dataset_builder")

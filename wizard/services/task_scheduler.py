@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 from wizard.services.system_info_service import get_system_info_service
 from core.services.maintenance_utils import compost_cleanup

@@ -1,10 +1,14 @@
 # OK Service
 
-Wizard OK (local Vibe) gateway.
+Wizard OK Gateway (local Vibe).
 
 ## UI Contract
 
 See `ok-ui.md` for the OK (local Vibe) UI data model.
+
+## Defaults
+
+OK model defaults live in `core/config/ok_modes.json` under `modes.ofvibe.default_models` with `core` and `dev` profiles. The UI reads these via `GET /api/ucode/ok/status` (returned as `ok.default_models`).
 
 ## Routes
 

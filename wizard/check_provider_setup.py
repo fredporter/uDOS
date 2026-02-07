@@ -131,14 +131,6 @@ def _provider_is_configured(provider_id: str) -> bool:
             or _get_nested(config, ["providers", "ollama", "key_id"])
         )
 
-    if provider_id == "hubspot":
-        config = _load_config_file("hubspot_keys.json") or {}
-        return bool(
-            config.get("api_key")
-            or config.get("private_app_access_token")
-            or _get_nested(config, ["providers", "hubspot", "key_id"])
-        )
-
     return False
 
 
@@ -309,267 +301,6 @@ def _ollama_api_stream_pull(model: str) -> bool:
         return False
 
 
-def _setup_hubspot() -> bool:
-    """Interactive HubSpot Developer Platform CLI and API setup.
-
-    Guides users through:
-    1. Installing HubSpot CLI (@hubspot/cli)
-    2. Authenticating with Personal Access Key
-    3. OR manually configuring API token
-    """
-    print(f"{BLUE}━━━ HUBSPOT DEVELOPER PLATFORM SETUP ━━━{NC}\n")
-
-    print("HubSpot offers two integration paths:")
-    print("  1. CLI Workflow - Build and deploy apps (recommended for developers)")
-    print("  2. API Token Only - Direct API access (simple integration)\n")
-
-    choice = input(f"{YELLOW}?{NC} Choose setup type (1=CLI, 2=API Token, Enter=skip): ").strip()
-
-    if choice == "1":
-        return _setup_hubspot_cli()
-    elif choice == "2":
-        return _setup_hubspot_api()
-    else:
-        print(f"\n{YELLOW}⚠{NC}  Setup skipped. You can configure HubSpot later via the dashboard.")
-        return False
-
-
-def _setup_hubspot_cli() -> bool:
-    """Interactive HubSpot CLI installation and authentication."""
-    print(f"\n{BLUE}━━━ HUBSPOT CLI SETUP ━━━{NC}\n")
-
-    # Check if npm is available
-    try:
-        subprocess.run(["npm", "--version"], capture_output=True, check=True, timeout=5)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print(f"{YELLOW}⚠{NC}  npm not found. Install Node.js first: https://nodejs.org/")
-        return False
-
-    # Check if CLI is already installed
-    try:
-        result = subprocess.run(
-            ["hs", "--version"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        if result.returncode == 0:
-            print(f"{GREEN}✓{NC} HubSpot CLI already installed: {result.stdout.strip()}\n")
-        else:
-            raise FileNotFoundError
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print("HubSpot CLI not found. Installing...\n")
-        install = input(f"{YELLOW}?{NC} Install @hubspot/cli via npm? (y/N): ").strip().lower()
-
-        if install != "y":
-            print(f"{YELLOW}⚠{NC}  CLI installation skipped.")
-            return False
-
-        print(f"\n{BLUE}Installing @hubspot/cli (this may take 1-2 minutes)...{NC}")
-        spinner_running = True
-
-        def _spinner_loop(label: str) -> None:
-            frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-            idx = 0
-            while spinner_running:
-                frame = frames[idx % len(frames)]
-                sys.stdout.write(f"\r{frame} {label}")
-                sys.stdout.flush()
-                idx += 1
-                time.sleep(0.12)
-            sys.stdout.write("\r")
-            sys.stdout.flush()
-        try:
-            spin_thread = threading.Thread(
-                target=_spinner_loop,
-                args=("Installing HubSpot CLI...",),
-                daemon=True,
-            )
-            spin_thread.start()
-            subprocess.run(
-                ["npm", "install", "-g", "@hubspot/cli"],
-                timeout=180,
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            spinner_running = False
-            time.sleep(0.01)
-            print(f"{GREEN}✓{NC} HubSpot CLI installed successfully\n")
-        except subprocess.TimeoutExpired:
-            spinner_running = False
-            time.sleep(0.01)
-            print(f"{YELLOW}⚠{NC}  Installation timed out. Try manually: npm install -g @hubspot/cli")
-            return False
-        except subprocess.CalledProcessError as e:
-            spinner_running = False
-            time.sleep(0.01)
-            stderr = ""
-            try:
-                stderr = getattr(e, "stderr", "") or ""
-            except Exception:
-                stderr = ""
-            if "EACCES" in str(e) or "EACCES" in stderr:
-                user_prefix = os.path.expanduser("~/.local")
-                print(f"{YELLOW}⚠{NC}  Permission denied installing globally.")
-                print(f"{BLUE}→{NC} Retrying with user prefix: {user_prefix}\n")
-                try:
-                    spinner_running = True
-                    spin_thread = threading.Thread(
-                        target=_spinner_loop,
-                        args=("Installing HubSpot CLI (user prefix)...",),
-                        daemon=True,
-                    )
-                    spin_thread.start()
-                    subprocess.run(
-                        ["npm", "install", "-g", "@hubspot/cli", "--prefix", user_prefix],
-                        timeout=180,
-                        check=True,
-                        capture_output=True,
-                        text=True,
-                    )
-                    spinner_running = False
-                    time.sleep(0.01)
-                    print(f"{GREEN}✓{NC} HubSpot CLI installed to {user_prefix}/bin\n")
-                    _ensure_path_export(f"{user_prefix}/bin")
-                    print(f"{GREEN}✓{NC} PATH updated in shell profiles for {user_prefix}/bin\n")
-                except Exception as inner:
-                    spinner_running = False
-                    time.sleep(0.01)
-                    print(f"{YELLOW}⚠{NC}  Installation failed: {inner}")
-                    return False
-            else:
-                spinner_running = False
-                time.sleep(0.01)
-                print(f"{YELLOW}⚠{NC}  Installation failed: {e}")
-                return False
-
-    # Guide through authentication
-    print(f"{BLUE}━━━ AUTHENTICATION GUIDE ━━━{NC}\n")
-    print("To authenticate the HubSpot CLI:")
-    print("  1. Run: hs init")
-    print("  2. Follow browser prompt to generate Personal Access Key")
-    print("  3. Copy and paste the key when prompted")
-    print("  4. Set as default account when asked\n")
-
-    print(f"{BLUE}Quick Start Commands:{NC}")
-    print("  hs get-started     - Create a new HubSpot app project")
-    print("  hs project dev     - Start local development server")
-    print("  hs project upload  - Deploy to HubSpot")
-    print("  hs account list    - Show authenticated accounts\n")
-
-    print(f"📖 Full guide: https://developers.hubspot.com/docs/getting-started/quickstart\n")
-
-    auto_auth = input(f"{YELLOW}?{NC} Run 'hs init' now? (y/N): ").strip().lower()
-    if auto_auth == "y":
-        try:
-            subprocess.run(["hs", "init"], check=False)
-            return True
-        except Exception as e:
-            print(f"{YELLOW}⚠{NC}  Interactive auth failed: {e}")
-            return False
-
-    print(f"{GREEN}✓{NC} HubSpot CLI ready. Run 'hs init' when ready to authenticate.")
-    return True
-
-
-def _setup_hubspot_api() -> bool:
-    """Interactive HubSpot API token setup (legacy/simple integration)."""
-    print(f"\n{BLUE}━━━ HUBSPOT API TOKEN SETUP ━━━{NC}\n")
-
-    print("STEP 1: Create a HubSpot Private App")
-    print("─" * 50)
-    print("  1. Visit: https://developers.hubspot.com/apps")
-    print("  2. Click 'Create app' button")
-    print("  3. Enter app name (e.g., 'uDOS Integration')")
-    print("  4. Click 'Create'\n")
-
-    print("STEP 2: Configure App Permissions")
-    print("─" * 50)
-    print("  In the app dashboard, go to 'Scopes' tab and select:")
-    print("    • crm.objects.contacts.read & write")
-    print("    • crm.objects.deals.read & write")
-    print("    • crm.objects.companies.read & write")
-    print("    • crm.lists.read & write")
-    print("    • automation.actions.create & execute")
-    print("  Then click 'Save'\n")
-
-    print("STEP 3: Get Your Private App Token")
-    print("─" * 50)
-    print("  1. In the app settings, go to 'Auth' tab")
-    print("  2. Under 'Access tokens', copy your 'Private App Access Token'")
-    print("  3. This token grants full API access\n")
-
-    app_token = input(f"{YELLOW}?{NC} Paste your Private App Access Token (or press Enter to skip): ").strip()
-
-    if not app_token:
-        print(f"\n{YELLOW}⚠{NC}  Setup skipped. You can configure HubSpot later via the dashboard.")
-        return False
-
-    # Validate token format (HubSpot tokens start with 'pat-' or are long hex strings)
-    if len(app_token) < 20:
-        print(f"\n{YELLOW}⚠{NC}  Token seems too short. Please verify and try again.")
-        return False
-
-    # Save to hubspot_keys.json
-    try:
-        config_path = CONFIG_PATH / "hubspot_keys.json"
-        config_path.parent.mkdir(parents=True, exist_ok=True)
-
-        hubspot_config = {
-            "app_type": "developer_platform",
-            "api_key": app_token,
-            "private_app_access_token": app_token,
-            "metadata": {
-                "setup_date": datetime.now().isoformat(),
-                "source": "tui_setup",
-                "api_version": "v3",
-                "platform": "developer_platform",
-            }
-        }
-
-        config_path.write_text(json.dumps(hubspot_config, indent=2))
-        print(f"\n{GREEN}✓{NC} HubSpot token saved to config")
-
-        # Verify token by making a simple API call
-        print(f"\n{BLUE}Verifying token...{NC}")
-        try:
-            import requests
-            headers = {
-                "Authorization": f"Bearer {app_token}",
-                "Content-Type": "application/json"
-            }
-            response = requests.get(
-                "https://api.hubapi.com/crm/v3/objects/contacts?limit=1",
-                headers=headers,
-                timeout=5
-            )
-
-            if response.status_code == 200:
-                print(f"{GREEN}✓{NC} Token verified! API access confirmed.\n")
-                return True
-            elif response.status_code == 401:
-                print(f"{YELLOW}⚠{NC}  Token is invalid or expired. Please check and try again.")
-                config_path.unlink()  # Delete the invalid config
-                return False
-            else:
-                print(f"{YELLOW}⚠{NC}  API verification returned: {response.status_code}")
-                print("   Token was saved but couldn't verify. Try accessing via dashboard.")
-                return True
-        except requests.exceptions.RequestException as e:
-            print(f"{YELLOW}⚠{NC}  Could not verify token (network issue): {str(e)}")
-            print("   Token was saved. You can verify manually via the dashboard.")
-            return True
-        except ImportError:
-            print(f"{YELLOW}⚠{NC}  requests library not available for verification")
-            print("   Token was saved. You can verify via the dashboard.")
-            return True
-
-    except Exception as e:
-        print(f"{YELLOW}⚠{NC}  Failed to save HubSpot config: {str(e)}")
-        return False
-
-
 def _show_ollama_model_library(auto_yes: bool = False) -> bool:
     """Interactive Ollama model library browser and installer."""
     print(f"{BLUE}━━━ OLLAMA MODEL LIBRARY ━━━{NC}\n")
@@ -657,29 +388,6 @@ def _show_ollama_model_library(auto_yes: bool = False) -> bool:
 
     return True
 
-
-def _ensure_path_export(bin_path: str) -> None:
-    """Ensure PATH export for bin_path is present in common shell profiles."""
-    export_line = f'export PATH="{bin_path}:$PATH"'
-    candidates = [
-        os.path.expanduser("~/.bashrc"),
-        os.path.expanduser("~/.zshrc"),
-        os.path.expanduser("~/.profile"),
-    ]
-    for path in candidates:
-        try:
-            if os.path.exists(path):
-                content = ""
-                try:
-                    content = Path(path).read_text()
-                except Exception:
-                    content = ""
-                if export_line in content:
-                    continue
-            with open(path, "a") as handle:
-                handle.write(f"\n# Added by uDOS HubSpot CLI setup\n{export_line}\n")
-        except Exception:
-            continue
 
 
 def _run_with_spinner(cmd: str, label: str, timeout: int = 600) -> subprocess.CompletedProcess:
@@ -777,12 +485,6 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     """Run setup for a specific provider."""
     print(f"\n{BLUE}━━━ Setting up {provider_id} ━━━{NC}\n")
 
-    if provider_id == "hubspot":
-        return _setup_hubspot()
-
-    if provider_id == "hubspot_cli":
-        return _setup_hubspot_cli()
-
     if provider_id == "ollama":
         # Check if Ollama is installed
         if not shutil.which("ollama"):
@@ -871,8 +573,6 @@ def run_provider_setup(provider_id: str, auto_yes: bool = False) -> bool:
     setup_commands = {
         "github": ["gh", "auth", "login"],
         "ollama": None,  # Has dedicated setup function
-        "hubspot": None, # Has dedicated setup function
-        "hubspot_cli": None, # Has dedicated setup function
     }
 
     cmd = setup_commands.get(provider_id)

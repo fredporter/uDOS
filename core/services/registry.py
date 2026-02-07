@@ -5,7 +5,7 @@ Provides unified access to core services without direct imports.
 Replaces verbose package imports with simple registry lookups.
 
 BEFORE (verbose):
-    from core.services.logging_service import get_logger
+    from core.services.logging_api import get_logger
     from core.services.grid_config import load_grid_config
     from core.services.user_service import get_user_manager
 
@@ -27,7 +27,7 @@ from pathlib import Path
 _services: Dict[str, Any] = {}
 _service_loaders = {
     # Core infrastructure services
-    'logging': lambda: __import__('core.services.logging_service', fromlist=['get_logging_manager']).get_logging_manager(),
+    'logging': lambda: __import__('core.services.logging_api', fromlist=['get_logger']),
     'grid': lambda: __import__('core.services.grid_config', fromlist=['load_grid_config']),
     'dataset': lambda: __import__('core.services.dataset_service', fromlist=['DatasetManager']).DatasetManager(),
     'user': lambda: __import__('core.services.user_service', fromlist=['get_user_manager']).get_user_manager(),
@@ -35,7 +35,6 @@ _service_loaders = {
 
     # Containerized modules
     'groovebox': lambda: _load_groovebox_module(),
-    'empire': lambda: _load_empire_module(),
     'sonic': lambda: _load_sonic_module(),
     'distribution': lambda: _load_distribution_module(),
     'extensions': lambda: _load_extensions_module(),
@@ -80,31 +79,6 @@ def _load_groovebox_module():
             ) from exc2
 
 
-def _load_empire_module():
-    """Load empire container module."""
-    try:
-        # Try direct import first (if in-repo)
-        from empire import entity_resolver, contact_extractor
-        from empire.enrichment_client import EnrichmentClient
-        return type('EmpireAPI', (), {
-            'entity_resolver': entity_resolver,
-            'contact_extractor': contact_extractor,
-            'EnrichmentClient': EnrichmentClient,
-            'EntityResolver': entity_resolver.EntityResolver if hasattr(entity_resolver, 'EntityResolver') else None,
-        })()
-    except ImportError:
-        # Try extensions path (if loaded from containers)
-        try:
-            from extensions.empire import entity_resolver, contact_extractor
-            from extensions.empire.enrichment_client import EnrichmentClient
-            return type('EmpireAPI', (), {
-                'entity_resolver': entity_resolver,
-                'contact_extractor': contact_extractor,
-                'EnrichmentClient': EnrichmentClient,
-                'EntityResolver': entity_resolver.EntityResolver if hasattr(entity_resolver, 'EntityResolver') else None,
-            })()
-        except ImportError:
-            raise RuntimeError("Empire module not found in groovebox or extensions paths")
 
 
 def get_service(service_name: str) -> Any:
@@ -159,7 +133,9 @@ def list_services() -> list:
 # Convenience imports for common pattern
 def get_logger(category: str, source: Optional[str] = None):
     """Shortcut to logging service."""
-    return get_service('logging').get_logger(category, source=source)
+    if source:
+        return get_service('logging').get_logger(source, category=category, name=source)
+    return get_service('logging').get_logger(category)
 
 
 def _load_sonic_module():

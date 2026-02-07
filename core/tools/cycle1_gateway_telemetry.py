@@ -13,16 +13,18 @@ if str(ROOT) not in sys.path:
 from core.services.health_training import get_health_log_path
 from core.services.hotkey_map import write_hotkey_payload
 from core.services.self_healer import collect_self_heal_summary
-from wizard.services.ai_gateway import AIProvider
+from wizard.services.ok_gateway import AIProvider
 from wizard.services.monitoring_manager import MonitoringManager, HealthStatus
 from wizard.services.quota_tracker import get_quotas_summary
 from wizard.services.provider_load_logger import read_recent_provider_events
 
 
 def _latest_gateway_log(memory_root: Path) -> Path:
-    logs_dir = memory_root / "logs"
+    logs_dir = memory_root / "logs" / "udos" / "wizard"
     candidates = sorted(
-        logs_dir.glob("ai-gateway-*.log"), key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True
+        logs_dir.glob("ok-gateway-*.jsonl"),
+        key=lambda p: p.stat().st_mtime if p.exists() else 0,
+        reverse=True,
     )
     return candidates[0] if candidates else None
 
@@ -38,7 +40,7 @@ def _gateway_health_check(latest_log: Path):
         metadata = {"log": str(latest_log), "age_secs": round(age_secs, 2)}
     else:
         status = HealthStatus.UNHEALTHY
-        message = "No ai-gateway logs recorded yet"
+        message = "No ok-gateway logs recorded yet"
         metadata = {}
     return status, message, metadata
 

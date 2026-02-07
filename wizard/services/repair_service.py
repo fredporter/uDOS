@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 from wizard.services.path_utils import get_repo_root
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.library_manager_service import get_library_manager
 from wizard.services.system_info_service import get_system_info_service
 from wizard.services.artifact_store import get_artifact_store, ArtifactEntry

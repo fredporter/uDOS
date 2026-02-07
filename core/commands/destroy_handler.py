@@ -41,7 +41,7 @@ import shutil
 def get_repo_root_safe():
     """Get repo root safely."""
     try:
-        from core.services.logging_service import get_repo_root
+        from core.services.logging_api import get_repo_root
         return get_repo_root()
     except:
         return Path(__file__).parent.parent.parent
@@ -80,13 +80,11 @@ class DestroyHandler(BaseCommandHandler):
         self.prompt = parser
         
         # Import here to avoid circular deps
-        from core.services.logging_service import get_logger
-        from core.services.unified_logging import get_unified_logger
+        from core.services.logging_api import get_logger
         from core.services.user_service import get_user_manager, Permission
         from core.tui.output import OutputToolkit
         
-        logger = get_logger('destroy-handler')
-        unified = get_unified_logger()
+        logger = get_logger("core", category="destroy", name="destroy-handler")
         output = OutputToolkit()
         
         # Check permissions
@@ -179,16 +177,17 @@ class DestroyHandler(BaseCommandHandler):
             plan.append("🔧 Hot reload and run repair")
         
         # Log the action
-        unified.log_core(
-            category='destroy',
-            message=f'DESTROY cleanup initiated by {user.username}',
-            metadata={
-                'choice': choice,
-                'wipe_user': wipe_user,
-                'compost': compost,
-                'reload_repair': reload_repair,
-                'plan': plan
-            }
+        logger.event(
+            "warn",
+            "destroy.cleanup_initiated",
+            f"DESTROY cleanup initiated by {user.username}",
+            ctx={
+                "choice": choice,
+                "wipe_user": wipe_user,
+                "compost": compost,
+                "reload_repair": reload_repair,
+                "plan": plan,
+            },
         )
         
         return self._perform_cleanup(
@@ -528,10 +527,9 @@ Current status:
         Returns:
             Output dict
         """
-        from core.services.logging_service import get_repo_root
-        from core.services.unified_logging import get_unified_logger
+        from core.services.logging_api import get_repo_root, get_logger
         
-        unified = get_unified_logger()
+        logger = get_logger("core", category="destroy", name="destroy-handler")
         repo_root = Path(get_repo_root())
         results = []
         
@@ -626,17 +624,18 @@ Current status:
                 results.append("   ✓ Cleared custom configuration")
             
             # 4. Log the nuclear event
-            unified.log_core(
-                category='destroy',
-                message=f'NUCLEAR RESET performed by {user.username}',
-                metadata={
-                    'timestamp': datetime.now().isoformat(),
-                    'action': 'nuclear_reset',
-                    'users_deleted': len(users_to_delete),
-                    'memory_archived': True,
-                    'config_reset': True,
-                    'admin_variables_cleared': True
-                }
+            logger.event(
+                "fatal",
+                "destroy.nuclear_performed",
+                f"NUCLEAR RESET performed by {user.username}",
+                ctx={
+                    "timestamp": datetime.now().isoformat(),
+                    "action": "nuclear_reset",
+                    "users_deleted": len(users_to_delete),
+                    "memory_archived": True,
+                    "config_reset": True,
+                    "admin_variables_cleared": True,
+                },
             )
             
             results.append("")
@@ -663,10 +662,12 @@ Current status:
         
         except Exception as e:
             error_msg = f"❌ Nuclear reset failed: {e}"
-            unified.log_core(
-                category='destroy',
-                message=error_msg,
-                metadata={'error': str(e), 'action': 'nuclear_reset_failed'}
+            logger.event(
+                "error",
+                "destroy.nuclear_failed",
+                error_msg,
+                ctx={"action": "nuclear_reset_failed"},
+                err=e,
             )
             results.append(error_msg)
             return {
@@ -688,13 +689,12 @@ Current status:
         Returns:
             Output dict
         """
-        from core.services.logging_service import get_repo_root
+        from core.services.logging_api import get_repo_root, get_logger
         from core.services.user_service import get_user_manager
-        from core.services.unified_logging import get_unified_logger
         
         results = []
         repo_root = Path(get_repo_root())
-        unified = get_unified_logger()
+        logger = get_logger("core", category="destroy", name="destroy-handler")
         
         try:
             if wipe_user:
@@ -777,16 +777,17 @@ Current status:
                 results.append("   ✓ Hot reload initiated")
                 results.append("   ✓ Repair checks scheduled")
             
-            unified.log_core(
-                category='destroy',
-                message=f'Cleanup performed by {user.username}',
-                metadata={
-                    'timestamp': datetime.now().isoformat(),
-                    'wipe_user': wipe_user,
-                    'compost': compost,
-                    'reload_repair': reload_repair,
-                    'plan_size': len(plan)
-                }
+            logger.event(
+                "info",
+                "destroy.cleanup_completed",
+                f"Cleanup performed by {user.username}",
+                ctx={
+                    "timestamp": datetime.now().isoformat(),
+                    "wipe_user": wipe_user,
+                    "compost": compost,
+                    "reload_repair": reload_repair,
+                    "plan_size": len(plan),
+                },
             )
             
             results.append("")
@@ -807,10 +808,12 @@ Current status:
         
         except Exception as e:
             error_msg = f"❌ Cleanup failed: {e}"
-            unified.log_core(
-                category='destroy',
-                message=error_msg,
-                metadata={'error': str(e), 'traceback': True}
+            logger.event(
+                "error",
+                "destroy.cleanup_failed",
+                error_msg,
+                ctx={"traceback": True},
+                err=e,
             )
             return {
                 'output': error_msg,

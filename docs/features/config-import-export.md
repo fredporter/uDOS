@@ -188,7 +188,7 @@ Export files are standard JSON with metadata:
       "content": {
         "host": "0.0.0.0",
         "port": 8765,
-        "ai_gateway_enabled": true,
+        "ok_gateway_enabled": true,
         "plugin_repo_enabled": true
       }
     },

@@ -1,7 +1,7 @@
 # uDOS v1.3 — Wizard AI Modes + Local Model Defaults (Short Spec)
 
 **Status:** Draft
-**Scope:** Wizard AI gateway + Core access
+**Scope:** Wizard OK gateway + Core access
 
 ## 1) Goals
 - Standardize **AI modes** for consistent behavior across TUI, App, and extensions.

@@ -8,7 +8,7 @@ from datetime import datetime
 import asyncio
 import logging
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.home_assistant.schemas.gateway import (
     GatewayConfigSchema,
     GatewayStatusSchema,

@@ -55,14 +55,6 @@ def get_required_variables() -> Dict[str, Dict[str, Any]]:
             "status": "configured" if os.getenv("MISTRAL_API_KEY") else "optional",
             "documentation": "https://docs.mistral.ai/",
         },
-        "hubspot_api_key": {
-            "name": "HubSpot API Key",
-            "description": "API key for HubSpot CRM integration",
-            "env_var": "HUBSPOT_API_KEY",
-            "required": config.get("hubspot_enabled", False),
-            "status": "configured" if os.getenv("HUBSPOT_API_KEY") else "optional",
-            "documentation": "https://developers.hubspot.com/docs/api/overview",
-        },
     }
 
 
@@ -95,10 +87,6 @@ def get_full_config_status() -> Dict[str, Any]:
                 "configured": bool(os.getenv("MISTRAL_API_KEY")),
                 "status": "ready" if os.getenv("MISTRAL_API_KEY") else "not-configured",
             },
-            "hubspot": {
-                "configured": bool(os.getenv("HUBSPOT_API_KEY")),
-                "status": "ready" if os.getenv("HUBSPOT_API_KEY") else "not-configured",
-            },
         },
         "databases": validate_database_paths(),
         "setup": {
@@ -111,7 +99,7 @@ def get_full_config_status() -> Dict[str, Any]:
             "ghost_mode": ghost_mode,
         },
         "features": {
-            "ai_gateway_enabled": config.get("ai_gateway_enabled", False),
+            "ok_gateway_enabled": config.get("ok_gateway_enabled", False),
             "github_push_enabled": config.get("github_push_enabled", False),
             "web_proxy_enabled": config.get("web_proxy_enabled", False),
         },
@@ -148,10 +136,9 @@ def get_paths() -> Dict[str, Any]:
 def _load_wizard_config() -> Dict[str, Any]:
     config_path = get_repo_root() / "wizard" / "config" / "wizard.json"
     defaults = {
-        "ai_gateway_enabled": False,
+        "ok_gateway_enabled": False,
         "github_push_enabled": False,
         "web_proxy_enabled": False,
-        "hubspot_enabled": False,
     }
     if not config_path.exists():
         return defaults.copy()

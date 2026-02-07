@@ -30,7 +30,7 @@ from wizard.services.setup_profiles import (
 )
 
 from wizard.services.path_utils import get_repo_root, get_memory_dir
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from core.locations import LocationService
 from core.services.story_service import parse_story_document
 import json
@@ -144,10 +144,8 @@ def _apply_capabilities_to_wizard_config(capabilities: Dict[str, bool]) -> None:
         return
     mapping = {
         "web_proxy": "web_proxy_enabled",
-        "gmail_relay": "gmail_relay_enabled",
-        "ai_gateway": "ai_gateway_enabled",
+        "ok_gateway": "ok_gateway_enabled",
         "github_push": "github_push_enabled",
-        "hubspot": "hubspot_enabled",
         "icloud": "icloud_enabled",
         "plugin_repo": "plugin_repo_enabled",
         "plugin_auto_update": "plugin_auto_update",
@@ -572,10 +570,8 @@ def create_setup_routes(auth_guard=None):
             overrides.update(
                 {
                     "capability_web_proxy": capabilities.get("web_proxy"),
-                    "capability_gmail_relay": capabilities.get("gmail_relay"),
-                    "capability_ai_gateway": capabilities.get("ai_gateway"),
+                    "capability_ok_gateway": capabilities.get("ok_gateway"),
                     "capability_github_push": capabilities.get("github_push"),
-                    "capability_hubspot": capabilities.get("hubspot"),
                     "capability_icloud": capabilities.get("icloud"),
                     "capability_plugin_repo": capabilities.get("plugin_repo"),
                     "capability_plugin_auto_update": capabilities.get("plugin_auto_update"),
@@ -650,10 +646,8 @@ def create_setup_routes(auth_guard=None):
             "permissions": answers.get("install_permissions"),
             "capabilities": {
                 "web_proxy": bool(answers.get("capability_web_proxy")),
-                "gmail_relay": bool(answers.get("capability_gmail_relay")),
-                "ai_gateway": bool(answers.get("capability_ai_gateway")),
+                "ok_gateway": bool(answers.get("capability_ok_gateway")),
                 "github_push": bool(answers.get("capability_github_push")),
-                "hubspot": bool(answers.get("capability_hubspot")),
                 "icloud": bool(answers.get("capability_icloud")),
                 "plugin_repo": bool(answers.get("capability_plugin_repo")),
                 "plugin_auto_update": bool(answers.get("capability_plugin_auto_update")),

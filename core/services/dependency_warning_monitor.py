@@ -16,7 +16,7 @@ import warnings
 from dataclasses import dataclass
 from typing import List, Optional, Set, Tuple
 
-from core.services.logging_service import get_logger, LogTags, get_repo_root
+from core.services.logging_api import get_logger, LogTags, get_repo_root
 from core.utils.tty import interactive_tty_status
 from core.input.confirmation_utils import (
     normalize_default,
@@ -118,7 +118,7 @@ class DependencyWarningMonitor:
     def __init__(self, component: str, auto_prompt: bool = True):
         self.component_names = {component}
         self.auto_prompt = auto_prompt
-        self.logger = get_logger("dependency-guard", source="core")
+        self.logger = get_logger("core", category="dependency-guard", name="dependency-guard")
         self._original_showwarning = warnings.showwarning
         self._trigger_lock = threading.Lock()
         self._triggered = False

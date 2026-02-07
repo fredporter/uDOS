@@ -32,7 +32,7 @@
     },
     "prompt": {
       "label": "PROMPT",
-      "description": "Wizard AI gateway (Gemini primary, OpenAI fallback)",
+      "description": "Wizard OK gateway (Gemini primary, OpenAI fallback)",
       "provider_order": ["gemini", "openai"],
       "models": [
         {

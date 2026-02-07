@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.workflow_manager import WorkflowManager
 from wizard.services.vibe_service import VibeService
 from wizard.services.ai_context_store import write_context_bundle
@@ -45,9 +45,59 @@ class DevModeService:
             "workflow_manager": False,
             "github_integration": False,
         }
+        self._dev_requirements_cache: Optional[Dict[str, Any]] = None
+        self._dev_requirements_checked_at: Optional[float] = None
+
+    def _dev_root(self) -> Path:
+        return self.wizard_root / "dev"
+
+    def _dev_template_present(self) -> bool:
+        dev_root = self._dev_root()
+        if not dev_root.exists():
+            return False
+        marker_paths = [
+            dev_root / "README.md",
+            dev_root / "goblin" / "goblin_server.py",
+            dev_root / "tools",
+        ]
+        return any(path.exists() for path in marker_paths)
+
+    def check_requirements(self, force: bool = False) -> Dict[str, Any]:
+        now = time.time()
+        if (
+            not force
+            and self._dev_requirements_cache
+            and self._dev_requirements_checked_at
+            and now - self._dev_requirements_checked_at < 10
+        ):
+            return self._dev_requirements_cache
+
+        dev_root = self._dev_root()
+        present = self._dev_template_present()
+        self._dev_requirements_cache = {
+            "dev_root": str(dev_root),
+            "dev_root_present": dev_root.exists(),
+            "dev_template_present": present,
+        }
+        self._dev_requirements_checked_at = now
+        return self._dev_requirements_cache
+
+    def ensure_requirements(self) -> Optional[str]:
+        req = self.check_requirements(force=True)
+        if not req.get("dev_root_present"):
+            return "Dev submodule not present (/dev missing). Clone github.com/fredporter/uDOS-dev."
+        if not req.get("dev_template_present"):
+            return "Dev submodule is missing required templates. Re-clone or update /dev."
+        return None
 
     def activate(self) -> Dict[str, Any]:
         """Activate dev mode (start Goblin dev server)."""
+        requirements_error = self.ensure_requirements()
+        if requirements_error:
+            return {
+                "status": "error",
+                "message": requirements_error,
+            }
         if self.active:
             return {
                 "status": "already_active",
@@ -242,6 +292,8 @@ class DevModeService:
             self.goblin_process = None
             self.services_status["goblin"] = False
 
+        requirements = self.check_requirements(force=False)
+
         return {
             "active": self.active,
             "uptime_seconds": uptime_seconds,
@@ -250,6 +302,7 @@ class DevModeService:
             ),
             "goblin_pid": self.goblin_process.pid if self.goblin_process else None,
             "services": self.services_status,
+            "requirements": requirements,
             "timestamp": datetime.now().isoformat(),
         }
 

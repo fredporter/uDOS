@@ -39,10 +39,8 @@ except ImportError:
     WATCHDOG_AVAILABLE = False
     FileSystemEventHandler = object  # Dummy base class
 
-from core.services.unified_logging import get_unified_logger, LogLevel
-
 try:
-    from core.services.logging_service import get_logger, DevTrace
+    from core.services.logging_api import get_logger, DevTrace
     logger = get_logger("hot-reload")
 except ImportError:
     import logging
@@ -277,8 +275,6 @@ class HotReloadManager:
         self.reload_count = 0
         self.failed_reloads = 0
 
-        self.unified = get_unified_logger()
-
         if not WATCHDOG_AVAILABLE:
             logger.warning("[LOCAL] Hot reload disabled: watchdog not installed")
             logger.warning("[LOCAL] Install with: pip install watchdog")
@@ -304,20 +300,22 @@ class HotReloadManager:
             self.observer.start()
 
             logger.info(f"[LOCAL] Hot reload started: watching {self.watch_dir}")
-            self.unified.log_core(
-                'hot-reload',
-                f'Started watching {self.watch_dir}',
-                level=LogLevel.INFO,
-                watch_dir=str(self.watch_dir)
+            logger.event(
+                "info",
+                "hot_reload.start",
+                f"Started watching {self.watch_dir}",
+                ctx={"watch_dir": str(self.watch_dir)},
             )
             return True
 
         except Exception as e:
             logger.error(f"[LOCAL] Failed to start hot reload: {e}")
-            self.unified.log_core(
-                'hot-reload',
-                f'Failed to start: {e}',
-                level=LogLevel.ERROR
+            logger.event(
+                "error",
+                "hot_reload.start_failed",
+                f"Failed to start: {e}",
+                ctx={"error": str(e)},
+                err=e,
             )
             return False
 
@@ -331,12 +329,11 @@ class HotReloadManager:
         self.observer = None
 
         logger.info("[LOCAL] Hot reload stopped")
-        self.unified.log_core(
-            'hot-reload',
-            f'Stopped. Reloaded {self.reload_count} times, {self.failed_reloads} failures',
-            level=LogLevel.INFO,
-            reload_count=self.reload_count,
-            failed_count=self.failed_reloads
+        logger.event(
+            "info",
+            "hot_reload.stop",
+            f"Stopped. Reloaded {self.reload_count} times, {self.failed_reloads} failures",
+            ctx={"reload_count": self.reload_count, "failed_count": self.failed_reloads},
         )
 
     def _on_file_changed(self, filepath: str) -> None:
@@ -365,12 +362,11 @@ class HotReloadManager:
 
         if success:
             self.reload_count += 1
-            self.unified.log_core(
-                'hot-reload',
-                f'Reloaded {path.name}',
-                level=LogLevel.INFO,
-                handler=handler_name,
-                reload_count=self.reload_count
+            logger.event(
+                "info",
+                "hot_reload.reloaded",
+                f"Reloaded {path.name}",
+                ctx={"handler": handler_name, "reload_count": self.reload_count},
             )
         else:
             self.failed_reloads += 1
@@ -430,11 +426,11 @@ class HotReloadManager:
 
         if removed:
             logger.info(f"[LOCAL] Removed dispatcher handlers for {command_name}")
-            self.unified.log_core(
-                'hot-reload',
-                f'Removed handler {command_name}',
-                level=LogLevel.INFO,
-                handler=handler_name
+            logger.event(
+                "info",
+                "hot_reload.removed",
+                f"Removed handler {command_name}",
+                ctx={"handler": handler_name},
             )
         else:
             logger.warning(f"[LOCAL] No dispatcher handlers found for {command_name}")

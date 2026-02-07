@@ -17,7 +17,7 @@ from core.ui.selector_framework import (
 )
 from core.input.keypad_handler import KeypadHandler, KeypadMode
 from core.input.command_prompt import CommandRegistry, CommandMetadata
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 
 
 _CONTINUE = object()
@@ -28,7 +28,7 @@ class CommandSelector:
 
     def __init__(self, registry: CommandRegistry, page_size: int = 9):
         self.registry = registry
-        self.logger = get_logger("command-selector")
+        self.logger = get_logger("core", category="command-selector", name="command-selector")
 
         self.selector = SelectorFramework(
             config=SelectorConfig(

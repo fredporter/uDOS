@@ -23,7 +23,7 @@ from core.tui.form_fields import (
     BarSelector,
     SmartNumberPicker,
 )
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 from core.utils.tty import interactive_tty_status
 
 logger = get_logger("story-form")

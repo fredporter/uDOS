@@ -23,7 +23,7 @@ from datetime import datetime
 from typing import Optional, Dict, List, Any, Callable
 from pathlib import Path
 
-from core.services.logging_service import get_repo_root
+from core.services.logging_api import get_repo_root
 from core.services.maintenance_utils import get_memory_root
 from dataclasses import dataclass
 from enum import Enum

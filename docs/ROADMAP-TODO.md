@@ -76,11 +76,19 @@ Integrate the attached specs/guides into the next roadmap window (post v1.3.10).
 - **World lenses**: Godot 2D/2.5D adapter MVP (v1.3.4), O3DE prototype (v1.3.5). See [docs/v1-3%20-4%203dworld.md](docs/v1-3%20-4%203dworld.md).
 
 ## App + TUI alignment
-- **App v1.3 refactor**: external vault path, Typo editor, tasks index, export UI. See [docs/uDOS-app-v1-3.md](docs/uDOS-app-v1-3.md).
+- **Mac app submodule boundary**: `/app/` is a separate submodule, private, and commercial (Mac App Store). Treat it independently from uDOS/uCode core. Expect Xcode-specific paths/tooling. Current priority is lower because core editing happens in Obsidian; the Mac app remains an offline-first markdown editor aligned with the same local library as Obsidian.
+- **App v1.3 refactor** (submodule): external vault path, Typo editor, tasks index, export UI. See [docs/uDOS-app-v1-3.md](docs/uDOS-app-v1-3.md).
 - **TUI ↔ Vibe integration**: shared IO + keystore boundary. See [docs/TUI-Vibe-Integration.md](docs/TUI-Vibe-Integration.md).
 - **Vibe CLI workflow alignment**: Mistral Vibe CLI recommendations mapped to uCODE TUI. See [VIBE-CLI-ROADMAP-ALIGNMENT.md](../VIBE-CLI-ROADMAP-ALIGNMENT.md) for gaps + action plan (v1.3.2+).
 - **Vibe capabilities track**: natural language routing, code assistance, and code analysis surfaces. Prototype → testing → feedback loop. See [VIBE-CLI-ROADMAP-ALIGNMENT.md](../VIBE-CLI-ROADMAP-ALIGNMENT.md).
-- **uCODE prompt spec**: OK/: commands, slash routing, dynamic autocomplete. See [docs/specs/UCODE-PROMPT-SPEC.md](docs/specs/UCODE-PROMPT-SPEC.md).
+- **uCODE prompt spec**: OK/? commands, slash routing, dynamic autocomplete. See [docs/specs/UCODE-PROMPT-SPEC.md](docs/specs/UCODE-PROMPT-SPEC.md).
+- **Roadmap note**: develop the new Vibe-CLI and the existing uCODE-TUI in parallel until Vibe reaches parity with uCODE-TUI in a future version.
+- **Dev mode gate**: `/dev/` public submodule required and admin-only; see [docs/DEV-MODE-POLICY.md](docs/DEV-MODE-POLICY.md).
+- **Core/Wizard boundary**: `core` (uCODE runtime) is the base runtime; `wizard` is the brand for connected services (networking, GUI, etc.). Both are public OSS in github.com/fredporter/uDOS. Core can run without Wizard (limited). Wizard cannot run without Core. Most extensions/addons require both Core + Wizard.
+- **Empire commercial track**: `/empire/` is a private submodule for a paid business extension. It should remain separate, soft-fail if missing, and only activate on capable systems. Consider packaging as a plugin if that fits distribution needs.
+- **Plugin policy**: external services/addons should be cloned (not forked/modified), credited, and updated via pulls. uDOS should containerize and overlay UI without modifying upstream repos.
+- **Extensions consolidation**: note that `/extensions/api` has moved; evaluate whether further consolidation is appropriate now that APIs are outside `/extensions/`.
+- **Logging API v1.3**: spec published; implementation pending. See [docs/LOGGING-API-v1.3.md](docs/LOGGING-API-v1.3.md).
 
 ## Wizard AI Modes (v1.3.2+)
 
@@ -104,7 +112,7 @@ Spec: [docs/specs/AI-MODES-v1.3.md](docs/specs/AI-MODES-v1.3.md)
 2. **P0 — UGRID Core (Core)**. Dependencies: Fractal grid + universe mapping complete. Breakdown: grid canvas primitives, LocId overlays, deterministic render tests, runtime hooks for map blocks.
 3. **P0 — Gameplay Anchors (Core/Sonic)**. Dependencies: UGRID Core, Engine-Agnostic World Contract. Breakdown: anchor registry runtime interfaces, validation rules, adapter surface for Sonic/TUI access.
 4. **P1 — World Lenses (Core/Extensions)**. Dependencies: UGRID Core. Breakdown: Godot 2D/2.5D adapter MVP, O3DE prototype adapter, minimal integration test harness.
-5. **P1 — uCODE Prompt Spec (Core/TUI)**. Dependencies: none. Breakdown: OK/: commands, slash routing, dynamic autocomplete, shared parser updates.
+5. **P1 — uCODE Prompt Spec (Core/TUI)**. Dependencies: none. Breakdown: OK/? commands, slash routing, dynamic autocomplete, shared parser updates.
 6. **P1 — TUI ↔ Vibe Integration (Core/Extensions)**. Dependencies: uCODE Prompt Spec, ENV boundary contract. Breakdown: shared IO boundary, keystore access rules, runtime router wiring.
 7. **P1 — Vibe CLI Workflow Alignment (Core)**. Dependencies: TUI ↔ Vibe Integration. Breakdown: map recommended flows to uCODE commands, close gaps in CLI routing, add UX notes to roadmap.
 8. **P1 — Wizard AI Modes (Wizard)**. Dependencies: AI-MODES spec. Breakdown: mode contract (conversation/creative), local model defaults, `/api/ai/complete` policy enforcement.

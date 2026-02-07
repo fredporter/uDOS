@@ -21,7 +21,7 @@ from typing import Any, Dict, List, Optional
 
 from jsonschema import Draft7Validator
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 from wizard.services.plugin_repository import PluginRepository, PluginEntry
 

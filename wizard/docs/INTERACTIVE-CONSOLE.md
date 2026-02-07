@@ -14,7 +14,7 @@ When the Wizard Server starts, it displays a comprehensive dashboard showing:
 - **Enabled services** with versions:
 
   - Plugin Repository (v1.1.0) - Distribution and updates
-  - AI Gateway (v1.1.0) - Model routing (Ollama/OpenRouter)
+  - OK Gateway (v1.1.0) - Model routing (Ollama/OpenRouter)
   - Web Proxy (v1.0.0) - Web content fetching
   - Gmail Relay (v1.0.0) - Email relay service
   - GitHub Monitor (v1.0.0) - CI/CD self-healing
@@ -150,7 +150,7 @@ python wizard/server.py --host 0.0.0.0 --port 8765 --debug
 
 📊 CAPABILITIES:
   ✅ Plugin Repository    v1.1.0       Plugin distribution and updates
-  ✅ AI Gateway           v1.1.0       AI model routing (Ollama/OpenRouter)
+  ✅ OK Gateway           v1.1.0       AI model routing (Ollama/OpenRouter)
   ✅ Web Proxy            v1.0.0       Web content fetching
   ⏸️  Gmail Relay         v1.0.0       Email relay service
   ✅ GitHub Monitor       v1.0.0       CI/CD self-healing (Actions webhooks)

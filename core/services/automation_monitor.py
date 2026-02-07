@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from core.services.health_training import get_health_log_path
-from core.services.logging_service import get_repo_root, get_logger
+from core.services.logging_api import get_repo_root, get_logger
 
 logger = get_logger("automation-monitor")
 

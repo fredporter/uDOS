@@ -43,7 +43,7 @@ from enum import Enum
 from typing import Optional, Dict, Any, List
 from pathlib import Path
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
 logger = get_logger("model-router")
 

@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict, List
 
 from core.commands.base import BaseCommandHandler
-from core.services.logging_service import get_logger, LogTags
+from core.services.logging_api import get_logger, LogTags
 
 logger = get_logger("sonic-tui-plugin")
 

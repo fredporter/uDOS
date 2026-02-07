@@ -128,7 +128,7 @@ class UserManager:
             state_dir: Directory for user state (default: memory/bank/private)
         """
         if state_dir is None:
-            from core.services.logging_service import get_repo_root
+            from core.services.logging_api import get_repo_root
             state_dir = Path(get_repo_root()) / "memory" / "bank" / "private"
 
         self.state_dir = Path(state_dir)

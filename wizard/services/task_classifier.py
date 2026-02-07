@@ -37,7 +37,7 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 from enum import Enum
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
 logger = get_logger("task-classifier")
 

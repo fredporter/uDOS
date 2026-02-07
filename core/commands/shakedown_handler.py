@@ -297,7 +297,7 @@ class ShakedownHandler(BaseCommandHandler):
 
             # Logging manager
             try:
-                from core.services.logging_service import get_logger
+                from core.services.logging_api import get_logger
                 services["logging"] = True
             except:
                 services["logging"] = False
@@ -401,11 +401,11 @@ class ShakedownHandler(BaseCommandHandler):
             # Check 4: Core services can be initialized
             services_ok = True
             try:
-                from core.services.logging_service import get_logger
+                from core.services.logging_api import get_logger
                 logger = get_logger("shakedown-fresh")
             except:
                 services_ok = False
-            checks["logging_service"] = services_ok
+            checks["logging_api"] = services_ok
 
             # Check 5: User manager ready with current user set
             checks["user_manager_ready"] = user_mgr.current() is not None
@@ -531,10 +531,10 @@ class ShakedownHandler(BaseCommandHandler):
 
             # Check 8: Logging available for audit trail
             try:
-                from core.services.unified_logging import get_unified_logger
-                unified = get_unified_logger()
+                from core.services.logging_api import get_log_manager
+                _ = get_log_manager()
                 check_logging = True
-            except:
+            except Exception:
                 check_logging = False
 
             checks = {

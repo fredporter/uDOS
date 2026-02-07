@@ -8,7 +8,7 @@ v1.1.0 Service Architecture:
 - Proper module organization (core/locations/service.py)
 - Clean separation from loader (core/locations/loader.py)
 - Uses LocationMigrator for transparent backend switching
-- Canonical logging via logging_service
+- Canonical logging via logging_api
 
 Examples:
   from core.locations.service import LocationService
@@ -26,7 +26,7 @@ from typing import Optional, Dict, List, Any
 from pathlib import Path
 from collections import deque
 
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 
 logger = get_logger("location_service")
 

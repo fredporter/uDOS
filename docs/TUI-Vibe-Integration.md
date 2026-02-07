@@ -1,6 +1,6 @@
 # TUI Setup Story ↔ Vibe CLI Integration
 
-> **See also:** [specs/UCODE-PROMPT-SPEC.md](specs/UCODE-PROMPT-SPEC.md) for the uCODE prompt contract (OK/: commands, slash routing, dynamic autocomplete).
+> **See also:** [specs/UCODE-PROMPT-SPEC.md](specs/UCODE-PROMPT-SPEC.md) for the uCODE prompt contract (OK/? commands, slash routing, dynamic autocomplete).
 
 This note ensures the new v1.3 architecture keeps the existing `.env` + Wizard keystore boundary alive while letting the Core TUI setup story speak the same IO language as the Vibe CLI (the interactive agent console referenced in `docs/uDOS-v1-3.md`).
 

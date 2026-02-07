@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from core.services.logging_service import get_logger, get_repo_root
+from core.services.logging_api import get_logger, get_repo_root
 from core.services.todo_service import Task, TodoManager, get_service
 
 logger = get_logger("prompt-parser")

@@ -26,7 +26,7 @@ import shutil
 from pathlib import Path
 from typing import Optional, Tuple, List, Dict, Any
 from datetime import datetime
-from wizard.services.logging_manager import get_logging_manager
+from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 
 
@@ -34,7 +34,7 @@ class PDFOCRService:
     """Extract text and images from PDFs using Mistral OCR."""
 
     def __init__(self):
-        self.logger = get_logging_manager().get_logger("pdf-ocr")
+        self.logger = get_logger("wizard", category="pdf-ocr", name="pdf-ocr")
         self.repo_root = get_repo_root()
         self.library_path = self.repo_root / "library" / "pdf-ocr"
         self.inbox_path = self.repo_root / "memory" / "inbox"

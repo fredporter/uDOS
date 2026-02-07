@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 
 from .client import GitHubClient, GitHubError
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 
 logger = get_logger("github-workflows")

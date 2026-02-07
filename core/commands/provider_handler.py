@@ -4,7 +4,7 @@ from typing import List, Dict, Optional
 import requests
 from core.commands.base import BaseCommandHandler
 from core.tui.output import OutputToolkit
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 from core.services.rate_limit_helpers import guard_wizard_endpoint
 
 logger = get_logger("provider-handler")

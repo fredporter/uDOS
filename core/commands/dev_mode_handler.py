@@ -6,13 +6,12 @@ import requests
 import json
 
 try:
-    from wizard.services.logging_manager import get_logger
+    from core.services.logging_api import get_logger
+    logger = get_logger("core", category="dev-mode", name="dev-mode-handler")
 except ImportError:
     import logging
 
     logger = logging.getLogger("dev-mode-handler")
-else:
-    logger = get_logger("dev-mode-handler")
 
 from core.services.rate_limit_helpers import guard_wizard_endpoint
 

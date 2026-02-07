@@ -16,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, Iterable, List, Optional, Tuple
 
-from core.services.logging_service import get_repo_root
+from core.services.logging_api import get_repo_root
 
 
 DEFAULT_EXCLUDES = [

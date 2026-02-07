@@ -14,7 +14,7 @@ from core.services.songscribe_parser import (
     to_ascii_grid,
     to_groovebox_pattern,
 )
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
 logger = get_logger("songscribe-service")
 
@@ -84,7 +84,7 @@ class SongscribeService:
         """
         try:
             from library.songscribe.transcription import get_transcription_engine
-            from core.services.logging_service import get_repo_root
+            from core.services.logging_api import get_repo_root
 
             audio_path = Path(audio_path)
 

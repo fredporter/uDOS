@@ -28,7 +28,7 @@ import uuid
 
 from core.services.rate_limit_helpers import guard_wizard_endpoint
 
-from core.services.logging_service import get_logger, get_repo_root, LogTags
+from core.services.logging_api import get_logger, get_repo_root, LogTags
 
 logger = get_logger("config-sync-manager")
 

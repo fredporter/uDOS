@@ -30,7 +30,7 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 import threading
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
 logger = get_logger("wizard-mesh-sync")
 

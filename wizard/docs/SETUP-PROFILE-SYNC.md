@@ -69,7 +69,7 @@ Stored in secret store with key: `wizard-install-profile`
   "capabilities": {
     "web_proxy": true,
     "gmail_relay": true,
-    "ai_gateway": true,
+    "ok_gateway": true,
     "github_push": false,
     "hubspot": false,
     "icloud": false,
@@ -208,7 +208,7 @@ When the setup story is submitted, capabilities are automatically synced to `wiz
 
 - `web_proxy` → `web_proxy_enabled`
 - `gmail_relay` → `gmail_relay_enabled`
-- `ai_gateway` → `ai_gateway_enabled`
+- `ok_gateway` → `ok_gateway_enabled`
 - `github_push` → `github_push_enabled`
 - `hubspot` → `hubspot_enabled`
 - `icloud` → `icloud_enabled`

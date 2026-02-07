@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 import shutil
 
-from core.services.logging_service import get_logger, get_repo_root
+from core.services.logging_api import get_logger, get_repo_root
 from core.binder.validator import BinderValidator
 
 logger = get_logger("binder-manager")

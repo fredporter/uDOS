@@ -14,7 +14,7 @@ The TUI Form System provides a modern, feature-rich framework for collecting dat
 
 Forms are launched **only from command mode** (see `docs/specs/UCODE-PROMPT-SPEC.md`):
 
-- `OK SETUP` or `:SETUP` launches the setup form.
+- `OK SETUP` or `?SETUP` launches the setup form.
 - `OK STORY tui-setup` launches a story-driven form.
 - If the user types `SETUP` without a prefix, that is **question mode** and should not launch a form.
 

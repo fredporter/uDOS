@@ -10,7 +10,7 @@ from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.tui.output import OutputToolkit
 from core.tui.ui_elements import ProgressBar
-from core.services.logging_service import get_repo_root
+from core.services.logging_api import get_repo_root
 from core.services.maintenance_utils import (
     create_backup,
     restore_backup,

@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
 ESC = "\x1b"
 RST = f"{ESC}[0m"
@@ -136,7 +136,7 @@ class TeletextPatternService:
         self.logger = get_logger("teletext-patterns")
         self.logger.info(
             "[WIZ] TeletextPatternService ready",
-            extra={"width": self.width, "ascii_only": ascii_only},
+            ctx={"width": self.width, "ascii_only": ascii_only},
         )
         self.reset()
 

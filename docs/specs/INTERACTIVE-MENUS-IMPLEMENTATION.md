@@ -22,8 +22,8 @@ Successfully implemented an **integrated interactive menu system** for uDOS TUI 
 Interactive menus now sit behind the uCODE prompt contract (see `docs/specs/UCODE-PROMPT-SPEC.md`).
 
 **Entry rules:**
-- Menus are launched only from **command mode** (`OK ` or `:`).
-- Example: `OK HELP` or `:HELP` shows the Help categories menu.
+- Menus are launched only from **command mode** (`OK ` or `?`).
+- Example: `OK HELP` or `?HELP` shows the Help categories menu.
 - If the user types `HELP` without a prefix, that is **question mode** and should not open a menu.
 
 **Input capture boundaries:**
@@ -404,7 +404,7 @@ The TUI now features:
 3. **Handler Integration** - Mixin makes it easy to add menus
 4. **Flexible UI** - Supports submenus, actions, confirmations
 5. **Terminal Compatible** - Works in any terminal with fallbacks
-6. **Prompt-Compliant** - Menus are entered only via `OK`/`:` command mode
+6. **Prompt-Compliant** - Menus are entered only via `OK`/`?` command mode
 
 **Status:** ✅ Production Ready
 **Test Coverage:** ✅ 100% (all components tested)

@@ -27,6 +27,7 @@
   import WizardUI_v1_3_1 from "./routes/WizardUI_v1_3_1.svelte";
   import Groovebox from "./routes/Groovebox.svelte";
   import Renderer from "./routes/Renderer.svelte";
+  import UCodeConsole from "./routes/UCodeConsole.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
   import WizardBottomBar from "./components/WizardBottomBar.svelte";
   import ToastContainer from "./lib/components/ToastContainer.svelte";
@@ -252,6 +253,8 @@
         <Groovebox />
       {:else if currentRoute === "renderer"}
         <Renderer />
+      {:else if currentRoute === "ucode"}
+        <UCodeConsole />
       {/if}
     </main>
   </div>

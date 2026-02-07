@@ -5,7 +5,7 @@ import sys
 import os
 from core.commands.base import BaseCommandHandler
 from core.services.pattern_generator import PatternGenerator
-from core.services.logging_service import get_logger, LogTags
+from core.services.logging_api import get_logger, LogTags
 
 logger = get_logger("command-pattern")
 

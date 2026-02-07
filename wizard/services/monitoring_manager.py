@@ -17,12 +17,12 @@ from enum import Enum
 from collections import defaultdict
 
 from core.services.health_training import read_last_summary
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.notification_history_service import NotificationHistoryService
 import os
 from wizard.services.plugin_registry import get_registry
 
-logger = get_logger("monitoring")
+logger = get_logger("wizard", category="monitoring", name="monitoring")
 
 
 class HealthStatus(Enum):
@@ -185,7 +185,7 @@ class MonitoringManager:
         logger.info("[WIZ] MonitoringManager initialized")
 
     def log_training_summary(self) -> Dict[str, Any]:
-        """Emit health summary into logging_manager and notify automation."""
+        """Emit health summary into logging_api and notify automation."""
         summary = self.get_health_summary()
         health_log = read_last_summary() or {}
         payload = {
@@ -195,8 +195,8 @@ class MonitoringManager:
             "rate_limits": {k: v.to_dict() for k, v in self.rate_limits.items()},
             "cost_metrics": {k: v.to_dict() for k, v in self.cost_metrics.items()},
         }
-        logger = get_logger("monitoring-summary")
-        logger.info("Health training summary", extra={"payload": payload})
+        summary_logger = get_logger("wizard", category="monitoring-summary", name="monitoring")
+        summary_logger.info("Health training summary", ctx={"payload": payload})
         self._notify_on_drift(health_log, summary)
         return payload
 

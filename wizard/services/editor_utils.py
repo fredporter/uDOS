@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 from wizard.services.path_utils import get_repo_root, get_memory_dir
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
 logger = get_logger("wizard.editor")
 

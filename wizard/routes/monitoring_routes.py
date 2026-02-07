@@ -15,7 +15,7 @@ from typing import Callable, Optional, Dict, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from wizard.services.logging_manager import get_logging_manager
+from wizard.services.logging_api import get_log_stats, get_logs_root
 from wizard.services.monitoring_manager import MonitoringManager, AlertSeverity, AlertType
 from wizard.services.path_utils import get_logs_dir, get_repo_root
 from wizard.services.system_info_service import get_system_info_service
@@ -40,11 +40,11 @@ def _tail_lines(path: Path, lines: int) -> list[str]:
 
 
 def _sanitize_log_name(log_name: str) -> str:
-    if "/" in log_name or "\\" in log_name or ".." in log_name:
+    if "\\" in log_name or ".." in log_name:
         raise HTTPException(status_code=400, detail="Invalid log name")
-    if not log_name.endswith(".log"):
-        raise HTTPException(status_code=400, detail="Log name must end with .log")
-    return log_name
+    if not log_name.endswith(".jsonl"):
+        raise HTTPException(status_code=400, detail="Log name must end with .jsonl")
+    return log_name.strip("/")
 
 
 def create_monitoring_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
@@ -64,7 +64,6 @@ def create_monitoring_routes(auth_guard: Optional[Callable] = None) -> APIRouter
     async def get_diagnostics() -> Dict[str, Any]:
         monitoring = _get_monitoring_manager()
         monitoring.run_default_checks()
-        logging_manager = get_logging_manager()
         system_service = get_system_info_service(get_repo_root())
         return {
             "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -74,19 +73,20 @@ def create_monitoring_routes(auth_guard: Optional[Callable] = None) -> APIRouter
                 "stats": system_service.get_system_stats(),
                 "library": system_service.get_library_status().to_dict(),
             },
-            "logs": logging_manager.get_log_stats(),
+            "logs": get_log_stats(),
         }
 
     @router.get("/logs")
     async def list_logs() -> Dict[str, Any]:
-        log_dir = get_logs_dir()
+        log_dir = get_logs_root()
         entries = []
-        for log_path in log_dir.glob("*.log"):
+        for log_path in log_dir.rglob("*.jsonl"):
             try:
                 stat = log_path.stat()
                 entries.append(
                     {
-                        "name": log_path.name,
+                        "name": str(log_path.relative_to(log_dir)),
+                        "component": log_path.parent.name,
                         "size_bytes": stat.st_size,
                         "updated_at": datetime.utcfromtimestamp(stat.st_mtime).isoformat()
                         + "Z",
@@ -99,8 +99,7 @@ def create_monitoring_routes(auth_guard: Optional[Callable] = None) -> APIRouter
 
     @router.get("/logs/stats")
     async def log_stats() -> Dict[str, Any]:
-        logging_manager = get_logging_manager()
-        return logging_manager.get_log_stats()
+        return get_log_stats()
 
     @router.get("/logs/{log_name}")
     async def tail_log(
@@ -108,9 +107,9 @@ def create_monitoring_routes(auth_guard: Optional[Callable] = None) -> APIRouter
         lines: int = Query(200, ge=1, le=2000),
     ) -> Dict[str, Any]:
         log_name = _sanitize_log_name(log_name)
-        log_dir = get_logs_dir()
+        log_dir = get_logs_root()
         log_path = (log_dir / log_name).resolve()
-        if log_path.parent != log_dir.resolve():
+        if log_dir.resolve() not in log_path.parents:
             raise HTTPException(status_code=400, detail="Invalid log path")
         if not log_path.exists():
             raise HTTPException(status_code=404, detail="Log not found")

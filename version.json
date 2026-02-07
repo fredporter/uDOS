@@ -1,0 +1,14 @@
+{
+  "$schema": "core/version.schema.json",
+  "component": "udos",
+  "name": "uDOS",
+  "version": {
+    "major": 1,
+    "minor": 3,
+    "patch": 8
+  },
+  "display": "v1.3.8",
+  "channel": "dev",
+  "released": "2026-02-07",
+  "description": "uDOS development cycle version"
+}

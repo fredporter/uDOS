@@ -21,7 +21,7 @@ import os
 from datetime import datetime
 
 from core.commands.base import BaseCommandHandler
-from core.services.logging_service import get_repo_root, get_logger
+from core.services.logging_api import get_repo_root, get_logger
 
 logger = get_logger('setup-handler')
 
@@ -523,10 +523,10 @@ EXAMPLES:
             # Copy .env.example to .env
             example_content = example_file.read_text()
             self.env_file.write_text(example_content)
-            from core.services.logging_service import get_logger
+            from core.services.logging_api import get_logger
             get_logger("setup").info("[LOCAL] Initialized .env from .env.example")
         except Exception as e:
-            from core.services.logging_service import get_logger
+            from core.services.logging_api import get_logger
             get_logger("setup").warning(f"[LOCAL] Could not initialize .env: {e}")
 
     # ========================================================================
@@ -636,7 +636,7 @@ EXAMPLES:
             self.env_file.write_text("\n".join(lines) + "\n")
             return True
         except Exception as e:
-            from core.services.logging_service import get_logger
+            from core.services.logging_api import get_logger
             get_logger("setup").error(f"Failed to save to .env: {e}")
             return False
 

@@ -5,7 +5,7 @@ from fastapi import WebSocket, WebSocketDisconnect
 import json
 import asyncio
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.home_assistant.gateway.manager import GatewayManager
 
 logger = get_logger("ha-websocket-gateway")

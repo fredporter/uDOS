@@ -89,8 +89,8 @@
 
   const wizardToggleFields = [
     {
-      key: "ai_gateway_enabled",
-      label: "AI Gateway",
+      key: "ok_gateway_enabled",
+      label: "OK Gateway",
       description: "Enable routing to local/cloud AI providers via Wizard",
     },
     {

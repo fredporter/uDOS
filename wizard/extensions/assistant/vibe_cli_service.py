@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.security.key_store import get_wizard_key
 
 logger = get_logger("vibe-cli")

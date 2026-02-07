@@ -22,14 +22,14 @@ import os
 import shutil
 from core.utils.tty import interactive_tty_status
 from .enhanced_prompt import EnhancedPrompt
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 from core.services.dev_state import get_dev_state_label
 
 
 def _get_safe_logger():
     """Best-effort logger init (avoid import-time failures in tests)."""
     try:
-        return get_logger("command-prompt")
+        return get_logger("core", category="command-prompt", name="command-prompt")
     except Exception:
         import logging
 
@@ -66,7 +66,7 @@ class CommandRegistry:
         """Initialize command registry."""
         self.commands: Dict[str, CommandMetadata] = {}
         try:
-            self.logger = get_logger("command-registry")
+            self.logger = get_logger("core", category="command-registry", name="command-prompt")
         except Exception:
             import logging
 
@@ -174,7 +174,7 @@ class ContextualCommandPrompt(EnhancedPrompt):
             registry: CommandRegistry instance (uses default if None)
         """
         try:
-            self.logger = get_logger("contextual-prompt")
+            self.logger = get_logger("core", category="contextual-prompt", name="command-prompt")
         except Exception:
             import logging
 

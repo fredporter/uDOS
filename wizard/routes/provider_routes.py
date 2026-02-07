@@ -20,7 +20,7 @@ from fastapi import APIRouter, HTTPException, Depends, Query
 from fastapi.responses import JSONResponse
 from datetime import datetime
 from wizard.services.secret_store import get_secret_store, SecretStoreError
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.system_info_service import get_system_info_service
 from wizard.services.path_utils import get_repo_root
 from wizard.services.quota_tracker import get_quota_tracker
@@ -39,28 +39,6 @@ def create_provider_routes(auth_guard=None):
     CONFIG_PATH = Path(__file__).parent.parent / "config"
     SETUP_FLAGS_FILE = CONFIG_PATH / "provider_setup_flags.json"
     SCRIPT_DIR = Path(__file__).parent.parent.parent / "bin"
-
-    def _ensure_path_export(bin_path: str) -> None:
-        export_line = f'export PATH="{bin_path}:$PATH"'
-        candidates = [
-            os.path.expanduser("~/.bashrc"),
-            os.path.expanduser("~/.zshrc"),
-            os.path.expanduser("~/.profile"),
-        ]
-        for path in candidates:
-            try:
-                if os.path.exists(path):
-                    content = ""
-                    try:
-                        content = Path(path).read_text()
-                    except Exception:
-                        content = ""
-                    if export_line in content:
-                        continue
-                with open(path, "a") as handle:
-                    handle.write(f"\n# Added by uDOS HubSpot CLI install\n{export_line}\n")
-            except Exception:
-                continue
 
     # Provider definitions
     PROVIDERS = {
@@ -127,16 +105,6 @@ def create_provider_routes(auth_guard=None):
             "config_file": "assistant_keys.json",
             "config_key": "OPENROUTER_API_KEY",
         },
-        "hubspot": {
-            "name": "HubSpot",
-            "description": "HubSpot CRM API",
-            "type": "api_key",
-            "automation": "manual",
-            "cli_required": False,
-            "web_url": "https://developers.hubspot.com/docs/apps/developer-platform/build-apps/overview",
-            "config_file": "hubspot_keys.json",
-            "config_key": "HUBSPOT_API_KEY",
-        },
         "gemini": {
             "name": "Google Gemini",
             "description": "Google's AI models",
@@ -146,18 +114,6 @@ def create_provider_routes(auth_guard=None):
             "web_url": "https://makersuite.google.com/app/apikey",
             "config_file": "assistant_keys.json",
             "config_key": "GEMINI_API_KEY",
-        },
-        "hubspot_cli": {
-            "name": "HubSpot CLI",
-            "description": "HubSpot developer CLI (hs)",
-            "type": "cli",
-            "automation": "cli",
-            "cli_required": True,
-            "cli_name": "hs",
-            "install_cmd": "npm install -g @hubspot/cli",
-            "setup_cmd": "hs init",
-            "check_cmd": "hs account list",
-            "config_file": "hubspot_keys.json",
         },
     }
 
@@ -185,11 +141,6 @@ def create_provider_routes(auth_guard=None):
                 return "winget install --id GitHub.cli -e"
             if os_info.is_windows and shutil.which("choco"):
                 return "choco install gh -y"
-            return None
-
-        if provider_id == "hubspot_cli":
-            if shutil.which("npm"):
-                return "npm install -g @hubspot/cli"
             return None
 
         return PROVIDERS.get(provider_id, {}).get("install_cmd")
@@ -333,9 +284,7 @@ def create_provider_routes(auth_guard=None):
 
         if config.get("github_push_enabled"):
             enabled.add("github")
-        if config.get("hubspot_enabled"):
-            enabled.add("hubspot")
-        if config.get("ai_gateway_enabled"):
+        if config.get("ok_gateway_enabled"):
             enabled.update(
                 ["openai", "anthropic", "mistral", "openrouter", "gemini", "ollama"]
             )
@@ -449,7 +398,6 @@ def create_provider_routes(auth_guard=None):
         if not status.get("configured"):
             secret_key_map = {
                 "github": ["github_token", "github_webhook_secret"],
-                "hubspot": ["hubspot_api_key"],
                 "mistral": ["mistral_api_key"],
                 "openrouter": ["openrouter_api_key"],
                 "ollama": ["ollama_api_key"],
@@ -928,219 +876,6 @@ def create_provider_routes(auth_guard=None):
             }
         except Exception as e:
             return {"success": False, "error": str(e)}
-
-    # ===========================
-    # HUBSPOT CLI ENDPOINTS
-    # ===========================
-
-    @router.get("/hubspot/cli/status")
-    async def get_hubspot_cli_status():
-        """
-        Check if HubSpot CLI is installed and get version.
-        Returns: Installation status, version, and setup instructions
-        """
-        try:
-            # Check if CLI is installed
-            version_result = subprocess.run(
-                ["hs", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-
-            if version_result.returncode == 0:
-                version = version_result.stdout.strip()
-
-                # Check if CLI is authenticated
-                auth_result = subprocess.run(
-                    ["hs", "account", "list"],
-                    capture_output=True,
-                    text=True,
-                    timeout=5,
-                )
-
-                authenticated = auth_result.returncode == 0 and len(auth_result.stdout.strip()) > 0
-
-                return {
-                    "success": True,
-                    "installed": True,
-                    "version": version,
-                    "authenticated": authenticated,
-                    "message": f"HubSpot CLI {version} is installed",
-                }
-            else:
-                return {
-                    "success": False,
-                    "installed": False,
-                    "version": None,
-                    "authenticated": False,
-                    "message": "HubSpot CLI not installed",
-                    "help": "Run: npm install -g @hubspot/cli && hs init",
-                }
-        except FileNotFoundError:
-            return {
-                "success": False,
-                "installed": False,
-                "version": None,
-                "authenticated": False,
-                "message": "HubSpot CLI not found",
-                "help": "Install: npm install -g @hubspot/cli && hs init",
-            }
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-
-    @router.post("/hubspot/cli/install")
-    async def install_hubspot_cli():
-        """
-        Install HubSpot CLI via npm.
-        Returns: Installation progress and result
-        """
-        try:
-            # Check if npm is available
-            npm_check = subprocess.run(
-                ["npm", "--version"],
-                capture_output=True,
-                timeout=5,
-            )
-
-            if npm_check.returncode != 0:
-                return {
-                    "success": False,
-                    "error": "npm not found",
-                    "help": "Install Node.js and npm first",
-                }
-
-            # Install @hubspot/cli globally
-            install_result = subprocess.run(
-                ["npm", "install", "-g", "@hubspot/cli"],
-                capture_output=True,
-                text=True,
-                timeout=120,
-            )
-
-            if install_result.returncode == 0:
-                return {
-                    "success": True,
-                    "message": "HubSpot CLI installed successfully",
-                    "next_step": "Run 'hs init' to authenticate",
-                }
-            if "EACCES" in (install_result.stderr or ""):
-                user_prefix = os.path.expanduser("~/.local")
-                fallback = subprocess.run(
-                    [
-                        "npm",
-                        "install",
-                        "-g",
-                        "@hubspot/cli",
-                        "--prefix",
-                        user_prefix,
-                    ],
-                    capture_output=True,
-                    text=True,
-                    timeout=120,
-                )
-                if fallback.returncode == 0:
-                    _ensure_path_export(f"{user_prefix}/bin")
-                    return {
-                        "success": True,
-                        "message": "HubSpot CLI installed to user prefix",
-                        "next_step": f"PATH updated for {user_prefix}/bin; run 'hs init'",
-                    }
-            else:
-                return {
-                    "success": False,
-                    "error": install_result.stderr or "Installation failed",
-                }
-        except subprocess.TimeoutExpired:
-            return {
-                "success": False,
-                "error": "Installation timed out (>2 minutes)",
-            }
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-
-    @router.post("/hubspot/cli/init")
-    async def init_hubspot_cli():
-        """
-        Start HubSpot CLI authentication (hs init).
-        Note: This will open browser for user to generate Personal Access Key.
-        Returns: Instructions and status
-        """
-        return {
-            "success": False,
-            "message": "Interactive auth not supported via API",
-            "instructions": [
-                "Run in terminal: hs init",
-                "Follow prompts to generate Personal Access Key",
-                "Copy and paste the key when prompted",
-                "Set as default account when asked",
-            ],
-            "help": "https://developers.hubspot.com/docs/getting-started/quickstart",
-        }
-
-    @router.get("/hubspot/cli/accounts")
-    async def get_hubspot_accounts():
-        """
-        List authenticated HubSpot accounts.
-        Returns: List of accounts configured in CLI
-        """
-        try:
-            result = subprocess.run(
-                ["hs", "account", "list"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-
-            if result.returncode == 0:
-                # Parse account list output
-                accounts = []
-                for line in result.stdout.strip().split("\n"):
-                    line = line.strip()
-                    if line and not line.startswith("=") and "Account" not in line:
-                        accounts.append(line)
-
-                return {
-                    "success": True,
-                    "accounts": accounts,
-                    "count": len(accounts),
-                }
-            else:
-                return {
-                    "success": False,
-                    "accounts": [],
-                    "message": "No accounts configured or CLI error",
-                    "help": "Run: hs init",
-                }
-        except FileNotFoundError:
-            return {
-                "success": False,
-                "error": "HubSpot CLI not installed",
-                "help": "Install: npm install -g @hubspot/cli",
-            }
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-
-    @router.post("/hubspot/cli/project/create")
-    async def create_hubspot_project(project_name: str = Query(..., description="Project name")):
-        """
-        Create a new HubSpot project with hs get-started.
-        Note: This is interactive and best done via terminal.
-        Returns: Instructions for running via terminal
-        """
-        return {
-            "success": False,
-            "message": "Project creation is interactive",
-            "instructions": [
-                f"Run in terminal: hs get-started",
-                "Select 'App' when prompted",
-                f"Enter project name: {project_name}",
-                "Set local directory path",
-                "Confirm upload to HubSpot",
-                "Install dependencies and build",
-            ],
-            "help": "https://developers.hubspot.com/docs/getting-started/quickstart#create-and-upload-a-project",
-        }
 
     return router
 

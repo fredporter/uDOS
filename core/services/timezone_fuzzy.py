@@ -22,7 +22,7 @@ Date: 2026-01-31
 from typing import Optional, Dict, List
 from difflib import get_close_matches
 
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 
 logger = get_logger("timezone-fuzzy")
 

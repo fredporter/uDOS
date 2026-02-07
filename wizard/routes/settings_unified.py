@@ -24,7 +24,7 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root, get_memory_dir
 from wizard.services.secret_store import get_secret_store, SecretStoreError, SecretEntry
 
@@ -49,7 +49,7 @@ class VenvStatus(BaseModel):
 class SecretConfig(BaseModel):
     """Secret/API key configuration."""
     key: str
-    category: str  # "ai", "github", "oauth", "hubspot"
+    category: str  # "ai", "github", "oauth"
     masked_value: Optional[str] = None
     is_set: bool = False
     updated_at: Optional[str] = None
@@ -174,7 +174,6 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
         "ai": ["mistral_api_key", "openrouter_api_key", "ollama_api_key"],
         "github": ["github_token", "github_webhook_secret"],
         "oauth": ["oauth_client_id", "oauth_client_secret"],
-        "hubspot": ["hubspot_api_key"],
     }
 
     def _load_config_file(filename: str) -> Dict[str, Any]:
@@ -198,7 +197,6 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
     legacy_config = {
         "assistant": _load_config_file("assistant_keys.json"),
         "github": _load_config_file("github_keys.json"),
-        "hubspot": _load_config_file("hubspot_keys.json"),
         "oauth": _load_config_file("oauth_providers.json"),
     }
 
@@ -223,10 +221,6 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
         "github_webhook_secret": (
             _get_nested(legacy_config["github"], ["webhooks", "secret_key_id"])
             or _get_nested(legacy_config["github"], ["webhooks", "secret"])
-        ),
-        "hubspot_api_key": (
-            legacy_config["hubspot"].get("api_key")
-            or legacy_config["hubspot"].get("api_key_id")
         ),
     }
 
@@ -419,10 +413,9 @@ def _sync_wizard_config_from_secret(key: str) -> Dict[str, Any]:
     mapping = {
         "github_token": {"providers": ["github"], "toggles": ["github_push_enabled"]},
         "github_webhook_secret": {"providers": ["github"], "toggles": ["github_push_enabled"]},
-        "hubspot_api_key": {"providers": ["hubspot"], "toggles": ["hubspot_enabled"]},
-        "mistral_api_key": {"providers": ["mistral"], "toggles": ["ai_gateway_enabled"]},
-        "openrouter_api_key": {"providers": ["openrouter"], "toggles": ["ai_gateway_enabled"]},
-        "ollama_api_key": {"providers": ["ollama"], "toggles": ["ai_gateway_enabled"]},
+        "mistral_api_key": {"providers": ["mistral"], "toggles": ["ok_gateway_enabled"]},
+        "openrouter_api_key": {"providers": ["openrouter"], "toggles": ["ok_gateway_enabled"]},
+        "ollama_api_key": {"providers": ["ollama"], "toggles": ["ok_gateway_enabled"]},
     }
 
     if key not in mapping:
@@ -500,7 +493,6 @@ def migrate_config_from_v1_0() -> Dict[str, Any]:
         "assistant_keys.json": ("ai", ["mistral_api_key", "openrouter_api_key"]),
         "github_keys.json": ("github", ["github_token", "github_webhook_secret"]),
         "oauth.json": ("oauth", ["oauth_client_id", "oauth_client_secret"]),
-        "hubspot_keys.json": ("hubspot", ["hubspot_api_key"]),
     }
 
     store = get_secret_store()

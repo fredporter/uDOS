@@ -16,7 +16,7 @@ Return Wizard server health and basic service status for display in Vibe and com
   "timestamp": "2026-02-06T12:34:56Z",
   "services": {
     "wizard": "running",
-    "ai_gateway": "enabled",
+    "ok_gateway": "enabled",
     "plugins": "enabled"
   },
   "version": "1.3.8"

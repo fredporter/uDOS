@@ -19,7 +19,7 @@ from typing import Dict, Optional, Any
 
 from core.services.health_training import needs_self_heal_training
 from core.services.hotkey_map import read_hotkey_payload, write_hotkey_payload
-from core.services.logging_service import get_logger, get_repo_root
+from core.services.logging_api import get_logger, get_repo_root
 from core.services.ts_runtime_service import TSRuntimeService
 from core.services.automation_monitor import AutomationMonitor
 try:

@@ -30,7 +30,7 @@ from core.services.spatial_filesystem import (
     WorkspaceType,
     GridLocation
 )
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 from core.tui.renderer import Renderer
 
 logger = get_logger('spatial-filesystem-handler')

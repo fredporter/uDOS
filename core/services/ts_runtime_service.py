@@ -9,7 +9,7 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from core.services.logging_service import get_logger, get_repo_root
+from core.services.logging_api import get_logger, get_repo_root
 
 logger = get_logger("core.ts_runtime")
 

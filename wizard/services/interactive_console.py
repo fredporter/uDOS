@@ -363,8 +363,8 @@ class WizardConsole:
                 "version": "1.1.0",
                 "description": "Plugin distribution and updates",
             },
-            "AI Gateway": {
-                "enabled": self.config.ai_gateway_enabled,
+            "OK Gateway": {
+                "enabled": self.config.ok_gateway_enabled,
                 "version": "1.1.0",
                 "description": "AI model routing (Ollama/OpenRouter)",
             },
@@ -459,7 +459,7 @@ class WizardConsole:
         print(f"    • Plugin Repo: {self.config.plugin_repo_enabled}")
         print(f"    • Web Proxy: {self.config.web_proxy_enabled}")
         print(f"    • Gmail Relay: {self.config.gmail_relay_enabled}")
-        print(f"    • AI Gateway: {self.config.ai_gateway_enabled}")
+        print(f"    • OK Gateway: {self.config.ok_gateway_enabled}")
         print()
 
     async def cmd_setup(self, args: list) -> None:

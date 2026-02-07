@@ -4,7 +4,7 @@ from typing import Dict, List, Any, Optional
 from pathlib import Path
 
 from core.commands.base import BaseCommandHandler
-from core.services.logging_service import get_logger, LogTags, get_repo_root
+from core.services.logging_api import get_logger, LogTags, get_repo_root
 
 logger = get_logger("command-music")
 

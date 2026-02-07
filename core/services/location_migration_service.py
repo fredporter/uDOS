@@ -20,7 +20,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 
 logger = get_logger("location_migration")
 

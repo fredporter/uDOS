@@ -5,9 +5,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from core.services.logging_service import get_repo_root, get_logger
+from core.services.logging_api import get_repo_root, get_logger
 
-logger = get_logger("provider-load", source="wizard")
+logger = get_logger("wizard", category="provider-load", name="provider-load")
 
 
 def _ensure_log_path() -> Path:

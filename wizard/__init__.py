@@ -6,8 +6,7 @@ The Wizard Server is an always-on component that provides:
 - Web access for user devices (proxy)
 - Plugin repository hosting and distribution
 - GitHub repo cloning and packaging
-- Gmail relay integration
-- AI/LLM gateway
+- OK/LLM gateway
 - Heavy processing tasks
 
 Architecture
@@ -20,8 +19,8 @@ Components
 - server.py: Main FastAPI server
 - plugin_factory.py: TCZ package builder
 - web_proxy.py: Web content fetching for user devices
-- gmail_relay.py: Gmail OAuth integration
-- ai_gateway.py: LLM API routing
+- ok_gateway.py: LLM API routing
+- ok_gateway.py: LLM API routing
 - scraper.py: Web content extraction
 
 Security
@@ -50,10 +49,8 @@ __all__ = [
     "PluginFactory",
     "PluginRepository",
     "WebProxy",
-    "GmailRelay",
-    "AIGateway",
+    "OKGateway",
     "WebService",
-    "BizIntel",
 ]
 
 
@@ -86,16 +83,9 @@ def get_web_proxy():
     return WebProxy()
 
 
-def get_gmail_relay():
-    """Get Gmail Relay instance."""
-    from .services.gmail_relay import get_gmail_relay as _get_relay
-
-    return _get_relay()
-
-
-def get_ai_gateway():
-    """Get AI Gateway instance."""
-    from .services.ai_gateway import get_ai_gateway as _get_gateway
+def get_ok_gateway():
+    """Get OK Gateway instance."""
+    from .services.ok_gateway import get_ok_gateway as _get_gateway
 
     return _get_gateway()
 
@@ -106,9 +96,3 @@ def get_web_service():
 
     return WebService()
 
-
-def get_empire():
-    """Get Empire CRM instance."""
-    from extensions.empire.empire import Empire
-
-    return Empire()

@@ -22,7 +22,7 @@ from wizard.services.secret_store import (
     SecretEntry,
     SecretStoreError,
 )
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
 logger = get_logger("setup-profiles")
 

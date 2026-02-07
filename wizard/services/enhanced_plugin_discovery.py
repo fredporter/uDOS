@@ -18,7 +18,7 @@ from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict, field
 import os
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 
 logger = get_logger("plugin-discovery")

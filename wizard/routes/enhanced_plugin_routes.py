@@ -24,7 +24,7 @@ from wizard.services.enhanced_plugin_discovery import (
     get_discovery_service,
     EnhancedPluginDiscovery,
 )
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 from wizard.services.plugin_registry import get_registry
 from wizard.services.plugin_repository import get_repository

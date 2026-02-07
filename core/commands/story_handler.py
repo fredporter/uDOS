@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from core.commands.base import BaseCommandHandler
-from core.services.logging_service import get_repo_root
+from core.services.logging_api import get_repo_root
 from core.services.ts_runtime_service import TSRuntimeService
 from core.tui.output import OutputToolkit
 
@@ -299,7 +299,7 @@ set $user.completed true
             return result
         
         except Exception as e:
-            from core.services.logging_service import get_logger
+            from core.services.logging_api import get_logger
             logger = get_logger("story")
             logger.error(f"[LOCAL] Failed to process interactive form: {e}")
             

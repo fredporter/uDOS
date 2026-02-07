@@ -26,7 +26,7 @@ uCODE today is a self-contained terminal UX with its own input system, command d
   - `TUIStatusBar` (status line with server + system stats).
 
 **Input modes**
-- `OK …` and `:` prefix => command mode
+- `OK …` and `?` prefix => command mode
 - `/` prefix => slash mode (command or shell)
 - no prefix => “question mode” (best-effort command routing)
 
@@ -66,7 +66,7 @@ This matters because we need to decide which commands become **MCP tools** and w
 - `/Users/fredbook/Code/uDOS/wizard/routes/*` exposes a broad API surface (AI, datasets, plugins, workflow, etc.).
 
 **Services (selected)**
-- `/Users/fredbook/Code/uDOS/wizard/services/ai_gateway.py`
+- `/Users/fredbook/Code/uDOS/wizard/services/ok_gateway.py`
 - `/Users/fredbook/Code/uDOS/wizard/services/rate_limiter.py`
 - `/Users/fredbook/Code/uDOS/wizard/services/monitoring_manager.py`
 - `/Users/fredbook/Code/uDOS/wizard/services/task_scheduler.py`
@@ -86,7 +86,7 @@ These are proposed groupings based on current files and routes. We will refine a
 - Auth, rate limiting, config, logging, system info
 
 **AI/Model Services**
-- AI gateway, model router, provider integration
+- OK gateway, model router, provider integration
 
 **Workflow + Jobs**
 - Task scheduler, workflow manager, notification history
@@ -135,4 +135,3 @@ These are proposed groupings based on current files and routes. We will refine a
 2. Define MCP gateway location and wiring strategy (under `/wizard` or `/mcp`).
 3. Build minimal MCP server + Vibe config (`/.vibe/config.toml`) and expose `ucode.help`, `ucode.status`, `ucode.dispatch`.
 4. Run Vibe locally and validate the experience before porting any UI features.
-

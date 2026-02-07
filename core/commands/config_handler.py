@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
-from core.services.logging_service import get_logger, get_repo_root, LogTags
+from core.services.logging_api import get_logger, get_repo_root, LogTags
 
 logger = get_logger("config-handler")
 
@@ -423,7 +423,7 @@ VARIABLE TYPES:
     @location               Your location
 
   flag_name                 Feature flags (wizard.json)
-    ai_gateway_enabled      Enable AI gateway
+    ok_gateway_enabled      Enable OK gateway
 
 EXAMPLES:
   CONFIG                    Show all variables

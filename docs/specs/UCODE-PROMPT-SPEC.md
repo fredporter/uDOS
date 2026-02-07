@@ -17,7 +17,7 @@ uCODE must clearly separate **questions** from **commands** while keeping comman
 There are three modes, determined by the first non‑whitespace characters.
 
 1. **Command mode**  
-   Prefix: `OK ` or `:`  
+Prefix: `OK ` or `?`
    Example: `OK MAKE svg sandbox:tree.svg`
 
 2. **Shell mode**  
@@ -33,8 +33,8 @@ There are three modes, determined by the first non‑whitespace characters.
 ## 3. Parsing Rules
 
 1. **Trim left whitespace**, then inspect prefix.
-2. **Command mode** if input starts with `OK` followed by whitespace, or starts with `:`.  
-   - Normalize `OK` or `:` to a single internal prefix `OK`.
+2. **Command mode** if input starts with `OK` followed by whitespace, or starts with `?`.
+- Normalize `OK` or `?` to a single internal prefix `OK`.
 3. **Slash mode** if input starts with `/`.  
    - If the first token matches a **slash command** (see section 4), treat as uCODE command.  
    - Otherwise treat as **shell**.
@@ -139,7 +139,7 @@ OK MAKE svg sandbox:tree.svg
 Creates an SVG file at `vault/sandbox/tree.svg`.
 
 ```text
-:SETUP
+?SETUP
 ```
 Runs the TUI setup story.
 
@@ -170,7 +170,7 @@ Question mode (no prefix).
 
 ## 11. Acceptance Criteria
 
-1. `OK` and `:` reliably route to the same uCODE command parser.
+1. `OK` and `?` reliably route to the same uCODE command parser.
 2. `/render` routes to uCODE, `/ls` routes to shell.
 3. Autocomplete suggestions update based on command context.
 4. Autocomplete never takes over input; suggestions require explicit accept.

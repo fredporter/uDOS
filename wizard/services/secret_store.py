@@ -23,7 +23,7 @@ from dataclasses import dataclass, asdict, field
 from pathlib import Path
 from typing import Dict, Optional, List, Any
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
 logger = get_logger("secret-store")
 
@@ -149,7 +149,7 @@ class SecretStore:
             cache[se.key_id] = se
         self._cache = cache
         self._loaded = True
-        logger.info("[WIZ] secret tomb unlocked", extra={"entries": len(self._cache)})
+        logger.info("[WIZ] secret tomb unlocked", ctx={"entries": len(self._cache)})
 
     def _persist(self):
         if not self._fernet:

@@ -37,7 +37,7 @@ wizard/
 ├── config/
 │   └── wizard.json            # Production config (committed)
 ├── services/
-│   ├── ai_gateway.py          # Assistant routing (local-first)
+│   ├── ok_gateway.py          # Assistant routing (local-first)
 │   ├── dev_mode_service.py    # Dev mode management (Goblin activation/coordination)
 │   ├── github_integration.py  # GitHub CLI ops, issue/PR management
 │   ├── github_monitor.py      # Actions self-healing
@@ -58,7 +58,7 @@ wizard/
 │   ├── workflow_manager.py    # Local project/task management
 │   └── gmail_relay.py (hooks) # Wizard-only relay
 ├── routes/
-│   ├── ai_routes.py           # /api/ai/* routes
+│   ├── ai_routes.py           # /api/ai/* routes (OK gateway)
 │   ├── binder_routes.py       # /api/binder/* routes
 │   ├── dev_routes.py          # /api/dev/* routes (Dev Mode control)
 │   ├── github_routes.py       # /api/github/* routes
@@ -128,7 +128,7 @@ Dev Mode is activated on-demand; Goblin runs independently on port 8767.
 ## Endpoints (Production `/api/*`)
 
 - `/health` (no auth), `/api/status`, `/api/rate-limits`
-- Assistant: `/api/ai/status`, `/api/ai/models`, `/api/ai/complete`, `/api/ai/query`, `/api/ai/context`, `/api/ai/analyze-logs`, `/api/ai/suggest`, `/api/ai/explain`
+- OK Gateway: `/api/ai/status`, `/api/ai/models`, `/api/ai/complete`, `/api/ai/query`, `/api/ai/context`, `/api/ai/analyze-logs`, `/api/ai/suggest`, `/api/ai/explain`
 - Plugins: `/api/plugin/list`, `/api/plugin/{id}`, `/api/plugin/{id}/download`
 - Proxy: `/api/web/fetch` (stub, gated by config)
 - GitHub: `/api/github/health`, `/api/github/sync-cli`, `/api/github/issues`, `/api/github/pulls`, `/api/github/context/*` (devlog, roadmap, agents, copilot), `/api/github/logs/{log_type}`

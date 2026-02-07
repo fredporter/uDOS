@@ -16,7 +16,7 @@ from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Response,
 from fastapi.responses import FileResponse, JSONResponse
 
 from wizard.services.pack_manager import get_pack_manager, PackMetadata
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
 logger = get_logger("wizard-catalog-api")
 

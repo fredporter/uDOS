@@ -21,7 +21,7 @@ import sys
 
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
-from core.services.logging_service import get_logger, get_repo_root
+from core.services.logging_api import get_logger, get_repo_root
 from core.services.self_healer import collect_self_heal_summary
 
 
@@ -237,9 +237,8 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
 
     def _check_system(self, user, ghost_notice: Optional[str] = None) -> Dict:
         """Check system health status."""
-        logger = get_logger("repair-handler")
+        logger = get_logger("core", category="repair", name="repair-handler")
         from core.tui.output import OutputToolkit
-        from core.services.unified_logging import get_unified_logger
 
         summary = collect_self_heal_summary(component="core", auto_repair=False)
         summary_rows = [
@@ -258,11 +257,11 @@ class RepairHandler(BaseCommandHandler, HandlerLoggingMixin):
             output.append(OutputToolkit.section("Ghost Mode", ghost_notice))
 
         logger.info("[LOCAL] REPAIR self-heal check completed (success=%s)", summary.get("success"))
-        unified = get_unified_logger()
-        unified.log_core(
-            category="repair",
-            message=f"Self-heal diagnostics completed by {user.username if user else 'unknown'}",
-            metadata=summary,
+        logger.event(
+            "info",
+            "repair.self_heal",
+            f"Self-heal diagnostics completed by {user.username if user else 'unknown'}",
+            ctx=summary,
         )
 
         return {
@@ -354,12 +353,10 @@ EXAMPLES:
     ) -> Dict:
         """Perform repair with reset options."""
         from core.services.user_service import get_user_manager
-        from core.services.unified_logging import get_unified_logger
 
-        logger = get_logger("repair-handler")
+        logger = get_logger("core", category="repair", name="repair-handler")
         repo_root = get_repo_root()
         results = []
-        unified = get_unified_logger()
 
         try:
             results.append("")
@@ -417,10 +414,11 @@ EXAMPLES:
                 "[LOCAL] REPAIR with resets completed by %s",
                 user.username if user else "unknown",
             )
-            unified.log_core(
-                category="repair",
-                message=f"Repair with resets completed by {user.username if user else 'unknown'}",
-                metadata={
+            logger.event(
+                "info",
+                "repair.completed",
+                f"Repair with resets completed by {user.username if user else 'unknown'}",
+                ctx={
                     "reset_user": reset_user,
                     "reset_keys": reset_keys,
                     "reset_config": reset_config,
@@ -437,10 +435,12 @@ EXAMPLES:
         except Exception as e:
             error_msg = f"❌ Repair failed: {e}"
             logger.error("[LOCAL] %s", error_msg)
-            unified.log_core(
-                category="repair",
-                message=error_msg,
-                metadata={"error": str(e)},
+            logger.event(
+                "error",
+                "repair.failed",
+                error_msg,
+                ctx={"error": str(e)},
+                err=e,
             )
         return {
             "output": error_msg,
@@ -457,7 +457,7 @@ EXAMPLES:
     def _refresh_runtime(self, user) -> Dict:
         """Clean runtime artifacts and reinstall enabled integrations."""
         from core.tui.output import OutputToolkit
-        from core.services.logging_service import get_logger
+        from core.services.logging_api import get_logger
 
         logger = get_logger("repair-handler")
         cleaned, errors = self._clean_runtime_targets()

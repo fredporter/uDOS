@@ -22,13 +22,11 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
 
     def handle(self, command, params, grid, parser):
         """Handle REBOOT command with logging."""
-        from core.services.logging_service import get_logger
-        from core.services.unified_logging import get_unified_logger
+        from core.services.logging_api import get_logger
         from core.services.user_service import get_user_manager
         from core.tui.output import OutputToolkit
 
-        logger = get_logger("reboot-handler")
-        unified = get_unified_logger()
+        logger = get_logger("core", category="reboot", name="reboot-handler")
         output = OutputToolkit()
         user_mgr = get_user_manager()
         user = user_mgr.current()
@@ -46,10 +44,11 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
                     "message": "REBOOT takes no options. Running default reboot.",
                 }
 
-            unified.log_core(
-                category="reboot",
-                message=f"Reboot initiated by {user.username if user else 'unknown'}",
-                metadata={"command": command},
+            logger.event(
+                "info",
+                "reboot.start",
+                f"Reboot initiated by {user.username if user else 'unknown'}",
+                ctx={"command": command},
             )
 
             lines = []

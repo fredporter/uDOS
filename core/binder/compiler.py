@@ -17,7 +17,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 import yaml
 
-from core.services.logging_service import get_logger, get_repo_root
+from core.services.logging_api import get_logger, get_repo_root
 from core.services.sqlite_service import SQLiteManager
 
 logger = get_logger("core.binder")

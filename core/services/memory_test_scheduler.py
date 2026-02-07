@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 
 
 class MemoryTestScheduler:

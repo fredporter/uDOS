@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 from core.commands.base import BaseCommandHandler
 from core.services.hotkey_map import get_hotkey_payload
 from core.services.maintenance_utils import get_memory_root
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 from core.tui.output import OutputToolkit
 
 logger = get_logger("hotkey-handler")

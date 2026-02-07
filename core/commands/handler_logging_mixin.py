@@ -56,8 +56,8 @@ class HandlerLoggingMixin:
     def _get_logger(self):
         """Get unified logger (lazy import to avoid circular deps)."""
         try:
-            from core.services.unified_logging import get_unified_logger
-            return get_unified_logger()
+            from core.services.logging_api import get_logger
+            return get_logger("core", category="command", name="handler")
         except:
             return None
     
@@ -141,13 +141,17 @@ class HandlerLoggingMixin:
         Yields:
             CommandTrace object for event tracking
         """
-        unified_logger = self._get_logger()
+        category = self._get_handler_category(command)
+        base_logger = self._get_logger()
+        logger = base_logger
+        if base_logger:
+            logger = base_logger.child({"category": f"command-{category}"})
         trace = CommandTrace(
             command=command,
             params=params,
-            logger=unified_logger,
+            logger=logger,
             sanitize_fn=self._sanitize_params,
-            category=self._get_handler_category(command)
+            category=category,
         )
         
         trace.start()
@@ -167,13 +171,14 @@ class HandlerLoggingMixin:
             params: Parameter list
             error: Error message
         """
-        unified_logger = self._get_logger()
-        if unified_logger:
+        logger = self._get_logger()
+        if logger:
             sanitized = self._sanitize_params(params)
-            unified_logger.log_core(
-                category='command_error',
-                message=f'{command} parameter error',
-                metadata={
+            logger.event(
+                "warn",
+                "command.param_error",
+                f"{command} parameter error",
+                ctx={
                     'command': command,
                     'params': sanitized,
                     'error': error,
@@ -188,12 +193,13 @@ class HandlerLoggingMixin:
             command: Command name
             reason: Reason for denial
         """
-        unified_logger = self._get_logger()
-        if unified_logger:
-            unified_logger.log_core(
-                category='permission_denied',
-                message=f'{command} permission denied',
-                metadata={
+        logger = self._get_logger()
+        if logger:
+            logger.event(
+                "warn",
+                "command.permission_denied",
+                f"{command} permission denied",
+                ctx={
                     'command': command,
                     'reason': reason
                 }
@@ -207,12 +213,13 @@ class HandlerLoggingMixin:
             operation: Operation name
             metadata: Operation metadata
         """
-        unified_logger = self._get_logger()
-        if unified_logger:
-            unified_logger.log_core(
-                category=f'command_{command.lower()}',
-                message=f'{operation}',
-                metadata={
+        logger = self._get_logger()
+        if logger:
+            logger.event(
+                "info",
+                "command.operation",
+                f"{operation}",
+                ctx={
                     'command': command,
                     'operation': operation,
                     **metadata
@@ -253,10 +260,11 @@ class CommandTrace:
         
         if self.logger:
             sanitized = self.sanitize_fn(self.params)
-            self.logger.log_core(
-                category=f'command_start_{self.category}',
-                message=f'{self.command} started',
-                metadata={
+            self.logger.event(
+                "info",
+                "command.start",
+                f"{self.command} started",
+                ctx={
                     'command': self.command,
                     'params': sanitized,
                     'timestamp': self.start_time.isoformat()
@@ -284,10 +292,13 @@ class CommandTrace:
             if self.events:
                 metadata['events'] = self.events
             
-            self.logger.log_core(
-                category=f'command_finish_{self.category}',
-                message=f'{self.command} finished ({self.result_status})',
-                metadata=metadata
+            level = "error" if self.result_status == "error" else "info"
+            self.logger.event(
+                level,
+                "command.finish",
+                f"{self.command} finished ({self.result_status})",
+                ctx=metadata,
+                err=self.error if self.result_status == "error" else None,
             )
     
     def add_event(self, event_name: str, data: Dict[str, Any] = None):

@@ -123,7 +123,7 @@ def _test_provider(provider: str) -> dict:
                 result["error"] = response.error
 
         elif provider == "openai":
-            from wizard.providers.openai_client import OpenAIClient, OpenAIRequest
+            from wizard.providers.openai_client import OpenAIClient, OpenOKRequest
 
             client = OpenAIClient()
             if not client.api_key:
@@ -132,7 +132,7 @@ def _test_provider(provider: str) -> dict:
 
             result["configured"] = True
 
-            req = OpenAIRequest(
+            req = OpenOKRequest(
                 prompt="Reply with exactly: 'Connection successful'",
                 max_tokens=50,
                 temperature=0.0,

@@ -220,7 +220,7 @@ wizard> setup
   "capabilities": {
     "web_proxy": true,
     "gmail_relay": true,
-    "ai_gateway": true,
+    "ok_gateway": true,
     "github_push": false,
     ...
   }

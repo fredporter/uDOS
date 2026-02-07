@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, HTTPException, Query, Body
 from pydantic import BaseModel
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.home_assistant.gateway.manager import GatewayManager
 from wizard.services.home_assistant.schemas.device import DeviceSchema, DeviceType
 from wizard.services.home_assistant.schemas.entity import EntitySchema

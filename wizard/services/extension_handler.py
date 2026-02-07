@@ -21,7 +21,7 @@ from enum import Enum
 from datetime import datetime
 from abc import ABC, abstractmethod
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 
 logger = get_logger("extension-handler")

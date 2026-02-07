@@ -80,7 +80,7 @@ class InteractiveMenu:
         self._ascii_only = self._should_use_ascii()
         
         try:
-            from core.services.logging_service import get_logger
+            from core.services.logging_api import get_logger
             self.logger = get_logger("interactive-menu")
         except Exception:
             pass

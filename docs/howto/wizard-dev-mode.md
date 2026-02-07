@@ -89,7 +89,7 @@ WizardConfig(
     debug=True,              # debug mode enabled
     plugin_repo_enabled=True,
     web_proxy_enabled=True,
-    ai_gateway_enabled=False,  # optional
+    ok_gateway_enabled=False,  # optional
     gmail_relay_enabled=False, # optional
 )
 ```
@@ -120,7 +120,7 @@ Once running, Wizard Server provides:
 - `GET /api/status` - Server status (auth required)
 - `GET /api/plugin/list` - Plugin repository
 - `POST /api/web/fetch` - Web proxy (if enabled)
-- `POST /api/ai/chat` - AI gateway (if enabled)
+- `POST /api/ai/chat` - OK gateway (if enabled)
 - `POST /api/gmail/send` - Gmail relay (if configured)
 
 ## Testing Integration
@@ -238,14 +238,14 @@ Edit `wizard/dev_server.py` to enable:
 ```python
 config = WizardConfig(
     # ...
-    ai_gateway_enabled=True,    # Enable AI gateway
+    ok_gateway_enabled=True,    # Enable OK gateway
     gmail_relay_enabled=True,   # Enable Gmail relay
 )
 ```
 
 Requires additional setup:
 
-- **AI Gateway**: Configure `wizard/config/ai_keys.json`
+- **OK Gateway**: Configure `wizard/config/ai_keys.json`
 - **Gmail Relay**: Run OAuth flow (see wizard docs)
 
 ### Custom Configuration

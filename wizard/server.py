@@ -11,8 +11,7 @@ Endpoints:
   /health          - Health check
   /api/plugin/* - Plugin repository API
   /api/web/*    - Web proxy API
-  /api/ai/*     - AI gateway API
-  /api/gmail/*  - Gmail relay API
+  /api/ai/*     - OK gateway API
   /ws              - WebSocket for real-time updates
 
 Security:
@@ -36,8 +35,9 @@ from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict, field
 from collections import deque
 
-from wizard.services.ai_gateway import AIRequest, AIGateway
-from wizard.services.logging_manager import get_logging_manager
+from wizard.services.ok_gateway import OKRequest, OKGateway
+from wizard.services.logging_api import get_log_stats, get_logs_root
+from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 from wizard.services.secret_store import get_secret_store, SecretStoreError
 from wizard.services.device_auth import get_device_auth, DeviceStatus
@@ -119,8 +119,7 @@ class WizardConfig:
 
     # Services
     web_proxy_enabled: bool = True
-    gmail_relay_enabled: bool = False
-    ai_gateway_enabled: bool = False
+    ok_gateway_enabled: bool = False
 
     # GitHub integration
     github_webhook_secret: Optional[str] = None
@@ -129,7 +128,6 @@ class WizardConfig:
     github_default_branch: str = "main"
     github_push_enabled: bool = False
     admin_api_key_id: Optional[str] = None
-    hubspot_enabled: bool = False
     icloud_enabled: bool = False
     oauth_enabled: bool = False
     compost_cleanup_days: int = 30
@@ -152,6 +150,8 @@ class WizardConfig:
                     data = json.load(f)
                     if not isinstance(data, dict):
                         return cls()
+                    if "ok_gateway_enabled" not in data and "ai_gateway_enabled" in data:
+                        data["ok_gateway_enabled"] = data.get("ai_gateway_enabled")
                     return cls.from_dict(data)
             except (json.JSONDecodeError, IOError, ValueError):
                 # Return defaults if config is invalid
@@ -198,10 +198,11 @@ class WizardServer:
         self.config = config or WizardConfig.load()
         self.sessions: Dict[str, DeviceSession] = {}
         self.app: Optional[FastAPI] = None
+        self.logger = get_logger("wizard", category="server", name="wizard-server")
         self.rate_limiter = get_rate_limiter()
-        self.ai_gateway = AIGateway()
+        self.ok_gateway = OKGateway()
         self._started = False
-        self.logging_manager = get_logging_manager()
+        self.logging_manager = None
         self.task_scheduler = None
         self._scheduler_thread = None
         self._scheduler_stop = threading.Event()
@@ -224,14 +225,21 @@ class WizardServer:
             docs_url="/docs" if self.config.debug else None,
             redoc_url="/redoc" if self.config.debug else None,
         )
+        self.logger.info(
+            "Wizard app created",
+            ctx={
+                "host": self.config.host,
+                "port": self.config.port,
+                "debug": self.config.debug,
+            },
+        )
 
         # Ensure micro editor is available in /library
         try:
             from wizard.services.editor_utils import ensure_micro_repo
             ensure_micro_repo()
         except Exception as exc:
-            logger = self.logging_manager.get_logger("wizard-server")
-            logger.warning(f"[WIZ] Failed to ensure micro editor: {exc}")
+            self.logger.warn("[WIZ] Failed to ensure micro editor: %s", exc)
 
         # CORS (restricted to known origins in production)
         app.add_middleware(
@@ -347,8 +355,7 @@ class WizardServer:
             github_router = create_github_routes(auth_guard=self._authenticate_admin)
             app.include_router(github_router)
         except ImportError as exc:
-            logger = self.logging_manager.get_logger("wizard-server")
-            logger.warning(f"[WIZ] GitHub routes disabled: {exc}")
+            self.logger.warn("[WIZ] GitHub routes disabled: %s", exc)
 
         # Register AI routes (Mistral/Vibe)
         from wizard.routes.ai_routes import create_ai_routes
@@ -594,7 +601,7 @@ class WizardServer:
             pass
 
         # Get logger for the scheduler loop
-        logger = self.logging_manager.get_logger("wizard-scheduler")
+        logger = get_logger("wizard", category="scheduler", name="wizard-scheduler")
 
         def loop():
             while not self._scheduler_stop.is_set():
@@ -606,7 +613,7 @@ class WizardServer:
                     if result.get("executed", 0):
                         logger.info(f"[WIZ] Scheduler executed {result.get('executed')} task(s)")
                 except Exception as exc:
-                    logger.warning(f"[WIZ] Scheduler loop error: {exc}")
+                    logger.warn("[WIZ] Scheduler loop error: %s", exc)
                 self._scheduler_stop.wait(tick_seconds)
 
         self._scheduler_thread = threading.Thread(target=loop, daemon=True)
@@ -743,6 +750,7 @@ class WizardServer:
         @app.get("/health")
         async def health_check():
             """Health check endpoint."""
+            self.logger.debug("Health check requested")
             return {
                 "status": "healthy",
                 "version": "1.0.0",
@@ -750,8 +758,7 @@ class WizardServer:
                 "services": {
                     "plugin_repo": self.config.plugin_repo_enabled,
                     "web_proxy": self.config.web_proxy_enabled,
-                    "gmail_relay": self.config.gmail_relay_enabled,
-                    "ai_gateway": self.config.ai_gateway_enabled,
+                    "ok_gateway": self.config.ok_gateway_enabled,
                 },
             }
 
@@ -764,7 +771,7 @@ class WizardServer:
             system_stats = self._get_system_stats()
             os_info = system_service.get_os_info()
             library_status = system_service.get_library_status()
-            log_stats = self.logging_manager.get_log_stats()
+            log_stats = get_log_stats()
 
             # Derive library counts from available status fields
             available_count = len(
@@ -795,14 +802,9 @@ class WizardServer:
                         "description": "Fetch web content for devices",
                     },
                     {
-                        "name": "Gmail Relay",
-                        "enabled": self.config.gmail_relay_enabled,
-                        "description": "Send emails via Gmail API",
-                    },
-                    {
-                        "name": "AI Gateway",
-                        "enabled": self.config.ai_gateway_enabled,
-                        "description": "AI model access with cost tracking",
+                        "name": "OK Gateway",
+                        "enabled": self.config.ok_gateway_enabled,
+                        "description": "OK model access with cost tracking",
                     },
                 ],
                 "system": system_stats,
@@ -876,29 +878,29 @@ class WizardServer:
             device_id = await self._authenticate(request)
             return self.rate_limiter.get_device_stats(device_id)
 
-        # AI gateway routes
+        # OK gateway routes
         @app.get("/api/ai/status")
         async def ai_status(request: Request):
-            """Return AI gateway + routing status."""
+            """Return OK gateway + routing status."""
             device_id = await self._authenticate(request)
             return {
                 "device_id": device_id,
-                "gateway": self.ai_gateway.get_status(),
+                "gateway": self.ok_gateway.get_status(),
             }
 
         @app.get("/api/ai/models")
         async def ai_models(request: Request):
             """List available AI models (local-first)."""
             await self._authenticate(request)
-            return {"models": self.ai_gateway.list_models()}
+            return {"models": self.ok_gateway.list_models()}
 
         @app.post("/api/ai/complete")
         async def ai_complete(request: Request):
-            """Run AI completion through the routed gateway."""
+            """Run OK completion through the routed gateway."""
             device_id = await self._authenticate(request)
             body = await request.json()
 
-            ai_request = AIRequest(
+            ai_request = OKRequest(
                 prompt=body.get("prompt", ""),
                 model=body.get("model", ""),
                 system_prompt=body.get("system") or body.get("system_prompt", ""),
@@ -915,7 +917,7 @@ class WizardServer:
                 conversation_id=body.get("conversation_id"),
             )
 
-            response = await self.ai_gateway.complete(ai_request, device_id=device_id)
+            response = await self.ok_gateway.complete(ai_request, device_id=device_id)
             status_code = 200 if response.success else 400
             return JSONResponse(status_code=status_code, content=response.to_dict())
 
@@ -1195,14 +1197,14 @@ class WizardServer:
             if not model:
                 raise HTTPException(status_code=400, detail="Model required")
 
-            # TODO: Implement actual model switching in AI gateway
+            # TODO: Implement actual model switching in OK gateway
             return {"success": True, "model": model, "message": f"Switched to {model}"}
 
         @app.post("/api/services/{service}/{action}")
         async def control_service(service: str, action: str, request: Request):
             """Control service start/stop (TUI endpoint)."""
             await self._authenticate_admin(request)
-            valid_services = ["web-proxy", "gmail-relay", "ai-gateway", "plugin-repo"]
+            valid_services = ["web-proxy", "ok-gateway", "plugin-repo"]
             valid_actions = ["start", "stop", "restart"]
 
             if service not in valid_services:
@@ -1377,7 +1379,7 @@ class WizardServer:
         self, category: str = "all", limit: int = 200, level: Optional[str] = None
     ) -> Dict[str, Any]:
         """Tail recent log lines for dashboard/TUI usage."""
-        log_dir = self.logging_manager.log_dir
+        log_dir = get_logs_root()
         if not log_dir.exists():
             return {
                 "logs": [],
@@ -1387,22 +1389,19 @@ class WizardServer:
                 "stats": {},
             }
 
-        files = sorted(
-            log_dir.glob("*.log"), key=lambda p: p.stat().st_mtime, reverse=True
-        )
-        categories = sorted({p.stem.split("-")[0] for p in files})
+        files = sorted(log_dir.rglob("*.jsonl"), key=lambda p: p.stat().st_mtime, reverse=True)
+        categories = sorted({p.parent.name for p in files})
 
         selected = (category or "all").lower()
         entries: List[Dict[str, Any]] = []
 
         for log_file in files:
-            if selected not in ("all", "") and not log_file.stem.startswith(
-                f"{selected}-"
-            ):
-                continue
+            if selected not in ("all", ""):
+                if log_file.parent.name != selected and log_file.stem.split("-")[0] != selected:
+                    continue
 
             for line in self._tail_file(log_file, max(limit * 3, 200)):
-                parsed = self._parse_log_line(line, log_file.name)
+                parsed = self._parse_log_json(line, log_file.name)
                 if not parsed:
                     continue
                 if level and parsed["level"].lower() != level.lower():
@@ -1419,7 +1418,7 @@ class WizardServer:
             "category": selected,
             "limit": limit,
             "categories": categories,
-            "stats": self.logging_manager.get_log_stats(),
+            "stats": get_log_stats(),
         }
 
     def _tail_file(self, path: Path, max_lines: int) -> List[str]:
@@ -1433,27 +1432,29 @@ class WizardServer:
             return []
         return list(buf)
 
-    def _parse_log_line(self, line: str, filename: str) -> Optional[Dict[str, Any]]:
-        """Parse a log line emitted by LoggingManager format."""
-        match = self.LOG_LINE_PATTERN.match(line)
-        if not match:
+    def _parse_log_json(self, line: str, filename: str) -> Optional[Dict[str, Any]]:
+        """Parse a JSONL log line from v1.3 logging API."""
+        try:
+            payload = json.loads(line)
+        except Exception:
             return None
 
-        ts_raw = match.group("timestamp")
+        ts_raw = payload.get("ts") or payload.get("timestamp")
         try:
-            ts_dt = datetime.strptime(ts_raw, "%Y-%m-%d %H:%M:%S")
+            ts_dt = datetime.fromisoformat(ts_raw.replace("Z", "+00:00"))
             ts_iso = ts_dt.isoformat()
-        except ValueError:
+        except Exception:
             ts_dt = datetime.min
-            ts_iso = ts_raw
+            ts_iso = ts_raw or ""
 
         return {
             "timestamp": ts_iso,
             "timestamp_sort": ts_dt,
-            "level": match.group("level"),
-            "category": match.group("category"),
-            "source": match.group("source") or "wizard",
-            "message": match.group("message"),
+            "level": payload.get("level", ""),
+            "category": payload.get("category", ""),
+            "component": payload.get("component", ""),
+            "event": payload.get("event", ""),
+            "message": payload.get("msg", ""),
             "file": filename,
         }
 
@@ -1515,8 +1516,7 @@ class WizardServer:
             if entry and entry.value and hmac.compare_digest(token, entry.value):
                 return
         except SecretStoreError as exc:
-            logger = self.logging_manager.get_logger("wizard-server")
-            logger.warning(f"[WIZ] Secret store error during auth: {exc}")
+            self.logger.warn("[WIZ] Secret store error during auth: %s", exc)
             if not env_token:
                 raise HTTPException(status_code=503, detail="Admin secret store locked")
 
@@ -1633,6 +1633,14 @@ class WizardServer:
         from wizard.services.interactive_console import WizardConsole
 
         app = self.create_app()
+        self.logger.info(
+            "Wizard server starting",
+            ctx={
+                "host": host or self.config.host,
+                "port": port or self.config.port,
+                "interactive": interactive,
+            },
+        )
 
         if interactive:
             # Run server in background with interactive console in foreground
@@ -1654,6 +1662,7 @@ class WizardServer:
 
                 # Wait a moment for server to start
                 await asyncio.sleep(1)
+                self.logger.info("Wizard server ready")
 
                 # Open dashboard in browser
                 dashboard_url = (

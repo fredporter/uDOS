@@ -169,7 +169,6 @@ def create_config_routes(auth_guard=None):
         "assistant_keys": "assistant_keys.json",
         "github_keys": "github_keys.json",
         "oauth": "oauth_providers.json",
-        "hubspot_keys": "hubspot_keys.json",
         "wizard": "wizard.json",
     }
 
@@ -178,7 +177,6 @@ def create_config_routes(auth_guard=None):
         "assistant_keys": "Assistant Keys",
         "github_keys": "GitHub Keys",
         "oauth": "OAuth Providers",
-        "hubspot_keys": "HubSpot Keys",
         "wizard": "Wizard",
     }
 
@@ -253,14 +251,6 @@ def create_config_routes(auth_guard=None):
                     config["github_push_enabled"] = True
                     changed = True
 
-        elif file_id == "hubspot_keys":
-            has_key = bool(content.get("api_key_id") or content.get("api_key"))
-            if has_key:
-                changed |= _enable_provider(config, "hubspot")
-                if not config.get("hubspot_enabled"):
-                    config["hubspot_enabled"] = True
-                    changed = True
-
         elif file_id == "assistant_keys":
             ai_key_map = {
                 "OPENAI_API_KEY": "openai",
@@ -274,8 +264,8 @@ def create_config_routes(auth_guard=None):
                 if content.get(key):
                     changed |= _enable_provider(config, provider_id)
             if any(content.get(k) for k in ai_key_map.keys()):
-                if not config.get("ai_gateway_enabled"):
-                    config["ai_gateway_enabled"] = True
+                if not config.get("ok_gateway_enabled"):
+                    config["ok_gateway_enabled"] = True
                     changed = True
 
         if changed:

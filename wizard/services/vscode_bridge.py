@@ -13,7 +13,7 @@ from pydantic import BaseModel
 
 # Core imports
 try:
-    from wizard.services.logging_manager import get_logger
+    from wizard.services.logging_api import get_logger
     from core.version import get_all_versions
 
     UDOS_AVAILABLE = True

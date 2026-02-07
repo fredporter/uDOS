@@ -18,7 +18,7 @@ import urllib.error
 from pathlib import Path
 from typing import Optional, Tuple
 from datetime import datetime
-from wizard.services.logging_manager import get_logging_manager
+from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 
 
@@ -26,7 +26,7 @@ class URLToMarkdownService:
     """Convert URLs to Markdown format."""
 
     def __init__(self):
-        self.logger = get_logging_manager().get_logger("url-to-markdown")
+        self.logger = get_logger("wizard", category="url-to-markdown", name="url-to-markdown")
         self.repo_root = get_repo_root()
         self.library_path = self.repo_root / "library" / "url-to-markdown"
         self.outbox_path = self.repo_root / "memory" / "sandbox" / "outbox"

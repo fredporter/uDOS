@@ -16,7 +16,7 @@ Commands:
 from typing import Dict, List, Optional
 from .base import BaseCommandHandler
 from core.services.location_migration_service import LocationMigrator
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 
 logger = get_logger("migrate_handler")
 

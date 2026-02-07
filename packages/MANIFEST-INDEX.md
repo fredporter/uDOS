@@ -36,7 +36,7 @@ Always-on services (port 8765, stable API):
 | ------------------------- | -------- | ----------------- | ------------------------------------------------- |
 | **udos-wizard**           | v1.1.0.0 | production-stable | Device auth, plugin repo, AI routing (port 8765)  |
 | **udos-github-service**   | v1.0.4.0 | NEW               | Repo sync, webhooks, PR/issue mgmt                |
-| **udos-ai-gateway**       | v1.0.0.0 | stable            | Mistral, OpenRouter, Ollama (local-first)         |
+| **udos-ok-gateway**       | v1.0.0.0 | stable            | Mistral, OpenRouter, Ollama (local-first)         |
 | **udos-workflow-manager** | v1.0.4.0 | NEW               | Organic cron, SQLite-backed tasks                 |
 | **udos-sonic**            | v1.0.1.0 | alpha             | Sonic Screwdriver USB builder (plan + Linux exec) |
 | **udos-sonic-datasets**   | v1.0.0.0 | NEW               | Device catalog in uDOS format (Markdown+JSON+SQL) |
@@ -130,7 +130,7 @@ packages/
   wizard/
     ✅ udos-wizard.manifest.json
     ✅ udos-github-service.manifest.json
-    ✅ udos-ai-gateway.manifest.json
+    ✅ udos-ok-gateway.manifest.json
     ✅ udos-workflow-manager.manifest.json
   sonic/
     ✅ udos-sonic-datasets.manifest.json
@@ -167,7 +167,7 @@ All manifests reference secret_store (Fernet-encrypted tomb):
 | ----------- | ----------------------------------------------- |
 | Wizard      | device-auth-key, rate-limit-budget              |
 | GitHub      | github-personal-main, github-webhook-secret     |
-| AI Gateway  | ai-mistral-main, ai-openrouter, budget-tracking |
+| OK Gateway  | ai-mistral-main, ai-openrouter, budget-tracking |
 | HubSpot CRM | hubspot-private-app-token                       |
 
 ---
@@ -249,7 +249,7 @@ udos-api (v1.1.0.0)
 ```
 udos-wizard (v1.1.0.0, port 8765)
   ├─ udos-github-service (v1.0.4.0)
-  ├─ udos-ai-gateway (v1.0.0.0)
+  ├─ udos-ok-gateway (v1.0.0.0)
   ├─ udos-workflow-manager (v1.0.4.0)
   ├─ udos-sonic-datasets (v1.0.0.0)
   └─ udos-empire-crm (v1.0.4.0)

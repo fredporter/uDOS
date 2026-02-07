@@ -27,7 +27,7 @@ import json
 
 from core.utils.tty import interactive_tty_status
 
-from core.services.logging_service import get_logger, LogTags
+from core.services.logging_api import get_logger, LogTags
 
 logger = get_logger("tui-form-handler")
 

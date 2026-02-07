@@ -395,7 +395,7 @@ sudo systemctl start udos-wizard-web
 ### Phase 2: Enhanced UI (Next)
 - Plugin manager page
 - BizIntel dashboard
-- AI gateway UI
+- OK gateway UI
 - Cost tracking graphs
 - Advanced filtering/search
 

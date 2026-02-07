@@ -29,7 +29,7 @@ from dataclasses import dataclass, field, asdict
 from enum import Enum
 from collections import defaultdict
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 
 logger = get_logger("cost-tracking")
 

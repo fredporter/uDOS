@@ -9,7 +9,7 @@ from typing import Dict, List, Optional
 
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
-from core.services.logging_service import get_repo_root
+from core.services.logging_api import get_repo_root
 from core.services.user_service import get_user_manager, Permission
 from core.tui.output import OutputToolkit
 

@@ -218,9 +218,9 @@ Edit `wizard/config/ai_keys.example.json`:
 
 ---
 
-### Step 3: Configure Wizard AI Gateway
+### Step 3: Configure Wizard OK Gateway
 
-Edit `wizard/config/ai_gateway.json`:
+Edit `wizard/config/ok_gateway.json`:
 
 ```json
 {
@@ -293,7 +293,7 @@ curl -X POST http://localhost:8765/api/ai/route \
 
 ### Automatic Route Selection
 
-The Wizard AI Gateway automatically chooses based on:
+The Wizard OK Gateway automatically chooses based on:
 
 ```
 ┌─────────────────────┐
@@ -387,9 +387,9 @@ uDOS needs AI-generated vector graphics for documentation, diagrams, and interfa
 **Local (Mistral Small):**
 
 ```python
-from wizard.services.ai_gateway import AIGateway
+from wizard.services.ok_gateway import OKGateway
 
-gateway = AIGateway()
+gateway = OKGateway()
 svg = await gateway.query(
     prompt="""Generate an SVG diagram of a distributed system:
     - 3 nodes (circles labeled A, B, C)
@@ -536,11 +536,11 @@ tail -f memory/logs/api_server.log | grep openrouter
 
 ```python
 # core/commands/review_handler.py
-from wizard.services.ai_gateway import AIGateway
+from wizard.services.ok_gateway import OKGateway
 
 class ReviewHandler(BaseHandler):
     async def handle_review(self, code: str):
-        gateway = AIGateway()
+        gateway = OKGateway()
 
         review = await gateway.query(
             prompt=f"Review this Python code:\n{code}",
@@ -556,7 +556,7 @@ class ReviewHandler(BaseHandler):
 # wizard/services/graphics_service.py
 async def generate_diagram(description: str) -> str:
     """Generate stylized SVG diagram from description"""
-    gateway = AIGateway()
+    gateway = OKGateway()
 
     svg = await gateway.query(
         prompt=f"""Generate an SVG diagram:
@@ -579,10 +579,10 @@ async def generate_diagram(description: str) -> str:
 # bin/doc-assistant
 #!/usr/bin/env python3
 import sys
-from wizard.services.ai_gateway import AIGateway
+from wizard.services.ok_gateway import OKGateway
 
 async def help_with_docs(topic: str):
-    gateway = AIGateway()
+    gateway = OKGateway()
 
     help_text = await gateway.query(
         prompt=f"""Help write documentation for: {topic}
@@ -689,7 +689,7 @@ curl http://localhost:8765/api/health
 
 - [Ollama Documentation](https://ollama.ai)
 - [OpenRouter Models](https://openrouter.ai)
-- [Wizard AI Gateway](../../wizard/services/ai_gateway.py)
+- [Wizard OK Gateway](../../wizard/services/ok_gateway.py)
 - [Vibe (Mistral CLI)](https://github.com/mistralai/vibe)
 - [Model Routing Policy](../decisions/wizard-model-routing-policy.md)
 

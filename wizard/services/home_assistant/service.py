@@ -13,7 +13,7 @@ from pathlib import Path
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from contextlib import asynccontextmanager
 
-from wizard.services.logging_manager import get_logger
+from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 from wizard.services.home_assistant.gateway.manager import GatewayManager
 from wizard.services.home_assistant.schemas.gateway import GatewayConfigSchema

@@ -17,7 +17,7 @@ from core.commands.base import BaseCommandHandler
 from core.services.hot_reload import get_hot_reload_manager
 
 try:
-    from core.services.logging_service import get_logger
+    from core.services.logging_api import get_logger
     logger = get_logger("reload-handler")
 except ImportError:
     import logging

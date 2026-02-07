@@ -26,7 +26,7 @@ from typing import Optional, Dict, Tuple
 from datetime import datetime
 import base64
 
-from core.services.logging_service import get_logger, get_repo_root
+from core.services.logging_api import get_logger, get_repo_root
 
 logger = get_logger("identity-encryption")
 

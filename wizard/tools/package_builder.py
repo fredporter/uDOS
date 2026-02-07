@@ -23,7 +23,7 @@ import sys
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 
 logger = get_logger("wizard-packaging")
 
