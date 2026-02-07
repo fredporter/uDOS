@@ -313,6 +313,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "category": "Advanced",
             "syntax": "WIZARD <REBUILD>",
         },
+        "EMPIRE": {
+            "description": "Empire extension control (private)",
+            "usage": "EMPIRE START | EMPIRE STOP | EMPIRE REBUILD",
+            "example": "EMPIRE START",
+            "notes": "Starts/stops the private Empire extension and opens the suite",
+            "category": "Advanced",
+            "syntax": "EMPIRE <START|STOP|REBUILD>",
+        },
         "STORY": {
             "description": "Run story format files",
             "usage": "STORY [file] | STORY PARSE <file> | STORY NEW <name>",

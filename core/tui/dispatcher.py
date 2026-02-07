@@ -27,6 +27,7 @@ from core.commands import (
     ConfigHandler,
     ProviderHandler,
     WizardHandler,
+    EmpireHandler,
     PatternHandler,
     SonicHandler,
     MusicHandler,
@@ -111,6 +112,7 @@ class CommandDispatcher:
             "CONFIG": ConfigHandler(),
             "PROVIDER": ProviderHandler(),
             "WIZARD": WizardHandler(),
+            "EMPIRE": EmpireHandler(),
             "INTEGRATION": IntegrationHandler(),
             # Binder (Core)
             "BINDER": BinderHandler(),

@@ -186,6 +186,10 @@ def __getattr__(name):
         from .wizard_handler import WizardHandler
 
         return WizardHandler
+    elif name == "EmpireHandler":
+        from .empire_handler import EmpireHandler
+
+        return EmpireHandler
     elif name == "InteractiveMenuMixin":
         from .interactive_menu_mixin import InteractiveMenuMixin
 
@@ -234,6 +238,8 @@ __all__ = [
     "ConfigHandler",
     "ProviderHandler",
     "WizardHandler",
+    "EmpireHandler",
+    "EmpireHandler",
     "BinderHandler",
     "RunHandler",
     "StoryHandler",
