@@ -67,6 +67,10 @@ class AutocompleteService:
                     "--cycle",
                 ],
             },
+            "OK": {
+                "description": "Local Vibe helpers",
+                "options": ["LOCAL", "EXPLAIN", "DIFF", "PATCH", "VIBE", "FALLBACK"],
+            },
             "REPAIR": {
                 "description": "Fix system issues",
                 "options": ["--pull", "--upgrade-all"],
