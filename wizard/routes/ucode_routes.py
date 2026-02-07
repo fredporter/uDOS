@@ -56,6 +56,7 @@ def _default_allowlist() -> set[str]:
         "REPLY",
         "LOGS",
         "REPAIR",
+        "SHAKEDOWN",
         "REBOOT",
         "PATTERN",
         "SONIC",
@@ -254,6 +255,17 @@ def create_ucode_routes(auth_guard=None):
         client = MistralAPI()
         return client.chat(prompt, model=model), model
 
+    def _get_ok_cloud_status() -> Dict[str, Any]:
+        try:
+            from wizard.services.mistral_api import MistralAPI
+
+            client = MistralAPI()
+            if client.available():
+                return {"ready": True, "issue": None}
+            return {"ready": False, "issue": "mistral api key missing"}
+        except Exception as exc:
+            return {"ready": False, "issue": str(exc)}
+
     def _run_ok_local(prompt: str, model: Optional[str] = None) -> str:
         from wizard.services.vibe_service import VibeService, VibeConfig
 
@@ -358,6 +370,7 @@ def create_ucode_routes(auth_guard=None):
     @router.get("/ok/status")
     async def get_ok_status() -> Dict[str, Any]:
         status = _get_ok_local_status()
+        cloud_status = _get_ok_cloud_status()
         config = _load_ai_modes_config()
         mode = (config.get("modes") or {}).get("ofvibe", {})
         declared_models = [m.get("name") for m in (mode.get("models") or []) if m.get("name")]
@@ -374,6 +387,7 @@ def create_ucode_routes(auth_guard=None):
                 "default_model": _get_ok_default_model(),
                 "default_models": default_models,
                 "declared_models": declared_models,
+                "cloud": cloud_status,
             },
         }
 
@@ -569,6 +583,13 @@ def create_ucode_routes(auth_guard=None):
                 response_text = None
 
                 if parsed.get("use_cloud"):
+                    from wizard.services.mistral_api import MistralAPI
+                    if not MistralAPI().available():
+                        logger.warn(
+                            "OK cloud rejected (missing Mistral key)",
+                            ctx={"corr_id": corr_id},
+                        )
+                        raise HTTPException(status_code=400, detail="Mistral API key required for cloud OK")
                     try:
                         response_text, model = _run_ok_cloud(prompt)
                         source = "cloud"

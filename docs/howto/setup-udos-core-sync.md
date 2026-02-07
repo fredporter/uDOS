@@ -40,7 +40,6 @@ README.md         → Auto-generated public README
 ```
 /app/             → Tauri app (separate repo)
 /app-beta/        → Beta app (separate repo)
-/empire/          → Personal CRM (private only)
 /memory/          → User data (gitignored)
 /wizard/server.py → Contains secrets/config
 /.github/         → CI configs (avoid workflow loops)

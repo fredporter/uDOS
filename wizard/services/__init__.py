@@ -1,9 +1,8 @@
 """
-Wizard Services - AI, Gmail, rate limiting, plugins
+Wizard Services - AI, rate limiting, plugins
 """
 
 from .ok_gateway import OKGateway
-from .gmail_relay import GmailRelay
 from .rate_limiter import RateLimiter
 from .cost_tracking import CostTracker
 from .plugin_factory import PluginFactory
@@ -12,7 +11,6 @@ from .teletext_patterns import TeletextPatternService, PatternName
 
 __all__ = [
     "OKGateway",
-    "GmailRelay",
     "RateLimiter",
     "CostTracker",
     "PluginFactory",
@@ -29,7 +27,6 @@ from .task_classifier import TaskClassifier, TaskProfile
 
 __all__ = [
     "OKGateway",
-    "GmailRelay",
     "RateLimiter",
     "CostTracker",
     "PluginFactory",

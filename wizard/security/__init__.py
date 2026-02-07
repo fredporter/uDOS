@@ -20,7 +20,6 @@ def get_wizard_key(key_name: str) -> Optional[str]:
     
     Supported keys:
         - ai_api_key: AI provider API key
-        - gmail_token: Gmail refresh token
         - device_secret: Device authentication secret
     """
     # For now, return None (stub implementation)

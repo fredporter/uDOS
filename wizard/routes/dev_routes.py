@@ -40,6 +40,7 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
         _ensure_admin_dev_access()
+        _ensure_dev_submodule()
         logger.debug("Dev health check requested")
         return dev_mode.get_health()
 
@@ -48,6 +49,7 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
         _ensure_admin_dev_access()
+        _ensure_dev_submodule()
         logger.debug("Dev status requested")
         return dev_mode.get_status()
 
@@ -95,6 +97,7 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
         _ensure_admin_dev_access()
+        _ensure_dev_submodule()
         try:
             return dev_mode.get_logs(lines)
         except Exception as exc:

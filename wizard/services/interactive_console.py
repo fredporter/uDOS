@@ -373,11 +373,6 @@ class WizardConsole:
                 "version": "1.0.0",
                 "description": "Web content fetching",
             },
-            "Gmail Relay": {
-                "enabled": self.config.gmail_relay_enabled,
-                "version": "1.0.0",
-                "description": "Email relay service",
-            },
             "GitHub Monitor": {
                 "enabled": True,
                 "version": "1.0.0",
@@ -458,7 +453,6 @@ class WizardConsole:
         print(f"\n  Service Toggles:")
         print(f"    • Plugin Repo: {self.config.plugin_repo_enabled}")
         print(f"    • Web Proxy: {self.config.web_proxy_enabled}")
-        print(f"    • Gmail Relay: {self.config.gmail_relay_enabled}")
         print(f"    • OK Gateway: {self.config.ok_gateway_enabled}")
         print()
 

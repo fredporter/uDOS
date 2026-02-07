@@ -56,7 +56,6 @@ wizard/
 │   ├── sync_executor.py       # Sync queue processing to local mirrors
 │   ├── task_scheduler.py      # Organic cron scheduling
 │   ├── workflow_manager.py    # Local project/task management
-│   └── gmail_relay.py (hooks) # Wizard-only relay
 ├── routes/
 │   ├── ai_routes.py           # /api/ai/* routes (OK gateway)
 │   ├── binder_routes.py       # /api/binder/* routes

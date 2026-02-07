@@ -8,7 +8,7 @@
 
 We're moving away from **pure package structure** (`__init__.py` everywhere) to a **hybrid model**:
 - **Core infrastructure** stays as packages (logging, config, user mgmt)
-- **Self-contained modules** become containers (groovebox, empire, sonic)
+- **Self-contained modules** become containers (groovebox, sonic)
 - **Test structure** unifies in `memory/tests/`
 
 ## What This Means for You
@@ -30,7 +30,6 @@ from wizard.services.config import load_config
 ### 🔄 Migrate to Containers
 ```
 groovebox/              # → /library/groovebox/container.json
-empire/                 # → /library/empire/container.json
 sonic/                  # → /library/sonic/container.json (coming)
 ```
 
@@ -77,7 +76,6 @@ python memory/tests/test_logging.py
 
 # Test containerized modules
 python memory/tests/test_groovebox.py  # Imports via registry
-python memory/tests/test_empire.py     # Imports via registry
 
 # Shakedown (full system)
 ./start_udos.sh memory/tests/shakedown-script.md
@@ -96,13 +94,12 @@ python memory/tests/test_empire.py     # Imports via registry
 ## Migration Timeline
 
 **Phase 1 (Done)** ✅
-- Created container definitions for groovebox, empire
+- Created container definitions for groovebox
 - Added ServiceRegistry pattern
 - Updated .gitignore
 
 **Phase 2 (Next)**
 - Update groovebox tests to use registry
-- Update empire tests to use registry
 - Remove direct imports from containerized modules
 
 **Phase 3 (Later)**
@@ -155,7 +152,7 @@ EOF
 A: No. Direct imports still work. Start with new code.
 
 **Q: When can I delete `__init__.py`?**
-A: Only in containerized modules (groovebox, empire). Core modules keep them.
+A: Only in containerized modules (groovebox, sonic). Core modules keep them.
 
 **Q: What's `/library/containers/`?**
 A: Local clones of containerized repos. Never committed. Used for testing/development.

@@ -164,10 +164,10 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         "SHAKEDOWN": {
             "description": "System validation and diagnostics",
             "usage": "SHAKEDOWN",
-            "example": "SHAKEDOWN",
-            "notes": "Checks core components, handlers, locations",
+            "example": "SHAKEDOWN --cycle",
+            "notes": "Checks core components, handlers, locations. --cycle performs a dry-run command sweep",
             "category": "System & Maintenance",
-            "syntax": "SHAKEDOWN [--verbose] [--focus <module>]",
+            "syntax": "SHAKEDOWN [--detailed] [--fresh] [--destroy-verify] [--cycle]",
         },
         "REBOOT": {
             "description": "Hot reload handlers and restart the TUI",

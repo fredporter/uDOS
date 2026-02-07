@@ -4,7 +4,7 @@ Workflow management + call-rotation + organic automation (concept)
 
 Projects (aka Missions) layer that turns “do this thing” into a living work plan that runs steadily over time, rotates provider calls, respects daily quotas, and builds durable “binders” of linked knowledge — while staying compatible with:
 	•	uDOS Core (TUI only)
-	•	Wizard Server (always-on jobs, web hooks, scraping, mail, packaging, routing)
+	•	Wizard Server (always-on jobs, web hooks, packaging, routing)
 	•	Dev operations via VS Code + Vib CLI
 	•	Local runtimes (Ollama/LocalAI) for privacy/offline and “house models”
 
@@ -49,7 +49,7 @@ This keeps work steady, paced, and quota-aware, improving output quality over mu
 
 3.2 Wizard Server (control plane)
 	•	Runs scheduler + worker queue
-	•	Handles web scraping, crawling, extraction, email send/receive
+	•	Handles job orchestration, web proxy access, extraction, packaging
 	•	Hosts routing policy for provider rotation
 	•	Maintains project storage (binders, indexes, logs, artefacts)
 
@@ -75,7 +75,7 @@ Internally, treat these as Agents with capabilities and costs.
 	•	task_graph: tasks + dependencies
 
 4.2 Task
-	•	type: research | scrape | summarise | compare | code | write | verify | export
+	•	type: research | capture | summarise | compare | code | write | verify | export
 	•	inputs: URLs, queries, prior notes, files, schemas
 	•	outputs: binder updates, docs, code patches, datasets
 	•	quality_target: draft | standard | publish-ready
@@ -141,7 +141,7 @@ Local (Ollama/LocalAI) draft
 
 Store as versioned assets:
 	•	system_style (tone, formatting rules, citations policy)
-	•	task_templates (scrape, summarise, compare, code review, etc.)
+	•	task_templates (capture, summarise, compare, code review, etc.)
 	•	project_overlays (domain-specific terminology and goals)
 	•	checklists (quality gates)
 
@@ -227,7 +227,7 @@ PROJECT POLICY SET rotate on
 PROJECT POLICY SET daily_budget_calls 200
 
 TASK ADD research.scout --query "Audience engagement platforms 2026" --cadence daily
-TASK ADD scrape.capture --sources from:research.scout --cadence daily
+TASK ADD capture.collect --sources from:research.scout --cadence daily
 TASK ADD synth.chapter --chapter "Competitive Landscape" --cadence weekly
 TASK ADD verify.claims --cadence weekly
 
@@ -293,7 +293,7 @@ Optional:
 [ Wizard Server: Control Plane ]
   - Scheduler (organic cron)
   - Policy (rotation + quotas)
-  - Workers (scrape/synth/verify)
+  - Workers (capture/synth/verify)
   - Storage (binders, runs, prompts)
         |
         +------------------------------+

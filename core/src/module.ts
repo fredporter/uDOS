@@ -27,3 +27,7 @@ export {
   ExecutorFactory,
 } from './executors'
 export * from './types'
+export * from './emoji'
+export * from './emoji/types'
+export * from './emoji/extract'
+export * from './emoji/replace'

@@ -75,11 +75,6 @@
       label: "OAuth Providers",
       description: "Google, Microsoft, and other OAuth configs",
     },
-    hubspot_keys: {
-      id: "hubspot_keys",
-      label: "HubSpot",
-      description: "HubSpot API key configuration",
-    },
     wizard: {
       id: "wizard",
       label: "Wizard Settings",
@@ -106,22 +101,12 @@
     {
       key: "web_proxy_enabled",
       label: "Web Proxy",
-      description: "Permit Wizard to reach the web for APIs and scraping",
-    },
-    {
-      key: "gmail_relay_enabled",
-      label: "Gmail Relay",
-      description: "Send email via the configured Gmail relay",
+      description: "Permit Wizard to reach the web for APIs and content",
     },
     {
       key: "github_push_enabled",
       label: "GitHub Push",
       description: "Allow Wizard to push commits to GitHub",
-    },
-    {
-      key: "hubspot_enabled",
-      label: "HubSpot",
-      description: "Enable HubSpot CRM integration",
     },
     {
       key: "icloud_enabled",
@@ -142,12 +127,6 @@
       label: "GitHub Webhook Secret",
       helper: "Shared secret for webhook validation",
       provider: "github",
-    },
-    {
-      key: "hubspot_api_key",
-      label: "HubSpot API Key",
-      helper: "HubSpot CRM API key",
-      provider: "hubspot",
     },
     {
       key: "openrouter_api_key",
@@ -193,13 +172,6 @@
   let pullPollers = {};
   let copiedModel = null;
 
-  // HubSpot CLI management
-  let showHubSpot = false;
-  let hubspotCliStatus = null;
-  let hubspotAccounts = [];
-  let isInstallingHubSpot = false;
-  let isLoadingHubSpotStatus = false;
-
   // Import/Export
   let showExportModal = false;
   let showImportModal = false;
@@ -239,7 +211,7 @@
     {
       id: "integrations",
       title: "Integrations & Tools",
-      description: "GitHub, HubSpot, and other non-AI services.",
+      description: "GitHub and other non-AI services.",
       providers: nonAiProviders,
     },
     {
@@ -1055,69 +1027,6 @@
     }
   }
 
-  // HubSpot CLI Functions
-  function toggleHubSpot() {
-    showHubSpot = !showHubSpot;
-    if (showHubSpot) {
-      loadHubSpotStatus();
-      loadHubSpotAccounts();
-    }
-  }
-
-  async function loadHubSpotStatus() {
-    isLoadingHubSpotStatus = true;
-    try {
-      const response = await apiFetch("/api/providers/hubspot/cli/status");
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      hubspotCliStatus = await response.json();
-    } catch (err) {
-      setStatus(`Failed to load HubSpot CLI status: ${err.message}`, "error");
-      hubspotCliStatus = null;
-    } finally {
-      isLoadingHubSpotStatus = false;
-    }
-  }
-
-  async function loadHubSpotAccounts() {
-    try {
-      const response = await apiFetch("/api/providers/hubspot/cli/accounts");
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      hubspotAccounts = data.accounts || [];
-    } catch (err) {
-      hubspotAccounts = [];
-    }
-  }
-
-  async function installHubSpotCLI() {
-    if (isInstallingHubSpot) return;
-    if (!confirm("Install @hubspot/cli via npm? This may take 1-2 minutes."))
-      return;
-
-    isInstallingHubSpot = true;
-    setStatus("Installing HubSpot CLI...", "info");
-
-    try {
-      const response = await apiFetch("/api/providers/hubspot/cli/install", {
-        method: "POST",
-      });
-      const data = await response.json();
-
-      if (!response.ok || data.error) {
-        throw new Error(
-          data.error || data.message || `HTTP ${response.status}`,
-        );
-      }
-
-      setStatus(data.message + " - " + data.next_step, "success");
-      await loadHubSpotStatus();
-    } catch (err) {
-      setStatus(`Failed to install HubSpot CLI: ${err.message}`, "error");
-    } finally {
-      isInstallingHubSpot = false;
-    }
-  }
-
   function isProviderEnabled(provider) {
     if (provider?.enabled === undefined) return true;
     return provider.enabled;
@@ -1519,9 +1428,6 @@
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
               <code class="text-green-400">SETUP mistral</code>
             </div>
-            <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">SETUP hubspot</code>
-            </div>
           </div>
           <div class="mt-2 text-gray-400">
             uCODE will detect missing CLIs, install dependencies, and guide
@@ -1842,8 +1748,7 @@
               <div>CONFIG SHOW - View config status</div>
               <div>CONFIG LIST - List all configs</div>
               <div>
-                SETUP &lt;provider&gt; - Setup github, ollama, mistral, hubspot,
-                etc.
+                SETUP &lt;provider&gt; - Setup github, ollama, mistral, etc.
               </div>
               <div>SETUP --help - Show all SETUP options</div>
             </div>
@@ -2055,182 +1960,6 @@
           >PROVIDER SETUP ollama</code
         >
         in uCODE to verify the local service is running and browse models interactively.
-      </div>
-    {/if}
-  </div>
-
-  <!-- HUBSPOT CLI Section -->
-  <div class="mt-6 bg-gray-800 border border-gray-700 rounded-lg p-6">
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-2">
-        <svg
-          class="w-5 h-5 text-orange-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-          />
-        </svg>
-        <h3 class="text-lg font-semibold text-white">HubSpot Developer CLI</h3>
-      </div>
-      <button
-        class="px-3 py-1.5 text-sm rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
-        on:click={toggleHubSpot}
-      >
-        {showHubSpot ? "▼ Hide" : "▶ Show"}
-      </button>
-    </div>
-
-    {#if showHubSpot}
-      <p class="text-sm text-gray-400 mb-4">
-        Build and deploy HubSpot apps using the new Developer Platform. The CLI
-        manages app creation, local development, and deployment.
-      </p>
-
-      <!-- CLI Status -->
-      <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4">
-        <h4 class="text-sm font-semibold text-white mb-3">🔧 CLI Status</h4>
-
-        {#if isLoadingHubSpotStatus}
-          <div class="text-xs text-gray-500">Checking CLI status...</div>
-        {:else if hubspotCliStatus}
-          <div class="space-y-2">
-            <div class="flex items-center justify-between text-sm">
-              <span class="text-gray-400">Installed:</span>
-              {#if hubspotCliStatus.installed}
-                <span class="text-emerald-400"
-                  >✓ {hubspotCliStatus.version || "Yes"}</span
-                >
-              {:else}
-                <span class="text-red-400">✗ Not installed</span>
-              {/if}
-            </div>
-
-            {#if hubspotCliStatus.installed}
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-400">Authenticated:</span>
-                {#if hubspotCliStatus.authenticated}
-                  <span class="text-emerald-400">✓ Ready</span>
-                {:else}
-                  <span class="text-yellow-400">⚠ Not authenticated</span>
-                {/if}
-              </div>
-            {/if}
-
-            {#if !hubspotCliStatus.installed}
-              <div class="mt-3 pt-3 border-t border-gray-700">
-                <button
-                  class="w-full px-3 py-2 text-sm rounded bg-orange-600 text-white hover:bg-orange-700 transition-colors"
-                  on:click={installHubSpotCLI}
-                  disabled={isInstallingHubSpot}
-                >
-                  {isInstallingHubSpot
-                    ? "⏳ Installing..."
-                    : "📥 Install HubSpot CLI"}
-                </button>
-                <p class="text-xs text-gray-500 mt-2">
-                  Installs via uCODE provider setup (HubSpot CLI)
-                </p>
-              </div>
-            {/if}
-          </div>
-        {/if}
-      </div>
-
-      <!-- Authenticated Accounts -->
-      {#if hubspotCliStatus?.installed}
-        <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4">
-          <h4 class="text-sm font-semibold text-white mb-3">
-            🔑 Authenticated Accounts ({hubspotAccounts.length})
-          </h4>
-
-          {#if hubspotAccounts.length > 0}
-            <div class="space-y-2">
-              {#each hubspotAccounts as account}
-                <div
-                  class="bg-gray-950 border border-gray-700 rounded p-2 text-xs"
-                >
-                  <code class="text-orange-400">{account}</code>
-                </div>
-              {/each}
-            </div>
-          {:else}
-            <div class="text-xs text-gray-500 mb-3">
-              No accounts authenticated yet.
-            </div>
-            <div class="bg-gray-950 border border-yellow-700/50 rounded-lg p-3">
-              <div class="text-sm font-semibold text-yellow-400 mb-2">
-                → Use uCODE:
-              </div>
-              <code class="text-xs text-gray-300 block"
-                >PROVIDER SETUP hubspot_cli</code
-              >
-              <ol class="mt-2 space-y-1 text-xs text-gray-400">
-                <li>1. Authenticate with HubSpot in the browser</li>
-                <li>2. Paste the Personal Access Key when prompted</li>
-                <li>3. Set the default account</li>
-              </ol>
-            </div>
-          {/if}
-        </div>
-      {/if}
-
-      <!-- Quickstart Guide -->
-      <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-        <h4 class="text-sm font-semibold text-white mb-3">📚 uCODE Commands</h4>
-
-        <div class="space-y-3 text-xs">
-          <div class="bg-gray-950 rounded p-3 border border-gray-700">
-            <div class="flex items-center justify-between mb-1">
-              <code class="text-orange-400">PROVIDER SETUP hubspot_cli</code>
-              <span class="text-gray-500">Install + authenticate CLI</span>
-            </div>
-            <p class="text-gray-500">
-              Runs CLI setup and verifies account access
-            </p>
-          </div>
-
-          <div class="bg-gray-950 rounded p-3 border border-gray-700">
-            <div class="flex items-center justify-between mb-1">
-              <code class="text-orange-400">Quick Keys → HubSpot API Key</code>
-              <span class="text-gray-500">Configure API keys</span>
-            </div>
-            <p class="text-gray-500">Stores HubSpot CRM API key in secrets</p>
-          </div>
-        </div>
-
-        <div class="mt-4 pt-4 border-t border-gray-700">
-          <a
-            href="https://developers.hubspot.com/docs/getting-started/quickstart"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-1 text-sm text-orange-400 hover:text-orange-300 transition-colors"
-          >
-            📖 View Full Quickstart Guide
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-              />
-            </svg>
-          </a>
-        </div>
-      </div>
-
-      <div class="mt-4 text-xs text-gray-500">
-        Tip: uCODE commands manage installs + auth while keeping secrets local.
       </div>
     {/if}
   </div>

@@ -179,6 +179,9 @@ ctx = ok.get("context_window") or "?"
 ready = ok.get("ready")
 issue = ok.get("issue")
 endpoint = ok.get("ollama_endpoint")
+cloud = ok.get("cloud") or {}
+cloud_ready = cloud.get("ready")
+cloud_issue = cloud.get("issue")
 
 print("\nVibe Local Status")
 print("------------------")
@@ -193,6 +196,9 @@ else:
         print("Tip: start Ollama with `ollama serve`")
     if msg == "missing model":
         print(f"Tip: pull model with `ollama pull {model}`")
+print("Mistral (cloud):", "ready" if cloud_ready else f"required ({cloud_issue or 'missing key'})")
+if not cloud_ready:
+    print("Tip: set MISTRAL_API_KEY or run SETUP")
 print("Tip: OK EXPLAIN <file> | OK LOCAL")
 PY
 }

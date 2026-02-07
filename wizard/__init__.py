@@ -21,7 +21,6 @@ Components
 - web_proxy.py: Web content fetching for user devices
 - ok_gateway.py: LLM API routing
 - ok_gateway.py: LLM API routing
-- scraper.py: Web content extraction
 
 Security
 --------
@@ -95,4 +94,3 @@ def get_web_service():
     from .web.web_service import WebService
 
     return WebService()
-

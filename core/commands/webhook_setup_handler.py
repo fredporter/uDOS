@@ -1,5 +1,5 @@
 """
-Webhook Setup Handler - Interactive GitHub & HubSpot integration setup.
+Webhook Setup Handler - Interactive GitHub integration setup.
 
 Provides vibe-cli style interactive prompts:
 - Tells you what to do
@@ -9,7 +9,6 @@ Provides vibe-cli style interactive prompts:
 
 Integrations supported:
   - GitHub webhooks (repo push, pull request events)
-  - HubSpot CRM (contacts, deals, automation)
 """
 
 import subprocess
@@ -46,7 +45,7 @@ class WebhookSetupHandler(BaseCommandHandler):
 ║          SETUP WEBHOOK - Interactive Integration Help     ║
 ╚════════════════════════════════════════════════════════════╝
 
-WEBHOOK SETUP connects GitHub and HubSpot to uDOS with interactive prompts.
+WEBHOOK SETUP connects GitHub to uDOS with interactive prompts.
 
 INTERACTIVE FEATURES (vibe-cli style):
   ✓ Step-by-step guidance
@@ -57,9 +56,8 @@ INTERACTIVE FEATURES (vibe-cli style):
 
 AVAILABLE COMMANDS:
 
-  SETUP webhook              Full setup (both GitHub & HubSpot)
+  SETUP webhook              Full setup (GitHub)
   SETUP webhook github       GitHub webhooks only
-  SETUP webhook hubspot      HubSpot CRM only
 
 GITHUB WEBHOOKS:
   Enables uDOS to listen for:
@@ -69,18 +67,10 @@ GITHUB WEBHOOKS:
 
   Requires: GitHub account with repo access
 
-HUBSPOT CRM:
-  Enables uDOS to:
-    • Sync contacts and deals
-    • Manage pipelines
-    • Trigger automations
-
-  Requires: HubSpot account (free or paid)
-
 WORKFLOW:
 
   1. Run: SETUP webhook
-  2. Choose GitHub and/or HubSpot
+  2. Choose GitHub
   3. Follow interactive prompts
   4. URLs open automatically for configuration
   5. Secrets saved to Wizard keystore (encrypted)
@@ -95,7 +85,7 @@ VERIFICATION:
 REQUIREMENTS:
 
   • Wizard Server installed (see: wizard/README.md)
-  • GitHub account OR HubSpot account
+  • GitHub account
   • Internet connection for OAuth/API setup
 
 TROUBLESHOOTING:
@@ -110,15 +100,12 @@ TROUBLESHOOTING:
 
   Webhook not working?
     • See: docs/WEBHOOK-SETUP-SUMMARY.md
-    • Detailed: docs/GITHUB-WEBHOOKS-HUBSPOT-SETUP.md
 
 LEARN MORE:
 
   • docs/WEBHOOK-SETUP-SUMMARY.md       Quick reference
-  • docs/GITHUB-WEBHOOKS-HUBSPOT-SETUP.md Detailed guide
   • wizard/README.md                     Wizard architecture
   • GitHub docs: https://docs.github.com/webhooks
-  • HubSpot docs: https://developers.hubspot.com
 
 ═══════════════════════════════════════════════════════════════
 """
@@ -130,7 +117,6 @@ LEARN MORE:
         Usage:
             SETUP webhook         Run full webhook setup (interactive)
             SETUP webhook github  Setup GitHub webhooks only
-            SETUP webhook hubspot Setup HubSpot only
             SETUP webhook --help  Show help
         """
         if not params or params[0].lower() != "webhook":
@@ -149,24 +135,21 @@ LEARN MORE:
                 return {"status": "success", "output": self._show_webhook_help()}
             elif provider == "github":
                 return self._setup_github_webhook()
-            elif provider == "hubspot":
-                return self._setup_hubspot()
             else:
                 return {"status": "error", "message": f"Unknown webhook provider: {provider}"}
 
-        # Full interactive setup (both GitHub and HubSpot)
+        # Full interactive setup (GitHub)
         return self._run_full_webhook_setup()
 
     def _run_full_webhook_setup(self) -> Dict:
-        """Run interactive setup for GitHub & HubSpot webhooks."""
+        """Run interactive setup for GitHub webhooks."""
         lines = []
         lines.append("\n" + "=" * 70)
-        lines.append("🔗  WEBHOOK SETUP - GitHub & HubSpot Integration")
+        lines.append("🔗  WEBHOOK SETUP - GitHub Integration")
         lines.append("=" * 70 + "\n")
 
         lines.append("This setup will guide you through connecting:")
-        lines.append("  1. GitHub webhooks (push, pull request, issues)")
-        lines.append("  2. HubSpot CRM integration (contacts, deals, automation)\n")
+        lines.append("  1. GitHub webhooks (push, pull request, issues)\n")
 
         lines.append("Each integration requires:")
         lines.append("  • You create an app/key on the external platform")
@@ -180,7 +163,6 @@ LEARN MORE:
 
         results = {
             "github": self._setup_github_webhook(),
-            "hubspot": self._setup_hubspot()
         }
 
         return {
@@ -260,96 +242,6 @@ LEARN MORE:
                 "message": "Failed to save GitHub webhook secret"
             }
 
-    def _setup_hubspot(self) -> Dict:
-        """Interactive HubSpot setup with vibe-cli UX."""
-        print("\n" + "-" * 70)
-        print("🎯  HUBSPOT CRM SETUP")
-        print("-" * 70 + "\n")
-
-        print("HubSpot integration allows uDOS to:")
-        print("  • Sync contacts from your CRM")
-        print("  • Manage deals and pipelines")
-        print("  • Automate tasks and workflows")
-        print("  • Receive webhook notifications\n")
-
-        # Step 1: Create Private App
-        print("Step 1: Create HubSpot Private App")
-        print("-" * 70)
-        print("\nYou'll create a Private App in HubSpot with the following scopes:\n")
-
-        scopes = [
-            "crm.objects.contacts.read",
-            "crm.objects.contacts.write",
-            "crm.objects.deals.read",
-            "crm.objects.deals.write",
-            "crm.objects.companies.read",
-            "crm.lists.read",
-            "automation.actions.read"
-        ]
-
-        for i, scope in enumerate(scopes, 1):
-            print(f"  {i}. {scope}")
-
-        print("\nLet's open HubSpot Developer Portal...")
-        response = input("Press ENTER to open HubSpot apps: ").strip()
-
-        try:
-            webbrowser.open("https://developers.hubspot.com/apps")
-        except Exception as e:
-            logger.warning(f"[WIZ] Could not open browser: {e}")
-            print("👉 Please manually visit: https://developers.hubspot.com/apps")
-
-        # Step 2: Get access token
-        print("\n" + "-" * 70)
-        print("\nNext steps in HubSpot:")
-        print("  1. Click 'Create app'")
-        print("  2. Name it 'uDOS'")
-        print("  3. Go to 'Scopes' tab")
-        print("  4. Select the scopes listed above")
-        print("  5. Go to 'Install app' tab")
-        print("  6. Click 'Install'")
-        print("  7. On the next screen, you'll see the access token\n")
-
-        # Step 3: Retrieve and save token
-        print("Step 2: Copy and save your HubSpot API key")
-        print("-" * 70 + "\n")
-
-        print("Paste your HubSpot API key (pat-xxx format):")
-        print("(Leave blank to skip)\n")
-
-        token = input("HubSpot API Key: ").strip()
-
-        if not token:
-            print("Skipping HubSpot setup.\n")
-            return {
-                "status": "skipped",
-                "provider": "hubspot",
-                "message": "HubSpot setup skipped"
-            }
-
-        if not token.startswith("pat-"):
-            print("⚠️  Warning: API key should start with 'pat-'\n")
-
-        # Save to keystore
-        print("Saving HubSpot API key to Wizard keystore...")
-        success = self._save_hubspot_token(token)
-
-        if success:
-            print("✅ HubSpot API key saved!\n")
-            return {
-                "status": "success",
-                "provider": "hubspot",
-                "secret_id": "hubspot_api_key",
-                "message": "HubSpot integration configured successfully"
-            }
-        else:
-            print("⚠️  Could not save token. Check Wizard keystore is accessible.\n")
-            return {
-                "status": "error",
-                "provider": "hubspot",
-                "message": "Failed to save HubSpot API key"
-            }
-
     def _generate_github_secret(self) -> Optional[str]:
         """Generate GitHub webhook secret using Wizard tools."""
         try:
@@ -400,30 +292,6 @@ LEARN MORE:
             logger.error(f"[WIZ] Error saving GitHub secret: {e}")
             return False
 
-    def _save_hubspot_token(self, token: str) -> bool:
-        """Save HubSpot API key to Wizard keystore."""
-        try:
-            result = subprocess.run(
-                [
-                    sys.executable, "-m",
-                    "wizard.tools.secret_store_cli",
-                    "set", "hubspot_api_key", token
-                ],
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
-
-            if result.returncode == 0:
-                logger.info("[WIZ] HubSpot API key saved to keystore")
-                return True
-            else:
-                logger.error(f"[WIZ] Failed to save HubSpot token: {result.stderr}")
-                return False
-        except Exception as e:
-            logger.error(f"[WIZ] Error saving HubSpot token: {e}")
-            return False
-
     def _summarize_setup(self, results: Dict) -> str:
         """Summarize webhook setup results."""
         lines = []
@@ -432,8 +300,6 @@ LEARN MORE:
         lines.append("=" * 70 + "\n")
 
         github_result = results.get("github", {})
-        hubspot_result = results.get("hubspot", {})
-
         if github_result.get("status") == "success":
             lines.append("✅ GitHub webhook configured")
             lines.append("   • Secrets saved to Wizard keystore")
@@ -442,24 +308,16 @@ LEARN MORE:
             lines.append("⚠️  GitHub webhook setup incomplete")
             lines.append(f"   • {github_result.get('message', 'Unknown error')}\n")
 
-        if hubspot_result.get("status") == "success":
-            lines.append("✅ HubSpot integration configured")
-            lines.append("   • API key saved to Wizard keystore")
-            lines.append("   • Ready to sync CRM data\n")
-        elif hubspot_result.get("status") != "skipped":
-            lines.append("⚠️  HubSpot setup incomplete")
-            lines.append(f"   • {hubspot_result.get('message', 'Unknown error')}\n")
-
         lines.append("-" * 70)
         lines.append("\nNext steps:")
         lines.append("  1. Start Wizard server: WIZARD")
         lines.append("  2. Open dashboard: http://localhost:8765")
         lines.append("  3. Go to Settings → Webhooks")
-        lines.append("  4. Verify GitHub & HubSpot are 'Connected'\n")
+        lines.append("  4. Verify GitHub is 'Connected'\n")
 
         lines.append("For troubleshooting:")
         lines.append("  • See: docs/WEBHOOK-SETUP-SUMMARY.md")
-        lines.append("  • Detailed guide: docs/GITHUB-WEBHOOKS-HUBSPOT-SETUP.md\n")
+        lines.append("  • Detailed guide: docs/WEBHOOK-SETUP-SUMMARY.md\n")
 
         lines.append("=" * 70)
 
@@ -476,7 +334,6 @@ Webhook integration requires Wizard Server (port 8765) to be installed.
 
 Wizard manages sensitive data:
   • GitHub webhook secrets
-  • HubSpot API keys
   • OAuth tokens
   • Cloud credentials
 

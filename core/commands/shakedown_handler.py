@@ -13,6 +13,7 @@ Commands:
     SHAKEDOWN --detailed        # Show detailed results
     SHAKEDOWN --fresh           # Validate fresh install
     SHAKEDOWN --destroy-verify  # Verify DESTROY command works
+    SHAKEDOWN --cycle           # Dry-run command cycle
 
 Author: uDOS Engineering
 Version: v1.1.0
@@ -49,6 +50,7 @@ class ShakedownHandler(BaseCommandHandler):
         detailed = "--detailed" in params if params else False
         fresh_install = "--fresh" in params if params else False
         destroy_verify = "--destroy-verify" in params if params else False
+        cycle_commands = "--cycle" in params if params else False
 
         results = {
             "status": "success",
@@ -225,9 +227,34 @@ class ShakedownHandler(BaseCommandHandler):
             output.append("Mode: Fresh install validation enabled")
         if destroy_verify:
             output.append("Mode: DESTROY verification enabled")
+        if cycle_commands:
+            output.append("Mode: Command cycle (dry-run)")
+            output.append("")
+            cycle_lines = self._build_command_cycle()
+            results["command_cycle"] = cycle_lines
+            output.extend(cycle_lines)
 
         results["output"] = "\n".join(output)
         return results
+
+    def _build_command_cycle(self) -> List[str]:
+        """Return a dry-run list of available commands with syntax."""
+        try:
+            from core.input.command_prompt import create_default_registry
+
+            registry = create_default_registry()
+            entries = sorted(registry.list_all(), key=lambda cmd: cmd.name)
+            lines = ["Command cycle (dry-run):"]
+            for idx, cmd in enumerate(entries, 1):
+                syntax = cmd.syntax or cmd.name
+                lines.append(f"  {idx:02d}. {cmd.name} — {syntax}")
+            lines.append(f"Total commands: {len(entries)}")
+            return lines
+        except Exception as exc:
+            return [
+                "Command cycle (dry-run): unavailable",
+                f"  Error: {exc}",
+            ]
 
     def _check_framework_init(self) -> Dict:
         """Check framework initialization."""

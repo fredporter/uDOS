@@ -11,7 +11,6 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 - **Current focus**: version bump + Wizard service split with MCP gateway + Vibe full TUI replacement (high priority refactor).
 - **Dev mode policy**: `/dev/` public submodule required and admin-only; see [docs/DEV-MODE-POLICY.md](docs/DEV-MODE-POLICY.md).
 - **Core/Wizard boundary**: `core` is the base runtime; `wizard` is the brand for connected services. Core can run without Wizard (limited). Wizard cannot run without Core.
-- **Empire track**: `/empire/` is a private commercial submodule; keep separate and soft-fail if missing.
 - **Logging API v1.3**: spec published; implementation pending. See [docs/LOGGING-API-v1.3.md](docs/LOGGING-API-v1.3.md).
 
 ---

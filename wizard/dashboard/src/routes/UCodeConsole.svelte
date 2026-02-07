@@ -42,6 +42,13 @@
   let okSaveStatus = "";
   let okFilePath = "";
   let okRange = "";
+  let logStreamActive = false;
+  let logStreamError = "";
+  let logEntries = [];
+  let logComponent = "wizard";
+  let logName = "wizard-server";
+  let logLimit = 200;
+  let logAbort = null;
   let hotkeys = [];
   let currentUser = null;
   let userList = [];
@@ -703,6 +710,78 @@
     }
   }
 
+  function stopLogStream() {
+    if (logAbort) {
+      logAbort.abort();
+      logAbort = null;
+    }
+    logStreamActive = false;
+  }
+
+  async function startLogStream() {
+    if (!adminToken) return;
+    stopLogStream();
+    logStreamError = "";
+    logEntries = [];
+    logStreamActive = true;
+    logAbort = new AbortController();
+    try {
+      const qs = new URLSearchParams({
+        component: logComponent,
+        name: logName,
+        limit: String(logLimit || 200),
+      });
+      const res = await fetch(`/api/logs/stream?${qs.toString()}`, {
+        headers: buildAuthHeaders(adminToken),
+        signal: logAbort.signal,
+      });
+      if (!res.ok || !res.body) {
+        const detail = await res.text();
+        throw new Error(detail || `HTTP ${res.status}`);
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+      const handleEvent = (block) => {
+        const lines = block.split("\n");
+        let eventType = "message";
+        let data = "";
+        for (const line of lines) {
+          if (line.startsWith("event:")) {
+            eventType = line.slice(6).trim();
+          } else if (line.startsWith("data:")) {
+            data += line.slice(5).trim();
+          }
+        }
+        if (eventType === "log" && data) {
+          logEntries = [...logEntries, data].slice(-200);
+        } else if (eventType === "error" && data) {
+          logStreamError = data;
+        }
+      };
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let idx = buffer.indexOf("\n\n");
+        while (idx !== -1) {
+          const chunk = buffer.slice(0, idx);
+          buffer = buffer.slice(idx + 2);
+          if (chunk.trim()) {
+            handleEvent(chunk);
+          }
+          idx = buffer.indexOf("\n\n");
+        }
+      }
+    } catch (err) {
+      if (err.name !== "AbortError") {
+        logStreamError = err.message || String(err);
+      }
+    } finally {
+      logStreamActive = false;
+    }
+  }
+
   function handleInputKeydown(event) {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
@@ -782,6 +861,7 @@
     window.removeEventListener("keydown", handleGlobalKeydown);
     if (statusTimer) clearInterval(statusTimer);
     if (userTimer) clearInterval(userTimer);
+    stopLogStream();
   });
 </script>
 
@@ -1099,8 +1179,8 @@
           {#each Object.entries(quotas) as [provider, data]}
             <div class="quota-row">
               <div class="quota-title">{provider}</div>
-              <div class="quota-detail">Today: {data.daily?.cost ?? \"-\"} / {data.daily?.budget ?? \"-\"}</div>
-              <div class="quota-detail">Month: {data.monthly?.cost ?? \"-\"} / {data.monthly?.budget ?? \"-\"}</div>
+              <div class="quota-detail">Today: {data.daily?.cost ?? "-"} / {data.daily?.budget ?? "-"}</div>
+              <div class="quota-detail">Month: {data.monthly?.cost ?? "-"} / {data.monthly?.budget ?? "-"}</div>
             </div>
           {/each}
         {:else}
@@ -1122,6 +1202,46 @@
             </div>
           {/each}
         {/if}
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">Live Logs</div>
+      <div class="panel-body">
+        <div class="field">
+          <span class="label">Component</span>
+          <select class="select" bind:value={logComponent}>
+            <option value="wizard">wizard</option>
+            <option value="core">core</option>
+            <option value="script">script</option>
+            <option value="goblin">goblin</option>
+            <option value="extension">extension</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="label">Log name</span>
+          <input class="input" bind:value={logName} placeholder="wizard-server" />
+        </div>
+        <div class="button-row">
+          <button class="ghost-btn" on:click={startLogStream} disabled={logStreamActive}>
+            {logStreamActive ? "Streaming..." : "Start Stream"}
+          </button>
+          <button class="ghost-btn" on:click={stopLogStream} disabled={!logStreamActive}>
+            Stop
+          </button>
+        </div>
+        {#if logStreamError}
+          <div class="text-xs text-red-300 mt-2">{logStreamError}</div>
+        {/if}
+        <div class="log-stream">
+          {#if logEntries.length === 0}
+            <div class="text-gray-400 text-xs">No log events yet.</div>
+          {:else}
+            {#each logEntries as line}
+              <div class="log-line">{line}</div>
+            {/each}
+          {/if}
+        </div>
       </div>
     </section>
   </aside>
@@ -1180,6 +1300,24 @@
   .defaults-value {
     font-family: var(--mdk-font-code);
     color: #f8fafc;
+  }
+
+  .log-stream {
+    margin-top: 0.75rem;
+    background: #0b1120;
+    border: 1px solid rgba(51, 65, 85, 0.6);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    max-height: 240px;
+    overflow-y: auto;
+    font-family: var(--mdk-font-code);
+    font-size: 0.7rem;
+    color: #e2e8f0;
+  }
+
+  .log-line {
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 
   .chip {

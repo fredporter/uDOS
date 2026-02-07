@@ -9,7 +9,6 @@
   "plugin_repo_enabled": true,
   "plugin_auto_update": true,
   "web_proxy_enabled": true,
-  "gmail_relay_enabled": true,
   "ok_gateway_enabled": true,
   "oauth_enabled": false,
   "github_webhook_secret": null,
@@ -20,11 +19,10 @@
   "github_push_enabled": true,
   "compost_cleanup_days": 30,
   "compost_cleanup_dry_run": false,
-  "hubspot_enabled": true,
   "icloud_enabled": true,
   "file_locations": {
     "memory_root": "memory",
     "repo_root": "auto"
   },
-  "enabled_providers": ["github", "hubspot_cli", "hubspot"]
+  "enabled_providers": ["github"]
 }

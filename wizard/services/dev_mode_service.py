@@ -44,9 +44,11 @@ class DevModeService:
             "task_scheduler": False,
             "workflow_manager": False,
             "github_integration": False,
+            "dashboard_watch": False,
         }
         self._dev_requirements_cache: Optional[Dict[str, Any]] = None
         self._dev_requirements_checked_at: Optional[float] = None
+        self.dashboard_watch_process: Optional[subprocess.Popen] = None
 
     def _dev_root(self) -> Path:
         return self.wizard_root / "dev"
@@ -147,6 +149,9 @@ class DevModeService:
             self.start_time = time.time()
             self.services_status["goblin"] = True
 
+            # Start dashboard build watcher (keeps dist/ up to date on edits)
+            self._start_dashboard_watch()
+
             # Create a Dev Milestone project for task tracking
             workflow = WorkflowManager()
             round_name = f"Dev Milestone {datetime.now().strftime('%Y-%m-%d')}"
@@ -219,6 +224,28 @@ class DevModeService:
 
         return results
 
+    def _start_dashboard_watch(self) -> None:
+        """Start vite build watcher for the Wizard dashboard."""
+        if self.dashboard_watch_process and self.dashboard_watch_process.poll() is None:
+            return
+        dashboard_dir = self.wizard_root / "wizard" / "dashboard"
+        package_json = dashboard_dir / "package.json"
+        if not package_json.exists():
+            return
+        try:
+            self.dashboard_watch_process = subprocess.Popen(
+                ["npm", "run", "build", "--", "--watch"],
+                cwd=str(dashboard_dir),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            self.services_status["dashboard_watch"] = True
+            self.logger.info("[WIZ-DEV] Dashboard build watcher started")
+        except Exception as exc:
+            self.services_status["dashboard_watch"] = False
+            self.logger.warning(f"[WIZ-DEV] Failed to start dashboard watch: {exc}")
+
     def suggest_next_steps(self) -> str:
         """Generate next-step suggestions using local Vibe (Ollama)."""
         try:
@@ -258,9 +285,19 @@ class DevModeService:
                     self.goblin_process.kill()
                     self.goblin_process.wait()
 
+            if self.dashboard_watch_process:
+                self.logger.info("[WIZ-DEV] Stopping dashboard watcher")
+                self.dashboard_watch_process.terminate()
+                try:
+                    self.dashboard_watch_process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    self.dashboard_watch_process.kill()
+                    self.dashboard_watch_process.wait()
+
             self.active = False
             self.start_time = None
             self.goblin_process = None
+            self.dashboard_watch_process = None
             self.services_status = {k: False for k in self.services_status}
 
             self.logger.info("[WIZ-DEV] Dev mode deactivated")
@@ -291,6 +328,10 @@ class DevModeService:
             self.active = False
             self.goblin_process = None
             self.services_status["goblin"] = False
+        if self.dashboard_watch_process and self.dashboard_watch_process.poll() is not None:
+            self.logger.warning("[WIZ-DEV] Dashboard watch process has exited unexpectedly")
+            self.dashboard_watch_process = None
+            self.services_status["dashboard_watch"] = False
 
         requirements = self.check_requirements(force=False)
 

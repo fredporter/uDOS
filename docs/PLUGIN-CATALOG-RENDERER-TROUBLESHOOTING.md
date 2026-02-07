@@ -326,7 +326,7 @@ open http://localhost:8765/#config
 
 # 5. Webhooks registered
 curl -s http://localhost:8765/api/webhooks/status | jq '.webhooks'
-# Should show github, hubspot
+# Should show github
 ```
 
 ---

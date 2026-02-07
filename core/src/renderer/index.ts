@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { marked } from "marked";
+import { replaceEmojiShortcodes } from "../emoji/replace.js";
 
 type LogLevel = "INFO" | "WARN" | "ERROR" | "DEBUG";
 type Logger = (level: LogLevel, msg: string) => void;
@@ -149,9 +150,14 @@ export async function renderVault(
 
     for (const info of pageInfos) {
       const html = marked.parse(info.content);
+      const htmlWithEmoji = replaceEmojiShortcodes(
+        html,
+        (shortcode) =>
+          `<span class="emoji" data-emoji="${shortcode}">${shortcode}</span>`,
+      );
       const page = fillTemplate(shellTemplate, {
         title: info.title,
-        content: wrapContent(html, info.title, themeMeta.contentClass),
+        content: wrapContent(htmlWithEmoji, info.title, themeMeta.contentClass),
         nav: navHtml,
         contentClass: themeMeta.contentClass ?? "",
         meta: renderMeta(info.frontmatter),

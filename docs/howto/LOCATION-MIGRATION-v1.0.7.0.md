@@ -180,11 +180,8 @@ Old format often had no explicit connections. New format requires sparse adjacen
    - `core/services/tile_hierarchy.py` — Update layer ranges
 
 2. **Extensions/Empire** (CRM):
-   - `extensions/empire/location_resolver.py` — Update grid math
-   - `extensions/empire/QUICK-REFERENCE.md` — Update examples
 
 3. **Wizard** (Production):
-   - `wizard/tools/bizintel/location_resolver.py` — Update grid math
    - `wizard/docs/` — Update coordinate examples
 
 4. **Knowledge/Places**:

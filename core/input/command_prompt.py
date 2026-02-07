@@ -546,9 +546,14 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="SHAKEDOWN",
         help_text="Full system validation and health check",
-        syntax="SHAKEDOWN [--fix]",
-        options=["--fix: Attempt to fix issues"],
-        examples=["SHAKEDOWN", "SHAKEDOWN --fix"],
+        syntax="SHAKEDOWN [--detailed] [--fresh] [--destroy-verify] [--cycle]",
+        options=[
+            "--detailed: Show detailed results",
+            "--fresh: Validate fresh install",
+            "--destroy-verify: Verify DESTROY command works",
+            "--cycle: Dry-run command cycle",
+        ],
+        examples=["SHAKEDOWN", "SHAKEDOWN --cycle"],
         icon="✅",
         category="Management",
     )

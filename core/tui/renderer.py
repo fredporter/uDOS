@@ -9,10 +9,13 @@ Handles:
 - Different result types (descriptions, lists, etc.)
 """
 
-from typing import Dict, Any, List, Sequence, Iterable, Tuple
+from typing import Dict, Any, List, Sequence, Iterable, Tuple, Set, Optional
 import os
 import sys
 import time
+import json
+import re
+from pathlib import Path
 
 from core.tui.ui_elements import format_table
 
@@ -42,6 +45,8 @@ class GridRenderer:
         self._mood = "idle"
         self._pace = 0.6  # seconds per frame
         self._blink = True
+        self._emoji_set: Set[str] = set()
+        self._emoji_loaded = False
 
     def render(self, result: Dict[str, Any]) -> str:
         """
@@ -56,13 +61,15 @@ class GridRenderer:
         status = result.get("status", "unknown")
 
         if status == "success":
-            return self._render_success(result)
+            output = self._render_success(result)
         elif status == "error":
-            return self._render_error(result)
+            output = self._render_error(result)
         elif status == "warning":
-            return self._render_warning(result)
+            output = self._render_warning(result)
         else:
-            return self._render_generic(result)
+            output = self._render_generic(result)
+
+        return self._apply_emoji(output)
 
     def _render_success(self, result: Dict[str, Any]) -> str:
         """Format successful response"""
@@ -202,10 +209,71 @@ class GridRenderer:
         delay_ms = int(os.getenv("VIBE_STREAM_DELAY_MS", "0") or "0")
         lines = text.splitlines() if text else [""]
         for line in lines:
-            sys.stdout.write(f"{self.CYAN}{prefix}{self.RESET}{line}\n")
+            rendered = self._apply_emoji(line)
+            sys.stdout.write(f"{self.CYAN}{prefix}{self.RESET}{rendered}\n")
             sys.stdout.flush()
             if delay_ms > 0:
                 time.sleep(delay_ms / 1000.0)
+
+    def _apply_emoji(self, text: str) -> str:
+        """Apply emoji shortcode rendering policy to text."""
+        if not text:
+            return text
+        self._load_emoji_set()
+        if not self._emoji_set:
+            return text
+        mode = os.getenv("UDOS_EMOJI_TUI_RENDER", "plain").strip().lower()
+        pattern = re.compile(r":[a-z0-9_+\-]+:", re.IGNORECASE)
+
+        def replace(match: re.Match) -> str:
+            token = match.group(0)
+            token_key = token.lower()
+            if token_key not in self._emoji_set:
+                return token
+            if mode in {"plain", "passthrough", "keep"}:
+                return token
+            if mode in {"strip", "remove"}:
+                return ""
+            if mode in {"label", "tag"}:
+                return f"[{token}]"
+            return token
+
+        return pattern.sub(replace, text)
+
+    def _load_emoji_set(self) -> None:
+        """Load emoji shortcode set from vendor data (once)."""
+        if self._emoji_loaded:
+            return
+        self._emoji_loaded = True
+        try:
+            repo_root = self._find_repo_root()
+            if not repo_root:
+                return
+            path = repo_root / "vendor" / "emoji" / "github-emoji-shortcodes.json"
+            if not path.exists():
+                return
+            data = json.loads(path.read_text(encoding="utf-8"))
+            shortcodes = data.get("shortcodes") or []
+            if isinstance(shortcodes, list):
+                self._emoji_set = {
+                    s.lower() for s in shortcodes if isinstance(s, str)
+                }
+        except Exception:
+            self._emoji_set = set()
+
+    def _find_repo_root(self) -> Optional[Path]:
+        """Locate repo root by searching for vendor/emoji."""
+        current = Path(__file__).resolve()
+        for parent in [current] + list(current.parents):
+            candidate = parent / "vendor" / "emoji" / "github-emoji-shortcodes.json"
+            if candidate.exists():
+                return parent
+        cwd = Path.cwd()
+        for parent in [cwd] + list(cwd.parents):
+            candidate = parent / "vendor" / "emoji" / "github-emoji-shortcodes.json"
+            if candidate.exists():
+                return parent
+        return None
 
     @staticmethod
     def clear_screen() -> None:

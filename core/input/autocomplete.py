@@ -60,7 +60,12 @@ class AutocompleteService:
             },
             "SHAKEDOWN": {
                 "description": "Run system validation",
-                "options": ["TEST", "STATUS", "FIX"],
+                "options": [
+                    "--detailed",
+                    "--fresh",
+                    "--destroy-verify",
+                    "--cycle",
+                ],
             },
             "REPAIR": {
                 "description": "Fix system issues",

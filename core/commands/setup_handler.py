@@ -8,7 +8,7 @@ Stores user identity in .env (local, never shared):
 
 All other sensitive data goes in Wizard keystore:
     - API keys (GitHub, OpenAI, etc.)
-  - OAuth tokens (Gmail, Calendar, etc.)
+  - OAuth tokens (supported providers)
   - Cloud credentials and webhooks
   - Integration activation settings
 
@@ -88,7 +88,7 @@ class SetupHandler(BaseCommandHandler):
 
         Usage:
             SETUP              Run the setup story (configure local identity)
-            SETUP webhook      Interactive GitHub & HubSpot webhook setup (vibe-cli style)
+            SETUP webhook      Interactive GitHub webhook setup (vibe-cli style)
             SETUP <provider>   Setup a specific provider (github, ollama, mistral, etc.)
             SETUP --profile    Show your current setup profile
             SETUP --edit       Edit setup values
@@ -106,16 +106,15 @@ class SetupHandler(BaseCommandHandler):
             WIZARD_KEY         Gateway to Wizard keystore (auto-generated)
 
         Webhook Setup (interactive, vibe-cli style):
-            SETUP webhook           Full setup (GitHub + HubSpot)
+            SETUP webhook           Full setup (GitHub)
             SETUP webhook github    GitHub webhooks only
-            SETUP webhook hubspot   HubSpot CRM only
 
         Provider Setup (delegates to Wizard):
-            Supported: github, ollama, mistral, openrouter, hubspot, gmail
+            Supported: github, ollama, mistral, openrouter
 
         Extended data in Wizard keystore (when installed):
             - API keys, OAuth tokens, credentials
-            - Integrations (GitHub, Gmail, etc.)
+            - Integrations (GitHub, etc.)
             - Cloud routing, webhooks, activation settings
         """
         if not params:
@@ -130,7 +129,7 @@ class SetupHandler(BaseCommandHandler):
             return handler.handle("SETUP", params, grid, parser)
 
         # Check if this is a provider setup request
-        provider_names = {"github", "ollama", "mistral", "openrouter", "hubspot", "gmail"}
+        provider_names = {"github", "ollama", "mistral", "openrouter"}
         if action in provider_names:
             return self._setup_provider(action)
 
@@ -148,7 +147,7 @@ class SetupHandler(BaseCommandHandler):
             return {
                 "status": "error",
                 "message": f"Unknown option: {action}",
-                "help": "Usage: SETUP [webhook|provider|--profile|--edit|--clear|--help]\n       Webhook: SETUP webhook [github|hubspot]\n       Providers: github, ollama, mistral, openrouter, hubspot, gmail"
+                "help": "Usage: SETUP [webhook|provider|--profile|--edit|--clear|--help]\n       Webhook: SETUP webhook [github]\n       Providers: github, ollama, mistral, openrouter"
             }
 
 
@@ -443,8 +442,6 @@ PROVIDERS:
   SETUP ollama       Setup local Ollama AI model
   SETUP mistral      Configure Mistral AI provider
   SETUP openrouter   Configure OpenRouter gateway
-  SETUP hubspot      Configure HubSpot CRM
-  SETUP gmail        Setup Gmail OAuth
 
 LOCAL SETTINGS (.env):
     USER_NAME          Username
@@ -458,7 +455,7 @@ LOCAL SETTINGS (.env):
 
 EXTENDED SETTINGS (Wizard Keystore - installed later):
     API Keys:          GitHub, OpenAI, Anthropic, etc.
-  OAuth Tokens:      Gmail, Calendar, Google Drive, etc.
+  OAuth Tokens:      Calendar, Google Drive, etc.
   Cloud Services:    AWS, GCP, Azure credentials
   Webhooks:          Custom webhooks and secrets
   AI Routing:        Provider credentials and endpoints

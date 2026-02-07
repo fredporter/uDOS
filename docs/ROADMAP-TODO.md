@@ -85,7 +85,6 @@ Integrate the attached specs/guides into the next roadmap window (post v1.3.10).
 - **Roadmap note**: develop the new Vibe-CLI and the existing uCODE-TUI in parallel until Vibe reaches parity with uCODE-TUI in a future version.
 - **Dev mode gate**: `/dev/` public submodule required and admin-only; see [docs/DEV-MODE-POLICY.md](docs/DEV-MODE-POLICY.md).
 - **Core/Wizard boundary**: `core` (uCODE runtime) is the base runtime; `wizard` is the brand for connected services (networking, GUI, etc.). Both are public OSS in github.com/fredporter/uDOS. Core can run without Wizard (limited). Wizard cannot run without Core. Most extensions/addons require both Core + Wizard.
-- **Empire commercial track**: `/empire/` is a private submodule for a paid business extension. It should remain separate, soft-fail if missing, and only activate on capable systems. Consider packaging as a plugin if that fits distribution needs.
 - **Plugin policy**: external services/addons should be cloned (not forked/modified), credited, and updated via pulls. uDOS should containerize and overlay UI without modifying upstream repos.
 - **Extensions consolidation**: note that `/extensions/api` has moved; evaluate whether further consolidation is appropriate now that APIs are outside `/extensions/`.
 - **Logging API v1.3**: spec published; implementation pending. See [docs/LOGGING-API-v1.3.md](docs/LOGGING-API-v1.3.md).

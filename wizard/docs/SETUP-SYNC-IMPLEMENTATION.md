@@ -219,7 +219,6 @@ wizard> setup
   "moves_limit": null,
   "capabilities": {
     "web_proxy": true,
-    "gmail_relay": true,
     "ok_gateway": true,
     "github_push": false,
     ...

@@ -66,7 +66,7 @@ All other sensitive data goes in the Wizard keystore:
 **Installation Extended Settings:**
 - Installation ID
 - Lifespan mode and moves limit
-- Capability flags (web proxy, gmail relay, etc.)
+- Capability flags (web proxy, ok gateway, etc.)
 - Installation-level permissions
 
 ---

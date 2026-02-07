@@ -9,7 +9,6 @@ Features:
 - Dashboard (system status, logs, health metrics)
 - Webhook receiver (external integrations)
 - Device monitor (paired mesh devices)
-- BizIntel dashboard (contact tools)
 - Plugin manager (browse/install/update)
 
 Stack:
@@ -58,12 +57,6 @@ from wizard.services.oauth_manager import (
     OAuthProvider,
     ConnectionStatus,
 )
-
-# Gmail OAuth (Flask blueprint - convert to FastAPI)
-try:
-    from wizard.services.gmail_auth import get_gmail_auth
-except ImportError:
-    get_gmail_auth = None
 
 # Setup
 WIZARD_ROOT = Path(__file__).parent.parent
@@ -850,9 +843,6 @@ async def health_check():
 # Gmail OAuth Routes
 # ============================================================================
 
-from wizard.web.gmail_fastapi_routes import gmail_router
-
-app.include_router(gmail_router)
 
 
 # ============================================================================

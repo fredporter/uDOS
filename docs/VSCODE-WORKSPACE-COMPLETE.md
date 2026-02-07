@@ -120,7 +120,7 @@ Can override workspace settings per folder (e.g., different formatters, linters)
 
 ## 📊 Configuration Breakdown
 
-### Workspace Folders (14)
+### Workspace Folders (13)
 
 | Folder | Name | Type | Status |
 |--------|------|------|--------|
@@ -132,7 +132,6 @@ Can override workspace settings per folder (e.g., different formatters, linters)
 | `library` | Library (Public) | Tools | 🗂️ |
 | `docs` | Docs (Public) | Documentation | 📖 |
 | `dev/goblin` | Goblin (Dev) | Dev Server | 👹 |
-| `dev/empire` | Empire (Dev) | Dev Tools | 🏰 |
 | `dev/groovebox` | Groovebox (Dev) | Audio | 🎸 |
 | `app` | App (Dev) | GUI | 🎯 |
 | `tests` | Tests (Dev) | Testing | 🧪 |
@@ -236,7 +235,6 @@ Cmd+Shift+P → "Run Task: 🐛 Goblin: Start Dev Server"
 ├── dev/
 │   ├── goblin/                      ✅ Full Python environment
 │   │   └── .vscode/settings.json
-│   ├── empire/
 │   ├── groovebox/
 │   └── tools/
 │

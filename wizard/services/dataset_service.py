@@ -33,17 +33,6 @@ class DatasetService:
     def _bootstrap_database(self, conn: sqlite3.Connection) -> None:
         conn.execute(
             """
-            CREATE TABLE contacts (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL,
-                title TEXT,
-                region TEXT,
-                last_contact TEXT
-            );
-            """
-        )
-        conn.execute(
-            """
             CREATE TABLE revenue_summary (
                 month TEXT,
                 region TEXT,
@@ -63,12 +52,6 @@ class DatasetService:
             );
             """
         )
-        contacts = [
-            (1, "Miranda Lane", "Strategy Lead", "North America", "2026-01-21T09:15:00Z"),
-            (2, "Kai Moreno", "Pipeline Director", "Latin America", "2026-01-18T15:32:00Z"),
-            (3, "Ava Chen", "AI Ops", "Asia Pacific", "2026-01-27T11:04:00Z"),
-        ]
-        conn.executemany("INSERT INTO contacts VALUES (?, ?, ?, ?, ?);", contacts)
         revenue = [
             ("2026-01", "North America", 820000.0, 900000.0),
             ("2026-01", "Europe", 440000.0, 460000.0),

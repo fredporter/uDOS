@@ -7,8 +7,7 @@ Provides budgeting, alerts, and usage reports.
 
 Tracked Resources:
   - AI Providers (OpenAI, Anthropic, local)
-  - Gmail API quota
-  - Web scraping bandwidth
+  - Web proxy bandwidth
   - Storage usage
 
 Features:
@@ -39,8 +38,7 @@ class ResourceType(Enum):
 
     AI_TOKENS = "ai_tokens"  # LLM API tokens
     AI_REQUESTS = "ai_requests"  # LLM API calls
-    EMAIL_QUOTA = "email_quota"  # Gmail API calls
-    WEB_REQUESTS = "web_requests"  # Web scraping requests
+    WEB_REQUESTS = "web_requests"  # Web proxy requests
     BANDWIDTH_MB = "bandwidth_mb"  # Data transfer
     STORAGE_MB = "storage_mb"  # Cache/storage usage
 
@@ -51,7 +49,6 @@ class Provider(Enum):
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     LOCAL = "local"
-    GMAIL = "gmail"
     WEB = "web"
 
 
@@ -108,9 +105,7 @@ COST_RATES = {
         "input": 0.0001,
         "output": 0.0002,
     },
-    # Gmail (free tier, but track quota)
-    (Provider.GMAIL.value, ResourceType.EMAIL_QUOTA.value): 0.0,
-    # Web scraping (bandwidth cost estimate)
+    # Web proxy (bandwidth cost estimate)
     (Provider.WEB.value, ResourceType.BANDWIDTH_MB.value): 0.0001,
 }
 

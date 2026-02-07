@@ -915,6 +915,18 @@ class uCODETUI:
         except Exception:
             return 8192
 
+    def _get_ok_cloud_status(self) -> Dict[str, Any]:
+        """Return Mistral cloud availability status."""
+        try:
+            from wizard.services.mistral_api import MistralAPI
+
+            client = MistralAPI()
+            if client.available():
+                return {"ready": True, "issue": None}
+            return {"ready": False, "issue": "mistral api key missing"}
+        except Exception as exc:
+            return {"ready": False, "issue": str(exc)}
+
     def _init_ok_prompt_context(self) -> None:
         """Expose OK local model info to the prompt toolbar."""
         try:
@@ -928,6 +940,7 @@ class uCODETUI:
         if self.quiet:
             return
         ok_status = self._get_ok_local_status()
+        cloud_status = self._get_ok_cloud_status()
         model = ok_status.get("model") or self._get_ok_default_model()
         ctx = self._get_ok_context_window()
 
@@ -947,6 +960,12 @@ class uCODETUI:
                 lines.append("💡 Install Vibe CLI: `pip install mistral-vibe`")
             if issue in {"setup required", "ollama down", "missing model", "vibe-cli missing"}:
                 lines.append("💡 First run: SETUP to configure Mistral key + local models")
+        if cloud_status.get("ready"):
+            lines.append("✅ Mistral cloud ready (required)")
+        else:
+            issue = cloud_status.get("issue") or "setup required"
+            lines.append(f"⚠️ Mistral cloud required: {issue}")
+            lines.append("💡 Set MISTRAL_API_KEY or run SETUP")
         lines.append("Tip: OK EXPLAIN <file> | OK LOCAL")
 
         print(self._theme_text("\n🤖 Vibe (Local)"))
@@ -1388,10 +1407,8 @@ class uCODETUI:
                     "permissions": collected_data.get("install_permissions"),
                     "capabilities": {
                         "web_proxy": bool(collected_data.get("capability_web_proxy")),
-                        "gmail_relay": bool(collected_data.get("capability_gmail_relay")),
                         "ok_gateway": bool(collected_data.get("capability_ok_gateway")),
                         "github_push": bool(collected_data.get("capability_github_push")),
-                        "hubspot": bool(collected_data.get("capability_hubspot")),
                         "icloud": bool(collected_data.get("capability_icloud")),
                         "plugin_repo": bool(collected_data.get("capability_plugin_repo")),
                         "plugin_auto_update": bool(collected_data.get("capability_plugin_auto_update")),
@@ -1955,6 +1972,8 @@ For detailed help on any command, type the command name followed by --help
         mode = (self.ai_modes_config.get("modes") or {}).get("onvibe", {})
         model = mode.get("default_model") or "mistral-small-latest"
         client = MistralAPI()
+        if not client.available():
+            raise RuntimeError("Mistral API key required for cloud OK")
         return {"response": client.chat(prompt, model=model), "model": model}
 
     def _run_ok_local(self, prompt: str, model: Optional[str] = None) -> str:

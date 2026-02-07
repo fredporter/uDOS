@@ -1,8 +1,6 @@
 """
-Wizard Tools - Web scraping, image conversion, proxy, device provisioning, business intel
+Wizard Tools - Image conversion, proxy, device provisioning
 """
-
-from .web_scraper import WebScraper
 from .web_proxy import WebProxy
 from .image_teletext import ImageToTeletext
 
@@ -14,11 +12,4 @@ try:
 except ImportError:
     SCREWDRIVER_AVAILABLE = False
 
-try:
-    from .bizintel import BizIntel
-
-    BIZINTEL_AVAILABLE = True
-except ImportError:
-    BIZINTEL_AVAILABLE = False
-
-__all__ = ["WebScraper", "WebProxy", "ImageToTeletext"]
+__all__ = ["WebProxy", "ImageToTeletext"]

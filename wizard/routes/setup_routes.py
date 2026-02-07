@@ -279,7 +279,6 @@ def create_setup_routes(auth_guard=None):
             "instructions": {
                 "github": "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token",
                 "mistral": "https://docs.mistral.ai/",
-                "hubspot": "https://developers.hubspot.com/docs/api/overview",
             },
         }
 

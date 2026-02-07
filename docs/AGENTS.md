@@ -28,10 +28,10 @@
 ## Quick Reference
 
 ### Core Must NOT
-- Cloud connectivity, servers, scraping, email, GUI assumptions
+- Cloud connectivity, servers, GUI assumptions
 
 ### Wizard Only
-- AI routing, webhooks, Gmail relay, OAuth, cloud integration
+- AI routing, webhooks, OAuth, cloud integration
 
 ### App Must NOT
 - Business logic, state storage, Core duplication
@@ -41,7 +41,7 @@
 - **Public** (signal only): BT-Public — NEVER data
 
 ### Logging Tags
-`[LOCAL]` `[MESH]` `[BT-PRIV]` `[BT-PUB]` `[NFC]` `[QR]` `[AUD]` `[WIZ]` `[CLOUD]` `[GMAIL]`
+`[LOCAL]` `[MESH]` `[BT-PRIV]` `[BT-PUB]` `[NFC]` `[QR]` `[AUD]` `[WIZ]` `[CLOUD]`
 
 ### Canonical Logger
 ```python
@@ -80,7 +80,7 @@ python -m core.version bump core build # Bump component
 ## Repository Structure
 
 **PUBLIC (root):** `core/`, `wizard/`, `extensions/`, `docs/`, `knowledge/`, `library/`
-**PRIVATE (/dev):** `goblin/`, `empire/`, `app/`, `groovebox/`, `tests/`, `tools/`
+**PRIVATE (/dev):** `goblin/`, `app/`, `groovebox/`, `tests/`, `tools/`
 **LOCAL (memory/):** Logs, credentials — never committed
 
 ---

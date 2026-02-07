@@ -99,6 +99,7 @@ health_checklist() {
   echo "- If Wizard fails: run ./bin/Launch-uCODE.command wizard server"
   echo "- If Vibe CLI missing: pip install mistral-vibe"
   echo "- If Ollama down: ollama serve"
+  echo "- If Mistral missing: set MISTRAL_API_KEY"
   echo "- If models missing: ollama pull <model>"
   echo "- If setup is blocked: run SETUP in uCODE"
   echo "- For stuck builds: REPAIR (from uCODE)"

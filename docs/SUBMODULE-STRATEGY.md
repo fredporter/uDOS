@@ -18,7 +18,6 @@
 - `dev/` — experimental + Goblin dev server.
 - `sonic/` — bootable USB builder.
 - `app/` — Tauri native app.
-- `empire/` — CRM/business tier.
 - `groovebox/` — music extension.
 
 ---
@@ -33,4 +32,3 @@
 ## Versioning Policy
 - Version-lock Core + Wizard in release manifest.
 - Submodules can ship on independent cadence.
-

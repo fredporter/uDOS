@@ -38,6 +38,12 @@ Common first commands:
 - **Extensions** — Container/plugin ecosystem
 - **Knowledge** — Static reference catalog
 
+## Core + Wizard Relationship
+
+- **Core** is the runtime. It can operate without Wizard (limited features).
+- **Wizard** is the connected extensions layer (networking, GUI, routing) and requires Core.
+- Most extensions/add-ons expect both Core and Wizard to be present.
+
 ---
 
 ## Repo Layout (Public)

@@ -19,7 +19,6 @@ Related: logging policy and diagnostics scaffolding lives in [docs/LOGGING-API-v
 - Most extensions/addons require both Core + Wizard.
 
 ## Empire & Plugins (Context)
-- `/empire/` is a private submodule for a paid business extension; keep it separate.
 - Empire should soft-fail when missing or unsupported and remain isolated from personal/user features.
 - External services/addons should be cloned (not forked/modified), credited, and updated via pulls.
 - uDOS should containerize and overlay UI without modifying upstream repos.

@@ -90,7 +90,6 @@ WizardConfig(
     plugin_repo_enabled=True,
     web_proxy_enabled=True,
     ok_gateway_enabled=False,  # optional
-    gmail_relay_enabled=False, # optional
 )
 ```
 
@@ -121,7 +120,6 @@ Once running, Wizard Server provides:
 - `GET /api/plugin/list` - Plugin repository
 - `POST /api/web/fetch` - Web proxy (if enabled)
 - `POST /api/ai/chat` - OK gateway (if enabled)
-- `POST /api/gmail/send` - Gmail relay (if configured)
 
 ## Testing Integration
 
@@ -239,7 +237,6 @@ Edit `wizard/dev_server.py` to enable:
 config = WizardConfig(
     # ...
     ok_gateway_enabled=True,    # Enable OK gateway
-    gmail_relay_enabled=True,   # Enable Gmail relay
 )
 ```
 

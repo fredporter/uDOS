@@ -941,7 +941,7 @@ Wizard is where:
 | Wizard area | Examples | Output |
 |---|---|---|
 | Capture pipeline | `capture.web`, `capture.pdf`, `capture.email` | binders + `*-script.md` |
-| Providers/integrations | `gmail.*`, `quota.*`, `ok.*`, model routing | structured data, doc updates |
+| Providers/integrations | `providers.*`, `quota.*`, `ok.*`, model routing | structured data, doc updates |
 | Build/dev | `build.*`, `stack.*`, `dev.*` | artefacts + releases |
 | Script scaffolding | `guide.generate`, `bundle.compile` | generates `filename-script.md` programmes |
 | Legacy (optional) | none (uPY removed) | keep empty or remove entirely |
@@ -1296,7 +1296,7 @@ Legend:
 | **Games** | Script | `programs/games/<game>-script.md` | Uses map/sprites/panels and nav. No “game commands” in Core. |
 | **Wellbeing** | Script | `programs/wellbeing/<topic>-script.md` | Core only stores preferences/consent flags if needed. |
 | **GUIDE** (content generation) | Wizard → Script output | Wizard: `guide.generate` → produces scripts | Wizard generates/upgrades scripts; Core does not execute “guide logic”. |
-| **CAPTURE** (web capture / scrape) | Wizard | `capture.*` | Network + long-running. Outputs binders and/or scripts. |
+| **CAPTURE** (web capture) | Wizard | `capture.*` | Network + long-running. Outputs binders and/or scripts. |
 | **BUNDLE / EXPORT / PACKAGE** | Wizard (primary), Core (optional) | Wizard: `bundle.build`; Core: `EXPORT <target>` | If user-facing export is needed, Core provides a safe wrapper with limited targets. |
 | **OK / AI / QUOTA / GMAIL / integrations** | Wizard | `providers.*` | Wizard-only. Never required for offline core operation. |
 | **SYSTEM STATUS/INFO** | Core | `SYSTEM STATUS`, `SYSTEM INFO` | Read-mostly, stable. |
@@ -1368,7 +1368,7 @@ Wizard is where commands are:
 | Capture | `capture.web`, `capture.pdf`, `capture.email` | binders + extracted markdown |
 | Content generation | `guide.generate`, `guide.update` | `*-script.md` programs + assets |
 | Packaging | `bundle.build` | export artefacts |
-| Providers | `providers.gmail.*`, `providers.quota.*`, etc. | structured data |
+| Providers | `providers.*`, `providers.quota.*`, etc. | structured data |
 | Dev ops | `dev.*`, `build.*`, `stack.*` | builds/releases |
 | Diagnostics | `logs.inspect`, `telemetry.*` | deep analysis |
 
@@ -1493,7 +1493,6 @@ Providers & Integrations
 	•	providers.ai.*
 	•	providers.ok.*
 	•	providers.quota.*
-	•	providers.gmail.*
 
 Dev & Build
 	•	dev.*

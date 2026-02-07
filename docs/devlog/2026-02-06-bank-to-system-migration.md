@@ -55,7 +55,6 @@ legacy bank binders/         → vault-md/bank/binders/
 - `wizard/tools/secret_store_cli.py` — Private directory
 - `wizard/tools/generate_github_secrets.py` — Temp file path
 - `wizard/web/web_service.py` — Config directory
-- `wizard/web/gmail_oauth_server.py` — Credentials path
 - `wizard/routes/settings_unified.py` — Secret store key
 
 #### Shell Scripts

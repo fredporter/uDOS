@@ -5,7 +5,6 @@ AI & API Provider Implementations
 Actual API client implementations for Wizard Server services.
 
 Providers:
-  - gmail_client.py - Google Gmail API (OAuth 2.0)
   - openai_client.py - OpenAI GPT models
   - anthropic_client.py - Anthropic Claude models
   - gemini_client.py - Google Gemini models
@@ -40,20 +39,12 @@ __all__ = [
     "RateLimitError",
     "QuotaExceededError",
     # Clients (import individually when needed)
-    "get_gmail_client",
     "get_openai_client",
     "get_anthropic_client",
     "get_gemini_client",
     "get_devstral_client",
     "get_nounproject_client",
 ]
-
-
-def get_gmail_client(*args, **kwargs):
-    """Get Gmail client (lazy import)."""
-    from .gmail_client import GmailClient
-
-    return GmailClient(*args, **kwargs)
 
 
 def get_openai_client(*args, **kwargs):

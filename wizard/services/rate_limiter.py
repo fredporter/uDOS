@@ -91,13 +91,11 @@ ENDPOINT_TIERS: Dict[str, RateLimitTier] = {
     # Heavy tier (bandwidth intensive)
     "/api/plugin/{id}/download": RateLimitTier.HEAVY,
     "/api/web/fetch": RateLimitTier.HEAVY,
-    "/api/web/scrape": RateLimitTier.HEAVY,
     "/api/image/convert": RateLimitTier.HEAVY,
     # Expensive tier (cost incurring)
     "/api/ai/complete": RateLimitTier.EXPENSIVE,
     "/api/ai/chat": RateLimitTier.EXPENSIVE,
     "/api/ai/embed": RateLimitTier.EXPENSIVE,
-    "/api/gmail/send": RateLimitTier.EXPENSIVE,
     "/api/parse/table": RateLimitTier.HEAVY,
     "/api/parse/csv": RateLimitTier.HEAVY,
     "/api/parse/json": RateLimitTier.HEAVY,
