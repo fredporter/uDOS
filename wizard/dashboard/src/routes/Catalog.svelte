@@ -6,6 +6,9 @@
   let stats = null;
   let categories = [];
   let plugins = [];
+  let containers = [];
+  let containerMap = {};
+  let containerError = null;
   let loading = true;
   let error = null;
   let categoryFilter = "";
@@ -14,6 +17,21 @@
   const authHeaders = () =>
     adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
 
+  async function ensureOk(res) {
+    if (res.ok) return;
+    let detail = "";
+    try {
+      const data = await res.json();
+      detail = data?.detail || data?.error || "";
+    } catch {
+      // ignore parsing errors
+    }
+    if (detail) {
+      throw new Error(`${res.status} — ${detail}`);
+    }
+    throw new Error(`HTTP ${res.status}`);
+  }
+
   async function togglePlugin(pluginId, currentlyEnabled) {
     const action = currentlyEnabled ? "disable" : "enable";
     try {
@@ -21,7 +39,7 @@
         method: "POST",
         headers: authHeaders(),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await ensureOk(res);
       await refreshCatalog();
     } catch (err) {
       error = `Failed to ${action} plugin: ${err.message}`;
@@ -30,12 +48,10 @@
 
   async function loadStats() {
     const res = await apiFetch("/api/catalog/stats", { headers: authHeaders() });
-    if (!res.ok) {
-      if (res.status === 401 || res.status === 403) {
-        throw new Error("Admin token required");
-      }
-      throw new Error(`HTTP ${res.status}`);
+    if (res.status === 401 || res.status === 403) {
+      throw new Error("Admin token required");
     }
+    await ensureOk(res);
     const data = await res.json();
     stats = data.stats || null;
   }
@@ -44,12 +60,10 @@
     const res = await apiFetch("/api/catalog/categories", {
       headers: authHeaders(),
     });
-    if (!res.ok) {
-      if (res.status === 401 || res.status === 403) {
-        throw new Error("Admin token required");
-      }
-      throw new Error(`HTTP ${res.status}`);
+    if (res.status === 401 || res.status === 403) {
+      throw new Error("Admin token required");
     }
+    await ensureOk(res);
     const data = await res.json();
     categories = data.categories || [];
   }
@@ -62,14 +76,32 @@
       `/api/catalog/plugins${suffix ? `?${suffix}` : ""}`,
       { headers: authHeaders() },
     );
-    if (!res.ok) {
-      if (res.status === 401 || res.status === 403) {
-        throw new Error("Admin token required");
-      }
-      throw new Error(`HTTP ${res.status}`);
+    if (res.status === 401 || res.status === 403) {
+      throw new Error("Admin token required");
     }
+    await ensureOk(res);
     const data = await res.json();
     plugins = data.plugins || [];
+  }
+
+  async function loadContainers() {
+    containerError = null;
+    try {
+      const res = await apiFetch("/api/containers/list/available", {
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      containers = data.containers || [];
+      containerMap = containers.reduce((acc, item) => {
+        acc[item.id] = item;
+        return acc;
+      }, {});
+    } catch (err) {
+      containerError = err.message || String(err);
+      containers = [];
+      containerMap = {};
+    }
   }
 
   async function searchPlugins() {
@@ -82,12 +114,10 @@
     const res = await apiFetch(`/api/catalog/search?${params.toString()}`, {
       headers: authHeaders(),
     });
-    if (!res.ok) {
-      if (res.status === 401 || res.status === 403) {
-        throw new Error("Admin token required");
-      }
-      throw new Error(`HTTP ${res.status}`);
+    if (res.status === 401 || res.status === 403) {
+      throw new Error("Admin token required");
     }
+    await ensureOk(res);
     const data = await res.json();
     plugins = data.plugins || [];
   }
@@ -102,6 +132,7 @@
       await loadStats();
       await loadCategories();
       await loadPlugins();
+      await loadContainers();
     } catch (err) {
       const message = err?.message || "Unknown error";
       if (err?.name === "AbortError") {
@@ -124,6 +155,37 @@
     if (event.key === "Enter") {
       searchPlugins();
     }
+  }
+
+  async function launchContainer(containerId) {
+    try {
+      const res = await apiFetch(`/api/containers/${containerId}/launch`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      await ensureOk(res);
+      await loadContainers();
+    } catch (err) {
+      error = `Failed to launch container: ${err.message}`;
+    }
+  }
+
+  async function stopContainer(containerId) {
+    try {
+      const res = await apiFetch(`/api/containers/${containerId}/stop`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      await ensureOk(res);
+      await loadContainers();
+    } catch (err) {
+      error = `Failed to stop container: ${err.message}`;
+    }
+  }
+
+  function openContainer(container) {
+    if (!container?.browser_route) return;
+    window.open(container.browser_route, "_blank");
   }
 
   $: if (categoryFilter) {
@@ -208,6 +270,12 @@
     </div>
   </div>
 
+  {#if containerError}
+    <div class="bg-amber-900 text-amber-200 p-3 rounded-lg mb-6 border border-amber-700 text-sm">
+      Container status unavailable: {containerError}
+    </div>
+  {/if}
+
   {#if loading}
     <div class="text-center py-12 text-gray-400">Loading catalog...</div>
   {:else if plugins.length === 0}
@@ -218,7 +286,14 @@
         <div class="bg-gray-800 border border-gray-700 rounded-lg p-5">
           <div class="flex items-start justify-between mb-3">
             <div>
-              <h2 class="text-lg font-semibold text-white">{plugin.name}</h2>
+              <div class="flex items-center gap-2">
+                <h2 class="text-lg font-semibold text-white">{plugin.name}</h2>
+                {#if containerMap[plugin.id]}
+                  <span class="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-indigo-900 text-indigo-200">
+                    Container
+                  </span>
+                {/if}
+              </div>
               <p class="text-xs text-gray-400">{plugin.id}</p>
             </div>
             <span
@@ -235,6 +310,15 @@
               Status: {plugin.installed ? "Installed" : "Available"}
               {plugin.update_available ? "(Update available)" : ""}
             </div>
+            {#if containerMap[plugin.id]}
+              {@const container = containerMap[plugin.id]}
+              <div>
+                Container: {container.running ? "Running" : "Stopped"}
+                {#if container.port}
+                  (Port {container.port})
+                {/if}
+              </div>
+            {/if}
             <div class="flex items-center gap-2 mt-2">
               <span class="text-xs">Enabled:</span>
               <button
@@ -247,6 +331,32 @@
               </button>
             </div>
           </div>
+          {#if containerMap[plugin.id]}
+            {@const container = containerMap[plugin.id]}
+            <div class="flex gap-2">
+              {#if container.running}
+                <button
+                  class="px-3 py-2 bg-rose-600 hover:bg-rose-700 rounded-md text-white text-xs"
+                  on:click={() => stopContainer(container.id)}
+                >
+                  Stop
+                </button>
+                <button
+                  class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-md text-white text-xs"
+                  on:click={() => openContainer(container)}
+                >
+                  Open
+                </button>
+              {:else}
+                <button
+                  class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-md text-white text-xs"
+                  on:click={() => launchContainer(container.id)}
+                >
+                  Launch
+                </button>
+              {/if}
+            </div>
+          {/if}
         </div>
       {/each}
     </div>

@@ -272,7 +272,7 @@
 
 <div class="wizard-page">
   <div class="page-header">
-    <h1>Repair & Recovery</h1>
+    <h1 class="text-3xl font-bold text-white">Repair & Recovery</h1>
     <p>Self-heal tools, dependency installs, and backups.</p>
   </div>
 
@@ -285,7 +285,7 @@
   {#if status}
     <div class="grid">
       <div class="card">
-        <h2>System Status</h2>
+        <h2 class="text-lg font-bold text-white">System Status</h2>
         <div class="status-grid">
           <div>
             <div class="label">Platform</div>
@@ -305,7 +305,7 @@
       </div>
 
       <div class="card">
-        <h2>Paths</h2>
+        <h2 class="text-lg font-bold text-white">Paths</h2>
         <ul>
           {#each Object.entries(status.paths) as [name, info]}
             <li>
@@ -318,7 +318,7 @@
   {/if}
 
   <div class="card">
-    <h2>Repair Actions</h2>
+    <h2 class="text-lg font-bold text-white">Repair Actions</h2>
     <div class="actions">
       <button on:click={() => runAction("bootstrap-venv")}>
         Bootstrap venv
@@ -349,7 +349,7 @@
 
   {#if status?.compost}
     <div class="card">
-      <h2>Compost Status</h2>
+      <h2 class="text-lg font-bold text-white">Compost Status</h2>
       <div class="status-grid">
         <div>
           <div class="label">Path</div>
@@ -372,7 +372,7 @@
   {/if}
 
   <div class="card">
-    <h2>Maintenance</h2>
+    <h2 class="text-lg font-bold text-white">Maintenance</h2>
     <div class="field">
       <label for="maintenance-scope">Scope</label>
       <select id="maintenance-scope" bind:value={maintenanceScope}>
@@ -403,7 +403,7 @@
 
   <div class="grid">
     <div class="card">
-      <h2>Backups</h2>
+      <h2 class="text-lg font-bold text-white">Backups</h2>
       <div class="field">
         <label for="backup-target">Target</label>
         <select id="backup-target" bind:value={backupTarget}>
@@ -433,7 +433,7 @@
     </div>
 
     <div class="card">
-      <h2>Restore</h2>
+      <h2 class="text-lg font-bold text-white">Restore</h2>
       <div class="field">
         <label for="restore-backup">Backup</label>
         <select id="restore-backup" bind:value={restoreArtifact}>
@@ -476,7 +476,7 @@
   </div>
 
   <div class="card">
-    <h2>Artifact Store</h2>
+    <h2 class="text-lg font-bold text-white">Artifact Store</h2>
     <div class="artifact-add">
       <select bind:value={addKind}>
         <option value="installers">installers</option>
@@ -522,7 +522,7 @@
 
   {#if actionResult}
     <div class="card status">
-      <h2>Last Action</h2>
+      <h2 class="text-lg font-bold text-white">Last Action</h2>
       <pre>{JSON.stringify(actionResult, null, 2)}</pre>
     </div>
   {/if}

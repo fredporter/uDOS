@@ -324,7 +324,7 @@
 
 <div class="max-w-6xl mx-auto px-4 py-8 text-white space-y-8">
   <header>
-    <h1 class="text-3xl font-bold">Dataset Console</h1>
+    <h1 class="text-3xl font-bold">Tables</h1>
     <p class="text-gray-400">
       Fetches `/api/data/schema`, `/api/data/query`, `/api/data/chart`, and `/api/teletext/*`
       for the milestone roadmap.

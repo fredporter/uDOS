@@ -224,6 +224,10 @@ class WizardServer:
         from wizard.routes.songscribe_export_routes import router as songscribe_export_router
         app.include_router(songscribe_export_router)
 
+        # Register Extension detection routes
+        from wizard.routes.extension_routes import router as extension_router
+        app.include_router(extension_router)
+
         # Register Setup wizard routes
 
         # Register Workflow manager routes
@@ -976,7 +980,7 @@ class WizardServer:
             if not model:
                 raise HTTPException(status_code=400, detail="Model required")
 
-            # TODO: Implement actual model switching in OK gateway
+            # STUB: Implement model switching in OK gateway
             return {"success": True, "model": model, "message": f"Switched to {model}"}
 
         @app.post("/api/services/{service}/{action}")
@@ -994,7 +998,7 @@ class WizardServer:
             if action not in valid_actions:
                 raise HTTPException(status_code=400, detail=f"Unknown action: {action}")
 
-            # TODO: Implement actual service control
+            # STUB: Implement service control
             return {
                 "success": True,
                 "service": service,

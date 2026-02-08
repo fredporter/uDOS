@@ -326,14 +326,14 @@ class ShakedownHandler(BaseCommandHandler):
             try:
                 from core.services.logging_api import get_logger
                 services["logging"] = True
-            except:
+            except Exception:
                 services["logging"] = False
 
             # User manager
             try:
                 from core.services.user_service import get_user_manager
                 services["user_manager"] = True
-            except:
+            except Exception:
                 services["user_manager"] = False
 
             available = sum(1 for v in services.values() if v)
@@ -430,7 +430,7 @@ class ShakedownHandler(BaseCommandHandler):
             try:
                 from core.services.logging_api import get_logger
                 logger = get_logger("shakedown-fresh")
-            except:
+            except Exception:
                 services_ok = False
             checks["logging_api"] = services_ok
 
@@ -453,7 +453,7 @@ class ShakedownHandler(BaseCommandHandler):
                 from core.tui.dispatcher import CommandDispatcher
                 dispatcher = CommandDispatcher()
                 checks["dispatcher_ready"] = len(dispatcher.handlers) >= 10
-            except:
+            except Exception:
                 checks["dispatcher_ready"] = False
 
             # Check 8: GameState can initialize
@@ -461,7 +461,7 @@ class ShakedownHandler(BaseCommandHandler):
                 from core.tui.state import GameState
                 state = GameState()
                 checks["state_ready"] = state is not None
-            except:
+            except Exception:
                 checks["state_ready"] = False
 
             # Check 9: SmartPrompt available
@@ -469,7 +469,7 @@ class ShakedownHandler(BaseCommandHandler):
                 from core.input import SmartPrompt
                 prompt = SmartPrompt()
                 checks["smartprompt_ready"] = prompt is not None
-            except:
+            except Exception:
                 checks["smartprompt_ready"] = False
 
             # Summarize results
@@ -517,7 +517,7 @@ class ShakedownHandler(BaseCommandHandler):
                 from core.commands import DestroyHandler
                 handler = DestroyHandler()
                 check_handler = True
-            except:
+            except Exception:
                 check_handler = False
 
             # Check 2: Can access user manager
@@ -525,7 +525,7 @@ class ShakedownHandler(BaseCommandHandler):
                 from core.services.user_service import get_user_manager, Permission
                 user_mgr = get_user_manager()
                 check_user_mgr = True
-            except:
+            except Exception:
                 check_user_mgr = False
                 user_mgr = None
                 Permission = None

@@ -22,8 +22,6 @@
   let isFullscreen = false;
   let statusTimer;
   let emojiTimer;
-  let wizardUp = false;
-  let goblinUp = false;
   let memPercent = "?";
   let cpuPercent = "?";
   let devState = "OFF";
@@ -88,17 +86,10 @@
   async function refreshStatus() {
     resolveRole();
     resolveGhostMode();
-    try {
-      const healthRes = await apiFetch("/health");
-      wizardUp = healthRes.ok;
-    } catch (err) {
-      wizardUp = false;
-    }
 
     const token = getAdminToken();
     if (!token) {
       devState = "OFF";
-      goblinUp = false;
       memPercent = "?";
       cpuPercent = "?";
       return;
@@ -111,11 +102,9 @@
       if (devRes.ok) {
         const data = await devRes.json();
         devState = data.active ? "ON" : "OFF";
-        goblinUp = !!data.active;
       }
     } catch (err) {
       devState = "OFF";
-      goblinUp = false;
     }
 
     try {
@@ -179,18 +168,6 @@
         {#if ghostMode}
           <span class="chip ghost">GHOST MODE</span>
         {/if}
-        <span class="chip">
-          WIZ:
-          <span class:good={wizardUp} class:bad={!wizardUp}>
-            {wizardUp ? "🟢" : "🔴"}
-          </span>
-        </span>
-        <span class="chip">
-          GOB:
-          <span class:good={goblinUp} class:bad={!goblinUp}>
-            {goblinUp ? "🟢" : "🔴"}
-          </span>
-        </span>
         <span class="chip">Mem: {memPercent}%</span>
         <span class="chip">CPU: {cpuPercent}%</span>
         <span class="chip">F1-F8</span>
@@ -308,7 +285,7 @@
     bottom: 0;
     left: 0;
     width: 100vw;
-    height: var(--wizard-bottom-bar-height, 86px);
+    height: var(--wizard-bottom-bar-height, 52px);
     background: #1f2937;
     color: #d1d5db;
     display: flex;
@@ -327,7 +304,7 @@
 
   .wizard-cli-bar {
     position: fixed;
-    bottom: var(--wizard-bottom-bar-height, 86px);
+    bottom: var(--wizard-bottom-bar-height, 52px);
     left: 0;
     width: 100vw;
     height: var(--wizard-cli-bar-height, 44px);
@@ -444,14 +421,6 @@
 
   .chip.ghost {
     background: rgba(148, 163, 184, 0.2);
-  }
-
-  .good {
-    color: #34d399;
-  }
-
-  .bad {
-    color: #f87171;
   }
 
   .commands-line,

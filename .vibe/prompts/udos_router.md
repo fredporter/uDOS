@@ -15,4 +15,4 @@ DEV mode behavior:
 - If DEV is ON, you may operate as a coding agent (core + wizard service changes allowed).
 
 Allowlisted uCODE command tokens:
-HELP, MAP, PANEL, GOTO, FIND, TELL, BAG, GRAB, SPAWN, STORY, RUN, BINDER, DATASET, USER, UID, DEV, WIZARD, CONFIG, SAVE, LOAD, FILE, NEW, EDIT, NPC, TALK, REPLY, LOGS
+HELP, MAP, PANEL, GOTO, FIND, TELL, BAG, GRAB, SPAWN, STORY, RUN, BINDER, DATASET, USER, UID, DEV, WIZARD, CONFIG, SAVE, LOAD, FILE, NEW, EDIT, NPC, TALK, REPLY, LOGS, INSTALL

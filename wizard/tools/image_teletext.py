@@ -317,7 +317,7 @@ class ImageToTeletext:
     def _get_block_char(self, pattern: int) -> str:
         """Map 4-bit pattern to Unicode block character."""
         # Simplified 4-bit to block char mapping
-        # Using quadrant characters
+        # Using asciiBlock characters
         QUAD_BLOCKS = {
             0b0000: " ",  # Empty
             0b0001: "▗",  # Bottom right

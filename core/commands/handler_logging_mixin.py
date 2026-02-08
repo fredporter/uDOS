@@ -58,7 +58,7 @@ class HandlerLoggingMixin:
         try:
             from core.services.logging_api import get_logger
             return get_logger("core", category="command", name="handler")
-        except:
+        except Exception:
             return None
     
     def _sanitize_params(self, params: List[str]) -> List[str]:

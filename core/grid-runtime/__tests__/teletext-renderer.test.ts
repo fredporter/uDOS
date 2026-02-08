@@ -1,38 +1,38 @@
 /**
- * Tests for Sextant Renderer (Unicode block graphics)
+ * Tests for Teletext Renderer (Unicode block graphics)
  */
 
 import {
-  SEXTANT_CHARS,
-  QUADRANT_CHARS,
+  TELETEXT_CHARS,
+  ASCII_BLOCK_CHARS,
   SHADE_CHARS,
   ASCII_CHARS,
   PixelGrid,
   pixelGridToIndex,
   indexToPixelGrid,
-  pixelGridToSextant,
-  pixelGridToQuadrant,
+  pixelGridToTeletext,
+  pixelGridToAsciiBlock,
   pixelGridToShade,
   pixelGridToASCII,
   RenderQuality,
   renderPixelGrid,
-  detectSextantSupport,
+  detectTeletextSupport,
   getRecommendedQuality,
   createEmptyGrid,
   createFullGrid,
   mergeGrids,
   invertGrid,
-} from '../src/sextant-renderer';
+} from '../src/teletext-renderer';
 
-describe('Sextant Renderer', () => {
+describe('Teletext Renderer', () => {
   
   describe('Character Lookups', () => {
-    it('should have 64 sextant characters', () => {
-      expect(SEXTANT_CHARS.length).toBe(64);
+    it('should have 64 teletext characters', () => {
+      expect(TELETEXT_CHARS.length).toBe(64);
     });
     
-    it('should have 16 quadrant characters', () => {
-      expect(QUADRANT_CHARS.length).toBe(16);
+    it('should have 16 asciiBlock characters', () => {
+      expect(ASCII_BLOCK_CHARS.length).toBe(16);
     });
     
     it('should have 5 shade characters', () => {
@@ -44,15 +44,15 @@ describe('Sextant Renderer', () => {
     });
     
     it('should start with empty character', () => {
-      expect(SEXTANT_CHARS[0]).toBe(' ');
-      expect(QUADRANT_CHARS[0]).toBe(' ');
+      expect(TELETEXT_CHARS[0]).toBe(' ');
+      expect(ASCII_BLOCK_CHARS[0]).toBe(' ');
       expect(SHADE_CHARS[0]).toBe(' ');
       expect(ASCII_CHARS[0]).toBe(' ');
     });
     
     it('should end with full block', () => {
-      expect(SEXTANT_CHARS[63]).toBe('█');
-      expect(QUADRANT_CHARS[15]).toBe('█');
+      expect(TELETEXT_CHARS[63]).toBe('█');
+      expect(ASCII_BLOCK_CHARS[15]).toBe('█');
       expect(SHADE_CHARS[4]).toBe('█');
     });
   });
@@ -116,15 +116,15 @@ describe('Sextant Renderer', () => {
     });
   });
   
-  describe('Sextant Rendering', () => {
+  describe('Teletext Rendering', () => {
     it('should render empty grid as space', () => {
       const grid = createEmptyGrid();
-      expect(pixelGridToSextant(grid)).toBe(' ');
+      expect(pixelGridToTeletext(grid)).toBe(' ');
     });
     
     it('should render full grid as full block', () => {
       const grid = createFullGrid();
-      expect(pixelGridToSextant(grid)).toBe('█');
+      expect(pixelGridToTeletext(grid)).toBe('█');
     });
     
     it('should render top half pattern', () => {
@@ -136,17 +136,17 @@ describe('Sextant Renderer', () => {
         bottomLeft: false,
         bottomRight: false,
       };
-      const char = pixelGridToSextant(grid);
+      const char = pixelGridToTeletext(grid);
       expect(char).toBeTruthy();
       expect(char).not.toBe(' ');
       expect(char).not.toBe('█');
     });
   });
   
-  describe('Quadrant Rendering', () => {
+  describe('AsciiBlock Rendering', () => {
     it('should render empty grid as space', () => {
       const grid = createEmptyGrid();
-      expect(pixelGridToQuadrant(grid)).toBe(' ');
+      expect(pixelGridToAsciiBlock(grid)).toBe(' ');
     });
     
     it('should render top row as half block', () => {
@@ -158,7 +158,7 @@ describe('Sextant Renderer', () => {
         bottomLeft: false,
         bottomRight: false,
       };
-      expect(pixelGridToQuadrant(grid)).toBe('▀');
+      expect(pixelGridToAsciiBlock(grid)).toBe('▀');
     });
     
     it('should use only top 2 rows', () => {
@@ -171,7 +171,7 @@ describe('Sextant Renderer', () => {
         bottomLeft: true, // Ignored
         bottomRight: true, // Ignored
       };
-      expect(pixelGridToQuadrant(grid)).toBe('▀');
+      expect(pixelGridToAsciiBlock(grid)).toBe('▀');
     });
   });
   
@@ -255,27 +255,27 @@ describe('Sextant Renderer', () => {
     it('should render with specified quality', () => {
       const grid = createFullGrid();
       
-      expect(renderPixelGrid(grid, RenderQuality.SEXTANT)).toBe('█');
-      expect(renderPixelGrid(grid, RenderQuality.QUADRANT)).toBe('█');
+      expect(renderPixelGrid(grid, RenderQuality.TELETEXT)).toBe('█');
+      expect(renderPixelGrid(grid, RenderQuality.ASCII_BLOCK)).toBe('█');
       expect(renderPixelGrid(grid, RenderQuality.SHADE)).toBe('█');
       expect(renderPixelGrid(grid, RenderQuality.ASCII)).toBe('@');
     });
     
-    it('should default to sextant quality', () => {
+    it('should default to teletext quality', () => {
       const grid = createFullGrid();
       expect(renderPixelGrid(grid)).toBe('█');
     });
     
-    it('should detect sextant support', () => {
-      const supported = detectSextantSupport();
+    it('should detect teletext support', () => {
+      const supported = detectTeletextSupport();
       expect(typeof supported).toBe('boolean');
     });
     
     it('should recommend quality level', () => {
       const quality = getRecommendedQuality();
       expect([
-        RenderQuality.SEXTANT,
-        RenderQuality.QUADRANT,
+        RenderQuality.TELETEXT,
+        RenderQuality.ASCII_BLOCK,
       ]).toContain(quality);
     });
   });
@@ -323,12 +323,12 @@ describe('Sextant Renderer', () => {
   });
   
   describe('Edge Cases', () => {
-    it('should handle all 64 sextant patterns', () => {
+    it('should handle all 64 teletext patterns', () => {
       for (let i = 0; i < 64; i++) {
         const grid = indexToPixelGrid(i);
-        const char = pixelGridToSextant(grid);
+        const char = pixelGridToTeletext(grid);
         expect(char).toBeTruthy();
-        expect(SEXTANT_CHARS[i]).toBe(char);
+        expect(TELETEXT_CHARS[i]).toBe(char);
       }
     });
     

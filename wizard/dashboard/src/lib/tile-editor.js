@@ -335,10 +335,12 @@ class TileEditor {
         this.currentFontId = fontId;
         this.updateFontSelect();
         try {
-            const fontFace = new FontFace(
-                font.name,
-                `url(/api/fonts/file?path=${encodeURIComponent(font.file)})`
-            );
+            const res = await apiFetch(`/api/fonts/file?path=${encodeURIComponent(font.file)}`);
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+            }
+            const buffer = await res.arrayBuffer();
+            const fontFace = new FontFace(font.name, buffer);
             const loaded = await fontFace.load();
             document.fonts.add(loaded);
             this.currentFontFamily = `"${font.name}", "Noto Color Emoji", "Noto Emoji", monospace`;

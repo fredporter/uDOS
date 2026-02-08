@@ -140,7 +140,7 @@ class AdvancedFormField:
                 import time
                 tz_name = time.tzname[0] if time.daylight == 0 else time.tzname[1]
                 suggestions['user_timezone'] = self._get_iana_timezone()
-            except:
+            except Exception:
                 suggestions['user_timezone'] = 'UTC'
 
             # System time
@@ -154,7 +154,7 @@ class AdvancedFormField:
             try:
                 hostname = subprocess.check_output(['hostname']).decode().strip()
                 suggestions['_hostname'] = hostname
-            except:
+            except Exception:
                 pass
 
             return suggestions
@@ -175,14 +175,14 @@ class AdvancedFormField:
                                             text=True, stderr=subprocess.DEVNULL)
             if result:
                 return result.strip()
-        except:
+        except Exception:
             pass
 
         try:
             # Fallback: read from /etc/timezone on Linux
             with open('/etc/timezone', 'r') as f:
                 return f.read().strip()
-        except:
+        except Exception:
             pass
 
         try:
@@ -194,7 +194,7 @@ class AdvancedFormField:
             ).decode().strip()
             if tz.startswith('Time Zone: '):
                 return tz.replace('Time Zone: ', '')
-        except:
+        except Exception:
             pass
 
         return 'UTC'

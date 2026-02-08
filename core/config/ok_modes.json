@@ -26,6 +26,18 @@
           "availability": [
             "core"
           ]
+        },
+        {
+          "name": "mistral-small",
+          "availability": [
+            "core"
+          ]
+        },
+        {
+          "name": "mistral-large:latest",
+          "availability": [
+            "core"
+          ]
         }
       ]
     },

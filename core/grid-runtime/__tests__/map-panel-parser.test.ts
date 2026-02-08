@@ -12,7 +12,7 @@ import {
 } from '../src/map-panel-parser';
 import { World, loadLocationDatabase } from '../src/location-loader';
 import { LocationDatabase } from '../src/location-types';
-import { RenderQuality } from '../src/sextant-renderer';
+import { RenderQuality } from '../src/teletext-renderer';
 
 // Mock location data for testing
 const mockLocationData: LocationDatabase = {
@@ -66,8 +66,8 @@ describe('Block Parser', () => {
     });
     
     it('should parse MAP with quality', () => {
-      const block = parseMapBlock('```map L300-AA10 quality=sextant');
-      expect(block.quality).toBe(RenderQuality.SEXTANT);
+      const block = parseMapBlock('```map L300-AA10 quality=teletext');
+      expect(block.quality).toBe(RenderQuality.TELETEXT);
     });
     
     it('should parse MAP with boolean flags', () => {
@@ -77,11 +77,11 @@ describe('Block Parser', () => {
     });
     
     it('should parse MAP with all options', () => {
-      const block = parseMapBlock('```map L300-AA10 80x30 center=BD14 quality=quadrant coords layer');
+      const block = parseMapBlock('```map L300-AA10 80x30 center=BD14 quality=asciiBlock coords layer');
       expect(block.location).toBe('L300-AA10');
       expect(block.size).toEqual({ width: 80, height: 30 });
       expect(block.center).toBe('BD14');
-      expect(block.quality).toBe(RenderQuality.QUADRANT);
+      expect(block.quality).toBe(RenderQuality.ASCII_BLOCK);
       expect(block.showCoords).toBe(true);
       expect(block.showLayer).toBe(true);
     });

@@ -191,7 +191,7 @@
       "id": "grass",
       "name": "Grass",
       "character": ".",
-      "sextant_block": "░",
+      "teletext_block": "░",
       "color": "green",
       "traversable": true
     },
@@ -199,7 +199,7 @@
       "id": "stone",
       "name": "Stone",
       "character": "#",
-      "sextant_block": "▓",
+      "teletext_block": "▓",
       "color": "white",
       "traversable": true
     },
@@ -207,7 +207,7 @@
       "id": "water",
       "name": "Water",
       "character": "~",
-      "sextant_block": "▒",
+      "teletext_block": "▒",
       "color": "blue",
       "traversable": false
     },
@@ -215,7 +215,7 @@
       "id": "forest",
       "name": "Forest",
       "character": "t",
-      "sextant_block": "█",
+      "teletext_block": "█",
       "color": "green",
       "traversable": true
     },
@@ -223,7 +223,7 @@
       "id": "mountain",
       "name": "Mountain",
       "character": "^",
-      "sextant_block": "▲",
+      "teletext_block": "▲",
       "color": "white",
       "traversable": false
     }

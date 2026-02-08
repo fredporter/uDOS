@@ -5,7 +5,7 @@
  */
 
 import { ViewportManager } from "../src/viewport";
-import { SextantRenderer, RenderPipeline, GraphicsModeSupport } from "../src/renderer";
+import { TeletextRenderer, RenderPipeline, GraphicsModeSupport } from "../src/renderer";
 import { GraphicsMode, VIEWPORT_STANDARD, VIEWPORT_MINI } from "../src/geometry";
 import { parseCell, CanonicalAddress } from "../src/address";
 
@@ -42,16 +42,16 @@ describe("ViewportManager", () => {
   });
 
   test("should switch render modes", () => {
-    viewport.setRenderMode(GraphicsMode.Sextant);
-    viewport.setRenderMode(GraphicsMode.Quadrant);
+    viewport.setRenderMode(GraphicsMode.Teletext);
+    viewport.setRenderMode(GraphicsMode.AsciiBlock);
     viewport.setRenderMode(GraphicsMode.Shade);
     viewport.setRenderMode(GraphicsMode.ASCII);
     // Should not throw
     expect(viewport).toBeDefined();
   });
 
-  test("should render character with fallback (sextant)", () => {
-    viewport.setRenderMode(GraphicsMode.Sextant);
+  test("should render character with fallback (teletext)", () => {
+    viewport.setRenderMode(GraphicsMode.Teletext);
     const char = viewport.renderCharacter(5);
     expect(char).toBeTruthy();
     expect(char.length).toBe(1);
@@ -84,7 +84,7 @@ describe("RenderPipeline", () => {
   let pipeline: RenderPipeline;
 
   beforeEach(() => {
-    pipeline = new RenderPipeline(GraphicsMode.Sextant);
+    pipeline = new RenderPipeline(GraphicsMode.Teletext);
   });
 
   test("should initialize with default mode", () => {
@@ -92,20 +92,20 @@ describe("RenderPipeline", () => {
   });
 
   test("should switch render modes", () => {
-    pipeline.setRenderMode(GraphicsMode.Quadrant);
+    pipeline.setRenderMode(GraphicsMode.AsciiBlock);
     pipeline.setRenderMode(GraphicsMode.Shade);
     pipeline.setRenderMode(GraphicsMode.ASCII);
     expect(pipeline).toBeDefined();
   });
 
-  test("should render character with sextant mode", () => {
-    pipeline.setRenderMode(GraphicsMode.Sextant);
+  test("should render character with teletext mode", () => {
+    pipeline.setRenderMode(GraphicsMode.Teletext);
     const char = pipeline.renderCharacterWithFallback(5);
     expect(char).toBeTruthy();
   });
 
-  test("should render character with quadrant fallback", () => {
-    pipeline.setRenderMode(GraphicsMode.Quadrant);
+  test("should render character with asciiBlock fallback", () => {
+    pipeline.setRenderMode(GraphicsMode.AsciiBlock);
     const char = pipeline.renderCharacterWithFallback(5);
     expect(char).toBeTruthy();
   });
@@ -165,30 +165,30 @@ describe("RenderPipeline", () => {
   });
 });
 
-describe("SextantCharacterSet", () => {
+describe("TeletextCharacterSet", () => {
   test("should get character for sprite", () => {
     const mockSprite = { id: "sp1", type: "sprite" as const, static: false };
-    const char = SextantCharacterSet.getCharacter(mockSprite);
+    const char = TeletextCharacterSet.getCharacter(mockSprite);
     expect(char).toBeTruthy();
   });
 
   test("should get character for marker", () => {
     const mockMarker = { id: "m1", type: "marker" as const, static: false };
-    const char = SextantCharacterSet.getCharacter(mockMarker);
+    const char = TeletextCharacterSet.getCharacter(mockMarker);
     expect(char).toBeTruthy();
   });
 
   test("should get character for object", () => {
     const mockObject = { id: "obj1", type: "object" as const, static: true };
-    const char = SextantCharacterSet.getCharacter(mockObject);
+    const char = TeletextCharacterSet.getCharacter(mockObject);
     expect(char).toBeTruthy();
   });
 });
 
 describe("GraphicsModeSupport", () => {
-  test("should get fallback chain for sextant", () => {
-    const chain = GraphicsModeSupport.getFallbackChain(GraphicsMode.Sextant);
-    expect(chain[0]).toBe(GraphicsMode.Sextant);
+  test("should get fallback chain for teletext", () => {
+    const chain = GraphicsModeSupport.getFallbackChain(GraphicsMode.Teletext);
+    expect(chain[0]).toBe(GraphicsMode.Teletext);
     expect(chain[chain.length - 1]).toBe(GraphicsMode.ASCII);
   });
 
@@ -199,16 +199,16 @@ describe("GraphicsModeSupport", () => {
 
   test("should detect terminal mode", () => {
     const mode = GraphicsModeSupport.detectTerminalMode();
-    expect([GraphicsMode.Sextant, GraphicsMode.Quadrant, GraphicsMode.Shade, GraphicsMode.ASCII]).toContain(mode);
+    expect([GraphicsMode.Teletext, GraphicsMode.AsciiBlock, GraphicsMode.Shade, GraphicsMode.ASCII]).toContain(mode);
   });
 });
 
 describe("Fallback Rendering", () => {
-  test("should gracefully fallback sextant → ASCII", () => {
+  test("should gracefully fallback teletext → ASCII", () => {
     const pipeline = new RenderPipeline();
 
-    const sextantChar = (() => {
-      pipeline.setRenderMode(GraphicsMode.Sextant);
+    const teletextChar = (() => {
+      pipeline.setRenderMode(GraphicsMode.Teletext);
       return pipeline.renderCharacterWithFallback(5);
     })();
 
@@ -217,7 +217,7 @@ describe("Fallback Rendering", () => {
       return pipeline.renderCharacterWithFallback(5);
     })();
 
-    expect(sextantChar).toBeTruthy();
+    expect(teletextChar).toBeTruthy();
     expect(asciiChar).toMatch(/[.:#@]/);
   });
 });

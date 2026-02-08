@@ -18,6 +18,8 @@ class DrawHandler(BaseCommandHandler, HandlerLoggingMixin):
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         mode = (params[0].lower().strip() if params else "demo")
+        if mode.endswith(".md") or mode.endswith(".txt"):
+            return self._block(params)
         if mode == "block":
             return self._block(params[1:])
         if mode in {"demo", "show"}:
@@ -40,6 +42,7 @@ class DrawHandler(BaseCommandHandler, HandlerLoggingMixin):
                 OutputToolkit.banner("DRAW"),
                 "DRAW DEMO              Render viewport-sized ASCII demo panels",
                 "DRAW BLOCK <text>      Render block text (options: --border --invert --rainbow)",
+                "DRAW <file.md>         Render ASCII file from seed templates/demos",
                 "DRAW MAP               Render grid/map panel only",
                 "DRAW SCHEDULE          Render schedule/calendar/todo panel only",
                 "DRAW TIMELINE          Render timeline/progress/roadmap panel only",
@@ -218,9 +221,10 @@ class DrawHandler(BaseCommandHandler, HandlerLoggingMixin):
                 if hasattr(candidate, "exists") and candidate.exists():
                     content = candidate.read_text()
                     lines = [line.rstrip("\n") for line in content.splitlines()]
-                    while lines and not lines[0].strip():
+                    # Strip markdown code fences if present
+                    while lines and (not lines[0].strip() or lines[0].strip().startswith("```")):
                         lines.pop(0)
-                    while lines and not lines[-1].strip():
+                    while lines and (not lines[-1].strip() or lines[-1].strip().startswith("```")):
                         lines.pop()
                     return lines or [""]
             except Exception:

@@ -184,7 +184,7 @@ class MeshSyncService:
 
         # Get deletions since device_version
         for item_id in self.deleted_items:
-            # TODO: Track deletion version
+            # STUB: Track deletion version
             deleted.append(item_id)
 
         delta = SyncDelta(
@@ -296,7 +296,7 @@ class MeshSyncService:
 
     def _get_config_item(self, item_id: str) -> Optional[SyncItem]:
         """Get config item for sync."""
-        # TODO: Implement config sync
+        # STUB: config sync
         return None
 
     # =========================================================================
@@ -324,7 +324,7 @@ class MeshSyncService:
 
             if existing_hash != incoming_hash:
                 # Conflict - for now, newer wins
-                # TODO: Implement proper conflict resolution
+                # STUB: proper conflict resolution
                 logger.warning(f"[MESH] Conflict detected for {path}")
 
         # Write content
@@ -355,7 +355,7 @@ class MeshSyncService:
 
     def _apply_notification(self, item_data: Dict[str, Any]) -> bool:
         """Apply notification from device."""
-        # TODO: Store in notification system
+        # STUB: Store notification
         return True
 
     # =========================================================================

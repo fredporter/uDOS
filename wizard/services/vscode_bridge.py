@@ -6,10 +6,14 @@ Exposes /api/* endpoints that the VSCode extension expects,
 bridging to uDOS core services and Wizard capabilities.
 """
 
+import time
 from pathlib import Path
 from typing import Dict, Any
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
+
+# Track server start time for uptime calculation
+_bridge_start_time = time.time()
 
 # Core imports
 try:
@@ -68,7 +72,7 @@ def create_vscode_bridge_router() -> APIRouter:
             return {
                 "status": "ok",
                 "versions": versions,
-                "uptime": 0,  # TODO: Track server uptime
+                "uptime": int(time.time() - _bridge_start_time),
             }
         except Exception as e:
             if logger:
@@ -84,7 +88,7 @@ def create_vscode_bridge_router() -> APIRouter:
                 detail="uDOS core not available - execution requires full uDOS installation",
             )
 
-        # TODO: Implement script execution via uDOS core
+        # STUB: Implement script execution via uDOS core
         if logger:
             logger.warning(
                 f"[WIZ] Script execution not yet implemented: {request.file}"
@@ -102,7 +106,7 @@ def create_vscode_bridge_router() -> APIRouter:
         if not UDOS_AVAILABLE:
             raise HTTPException(status_code=503, detail="uDOS core not available")
 
-        # TODO: Implement code execution via uDOS core
+        # STUB: Implement code execution via uDOS core
         if logger:
             logger.warning(
                 f"[WIZ] Code execution not yet implemented: {len(request.code)} chars"
@@ -120,7 +124,7 @@ def create_vscode_bridge_router() -> APIRouter:
         if not UDOS_AVAILABLE:
             raise HTTPException(status_code=503, detail="uDOS core not available")
 
-        # TODO: Implement command routing via uDOS core
+        # STUB: Implement command routing via uDOS core
         if logger:
             logger.info(f"[WIZ] Command request: {request.command}")
 

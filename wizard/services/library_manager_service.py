@@ -426,7 +426,7 @@ class LibraryManagerService:
                     manifest = json.load(f)
             else:
                 manifest = {}
-        except:
+        except Exception:
             manifest = {}
 
         # Get package dependencies from manifest
@@ -498,7 +498,7 @@ class LibraryManagerService:
 
     def _uninstall_via_package_manager(self, name: str) -> Tuple[bool, str]:
         """Uninstall packages via system package manager."""
-        # TODO: Implement package removal
+        # STUB: package removal
         # This requires tracking which packages were installed for each integration
         return True, "Package removal not yet implemented"
 
@@ -509,7 +509,7 @@ class LibraryManagerService:
             try:
                 with open(self.enabled_config_path) as f:
                     enabled.update(line.strip() for line in f if line.strip())
-            except:
+            except Exception:
                 pass
         return enabled
 

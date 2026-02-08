@@ -30,7 +30,7 @@ minCol: 20
 maxCol: 60
 minRow: 10
 maxRow: 20
-renderMode: sextant
+renderMode: teletext
 showTerrain: true
 showSprites: true
 \`\`\`
@@ -63,7 +63,7 @@ showSprites: true
 \`\`\`set
 set $player.pos.layer 300
 set $player.pos.tile "AA12"
-set $world.renderMode "sextant"
+set $world.renderMode "teletext"
 \`\`\`
 ```
 
@@ -252,7 +252,7 @@ set $sky.brightness 0.5
 
 ## Integration Checklist for v1.0.7.0
 
-- [ ] Parse `\`\`\`teletext` blocks (raw sextant grid text)
+- [ ] Parse `\`\`\`teletext` blocks (raw teletext grid text)
 - [ ] Parse `\`\`\`grid` blocks (YAML location definitions)
 - [ ] Parse `\`\`\`tiles` blocks (tile manifests with metadata)
 - [ ] Implement ViewportManager for rendering composition
@@ -260,7 +260,7 @@ set $sky.brightness 0.5
 - [ ] Implement pathfinding for location connections
 - [ ] Wire into uDOS map blocks (set, form, panel)
 - [ ] Test with example-script.md examples
-- [ ] Validate fallback rendering (sextant → ASCII)
+- [ ] Validate fallback rendering (teletext → ASCII)
 
 ---
 

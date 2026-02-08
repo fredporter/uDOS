@@ -48,21 +48,21 @@ def get_repo_root_safe():
     try:
         from core.services.logging_api import get_repo_root
         return get_repo_root()
-    except:
+    except Exception:
         return Path(__file__).parent.parent.parent
 
 
 class DestroyHandler(BaseCommandHandler):
     """Destroy/cleanup handler with user management options."""
-    
+
     def __init__(self):
         """Initialize handler."""
         super().__init__()
         self.prompt = None  # Will be set before use
-    
+
     def handle(self, command, params, grid, parser):
         """Handle DESTROY command.
-        
+
         Usage:
             DESTROY              # Show numbered menu
             DESTROY 0            # Show help
@@ -71,27 +71,27 @@ class DestroyHandler(BaseCommandHandler):
             DESTROY 3            # Wipe + compost + reload
             DESTROY 4            # Nuclear reset (factory defaults)
             DESTROY --help       # Show help (legacy)
-        
+
         Args:
             command: Command name (DESTROY)
             params: Parameter list
             grid: Grid object
             parser: Parser object with prompt access
-        
+
         Returns:
             Output dict
         """
         # Store parser for use in confirmation prompts
         self.prompt = parser
-        
+
         # Import here to avoid circular deps
         from core.services.logging_api import get_logger
         from core.services.user_service import get_user_manager, Permission
         from core.tui.output import OutputToolkit
-        
+
         logger = get_logger("core", category="destroy", name="destroy-handler")
         output = OutputToolkit()
-        
+
         # Check permissions
         user_mgr = get_user_manager()
         user = user_mgr.current()
@@ -108,7 +108,7 @@ class DestroyHandler(BaseCommandHandler):
                 'output': f'❌ DESTROY permission denied for user {user.username if user else "unknown"}',
                 'status': 'error'
             }
-        
+
         # Parse parameters - support both numeric menu and legacy flags
         choice = None
         wipe_user = False
@@ -119,11 +119,11 @@ class DestroyHandler(BaseCommandHandler):
         scrub_vault = False
         skip_confirm = False
         show_help = False
-        
+
         # Parse first parameter for numeric choice or flags
         if params:
             first_param = params[0].lower()
-            
+
             # Check for numeric choice (0-4)
             if first_param in ['0', '1', '2', '3', '4']:
                 choice = int(first_param)
@@ -147,7 +147,7 @@ class DestroyHandler(BaseCommandHandler):
                         skip_confirm = True
                     elif param_lower in ['--help', '-h']:
                         show_help = True
-        
+
         # Handle numeric choices
         if choice is not None:
             if choice == 0:
@@ -163,21 +163,21 @@ class DestroyHandler(BaseCommandHandler):
             elif choice == 4:
                 reset_all = True
                 skip_confirm = False  # Always require confirmation for nuclear
-        
+
         # Handle help (legacy)
         if show_help:
             return self._show_help()
-        
+
         # Show interactive menu if no options or choice
         if not (wipe_user or compost or reload_repair or reset_all):
             return self._show_interactive_menu()
-        
+
         # Handle nuclear option
         if reset_all:
             if not skip_confirm:
                 return self._confirm_nuclear()
             return self._perform_nuclear(user)
-        
+
         # Build cleanup plan
         plan = []
         if wipe_user:
@@ -191,7 +191,7 @@ class DestroyHandler(BaseCommandHandler):
             plan.append("🔥 Scrub VAULT_ROOT (permanent delete)")
         if reload_repair:
             plan.append("🔧 Hot reload and run repair")
-        
+
         # Log the action
         logger.event(
             "warn",
@@ -205,7 +205,7 @@ class DestroyHandler(BaseCommandHandler):
                 "plan": plan,
             },
         )
-        
+
         return self._perform_cleanup(
             user=user,
             wipe_user=wipe_user,
@@ -216,10 +216,10 @@ class DestroyHandler(BaseCommandHandler):
             skip_confirm=skip_confirm,
             plan=plan
         )
-    
+
     def _show_menu(self):
         """Show cleanup options menu with numbered choices.
-        
+
         Returns:
             Output dict
         """
@@ -230,35 +230,11 @@ class DestroyHandler(BaseCommandHandler):
 
 Choose a cleanup option (type number + Enter):
 
-  1. WIPE USER DATA
-    • Clear all user profiles, roles, and API keys
-    • Resets .env identity + Wizard keystore
-    • Preserves memory/logs
-    Usage: DESTROY 1
-    
-  2. ARCHIVE MEMORY (COMPOST)
-    • Archive /memory to .archive/compost/YYYY-MM-DD
-    • Preserves data history
-    • Frees up /memory space
-    • Keeps users intact
-    Usage: DESTROY 2
-    
-  3. WIPE + COMPOST + REBOOT
-    • Both: wipe user data AND archive memory
-    • Hot reload + repair after cleanup
-    • Complete fresh start (keeps framework)
-    Usage: DESTROY 3
-    
-  4. NUCLEAR RESET (FACTORY RESET)
-    • ⚠️  DANGER: Everything wiped to factory defaults
-    • Deletes: users, memory, config, logs, API keys
-    • Requires additional confirmation
-    • Admin only - cannot be undone easily
-    Usage: DESTROY 4
+"""
 
-  0. HELP
-    Show detailed command reference
-    Usage: DESTROY 0
+        menu = menu + "\n" + self._format_numeric_options()
+
+        menu = menu + """
 
 EXAMPLES:
   DESTROY 1                    # Clear users
@@ -274,13 +250,105 @@ EXAMPLES:
             'status': 'info',
             'command': 'DESTROY'
         }
-    
+
+    def _menu_options(self):
+        return [
+            {
+                "id": 1,
+                "title": "WIPE USER DATA",
+                "short": "Wipe User Data (clear users, API keys)",
+                "details": [
+                    "Clear all user profiles, roles, and API keys",
+                    "Resets .env identity + Wizard keystore",
+                    "Preserves memory/logs",
+                ],
+                "usage": "DESTROY 1",
+                "cleanup": {
+                    "wipe_user": True,
+                    "compost": False,
+                    "reload_repair": False,
+                },
+                "plan": ["🗑️  Wipe user profiles and API keys"],
+            },
+            {
+                "id": 2,
+                "title": "ARCHIVE MEMORY (COMPOST)",
+                "short": "Archive Memory (compost /memory)",
+                "details": [
+                    "Archive /memory to .archive/compost/YYYY-MM-DD",
+                    "Preserves data history",
+                    "Frees up /memory space",
+                    "Keeps users intact",
+                ],
+                "usage": "DESTROY 2",
+                "cleanup": {
+                    "wipe_user": False,
+                    "compost": True,
+                    "reload_repair": False,
+                },
+                "plan": ["🗑️  Archive /memory to compost"],
+            },
+            {
+                "id": 3,
+                "title": "WIPE + COMPOST + REBOOT",
+                "short": "Wipe + Archive + Reload (complete cleanup)",
+                "details": [
+                    "Both: wipe user data AND archive memory",
+                    "Hot reload + repair after cleanup",
+                    "Complete fresh start (keeps framework)",
+                ],
+                "usage": "DESTROY 3",
+                "cleanup": {
+                    "wipe_user": True,
+                    "compost": True,
+                    "reload_repair": True,
+                },
+                "plan": [
+                    "🗑️  Wipe user profiles and API keys",
+                    "🗑️  Archive /memory to compost",
+                    "🔧 Hot reload and run repair",
+                ],
+            },
+            {
+                "id": 4,
+                "title": "NUCLEAR RESET (FACTORY RESET)",
+                "short": "Nuclear Reset (factory defaults - DANGER!)",
+                "details": [
+                    "⚠️  DANGER: Everything wiped to factory defaults",
+                    "Deletes: users, memory, config, logs, API keys",
+                    "Requires additional confirmation",
+                    "Admin only - cannot be undone easily",
+                ],
+                "usage": "DESTROY 4",
+                "action": "nuclear",
+            },
+            {
+                "id": 0,
+                "title": "HELP",
+                "short": "Help",
+                "details": ["Show detailed command reference"],
+                "usage": "DESTROY 0",
+                "action": "help",
+            },
+        ]
+
+    def _format_numeric_options(self) -> str:
+        lines = []
+        for option in self._menu_options():
+            lines.append(f"  {option['id']}. {option['title']}")
+            for detail in option.get("details", []):
+                lines.append(f"    • {detail}")
+            if option.get("usage"):
+                lines.append(f"    Usage: {option['usage']}")
+            lines.append("")
+        return "\n".join(lines).rstrip()
+
     def _show_interactive_menu(self):
         """Show interactive cleanup menu and guide user through options.
-        
+
         Uses the standard menu choice handler to guide the user.
         Recursively handles selected options.
-        
+
         Returns:
             Output dict (either menu display or action result)
         """
@@ -288,88 +356,61 @@ EXAMPLES:
         if not self.prompt or not hasattr(self.prompt, 'ask_menu_choice'):
             # Fallback to static menu if no prompt available
             return self._show_menu()
-        
+
         # Display the menu
         menu_text = """
 ╔════════════════════════════════════════╗
 ║      DESTROY/CLEANUP OPTIONS           ║
 ╚════════════════════════════════════════╝
-
-  1. Wipe User Data (clear users, API keys)
-  2. Archive Memory (compost /memory)
-  3. Wipe + Archive + Reload (complete cleanup)
-  4. Nuclear Reset (factory defaults - DANGER!)
-  0. Help
-"""
+    """
+        menu_lines = [menu_text.rstrip(), ""]
+        for option in self._menu_options():
+            menu_lines.append(f"  {option['id']}. {option['short']}")
+        menu_text = "\n".join(menu_lines)
         print(menu_text)
-        
+
         # Ask user to choose
         choice = self.prompt.ask_menu_choice(
             "Choose an option",
             num_options=4,
             allow_zero=True
         )
-        
-        if choice is None or choice == 0:
-            # User pressed enter or selected 0 - show help
+
+        if choice is None:
             return self._show_help()
-        
+
         # Recursively handle the choice by calling handle with the choice as param
         from core.services.user_service import get_user_manager
         user_mgr = get_user_manager()
         user = user_mgr.current()
-        
-        # Map choice to action
-        if choice == 1:
-            # Wipe user data
-            return self._perform_cleanup(
-                user=user,
-                wipe_user=True,
-                compost=False,
-                scrub_memory=False,
-                scrub_vault=False,
-                reload_repair=False,
-                skip_confirm=False,
-                plan=["🗑️  Wipe user profiles and API keys"]
-            )
-        elif choice == 2:
-            # Archive memory
-            return self._perform_cleanup(
-                user=user,
-                wipe_user=False,
-                compost=True,
-                scrub_memory=False,
-                scrub_vault=False,
-                reload_repair=False,
-                skip_confirm=False,
-                plan=["🗑️  Archive /memory to compost"]
-            )
-        elif choice == 3:
-            # Wipe + archive + reload
-            return self._perform_cleanup(
-                user=user,
-                wipe_user=True,
-                compost=True,
-                scrub_memory=False,
-                scrub_vault=False,
-                reload_repair=True,
-                skip_confirm=False,
-                plan=[
-                    "🗑️  Wipe user profiles and API keys",
-                    "🗑️  Archive /memory to compost",
-                    "🔧 Hot reload and run repair"
-                ]
-            )
-        elif choice == 4:
-            # Nuclear reset - prompt for confirmation
+
+        option_map = {option["id"]: option for option in self._menu_options()}
+        selected = option_map.get(choice)
+        if not selected:
+            return self._show_menu()
+        if selected.get("action") == "help":
+            return self._show_help()
+        if selected.get("action") == "nuclear":
             return self._confirm_nuclear()
-        
+
+        cleanup = selected.get("cleanup", {})
+        return self._perform_cleanup(
+            user=user,
+            wipe_user=cleanup.get("wipe_user", False),
+            compost=cleanup.get("compost", False),
+            scrub_memory=False,
+            scrub_vault=False,
+            reload_repair=cleanup.get("reload_repair", False),
+            skip_confirm=False,
+            plan=selected.get("plan") or [],
+        )
+
         # Shouldn't get here
         return self._show_menu()
-    
+
     def _show_help(self):
         """Show detailed help.
-        
+
         Returns:
             Output dict
         """
@@ -388,42 +429,7 @@ SYNTAX:
 
 NUMERIC OPTIONS:
 
-  0. HELP
-    Show this help text
-    Usage: DESTROY 0
-
-  1. WIPE USER DATA
-    • Deletes all user profiles except admin
-    • Clears API keys and credentials
-    • Removes OAuth tokens
-    • Resets .env identity + Wizard keystore
-    • Safe: users can be recreated
-    Usage: DESTROY 1
-
-  2. ARCHIVE MEMORY (COMPOST)
-    • Archives entire /memory to .archive/compost/YYYY-MM-DD
-    • Preserves data history
-    • Frees up /memory space
-    • Can be restored manually if needed
-    • Safe: original preserved in .archive
-    Usage: DESTROY 2
-
-  3. WIPE + ARCHIVE + REBOOT (COMPLETE CLEANUP)
-    • Wipes all user data and API keys
-    • Archives /memory to compost
-    • Hot reloads handlers
-    • Runs repair checks
-    • Safe: complete fresh start keeping framework
-    Usage: DESTROY 3
-
-  4. NUCLEAR RESET (FACTORY DEFAULT)
-    • ⚠️  DANGER: Complete system wipe
-    • Wipes: users, memory, config, logs, API keys
-    • Resets: system to factory defaults
-    • REQUIRES: explicit confirmation
-    • Admin only: cannot be undone easily
-    • Log note: Major reset event
-    Usage: DESTROY 4
+""" + self._format_numeric_options() + """
 
 LEGACY FLAG SUPPORT (still works):
   --wipe-user       Clear user profiles and API keys
@@ -468,10 +474,10 @@ NEXT STEPS AFTER CLEANUP:
             'status': 'info',
             'command': 'DESTROY'
         }
-    
+
     def _confirm_nuclear(self):
         """Confirm nuclear reset - prompt for confirmation.
-        
+
         Returns:
             Output dict (either confirmation warning or actual reset)
         """
@@ -497,7 +503,7 @@ Current status:
   Config: Custom
 """
         print("\n" + msg.strip() + "\n")
-        
+
         # Prompt for confirmation
         if self.prompt and hasattr(self.prompt, '_ask_confirm'):
             choice = self.prompt._ask_confirm(
@@ -523,7 +529,7 @@ Current status:
                 'needs_confirm': True,
                 'action': 'nuclear_reset'
             }
-        
+
         # If confirmed, proceed with nuclear reset
         if confirmed:
             from core.services.user_service import get_user_manager
@@ -535,46 +541,46 @@ Current status:
                 'status': 'cancelled',
                 'command': 'DESTROY'
             }
-    
+
     def _perform_nuclear(self, user):
         """Perform nuclear reset - complete system wipe.
-        
+
         Wipes:
             - All user profiles and permissions
             - All variables and personal settings
             - All memory (logs, bank, private, wizard)
             - All configuration files
             - API keys and credentials
-        
+
         Preserves:
             - .archive/ folder (backup history)
             - Admin user (factory default)
             - Core framework
-        
+
         Args:
             user: Current user
-        
+
         Returns:
             Output dict
         """
         from core.services.logging_api import get_repo_root, get_logger
-        
+
         logger = get_logger("core", category="destroy", name="destroy-handler")
         repo_root = Path(get_repo_root())
         results = []
-        
+
         try:
             # 1. Wipe users and variables
             from core.services.user_service import get_user_manager
             user_mgr = get_user_manager()
             results.append("🗑️  Wiping user profiles and variables...")
-            
+
             # Reset to factory: delete all except admin
             users_to_delete = [u for u in user_mgr.users.keys() if u != 'admin']
             for username in users_to_delete:
                 user_mgr.delete_user(username)
             results.append(f"   ✓ Deleted {len(users_to_delete)} users")
-            
+
             # Reset admin variables completely
             admin = user_mgr.current()
             if admin and admin.username == 'admin':
@@ -583,9 +589,9 @@ Current status:
                 if admin_file.exists():
                     try:
                         admin_file.unlink()
-                    except:
+                    except Exception:
                         pass
-                
+
                 # Clear in-memory variables
                 if hasattr(admin, 'variables'):
                     admin.variables.clear()
@@ -593,22 +599,22 @@ Current status:
                     admin.environment.clear()
                 if hasattr(admin, 'config'):
                     admin.config.clear()
-                
+
                 results.append("   ✓ Reset admin user variables and environment")
-            
+
             results.append("   ✓ Cleared all API keys and credentials")
-            
+
             # 2. Archive entire memory with metadata
             memory_path = repo_root / "memory"
             if memory_path.exists():
                 results.append("📦 Archiving /memory (logs, bank, private, wizard)...")
                 archive_root = repo_root / ".archive"
                 archive_root.mkdir(exist_ok=True)
-                
+
                 timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
                 compost_dir = archive_root / "compost" / timestamp
                 compost_dir.mkdir(parents=True, exist_ok=True)
-                
+
                 # Write metadata before archiving
                 metadata_file = compost_dir / "NUCLEAR-RESET-METADATA.json"
                 import json
@@ -621,26 +627,26 @@ Current status:
                     "users_deleted": len(users_to_delete),
                     "admin_reset": True
                 }
-                
+
                 try:
                     with open(str(metadata_file), 'w') as f:
                         json.dump(metadata, f, indent=2)
-                except:
+                except Exception:
                     pass  # Non-critical
-                
+
                 # Move memory contents to compost
                 shutil.move(str(memory_path), str(compost_dir / "memory"))
                 memory_path.mkdir(parents=True, exist_ok=True)  # Recreate empty
-                
+
                 # Recreate memory subdirectories
                 (memory_path / "logs").mkdir(parents=True, exist_ok=True)
                 (memory_path / "bank").mkdir(parents=True, exist_ok=True)
                 (memory_path / "private").mkdir(parents=True, exist_ok=True)
                 (memory_path / "wizard").mkdir(parents=True, exist_ok=True)
-                
+
                 results.append(f"   ✓ Archived to .archive/compost/{timestamp}")
                 results.append("   ✓ Recreated memory directories")
-            
+
             # 3. Clear config (preserving version.json)
             config_path = repo_root / "core" / "config"
             if config_path.exists():
@@ -649,10 +655,10 @@ Current status:
                     if config_file.name != "version.json":
                         try:
                             config_file.unlink()
-                        except:
+                        except Exception:
                             pass
                 results.append("   ✓ Cleared custom configuration")
-            
+
             # 4. Log the nuclear event
             logger.event(
                 "fatal",
@@ -667,7 +673,7 @@ Current status:
                     "admin_variables_cleared": True,
                 },
             )
-            
+
             results.append("")
             results.append("✅ Nuclear reset complete!")
             results.append("")
@@ -683,13 +689,13 @@ Current status:
             results.append("  2. STORY tui-setup           (Run setup story)")
             results.append("  3. USER create [user] [role] (create new users)")
             results.append("  4. WIZARD start              (start Wizard Server)")
-            
+
             return {
                 'output': '\n'.join(results),
                 'status': 'success',
                 'action': 'nuclear_reset_complete'
             }
-        
+
         except Exception as e:
             error_msg = f"❌ Nuclear reset failed: {e}"
             logger.event(
@@ -704,10 +710,10 @@ Current status:
                 'output': '\n'.join(results),
                 'status': 'error'
             }
-    
+
     def _perform_cleanup(self, user, wipe_user, compost, scrub_memory, scrub_vault, reload_repair, skip_confirm, plan):
         """Perform cleanup operations.
-        
+
         Args:
             user: Current user
             wipe_user: Wipe user data and variables
@@ -717,30 +723,30 @@ Current status:
             reload_repair: Reload + repair
             skip_confirm: Skip confirmation
             plan: Cleanup plan
-        
+
         Returns:
             Output dict
         """
         from core.services.logging_api import get_repo_root, get_logger
         from core.services.user_service import get_user_manager
-        
+
         results = []
         repo_root = Path(get_repo_root())
         logger = get_logger("core", category="destroy", name="destroy-handler")
-        
+
         try:
             if wipe_user:
                 results.append("🗑️  Wiping user data and variables...")
                 from core.services.user_service import get_user_manager
                 user_mgr = get_user_manager()
-                
+
                 # Delete all non-admin users
                 users_to_delete = [u for u in user_mgr.users.keys() if u != 'admin']
                 for username in users_to_delete:
                     user_mgr.delete_user(username)
-                
+
                 results.append(f"   ✓ Deleted {len(users_to_delete)} users")
-                
+
                 # Reset admin user variables to default
                 admin = user_mgr.current()
                 if admin and admin.username == 'admin':
@@ -752,14 +758,14 @@ Current status:
                             results.append("   ✓ Reset admin user variables and settings")
                         except Exception as e:
                             results.append(f"   ⚠️  Could not reset admin variables: {e}")
-                    
+
                     # Clear admin environment variables
                     if hasattr(admin, 'variables'):
                         admin.variables.clear()
                     if hasattr(admin, 'environment'):
                         admin.environment.clear()
                     results.append("   ✓ Cleared admin environment variables")
-            
+
             results.append("   ✓ Cleared API keys and credentials")
 
             # Reset local env identity + wizard keystore
@@ -767,7 +773,7 @@ Current status:
             results.extend([f"   {line}" for line in env_result])
             keystore_result = self._reset_wizard_keystore(repo_root)
             results.extend([f"   {line}" for line in keystore_result])
-        
+
             if scrub_memory:
                 if not skip_confirm and not self._confirm_scrub("memory"):
                     results.append("   ⏭️  Memory scrub cancelled.")
@@ -785,11 +791,11 @@ Current status:
                 if memory_path.exists():
                     archive_root = repo_root / ".archive"
                     archive_root.mkdir(exist_ok=True)
-                    
+
                     timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
                     compost_dir = archive_root / "compost" / timestamp
                     compost_dir.mkdir(parents=True, exist_ok=True)
-                    
+
                     # Archive with metadata
                     metadata_file = compost_dir / "ARCHIVE-METADATA.json"
                     import json
@@ -800,23 +806,23 @@ Current status:
                         "directories": ["logs", "bank", "private", "wizard"],
                         "reason": "DESTROY --compost cleanup operation"
                     }
-                    
+
                     try:
                         with open(str(metadata_file), 'w') as f:
                             json.dump(metadata, f, indent=2)
                     except Exception:
                         pass  # Non-critical
-                    
+
                     # Move memory to compost
                     shutil.move(str(memory_path), str(compost_dir / "memory"))
                     memory_path.mkdir(parents=True, exist_ok=True)
-                    
+
                     # Recreate memory subdirectories
                     (memory_path / "logs").mkdir(parents=True, exist_ok=True)
                     (memory_path / "bank").mkdir(parents=True, exist_ok=True)
                     (memory_path / "private").mkdir(parents=True, exist_ok=True)
                     (memory_path / "wizard").mkdir(parents=True, exist_ok=True)
-                        
+
                     results.append(f"   ✓ Archived to .archive/compost/{timestamp}")
                     results.append("   ✓ Recreated empty memory directories")
 
@@ -830,12 +836,12 @@ Current status:
                         shutil.rmtree(vault_root)
                         vault_root.mkdir(parents=True, exist_ok=True)
                     results.append("   ✓ Vault scrubbed")
-                
+
             if reload_repair:
                 results.append("🔧 Running reload + repair...")
                 results.append("   ✓ Hot reload initiated")
                 results.append("   ✓ Repair checks scheduled")
-            
+
             logger.event(
                 "info",
                 "destroy.cleanup_completed",
@@ -848,23 +854,23 @@ Current status:
                     "plan_size": len(plan),
                 },
             )
-            
+
             results.append("")
             results.append("✅ Cleanup complete!")
             results.append("")
-            
+
             if wipe_user:
                 results.append("Next steps to restore user data:")
                 results.append("  1. STORY tui-setup        (Run setup story)")
                 results.append("  2. SETUP                  (View your profile)")
                 results.append("  3. CONFIG                 (View variables)")
-            
+
             return {
                 'output': '\n'.join(results),
                 'status': 'success',
                 'action': 'cleanup_complete'
             }
-        
+
         except Exception as e:
             error_msg = f"❌ Cleanup failed: {e}"
             logger.event(

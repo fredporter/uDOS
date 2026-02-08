@@ -562,118 +562,137 @@ def create_ucode_routes(auth_guard=None):
         token = set_corr_id(corr_id)
         try:
             command = (payload.command or "").strip()
-            if not command:
-                logger.warn("Empty command rejected", ctx={"corr_id": corr_id})
-                raise HTTPException(status_code=400, detail="command is required")
+            response = _dispatch_core(command, payload, corr_id)
+            return response
+        finally:
+            reset_corr_id(token)
 
-            # Normalize uCODE-style prefixes (case-insensitive)
-            if command.startswith("?"):
-                rest = command[1:].strip()
-                command = f"OK {rest}".strip()
-            upper = command.upper()
-            if upper == "OK" or upper.startswith("OK "):
-                ok_args = command[2:].strip()
-                ok_tokens = ok_args.split() if ok_args else []
-                ok_mode = (ok_tokens[0].upper() if ok_tokens else "LOCAL")
-                if ok_mode in {"LOCAL", "VIBE"}:
-                    logger.info(
-                        "OK local history request",
-                        ctx={"corr_id": corr_id, "mode": ok_mode},
-                    )
-                    limit = 5
-                    if len(ok_tokens) >= 2 and ok_tokens[1].isdigit():
-                        limit = max(1, int(ok_tokens[1]))
-                    entries = ok_history[-limit:] if ok_history else []
+    def _extract_output(result: Dict[str, Any], rendered_text: Optional[str]) -> str:
+        if result.get("output"):
+            return result["output"]
+        if result.get("help"):
+            return result["help"]
+        if result.get("text"):
+            return result["text"]
+        if result.get("message"):
+            return result["message"]
+        return rendered_text or ""
+
+    def _dispatch_core(
+        command: str, payload: DispatchRequest, corr_id: str
+    ) -> Dict[str, Any]:
+        if not command:
+            logger.warn("Empty command rejected", ctx={"corr_id": corr_id})
+            raise HTTPException(status_code=400, detail="command is required")
+
+        # Normalize uCODE-style prefixes (case-insensitive)
+        if command.startswith("?"):
+            rest = command[1:].strip()
+            command = f"OK {rest}".strip()
+        upper = command.upper()
+        if upper == "OK" or upper.startswith("OK "):
+            ok_args = command[2:].strip()
+            ok_tokens = ok_args.split() if ok_args else []
+            ok_mode = (ok_tokens[0].upper() if ok_tokens else "LOCAL")
+            if ok_mode in {"LOCAL", "VIBE"}:
+                logger.info(
+                    "OK local history request",
+                    ctx={"corr_id": corr_id, "mode": ok_mode},
+                )
+                limit = 5
+                if len(ok_tokens) >= 2 and ok_tokens[1].isdigit():
+                    limit = max(1, int(ok_tokens[1]))
+                entries = ok_history[-limit:] if ok_history else []
+                return {
+                    "status": "ok",
+                    "command": command,
+                    "result": {
+                        "status": "success",
+                        "message": "OK LOCAL history",
+                        "output": "",
+                    },
+                    "ok_history": entries,
+                }
+
+            if ok_mode == "FALLBACK":
+                toggle = ok_tokens[1].lower() if len(ok_tokens) > 1 else ""
+                config = _load_ai_modes_config()
+                modes = config.setdefault("modes", {})
+                ofvibe = modes.setdefault("ofvibe", {})
+                if toggle in {"on", "true", "yes"}:
+                    ofvibe["auto_fallback"] = True
+                    _write_ok_modes_config(config)
                     return {
                         "status": "ok",
                         "command": command,
                         "result": {
                             "status": "success",
-                            "message": "OK LOCAL history",
+                            "message": "OK fallback set to auto (on)",
                             "output": "",
                         },
-                        "ok_history": entries,
                     }
-
-                if ok_mode == "FALLBACK":
-                    toggle = ok_tokens[1].lower() if len(ok_tokens) > 1 else ""
-                    config = _load_ai_modes_config()
-                    modes = config.setdefault("modes", {})
-                    ofvibe = modes.setdefault("ofvibe", {})
-                    if toggle in {"on", "true", "yes"}:
-                        ofvibe["auto_fallback"] = True
-                        _write_ok_modes_config(config)
-                        return {
-                            "status": "ok",
-                            "command": command,
-                            "result": {
-                                "status": "success",
-                                "message": "OK fallback set to auto (on)",
-                                "output": "",
-                            },
-                        }
-                    if toggle in {"off", "false", "no"}:
-                        ofvibe["auto_fallback"] = False
-                        _write_ok_modes_config(config)
-                        return {
-                            "status": "ok",
-                            "command": command,
-                            "result": {
-                                "status": "success",
-                                "message": "OK fallback set to manual (off)",
-                                "output": "",
-                            },
-                        }
-                    current = "on" if _ok_auto_fallback_enabled() else "off"
+                if toggle in {"off", "false", "no"}:
+                    ofvibe["auto_fallback"] = False
+                    _write_ok_modes_config(config)
                     return {
                         "status": "ok",
                         "command": command,
                         "result": {
                             "status": "success",
-                            "message": f"OK fallback is {current}",
-                            "output": "Usage: OK FALLBACK on|off",
+                            "message": "OK fallback set to manual (off)",
+                            "output": "",
                         },
                     }
+                current = "on" if _ok_auto_fallback_enabled() else "off"
+                return {
+                    "status": "ok",
+                    "command": command,
+                    "result": {
+                        "status": "success",
+                        "message": f"OK fallback is {current}",
+                        "output": "Usage: OK FALLBACK on|off",
+                    },
+                }
 
-                if ok_mode in {"EXPLAIN", "DIFF", "PATCH"}:
-                    parsed = _parse_ok_file_args(" ".join(ok_tokens[1:]))
-                    if parsed.get("error"):
-                        logger.warn(
-                            "OK command rejected",
-                            ctx={"corr_id": corr_id, "error": parsed.get("error")},
-                        )
-                        raise HTTPException(status_code=400, detail=parsed.get("error"))
-                    path = parsed["path"]
-                    if not path.exists():
-                        logger.warn(
-                            "OK file missing",
-                            ctx={"corr_id": corr_id, "path": str(path)},
-                        )
-                        raise HTTPException(status_code=404, detail=f"File not found: {path}")
-                    content = path.read_text(encoding="utf-8", errors="ignore")
-                    if parsed.get("line_start") and parsed.get("line_end"):
-                        lines = content.splitlines()
-                        content = "\n".join(
-                            lines[parsed["line_start"] - 1 : parsed["line_end"]]
-                        )
-                    if ok_mode == "EXPLAIN":
-                        prompt = (
-                            f"Explain this code from {path}:\n\n"
-                            f"```python\n{content}\n```\n\n"
-                            "Provide: 1) purpose, 2) key logic, 3) risks or follow-ups."
-                        )
-                    elif ok_mode == "DIFF":
-                        prompt = (
-                            f"Propose a unified diff for improvements to {path}.\n\n"
-                            f"```python\n{content}\n```\n\n"
-                            "Return a unified diff only (no commentary)."
-                        )
-                    else:
-                        prompt = (
-                            f"Draft a patch (unified diff) for {path}. Keep the diff minimal.\n\n"
-                            f"```python\n{content}\n```\n\n"
-                            "Return a unified diff only."
-                        )
+            if ok_mode in {"EXPLAIN", "DIFF", "PATCH"}:
+                parsed = _parse_ok_file_args(" ".join(ok_tokens[1:]))
+                if parsed.get("error"):
+                    logger.warn(
+                        "OK command rejected",
+                        ctx={"corr_id": corr_id, "error": parsed.get("error")},
+                    )
+                    raise HTTPException(status_code=400, detail=parsed.get("error"))
+                path = parsed["path"]
+                if not path.exists():
+                    logger.warn(
+                        "OK file missing",
+                        ctx={"corr_id": corr_id, "path": str(path)},
+                    )
+                    raise HTTPException(status_code=404, detail=f"File not found: {path}")
+                content = path.read_text(encoding="utf-8", errors="ignore")
+                if parsed.get("line_start") and parsed.get("line_end"):
+                    lines = content.splitlines()
+                    content = "\n".join(
+                        lines[parsed["line_start"] - 1 : parsed["line_end"]]
+                    )
+                if ok_mode == "EXPLAIN":
+                    prompt = (
+                        f"Explain this code from {path}:\n\n"
+                        f"```python\n{content}\n```\n\n"
+                        "Provide: 1) purpose, 2) key logic, 3) risks or follow-ups."
+                    )
+                elif ok_mode == "DIFF":
+                    prompt = (
+                        f"Propose a unified diff for improvements to {path}.\n\n"
+                        f"```python\n{content}\n```\n\n"
+                        "Return a unified diff only (no commentary)."
+                    )
+                else:
+                    prompt = (
+                        f"Draft a patch (unified diff) for {path}. Keep the diff minimal.\n\n"
+                        f"```python\n{content}\n```\n\n"
+                        "Return a unified diff only."
+                    )
 
                 model = payload.ok_model or _get_ok_default_model()
                 source = "local"
@@ -709,40 +728,40 @@ def create_ucode_routes(auth_guard=None):
                         else:
                             raise HTTPException(status_code=500, detail="OK local failed")
 
-                    entry = _record_ok_output(
-                        prompt=prompt,
-                        response=response_text,
-                        model=model,
-                        source=source,
-                        mode=ok_mode,
-                        file_path=str(path),
-                    )
-                    logger.info(
-                        "OK command completed",
-                        ctx={
-                            "corr_id": corr_id,
-                            "mode": ok_mode,
-                            "model": model,
-                            "source": source,
-                            "file": str(path),
-                        },
-                    )
-                    return {
-                        "status": "ok",
-                        "command": command,
-                        "result": {
-                            "status": "success",
-                            "message": f"OK {ok_mode} complete",
-                            "output": response_text,
-                        },
-                        "ok": entry,
-                    }
+                entry = _record_ok_output(
+                    prompt=prompt,
+                    response=response_text,
+                    model=model,
+                    source=source,
+                    mode=ok_mode,
+                    file_path=str(path),
+                )
+                logger.info(
+                    "OK command completed",
+                    ctx={
+                        "corr_id": corr_id,
+                        "mode": ok_mode,
+                        "model": model,
+                        "source": source,
+                        "file": str(path),
+                    },
+                )
+                return {
+                    "status": "ok",
+                    "command": command,
+                    "result": {
+                        "status": "success",
+                        "message": f"OK {ok_mode} complete",
+                        "output": response_text,
+                    },
+                    "ok": entry,
+                }
 
-                # Default: treat OK <prompt> as a local AI request (parity with uCODE TUI).
-                prompt = ok_args.strip()
-                if not prompt:
-                    logger.warn("OK command not recognized", ctx={"corr_id": corr_id, "mode": ok_mode})
-                    raise HTTPException(status_code=400, detail="OK command not recognized")
+            # Default: treat OK <prompt> as a local AI request (parity with uCODE TUI).
+            prompt = ok_args.strip()
+            if not prompt:
+                logger.warn("OK command not recognized", ctx={"corr_id": corr_id, "mode": ok_mode})
+                raise HTTPException(status_code=400, detail="OK command not recognized")
 
             model = payload.ok_model or _get_ok_default_model()
             source = "local"
@@ -768,119 +787,117 @@ def create_ucode_routes(auth_guard=None):
                     )
                     raise HTTPException(status_code=500, detail="OK prompt failed")
 
-                entry = _record_ok_output(
-                    prompt=prompt,
-                    response=response_text,
-                    model=model,
-                    source=source,
-                    mode="LOCAL",
-                    file_path=None,
-                )
-                logger.info(
-                    "OK prompt completed",
-                    ctx={"corr_id": corr_id, "model": model, "source": source},
-                )
-                return {
-                    "status": "ok",
-                    "command": command,
-                    "result": {
-                        "status": "success",
-                        "message": "OK prompt complete",
-                        "output": response_text,
-                    },
-                    "ok": entry,
-                }
-
-            # Slash-prefixed command: uCODE first, then shell
-            if command.startswith("/"):
-                slash_cmd = command[1:].strip()
-                first_token = slash_cmd.split()[0].upper() if slash_cmd else ""
-                if first_token in allowlist:
-                    command = slash_cmd
-                else:
-                    if not _shell_allowed():
-                        logger.warn("Shell command blocked", ctx={"corr_id": corr_id})
-                        raise HTTPException(status_code=403, detail="shell commands disabled")
-                    shell_cmd = slash_cmd
-                    if not shell_cmd:
-                        logger.warn("Shell command rejected (empty)", ctx={"corr_id": corr_id})
-                        raise HTTPException(status_code=400, detail="shell command is required")
-                    if not _shell_safe(shell_cmd):
-                        logger.warn(
-                            "Shell command failed safety check",
-                            ctx={"corr_id": corr_id, "command": shell_cmd},
-                        )
-                        raise HTTPException(status_code=403, detail="shell command blocked (destructive)")
-                    try:
-                        logger.info(
-                            "Shell command dispatch",
-                            ctx={"corr_id": corr_id, "command": shell_cmd},
-                        )
-                        result = subprocess.run(
-                            shell_cmd,
-                            shell=True,
-                            capture_output=True,
-                            text=True,
-                            timeout=30,
-                        )
-                    except subprocess.TimeoutExpired:
-                        logger.warn("Shell command timeout", ctx={"corr_id": corr_id})
-                        raise HTTPException(status_code=408, detail="shell command timed out")
-                    output = result.stdout or result.stderr
-                    return {
-                        "status": "ok",
-                        "command": f"/{shell_cmd}",
-                        "result": {
-                            "status": "success" if result.returncode == 0 else "error",
-                            "message": output or f"exit code {result.returncode}",
-                            "shell_output": output,
-                            "exit_code": result.returncode,
-                        },
-                    }
-
-            cmd_name = command.split()[0].upper()
-            if cmd_name == "SETUP" and len(command.split()) == 1:
-                story_state = _load_setup_story()
-                logger.info("Setup story served", ctx={"corr_id": corr_id})
-                return {
-                    "status": "ok",
-                    "command": command,
-                    "result": {
-                        "status": "success",
-                        "message": "Setup story ready",
-                        "frontmatter": story_state.get("frontmatter"),
-                        "sections": story_state.get("sections"),
-                    },
-                }
-            if cmd_name not in allowlist:
-                logger.warn(
-                    "Command blocked by allowlist",
-                    ctx={"corr_id": corr_id, "command": cmd_name},
-                )
-                raise HTTPException(status_code=403, detail=f"command not allowed: {cmd_name}")
-
-            logger.info(
-                "Dispatch command",
-                ctx={"corr_id": corr_id, "command": cmd_name, "raw": command},
+            entry = _record_ok_output(
+                prompt=prompt,
+                response=response_text,
+                model=model,
+                source=source,
+                mode="LOCAL",
+                file_path=None,
             )
-            result = dispatcher.dispatch(command, game_state=game_state)
             logger.info(
-                "Dispatch result",
-                ctx={"corr_id": corr_id, "status": result.get("status") if isinstance(result, dict) else None},
+                "OK prompt completed",
+                ctx={"corr_id": corr_id, "model": model, "source": source},
             )
-            response: Dict[str, Any] = {
+            return {
                 "status": "ok",
                 "command": command,
-                "result": result,
+                "result": {
+                    "status": "success",
+                    "message": "OK prompt complete",
+                    "output": response_text,
+                },
+                "ok": entry,
             }
-            if renderer:
+
+        # Slash-prefixed command: uCODE first, then shell
+        if command.startswith("/"):
+            slash_cmd = command[1:].strip()
+            first_token = slash_cmd.split()[0].upper() if slash_cmd else ""
+            if first_token in allowlist:
+                command = slash_cmd
+            else:
+                if not _shell_allowed():
+                    logger.warn("Shell command blocked", ctx={"corr_id": corr_id})
+                    raise HTTPException(status_code=403, detail="shell commands disabled")
+                shell_cmd = slash_cmd
+                if not shell_cmd:
+                    logger.warn("Shell command rejected (empty)", ctx={"corr_id": corr_id})
+                    raise HTTPException(status_code=400, detail="shell command is required")
+                if not _shell_safe(shell_cmd):
+                    logger.warn(
+                        "Shell command failed safety check",
+                        ctx={"corr_id": corr_id, "command": shell_cmd},
+                    )
+                    raise HTTPException(status_code=403, detail="shell command blocked (destructive)")
                 try:
-                    response["rendered"] = renderer.render(result)
-                except Exception:
-                    pass
-            return response
-        finally:
-            reset_corr_id(token)
+                    logger.info(
+                        "Shell command dispatch",
+                        ctx={"corr_id": corr_id, "command": shell_cmd},
+                    )
+                    result = subprocess.run(
+                        shell_cmd,
+                        shell=True,
+                        capture_output=True,
+                        text=True,
+                        timeout=30,
+                    )
+                except subprocess.TimeoutExpired:
+                    logger.warn("Shell command timeout", ctx={"corr_id": corr_id})
+                    raise HTTPException(status_code=408, detail="shell command timed out")
+                output = result.stdout or result.stderr
+                return {
+                    "status": "ok",
+                    "command": f"/{shell_cmd}",
+                    "result": {
+                        "status": "success" if result.returncode == 0 else "error",
+                        "message": output or f"exit code {result.returncode}",
+                        "shell_output": output,
+                        "exit_code": result.returncode,
+                    },
+                }
+
+        cmd_name = command.split()[0].upper()
+        if cmd_name == "SETUP" and len(command.split()) == 1:
+            story_state = _load_setup_story()
+            logger.info("Setup story served", ctx={"corr_id": corr_id})
+            return {
+                "status": "ok",
+                "command": command,
+                "result": {
+                    "status": "success",
+                    "message": "Setup story ready",
+                    "frontmatter": story_state.get("frontmatter"),
+                    "sections": story_state.get("sections"),
+                },
+            }
+        if cmd_name not in allowlist:
+            logger.warn(
+                "Command blocked by allowlist",
+                ctx={"corr_id": corr_id, "command": cmd_name},
+            )
+            raise HTTPException(status_code=403, detail=f"command not allowed: {cmd_name}")
+
+        logger.info(
+            "Dispatch command",
+            ctx={"corr_id": corr_id, "command": cmd_name, "raw": command},
+        )
+        result = dispatcher.dispatch(command, game_state=game_state)
+        logger.info(
+            "Dispatch result",
+            ctx={"corr_id": corr_id, "status": result.get("status") if isinstance(result, dict) else None},
+        )
+        response: Dict[str, Any] = {
+            "status": "ok",
+            "command": command,
+            "result": result,
+        }
+        if renderer:
+            try:
+                response["rendered"] = renderer.render(result)
+            except Exception:
+                pass
+        return response
 
     @router.post("/dispatch/stream")
     async def dispatch_command_stream(payload: DispatchRequest) -> StreamingResponse:
@@ -898,17 +915,6 @@ def create_ucode_routes(auth_guard=None):
         def _sse(event: str, data: Dict[str, Any]) -> bytes:
             payload_text = json.dumps(data)
             return f"event: {event}\ndata: {payload_text}\n\n".encode("utf-8")
-
-        def _extract_output(result: Dict[str, Any], rendered_text: Optional[str]) -> str:
-            if result.get("output"):
-                return result["output"]
-            if result.get("help"):
-                return result["help"]
-            if result.get("text"):
-                return result["text"]
-            if result.get("message"):
-                return result["message"]
-            return rendered_text or ""
 
         def _stream_chunks(text: str) -> Generator[bytes, None, None]:
             if text is None:
@@ -937,74 +943,6 @@ def create_ucode_routes(auth_guard=None):
                     ok_args = working_command[2:].strip()
                     ok_tokens = ok_args.split() if ok_args else []
                     ok_mode = (ok_tokens[0].upper() if ok_tokens else "LOCAL")
-                    if ok_mode in {"LOCAL", "VIBE"}:
-                        logger.info(
-                            "OK stream history request",
-                            ctx={"corr_id": corr_id, "mode": ok_mode},
-                        )
-                        limit = 5
-                        if len(ok_tokens) >= 2 and ok_tokens[1].isdigit():
-                            limit = max(1, int(ok_tokens[1]))
-                        entries = ok_history[-limit:] if ok_history else []
-                        response = {
-                            "status": "ok",
-                            "command": working_command,
-                            "result": {
-                                "status": "success",
-                                "message": "OK LOCAL history",
-                                "output": "",
-                            },
-                            "ok_history": entries,
-                        }
-                        yield _sse("result", response)
-                        return
-
-                    if ok_mode == "FALLBACK":
-                        toggle = ok_tokens[1].lower() if len(ok_tokens) > 1 else ""
-                        config = _load_ai_modes_config()
-                        modes = config.setdefault("modes", {})
-                        ofvibe = modes.setdefault("ofvibe", {})
-                        if toggle in {"on", "true", "yes"}:
-                            ofvibe["auto_fallback"] = True
-                            _write_ok_modes_config(config)
-                            response = {
-                                "status": "ok",
-                                "command": working_command,
-                                "result": {
-                                    "status": "success",
-                                    "message": "OK fallback set to auto (on)",
-                                    "output": "",
-                                },
-                            }
-                            yield _sse("result", response)
-                            return
-                        if toggle in {"off", "false", "no"}:
-                            ofvibe["auto_fallback"] = False
-                            _write_ok_modes_config(config)
-                            response = {
-                                "status": "ok",
-                                "command": working_command,
-                                "result": {
-                                    "status": "success",
-                                    "message": "OK fallback set to manual (off)",
-                                    "output": "",
-                                },
-                            }
-                            yield _sse("result", response)
-                            return
-                        current = "on" if _ok_auto_fallback_enabled() else "off"
-                        response = {
-                            "status": "ok",
-                            "command": working_command,
-                            "result": {
-                                "status": "success",
-                                "message": f"OK fallback is {current}",
-                                "output": "Usage: OK FALLBACK on|off",
-                            },
-                        }
-                        yield _sse("result", response)
-                        return
-
                     if ok_mode in {"EXPLAIN", "DIFF", "PATCH"}:
                         parsed = _parse_ok_file_args(" ".join(ok_tokens[1:]))
                         if parsed.get("error"):
@@ -1048,6 +986,7 @@ def create_ucode_routes(auth_guard=None):
                         model = payload.ok_model or _get_ok_default_model()
                         source = "local"
                         response_text = ""
+                        auto_fallback = _ok_auto_fallback_enabled()
 
                         if parsed.get("use_cloud"):
                             try:
@@ -1071,9 +1010,16 @@ def create_ucode_routes(auth_guard=None):
                                     yield _sse("chunk", {"text": part})
                                 response_text = buffer
                             except Exception:
-                                response_text = vibe.generate(prompt, format="markdown")
-                                for chunk in _stream_chunks(response_text):
-                                    yield chunk
+                                response_text = ""
+
+                        if not response_text and auto_fallback:
+                            from wizard.services.mistral_api import MistralAPI
+                            if not MistralAPI().available():
+                                raise HTTPException(status_code=400, detail="Mistral API key required for cloud OK")
+                            response_text, model = _run_ok_cloud(prompt)
+                            source = "cloud"
+                            for chunk in _stream_chunks(response_text):
+                                yield chunk
 
                         entry = _record_ok_output(
                             prompt=prompt,
@@ -1095,85 +1041,11 @@ def create_ucode_routes(auth_guard=None):
                         }
                         yield _sse("result", response)
                         return
-
-                    raise HTTPException(status_code=400, detail="OK command not recognized")
-
-                if working_command.startswith(":"):
-                    working_command = working_command[1:].strip()
-
-                if working_command.startswith("/"):
-                    slash_cmd = working_command[1:].strip()
-                    first_token = slash_cmd.split()[0].upper() if slash_cmd else ""
-                    if first_token in allowlist:
-                        working_command = slash_cmd
-                    else:
-                        if not _shell_allowed():
-                            raise HTTPException(status_code=403, detail="shell commands disabled")
-                        shell_cmd = slash_cmd
-                        if not shell_cmd:
-                            raise HTTPException(status_code=400, detail="shell command is required")
-                        if not _shell_safe(shell_cmd):
-                            raise HTTPException(status_code=403, detail="shell command blocked (destructive)")
-                        try:
-                            result = subprocess.run(
-                                shell_cmd,
-                                shell=True,
-                                capture_output=True,
-                                text=True,
-                                timeout=30,
-                            )
-                        except subprocess.TimeoutExpired:
-                            raise HTTPException(status_code=408, detail="shell command timed out")
-                        output = result.stdout or result.stderr or ""
-                        for chunk in _stream_chunks(output):
-                            yield chunk
-                        response = {
-                            "status": "ok",
-                            "command": f"/{shell_cmd}",
-                            "result": {
-                                "status": "success" if result.returncode == 0 else "error",
-                                "message": output or f"exit code {result.returncode}",
-                                "shell_output": output,
-                            },
-                        }
-                        yield _sse("result", response)
-                        return
-
-                cmd_name = working_command.split()[0].upper()
-                if cmd_name == "SETUP" and len(working_command.split()) == 1:
-                    story_state = _load_setup_story()
-                    response = {
-                        "status": "ok",
-                        "command": working_command,
-                        "result": {
-                            "status": "success",
-                            "message": "Setup story ready",
-                            "frontmatter": story_state.get("frontmatter"),
-                            "sections": story_state.get("sections"),
-                        },
-                    }
-                    yield _sse("result", response)
-                    return
-                if cmd_name not in allowlist:
-                    raise HTTPException(status_code=403, detail=f"command not allowed: {cmd_name}")
-
-                result = dispatcher.dispatch(working_command, game_state=game_state)
-                rendered_text = None
-                if renderer:
-                    try:
-                        rendered_text = renderer.render(result)
-                    except Exception:
-                        rendered_text = None
-                output_text = _extract_output(result, rendered_text)
+                response = _dispatch_core(command, payload, corr_id)
+                rendered_text = response.get("rendered")
+                output_text = _extract_output(response.get("result") or {}, rendered_text)
                 for chunk in _stream_chunks(output_text):
                     yield chunk
-                response = {
-                    "status": "ok",
-                    "command": working_command,
-                    "result": result,
-                }
-                if rendered_text:
-                    response["rendered"] = rendered_text
                 yield _sse("result", response)
             except HTTPException as exc:
                 yield _sse("error", {"error": exc.detail})

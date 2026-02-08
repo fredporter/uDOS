@@ -9,7 +9,7 @@ import {
   TileCompositor,
 } from '../src/tile-compositor';
 import { TileContent } from '../src/location-types';
-import { RenderQuality } from '../src/sextant-renderer';
+import { RenderQuality } from '../src/teletext-renderer';
 
 describe('Tile Compositor', () => {
   describe('compositeTile', () => {
@@ -28,7 +28,7 @@ describe('Tile Compositor', () => {
       
       const result = compositeTile(content);
       
-      // Should render as sextant character (full grid)
+      // Should render as teletext character (full grid)
       expect(result.char).not.toBe(' ');
       expect(result.z).toBe(1);
     });
@@ -76,7 +76,7 @@ describe('Tile Compositor', () => {
       
       const result = compositeTile(content);
       
-      // Should merge into sextant character
+      // Should merge into teletext character
       expect(result.char).not.toBe(' ');
       expect(result.z).toBe(1); // Topmost object z-index
     });
@@ -244,10 +244,10 @@ describe('Tile Compositor', () => {
       objects: [{ char: '█', label: 'test', z: 1 }],
     };
 
-    it('should render with sextant quality', () => {
-      const result = compositeTile(content, { quality: RenderQuality.SEXTANT });
+    it('should render with teletext quality', () => {
+      const result = compositeTile(content, { quality: RenderQuality.TELETEXT });
       
-      // Should be sextant character (full grid = █)
+      // Should be teletext character (full grid = █)
       expect(result.char).toBe('█');
     });
 

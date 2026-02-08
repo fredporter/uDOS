@@ -128,7 +128,7 @@ class SystemInfoService:
 
             if shutil.which("apk"):
                 return "alpine"
-        except:
+        except Exception:
             pass
 
         # Check /etc/os-release for alpine (fallback)
@@ -141,7 +141,7 @@ class SystemInfoService:
                         return "alpine"
                     elif "ID=ubuntu" in content or "ID='ubuntu'" in content:
                         return "ubuntu"
-            except:
+            except Exception:
                 pass
 
         # Fallback to platform.system()
@@ -169,7 +169,7 @@ class SystemInfoService:
             else:
                 uptime_seconds = int(time.time() - psutil.boot_time())
             boot_time = psutil.boot_time()
-        except:
+        except Exception:
             uptime_seconds = 0
             cpu_percent = 0
             memory = None
@@ -270,7 +270,7 @@ class SystemInfoService:
                 description = manifest.get("container", {}).get("description", "")
                 version = manifest.get("container", {}).get("version", "")
                 repo_path = manifest.get("repo_path")
-            except:
+            except Exception:
                 pass
 
         # Resolve repo path if manifest points elsewhere
@@ -315,7 +315,7 @@ class SystemInfoService:
         if build_dir.exists() and any(build_dir.iterdir()):
             return True
 
-        # TODO: Check if package is installed via package manager
+        # STUB: Check package installation via manager
         # (apk list, brew list, apt list, etc.)
 
         return False
@@ -337,7 +337,7 @@ class SystemInfoService:
             try:
                 with open(alpine_plugins) as f:
                     enabled.update(line.strip() for line in f if line.strip())
-            except:
+            except Exception:
                 pass
 
         # Check config if available
@@ -346,7 +346,7 @@ class SystemInfoService:
             try:
                 with open(config_path) as f:
                     enabled.update(line.strip() for line in f if line.strip())
-            except:
+            except Exception:
                 pass
 
         return enabled

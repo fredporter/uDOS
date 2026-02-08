@@ -194,7 +194,7 @@ class WebService:
         # Stop server
         if self._server:
             try:
-                # TODO: Implement graceful shutdown
+                # STUB: graceful shutdown
                 pass
             except Exception:
                 pass
@@ -210,7 +210,7 @@ class WebService:
     
     def _run_server(self) -> None:
         """Run web server (called in thread)."""
-        # TODO: Implement actual web server using Flask/FastAPI
+        # STUB: Implement web server using Flask/FastAPI
         # For now, just keep the thread alive
         
         while self._running:

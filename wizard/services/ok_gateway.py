@@ -331,7 +331,7 @@ class OKGateway:
             try:
                 data = json.loads(costs_file.read_text())
                 self.costs = CostTracker(**data)
-            except:
+            except Exception:
                 pass
 
         # Reset daily/monthly if needed
@@ -441,7 +441,7 @@ class OKGateway:
                     response = AIResponse(**data)
                     response.cached = True
                     return response
-            except:
+            except Exception:
                 pass
 
         return None

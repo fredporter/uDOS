@@ -97,10 +97,13 @@
   async function selectFont(font) {
     selectedFont = font;
     try {
-      const fontFace = new FontFace(
-        font.name,
-        `url(/api/fonts/file?path=${encodeURIComponent(font.file)})`
-      );
+      const fontUrl = `/api/fonts/file?path=${encodeURIComponent(font.file)}`;
+      const res = await apiFetch(fontUrl, { headers: authHeaders() });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const buffer = await res.arrayBuffer();
+      const fontFace = new FontFace(font.name, buffer);
       const loaded = await fontFace.load();
       document.fonts.add(loaded);
       renderMarkdown();

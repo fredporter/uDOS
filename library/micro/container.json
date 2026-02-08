@@ -2,15 +2,15 @@
   "$schema": "./container.schema.json",
   "container": {
     "id": "micro",
-    "name": "micro",
-    "description": "",
+    "name": "Micro",
+    "description": "Modern terminal-based text editor with syntax highlighting",
     "type": "git",
-    "source": "https://github.com/org/repo",
-    "ref": "main",
+    "source": "https://github.com/zyedidia/micro",
+    "ref": "master",
     "cloned_at": null,
     "last_update": null,
     "commit": null,
-    "version": ""
+    "version": "2.0.14"
   },
   "policy": {
     "read_only": true,
@@ -25,10 +25,11 @@
     "install_script": null
   },
   "metadata": {
-    "license": null,
-    "homepage": null,
-    "documentation": null,
-    "maintainer": "uDOS Wizard Server"
+    "license": "MIT",
+    "homepage": "https://micro-editor.github.io/",
+    "documentation": "https://github.com/zyedidia/micro#readme",
+    "maintainer": "zyedidia / uDOS Wizard Server",
+    "category": "editor"
   },
   "repo_path": "memory/library/containers/micro"
 }

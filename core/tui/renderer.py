@@ -196,6 +196,12 @@ class GridRenderer:
         """Return the animated prompt indicator emoji."""
         return self.get_mood_frame(self._mood, self._pace, self._blink)
 
+    def get_prompt_indicator_plain(self) -> str:
+        """Return prompt indicator without ANSI styling."""
+        from core.utils.text_width import strip_ansi
+
+        return strip_ansi(self.get_prompt_indicator())
+
     def get_mood_frame(self, mood: str, pace: float, blink: bool) -> str:
         """Return a single emoji frame for the given mood."""
         frames = self.MOODS.get(mood) or self.MOODS["idle"]
@@ -203,7 +209,18 @@ class GridRenderer:
         idx = int(now / pace) % len(frames)
         if blink and int(now / (pace * 2)) % 2 == 1:
             return " "
+        if not self._supports_ansi():
+            return frames[idx]
         return f"{self.DIM}{frames[idx]}{self.RESET}"
+
+    @staticmethod
+    def _supports_ansi() -> bool:
+        if os.getenv("UDOS_NO_ANSI") == "1" or os.getenv("NO_COLOR"):
+            return False
+        term = os.getenv("TERM", "").strip().lower()
+        if term in {"dumb", "unknown"}:
+            return False
+        return sys.stdout.isatty()
 
     def stream_text(self, text: str, prefix: str = "vibe> ") -> None:
         """Stream text line-by-line with a prefix (used for Vibe-style output)."""

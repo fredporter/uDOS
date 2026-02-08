@@ -6,7 +6,7 @@
  */
 
 import { TileCompositor } from '../src/tile-compositor';
-import { RenderQuality } from '../src/sextant-renderer';
+import { RenderQuality } from '../src/teletext-renderer';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -141,9 +141,9 @@ describe('Integration Tests - Rendering Pipeline', () => {
   });
 
   describe('Quality Levels', () => {
-    it('should render with sextant quality', () => {
+    it('should render with teletext quality', () => {
       const forest = db.locations.find((l: any) => l.id === 'L300-AA10');
-      const compositor = new TileCompositor({ quality: RenderQuality.SEXTANT });
+      const compositor = new TileCompositor({ quality: RenderQuality.TELETEXT });
       
       const output = compositor.render(forest.tiles, 5, 5);
       

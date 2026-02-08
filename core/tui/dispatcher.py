@@ -97,6 +97,7 @@ class CommandDispatcher:
             "REPAIR": RepairHandler(),
             "REBOOT": RestartHandler(),  # Hot reload + TUI restart
             "SETUP": SetupHandler(),
+            "INSTALL": SetupHandler(),
             "UID": UIDHandler(),  # User ID management
             "PATTERN": PatternHandler(),
             "SONIC": SonicHandler(),

@@ -1,9 +1,11 @@
 """
-Port Manager - Server and Port Awareness & Management Utility
-==============================================================
+Port Manager - Central Task and Process Manager for uDOS
+=========================================================
 
-Provides complete visibility and management of all services and their ports
-in the uDOS development and production environment.
+Version: 1.3.12
+
+Provides complete visibility and management of all services, processes,
+and system resources in the uDOS development and production environment.
 
 Features:
   - Registry of all known services and ports
@@ -12,18 +14,29 @@ Features:
   - Service health monitoring
   - Graceful startup/shutdown coordination
   - Port availability prediction
+  - Process lifecycle management (start/stop/restart)
+  - Resource monitoring (CPU, memory, disk)
+  - Process log history and audit trail
+  - Multi-instance management
+  - Extension service discovery
+
+This is the central task manager for uDOS core and all extensions.
 """
+
+__version__ = "1.3.12"
 
 import os
 import json
 import socket
 import subprocess
 import time
+import psutil
+import threading
 from dataclasses import dataclass, asdict, field
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
-from datetime import datetime
+from typing import Dict, List, Optional, Set, Tuple, Any, Callable
+from datetime import datetime, timedelta
 
 
 class ServiceEnvironment(Enum):
@@ -71,13 +84,105 @@ class Service:
         return d
 
 
+@dataclass
+class ProcessEvent:
+    """Log entry for process lifecycle events."""
+
+    timestamp: datetime
+    service_name: str
+    event_type: str  # started, stopped, failed, restarted, conflict_detected, healed
+    details: str = ""
+    pid: Optional[int] = None
+    port: Optional[int] = None
+
+    def to_dict(self) -> Dict:
+        return {
+            "timestamp": self.timestamp.isoformat(),
+            "service_name": self.service_name,
+            "event_type": self.event_type,
+            "details": self.details,
+            "pid": self.pid,
+            "port": self.port,
+        }
+
+
+@dataclass
+class ResourceSnapshot:
+    """System resource snapshot for monitoring."""
+
+    timestamp: datetime
+    cpu_percent: float
+    memory_percent: float
+    memory_used_mb: float
+    memory_available_mb: float
+    disk_percent: float
+    disk_used_gb: float
+    disk_free_gb: float
+    active_processes: int = 0
+    active_ports: int = 0
+
+    def to_dict(self) -> Dict:
+        return {
+            "timestamp": self.timestamp.isoformat(),
+            "cpu_percent": self.cpu_percent,
+            "memory_percent": self.memory_percent,
+            "memory_used_mb": round(self.memory_used_mb, 1),
+            "memory_available_mb": round(self.memory_available_mb, 1),
+            "disk_percent": self.disk_percent,
+            "disk_used_gb": round(self.disk_used_gb, 2),
+            "disk_free_gb": round(self.disk_free_gb, 2),
+            "active_processes": self.active_processes,
+            "active_ports": self.active_ports,
+        }
+
+
+@dataclass
+class ManagedProcess:
+    """Active process being managed by port manager."""
+
+    service_name: str
+    pid: int
+    port: Optional[int]
+    started_at: datetime
+    cmd: str
+    working_dir: Optional[str] = None
+    cpu_percent: float = 0.0
+    memory_mb: float = 0.0
+    status: str = "running"
+
+    def to_dict(self) -> Dict:
+        return {
+            "service_name": self.service_name,
+            "pid": self.pid,
+            "port": self.port,
+            "started_at": self.started_at.isoformat(),
+            "cmd": self.cmd,
+            "working_dir": self.working_dir,
+            "cpu_percent": round(self.cpu_percent, 1),
+            "memory_mb": round(self.memory_mb, 1),
+            "status": self.status,
+            "uptime_seconds": (datetime.now() - self.started_at).total_seconds(),
+        }
+
+
 class PortManager:
     """
-    Comprehensive port and service management utility.
+    Central Task and Process Manager for uDOS.
 
-    Maintains awareness of all services and their ports, detects conflicts,
-    and provides coordination for startup/shutdown sequences.
+    Provides complete lifecycle management for all uDOS services and extensions:
+    - Service registry and port management
+    - Process lifecycle (start/stop/restart)
+    - Resource monitoring and health checks
+    - Conflict detection and auto-healing
+    - Event logging and audit trail
+    - Multi-instance coordination
+
+    Version: 1.3.12
     """
+
+    VERSION = "1.3.12"
+    MAX_EVENT_LOG = 500
+    MAX_RESOURCE_HISTORY = 60  # 1 hour of minute-by-minute snapshots
 
     def __init__(self, config_path: Optional[Path] = None):
         """Initialize port manager with optional config file."""
@@ -85,7 +190,14 @@ class PortManager:
             Path(__file__).parent.parent / "config" / "port_registry.json"
         )
         self.services: Dict[str, Service] = {}
+        self.managed_processes: Dict[str, ManagedProcess] = {}
+        self.event_log: List[ProcessEvent] = []
+        self.resource_history: List[ResourceSnapshot] = []
+        self._lock = threading.RLock()
+        self._monitor_thread: Optional[threading.Thread] = None
+        self._stop_monitor = threading.Event()
         self._load_registry()
+        self._load_event_log()
 
     def _load_registry(self):
         """Load service registry from config file."""
@@ -167,6 +279,299 @@ class PortManager:
                 startup_cmd="npm run tauri dev",
                 shutdown_cmd=None,
             ),
+        }
+
+    def _load_event_log(self):
+        """Load event log from file."""
+        event_log_path = self.config_path.parent / "port_manager_events.json"
+        if event_log_path.exists():
+            try:
+                with open(event_log_path, "r") as f:
+                    data = json.load(f)
+                for entry in data.get("events", [])[-self.MAX_EVENT_LOG:]:
+                    self.event_log.append(ProcessEvent(
+                        timestamp=datetime.fromisoformat(entry["timestamp"]),
+                        service_name=entry["service_name"],
+                        event_type=entry["event_type"],
+                        details=entry.get("details", ""),
+                        pid=entry.get("pid"),
+                        port=entry.get("port"),
+                    ))
+            except Exception:
+                pass
+
+    def _save_event_log(self):
+        """Save event log to file."""
+        event_log_path = self.config_path.parent / "port_manager_events.json"
+        try:
+            data = {
+                "timestamp": datetime.now().isoformat(),
+                "events": [e.to_dict() for e in self.event_log[-self.MAX_EVENT_LOG:]],
+            }
+            with open(event_log_path, "w") as f:
+                json.dump(data, f, indent=2)
+        except Exception:
+            pass
+
+    def log_event(self, service_name: str, event_type: str, details: str = "", pid: int = None, port: int = None):
+        """Log a process event."""
+        with self._lock:
+            event = ProcessEvent(
+                timestamp=datetime.now(),
+                service_name=service_name,
+                event_type=event_type,
+                details=details,
+                pid=pid,
+                port=port,
+            )
+            self.event_log.append(event)
+            if len(self.event_log) > self.MAX_EVENT_LOG:
+                self.event_log = self.event_log[-self.MAX_EVENT_LOG:]
+            self._save_event_log()
+
+    def get_events(self, limit: int = 50, service_name: str = None) -> List[Dict]:
+        """Get recent events, optionally filtered by service."""
+        with self._lock:
+            events = self.event_log[-limit:]
+            if service_name:
+                events = [e for e in events if e.service_name == service_name]
+            return [e.to_dict() for e in reversed(events)]
+
+    def get_resource_snapshot(self) -> ResourceSnapshot:
+        """Get current system resource snapshot."""
+        try:
+            cpu = psutil.cpu_percent(interval=0.1)
+            mem = psutil.virtual_memory()
+            disk = psutil.disk_usage("/")
+            active_procs = len(self.managed_processes)
+            active_ports = sum(1 for s in self.services.values() if s.status == ServiceStatus.RUNNING)
+
+            return ResourceSnapshot(
+                timestamp=datetime.now(),
+                cpu_percent=cpu,
+                memory_percent=mem.percent,
+                memory_used_mb=mem.used / (1024 * 1024),
+                memory_available_mb=mem.available / (1024 * 1024),
+                disk_percent=disk.percent,
+                disk_used_gb=disk.used / (1024 * 1024 * 1024),
+                disk_free_gb=disk.free / (1024 * 1024 * 1024),
+                active_processes=active_procs,
+                active_ports=active_ports,
+            )
+        except Exception:
+            return ResourceSnapshot(
+                timestamp=datetime.now(),
+                cpu_percent=0.0,
+                memory_percent=0.0,
+                memory_used_mb=0.0,
+                memory_available_mb=0.0,
+                disk_percent=0.0,
+                disk_used_gb=0.0,
+                disk_free_gb=0.0,
+            )
+
+    def start_resource_monitor(self, interval_seconds: int = 60):
+        """Start background resource monitoring."""
+        if self._monitor_thread and self._monitor_thread.is_alive():
+            return
+
+        def monitor_loop():
+            while not self._stop_monitor.is_set():
+                snapshot = self.get_resource_snapshot()
+                with self._lock:
+                    self.resource_history.append(snapshot)
+                    if len(self.resource_history) > self.MAX_RESOURCE_HISTORY:
+                        self.resource_history = self.resource_history[-self.MAX_RESOURCE_HISTORY:]
+                self._stop_monitor.wait(interval_seconds)
+
+        self._stop_monitor.clear()
+        self._monitor_thread = threading.Thread(target=monitor_loop, daemon=True)
+        self._monitor_thread.start()
+
+    def stop_resource_monitor(self):
+        """Stop background resource monitoring."""
+        self._stop_monitor.set()
+
+    def get_resource_history(self, minutes: int = 30) -> List[Dict]:
+        """Get resource history for the last N minutes."""
+        with self._lock:
+            cutoff = datetime.now() - timedelta(minutes=minutes)
+            return [r.to_dict() for r in self.resource_history if r.timestamp >= cutoff]
+
+    def start_service(self, service_name: str, wait_for_ready: bool = True, timeout: int = 30) -> Dict[str, Any]:
+        """Start a service and track it as a managed process."""
+        service = self.services.get(service_name)
+        if not service:
+            return {"success": False, "error": f"Unknown service: {service_name}"}
+
+        if not service.startup_cmd:
+            return {"success": False, "error": f"No startup command for: {service_name}"}
+
+        # Check if already running
+        if service.port and not self.is_port_open(service.port):
+            occupant = self.get_port_occupant(service.port)
+            if occupant:
+                return {"success": False, "error": f"Port {service.port} already in use by PID {occupant['pid']}"}
+
+        # Start the process
+        try:
+            repo_root = Path(__file__).parent.parent.parent
+            env = os.environ.copy()
+            env["PYTHONPATH"] = str(repo_root)
+
+            process = subprocess.Popen(
+                service.startup_cmd,
+                shell=True,
+                cwd=str(repo_root),
+                env=env,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+
+            managed = ManagedProcess(
+                service_name=service_name,
+                pid=process.pid,
+                port=service.port,
+                started_at=datetime.now(),
+                cmd=service.startup_cmd,
+                working_dir=str(repo_root),
+            )
+            self.managed_processes[service_name] = managed
+            self.log_event(service_name, "started", f"PID {process.pid}", pid=process.pid, port=service.port)
+
+            # Wait for service to be ready
+            if wait_for_ready and service.port:
+                start_time = time.time()
+                while time.time() - start_time < timeout:
+                    if not self.is_port_open(service.port):
+                        service.status = ServiceStatus.RUNNING
+                        service.pid = process.pid
+                        self.save_registry()
+                        return {"success": True, "pid": process.pid, "port": service.port}
+                    time.sleep(0.5)
+                return {"success": False, "error": f"Service did not become ready within {timeout}s", "pid": process.pid}
+
+            return {"success": True, "pid": process.pid, "port": service.port}
+
+        except Exception as e:
+            self.log_event(service_name, "failed", str(e))
+            return {"success": False, "error": str(e)}
+
+    def stop_service(self, service_name: str, force: bool = False) -> Dict[str, Any]:
+        """Stop a service gracefully or forcefully."""
+        service = self.services.get(service_name)
+        if not service:
+            return {"success": False, "error": f"Unknown service: {service_name}"}
+
+        if service.port:
+            success = self.kill_service(service_name)
+            if success:
+                self.log_event(service_name, "stopped", "Service stopped", port=service.port)
+                if service_name in self.managed_processes:
+                    del self.managed_processes[service_name]
+                return {"success": True}
+            return {"success": False, "error": "Failed to stop service"}
+
+        return {"success": False, "error": "Service has no port to stop"}
+
+    def restart_service(self, service_name: str, timeout: int = 30) -> Dict[str, Any]:
+        """Restart a service (stop then start)."""
+        stop_result = self.stop_service(service_name)
+        time.sleep(1)  # Brief pause between stop and start
+        start_result = self.start_service(service_name, timeout=timeout)
+        self.log_event(service_name, "restarted", f"Stop: {stop_result.get('success')}, Start: {start_result.get('success')}")
+        return start_result
+
+    def get_managed_processes(self) -> List[Dict]:
+        """Get list of all managed processes with current stats."""
+        result = []
+        for name, proc in list(self.managed_processes.items()):
+            try:
+                ps = psutil.Process(proc.pid)
+                proc.cpu_percent = ps.cpu_percent()
+                proc.memory_mb = ps.memory_info().rss / (1024 * 1024)
+                proc.status = "running" if ps.is_running() else "stopped"
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                proc.status = "stopped"
+            result.append(proc.to_dict())
+        return result
+
+    def register_extension(self, name: str, port: int, description: str = "",
+                          startup_cmd: str = None, health_endpoint: str = None) -> bool:
+        """Register an extension service (for dynamic discovery)."""
+        with self._lock:
+            if name in self.services:
+                # Update existing
+                self.services[name].port = port
+                self.services[name].description = description
+                if startup_cmd:
+                    self.services[name].startup_cmd = startup_cmd
+                if health_endpoint:
+                    self.services[name].health_endpoint = health_endpoint
+            else:
+                # Create new
+                self.services[name] = Service(
+                    name=name,
+                    port=port,
+                    environment=ServiceEnvironment.DEVELOPMENT,
+                    process_name="python",
+                    description=description or f"Extension: {name}",
+                    startup_cmd=startup_cmd,
+                    health_endpoint=health_endpoint,
+                    enabled=True,
+                )
+            self.log_event(name, "registered", f"Port {port}")
+            return self.save_registry()
+
+    def unregister_extension(self, name: str) -> bool:
+        """Unregister an extension service."""
+        with self._lock:
+            if name in self.services:
+                self.log_event(name, "unregistered", f"Port {self.services[name].port}")
+                del self.services[name]
+                return self.save_registry()
+        return False
+
+    def get_dashboard_summary(self) -> Dict[str, Any]:
+        """Get summary data for dashboard display."""
+        self.check_all_services()
+        snapshot = self.get_resource_snapshot()
+        conflicts = self.get_conflicts()
+
+        services_by_status = {
+            "running": [],
+            "stopped": [],
+            "conflict": [],
+            "unknown": [],
+        }
+
+        for name, svc in self.services.items():
+            status_key = "conflict" if svc.status == ServiceStatus.PORT_CONFLICT else svc.status.value
+            if status_key not in services_by_status:
+                status_key = "unknown"
+            services_by_status[status_key].append({
+                "name": name,
+                "port": svc.port,
+                "description": svc.description,
+                "environment": svc.environment.value,
+                "pid": svc.pid,
+            })
+
+        return {
+            "version": self.VERSION,
+            "timestamp": datetime.now().isoformat(),
+            "resources": snapshot.to_dict(),
+            "services": services_by_status,
+            "conflicts": [{"service": name, "port": self.services[name].port, "occupant": occ}
+                         for name, occ in conflicts],
+            "events": self.get_events(limit=10),
+            "managed_processes": self.get_managed_processes(),
+            "totals": {
+                "services": len(self.services),
+                "running": len(services_by_status["running"]),
+                "stopped": len(services_by_status["stopped"]),
+                "conflicts": len(conflicts),
+            },
         }
 
     def save_registry(self) -> bool:
@@ -468,10 +873,22 @@ def init_port_manager(config_path: Optional[Path] = None):
 
 def create_port_manager_router(auth_guard=None):
     """Create FastAPI router for port manager API endpoints."""
-    from fastapi import APIRouter, HTTPException
-    from typing import Callable, Optional
+    from fastapi import APIRouter, HTTPException, Request
+    from pydantic import BaseModel
+    from typing import Optional
 
     router = APIRouter(prefix="/api/ports", tags=["Port Manager"])
+
+    class ServiceAction(BaseModel):
+        service_name: str
+        timeout: Optional[int] = 30
+
+    class RegisterExtension(BaseModel):
+        name: str
+        port: int
+        description: Optional[str] = ""
+        startup_cmd: Optional[str] = None
+        health_endpoint: Optional[str] = None
 
     async def check_auth(request):
         """Verify authentication if guard is provided."""
@@ -479,12 +896,19 @@ def create_port_manager_router(auth_guard=None):
             return await auth_guard(request)
         return True
 
+    @router.get("/version")
+    async def get_version():
+        """Get port manager version."""
+        return {"version": PortManager.VERSION}
+
     @router.get("/status")
-    async def get_status(request = None):
+    async def get_status(request: Request = None):
         """Get status of all services and ports."""
         await check_auth(request)
         pm = get_port_manager()
+        pm.check_all_services()
         return {
+            "version": pm.VERSION,
             "services": {
                 name: {
                     "port": svc.port,
@@ -492,14 +916,52 @@ def create_port_manager_router(auth_guard=None):
                     "environment": svc.environment.value,
                     "description": svc.description,
                     "pid": svc.pid,
+                    "enabled": svc.enabled,
+                    "health_endpoint": svc.health_endpoint,
+                    "startup_cmd": svc.startup_cmd,
                 }
                 for name, svc in pm.services.items()
             },
             "report": pm.generate_report(),
         }
 
+    @router.get("/dashboard")
+    async def get_dashboard(request: Request = None):
+        """Get complete dashboard summary."""
+        await check_auth(request)
+        pm = get_port_manager()
+        return pm.get_dashboard_summary()
+
+    @router.get("/resources")
+    async def get_resources(request: Request = None):
+        """Get current system resources."""
+        await check_auth(request)
+        pm = get_port_manager()
+        return pm.get_resource_snapshot().to_dict()
+
+    @router.get("/resources/history")
+    async def get_resource_history(minutes: int = 30, request: Request = None):
+        """Get resource usage history."""
+        await check_auth(request)
+        pm = get_port_manager()
+        return {"history": pm.get_resource_history(minutes)}
+
+    @router.get("/events")
+    async def get_events(limit: int = 50, service_name: str = None, request: Request = None):
+        """Get process events log."""
+        await check_auth(request)
+        pm = get_port_manager()
+        return {"events": pm.get_events(limit=limit, service_name=service_name)}
+
+    @router.get("/processes")
+    async def get_processes(request: Request = None):
+        """Get managed processes list."""
+        await check_auth(request)
+        pm = get_port_manager()
+        return {"processes": pm.get_managed_processes()}
+
     @router.get("/conflicts")
-    async def get_conflicts(request = None):
+    async def get_conflicts(request: Request = None):
         """Get port conflicts."""
         await check_auth(request)
         pm = get_port_manager()
@@ -517,18 +979,86 @@ def create_port_manager_router(auth_guard=None):
         }
 
     @router.post("/heal")
-    async def heal_conflicts(request = None):
+    async def heal_conflicts(request: Request = None):
         """Automatically heal port conflicts."""
         await check_auth(request)
         pm = get_port_manager()
         results = pm.heal_conflicts()
         return {"healed": results}
 
+    @router.post("/start")
+    async def start_service(payload: ServiceAction, request: Request = None):
+        """Start a service."""
+        await check_auth(request)
+        pm = get_port_manager()
+        result = pm.start_service(payload.service_name, timeout=payload.timeout)
+        if not result.get("success"):
+            raise HTTPException(status_code=400, detail=result.get("error"))
+        return result
+
+    @router.post("/stop")
+    async def stop_service(payload: ServiceAction, request: Request = None):
+        """Stop a service."""
+        await check_auth(request)
+        pm = get_port_manager()
+        result = pm.stop_service(payload.service_name)
+        if not result.get("success"):
+            raise HTTPException(status_code=400, detail=result.get("error"))
+        return result
+
+    @router.post("/restart")
+    async def restart_service(payload: ServiceAction, request: Request = None):
+        """Restart a service."""
+        await check_auth(request)
+        pm = get_port_manager()
+        result = pm.restart_service(payload.service_name, timeout=payload.timeout)
+        if not result.get("success"):
+            raise HTTPException(status_code=400, detail=result.get("error"))
+        return result
+
+    @router.post("/register")
+    async def register_extension(payload: RegisterExtension, request: Request = None):
+        """Register an extension service."""
+        await check_auth(request)
+        pm = get_port_manager()
+        success = pm.register_extension(
+            name=payload.name,
+            port=payload.port,
+            description=payload.description,
+            startup_cmd=payload.startup_cmd,
+            health_endpoint=payload.health_endpoint,
+        )
+        return {"success": success}
+
+    @router.delete("/unregister/{name}")
+    async def unregister_extension(name: str, request: Request = None):
+        """Unregister an extension service."""
+        await check_auth(request)
+        pm = get_port_manager()
+        success = pm.unregister_extension(name)
+        return {"success": success}
+
     @router.get("/env-script")
-    async def get_env_script(request = None):
+    async def get_env_script(request: Request = None):
         """Get shell script with port environment variables."""
         await check_auth(request)
         pm = get_port_manager()
         return {"script": pm.generate_env_script()}
+
+    @router.post("/monitor/start")
+    async def start_monitor(interval: int = 60, request: Request = None):
+        """Start resource monitoring."""
+        await check_auth(request)
+        pm = get_port_manager()
+        pm.start_resource_monitor(interval)
+        return {"started": True}
+
+    @router.post("/monitor/stop")
+    async def stop_monitor(request: Request = None):
+        """Stop resource monitoring."""
+        await check_auth(request)
+        pm = get_port_manager()
+        pm.stop_resource_monitor()
+        return {"stopped": True}
 
     return router

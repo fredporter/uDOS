@@ -327,7 +327,7 @@ class DeviceAuthService:
         if not device:
             return False
 
-        # TODO: Implement proper token validation
+        # STUB: proper token validation
         # For now, just check device exists and update last_seen
         device.last_seen = datetime.now().isoformat()
         device.status = DeviceStatus.ONLINE

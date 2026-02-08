@@ -285,6 +285,7 @@ class uCODETUI:
             "DIFF": self._cmd_ok_diff,
             "PATCH": self._cmd_ok_patch,
             "ROUTE": self._cmd_ok_route,
+            "PULL": self._cmd_ok_pull,
             "FALLBACK": self._cmd_ok_fallback,
             "EXIT": self._cmd_exit,
         }
@@ -418,6 +419,9 @@ class uCODETUI:
                     args = f"{args} --cloud".strip()
                 self.commands[cmd_name](args)
                 return {"status": "success", "command": cmd_name}
+            if cmd_name == "PULL":
+                self.commands[cmd_name](args)
+                return {"status": "success", "command": cmd_name}
             if cmd_name == "FALLBACK":
                 self._cmd_ok_fallback(args)
                 return {"status": "success", "command": cmd_name}
@@ -536,6 +540,7 @@ class uCODETUI:
             "NEW": "NEW",
             "EDIT": "EDIT",
             "MAP": "MAP",
+            "DRAW": "DRAW",
             "FIND": "FIND",
             "SEARCH": "FIND",
             "LOGS": "LOGS",
@@ -584,6 +589,7 @@ class uCODETUI:
         self._show_health_summary()
         self._show_ai_startup_sequence()
         self._show_startup_hints()
+        self._run_startup_draw()
 
         # Check if in ghost mode and prompt for setup
         self._check_ghost_mode()
@@ -602,7 +608,10 @@ class uCODETUI:
                 try:
                     # Use contextual command prompt with suggestions (Phase 1)
                     self._show_status_bar()
-                    indicator = self.renderer.get_prompt_indicator()
+                    if self.prompt.use_fallback:
+                        indicator = self.renderer.get_prompt_indicator()
+                    else:
+                        indicator = self.renderer.get_prompt_indicator_plain()
                     user_input = self.prompt.ask_command(f"{indicator} ▶ ")
 
                     if not user_input:
@@ -694,8 +703,25 @@ class uCODETUI:
                     print(self._theme_text(f"     - {line}"))
         except Exception:
             pass
-        print(self._theme_text("\n  Tips: SETUP | HELP | STORY tui-setup | TAB (commands) | OK EXPLAIN <file>"))
+        print(self._theme_text("\n  Tips: INSTALL VIBE | SETUP | HELP | TAB | OK EXPLAIN <file>"))
         print(self._theme_text("     Try: MAP | GRID MAP --input memory/system/grid-overlays-sample.json | WIZARD start\n"))
+
+    def _run_startup_draw(self) -> None:
+        """Render the default startup ASCII art."""
+        if self.quiet:
+            return
+        try:
+            result = self.dispatcher.dispatch(
+                "DRAW ucodesmile-ascii.md --rainbow",
+                parser=self.prompt,
+                game_state=self.state,
+            )
+            if isinstance(result, dict):
+                output = self.renderer.render(result)
+                if output:
+                    print(output)
+        except Exception:
+            pass
 
     def _refresh_viewport(self) -> None:
         """Measure and persist viewport size on startup."""
@@ -1097,25 +1123,19 @@ class uCODETUI:
             lines.append(f"✅ Vibe ready ({model}, ctx {ctx})")
         else:
             issue = ok_status.get("issue") or "setup required"
-            lines.append(f"⚠️ Vibe attention: {issue} ({model}, ctx {ctx})")
-            if ok_status.get("ollama_endpoint"):
-                lines.append(f"ℹ️  Ollama endpoint: {ok_status.get('ollama_endpoint')}")
-            if issue == "ollama down":
-                lines.append("Tip: Start Ollama: `ollama serve`")
-            if issue == "missing model":
-                lines.append(f"Tip: Pull model: `ollama pull {model}`")
-            if issue == "vibe-cli missing":
-                lines.append("Tip: Install Vibe CLI: `pip install mistral-vibe`")
+            lines.append(f"⚠️ Vibe needs setup: {issue} ({model}, ctx {ctx})")
             if issue in {"setup required", "ollama down", "missing model", "vibe-cli missing"}:
-                lines.append("Tip: First run: SETUP to configure Mistral key + local models")
+                lines.append("Tip: INSTALL VIBE")
+            if issue == "missing model":
+                lines.append(f"Tip: OK PULL {model}")
         if cloud_status.get("skip"):
-            lines.append("ℹ️ Wizard not running; cloud checks skipped")
+            lines.append("Tip: WIZARD start")
         elif cloud_status.get("ready"):
-            lines.append("✅ Mistral cloud ready (required)")
+            lines.append("✅ Mistral cloud ready")
         else:
             issue = cloud_status.get("issue") or "setup required"
-            lines.append(f"⚠️ Mistral cloud required: {issue}")
-            lines.append("Tip: Set MISTRAL_API_KEY or run SETUP")
+            lines.append(f"⚠️ Mistral cloud needed: {issue}")
+            lines.append("Tip: SETUP")
         lines.append("Tip: OK EXPLAIN <file> | OK LOCAL")
 
         print(self._theme_text("\nVibe (Local)"))
@@ -2116,6 +2136,7 @@ Core Commands:
 System Management:
   SETUP               - Run setup story (default)
   SETUP --profile     - View your setup profile
+  INSTALL VIBE        - Install Ollama + Vibe CLI + Mistral models
   CONFIG              - Manage configuration variables
   DESTROY             - System cleanup (wipe user, compost, reset)
   SHAKEDOWN           - Validate system health
@@ -2125,6 +2146,7 @@ System Management:
   LOGS                - View unified system logs
   ANCHOR              - Gameplay anchors (list/show/register/bind)
   GRID                - UGRID demos (calendar/table/schedule/map)
+  DRAW                - Viewport-aware ASCII demos and panels
 
 Data & Stories:
   BINDER              - Multi-chapter project management
@@ -2144,6 +2166,7 @@ AI Modes:
   OK DIFF <file>      - Propose a diff via local Vibe
   OK PATCH <file>     - Draft a patch via local Vibe
   OK ROUTE <prompt>   - Rule-based NL routing (plan + execute)
+  OK PULL <model>     - Download Ollama model by name
   OK LOCAL [N]        - Show recent OK local outputs
   OK FALLBACK on|off  - Toggle local-first fallback to cloud
 
@@ -2161,6 +2184,7 @@ AI Modes:
 Examples:
   SETUP                      - Run setup story
   SETUP --profile            - View your setup profile
+  INSTALL VIBE               - Install local Vibe stack
   UID                        - Show your User ID
   STORY tui-setup            - Run setup story
   DESTROY --wipe-user        - Wipe user data
@@ -2603,6 +2627,46 @@ For detailed help on any command, type the command name followed by --help
             "Return a unified diff only."
         )
         self._run_ok_request(prompt, mode="PATCH", file_path=path, use_cloud=parsed.get("use_cloud"))
+
+    def _cmd_ok_pull(self, args: str) -> None:
+        """OK PULL <model>."""
+        import shutil
+        import json
+        from pathlib import Path
+
+        model = (args or "").strip()
+        if not model:
+            print(self._theme_text("Usage: OK PULL <model>"))
+            return
+        if not shutil.which("ollama"):
+            print(self._theme_text("⚠️  Ollama not found. Install first via OK SETUP or SETUP VIBE."))
+            return
+        try:
+            print(self._theme_text(f"⬇️  Pulling Ollama model: {model}"))
+            from core.services.ok_setup import pull_ollama_model
+            result = pull_ollama_model(model, log=lambda msg: print(self._theme_text(msg)))
+            if result.get("success") != "true":
+                print(self._theme_text(f"⚠️  OK PULL failed: {result.get('error', 'unknown error')}"))
+                return
+            # Update ok_modes.json so the model appears in routing lists.
+            try:
+                config_path = Path(self.repo_root) / "core" / "config" / "ok_modes.json"
+                config = {"modes": {}}
+                if config_path.exists():
+                    config = json.loads(config_path.read_text())
+                modes = config.setdefault("modes", {})
+                ofvibe = modes.setdefault("ofvibe", {})
+                models = ofvibe.setdefault("models", [])
+                names = {m.get("name") for m in models if isinstance(m, dict)}
+                pulled_name = result.get("name") or model
+                if pulled_name not in names:
+                    models.append({"name": pulled_name, "availability": ["core"]})
+                    config_path.write_text(json.dumps(config, indent=2))
+            except Exception as exc:
+                print(self._theme_text(f"⚠️  OK PULL: could not update ok_modes.json: {exc}"))
+            print(self._theme_text("✅ OK PULL complete.\n"))
+        except Exception as exc:
+            print(self._theme_text(f"⚠️  OK PULL failed: {exc}"))
 
     def _cmd_ok_route(self, args: str) -> None:
         """OK ROUTE <prompt> [--dry-run]."""

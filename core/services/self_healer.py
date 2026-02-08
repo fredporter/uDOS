@@ -25,6 +25,10 @@ import importlib
 import ssl
 import time
 import threading
+import os
+import shutil
+import urllib.request
+import urllib.error
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass, field
@@ -120,6 +124,7 @@ class SelfHealer:
         self._check_configuration()
         self._check_ports()
         self._check_permissions()
+        self._check_ollama()
         self._check_ts_runtime()  # Add TS runtime check
 
         # Attempt repairs if auto_repair is enabled
@@ -365,6 +370,51 @@ class SelfHealer:
                     details={"runtime_dist": str(runtime_dist)}
                 ))
 
+    def _check_ollama(self) -> None:
+        """Check if local Ollama is reachable and attempt to self-heal if enabled."""
+        if self.component not in {"core", "wizard"}:
+            return
+
+        if os.getenv("UDOS_OLLAMA_AUTOSTART", "1").strip().lower() in {"0", "false", "no"}:
+            return
+
+        host = (os.getenv("OLLAMA_HOST") or "http://127.0.0.1:11434").strip().rstrip("/")
+        if not host.startswith("http://127.0.0.1") and not host.startswith("http://localhost"):
+            return
+
+        if self._ollama_reachable(host):
+            return
+
+        if not shutil.which("ollama"):
+            self.issues.append(Issue(
+                type=IssueType.MISSING_DEPENDENCY,
+                severity=IssueSeverity.WARNING,
+                description="Ollama CLI not installed",
+                component=self.component,
+                repairable=False,
+                repair_action="install Ollama or set OLLAMA_HOST to a running server",
+                details={"host": host}
+            ))
+            return
+
+        self.issues.append(Issue(
+            type=IssueType.CONFIG_ERROR,
+            severity=IssueSeverity.WARNING,
+            description="Ollama server not running",
+            component=self.component,
+            repairable=True,
+            auto_repairable=True,
+            repair_action="start_ollama",
+            details={"host": host}
+        ))
+
+    def _ollama_reachable(self, host: str) -> bool:
+        try:
+            with urllib.request.urlopen(f"{host}/api/tags", timeout=2) as resp:
+                return resp.status == 200
+        except (urllib.error.URLError, OSError, ValueError):
+            return False
+
     def _attempt_repair(self, issue: Issue) -> bool:
         """
         Attempt to repair an issue.
@@ -384,6 +434,8 @@ class SelfHealer:
                 return self._repair_permission(issue)
             elif issue.type == IssueType.CONFIG_ERROR and issue.repair_action == "build_ts_runtime":
                 return self._repair_ts_runtime(issue)
+            elif issue.type == IssueType.CONFIG_ERROR and issue.repair_action == "start_ollama":
+                return self._repair_ollama(issue)
             elif issue.type == IssueType.CONFIG_ERROR and issue.repair_action:
                 # Ask user before applying config-related fixes
                 if self._confirm_repair(issue):
@@ -497,6 +549,28 @@ class SelfHealer:
             spinner.stop(f"✗ Build error: {e}")
             logger.error(f"[HEAL] TS runtime build error: {e}")
             return False
+
+    def _repair_ollama(self, issue: Issue) -> bool:
+        """Start Ollama server if installed."""
+        host = issue.details.get("host") or "http://127.0.0.1:11434"
+        try:
+            subprocess.Popen(
+                ["ollama", "serve"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                start_new_session=True,
+            )
+        except Exception as exc:
+            logger.warning(f"[HEAL] Ollama auto-start failed: {exc}")
+            return False
+
+        for _ in range(20):
+            time.sleep(0.5)
+            if self._ollama_reachable(host):
+                return True
+
+        logger.warning("[HEAL] Ollama did not start in time")
+        return False
 
     def _repair_command(self, command: str) -> bool:
         """Run a shell command for repair (e.g., pip install)."""

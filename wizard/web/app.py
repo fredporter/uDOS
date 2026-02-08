@@ -352,7 +352,7 @@ async def get_stats():
 
 async def get_system_stats() -> Dict[str, Any]:
     """Gather system statistics."""
-    # TODO: Implement actual stat gathering
+    # STUB: Implement stat gathering
     return {
         "status": "online",
         "uptime": "2h 34m",
@@ -388,7 +388,7 @@ async def receive_webhook(webhook_id: str, request: Request):
     logger.info(f"[WIZ] Webhook received: {webhook_id}")
     logger.debug(f"[WIZ] Webhook payload: {body}")
 
-    # TODO: Process webhook based on type
+    # STUB: Process webhook based on type
 
     return {"status": "received", "webhook_id": webhook_id}
 
@@ -693,7 +693,7 @@ async def get_logs(request: Request, level: str = "all", limit: int = 100):
 
 async def read_recent_logs(level: str, limit: int) -> List[Dict[str, Any]]:
     """Read recent log entries."""
-    # TODO: Parse actual log files
+    # STUB: Parse log files
     return [
         {
             "timestamp": "2026-01-05 14:32:10",
@@ -806,7 +806,7 @@ async def broadcast_event(event_type: str, data: Any):
     for connection in active_connections:
         try:
             await connection.send_json(message)
-        except:
+        except Exception:
             pass  # Client disconnected
 
 

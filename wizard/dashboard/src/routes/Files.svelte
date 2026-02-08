@@ -14,12 +14,8 @@
   let isDark = true;
   let showPicker = false;
 
-  const workspaces = [
-    { id: "vault-md", label: "vault-md", base: "vault-md" },
-    { id: "memory-sandbox", label: "memory/sandbox", base: "memory/sandbox" },
-    { id: "memory-inbox", label: "memory/inbox", base: "memory/inbox" },
-  ];
-  let selectedWorkspace = workspaces[0];
+  let workspaces = [];
+  let selectedWorkspace = null;
 
   const authHeaders = () =>
     adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
@@ -44,6 +40,38 @@
     const base = selectedWorkspace?.base || "memory";
     if (!path) return base;
     return `${base}/${path}`;
+  }
+
+  function normalizeRoots(roots) {
+    return Object.entries(roots || {}).map(([label, base]) => ({
+      id: label.replace(/[^a-z0-9]+/gi, "-").toLowerCase(),
+      label,
+      base,
+    }));
+  }
+
+  async function loadRoots() {
+    try {
+      const res = await apiFetch("/api/workspace/roots", {
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      workspaces = normalizeRoots(data.roots || {});
+      if (!workspaces.length) {
+        workspaces = [{ id: "memory", label: "memory", base: "memory" }];
+      }
+      const preferred =
+        workspaces.find((ws) => ws.base === "vault-md") || workspaces[0];
+      selectedWorkspace = preferred;
+      currentPath = "";
+      selectedFilePath = "";
+      await loadEntries("");
+    } catch (err) {
+      error = err.message || String(err);
+      workspaces = [{ id: "memory", label: "memory", base: "memory" }];
+      selectedWorkspace = workspaces[0];
+    }
   }
 
   async function loadEntries(path = currentPath) {
@@ -144,7 +172,7 @@
     adminToken = localStorage.getItem("wizardAdminToken") || "";
     const theme = localStorage.getItem("wizard-theme");
     isDark = theme !== "light";
-    loadEntries("");
+    loadRoots();
   });
 </script>
 

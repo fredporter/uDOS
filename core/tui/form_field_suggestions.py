@@ -178,7 +178,7 @@ class FormFieldSuggestions:
                             return 'ubuntu'
                         else:
                             return 'ubuntu'  # Default to ubuntu for Linux
-                except:
+                except Exception:
                     return 'ubuntu'
             elif system == 'windows':
                 return 'windows'

@@ -450,29 +450,35 @@ def _sync_wizard_config_from_secret(key: str) -> Dict[str, Any]:
 
 
 def get_available_extensions() -> List[ExtensionInstaller]:
-    """Get list of available extensions for installation."""
-    # TODO: Load from distribution/plugins/index.json
-    extensions = [
-        ExtensionInstaller(
-            name="github-cli",
-            version="1.0.0",
-            description="CLI-focused GitHub integration for sync, monitoring, and webhooks",
-            required_secrets=["github_token"]
-        ),
-        ExtensionInstaller(
-            name="mistral-vibe",
-            version="2.0.0",
-            description="Mistral AI local inference with voice interaction",
-            required_secrets=["mistral_api_key"]
-        ),
-        ExtensionInstaller(
-            name="mesh-core",
-            version="1.5.0",
-            description="Local mesh networking for device-to-device communication",
-            required_secrets=[]
-        ),
-    ]
-    return extensions
+    """Get list of available extensions from distribution/plugins/index.json."""
+    repo_root = get_repo_root()
+    index_path = repo_root / "distribution" / "plugins" / "index.json"
+
+    if not index_path.exists():
+        logger.warning("Plugin index not found: %s", index_path)
+        return []
+
+    try:
+        data = json.loads(index_path.read_text(encoding="utf-8"))
+        plugins = data.get("plugins", {})
+        extensions = []
+
+        for plugin_id, plugin_data in plugins.items():
+            extensions.append(ExtensionInstaller(
+                name=plugin_data.get("id", plugin_id),
+                version=plugin_data.get("version", "0.0.0"),
+                description=plugin_data.get("description", ""),
+                enabled=plugin_data.get("installed", False),
+                required_secrets=plugin_data.get("dependencies", []),
+                installation_status="installed" if plugin_data.get("installed") else "not-installed",
+                installed_version=plugin_data.get("installed_version"),
+                error_message=None,
+            ))
+
+        return extensions
+    except Exception as exc:
+        logger.error("Failed to load plugin index: %s", exc)
+        return []
 
 
 # ═══════════════════════════════════════════════════════════════════════════

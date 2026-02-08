@@ -46,7 +46,7 @@ import os
 from core.commands.draw_handler import DrawHandler
 
 handler = DrawHandler()
-result = handler.handle("DRAW", ["block", "ucodesmile-ascii.md", "--rainbow"])
+result = handler.handle("DRAW", ["ucodesmile-ascii.md", "--rainbow"])
 output = result.get("output") if isinstance(result, dict) else None
 if output:
     print(output)

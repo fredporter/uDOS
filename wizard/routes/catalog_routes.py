@@ -20,28 +20,53 @@ def create_catalog_routes(auth_guard=None):
     @router.get("/stats")
     async def get_stats():
         repo = get_repository()
+        if repo.init_error:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Plugin repository unavailable: {repo.init_error}",
+            )
         return {"success": True, "stats": repo.get_stats()}
 
     @router.get("/categories")
     async def get_categories():
         repo = get_repository()
+        if repo.init_error:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Plugin repository unavailable: {repo.init_error}",
+            )
         return {"success": True, "categories": repo.get_categories()}
 
     @router.get("/plugins")
     async def list_plugins(category: Optional[str] = None, installed_only: bool = False):
         repo = get_repository()
+        if repo.init_error:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Plugin repository unavailable: {repo.init_error}",
+            )
         plugins = repo.list_plugins(category=category, installed_only=installed_only)
         return {"success": True, "plugins": [p.to_dict() for p in plugins]}
 
     @router.get("/search")
     async def search_plugins(q: str):
         repo = get_repository()
+        if repo.init_error:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Plugin repository unavailable: {repo.init_error}",
+            )
         plugins = repo.search_plugins(q)
         return {"success": True, "plugins": [p.to_dict() for p in plugins]}
 
     @router.post("/updates/refresh")
     async def refresh_updates():
         repo = get_repository()
+        if repo.init_error:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Plugin repository unavailable: {repo.init_error}",
+            )
         result = repo.refresh_update_flags()
         return {"success": True, "result": result}
 

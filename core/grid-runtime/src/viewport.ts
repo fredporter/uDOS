@@ -15,8 +15,8 @@ import {
   TILE_WIDTH,
   TILE_HEIGHT,
   GraphicsMode,
-  SEXTANT_CHARS,
-  QUADRANT_CHARS,
+  TELETEXT_CHARS,
+  ASCII_BLOCK_CHARS,
   SHADE_CHARS,
   ASCII_CHARS
 } from "./geometry.js";
@@ -32,7 +32,7 @@ export interface ViewportState {
   center: Cell;                    // center cell of viewport
   viewport: Viewport;              // dimensions (80×30 or 40×15)
   visibleLayers: CanonicalAddress[]; // which depth layers render
-  renderMode: GraphicsMode;        // sextant, quadrant, shade, or ASCII
+  renderMode: GraphicsMode;        // teletext, asciiBlock, shade, or ASCII
 }
 
 /**
@@ -59,7 +59,7 @@ export class ViewportManager {
       center,
       viewport,
       visibleLayers: [], // will be populated by setViewLayers()
-      renderMode: GraphicsMode.Sextant
+      renderMode: GraphicsMode.Teletext
     };
   }
 
@@ -115,7 +115,7 @@ export class ViewportManager {
   }
 
   /**
-   * Switch render mode (sextant → quadrant → shade → ASCII)
+   * Switch render mode (teletext → asciiBlock → shade → ASCII)
    */
   setRenderMode(mode: GraphicsMode): void {
     this.state.renderMode = mode;
@@ -124,22 +124,22 @@ export class ViewportManager {
   /**
    * Render a character with automatic fallback
    * 
-   * Input: preferred sextant character (16 chars)
+   * Input: preferred teletext character (16 chars)
    * Output: character in current render mode, or fallback
    */
-  renderCharacter(sextantIndex: number): string {
-    const index = sextantIndex % 16; // 0–15
+  renderCharacter(teletextIndex: number): string {
+    const index = teletextIndex % 16; // 0–15
 
     switch (this.state.renderMode) {
-      case GraphicsMode.Sextant:
-        const sextantChar = SEXTANT_CHARS[index];
-        if (sextantChar.length === 1) {
-          return sextantChar;
+      case GraphicsMode.Teletext:
+        const teletextChar = TELETEXT_CHARS[index];
+        if (teletextChar.length === 1) {
+          return teletextChar;
         }
         return ASCII_CHARS[Math.floor(index / 4) % ASCII_CHARS.length];
-      case GraphicsMode.Quadrant:
-        // Map sextant → quadrant (every other sextant segment)
-        return QUADRANT_CHARS[Math.floor(index / 2) % 16];
+      case GraphicsMode.AsciiBlock:
+        // Map teletext → asciiBlock (every other teletext segment)
+        return ASCII_BLOCK_CHARS[Math.floor(index / 2) % 16];
       case GraphicsMode.Shade:
         // Map to shade levels (0–3)
         return SHADE_CHARS[Math.floor(index / 4) % 4];

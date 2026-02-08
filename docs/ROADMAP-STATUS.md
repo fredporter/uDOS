@@ -8,18 +8,24 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 ## Status Summary
 
 - **Milestones v1.3.0 → v1.3.7**: ✅ Complete (see archived records).
-- **Current focus**: Wizard service split with MCP gateway + Full vibe-cli integration with uCODE TUI (new focus) (high priority refactor).
-- **Outstanding (active)**: Vibe embed + minimal uCODE surface, dev mode gate enforcement, Logging API v1.3 implementation, Empire business feature reintro.
+- **Current focus**: Stabilization and polish for v1.4.0 release.
+- **Outstanding (active)**: None — all P0 items complete.
 - **Checklist**: See `docs/ROADMAP-CHECKLIST.md` for the active task list and owners.
 - **Dev mode policy**: `/dev/` public submodule required and admin-only; see [docs/DEV-MODE-POLICY.md](docs/DEV-MODE-POLICY.md).
 - **Core/Wizard boundary**: `core` is the base runtime; `wizard` is the brand for connected services. Core can run without Wizard (limited). Wizard cannot run without Core.
-- **Logging API v1.3**: spec published; implementation pending. See [docs/LOGGING-API-v1.3.md](docs/LOGGING-API-v1.3.md).
-- **Empire (private)**: submodule initialized; clean spine scaffolded (src/services/integrations/scripts/config/tests/docs). Functional business features not yet reintroduced.
+- **Logging API v1.3**: ✅ Implemented and tested. See [docs/LOGGING-API-v1.3.md](docs/LOGGING-API-v1.3.md).
+- **Empire (private)**: Tracked separately in `empire/docs/EMPIRE-ROADMAP.md`.
 
 ---
 
 ## Recent Progress
 
+- Completed Wizard service split with MCP gateway integration.
+- Full vibe-cli integration with uCODE TUI complete.
+- Vibe embed + minimal uCODE surface implemented.
+- Dev mode gate enforcement finalized.
+- Logging API v1.3 implemented and tested (2026-02-08).
+- Empire business features split to dedicated `empire/docs/EMPIRE-ROADMAP.md`.
 - Migrated legacy bank paths → `memory/system/` and `vault-md/` paths; docs updated accordingly.
 - Implemented plugin packaging flow (`PLUGIN pack`) and aligned catalog path to `distribution/plugins`.
 - Implemented grid runtime distance calculation, sky view placeholder rendering, and character pixel mapping.
@@ -36,9 +42,10 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 ### P0 — Version Bump + Wizard/Vibe Refactor (High Priority)
 - ✅ Version bump to **v1.3.9** (Wizard services split, MCP gateway, Vibe full TUI replacement).
 - ✅ Plan service boundaries + initial Wizard server extraction (auth/logs/system stats/scheduler/plugin repo/web proxy/webhooks).
-- ⏳ Bootstrap Vibe integration (embed) and minimal uCODE command exposure for exploration.
-- ⏳ Enforce Dev mode gate (admin-only + `/dev/` presence) and document the policy contract.
- - ✅ Add MCP server tests to verify stdio tool wrapping and tool index parsing.
+- ✅ Bootstrap Vibe integration (embed) and minimal uCODE command exposure for exploration.
+- ✅ Enforce Dev mode gate (admin-only + `/dev/` presence) and document the policy contract.
+- ✅ Add MCP server tests to verify stdio tool wrapping and tool index parsing.
+- ✅ Logging API v1.3 implementation complete and tested.
 
 ### P0 — Consolidation & Verification
 - ✅ Confirmed extension API references after the `memory/system` + `vault-md/` migration (no code refs to legacy bank paths remain).
@@ -56,6 +63,11 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 
 ## Completed Highlights (v1.3.x)
 
+- Wizard service split with MCP gateway complete.
+- Full vibe-cli integration with uCODE TUI complete.
+- Vibe embed + minimal uCODE surface complete.
+- Dev mode gate enforcement complete.
+- Logging API v1.3 complete.
 - Vault/Theme Pack/Engine-Agnostic World contracts enforced.
 - UGRID core, anchors, and world lenses complete.
 - Wizard AI Modes, theme validation, and preview endpoints complete.
@@ -63,6 +75,20 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 - Groovebox → Songscribe stack complete.
 - Beacon Portal + MeshCore + networking stack complete.
 - Alpine baremetal + Windows entertainment distributions complete.
+
+---
+
+## Pre-v1.4 (Planned)
+
+### P2 — Code Quality & Modularization
+- [ ] Review long route factory functions for modularization opportunities:
+  - `wizard/routes/ucode_routes.py` (~1200 lines)
+  - `wizard/routes/config_routes.py` (~1350 lines)
+  - `wizard/routes/provider_routes.py` (~1150 lines)
+  - `core/commands/destroy_handler.py` (~1000 lines)
+  - `core/commands/setup_handler.py` (~730 lines)
+- [ ] Consider splitting nested route handlers into separate modules.
+- [ ] Evaluate helper extraction patterns for repeated code blocks.
 
 ---
 

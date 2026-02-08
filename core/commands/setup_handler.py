@@ -95,6 +95,7 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
             SETUP --edit       Edit setup values
             SETUP --clear      Clear setup data (start over)
             SETUP --help       Show help
+            INSTALL vibe       Install Ollama + Vibe CLI + Mistral models
 
         Local data stored in .env:
             USER_NAME          Username
@@ -127,6 +128,7 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
                     ("Edit setup", "edit", "Update local .env values"),
                     ("Clear setup", "clear", "Reset local setup data"),
                     ("Webhook setup", "webhook", "Configure GitHub webhooks"),
+                    ("Vibe helper setup", "vibe", "Install Ollama + Vibe CLI + Mistral models"),
                     ("Provider setup", "provider", "Configure provider (github/ollama/mistral/openrouter)"),
                     ("Help", "help", "Show SETUP help"),
                 ],
@@ -145,6 +147,8 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
                 from core.commands.webhook_setup_handler import WebhookSetupHandler
                 handler = WebhookSetupHandler()
                 return handler.handle("SETUP", ["webhook"], grid, parser)
+            if choice == "vibe":
+                return self._setup_vibe()
             if choice == "provider":
                 try:
                     provider = input("Provider (github/ollama/mistral/openrouter): ").strip().lower()
@@ -175,6 +179,9 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
             from core.commands.webhook_setup_handler import WebhookSetupHandler
             handler = WebhookSetupHandler()
             return handler.handle("SETUP", params, grid, parser)
+
+        if action == "vibe":
+            return self._setup_vibe()
 
         # Check if this is a provider setup request
         provider_names = {"github", "ollama", "mistral", "openrouter"}
@@ -486,6 +493,8 @@ stored in the Wizard keystore.
 USAGE:
   SETUP              Run setup story (interactive questions)
   SETUP <provider>   Setup a provider (github, ollama, mistral, etc.)
+  SETUP vibe         Install Vibe CLI + Ollama + Mistral models
+  INSTALL vibe       Alias for SETUP vibe
   SETUP --profile    Show your current setup
   SETUP --edit       Edit setup manually
   SETUP --clear      Clear all setup data
@@ -496,6 +505,7 @@ PROVIDERS:
   SETUP ollama       Setup local Ollama AI model
   SETUP mistral      Configure Mistral AI provider
   SETUP openrouter   Configure OpenRouter gateway
+  SETUP vibe         Install Vibe CLI + Ollama + Mistral local models
 
 LOCAL SETTINGS (.env):
     USER_NAME          Username
@@ -518,11 +528,34 @@ EXAMPLES:
   SETUP                     # Start interactive setup
   SETUP github              # Setup GitHub authentication
   SETUP ollama              # Setup local Ollama
+  SETUP vibe                # Install Vibe CLI + Ollama + Mistral models
   SETUP --profile           # View current settings
   SETUP --clear && SETUP    # Reset and reconfigure
   nano .env                 # Manual editing
 """
         }
+
+    def _setup_vibe(self) -> Dict:
+        """Install local Vibe helper stack (Ollama + Vibe CLI + models)."""
+        output: List[str] = []
+        output.append("\n⚙️  SETUP VIBE: Installing local AI helpers\n")
+        output.append("=" * 60)
+        try:
+            from core.services.ok_setup import run_ok_setup
+            from core.services.logging_api import get_repo_root
+
+            result = run_ok_setup(
+                get_repo_root(),
+                log=lambda msg: output.append(msg),
+                models=None,
+            )
+            for warning in result.get("warnings", []):
+                output.append(f"  ⚠️  {warning}")
+            output.append("✅ SETUP VIBE complete.")
+            return {"status": "success", "output": "\n".join(output)}
+        except Exception as exc:
+            output.append(f"⚠️  SETUP VIBE failed: {exc}")
+            return {"status": "error", "output": "\n".join(output)}
 
     def _setup_provider(self, provider_id: str) -> Dict:
         """Setup a provider (github, ollama, mistral, etc.)."""

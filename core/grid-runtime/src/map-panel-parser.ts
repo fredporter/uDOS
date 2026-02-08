@@ -2,14 +2,14 @@
  * MAP/PANEL Block Parser - Extract and parse grid runtime blocks from markdown
  * 
  * Parses ```map and ```panel code blocks with location/viewport syntax
- * Integrates with ViewportManager, World, and Sextant Renderer
+ * Integrates with ViewportManager, World, and Teletext Renderer
  * 
  * @module grid-runtime/block-parser
  */
 
 import { ViewportManager, ViewportSize } from './viewport-manager';
 import { World } from './location-loader';
-import { RenderQuality } from './sextant-renderer';
+import { RenderQuality } from './teletext-renderer';
 
 /**
  * MAP block configuration
@@ -58,7 +58,7 @@ export type GridBlock = MapBlock | PanelBlock;
  *   ```map L300-AA10
  *   ```map L300-AA10 40x15
  *   ```map L300-AA10 center=BD14
- *   ```map L300-AA10 quality=sextant coords
+ *   ```map L300-AA10 quality=teletext coords
  */
 export function parseMapBlock(headerLine: string): MapBlock {
   const block: MapBlock = { type: 'map' };
@@ -125,7 +125,7 @@ export function parseMapBlock(headerLine: string): MapBlock {
  * Examples:
  *   ```panel L300-AA10
  *   ```panel L300-AA10 AA10:BD14
- *   ```panel L300-AA10 quality=quadrant grid
+ *   ```panel L300-AA10 quality=asciiBlock grid
  */
 export function parsePanelBlock(headerLine: string): PanelBlock {
   const block: PanelBlock = { type: 'panel' };
@@ -256,7 +256,7 @@ export class GridBlockExecutor {
     // Get visible tiles
     const tiles = this.viewportManager.getVisibleTiles();
     
-    // Render tiles to grid (simplified - would use sextant renderer)
+    // Render tiles to grid (simplified - would use teletext renderer)
     const grid = this.renderTilesToGrid(tiles, location.tiles);
     output.push(grid);
     
@@ -340,7 +340,7 @@ export class GridBlockExecutor {
   }
   
   private renderTilesToGrid(tiles: any[], tileMap: any): string {
-    // Simplified rendering - would use sextant renderer
+    // Simplified rendering - would use teletext renderer
     const grid: string[] = [];
     
     grid.push('┌' + '─'.repeat(78) + '┐');

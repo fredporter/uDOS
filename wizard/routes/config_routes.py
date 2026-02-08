@@ -181,19 +181,28 @@ def create_config_routes(auth_guard=None):
         "wizard": "Wizard",
     }
 
+    def _load_json_config(
+        path: Path, default: Optional[Dict[str, Any]] = None
+    ) -> tuple[Dict[str, Any], Optional[str]]:
+        if not path.exists():
+            return default or {}, None
+        try:
+            return json.loads(path.read_text()), None
+        except Exception as exc:
+            return default or {}, str(exc)
+
+    def _save_json_config(path: Path, payload: Dict[str, Any]) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload, indent=2))
+
     def _load_wizard_config() -> Dict[str, Any]:
         wizard_path = CONFIG_PATH / "wizard.json"
-        if wizard_path.exists():
-            try:
-                return json.loads(wizard_path.read_text())
-            except Exception:
-                return {}
-        return {}
+        content, _error = _load_json_config(wizard_path, default={})
+        return content
 
     def _save_wizard_config(config: Dict[str, Any]) -> None:
         wizard_path = CONFIG_PATH / "wizard.json"
-        wizard_path.parent.mkdir(parents=True, exist_ok=True)
-        wizard_path.write_text(json.dumps(config, indent=2))
+        _save_json_config(wizard_path, config)
 
     class _ConfigUpdate(BaseModel):
         updates: Dict[str, Any]
@@ -276,41 +285,40 @@ def create_config_routes(auth_guard=None):
 
             # Determine if file exists and is example/template
             if file_path.exists():
-                with open(file_path, "r") as f:
-                    try:
-                        content = json.load(f)
-                        files.append(
-                            {
-                                "id": file_id,
-                                "label": LABEL_MAP.get(
-                                    file_id,
-                                    filename.replace("_", " ")
-                                    .replace(".json", "")
-                                    .title(),
-                                ),
-                                "filename": filename,
-                                "exists": True,
-                                "is_example": filename.endswith(".example.json"),
-                                "is_template": filename.endswith(".template.json"),
-                            }
-                        )
-                    except json.JSONDecodeError:
-                        files.append(
-                            {
-                                "id": file_id,
-                                "label": LABEL_MAP.get(
-                                    file_id,
-                                    filename.replace("_", " ")
-                                    .replace(".json", "")
-                                    .title(),
-                                ),
-                                "filename": filename,
-                                "exists": True,
-                                "is_example": False,
-                                "is_template": False,
-                                "error": "Invalid JSON",
-                            }
-                        )
+                _content, error = _load_json_config(file_path, default={})
+                if error:
+                    files.append(
+                        {
+                            "id": file_id,
+                            "label": LABEL_MAP.get(
+                                file_id,
+                                filename.replace("_", " ")
+                                .replace(".json", "")
+                                .title(),
+                            ),
+                            "filename": filename,
+                            "exists": True,
+                            "is_example": False,
+                            "is_template": False,
+                            "error": "Invalid JSON",
+                        }
+                    )
+                else:
+                    files.append(
+                        {
+                            "id": file_id,
+                            "label": LABEL_MAP.get(
+                                file_id,
+                                filename.replace("_", " ")
+                                .replace(".json", "")
+                                .title(),
+                            ),
+                            "filename": filename,
+                            "exists": True,
+                            "is_example": filename.endswith(".example.json"),
+                            "is_template": filename.endswith(".template.json"),
+                        }
+                    )
             else:
                 # Check for .example or .template versions
                 example_path = CONFIG_PATH / filename.replace(".json", ".example.json")
@@ -432,11 +440,9 @@ def create_config_routes(auth_guard=None):
                 # Try actual file first
                 content = None
                 if file_path.exists():
-                    try:
-                        with open(file_path, "r") as f:
-                            content = json.load(f)
-                    except json.JSONDecodeError:
-                        pass
+                    content, error = _load_json_config(file_path, default=None)
+                    if error:
+                        content = None
 
                 if content is None:
                     # Try example
@@ -444,11 +450,9 @@ def create_config_routes(auth_guard=None):
                         ".json", ".example.json"
                     )
                     if example_path.exists():
-                        try:
-                            with open(example_path, "r") as f:
-                                content = json.load(f)
-                        except json.JSONDecodeError:
-                            pass
+                        content, error = _load_json_config(example_path, default=None)
+                        if error:
+                            content = None
 
                 if content is None:
                     # Try template
@@ -456,11 +460,9 @@ def create_config_routes(auth_guard=None):
                         ".json", ".template.json"
                     )
                     if template_path.exists():
-                        try:
-                            with open(template_path, "r") as f:
-                                content = json.load(f)
-                        except json.JSONDecodeError:
-                            pass
+                        content, error = _load_json_config(template_path, default=None)
+                        if error:
+                            content = None
 
                 if content:
                     # Filter secrets if not included
@@ -528,80 +530,66 @@ def create_config_routes(auth_guard=None):
 
         # Try actual file first
         if file_path.exists():
-            with open(file_path, "r") as f:
-                try:
-                    content = json.load(f)
-                    if file_id == "wizard":
-                        content.setdefault("file_locations", {})
-                        content["file_locations"].setdefault("memory_root", "memory")
-                        content["file_locations"].setdefault("repo_root", "auto")
-                        content["file_locations"]["repo_root_actual"] = str(
-                            get_repo_root()
-                        )
-                        content["file_locations"]["memory_root_actual"] = str(
-                            get_memory_dir()
-                        )
-                    return {
-                        "id": file_id,
-                        "filename": filename,
-                        "content": content,
-                        "is_example": False,
-                        "is_template": False,
-                    }
-                except json.JSONDecodeError as e:
-                    raise HTTPException(
-                        status_code=500, detail=f"Invalid JSON in {filename}: {str(e)}"
-                    )
+            content, error = _load_json_config(file_path, default=None)
+            if error:
+                raise HTTPException(
+                    status_code=500, detail=f"Invalid JSON in {filename}: {error}"
+                )
+            if file_id == "wizard":
+                content.setdefault("file_locations", {})
+                content["file_locations"].setdefault("memory_root", "memory")
+                content["file_locations"].setdefault("repo_root", "auto")
+                content["file_locations"]["repo_root_actual"] = str(get_repo_root())
+                content["file_locations"]["memory_root_actual"] = str(get_memory_dir())
+            return {
+                "id": file_id,
+                "filename": filename,
+                "content": content,
+                "is_example": False,
+                "is_template": False,
+            }
 
         # Try example version
         example_path = CONFIG_PATH / filename.replace(".json", ".example.json")
         if example_path.exists():
-            with open(example_path, "r") as f:
-                try:
-                    content = json.load(f)
-                    if file_id == "wizard":
-                        content.setdefault("file_locations", {})
-                        content["file_locations"].setdefault("memory_root", "memory")
-                        content["file_locations"].setdefault("repo_root", "auto")
-                        content["file_locations"]["repo_root_actual"] = str(
-                            get_repo_root()
-                        )
-                        content["file_locations"]["memory_root_actual"] = str(
-                            get_memory_dir()
-                        )
-                    return {
-                        "id": file_id,
-                        "filename": filename,
-                        "content": content,
-                        "is_example": True,
-                        "is_template": False,
-                        "message": "Using example file. Save to create actual config.",
-                    }
-                except json.JSONDecodeError as e:
-                    raise HTTPException(
-                        status_code=500,
-                        detail=f"Invalid JSON in {example_path.name}: {str(e)}",
-                    )
+            content, error = _load_json_config(example_path, default=None)
+            if error:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Invalid JSON in {example_path.name}: {error}",
+                )
+            if file_id == "wizard":
+                content.setdefault("file_locations", {})
+                content["file_locations"].setdefault("memory_root", "memory")
+                content["file_locations"].setdefault("repo_root", "auto")
+                content["file_locations"]["repo_root_actual"] = str(get_repo_root())
+                content["file_locations"]["memory_root_actual"] = str(get_memory_dir())
+            return {
+                "id": file_id,
+                "filename": filename,
+                "content": content,
+                "is_example": True,
+                "is_template": False,
+                "message": "Using example file. Save to create actual config.",
+            }
 
         # Try template version
         template_path = CONFIG_PATH / filename.replace(".json", ".template.json")
         if template_path.exists():
-            with open(template_path, "r") as f:
-                try:
-                    content = json.load(f)
-                    return {
-                        "id": file_id,
-                        "filename": filename,
-                        "content": content,
-                        "is_example": False,
-                        "is_template": True,
-                        "message": "Using template file. Save to create actual config.",
-                    }
-                except json.JSONDecodeError as e:
-                    raise HTTPException(
-                        status_code=500,
-                        detail=f"Invalid JSON in {template_path.name}: {str(e)}",
-                    )
+            content, error = _load_json_config(template_path, default=None)
+            if error:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Invalid JSON in {template_path.name}: {error}",
+                )
+            return {
+                "id": file_id,
+                "filename": filename,
+                "content": content,
+                "is_example": False,
+                "is_template": True,
+                "message": "Using template file. Save to create actual config.",
+            }
 
         raise HTTPException(status_code=404, detail=f"Config file not found: {file_id}")
 
@@ -631,9 +619,7 @@ def create_config_routes(auth_guard=None):
                 )
 
             # Write file
-            file_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(file_path, "w") as f:
-                json.dump(content, f, indent=2)
+            _save_json_config(file_path, content)
 
             wizard_synced = _sync_wizard_from_config(file_id, content)
 
@@ -692,36 +678,28 @@ def create_config_routes(auth_guard=None):
         # Try example first
         example_path = CONFIG_PATH / filename.replace(".json", ".example.json")
         if example_path.exists():
-            with open(example_path, "r") as f:
-                try:
-                    content = json.load(f)
-                    return {
-                        "id": file_id,
-                        "filename": filename,
-                        "example_file": example_path.name,
-                        "content": content,
-                    }
-                except json.JSONDecodeError as e:
-                    raise HTTPException(
-                        status_code=500, detail=f"Invalid JSON: {str(e)}"
-                    )
+            content, error = _load_json_config(example_path, default=None)
+            if error:
+                raise HTTPException(status_code=500, detail=f"Invalid JSON: {error}")
+            return {
+                "id": file_id,
+                "filename": filename,
+                "example_file": example_path.name,
+                "content": content,
+            }
 
         # Try template
         template_path = CONFIG_PATH / filename.replace(".json", ".template.json")
         if template_path.exists():
-            with open(template_path, "r") as f:
-                try:
-                    content = json.load(f)
-                    return {
-                        "id": file_id,
-                        "filename": filename,
-                        "template_file": template_path.name,
-                        "content": content,
-                    }
-                except json.JSONDecodeError as e:
-                    raise HTTPException(
-                        status_code=500, detail=f"Invalid JSON: {str(e)}"
-                    )
+            content, error = _load_json_config(template_path, default=None)
+            if error:
+                raise HTTPException(status_code=500, detail=f"Invalid JSON: {error}")
+            return {
+                "id": file_id,
+                "filename": filename,
+                "template_file": template_path.name,
+                "content": content,
+            }
 
         raise HTTPException(
             status_code=404, detail=f"No example/template found for {filename}"

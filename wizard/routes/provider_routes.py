@@ -7,13 +7,8 @@ Tracks which providers need setup, runs CLI automations, and manages restart fla
 """
 
 import json
-import os
-import re
 import subprocess
 import shutil
-import threading
-import urllib.request
-import urllib.error
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, HTTPException, Depends, Query
@@ -24,6 +19,13 @@ from wizard.services.logging_api import get_logger
 from wizard.services.system_info_service import get_system_info_service
 from wizard.services.path_utils import get_repo_root
 from wizard.services.quota_tracker import get_quota_tracker
+from wizard.services.ollama_service import (
+    ollama_host,
+    ollama_api_request,
+    get_pull_tracker,
+    start_pull,
+    get_popular_models,
+)
 from services.integration_registry import get_provider_definitions
 
 
@@ -34,8 +36,7 @@ def create_provider_routes(auth_guard=None):
         prefix="/api/providers", tags=["providers"], dependencies=dependencies
     )
     logger = get_logger("provider-routes")
-    pull_status: Dict[str, Dict[str, Any]] = {}
-    pull_lock = threading.Lock()
+    pull_tracker = get_pull_tracker()
 
     CONFIG_PATH = Path(__file__).parent.parent / "config"
     SETUP_FLAGS_FILE = CONFIG_PATH / "provider_setup_flags.json"
@@ -71,123 +72,6 @@ def create_provider_routes(auth_guard=None):
             return None
 
         return PROVIDERS.get(provider_id, {}).get("install_cmd")
-
-    def _ollama_host() -> str:
-        return (os.getenv("OLLAMA_HOST") or "http://localhost:11434").rstrip("/")
-
-    def _ollama_api_request(path: str, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        url = f"{_ollama_host()}{path}"
-        data = json.dumps(payload).encode("utf-8") if payload is not None else None
-        req = urllib.request.Request(
-            url,
-            method="POST" if data is not None else "GET",
-            data=data,
-            headers={"Content-Type": "application/json"} if data is not None else {},
-        )
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            body = resp.read().decode("utf-8")
-            return json.loads(body) if body else {}
-
-    def _set_pull_status(model: str, **fields: Any) -> None:
-        with pull_lock:
-            current = pull_status.get(model, {"model": model})
-            current.update(fields)
-            pull_status[model] = current
-
-    def _pull_via_api(model: str) -> None:
-        _set_pull_status(model, state="connecting", percent=0)
-        try:
-            url = f"{_ollama_host()}/api/pull"
-            data = json.dumps({"name": model}).encode("utf-8")
-            req = urllib.request.Request(
-                url,
-                method="POST",
-                data=data,
-                headers={"Content-Type": "application/json"},
-            )
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                for raw in resp:
-                    line = raw.decode("utf-8").strip()
-                    if not line:
-                        continue
-                    try:
-                        payload = json.loads(line)
-                    except Exception:
-                        continue
-                    if payload.get("error"):
-                        _set_pull_status(
-                            model,
-                            state="error",
-                            error=payload.get("error"),
-                        )
-                        return
-                    total = payload.get("total")
-                    completed = payload.get("completed")
-                    percent = None
-                    if isinstance(total, (int, float)) and total:
-                        percent = int((completed or 0) / total * 100)
-                    _set_pull_status(
-                        model,
-                        state="pulling",
-                        status=payload.get("status"),
-                        total=total,
-                        completed=completed,
-                        percent=percent,
-                    )
-            _set_pull_status(model, state="done", percent=100, status="complete")
-        except Exception as exc:
-            _set_pull_status(model, state="error", error=str(exc))
-
-    def _start_pull(model: str) -> None:
-        thread = threading.Thread(target=_pull_via_api, args=(model,), daemon=True)
-        thread.start()
-
-    def _pull_via_cli(model: str) -> None:
-        _set_pull_status(model, state="pulling", percent=None)
-        percent_re = re.compile(r"(\\d{1,3})%")
-        try:
-            process = subprocess.Popen(
-                ["ollama", "pull", model],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-            )
-            for stream in (process.stdout, process.stderr):
-                if not stream:
-                    continue
-                for line in stream:
-                    match = percent_re.search(line)
-                    if match:
-                        pct = min(max(int(match.group(1)), 0), 100)
-                        _set_pull_status(model, percent=pct, status=line.strip())
-            code = process.wait()
-            if code == 0:
-                _set_pull_status(model, state="done", percent=100, status="complete")
-            else:
-                _set_pull_status(
-                    model,
-                    state="error",
-                    error=f"ollama pull exited {code}",
-                )
-        except Exception as exc:
-            _set_pull_status(model, state="error", error=str(exc))
-
-    def _start_pull(model: str) -> None:
-        # Prefer API for progress if reachable
-        try:
-            _ollama_api_request("/api/tags")
-            thread = threading.Thread(target=_pull_via_api, args=(model,), daemon=True)
-        except Exception:
-            if shutil.which("ollama"):
-                thread = threading.Thread(target=_pull_via_cli, args=(model,), daemon=True)
-            else:
-                _set_pull_status(
-                    model,
-                    state="error",
-                    error="ollama CLI not found and Ollama API unreachable",
-                )
-                return
-        thread.start()
 
     def load_setup_flags() -> Dict[str, Any]:
         """Load provider setup flags."""
@@ -319,7 +203,7 @@ def create_provider_routes(auth_guard=None):
                     else:
                         # For OAuth/local services
                         status["configured"] = True
-                except:
+                except Exception:
                     pass
 
         if not status.get("configured"):
@@ -344,7 +228,7 @@ def create_provider_routes(auth_guard=None):
                     timeout=5,
                 )
                 status["available"] = result.returncode == 0
-            except:
+            except Exception:
                 status["available"] = False
 
         return status
@@ -734,7 +618,7 @@ def create_provider_routes(auth_guard=None):
                 return {
                     "success": False,
                     "error": "ollama CLI not found",
-                    "help": f"Install Ollama or set OLLAMA_HOST (current: {_ollama_host()})",
+                    "help": f"Install Ollama or set OLLAMA_HOST (current: {ollama_host()})",
                     "detail": str(exc),
                 }
         except Exception as e:
@@ -754,8 +638,8 @@ def create_provider_routes(auth_guard=None):
             raise HTTPException(status_code=400, detail="Invalid model name")
 
         try:
-            _set_pull_status(model, state="queued", percent=0)
-            _start_pull(model)
+            pull_tracker.set(model, state="queued", percent=0)
+            start_pull(model, pull_tracker)
             return {
                 "success": True,
                 "message": f"Started pulling {model}...",
@@ -768,8 +652,7 @@ def create_provider_routes(auth_guard=None):
     @router.get("/ollama/models/pull/status")
     async def pull_ollama_status(model: str = Query(..., description="Model name")):
         """Get pull progress for an Ollama model."""
-        with pull_lock:
-            status = pull_status.get(model)
+        status = pull_tracker.get(model)
         if not status:
             return {"success": False, "error": "No pull status found", "model": model}
         return {"success": True, "status": status}
@@ -813,201 +696,12 @@ def create_public_ollama_routes():
     These are local operations and don't expose sensitive data.
     """
     router = APIRouter(prefix="/api/providers/ollama", tags=["ollama-public"])
-    pull_status: Dict[str, Dict[str, Any]] = {}
-    pull_lock = threading.Lock()
-
-    def _ollama_host() -> str:
-        return (os.getenv("OLLAMA_HOST") or "http://localhost:11434").rstrip("/")
-
-    def _ollama_api_request(path: str, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        url = f"{_ollama_host()}{path}"
-        data = json.dumps(payload).encode("utf-8") if payload is not None else None
-        req = urllib.request.Request(
-            url,
-            method="POST" if data is not None else "GET",
-            data=data,
-            headers={"Content-Type": "application/json"} if data is not None else {},
-        )
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            body = resp.read().decode("utf-8")
-            return json.loads(body) if body else {}
-
-    def _set_pull_status(model: str, **fields: Any) -> None:
-        with pull_lock:
-            current = pull_status.get(model, {"model": model})
-            current.update(fields)
-            pull_status[model] = current
-
-    def _pull_via_api(model: str) -> None:
-        _set_pull_status(model, state="connecting", percent=0)
-        try:
-            url = f"{_ollama_host()}/api/pull"
-            data = json.dumps({"name": model}).encode("utf-8")
-            req = urllib.request.Request(
-                url,
-                method="POST",
-                data=data,
-                headers={"Content-Type": "application/json"},
-            )
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                for raw in resp:
-                    line = raw.decode("utf-8").strip()
-                    if not line:
-                        continue
-                    try:
-                        payload = json.loads(line)
-                    except Exception:
-                        continue
-                    if payload.get("error"):
-                        _set_pull_status(
-                            model,
-                            state="error",
-                            error=payload.get("error"),
-                        )
-                        return
-                    total = payload.get("total")
-                    completed = payload.get("completed")
-                    percent = None
-                    if isinstance(total, (int, float)) and total:
-                        percent = int((completed or 0) / total * 100)
-                    _set_pull_status(
-                        model,
-                        state="pulling",
-                        status=payload.get("status"),
-                        total=total,
-                        completed=completed,
-                        percent=percent,
-                    )
-            _set_pull_status(model, state="done", percent=100, status="complete")
-        except Exception as exc:
-            _set_pull_status(model, state="error", error=str(exc))
-
-    def _pull_via_cli(model: str) -> None:
-        _set_pull_status(model, state="pulling", percent=None)
-        percent_re = re.compile(r"(\\d{1,3})%")
-        try:
-            process = subprocess.Popen(
-                ["ollama", "pull", model],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-            )
-            for stream in (process.stdout, process.stderr):
-                if not stream:
-                    continue
-                for line in stream:
-                    match = percent_re.search(line)
-                    if match:
-                        pct = min(max(int(match.group(1)), 0), 100)
-                        _set_pull_status(model, percent=pct, status=line.strip())
-            code = process.wait()
-            if code == 0:
-                _set_pull_status(model, state="done", percent=100, status="complete")
-            else:
-                _set_pull_status(
-                    model,
-                    state="error",
-                    error=f"ollama pull exited {code}",
-                )
-        except Exception as exc:
-            _set_pull_status(model, state="error", error=str(exc))
-
-    def _start_pull(model: str) -> None:
-        # Prefer API for progress if reachable
-        try:
-            _ollama_api_request("/api/tags")
-            thread = threading.Thread(target=_pull_via_api, args=(model,), daemon=True)
-        except Exception:
-            if shutil.which("ollama"):
-                thread = threading.Thread(target=_pull_via_cli, args=(model,), daemon=True)
-            else:
-                _set_pull_status(
-                    model,
-                    state="error",
-                    error="ollama CLI not found and Ollama API unreachable",
-                )
-                return
-        thread.start()
+    pull_tracker = get_pull_tracker()
 
     @router.get("/models/available")
     async def get_available_ollama_models_public():
         """Public endpoint: Get list of popular Ollama models."""
-        popular_models = [
-            {
-                "name": "mistral",
-                "description": "Fast general purpose 7B model from Mistral AI",
-                "size": "4.1GB",
-                "category": "general",
-                "installed": False,
-            },
-            {
-                "name": "devstral-small-2",
-                "description": "Mistral's lightweight coding assistant (10.7B)",
-                "size": "8.7GB",
-                "category": "coding",
-                "installed": False,
-            },
-            {
-                "name": "llama2",
-                "description": "Meta's open foundation model (7B)",
-                "size": "3.8GB",
-                "category": "general",
-                "installed": False,
-            },
-            {
-                "name": "codellama",
-                "description": "Code-specialized variant of Llama 2",
-                "size": "3.8GB",
-                "category": "coding",
-                "installed": False,
-            },
-            {
-                "name": "neural-chat",
-                "description": "Intel Neural Chat optimized (13B)",
-                "size": "7.4GB",
-                "category": "chat",
-                "installed": False,
-            },
-            {
-                "name": "openchat",
-                "description": "Lightweight conversation model (7B)",
-                "size": "4.1GB",
-                "category": "chat",
-                "installed": False,
-            },
-            {
-                "name": "zephyr",
-                "description": "Fine-tuned Mistral for chat (7B)",
-                "size": "4.1GB",
-                "category": "general",
-                "installed": False,
-            },
-            {
-                "name": "orca-mini",
-                "description": "Tiny but capable model (3B)",
-                "size": "1.9GB",
-                "category": "general",
-                "installed": False,
-            },
-        ]
-
-        try:
-            result = subprocess.run(
-                ["ollama", "list"], capture_output=True, text=True, timeout=5
-            )
-            if result.returncode == 0:
-                installed_names = set()
-                for line in result.stdout.strip().split("\n")[1:]:
-                    if line.strip():
-                        parts = line.split()
-                        if parts:
-                            installed_names.add(parts[0])
-
-                for model in popular_models:
-                    if model["name"] in installed_names:
-                        model["installed"] = True
-        except Exception:
-            pass
+        popular_models = get_popular_models(include_installed=True)
 
         return {
             "success": True,
@@ -1052,7 +746,7 @@ def create_public_ollama_routes():
                 }
         except FileNotFoundError:
             try:
-                data = _ollama_api_request("/api/tags")
+                data = ollama_api_request("/api/tags")
                 models = []
                 for item in data.get("models", []):
                     name = item.get("name") or ""
@@ -1069,7 +763,7 @@ def create_public_ollama_routes():
                 return {
                     "success": False,
                     "error": "ollama CLI not found",
-                    "help": f"Install Ollama or set OLLAMA_HOST (current: {_ollama_host()})",
+                    "help": f"Install Ollama or set OLLAMA_HOST (current: {ollama_host()})",
                     "detail": str(exc),
                 }
         except Exception as e:
@@ -1087,8 +781,8 @@ def create_public_ollama_routes():
             raise HTTPException(status_code=400, detail="Invalid model name")
 
         try:
-            _set_pull_status(model, state="queued", percent=0)
-            _start_pull(model)
+            pull_tracker.set(model, state="queued", percent=0)
+            start_pull(model, pull_tracker)
             return {
                 "success": True,
                 "message": f"Started pulling {model} via Ollama API...",
@@ -1103,8 +797,7 @@ def create_public_ollama_routes():
         model: str = Query(..., description="Model name")
     ):
         """Public endpoint: Get pull progress for an Ollama model."""
-        with pull_lock:
-            status = pull_status.get(model)
+        status = pull_tracker.get(model)
         if not status:
             return {"success": False, "error": "No pull status found", "model": model}
         return {"success": True, "status": status}

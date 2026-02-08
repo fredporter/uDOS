@@ -95,11 +95,13 @@ def truncate_ansi_to_width(text: str, width: int, ellipsis: str = "…") -> str:
     used = 0
     i = 0
     text_len = len(text)
+    has_ansi = False
 
     while i < text_len and used < target:
         ch = text[i]
         if ch == "\x1b":
             # ANSI escape sequence
+            has_ansi = True
             seq = [ch]
             i += 1
             while i < text_len:
@@ -118,4 +120,8 @@ def truncate_ansi_to_width(text: str, width: int, ellipsis: str = "…") -> str:
         used += w
         i += 1
 
-    return "".join(out) + ellipsis
+    result = "".join(out) + ellipsis
+    # Reset color if we had ANSI codes to prevent color bleed
+    if has_ansi:
+        result += "\033[0m"
+    return result

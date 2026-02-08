@@ -253,7 +253,7 @@ class WebProxy:
                 try:
                     data = json.loads(content)
                     return json.dumps(data, indent=2), ""
-                except:
+                except Exception:
                     return content, ""
             return content, ""
 

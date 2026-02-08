@@ -28,7 +28,8 @@
     "license": "MIT",
     "homepage": "https://github.com/meshcore-dev/MeshCore",
     "documentation": "extensions/transport/meshcore/README.md",
-    "maintainer": "uDOS Wizard Server"
+    "maintainer": "uDOS Wizard Server",
+    "category": "transport"
   },
   "_note": "This manifest is created when Wizard Server clones the repo. cloned_at, last_update, commit, and version fields are populated automatically.",
   "repo_path": "memory/library/containers/meshcore"

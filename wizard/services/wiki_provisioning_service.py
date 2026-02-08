@@ -561,8 +561,11 @@ class WikiProvisioningService:
 def get_wiki_service(wiki_root: Optional[Path] = None) -> WikiProvisioningService:
     """Get singleton instance of WikiProvisioningService."""
     if wiki_root is None:
+        import os
         from wizard.services.path_utils import get_repo_root
 
-        wiki_root = get_repo_root() / "wiki"
+        env_root = os.getenv("UDOS_ROOT")
+        base_root = Path(env_root).expanduser() if env_root else get_repo_root()
+        wiki_root = base_root / "wiki"
 
     return WikiProvisioningService(wiki_root)

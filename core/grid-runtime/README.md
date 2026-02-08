@@ -14,7 +14,7 @@ Enables:
 
 - Spatial addressing (L{Layer}-{Cell})
 - Grid viewport rendering (80×30, 40×15)
-- Sextant/fallback graphics (sextant → quadrant → shade → ASCII)
+- Teletext/fallback graphics (teletext → quadrant → shade → ASCII)
 - Code block parsing (`\`\`\`teletext`, `\`\`\`grid`, `\`\`\`tiles`)
 - Tile taxonomy (Object, Sprite, Marker)
 - Variable interpolation in markdown scripts
@@ -29,7 +29,7 @@ grid-runtime/
 │   ├── geometry.ts      # Constants and tile/viewport specs
 │   ├── address.ts       # Cell parsing (AA10), layer bands, addresses
 │   ├── viewport.ts      # Viewport management (standard/mini)
-│   ├── renderer.ts      # Sextant/fallback rendering pipeline
+│   ├── renderer.ts      # Teletext/fallback rendering pipeline
 │   ├── parser.ts        # Code block parsing (teletext/grid/tiles)
 │   ├── sprite.ts        # Sprite animation and state
 │   ├── sky.ts           # Sky view computation (time + location)
@@ -79,7 +79,7 @@ grid-runtime/
 ### Graphics Fallback
 
 ```
-Sextant (16 symbols) → Quadrant → Shade (░▒▓█) → ASCII (.:@#)
+Teletext (16 symbols) → Quadrant → Shade (░▒▓█) → ASCII (.:@#)
 ```
 
 ### Tile Types
@@ -117,7 +117,7 @@ const str = formatCanonicalAddress(addr); // "L300-AC15"
 ```typescript
 interface TeletextBlock {
   type: "teletext";
-  content: string; // raw sextant/ASCII grid
+  content: string; // raw teletext/ASCII grid
   variables?: Record<string, any>;
 }
 
@@ -214,7 +214,7 @@ npm run dev
 
 ## Next Phases
 
-- **Phase 2:** Sextant/fallback rendering engine
+- **Phase 2:** Teletext/fallback rendering engine
 - **Phase 3:** Code block parsing in markdown
 - **Phase 4:** Location parser and sparse world model
 - **Phase 5:** Integration with uDOS runtime (map blocks, movement)

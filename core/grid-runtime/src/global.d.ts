@@ -1,7 +1,7 @@
-import type { SextantCharacterSet as _SextantCharacterSet } from './renderer'
+import type { TeletextCharacterSet as _TeletextCharacterSet } from './renderer'
 
 declare global {
-  const SextantCharacterSet: typeof _SextantCharacterSet
+  const TeletextCharacterSet: typeof _TeletextCharacterSet
 }
 
 export {}

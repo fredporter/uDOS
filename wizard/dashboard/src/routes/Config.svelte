@@ -77,10 +77,10 @@
     if (!status) return [];
     const cmds = [];
     if (!status.ollama?.running) {
-      cmds.push("uCODE RUN: open -a Ollama (macOS) or `ollama serve`");
+      cmds.push("INSTALL VIBE");
     }
     const missing = status.ollama?.missing_models || [];
-    missing.forEach((model) => cmds.push(`uCODE RUN: ollama pull ${model}`));
+    missing.forEach((model) => cmds.push(`OK PULL ${model}`));
     if (!status.nounproject?.configured) {
       cmds.push("uCODE SET: NOUNPROJECT_API_KEY / NOUNPROJECT_API_SECRET");
     } else if (status.nounproject?.auth_ok === false) {
@@ -167,7 +167,7 @@
   async function runOkSetup() {
     selfHealOkSetup = true;
     selfHealError = "";
-    pushSelfHealLog("Running OK SETUP (Vibe CLI + Ollama models)...");
+    pushSelfHealLog("Running INSTALL VIBE (OK SETUP backend)...");
     try {
       const res = await apiFetch("/api/self-heal/ok-setup", { method: "POST" });
       const data = await res.json();
@@ -178,7 +178,7 @@
       (data.warnings || []).forEach((warn) => pushSelfHealLog(`⚠️ ${warn}`));
     } catch (err) {
       selfHealError = err.message || String(err);
-      pushSelfHealLog(`OK SETUP failed: ${selfHealError}`);
+      pushSelfHealLog(`INSTALL VIBE failed: ${selfHealError}`);
     } finally {
       selfHealOkSetup = false;
     }
@@ -213,11 +213,6 @@
       label: "Assistant Keys",
       description:
         "Default AI routing (Ollama + OpenRouter) and optional provider keys",
-    },
-    github_keys: {
-      id: "github_keys",
-      label: "GitHub Keys",
-      description: "GitHub token and webhook secrets",
     },
     oauth: {
       id: "oauth",
@@ -270,18 +265,6 @@
   ];
 
   const quickKeyFields = [
-    {
-      key: "github_token",
-      label: "GitHub Token",
-      helper: "PAT used for API access + webhooks",
-      provider: "github",
-    },
-    {
-      key: "github_webhook_secret",
-      label: "GitHub Webhook Secret",
-      helper: "Shared secret for webhook validation",
-      provider: "github",
-    },
     {
       key: "openrouter_api_key",
       label: "OpenRouter API Key",
@@ -1537,14 +1520,14 @@
         class="px-3 py-1.5 text-xs rounded bg-indigo-600 text-white hover:bg-indigo-500 transition-colors disabled:opacity-60"
         disabled={selfHealOkSetup}
       >
-        {selfHealOkSetup ? "Running OK SETUP..." : "Run OK SETUP"}
+        {selfHealOkSetup ? "Running INSTALL VIBE..." : "INSTALL VIBE"}
       </button>
       <button
         on:click={pullOllamaModels}
         class="px-3 py-1.5 text-xs rounded bg-emerald-600 text-white hover:bg-emerald-500 transition-colors disabled:opacity-60"
         disabled={selfHealPulling}
       >
-        {selfHealPulling ? "Pulling..." : "Pull Missing Ollama Models"}
+        {selfHealPulling ? "Pulling..." : "Pull Missing Models (OK PULL)"}
       </button>
       <button
         on:click={seedNounProjectIcons}
@@ -2252,14 +2235,14 @@
           <h4 class="text-sm font-semibold text-white mb-2">uCODE Setup</h4>
           <div class="space-y-2 text-xs text-gray-400">
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">SETUP ollama</code>
+              <code class="text-green-400">INSTALL VIBE</code>
               <div class="text-gray-500">
-                Detect Ollama service + open model tools
+                Install Ollama + Vibe CLI + 3 Mistral models
               </div>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">AI OLLAMA status</code>
-              <div class="text-gray-500">Check local Ollama status</div>
+              <code class="text-green-400">OK SETUP</code>
+              <div class="text-gray-500">Same install flow (alias)</div>
             </div>
           </div>
         </div>
@@ -2268,22 +2251,20 @@
           <h4 class="text-sm font-semibold text-white mb-2">uCODE Models</h4>
           <div class="space-y-2 text-xs text-gray-400">
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">AI OLLAMA pull &lt;model&gt;</code>
-              <div class="text-gray-500">Pull a model by name</div>
+              <code class="text-green-400">OK PULL &lt;model&gt;</code>
+              <div class="text-gray-500">Download + register a model by name</div>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">AI OLLAMA status</code>
-              <div class="text-gray-500">Verify available models</div>
+              <code class="text-green-400">OK PULL mistral-small2</code>
+              <div class="text-gray-500">Example pull command</div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="mt-4 text-xs text-gray-500">
-        Tip: Use <code class="px-1 py-0.5 bg-gray-900 rounded"
-          >PROVIDER SETUP ollama</code
-        >
-        in uCODE to verify the local service is running and browse models interactively.
+        Tip: Use <code class="px-1 py-0.5 bg-gray-900 rounded">OK PULL</code> with
+        any Ollama model name to add more models from the TUI.
       </div>
     {/if}
   </div>

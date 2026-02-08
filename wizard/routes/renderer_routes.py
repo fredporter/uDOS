@@ -345,7 +345,10 @@ def create_renderer_routes(auth_guard=None) -> APIRouter:
 
     @router.get("/themes")
     async def list_themes():
-        return {"themes": _collect_theme_metadata()}
+        try:
+            return {"themes": _collect_theme_metadata()}
+        except Exception as exc:
+            return {"themes": [], "error": str(exc)}
 
     @router.get("/themes/{theme_name}")
     async def get_theme(theme_name: str):

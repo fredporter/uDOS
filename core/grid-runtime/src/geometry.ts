@@ -49,14 +49,14 @@ export const FOOTPRINT_WIDE = { width: 2, height: 1 };      // 32×24 px (emoji,
 
 // Graphics Fallback Ladder
 export enum GraphicsMode {
-  Sextant = "sextant",    // Unicode block sextants (canonical)
-  Quadrant = "quadrant",  // Unicode quadrant/half blocks
+  Teletext = "teletext",    // Unicode block teletexts (canonical)
+  AsciiBlock = "asciiBlock",  // Unicode asciiBlock/half blocks
   Shade = "shade",        // ASCII density: ░ ▒ ▓ █
   ASCII = "ascii"         // ASCII fallback: . : # @
 }
 
-// Sextant Unicode Points
-export const SEXTANT_CHARS = [
+// Teletext Unicode Points
+export const TELETEXT_CHARS = [
   "\u0020", // 0 (empty)
   "\u1FB88", // 1 (top-right)
   "\u1FB84", // 2 (bottom-right)
@@ -75,7 +75,7 @@ export const SEXTANT_CHARS = [
   "\u1FB8F"  // 15 (full block)
 ];
 
-export const QUADRANT_CHARS: Record<number, string> = {
+export const ASCII_BLOCK_CHARS: Record<number, string> = {
   0: " ",   // empty
   1: "▖",   // bottom-left
   2: "▝",   // bottom-right

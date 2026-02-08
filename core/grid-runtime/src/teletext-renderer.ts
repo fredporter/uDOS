@@ -1,16 +1,16 @@
 /**
- * Sextant Renderer - Unicode block graphics (2×3 pixels → 6-bit encoding)
+ * Teletext Renderer - Unicode block graphics (2×3 pixels → 6-bit encoding)
  * 
  * Tier 2 graphics for uDOS grid runtime (Teletext-style rendering)
- * Uses Unicode sextant characters (U+1FB00–U+1FB3F) for 2×3 pixel patterns
+ * Uses Unicode teletext characters (U+1FB00–U+1FB3F) for 2×3 pixel patterns
  * 
- * Fallback chain: Sextant → Quadrant → Shades → ASCII
+ * Fallback chain: Teletext → AsciiBlock → Shades → ASCII
  * 
- * @module grid-runtime/sextant-renderer
+ * @module grid-runtime/teletext-renderer
  */
 
 /**
- * Unicode sextant character lookup (64 possible 2×3 patterns)
+ * Unicode teletext character lookup (64 possible 2×3 patterns)
  * Bits: [TL, TR, ML, MR, BL, BR] (top-left to bottom-right, row-major)
  * 
  * Example:
@@ -19,7 +19,7 @@
  *            ░░
  *   Bits: [1,1,0,0,0,0] → Index 48 → '🬰'
  */
-export const SEXTANT_CHARS: string[] = [
+export const TELETEXT_CHARS: string[] = [
   ' ',  '🬀', '🬁', '🬂', '🬃', '🬄', '🬅', '🬆',  // 0x00–0x07
   '🬇', '🬈', '🬉', '🬊', '🬋', '🬌', '🬍', '🬎',  // 0x08–0x0F
   '🬏', '🬐', '🬑', '🬒', '🬓', '▌', '🬔', '🬕',  // 0x10–0x17
@@ -31,11 +31,11 @@ export const SEXTANT_CHARS: string[] = [
 ];
 
 /**
- * Quadrant character lookup (4 possible 2×2 patterns)
- * Fallback for terminals without sextant support
+ * AsciiBlock character lookup (4 possible 2×2 patterns)
+ * Fallback for terminals without teletext support
  * Bits: [TL, TR, BL, BR]
  */
-export const QUADRANT_CHARS: string[] = [
+export const ASCII_BLOCK_CHARS: string[] = [
   ' ',  '▘', '▝', '▀',  // 0b0000, 0b0001, 0b0010, 0b0011
   '▖', '▌', '▞', '▛',  // 0b0100, 0b0101, 0b0110, 0b0111
   '▗', '▚', '▐', '▜',  // 0b1000, 0b1001, 0b1010, 0b1011
@@ -66,7 +66,7 @@ export const ASCII_CHARS: string[] = [
 ];
 
 /**
- * Pixel grid for a single sextant cell (2×3 pixels)
+ * Pixel grid for a single teletext cell (2×3 pixels)
  * Each cell in the grid represents one sub-pixel within the character
  */
 export interface PixelGrid {
@@ -79,9 +79,9 @@ export interface PixelGrid {
 }
 
 /**
- * Convert 6-bit pattern to sextant index
+ * Convert 6-bit pattern to teletext index
  * @param grid - 2×3 pixel pattern
- * @returns Index into SEXTANT_CHARS (0-63)
+ * @returns Index into TELETEXT_CHARS (0-63)
  */
 export function pixelGridToIndex(grid: PixelGrid): number {
   return (
@@ -95,13 +95,13 @@ export function pixelGridToIndex(grid: PixelGrid): number {
 }
 
 /**
- * Convert sextant index to 6-bit pattern
- * @param index - Index into SEXTANT_CHARS (0-63)
+ * Convert teletext index to 6-bit pattern
+ * @param index - Index into TELETEXT_CHARS (0-63)
  * @returns 2×3 pixel pattern
  */
 export function indexToPixelGrid(index: number): PixelGrid {
   if (index < 0 || index > 63) {
-    throw new Error(`Invalid sextant index: ${index} (must be 0-63)`);
+    throw new Error(`Invalid teletext index: ${index} (must be 0-63)`);
   }
   
   return {
@@ -115,29 +115,29 @@ export function indexToPixelGrid(index: number): PixelGrid {
 }
 
 /**
- * Convert pixel grid to sextant character
+ * Convert pixel grid to teletext character
  * @param grid - 2×3 pixel pattern
- * @returns Unicode sextant character
+ * @returns Unicode teletext character
  */
-export function pixelGridToSextant(grid: PixelGrid): string {
+export function pixelGridToTeletext(grid: PixelGrid): string {
   const index = pixelGridToIndex(grid);
-  return SEXTANT_CHARS[index];
+  return TELETEXT_CHARS[index];
 }
 
 /**
- * Convert pixel grid to quadrant character (2×2 fallback)
+ * Convert pixel grid to asciiBlock character (2×2 fallback)
  * @param grid - 2×3 pixel pattern (top 2 rows used)
- * @returns Unicode quadrant character
+ * @returns Unicode asciiBlock character
  */
-export function pixelGridToQuadrant(grid: PixelGrid): string {
-  // Quadrant bits: [BL, BR, TL, TR] (bottom-left = bit 3, top-right = bit 0)
-  // Map sextant top row → quadrant top, middle row → quadrant bottom
+export function pixelGridToAsciiBlock(grid: PixelGrid): string {
+  // AsciiBlock bits: [BL, BR, TL, TR] (bottom-left = bit 3, top-right = bit 0)
+  // Map teletext top row → asciiBlock top, middle row → asciiBlock bottom
   const index =
-    (grid.middleLeft ? 8 : 0) +   // Bottom-left quadrant (bit 3)
-    (grid.middleRight ? 4 : 0) +  // Bottom-right quadrant (bit 2)
-    (grid.topLeft ? 2 : 0) +      // Top-left quadrant (bit 1)
-    (grid.topRight ? 1 : 0);      // Top-right quadrant (bit 0)
-  return QUADRANT_CHARS[index];
+    (grid.middleLeft ? 8 : 0) +   // Bottom-left asciiBlock (bit 3)
+    (grid.middleRight ? 4 : 0) +  // Bottom-right asciiBlock (bit 2)
+    (grid.topLeft ? 2 : 0) +      // Top-left asciiBlock (bit 1)
+    (grid.topRight ? 1 : 0);      // Top-right asciiBlock (bit 0)
+  return ASCII_BLOCK_CHARS[index];
 }
 
 /**
@@ -186,8 +186,8 @@ export function pixelGridToASCII(grid: PixelGrid): string {
  * Rendering quality levels for fallback chain
  */
 export enum RenderQuality {
-  SEXTANT = 'sextant',   // Unicode 6-bit (2×3 pixels)
-  QUADRANT = 'quadrant', // Unicode 4-bit (2×2 pixels)
+  TELETEXT = 'teletext',   // Unicode 6-bit (2×3 pixels)
+  ASCII_BLOCK = 'asciiBlock', // Unicode 4-bit (2×2 pixels)
   SHADE = 'shade',       // Density-based shades
   ASCII = 'ascii',       // Pure ASCII fallback
 }
@@ -195,18 +195,18 @@ export enum RenderQuality {
 /**
  * Render pixel grid using specified quality level
  * @param grid - 2×3 pixel pattern
- * @param quality - Rendering quality (default: SEXTANT)
+ * @param quality - Rendering quality (default: TELETEXT)
  * @returns Rendered character
  */
 export function renderPixelGrid(
   grid: PixelGrid,
-  quality: RenderQuality = RenderQuality.SEXTANT
+  quality: RenderQuality = RenderQuality.TELETEXT
 ): string {
   switch (quality) {
-    case RenderQuality.SEXTANT:
-      return pixelGridToSextant(grid);
-    case RenderQuality.QUADRANT:
-      return pixelGridToQuadrant(grid);
+    case RenderQuality.TELETEXT:
+      return pixelGridToTeletext(grid);
+    case RenderQuality.ASCII_BLOCK:
+      return pixelGridToAsciiBlock(grid);
     case RenderQuality.SHADE:
       return pixelGridToShade(grid);
     case RenderQuality.ASCII:
@@ -215,10 +215,10 @@ export function renderPixelGrid(
 }
 
 /**
- * Detect terminal sextant support (best-effort)
- * @returns True if terminal likely supports sextant characters
+ * Detect terminal teletext support (best-effort)
+ * @returns True if terminal likely supports teletext characters
  */
-export function detectSextantSupport(): boolean {
+export function detectTeletextSupport(): boolean {
   // In Node.js environment, check TERM environment variable
   if (typeof process !== 'undefined' && process.env.TERM) {
     const term = process.env.TERM.toLowerCase();
@@ -240,10 +240,10 @@ export function detectSextantSupport(): boolean {
  * @returns Recommended RenderQuality level
  */
 export function getRecommendedQuality(): RenderQuality {
-  if (detectSextantSupport()) {
-    return RenderQuality.SEXTANT;
+  if (detectTeletextSupport()) {
+    return RenderQuality.TELETEXT;
   }
-  return RenderQuality.QUADRANT;
+  return RenderQuality.ASCII_BLOCK;
 }
 
 /**

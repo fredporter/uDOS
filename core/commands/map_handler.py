@@ -2,7 +2,7 @@
 MAP command handler - Display location tile grid.
 
 Renders a location's tile grid with objects, sprites, and markers using
-ASCII/sextant graphics. Supports viewing current location or any location by ID.
+ASCII/teletext graphics. Supports viewing current location or any location by ID.
 
 Includes instrumentation via HandlerLoggingMixin for performance tracking.
 """

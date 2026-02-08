@@ -261,7 +261,7 @@ class PluginFactory:
                 )
                 if result.returncode == 0:
                     return result.stdout.strip()
-            except:
+            except Exception:
                 pass
 
         # Fallback to date
@@ -286,7 +286,7 @@ class PluginFactory:
             if script_path.exists():
                 if self.logger:
                     self.logger.info(f"[PLUGIN] Running {script}")
-                # TODO: Execute build script safely
+                # STUB: Execute build script
                 break
 
     def _create_package(
@@ -332,7 +332,7 @@ class PluginFactory:
                 ["which", "mksquashfs"], capture_output=True, timeout=5
             )
             return result.returncode == 0
-        except:
+        except Exception:
             return False
 
     def _calculate_checksum(self, path: Path) -> str:

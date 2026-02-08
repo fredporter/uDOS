@@ -18,17 +18,17 @@ This document consolidates and locks the spatial addressing, layer model, text g
 
 ### 2.1 Canonical Graphics Encoding
 
-- Canonical format uses **Unicode BLOCK SEXTANT characters** (2×3 mosaics).
+- Canonical format uses **Unicode BLOCK TELETEXT characters** (2×3 mosaics).
 - Stored and displayed inside Markdown fenced code blocks.
-- Each sextant cell represents **2×3 square subpixels** in the frontend renderer.
+- Each teletext cell represents **2×3 square subpixels** in the frontend renderer.
 
 ### 2.2 Fallback Ladder
 
 ```
-Sextant → Quadrant → Shades → ASCII
+Teletext → ASCII Block → Shades → ASCII
 ```
 
-- **Quadrant**: Unicode quadrant/half blocks (preferred pretty skin)
+- **ASCII Block**: Unicode ascii block/half blocks (preferred pretty skin)
 - **Shades**: ░ ▒ ▓ █ (density-based)
 - **ASCII**: . : # @ (last resort)
 
@@ -225,7 +225,7 @@ SKY( SURF:L{EffectiveLayer}-{Cell}, time )
 
 - Derived from location + time
 - Produces:
-  - sextant/ASCII sky tiles
+  - teletext/ASCII sky tiles
   - visible stars/planets
   - rise/set metadata
 
@@ -450,7 +450,7 @@ SUB:L305-DA11 → Marker Tile (dungeon entrance)
 
 - World grid uses **cells**
 - Tile internals use **pixels**
-- Canonical art uses **sextant mosaics**
+- Canonical art uses **teletext mosaics**
 - Emoji and wide glyphs use **2x1 tile footprints (32x24 px)**
 - ASCII is always a valid fallback
 
@@ -494,7 +494,7 @@ footprint: 2x1
 +------------------------+
 ```
 
-### Visual (sextant canonical, schematic)
+### Visual (teletext canonical, schematic)
 
 ```
 🬂🬂🬂🬂🬂🬂🬂🬂
@@ -615,7 +615,7 @@ All tiles:
 - One location supports multiple meanings and interactions
 - Depth, not precision layers, handles burial and dungeons
 - UI Tiles unify documents, logic, and place
-- Sextant graphics are canonical; ASCII always works
+- Teletext graphics are canonical; ASCII always works
 
 This example should be treated as the reference pattern for future content.
 
@@ -661,8 +661,8 @@ Rendering in uDOS is **cell-first, tile-based**, and deterministic.
   3. explicit z-order (optional override)
 
 Visual rules:
-- Sextant mosaics are canonical
-- Quadrant blocks provide the preferred pretty skin
+- Teletext mosaics are canonical
+- ASCII Block blocks provide the preferred pretty skin
 - ASCII is always a valid fallback
 - Wide glyphs (emoji) occupy `2×1` tile footprints
 
@@ -714,7 +714,7 @@ Diagrams and flowcharts in uDOS are **text-first and transferable**.
 
 Rules:
 - Canonical diagrams must be expressible in strict ASCII
-- Unicode box drawing and sextant graphics are optional skins
+- Unicode box drawing and teletext graphics are optional skins
 - All diagrams live inside fenced code blocks
 
 Allowed primitives:
@@ -742,9 +742,9 @@ All further work builds *on top of this document*, not inside it.
 
 ---
 
-## 14. Spec Sheet — ASCII / Line / Shading / Blocks → Sextant Teletext
+## 14. Spec Sheet — ASCII / Line / Shading / Blocks → Teletext Teletext
 
-This section defines the **character families** used for diagrams and TUI graphics, and a **canonical sextant (2×3) mapping model**. The sextant model is the authoritative bridge for Teletext-style blocks and later SVG generation.
+This section defines the **character families** used for diagrams and TUI graphics, and a **canonical teletext (2×3) mapping model**. The teletext model is the authoritative bridge for Teletext-style blocks and later SVG generation.
 
 ---
 
@@ -788,7 +788,7 @@ This section defines the **character families** used for diagrams and TUI graphi
 ░ ▒ ▓ █
 ```
 
-**Quadrant / half blocks (Block tier, preferred)**
+**ASCII Block / half blocks (Block tier, preferred)**
 
 ```
 ▀ ▄ ▌ ▐ █
@@ -797,11 +797,11 @@ This section defines the **character families** used for diagrams and TUI graphi
 
 ---
 
-### 14.2 Canonical Sextant Model (Teletext 2×3)
+### 14.2 Canonical Teletext Model (Teletext 2×3)
 
-A **sextant cell** is a 2×3 occupancy mask. There are **64** possible patterns.
+A **teletext cell** is a 2×3 occupancy mask. There are **64** possible patterns.
 
-#### Sextant bit layout (canonical)
+#### Teletext bit layout (canonical)
 
 We number subcells left-to-right, top-to-bottom:
 
@@ -811,7 +811,7 @@ We number subcells left-to-right, top-to-bottom:
 [4] [5]
 ```
 
-A sextant pattern is a 6-bit mask:
+A teletext pattern is a 6-bit mask:
 
 ```
 mask = b0 b1 b2 b3 b4 b5
@@ -819,7 +819,7 @@ mask = b0 b1 b2 b3 b4 b5
 
 Where `bN ∈ {0,1}` indicates the corresponding subcell is filled.
 
-#### Visual notation for sextant masks
+#### Visual notation for teletext masks
 
 We render masks in docs as:
 - `█` for filled subcell
@@ -835,17 +835,17 @@ Example (mask 0b100101):
 
 ---
 
-### 14.3 ASCII / Block → Sextant Mapping Rules
+### 14.3 ASCII / Block → Teletext Mapping Rules
 
-These rules define how non-sextant glyphs degrade/upgrade into sextant space.
+These rules define how non-teletext glyphs degrade/upgrade into teletext space.
 
-#### 14.3.1 Density mapping (ASCII → sextant)
+#### 14.3.1 Density mapping (ASCII → teletext)
 
 ASCII glyphs map by **density**, not by semantic line direction.
 
 Suggested density ladder:
 
-| ASCII | Density | Sextant fill count (0–6) |
+| ASCII | Density | Teletext fill count (0–6) |
 |------:|:-------:|:------------------------:|
 | space |   0%    | 0 |
 |   .   |  ~15%   | 1 |
@@ -859,7 +859,7 @@ Fill selection preference (when choosing which bits to set at a given count):
 2. symmetric left/right when possible
 3. preserve silhouette continuity across neighbours
 
-#### 14.3.2 Line mapping (ASCII/box → sextant)
+#### 14.3.2 Line mapping (ASCII/box → teletext)
 
 Lines are represented by setting subcells along an edge:
 
@@ -870,16 +870,16 @@ Lines are represented by setting subcells along an edge:
 This yields a consistent conversion path:
 
 ```
-ASCII/Box lines → Sextant masks → Quadrant blocks → Shades → ASCII
+ASCII/Box lines → Teletext masks → ASCII Block blocks → Shades → ASCII
 ```
 
 ---
 
-### 14.4 Sextant → Quadrant Downsample (Block tier)
+### 14.4 Teletext → ASCII Block Downsample (Block tier)
 
-When sextants are not available, downsample 2×3 → 2×2 using:
+When teletexts are not available, downsample 2×3 → 2×2 using:
 
-Sextant bits:
+Teletext bits:
 
 ```
 a b
@@ -887,7 +887,7 @@ c d
 e f
 ```
 
-Quadrant bits:
+ASCII Block bits:
 
 ```
 TL = a OR c
@@ -896,13 +896,13 @@ BL = c OR e
 BR = d OR f
 ```
 
-Then encode using quadrant glyphs if available, otherwise fall back to shades.
+Then encode using ascii block glyphs if available, otherwise fall back to shades.
 
 ---
 
-## 14.5 Complete Sextant Pattern Set (64 masks)
+## 14.5 Complete Teletext Pattern Set (64 masks)
 
-Below are **all 64 sextant masks** required by the system. These are the canonical patterns; rendering may use Unicode sextant glyphs when supported, but the mask table is the source of truth.
+Below are **all 64 teletext masks** required by the system. These are the canonical patterns; rendering may use Unicode teletext glyphs when supported, but the mask table is the source of truth.
 
 Legend:
 - `█` = filled subcell
@@ -1187,9 +1187,9 @@ mask (hex)  mask (bin)   2×3 pattern
 
 ---
 
-### 14.6 Optional: Unicode Sextant Glyph Binding
+### 14.6 Optional: Unicode Teletext Glyph Binding
 
-When the host environment supports Unicode sextant glyphs, implementations may provide a lookup:
+When the host environment supports Unicode teletext glyphs, implementations may provide a lookup:
 
 - `mask (0..63) → glyph`
 

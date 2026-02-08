@@ -95,7 +95,7 @@
   .toast-stack {
     position: fixed;
     bottom: calc(
-      var(--wizard-bottom-bar-height, 86px) +
+      var(--wizard-bottom-bar-height, 52px) +
         var(--wizard-cli-bar-height, 44px) +
         16px
     );

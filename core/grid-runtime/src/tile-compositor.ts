@@ -2,7 +2,7 @@
  * Tile Compositor - Combine objects/sprites into rendered pixel grids
  * 
  * Takes tile content (objects, sprites, markers) and composites them into
- * sextant pixel grids for rendering. Handles z-ordering, layer composition,
+ * teletext pixel grids for rendering. Handles z-ordering, layer composition,
  * and character selection.
  * 
  * @module grid-runtime/tile-compositor
@@ -13,22 +13,22 @@ import {
   createEmptyGrid,
   createFullGrid,
   mergeGrids,
-  pixelGridToSextant,
+  pixelGridToTeletext,
   RenderQuality,
   renderPixelGrid,
-  SEXTANT_CHARS,
-  QUADRANT_CHARS,
+  TELETEXT_CHARS,
+  ASCII_BLOCK_CHARS,
   SHADE_CHARS,
   ASCII_CHARS,
   indexToPixelGrid,
-} from './sextant-renderer';
+} from './teletext-renderer';
 import { TileContent, TileObject, TileSprite } from './location-types';
 
 /**
  * Render options for tile composition
  */
 export interface CompositorOptions {
-  /** Rendering quality (default: sextant) */
+  /** Rendering quality (default: teletext) */
   quality?: RenderQuality;
   
   /** Whether to render background terrain */
@@ -79,7 +79,7 @@ function densityToGrid(density: number): PixelGrid {
   };
 }
 
-function quadrantToGrid(index: number): PixelGrid {
+function asciiBlockToGrid(index: number): PixelGrid {
   const topLeft = (index & 2) !== 0;
   const topRight = (index & 1) !== 0;
   const bottomLeft = (index & 8) !== 0;
@@ -104,14 +104,14 @@ function charToPixelGrid(char: string): PixelGrid {
     return createEmptyGrid();
   }
 
-  const sextantIndex = SEXTANT_CHARS.indexOf(char);
-  if (sextantIndex >= 0) {
-    return indexToPixelGrid(sextantIndex);
+  const teletextIndex = TELETEXT_CHARS.indexOf(char);
+  if (teletextIndex >= 0) {
+    return indexToPixelGrid(teletextIndex);
   }
 
-  const quadrantIndex = QUADRANT_CHARS.indexOf(char);
-  if (quadrantIndex >= 0) {
-    return quadrantToGrid(quadrantIndex);
+  const asciiBlockIndex = ASCII_BLOCK_CHARS.indexOf(char);
+  if (asciiBlockIndex >= 0) {
+    return asciiBlockToGrid(asciiBlockIndex);
   }
 
   const shadeIndex = SHADE_CHARS.indexOf(char);
@@ -213,7 +213,7 @@ export function compositeTile(
   content: TileContent | undefined,
   options: CompositorOptions = {}
 ): RenderedTile {
-  const quality = options.quality || RenderQuality.SEXTANT;
+  const quality = options.quality || RenderQuality.TELETEXT;
   const showTerrain = options.showTerrain || false;
   const defaultTerrain = options.defaultTerrain || ' ';
   
@@ -231,7 +231,7 @@ export function compositeTile(
   // Check for sprite override
   const topmostSprite = getTopmostSprite(sprites);
   if (topmostSprite) {
-    // Sprite always renders as its character (no sextant composition)
+    // Sprite always renders as its character (no teletext composition)
     return {
       char: topmostSprite.char,
       fg: topmostSprite.fg,
@@ -240,7 +240,7 @@ export function compositeTile(
     };
   }
   
-  // No sprites - composite objects into sextant grid
+  // No sprites - composite objects into teletext grid
   const pixelGrid = compositeObjects(objects);
   const char = renderPixelGrid(pixelGrid, quality);
   
@@ -382,7 +382,7 @@ export class TileCompositor {
   
   constructor(options: CompositorOptions = {}) {
     this.options = {
-      quality: RenderQuality.SEXTANT,
+      quality: RenderQuality.TELETEXT,
       showTerrain: false,
       defaultTerrain: ' ',
       ...options,

@@ -242,7 +242,7 @@ export interface Viewport {
 }
 
 export interface RenderOptions {
-  mode: "sextant" | "quadrant" | "shade" | "ascii";
+  mode: "teletext" | "asciiBlock" | "shade" | "ascii";
   showTerrain: boolean;
   showSprites: boolean;
   showMarkers: boolean;
@@ -251,7 +251,7 @@ export interface RenderOptions {
 // Code block types for markdown integration
 export interface TeletextBlock {
   type: "teletext";
-  content: string; // raw sextant/ASCII grid
+  content: string; // raw teletext/ASCII grid
   variables?: Record<string, any>;
 }
 

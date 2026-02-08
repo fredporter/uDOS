@@ -1,8 +1,12 @@
 <script>
   import { onMount } from "svelte";
   import { TileEditor, tileEditorStyles } from "../lib/tile-editor.js";
+  import CharacterPalette from "$lib/components/CharacterPalette.svelte";
+  import ColorPalette from "$lib/components/ColorPalette.svelte";
 
   let editor = null;
+  let selectedCode = 0x2588;
+  let selectedColor = "#ffffff";
 
   function ensureStyles() {
     const existing = document.getElementById("wizard-tile-editor-styles");
@@ -28,9 +32,31 @@
     <p class="text-gray-400">24×24 tile editor with SVG/ASCII export</p>
   </div>
 
-<div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-  <div id="wizard-pixel-editor"></div>
-</div>
+  <div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
+    <aside class="space-y-4">
+      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+        <CharacterPalette
+          activeSet="blocks"
+          bind:selectedCode
+          onSelect={(char, code) => {
+            selectedCode = code;
+          }}
+        />
+      </div>
+      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+        <ColorPalette
+          bind:selectedColor
+          onChange={(color) => {
+            selectedColor = color;
+          }}
+        />
+      </div>
+    </aside>
+
+    <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+      <div id="wizard-pixel-editor"></div>
+    </div>
+  </div>
 </div>
 
 <div class="tool-notes">

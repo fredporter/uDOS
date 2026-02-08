@@ -12,6 +12,9 @@
   let reposData = [];
   let packagesData = [];
   let apkStatus = null;
+  let containers = [];
+  let containerMap = {};
+  let containerError = null;
   let toolchainPackages =
     "python3 py3-pip py3-setuptools py3-wheel py3-virtualenv";
   let toolchainResult = null;
@@ -84,6 +87,26 @@
       apkStatus = data;
     } catch (err) {
       apkStatus = { success: false, error: err.message };
+    }
+  }
+
+  async function loadContainers() {
+    containerError = null;
+    try {
+      const res = await apiFetch("/api/containers/list/available", {
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      containers = data.containers || [];
+      containerMap = containers.reduce((acc, item) => {
+        acc[item.id] = item;
+        return acc;
+      }, {});
+    } catch (err) {
+      containerError = err.message || String(err);
+      containers = [];
+      containerMap = {};
     }
   }
 
@@ -304,7 +327,45 @@
       loadRepos(),
       loadPackages(),
       loadApkStatus(),
+      loadContainers(),
     ]);
+  }
+
+  async function launchContainer(containerId) {
+    actionInProgress = `container-launch-${containerId}`;
+    try {
+      const res = await apiFetch(`/api/containers/${containerId}/launch`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await loadContainers();
+    } catch (err) {
+      alert(`❌ Launch failed: ${err.message}`);
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  async function stopContainer(containerId) {
+    actionInProgress = `container-stop-${containerId}`;
+    try {
+      const res = await apiFetch(`/api/containers/${containerId}/stop`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await loadContainers();
+    } catch (err) {
+      alert(`❌ Stop failed: ${err.message}`);
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  function openContainer(container) {
+    if (!container?.browser_route) return;
+    window.open(container.browser_route, "_blank");
   }
 
   onMount(() => {
@@ -314,6 +375,7 @@
     } else {
       loadLibrary();
     }
+    loadContainers();
   });
 </script>
 
@@ -574,6 +636,9 @@
             {#if integration.has_container}
               <span>⚙️ Configured</span>
             {/if}
+            {#if containerMap[integration.name]}
+              <span>🧩 Container</span>
+            {/if}
           </div>
 
           <div class="flex gap-2">
@@ -633,6 +698,47 @@
               </span>
             {/if}
           </div>
+
+          {#if containerMap[integration.name]}
+            {@const container = containerMap[integration.name]}
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <span>
+                Container: {container.running ? "Running" : "Stopped"}
+              </span>
+              {#if container.port}
+                <span>Port {container.port}</span>
+              {/if}
+            </div>
+            <div class="flex gap-2">
+              {#if container.running}
+                <button
+                  class="flex-1 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-medium disabled:opacity-50"
+                  on:click={() => stopContainer(container.id)}
+                  disabled={actionInProgress !== null}
+                >
+                  {actionInProgress === `container-stop-${container.id}`
+                    ? "..."
+                    : "Stop"}
+                </button>
+                <button
+                  class="flex-1 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium disabled:opacity-50"
+                  on:click={() => openContainer(container)}
+                >
+                  Open
+                </button>
+              {:else}
+                <button
+                  class="flex-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium disabled:opacity-50"
+                  on:click={() => launchContainer(container.id)}
+                  disabled={actionInProgress !== null}
+                >
+                  {actionInProgress === `container-launch-${container.id}`
+                    ? "..."
+                    : "Launch"}
+                </button>
+              {/if}
+            </div>
+          {/if}
         </div>
       {/each}
     </div>

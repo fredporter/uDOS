@@ -505,6 +505,15 @@ def create_default_registry() -> CommandRegistry:
     )
 
     registry.register(
+        name="DRAW",
+        help_text="Viewport-aware ASCII demos and panels",
+        syntax="DRAW [DEMO|PANEL|GRID|HELP]",
+        examples=["DRAW DEMO", "DRAW PANEL"],
+        icon="•",
+        category="System",
+    )
+
+    registry.register(
         name="EXIT",
         help_text="Exit uCODE",
         syntax="EXIT",
@@ -517,8 +526,16 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="SETUP",
         help_text="Run setup story (default) or view profile",
-        syntax="SETUP [--profile|--story|--wizard]",
+        syntax="SETUP [--profile|--story|--wizard|vibe|<provider>]",
         examples=["SETUP", "SETUP --profile"],
+        icon="•",
+        category="Management",
+    )
+    registry.register(
+        name="INSTALL",
+        help_text="Install local tooling (e.g., Vibe stack)",
+        syntax="INSTALL VIBE",
+        examples=["INSTALL VIBE"],
         icon="•",
         category="Management",
     )
@@ -544,17 +561,18 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="OK",
         help_text="Local Vibe helpers (EXPLAIN, DIFF, PATCH, LOCAL)",
-        syntax="OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|VIBE|FALLBACK> [args]",
+        syntax="OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|PULL|VIBE|FALLBACK> [args]",
         options=[
             "LOCAL: Show recent local outputs",
             "EXPLAIN: Summarize code in a file",
             "DIFF: Propose a diff for a file",
             "PATCH: Draft a patch with preview",
             "ROUTE: Rule-based NL routing",
+            "PULL: Download an Ollama model by name",
             "VIBE: Alias for LOCAL",
             "FALLBACK: Toggle auto-fallback (on|off)",
         ],
-        examples=["OK ROUTE show scheduler logs", "OK EXPLAIN core/tui/ucode.py", "OK FALLBACK on"],
+        examples=["OK PULL mistral-small2", "OK ROUTE show scheduler logs", "OK EXPLAIN core/tui/ucode.py"],
         icon="•",
         category="AI",
     )

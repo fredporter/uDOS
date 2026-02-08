@@ -123,11 +123,16 @@ class PluginRepository:
         self.index_path = self.repo_base / "index.json"
         self.packages_path = self.repo_base / "packages"
         self.cache_path = self.repo_base / "cache"
+        self.init_error: Optional[str] = None
 
         # Ensure directories
-        self.repo_base.mkdir(parents=True, exist_ok=True)
-        self.packages_path.mkdir(parents=True, exist_ok=True)
-        self.cache_path.mkdir(parents=True, exist_ok=True)
+        try:
+            self.repo_base.mkdir(parents=True, exist_ok=True)
+            self.packages_path.mkdir(parents=True, exist_ok=True)
+            self.cache_path.mkdir(parents=True, exist_ok=True)
+        except Exception as exc:
+            self.init_error = str(exc)
+            logger.error("[PLUGIN] Repository init failed: %s", exc)
 
         # Load or create index
         self._index = self._load_index()
@@ -145,6 +150,9 @@ class PluginRepository:
 
     def _save_index(self):
         """Save repository index to disk."""
+        if self.init_error:
+            logger.error("[PLUGIN] Skipping index save due to init error: %s", self.init_error)
+            return
         self._index.updated_at = datetime.now().isoformat()
         self.index_path.write_text(json.dumps(self._index.to_dict(), indent=2))
 
@@ -169,7 +177,7 @@ class PluginRepository:
         if installed_only:
             plugins = [p for p in plugins if p.installed]
 
-        return sorted(plugins, key=lambda p: p.name)
+        return sorted(plugins, key=lambda p: (p.name or "").lower())
 
     def search_plugins(self, query: str) -> List[PluginEntry]:
         """
@@ -192,7 +200,7 @@ class PluginRepository:
             ):
                 results.append(plugin)
 
-        return sorted(results, key=lambda p: p.name)
+        return sorted(results, key=lambda p: (p.name or "").lower())
 
     def get_plugin(self, plugin_id: str) -> Optional[PluginEntry]:
         """Get plugin by ID."""
@@ -208,6 +216,11 @@ class PluginRepository:
         Returns:
             True if successful
         """
+        if self.init_error:
+            logger.error(
+                "[PLUGIN] Cannot add plugin; repository init failed: %s", self.init_error
+            )
+            return False
         self._index.plugins[entry.id] = entry
         self._save_index()
         logger.info(f"Added plugin to repository: {entry.id}")
@@ -223,6 +236,11 @@ class PluginRepository:
         Returns:
             True if removed
         """
+        if self.init_error:
+            logger.error(
+                "[PLUGIN] Cannot remove plugin; repository init failed: %s", self.init_error
+            )
+            return False
         if plugin_id in self._index.plugins:
             del self._index.plugins[plugin_id]
             self._save_index()
@@ -338,6 +356,11 @@ def _version_tuple(value: str) -> Tuple[int, ...]:
         plugin = self._index.plugins.get(plugin_id)
         if not plugin:
             return False
+        if self.init_error:
+            logger.error(
+                "[PLUGIN] Cannot enable plugin; repository init failed: %s", self.init_error
+            )
+            return False
 
         plugin.enabled = True
         self._save_index()
@@ -356,6 +379,11 @@ def _version_tuple(value: str) -> Tuple[int, ...]:
         """
         plugin = self._index.plugins.get(plugin_id)
         if not plugin:
+            return False
+        if self.init_error:
+            logger.error(
+                "[PLUGIN] Cannot disable plugin; repository init failed: %s", self.init_error
+            )
             return False
 
         plugin.enabled = False

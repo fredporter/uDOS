@@ -289,7 +289,7 @@ class TaskScheduler:
                 if dup_check:
                     return {
                         "task_id": task_id,
-                        "run_id": dup_check["run_id"],
+                        "run_id": dup_check[0],
                         "state": "pending",
                         "scheduled_for": scheduled_for.isoformat(),
                         "note": "duplicate avoided",

@@ -2,10 +2,10 @@
   "$schema": "./container.schema.json",
   "container": {
     "id": "marp",
-    "name": "marp",
-    "description": "",
+    "name": "Marp",
+    "description": "Markdown presentation tool (Marp CLI)",
     "type": "git",
-    "source": "https://github.com/org/repo",
+    "source": "https://github.com/marp-team/marp-cli",
     "ref": "main",
     "cloned_at": null,
     "last_update": null,
@@ -25,10 +25,11 @@
     "install_script": null
   },
   "metadata": {
-    "license": null,
-    "homepage": null,
-    "documentation": null,
-    "maintainer": "uDOS Wizard Server"
+    "license": "MIT",
+    "homepage": "https://marp.app/",
+    "documentation": "https://github.com/marp-team/marp-cli#readme",
+    "maintainer": "Marp Team / uDOS Wizard Server",
+    "category": "documentation"
   },
   "repo_path": "memory/library/containers/marp"
 }

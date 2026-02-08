@@ -82,6 +82,7 @@ class WizardConsole:
         self.server = server_instance
         self.config = config
         self.running = False
+        self.start_time = time.time()
         self.repo_root = get_repo_root()
         self.commands: Dict[str, Callable] = {
             "status": self.cmd_status,
@@ -460,9 +461,9 @@ class WizardConsole:
         """Show setup profile information (from TUI story)."""
         from wizard.services.setup_profiles import load_user_profile, load_install_profile, load_install_metrics
         import os
-        
+
         print("\n🧙 SETUP PROFILE:")
-        
+
         # Quick diagnostic
         wizard_key = os.getenv("WIZARD_KEY")
         if not wizard_key:
@@ -474,7 +475,7 @@ class WizardConsole:
             print("     3. Or set manually: export WIZARD_KEY=<your-key>")
             print()
             return
-        
+
         # Load user profile
         user_result = load_user_profile()
         if user_result.locked:
@@ -490,7 +491,7 @@ class WizardConsole:
             print("     3. Or delete wizard/secrets.tomb and re-submit the story")
             print()
             return
-        
+
         if user_result.data:
             print("\n  User Identity:")
             print(f"    • Username: {user_result.data.get('username', 'N/A')}")
@@ -499,24 +500,24 @@ class WizardConsole:
             print(f"    • Location: {user_result.data.get('location_name', 'N/A')} ({user_result.data.get('location_id', 'N/A')})")
         else:
             print("  ⚠️  No user profile found. Complete the setup story first.")
-        
+
         # Load installation profile
         install_result = load_install_profile()
         if install_result.locked:
             print(f"  ⚠️  Secret store locked: {install_result.error}")
             print()
             return
-        
+
         if install_result.data:
             print("\n  Installation:")
             print(f"    • ID: {install_result.data.get('installation_id', 'N/A')}")
             print(f"    • OS Type: {install_result.data.get('os_type', 'N/A')}")
             print(f"    • Lifespan Mode: {install_result.data.get('lifespan_mode', 'infinite')}")
-            
+
             moves_limit = install_result.data.get('moves_limit')
             if moves_limit:
                 print(f"    • Moves Limit: {moves_limit}")
-            
+
             # Show capabilities
             capabilities = install_result.data.get('capabilities', {})
             if capabilities:
@@ -526,7 +527,7 @@ class WizardConsole:
                     print(f"    {status} {cap.replace('_', ' ').title()}")
         else:
             print("  ⚠️  No installation profile found. Complete the setup story first.")
-        
+
         # Load metrics
         metrics = load_install_metrics()
         if metrics and metrics.get('moves_used') is not None:
@@ -538,7 +539,7 @@ class WizardConsole:
             last_move = metrics.get('last_move_at')
             if last_move:
                 print(f"    • Last Move: {last_move}")
-        
+
         print()
 
     async def cmd_health(self, args: list) -> None:
@@ -721,9 +722,9 @@ class WizardConsole:
 
     async def cmd_peek(self, args: list) -> None:
         """Convert URL to Markdown and save to outbox.
-        
+
         Usage: peek <url> [filename]
-        
+
         Examples:
             peek https://example.com
             peek https://github.com/fredporter/uDOS my-readme
@@ -732,42 +733,42 @@ class WizardConsole:
             print("\n❌ PEEK requires a URL")
             print("   Usage: peek <url> [optional-filename]\n")
             return
-        
+
         url = args[0]
         filename = args[1] if len(args) > 1 else None
-        
+
         service = get_url_to_markdown_service()
-        
+
         print(f"\n⏳ Converting {url}...")
         success, output_path, message = await service.convert(url, filename)
-        
+
         if success:
             print(f"   {message}")
             print(f"   📄 File: {output_path.relative_to(self.repo_root)}")
         else:
             print(f"   ❌ {message}")
-        
+
         print()
 
     async def cmd_extract(self, args: list) -> None:
         """Extract PDF to Markdown and save to outbox.
-        
+
         Usage: extract [pdf-filename]
                extract                    (bulk process inbox)
-        
+
         Examples:
             extract invoice.pdf
             extract /path/to/document.pdf
             extract                      (process all PDFs in inbox)
         """
         service = get_pdf_ocr_service()
-        
+
         if args:
             # Single file extraction
             pdf_path = args[0]
             print(f"\n⏳ Extracting {pdf_path}...")
             success, output_path, message = await service.extract(pdf_path)
-            
+
             if success:
                 print(f"   {message}")
                 print(f"   📄 File: {output_path.relative_to(self.repo_root)}")
@@ -777,7 +778,7 @@ class WizardConsole:
             # Bulk extraction from inbox
             print("\n⏳ Processing PDFs from inbox...")
             success, results, message = await service.extract_batch()
-            
+
             if success:
                 print(f"   {message}")
                 if results:
@@ -789,7 +790,7 @@ class WizardConsole:
                     print("   (no PDFs found in inbox)")
             else:
                 print(f"   ❌ {message}")
-        
+
         print()
 
     async def cmd_workflow(self, args: list) -> None:
@@ -1275,9 +1276,15 @@ class WizardConsole:
         self.running = False
 
     def _get_uptime(self) -> str:
-        """Get server uptime (placeholder)."""
-        # TODO: Track actual start time
-        return "< 1 hour"
+        """Get server uptime."""
+        elapsed = int(time.time() - self.start_time)
+        hours, remainder = divmod(elapsed, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        if hours > 0:
+            return f"{hours}h {minutes}m"
+        elif minutes > 0:
+            return f"{minutes}m {seconds}s"
+        return f"{seconds}s"
 
     async def run(self):
         """Run interactive console loop."""

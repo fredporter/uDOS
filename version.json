@@ -5,10 +5,10 @@
   "version": {
     "major": 1,
     "minor": 3,
-    "patch": 9
+    "patch": 12
   },
-  "display": "v1.3.9",
+  "display": "v1.3.12",
   "channel": "dev",
-  "released": "2026-02-07",
+  "released": "2026-02-08",
   "description": "uDOS development cycle version"
 }

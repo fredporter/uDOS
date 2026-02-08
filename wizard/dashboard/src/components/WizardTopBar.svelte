@@ -8,21 +8,22 @@
   let isFullscreen = false;
 
   const topNavRoutes = [
-    { id: "dashboard", label: "Wizard Dashboard" },
+    { id: "dashboard", label: "Wizard" },
     { id: "devices", label: "Devices" },
-    { id: "catalog", label: "Catalog" },
+    { id: "library", label: "Library" },
+    { id: "extensions", label: "Extensions" },
     { id: "webhooks", label: "Webhooks" },
   ];
 
   const allMenuRoutes = [
     { id: "dashboard", label: "Dashboard" },
     { id: "devices", label: "Devices" },
-    { id: "ucode", label: "uCODE Console" },
+    { id: "ucode", label: "Terminal" },
     { id: "catalog", label: "Catalog" },
     { id: "webhooks", label: "Webhooks" },
     { id: "logs", label: "Logs" },
     { id: "config", label: "Config" },
-    { id: "hotkeys", label: "⌨️ Hotkeys" },
+    { id: "hotkeys", label: "⌘ Hotkeys" },
     { separator: true, label: "Documentation" },
     { id: "wiki", label: "📖 Wiki" },
     { id: "files", label: "🗂 Files" },
@@ -39,13 +40,14 @@
     { id: "layer-editor", label: "🧱 Layer Editor" },
     { id: "typo-editor", label: "📝 Markdown Editor" },
     { id: "svg-processor", label: "🧩 SVG Palette" },
-    { id: "devmode", label: "🧌 Dev Mode" },
     { id: "tasks", label: "⏱️ Task Scheduler" },
+    { id: "ports", label: "🔌 Port Manager" },
     { id: "workflow", label: "✅ Workflow" },
     { id: "binder", label: "📚 Binder Compiler" },
     { id: "wizard-ui-v1-3-1", label: "🔮 Wizard UI v1.3.1" },
-    { id: "groovebox", label: "🎛 Groovebox" },
     { id: "github", label: "🐙 GitHub" },
+    { separator: true, label: "Extensions" },
+    { id: "extensions", label: "📦 Extensions" },
   ];
 
   async function toggleFullscreen() {

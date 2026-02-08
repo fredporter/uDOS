@@ -83,7 +83,7 @@ class iCloudHandler:
         if not self.username or not self.api_key:
             return False
         
-        # TODO: Implement iCloud authentication
+        # STUB: Implement iCloud authentication
         # Would call /signin with credentials and MFA handling
         return False
 
@@ -93,7 +93,7 @@ class iCloudHandler:
         Returns:
             List of iCloudDevice objects
         """
-        # TODO: Implement device listing
+        # STUB: Implement device listing
         # GET /setup/ws/1/accountSettings
         return []
 
@@ -106,7 +106,7 @@ class iCloudHandler:
         Returns:
             True if successful, False otherwise
         """
-        # TODO: Implement device registration
+        # STUB: Implement device registration
         # POST /setup/ws/1/trustDevices
         return False
 
@@ -116,7 +116,7 @@ class iCloudHandler:
         Returns:
             List of iCloudBackup objects
         """
-        # TODO: Implement backup listing
+        # STUB: Implement backup listing
         # GET /setup/ws/1/backup/devices
         return []
 
@@ -129,7 +129,7 @@ class iCloudHandler:
         Returns:
             iCloudBackup or None if not found
         """
-        # TODO: Implement single backup fetch
+        # STUB: Implement single backup fetch
         # GET /setup/ws/1/backup/devices/{backup_id}
         return None
 
@@ -143,7 +143,7 @@ class iCloudHandler:
         Returns:
             Backup data as bytes, or None if failed
         """
-        # TODO: Implement backup download
+        # STUB: Implement backup download
         # GET /setup/ws/1/backup/download/{backup_id}?type={content_type}
         return None
 
@@ -157,7 +157,7 @@ class iCloudHandler:
         Returns:
             True if relay initiated, False otherwise
         """
-        # TODO: Implement backup relay
+        # STUB: Implement backup relay
         # Fetch from iCloud, push to Wizard, device pulls via secure transport
         return False
 
@@ -170,7 +170,7 @@ class iCloudHandler:
         Returns:
             True if enabled, False otherwise
         """
-        # TODO: Implement Continuity handoff
+        # STUB: Implement Continuity handoff
         # Register device, enable Universal Clipboard, Handoff support
         return False
 
@@ -183,7 +183,7 @@ class iCloudHandler:
         Returns:
             True if sync successful, False otherwise
         """
-        # TODO: Implement secure keychain sync
+        # STUB: Implement secure keychain sync
         # Fetch from iCloud, encrypt with device key, relay
         return False
 
@@ -196,6 +196,6 @@ class iCloudHandler:
         Returns:
             Number of backups synced
         """
-        # TODO: Implement iCloud metadata sync
+        # STUB: Implement iCloud metadata sync
         # Fetch device/backup list, write to SQLite
         return 0

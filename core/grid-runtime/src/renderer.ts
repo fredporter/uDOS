@@ -1,54 +1,54 @@
 /**
- * Sextant Renderer: Graphics Pipeline
+ * Teletext Renderer: Graphics Pipeline
  *
- * Converts tile data → sextant characters with fallback rendering
- * Supports: Sextant (16) → Quadrant (16) → Shade (4) → ASCII (4)
+ * Converts tile data → teletext characters with fallback rendering
+ * Supports: Teletext (16) → AsciiBlock (16) → Shade (4) → ASCII (4)
  */
 
 import { Tile, RenderOptions } from "./index.js";
-import { GraphicsMode, SEXTANT_CHARS, QUADRANT_CHARS, SHADE_CHARS, ASCII_CHARS } from "./geometry.js";
+import { GraphicsMode, TELETEXT_CHARS, ASCII_BLOCK_CHARS, SHADE_CHARS, ASCII_CHARS } from "./geometry.js";
 
 /**
- * Sextant Graphics Character Bank
+ * Teletext Graphics Character Bank
  *
- * Maps tile data → unicode sextant characters (16 unique)
+ * Maps tile data → unicode teletext characters (16 unique)
  */
-export class SextantCharacterSet {
-  // Map tile properties to sextant indices (0-15)
+export class TeletextCharacterSet {
+  // Map tile properties to teletext indices (0-15)
   static getTileCharIndex(tile: Tile): number {
-    // Map tile type/properties to sextant character
+    // Map tile type/properties to teletext character
     // 0-15: different tile combinations
     // For now: simple mapping based on tile type
     if (tile.type === "sprite") {
-      return 8; // Sextant index for sprites
+      return 8; // Teletext index for sprites
     } else if (tile.type === "marker") {
-      return 10; // Sextant index for markers
+      return 10; // Teletext index for markers
     } else {
       return Math.min(Math.floor(Math.random() * 8), 7); // Objects: 0-7
     }
   }
 
   /**
-   * Get sextant character for tile
+   * Get teletext character for tile
    */
   static getCharacter(tile: Tile): string {
     const index = this.getTileCharIndex(tile);
-    return SEXTANT_CHARS[index];
+    return TELETEXT_CHARS[index];
   }
 }
 
 /**
  * Simplified renderer that wraps the RenderPipeline with a preset mode.
  */
-export class SextantRenderer {
+export class TeletextRenderer {
   private pipeline: RenderPipeline;
 
-  constructor(mode: GraphicsMode = GraphicsMode.Sextant) {
+  constructor(mode: GraphicsMode = GraphicsMode.Teletext) {
     this.pipeline = new RenderPipeline(mode);
   }
 
-  renderCharacter(sextantIndex: number): string {
-    return this.pipeline.renderCharacterWithFallback(sextantIndex);
+  renderCharacter(teletextIndex: number): string {
+    return this.pipeline.renderCharacterWithFallback(teletextIndex);
   }
 
   renderTile(tile: Tile, colorIndex: number = 7) {
@@ -62,10 +62,10 @@ export class SextantRenderer {
  * Handles: tile lookup, character selection, fallback rendering
  */
 export class RenderPipeline {
-  private renderMode: GraphicsMode = GraphicsMode.Sextant;
+  private renderMode: GraphicsMode = GraphicsMode.Teletext;
   private colorPalette: Map<number, string> = new Map();
 
-  constructor(initialMode: GraphicsMode = GraphicsMode.Sextant) {
+  constructor(initialMode: GraphicsMode = GraphicsMode.Teletext) {
     this.renderMode = initialMode;
     this.initializePalette();
   }
@@ -124,26 +124,26 @@ export class RenderPipeline {
   /**
    * Render character with fallback
    *
-   * Input: sextant character (0-15 as index)
+   * Input: teletext character (0-15 as index)
    * Output: character in current mode, or fallback
    */
-  renderCharacterWithFallback(sextantIndex: number): string {
-    const index = sextantIndex % 16; // Clamp to 0-15
+  renderCharacterWithFallback(teletextIndex: number): string {
+    const index = teletextIndex % 16; // Clamp to 0-15
 
     switch (this.renderMode) {
-      case GraphicsMode.Sextant:
-        return SEXTANT_CHARS[index];
+      case GraphicsMode.Teletext:
+        return TELETEXT_CHARS[index];
 
-      case GraphicsMode.Quadrant:
-        // Map sextant → quadrant (every other sextant segment)
-        return QUADRANT_CHARS[Math.floor(index / 2) % 16];
+      case GraphicsMode.AsciiBlock:
+        // Map teletext → asciiBlock (every other teletext segment)
+        return ASCII_BLOCK_CHARS[Math.floor(index / 2) % 16];
 
       case GraphicsMode.Shade:
-        // Map sextant → shade levels (░▒▓█)
+        // Map teletext → shade levels (░▒▓█)
         return SHADE_CHARS[Math.floor(index / 4) % 4];
 
       case GraphicsMode.ASCII:
-        // Map sextant → ASCII block characters
+        // Map teletext → ASCII block characters
         return ASCII_CHARS[Math.floor(index / 8) % 4];
 
       default:
@@ -160,8 +160,8 @@ export class RenderPipeline {
     tile: Tile,
     colorIndex: number = 7
   ): { char: string; color: string; priority: number } {
-    const sextantIndex = SextantCharacterSet.getTileCharIndex(tile);
-    const char = this.renderCharacterWithFallback(sextantIndex);
+    const teletextIndex = TeletextCharacterSet.getTileCharIndex(tile);
+    const char = this.renderCharacterWithFallback(teletextIndex);
     const color = this.colorPalette.get(colorIndex) || "#FFFFFF";
     const priority = tile.static ? 10 : 100; // Sprites render on top
 
@@ -278,9 +278,9 @@ export class GraphicsModeSupport {
     const colorTerm = process.env.COLORTERM || "";
 
     if (colorTerm.includes("truecolor")) {
-      return GraphicsMode.Sextant;
+      return GraphicsMode.Teletext;
     } else if (colorTerm.includes("256")) {
-      return GraphicsMode.Quadrant;
+      return GraphicsMode.AsciiBlock;
     } else if (term.includes("color")) {
       return GraphicsMode.Shade;
     } else {
@@ -293,10 +293,10 @@ export class GraphicsModeSupport {
    */
   static getFallbackChain(mode: GraphicsMode): GraphicsMode[] {
     switch (mode) {
-      case GraphicsMode.Sextant:
-        return [GraphicsMode.Sextant, GraphicsMode.Quadrant, GraphicsMode.Shade, GraphicsMode.ASCII];
-      case GraphicsMode.Quadrant:
-        return [GraphicsMode.Quadrant, GraphicsMode.Shade, GraphicsMode.ASCII];
+      case GraphicsMode.Teletext:
+        return [GraphicsMode.Teletext, GraphicsMode.AsciiBlock, GraphicsMode.Shade, GraphicsMode.ASCII];
+      case GraphicsMode.AsciiBlock:
+        return [GraphicsMode.AsciiBlock, GraphicsMode.Shade, GraphicsMode.ASCII];
       case GraphicsMode.Shade:
         return [GraphicsMode.Shade, GraphicsMode.ASCII];
       case GraphicsMode.ASCII:
@@ -307,6 +307,6 @@ export class GraphicsModeSupport {
   }
 }
 
-if (typeof globalThis !== 'undefined' && !(globalThis as any).SextantCharacterSet) {
-  (globalThis as any).SextantCharacterSet = SextantCharacterSet;
+if (typeof globalThis !== 'undefined' && !(globalThis as any).TeletextCharacterSet) {
+  (globalThis as any).TeletextCharacterSet = TeletextCharacterSet;
 }

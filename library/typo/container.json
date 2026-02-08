@@ -2,15 +2,15 @@
   "$schema": "./container.schema.json",
   "container": {
     "id": "typo",
-    "name": "typo",
-    "description": "",
+    "name": "Typo",
+    "description": "Browser-based Markdown editor with live preview",
     "type": "git",
-    "source": "https://github.com/org/repo",
+    "source": "https://github.com/rossrobino/typo",
     "ref": "main",
     "cloned_at": null,
     "last_update": null,
     "commit": null,
-    "version": ""
+    "version": "1.0.0"
   },
   "policy": {
     "read_only": true,
@@ -25,10 +25,11 @@
     "install_script": null
   },
   "metadata": {
-    "license": null,
-    "homepage": null,
-    "documentation": null,
-    "maintainer": "uDOS Wizard Server"
+    "license": "MIT",
+    "homepage": "https://github.com/rossrobino/typo",
+    "documentation": "https://github.com/rossrobino/typo#readme",
+    "maintainer": "Ross Robino / uDOS Wizard Server",
+    "category": "editor"
   },
   "repo_path": "memory/library/containers/typo"
 }

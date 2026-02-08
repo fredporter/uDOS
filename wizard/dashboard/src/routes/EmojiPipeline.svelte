@@ -41,6 +41,10 @@
     )) {
       for (const [subcategoryName, subcategory] of Object.entries(collection)) {
         for (const [fontKey, fontData] of Object.entries(subcategory)) {
+          const ext = (fontData.file || "").split(".").pop()?.toLowerCase();
+          if (ext && !["ttf", "otf"].includes(ext)) {
+            continue;
+          }
           list.push({
             id: fontKey,
             name: fontData.name,

@@ -5,13 +5,14 @@ Workspace Routes
 Provide browser-safe access to /memory for Wizard UI.
 """
 
+import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Tuple
 
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 
-from wizard.services.path_utils import get_memory_dir
+from wizard.services.path_utils import get_memory_dir, get_repo_root
 
 from core.services.story_service import parse_story_document
 
@@ -25,11 +26,35 @@ class MkdirRequest(BaseModel):
     path: str
 
 
-def _resolve_path(relative_path: str) -> Path:
+def _resolve_workspace_root() -> Dict[str, Path]:
+    env_root = os.getenv("UDOS_ROOT")
+    base_root = Path(env_root).expanduser() if env_root else get_repo_root()
     memory_root = get_memory_dir().resolve()
-    candidate = (memory_root / relative_path).resolve()
-    if not str(candidate).startswith(str(memory_root)):
-        raise ValueError("Path must be within memory/")
+    return {
+        "memory": memory_root,
+        "vault-md": (base_root / "vault-md").resolve(),
+    }
+
+
+def _split_root(path: str) -> Tuple[str, str]:
+    raw = (path or "").strip("/")
+    if not raw:
+        return "memory", ""
+    parts = raw.split("/", 1)
+    root_key = parts[0]
+    if root_key in _resolve_workspace_root():
+        rel = parts[1] if len(parts) > 1 else ""
+        return root_key, rel
+    return "memory", raw
+
+
+def _resolve_path(relative_path: str) -> Path:
+    root_map = _resolve_workspace_root()
+    root_key, rel = _split_root(relative_path)
+    root_dir = root_map[root_key]
+    candidate = (root_dir / rel).resolve()
+    if not str(candidate).startswith(str(root_dir)):
+        raise ValueError(f"Path must be within {root_key}/")
     return candidate
 
 
@@ -39,7 +64,15 @@ def create_workspace_routes(auth_guard=None, prefix="/api/workspace") -> APIRout
 
     @router.get("/roots")
     async def get_roots():
-        return {"success": True, "roots": {"memory": ""}}
+        return {
+            "success": True,
+            "roots": {
+                "memory": "memory",
+                "memory/sandbox": "memory/sandbox",
+                "memory/inbox": "memory/inbox",
+                "vault-md": "vault-md",
+            },
+        }
 
     @router.get("/list")
     async def list_entries(path: str = ""):
@@ -54,9 +87,16 @@ def create_workspace_routes(auth_guard=None, prefix="/api/workspace") -> APIRout
         if not resolved.is_dir():
             raise HTTPException(status_code=400, detail="Path is not a directory")
 
+        root_key, rel = _split_root(path)
+        root_dir = _resolve_workspace_root()[root_key]
+
         entries = []
         for entry in sorted(resolved.iterdir(), key=lambda p: (p.is_file(), p.name.lower())):
-            rel_path = entry.relative_to(get_memory_dir()).as_posix()
+            rel_path = entry.relative_to(root_dir).as_posix()
+            if rel_path:
+                rel_path = f"{root_key}/{rel_path}"
+            else:
+                rel_path = root_key
             entries.append(
                 {
                     "name": entry.name,
@@ -67,7 +107,8 @@ def create_workspace_routes(auth_guard=None, prefix="/api/workspace") -> APIRout
                 }
             )
 
-        return {"success": True, "path": path, "entries": entries}
+        normalized_path = root_key if not rel else f"{root_key}/{rel}"
+        return {"success": True, "path": normalized_path, "entries": entries}
 
     @router.get("/read")
     async def read_file(path: str):

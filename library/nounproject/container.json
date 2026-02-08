@@ -2,10 +2,10 @@
   "$schema": "./container.schema.json",
   "container": {
     "id": "nounproject",
-    "name": "nounproject",
-    "description": "",
+    "name": "Noun Project",
+    "description": "Icon library API integration",
     "type": "git",
-    "source": "https://github.com/org/repo",
+    "source": "https://github.com/TheNounProject/nounproject",
     "ref": "main",
     "cloned_at": null,
     "last_update": null,
@@ -25,10 +25,11 @@
     "install_script": null
   },
   "metadata": {
-    "license": null,
-    "homepage": null,
-    "documentation": null,
-    "maintainer": "uDOS Wizard Server"
+    "license": "Proprietary",
+    "homepage": "https://thenounproject.com/",
+    "documentation": "https://thenounproject.com/developers/",
+    "maintainer": "Noun Project / uDOS Wizard Server",
+    "category": "graphics"
   },
   "repo_path": "memory/library/containers/nounproject"
 }

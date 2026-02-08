@@ -25,8 +25,10 @@ from typing import Optional, Dict, List, Any, Callable
 from pathlib import Path
 
 from core.services.logging_api import get_repo_root
+from core.services.viewport_service import ViewportService
 from core.input.confirmation_utils import normalize_default, parse_confirmation, format_prompt
 from core.services.maintenance_utils import get_memory_root
+from core.utils.text_width import truncate_ansi_to_width
 from dataclasses import dataclass
 from enum import Enum
 
@@ -966,6 +968,24 @@ class TUIFormRenderer:
         }
         self.fields.append(field)
 
+    def _get_cols(self) -> int:
+        try:
+            return ViewportService().get_cols()
+        except Exception:
+            try:
+                return int(os.getenv("UDOS_VIEWPORT_COLS", "") or 80)
+            except Exception:
+                return 80
+
+    def _clamp_output(self, text: str) -> str:
+        cols = self._get_cols()
+        lines = (text or "").splitlines()
+        clamped = [truncate_ansi_to_width(line, cols) for line in lines]
+        output = "\n".join(clamped)
+        if text.endswith("\n"):
+            output += "\n"
+        return output
+
     def render(self) -> str:
         """Render the current field."""
         if self.current_field_index >= len(self.fields):
@@ -1041,18 +1061,21 @@ class TUIFormRenderer:
         """Render a single field."""
         lines = []
 
+        cols = self._get_cols()
+        header_width = max(20, min(60, cols))
+
         # Header
-        lines.append("\n" + "=" * 60)
-        lines.append(f"  {self.title}")
+        lines.append("\n" + "=" * header_width)
+        lines.append(truncate_ansi_to_width(f"  {self.title}", header_width))
         if self.description:
-            lines.append(f"  {self.description}")
-        lines.append("=" * 60)
+            lines.append(truncate_ansi_to_width(f"  {self.description}", header_width))
+        lines.append("=" * header_width)
 
         # Progress
         current = self.current_field_index + 1
         total = max(1, len(self.fields))
         progress = f"{current}/{total}"
-        lines.append(f"\n  [{progress}] {field['label']}")
+        lines.append(truncate_ansi_to_width(f"\n  [{progress}] {field['label']}", cols))
         lines.append(self._render_progress_bar(current, total))
         lines.extend(self._render_flowchart())
 
@@ -1066,28 +1089,19 @@ class TUIFormRenderer:
 
         lines.append("\n")
 
-        return "\n".join(lines)
+        return self._clamp_output("\n".join(lines))
 
     def _render_progress_bar(self, current: int, total: int) -> str:
-        width = 28
-        try:
-            cols = int(os.getenv("UDOS_VIEWPORT_COLS", "") or 0)
-            if cols:
-                width = max(20, min(40, cols - 30))
-        except Exception:
-            pass
+        cols = self._get_cols()
+        overhead = len("  Progress: []")
+        width = max(10, min(40, cols - overhead))
         filled = int(round((current / float(total)) * width))
         bar = "=" * filled + "-" * (width - filled)
-        return f"  Progress: [{bar}]"
+        return truncate_ansi_to_width(f"  Progress: [{bar}]", cols)
 
     def _render_flowchart(self) -> List[str]:
-        width = 60
-        try:
-            cols = int(os.getenv("UDOS_VIEWPORT_COLS", "") or 0)
-            if cols:
-                width = max(48, min(100, cols - 2))
-        except Exception:
-            pass
+        cols = self._get_cols()
+        width = max(24, min(100, cols - 2))
 
         tokens: List[str] = []
         for idx, f in enumerate(self.fields):
@@ -1118,21 +1132,21 @@ class TUIFormRenderer:
     def _render_completion(self) -> str:
         """Render completion screen."""
         lines = [
-            "\n" + "=" * 60,
+            "\n" + "=" * max(20, min(60, self._get_cols())),
             f"  ✅ {self.title} Complete!",
-            "=" * 60,
+            "=" * max(20, min(60, self._get_cols())),
             "\nCollected data:",
         ]
 
         for field in self.fields:
             lines.append(f"  • {field['label']}: {field['value']}")
 
-        lines.append("\n" + "=" * 60)
+        lines.append("\n" + "=" * max(20, min(60, self._get_cols())))
         lines.extend(self._render_structure_summary())
         lines.append("\n  ✳️  See docs/SEED-INSTALLATION-GUIDE.md for expectations")
-        lines.append("=" * 60)
+        lines.append("=" * max(20, min(60, self._get_cols())))
 
-        return "\n".join(lines)
+        return self._clamp_output("\n".join(lines))
 
     def _render_structure_summary(self) -> List[str]:
         """Render the local/memory/system/vault structure confirmation."""

@@ -221,7 +221,7 @@
           },
           "connections_teletext": {
             "type": "object",
-            "description": "Sextant/teletext map data for this location",
+            "description": "Teletext/teletext map data for this location",
             "properties": {
               "width": {
                 "type": "integer",
@@ -235,7 +235,7 @@
               },
               "data": {
                 "type": "string",
-                "description": "Encoded sextant grid (base64 or hex)"
+                "description": "Encoded teletext grid (base64 or hex)"
               }
             }
           },
@@ -291,9 +291,9 @@
             "maxLength": 1,
             "description": "ASCII representation"
           },
-          "sextant_block": {
+          "teletext_block": {
             "type": "string",
-            "description": "Unicode sextant/block character"
+            "description": "Unicode teletext/block character"
           },
           "color": {
             "type": "string",

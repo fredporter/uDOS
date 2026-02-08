@@ -868,7 +868,7 @@
   <div class="ucode-main">
     <header class="ucode-header">
       <div>
-        <h1 class="text-3xl font-bold text-white">uCODE Console</h1>
+        <h1 class="text-3xl font-bold text-white">Terminal</h1>
         <p class="text-gray-400">
           Live command console for Wizard services + Vibe CLI. Prefix with ':' for core commands, 'OK' for local Vibe, '/' for shell.
         </p>
@@ -1252,7 +1252,11 @@
     grid-template-columns: minmax(0, 1fr) 360px;
     gap: 1.5rem;
     padding: 1.5rem 1.5rem 120px;
-    height: 100%;
+    min-height: calc(
+      100dvh - var(--wizard-bottom-bar-height, 52px) -
+        var(--wizard-cli-bar-height, 44px) - 72px
+    );
+    align-items: stretch;
     overflow: hidden;
   }
 
@@ -1261,6 +1265,7 @@
     flex-direction: column;
     gap: 1rem;
     min-width: 0;
+    min-height: 0;
     overflow: hidden;
   }
 
@@ -1333,6 +1338,7 @@
     border-radius: 1rem;
     overflow: hidden;
     min-height: 0;
+    flex: 1;
   }
 
   .ucode-history {
@@ -1503,6 +1509,10 @@
     overflow-y: auto;
     padding-right: 0.25rem;
     min-height: 0;
+    max-height: calc(
+      100dvh - var(--wizard-bottom-bar-height, 52px) -
+        var(--wizard-cli-bar-height, 44px) - 96px
+    );
   }
 
   .panel {

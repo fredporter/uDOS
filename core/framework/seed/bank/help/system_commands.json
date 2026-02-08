@@ -206,6 +206,7 @@
         "SETUP",
         "SETUP WIZARD",
         "SETUP QUICK",
+        "SETUP VIBE",
         "SETUP THEME",
         "SETUP VIEWPORT",
         "SETUP EXTENSIONS",
@@ -222,6 +223,10 @@
         {
           "command": "SETUP QUICK",
           "description": "Quick setup with sensible defaults"
+        },
+        {
+          "command": "SETUP VIBE",
+          "description": "Install Ollama + Vibe CLI + Mistral local models"
         },
         {
           "command": "SETUP THEME",

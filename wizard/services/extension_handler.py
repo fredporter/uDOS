@@ -225,27 +225,27 @@ class GitHubCLIExtension(Extension):
     
     async def _sync_pull(self, **kwargs) -> Dict[str, Any]:
         """Pull latest from GitHub."""
-        return {"status": "pulling", "message": "TODO: Implement pull"}
+        return {"status": "pulling", "message": "STUB:  pull"}
     
     async def _sync_push(self, **kwargs) -> Dict[str, Any]:
         """Push local changes to GitHub."""
-        return {"status": "pushing", "message": "TODO: Implement push"}
+        return {"status": "pushing", "message": "STUB:  push"}
     
     async def _issues_list(self, **kwargs) -> Dict[str, Any]:
         """List open issues from GitHub."""
-        return {"issues": [], "message": "TODO: Implement issues list"}
+        return {"issues": [], "message": "STUB:  issues list"}
     
     async def _pr_list(self, **kwargs) -> Dict[str, Any]:
         """List open PRs from GitHub."""
-        return {"prs": [], "message": "TODO: Implement PR list"}
+        return {"prs": [], "message": "STUB:  PR list"}
     
     async def _monitor_actions(self, **kwargs) -> Dict[str, Any]:
         """Monitor CI/Actions status."""
-        return {"status": "idle", "message": "TODO: Implement actions monitoring"}
+        return {"status": "idle", "message": "STUB:  actions monitoring"}
     
     async def _webhook_config(self, **kwargs) -> Dict[str, Any]:
         """Configure webhooks."""
-        return {"status": "ok", "message": "TODO: Implement webhook config"}
+        return {"status": "ok", "message": "STUB:  webhook config"}
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -364,7 +364,7 @@ def get_extension_handler(secret_store=None) -> ExtensionHandler:
         
         # Register built-in extensions
         _extension_handler.register(GitHubCLIExtension())
-        # TODO: Register MistralVibe, MeshCore, others
+        # STUB: Register other extensions
     
     return _extension_handler
 

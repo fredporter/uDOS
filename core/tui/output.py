@@ -7,7 +7,7 @@ tables, and sectioned output.
 
 from typing import Iterable, List, Sequence, Tuple, Optional
 
-from core.utils.text_width import display_width, pad_to_width, truncate_to_width
+from core.utils.text_width import display_width, pad_to_width, truncate_to_width, truncate_ansi_to_width
 from core.services.viewport_service import ViewportService
 import time
 
@@ -182,7 +182,7 @@ class OutputToolkit:
     def _clamp(text: str) -> str:
         width = ViewportService().get_cols()
         lines = (text or "").splitlines()
-        clamped = [truncate_to_width(line, width) for line in lines]
+        clamped = [truncate_ansi_to_width(line, width) for line in lines]
         output = "\n".join(clamped)
         if text.endswith("\n"):
             output += "\n"

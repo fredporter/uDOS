@@ -29,6 +29,8 @@
   import Renderer from "./routes/Renderer.svelte";
   import Anchors from "./routes/Anchors.svelte";
   import UCodeConsole from "./routes/UCodeConsole.svelte";
+  import Ports from "./routes/Ports.svelte";
+  import Extensions from "./routes/Extensions.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
   import WizardBottomBar from "./components/WizardBottomBar.svelte";
   import ToastContainer from "./lib/components/ToastContainer.svelte";
@@ -258,6 +260,10 @@
         <Anchors />
       {:else if currentRoute === "ucode"}
         <UCodeConsole />
+      {:else if currentRoute === "ports"}
+        <Ports />
+      {:else if currentRoute === "extensions"}
+        <Extensions />
       {/if}
     </main>
   </div>

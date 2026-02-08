@@ -17,7 +17,7 @@
 
 <div class="hotkey-shell">
   <div class="hotkey-header">
-    <h1>🎛️ Hotkey Center</h1>
+    <h1>⌘ Hotkeys</h1>
     <p>
       Wire the Wizard hotkey dashboard to the Core TUI and Sonic CLI bindings so TAB,
       F-keys, and arrow navigation stay synchronized between the GUI file picker, workspace selector,
@@ -54,6 +54,7 @@
   }
   .hotkey-header h1 {
     font-size: 2.25rem;
+    font-weight: 700;
     margin-bottom: 0.25rem;
   }
   .hotkey-header p {
@@ -79,6 +80,7 @@
   }
   .hotkey-card h3 {
     margin: 0.5rem 0;
+    font-weight: 700;
   }
   .hotkey-card p {
     font-size: 0.9rem;
@@ -90,6 +92,10 @@
     border: 1px solid #1f2937;
     border-radius: 0.75rem;
     padding: 1rem;
+  }
+  .hotkey-tips h2 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
   }
   .hotkey-tips ul {
     list-style: disc;
