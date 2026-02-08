@@ -26,7 +26,7 @@ from pydantic import BaseModel
 
 from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root, get_memory_dir
-from services.integration_registry import get_wizard_secret_sync_map
+from core.services.integration_registry import get_wizard_secret_sync_map
 from wizard.services.secret_store import get_secret_store, SecretStoreError, SecretEntry
 
 logger = get_logger("settings-unified")
