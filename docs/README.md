@@ -90,7 +90,7 @@ See [specs/uCODE-v1.3.md](specs/uCODE-v1.3.md) for all commands.
 
 ## 🧪 Testing & Release
 
-- **[v1.3.0-release-test.md](v1.3.0-release-test.md)** — Extensive v1.3.0 release test plan
+- **[v1.3.0-release-test.md](.archive/v1.3.0-release-test.md)** — Extensive v1.3.0 release test plan (archived)
 - **[howto/renderer-indexer-runbook.md](howto/renderer-indexer-runbook.md)** — Renderer + task indexer runbook
 
 ---
