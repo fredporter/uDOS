@@ -168,7 +168,6 @@
 
   .index-header .title {
     margin: 0 0 1rem 0;
-    font-size: 3rem;
     font-weight: 700;
   }
 
@@ -202,7 +201,6 @@
 
   .category-title {
     margin: 0 0 0.5rem 0;
-    font-size: 1.75rem;
     font-weight: 700;
     color: #0f172a;
   }
@@ -247,20 +245,17 @@
 
   .article-title {
     margin: 0 0 0.5rem 0;
-    font-size: 1.125rem;
     font-weight: 600;
   }
 
   .article-description {
     margin: 0;
-    font-size: 0.875rem;
     color: #64748b;
   }
 
   .read-more {
     display: inline-block;
     margin-top: 0.5rem;
-    font-size: 0.75rem;
     color: #2563eb;
   }
 

@@ -22,7 +22,7 @@ logger = get_logger("basic-user-config")
 
 VAR_PATTERN = re.compile(r"^\$([A-Z_][A-Z0-9_]*)\s*:\s*(.*)$", re.MULTILINE)
 
-REQUIRED_VARS = ["USER_NAME", "USER_TIMEZONE", "USER_TIME", "USER_LOCATION"]
+REQUIRED_VARS = ["USER_NAME", "UDOS_TIMEZONE", "USER_TIME", "UDOS_LOCATION"]
 MARKER_VAR = "FIRST_RUN_COMPLETE"
 
 
@@ -72,9 +72,9 @@ def _render_base() -> str:
             "## Profile",
             "",
             "$USER_NAME:",
-            "$USER_LOCATION:",
-            "$USER_LOCATION_NAME:",
-            "$USER_TIMEZONE: UTC",
+            "$UDOS_LOCATION:",
+            "$UDOS_LOCATION_NAME:",
+            "$UDOS_TIMEZONE: UTC",
             "$USER_TIME:",
             f"${MARKER_VAR}: false",
             "",
@@ -233,7 +233,7 @@ def ensure_basic_user_config(prompt_fn) -> bool:
         if not username:
             print("Please use only letters, numbers, underscore, or dash.")
 
-    timezone_default = vars_in.get("USER_TIMEZONE") or _default_timezone()
+    timezone_default = vars_in.get("UDOS_TIMEZONE") or _default_timezone()
     tz_dataset = _load_timezone_dataset()
     tz_names = sorted((tz_dataset.get("zones") or {}).keys())
     print(f"Detected timezone: {timezone_default}")
@@ -327,10 +327,10 @@ def ensure_basic_user_config(prompt_fn) -> bool:
     save_vars(
         {
             "USER_NAME": username,
-            "USER_TIMEZONE": tz_input,
+            "UDOS_TIMEZONE": tz_input,
             "USER_TIME": time_input,
-            "USER_LOCATION": location_id,
-            "USER_LOCATION_NAME": location_name,
+            "UDOS_LOCATION": location_id,
+            "UDOS_LOCATION_NAME": location_name,
             MARKER_VAR: "true",
         }
     )

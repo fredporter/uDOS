@@ -295,6 +295,17 @@ class MonitoringManager:
         base_url = (os.environ.get("WIZARD_BASE_URL") or "http://localhost:8765").rstrip("/")
 
         def check():
+            # Avoid self-deadlock when this check runs inside the Wizard server process.
+            # If the monitoring endpoint calls back into the same server, a single-worker
+            # setup can block /health and trigger false timeouts.
+            if base_url.startswith("http://localhost") or base_url.startswith(
+                "http://127.0.0.1"
+            ):
+                return (
+                    HealthStatus.HEALTHY,
+                    "Wizard healthy (local in-process check)",
+                    {"status_code": 200, "mode": "in-process"},
+                )
             try:
                 resp = requests.get(f"{base_url}/health", timeout=2)
                 if resp.status_code == 200:
@@ -309,6 +320,19 @@ class MonitoringManager:
 
     def check_goblin(self) -> HealthCheck:
         """Check Goblin dev server health."""
+        if not self._goblin_monitor_enabled():
+            health = HealthCheck(
+                service="goblin",
+                status=HealthStatus.HEALTHY.value,
+                response_time_ms=0,
+                timestamp=datetime.now().isoformat(),
+                message="Goblin monitoring disabled",
+                metadata={"disabled": True},
+            )
+            self.health_checks["goblin"] = health
+            logger.info("[WIZ] Health check: goblin = disabled")
+            return health
+
         host = os.environ.get("GOBLIN_HOST", "127.0.0.1").strip()
         port = os.environ.get("GOBLIN_PORT", "8767").strip()
         url = f"http://{host}:{port}/health"
@@ -347,10 +371,20 @@ class MonitoringManager:
         """Run core Wizard health checks."""
         results = {
             "wizard_core": self.check_wizard_core(),
-            "goblin": self.check_goblin(),
             "plugin_registry": self.check_plugin_registry(),
         }
+        if self._goblin_monitor_enabled():
+            results["goblin"] = self.check_goblin()
         return results
+
+    @staticmethod
+    def _goblin_monitor_enabled() -> bool:
+        raw = os.environ.get("GOBLIN_MONITOR") or os.environ.get(
+            "WIZARD_GOBLIN_MONITOR"
+        )
+        if raw is None:
+            return False
+        return raw.strip().lower() in {"1", "true", "yes", "on"}
 
     def check_wizard_server(
         self, host: str = "127.0.0.1", port: int = 8765

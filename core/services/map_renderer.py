@@ -5,9 +5,12 @@ Render location grids in ASCII form based on grid config.
 """
 
 from typing import Optional
+import os
 
 from core.locations import Location
 from core.services.grid_config import load_grid_config
+from core.services.viewport_service import ViewportService
+from core.tui.output import OutputToolkit
 
 
 class MapRenderer:
@@ -41,13 +44,18 @@ class MapRenderer:
             return self._render_empty_grid()
 
         lines = []
+        cols_width = ViewportService().get_cols()
+        box_width = min(cols_width, 80)
+        inner = box_width - 2
         header = f"{location.name}"
-        lines.append("+" + "-" * 78 + "+")
-        lines.append(f"| {header:<76} |")
-        lines.append(
-            f"| Layer: L{location.layer} | Timezone: {location.timezone:<56} |"
-        )
-        lines.append("+" + "-" * 78 + "+")
+        header_line = f"{header:<{inner}}"
+        if os.getenv("UDOS_TUI_INVERT_HEADERS", "1").strip().lower() not in {"0", "false", "no"}:
+            header_line = OutputToolkit.invert(header_line)
+        lines.append("+" + "-" * (box_width - 2) + "+")
+        lines.append(f"| {header_line} |")
+        meta = f"Layer: L{location.layer}  Timezone: {location.timezone}"
+        lines.append(f"| {meta:<{inner}} |")
+        lines.append("+" + "-" * (box_width - 2) + "+")
 
         col_header = "   "
         for col in sorted(cols):
@@ -66,9 +74,10 @@ class MapRenderer:
                 row_str += f"{char:3} "
             lines.append(row_str)
 
-        lines.append("+" + "-" * 78 + "+")
-        lines.append("| Legend: S=Structure V=Vehicle W=Waypoint P=POI M=Marker .=Empty |")
-        lines.append("+" + "-" * 78 + "+")
+        lines.append("+" + "-" * (box_width - 2) + "+")
+        legend = "Legend: S=Structure V=Vehicle W=Waypoint P=POI M=Marker .=Empty"
+        lines.append(f"| {legend:<{inner}} |")
+        lines.append("+" + "-" * (box_width - 2) + "+")
         return "\n".join(lines)
 
     def _render_empty_grid(self) -> str:

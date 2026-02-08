@@ -1,4 +1,6 @@
 <script>
+  import { onMount } from "svelte";
+  import { apiFetch } from "$lib/services/apiBase";
   import ColorPalette from "$lib/components/ColorPalette.svelte";
   import SVGCanvas from "$lib/components/SVGCanvas.svelte";
   import {
@@ -14,6 +16,13 @@
   let error = null;
   let selectedColor = "#ffffff";
   let paletteData = exportPaletteData();
+  let templates = [];
+  let selectedTemplatePath = "";
+  let templateContent = "";
+  let templateError = null;
+  let loadingTemplates = false;
+  let loadingTemplate = false;
+  let loadingSvgExample = false;
 
   function isValidSvg(text) {
     return text.includes("<svg") && text.includes("</svg>");
@@ -125,6 +134,68 @@
     link.click();
     URL.revokeObjectURL(url);
   }
+
+  async function loadTemplates() {
+    loadingTemplates = true;
+    templateError = null;
+    try {
+      const res = await apiFetch("/api/diagrams/templates");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      templates = data.templates || [];
+      if (!selectedTemplatePath && templates.length) {
+        selectedTemplatePath = templates[0].path;
+      }
+    } catch (err) {
+      templateError = err.message || String(err);
+    } finally {
+      loadingTemplates = false;
+    }
+  }
+
+  async function loadTemplate() {
+    if (!selectedTemplatePath) return;
+    loadingTemplate = true;
+    templateError = null;
+    try {
+      const res = await apiFetch(
+        `/api/diagrams/template?path=${encodeURIComponent(selectedTemplatePath)}`
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      templateContent = await res.text();
+    } catch (err) {
+      templateError = err.message || String(err);
+    } finally {
+      loadingTemplate = false;
+    }
+  }
+
+  async function loadSvgExample() {
+    if (!templates.length) return;
+    const svgTemplate = templates.find((tmpl) => tmpl.ext === "svg");
+    if (!svgTemplate) {
+      templateError = "No SVG examples found in the diagrams bank.";
+      return;
+    }
+    loadingSvgExample = true;
+    templateError = null;
+    try {
+      const res = await apiFetch(
+        `/api/diagrams/template?path=${encodeURIComponent(svgTemplate.path)}`
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      svgContent = await res.text();
+      processSvg();
+    } catch (err) {
+      templateError = err.message || String(err);
+    } finally {
+      loadingSvgExample = false;
+    }
+  }
+
+  onMount(() => {
+    loadTemplates();
+  });
 </script>
 
 <div class="max-w-7xl mx-auto px-4 py-8 text-white">
@@ -138,6 +209,11 @@
   {#if error}
     <div class="bg-red-900 text-red-200 p-4 rounded-lg mb-6 border border-red-700">
       {error}
+    </div>
+  {/if}
+  {#if templateError}
+    <div class="bg-red-900 text-red-200 p-4 rounded-lg mb-6 border border-red-700">
+      {templateError}
     </div>
   {/if}
 
@@ -170,6 +246,13 @@
       >
         Download SVG
       </button>
+      <button
+        class="w-full px-3 py-2 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-60"
+        on:click={loadSvgExample}
+        disabled={loadingTemplates || loadingSvgExample}
+      >
+        {loadingSvgExample ? "Loading SVG..." : "Load SVG Example"}
+      </button>
 
       <div class="text-xs text-gray-500">
         Colors found: {colorMap.length}
@@ -193,7 +276,6 @@
     background: rgba(15, 23, 42, 0.8);
     border: 1px solid rgba(148, 163, 184, 0.4);
     color: #cbd5f5;
-    font-size: 0.95rem;
   }
 </style>
 
@@ -248,6 +330,47 @@
         <div class="text-xs text-gray-400 mt-2">
           Selected color: {selectedColor}
         </div>
+      </div>
+
+      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-3">
+        <h2 class="font-semibold">Seeded Diagram Prompts</h2>
+        <p class="text-xs text-gray-400">
+          Load text prompts/templates from the diagrams seed bank for reuse.
+        </p>
+        <div>
+          <label class="text-xs uppercase text-gray-400" for="diagram-template">
+            Template
+          </label>
+          <select
+            id="diagram-template"
+            class="mt-1 w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
+            bind:value={selectedTemplatePath}
+            disabled={loadingTemplates || !templates.length}
+          >
+            {#if !templates.length}
+              <option value="">No templates found</option>
+            {:else}
+              {#each templates as tmpl}
+                <option value={tmpl.path}>
+                  {tmpl.path}
+                </option>
+              {/each}
+            {/if}
+          </select>
+        </div>
+        <button
+          class="w-full px-3 py-2 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-60"
+          on:click={loadTemplate}
+          disabled={!selectedTemplatePath || loadingTemplate}
+        >
+          {loadingTemplate ? "Loading..." : "Load Template"}
+        </button>
+        <textarea
+          class="w-full h-48 bg-gray-900 border border-gray-700 rounded p-3 text-xs font-mono"
+          readonly
+          bind:value={templateContent}
+          placeholder="Template content will appear here..."
+        ></textarea>
       </div>
     </div>
   </div>

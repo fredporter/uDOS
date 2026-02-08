@@ -49,12 +49,161 @@
   let quickKeyDrafts = {};
   let quickKeyStatus = {};
   let showAdvancedConfig = false;
+  let selfHealStatus = null;
+  let selfHealLoading = false;
+  let selfHealLog = [];
+  let selfHealError = "";
+  let selfHealSeeding = false;
+  let selfHealPulling = false;
+  let selfHealOkSetup = false;
+  let setupStoryStatus = "";
+  let setupStoryError = "";
 
   const authHeaders = () => buildAuthHeaders(adminToken);
 
   function apiFetch(url, options = {}) {
     const headers = { ...(options.headers || {}), ...authHeaders() };
     return baseApiFetch(url, { ...options, headers });
+  }
+
+  function pushSelfHealLog(message) {
+    selfHealLog = [{ message, ts: new Date().toISOString() }, ...selfHealLog].slice(
+      0,
+      50
+    );
+  }
+
+  function buildUcodeCommands(status) {
+    if (!status) return [];
+    const cmds = [];
+    if (!status.ollama?.running) {
+      cmds.push("uCODE RUN: open -a Ollama (macOS) or `ollama serve`");
+    }
+    const missing = status.ollama?.missing_models || [];
+    missing.forEach((model) => cmds.push(`uCODE RUN: ollama pull ${model}`));
+    if (!status.nounproject?.configured) {
+      cmds.push("uCODE SET: NOUNPROJECT_API_KEY / NOUNPROJECT_API_SECRET");
+    } else if (status.nounproject?.auth_ok === false) {
+      cmds.push("uCODE CHECK: Noun Project credentials (auth failed)");
+    }
+    return cmds;
+  }
+
+  async function runSelfHealStatus() {
+    selfHealLoading = true;
+    selfHealError = "";
+    try {
+      const res = await apiFetch("/api/self-heal/status");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      selfHealStatus = await res.json();
+      pushSelfHealLog("Self-heal checks completed.");
+    } catch (err) {
+      selfHealError = err.message || String(err);
+    } finally {
+      selfHealLoading = false;
+    }
+  }
+
+  async function pullOllamaModels() {
+    if (!selfHealStatus?.ollama) {
+      await runSelfHealStatus();
+    }
+    const missing = selfHealStatus?.ollama?.missing_models || [];
+    if (!missing.length) {
+      pushSelfHealLog("No missing Ollama models detected.");
+      return;
+    }
+    selfHealPulling = true;
+    selfHealError = "";
+    for (const model of missing) {
+      pushSelfHealLog(`Pulling Ollama model: ${model}`);
+      try {
+        const res = await apiFetch("/api/self-heal/ollama/pull", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data?.stderr || data?.detail || `Pull failed for ${model}`);
+        }
+        pushSelfHealLog(`Pulled ${model} successfully.`);
+      } catch (err) {
+        selfHealError = err.message || String(err);
+        pushSelfHealLog(`Pull failed for ${model}: ${selfHealError}`);
+        break;
+      }
+    }
+    await runSelfHealStatus();
+    selfHealPulling = false;
+  }
+
+  async function seedNounProjectIcons() {
+    selfHealSeeding = true;
+    selfHealError = "";
+    pushSelfHealLog("Seeding Noun Project SVG icons...");
+    try {
+      const res = await apiFetch("/api/self-heal/nounproject/seed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.detail || `HTTP ${res.status}`);
+      }
+      pushSelfHealLog(`Seeded ${data.added.length} SVGs. Skipped ${data.skipped.length}.`);
+      if (data.errors?.length) {
+        pushSelfHealLog(`Seed warnings: ${data.errors.slice(0, 3).join(" | ")}`);
+      }
+    } catch (err) {
+      selfHealError = err.message || String(err);
+      pushSelfHealLog(`Seeding failed: ${selfHealError}`);
+    } finally {
+      selfHealSeeding = false;
+    }
+  }
+
+  async function runOkSetup() {
+    selfHealOkSetup = true;
+    selfHealError = "";
+    pushSelfHealLog("Running OK SETUP (Vibe CLI + Ollama models)...");
+    try {
+      const res = await apiFetch("/api/self-heal/ok-setup", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.detail || `HTTP ${res.status}`);
+      }
+      (data.steps || []).forEach((step) => pushSelfHealLog(`✅ ${step}`));
+      (data.warnings || []).forEach((warn) => pushSelfHealLog(`⚠️ ${warn}`));
+    } catch (err) {
+      selfHealError = err.message || String(err);
+      pushSelfHealLog(`OK SETUP failed: ${selfHealError}`);
+    } finally {
+      selfHealOkSetup = false;
+    }
+    await runSelfHealStatus();
+  }
+
+  async function bootstrapSetupStory() {
+    setupStoryStatus = "";
+    setupStoryError = "";
+    try {
+      const res = await apiFetch("/api/setup/story/bootstrap", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.detail || `HTTP ${res.status}`);
+      }
+      setupStoryStatus = `Setup story ready at /memory/${data.path}`;
+    } catch (err) {
+      setupStoryError = err.message || String(err);
+    }
+  }
+
+  function openSetupStory() {
+    window.location.hash = "story";
   }
 
   // Configuration files available
@@ -144,6 +293,18 @@
       label: "Mistral API Key",
       helper: "Optional direct Mistral cloud models",
       provider: "mistral",
+    },
+    {
+      key: "nounproject_api_key",
+      label: "Noun Project API Key",
+      helper: "API key for nounproject.com icon library",
+      provider: "nounproject",
+    },
+    {
+      key: "nounproject_api_secret",
+      label: "Noun Project API Secret",
+      helper: "API secret for nounproject.com icon library",
+      provider: "nounproject",
     },
   ];
 
@@ -1272,16 +1433,174 @@
     </div>
   </div>
 
-  <div class="config-summary mb-6">
-    <strong>Wizard All-In-One Panel:</strong>
-    Manage the Python <code>.venv</code>, synchronize the API/secret store, and
-    invoke plugin installers without leaving this page. Use the Plugin
-    Repository section to validate manifests from
-    <code>wizard/distribution/plugins/</code>
-    or jump to the
-    <a href="#hotkeys" on:click={() => (window.location.hash = "hotkeys")}
-      >Hotkey Center</a
-    > for F-key and TAB bindings.
+  <div class="mb-6 bg-gray-800 border border-gray-700 rounded-lg p-4">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h3 class="text-sm font-semibold text-white">Self-Heal Actions</h3>
+        <p class="text-xs text-gray-400">
+          Diagnose Wizard + Ollama + Noun Project and run guided fixes.
+        </p>
+      </div>
+      <button
+        on:click={runSelfHealStatus}
+        class="px-3 py-1.5 text-xs rounded bg-slate-700 text-white hover:bg-slate-600 transition-colors disabled:opacity-60"
+        disabled={selfHealLoading}
+      >
+        {selfHealLoading ? "Checking..." : "Run Checks"}
+      </button>
+    </div>
+
+    {#if selfHealError}
+      <div class="mt-3 text-xs text-red-300">{selfHealError}</div>
+    {/if}
+
+    {#if selfHealStatus}
+      <div class="mt-3 space-y-2 text-xs text-gray-300">
+        <div class="flex items-center justify-between">
+          <span>Admin token in server</span>
+          <span
+            class={selfHealStatus.admin_token_present
+              ? "text-emerald-300"
+              : "text-yellow-300"}
+          >
+            {selfHealStatus.admin_token_present ? "Detected" : "Missing"}
+          </span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span>Ollama</span>
+          <span
+            class={selfHealStatus.ollama?.running
+              ? "text-emerald-300"
+              : "text-yellow-300"}
+          >
+            {selfHealStatus.ollama?.running ? "Running" : "Not running"}
+          </span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span>Missing models</span>
+          <span
+            class={(selfHealStatus.ollama?.missing_models?.length || 0) === 0
+              ? "text-emerald-300"
+              : "text-yellow-300"}
+          >
+            {selfHealStatus.ollama?.missing_models?.length || 0}
+          </span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span>Noun Project</span>
+          <span
+            class={selfHealStatus.nounproject?.auth_ok
+              ? "text-emerald-300"
+              : "text-yellow-300"}
+          >
+            {selfHealStatus.nounproject?.auth_ok
+              ? "Ready"
+              : selfHealStatus.nounproject?.configured
+                ? "Auth failed"
+                : "Not configured"}
+          </span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span>Vibe CLI</span>
+          <span
+            class={selfHealStatus.vibe_cli?.installed
+              ? "text-emerald-300"
+              : "text-yellow-300"}
+          >
+            {selfHealStatus.vibe_cli?.installed ? "Installed" : "Missing"}
+          </span>
+        </div>
+      </div>
+
+      {#if selfHealStatus.next_steps?.length}
+        <div class="mt-3 text-xs text-gray-400">Suggested next steps:</div>
+        <div class="mt-1 space-y-1 text-xs text-gray-400">
+          {#each selfHealStatus.next_steps as step}
+            <div>• {step}</div>
+          {/each}
+        </div>
+      {/if}
+
+      {#if buildUcodeCommands(selfHealStatus).length}
+        <div class="mt-3 text-xs text-gray-400">uCODE commands:</div>
+        <div class="mt-1 space-y-1 text-xs text-gray-300">
+          {#each buildUcodeCommands(selfHealStatus) as cmd}
+            <div><code>{cmd}</code></div>
+          {/each}
+        </div>
+      {/if}
+    {/if}
+
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+      <button
+        on:click={runOkSetup}
+        class="px-3 py-1.5 text-xs rounded bg-indigo-600 text-white hover:bg-indigo-500 transition-colors disabled:opacity-60"
+        disabled={selfHealOkSetup}
+      >
+        {selfHealOkSetup ? "Running OK SETUP..." : "Run OK SETUP"}
+      </button>
+      <button
+        on:click={pullOllamaModels}
+        class="px-3 py-1.5 text-xs rounded bg-emerald-600 text-white hover:bg-emerald-500 transition-colors disabled:opacity-60"
+        disabled={selfHealPulling}
+      >
+        {selfHealPulling ? "Pulling..." : "Pull Missing Ollama Models"}
+      </button>
+      <button
+        on:click={seedNounProjectIcons}
+        class="px-3 py-1.5 text-xs rounded bg-blue-600 text-white hover:bg-blue-500 transition-colors disabled:opacity-60"
+        disabled={selfHealSeeding}
+      >
+        {selfHealSeeding ? "Seeding..." : "Seed Noun Project SVGs"}
+      </button>
+    </div>
+
+    {#if selfHealLog.length}
+      <div class="mt-3 text-xs text-gray-400">Progress log:</div>
+      <div class="mt-1 space-y-1 text-xs text-gray-300">
+        {#each selfHealLog as entry}
+          <div>{new Date(entry.ts).toLocaleTimeString()} — {entry.message}</div>
+        {/each}
+      </div>
+    {/if}
+  </div>
+
+  <div class="mb-6 bg-gray-800 border border-gray-700 rounded-lg p-4">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h3 class="text-sm font-semibold text-white">Setup Story</h3>
+        <p class="text-xs text-gray-400">
+          Mirrors the TUI setup questions and writes identity fields back to
+          <code>.env</code>.
+        </p>
+      </div>
+      <button
+        on:click={bootstrapSetupStory}
+        class="px-3 py-1.5 text-xs rounded bg-slate-700 text-white hover:bg-slate-600 transition-colors"
+      >
+        Create Story
+      </button>
+    </div>
+
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+      <button
+        on:click={openSetupStory}
+        class="px-3 py-1.5 text-xs rounded bg-blue-600 text-white hover:bg-blue-500 transition-colors"
+      >
+        Open Setup Story
+      </button>
+      <span class="text-xs text-gray-400">
+        Run the story, submit answers, and the Wizard will sync identity values
+        to <code>.env</code>.
+      </span>
+    </div>
+
+    {#if setupStoryStatus}
+      <div class="mt-3 text-xs text-emerald-300">{setupStoryStatus}</div>
+    {/if}
+    {#if setupStoryError}
+      <div class="mt-3 text-xs text-red-300">{setupStoryError}</div>
+    {/if}
   </div>
 
   <!-- Status message -->
@@ -2430,17 +2749,5 @@
   }
   textarea::-webkit-scrollbar-thumb:hover {
     background: #6b7280;
-  }
-  .config-summary {
-    background: rgba(59, 130, 246, 0.15);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    border-radius: 0.75rem;
-    padding: 0.75rem 1rem;
-    color: #cbd5f5;
-    font-size: 0.95rem;
-  }
-  .config-summary a {
-    color: #93c5fd;
-    text-decoration: underline;
   }
 </style>

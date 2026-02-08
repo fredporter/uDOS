@@ -279,7 +279,7 @@ class ContextualCommandPrompt(EnhancedPrompt):
         if not tokens:
             suggestions = self.registry.get_suggestions("", limit=5)
             line1 = self._format_suggestions_line(suggestions, prefix_symbol, label="Commands")
-            line2 = f"  ↳ DEV: {dev_state}  |  Tip: Use '?' or 'OK' for AI, '/' for commands"
+            line2 = f"  ↳ DEV: {dev_state}  |  Tip: Use '?' or 'OK', '/' for commands"
             return [_format_line(line1), _format_line(line2)]
 
         cmd_token = tokens[0].lstrip(":/")
@@ -292,7 +292,9 @@ class ContextualCommandPrompt(EnhancedPrompt):
             line1 = self._format_suggestions_line(suggestions, prefix_symbol)
             if cmd_meta:
                 syntax = f"{prefix_symbol}{cmd_meta.syntax}" if prefix_symbol else cmd_meta.syntax
-                line2 = f"  ↳ {cmd_meta.icon} {cmd_meta.help_text}  |  {syntax}"
+                icon = (cmd_meta.icon or "").strip()
+                icon_prefix = f"{icon} " if icon else ""
+                line2 = f"  ↳ {icon_prefix}{cmd_meta.help_text}  |  {syntax}"
             else:
                 line2 = self._format_tip_line(stripped)
             return [_format_line(line1), _format_line(line2)]
@@ -303,7 +305,7 @@ class ContextualCommandPrompt(EnhancedPrompt):
             if len(options) > 4:
                 opt_preview += f" (+{len(options) - 4} more)"
             line1 = f"  ⎔ OK: {opt_preview}"
-            line2 = f"  ↳ 🧭 Local Vibe ({ok_model}, ctx {ok_ctx})"
+            line2 = f"  ↳ Local Vibe ({ok_model}, ctx {ok_ctx})"
             return [_format_line(line1), _format_line(line2)]
 
         # Otherwise, show options/next hints for the chosen command
@@ -320,7 +322,9 @@ class ContextualCommandPrompt(EnhancedPrompt):
         if cmd_meta and cmd_meta.examples:
             line2 = f"  ↳ Example: {cmd_meta.examples[0]}"
         elif cmd_meta:
-            line2 = f"  ↳ {cmd_meta.icon} {cmd_meta.help_text}  |  Try: HELP {cmd_meta.name}"
+            icon = (cmd_meta.icon or "").strip()
+            icon_prefix = f"{icon} " if icon else ""
+            line2 = f"  ↳ {icon_prefix}{cmd_meta.help_text}  |  Try: HELP {cmd_meta.name}"
         else:
             line2 = self._format_tip_line(stripped)
 
@@ -476,7 +480,7 @@ def create_default_registry() -> CommandRegistry:
         syntax="STATUS [--detailed|--quick]",
         options=["--detailed: Show all metrics", "--quick: Show summary only"],
         examples=["STATUS", "STATUS --detailed"],
-        icon="📊",
+        icon="•",
         category="System",
     )
 
@@ -486,7 +490,7 @@ def create_default_registry() -> CommandRegistry:
         syntax="HELP [command]",
         options=["command: Get help for specific command"],
         examples=["HELP", "HELP WIZARD"],
-        icon="❓",
+        icon="•",
         category="System",
     )
 
@@ -496,7 +500,7 @@ def create_default_registry() -> CommandRegistry:
         syntax="VIEWPORT [SHOW|REFRESH]",
         options=["SHOW: Display cached viewport", "REFRESH: Re-measure viewport"],
         examples=["VIEWPORT", "VIEWPORT SHOW"],
-        icon="🖥️",
+        icon="•",
         category="System",
     )
 
@@ -505,7 +509,7 @@ def create_default_registry() -> CommandRegistry:
         help_text="Exit uCODE",
         syntax="EXIT",
         examples=["EXIT"],
-        icon="🚪",
+        icon="•",
         category="System",
     )
 
@@ -515,7 +519,7 @@ def create_default_registry() -> CommandRegistry:
         help_text="Run setup story (default) or view profile",
         syntax="SETUP [--profile|--story|--wizard]",
         examples=["SETUP", "SETUP --profile"],
-        icon="⚙️",
+        icon="•",
         category="Management",
     )
 
@@ -524,7 +528,7 @@ def create_default_registry() -> CommandRegistry:
         help_text="Manage configuration variables",
         syntax="CONFIG [variable] [value]",
         examples=["CONFIG", "CONFIG seed 12345"],
-        icon="🔧",
+        icon="•",
         category="Management",
     )
 
@@ -533,7 +537,7 @@ def create_default_registry() -> CommandRegistry:
         help_text="Show GitHub and Mistral/Ollama wiring details",
         syntax="INTEGRATION [status|github|mistral|ollama]",
         examples=["INTEGRATION status", "INTEGRATION mistral"],
-        icon="🔗",
+        icon="•",
         category="System",
     )
 
@@ -551,7 +555,7 @@ def create_default_registry() -> CommandRegistry:
             "FALLBACK: Toggle auto-fallback (on|off)",
         ],
         examples=["OK ROUTE show scheduler logs", "OK EXPLAIN core/tui/ucode.py", "OK FALLBACK on"],
-        icon="🧭",
+        icon="•",
         category="AI",
     )
 
@@ -566,7 +570,7 @@ def create_default_registry() -> CommandRegistry:
             "--cycle: Dry-run command cycle",
         ],
         examples=["SHAKEDOWN", "SHAKEDOWN --cycle"],
-        icon="✅",
+        icon="•",
         category="Management",
     )
 
@@ -584,7 +588,7 @@ def create_default_registry() -> CommandRegistry:
             "rebuild: Rebuild Wizard dashboard artifacts",
         ],
         examples=["WIZARD start", "WIZARD status", "WIZARD logs --tail", "WIZARD rebuild"],
-        icon="🧙",
+        icon="•",
         category="Server",
     )
 
@@ -598,7 +602,7 @@ def create_default_registry() -> CommandRegistry:
             "LOG [id]: View task run history",
         ],
         examples=["SCHEDULER LIST", "SCHEDULER RUN task_123", "SCHEDULER LOG task_123"],
-        icon="🗓️",
+        icon="•",
         category="Automation",
     )
 
@@ -612,7 +616,7 @@ def create_default_registry() -> CommandRegistry:
             "LOG [name]: View script log entries",
         ],
         examples=["SCRIPT LIST", "SCRIPT RUN startup-script", "SCRIPT LOG reboot-script"],
-        icon="📜",
+        icon="•",
         category="Automation",
     )
 
@@ -621,7 +625,7 @@ def create_default_registry() -> CommandRegistry:
         help_text="Toggle dev mode (Wizard)",
         syntax="DEV [on|off|status|restart]",
         examples=["DEV status", "DEV on", "DEV off"],
-        icon="🛠️",
+        icon="•",
         category="System",
     )
 
@@ -631,7 +635,7 @@ def create_default_registry() -> CommandRegistry:
         help_text="Multi-chapter project management",
         syntax="BINDER [open|create|list]",
         examples=["BINDER open", "BINDER list"],
-        icon="📚",
+        icon="•",
         category="Data",
     )
 
@@ -644,7 +648,7 @@ def create_default_registry() -> CommandRegistry:
             "SONIC PLAN --dry-run",
             "SONIC RUN --manifest config/sonic-manifest.json --dry-run",
         ],
-        icon="🛠️",
+        icon="•",
         category="System",
     )
 
@@ -663,7 +667,7 @@ def create_default_registry() -> CommandRegistry:
             "FILE LIST @sandbox",
             "FILE SHOW @sandbox/readme.md",
         ],
-        icon="📁",
+        icon="•",
         category="Data",
     )
 
@@ -672,7 +676,7 @@ def create_default_registry() -> CommandRegistry:
         help_text="Run interactive story files",
         syntax="STORY <name>",
         examples=["STORY tui-setup", "STORY onboarding"],
-        icon="📖",
+        icon="•",
         category="Data",
     )
 
@@ -681,7 +685,7 @@ def create_default_registry() -> CommandRegistry:
         help_text="Execute TypeScript scripts (embedded in .md files)",
         syntax="RUN <file>",
         examples=["RUN script.py", "RUN automation-script.md"],
-        icon="▶️",
+        icon="•",
         category="Data",
     )
 
@@ -694,7 +698,7 @@ def create_default_registry() -> CommandRegistry:
             "MUSIC SEPARATE song.mp3 --preset full_band",
             "MUSIC SCORE track.mid",
         ],
-        icon="🎵",
+        icon="•",
         category="Media",
     )
 
@@ -704,7 +708,7 @@ def create_default_registry() -> CommandRegistry:
         help_text="Show spatial map",
         syntax="MAP [--zoom N]",
         examples=["MAP", "MAP --zoom 5"],
-        icon="🗺️",
+        icon="•",
         category="Navigation",
     )
 
@@ -716,7 +720,7 @@ def create_default_registry() -> CommandRegistry:
             "GRID MAP --loc EARTH:SUR:L305-DA11",
             "GRID CALENDAR --input memory/events.json",
         ],
-        icon="🧱",
+        icon="•",
         category="Navigation",
     )
 
@@ -729,7 +733,7 @@ def create_default_registry() -> CommandRegistry:
             "ANCHOR SHOW EARTH",
             "ANCHOR REGISTER GAME:NETHACK NetHack",
         ],
-        icon="⚓",
+        icon="•",
         category="Navigation",
     )
 
@@ -738,7 +742,7 @@ def create_default_registry() -> CommandRegistry:
         help_text="Travel to location",
         syntax="GOTO <location>",
         examples=["GOTO home", "GOTO market"],
-        icon="🧭",
+        icon="•",
         category="Navigation",
     )
 

@@ -171,15 +171,25 @@ class StoryFormHandler:
 
     def _on_field_complete(self, name: str, result: Any, submitted_data: Dict[str, Any]) -> None:
         """Hook called after each field is completed."""
-        if name != "system_datetime_approve" or not isinstance(result, dict):
+        if name == "system_datetime_approve" and isinstance(result, dict):
+            tz = result.get("timezone")
+            if tz:
+                submitted_data.setdefault("user_timezone", tz)
+
+            if result.get("override_required"):
+                self._insert_datetime_override_fields(result)
             return
 
-        tz = result.get("timezone")
-        if tz:
-            submitted_data.setdefault("user_timezone", tz)
+        if name == "ok_helper_install":
+            choice = str(result or "").strip().lower()
+            if choice not in {"yes", "y", "true", "1"}:
+                self._remove_field("mistral_api_key")
+            return
 
-        if result.get("override_required"):
-            self._insert_datetime_override_fields(result)
+    def _remove_field(self, name: str) -> None:
+        if not self.renderer:
+            return
+        self.renderer.fields = [f for f in self.renderer.fields if f.get("name") != name]
 
     def _insert_datetime_override_fields(self, approval_payload: Dict[str, Any]) -> None:
         """Insert manual override fields after the datetime approval question."""

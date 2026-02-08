@@ -21,12 +21,15 @@ import os
 import subprocess
 import webbrowser
 import time
+import threading
+import json
 from pathlib import Path
 from typing import Dict, Callable, Optional, List
 from datetime import datetime
 from enum import Enum
 
 from core.services.logging_api import get_repo_root
+from core.tui.ui_elements import Spinner
 
 
 class FunctionKeyCode(Enum):
@@ -167,7 +170,7 @@ Write your content here...
         return {
             "status": "success",
             "message": f"Created: {filepath}",
-            "output": f"✅ File created: {filepath}\n\nTo edit: EDIT {filename}",
+            "output": f"OK File created: {filepath}\nTo edit: EDIT {filename}",
         }
 
     def _handle_file_picker(self) -> Dict:
@@ -198,7 +201,7 @@ Write your content here...
             ("@dev", "dev", "Development area (admin only)"),
         ]
 
-        print("\n📂 Available Workspaces:")
+        print("\nAvailable Workspaces:")
         for idx, (name, path, desc) in enumerate(workspaces, 1):
             print(f"  {idx}. {name:15} -> {path:30} ({desc})")
 
@@ -210,7 +213,7 @@ Write your content here...
         return {
             "status": "success",
             "message": f"Selected workspace: {name}",
-            "output": f"📂 Workspace: {name}\n   Path: {path}",
+            "output": f"Workspace: {name}\nPath: {path}",
             "workspace": name,
         }
 
@@ -276,15 +279,16 @@ Tips:
 
     def _handle_wizard(self) -> Dict:
         """F8: Manage Wizard server and dashboard."""
+        base_url, dashboard_url = self._wizard_urls()
         menu_options = [
             "Start Wizard Server",
             "Stop Wizard Server",
             "Show Server Status",
-            "Open Dashboard (http://localhost:8765)",
+            f"Open Dashboard ({dashboard_url})",
             "View Server Logs",
         ]
 
-        print("\n🧙 Wizard Server Management:")
+        print("\nWizard Server Management:")
         for idx, option in enumerate(menu_options, 1):
             print(f"  {idx}. {option}")
 
@@ -314,17 +318,20 @@ Tips:
     def _start_wizard(self) -> Dict:
         """Start Wizard server."""
         try:
+            host, port = self._wizard_host_port()
+            connect_host = self._wizard_connect_host(host)
+            base_url, dashboard_url = self._wizard_urls()
             # Check if already running
             import socket
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            result = sock.connect_ex(("localhost", 8765))
+            result = sock.connect_ex((connect_host, port))
             sock.close()
 
             if result == 0:
                 return {
                     "status": "info",
                     "message": "Wizard server is already running",
-                    "output": "✅ Wizard is running on http://localhost:8765",
+                    "output": f"OK Wizard is running on {base_url}",
                 }
 
             # Start wizard
@@ -345,15 +352,21 @@ Tips:
             )
 
             # Give it time to start
+            stop = threading.Event()
+            spinner = Spinner(label="Starting Wizard", show_elapsed=False)
+            thread = spinner.start_background(stop)
             time.sleep(2)
+            stop.set()
+            thread.join(timeout=1)
+            spinner.stop("Wizard start complete")
 
             # Open dashboard
-            webbrowser.open("http://localhost:8765")
+            webbrowser.open(dashboard_url)
 
             return {
                 "status": "success",
                 "message": "Wizard server started",
-                "output": "✅ Wizard started on http://localhost:8765\n📊 Dashboard opening in browser...",
+                "output": f"OK Wizard started on {base_url}\nDashboard opening in browser...",
             }
 
         except Exception as e:
@@ -380,22 +393,25 @@ Tips:
     def _wizard_status(self) -> Dict:
         """Check Wizard server status."""
         try:
+            host, port = self._wizard_host_port()
+            connect_host = self._wizard_connect_host(host)
+            base_url, _ = self._wizard_urls()
             import socket
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            result = sock.connect_ex(("localhost", 8765))
+            result = sock.connect_ex((connect_host, port))
             sock.close()
 
             if result == 0:
                 return {
                     "status": "success",
                     "message": "Wizard is running",
-                    "output": "🟢 Wizard Server Status:\n   http://localhost:8765\n   Status: RUNNING ✅",
+                    "output": f"Wizard Server Status:\n  {base_url}\n  Status: RUNNING (OK)",
                 }
             else:
                 return {
                     "status": "warning",
                     "message": "Wizard is not running",
-                    "output": "🔴 Wizard Server Status:\n   Status: STOPPED\n   Run: WIZARD start",
+                    "output": "Wizard Server Status:\n  Status: STOPPED\n  Run: WIZARD start",
                 }
 
         except Exception as e:
@@ -407,11 +423,12 @@ Tips:
     def _open_dashboard(self) -> Dict:
         """Open Wizard dashboard in browser."""
         try:
-            webbrowser.open("http://localhost:8765")
+            _, dashboard_url = self._wizard_urls()
+            webbrowser.open(dashboard_url)
             return {
                 "status": "success",
                 "message": "Opening Wizard dashboard...",
-                "output": "📊 Opening http://localhost:8765 in default browser...",
+                "output": f"Opening {dashboard_url} in default browser...",
             }
         except Exception as e:
             return {
@@ -427,14 +444,14 @@ Tips:
                 return {
                     "status": "warning",
                     "message": "No logs found",
-                    "output": "⚠️  Wizard log file not found",
+                    "output": "WARN Wizard log file not found",
                 }
 
             # Show last 20 lines
             with open(log_file, "r") as f:
                 lines = f.readlines()[-20:]
 
-            output = "📋 Wizard Server Logs (last 20 lines):\n\n"
+            output = "Wizard Server Logs (last 20 lines):\n"
             output += "".join(lines)
 
             return {
@@ -448,5 +465,37 @@ Tips:
                 "status": "error",
                 "message": f"Could not read logs: {e}",
             }
+
+    def _wizard_host_port(self) -> tuple:
+        host = "127.0.0.1"
+        port = 8765
+        try:
+            config_path = self.repo_root / "wizard" / "config" / "wizard.json"
+            if config_path.exists():
+                data = json.loads(config_path.read_text())
+                if isinstance(data, dict):
+                    raw_port = data.get("port")
+                    if isinstance(raw_port, int):
+                        port = raw_port
+                    elif isinstance(raw_port, str) and raw_port.isdigit():
+                        port = int(raw_port)
+                    raw_host = data.get("host")
+                    if isinstance(raw_host, str) and raw_host.strip():
+                        host = raw_host.strip()
+        except Exception:
+            pass
+        return host, port
+
+    def _wizard_connect_host(self, host: str) -> str:
+        if host in {"0.0.0.0", "::"}:
+            return "127.0.0.1"
+        return host
+
+    def _wizard_urls(self) -> tuple:
+        host, port = self._wizard_host_port()
+        connect_host = self._wizard_connect_host(host)
+        base_url = f"http://{connect_host}:{port}"
+        dashboard_url = f"{base_url}/dashboard"
+        return base_url, dashboard_url
 
     # Repo root is resolved from UDOS_ROOT via logging_api.get_repo_root()

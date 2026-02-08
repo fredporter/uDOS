@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-01-17T12:00:00.000000",
+  "timestamp": "2026-02-08T14:34:25.353606",
   "services": [
     {
       "name": "wizard",
-      "port": 8765,
+      "port": 9000,
       "environment": "production",
       "process_name": "python",
       "description": "Wizard Server - Production always-on service",
@@ -66,6 +66,20 @@
       "startup_cmd": "npm run tauri dev",
       "shutdown_cmd": null,
       "health_endpoint": null,
+      "enabled": true,
+      "status": "unknown",
+      "pid": null,
+      "last_check": null
+    },
+    {
+      "name": "ollama",
+      "port": 11434,
+      "environment": "production",
+      "process_name": "ollama",
+      "description": "Ollama local model server",
+      "startup_cmd": "ollama serve",
+      "shutdown_cmd": null,
+      "health_endpoint": "http://localhost:11434/api/version",
       "enabled": true,
       "status": "unknown",
       "pid": null,

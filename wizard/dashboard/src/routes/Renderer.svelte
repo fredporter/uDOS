@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { getAdminToken } from "$lib/services/auth";
+  import { resolveApiBase } from "$lib/services/apiBase";
   import {
     listThemes,
     validateTheme,
@@ -57,6 +58,7 @@
   let contractStatus = null;
   let contractError = "";
   let contractBusy = false;
+  let apiBase = "";
 
   function getMissionId(mission) {
     return mission?.mission_id || mission?.job_id || mission?.id || "";
@@ -289,6 +291,7 @@
 
   onMount(() => {
     adminToken = getAdminToken();
+    apiBase = resolveApiBase() || "";
     refreshAll();
   });
 
@@ -311,6 +314,14 @@
   {#if error}
     <div class="bg-red-900 text-red-200 p-3 rounded border border-red-700">
       {error}
+    </div>
+  {/if}
+  {#if !loading && themes.length === 0}
+    <div class="text-sm text-amber-200 bg-amber-900/30 border border-amber-700 rounded p-3">
+      No themes found. Check the `themes/` folder or your API base.
+      {#if apiBase}
+        <div class="text-xs text-amber-100 mt-1">API base: {apiBase}</div>
+      {/if}
     </div>
   {/if}
 
@@ -471,8 +482,9 @@
 
     <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 space-y-3">
       <h3 class="text-sm font-semibold">Contract Validation</h3>
-      <label class="text-xs text-gray-400">Theme</label>
+      <label class="text-xs text-gray-400" for="contract-theme">Theme</label>
       <select
+        id="contract-theme"
         class="w-full bg-gray-800 text-xs text-gray-200 px-2 py-1 rounded"
         bind:value={contractTheme}
       >

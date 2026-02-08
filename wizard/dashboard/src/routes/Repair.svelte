@@ -658,13 +658,11 @@
     text-align: left;
     padding: 0.5rem 0.4rem;
     border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-    font-size: 0.85rem;
   }
 
   .mono {
     font-family: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
       monospace;
-    font-size: 0.75rem;
   }
 
   pre {

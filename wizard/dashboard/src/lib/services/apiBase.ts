@@ -66,17 +66,36 @@ export function buildApiUrl(path: string): string {
   if (path.startsWith("http://") || path.startsWith("https://")) {
     return path;
   }
-  const base = resolveApiBase();
+  let base = resolveApiBase();
   if (!base) {
     return path;
   }
   const normalized = path.startsWith("/") ? path : `/${path}`;
+  if (base.endsWith("/api") && normalized.startsWith("/api/")) {
+    base = base.slice(0, -4);
+  }
   return `${base}${normalized}`;
 }
 
+export type ApiFetchOptions = RequestInit & { timeoutMs?: number };
+
 export async function apiFetch(
   path: string,
-  options?: RequestInit,
+  options?: ApiFetchOptions,
 ): Promise<Response> {
-  return fetch(buildApiUrl(path), options);
+  const timeoutMs =
+    typeof options?.timeoutMs === "number" ? options.timeoutMs : 12000;
+
+  if (options?.signal || timeoutMs <= 0) {
+    return fetch(buildApiUrl(path), options);
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const { timeoutMs: _ignored, ...rest } = options ?? {};
+    return await fetch(buildApiUrl(path), { ...rest, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
 }

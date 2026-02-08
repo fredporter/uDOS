@@ -96,11 +96,19 @@
     loading = true;
     error = null;
     try {
+      if (!adminToken) {
+        throw new Error("Admin token required");
+      }
       await loadStats();
       await loadCategories();
       await loadPlugins();
     } catch (err) {
       const message = err?.message || "Unknown error";
+      if (err?.name === "AbortError") {
+        error =
+          "Failed to load catalog: request timed out. Wizard API may be slow to respond.";
+        return;
+      }
       if (message.includes("NetworkError")) {
         error =
           "Failed to load catalog: Wizard API unreachable. Check VITE_WIZARD_API_BASE or wizardApiBase in localStorage.";

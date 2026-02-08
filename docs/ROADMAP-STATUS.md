@@ -8,7 +8,9 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 ## Status Summary
 
 - **Milestones v1.3.0 → v1.3.7**: ✅ Complete (see archived records).
-- **Current focus**: Wizard service split with MCP gateway + Vibe full TUI replacement (high priority refactor).
+- **Current focus**: Wizard service split with MCP gateway + Full vibe-cli integration with uCODE TUI (new focus) (high priority refactor).
+- **Outstanding (active)**: Vibe embed + minimal uCODE surface, dev mode gate enforcement, Logging API v1.3 implementation, Empire business feature reintro.
+- **Checklist**: See `docs/ROADMAP-CHECKLIST.md` for the active task list and owners.
 - **Dev mode policy**: `/dev/` public submodule required and admin-only; see [docs/DEV-MODE-POLICY.md](docs/DEV-MODE-POLICY.md).
 - **Core/Wizard boundary**: `core` is the base runtime; `wizard` is the brand for connected services. Core can run without Wizard (limited). Wizard cannot run without Core.
 - **Logging API v1.3**: spec published; implementation pending. See [docs/LOGGING-API-v1.3.md](docs/LOGGING-API-v1.3.md).
@@ -36,6 +38,7 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 - ✅ Plan service boundaries + initial Wizard server extraction (auth/logs/system stats/scheduler/plugin repo/web proxy/webhooks).
 - ⏳ Bootstrap Vibe integration (embed) and minimal uCODE command exposure for exploration.
 - ⏳ Enforce Dev mode gate (admin-only + `/dev/` presence) and document the policy contract.
+ - ✅ Add MCP server tests to verify stdio tool wrapping and tool index parsing.
 
 ### P0 — Consolidation & Verification
 - ✅ Confirmed extension API references after the `memory/system` + `vault-md/` migration (no code refs to legacy bank paths remain).

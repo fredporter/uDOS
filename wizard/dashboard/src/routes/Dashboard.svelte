@@ -28,6 +28,13 @@
   let refreshTimer;
   let adminToken = "";
   let hasAdminToken = false;
+  let nounQuery = "";
+  let nounResults = [];
+  let nounLoading = false;
+  let nounError = null;
+  let nounDownloadStatus = "";
+  let nounCachedPath = "";
+  let nounDetails = {};
 
   const authHeaders = () => buildAuthHeaders();
 
@@ -155,6 +162,87 @@
       installError = `Failed to load installation data: ${err.message}`;
       installProfile = null;
       installMetrics = null;
+    }
+  }
+
+  async function searchNounProject() {
+    nounError = null;
+    nounDownloadStatus = "";
+    nounResults = [];
+    if (!nounQuery.trim()) {
+      nounError = "Enter a search term.";
+      return;
+    }
+    nounLoading = true;
+    try {
+      const res = await apiFetch("/api/nounproject/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ term: nounQuery.trim(), limit: 12 }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      nounResults = data.icons || [];
+    } catch (err) {
+      nounError = err.message || String(err);
+    } finally {
+      nounLoading = false;
+    }
+  }
+
+  async function fetchNounDetails(iconId) {
+    if (nounDetails[iconId]) return nounDetails[iconId];
+    const res = await apiFetch(`/api/nounproject/icon/${iconId}`, {
+      headers: authHeaders(),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    nounDetails = { ...nounDetails, [iconId]: data };
+    return data;
+  }
+
+  async function openNounSvg(iconId) {
+    nounError = null;
+    try {
+      const details = await fetchNounDetails(iconId);
+      if (details?.icon_url) {
+        window.open(details.icon_url, "_blank", "noopener");
+      } else {
+        nounError = "Icon URL unavailable.";
+      }
+    } catch (err) {
+      nounError = err.message || String(err);
+    }
+  }
+
+  async function cacheNounSvg(iconId) {
+    nounError = null;
+    nounDownloadStatus = "";
+    nounCachedPath = "";
+    try {
+      const res = await apiFetch("/api/nounproject/download", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ icon_id: iconId, format: "svg" }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      nounCachedPath = data?.path || "";
+      nounDownloadStatus = data?.path
+        ? `Cached at ${data.path}`
+        : "Cached icon successfully.";
+    } catch (err) {
+      nounError = err.message || String(err);
+    }
+  }
+
+  async function copyCachedPath() {
+    if (!nounCachedPath) return;
+    try {
+      await navigator.clipboard.writeText(nounCachedPath);
+      nounDownloadStatus = `Copied: ${nounCachedPath}`;
+    } catch (err) {
+      nounError = "Failed to copy path to clipboard.";
     }
   }
 
@@ -453,6 +541,110 @@
               </div>
             </div>
           </div>
+        </div>
+      {/if}
+    </div>
+
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 space-y-4">
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-white">Noun Project</h3>
+          <p class="text-sm text-gray-400">
+            Search icons, preview thumbnails, and cache SVGs locally.
+          </p>
+        </div>
+        <button
+          class="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
+          on:click={searchNounProject}
+          disabled={nounLoading}
+        >
+          {nounLoading ? "Searching..." : "Search"}
+        </button>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <input
+          class="flex-1 min-w-[220px] bg-slate-900 border border-slate-700 rounded px-3 py-2 text-white"
+          placeholder="Search term (e.g., 'cloud', 'server', 'map')"
+          bind:value={nounQuery}
+          on:keydown={(e) => e.key === "Enter" && searchNounProject()}
+        />
+      </div>
+
+      {#if nounError}
+        <div
+          class="bg-red-900/60 border border-red-700 text-red-100 p-3 rounded text-sm"
+        >
+          {nounError}
+        </div>
+      {/if}
+
+      {#if nounDownloadStatus}
+        <div
+          class="bg-emerald-900/40 border border-emerald-700 text-emerald-100 p-3 rounded text-sm"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <span>{nounDownloadStatus}</span>
+            {#if nounCachedPath}
+              <button
+                class="px-2 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-white text-xs"
+                on:click={copyCachedPath}
+              >
+                Copy path
+              </button>
+            {/if}
+          </div>
+        </div>
+      {/if}
+
+      {#if nounResults.length}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {#each nounResults as icon}
+            <div class="bg-slate-900/60 border border-slate-700 rounded-lg p-3">
+              <div class="flex items-center gap-3">
+                {#if icon.preview_url}
+                  <img
+                    src={icon.preview_url}
+                    alt={icon.term}
+                    class="w-12 h-12 rounded bg-slate-800 object-contain"
+                  />
+                {:else}
+                  <div class="w-12 h-12 rounded bg-slate-800"></div>
+                {/if}
+                <div class="min-w-0">
+                  <div class="text-white font-semibold truncate">{icon.term}</div>
+                  <div class="text-xs text-gray-400 truncate">
+                    {icon.uploader || "Unknown author"}
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3 flex items-center gap-2">
+                <button
+                  class="px-2 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs"
+                  on:click={() => openNounSvg(icon.id)}
+                >
+                  Open SVG
+                </button>
+                <button
+                  class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
+                  on:click={() => cacheNounSvg(icon.id)}
+                >
+                  Cache SVG
+                </button>
+              </div>
+              {#if icon.attribution}
+                <div class="mt-2 text-xs text-gray-500">
+                  {icon.attribution}
+                </div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      {:else if nounLoading}
+        <div class="text-gray-400 text-sm">Searching Noun Project...</div>
+      {:else}
+        <div class="text-gray-400 text-sm">
+          Enter a term to search the Noun Project catalog.
         </div>
       {/if}
     </div>

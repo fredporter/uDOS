@@ -30,6 +30,12 @@ from core.services.maintenance_utils import get_memory_root
 from dataclasses import dataclass
 from enum import Enum
 
+ANSI_RESET = "\033[0m"
+ANSI_LABEL = "\033[36m"
+ANSI_VALUE = "\033[97m"
+ANSI_DIM = "\033[2m"
+ANSI_INVERT = "\033[7m"
+
 
 class FieldType(Enum):
     """Field input types."""
@@ -91,10 +97,10 @@ class SmartNumberPicker:
             # Show input buffer if typing
             if self.input_buffer:
                 display = self.input_buffer.zfill(self.width)
-                return f"❯ {self.label}: [{display}]"
+                return f"> {self.label}: [{display}]"
             else:
                 # Show value with cursor
-                return f"❯ {self.label}: [{val_str}]"
+                return f"> {self.label}: [{val_str}]"
         else:
             return f"  {self.label}: {val_str}"
 
@@ -227,6 +233,7 @@ class DatePicker:
 
         self.current_field = 0  # 0=year, 1=month, 2=day
         self.pickers = [self.year_picker, self.month_picker, self.day_picker]
+        self.progress: Optional[Dict[str, int]] = None
 
     def render(self) -> str:
         """Render the date picker."""
@@ -236,17 +243,43 @@ class DatePicker:
             day = self.day_picker.get_value()
             field_labels = ["Year", "Month", "Day"]
             active = field_labels[self.current_field]
+            width = 38
+            try:
+                cols = int(os.getenv("UDOS_VIEWPORT_COLS", "") or 0)
+                if cols:
+                    width = max(32, min(60, cols - 4))
+            except Exception:
+                pass
+            inner = width - 2
+
+            def border(left: str, fill: str, right: str) -> str:
+                return f"\r{left}{fill * inner}{right}"
+
+            def line(text: str = "") -> str:
+                stripped = text.rstrip()
+                return f"\r│ {stripped.ljust(inner - 1)}│"
+
+            date_line = f"{year:04d}-{month:02d}-{day:02d}"
+            title_text = f"{ANSI_LABEL}DATE{ANSI_RESET} {self.label} (YYYY-MM-DD)"
+            if os.getenv("UDOS_TUI_INVERT_HEADERS", "1").strip().lower() not in {"0", "false", "no"}:
+                title_text = f"{ANSI_INVERT}{title_text}{ANSI_RESET}"
             lines = [
-                f"📅 {self.label} (YYYY-MM-DD)",
-                "  " + "=" * 30,
-                f"  {year:04d}-{month:02d}-{day:02d}",
-                f"  Active: {active}",
-                "  " + "=" * 30,
-                "  ▸ Use ↑/↓ to change, ←/→ or Tab to move, Enter to confirm",
+                border("┌", "─", "┐"),
+                line(title_text),
+                border("├", "─", "┤"),
+                line(f"{ANSI_VALUE}{date_line}{ANSI_RESET}"),
+                line(f"{ANSI_DIM}Active: {active}{ANSI_RESET}"),
+                border("├", "─", "┤"),
+                line(f"{ANSI_DIM}Use ↑/↓ to change, ←/→ or Tab to move{ANSI_RESET}"),
+                line(f"{ANSI_DIM}Enter to confirm{ANSI_RESET}"),
+                line(f"{ANSI_DIM}ENTER ⏎ to continue{ANSI_RESET}"),
+                border("└", "─", "┘"),
             ]
+            if self.progress:
+                lines.insert(-2, line(self._render_progress_bar()))
             return "\n".join(lines)
 
-        lines = [f"📅 {self.label}"]
+        lines = [f"{ANSI_LABEL}DATE{ANSI_RESET} {self.label}"]
         lines.append("=" * 50)
 
         for i, picker in enumerate(self.pickers):
@@ -256,7 +289,7 @@ class DatePicker:
         lines.append("")
         lines.extend(self._render_calendar())
 
-        lines.append("\n▸ Use arrow keys or type | Tab/Enter to confirm")
+        lines.append(f"\n{ANSI_DIM}▸ Use arrow keys or type | Tab/Enter to confirm{ANSI_RESET}")
         return "\n".join(lines)
 
     def _render_calendar(self) -> List[str]:
@@ -330,6 +363,13 @@ class DatePicker:
             picker._finalize_input()
 
     def get_value(self) -> str:
+        """Get selected date as YYYY-MM-DD."""
+        year = self.year_picker.get_value()
+        month = self.month_picker.get_value()
+        day = self.day_picker.get_value()
+        return f"{year:04d}-{month:02d}-{day:02d}"
+
+    def get_value(self) -> str:
         """Get date as YYYY-MM-DD string."""
         self._finalize()
         year = self.year_picker.get_value()
@@ -379,6 +419,57 @@ class TimePicker:
         lines.append("\n▸ Use arrow keys or type | Tab/Enter to confirm")
         return "\n".join(lines)
 
+    def handle_input(self, key: str) -> Optional[str]:
+        """
+        Handle keyboard input.
+
+        Returns:
+            Time string if complete, None otherwise
+        """
+        current_picker = self.pickers[self.current_field]
+
+        if key == '\x1b':  # Escape sequence start
+            return None
+
+        elif key in ('\t', 'right'):  # Tab/Right - move to next field
+            current_picker._finalize_input()
+            if self.current_field < len(self.pickers) - 1:
+                self.current_field += 1
+            return None
+        elif key == 'left':  # Left - move to previous field
+            current_picker._finalize_input()
+            if self.current_field > 0:
+                self.current_field -= 1
+            return None
+
+        elif key == '\n' or key == '\r':  # Enter - confirm
+            self._finalize()
+            return self.get_value()
+
+        elif key == 'up':  # Arrow up
+            current_picker.arrow_up()
+            return None
+
+        elif key == 'down':  # Arrow down
+            current_picker.arrow_down()
+            return None
+
+        else:
+            current_picker.handle_input(key)
+            return None
+
+    def _finalize(self) -> None:
+        """Finalize all pickers."""
+        for picker in self.pickers:
+            picker._finalize_input()
+
+    def get_value(self) -> str:
+        """Get selected time as HH:MM:SS."""
+        hour = self.hour_picker.get_value()
+        minute = self.minute_picker.get_value()
+        second = self.second_picker.get_value()
+        return f"{hour:02d}:{minute:02d}:{second:02d}"
+
 
 class DateTimeApproval:
     """Approval prompt for current date, time, and timezone with ASCII clock."""
@@ -386,6 +477,32 @@ class DateTimeApproval:
     def __init__(self, label: str, timezone_hint: Optional[str] = None):
         self.label = label
         self.timezone_hint = timezone_hint
+        self._box_width = 54
+        self.progress: Optional[Dict[str, int]] = None
+        now = self._get_now()
+        self._default_date = now.strftime("%Y-%m-%d")
+        self._default_time = now.strftime("%H:%M:%S")
+        self._default_timezone = self._get_timezone(now)
+        self.date_picker = DatePicker(
+            "Date",
+            default=self._default_date,
+            show_calendar=False,
+            compact=True,
+        )
+        self.time_picker = TimePicker("Time", default=self._default_time)
+        self.tz_options = self._build_timezone_options(self._default_timezone)
+        self.tz_selector = BarSelector(
+            "Timezone",
+            self.tz_options,
+            default_value=self._default_timezone,
+        )
+        self.active_section = 0  # 0=date, 1=time, 2=timezone
+        try:
+            cols = int(os.getenv("UDOS_VIEWPORT_COLS", "") or 0)
+            if cols:
+                self._box_width = max(40, min(70, cols - 4))
+        except Exception:
+            pass
 
     def _get_now(self) -> datetime:
         return datetime.now().astimezone()
@@ -399,39 +516,122 @@ class DateTimeApproval:
         return str(tzinfo) or "UTC"
 
     def _current_payload(self) -> Dict[str, Any]:
-        now = self._get_now()
-        tz = self._get_timezone(now)
         return {
             "approved": None,
-            "date": now.strftime("%Y-%m-%d"),
-            "time": now.strftime("%H:%M:%S"),
-            "timezone": tz,
+            "date": self._get_selected_date(),
+            "time": self._get_selected_time(),
+            "timezone": self._get_selected_timezone(),
         }
+
+    def _build_timezone_options(self, default_tz: str) -> List[str]:
+        options = [
+            "UTC",
+            "America/New_York",
+            "America/Chicago",
+            "America/Los_Angeles",
+            "Europe/London",
+            "Europe/Paris",
+            "Asia/Tokyo",
+            "Australia/Sydney",
+        ]
+        if default_tz and default_tz not in options:
+            options.insert(0, default_tz)
+        return options
+
+    def _get_selected_date(self) -> str:
+        return self.date_picker.get_value()
+
+    def _get_selected_time(self) -> str:
+        return self.time_picker.get_value()
+
+    def _get_selected_timezone(self) -> str:
+        return self.tz_selector.get_value()
 
     def _render_clock(self, now: datetime) -> List[str]:
         time_str = now.strftime("%H:%M:%S")
         return [
-            "  ┌───────────┐",
-            f"  │  {time_str}  │",
-            "  └───────────┘",
+            "┌───────────┐",
+            f"│  {time_str}  │",
+            "└───────────┘",
         ]
 
     def render(self, focused: bool = False) -> str:
-        now = self._get_now()
-        tz = self._get_timezone(now)
-        date_str = now.strftime("%Y-%m-%d")
-        time_str = now.strftime("%H:%M:%S")
+        date_str = self._get_selected_date()
+        time_str = self._get_selected_time()
+        tz = self._get_selected_timezone()
         prompt_line = format_prompt("Approve", "ok", "ok").strip()
 
-        lines = [f"\n⏰ {self.label}", "=" * 50]
-        lines.append(f"  Date:     {date_str}")
-        lines.append(f"  Time:     {time_str}")
-        lines.append(f"  Timezone: {tz}")
-        lines.append("")
-        lines.extend(self._render_clock(now))
-        lines.append("")
-        lines.append(f"  {prompt_line}")
+        width = self._box_width
+        inner = width - 2
+
+        def border(left: str, fill: str, right: str) -> str:
+            return f"\r{left}{fill * inner}{right}"
+
+        def line(text: str = "") -> str:
+            stripped = text.rstrip()
+            return f"\r│ {stripped.ljust(inner - 1)}│"
+
+        def center(text: str) -> str:
+            return f"\r│ {text.center(inner - 1)}│"
+
+        title_text = f"{ANSI_LABEL}TIME{ANSI_RESET} {self.label}"
+        if os.getenv("UDOS_TUI_INVERT_HEADERS", "1").strip().lower() not in {"0", "false", "no"}:
+            title_text = f"{ANSI_INVERT}{title_text}{ANSI_RESET}"
+
+        def focus_line(label: str, value: str, idx: int) -> str:
+            content = f"{label:<9} {value}"
+            if idx == self.active_section:
+                return line(f"{ANSI_INVERT}{content}{ANSI_RESET}")
+            return line(f"{ANSI_LABEL}{label:<9}{ANSI_RESET} {ANSI_VALUE}{value}{ANSI_RESET}")
+
+        lines = [
+            border("┌", "─", "┐"),
+            line(title_text),
+            border("├", "─", "┤"),
+            focus_line("Date:", date_str, 0),
+            focus_line("Time:", time_str, 1),
+            focus_line("Timezone:", tz, 2),
+            border("├", "─", "┤"),
+            line(f"{ANSI_DIM}Use ↑/↓ to change | Enter to advance | y/n/ok to approve{ANSI_RESET}"),
+        ]
+        for clock_line in self._render_clock(datetime.now().astimezone()):
+            lines.append(center(clock_line))
+
+        if self.progress:
+            lines.append(line(self._render_progress_bar()))
+
+        lines.extend(
+            [
+                border("├", "─", "┤"),
+                line(f"{ANSI_DIM}{prompt_line}{ANSI_RESET}"),
+                line(f"{ANSI_DIM}ENTER ⏎ to continue{ANSI_RESET}"),
+                border("└", "─", "┘"),
+            ]
+        )
+
+        if self.active_section == 0:
+            lines.append(self.date_picker.render())
+        elif self.active_section == 1:
+            lines.append(self.time_picker.render())
+        elif self.active_section == 2:
+            lines.append(self.tz_selector.render(focused=True))
+
+        if self.progress:
+            pass
         return "\n".join(lines)
+
+    def _render_progress_bar(self) -> str:
+        if not self.progress:
+            return ""
+        current = int(self.progress.get("current") or 0)
+        total = int(self.progress.get("total") or 0)
+        if total <= 0:
+            return ""
+        bar_width = max(10, min(26, self._box_width - 24))
+        filled = int(round((current / total) * bar_width)) if total else 0
+        filled = max(0, min(bar_width, filled))
+        bar = "█" * filled + "░" * (bar_width - filled)
+        return f"Progress: {current}/{total} [{bar}]"
 
     def handle_input(self, key: str) -> Optional[Dict[str, Any]]:
         """Process key input and return status for overlay handling."""
@@ -440,11 +640,55 @@ class DateTimeApproval:
 
         newline_keys = {"\n", "\r"}
 
-        if key in newline_keys:
-            normalized = ""
-
         if normalized in {"x", "cancel"}:
             normalized = "no"
+
+        if normalized in {"y", "yes", "ok", "n", "no"}:
+            choice = parse_confirmation(normalized, normalize_default("ok", "ok"), "ok")
+            if choice is None:
+                return None
+            approved = choice in {"yes", "ok"}
+            choice_label = {"yes": "Yes", "no": "No", "ok": "OK"}[choice]
+            payload.update(
+                {
+                    "approved": approved,
+                    "status": "approved" if approved else "denied",
+                    "override_required": not approved,
+                    "choice": choice,
+                    "choice_label": choice_label,
+                }
+            )
+            return payload
+
+        # Delegate to active section widgets
+        if self.active_section == 0:
+            result = self.date_picker.handle_input(key)
+            if result is not None:
+                self.active_section = 1
+            return None
+        if self.active_section == 1:
+            result = self.time_picker.handle_input(key)
+            if result is not None:
+                self.active_section = 2
+            return None
+        if self.active_section == 2:
+            result = self.tz_selector.handle_input(key)
+            if result is not None:
+                approved = True
+                payload.update(
+                    {
+                        "approved": approved,
+                        "status": "approved",
+                        "override_required": False,
+                        "choice": "ok",
+                        "choice_label": "OK",
+                    }
+                )
+                return payload
+            return None
+
+        if key in newline_keys:
+            normalized = ""
 
         default_choice = normalize_default("ok", "ok")
         choice = parse_confirmation(normalized, default_choice, "ok")
@@ -468,23 +712,60 @@ class DateTimeApproval:
 class BarSelector:
     """Bar-style selector for multiple options."""
 
-    def __init__(self, label: str, options: List[str], default_index: int = 0):
+    def __init__(
+        self,
+        label: str,
+        options: List[Any],
+        default_index: int = 0,
+        default_value: Optional[Any] = None,
+    ):
         """
         Initialize bar selector.
 
         Args:
             label: Field label
-            options: List of option strings
+            options: List of option strings or dicts
             default_index: Index of default option
+            default_value: Option value to preselect
         """
         self.label = label
-        self.options = options
-        self.selected_index = default_index
+        self.options = self._normalize_options(options)
+        self.selected_index = self._resolve_default_index(default_index, default_value)
+
+    def _normalize_options(self, options: List[Any]) -> List[Dict[str, Any]]:
+        normalized: List[Dict[str, Any]] = []
+        for opt in options or []:
+            if isinstance(opt, dict):
+                if "value" in opt or "label" in opt:
+                    value = opt.get("value", opt.get("label"))
+                    label = opt.get("label", value)
+                    normalized.append({"value": value, "label": str(label)})
+                elif len(opt) == 1:
+                    value, label = next(iter(opt.items()))
+                    normalized.append({"value": value, "label": str(label)})
+                else:
+                    text = str(opt)
+                    normalized.append({"value": text, "label": text})
+            else:
+                text = str(opt)
+                normalized.append({"value": opt, "label": text})
+        if not normalized:
+            normalized = [{"value": "", "label": ""}]
+        return normalized
+
+    def _resolve_default_index(self, default_index: int, default_value: Optional[Any]) -> int:
+        if default_value is not None:
+            for idx, opt in enumerate(self.options):
+                if opt.get("value") == default_value or opt.get("label") == str(default_value):
+                    return idx
+        if 0 <= default_index < len(self.options):
+            return default_index
+        return 0
 
     def render(self, focused: bool = False) -> str:
         """Render the selector."""
         if not focused:
-            selected = self.options[self.selected_index]
+            selected = self.options[self.selected_index]["label"]
             return f"  {self.label}: {selected}"
 
         # Focused view - show all options with selector
@@ -493,9 +774,9 @@ class BarSelector:
 
         for i, option in enumerate(self.options):
             if i == self.selected_index:
-                lines.append(f"  ❯ {option}")
+                lines.append(f"  ❯ {option['label']}")
             else:
-                lines.append(f"    {option}")
+                lines.append(f"    {option['label']}")
 
         lines.append("  " + "=" * 48)
         lines.append("  ▸ Use arrow keys ↑/↓ or click | Enter to select")
@@ -519,7 +800,7 @@ class BarSelector:
 
     def get_value(self) -> str:
         """Get selected option."""
-        return self.options[self.selected_index]
+        return self.options[self.selected_index]["value"]
 
 
 class LocationSelector:
@@ -718,9 +999,9 @@ class TUIFormRenderer:
             if config.get('default'):
                 try:
                     default_idx = options.index(config['default'])
-                except ValueError:
-                    pass
-            return BarSelector(label, options, default_idx)
+                except Exception:
+                    default_idx = 0
+            return BarSelector(label, options, default_index=default_idx, default_value=config.get('default'))
         elif ftype == FieldType.NUMBER:
             return SmartNumberPicker(
                 label,
@@ -768,8 +1049,12 @@ class TUIFormRenderer:
         lines.append("=" * 60)
 
         # Progress
-        progress = f"{self.current_field_index + 1}/{len(self.fields)}"
+        current = self.current_field_index + 1
+        total = max(1, len(self.fields))
+        progress = f"{current}/{total}"
         lines.append(f"\n  [{progress}] {field['label']}")
+        lines.append(self._render_progress_bar(current, total))
+        lines.extend(self._render_flowchart())
 
         # Field
         widget = field['widget']
@@ -782,6 +1067,53 @@ class TUIFormRenderer:
         lines.append("\n")
 
         return "\n".join(lines)
+
+    def _render_progress_bar(self, current: int, total: int) -> str:
+        width = 28
+        try:
+            cols = int(os.getenv("UDOS_VIEWPORT_COLS", "") or 0)
+            if cols:
+                width = max(20, min(40, cols - 30))
+        except Exception:
+            pass
+        filled = int(round((current / float(total)) * width))
+        bar = "=" * filled + "-" * (width - filled)
+        return f"  Progress: [{bar}]"
+
+    def _render_flowchart(self) -> List[str]:
+        width = 60
+        try:
+            cols = int(os.getenv("UDOS_VIEWPORT_COLS", "") or 0)
+            if cols:
+                width = max(48, min(100, cols - 2))
+        except Exception:
+            pass
+
+        tokens: List[str] = []
+        for idx, f in enumerate(self.fields):
+            label = f.get("label", f.get("name", ""))
+            label = " ".join(str(label).split())
+            if idx < self.current_field_index:
+                prefix = "x"
+            elif idx == self.current_field_index:
+                prefix = ">"
+            else:
+                prefix = " "
+            tokens.append(f"[{prefix} {label}]")
+
+        lines: List[str] = ["", "  Flow:"]
+        current_line = "  "
+        connector = " -o-> "
+        for i, token in enumerate(tokens):
+            piece = token if i == 0 else connector + token
+            if len(current_line) + len(piece) > width:
+                lines.append(current_line.rstrip())
+                current_line = "  " + token
+            else:
+                current_line += piece
+        if current_line.strip():
+            lines.append(current_line.rstrip())
+        return lines
 
     def _render_completion(self) -> str:
         """Render completion screen."""

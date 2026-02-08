@@ -2,96 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Bundled font faces (served via Wizard font manager) */
-@font-face {
-  font-family: "ChicagoFLF";
-  src: url("/api/fonts/file?path=retro/apple/ChicagoFLF.ttf")
-    format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Chicago";
-  src: url("/api/fonts/file?path=retro/apple/Chicago.ttf")
-    format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Monaco";
-  src: url("/api/fonts/file?path=retro/apple/monaco.ttf")
-    format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Los Altos";
-  src: url("/api/fonts/file?path=retro/apple/Los%20Altos.ttf")
-    format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Sanfrisco";
-  src: url("/api/fonts/file?path=retro/apple/Sanfrisco.ttf")
-    format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "PetMe64";
-  src: url("/api/fonts/file?path=retro/c64/PetMe64.ttf")
-    format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Press Start 2P";
-  src: url("/api/fonts/file?path=retro/gaming/PressStart2P-Regular.ttf")
-    format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Teletext50";
-  src: url("/api/fonts/file?path=retro/teletext/Teletext50.otf")
-    format("opentype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Noto Color Emoji";
-  src: url("/api/fonts/file?path=emoji/NotoColorEmoji.ttf")
-    format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Noto Emoji";
-  src: url("/api/fonts/file?path=emoji/NotoEmoji-Regular.ttf")
-    format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
+/* Font Manager reintegration stub:
+   Font Manager will inject @font-face declarations at runtime. */
 
 :root {
   --font-prose-title: "ChicagoFLF", "Chicago", ui-serif, serif;
@@ -102,6 +14,14 @@
   --scale-prose-title: 1;
   --scale-prose-body: 1;
   --scale-code: 1;
+  --prose-body-size: 1rem;
+  --prose-h1: 2.25rem;
+  --prose-h2: 1.875rem;
+  --prose-h3: 1.5rem;
+  --prose-h4: 1.25rem;
+  --prose-h5: 1.125rem;
+  --prose-h6: 1rem;
+  --prose-line-height: 1.5;
   --font-emoji: "Noto Color Emoji", "Noto Emoji", "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol";
 }
@@ -150,6 +70,7 @@ html.prose-2xl,
 body {
   font-family: inherit;
   font-size: inherit;
+  line-height: var(--prose-line-height);
   background-color: var(--theme-surface, #ffffff);
   color: var(--theme-accent-contrast, #0f172a);
   transition:
@@ -167,6 +88,32 @@ h4,
 h5,
 h6 {
   font-family: var(--font-prose-title);
+}
+
+/* Enforce a single body size across components/routes; re-apply heading scale. */
+.mdk-app * {
+  font-size: calc(var(--prose-body-size) * var(--scale-prose-body)) !important;
+  line-height: var(--prose-line-height) !important;
+  letter-spacing: normal !important;
+}
+
+.mdk-app h1 {
+  font-size: calc(var(--prose-h1) * var(--scale-prose-title)) !important;
+}
+.mdk-app h2 {
+  font-size: calc(var(--prose-h2) * var(--scale-prose-title)) !important;
+}
+.mdk-app h3 {
+  font-size: calc(var(--prose-h3) * var(--scale-prose-title)) !important;
+}
+.mdk-app h4 {
+  font-size: calc(var(--prose-h4) * var(--scale-prose-title)) !important;
+}
+.mdk-app h5 {
+  font-size: calc(var(--prose-h5) * var(--scale-prose-title)) !important;
+}
+.mdk-app h6 {
+  font-size: calc(var(--prose-h6) * var(--scale-prose-title)) !important;
 }
 
 html.dark body {
@@ -188,6 +135,45 @@ pre,
 .prose code,
 .prose pre {
   font-family: var(--font-code);
+  font-size: calc(var(--prose-body-size) * var(--scale-prose-body));
+  line-height: var(--prose-line-height);
+}
+
+@layer utilities {
+  .text-xs,
+  .text-sm,
+  .text-base,
+  .text-lg,
+  .text-xl,
+  .text-2xl,
+  .text-3xl,
+  .text-4xl,
+  .text-5xl,
+  .text-6xl,
+  .text-7xl,
+  .text-8xl,
+  .text-9xl {
+    font-size: calc(var(--prose-body-size) * var(--scale-prose-body));
+    line-height: var(--prose-line-height);
+  }
+
+  .leading-none,
+  .leading-tight,
+  .leading-snug,
+  .leading-normal,
+  .leading-relaxed,
+  .leading-loose {
+    line-height: var(--prose-line-height);
+  }
+
+  .tracking-tighter,
+  .tracking-tight,
+  .tracking-normal,
+  .tracking-wide,
+  .tracking-wider,
+  .tracking-widest {
+    letter-spacing: normal;
+  }
 }
 
 /* App Layout */

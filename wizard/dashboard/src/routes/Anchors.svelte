@@ -242,13 +242,15 @@
 
     <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 space-y-3">
       <h3 class="text-sm font-semibold">Register Anchor</h3>
-      <label class="text-xs text-gray-400">Anchor ID</label>
+      <label class="text-xs text-gray-400" for="anchor-register-id">Anchor ID</label>
       <input
+        id="anchor-register-id"
         class="w-full bg-gray-800 text-xs text-gray-200 px-2 py-1 rounded"
         bind:value={newAnchorId}
       />
-      <label class="text-xs text-gray-400">Title</label>
+      <label class="text-xs text-gray-400" for="anchor-register-title">Title</label>
       <input
+        id="anchor-register-title"
         class="w-full bg-gray-800 text-xs text-gray-200 px-2 py-1 rounded"
         bind:value={newAnchorTitle}
       />
@@ -310,24 +312,28 @@
 
     <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 space-y-3">
       <h3 class="text-sm font-semibold">Create Binding</h3>
-      <label class="text-xs text-gray-400">LocId</label>
+      <label class="text-xs text-gray-400" for="binding-locid">LocId</label>
       <input
+        id="binding-locid"
         class="w-full bg-gray-800 text-xs text-gray-200 px-2 py-1 rounded"
         placeholder="EARTH:SUR:L305-DA11"
         bind:value={bindLocId}
       />
-      <label class="text-xs text-gray-400">Anchor ID</label>
+      <label class="text-xs text-gray-400" for="binding-anchor-id">Anchor ID</label>
       <input
+        id="binding-anchor-id"
         class="w-full bg-gray-800 text-xs text-gray-200 px-2 py-1 rounded"
         bind:value={bindAnchorId}
       />
-      <label class="text-xs text-gray-400">Coord Kind</label>
+      <label class="text-xs text-gray-400" for="binding-coord-kind">Coord Kind</label>
       <input
+        id="binding-coord-kind"
         class="w-full bg-gray-800 text-xs text-gray-200 px-2 py-1 rounded"
         bind:value={bindCoordKind}
       />
-      <label class="text-xs text-gray-400">Coord JSON</label>
+      <label class="text-xs text-gray-400" for="binding-coord-json">Coord JSON</label>
       <textarea
+        id="binding-coord-json"
         class="w-full bg-gray-800 text-xs text-gray-200 px-2 py-1 rounded min-h-[120px]"
         bind:value={bindCoordJson}
       ></textarea>

@@ -17,6 +17,8 @@ Options:
     --compost         Archive /memory to .archive/compost/YYYY-MM-DD
     --reload-repair   Hot reload handlers and run repair after wipe
     --reset-all       NUCLEAR: Wipe everything, reset to factory defaults
+    --scrub-memory    Permanently delete /memory (no archive)
+    --scrub-vault     Permanently delete VAULT_ROOT (no archive)
     --confirm         Skip confirmation (REQUIRED for --reset-all)
     --help            Show help
 
@@ -26,6 +28,8 @@ Examples:
     DESTROY --compost            # Archive memory
     DESTROY --wipe-user --compost # Both
     DESTROY --reset-all --confirm # FULL RESET (admin only)
+    DESTROY --scrub-memory --confirm
+    DESTROY --scrub-vault --confirm
 
 Author: uDOS Engineering
 Version: v1.0.0
@@ -35,6 +39,7 @@ Date: 2026-01-28
 from .base import BaseCommandHandler
 from pathlib import Path
 from datetime import datetime
+import os
 import shutil
 
 # Import utility functions (not logger/manager to avoid circular deps)
@@ -110,6 +115,8 @@ class DestroyHandler(BaseCommandHandler):
         compost = False
         reload_repair = False
         reset_all = False
+        scrub_memory = False
+        scrub_vault = False
         skip_confirm = False
         show_help = False
         
@@ -132,6 +139,10 @@ class DestroyHandler(BaseCommandHandler):
                         reload_repair = True
                     elif param_lower in ['--reset-all', '-a']:
                         reset_all = True
+                    elif param_lower in ['--scrub-memory', '--scrub-mem']:
+                        scrub_memory = True
+                    elif param_lower in ['--scrub-vault', '--scrub-vault-md', '--scrub-vaultmd']:
+                        scrub_vault = True
                     elif param_lower in ['--confirm', '-y']:
                         skip_confirm = True
                     elif param_lower in ['--help', '-h']:
@@ -171,8 +182,13 @@ class DestroyHandler(BaseCommandHandler):
         plan = []
         if wipe_user:
             plan.append("🗑️  Wipe user profiles and API keys")
+            plan.append("🧽 Reset local .env identity + Wizard keystore")
         if compost:
             plan.append("🗑️  Archive /memory to compost")
+        if scrub_memory:
+            plan.append("🔥 Scrub /memory (permanent delete)")
+        if scrub_vault:
+            plan.append("🔥 Scrub VAULT_ROOT (permanent delete)")
         if reload_repair:
             plan.append("🔧 Hot reload and run repair")
         
@@ -194,6 +210,8 @@ class DestroyHandler(BaseCommandHandler):
             user=user,
             wipe_user=wipe_user,
             compost=compost,
+            scrub_memory=scrub_memory,
+            scrub_vault=scrub_vault,
             reload_repair=reload_repair,
             skip_confirm=skip_confirm,
             plan=plan
@@ -214,7 +232,7 @@ Choose a cleanup option (type number + Enter):
 
   1. WIPE USER DATA
     • Clear all user profiles, roles, and API keys
-    • Resets to default admin user
+    • Resets .env identity + Wizard keystore
     • Preserves memory/logs
     Usage: DESTROY 1
     
@@ -248,6 +266,8 @@ EXAMPLES:
   DESTROY 3                    # Wipe + archive + reload
   DESTROY 4                    # FULL RESET (admin only)
   DESTROY 0                    # Show help
+  DESTROY --scrub-memory --confirm
+  DESTROY --scrub-vault --confirm
 """
         return {
             'output': menu.strip(),
@@ -306,6 +326,8 @@ EXAMPLES:
                 user=user,
                 wipe_user=True,
                 compost=False,
+                scrub_memory=False,
+                scrub_vault=False,
                 reload_repair=False,
                 skip_confirm=False,
                 plan=["🗑️  Wipe user profiles and API keys"]
@@ -316,6 +338,8 @@ EXAMPLES:
                 user=user,
                 wipe_user=False,
                 compost=True,
+                scrub_memory=False,
+                scrub_vault=False,
                 reload_repair=False,
                 skip_confirm=False,
                 plan=["🗑️  Archive /memory to compost"]
@@ -326,6 +350,8 @@ EXAMPLES:
                 user=user,
                 wipe_user=True,
                 compost=True,
+                scrub_memory=False,
+                scrub_vault=False,
                 reload_repair=True,
                 skip_confirm=False,
                 plan=[
@@ -370,7 +396,7 @@ NUMERIC OPTIONS:
     • Deletes all user profiles except admin
     • Clears API keys and credentials
     • Removes OAuth tokens
-    • Resets to default admin user
+    • Resets .env identity + Wizard keystore
     • Safe: users can be recreated
     Usage: DESTROY 1
 
@@ -404,6 +430,8 @@ LEGACY FLAG SUPPORT (still works):
   --compost         Archive /memory to .archive/compost/
   --reload-repair   Hot reload + repair after cleanup
   --reset-all       NUCLEAR: Complete factory reset
+  --scrub-memory    Permanently delete /memory (no archive)
+  --scrub-vault     Permanently delete VAULT_ROOT (no archive)
   --confirm         Skip confirmations (required for --reset-all)
 
 LEGACY EXAMPLES:
@@ -412,6 +440,8 @@ LEGACY EXAMPLES:
   DESTROY --wipe-user --compost
   DESTROY --wipe-user --compost --reload-repair
   DESTROY --reset-all --confirm
+  DESTROY --scrub-memory --confirm
+  DESTROY --scrub-vault --confirm
 
 SAFETY:
   • Requires admin or destroy permission
@@ -675,13 +705,15 @@ Current status:
                 'status': 'error'
             }
     
-    def _perform_cleanup(self, user, wipe_user, compost, reload_repair, skip_confirm, plan):
+    def _perform_cleanup(self, user, wipe_user, compost, scrub_memory, scrub_vault, reload_repair, skip_confirm, plan):
         """Perform cleanup operations.
         
         Args:
             user: Current user
             wipe_user: Wipe user data and variables
             compost: Archive memory
+            scrub_memory: Permanently delete /memory
+            scrub_vault: Permanently delete VAULT_ROOT
             reload_repair: Reload + repair
             skip_confirm: Skip confirmation
             plan: Cleanup plan
@@ -727,13 +759,29 @@ Current status:
                     if hasattr(admin, 'environment'):
                         admin.environment.clear()
                     results.append("   ✓ Cleared admin environment variables")
-                
-                results.append("   ✓ Cleared API keys and credentials")
             
-            if compost:
+            results.append("   ✓ Cleared API keys and credentials")
+
+            # Reset local env identity + wizard keystore
+            env_result = self._reset_local_env(repo_root)
+            results.extend([f"   {line}" for line in env_result])
+            keystore_result = self._reset_wizard_keystore(repo_root)
+            results.extend([f"   {line}" for line in keystore_result])
+        
+            if scrub_memory:
+                if not skip_confirm and not self._confirm_scrub("memory"):
+                    results.append("   ⏭️  Memory scrub cancelled.")
+                else:
+                    results.append("🔥 Scrubbing /memory (permanent delete)...")
+                    memory_path = repo_root / "memory"
+                    if memory_path.exists():
+                        shutil.rmtree(memory_path)
+                        memory_path.mkdir(parents=True, exist_ok=True)
+                    results.append("   ✓ /memory scrubbed")
+
+            if compost and not scrub_memory:
                 results.append("📦 Archiving /memory...")
                 memory_path = repo_root / "memory"
-                
                 if memory_path.exists():
                     archive_root = repo_root / ".archive"
                     archive_root.mkdir(exist_ok=True)
@@ -756,7 +804,7 @@ Current status:
                     try:
                         with open(str(metadata_file), 'w') as f:
                             json.dump(metadata, f, indent=2)
-                    except:
+                    except Exception:
                         pass  # Non-critical
                     
                     # Move memory to compost
@@ -768,10 +816,21 @@ Current status:
                     (memory_path / "bank").mkdir(parents=True, exist_ok=True)
                     (memory_path / "private").mkdir(parents=True, exist_ok=True)
                     (memory_path / "wizard").mkdir(parents=True, exist_ok=True)
-                    
+                        
                     results.append(f"   ✓ Archived to .archive/compost/{timestamp}")
                     results.append("   ✓ Recreated empty memory directories")
-            
+
+            if scrub_vault:
+                if not skip_confirm and not self._confirm_scrub("vault"):
+                    results.append("   ⏭️  Vault scrub cancelled.")
+                else:
+                    vault_root = self._resolve_vault_root(repo_root)
+                    results.append(f"🔥 Scrubbing VAULT_ROOT ({vault_root})...")
+                    if vault_root.exists():
+                        shutil.rmtree(vault_root)
+                        vault_root.mkdir(parents=True, exist_ok=True)
+                    results.append("   ✓ Vault scrubbed")
+                
             if reload_repair:
                 results.append("🔧 Running reload + repair...")
                 results.append("   ✓ Hot reload initiated")
@@ -819,3 +878,113 @@ Current status:
                 'output': error_msg,
                 'status': 'error'
             }
+
+    def _resolve_vault_root(self, repo_root: Path) -> Path:
+        env_vault = os.environ.get("VAULT_ROOT")
+        if env_vault:
+            return Path(env_vault).expanduser()
+        return repo_root / "vault-md"
+
+    def _reset_local_env(self, repo_root: Path) -> list:
+        from core.services.config_sync_service import ConfigSyncManager
+        import uuid
+
+        results = []
+        env_mgr = ConfigSyncManager()
+        env_dict = env_mgr.load_env_dict()
+        os_type = env_dict.get("OS_TYPE", "mac")
+        udos_root = env_dict.get("UDOS_ROOT", str(repo_root))
+        vault_root = env_dict.get("VAULT_ROOT")
+
+        updates = {
+            "USER_NAME": "Ghost",
+            "USER_DOB": "1980-01-01",
+            "USER_ROLE": "ghost",
+            "USER_PASSWORD": "",
+            "UDOS_LOCATION": "",
+            "UDOS_TIMEZONE": "",
+            "OS_TYPE": os_type,
+            "UDOS_ROOT": udos_root,
+            "WIZARD_ADMIN_TOKEN": None,
+            "WIZARD_KEY": str(uuid.uuid4()),
+            "UDOS_INSTALLATION_ID": None,
+            "UDOS_VIEWPORT_COLS": None,
+            "UDOS_VIEWPORT_ROWS": None,
+            "UDOS_VIEWPORT_SOURCE": None,
+            "UDOS_VIEWPORT_UPDATED_AT": None,
+            "UDOS_MASTER_USER": None,
+            "UDOS_INSTALL_PATH": None,
+            "UDOS_USERNAME": None,
+            "USER_ID": None,
+            "USER_TIME": None,
+            "USER_LOCATION": None,
+            "USER_TIMEZONE": None,
+            "VAULT_MD_ROOT": None,
+        }
+        if vault_root:
+            updates["VAULT_ROOT"] = vault_root
+
+        ok, msg = env_mgr.update_env_vars(updates)
+        if ok:
+            results.append("✓ Reset .env identity + tokens")
+        else:
+            results.append(f"⚠️  Failed to reset .env: {msg}")
+
+        # Remove local admin token files
+        token_paths = [
+            repo_root / "memory" / "private" / "wizard_admin_token.txt",
+            repo_root / "memory" / "bank" / "private" / "wizard_admin_token.txt",
+        ]
+        removed = 0
+        for path in token_paths:
+            if path.exists():
+                try:
+                    path.unlink()
+                    removed += 1
+                except Exception:
+                    pass
+        results.append(f"✓ Removed {removed} wizard admin token files")
+
+        # Remove local setup artifacts
+        local_paths = [
+            repo_root / "memory" / "user" / "profile.json",
+            repo_root / "memory" / "config" / "udos.md",
+        ]
+        removed_local = 0
+        for path in local_paths:
+            if path.exists():
+                try:
+                    path.unlink()
+                    removed_local += 1
+                except Exception:
+                    pass
+        results.append(f"✓ Removed {removed_local} local profile files")
+        return results
+
+    def _reset_wizard_keystore(self, repo_root: Path) -> list:
+        results = []
+        tomb_path = repo_root / "wizard" / "secrets.tomb"
+        if not tomb_path.exists():
+            results.append("✓ Wizard keystore already reset (no secrets.tomb)")
+            return results
+
+        archive_root = repo_root / ".archive"
+        archive_root.mkdir(exist_ok=True)
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        backup_path = archive_root / f"secrets.tomb.backup.{timestamp}"
+        try:
+            shutil.move(str(tomb_path), str(backup_path))
+            results.append(f"✓ Archived secrets.tomb to {backup_path}")
+        except Exception as exc:
+            results.append(f"⚠️  Failed to archive secrets.tomb: {exc}")
+        return results
+
+    def _confirm_scrub(self, target: str) -> bool:
+        prompt = self.prompt
+        label = f"Scrub {target} permanently"
+        if prompt and hasattr(prompt, "_ask_yes_no"):
+            return prompt._ask_yes_no(label, default=False)
+        if prompt and hasattr(prompt, "_ask_confirm"):
+            choice = prompt._ask_confirm(label, default=False, variant="skip")
+            return choice == "yes"
+        return False

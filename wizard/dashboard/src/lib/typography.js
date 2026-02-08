@@ -10,115 +10,62 @@ export const sizePresets = [
 
 export const headingFonts = [
   {
-    id: "system-sans",
-    label: "System Sans",
+    id: "sans",
+    label: "Sans",
     stack: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
     scale: { title: 1.0 },
   },
   {
-    id: "system-serif",
-    label: "System Serif",
+    id: "serif",
+    label: "Serif",
     stack: 'ui-serif, "Iowan Old Style", "Palatino Linotype", serif',
     scale: { title: 1.0 },
   },
   {
-    id: "chicago-flf",
-    label: "ChicagoFLF",
-    stack: '"ChicagoFLF", "Chicago", "Los Altos", ui-serif, serif',
-    scale: { title: 1.12 },
-  },
-  {
-    id: "los-altos",
-    label: "Los Altos",
-    stack: '"Los Altos", "Sanfrisco", ui-sans-serif, system-ui, sans-serif',
-    scale: { title: 1.02 },
-  },
-  {
-    id: "sanfrisco",
-    label: "Sanfrisco",
-    stack: '"Sanfrisco", "Los Altos", ui-sans-serif, system-ui, sans-serif',
+    id: "mono",
+    label: "Mono",
+    stack:
+      'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
     scale: { title: 1.0 },
   },
 ];
 
 export const bodyFonts = [
   {
-    id: "system-sans",
-    label: "System Sans",
+    id: "sans",
+    label: "Sans",
     stack: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
     scale: { body: 1.0 },
   },
   {
-    id: "system-serif",
-    label: "System Serif",
+    id: "serif",
+    label: "Serif",
     stack: 'ui-serif, "Iowan Old Style", "Palatino Linotype", serif',
     scale: { body: 1.0 },
   },
   {
-    id: "los-altos",
-    label: "Los Altos",
-    stack: '"Los Altos", "Sanfrisco", ui-sans-serif, system-ui, sans-serif',
+    id: "mono",
+    label: "Mono",
+    stack:
+      'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
     scale: { body: 1.0 },
-  },
-  {
-    id: "sanfrisco",
-    label: "Sanfrisco",
-    stack: '"Sanfrisco", "Los Altos", ui-sans-serif, system-ui, sans-serif',
-    scale: { body: 0.98 },
-  },
-  {
-    id: "chicago-flf",
-    label: "ChicagoFLF",
-    stack: '"ChicagoFLF", "Chicago", ui-serif, serif',
-    scale: { body: 1.08 },
   },
 ];
 
 export const codeFonts = [
   {
-    id: "system-mono",
-    label: "System Mono",
+    id: "jetbrains-mono",
+    label: "JetBrains Mono",
     stack:
-      'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
+      '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
     scale: { code: 1.0 },
-  },
-  {
-    id: "monaco",
-    label: "Monaco (Bundled)",
-    stack: '"Monaco", ui-monospace, Menlo, Consolas, monospace',
-    scale: { code: 0.98 },
-  },
-  {
-    id: "petme64",
-    label: "PetMe64",
-    stack: '"PetMe64", "Monaco", monospace',
-    scale: { code: 1.05 },
-  },
-  {
-    id: "press-start-2p",
-    label: "Press Start 2P",
-    stack: '"Press Start 2P", "Monaco", monospace',
-    scale: { code: 0.92 },
-  },
-  {
-    id: "teletext50",
-    label: "Teletext50",
-    stack: '"Teletext50", "Monaco", monospace',
-    scale: { code: 1.04 },
-  },
-  {
-    id: "monaspace-neon",
-    label: "Monaspace Neon (Optional)",
-    stack: '"Monaspace Neon", "Monaspace", ui-monospace, monospace',
-    scale: { code: 0.98 },
-    optional: true,
   },
 ];
 
 export const defaultTypography = {
-  headingFontId: "system-serif",
-  bodyFontId: "system-sans",
-  codeFontId: "system-mono",
+  headingFontId: "serif",
+  bodyFontId: "sans",
+  codeFontId: "jetbrains-mono",
   size: "base",
 };
 
@@ -157,15 +104,15 @@ function upgradeLegacySettings(state) {
 
   if (legacyStyle) {
     if (legacyStyle === "serif") {
-      upgraded.headingFontId = "system-serif";
-      upgraded.bodyFontId = "system-serif";
+      upgraded.headingFontId = "serif";
+      upgraded.bodyFontId = "serif";
     } else if (legacyStyle === "mono") {
-      upgraded.headingFontId = "system-serif";
-      upgraded.bodyFontId = "system-sans";
-      upgraded.codeFontId = "system-mono";
+      upgraded.headingFontId = "serif";
+      upgraded.bodyFontId = "sans";
+      upgraded.codeFontId = "jetbrains-mono";
     } else if (legacyStyle === "sans") {
-      upgraded.headingFontId = "system-serif";
-      upgraded.bodyFontId = "system-sans";
+      upgraded.headingFontId = "serif";
+      upgraded.bodyFontId = "sans";
     }
   }
 

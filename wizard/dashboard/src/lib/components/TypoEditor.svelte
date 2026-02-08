@@ -187,7 +187,7 @@
 
   <main
     class="grid flex-1 overflow-hidden {!viewMode && 'lg:grid-cols-2'}"
-    style="font-family: var(--typo-font-family, 'Atkinson Hyperlegible'), sans-serif; font-size: var(--typo-font-size, 1em);"
+    style="font-family: var(--typo-font-family, 'Atkinson Hyperlegible'), sans-serif;"
   >
     {#if !viewMode}
       <div class="flex flex-col overflow-hidden min-h-0 h-full">

@@ -24,6 +24,7 @@ from .base_provider import (
     ProviderError,
     AuthenticationError,
     RateLimitError,
+    QuotaExceededError,
 )
 
 # API limits

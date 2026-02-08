@@ -16,9 +16,13 @@ import sys
 import json
 import shutil
 import subprocess
+import time
+import threading
+import urllib.request
 from pathlib import Path
 from typing import Callable, List, Dict
 
+from core.tui.ui_elements import Spinner
 
 def _default_logger(message: str) -> None:
     print(message)
@@ -50,10 +54,39 @@ def run_ok_setup(repo_root: Path, log: Callable[[str], None] | None = None) -> D
         else:
             warnings.append("Ollama not found. Install manually: https://ollama.com")
 
+    def ollama_running() -> bool:
+        try:
+            with urllib.request.urlopen("http://127.0.0.1:11434/api/version", timeout=2):
+                return True
+        except Exception:
+            return False
+
+    def ensure_ollama_started() -> None:
+        if ollama_running():
+            return
+        if sys.platform == "darwin" and os.path.exists("/Applications/Ollama.app"):
+            run_cmd(["open", "-a", "Ollama"], "Start Ollama app")
+        else:
+            run_cmd(["ollama", "serve"], "Start Ollama daemon")
+        # Allow the daemon to boot
+        stop = threading.Event()
+        spinner = Spinner(label="Waiting for Ollama", show_elapsed=True)
+        thread = spinner.start_background(stop)
+        for _ in range(10):
+            if ollama_running():
+                stop.set()
+                thread.join(timeout=1)
+                spinner.stop("Ollama ready")
+                return
+            time.sleep(0.5)
+        stop.set()
+        thread.join(timeout=1)
+        spinner.stop("Ollama start timed out")
+
     if shutil.which("ollama"):
+        ensure_ollama_started()
         models = [
-            "mistral-small2",
-            "mistral-large2",
+            "mistral",
             "devstral-small-2",
         ]
         for model in models:
@@ -72,8 +105,7 @@ def run_ok_setup(repo_root: Path, log: Callable[[str], None] | None = None) -> D
         models = ofvibe.setdefault("models", [])
         names = {m.get("name") for m in models if isinstance(m, dict)}
         for name, availability in [
-            ("mistral-small2", ["core"]),
-            ("mistral-large2", ["core"]),
+            ("mistral", ["core"]),
             ("devstral-small-2", ["dev"]),
         ]:
             if name not in names:

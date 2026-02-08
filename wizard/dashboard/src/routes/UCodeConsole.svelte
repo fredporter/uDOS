@@ -132,7 +132,6 @@
     persistHistory();
   }
 
-
   function normalizeInput(value) {
     return (value || "").trim();
   }
@@ -1287,13 +1286,11 @@
     border: 1px solid rgba(56, 189, 248, 0.35);
     background: rgba(15, 23, 42, 0.85);
     color: #e2e8f0;
-    font-size: 0.8rem;
   }
 
   .defaults-label {
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    font-size: 0.65rem;
     color: #7dd3fc;
   }
 
@@ -1311,7 +1308,6 @@
     max-height: 240px;
     overflow-y: auto;
     font-family: var(--mdk-font-code);
-    font-size: 0.7rem;
     color: #e2e8f0;
   }
 
@@ -1367,14 +1363,12 @@
   .entry-command {
     font-family: var(--mdk-font-code);
     color: #f8fafc;
-    font-size: 0.9rem;
   }
 
   .entry-meta {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.7rem;
     color: #94a3b8;
   }
 
@@ -1415,7 +1409,6 @@
     border-radius: 0.5rem;
     padding: 0.75rem;
     font-family: var(--mdk-font-code);
-    font-size: 0.75rem;
     color: #e2e8f0;
     white-space: pre-wrap;
     overflow-x: auto;
@@ -1443,7 +1436,6 @@
   .ok-output {
     margin-top: 0.5rem;
     font-family: var(--mdk-font-code);
-    font-size: 0.75rem;
     white-space: pre-wrap;
     color: #e0f2fe;
   }
@@ -1470,7 +1462,6 @@
   .helper-lines {
     font-family: var(--mdk-font-code);
     color: #94a3b8;
-    font-size: 0.7rem;
     margin-bottom: 0.5rem;
   }
 
@@ -1487,7 +1478,6 @@
     padding: 0.6rem 0.75rem;
     color: #f8fafc;
     font-family: var(--mdk-font-code);
-    font-size: 0.85rem;
   }
 
   .send-btn {
@@ -1503,7 +1493,6 @@
     margin-top: 0.5rem;
     display: flex;
     justify-content: space-between;
-    font-size: 0.7rem;
     color: #64748b;
   }
 
@@ -1513,6 +1502,7 @@
     gap: 1rem;
     overflow-y: auto;
     padding-right: 0.25rem;
+    min-height: 0;
   }
 
   .panel {
@@ -1520,12 +1510,14 @@
     border: 1px solid #1f2937;
     border-radius: 0.75rem;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
   .panel-header {
     padding: 0.75rem 1rem;
     font-weight: 700;
-    font-size: 0.85rem;
     color: #f8fafc;
     border-bottom: 1px solid #1f2937;
   }
@@ -1536,7 +1528,8 @@
     flex-direction: column;
     gap: 0.6rem;
     color: #e2e8f0;
-    font-size: 0.8rem;
+    min-height: 0;
+    overflow: auto;
   }
 
   .status-row {
@@ -1576,7 +1569,6 @@
     border-radius: 0.4rem;
     padding: 0.4rem 0.5rem;
     color: #e2e8f0;
-    font-size: 0.8rem;
   }
 
   .button-row {
@@ -1591,7 +1583,6 @@
     color: #e2e8f0;
     border-radius: 0.4rem;
     padding: 0.3rem 0.6rem;
-    font-size: 0.75rem;
   }
 
   .hotkey-grid {
@@ -1610,7 +1601,6 @@
     border-radius: 0.5rem;
     padding: 0.5rem;
     color: #e2e8f0;
-    font-size: 0.7rem;
   }
 
   .hotkey-label {
@@ -1637,7 +1627,6 @@
 
   .quota-detail {
     color: #94a3b8;
-    font-size: 0.72rem;
   }
 
   .ok-history-item {
@@ -1649,7 +1638,6 @@
 
   .ok-history-title {
     font-weight: 600;
-    font-size: 0.75rem;
   }
 
   .ok-history-sub {

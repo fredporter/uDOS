@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <rect width="640" height="360" fill="#0f172a" />
+  <rect x="40" y="40" width="560" height="280" rx="16" fill="#111827" stroke="#334155" stroke-width="2" />
+  <rect x="80" y="90" width="180" height="90" rx="10" fill="#1f2937" stroke="#475569" stroke-width="2" />
+  <rect x="380" y="90" width="180" height="90" rx="10" fill="#1f2937" stroke="#475569" stroke-width="2" />
+  <rect x="230" y="210" width="180" height="90" rx="10" fill="#1f2937" stroke="#475569" stroke-width="2" />
+  <path d="M260 135 L380 135" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+  <path d="M320 180 L320 210" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+  <text x="170" y="145" text-anchor="middle" fill="#e2e8f0" font-family="sans-serif" font-size="16">Input</text>
+  <text x="470" y="145" text-anchor="middle" fill="#e2e8f0" font-family="sans-serif" font-size="16">Process</text>
+  <text x="320" y="265" text-anchor="middle" fill="#e2e8f0" font-family="sans-serif" font-size="16">Output</text>
+</svg>

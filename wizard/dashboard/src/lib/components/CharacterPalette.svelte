@@ -190,7 +190,6 @@
 
   .palette-header h3 {
     margin: 0 0 8px 0;
-    font-size: 14px;
     font-weight: 600;
     color: var(--text-primary, #f9fafb);
   }
@@ -203,7 +202,6 @@
   .tab {
     flex: 1;
     padding: 6px 8px;
-    font-size: 12px;
     background-color: var(--tab-bg, #374151);
     border: 1px solid var(--border-color, #4b5563);
     border-radius: 3px;
@@ -277,7 +275,6 @@
     border-radius: 3px;
     color: var(--text-primary, #f9fafb);
     font-family: var(--font-mono-variant, "Monaco", monospace);
-    font-size: 18px;
     line-height: 1;
     cursor: pointer;
     transition: all 0.15s;
@@ -320,7 +317,6 @@
 
   .preview-char {
     font-family: var(--font-mono-variant, "Monaco", monospace);
-    font-size: 48px;
     line-height: 1;
     color: var(--text-primary, #f9fafb);
     text-align: center;

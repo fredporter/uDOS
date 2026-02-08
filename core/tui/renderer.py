@@ -18,6 +18,7 @@ import re
 from pathlib import Path
 
 from core.tui.ui_elements import format_table
+from core.tui.output import OutputToolkit
 
 
 class GridRenderer:
@@ -33,12 +34,12 @@ class GridRenderer:
     DIM = "\033[2m"
 
     MOODS = {
-        "idle": ["🙂", "😌", "🫧"],
-        "think": ["🤔", "🧠", "📝"],
-        "busy": ["⏳", "⚙️", "🧵", "🛰️"],
-        "success": ["✅", "✨", "🌟"],
-        "warn": ["⚠️", "🟡", "🚧"],
-        "error": ["❌", "🛑", "🔥"],
+        "idle": ["·", "•", "○", "●"],
+        "think": ["?", "¿"],
+        "busy": ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴"],
+        "success": ["✓"],
+        "warn": ["!"],
+        "error": ["x"],
     }
 
     def __init__(self):
@@ -113,7 +114,7 @@ class GridRenderer:
 
     def _render_warning(self, result: Dict[str, Any]) -> str:
         """Format warning response"""
-        output = f"{self.YELLOW}⚠{self.RESET} {result.get('message', 'Warning')}\n"
+        output = f"{self.YELLOW}!{self.RESET} {result.get('message', 'Warning')}\n"
         if "output" in result:
             output += result["output"] + "\n"
         return output
@@ -279,6 +280,10 @@ class GridRenderer:
     def clear_screen() -> None:
         """Clear terminal screen"""
         print("\033[2J\033[H", end="")
+
+    def present_frames(self, frames: Sequence[str], interval: float = 0.8, repeat: int = 1, clear: bool = True) -> None:
+        """Present full-screen frames with clears between (presentation-style)."""
+        OutputToolkit.present_frames(frames, interval=interval, repeat=repeat, clear=clear)
 
     @staticmethod
     def separator(char: str = "-", width: int = 60) -> str:

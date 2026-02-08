@@ -13,8 +13,8 @@
       ],
       "CORE_USER": [
         "USER_NAME",
-        "USER_LOCATION",
-        "USER_TIMEZONE",
+        "UDOS_LOCATION",
+        "UDOS_TIMEZONE",
         "USER_PROJECT",
         "USER_PROJECT_TYPE",
         "USER_MODE",

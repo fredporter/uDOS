@@ -2,9 +2,9 @@ star{
     "SYSTEM_NAME": "uDOS",
     "VERSION": "1.0.0",
     "USER_PROFILE": {
-        "NAME": "",
-        "LOCATION": "",
-        "TIMEZONE": "UTC",
+        "NAME": "Ghost",
+        "LOCATION": "Sydney",
+        "TIMEZONE": "Australia/Sydney",
         "PREFERRED_MODE": "STANDARD"
     },
     "PROJECT": {

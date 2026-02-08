@@ -12,17 +12,27 @@
   let error = null;
   let editorRef;
   let isDark = true;
+  let showPicker = false;
+
+  const workspaces = [
+    { id: "vault-md", label: "vault-md", base: "vault-md" },
+    { id: "memory-sandbox", label: "memory/sandbox", base: "memory/sandbox" },
+    { id: "memory-inbox", label: "memory/inbox", base: "memory/inbox" },
+  ];
+  let selectedWorkspace = workspaces[0];
 
   const authHeaders = () =>
     adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
 
   function updateBreadcrumbs() {
+    const base = selectedWorkspace?.base || "memory";
+    const baseName = selectedWorkspace?.label || base;
     if (!currentPath) {
-      breadcrumbs = [{ name: "memory", path: "" }];
+      breadcrumbs = [{ name: baseName, path: "" }];
       return;
     }
     const parts = currentPath.split("/");
-    const crumbs = [{ name: "memory", path: "" }];
+    const crumbs = [{ name: baseName, path: "" }];
     parts.forEach((part, index) => {
       const path = parts.slice(0, index + 1).join("/");
       crumbs.push({ name: part, path });
@@ -30,17 +40,31 @@
     breadcrumbs = crumbs;
   }
 
+  function buildWorkspacePath(path = currentPath) {
+    const base = selectedWorkspace?.base || "memory";
+    if (!path) return base;
+    return `${base}/${path}`;
+  }
+
   async function loadEntries(path = currentPath) {
     loading = true;
     error = null;
     try {
-      const res = await apiFetch(`/api/workspace/list?path=${encodeURIComponent(path)}`, {
+      const workspacePath = buildWorkspacePath(path);
+      const res = await apiFetch(`/api/workspace/list?path=${encodeURIComponent(workspacePath)}`, {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       entries = data.entries || [];
-      currentPath = data.path || path || "";
+      const resolved = data.path || path || "";
+      if (resolved.startsWith(`${selectedWorkspace.base}/`)) {
+        currentPath = resolved.slice(selectedWorkspace.base.length + 1);
+      } else if (resolved === selectedWorkspace.base) {
+        currentPath = "";
+      } else {
+        currentPath = path || "";
+      }
       updateBreadcrumbs();
     } catch (err) {
       error = err.message || String(err);
@@ -53,13 +77,15 @@
     loading = true;
     error = null;
     try {
-      const res = await apiFetch(`/api/workspace/read?path=${encodeURIComponent(entry.path)}`, {
+      const workspacePath = buildWorkspacePath(entry.path);
+      const res = await apiFetch(`/api/workspace/read?path=${encodeURIComponent(workspacePath)}`, {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       selectedFilePath = entry.path;
       editorRef?.setContent(data.content || "");
+      showPicker = false;
     } catch (err) {
       error = err.message || String(err);
     } finally {
@@ -83,10 +109,11 @@
       targetPath = currentPath ? `${currentPath}/${filename}` : filename;
       selectedFilePath = targetPath;
     }
+    const workspacePath = buildWorkspacePath(targetPath);
     const res = await apiFetch("/api/workspace/write", {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders() },
-      body: JSON.stringify({ path: targetPath, content }),
+      body: JSON.stringify({ path: workspacePath, content }),
     });
     if (!res.ok) {
       error = `Failed to save file (HTTP ${res.status})`;
@@ -103,7 +130,14 @@
   }
 
   function handleEditorOpen() {
-    // Files list is always visible; no-op.
+    showPicker = true;
+  }
+
+  function handleWorkspaceSelect(next) {
+    selectedWorkspace = next;
+    currentPath = "";
+    selectedFilePath = "";
+    loadEntries("");
   }
 
   onMount(() => {
@@ -126,44 +160,7 @@
     </div>
   {/if}
 
-  <div class="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-6">
-    <aside class="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-4">
-      <div class="flex items-center justify-between">
-        <div class="text-xs uppercase text-gray-400">Workspace</div>
-        <button class="px-2 py-1 bg-gray-700 rounded text-xs" on:click={() => loadEntries()}>
-          Refresh
-        </button>
-      </div>
-
-      <div class="flex flex-wrap gap-2 text-xs text-gray-400">
-        {#each breadcrumbs as crumb}
-          <button class="hover:text-white" on:click={() => loadEntries(crumb.path)}>
-            {crumb.name}
-          </button>
-          <span>/</span>
-        {/each}
-      </div>
-
-      {#if loading}
-        <div class="text-gray-400 text-sm">Loading…</div>
-      {:else}
-        <div class="space-y-1 max-h-[540px] overflow-y-auto">
-          {#each entries as entry}
-            <button
-              class={`w-full text-left px-3 py-2 rounded text-sm transition ${entry.type === "dir" ? "text-blue-200 hover:bg-gray-700" : "text-gray-200 hover:bg-gray-700"}`}
-              on:click={() => handleOpen(entry)}
-            >
-              {entry.type === "dir" ? "📁" : "📄"} {entry.name}
-            </button>
-          {/each}
-        </div>
-      {/if}
-
-      <button class="w-full px-3 py-2 rounded bg-blue-600" on:click={createNewFile}>
-        New File
-      </button>
-    </aside>
-
+  <div class="relative">
     <section class="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden">
       <TypoEditor
         bind:this={editorRef}
@@ -174,5 +171,63 @@
         onOpen={handleEditorOpen}
       />
     </section>
+
+    <div
+      class={`fixed inset-y-0 right-0 w-[360px] max-w-[90vw] bg-gray-900 border-l border-gray-700 shadow-2xl transform transition-transform duration-300 z-50 ${showPicker ? "translate-x-0" : "translate-x-full"}`}
+      aria-hidden={!showPicker}
+    >
+      <div class="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+        <div class="text-xs uppercase text-gray-400">Workspace</div>
+        <div class="flex items-center gap-2">
+          <button class="px-2 py-1 bg-gray-800 rounded text-xs" on:click={() => loadEntries()}>
+            Refresh
+          </button>
+          <button class="px-2 py-1 bg-gray-800 rounded text-xs" on:click={() => (showPicker = false)}>
+            Close
+          </button>
+        </div>
+      </div>
+
+      <div class="px-4 py-3 flex flex-wrap gap-2">
+        {#each workspaces as ws}
+          <button
+            class={`px-3 py-1 rounded-full text-xs border ${selectedWorkspace?.id === ws.id ? "bg-blue-600 border-blue-500 text-white" : "bg-gray-800 border-gray-700 text-gray-300 hover:text-white"}`}
+            on:click={() => handleWorkspaceSelect(ws)}
+          >
+            {ws.label}
+          </button>
+        {/each}
+      </div>
+
+      <div class="px-4 pb-3 flex flex-wrap gap-2 text-xs text-gray-400">
+        {#each breadcrumbs as crumb}
+          <button class="hover:text-white" on:click={() => loadEntries(crumb.path)}>
+            {crumb.name}
+          </button>
+          <span>/</span>
+        {/each}
+      </div>
+
+      {#if loading}
+        <div class="text-gray-400 text-sm px-4">Loading…</div>
+      {:else}
+        <div class="space-y-1 px-2 pb-4 overflow-y-auto" style="height: calc(100dvh - 260px);">
+          {#each entries as entry}
+            <button
+              class={`w-full text-left px-3 py-2 rounded text-sm transition ${entry.type === "dir" ? "text-blue-200 hover:bg-gray-800" : "text-gray-200 hover:bg-gray-800"}`}
+              on:click={() => handleOpen(entry)}
+            >
+              {entry.type === "dir" ? "📁" : "📄"} {entry.name}
+            </button>
+          {/each}
+        </div>
+      {/if}
+
+      <div class="px-4 pb-4">
+        <button class="w-full px-3 py-2 rounded bg-blue-600" on:click={createNewFile}>
+          New File
+        </button>
+      </div>
+    </div>
   </div>
 </div>

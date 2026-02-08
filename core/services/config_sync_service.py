@@ -8,9 +8,8 @@ Manages synchronization of user identity and system configuration between:
 The boundary is clear:
   .env ONLY contains:
     - USER_NAME, USER_DOB, USER_ROLE, USER_PASSWORD
-    - USER_LOCATION, USER_TIMEZONE
+    - UDOS_LOCATION, UDOS_TIMEZONE
     - OS_TYPE
-    - WIZARD_KEY (gateway to keystore)
 
 All other sensitive data (API keys, OAuth, integrations) stays in Wizard keystore.
 
@@ -21,10 +20,10 @@ Date: 2026-01-30
 
 import json
 import os
+import uuid
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Any
 from datetime import datetime
-import uuid
 
 from core.services.rate_limit_helpers import guard_wizard_endpoint
 
@@ -42,12 +41,11 @@ class ConfigSyncManager:
         'USER_DOB': 'user_dob',
         'USER_ROLE': 'user_role',
         'USER_PASSWORD': 'user_password',
-        'USER_LOCATION': 'user_location',
-        'USER_TIMEZONE': 'user_timezone',
+        'UDOS_LOCATION': 'user_location',
+        'UDOS_TIMEZONE': 'user_timezone',
         'OS_TYPE': 'install_os_type',
-        'UDOS_SHELL_ENABLED': 'udos_shell_enabled',
+        'VAULT_ROOT': 'setup_vault_md_root',
         'WIZARD_KEY': 'wizard_key',
-        'MISTRAL_API_KEY': 'mistral_api_key',
     }
 
     # Reverse mapping
@@ -137,7 +135,7 @@ class ConfigSyncManager:
                         env_dict.pop(env_key, None)
 
             # Ensure WIZARD_KEY exists (if not already set)
-            if 'WIZARD_KEY' not in env_dict:
+            if not env_dict.get('WIZARD_KEY'):
                 env_dict['WIZARD_KEY'] = str(uuid.uuid4())
                 logger.info(f"[LOCAL] Generated new WIZARD_KEY")
 
@@ -145,6 +143,11 @@ class ConfigSyncManager:
             if 'UDOS_ROOT' not in env_dict:
                 env_dict['UDOS_ROOT'] = str(self.repo_root.resolve())
                 logger.info(f"[LOCAL] Set UDOS_ROOT={env_dict['UDOS_ROOT']}")
+
+            # Ensure VAULT_ROOT exists (default to repo_root/vault-md)
+            if 'VAULT_ROOT' not in env_dict:
+                env_dict['VAULT_ROOT'] = str((self.repo_root / "vault-md").resolve())
+                logger.info(f"[LOCAL] Set VAULT_ROOT={env_dict['VAULT_ROOT']}")
 
             # Write .env file
             self._write_env_file(env_dict)
@@ -166,13 +169,17 @@ class ConfigSyncManager:
                 else:
                     env_dict[key] = str(value)
 
-            if 'WIZARD_KEY' not in env_dict:
+            if not env_dict.get('WIZARD_KEY'):
                 env_dict['WIZARD_KEY'] = str(uuid.uuid4())
                 logger.info(f"[LOCAL] Generated new WIZARD_KEY")
 
             if 'UDOS_ROOT' not in env_dict:
                 env_dict['UDOS_ROOT'] = str(self.repo_root.resolve())
                 logger.info(f"[LOCAL] Set UDOS_ROOT={env_dict['UDOS_ROOT']}")
+
+            if 'VAULT_ROOT' not in env_dict:
+                env_dict['VAULT_ROOT'] = str((self.repo_root / "vault-md").resolve())
+                logger.info(f"[LOCAL] Set VAULT_ROOT={env_dict['VAULT_ROOT']}")
 
             self._write_env_file(env_dict)
             return True, "✅ Updated .env"
@@ -198,7 +205,7 @@ class ConfigSyncManager:
         for key, value in env_dict.items():
             if key in self.SYSTEM_ONLY_FIELDS:
                 system_vars[key] = value
-            elif key in self.ENV_ONLY_FIELDS or key == 'WIZARD_KEY':
+            elif key in self.ENV_ONLY_FIELDS:
                 identity_vars[key] = value
             else:
                 other_vars[key] = value
@@ -209,7 +216,7 @@ class ConfigSyncManager:
             lines.append("# USER IDENTITY (Essential Core settings)")
             lines.append("# ============================================================================")
             for key in ['USER_NAME', 'USER_DOB', 'USER_ROLE', 'USER_PASSWORD',
-                       'USER_LOCATION', 'USER_TIMEZONE', 'OS_TYPE', 'UDOS_SHELL_ENABLED',
+                       'UDOS_LOCATION', 'UDOS_TIMEZONE', 'OS_TYPE',
                        'WIZARD_KEY']:
                 if key in identity_vars:
                     value = identity_vars[key]

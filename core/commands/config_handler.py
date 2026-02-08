@@ -460,9 +460,7 @@ LEGACY COMMANDS:
 
 VARIABLE TYPES:
   $VARIABLE                 System variables (stored in .env)
-    $WIZARD_KEY             Encryption key
-    $GITHUB_TOKEN           GitHub API token
-        $OPENAI_API_KEY         OpenAI API token
+    $WIZARD_ADMIN_TOKEN     Wizard admin token
 
   @variable                 User variables (encrypted secrets)
     @username               Your username
@@ -534,7 +532,7 @@ SECURITY:
 
             # Separate local setup vs other config
             setup_keys = {'USER_NAME', 'USER_DOB', 'USER_ROLE', 'USER_PASSWORD',
-                         'USER_LOCATION', 'USER_TIMEZONE', 'OS_TYPE', 'WIZARD_KEY'}
+                         'UDOS_LOCATION', 'UDOS_TIMEZONE', 'OS_TYPE'}
             setup_vars = {k: v for k, v in variables.items() if k in setup_keys}
             other_vars = {k: v for k, v in variables.items() if k not in setup_keys}
 
@@ -544,9 +542,7 @@ SECURITY:
                 for key in sorted(setup_keys):
                     if key in setup_vars:
                         value = setup_vars[key]
-                        if key == 'WIZARD_KEY':
-                            value = value[:8] + "..." if len(value) > 8 else "***"
-                        elif key == 'USER_PASSWORD':
+                        if key == 'USER_PASSWORD':
                             value = "***" if value else "(none)"
                         lines.append(f"  {key} = {value}")
                 lines.append("")

@@ -175,6 +175,7 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
         "ai": ["mistral_api_key", "openrouter_api_key", "ollama_api_key"],
         "github": ["github_token", "github_webhook_secret"],
         "oauth": ["oauth_client_id", "oauth_client_secret"],
+        "integrations": ["nounproject_api_key", "nounproject_api_secret"],
     }
 
     def _load_config_file(filename: str) -> Dict[str, Any]:
@@ -224,6 +225,8 @@ def get_secrets_config() -> Dict[str, List[SecretConfig]]:
             or _get_nested(legacy_config["github"], ["webhooks", "secret"])
         ),
     }
+    legacy_values["nounproject_api_key"] = os.getenv("NOUNPROJECT_API_KEY") or None
+    legacy_values["nounproject_api_secret"] = os.getenv("NOUNPROJECT_API_SECRET") or None
 
     oauth_client_id = None
     oauth_client_secret = None
@@ -377,6 +380,17 @@ def set_secret(key: str, value: str) -> Dict[str, Any]:
             logger.error(f"[LOCAL] Failed to unlock secret store: {e}")
             return {"error": f"Secret store is locked: {str(e)}"}
         store.set_entry(key, value, metadata={"updated_at": datetime.now().isoformat()})
+        # Persist env-only secrets when applicable
+        if key in {"nounproject_api_key", "nounproject_api_secret"}:
+            repo_root = get_repo_root()
+            env_path = repo_root / ".env"
+            env_key = (
+                "NOUNPROJECT_API_KEY"
+                if key == "nounproject_api_key"
+                else "NOUNPROJECT_API_SECRET"
+            )
+            _write_env_var(env_path, env_key, value)
+            os.environ[env_key] = value
         wizard_update = _sync_wizard_config_from_secret(key)
         logger.info(f"[LOCAL] Secret updated: {key}")
         return {"status": "set", "key": key, **wizard_update}

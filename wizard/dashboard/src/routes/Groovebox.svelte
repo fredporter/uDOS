@@ -134,7 +134,6 @@
   }
   .groovebox-header h2 {
     margin: 0;
-    font-size: 1.75rem;
   }
   .groovebox-grid {
     display: grid;

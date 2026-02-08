@@ -128,7 +128,6 @@
     position: absolute;
     bottom: 1px;
     right: 2px;
-    font-size: 0.5rem;
     color: white;
     text-shadow:
       0 0 2px black,

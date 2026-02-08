@@ -58,18 +58,15 @@
   .eyebrow {
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    font-size: 0.65rem;
     color: #94a3b8;
   }
 
   h2 {
     margin: 0.25rem 0 0;
-    font-size: 1.35rem;
   }
 
   .hint {
     margin: 0;
-    font-size: 0.8rem;
     color: #cbd5f5;
   }
 
@@ -117,7 +114,6 @@
 
   .details p {
     margin: 0;
-    font-size: 0.8rem;
     color: #94a3b8;
   }
 

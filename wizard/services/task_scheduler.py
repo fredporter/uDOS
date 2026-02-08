@@ -112,7 +112,18 @@ class TaskScheduler:
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.execute("SELECT key, value FROM scheduler_settings")
-                rows = {row["key"]: row["value"] for row in cursor.fetchall()}
+                rows = {}
+                for row in cursor.fetchall():
+                    try:
+                        key = row["key"]
+                        value = row["value"]
+                    except (TypeError, KeyError, IndexError):
+                        # Fallback if row_factory is not honored for any reason.
+                        key = row[0] if row else None
+                        value = row[1] if row and len(row) > 1 else None
+                    if key is None:
+                        continue
+                    rows[key] = value
             for key, value in rows.items():
                 try:
                     defaults[key] = json.loads(value)

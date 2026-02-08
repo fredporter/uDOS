@@ -70,6 +70,16 @@ PUBLIC_PROVIDER_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "config_file": "assistant_keys.json",
         "config_key": "OPENROUTER_API_KEY",
     },
+    "nounproject": {
+        "name": "Noun Project",
+        "description": "Icon library API",
+        "type": "api_key",
+        "automation": "manual",
+        "cli_required": False,
+        "web_url": "https://thenounproject.com/account/api",
+        "config_file": "assistant_keys.json",
+        "config_key": "NOUNPROJECT_API_KEY",
+    },
     "gemini": {
         "name": "Google Gemini",
         "description": "Google's AI models",
@@ -125,6 +135,8 @@ WIZARD_SECRET_SYNC_MAP: Dict[str, Dict[str, Any]] = {
     "mistral_api_key": {"providers": ["mistral"], "toggles": ["ok_gateway_enabled"]},
     "openrouter_api_key": {"providers": ["openrouter"], "toggles": ["ok_gateway_enabled"]},
     "ollama_api_key": {"providers": ["ollama"], "toggles": ["ok_gateway_enabled"]},
+    "nounproject_api_key": {"providers": ["nounproject"], "toggles": []},
+    "nounproject_api_secret": {"providers": ["nounproject"], "toggles": []},
 }
 
 

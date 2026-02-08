@@ -13,6 +13,7 @@ This script is executed on system startup to perform basic checks and initializa
 ```script
 $system.status = "startup"
 $system.last_startup = $now
+DRAW BLOCK ucodesmile-ascii.md
 PATTERN TEXT "Startup ready"
 ```
 

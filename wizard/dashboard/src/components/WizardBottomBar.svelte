@@ -157,6 +157,19 @@
   });
 </script>
 
+<div class="wizard-cli-bar">
+  <div class="wizard-cli-left">
+    <div class="wizard-status-line prompt-line">
+      <span class="emoji-frame">{emojiFrame}</span>
+      <span class="prompt-arrow">▶</span>
+    </div>
+    <div class="wizard-status-line cli-meta">
+      <span class="commands-line">⎔ Commands: OK, BINDER, FILE (+2 more)</span>
+      <span class="dev-line">↳ DEV: {devState} | Tip: '?' or 'OK' for AI, '/' for commands</span>
+    </div>
+  </div>
+</div>
+
 <div class="wizard-bottom-bar">
   <!-- Left side: Status info -->
   <div class="wizard-bar-left">
@@ -181,14 +194,6 @@
         <span class="chip">Mem: {memPercent}%</span>
         <span class="chip">CPU: {cpuPercent}%</span>
         <span class="chip">F1-F8</span>
-      </div>
-      <div class="wizard-status-line prompt-line">
-        <span class="emoji-frame">{emojiFrame}</span>
-        <span class="prompt-arrow">▶</span>
-      </div>
-      <div class="wizard-status-line">
-        <span class="commands-line">⎔ Commands: OK, BINDER, FILE (+2 more)</span>
-        <span class="dev-line">↳ DEV: {devState} | Tip: '?' or 'OK' for AI, '/' for commands</span>
       </div>
     </div>
   </div>
@@ -320,6 +325,36 @@
     overflow: hidden;
   }
 
+  .wizard-cli-bar {
+    position: fixed;
+    bottom: var(--wizard-bottom-bar-height, 86px);
+    left: 0;
+    width: 100vw;
+    height: var(--wizard-cli-bar-height, 44px);
+    background: #111827;
+    color: #cbd5f5;
+    display: flex;
+    align-items: center;
+    padding: 0.35rem 1.5rem;
+    border-top: 1px solid #1f2937;
+    z-index: 101;
+    gap: 1rem;
+    overflow: hidden;
+  }
+
+  :global(html.light) .wizard-cli-bar {
+    background: #eef2ff;
+    color: #475569;
+    border-top-color: #e2e8f0;
+  }
+
+  .wizard-cli-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+
   :global(html.light) .wizard-bottom-bar {
     background: #f8fafc;
     color: #64748b;
@@ -331,7 +366,7 @@
     align-items: center;
     gap: 0.5rem;
     min-width: 0;
-    flex-shrink: 0;
+    flex: 1 1 auto;
   }
 
   .status-text {
@@ -348,8 +383,14 @@
   .wizard-bar-right {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    flex-shrink: 0;
+    gap: 0.75rem;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 55%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: 0.35rem;
+    overflow: hidden;
   }
 
   .wizard-status-block {
@@ -364,13 +405,19 @@
     align-items: center;
     gap: 0.45rem;
     flex-wrap: wrap;
-    font-size: 0.72rem;
     color: #cbd5f5;
   }
 
   .prompt-line {
     font-size: 0.85rem;
     color: #f8fafc;
+  }
+
+  .cli-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
   }
 
   .emoji-frame {
@@ -392,7 +439,6 @@
     background: rgba(15, 23, 42, 0.6);
     border: 1px solid rgba(148, 163, 184, 0.2);
     color: inherit;
-    font-size: 0.68rem;
     letter-spacing: 0.02em;
   }
 
@@ -450,7 +496,6 @@
     background: none;
     border: 1px solid #4b5563;
     color: inherit;
-    font-size: 0.875rem;
     padding: 0.375rem 0.75rem;
     border-radius: 0.375rem;
     cursor: pointer;
@@ -499,7 +544,6 @@
     border-color: #1e40af;
     color: #93c5fd;
     font-weight: 700;
-    font-size: 0.75rem;
     padding: 0.375rem 0.65rem;
   }
 
@@ -533,7 +577,6 @@
     background: none;
     border: 1px solid #4b5563;
     color: inherit;
-    font-size: 0.75rem;
     padding: 0.375rem 0.625rem;
     border-radius: 0.375rem;
     cursor: pointer;
@@ -598,6 +641,11 @@
 
   /* Responsive */
   @media (max-width: 640px) {
+    .wizard-cli-bar {
+      height: var(--wizard-cli-bar-height, 44px);
+      padding: 0.35rem 1rem;
+    }
+
     .wizard-bar-left {
       min-width: 0;
       flex: 0 1 auto;
@@ -616,9 +664,14 @@
       gap: 0.5rem;
     }
 
+    .wizard-bar-right {
+      max-width: 100%;
+      gap: 0.5rem;
+      row-gap: 0.25rem;
+    }
+
     .size-controls button {
       padding: 0.25rem 0.5rem;
-      font-size: 0.75rem;
     }
   }
 </style>

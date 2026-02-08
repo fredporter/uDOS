@@ -13,7 +13,7 @@ This document defines the clear boundary between local Core identity data (store
 
 - The **v1.2 setup story flow** remains canonical in v1.3 (`core/tui/setup-story.md`).
 - `SETUP` is still the single entry-point; it writes `.env` + Wizard keystore the same way as v1.2.
-- `USER_LOCATION` is still free text, but it must resolve to coordinates in the spatial layer (see `docs/specs/SPATIAL-FILESYSTEM.md`).
+- `UDOS_LOCATION` is still free text, but it must resolve to coordinates in the spatial layer (see `docs/specs/SPATIAL-FILESYSTEM.md`).
 
 ## Data Boundaries
 
@@ -27,8 +27,8 @@ The `.env` file contains **ONLY** essential local identity and system settings:
 | `USER_DOB` | date | Yes | Date of birth (YYYY-MM-DD) |
 | `USER_ROLE` | enum | Yes | `ghost` \| `user` \| `admin` |
 | `USER_PASSWORD` | string | Optional | Local password (can be blank, user/admin only) |
-| `USER_LOCATION` | string | Yes | City name or grid coordinates (must resolve to spatial coordinates) |
-| `USER_TIMEZONE` | string | Yes | IANA timezone (e.g., America/Los_Angeles) |
+| `UDOS_LOCATION` | string | Yes | City name or grid coordinates (must resolve to spatial coordinates) |
+| `UDOS_TIMEZONE` | string | Yes | IANA timezone (e.g., America/Los_Angeles) |
 | `OS_TYPE` | enum | Yes | `alpine` \| `ubuntu` \| `mac` \| `windows` |
 | `WIZARD_KEY` | uuid | Auto | Gateway to Wizard keystore (auto-generated) |
 

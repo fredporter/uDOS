@@ -244,8 +244,8 @@ def create_ucode_routes(auth_guard=None):
 
         repo_root = wiz_repo_root()
         template_candidates = [
-            repo_root / "core" / "framework" / "seed" / "bank" / "system" / "tui-setup-story.md",
             repo_root / "core" / "tui" / "setup-story.md",
+            repo_root / "core" / "framework" / "seed" / "bank" / "system" / "tui-setup-story.md",
             repo_root / "wizard" / "templates" / "tui-setup-story.md",
         ]
         memory_root = get_memory_dir()

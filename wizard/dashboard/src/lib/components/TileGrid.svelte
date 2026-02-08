@@ -88,7 +88,7 @@
   };
 
   const getTileStyle = (tile) => {
-    let style = `width: ${tileSize}px; height: ${tileSize}px; font-size: ${tileSize * 0.8}px;`;
+    let style = `width: ${tileSize}px; height: ${tileSize}px;`;
 
     if (tile.fg) {
       style += ` color: ${tile.fg};`;
@@ -114,10 +114,7 @@
 >
   <div
     class="tile-grid"
-    style="
-      grid-template-columns: repeat({layer.width}, {tileSize}px);
-      grid-template-rows: repeat({layer.height}, {tileSize}px);
-    "
+    style="grid-template-columns: repeat({layer.width}, {tileSize}px); grid-template-rows: repeat({layer.height}, {tileSize}px);"
   >
     {#each layer.tiles as row, rowIndex}
       {#each row as tile, colIndex}
@@ -215,7 +212,6 @@
     position: absolute;
     top: 1px;
     right: 1px;
-    font-size: 8px;
     opacity: 0.7;
   }
 
@@ -223,7 +219,6 @@
     background-color: var(--info-bg, #374151);
     padding: 6px 12px;
     text-align: center;
-    font-size: 11px;
     color: var(--info-text, #9ca3af);
     border-top: 1px solid var(--border-color, #4b5563);
     font-family:

@@ -16,7 +16,6 @@
   const authHeaders = () =>
     adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
 
-
   async function checkHealth() {
     try {
       const res = await apiFetch("/api/github/health", {

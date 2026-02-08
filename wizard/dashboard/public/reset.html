@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wizard Dashboard Reset</title>
+    <script>
+      (function () {
+        try {
+          localStorage.removeItem("wizardApiBase");
+        } catch (err) {
+          console.error("Failed to clear wizardApiBase", err);
+        }
+        const params = new URLSearchParams(window.location.search);
+        const target = params.get("next") || "/index.html";
+        window.location.replace(target);
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Resetting dashboard API base...</p>
+  </body>
+</html>

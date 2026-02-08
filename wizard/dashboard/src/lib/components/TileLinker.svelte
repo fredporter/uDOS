@@ -218,7 +218,6 @@
 
   .modal-header h3 {
     margin: 0;
-    font-size: 16px;
     font-weight: 600;
     color: var(--text-primary, #f9fafb);
   }
@@ -227,7 +226,6 @@
     background: transparent;
     border: none;
     color: var(--text-secondary, #9ca3af);
-    font-size: 24px;
     cursor: pointer;
     padding: 0;
     width: 32px;
@@ -261,7 +259,6 @@
 
   .preview-char {
     font-family: var(--font-mono-variant, "Monaco", monospace);
-    font-size: 64px;
     line-height: 1;
     color: var(--text-primary, #f9fafb);
     margin-bottom: 8px;
@@ -278,7 +275,6 @@
 
   .form-group label {
     display: block;
-    font-size: 13px;
     font-weight: 500;
     color: var(--text-primary, #f9fafb);
     margin-bottom: 6px;
@@ -300,7 +296,6 @@
     border: 1px solid var(--border-color, #374151);
     border-radius: 4px;
     color: var(--text-primary, #f9fafb);
-    font-size: 13px;
     font-family: "Monaco", "Consolas", monospace;
     transition: border-color 0.2s;
   }
@@ -314,7 +309,6 @@
 
   .form-group textarea {
     resize: vertical;
-    font-size: 12px;
   }
 
   .info-box {
@@ -322,7 +316,6 @@
     border: 1px solid var(--info-border, #3b82f6);
     border-radius: 4px;
     padding: 12px;
-    font-size: 12px;
     color: var(--info-text, #dbeafe);
     line-height: 1.5;
   }
@@ -337,7 +330,6 @@
 
   .btn {
     padding: 8px 16px;
-    font-size: 13px;
     font-weight: 500;
     border: none;
     border-radius: 4px;

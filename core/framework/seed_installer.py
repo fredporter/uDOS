@@ -51,6 +51,7 @@ class SeedInstaller:
             (self.bank_dir / "help").mkdir(parents=True, exist_ok=True)
             (self.bank_dir / "templates").mkdir(parents=True, exist_ok=True)
             (self.bank_dir / "system").mkdir(parents=True, exist_ok=True)
+            (self.memory_dir / "system").mkdir(parents=True, exist_ok=True)
             (self.bank_dir / "graphics" / "diagrams" / "templates").mkdir(
                 parents=True, exist_ok=True
             )
@@ -64,6 +65,44 @@ class SeedInstaller:
         except Exception as e:
             logger.error(f"[LOCAL] Failed to create directories: {e}")
             return False
+
+    def install_system_seeds(self, force: bool = False) -> Dict[str, bool]:
+        """
+        Install system seed files into memory/system.
+
+        Args:
+            force: Overwrite if exists
+
+        Returns:
+            Dict with status of each file copied
+        """
+        results = {}
+        system_seed_dir = self.seed_dir / "bank" / "system"
+        target_dir = self.memory_dir / "system"
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        if not system_seed_dir.exists():
+            logger.warning(f"[LOCAL] System seed directory not found: {system_seed_dir}")
+            return results
+
+        try:
+            for item in system_seed_dir.rglob("*"):
+                if not item.is_file():
+                    continue
+                rel_path = item.relative_to(system_seed_dir)
+                target_file = target_dir / rel_path
+                target_file.parent.mkdir(parents=True, exist_ok=True)
+                if target_file.exists() and not force:
+                    continue
+                shutil.copy2(item, target_file)
+                results[str(rel_path)] = True
+
+            if results:
+                logger.info(f"[LOCAL] Installed system seeds ({len(results)} files)")
+            return results
+        except Exception as e:
+            logger.error(f"[LOCAL] Failed to install system seeds: {e}")
+            return results
 
     def install_locations_seed(self, force: bool = False) -> bool:
         """

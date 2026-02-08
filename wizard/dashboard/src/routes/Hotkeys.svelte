@@ -79,7 +79,6 @@
   }
   .hotkey-card h3 {
     margin: 0.5rem 0;
-    font-size: 1rem;
   }
   .hotkey-card p {
     font-size: 0.9rem;

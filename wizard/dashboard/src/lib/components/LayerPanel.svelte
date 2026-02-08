@@ -217,7 +217,6 @@
 
   .panel-header h3 {
     margin: 0;
-    font-size: 14px;
     font-weight: 600;
     color: var(--text-primary, #f9fafb);
   }
@@ -268,7 +267,6 @@
   .layer-name-input {
     width: 100%;
     padding: 2px 4px;
-    font-size: 13px;
     background-color: var(--input-bg, #1f2937);
     border: 1px solid var(--border-color, #6b7280);
     border-radius: 2px;
@@ -283,7 +281,6 @@
   .badge {
     display: inline-block;
     padding: 1px 4px;
-    font-size: 10px;
     background-color: var(--badge-bg, #6b7280);
     border-radius: 2px;
     margin-left: 4px;
@@ -308,7 +305,6 @@
 
   .opacity-control label {
     display: block;
-    font-size: 11px;
     color: var(--text-secondary, #9ca3af);
   }
 

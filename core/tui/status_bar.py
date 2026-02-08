@@ -21,13 +21,14 @@ from enum import Enum
 
 from core.services.viewport_service import ViewportService
 from core.utils.text_width import truncate_to_width
+from core.tui.output import OutputToolkit
 
 class ServerStatus(Enum):
     """Server availability status."""
-    RUNNING = "🟢"
-    STOPPED = "🔴"
-    ERROR = "🟠"
-    UNKNOWN = "⚫"
+    RUNNING = "●"
+    STOPPED = "○"
+    ERROR = "▲"
+    UNKNOWN = "·"
 
 
 class TUIStatusBar:
@@ -36,7 +37,6 @@ class TUIStatusBar:
     def __init__(self):
         """Initialize status bar."""
         self.wizard_port = 8765
-        self.goblin_port = 8767
         self.last_update = None
         self.cache_ttl = 2  # seconds
 
@@ -45,7 +45,7 @@ class TUIStatusBar:
         Get a one-line status bar for persistent display.
 
         Format:
-        [MODE: ghost] [WIZ: 🟢] [EXT: 🔴] [Mem: 45%] [CPU: 12%] [F1-F8 help]
+        [MODE: ghost] [WIZ: ●] [EXT: ○] [Mem: 45%] [CPU: 12%] [F1-F8 help]
 
         Args:
             user_role: Current user role (ghost, user, admin)
@@ -56,9 +56,8 @@ class TUIStatusBar:
         parts = []
 
         # Mode indicator
-        mode_emoji = "👻" if ghost_mode or user_role == "ghost" else "👤" if user_role == "user" else "🔐"
-        mode_display = f"{mode_emoji} {user_role.upper()}"
-        parts.append(f"[{mode_display}]")
+        mode_label = "GHOST" if ghost_mode or user_role == "ghost" else "USER" if user_role == "user" else "ADMIN"
+        parts.append(f"[MODE: {mode_label}]")
         if ghost_mode:
             parts.append("[GHOST MODE]")
 
@@ -66,8 +65,6 @@ class TUIStatusBar:
         wizard_status = self._check_server("localhost", self.wizard_port)
         parts.append(f"[WIZ: {wizard_status.value}]")
 
-        goblin_status = self._check_server("localhost", self.goblin_port)
-        parts.append(f"[GOB: {goblin_status.value}]")
 
         # System stats
         mem_percent = self._get_memory_percent()
@@ -89,43 +86,62 @@ class TUIStatusBar:
             Formatted status panel with detailed information
         """
         lines = []
-        lines.append("\n" + "=" * 70)
-        lines.append("📊 SYSTEM STATUS")
-        lines.append("=" * 70)
+        width = ViewportService().get_cols()
+        rule = "-" * min(70, width)
+        lines.append("\n" + rule)
+        lines.append(OutputToolkit.invert(" SYSTEM STATUS ".ljust(min(70, width))))
+        lines.append(rule)
 
         # User mode
-        mode_emoji = "👻" if ghost_mode or user_role == "ghost" else "👤" if user_role == "user" else "🔐"
         mode_label = "GHOST MODE" if ghost_mode else user_role.upper()
-        lines.append(f"\nMode:             {mode_emoji} {mode_label}")
+        lines.append(f"\nMode:             {mode_label}")
 
         # Server status details
-        lines.append("\n📡 Servers:")
+        lines.append("\nServers:")
         wizard_status = self._check_server("localhost", self.wizard_port)
-        goblin_status = self._check_server("localhost", self.goblin_port)
-
         lines.append(f"  Wizard (8765):  {wizard_status.value} {wizard_status.name}")
-        lines.append(f"  Goblin (8767):  {goblin_status.value} {goblin_status.name}")
 
         # System resources
-        lines.append("\n💻 System Resources:")
+        lines.append("\nSystem Resources:")
         mem = psutil.virtual_memory()
         lines.append(f"  Memory:         {mem.percent}% ({mem.used // (1024**3)}GB / {mem.total // (1024**3)}GB)")
 
         cpu_percent = psutil.cpu_percent(interval=0.1)
         lines.append(f"  CPU:            {cpu_percent}%")
 
-        # Uptime
+        # Column stats + meters
         try:
             boot_time = datetime.fromtimestamp(psutil.boot_time())
             uptime = datetime.now() - boot_time
             hours, remainder = divmod(int(uptime.total_seconds()), 3600)
             minutes, _ = divmod(remainder, 60)
-            lines.append(f"  Uptime:         {hours}h {minutes}m")
         except Exception:
-            lines.append(f"  Uptime:         Unknown")
+            hours, minutes = 0, 0
+
+        mem_stat = OutputToolkit.stat_block("Mem", f"{int(mem.percent)}%", invert=True)
+        cpu_stat = OutputToolkit.stat_block("CPU", f"{int(cpu_percent)}%", invert=True)
+        uptime_stat = OutputToolkit.stat_block("Uptime", f"{hours}h {minutes}m", invert=True)
+        stats_row = OutputToolkit.columns(
+            [mem_stat, OutputToolkit.progress_block(int(mem.percent), 100, label="Memory")],
+            [cpu_stat, OutputToolkit.progress_block(int(cpu_percent), 100, label="CPU")],
+        )
+        lines.append("\n" + stats_row)
+        lines.append(
+            OutputToolkit.columns(
+                [uptime_stat],
+                [OutputToolkit.progress_block(int(minutes + hours * 60), 240, label="Session")],
+            )
+        )
+        if os.getenv("UDOS_TUI_FULL_METERS", "").strip().lower() in {"1", "true", "yes"}:
+            lines.append(
+                OutputToolkit.progress_block_full(int(mem.percent), 100, label="Memory")
+            )
+            lines.append(
+                OutputToolkit.progress_block_full(int(cpu_percent), 100, label="CPU")
+            )
 
         # Function key reference
-        lines.append("\n⌨️  Function Keys:")
+        lines.append("\nFunction Keys:")
         fkeys = [
             "F1: New File    ",
             "F2: File Pick   ",
@@ -139,9 +155,7 @@ class TUIStatusBar:
         lines.append("  " + "    ".join(fkeys[:4]))
         lines.append("  " + "    ".join(fkeys[4:8]))
 
-        lines.append("\n" + "=" * 70)
-
-        width = ViewportService().get_cols()
+        lines.append("\n" + rule)
         clamped = [truncate_to_width(line, width) for line in lines]
         return "\n".join(clamped)
 

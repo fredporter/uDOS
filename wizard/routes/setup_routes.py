@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from typing import Optional, Dict, Any, Sequence, List
 
 from wizard.services.setup_state import setup_state
+from core.services.config_sync_service import ConfigSyncManager
 from wizard.services.setup_manager import (
     get_full_config_status,
     get_required_variables,
@@ -220,10 +221,10 @@ def _load_env_identity() -> Dict[str, str]:
             identity['user_dob'] = env_vars['USER_DOB']
         if env_vars.get('USER_ROLE'):
             identity['user_role'] = env_vars['USER_ROLE']
-        if env_vars.get('USER_TIMEZONE'):
-            identity['user_timezone'] = env_vars['USER_TIMEZONE']
-        if env_vars.get('USER_LOCATION'):
-            identity['user_location'] = env_vars['USER_LOCATION']
+        if env_vars.get('UDOS_TIMEZONE'):
+            identity['user_timezone'] = env_vars['UDOS_TIMEZONE']
+        if env_vars.get('UDOS_LOCATION'):
+            identity['user_location'] = env_vars['UDOS_LOCATION']
         if env_vars.get('OS_TYPE'):
             identity['install_os_type'] = env_vars['OS_TYPE']
 
@@ -472,8 +473,8 @@ def create_setup_routes(auth_guard=None):
     async def bootstrap_setup_story(force: bool = False):
         repo_root = get_repo_root()
         template_candidates = [
-            repo_root / "core" / "framework" / "seed" / "bank" / "system" / "tui-setup-story.md",
             repo_root / "core" / "tui" / "setup-story.md",
+            repo_root / "core" / "framework" / "seed" / "bank" / "system" / "tui-setup-story.md",
             repo_root / "wizard" / "templates" / "tui-setup-story.md",
             # Deprecated (fallback only)
             repo_root / "wizard" / "templates" / "setup-wizard-story.md",
@@ -672,11 +673,27 @@ def create_setup_routes(auth_guard=None):
         _apply_capabilities_to_wizard_config((install_result.data or {}).get("capabilities") or {})
         metrics = sync_metrics_from_profile(install_result.data or {})
 
+        # Sync identity fields back to .env (core boundary)
+        sync_manager = ConfigSyncManager()
+        env_payload = {
+            "user_username": user_profile.get("username"),
+            "user_dob": user_profile.get("date_of_birth"),
+            "user_role": user_profile.get("role"),
+            "user_password": answers.get("user_password"),
+            "user_timezone": user_profile.get("timezone"),
+            "user_location": user_profile.get("location_name")
+            or answers.get("user_location_name")
+            or answers.get("user_location_id"),
+            "install_os_type": install_profile.get("os_type"),
+        }
+        env_ok, env_msg = sync_manager.save_identity_to_env(env_payload)
+
         return {
             "status": "success",
             "user_profile": user_result.data,
             "install_profile": install_result.data,
             "install_metrics": metrics,
+            "env_sync": {"success": env_ok, "message": env_msg},
         }
 
     @router.get("/profile/user")

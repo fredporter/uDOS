@@ -41,7 +41,7 @@
       "PATH": "${workspaceFolder:Root}/.venv/bin:${env:PATH}",
       "PYTHONPATH": "${workspaceFolder:Root}",
       "UDOS_ROOT": "${env:UDOS_ROOT}",
-      "VAULT_MD_ROOT": "/Users/fredbook/Documents/vault-md"
+      "VAULT_ROOT": "/Users/fredbook/Documents/vault-md"
     },
     "terminal.integrated.shellArgs.osx": [
       "-l",

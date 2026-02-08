@@ -118,14 +118,14 @@ export class Runtime {
         };
       } else if (line.startsWith("```")) {
         const blockType = line.substring(3).trim();
-        if (blockType === "story") {
+        if (blockType === "story" || blockType === "form") {
           inCodeBlock = true;
-          codeBlockType = "story";
+          codeBlockType = blockType;
           codeBlockContent = "";
         } else if (inCodeBlock && blockType === "") {
           // End of code block
           inCodeBlock = false;
-          if (codeBlockType === "story" && currentSection) {
+          if ((codeBlockType === "story" || codeBlockType === "form") && currentSection) {
             const field = this.parseStoryBlock(codeBlockContent);
             if (field) {
               currentSection.fields.push(field);
@@ -160,6 +160,24 @@ export class Runtime {
     const lines = content.trim().split("\n");
 
     for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("-") && field.options) {
+        const raw = trimmed.substring(1).trim();
+        if (!raw) {
+          continue;
+        }
+        const optColon = raw.indexOf(":");
+        if (optColon > 0) {
+          const optKey = raw.substring(0, optColon).trim();
+          let optValue = raw.substring(optColon + 1).trim();
+          optValue = optValue.replace(/^["']|["']$/g, "");
+          field.options.push({ [optKey]: optValue });
+        } else {
+          field.options.push(raw.replace(/^["']|["']$/g, ""));
+        }
+        continue;
+      }
+
       const colonIdx = line.indexOf(":");
       if (colonIdx > 0) {
         const key = line.substring(0, colonIdx).trim();
@@ -177,10 +195,6 @@ export class Runtime {
         } else {
           field[key] = value;
         }
-      } else if (line.trim().startsWith("-") && field.options) {
-        // Parse option items
-        const optionValue = line.trim().substring(1).trim();
-        field.options.push(optionValue);
       }
     }
 

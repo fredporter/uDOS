@@ -5,21 +5,130 @@ Provides consistent ASCII formatting for banners, alerts, checklists,
 tables, and sectioned output.
 """
 
-from typing import Iterable, List, Sequence, Tuple
+from typing import Iterable, List, Sequence, Tuple, Optional
 
 from core.utils.text_width import display_width, pad_to_width, truncate_to_width
 from core.services.viewport_service import ViewportService
+import time
 
 
 class OutputToolkit:
     """Helpers for consistent CLI output formatting."""
 
+    RESET = "\033[0m"
+    INVERT = "\033[7m"
+    DIM = "\033[2m"
+
     @staticmethod
-    def banner(title: str, width: int = 60, pad: str = "=") -> str:
-        line = pad * width
+    def banner(title: str, width: Optional[int] = None, pad: str = "=") -> str:
+        cols = ViewportService().get_cols()
+        w = min(cols, width or cols)
+        line = pad * max(1, w)
         title_line = f"{title}"
         output = "\n".join([line, title_line, line])
         return OutputToolkit._clamp(output)
+
+    @staticmethod
+    def invert(text: str) -> str:
+        return f"{OutputToolkit.INVERT}{text}{OutputToolkit.RESET}"
+
+    @staticmethod
+    def faint(text: str) -> str:
+        return f"{OutputToolkit.DIM}{text}{OutputToolkit.RESET}"
+
+    @staticmethod
+    def rule(char: str = "─", width: Optional[int] = None) -> str:
+        cols = ViewportService().get_cols()
+        w = min(cols, width or cols)
+        return char * max(1, w)
+
+    @staticmethod
+    def box(title: str, body: str, width: Optional[int] = None) -> str:
+        cols = ViewportService().get_cols()
+        w = min(cols, width or cols)
+        inner = max(10, w - 4)
+        top = f"┌{('─' * (w - 2))}┐"
+        head = f"│ {truncate_to_width(title, inner):<{inner}} │"
+        mid = f"├{('─' * (w - 2))}┤"
+        lines = [top, head, mid]
+        for line in (body or "").splitlines():
+            lines.append(f"│ {truncate_to_width(line, inner):<{inner}} │")
+        lines.append(f"└{('─' * (w - 2))}┘")
+        return OutputToolkit._clamp("\n".join(lines))
+
+    @staticmethod
+    def invert_section(text: str, width: Optional[int] = None) -> str:
+        cols = ViewportService().get_cols()
+        w = min(cols, width or cols)
+        lines = (text or "").splitlines() or [""]
+        out = []
+        for line in lines:
+            clipped = truncate_to_width(line, w)
+            out.append(OutputToolkit.invert(f"{clipped:<{w}}"))
+        return OutputToolkit._clamp("\n".join(out))
+
+    @staticmethod
+    def columns(left_lines: List[str], right_lines: List[str], gap: int = 2) -> str:
+        cols = ViewportService().get_cols()
+        left_w = max(12, int(cols * 0.48))
+        right_w = max(12, cols - left_w - gap)
+        max_len = max(len(left_lines), len(right_lines))
+        out = []
+        for i in range(max_len):
+            left = left_lines[i] if i < len(left_lines) else ""
+            right = right_lines[i] if i < len(right_lines) else ""
+            out.append(
+                f"{pad_to_width(truncate_to_width(left, left_w), left_w)}"
+                f"{' ' * gap}"
+                f"{truncate_to_width(right, right_w)}"
+            )
+        return OutputToolkit._clamp("\n".join(out))
+
+    @staticmethod
+    def progress_block(current: int, total: int, width: Optional[int] = None, label: Optional[str] = None) -> str:
+        cols = ViewportService().get_cols()
+        w = min(cols, width or max(20, int(cols * 0.6)))
+        w = max(10, w)
+        if total <= 0:
+            bar = "░" * w
+            pct = 0
+        else:
+            ratio = max(0.0, min(1.0, current / total))
+            filled = int(round(ratio * w))
+            bar = "█" * filled + "░" * (w - filled)
+            pct = int(ratio * 100)
+        prefix = f"{label} " if label else ""
+        return f"{prefix}[{bar}] {pct}%"
+
+    @staticmethod
+    def progress_block_full(current: int, total: int, label: Optional[str] = None) -> str:
+        cols = ViewportService().get_cols()
+        inner = max(10, cols - 10)
+        return OutputToolkit.progress_block(current, total, width=inner, label=label)
+
+    @staticmethod
+    def stat_block(label: str, value: str, width: Optional[int] = None, invert: bool = False) -> str:
+        cols = ViewportService().get_cols()
+        w = min(cols, width or max(18, int(cols * 0.22)))
+        w = max(12, w)
+        text = f"{label}: {value}"
+        line = truncate_to_width(text, w)
+        if invert:
+            line = OutputToolkit.invert(f"{line:<{w}}")
+        return line
+
+    @staticmethod
+    def present_frames(frames: Sequence[str], interval: float = 0.8, repeat: int = 1, clear: bool = True) -> None:
+        """Present full-screen frames with clears between (presentation-style)."""
+        if not frames:
+            return
+        loops = max(1, int(repeat))
+        for _ in range(loops):
+            for frame in frames:
+                if clear:
+                    print("\033[2J\033[H", end="")
+                print(frame)
+                time.sleep(max(0.0, float(interval)))
 
     @staticmethod
     def alert(message: str, level: str = "info") -> str:
@@ -56,9 +165,11 @@ class OutputToolkit:
     @staticmethod
     def progress_bar(current: int, total: int, width: int = 24) -> str:
         if total <= 0:
-            return OutputToolkit._clamp("[?]")
+            return OutputToolkit._clamp("Progress: 0/0")
         filled = int((current / total) * width)
-        return OutputToolkit._clamp("[" + "#" * filled + "-" * (width - filled) + f"] {current}/{total}")
+        filled = max(0, min(width, filled))
+        bar = "█" * filled + "░" * (width - filled)
+        return OutputToolkit._clamp(f"Progress: {current}/{total} [{bar}]")
 
     @staticmethod
     def map_view(location) -> str:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import threading
+import time
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -33,19 +34,32 @@ class TaskSchedulerRunner:
             pass
 
         def loop():
+            last_error = None
+            last_error_ts = 0.0
             while not self._stop.is_set():
+                wait_seconds = 60
                 try:
                     settings = self.scheduler.get_settings()
-                    max_tasks = int(settings.get("max_tasks_per_tick", 2))
-                    tick_seconds = int(settings.get("tick_seconds", 60))
+                    max_tasks = int(settings.get("max_tasks_per_tick", 2) or 2)
+                    tick_seconds = int(settings.get("tick_seconds", 60) or 60)
+                    if tick_seconds < 5:
+                        tick_seconds = 5
+                    wait_seconds = tick_seconds
                     result = self.scheduler.run_pending(max_tasks=max_tasks)
                     if result.get("executed", 0):
                         self.logger.info(
                             f"[WIZ] Scheduler executed {result.get('executed')} task(s)"
                         )
                 except Exception as exc:
-                    self.logger.warn("[WIZ] Scheduler loop error: %s", exc)
-                self._stop.wait(tick_seconds)
+                    msg = str(exc)
+                    now = time.monotonic()
+                    if msg != last_error or (now - last_error_ts) > 60:
+                        self.logger.warn("[WIZ] Scheduler loop error: %s", exc)
+                        last_error = msg
+                        last_error_ts = now
+                    # Back off when failing to avoid hot-looping.
+                    wait_seconds = max(wait_seconds, 60)
+                self._stop.wait(wait_seconds)
 
         self._thread = threading.Thread(target=loop, daemon=True)
         self._thread.start()

@@ -781,12 +781,43 @@ launch_wizard_server() {
     _setup_component_environment "wizard" || return 1
     check_wizard_updates || true  # Don't block startup on update failures
 
+    # Resolve wizard port from config (fallback 8765)
+    local wizard_port
+    wizard_port="$(python - <<'PY' 2>/dev/null
+import json
+from pathlib import Path
+path = Path(__file__).resolve().parent.parent / "wizard" / "config" / "wizard.json"
+port = 8765
+try:
+    if path.exists():
+        data = json.loads(path.read_text())
+        port = int(data.get("port", port))
+except Exception:
+    pass
+print(port)
+PY
+)"
+    if [ -z "$wizard_port" ]; then
+        wizard_port=8765
+    fi
+    local base_url="http://127.0.0.1:${wizard_port}"
+
     _udos_echo "${CYAN}[INFO]${NC} Starting Wizard Server in background..."
 
     # Check if already running
-    if curl -s --connect-timeout 2 http://127.0.0.1:8765/health >/dev/null 2>&1; then
-        _udos_echo "${GREEN}✓${NC} Wizard already running on http://localhost:8765"
+    if curl -s --connect-timeout 2 "${base_url}/health" >/dev/null 2>&1; then
+        _udos_echo "${GREEN}✓${NC} Wizard already running on ${base_url}"
     else
+        # Detect port conflicts
+        if lsof -iTCP:"${wizard_port}" -sTCP:LISTEN >/dev/null 2>&1; then
+            echo -e "${YELLOW}⚠${NC}  Port ${wizard_port} is already in use."
+            echo -e "${DIM}ℹ️  Process listening on ${wizard_port}:${NC}"
+            lsof -nP -iTCP:"${wizard_port}" -sTCP:LISTEN || true
+            echo -e "${YELLOW}⚠${NC}  Wizard not responding on ${base_url}/health"
+            echo -e "${DIM}ℹ️  Consider stopping the conflicting process or changing wizard.json port.${NC}"
+            return 1
+        fi
+
         # Validate python module exists
         if ! python -c "import wizard.server" 2>/dev/null; then
             echo -e "${RED}❌ Wizard module not found${NC}"
@@ -802,7 +833,7 @@ launch_wizard_server() {
         local max_wait=10
         local waited=0
         while [ $waited -lt $max_wait ]; do
-            if curl -s --connect-timeout 1 http://127.0.0.1:8765/health >/dev/null 2>&1; then
+            if curl -s --connect-timeout 1 "${base_url}/health" >/dev/null 2>&1; then
                 _udos_echo "${GREEN}✓${NC} Wizard Server started (PID: $wizard_pid)"
                 break
             fi
@@ -816,8 +847,8 @@ launch_wizard_server() {
         fi
     fi
 
-    print_service_url "Server" "http://localhost:8765"
-    print_service_url "Dashboard" "http://localhost:8765/dashboard"
+    print_service_url "Server" "http://localhost:${wizard_port}"
+    print_service_url "Dashboard" "http://localhost:${wizard_port}/dashboard"
     _udos_echo ""
     _udos_echo "${CYAN}[INFO]${NC} Launching uCODE TUI..."
     _udos_echo ""

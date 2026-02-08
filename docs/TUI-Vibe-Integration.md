@@ -6,7 +6,7 @@ This doc reflects the current **uCODE‑TUI‑first** architecture. Vibe‑TUI h
 
 ## 1. Core boundary: `.env` + Wizard keystore
 
-- `.env` stays the device‑local identity store (`USER_NAME`, `USER_DOB`, `USER_ROLE`, `USER_TIMEZONE`, `USER_LOCATION_ID`, etc.) as described in `.env.example`.
+- `.env` stays the device‑local identity store (`USER_NAME`, `USER_DOB`, `USER_ROLE`, `UDOS_TIMEZONE`, `UDOS_LOCATION`, etc.) as described in `.env.example`.
 - Non‑identity secrets (API keys, OAuth tokens, integration secrets) remain in the Wizard keystore (under `memory/bank/private/`), synchronized only when the Wizard server is present.
 - uCODE TUI setup writes identity to `.env` and generates/syncs `WIZARD_ADMIN_TOKEN` for Wizard access.
 

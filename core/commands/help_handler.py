@@ -36,6 +36,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "LOGS",
             "INTEGRATION",
             "VIEWPORT",
+            "DRAW",
         ],
         "Automation": [
             "SCHEDULER",
@@ -189,6 +190,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "notes": "Persists UDOS_VIEWPORT_COLS/ROWS in .env for stable TUI sizing.",
             "category": "System & Maintenance",
             "syntax": "VIEWPORT [SHOW|REFRESH]",
+        },
+        "DRAW": {
+            "description": "Render viewport-aware ASCII panels",
+            "usage": "DRAW [DEMO|MAP|SCHEDULE|TIMELINE]",
+            "example": "DRAW DEMO",
+            "notes": "Shows grid/map, schedule/todo, and timeline/progress demos sized to the current viewport.",
+            "category": "System & Maintenance",
+            "syntax": "DRAW [DEMO|MAP|SCHEDULE|TIMELINE]",
         },
         "SCHEDULER": {
             "description": "Manage scheduled tasks in the Wizard queue",

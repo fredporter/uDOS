@@ -66,7 +66,6 @@
 
   h2 {
     margin: 0 0 2rem 0;
-    font-size: 2rem;
     font-weight: 700;
     color: #1f2937;
   }
@@ -79,7 +78,6 @@
     margin-bottom: 2rem;
     line-height: 1.6;
     color: #4b5563;
-    font-size: 1.0625rem;
   }
 
   :global(.dark) .prose {
@@ -120,7 +118,6 @@
     padding: 0.2rem 0.4rem;
     border-radius: 0.25rem;
     font-family: 'Monaco', 'Menlo', monospace;
-    font-size: 0.875em;
   }
 
   :global(.dark .prose code) {

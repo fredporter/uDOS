@@ -101,8 +101,8 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
             USER_DOB           Date of birth (YYYY-MM-DD)
             USER_ROLE          admin | user | ghost
             USER_PASSWORD      Optional password (user/admin only, can be blank)
-            USER_LOCATION      City / grid location
-            USER_TIMEZONE      Timezone (e.g. America/Los_Angeles)
+            UDOS_LOCATION      City / grid location
+            UDOS_TIMEZONE      Timezone (e.g. America/Los_Angeles)
             OS_TYPE            alpine | ubuntu | mac | windows
             WIZARD_KEY         Gateway to Wizard keystore (auto-generated)
 
@@ -252,8 +252,12 @@ When Wizard Server is installed, it imports this data.
             # Location & Time
             lines.append("\n📍 Location & Time")
             lines.append("-" * 60)
-            lines.append(f"  • Location:     {env_data.get('USER_LOCATION', 'Not set')}")
-            lines.append(f"  • Timezone:     {env_data.get('USER_TIMEZONE', 'Not set')}")
+            lines.append(
+                f"  • Location:     {env_data.get('UDOS_LOCATION', 'Not set')}"
+            )
+            lines.append(
+                f"  • Timezone:     {env_data.get('UDOS_TIMEZONE', 'Not set')}"
+            )
 
             # Installation
             lines.append("\n⚙️  Installation")
@@ -428,8 +432,8 @@ Key fields to edit:
   USER_DOB               YYYY-MM-DD
   USER_ROLE              ghost | user | admin
   USER_PASSWORD          Optional (can be blank)
-  USER_LOCATION          City / grid location
-  USER_TIMEZONE          America/Los_Angeles, etc.
+  UDOS_LOCATION          City / grid location
+  UDOS_TIMEZONE          America/Los_Angeles, etc.
   OS_TYPE                alpine | ubuntu | mac | windows
 """
         }
@@ -439,7 +443,7 @@ Key fields to edit:
         try:
             env_vars = [
                 'USER_NAME', 'USER_DOB', 'USER_ROLE',
-                'USER_LOCATION', 'USER_TIMEZONE', 'OS_TYPE',
+                'UDOS_LOCATION', 'UDOS_TIMEZONE', 'OS_TYPE',
                 'USER_PASSWORD', 'USER_ID'
             ]
 
@@ -498,10 +502,9 @@ LOCAL SETTINGS (.env):
   USER_DOB           Birth date (YYYY-MM-DD)
   USER_ROLE          ghost | user | admin
   USER_PASSWORD      Optional password (user/admin - can be blank)
-  USER_LOCATION      City or grid coordinates
-  USER_TIMEZONE      Timezone identifier
+  UDOS_LOCATION      City or grid coordinates
+  UDOS_TIMEZONE      Timezone identifier
   OS_TYPE            alpine | ubuntu | mac | windows
-  WIZARD_KEY         Gateway to Wizard keystore
 
 EXTENDED SETTINGS (Wizard Keystore - installed later):
     API Keys:          GitHub, OpenAI, Anthropic, etc.
@@ -594,7 +597,7 @@ EXAMPLES:
                     key = key.strip()
                     value = value.strip().strip('"\'')
                     # Only load setup-related vars
-                    if key.startswith('USER_') or key in {'OS_TYPE', 'WIZARD_KEY'}:
+                    if key.startswith('USER_') or key in {'OS_TYPE', 'UDOS_LOCATION', 'UDOS_TIMEZONE', 'WIZARD_KEY'}:
                         env_vars[key] = value
             return env_vars
         except Exception:
@@ -619,8 +622,8 @@ EXAMPLES:
                 'user_username': 'USER_NAME',
                 'user_dob': 'USER_DOB',
                 'user_role': 'USER_ROLE',
-                'user_location': 'USER_LOCATION',
-                'user_timezone': 'USER_TIMEZONE',
+                'user_location': 'UDOS_LOCATION',
+                'user_timezone': 'UDOS_TIMEZONE',
                 'install_os_type': 'OS_TYPE',
                 'user_password': 'USER_PASSWORD',
                 'udos_root': 'UDOS_ROOT',
@@ -664,16 +667,17 @@ EXAMPLES:
                 scrambled_uid = scramble_uid(uid)
                 existing['USER_ID'] = f'"{scrambled_uid}"'
 
-            # Generate or keep Wizard Key
-            if 'WIZARD_KEY' not in existing:
-                import uuid
-                existing['WIZARD_KEY'] = f'"{str(uuid.uuid4())}"'
-
             # Add UDOS_ROOT (absolute path to repo root)
             if 'UDOS_ROOT' not in existing:
                 from pathlib import Path
                 repo_root = Path(__file__).parent.parent.parent.resolve()
                 existing['UDOS_ROOT'] = f'"{str(repo_root)}"'
+
+            # Generate or keep Wizard Key
+            wizard_key = existing.get('WIZARD_KEY', '').strip().strip('"\'')
+            if not wizard_key:
+                import uuid
+                existing['WIZARD_KEY'] = f'"{str(uuid.uuid4())}"'
 
             # Write back to .env
             lines = []

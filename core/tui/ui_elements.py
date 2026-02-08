@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import sys
 import time
+import threading
 from dataclasses import dataclass
 from typing import Iterable, List, Sequence
 
@@ -47,6 +48,8 @@ class Spinner:
             text = f"{self.label} {frame}"
         else:
             text = f"{self.label} {frame} {elapsed}s"
+        width = ViewportService().get_cols()
+        text = pad_to_width(text, width)
         sys.stdout.write("\r" + text)
         sys.stdout.flush()
         self._idx += 1
@@ -55,12 +58,26 @@ class Spinner:
         if not self._running:
             return
         elapsed = time.time() - self._start
-        sys.stdout.write("\r" + (" " * (len(self.label) + 12)) + "\r")
+        width = ViewportService().get_cols()
+        sys.stdout.write("\r" + (" " * width) + "\r")
         sys.stdout.flush()
         self._running = False
         if success_text:
             sys.stdout.write(f"{success_text} ({elapsed:0.1f}s)\n")
             sys.stdout.flush()
+
+    def start_background(self, stop_event: threading.Event) -> threading.Thread:
+        """Start spinner ticks in a background thread until stop_event is set."""
+        self.start()
+
+        def _spin() -> None:
+            while not stop_event.is_set():
+                self.tick()
+                time.sleep(self.interval)
+
+        thread = threading.Thread(target=_spin, daemon=True)
+        thread.start()
+        return thread
 
 
 @dataclass

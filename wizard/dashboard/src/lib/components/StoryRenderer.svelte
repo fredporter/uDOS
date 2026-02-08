@@ -110,7 +110,7 @@
   <!-- Progress bar -->
   {#if showProgress && safeSections.length > 1}
     <div class="progress-container">
-      <div class="progress-bar" style="width: {progress}%"></div>
+      <div class="progress-bar" style="width: {progress}%;"></div>
       <div class="progress-text">{progress}%</div>
     </div>
   {/if}
@@ -181,6 +181,7 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
+  :global(html.dark) .story-renderer,
   .story-renderer.dark {
     background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
     color: #f3f4f6;
@@ -208,11 +209,11 @@
     position: absolute;
     top: 12px;
     right: 24px;
-    font-size: 0.875rem;
     font-weight: 600;
     color: #6b7280;
   }
 
+  :global(html.dark) .story-renderer .progress-text,
   .story-renderer.dark .progress-text {
     color: #9ca3af;
   }
@@ -224,22 +225,22 @@
     border-bottom: 1px solid #e5e7eb;
   }
 
+  :global(html.dark) .story-renderer .header,
   .story-renderer.dark .header {
     border-bottom-color: #374151;
   }
 
   .header h1 {
     margin: 0 0 1rem 0;
-    font-size: 2.5rem;
     font-weight: 700;
   }
 
   .header .description {
     margin: 0;
-    font-size: 1.125rem;
     color: #6b7280;
   }
 
+  :global(html.dark) .story-renderer .header .description,
   .story-renderer.dark .header .description {
     color: #9ca3af;
   }
@@ -263,6 +264,7 @@
     background: #fafbfc;
   }
 
+  :global(html.dark) .story-renderer .footer,
   .story-renderer.dark .footer {
     background: #1f2937;
     border-top-color: #374151;
@@ -276,7 +278,6 @@
   /* Buttons */
   .btn {
     padding: 0.75rem 1.5rem;
-    font-size: 1rem;
     font-weight: 600;
     border: none;
     border-radius: 0.5rem;
@@ -305,6 +306,7 @@
     border: 1px solid #d1d5db;
   }
 
+  :global(html.dark) .story-renderer .btn-secondary,
   .story-renderer.dark .btn-secondary {
     background: #374151;
     color: #f3f4f6;
@@ -315,6 +317,7 @@
     background: #e5e7eb;
   }
 
+  :global(html.dark) .story-renderer .btn-secondary:hover:not(:disabled),
   .story-renderer.dark .btn-secondary:hover:not(:disabled) {
     background: #4b5563;
   }
@@ -326,6 +329,7 @@
     font-weight: 500;
   }
 
+  :global(html.dark) .story-renderer .btn-tertiary,
   .story-renderer.dark .btn-tertiary {
     color: #9ca3af;
     border-color: #4b5563;
@@ -336,6 +340,7 @@
     border-color: #9ca3af;
   }
 
+  :global(html.dark) .story-renderer .btn-tertiary:hover:not(:disabled),
   .story-renderer.dark .btn-tertiary:hover:not(:disabled) {
     background: #2d3748;
     border-color: #6b7280;
@@ -347,6 +352,7 @@
     color: #6b7280;
   }
 
+  :global(html.dark) .story-renderer .section-indicator,
   .story-renderer.dark .section-indicator {
     color: #9ca3af;
   }

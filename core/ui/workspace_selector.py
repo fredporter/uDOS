@@ -125,7 +125,7 @@ class WorkspacePicker:
         memory_dir = self.project_root / "memory"
         knowledge_dir = self.project_root / "knowledge"
         dev_dir = self.project_root / "dev"
-        env_vault = os.getenv("VAULT_MD_ROOT")
+        env_vault = os.getenv("VAULT_ROOT")
         vault_dir = Path(env_vault).expanduser() if env_vault else self.project_root / "vault-md"
 
         workspaces = [
@@ -134,7 +134,7 @@ class WorkspacePicker:
                 name="Sandbox",
                 path=memory_dir / "sandbox",
                 description="Personal workspace for experiments and drafts",
-                icon="📦",
+                icon="•",
                 admin_only=False,
             ),
             WorkspaceOption(
@@ -142,7 +142,7 @@ class WorkspacePicker:
                 name="Bank",
                 path=memory_dir / "bank",
                 description="Legacy bank (use Vault for primary storage)",
-                icon="🏦",
+                icon="•",
                 admin_only=False,
             ),
             WorkspaceOption(
@@ -150,7 +150,7 @@ class WorkspacePicker:
                 name="Vault",
                 path=vault_dir,
                 description="User vault for markdown and data",
-                icon="🔐",
+                icon="•",
                 admin_only=False,
             ),
             WorkspaceOption(
@@ -158,7 +158,7 @@ class WorkspacePicker:
                 name="Shared",
                 path=memory_dir / "shared",
                 description="Collaborative workspace for shared content",
-                icon="🤝",
+                icon="•",
                 admin_only=False,
             ),
         ]
@@ -171,7 +171,7 @@ class WorkspacePicker:
                     name="Wizard",
                     path=memory_dir / "wizard",
                     description="Wizard service configuration and logs",
-                    icon="🧙",
+                    icon="•",
                     admin_only=True,
                 ),
                 WorkspaceOption(
@@ -179,7 +179,7 @@ class WorkspacePicker:
                     name="Knowledge",
                     path=knowledge_dir,
                     description="Knowledge base and reference materials",
-                    icon="📖",
+                    icon="•",
                     admin_only=True,
                 ),
                 WorkspaceOption(
@@ -187,7 +187,7 @@ class WorkspacePicker:
                     name="Development",
                     path=dev_dir,
                     description="Development tools and private projects",
-                    icon="⚙️",
+                    icon="•",
                     admin_only=True,
                 ),
             ])
@@ -204,9 +204,10 @@ class WorkspacePicker:
         """Display workspace picker interface."""
         width = ViewportService().get_cols()
         print("\033[2J\033[H", end="")  # Clear screen
-        print("=" * 70)
+        rule = "-" * min(70, width)
+        print(rule)
         print("WORKSPACE SELECTOR")
-        print("=" * 70)
+        print(rule)
         print("Choose a workspace to browse:")
 
         # Display items with selector framework
@@ -219,7 +220,7 @@ class WorkspacePicker:
             description = current.metadata.get("description", "")
             print(truncate_to_width(f"  → {description}", width))
 
-        print("-" * 70)
+        print(rule)
         print("Controls:")
         print("  j/k or 2/8   Move down/up")
         print("  enter/5      Select workspace")
@@ -318,12 +319,12 @@ class WorkspacePicker:
         print("  • Press q to cancel")
         print()
         print("Workspace Types:")
-        print("  📦 Sandbox — Your personal workspace")
-        print("  🔐 Vault — Secure storage for important files")
-        print("  🤝 Shared — Collaborative workspace")
+        print("  Sandbox — Your personal workspace")
+        print("  Vault — Secure storage for important files")
+        print("  Shared — Collaborative workspace")
         if self.user_role == UserRole.ADMIN:
-            print("  🧙 Wizard — Service configuration (admin)")
-            print("  📖 Knowledge — Reference library (admin)")
+            print("  Wizard — Service configuration (admin)")
+            print("  Knowledge — Reference library (admin)")
             print("  ⚙️  Development — Dev tools (admin)")
         print()
         input("Press Enter to continue...")

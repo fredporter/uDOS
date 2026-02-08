@@ -20,7 +20,11 @@
       "timezone": "UTC",
       "type": "spawn",
       "connections": [
-        { "to": "L300-BJ10", "direction": "east", "label": "Travel East to Tokyo" }
+        {
+          "to": "L300-BJ10",
+          "direction": "east",
+          "label": "Travel East to Tokyo"
+        }
       ]
     },
     {
@@ -35,8 +39,16 @@
       "timezone": "Asia/Tokyo",
       "type": "major-city",
       "connections": [
-        { "to": "L300-AA10", "direction": "west", "label": "Travel West to Forest" },
-        { "to": "L300-BK10", "direction": "north", "label": "To Asakusa Temple" }
+        {
+          "to": "L300-AA10",
+          "direction": "west",
+          "label": "Travel West to Forest"
+        },
+        {
+          "to": "L300-BK10",
+          "direction": "north",
+          "label": "To Asakusa Temple"
+        }
       ]
     },
     {
@@ -51,7 +63,11 @@
       "timezone": "America/New_York",
       "type": "major-city",
       "connections": [
-        { "to": "L300-NA02", "direction": "west", "label": "Fly west to Los Angeles" }
+        {
+          "to": "L300-NA02",
+          "direction": "west",
+          "label": "Fly west to Los Angeles"
+        }
       ]
     },
     {
@@ -66,7 +82,11 @@
       "timezone": "America/Los_Angeles",
       "type": "major-city",
       "connections": [
-        { "to": "L300-NA01", "direction": "east", "label": "Cross the continent to NYC" }
+        {
+          "to": "L300-NA01",
+          "direction": "east",
+          "label": "Cross the continent to NYC"
+        }
       ]
     },
     {
@@ -84,7 +104,7 @@
     },
     {
       "id": "L300-EU02",
-      "name": "Paris - Champs-Élysées",
+      "name": "Paris - Champs-\u00c9lys\u00e9es",
       "region": "europe",
       "description": "Tree-lined avenues, cafes, and the Arc de Triomphe dominate the Parisian skyline.",
       "layer": 300,
@@ -97,7 +117,7 @@
     },
     {
       "id": "L300-SA01",
-      "name": "São Paulo - Paulista Avenue",
+      "name": "S\u00e3o Paulo - Paulista Avenue",
       "region": "south_america",
       "description": "Towering concrete and glass reflect a metropolis of commerce and culture.",
       "layer": 300,
@@ -172,8 +192,38 @@
       "timezone": "UTC",
       "type": "orbital-station",
       "connections": [
-        { "to": "L300-AA10", "direction": "down", "label": "Descend to Earth" }
+        {
+          "to": "L300-AA10",
+          "direction": "down",
+          "label": "Descend to Earth"
+        }
       ]
+    },
+    {
+      "id": "L300-SY01",
+      "name": "Sydney",
+      "region": "australia",
+      "description": "Sydney, Australia \u2014 coastal city, home of the Opera House.",
+      "layer": 300,
+      "cell": "SY01",
+      "scale": "terrestrial",
+      "continent": "australia",
+      "timezone": "Australia/Sydney",
+      "type": "major-city",
+      "connections": []
+    },
+    {
+      "id": "L300-NC01",
+      "name": "Newcastle",
+      "region": "australia",
+      "description": "Newcastle, Australia \u2014 coastal city north of Sydney.",
+      "layer": 300,
+      "cell": "NC01",
+      "scale": "terrestrial",
+      "continent": "australia",
+      "timezone": "Australia/Sydney",
+      "type": "city",
+      "connections": []
     }
   ]
 }

@@ -204,13 +204,11 @@
 
   h2 {
     margin: 0.2rem 0;
-    font-size: 1.4rem;
   }
 
   .muted {
     margin: 0;
     color: #94a3b8;
-    font-size: 0.85rem;
   }
 
   .header-actions {
@@ -261,7 +259,6 @@
     flex: 1;
     background: transparent;
     border: none;
-    font-size: 1rem;
     color: #f8fafc;
   }
 
@@ -288,7 +285,6 @@
   .controls label {
     display: grid;
     gap: 0.25rem;
-    font-size: 0.7rem;
     color: #94a3b8;
   }
 
@@ -300,7 +296,6 @@
     border-radius: 0.5rem;
     padding: 0.3rem 0.6rem;
     color: #e2e8f0;
-    font-size: 0.85rem;
   }
 
   .ghost,
@@ -309,7 +304,6 @@
     border: none;
     border-radius: 999px;
     padding: 0.35rem 0.85rem;
-    font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
   }
@@ -345,7 +339,6 @@
     justify-content: space-between;
     gap: 0.5rem;
     flex-wrap: wrap;
-    font-size: 0.75rem;
     color: #94a3b8;
   }
 </style>

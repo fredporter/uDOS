@@ -235,13 +235,11 @@
 
   h2 {
     margin: 0.2rem 0;
-    font-size: 1.4rem;
   }
 
   .muted {
     margin: 0;
     color: #94a3b8;
-    font-size: 0.85rem;
   }
 
   .header-actions {
@@ -255,7 +253,6 @@
     border: none;
     border-radius: 999px;
     padding: 0.4rem 1rem;
-    font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
   }
@@ -338,12 +335,10 @@
 
   .plugin-head h3 {
     margin: 0;
-    font-size: 1rem;
   }
 
   .meta {
     margin: 0;
-    font-size: 0.75rem;
     color: #94a3b8;
   }
 
@@ -362,7 +357,6 @@
 
   .desc {
     margin: 0;
-    font-size: 0.85rem;
     color: #cbd5f5;
   }
 
@@ -397,7 +391,6 @@
     border: none;
     border-radius: 999px;
     padding: 0.35rem 0.85rem;
-    font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
   }
@@ -415,7 +408,6 @@
   .empty-state {
     text-align: center;
     color: #94a3b8;
-    font-size: 0.9rem;
     padding: 0.75rem 0;
   }
 

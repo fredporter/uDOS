@@ -26,20 +26,38 @@ export default {
         DEFAULT: {
           css: {
             fontFamily: "var(--font-prose-body)",
-            fontSize: "calc(1em * var(--scale-prose-body))",
-            lineHeight: "1.65",
+            lineHeight: "var(--prose-line-height)",
             color: "inherit",
             "h1,h2,h3,h4,h5,h6": {
               fontFamily: "var(--font-prose-title)",
-              fontSize: "calc(1em * var(--scale-prose-title))",
+            },
+            h1: {
+              fontSize: "calc(var(--prose-h1) * var(--scale-prose-title))",
+            },
+            h2: {
+              fontSize: "calc(var(--prose-h2) * var(--scale-prose-title))",
+            },
+            h3: {
+              fontSize: "calc(var(--prose-h3) * var(--scale-prose-title))",
+            },
+            h4: {
+              fontSize: "calc(var(--prose-h4) * var(--scale-prose-title))",
+            },
+            h5: {
+              fontSize: "calc(var(--prose-h5) * var(--scale-prose-title))",
+            },
+            h6: {
+              fontSize: "calc(var(--prose-h6) * var(--scale-prose-title))",
             },
             "code, pre code": {
               fontFamily: "var(--font-code)",
-              fontSize: "calc(0.95em * var(--scale-code))",
             },
             pre: {
               fontFamily: "var(--font-code)",
-              fontSize: "calc(0.95em * var(--scale-code))",
+            },
+            "code, pre code, pre": {
+              fontSize:
+                "calc(var(--prose-body-size) * var(--scale-prose-body))",
             },
             "p, li": {
               fontFamily: "var(--font-prose-body), var(--font-emoji)",
@@ -49,6 +67,18 @@ export default {
             },
             "code, pre code, pre": {
               fontFamily: "var(--font-code), var(--font-emoji)",
+            },
+            body: {
+              fontSize:
+                "calc(var(--prose-body-size) * var(--scale-prose-body))",
+            },
+            p: {
+              fontSize:
+                "calc(var(--prose-body-size) * var(--scale-prose-body))",
+            },
+            li: {
+              fontSize:
+                "calc(var(--prose-body-size) * var(--scale-prose-body))",
             },
           },
         },

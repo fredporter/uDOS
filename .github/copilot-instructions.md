@@ -15,3 +15,7 @@
 **Unsure?** Check AGENTS.md or docs/README.md
 
 **KEY:** Keep moving. No long docs. No deep recursion.
+
+**Dev (VS Code):**
+- Prefer Tasks: Wizard server auto-port, uDOS interactive, uCODE dispatch, Shell command.
+- Dashboard should be opened via http://localhost:<port> (see .wizard-port) or rebuilt with relative base.

@@ -19,7 +19,7 @@
     {
       "label": "Run uDOS Interactive",
       "type": "shell",
-      "command": "./start_udos.sh",
+      "command": "${workspaceFolder}/bin/udos",
       "group": {
         "kind": "build",
         "isDefault": true
@@ -95,6 +95,136 @@
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
+        "focus": true,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Wizard: Run Server (interactive, auto-port)",
+      "type": "shell",
+      "command": "/bin/bash",
+      "args": [
+        "-lc",
+        "PORT=$(${workspaceFolder}/.venv/bin/python -m wizard.cli_port_manager available 9000 | tr -cd \"0-9\"); ${workspaceFolder}/.venv/bin/python -m wizard.cli_port_manager reassign wizard $PORT >/dev/null; echo \"$PORT\" > ${workspaceFolder}/.wizard-port; echo \"Wizard port: $PORT\"; PYTHONPATH=\"${workspaceFolder}\" ${workspaceFolder}/.venv/bin/python -m wizard.server --port $PORT"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dashboard: Build (file, api base)",
+      "type": "shell",
+      "command": "/bin/bash",
+      "args": [
+        "-lc",
+        "PORT=$(cat ${workspaceFolder}/.wizard-port 2>/dev/null || echo 8765); VITE_WIZARD_API_BASE=\"http://localhost:$PORT\" npm -C ${workspaceFolder}/wizard/dashboard run build"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dashboard: Serve dist (http)",
+      "type": "shell",
+      "command": "/bin/bash",
+      "args": [
+        "-lc",
+        "PORT=$(${workspaceFolder}/.venv/bin/python -m wizard.cli_port_manager available 9100 | tr -cd \"0-9\"); echo \"$PORT\" > ${workspaceFolder}/.dashboard-port; echo \"Dashboard port: $PORT\"; cd ${workspaceFolder}/wizard/dashboard/dist && python -m http.server $PORT"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dashboard: Reset API Base",
+      "type": "shell",
+      "command": "/bin/bash",
+      "args": [
+        "-lc",
+        "PORT=$(cat ${workspaceFolder}/.dashboard-port 2>/dev/null || echo 9100); open \"http://localhost:$PORT/reset.html\""
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dashboard: Open (Wizard HTTP)",
+      "type": "shell",
+      "command": "/bin/bash",
+      "args": [
+        "-lc",
+        "PORT=$(cat ${workspaceFolder}/.wizard-port 2>/dev/null || echo 8765); open \"http://localhost:$PORT/\""
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dashboard: Open (Static HTTP)",
+      "type": "shell",
+      "command": "/bin/bash",
+      "args": [
+        "-lc",
+        "PORT=$(cat ${workspaceFolder}/.dashboard-port 2>/dev/null || echo 9100); open \"http://localhost:$PORT/index.html\""
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "uCODE: Dispatch Command",
+      "type": "shell",
+      "command": "/bin/bash",
+      "args": [
+        "-lc",
+        "PORT=$(cat ${workspaceFolder}/.wizard-port 2>/dev/null || echo 8765); curl -sS -H \"Authorization: Bearer $WIZARD_ADMIN_TOKEN\" -H \"Content-Type: application/json\" -d '{\"command\": \"${input:ucodeCommand}\"}' http://localhost:$PORT/api/ucode/dispatch"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Shell: Run Command",
+      "type": "shell",
+      "command": "/bin/bash",
+      "args": [
+        "-lc",
+        "${input:shellCommand}"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
         "focus": true,
         "clear": true
       },
@@ -208,6 +338,18 @@
       "type": "promptString",
       "description": "Vibe model",
       "default": "devstral-small"
+    },
+    {
+      "id": "ucodeCommand",
+      "type": "promptString",
+      "description": "uCODE command (allowlisted or raw)",
+      "default": "STATUS"
+    },
+    {
+      "id": "shellCommand",
+      "type": "promptString",
+      "description": "Shell command",
+      "default": "ls -la"
     }
   ]
 }

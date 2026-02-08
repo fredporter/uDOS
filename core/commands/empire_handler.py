@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import subprocess
+import threading
 import webbrowser
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from core.commands.base import BaseCommandHandler
 from core.tui.output import OutputToolkit
+from core.tui.ui_elements import Spinner
 from core.services.logging_api import get_logger, get_repo_root
 
 logger = get_logger("empire-handler")
@@ -321,16 +323,25 @@ class EmpireHandler(BaseCommandHandler):
             import time
             import requests
 
+            stop = threading.Event()
+            spinner = Spinner(label="Waiting for Empire API", show_elapsed=True)
+            thread = spinner.start_background(stop)
             for _ in range(10):
                 try:
                     resp = requests.get(f"{api_base}/health", headers=headers, timeout=2)
                     if resp.status_code == 200:
+                        stop.set()
+                        thread.join(timeout=1)
+                        spinner.stop("Empire API ready")
                         output_lines.append("✅ Empire API started")
                         output_lines.append("✅ UI auto-refreshes from live API")
                         return {"status": "success", "output": "\n".join(output_lines)}
                 except Exception:
                     pass
                 time.sleep(0.5)
+            stop.set()
+            thread.join(timeout=1)
+            spinner.stop("Empire API start timed out")
         except Exception:
             pass
 

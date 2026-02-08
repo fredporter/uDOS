@@ -23,56 +23,20 @@ import subprocess
 import warnings
 import importlib
 import ssl
-import threading
 import time
+import threading
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass, field
 from enum import Enum
 
 from core.services.logging_api import get_logger
+from core.services.viewport_service import ViewportService
+from core.tui.ui_elements import Spinner
 
 logger = get_logger("self-healer")
 
 
-class Spinner:
-    """Simple spinner with elapsed time display."""
-
-    def __init__(self, message: str = "Working"):
-        self.message = message
-        self._stop = threading.Event()
-        self._thread: Optional[threading.Thread] = None
-        self.start_time: float = 0.0
-
-    def start(self):
-        self.start_time = time.time()
-
-        def _run():
-            glyphs = "|/-\\"
-            idx = 0
-            while not self._stop.is_set():
-                elapsed = time.time() - self.start_time
-                sys.stdout.write(
-                    f"\r{glyphs[idx % len(glyphs)]} {self.message}... (elapsed: {elapsed:0.1f}s) "
-                )
-                sys.stdout.flush()
-                idx += 1
-                time.sleep(0.12)
-            # clear line and print final
-            sys.stdout.write("\r" + " " * 80 + "\r")
-            sys.stdout.flush()
-
-        self._thread = threading.Thread(target=_run, daemon=True)
-        self._thread.start()
-
-    def stop(self, final_message: Optional[str] = None):
-        self._stop.set()
-        if self._thread:
-            self._thread.join(timeout=1)
-        if final_message:
-            elapsed = time.time() - self.start_time
-            sys.stdout.write(f"{final_message} (elapsed: {elapsed:0.1f}s)\n")
-            sys.stdout.flush()
 
 
 class IssueType(Enum):
@@ -497,8 +461,9 @@ class SelfHealer:
             logger.error(f"[HEAL] Build script not found: {build_script}")
             return False
 
-        spinner = Spinner("Building TypeScript runtime")
-        spinner.start()
+        spinner = Spinner(label="Building TypeScript runtime", show_elapsed=True)
+        stop = threading.Event()
+        thread = spinner.start_background(stop)
 
         try:
             result = subprocess.run(
@@ -510,32 +475,45 @@ class SelfHealer:
             )
 
             if result.returncode == 0:
+                stop.set()
+                thread.join(timeout=1)
                 spinner.stop("✓ TypeScript runtime built successfully")
                 return True
             else:
+                stop.set()
+                thread.join(timeout=1)
                 spinner.stop(f"✗ Build failed: {result.stderr[:200]}")
                 logger.error(f"[HEAL] TS runtime build failed: {result.stderr}")
                 return False
         except subprocess.TimeoutExpired:
+            stop.set()
+            thread.join(timeout=1)
             spinner.stop("✗ Build timeout (5 minutes)")
             logger.error("[HEAL] TS runtime build timed out")
             return False
         except Exception as e:
+            stop.set()
+            thread.join(timeout=1)
             spinner.stop(f"✗ Build error: {e}")
             logger.error(f"[HEAL] TS runtime build error: {e}")
             return False
 
     def _repair_command(self, command: str) -> bool:
         """Run a shell command for repair (e.g., pip install)."""
-        spinner = Spinner("Applying fix")
-        spinner.start()
+        spinner = Spinner(label="Applying fix", show_elapsed=True)
+        stop = threading.Event()
+        thread = spinner.start_background(stop)
 
         try:
             subprocess.run(command, shell=True, check=True, capture_output=True)
+            stop.set()
+            thread.join(timeout=1)
             spinner.stop("✓ Fix applied")
             return True
         except subprocess.CalledProcessError as e:
             logger.error(f"[HEAL] Repair command failed: {e}")
+            stop.set()
+            thread.join(timeout=1)
             spinner.stop("✗ Fix failed")
             return False
 

@@ -1,13 +1,17 @@
 """WIZARD command handler - Wizard server maintenance tasks."""
 
 from typing import List, Dict
+from datetime import datetime
+import json
 import subprocess
+import threading
 import os
 import webbrowser
 from pathlib import Path
 from core.commands.base import BaseCommandHandler
 from core.commands.interactive_menu_mixin import InteractiveMenuMixin
 from core.tui.output import OutputToolkit
+from core.tui.ui_elements import Spinner
 from core.services.logging_api import get_logger, get_repo_root
 
 logger = get_logger("wizard-handler")
@@ -18,14 +22,16 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         if not params:
+            base_url, dashboard_url = self._wizard_urls()
             choice = self.show_menu(
                 "WIZARD",
                 [
                     ("Start server", "start", "Launch Wizard server"),
                     ("Stop server", "stop", "Stop Wizard server"),
                     ("Status", "status", "Check Wizard health"),
+                    ("Reset keystore", "reset", "Wipe Wizard secret store + admin token"),
                     ("Rebuild dashboard", "rebuild", "Rebuild dashboard assets"),
-                    ("Open dashboard", "open", "Open http://127.0.0.1:8765/dashboard"),
+                    ("Open dashboard", "open", f"Open {dashboard_url}"),
                     ("Help", "help", "Show WIZARD help"),
                 ],
             )
@@ -41,7 +47,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
         from core.services.user_service import is_ghost_mode
 
-        if is_ghost_mode() and action in {"rebuild", "--rebuild", "start", "--start", "stop", "--stop"}:
+        if is_ghost_mode() and action in {"rebuild", "--rebuild", "start", "--start", "stop", "--stop", "reset", "--reset"}:
             return {
                 "status": "warning",
                 "message": "Ghost Mode is read-only (Wizard control blocked)",
@@ -56,6 +62,8 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             return self._stop_wizard()
         elif action in {"status", "--status"}:
             return self._wizard_status()
+        elif action in {"reset", "--reset"}:
+            return self._reset_wizard(params[1:])
         elif action in {"help", "--help", "?"}:
             return self._show_help()
 
@@ -142,6 +150,9 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                 "WIZARD START      Start Wizard server",
                 "WIZARD STOP       Stop Wizard server",
                 "WIZARD STATUS     Check Wizard server status",
+                "WIZARD RESET      Wipe Wizard keystore + admin token (destructive)",
+                "  --wipe-profile  Also delete memory/user/profile.json",
+                "  --scrub-vault   Also delete VAULT_ROOT contents",
                 "WIZARD REBUILD    Rebuild Wizard dashboard artifacts",
                 "WIZARD HELP       Show this help",
             ]
@@ -152,8 +163,9 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
     def _open_dashboard(self) -> Dict:
         banner = OutputToolkit.banner("WIZARD DASHBOARD")
+        _, dashboard_url = self._wizard_urls()
         try:
-            webbrowser.open("http://127.0.0.1:8765/dashboard")
+            webbrowser.open(dashboard_url)
             return {"status": "success", "output": banner + "\n✅ Opened Wizard Dashboard"}
         except Exception as exc:
             return {"status": "error", "message": str(exc), "output": banner + f"\n❌ {exc}"}
@@ -162,15 +174,19 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         """Start Wizard server."""
         import requests
         import time
+        import socket
 
         banner = OutputToolkit.banner("WIZARD START")
         output_lines = [banner, ""]
+        base_url, dashboard_url = self._wizard_urls()
+        host, port = self._wizard_host_port()
+        connect_host = self._wizard_connect_host(host)
 
         # Check if already running
         try:
-            resp = requests.get("http://127.0.0.1:8765/health", timeout=2)
+            resp = requests.get(f"{base_url}/health", timeout=2)
             if resp.status_code == 200:
-                output_lines.append("✅ Wizard already running on http://127.0.0.1:8765")
+                output_lines.append(f"✅ Wizard already running on {base_url}")
                 self._maybe_open_dashboard(output_lines)
                 return {
                     "status": "success",
@@ -208,13 +224,19 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             )
 
             # Wait for server to be ready (max 10 seconds)
+            stop = threading.Event()
+            spinner = Spinner(label="Waiting for Wizard", show_elapsed=True)
+            thread = spinner.start_background(stop)
             for attempt in range(20):
                 try:
-                    resp = requests.get("http://127.0.0.1:8765/health", timeout=1)
+                    resp = requests.get(f"{base_url}/health", timeout=1)
                     if resp.status_code == 200:
+                        stop.set()
+                        thread.join(timeout=1)
+                        spinner.stop("Wizard ready")
                         output_lines.append("✅ Wizard Server started")
-                        output_lines.append("📍 Server: http://127.0.0.1:8765")
-                        output_lines.append("📍 Dashboard: http://127.0.0.1:8765/dashboard")
+                        output_lines.append(f"📍 Server: {base_url}")
+                        output_lines.append(f"📍 Dashboard: {dashboard_url}")
                         self._maybe_open_dashboard(output_lines)
                         return {
                             "status": "success",
@@ -225,7 +247,24 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                 time.sleep(0.5)
 
             # Timeout
-            output_lines.append("⚠️  Wizard Server started but slow to respond (check logs)")
+            stop.set()
+            thread.join(timeout=1)
+            spinner.stop("Wizard start timed out")
+            port_in_use = False
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(0.25)
+                port_in_use = sock.connect_ex((connect_host, port)) == 0
+                sock.close()
+            except Exception:
+                pass
+            if port_in_use:
+                output_lines.append(
+                    f"⚠️  Port {port} is in use or Wizard is still booting. "
+                    "Check logs or stop the existing process."
+                )
+            else:
+                output_lines.append("⚠️  Wizard Server started but slow to respond (check logs)")
             return {
                 "status": "success",
                 "output": "\n".join(output_lines),
@@ -240,14 +279,15 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             }
 
     def _maybe_open_dashboard(self, output_lines: List[str]) -> None:
+        _, dashboard_url = self._wizard_urls()
         try:
             response = input("Open Wizard Dashboard...? [Yes|No|OK] ").strip().lower()
         except Exception:
             output_lines.append("No response; Wizard Dashboard not opened")
             return
-        if response in {"yes", "y", "ok", "okay"}:
+        if response in {"", "yes", "y", "ok", "okay"}:
             try:
-                webbrowser.open("http://127.0.0.1:8765/dashboard")
+                webbrowser.open(dashboard_url)
                 output_lines.append("✅ Opened Wizard Dashboard")
             except Exception as exc:
                 logger.error(f"[LOCAL] Failed to open Wizard Dashboard: {exc}")
@@ -274,7 +314,13 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             )
             output_lines.append("Stopping Wizard Server...")
             import time
+            stop = threading.Event()
+            spinner = Spinner(label="Stopping Wizard", show_elapsed=False)
+            thread = spinner.start_background(stop)
             time.sleep(1)
+            stop.set()
+            thread.join(timeout=1)
+            spinner.stop("Wizard stop complete")
 
             # Verify stopped
             try:
@@ -305,11 +351,12 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
         banner = OutputToolkit.banner("WIZARD STATUS")
         output_lines = [banner, ""]
+        base_url, _ = self._wizard_urls()
 
         try:
-            resp = requests.get("http://127.0.0.1:8765/health", timeout=2)
+            resp = requests.get(f"{base_url}/health", timeout=2)
             if resp.status_code == 200:
-                output_lines.append("✅ Wizard running on http://127.0.0.1:8765")
+                output_lines.append(f"✅ Wizard running on {base_url}")
                 try:
                     data = resp.json()
                     if "version" in data:
@@ -346,3 +393,118 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                 "message": str(exc),
                 "output": "\n".join(output_lines) + f"\n❌ Error: {exc}",
             }
+
+    def _wizard_host_port(self) -> tuple:
+        host = "127.0.0.1"
+        port = 8765
+        try:
+            config_path = get_repo_root() / "wizard" / "config" / "wizard.json"
+            if config_path.exists():
+                data = json.loads(config_path.read_text())
+                if isinstance(data, dict):
+                    raw_port = data.get("port")
+                    if isinstance(raw_port, int):
+                        port = raw_port
+                    elif isinstance(raw_port, str) and raw_port.isdigit():
+                        port = int(raw_port)
+                    raw_host = data.get("host")
+                    if isinstance(raw_host, str) and raw_host.strip():
+                        host = raw_host.strip()
+        except Exception:
+            pass
+        return host, port
+
+    def _wizard_connect_host(self, host: str) -> str:
+        if host in {"0.0.0.0", "::"}:
+            return "127.0.0.1"
+        return host
+
+    def _wizard_urls(self) -> tuple:
+        host, port = self._wizard_host_port()
+        connect_host = self._wizard_connect_host(host)
+        base_url = f"http://{connect_host}:{port}"
+        dashboard_url = f"{base_url}/dashboard"
+        return base_url, dashboard_url
+
+    def _reset_wizard(self, args: List[str]) -> Dict:
+        """Reset Wizard keystore and admin token (destructive)."""
+        banner = OutputToolkit.banner("WIZARD RESET")
+        output_lines = [banner, ""]
+
+        wipe_profile = "--wipe-profile" in args
+        scrub_vault = "--scrub-vault" in args
+
+        warning = (
+            "This will permanently delete the Wizard keystore (secrets.tomb)\n"
+            "and remove admin token files. This cannot be undone."
+        )
+        if wipe_profile:
+            warning += "\n- Will delete memory/user/profile.json"
+        if scrub_vault:
+            warning += "\n- Will delete VAULT_ROOT contents"
+        output_lines.append(warning)
+
+        try:
+            response = input("Type RESET to confirm: ").strip()
+        except Exception:
+            response = ""
+
+        if response != "RESET":
+            output_lines.append("Cancelled.")
+            return {"status": "cancelled", "output": "\n".join(output_lines)}
+
+        repo_root = get_repo_root()
+        archive_root = Path(repo_root) / ".archive" / "wizard-reset"
+        archive_root.mkdir(parents=True, exist_ok=True)
+
+        tomb_path = Path(repo_root) / "wizard" / "secrets.tomb"
+        if tomb_path.exists():
+            try:
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+                archived = archive_root / f"secrets.tomb.backup.{timestamp}"
+                tomb_path.rename(archived)
+                output_lines.append(f"✅ Archived secrets.tomb to {archived}")
+            except Exception as exc:
+                output_lines.append(f"⚠️  Failed to archive secrets.tomb: {exc}")
+        else:
+            output_lines.append("ℹ️  secrets.tomb not found")
+
+        token_paths = [
+            Path(repo_root) / "memory" / "private" / "wizard_admin_token.txt",
+            Path(repo_root) / "memory" / "bank" / "private" / "wizard_admin_token.txt",
+        ]
+        for token_path in token_paths:
+            try:
+                if token_path.exists():
+                    token_path.unlink()
+                    output_lines.append(f"✅ Removed {token_path}")
+            except Exception as exc:
+                output_lines.append(f"⚠️  Failed to remove {token_path}: {exc}")
+
+        if wipe_profile:
+            profile_path = Path(repo_root) / "memory" / "user" / "profile.json"
+            try:
+                if profile_path.exists():
+                    profile_path.unlink()
+                    output_lines.append(f"✅ Removed {profile_path}")
+            except Exception as exc:
+                output_lines.append(f"⚠️  Failed to remove {profile_path}: {exc}")
+
+        if scrub_vault:
+            vault_root = Path(os.getenv("VAULT_ROOT", "")) if os.getenv("VAULT_ROOT") else Path(repo_root) / "vault-md"
+            try:
+                if vault_root.exists():
+                    import shutil
+                    shutil.rmtree(vault_root)
+                    vault_root.mkdir(parents=True, exist_ok=True)
+                output_lines.append(f"✅ Scrubbed VAULT_ROOT at {vault_root}")
+            except Exception as exc:
+                output_lines.append(f"⚠️  Failed to scrub VAULT_ROOT: {exc}")
+
+        output_lines.append("")
+        output_lines.append("Next steps:")
+        output_lines.append("  1. Set WIZARD_KEY in .env")
+        output_lines.append("  2. Run WIZARD START")
+        output_lines.append("  3. Re-run SETUP to sync profile")
+
+        return {"status": "success", "output": "\n".join(output_lines)}

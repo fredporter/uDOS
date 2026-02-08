@@ -25,5 +25,7 @@
     "memory_root": "memory",
     "repo_root": "auto"
   },
-  "enabled_providers": ["github"]
+  "enabled_providers": [
+    "github"
+  ]
 }

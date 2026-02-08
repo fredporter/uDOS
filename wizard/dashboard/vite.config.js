@@ -4,6 +4,7 @@ import sveltePreprocess from "svelte-preprocess";
 import path from "node:path";
 
 export default defineConfig({
+  base: "./",
   plugins: [
     svelte({
       preprocess: sveltePreprocess(),

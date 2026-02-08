@@ -86,6 +86,46 @@
     return `/api/fonts/file?path=${encodeURIComponent(font.file)}`;
   }
 
+  function isExtractableFont(font) {
+    if (!font?.file) return false;
+    const ext = font.file.split(".").pop()?.toLowerCase();
+    return ext === "ttf" || ext === "otf";
+  }
+
+  async function resolveExtractableFont(font) {
+    if (!font) throw new Error("No font selected");
+    if (isExtractableFont(font)) return { font, fontUrl: getFontUrl(font) };
+
+    const ext = font.file.split(".").pop()?.toLowerCase();
+    if (ext === "woff" || ext === "woff2") {
+      const base = font.file.replace(/\.(woff2?|ttf|otf)$/i, "");
+      const candidates = [`${base}.ttf`, `${base}.otf`];
+      for (const candidate of candidates) {
+        try {
+          const res = await apiFetch(
+            `/api/fonts/file?path=${encodeURIComponent(candidate)}`,
+            { method: "HEAD" },
+          );
+          if (res.ok) {
+            return {
+              font: { ...font, file: candidate },
+              fontUrl: `/api/fonts/file?path=${encodeURIComponent(candidate)}`,
+            };
+          }
+        } catch {
+          // ignore and continue
+        }
+      }
+      throw new Error(
+        "Font format not supported for extraction. This font is WOFF/WOFF2. Import the TTF/OTF version to extract SVG glyphs."
+      );
+    }
+
+    throw new Error(
+      "Font format not supported for extraction. Use a TTF or OTF font."
+    );
+  }
+
   async function loadGlyphs() {
     const selectedFont = getSelectedFont();
     if (!selectedFont) return;
@@ -106,11 +146,11 @@
         );
       }
       const codes = set.codes.slice(0, Math.max(1, limit));
-      const fontUrl = getFontUrl(selectedFont);
-      const result = await extractGlyphsFromFont(fontUrl, codes);
+      const resolved = await resolveExtractableFont(selectedFont);
+      const result = await extractGlyphsFromFont(resolved.fontUrl, codes);
       glyphs = result;
       lastLoaded = {
-        font: selectedFont.name,
+        font: resolved.font.name,
         set: set.name,
         count: result.length,
       };

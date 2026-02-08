@@ -317,7 +317,7 @@
   });
 </script>
 
-<div class="space-y-6">
+<div class="max-w-7xl mx-auto px-4 py-8 text-white space-y-6">
   <div class="flex items-center justify-between gap-3">
     <div>
       <h1 class="text-3xl font-bold text-white mb-1">Library</h1>

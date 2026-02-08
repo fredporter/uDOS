@@ -41,6 +41,7 @@ import time
 import warnings
 import secrets
 import requests
+import psutil
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Callable
 from dataclasses import dataclass
@@ -50,6 +51,7 @@ from datetime import datetime
 # Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+from core.tui.output import OutputToolkit
 from core.tui.dispatcher import CommandDispatcher
 from core.tui.renderer import GridRenderer
 from core.tui.state import GameState
@@ -288,13 +290,6 @@ class uCODETUI:
         }
         self.ucode_command_set.update(self.commands.keys())
         self.ucode_command_set.add("OK")
-        self.shell_enabled = os.getenv("UDOS_SHELL_ENABLED", "1").strip().lower() in {
-            "1",
-            "true",
-            "yes",
-            "on",
-        }
-
         # Conditional commands
         # WIZARD command now handled by dispatcher (WizardHandler)
 
@@ -377,10 +372,6 @@ class uCODETUI:
         """Return True if token is a known uCODE command."""
         return token.strip().upper() in self.ucode_command_set
 
-    def _is_shell_enabled(self) -> bool:
-        """Return True if shell routing is enabled."""
-        return bool(self.shell_enabled)
-
     def _route_input(self, user_input: str) -> Dict[str, Any]:
         """
         Route input based on prefix: '?', 'OK', '/', or question mode.
@@ -462,9 +453,6 @@ class uCODETUI:
             if rest_of_line:
                 ucode_cmd += " " + rest_of_line
             return self.dispatcher.dispatch(ucode_cmd, parser=self.prompt, game_state=self.state)
-
-        if not self._is_shell_enabled():
-            return {"status": "error", "message": "Shell routing disabled"}
 
         return self._execute_shell_command(user_input[1:].strip())
 
@@ -578,12 +566,11 @@ class uCODETUI:
             else:
                 return result
 
-        if self._is_shell_enabled():
-            result = self._execute_shell_command(user_input)
-            if result.get("status") == "success":
-                return result
-            if result.get("status") == "cancelled":
-                return result
+        result = self._execute_shell_command(user_input)
+        if result.get("status") == "success":
+            return result
+        if result.get("status") == "cancelled":
+            return result
 
         self._run_ok_request(user_input, mode="LOCAL")
         return {"status": "success", "command": "OK"}
@@ -632,7 +619,7 @@ class uCODETUI:
                         normalized_input = user_input.strip().upper()
                         if normalized_input in ("EXIT", "?EXIT", "? EXIT", "OK EXIT"):
                             self.running = False
-                            print("👋 See you later!")
+                            print("See you later!")
                             break
 
                         # Special handling for STORY and SETUP commands with forms
@@ -707,7 +694,7 @@ class uCODETUI:
                     print(self._theme_text(f"     - {line}"))
         except Exception:
             pass
-        print(self._theme_text("\n  💡 Tips: SETUP | HELP | STORY tui-setup | TAB (commands) | OK EXPLAIN <file>"))
+        print(self._theme_text("\n  Tips: SETUP | HELP | STORY tui-setup | TAB (commands) | OK EXPLAIN <file>"))
         print(self._theme_text("     Try: MAP | GRID MAP --input memory/system/grid-overlays-sample.json | WIZARD start\n"))
 
     def _refresh_viewport(self) -> None:
@@ -748,11 +735,13 @@ class uCODETUI:
         except Exception:
             pass
 
-        print(self._theme_text("\n🧠 First-Run AI: SETUP to add Mistral key + local models | WIZARD status\n"))
+        print(self._theme_text("\nFirst-Run AI: SETUP to add Mistral key + local models | WIZARD status\n"))
 
     def _show_banner(self) -> None:
         """Show startup banner."""
         if self.quiet:
+            return
+        if os.getenv("UDOS_LAUNCHER_BANNER") == "1":
             return
         vibe_banner = self._get_vibe_banner()
         if vibe_banner:
@@ -917,7 +906,16 @@ class uCODETUI:
             )
 
         summary = " | ".join(summary_parts) if summary_parts else "Health summary unavailable"
-        print(f"\n📊 Health: {summary}")
+        width = ViewportService().get_cols()
+        print(OutputToolkit.invert_section(" Health ", width=width))
+        print(f"Health: {summary}")
+        try:
+            mem_percent = int(psutil.virtual_memory().percent)
+            cpu_percent = int(psutil.cpu_percent(interval=0.1))
+            print(OutputToolkit.progress_block_full(mem_percent, 100, label="Memory"))
+            print(OutputToolkit.progress_block_full(cpu_percent, 100, label="CPU"))
+        except Exception:
+            pass
         print(f"  Log: {self.health_log_path}")
 
         prev_remaining = (self.previous_health_log or {}).get("self_heal", {}).get("remaining", 0)
@@ -1056,6 +1054,14 @@ class uCODETUI:
         try:
             import requests
 
+            health_url = f"{self._wizard_base_url()}/health"
+            try:
+                health_resp = requests.get(health_url, timeout=0.4)
+                if not health_resp.ok:
+                    return {"ready": False, "issue": "wizard offline", "skip": True}
+            except Exception:
+                return {"ready": False, "issue": "wizard offline", "skip": True}
+
             url = f"{self._wizard_base_url()}/api/ucode/ok/status"
             response = requests.get(url, headers=self._wizard_headers(), timeout=2)
             if response.status_code != 200:
@@ -1067,7 +1073,7 @@ class uCODETUI:
             issue = cloud.get("issue") or ("mistral api key missing" if not ready else None)
             return {"ready": ready, "issue": issue}
         except Exception as exc:
-            return {"ready": False, "issue": str(exc)}
+            return {"ready": False, "issue": "wizard offline", "skip": True}
 
     def _init_ok_prompt_context(self) -> None:
         """Expose OK local model info to the prompt toolbar."""
@@ -1095,23 +1101,26 @@ class uCODETUI:
             if ok_status.get("ollama_endpoint"):
                 lines.append(f"ℹ️  Ollama endpoint: {ok_status.get('ollama_endpoint')}")
             if issue == "ollama down":
-                lines.append("💡 Start Ollama: `ollama serve`")
+                lines.append("Tip: Start Ollama: `ollama serve`")
             if issue == "missing model":
-                lines.append(f"💡 Pull model: `ollama pull {model}`")
+                lines.append(f"Tip: Pull model: `ollama pull {model}`")
             if issue == "vibe-cli missing":
-                lines.append("💡 Install Vibe CLI: `pip install mistral-vibe`")
+                lines.append("Tip: Install Vibe CLI: `pip install mistral-vibe`")
             if issue in {"setup required", "ollama down", "missing model", "vibe-cli missing"}:
-                lines.append("💡 First run: SETUP to configure Mistral key + local models")
-        if cloud_status.get("ready"):
+                lines.append("Tip: First run: SETUP to configure Mistral key + local models")
+        if cloud_status.get("skip"):
+            lines.append("ℹ️ Wizard not running; cloud checks skipped")
+        elif cloud_status.get("ready"):
             lines.append("✅ Mistral cloud ready (required)")
         else:
             issue = cloud_status.get("issue") or "setup required"
             lines.append(f"⚠️ Mistral cloud required: {issue}")
-            lines.append("💡 Set MISTRAL_API_KEY or run SETUP")
+            lines.append("Tip: Set MISTRAL_API_KEY or run SETUP")
         lines.append("Tip: OK EXPLAIN <file> | OK LOCAL")
 
-        print(self._theme_text("\n🤖 Vibe (Local)"))
+        print(self._theme_text("\nVibe (Local)"))
         self.renderer.stream_text("\n".join(lines), prefix="vibe> ")
+        print("")
 
     def _format_ai_status_line(self, label: str, status: Dict[str, Any]) -> str:
         """Format a single AI mode status line."""
@@ -1385,67 +1394,41 @@ class uCODETUI:
         Returns:
             Dictionary of collected field values from all sections
         """
-        collected = {}
+        try:
+            from core.tui.story_form_handler import get_form_handler
+        except Exception as exc:
+            self.logger.error(f"[STORY] Form handler unavailable: {exc}")
+            return {}
 
-        # Show form title
         title = form_data.get("title", "Form")
-        print(f"\n📋 {title}")
-        print("=" * 60)
+        description = (form_data.get("text") or "").strip()
 
-        # Check if this is multi-section form
+        fields: List[Dict[str, Any]] = []
         sections = form_data.get("sections", [])
-
-        # DEBUG: Log what we received
-        self.logger.debug(f"[STORY] Form sections: {len(sections)} sections, form_data keys: {list(form_data.keys())}")
         if sections:
-            self.logger.debug(f"[STORY] Section titles: {[s.get('title') for s in sections]}")
-
-        if sections:
-            # Process each section
-            for section_idx, section in enumerate(sections):
-                section_title = section.get("title", "Section")
-                section_text = section.get("text", "").strip()
-                fields = section.get("fields", [])
-
-                self.logger.debug(f"[STORY] Processing section {section_idx}: '{section_title}' with {len(fields)} fields")
-
-                if fields:  # Only show sections that have fields
-                    print(f"\n## {section_title}\n")
-                    if section_text:
-                        print(f"{section_text}\n")
-                        print("-" * 60)
-
-                    # Collect responses for each field in section
-                    for field in fields:
-                        field_name = field.get("name", "")
-                        if field_name == "mistral_api_key":
-                            install_choice = str(collected.get("ok_helper_install", "")).strip().lower()
-                            if install_choice not in {"yes", "y", "true", "1"}:
-                                continue
-                        response = self._collect_field_response(field)
-                        if response is not None:
-                            collected[field_name] = response
-        else:
-            # Single section form (backward compatibility)
-            fields = form_data.get("fields", [])
-            text = form_data.get("text", "").strip()
-
-            if text:
-                print(f"\n{text}\n")
-                print("-" * 60)
-
-            for field in fields:
-                field_name = field.get("name", "")
-                if field_name == "mistral_api_key":
-                    install_choice = str(collected.get("ok_helper_install", "")).strip().lower()
-                    if install_choice not in {"yes", "y", "true", "1"}:
+            for section in sections:
+                section_title = section.get("title")
+                for field in section.get("fields", []) or []:
+                    if not isinstance(field, dict):
                         continue
-                response = self._collect_field_response(field)
-                if response is not None:
-                    collected[field_name] = response
+                    field_copy = dict(field)
+                    if section_title and field_copy.get("label"):
+                        field_copy["label"] = f"{section_title}: {field_copy['label']}"
+                    fields.append(field_copy)
+        else:
+            fields = [dict(f) for f in (form_data.get("fields", []) or []) if isinstance(f, dict)]
 
-        print("\n" + "=" * 60)
-        return collected
+        form_spec = {
+            "title": title,
+            "description": description,
+            "fields": fields,
+        }
+
+        handler = get_form_handler()
+        result = handler.process_story_form(form_spec)
+        if result.get("status") == "success":
+            return result.get("data", {})
+        return {}
 
     def _save_user_profile(self, collected_data: Dict) -> None:
         """Save collected form data to user profile.
@@ -1467,17 +1450,20 @@ class uCODETUI:
             identity_enc = IdentityEncryption()
             enriched_data = identity_enc.enrich_identity(collected_data, location=location)
             install_choice = str(collected_data.get("ok_helper_install", "")).strip().lower()
-            if install_choice in {"yes", "y", "true", "1"}:
+            ok_setup_requested = install_choice in {"yes", "y", "true", "1", "ok"}
+            if ok_setup_requested:
                 mistral_key = (collected_data.get("mistral_api_key") or "").strip()
                 if not mistral_key:
                     try:
-                        print("\n🔑 Mistral API key required for Vibe helper setup.")
+                        print("\nMistral API key required for Vibe helper setup.")
                         mistral_key = input("Mistral API key (leave blank to skip): ").strip()
                     except Exception:
                         mistral_key = ""
                 if mistral_key:
                     collected_data["mistral_api_key"] = mistral_key
                     enriched_data["mistral_api_key"] = mistral_key
+                else:
+                    print("⚠️  Continuing without Mistral API key (can be added later).")
 
             # Step 2: Save identity fields + optional API keys to .env using ConfigSyncManager
             try:
@@ -1492,7 +1478,7 @@ class uCODETUI:
                     print("\n✅ Identity saved to .env file")
                     token = self._ensure_wizard_admin_token()
                     if token:
-                        print("🔐 Wizard admin token ready")
+                        print("Wizard admin token ready")
                         print("   Token files: memory/private/wizard_admin_token.txt")
                         print("                memory/bank/private/wizard_admin_token.txt")
                     mistral_key = (collected_data.get("mistral_api_key") or "").strip()
@@ -1500,14 +1486,13 @@ class uCODETUI:
                         self._sync_mistral_secret(mistral_key)
                     self._sync_local_user(enriched_data)
                     self.ghost_mode = self._is_ghost_user()
-                    if str(collected_data.get("ok_helper_install", "")).strip().lower() == "yes":
-                        self._run_ok_setup()
+                    # Defer OK setup until after Wizard sync/local save.
                     # Mistral key is now part of .env boundary (optional)
                     try:
                         from core.services.user_service import is_ghost_identity
 
                         if is_ghost_identity(enriched_data.get("user_username"), enriched_data.get("user_role")):
-                            print("👻 Ghost Mode remains active (role or username is Ghost).")
+                            print("Ghost Mode remains active (role or username is Ghost).")
                             print("   To exit Ghost Mode, change role to user/admin and set a non-Ghost username.")
                     except Exception:
                         pass
@@ -1544,6 +1529,8 @@ class uCODETUI:
                     f"{base_url}/api/setup/story/submit",
                     f"{base_url}/api/v1/setup/story/submit",
                 ]
+                wizard_reachable = False
+                wizard_locked = False
                 response = None
                 for endpoint in endpoint_candidates:
                     response = requests.post(
@@ -1556,6 +1543,7 @@ class uCODETUI:
                         break
 
                 if response is not None:
+                    wizard_reachable = True
                     if response.status_code == 200:
                         self.logger.info("[SETUP] Setup data synced to Wizard keystore")
                         print("✅ Data synced to Wizard keystore")
@@ -1564,10 +1552,13 @@ class uCODETUI:
                         if enriched_data.get("_crypt_id"):
                             identity_enc.print_identity_summary(enriched_data, location=location)
 
+                        self._maybe_run_ok_setup(ok_setup_requested)
                         return
                     elif response.status_code == 503:
                         self.logger.warning(f"[SETUP] Wizard secret store locked")
-                        print("\n⚠️  Wizard secret store is locked. Please check Wizard configuration.")
+                        wizard_locked = True
+                        print("\n⚠️  Wizard secret store is locked.")
+                        print("   ✅ Saved locally. Run WIZARD START after setting WIZARD_KEY to sync.")
                     else:
                         try:
                             error_detail = response.json().get("detail", f"HTTP {response.status_code}")
@@ -1578,7 +1569,8 @@ class uCODETUI:
 
             except requests.exceptions.ConnectionError:
                 self.logger.debug("Wizard server not running, trying direct save")
-                print("⚠️  Wizard server not running - data saved locally only")
+                print("⚠️  Wizard server not running - data saved locally.")
+                print("   ▶ Run WIZARD START to sync this setup into the keystore.")
             except Exception as e:
                 self.logger.debug(f"Wizard API submission failed: {e}")
 
@@ -1621,17 +1613,25 @@ class uCODETUI:
                 if user_result.data and install_result.data:
                     self.logger.info("[SETUP] Setup data saved via direct Wizard services")
                     print("\n✅ Setup data saved to Wizard keystore.")
+                    self._maybe_run_ok_setup(ok_setup_requested)
+                    self._maybe_run_ok_setup(ok_setup_requested)
                     return
                 elif user_result.locked or install_result.locked:
                     error = user_result.error or install_result.error
                     self.logger.warning(f"[SETUP] Secret store locked: {error}")
+                    wizard_locked = True
                     print(f"\n⚠️  Secret store is locked: {error}")
-                    print("Please check Wizard configuration for secret store access.")
+                    print("   ✅ Saved locally. Set WIZARD_KEY and run WIZARD START to sync.")
 
             except (ImportError, Exception) as e:
                 self.logger.debug(f"Wizard direct save not available: {e}")
 
             # Final fallback: Save to local profile file in memory/
+            if wizard_reachable and not wizard_locked:
+                print("\nℹ️  Wizard is reachable; skipping local profile cache.")
+                print("   ▶ Run WIZARD STATUS or retry SETUP to sync.")
+                self._maybe_run_ok_setup(ok_setup_requested)
+                return
             profile_dir = self.repo_root / "memory" / "user"
             profile_dir.mkdir(parents=True, exist_ok=True)
             profile_file = profile_dir / "profile.json"
@@ -1650,8 +1650,9 @@ class uCODETUI:
                 json.dump(profile, f, indent=2)
 
             self.logger.info(f"[SETUP] User profile saved to local file: {profile_file}")
-            print(f"\n💾 Setup data saved locally to {profile_file}")
-            print("⚠️  Note: Start Wizard server to sync this data to the keystore.")
+            print(f"\nSetup data saved locally to {profile_file}")
+            print("⚠️  Note: Run WIZARD START to sync this data to the keystore.")
+            self._maybe_run_ok_setup(ok_setup_requested)
 
         except Exception as e:
             self.logger.error(f"[SETUP] Failed to save user profile: {e}", exc_info=True)
@@ -1906,7 +1907,7 @@ class uCODETUI:
             # Check if TS runtime is built
             ts_runtime_path = self.repo_root / "core" / "grid-runtime" / "dist" / "index.js"
             if not ts_runtime_path.exists():
-                print("\n🔨 Building TypeScript runtime (auto-heal)...")
+                print("\nBuilding TypeScript runtime (auto-heal)...")
                 print("   This may take 30-60 seconds on first build...\n")
 
                 # Verify Node.js and npm are available before attempting build
@@ -1925,7 +1926,7 @@ class uCODETUI:
                     )
 
                     if node_check.returncode != 0 or npm_check.returncode != 0:
-                        print("   ❌ Node.js/npm not available.\n")
+                        print("   Error: Node.js/npm not available.\n")
                         print("   The TypeScript runtime requires Node.js and npm.")
                         print("\n   Please install Node.js from: https://nodejs.org/")
                         print("   Then try again with:")
@@ -1934,7 +1935,7 @@ class uCODETUI:
                         return
 
                 except Exception as e:
-                    print("   ⚠️  Could not verify Node.js/npm availability.\n")
+                    print("   Warn: Could not verify Node.js/npm availability.\n")
                     print(f"   Error: {e}")
                     print("\n   Try manually building:")
                     build_script = self.repo_root / "core" / "tools" / "build_ts_runtime.sh"
@@ -1945,52 +1946,34 @@ class uCODETUI:
                 build_script = self.repo_root / "core" / "tools" / "build_ts_runtime.sh"
                 if build_script.exists():
                     try:
-                        import threading
+                        from core.tui.ui_elements import Spinner
 
-                        # Spinner animation
-                        spinner_chars = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
-                        spinner_idx = [0]
-                        build_complete = [False]
-
-                        def show_spinner():
-                            """Show animated spinner while build runs."""
-                            while not build_complete[0]:
-                                sys.stdout.write(f'\r   {spinner_chars[spinner_idx[0]]} Building...')
-                                sys.stdout.flush()
-                                spinner_idx[0] = (spinner_idx[0] + 1) % len(spinner_chars)
-                                time.sleep(0.1)
-
-                        # Start spinner in background thread
-                        spinner_thread = threading.Thread(target=show_spinner, daemon=True)
-                        spinner_thread.start()
-
-                        # Run build with combined output for better error visibility
-                        result = subprocess.run(
+                        spinner = Spinner(label="Building", show_elapsed=True)
+                        spinner.start()
+                        proc = subprocess.Popen(
                             ["bash", str(build_script)],
                             cwd=str(self.repo_root),
-                            capture_output=True,
-                            timeout=300,  # 5 minute timeout for build
-                            text=True
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            text=True,
                         )
 
-                        build_complete[0] = True
-                        spinner_thread.join(timeout=1)
+                        while proc.poll() is None:
+                            spinner.tick()
+                            time.sleep(spinner.interval)
 
-                        # Clear the spinner line
-                        sys.stdout.write('\r' + ' ' * 50 + '\r')
-                        sys.stdout.flush()
+                        stdout, stderr = proc.communicate()
+                        spinner.stop("Build done")
 
-                        if result.returncode == 0:
-                            print("   ✅ TypeScript runtime built successfully!")
+                        if proc.returncode == 0:
+                            print("   OK TypeScript runtime built successfully.")
                             self.logger.info("[SETUP] TS runtime auto-built")
-
-                            # Small delay for visual clarity
-                            time.sleep(0.5)
+                            time.sleep(0.2)
                         else:
-                            print("   ❌ Build failed.\n")
+                            print("   Error: Build failed.\n")
 
                             # Combine stdout and stderr for complete error picture
-                            output_text = result.stdout + result.stderr
+                            output_text = (stdout or "") + (stderr or "")
 
                             if output_text.strip():
                                 print("   Error details:")
@@ -2008,31 +1991,19 @@ class uCODETUI:
                             log_path = self.repo_root / "core" / "grid-runtime" / "build.log"
                             print(f"      tail -100 {log_path}")
                             return
-                    except subprocess.TimeoutExpired:
-                        build_complete[0] = True
-                        sys.stdout.write('\r' + ' ' * 50 + '\r')
-                        sys.stdout.flush()
-                        print("   ❌ Build timed out (>5 minutes).\n")
-                        print("   The TypeScript runtime is taking too long to build.")
-                        print("   Try manually:")
-                        print(f"      bash {build_script}")
-                        return
                     except Exception as e:
-                        build_complete[0] = True
-                        sys.stdout.write('\r' + ' ' * 50 + '\r')
-                        sys.stdout.flush()
-                        print(f"   ❌ Build error: {e}\n")
+                        print(f"   Error: Build error: {e}\n")
                         print("   To fix manually, run:")
                         print(f"      bash {build_script}")
                         return
                 else:
-                    print(f"   ❌ Build script not found: {build_script}")
+                    print(f"   Error: Build script not found: {build_script}")
                     return
 
             # TS runtime is available - run setup story automatically
             print()
             if self._ask_yes_no("Run setup story now"):
-                print("\n🚀 Launching setup story...\n")
+                print("\nLaunching setup story...\n")
 
                 # Auto-execute the STORY tui-setup command
                 result = self.dispatcher.dispatch("STORY tui-setup", game_state=self.state)
@@ -2040,7 +2011,7 @@ class uCODETUI:
                 # Check if this is a form-based story
                 if result.get("story_form"):
                     collected_data = self._handle_story_form(result["story_form"])
-                    print("\n✅ Setup form completed!")
+                    print("\nSetup form completed.")
                     print(f"\nCollected {len(collected_data)} values")
 
                     # Save the collected data to user profile
@@ -2077,7 +2048,7 @@ class uCODETUI:
 
     def _show_component_status(self) -> None:
         """Show detected components."""
-        print("\n📦 Component Detection:\n")
+        print("\nComponent Detection:\n")
         for comp_name, comp in self.components.items():
             status = "✅" if comp.state == ComponentState.AVAILABLE else "❌"
             version_str = f" ({comp.version})" if comp.version else ""
@@ -2091,7 +2062,7 @@ class uCODETUI:
         self._show_component_status()
 
         if self.detector.is_available("wizard"):
-            print(self._theme_text("🧙 Wizard Server control available: Use WIZARD [start|stop|status]"))
+            print(self._theme_text("Wizard Server control available: Use WIZARD [start|stop|status]"))
         print()
 
         # Quick GRID demo (map + overlays)
@@ -2105,7 +2076,7 @@ class uCODETUI:
                 game_state=self.state,
             )
             if result.get("status") == "success" and result.get("output"):
-                print(self._theme_text("🧱 UGRID Demo"))
+                print(self._theme_text("UGRID Demo"))
                 print(result["output"])
                 print()
                 print(
@@ -2125,11 +2096,11 @@ class uCODETUI:
                 )
                 print()
             else:
-                print(self._theme_text("🧱 UGRID Demo unavailable (renderer not ready)"))
+                print(self._theme_text("UGRID Demo unavailable (renderer not ready)"))
                 print()
         except Exception as exc:
             self.logger.warning(f"[GRID_DEMO] Failed: {exc}")
-            print(self._theme_text("🧱 UGRID Demo unavailable (error)"))
+            print(self._theme_text("UGRID Demo unavailable (error)"))
             print()
 
     def _cmd_help(self, args: str) -> None:
@@ -2556,6 +2527,14 @@ For detailed help on any command, type the command name followed by --help
             print(self._theme_text(f"  ⚠️  OK SETUP failed: {exc}"))
         print(self._theme_text("✅ OK SETUP complete.\n"))
 
+    def _maybe_run_ok_setup(self, requested: bool) -> None:
+        if not requested:
+            return
+        try:
+            self._run_ok_setup()
+        except Exception as exc:
+            print(self._theme_text(f"⚠️  OK SETUP skipped: {exc}"))
+
     def _cmd_ok_explain(self, args: str) -> None:
         """OK EXPLAIN <file> [start end] [--cloud]."""
         parsed = self._parse_ok_file_args(args)
@@ -2770,8 +2749,8 @@ For detailed help on any command, type the command name followed by --help
 
             # If we get here, server didn't respond
             print("  ⚠️  Wizard Server started but not responding (timeout after 30s)")
-            print(f"  📝 Check {log_file} for startup logs")
-            print(f"  💡 Try: tail -f {log_file}")
+            print(f"  Check {log_file} for startup logs")
+            print(f"  Tip: tail -f {log_file}")
             sys.stdout.flush()
 
         except Exception as e:
@@ -2875,7 +2854,7 @@ For detailed help on any command, type the command name followed by --help
     def _cmd_exit(self, args: str) -> None:
         """Exit uCODE."""
         self.running = False
-        print("\n👋 Goodbye!")
+        print("\nGoodbye!")
 
     def _cleanup(self) -> None:
         """Cleanup on exit."""
@@ -2905,7 +2884,7 @@ For detailed help on any command, type the command name followed by --help
         if self.ghost_mode:
             # In ghost mode
             print("\n" + "="*60)
-            print("👻 Ghost Mode (Demo/Test Access)")
+            print("Ghost Mode (Demo/Test Access)")
             print("="*60)
             print("\nYou're currently in ghost mode with limited access.")
             print("To set up your identity and unlock full features:\n")

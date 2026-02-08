@@ -54,6 +54,7 @@ from core.commands import (
     SchedulerHandler,
     ScriptHandler,
     ViewportHandler,
+    DrawHandler,
 )
 
 
@@ -105,6 +106,7 @@ class CommandDispatcher:
             "SCHEDULER": SchedulerHandler(),  # Wizard task scheduler
             "SCRIPT": ScriptHandler(),  # System script runner
             "VIEWPORT": ViewportHandler(),  # Measure viewport size
+            "DRAW": DrawHandler(),  # Viewport-aware ASCII demo panels
             # User Management (2)
             "USER": UserHandler(),  # User profiles and permissions
             # Cleanup/Reset (2)

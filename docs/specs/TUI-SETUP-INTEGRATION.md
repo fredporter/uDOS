@@ -61,8 +61,8 @@ This guide explains how the new setup system integrates:
                   │   USER_NAME="ghost"
                   │   USER_DOB="1980-01-01"
                   │   USER_ROLE="user"
-                  │   USER_LOCATION="New York"
-                  │   USER_TIMEZONE="America/New_York"
+                  │   UDOS_LOCATION="New York"
+                  │   UDOS_TIMEZONE="America/New_York"
                   │   OS_TYPE="mac"
                   │   WIZARD_KEY="uuid"
                   │
@@ -237,7 +237,7 @@ Type: text
 Required: true
 Examples: "New York", "London", "Grid-42-17"
 Used for: Profile ID generation (unique per device)
-Stored in: .env as USER_LOCATION
+Stored in: .env as UDOS_LOCATION
 ```
 
 ### 6. user_timezone
@@ -246,7 +246,7 @@ Type: text
 Required: true
 Format: IANA timezone (America/Los_Angeles, UTC, etc.)
 Suggestion: System timezone (auto-filled)
-Stored in: .env as USER_TIMEZONE
+Stored in: .env as UDOS_TIMEZONE
 ```
 
 ### 7. install_os_type
@@ -348,8 +348,8 @@ Result: Both stay in sync.
      - USER_DOB
      - USER_ROLE
      - USER_PASSWORD
-     - USER_LOCATION
-     - USER_TIMEZONE
+     - UDOS_LOCATION
+     - UDOS_TIMEZONE
      - OS_TYPE
      - WIZARD_KEY
 

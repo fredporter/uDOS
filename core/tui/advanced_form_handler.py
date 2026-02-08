@@ -91,6 +91,7 @@ class AdvancedFormField:
         self.history = []
         self.predictions = {}
         self.use_typeform_layout = True
+        self._indent = "  "
         self._terminal_settings = None
         self._box_width = 64
         try:
@@ -238,6 +239,11 @@ class AdvancedFormField:
         placeholder = field.get('placeholder', '')
         if placeholder:
             lines.append(self._box_line(f"{Colors.DIM}e.g., {placeholder}{Colors.RESET}"))
+
+        progress = field.get("_progress")
+        if progress:
+            lines.append(self._box_line(self._render_progress_bar(progress)))
+        lines.append(self._box_line(f"{Colors.DIM}ENTER ⏎ to continue{Colors.RESET}"))
 
         lines.extend(self._box_footer())
         return "\n".join(lines)
@@ -456,40 +462,91 @@ class AdvancedFormField:
             logger.warning(f"[LOCAL] Select field '{label}' has no options")
             return None
 
-        # Display label and options
+        # Interactive arrow-key selection when possible
+        if self._setup_terminal_raw(allow_dumb=True):
+            try:
+                selected_index = 0
+                if suggestion:
+                    for idx, option in enumerate(options):
+                        if option["value"] == suggestion:
+                            selected_index = idx
+                            break
+
+                while True:
+                    self._maybe_clear_screen()
+                    header_lines = self._box_header(f"* {label}:")
+                    print("\n".join(header_lines))
+                    for idx, option in enumerate(options, start=1):
+                        is_selected = (idx - 1) == selected_index
+                        is_default = suggestion and option["value"] == suggestion
+                        prefix = "❯" if is_selected else " "
+                        suffix = " ← (default)" if is_default else ""
+                        color = Colors.BRIGHT_GREEN if is_default else ""
+                        reset = Colors.RESET if is_default else ""
+                        line = f"{prefix} {color}{idx}. {option['label']}{suffix}{reset}"
+                        print(self._box_line(line))
+
+                    progress = field.get("_progress")
+                    if progress:
+                        print(self._box_line(self._render_progress_bar(progress)))
+
+                    hint = f"Choose 1-{len(options)}"
+                    if suggestion:
+                        hint += " or Enter for default"
+                    print(self._box_line(f"{Colors.DIM}{hint} | ↑/↓ to move, Enter to select{Colors.RESET}"))
+                    print(self._box_line(f"{Colors.DIM}ENTER ⏎ to continue{Colors.RESET}"))
+                    print("\n".join(self._box_footer()))
+
+                    key = self._read_key()
+                    if key == '\x1b':
+                        return None
+                    if key == 'up' and selected_index > 0:
+                        selected_index -= 1
+                        continue
+                    if key == 'down' and selected_index < len(options) - 1:
+                        selected_index += 1
+                        continue
+                    if key in ('\n', '\r'):
+                        print(f"  {Colors.GREEN}✓{Colors.RESET}")
+                        self._print_transition()
+                        return options[selected_index]["value"]
+                    if key.isdigit():
+                        choice = int(key)
+                        if 1 <= choice <= len(options):
+                            print(f"  {Colors.GREEN}✓{Colors.RESET}")
+                            self._print_transition()
+                            return options[choice - 1]["value"]
+            finally:
+                self._restore_terminal_raw()
+
+        # Fallback to numbered input
         self._maybe_clear_screen()
         print(self._box_header(f"* {label}:")[0])
         for idx, option in enumerate(options, start=1):
-            # Highlight suggestion
             if suggestion and option["value"] == suggestion:
                 print(f"  {Colors.BRIGHT_GREEN}{idx}. {option['label']} ← (default){Colors.RESET}")
             else:
                 print(f"  {idx}. {option['label']}")
 
-        # Get choice
         print(f"\n{Colors.DIM}Choose 1-{len(options)}" + (f" or Enter for default" if suggestion else "") + f"{Colors.RESET}")
         print(f"{Colors.BRIGHT_CYAN}❯{Colors.RESET} ", end="", flush=True)
         raw_input = input()
         user_input = self._clean_input(raw_input)
 
-        # Accept Enter for default
         if not user_input and suggestion:
             print(f"  {Colors.GREEN}✓{Colors.RESET}")
             self._print_transition()
             return suggestion
 
-        # Handle numeric choice
         try:
             choice = int(user_input)
             if 1 <= choice <= len(options):
                 print(f"  {Colors.GREEN}✓{Colors.RESET}")
                 self._print_transition()
                 return options[choice - 1]["value"]
-            else:
-                print(f"  {Colors.RED}✗ Choose a number between 1 and {len(options)}{Colors.RESET}")
-                return self._collect_select_field(field, suggestion)
+            print(f"  {Colors.RED}✗ Choose a number between 1 and {len(options)}{Colors.RESET}")
+            return self._collect_select_field(field, suggestion)
         except ValueError:
-            # Check if they typed the option name
             for option in options:
                 if user_input.lower() == option["value"].lower() or user_input.lower() == option["label"].lower():
                     print(f"  {Colors.GREEN}✓{Colors.RESET}")
@@ -499,9 +556,8 @@ class AdvancedFormField:
             if required:
                 print(f"  {Colors.RED}✗ Invalid choice. Enter a number 1-{len(options)}{Colors.RESET}")
                 return self._collect_select_field(field, suggestion)
-            else:
-                print(f"  {Colors.DIM}(Skipped){Colors.RESET}")
-                return None
+            print(f"  {Colors.DIM}(Skipped){Colors.RESET}")
+            return None
 
     # ========================================================================
     # FORM SUMMARY & CONFIRMATION
@@ -517,7 +573,7 @@ class AdvancedFormField:
         Returns:
             Formatted summary string
         """
-        lines = [f"\n{Colors.BOLD}📋 FORM SUMMARY:{Colors.RESET}\n"]
+        lines = [f"\n{Colors.BOLD}FORM SUMMARY:{Colors.RESET}\n"]
 
         for field in form_fields:
             name = field.get('name')
@@ -678,25 +734,58 @@ class AdvancedFormField:
     def _box_header(self, title: str) -> List[str]:
         width = self._box_width
         top = "┌" + "─" * (width - 2) + "┐"
-        title_line = f"│ {title.ljust(width - 4)} │"
+        title_text = f"{title}".ljust(width - 4)
+        title_line = f"│ {title_text} │"
+        if os.getenv("UDOS_TUI_INVERT_HEADERS", "1").strip().lower() not in {"0", "false", "no"}:
+            inv = Colors.BG_WHITE + Colors.BLACK
+            title_line = f"│ {inv}{title_text}{Colors.RESET} │"
         mid = "├" + "─" * (width - 2) + "┤"
-        return [top, title_line, mid]
+        return [
+            f"\r{self._indent}{top}",
+            f"\r{self._indent}{title_line}",
+            f"\r{self._indent}{mid}",
+        ]
 
     def _box_line(self, text: str) -> str:
         width = self._box_width
         stripped = text.replace("\n", " ")
-        return f"│ {stripped.ljust(width - 4)} │"
+        # Trim ANSI for width calculation only
+        ansi_escape = re.compile(r'\x1b\[[0-9;]*[A-Za-z]')
+        visible = ansi_escape.sub('', stripped)
+        max_len = width - 4
+        if len(visible) > max_len:
+            visible = visible[: max_len - 1] + "…"
+            stripped = visible
+        pad_len = max(0, (width - 4) - len(visible))
+        return f"\r{self._indent}│ {stripped}{' ' * pad_len} │"
 
     def _box_footer(self) -> List[str]:
         width = self._box_width
-        return ["└" + "─" * (width - 2) + "┘"]
+        return [f"\r{self._indent}└" + "─" * (width - 2) + "┘"]
 
-    def _setup_terminal_raw(self) -> bool:
+    def _render_progress_bar(self, progress: Dict[str, int]) -> str:
+        current = int(progress.get("current") or 0)
+        total = int(progress.get("total") or 0)
+        if total <= 0:
+            return ""
+        bar_width = max(10, min(32, self._box_width - 18))
+        filled = int(round((current / total) * bar_width)) if total else 0
+        filled = max(0, min(bar_width, filled))
+        bar = "█" * filled + "░" * (bar_width - filled)
+        return f"Progress: {current}/{total} [{bar}]"
+
+    def _setup_terminal_raw(self, allow_dumb: bool = False) -> bool:
         """Configure terminal for raw key capture."""
         try:
-            interactive, _ = interactive_tty_status()
-            if not interactive:
-                return False
+            if allow_dumb:
+                if not (hasattr(sys.stdin, "isatty") and sys.stdin.isatty()):
+                    return False
+                if not (hasattr(sys.stdout, "isatty") and sys.stdout.isatty()):
+                    return False
+            else:
+                interactive, _ = interactive_tty_status()
+                if not interactive:
+                    return False
             self._terminal_settings = termios.tcgetattr(sys.stdin)
             tty.setraw(sys.stdin.fileno())
             return True
@@ -771,8 +860,10 @@ class AdvancedFormField:
         field_name = field.get('name', '')
         compact = 'dob' in field_name.lower() or 'birth' in field_name.lower()
         picker = DatePicker(label, default=default, show_calendar=not compact, compact=compact)
+        if field.get("_progress"):
+            picker.progress = field.get("_progress")
 
-        if not self._setup_terminal_raw():
+        if not self._setup_terminal_raw(allow_dumb=True):
             return self._collect_field_input_fallback(field, suggestion)
 
         try:
@@ -820,8 +911,10 @@ class AdvancedFormField:
         label = field.get('label', field.get('name', 'Confirm date/time'))
         timezone_hint = field.get('timezone_hint') or field.get('timezone')
         widget = DateTimeApproval(label, timezone_hint=timezone_hint)
+        if field.get("_progress"):
+            widget.progress = field.get("_progress")
 
-        if not self._setup_terminal_raw():
+        if not self._setup_terminal_raw(allow_dumb=True):
             return self._collect_field_input_fallback(field, None)
 
         try:
@@ -839,17 +932,18 @@ class AdvancedFormField:
 
     def _collect_location_field(self, field: Dict) -> Optional[Dict[str, Any]]:
         """Collect input for location using LocationSelector with fuzzy search."""
-        if not self._is_interactive():
-            return self._collect_field_input_fallback(field, None)
-
         label = field.get('label', field.get('name', 'Location'))
         tz_field = field.get('timezone_field', 'user_timezone')
         suggestions = self.load_system_suggestions()
         timezone = suggestions.get(tz_field) or suggestions.get('user_timezone') or suggestions.get('timezone')
 
-        service = LocationService()
-        locations = service.get_all_locations()
-        default_location = service.get_default_location_for_timezone(timezone) if timezone else None
+        try:
+            service = LocationService()
+            locations = service.get_all_locations()
+            default_location = service.get_default_location_for_timezone(timezone) if timezone else None
+        except Exception as exc:
+            logger.warning(f"[LOCAL] Location service unavailable: {exc}")
+            return self._collect_field_input_fallback(field, None)
 
         selector = LocationSelector(
             label,
@@ -858,7 +952,20 @@ class AdvancedFormField:
             timezone_hint=timezone,
         )
 
-        if not self._setup_terminal_raw():
+        if not self._setup_terminal_raw(allow_dumb=True):
+            # Provide a minimal suggestion list before fallback input
+            try:
+                preview = []
+                for loc in locations:
+                    name = str(loc.get("name") or "")
+                    if name:
+                        preview.append(name)
+                    if len(preview) >= 5:
+                        break
+                if preview:
+                    print("\n  Suggestions: " + ", ".join(preview))
+            except Exception:
+                pass
             return self._collect_field_input_fallback(field, None)
 
         try:

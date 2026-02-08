@@ -325,6 +325,12 @@ class WizardServer:
         provider_router = create_provider_routes(auth_guard=self._authenticate_admin)
         app.include_router(provider_router)
 
+        # Register Noun Project routes
+        from wizard.routes.nounproject_routes import create_nounproject_routes
+
+        nounproject_router = create_nounproject_routes(auth_guard=self._authenticate_admin)
+        app.include_router(nounproject_router)
+
         # Register System Info routes (OS detection, library status)
         from wizard.routes.system_info_routes import create_system_info_routes
 
@@ -377,6 +383,20 @@ class WizardServer:
         # Fonts are read-only assets; keep public for dashboard tools.
         font_router = create_font_routes()
         app.include_router(font_router)
+
+        # Register Diagram template routes (read-only)
+        from wizard.routes.diagram_routes import create_diagram_routes
+
+        diagram_router = create_diagram_routes()
+        app.include_router(diagram_router)
+
+        # Register Self-Heal routes
+        from wizard.routes.self_heal_routes import create_self_heal_routes
+
+        self_heal_router = create_self_heal_routes(
+            auth_guard=self._authenticate_admin
+        )
+        app.include_router(self_heal_router)
 
         # Register Layer editor routes
         from wizard.routes.layer_editor_routes import create_layer_editor_routes
@@ -996,12 +1016,23 @@ class WizardServer:
         import uvicorn
         from wizard.services.interactive_console import WizardConsole
 
+        def _resolve_host() -> str:
+            if host:
+                return host
+            cfg_host = self.config.host
+            local_only = os.getenv("WIZARD_LOCAL_ONLY", "1").strip().lower() in {"1", "true", "yes"}
+            if local_only and cfg_host == "0.0.0.0":
+                return "127.0.0.1"
+            return cfg_host
+
         app = self.create_app()
+        resolved_host = _resolve_host()
+        resolved_port = port or self.config.port
         self.logger.info(
             "Wizard server starting",
             ctx={
-                "host": host or self.config.host,
-                "port": port or self.config.port,
+                "host": resolved_host,
+                "port": resolved_port,
                 "interactive": interactive,
             },
         )
@@ -1010,8 +1041,8 @@ class WizardServer:
             # Run server in background with interactive console in foreground
             config = uvicorn.Config(
                 app,
-                host=host or self.config.host,
-                port=port or self.config.port,
+                host=resolved_host,
+                port=resolved_port,
                 log_level="info" if self.config.debug else "warning",
             )
             server = uvicorn.Server(config)
@@ -1030,10 +1061,10 @@ class WizardServer:
 
                 # Open dashboard in browser
                 dashboard_url = (
-                    f"http://{host or self.config.host}:{port or self.config.port}"
+                    f"http://{resolved_host}:{resolved_port}"
                 )
-                if self.config.host == "0.0.0.0":
-                    dashboard_url = f"http://localhost:{port or self.config.port}"
+                if resolved_host == "0.0.0.0":
+                    dashboard_url = f"http://localhost:{resolved_port}"
                 webbrowser.open(dashboard_url)
                 # Run interactive console in foreground
                 console_task = asyncio.create_task(console.run())
@@ -1052,8 +1083,8 @@ class WizardServer:
             # Use uvicorn.run() which properly initializes and starts the server
             uvicorn.run(
                 app,
-                host=host or self.config.host,
-                port=port or self.config.port,
+                host=resolved_host,
+                port=resolved_port,
                 log_level="info" if self.config.debug else "warning",
             )
 

@@ -189,6 +189,9 @@
 
   .mdk-main {
     @apply flex flex-1 overflow-hidden min-h-0;
+    padding-bottom: calc(
+      var(--wizard-bottom-bar-height, 86px) + var(--wizard-cli-bar-height, 44px)
+    );
   }
 
   .mdk-pane {

@@ -15,7 +15,6 @@
   const authHeaders = () =>
     adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
 
-
   function handleBackdropClick(event) {
     if (event.target === event.currentTarget) {
       showPairingModal = false;

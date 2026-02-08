@@ -754,7 +754,6 @@
     border-radius: 999px;
     width: 42px;
     height: 42px;
-    font-size: 14px;
     font-weight: 600;
     display: inline-flex;
     align-items: center;
@@ -765,14 +764,12 @@
   .nes-button.action {
     width: 56px;
     height: 56px;
-    font-size: 13px;
   }
 
   .nes-button.meta {
     width: 76px;
     height: 28px;
     border-radius: 14px;
-    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }

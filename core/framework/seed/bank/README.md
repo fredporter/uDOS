@@ -82,7 +82,7 @@ Themes define TUI appearance and variable mappings:
 
 **Core Variables:**
 - System: `THEME_NAME`, `VERSION`, `STYLE`, `VERBOSE_LEVEL`
-- User: `USER_NAME`, `USER_LOCATION`, `USER_TIMEZONE`, `USER_PROJECT`
+- User: `USER_NAME`, `UDOS_LOCATION`, `UDOS_TIMEZONE`, `USER_PROJECT`
 - Character: `CHARACTER_NAME`, `CHARACTER_CLASS`, `CHARACTER_LEVEL`, HP/XP stats
 - Object: `OBJECT_NAME`, `OBJECT_TYPE`, `OBJECT_RARITY`, durability/value
 

@@ -81,14 +81,12 @@
   .eyebrow {
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    font-size: 0.7rem;
     color: #94a3b8;
     margin: 0;
   }
 
   h1 {
     margin: 0.2rem 0;
-    font-size: 1.8rem;
   }
 
   .pill {
@@ -97,7 +95,6 @@
     padding: 0.35rem 0.9rem;
     border-radius: 999px;
     font-weight: 600;
-    font-size: 0.85rem;
   }
 
   .grid {
@@ -118,7 +115,6 @@
     border-radius: 0.75rem;
     padding: 1rem;
     color: #94a3b8;
-    font-size: 0.9rem;
   }
 
   .notes p {

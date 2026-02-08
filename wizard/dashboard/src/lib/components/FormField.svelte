@@ -330,7 +330,6 @@
   label {
     font-weight: 600;
     color: #1f2937;
-    font-size: 1rem;
   }
 
   :global(.dark) label {
@@ -347,7 +346,6 @@
   textarea,
   select {
     padding: 0.75rem 1rem;
-    font-size: 1rem;
     border: 2px solid #e5e7eb;
     border-radius: 0.5rem;
     background: white;
@@ -372,7 +370,6 @@
     color: rgba(59, 130, 246, 0.65);
     pointer-events: none;
     padding: 0.75rem 1rem;
-    font-size: 1rem;
     font-family: SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
     text-shadow: 0 0 1px rgba(15, 23, 42, 0.35);
     display: flex;

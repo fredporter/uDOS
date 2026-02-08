@@ -8,11 +8,8 @@
   let isFullscreen = false;
 
   const topNavRoutes = [
-    { id: "dashboard", label: "Dashboard" },
+    { id: "dashboard", label: "Wizard Dashboard" },
     { id: "devices", label: "Devices" },
-    { id: "ucode", label: "uCODE" },
-    { id: "renderer", label: "Renderer" },
-    { id: "anchors", label: "Anchors" },
     { id: "catalog", label: "Catalog" },
     { id: "webhooks", label: "Webhooks" },
   ];
@@ -85,9 +82,7 @@
 <div class="wizard-top-bar">
   <div class="wizard-bar-content">
     <!-- Logo/Title -->
-    <div class="wizard-bar-left">
-      <h1 class="wizard-title">Wizard Server</h1>
-    </div>
+    <div class="wizard-bar-left"></div>
 
     <!-- Center: Desktop Nav -->
     <nav class="wizard-nav-desktop">
@@ -195,17 +190,6 @@
     gap: 0.75rem;
   }
 
-  .wizard-title {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0;
-  }
-
-  :global(html.light) .wizard-title {
-    color: #0f172a;
-  }
-
   /* Desktop Navigation */
   .wizard-nav-desktop {
     display: flex;
@@ -220,7 +204,6 @@
     background: none;
     border: none;
     color: #d1d5db;
-    font-size: 0.875rem;
     font-weight: 500;
     border-radius: 0.375rem;
     cursor: pointer;
@@ -343,7 +326,6 @@
     border: none;
     color: #d1d5db;
     text-align: left;
-    font-size: 0.875rem;
     font-weight: 500;
     border-radius: 0.375rem;
     cursor: pointer;
@@ -376,7 +358,6 @@
 
   .menu-separator {
     padding: 0.75rem 1rem 0.5rem;
-    font-size: 0.75rem;
     font-weight: 600;
     color: #9ca3af;
     text-transform: uppercase;

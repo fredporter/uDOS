@@ -1,10 +1,13 @@
 ---
 title: uDOS Core Setup
+type: story
 format: story
-version: 1.3.0
+version: "1.3.0"
 author: uDOS Engineering
 tags: [setup, interactive, core]
 description: "Core identity setup for .env file. Extended settings via Wizard and hot-reload/self-heal training per the v1.1+ roadmap."
+submit_endpoint: "/api/setup/story/submit"
+submit_requires_admin: false
 ---
 
 # Core Setup
@@ -37,11 +40,23 @@ help: >
 validation: path
 ```
 
+```story
+name: setup_vault_md_root
+label: Configure vault root (VAULT_ROOT)
+type: text
+required: true
+placeholder: "/Users/yourname/Documents/vault-md"
+help: >
+  Path to your vault-md root (Markdown vault). This is used for storage, indexing,
+  and task history. Defaults to repo_root/vault-md if not set.
+validation: path
+```
+
 ---
 
 ## Identity (5 fields)
 
-```form
+```story
 name: user_username
 label: Username
 type: text
@@ -53,10 +68,10 @@ minlength: 3
 maxlength: 32
 ```
 
-```form
+```story
 name: user_dob
 label: Date of birth (YYYY-MM-DD)
-type: text
+type: date
 required: true
 placeholder: "e.g. 1990-01-15"
 help: "Used for age-based features. Must be at least 5 years old."
@@ -64,7 +79,7 @@ validation: date
 format: "YYYY-MM-DD"
 ```
 
-```form
+```story
 name: user_role
 label: Role
 type: select
@@ -111,18 +126,6 @@ help: >
 ```
 
 ```story
-name: udos_shell_enabled
-label: Enable shell routing in TUI (UDOS_SHELL_ENABLED)
-type: select
-required: true
-options:
-  - 1: Enabled (default)
-  - 0: Disabled (no shell routing)
-help: "Controls whether the TUI can execute shell commands. Disable for strict command-only mode."
-default: 1
-```
-
-```story
 name: install_os_type
 label: OS Type
 type: select
@@ -137,7 +140,7 @@ help: "Used for optional tooling and build scripts."
 ```
 
 ```story
-name: user_location_id
+name: user_location
 label: Location
 type: location
 required: true

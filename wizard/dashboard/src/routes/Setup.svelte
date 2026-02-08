@@ -348,7 +348,7 @@
       </p>
       <p
         class="section-description"
-        style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.7;"
+        style="margin-top: 0.5rem; opacity: 0.7;"
       >
         💡 To reset: Use <code>DESTROY</code> or <code>REPAIR</code> commands in
         uDOS TUI to clear .env variables or reset wizard tokens.
@@ -629,7 +629,6 @@
 
   .story-status {
     margin-bottom: 0.75rem;
-    font-size: 0.875rem;
     color: #cbd5f5;
   }
 
@@ -725,7 +724,6 @@
     height: 1.5rem;
     border-radius: 999px;
     background: rgba(148, 163, 184, 0.2);
-    font-size: 0.75rem;
   }
 
   .step-item.done .step-number {
@@ -734,7 +732,6 @@
 
   .step-desc {
     margin-top: 0.35rem;
-    font-size: 0.85rem;
     color: rgba(248, 250, 252, 0.7);
   }
 
@@ -756,7 +753,6 @@
     color: #bfdbfe;
     padding: 0.35rem 0.75rem;
     border-radius: 999px;
-    font-size: 0.75rem;
     font-weight: 600;
   }
 
@@ -770,7 +766,6 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.75rem;
     color: rgba(248, 250, 252, 0.7);
   }
 
@@ -881,7 +876,6 @@
 
   .setup-section h3 {
     margin: 0 0 0.5rem 0;
-    font-size: 1rem;
     font-weight: 600;
     color: #cbd5f5;
   }
@@ -892,7 +886,6 @@
 
   .section-description {
     margin: 0 0 1rem 0;
-    font-size: 0.875rem;
     color: rgba(248, 250, 252, 0.6);
   }
 

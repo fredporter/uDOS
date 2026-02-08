@@ -36,6 +36,32 @@ health_checklist() {
     echo "- For stuck builds: REPAIR (from uCODE)"
 }
 
+show_ucode_banner() {
+    if _udos_is_quiet; then
+        return 0
+    fi
+
+    REPO_ROOT="$REPO_ROOT" python3 - <<'PY' 2>/dev/null || true
+import os
+from core.commands.draw_handler import DrawHandler
+
+handler = DrawHandler()
+result = handler.handle("DRAW", ["block", "ucodesmile-ascii.md", "--rainbow"])
+output = result.get("output") if isinstance(result, dict) else None
+if output:
+    print(output)
+    print("")
+else:
+    path = os.path.join(os.environ.get("REPO_ROOT", ""), "memory", "system", "ucodesmile-ascii.md")
+    try:
+        with open(path, "r") as f:
+            print(f.read())
+            print("")
+    except Exception:
+        pass
+PY
+}
+
 start_wizard_if_needed() {
     local base_url="${WIZARD_BASE_URL:-http://localhost:8765}"
     if curl -s --connect-timeout 2 "${base_url}/health" >/dev/null 2>&1; then
@@ -153,7 +179,8 @@ fi
 
 # Core TUI is now the single entry point (Vibe routing merged)
 if [ "$component" = "core" ] && [ "$mode" = "tui" ]; then
-    start_wizard_if_needed || true
+    export UDOS_LAUNCHER_BANNER=1
+    show_ucode_banner
     health_checklist
 fi
 
