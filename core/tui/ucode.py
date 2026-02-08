@@ -65,6 +65,8 @@ from core.services.memory_test_scheduler import MemoryTestScheduler
 from core.services.self_healer import collect_self_heal_summary
 from core.services.prompt_parser_service import get_prompt_parser_service
 from core.services.todo_reminder_service import get_reminder_service
+from core.services.viewport_service import ViewportService
+from core.utils.text_width import truncate_ansi_to_width
 from core.services.todo_service import (
     CalendarGridRenderer as TodoCalendarGridRenderer,
     GanttGridRenderer as TodoGanttGridRenderer,
@@ -588,6 +590,7 @@ class uCODETUI:
     def run(self) -> None:
         """Start uCODE TUI."""
         self.running = True
+        self._refresh_viewport()
         self._run_startup_script()
         self._show_banner()
         self._show_health_summary()
@@ -706,6 +709,13 @@ class uCODETUI:
         print(self._theme_text("\n  💡 Tips: SETUP | HELP | STORY tui-setup | TAB (commands) | OK EXPLAIN <file>"))
         print(self._theme_text("     Try: MAP | GRID MAP --input memory/system/grid-overlays-sample.json | WIZARD start\n"))
 
+    def _refresh_viewport(self) -> None:
+        """Measure and persist viewport size on startup."""
+        try:
+            ViewportService().refresh(source="startup")
+        except Exception:
+            pass
+
     def _show_status_bar(self) -> None:
         """Render status bar line for the current session."""
         if self.quiet or not sys.stdout.isatty():
@@ -792,9 +802,12 @@ class uCODETUI:
             "\033[95m",
         ]
         reset = "\033[0m"
+        white = "\033[97m"
         tinted = []
         for idx, line in enumerate(lines):
             color = colors[idx % len(colors)]
+            if version_text in line:
+                line = line.replace(version_text, f"{white}{version_text}{color}")
             tinted.append(f"{color}{line}{reset}")
         return "\n".join(tinted)
 
@@ -1397,9 +1410,13 @@ class uCODETUI:
 
                     # Collect responses for each field in section
                     for field in fields:
+                        field_name = field.get("name", "")
+                        if field_name == "mistral_api_key":
+                            install_choice = str(collected.get("ok_helper_install", "")).strip().lower()
+                            if install_choice not in {"yes", "y", "true", "1"}:
+                                continue
                         response = self._collect_field_response(field)
                         if response is not None:
-                            field_name = field.get("name", "")
                             collected[field_name] = response
         else:
             # Single section form (backward compatibility)
@@ -1411,9 +1428,13 @@ class uCODETUI:
                 print("-" * 60)
 
             for field in fields:
+                field_name = field.get("name", "")
+                if field_name == "mistral_api_key":
+                    install_choice = str(collected.get("ok_helper_install", "")).strip().lower()
+                    if install_choice not in {"yes", "y", "true", "1"}:
+                        continue
                 response = self._collect_field_response(field)
                 if response is not None:
-                    field_name = field.get("name", "")
                     collected[field_name] = response
 
         print("\n" + "=" * 60)
@@ -1438,6 +1459,18 @@ class uCODETUI:
             location = collected_data.get("user_location", "Earth")
             identity_enc = IdentityEncryption()
             enriched_data = identity_enc.enrich_identity(collected_data, location=location)
+            install_choice = str(collected_data.get("ok_helper_install", "")).strip().lower()
+            if install_choice in {"yes", "y", "true", "1"}:
+                mistral_key = (collected_data.get("mistral_api_key") or "").strip()
+                if not mistral_key:
+                    try:
+                        print("\n🔑 Mistral API key required for Vibe helper setup.")
+                        mistral_key = input("Mistral API key (leave blank to skip): ").strip()
+                    except Exception:
+                        mistral_key = ""
+                if mistral_key:
+                    collected_data["mistral_api_key"] = mistral_key
+                    enriched_data["mistral_api_key"] = mistral_key
 
             # Step 2: Save identity fields + optional API keys to .env using ConfigSyncManager
             try:
@@ -1455,6 +1488,9 @@ class uCODETUI:
                         print("🔐 Wizard admin token ready")
                         print("   Token files: memory/private/wizard_admin_token.txt")
                         print("                memory/bank/private/wizard_admin_token.txt")
+                    mistral_key = (collected_data.get("mistral_api_key") or "").strip()
+                    if mistral_key:
+                        self._sync_mistral_secret(mistral_key)
                     self._sync_local_user(enriched_data)
                     self.ghost_mode = self._is_ghost_user()
                     if str(collected_data.get("ok_helper_install", "")).strip().lower() == "yes":
@@ -1699,6 +1735,43 @@ class uCODETUI:
             except Exception as exc:
                 self.logger.warning(f"[SETUP] Failed to write admin token {path}: {exc}")
 
+    def _sync_mistral_secret(self, api_key: str) -> None:
+        """Store Mistral API key in Wizard secret store (best effort)."""
+        if not api_key:
+            return
+        token = os.getenv("WIZARD_ADMIN_TOKEN", "").strip()
+        if not token:
+            return
+        base_url = self._wizard_base_url().rstrip("/")
+        try:
+            import requests
+
+            resp = requests.post(
+                f"{base_url}/api/settings-unified/secrets/mistral_api_key",
+                params={"value": api_key},
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=5,
+            )
+            if resp.ok:
+                print("✅ Mistral API key stored in Wizard secret store")
+                return
+            try:
+                detail = resp.json().get("detail")
+            except Exception:
+                detail = f"HTTP {resp.status_code}"
+            self.logger.warning(f"[SETUP] Failed to store Mistral key: {detail}")
+        except Exception as exc:
+            self.logger.debug(f"[SETUP] Wizard secret store API unavailable: {exc}")
+
+        try:
+            from wizard.services.secret_store import get_secret_store
+
+            store = get_secret_store()
+            store.unlock()
+            store.set_entry("mistral_api_key", api_key, provider="setup")
+            print("✅ Mistral API key stored in Wizard secret store (local)")
+        except Exception as exc:
+            self.logger.warning(f"[SETUP] Failed to store Mistral key locally: {exc}")
     def _sync_local_user(self, identity: Dict[str, Any]) -> None:
         """Create/switch local user after setup to exit ghost mode."""
         try:
@@ -1985,7 +2058,14 @@ class uCODETUI:
 
     def _theme_text(self, text: str) -> str:
         """Apply the active theme to the provided message."""
-        return self.theme.format(text)
+        themed = self.theme.format(text)
+        width = ViewportService().get_cols()
+        lines = themed.splitlines()
+        clamped = [truncate_ansi_to_width(line, width) for line in lines]
+        output = "\n".join(clamped)
+        if themed.endswith("\n"):
+            output += "\n"
+        return output
 
     def _show_component_status(self) -> None:
         """Show detected components."""

@@ -88,6 +88,14 @@ options:
 help: "Runs OK SETUP to install Ollama + Vibe CLI + recommended local models. Wizard can later add Mistral online sanity checks and quotas."
 default: no
 ```
+```story
+name: mistral_api_key
+label: Mistral API key (for Vibe helper)
+type: text
+required: false
+placeholder: "sk-..."
+help: "Required if you chose Yes above. Stored in Wizard secret store once admin token is generated."
+```
 ---
 ---
 
