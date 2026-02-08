@@ -29,6 +29,8 @@ import termios
 import tty
 import time
 
+from core.services.viewport_service import ViewportService
+
 from core.utils.tty import interactive_tty_status
 from core.tui.form_fields import DatePicker, DateTimeApproval, LocationSelector
 from core.locations import LocationService
@@ -90,6 +92,11 @@ class AdvancedFormField:
         self.use_typeform_layout = True
         self._terminal_settings = None
         self._box_width = 64
+        try:
+            cols = ViewportService().get_cols()
+            self._box_width = max(40, min(90, cols - 4))
+        except Exception:
+            pass
 
     @staticmethod
     def _clean_input(raw_input: str) -> str:

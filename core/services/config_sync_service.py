@@ -155,6 +155,31 @@ class ConfigSyncManager:
             logger.error(f"[LOCAL] Failed to save identity to .env: {e}")
             return False, f"❌ Failed to save: {e}"
 
+    def update_env_vars(self, updates: Dict[str, Optional[str]]) -> Tuple[bool, str]:
+        """Update arbitrary .env variables, preserving existing content."""
+        try:
+            env_dict = self.load_env_dict()
+
+            for key, value in updates.items():
+                if value is None:
+                    env_dict.pop(key, None)
+                else:
+                    env_dict[key] = str(value)
+
+            if 'WIZARD_KEY' not in env_dict:
+                env_dict['WIZARD_KEY'] = str(uuid.uuid4())
+                logger.info(f"[LOCAL] Generated new WIZARD_KEY")
+
+            if 'UDOS_ROOT' not in env_dict:
+                env_dict['UDOS_ROOT'] = str(self.repo_root.resolve())
+                logger.info(f"[LOCAL] Set UDOS_ROOT={env_dict['UDOS_ROOT']}")
+
+            self._write_env_file(env_dict)
+            return True, "✅ Updated .env"
+        except Exception as e:
+            logger.error(f"[LOCAL] Failed to update .env: {e}")
+            return False, f"❌ Failed to update .env: {e}"
+
     def _write_env_file(self, env_dict: Dict[str, str]) -> None:
         """Write environment variables to .env file, maintaining formatting.
 

@@ -35,6 +35,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "DEV",
             "LOGS",
             "INTEGRATION",
+            "VIEWPORT",
         ],
         "Automation": [
             "SCHEDULER",
@@ -180,6 +181,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "notes": "Routes to local Vibe (Ollama-backed). ROUTE uses rule-based NL routing. FALLBACK toggles auto-switching to cloud on failure.",
             "category": "AI & Models",
             "syntax": "OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|VIBE|FALLBACK> [args] [--cloud]",
+        },
+        "VIEWPORT": {
+            "description": "Measure and cache terminal viewport size",
+            "usage": "VIEWPORT [SHOW|REFRESH]",
+            "example": "VIEWPORT",
+            "notes": "Persists UDOS_VIEWPORT_COLS/ROWS in .env for stable TUI sizing.",
+            "category": "System & Maintenance",
+            "syntax": "VIEWPORT [SHOW|REFRESH]",
         },
         "SCHEDULER": {
             "description": "Manage scheduled tasks in the Wizard queue",

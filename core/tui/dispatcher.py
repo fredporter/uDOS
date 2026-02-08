@@ -53,6 +53,7 @@ from core.commands import (
     IntegrationHandler,
     SchedulerHandler,
     ScriptHandler,
+    ViewportHandler,
 )
 
 
@@ -103,6 +104,7 @@ class CommandDispatcher:
             "LOGS": LogsHandler(),  # View unified logs
             "SCHEDULER": SchedulerHandler(),  # Wizard task scheduler
             "SCRIPT": ScriptHandler(),  # System script runner
+            "VIEWPORT": ViewportHandler(),  # Measure viewport size
             # User Management (2)
             "USER": UserHandler(),  # User profiles and permissions
             # Cleanup/Reset (2)

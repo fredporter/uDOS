@@ -14,6 +14,9 @@ import time
 from dataclasses import dataclass
 from typing import Iterable, List, Sequence
 
+from core.utils.text_width import display_width, pad_to_width, truncate_to_width
+from core.services.viewport_service import ViewportService
+
 
 @dataclass
 class Spinner:
@@ -89,13 +92,16 @@ def format_table(headers: Sequence[str], rows: Iterable[Sequence[str]]) -> str:
     col_widths = [0] * len(rows_list[0])
     for row in rows_list:
         for idx, cell in enumerate(row):
-            col_widths[idx] = max(col_widths[idx], len(cell))
+            col_widths[idx] = max(col_widths[idx], display_width(cell))
 
     def fmt_row(row: Sequence[str]) -> str:
-        return " | ".join(cell.ljust(col_widths[i]) for i, cell in enumerate(row))
+        return " | ".join(pad_to_width(cell, col_widths[i]) for i, cell in enumerate(row))
 
     header_line = fmt_row(rows_list[0])
     divider = "-+-".join("-" * w for w in col_widths)
     data_lines = [fmt_row(row) for row in rows_list[1:]]
 
-    return "\n".join([header_line, divider] + data_lines)
+    width = ViewportService().get_cols()
+    lines = [header_line, divider] + data_lines
+    clamped = [truncate_to_width(line, width) for line in lines]
+    return "\n".join(clamped)

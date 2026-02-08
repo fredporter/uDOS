@@ -26,6 +26,8 @@ from typing import Dict, Callable, Optional, List
 from datetime import datetime
 from enum import Enum
 
+from core.services.logging_api import get_repo_root
+
 
 class FunctionKeyCode(Enum):
     """Function key codes for different terminals."""
@@ -55,7 +57,7 @@ class FKeyHandler:
         self.dispatcher = dispatcher
         self.prompt = prompt
         self.game_state = game_state
-        self.repo_root = self._get_repo_root()
+        self.repo_root = get_repo_root()
         self.handlers = {
             "F1": self._handle_new_file,
             "F2": self._handle_file_picker,
@@ -447,12 +449,4 @@ Tips:
                 "message": f"Could not read logs: {e}",
             }
 
-    @staticmethod
-    def _get_repo_root() -> Path:
-        """Get uDOS repository root."""
-        current = Path(__file__).parent
-        while current != current.parent:
-            if (current / "core" / "tui").exists():
-                return current
-            current = current.parent
-        return Path.cwd()
+    # Repo root is resolved from UDOS_ROOT via logging_api.get_repo_root()

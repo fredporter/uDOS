@@ -8,7 +8,7 @@
 
 ## Overview
 
-The TUI setup story (`memory/story/tui-setup-story.md`) collects user and installation details during first-time setup. These values are stored securely in the Wizard secret store and can be accessed via API endpoints or the interactive console.
+The TUI setup story (`memory/story/wizard-setup-story.md`) collects user and installation details during first-time setup. These values are stored securely in the Wizard secret store and can be accessed via API endpoints or the interactive console.
 
 ---
 
@@ -68,8 +68,10 @@ Stored in secret store with key: `wizard-install-profile`
   "permissions": null,
   "capabilities": {
     "web_proxy": true,
-    "ok_gateway": true,
+    "gmail_relay": true,
+    "ai_gateway": true,
     "github_push": false,
+    "hubspot": false,
     "icloud": false,
     "plugin_repo": true,
     "plugin_auto_update": false
@@ -205,8 +207,10 @@ When the setup story is submitted, capabilities are automatically synced to `wiz
 **Capability Mapping:**
 
 - `web_proxy` → `web_proxy_enabled`
-- `ok_gateway` → `ok_gateway_enabled`
+- `gmail_relay` → `gmail_relay_enabled`
+- `ai_gateway` → `ai_gateway_enabled`
 - `github_push` → `github_push_enabled`
+- `hubspot` → `hubspot_enabled`
 - `icloud` → `icloud_enabled`
 - `plugin_repo` → `plugin_repo_enabled`
 - `plugin_auto_update` → `plugin_auto_update`
@@ -249,7 +253,7 @@ Profiles can only be updated by re-submitting the setup story or manually editin
 - [wizard/routes/setup_routes.py](../routes/setup_routes.py) — API endpoints
 - [wizard/services/setup_profiles.py](../services/setup_profiles.py) — Profile storage
 - [wizard/services/interactive_console.py](../services/interactive_console.py) — Console command
-- [memory/story/tui-setup-story.md](../../memory/story/tui-setup-story.md) — TUI story
+- [memory/story/wizard-setup-story.md](../../memory/story/wizard-setup-story.md) — TUI story
 
 ---
 

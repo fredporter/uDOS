@@ -9,11 +9,12 @@ Creates a comprehensive catalog of all knowledge files with:
 - Quick reference lookup
 """
 
-import os
 import re
 import json
 from pathlib import Path
 from typing import Dict, List, Optional
+
+from core.services.logging_api import get_repo_root
 
 
 def parse_frontmatter(content: str) -> Optional[dict]:
@@ -158,7 +159,7 @@ def build_indexes(entries: List[dict]) -> dict:
 
 def main():
     """Generate knowledge catalog."""
-    knowledge_dir = Path("/Users/fredbook/Code/uDOS/knowledge")
+    knowledge_dir = get_repo_root() / "knowledge"
 
     if not knowledge_dir.exists():
         print(f"❌ Knowledge directory not found: {knowledge_dir}")

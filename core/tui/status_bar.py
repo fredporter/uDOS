@@ -19,6 +19,8 @@ from typing import Dict, Optional
 from datetime import datetime
 from enum import Enum
 
+from core.services.viewport_service import ViewportService
+from core.utils.text_width import truncate_to_width
 
 class ServerStatus(Enum):
     """Server availability status."""
@@ -76,7 +78,8 @@ class TUIStatusBar:
         # Function key reference (abbreviated for status bar)
         parts.append("[F1-F8]")
 
-        return " ".join(parts)
+        line = " ".join(parts)
+        return truncate_to_width(line, ViewportService().get_cols())
 
     def get_status_panel(self, user_role: str = "ghost", ghost_mode: bool = False) -> str:
         """
@@ -138,7 +141,9 @@ class TUIStatusBar:
 
         lines.append("\n" + "=" * 70)
 
-        return "\n".join(lines)
+        width = ViewportService().get_cols()
+        clamped = [truncate_to_width(line, width) for line in lines]
+        return "\n".join(clamped)
 
     @staticmethod
     def _check_server(host: str, port: int) -> ServerStatus:

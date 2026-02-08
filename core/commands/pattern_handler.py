@@ -6,6 +6,7 @@ import os
 from core.commands.base import BaseCommandHandler
 from core.services.pattern_generator import PatternGenerator
 from core.services.logging_api import get_logger, LogTags
+from core.services.viewport_service import ViewportService
 
 logger = get_logger("command-pattern")
 
@@ -229,19 +230,13 @@ class PatternHandler(BaseCommandHandler):
 
     def _get_terminal_width(self) -> int:
         """Get terminal width (clamped to 80 max)."""
-        try:
-            width = os.get_terminal_size().columns
-            return max(20, min(80, width))
-        except Exception:
-            return 80
+        width = ViewportService().get_cols()
+        return max(20, min(80, width))
 
     def _get_terminal_height(self) -> int:
         """Get terminal height (default to 30)."""
-        try:
-            height = os.get_terminal_size().lines
-            return max(10, height)
-        except Exception:
-            return 30
+        height = ViewportService().get_rows()
+        return max(10, height)
 
     def _show_text_banner(
         self, message: str, center: bool = False, color: Optional[str] = None

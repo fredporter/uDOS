@@ -8,102 +8,97 @@
       "name": "\u26a1 Core",
       "path": "core"
     {
-      "name": "📱 App Docs",
-      "path": "app/docs"
-    },
-    },
-    {
-      "name": "\ud83d\udd0c Extensions",
-      "path": "extensions"
-    },
-    {
-      "name": "\ud83d\udcf1 App",
-      "path": "app"
-    },
-    {
-      "name": "\ud83d\udc79 Goblin",
-      "path": "dev/goblin"
-    },
-    {
-      "name": "\ud83d\udcd6 Docs",
-      "path": "docs"
-    },
-    {
-      "name": "\ud83e\udde0 Knowledge",
-      "path": "knowledge"
-    },
-    {
-      "name": "\ud83d\udcda Library",
-      "path": "library"
-    }
-  ],
-  "settings": {
-    "python.defaultInterpreterPath": "${workspaceFolder:\ud83c\udfe0 Root}/venv/bin/python",
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true,
-    "python.terminal.executeInFileDir": true,
-    "terminal.integrated.defaultProfile.osx": "bash",
-    "terminal.integrated.profiles.osx": {
-      "bash": {
-        "path": "/bin/bash",
-        "args": [
-          "-l"
+      "folders": [
+        {
+          "name": "Root",
+          "path": "."
+        },
+        {
+          "name": "Wizard",
+          "path": "wizard"
+        },
+        {
+          "name": "Vault MD",
+          "path": "/Users/fredbook/Documents/vault-md"
+        }
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "${workspaceFolder:Root}/.venv/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.terminal.executeInFileDir": true,
+        "terminal.integrated.defaultProfile.osx": "bash",
+        "terminal.integrated.profiles.osx": {
+          "bash": {
+            "path": "/bin/bash",
+            "args": [
+              "-l"
+            ],
+            "icon": "terminal-bash"
+          }
+        },
+        "terminal.integrated.env.osx": {
+          "VIRTUAL_ENV": "${workspaceFolder:Root}/.venv",
+          "PATH": "${workspaceFolder:Root}/.venv/bin:${env:PATH}",
+          "PYTHONPATH": "${workspaceFolder:Root}"
+        },
+        "terminal.integrated.shellArgs.osx": [
+          "-l",
+          "-i"
         ],
-        "icon": "terminal-bash"
+        "files.exclude": {
+          "**/node_modules": true,
+          "**/__pycache__": true,
+          "**/*.pyc": true
+        },
+        "explorer.excludeGitIgnore": true,
+        "git.autofetch": false,
+        "git.confirmSync": false,
+        "editor.formatOnSave": false,
+        "files.associations": {
+          "*.ucode": "markdown",
+          "*.udos": "markdown"
+        },
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.python",
+          "editor.formatOnSave": true
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "[svelte]": {
+          "editor.defaultFormatter": "svelte.svelte-vscode",
+          "editor.formatOnSave": true
+        },
+        "github.copilot.enable": {
+          "*": true,
+          "plaintext": false,
+          "markdown": false,
+          "python": true,
+          "typescript": true,
+          "javascript": true,
+          "svelte": true
+        },
+        "github.copilot.advanced.debug.overrideChatModel": "gpt-4-turbo",
+        "github.copilot.advanced.debug.overrideChatApiUrl": "https://api.openai.com/v1/chat/completions"
+      },
+      "launch": {
+        "version": "0.2.0",
+        "configurations": [
+          {
+            "name": "uCODE: Run Interactive",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder:Root}/core/tui/ucode.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder:Root}"
+          }
+        ]
       }
-    },
-    "terminal.integrated.env.osx": {
-      "VIRTUAL_ENV": "${workspaceFolder:\ud83c\udfe0 Root}/venv",
-      "PATH": "${workspaceFolder:\ud83c\udfe0 Root}/venv/bin:${env:PATH}",
-      "PYTHONPATH": "${workspaceFolder:\ud83c\udfe0 Root}"
-    },
-    "terminal.integrated.shellArgs.osx": [
-      "-l",
-      "-i"
-    ],
-    "git.autofetch": false,
-    "git.confirmSync": false,
-    "editor.formatOnSave": false,
-    "[svelte]": {
-      "editor.defaultFormatter": "svelte.svelte-vscode",
-      "editor.formatOnSave": true
-    },
-    "[typescript]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode",
-      "editor.formatOnSave": true
-    },
-    "typescript.tsdk": "${workspaceFolder:\ud83d\udcf1 App}/node_modules/typescript/lib",
-    "github.copilot.enable": {
-      "*": true,
-      "plaintext": false,
-      "markdown": false,
-      "python": true,
-      "typescript": true,
-      "javascript": true,
-      "svelte": true
-    },
-    "github.copilot.advanced.debug.overrideChatModel": "gpt-4-turbo",
-    "github.copilot.advanced.debug.overrideChatApiUrl": "https://api.openai.com/v1/chat/completions",
-    "extensions.recommendations": [
-      "ms-python.python",
-      "github.copilot",
-      "github.copilot-chat",
-      "svelte.svelte-vscode",
-      "adam-bender.commit-message-editor"
-    ]
-  },
-  "launch": {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "uCODE: Run Interactive",
-        "type": "debugpy",
-        "request": "launch",
-        "program": "${workspaceFolder:\ud83c\udfe0 Root}/core/tui/ucode.py",
-        "console": "integratedTerminal",
-        "justMyCode": true,
-        "cwd": "${workspaceFolder:\ud83c\udfe0 Root}"
-      }
-    ]
-  }
-}
+    }

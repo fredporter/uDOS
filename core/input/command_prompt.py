@@ -19,11 +19,11 @@ Version: v1.0.0
 from typing import Optional, List, Dict, Any, Callable
 from dataclasses import dataclass
 import os
-import shutil
 from core.utils.tty import interactive_tty_status
 from .enhanced_prompt import EnhancedPrompt
 from core.services.logging_api import get_logger
 from core.services.dev_state import get_dev_state_label
+from core.services.viewport_service import ViewportService
 
 
 def _get_safe_logger():
@@ -252,7 +252,7 @@ class ContextualCommandPrompt(EnhancedPrompt):
         raw = text or ""
         stripped = raw.strip()
         tokens = stripped.split()
-        term_width = shutil.get_terminal_size(fallback=(120, 24)).columns
+        term_width = ViewportService().get_cols()
         ok_model = getattr(self, "ok_model", "devstral-small-2")
         ok_ctx = getattr(self, "ok_context_window", 8192)
 
@@ -487,6 +487,16 @@ def create_default_registry() -> CommandRegistry:
         options=["command: Get help for specific command"],
         examples=["HELP", "HELP WIZARD"],
         icon="❓",
+        category="System",
+    )
+
+    registry.register(
+        name="VIEWPORT",
+        help_text="Measure and cache terminal viewport size",
+        syntax="VIEWPORT [SHOW|REFRESH]",
+        options=["SHOW: Display cached viewport", "REFRESH: Re-measure viewport"],
+        examples=["VIEWPORT", "VIEWPORT SHOW"],
+        icon="🖥️",
         category="System",
     )
 

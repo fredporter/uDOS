@@ -17,6 +17,7 @@ All fields support:
 - Degradable to simple input if needed
 """
 
+import os
 import sys
 import calendar
 from datetime import datetime
@@ -59,12 +60,12 @@ class FieldConfig:
 
 class SmartNumberPicker:
     """Smart number input picker with intelligent parsing."""
-    
-    def __init__(self, label: str, min_val: int = 0, max_val: int = 9999, 
+
+    def __init__(self, label: str, min_val: int = 0, max_val: int = 9999,
                  default: Optional[int] = None, width: int = 4):
         """
         Initialize smart number picker.
-        
+
         Args:
             label: Field label
             min_val: Minimum value
@@ -80,11 +81,11 @@ class SmartNumberPicker:
         self.value = self.default
         self.input_buffer = ""
         self.cursor_pos = 0
-    
+
     def render(self, focused: bool = False) -> str:
         """Render the picker."""
         val_str = str(self.value).zfill(self.width)
-        
+
         if focused:
             # Show input buffer if typing
             if self.input_buffer:
@@ -95,14 +96,14 @@ class SmartNumberPicker:
                 return f"❯ {self.label}: [{val_str}]"
         else:
             return f"  {self.label}: {val_str}"
-    
+
     def handle_input(self, char: str) -> bool:
         """
         Handle character input with smart parsing.
-        
+
         Args:
             char: Input character
-            
+
         Returns:
             True if input was handled, False otherwise
         """
@@ -110,36 +111,36 @@ class SmartNumberPicker:
             if self.input_buffer:
                 self.input_buffer = self.input_buffer[:-1]
             return True
-        
+
         elif char.isdigit():
             # Add to input buffer
             new_buffer = self.input_buffer + char
-            
+
             # Smart parsing
             if self.width == 4:  # Year field
                 self._handle_year_input(new_buffer)
             elif self.width == 2:  # Month/Day/Hour/Minute/Second
                 self._handle_bounded_input(new_buffer)
-            
+
             return True
-        
+
         elif char in ['\n', '\r']:  # Enter
             self._finalize_input()
             return True
-        
+
         elif char == '\t':  # Tab (move to next field - handled by form)
             self._finalize_input()
             return False  # Signal move to next
-        
+
         return False
-    
+
     def _handle_year_input(self, buffer: str) -> None:
         """Smart year parsing: 75 -> 1975, 25 -> 2025, 1985 -> 1985."""
         if len(buffer) > 4:
             return  # Too long
-        
+
         num = int(buffer)
-        
+
         if len(buffer) == 2 and num < 100:
             # Two-digit year: apply intelligent heuristic
             # 00-30 -> 2000-2030 (future)
@@ -148,39 +149,39 @@ class SmartNumberPicker:
                 num += 2000
             else:
                 num += 1900
-        
+
         if self.min_val <= num <= self.max_val:
             self.input_buffer = buffer
             self.value = num
-    
+
     def _handle_bounded_input(self, buffer: str) -> None:
         """Handle month/day/hour/minute/second (bounded 1-59)."""
         if len(buffer) > self.width:
             return
-        
+
         num = int(buffer)
         if self.min_val <= num <= self.max_val:
             self.input_buffer = buffer
             self.value = num
-    
+
     def _finalize_input(self) -> None:
         """Finalize the current input buffer."""
         if self.input_buffer:
             self.value = int(self.input_buffer)
         self.input_buffer = ""
-    
+
     def arrow_up(self) -> None:
         """Increment value."""
         if self.value < self.max_val:
             self.value += 1
             self.input_buffer = ""
-    
+
     def arrow_down(self) -> None:
         """Decrement value."""
         if self.value > self.min_val:
             self.value -= 1
             self.input_buffer = ""
-    
+
     def get_value(self) -> int:
         """Get current value."""
         self._finalize_input()
@@ -189,7 +190,7 @@ class SmartNumberPicker:
 
 class DatePicker:
     """Interactive date picker with YY/MM/DD fields."""
-    
+
     def __init__(
         self,
         label: str,
@@ -199,7 +200,7 @@ class DatePicker:
     ):
         """
         Initialize date picker.
-        
+
         Args:
             label: Field label
             default: Default date in YYYY-MM-DD format
@@ -209,7 +210,7 @@ class DatePicker:
         self.label = label
         self.show_calendar = show_calendar
         self.compact = compact
-        
+
         # Parse default or use current date
         if default:
             parts = default.split('-')
@@ -218,14 +219,14 @@ class DatePicker:
             from datetime import datetime
             now = datetime.now()
             year, month, day = now.year, now.month, now.day
-        
+
         self.year_picker = SmartNumberPicker("Year", min_val=1900, max_val=2100, default=year, width=4)
         self.month_picker = SmartNumberPicker("Month", min_val=1, max_val=12, default=month, width=2)
         self.day_picker = SmartNumberPicker("Day", min_val=1, max_val=31, default=day, width=2)
-        
+
         self.current_field = 0  # 0=year, 1=month, 2=day
         self.pickers = [self.year_picker, self.month_picker, self.day_picker]
-    
+
     def render(self) -> str:
         """Render the date picker."""
         if self.compact or not self.show_calendar:
@@ -246,14 +247,14 @@ class DatePicker:
 
         lines = [f"📅 {self.label}"]
         lines.append("=" * 50)
-        
+
         for i, picker in enumerate(self.pickers):
             focused = i == self.current_field
             lines.append(picker.render(focused=focused))
 
         lines.append("")
         lines.extend(self._render_calendar())
-        
+
         lines.append("\n▸ Use arrow keys or type | Tab/Enter to confirm")
         return "\n".join(lines)
 
@@ -281,19 +282,19 @@ class DatePicker:
             lines.append(" ".join(day_strs).rstrip())
 
         return lines
-    
+
     def handle_input(self, key: str) -> Optional[str]:
         """
         Handle keyboard input.
-        
+
         Returns:
             Date string if complete, None otherwise
         """
         current_picker = self.pickers[self.current_field]
-        
+
         if key == '\x1b':  # Escape sequence start
             return None  # Let parent handle escape codes
-        
+
         elif key in ('\t', 'right'):  # Tab/Right - move to next field
             current_picker._finalize_input()
             if self.current_field < len(self.pickers) - 1:
@@ -304,29 +305,29 @@ class DatePicker:
             if self.current_field > 0:
                 self.current_field -= 1
             return None
-        
+
         elif key == '\n' or key == '\r':  # Enter - confirm
             self._finalize()
             return self.get_value()
-        
+
         elif key == 'up':  # Arrow up
             current_picker.arrow_up()
             return None
-        
+
         elif key == 'down':  # Arrow down
             current_picker.arrow_down()
             return None
-        
+
         else:
             # Try to handle in current picker
             current_picker.handle_input(key)
             return None
-    
+
     def _finalize(self) -> None:
         """Finalize all pickers."""
         for picker in self.pickers:
             picker._finalize_input()
-    
+
     def get_value(self) -> str:
         """Get date as YYYY-MM-DD string."""
         self._finalize()
@@ -338,17 +339,17 @@ class DatePicker:
 
 class TimePicker:
     """Interactive time picker with HH/MM/SS fields."""
-    
+
     def __init__(self, label: str, default: Optional[str] = None):
         """
         Initialize time picker.
-        
+
         Args:
             label: Field label
             default: Default time in HH:MM:SS format
         """
         self.label = label
-        
+
         # Parse default or use current time
         if default:
             parts = default.split(':')
@@ -357,23 +358,23 @@ class TimePicker:
             from datetime import datetime
             now = datetime.now()
             hour, minute, second = now.hour, now.minute, now.second
-        
+
         self.hour_picker = SmartNumberPicker("Hour", min_val=0, max_val=23, default=hour, width=2)
         self.minute_picker = SmartNumberPicker("Minute", min_val=0, max_val=59, default=minute, width=2)
         self.second_picker = SmartNumberPicker("Second", min_val=0, max_val=59, default=second, width=2)
-        
+
         self.current_field = 0  # 0=hour, 1=minute, 2=second
         self.pickers = [self.hour_picker, self.minute_picker, self.second_picker]
-    
+
     def render(self) -> str:
         """Render the time picker."""
         lines = [f"\n⏱️  {self.label}"]
         lines.append("=" * 50)
-        
+
         for i, picker in enumerate(self.pickers):
             focused = i == self.current_field
             lines.append(picker.render(focused=focused))
-        
+
         lines.append("\n▸ Use arrow keys or type | Tab/Enter to confirm")
         return "\n".join(lines)
 
@@ -463,14 +464,14 @@ class DateTimeApproval:
             return payload
 
         return None
-    
+
 class BarSelector:
     """Bar-style selector for multiple options."""
-    
+
     def __init__(self, label: str, options: List[str], default_index: int = 0):
         """
         Initialize bar selector.
-        
+
         Args:
             label: Field label
             options: List of option strings
@@ -479,28 +480,28 @@ class BarSelector:
         self.label = label
         self.options = options
         self.selected_index = default_index
-    
+
     def render(self, focused: bool = False) -> str:
         """Render the selector."""
         if not focused:
             selected = self.options[self.selected_index]
             return f"  {self.label}: {selected}"
-        
+
         # Focused view - show all options with selector
         lines = [f"\n  {self.label}:"]
         lines.append("  " + "=" * 48)
-        
+
         for i, option in enumerate(self.options):
             if i == self.selected_index:
                 lines.append(f"  ❯ {option}")
             else:
                 lines.append(f"    {option}")
-        
+
         lines.append("  " + "=" * 48)
         lines.append("  ▸ Use arrow keys ↑/↓ or click | Enter to select")
-        
+
         return "\n".join(lines)
-    
+
     def handle_input(self, key: str) -> Optional[str]:
         """Handle input. Returns selected option on Enter."""
         if key == 'up':
@@ -513,9 +514,9 @@ class BarSelector:
             return None
         elif key == '\n' or key == '\r':
             return self.get_value()
-        
+
         return None
-    
+
     def get_value(self) -> str:
         """Get selected option."""
         return self.options[self.selected_index]
@@ -662,7 +663,7 @@ class LocationSelector:
 
 class TUIFormRenderer:
     """Handles interactive TUI form rendering and field management."""
-    
+
     def __init__(self, title: str = "Form", description: str = "", on_field_complete: Optional[Callable] = None):
         """Initialize form renderer."""
         self.title = title
@@ -671,7 +672,7 @@ class TUIFormRenderer:
         self.current_field_index = 0
         self.submitted_data: Dict[str, Any] = {}
         self.on_field_complete = on_field_complete
-    
+
     def add_field(self, name: str, label: str, field_type: FieldType, **kwargs) -> None:
         """Add a field to the form."""
         field = {
@@ -683,27 +684,27 @@ class TUIFormRenderer:
             'value': None,
         }
         self.fields.append(field)
-    
+
     def render(self) -> str:
         """Render the current field."""
         if self.current_field_index >= len(self.fields):
             return self._render_completion()
-        
+
         field = self.fields[self.current_field_index]
-        
+
         # Initialize widget if needed
         if field['widget'] is None:
             field['widget'] = self._create_widget(field)
-        
+
         return self._render_field(field)
-    
+
     def _create_widget(self, field: Dict) -> Any:
         """Create appropriate widget for field type."""
         name = field['name']
         label = field['label']
         config = field['config']
         ftype = field['type']
-        
+
         if ftype == FieldType.DATE:
             return DatePicker(label, default=config.get('default'))
         elif ftype == FieldType.TIME:
@@ -754,22 +755,22 @@ class TUIFormRenderer:
         if hasattr(tzinfo, "key"):
             return str(tzinfo.key)
         return str(tzinfo) or "UTC"
-    
+
     def _render_field(self, field: Dict) -> str:
         """Render a single field."""
         lines = []
-        
+
         # Header
         lines.append("\n" + "=" * 60)
         lines.append(f"  {self.title}")
         if self.description:
             lines.append(f"  {self.description}")
         lines.append("=" * 60)
-        
+
         # Progress
         progress = f"{self.current_field_index + 1}/{len(self.fields)}"
         lines.append(f"\n  [{progress}] {field['label']}")
-        
+
         # Field
         widget = field['widget']
         if widget:
@@ -777,11 +778,11 @@ class TUIFormRenderer:
         else:
             # Simple text input
             lines.append(f"  {field['label']}: [___]")
-        
+
         lines.append("\n")
-        
+
         return "\n".join(lines)
-    
+
     def _render_completion(self) -> str:
         """Render completion screen."""
         lines = [
@@ -790,7 +791,7 @@ class TUIFormRenderer:
             "=" * 60,
             "\nCollected data:",
         ]
-        
+
         for field in self.fields:
             lines.append(f"  • {field['label']}: {field['value']}")
 
@@ -798,7 +799,7 @@ class TUIFormRenderer:
         lines.extend(self._render_structure_summary())
         lines.append("\n  ✳️  See docs/SEED-INSTALLATION-GUIDE.md for expectations")
         lines.append("=" * 60)
-        
+
         return "\n".join(lines)
 
     def _render_structure_summary(self) -> List[str]:
@@ -806,7 +807,9 @@ class TUIFormRenderer:
         repo_root = get_repo_root()
         memory_root = get_memory_root()
         system_root = memory_root / "system"
-        vault_root = repo_root / "vault-md" / "bank"
+        env_vault = os.getenv("VAULT_MD_ROOT")
+        vault_md_root = Path(env_vault).expanduser() if env_vault else repo_root / "vault-md"
+        vault_root = vault_md_root / "bank"
         seed_root = repo_root / "core" / "framework" / "seed"
         seed_bank = seed_root / "bank"
         guide_doc = repo_root / "docs" / "SEED-INSTALLATION-GUIDE.md"
@@ -826,20 +829,20 @@ class TUIFormRenderer:
             fmt("seed installation guide", guide_doc),
         ]
         return summary
-    
+
     def handle_input(self, key: str) -> bool:
         """
         Handle input for current field.
-        
+
         Returns:
             True if form is complete, False otherwise
         """
         if self.current_field_index >= len(self.fields):
             return True
-        
+
         field = self.fields[self.current_field_index]
         widget = field['widget']
-        
+
         if widget:
             result = widget.handle_input(key)
             if result is not None:
@@ -850,20 +853,20 @@ class TUIFormRenderer:
                 else:
                     field['value'] = result
                     self.submitted_data[field['name']] = result
-                
+
                 # Call completion callback if provided
                 if self.on_field_complete:
                     self.on_field_complete(field['name'], result, self.submitted_data)
-                
+
                 self.current_field_index += 1
-                
+
                 # Advance to next
                 if self.current_field_index < len(self.fields):
                     self.fields[self.current_field_index]['widget'] = \
                         self._create_widget(self.fields[self.current_field_index])
-        
+
         return self.current_field_index >= len(self.fields)
-    
+
     def get_data(self) -> Dict[str, Any]:
         """Get submitted form data."""
         return self.submitted_data
@@ -873,9 +876,9 @@ if __name__ == "__main__":
     # Test the components
     picker = SmartNumberPicker("Year", min_val=1900, max_val=2100, default=2000)
     print(picker.render(focused=True))
-    
+
     date_picker = DatePicker("Date of Birth")
     print(date_picker.render())
-    
+
     selector = BarSelector("Role", ["ghost", "user", "admin"])
     print(selector.render(focused=True))

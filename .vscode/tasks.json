@@ -86,6 +86,21 @@
       "problemMatcher": []
     },
     {
+      "label": "Wizard: Run MCP (stdio)",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv-mcp/bin/python",
+      "args": [
+        "${workspaceFolder}/mcp/wizard/mcp_server.py"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Vibe Chat (interactive)",
       "type": "shell",
       "command": "vibe",

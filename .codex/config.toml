@@ -1,0 +1,31 @@
+[mcp_servers.wizard_readonly]
+command = "/Users/fredbook/Code/uDOS/.venv-mcp/bin/python"
+args = ["${env:UDOS_ROOT}/mcp/wizard/mcp_server.py"]
+cwd = "${env:UDOS_ROOT}"
+# Read-only allowlist for safe inspection.
+enabled_tools = [
+  "wizard.health",
+  "wizard.tools.list",
+  "wizard.config.get",
+  "wizard.providers.list",
+  "wizard.monitoring.summary",
+  "wizard.monitoring.logs.list",
+  "wizard.monitoring.logs.tail",
+  "wizard.tasks.dashboard",
+  "wizard.workflows.dashboard",
+  "wizard.dev.status",
+  "wizard.system.info",
+  "wizard.system.stats",
+  "wizard.system.uptime",
+  "wizard.library.status",
+  "wizard.wiki.structure"
+]
+# Requires admin token because most Wizard endpoints are admin-guarded.
+env = { WIZARD_ADMIN_TOKEN = "${WIZARD_ADMIN_TOKEN}", WIZARD_BASE_URL = "http://127.0.0.1:8765" }
+
+[mcp_servers.wizard_ops]
+command = "/Users/fredbook/Code/uDOS/.venv-mcp/bin/python"
+args = ["${env:UDOS_ROOT}/mcp/wizard/mcp_server.py"]
+cwd = "${env:UDOS_ROOT}"
+# Full tool surface (project-trusted only).
+env = { WIZARD_ADMIN_TOKEN = "${WIZARD_ADMIN_TOKEN}", WIZARD_BASE_URL = "http://127.0.0.1:8765" }

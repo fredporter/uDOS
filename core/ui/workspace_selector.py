@@ -16,6 +16,7 @@ Workspaces:
 Part of Phase 2 TUI Enhancement — Workspace selection layer
 """
 
+import os
 from pathlib import Path
 from typing import Optional, List
 from dataclasses import dataclass
@@ -28,6 +29,9 @@ from core.ui.selector_framework import (
 )
 from core.input.keypad_handler import KeypadHandler, KeypadMode
 from core.services.spatial_filesystem import UserRole, WorkspaceType
+from core.services.viewport_service import ViewportService
+from core.services.logging_api import get_repo_root
+from core.utils.text_width import truncate_to_width
 
 
 _CONTINUE = object()
@@ -42,7 +46,7 @@ class WorkspaceOption:
     description: str
     icon: str
     admin_only: bool = False
-    
+
     def to_selectable_item(self) -> SelectableItem:
         """Convert to SelectableItem for SelectorFramework."""
         label = f"{self.icon} {self.name}"
@@ -62,10 +66,10 @@ class WorkspaceOption:
 class WorkspacePicker:
     """
     Interactive workspace selector using SelectorFramework.
-    
+
     Presents workspace options before opening FileBrowser. Respects
     user role (admin vs normal) to show/hide restricted workspaces.
-    
+
     Usage:
         picker = WorkspacePicker(user_role=UserRole.ADMIN)
         workspace_path = picker.pick()
@@ -73,7 +77,7 @@ class WorkspacePicker:
             browser = FileBrowser(start_dir=str(workspace_path))
             selected_file = browser.pick()
     """
-    
+
     def __init__(
         self,
         user_role: UserRole = UserRole.USER,
@@ -81,14 +85,14 @@ class WorkspacePicker:
     ):
         """
         Initialize workspace picker.
-        
+
         Args:
             user_role: UserRole.USER or UserRole.ADMIN
             project_root: Root of uDOS project (default: auto-detect)
         """
         self.user_role = user_role
         self.project_root = project_root or self._detect_project_root()
-        
+
         # Create selector and keypad
         self.selector = SelectorFramework(
             config=SelectorConfig(
@@ -99,27 +103,31 @@ class WorkspacePicker:
         )
         self.keypad = KeypadHandler()
         self.keypad.set_mode(KeypadMode.SELECTION)
-        
+
         # Load workspace options
         self.workspaces = self._build_workspace_list()
         self._populate_selector()
-    
+
     def _detect_project_root(self) -> Path:
         """Auto-detect uDOS project root."""
-        # Start from this file's location and walk up
-        current = Path(__file__).resolve()
-        for parent in [current] + list(current.parents):
-            if (parent / "memory").is_dir() and (parent / "core").is_dir():
-                return parent
-        # Fallback: cwd
-        return Path.cwd()
-    
+        try:
+            return get_repo_root()
+        except Exception:
+            # Fallback: walk up from this file
+            current = Path(__file__).resolve()
+            for parent in [current] + list(current.parents):
+                if (parent / "memory").is_dir() and (parent / "core").is_dir():
+                    return parent
+            return Path.cwd()
+
     def _build_workspace_list(self) -> List[WorkspaceOption]:
         """Build list of available workspaces based on user role."""
         memory_dir = self.project_root / "memory"
         knowledge_dir = self.project_root / "knowledge"
         dev_dir = self.project_root / "dev"
-        
+        env_vault = os.getenv("VAULT_MD_ROOT")
+        vault_dir = Path(env_vault).expanduser() if env_vault else self.project_root / "vault-md"
+
         workspaces = [
             WorkspaceOption(
                 id="sandbox",
@@ -140,7 +148,7 @@ class WorkspacePicker:
             WorkspaceOption(
                 id="vault",
                 name="Vault",
-                path=self.project_root / "vault-md",
+                path=vault_dir,
                 description="User vault for markdown and data",
                 icon="🔐",
                 admin_only=False,
@@ -154,7 +162,7 @@ class WorkspacePicker:
                 admin_only=False,
             ),
         ]
-        
+
         # Admin-only workspaces
         if self.user_role == UserRole.ADMIN:
             workspaces.extend([
@@ -183,33 +191,34 @@ class WorkspacePicker:
                     admin_only=True,
                 ),
             ])
-        
+
         return workspaces
-    
+
     def _populate_selector(self) -> None:
         """Load workspace items into selector."""
         items = [ws.to_selectable_item() for ws in self.workspaces]
         self.selector.set_items(items)
         self.keypad.set_items([item.label for item in items])
-    
+
     def display(self) -> None:
         """Display workspace picker interface."""
+        width = ViewportService().get_cols()
         print("\033[2J\033[H", end="")  # Clear screen
         print("=" * 70)
         print("WORKSPACE SELECTOR")
         print("=" * 70)
         print("Choose a workspace to browse:")
-        
+
         # Display items with selector framework
         for line in self.selector.get_display_lines():
-            print(line)
-        
+            print(truncate_to_width(line, width))
+
         # Show description for current item
         current = self.selector.get_current_item()
         if current:
             description = current.metadata.get("description", "")
-            print(f"  → {description}")
-        
+            print(truncate_to_width(f"  → {description}", width))
+
         print("-" * 70)
         print("Controls:")
         print("  j/k or 2/8   Move down/up")
@@ -218,16 +227,16 @@ class WorkspacePicker:
         print("  h/?          Help")
         print("  q            Cancel")
         print()
-    
+
     def handle_input(self, key: str):
         """Handle user input."""
         if key == "q":
             return None
-        
+
         if key in ("h", "?"):
             self._show_help()
             return _CONTINUE
-        
+
         # Number selection (1-9)
         if key in "123456789":
             result = self.keypad.handle_key(key)
@@ -239,7 +248,7 @@ class WorkspacePicker:
                     item.label for item in self.selector.get_visible_items()
                 ])
             return _CONTINUE
-        
+
         # Pagination
         if key in ("0", "n"):
             self.selector.next_page()
@@ -247,43 +256,43 @@ class WorkspacePicker:
                 item.label for item in self.selector.get_visible_items()
             ])
             return _CONTINUE
-        
+
         if key == "p":
             self.selector.prev_page()
             self.keypad.set_items([
                 item.label for item in self.selector.get_visible_items()
             ])
             return _CONTINUE
-        
+
         # Navigation
         if key in ("k", "8"):
             self.selector.navigate_up()
             return _CONTINUE
-        
+
         if key in ("j", "2"):
             self.selector.navigate_down()
             return _CONTINUE
-        
+
         # Selection
         if key in ("5", ""):
             return self._select_current()
-        
+
         return _CONTINUE
-    
+
     def _select_by_label(self, label: str):
         """Select workspace by label."""
         for item in self.selector.items:
             if item.label == label:
                 return item.value  # Returns Path object
         return _CONTINUE
-    
+
     def _select_current(self):
         """Select currently highlighted workspace."""
         item = self.selector.get_current_item()
         if not item:
             return _CONTINUE
         return item.value  # Returns Path object
-    
+
     def _show_help(self) -> None:
         """Show help overlay."""
         print("\033[2J\033[H", end="")
@@ -318,11 +327,11 @@ class WorkspacePicker:
             print("  ⚙️  Development — Dev tools (admin)")
         print()
         input("Press Enter to continue...")
-    
+
     def pick(self) -> Optional[Path]:
         """
         Run picker and return selected workspace path.
-        
+
         Returns:
             Path object if workspace selected, None if cancelled
         """
@@ -348,16 +357,16 @@ def pick_workspace(
 ) -> Optional[Path]:
     """
     Quick function to pick a workspace.
-    
+
     Usage:
         workspace = pick_workspace(user_role=UserRole.ADMIN)
         if workspace:
             print(f"Selected: {workspace}")
-    
+
     Args:
         user_role: UserRole.USER or UserRole.ADMIN
         project_root: Root of uDOS project (default: auto-detect)
-    
+
     Returns:
         Path object if workspace selected, None if cancelled
     """
@@ -372,27 +381,27 @@ def pick_workspace_then_file(
 ) -> Optional[Path]:
     """
     Two-stage picker: workspace selection then file browser.
-    
+
     Usage:
         file_path = pick_workspace_then_file(user_role=UserRole.ADMIN)
         if file_path:
             print(f"Selected file: {file_path}")
-    
+
     Args:
         user_role: UserRole.USER or UserRole.ADMIN
         project_root: Root of uDOS project (default: auto-detect)
         pick_directories: Allow selecting directories (not just files)
-    
+
     Returns:
         Path object of selected file, None if cancelled
     """
     from core.tui.file_browser import FileBrowser
-    
+
     # Stage 1: Pick workspace
     workspace = pick_workspace(user_role=user_role, project_root=project_root)
     if not workspace:
         return None
-    
+
     # Stage 2: Browse files in workspace
     browser = FileBrowser(
         start_dir=str(workspace),

@@ -16,6 +16,8 @@ from core.ui.selector_framework import (
     SelectionMode,
 )
 from core.input.keypad_handler import KeypadHandler, KeypadMode
+from core.services.viewport_service import ViewportService
+from core.utils.text_width import truncate_to_width
 
 
 _CONTINUE = object()
@@ -78,12 +80,13 @@ class FileBrowser:
             print(f"[WARN] Permission denied: {self.current_dir}")
 
     def display(self) -> None:
+        width = ViewportService().get_cols()
         print("\033[2J\033[H", end="")
         print("=" * 70)
         print(f"FILE BROWSER - {self.current_dir}")
         print("=" * 70)
         for line in self.selector.get_display_lines():
-            print(line)
+            print(truncate_to_width(line, width))
         print("-" * 70)
         print("Controls:")
         print("  j/k or 2/8   Move down/up")

@@ -18,6 +18,8 @@ from core.ui.selector_framework import (
 from core.input.keypad_handler import KeypadHandler, KeypadMode
 from core.input.command_prompt import CommandRegistry, CommandMetadata
 from core.services.logging_api import get_logger
+from core.services.viewport_service import ViewportService
+from core.utils.text_width import truncate_to_width
 
 
 _CONTINUE = object()
@@ -68,13 +70,14 @@ class CommandSelector:
 
     def display(self) -> None:
         """Display command selector UI."""
+        width = ViewportService().get_cols()
         print("\033[2J\033[H", end="")
         print("=" * 70)
         print("COMMAND SELECTOR (TAB)")
         print("=" * 70)
 
         for line in self.selector.get_display_lines():
-            print(line)
+            print(truncate_to_width(line, width))
 
         current = self.selector.get_current_item()
         if current:

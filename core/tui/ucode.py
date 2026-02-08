@@ -60,7 +60,13 @@ from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, cre
 from core.services.health_training import read_last_summary
 from core.services.hotkey_map import write_hotkey_payload
 from core.services.theme_service import get_theme_service
-from core.services.logging_api import get_logger, new_corr_id, set_corr_id, reset_corr_id
+from core.services.logging_api import (
+    get_logger,
+    new_corr_id,
+    set_corr_id,
+    reset_corr_id,
+    get_repo_root,
+)
 from core.services.memory_test_scheduler import MemoryTestScheduler
 from core.services.self_healer import collect_self_heal_summary
 from core.services.prompt_parser_service import get_prompt_parser_service
@@ -80,17 +86,6 @@ try:
 except Exception:
     MonitoringManager = None
     WIZARD_MONITORING_AVAILABLE = False
-
-
-def get_repo_root() -> Path:
-    """Get uDOS repository root."""
-    current = Path(__file__).parent
-    while current != current.parent:
-        if (current / "core" / "tui").exists() and (current / "wizard").exists():
-            return current
-        current = current.parent
-    # Fallback: current working directory
-    return Path.cwd()
 
 
 class ComponentState(Enum):
@@ -1922,7 +1917,8 @@ class uCODETUI:
                         print("   The TypeScript runtime requires Node.js and npm.")
                         print("\n   Please install Node.js from: https://nodejs.org/")
                         print("   Then try again with:")
-                        print("      bash /Users/fredbook/Code/uDOS/core/tools/build_ts_runtime.sh")
+                        build_script = self.repo_root / "core" / "tools" / "build_ts_runtime.sh"
+                        print(f"      bash {build_script}")
                         return
 
                 except Exception as e:

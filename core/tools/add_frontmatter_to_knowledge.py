@@ -6,12 +6,12 @@ Adds YAML frontmatter to all .md files in /knowledge/ that don't have it yet.
 Extracts metadata from file path and existing content.
 """
 
-import os
 import re
-import json
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional
+
+from core.services.logging_api import get_repo_root
 
 
 def parse_existing_frontmatter(content: str) -> tuple[Optional[dict], str]:
@@ -95,7 +95,11 @@ def generate_frontmatter(meta: dict) -> str:
     return "\n".join(lines) + "\n\n"
 
 
-def process_file(filepath: Path, dry_run: bool = False) -> tuple[bool, str]:
+def process_file(
+    filepath: Path,
+    knowledge_root: Path,
+    dry_run: bool = False,
+) -> tuple[bool, str]:
     """Process a single markdown file."""
     try:
         with open(filepath, "r", encoding="utf-8") as f:
@@ -111,7 +115,7 @@ def process_file(filepath: Path, dry_run: bool = False) -> tuple[bool, str]:
         meta = extract_metadata_from_content(content, filepath)
 
         # Generate ID from filepath
-        rel_path = filepath.relative_to(Path("/Users/fredbook/Code/uDOS/knowledge"))
+        rel_path = filepath.relative_to(knowledge_root)
         meta["id"] = str(rel_path).replace("/", "-").replace(".md", "")
 
         # Determine type from category
@@ -140,7 +144,7 @@ def process_file(filepath: Path, dry_run: bool = False) -> tuple[bool, str]:
 
 def main():
     """Process all markdown files in knowledge directory."""
-    knowledge_dir = Path("/Users/fredbook/Code/uDOS/knowledge")
+    knowledge_dir = get_repo_root() / "knowledge"
 
     if not knowledge_dir.exists():
         print(f"❌ Knowledge directory not found: {knowledge_dir}")
@@ -158,7 +162,7 @@ def main():
 
     for filepath in sorted(md_files):
         rel_path = filepath.relative_to(knowledge_dir)
-        success, message = process_file(filepath, dry_run=False)
+        success, message = process_file(filepath, knowledge_dir, dry_run=False)
 
         if success:
             updated += 1

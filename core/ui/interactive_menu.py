@@ -11,9 +11,10 @@ Provides:
 
 import sys
 import os
-import shutil
 from typing import List, Dict, Optional, Tuple, Callable, Any
 from core.utils.tty import interactive_tty_status
+from core.services.viewport_service import ViewportService
+from core.utils.text_width import pad_to_width, truncate_to_width
 from dataclasses import dataclass
 from enum import Enum
 
@@ -196,6 +197,8 @@ class InteractiveMenu:
         if self.style in (MenuStyle.ARROW, MenuStyle.HYBRID):
             self._clear_screen()
         lines: List[str] = []
+        width = ViewportService().get_cols()
+        inner_width = max(10, width - 2)
         if self._ascii_only:
             tl, tr, bl, br = "+", "+", "+", "+"
             hline, vline = "-", "|"
@@ -206,6 +209,11 @@ class InteractiveMenu:
         lines.append(f"{vline} {self.title} {vline}")
         lines.append(bl + hline * (len(self.title) + 2) + br)
 
+        # Options box
+        opt_top = tl + hline * inner_width + tr
+        opt_bottom = bl + hline * inner_width + br
+        lines.append(opt_top)
+
         # Display items
         for idx, item in enumerate(self.items):
             num = idx + 1
@@ -215,9 +223,11 @@ class InteractiveMenu:
             else:
                 indicator = "▶ " if idx == self.selected_index else "  "
                 status = "✅" if item.enabled else "⊘"
-            lines.append(f"{indicator}{status} {num}. {item.label}")
+            label = f"{indicator}{status} {num}. {item.label}"
             if self.show_help and item.help_text:
-                lines.append(f"      {item.help_text}")
+                label = f"{label} — {item.help_text}"
+            label = truncate_to_width(label, inner_width)
+            lines.append(f"{vline}{pad_to_width(label, inner_width)}{vline}")
 
         # Display cancel option
         if self.allow_cancel:
@@ -225,8 +235,11 @@ class InteractiveMenu:
             indicator = "> " if (self._ascii_only and cancel_idx == self.selected_index) else (
                 "▶ " if cancel_idx == self.selected_index else "  "
             )
-            lines.append(f"{indicator}  0. Cancel")
+            cancel_line = f"{indicator}  0. Cancel"
+            cancel_line = truncate_to_width(cancel_line, inner_width)
+            lines.append(f"{vline}{pad_to_width(cancel_line, inner_width)}{vline}")
 
+        lines.append(opt_bottom)
         lines.extend(self._get_instructions_lines())
         self._emit_lines(lines)
 
@@ -242,8 +255,8 @@ class InteractiveMenu:
     def _emit_lines(self, lines: List[str]) -> None:
         """Write menu output with correct newlines for raw mode."""
         newline = "\r\n" if self._raw_mode else "\n"
-        width = shutil.get_terminal_size((80, 20)).columns
-        padded = [line.ljust(width) for line in lines]
+        width = ViewportService().get_cols()
+        padded = [pad_to_width(line, width) for line in lines]
         sys.stdout.write(newline.join(padded) + newline)
         sys.stdout.flush()
 

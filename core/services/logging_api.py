@@ -174,6 +174,18 @@ def get_repo_root() -> Path:
         )
 
 
+def get_subprocess_env(base_env: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    """Return env for subprocesses, ensuring UDOS_ROOT is set."""
+    env = dict(base_env or os.environ)
+    if "UDOS_ROOT" not in env:
+        try:
+            env["UDOS_ROOT"] = str(get_repo_root())
+        except Exception:
+            # Leave unset if root resolution fails.
+            pass
+    return env
+
+
 def _redact_value(key: str, value: Any) -> Any:
     if key.lower() in _REDACT_KEYS:
         return "[REDACTED]"
