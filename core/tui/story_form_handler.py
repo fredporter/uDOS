@@ -25,13 +25,14 @@ from core.tui.form_fields import (
 )
 from core.services.logging_api import get_logger
 from core.utils.tty import interactive_tty_status
+from core.input.confirmation_utils import normalize_default, parse_confirmation, format_prompt, format_error
 
 logger = get_logger("story-form")
 
 
 class StoryFormHandler:
     """Interactive handler for story-based forms in TUI."""
-    
+
     def __init__(self):
         """Initialize story form handler."""
         self.renderer: Optional[TUIFormRenderer] = None
@@ -39,14 +40,14 @@ class StoryFormHandler:
         self._override_fields_inserted = False
         self._pending_location_specs: List[Dict[str, Any]] = []
         self.interactive_reason: Optional[str] = None
-    
+
     def process_story_form(self, form_spec: Dict[str, Any]) -> Dict[str, Any]:
         """
         Process interactive form from story specification.
-        
+
         Args:
             form_spec: Story form specification with fields
-            
+
         Returns:
             Dictionary with collected data
         """
@@ -72,16 +73,16 @@ class StoryFormHandler:
         for location_spec in self._pending_location_specs:
             self._add_field_from_spec(renderer, location_spec, force_add=True)
         self._reorder_location_fields()
-        
+
         # Run interactive form
         return self._run_interactive_form(renderer, form_spec)
-    
+
     def _add_field_from_spec(self, renderer: TUIFormRenderer, spec: Dict, force_add: bool = False) -> None:
         """Add field to renderer from specification."""
         name = spec.get('name', 'unknown')
         label = spec.get('label', name)
         ftype_str = spec.get('type', 'text').lower()
-        
+
         # Map string type to FieldType
         type_map = {
             'text': FieldType.TEXT,
@@ -94,30 +95,30 @@ class StoryFormHandler:
             'textarea': FieldType.TEXTAREA,
                     'location': FieldType.LOCATION,
         }
-        
+
         ftype = type_map.get(ftype_str, FieldType.TEXT)
 
         if ftype == FieldType.LOCATION and not force_add:
             self._pending_location_specs.append(spec)
             return
-        
+
         # Build kwargs from spec
         kwargs = {
             'required': spec.get('required', False),
             'placeholder': spec.get('placeholder', ''),
             'default': spec.get('default'),
         }
-        
+
         if ftype == FieldType.SELECT:
             kwargs['options'] = spec.get('options', [])
-        
+
         if ftype == FieldType.NUMBER:
             kwargs['min_value'] = spec.get('min_value')
             kwargs['max_value'] = spec.get('max_value')
-        
+
         if ftype == FieldType.LOCATION:
             kwargs['timezone_field'] = spec.get('timezone_field', 'user_timezone')
-        
+
         renderer.add_field(name, label, ftype, **kwargs)
 
     def _reorder_location_fields(self) -> None:
@@ -129,11 +130,11 @@ class StoryFormHandler:
             return
         non_location = [f for f in self.renderer.fields if f['type'] != FieldType.LOCATION]
         self.renderer.fields = non_location + location_fields
-    
+
     def _run_interactive_form(self, renderer: TUIFormRenderer, form_spec: Dict[str, Any]) -> Dict[str, Any]:
         """
         Run interactive form with keyboard input.
-        
+
         Returns:
             Collected form data
         """
@@ -141,33 +142,33 @@ class StoryFormHandler:
         if not self._setup_terminal():
             logger.warning("[LOCAL] Terminal not interactive, using fallback form handler")
             return SimpleFallbackFormHandler().process_story_form(form_spec)
-        
+
         try:
             while not renderer.current_field_index >= len(renderer.fields):
                 # Render current field
                 self._clear_screen()
                 output = renderer.render()
                 print(output, end='', flush=True)
-                
+
                 # Get input
                 key = self._read_key()
-                
+
                 if key == '\x1b':  # Escape key
                     logger.info("[LOCAL] Form cancelled by user")
                     return {"status": "cancelled", "data": {}}
-                
+
                 # Handle input
                 renderer.handle_input(key)
-            
+
             # Form complete
             data = renderer.get_data()
             logger.info(f"[LOCAL] Form submitted with {len(data)} fields")
             return {"status": "success", "data": data}
-        
+
         finally:
             # Restore terminal
             self._restore_terminal()
-    
+
     def _on_field_complete(self, name: str, result: Any, submitted_data: Dict[str, Any]) -> None:
         """Hook called after each field is completed."""
         if name != "system_datetime_approve" or not isinstance(result, dict):
@@ -264,7 +265,7 @@ class StoryFormHandler:
         except Exception as e:
             logger.warning(f"[LOCAL] Could not setup terminal: {e}")
             return False
-    
+
     def _restore_terminal(self) -> None:
         """Restore terminal to original settings."""
         if self.original_settings:
@@ -281,16 +282,16 @@ class StoryFormHandler:
             return interactive
         except Exception:
             return False
-    
+
     def _read_key(self) -> str:
         """
         Read a single key with support for arrow keys.
-        
+
         Returns:
             Key string ('up', 'down', 'left', 'right', or character)
         """
         ch = sys.stdin.read(1)
-        
+
         if ch == '\x1b':  # Escape sequence
             next_ch = sys.stdin.read(1)
             if next_ch == '[':
@@ -303,9 +304,9 @@ class StoryFormHandler:
                     return 'right'
                 elif arrow == 'D':
                     return 'left'
-        
+
         return ch
-    
+
     def _clear_screen(self) -> None:
         """Clear terminal screen."""
         print('\033[2J\033[H', end='', flush=True)
@@ -314,18 +315,18 @@ class StoryFormHandler:
 # Fallback simple form handler for degraded mode
 class SimpleFallbackFormHandler:
     """Fallback form handler using simple input() calls (no interactive UI)."""
-    
+
     def process_story_form(self, form_spec: Dict[str, Any]) -> Dict[str, Any]:
         """Process form using simple input prompts."""
         data = {}
-        
+
         for field_spec in form_spec.get('fields', []):
             name = field_spec.get('name', 'unknown')
             label = field_spec.get('label', name)
             default = field_spec.get('default', '')
             options = field_spec.get('options', [])
             ftype = field_spec.get('type', 'text')
-            
+
             if options:
                 # Simple selection
                 print(f"\n{label}:")
@@ -338,7 +339,7 @@ class SimpleFallbackFormHandler:
                         data[name] = options[idx]
                 except ValueError:
                     pass
-            
+
             elif ftype in ['date', 'time']:
                 # Prompt for date/time
                 prompt = f"{label} ({default}): "
@@ -349,24 +350,34 @@ class SimpleFallbackFormHandler:
                 date_str = now.strftime("%Y-%m-%d")
                 time_str = now.strftime("%H:%M:%S")
                 tz = now.tzname() or str(now.tzinfo) or "UTC"
+                default_choice = normalize_default("ok", "ok")
                 prompt = (
                     f"\n{label} (Detected {date_str} {time_str} {tz})\n"
-                    "Approve? [Y/n]: "
+                    f"{format_prompt('Approve', default_choice, 'ok')}"
                 )
-                choice = input(prompt).strip().lower()
-                approved = choice in ("1", "y", "yes", "")
+                while True:
+                    response = input(prompt)
+                    choice = parse_confirmation(response, default_choice, "ok")
+                    if choice is None:
+                        print(format_error("ok"))
+                        continue
+                    break
+                approved = choice in {"yes", "ok"}
+                choice_label = {"yes": "Yes", "no": "No", "ok": "OK"}[choice]
                 payload = {
                     "approved": approved,
                     "date": date_str,
                     "time": time_str,
                     "timezone": tz,
+                    "choice": choice,
+                    "choice_label": choice_label,
                 }
                 data[name] = payload
                 data.setdefault("user_timezone", tz)
                 if not approved:
                     overrides = self._collect_datetime_overrides(payload)
                     data.update(overrides)
-            
+
             else:
                 # Simple text input
                 prompt = f"{label}: "
@@ -374,7 +385,7 @@ class SimpleFallbackFormHandler:
                     prompt = f"{label} [{default}]: "
                 value = input(prompt).strip() or default
                 data[name] = value
-        
+
         return {"status": "success", "data": data}
 
     def _collect_datetime_overrides(self, base_payload: Dict[str, str]) -> Dict[str, str]:

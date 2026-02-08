@@ -25,6 +25,7 @@ from typing import Optional, Dict, List, Any, Callable
 from pathlib import Path
 
 from core.services.logging_api import get_repo_root
+from core.input.confirmation_utils import normalize_default, parse_confirmation, format_prompt
 from core.services.maintenance_utils import get_memory_root
 from dataclasses import dataclass
 from enum import Enum
@@ -420,6 +421,7 @@ class DateTimeApproval:
         tz = self._get_timezone(now)
         date_str = now.strftime("%Y-%m-%d")
         time_str = now.strftime("%H:%M:%S")
+        prompt_line = format_prompt("Approve", "ok", "ok").strip()
 
         lines = [f"\n⏰ {self.label}", "=" * 50]
         lines.append(f"  Date:     {date_str}")
@@ -428,7 +430,7 @@ class DateTimeApproval:
         lines.append("")
         lines.extend(self._render_clock(now))
         lines.append("")
-        lines.append("  Approve? [1-Yes|0-No|Enter-OK]")
+        lines.append(f"  {prompt_line}")
         return "\n".join(lines)
 
     def handle_input(self, key: str) -> Optional[Dict[str, Any]]:
@@ -436,34 +438,32 @@ class DateTimeApproval:
         payload = self._current_payload()
         normalized = (key or "").strip().lower()
 
-        approve_keys = {"", "1", "y", "yes", "ok"}
-        deny_keys = {"0", "n", "no", "x", "cancel"}
         newline_keys = {"\n", "\r"}
 
         if key in newline_keys:
             normalized = ""
 
-        if normalized in approve_keys:
-            payload.update(
-                {
-                    "approved": True,
-                    "status": "approved",
-                    "override_required": False,
-                }
-            )
-            return payload
+        if normalized in {"x", "cancel"}:
+            normalized = "no"
 
-        if normalized in deny_keys:
-            payload.update(
-                {
-                    "approved": False,
-                    "status": "denied",
-                    "override_required": True,
-                }
-            )
-            return payload
+        default_choice = normalize_default("ok", "ok")
+        choice = parse_confirmation(normalized, default_choice, "ok")
+        if choice is None:
+            return None
 
-        return None
+        approved = choice in {"yes", "ok"}
+        choice_label = {"yes": "Yes", "no": "No", "ok": "OK"}[choice]
+
+        payload.update(
+            {
+                "approved": approved,
+                "status": "approved" if approved else "denied",
+                "override_required": not approved,
+                "choice": choice,
+                "choice_label": choice_label,
+            }
+        )
+        return payload
 
 class BarSelector:
     """Bar-style selector for multiple options."""
@@ -807,7 +807,7 @@ class TUIFormRenderer:
         repo_root = get_repo_root()
         memory_root = get_memory_root()
         system_root = memory_root / "system"
-        env_vault = os.getenv("VAULT_MD_ROOT")
+        env_vault = os.getenv("VAULT_ROOT")
         vault_md_root = Path(env_vault).expanduser() if env_vault else repo_root / "vault-md"
         vault_root = vault_md_root / "bank"
         seed_root = repo_root / "core" / "framework" / "seed"

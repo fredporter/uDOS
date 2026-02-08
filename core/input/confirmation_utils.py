@@ -14,6 +14,8 @@ DefaultType = Union[bool, str, None]
 def normalize_default(default: DefaultType, variant: VariantType) -> str:
     """Normalize default input to a choice string."""
     if isinstance(default, bool):
+        if not default and variant == "skip":
+            return "skip"
         return "yes" if default else "no"
     if isinstance(default, str) and default:
         value = default.strip().lower()
@@ -23,7 +25,9 @@ def normalize_default(default: DefaultType, variant: VariantType) -> str:
             if variant == "ok" and value == "skip":
                 return "no"
             return value
-    return "yes" if variant == "ok" else "no"
+    if variant == "skip":
+        return "skip"
+    return "yes"
 
 
 def format_options(variant: VariantType) -> str:
@@ -47,7 +51,7 @@ def parse_confirmation(response: str, default: str, variant: VariantType) -> Opt
         return "yes"
     if response in {"0", "n", "no"}:
         return "no"
-    if variant == "ok" and response in {"ok", "okay"}:
+    if variant == "ok" and response in {"o", "ok", "okay"}:
         return "ok"
     if variant == "skip" and response in {"s", "skip"}:
         return "skip"

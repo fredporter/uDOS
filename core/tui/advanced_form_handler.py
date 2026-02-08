@@ -33,6 +33,7 @@ from core.services.viewport_service import ViewportService
 
 from core.utils.tty import interactive_tty_status
 from core.tui.form_fields import DatePicker, DateTimeApproval, LocationSelector
+from core.input.confirmation_utils import normalize_default, parse_confirmation, format_prompt, format_error
 from core.locations import LocationService
 
 from core.services.logging_api import get_logger, LogTags
@@ -792,9 +793,17 @@ class AdvancedFormField:
         """Collect input for datetime approval using a selector widget."""
         if not self._is_interactive():
             # Fallback to simple confirmation prompt
-            prompt = "Approve current date/time? [Yes|No|OK] "
-            response = input(prompt).strip().lower()
-            approved = response in {"", "1", "y", "yes", "ok"}
+            default_choice = normalize_default("ok", "ok")
+            prompt = format_prompt("Approve current date/time", default_choice, "ok")
+            while True:
+                response = input(prompt)
+                choice = parse_confirmation(response, default_choice, "ok")
+                if choice is None:
+                    print(format_error("ok"))
+                    continue
+                break
+            approved = choice in {"yes", "ok"}
+            choice_label = {"yes": "Yes", "no": "No", "ok": "OK"}[choice]
             now = datetime.now().astimezone()
             tz = now.tzname() or str(now.tzinfo) or "UTC"
             return {
@@ -802,6 +811,8 @@ class AdvancedFormField:
                 "date": now.strftime("%Y-%m-%d"),
                 "time": now.strftime("%H:%M:%S"),
                 "timezone": tz,
+                "choice": choice,
+                "choice_label": choice_label,
                 "status": "approved" if approved else "denied",
                 "override_required": not approved,
             }

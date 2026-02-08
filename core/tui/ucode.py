@@ -57,6 +57,12 @@ from core.tui.fkey_handler import FKeyHandler
 from core.tui.status_bar import TUIStatusBar
 from core.ui.command_selector import CommandSelector
 from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, create_default_registry
+from core.input.confirmation_utils import (
+    normalize_default,
+    parse_confirmation,
+    format_prompt,
+    format_error,
+)
 from core.services.health_training import read_last_summary
 from core.services.hotkey_map import write_hotkey_payload
 from core.services.theme_service import get_theme_service
@@ -1301,8 +1307,14 @@ class uCODETUI:
                 variant=variant,
             )
         # Fallback to simple prompt
-        response = input(f"{question}? ").strip().lower()
-        return "yes" if response in {"y", "yes", "1", "ok"} else "no"
+        default_choice = normalize_default(default, variant)
+        prompt_text = format_prompt(question, default_choice, variant)
+        while True:
+            response = input(prompt_text)
+            choice = parse_confirmation(response, default_choice, variant)
+            if choice is not None:
+                return choice
+            print(format_error(variant))
 
     def _ask_yes_no(self, question: str, default: bool = True, help_text: str = None, context: str = None) -> bool:
         """Ask a standardized [Yes|No|OK] question.
@@ -1555,7 +1567,7 @@ class uCODETUI:
                         return
                     elif response.status_code == 503:
                         self.logger.warning(f"[SETUP] Wizard secret store locked")
-                        print(f"\n⚠️  Wizard secret store is locked. Please ensure WIZARD_KEY is set.")
+                        print("\n⚠️  Wizard secret store is locked. Please check Wizard configuration.")
                     else:
                         try:
                             error_detail = response.json().get("detail", f"HTTP {response.status_code}")
@@ -1614,7 +1626,7 @@ class uCODETUI:
                     error = user_result.error or install_result.error
                     self.logger.warning(f"[SETUP] Secret store locked: {error}")
                     print(f"\n⚠️  Secret store is locked: {error}")
-                    print("Please ensure WIZARD_KEY is set in .env file.")
+                    print("Please check Wizard configuration for secret store access.")
 
             except (ImportError, Exception) as e:
                 self.logger.debug(f"Wizard direct save not available: {e}")
