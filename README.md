@@ -2,14 +2,14 @@
 
 Offline-first OS layer for knowledge systems, tools, and portable environments.
 
-**Status:** v1.3.0 (released)
+**Status:** v1.3.12 (released)
 **Primary target:** Alpine Linux (Sonic USB)
 **Also supported:** macOS, Ubuntu, Windows (dev)
 
 **Start here:**
 - **Users/Beginners:** `wiki/Start-Here.md`
 - **Developers:** `docs/README.md`
-- **Release manifest:** `v1.3.0-release-manifest.yml`
+- **Release manifest:** `v1.3.12-release-manifest.yml`
 
 ---
 

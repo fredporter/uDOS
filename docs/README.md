@@ -1,7 +1,7 @@
 # uDOS Documentation — Developer Reference
 
-**Last Updated:** February 4, 2026
-**Version:** v1.3.0
+**Last Updated:** February 9, 2026
+**Version:** v1.3.12
 
 > 🎯 **For users?** Go to [/wiki/Start-Here.md](../wiki/Start-Here.md)
 > 🚀 **For getting started?** Read [/QUICKSTART.md](../QUICKSTART.md)

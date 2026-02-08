@@ -50,6 +50,8 @@ library/containers/
 **/.tmp/
 .cache/
 **/.cache/
+.npm-cache/
+**/.npm-cache/
 .build/
 **/.build/
 private/
