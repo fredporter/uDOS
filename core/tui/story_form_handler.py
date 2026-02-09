@@ -145,10 +145,11 @@ class StoryFormHandler:
 
         try:
             while not renderer.current_field_index >= len(renderer.fields):
-                # Render current field
+                # Clear screen and render current field
                 self._clear_screen()
                 output = renderer.render()
-                print(output, end='', flush=True)
+                sys.stdout.write(output)
+                sys.stdout.flush()
 
                 # Get input
                 key = self._read_key()
@@ -318,8 +319,13 @@ class StoryFormHandler:
         return ch
 
     def _clear_screen(self) -> None:
-        """Clear terminal screen."""
-        print('\033[2J\033[H', end='', flush=True)
+        """Clear terminal screen and reset cursor."""
+        # Clear screen and move cursor to home position
+        # \033[2J = clear entire screen
+        # \033[H = move cursor to home (1,1)
+        # \033[3J = clear scrollback buffer (optional, not all terminals)
+        sys.stdout.write('\033[2J\033[H')
+        sys.stdout.flush()
 
 
 # Fallback simple form handler for degraded mode
