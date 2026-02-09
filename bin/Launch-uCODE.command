@@ -44,6 +44,11 @@ if [ -z "$mode" ]; then
     esac
 fi
 
+# Ensure TTY-preserving logging for interactive TUIs unless explicitly disabled.
+if [ "$mode" = "tui" ] && [ -z "$UDOS_TTY" ]; then
+    export UDOS_TTY=1
+fi
+
 # Strip --rebuild from args before passing to launch
 args=()
 for arg in "$@"; do
