@@ -94,7 +94,7 @@ class StoryFormHandler:
             'select': FieldType.SELECT,
             'checkbox': FieldType.CHECKBOX,
             'textarea': FieldType.TEXTAREA,
-                    'location': FieldType.LOCATION,
+            'location': FieldType.LOCATION,
         }
 
         ftype = type_map.get(ftype_str, FieldType.TEXT)
@@ -111,6 +111,9 @@ class StoryFormHandler:
         }
 
         if ftype == FieldType.SELECT:
+            kwargs['options'] = spec.get('options', [])
+
+        if ftype == FieldType.CHECKBOX:
             kwargs['options'] = spec.get('options', [])
 
         if ftype == FieldType.NUMBER:
@@ -145,26 +148,36 @@ class StoryFormHandler:
             return SimpleFallbackFormHandler().process_story_form(form_spec)
 
         try:
-            # Clear screen first to ensure clean state
-            sys.stdout.write('\033[2J\033[H')
-            sys.stdout.flush()
+            # Initial clear to start with clean state
+            self._clear_screen()
+            logger.info(f"[TUI-DEBUG] Starting form with {len(renderer.fields)} fields")
 
             while not renderer.current_field_index >= len(renderer.fields):
                 # Clear screen and render current field
                 self._clear_screen()
+                current_field = renderer.fields[renderer.current_field_index]
+                logger.info(f"[TUI-DEBUG] Rendering field {renderer.current_field_index}: {current_field['label']} (type: {current_field['type']})")
                 output = renderer.render()
+
+                # In raw mode, we need \r\n for line breaks, not just \n
+                output = output.replace('\n', '\r\n')
+
                 sys.stdout.write(output)
                 sys.stdout.flush()
 
                 # Get input
                 key = self._read_key()
+                logger.info(f"[TUI-DEBUG] Key pressed: {repr(key)} (len={len(key)})")
 
                 if key == '\x1b':  # Escape key
                     logger.info("[LOCAL] Form cancelled by user")
                     return {"status": "cancelled", "data": {}}
 
-                # Handle input
-                renderer.handle_input(key)
+                # Handle input - only re-render if field state changed
+                result = renderer.handle_input(key)
+                logger.info(f"[TUI-DEBUG] handle_input returned: {result}")
+                # If handle_input returns True, the field advanced; otherwise it was ignored
+                # We still re-render to show any changes
 
             # Form complete
             data = renderer.get_data()
@@ -280,6 +293,11 @@ class StoryFormHandler:
             self.original_settings = termios.tcgetattr(sys.stdin)
             tty.setraw(sys.stdin.fileno())
 
+            # Enter alternate screen buffer (much more reliable than clear codes)
+            # This gives us a clean screen that we can fully control
+            sys.stdout.write('\033[?1049h')  # Save screen and enter alt buffer
+            sys.stdout.flush()
+
             # Suppress logging to stdout during interactive form
             # This prevents log messages from breaking cursor positioning
             try:
@@ -303,6 +321,13 @@ class StoryFormHandler:
 
     def _restore_terminal(self) -> None:
         """Restore terminal to original settings and re-enable logging."""
+        # Exit alternate screen buffer first (restore original screen)
+        try:
+            sys.stdout.write('\033[?1049l')  # Exit alt buffer and restore screen
+            sys.stdout.flush()
+        except Exception:
+            pass
+
         if self.original_settings:
             try:
                 termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.original_settings)
@@ -336,11 +361,14 @@ class StoryFormHandler:
             Key string ('up', 'down', 'left', 'right', or character)
         """
         ch = sys.stdin.read(1)
+        logger.info(f"[TUI-DEBUG] _read_key first char: {repr(ch)}")
 
         if ch == '\x1b':  # Escape sequence
             next_ch = sys.stdin.read(1)
+            logger.info(f"[TUI-DEBUG] Escape sequence next char: {repr(next_ch)}")
             if next_ch == '[':
                 arrow = sys.stdin.read(1)
+                logger.info(f"[TUI-DEBUG] CSI arrow char: {repr(arrow)}")
                 if arrow == 'A':
                     return 'up'
                 elif arrow == 'B':
@@ -355,10 +383,11 @@ class StoryFormHandler:
     def _clear_screen(self) -> None:
         """Clear terminal screen and reset cursor."""
         # Clear screen and move cursor to home position
+        # Works reliably in alternate screen buffer
         # \033[2J = clear entire screen
         # \033[H = move cursor to home (1,1)
-        # \033[3J = clear scrollback buffer (optional, not all terminals)
-        sys.stdout.write('\033[2J\033[H')
+        sys.stdout.write('\033[2J')
+        sys.stdout.write('\033[H')
         sys.stdout.flush()
 
 

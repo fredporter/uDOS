@@ -178,10 +178,10 @@ export class Runtime {
         continue;
       }
 
-      const colonIdx = line.indexOf(":");
+      const colonIdx = trimmed.indexOf(":");
       if (colonIdx > 0) {
-        const key = line.substring(0, colonIdx).trim();
-        let value = line.substring(colonIdx + 1).trim();
+        const key = trimmed.substring(0, colonIdx).trim();
+        let value = trimmed.substring(colonIdx + 1).trim();
 
         // Remove quotes
         value = value.replace(/^["']|["']$/g, "");

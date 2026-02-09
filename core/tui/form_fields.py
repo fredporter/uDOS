@@ -24,13 +24,15 @@ from datetime import datetime
 from typing import Optional, Dict, List, Any, Callable
 from pathlib import Path
 
-from core.services.logging_api import get_repo_root
+from core.services.logging_api import get_repo_root, get_logger
 from core.services.viewport_service import ViewportService
 from core.input.confirmation_utils import normalize_default, parse_confirmation, format_prompt
 from core.services.maintenance_utils import get_memory_root
 from core.utils.text_width import truncate_ansi_to_width
 from dataclasses import dataclass
 from enum import Enum
+
+logger = get_logger(__name__)
 
 ANSI_RESET = "\033[0m"
 ANSI_LABEL = "\033[36m"
@@ -254,12 +256,28 @@ class DatePicker:
                 pass
             inner = width - 2
 
+            # Import display width utility
+            try:
+                from core.utils.text_width import display_width, truncate_ansi_to_width
+            except ImportError:
+                import re
+                def display_width(s):
+                    return len(re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', s))
+                def truncate_ansi_to_width(s, w):
+                    return s[:w]
+
             def border(left: str, fill: str, right: str) -> str:
                 return f"\r{left}{fill * inner}{right}"
 
             def line(text: str = "") -> str:
                 stripped = text.rstrip()
-                return f"\r│ {stripped.ljust(inner - 1)}│"
+                visible_width = display_width(stripped)
+                padding = inner - visible_width - 1
+                if padding >= 0:
+                    return f"\r│ {stripped}{' ' * padding}│"
+                else:
+                    truncated = truncate_ansi_to_width(stripped, inner - 1)
+                    return f"\r│ {truncated}│"
 
             date_line = f"{year:04d}-{month:02d}-{day:02d}"
             title_text = f"{ANSI_LABEL}DATE{ANSI_RESET} {self.label} (YYYY-MM-DD)"
@@ -272,8 +290,7 @@ class DatePicker:
                 line(f"{ANSI_VALUE}{date_line}{ANSI_RESET}"),
                 line(f"{ANSI_DIM}Active: {active}{ANSI_RESET}"),
                 border("├", "─", "┤"),
-                line(f"{ANSI_DIM}Use ↑/↓ to change, ←/→ or Tab to move{ANSI_RESET}"),
-                line(f"{ANSI_DIM}Enter to confirm{ANSI_RESET}"),
+                line(f"{ANSI_DIM}Use ←/→ to +/- option, ↑/↓ or Tab to move{ANSI_RESET}"),
                 line(f"{ANSI_DIM}ENTER ⏎ to continue{ANSI_RESET}"),
                 border("└", "─", "┘"),
             ]
@@ -291,7 +308,7 @@ class DatePicker:
         lines.append("")
         lines.extend(self._render_calendar())
 
-        lines.append(f"\n{ANSI_DIM}▸ Use arrow keys or type | Tab/Enter to confirm{ANSI_RESET}")
+        lines.append(f"\n{ANSI_DIM}▸ Use arrow keys or type | ENTER ⏎ to continue{ANSI_RESET}")
         return "\n".join(lines)
 
     def _render_calendar(self) -> List[str]:
@@ -331,12 +348,12 @@ class DatePicker:
         if key == '\x1b':  # Escape sequence start
             return None  # Let parent handle escape codes
 
-        elif key in ('\t', 'right'):  # Tab/Right - move to next field
+        elif key in ('\t', 'up'):  # Tab/Up - move to next field
             current_picker._finalize_input()
             if self.current_field < len(self.pickers) - 1:
                 self.current_field += 1
             return None
-        elif key == 'left':  # Left - move to previous field
+        elif key == 'down':  # Down - move to previous field
             current_picker._finalize_input()
             if self.current_field > 0:
                 self.current_field -= 1
@@ -346,11 +363,11 @@ class DatePicker:
             self._finalize()
             return self.get_value()
 
-        elif key == 'up':  # Arrow up
+        elif key in ('right', '+'):  # Right/Plus - increment value
             current_picker.arrow_up()
             return None
 
-        elif key == 'down':  # Arrow down
+        elif key in ('left', '-'):  # Left/Minus - decrement value
             current_picker.arrow_down()
             return None
 
@@ -418,7 +435,7 @@ class TimePicker:
             focused = i == self.current_field
             lines.append(picker.render(focused=focused))
 
-        lines.append("\n▸ Use arrow keys or type | Tab/Enter to confirm")
+        lines.append(f"\n{ANSI_DIM}▸ Use arrow keys or type | ENTER ⏎ to continue{ANSI_RESET}")
         return "\n".join(lines)
 
     def handle_input(self, key: str) -> Optional[str]:
@@ -433,12 +450,12 @@ class TimePicker:
         if key == '\x1b':  # Escape sequence start
             return None
 
-        elif key in ('\t', 'right'):  # Tab/Right - move to next field
+        elif key in ('\t', 'up'):  # Tab/Up - move to next field
             current_picker._finalize_input()
             if self.current_field < len(self.pickers) - 1:
                 self.current_field += 1
             return None
-        elif key == 'left':  # Left - move to previous field
+        elif key == 'down':  # Down - move to previous field
             current_picker._finalize_input()
             if self.current_field > 0:
                 self.current_field -= 1
@@ -448,11 +465,11 @@ class TimePicker:
             self._finalize()
             return self.get_value()
 
-        elif key == 'up':  # Arrow up
+        elif key in ('right', '+'):  # Right/Plus - increment value
             current_picker.arrow_up()
             return None
 
-        elif key == 'down':  # Arrow down
+        elif key in ('left', '-'):  # Left/Minus - decrement value
             current_picker.arrow_down()
             return None
 
@@ -561,20 +578,45 @@ class DateTimeApproval:
         date_str = self._get_selected_date()
         time_str = self._get_selected_time()
         tz = self._get_selected_timezone()
-        prompt_line = format_prompt("Approve", "ok", "ok").strip()
+        # Format without (Enter=OK) - just show options
+        prompt_line = "Approve? [Yes|No|OK]"
 
         width = self._box_width
         inner = width - 2
+
+        # Import display width utility
+        try:
+            from core.utils.text_width import display_width, truncate_ansi_to_width
+        except ImportError:
+            import re
+            def display_width(s):
+                return len(re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', s))
+            def truncate_ansi_to_width(s, w):
+                return s[:w]
 
         def border(left: str, fill: str, right: str) -> str:
             return f"\r{left}{fill * inner}{right}"
 
         def line(text: str = "") -> str:
             stripped = text.rstrip()
-            return f"\r│ {stripped.ljust(inner - 1)}│"
+            visible_width = display_width(stripped)
+            padding = inner - visible_width - 1
+            if padding >= 0:
+                return f"\r│ {stripped}{' ' * padding}│"
+            else:
+                truncated = truncate_ansi_to_width(stripped, inner - 1)
+                return f"\r│ {truncated}│"
 
         def center(text: str) -> str:
-            return f"\r│ {text.center(inner - 1)}│"
+            # Center based on visible width, not byte length
+            visible_width = display_width(text)
+            padding_total = inner - visible_width - 1
+            if padding_total > 0:
+                left_pad = padding_total // 2
+                right_pad = padding_total - left_pad
+                return f"\r│ {' ' * left_pad}{text}{' ' * right_pad}│"
+            else:
+                return line(text)
 
         title_text = f"{ANSI_LABEL}TIME{ANSI_RESET} {self.label}"
         if os.getenv("UDOS_TUI_INVERT_HEADERS", "1").strip().lower() not in {"0", "false", "no"}:
@@ -590,11 +632,10 @@ class DateTimeApproval:
             border("┌", "─", "┐"),
             line(title_text),
             border("├", "─", "┤"),
-            focus_line("Date:", date_str, 0),
-            focus_line("Time:", time_str, 1),
-            focus_line("Timezone:", tz, 2),
+            line(f"{ANSI_LABEL}Date:{ANSI_RESET}     {ANSI_VALUE}{date_str}{ANSI_RESET}"),
+            line(f"{ANSI_LABEL}Time:{ANSI_RESET}     {ANSI_VALUE}{time_str}{ANSI_RESET}"),
+            line(f"{ANSI_LABEL}Timezone:{ANSI_RESET} {ANSI_VALUE}{tz}{ANSI_RESET}"),
             border("├", "─", "┤"),
-            line(f"{ANSI_DIM}Use ↑/↓ to change | Enter to advance | y/n/ok to approve{ANSI_RESET}"),
         ]
         for clock_line in self._render_clock(datetime.now().astimezone()):
             lines.append(center(clock_line))
@@ -605,18 +646,11 @@ class DateTimeApproval:
         lines.extend(
             [
                 border("├", "─", "┤"),
-                line(f"{ANSI_DIM}{prompt_line}{ANSI_RESET}"),
-                line(f"{ANSI_DIM}ENTER ⏎ to continue{ANSI_RESET}"),
+                line(f"{ANSI_DIM}Current date, time, and timezone detected{ANSI_RESET}"),
+                line(f"{ANSI_DIM}ENTER ⏎ to continue with these settings{ANSI_RESET}"),
                 border("└", "─", "┘"),
             ]
         )
-
-        if self.active_section == 0:
-            lines.append(self.date_picker.render())
-        elif self.active_section == 1:
-            lines.append(self.time_picker.render())
-        elif self.active_section == 2:
-            lines.append(self.tz_selector.render(focused=True))
 
         if self.progress:
             pass
@@ -636,80 +670,41 @@ class DateTimeApproval:
         return f"Progress: {current}/{total} [{bar}]"
 
     def handle_input(self, key: str) -> Optional[Dict[str, Any]]:
-        """Process key input and return status for overlay handling."""
+        """Process key input - ENTER/y/ok to approve, n to decline."""
         payload = self._current_payload()
         normalized = (key or "").strip().lower()
 
         newline_keys = {"\n", "\r"}
 
-        if normalized in {"x", "cancel"}:
-            normalized = "no"
+        # ENTER defaults to OK/approve
+        if key in newline_keys:
+            payload.update({
+                "approved": True,
+                "status": "approved",
+                "override_required": False,
+                "choice": "ok",
+                "choice_label": "OK",
+            })
+            return payload
 
+        # Explicit y/yes/ok/n/no
         if normalized in {"y", "yes", "ok", "n", "no"}:
             choice = parse_confirmation(normalized, normalize_default("ok", "ok"), "ok")
             if choice is None:
                 return None
             approved = choice in {"yes", "ok"}
             choice_label = {"yes": "Yes", "no": "No", "ok": "OK"}[choice]
-            payload.update(
-                {
-                    "approved": approved,
-                    "status": "approved" if approved else "denied",
-                    "override_required": not approved,
-                    "choice": choice,
-                    "choice_label": choice_label,
-                }
-            )
-            return payload
-
-        # Delegate to active section widgets
-        if self.active_section == 0:
-            result = self.date_picker.handle_input(key)
-            if result is not None:
-                self.active_section = 1
-            return None
-        if self.active_section == 1:
-            result = self.time_picker.handle_input(key)
-            if result is not None:
-                self.active_section = 2
-            return None
-        if self.active_section == 2:
-            result = self.tz_selector.handle_input(key)
-            if result is not None:
-                approved = True
-                payload.update(
-                    {
-                        "approved": approved,
-                        "status": "approved",
-                        "override_required": False,
-                        "choice": "ok",
-                        "choice_label": "OK",
-                    }
-                )
-                return payload
-            return None
-
-        if key in newline_keys:
-            normalized = ""
-
-        default_choice = normalize_default("ok", "ok")
-        choice = parse_confirmation(normalized, default_choice, "ok")
-        if choice is None:
-            return None
-
-        approved = choice in {"yes", "ok"}
-        choice_label = {"yes": "Yes", "no": "No", "ok": "OK"}[choice]
-
-        payload.update(
-            {
+            payload.update({
                 "approved": approved,
                 "status": "approved" if approved else "denied",
                 "override_required": not approved,
                 "choice": choice,
                 "choice_label": choice_label,
-            }
-        )
-        return payload
+            })
+            return payload
+
+        # Any other key is ignored
+        return None
 
 class BarSelector:
     """Bar-style selector for multiple options."""
@@ -736,7 +731,7 @@ class BarSelector:
 
     def _normalize_options(self, options: List[Any]) -> List[Dict[str, Any]]:
         normalized: List[Dict[str, Any]] = []
-        for opt in options or []:
+        for i, opt in enumerate(options or []):
             if isinstance(opt, dict):
                 if "value" in opt or "label" in opt:
                     value = opt.get("value", opt.get("label"))
@@ -770,18 +765,60 @@ class BarSelector:
             selected = self.options[self.selected_index]["label"]
             return f"  {self.label}: {selected}"
 
-        # Focused view - show all options with selector
-        lines = [f"\n  {self.label}:"]
-        lines.append("  " + "=" * 48)
+        # Focused view - show all options in a box
+        width = 60
+        try:
+            cols = int(os.getenv("UDOS_VIEWPORT_COLS", "") or 0)
+            if cols:
+                width = max(50, min(70, cols - 4))
+        except Exception:
+            pass
+        inner = width - 2
 
-        for i, option in enumerate(self.options):
-            if i == self.selected_index:
-                lines.append(f"  ❯ {option['label']}")
+        # Import display width utility
+        try:
+            from core.utils.text_width import display_width, truncate_ansi_to_width
+        except ImportError:
+            import re
+            def display_width(s):
+                return len(re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', s))
+            def truncate_ansi_to_width(s, w):
+                return s[:w]
+
+        def border(left: str, fill: str, right: str) -> str:
+            return f"\r{left}{fill * inner}{right}"
+
+        def line(text: str = "") -> str:
+            stripped = text.rstrip()
+            visible_width = display_width(stripped)
+            padding = inner - visible_width - 1
+            if padding >= 0:
+                return f"\r│ {stripped}{' ' * padding}│"
             else:
-                lines.append(f"    {option['label']}")
+                truncated = truncate_ansi_to_width(stripped, inner - 1)
+                return f"\r│ {truncated}│"
 
-        lines.append("  " + "=" * 48)
-        lines.append("  ▸ Use arrow keys ↑/↓ or click | Enter to select")
+        lines = []
+        lines.append(border("┌", "─", "┐"))
+        lines.append(line(f"{ANSI_LABEL}{self.label}{ANSI_RESET}"))
+        lines.append(border("├", "─", "┤"))
+
+        # Show options or error message
+        if not self.options or len(self.options) == 0:
+            lines.append(line(f"{ANSI_DIM}[ERROR: No options provided]{ANSI_RESET}"))
+        elif len(self.options) == 1 and not self.options[0].get('label'):
+            lines.append(line(f"{ANSI_DIM}[ERROR: Options list is empty]{ANSI_RESET}"))
+        else:
+            for i, option in enumerate(self.options):
+                label_text = option.get('label', '(no label)')
+                if i == self.selected_index:
+                    lines.append(line(f"{ANSI_INVERT} {label_text} {ANSI_RESET}"))
+                else:
+                    lines.append(line(f"  {label_text}"))
+
+        lines.append(border("├", "─", "┤"))
+        lines.append(line(f"{ANSI_DIM}Use arrow keys ↑/↓ | ENTER ⏎ to continue{ANSI_RESET}"))
+        lines.append(border("└", "─", "┘"))
 
         return "\n".join(lines)
 
@@ -877,41 +914,87 @@ class LocationSelector:
                 return f"  {self.label}: {selected.get('name')}"
             return f"  {self.label}: (no matches)"
 
-        lines = [f"\n  {self.label}:"]
-        lines.append("  " + "=" * 48)
-        lines.append(f"  Search: {self.query or '(type to search)'}")
-        lines.append("  " + "-" * 48)
+        # Use boxed ANSI styling
+        width = 60
+        try:
+            cols = int(os.getenv("UDOS_VIEWPORT_COLS", "") or 0)
+            if cols:
+                width = max(50, min(70, cols - 4))
+        except Exception:
+            pass
+        inner = width - 2
+
+        # Import display width utility
+        try:
+            from core.utils.text_width import display_width, truncate_ansi_to_width
+        except ImportError:
+            import re
+            def display_width(s):
+                return len(re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', s))
+            def truncate_ansi_to_width(s, w):
+                return s[:w]
+
+        def border(left: str, fill: str, right: str) -> str:
+            return f"\r{left}{fill * inner}{right}"
+
+        def line(text: str = "") -> str:
+            stripped = text.rstrip()
+            visible_width = display_width(stripped)
+            padding = inner - visible_width - 1
+            if padding >= 0:
+                return f"\r│ {stripped}{' ' * padding}│"
+            else:
+                truncated = truncate_ansi_to_width(stripped, inner - 1)
+                return f"\r│ {truncated}│"
+
+        lines = []
+        lines.append(border("┌", "─", "┐"))
+        lines.append(line(f"{ANSI_LABEL}{self.label}{ANSI_RESET}"))
+        lines.append(border("├", "─", "┤"))
+        lines.append(line(f"{ANSI_DIM}Search:{ANSI_RESET} {self.query or '(type to search)'}"))
+        lines.append(border("├", "─", "┤"))
 
         if not self.matches:
-            lines.append("  (no matches)")
+            lines.append(line(f"{ANSI_DIM}(no matches){ANSI_RESET}"))
         else:
             for i, match in enumerate(self.matches):
-                prefix = "❯" if i == self.selected_index else " "
                 name = match.get("name", "Unknown")
                 loc_id = match.get("id", "")
-                scale = match.get("scale", "")
+                scale = match.get("scale", "terrestrial")
                 tz = match.get("timezone", "")
-                lines.append(f"  {prefix} {name} [{loc_id}] ({scale}, {tz})")
 
+                # Format: London - Westminster [L300-EU01] (terrestrial, Europe/London)
+                display_text = f"{name} [{loc_id}] ({scale}, {tz})"
+
+                if i == self.selected_index:
+                    lines.append(line(f"{ANSI_INVERT} {display_text} {ANSI_RESET}"))
+                else:
+                    lines.append(line(f"  {display_text}"))
+
+            # Show map layer for selected location
             selected = self.matches[self.selected_index]
-            lines.append("  " + "-" * 48)
-            lines.extend(self._render_map_layer(selected))
+            lines.append(border("├", "─", "┤"))
+            for map_line in self._render_map_layer(selected):
+                lines.append(line(map_line))
 
-        lines.append("  " + "=" * 48)
-        lines.append("  ▸ Type to search | ↑/↓ to move | Enter to select")
+        lines.append(border("├", "─", "┤"))
+        lines.append(line(f"{ANSI_DIM}Type to search | ↑/↓ to move | ENTER ⏎ to select{ANSI_RESET}"))
+        lines.append(border("└", "─", "┘"))
+
         return "\n".join(lines)
 
     def _render_map_layer(self, location: Dict[str, Any]) -> List[str]:
+        """Render map layer info for selected location."""
         name = str(location.get("name", ""))[:18]
         layer = str(location.get("layer", ""))
         cell = str(location.get("cell", ""))
         return [
-            "  Map Layer (local):",
-            "  +--------------------+",
-            f"  | {name:<18} |",
-            f"  | Layer {layer:<10} |",
-            f"  | Cell  {cell:<10} |",
-            "  +--------------------+",
+            f"{ANSI_DIM}Map Layer (local):{ANSI_RESET}",
+            "+--------------------+",
+            f"| {name:<18} |",
+            f"| Layer {layer:<10} |",
+            f"| Cell  {cell:<10} |",
+            "+--------------------+",
         ]
 
     def handle_input(self, key: str) -> Optional[Dict[str, Any]]:
@@ -965,7 +1048,7 @@ class TUIFormRenderer:
             'type': field_type,
             'config': kwargs,
             'widget': None,  # Will be initialized on render
-            'value': None,
+            'value': kwargs.get('default'),  # Initialize with default value
         }
         self.fields.append(field)
 
@@ -1056,6 +1139,17 @@ class TUIFormRenderer:
                 except Exception:
                     default_idx = 0
             return BarSelector(label, options, default_index=default_idx, default_value=config.get('default'))
+        elif ftype == FieldType.CHECKBOX:
+            # CHECKBOX type also uses BarSelector with provided options
+            options = config.get('options', [])
+            logger.info(f"[TUI-DEBUG] Creating BarSelector for CHECKBOX {label}: options from config = {repr(options)}")
+            default_idx = 0
+            if config.get('default'):
+                try:
+                    default_idx = options.index(config['default'])
+                except Exception:
+                    default_idx = 0
+            return BarSelector(label, options, default_index=default_idx, default_value=config.get('default'))
         elif ftype == FieldType.NUMBER:
             return SmartNumberPicker(
                 label,
@@ -1072,7 +1166,9 @@ class TUIFormRenderer:
 
             service = LocationService()
             locations = service.get_all_locations()
-            default_location = service.get_default_location_for_timezone(timezone_hint)
+            # TODO: LocationService doesn't have get_default_location_for_timezone yet
+            # For now, just use None and let LocationSelector pick a default
+            default_location = None
 
             return LocationSelector(
                 label,
@@ -1092,49 +1188,91 @@ class TUIFormRenderer:
         return str(tzinfo) or "UTC"
 
     def _render_field(self, field: Dict) -> str:
-        """Render a single field with proper alignment."""
+        """Render a single field with boxed styling like date/time pickers."""
+        cols = self._get_cols()
+        width = max(60, min(80, cols - 4))
+        inner = width - 2
+
+        # Import display width utility for proper ANSI handling
+        try:
+            from core.utils.text_width import display_width, truncate_ansi_to_width
+        except ImportError:
+            import re
+            def display_width(s):
+                return len(re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', s))
+            def truncate_ansi_to_width(s, w):
+                return s[:w]
+
+        def border(left: str, fill: str, right: str) -> str:
+            return f"\r{left}{fill * inner}{right}"
+
+        def line(text: str = "") -> str:
+            """Render a line with proper width calculation ignoring ANSI codes."""
+            stripped = text.rstrip()
+            visible_width = display_width(stripped)
+            padding = inner - visible_width - 1  # -1 for space after │
+
+            if padding >= 0:
+                return f"\r│ {stripped}{' ' * padding}│"
+            else:
+                # Text too long - truncate to fit
+                truncated = truncate_ansi_to_width(stripped, inner - 1)
+                return f"\r│ {truncated}│"
+
         lines = []
 
-        cols = self._get_cols()
-        # Use reasonable header width
-        header_width = min(70, max(cols - 10, 50))
-
-        # Header
-        lines.append("\n" + "=" * header_width)
-        lines.append(f"  {self.title}")
-        if self.description:
-            lines.append(f"  {self.description}")
-        lines.append("=" * header_width)
-
-        # Progress
+        # Title header with invert
         current = self.current_field_index + 1
         total = max(1, len(self.fields))
-        progress = f"[{current}/{total}] {field['label']}"
-        lines.append(f"\n  Progress: {progress}")
-        lines.append(self._render_progress_bar(current, total))
+        title_text = f"{ANSI_LABEL}{self.title}{ANSI_RESET}"
+        if os.getenv("UDOS_TUI_INVERT_HEADERS", "1").strip().lower() not in {"0", "false", "no"}:
+            title_text = f"{ANSI_INVERT}{title_text}{ANSI_RESET}"
 
-        # Flowchart
-        lines.append("")
-        lines.extend(self._render_flowchart())
+        lines.append(border("┌", "─", "┐"))
+        lines.append(line(title_text))
+        if self.description:
+            lines.append(line(f"{ANSI_DIM}{self.description}{ANSI_RESET}"))
+        lines.append(border("├", "─", "┤"))
+
+        # Progress - split section and field label onto separate lines for readability
+        # Extract section from label if present (format: "Section: Field description")
+        full_label = field['label']
+        if ': ' in full_label:
+            section_part, field_part = full_label.split(': ', 1)
+            progress_text = f"Progress: [{current}/{total}] {section_part}"
+            lines.append(line(progress_text))
+            # Show field description on next line
+            lines.append(line(f"  {field_part}"))
+        else:
+            progress_text = f"Progress: [{current}/{total}] {full_label}"
+            lines.append(line(progress_text))
+        max_bar_width = max(10, inner - 12)
+        filled = int(round((current / float(total)) * max_bar_width)) if total > 0 else 0
+        bar = "=" * filled + "-" * (max_bar_width - filled)
+        lines.append(line(f"[{bar}]"))
+
+        lines.append(border("├", "─", "┤"))
 
         # Field input area
-        lines.append("")
-
         widget = field['widget']
         if widget:
-            widget_output = widget.render(focused=True)
-            # Ensure proper indentation
-            if not widget_output.startswith("  "):
-                lines.append(f"  {widget_output}")
-            else:
-                lines.append(widget_output)
+            # Widgets render their own boxes, so just include them
+            try:
+                widget_output = widget.render(focused=True)
+            except TypeError:
+                widget_output = widget.render()
+            # Add widget output directly (it has its own box)
+            lines.append(widget_output)
         else:
-            # Simple text input
-            lines.append(f"  {field['label']}: [___]")
+            # Simple text input - show in box with shortened label
+            current_value = field.get('value') or ''
+            # Extract just the field name if it has section prefix
+            display_label = field['label'].split(': ')[-1] if ': ' in field['label'] else field['label']
+            lines.append(line(f"{display_label}: {ANSI_VALUE}[{current_value}_]{ANSI_RESET}"))
+            lines.append(border("├", "─", "┤"))
+            lines.append(line(f"{ANSI_DIM}Type to enter text, Enter to submit{ANSI_RESET}"))
+            lines.append(border("└", "─", "┘"))
 
-        lines.append("")
-
-        # Don't clamp - already formatted
         return "\n".join(lines)
 
     def _render_progress_bar(self, current: int, total: int) -> str:
@@ -1258,13 +1396,16 @@ class TUIFormRenderer:
             True if form is complete, False otherwise
         """
         if self.current_field_index >= len(self.fields):
+            logger.info("[TUI-DEBUG] handle_input: form complete")
             return True
 
         field = self.fields[self.current_field_index]
         widget = field['widget']
+        logger.info(f"[TUI-DEBUG] Renderer handle_input: field={field['label']}, widget={type(widget).__name__}, key={repr(key)}")
 
         if widget:
             result = widget.handle_input(key)
+            logger.info(f"[TUI-DEBUG] Widget returned: {repr(result)}")
             if result is not None:
                 # Extract location ID if this is a location field
                 if field['type'] == FieldType.LOCATION and isinstance(result, dict):
@@ -1284,6 +1425,34 @@ class TUIFormRenderer:
                 if self.current_field_index < len(self.fields):
                     self.fields[self.current_field_index]['widget'] = \
                         self._create_widget(self.fields[self.current_field_index])
+        else:
+            # Simple text input (no widget)
+            logger.info(f"[TUI-DEBUG] Simple text input for {field['label']}")
+            if key in ['\n', '\r']:  # Enter key
+                value = field.get('value') or ''
+                logger.info(f"[TUI-DEBUG] Text field submitted with value: {repr(value)}")
+                self.submitted_data[field['name']] = value
+
+                # Call completion callback
+                if self.on_field_complete:
+                    self.on_field_complete(field['name'], value, self.submitted_data)
+
+                self.current_field_index += 1
+
+                # Advance to next
+                if self.current_field_index < len(self.fields):
+                    self.fields[self.current_field_index]['widget'] = \
+                        self._create_widget(self.fields[self.current_field_index])
+
+            elif key == '\x7f' or key == '\b':  # Backspace
+                current = field.get('value') or ''
+                if current:
+                    field['value'] = current[:-1]
+                    logger.info(f"[TUI-DEBUG] Backspace: value now {repr(field['value'])}")
+            elif len(key) == 1 and key.isprintable():  # Regular character
+                current = field.get('value') or ''
+                field['value'] = current + key
+                logger.info(f"[TUI-DEBUG] Added char {repr(key)}: value now {repr(field['value'])}")
 
         return self.current_field_index >= len(self.fields)
 
