@@ -148,7 +148,7 @@ class StoryFormHandler:
             # Clear screen first to ensure clean state
             sys.stdout.write('\033[2J\033[H')
             sys.stdout.flush()
-            
+
             while not renderer.current_field_index >= len(renderer.fields):
                 # Clear screen and render current field
                 self._clear_screen()
@@ -275,11 +275,11 @@ class StoryFormHandler:
         try:
             if not self._is_interactive():
                 return False
-            
+
             # Save original settings
             self.original_settings = termios.tcgetattr(sys.stdin)
             tty.setraw(sys.stdin.fileno())
-            
+
             # Suppress logging to stdout during interactive form
             # This prevents log messages from breaking cursor positioning
             try:
@@ -295,7 +295,7 @@ class StoryFormHandler:
                         self.original_log_dest = old_dest
             except Exception:
                 pass
-            
+
             return True
         except Exception as e:
             logger.warning(f"[LOCAL] Could not setup terminal: {e}")
@@ -308,7 +308,7 @@ class StoryFormHandler:
                 termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.original_settings)
             except Exception as e:
                 logger.warning(f"[LOCAL] Could not restore terminal: {e}")
-        
+
         # Re-enable logging to stdout if it was disabled
         try:
             from core.services.logging_api import LoggerRegistry
