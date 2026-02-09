@@ -37,6 +37,7 @@ class StoryFormHandler:
         """Initialize story form handler."""
         self.renderer: Optional[TUIFormRenderer] = None
         self.original_settings = None
+        self.original_log_dest = None
         self._override_fields_inserted = False
         self._pending_location_specs: List[Dict[str, Any]] = []
         self.interactive_reason: Optional[str] = None
@@ -144,6 +145,10 @@ class StoryFormHandler:
             return SimpleFallbackFormHandler().process_story_form(form_spec)
 
         try:
+            # Clear screen first to ensure clean state
+            sys.stdout.write('\033[2J\033[H')
+            sys.stdout.flush()
+            
             while not renderer.current_field_index >= len(renderer.fields):
                 # Clear screen and render current field
                 self._clear_screen()
@@ -266,24 +271,53 @@ class StoryFormHandler:
         }
 
     def _setup_terminal(self) -> bool:
-        """Setup terminal for raw input capture."""
+        """Setup terminal for raw input capture and disable stdout logging."""
         try:
             if not self._is_interactive():
                 return False
+            
+            # Save original settings
             self.original_settings = termios.tcgetattr(sys.stdin)
             tty.setraw(sys.stdin.fileno())
+            
+            # Suppress logging to stdout during interactive form
+            # This prevents log messages from breaking cursor positioning
+            try:
+                from core.services.logging_api import LoggerRegistry
+                registry = LoggerRegistry._instance
+                if registry:
+                    # Store original config
+                    self.original_log_dest = getattr(registry, '_log_dest_config', None)
+                    # Temporarily set logging to file-only
+                    if hasattr(registry, '_config') and hasattr(registry._config, 'dest'):
+                        old_dest = registry._config.dest
+                        registry._config.dest = "file"  # Don't write to stdout
+                        self.original_log_dest = old_dest
+            except Exception:
+                pass
+            
             return True
         except Exception as e:
             logger.warning(f"[LOCAL] Could not setup terminal: {e}")
             return False
 
     def _restore_terminal(self) -> None:
-        """Restore terminal to original settings."""
+        """Restore terminal to original settings and re-enable logging."""
         if self.original_settings:
             try:
                 termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.original_settings)
             except Exception as e:
                 logger.warning(f"[LOCAL] Could not restore terminal: {e}")
+        
+        # Re-enable logging to stdout if it was disabled
+        try:
+            from core.services.logging_api import LoggerRegistry
+            registry = LoggerRegistry._instance
+            if registry and hasattr(self, 'original_log_dest') and self.original_log_dest:
+                if hasattr(registry, '_config') and hasattr(registry._config, 'dest'):
+                    registry._config.dest = self.original_log_dest
+        except Exception:
+            pass
 
     def _is_interactive(self) -> bool:
         """Check if running in interactive terminal."""
