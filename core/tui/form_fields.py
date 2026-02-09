@@ -983,14 +983,30 @@ class TUIFormRenderer:
         cols = self._get_cols()
         lines = (text or "").splitlines()
         clamped = []
-        for line in lines:
-            # Only truncate if line actually exceeds terminal width
-            # Use display_width to handle ANSI codes properly
+        
+        # Import text width utilities
+        try:
             from core.utils.text_width import display_width
-            if display_width(line) > cols:
-                clamped.append(truncate_ansi_to_width(line, cols))
+        except ImportError:
+            # Fallback if text_width not available
+            def display_width(s):
+                # Remove ANSI codes for simple width calculation
+                import re
+                return len(re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', s))
+        
+        for line in lines:
+            # Only truncate if line significantly exceeds terminal width (not just by a few chars)
+            # This prevents breaking carefully formatted layouts
+            line_width = display_width(line)
+            if line_width > cols + 5:  # Allow 5 char tolerance
+                try:
+                    clamped.append(truncate_ansi_to_width(line, cols))
+                except Exception:
+                    # If truncation fails, just use the line as-is
+                    clamped.append(line)
             else:
                 clamped.append(line)
+        
         output = "\n".join(clamped)
         if text.endswith("\n"):
             output += "\n"
@@ -1080,48 +1096,46 @@ class TUIFormRenderer:
         lines = []
 
         cols = self._get_cols()
-        # Use consistent header width (60-78 chars, leave margins)
-        header_width = min(78, max(cols - 2, 60))
+        # Use reasonable header width
+        header_width = min(70, max(cols - 10, 50))
 
-        # Header: consistent width
+        # Header
         lines.append("\n" + "=" * header_width)
-        title_padded = f"  {self.title}".ljust(header_width - 1)
-        lines.append(title_padded)
+        lines.append(f"  {self.title}")
         if self.description:
-            desc_padded = f"  {self.description}".ljust(header_width - 1)
-            lines.append(desc_padded)
+            lines.append(f"  {self.description}")
         lines.append("=" * header_width)
 
-        # Progress (consistent indentation)
+        # Progress
         current = self.current_field_index + 1
         total = max(1, len(self.fields))
         progress = f"[{current}/{total}] {field['label']}"
         lines.append(f"\n  Progress: {progress}")
         lines.append(self._render_progress_bar(current, total))
+        
         # Flowchart
-        lines.append("")  # Separation
+        lines.append("")
         lines.extend(self._render_flowchart())
 
-        # Add spacing before field input
+        # Field input area
         lines.append("")
 
-        # Field
         widget = field['widget']
         if widget:
             widget_output = widget.render(focused=True)
             # Ensure proper indentation
-            if widget_output.startswith(" "):
-                lines.append(widget_output)
-            else:
+            if not widget_output.startswith("  "):
                 lines.append(f"  {widget_output}")
+            else:
+                lines.append(widget_output)
         else:
             # Simple text input
             lines.append(f"  {field['label']}: [___]")
 
-        lines.append("\n")
+        lines.append("")
 
-        output = self._clamp_output("\n".join(lines))
-        return output
+        # Don't clamp - already formatted
+        return "\n".join(lines)
 
     def _render_progress_bar(self, current: int, total: int) -> str:
         """Render progress bar with consistent width."""
@@ -1135,9 +1149,9 @@ class TUIFormRenderer:
     def _render_flowchart(self) -> List[str]:
         """Render flow of form steps with proper wrapping and alignment."""
         cols = self._get_cols()
-        # Conservative width: leave 8 chars margin
-        max_width = min(cols - 8, 100)
-        indent = "      "  # 6 spaces base indent
+        # Conservative width: leave margin for indentation
+        max_width = min(cols - 10, 90)
+        indent = "    "  # 4 spaces base indent
         connector = " -> "
 
         tokens: List[str] = []
@@ -1146,8 +1160,8 @@ class TUIFormRenderer:
             label = " ".join(str(label).split())  # Normalize whitespace
 
             # Truncate long labels for readability
-            if len(label) > 28:
-                label = label[:25] + "..."
+            if len(label) > 32:
+                label = label[:29] + "..."
 
             if idx < self.current_field_index:
                 marker = "✓"  # Completed
@@ -1165,20 +1179,27 @@ class TUIFormRenderer:
         current_line = indent
 
         for i, token in enumerate(tokens):
-            # Add connector for non-first tokens
-            piece = token if i == 0 else connector + token
+            # Calculate what we're adding (connector + token, or just token for first)
+            if i == 0:
+                piece = token
+            else:
+                piece = connector + token
 
-            # Check if adding would exceed width
-            if len(current_line) + len(piece) > max_width and current_line != indent:
-                # Flush line and start new one
+            # Check if adding this piece would exceed max width
+            test_line = current_line + piece
+            if len(test_line) > max_width and current_line.strip():  # Current line has content
+                # Flush current line and start new one with this token
                 lines.append(current_line.rstrip())
                 current_line = indent + token
             else:
+                # Add to current line
                 current_line += piece
 
-        # Flush final line
-        if current_line != indent:
+        # Flush final line if it has content
+        if current_line.strip() != "":
             lines.append(current_line.rstrip())
+
+        return lines
 
         return lines
 
