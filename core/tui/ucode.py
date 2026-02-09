@@ -643,6 +643,14 @@ class uCODETUI:
                                 if normalized_cmd == "SETUP" and collected_data:
                                     self._save_user_profile(collected_data)
 
+                                    # Reload Ghost Mode status after profile update
+                                    old_ghost_mode = self.ghost_mode
+                                    self.ghost_mode = self._is_ghost_user()
+
+                                    # Notify user if they've exited Ghost Mode
+                                    if old_ghost_mode and not self.ghost_mode:
+                                        print("\n🎉 Ghost Mode disabled - full access granted!")
+
                                 print("\n✅ Setup form completed!")
                                 print(f"\nCollected {len(collected_data)} values")
                                 if collected_data:
@@ -1476,6 +1484,27 @@ class uCODETUI:
             "fields": fields,
         }
 
+        # Inject dynamic defaults for known setup fields
+        import os
+        udos_root = os.getenv("UDOS_ROOT") or str(self.repo_root)
+        vault_root = os.getenv("VAULT_ROOT") or str((self.repo_root / "vault-md").resolve())
+        for field in fields:
+            if field.get("name") == "setup_udos_root":
+                if not field.get("default"):
+                    field["default"] = udos_root
+                if not field.get("placeholder"):
+                    field["placeholder"] = udos_root
+            if field.get("name") == "setup_vault_md_root":
+                if not field.get("default"):
+                    field["default"] = vault_root
+                if not field.get("placeholder"):
+                    field["placeholder"] = vault_root
+            # Also inject username default from .env if exists
+            if field.get("name") == "user_username":
+                env_username = os.getenv("USER_USERNAME")
+                if env_username and not field.get("default"):
+                    field["default"] = env_username
+
         handler = get_form_handler()
         result = handler.process_story_form(form_spec)
         if result.get("status") == "success":
@@ -1833,7 +1862,11 @@ class uCODETUI:
         except Exception as exc:
             self.logger.warning(f"[SETUP] Failed to store Mistral key locally: {exc}")
     def _sync_local_user(self, identity: Dict[str, Any]) -> None:
-        """Create/switch local user after setup to exit ghost mode."""
+        """Create/replace local user after setup to exit ghost mode.
+
+        SETUP replaces the current user - there's only one user at a time.
+        What's local is local and stays.
+        """
         try:
             from core.services.user_service import get_user_manager, UserRole
 
@@ -1841,6 +1874,7 @@ class uCODETUI:
             role_raw = (identity.get("user_role") or "").strip().lower()
             if not username:
                 return
+
             role = UserRole.USER
             if role_raw == "admin":
                 role = UserRole.ADMIN
@@ -1848,12 +1882,33 @@ class uCODETUI:
                 role = UserRole.GUEST
 
             manager = get_user_manager()
+
+            # SETUP replaces: delete all existing users except the new one
+            current = manager.current()
+            if current and current.username != username:
+                # Delete old user, create new
+                for old_username in list(manager.users.keys()):
+                    if old_username != username:
+                        try:
+                            manager.delete_user(old_username)
+                        except Exception:
+                            pass
+
+            # Create or update the user
             if username not in manager.users:
-                manager.create_user(username, role=role)
+                success, msg = manager.create_user(username, role=role)
+                if not success:
+                    self.logger.error(f"[SETUP] Failed to create user: {msg}")
+                    print(f"\n❌ Failed to create user: {msg}")
+                    return
             else:
                 # Update role if different
                 manager.set_role(username, role)
-            manager.switch_user(username)
+
+            # Switch to the new user
+            success, msg = manager.switch_user(username)
+            if not success:
+                self.logger.error(f"[SETUP] Failed to switch user: {msg}")
         except Exception as exc:
             self.logger.warning(f"[SETUP] Failed to sync local user: {exc}")
 
