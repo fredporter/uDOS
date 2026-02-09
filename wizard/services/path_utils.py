@@ -15,18 +15,17 @@ def _home_root() -> Path:
 
 
 def _enforce_home_root(candidate: Path) -> Path:
-    home_root = _home_root()
-    if home_root.exists() or os.getenv("UDOS_HOME_ROOT_ENFORCE") == "1":
+    # Only enforce ~/uDOS location if explicitly requested
+    if os.getenv("UDOS_HOME_ROOT_ENFORCE") == "1":
+        home_root = _home_root()
         try:
             resolved = candidate.resolve()
         except FileNotFoundError:
             resolved = candidate
         if not str(resolved).startswith(str(home_root)):
-            if os.getenv("UDOS_HOME_ROOT_ALLOW_OUTSIDE") == "1":
-                return candidate
             raise RuntimeError(
-                "Repo root outside ~/uDOS. Move the repo under ~/uDOS or set "
-                "UDOS_HOME_ROOT_ALLOW_OUTSIDE=1 to bypass."
+                "Repo root outside ~/uDOS. Move the repo under ~/uDOS or "
+                "unset UDOS_HOME_ROOT_ENFORCE to allow other locations."
             )
     return candidate
 
@@ -34,16 +33,16 @@ def _enforce_home_root(candidate: Path) -> Path:
 def find_repo_root(start_path: Optional[Path] = None) -> Path:
     """
     Find uDOS repository root by looking for uDOS.py marker file.
-    
+
     This prevents creating memory/ and distribution/ folders outside the repo
     when modules are imported from different working directories.
-    
+
     Args:
         start_path: Starting path (defaults to this file's location)
-    
+
     Returns:
         Absolute path to repository root
-    
+
     Raises:
         RuntimeError: If repo root cannot be found
     """
@@ -51,7 +50,7 @@ def find_repo_root(start_path: Optional[Path] = None) -> Path:
         start_path = Path(__file__).resolve()
     else:
         start_path = start_path.resolve()
-    
+
     # Honor UDOS_ROOT if it points at a repo
     env_root = os.getenv("UDOS_ROOT")
     if env_root:
@@ -63,13 +62,13 @@ def find_repo_root(start_path: Optional[Path] = None) -> Path:
     for parent in [start_path.parent] + list(start_path.parents):
         if (parent / "uDOS.py").exists():
             return _enforce_home_root(parent)
-    
+
     # Fallback: assume wizard/ is one level below root
     # This maintains backward compatibility but should not normally be reached
     fallback = Path(__file__).parent.parent.resolve()
     if (fallback / "uDOS.py").exists():
         return _enforce_home_root(fallback)
-    
+
     raise RuntimeError(
         f"Could not find uDOS repository root from {start_path}. "
         "Looking for uDOS.py marker file."
