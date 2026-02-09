@@ -772,27 +772,48 @@ class uCODETUI:
 
     def _show_status_bar(self) -> None:
         """Render status bar line for the current session."""
-        if self.quiet:
+        force_status = os.getenv("UDOS_TUI_FORCE_STATUS", "").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+        if self.quiet and not force_status:
             return
         output_stream = sys.stdout
-        if not sys.stdout.isatty():
+        if not sys.stdout.isatty() and not force_status:
             try:
                 output_stream = open("/dev/tty", "w", buffering=1)
             except Exception:
                 return
+        user_role = "ghost"
+        ghost_mode = False
         try:
             from core.services.user_service import get_user_manager, is_ghost_mode
 
             user = get_user_manager().current()
             user_role = user.role.value if user else "ghost"
+            ghost_mode = is_ghost_mode()
+        except Exception:
+            pass
+        try:
             status_line = self.status_bar.get_status_line(
                 user_role=user_role,
-                ghost_mode=is_ghost_mode(),
+                ghost_mode=ghost_mode,
             )
             output_stream.write(self._theme_text(status_line) + "\n")
             output_stream.flush()
         except Exception:
-            pass
+            if force_status:
+                try:
+                    fallback = self.status_bar.get_status_line(
+                        user_role=user_role,
+                        ghost_mode=ghost_mode,
+                    )
+                    sys.stdout.write(fallback + "\n")
+                    sys.stdout.flush()
+                except Exception:
+                    pass
         finally:
             if output_stream is not sys.stdout:
                 try:

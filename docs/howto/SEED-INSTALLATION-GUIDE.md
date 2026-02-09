@@ -269,8 +269,8 @@ git clone https://github.com/fredporter/uDOS.git
 cd uDOS
 
 # Create virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 
 # Install Python dependencies
 pip install -r requirements.txt
@@ -292,14 +292,14 @@ WORKDIR /opt/udos
 COPY . .
 
 # Create venv and install dependencies
-RUN python -m venv .venv && \
-    .venv/bin/pip install -r requirements.txt
+RUN python -m venv venv && \
+    venv/bin/pip install -r requirements.txt
 
 # Bootstrap seed data
-RUN .venv/bin/python bin/install-seed.py
+RUN venv/bin/python bin/install-seed.py
 
 # Run Wizard server
-CMD [".venv/bin/python", "-m", "wizard.server"]
+CMD ["venv/bin/python", "-m", "wizard.server"]
 ```
 
 ### CI/CD Pipeline

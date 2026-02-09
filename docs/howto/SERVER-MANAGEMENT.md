@@ -96,7 +96,7 @@ $ python extensions/server_manager.py status
 
 ```bash
 cd ~/uDOS
-source .venv/bin/activate
+source venv/bin/activate
 
 # Start API server
 PORT=5001 python extensions/api/server.py &

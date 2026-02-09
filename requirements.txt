@@ -11,9 +11,9 @@
 #   or: python3 core/uDOS_health.py
 #
 # Virtual Environment:
-#   Create:  python3 -m venv .venv
-#   Activate: source .venv/bin/activate  (macOS/Linux)
-#             .venv\Scripts\activate     (Windows)
+#   Create:  python3 -m venv venv
+#   Activate: source venv/bin/activate  (macOS/Linux)
+#             venv\Scripts\activate     (Windows)
 
 # =====================
 # AI PROVIDERS (Wizard Server)

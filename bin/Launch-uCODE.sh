@@ -77,10 +77,10 @@ start_wizard_if_needed() {
     echo ""
     echo "Launching Wizard server..."
     log_event "info" "Wizard health check failed. Attempting to start server."
-    if [ -x "$REPO_ROOT/.venv/bin/python3" ]; then
-        PYTHON_CMD="$REPO_ROOT/.venv/bin/python3"
-    elif [ -x "$REPO_ROOT/.venv/bin/python" ]; then
-        PYTHON_CMD="$REPO_ROOT/.venv/bin/python"
+    if [ -x "$REPO_ROOT/venv/bin/python3" ]; then
+        PYTHON_CMD="$REPO_ROOT/venv/bin/python3"
+    elif [ -x "$REPO_ROOT/venv/bin/python" ]; then
+        PYTHON_CMD="$REPO_ROOT/venv/bin/python"
     else
         PYTHON_CMD="python3"
     fi
@@ -140,6 +140,11 @@ load_env_safe "$REPO_ROOT/.env"
 source "$SCRIPT_DIR/udos-common.sh"
 
 parse_common_flags "$@"
+
+# Force status bar display (bottom bar) in TUI sessions
+if [ -z "$UDOS_TUI_FORCE_STATUS" ]; then
+    export UDOS_TUI_FORCE_STATUS=1
+fi
 
 component="${1:-core}"
 mode="${2:-}"

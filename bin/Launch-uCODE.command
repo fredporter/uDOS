@@ -8,6 +8,11 @@ source "$SCRIPT_DIR/udos-common.sh"
 
 parse_common_flags "$@"
 
+# Force status bar display (bottom bar) in TUI sessions
+if [ -z "$UDOS_TUI_FORCE_STATUS" ]; then
+    export UDOS_TUI_FORCE_STATUS=1
+fi
+
 component="${1:-core}"
 mode="${2:-}"
 

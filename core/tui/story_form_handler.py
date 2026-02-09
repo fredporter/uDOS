@@ -402,28 +402,36 @@ class StoryFormHandler:
             Key string ('up', 'down', 'left', 'right', or character)
         """
         input_stream = self._tty_in if self._tty_in else sys.stdin
-        ch = input_stream.read(1)
-        if isinstance(ch, bytes):
-            ch = ch.decode(errors="ignore")
+
+        def _read_char() -> str:
+            ch_local = input_stream.read(1)
+            if isinstance(ch_local, bytes):
+                return ch_local.decode(errors="ignore")
+            return ch_local
+
+        ch = _read_char()
         logger.info(f"[TUI-DEBUG] _read_key first char: {repr(ch)}")
 
         if ch == '\x1b':  # Escape sequence
-            next_ch = input_stream.read(1)
-            if isinstance(next_ch, bytes):
-                next_ch = next_ch.decode(errors="ignore")
+            next_ch = _read_char()
             logger.info(f"[TUI-DEBUG] Escape sequence next char: {repr(next_ch)}")
-            if next_ch == '[':
-                arrow = input_stream.read(1)
-                if isinstance(arrow, bytes):
-                    arrow = arrow.decode(errors="ignore")
-                logger.info(f"[TUI-DEBUG] CSI arrow char: {repr(arrow)}")
-                if arrow == 'A':
+            if next_ch in ('[', 'O'):
+                seq = ""
+                for _ in range(8):
+                    part = _read_char()
+                    if not part:
+                        break
+                    seq += part
+                    if part.isalpha() or part == '~':
+                        break
+                logger.info(f"[TUI-DEBUG] Escape sequence tail: {repr(seq)}")
+                if seq.endswith('A'):
                     return 'up'
-                elif arrow == 'B':
+                if seq.endswith('B'):
                     return 'down'
-                elif arrow == 'C':
+                if seq.endswith('C'):
                     return 'right'
-                elif arrow == 'D':
+                if seq.endswith('D'):
                     return 'left'
 
         return ch

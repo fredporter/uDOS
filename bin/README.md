@@ -168,7 +168,7 @@ All launchers:
 
 1. Source `udos-common.sh` for paths and colors
 2. Resolve `UDOS_ROOT` intelligently (works from anywhere)
-3. Check Python environment (uses `.venv` if available)
+3. Check Python environment (uses `venv` if available)
 4. Validate dependencies before launch
 5. Show boot sequence with environment info
 
@@ -184,7 +184,7 @@ All launchers:
 
 [BOOT] Resolving uDOS root...
 [BOOT] uDOS Root: /Users/you/Code/uDOS
-[BOOT] Python: 3.9.6 (.venv/bin/python)
+[BOOT] Python: 3.9.6 (venv/bin/python)
 [✓] Virtual environment activated
 [✓] Dependencies validated
 [BOOT] User role: dev
@@ -254,7 +254,7 @@ kill -9 <PID>
 ### Virtual Environment Issues
 
 ```bash
-source .venv/bin/activate
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -454,7 +454,7 @@ kill %1
 **Solution:** Activate virtual environment manually:
 
 ```bash
-source .venv/bin/activate
+source venv/bin/activate
 ```
 
 ### npm Not Found

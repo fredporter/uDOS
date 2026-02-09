@@ -90,7 +90,7 @@ git clone https://github.com/mistralai/vibe.git mistral-vibe
 cd mistral-vibe
 
 # Install to venv
-source ../../.venv/bin/activate
+source ../../venv/bin/activate
 pip install -e .
 
 # Verify
@@ -253,7 +253,7 @@ ollama list
 
 ```bash
 # Activate venv
-source .venv/bin/activate
+source venv/bin/activate
 
 # Reinstall vibe
 cd library/mistral-vibe

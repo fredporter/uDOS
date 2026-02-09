@@ -109,7 +109,7 @@ cloud_enabled = false             # Disable cloud by default
 **Test Vibe:**
 
 ```bash
-source .venv/bin/activate
+source venv/bin/activate
 vibe chat "What is the capital of France?"
 
 # Or with context
@@ -188,7 +188,7 @@ OpenRouter is an **API aggregator** giving you:
 
 ```bash
 cd ~/uDOS
-source .venv/bin/activate
+source venv/bin/activate
 
 # Add OpenRouter API key
 bin/wizard-secrets add \
@@ -257,7 +257,7 @@ Edit `wizard/config/ok_gateway.json`:
 **Start Wizard Server:**
 
 ```bash
-source .venv/bin/activate
+source venv/bin/activate
 python wizard/launch_wizard_dev.py --no-tui
 # Server runs on http://localhost:8765
 ```

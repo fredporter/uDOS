@@ -46,13 +46,13 @@ if [[ "$2" == "--no-repair" ]] || [[ "$1" == "--no-repair" ]]; then
 fi
 
 # Ensure venv is activated
-if [ ! -f "$UDOS_ROOT/.venv/bin/activate" ]; then
+if [ ! -f "$UDOS_ROOT/venv/bin/activate" ]; then
     echo -e "${RED}❌ Virtual environment not found${NC}"
-    echo "   Run: python3 -m venv .venv"
+    echo "   Run: python3 -m venv venv"
     exit 1
 fi
 
-source "$UDOS_ROOT/.venv/bin/activate"
+source "$UDOS_ROOT/venv/bin/activate"
 
 # Header
 echo ""

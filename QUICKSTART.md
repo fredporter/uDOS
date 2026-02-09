@@ -26,8 +26,8 @@ cd uDOS
 ### 2. Create Virtual Environment
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 ### 3. Install Dependencies
@@ -210,7 +210,7 @@ tail -f memory/logs/dev-*.log
 
 ```bash
 # Core TUI tests
-source .venv/bin/activate
+source venv/bin/activate
 pytest core/tests/ -v
 
 # Wizard Server tests
@@ -228,7 +228,7 @@ pytest wizard/tests/ -v
 **Solution:** Make sure virtual environment is activated:
 
 ```bash
-source .venv/bin/activate
+source venv/bin/activate
 ```
 
 ### ModuleNotFoundError (Missing Dependencies)
@@ -238,7 +238,7 @@ source .venv/bin/activate
 **Solution:** Install dependencies manually:
 
 ```bash
-source .venv/bin/activate
+source venv/bin/activate
 pip install -r requirements.txt
 
 # Or in smaller batches if the above hangs:

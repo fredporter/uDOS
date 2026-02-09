@@ -60,7 +60,7 @@ A global bottom status bar with:
 
 ```bash
 cd ~/uDOS
-source .venv/bin/activate
+source venv/bin/activate
 python wizard/server.py
 
 # Then open: http://localhost:8765

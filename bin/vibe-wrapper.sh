@@ -3,7 +3,7 @@ set -euo pipefail
 
 REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 WIZARD_BASE_URL="${WIZARD_BASE_URL:-http://localhost:8765}"
-VENV_PY="${REPO_ROOT}/.venv/bin/python"
+VENV_PY="${REPO_ROOT}/venv/bin/python"
 if [ -x "$VENV_PY" ]; then
   PYTHON_BIN="$VENV_PY"
 else

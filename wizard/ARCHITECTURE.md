@@ -175,7 +175,7 @@ See also: [extensions/PORT-REGISTRY.md](../extensions/PORT-REGISTRY.md)
 
 ```bash
 cd ~/uDOS
-source .venv/bin/activate
+source venv/bin/activate
 python -m wizard.server           # server + interactive console
 python -m wizard.server --daemon  # daemon mode (no console)
 ```

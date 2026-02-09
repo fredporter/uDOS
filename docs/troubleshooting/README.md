@@ -9,7 +9,7 @@ Quick solutions for common TUI issues.
 **Quick Fix:**
 ```bash
 sudo apt-get install -y libreadline-dev libncurses5-dev python3-dev
-source .venv/bin/activate
+source venv/bin/activate
 pip install --upgrade --force-reinstall prompt_toolkit
 ```
 
@@ -32,7 +32,7 @@ pip install --upgrade --force-reinstall prompt_toolkit
 **Fix:**
 ```bash
 export TERM=xterm-256color
-source .venv/bin/activate
+source venv/bin/activate
 pip install prompt_toolkit>=3.0.0
 ```
 
@@ -78,11 +78,11 @@ Same as "Arrow Keys Not Working" above.
 **Check:**
 1. Using proper launcher: `./bin/Launch-uCODE.sh`
 2. Not in piped/redirected mode: `./bin/Launch-uCODE.sh | tee` disables TAB
-3. Virtual environment active: `which python` should show `.venv`
+3. Virtual environment active: `which python` should show `venv`
 
 **Fix:**
 ```bash
-source .venv/bin/activate
+source venv/bin/activate
 ./bin/Launch-uCODE.sh
 ```
 
@@ -108,18 +108,18 @@ xcode-select --install
 
 ### Virtual environment not activating
 
-**Symptom:** `source .venv/bin/activate` does nothing
+**Symptom:** `source venv/bin/activate` does nothing
 
 **Check:**
 ```bash
-ls -la .venv/bin/activate
+ls -la venv/bin/activate
 # Should exist
 ```
 
 **Fix:**
 ```bash
-python3 -m venv .venv --clear
-source .venv/bin/activate
+python3 -m venv venv --clear
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -197,7 +197,7 @@ print(f'✓ stdout.isatty: {sys.stdout.isatty()}')
 ### Check Virtual Environment
 ```bash
 which python
-# Should show: /path/to/uDOS/.venv/bin/python
+# Should show: /path/to/uDOS/venv/bin/python
 
 pip list | grep -E "prompt|fastapi|rich"
 # Should show all installed

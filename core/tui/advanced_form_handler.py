@@ -806,14 +806,19 @@ class AdvancedFormField:
 
     def _read_key(self) -> str:
         """Read a single key with arrow-key support."""
-        ch = sys.stdin.read(1)
+        def _read_char() -> str:
+            ch_local = sys.stdin.read(1)
+            if isinstance(ch_local, bytes):
+                return ch_local.decode(errors="ignore")
+            return ch_local
+
+        ch = _read_char()
         if ch == '\x1b':  # Escape sequence
-            next_ch = sys.stdin.read(1)
+            next_ch = _read_char()
             if next_ch in ('[', 'O'):
                 seq = ""
-                # Read until a letter or ~
-                while True:
-                    part = sys.stdin.read(1)
+                for _ in range(8):
+                    part = _read_char()
                     if not part:
                         break
                     seq += part

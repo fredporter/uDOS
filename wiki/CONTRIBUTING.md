@@ -16,8 +16,8 @@ git clone --recurse-submodules https://github.com/fredporter/uDOS.git
 cd uDOS
 
 # Python env
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 
 # Install deps
 pip install -r requirements.txt

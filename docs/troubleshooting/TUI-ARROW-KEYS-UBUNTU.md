@@ -30,7 +30,7 @@ sudo apt-get install -y libreadline-dev libncurses5-dev python3-dev
 After installing system libraries, reinstall Python packages to ensure they're built with proper support:
 
 ```bash
-source .venv/bin/activate
+source venv/bin/activate
 pip install --upgrade --force-reinstall prompt_toolkit
 ```
 

@@ -123,8 +123,10 @@ secrets.py
 **/*.db-journal
 
 # Dependencies & build outputs
-.venv/
+# Python virtual environments
+venv/
 **/venv/
+.venv/
 env/
 **/env/
 node_modules/

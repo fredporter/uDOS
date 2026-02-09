@@ -131,7 +131,7 @@ Imports `.env` identity and adds extended settings to keystore.
 - Checks system health
 - Does NOT modify `.env`
 - Can reinstall dependencies
-- `REPAIR --refresh-runtime` removes runtime caches (.venv, extensions, dashboard builds, human caches)
+- `REPAIR --refresh-runtime` removes runtime caches (venv, extensions, dashboard builds, human caches)
   and re-installs any enabled integrations via the Wizard `LibraryManagerService`.
 - `REPAIR --install-plugin <name>` talks directly to the Wizard plugin catalog so you
   can reinstall or upgrade individual integrations with the same safety checks that power the GUI config panel.

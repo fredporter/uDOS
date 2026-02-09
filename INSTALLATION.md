@@ -41,8 +41,8 @@ sudo apt-get install -y libreadline-dev libncurses5-dev python3-dev
 ### 3. Set Up Python Environment
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 ### 4. Install Python Dependencies
@@ -115,14 +115,14 @@ If you prefer to run services directly without launchers:
 ### Core TUI
 
 ```bash
-source .venv/bin/activate
+source venv/bin/activate
 python uDOS.py
 ```
 
 ### Wizard Server (Alternative to Launcher)
 
 ```bash
-source .venv/bin/activate
+source venv/bin/activate
 python -m wizard.server --port 8765
 ```
 
@@ -136,7 +136,7 @@ Wizard Server provides:
 ### API Extension
 
 ```bash
-source .venv/bin/activate
+source venv/bin/activate
 python -m extensions.api.server
 # Starts on port 5001
 ```
@@ -189,8 +189,8 @@ chmod +x app/bin/*.sh
 
 ```bash
 # Recreate virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 

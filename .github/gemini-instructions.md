@@ -15,7 +15,7 @@
 
 When assisting with uDOS development:
 
-1. **Always check virtual environment**: `.venv/bin/activate`
+1. **Always check virtual environment**: `venv/bin/activate`
 2. **Entry point**: `core/uDOS_main.py` → `core/uDOS_commands.py` (router)
 3. **Command flow**: Router → Handler (`core/commands/*_handler.py`) → Service
 4. **Configuration**: `core/config.py` (unified .env + user.json)

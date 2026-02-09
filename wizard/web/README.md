@@ -366,7 +366,7 @@ After=network.target
 Type=simple
 User=udos
 WorkingDirectory=/opt/udos
-ExecStart=/opt/udos/.venv/bin/python -m wizard.web.app
+ExecStart=/opt/udos/venv/bin/python -m wizard.web.app
 Restart=always
 
 [Install]

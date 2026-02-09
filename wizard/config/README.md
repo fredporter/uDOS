@@ -13,7 +13,7 @@ Open [http://localhost:8765/config](http://localhost:8765/config) to:
 - Edit API keys in a secure, user-friendly interface
 - See example/template formats
 - Save changes locally
-- Manage the `.venv`, secret store, and plugin installers from one All-In-One view
+- Manage the `venv`, secret store, and plugin installers from one All-In-One view
 
 ### REST API
 

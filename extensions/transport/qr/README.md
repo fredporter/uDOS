@@ -143,7 +143,7 @@ for packet in received_packets:
 
 ```bash
 cd extensions/transport/qr
-source ../../../.venv/bin/activate
+source ../../../venv/bin/activate
 python encoder.py
 ```
 

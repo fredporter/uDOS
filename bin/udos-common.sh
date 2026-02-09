@@ -392,11 +392,20 @@ ensure_python_env() {
     local log_dir="$UDOS_ROOT/memory/logs"
     mkdir -p "$log_dir"
 
+    local venv_dir=""
+    if [ -n "$UDOS_VENV_DIR" ]; then
+        venv_dir="$UDOS_VENV_DIR"
+    elif [ "$UDOS_USE_DOT_VENV" = "1" ]; then
+        venv_dir="$UDOS_ROOT/venv"
+    else
+        venv_dir="$UDOS_ROOT/venv"
+    fi
+
     # Check venv - auto-create if missing
-    if [ ! -d "$UDOS_ROOT/.venv" ]; then
+    if [ ! -d "$venv_dir" ]; then
         _udos_echo "${YELLOW}⚠️  Virtual environment not found - creating...${NC}"
         local venv_log="$log_dir/venv-create-$(date +%Y%m%d-%H%M%S).log"
-        if run_with_spinner "Creating virtual environment..." "python3 -m venv $UDOS_ROOT/.venv >>\"$venv_log\" 2>&1"; then
+        if run_with_spinner "Creating virtual environment..." "python3 -m venv $venv_dir >>\"$venv_log\" 2>&1"; then
             _udos_echo "  ${GREEN}✅ Virtual environment created${NC}"
         else
             echo -e "  ${RED}❌ Failed to create virtual environment${NC}"
@@ -406,7 +415,7 @@ ensure_python_env() {
     fi
 
     # Activate venv
-    source "$UDOS_ROOT/.venv/bin/activate"
+    source "$venv_dir/bin/activate"
     _udos_echo "${GREEN}✅ Python venv activated${NC}"
 
     # Check dependencies - auto-install if missing

@@ -155,7 +155,7 @@ kill -9 <PID>
 
 1. Check if port is available: `lsof -i :<port>`
 2. Check server logs: `tail -f memory/logs/<server>_server.log`
-3. Verify Python environment: `which python` (should be in .venv)
+3. Verify Python environment: `which python` (should be in venv)
 4. Check health endpoint: `curl http://localhost:<port>/health`
 
 ### Health Check Fails

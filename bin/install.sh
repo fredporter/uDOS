@@ -298,8 +298,8 @@ install_unix() {
 
     # Create Python venv
     info "Creating Python virtual environment..."
-    python3 -m venv "$prefix/.venv"
-    source "$prefix/.venv/bin/activate"
+    python3 -m venv "$prefix/venv"
+    source "$prefix/venv/bin/activate"
     pip install --upgrade pip
     pip install -r "$prefix/requirements.txt"
     deactivate
@@ -315,7 +315,7 @@ install_unix() {
     cat > "$launcher" <<EOF
 #!/bin/bash
 # uDOS Launcher - v$VERSION
-source "$prefix/.venv/bin/activate"
+source "$prefix/venv/bin/activate"
 cd "$prefix"
 python -m core.uDOS_main "\$@"
 EOF
@@ -373,13 +373,13 @@ install_dev() {
     info "Setting up development mode..."
 
     # Just setup venv and user directory
-    if [ ! -d "$PROJECT_ROOT/.venv" ]; then
+    if [ ! -d "$PROJECT_ROOT/venv" ]; then
         info "Creating Python virtual environment..."
-        python3 -m venv "$PROJECT_ROOT/.venv"
+        python3 -m venv "$PROJECT_ROOT/venv"
     fi
 
     info "Installing Python dependencies..."
-    source "$PROJECT_ROOT/.venv/bin/activate"
+    source "$PROJECT_ROOT/venv/bin/activate"
     pip install --upgrade pip
     pip install -r "$PROJECT_ROOT/requirements.txt"
     deactivate
@@ -388,7 +388,7 @@ install_dev() {
     setup_user_directory "$HOME"
 
     success "Development environment ready"
-    info "Run: source .venv/bin/activate && ./start_udos.sh"
+    info "Run: source venv/bin/activate && ./start_udos.sh"
 }
 
 # Setup user directory structure

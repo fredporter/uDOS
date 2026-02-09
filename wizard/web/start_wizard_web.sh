@@ -2,7 +2,7 @@
 # Start Wizard Server Web Interface
 
 # Activate venv
-source .venv/bin/activate
+source venv/bin/activate
 
 # Install dependencies if needed
 pip install fastapi uvicorn python-multipart jinja2 qrcode 2>/dev/null
