@@ -1,0 +1,145 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "udos"
+dynamic = ["version"]
+description = "uDOS - Offline-first Operating System for Survival Knowledge"
+readme = "README.md"
+license = "GPL-3.0-only"
+requires-python = ">=3.9"
+authors = [
+    { name = "Fred Porter", email = "fred@udos.dev" },
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: System :: Shells",
+    "Topic :: Utilities",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+]
+
+# Core dependencies - always installed
+dependencies = [
+    "python-dotenv>=1.0.0",
+    "tzlocal>=4.0",
+    "pytz>=2023.3",
+    "prompt_toolkit>=3.0.0",
+    "jsonschema>=4.0.0",
+    "PyYAML>=6.0.0",
+    "cryptography>=41.0.0",
+    "keyring>=24.0.0",
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "psutil>=5.9.0",
+    "bcrypt>=4.0.0",
+    "rich>=13.0.0",
+    "thefuzz>=0.19.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/fredporter/uDOS"
+"Bug Tracker" = "https://github.com/fredporter/uDOS/issues"
+Documentation = "https://github.com/fredporter/uDOS/wiki"
+"Source Code" = "https://github.com/fredporter/uDOS"
+
+[project.scripts]
+udos = "core.uDOS_main:main"
+
+[project.optional-dependencies]
+# Ultra-minimal (~8MB) - Core TUI only, no extras
+ultra = []
+
+# Lite (~16MB) - Core TUI + Knowledge (DEFAULT)
+lite = []
+
+# Wizard Server (~45MB) - Core + web server + optional frameworks
+wizard = [
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "python-multipart>=0.0.6",
+    "qrcode>=7.4.2",
+    "flask>=2.0.0",
+    "flask-cors>=5.0.0",
+    "flask-socketio>=5.0.0",
+    "simple-websocket>=1.0.0",
+    "aiohttp>=3.9.0",
+    "hypercorn>=0.17.0",
+    "markdown2>=2.4.0",
+    "pygments>=2.10.0",
+]
+
+# Standard (~28MB) - Wizard + Gemini AI
+standard = [
+    "udos[wizard]",
+    "google-generativeai>=0.3.0",
+]
+
+# Full (~58MB) - Standard + all AI providers + image processing
+full = [
+    "udos[standard]",
+    "openai>=1.0.0",
+    "anthropic>=0.18.0",
+    "Pillow>=10.0.0",
+    "vtracer>=0.6.0",
+]
+
+# Enterprise (~120MB+) - Full + Google services + analytics
+enterprise = [
+    "udos[full]",
+    "google-auth>=2.23.0",
+    "google-auth-oauthlib>=1.1.0",
+    "google-auth-httplib2>=0.1.1",
+    "google-api-python-client>=2.100.0",
+    "sqlalchemy>=2.0.0",
+    "fuzzywuzzy>=0.18.0",
+    "python-Levenshtein>=0.21.0",
+]
+
+# Development tools
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.23.0",
+    "flake8>=6.0.0",
+    "black>=23.0.0",
+]
+
+# Legacy alias
+ai = [
+    "google-generativeai>=0.3.0",
+]
+
+[tool.setuptools.dynamic]
+version = { attr = "core._version.VERSION" }
+
+[tool.setuptools.packages.find]
+include = ["core*", "wizard*", "extensions*", "knowledge*"]
+exclude = ["*.tests*", "*.__pycache__*"]
+
+[tool.setuptools.package-data]
+core = ["**/*.json", "**/*.md"]
+knowledge = ["**/*.json", "**/*.md", "**/*.txt"]
+wizard = ["**/*.json", "**/*.md", "**/*.html", "**/*.css", "**/*.js"]
+
+[tool.pytest.ini_options]
+testpaths = ["memory/tests"]
+asyncio_mode = "auto"
+
+[tool.black]
+line-length = 100
+target-version = ["py39"]
+
+[tool.flake8]
+max-line-length = 100
+exclude = [".git", "__pycache__", "dev", "docs", "wiki", ".archive", "node_modules"]

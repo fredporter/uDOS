@@ -1,0 +1,61 @@
+# uDOS Service Stack
+# Usage: docker compose up --build
+# Profiles:
+#   docker compose up                    # wizard + ollama (default)
+#   docker compose --profile scheduler up  # + mission scheduler
+#   docker compose --profile all up        # everything
+
+services:
+  wizard:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8765:8765"
+    volumes:
+      - ./vault:/vault
+    environment:
+      - VAULT_ROOT=/vault
+      - OLLAMA_HOST=http://ollama:11434
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8765/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  mission-scheduler:
+    build: ./node/mission-scheduler
+    restart: unless-stopped
+    profiles:
+      - scheduler
+      - all
+    environment:
+      - WIZARD_RENDER_URL=http://wizard:8765/api/renderer/render
+      - WIZARD_API_BASE=http://wizard:8765
+      - VAULT_ROOT=/vault
+      - INTERVAL_SECONDS=30
+    volumes:
+      - ./vault:/vault
+    depends_on:
+      wizard:
+        condition: service_healthy
+
+volumes:
+  ollama_data:
