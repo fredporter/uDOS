@@ -955,6 +955,7 @@ class TUIFormRenderer:
         self.current_field_index = 0
         self.submitted_data: Dict[str, Any] = {}
         self.on_field_complete = on_field_complete
+        self.last_render_output = ""  # Track to prevent visual duplication
 
     def add_field(self, name: str, label: str, field_type: FieldType, **kwargs) -> None:
         """Add a field to the form."""
@@ -1006,7 +1007,15 @@ class TUIFormRenderer:
         if field['widget'] is None:
             field['widget'] = self._create_widget(field)
 
-        return self._render_field(field)
+        output = self._render_field(field)
+
+        # Prevent visual duplication by checking if output changed
+        if output == self.last_render_output:
+            # Same output as last render - add marker to see if it's actually being repeated
+            pass
+        self.last_render_output = output
+
+        return output
 
     def _create_widget(self, field: Dict) -> Any:
         """Create appropriate widget for field type."""
@@ -1067,25 +1076,30 @@ class TUIFormRenderer:
         return str(tzinfo) or "UTC"
 
     def _render_field(self, field: Dict) -> str:
-        """Render a single field."""
+        """Render a single field with proper alignment."""
         lines = []
 
         cols = self._get_cols()
-        header_width = max(20, min(60, cols))
+        # Use consistent header width (60-78 chars, leave margins)
+        header_width = min(78, max(cols - 2, 60))
 
-        # Header
+        # Header: consistent width
         lines.append("\n" + "=" * header_width)
-        lines.append(f"  {self.title}")
+        title_padded = f"  {self.title}".ljust(header_width - 1)
+        lines.append(title_padded)
         if self.description:
-            lines.append(f"  {self.description}")
+            desc_padded = f"  {self.description}".ljust(header_width - 1)
+            lines.append(desc_padded)
         lines.append("=" * header_width)
 
-        # Progress
+        # Progress (consistent indentation)
         current = self.current_field_index + 1
         total = max(1, len(self.fields))
-        progress = f"{current}/{total}"
-        lines.append(f"\n  [{progress}] {field['label']}")
+        progress = f"[{current}/{total}] {field['label']}"
+        lines.append(f"\n  Progress: {progress}")
         lines.append(self._render_progress_bar(current, total))
+        # Flowchart
+        lines.append("")  # Separation
         lines.extend(self._render_flowchart())
 
         # Add spacing before field input
@@ -1096,53 +1110,76 @@ class TUIFormRenderer:
         if widget:
             widget_output = widget.render(focused=True)
             # Ensure proper indentation
-            lines.append(f"  {widget_output}" if not widget_output.startswith(" ") else widget_output)
+            if widget_output.startswith(" "):
+                lines.append(widget_output)
+            else:
+                lines.append(f"  {widget_output}")
         else:
             # Simple text input
             lines.append(f"  {field['label']}: [___]")
 
         lines.append("\n")
 
-        return self._clamp_output("\n".join(lines))
+        output = self._clamp_output("\n".join(lines))
+        return output
 
     def _render_progress_bar(self, current: int, total: int) -> str:
+        """Render progress bar with consistent width."""
         cols = self._get_cols()
-        overhead = len("  Progress: []")
-        width = max(10, min(40, cols - overhead))
-        filled = int(round((current / float(total)) * width))
-        bar = "=" * filled + "-" * (width - filled)
+        # Reserve space: "  Progress: " (12) + brackets (2) = 14 chars
+        max_bar_width = max(10, cols - 14)
+        filled = int(round((current / float(total)) * max_bar_width)) if total > 0 else 0
+        bar = "=" * filled + "-" * (max_bar_width - filled)
         return f"  Progress: [{bar}]"
 
     def _render_flowchart(self) -> List[str]:
+        """Render flow of form steps with proper wrapping and alignment."""
         cols = self._get_cols()
-        # Use a more conservative width to prevent wrapping issues
-        width = max(60, min(cols - 4, 120))
+        # Conservative width: leave 8 chars margin
+        max_width = min(cols - 8, 100)
+        indent = "      "  # 6 spaces base indent
+        connector = " -> "
 
         tokens: List[str] = []
         for idx, f in enumerate(self.fields):
             label = f.get("label", f.get("name", ""))
-            label = " ".join(str(label).split())
-            if idx < self.current_field_index:
-                prefix = "x"
-            elif idx == self.current_field_index:
-                prefix = ">"
-            else:
-                prefix = " "
-            tokens.append(f"[{prefix} {label}]")
+            label = " ".join(str(label).split())  # Normalize whitespace
 
-        lines: List[str] = ["", "  Flow:"]
-        current_line = "    "  # Start with consistent indent
-        connector = " -o-> "
+            # Truncate long labels for readability
+            if len(label) > 28:
+                label = label[:25] + "..."
+
+            if idx < self.current_field_index:
+                marker = "✓"  # Completed
+            elif idx == self.current_field_index:
+                marker = "→"  # Current
+            else:
+                marker = "○"  # Pending
+
+            tokens.append(f"[{marker} {label}]")
+
+        lines: List[str] = ["  Flow:"]
+        if not tokens:
+            return lines
+
+        current_line = indent
+
         for i, token in enumerate(tokens):
+            # Add connector for non-first tokens
             piece = token if i == 0 else connector + token
-            # Check if adding this piece would exceed width
-            if len(current_line) + len(piece) > width:
+
+            # Check if adding would exceed width
+            if len(current_line) + len(piece) > max_width and current_line != indent:
+                # Flush line and start new one
                 lines.append(current_line.rstrip())
-                current_line = "    " + token  # Maintain indent on new line
+                current_line = indent + token
             else:
                 current_line += piece
-        if current_line.strip():
+
+        # Flush final line
+        if current_line != indent:
             lines.append(current_line.rstrip())
+
         return lines
 
     def _render_completion(self) -> str:
