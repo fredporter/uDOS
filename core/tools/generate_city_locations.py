@@ -142,7 +142,7 @@ if __name__ == "__main__":
 
     paths = [
         Path(__file__).parent.parent / "framework" / "seed" / "locations-seed.json",
-        Path(__file__).parent.parent.parent / "vault-md" / "bank" / "locations" / "locations.json"
+        Path(__file__).parent.parent.parent / "memory" / "locations" / "locations.json"
     ]
 
     for p in paths:

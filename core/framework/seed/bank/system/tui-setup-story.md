@@ -45,10 +45,10 @@ name: setup_vault_md_root
 label: Configure vault root (VAULT_ROOT)
 type: text
 required: true
-placeholder: "/Users/yourname/Documents/vault-md"
+placeholder: "/Users/yourname/Code/uDOS/memory/vault"
 help: >
-  Path to your vault-md root (Markdown vault). This is used for storage, indexing,
-  and task history. Defaults to repo_root/vault-md if not set.
+  Path to your vault root (Markdown vault). This is used for storage, indexing,
+  and task history. Defaults to repo_root/memory/vault if not set.
 validation: path
 ```
 

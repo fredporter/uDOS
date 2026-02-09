@@ -18,11 +18,13 @@ type RenderCliOptions = RenderOptions & {
 
 function resolveDefaults(): CliOptions {
   const cwd = process.cwd();
-  const vaultRoot = process.env.VAULT_ROOT ?? path.resolve(cwd, "..", "vault");
+  const vaultRoot =
+    process.env.VAULT_ROOT ?? path.resolve(cwd, "..", "memory", "vault");
   const themesRoot =
     process.env.THEMES_ROOT ?? path.resolve(cwd, "..", "themes");
   const outputRoot =
-    process.env.OUTPUT_ROOT ?? path.resolve(cwd, "..", "vault", "_site");
+    process.env.OUTPUT_ROOT ??
+    path.resolve(cwd, "..", "memory", "vault", "_site");
   return {
     theme: process.env.THEME ?? "prose",
     vaultRoot,
@@ -64,9 +66,9 @@ Usage:
   node renderer/cli.js [--theme THEME] [--vault PATH] [--themes PATH] [--output PATH] [--mission ID] [--runs PATH]
 
 Environment overrides:
-  VAULT_ROOT      Repo vault folder (default ../vault)
+  VAULT_ROOT      Repo vault folder (default ../memory/vault)
   THEMES_ROOT     Themes folder (default ../themes)
-  OUTPUT_ROOT     _site output folder (default ../vault/_site)
+  OUTPUT_ROOT     _site output folder (default ../memory/vault/_site)
   THEME           Theme id (default prose)
   MISSION_ID      Mission id used for run reports (default renderer-<theme>)
   RUNS_ROOT       Run report root (default <vault>/06_RUNS)

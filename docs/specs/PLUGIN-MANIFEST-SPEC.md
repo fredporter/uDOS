@@ -116,8 +116,8 @@ type PluginType =
 {
   "permissions": {
     "filesystem": {
-      "read": ["~/Documents/uDOS Vault", "/tmp"],
-      "write": ["~/Documents/uDOS Vault/_output"]
+      "read": ["~/uDOS/memory/vault", "/tmp"],
+      "write": ["~/uDOS/memory/vault/_output"]
     }
   }
 }

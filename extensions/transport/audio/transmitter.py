@@ -20,7 +20,7 @@ from typing import Optional, List, Callable
 from dataclasses import dataclass
 from enum import Enum
 
-from core.services.logging_service import get_logger
+from core.services.logging_api import get_logger
 
 logger = get_logger("audio-transmitter")
 

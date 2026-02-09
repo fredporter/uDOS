@@ -59,7 +59,7 @@ Focus: harden publishing + indexing, stabilize Wizard renderer lane, and lock de
 ## Milestone 2 TODOs
 - [x] Add renderer CLI test for output determinism and asset copy results.
 - [x] Add indexer tests to validate FK integrity and task parsing.
-- [x] Ensure renderer mission report is written to `vault/06_RUNS/`.
+- [x] Ensure renderer mission report is written to `memory/vault/06_RUNS/`.
 - [x] Add spatial DB bootstrap/migration (anchors/places/locids tables) if missing.
 - [x] Validate Wizard renderer endpoints: `/api/renderer/themes`, `/site`, `/missions`, `/render`.
 - [x] Add minimal auth toggle for local-only renderer routes (documented).

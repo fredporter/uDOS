@@ -87,6 +87,19 @@ def get_memory_dir() -> Path:
     return memory_dir
 
 
+def get_vault_dir() -> Path:
+    """Get vault directory path (creates if doesn't exist)."""
+    env_root = os.getenv("VAULT_ROOT")
+    if env_root:
+        vault_dir = Path(env_root).expanduser()
+        if not vault_dir.is_absolute():
+            vault_dir = get_repo_root() / vault_dir
+    else:
+        vault_dir = get_repo_root() / "memory" / "vault"
+    vault_dir.mkdir(parents=True, exist_ok=True)
+    return vault_dir
+
+
 def get_distribution_dir() -> Path:
     """Get distribution/ directory path (creates if doesn't exist)."""
     dist_dir = find_repo_root() / "distribution"

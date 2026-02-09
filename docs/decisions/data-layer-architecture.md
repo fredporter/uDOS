@@ -1,8 +1,8 @@
 # ADR-0004: Data Layer Architecture
 
-**Status:** PROPOSED  
-**Date:** 2026-01-29  
-**Author:** uDOS Engineering  
+**Status:** PROPOSED
+**Date:** 2026-01-29
+**Author:** uDOS Engineering
 **Scope:** Data organization, storage layers, distribution model
 
 ---
@@ -253,7 +253,7 @@ version: 1.0.0
 **Phase 1: Create Framework Structure**
 ```bash
 mkdir -p core/framework/schemas
-mkdir -p core/framework/templates  
+mkdir -p core/framework/templates
 mkdir -p core/framework/seed
 ```
 
@@ -275,9 +275,9 @@ mkdir -p memory/bank/knowledge/personal
 mkdir -p memory/bank/knowledge/imported
 mkdir -p memory/bank/checklists
 
-# Move runtime location data to vault
-mv core/locations.json vault-md/bank/locations/
-mv core/data/timezones.json vault-md/bank/locations/
+# Move runtime location data to memory bank
+mv core/locations.json memory/bank/locations/
+mv core/data/timezones.json memory/bank/locations/
 
 # Create symlink or copy seed on first run
 ```
@@ -394,5 +394,5 @@ SELECT * FROM locations WHERE layer = 300 LIMIT 10;
 
 ---
 
-**Status:** Ready for Review  
+**Status:** Ready for Review
 **Next Step:** Approve and begin Phase 1 implementation

@@ -26,7 +26,7 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 - Dev mode gate enforcement finalized.
 - Logging API v1.3 implemented and tested (2026-02-08).
 - Empire business features split to dedicated `empire/docs/EMPIRE-ROADMAP.md`.
-- Migrated legacy bank paths → `memory/system/` and `vault-md/` paths; docs updated accordingly.
+- Migrated legacy bank paths → `memory/system/` and `memory/vault/` paths; docs updated accordingly.
 - Implemented plugin packaging flow (`PLUGIN pack`) and aligned catalog path to `distribution/plugins`.
 - Implemented grid runtime distance calculation, sky view placeholder rendering, and character pixel mapping.
 - Wired Talk handler to shared GameState (player id/stats/inventory).
@@ -48,7 +48,7 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 - ✅ Logging API v1.3 implementation complete and tested.
 
 ### P0 — Consolidation & Verification
-- ✅ Confirmed extension API references after the `memory/system` + `vault-md/` migration (no code refs to legacy bank paths remain).
+- ✅ Confirmed extension API references after the `memory/system` + `memory/vault/` migration (no code refs to legacy bank paths remain).
 - ✅ Removed deprecated bank directory after verification passes (archived to `memory/.archive/removed-bank-2026-02-06/`).
 - ✅ Validated plugin packaging flow using `PLUGIN pack` against `distribution/plugins` index/manifest (packaged `api`).
 

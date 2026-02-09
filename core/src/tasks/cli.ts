@@ -10,14 +10,16 @@ import {
 function resolveDefaults() {
   const cwd = process.cwd();
   return {
-    vaultRoot: process.env.VAULT_ROOT ?? path.resolve(cwd, "..", "..", "vault"),
+    vaultRoot:
+      process.env.VAULT_ROOT ??
+      path.resolve(cwd, "..", "..", "memory", "vault"),
     dbPath:
       process.env.DB_PATH ??
-      path.resolve(cwd, "..", "..", "vault", ".udos", "state.db"),
+      path.resolve(cwd, "..", "..", "memory", "vault", ".udos", "state.db"),
     missionId: process.env.MISSION_ID,
     runsRoot:
       process.env.RUNS_ROOT ??
-      path.resolve(cwd, "..", "..", "vault", "06_RUNS"),
+      path.resolve(cwd, "..", "..", "memory", "vault", "06_RUNS"),
   };
 }
 
@@ -66,10 +68,10 @@ Search filters:
   --tag tagname
 
 Environment:
-  VAULT_ROOT      Vault folder (default ../../vault)
-  DB_PATH         SQLite database (default ../../vault/.udos/state.db)
+  VAULT_ROOT      Vault folder (default ../../memory/vault)
+  DB_PATH         SQLite database (default ../../memory/vault/.udos/state.db)
   MISSION_ID      Mission id used for run reports (default task-indexer)
-  RUNS_ROOT       Run report root (default ../../vault/06_RUNS)
+  RUNS_ROOT       Run report root (default ../../memory/vault/06_RUNS)
 `);
 }
 

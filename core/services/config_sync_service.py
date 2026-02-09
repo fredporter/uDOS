@@ -144,9 +144,9 @@ class ConfigSyncManager:
                 env_dict['UDOS_ROOT'] = str(self.repo_root.resolve())
                 logger.info(f"[LOCAL] Set UDOS_ROOT={env_dict['UDOS_ROOT']}")
 
-            # Ensure VAULT_ROOT exists (default to repo_root/vault-md)
+            # Ensure VAULT_ROOT exists (default to repo_root/memory/vault)
             if 'VAULT_ROOT' not in env_dict:
-                env_dict['VAULT_ROOT'] = str((self.repo_root / "vault-md").resolve())
+                env_dict['VAULT_ROOT'] = str((self.repo_root / "memory" / "vault").resolve())
                 logger.info(f"[LOCAL] Set VAULT_ROOT={env_dict['VAULT_ROOT']}")
 
             # Write .env file
@@ -178,7 +178,7 @@ class ConfigSyncManager:
                 logger.info(f"[LOCAL] Set UDOS_ROOT={env_dict['UDOS_ROOT']}")
 
             if 'VAULT_ROOT' not in env_dict:
-                env_dict['VAULT_ROOT'] = str((self.repo_root / "vault-md").resolve())
+                env_dict['VAULT_ROOT'] = str((self.repo_root / "memory" / "vault").resolve())
                 logger.info(f"[LOCAL] Set VAULT_ROOT={env_dict['VAULT_ROOT']}")
 
             self._write_env_file(env_dict)

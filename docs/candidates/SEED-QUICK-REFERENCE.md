@@ -98,7 +98,7 @@ RUN python bin/install-seed.py
 
 Seed directories created during installation:
 ```bash
-mkdir -p "$udos_home/vault-md/bank/locations"
+mkdir -p "$udos_home/memory/bank/locations"
 mkdir -p "$udos_home/memory/system/help"
 mkdir -p "$udos_home/memory/system/templates"
 mkdir -p "$udos_home/memory/system/graphics/diagrams/templates"
@@ -113,7 +113,7 @@ mkdir -p "$udos_home/memory/system/workflows"
 |---------|----------|
 | `FileNotFoundError: locations.json` | `SEED INSTALL` in TUI or `python bin/install-seed.py --force` |
 | Missing bank seeds | Check `core/framework/seed/bank/` exists, then `SEED INSTALL --force` |
-| Permission denied | `chmod 755 memory/system vault-md/bank && SEED INSTALL --force` |
+| Permission denied | `chmod 755 memory/system memory/bank && SEED INSTALL --force` |
 | Partial installation | `python bin/install-seed.py --status` to check what's missing |
 
 ---
@@ -133,8 +133,8 @@ mkdir -p "$udos_home/memory/system/workflows"
 
 | Source | Target | Size |
 |--------|--------|------|
-| `core/framework/seed/locations-seed.json` | `vault-md/bank/locations/locations.json` | 2KB |
-| `core/framework/seed/timezones-seed.json` | `vault-md/bank/locations/timezones.json` | 2KB |
+| `core/framework/seed/locations-seed.json` | `memory/bank/locations/locations.json` | 2KB |
+| `core/framework/seed/timezones-seed.json` | `memory/bank/locations/timezones.json` | 2KB |
 | `core/framework/seed/bank/*` | `memory/system/*` | 115 files |
 
 ---

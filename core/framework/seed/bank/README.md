@@ -1,6 +1,6 @@
 # Bank Seed Data
 
-**Purpose:** Canonical seed data for `memory/system/` + `vault-md/bank/` initialization
+**Purpose:** Canonical seed data for `memory/system/` + `memory/bank/` initialization
 
 ---
 
@@ -32,7 +32,7 @@ seed/bank/
 
 1. Check if `memory/system/graphics/` exists
 2. If missing → copy from `core/framework/seed/bank/graphics/`
-3. User can then customize in `vault-md/bank/` (gitignored)
+3. User can then customize in `memory/bank/` (gitignored)
 4. Original seeds remain tracked in framework
 
 ---
@@ -155,7 +155,7 @@ REPAIR --seed    # Re-seed missing bank data
 | Path | Git Status | Purpose |
 |------|-----------|---------|
 | `core/framework/seed/bank/` | ✅ **TRACKED** | Canonical seed data |
-| `vault-md/bank/` | ❌ Gitignored | User customizations |
+| `memory/bank/` | ❌ Gitignored | User customizations |
 
 **Rule:** Seeds are version-controlled, user data is not.
 

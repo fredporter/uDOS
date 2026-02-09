@@ -111,7 +111,7 @@ theme.json declares:
 Output target
 
 Rendered sites land in the vault:
-	•	vault/_site/<theme>/<path>/index.html
+	•	memory/vault/_site/<theme>/<path>/index.html
 	•	(or a parallel publish/ folder if preferred)
 
 Wizard serves the static output directly.
@@ -253,8 +253,8 @@ A Mission is a long-running programme with:
 	•	outputs (reports, published pages, contribution queues)
 
 Outputs
-	•	Run reports in vault/06_RUNS/...
-	•	Logs in vault/07_LOGS/...
+	•	Run reports in memory/vault/06_RUNS/...
+	•	Logs in memory/vault/07_LOGS/...
 	•	Proposed edits as contribution bundles
 
 AI is treated as a Contributor, not an editor.
@@ -293,7 +293,7 @@ Milestone 4 — WP public lane (optional add-on)
 
 Repo structure (target)
 
-vault/              # Obsidian truth store
+memory/vault/       # Obsidian truth store
 themes/             # Theme packs
 core/               # TS deterministic engine (render, parse, sqlite, diff)
 wizard/             # node services + portal + scheduler + permissions

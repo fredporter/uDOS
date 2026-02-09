@@ -21,7 +21,7 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from wizard.services.contribution_service import ContributionService
-from wizard.services.path_utils import get_repo_root
+from wizard.services.path_utils import get_repo_root, get_vault_dir
 from wizard.services.permission_guard import require_role
 from wizard.services.spatial_parser import scan_vault_places
 from wizard.services.spatial_store import get_spatial_db_path, fetch_spatial_rows
@@ -40,7 +40,7 @@ def _themes_root() -> Path:
 
 
 def _vault_root() -> Path:
-    return get_repo_root() / "vault"
+    return get_vault_dir()
 
 
 def _site_root() -> Path:
@@ -302,7 +302,7 @@ def _invoke_renderer(theme: str, mission_id: Optional[str] = None) -> Dict[str, 
 
 
 def _write_mission_output(report: Dict[str, Any]) -> Optional[Path]:
-    """Write mission output/report to vault/06_RUNS/<mission_id>/"""
+    """Write mission output/report to memory/vault/06_RUNS/<mission_id>/"""
     try:
         mission_id = report.get("mission_id", "unknown")
         job_id = report.get("job_id", f"job-{uuid.uuid4()}")

@@ -4,7 +4,7 @@ Vault is plain files. Obsidian can open it. No hidden state required.
 
 ## Recommended layout (can map to existing repo folders later)
 ```txt
-vault/
+memory/vault/
   01_KNOWLEDGE/
   02_PROJECTS/
   03_PROMPTS/

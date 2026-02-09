@@ -25,7 +25,7 @@ class StoryHandler(BaseCommandHandler):
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         """
         STORY command dispatcher.
-        
+
         Usage:
             STORY                    List all -story.md files
             STORY <file>             Run a story file
@@ -155,7 +155,7 @@ class StoryHandler(BaseCommandHandler):
 
         payload = result.get("payload", {})
         exec_result = payload.get("result", {})
-        
+
         # Check if this returned all sections (multi-section form)
         if exec_result.get("allSections"):
             sections = exec_result.get("sections", [])
@@ -172,10 +172,10 @@ class StoryHandler(BaseCommandHandler):
                     },
                     "output": f"Story form ready with {len(sections)} sections.",
                 }
-        
+
         # Single section or non-form
         fields = exec_result.get("fields", [])
-        
+
         if fields:
             # Return structured form data for the TUI to handle interactively
             form_spec = {
@@ -184,10 +184,10 @@ class StoryHandler(BaseCommandHandler):
                 "section_id": exec_result.get("sectionId"),
                 "fields": fields,
             }
-            
+
             # Process with interactive form handler
             form_result = self._process_interactive_form(form_spec)
-            
+
             if form_result.get("status") == "success":
                 return {
                     "status": "success",
@@ -197,7 +197,7 @@ class StoryHandler(BaseCommandHandler):
                 }
             else:
                 return form_result
-        
+
         else:
             # Non-form story - return output
             output = exec_result.get("output") or ""
@@ -284,10 +284,10 @@ set $user.completed true
     def _process_interactive_form(self, form_spec: Dict) -> Dict:
         """
         Process interactive form with TUI form handler.
-        
+
         Args:
             form_spec: Form specification with title, description, fields
-            
+
         Returns:
             Dictionary with status and collected data
         """
@@ -299,7 +299,7 @@ set $user.completed true
             # Inject dynamic defaults for known setup fields.
             repo_root = get_repo_root()
             udos_root = os.getenv("UDOS_ROOT") or str(repo_root)
-            vault_root = os.getenv("VAULT_ROOT") or str((repo_root / "vault-md").resolve())
+            vault_root = os.getenv("VAULT_ROOT") or str((repo_root / "memory" / "vault").resolve())
             fields = form_spec.get("fields", [])
             for field in fields:
                 if field.get("name") == "setup_udos_root":
@@ -312,16 +312,16 @@ set $user.completed true
                         field["default"] = vault_root
                     if not field.get("placeholder"):
                         field["placeholder"] = vault_root
-            
+
             handler = get_form_handler()
             result = handler.process_story_form(form_spec)
             return result
-        
+
         except Exception as e:
             from core.services.logging_api import get_logger
             logger = get_logger("story")
             logger.error(f"[LOCAL] Failed to process interactive form: {e}")
-            
+
             # Fallback to basic message
             return {
                 "status": "error",
@@ -349,12 +349,12 @@ set $user.completed true
             bank_system_path = repo_root / "memory" / "bank" / "system" / file_arg
             if bank_system_path.exists():
                 return bank_system_path
-            
+
             # 3. Check core/framework/seed/bank/system/
             core_seed_path = repo_root / "core" / "framework" / "seed" / "bank" / "system" / file_arg
             if core_seed_path.exists():
                 return core_seed_path
-            
+
             # Otherwise resolve from repo root
             return repo_root / path
 

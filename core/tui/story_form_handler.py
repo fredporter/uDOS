@@ -8,6 +8,7 @@ Handles:
 - Data collection and validation
 """
 
+import os
 import sys
 import termios
 import tty
@@ -38,6 +39,8 @@ class StoryFormHandler:
         self.renderer: Optional[TUIFormRenderer] = None
         self.original_settings = None
         self.original_log_dest = None
+        self._tty_in: Optional[Any] = None
+        self._tty_out: Optional[Any] = None
         self._override_fields_inserted = False
         self._pending_location_specs: List[Dict[str, Any]] = []
         self.interactive_reason: Optional[str] = None
@@ -162,8 +165,9 @@ class StoryFormHandler:
                 # In raw mode, we need \r\n for line breaks, not just \n
                 output = output.replace('\n', '\r\n')
 
-                sys.stdout.write(output)
-                sys.stdout.flush()
+                output_stream = self._tty_out or sys.stdout
+                output_stream.write(output)
+                output_stream.flush()
 
                 # Get input
                 key = self._read_key()
@@ -289,14 +293,26 @@ class StoryFormHandler:
             if not self._is_interactive():
                 return False
 
+            input_stream = sys.stdin
+            output_stream = sys.stdout
+            if not sys.stdin.isatty() or not sys.stdout.isatty():
+                try:
+                    self._tty_in = open("/dev/tty", "rb+", buffering=0)
+                    self._tty_out = open("/dev/tty", "w", buffering=1)
+                    input_stream = self._tty_in
+                    output_stream = self._tty_out
+                except Exception:
+                    self._tty_in = None
+                    self._tty_out = None
+
             # Save original settings
-            self.original_settings = termios.tcgetattr(sys.stdin)
-            tty.setraw(sys.stdin.fileno())
+            self.original_settings = termios.tcgetattr(input_stream)
+            tty.setraw(input_stream.fileno())
 
             # Enter alternate screen buffer (much more reliable than clear codes)
             # This gives us a clean screen that we can fully control
-            sys.stdout.write('\033[?1049h')  # Save screen and enter alt buffer
-            sys.stdout.flush()
+            output_stream.write('\033[?1049h')  # Save screen and enter alt buffer
+            output_stream.flush()
 
             # Suppress logging to stdout during interactive form
             # This prevents log messages from breaking cursor positioning
@@ -323,16 +339,30 @@ class StoryFormHandler:
         """Restore terminal to original settings and re-enable logging."""
         # Exit alternate screen buffer first (restore original screen)
         try:
-            sys.stdout.write('\033[?1049l')  # Exit alt buffer and restore screen
-            sys.stdout.flush()
+            output_stream = self._tty_out or sys.stdout
+            output_stream.write('\033[?1049l')  # Exit alt buffer and restore screen
+            output_stream.flush()
         except Exception:
             pass
 
         if self.original_settings:
             try:
-                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.original_settings)
+                target = self._tty_in if self._tty_in else sys.stdin
+                termios.tcsetattr(target, termios.TCSADRAIN, self.original_settings)
             except Exception as e:
                 logger.warning(f"[LOCAL] Could not restore terminal: {e}")
+        if self._tty_in:
+            try:
+                self._tty_in.close()
+            except Exception:
+                pass
+            self._tty_in = None
+        if self._tty_out:
+            try:
+                self._tty_out.close()
+            except Exception:
+                pass
+            self._tty_out = None
 
         # Re-enable logging to stdout if it was disabled
         try:
@@ -348,6 +378,17 @@ class StoryFormHandler:
         """Check if running in interactive terminal."""
         try:
             interactive, reason = interactive_tty_status()
+            if not interactive:
+                term = os.environ.get("TERM", "<empty>")
+                logger.info(
+                    f"[TUI-DEBUG] TTY check failed: {reason}; stdin={sys.stdin.isatty()} stdout={sys.stdout.isatty()} TERM={term}"
+                )
+                try:
+                    with open("/dev/tty", "rb", buffering=0) as tty_check:
+                        if tty_check.isatty():
+                            return True
+                except Exception:
+                    pass
             self.interactive_reason = reason
             return interactive
         except Exception:
@@ -360,14 +401,21 @@ class StoryFormHandler:
         Returns:
             Key string ('up', 'down', 'left', 'right', or character)
         """
-        ch = sys.stdin.read(1)
+        input_stream = self._tty_in if self._tty_in else sys.stdin
+        ch = input_stream.read(1)
+        if isinstance(ch, bytes):
+            ch = ch.decode(errors="ignore")
         logger.info(f"[TUI-DEBUG] _read_key first char: {repr(ch)}")
 
         if ch == '\x1b':  # Escape sequence
-            next_ch = sys.stdin.read(1)
+            next_ch = input_stream.read(1)
+            if isinstance(next_ch, bytes):
+                next_ch = next_ch.decode(errors="ignore")
             logger.info(f"[TUI-DEBUG] Escape sequence next char: {repr(next_ch)}")
             if next_ch == '[':
-                arrow = sys.stdin.read(1)
+                arrow = input_stream.read(1)
+                if isinstance(arrow, bytes):
+                    arrow = arrow.decode(errors="ignore")
                 logger.info(f"[TUI-DEBUG] CSI arrow char: {repr(arrow)}")
                 if arrow == 'A':
                     return 'up'
@@ -386,9 +434,10 @@ class StoryFormHandler:
         # Works reliably in alternate screen buffer
         # \033[2J = clear entire screen
         # \033[H = move cursor to home (1,1)
-        sys.stdout.write('\033[2J')
-        sys.stdout.write('\033[H')
-        sys.stdout.flush()
+        output_stream = self._tty_out or sys.stdout
+        output_stream.write('\033[2J')
+        output_stream.write('\033[H')
+        output_stream.flush()
 
 
 # Fallback simple form handler for degraded mode
@@ -507,6 +556,12 @@ def get_form_handler() -> StoryFormHandler:
 def _interactive_tty_available() -> bool:
     """Detect if stdin and stdout support interactive TTY."""
     try:
-        return sys.stdin.isatty() and sys.stdout.isatty()
+        if sys.stdin.isatty() and sys.stdout.isatty():
+            return True
+        try:
+            with open("/dev/tty", "rb", buffering=0) as tty_check:
+                return tty_check.isatty()
+        except Exception:
+            return False
     except Exception:
         return False

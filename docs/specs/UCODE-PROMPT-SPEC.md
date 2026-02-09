@@ -1,7 +1,7 @@
 # uCODE Prompt Spec (v1)
 
-**Date:** 2026-02-04  
-**Status:** Implementation-aligned  
+**Date:** 2026-02-04
+**Status:** Implementation-aligned
 **Scope:** uCODE TUI input parsing, command prefixes, shell routing, autocomplete, and auto‑route behavior.
 
 ---
@@ -16,17 +16,17 @@ uCODE must clearly separate **questions** from **commands** while keeping comman
 
 There are three modes, determined by the first non‑whitespace characters.
 
-1. **AI Prompt mode**  
-Prefix: `OK ` or `?`  
-Example: `OK EXPLAIN core/tui/ucode.py`  
+1. **AI Prompt mode**
+Prefix: `OK ` or `?`
+Example: `OK EXPLAIN core/tui/ucode.py`
 Example: `? summarize this file`
 
-2. **Slash mode**  
-Prefix: `/`  
+2. **Slash mode**
+Prefix: `/`
 Example: `/help`
 
-3. **Auto route mode**  
-Default if no prefix matches.  
+3. **Auto route mode**
+Default if no prefix matches.
 Example: `status`
 
 ---
@@ -41,7 +41,7 @@ Example: `status`
 - Otherwise route to **shell**, if shell routing is enabled.
 4. **Auto route mode** if none of the above matches.
 - Route order: **uCODE → shell → AI** (local‑first with optional cloud sanity).
-5. **Command naming restriction:** uCODE commands must **not** start with digits (`0-9`) or `-`/`=`.  
+5. **Command naming restriction:** uCODE commands must **not** start with digits (`0-9`) or `-`/`=`.
    - This reserves numeric‑first input for menu selection (see section 7).
 
 ---
@@ -50,7 +50,7 @@ Example: `status`
 
 Slash commands are resolved against the **uCODE command registry**.
 
-**Rule:**  
+**Rule:**
 If input starts with `/` and the first token equals a known uCODE command, route to uCODE. Otherwise route to shell (if enabled).
 
 ---
@@ -76,15 +76,15 @@ Autocomplete is **dynamic** and context‑aware. It pulls from:
 
 ## 6. Keybindings and UX
 
-1. `Tab`  
+1. `Tab`
    - Cycle forward through suggestions.
-2. `Shift+Tab`  
+2. `Shift+Tab`
    - Cycle backward.
-3. `↑/↓`  
+3. `↑/↓`
    - Navigate history when no suggestion list is active.
-4. `→`  
+4. `→`
    - Accept current suggestion (explicit accept only).
-5. `Esc`  
+5. `Esc`
    - Clear suggestions.
 
 **Autocomplete rules (non‑intrusive):**
@@ -133,7 +133,7 @@ Shell mode is powerful and must be explicit.
 ```text
 OK MAKE svg sandbox:tree.svg
 ```
-Creates an SVG file at `vault/sandbox/tree.svg`.
+Creates an SVG file at `memory/vault/sandbox/tree.svg`.
 
 ```text
 ?SETUP

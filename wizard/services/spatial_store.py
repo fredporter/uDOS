@@ -2,7 +2,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from wizard.services.path_utils import get_repo_root
+from wizard.services.path_utils import get_repo_root, get_vault_dir
 
 SCHEMA_PATH = get_repo_root() / "v1-3" / "core" / "src" / "spatial" / "schema.sql"
 
@@ -19,7 +19,7 @@ def _ensure_spatial_schema(db_path: Path) -> None:
 
 def get_spatial_db_path(create: bool = False) -> Optional[Path]:
     """Locate (or optionally create) the spatial state DB."""
-    vault_root = get_repo_root() / "vault"
+    vault_root = get_vault_dir()
     candidates = [
         vault_root / ".udos" / "state.db",
         vault_root / "05_DATA" / "sqlite" / "udos.db",

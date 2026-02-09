@@ -16,13 +16,13 @@ npm run build
 ## 2. Renderer CLI
 
 ```bash
-node dist/renderer/cli.js --theme prose --vault /path/to/vault --themes /path/to/themes --output /path/to/vault/_site --mission nightly-prose
+node dist/renderer/cli.js --theme prose --vault /path/to/memory/vault --themes /path/to/themes --output /path/to/memory/vault/_site --mission nightly-prose
 ```
 
 Defaults:
-- `VAULT_ROOT` → `../vault`
+- `VAULT_ROOT` → `../memory/vault`
 - `THEMES_ROOT` → `../themes`
-- `OUTPUT_ROOT` → `../vault/_site`
+- `OUTPUT_ROOT` → `../memory/vault/_site`
 - `MISSION_ID` → `renderer-<theme>`
 - `RUNS_ROOT` → `<vault>/06_RUNS`
 
@@ -35,7 +35,7 @@ Expected outputs:
 ## 3. Task Indexer CLI
 
 ```bash
-node dist/tasks/cli.js --vault /path/to/vault --db /path/to/vault/.udos/state.db
+node dist/tasks/cli.js --vault /path/to/memory/vault --db /path/to/memory/vault/.udos/state.db
 ```
 
 Expected outputs:

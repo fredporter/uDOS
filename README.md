@@ -90,7 +90,7 @@ This workspace is optimized for testing, debugging, hardening, patching, and sha
 The `uDOS-Ultimate.code-workspace` defines a multi-root workspace that may include:
 - `uDOS/` — primary repo root (GitHub source of truth)
 - `Wizard/` — Wizard Services / MCP server (if separate)
-- Optional external roots: `vault-md/` (user documentation vault outside repo), `memory/` or `memory/logs/` (local-only dev artefacts)
+- Optional external roots: `memory/` or `memory/logs/` (local-only dev artefacts)
 
 This allows:
 - Explorer tree to match GitHub by default

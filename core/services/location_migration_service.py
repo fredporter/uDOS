@@ -14,13 +14,14 @@ Thresholds (ADR-0004):
 
 import hashlib
 import json
+import os
 import re
 import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-from core.services.logging_api import get_logger
+from core.services.logging_api import get_logger, get_repo_root
 
 logger = get_logger("location_migration")
 
@@ -379,12 +380,12 @@ class LocationMigrator:
         return {"spatial_places_seeded": seeded}
 
     def _get_spatial_db_path(self) -> Optional[Path]:
-        candidates = [
-            Path("vault") / ".udos" / "state.db",
-            Path("vault") / "05_DATA" / "sqlite" / "udos.db",
-        ]
-        root = Path(__file__).parents[2]
-        vault_root = root / "vault"
+        env_vault = os.getenv("VAULT_ROOT")
+        vault_root = (
+            Path(env_vault).expanduser()
+            if env_vault
+            else get_repo_root() / "memory" / "vault"
+        )
         candidates = [
             vault_root / ".udos" / "state.db",
             vault_root / "05_DATA" / "sqlite" / "udos.db",

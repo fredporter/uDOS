@@ -707,7 +707,7 @@ class uCODETUI:
 
             _, warnings = validate_vault_md()
             if warnings:
-                print(self._theme_text("\n  ⚠ Vault-MD checks:"))
+                print(self._theme_text("\n  ⚠ Vault checks:"))
                 for line in warnings:
                     print(self._theme_text(f"     - {line}"))
         except Exception:
@@ -772,8 +772,14 @@ class uCODETUI:
 
     def _show_status_bar(self) -> None:
         """Render status bar line for the current session."""
-        if self.quiet or not sys.stdout.isatty():
+        if self.quiet:
             return
+        output_stream = sys.stdout
+        if not sys.stdout.isatty():
+            try:
+                output_stream = open("/dev/tty", "w", buffering=1)
+            except Exception:
+                return
         try:
             from core.services.user_service import get_user_manager, is_ghost_mode
 
@@ -783,9 +789,16 @@ class uCODETUI:
                 user_role=user_role,
                 ghost_mode=is_ghost_mode(),
             )
-            print(self._theme_text(status_line))
+            output_stream.write(self._theme_text(status_line) + "\n")
+            output_stream.flush()
         except Exception:
             pass
+        finally:
+            if output_stream is not sys.stdout:
+                try:
+                    output_stream.close()
+                except Exception:
+                    pass
 
     def _show_first_run_ai_setup_hint(self) -> None:
         """Show a first-run hint for local AI setup."""
@@ -1487,7 +1500,7 @@ class uCODETUI:
         # Inject dynamic defaults for known setup fields
         import os
         udos_root = os.getenv("UDOS_ROOT") or str(self.repo_root)
-        vault_root = os.getenv("VAULT_ROOT") or str((self.repo_root / "vault-md").resolve())
+        vault_root = os.getenv("VAULT_ROOT") or str((self.repo_root / "memory" / "vault").resolve())
         for field in fields:
             if field.get("name") == "setup_udos_root":
                 if not field.get("default"):
@@ -1504,6 +1517,19 @@ class uCODETUI:
                 env_username = os.getenv("USER_USERNAME")
                 if env_username and not field.get("default"):
                     field["default"] = env_username
+
+        env_udos_root = os.getenv("UDOS_ROOT")
+        env_vault_root = os.getenv("VAULT_ROOT") or os.getenv("VAULT_MD_ROOT")
+        if env_udos_root or env_vault_root:
+            filtered = []
+            for field in fields:
+                name = field.get("name")
+                if name == "setup_udos_root" and env_udos_root:
+                    continue
+                if name == "setup_vault_md_root" and env_vault_root:
+                    continue
+                filtered.append(field)
+            form_spec["fields"] = filtered
 
         handler = get_form_handler()
         result = handler.process_story_form(form_spec)

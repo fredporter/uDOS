@@ -7,8 +7,8 @@ for consistent UX.
 
 Workspaces:
 - memory/sandbox (default workspace)
-- vault-md (user vault data)
-- memory/shared (collaborative space)
+- memory/vault (user vault data)
+- memory/sharing (collaborative space)
 - /knowledge (admin only)
 - memory/wizard (admin only)
 - /dev (admin only)
@@ -126,7 +126,11 @@ class WorkspacePicker:
         knowledge_dir = self.project_root / "knowledge"
         dev_dir = self.project_root / "dev"
         env_vault = os.getenv("VAULT_ROOT")
-        vault_dir = Path(env_vault).expanduser() if env_vault else self.project_root / "vault-md"
+        vault_dir = (
+            Path(env_vault).expanduser()
+            if env_vault
+            else self.project_root / "memory" / "vault"
+        )
 
         workspaces = [
             WorkspaceOption(
@@ -134,14 +138,6 @@ class WorkspacePicker:
                 name="Sandbox",
                 path=memory_dir / "sandbox",
                 description="Personal workspace for experiments and drafts",
-                icon="•",
-                admin_only=False,
-            ),
-            WorkspaceOption(
-                id="bank",
-                name="Bank",
-                path=memory_dir / "bank",
-                description="Legacy bank (use Vault for primary storage)",
                 icon="•",
                 admin_only=False,
             ),
@@ -154,9 +150,41 @@ class WorkspacePicker:
                 admin_only=False,
             ),
             WorkspaceOption(
+                id="inbox",
+                name="Inbox",
+                path=memory_dir / "inbox",
+                description="Intake and imports",
+                icon="•",
+                admin_only=False,
+            ),
+            WorkspaceOption(
+                id="public",
+                name="Public",
+                path=memory_dir / "contributions",
+                description="Public/open/published",
+                icon="•",
+                admin_only=False,
+            ),
+            WorkspaceOption(
+                id="submissions",
+                name="Submissions",
+                path=memory_dir / "submissions",
+                description="Submission intake",
+                icon="•",
+                admin_only=False,
+            ),
+            WorkspaceOption(
+                id="private",
+                name="Private",
+                path=memory_dir / "private",
+                description="Explicit private shares",
+                icon="•",
+                admin_only=False,
+            ),
+            WorkspaceOption(
                 id="shared",
                 name="Shared",
-                path=memory_dir / "shared",
+                path=memory_dir / "sharing",
                 description="Collaborative workspace for shared content",
                 icon="•",
                 admin_only=False,

@@ -491,7 +491,11 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                 output_lines.append(f"⚠️  Failed to remove {profile_path}: {exc}")
 
         if scrub_vault:
-            vault_root = Path(os.getenv("VAULT_ROOT", "")) if os.getenv("VAULT_ROOT") else Path(repo_root) / "vault-md"
+            vault_root = (
+                Path(os.getenv("VAULT_ROOT", "")).expanduser()
+                if os.getenv("VAULT_ROOT")
+                else Path(repo_root) / "memory" / "vault"
+            )
             try:
                 if vault_root.exists():
                     import shutil

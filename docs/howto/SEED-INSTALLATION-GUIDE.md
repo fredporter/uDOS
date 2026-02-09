@@ -8,8 +8,8 @@ updated: 2026-02-06
 
 # Seed Installation & Initialization Guide
 
-**Last Updated:** 2026-02-06  
-**Status:** Complete (v1.3+ seed flows)  
+**Last Updated:** 2026-02-06
+**Status:** Complete (v1.3+ seed flows)
 **Components:** Seed Installer, Bootstrap Handler, TUI Integration
 
 ---
@@ -37,12 +37,12 @@ When you launch uDOS for the first time:
 python uDOS.py
 ```
 
-The system automatically detects missing `vault-md/bank/locations/locations.json` and:
+The system automatically detects missing `memory/bank/locations/locations.json` and:
 
-1. Creates required directory structure (`vault-md/bank/locations/`, `memory/system/help/`, etc.)
-2. Copies `core/framework/seed/locations-seed.json` to `vault-md/bank/locations/locations.json`
+1. Creates required directory structure (`memory/bank/locations/`, `memory/system/help/`, etc.)
+2. Copies `core/framework/seed/locations-seed.json` to `memory/bank/locations/locations.json`
 3. Installs additional seed data (timezones, templates, graphics)
-4. Logs bootstrap progress
+| `ensure_directories()` | Create memory/bank/ + memory/system/ structure |
 
 **Result:** Users can run the TUI immediately without manual setup.
 
@@ -147,9 +147,9 @@ The `bin/install.sh` script now creates seed-ready directory structure:
 ```bash
 setup_user_directory() {
     # ... existing code ...
-    
+
     # Create seed-ready directory structure
-    mkdir -p "$udos_home/vault-md/bank/locations"
+    mkdir -p "$udos_home/memory/bank/locations"
     mkdir -p "$udos_home/memory/system/help"
     mkdir -p "$udos_home/memory/system/templates"
     mkdir -p "$udos_home/memory/system/graphics/diagrams/templates"
@@ -194,7 +194,7 @@ core/framework/seed/
 ### Installation Target
 
 ```
-vault-md/bank/
+memory/bank/
 ├── locations/
 │   ├── locations.json            # Installed from locations-seed.json
 │   └── timezones.json            # Installed from timezones-seed.json
@@ -219,7 +219,7 @@ Location: `core/framework/seed_installer.py`
 | Method | Purpose |
 |--------|---------|
 | `__init__(framework_dir, memory_dir)` | Initialize with paths |
-| `ensure_directories()` | Create vault-md/bank/ + memory/system/ structure |
+| `ensure_directories()` | Create memory/bank/ + memory/system/ structure |
 | `install_locations_seed(force=False)` | Bootstrap locations data |
 | `install_timezones_seed(force=False)` | Bootstrap timezone data |
 | `install_bank_seeds(force=False)` | Copy bank seed files |
@@ -367,7 +367,7 @@ python bin/install-seed.py --force
 
 ```bash
 # Fix permissions
-chmod 755 memory/system vault-md/bank
+chmod 755 memory/system memory/bank
 chmod 755 memory
 
 # Or reinstall as correct user
@@ -417,4 +417,3 @@ Retry _load_from_json()
 ```
 
 ---
-

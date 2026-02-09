@@ -889,7 +889,7 @@ Current status:
         env_vault = os.environ.get("VAULT_ROOT")
         if env_vault:
             return Path(env_vault).expanduser()
-        return repo_root / "vault-md"
+        return repo_root / "memory" / "vault"
 
     def _reset_local_env(self, repo_root: Path) -> list:
         from core.services.config_sync_service import ConfigSyncManager

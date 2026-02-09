@@ -12,7 +12,7 @@ from typing import Optional, Dict, Tuple
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 
-from wizard.services.path_utils import get_memory_dir, get_repo_root
+from wizard.services.path_utils import get_memory_dir, get_repo_root, get_vault_dir
 
 from core.services.story_service import parse_story_document
 
@@ -32,7 +32,7 @@ def _resolve_workspace_root() -> Dict[str, Path]:
     memory_root = get_memory_dir().resolve()
     return {
         "memory": memory_root,
-        "vault-md": (base_root / "vault-md").resolve(),
+        "vault": get_vault_dir().resolve(),
     }
 
 
@@ -70,7 +70,7 @@ def create_workspace_routes(auth_guard=None, prefix="/api/workspace") -> APIRout
                 "memory": "memory",
                 "memory/sandbox": "memory/sandbox",
                 "memory/inbox": "memory/inbox",
-                "vault-md": "vault-md",
+                "vault": "vault",
             },
         }
 
