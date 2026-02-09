@@ -38,7 +38,10 @@ TRANSPORTS_AVAILABLE: Dict[str, bool] = {}
 def _check_transport(name: str) -> bool:
     """Check if a transport module is available."""
     try:
-        importlib.import_module(f".{name}", package=__name__)
+        if name == "audio":
+            importlib.import_module("groovebox.transport.audio")
+        else:
+            importlib.import_module(f".{name}", package=__name__)
         return True
     except ImportError:
         return False
@@ -61,6 +64,8 @@ def get_transport(name: str) -> Optional[Any]:
         TRANSPORTS_AVAILABLE[name] = _check_transport(name)
 
     if TRANSPORTS_AVAILABLE[name]:
+        if name == "audio":
+            return importlib.import_module("groovebox.transport.audio")
         return importlib.import_module(f".{name}", package=__name__)
     return None
 
@@ -100,8 +105,7 @@ except ImportError:
     TRANSPORTS_AVAILABLE["meshcore"] = False
 
 try:
-    from . import audio
-
+    importlib.import_module("groovebox.transport.audio")
     TRANSPORTS_AVAILABLE["audio"] = True
 except ImportError:
     TRANSPORTS_AVAILABLE["audio"] = False

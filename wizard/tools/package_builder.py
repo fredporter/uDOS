@@ -75,7 +75,7 @@ class PackageBuilder:
                 "description": "MML Music Production Extension",
                 "version_module": "groovebox",
                 "sources": [
-                    ("extensions/groovebox", "opt/udos/extensions/groovebox"),
+                    ("groovebox", "opt/udos/extensions/groovebox"),
                 ],
                 "dependencies": ["udos-core"],
                 "exclude": ["__pycache__", "*.pyc", ".git", "tests"],

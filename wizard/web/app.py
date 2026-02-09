@@ -849,7 +849,7 @@ async def health_check():
 # Groovebox Catalog Routes
 # ============================================================================
 
-from wizard.web.routes.catalog import router as catalog_router
+from groovebox.wizard.web.routes.catalog import router as catalog_router
 
 app.include_router(catalog_router)
 

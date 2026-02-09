@@ -48,7 +48,7 @@ def _load_groovebox_module():
         repo_root = Path(__file__).resolve().parents[2]
         if str(repo_root) not in sys.path:
             sys.path.insert(0, str(repo_root))
-        # Try direct import first (if in-repo)
+        # Preferred import: Groovebox submodule engine (if present)
         from groovebox.engine import sequencer, mml_parser, midi_export
         from groovebox.instruments import drum_808
         return type('GrooveboxEngine', (), {
@@ -60,24 +60,23 @@ def _load_groovebox_module():
             'MMLParser': mml_parser.MMLParser,
             'MidiExporter': midi_export.MidiExporter,
         })()
-    except ImportError as exc:
-        # Try extensions path (if loaded from containers)
+    except ImportError:
         try:
-            from extensions.groovebox.engine import sequencer, mml_parser, midi_export
-            from extensions.groovebox.instruments import drum_808
+            # Fallback: Groovebox transport audio engine
+            from groovebox.transport.audio import groovebox as groovebox_engine
             return type('GrooveboxEngine', (), {
-                'sequencer': sequencer,
-                'mml_parser': mml_parser,
-                'midi_export': midi_export,
-                'instruments': type('Instruments', (), {'drum_808': drum_808})(),
-                'Sequencer': sequencer.Sequencer,
-                'MMLParser': mml_parser.MMLParser,
-                'MidiExporter': midi_export.MidiExporter,
+                'engine': groovebox_engine,
+                'ImperialGroovebox': groovebox_engine.ImperialGroovebox,
+                'MMLParser': groovebox_engine.MMLParser,
+                'GrooveConfig': groovebox_engine.GrooveConfig,
+                'SoundBank': groovebox_engine.SoundBank,
+                'Pattern': groovebox_engine.Pattern,
+                'Note': groovebox_engine.Note,
             })()
-        except ImportError as exc2:
+        except ImportError as exc:
             raise RuntimeError(
-                f"Groovebox module not found (direct import failed: {exc})"
-            ) from exc2
+                f"Groovebox module not found (transport audio import failed: {exc})"
+            ) from exc
 
 
 

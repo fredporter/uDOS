@@ -21,13 +21,13 @@ class MusicHandler(BaseCommandHandler):
     def _init_services(self) -> None:
         """Lazy-initialize services."""
         try:
-            from wizard.services.groovebox_service import get_groovebox_service
+            from groovebox.wizard.services.groovebox_service import get_groovebox_service
             self.groovebox_service = get_groovebox_service()
         except (ImportError, Exception):
             pass
 
         try:
-            from wizard.services.songscribe_service import get_songscribe_service
+            from groovebox.wizard.services.songscribe_service import get_songscribe_service
             self.songscribe_service = get_songscribe_service()
         except (ImportError, Exception):
             pass

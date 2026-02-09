@@ -217,11 +217,11 @@ class WizardServer:
         app.include_router(dataset_router)
         from wizard.routes.teletext_routes import router as teletext_router
         app.include_router(teletext_router)
-        from wizard.routes.groovebox_routes import router as groovebox_router
+        from groovebox.wizard.routes.groovebox_routes import router as groovebox_router
         app.include_router(groovebox_router)
         from wizard.routes.songscribe_routes import router as songscribe_router
         app.include_router(songscribe_router)
-        from wizard.routes.songscribe_export_routes import router as songscribe_export_router
+        from groovebox.wizard.routes.songscribe_export_routes import router as songscribe_export_router
         app.include_router(songscribe_export_router)
 
         # Register Extension detection routes

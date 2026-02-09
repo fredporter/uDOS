@@ -7,7 +7,7 @@ from typing import Any, Dict
 from fastapi import APIRouter, HTTPException, Request
 
 from wizard.services.library_manager_service import get_library_manager
-from wizard.services.songscribe_service import get_songscribe_service
+from groovebox.wizard.services.songscribe_service import get_songscribe_service
 
 router = APIRouter(prefix="/api/songscribe", tags=["songscribe"])
 service = get_songscribe_service()
