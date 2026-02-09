@@ -166,6 +166,40 @@ check_python() {
     fi
 }
 
+# Install system dependencies for TUI (Ubuntu/Debian)
+install_system_deps_ubuntu() {
+    info "Checking system dependencies for TUI..."
+
+    local missing_deps=()
+
+    # Check for readline development libraries (required for proper arrow key support)
+    if ! dpkg -l | grep -q libreadline-dev; then
+        missing_deps+=("libreadline-dev")
+    fi
+
+    # Check for ncurses (required for terminal manipulation)
+    if ! dpkg -l | grep -q libncurses5-dev; then
+        missing_deps+=("libncurses5-dev")
+    fi
+
+    if [ ${#missing_deps[@]} -gt 0 ]; then
+        warn "Missing system dependencies: ${missing_deps[*]}"
+        info "Installing system dependencies..."
+        if is_root; then
+            apt-get update -qq
+            apt-get install -y "${missing_deps[@]}"
+            success "System dependencies installed"
+        else
+            warn "Please install system dependencies manually:"
+            echo "  sudo apt-get install ${missing_deps[*]}"
+            return 1
+        fi
+    else
+        success "All system dependencies installed"
+    fi
+    return 0
+}
+
 # Check Node.js (for Tauri)
 check_node() {
     if command -v node &>/dev/null; then
@@ -224,6 +258,13 @@ install_unix() {
     local prefix="$3"
 
     info "Installing for $platform (mode: $mode)..."
+
+    # Install system dependencies for Ubuntu/Debian
+    if [ "$platform" = "linux" ]; then
+        if command -v apt-get &>/dev/null; then
+            install_system_deps_ubuntu || warn "Some system dependencies may be missing"
+        fi
+    fi
 
     # Determine install prefix
     if [ -z "$prefix" ]; then

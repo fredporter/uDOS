@@ -19,14 +19,33 @@ git clone https://github.com/fredporter/uDOS-core.git
 cd uDOS-core
 ```
 
-### 2. Set Up Python Environment
+### 2. Install System Dependencies (Ubuntu/Debian)
+
+For proper TUI arrow key support and terminal handling:
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+sudo apt-get update
+sudo apt-get install -y libreadline-dev libncurses5-dev python3-dev
 ```
 
-### 3. Install Dependencies
+**Why these are needed:**
+- `libreadline-dev` - Provides proper arrow key and readline support for interactive prompts
+- `libncurses5-dev` - Terminal manipulation library for TUI rendering
+- `python3-dev` - Python development headers (sometimes needed for native extensions)
+
+**Other Linux distributions:**
+- Fedora/RHEL: `sudo dnf install readline-devel ncurses-devel python3-devel`
+- Arch: `sudo pacman -S readline ncurses python`
+- Alpine: `apk add readline-dev ncurses-dev python3-dev`
+
+### 3. Set Up Python Environment
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
+
+### 4. Install Python Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -34,9 +53,9 @@ pip install -r requirements.txt
 
 > **IMPORTANT:** `requirements.txt` includes **FastAPI** and **uvicorn** — these are now REQUIRED for the Wizard Server. If you previously ran `pip install` before this update, FastAPI may not be installed. Run `pip install -r requirements.txt` again to ensure all dependencies are present.
 
-> **SmartPrompt:** `prompt_toolkit` (in `requirements.txt`) powers the SmartPrompt enhanced mode. Always launch uDOS through the provided launcher or `python uDOS.py` from a terminal where both stdin and stdout are TTYs so the TAB-based command selector, history keys, and predictor suggestions remain active.
+> **TUI Arrow Keys:** `prompt_toolkit` (in `requirements.txt`) powers the SmartPrompt enhanced mode with arrow key support. Always launch uDOS through the provided launcher or `python uDOS.py` from a terminal where both stdin and stdout are TTYs so the TAB-based command selector, history keys, and predictor suggestions remain active. If arrow keys don't work in Ubuntu, ensure you've installed the system dependencies above (`libreadline-dev`, `libncurses5-dev`).
 
-### 4. Verify Installation
+### 5. Verify Installation
 
 ```bash
 python3 -m pip list | grep -i fastapi

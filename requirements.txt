@@ -57,7 +57,9 @@ python-dotenv>=1.0.0
 tzlocal>=4.0
 pytz>=2023.3
 
-# Interactive CLI with tab completion
+# Interactive CLI with tab completion and arrow key support
+# UBUNTU/DEBIAN USERS: Install system dependencies first:
+#   sudo apt-get install libreadline-dev libncurses5-dev python3-dev
 prompt_toolkit>=3.0.0
 
 # JSON Schema validation (for checklist system)
