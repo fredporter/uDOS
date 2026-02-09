@@ -9,7 +9,7 @@ Offline-first OS layer for knowledge systems, tools, and portable environments.
 **Start here:**
 - **Users/Beginners:** `wiki/Start-Here.md`
 - **Developers:** `docs/README.md`
-- **Release manifest:** `v1.3.12-release-manifest.yml`
+- **Release manifest:** `releases/v1.3.12.yml`
 
 ---
 

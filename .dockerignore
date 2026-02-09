@@ -1,0 +1,56 @@
+# Git
+.git/
+.gitmodules
+
+# CI/CD
+.github/
+
+# Development
+dev/
+docs/
+wiki/
+memory/
+.archive/
+
+# Submodules (built separately)
+app/
+sonic/
+empire/
+groovebox/
+
+# Build artifacts
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+dist/
+*.egg-info/
+.eggs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+venv/
+.venv/
+.venv-mcp/
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentation (not needed in image)
+*.md
+LICENSE*
+CHANGELOG*
