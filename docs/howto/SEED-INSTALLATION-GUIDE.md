@@ -418,23 +418,3 @@ Retry _load_from_json()
 
 ---
 
-## Related Documentation
-
-- [Development Setup](../QUICKSTART.md) — Getting started guide
-- [AGENTS.md](../AGENTS.md) — Development rules and boundaries
-- [Framework README](../../core/framework/README.md) — Framework structure
-- [LocationService](../../core/location_service.py) — Location data management
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| v1.0.0 | 2026-01-30 | Initial seed installer system |
-
----
-
-**Maintainers:** uDOS Engineering  
-**Status:** Production Ready  
-**Last Review:** 2026-01-30

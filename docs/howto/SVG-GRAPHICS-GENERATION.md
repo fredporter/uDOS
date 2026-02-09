@@ -549,7 +549,7 @@ svg = await gen.generate_diagram(
 
 ## See Also
 
-- [Ollama + OpenRouter Setup](OFFLINE-AI-SETUP.md)
+- [Ollama + OpenRouter Setup](OFFLINE-ASSITANT-SETUP.md)
 - [OK Gateway Architecture](../../wizard/services/ok_gateway.py)
 - [Graphics Service Implementation](../../wizard/services/graphics_service.py)
 

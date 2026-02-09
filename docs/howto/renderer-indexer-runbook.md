@@ -1,4 +1,4 @@
-# Renderer + Task Indexer Runbook (v1.3)
+# Renderer + Task Indexer Runbook
 
 Operational checklist for the static renderer, task indexer, and Wizard renderer API lane.
 

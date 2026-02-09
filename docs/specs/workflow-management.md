@@ -311,10 +311,3 @@ Optional:
 
 
 ⸻
-
-What I’d build first (highest leverage)
-	1.	Project + Task schema (with dependencies + cadence)
-	2.	Agent registry + routing policy (rotation + escalation ladder)
-	3.	Binder engine (chapters + source index + incremental updates)
-	4.	Organic scheduler (quota pacing + scoring)
-	5.	VS Code bundle exporter + Dev TUI queue view

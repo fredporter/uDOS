@@ -24,10 +24,10 @@ New to uDOS? Start here:
 ### Getting Started
 - **[Installation](Installation.md)** — Setup guide for all platforms
 - **[Core](Core.md)** — Offline TUI + runtime
-- **[Wizard](Wizard.md)** — Optional LAN/cloud gateway (local‑first)
+- **[Wizard](wiki/Wizard.md)** — Optional LAN/cloud gateway (local‑first)
 
 ### Development
-- **[Dev Tools](Dev.md)** — Development environment and tools
+- **[Dev Tools](Dev-Tools.md)** — Development environment and tools
 - **[TypeScript Runtime](TypeScript-Runtime.md)** — uCode execution engine
 - **[Style Guide](Style-Guide.md)** — Coding and documentation standards
 - **[Self‑Healing](Self-Healing.md)** — Maintenance utilities
@@ -36,7 +36,7 @@ New to uDOS? Start here:
 - **[Architecture](Architecture.md)** — System design overview
 - **[Contributors](Contributors.md)** — How to contribute
 - **[Credits & Inspiration](Credits.md)** — Acknowledgments and influences
-- **[Beacon Portal](Beacon-Architecture-Summary.md)** — Concept (single page)
+- **[Beacon Portal](BEACON.md)** — Concept (single page)
 
 ---
 
