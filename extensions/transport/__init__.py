@@ -39,7 +39,7 @@ def _check_transport(name: str) -> bool:
     """Check if a transport module is available."""
     try:
         if name == "audio":
-            importlib.import_module("groovebox.transport.audio")
+            importlib.import_module("wizard.services.audio_transport")
         else:
             importlib.import_module(f".{name}", package=__name__)
         return True
@@ -65,7 +65,7 @@ def get_transport(name: str) -> Optional[Any]:
 
     if TRANSPORTS_AVAILABLE[name]:
         if name == "audio":
-            return importlib.import_module("groovebox.transport.audio")
+            return importlib.import_module("wizard.services.audio_transport")
         return importlib.import_module(f".{name}", package=__name__)
     return None
 
@@ -105,7 +105,7 @@ except ImportError:
     TRANSPORTS_AVAILABLE["meshcore"] = False
 
 try:
-    importlib.import_module("groovebox.transport.audio")
+    importlib.import_module("wizard.services.audio_transport")
     TRANSPORTS_AVAILABLE["audio"] = True
 except ImportError:
     TRANSPORTS_AVAILABLE["audio"] = False
