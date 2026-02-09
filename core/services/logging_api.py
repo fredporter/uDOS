@@ -114,18 +114,17 @@ def _home_root() -> Path:
 
 
 def _enforce_home_root(candidate: Path) -> Path:
-    home_root = _home_root()
-    if home_root.exists() or os.getenv("UDOS_HOME_ROOT_ENFORCE") == "1":
+    # Only enforce ~/uDOS location if explicitly requested
+    if os.getenv("UDOS_HOME_ROOT_ENFORCE") == "1":
+        home_root = _home_root()
         try:
             resolved = candidate.resolve()
         except FileNotFoundError:
             resolved = candidate
         if not str(resolved).startswith(str(home_root)):
-            if os.getenv("UDOS_HOME_ROOT_ALLOW_OUTSIDE") == "1":
-                return candidate
             raise RuntimeError(
-                "Repo root outside ~/uDOS. Move the repo under ~/uDOS or set "
-                "UDOS_HOME_ROOT_ALLOW_OUTSIDE=1 to bypass."
+                "Repo root outside ~/uDOS. Move the repo under ~/uDOS or "
+                "unset UDOS_HOME_ROOT_ENFORCE to allow other locations."
             )
     return candidate
 
