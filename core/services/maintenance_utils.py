@@ -361,7 +361,7 @@ def default_repo_allowlist() -> List[str]:
         "README.md",
         "AGENTS.md",
         "uDOS.py",
-        "setup.py",
+        "pyproject.toml",
         "LICENSE.txt",
         "package.json",
         "package-lock.json",
