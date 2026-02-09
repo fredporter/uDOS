@@ -1,10 +1,27 @@
 # uDOS Unified Launcher
 
-One entry point for everything: **Launch-uCODE.command**
+One entry point for everything: **Launch-uCODE** (`.command` for macOS, `.sh` for Linux)
 
 ---
 
 ## 🚀 Quick Start
+
+### Platform-Specific Launchers
+
+**macOS:** Double-click `Launch-uCODE.command` or run `./bin/Launch-uCODE.command`
+**Linux:** Run `./bin/Launch-uCODE.sh` (Ubuntu, Alpine, etc.)
+
+Both launchers provide the same functionality with platform-specific optimizations.
+
+### Process Management
+
+```bash
+# Stop all uDOS processes cleanly
+./bin/kill-udos.sh
+
+# Restart after cleanup
+./bin/Launch-uCODE.sh
+```
 
 ### Single Entry Point (macOS)
 

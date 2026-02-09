@@ -978,9 +978,18 @@ class TUIFormRenderer:
                 return 80
 
     def _clamp_output(self, text: str) -> str:
+        """Clamp output to terminal width, only truncating lines that exceed it."""
         cols = self._get_cols()
         lines = (text or "").splitlines()
-        clamped = [truncate_ansi_to_width(line, cols) for line in lines]
+        clamped = []
+        for line in lines:
+            # Only truncate if line actually exceeds terminal width
+            # Use display_width to handle ANSI codes properly
+            from core.utils.text_width import display_width
+            if display_width(line) > cols:
+                clamped.append(truncate_ansi_to_width(line, cols))
+            else:
+                clamped.append(line)
         output = "\n".join(clamped)
         if text.endswith("\n"):
             output += "\n"
@@ -1066,23 +1075,28 @@ class TUIFormRenderer:
 
         # Header
         lines.append("\n" + "=" * header_width)
-        lines.append(truncate_ansi_to_width(f"  {self.title}", header_width))
+        lines.append(f"  {self.title}")
         if self.description:
-            lines.append(truncate_ansi_to_width(f"  {self.description}", header_width))
+            lines.append(f"  {self.description}")
         lines.append("=" * header_width)
 
         # Progress
         current = self.current_field_index + 1
         total = max(1, len(self.fields))
         progress = f"{current}/{total}"
-        lines.append(truncate_ansi_to_width(f"\n  [{progress}] {field['label']}", cols))
+        lines.append(f"\n  [{progress}] {field['label']}")
         lines.append(self._render_progress_bar(current, total))
         lines.extend(self._render_flowchart())
+
+        # Add spacing before field input
+        lines.append("")
 
         # Field
         widget = field['widget']
         if widget:
-            lines.append(widget.render(focused=True))
+            widget_output = widget.render(focused=True)
+            # Ensure proper indentation
+            lines.append(f"  {widget_output}" if not widget_output.startswith(" ") else widget_output)
         else:
             # Simple text input
             lines.append(f"  {field['label']}: [___]")
@@ -1097,11 +1111,12 @@ class TUIFormRenderer:
         width = max(10, min(40, cols - overhead))
         filled = int(round((current / float(total)) * width))
         bar = "=" * filled + "-" * (width - filled)
-        return truncate_ansi_to_width(f"  Progress: [{bar}]", cols)
+        return f"  Progress: [{bar}]"
 
     def _render_flowchart(self) -> List[str]:
         cols = self._get_cols()
-        width = max(24, min(100, cols - 2))
+        # Use a more conservative width to prevent wrapping issues
+        width = max(60, min(cols - 4, 120))
 
         tokens: List[str] = []
         for idx, f in enumerate(self.fields):
@@ -1116,13 +1131,14 @@ class TUIFormRenderer:
             tokens.append(f"[{prefix} {label}]")
 
         lines: List[str] = ["", "  Flow:"]
-        current_line = "  "
+        current_line = "    "  # Start with consistent indent
         connector = " -o-> "
         for i, token in enumerate(tokens):
             piece = token if i == 0 else connector + token
+            # Check if adding this piece would exceed width
             if len(current_line) + len(piece) > width:
                 lines.append(current_line.rstrip())
-                current_line = "  " + token
+                current_line = "    " + token  # Maintain indent on new line
             else:
                 current_line += piece
         if current_line.strip():

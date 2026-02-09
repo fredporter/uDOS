@@ -176,16 +176,34 @@ run_with_log() {
                 term_effective="xterm-256color"
             fi
             # Preserve TTY for interactive UI while capturing output.
-            if [ "$(type -t "$1")" = "function" ]; then
-                local func="$1"
-                shift
-                local cmd="source \"$UDOS_BIN_DIR/udos-common.sh\"; $func"
-                for arg in "$@"; do
-                    cmd+=" $(printf "%q" "$arg")"
-                done
-                TERM="$term_effective" script -q "$log_file" bash -lc "$cmd"
+            # macOS vs Linux script syntax differ:
+            # - macOS: script -q logfile command
+            # - Linux: script -q -c "command" logfile
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                if [ "$(type -t "$1")" = "function" ]; then
+                    local func="$1"
+                    shift
+                    local cmd="source \"$UDOS_BIN_DIR/udos-common.sh\"; $func"
+                    for arg in "$@"; do
+                        cmd+=" $(printf "%q" "$arg")"
+                    done
+                    TERM="$term_effective" script -q "$log_file" bash -lc "$cmd"
+                else
+                    TERM="$term_effective" script -q "$log_file" "$@"
+                fi
             else
-                TERM="$term_effective" script -q "$log_file" "$@"
+                # Linux (util-linux script)
+                if [ "$(type -t "$1")" = "function" ]; then
+                    local func="$1"
+                    shift
+                    local cmd="source \"$UDOS_BIN_DIR/udos-common.sh\"; $func"
+                    for arg in "$@"; do
+                        cmd+=" $(printf "%q" "$arg")"
+                    done
+                    TERM="$term_effective" script -q -c "bash -lc \"$cmd\"" "$log_file"
+                else
+                    TERM="$term_effective" script -q -c "$*" "$log_file"
+                fi
             fi
             return $?
         else

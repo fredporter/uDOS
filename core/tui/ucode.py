@@ -583,6 +583,7 @@ class uCODETUI:
     def run(self) -> None:
         """Start uCODE TUI."""
         self.running = True
+        self._autodetect_environment()
         self._refresh_viewport()
         self._run_startup_script()
         self._show_banner()
@@ -729,6 +730,37 @@ class uCODETUI:
             ViewportService().refresh(source="startup")
         except Exception:
             pass
+
+    def _autodetect_environment(self) -> None:
+        """Auto-detect and persist system info to .env on startup."""
+        try:
+            from core.services.env_autodetect_service import get_autodetect_service
+            service = get_autodetect_service()
+            results = service.detect_all(force=False)
+
+            # Show startup info if not quiet
+            if not self.quiet:
+                if results.get("os_type"):
+                    os_type = results["os_type"]
+                    tz = results.get("timezone", "UTC")
+                    location = results.get("location")
+                    grid_id = results.get("grid_id")
+                    dt = f"{results.get('current_date', '')} {results.get('current_time', '')}".strip()
+
+                    # Only show if values were auto-detected (not already set)
+                    if any("OS_TYPE" in u for u in results.get("updated", [])):
+                        print(f"  🖥️  Detected OS: {os_type}")
+                    if any("UDOS_TIMEZONE" in u for u in results.get("updated", [])):
+                        print(f"  🌍 Timezone: {tz}")
+                    if location and any("UDOS_LOCATION" in u for u in results.get("updated", [])):
+                        display = f"{location} ({grid_id})" if grid_id else location
+                        print(f"  📍 Location: {display}")
+                self.logger.info(f"[AUTO-DETECT] Updated: {', '.join(results['updated'])}")
+            if results.get("errors"):
+                for error in results["errors"]:
+                    self.logger.warning(f"[AUTO-DETECT] {error}")
+        except Exception as e:
+            self.logger.warning(f"[AUTO-DETECT] Environment detection failed: {e}")
 
     def _show_status_bar(self) -> None:
         """Render status bar line for the current session."""

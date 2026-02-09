@@ -319,3 +319,4 @@ hubspot.config.yml
 *.zip
 distribution/releases/
 distribution/build/
+wizard/config/notion_keys.json
