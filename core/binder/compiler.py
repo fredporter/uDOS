@@ -37,7 +37,7 @@ class BinderCompiler:
         repo_root = get_repo_root()
         self.config = config or {}
 
-        vault_root = repo_root / "vault"
+        vault_root = repo_root / "memory" / "vault"
         default_db = vault_root / ".udos" / "binders.db"
         if db_path is None:
             db_path = self.config.get("db_path", default_db)

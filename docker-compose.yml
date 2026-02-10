@@ -1,9 +1,11 @@
-# uDOS Service Stack
+# uDOS Service Stack — Snap-on-off containerised architecture
 # Usage: docker compose up --build
 # Profiles:
-#   docker compose up                    # wizard + ollama (default)
-#   docker compose --profile scheduler up  # + mission scheduler
-#   docker compose --profile all up        # everything
+#   docker compose up                       # wizard + ollama (default)
+#   docker compose --profile scheduler up   # + mission scheduler
+#   docker compose --profile homeassistant up # + home assistant
+#   docker compose --profile groovebox up   # + groovebox/songscribe
+#   docker compose --profile all up         # everything
 
 services:
   wizard:
@@ -12,9 +14,11 @@ services:
     ports:
       - "8765:8765"
     volumes:
-      - ./vault:/vault
+      - ./memory:/memory
+      - ./library:/library
+      - ./knowledge:/knowledge
     environment:
-      - VAULT_ROOT=/vault
+      - VAULT_ROOT=/memory/vault
       - OLLAMA_HOST=http://ollama:11434
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8765/health"]
@@ -49,13 +53,42 @@ services:
     environment:
       - WIZARD_RENDER_URL=http://wizard:8765/api/renderer/render
       - WIZARD_API_BASE=http://wizard:8765
-      - VAULT_ROOT=/vault
+      - VAULT_ROOT=/memory/vault
       - INTERVAL_SECONDS=30
     volumes:
-      - ./vault:/vault
+      - ./memory:/memory
+    depends_on:
+      wizard:
+        condition: service_healthy
+
+  home-assistant:
+    build: ./library/home-assistant
+    restart: unless-stopped
+    profiles:
+      - homeassistant
+      - all
+    ports:
+      - "8123:8123"
+    volumes:
+      - ha_config:/config
+    depends_on:
+      wizard:
+        condition: service_healthy
+
+  groovebox:
+    build:
+      context: ./library/songscribe
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    profiles:
+      - groovebox
+      - all
+    volumes:
+      - ./memory:/memory
     depends_on:
       wizard:
         condition: service_healthy
 
 volumes:
   ollama_data:
+  ha_config:

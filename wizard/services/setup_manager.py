@@ -16,7 +16,7 @@ from wizard.services.path_utils import get_repo_root, get_memory_dir
 from core.locations import LocationService
 from wizard.services.setup_state import setup_state
 from wizard.services.setup_profiles import load_user_profile, load_install_profile
-from services.integration_registry import get_wizard_required_variables
+from core.services.integration_registry import get_wizard_required_variables
 
 
 def validate_database_paths() -> Dict[str, Any]:

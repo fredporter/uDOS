@@ -280,15 +280,15 @@ class GridRenderer:
             self._emoji_set = set()
 
     def _find_repo_root(self) -> Optional[Path]:
-        """Locate repo root by searching for vendor/emoji."""
+        """Locate repo root by searching for fonts/emoji."""
         current = Path(__file__).resolve()
         for parent in [current] + list(current.parents):
-            candidate = parent / "vendor" / "emoji" / "github-emoji-shortcodes.json"
+            candidate = parent / "fonts" / "emoji" / "github-emoji-shortcodes.json"
             if candidate.exists():
                 return parent
         cwd = Path.cwd()
         for parent in [cwd] + list(cwd.parents):
-            candidate = parent / "vendor" / "emoji" / "github-emoji-shortcodes.json"
+            candidate = parent / "fonts" / "emoji" / "github-emoji-shortcodes.json"
             if candidate.exists():
                 return parent
         return None

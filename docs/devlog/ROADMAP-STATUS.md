@@ -78,7 +78,33 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
 
 ---
 
-## Pre-v1.4 (Planned)
+## v1.4.0 — Repo Restructure & Containerisation
+
+### P0 — Repo Restructure (Complete)
+- [x] Root cleanup: removed 13 ephemeral debug/fix files
+- [x] Wizard consolidation: merged `api/wizard/`, `mcp/wizard/`, `core/wizard/` into `wizard/`
+- [x] Removed compatibility shims (`services/` → direct `core.services` imports)
+- [x] Workspace filesystem: deprecated root `vault/` in favour of `memory/vault/`
+- [x] Added `memory/inbox/`, `memory/submissions/` workspaces
+- [x] Fixed vault path references in binder manager, compiler, server
+- [x] Moved `vendor/emoji/` → `fonts/emoji/`
+- [x] Removed stub dirs: `commands/`, `input/`, `tui/`, `tauri-ui/`, `vault-md/`, `web-portal/`
+- [x] Distribution consolidation: merged `wizard/distribution/` → `distribution/`
+- [x] Library cleanup: removed empty `library/containers/`, `library/packages/`
+- [x] Docker compose updated: snap-on-off profiles (wizard, ollama, scheduler, home-assistant, groovebox)
+- [x] App submodule: archived Tauri v1, scaffolded Xcode/SwiftUI Obsidian Companion
+
+### P0 — Workspace Filesystem (@workspace)
+- [x] Scaffold all workspace dirs under `memory/`
+- [ ] Wire `@workspace` syntax in Core TUI (WORKSPACE, TAG, LOCATION, BINDER commands)
+- [ ] Implement workspace switching in file pickers and readers
+- [ ] Update Wizard routes to use workspace-aware vault paths
+
+### P1 — Containerisation
+- [ ] Sonic Screwdriver Dockerfile (ISO/USB builder)
+- [ ] Songscribe/Groovebox Dockerfile
+- [ ] Verify all `docker compose --profile` combinations work
+- [ ] Library manager: `LIBRARY sync` and `LIBRARY status` commands
 
 ### P2 — Code Quality & Modularization
 - [ ] Review long route factory functions for modularization opportunities:
@@ -88,7 +114,13 @@ Archived sources live in `docs/.archive/2026-02-06-roadmap-merge/`.
   - `core/commands/destroy_handler.py` (~1000 lines)
   - `core/commands/setup_handler.py` (~730 lines)
 - [ ] Consider splitting nested route handlers into separate modules.
-- [ ] Evaluate helper extraction patterns for repeated code blocks.
+
+### Development Streams
+- **Wizard:** `wizard/docs/ROADMAP.md`
+- **Sonic:** `sonic/docs/roadmap.md`
+- **Empire:** `empire/docs/empire-roadmap.md`
+- **Groovebox:** `groovebox/docs/ROADMAP.md`
+- **App:** `app/docs/ROADMAP.md`
 
 ---
 

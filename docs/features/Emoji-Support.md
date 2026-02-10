@@ -73,7 +73,7 @@ export interface EmojiReference {
 ```ts
 // src/emoji/index.ts
 
-import emojiData from "../../vendor/emoji/github-emoji-shortcodes.json";
+import emojiData from "../../fonts/emoji/github-emoji-shortcodes.json";
 import type { EmojiReference, EmojiShortcode } from "./types";
 
 const reference = emojiData as EmojiReference;

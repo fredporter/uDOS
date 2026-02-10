@@ -26,7 +26,7 @@ from wizard.services.ollama_service import (
     start_pull,
     get_popular_models,
 )
-from services.integration_registry import get_provider_definitions
+from core.services.integration_registry import get_provider_definitions
 
 
 def create_provider_routes(auth_guard=None):

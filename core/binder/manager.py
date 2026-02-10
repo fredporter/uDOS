@@ -40,14 +40,14 @@ class BinderManager:
 
     def __init__(self, repo_root: Optional[Path] = None):
         self.repo_root = repo_root or get_repo_root()
-        vault_root = self.repo_root / "vault"
+        vault_root = self.repo_root / "memory" / "vault"
         self.sandbox_root = vault_root / "sandbox" / "binders"
         self.workspace_root = vault_root / "bank" / "binders"
         self.sandbox_root.mkdir(parents=True, exist_ok=True)
         self.workspace_root.mkdir(parents=True, exist_ok=True)
 
     def get_workspace_dir(self, workspace: BinderWorkspace) -> Path:
-        vault_root = self.repo_root / "vault"
+        vault_root = self.repo_root / "memory" / "vault"
         if workspace == BinderWorkspace.SANDBOX:
             return self.sandbox_root
         if workspace == BinderWorkspace.PUBLIC:

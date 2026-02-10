@@ -1,6 +1,6 @@
 # uDOS Wizard Server - Multi-stage Docker build
 # Build: docker build -t udos-wizard .
-# Run:   docker run -p 8765:8765 -v ./vault:/vault udos-wizard
+# Run:   docker run -p 8765:8765 -v ./memory:/memory udos-wizard
 
 # Stage 1: Build dependencies
 FROM python:3.11-slim AS builder
@@ -48,11 +48,11 @@ COPY extensions/ ./extensions/
 COPY knowledge/ ./knowledge/
 COPY version.json ./
 
-# Create vault mount point
-RUN mkdir -p /vault && chown udos:udos /vault
+# Create mount points
+RUN mkdir -p /memory /library && chown udos:udos /memory /library
 
 # Set default environment
-ENV VAULT_ROOT=/vault
+ENV VAULT_ROOT=/memory/vault
 ENV WIZARD_HOST=0.0.0.0
 ENV WIZARD_PORT=8765
 

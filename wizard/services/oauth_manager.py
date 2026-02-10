@@ -34,7 +34,7 @@ from enum import Enum
 from urllib.parse import urlencode, parse_qs, urlparse
 
 from wizard.services.logging_api import get_logger
-from services.integration_registry import get_oauth_provider_definitions
+from core.services.integration_registry import get_oauth_provider_definitions
 
 logger = get_logger("oauth-manager")
 

@@ -29,7 +29,7 @@ from wizard.services.secret_store import (
     SecretEntry,
     SecretStoreError,
 )
-from services.integration_registry import get_assistant_config_key_map
+from core.services.integration_registry import get_assistant_config_key_map
 
 
 def _write_env_var(env_path: Path, key: str, value: str) -> None:

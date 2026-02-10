@@ -1,0 +1,1 @@
+"""Wizard MCP server gateway."""

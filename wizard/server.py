@@ -495,7 +495,7 @@ class WizardServer:
         from fastapi.responses import FileResponse, HTMLResponse
 
         dashboard_path = Path(__file__).parent / "dashboard" / "dist"
-        site_root = REPO_ROOT / "vault" / "_site"
+        site_root = REPO_ROOT / "memory" / "vault" / "_site"
         if site_root.exists():
             app.mount(
                 "/_site",

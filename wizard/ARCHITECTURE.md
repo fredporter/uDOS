@@ -51,8 +51,6 @@ wizard/
 │   ├── vscode_bridge.py       # VS Code extension bridge
 │   ├── mistral_vibe.py        # Vibe CLI context/log analysis
 │   ├── block_mapper.py        # Markdown mapping helpers
-│   ├── (core) binder/compiler.py # Binder compilation (md/json/pdf/brief)
-│   ├── sync_executor.py       # Sync queue processing to local mirrors
 │   ├── sync_executor.py       # Sync queue processing to local mirrors
 │   ├── task_scheduler.py      # Organic cron scheduling
 │   ├── workflow_manager.py    # Local project/task management
@@ -60,17 +58,28 @@ wizard/
 ├── routes/
 │   ├── ai_routes.py           # /api/ai/* routes
 │   ├── binder_routes.py       # /api/binder/* routes
+│   ├── config_routes.py       # /api/config/* routes
 │   ├── dev_routes.py          # /api/dev/* routes (Dev Mode control)
 │   ├── github_routes.py       # /api/github/* routes
+│   ├── provider_routes.py     # /api/provider/* routes
 │   └── notification_history_routes.py
+├── mcp/                       # MCP server gateway (AI ↔ Wizard bridge)
+│   ├── gateway.py
+│   ├── mcp_server.py
+│   └── server.py
 ├── providers/                 # Assistant provider integrations
-├── distribution/              # Plugin packages (served via /api/plugin/*)
-├── docs/                      # INTERACTIVE-CONSOLE.md, PORT-MANAGER.md
+├── docs/                      # INTERACTIVE-CONSOLE.md, PORT-MANAGER.md, api/
+│   └── api/                   # API specification docs (consolidated from api/wizard/)
+├── web/
+│   ├── portal/                # Off-web portal (consolidated from web-portal/)
+│   └── modules/               # Composable Svelte UI modules
 ├── extensions/                # Wizard-only feature packs
 ├── tools/                     # Utilities (e.g., port-manager CLI wrapper)
 ├── tests/
 └── version.json
 ```
+
+> **Note:** Plugin distribution packages are now served from the repo-level `distribution/` directory (consolidated from `wizard/distribution/`). Vault content lives at `memory/vault/`.
 
 ---
 
@@ -78,7 +87,7 @@ wizard/
 
 - Assistant routing gateway (local-first, policy-controlled cloud burst)
 - Dev Mode management (activate/deactivate Goblin dev server via `/api/dev/*`)
-- Plugin repository distribution (from `distribution/plugins`)
+- Plugin repository distribution (from repo-level `distribution/`)
 - Web proxy (stubbed, validated; disabled if toggled off)
 - Gmail relay (Wizard-only)
 - GitHub integration (CLI ops, issue/PR management, sync, devlog/roadmap context)
@@ -90,19 +99,19 @@ wizard/
 - Sync queue processing for local mirrors
 - Task scheduling (organic cron under Wizard memory)
 - Workflow management (local projects/tasks)
- - Workflow management (local projects/tasks)
+- MCP server gateway (AI ↔ Wizard tool bridge)
 
 Not in Wizard: TUI command handlers, core business logic, runtime execution (lives in Core/Goblin/App as appropriate).
 
 ## 📜 MD → HTML + Theme Pack Pipeline
 
-- Wizard owns the renderer service that turns Markdown provenance (`vault/`) into static HTML snapshots under `_site/<theme>` by following the Theme Pack contract (`../docs/Theme-Pack-Contract.md`) and the universal component guidance (`../docs/Universal-Components-Contract.md`).
+- Wizard owns the renderer service that turns Markdown provenance (`memory/vault/`) into static HTML snapshots under `_site/<theme>` by following the Theme Pack contract (`../docs/Theme-Pack-Contract.md`) and the universal component guidance (`../docs/Universal-Components-Contract.md`).
 - The renderer service must treat exported slots/data as simple objects (HTML strings + metadata) so it can satisfy both Wizard’s static portal (`wizard/portal-static/`) and any SvelteKit preview components. Refer to `wizard/docs/renderer-ui-standards.md` for the implementation boundary.
 - Theme metadata feeds the portal UI, mission reports, and export status endpoints so every lane (portal, CLI, Vibe) agrees on typography tokens (`../docs/CSS-Tokens.md`) and slot names.
 
 ## 🎨 Svelte UI Modules
 
-- The Wizard portal UI and admin console are built as composable Svelte modules (see `web-admin/` for the control plane and the `wizard/web/` bundle for portal-specific widgets). Both should consume the shared slots, theme metadata, and missions schema from the TS core so the static publishing lane doesn’t diverge from the interactive admin lane.
+- The Wizard portal UI and admin console are built as composable Svelte modules (see `web-admin/` for the control plane and `wizard/web/modules/` for portal-specific widgets). Both should consume the shared slots, theme metadata, and missions schema from the TS core so the static publishing lane doesn’t diverge from the interactive admin lane.
 - Svelte modules live under `wizard/web/modules/` (create as needed) and export isolated components such as `ThemePicker`, `MissionQueue`, `ContributionReview`, and `PortalPreview`. These modules can be imported by both the portal static SPA and the SvelteKit admin UI (`web-admin/`) because they only rely on universal HTML/data contracts.
 - Any new UI module must document its surface contract in `wizard/docs/renderer-ui-standards.md` so that both the MD→HTML pipeline and the interactive Svelte surfaces stay aligned without requiring a framework change.
 
@@ -193,4 +202,4 @@ curl -X POST http://localhost:8765/api/dev/activate
 
 ---
 
-_Updated: 2026-01-22_
+_Updated: 2026-02-10 — v1.4.0 restructure: wizard consolidation, MCP gateway, distribution moved to repo root, vault → memory/vault_
