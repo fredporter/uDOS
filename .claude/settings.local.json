@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for:*)",
+      "Bash(python3:*)",
+      "Bash(ls:*)",
+      "Bash(do touch \"$dir/.gitkeep\")",
+      "Bash(done)",
+      "Bash(git submodule status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
