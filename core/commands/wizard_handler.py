@@ -60,6 +60,10 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             return self._start_wizard()
         elif action in {"stop", "--stop"}:
             return self._stop_wizard()
+        elif action in {"kill", "--kill"}:
+            return self._kill_wizard()
+        elif action in {"restart", "--restart"}:
+            return self._restart_wizard()
         elif action in {"status", "--status"}:
             return self._wizard_status()
         elif action in {"reset", "--reset"}:
@@ -148,7 +152,9 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             [
                 OutputToolkit.banner("WIZARD"),
                 "WIZARD START      Start Wizard server",
-                "WIZARD STOP       Stop Wizard server",
+                "WIZARD STOP       Stop Wizard server (graceful)",
+                "WIZARD KILL       Force kill Wizard process (port conflict fix)",
+                "WIZARD RESTART    Kill and restart Wizard",
                 "WIZARD STATUS     Check Wizard server status",
                 "WIZARD RESET      Wipe Wizard keystore + admin token (destructive)",
                 "  --wipe-profile  Also delete memory/user/profile.json",
@@ -223,11 +229,13 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                 cwd=str(repo_root),
             )
 
-            # Wait for server to be ready (max 10 seconds)
+            # Wait for server to be ready (max 60 seconds with better feedback)
             stop = threading.Event()
             spinner = Spinner(label="Waiting for Wizard", show_elapsed=True)
             thread = spinner.start_background(stop)
-            for attempt in range(20):
+
+            max_attempts = 120  # 120 * 0.5s = 60 seconds
+            for attempt in range(max_attempts):
                 try:
                     resp = requests.get(f"{base_url}/health", timeout=1)
                     if resp.status_code == 200:
@@ -246,7 +254,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                     pass
                 time.sleep(0.5)
 
-            # Timeout
+            # Timeout after 60 seconds
             stop.set()
             thread.join(timeout=1)
             spinner.stop("Wizard start timed out")
@@ -258,17 +266,75 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                 sock.close()
             except Exception:
                 pass
+
             if port_in_use:
-                output_lines.append(
-                    f"⚠️  Port {port} is in use or Wizard is still booting. "
-                    "Check logs or stop the existing process."
-                )
+                # Port occupied - offer self-healing options
+                from wizard.services.port_manager import get_port_manager
+                pm = get_port_manager()
+                occupant = pm.get_port_occupant(port)
+
+                if occupant:
+                    output_lines.append(
+                        f"⚠️  Port {port} occupied by PID {occupant.get('pid')} ({occupant.get('process')})"
+                    )
+                    output_lines.append("")
+                    output_lines.append("Self-heal options:")
+                    output_lines.append(f"  • WIZARD KILL     — Kill existing process")
+                    output_lines.append(f"  • WIZARD RESTART  — Kill and restart Wizard")
+                    output_lines.append("")
+                    output_lines.append("Or manually: lsof -i :{} | kill -9 <PID>".format(port))
+                else:
+                    output_lines.append(
+                        f"⚠️  Port {port} is in use or Wizard is still booting. "
+                        "Check logs or stop the existing process."
+                    )
             else:
-                output_lines.append("⚠️  Wizard Server started but slow to respond (check logs)")
-            return {
-                "status": "success",
-                "output": "\n".join(output_lines),
-            }
+                # Port is free but health check timed out - check once more
+                try:
+                    resp = requests.get(f"{base_url}/health", timeout=2)
+                    if resp.status_code == 200:
+                        output_lines.append("✅ Wizard Server is now responding")
+                        output_lines.append(f"📍 Server: {base_url}")
+                        output_lines.append(f"📍 Dashboard: {dashboard_url}")
+                        self._maybe_open_dashboard(output_lines)
+                        return {
+                            "status": "success",
+                            "output": "\n".join(output_lines),
+                        }
+                except requests.exceptions.RequestException:
+                    pass
+
+                # Still not responding - show diagnostics and offer browser anyway
+                output_lines.append("⚠️  Wizard Server started but slow to respond")
+                output_lines.append("")
+                output_lines.append("Debugging:")
+
+                # Try to show recent logs
+                try:
+                    repo_root = get_repo_root()
+                    log_file = repo_root / "memory" / "logs" / "wizard-server.log"
+                    if log_file.exists():
+                        tail_result = subprocess.run(
+                            ["tail", "-20", str(log_file)],
+                            capture_output=True,
+                            text=True,
+                            timeout=2
+                        )
+                        if tail_result.stdout.strip():
+                            output_lines.append("  Recent logs:")
+                            for line in tail_result.stdout.strip().split("\n"):
+                                output_lines.append(f"    {line}")
+                except Exception:
+                    pass
+
+                output_lines.append("")
+                output_lines.append("Options:")
+                output_lines.append(f"  • View live: tail -f memory/logs/wizard-server.log")
+                output_lines.append(f"  • Restart: WIZARD RESTART")
+                output_lines.append(f"  • Manual: python -m wizard.server --debug")
+
+                # Still offer to open browser
+                self._maybe_open_dashboard(output_lines)
 
         except Exception as exc:
             logger.error(f"[LOCAL] Failed to start Wizard: {exc}")
@@ -299,6 +365,123 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
     def _stop_wizard(self) -> Dict:
         """Stop Wizard server."""
+        import subprocess
+        import requests
+
+        banner = OutputToolkit.banner("WIZARD STOP")
+        output_lines = [banner, ""]
+
+        try:
+            # Kill wizard processes
+            subprocess.run(
+                ["pkill", "-f", "wizard\\.server"],
+                capture_output=True,
+                timeout=5,
+            )
+            output_lines.append("Stopping Wizard Server...")
+            import time
+            stop = threading.Event()
+            spinner = Spinner(label="Stopping Wizard", show_elapsed=False)
+            thread = spinner.start_background(stop)
+            time.sleep(1)
+            stop.set()
+            thread.join(timeout=1)
+            spinner.stop("Wizard stop complete")
+
+            # Verify stopped
+            try:
+                resp = requests.get("http://127.0.0.1:8765/health", timeout=1)
+                if resp.status_code == 200:
+                    output_lines.append("⚠️  Wizard still responding after stop")
+                else:
+                    output_lines.append("✅ Wizard stopped")
+            except requests.exceptions.ConnectionError:
+                output_lines.append("✅ Wizard stopped")
+
+            return {"status": "success", "output": "\n".join(output_lines)}
+        except Exception as exc:
+            logger.error(f"[LOCAL] Failed to stop Wizard: {exc}")
+            return {
+                "status": "error",
+                "message": str(exc),
+                "output": "\n".join(output_lines) + f"\n❌ Error: {exc}",
+            }
+
+    def _kill_wizard(self) -> Dict:
+        """Force kill Wizard server using port manager."""
+        banner = OutputToolkit.banner("WIZARD KILL")
+        output_lines = [banner, ""]
+
+        try:
+            from wizard.services.port_manager import get_port_manager
+            pm = get_port_manager()
+
+            host, port = self._wizard_host_port()
+            occupant = pm.get_port_occupant(port)
+
+            if not occupant:
+                output_lines.append(f"✅ Port {port} is free (Wizard not running)")
+                return {"status": "success", "output": "\n".join(output_lines)}
+
+            pid = occupant.get("pid")
+            process = occupant.get("process")
+
+            output_lines.append(f"Found process on port {port}: PID {pid} ({process})")
+
+            success = pm.kill_service("wizard")
+
+            if success:
+                output_lines.append(f"✅ Killed process {pid}")
+            else:
+                output_lines.append(f"❌ Failed to kill process {pid}")
+                return {
+                    "status": "error",
+                    "message": f"Failed to kill PID {pid}",
+                    "output": "\n".join(output_lines),
+                }
+
+            return {"status": "success", "output": "\n".join(output_lines)}
+
+        except Exception as exc:
+            logger.error(f"[LOCAL] Failed to kill Wizard: {exc}")
+            return {
+                "status": "error",
+                "message": str(exc),
+                "output": "\n".join(output_lines) + f"\n❌ Error: {exc}",
+            }
+
+    def _restart_wizard(self) -> Dict:
+        """Kill and restart Wizard server."""
+        banner = OutputToolkit.banner("WIZARD RESTART")
+        output_lines = [banner, ""]
+
+        # Kill first
+        kill_result = self._kill_wizard()
+        if kill_result["status"] == "error":
+            return {
+                "status": "error",
+                "message": "Failed to kill existing Wizard process",
+                "output": "\n".join(output_lines) + "\n" + kill_result["output"],
+            }
+
+        output_lines.extend(kill_result["output"].split("\n")[2:])  # Skip banner
+        output_lines.append("")
+
+        # Brief pause
+        import time
+        time.sleep(1)
+
+        # Start
+        start_result = self._start_wizard()
+        output_lines.extend(start_result["output"].split("\n")[2:])  # Skip banner
+
+        return {
+            "status": start_result["status"],
+            "output": "\n".join(output_lines),
+        }
+
+    def _stop_wizard_old(self) -> Dict:
+        """Stop Wizard server (old method)."""
         import subprocess
         import requests
 

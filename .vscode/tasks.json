@@ -434,6 +434,180 @@
 			"label": "Final Commit",
 			"type": "shell",
 			"command": "cp /tmp/form_fields_recovered.py core/tui/form_fields.py && cp /tmp/story_form_handler_recovered.py core/tui/story_form_handler.py && cp /tmp/index_recovered.ts core/grid-runtime/src/index.ts && git add -A && git commit -m 'feat: enhance TUI form rendering' && git push"
+		},
+		{
+			"label": "Commit with Rebase",
+			"type": "shell",
+			"command": "cp /tmp/form_fields_recovered.py core/tui/form_fields.py && cp /tmp/story_form_handler_recovered.py core/tui/story_form_handler.py && cp /tmp/index_recovered.ts core/grid-runtime/src/index.ts && git add core/tui/form_fields.py core/tui/story_form_handler.py core/grid-runtime/src/index.ts && git commit -m 'feat: enhance TUI forms' && git pull --rebase && git push"
+		},
+		{
+			"label": "Restore Files Check",
+			"type": "shell",
+			"command": "cp /tmp/form_fields_recovered.py core/tui/form_fields.py && cp /tmp/story_form_handler_recovered.py core/tui/story_form_handler.py && cp /tmp/index_recovered.ts core/grid-runtime/src/index.ts && ls -lh core/tui/form_fields.py core/tui/story_form_handler.py core/grid-runtime/src/index.ts"
+		},
+		{
+			"label": "Commit and Push",
+			"type": "shell",
+			"command": "git add core/tui/form_fields.py core/tui/story_form_handler.py core/grid-runtime/src/index.ts; git commit -m 'feat: enhance TUI form rendering'; git push"
+		},
+		{
+			"label": "Pull and Push",
+			"type": "shell",
+			"command": "git pull && git push"
+		},
+		{
+			"label": "Configure and Push",
+			"type": "shell",
+			"command": "git config pull.rebase false && git pull --no-edit && git push"
+		},
+		{
+			"label": "Pull and Push Again",
+			"type": "shell",
+			"command": "git pull && git push"
+		},
+		{
+			"label": "Final Push",
+			"type": "shell",
+			"command": "git push"
+		},
+		{
+			"label": "Stash TUI Styling",
+			"type": "shell",
+			"command": "git stash push -m \"tui form styling stash\" core/tui/form_fields.py core/tui/story_form_handler.py"
+		},
+		{
+			"label": "Stash TUI Styling Snapshot",
+			"type": "shell",
+			"command": "mkdir -p .stash-tui && cp core/tui/form_fields.py .stash-tui/form_fields.py && cp core/tui/story_form_handler.py .stash-tui/story_form_handler.py && git stash push -m \"tui form styling snapshot\" --include-untracked .stash-tui/form_fields.py .stash-tui/story_form_handler.py"
+		},
+		{
+			"label": "Pull Remote Changes",
+			"type": "shell",
+			"command": "git pull --no-edit"
+		},
+		{
+			"label": "Compare TUI Styling Snapshot",
+			"type": "shell",
+			"command": "git show stash@{0}:.stash-tui/form_fields.py > /tmp/form_fields_stash.py && git show stash@{0}:.stash-tui/story_form_handler.py > /tmp/story_form_handler_stash.py && diff -u /tmp/form_fields_stash.py core/tui/form_fields.py | head -40 && echo \"---\" && diff -u /tmp/story_form_handler_stash.py core/tui/story_form_handler.py | head -40"
+		},
+		{
+			"label": "List Stashes",
+			"type": "shell",
+			"command": "git stash list"
+		},
+		{
+			"label": "Compare TUI Styling Snapshot (Retry)",
+			"type": "shell",
+			"command": "git show \"stash@{0}:.stash-tui/form_fields.py\" > /tmp/form_fields_stash.py && git show \"stash@{0}:.stash-tui/story_form_handler.py\" > /tmp/story_form_handler_stash.py && diff -u /tmp/form_fields_stash.py core/tui/form_fields.py | head -40 && echo \"---\" && diff -u /tmp/story_form_handler_stash.py core/tui/story_form_handler.py | head -40"
+		},
+		{
+			"label": "Compare TUI Styling Snapshot (Ref)",
+			"type": "shell",
+			"command": "stashref=$(git stash list | head -1 | cut -d: -f1) && git show \"$stashref:.stash-tui/form_fields.py\" > /tmp/form_fields_stash.py && git show \"$stashref:.stash-tui/story_form_handler.py\" > /tmp/story_form_handler_stash.py && diff -u /tmp/form_fields_stash.py core/tui/form_fields.py | head -40 && echo \"---\" && diff -u /tmp/story_form_handler_stash.py core/tui/story_form_handler.py | head -40"
+		},
+		{
+			"label": "Echo Test",
+			"type": "shell",
+			"command": "echo test"
+		},
+		{
+			"label": "Show Stash File",
+			"type": "shell",
+			"command": "git show \"stash@{0}:.stash-tui/form_fields.py\" | head -5"
+		},
+		{
+			"label": "Inspect Stash",
+			"type": "shell",
+			"command": "git stash show -p stash@{0} | head -40"
+		},
+		{
+			"label": "Pull Remote Latest",
+			"type": "shell",
+			"command": "git pull --no-edit"
+		},
+		{
+			"label": "Show Head and Origin",
+			"type": "shell",
+			"command": "git log -1 --oneline && git log -1 --oneline origin/main"
+		},
+		{
+			"label": "Tail Logs",
+			"type": "shell",
+			"command": "printf 'TAIL LOGS\\n' | ./bin/vibe"
+		},
+		{
+			"label": "Locate Wizard Logs",
+			"type": "shell",
+			"command": "ls -la wizard/logs 2>/dev/null || ls -la logs 2>/dev/null || find . -maxdepth 3 -type d -name '*log*' | head -20"
+		},
+		{
+			"label": "Tail Memory Logs",
+			"type": "shell",
+			"command": "ls -lt memory/logs | head -10 && echo '---' && tail -n 200 memory/logs/*.log 2>/dev/null | tail -n 200"
+		},
+		{
+			"label": "List Wizard Log Files",
+			"type": "shell",
+			"command": "ls -lt memory/logs | head -30"
+		},
+		{
+			"label": "Run Wizard Server Direct",
+			"type": "shell",
+			"command": "/home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 9000"
+		},
+		{
+			"label": "Run Wizard Server Direct (Check)",
+			"type": "shell",
+			"command": "/home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 9000",
+			"isBackground": true
+		},
+		{
+			"label": "Run Wizard Server Direct (Check 2)",
+			"type": "shell",
+			"command": "/home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 9000",
+			"isBackground": true
+		},
+		{
+			"label": "Run Wizard Server Direct (Check 3)",
+			"type": "shell",
+			"command": "/home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 9000",
+			"isBackground": true
+		},
+		{
+			"label": "Wizard Server Error Output",
+			"type": "shell",
+			"command": "PYTHONUNBUFFERED=1 /home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 9000 2>&1 | head -200"
+		},
+		{
+			"label": "Wizard Server Full Error",
+			"type": "shell",
+			"command": "PYTHONUNBUFFERED=1 /home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 9000 2>&1"
+		},
+		{
+			"label": "Check FastAPI",
+			"type": "shell",
+			"command": "/home/wizard/Code/uDOS/.venv/bin/python -c \"import fastapi,uvicorn; print('ok')\""
+		},
+		{
+			"label": "Check Port 9000",
+			"type": "shell",
+			"command": "ss -ltnp | grep ':9000' || echo 'port 9000 free'"
+		},
+		{
+			"label": "Check Port 8765",
+			"type": "shell",
+			"command": "ss -ltnp | grep ':8765' || echo 'port 8765 free'"
+		},
+		{
+			"label": "Run Wizard Server 8765",
+			"type": "shell",
+			"command": "PYTHONUNBUFFERED=1 /home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 8765",
+			"isBackground": true
+		},
+		{
+			"label": "Check Working Tree",
+			"type": "shell",
+			"command": "git status --short"
 		}
 	],
 	"inputs": [

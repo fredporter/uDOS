@@ -8,10 +8,6 @@ source "$SCRIPT_DIR/udos-common.sh"
 
 parse_common_flags "$@"
 
-# Force status bar display (bottom bar) in TUI sessions
-if [ -z "$UDOS_TUI_FORCE_STATUS" ]; then
-    export UDOS_TUI_FORCE_STATUS=1
-fi
 
 component="${1:-core}"
 mode="${2:-}"
@@ -44,10 +40,6 @@ if [ -z "$mode" ]; then
     esac
 fi
 
-# Ensure TTY-preserving logging for interactive TUIs unless explicitly disabled.
-if [ "$mode" = "tui" ] && [ -z "$UDOS_TTY" ]; then
-    export UDOS_TTY=1
-fi
 
 # Strip --rebuild from args before passing to launch
 args=()

@@ -58,6 +58,123 @@
   let selfHealOkSetup = false;
   let setupStoryStatus = "";
   let setupStoryError = "";
+  let pullProgress = 0;
+  let pullStatus = "";
+  let seedProgress = 0;
+  let seedStatus = "";
+  let okSetupProgress = 0;
+  let okSetupStatus = "";
+  let portConflicts = null;
+  let portConflictsLoading = false;
+  let portConflictError = "";
+  let activeOperations = [];
+  let operationsSummary = null;
+  let operationsMonitoring = false;
+  let operationsError = "";
+
+  async function checkPortConflicts() {
+    portConflictsLoading = true;
+    portConflictError = "";
+    try {
+      const res = await apiFetch("/api/self-heal/port-conflicts", {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      portConflicts = data.conflicts || [];
+    } catch (err) {
+      portConflictError = err.message || String(err);
+    } finally {
+      portConflictsLoading = false;
+    }
+  }
+
+  async function killPortConflict(conflict) {
+    portConflictsLoading = true;
+    portConflictError = "";
+    try {
+      const res = await apiFetch("/api/self-heal/port-conflicts/kill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ pid: conflict.pid, service: conflict.service }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      pushSelfHealLog(`✅ Killed process ${conflict.pid}`);
+      await checkPortConflicts();
+    } catch (err) {
+      portConflictError = err.message || String(err);
+      pushSelfHealLog(`❌ Kill failed: ${portConflictError}`);
+    } finally {
+      portConflictsLoading = false;
+    }
+  }
+
+  async function restartService(conflict) {
+    portConflictsLoading = true;
+    portConflictError = "";
+    try {
+      const res = await apiFetch("/api/self-heal/port-conflicts/restart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ service: conflict.service }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      pushSelfHealLog(`✅ Restarted ${conflict.service} on PID ${data.pid}`);
+      await checkPortConflicts();
+    } catch (err) {
+      portConflictError = err.message || String(err);
+      pushSelfHealLog(`❌ Restart failed: ${portConflictError}`);
+    } finally {
+      portConflictsLoading = false;
+    }
+  }
+
+  async function fetchActiveOperations() {
+    operationsError = "";
+    try {
+      const res = await apiFetch("/api/ports/operations");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      activeOperations = data.operations || [];
+    } catch (err) {
+      operationsError = err.message || String(err);
+    }
+  }
+
+  async function fetchOperationsSummary() {
+    operationsError = "";
+    try {
+      const res = await apiFetch("/api/ports/operations/summary");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      operationsSummary = await res.json();
+    } catch (err) {
+      operationsError = err.message || String(err);
+    }
+  }
+
+  async function monitorOperations() {
+    operationsMonitoring = true;
+    await fetchActiveOperations();
+    await fetchOperationsSummary();
+
+    if (activeOperations.length > 0) {
+      const monitorInterval = setInterval(async () => {
+        await fetchActiveOperations();
+        await fetchOperationsSummary();
+
+        // Stop monitoring if no more active operations
+        if (!activeOperations.some(op => op.status === "in_progress")) {
+          clearInterval(monitorInterval);
+          operationsMonitoring = false;
+        }
+      }, 2000);
+    } else {
+      operationsMonitoring = false;
+    }
+  }
 
   const authHeaders = () => buildAuthHeaders(adminToken);
 
@@ -115,19 +232,44 @@
     }
     selfHealPulling = true;
     selfHealError = "";
+    pullProgress = 0;
+
     for (const model of missing) {
       pushSelfHealLog(`Pulling Ollama model: ${model}`);
       try {
-        const res = await apiFetch("/api/self-heal/ollama/pull", {
+        const res = await fetch(`/api/self-heal/ollama/pull`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...authHeaders() },
           body: JSON.stringify({ model }),
         });
-        const data = await res.json();
-        if (!res.ok || !data.success) {
-          throw new Error(data?.stderr || data?.detail || `Pull failed for ${model}`);
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split("\n");
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                pullProgress = data.progress || 0;
+                pullStatus = data.message || "";
+                if (data.message) pushSelfHealLog(data.message);
+                if (data.error) {
+                  selfHealError = data.error;
+                  pushSelfHealLog(`Pull failed for ${model}: ${data.error}`);
+                }
+              } catch (e) {
+                // Skip invalid JSON
+              }
+            }
+          }
         }
-        pushSelfHealLog(`Pulled ${model} successfully.`);
       } catch (err) {
         selfHealError = err.message || String(err);
         pushSelfHealLog(`Pull failed for ${model}: ${selfHealError}`);
@@ -136,51 +278,111 @@
     }
     await runSelfHealStatus();
     selfHealPulling = false;
+    pullProgress = 0;
   }
 
   async function seedNounProjectIcons() {
     selfHealSeeding = true;
     selfHealError = "";
+    seedProgress = 0;
     pushSelfHealLog("Seeding Noun Project SVG icons...");
+
     try {
-      const res = await apiFetch("/api/self-heal/nounproject/seed", {
+      const res = await fetch("/api/self-heal/nounproject/seed", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({}),
       });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.detail || `HTTP ${res.status}`);
-      }
-      pushSelfHealLog(`Seeded ${data.added.length} SVGs. Skipped ${data.skipped.length}.`);
-      if (data.errors?.length) {
-        pushSelfHealLog(`Seed warnings: ${data.errors.slice(0, 3).join(" | ")}`);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              seedProgress = data.progress || 0;
+              seedStatus = data.message || "";
+              if (data.message) pushSelfHealLog(data.message);
+              if (data.error) {
+                selfHealError = data.error;
+                pushSelfHealLog(`Seeding failed: ${data.error}`);
+              }
+              if (data.status === "complete") {
+                pushSelfHealLog(`✅ Seeded ${data.added_count || 0} SVGs (skipped ${data.skipped_count || 0}, ${data.error_count || 0} errors)`);
+              }
+            } catch (e) {
+              // Skip invalid JSON - log for debugging
+              console.warn('Failed to parse SSE data:', line.slice(6), e);
+            }
+          }
+        }
       }
     } catch (err) {
       selfHealError = err.message || String(err);
       pushSelfHealLog(`Seeding failed: ${selfHealError}`);
     } finally {
       selfHealSeeding = false;
+      seedProgress = 0;
     }
   }
 
   async function runOkSetup() {
     selfHealOkSetup = true;
     selfHealError = "";
+    okSetupProgress = 0;
     pushSelfHealLog("Running INSTALL VIBE (OK SETUP backend)...");
+
     try {
-      const res = await apiFetch("/api/self-heal/ok-setup", { method: "POST" });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.detail || `HTTP ${res.status}`);
+      const res = await fetch("/api/self-heal/ok-setup", {
+        method: "POST",
+        headers: authHeaders(),
+      });
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              okSetupProgress = data.progress || 0;
+              okSetupStatus = data.message || "";
+              if (data.message) pushSelfHealLog(data.message);
+              if (data.error) {
+                selfHealError = data.error;
+                pushSelfHealLog(`INSTALL VIBE failed: ${data.error}`);
+              }
+              if (data.status === "complete") {
+                pushSelfHealLog(`✅ Setup completed (${data.steps_count || 0} steps, ${data.warnings_count || 0} warnings)`);
+              }
+            } catch (e) {
+              // Skip invalid JSON - log for debugging
+              console.warn('Failed to parse SSE data:', line.slice(6), e);
+            }
+          }
+        }
       }
-      (data.steps || []).forEach((step) => pushSelfHealLog(`✅ ${step}`));
-      (data.warnings || []).forEach((warn) => pushSelfHealLog(`⚠️ ${warn}`));
     } catch (err) {
       selfHealError = err.message || String(err);
       pushSelfHealLog(`INSTALL VIBE failed: ${selfHealError}`);
     } finally {
       selfHealOkSetup = false;
+      okSetupProgress = 0;
     }
     await runSelfHealStatus();
   }
@@ -317,7 +519,7 @@
   let installedModels = [];
   let installedCount = 0;
   let loadingInstalled = false;
-  let pullProgress = {};
+  let ollamaPullProgress = {};
   let pullPollers = {};
   let copiedModel = null;
 
@@ -1538,6 +1740,61 @@
       </button>
     </div>
 
+    <!-- Progress bars -->
+    {#if selfHealOkSetup && okSetupProgress > 0}
+      <div class="mt-3 space-y-2">
+        <div class="flex items-center justify-between text-xs text-gray-400">
+          <span>INSTALL VIBE Progress</span>
+          <span>{okSetupProgress}%</span>
+        </div>
+        <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+          <div
+            class="bg-indigo-500 h-full transition-all duration-300"
+            style="width: {okSetupProgress}%"
+          ></div>
+        </div>
+        {#if okSetupStatus}
+          <div class="text-xs text-gray-400">{okSetupStatus}</div>
+        {/if}
+      </div>
+    {/if}
+
+    {#if selfHealPulling && pullProgress > 0}
+      <div class="mt-3 space-y-2">
+        <div class="flex items-center justify-between text-xs text-gray-400">
+          <span>Model Pull Progress</span>
+          <span>{pullProgress}%</span>
+        </div>
+        <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+          <div
+            class="bg-emerald-500 h-full transition-all duration-300"
+            style="width: {pullProgress}%"
+          ></div>
+        </div>
+        {#if pullStatus}
+          <div class="text-xs text-gray-400">{pullStatus}</div>
+        {/if}
+      </div>
+    {/if}
+
+    {#if selfHealSeeding && seedProgress > 0}
+      <div class="mt-3 space-y-2">
+        <div class="flex items-center justify-between text-xs text-gray-400">
+          <span>Seeding Progress</span>
+          <span>{seedProgress}%</span>
+        </div>
+        <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+          <div
+            class="bg-blue-500 h-full transition-all duration-300"
+            style="width: {seedProgress}%"
+          ></div>
+        </div>
+        {#if seedStatus}
+          <div class="text-xs text-gray-400">{seedStatus}</div>
+        {/if}
+      </div>
+    {/if}
+
     {#if selfHealLog.length}
       <div class="mt-3 text-xs text-gray-400">Progress log:</div>
       <div class="mt-1 space-y-1 text-xs text-gray-300">
@@ -1545,6 +1802,73 @@
           <div>{new Date(entry.ts).toLocaleTimeString()} — {entry.message}</div>
         {/each}
       </div>
+    {/if}
+  </div>
+
+  <!-- Port Conflict Management -->
+  <div class="mb-6 bg-gray-800 border border-gray-700 rounded-lg p-4">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h3 class="text-sm font-semibold text-white">Port Conflicts</h3>
+        <p class="text-xs text-gray-400">
+          Detect and resolve port conflicts with kill/restart options.
+        </p>
+      </div>
+      <button
+        on:click={checkPortConflicts}
+        class="px-3 py-1.5 text-xs rounded bg-slate-700 text-white hover:bg-slate-600 transition-colors disabled:opacity-60"
+        disabled={portConflictsLoading}
+      >
+        {portConflictsLoading ? "Checking..." : "Check Ports"}
+      </button>
+    </div>
+
+    {#if portConflicts && portConflicts.length > 0}
+      <div class="mt-3 space-y-2">
+        {#each portConflicts as conflict}
+          <div class="bg-slate-900/60 border border-slate-700 rounded p-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1">
+                <div class="text-sm font-semibold text-white">{conflict.service}</div>
+                <div class="text-xs text-gray-400 mt-1">
+                  Port {conflict.port} occupied by PID {conflict.pid} ({conflict.actual_process})
+                </div>
+                {#if !conflict.is_correct}
+                  <div class="text-xs text-yellow-300 mt-1">
+                    ⚠️ Expected: {conflict.expected_process}
+                  </div>
+                {/if}
+              </div>
+              <div class="flex gap-2">
+                <button
+                  on:click={() => killPortConflict(conflict)}
+                  class="px-3 py-1.5 text-xs rounded bg-red-600 text-white hover:bg-red-500 transition-colors"
+                  disabled={portConflictsLoading}
+                >
+                  Kill
+                </button>
+                {#if conflict.can_restart}
+                  <button
+                    on:click={() => restartService(conflict)}
+                    class="px-3 py-1.5 text-xs rounded bg-emerald-600 text-white hover:bg-emerald-500 transition-colors"
+                    disabled={portConflictsLoading}
+                  >
+                    Restart
+                  </button>
+                {/if}
+              </div>
+            </div>
+          </div>
+        {/each}
+      </div>
+    {:else if portConflicts && portConflicts.length === 0}
+      <div class="mt-3 text-xs text-emerald-300">
+        ✅ No port conflicts detected
+      </div>
+    {/if}
+
+    {#if portConflictError}
+      <div class="mt-3 text-xs text-red-300">{portConflictError}</div>
     {/if}
   </div>
 

@@ -57,6 +57,17 @@ class ServiceStatus(Enum):
     PORT_CONFLICT = "port_conflict"
 
 
+class OperationStatus(Enum):
+    """Status of background operations (downloads, installs, etc)."""
+
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+    PAUSED = "paused"
+
+
 @dataclass
 class Service:
     """Service definition with port information."""
@@ -165,6 +176,60 @@ class ManagedProcess:
         }
 
 
+@dataclass
+class BackgroundOperation:
+    """Represents a long-running background operation (download, install, seed, etc)."""
+
+    operation_id: str
+    operation_type: str  # "download", "install", "seed", "pull_model", etc.
+    description: str
+    status: OperationStatus
+    started_at: datetime
+    updated_at: datetime
+    progress: float = 0.0  # 0-100
+    total_size_mb: Optional[float] = None
+    downloaded_mb: Optional[float] = None
+    pid: Optional[int] = None
+    error: Optional[str] = None
+    resource_impact: Optional[Dict[str, float]] = None  # {cpu_percent, memory_mb, network_mbps}
+
+    def to_dict(self) -> Dict:
+        return {
+            "operation_id": self.operation_id,
+            "operation_type": self.operation_type,
+            "description": self.description,
+            "status": self.status.value,
+            "started_at": self.started_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "progress": round(self.progress, 1),
+            "total_size_mb": round(self.total_size_mb, 1) if self.total_size_mb else None,
+            "downloaded_mb": round(self.downloaded_mb, 1) if self.downloaded_mb else None,
+            "eta_seconds": self._estimate_eta(),
+            "pid": self.pid,
+            "error": self.error,
+            "resource_impact": self.resource_impact,
+            "uptime_seconds": (datetime.now() - self.started_at).total_seconds(),
+        }
+
+    def _estimate_eta(self) -> Optional[float]:
+        """Estimate seconds remaining based on progress and download speed."""
+        if not self.total_size_mb or self.progress >= 100 or self.progress <= 0:
+            return None
+        if not self.downloaded_mb:
+            return None
+
+        elapsed = (datetime.now() - self.started_at).total_seconds()
+        if elapsed < 1:
+            return None
+
+        download_rate = self.downloaded_mb / elapsed
+        if download_rate <= 0:
+            return None
+
+        remaining_mb = self.total_size_mb - self.downloaded_mb
+        return remaining_mb / download_rate
+
+
 class PortManager:
     """
     Central Task and Process Manager for uDOS.
@@ -191,6 +256,7 @@ class PortManager:
         )
         self.services: Dict[str, Service] = {}
         self.managed_processes: Dict[str, ManagedProcess] = {}
+        self.background_operations: Dict[str, BackgroundOperation] = {}
         self.event_log: List[ProcessEvent] = []
         self.resource_history: List[ResourceSnapshot] = []
         self._lock = threading.RLock()
@@ -685,6 +751,37 @@ class PortManager:
         self.services[service_name].port = new_port
         return self.save_registry()
 
+    def kill_process_by_pid(self, pid: int, force: bool = True) -> bool:
+        """Kill a process by PID.
+
+        Args:
+            pid: Process ID to kill
+            force: Use SIGKILL (-9) if True, else SIGTERM (-15)
+
+        Returns:
+            True if process was killed successfully
+        """
+        try:
+            ps_proc = psutil.Process(pid)
+            if force:
+                ps_proc.kill()  # SIGKILL
+            else:
+                ps_proc.terminate()  # SIGTERM
+
+            # Wait briefly to confirm
+            try:
+                ps_proc.wait(timeout=2)
+            except psutil.TimeoutExpired:
+                if not force:
+                    # Retry with force
+                    ps_proc.kill()
+                    ps_proc.wait(timeout=1)
+
+            self.log_event("system", "killed_process", f"Killed PID {pid}", pid=pid)
+            return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
+            return False
+
     def kill_service(self, service_name: str, retries: int = 3) -> bool:
         """Kill a service by name with retry logic."""
         service = self.services.get(service_name)
@@ -711,11 +808,12 @@ class PortManager:
                     return True
 
                 # Kill all PIDs
-                for pid in pids:
-                    if pid:
+                for pid_str in pids:
+                    if pid_str:
                         try:
-                            subprocess.run(["kill", "-9", pid], timeout=2, check=False)
-                        except Exception:
+                            pid = int(pid_str)
+                            self.kill_process_by_pid(pid, force=True)
+                        except (ValueError, Exception):
                             pass
 
                 # Wait and verify
@@ -725,6 +823,7 @@ class PortManager:
                 if self.is_port_open(port):
                     service.status = ServiceStatus.STOPPED
                     service.pid = None
+                    self.log_event(service_name, "stopped", f"Killed service on port {port}", port=port)
                     return True
 
             except Exception as e:
@@ -852,9 +951,125 @@ class PortManager:
 
         return "\n".join(script)
 
+    # Background Operation Management
+
+    def start_operation(
+        self,
+        operation_id: str,
+        operation_type: str,
+        description: str,
+        total_size_mb: Optional[float] = None,
+        pid: Optional[int] = None,
+    ) -> BackgroundOperation:
+        """Register a new background operation."""
+        operation = BackgroundOperation(
+            operation_id=operation_id,
+            operation_type=operation_type,
+            description=description,
+            status=OperationStatus.IN_PROGRESS,
+            started_at=datetime.now(),
+            updated_at=datetime.now(),
+            total_size_mb=total_size_mb,
+            pid=pid,
+        )
+        with self._lock:
+            self.background_operations[operation_id] = operation
+            self.log_event(
+                operation_type,
+                "operation_started",
+                f"{operation_type}: {description}",
+                pid=pid,
+            )
+        return operation
+
+    def update_operation(
+        self,
+        operation_id: str,
+        progress: float = None,
+        downloaded_mb: float = None,
+        status: OperationStatus = None,
+        error: str = None,
+        resource_impact: Dict[str, float] = None,
+    ) -> Optional[BackgroundOperation]:
+        """Update operation progress."""
+        with self._lock:
+            op = self.background_operations.get(operation_id)
+            if op:
+                if progress is not None:
+                    op.progress = min(100.0, max(0.0, progress))
+                if downloaded_mb is not None:
+                    op.downloaded_mb = downloaded_mb
+                if status is not None:
+                    op.status = status
+                if error is not None:
+                    op.error = error
+                if resource_impact is not None:
+                    op.resource_impact = resource_impact
+                op.updated_at = datetime.now()
+            return op
+
+    def complete_operation(self, operation_id: str, error: str = None):
+        """Mark operation as complete."""
+        with self._lock:
+            op = self.background_operations.get(operation_id)
+            if op:
+                op.status = OperationStatus.FAILED if error else OperationStatus.COMPLETED
+                op.progress = 100.0 if not error else op.progress
+                op.error = error
+                op.updated_at = datetime.now()
+                self.log_event(
+                    op.operation_type,
+                    "operation_completed",
+                    f"{op.description} - {'ERROR' if error else 'OK'}",
+                    pid=op.pid,
+                )
+
+    def get_active_operations(self) -> List[BackgroundOperation]:
+        """Get list of currently active operations."""
+        with self._lock:
+            return [
+                op
+                for op in self.background_operations.values()
+                if op.status == OperationStatus.IN_PROGRESS
+            ]
+
+    def get_operations_summary(self) -> Dict:
+        """Get summary of all operations including resource impact."""
+        with self._lock:
+            active = [
+                op
+                for op in self.background_operations.values()
+                if op.status == OperationStatus.IN_PROGRESS
+            ]
+
+            total_cpu = sum(op.resource_impact.get("cpu_percent", 0) for op in active if op.resource_impact)
+            total_memory_mb = sum(op.resource_impact.get("memory_mb", 0) for op in active if op.resource_impact)
+
+            return {
+                "total_active": len(active),
+                "operations": [op.to_dict() for op in active],
+                "aggregate_cpu_percent": round(total_cpu, 1),
+                "aggregate_memory_mb": round(total_memory_mb, 1),
+                "system_overload_risk": total_cpu > 80 or total_memory_mb > 4000,
+            }
+
+    def should_warn_before_operation(self) -> Tuple[bool, str]:
+        """Check if system is under load and operations should warn user."""
+        summary = self.get_operations_summary()
+
+        if summary["system_overload_risk"]:
+            reason = []
+            if summary["aggregate_cpu_percent"] > 80:
+                reason.append(f"High CPU usage ({summary['aggregate_cpu_percent']}%)")
+            if summary["aggregate_memory_mb"] > 4000:
+                reason.append(f"High memory usage ({summary['aggregate_memory_mb']}MB)")
+            return True, "; ".join(reason)
+
+        return False, ""
+
 
 # Singleton instance
-_port_manager: Optional[PortManager] = None
+    _port_manager = None
 
 
 def get_port_manager(config_path: Optional[Path] = None) -> PortManager:
@@ -1060,5 +1275,111 @@ def create_port_manager_router(auth_guard=None):
         pm = get_port_manager()
         pm.stop_resource_monitor()
         return {"stopped": True}
+
+    # ==================== Operations Endpoints ====================
+
+    @router.get("/operations")
+    async def get_operations(request: Request = None):
+        """Get all background operations."""
+        await check_auth(request)
+        pm = get_port_manager()
+        operations = pm.get_active_operations()
+        return {
+            "operations": [op.to_dict() for op in operations],
+            "count": len(operations),
+        }
+
+    @router.get("/operations/summary")
+    async def get_operations_summary(request: Request = None):
+        """Get aggregate resource impact of all operations."""
+        await check_auth(request)
+        pm = get_port_manager()
+        summary = pm.get_operations_summary()
+        return summary
+
+    @router.get("/operations/{operation_id}")
+    async def get_operation(operation_id: str, request: Request = None):
+        """Get details of a specific operation."""
+        await check_auth(request)
+        pm = get_port_manager()
+        if operation_id not in pm.background_operations:
+            raise HTTPException(status_code=404, detail="Operation not found")
+        op = pm.background_operations[operation_id]
+        return op.to_dict()
+
+    @router.post("/operations/start")
+    async def start_operation(
+        operation_type: str,
+        description: str = "",
+        total_size_mb: float = None,
+        request: Request = None,
+    ):
+        """Register start of a background operation."""
+        await check_auth(request)
+        pm = get_port_manager()
+        operation_id = pm.start_operation(
+            operation_type=operation_type,
+            description=description,
+            total_size_mb=total_size_mb,
+        )
+        return {"operation_id": operation_id}
+
+    @router.post("/operations/{operation_id}/update")
+    async def update_operation_progress(
+        operation_id: str,
+        progress: float = 0.0,
+        downloaded_mb: float = None,
+        status: str = "in_progress",
+        request: Request = None,
+    ):
+        """Update progress of a background operation."""
+        await check_auth(request)
+        pm = get_port_manager()
+        if operation_id not in pm.background_operations:
+            raise HTTPException(status_code=404, detail="Operation not found")
+
+        try:
+            status_enum = OperationStatus(status)
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Invalid status: {status}")
+
+        pm.update_operation(
+            operation_id,
+            progress=progress,
+            downloaded_mb=downloaded_mb,
+            status=status_enum,
+        )
+        return {"updated": True}
+
+    @router.post("/operations/{operation_id}/complete")
+    async def complete_operation(
+        operation_id: str,
+        error: str = None,
+        request: Request = None,
+    ):
+        """Mark a background operation as completed."""
+        await check_auth(request)
+        pm = get_port_manager()
+        if operation_id not in pm.background_operations:
+            raise HTTPException(status_code=404, detail="Operation not found")
+
+        pm.complete_operation(operation_id, error=error)
+        return {"completed": True}
+
+    @router.post("/operations/check-overload")
+    async def check_system_overload(request: Request = None):
+        """Check if system is overloaded based on resource usage."""
+        await check_auth(request)
+        pm = get_port_manager()
+        should_warn = pm.should_warn_before_operation()
+        summary = pm.get_operations_summary()
+
+        return {
+            "overloaded": should_warn,
+            "message": "System resources heavily used. Consider waiting before starting new operations."
+            if should_warn
+            else "System resources available.",
+            "resource_summary": summary,
+        }
 
     return router

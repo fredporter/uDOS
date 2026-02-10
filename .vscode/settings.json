@@ -53,7 +53,19 @@
   },
   "terminal.integrated.env.osx": {
     "UDOS_ROOT": "${workspaceFolder}",
-    "UDOS_WIZARD_PORT_FILE": "${workspaceFolder}/.wizard-port"
+    "UDOS_WIZARD_PORT_FILE": "${workspaceFolder}/.wizard-port",
+    "PAGER": "cat",
+    "GIT_PAGER": "cat",
+    "PYTHONUNBUFFERED": "1",
+    "LESS": "-R"
+  },
+  "terminal.integrated.env.linux": {
+    "UDOS_ROOT": "${workspaceFolder}",
+    "UDOS_WIZARD_PORT_FILE": "${workspaceFolder}/.wizard-port",
+    "PAGER": "cat",
+    "GIT_PAGER": "cat",
+    "PYTHONUNBUFFERED": "1",
+    "LESS": "-R"
   },
   "extensions.ignoreRecommendations": true,
   "github.copilot.enable": {

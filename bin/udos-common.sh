@@ -46,8 +46,19 @@ _udos_echo() {
 # Path Detection (works regardless of where uDOS is installed)
 # ═══════════════════════════════════════════════════════════════════════════
 UDOS_BIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-UDOS_ROOT="$(dirname "$UDOS_BIN_DIR")"
-UDOS_HOME_ROOT="${HOME}/uDOS"
+# Respect explicit UDOS_ROOT if provided; otherwise resolve below.
+UDOS_ROOT="${UDOS_ROOT:-}"
+# Default home root is ~/uDOS, but allow override via UDOS_HOME_ROOT.
+UDOS_HOME_ROOT="${UDOS_HOME_ROOT:-${HOME}/uDOS}"
+
+_udos_default_root() {
+    # Prefer ~/uDOS when it exists and is a repo; otherwise fall back to script parent.
+    if [ -n "$UDOS_HOME_ROOT" ] && [ -f "$UDOS_HOME_ROOT/uDOS.py" ]; then
+        echo "$UDOS_HOME_ROOT"
+        return 0
+    fi
+    echo "$(dirname "$UDOS_BIN_DIR")"
+}
 
 _udos_realpath() {
     if command -v realpath >/dev/null 2>&1; then
@@ -93,6 +104,9 @@ resolve_udos_root() {
     else
         local script_dir
         script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        if [ -z "$UDOS_ROOT" ]; then
+            UDOS_ROOT="$(_udos_default_root)"
+        fi
         resolved="$(_udos_find_repo_root "$script_dir")" || resolved=""
         if [ -z "$resolved" ]; then
             resolved="$(_udos_find_repo_root "$(pwd)")" || resolved=""
@@ -105,12 +119,14 @@ resolve_udos_root() {
     fi
 
     if ! _udos_within_home_root "$resolved"; then
-        echo "[udos] Refusing repo root outside ~/uDOS. Move the repo under ~/uDOS or set UDOS_HOME_ROOT_ALLOW_OUTSIDE=1 to bypass." >&2
+        echo "[udos] Refusing repo root outside ${UDOS_HOME_ROOT}. Move the repo under ${UDOS_HOME_ROOT} or set UDOS_HOME_ROOT_ALLOW_OUTSIDE=1 to bypass." >&2
         if [ "$UDOS_HOME_ROOT_ALLOW_OUTSIDE" != "1" ]; then
             return 1
         fi
     fi
 
+    UDOS_ROOT="$resolved"
+    export UDOS_ROOT
     echo "$resolved"
 }
 
@@ -936,6 +952,16 @@ launch_component() {
     if [ -z "$UDOS_ROOT" ]; then
         UDOS_ROOT="$(resolve_udos_root)" || return 1
         export UDOS_ROOT
+    fi
+
+    # Ensure consistent TUI behavior across platforms
+    if [ "$mode" = "tui" ]; then
+        if [ -z "$UDOS_TTY" ]; then
+            export UDOS_TTY=1
+        fi
+        if [ -z "$UDOS_TUI_FORCE_STATUS" ]; then
+            export UDOS_TUI_FORCE_STATUS=1
+        fi
     fi
 
     cd "$UDOS_ROOT"

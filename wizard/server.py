@@ -38,6 +38,8 @@ from wizard.services.mesh_sync import get_mesh_sync
 from core.services.dependency_warning_monitor import (
     install_dependency_warning_monitor,
 )
+
+logger = get_logger("wizard.server")
 from wizard.services.env_loader import load_dotenv
 from wizard.services.dashboard_fallback import get_fallback_dashboard_html
 from wizard.services.log_reader import LogReader
@@ -217,12 +219,22 @@ class WizardServer:
         app.include_router(dataset_router)
         from wizard.routes.teletext_routes import router as teletext_router
         app.include_router(teletext_router)
-        from groovebox.wizard.routes.groovebox_routes import router as groovebox_router
-        app.include_router(groovebox_router)
-        from wizard.routes.songscribe_routes import router as songscribe_router
-        app.include_router(songscribe_router)
-        from groovebox.wizard.routes.songscribe_export_routes import router as songscribe_export_router
-        app.include_router(songscribe_export_router)
+
+        try:
+            from groovebox.wizard.routes.groovebox_routes import router as groovebox_router
+            app.include_router(groovebox_router)
+            from groovebox.wizard.routes.songscribe_export_routes import (
+                router as songscribe_export_router,
+            )
+            app.include_router(songscribe_export_router)
+        except Exception as exc:
+            logger.warning("[WIZ] Groovebox routes unavailable: %s", exc)
+
+        try:
+            from wizard.routes.songscribe_routes import router as songscribe_router
+            app.include_router(songscribe_router)
+        except Exception as exc:
+            logger.warning("[WIZ] Songscribe routes unavailable: %s", exc)
 
         # Register Extension detection routes
         from wizard.routes.extension_routes import router as extension_router
@@ -309,6 +321,12 @@ class WizardServer:
 
         ucode_router = create_ucode_routes(auth_guard=self._authenticate_admin)
         app.include_router(ucode_router)
+
+        # Register Self-Heal diagnostic routes
+        from wizard.routes.self_heal_routes import create_self_heal_routes
+
+        self_heal_router = create_self_heal_routes(auth_guard=self._authenticate_admin)
+        app.include_router(self_heal_router)
 
         # Register Plugin CLI stub routes (migration placeholder)
         from wizard.routes.plugin_stub_routes import create_plugin_stub_routes
