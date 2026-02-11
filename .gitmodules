@@ -22,7 +22,7 @@
 
 [submodule "app"]
 	path = app
-	url = git@github.com:fredporter/uMarkdown-app.git
+	url = git@github.com:fredporter/oc-app.git
 	branch = main
 [submodule "sonic"]
 	path = sonic
