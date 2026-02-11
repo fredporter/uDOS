@@ -123,6 +123,7 @@ Last updated: 2026-02-09
 - [ ] Diagram generation service: server-side diagram rendering pipeline.
 - [ ] Songscribe route integration: bridge groovebox transport into Wizard API.
 - [ ] GitHub integration polish: PR and issue automation helpers.
+- [ ] GitHub Actions publish sync (from OC-app) when moving beyond direct push.
 
 ### v1.5.0 (Planned)
 - [ ] Multi-tenant workspace isolation.
@@ -224,7 +225,7 @@ Versioning target:
 - Previous Tauri/Svelte app archived at `/app/.archive/2026-02-11-tauri-app`.
 - External vault path support.
 - Local HTML export: write `index.html` in the vault/binder folder and `html/` for linked pages.
-- GitHub Pages publishing (pre v1.3): direct push or Actions-based deploy.
+- GitHub Pages publishing (pre v1.3): direct push only.
 - W2 + W3 domains: canonical Web2 URLs with optional Web3 alias metadata.
 - Monorepo publishing path (uDOS-publish) + single-repo per site option.
 - Typo editor: in-app quick editing surface.
