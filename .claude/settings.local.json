@@ -8,7 +8,12 @@
       "Bash(done)",
       "Bash(git submodule status:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git -C /Users/fredbook/Code/uDOS/app status)",
+      "Bash(git -C /Users/fredbook/Code/uDOS/app diff HEAD --stat)",
+      "Bash(git -C /Users/fredbook/Code/uDOS/app status -u)",
+      "Bash(git -C /Users/fredbook/Code/uDOS/app diff --name-only HEAD)",
+      "Bash(git -C /Users/fredbook/Code/uDOS/app ls-files:*)"
     ]
   }
 }
