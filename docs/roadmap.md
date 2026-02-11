@@ -233,5 +233,7 @@ Versioning target:
 - Typo integration bridge: Svelte bundle embedded in SwiftUI via WKWebView, JS bridge for file IO and markdown events.
 - Tasks index.
 - Export UI.
+- Pre-test checklist: open vault, build export, open index, GitHub dry-run, direct push publish, verify deploy logs.
+- Launch blockers: missing GitHub repo config, failing publish dry-run, export path unwritable, vault index errors.
 
 App docs live under [app/docs](../app/docs).
