@@ -123,6 +123,7 @@ Last updated: 2026-02-09
 - [ ] Diagram generation service: server-side diagram rendering pipeline.
 - [ ] Songscribe route integration: bridge groovebox transport into Wizard API.
 - [ ] GitHub integration polish: PR and issue automation helpers.
+- [ ] Web publishing pipeline (moved from OC-app): monorepo deploy path and hosting targets.
 
 ### v1.5.0 (Planned)
 - [ ] Multi-tenant workspace isolation.
@@ -223,7 +224,10 @@ Versioning target:
 - SwiftUI/Xcode app lives in `/app` (Package.swift, Sources, Resources, Tests).
 - Previous Tauri/Svelte app archived at `/app/.archive/2026-02-11-tauri-app`.
 - External vault path support.
+- Local HTML export only: write `index.html` in the vault/binder folder and `html/` for linked pages.
+- Online publishing moved to Wizard roadmap (future dev round).
 - Typo editor: in-app quick editing surface.
+- Typo upgrades after next testing round (editor UX, file browser, preview).
 - Typo integration bridge: Svelte bundle embedded in SwiftUI via WKWebView, JS bridge for file IO and markdown events.
 - Tasks index.
 - Export UI.
