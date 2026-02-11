@@ -27,7 +27,7 @@
 
   "files": {
     "python": "dev/goblin/",
-    "bin": ["bin/Launch-Goblin-Dev.command", "dev/goblin/server.py"],
+    "bin": ["bin/Launch-uCODE.sh", "dev/goblin/server.py"],
     "config": "dev/goblin/config/",
     "docs": "dev/goblin/docs/"
   },

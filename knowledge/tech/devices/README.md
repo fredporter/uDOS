@@ -225,7 +225,7 @@ Core device management code:
 
 - [SONIC-SCREWDRIVER.md](/docs/wiki/SONIC-SCREWDRIVER.md) — Device catalog spec
 - [BEACON-PORTAL.md](/docs/wiki/BEACON-PORTAL.md) — Wi-Fi infrastructure
-- [Sonic Roadmap](/sonic/docs/roadmap.md) — Future device plans
+- [Sonic Roadmap](/docs/ROADMAP.md#sonic-roadmap) — Future device plans
 - [Sonic Changelog](/sonic/CHANGELOG.md) — Version history
 
 ---

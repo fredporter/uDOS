@@ -52,7 +52,7 @@ Always-on services (port 8765, stable API):
 **Launch:**
 
 ```bash
-bin/Launch-Wizard-Dev.command       # Full server
+./bin/Launch-uCODE.sh wizard        # Full server
 # OR
 python wizard/launch_wizard_dev.py --no-tui  # Server only
 ```
@@ -73,7 +73,7 @@ Experimental features (port 8767, localhost-only, breaking changes expected):
 **Launch:**
 
 ```bash
-bin/Launch-Goblin-Dev.command
+./bin/Launch-uCODE.sh goblin
 ```
 
 ---
@@ -311,7 +311,7 @@ udos-goblin (v0.2.0.0, port 8767, localhost-only)
 - [packages/README.md](../README.md) — Package types, directory structure, current packages
 - [AGENTS.md](../../AGENTS.md) — Workspace boundaries, version management, secrets policy
 - [docs/\_index.md](../../docs/_index.md) — Engineering entry point
-- [docs/roadmap.md](../../docs/roadmap.md) — v1.0.4.0 status, upcoming releases
+- [docs/ROADMAP.md](../../docs/ROADMAP.md) — v1.0.4.0 status, upcoming releases
 
 ---
 

@@ -750,7 +750,7 @@ rebuild_wizard_dashboard() {
         echo -e "${CYAN}🧙 Wizard Dashboard: checking build...${NC}"
         # Ensure npm available
         if ! command -v npm >/dev/null 2>&1; then
-            echo -e "${YELLOW}⚠️  npm not found; skipping dashboard build (use Launch-Wizard-Server.command for guided install)${NC}"
+            echo -e "${YELLOW}⚠️  npm not found; skipping dashboard build (use ./bin/Launch-uCODE.sh wizard for guided install)${NC}"
             return 0
         fi
         maybe_npm_install "$dash_root" || return 1

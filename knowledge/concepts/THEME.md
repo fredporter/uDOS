@@ -26,7 +26,7 @@ without touching logs.
 
 ## Switching themes
 
-Set `UDOS_THEME` before starting uCODE (`UDOS_THEME=dungeon ./bin/Launch-uCODE.command`)
+Set `UDOS_THEME` before starting uCODE (`UDOS_THEME=dungeon ./bin/Launch-uCODE.sh`)
 to load another voice. Themes gracefully fall back to `default` if their file is
 missing.
 

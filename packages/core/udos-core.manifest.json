@@ -25,7 +25,7 @@
 
   "files": {
     "python": "core/",
-    "bin": ["bin/udos", "bin/start_udos.sh"],
+    "bin": ["bin/Launch-uCODE.sh", "bin/udos-common.sh", "bin/udos-self-heal.sh"],
     "config": "etc/udos/",
     "docs": "core/docs/"
   },

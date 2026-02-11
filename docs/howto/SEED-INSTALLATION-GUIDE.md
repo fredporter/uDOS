@@ -32,7 +32,7 @@ uDOS now provides multiple mechanisms to bootstrap framework seed data into fres
 When you launch uDOS for the first time:
 
 ```bash
-./start_udos.sh
+./bin/Launch-uCODE.sh
 # or
 python uDOS.py
 ```

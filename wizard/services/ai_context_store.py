@@ -22,7 +22,7 @@ logger = get_logger("wizard.ai-context")
 DEFAULT_FILES = [
     "AGENTS.md",
     "docs/_index.md",
-    "docs/roadmap.md",
+    "docs/ROADMAP.md",
 ]
 
 

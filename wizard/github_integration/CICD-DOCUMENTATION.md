@@ -1,7 +1,7 @@
 # CI/CD Pipeline Documentation
 
-**Version:** 1.0.0  
-**Component:** Wizard Server  
+**Version:** 1.0.0
+**Component:** Wizard Server
 **Date:** 2026-01-14
 
 ---
@@ -522,10 +522,10 @@ gh run view <run_id> --repo fredpook/uDOS
 
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [Tauri Build Documentation](https://tauri.app/v1/guides/building/)
-- [uDOS Roadmap](../docs/roadmap.md)
+- [uDOS Roadmap](../../docs/ROADMAP.md)
 - [Wizard Server Documentation](README.md)
 
 ---
 
-*Last Updated: 2026-01-14*  
+*Last Updated: 2026-01-14*
 *Version: 1.0.0*

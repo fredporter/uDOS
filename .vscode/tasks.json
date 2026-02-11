@@ -19,7 +19,11 @@
 		{
 			"label": "Run uDOS Interactive",
 			"type": "shell",
-			"command": "${workspaceFolder}/bin/udos",
+			"command": "${workspaceFolder}/bin/Launch-uCODE.sh",
+			"args": [
+				"core",
+				"tui"
+			],
 			"group": {
 				"kind": "build",
 				"isDefault": true
@@ -39,7 +43,7 @@
 			"command": "/bin/bash",
 			"args": [
 				"-lc",
-				"if [ -z \"$VIRTUAL_ENV\" ]; then echo \"WARN: Virtual environment not active! Run: source .venv/bin/activate\"; exit 1; else echo \"OK: Virtual environment active: $VIRTUAL_ENV\"; fi; if [ -n \"$VIRTUAL_ENV\" ] && [ -x \"$VIRTUAL_ENV/bin/python\" ]; then PYTHON=\"$VIRTUAL_ENV/bin/python\"; else PYTHON=python; fi; if [ -f memory/tests/shakedown-script.md ]; then ./bin/udos memory/tests/shakedown-script.md; else $PYTHON -m pytest memory/tests/test_shakedown_destroy_v1_1_0.py; fi"
+				"if [ -z \"$VIRTUAL_ENV\" ]; then echo \"WARN: Virtual environment not active! Run: source .venv/bin/activate\"; exit 1; else echo \"OK: Virtual environment active: $VIRTUAL_ENV\"; fi; if [ -n \"$VIRTUAL_ENV\" ] && [ -x \"$VIRTUAL_ENV/bin/python\" ]; then PYTHON=\"$VIRTUAL_ENV/bin/python\"; else PYTHON=python; fi; if [ -f memory/tests/shakedown-script.md ]; then $PYTHON ${workspaceFolder}/uDOS.py --script memory/tests/shakedown-script.md; else $PYTHON -m pytest memory/tests/test_shakedown_destroy_v1_1_0.py; fi"
 			],
 			"group": {
 				"kind": "test",

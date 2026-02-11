@@ -471,7 +471,7 @@ class WizardConsole:
             print()
             print("  💡 Fix this by:")
             print("     1. Ensure .env file exists in repo root with WIZARD_KEY=...")
-            print("     2. Restart Wizard Server: ./bin/start_wizard.sh")
+            print("     2. Restart Wizard Server: ./bin/Launch-uCODE.sh wizard")
             print("     3. Or set manually: export WIZARD_KEY=<your-key>")
             print()
             return

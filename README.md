@@ -16,7 +16,7 @@ Offline-first OS layer for knowledge systems, tools, and portable environments.
 ## Quick Start
 
 ```bash
-python3 uDOS.py
+./bin/Launch-uCODE.sh
 ```
 
 Common first commands:

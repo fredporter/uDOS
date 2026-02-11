@@ -78,7 +78,7 @@ python memory/tests/test_logging.py
 python memory/tests/test_groovebox.py  # Imports via registry
 
 # Shakedown (full system)
-./start_udos.sh memory/tests/shakedown-script.md
+python uDOS.py --script memory/tests/shakedown-script.md
 ```
 
 ## Why This Helps

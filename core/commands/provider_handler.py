@@ -93,7 +93,7 @@ class ProviderHandler(BaseCommandHandler):
                 "output": (
                     "❌ Wizard Server is not running.\n\n"
                     "Start it with one of these launchers:\n"
-                    "  • ./bin/Launch-Wizard-Server.command (interactive)\n"
+                    "  • ./bin/Launch-uCODE.sh wizard (interactive)\n"
                     "  • ./bin/Launch-Dev-Mode.command (full dev stack)\n\n"
                     "Or manually:\n"
                     "  source .venv/bin/activate && python -m wizard.server\n\n"

@@ -112,7 +112,7 @@ cloud_enabled = false
 context_files = [
     "AGENTS.md",
     "docs/_index.md",
-    "docs/roadmap.md",
+    "docs/ROADMAP.md",
     ".vibe/CONTEXT.md"
 ]
 ```
@@ -403,4 +403,3 @@ vibe chat "What port does API use?"
 - **Devstral Info:** https://mistral.ai/news/devstral/
 - **uDOS Context:** [.vibe/CONTEXT.md](.vibe/CONTEXT.md)
 - **Wizard Model Routing:** [docs/decisions/wizard-model-routing-policy.md](../docs/decisions/wizard-model-routing-policy.md)
-

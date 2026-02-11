@@ -1,7 +1,7 @@
 # Beacon Portal Implementation Guide
 
-**Version:** 1.0.0  
-**Status:** Ready for Integration  
+**Version:** 1.0.0
+**Status:** Ready for Integration
 **Last Updated:** 2026-01-25
 
 ## Overview
@@ -266,7 +266,7 @@ pytest wizard/tests/test_beacon_service.py -v
 pytest wizard/tests/test_beacon_routes.py -v
 
 # Integration Tests
-./start_udos.sh
+./bin/Launch-uCODE.sh
 > BEACON STATUS beacon-home-01
 > BEACON DEVICES
 > BEACON CONFIGURE private-home "MyNetwork"
@@ -362,6 +362,6 @@ async def get_quota(device_id: str, request: Request):
 
 ---
 
-**Status:** Ready for implementation  
-**Owner:** uDOS Wizard Team  
+**Status:** Ready for implementation
+**Owner:** uDOS Wizard Team
 **Next Review:** 2026-02-15

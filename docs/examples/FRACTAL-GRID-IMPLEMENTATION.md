@@ -1,14 +1,14 @@
 # Fractal Grid + Universe Mapping — Implementation Guide
 
-**Status:** ✅ COMPLETE (v1.3.4)  
-**Date:** 2026-02-05  
+**Status:** ✅ COMPLETE (v1.3.4)
+**Date:** 2026-02-05
 **Author:** uDOS Development
 
 ---
 
 ## Overview
 
-This document describes the completed implementation of the **Anchor Registry** and **LocId Parser** systems for uDOS v1.3.4, as specified in [docs/v1-3 UNIVERSE.md](../v1-3%20UNIVERSE.md) and [docs/ROADMAP-STATUS.md](ROADMAP-STATUS.md).
+This document describes the completed implementation of the **Anchor Registry** and **LocId Parser** systems for uDOS v1.3.4, as specified in [docs/v1-3 UNIVERSE.md](../v1-3%20UNIVERSE.md) and [docs/ROADMAP.md](../ROADMAP.md).
 
 The system provides:
 - **Canonical coordinate identity** via LocId (e.g., `L305-DA11`)
@@ -258,7 +258,7 @@ console.log(place.anchorId, place.depth, place.instance);
 const registry = new AnchorRegistry();
 registry.registerAnchor({ id: "GAME:skyrim", title: "The Elder Scrolls V" });
 
-const isValid = validatePlaceRef("GAME:skyrim:SUB:L402-CC18", 
+const isValid = validatePlaceRef("GAME:skyrim:SUB:L402-CC18",
   (id) => registry.validateAnchor(id)
 );
 console.log(isValid.valid);  // true
@@ -453,7 +453,7 @@ See the specification documents for full context:
 - [docs/v1-3 UNIVERSE.md](../v1-3%20UNIVERSE.md) — Fractal grid & anchor model
 - [sonic/docs/specs/uDOS-Gameplay-Anchors-v1.3-Spec.md](../../sonic/docs/specs/uDOS-Gameplay-Anchors-v1.3-Spec.md) — Gameplay anchors & transforms
 - [core/src/spatial/README.md](../../core/src/spatial/README.md) — Spatial module guide
-- [docs/ROADMAP-STATUS.md](ROADMAP-STATUS.md) — v1.3.4+ roadmap
+- [docs/ROADMAP.md](../ROADMAP.md) — v1.3.4+ roadmap
 
 ---
 

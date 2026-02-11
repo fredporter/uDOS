@@ -193,7 +193,7 @@ To activate Dev Mode:
 
 ```bash
 # Via TUI
-./bin/start_udos.sh
+./bin/Launch-uCODE.sh
 > DEV MODE activate
 
 # Via REST API

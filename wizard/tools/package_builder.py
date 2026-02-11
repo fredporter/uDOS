@@ -55,7 +55,9 @@ class PackageBuilder:
                 "version_module": "core",
                 "sources": [
                     ("core", "opt/udos/core"),
-                    ("start_udos.sh", "opt/udos/bin/udos"),
+                    ("bin/Launch-uCODE.sh", "opt/udos/bin/Launch-uCODE.sh"),
+                    ("bin/udos-common.sh", "opt/udos/bin/udos-common.sh"),
+                    ("bin/udos-self-heal.sh", "opt/udos/bin/udos-self-heal.sh"),
                 ],
                 "dependencies": ["python3.11"],
                 "exclude": ["__pycache__", "*.pyc", ".git", "tests"],

@@ -31,6 +31,31 @@ VERSION="1.0.3.0"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd 2>/dev/null || echo "$SCRIPT_DIR")"
 
+# Bootstrap if running outside a repo (e.g., curl | bash)
+if [ ! -f "$PROJECT_ROOT/uDOS.py" ]; then
+    if [ "${UDOS_BOOTSTRAPPED:-0}" = "1" ]; then
+        echo "[ERROR] Could not locate uDOS repo root (missing uDOS.py)." >&2
+        echo "[ERROR] Set UDOS_REPO_URL to a valid repo or run from inside the repo." >&2
+        exit 1
+    fi
+
+    if ! command -v git >/dev/null 2>&1; then
+        echo "[ERROR] git is required to bootstrap the uDOS repository." >&2
+        exit 1
+    fi
+
+    TARGET_DIR="${UDOS_HOME_ROOT:-$HOME/uDOS}"
+    REPO_URL="${UDOS_REPO_URL:-https://github.com/fredporter/uDOS.git}"
+
+    if [ ! -d "$TARGET_DIR/.git" ]; then
+        echo "[BOOT] Cloning uDOS into $TARGET_DIR"
+        git clone "$REPO_URL" "$TARGET_DIR"
+    fi
+
+    export UDOS_BOOTSTRAPPED=1
+    exec "$TARGET_DIR/bin/install.sh" "$@"
+fi
+
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/udos-common.sh"
 
@@ -293,8 +318,11 @@ install_unix() {
     cp -r "$PROJECT_ROOT/extensions" "$prefix/"
     cp -r "$PROJECT_ROOT/knowledge" "$prefix/"
     cp "$PROJECT_ROOT/requirements.txt" "$prefix/"
-    cp "$PROJECT_ROOT/start_udos.sh" "$prefix/"
-    chmod +x "$prefix/start_udos.sh"
+    mkdir -p "$prefix/bin"
+    cp "$PROJECT_ROOT/bin/Launch-uCODE.sh" "$prefix/bin/"
+    cp "$PROJECT_ROOT/bin/udos-common.sh" "$prefix/bin/"
+    cp "$PROJECT_ROOT/bin/udos-self-heal.sh" "$prefix/bin/"
+    chmod +x "$prefix/bin/Launch-uCODE.sh"
 
     # Create Python venv
     info "Creating Python virtual environment..."
@@ -317,7 +345,7 @@ install_unix() {
 # uDOS Launcher - v$VERSION
 source "$prefix/venv/bin/activate"
 cd "$prefix"
-python -m core.uDOS_main "\$@"
+exec "$prefix/bin/Launch-uCODE.sh" "\$@"
 EOF
     chmod +x "$launcher"
 
@@ -366,6 +394,11 @@ EOF
 
     success "uDOS installed to $prefix"
     info "Run 'udos' to start (ensure $launcher is in PATH)"
+
+    if [ "${UDOS_AUTOSTART:-0}" = "1" ]; then
+        info "Auto-starting uDOS..."
+        "$prefix/bin/Launch-uCODE.sh" core
+    fi
 }
 
 # Development mode
@@ -388,7 +421,12 @@ install_dev() {
     setup_user_directory "$HOME"
 
     success "Development environment ready"
-    info "Run: source venv/bin/activate && ./start_udos.sh"
+    info "Run: source venv/bin/activate && ./bin/Launch-uCODE.sh"
+
+    if [ "${UDOS_AUTOSTART:-0}" = "1" ]; then
+        info "Auto-starting uDOS..."
+        "${PROJECT_ROOT}/bin/Launch-uCODE.sh" core
+    fi
 }
 
 # Setup user directory structure
@@ -455,7 +493,7 @@ uninstall() {
 
     warn "This will remove:"
     echo "  - /opt/udos (or /usr/local/udos)"
-    echo "  - /usr/local/bin/udos launcher"
+    echo "  - /usr/local/bin/udos launcher (Launch-uCODE.sh wrapper)"
     echo ""
     echo "User data (~/.udos) will be preserved."
     echo ""

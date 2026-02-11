@@ -8,8 +8,8 @@ spec: wiki_spec_obsidian.md
 ---
 # uDOS Beacon Portal Protocol
 
-**Version:** 1.0.0  
-**Status:** Specification  
+**Version:** 1.0.0
+**Status:** Specification
 **Last Updated:** 2026-01-25
 
 ## Purpose
@@ -175,8 +175,8 @@ The beacon intentionally does **not**:
 
 A uDOS Beacon is considered valid if:
 
-✅ SSID matches spec  
-✅ WPA key is correct (`knockknock`)  
+✅ SSID matches spec
+✅ WPA key is correct (`knockknock`)
 ✅ Redirect target is reachable
 
 **Hardware replacement must not affect system identity.**
@@ -238,15 +238,15 @@ Example: If your beacon router fails, you can replace it with any standard consu
 
 ## Canonical Summary
 
-> A uDOS Beacon is a physical invitation.  
-> It does not speak.  
+> A uDOS Beacon is a physical invitation.
+> It does not speak.
 > It introduces you to the one who will.
 
 ---
 # Beacon Portal Quick Reference
 
-**Version:** 1.0.0  
-**Status:** Implementation Guide  
+**Version:** 1.0.0
+**Status:** Implementation Guide
 **Last Updated:** 2026-01-25
 
 ## What is a Beacon?
@@ -356,7 +356,7 @@ dnsmasq
 git clone https://github.com/fredporter/uDOS.git
 cd uDOS
 pip install -e .
-./bin/start_udos.sh
+./bin/Launch-uCODE.sh
 
 # Inside uDOS:
 > BEACON REGISTER beacon-home
@@ -626,6 +626,6 @@ If tunnel is down:
 
 ---
 
-**Last Updated:** 2026-01-25  
-**Version:** v1.0.0  
+**Last Updated:** 2026-01-25
+**Version:** v1.0.0
 **Status:** Ready for Deployment

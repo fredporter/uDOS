@@ -101,7 +101,7 @@ def open_debug_tui():
             script = f"""
             tell application "Terminal"
                 activate
-                do script "cd {udos_path} && source .venv/bin/activate && ./start_udos.sh -c L"
+                do script "cd {udos_path} && source .venv/bin/activate && ./bin/Launch-uCODE.sh core -c L"
             end tell
             """
             subprocess.Popen(["osascript", "-e", script])
@@ -111,7 +111,7 @@ def open_debug_tui():
             terminals = ["gnome-terminal", "konsole", "xfce4-terminal", "xterm"]
             for term in terminals:
                 try:
-                    cmd = f"cd {udos_path} && source .venv/bin/activate && ./start_udos.sh -c L"
+                    cmd = f"cd {udos_path} && source .venv/bin/activate && ./bin/Launch-uCODE.sh core -c L"
                     subprocess.Popen([term, "--", "bash", "-c", cmd])
                     method = term
                     break
@@ -121,7 +121,7 @@ def open_debug_tui():
                 return jsonify(
                     {
                         "status": "manual",
-                        "command": f"cd {udos_path} && ./start_udos.sh -c L",
+                        "command": f"cd {udos_path} && ./bin/Launch-uCODE.sh core -c L",
                         "message": "No supported terminal found. Run command manually.",
                     }
                 )
@@ -129,7 +129,7 @@ def open_debug_tui():
             return jsonify(
                 {
                     "status": "manual",
-                    "command": f"cd {udos_path} && ./start_udos.sh -c L",
+                    "command": f"cd {udos_path} && ./bin/Launch-uCODE.sh core -c L",
                     "message": "Platform not supported for auto-launch. Run command manually.",
                 }
             )
@@ -149,7 +149,7 @@ def open_debug_tui():
         return jsonify(
             {
                 "status": "manual",
-                "command": f"cd {project_root} && ./start_udos.sh -c L",
+                "command": f"cd {project_root} && ./bin/Launch-uCODE.sh core -c L",
                 "error": str(e),
             }
         )

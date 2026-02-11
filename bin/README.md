@@ -1,17 +1,18 @@
 # uDOS Unified Launcher
 
-One entry point for everything: **Launch-uCODE** (`.command` for macOS, `.sh` for Linux)
+One entry point for everything: **Launch-uCODE.sh**
 
 ---
 
 ## 🚀 Quick Start
 
-### Platform-Specific Launchers
+### Unified Launcher
 
-**macOS:** Double-click `Launch-uCODE.command` or run `./bin/Launch-uCODE.command`
-**Linux:** Run `./bin/Launch-uCODE.sh` (Ubuntu, Alpine, etc.)
+Run:
 
-Both launchers provide the same functionality with platform-specific optimizations.
+```bash
+./bin/Launch-uCODE.sh
+```
 
 ### Process Management
 
@@ -23,43 +24,21 @@ Both launchers provide the same functionality with platform-specific optimizatio
 ./bin/Launch-uCODE.sh
 ```
 
-### Single Entry Point (macOS)
-
-**Double-click:** `Launch-uCODE.command`
-
-Shows an interactive menu:
-
-```
-╔═════════════════════════════════════════════════════╗
-║       uCODE - Unified Launcher                      ║
-║      Role: dev                                      ║
-╚═════════════════════════════════════════════════════╝
-
-  1) Core TUI - Terminal interface (offline-first)
-  2) Wizard Server - Always-on services (port 8765)
-  3) Goblin Dev Server - Experimental features (port 8767)
-  4) App Dev - uMarkdown app development
-
-  q) Quit
-
-Select component [1-4]:
-```
-
 ### Command-Line Launch
 
 ```bash
 # Interactive menu
-./Launch-uCODE.command
+./bin/Launch-uCODE.sh
 
 # Direct component launch
-./Launch-uCODE.command core              # Core TUI (default)
-./Launch-uCODE.command wizard            # Wizard Server
-./Launch-uCODE.command goblin            # Goblin Dev (dev role only)
-./Launch-uCODE.command app               # App Dev (dev role only)
+./bin/Launch-uCODE.sh core              # Core TUI (default)
+./bin/Launch-uCODE.sh wizard            # Wizard Server
+./bin/Launch-uCODE.sh goblin            # Goblin Dev (dev role only)
+./bin/Launch-uCODE.sh app               # App Dev (dev role only)
 
 # With explicit mode
-./Launch-uCODE.command wizard server     # Equivalent to: wizard server
-./Launch-uCODE.command core tui          # Equivalent to: core tui
+./bin/Launch-uCODE.sh wizard server     # Equivalent to: wizard server
+./bin/Launch-uCODE.sh core tui          # Equivalent to: core tui
 ```
 
 ---
@@ -129,16 +108,15 @@ After cleanup (2026-01-29):
 
 ```
 bin/
-├── Launch-uCODE.command      # ← Single unified entry point
+├── Launch-uCODE.sh           # ← Single unified entry point
 ├── udos-common.sh            # Shared helper functions
-├── udos                       # Python script launcher
 ├── install.sh                # Installation setup
 ├── port-manager              # Port conflict detection
 ├── udos-self-heal.sh         # Self-healing utilities
 └── README.md                 # This file
 ```
 
-**Archived:** All other `.command` and `.sh` files moved to `.archive/bin-launchers-2026-01-29/`
+**Archived:** Legacy launchers are deprecated and should not be used.
 
 ---
 
@@ -202,16 +180,16 @@ Type HELP for commands
 
 ```bash
 # Start Core TUI
-./Launch-uCODE.command core
+./bin/Launch-uCODE.sh core
 
 # In another terminal, start Wizard
-./Launch-uCODE.command wizard
+./bin/Launch-uCODE.sh wizard
 
 # In another, start Goblin for experimental work
-./Launch-uCODE.command goblin
+./bin/Launch-uCODE.sh goblin
 
 # In another, develop the App
-./Launch-uCODE.command app
+./bin/Launch-uCODE.sh app
 ```
 
 ### Integration with VS Code
@@ -222,7 +200,7 @@ The workspace includes tasks for each component (see `uDOS.code-workspace`).
 
 ## ✨ Why Unified Launcher?
 
-**Before:** 4+ separate `.command` files, confusing menu, unclear which to use
+**Before:** multiple launchers, unclear which to use
 **After:** 1 smart entry point, auto-detects components, shows what's available
 
 **Benefits:**
@@ -279,13 +257,9 @@ cat memory/logs/debug-*.log
 ```
 /bin/
 ├── README.md                        # This file
-├── Launch-uDOS-TUI.command          # TUI entry point
-├── Launch-Wizard-Server.command     # Wizard (always-on)
-└── launch-udos-dev.sh               # Dev setup
-
-/dev/goblin/bin/
-├── Launch-Goblin-Dev.command        # Goblin (experimental)
-└── launch-goblin-dev.sh             # Shell script version
+├── Launch-uCODE.sh                  # Unified entry point
+├── udos-common.sh                   # Shared helpers
+└── udos-self-heal.sh                # Maintenance utility
 ```
 
 ---
@@ -297,19 +271,19 @@ Start all servers for development:
 **Terminal 1 - TUI:**
 
 ```bash
-./bin/Launch-uDOS-TUI.command
+./bin/Launch-uCODE.sh core
 ```
 
 **Terminal 2 - Wizard:**
 
 ```bash
-./bin/Launch-Wizard-Server.command &
+./bin/Launch-uCODE.sh wizard &
 ```
 
 **Terminal 3 - Goblin:**
 
 ```bash
-./dev/goblin/bin/Launch-Goblin-Dev.command &
+./bin/Launch-uCODE.sh goblin &
 ```
 
 **Terminal 4 - App (optional):**
@@ -327,38 +301,10 @@ cd app && npm run tauri dev
 
 ---
 
-## 📚 Legacy Scripts
+## Single Entry Point
 
-The following scripts are still available for direct use:
-
-### `start_udos.sh` — Core TUI
-
-```bash
-./bin/start_udos.sh [script-file.md]
-```
-
-Features: Offline, no dependencies, minimal footprint
-
----
-
-### `start_goblin.sh` — Goblin Dev Server (Experimental)
-
-Launches the development server with runtime execution and binder tooling.
-
-```bash
-./bin/start_goblin.sh [port]
-```
-
-**Default:** Port 8767
-
-**Features:**
-
-- Webhook integration
-- TypeScript Markdown runtime
-- Task scheduling
-- Localhost-only mode
-
----
+Use `./bin/Launch-uCODE.sh` for all components. It detects role and availability
+and routes to the correct runtime.
 
 ## Setup Requirements
 
@@ -403,7 +349,7 @@ Any modern browser (Chrome, Firefox, Safari, Edge)
 
 ```bash
 # No prerequisites needed
-./bin/start_wizard.sh
+./bin/Launch-uCODE.sh wizard
 ```
 
 ### With Full Svelte Dashboard
@@ -411,7 +357,7 @@ Any modern browser (Chrome, Firefox, Safari, Edge)
 ```bash
 # First install Node.js (see above)
 # Then:
-./bin/start_wizard.sh
+./bin/Launch-uCODE.sh wizard
 
 # Script will auto-build dashboard
 ```
@@ -424,20 +370,20 @@ npm install
 npm run build
 
 # Then start server
-../bin/start_wizard.sh
+../bin/Launch-uCODE.sh wizard
 ```
 
 ### Custom Port
 
 ```bash
-./bin/start_wizard.sh 9000
-./bin/start_goblin.sh 9001
+./bin/Launch-uCODE.sh wizard --port 9000
+./bin/Launch-uCODE.sh goblin --port 9001
 ```
 
 ### Run in Background
 
 ```bash
-./bin/start_wizard.sh 8765 &
+./bin/Launch-uCODE.sh wizard &
 
 # Access at http://localhost:8765
 
@@ -472,8 +418,8 @@ The script will:
 **Solution:** Use a different port:
 
 ```bash
-./bin/start_wizard.sh 9000   # Instead of 8765
-./bin/start_goblin.sh 9001   # Instead of 8767
+./bin/Launch-uCODE.sh wizard --port 9000   # Instead of 8765
+./bin/Launch-uCODE.sh goblin --port 9001   # Instead of 8767
 ```
 
 ### Browser Won't Auto-Open
@@ -567,11 +513,9 @@ npm run dev
 
 ## Files Modified
 
-- `bin/start_udos.sh` — Core launcher
-- `bin/start_wizard.sh` — Wizard + Dashboard launcher ⭐
-- `bin/start_goblin.sh` — Goblin launcher
-- `wizard/dashboard/package.json` — Svelte build config
-- `wizard/server.py` — Fallback dashboard HTML
+- `bin/Launch-uCODE.sh` — Unified launcher
+- `bin/udos-common.sh` — Shared launcher helpers
+- `bin/udos-self-heal.sh` — Maintenance utility
 
 ---
 

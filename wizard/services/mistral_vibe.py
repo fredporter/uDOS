@@ -39,7 +39,7 @@ class MistralVibeIntegration:
         context: Dict[str, str] = {}
         files_to_read = [
             "AGENTS.md",
-            "docs/roadmap.md",
+            "docs/ROADMAP.md",
             "docs/_index.md",
             ".github/copilot-instructions.md",
         ]

@@ -28,7 +28,7 @@
 
   "files": {
     "python": "wizard/",
-    "bin": ["bin/Launch-Wizard-Dev.command", "wizard/launch_wizard_dev.py"],
+    "bin": ["bin/Launch-uCODE.sh", "wizard/launch_wizard_dev.py"],
     "config": "wizard/config/",
     "docs": "wizard/docs/"
   },

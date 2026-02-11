@@ -14,7 +14,7 @@ This doc reflects the current **uCODE‑TUI‑first** architecture. Vibe‑TUI h
 
 **Entry points**
 - `uDOS.py` → `core/tui/ucode.py`
-- `./bin/Launch-uCODE.command`
+- `./bin/Launch-uCODE.sh`
 
 **Routing**
 - `OK` / `?` → AI prompt handler (local‑first; optional cloud sanity via Wizard).

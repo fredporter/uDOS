@@ -1,7 +1,7 @@
 # uDOS Vision
 
-**Version:** v1.3.0  
-**Last Updated:** 2026-02-04  
+**Version:** v1.3.0
+**Last Updated:** 2026-02-04
 **Status:** Vision / Aspirational
 
 > This document describes the long‑term direction. Not every feature listed is part of the v1.3 release manifest.
@@ -174,7 +174,7 @@ wellbeing:
 
 ## 🚀 Getting Started
 
-1. **TUI Users**: Run `./start_udos.sh` and type `HELP`
+1. **TUI Users**: Run `./bin/Launch-uCODE.sh` and type `HELP`
 2. **Desktop Users**: Launch uCode Markdown App
 3. **Developers**: See [Contributing](../wiki/Contributing.md)
 

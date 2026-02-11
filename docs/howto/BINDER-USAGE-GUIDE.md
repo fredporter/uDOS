@@ -1,7 +1,7 @@
 # Binder System Usage Guide
 
-**Version:** v1.0.6.0 Phase 3  
-**Status:** Complete  
+**Version:** v1.0.6.0 Phase 3
+**Status:** Complete
 **Components:** BinderConfig, BinderValidator, BinderDatabase, BinderFeed
 
 ---
@@ -69,13 +69,13 @@ with BinderDatabase(binder_path) as db:
             category TEXT
         )
     """)
-    
+
     # Insert data
     db.execute(
         "INSERT INTO items (name, category) VALUES (?, ?)",
         ("Sample Item", "research")
     )
-    
+
     # Query data
     results = db.query("SELECT * FROM items")
     for row in results:
@@ -136,13 +136,13 @@ from core.binder import (
 
 def create_research_binder():
     """Create and populate a research binder"""
-    
+
     # 1. Setup paths
     binder_path = Path("./ResearchBinder")
     binder_path.mkdir(exist_ok=True)
     (binder_path / "imports").mkdir(exist_ok=True)
     (binder_path / "tables").mkdir(exist_ok=True)
-    
+
     # 2. Create configuration
     config = BinderConfig(
         name="Research Binder",
@@ -153,7 +153,7 @@ def create_research_binder():
         tags=["research", "climate", "data"]
     )
     save_binder_config(config, binder_path)
-    
+
     # 3. Initialize database
     with BinderDatabase(binder_path) as db:
         db.execute("""
@@ -164,14 +164,14 @@ def create_research_binder():
                 result REAL
             )
         """)
-        
+
         db.execute("""
             INSERT INTO experiments (name, date, result) VALUES
             ('Experiment A', '2026-01-10', 23.5),
             ('Experiment B', '2026-01-12', 24.1),
             ('Experiment C', '2026-01-15', 23.8)
         """)
-    
+
     # 4. Add research notes
     (binder_path / "note1.md").write_text("""---
 title: Initial Findings
@@ -184,7 +184,7 @@ tags: [experiment, findings]
 
 Our first experiment showed promising results...
 """)
-    
+
     (binder_path / "note2.md").write_text("""---
 title: Follow-up Analysis
 date: 2026-01-15
@@ -196,37 +196,37 @@ tags: [analysis, results]
 
 Further analysis revealed...
 """)
-    
+
     # 5. Validate structure
     report = BinderValidator.validate(binder_path)
     print(f"Validation: {'✓ Valid' if report.is_valid else '✗ Invalid'}")
-    
+
     # 6. Query database
     with BinderDatabase(binder_path) as db:
         results = db.query("""
-            SELECT name, date, result 
-            FROM experiments 
+            SELECT name, date, result
+            FROM experiments
             ORDER BY date DESC
         """)
         print(f"\nExperiments ({len(results)}):")
         for row in results:
             print(f"  {row['name']}: {row['result']} ({row['date']})")
-    
+
     # 7. Generate feed
     feed = BinderFeed(binder_path, base_url="https://research.example.com")
     items = feed.scan_files()
     print(f"\nArticles ({len(items)}):")
     for item in items:
         print(f"  {item.title} by {item.author or 'Unknown'}")
-    
+
     # Save feeds
     rss = feed.generate_rss()
     feed.save_feed(binder_path / "feed.xml", rss)
-    
+
     json_feed = feed.generate_json()
     import json
     (binder_path / "feed.json").write_text(json.dumps(json_feed, indent=2))
-    
+
     print(f"\n✓ Binder created at: {binder_path}")
     print(f"✓ Database: {binder_path / 'uDOS-table.db'}")
     print(f"✓ RSS feed: {binder_path / 'feed.xml'}")
@@ -270,7 +270,7 @@ class ValidationReport:
     is_valid: bool
     binder_path: Path
     issues: List[ValidationIssue]
-    
+
     def has_critical() -> bool
     def has_warnings() -> bool
     def summary() -> str
@@ -281,15 +281,15 @@ class ValidationReport:
 ```python
 class BinderDatabase:
     def __init__(self, binder_path: Path, mode: AccessMode = AccessMode.READ_WRITE)
-    
+
     # Context manager
     def __enter__() -> BinderDatabase
     def __exit__(exc_type, exc_val, exc_tb)
-    
+
     # Query methods
     def query(sql: str, params: Optional[tuple]) -> List[Dict[str, Any]]
     def execute(sql: str, params: Optional[tuple]) -> int
-    
+
     # Utility methods
     def table_exists(table_name: str) -> bool
     def get_schema(table_name: str) -> List[Dict]
@@ -306,12 +306,12 @@ class AccessMode(Enum):
 ```python
 class BinderFeed:
     def __init__(self, binder_path: Path, base_url: Optional[str] = None)
-    
+
     # Scan and generate
     def scan_files(pattern: str = "*.md") -> List[FeedItem]
     def generate_rss(items: Optional[List[FeedItem]]) -> str
     def generate_json(items: Optional[List[FeedItem]]) -> Dict
-    
+
     # Save feeds
     def save_feed(output_path: Path, content: str, format: FeedFormat)
 
@@ -347,7 +347,7 @@ with BinderDatabase(binder_path) as db:
             phone TEXT
         )
     """)
-    
+
     # Import from CSV
     import csv
     csv_path = binder_path / "imports" / "items.csv"
@@ -365,12 +365,12 @@ with BinderDatabase(binder_path) as db:
 ```python
 with BinderDatabase(binder_path) as db:
     results = db.query("SELECT * FROM items ORDER BY name")
-    
+
     # Generate markdown table
     md_lines = ["# Items\n", "| Name | Category | Phone |", "|------|----------|-------|"]
     for row in results:
         md_lines.append(f"| {row['name']} | {row['category']} | {row['phone']} |")
-    
+
     # Save to tables folder
     (binder_path / "tables" / "items.table.md").write_text("\n".join(md_lines))
 ```
@@ -448,9 +448,9 @@ rss_xml = feed.generate_rss(items=research_items)
 - Integration Tests: `core/tests/test_binder_integration_v1_0_6.py`
 - Unit Tests: `core/tests/test_binder_*.py`
 - Phase 3 Documentation: `docs/devlog/2026-01-17-phase-3-*.md`
-- Roadmap: `docs/roadmap.md`
+- Roadmap: `docs/ROADMAP.md`
 
 ---
 
-**Last Updated:** 2026-01-17  
+**Last Updated:** 2026-01-17
 **Author:** uDOS Team

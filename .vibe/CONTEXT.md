@@ -8,7 +8,7 @@
 
 1. [AGENTS.md](../AGENTS.md) — **Start here:** How work is done in this repo
 2. [docs/\_index.md](../docs/_index.md) — Engineering entry point
-3. [docs/roadmap.md](../docs/roadmap.md) — Current priorities (now/next/later)
+3. [docs/ROADMAP.md](../docs/ROADMAP.md) — Current priorities (now/next/later)
 4. [docs/devlog/](../docs/devlog/) — Recent development activity
 5. [docs/decisions/](../docs/decisions/) — Architecture Decision Records (ADRs)
 
@@ -147,7 +147,7 @@ python -m core.version bump core build
 
 ```bash
 # TUI
-./start_udos.sh
+./bin/Launch-uCODE.sh
 
 # API + Dashboard (Dev Mode)
 ./Dev-Mode.command
@@ -160,7 +160,7 @@ python -m core.version bump core build
 
 ```bash
 # Shakedown (47 tests)
-./start_udos.sh
+./bin/Launch-uCODE.sh
 # Then type: SHAKEDOWN
 
 # Python tests
@@ -222,7 +222,7 @@ REPAIR --upgrade-all   # Update all
 - [ ] Wizard Dev Mode
 - [ ] TCZ packaging
 
-See [docs/roadmap.md](../docs/roadmap.md) for details.
+See [docs/ROADMAP.md](../docs/ROADMAP.md) for details.
 
 ---
 

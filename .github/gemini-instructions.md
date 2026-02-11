@@ -19,7 +19,7 @@ When assisting with uDOS development:
 2. **Entry point**: `core/uDOS_main.py` → `core/uDOS_commands.py` (router)
 3. **Command flow**: Router → Handler (`core/commands/*_handler.py`) → Service
 4. **Configuration**: `core/config.py` (unified .env + user.json)
-5. **Test validation**: Run `./start_udos.sh memory/tests/shakedown-script.md`
+5. **Test validation**: Run `./bin/Launch-uCODE.sh core` or `python uDOS.py --script memory/tests/shakedown-script.md`
 
 ## Workspace Structure (v1.2.21)
 
@@ -200,7 +200,7 @@ Context available in OK commands includes:
 ✅ **Do:**
 - Use error_helper for all exceptions
 - Check logs before suggesting fixes
-- Test with `./start_udos.sh script-example.md`
+- Test with `./bin/Launch-uCODE.sh core` or `python uDOS.py --script script-example.md`
 - Run SHAKEDOWN after changes
 - Follow handler pattern for commands
 - Document all public APIs
@@ -209,7 +209,7 @@ Context available in OK commands includes:
 
 ```bash
 # Core validation
-./start_udos.sh memory/tests/shakedown-script.md
+./bin/Launch-uCODE.sh core
 
 # Unit tests
 pytest core/memory/tests/ -v

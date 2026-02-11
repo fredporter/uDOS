@@ -65,16 +65,7 @@ The lightweight text-based interface, perfect for command testing and embedded s
 **Terminal (CLI):**
 
 ```bash
-./bin/start_udos.sh
-# Or directly:
-./bin/start-core-tui.sh
-```
-
-**macOS Finder:**
-
-```bash
-open bin/Launch-uDOS-TUI.command
-# Or double-click in Finder
+./bin/Launch-uCODE.sh
 ```
 
 **Features:**
@@ -92,14 +83,7 @@ Always-on backend service with web dashboard for APIs, webhooks, and AI model ro
 **Terminal (CLI):**
 
 ```bash
-./bin/start-wizard-server.sh
-```
-
-**macOS Finder:**
-
-```bash
-open bin/Launch-Wizard-Server.command
-# Or double-click in Finder
+./bin/Launch-uCODE.sh wizard
 ```
 
 **What this does:**
@@ -255,7 +239,7 @@ pip install Pillow python-dotenv prompt_toolkit rich
 **Solution:** The unified launcher system auto-detects port conflicts. If needed, manually specify a port:
 
 ```bash
-./bin/start-wizard-server.sh --port 9000   # Custom port
+./bin/Launch-uCODE.sh wizard --port 9000   # Custom port
 ```
 
 ### Browser Won't Open
