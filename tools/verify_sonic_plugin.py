@@ -190,9 +190,7 @@ def test_file_structure():
         "wizard/routes/sonic_plugin_routes.py",
         "wizard/services/sonic_plugin_service.py",
         "core/commands/sonic_plugin_handler.py",
-        "docs/SONIC-MIGRATION-MODULAR.md",
-        "docs/SONIC-TUI-MODULAR-SUMMARY.md",
-        "docs/SONIC-MODULAR-FILE-INDEX.md",
+        "docs/features/SONIC-MODULAR-FILE-INDEX.md",
     ]
 
     all_exist = True

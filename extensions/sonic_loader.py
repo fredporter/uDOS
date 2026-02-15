@@ -19,7 +19,7 @@ class SonicPluginLoader:
             repo_root: Repository root path (auto-detected if None)
         """
         if repo_root is None:
-            repo_root = Path(__file__).resolve().parents[2]
+            repo_root = Path(__file__).resolve().parents[1]
 
         self.repo_root = Path(repo_root)
         self.library_path = self.repo_root / "library" / "sonic"
