@@ -10,6 +10,7 @@ UGRID Core provides a unified rendering layer for all text-based UI output in uD
 - ✅ Fixed 80×30 character canvas (teletext-style)
 - ✅ 5 layout modes: calendar, table, schedule, map, dashboard
 - ✅ LocId spatial overlay system for maps
+- ✅ Workflow cross-links (calendar/schedule/todo items -> spatial place refs)
 - ✅ Deterministic output (good for diffs, logging, archiving)
 - ✅ Plain text + ANSI backend support
 - ✅ No external dependencies (pure TypeScript)
@@ -140,10 +141,13 @@ const lines = c.toLines();
 **Input:**
 ```typescript
 {
-  events: Array<{ time: string; title: string }>;
-  tasks: Array<{ status: string; text: string }>;
+  events: Array<{ time: string; title: string; placeRef?: string; locId?: string; location?: string }>;
+  tasks: Array<{ status: string; text: string; placeRef?: string; locId?: string; location?: string }>;
 }
 ```
+
+When `placeRef`/`locId`/`location` is present, calendar mode renders compact `@` hints and a footer summary:
+`Spatial: <placeRef>, ...`
 
 ### 2. Table Mode
 
@@ -192,10 +196,13 @@ Filters: team:dev priority:high
 **Input:**
 ```typescript
 {
-  events: Array<{ time: string; item: string; location: string }>;
+  events: Array<{ time: string; item: string; location?: string; placeRef?: string; locId?: string }>;
   filters?: Record<string, string>;
 }
 ```
+
+Schedule mode prefers `placeRef`/`locId` over plain `location` when present and renders a footer summary:
+`Spatial <placeRef>, ...`
 
 ### 4. Map Mode
 

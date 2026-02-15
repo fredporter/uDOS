@@ -122,8 +122,12 @@ function testCalendarMode(): TestResult {
       mode: "calendar",
       spec: { width: 80, height: 30, title: "Test Calendar" },
       data: {
-        events: [{ time: "10:00", title: "Meeting" }],
-        tasks: [{ status: "[ ]", text: "Task 1" }],
+        events: [
+          { time: "10:00", title: "Meeting", placeRef: "EARTH:SUR:L305-DA11" },
+        ],
+        tasks: [
+          { status: "[ ]", text: "Task 1", placeRef: "EARTH:SUR:L305-DA12" },
+        ],
       },
     };
 
@@ -138,6 +142,10 @@ function testCalendarMode(): TestResult {
       "Should include format marker",
     );
     assert(result.rawText.includes("Test Calendar"), "Should include title");
+    assert(
+      result.rawText.includes("Spatial: EARTH:SUR:L305-DA11, EARTH:SUR:L305-DA12"),
+      "Should include spatial cross-link footer",
+    );
 
     return {
       name: "Calendar Mode",
@@ -185,7 +193,9 @@ function testScheduleMode(): TestResult {
       mode: "schedule",
       spec: { width: 80, height: 30, title: "Test Schedule" },
       data: {
-        events: [{ time: "10:00", item: "Meeting", location: "Room A" }],
+        events: [
+          { time: "10:00", item: "Meeting", placeRef: "EARTH:SUR:L305-DA11" },
+        ],
       },
     };
 
@@ -193,6 +203,10 @@ function testScheduleMode(): TestResult {
 
     assert(result.lines.length === 30, "Should have 30 lines");
     assert(result.rawText.includes("Schedule"), "Should include Schedule");
+    assert(
+      result.rawText.includes("Spatial EARTH:SUR:L305-DA11"),
+      "Should include schedule spatial link footer",
+    );
 
     return {
       name: "Schedule Mode",
