@@ -5,7 +5,6 @@ from datetime import datetime
 import json
 import subprocess
 import threading
-import os
 import webbrowser
 from pathlib import Path
 from core.commands.base import BaseCommandHandler
@@ -13,6 +12,7 @@ from core.commands.interactive_menu_mixin import InteractiveMenuMixin
 from core.tui.output import OutputToolkit
 from core.tui.ui_elements import Spinner
 from core.services.logging_api import get_logger, get_repo_root
+from core.services.destructive_ops import remove_path, resolve_vault_root, scrub_directory
 
 logger = get_logger("wizard-handler")
 
@@ -658,8 +658,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         ]
         for token_path in token_paths:
             try:
-                if token_path.exists():
-                    token_path.unlink()
+                if remove_path(token_path):
                     output_lines.append(f"✅ Removed {token_path}")
             except Exception as exc:
                 output_lines.append(f"⚠️  Failed to remove {token_path}: {exc}")
@@ -667,23 +666,15 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         if wipe_profile:
             profile_path = Path(repo_root) / "memory" / "user" / "profile.json"
             try:
-                if profile_path.exists():
-                    profile_path.unlink()
+                if remove_path(profile_path):
                     output_lines.append(f"✅ Removed {profile_path}")
             except Exception as exc:
                 output_lines.append(f"⚠️  Failed to remove {profile_path}: {exc}")
 
         if scrub_vault:
-            vault_root = (
-                Path(os.getenv("VAULT_ROOT", "")).expanduser()
-                if os.getenv("VAULT_ROOT")
-                else Path(repo_root) / "memory" / "vault"
-            )
+            vault_root = resolve_vault_root(Path(repo_root))
             try:
-                if vault_root.exists():
-                    import shutil
-                    shutil.rmtree(vault_root)
-                    vault_root.mkdir(parents=True, exist_ok=True)
+                scrub_directory(vault_root, recreate=True)
                 output_lines.append(f"✅ Scrubbed VAULT_ROOT at {vault_root}")
             except Exception as exc:
                 output_lines.append(f"⚠️  Failed to scrub VAULT_ROOT: {exc}")

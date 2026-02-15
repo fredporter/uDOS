@@ -55,6 +55,7 @@ from core.commands import (
     ScriptHandler,
     ViewportHandler,
     DrawHandler,
+    WorkspaceHandler,
 )
 
 
@@ -70,6 +71,7 @@ class CommandDispatcher:
 
         file_editor = FileEditorHandler()
         maintenance = MaintenanceHandler()
+        workspace = WorkspaceHandler()
 
         # Import FileHandler here to avoid circular import
         # (FileHandler → OutputToolkit → ucode → dispatcher → FileHandler)
@@ -129,6 +131,10 @@ class CommandDispatcher:
             "INTEGRATION": IntegrationHandler(),
             # Binder (Core)
             "BINDER": BinderHandler(),
+            # Workspace-aware file operations
+            "WORKSPACE": workspace,
+            "TAG": workspace,
+            "LOCATION": workspace,
             # Runtime (Story format)
             "STORY": StoryHandler(),
             "RUN": RunHandler(),

@@ -22,11 +22,18 @@ from core.services.logging_api import get_repo_root
 class BinderHandler(BaseCommandHandler):
     """Handler for BINDER command - binder selection and compilation."""
 
+    def __init__(self):
+        super().__init__()
+        self._spatial_handler = None
+
     def handle(self, command: str, params: List[str], grid, parser) -> Dict:
         if not params:
             return self._pick_binder(".")
 
         subcommand = params[0].upper()
+
+        if subcommand in {"OPEN", "LIST", "ADD"}:
+            return self._handle_workspace_subcommand(command, subcommand, params[1:])
 
         if subcommand == "PICK":
             start_dir = params[1] if len(params) > 1 else "."
@@ -131,7 +138,27 @@ class BinderHandler(BaseCommandHandler):
         }
 
     def _default_binder_root(self) -> Path:
-        return get_repo_root() / "vault" / "bank" / "binders"
+        return get_repo_root() / "memory" / "vault" / "bank" / "binders"
+
+    def _handle_workspace_subcommand(
+        self, command: str, subcommand: str, params: List[str]
+    ) -> Dict:
+        from core.commands.spatial_filesystem_handler import (
+            SpatialFilesystemHandler,
+            dispatch_spatial_command,
+        )
+
+        if self._spatial_handler is None:
+            self._spatial_handler = SpatialFilesystemHandler()
+
+        args = [command, subcommand] + params
+        output = dispatch_spatial_command(self._spatial_handler, args)
+        status = "error" if output.startswith("❌") else "success"
+        return {
+            "status": status,
+            "message": output.splitlines()[0] if output else "Binder command complete",
+            "output": output,
+        }
 
 
 def _run_async(coro):

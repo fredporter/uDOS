@@ -17,61 +17,20 @@ When Wizard Server is installed, it imports these local settings.
 
 from pathlib import Path
 from typing import Dict, List
-import os
 from datetime import datetime
 
 from core.commands.base import BaseCommandHandler
 from core.commands.interactive_menu_mixin import InteractiveMenuMixin
 from core.services.logging_api import get_repo_root, get_logger
+from core.commands.setup_handler_helpers import (
+    clear_setup_env,
+    initialize_env_from_example,
+    load_setup_env_vars,
+    save_setup_to_env,
+    setup_help_text,
+)
 
 logger = get_logger('setup-handler')
-
-
-def _detect_udos_root() -> Path:
-    """
-    Auto-detect uDOS repository root for UDOS_ROOT .env variable.
-
-    Tries in order:
-    1. UDOS_ROOT environment variable (container override)
-    2. Relative path from this file (local development)
-    3. Raise error if not found
-
-    Returns:
-        Path: Absolute path to uDOS repository root
-
-    Raises:
-        RuntimeError: If root cannot be detected
-    """
-    # Try environment first (containers will set this)
-    env_root = os.getenv("UDOS_ROOT")
-    if env_root:
-        env_path = Path(env_root).expanduser()
-        marker = env_path / "uDOS.py"
-        if marker.exists():
-            logger.info(f"[LOCAL] UDOS_ROOT detected from environment: {env_path}")
-            return env_path
-        else:
-            logger.warning(f"[LOCAL] UDOS_ROOT env var set but uDOS.py not found at {env_path}")
-
-    # Fall back to relative path discovery
-    try:
-        current_file = Path(__file__).resolve()
-        # setup_handler.py → core/commands → core → root
-        candidate = current_file.parent.parent.parent
-        marker = candidate / "uDOS.py"
-
-        if marker.exists():
-            logger.info(f"[LOCAL] UDOS_ROOT auto-detected: {candidate}")
-            return candidate
-    except Exception as e:
-        logger.warning(f"[LOCAL] Relative path detection failed: {e}")
-
-    raise RuntimeError(
-        "Cannot auto-detect uDOS root. Please:\n"
-        "1. Ensure uDOS.py exists at repository root\n"
-        "2. Or set UDOS_ROOT environment variable\n"
-        "3. Or run setup from repository root directory"
-    )
 
 
 class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
@@ -448,21 +407,7 @@ Key fields to edit:
     def _clear_setup(self) -> Dict:
         """Clear setup data from .env."""
         try:
-            env_vars = [
-                'USER_NAME', 'USER_DOB', 'USER_ROLE',
-                'UDOS_LOCATION', 'UDOS_TIMEZONE', 'OS_TYPE',
-                'USER_PASSWORD', 'USER_ID'
-            ]
-
-            # Remove these variables from .env while keeping others
-            lines = []
-            if self.env_file.exists():
-                for line in self.env_file.read_text().splitlines():
-                    key = line.split('=')[0].strip() if '=' in line else None
-                    if key not in env_vars:
-                        lines.append(line)
-
-            self.env_file.write_text('\n'.join(lines))
+            clear_setup_env(self.env_file)
 
             return {
                 "status": "success",
@@ -478,61 +423,7 @@ Key fields to edit:
         """Show help for SETUP command."""
         return {
             "status": "success",
-            "output": """
-╔═════════════════════════════════════════════════════════════╗
-║              SETUP - Local Offline Configuration            ║
-╚═════════════════════════════════════════════════════════════╝
-
-SETUP configures your user identity locally in .env.
-Works completely offline without needing Wizard Server.
-
-When Wizard Server is installed, it imports this data and extends it
-with sensitive integrations (credentials, API keys, webhooks, etc.)
-stored in the Wizard keystore.
-
-USAGE:
-  SETUP              Run setup story (interactive questions)
-  SETUP <provider>   Setup a provider (github, ollama, mistral, etc.)
-  SETUP vibe         Install Vibe CLI + Ollama + Mistral models
-  INSTALL vibe       Alias for SETUP vibe
-  SETUP --profile    Show your current setup
-  SETUP --edit       Edit setup manually
-  SETUP --clear      Clear all setup data
-  SETUP --help       Show this help
-
-PROVIDERS:
-  SETUP github       Configure GitHub authentication
-  SETUP ollama       Setup local Ollama AI model
-  SETUP mistral      Configure Mistral AI provider
-  SETUP openrouter   Configure OpenRouter gateway
-  SETUP vibe         Install Vibe CLI + Ollama + Mistral local models
-
-LOCAL SETTINGS (.env):
-    USER_NAME          Username
-  USER_DOB           Birth date (YYYY-MM-DD)
-  USER_ROLE          ghost | user | admin
-  USER_PASSWORD      Optional password (user/admin - can be blank)
-  UDOS_LOCATION      City or grid coordinates
-  UDOS_TIMEZONE      Timezone identifier
-  OS_TYPE            alpine | ubuntu | mac | windows
-
-EXTENDED SETTINGS (Wizard Keystore - installed later):
-    API Keys:          GitHub, OpenAI, Anthropic, etc.
-  OAuth Tokens:      Calendar, Google Drive, etc.
-  Cloud Services:    AWS, GCP, Azure credentials
-  Webhooks:          Custom webhooks and secrets
-  AI Routing:        Provider credentials and endpoints
-  Activations:       Integration activation settings
-
-EXAMPLES:
-  SETUP                     # Start interactive setup
-  SETUP github              # Setup GitHub authentication
-  SETUP ollama              # Setup local Ollama
-  SETUP vibe                # Install Vibe CLI + Ollama + Mistral models
-  SETUP --profile           # View current settings
-  SETUP --clear && SETUP    # Reset and reconfigure
-  nano .env                 # Manual editing
-"""
+            "output": setup_help_text(),
         }
 
     def _setup_vibe(self) -> Dict:
@@ -595,134 +486,17 @@ EXAMPLES:
 
     def _initialize_env_from_example(self) -> None:
         """Initialize .env from .env.example if it doesn't exist."""
-        if self.env_file.exists():
-            return
-
-        example_file = self.env_file.parent / ".env.example"
-        if not example_file.exists():
-            return
-
-        try:
-            # Copy .env.example to .env
-            example_content = example_file.read_text()
-            self.env_file.write_text(example_content)
-            from core.services.logging_api import get_logger
-            get_logger("setup").info("[LOCAL] Initialized .env from .env.example")
-        except Exception as e:
-            from core.services.logging_api import get_logger
-            get_logger("setup").warning(f"[LOCAL] Could not initialize .env: {e}")
+        initialize_env_from_example(self.env_file, logger=get_logger("setup"))
 
     # ========================================================================
 
     def _load_env_vars(self) -> Dict:
         """Load setup variables from .env file."""
-        try:
-            if not self.env_file.exists():
-                return {}
-
-            env_vars = {}
-            for line in self.env_file.read_text().splitlines():
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                if "=" in line:
-                    key, value = line.split("=", 1)
-                    key = key.strip()
-                    value = value.strip().strip('"\'')
-                    # Only load setup-related vars
-                    if key.startswith('USER_') or key in {'OS_TYPE', 'UDOS_LOCATION', 'UDOS_TIMEZONE', 'WIZARD_KEY'}:
-                        env_vars[key] = value
-            return env_vars
-        except Exception:
-            return {}
+        return load_setup_env_vars(self.env_file)
 
     def _save_to_env(self, data: Dict) -> bool:
         """Save setup data to .env file, preserving other vars."""
-        try:
-            from core.services.uid_generator import generate_uid, scramble_uid
-            from datetime import datetime
-
-            # Auto-detect and save UDOS_ROOT
-            try:
-                udos_root = _detect_udos_root()
-                data['udos_root'] = str(udos_root)
-                logger.info(f"[LOCAL] UDOS_ROOT will be saved: {udos_root}")
-            except RuntimeError as e:
-                logger.warning(f"[LOCAL] UDOS_ROOT detection failed: {e}")
-
-            # Map form data to .env keys
-            key_mapping = {
-                'user_username': 'USER_NAME',
-                'user_dob': 'USER_DOB',
-                'user_role': 'USER_ROLE',
-                'user_location': 'UDOS_LOCATION',
-                'user_timezone': 'UDOS_TIMEZONE',
-                'install_os_type': 'OS_TYPE',
-                'user_password': 'USER_PASSWORD',
-                'udos_root': 'UDOS_ROOT',
-            }
-
-            # Load existing .env
-            existing = {}
-            if self.env_file.exists():
-                for line in self.env_file.read_text().splitlines():
-                    if "=" in line and not line.strip().startswith("#"):
-                        key, value = line.split("=", 1)
-                        existing[key.strip()] = value.strip()
-
-            # Update with new data
-            for form_key, env_key in key_mapping.items():
-                if form_key in data:
-                    value = data[form_key]
-                    # Quote strings, but not empty values
-                    if value:
-                        existing[env_key] = f'"{value}"' if isinstance(value, str) else str(value)
-                    else:
-                        existing.pop(env_key, None)
-
-            # Generate unique User ID from DOB, timezone, and current time
-            if 'USER_ID' not in existing and 'user_dob' in data and 'user_timezone' in data:
-                timestamp = datetime.now()
-                if data.get('current_date') and data.get('current_time'):
-                    try:
-                        timestamp = datetime.strptime(
-                            f"{data['current_date']} {data['current_time']}",
-                            "%Y-%m-%d %H:%M:%S"
-                        )
-                    except ValueError:
-                        pass
-
-                uid = generate_uid(
-                    dob=data['user_dob'],
-                    timezone=data['user_timezone'],
-                    timestamp=timestamp
-                )
-                scrambled_uid = scramble_uid(uid)
-                existing['USER_ID'] = f'"{scrambled_uid}"'
-
-            # Add UDOS_ROOT (absolute path to repo root)
-            if 'UDOS_ROOT' not in existing:
-                from pathlib import Path
-                repo_root = Path(__file__).parent.parent.parent.resolve()
-                existing['UDOS_ROOT'] = f'"{str(repo_root)}"'
-
-            # Generate or keep Wizard Key
-            wizard_key = existing.get('WIZARD_KEY', '').strip().strip('"\'')
-            if not wizard_key:
-                import uuid
-                existing['WIZARD_KEY'] = f'"{str(uuid.uuid4())}"'
-
-            # Write back to .env
-            lines = []
-            for key, value in sorted(existing.items()):
-                lines.append(f"{key}={value}")
-
-            self.env_file.write_text("\n".join(lines) + "\n")
-            return True
-        except Exception as e:
-            from core.services.logging_api import get_logger
-            get_logger("setup").error(f"Failed to save to .env: {e}")
-            return False
+        return save_setup_to_env(self.env_file, data, logger=get_logger("setup"))
 
 
 def setup(*params: str) -> Dict:

@@ -77,9 +77,9 @@ Last updated: 2026-02-09
 
 #### P0 -- Workspace Filesystem (@workspace)
 - [x] Scaffold all workspace dirs under `memory/`.
-- [ ] Wire `@workspace` syntax in Core TUI (WORKSPACE, TAG, LOCATION, BINDER commands).
-- [ ] Implement workspace switching in file pickers and readers.
-- [ ] Update Wizard routes to use workspace-aware vault paths.
+- [x] Wire `@workspace` syntax in Core TUI (WORKSPACE, TAG, LOCATION, BINDER commands).
+- [x] Implement workspace switching in file pickers and readers.
+- [x] Update Wizard routes to use workspace-aware vault paths.
 
 #### P1 -- Containerisation
 - [ ] Sonic Screwdriver Dockerfile (ISO/USB builder).
@@ -89,11 +89,11 @@ Last updated: 2026-02-09
 
 #### P2 -- Code Quality and Modularization
 - [ ] Review long route factory functions for modularization opportunities:
-  - `wizard/routes/ucode_routes.py` (~1200 lines)
-  - `wizard/routes/config_routes.py` (~1350 lines)
-  - `wizard/routes/provider_routes.py` (~1150 lines)
-  - `core/commands/destroy_handler.py` (~1000 lines)
-  - `core/commands/setup_handler.py` (~730 lines)
+  - [ ] `wizard/routes/ucode_routes.py` (~1200 lines)
+  - [x] `wizard/routes/config_routes.py` (now split into core routes + `config_routes_helpers.py` + `config_admin_routes.py` + `config_ssh_routes.py`; compatibility wrappers removed)
+  - [x] `wizard/routes/provider_routes.py` (now split: route + `ollama_route_utils.py`)
+  - [x] `core/commands/destroy_handler.py` (now split: handler + `destroy_handler_helpers.py`)
+  - [x] `core/commands/setup_handler.py` (now split: handler + `setup_handler_helpers.py`)
 - [ ] Consider splitting nested route handlers into separate modules.
 
 ---

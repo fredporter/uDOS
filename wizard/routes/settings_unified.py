@@ -27,6 +27,7 @@ from pydantic import BaseModel
 from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root, get_memory_dir
 from core.services.integration_registry import get_wizard_secret_sync_map
+from core.services.destructive_ops import remove_path
 from wizard.services.secret_store import get_secret_store, SecretStoreError, SecretEntry
 
 logger = get_logger("settings-unified")
@@ -156,8 +157,7 @@ def delete_venv() -> Dict[str, Any]:
 
     try:
         logger.info(f"[LOCAL] Deleting .venv at {venv_path}")
-        import shutil
-        shutil.rmtree(str(venv_path))
+        remove_path(venv_path)
         return {"status": "deleted"}
     except Exception as e:
         logger.error(f"[LOCAL] Failed to delete venv: {e}")
@@ -340,8 +340,7 @@ def repair_secret_store() -> Dict[str, Any]:
         pass
 
     # Remove old tomb to flush secrets
-    if tomb_path.exists():
-        tomb_path.unlink()
+    remove_path(tomb_path)
 
     # Reset secret store singleton
     if hasattr(get_secret_store, "_instance"):

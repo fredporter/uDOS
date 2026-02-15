@@ -21,10 +21,14 @@ from wizard.services.path_utils import get_repo_root
 from wizard.services.quota_tracker import get_quota_tracker
 from wizard.services.ollama_service import (
     ollama_host,
-    ollama_api_request,
     get_pull_tracker,
     start_pull,
     get_popular_models,
+)
+from wizard.routes.ollama_route_utils import (
+    get_installed_ollama_models_payload,
+    remove_ollama_model_payload,
+    validate_model_name,
 )
 from core.services.integration_registry import get_provider_definitions
 
@@ -233,9 +237,7 @@ def create_provider_routes(auth_guard=None):
 
         return status
 
-    @router.get("")
-    async def list_providers_root():
-        """List all available providers (alias for /list)."""
+    def _build_provider_list() -> List[Dict[str, Any]]:
         providers_list = []
         enabled_ids = set(_get_enabled_providers())
         for provider_id, provider in PROVIDERS.items():
@@ -248,44 +250,24 @@ def create_provider_routes(auth_guard=None):
                     "enabled": provider_id in enabled_ids,
                 }
             )
-        return {"providers": providers_list}
+        return providers_list
+
+    @router.get("")
+    async def list_providers_root():
+        """List all available providers (alias for /list)."""
+        return {"providers": _build_provider_list()}
 
     @router.get("/list")
     async def list_providers():
         """List all available providers with status."""
-        providers_list = []
-        enabled_ids = set(_get_enabled_providers())
-        for provider_id, provider in PROVIDERS.items():
-            status = check_provider_status(provider_id)
-            providers_list.append(
-                {
-                    **provider,
-                    "id": provider_id,
-                    "status": status,
-                    "enabled": provider_id in enabled_ids,
-                }
-            )
-        return {"providers": providers_list}
+        return {"providers": _build_provider_list()}
 
     @router.get("/dashboard")
     async def providers_dashboard():
         """Aggregate provider list + status + quota summaries."""
-        providers_list = []
-        enabled_ids = set(_get_enabled_providers())
-        for provider_id, provider in PROVIDERS.items():
-            status = check_provider_status(provider_id)
-            providers_list.append(
-                {
-                    **provider,
-                    "id": provider_id,
-                    "status": status,
-                    "enabled": provider_id in enabled_ids,
-                }
-            )
-
         quotas = get_quota_tracker().get_all_quotas()
         return {
-            "providers": providers_list,
+            "providers": _build_provider_list(),
             "quotas": quotas,
         }
 
@@ -562,67 +544,7 @@ def create_provider_routes(auth_guard=None):
         Get list of currently installed Ollama models.
         Returns: List of installed models with details
         """
-        try:
-            response = subprocess.run(
-                ["ollama", "list"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            if response.returncode == 0:
-                lines = response.stdout.strip().split("\n")
-                if len(lines) < 2:
-                    return {"success": True, "models": [], "count": 0}
-
-                models = []
-                for line in lines[1:]:  # Skip header
-                    if line.strip():
-                        parts = line.split()
-                        if len(parts) >= 2:
-                            models.append(
-                                {
-                                    "name": parts[0],
-                                    "id": parts[0],
-                                    "size": parts[1] if len(parts) > 1 else "?",
-                                    "modified": " ".join(parts[2:]) if len(parts) > 2 else "",
-                                }
-                            )
-
-                return {
-                    "success": True,
-                    "models": models,
-                    "count": len(models),
-                }
-            else:
-                return {
-                    "success": False,
-                    "error": "Ollama not reachable. Is it running?",
-                    "help": "Start Ollama: ollama serve",
-                }
-        except FileNotFoundError:
-            try:
-                data = _ollama_api_request("/api/tags")
-                models = []
-                for item in data.get("models", []):
-                    name = item.get("name") or ""
-                    models.append(
-                        {
-                            "name": name,
-                            "id": name,
-                            "size": item.get("size", "?"),
-                            "modified": item.get("modified_at", ""),
-                        }
-                    )
-                return {"success": True, "models": models, "count": len(models)}
-            except Exception as exc:
-                return {
-                    "success": False,
-                    "error": "ollama CLI not found",
-                    "help": f"Install Ollama or set OLLAMA_HOST (current: {ollama_host()})",
-                    "detail": str(exc),
-                }
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+        return get_installed_ollama_models_payload()
 
     @router.post("/ollama/models/pull")
     async def pull_ollama_model(model: str = Query(..., description="Model name to pull")):
@@ -630,12 +552,7 @@ def create_provider_routes(auth_guard=None):
         Pull (download) an Ollama model.
         Args: model - Model name (e.g., 'mistral', 'devstral-small-2')
         """
-        if not model or not isinstance(model, str):
-            raise HTTPException(status_code=400, detail="model parameter required")
-
-        # Validate model name (prevent injection)
-        if not all(c.isalnum() or c in "-_:." for c in model):
-            raise HTTPException(status_code=400, detail="Invalid model name")
+        validate_model_name(model)
 
         try:
             pull_tracker.set(model, state="queued", percent=0)
@@ -660,32 +577,7 @@ def create_provider_routes(auth_guard=None):
     @router.post("/ollama/models/remove")
     async def remove_ollama_model(model: str = Query(..., description="Model name to remove")):
         """Remove an installed Ollama model."""
-        if not model or not isinstance(model, str):
-            raise HTTPException(status_code=400, detail="model parameter required")
-
-        # Validate model name
-        if not all(c.isalnum() or c in "-_:." for c in model):
-            raise HTTPException(status_code=400, detail="Invalid model name")
-
-        try:
-            result = subprocess.run(
-                ["ollama", "rm", model],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-
-            if result.returncode == 0:
-                return {"success": True, "message": f"Removed {model}"}
-            else:
-                return {"success": False, "error": result.stderr}
-        except FileNotFoundError:
-            return {
-                "success": False,
-                "error": "ollama CLI not found",
-            }
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+        return remove_ollama_model_payload(model)
 
     return router
 
@@ -712,73 +604,14 @@ def create_public_ollama_routes():
     @router.get("/models/installed")
     async def get_installed_ollama_models_public():
         """Public endpoint: Get list of currently installed Ollama models."""
-        try:
-            response = subprocess.run(
-                ["ollama", "list"], capture_output=True, text=True, timeout=5
-            )
-            if response.returncode == 0:
-                lines = response.stdout.strip().split("\n")
-                if len(lines) < 2:
-                    return {"success": True, "models": [], "count": 0}
-
-                models = []
-                for line in lines[1:]:
-                    if line.strip():
-                        parts = line.split()
-                        if len(parts) >= 2:
-                            models.append(
-                                {
-                                    "name": parts[0],
-                                    "id": parts[0],
-                                    "size": parts[1] if len(parts) > 1 else "?",
-                                    "modified": (
-                                        " ".join(parts[2:]) if len(parts) > 2 else ""
-                                    ),
-                                }
-                            )
-
-                return {"success": True, "models": models, "count": len(models)}
-            else:
-                return {
-                    "success": False,
-                    "error": "Ollama not reachable. Is it running?",
-                    "help": "Start Ollama: ollama serve",
-                }
-        except FileNotFoundError:
-            try:
-                data = ollama_api_request("/api/tags")
-                models = []
-                for item in data.get("models", []):
-                    name = item.get("name") or ""
-                    models.append(
-                        {
-                            "name": name,
-                            "id": name,
-                            "size": item.get("size", "?"),
-                            "modified": item.get("modified_at", ""),
-                        }
-                    )
-                return {"success": True, "models": models, "count": len(models)}
-            except Exception as exc:
-                return {
-                    "success": False,
-                    "error": "ollama CLI not found",
-                    "help": f"Install Ollama or set OLLAMA_HOST (current: {ollama_host()})",
-                    "detail": str(exc),
-                }
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+        return get_installed_ollama_models_payload()
 
     @router.post("/models/pull")
     async def pull_ollama_model_public(
         model: str = Query(..., description="Model name to pull")
     ):
         """Public endpoint: Pull (download) an Ollama model."""
-        if not model or not isinstance(model, str):
-            raise HTTPException(status_code=400, detail="model parameter required")
-
-        if not all(c.isalnum() or c in "-_:." for c in model):
-            raise HTTPException(status_code=400, detail="Invalid model name")
+        validate_model_name(model)
 
         try:
             pull_tracker.set(model, state="queued", percent=0)
@@ -807,24 +640,6 @@ def create_public_ollama_routes():
         model: str = Query(..., description="Model name to remove")
     ):
         """Public endpoint: Remove an installed Ollama model."""
-        if not model or not isinstance(model, str):
-            raise HTTPException(status_code=400, detail="model parameter required")
-
-        if not all(c.isalnum() or c in "-_:." for c in model):
-            raise HTTPException(status_code=400, detail="Invalid model name")
-
-        try:
-            result = subprocess.run(
-                ["ollama", "rm", model], capture_output=True, text=True, timeout=5
-            )
-
-            if result.returncode == 0:
-                return {"success": True, "message": f"Removed {model}"}
-            else:
-                return {"success": False, "error": result.stderr}
-        except FileNotFoundError:
-            return {"success": False, "error": "ollama CLI not found"}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+        return remove_ollama_model_payload(model)
 
     return router

@@ -206,6 +206,10 @@ def __getattr__(name):
         from .draw_handler import DrawHandler
 
         return DrawHandler
+    elif name == "WorkspaceHandler":
+        from .workspace_handler import WorkspaceHandler
+
+        return WorkspaceHandler
     elif name == "WizardHandler":
         from .wizard_handler import WizardHandler
 
@@ -279,6 +283,7 @@ __all__ = [
     "UIDHandler",
     "ViewportHandler",
     "DrawHandler",
+    "WorkspaceHandler",
     # UI Mixins
     "InteractiveMenuMixin",
 ]

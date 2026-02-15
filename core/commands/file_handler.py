@@ -150,7 +150,17 @@ class FileHandler(BaseCommandHandler):
             workspace_ref = params[0] if params else "@sandbox"
 
             # List files
-            files = fs.list_files(workspace_ref)
+            locations = fs.list_workspace(workspace_ref)
+            files = []
+            for item in locations:
+                size = item.absolute_path.stat().st_size if item.absolute_path.exists() else 0
+                files.append(
+                    {
+                        "name": item.relative_path,
+                        "size": size,
+                        "is_dir": False,
+                    }
+                )
 
             # Format output
             lines = [

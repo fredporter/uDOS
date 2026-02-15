@@ -15,6 +15,7 @@ from pydantic import BaseModel
 from wizard.services.path_utils import get_memory_dir, get_repo_root, get_vault_dir
 
 from core.services.story_service import parse_story_document
+from core.services.spatial_filesystem import WORKSPACE_CONFIG
 
 
 class WriteRequest(BaseModel):
@@ -29,15 +30,27 @@ class MkdirRequest(BaseModel):
 def _resolve_workspace_root() -> Dict[str, Path]:
     env_root = os.getenv("UDOS_ROOT")
     base_root = Path(env_root).expanduser() if env_root else get_repo_root()
-    memory_root = get_memory_dir().resolve()
-    return {
-        "memory": memory_root,
-        "vault": get_vault_dir().resolve(),
-    }
+    root_map: Dict[str, Path] = {"memory": get_memory_dir().resolve()}
+
+    for ws_type, config in WORKSPACE_CONFIG.items():
+        rel_path = config.get("path")
+        if not isinstance(rel_path, str):
+            continue
+        root_map[ws_type.value] = (base_root / rel_path).resolve()
+
+    root_map["vault"] = get_vault_dir().resolve()
+    return root_map
+
+
+def _normalize_workspace_ref(path: str) -> str:
+    raw = (path or "").strip()
+    if raw.startswith("@"):
+        return raw[1:]
+    return raw.lstrip("/")
 
 
 def _split_root(path: str) -> Tuple[str, str]:
-    raw = (path or "").strip("/")
+    raw = _normalize_workspace_ref(path)
     if not raw:
         return "memory", ""
     parts = raw.split("/", 1)
@@ -64,14 +77,18 @@ def create_workspace_routes(auth_guard=None, prefix="/api/workspace") -> APIRout
 
     @router.get("/roots")
     async def get_roots():
+        root_map = _resolve_workspace_root()
+        roots = {
+            "memory": "memory",
+            "memory/sandbox": "memory/sandbox",
+            "memory/inbox": "memory/inbox",
+            "vault": "vault",
+        }
+        for key in sorted(root_map):
+            roots[f"@{key}"] = f"@{key}"
         return {
             "success": True,
-            "roots": {
-                "memory": "memory",
-                "memory/sandbox": "memory/sandbox",
-                "memory/inbox": "memory/inbox",
-                "vault": "vault",
-            },
+            "roots": roots,
         }
 
     @router.get("/list")

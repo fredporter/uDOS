@@ -22,8 +22,9 @@ binder_compiler = BinderCompiler()
 
 
 def _parse_workspace(value: str) -> BinderWorkspace:
+    normalized = value[1:] if value.startswith("@") else value
     try:
-        return BinderWorkspace(value)
+        return BinderWorkspace(normalized)
     except ValueError as exc:
         allowed = ", ".join([w.value for w in BinderWorkspace])
         raise HTTPException(

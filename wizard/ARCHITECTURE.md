@@ -58,7 +58,9 @@ wizard/
 ├── routes/
 │   ├── ai_routes.py           # /api/ai/* routes
 │   ├── binder_routes.py       # /api/binder/* routes
-│   ├── config_routes.py       # /api/config/* routes
+│   ├── config_routes.py       # Core /api/config/* routes
+│   ├── config_admin_routes.py # /api/admin-token/* + public export routes
+│   ├── config_ssh_routes.py   # /api/config/ssh/* routes
 │   ├── dev_routes.py          # /api/dev/* routes (Dev Mode control)
 │   ├── github_routes.py       # /api/github/* routes
 │   ├── provider_routes.py     # /api/provider/* routes

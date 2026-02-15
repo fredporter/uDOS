@@ -37,10 +37,19 @@ Date: 2026-01-28
 """
 
 from .base import BaseCommandHandler
+from .destroy_handler_helpers import (
+    archive_memory_to_compost,
+    build_destroy_help_text,
+    build_nuclear_confirmation_text,
+    destroy_menu_options,
+    format_destroy_options,
+    reset_local_env,
+    reset_wizard_keystore,
+    resolve_vault_root,
+)
 from pathlib import Path
 from datetime import datetime
-import os
-import shutil
+from core.services.destructive_ops import remove_path, scrub_directory, wipe_json_config_dir
 
 # Import utility functions (not logger/manager to avoid circular deps)
 def get_repo_root_safe():
@@ -252,96 +261,10 @@ EXAMPLES:
         }
 
     def _menu_options(self):
-        return [
-            {
-                "id": 1,
-                "title": "WIPE USER DATA",
-                "short": "Wipe User Data (clear users, API keys)",
-                "details": [
-                    "Clear all user profiles, roles, and API keys",
-                    "Resets .env identity + Wizard keystore",
-                    "Preserves memory/logs",
-                ],
-                "usage": "DESTROY 1",
-                "cleanup": {
-                    "wipe_user": True,
-                    "compost": False,
-                    "reload_repair": False,
-                },
-                "plan": ["🗑️  Wipe user profiles and API keys"],
-            },
-            {
-                "id": 2,
-                "title": "ARCHIVE MEMORY (COMPOST)",
-                "short": "Archive Memory (compost /memory)",
-                "details": [
-                    "Archive /memory to .archive/compost/YYYY-MM-DD",
-                    "Preserves data history",
-                    "Frees up /memory space",
-                    "Keeps users intact",
-                ],
-                "usage": "DESTROY 2",
-                "cleanup": {
-                    "wipe_user": False,
-                    "compost": True,
-                    "reload_repair": False,
-                },
-                "plan": ["🗑️  Archive /memory to compost"],
-            },
-            {
-                "id": 3,
-                "title": "WIPE + COMPOST + REBOOT",
-                "short": "Wipe + Archive + Reload (complete cleanup)",
-                "details": [
-                    "Both: wipe user data AND archive memory",
-                    "Hot reload + repair after cleanup",
-                    "Complete fresh start (keeps framework)",
-                ],
-                "usage": "DESTROY 3",
-                "cleanup": {
-                    "wipe_user": True,
-                    "compost": True,
-                    "reload_repair": True,
-                },
-                "plan": [
-                    "🗑️  Wipe user profiles and API keys",
-                    "🗑️  Archive /memory to compost",
-                    "🔧 Hot reload and run repair",
-                ],
-            },
-            {
-                "id": 4,
-                "title": "NUCLEAR RESET (FACTORY RESET)",
-                "short": "Nuclear Reset (factory defaults - DANGER!)",
-                "details": [
-                    "⚠️  DANGER: Everything wiped to factory defaults",
-                    "Deletes: users, memory, config, logs, API keys",
-                    "Requires additional confirmation",
-                    "Admin only - cannot be undone easily",
-                ],
-                "usage": "DESTROY 4",
-                "action": "nuclear",
-            },
-            {
-                "id": 0,
-                "title": "HELP",
-                "short": "Help",
-                "details": ["Show detailed command reference"],
-                "usage": "DESTROY 0",
-                "action": "help",
-            },
-        ]
+        return destroy_menu_options()
 
     def _format_numeric_options(self) -> str:
-        lines = []
-        for option in self._menu_options():
-            lines.append(f"  {option['id']}. {option['title']}")
-            for detail in option.get("details", []):
-                lines.append(f"    • {detail}")
-            if option.get("usage"):
-                lines.append(f"    Usage: {option['usage']}")
-            lines.append("")
-        return "\n".join(lines).rstrip()
+        return format_destroy_options(self._menu_options())
 
     def _show_interactive_menu(self):
         """Show interactive cleanup menu and guide user through options.
@@ -414,61 +337,7 @@ EXAMPLES:
         Returns:
             Output dict
         """
-        help_text = """
-╔════════════════════════════════════════╗
-║       DESTROY COMMAND HELP             ║
-╚════════════════════════════════════════╝
-
-DESTROY is the system cleanup and reset command. It safely removes
-user data, archives memory, and optionally reinitializes the system.
-
-SYNTAX:
-  DESTROY              Show menu with numbered options
-  DESTROY [0-4]       Execute numeric option
-  DESTROY --help      Show this help
-
-NUMERIC OPTIONS:
-
-""" + self._format_numeric_options() + """
-
-LEGACY FLAG SUPPORT (still works):
-  --wipe-user       Clear user profiles and API keys
-  --compost         Archive /memory to .archive/compost/
-  --reload-repair   Hot reload + repair after cleanup
-  --reset-all       NUCLEAR: Complete factory reset
-  --scrub-memory    Permanently delete /memory (no archive)
-  --scrub-vault     Permanently delete VAULT_ROOT (no archive)
-  --confirm         Skip confirmations (required for --reset-all)
-
-LEGACY EXAMPLES:
-  DESTROY --wipe-user
-  DESTROY --compost
-  DESTROY --wipe-user --compost
-  DESTROY --wipe-user --compost --reload-repair
-  DESTROY --reset-all --confirm
-  DESTROY --scrub-memory --confirm
-  DESTROY --scrub-vault --confirm
-
-SAFETY:
-  • Requires admin or destroy permission
-  • Most ops ask for confirmation before proceeding
-  • Nuclear reset (option 4) requires explicit user action
-  • All actions logged to audit trail
-  • Archived data preserved in .archive/compost/
-
-RECOVERY:
-  • If you compost, see .archive/compost/ for your data
-  • Users can be recreated: USER create [name] [role]
-  • Config can be restored from git or .archive
-  • Use STORY tui-setup to reconfigure
-
-NEXT STEPS AFTER CLEANUP:
-  1. DESTROY 1          # Wipe user data
-  2. DESTROY 3          # Complete cleanup
-  3. STORY tui-setup    # Run setup story
-  4. SETUP              # View your profile
-  5. WIZARD start       # Start Wizard Server
-"""
+        help_text = build_destroy_help_text(self._format_numeric_options())
         return {
             'output': help_text.strip(),
             'status': 'info',
@@ -481,27 +350,7 @@ NEXT STEPS AFTER CLEANUP:
         Returns:
             Output dict (either confirmation warning or actual reset)
         """
-        msg = """
-╔════════════════════════════════════════╗
-║    ⚠️  NUCLEAR RESET CONFIRMATION ⚠️     ║
-╚════════════════════════════════════════╝
-
-This will DESTROY:
-  • All user profiles and permissions
-  • All configuration files
-  • All memory/logs
-  • All API keys and credentials
-  • System will RESET to factory defaults
-
-This is IRREVERSIBLE (though .archive/ is preserved).
-
-Only admin users can perform this action.
-
-Current status:
-  Users: Multiple
-  Memory: Populated
-  Config: Custom
-"""
+        msg = build_nuclear_confirmation_text()
         print("\n" + msg.strip() + "\n")
 
         # Prompt for confirmation
@@ -586,11 +435,10 @@ Current status:
             if admin and admin.username == 'admin':
                 # Clear user state file
                 admin_file = user_mgr.state_dir / "admin.json"
-                if admin_file.exists():
-                    try:
-                        admin_file.unlink()
-                    except Exception:
-                        pass
+                try:
+                    remove_path(admin_file)
+                except Exception:
+                    pass
 
                 # Clear in-memory variables
                 if hasattr(admin, 'variables'):
@@ -608,56 +456,24 @@ Current status:
             memory_path = repo_root / "memory"
             if memory_path.exists():
                 results.append("📦 Archiving /memory (logs, bank, private, wizard)...")
-                archive_root = repo_root / ".archive"
-                archive_root.mkdir(exist_ok=True)
-
-                timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-                compost_dir = archive_root / "compost" / timestamp
-                compost_dir.mkdir(parents=True, exist_ok=True)
-
-                # Write metadata before archiving
-                metadata_file = compost_dir / "NUCLEAR-RESET-METADATA.json"
-                import json
-                metadata = {
-                    "archived_at": datetime.now().isoformat(),
-                    "archived_by": user.username,
-                    "action": "nuclear_reset",
-                    "scope": ["users", "variables", "memory", "config"],
-                    "reason": "DESTROY --reset-all --confirm full factory reset",
-                    "users_deleted": len(users_to_delete),
-                    "admin_reset": True
-                }
-
-                try:
-                    with open(str(metadata_file), 'w') as f:
-                        json.dump(metadata, f, indent=2)
-                except Exception:
-                    pass  # Non-critical
-
-                # Move memory contents to compost
-                shutil.move(str(memory_path), str(compost_dir / "memory"))
-                memory_path.mkdir(parents=True, exist_ok=True)  # Recreate empty
-
-                # Recreate memory subdirectories
-                (memory_path / "logs").mkdir(parents=True, exist_ok=True)
-                (memory_path / "bank").mkdir(parents=True, exist_ok=True)
-                (memory_path / "private").mkdir(parents=True, exist_ok=True)
-                (memory_path / "wizard").mkdir(parents=True, exist_ok=True)
-
-                results.append(f"   ✓ Archived to .archive/compost/{timestamp}")
-                results.append("   ✓ Recreated memory directories")
+                archive_lines, _timestamp = archive_memory_to_compost(
+                    repo_root=repo_root,
+                    user_name=user.username,
+                    action="nuclear_reset",
+                    reason="DESTROY --reset-all --confirm full factory reset",
+                    metadata_filename="NUCLEAR-RESET-METADATA.json",
+                )
+                results.extend([f"   {line}" for line in archive_lines])
 
             # 3. Clear config (preserving version.json)
             config_path = repo_root / "core" / "config"
             if config_path.exists():
                 results.append("⚙️  Resetting configuration...")
-                for config_file in config_path.glob("*.json"):
-                    if config_file.name != "version.json":
-                        try:
-                            config_file.unlink()
-                        except Exception:
-                            pass
-                results.append("   ✓ Cleared custom configuration")
+                removed = wipe_json_config_dir(
+                    config_path,
+                    keep_files={"version.json"},
+                )
+                results.append(f"   ✓ Cleared custom configuration ({removed} files)")
 
             # 4. Log the nuclear event
             logger.event(
@@ -752,12 +568,11 @@ Current status:
                 if admin and admin.username == 'admin':
                     # Clear any user-specific settings/variables
                     admin_file = user_mgr.state_dir / "admin.json"
-                    if admin_file.exists():
-                        try:
-                            admin_file.unlink()
+                    try:
+                        if remove_path(admin_file):
                             results.append("   ✓ Reset admin user variables and settings")
-                        except Exception as e:
-                            results.append(f"   ⚠️  Could not reset admin variables: {e}")
+                    except Exception as e:
+                        results.append(f"   ⚠️  Could not reset admin variables: {e}")
 
                     # Clear admin environment variables
                     if hasattr(admin, 'variables'):
@@ -780,51 +595,21 @@ Current status:
                 else:
                     results.append("🔥 Scrubbing /memory (permanent delete)...")
                     memory_path = repo_root / "memory"
-                    if memory_path.exists():
-                        shutil.rmtree(memory_path)
-                        memory_path.mkdir(parents=True, exist_ok=True)
+                    scrub_directory(memory_path, recreate=True)
                     results.append("   ✓ /memory scrubbed")
 
             if compost and not scrub_memory:
                 results.append("📦 Archiving /memory...")
                 memory_path = repo_root / "memory"
                 if memory_path.exists():
-                    archive_root = repo_root / ".archive"
-                    archive_root.mkdir(exist_ok=True)
-
-                    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-                    compost_dir = archive_root / "compost" / timestamp
-                    compost_dir.mkdir(parents=True, exist_ok=True)
-
-                    # Archive with metadata
-                    metadata_file = compost_dir / "ARCHIVE-METADATA.json"
-                    import json
-                    metadata = {
-                        "archived_at": datetime.now().isoformat(),
-                        "archived_by": user.username,
-                        "action": "compost",
-                        "directories": ["logs", "bank", "private", "wizard"],
-                        "reason": "DESTROY --compost cleanup operation"
-                    }
-
-                    try:
-                        with open(str(metadata_file), 'w') as f:
-                            json.dump(metadata, f, indent=2)
-                    except Exception:
-                        pass  # Non-critical
-
-                    # Move memory to compost
-                    shutil.move(str(memory_path), str(compost_dir / "memory"))
-                    memory_path.mkdir(parents=True, exist_ok=True)
-
-                    # Recreate memory subdirectories
-                    (memory_path / "logs").mkdir(parents=True, exist_ok=True)
-                    (memory_path / "bank").mkdir(parents=True, exist_ok=True)
-                    (memory_path / "private").mkdir(parents=True, exist_ok=True)
-                    (memory_path / "wizard").mkdir(parents=True, exist_ok=True)
-
-                    results.append(f"   ✓ Archived to .archive/compost/{timestamp}")
-                    results.append("   ✓ Recreated empty memory directories")
+                    archive_lines, _timestamp = archive_memory_to_compost(
+                        repo_root=repo_root,
+                        user_name=user.username,
+                        action="compost",
+                        reason="DESTROY --compost cleanup operation",
+                        metadata_filename="ARCHIVE-METADATA.json",
+                    )
+                    results.extend([f"   {line}" for line in archive_lines])
 
             if scrub_vault:
                 if not skip_confirm and not self._confirm_scrub("vault"):
@@ -832,9 +617,7 @@ Current status:
                 else:
                     vault_root = self._resolve_vault_root(repo_root)
                     results.append(f"🔥 Scrubbing VAULT_ROOT ({vault_root})...")
-                    if vault_root.exists():
-                        shutil.rmtree(vault_root)
-                        vault_root.mkdir(parents=True, exist_ok=True)
+                    scrub_directory(vault_root, recreate=True)
                     results.append("   ✓ Vault scrubbed")
 
             if reload_repair:
@@ -886,104 +669,13 @@ Current status:
             }
 
     def _resolve_vault_root(self, repo_root: Path) -> Path:
-        env_vault = os.environ.get("VAULT_ROOT")
-        if env_vault:
-            return Path(env_vault).expanduser()
-        return repo_root / "memory" / "vault"
+        return resolve_vault_root(repo_root)
 
     def _reset_local_env(self, repo_root: Path) -> list:
-        from core.services.config_sync_service import ConfigSyncManager
-        import uuid
-
-        results = []
-        env_mgr = ConfigSyncManager()
-        env_dict = env_mgr.load_env_dict()
-        os_type = env_dict.get("OS_TYPE", "mac")
-        udos_root = env_dict.get("UDOS_ROOT", str(repo_root))
-        vault_root = env_dict.get("VAULT_ROOT")
-
-        updates = {
-            "USER_NAME": "Ghost",
-            "USER_DOB": "1980-01-01",
-            "USER_ROLE": "ghost",
-            "USER_PASSWORD": "",
-            "UDOS_LOCATION": "",
-            "UDOS_TIMEZONE": "",
-            "OS_TYPE": os_type,
-            "UDOS_ROOT": udos_root,
-            "WIZARD_ADMIN_TOKEN": None,
-            "WIZARD_KEY": str(uuid.uuid4()),
-            "UDOS_INSTALLATION_ID": None,
-            "UDOS_VIEWPORT_COLS": None,
-            "UDOS_VIEWPORT_ROWS": None,
-            "UDOS_VIEWPORT_SOURCE": None,
-            "UDOS_VIEWPORT_UPDATED_AT": None,
-            "UDOS_MASTER_USER": None,
-            "UDOS_INSTALL_PATH": None,
-            "UDOS_USERNAME": None,
-            "USER_ID": None,
-            "USER_TIME": None,
-            "USER_LOCATION": None,
-            "USER_TIMEZONE": None,
-            "VAULT_MD_ROOT": None,
-        }
-        if vault_root:
-            updates["VAULT_ROOT"] = vault_root
-
-        ok, msg = env_mgr.update_env_vars(updates)
-        if ok:
-            results.append("✓ Reset .env identity + tokens")
-        else:
-            results.append(f"⚠️  Failed to reset .env: {msg}")
-
-        # Remove local admin token files
-        token_paths = [
-            repo_root / "memory" / "private" / "wizard_admin_token.txt",
-            repo_root / "memory" / "bank" / "private" / "wizard_admin_token.txt",
-        ]
-        removed = 0
-        for path in token_paths:
-            if path.exists():
-                try:
-                    path.unlink()
-                    removed += 1
-                except Exception:
-                    pass
-        results.append(f"✓ Removed {removed} wizard admin token files")
-
-        # Remove local setup artifacts
-        local_paths = [
-            repo_root / "memory" / "user" / "profile.json",
-            repo_root / "memory" / "config" / "udos.md",
-        ]
-        removed_local = 0
-        for path in local_paths:
-            if path.exists():
-                try:
-                    path.unlink()
-                    removed_local += 1
-                except Exception:
-                    pass
-        results.append(f"✓ Removed {removed_local} local profile files")
-        return results
+        return reset_local_env(repo_root)
 
     def _reset_wizard_keystore(self, repo_root: Path) -> list:
-        results = []
-        tomb_path = repo_root / "wizard" / "secrets.tomb"
-        if not tomb_path.exists():
-            results.append("✓ Wizard keystore already reset (no secrets.tomb)")
-            return results
-
-        archive_root = repo_root / ".archive"
-        archive_root.mkdir(exist_ok=True)
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        backup_path = archive_root / f"secrets.tomb.backup.{timestamp}"
-        try:
-            shutil.move(str(tomb_path), str(backup_path))
-            results.append(f"✓ Archived secrets.tomb to {backup_path}")
-        except Exception as exc:
-            results.append(f"⚠️  Failed to archive secrets.tomb: {exc}")
-        return results
+        return reset_wizard_keystore(repo_root)
 
     def _confirm_scrub(self, target: str) -> bool:
         prompt = self.prompt

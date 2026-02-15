@@ -301,8 +301,8 @@ class WizardServer:
         app.include_router(ai_router)
 
         # Register Configuration routes
-        from wizard.routes.config_routes import (
-            create_config_routes,
+        from wizard.routes.config_routes import create_config_routes
+        from wizard.routes.config_admin_routes import (
             create_admin_token_routes,
             create_public_export_routes,
         )

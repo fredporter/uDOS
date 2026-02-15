@@ -537,6 +537,9 @@ class uCODETUI:
             "CONFIG": "CONFIG",
             "SETUP": "SETUP",
             "FILE": "FILE",
+            "WORKSPACE": "WORKSPACE",
+            "TAG": "TAG",
+            "LOCATION": "LOCATION",
             "NEW": "NEW",
             "EDIT": "EDIT",
             "MAP": "MAP",
@@ -2283,6 +2286,9 @@ System Management:
   DRAW                - Viewport-aware ASCII demos and panels
 
 Data & Stories:
+  WORKSPACE           - Workspace filesystem operations (@workspace paths)
+  TAG                 - Tag discovery in workspace files
+  LOCATION            - Grid location tagging and lookup
   BINDER              - Multi-chapter project management
   STORY [name]        - Run story files (.md with questions/flow)
   RUN [file]          - Execute TypeScript scripts or Python files
