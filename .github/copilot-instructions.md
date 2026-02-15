@@ -5,7 +5,6 @@
 **Boundaries:**
 - **Core** (core/): offline TUI, no cloud/GUI
 - **Wizard** (wizard/): services + cloud only
-- **App** (app/): UI only, no logic
 - **Extensions**: API + transport
 
 **Logger:** `from core.services.logging_manager import get_logger`

@@ -23,7 +23,6 @@ from typing import Dict, Any, Optional, List
 COMPONENT_PATHS = {
     "core": "core/version.json",
     "api": "extensions/api/version.json",
-    "app": "app/version.json",
     "wizard": "wizard/version.json",
     "knowledge": "knowledge/version.json",
     "transport": "extensions/transport/version.json",

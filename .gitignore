@@ -5,7 +5,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # STRUCTURE (v1.3):
 #   PUBLIC (root):   core, wizard, extensions, docs, knowledge, library, sonic
-#   PRIVATE (/dev):  goblin, empire, app, groovebox - as git submodule
+#   PRIVATE (/dev):  goblin, empire, groovebox - as git submodule
 #   LOCAL (memory):  user data, logs, credentials - never committed
 #   STAGING (v1-3):  version-specific staging - excluded from releases
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -210,8 +210,8 @@ uDOS.wiki/
 # Groovebox sample library (downloaded at setup)
 groovebox/sounds/
 
-# V1.3 UI components (private dev)
-# Note: app, empire, groovebox are tracked as git submodules
+# V1.3 UI components (local clones / generated UI artifacts)
+# Note: Obsidian Companion moved to external repo fredporter/oc-app
 app/
 web-admin/
 web-portal/

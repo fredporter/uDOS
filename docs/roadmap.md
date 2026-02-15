@@ -1,6 +1,6 @@
 # uDOS Roadmap (Canonical)
 
-Last updated: 2026-02-11
+Last updated: 2026-02-15
 
 This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs/devlog/ROADMAP-LEGACY.md](devlog/ROADMAP-LEGACY.md).
 
@@ -37,7 +37,7 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 
 ## Active Checklist (Merged)
 
-Last updated: 2026-02-09
+Last updated: 2026-02-15
 
 ### P0 -- Wizard/Vibe Refactor
 - [x] Add MCP server tests to verify stdio tool wrapping and tool index parsing.
@@ -73,7 +73,7 @@ Last updated: 2026-02-09
 - [x] Distribution consolidation: merged `wizard/distribution/` into `distribution/`.
 - [x] Library cleanup: removed empty `library/containers/`, `library/packages/`.
 - [x] Docker compose updated: snap-on-off profiles (wizard, ollama, scheduler, home-assistant, groovebox).
-- [x] App submodule: archived Tauri v1, promoted ObsidianCompanion to `/app/`.
+- [x] App separation: ObsidianCompanion moved out of uDOS monorepo to private pre-release repo `fredporter/oc-app`.
 
 #### P0 -- Workspace Filesystem (@workspace)
 - [x] Scaffold all workspace dirs under `memory/`.
@@ -89,12 +89,13 @@ Last updated: 2026-02-09
 
 #### P2 -- Code Quality and Modularization
 - [ ] Review long route factory functions for modularization opportunities:
-  - [ ] `wizard/routes/ucode_routes.py` (~1200 lines)
+  - [x] `wizard/routes/ucode_routes.py` (modularized from ~1059 -> ~263 lines; split into `ucode_meta_routes.py`, `ucode_ok_routes.py`, `ucode_user_routes.py`, `ucode_dispatch_routes.py`, `ucode_setup_story_utils.py`, `ucode_dispatch_utils.py`, `ucode_ok_execution.py`, `ucode_ok_mode_utils.py`, `ucode_ok_dispatch_core.py`, `ucode_ok_stream_dispatch.py`, `ucode_route_utils.py`, `ucode_stream_utils.py`, `ucode_command_utils.py`)
   - [x] `wizard/routes/config_routes.py` (now split into core routes + `config_routes_helpers.py` + `config_admin_routes.py` + `config_ssh_routes.py`; compatibility wrappers removed)
   - [x] `wizard/routes/provider_routes.py` (now split: route + `ollama_route_utils.py`)
+  - [x] `wizard/routes/setup_routes.py` (phase modularization complete; core endpoints moved to `setup_core_routes.py`, helpers moved to `setup_route_utils.py`, `/story/*` moved to `setup_story_routes.py`, `/profile/*` + `/installation/*` moved to `setup_profile_routes.py`, `/locations/*` + timezone endpoint moved to `setup_location_routes.py`, `/wizard/*` moved to `setup_wizard_routes.py`, `/paths*` moved to `setup_path_routes.py`)
   - [x] `core/commands/destroy_handler.py` (now split: handler + `destroy_handler_helpers.py`)
   - [x] `core/commands/setup_handler.py` (now split: handler + `setup_handler_helpers.py`)
-- [ ] Consider splitting nested route handlers into separate modules.
+- [x] Consider splitting nested route handlers into separate modules.
 
 ---
 
@@ -219,21 +220,19 @@ Versioning target:
 
 ---
 
-## App Roadmap
+## Obsidian Companion (External)
 
-- SwiftUI/Xcode app lives in `/app` (Package.swift, Sources, Resources, Tests).
-- Previous Tauri/Svelte app archived at `/app/.archive/2026-02-11-tauri-app`.
-- External vault path support.
-- Local HTML export: write `index.html` in the vault/binder folder and `html/` for linked pages.
-- GitHub Pages publishing (pre v1.3): direct push only.
-- W2 + W3 domains: canonical Web2 URLs with optional Web3 alias metadata.
-- Monorepo publishing path (uDOS-publish) + single-repo per site option.
-- Typo editor: in-app quick editing surface.
-- Typo upgrades after next testing round (editor UX, file browser, preview).
-- Typo integration bridge: Svelte bundle embedded in SwiftUI via WKWebView, JS bridge for file IO and markdown events.
-- Tasks index.
-- Export UI.
-- Pre-test checklist: open vault, build export, open index, GitHub dry-run, direct push publish, verify deploy logs.
-- Launch blockers: missing GitHub repo config, failing publish dry-run, export path unwritable, vault index errors.
+- Ownership moved to private pre-release repo: `fredporter/oc-app`.
+- App-specific roadmap/TODOs now live in `oc-app` issues and milestones.
+- uDOS monorepo is under development and does not ship `/app`.
 
-App docs live under [app/docs](../app/docs).
+### uDOS-side TODOs (Integration Only)
+- [ ] Define Wizard web view host contract for external app content.
+- [ ] Define rendering API contract (HTML/asset handoff, cache behavior, versioning).
+- [ ] Define auth/session boundary between Wizard and external Obsidian Companion flows.
+- [ ] Add compatibility tests for Wizard rendering integration points.
+- Draft contract: [OBSIDIAN-COMPANION-INTEGRATION-CONTRACT.md](specs/OBSIDIAN-COMPANION-INTEGRATION-CONTRACT.md).
+
+### Migrated TODOs (Now in `oc-app`)
+- `app/Sources/Automation/TaskScheduler.swift`: launchd generation/unload/execute TODOs.
+- App product milestones previously tracked in this file now tracked in `oc-app`.

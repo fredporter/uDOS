@@ -34,7 +34,6 @@ Run:
 ./bin/Launch-uCODE.sh core              # Core TUI (default)
 ./bin/Launch-uCODE.sh wizard            # Wizard Server
 ./bin/Launch-uCODE.sh goblin            # Goblin Dev (dev role only)
-./bin/Launch-uCODE.sh app               # App Dev (dev role only)
 
 # With explicit mode
 ./bin/Launch-uCODE.sh wizard server     # Equivalent to: wizard server
@@ -77,12 +76,11 @@ Run:
 - Experimental `/api/v0/*` routes
 - **Dev role only** (requires `/dev/.git`)
 
-### App Dev (Tauri + Svelte)
+### Obsidian Companion (External Repo)
 
-- uMarkdown editor development
-- macOS native app
-- Future: iOS/iPadOS
-- **Dev role only**
+- Managed in private pre-release repo: `fredporter/oc-app`
+- Not launched from uDOS monorepo
+- Future integration in uDOS is via Wizard web view/rendering contracts
 
 ---
 
@@ -92,7 +90,7 @@ Run:
 
 - Access to all components
 - Required: `/dev/.git` submodule or `DEV_MODE=1`
-- Can run Core, Wizard, Goblin, App
+- Can run Core, Wizard, Goblin
 
 ### **user** role
 
@@ -130,7 +128,6 @@ The launcher automatically detects:
 Core:      /uDOS/uDOS.py + /uDOS/core/
 Wizard:    /uDOS/wizard/server.py
 Goblin:    /uDOS/dev/goblin/dev_server.py
-App:       /uDOS/app/package.json
 ```
 
 ### Role Detection
@@ -166,7 +163,7 @@ All launchers:
 [✓] Virtual environment activated
 [✓] Dependencies validated
 [BOOT] User role: dev
-[BOOT] Available: core, wizard, goblin, app
+[BOOT] Available: core, wizard, goblin
 
 🧙 uCODE Ready
 Type HELP for commands
@@ -188,8 +185,7 @@ Type HELP for commands
 # In another, start Goblin for experimental work
 ./bin/Launch-uCODE.sh goblin
 
-# In another, develop the App
-./bin/Launch-uCODE.sh app
+# Obsidian Companion development happens in fredporter/oc-app
 ```
 
 ### Integration with VS Code
@@ -286,18 +282,12 @@ Start all servers for development:
 ./bin/Launch-uCODE.sh goblin &
 ```
 
-**Terminal 4 - App (optional):**
-
-```bash
-cd app && npm run tauri dev
-```
-
 **Access:**
 
 - TUI: Terminal 1 (interactive)
 - Wizard: http://localhost:8765/docs
 - Goblin: http://127.0.0.1:8767
-- App: Native window
+- Obsidian Companion: external repo (`fredporter/oc-app`)
 
 ---
 

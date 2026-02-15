@@ -513,7 +513,7 @@ if result["status"] == "success":
 
 - [TUI_FORM_SYSTEM.md](../specs/TUI_FORM_SYSTEM.md) - Complete technical spec
 - [TUI_FORM_QUICK_REF.md](../wiki-candidates/TUI_FORM_QUICK_REF.md) - Quick reference
-- [story-format.md](../../app/public/knowledge/formats/story-format.md) - Story format guide
+- Story format guide is managed in the external Obsidian Companion repo (`fredporter/oc-app`)
 - [INTERACTIVE-MENUS-IMPLEMENTATION.md](../specs/INTERACTIVE-MENUS-IMPLEMENTATION.md) - Menu system
 
 ---

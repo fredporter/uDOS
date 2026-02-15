@@ -2,7 +2,7 @@
 
 Offline-first OS layer for knowledge systems, tools, and portable environments.
 
-**Status:** v1.3.12 (released)
+**Status:** v1.3.12 (released); monorepo is under development for v1.4 Wizard web view/rendering capabilities
 **Primary target:** Alpine Linux (Sonic USB)
 **Also supported:** macOS, Ubuntu, Windows (dev)
 
@@ -34,7 +34,7 @@ Common first commands:
 - **Wizard** — LAN gateway (AI routing, plugins, sync)
 - **Sonic** — Bootable USB builder
   Repo: `https://github.com/fredporter/uDOS-sonic`
-- **App** — macOS Tauri editor (alpha)
+- **Obsidian Companion App** — private pre-release repo: `https://github.com/fredporter/oc-app`
 - **Extensions** — Container/plugin ecosystem
 - **Knowledge** — Static reference catalog
 
@@ -52,13 +52,18 @@ Common first commands:
 core/        TypeScript runtime + Python TUI
 wizard/      API gateway + services
 sonic/       Bootable USB builder (Sonic)
-app/         Tauri native app (macOS)
 extensions/  Transport API definitions
 library/     Container definitions
 knowledge/   Static catalog
 wiki/        User docs
 docs/        Architecture + specs
 ```
+
+## Monorepo Direction
+
+- uDOS monorepo is currently under development.
+- Obsidian Companion has been separated into `fredporter/oc-app` (private pre-release).
+- Planned integration path is through Wizard web view/rendering capabilities rather than an in-repo `/app` module.
 
 ---
 

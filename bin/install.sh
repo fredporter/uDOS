@@ -18,7 +18,7 @@ fi
 # Usage:
 #   ./bin/install.sh                    # Interactive install
 #   ./bin/install.sh --mode core        # Core only (TUI + API)
-#   ./install.sh --mode desktop     # Core + Tauri
+#   ./install.sh --mode desktop     # Desktop profile (under development)
 #   ./install.sh --mode wizard      # Full Wizard Server
 #   ./install.sh --mode dev         # Development mode
 #   ./install.sh --uninstall        # Remove installation
@@ -152,7 +152,7 @@ print_help() {
     echo "Options:"
     echo "  --mode MODE     Installation mode:"
     echo "                    core    - TUI + API (minimal)"
-    echo "                    desktop - Core + Tauri app"
+    echo "                    desktop - Core + Wizard web tooling (under development)"
     echo "                    wizard  - Full Wizard Server"
     echo "                    dev     - Development mode (in-place)"
     echo ""
@@ -166,7 +166,7 @@ print_help() {
     echo ""
     echo "Examples:"
     echo "  $0 --mode core              # Minimal install"
-    echo "  $0 --mode desktop           # Desktop with Tauri"
+    echo "  $0 --mode desktop           # Desktop profile (under development)"
     echo "  $0 --mode wizard            # Full Wizard Server"
     echo "  $0 --mode dev               # Development mode"
     echo ""
@@ -225,26 +225,26 @@ install_system_deps_ubuntu() {
     return 0
 }
 
-# Check Node.js (for Tauri)
+# Check Node.js (for optional web tooling)
 check_node() {
     if command -v node &>/dev/null; then
         NODE_VERSION=$(node --version 2>&1 | tr -d 'v')
         success "Node.js $NODE_VERSION found"
         return 0
     else
-        warn "Node.js not found (required for Tauri desktop app)"
+        warn "Node.js not found (optional for web tooling)"
         return 1
     fi
 }
 
-# Check Rust (for Tauri)
+# Check Rust (legacy desktop tooling)
 check_rust() {
     if command -v cargo &>/dev/null; then
         RUST_VERSION=$(cargo --version 2>&1 | awk '{print $2}')
         success "Rust $RUST_VERSION found"
         return 0
     else
-        warn "Rust not found (required for Tauri desktop app)"
+        warn "Rust not found (optional for legacy desktop tooling)"
         return 1
     fi
 }
@@ -349,17 +349,9 @@ exec "$prefix/bin/Launch-uCODE.sh" "\$@"
 EOF
     chmod +x "$launcher"
 
-    # Desktop mode: install Tauri
-    if [ "$mode" = "desktop" ] || [ "$mode" = "wizard" ]; then
-        if check_node && check_rust; then
-            info "Building Tauri desktop app..."
-            cd "$PROJECT_ROOT/app"
-            npm install
-            npm run tauri:build
-            success "Tauri app built"
-        else
-            warn "Skipping Tauri build (missing Node.js or Rust)"
-        fi
+    # Desktop profile remains reserved while Wizard web rendering/web view matures.
+    if [ "$mode" = "desktop" ]; then
+        info "Desktop profile is under development (future Wizard web view/rendering capabilities)."
     fi
 
     # Build TypeScript runtime if Node.js is available
@@ -583,7 +575,7 @@ main() {
         echo ""
         echo "Select installation mode:"
         echo "  1) core    - TUI + API (minimal, ~50MB)"
-        echo "  2) desktop - Core + Tauri app (~200MB)"
+        echo "  2) desktop - Core + Wizard web tooling (under development)"
         echo "  3) wizard  - Full Wizard Server (~500MB)"
         echo "  4) dev     - Development mode (in-place)"
         echo ""

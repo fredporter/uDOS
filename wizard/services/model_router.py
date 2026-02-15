@@ -59,7 +59,6 @@ class Workspace(Enum):
     """uDOS workspaces."""
 
     CORE = "core"
-    APP = "app"
     WIZARD = "wizard"
     EXTENSIONS = "extensions"
     DOCS = "docs"
@@ -174,7 +173,7 @@ class ModelRouter:
 
         Args:
             task_id: Unique task ID
-            workspace: One of "core", "app", "wizard", "extensions", "docs"
+            workspace: One of "core", "wizard", "extensions", "docs"
             intent: One of "code", "test", "docs", "design", "ops"
             privacy: One of "private", "internal", "public"
             urgency: One of "low", "normal", "high"

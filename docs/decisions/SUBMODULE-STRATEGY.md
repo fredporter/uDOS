@@ -17,8 +17,8 @@
 ## Private (Submodules)
 - `dev/` — experimental + Goblin dev server.
 - `sonic/` — bootable USB builder.
-- `app/` — Tauri native app.
 - `groovebox/` — music extension.
+- Obsidian Companion app lives in external private pre-release repo: `fredporter/oc-app`.
 
 ---
 

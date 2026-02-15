@@ -2,7 +2,7 @@
 #
 # STRUCTURE:
 #   PUBLIC (this repo):  Core, Wizard, Extensions, Docs, Knowledge, Library
-#   PRIVATE (/dev):      Goblin, Empire, App, Groovebox - proprietary code
+#   PRIVATE (/dev):      Goblin, Empire, Groovebox - proprietary code
 #
 # SETUP:
 #   git submodule add git@github.com:fredporter/uDOS-dev.git dev
@@ -20,10 +20,6 @@
 	url = https://github.com/fredporter/uDOS-dev
 	branch = main
 
-[submodule "app"]
-	path = app
-	url = git@github.com:fredporter/oc-app.git
-	branch = main
 [submodule "sonic"]
 	path = sonic
 	url = git@github.com:fredporter/uDOS-sonic.git
