@@ -1,32 +1,37 @@
 # Docs Spine (v1.3)
 
 This file defines the minimal documentation spine for the v1.3 release.
+Use this with `docs/README.md` and `docs/roadmap.md`.
 
 ---
 
 ## Core
-- `docs/ARCHITECTURE-v1.3.md`
 - `docs/README.md`
-- `docs/ROADMAP.md`
-- `docs/Vault-Contract.md`
+- `docs/roadmap.md`
+- `core/README.md`
+- `wizard/README.md`
 
 ## Runtime + Interface
-- `docs/specs/uCODE-v1.3.md`
-- `docs/RUNTIME-INTERFACE-SPEC.md`
-- `docs/specs/07-grid-canvas-rendering.md`
+- `docs/howto/UCODE-COMMAND-REFERENCE.md`
+- `docs/specs/UCLI-COMMAND-CONTRACT-v1.3.md`
+- `docs/specs/Spatial-Workspace-Filesystem.md`
 - `docs/decisions/u_dos_alpine_thin_gui_runtime_spec_chromium_kiosk_standard.md`
 - `docs/decisions/sonic_db_spec_stub_gpu_profiles_thin_ui_launch_profiles.md`
 
 ## Distribution
-- `docs/DISTRIBUTION-GUIDE.md`
-- `v1.3.0-release-manifest.yml`
+- `distribution/README.md`
+- `docs/releases/v1.3.16-release-checklist.md`
+- `docs/releases/v1.3.17-sonic-release-checklist.md`
 
 ## Testing
-- `docs/v1.3.0-release-test.md`
+- `core/tests/`
+- `wizard/tests/`
 
 ## Submodules + Extensions
-- `docs/SUBMODULE-STRATEGY.md`
-- `docs/CONTRIBUTION-PROCESS.md`
+- `sonic/README.md`
+- `extensions/README.md`
+- `library/README.md`
+- `empire/README.md`
 
 ## Infrastructure + Control Plane
 - `docs/decisions/u_dos_vm_and_remote_desktop_architecture_apple_silicon_dedicated_nodes.md`

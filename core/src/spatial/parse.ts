@@ -4,6 +4,7 @@ import { AddressPath, LocId, PlaceKey, Space } from "./types.js";
  * uDOS grid constraints (current spec):
  * - Cell is two letters + two digits.
  * - Rows are 10..39 (80x30 grid).
+ * - Optional vertical axis suffix: -Z{z} where z is -99..99.
  */
 export function isValidRow(row: number): boolean {
   return row >= 10 && row <= 39;
@@ -15,35 +16,43 @@ export function isValidCell(cell: string): boolean {
   return Number.isFinite(row) && isValidRow(row);
 }
 
-/** LocId: L###-Cell */
+export function isValidZ(z: number): boolean {
+  return Number.isInteger(z) && z >= -99 && z <= 99;
+}
+
+/** LocId: L###-Cell[-Zz] */
 export function parseLocId(s: string): LocId | null {
-  const m = /^L(\d{3})-([A-Z]{2}\d{2})$/.exec(s);
+  const m = /^L(\d{3})-([A-Z]{2}\d{2})(?:-Z(-?\d{1,2}))?$/.exec(s);
   if (!m) return null;
   const layer = Number(m[1]);
   const cell = m[2];
+  const z = m[3] !== undefined ? Number(m[3]) : undefined;
   if (!isValidCell(cell)) return null;
-  return { locId: s, effectiveLayer: layer, finalCell: cell };
+  if (z !== undefined && !isValidZ(z)) return null;
+  return { locId: s, effectiveLayer: layer, finalCell: cell, z };
 }
 
 /**
  * Narrative address path:
- *   L{BaseLayer}-{Cell}(-{Cell})*
+ *   L{BaseLayer}-{Cell}(-{Cell})*[-Z{z}]
  * Canonical compressed identity:
- *   L{BaseLayer + Depth}-{FinalCell}
+ *   L{BaseLayer + Depth}-{FinalCell}[-Z{z}]
  */
 export function parseAddressPath(s: string): AddressPath | null {
-  const m = /^L(\d{3})-([A-Z]{2}\d{2}(?:-[A-Z]{2}\d{2})*)$/.exec(s);
+  const m = /^L(\d{3})-([A-Z]{2}\d{2}(?:-[A-Z]{2}\d{2})*)(?:-Z(-?\d{1,2}))?$/.exec(s);
   if (!m) return null;
 
   const baseLayer = Number(m[1]);
   const cells = m[2].split("-");
+  const z = m[3] !== undefined ? Number(m[3]) : undefined;
   if (cells.length < 1 || !cells.every(isValidCell)) return null;
+  if (z !== undefined && !isValidZ(z)) return null;
 
   const effectiveLayer = baseLayer + (cells.length - 1);
   const finalCell = cells[cells.length - 1];
-  const canonicalLocId = `L${String(effectiveLayer).padStart(3, "0")}-${finalCell}`;
+  const canonicalLocId = `L${String(effectiveLayer).padStart(3, "0")}-${finalCell}${z !== undefined ? `-Z${z}` : ""}`;
 
-  return { baseLayer, cells, effectiveLayer, canonicalLocId };
+  return { baseLayer, cells, effectiveLayer, canonicalLocId, z };
 }
 
 /**

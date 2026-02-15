@@ -37,17 +37,19 @@ from core.commands import (
     FileEditorHandler,
     MaintenanceHandler,
     StoryHandler,
+    ReadHandler,
     SetupHandler,
     UIDHandler,
+    TokenHandler,
+    GhostHandler,
     LogsHandler,
-    HotkeyHandler,
     RestartHandler,
     DestroyHandler,
     UserHandler,
+    GameplayHandler,
     UndoHandler,
     MigrateHandler,
     SeedHandler,
-    HotkeyHandler,
     SchedulerHandler,
     ScriptHandler,
     ViewportHandler,
@@ -97,8 +99,9 @@ class CommandDispatcher:
             "REPAIR": RepairHandler(),
             "REBOOT": RestartHandler(),  # Hot reload + TUI restart
             "SETUP": SetupHandler(),
-            "INSTALL": SetupHandler(),
             "UID": UIDHandler(),  # User ID management
+            "TOKEN": TokenHandler(),  # Token generation utilities
+            "GHOST": GhostHandler(),  # Ghost mode status/policy
             "SONIC": SonicHandler(),
             "MUSIC": MusicHandler(),
             "DEV": DevModeHandler(),  # Shortcut for DEV MODE
@@ -109,6 +112,7 @@ class CommandDispatcher:
             "DRAW": DrawHandler(),  # Viewport-aware ASCII demo panels
             # User Management (2)
             "USER": UserHandler(),  # User profiles and permissions
+            "GAMEPLAY": GameplayHandler(),  # XP/HP/Gold, gates, TOYBOX profiles
             # Cleanup/Reset (2)
             "DESTROY": DestroyHandler(),  # System cleanup with data wipe options
             "UNDO": UndoHandler(),  # Simple undo via restore from backup
@@ -118,8 +122,7 @@ class CommandDispatcher:
             "SEED": SeedHandler(),  # Framework seed data installer
             # NPC & Dialogue (3)
             "NPC": self.npc_handler,
-            "TALK": self.talk_handler,
-            "REPLY": self.talk_handler,
+            "SEND": self.talk_handler,
             # Wizard Management (3)
             "CONFIG": ConfigHandler(),
             "WIZARD": WizardHandler(),
@@ -127,12 +130,11 @@ class CommandDispatcher:
             # Binder (Core)
             "BINDER": BinderHandler(),
             # Workspace-aware file operations
-            "WORKSPACE": workspace,
-            "TAG": workspace,
-            "LOCATION": workspace,
+            "PLACE": workspace,
             # Runtime (Story format)
             "STORY": StoryHandler(),
             "RUN": RunHandler(),
+            "READ": ReadHandler(),
             # File operations
             "FILE": FileHandler(),  # Phase 2: Workspace picker integration
             "NEW": file_editor,
@@ -178,22 +180,12 @@ class CommandDispatcher:
         # Get handler
         handler = self.handlers.get(cmd_name)
         if cmd_name in {"SAVE", "LOAD"}:
-            if cmd_params and cmd_params[0].lower() in {"game", "state"}:
+            if cmd_params and cmd_params[0].lower() == "--state":
                 handler = self.save_handler if cmd_name == "SAVE" else self.load_handler
                 cmd_params = cmd_params[1:]
             else:
                 handler = self.file_handler
         if not handler:
-            removed = {
-                "SHAKEDOWN": "Removed in v1.3.16. Use HEALTH or VERIFY (core), and WIZARD for full checks.",
-                "PATTERN": "Removed in v1.3.16. Use DRAW PAT ...",
-                "DATASET": "Removed in v1.3.16. Use RUN DATA ...",
-                "INTEGRATION": "Removed in v1.3.16 core. Use WIZARD integration/provider surfaces.",
-                "PROVIDER": "Removed in v1.3.16 core. Use WIZARD PROV ...",
-                "PROVIDOR": "Unknown command (typo). Canonical command is PROVIDER (Wizard-owned).",
-            }
-            if cmd_name in removed:
-                return {"status": "error", "message": removed[cmd_name]}
             return {
                 "status": "error",
                 "message": f"Unknown command: {cmd_name}",
@@ -212,6 +204,7 @@ class CommandDispatcher:
 
         # Sync handler state from shared game state
         if game_state is not None:
+            self._tick_gameplay_state(game_state)
             self._sync_handler_state(handler, game_state)
 
         # Execute handler
@@ -236,6 +229,24 @@ class CommandDispatcher:
         handler.set_state("discovered_locations", getattr(game_state, "discovered_locations", None))
         handler.set_state("player_stats", getattr(game_state, "player_stats", None))
         handler.set_state("player_id", getattr(game_state, "player_id", None))
+
+    def _tick_gameplay_state(self, game_state: Any) -> None:
+        """Apply external gameplay events before command execution."""
+        try:
+            from core.services.gameplay_service import get_gameplay_service
+            from core.services.user_service import get_user_manager
+
+            current_user = get_user_manager().current()
+            if not current_user:
+                return
+            tick = get_gameplay_service().tick(current_user.username)
+            stats = tick.get("stats")
+            if isinstance(stats, dict):
+                merged = dict(getattr(game_state, "player_stats", {}) or {})
+                merged.update(stats)
+                game_state.player_stats = merged
+        except Exception:
+            return
 
     def _sync_game_state_from_handler(self, handler: Any, game_state: Any) -> None:
         """Pull updated state from a handler into shared game state."""

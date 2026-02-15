@@ -374,17 +374,11 @@ class MusicHandler(BaseCommandHandler):
                 }
 
         return {
-            "status": "pending",
-            "message": "Playback engine not yet wired to TUI",
-            "note": "To enable playback: wire Groovebox audio engine to core.commands.music_handler",
+            "status": "error",
+            "message": "PLAY backend unavailable",
+            "note": "Install/wire Groovebox playback service, or use MUSIC EXPORT <pattern_id> --format wav and play externally.",
             "pattern_id": pattern_id,
             "loop_count": loop_count,
-            "next_steps": [
-                "1. Implement audio playback backend (PulseAudio/ALSA on Linux, CoreAudio on macOS)",
-                "2. Add playback controls (play, stop, pause, seek)",
-                "3. Wire groovebox.playback_service to MusicHandler",
-                "4. Update _handle_play() to call playback service",
-            ],
         }
 
     def _help(self, message: str = None) -> Dict:

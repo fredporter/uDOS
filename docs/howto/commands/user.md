@@ -1,5 +1,9 @@
 # User Commands
 
+> [!WARNING]
+> Archived legacy page (v1.1). User/location/wellbeing command sections here are historical and may conflict with current command contracts.
+> For current canonical command names, use `/Users/fredbook/Code/uDOS/docs/howto/UCODE-COMMAND-REFERENCE.md`.
+
 > **Version:** Core v1.1.0.0
 
 Commands for user preferences, location, and wellbeing.

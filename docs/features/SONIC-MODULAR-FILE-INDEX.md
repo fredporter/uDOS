@@ -109,11 +109,11 @@
 
 ### TUI Integration
 
-#### 7. Plugin Handler
-**Path:** `core/commands/sonic_plugin_handler.py`  
-**Purpose:** Extended TUI handler with sync commands  
+#### 7. Core SONIC Handler
+**Path:** `core/commands/sonic_handler.py`  
+**Purpose:** Canonical TUI handler for Sonic operations  
 **Exports:**
-- SonicPluginHandler
+- SonicHandler
 
 **TUI Commands:**
 - `SONIC SYNC` - Check sync status
@@ -205,7 +205,7 @@ from wizard.services.sonic_plugin_service import get_sonic_service
 ### TUI Integration
 ```python
 # Handler
-from core.commands.sonic_plugin_handler import SonicPluginHandler
+from core.commands.sonic_handler import SonicHandler
 ```
 
 ---
@@ -234,9 +234,8 @@ wizard/routes/sonic_plugin_routes.py
 wizard/services/sonic_plugin_service.py
   └── extensions.sonic_loader
 
-core/commands/sonic_plugin_handler.py
-  ├── library.sonic.sync
-  └── extensions.sonic_loader
+core/commands/sonic_handler.py
+  └── wizard/lib/sonic_runner (via command flow)
 ```
 
 ---
@@ -263,8 +262,8 @@ python3 -c "from library.sonic.sync import get_sync_service; \
 
 ### Test TUI Handler
 ```bash
-python3 -c "from core.commands.sonic_plugin_handler import SonicPluginHandler; \
-            h = SonicPluginHandler(); print(h.handle('SONIC', ['plugin']))"
+python3 -c "from core.commands.sonic_handler import SonicHandler; \
+            h = SonicHandler(); print(h.handle('SONIC', ['STATUS']))"
 ```
 
 ### Test Wizard Routes

@@ -2,6 +2,40 @@
 
 **Status:** v1.0.7.0 canonical format locked  
 **Format:** v1.0.7.0 (80×30 viewport, finite layers L300-L305, AA-DC × 10-39)
+**v1.3+ Extension:** optional z-axis suffix for pre-3D readiness (`-Z{z}`, `z=-99..99`)
+
+---
+
+## v1.3+ Pre-3D Extension (Z Axis)
+
+Backward compatibility rule:
+- Existing LocIds remain valid: `L300-AB10`.
+- If omitted, `z` is implicitly `0`.
+
+Extended LocId format:
+```text
+L{LAYER}-{CELL}[-Z{z}]
+```
+
+Examples:
+```text
+L300-AB10        # canonical 2D cell, implied z=0
+L300-AB10-Z0     # explicit ground plane
+L300-AB10-Z2     # above plane (bridge/platform)
+L300-AB10-Z-3    # below plane (sub-level)
+```
+
+PlaceRef examples with z-aware LocId:
+```text
+EARTH:SUR:L300-AB10-Z0
+EARTH:SUB:L300-AB10-Z-3:D7
+GAME:skyrim:SUB:L402-CC18-Z1:Iwinterhold
+```
+
+Validation constraints:
+- Layer range stays unchanged (`L300..L899`).
+- Cell format stays unchanged (`AA10..DC39` in current viewport contract).
+- Z range is signed integer `-99..99`.
 
 ---
 
@@ -494,4 +528,3 @@ class Tile:
 ```
 
 ---
-

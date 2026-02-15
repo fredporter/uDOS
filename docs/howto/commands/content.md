@@ -1,5 +1,10 @@
 # Content Commands
 
+> [!WARNING]
+> Archived legacy page (v1.1). This page documents pre-v1.3 command families and is retained for historical reference.
+> Use `/Users/fredbook/Code/uDOS/docs/howto/UCODE-COMMAND-REFERENCE.md` for canonical current commands.
+> Wizard-owned integration/provider flows are documented at `/Users/fredbook/Code/uDOS/docs/howto/commands/wizard.md`.
+
 > **Version:** Core v1.1.0.0
 
 Commands for knowledge, content packages, and web capture.

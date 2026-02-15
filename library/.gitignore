@@ -6,11 +6,14 @@
 */
 
 # Whitelist container definitions and setup files
+!*/manifest.json
 !*/container.json
 !*/container.template.json
 !*/setup.sh
 !*/setup.py
 !*/README.md
+!hethack/
+!elite/
 !/README.md
 !/container.schema.json
 !/container.template.json

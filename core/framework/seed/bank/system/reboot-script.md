@@ -4,6 +4,7 @@ type: script
 version: "1.0.0"
 description: "Default Core reboot script."
 tags: [system, reboot, core]
+allow_stdlib_commands: true
 ---
 
 # Reboot

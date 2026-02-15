@@ -1,5 +1,9 @@
 # WELLBEING - Holistic User Wellness
 
+> [!WARNING]
+> Archived legacy page (v1.1-era feature doc). Keep for historical design reference only.
+> Check `/Users/fredbook/Code/uDOS/docs/howto/UCODE-COMMAND-REFERENCE.md` for canonical current command surface.
+
 **Version:** 2.0.0 (Alpha v1.1.0.0)  
 **Handler:** `core/commands/wellbeing_handler.py`  
 **Service:** `core/services/wellbeing_service.py`

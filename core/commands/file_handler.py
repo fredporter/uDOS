@@ -118,7 +118,7 @@ class FileHandler(BaseCommandHandler):
                 f"Size: {selected_file.stat().st_size} bytes",
                 "",
                 "Use: EDIT <file> to open in editor",
-                "     WORKSPACE read @ws/file to read content",
+                "     PLACE READ @ws/file to read content",
             ])
 
             return {
@@ -289,7 +289,7 @@ Examples:
 
 Related Commands:
   EDIT <file>                       # Open file in editor
-  WORKSPACE list @sandbox           # Spatial filesystem commands
+  PLACE LIST @sandbox               # Spatial filesystem commands
   BINDER open @sandbox/project      # Open binder project
 
 Navigation in Picker:

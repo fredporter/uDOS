@@ -17,6 +17,7 @@ Welcome to the uDOS wiki.
 - Core owns offline/local command surfaces.
 - Wizard owns provider/integration/full-system network-aware checks.
 - No command shims for removed core commands.
+- Canonical command surfaces include `PLACE`, `SEND`, `RUN --ts|--py`, `READ --ts`, and `REBOOT`.
 
 Core checks:
 

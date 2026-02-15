@@ -10,8 +10,8 @@ uDOS command ownership is split between offline Core and network-capable Wizard.
 Core owns local command surfaces, including:
 
 - system checks: `HEALTH`, `VERIFY`, `REPAIR`
-- runtime/data: `DRAW PAT ...`, `RUN DATA ...`
-- local TUI/file/workspace operations
+- runtime/data: `DRAW PAT ...`, `RUN --ts DATA ...`, `READ --ts ...`
+- local TUI/file/workspace operations (`PLACE`, `SEND`, `SAVE/LOAD --state`, `TOKEN`, `GHOST`)
 
 See:
 
@@ -35,7 +35,7 @@ See:
 
 ## No-shims policy (v1.3.16)
 
-Removed top-level core commands hard-fail and are not remapped:
+Removed top-level core commands are not remapped:
 
 - `SHAKEDOWN`
 - `PATTERN`
@@ -44,3 +44,15 @@ Removed top-level core commands hard-fail and are not remapped:
 - `PROVIDER`
 
 Use migration targets documented in `docs/howto/UCODE-COMMAND-REFERENCE.md`.
+
+## Legacy Pages (Archived)
+
+The following v1.1-era pages are retained for historical reference and are marked archived:
+
+- `docs/howto/commands/navigation.md`
+- `docs/howto/commands/content.md`
+- `docs/howto/commands/interface.md`
+- `docs/howto/commands/maintenance.md`
+- `docs/howto/commands/transport.md`
+- `docs/howto/commands/user.md`
+- `docs/howto/commands/wellbeing.md`

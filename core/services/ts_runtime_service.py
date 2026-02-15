@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from core.services.logging_api import get_logger, get_repo_root
+from core.services.script_policy import check_markdown_stdlib_policy
 
 logger = get_logger("core.ts_runtime")
 
@@ -135,6 +136,9 @@ class TSRuntimeService:
             return runtime_check
         if not markdown_path.exists():
             return {"status": "error", "message": f"Script not found: {markdown_path}"}
+        policy_error = check_markdown_stdlib_policy(markdown_path)
+        if policy_error:
+            return policy_error
 
         cmd = [self.node_cmd, str(self.runner_path)]
 

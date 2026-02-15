@@ -1,5 +1,11 @@
 # Maintenance Commands
 
+> [!WARNING]
+> Archived legacy page (v1.1). Keep for historical workflow context only.
+> Current maintenance/system commands are documented in:
+> - `/Users/fredbook/Code/uDOS/docs/howto/commands/system.md`
+> - `/Users/fredbook/Code/uDOS/docs/howto/UCODE-COMMAND-REFERENCE.md`
+
 > **Version:** Core v1.1.0.0
 
 Commands for file organization, cleanup, backups, and version history.

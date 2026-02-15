@@ -24,6 +24,12 @@ def ghost_mode_block(command: str, params: Optional[List[str]] = None) -> Option
         return None
     if cmd == "RUN" and tokens[:2] == ["DATA", "VALIDATE"]:
         return None
+    if cmd == "READ":
+        return None
+    if cmd in {"TOKEN", "GHOST", "SEND"}:
+        return None
+    if cmd == "PLACE" and tokens[:1] in ([], ["LIST"], ["READ"], ["INFO"], ["HELP"], ["FIND"], ["TAGS"], ["SEARCH"]):
+        return None
     if cmd == "DRAW":
         return None
     if cmd == "BINDER":
@@ -83,6 +89,7 @@ def ghost_mode_block(command: str, params: Optional[List[str]] = None) -> Option
         "UNDO",
         "DESTROY",
         "RUN",
+        "PLACE",
         "BINDER",
         "SEED",
         "PLUGIN",

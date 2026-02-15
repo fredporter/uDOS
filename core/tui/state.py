@@ -30,7 +30,10 @@ class GameState:
             "name": "Player",
             "level": 1,
             "health": 100,
+            "hp": 100,
             "mana": 50,
+            "xp": 0,
+            "gold": 0,
         }
         self.session_history: List[str] = []
         self._saves_dir = PROJECT_ROOT / "memory" / "saved_games"

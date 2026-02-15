@@ -13,6 +13,7 @@ import {
   normaliseFrontmatterPlaces,
   isValidCell,
   isValidRow,
+  isValidZ,
 } from "./parse.js";
 import {
   isValidLayer,
@@ -35,12 +36,16 @@ export function testLocIdParser(): void {
   assert.ok(parseLocId("L305-DA11"));
   assert.ok(parseLocId("L300-AA10"));
   assert.ok(parseLocId("L899-ZZ39"));
+  assert.ok(parseLocId("L305-DA11-Z0"));
+  assert.ok(parseLocId("L305-DA11-Z-5"));
 
   // Invalid: malformed
   assert.equal(parseLocId("L305"), null);
   assert.equal(parseLocId("305-DA11"), null);
   assert.equal(parseLocId("L305-DA"), null);
   assert.equal(parseLocId("L305-DA1"), null);
+  assert.equal(parseLocId("L305-DA11-Z"), null);
+  assert.equal(parseLocId("L305-DA11-Z100"), null);
 
   // Invalid: bad layer
   assert.equal(parseLocId("L199-DA11"), null);
@@ -57,6 +62,11 @@ export function testLocIdParser(): void {
   assert.equal(locId?.locId, "L305-DA11");
   assert.equal(locId?.effectiveLayer, 305);
   assert.equal(locId?.finalCell, "DA11");
+  assert.equal(locId?.z, undefined);
+
+  const locIdZ = parseLocId("L305-DA11-Z2");
+  assert.equal(locIdZ?.locId, "L305-DA11-Z2");
+  assert.equal(locIdZ?.z, 2);
 
   console.log("✓ LocId Parser tests passed");
 }
@@ -89,6 +99,14 @@ export function testCellValidation(): void {
   assert.ok(!isValidRow(40));
   assert.ok(!isValidRow(-1));
 
+  // z-axis
+  assert.ok(isValidZ(0));
+  assert.ok(isValidZ(-99));
+  assert.ok(isValidZ(99));
+  assert.ok(!isValidZ(-100));
+  assert.ok(!isValidZ(100));
+  assert.ok(!isValidZ(1.5));
+
   console.log("✓ Cell Validation tests passed");
 }
 
@@ -112,9 +130,16 @@ export function testAddressPathParser(): void {
   assert.equal(path2?.effectiveLayer, 302); // 300 + 2 steps
   assert.equal(path2?.canonicalLocId, "L302-DA11");
 
+  // Address path with z-axis
+  const path3 = parseAddressPath("L300-AC10-BB20-DA11-Z3");
+  assert.equal(path3?.effectiveLayer, 302);
+  assert.equal(path3?.canonicalLocId, "L302-DA11-Z3");
+  assert.equal(path3?.z, 3);
+
   // Invalid
   assert.equal(parseAddressPath("L305"), null);
   assert.equal(parseAddressPath("L305-DA09-BB20"), null); // bad cell in path
+  assert.equal(parseAddressPath("L305-DA11-Z100"), null); // bad z
 
   console.log("✓ Address Path Parser tests passed");
 }
@@ -132,6 +157,9 @@ export function testPlaceRefParser(): void {
   assert.equal(p1?.locId, "L305-DA11");
   assert.equal(p1?.depth, undefined);
   assert.equal(p1?.instance, undefined);
+
+  const p1z = parsePlaceRef("EARTH:SUR:L305-DA11-Z2");
+  assert.equal(p1z?.locId, "L305-DA11-Z2");
 
   // Composite anchor
   const p2 = parsePlaceRef("BODY:MOON:SUR:L610-AB22");
@@ -161,6 +189,7 @@ export function testPlaceRefParser(): void {
   assert.equal(parsePlaceRef("BODY:SUR:L305-DA11"), null); // BODY without subtype
   assert.equal(parsePlaceRef("EARTH:INVALID:L305-DA11"), null); // bad space
   assert.equal(parsePlaceRef("EARTH:SUR:L305-DA"), null); // bad LocId
+  assert.equal(parsePlaceRef("EARTH:SUR:L305-DA11-Z100"), null); // bad z
 
   console.log("✓ PlaceRef Parser tests passed");
 }

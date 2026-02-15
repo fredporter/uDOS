@@ -4,6 +4,7 @@ type: script
 version: "1.0.0"
 description: "Default Core startup script."
 tags: [system, startup, core]
+allow_stdlib_commands: true
 ---
 
 # Startup

@@ -2,7 +2,7 @@
 
 Archived on: 2026-02-11
 
-This file contains the legacy roadmap detail removed from the canonical roadmap. The active roadmap now lives in [docs/ROADMAP.md](../ROADMAP.md).
+This file contains the legacy roadmap detail removed from the canonical roadmap. The active roadmap now lives in [docs/roadmap.md](../roadmap.md).
 
 ---
 

@@ -44,6 +44,86 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 - Added CI policy guardrails for command contract parity, core no-network imports, stdlib boundary, and TS dependency policy.
 - Added Wizard venv lifecycle commands (`ucli wizard install`, `ucli wizard doctor`) and pinned Wizard deps at `wizard/requirements.txt`.
 - Added architecture decision docs for Apple Silicon VM/remote-desktop topology, Alpine Chromium kiosk thin-GUI runtime standard, and Sonic DB-driven GPU/UI launch profiles.
+- Scaffolded gameplay hooks (`GAMEPLAY` command + persistent XP/HP/Gold + progression gates) and initial TOYBOX profiles (`hethack`, `elite`) with Wizard container route exposure.
+- Replaced TOYBOX launch stubs with PTY-based upstream adapter services (`hethack`, `elite`) and wired event-driven gate/stat updates via Core gameplay tick ingestion.
+
+---
+
+## v1.3.x Pre-3D Bridge (to v1.3.22)
+
+Goal: finish pre-3D foundations inside v1.3.x before enabling engine-backed 3D world rendering.
+
+Integration policy for gameplay rounds:
+- [ ] No-fork runtime policy: consume third-party game runtimes as upstream dependencies (pin versions, patch via adapters/wrappers only).
+- [ ] Keep uDOS identity/state in Core contracts; do not let external runtimes become system-of-record.
+- [ ] 2026 redraw policy: replace/augment presentation via uDOS rendering layers (TUI/grid/web/3D lens), not by rewriting upstream game logic.
+- [ ] Naming policy: gameplay runtime containers are `TOYBOX` containers (toybox profiles managed by Wizard).
+
+### v1.3.17 (Complete/Active)
+- [x] Sonic cutover to native UEFI contracts (Ventoy removed).
+- [x] Core/Wizard command contract cleanup and no-shim enforcement.
+- [x] Core/Wizard runtime boundary policy locked (Core stdlib-only Python, Wizard venv-owned deps).
+
+### v1.3.18 (Planned) -- Spatial Contract Hardening
+- [ ] Lock LocId v1.3 extension with optional vertical axis: `L###-CC##[-Zz]`.
+- [ ] Keep backward compatibility for existing `L###-CC##` records (`z=0` implied).
+- [ ] Update parser/validation/tests + renderer schema acceptance for z-aware LocIds.
+- [ ] Publish migration notes for `grid_locations` and `places` frontmatter.
+
+### v1.3.19 (Planned) -- Seed Data Depth Pass
+- [ ] Expand `locations-seed.json` from locator-only entries to gameplay-ready tiles/links.
+- [ ] Add deterministic adjacency/connectivity for region traversal and map overlays.
+- [ ] Introduce elevation-aware seed fields (`z`, `z_min`, `z_max`, stairs/ramps/portals metadata).
+- [ ] Add gameplay seed primitives per place/chunk:
+  - quest hooks (`quest_ids`, trigger conditions)
+  - encounter slots (`npc_spawn`, `hazards`, `loot_tables`)
+  - interaction points (`doors`, `terminals`, `craft nodes`, `checkpoints`)
+
+### v1.3.20 (Planned) -- Grid Runtime Readiness
+- [ ] Add z-aware map overlays and viewport rules (focus plane + nearby z layers).
+- [ ] Add schedule/calendar/todo cross-link support to spatial places for workflow overlays.
+- [ ] Define chunking contract (2D grid chunks now, 3D chunk shape reserved).
+- [ ] Gameplay Dev Round A (Dungeon Lens: `hethack` integration):
+  - containerize public-domain dungeon runtime as a Wizard-managed `TOYBOX` profile
+  - run upstream runtime unmodified via adapter boundary (no source fork)
+  - reskin terminal/UI surfaces to uDOS visual contract (theme tokens, panels, command affordances)
+  - 2026 redraw scope: uDOS-owned renderer for dungeon map/HUD while preserving upstream simulation logic
+  - SUB-first dungeon traversal profile (rooms/corridors/doors/traps/loot)
+  - turn/tick-compatible event hooks for combat + inventory + quest triggers
+  - canonical mapping: `EARTH:SUB:*` PlaceRefs + depth tags to dungeon runtime surfaces
+- [ ] Add gameplay loop integration in Core map runtime:
+  - movement + traversal rules (terrain cost, blocked edges, portal transitions)
+  - event dispatch from map actions (`ENTER`, `INSPECT`, `INTERACT`, `COMPLETE`)
+  - deterministic tick/update contract for NPC and world-state refresh in TUI lens
+
+### v1.3.21 (Planned) -- 3D Adapter Readiness Gate
+- [ ] Finalize engine-agnostic world contract (identity, chunks, events, permissions).
+- [ ] Add compatibility test matrix for dual lenses (TUI map lens + external engine lens).
+- [ ] Benchmark budgets for seed load, chunk resolve latency, and map render throughput.
+- [ ] Freeze pre-3D acceptance checklist as release gate for v1.3.22.
+- [ ] Gameplay Dev Round B (Galaxy Lens: `elite` integration):
+  - containerize public-domain galaxy runtime as a Wizard-managed `TOYBOX` profile
+  - run upstream runtime unmodified via adapter boundary (no source fork)
+  - reskin cockpit/terminal surfaces to uDOS UI contract (grid overlays, status panels, workflow hooks)
+  - 2026 redraw scope: uDOS-owned galaxy HUD/nav overlays while preserving upstream simulation logic
+  - SUR/ORB/STELLAR travel profile (system map, route graph, station/port nodes)
+  - economy/comms/mission hook scaffolds bound to canonical PlaceRefs
+  - canonical mapping: `CATALOG:*`, `BODY:*`, and high-band LocIds for galaxy runtime surfaces
+- [ ] Gameplay parity gate before 3D integration:
+  - same quest chain playable in 2D/TUI and adapter harness
+  - same NPC state transitions and rewards across both lenses
+  - same calendar/todo/workflow side-effects from gameplay events
+- [ ] Interactive progression requirement (hard gate):
+  - complete dungeon level 32 and retrieve the Amulet of Yendor in the `hethack` lens
+  - persist gate state in core progression flags (e.g. `gameplay_gates.dungeon_l32_amulet=true`)
+  - `UNLOCK/PROCEED/NEXT STEP` actions remain blocked until this gate is satisfied
+  - once satisfied, unlock the next integration sequence (galaxy/`elite` round and v1.3.22 preflight)
+
+### v1.3.22 (Planned) -- 3D-World Integration MVP
+- [ ] Enable first 3D world lens integration behind feature flag.
+- [ ] Start with single-region vertical slice using canonical LocId/Place contracts.
+- [ ] Require parity: same quest/place/events playable in 2D grid and 3D lens.
+- [ ] Keep uDOS as system-of-record; adapters render only (no identity ownership in engine).
 
 ---
 
@@ -98,7 +178,7 @@ Last updated: 2026-02-15
 
 #### P0 -- Workspace Filesystem (@workspace)
 - [x] Scaffold all workspace dirs under `memory/`.
-- [x] Wire `@workspace` syntax in Core TUI (WORKSPACE, TAG, LOCATION, BINDER commands).
+- [x] Wire `@workspace` syntax in Core TUI (canonical `PLACE` + `BINDER` command surfaces).
 - [x] Implement workspace switching in file pickers and readers.
 - [x] Update Wizard routes to use workspace-aware vault paths.
 

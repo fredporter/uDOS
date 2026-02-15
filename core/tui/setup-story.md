@@ -17,7 +17,7 @@ Quick setup: 5 essential fields for your local .env file.
 **Extended settings** (API keys, cloud services, etc.) are configured later via Wizard.
 Mistral API key can be provided at first run to unlock local/online AI stabilization.
 
-This story also runs the hot reload/self-heal verification described in `v1.3.1-milestones.md` so `REPAIR`, `RESTART`, and `PLUGIN` keep logging healthy stats to `memory/logs/health-training.log` as part of the v1.1+ roadmap.
+This story also runs the hot reload/self-heal verification described in `v1.3.1-milestones.md` so `REPAIR`, `REBOOT`, and `PLUGIN` keep logging healthy stats to `memory/logs/health-training.log` as part of the v1.1+ roadmap.
 
 ---
 
@@ -154,7 +154,7 @@ help: >
 ## Training & Dev Ops
 
 - This story writes the latest hot reload/self-heal summary to `memory/logs/health-training.log` so automation can verify the training pass before moving on.
-- Completing the flow confirms the local repo/memory/system/vault structure plus the CLI dev operations (REPAIR/RESTART/PLUGIN) remain ready per the v1.1+ roadmap.
+- Completing the flow confirms the local repo/memory/system/vault structure plus the CLI dev operations (REPAIR/REBOOT/PLUGIN) remain ready per the v1.1+ roadmap.
 - After submission, the completion banner reprints the directories (local repo, memory, system, vault, framework seed) with status indicators and references `docs/SEED-INSTALLATION-GUIDE.md`, ensuring the “local memory/system + vault structure” is explicitly confirmed before resuming the next milestone.
 
 ## Complete

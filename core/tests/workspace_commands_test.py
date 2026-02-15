@@ -7,7 +7,7 @@ from core.tui.dispatcher import CommandDispatcher
 def test_workspace_commands_are_dispatched():
     dispatcher = CommandDispatcher()
 
-    result = dispatcher.dispatch("WORKSPACE INFO")
+    result = dispatcher.dispatch("PLACE INFO")
     assert result["status"] == "success"
     assert "Workspace Configuration" in result.get("output", "")
 
@@ -35,4 +35,3 @@ def test_binder_open_workspace_ref_works():
                 if item.is_file():
                     item.unlink()
             binder_path.rmdir()
-

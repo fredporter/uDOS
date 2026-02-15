@@ -1,5 +1,9 @@
 # Transport Commands
 
+> [!WARNING]
+> Archived legacy page (v1.1). Transport/network command content here is not part of the canonical current Core command surface.
+> Use `/Users/fredbook/Code/uDOS/docs/howto/UCODE-COMMAND-REFERENCE.md` and Wizard docs for active command ownership.
+
 > **Version:** Core v1.1.0.0
 
 Commands for network management, mesh networking, and device pairing.

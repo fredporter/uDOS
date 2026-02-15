@@ -408,7 +408,7 @@ EXAMPLES:
             results.append("Next steps:")
             results.append("  • Run STATUS to verify system")
             results.append("  • Run LOGS to check messages")
-            results.append("  • Run RESTART to reload system")
+            results.append("  • Run REBOOT to reload system")
 
             logger.info(
                 "[LOCAL] REPAIR with resets completed by %s",

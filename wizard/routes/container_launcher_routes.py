@@ -40,7 +40,23 @@ class ContainerLauncher:
             "launch_command": ["npm", "run", "dev"],
             "health_check_url": "http://localhost:3000",
             "browser_route": "/ui/songscribe",
-        }
+        },
+        "hethack": {
+            "name": "TOYBOX Dungeon (hethack)",
+            "port": 7421,
+            "service_path": "wizard/services/toybox",
+            "launch_command": ["python3", "-m", "wizard.services.toybox.hethack_adapter"],
+            "health_check_url": "http://localhost:7421/health",
+            "browser_route": "/ui/hethack",
+        },
+        "elite": {
+            "name": "TOYBOX Galaxy (elite)",
+            "port": 7422,
+            "service_path": "wizard/services/toybox",
+            "launch_command": ["python3", "-m", "wizard.services.toybox.elite_adapter"],
+            "health_check_url": "http://localhost:7422/health",
+            "browser_route": "/ui/elite",
+        },
     }
 
     def __init__(self, repo_root: Path = None):
@@ -105,6 +121,13 @@ class ContainerLauncher:
         """Launch service in background."""
         try:
             container_path = self.library_root / container_id
+            launch_cwd = container_path
+            custom_cwd = launch_config.get("cwd")
+            if custom_cwd:
+                cwd_path = Path(custom_cwd)
+                if not cwd_path.is_absolute():
+                    cwd_path = self.repo_root / cwd_path
+                launch_cwd = cwd_path
 
             # Build command
             cmd = launch_config.get("command")
@@ -116,7 +139,7 @@ class ContainerLauncher:
             # Launch process
             proc = subprocess.Popen(
                 cmd,
-                cwd=str(container_path),
+                cwd=str(launch_cwd),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )

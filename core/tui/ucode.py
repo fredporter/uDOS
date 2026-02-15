@@ -536,10 +536,8 @@ class UCLI:
             "WIZARD": "WIZARD",
             "CONFIG": "CONFIG",
             "SETUP": "SETUP",
+            "PLACE": "PLACE",
             "FILE": "FILE",
-            "WORKSPACE": "WORKSPACE",
-            "TAG": "TAG",
-            "LOCATION": "LOCATION",
             "NEW": "NEW",
             "EDIT": "EDIT",
             "MAP": "MAP",
@@ -553,6 +551,10 @@ class UCLI:
             "REPAIR": "REPAIR",
             "HEALTH": "HEALTH",
             "VERIFY": "VERIFY",
+            "SEND": "SEND",
+            "READ": "READ",
+            "TOKEN": "TOKEN",
+            "GHOST": "GHOST",
         }
 
         cmd = cmd_map.get(first_word)
@@ -716,7 +718,7 @@ class UCLI:
                     print(self._theme_text(f"     - {line}"))
         except Exception:
             pass
-        print(self._theme_text("\n  Tips: INSTALL VIBE | SETUP | HELP | TAB | OK EXPLAIN <file>"))
+        print(self._theme_text("\n  Tips: SETUP vibe | SETUP | HELP | TAB | OK EXPLAIN <file>"))
         print(self._theme_text("     Try: MAP | GRID MAP --input memory/system/grid-overlays-sample.json | WIZARD start\n"))
 
     def _run_startup_draw(self) -> None:
@@ -1203,7 +1205,7 @@ class UCLI:
             issue = ok_status.get("issue") or "setup required"
             lines.append(f"⚠️ Vibe needs setup: {issue} ({model}, ctx {ctx})")
             if issue in {"setup required", "ollama down", "missing model", "vibe-cli missing"}:
-                lines.append("Tip: INSTALL VIBE")
+                lines.append("Tip: SETUP vibe")
             if issue == "missing model":
                 lines.append(f"Tip: OK PULL {model}")
         if cloud_status.get("skip"):
@@ -2274,27 +2276,31 @@ Core Commands:
 System Management:
   SETUP               - Run setup story (default)
   SETUP --profile     - View your setup profile
-  INSTALL VIBE        - Install Ollama + Vibe CLI + Mistral models
+  SETUP vibe          - Install Ollama + Vibe CLI + Mistral models
   CONFIG              - Manage configuration variables
   DESTROY             - System cleanup (wipe user, compost, reset)
   HEALTH              - Stdlib/offline core health checks
   VERIFY              - TS runtime/script verification checks
   REPAIR              - Fix issues and self-heal
-  RESTART             - Restart/reload system
+  REBOOT              - Restart/reload system
   USER                - User profile and permission management
+  GAMEPLAY            - XP/HP/Gold, progression gates, TOYBOX profiles
   LOGS                - View unified system logs
   ANCHOR              - Gameplay anchors (list/show/register/bind)
   GRID                - UGRID demos (calendar/table/schedule/map)
   DRAW                - Viewport-aware ASCII demos and panels
 
 Data & Stories:
-  WORKSPACE           - Workspace filesystem operations (@workspace paths)
-  TAG                 - Tag discovery in workspace files
-  LOCATION            - Grid location tagging and lookup
+  PLACE               - Unified workspace/tag/location operations
   BINDER              - Multi-chapter project management
   STORY [name]        - Run story files (.md with questions/flow)
-  RUN [file]          - Execute TypeScript scripts or Python files
+  READ [--ts] [file]  - Parse TS markdown runtime files
+  RUN --ts [file]     - Execute TypeScript markdown runtime scripts
+  RUN --py [file.py]  - Execute Python scripts explicitly
   RUN DATA ...        - TS-backed dataset operations
+  SEND                - Unified dialogue command (start/reply)
+  TOKEN               - Generate local URL-safe tokens
+  GHOST               - Show Ghost Mode status and policy
 
 Navigation & Info:
   MAP                 - Show spatial map
@@ -2329,7 +2335,7 @@ AI Modes:
 Examples:
   SETUP                      - Run setup story
   SETUP --profile            - View your setup profile
-  INSTALL VIBE               - Install local Vibe stack
+  SETUP vibe                 - Install local Vibe stack
   UID                        - Show your User ID
   STORY tui-setup            - Run setup story
   DESTROY --wipe-user        - Wipe user data

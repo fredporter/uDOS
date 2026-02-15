@@ -532,15 +532,6 @@ def create_default_registry() -> CommandRegistry:
         category="Management",
     )
     registry.register(
-        name="INSTALL",
-        help_text="Install local tooling (e.g., Vibe stack)",
-        syntax="INSTALL VIBE",
-        examples=["INSTALL VIBE"],
-        icon="•",
-        category="Management",
-    )
-
-    registry.register(
         name="CONFIG",
         help_text="Manage configuration variables",
         syntax="CONFIG [variable] [value]",
@@ -694,9 +685,23 @@ def create_default_registry() -> CommandRegistry:
 
     registry.register(
         name="RUN",
-        help_text="Execute TypeScript scripts (embedded in .md files)",
-        syntax="RUN <file> | RUN PARSE <file> | RUN DATA ...",
-        examples=["RUN automation-script.md", "RUN PARSE memory/system/startup-script.md", "RUN DATA LIST"],
+        help_text="Execute runtime scripts with explicit engine flags",
+        syntax="RUN [--ts|--py] <file> | RUN [--ts] PARSE <file> | RUN [--ts] DATA ...",
+        examples=[
+            "RUN --ts automation-script.md",
+            "RUN --py tools/health_check.py",
+            "RUN --ts PARSE memory/system/startup-script.md",
+            "RUN --ts DATA LIST",
+        ],
+        icon="•",
+        category="Data",
+    )
+
+    registry.register(
+        name="READ",
+        help_text="Parse TS markdown runtime files",
+        syntax="READ [--ts] <file>",
+        examples=["READ --ts memory/system/startup-script.md"],
         icon="•",
         category="Data",
     )
@@ -750,12 +755,69 @@ def create_default_registry() -> CommandRegistry:
     )
 
     registry.register(
+        name="GAMEPLAY",
+        help_text="XP/HP/Gold stats, progression gates, and TOYBOX profiles",
+        syntax="GAMEPLAY [STATUS|STATS|GATE|TOYBOX|PROCEED]",
+        options=[
+            "STATUS: Show current user gameplay state",
+            "STATS SET|ADD <xp|hp|gold> <value>: update stats",
+            "GATE STATUS|COMPLETE|RESET <gate_id>: progression gate control",
+            "TOYBOX LIST|SET <profile>: gameplay runtime profile selection",
+            "PROCEED: enforce interactive progression requirement",
+        ],
+        examples=[
+            "GAMEPLAY",
+            "GAMEPLAY STATS ADD xp 25",
+            "GAMEPLAY GATE COMPLETE dungeon_l32_amulet",
+            "GAMEPLAY PROCEED",
+        ],
+        icon="•",
+        category="Navigation",
+    )
+
+    registry.register(
         name="GOTO",
         help_text="Travel to location",
         syntax="GOTO <location>",
         examples=["GOTO home", "GOTO market"],
         icon="•",
         category="Navigation",
+    )
+
+    registry.register(
+        name="SEND",
+        help_text="Unified NPC dialogue command",
+        syntax="SEND <npc_name> | SEND <option_number>",
+        examples=["SEND guard", "SEND 1"],
+        icon="•",
+        category="Navigation",
+    )
+
+    registry.register(
+        name="PLACE",
+        help_text="Unified workspace/tag/location operations",
+        syntax="PLACE <LIST|READ|WRITE|DELETE|INFO|TAG|FIND|TAGS|SEARCH> ...",
+        examples=["PLACE LIST @sandbox", "PLACE TAG @sandbox/story.md L300-AB15"],
+        icon="•",
+        category="Data",
+    )
+
+    registry.register(
+        name="TOKEN",
+        help_text="Generate local URL-safe tokens",
+        syntax="TOKEN [GEN] [--len N]",
+        examples=["TOKEN", "TOKEN --len 48"],
+        icon="•",
+        category="Management",
+    )
+
+    registry.register(
+        name="GHOST",
+        help_text="Show Ghost Mode status and policy",
+        syntax="GHOST",
+        examples=["GHOST"],
+        icon="•",
+        category="Management",
     )
 
     return registry

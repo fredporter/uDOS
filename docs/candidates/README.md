@@ -1,36 +1,12 @@
-# Wiki Candidates (Staging)
+# Candidates (Archived)
 
-This folder is a **staging area** for long‑form drafts and spec‑level documents that may later be summarized into the user‑facing wiki.
+Candidate and staging docs were archived during repo cleanup.
 
-## Promotion Policy
+Archived location:
+- `docs/.archive/2026-02-15-docs-cleanup/candidates/`
 
-Documents in `docs/wiki-candidates/` are **not** part of the public wiki by default. A document is promoted only when it is:
-
-- **Stable** (unlikely to change week‑to‑week)
-- **Beginner‑friendly** (short, clear, minimal jargon)
-- **Canonical** (single source of truth for the topic)
-- **Non‑duplicative** (does not repeat `/docs` specs)
-
-## How Promotion Works
-
-1. Draft lives here with full technical detail.
-2. A **concise wiki page** is created in `/wiki/` (one page per feature).
-3. The wiki page links back to the full draft here.
-
-## What Stays Here
-
-- Long‑form specs
-- Deep technical details
-- Delivery notes and checklists
-- Internal design drafts
-
-## What Goes in `/wiki/`
-
-- Short, user‑friendly summaries
-- Entry points and “getting started” docs
-- One‑page feature overviews
-
-## Example
-
-- Full spec: `docs/wiki-candidates/BEACON-PORTAL.md`
-- Wiki summary: `wiki/Beacon-Architecture-Summary.md`
+Use canonical docs instead:
+- `docs/README.md`
+- `docs/howto/UCODE-COMMAND-REFERENCE.md`
+- `docs/specs/`
+- `docs/decisions/`

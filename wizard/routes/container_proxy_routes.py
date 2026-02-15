@@ -24,6 +24,8 @@ class ContainerProxy:
     CONTAINER_PORTS = {
         "home-assistant": 8123,
         "songscribe": 3000,
+        "hethack": 7421,
+        "elite": 7422,
     }
 
     def __init__(self):

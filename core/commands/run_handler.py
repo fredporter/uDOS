@@ -1,8 +1,9 @@
-"""RUN command handler - execute TS markdown runtime scripts and TS-backed data ops."""
+"""RUN command handler - execute TS markdown scripts, TS data ops, or explicit Python scripts."""
 
 from pathlib import Path
 import json
 import subprocess
+import sys
 from typing import Dict, List
 
 from core.commands.base import BaseCommandHandler
@@ -12,21 +13,38 @@ from core.tui.output import OutputToolkit
 
 
 class RunHandler(BaseCommandHandler):
-    """Handler for RUN command - execute TS markdown runtime scripts."""
+    """Handler for RUN command with explicit engine selection (--ts|--py)."""
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         if not params:
             return {
-                "status": "error", "message": "Usage: RUN <file> [section_id] | RUN PARSE <file> | RUN DATA ...",
+                "status": "error", "message": "Usage: RUN [--ts|--py] <file> [section_id] | RUN [--ts] PARSE <file> | RUN [--ts] DATA ...",
             }
 
-        if params[0].upper() == "DATA":
-            return self._run_data(params[1:])
+        run_mode = "ts"
+        args = params[:]
+        while args and args[0].lower() in {"--ts", "--py"}:
+            run_mode = args[0][2:].lower()
+            args = args[1:]
 
-        if params[0].upper() == "PARSE":
-            if len(params) < 2:
+        if not args:
+            return {
+                "status": "error",
+                "message": "Usage: RUN [--ts|--py] <file> [section_id] | RUN [--ts] PARSE <file> | RUN [--ts] DATA ...",
+            }
+
+        if run_mode == "py":
+            if args[0].upper() in {"PARSE", "DATA"}:
+                return {"status": "error", "message": "RUN --py supports script execution only (no PARSE/DATA)"}
+            return self._run_python(args)
+
+        if args[0].upper() == "DATA":
+            return self._run_data(args[1:])
+
+        if args[0].upper() == "PARSE":
+            if len(args) < 2:
                 return {"status": "error", "message": "Usage: RUN PARSE <file>"}
-            file_arg = params[1]
+            file_arg = args[1]
             script_path = self._resolve_path(file_arg)
             service = TSRuntimeService()
             result = service.parse(script_path)
@@ -61,8 +79,8 @@ class RunHandler(BaseCommandHandler):
                 "output": "Ghost Mode active: RUN execution is disabled. Use RUN PARSE to inspect scripts.",
             }
 
-        file_arg = params[0]
-        section_id = params[1] if len(params) > 1 else None
+        file_arg = args[0]
+        section_id = args[1] if len(args) > 1 else None
 
         script_path = self._resolve_path(file_arg)
         service = TSRuntimeService()
@@ -79,6 +97,28 @@ class RunHandler(BaseCommandHandler):
             "message": "Script executed",
             "output": output,
             "runtime": payload,
+        }
+
+    def _run_python(self, params: List[str]) -> Dict:
+        file_arg = params[0]
+        script_path = self._resolve_path(file_arg)
+        if not script_path.exists():
+            return {"status": "error", "message": f"Script not found: {script_path}"}
+        if script_path.suffix.lower() != ".py":
+            return {"status": "error", "message": "RUN --py requires a .py file"}
+
+        cmd = [sys.executable, str(script_path), *params[1:]]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            return {
+                "status": "error",
+                "message": "Python script failed",
+                "details": result.stderr.strip() or result.stdout.strip(),
+            }
+        return {
+            "status": "success",
+            "message": "Python script executed",
+            "output": result.stdout.strip(),
         }
 
     def _run_data(self, params: List[str]) -> Dict:

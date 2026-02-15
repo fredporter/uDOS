@@ -51,12 +51,12 @@ class AutocompleteService:
                 "options": [],
             },
             "SAVE": {
-                "description": "Save game state",
-                "options": [],
+                "description": "Save file or state slot",
+                "options": ["--state"],
             },
             "LOAD": {
-                "description": "Load saved state",
-                "options": [],
+                "description": "Load file or state slot",
+                "options": ["--state"],
             },
             "HEALTH": {
                 "description": "Run offline stdlib health checks",
@@ -86,8 +86,24 @@ class AutocompleteService:
                 "description": "NPC management",
                 "options": ["LIST", "CREATE", "EDIT", "DELETE"],
             },
-            "TALK": {
-                "description": "Initiate dialogue",
+            "SEND": {
+                "description": "Unified dialogue command",
+                "options": [],
+            },
+            "PLACE": {
+                "description": "Unified workspace/tag/location command",
+                "options": ["LIST", "READ", "WRITE", "DELETE", "INFO", "TAG", "FIND", "TAGS", "SEARCH"],
+            },
+            "READ": {
+                "description": "Parse TS markdown runtime files",
+                "options": ["--ts"],
+            },
+            "TOKEN": {
+                "description": "Generate local tokens",
+                "options": ["GEN", "--len"],
+            },
+            "GHOST": {
+                "description": "Show Ghost Mode status",
                 "options": [],
             },
             "WIZARD": {

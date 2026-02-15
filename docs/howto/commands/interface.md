@@ -1,5 +1,9 @@
 # Interface Commands
 
+> [!WARNING]
+> Archived legacy page (v1.1). Interface command names and behavior here may not match current Core.
+> Refer to `/Users/fredbook/Code/uDOS/docs/howto/UCODE-COMMAND-REFERENCE.md` for current canonical commands.
+
 > **Version:** Core v1.1.0.0
 
 Commands for customizing the TUI appearance and interaction.

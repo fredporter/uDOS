@@ -24,13 +24,21 @@ class DrawHandler(BaseCommandHandler, HandlerLoggingMixin):
         self._pattern_index = 0
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
-        mode = (params[0].lower().strip() if params else "demo")
+        runtime_mode = "auto"
+        args = params[:]
+        if args and args[0].lower() in {"--py", "--ts"}:
+            runtime_mode = args[0][2:].lower()
+            args = args[1:]
+
+        mode = (args[0].lower().strip() if args else "demo")
         if mode == "pat":
-            return self._pattern(params[1:])
+            if runtime_mode == "py":
+                return {"status": "error", "message": "DRAW --py does not support PAT. Use DRAW --ts PAT ..."}
+            return self._pattern(args[1:])
         if mode.endswith(".md") or mode.endswith(".txt"):
-            return self._block(params)
+            return self._block(args)
         if mode == "block":
-            return self._block(params[1:])
+            return self._block(args[1:])
         if mode in {"demo", "show"}:
             return self._demo()
         if mode in {"map", "grid"}:

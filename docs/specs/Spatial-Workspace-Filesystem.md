@@ -42,35 +42,36 @@ Vault-first workspaces, accessed via `@workspace` syntax:
 
 ---
 
-**TUI Commands:**
+**TUI Commands (canonical):**
 ```
-WORKSPACE list @sandbox                  # List all files
-WORKSPACE read @sandbox/story.md         # Show file content
-WORKSPACE delete @sandbox/old.md         # Delete file
-WORKSPACE INFO                           # Show workspace config
+PLACE LIST @sandbox                      # List all files
+PLACE READ @sandbox/story.md             # Show file content
+PLACE DELETE @sandbox/old.md             # Delete file
+PLACE INFO                               # Show workspace config
 ```
 
 ---
 
 ### 2. Grid Location Tagging
 
-Connect files to spatial grid coordinates (L###-Cell format):
+Connect files to spatial grid coordinates (`L###-Cell[-Zz]` format):
 
 ```python
-# Tag file with location
+# Tag file with location (implied z=0)
 fs.tag_location('@sandbox/story.md', 'L300-AB15')
 
 # Find files at location
 files = fs.find_by_location('L300-AB15')
 
-# Multiple locations per file
-fs.tag_location('@sandbox/story.md', 'L300-AC20')
+# Multiple locations per file (explicit z plane)
+fs.tag_location('@sandbox/story.md', 'L300-AC20-Z2')
 ```
 
-**TUI Commands:**
+**TUI Commands (canonical):**
 ```
-LOCATION tag @sandbox/story.md L300-AB15    # Tag file
-LOCATION find L300-AB15                      # Find files at location
+PLACE TAG @sandbox/story.md L300-AB15        # Tag file with location
+PLACE FIND L300-AB15                          # Find files at location
+PLACE TAG @sandbox/story.md L300-AC20-Z2      # Tag file with z-axis
 ```
 
 **Front-matter Example:**
@@ -104,10 +105,10 @@ files = fs.find_by_tags(['forest', 'adventure'])
 # → All files tagged with either tag
 ```
 
-**TUI Commands:**
+**TUI Commands (canonical):**
 ```
-TAG list @sandbox                    # Show all tags in workspace
-TAG find forest adventure quest      # Find files with any tag
+PLACE TAGS @sandbox                  # Show all tags in workspace
+PLACE SEARCH forest adventure quest  # Find files with any tag
 ```
 
 **Front-matter Example:**
@@ -366,22 +367,22 @@ location_guides = users_fs.find_by_location('L300-DB20')
 ### Example 3: TUI Workflow
 
 ```
-[uCODE] > WORKSPACE list @sandbox
+[uCODE] > PLACE LIST @sandbox
 📁 Files in @sandbox:
   📄 story.md [forest, adventure] @ L300-AB15
   📄 notes.md [personal]
   📄 quest-log.md [quest, tracking]
 
-[uCODE] > TAG find quest
+[uCODE] > PLACE SEARCH quest
 🔍 Files tagged with: quest
   📄 @sandbox/quest-log.md
      My Quest Log
      Tags: quest, tracking
 
-[uCODE] > LOCATION tag @sandbox/story.md L300-AC20
+[uCODE] > PLACE TAG @sandbox/story.md L300-AC20
 ✅ Tagged @sandbox/story.md → L300-AC20
 
-[uCODE] > LOCATION find L300-AB15
+[uCODE] > PLACE FIND L300-AB15
 📍 Files at L300-AB15:
   📄 @sandbox/story.md
      My Adventure Story

@@ -2,7 +2,7 @@
  * uDOS v1.3 Spatial Types
  *
  * Canonical identity:
- *   LocId := L{EffectiveLayer}-{FinalCell}
+ *   LocId := L{EffectiveLayer}-{FinalCell}[-Z{z}]
  *
  * Place identity (recommended string form for frontmatter + APIs):
  *   PlaceRef := <ANCHOR_ID>:<SPACE>:<LOCID>[:D<depth>][:I<instance>]
@@ -22,16 +22,18 @@ export interface Anchor {
 }
 
 export interface LocId {
-  locId: string;            // "L305-DA11"
+  locId: string;            // "L305-DA11" or "L305-DA11-Z2"
   effectiveLayer: number;   // 305
   finalCell: string;        // "DA11"
+  z?: number;               // optional vertical offset; defaults to 0 when omitted
 }
 
 export interface AddressPath {
   baseLayer: number;        // e.g. 300
   cells: string[];          // ["AC10","EA12","BB21","AB32","DA11"]
   effectiveLayer: number;   // baseLayer + (cells.length - 1)
-  canonicalLocId: string;   // "L305-DA11"
+  canonicalLocId: string;   // "L305-DA11" or "L305-DA11-Z2"
+  z?: number;               // optional vertical offset
 }
 
 export interface PlaceKey {

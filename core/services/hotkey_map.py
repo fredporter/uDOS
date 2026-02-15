@@ -22,7 +22,7 @@ def get_hotkey_map() -> List[Dict[str, str]]:
         {"key": "F1", "action": "Status / Help banner", "notes": "Displays Self-Healer + Hot Reload stats."},
         {"key": "F2", "action": "Logs / Diagnostics", "notes": "Shows logs and diagnostics summary."},
         {"key": "F3", "action": "REPAIR shortcut", "notes": "Triggers SelfHealer checks via CLI."},
-        {"key": "F4", "action": "RESTART / HOT RELOAD", "notes": "Reloads handlers and restarts watchers."},
+        {"key": "F4", "action": "REBOOT", "notes": "Reloads handlers and restarts TUI."},
         {"key": "F5", "action": "Extension palette", "notes": "Opens the plugin menu (LibraryManager metadata)."},
         {"key": "F6", "action": "Script / DRAW PAT", "notes": "Runs DRAW PAT/system script banners for automation."},
         {"key": "F7", "action": "Sonic Device DB", "notes": "Shows Sonic USB/media capabilities from the device DB."},

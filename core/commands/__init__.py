@@ -130,6 +130,10 @@ def __getattr__(name):
         from .run_handler import RunHandler
 
         return RunHandler
+    elif name == "ReadHandler":
+        from .read_handler import ReadHandler
+
+        return ReadHandler
     elif name == "FileEditorHandler":
         from .file_editor_handler import FileEditorHandler
 
@@ -150,6 +154,14 @@ def __getattr__(name):
         from .uid_handler import UIDHandler
 
         return UIDHandler
+    elif name == "TokenHandler":
+        from .token_handler import TokenHandler
+
+        return TokenHandler
+    elif name == "GhostHandler":
+        from .ghost_handler import GhostHandler
+
+        return GhostHandler
     elif name == "LogsHandler":
         from .logs_handler import LogsHandler
 
@@ -166,6 +178,10 @@ def __getattr__(name):
         from .user_handler import UserHandler
 
         return UserHandler
+    elif name == "GameplayHandler":
+        from .gameplay_handler import GameplayHandler
+
+        return GameplayHandler
     elif name == "UndoHandler":
         from .undo_handler import UndoHandler
 
@@ -247,6 +263,7 @@ __all__ = [
     "UndoHandler",
     "MigrateHandler",
     "SeedHandler",
+    "GameplayHandler",
     # NPC & Dialogue commands
     "NPCHandler",
     "DialogueEngine",
@@ -260,12 +277,15 @@ __all__ = [
     "EmpireHandler",
     "BinderHandler",
     "RunHandler",
+    "ReadHandler",
     "StoryHandler",
     "FileEditorHandler",
     "FileHandler",  # Phase 2: Workspace picker integration
     "MaintenanceHandler",
     "SetupHandler",
     "UIDHandler",
+    "TokenHandler",
+    "GhostHandler",
     "ViewportHandler",
     "DrawHandler",
     "WorkspaceHandler",

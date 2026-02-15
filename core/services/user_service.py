@@ -69,6 +69,13 @@ class Permission(Enum):
     PLUGIN = "plugin"           # Install plugins
     WEB = "web"                 # Web access
 
+    # Gameplay
+    GAMEPLAY_VIEW = "gameplay_view"       # View gameplay profile/stats
+    GAMEPLAY_MUTATE = "gameplay_mutate"   # Update gameplay stats
+    GAMEPLAY_GATE_ADMIN = "gameplay_gate_admin"  # Gate reset/override
+    TOYBOX_LAUNCH = "toybox_launch"       # Launch gameplay runtime containers
+    TOYBOX_ADMIN = "toybox_admin"         # Manage TOYBOX profile selection
+
 
 @dataclass
 class User:
@@ -107,6 +114,11 @@ class UserManager:
             Permission.WIZARD,
             Permission.PLUGIN,
             Permission.WEB,
+            Permission.GAMEPLAY_VIEW,
+            Permission.GAMEPLAY_MUTATE,
+            Permission.GAMEPLAY_GATE_ADMIN,
+            Permission.TOYBOX_LAUNCH,
+            Permission.TOYBOX_ADMIN,
         ],
         UserRole.USER: [
             Permission.READ,
@@ -115,9 +127,13 @@ class UserManager:
             Permission.HOT_RELOAD,
             Permission.WIZARD,
             Permission.PLUGIN,
+            Permission.GAMEPLAY_VIEW,
+            Permission.GAMEPLAY_MUTATE,
+            Permission.TOYBOX_LAUNCH,
         ],
         UserRole.GUEST: [
             Permission.READ,
+            Permission.GAMEPLAY_VIEW,
         ]
     }
 

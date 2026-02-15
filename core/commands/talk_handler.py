@@ -12,7 +12,7 @@ from .dialogue_engine import DialogueEngine
 
 
 class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
-    """Handle TALK command for NPC conversations"""
+    """Handle SEND command for NPC conversations."""
 
     def __init__(self, npc_handler: NPCHandler, dialogue_engine: DialogueEngine):
         """Initialize talk handler"""
@@ -26,12 +26,15 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
     def handle(
         self, command: str, params: List[str], grid: Any, parser: Any
     ) -> Dict[str, Any]:
-        """Route TALK commands"""
+        """Route SEND commands."""
         with self.trace_command(command, params) as trace:
             trace.add_event('command_routed', {'command': command})
-            if command == "TALK":
+            cmd = (command or "").upper()
+            if cmd == "SEND":
+                result = self._handle_send(params)
+            elif cmd == "TALK":
                 result = self._handle_talk(params)
-            elif command == "REPLY":
+            elif cmd == "REPLY":
                 result = self._handle_reply(params)
             else:
                 trace.set_status('error')
@@ -41,6 +44,33 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
             if status:
                 trace.set_status(status)
             return result
+
+    def _handle_send(self, params: List[str]) -> Dict[str, Any]:
+        """SEND unifies start/reply flows.
+
+        Forms:
+          SEND <npc_name...>
+          SEND <option_number>
+          SEND TO <npc_name...>
+          SEND REPLY <option_number>
+        """
+        if not params:
+            return {
+                "status": "error",
+                "message": "Usage: SEND <npc_name> | SEND <option_number>",
+                "suggestion": "Example: SEND Kenji",
+            }
+
+        head = params[0].upper()
+        if head == "TO":
+            return self._handle_talk(params[1:])
+        if head == "REPLY":
+            return self._handle_reply(params[1:])
+
+        player_id = self._get_player_id()
+        if params[0].isdigit() and player_id in self.active_conversations:
+            return self._handle_reply(params)
+        return self._handle_talk(params)
 
     def _get_player_id(self) -> str:
         """Resolve player id from user/session state."""
@@ -94,8 +124,8 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
         if not params:
             return {
                 "status": "error",
-                "message": "Usage: TALK <npc_name>",
-                "suggestion": "Example: TALK Kenji",
+                "message": "Usage: SEND <npc_name>",
+                "suggestion": "Example: SEND Kenji",
             }
 
         npc_name = " ".join(params)
@@ -160,8 +190,8 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
         if not params:
             return {
                 "status": "error",
-                "message": "Usage: REPLY <option_number>",
-                "suggestion": "Example: REPLY 1",
+                "message": "Usage: SEND <option_number>",
+                "suggestion": "Example: SEND 1",
             }
 
         player_id = self._get_player_id()
@@ -171,7 +201,7 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
             return {
                 "status": "error",
                 "message": "No active conversation",
-                "suggestion": "Use TALK <npc_name> to start a conversation",
+                "suggestion": "Use SEND <npc_name> to start a conversation",
             }
 
         try:
@@ -180,7 +210,7 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
             return {
                 "status": "error",
                 "message": "Invalid option number",
-                "suggestion": "Use a number like: REPLY 1",
+                "suggestion": "Use a number like: SEND 1",
             }
 
         conv_state = self.active_conversations[player_id]

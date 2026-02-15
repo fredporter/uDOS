@@ -10,8 +10,8 @@ export function renderMap(spec: GridCanvasSpec, input: any) {
   const focusLocId = input.focusLocId || "EARTH:SUR:L305-DA11";
   c.box(0, 0, 80, 30, "single", `${spec.title} — Focus: ${focusLocId}`);
 
-  // Parse LocId format: WORLD:REALM:LOCGRID-CELL
-  const parsed = focusLocId.match(/^([^:]+):([^:]+):([^-]+-[^-]+)$/);
+  // Parse LocId format: WORLD:REALM:L###-CC##[-Zz]
+  const parsed = focusLocId.match(/^([^:]+):([^:]+):(.+)$/);
   const world = parsed?.[1] || "EARTH";
   const realm = parsed?.[2] || "SUR";
   const locGrid = parsed?.[3] || "L305-DA11";

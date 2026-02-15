@@ -1,5 +1,10 @@
 # Navigation Commands
 
+> [!WARNING]
+> Archived legacy page (v1.1). Commands on this page are not canonical for current uDOS.
+> Use `/Users/fredbook/Code/uDOS/docs/howto/UCODE-COMMAND-REFERENCE.md` for the active command surface.
+> For current system/runtime command details, use `/Users/fredbook/Code/uDOS/docs/howto/commands/system.md`.
+
 > **Version:** Core v1.1.0.0
 
 Commands for tile navigation and file operations.

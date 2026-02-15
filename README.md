@@ -72,8 +72,10 @@ docs/        Architecture + specs
 ## Documentation
 
 - `wiki/README.md` — user guides
-- `docs/README.md` — architecture + specs
-- `docs/DOCS-SPINE-v1.3.md` — minimal doc spine
+- `docs/README.md` — canonical docs index and flow
+- `docs/roadmap.md` — canonical roadmap
+- `docs/howto/UCODE-COMMAND-REFERENCE.md` — canonical command surface
+- `docs/DOCS-SPINE-v1.3.md` — spine redirect
 
 ---
 

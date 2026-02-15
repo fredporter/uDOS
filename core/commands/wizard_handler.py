@@ -4,6 +4,7 @@ from typing import List, Dict, Optional, Any, Tuple
 from datetime import datetime
 import json
 import os
+import secrets
 import subprocess
 import threading
 import webbrowser
@@ -242,9 +243,20 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             return {"status": "success", "message": "Provider setup instructions loaded", "output": "\n".join(lines)}
 
         if sub == "GENSECRET":
+            length = 48
+            if args and args[0].isdigit():
+                length = max(24, min(128, int(args[0])))
+            token = secrets.token_urlsafe(length)
+            lines = [OutputToolkit.banner("WIZARD PROV GENSECRET"), ""]
+            lines.append("Generated local provider secret:")
+            lines.append(token)
+            lines.append("")
+            lines.append("Tip: use TOKEN --len N for additional local tokens.")
             return {
-                "status": "error",
-                "message": "WIZARD PROV GENSECRET is not exposed by Wizard API. Use WIZARD RESET/SETUP or Wizard web config.",
+                "status": "success",
+                "message": "Generated local secret",
+                "output": "\n".join(lines),
+                "token": token,
             }
 
         return {"status": "error", "message": "Usage: WIZARD PROV [LIST|STATUS|ENABLE|DISABLE|SETUP|GENSECRET] ..."}
