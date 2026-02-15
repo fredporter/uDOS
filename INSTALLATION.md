@@ -14,15 +14,14 @@ Omit `UDOS_AUTOSTART=1` to install without launching.
 ## Launch
 
 ```bash
-./bin/Launch-uCODE.sh
+./bin/ucli
 ```
 
 ### Options
 
 ```bash
-./bin/Launch-uCODE.sh core
-./bin/Launch-uCODE.sh wizard
-./bin/Launch-uCODE.sh goblin
+./bin/ucli
+./bin/ucli wizard
 ```
 
 ## Notes

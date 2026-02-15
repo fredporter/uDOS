@@ -243,19 +243,6 @@ def create_sonic_plugin_routes(auth_guard: AuthGuard = None, repo_root: Optional
 
     return router
 
-
-# Legacy compatibility: redirect to new modular routes
-def create_sonic_routes(auth_guard: AuthGuard = None) -> APIRouter:
-    """
-    DEPRECATED: Legacy screwdriver routes.
-
-    Use create_sonic_plugin_routes() for new modular system.
-    This function now redirects to the modular implementation.
-    """
-    return create_sonic_plugin_routes(auth_guard)
-
-
 __all__ = [
     "create_sonic_plugin_routes",
-    "create_sonic_routes",  # Legacy compatibility
 ]

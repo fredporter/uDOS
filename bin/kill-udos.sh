@@ -9,8 +9,8 @@ pkill -f "python.*uDOS.py" 2>/dev/null && echo "  ✓ Stopped uDOS TUI" || echo 
 # Kill Wizard server
 pkill -f "python.*wizard.*server" 2>/dev/null && echo "  ✓ Stopped Wizard server" || echo "  • No Wizard server running"
 
-# Kill any uCODE processes
-pkill -f "Launch-uCODE" 2>/dev/null && echo "  ✓ Stopped uCODE launcher" || echo "  • No uCODE launcher running"
+# Kill any uCLI processes
+pkill -f "/bin/ucli" 2>/dev/null && echo "  ✓ Stopped uCLI launcher" || echo "  • No uCLI launcher running"
 
 # Wait a moment
 sleep 1

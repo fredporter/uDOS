@@ -95,12 +95,3 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
                 }
 
             return {"status": "success"}
-
-
-# Alias handler for backward compatibility
-class RebootAliasHandler(BaseCommandHandler):
-    """REBOOT command - alias for RestartHandler."""
-
-    def handle(self, command, params, grid, parser):
-        restart_handler = RestartHandler()
-        return restart_handler.handle("REBOOT", params, grid, parser)

@@ -1,0 +1,14 @@
+{
+  "version": "1.3",
+  "commands": {
+    "DEV": ["module_dev"],
+    "SONIC": ["module_sonic"],
+    "MUSIC": ["module_groovebox"],
+    "WIZARD": ["wizard_server", "wizard_gui"],
+    "SETUP": ["wizard_server", "wizard_gui"],
+    "SCHEDULER": ["wizard_server", "networking"],
+    "SCRIPT": ["wizard_server"],
+    "PROVIDER": ["wizard_server", "networking"],
+    "INTEGRATION": ["wizard_server", "wizard_gui", "networking"]
+  }
+}

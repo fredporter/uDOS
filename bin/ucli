@@ -1,0 +1,174 @@
+#!/bin/bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+load_env_safe() {
+  local env_file="$1"
+  [ -f "$env_file" ] || return 0
+  while IFS= read -r line || [ -n "$line" ]; do
+    line="${line#"${line%%[![:space:]]*}"}"
+    line="${line%"${line##*[![:space:]]}"}"
+    [ -z "$line" ] && continue
+    case "$line" in
+      \#*) continue ;;
+    esac
+    if [[ "$line" == export\ * ]]; then
+      line="${line#export }"
+    fi
+    if [[ "$line" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]]; then
+      local key="${line%%=*}"
+      local value="${line#*=}"
+      if [[ "$value" =~ ^\".*\"$ ]]; then
+        value="${value:1:${#value}-2}"
+      elif [[ "$value" =~ ^\'.*\'$ ]]; then
+        value="${value:1:${#value}-2}"
+      fi
+      export "$key=$value"
+    fi
+  done < "$env_file"
+}
+
+load_env_safe "$REPO_ROOT/.env"
+source "$SCRIPT_DIR/udos-common.sh"
+parse_common_flags "$@"
+
+print_help() {
+  cat <<'USAGE'
+uCLI - unified terminal interface for uDOS
+
+Usage:
+  ./bin/ucli                Start uCLI TUI
+  ./bin/ucli tui            Start uCLI TUI
+  ./bin/ucli wizard         Start Wizard server (GUI/API)
+  ./bin/ucli prompt         Start shell-integrated prompt loop
+  ./bin/ucli cmd <command>  Run one uCODE command via Wizard API
+  ./bin/ucli help           Show this help
+
+Notes:
+  - uCLI is the only TUI.
+  - Wizard GUI is the operational surface for web workflows.
+  - uCODE is the command surface used by `cmd` and prompt flows.
+USAGE
+}
+
+_wizard_health_ok() {
+  local base_url="${WIZARD_BASE_URL:-http://127.0.0.1:8765}"
+  curl -s --connect-timeout 2 "${base_url}/health" >/dev/null 2>&1
+}
+
+_start_wizard_if_needed() {
+  if _wizard_health_ok; then
+    return 0
+  fi
+  launch_component wizard server >/dev/null
+}
+
+_dispatch_ucode() {
+  local command_text="$1"
+  [ -n "$command_text" ] || {
+    echo "ucli cmd requires a command string" >&2
+    return 2
+  }
+
+  _start_wizard_if_needed || {
+    echo "Failed to start Wizard server." >&2
+    return 1
+  }
+
+  local base_url="${WIZARD_BASE_URL:-http://127.0.0.1:8765}"
+  local escaped="${command_text//\"/\\\"}"
+
+  local auth=()
+  if [ -n "${WIZARD_ADMIN_TOKEN:-}" ]; then
+    auth=(-H "Authorization: Bearer ${WIZARD_ADMIN_TOKEN}")
+  fi
+
+  local response http body
+  response="$(curl -sS -w $'\n%{http_code}' \
+    -H "Content-Type: application/json" \
+    "${auth[@]}" \
+    -d "{\"command\": \"${escaped}\"}" \
+    "${base_url}/api/ucode/dispatch")"
+
+  http="${response##*$'\n'}"
+  body="${response%$'\n'*}"
+
+  python - <<'PY' "$body"
+import json
+import sys
+raw = sys.argv[1]
+try:
+    payload = json.loads(raw)
+except Exception:
+    print(raw)
+    sys.exit(0)
+
+rendered = payload.get("rendered")
+if rendered:
+    print(rendered)
+    sys.exit(0)
+
+result = payload.get("result")
+if isinstance(result, dict):
+    output = result.get("output")
+    if output:
+        print(output)
+        sys.exit(0)
+    message = result.get("message")
+    if message:
+        print(message)
+        sys.exit(0)
+
+message = payload.get("message")
+if message:
+    print(message)
+else:
+    print(raw)
+PY
+
+  if [[ ! "$http" =~ ^2 ]]; then
+    return 1
+  fi
+}
+
+subcommand="${1:-tui}"
+shift || true
+
+case "$subcommand" in
+  core)
+    echo "Legacy alias removed in v1.3: core. Use: tui" >&2
+    exit 2
+    ;;
+  server)
+    echo "Legacy alias removed in v1.3: server. Use: wizard" >&2
+    exit 2
+    ;;
+  command|run)
+    echo "Legacy alias removed in v1.3: $subcommand. Use: cmd" >&2
+    exit 2
+    ;;
+esac
+
+case "$subcommand" in
+  help|-h|--help)
+    print_help
+    ;;
+  tui)
+    launch_component core tui "$@"
+    ;;
+  wizard)
+    launch_component wizard server "$@"
+    ;;
+  prompt)
+    exec "$SCRIPT_DIR/vibe-wrapper.sh" "$@"
+    ;;
+  cmd)
+    _dispatch_ucode "$*"
+    ;;
+  *)
+    # Treat free-form input as a single uCODE command for shell usage.
+    _dispatch_ucode "$subcommand $*"
+    ;;
+esac

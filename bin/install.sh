@@ -319,10 +319,10 @@ install_unix() {
     cp -r "$PROJECT_ROOT/knowledge" "$prefix/"
     cp "$PROJECT_ROOT/requirements.txt" "$prefix/"
     mkdir -p "$prefix/bin"
-    cp "$PROJECT_ROOT/bin/Launch-uCODE.sh" "$prefix/bin/"
+    cp "$PROJECT_ROOT/bin/ucli" "$prefix/bin/"
     cp "$PROJECT_ROOT/bin/udos-common.sh" "$prefix/bin/"
     cp "$PROJECT_ROOT/bin/udos-self-heal.sh" "$prefix/bin/"
-    chmod +x "$prefix/bin/Launch-uCODE.sh"
+    chmod +x "$prefix/bin/ucli"
 
     # Create Python venv
     info "Creating Python virtual environment..."
@@ -334,18 +334,18 @@ install_unix() {
 
     # Create launcher
     info "Creating launcher..."
-    local launcher="/usr/local/bin/udos"
+    local launcher="/usr/local/bin/ucli"
     if ! is_root; then
-        launcher="$HOME/.local/bin/udos"
+        launcher="$HOME/.local/bin/ucli"
         mkdir -p "$HOME/.local/bin"
     fi
 
     cat > "$launcher" <<EOF
 #!/bin/bash
-# uDOS Launcher - v$VERSION
+# uCLI Launcher - v$VERSION
 source "$prefix/venv/bin/activate"
 cd "$prefix"
-exec "$prefix/bin/Launch-uCODE.sh" "\$@"
+exec "$prefix/bin/ucli" "\$@"
 EOF
     chmod +x "$launcher"
 
@@ -385,11 +385,11 @@ EOF
     setup_user_directory "$(get_user_home "$platform")"
 
     success "uDOS installed to $prefix"
-    info "Run 'udos' to start (ensure $launcher is in PATH)"
+    info "Run 'ucli' to start (ensure $launcher is in PATH)"
 
     if [ "${UDOS_AUTOSTART:-0}" = "1" ]; then
         info "Auto-starting uDOS..."
-        "$prefix/bin/Launch-uCODE.sh" core
+        "$prefix/bin/ucli" core
     fi
 }
 
@@ -413,11 +413,11 @@ install_dev() {
     setup_user_directory "$HOME"
 
     success "Development environment ready"
-    info "Run: source venv/bin/activate && ./bin/Launch-uCODE.sh"
+    info "Run: source venv/bin/activate && ./bin/ucli"
 
     if [ "${UDOS_AUTOSTART:-0}" = "1" ]; then
         info "Auto-starting uDOS..."
-        "${PROJECT_ROOT}/bin/Launch-uCODE.sh" core
+        "${PROJECT_ROOT}/bin/ucli" core
     fi
 }
 
@@ -485,7 +485,7 @@ uninstall() {
 
     warn "This will remove:"
     echo "  - /opt/udos (or /usr/local/udos)"
-    echo "  - /usr/local/bin/udos launcher (Launch-uCODE.sh wrapper)"
+    echo "  - /usr/local/bin/ucli launcher"
     echo ""
     echo "User data (~/.udos) will be preserved."
     echo ""
@@ -494,10 +494,10 @@ uninstall() {
     if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
         if is_root; then
             rm -rf /opt/udos /usr/local/udos
-            rm -f /usr/local/bin/udos
+            rm -f /usr/local/bin/ucli
         else
             rm -rf "$HOME/.local/udos"
-            rm -f "$HOME/.local/bin/udos"
+            rm -f "$HOME/.local/bin/ucli"
         fi
         success "uDOS uninstalled"
     else

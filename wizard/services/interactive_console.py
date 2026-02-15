@@ -471,7 +471,7 @@ class WizardConsole:
             print()
             print("  💡 Fix this by:")
             print("     1. Ensure .env file exists in repo root with WIZARD_KEY=...")
-            print("     2. Restart Wizard Server: ./bin/Launch-uCODE.sh wizard")
+            print("     2. Restart Wizard Server: ./bin/ucli wizard")
             print("     3. Or set manually: export WIZARD_KEY=<your-key>")
             print()
             return
@@ -606,7 +606,7 @@ class WizardConsole:
             result = dev_mode.get_status()
             print("\nDEV MODE STATUS:")
             print(f"  active: {result.get('active')}")
-            print(f"  endpoint: {result.get('goblin_endpoint')}")
+            print(f"  dev_root: {result.get('dev_root')}")
             print(f"  uptime: {result.get('uptime_seconds')}s")
             print()
         elif action == "clear":

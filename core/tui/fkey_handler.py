@@ -1,5 +1,5 @@
 """
-Function Key Handler for uCODE TUI
+Function Key Handler for uCLI
 
 Maps F1-F8 to common operations:
 - F1: Create new Markdown file
@@ -46,7 +46,7 @@ class FunctionKeyCode(Enum):
 
 
 class FKeyHandler:
-    """Handler for function key shortcuts in uCODE TUI."""
+    """Handler for function key shortcuts in uCLI."""
 
     def __init__(self, dispatcher=None, prompt=None, game_state=None):
         """

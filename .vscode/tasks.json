@@ -19,9 +19,8 @@
 		{
 			"label": "Run uDOS Interactive",
 			"type": "shell",
-			"command": "${workspaceFolder}/bin/Launch-uCODE.sh",
+			"command": "${workspaceFolder}/bin/ucli",
 			"args": [
-				"core",
 				"tui"
 			],
 			"group": {

@@ -24,7 +24,6 @@
   import LayerEditor from "./routes/LayerEditor.svelte";
   import SvgProcessor from "./routes/SvgProcessor.svelte";
   import Hotkeys from "./routes/Hotkeys.svelte";
-  import WizardUI_v1_3_1 from "./routes/WizardUI_v1_3_1.svelte";
   import Groovebox from "./routes/Groovebox.svelte";
   import Renderer from "./routes/Renderer.svelte";
   import Anchors from "./routes/Anchors.svelte";
@@ -41,15 +40,48 @@
   // Simple hash-based routing
   let currentRoute = "dashboard";
   let isDark = true;
+  const validRoutes = new Set([
+    "dashboard",
+    "devices",
+    "webhooks",
+    "logs",
+    "catalog",
+    "config",
+    "devmode",
+    "tasks",
+    "workflow",
+    "binder",
+    "github",
+    "wiki",
+    "files",
+    "story",
+    "tables",
+    "library",
+    "repair",
+    "font-manager",
+    "emoji-pipeline",
+    "pixel-editor",
+    "layer-editor",
+    "svg-processor",
+    "hotkeys",
+    "groovebox",
+    "renderer",
+    "anchors",
+    "ucode",
+    "ports",
+    "extensions",
+  ]);
 
   function navigate(route) {
+    if (!validRoutes.has(route)) return;
     currentRoute = route;
     window.location.hash = route;
   }
 
   function handleHashChange() {
     const hash = window.location.hash.slice(1);
-    currentRoute = hash || "dashboard";
+    const next = hash || "dashboard";
+    currentRoute = validRoutes.has(next) ? next : "dashboard";
   }
 
   function applyTheme() {
@@ -244,14 +276,10 @@
         <PixelEditor />
       {:else if currentRoute === "layer-editor"}
         <LayerEditor />
-      {:else if currentRoute === "typo-editor"}
-        <Files />
       {:else if currentRoute === "svg-processor"}
         <SvgProcessor />
       {:else if currentRoute === "hotkeys"}
         <Hotkeys />
-      {:else if currentRoute === "wizard-ui-v1-3-1"}
-        <WizardUI_v1_3_1 />
       {:else if currentRoute === "groovebox"}
         <Groovebox />
       {:else if currentRoute === "renderer"}

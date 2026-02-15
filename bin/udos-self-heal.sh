@@ -14,7 +14,7 @@
 #
 # Examples:
 #   ./bin/udos-self-heal.sh wizard          # Check and repair Wizard
-#   ./bin/udos-self-heal.sh goblin --no-repair  # Check only, no repairs
+#   ./bin/udos-self-heal.sh core --no-repair  # Check only, no repairs
 #   ./bin/udos-self-heal.sh                 # Check all components
 
 set -e
@@ -88,7 +88,7 @@ run_self_heal() {
 # Run checks
 COMPONENTS=()
 if [ "$COMPONENT" == "all" ]; then
-    COMPONENTS=("core" "wizard" "goblin")
+    COMPONENTS=("core" "wizard")
 else
     COMPONENTS=("$COMPONENT")
 fi

@@ -16,20 +16,6 @@
       "last_check": null
     },
     {
-      "name": "goblin",
-      "port": 8767,
-      "environment": "experimental",
-      "process_name": "python",
-      "description": "Goblin Dev Server - Experimental features",
-      "startup_cmd": "python dev/goblin/server.py",
-      "shutdown_cmd": null,
-      "health_endpoint": "http://localhost:8767/health",
-      "enabled": true,
-      "status": "unknown",
-      "pid": null,
-      "last_check": null
-    },
-    {
       "name": "api",
       "port": 5001,
       "environment": "development",

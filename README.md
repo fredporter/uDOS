@@ -2,6 +2,8 @@
 
 Offline-first OS layer for knowledge systems, tools, and portable environments.
 
+**Core concept:** uDOS is a local Obsidian companion runtime for organizing vault workflows with `@workspace` and `@binder` contexts, fractal/layered filesystem structures, knowledge trees, and digital garden publishing patterns.
+
 **Status:** v1.3.12 (released); monorepo is under development for v1.4 Wizard web view/rendering capabilities
 **Primary target:** Alpine Linux (Sonic USB)
 **Also supported:** macOS, Ubuntu, Windows (dev)
@@ -16,7 +18,7 @@ Offline-first OS layer for knowledge systems, tools, and portable environments.
 ## Quick Start
 
 ```bash
-./bin/Launch-uCODE.sh
+./bin/ucli
 ```
 
 Common first commands:
@@ -24,7 +26,7 @@ Common first commands:
 - `STATUS`
 - `WIZARD start`
 
-**Note:** uDOS is designed as a local Obsidian companion app. We recommend using [Obsidian](https://obsidian.md) as your independent text editor and vault reader. uDOS shares your vault using an open-box format—no sync required!
+Use [Obsidian](https://obsidian.md) as your editor/vault reader; uDOS works as the runtime and organization layer over the same files (no sync required).
 
 ---
 

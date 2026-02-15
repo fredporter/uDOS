@@ -54,7 +54,7 @@ Documentation = "https://github.com/fredporter/uDOS/wiki"
 "Source Code" = "https://github.com/fredporter/uDOS"
 
 [project.scripts]
-udos = "core.uDOS_main:main"
+ucli = "core.tui.ucli:main"
 
 [project.optional-dependencies]
 # Ultra-minimal (~8MB) - Core TUI only, no extras

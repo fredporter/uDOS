@@ -23,6 +23,18 @@ class WebhookSecretResponse(BaseModel):
     length: int
 
 
+class ScriptRunRequest(BaseModel):
+    path: str
+    args: list[str] = []
+    timeout: int = 300
+
+
+class TestRunRequest(BaseModel):
+    path: Optional[str] = None
+    args: list[str] = []
+    timeout: int = 600
+
+
 def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
     router = APIRouter(prefix="/api/dev", tags=["dev-mode"])
     dev_mode = get_dev_mode_service()
@@ -45,12 +57,18 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if message:
             raise HTTPException(status_code=412, detail=message)
 
+    def _ensure_dev_active():
+        message = dev_mode.ensure_active()
+        if message:
+            raise HTTPException(status_code=409, detail=message)
+
     @router.get("/health")
     async def health_check(request: Request):
         if auth_guard:
             await auth_guard(request)
         _ensure_admin_dev_access()
         _ensure_dev_submodule()
+        _ensure_dev_active()
         logger.debug("Dev health check requested")
         return dev_mode.get_health()
 
@@ -59,7 +77,6 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
         _ensure_admin_dev_access()
-        _ensure_dev_submodule()
         logger.debug("Dev status requested")
         return dev_mode.get_status()
 
@@ -98,6 +115,7 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
             await auth_guard(request)
         _ensure_admin_dev_access()
         _ensure_dev_submodule()
+        _ensure_dev_active()
         corr_id = new_corr_id("C")
         logger.info("Dev mode clear requested", ctx={"corr_id": corr_id})
         return dev_mode.clear()
@@ -108,11 +126,48 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
             await auth_guard(request)
         _ensure_admin_dev_access()
         _ensure_dev_submodule()
+        _ensure_dev_active()
         try:
             return dev_mode.get_logs(lines)
         except Exception as exc:
             logger.error("Dev logs fetch failed", err=exc)
             raise HTTPException(status_code=500, detail=str(exc))
+
+    @router.get("/scripts")
+    async def list_dev_scripts(request: Request):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        _ensure_dev_active()
+        return {"scripts": dev_mode.list_scripts()}
+
+    @router.post("/scripts/run")
+    async def run_dev_script(request: Request, body: ScriptRunRequest):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        _ensure_dev_active()
+        return dev_mode.run_script(body.path, args=body.args, timeout=body.timeout)
+
+    @router.get("/tests")
+    async def list_dev_tests(request: Request):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        _ensure_dev_active()
+        return {"tests": dev_mode.list_tests()}
+
+    @router.post("/tests/run")
+    async def run_dev_tests(request: Request, body: TestRunRequest):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        _ensure_dev_active()
+        return dev_mode.run_tests(rel_path=body.path, args=body.args, timeout=body.timeout)
 
     # --- GitHub PAT Management ---
 

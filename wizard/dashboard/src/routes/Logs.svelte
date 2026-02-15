@@ -1,6 +1,8 @@
 <script>
   import { apiFetch } from "$lib/services/apiBase";
   import { onDestroy, onMount } from "svelte";
+  import TerminalPanel from "$lib/components/terminal/TerminalPanel.svelte";
+  import TerminalButton from "$lib/components/terminal/TerminalButton.svelte";
 
   let logs = [];
   let categories = [];
@@ -157,32 +159,28 @@
       <p class="text-gray-400">Monitor Wizard server activity and hotspots</p>
     </div>
     <div class="flex items-center gap-3">
-      <button
-        class={`px-4 py-2 rounded-lg text-sm font-semibold ${
-          autoRefresh
-            ? "bg-emerald-700 hover:bg-emerald-600 text-white"
-            : "bg-slate-700 hover:bg-slate-600 text-white"
-        }`}
+      <TerminalButton
+        className="px-4 py-2 text-sm font-semibold"
+        variant={autoRefresh ? "success" : "neutral"}
         on:click={toggleAutoRefresh}
       >
         {autoRefresh ? "Auto-refresh on" : "Auto-refresh off"}
-      </button>
-      <button
-        class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold"
+      </TerminalButton>
+      <TerminalButton
+        className="px-4 py-2 text-sm font-semibold"
+        variant="accent"
         on:click={loadLogs}
       >
         Refresh now
-      </button>
+      </TerminalButton>
     </div>
   </div>
 
-  <div
-    class="bg-gray-800 border border-gray-700 rounded-lg p-4 flex flex-wrap gap-3 text-sm text-gray-200"
-  >
+  <div class="wiz-terminal-panel p-4 flex flex-wrap gap-3 text-sm text-gray-200">
     <label class="flex items-center gap-2">
       <span class="text-gray-400">Category</span>
       <select
-        class="bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white"
+        class="wiz-terminal-input px-3 py-2 text-sm text-white"
         bind:value={selectedCategory}
         on:change={handleCategoryChange}
       >
@@ -196,7 +194,7 @@
     <label class="flex items-center gap-2">
       <span class="text-gray-400">Limit</span>
       <input
-        class="bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white w-24"
+        class="wiz-terminal-input px-3 py-2 text-sm text-white w-24"
         type="number"
         min="10"
         max="500"
@@ -221,50 +219,42 @@
           Generate an admin token in Config → Admin Token, then refresh this
           page.
         </div>
-        <button
-          class="mt-3 inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-500"
+        <TerminalButton
+          className="mt-3 inline-flex items-center px-3 py-2 text-xs font-semibold"
+          variant="danger"
           on:click={() => (window.location.hash = "#config")}
         >
           Open Config
-        </button>
+        </TerminalButton>
       {/if}
     </div>
   {/if}
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div
-      class="bg-slate-900/60 border border-slate-800 rounded-lg p-4 text-gray-200"
-    >
+    <div class="wiz-terminal-panel p-4 text-gray-200">
       <div class="text-gray-400 text-sm">Entries loaded</div>
       <div class="text-2xl font-semibold">{logs.length}</div>
     </div>
-    <div
-      class="bg-slate-900/60 border border-slate-800 rounded-lg p-4 text-gray-200"
-    >
+    <div class="wiz-terminal-panel p-4 text-gray-200">
       <div class="text-gray-400 text-sm">Log files</div>
       <div class="text-2xl font-semibold">{stats?.total_files ?? "-"}</div>
       <div class="text-xs text-gray-400">
         {stats?.total_size_mb ?? "-"} MB stored
       </div>
     </div>
-    <div
-      class="bg-slate-900/60 border border-slate-800 rounded-lg p-4 text-gray-200"
-    >
+    <div class="wiz-terminal-panel p-4 text-gray-200">
       <div class="text-gray-400 text-sm">Categories</div>
       <div class="text-2xl font-semibold">{categories.length}</div>
     </div>
   </div>
 
-  <div class="bg-gray-900 border border-gray-800 rounded-lg">
-    <div
-      class="border-b border-gray-800 px-4 py-3 flex items-center justify-between text-sm text-gray-300"
-    >
-      <span>Latest log entries</span>
+  <TerminalPanel title="Latest log entries">
+    <svelte:fragment slot="header-actions">
       {#if loading}
-        <span class="text-gray-500">Loading…</span>
+        <span class="text-gray-500 text-sm">Loading…</span>
       {/if}
-    </div>
-    <div class="divide-y divide-gray-800">
+    </svelte:fragment>
+    <div class="wiz-terminal-log divide-y divide-gray-800">
       {#if !loading && logs.length === 0}
         <div class="text-gray-500 px-4 py-6 text-sm">
           No log entries available for this filter.
@@ -296,7 +286,7 @@
         {/each}
       {/if}
     </div>
-  </div>
+  </TerminalPanel>
 
   <!-- Bottom padding spacer -->
   <div class="h-32"></div>

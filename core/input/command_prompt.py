@@ -641,8 +641,8 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="DEV",
         help_text="Toggle dev mode (Wizard)",
-        syntax="DEV [on|off|status|restart]",
-        examples=["DEV status", "DEV on", "DEV off"],
+        syntax="DEV [on|off|status|restart|logs|health|clear]",
+        examples=["DEV status", "DEV on", "DEV logs", "DEV health"],
         icon="•",
         category="System",
     )

@@ -24,6 +24,8 @@
   import { createEmptyTile } from "$lib/types/layer";
   import TileGrid from "$lib/components/TileGrid.svelte";
   import StoryRenderer from "$lib/components/StoryRenderer.svelte";
+  import TerminalButton from "$lib/components/terminal/TerminalButton.svelte";
+  import TerminalChip from "$lib/components/terminal/TerminalChip.svelte";
 
   let adminToken = "";
   let hasAdminToken = false;
@@ -58,7 +60,7 @@
   let devGateError = "";
   let canDevMode = false;
   let wizardUp = false;
-  let goblinUp = false;
+  let devWorkspaceUp = false;
   let memPercent = "?";
   let cpuPercent = "?";
   let quotas = {};
@@ -576,7 +578,7 @@
     }
 
     if (!adminToken) {
-      goblinUp = false;
+      devWorkspaceUp = false;
       memPercent = "?";
       cpuPercent = "?";
       return;
@@ -584,11 +586,11 @@
 
     try {
       devStatus = await fetchDevStatus(adminToken);
-      goblinUp = !!devStatus?.active;
+      devWorkspaceUp = !!devStatus?.active;
       devRequirements = devStatus?.requirements || null;
       devGateError = "";
     } catch {
-      goblinUp = false;
+      devWorkspaceUp = false;
       devGateError = "Dev mode unavailable (admin + /dev required).";
     }
 
@@ -803,6 +805,10 @@
 
   async function handleOkSave() {
     if (!adminToken || !okModel) return;
+    if (okProfile === "dev" && !okStatus?.dev_mode_active) {
+      okSaveStatus = "Coding assistant profile requires active Dev Mode.";
+      return;
+    }
     okSaveStatus = "";
     try {
       await setOkDefaultModel(adminToken, okModel, okProfile);
@@ -874,12 +880,12 @@
         </p>
       </div>
       <div class="status-strip">
-        <span class="chip">WIZ {wizardUp ? "UP" : "DOWN"}</span>
-        <span class="chip">GOB {goblinUp ? "UP" : "DOWN"}</span>
-        <span class="chip">CPU {cpuPercent}%</span>
-        <span class="chip">MEM {memPercent}%</span>
+        <TerminalChip>WIZ {wizardUp ? "UP" : "DOWN"}</TerminalChip>
+        <TerminalChip>DEVWK {devWorkspaceUp ? "UP" : "DOWN"}</TerminalChip>
+        <TerminalChip>CPU {cpuPercent}%</TerminalChip>
+        <TerminalChip>MEM {memPercent}%</TerminalChip>
         {#if devStatus}
-          <span class="chip">DEV {devStatus.active ? "ON" : "OFF"}</span>
+          <TerminalChip>DEV {devStatus.active ? "ON" : "OFF"}</TerminalChip>
         {/if}
       </div>
       {#if okStatus?.default_models}
@@ -904,7 +910,7 @@
       </div>
     {/if}
 
-    <div class="ucode-console">
+    <div class="ucode-console wiz-terminal-panel">
       <div class="ucode-history">
         {#if loading}
           <div class="text-gray-400">Loading console...</div>
@@ -977,12 +983,14 @@
         </div>
         <div class="input-row">
           <input
-            class="input-field"
+            class="input-field wiz-terminal-input"
             placeholder=":STATUS, OK EXPLAIN core/tui/ucode.py, /ls"
             bind:value={commandInput}
             on:keydown={handleInputKeydown}
           />
-          <button class="send-btn" on:click={() => handleDispatch()}>Send</button>
+          <TerminalButton className="send-btn" variant="accent" on:click={() => handleDispatch()}>
+            Send
+          </TerminalButton>
         </div>
         <div class="hint-row">
           <span>Tips: `:` command, `OK` local Vibe, `/` shell</span>
@@ -1015,7 +1023,7 @@
           </div>
           <label class="field">
             <span class="label">Local model</span>
-            <select class="select" bind:value={okModel} on:change={handleModelChange}>
+            <select class="select wiz-terminal-input" bind:value={okModel} on:change={handleModelChange}>
               {#each okModels as model}
                 <option value={model}>{model}</option>
               {/each}
@@ -1023,30 +1031,35 @@
           </label>
           <label class="field">
             <span class="label">Default profile</span>
-            <select class="select" bind:value={okProfile}>
+            <select class="select wiz-terminal-input" bind:value={okProfile}>
               <option value="core">core</option>
-              <option value="dev">dev</option>
+              <option value="dev" disabled={!okStatus?.dev_mode_active}>
+                dev {okStatus?.dev_mode_active ? "" : "(DEV OFF)"}
+              </option>
             </select>
           </label>
           <div class="button-row">
-            <button class="ghost-btn" on:click={handleOkSave}>Save default</button>
+            <button class="ghost-btn wiz-terminal-btn" on:click={handleOkSave}>Save default</button>
           </div>
           {#if okSaveStatus}
             <div class="text-xs text-gray-300">{okSaveStatus}</div>
           {/if}
+          {#if !okStatus?.dev_mode_active}
+            <div class="text-xs text-amber-200">Coding assistant model is locked until Dev Mode is active.</div>
+          {/if}
           <div class="divider"></div>
           <label class="field">
             <span class="label">File path</span>
-            <input class="input" bind:value={okFilePath} placeholder="core/tui/ucode.py" />
+            <input class="input wiz-terminal-input" bind:value={okFilePath} placeholder="core/tui/ucode.py" />
           </label>
           <label class="field">
             <span class="label">Line range</span>
-            <input class="input" bind:value={okRange} placeholder="120 220 or 120:220" />
+            <input class="input wiz-terminal-input" bind:value={okRange} placeholder="120 220 or 120:220" />
           </label>
           <div class="button-row">
-            <button class="ghost-btn" on:click={() => setQuickOkCommand("EXPLAIN")}>EXPLAIN</button>
-            <button class="ghost-btn" on:click={() => setQuickOkCommand("DIFF")}>DIFF</button>
-            <button class="ghost-btn" on:click={() => setQuickOkCommand("PATCH")}>PATCH</button>
+            <button class="ghost-btn wiz-terminal-btn" on:click={() => setQuickOkCommand("EXPLAIN")}>EXPLAIN</button>
+            <button class="ghost-btn wiz-terminal-btn" on:click={() => setQuickOkCommand("DIFF")}>DIFF</button>
+            <button class="ghost-btn wiz-terminal-btn" on:click={() => setQuickOkCommand("PATCH")}>PATCH</button>
           </div>
         {:else}
           <div class="text-gray-400 text-sm">OK status unavailable.</div>
@@ -1103,7 +1116,7 @@
         </div>
         <label class="field">
           <span class="label">Switch user</span>
-          <select class="select" on:change={handleUserSwitch}>
+          <select class="select wiz-terminal-input" on:change={handleUserSwitch}>
             <option value="">Select...</option>
             {#each userList as user}
               <option value={user.username}>{user.username} ({user.role})</option>
@@ -1112,17 +1125,17 @@
         </label>
         <label class="field">
           <span class="label">Set role</span>
-          <select class="select" on:change={handleRoleChange}>
+          <select class="select wiz-terminal-input" on:change={handleRoleChange}>
             <option value="">Select...</option>
             <option value="admin">admin</option>
             <option value="user">user</option>
             <option value="guest">guest</option>
           </select>
         </label>
-        <button class="ghost-btn" on:click={handleGhostToggle}>
+        <button class="ghost-btn wiz-terminal-btn" on:click={handleGhostToggle}>
           {ghostMode ? "Exit Ghost Mode" : "Enter Ghost Mode"}
         </button>
-        <button class="ghost-btn" on:click={handleSetupClick}>Setup</button>
+        <button class="ghost-btn wiz-terminal-btn" on:click={handleSetupClick}>Setup</button>
       </div>
     </section>
 
@@ -1144,9 +1157,9 @@
           </div>
         {/if}
         <div class="button-row">
-          <button class="ghost-btn" disabled={!canDevMode} on:click={() => handleDevToggle(true)}>DEV ON</button>
-          <button class="ghost-btn" disabled={!canDevMode} on:click={() => handleDevToggle(false)}>DEV OFF</button>
-          <button class="ghost-btn" disabled={!canDevMode} on:click={handleDevRestart}>Restart</button>
+          <button class="ghost-btn wiz-terminal-btn" disabled={!canDevMode} on:click={() => handleDevToggle(true)}>DEV ON</button>
+          <button class="ghost-btn wiz-terminal-btn" disabled={!canDevMode} on:click={() => handleDevToggle(false)}>DEV OFF</button>
+          <button class="ghost-btn wiz-terminal-btn" disabled={!canDevMode} on:click={handleDevRestart}>Restart</button>
         </div>
         {#if devGateError}
           <div class="text-xs text-amber-200">{devGateError}</div>
@@ -1209,30 +1222,30 @@
       <div class="panel-body">
         <div class="field">
           <span class="label">Component</span>
-          <select class="select" bind:value={logComponent}>
+          <select class="select wiz-terminal-input" bind:value={logComponent}>
             <option value="wizard">wizard</option>
             <option value="core">core</option>
             <option value="script">script</option>
-            <option value="goblin">goblin</option>
+            <option value="dev">dev</option>
             <option value="extension">extension</option>
           </select>
         </div>
         <div class="field">
           <span class="label">Log name</span>
-          <input class="input" bind:value={logName} placeholder="wizard-server" />
+          <input class="input wiz-terminal-input" bind:value={logName} placeholder="wizard-server" />
         </div>
         <div class="button-row">
-          <button class="ghost-btn" on:click={startLogStream} disabled={logStreamActive}>
+          <button class="ghost-btn wiz-terminal-btn" on:click={startLogStream} disabled={logStreamActive}>
             {logStreamActive ? "Streaming..." : "Start Stream"}
           </button>
-          <button class="ghost-btn" on:click={stopLogStream} disabled={!logStreamActive}>
+          <button class="ghost-btn wiz-terminal-btn" on:click={stopLogStream} disabled={!logStreamActive}>
             Stop
           </button>
         </div>
         {#if logStreamError}
           <div class="text-xs text-red-300 mt-2">{logStreamError}</div>
         {/if}
-        <div class="log-stream">
+        <div class="log-stream wiz-terminal-log">
           {#if logEntries.length === 0}
             <div class="text-gray-400 text-xs">No log events yet.</div>
           {:else}

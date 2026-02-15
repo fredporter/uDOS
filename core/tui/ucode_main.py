@@ -1,7 +1,7 @@
 """
-uCODE entry point module
+uCLI entry point module
 
-Allows running: python -m core.tui.ucode
+Allows running: python -m core.tui.ucli
 """
 
 from core.tui.ucode import main

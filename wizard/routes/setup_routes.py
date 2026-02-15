@@ -5,10 +5,7 @@ Setup Routes (Wizard)
 First-time setup wizard endpoints for Wizard server.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Request
-from pydantic import BaseModel
-from datetime import datetime, timezone
-from typing import Optional, Dict, Any, Sequence, List
+from fastapi import APIRouter, Depends, Request
 
 from wizard.services.setup_state import setup_state
 from core.services.config_sync_service import ConfigSyncManager
@@ -29,209 +26,40 @@ from wizard.services.setup_profiles import (
     sync_metrics_from_profile,
     increment_moves,
 )
+from wizard.services.ai_profile_service import (
+    add_knowledge_entry as _add_ai_knowledge_entry,
+    add_quest as _add_ai_quest,
+    add_skill as _add_ai_skill,
+    load_profile as _load_ai_profile,
+    load_template as _load_ai_profile_template,
+    render_system_prompt as _render_ai_system_prompt,
+    save_profile as _save_ai_profile,
+)
 
 from wizard.services.path_utils import get_repo_root, get_memory_dir
 from wizard.services.logging_api import get_logger
-from core.locations import LocationService
+from wizard.routes.setup_core_routes import create_setup_core_routes
+from wizard.routes.setup_location_routes import create_setup_location_routes
+from wizard.routes.setup_path_routes import create_setup_path_routes
+from wizard.routes.setup_wizard_routes import create_setup_wizard_routes
 from core.services.story_service import parse_story_document
-import json
+from wizard.routes.setup_profile_routes import create_setup_profile_routes
+from wizard.routes.setup_story_routes import create_setup_story_routes
+from wizard.routes.setup_ai_profile_routes import create_setup_ai_profile_routes
+from wizard.routes.setup_route_utils import (
+    apply_capabilities_to_wizard_config as _apply_capabilities_to_wizard_config,
+    apply_setup_defaults as _apply_setup_defaults,
+    collect_timezone_options as _collect_timezone_options,
+    get_system_timezone_info as _get_system_timezone_info,
+    is_ghost_mode as _is_ghost_mode,
+    is_local_request as _is_local_request,
+    load_env_identity as _load_env_identity,
+    resolve_location_name as _resolve_location_name,
+    validate_location_id as _validate_location_id,
+)
 
 
 logger = get_logger("wizard.setup_routes")
-
-
-class ConfigVariable(BaseModel):
-    name: str
-    value: str
-    description: Optional[str] = None
-
-
-class UserProfilePayload(BaseModel):
-    username: str
-    date_of_birth: str
-    role: str
-    timezone: str
-    local_time: str
-    location_id: Optional[str] = None
-    location_name: Optional[str] = None
-    permissions: Optional[Dict[str, Any]] = None
-
-
-class InstallProfilePayload(BaseModel):
-    installation_id: Optional[str] = None
-    os_type: Optional[str] = None
-    lifespan_mode: Optional[str] = None
-    moves_limit: Optional[int] = None
-    capabilities: Optional[Dict[str, bool]] = None
-    permissions: Optional[Dict[str, Any]] = None
-
-
-class StorySubmitPayload(BaseModel):
-    answers: Dict[str, Any]
-
-
-def _get_system_timezone_info() -> Dict[str, str]:
-    now = datetime.now().astimezone()
-    tzinfo = now.tzinfo or timezone.utc
-    tz_name = getattr(tzinfo, "key", None) or tzinfo.tzname(now) or "UTC"
-    return {
-        "timezone": tz_name,
-        "local_time": now.strftime("%Y-%m-%d %H:%M"),
-    }
-
-
-def _collect_timezone_options() -> List[Dict[str, Any]]:
-    service = LocationService()
-    mapping: Dict[str, Dict[str, Any]] = {}
-    for loc in service.get_all_locations():
-        tz = str(loc.get("timezone") or "").strip()
-        if not tz:
-            continue
-        label = f"{loc.get('name')} ({loc.get('region', 'global')})"
-        candidate = {
-            "timezone": tz,
-            "label": label,
-            "location_id": loc.get("id"),
-            "location_name": loc.get("name"),
-        }
-        existing = mapping.get(tz)
-        if not existing or loc.get("type") == "major-city":
-            mapping[tz] = candidate
-    return sorted(mapping.values(), key=lambda item: item["label"])
-
-
-def _apply_setup_defaults(
-    story_state: Dict[str, Any],
-    overrides: Dict[str, Any],
-    highlight_fields: Optional[Sequence[str]] = None,
-) -> None:
-    highlight = set(highlight_fields or [])
-    answers = story_state.get("answers") or {}
-    for section in story_state.get("sections", []):
-        for question in section.get("questions", []):
-            if not question:
-                continue
-            name = question.get("name")
-            if not name:
-                continue
-            if name in overrides and overrides[name] is not None:
-                value = overrides[name]
-                answers[name] = value
-                question["value"] = value
-                # Ensure meta is a dict (story parser may set it to None)
-                if question.get("meta") is None:
-                    question["meta"] = {}
-                meta = question["meta"]
-                meta["default_value"] = value
-                meta["previous_value"] = value
-                if name in highlight:
-                    meta["show_previous_overlay"] = True
-                if name == "user_timezone":
-                    meta["options_endpoint"] = "/api/setup/data/timezones"
-            elif name in overrides and overrides[name] is None:
-                answers.pop(name, None)
-    story_state["answers"] = answers
-
-
-def _apply_capabilities_to_wizard_config(capabilities: Dict[str, bool]) -> None:
-    if not capabilities:
-        return
-    config_path = get_repo_root() / "wizard" / "config" / "wizard.json"
-    if not config_path.exists():
-        return
-    try:
-        config = json.loads(config_path.read_text())
-    except json.JSONDecodeError:
-        return
-    mapping = {
-        "web_proxy": "web_proxy_enabled",
-        "ok_gateway": "ok_gateway_enabled",
-        "github_push": "github_push_enabled",
-        "icloud": "icloud_enabled",
-        "plugin_repo": "plugin_repo_enabled",
-        "plugin_auto_update": "plugin_auto_update",
-    }
-    updated = False
-    for cap_key, config_key in mapping.items():
-        if cap_key in capabilities:
-            config[config_key] = bool(capabilities[cap_key])
-            updated = True
-    if updated:
-        config_path.write_text(json.dumps(config, indent=2))
-
-
-def _validate_location_id(location_id: Optional[str]) -> None:
-    if not location_id:
-        raise HTTPException(status_code=400, detail="Location must be selected")
-    service = LocationService()
-    if not service.get_location(location_id):
-        raise HTTPException(
-            status_code=400,
-            detail="Location must be a valid uDOS grid code from the core dataset",
-        )
-
-
-def _resolve_location_name(location_id: str) -> str:
-    service = LocationService()
-    loc = service.get_location(location_id)
-    return loc.get("name") if loc else location_id
-
-
-def _is_ghost_mode(username: Optional[str], role: Optional[str]) -> bool:
-    username_norm = (username or "").strip().lower()
-    role_norm = (role or "").strip().lower()
-    return username_norm == "ghost" or role_norm == "ghost"
-
-
-def _is_local_request(request: Request) -> bool:
-    client_host = request.client.host if request.client else ""
-    return client_host in {"127.0.0.1", "::1", "localhost"}
-
-
-def _load_env_identity() -> Dict[str, str]:
-    """Load identity fields from .env file (Core boundary).
-
-    Returns:
-        Dictionary with identity fields from .env, or empty dict if not found
-    """
-    try:
-        from pathlib import Path
-
-        repo_root = get_repo_root()
-        env_path = repo_root / ".env"
-
-        if not env_path.exists():
-            return {}
-
-        env_vars = {}
-        with open(env_path, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith('#'):
-                    continue
-                if '=' in line:
-                    key, value = line.split('=', 1)
-                    env_vars[key.strip()] = value.strip().strip('"\'')
-
-        # Map .env fields to setup story fields
-        identity = {}
-        if env_vars.get('USER_NAME'):
-            identity['user_username'] = env_vars['USER_NAME']
-        if env_vars.get('USER_DOB'):
-            identity['user_dob'] = env_vars['USER_DOB']
-        if env_vars.get('USER_ROLE'):
-            identity['user_role'] = env_vars['USER_ROLE']
-        if env_vars.get('UDOS_TIMEZONE'):
-            identity['user_timezone'] = env_vars['UDOS_TIMEZONE']
-        if env_vars.get('UDOS_LOCATION'):
-            identity['user_location'] = env_vars['UDOS_LOCATION']
-        if env_vars.get('OS_TYPE'):
-            identity['install_os_type'] = env_vars['OS_TYPE']
-
-        return identity
-    except Exception as e:
-        logger.debug(f"Could not load identity from .env: {e}")
-        return {}
 
 
 def create_setup_routes(auth_guard=None):
@@ -247,503 +75,93 @@ def create_setup_routes(auth_guard=None):
     dependencies = [Depends(setup_guard)] if auth_guard else []
     router = APIRouter(prefix="/api/setup", tags=["setup"], dependencies=dependencies)
 
-    @router.get("/status")
-    async def get_setup_status():
-        return get_full_config_status()
-
-    @router.get("/progress")
-    async def get_setup_progress():
-        status = setup_state.get_status()
-        variables = get_required_variables()
-        configured_count = len(status.get("variables_configured", []))
-        total_required = sum(1 for v in variables.values() if v.get("required", False))
-        return {
-            "setup_complete": status.get("setup_complete", False),
-            "initialized_at": status.get("initialized_at"),
-            "progress_percent": int(
-                (configured_count / max(total_required, 1)) * 100
-            )
-            if total_required > 0
-            else 0,
-            "variables_configured": configured_count,
-            "services_enabled": len(status.get("services_enabled", [])),
-            "required_variables": total_required,
-            "steps_completed": status.get("steps_completed", []),
-            "steps_completed_count": len(status.get("steps_completed", [])),
-            "configured_variables": variables,
-        }
-
-    @router.get("/required-variables")
-    async def get_setup_variables():
-        return {
-            "variables": get_required_variables(),
-            "instructions": {
-                "github": "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token",
-                "mistral": "https://docs.mistral.ai/",
-            },
-        }
-
-    @router.post("/configure")
-    async def update_config(variable: ConfigVariable):
-        try:
-            import os
-
-            os.environ[variable.name.upper()] = variable.value
-            setup_state.mark_variable_configured(variable.name)
-            return {
-                "status": "success",
-                "variable": variable.name,
-                "message": f"Configuration updated: {variable.name}",
-            }
-        except Exception as exc:
-            raise HTTPException(status_code=500, detail=str(exc))
-
-    class StepCompletion(BaseModel):
-        step_id: int
-        completed: bool = True
-
-    @router.post("/steps/complete")
-    async def mark_setup_step_complete(step: StepCompletion):
-        try:
-            setup_state.mark_step_complete(step.step_id, step.completed)
-            return {
-                "status": "success",
-                "step_id": step.step_id,
-                "completed": step.completed,
-                "steps_completed": setup_state.get_status().get("steps_completed", []),
-            }
-        except Exception as exc:
-            raise HTTPException(status_code=500, detail=str(exc))
-
-    @router.post("/wizard/start")
-    async def start_setup_wizard():
-        if setup_state.get_status().get("setup_complete"):
-            return {
-                "status": "already_complete",
-                "message": "Setup has already been completed",
-                "initialized_at": setup_state.get_status().get("initialized_at"),
-            }
-        return {
-            "status": "started",
-            "steps": [
-                {
-                    "step": 1,
-                    "name": "Database Setup",
-                    "description": "Verify database paths and create directories",
-                },
-                {
-                    "step": 2,
-                    "name": "GitHub Integration",
-                    "description": "Configure GitHub API access (optional)",
-                },
-                {
-                    "step": 3,
-                    "name": "AI Features",
-                    "description": "Set up AI/Mistral features (optional)",
-                },
-                {
-                    "step": 4,
-                    "name": "HubSpot CRM",
-                    "description": "Configure CRM integration (optional)",
-                },
-                {
-                    "step": 5,
-                    "name": "Complete",
-                    "description": "Finish setup",
-                },
-            ],
-            "current_progress": setup_state.get_status(),
-        }
-
-    @router.post("/wizard/complete")
-    async def complete_setup_wizard():
-        user_result = load_user_profile()
-        if user_result.data and _is_ghost_mode(
-            user_result.data.get("username"),
-            user_result.data.get("role"),
-        ):
-            raise HTTPException(
-                status_code=400,
-                detail=(
-                    "Ghost Mode is active. Run the setup story to select Admin or User "
-                    "and change the username from Ghost to exit Ghost/test mode."
-                ),
-            )
-        db_validation = validate_database_paths()
-        all_ready = all(db["writable"] for db in db_validation.values())
-        if not all_ready:
-            raise HTTPException(status_code=400, detail="Database paths not writable")
-        setup_state.mark_setup_complete()
-        return {
-            "status": "complete",
-            "message": "Setup wizard completed successfully!",
-            "next_steps": [
-                "Open Wizard dashboard at /",
-                "Check /api/setup/status for configuration overview",
-                "Review docs in /docs",
-            ],
-        }
-
-    @router.get("/paths")
-    async def get_path_map():
-        return get_paths()
-
-    @router.post("/paths/initialize")
-    async def initialize_paths():
-        paths = get_paths()
-        created = []
-        errors = []
-        for group in ("data", "installation"):
-            for _name, path in paths.get(group, {}).items():
-                try:
-                    from pathlib import Path
-
-                    Path(path).mkdir(parents=True, exist_ok=True)
-                    created.append(path)
-                except Exception as exc:
-                    errors.append({"path": path, "error": str(exc)})
-        return {"status": "complete", "created_directories": created, "errors": errors or None}
-
-    @router.get("/profiles")
-    async def get_profiles():
-        user = load_user_profile()
-        install = load_install_profile()
-        return {
-            "user_profile": user.data,
-            "install_profile": install.data,
-            "ghost_mode": _is_ghost_mode(
-                (user.data or {}).get("username"),
-                (user.data or {}).get("role"),
-            ),
-            "secret_store_locked": user.locked or install.locked,
-            "errors": [e for e in [user.error, install.error] if e],
-            "install_metrics": load_install_metrics(),
-        }
-
-    @router.post("/profile/user")
-    async def set_user_profile(payload: UserProfilePayload):
-        _validate_location_id(payload.location_id)
-        payload_dict = payload.dict()
-        payload_dict["location_name"] = _resolve_location_name(payload.location_id)
-        payload_dict["ghost_mode"] = _is_ghost_mode(
-            payload_dict.get("username"),
-            payload_dict.get("role"),
+    router.include_router(
+        create_setup_core_routes(
+            get_full_config_status=get_full_config_status,
+            get_status=setup_state.get_status,
+            get_required_variables=get_required_variables,
+            mark_variable_configured=setup_state.mark_variable_configured,
+            mark_step_complete=setup_state.mark_step_complete,
         )
-        result = save_user_profile(payload_dict)
-        if result.locked:
-            raise HTTPException(status_code=503, detail=result.error or "secret store locked")
-        setup_state.mark_variable_configured("user_profile")
-        return {"status": "success", "user_profile": result.data}
+    )
 
-    @router.post("/profile/install")
-    async def set_install_profile(payload: InstallProfilePayload):
-        result = save_install_profile(payload.dict())
-        if result.locked:
-            raise HTTPException(status_code=503, detail=result.error or "secret store locked")
-        capabilities = (result.data or {}).get("capabilities") or {}
-        _apply_capabilities_to_wizard_config(capabilities)
-        metrics = sync_metrics_from_profile(result.data or {})
-        setup_state.mark_variable_configured("install_profile")
-        return {"status": "success", "install_profile": result.data, "install_metrics": metrics}
-
-    @router.get("/installation/metrics")
-    async def get_install_metrics():
-        return {"status": "success", "metrics": load_install_metrics()}
-
-    @router.post("/installation/moves")
-    async def add_install_move():
-        return {"status": "success", "metrics": increment_moves()}
-
-    @router.get("/locations/search")
-    async def search_locations_endpoint(query: str = "", timezone: Optional[str] = None, limit: int = 10):
-        return {"results": search_locations(query, timezone_hint=timezone, limit=limit)}
-
-    @router.get("/locations/default")
-    async def default_location_endpoint(timezone: Optional[str] = None):
-        default = get_default_location_for_timezone(timezone)
-        return {"result": default}
-
-    @router.get("/data/timezones")
-    async def timezone_options_endpoint():
-        options = _collect_timezone_options()
-        system_tz = _get_system_timezone_info().get("timezone")
-        return {"timezones": options, "default_timezone": system_tz}
-
-    @router.post("/story/bootstrap")
-    async def bootstrap_setup_story(force: bool = False):
-        repo_root = get_repo_root()
-        template_candidates = [
-            repo_root / "core" / "tui" / "setup-story.md",
-            repo_root / "core" / "framework" / "seed" / "bank" / "system" / "tui-setup-story.md",
-            repo_root / "wizard" / "templates" / "tui-setup-story.md",
-            # Deprecated (fallback only)
-            repo_root / "wizard" / "templates" / "setup-wizard-story.md",
-        ]
-        template_path = next((p for p in template_candidates if p.exists()), None)
-        if not template_path:
-            raise HTTPException(status_code=404, detail="Setup story template missing")
-        memory_root = get_memory_dir()
-        story_dir = memory_root / "story"
-        story_dir.mkdir(parents=True, exist_ok=True)
-        story_path = story_dir / "tui-setup-story.md"
-        if force or not story_path.exists():
-            story_path.write_text(template_path.read_text())
-            logger.info("Story template bootstrapped (force=%s)", force)
-        return {
-            "status": "success",
-            "path": story_path.relative_to(memory_root).as_posix(),
-            "overwritten": bool(force),
-        }
-
-    @router.get("/story/read")
-    async def read_setup_story():
-        memory_root = get_memory_dir()
-        story_path = memory_root / "story" / "tui-setup-story.md"
-        if not story_path.exists():
-            bootstrap = await bootstrap_setup_story(force=False)
-            story_path = memory_root / bootstrap["path"]
-        if not story_path.exists():
-            raise HTTPException(status_code=404, detail="Setup story not found")
-        raw_content = story_path.read_text()
-
-        try:
-            story_state = parse_story_document(
-                raw_content,
-                required_frontmatter_keys=["title", "type", "submit_endpoint"],
-            )
-        except ValueError as exc:
-            logger.error("Story parsing failed: %s", exc, exc_info=True)
-            raise HTTPException(status_code=422, detail=str(exc))
-        except Exception as exc:
-            logger.error("Unexpected error parsing story: %s", exc, exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Story parsing error: {exc}")
-
-        system_info = _get_system_timezone_info()
-        timezone_options = _collect_timezone_options()
-        default_location = get_default_location_for_timezone(system_info["timezone"])
-        if not default_location and timezone_options:
-            # fallback to a location listed under the timezone options
-            match = next(
-                (opt for opt in timezone_options if opt["timezone"] == system_info["timezone"]),
-                None,
-            )
-            if match:
-                default_location = {
-                    "id": match.get("location_id"),
-                    "name": match.get("location_name"),
-                }
-
-        # Step 1: Start with system defaults
-        overrides = {
-            "user_timezone": system_info["timezone"],
-            "user_local_time": system_info["local_time"],
-            "user_location_id": default_location.get("id") if default_location else None,
-            "user_location_name": default_location.get("name") if default_location else None,
-        }
-
-        # Step 2: Load from .env (Core boundary - highest priority for existing data)
-        env_identity = _load_env_identity()
-        if env_identity:
-            overrides.update(env_identity)
-            logger.debug(f"[SETUP] Loaded identity from .env: {list(env_identity.keys())}")
-
-        # Step 3: Load from Wizard keystore (if different from .env)
-        user_result = load_user_profile()
-        install_result = load_install_profile()
-        if user_result.data:
-            overrides.update(
-                {
-                    "user_username": user_result.data.get("username"),
-                    "user_dob": user_result.data.get("date_of_birth"),
-                    "user_role": user_result.data.get("role"),
-                    "user_permissions": user_result.data.get("permissions"),
-                    "user_timezone": user_result.data.get("timezone") or overrides.get("user_timezone"),
-                    "user_local_time": user_result.data.get("local_time") or overrides.get("user_local_time"),
-                    "user_location_id": user_result.data.get("location_id") or overrides.get("user_location_id"),
-                    "user_location_name": user_result.data.get("location_name") or overrides.get("user_location_name"),
-                }
-            )
-        if install_result.data:
-            overrides.update(
-                {
-                    "install_id": install_result.data.get("installation_id"),
-                    "install_os_type": install_result.data.get("os_type"),
-                    "install_lifespan_mode": install_result.data.get("lifespan_mode"),
-                    "install_moves_limit": install_result.data.get("moves_limit"),
-                    "install_permissions": install_result.data.get("permissions"),
-                }
-            )
-            capabilities = (install_result.data.get("capabilities") or {})
-            overrides.update(
-                {
-                    "capability_web_proxy": capabilities.get("web_proxy"),
-                    "capability_ok_gateway": capabilities.get("ok_gateway"),
-                    "capability_github_push": capabilities.get("github_push"),
-                    "capability_icloud": capabilities.get("icloud"),
-                    "capability_plugin_repo": capabilities.get("plugin_repo"),
-                    "capability_plugin_auto_update": capabilities.get("plugin_auto_update"),
-                }
-            )
-
-        try:
-            _apply_setup_defaults(
-                story_state,
-                overrides,
-                highlight_fields=["user_timezone", "user_local_time"],
-            )
-        except Exception as exc:
-            logger.error("Failed to apply setup defaults: %s", exc, exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Failed to apply defaults: {exc}")
-
-        story_state.setdefault("metadata", {})
-        story_state["metadata"].update(
-            {
-                "system_timezone": system_info["timezone"],
-                "timezone_options": timezone_options,
-                "default_location": default_location,
-            }
+    router.include_router(
+        create_setup_wizard_routes(
+            get_status=setup_state.get_status,
+            mark_setup_complete=setup_state.mark_setup_complete,
+            validate_database_paths=validate_database_paths,
+            load_user_profile=load_user_profile,
+            is_ghost_mode=_is_ghost_mode,
         )
+    )
 
-        logger.debug(
-            "Story read: title=%s sections=%d system_tz=%s",
-            story_state["frontmatter"].get("title"),
-            len(story_state["sections"]),
-            system_info["timezone"],
+    router.include_router(
+        create_setup_path_routes(
+            get_paths=get_paths,
         )
-        return {
-            "status": "success",
-            "story": story_state,
-            "content": raw_content,
-            "frontmatter": story_state["frontmatter"],
-            "body": story_state["body"],
-            "path": story_path.relative_to(memory_root).as_posix(),
-        }
+    )
 
-    @router.post("/story/submit")
-    async def submit_setup_story(payload: StorySubmitPayload):
-        answers = payload.answers or {}
-
-        # Normalize username to lowercase for case-insensitive handling
-        username = answers.get("user_username")
-        if username:
-            username = username.lower()
-
-        user_profile = {
-            "username": username,
-            "date_of_birth": answers.get("user_dob"),
-            "role": answers.get("user_role"),
-            "timezone": answers.get("user_timezone"),
-            "local_time": answers.get("user_local_time"),
-            "location_id": answers.get("user_location_id"),
-            "location_name": None,
-            "permissions": answers.get("user_permissions"),
-        }
-        _validate_location_id(user_profile.get("location_id"))
-        user_profile["location_name"] = _resolve_location_name(
-            user_profile.get("location_id")
+    router.include_router(
+        create_setup_location_routes(
+            search_locations=search_locations,
+            get_default_location_for_timezone=get_default_location_for_timezone,
+            collect_timezone_options=_collect_timezone_options,
+            get_system_timezone_info=_get_system_timezone_info,
         )
-        ghost_mode = _is_ghost_mode(user_profile.get("username"), user_profile.get("role"))
-        user_profile["ghost_mode"] = ghost_mode
+    )
 
-        install_profile = {
-            "installation_id": answers.get("install_id"),
-            "os_type": answers.get("install_os_type"),
-            "lifespan_mode": answers.get("install_lifespan_mode"),
-            "moves_limit": answers.get("install_moves_limit"),
-            "permissions": answers.get("install_permissions"),
-            "capabilities": {
-                "web_proxy": bool(answers.get("capability_web_proxy")),
-                "ok_gateway": bool(answers.get("capability_ok_gateway")),
-                "github_push": bool(answers.get("capability_github_push")),
-                "icloud": bool(answers.get("capability_icloud")),
-                "plugin_repo": bool(answers.get("capability_plugin_repo")),
-                "plugin_auto_update": bool(answers.get("capability_plugin_auto_update")),
-            },
-            "ghost_mode": ghost_mode,
-        }
+    router.include_router(
+        create_setup_story_routes(
+            logger=logger,
+            get_repo_root=get_repo_root,
+            get_memory_dir=get_memory_dir,
+            parse_story_document=parse_story_document,
+            get_default_location_for_timezone=get_default_location_for_timezone,
+            get_system_timezone_info=_get_system_timezone_info,
+            collect_timezone_options=_collect_timezone_options,
+            apply_setup_defaults=_apply_setup_defaults,
+            load_env_identity=_load_env_identity,
+            load_user_profile=load_user_profile,
+            load_install_profile=load_install_profile,
+            save_user_profile=save_user_profile,
+            save_install_profile=save_install_profile,
+            sync_metrics_from_profile=sync_metrics_from_profile,
+            apply_capabilities_to_wizard_config=_apply_capabilities_to_wizard_config,
+            validate_location_id=_validate_location_id,
+            resolve_location_name=_resolve_location_name,
+            is_ghost_mode=_is_ghost_mode,
+            config_sync_manager_cls=ConfigSyncManager,
+        )
+    )
 
-        user_result = save_user_profile(user_profile)
-        if user_result.locked:
-            raise HTTPException(status_code=503, detail=user_result.error or "secret store locked")
+    router.include_router(
+        create_setup_profile_routes(
+            load_user_profile=load_user_profile,
+            load_install_profile=load_install_profile,
+            save_user_profile=save_user_profile,
+            save_install_profile=save_install_profile,
+            load_install_metrics=load_install_metrics,
+            sync_metrics_from_profile=sync_metrics_from_profile,
+            increment_moves=increment_moves,
+            mark_variable_configured=setup_state.mark_variable_configured,
+            apply_capabilities_to_wizard_config=_apply_capabilities_to_wizard_config,
+            validate_location_id=_validate_location_id,
+            resolve_location_name=_resolve_location_name,
+            is_ghost_mode=_is_ghost_mode,
+        )
+    )
 
-        install_result = save_install_profile(install_profile)
-        if install_result.locked:
-            raise HTTPException(status_code=503, detail=install_result.error or "secret store locked")
-
-        _apply_capabilities_to_wizard_config((install_result.data or {}).get("capabilities") or {})
-        metrics = sync_metrics_from_profile(install_result.data or {})
-
-        # Sync identity fields back to .env (core boundary)
-        sync_manager = ConfigSyncManager()
-        env_payload = {
-            "user_username": user_profile.get("username"),
-            "user_dob": user_profile.get("date_of_birth"),
-            "user_role": user_profile.get("role"),
-            "user_password": answers.get("user_password"),
-            "user_timezone": user_profile.get("timezone"),
-            "user_location": user_profile.get("location_name")
-            or answers.get("user_location_name")
-            or answers.get("user_location_id"),
-            "install_os_type": install_profile.get("os_type"),
-        }
-        env_ok, env_msg = sync_manager.save_identity_to_env(env_payload)
-
-        return {
-            "status": "success",
-            "user_profile": user_result.data,
-            "install_profile": install_result.data,
-            "install_metrics": metrics,
-            "env_sync": {"success": env_ok, "message": env_msg},
-        }
-
-    @router.get("/profile/user")
-    async def get_user_profile():
-        """Retrieve the stored user profile."""
-        result = load_user_profile()
-        if result.locked:
-            raise HTTPException(status_code=503, detail=result.error or "secret store locked")
-        if not result.data:
-            raise HTTPException(status_code=404, detail="No user profile found. Please complete setup story first.")
-        return {
-            "status": "success",
-            "profile": result.data,
-        }
-
-    @router.get("/profile/install")
-    async def get_install_profile():
-        """Retrieve the stored installation profile."""
-        result = load_install_profile()
-        if result.locked:
-            raise HTTPException(status_code=503, detail=result.error or "secret store locked")
-        if not result.data:
-            raise HTTPException(status_code=404, detail="No installation profile found. Please complete setup story first.")
-        metrics = load_install_metrics()
-        return {
-            "status": "success",
-            "profile": result.data,
-            "metrics": metrics,
-        }
-
-    @router.get("/profile/combined")
-    async def get_combined_profile():
-        """Retrieve both user and installation profiles in a single call."""
-        user_result = load_user_profile()
-        install_result = load_install_profile()
-
-        if user_result.locked or install_result.locked:
-            raise HTTPException(
-                status_code=503,
-                detail=user_result.error or install_result.error or "secret store locked"
-            )
-
-        metrics = load_install_metrics()
-
-        return {
-            "status": "success",
-            "user_profile": user_result.data,
-            "install_profile": install_result.data,
-            "install_metrics": metrics,
-            "setup_complete": bool(user_result.data and install_result.data),
-        }
+    router.include_router(
+        create_setup_ai_profile_routes(
+            load_template=_load_ai_profile_template,
+            load_profile=_load_ai_profile,
+            save_profile=_save_ai_profile,
+            add_quest=_add_ai_quest,
+            add_skill=_add_ai_skill,
+            add_knowledge_entry=_add_ai_knowledge_entry,
+            render_system_prompt=_render_ai_system_prompt,
+            mark_variable_configured=setup_state.mark_variable_configured,
+        )
+    )
 
     return router

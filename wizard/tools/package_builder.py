@@ -55,7 +55,7 @@ class PackageBuilder:
                 "version_module": "core",
                 "sources": [
                     ("core", "opt/udos/core"),
-                    ("bin/Launch-uCODE.sh", "opt/udos/bin/Launch-uCODE.sh"),
+                    ("bin/ucli", "opt/udos/bin/ucli"),
                     ("bin/udos-common.sh", "opt/udos/bin/udos-common.sh"),
                     ("bin/udos-self-heal.sh", "opt/udos/bin/udos-self-heal.sh"),
                 ],

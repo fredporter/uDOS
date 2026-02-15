@@ -10,6 +10,9 @@
   let loading = true;
   let error = null;
   let empireTokenStatus = null;
+  let sonicStatus = null;
+  let themeExtensions = null;
+  let grooveboxStatus = null;
 
   async function loadExtensions() {
     try {
@@ -39,6 +42,27 @@
     }
   }
 
+  async function loadPlatformStatus() {
+    try {
+      const [sonicRes, themesRes, grooveboxRes] = await Promise.all([
+        apiFetch("/api/platform/sonic/status", {
+          headers: buildAuthHeaders(getAdminToken()),
+        }),
+        apiFetch("/api/platform/themes/css-extensions", {
+          headers: buildAuthHeaders(getAdminToken()),
+        }),
+        apiFetch("/api/platform/groovebox/status", {
+          headers: buildAuthHeaders(getAdminToken()),
+        }),
+      ]);
+      if (sonicRes.ok) sonicStatus = await sonicRes.json();
+      if (themesRes.ok) themeExtensions = await themesRes.json();
+      if (grooveboxRes.ok) grooveboxStatus = await grooveboxRes.json();
+    } catch (err) {
+      console.error("Failed to load platform status:", err);
+    }
+  }
+
   function navigateTo(route) {
     window.location.hash = route;
   }
@@ -51,6 +75,7 @@
   onMount(() => {
     loadExtensions();
     loadEmpireStatus();
+    loadPlatformStatus();
   });
 
   // Group by category
@@ -99,6 +124,25 @@
         {/if}
       </div>
     {/if}
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+        <div class="text-xs text-gray-400 mb-1">Sonic Bridge</div>
+        <div class="text-white font-semibold mb-1">{sonicStatus?.available ? "Available" : "Not detected"}</div>
+        <div class="text-xs text-gray-500">Version: {sonicStatus?.version || "n/a"}</div>
+        <div class="text-xs text-gray-500">Datasets: {sonicStatus?.datasets?.files ?? 0}</div>
+      </div>
+      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+        <div class="text-xs text-gray-400 mb-1">Groovebox Host</div>
+        <div class="text-white font-semibold mb-1">{grooveboxStatus?.wizard_gui_hosted ? "Wizard GUI" : "Unknown"}</div>
+        <div class="text-xs text-gray-500">API: {grooveboxStatus?.api_prefix || "/api/groovebox"}</div>
+      </div>
+      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+        <div class="text-xs text-gray-400 mb-1">GUI Theme/CSS Extensions</div>
+        <div class="text-white font-semibold mb-1">{themeExtensions?.counts?.wizard_css_extensions ?? 0} Wizard CSS files</div>
+        <div class="text-xs text-gray-500">{themeExtensions?.counts?.valid_theme_packs ?? 0} valid theme packs</div>
+      </div>
+    </div>
 
     <!-- Extension Cards by Category -->
     {#each categoryOrder as category}
@@ -173,7 +217,12 @@
                         Open Groovebox
                       </button>
                     {:else if ext.id === "sonic"}
-                      <span class="text-xs text-gray-500">Coming soon</span>
+                      <button
+                        class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded transition-colors"
+                        on:click={() => navigateTo("library")}
+                      >
+                        Open Sonic Integrations
+                      </button>
                     {/if}
                   </div>
                 {:else}
