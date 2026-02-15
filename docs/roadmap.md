@@ -8,6 +8,7 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 
 ## Status Summary
 
+- Core concept: uDOS is a local Obsidian companion runtime focused on `@workspace`/`@binder` organization, fractal/layered filesystem structures, knowledge-tree navigation, and digital-garden workflows.
 - Milestones v1.3.0 to v1.3.7: complete (archived records exist).
 - Current focus: stabilization and polish for v1.4.0 release.
 - Outstanding (active): none; all P0 items complete as of 2026-02-09.

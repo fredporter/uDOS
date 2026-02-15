@@ -5,6 +5,8 @@
 
 Welcome to the uDOS wiki—your guide to getting started with the Universal Data Operations System.
 
+uDOS is designed as a local Obsidian companion runtime: use Obsidian as your editor/vault reader, while uDOS provides `@workspace` and `@binder` organization, fractal/layered filesystem structure, knowledge-tree navigation, and digital-garden workflow patterns over the same files (no sync required).
+
 > **📖 Main Entry:** [**Home**](Home.md) | [View Wiki Online](https://github.com/fredporter/uDOS/wiki)
 
 ---
