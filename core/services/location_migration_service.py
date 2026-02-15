@@ -28,6 +28,7 @@ logger = get_logger("location_migration")
 SPATIAL_SCHEMA_PATH = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "schema.sql"
 MEMORY_SPATIAL_DIR = Path("memory") / "bank" / "spatial"
 DEFAULT_ANCHOR_REGISTRY = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "anchors.default.json"
+DEFAULT_PLACE_CATALOG = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "places.default.json"
 
 PLACE_REF_RE = re.compile(
     r"^(?P<anchor>[^:]+)"
@@ -374,7 +375,7 @@ class LocationMigrator:
     def _seed_spatial_index(self) -> Dict[str, int]:
         spatial_db = self._get_spatial_db_path()
         if not spatial_db:
-            return {"spatial_places_seeded": 0}
+            return {"spatial_places_seeded": 0, "spatial_place_features_seeded": 0}
 
         conn = sqlite3.connect(spatial_db)
         conn.execute("PRAGMA foreign_keys = ON")
@@ -384,7 +385,7 @@ class LocationMigrator:
         seeded = self._insert_spatial_places(conn, places)
         conn.commit()
         conn.close()
-        return {"spatial_places_seeded": seeded}
+        return seeded
 
     def _get_spatial_db_path(self) -> Optional[Path]:
         env_vault = os.getenv("VAULT_ROOT")
@@ -443,6 +444,8 @@ class LocationMigrator:
     def _load_spatial_places(self) -> List[Dict[str, Any]]:
         catalog = MEMORY_SPATIAL_DIR / "places.json"
         if not catalog.exists():
+            catalog = DEFAULT_PLACE_CATALOG
+        if not catalog.exists():
             return []
         try:
             payload = json.loads(catalog.read_text())
@@ -452,12 +455,13 @@ class LocationMigrator:
 
     def _insert_spatial_places(
         self, conn: sqlite3.Connection, places: List[Dict[str, Any]]
-    ) -> int:
+    ) -> Dict[str, int]:
         if not places:
-            return 0
+            return {"spatial_places_seeded": 0, "spatial_place_features_seeded": 0}
         cursor = conn.cursor()
         now = int(time.time())
         inserted = 0
+        features_seeded = 0
         for place in places:
             place_ref = place.get("placeRef") or ""
             parsed = _parse_place_ref(place_ref)
@@ -497,7 +501,12 @@ class LocationMigrator:
                 ),
             )
             inserted += 1
-        return inserted
+            if self._upsert_place_seed_features(conn, place_id, place, now):
+                features_seeded += 1
+        return {
+            "spatial_places_seeded": inserted,
+            "spatial_place_features_seeded": features_seeded,
+        }
 
     def _ensure_locid(self, conn: sqlite3.Connection, loc_id: str, layer: int, cell: str):
         now = int(time.time())
@@ -517,6 +526,75 @@ class LocationMigrator:
     ) -> str:
         base = [anchor_id, space, loc_id, str(depth or ""), instance or ""]
         return hashlib.sha1(":".join(base).encode("utf-8")).hexdigest()
+
+    def _upsert_place_seed_features(
+        self,
+        conn: sqlite3.Connection,
+        place_id: str,
+        place: Dict[str, Any],
+        now: int,
+    ) -> bool:
+        z = place.get("z")
+        z_min = place.get("z_min")
+        z_max = place.get("z_max")
+        links = place.get("links")
+        traversal = {
+            "stairs": place.get("stairs", []),
+            "ramps": place.get("ramps", []),
+            "portals": place.get("portals", []),
+        }
+        gameplay = {
+            "quest_ids": place.get("quest_ids", []),
+            "npc_spawn": place.get("npc_spawn", []),
+            "hazards": place.get("hazards", []),
+            "loot_tables": place.get("loot_tables", []),
+            "interaction_points": place.get("interaction_points", []),
+        }
+        metadata = place.get("metadata", {})
+
+        has_seed_payload = any(
+            [
+                isinstance(z, int),
+                isinstance(z_min, int),
+                isinstance(z_max, int),
+                isinstance(links, list) and len(links) > 0,
+                any(isinstance(v, list) and len(v) > 0 for v in traversal.values()),
+                any(isinstance(v, list) and len(v) > 0 for v in gameplay.values()),
+                isinstance(metadata, dict) and len(metadata) > 0,
+            ]
+        )
+        if not has_seed_payload:
+            return False
+
+        conn.execute(
+            """
+            INSERT INTO place_seed_features
+            (place_id, z, z_min, z_max, links_json, traversal_json, gameplay_json, metadata_json, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(place_id) DO UPDATE SET
+              z = excluded.z,
+              z_min = excluded.z_min,
+              z_max = excluded.z_max,
+              links_json = excluded.links_json,
+              traversal_json = excluded.traversal_json,
+              gameplay_json = excluded.gameplay_json,
+              metadata_json = excluded.metadata_json,
+              updated_at = excluded.updated_at
+            """,
+            (
+                place_id,
+                z if isinstance(z, int) else None,
+                z_min if isinstance(z_min, int) else None,
+                z_max if isinstance(z_max, int) else None,
+                json.dumps(links if isinstance(links, list) else []),
+                json.dumps(traversal),
+                json.dumps(gameplay),
+                json.dumps(metadata if isinstance(metadata, dict) else {}),
+                now,
+                now,
+            ),
+        )
+        return True
 
     def _migrate_data(self, json_data: Dict) -> Dict:
         """

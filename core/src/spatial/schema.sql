@@ -41,6 +41,21 @@ CREATE TABLE IF NOT EXISTS places (
 CREATE INDEX IF NOT EXISTS idx_places_anchor_space_loc
   ON places(anchor_id, space, loc_id);
 
+-- 3b) Optional gameplay/elevation seed metadata per place (v1.3.19 groundwork)
+CREATE TABLE IF NOT EXISTS place_seed_features (
+  place_id         TEXT PRIMARY KEY,
+  z                INTEGER,            -- focus z-plane for the place
+  z_min            INTEGER,            -- optional vertical bounds
+  z_max            INTEGER,
+  links_json       TEXT,               -- deterministic adjacency/link refs
+  traversal_json   TEXT,               -- stairs/ramps/portals metadata
+  gameplay_json    TEXT,               -- quest/encounter/interaction seed primitives
+  metadata_json    TEXT,               -- extension metadata
+  created_at       INTEGER NOT NULL,
+  updated_at       INTEGER NOT NULL,
+  FOREIGN KEY(place_id) REFERENCES places(place_id) ON DELETE CASCADE
+);
+
 -- 4) Vault files + tags (frontmatter/grid_locations integration)
 CREATE TABLE IF NOT EXISTS files (
   file_path     TEXT PRIMARY KEY,

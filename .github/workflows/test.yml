@@ -144,6 +144,7 @@ jobs:
         run: |
           python -m pytest -q \
             core/tests/contract_validator_spatial_test.py \
+            core/tests/location_migration_spatial_seed_test.py \
             core/tests/ucli_runtime_boundary_test.py \
             core/tests/ucli_ts_fallback_test.py \
             wizard/tests/spatial_parser_test.py

@@ -74,6 +74,7 @@ Reference:
 - [v1.3.18-spatial-locid-z-migration-notes.md](releases/v1.3.18-spatial-locid-z-migration-notes.md)
 
 ### v1.3.19 (Planned) -- Seed Data Depth Pass
+- [x] Add tracked default spatial place seed catalog + CI seed-catalog validation + optional `place_seed_features` persistence scaffold.
 - [ ] Expand `locations-seed.json` from locator-only entries to gameplay-ready tiles/links.
 - [ ] Add deterministic adjacency/connectivity for region traversal and map overlays.
 - [ ] Introduce elevation-aware seed fields (`z`, `z_min`, `z_max`, stairs/ramps/portals metadata).
@@ -81,6 +82,9 @@ Reference:
   - quest hooks (`quest_ids`, trigger conditions)
   - encounter slots (`npc_spawn`, `hazards`, `loot_tables`)
   - interaction points (`doors`, `terminals`, `craft nodes`, `checkpoints`)
+
+Reference:
+- [v1.3.19-seed-depth-foundation.md](releases/v1.3.19-seed-depth-foundation.md)
 
 ### v1.3.20 (Planned) -- Grid Runtime Readiness
 - [ ] Add z-aware map overlays and viewport rules (focus plane + nearby z layers).

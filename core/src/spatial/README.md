@@ -7,6 +7,7 @@ Files:
 - `types.ts` — TypeScript interfaces.
 - `parse.ts` — Canonical parsers + frontmatter normalisation.
 - `anchors.default.json` — Launch-ready anchor registry (minimal, expandable).
+- `places.default.json` — Tracked default place catalog with optional seed-depth metadata.
 
 Recommended string format for frontmatter + APIs:
 

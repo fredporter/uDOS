@@ -119,17 +119,52 @@ def _validate_places_catalog(path: Path, anchors_known: set[str]) -> None:
                 f"{path}: placeRef anchor not found in anchors catalog: {ref}"
             )
 
+        for key in ("z", "z_min", "z_max"):
+            if key in item and item[key] is not None:
+                if not isinstance(item[key], int):
+                    raise RuntimeError(f"{path}: {place_id} field {key} must be an integer")
+                if item[key] < -99 or item[key] > 99:
+                    raise RuntimeError(f"{path}: {place_id} field {key} out of range (-99..99)")
+
+        if (
+            isinstance(item.get("z_min"), int)
+            and isinstance(item.get("z_max"), int)
+            and item["z_min"] > item["z_max"]
+        ):
+            raise RuntimeError(f"{path}: {place_id} has z_min > z_max")
+
+        for key in (
+            "links",
+            "portals",
+            "stairs",
+            "ramps",
+            "quest_ids",
+            "npc_spawn",
+            "hazards",
+            "loot_tables",
+            "interaction_points",
+        ):
+            if key in item and not isinstance(item[key], list):
+                raise RuntimeError(f"{path}: {place_id} field {key} must be a list")
+
+        if "metadata" in item and not isinstance(item["metadata"], dict):
+            raise RuntimeError(f"{path}: {place_id} field metadata must be an object")
+
 
 def main() -> int:
     repo = Path(__file__).resolve().parents[2]
     tracked_anchors_path = repo / "core" / "src" / "spatial" / "anchors.default.json"
+    tracked_places_path = repo / "core" / "src" / "spatial" / "places.default.json"
     memory_anchors_path = repo / "memory" / "spatial" / "anchors.json"
     memory_places_path = repo / "memory" / "spatial" / "places.json"
 
     if not tracked_anchors_path.exists():
         raise SystemExit(f"[spatial-seed-catalog] FAIL: missing {tracked_anchors_path}")
+    if not tracked_places_path.exists():
+        raise SystemExit(f"[spatial-seed-catalog] FAIL: missing {tracked_places_path}")
 
     known_anchors = _validate_anchor_catalog(tracked_anchors_path)
+    _validate_places_catalog(tracked_places_path, known_anchors)
     if memory_anchors_path.exists():
         known_anchors |= _validate_anchor_catalog(memory_anchors_path)
     if memory_places_path.exists():
