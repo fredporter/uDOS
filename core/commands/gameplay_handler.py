@@ -1,4 +1,4 @@
-"""GPLAY command handler - progression stats, gates, and TOYBOX profiles."""
+"""GPLAY command handler - progression stats, gates, TOYBOX profiles, and map runtime loop."""
 
 from __future__ import annotations
 
@@ -16,6 +16,13 @@ class GameplayHandler(BaseCommandHandler):
       GPLAY STATS
       GPLAY STATS SET <xp|hp|gold> <value>
       GPLAY STATS ADD <xp|hp|gold> <delta>
+      GPLAY MAP STATUS
+      GPLAY MAP ENTER <place_id>
+      GPLAY MAP MOVE <target_place_id>
+      GPLAY MAP INSPECT
+      GPLAY MAP INTERACT <interaction_id>
+      GPLAY MAP COMPLETE <objective_id>
+      GPLAY MAP TICK [steps]
       GPLAY GATE STATUS
       GPLAY GATE COMPLETE <gate_id>
       GPLAY GATE RESET <gate_id>
@@ -49,6 +56,9 @@ class GameplayHandler(BaseCommandHandler):
 
         if sub == "stats":
             return self._handle_stats(gameplay, username, role, params[1:])
+
+        if sub == "map":
+            return self._handle_map(gameplay, username, role, params[1:])
 
         if sub == "gate":
             return self._handle_gate(gameplay, role, params[1:])
@@ -109,6 +119,81 @@ class GameplayHandler(BaseCommandHandler):
             "message": f"Updated {stat}",
             "player_stats": stats,
             "output": f"XP={stats['xp']} HP={stats['hp']} Gold={stats['gold']}",
+        }
+
+    def _handle_map(self, gameplay, username: str, role: str, params: List[str]) -> Dict:
+        from core.services.map_runtime_service import get_map_runtime_service
+
+        runtime = get_map_runtime_service()
+        action = params[0].lower() if params else "status"
+
+        if action in {"status", "show"}:
+            status = runtime.status(username)
+            if not status.get("ok"):
+                return {"status": "error", "message": status.get("error", "Map runtime unavailable")}
+            snapshot = gameplay.snapshot(username, role)
+            return {
+                "status": "success",
+                "message": "Map runtime status",
+                "map": status,
+                "progress": snapshot.get("progress", {}),
+                "output": self._format_map_status(status, snapshot),
+            }
+
+        if not gameplay.has_permission(role, "gameplay.mutate"):
+            return {"status": "error", "message": "Permission denied: gameplay.mutate"}
+
+        if action == "enter":
+            if len(params) < 2:
+                return {"status": "error", "message": "Syntax: GPLAY MAP ENTER <place_id>"}
+            result = runtime.enter(username, params[1])
+        elif action == "move":
+            if len(params) < 2:
+                return {"status": "error", "message": "Syntax: GPLAY MAP MOVE <target_place_id>"}
+            result = runtime.move(username, params[1])
+        elif action == "inspect":
+            result = runtime.inspect(username)
+        elif action == "interact":
+            if len(params) < 2:
+                return {"status": "error", "message": "Syntax: GPLAY MAP INTERACT <interaction_id>"}
+            result = runtime.interact(username, params[1])
+        elif action == "complete":
+            if len(params) < 2:
+                return {"status": "error", "message": "Syntax: GPLAY MAP COMPLETE <objective_id>"}
+            result = runtime.complete(username, params[1])
+        elif action == "tick":
+            steps = 1
+            if len(params) >= 2:
+                try:
+                    steps = int(params[1])
+                except ValueError:
+                    return {"status": "error", "message": "Steps must be an integer"}
+            result = runtime.tick(username, steps)
+        else:
+            return {
+                "status": "error",
+                "message": "Syntax: GPLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK>",
+            }
+
+        if not result.get("ok"):
+            return {
+                "status": "blocked",
+                "message": result.get("error", "Map action blocked"),
+                "map_action": result,
+            }
+
+        tick_result = gameplay.tick(username)
+        status = runtime.status(username)
+        snapshot = gameplay.snapshot(username, role)
+        return {
+            "status": "success",
+            "message": f"Map action complete: {result.get('action', action).lower()}",
+            "map": status,
+            "map_action": result,
+            "tick": tick_result,
+            "progress": snapshot.get("progress", {}),
+            "player_stats": snapshot.get("stats", {}),
+            "output": self._format_map_action(result, status, snapshot),
         }
 
     def _handle_gate(self, gameplay, role: str, params: List[str]) -> Dict:
@@ -223,3 +308,31 @@ class GameplayHandler(BaseCommandHandler):
             "player_stats": stats,
             "gameplay": snapshot,
         }
+
+    def _format_map_status(self, status: Dict, snapshot: Dict) -> str:
+        progress = snapshot.get("progress", {})
+        metrics = progress.get("metrics", {})
+        return "\n".join(
+            [
+                "GPLAY MAP STATUS",
+                f"Place: {status.get('current_place_id')} ({status.get('label')})",
+                f"Loc: {status.get('place_ref')} z={status.get('z')}",
+                f"Chunk2D: {status.get('chunk', {}).get('chunk2d_id')}",
+                f"Links: {len(status.get('links', []))} Portals: {len(status.get('portals', []))}",
+                f"Tick={status.get('tick_counter')} NPC={status.get('npc_phase')} World={status.get('world_phase')}",
+                f"Metrics moves={metrics.get('map_moves', 0)} inspects={metrics.get('map_inspects', 0)} interactions={metrics.get('map_interactions', 0)} completions={metrics.get('map_completions', 0)}",
+            ]
+        )
+
+    def _format_map_action(self, action_result: Dict, status: Dict, snapshot: Dict) -> str:
+        stats = snapshot.get("stats", {})
+        progress = snapshot.get("progress", {})
+        return "\n".join(
+            [
+                f"GPLAY MAP {action_result.get('action', 'ACTION')}",
+                f"Place: {status.get('current_place_id')} ({status.get('label')})",
+                f"Chunk2D: {status.get('chunk', {}).get('chunk2d_id')}",
+                f"XP={stats.get('xp', 0)} HP={stats.get('hp', 100)} Gold={stats.get('gold', 0)}",
+                f"Level={progress.get('level', 1)} AchievementLevel={progress.get('achievement_level', 0)}",
+            ]
+        )

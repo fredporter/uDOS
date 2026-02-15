@@ -95,6 +95,13 @@ DEFAULT_PROGRESS = {
         "events_processed": 0,
         "missions_completed": 0,
         "deaths": 0,
+        "map_enters": 0,
+        "map_moves": 0,
+        "map_inspects": 0,
+        "map_interactions": 0,
+        "map_completions": 0,
+        "map_ticks": 0,
+        "map_portal_transitions": 0,
         "elite_jumps": 0,
         "elite_docks": 0,
         "rpgbbs_sessions": 0,
@@ -997,6 +1004,57 @@ class GameplayService:
             notes.append("crawler3d:objective")
             self._add_achievement(username, "crawler3d_objective_clear")
             self._progress_metric_add(username, "crawler3d_objectives", 1)
+            self._progress_metric_add(username, "events_processed", 1)
+
+        elif event_type == "MAP_ENTER":
+            stats["xp"] += 1
+            changed = True
+            notes.append("map:enter")
+            self._progress_metric_add(username, "map_enters", 1)
+            self._progress_metric_add(username, "events_processed", 1)
+
+        elif event_type == "MAP_TRAVERSE":
+            terrain_cost = int(payload.get("terrain_cost", 1) or 1)
+            mode = str(payload.get("mode", "walk")).lower()
+            stats["xp"] += max(1, terrain_cost)
+            changed = True
+            notes.append(f"map:traverse:{mode}:{terrain_cost}")
+            self._progress_metric_add(username, "map_moves", 1)
+            if mode == "portal":
+                self._progress_metric_add(username, "map_portal_transitions", 1)
+            self._progress_metric_add(username, "events_processed", 1)
+
+        elif event_type == "MAP_INSPECT":
+            stats["xp"] += 2
+            changed = True
+            notes.append("map:inspect")
+            self._progress_metric_add(username, "map_inspects", 1)
+            self._progress_metric_add(username, "events_processed", 1)
+
+        elif event_type == "MAP_INTERACT":
+            stats["xp"] += 3
+            stats["gold"] += 1
+            changed = True
+            notes.append("map:interact")
+            self._progress_metric_add(username, "map_interactions", 1)
+            self._progress_metric_add(username, "events_processed", 1)
+
+        elif event_type == "MAP_COMPLETE":
+            objective_id = str(payload.get("objective_id", "")).strip()
+            stats["xp"] += 25
+            stats["gold"] += 10
+            changed = True
+            notes.append("map:complete")
+            if objective_id:
+                self._add_achievement(username, f"map.{objective_id}")
+            self._progress_metric_add(username, "map_completions", 1)
+            self._progress_metric_add(username, "missions_completed", 1)
+            self._progress_metric_add(username, "events_processed", 1)
+
+        elif event_type == "MAP_TICK":
+            changed = True
+            notes.append("map:tick")
+            self._progress_metric_add(username, "map_ticks", 1)
             self._progress_metric_add(username, "events_processed", 1)
 
         depth = int(self._flag_get(username, "hethack.max_depth", 1) or 1)

@@ -165,8 +165,19 @@ PLAY token automation rule:
 ## Next Dev Rounds
 
 1. Replace stubs with adapter runtimes (PTY for dungeon, framebuffer/terminal hybrid for galaxy).
-2. Emit canonical gameplay events (`ENTER`, `INTERACT`, `COMPLETE`) to Core tick/update paths.
-3. Add parser/runtime hook so workflow progression can require gate completion before moving to next milestone.
+2. Add parser/runtime hook so workflow progression can require gate completion before moving to next milestone.
+
+## v1.3.20 Runtime Loop Update
+
+Implemented in Core:
+- `core/services/map_runtime_service.py`
+  - deterministic traversal (`MOVE`) with blocked-edge validation
+  - vertical transition guard via portal requirement
+  - canonical action events: `ENTER`, `INSPECT`, `INTERACT`, `COMPLETE`, `TICK`
+- `core/commands/gameplay_handler.py`
+  - `GPLAY MAP STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK`
+- `core/services/gameplay_service.py`
+  - map-event ingestion and metrics (`map_moves`, `map_interactions`, etc.)
 
 ## TUI Theme/Layer Switching Contract (Current)
 

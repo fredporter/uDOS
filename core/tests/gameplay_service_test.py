@@ -105,3 +105,10 @@ def test_rule_command_is_dispatched():
     result = dispatcher.dispatch("RULE LIST")
     assert result["status"] == "success"
     assert "RULE LIST" in result.get("output", "")
+
+
+def test_gplay_map_command_is_dispatched():
+    dispatcher = CommandDispatcher()
+    result = dispatcher.dispatch("GPLAY MAP STATUS")
+    assert result["status"] == "success"
+    assert "GPLAY MAP STATUS" in result.get("output", "")

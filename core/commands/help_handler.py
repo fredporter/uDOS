@@ -132,7 +132,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "example": "GPLAY TOYBOX SET hethack",
             "notes": "Persistent XP/HP/Gold with event-driven gate progression.",
             "category": "Navigation",
-            "syntax": "GPLAY STATUS | GPLAY STATS <SET|ADD> <xp|hp|gold> <value> | GPLAY GATE <STATUS|COMPLETE|RESET> <gate_id> | GPLAY TOYBOX <LIST|SET> [profile] | GPLAY PROCEED",
+            "syntax": "GPLAY STATUS | GPLAY STATS <SET|ADD> <xp|hp|gold> <value> | GPLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK> ... | GPLAY GATE <STATUS|COMPLETE|RESET> <gate_id> | GPLAY TOYBOX <LIST|SET> [profile] | GPLAY PROCEED",
         },
         "PLAY": {
             "description": "Conditional play options and unlock-token progression flow",

@@ -95,8 +95,8 @@ Reference:
 ### v1.3.20 (Planned) -- Grid Runtime Readiness
 - [x] Add z-aware map overlays and viewport rules (focus plane + nearby z layers).
 - [x] Add schedule/calendar/todo cross-link support to spatial places for workflow overlays.
-- [ ] Define chunking contract (2D grid chunks now, 3D chunk shape reserved).
-- [ ] Gameplay Dev Round A (Dungeon Lens: `hethack` integration):
+- [x] Define chunking contract (2D grid chunks now, 3D chunk shape reserved).
+- [x] Gameplay Dev Round A (Dungeon Lens: `hethack` integration):
   - containerize public-domain dungeon runtime as a Wizard-managed `TOYBOX` profile
   - run upstream runtime unmodified via adapter boundary (no source fork)
   - reskin terminal/UI surfaces to uDOS visual contract (theme tokens, panels, command affordances)
@@ -104,10 +104,13 @@ Reference:
   - SUB-first dungeon traversal profile (rooms/corridors/doors/traps/loot)
   - turn/tick-compatible event hooks for combat + inventory + quest triggers
   - canonical mapping: `EARTH:SUB:*` PlaceRefs + depth tags to dungeon runtime surfaces
-- [ ] Add gameplay loop integration in Core map runtime:
+- [x] Add gameplay loop integration in Core map runtime:
   - movement + traversal rules (terrain cost, blocked edges, portal transitions)
   - event dispatch from map actions (`ENTER`, `INSPECT`, `INTERACT`, `COMPLETE`)
   - deterministic tick/update contract for NPC and world-state refresh in TUI lens
+
+Reference:
+- [v1.3.20-CHUNKING-CONTRACT.md](specs/v1.3.20-CHUNKING-CONTRACT.md)
 
 ### v1.3.21 (Planned) -- 3D Adapter Readiness Gate
 - [ ] Finalize engine-agnostic world contract (identity, chunks, events, permissions).
