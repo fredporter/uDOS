@@ -51,17 +51,19 @@ jobs:
       - name: Install dependencies
         working-directory: ./core
         run: |
-          npm ci || echo "⚠️ npm ci failed, continuing"
+          npm ci
 
       - name: Run TypeScript tests
         working-directory: ./core
         run: |
-          if [ -f "package.json" ] && grep -q '"test"' package.json; then
-            npm test || echo "⚠️ Tests failed"
+          if [ -f "package.json" ]; then
+            npm run test:renderer
+            npm run test:renderer-cli
+            npm run test:tasks
           else
-            echo "⏭️ No test script in core/package.json"
+            echo "❌ core/package.json missing"
+            exit 1
           fi
-        continue-on-error: true
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
@@ -90,16 +92,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pytest pytest-asyncio
-          if [ -f requirements.txt ]; then pip install -r requirements.txt || echo "⚠️ requirements failed"; fi
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run Python tests
         run: |
           if [ -f "pytest.ini" ] || [ -d "memory/tests" ]; then
-            pytest memory/tests/ -v --tb=short || echo "⚠️ Tests failed"
+            pytest memory/tests/ -v --tb=short
           else
             echo "⏭️ No pytest configuration found"
           fi
-        continue-on-error: true
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
