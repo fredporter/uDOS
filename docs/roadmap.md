@@ -113,10 +113,10 @@ Reference:
 - [v1.3.20-CHUNKING-CONTRACT.md](specs/v1.3.20-CHUNKING-CONTRACT.md)
 
 ### v1.3.21 (Planned) -- 3D Adapter Readiness Gate
-- [ ] Finalize engine-agnostic world contract (identity, chunks, events, permissions).
-- [ ] Add compatibility test matrix for dual lenses (TUI map lens + external engine lens).
-- [ ] Benchmark budgets for seed load, chunk resolve latency, and map render throughput.
-- [ ] Freeze pre-3D acceptance checklist as release gate for v1.3.22.
+- [x] Finalize engine-agnostic world contract (identity, chunks, events, permissions).
+- [x] Add compatibility test matrix for dual lenses (TUI map lens + external engine lens).
+- [x] Benchmark budgets for seed load, chunk resolve latency, and map render throughput.
+- [x] Freeze pre-3D acceptance checklist as release gate for v1.3.22.
 - [ ] Gameplay Dev Round B (Galaxy Lens: `elite` integration):
   - containerize public-domain galaxy runtime as a Wizard-managed `TOYBOX` profile
   - run upstream runtime unmodified via adapter boundary (no source fork)
@@ -134,6 +134,11 @@ Reference:
   - persist gate state in core progression flags (e.g. `gameplay_gates.dungeon_l32_amulet=true`)
   - `UNLOCK/PROCEED/NEXT STEP` actions remain blocked until this gate is satisfied
   - once satisfied, unlock the next integration sequence (galaxy/`elite` round and v1.3.22 preflight)
+
+Reference:
+- [v1.3.21-WORLD-ADAPTER-CONTRACT.md](specs/v1.3.21-WORLD-ADAPTER-CONTRACT.md)
+- [v1.3.21-DUAL-LENS-COMPAT-MATRIX.md](specs/v1.3.21-DUAL-LENS-COMPAT-MATRIX.md)
+- [v1.3.21-ADAPTER-READINESS-CHECKLIST.md](specs/v1.3.21-ADAPTER-READINESS-CHECKLIST.md)
 
 ### v1.3.22 (Planned) -- 3D-World Integration MVP
 - [ ] Enable first 3D world lens integration behind feature flag.
