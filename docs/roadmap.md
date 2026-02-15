@@ -93,7 +93,7 @@ Reference:
 - [v1.3.19-seed-depth-foundation.md](releases/v1.3.19-seed-depth-foundation.md)
 
 ### v1.3.20 (Planned) -- Grid Runtime Readiness
-- [ ] Add z-aware map overlays and viewport rules (focus plane + nearby z layers).
+- [x] Add z-aware map overlays and viewport rules (focus plane + nearby z layers).
 - [ ] Add schedule/calendar/todo cross-link support to spatial places for workflow overlays.
 - [ ] Define chunking contract (2D grid chunks now, 3D chunk shape reserved).
 - [ ] Gameplay Dev Round A (Dungeon Lens: `hethack` integration):

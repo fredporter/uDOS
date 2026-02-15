@@ -19,6 +19,11 @@ export interface LocIdOverlay {
   locId: string;
   icon: string; // T|N|E|!|*
   label?: string;
+  z?: number;
+}
+
+export interface MapViewportOptions {
+  zRange?: number; // Nearby z layers included around focus plane (default: 1)
 }
 
 export interface MinimapCell {

@@ -268,7 +268,43 @@ function testDashboardMode(): TestResult {
   }
 }
 
-// Test 10: Output format compliance
+// Test 10: Z-aware map viewport behavior
+function testMapModeZViewport(): TestResult {
+  try {
+    const input: GridRendererInput = {
+      mode: "map",
+      spec: { width: 80, height: 30, title: "Z Viewport Map" },
+      data: {
+        focusLocId: "EARTH:SUR:L305-DA11-Z2",
+        viewport: { zRange: 1 },
+        overlays: [
+          { locId: "EARTH:SUR:L305-DA11-Z2", icon: "T", label: "Focus Layer" },
+          { locId: "EARTH:SUR:L305-DA12-Z3", icon: "N", label: "Nearby Layer" },
+          { locId: "EARTH:SUR:L305-DA13-Z7", icon: "E", label: "Far Layer" },
+        ],
+      },
+    };
+
+    const result = renderGrid(input);
+
+    assert(result.lines.length === 30, "Should have 30 lines");
+    assert(result.rawText.includes("Z Viewport"), "Should include z viewport panel");
+    assert(result.rawText.includes("Focus: z=2"), "Should show focus z plane");
+    assert(result.rawText.includes("Range: +/-1"), "Should show z range");
+    assert(result.rawText.includes("Hidden: 1"), "Should count hidden far overlays");
+    assert(!result.rawText.includes("Events: 1"), "Far overlay should not count in visible stats");
+
+    return {
+      name: "Map Mode Z Viewport",
+      passed: true,
+      message: "Map mode filters overlays by z viewport correctly",
+    };
+  } catch (e: any) {
+    return { name: "Map Mode Z Viewport", passed: false, message: e.message };
+  }
+}
+
+// Test 11: Output format compliance
 function testOutputFormat(): TestResult {
   try {
     const input: GridRendererInput = {
@@ -320,6 +356,7 @@ export function runTests(): TestResult[] {
     testScheduleMode,
     testMapMode,
     testDashboardMode,
+    testMapModeZViewport,
     testOutputFormat,
   ];
 
