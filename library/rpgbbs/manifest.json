@@ -1,0 +1,43 @@
+{
+  "id": "rpgbbs",
+  "name": "TOYBOX RPGBBS",
+  "version": "0.1.0-scaffold",
+  "description": "Social dungeon gameplay TOYBOX profile scaffold (BBS runtime + uDOS adapter boundary).",
+  "author": {
+    "name": "uDOS Wizard Server"
+  },
+  "homepage": "https://github.com/evs-rpg/rpgbbs",
+  "repository": "https://github.com/evs-rpg/rpgbbs",
+  "license": "Public Domain / Open Source",
+  "main": "extensions/play/toybox/rpgbbs",
+  "type": "container",
+  "runtime": {
+    "requires": ">=1.3.0",
+    "platform": [
+      "any"
+    ]
+  },
+  "permissions": {
+    "filesystem": {
+      "read": [],
+      "write": []
+    },
+    "network": {
+      "allowed": false,
+      "domains": []
+    },
+    "ai": {
+      "models": [],
+      "max_tokens": 0
+    }
+  },
+  "dependencies": {
+    "containers": [],
+    "plugins": []
+  },
+  "signature": {
+    "algorithm": "ED25519",
+    "publicKey": "k56mgRfhoZK78plet3E6z9Kok3FV6Zjc5KZXoh6u9OQ=",
+    "signature": "scaffold-pending-signature"
+  }
+}

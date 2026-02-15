@@ -29,6 +29,7 @@ SPATIAL_SCHEMA_PATH = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spa
 MEMORY_SPATIAL_DIR = Path("memory") / "bank" / "spatial"
 DEFAULT_ANCHOR_REGISTRY = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "anchors.default.json"
 DEFAULT_PLACE_CATALOG = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "places.default.json"
+DEFAULT_LOCATIONS_SEED = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "locations-seed.default.json"
 
 PLACE_REF_RE = re.compile(
     r"^(?P<anchor>[^:]+)"
@@ -463,13 +464,71 @@ class LocationMigrator:
         catalog = MEMORY_SPATIAL_DIR / "places.json"
         if not catalog.exists():
             catalog = DEFAULT_PLACE_CATALOG
-        if not catalog.exists():
-            return []
+        places: List[Dict[str, Any]] = []
         try:
-            payload = json.loads(catalog.read_text())
-            return payload.get("places", [])
+            if catalog.exists():
+                payload = json.loads(catalog.read_text())
+                places = payload.get("places", [])
         except (json.JSONDecodeError, IOError):
-            return []
+            places = []
+
+        location_seed_overrides = self._load_location_seed_overrides()
+        if not location_seed_overrides:
+            return places
+
+        place_by_id: Dict[str, Dict[str, Any]] = {}
+        for place in places:
+            place_id = place.get("placeId")
+            if isinstance(place_id, str) and place_id:
+                place_by_id[place_id] = dict(place)
+
+        for place_id, override in location_seed_overrides.items():
+            base = place_by_id.get(place_id, {})
+            merged = dict(base)
+            merged.update(override)
+            place_by_id[place_id] = merged
+
+        return list(place_by_id.values())
+
+    def _load_location_seed_overrides(self) -> Dict[str, Dict[str, Any]]:
+        seed_path = DEFAULT_LOCATIONS_SEED
+        if not seed_path.exists():
+            return {}
+        try:
+            payload = json.loads(seed_path.read_text())
+        except (json.JSONDecodeError, IOError):
+            return {}
+
+        overrides: Dict[str, Dict[str, Any]] = {}
+        for row in payload.get("locations", []):
+            if not isinstance(row, dict):
+                continue
+            place_id = row.get("placeId")
+            place_ref = row.get("placeRef")
+            if not isinstance(place_id, str) or not place_id.strip():
+                continue
+            if not isinstance(place_ref, str) or not place_ref.strip():
+                continue
+            normalized = {
+                "placeId": place_id,
+                "placeRef": place_ref,
+                "label": row.get("label"),
+                "z": row.get("z"),
+                "z_min": row.get("z_min"),
+                "z_max": row.get("z_max"),
+                "links": row.get("links", []),
+                "stairs": row.get("stairs", []),
+                "ramps": row.get("ramps", []),
+                "portals": row.get("portals", []),
+                "quest_ids": row.get("quest_ids", []),
+                "npc_spawn": row.get("npc_spawn", []),
+                "hazards": row.get("hazards", []),
+                "loot_tables": row.get("loot_tables", []),
+                "interaction_points": row.get("interaction_points", []),
+                "metadata": row.get("metadata", {}),
+            }
+            overrides[place_id] = normalized
+        return overrides
 
     def _insert_spatial_places(
         self, conn: sqlite3.Connection, places: List[Dict[str, Any]]
@@ -496,6 +555,7 @@ class LocationMigrator:
             records.append({"place": place, "parsed": parsed, "place_id": place_id})
 
         inferred_links = self._infer_seed_links(records)
+        resolved_links = self._resolve_seed_links(records, inferred_links)
 
         for record in records:
             place = record["place"]
@@ -529,11 +589,12 @@ class LocationMigrator:
             )
             inserted += 1
             place_for_seed = dict(place)
+            normalized_links = resolved_links.get(place_id, [])
+            if normalized_links:
+                place_for_seed["links"] = normalized_links
             explicit_links = place_for_seed.get("links")
-            if not isinstance(explicit_links, list):
-                inferred = inferred_links.get(place_id, [])
-                if inferred:
-                    place_for_seed["links"] = inferred
+            if not isinstance(place.get("links"), list):
+                if normalized_links:
                     metadata = place_for_seed.get("metadata")
                     if not isinstance(metadata, dict):
                         metadata = {}
@@ -545,6 +606,65 @@ class LocationMigrator:
             "spatial_places_seeded": inserted,
             "spatial_place_features_seeded": features_seeded,
         }
+
+    def _resolve_seed_links(
+        self,
+        records: List[Dict[str, Any]],
+        inferred_links: Dict[str, List[str]],
+    ) -> Dict[str, List[str]]:
+        """Normalize links and enforce deterministic bidirectional connectivity."""
+        place_ids = {record["place_id"] for record in records}
+        resolved: Dict[str, List[str]] = {place_id: [] for place_id in place_ids}
+        explicit_valid_counts: Dict[str, int] = {place_id: 0 for place_id in place_ids}
+
+        for record in records:
+            place_id = record["place_id"]
+            links = record["place"].get("links")
+            if not isinstance(links, list):
+                continue
+            valid_links = self._normalize_links(links, place_id, place_ids)
+            explicit_valid_counts[place_id] = len(valid_links)
+            resolved[place_id].extend(valid_links)
+
+        for place_id, inferred in inferred_links.items():
+            if place_id not in place_ids:
+                continue
+            if explicit_valid_counts.get(place_id, 0) > 0:
+                continue
+            resolved[place_id].extend(
+                self._normalize_links(inferred, place_id, place_ids)
+            )
+
+        # Ensure graph connectivity is symmetric for traversal overlays.
+        for source_id, links in list(resolved.items()):
+            for target_id in links:
+                if target_id in place_ids:
+                    resolved.setdefault(target_id, []).append(source_id)
+
+        for place_id, links in resolved.items():
+            resolved[place_id] = sorted(set(links))
+
+        return resolved
+
+    def _normalize_links(
+        self,
+        links: List[Any],
+        place_id: str,
+        known_place_ids: set[str],
+    ) -> List[str]:
+        normalized: List[str] = []
+        seen: set[str] = set()
+        for value in links:
+            if not isinstance(value, str):
+                continue
+            candidate = value.strip()
+            if not candidate or candidate == place_id or candidate not in known_place_ids:
+                continue
+            if candidate in seen:
+                continue
+            seen.add(candidate)
+            normalized.append(candidate)
+        return normalized
 
     def _infer_seed_links(self, records: List[Dict[str, Any]]) -> Dict[str, List[str]]:
         """Infer deterministic adjacency for places with no explicit links."""

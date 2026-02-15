@@ -182,6 +182,14 @@ def __getattr__(name):
         from .gameplay_handler import GameplayHandler
 
         return GameplayHandler
+    elif name == "PlayHandler":
+        from .play_handler import PlayHandler
+
+        return PlayHandler
+    elif name == "RuleHandler":
+        from .rule_handler import RuleHandler
+
+        return RuleHandler
     elif name == "UndoHandler":
         from .undo_handler import UndoHandler
 
@@ -264,6 +272,8 @@ __all__ = [
     "MigrateHandler",
     "SeedHandler",
     "GameplayHandler",
+    "PlayHandler",
+    "RuleHandler",
     # NPC & Dialogue commands
     "NPCHandler",
     "DialogueEngine",

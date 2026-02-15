@@ -38,6 +38,7 @@ WIZARD INTEG status
 
 - [Core](Core.md)
 - [Wizard](Wizard.md)
+- [TUI Z-Layer, TOYBOX, and Theme Switching](TUI-Z-Layer-and-TOYBOX.md)
 - [TypeScript Runtime](TypeScript-Runtime.md)
 - [uCODE Command Reference](../docs/howto/UCODE-COMMAND-REFERENCE.md)
 

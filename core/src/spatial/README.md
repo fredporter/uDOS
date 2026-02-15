@@ -8,6 +8,7 @@ Files:
 - `parse.ts` — Canonical parsers + frontmatter normalisation.
 - `anchors.default.json` — Launch-ready anchor registry (minimal, expandable).
 - `places.default.json` — Tracked default place catalog with optional seed-depth metadata.
+- `locations-seed.default.json` — Tracked gameplay-ready location seed overlays (`links`, `z` bounds, traversal, quest/encounter primitives).
 
 Recommended string format for frontmatter + APIs:
 

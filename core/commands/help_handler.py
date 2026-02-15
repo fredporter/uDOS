@@ -1,13 +1,24 @@
 """HELP command handler - Command reference and system help."""
 
-from typing import List, Dict
+from typing import Any, Dict, List
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.commands.interactive_menu_mixin import InteractiveMenuMixin
+from core.commands.help_support import (
+    format_command_help,
+    format_search_results,
+    format_syntax_help,
+    search_commands,
+    sync_with_registry,
+)
 
 
 class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin):
     """Handler for HELP command - display command reference."""
+
+    def __init__(self):
+        super().__init__()
+        self._metadata_synced = False
 
     GHOST_TEST_COMMANDS = [
         "AI TEST mistral",
@@ -18,7 +29,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
     ]
 
     COMMAND_CATEGORIES = {
-        "Navigation": ["MAP", "GRID", "ANCHOR", "PANEL", "GOTO", "FIND", "TELL"],
+        "Navigation": ["MAP", "GRID", "ANCHOR", "PANEL", "GOTO", "FIND", "TELL", "GPLAY", "PLAY", "RULE"],
         "Inventory": ["BAG", "GRAB", "SPAWN"],
         "NPCs & Dialogue": ["NPC", "SEND"],
         "Files & State": ["SAVE", "LOAD", "NEW", "EDIT", "UNDO"],
@@ -114,6 +125,30 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "notes": "Displays full description with connections",
             "category": "Navigation",
             "syntax": "TELL [--verbose] [location_id]",
+        },
+        "GPLAY": {
+            "description": "Gameplay stats, gates, and TOYBOX profile controls",
+            "usage": "GPLAY [STATUS|STATS|GATE|TOYBOX|PROCEED]",
+            "example": "GPLAY TOYBOX SET hethack",
+            "notes": "Persistent XP/HP/Gold with event-driven gate progression.",
+            "category": "Navigation",
+            "syntax": "GPLAY STATUS | GPLAY STATS <SET|ADD> <xp|hp|gold> <value> | GPLAY GATE <STATUS|COMPLETE|RESET> <gate_id> | GPLAY TOYBOX <LIST|SET> [profile] | GPLAY PROCEED",
+        },
+        "PLAY": {
+            "description": "Conditional play options and unlock-token progression flow",
+            "usage": "PLAY [STATUS|OPTIONS|START <option>|TOKENS|CLAIM]",
+            "example": "PLAY START galaxy",
+            "notes": "Uses gameplay achievement level and gates to unlock options and tokens.",
+            "category": "Navigation",
+            "syntax": "PLAY STATUS | PLAY OPTIONS | PLAY START <dungeon|galaxy|social|ascension> | PLAY TOKENS | PLAY CLAIM",
+        },
+        "RULE": {
+            "description": "Conditional IF/THEN gameplay automations paired with PLAY and TOYBOX",
+            "usage": "RULE [LIST|SHOW|ADD|REMOVE|ENABLE|DISABLE|RUN|TEST]",
+            "example": "RULE ADD rule.unlock IF xp>=100 and achievement_level>=1 THEN TOKEN token.rule.unlock; PLAY galaxy",
+            "notes": "RULE works as gameplay automation and evaluates normalized progress/TOYBOX variables.",
+            "category": "Navigation",
+            "syntax": "RULE LIST | RULE SHOW <id> | RULE ADD <id> IF <condition> THEN <actions> | RULE RUN [id] | RULE TEST IF <condition>",
         },
         "BAG": {
             "description": "Manage character inventory",
@@ -462,6 +497,8 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         Returns:
             Dict with help text
         """
+        self._sync_metadata_with_registry()
+
         if self._is_ghost_user():
             return self._show_ghost_help()
 
@@ -478,6 +515,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         if main_arg == "SYNTAX" and len(params) > 1:
             return self._show_syntax(params[1])
 
+        # Handle HELP SEARCH <query>
+        if main_arg == "SEARCH" and len(params) > 1:
+            return self._show_search(" ".join(params[1:]))
+
+        # Handle HELP DETAILED <command>
+        if main_arg == "DETAILED" and len(params) > 1:
+            return self._show_command_help(params[1].upper())
+
         # Handle HELP <command>
         if main_arg not in self.COMMANDS:
             # Check if it's a partial match
@@ -490,9 +535,17 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
                     "message": f"Unknown command: {main_arg}",
                     "hint": "Try 'HELP' for all commands or 'HELP CATEGORY Navigation'",
                     "available": list(self.COMMANDS.keys())[:5],
+                    "output": f"Unknown command: {main_arg}\nTry: HELP SEARCH <query>",
                 }
 
         return self._show_command_help(main_arg)
+
+    def _sync_metadata_with_registry(self) -> None:
+        """Align HELP metadata with the active uCODE command registry."""
+        if self._metadata_synced:
+            return
+        sync_with_registry(self.COMMANDS)
+        self._metadata_synced = True
 
     def _show_all_commands(self) -> Dict:
         """Show all available commands grouped by category with interactive menu."""
@@ -526,12 +579,12 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         if selected_category:
             return self._show_category(selected_category)
         else:
-            # Return help text if cancelled
-            box_line = "+" + "-" * 69 + "+"
-            title = "uDOS Command Reference (v1.1.0)"
-            title_line = f"| {title:<67}|"
-
-            help_text = f"{box_line}\n{title_line}\n{box_line}\n\n"
+            # Return reference if menu is cancelled.
+            lines = [
+                "HELP REFERENCE",
+                "Use: HELP <command> | HELP DETAILED <command> | HELP SYNTAX <command> | HELP SEARCH <query> | HELP CATEGORY <category>",
+                "",
+            ]
 
             # Build output by category
             for category in categories:
@@ -539,26 +592,24 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
                     continue
 
                 commands = self.COMMAND_CATEGORIES[category]
-                help_text += f"{category}:\n"
+                lines.append(f"{category}:")
 
                 for cmd in commands:
                     if cmd in self.COMMANDS:
                         info = self.COMMANDS[cmd]
                         desc = info.get("description", "")
-                        help_text += f"  {cmd:<12} - {desc:<45}\n"
-
-                help_text += "\n"
+                        lines.append(f"  {cmd:<12} {desc}")
+                lines.append("")
 
             # Add usage instructions
-            help_text += (
-                "💡 Use menu navigation for interactive help\n"
-                "   Or type: HELP [command] to search\n"
-            )
+            lines.append("Tip: use HELP SEARCH <query> for fast lookup.")
+            output = "\n".join(lines).strip()
 
             return {
                 "status": "success",
                 "message": f"Found {len(self.COMMANDS)} commands",
-                "help": help_text.strip(),
+                "help": output,
+                "output": output,
                 "commands": list(self.COMMANDS.keys()),
                 "categories": list(self.COMMAND_CATEGORIES.keys()),
             }
@@ -582,39 +633,28 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "status": "success",
             "message": "Ghost mode TEST commands",
             "help": help_text,
+            "output": help_text,
             "commands": self.GHOST_TEST_COMMANDS,
         }
 
 
     def _show_command_help(self, cmd_name: str) -> Dict:
         """Show detailed help for a specific command."""
+        if cmd_name not in self.COMMANDS:
+            return {
+                "status": "error",
+                "message": f"Unknown command: {cmd_name}",
+                "output": f"Unknown command: {cmd_name}\nTry: HELP SEARCH {cmd_name}",
+            }
         cmd_info = self.COMMANDS[cmd_name]
-
-        box_line = "+" + "-" * 69 + "+"
-        title_line = f"| {cmd_name:<67}|"
-
-        help_text = (
-            f"{box_line}\n"
-            f"{title_line}\n"
-            f"{box_line}\n\n"
-            f"Category:   {cmd_info.get('category', 'Uncategorized')}\n\n"
-            f"Description:\n"
-            f"  {cmd_info['description']}\n\n"
-            f"Syntax:\n"
-            f"  {cmd_info.get('syntax', cmd_info['usage'])}\n\n"
-            f"Usage:\n"
-            f"  {cmd_info['usage']}\n\n"
-            f"Example:\n"
-            f"  {cmd_info['example']}\n\n"
-            f"Notes:\n"
-            f"  {cmd_info['notes']}\n"
-        )
+        help_text = format_command_help(cmd_name, cmd_info)
 
         return {
             "status": "success",
             "message": f"Help for {cmd_name}",
             "command": cmd_name,
             "help": help_text.strip(),
+            "output": help_text.strip(),
             "category": cmd_info.get("category", "Uncategorized"),
             "description": cmd_info["description"],
             "syntax": cmd_info.get("syntax", cmd_info["usage"]),
@@ -637,33 +677,32 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
                 "status": "error",
                 "message": f"Unknown category: {category}",
                 "available_categories": available,
+                "output": f"Unknown category: {category}\nAvailable: {', '.join(available)}",
             }
 
         commands = self.COMMAND_CATEGORIES[matching_cat]
 
-        box_line = "+" + "-" * 69 + "+"
-        title = f"{matching_cat} Commands"
-        title_line = f"| {title:<67}|"
-
-        help_text = f"{box_line}\n{title_line}\n{box_line}\n\n"
+        lines = [f"HELP CATEGORY {matching_cat}", ""]
 
         for cmd in commands:
             if cmd in self.COMMANDS:
                 info = self.COMMANDS[cmd]
-                help_text += f"{cmd}\n"
-                help_text += f"  {info['description']}\n"
-                help_text += f"  Syntax: {info.get('syntax', info['usage'])}\n\n"
+                lines.append(f"{cmd}")
+                lines.append(f"  {info.get('description', '')}")
+                lines.append(f"  Syntax: {info.get('syntax', info.get('usage', cmd))}")
+                lines.append(f"  Usage: {info.get('usage', info.get('syntax', cmd))}")
+                lines.append("")
 
-        help_text += (
-            "Tip: Use 'HELP <command>' for detailed help on any command\n"
-            f"Example: HELP {commands[0] if commands else 'MAP'}\n"
-        )
+        lines.append("Tip: use HELP DETAILED <command> for full command metadata.")
+        lines.append(f"Example: HELP DETAILED {commands[0] if commands else 'MAP'}")
+        help_text = "\n".join(lines).strip()
 
         return {
             "status": "success",
             "message": f"{matching_cat} commands",
             "category": matching_cat,
-            "help": help_text.strip(),
+            "help": help_text,
+            "output": help_text,
             "commands": commands,
         }
 
@@ -680,25 +719,12 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
                 return {
                     "status": "error",
                     "message": f"Unknown command: {cmd_name}",
+                    "output": f"Unknown command: {cmd_name}\nTry: HELP SEARCH {cmd_name}",
                 }
 
         cmd_info = self.COMMANDS[cmd_upper]
         syntax = cmd_info.get("syntax", cmd_info["usage"])
-
-        box_line = "+" + "-" * 69 + "+"
-        syntax_line = f"| {syntax:<67}|"
-
-        help_text = (
-            f"{box_line}\n"
-            f"{syntax_line}\n"
-            f"{box_line}\n\n"
-            f"{cmd_info['description']}\n\n"
-            f"Usage: {cmd_info['usage']}\n\n"
-            f"Example:\n"
-            f"  {cmd_info['example']}\n\n"
-            f"Notes:\n"
-            f"  {cmd_info['notes']}\n"
-        )
+        help_text = format_syntax_help(cmd_upper, cmd_info)
 
         return {
             "status": "success",
@@ -706,4 +732,33 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "command": cmd_upper,
             "syntax": syntax,
             "help": help_text.strip(),
+            "output": help_text.strip(),
+        }
+
+    def _show_search(self, query: str) -> Dict[str, Any]:
+        """Search command metadata by command name, description, syntax, and usage."""
+        q = (query or "").strip().lower()
+        if not q:
+            return {
+                "status": "error",
+                "message": "Search query required",
+                "output": "Usage: HELP SEARCH <query>",
+            }
+
+        matches = search_commands(self.COMMANDS, q)
+        if not matches:
+            return {
+                "status": "success",
+                "message": f"No HELP matches for '{query}'",
+                "matches": [],
+                "output": f"HELP SEARCH {query}\nNo matching commands.",
+            }
+
+        output = format_search_results(query, matches, self.COMMANDS, limit=20)
+        return {
+            "status": "success",
+            "message": f"Found {len(matches)} matches for '{query}'",
+            "matches": matches,
+            "help": output,
+            "output": output,
         }

@@ -15,4 +15,9 @@ try:
 except ImportError:
     SCREWDRIVER_AVAILABLE = False
 
-__all__ = ["WebProxy", "ImageToTeletext"]
+try:
+    from .toybox_setup import main as toybox_setup_main
+except ImportError:
+    toybox_setup_main = None
+
+__all__ = ["WebProxy", "ImageToTeletext", "toybox_setup_main"]

@@ -8,7 +8,7 @@ import pty
 import re
 import shlex
 import shutil
-import subprocess
+import signal
 import threading
 import time
 from collections import deque
@@ -48,7 +48,8 @@ class PTYAdapter:
         self.event_file = self.repo_root / "memory" / "bank" / "private" / "gameplay_events.ndjson"
         self.event_file.parent.mkdir(parents=True, exist_ok=True)
 
-        self.proc: Optional[subprocess.Popen] = None
+        self.proc_pid: Optional[int] = None
+        self.returncode: Optional[int] = None
         self.master_fd: Optional[int] = None
         self.buffer: Deque[str] = deque(maxlen=2000)
         self.running = False
@@ -83,21 +84,20 @@ class PTYAdapter:
         cmd = cmd + self.startup_args
         self._resolved_command = cmd
 
-        master_fd, slave_fd = pty.openpty()
-        proc = subprocess.Popen(
-            cmd,
-            cwd=str(self.repo_root),
-            stdin=slave_fd,
-            stdout=slave_fd,
-            stderr=slave_fd,
-            text=False,
-            close_fds=True,
-            env=os.environ.copy(),
-        )
-        os.close(slave_fd)
-
+        proc_env = os.environ.copy()
+        proc_env.setdefault("TERM", "xterm-256color")
+        proc_env.setdefault("LINES", "30")
+        proc_env.setdefault("COLUMNS", "100")
+        pid, master_fd = pty.fork()
+        if pid == 0:
+            os.chdir(str(self.repo_root))
+            try:
+                os.execvpe(cmd[0], cmd, proc_env)
+            except Exception:
+                os._exit(127)
         self.master_fd = master_fd
-        self.proc = proc
+        self.proc_pid = pid
+        self.returncode = None
         self.running = True
         self._reader_thread = threading.Thread(target=self._reader_loop, daemon=True)
         self._reader_thread.start()
@@ -107,12 +107,23 @@ class PTYAdapter:
         if not self.running:
             return
         try:
-            if self.proc and self.proc.poll() is None:
-                self.proc.terminate()
-                self.proc.wait(timeout=3)
+            if self.proc_pid:
+                os.kill(self.proc_pid, signal.SIGTERM)
+                for _ in range(30):
+                    waited_pid, status = os.waitpid(self.proc_pid, os.WNOHANG)
+                    if waited_pid == self.proc_pid:
+                        if os.WIFEXITED(status):
+                            self.returncode = os.WEXITSTATUS(status)
+                        elif os.WIFSIGNALED(status):
+                            self.returncode = -os.WTERMSIG(status)
+                        break
+                    time.sleep(0.1)
         except Exception:
-            if self.proc and self.proc.poll() is None:
-                self.proc.kill()
+            if self.proc_pid:
+                try:
+                    os.kill(self.proc_pid, signal.SIGKILL)
+                except Exception:
+                    pass
         finally:
             self.running = False
             if self.master_fd is not None:
@@ -121,6 +132,7 @@ class PTYAdapter:
                 except Exception:
                     pass
                 self.master_fd = None
+            self.proc_pid = None
             self._emit_event("TOYBOX_RUNTIME_STOPPED", {})
 
     def send(self, text: str) -> None:
@@ -152,8 +164,16 @@ class PTYAdapter:
                 self._last_error = str(exc)
                 break
         self.running = False
-        if self.proc and self.proc.poll() is None:
-            self.proc.terminate()
+        if self.proc_pid:
+            try:
+                waited_pid, status = os.waitpid(self.proc_pid, os.WNOHANG)
+                if waited_pid == self.proc_pid:
+                    if os.WIFEXITED(status):
+                        self.returncode = os.WEXITSTATUS(status)
+                    elif os.WIFSIGNALED(status):
+                        self.returncode = -os.WTERMSIG(status)
+            except Exception:
+                pass
 
     def _handle_line(self, line: str) -> None:
         if not line:
@@ -180,10 +200,18 @@ class PTYAdapter:
             fh.write(json.dumps(row) + "\n")
 
     def status(self) -> Dict[str, Any]:
+        alive = False
+        if self.proc_pid:
+            try:
+                os.kill(self.proc_pid, 0)
+                alive = True
+            except OSError:
+                alive = False
         return {
             "adapter_id": self.adapter_id,
-            "running": self.running and self.proc is not None and self.proc.poll() is None,
-            "pid": self.proc.pid if self.proc else None,
+            "running": bool(self.running and alive),
+            "pid": self.proc_pid,
+            "returncode": self.returncode,
             "command": self._resolved_command,
             "last_error": self._last_error,
             "depth": self._last_depth,
@@ -236,4 +264,3 @@ def create_app(adapter: PTYAdapter) -> FastAPI:
         )
 
     return app
-

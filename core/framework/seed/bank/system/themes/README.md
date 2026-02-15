@@ -1,8 +1,14 @@
-# Theme seeds
+# Theme Seeds
 
-These JSON files seed the lightweight theme system used by the Core TUI.
-Each object contains a `name`, optional `description`, and a simple `replacements`
-map so strings printed by the Core TUI can be swapped before they hit the terminal.
+These JSON files seed the Core TUI message-IO theme layer.
 
-Copy of this folder lands in `memory/system/themes/` on first run; edit the
-files there to create new voices without altering the seeded versions.
+Contract:
+- Theme scope is terminal message wording only.
+- `replacements` should stay narrowly scoped to message labels/ops terms.
+- GUI/CSS/WebView theming is not handled here.
+
+A copy of this folder lands in `memory/system/themes/` on first run; edit those
+runtime files for local experimentation, then port intentional changes back.
+
+Legacy archive:
+- `core/framework/seed/bank/system/themes/.archive/2026-02-15-legacy-broad-replacements/`

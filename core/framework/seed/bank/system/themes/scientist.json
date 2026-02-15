@@ -1,15 +1,11 @@
 {
   "name": "scientist",
-  "description": "Laboratory and systems-analysis voice for orbital/stellar operations messaging.",
+  "description": "Laboratory message voice for orbital and stellar operations.",
   "companions": ["galaxy_layers", "stellar_layers"],
   "replacements": {
-    "uDOS": "Research Core",
-    "UDOS": "RESEARCH CORE",
+    "Tip:": "Lab Tip:",
+    "Health:": "Systems Health:",
     "Wizard": "Research Ops",
-    "WIZARD": "RESEARCH OPS",
-    "Self-Heal": "Diagnostics",
-    "SELF-HEAL": "DIAGNOSTICS",
-    "Repair": "System Calibration",
-    "REPAIR": "SYSTEM CALIBRATION"
+    "WIZARD": "RESEARCH OPS"
   }
 }

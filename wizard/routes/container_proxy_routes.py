@@ -26,6 +26,8 @@ class ContainerProxy:
         "songscribe": 3000,
         "hethack": 7421,
         "elite": 7422,
+        "rpgbbs": 7423,
+        "crawler3d": 7424,
     }
 
     def __init__(self):

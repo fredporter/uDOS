@@ -1,4 +1,4 @@
-"""GAMEPLAY command handler - progression stats, gates, and TOYBOX profiles."""
+"""GPLAY command handler - progression stats, gates, and TOYBOX profiles."""
 
 from __future__ import annotations
 
@@ -11,19 +11,19 @@ class GameplayHandler(BaseCommandHandler):
     """Handle gameplay scaffolding commands.
 
     Commands:
-      GAMEPLAY
-      GAMEPLAY STATUS
-      GAMEPLAY STATS
-      GAMEPLAY STATS SET <xp|hp|gold> <value>
-      GAMEPLAY STATS ADD <xp|hp|gold> <delta>
-      GAMEPLAY GATE STATUS
-      GAMEPLAY GATE COMPLETE <gate_id>
-      GAMEPLAY GATE RESET <gate_id>
-      GAMEPLAY TOYBOX LIST
-      GAMEPLAY TOYBOX SET <hethack|elite>
-      GAMEPLAY PROCEED
-      GAMEPLAY NEXT
-      GAMEPLAY UNLOCK
+      GPLAY
+      GPLAY STATUS
+      GPLAY STATS
+      GPLAY STATS SET <xp|hp|gold> <value>
+      GPLAY STATS ADD <xp|hp|gold> <delta>
+      GPLAY GATE STATUS
+      GPLAY GATE COMPLETE <gate_id>
+      GPLAY GATE RESET <gate_id>
+      GPLAY TOYBOX LIST
+      GPLAY TOYBOX SET <hethack|elite|rpgbbs|crawler3d>
+      GPLAY PROCEED
+      GPLAY NEXT
+      GPLAY UNLOCK
     """
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
@@ -62,13 +62,13 @@ class GameplayHandler(BaseCommandHandler):
         if sub in {"help", "-h", "--help"}:
             return {
                 "status": "success",
-                "message": self.__doc__ or "GAMEPLAY help",
-                "output": (self.__doc__ or "GAMEPLAY help").strip(),
+                "message": self.__doc__ or "GPLAY help",
+                "output": (self.__doc__ or "GPLAY help").strip(),
             }
 
         return {
             "status": "error",
-            "message": f"Unknown GAMEPLAY subcommand: {sub}",
+            "message": f"Unknown GPLAY subcommand: {sub}",
         }
 
     def _handle_stats(self, gameplay, username: str, role: str, params: List[str]) -> Dict:
@@ -88,7 +88,7 @@ class GameplayHandler(BaseCommandHandler):
         if len(params) < 3:
             return {
                 "status": "error",
-                "message": "Syntax: GAMEPLAY STATS <SET|ADD> <xp|hp|gold> <value>",
+                "message": "Syntax: GPLAY STATS <SET|ADD> <xp|hp|gold> <value>",
             }
         stat = params[1].lower()
         try:
@@ -129,7 +129,7 @@ class GameplayHandler(BaseCommandHandler):
         if action in {"complete", "reset"} and not gameplay.has_permission(role, "gameplay.gate_admin"):
             return {"status": "error", "message": "Permission denied: gameplay.gate_admin"}
         if len(params) < 2:
-            return {"status": "error", "message": "Syntax: GAMEPLAY GATE <COMPLETE|RESET> <gate_id>"}
+            return {"status": "error", "message": "Syntax: GPLAY GATE <COMPLETE|RESET> <gate_id>"}
 
         gate_id = params[1]
         if action == "complete":
@@ -170,7 +170,7 @@ class GameplayHandler(BaseCommandHandler):
 
         action = params[0].lower()
         if action != "set" or len(params) < 2:
-            return {"status": "error", "message": "Syntax: GAMEPLAY TOYBOX SET <profile_id>"}
+            return {"status": "error", "message": "Syntax: GPLAY TOYBOX SET <profile_id>"}
         profile_id = params[1].lower()
         try:
             active = gameplay.set_active_toybox(profile_id, username=username)
@@ -207,10 +207,11 @@ class GameplayHandler(BaseCommandHandler):
 
         output = "\n".join(
             [
-                "GAMEPLAY STATUS",
+                "GPLAY STATUS",
                 f"User: {snapshot.get('username')} ({snapshot.get('role')})",
                 f"TOYBOX: {active}",
                 f"XP={stats.get('xp', 0)} HP={stats.get('hp', 100)} Gold={stats.get('gold', 0)}",
+                f"Level={snapshot.get('progress', {}).get('level', 1)} AchievementLevel={snapshot.get('progress', {}).get('achievement_level', 0)}",
                 f"Gate dungeon_l32_amulet: {gate_state}",
             ]
         )

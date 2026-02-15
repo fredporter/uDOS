@@ -22,7 +22,7 @@
     "wrapper_path": "extensions/play/toybox/elite",
     "service_path": "wizard/services/toybox/elite_adapter.py",
     "handler_path": "core/commands/gameplay_handler.py",
-    "install_script": null,
+    "install_script": "library/elite/setup.sh",
     "layers": "600-799"
   },
   "metadata": {

@@ -1,0 +1,216 @@
+{
+  "version": "1.3.19",
+  "note": "Tracked default gameplay-ready location seed catalog for traversal/event overlays",
+  "locations": [
+    {
+      "placeId": "forest-clearing",
+      "label": "Forest Clearing",
+      "placeRef": "EARTH:SUR:L300-AA10",
+      "z": 0,
+      "z_min": -1,
+      "z_max": 2,
+      "links": ["tokyo-shibuya"],
+      "stairs": [],
+      "ramps": ["moss-trail-ramp-01"],
+      "portals": [],
+      "quest_ids": ["intro.welcome", "forest.scavenge.001"],
+      "npc_spawn": ["guide-001", "forager-003"],
+      "hazards": ["night-fog"],
+      "loot_tables": ["starter-crate", "forest-herbs"],
+      "interaction_points": ["campfire", "notice-board"],
+      "metadata": {
+        "chunk": "earth-sur-300-aa",
+        "biome": "temperate-forest"
+      }
+    },
+    {
+      "placeId": "tokyo-shibuya",
+      "label": "Tokyo - Shibuya Crossing",
+      "placeRef": "EARTH:SUR:L300-BJ10",
+      "z": 0,
+      "z_min": -2,
+      "z_max": 6,
+      "links": ["forest-clearing", "low-earth-orbit", "pacific-waypoint"],
+      "stairs": ["subway-a1", "subway-a2"],
+      "ramps": ["crossing-ramp-west"],
+      "portals": [],
+      "quest_ids": ["city.arrival", "city.relay.002"],
+      "npc_spawn": ["commuter-a", "vendor-b", "dispatcher-c"],
+      "hazards": ["crowd-density", "wet-pavement"],
+      "loot_tables": ["city-cache", "vendor-discount"],
+      "interaction_points": ["terminal-kiosk", "transit-gate", "public-display"],
+      "metadata": {
+        "chunk": "earth-sur-300-bj",
+        "district": "shibuya"
+      }
+    },
+    {
+      "placeId": "pacific-waypoint",
+      "label": "Pacific Waypoint",
+      "placeRef": "EARTH:SUR:L301-CK12",
+      "z": 1,
+      "z_min": -1,
+      "z_max": 3,
+      "links": ["tokyo-shibuya", "sydney-harbour", "atlantic-transit"],
+      "stairs": [],
+      "ramps": ["dock-ramp-east"],
+      "portals": [],
+      "quest_ids": ["transit.pacific.001", "logistics.route.010"],
+      "npc_spawn": ["pilot-02", "deck-chief-01"],
+      "hazards": ["high-wind", "rough-sea"],
+      "loot_tables": ["dock-cache", "fuel-ration"],
+      "interaction_points": ["signal-mast", "fuel-node", "route-map"],
+      "metadata": {
+        "chunk": "earth-sur-301-ck",
+        "biome": "oceanic-transit"
+      }
+    },
+    {
+      "placeId": "sydney-harbour",
+      "label": "Sydney Harbour",
+      "placeRef": "EARTH:SUR:L301-DN14",
+      "z": 0,
+      "z_min": -1,
+      "z_max": 5,
+      "links": ["pacific-waypoint", "andes-pass"],
+      "stairs": ["harbour-steps-01"],
+      "ramps": ["quay-ramp-2"],
+      "portals": [],
+      "quest_ids": ["harbour.dispatch.002"],
+      "npc_spawn": ["dispatcher-au", "merchant-au"],
+      "hazards": ["storm-surge"],
+      "loot_tables": ["port-supply", "harbour-cache"],
+      "interaction_points": ["berth-console", "customs-gate"],
+      "metadata": {
+        "chunk": "earth-sur-301-dn",
+        "district": "harbour"
+      }
+    },
+    {
+      "placeId": "andes-pass",
+      "label": "Andes Pass",
+      "placeRef": "EARTH:SUR:L302-EP18",
+      "z": 3,
+      "z_min": -2,
+      "z_max": 8,
+      "links": ["sydney-harbour", "cairo-old-city", "subterra-relay"],
+      "stairs": ["ridge-steps-03"],
+      "ramps": ["switchback-ramp"],
+      "portals": ["cable-lift-andes-01"],
+      "quest_ids": ["ridge.crossing.004", "relay.repair.011"],
+      "npc_spawn": ["ridge-guide", "medic-post"],
+      "hazards": ["thin-air", "rockfall"],
+      "loot_tables": ["highland-cache", "rescue-kit"],
+      "interaction_points": ["weather-station", "rope-anchor", "checkpoint-ridge"],
+      "metadata": {
+        "chunk": "earth-sur-302-ep",
+        "biome": "mountain"
+      }
+    },
+    {
+      "placeId": "cairo-old-city",
+      "label": "Cairo Old City",
+      "placeRef": "EARTH:SUR:L302-FQ20",
+      "z": 1,
+      "z_min": -1,
+      "z_max": 4,
+      "links": ["andes-pass", "atlantic-transit"],
+      "stairs": ["bazaar-stairs"],
+      "ramps": [],
+      "portals": [],
+      "quest_ids": ["relay.cairo.005"],
+      "npc_spawn": ["scribe-01", "courier-02"],
+      "hazards": ["heat-wave", "sandstorm"],
+      "loot_tables": ["market-ledger", "artifact-cache"],
+      "interaction_points": ["archive-terminal", "market-gate", "water-node"],
+      "metadata": {
+        "chunk": "earth-sur-302-fq",
+        "district": "old-city"
+      }
+    },
+    {
+      "placeId": "atlantic-transit",
+      "label": "Atlantic Transit Hub",
+      "placeRef": "EARTH:SUR:L303-HS22",
+      "z": 0,
+      "z_min": -2,
+      "z_max": 4,
+      "links": ["cairo-old-city", "pacific-waypoint"],
+      "stairs": [],
+      "ramps": ["ferry-ramp-main"],
+      "portals": [],
+      "quest_ids": ["relay.atlantic.006"],
+      "npc_spawn": ["hub-controller", "cargo-tech"],
+      "hazards": ["crosswind"],
+      "loot_tables": ["transit-kit", "cargo-spares"],
+      "interaction_points": ["route-board", "cargo-lift", "signal-console"],
+      "metadata": {
+        "chunk": "earth-sur-303-hs",
+        "biome": "open-ocean"
+      }
+    },
+    {
+      "placeId": "low-earth-orbit",
+      "label": "Low Earth Orbit",
+      "placeRef": "EARTH:UDN:L306-AA10-Z2",
+      "z": 2,
+      "z_min": 0,
+      "z_max": 9,
+      "links": ["tokyo-shibuya", "lunar-gateway"],
+      "stairs": [],
+      "ramps": [],
+      "portals": ["drop-elevator-earth-aa10", "dock-transfer-bay-2"],
+      "quest_ids": ["orbit.bootstrap", "orbital.calibration.003"],
+      "npc_spawn": ["mission-control-alpha", "drone-tech-7"],
+      "hazards": ["radiation-flare", "vacuum-breach-risk"],
+      "loot_tables": ["orbital-cache-a", "maintenance-kit"],
+      "interaction_points": ["airlock", "navigation-console", "dock-control"],
+      "metadata": {
+        "chunk": "earth-udn-306-aa",
+        "sector": "leo-station-alpha"
+      }
+    },
+    {
+      "placeId": "lunar-gateway",
+      "label": "Lunar Gateway",
+      "placeRef": "EARTH:UDN:L320-AB12-Z5",
+      "z": 5,
+      "z_min": 2,
+      "z_max": 12,
+      "links": ["low-earth-orbit", "subterra-relay"],
+      "stairs": [],
+      "ramps": [],
+      "portals": ["shuttle-ring-01", "gravity-lift-02"],
+      "quest_ids": ["lunar.link.007", "deep-bridge.012"],
+      "npc_spawn": ["dockmaster-luna", "nav-officer-3"],
+      "hazards": ["micrometeoroid-risk"],
+      "loot_tables": ["lunar-maintenance", "station-cache"],
+      "interaction_points": ["dock-control", "mission-relay", "nav-array"],
+      "metadata": {
+        "chunk": "earth-udn-320-ab",
+        "sector": "lunar-gateway"
+      }
+    },
+    {
+      "placeId": "subterra-relay",
+      "label": "Subterra Relay",
+      "placeRef": "EARTH:SUB:L340-AA22-Z-3:D4",
+      "z": -3,
+      "z_min": -8,
+      "z_max": 0,
+      "links": ["andes-pass", "lunar-gateway"],
+      "stairs": ["shaft-stairs-4"],
+      "ramps": ["service-ramp-sub1"],
+      "portals": ["deep-lift-core"],
+      "quest_ids": ["subterra.bridge.008", "relay.stabilize.013"],
+      "npc_spawn": ["relay-warden", "engineer-sub"],
+      "hazards": ["low-oxygen", "cave-in-risk"],
+      "loot_tables": ["relay-components", "emergency-oxygen"],
+      "interaction_points": ["relay-core", "maintenance-hatch", "checkpoint-sub"],
+      "metadata": {
+        "chunk": "earth-sub-340-aa",
+        "sector": "subterra-d4"
+      }
+    }
+  ]
+}

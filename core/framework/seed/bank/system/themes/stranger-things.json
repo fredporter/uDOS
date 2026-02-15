@@ -1,17 +1,11 @@
 {
   "name": "stranger-things",
-  "description": "Retro sci-fi horror echoes from the UpsideDown (immediate sub-terrain under Earth).",
+  "description": "UpsideDown-inspired message voice for subterranean layers.",
   "companions": ["earth_layers_subterranean"],
   "replacements": {
-    "uDOS": "UpsideDown",
-    "UDOS": "UpsideDown",
-    "Self-Heal": "Lab Recovery",
-    "SELF-HEAL": "Lab Recovery",
-    "Hotkey": "Radio Key",
-    "HOTKEY": "Radio Key",
-    "Wizard": "Lab Console",
-    "WIZARD": "Lab Console",
-    "Repair": "Flux Fix",
-    "REPAIR": "Flux Fix"
+    "Tip:": "Upside Tip:",
+    "Health:": "Upside Health:",
+    "Wizard": "Signal Ops",
+    "WIZARD": "SIGNAL OPS"
   }
 }

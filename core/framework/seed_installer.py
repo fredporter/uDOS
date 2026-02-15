@@ -259,11 +259,12 @@ class SeedInstaller:
         Returns:
             Dict with status of each seed component
         """
-        system_dir = self.bank_dir / "system"
+        system_dir = self.memory_dir / "system"
         system_required = [
             system_dir / "startup-script.md",
             system_dir / "reboot-script.md",
             system_dir / "tui-setup-story.md",
+            system_dir / "gameplay-wireframe-demo-script.md",
         ]
         return {
             "directories_exist": (self.bank_dir / "locations").exists(),

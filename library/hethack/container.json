@@ -22,7 +22,7 @@
     "wrapper_path": "extensions/play/toybox/hethack",
     "service_path": "wizard/services/toybox/hethack_adapter.py",
     "handler_path": "core/commands/gameplay_handler.py",
-    "install_script": null,
+    "install_script": "library/hethack/setup.sh",
     "layers": "400-499"
   },
   "metadata": {

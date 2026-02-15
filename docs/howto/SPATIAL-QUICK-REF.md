@@ -173,3 +173,22 @@ places:
 - [FRACTAL-GRID-IMPLEMENTATION.md](FRACTAL-GRID-IMPLEMENTATION.md) — Full guide
 - [v1-3 UNIVERSE.md](v1-3%20UNIVERSE.md) — Design specification
 - [core/src/spatial/README.md](../core/src/spatial/README.md) — Spatial module guide
+
+## TUI Z-Layer Messaging Convention
+
+Spatial z/elevation fields are independent from TUI message theming.
+
+- Spatial signals:
+  - `LocId` optional `-Zz`
+  - seed fields `z`, `z_min`, `z_max`, `stairs`, `ramps`, `portals`
+- TUI message routing signals:
+  - `UDOS_TUI_MAP_LEVEL=dungeon|foundation|galaxy`
+  - `UDOS_TUI_MESSAGE_THEME=<theme>`
+
+Recommended mapping:
+
+| Spatial context | Map level |
+|------|------|
+| `SUB` / underground / negative z | `dungeon` |
+| surface/regional traversal near base elevation | `foundation` |
+| orbital/stellar traversal or high layer bands | `galaxy` |

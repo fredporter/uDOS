@@ -2308,7 +2308,9 @@ System Management:
   REPAIR              - Fix issues and self-heal
   REBOOT              - Restart/reload system
   USER                - User profile and permission management
-  GAMEPLAY            - XP/HP/Gold, progression gates, TOYBOX profiles
+  GPLAY            - XP/HP/Gold, progression gates, TOYBOX profiles
+  PLAY                - Conditional play options + unlock-token flow
+  RULE                - IF/THEN gameplay automations for PLAY/TOYBOX
   LOGS                - View unified system logs
   ANCHOR              - Gameplay anchors (list/show/register/bind)
   GRID                - UGRID demos (calendar/table/schedule/map)

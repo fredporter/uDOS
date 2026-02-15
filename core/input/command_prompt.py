@@ -755,9 +755,9 @@ def create_default_registry() -> CommandRegistry:
     )
 
     registry.register(
-        name="GAMEPLAY",
+        name="GPLAY",
         help_text="XP/HP/Gold stats, progression gates, and TOYBOX profiles",
-        syntax="GAMEPLAY [STATUS|STATS|GATE|TOYBOX|PROCEED]",
+        syntax="GPLAY [STATUS|STATS|GATE|TOYBOX|PROCEED]",
         options=[
             "STATUS: Show current user gameplay state",
             "STATS SET|ADD <xp|hp|gold> <value>: update stats",
@@ -766,10 +766,50 @@ def create_default_registry() -> CommandRegistry:
             "PROCEED: enforce interactive progression requirement",
         ],
         examples=[
-            "GAMEPLAY",
-            "GAMEPLAY STATS ADD xp 25",
-            "GAMEPLAY GATE COMPLETE dungeon_l32_amulet",
-            "GAMEPLAY PROCEED",
+            "GPLAY",
+            "GPLAY STATS ADD xp 25",
+            "GPLAY GATE COMPLETE dungeon_l32_amulet",
+            "GPLAY PROCEED",
+        ],
+        icon="•",
+        category="Navigation",
+    )
+
+    registry.register(
+        name="PLAY",
+        help_text="Conditional gameplay options and unlock-token flow",
+        syntax="PLAY [STATUS|OPTIONS|START <id>|TOKENS|CLAIM]",
+        options=[
+            "STATUS: show level, achievement level, and unlock token counts",
+            "OPTIONS: list open/locked play routes and requirements",
+            "START <id>: start an available play route",
+            "TOKENS: list unlocked PLAY tokens",
+            "CLAIM: evaluate and unlock eligible tokens from runtime progress",
+        ],
+        examples=[
+            "PLAY",
+            "PLAY OPTIONS",
+            "PLAY START galaxy",
+            "PLAY CLAIM",
+        ],
+        icon="•",
+        category="Navigation",
+    )
+
+    registry.register(
+        name="RULE",
+        help_text="Gameplay IF/THEN automations paired with PLAY/TOYBOX",
+        syntax="RULE [LIST|SHOW|ADD|REMOVE|ENABLE|DISABLE|RUN|TEST]",
+        options=[
+            "ADD <id> IF <condition> THEN <actions>: upsert a gameplay rule",
+            "RUN [id]: evaluate rules and apply THEN actions",
+            "TEST IF <condition>: evaluate condition only",
+            "ENABLE|DISABLE <id>: toggle rule activity",
+        ],
+        examples=[
+            "RULE LIST",
+            "RULE ADD rule.unlock IF xp>=100 and achievement_level>=1 THEN TOKEN token.rule.unlock; PLAY galaxy",
+            "RULE RUN",
         ],
         icon="•",
         category="Navigation",

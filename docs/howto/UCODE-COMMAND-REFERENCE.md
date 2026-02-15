@@ -66,7 +66,9 @@ Global strict stdlib-only enforcement is not required; this is the active Python
 - `FILE`
 - `FIND`
 - `GHOST`
-- `GAMEPLAY`
+- `GPLAY`
+- `PLAY`
+- `RULE`
 - `GOTO`
 - `GRAB`
 - `GRID`
@@ -153,7 +155,10 @@ Migration targets:
 ```bash
 HEALTH
 VERIFY
-GAMEPLAY
+GPLAY
+PLAY OPTIONS
+PLAY CLAIM
+RULE LIST
 DRAW PAT LIST
 RUN DATA LIST
 WIZARD CHECK
@@ -168,3 +173,24 @@ uCODE message wording can be lightly themed for map-level consistency.
 - TUI override: `UDOS_TUI_MESSAGE_THEME=fantasy|role-play|explorer|scientist|pilot|captain-sailor|pirate|adventure|scavenge-hunt|traveller|dungeon|foundation|galaxy|stranger-things|lonely-planet|doomsday|hitchhikers`
 - Optional map-level hint: `UDOS_TUI_MAP_LEVEL=dungeon|foundation|galaxy|...`
 - Legacy broad replacements (temporary): `UDOS_TUI_LEGACY_REPLACEMENTS=1`
+
+## TUI Z-Layer + TOYBOX Theme Routing
+
+Use this simple operator pattern when changing gameplay lens:
+
+```bash
+# TOYBOX dungeon profile + dungeon-style message vocabulary
+GPLAY TOYBOX SET hethack
+export UDOS_TUI_MAP_LEVEL=dungeon
+export UDOS_TUI_MESSAGE_THEME=dungeon
+
+# TOYBOX galaxy profile + galaxy-style message vocabulary
+GPLAY TOYBOX SET elite
+export UDOS_TUI_MAP_LEVEL=galaxy
+export UDOS_TUI_MESSAGE_THEME=pilot
+```
+
+Notes:
+- `GPLAY TOYBOX SET ...` changes gameplay profile state.
+- `UDOS_TUI_MAP_LEVEL` and `UDOS_TUI_MESSAGE_THEME` control TUI message wording.
+- z/elevation (`-Zz`, `z_min`, `z_max`, stairs/ramps/portals) is spatial/map data, and should not be conflated with GUI styling.

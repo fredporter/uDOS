@@ -1,15 +1,11 @@
 {
   "name": "fantasy",
-  "description": "High-fantasy quest voice for dungeon and overworld operator messaging.",
+  "description": "Quest-style message voice for dungeon and overworld operations.",
   "companions": ["earth_layers_subterranean", "earth_layers"],
   "replacements": {
-    "uDOS": "Quest Core",
-    "UDOS": "QUEST CORE",
+    "Tip:": "Quest Tip:",
+    "Health:": "Guild Health:",
     "Wizard": "Arcane Ops",
-    "WIZARD": "ARCANE OPS",
-    "Self-Heal": "Rune Mend",
-    "SELF-HEAL": "RUNE MEND",
-    "Repair": "Forge Patch",
-    "REPAIR": "FORGE PATCH"
+    "WIZARD": "ARCANE OPS"
   }
 }

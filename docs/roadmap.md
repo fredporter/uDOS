@@ -44,8 +44,12 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 - Added CI policy guardrails for command contract parity, core no-network imports, stdlib boundary, and TS dependency policy.
 - Added Wizard venv lifecycle commands (`ucli wizard install`, `ucli wizard doctor`) and pinned Wizard deps at `wizard/requirements.txt`.
 - Added architecture decision docs for Apple Silicon VM/remote-desktop topology, Alpine Chromium kiosk thin-GUI runtime standard, and Sonic DB-driven GPU/UI launch profiles.
-- Scaffolded gameplay hooks (`GAMEPLAY` command + persistent XP/HP/Gold + progression gates) and initial TOYBOX profiles (`hethack`, `elite`) with Wizard container route exposure.
+- Scaffolded gameplay hooks (`GPLAY` command + persistent XP/HP/Gold + progression gates) and initial TOYBOX profiles (`hethack`, `elite`) with Wizard container route exposure.
 - Replaced TOYBOX launch stubs with PTY-based upstream adapter services (`hethack`, `elite`) and wired event-driven gate/stat updates via Core gameplay tick ingestion.
+- Added TOYBOX container expansion (`rpgbbs`, `crawler3d`), standardized gameplay progress fields (`level`, `achievement_level`, `location.grid/z`, metrics), and `PLAY` command conditional/token unlock flow.
+- Added `RULE` command scaffold for gameplay IF/THEN automations that evaluate normalized TOYBOX state and trigger gameplay actions/tokens.
+- Published TOYBOX variable comparison spec: `docs/specs/TOYBOX-CONTAINER-VARIABLE-COMPARISON-v1.3.md`.
+- Added gameplay tutorial/template assets (wireframe demo + historical era variants) and seeded `gameplay-wireframe-demo-script.md` into framework system seeds.
 
 ---
 
@@ -76,10 +80,11 @@ Reference:
 ### v1.3.19 (Planned) -- Seed Data Depth Pass
 - [x] Add tracked default spatial place seed catalog + CI seed-catalog validation + optional `place_seed_features` persistence scaffold.
 - [x] Add deterministic adjacency inference during seed ingestion for places missing explicit links (same anchor/space/layer).
-- [ ] Expand `locations-seed.json` from locator-only entries to gameplay-ready tiles/links.
-- [ ] Add deterministic adjacency/connectivity for region traversal and map overlays.
-- [ ] Introduce elevation-aware seed fields (`z`, `z_min`, `z_max`, stairs/ramps/portals metadata).
-- [ ] Add gameplay seed primitives per place/chunk:
+- [x] Add tracked `locations-seed.default.json` gameplay-ready overlay contract and merge it into spatial seed ingest with CI validation.
+- [x] Expand `locations-seed.json` from locator-only entries to gameplay-ready tiles/links.
+- [x] Add deterministic adjacency/connectivity for region traversal and map overlays.
+- [x] Introduce elevation-aware seed fields (`z`, `z_min`, `z_max`, stairs/ramps/portals metadata).
+- [x] Add gameplay seed primitives per place/chunk:
   - quest hooks (`quest_ids`, trigger conditions)
   - encounter slots (`npc_spawn`, `hazards`, `loot_tables`)
   - interaction points (`doors`, `terminals`, `craft nodes`, `checkpoints`)

@@ -6,6 +6,8 @@ Scope boundary:
 - This mapping is for **Core TUI message IO only**.
 - It is not a GUI/CSS/WebView styling system.
 - Wizard webview theme/styling is a separate future round.
+- Legacy broad replacement seeds are archived at:
+  - `core/framework/seed/bank/system/themes/.archive/2026-02-15-legacy-broad-replacements/`
 
 | Theme | Target Layer(s) | Notes |
 | --- | --- | --- |
@@ -41,3 +43,42 @@ Virtual layers reuse these galaxy/outer-space themes today (Foundation and Hitch
   - `UDOS_TUI_LEGACY_REPLACEMENTS=1` to temporarily restore broad legacy text replacement behavior.
 
 Dreamed themes are companions to layers, not requirements—if you render an Earth layer but the current theme is `hitchhikers`, the service still applies the replacements but the map data itself stays unchanged. Use the table above as the single-source reference when aligning future Wizard rounds, Hotkey Center briefs, or docs with the theme/layer pairings.
+
+## TUI Z-layer and Theme Switching
+
+The TUI uses spatial z/elevation data for map semantics while message theming stays a separate, explicit switch.
+
+- Spatial side:
+  - `LocId` can carry `-Zz` (for example `L305-DA11-Z-2`).
+  - Seed overlays can define `z`, `z_min`, `z_max`, `stairs`, `ramps`, and `portals`.
+- Message side:
+  - `UDOS_TUI_MAP_LEVEL` hints the message-level bucket (`dungeon`, `foundation`, `galaxy`).
+  - `UDOS_TUI_MESSAGE_THEME` pins a specific vocabulary profile.
+
+Recommended z-to-level convention for TUI map messaging:
+
+| Spatial signal | Recommended `UDOS_TUI_MAP_LEVEL` | Typical theme picks |
+| --- | --- | --- |
+| `SUB` space, negative z, or underground traversal | `dungeon` | `dungeon`, `fantasy`, `role-play`, `pirate`, `scavenge-hunt` |
+| Surface/regional traversal around baseline elevation | `foundation` | `explorer`, `adventure`, `traveller`, `lonely-planet`, `doomsday` |
+| Orbital/stellar/celestial traversal and high-band maps | `galaxy` | `galaxy`, `foundation`, `pilot`, `captain-sailor`, `scientist`, `hitchhikers` |
+
+The convention above is for consistent operator wording in terminal output. It does not mutate place records or renderer state.
+
+## TOYBOX Lens Profile Switches
+
+TOYBOX profile changes and TUI message theme switching are complementary:
+
+```bash
+# Dungeon lens
+GPLAY TOYBOX SET hethack
+export UDOS_TUI_MAP_LEVEL=dungeon
+export UDOS_TUI_MESSAGE_THEME=dungeon
+
+# Galaxy lens
+GPLAY TOYBOX SET elite
+export UDOS_TUI_MAP_LEVEL=galaxy
+export UDOS_TUI_MESSAGE_THEME=pilot
+```
+
+If you only set `GPLAY TOYBOX`, gameplay profile state changes but message wording does not automatically switch. Keep the theme switch explicit so operators can override tone per session.

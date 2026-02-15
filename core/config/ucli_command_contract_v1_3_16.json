@@ -26,7 +26,9 @@
       "RUN",
       "BINDER",
       "USER",
-      "GAMEPLAY",
+      "GPLAY",
+      "PLAY",
+      "RULE",
       "UID",
       "DEV",
       "WIZARD",
@@ -37,8 +39,7 @@
       "NEW",
       "EDIT",
       "NPC",
-      "TALK",
-      "REPLY",
+      "SEND",
       "LOGS",
       "REPAIR",
       "REBOOT",
@@ -46,8 +47,7 @@
       "SETUP",
       "HEALTH",
       "VERIFY",
-      "DRAW",
-      "TAG"
+      "DRAW"
     ],
     "deprecated_aliases": {}
   }

@@ -1,17 +1,11 @@
 {
   "name": "doomsday",
-  "description": "Apocalypse radio language for scorched Earth survivors.",
+  "description": "Survival message voice for high-risk scenarios.",
   "companions": ["earth_layers"],
   "replacements": {
-    "uDOS": "Wasteland Shell",
-    "UDOS": "Wasteland Shell",
-    "Self-Heal": "Medic Scavenge",
-    "SELF-HEAL": "Medic Scavenge",
-    "Hotkey": "Signal",
-    "HOTKEY": "Signal",
-    "Wizard": "Overwatch",
-    "WIZARD": "Overwatch",
-    "Repair": "Patch-Up",
-    "REPAIR": "Patch-Up"
+    "Tip:": "Survival Tip:",
+    "Health:": "Bunker Health:",
+    "Wizard": "Fallback Ops",
+    "WIZARD": "FALLBACK OPS"
   }
 }

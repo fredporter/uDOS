@@ -1,17 +1,11 @@
 {
   "name": "lonely-planet",
-  "description": "Soft, Lonely Planet guidance tuned for Earth layer travels.",
+  "description": "Explorer guidance message voice for Earth layers.",
   "companions": ["earth_layers"],
   "replacements": {
-    "uDOS": "Lonely Planet",
-    "UDOS": "Lonely Planet",
-    "Self-Heal": "Tender Leaves",
-    "SELF-HEAL": "Tender Leaves",
-    "Hotkey": "Whisper Key",
-    "HOTKEY": "Whisper Key",
-    "Wizard": "Sunlit Guide",
-    "WIZARD": "Sunlit Guide",
-    "Repair": "Gentle Mending",
-    "REPAIR": "Gentle Mending"
+    "Tip:": "Trail Tip:",
+    "Health:": "Camp Health:",
+    "Wizard": "Guide Ops",
+    "WIZARD": "GUIDE OPS"
   }
 }

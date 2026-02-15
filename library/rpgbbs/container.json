@@ -1,0 +1,46 @@
+{
+  "$schema": "../container.schema.json",
+  "container": {
+    "id": "rpgbbs",
+    "name": "TOYBOX RPGBBS",
+    "description": "Social dungeon/BBS gameplay runtime adapter for uDOS TOYBOX.",
+    "type": "git",
+    "source": "https://github.com/evs-rpg/rpgbbs.git",
+    "ref": "main",
+    "cloned_at": null,
+    "last_update": null,
+    "commit": null,
+    "version": "0.1.0-scaffold"
+  },
+  "policy": {
+    "read_only": true,
+    "auto_update": false,
+    "update_channel": "wizard_only",
+    "verify_signatures": false
+  },
+  "integration": {
+    "wrapper_path": "extensions/play/toybox/rpgbbs",
+    "service_path": "wizard/services/toybox/rpgbbs_adapter.py",
+    "handler_path": "core/commands/gameplay_handler.py",
+    "install_script": "library/rpgbbs/setup.sh",
+    "layers": "450-549"
+  },
+  "metadata": {
+    "license": "Public Domain / Open Source",
+    "homepage": "https://github.com/evs-rpg/rpgbbs",
+    "documentation": "docs/specs/TOYBOX-GAMEPLAY-SCAFFOLD-v1.3.md",
+    "maintainer": "uDOS Wizard Server",
+    "category": "toybox-gameplay"
+  },
+  "toybox": {
+    "profile": "rpgbbs",
+    "lens": "social-dungeon",
+    "upstream_policy": "no-fork",
+    "reskin_policy": "udos-ui-redraw-2026"
+  },
+  "launch_config": {
+    "command": ["python3", "-m", "wizard.services.toybox.rpgbbs_adapter"],
+    "cwd": "."
+  },
+  "repo_path": "memory/library/containers/rpgbbs"
+}

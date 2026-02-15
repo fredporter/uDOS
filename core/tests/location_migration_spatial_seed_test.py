@@ -76,6 +76,54 @@ def test_load_spatial_places_falls_back_to_tracked_default(tmp_path, monkeypatch
     assert any("z" in place for place in places)
 
 
+def test_load_spatial_places_merges_locations_seed_overrides(tmp_path, monkeypatch):
+    migrator = LocationMigrator(data_dir=tmp_path)
+    missing_memory_dir = tmp_path / "no-memory-seed"
+    missing_memory_dir.mkdir(parents=True, exist_ok=True)
+
+    places_catalog = tmp_path / "places.default.json"
+    places_catalog.write_text(
+        json.dumps(
+            {
+                "places": [
+                    {
+                        "placeId": "forest-clearing",
+                        "label": "Forest Clearing",
+                        "placeRef": "EARTH:SUR:L300-AA10",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    locations_seed = tmp_path / "locations-seed.default.json"
+    locations_seed.write_text(
+        json.dumps(
+            {
+                "locations": [
+                    {
+                        "placeId": "forest-clearing",
+                        "placeRef": "EARTH:SUR:L300-AA10",
+                        "links": ["tokyo-shibuya"],
+                        "quest_ids": ["intro.welcome"],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(location_migration, "MEMORY_SPATIAL_DIR", missing_memory_dir)
+    monkeypatch.setattr(location_migration, "DEFAULT_PLACE_CATALOG", places_catalog)
+    monkeypatch.setattr(location_migration, "DEFAULT_LOCATIONS_SEED", locations_seed)
+
+    places = migrator._load_spatial_places()
+    assert len(places) == 1
+    assert places[0]["placeId"] == "forest-clearing"
+    assert places[0]["links"] == ["tokyo-shibuya"]
+    assert places[0]["quest_ids"] == ["intro.welcome"]
+
+
 def test_insert_spatial_places_infers_links_when_missing(tmp_path):
     migrator = LocationMigrator(data_dir=tmp_path)
     conn = sqlite3.connect(tmp_path / "state.db")

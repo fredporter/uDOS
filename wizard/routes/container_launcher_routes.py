@@ -57,6 +57,22 @@ class ContainerLauncher:
             "health_check_url": "http://localhost:7422/health",
             "browser_route": "/ui/elite",
         },
+        "rpgbbs": {
+            "name": "TOYBOX Social Dungeon (rpgbbs)",
+            "port": 7423,
+            "service_path": "wizard/services/toybox",
+            "launch_command": ["python3", "-m", "wizard.services.toybox.rpgbbs_adapter"],
+            "health_check_url": "http://localhost:7423/health",
+            "browser_route": "/ui/rpgbbs",
+        },
+        "crawler3d": {
+            "name": "TOYBOX Crawler Lens (crawler3d)",
+            "port": 7424,
+            "service_path": "wizard/services/toybox",
+            "launch_command": ["python3", "-m", "wizard.services.toybox.crawler3d_adapter"],
+            "health_check_url": "http://localhost:7424/health",
+            "browser_route": "/ui/crawler3d",
+        },
     }
 
     def __init__(self, repo_root: Path = None):

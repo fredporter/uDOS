@@ -47,6 +47,8 @@ from core.commands import (
     DestroyHandler,
     UserHandler,
     GameplayHandler,
+    PlayHandler,
+    RuleHandler,
     UndoHandler,
     MigrateHandler,
     SeedHandler,
@@ -112,7 +114,9 @@ class CommandDispatcher:
             "DRAW": DrawHandler(),  # Viewport-aware ASCII demo panels
             # User Management (2)
             "USER": UserHandler(),  # User profiles and permissions
-            "GAMEPLAY": GameplayHandler(),  # XP/HP/Gold, gates, TOYBOX profiles
+            "GPLAY": GameplayHandler(),  # XP/HP/Gold, gates, TOYBOX profiles
+            "PLAY": PlayHandler(),  # Conditional options + token unlock flow
+            "RULE": RuleHandler(),  # Conditional IF/THEN gameplay automation rules
             # Cleanup/Reset (2)
             "DESTROY": DestroyHandler(),  # System cleanup with data wipe options
             "UNDO": UndoHandler(),  # Simple undo via restore from backup
