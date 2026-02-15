@@ -1,0 +1,11 @@
+{
+  "name": "traveller",
+  "description": "Long-route transit voice for travel and itinerary messaging.",
+  "companions": ["earth_layers", "galaxy_layers"],
+  "replacements": {
+    "Tip:": "Traveller Tip:",
+    "Health:": "Transit Health:",
+    "Wizard": "Route Ops",
+    "WIZARD": "ROUTE OPS"
+  }
+}

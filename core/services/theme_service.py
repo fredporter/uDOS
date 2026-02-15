@@ -95,6 +95,24 @@ class ThemeService:
             "Wizard": "Corsair Ops",
             "WIZARD": "CORSAIR OPS",
         },
+        "adventure": {
+            "Tip:": "Adventure Tip:",
+            "Health:": "Journey Health:",
+            "Wizard": "Expedition Ops",
+            "WIZARD": "EXPEDITION OPS",
+        },
+        "scavenge-hunt": {
+            "Tip:": "Scavenge Tip:",
+            "Health:": "Supply Health:",
+            "Wizard": "Scrap Ops",
+            "WIZARD": "SCRAP OPS",
+        },
+        "traveller": {
+            "Tip:": "Traveller Tip:",
+            "Health:": "Transit Health:",
+            "Wizard": "Route Ops",
+            "WIZARD": "ROUTE OPS",
+        },
         "scientist": {
             "Tip:": "Lab Tip:",
             "Health:": "Systems Health:",
@@ -113,6 +131,10 @@ class ThemeService:
         "roleplay": "role-play",
         "captainsailor": "captain-sailor",
         "captain_sailor": "captain-sailor",
+        "scavange-huint": "scavenge-hunt",
+        "scavange_huint": "scavenge-hunt",
+        "scavenge-huint": "scavenge-hunt",
+        "traveler": "traveller",
     }
     MAP_LEVEL_THEME: Dict[str, str] = {
         "dungeon": "dungeon",
@@ -134,6 +156,11 @@ class ThemeService:
         "captain-sailor": "captain-sailor",
         "captainsailor": "captain-sailor",
         "pirate": "pirate",
+        "adventure": "adventure",
+        "scavenge-hunt": "scavenge-hunt",
+        "scavange-huint": "scavenge-hunt",
+        "traveller": "traveller",
+        "traveler": "traveller",
         "scientist": "scientist",
     }
 

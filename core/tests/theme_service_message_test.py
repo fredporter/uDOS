@@ -102,3 +102,21 @@ def test_theme_service_supports_new_simple_vocab_profiles(monkeypatch):
     assert "Raid Tip:" in themed_pirate
     assert "Corsair Ops status." in themed_pirate
     assert "Hull Health:" in themed_pirate
+
+    monkeypatch.setenv("UDOS_TUI_MESSAGE_THEME", "adventure")
+    themed_adventure = svc.format(sample)
+    assert "Adventure Tip:" in themed_adventure
+    assert "Expedition Ops status." in themed_adventure
+    assert "Journey Health:" in themed_adventure
+
+    monkeypatch.setenv("UDOS_TUI_MESSAGE_THEME", "scavange-huint")
+    themed_scavenge = svc.format(sample)
+    assert "Scavenge Tip:" in themed_scavenge
+    assert "Scrap Ops status." in themed_scavenge
+    assert "Supply Health:" in themed_scavenge
+
+    monkeypatch.setenv("UDOS_TUI_MESSAGE_THEME", "traveller")
+    themed_traveller = svc.format(sample)
+    assert "Traveller Tip:" in themed_traveller
+    assert "Route Ops status." in themed_traveller
+    assert "Transit Health:" in themed_traveller

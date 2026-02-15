@@ -1,0 +1,11 @@
+{
+  "name": "adventure",
+  "description": "General adventure voice for exploration-focused command messaging.",
+  "companions": ["earth_layers", "regional_layers"],
+  "replacements": {
+    "Tip:": "Adventure Tip:",
+    "Health:": "Journey Health:",
+    "Wizard": "Expedition Ops",
+    "WIZARD": "EXPEDITION OPS"
+  }
+}

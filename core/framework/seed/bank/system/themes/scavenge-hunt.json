@@ -1,0 +1,11 @@
+{
+  "name": "scavenge-hunt",
+  "description": "Scavenger-run voice for resource sweep and recovery messaging.",
+  "companions": ["earth_layers", "earth_layers_subterranean"],
+  "replacements": {
+    "Tip:": "Scavenge Tip:",
+    "Health:": "Supply Health:",
+    "Wizard": "Scrap Ops",
+    "WIZARD": "SCRAP OPS"
+  }
+}
