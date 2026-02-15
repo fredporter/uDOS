@@ -134,7 +134,9 @@ wizard = ["**/*.json", "**/*.md", "**/*.html", "**/*.css", "**/*.js"]
 
 [tool.pytest.ini_options]
 testpaths = ["memory/tests"]
-asyncio_mode = "auto"
+filterwarnings = [
+    "ignore:urllib3 v2 only supports OpenSSL 1\\.1\\.1\\+",
+]
 
 [tool.black]
 line-length = 100
