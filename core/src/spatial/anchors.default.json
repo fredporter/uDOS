@@ -8,6 +8,7 @@
       "status": "active",
       "config": {
         "projection": "web_mercator",
+        "z_axis": {"supported": true, "min": -99, "max": 99, "default": 0},
         "notes": "Internal-only lat/long adapter; users primarily see LocIds."
       }
     },
@@ -18,6 +19,7 @@
       "status": "active",
       "config": {
         "frame": "selenographic",
+        "z_axis": {"supported": true, "min": -99, "max": 99, "default": 0},
         "notes": "Surface grid on lunar body; computed sky still applies."
       }
     },
@@ -28,6 +30,7 @@
       "status": "active",
       "config": {
         "frame": "areographic",
+        "z_axis": {"supported": true, "min": -99, "max": 99, "default": 0},
         "notes": "Surface grid on Mars; sparse authored tiles and metadata."
       }
     },
@@ -37,6 +40,7 @@
       "title": "IAU Naming Catalogue",
       "status": "active",
       "config": {
+        "z_axis": {"supported": true, "min": -99, "max": 99, "default": 0},
         "notes": "Namespace for celestial naming/designations; intended for sparse refs."
       }
     },
@@ -46,6 +50,7 @@
       "title": "Stars (generic catalogue)",
       "status": "active",
       "config": {
+        "z_axis": {"supported": true, "min": -99, "max": 99, "default": 0},
         "notes": "Computed sky views reference catalogues; do not store dense star tiles."
       }
     },
@@ -55,6 +60,7 @@
       "title": "Planets (ephemeris-backed)",
       "status": "active",
       "config": {
+        "z_axis": {"supported": true, "min": -99, "max": 99, "default": 0},
         "notes": "Ephemeris references for computed sky and planetary positions."
       }
     },
@@ -64,6 +70,7 @@
       "title": "NetHack (stub)",
       "status": "active",
       "config": {
+        "z_axis": {"supported": true, "min": -99, "max": 99, "default": 0},
         "notes": "Minimal gameplay anchor stub for terminal runtime scaffolding."
       }
     }

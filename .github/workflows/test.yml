@@ -38,6 +38,7 @@ jobs:
           python tools/ci/check_sonic_submodule_pin.py
           python tools/ci/check_sonic_route_contract_v1_3_17.py
           python tools/ci/check_spatial_contract_v1_3_18.py
+          python tools/ci/check_spatial_seed_catalog.py
 
   sonic-v1-3-17-gates:
     name: Sonic v1.3.17 Gates
