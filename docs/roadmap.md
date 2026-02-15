@@ -65,10 +65,13 @@ Integration policy for gameplay rounds:
 - [x] Core/Wizard runtime boundary policy locked (Core stdlib-only Python, Wizard venv-owned deps).
 
 ### v1.3.18 (Planned) -- Spatial Contract Hardening
-- [ ] Lock LocId v1.3 extension with optional vertical axis: `L###-CC##[-Zz]`.
-- [ ] Keep backward compatibility for existing `L###-CC##` records (`z=0` implied).
-- [ ] Update parser/validation/tests + renderer schema acceptance for z-aware LocIds.
-- [ ] Publish migration notes for `grid_locations` and `places` frontmatter.
+- [x] Lock LocId v1.3 extension with optional vertical axis: `L###-CC##[-Zz]`.
+- [x] Keep backward compatibility for existing `L###-CC##` records (`z=0` implied).
+- [x] Update parser/validation/tests + renderer schema acceptance for z-aware LocIds.
+- [x] Publish migration notes for `grid_locations` and `places` frontmatter.
+
+Reference:
+- [v1.3.18-spatial-locid-z-migration-notes.md](releases/v1.3.18-spatial-locid-z-migration-notes.md)
 
 ### v1.3.19 (Planned) -- Seed Data Depth Pass
 - [ ] Expand `locations-seed.json` from locator-only entries to gameplay-ready tiles/links.

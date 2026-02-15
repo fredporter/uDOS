@@ -1,7 +1,7 @@
 PRAGMA foreign_keys = ON;
 
 -- uDOS v1.3 Spatial Schema
--- Canonical LocId is compressed: L{EffectiveLayer}-{FinalCell}
+-- Canonical LocId is compressed: L{EffectiveLayer}-{FinalCell}[-Z{z}]
 -- Place = Anchor + Space + LocId (+ optional depth/instance)
 
 -- 1) Anchors: coordinate frames / adapters
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS anchors (
 
 -- 2) LocIds: canonical compressed IDs (stable across anchors/spaces)
 CREATE TABLE IF NOT EXISTS locids (
-  loc_id            TEXT PRIMARY KEY,  -- "L305-DA11"
+  loc_id            TEXT PRIMARY KEY,  -- "L305-DA11" or "L305-DA11-Z2"
   effective_layer   INTEGER NOT NULL,
   final_cell        TEXT NOT NULL,      -- "DA11"
   created_at        INTEGER NOT NULL

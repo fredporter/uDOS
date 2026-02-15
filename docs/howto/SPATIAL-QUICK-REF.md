@@ -2,11 +2,13 @@
 
 ## LocId Format
 ```
-L###-CELL
- └ L300-DA11 = Layer 300, cell DA11
+L###-CELL[-Zz]
+ └ L300-DA11 = Layer 300, cell DA11 (z=0 implied)
+ └ L300-DA11-Z2 = Layer 300, cell DA11, z offset +2
 ```
 - **Layer:** 300-899 (see bands below)
 - **Cell:** 2 letters (A-Z) + 2 digits (10-39)
+- **Optional z-axis:** -99..99 (`-Z0` optional, omitted means `z=0`)
 
 ## PlaceRef Format
 ```
@@ -50,6 +52,9 @@ import { parseLocId } from "@udos/spatial";
 
 const loc = parseLocId("L305-DA11");
 // { locId: "L305-DA11", effectiveLayer: 305, finalCell: "DA11" }
+
+const locWithZ = parseLocId("L305-DA11-Z2");
+// { locId: "L305-DA11-Z2", effectiveLayer: 305, finalCell: "DA11", z: 2 }
 ```
 
 ### Parse PlaceRef
@@ -133,10 +138,12 @@ GAME:skyrim:SUB:L402-CC18:D5:Iblackreach
 # Old format
 grid_locations:
   - L305-DA11
+  - L305-DA11-Z2
 
 # New format
 places:
   - EARTH:SUR:L305-DA11
+  - EARTH:SUR:L305-DA11-Z2
 ```
 
 ## Constraints
@@ -147,6 +154,7 @@ places:
 | Depth (SUB) | 0 | 99 | Integer only |
 | Cell | — | — | 2 letters (A-Z), 2 digits (10-39) |
 | Rows | 10 | 39 | Forms 80×30 grid |
+| Z-axis | -99 | 99 | Optional vertical offset (`-Zz`) |
 
 ## Files
 

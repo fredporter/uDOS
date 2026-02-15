@@ -37,6 +37,7 @@ jobs:
           python tools/ci/check_contract_dispatcher_parity.py
           python tools/ci/check_sonic_submodule_pin.py
           python tools/ci/check_sonic_route_contract_v1_3_17.py
+          python tools/ci/check_spatial_contract_v1_3_18.py
 
   sonic-v1-3-17-gates:
     name: Sonic v1.3.17 Gates
@@ -141,8 +142,10 @@ jobs:
       - name: Run runtime boundary launcher tests
         run: |
           python -m pytest -q \
+            core/tests/contract_validator_spatial_test.py \
             core/tests/ucli_runtime_boundary_test.py \
-            core/tests/ucli_ts_fallback_test.py
+            core/tests/ucli_ts_fallback_test.py \
+            wizard/tests/spatial_parser_test.py
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4

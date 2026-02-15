@@ -6,6 +6,7 @@ from typing import Dict, List, Optional
 import yaml
 
 CELL_REGEX = re.compile(r"^[A-Z]{2}\d{2}$")
+LOCID_REGEX = re.compile(r"^L(\d{3})-([A-Z]{2}\d{2})(?:-Z(-?\d{1,2}))?$")
 
 
 def is_valid_row(row: int) -> bool:
@@ -19,12 +20,22 @@ def is_valid_cell(cell: str) -> bool:
     return is_valid_row(row)
 
 
+def is_valid_z(z: int) -> bool:
+    return -99 <= z <= 99
+
+
 def parse_locid(locid: str) -> Optional[str]:
-    match = re.match(r"^L(\d{3})-([A-Z]{2}\d{2})$", locid)
+    match = LOCID_REGEX.match(locid)
     if not match:
         return None
+    layer = int(match.group(1))
     cell = match.group(2)
+    z = int(match.group(3)) if match.group(3) is not None else None
+    if layer < 300 or layer > 899:
+        return None
     if not is_valid_cell(cell):
+        return None
+    if z is not None and not is_valid_z(z):
         return None
     return locid
 

@@ -124,8 +124,8 @@ def validate_theme_pack(theme_dir: Path) -> ContractReport:
     return _report(errors, warnings, {"theme": theme_meta.get("name") or theme_meta.get("id")})
 
 
-LOCID_PATTERN = re.compile(r"[A-Z0-9:_]+:L\d{3}-[A-Z0-9]{4}")
-GRID_PATTERN = re.compile(r"\bL\d{3}-[A-Z0-9]{4}\b")
+LOCID_PATTERN = re.compile(r"[A-Z0-9:_]+:L\d{3}-[A-Z]{2}\d{2}(?:-Z-?\d+)?")
+GRID_PATTERN = re.compile(r"\bL\d{3}-[A-Z]{2}\d{2}(?:-Z-?\d+)?\b")
 
 
 def _parse_locid(token: str) -> Optional[Dict[str, Any]]:
@@ -135,12 +135,13 @@ def _parse_locid(token: str) -> Optional[Dict[str, Any]]:
     space = parts[-2]
     anchor = ":".join(parts[:-2])
     layer_cell = parts[-1]
-    match = re.match(r"^L(\d{3})-([A-Z0-9]{4})$", layer_cell)
+    match = re.match(r"^L(\d{3})-([A-Z]{2}\d{2})(?:-Z(-?\d{1,2}))?$", layer_cell)
     if not match:
         return None
     layer = int(match.group(1))
     cell = match.group(2)
-    return {"anchor": anchor, "space": space, "layer": layer, "cell": cell}
+    z = int(match.group(3)) if match.group(3) is not None else None
+    return {"anchor": anchor, "space": space, "layer": layer, "cell": cell, "z": z}
 
 
 def _is_valid_locid(token: str) -> bool:
@@ -155,7 +156,12 @@ def _is_valid_locid(token: str) -> bool:
         return False
     if not (300 <= parsed["layer"] <= 899):
         return False
-    if not re.match(r"^[A-Z0-9]{4}$", parsed["cell"]):
+    if not re.match(r"^[A-Z]{2}\d{2}$", parsed["cell"]):
+        return False
+    row = int(parsed["cell"][2:4])
+    if not (10 <= row <= 39):
+        return False
+    if parsed["z"] is not None and not (-99 <= parsed["z"] <= 99):
         return False
     return True
 
@@ -175,9 +181,11 @@ def validate_world_contract(vault_dir: Path) -> ContractReport:
             if not _is_valid_locid(match):
                 invalid_locids.append(match)
         for match in GRID_PATTERN.findall(text):
-            layer = int(match[1:4])
-            cell = match.split("-")[1]
-            if not (300 <= layer <= 899) or not re.match(r"^[A-Z0-9]{4}$", cell):
+            parsed = _parse_locid(f"EARTH:SUR:{match}")
+            if not parsed:
+                invalid_locids.append(match)
+                continue
+            if not _is_valid_locid(f"EARTH:SUR:{match}"):
                 invalid_locids.append(match)
 
     if invalid_locids:

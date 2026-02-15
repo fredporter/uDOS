@@ -29,7 +29,14 @@ SPATIAL_SCHEMA_PATH = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spa
 MEMORY_SPATIAL_DIR = Path("memory") / "bank" / "spatial"
 DEFAULT_ANCHOR_REGISTRY = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "anchors.default.json"
 
-PLACE_REF_RE = re.compile(r"^(?P<anchor>[^:]+)(?::(?P<subanchor>[^:]+))?:(?P<space>SUR|UDN|SUB):(?P<loc>L\d{3}-[A-Z]{2}\d{2})(?::D(?P<depth>\d+))?(?::I(?P<instance>.+))?$")
+PLACE_REF_RE = re.compile(
+    r"^(?P<anchor>[^:]+)"
+    r"(?::(?P<subanchor>[^:]+))?"
+    r":(?P<space>SUR|UDN|SUB)"
+    r":(?P<loc>L\d{3}-[A-Z]{2}\d{2}(?:-Z-?\d{1,2})?)"
+    r"(?::D(?P<depth>\d+))?"
+    r"(?::I(?P<instance>.+))?$"
+)
 
 
 def _parse_place_ref(ref: str) -> Optional[Dict[str, Any]]:
@@ -47,7 +54,7 @@ def _parse_place_ref(ref: str) -> Optional[Dict[str, Any]]:
     depth = int(match.group("depth")) if match.group("depth") else None
     instance = match.group("instance")
     layer = int(loc_id[1:4])
-    final_cell = loc_id.split("-")[1]
+    final_cell = re.match(r"^L\d{3}-([A-Z]{2}\d{2})", loc_id).group(1)
     return {
         "anchor_id": anchor_id,
         "space": space,

@@ -255,8 +255,10 @@ This brief represents the **current locked design baseline** for uDOS spatial co
 A **Tile** is the smallest addressable unit of authored content in uDOS. Tiles exist at **grid-cell resolution** and are anchored to a canonical location:
 
 ```
-LocId := L{EffectiveLayer}-{Cell}
+LocId := L{EffectiveLayer}-{Cell}[-Z{z}]
 ```
+
+`-Z{z}` is optional in v1.3.18+ and defaults to `z=0` when omitted.
 
 Tiles may exist in one or more **spaces**:
 

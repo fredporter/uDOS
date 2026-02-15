@@ -167,16 +167,27 @@ class GridLocation:
     """Grid location reference."""
     layer: int  # L###
     cell: str   # AA10
+    z: Optional[int] = None  # optional vertical offset
 
     def __str__(self) -> str:
-        return f'L{self.layer}-{self.cell}'
+        return f'L{self.layer}-{self.cell}{f"-Z{self.z}" if self.z is not None else ""}'
 
     @classmethod
     def parse(cls, location_str: str) -> Optional['GridLocation']:
-        """Parse 'L300-AA10' format."""
-        match = re.match(r'^L(\d+)-([A-Z]{2}\d{2})$', location_str)
+        """Parse 'L300-AA10' or 'L300-AA10-Z2' format."""
+        match = re.match(r'^L(\d+)-([A-Z]{2}\d{2})(?:-Z(-?\d{1,2}))?$', location_str)
         if match:
-            return cls(layer=int(match.group(1)), cell=match.group(2))
+            layer = int(match.group(1))
+            cell = match.group(2)
+            z = int(match.group(3)) if match.group(3) is not None else None
+            row = int(cell[2:4])
+            if layer < 300 or layer > 899:
+                return None
+            if row < 10 or row > 39:
+                return None
+            if z is not None and (z < -99 or z > 99):
+                return None
+            return cls(layer=layer, cell=cell, z=z)
         return None
 
 
