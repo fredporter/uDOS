@@ -28,13 +28,14 @@ def write_ok_modes_config(config: Dict[str, Any]) -> None:
 
 
 def is_dev_mode_active() -> bool:
+    env_active = os.getenv("UDOS_DEV_MODE") in ("1", "true", "yes")
     try:
         from wizard.services.dev_mode_service import get_dev_mode_service
 
         status = get_dev_mode_service().get_status()
-        return bool(status.get("active"))
+        return bool(status.get("active")) or env_active
     except Exception:
-        return os.getenv("UDOS_DEV_MODE") in ("1", "true", "yes")
+        return env_active
 
 
 def get_ok_default_models() -> Dict[str, str]:
@@ -48,8 +49,9 @@ def get_ok_default_models() -> Dict[str, str]:
 
 def get_ok_default_model(purpose: str = "general") -> str:
     models = get_ok_default_models()
-    if purpose == "coding":
-        return models["dev"] if is_dev_mode_active() else models["core"]
+    dev_active = is_dev_mode_active()
+    if purpose == "coding" or dev_active:
+        return models["dev"] if dev_active else models["core"]
     return models["core"]
 
 
