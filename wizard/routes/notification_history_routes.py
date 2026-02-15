@@ -87,7 +87,7 @@ def create_notification_history_routes(service: NotificationHistoryService) -> A
           -d '{
             "type": "success",
             "title": "Saved",
-            "message": "/Users/fred/file.txt",
+            "message": "/memory/work/file.txt",
             "duration_ms": 5000,
             "sticky": false
           }'

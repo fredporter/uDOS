@@ -117,7 +117,7 @@ Reference:
 - [x] Add compatibility test matrix for dual lenses (TUI map lens + external engine lens).
 - [x] Benchmark budgets for seed load, chunk resolve latency, and map render throughput.
 - [x] Freeze pre-3D acceptance checklist as release gate for v1.3.22.
-- [ ] Gameplay Dev Round B (Galaxy Lens: `elite` integration):
+- [x] Gameplay Dev Round B (Galaxy Lens: `elite` integration):
   - containerize public-domain galaxy runtime as a Wizard-managed `TOYBOX` profile
   - run upstream runtime unmodified via adapter boundary (no source fork)
   - reskin cockpit/terminal surfaces to uDOS UI contract (grid overlays, status panels, workflow hooks)
@@ -125,11 +125,11 @@ Reference:
   - SUR/ORB/STELLAR travel profile (system map, route graph, station/port nodes)
   - economy/comms/mission hook scaffolds bound to canonical PlaceRefs
   - canonical mapping: `CATALOG:*`, `BODY:*`, and high-band LocIds for galaxy runtime surfaces
-- [ ] Gameplay parity gate before 3D integration:
+- [x] Gameplay parity gate before 3D integration:
   - same quest chain playable in 2D/TUI and adapter harness
   - same NPC state transitions and rewards across both lenses
   - same calendar/todo/workflow side-effects from gameplay events
-- [ ] Interactive progression requirement (hard gate):
+- [x] Interactive progression requirement (hard gate):
   - complete dungeon level 32 and retrieve the Amulet of Yendor in the `hethack` lens
   - persist gate state in core progression flags (e.g. `gameplay_gates.dungeon_l32_amulet=true`)
   - `UNLOCK/PROCEED/NEXT STEP` actions remain blocked until this gate is satisfied
@@ -139,12 +139,55 @@ Reference:
 - [v1.3.21-WORLD-ADAPTER-CONTRACT.md](specs/v1.3.21-WORLD-ADAPTER-CONTRACT.md)
 - [v1.3.21-DUAL-LENS-COMPAT-MATRIX.md](specs/v1.3.21-DUAL-LENS-COMPAT-MATRIX.md)
 - [v1.3.21-ADAPTER-READINESS-CHECKLIST.md](specs/v1.3.21-ADAPTER-READINESS-CHECKLIST.md)
+- [v1.3.21-CAPABILITY-BENCHMARK-MISSIONS.md](specs/v1.3.21-CAPABILITY-BENCHMARK-MISSIONS.md)
 
 ### v1.3.22 (Planned) -- 3D-World Integration MVP
 - [ ] Enable first 3D world lens integration behind feature flag.
 - [ ] Start with single-region vertical slice using canonical LocId/Place contracts.
 - [ ] Require parity: same quest/place/events playable in 2D grid and 3D lens.
 - [ ] Keep uDOS as system-of-record; adapters render only (no identity ownership in engine).
+
+### v1.3.23 (Planned) -- Core Stabilization Round A
+- [ ] Mission objective registry + status endpoint for release gates.
+- [ ] Stabilize adapter lifecycle management (launch/stop/status retries and health probes).
+- [ ] Add deterministic replay harness for gameplay event streams.
+- [ ] Add CI guardrails for contract drift across map/gameplay/toybox surfaces.
+- [ ] Debug Round A:
+  - [ ] hardcoded path scan baseline clean
+  - [ ] deprecated/depreciated marker baseline clean
+  - [ ] duplicate function scanner baseline clean
+  - [ ] unused private-function report triaged
+
+### v1.3.24 (Planned) -- Core Stabilization Round B
+- [ ] Expand cross-lens parity suite to include quest chain state and reward invariants.
+- [ ] Add world-state migration smoke tests for backward-compatible persistence.
+- [ ] Add benchmark history snapshots and regression-delta alerts.
+- [ ] Harden command capability matrix with negative-path tests.
+- [ ] Debug Round B:
+  - [ ] remove flagged duplicate functions
+  - [ ] remove or annotate unused private functions
+  - [ ] resolve legacy/deprecated markers still in active code paths
+
+### v1.3.25 (Planned) -- Core Stabilization Round C
+- [ ] Freeze v1.3.x contract set before v1.4 branch cut.
+- [ ] Add long-run soak test for event ingestion + map tick loops.
+- [ ] Add release checklist automation for mission objectives + benchmark budgets.
+- [ ] Verify no hardcoded local machine paths remain in runtime code.
+- [ ] Debug Round C:
+  - [ ] dead-code cleanup sweep (python + ts)
+  - [ ] duplicate logic consolidation in command/service layers
+  - [ ] benchmark regression drill (simulate failure, verify gate blocks release)
+
+### v1.3.26 (Planned) -- Core Stabilization Final Gate
+- [ ] Final stabilization pass for command/runtime surfaces (no contract regressions).
+- [ ] Final capability matrix sign-off for Core, Wizard, and TOYBOX lanes.
+- [ ] Final benchmark sign-off against mission objective thresholds.
+- [ ] Publish core stabilization release notes and v1.4 readiness memo.
+- [ ] Debug Round Final:
+  - [ ] hardcoding check passes
+  - [ ] deprecated/depreciated code marker check passes
+  - [ ] duplicate function check passes
+  - [ ] unused-function report reviewed and approved
 
 ---
 

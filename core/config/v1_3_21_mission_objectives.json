@@ -1,0 +1,39 @@
+{
+  "version": "1.3.21",
+  "name": "Adapter Readiness Mission Objectives",
+  "objectives": [
+    {
+      "id": "obj.contract.canonical_events",
+      "description": "All canonical map event types are validated for both TUI and adapter lenses.",
+      "required": true
+    },
+    {
+      "id": "obj.progression.gate_enforced",
+      "description": "UNLOCK/PROCEED/NEXT remains blocked until dungeon_l32_amulet gate is satisfied.",
+      "required": true
+    },
+    {
+      "id": "obj.parity.cross_lens_rewards",
+      "description": "Equivalent mission objective completion in map and elite lenses produces deterministic progression deltas.",
+      "required": true
+    },
+    {
+      "id": "obj.benchmark.seed_load",
+      "description": "Seed load median remains within budget.",
+      "required": true,
+      "threshold": { "metric": "seed_load_median_ms", "max": 1000.0 }
+    },
+    {
+      "id": "obj.benchmark.chunk_resolve",
+      "description": "Chunk resolve p95 remains within latency budget.",
+      "required": true,
+      "threshold": { "metric": "chunk_resolve_p95_us", "max": 500.0 }
+    },
+    {
+      "id": "obj.benchmark.map_render",
+      "description": "Map renderer throughput remains above minimum budget.",
+      "required": true,
+      "threshold": { "metric": "map_render_rps", "min": 80.0 }
+    }
+  ]
+}

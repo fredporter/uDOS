@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -62,14 +63,49 @@ def _check_benchmarks() -> None:
         )
 
     print(json.dumps(result, indent=2))
+    _check_mission_objectives(result)
+
+
+def _check_mission_objectives(benchmark_result: dict) -> None:
+    mission_path = REPO / "core" / "config" / "v1_3_21_mission_objectives.json"
+    data = json.loads(mission_path.read_text(encoding="utf-8"))
+    objectives = data.get("objectives", [])
+    if not isinstance(objectives, list) or not objectives:
+        raise RuntimeError("v1.3.21 mission objectives list is empty")
+
+    for row in objectives:
+        if not isinstance(row, dict):
+            continue
+        threshold = row.get("threshold")
+        if not isinstance(threshold, dict):
+            continue
+        metric = str(threshold.get("metric", "")).strip()
+        if not metric:
+            continue
+        current = float(benchmark_result.get(metric, 0.0))
+        if "max" in threshold and current > float(threshold["max"]):
+            raise RuntimeError(f"mission objective failed ({row.get('id')}): {metric} {current} > {threshold['max']}")
+        if "min" in threshold and current < float(threshold["min"]):
+            raise RuntimeError(f"mission objective failed ({row.get('id')}): {metric} {current} < {threshold['min']}")
+
+
+def _run_debug_rounds() -> None:
+    script = REPO / "tools" / "ci" / "check_code_hygiene_v1_3_21.py"
+    proc = subprocess.run([sys.executable, str(script)], cwd=str(REPO), capture_output=True, text=True)
+    if proc.returncode != 0:
+        details = (proc.stdout + "\n" + proc.stderr).strip()
+        raise RuntimeError(f"debug-round hygiene checks failed:\n{details}")
+    print(proc.stdout.strip())
 
 
 def main() -> int:
     _assert_exists(REPO / "core" / "config" / "world_adapter_contract_v1_3_21.json")
+    _assert_exists(REPO / "core" / "config" / "v1_3_21_mission_objectives.json")
     _assert_exists(REPO / "docs" / "specs" / "v1.3.21-ADAPTER-READINESS-CHECKLIST.md")
     _assert_exists(REPO / "docs" / "specs" / "v1.3.21-DUAL-LENS-COMPAT-MATRIX.md")
     _check_contract_shape()
     _check_benchmarks()
+    _run_debug_rounds()
     print("[adapter-readiness-v1.3.21] PASS")
     return 0
 
