@@ -112,7 +112,6 @@ class SonicHandler(BaseCommandHandler):
             manifest = write_plan(
                 repo_root=sonic_root,
                 usb_device=flags.get("usb-device") or "/dev/sdb",
-                ventoy_version=flags.get("ventoy-version") or "1.1.10",
                 dry_run=bool(flags.get("dry-run")),
                 layout_path=resolved_layout,
                 format_mode=flags.get("format-mode"),
@@ -141,8 +140,6 @@ class SonicHandler(BaseCommandHandler):
         cmd = ["python3", str(sonic_root / "core" / "sonic_cli.py"), "run", "--manifest", str(manifest_path)]
         if flags.get("dry-run"):
             cmd.append("--dry-run")
-        if flags.get("v2"):
-            cmd.append("--v2")
         if flags.get("skip-payloads"):
             cmd.append("--skip-payloads")
         if flags.get("payloads-only"):
@@ -176,7 +173,7 @@ class SonicHandler(BaseCommandHandler):
                 "SONIC STATUS",
                 "SONIC PLAN [--usb-device /dev/sdb] [--layout-file config/sonic-layout.json]",
                 "SONIC PLAN [--payloads-dir /path/to/payloads] [--format-mode full|skip]",
-                "SONIC RUN [--manifest config/sonic-manifest.json] [--dry-run] [--v2]",
+                "SONIC RUN [--manifest config/sonic-manifest.json] [--dry-run]",
                 "SONIC RUN [--payloads-dir /path/to/payloads] [--no-validate-payloads] --confirm",
             ],
             "note": "SONIC RUN requires --confirm and Linux for destructive operations.",

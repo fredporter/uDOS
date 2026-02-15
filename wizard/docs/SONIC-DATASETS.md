@@ -33,7 +33,7 @@ Supported filters:
 - `vendor` — Vendor name filter
 - `reflash_potential` — high, medium, low, unknown
 - `usb_boot` — true/false
-- `ventoy` — works, issues, unknown
+- `uefi_native` — works, issues, unknown
 - `limit` — Results per page (1–1000)
 - `offset` — Pagination offset
 
@@ -99,9 +99,9 @@ Markdown table columns (required):
 | secure_boot       | enum    | `yes`, `no`, `unknown`             |
 | tpm               | enum    | `yes`, `no`, `unknown`             |
 | usb_boot          | enum    | `yes`, `no`, `unknown`             |
-| ventoy            | enum    | `works`, `issues`, `unknown`       |
+| uefi_native       | enum    | `works`, `issues`, `unknown`       |
 | reflash_potential | enum    | `high`, `medium`, `low`, `unknown` |
-| methods           | json    | `["Ventoy","UEFI","dd"]`           |
+| methods           | json    | `["UEFI","dd","sonic_usb"]`        |
 | notes             | string  | Device-specific guidance           |
 | sources           | json    | `["https://..."]`                  |
 | last_seen         | date    | `2026-01-25`                       |

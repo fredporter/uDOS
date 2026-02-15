@@ -80,7 +80,7 @@ def create_sonic_plugin_routes(auth_guard: AuthGuard = None, repo_root: Optional
         vendor: Optional[str] = Query(None),
         reflash_potential: Optional[str] = Query(None),
         usb_boot: Optional[str] = Query(None),
-        ventoy: Optional[bool] = Query(None),
+        uefi_native: Optional[bool] = Query(None),
         year_min: Optional[int] = Query(None),
         year_max: Optional[int] = Query(None),
         limit: int = Query(100, ge=1, le=1000),
@@ -93,7 +93,7 @@ def create_sonic_plugin_routes(auth_guard: AuthGuard = None, repo_root: Optional
         - vendor: Vendor name substring
         - reflash_potential: high, medium, low, unknown
         - usb_boot: native, uefi_only, legacy_only, mixed, none
-        - ventoy: boolean filter
+        - uefi_native: boolean filter
         - year_min/year_max: Year range
         """
         if auth_guard:
@@ -106,7 +106,7 @@ def create_sonic_plugin_routes(auth_guard: AuthGuard = None, repo_root: Optional
             vendor=vendor,
             reflash_potential=ReflashPotential(reflash_potential) if reflash_potential else None,
             usb_boot=USBBootSupport(usb_boot) if usb_boot else None,
-            ventoy=ventoy,
+            uefi_native=uefi_native,
             year_min=year_min,
             year_max=year_max,
             limit=limit,
@@ -153,7 +153,7 @@ def create_sonic_plugin_routes(auth_guard: AuthGuard = None, repo_root: Optional
                 "by_vendor": stats.by_vendor,
                 "by_reflash_potential": stats.by_reflash_potential,
                 "usb_boot_capable": stats.usb_boot_capable,
-                "ventoy_capable": stats.ventoy_capable,
+                "uefi_native_capable": stats.uefi_native_capable,
                 "last_updated": stats.last_updated,
             }
         except RuntimeError as e:
