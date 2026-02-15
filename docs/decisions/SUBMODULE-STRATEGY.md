@@ -39,3 +39,7 @@
 ## Versioning Policy
 - Version-lock Core + Wizard in release manifest.
 - Submodules can ship on independent cadence.
+
+## Publish Alignment (v1.3.15)
+- Wizard web publish architecture follows `docs/specs/WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md`.
+- Publish route exposure is capability-driven for optional submodules.

@@ -480,6 +480,12 @@ class WizardServer:
         platform_router = create_platform_routes(auth_guard=self._authenticate_admin)
         app.include_router(platform_router)
 
+        # Register publish routes (v1.3.15 draft scaffolding)
+        from wizard.routes.publish_routes import create_publish_routes
+
+        publish_router = create_publish_routes(auth_guard=self._authenticate_admin)
+        app.include_router(publish_router)
+
         # Mount dashboard static files
         from fastapi.staticfiles import StaticFiles
         from fastapi.responses import FileResponse, HTMLResponse

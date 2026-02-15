@@ -14,6 +14,8 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 - Outstanding (active): none; all P0 items complete as of 2026-02-09.
 - Dev mode policy: `/dev/` public submodule required and admin-only; see [DEV-MODE-POLICY.md](DEV-MODE-POLICY.md).
 - Core/Wizard boundary: `core` is the base runtime; `wizard` is the brand for connected services. Core can run without Wizard (limited). Wizard cannot run without Core.
+- Python environment boundary (2026-02-15): Core Python is stdlib-only and must run without a venv; Wizard owns third-party Python in `/wizard/.venv`; `/dev` piggybacks Wizard venv; Core TS runtime remains optional/lightweight.
+- Policy source for env split: [u_dos_python_environments_dev_brief.md](decisions/u_dos_python_environments_dev_brief.md).
 - Logging API v1.3: implemented and tested. See [LOGGING-API-v1.3.md](LOGGING-API-v1.3.md).
 - Empire: tracked in the Empire section below.
 
@@ -50,6 +52,15 @@ Last updated: 2026-02-15
 - [x] Implement Logging API v1.3 endpoints per [LOGGING-API-v1.3.md](LOGGING-API-v1.3.md).
 - [x] Add integration checks for MCP gateway and Wizard health/tool list.
 
+### P0 -- Runtime Boundary Enforcement (Core/Wizard Venv Split)
+- [ ] Add CI guardrail to block non-stdlib imports under `core/py`.
+- [ ] Add CI guardrail to flag heavy Core TS dependency growth.
+- [ ] Enforce launcher capability checks:
+  - [ ] `udos wizard ...` and `udos dev ...` fail with install guidance if `/wizard/.venv` is missing.
+  - [ ] `udos ts ...` reports missing Node and falls back to Core mode when possible.
+- [ ] Ensure Wizard dependency pinning policy is enforced (`requirements.txt`/lockfile committed and used by install path).
+- [ ] Add/verify `udos wizard install` and `udos wizard doctor` for venv lifecycle checks.
+
 ### P1 -- Platform and Extensions
 - [x] Reintroduce Empire business features on new extension spine.
 
@@ -83,6 +94,12 @@ Last updated: 2026-02-15
 - [x] Implement workspace switching in file pickers and readers.
 - [x] Update Wizard routes to use workspace-aware vault paths.
 
+#### P0 -- Python Runtime Boundary (Core/Wizard/Dev)
+- [ ] Keep `core/py` strictly stdlib-only and venv-independent.
+- [ ] Keep Wizard Python dependencies isolated to `/wizard/.venv`.
+- [ ] Keep `/dev` tooling on Wizard venv only (no separate default dev venv).
+- [ ] Add boundary tests for `core` (system Python), `wizard/dev` (venv required), and `ts` (Node capability-gated).
+
 #### P1 -- Containerisation
 - [ ] Sonic Screwdriver Dockerfile (ISO/USB builder).
 - [ ] Songscribe/Groovebox Dockerfile.
@@ -104,6 +121,17 @@ Last updated: 2026-02-15
 ## Wizard Roadmap
 
 **Component:** `wizard/` | **Current:** v1.3.12 | **Status:** Active Development
+
+### v1.3.15 -- Publish Spec Refactor (Planned)
+
+#### P0 -- Must Have
+- [ ] Define and approve Wizard web publish contract for monorepo/module model.
+- [ ] Implement provider capability registry for publish routes.
+- [ ] Add canonical publish API surface and dashboard publish views.
+- [ ] Enforce module-aware publish gating (`/dev`, `sonic`, `groovebox`, external app adapters).
+- [ ] Add release-gate tests for publish lifecycle + manifest integrity.
+
+Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md)
 
 ### v1.4.0
 
