@@ -851,15 +851,29 @@ class GameplayService:
     def _apply_event(self, username: str, event: Dict[str, Any]) -> Dict[str, Any]:
         payload = event.get("payload", {}) if isinstance(event.get("payload"), dict) else {}
         event_type = str(event.get("type", "")).upper()
+        source = str(event.get("source", "")).lower()
         stats = self.get_user_stats(username)
         changed = False
         gate_changed = False
         notes: List[str] = []
         normalized_fields: List[str] = []
 
+        # System-of-record guardrail: external adapter lanes may emit canonical events
+        # but cannot directly mutate canonical state via generic payload shortcuts.
+        is_external_lane = source.startswith("adapter:") or source.startswith("toybox:")
+        allow_normalized_mutation = not is_external_lane
+        allow_location_overlay = allow_normalized_mutation or event_type.startswith("MAP_")
+        blocked_payload_keys = {
+            key
+            for key in ("identity", "permissions", "gates", "toybox", "users", "rules", "state")
+            if key in payload
+        }
+        if blocked_payload_keys:
+            notes.append(f"blocked_payload_keys:{','.join(sorted(blocked_payload_keys))}")
+
         # Standardized payload contract (optional): stats_delta/progress/location.
         stats_delta = payload.get("stats_delta")
-        if isinstance(stats_delta, dict):
+        if isinstance(stats_delta, dict) and allow_normalized_mutation:
             for stat in ("xp", "hp", "gold"):
                 if stat in stats_delta:
                     try:
@@ -869,9 +883,11 @@ class GameplayService:
                     except Exception:
                         continue
             stats["hp"] = max(0, int(stats.get("hp", 0)))
+        elif isinstance(stats_delta, dict):
+            notes.append("blocked:stats_delta")
 
         progress_payload = payload.get("progress")
-        if isinstance(progress_payload, dict):
+        if isinstance(progress_payload, dict) and allow_normalized_mutation:
             achievement_id = str(progress_payload.get("achievement_id", "")).strip()
             if achievement_id and self._add_achievement(username, achievement_id):
                 changed = True
@@ -887,11 +903,16 @@ class GameplayService:
                     normalized_fields.append("progress.level")
                 except Exception:
                     pass
+        elif isinstance(progress_payload, dict):
+            notes.append("blocked:progress")
 
         location_payload = payload.get("location")
-        if isinstance(location_payload, dict) and self._set_progress_location(username, location_payload):
-            changed = True
-            normalized_fields.append("location")
+        if isinstance(location_payload, dict):
+            if allow_location_overlay and self._set_progress_location(username, location_payload):
+                changed = True
+                normalized_fields.append("location")
+            elif not allow_location_overlay:
+                notes.append("blocked:location")
 
         if event_type == "HETHACK_LEVEL_REACHED":
             depth = int(payload.get("depth", 0) or 0)

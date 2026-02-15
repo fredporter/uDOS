@@ -5,7 +5,6 @@ Intelligent command suggestion engine for the active v1.3.16 command set.
 """
 
 from typing import List, Dict, Optional
-from pathlib import Path
 
 
 class AutocompleteService:
@@ -60,7 +59,7 @@ class AutocompleteService:
             },
             "HEALTH": {
                 "description": "Run offline stdlib health checks",
-                "options": [],
+                "options": ["CHECK", "release-gates", "--format", "json", "text"],
             },
             "VERIFY": {
                 "description": "Run TS/runtime verification checks",

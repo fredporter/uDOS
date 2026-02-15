@@ -31,7 +31,7 @@ class PluginMetadata:
     homepage: str = ""  # GitHub/project URL
     tags: List[str] = None  # Tags (e.g., "networking", "database")
     dependencies: List[str] = None  # Required plugins
-    active: bool = True  # If False, deprecated/archived
+    active: bool = True  # If False, legacy/archived
     last_updated: str = ""  # Last modification time
 
     def __post_init__(self):

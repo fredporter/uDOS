@@ -1,0 +1,19 @@
+{
+  "allowed": [
+    "core/services/self_healer.py:7",
+    "core/services/self_healer.py:192",
+    "core/services/self_healer.py:198",
+    "core/services/self_healer.py:206",
+    "core/src/spatial/types.ts:18",
+    "wizard/github_integration/plugin_discovery.py:34",
+    "wizard/routes/setup_story_routes.py:46",
+    "wizard/services/plugin_factory.py:23",
+    "wizard/services/plugin_factory.py:112",
+    "wizard/services/plugin_factory.py:669",
+    "wizard/services/plugin_factory.py:680",
+    "wizard/services/plugin_factory.py:684",
+    "wizard/services/plugin_factory.py:692",
+    "wizard/services/plugin_factory.py:694",
+    "wizard/services/anchor_registry.py:92"
+  ]
+}

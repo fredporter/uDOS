@@ -10,7 +10,7 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 
 - Core concept: uDOS is a local Obsidian companion runtime focused on `@workspace`/`@binder` organization, fractal/layered filesystem structures, knowledge-tree navigation, and digital-garden workflows.
 - Milestones v1.3.0 to v1.3.7: complete (archived records exist).
-- Current focus: stabilization and polish for v1.4.0 release.
+- Current focus: v1.3.23 Core Stabilization Round A as the final quality ramp into v1.4.0.
 - Outstanding (active): v1.4.0 platform/containerization and Wizard publish roadmap items remain open; v1.3.16 command/boundary refactor is complete.
 - Dev mode policy: `/dev/` public submodule required and admin-only; see [DEV-MODE-POLICY.md](DEV-MODE-POLICY.md).
 - Core/Wizard boundary: `core` is the base runtime; `wizard` is the brand for connected services. Core can run without Wizard (limited). Wizard cannot run without Core.
@@ -50,6 +50,18 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 - Added `RULE` command scaffold for gameplay IF/THEN automations that evaluate normalized TOYBOX state and trigger gameplay actions/tokens.
 - Published TOYBOX variable comparison spec: `docs/specs/TOYBOX-CONTAINER-VARIABLE-COMPARISON-v1.3.md`.
 - Added gameplay tutorial/template assets (wireframe demo + historical era variants) and seeded `gameplay-wireframe-demo-script.md` into framework system seeds.
+- Added v1.3.22 world-lens MVP bootstrap: `GPLAY LENS` status/toggle command surface + single-region 3D lens readiness service behind feature flag.
+- Hardened v1.3.22 single-region vertical slice contract checks (allowed place set, LocId/PlaceRef parse validation, slice connectivity validation against seed data).
+- Added v1.3.22 parity + ownership guard tests: same quest/place MAP event flow now verified across 2D map lane and adapter lane, with adapter payload attempts blocked from overriding core-owned identity/permissions/gates.
+- Started v1.3.23 Round A with mission objective registry + `HEALTH CHECK release-gates` status surface (text/json payload contract).
+- Added v1.3.23 TOYBOX adapter lifecycle hardening in PTY runtime (`state`, retries/backoff, health probe/status fields) with dedicated lifecycle tests.
+- Added v1.3.23 deterministic gameplay replay harness (`core/services/gameplay_replay_service.py`) with checksum/report artifacts and unknown-event isolation tests.
+- Added v1.3.23 CI guardrails/scripts (`check_v1_3_23_contract_drift.py`, `check_v1_3_23_debug_round_a.py`) and Debug Round A triage artifact output.
+- Started v1.3.24 Round B by expanding cross-lens parity coverage to multi-step quest-chain state and reward invariants (`core/tests/v1_3_24_parity_reward_invariants_test.py`).
+- Added v1.3.24 world-state migration smoke coverage for gameplay/map runtime legacy snapshots + CI smoke entrypoint (`check_v1_3_24_world_state_migration_smoke.py`).
+- Added v1.3.24 benchmark history snapshots + regression-delta evaluator/alerts with CI gate (`check_v1_3_24_benchmark_history.py`).
+- Added v1.3.24 command capability matrix negative-path tests for role denials, blocked flows, and deterministic syntax/unknown-subcommand errors.
+- Completed v1.3.24 Debug Round B hygiene gate: duplicate/legacy-marker baselines cleared and unused private-function annotations emitted via triage artifact.
 
 ---
 
@@ -142,52 +154,70 @@ Reference:
 - [v1.3.21-CAPABILITY-BENCHMARK-MISSIONS.md](specs/v1.3.21-CAPABILITY-BENCHMARK-MISSIONS.md)
 
 ### v1.3.22 (Planned) -- 3D-World Integration MVP
-- [ ] Enable first 3D world lens integration behind feature flag.
-- [ ] Start with single-region vertical slice using canonical LocId/Place contracts.
-- [ ] Require parity: same quest/place/events playable in 2D grid and 3D lens.
-- [ ] Keep uDOS as system-of-record; adapters render only (no identity ownership in engine).
+- [x] Enable first 3D world lens integration behind feature flag.
+- [x] Start with single-region vertical slice using canonical LocId/Place contracts.
+- [x] Require parity: same quest/place/events playable in 2D grid and 3D lens.
+- [x] Keep uDOS as system-of-record; adapters render only (no identity ownership in engine).
 
 ### v1.3.23 (Planned) -- Core Stabilization Round A
-- [ ] Mission objective registry + status endpoint for release gates.
-- [ ] Stabilize adapter lifecycle management (launch/stop/status retries and health probes).
-- [ ] Add deterministic replay harness for gameplay event streams.
-- [ ] Add CI guardrails for contract drift across map/gameplay/toybox surfaces.
-- [ ] Debug Round A:
-  - [ ] hardcoded path scan baseline clean
-  - [ ] deprecated/depreciated marker baseline clean
-  - [ ] duplicate function scanner baseline clean
-  - [ ] unused private-function report triaged
+- [x] Mission objective registry + status endpoint for release gates.
+- [x] Stabilize adapter lifecycle management (launch/stop/status retries and health probes).
+- [x] Add deterministic replay harness for gameplay event streams.
+- [x] Add CI guardrails for contract drift across map/gameplay/toybox surfaces.
+- [x] Debug Round A:
+  - [x] hardcoded path scan baseline clean
+  - [x] deprecated/depreciated marker baseline clean
+  - [x] duplicate function scanner baseline clean
+  - [x] unused private-function report triaged
+
+Reference:
+- [v1.3.23-MISSION-OBJECTIVE-REGISTRY-CONTRACT.md](specs/v1.3.23-MISSION-OBJECTIVE-REGISTRY-CONTRACT.md)
+- [v1.3.23-ADAPTER-LIFECYCLE-AND-REPLAY-CONTRACT.md](specs/v1.3.23-ADAPTER-LIFECYCLE-AND-REPLAY-CONTRACT.md)
+- [v1.3.23-CONTRACT-DRIFT-CI-GUARDRAILS.md](specs/v1.3.23-CONTRACT-DRIFT-CI-GUARDRAILS.md)
+- [v1.3.23-STABILIZATION-ROUND-A-CHECKLIST.md](specs/v1.3.23-STABILIZATION-ROUND-A-CHECKLIST.md)
 
 ### v1.3.24 (Planned) -- Core Stabilization Round B
-- [ ] Expand cross-lens parity suite to include quest chain state and reward invariants.
-- [ ] Add world-state migration smoke tests for backward-compatible persistence.
-- [ ] Add benchmark history snapshots and regression-delta alerts.
-- [ ] Harden command capability matrix with negative-path tests.
-- [ ] Debug Round B:
-  - [ ] remove flagged duplicate functions
-  - [ ] remove or annotate unused private functions
-  - [ ] resolve legacy/deprecated markers still in active code paths
+- [x] Expand cross-lens parity suite to include quest chain state and reward invariants.
+- [x] Add world-state migration smoke tests for backward-compatible persistence.
+- [x] Add benchmark history snapshots and regression-delta alerts.
+- [x] Harden command capability matrix with negative-path tests.
+- [x] Debug Round B:
+  - [x] remove flagged duplicate functions
+  - [x] remove or annotate unused private functions
+  - [x] resolve legacy/deprecated markers still in active code paths
 
-### v1.3.25 (Planned) -- Core Stabilization Round C
-- [ ] Freeze v1.3.x contract set before v1.4 branch cut.
-- [ ] Add long-run soak test for event ingestion + map tick loops.
-- [ ] Add release checklist automation for mission objectives + benchmark budgets.
-- [ ] Verify no hardcoded local machine paths remain in runtime code.
-- [ ] Debug Round C:
-  - [ ] dead-code cleanup sweep (python + ts)
-  - [ ] duplicate logic consolidation in command/service layers
-  - [ ] benchmark regression drill (simulate failure, verify gate blocks release)
+Reference:
+- [v1.3.24-ROUND-B-PARITY-AND-MIGRATION-CHECKLIST.md](specs/v1.3.24-ROUND-B-PARITY-AND-MIGRATION-CHECKLIST.md)
 
-### v1.3.26 (Planned) -- Core Stabilization Final Gate
-- [ ] Final stabilization pass for command/runtime surfaces (no contract regressions).
-- [ ] Final capability matrix sign-off for Core, Wizard, and TOYBOX lanes.
-- [ ] Final benchmark sign-off against mission objective thresholds.
-- [ ] Publish core stabilization release notes and v1.4 readiness memo.
-- [ ] Debug Round Final:
-  - [ ] hardcoding check passes
-  - [ ] deprecated/depreciated code marker check passes
-  - [ ] duplicate function check passes
-  - [ ] unused-function report reviewed and approved
+### v1.3.25 (Complete) -- Core Stabilization Round C
+- [x] Freeze v1.3.x contract set before v1.4 branch cut.
+- [x] Add long-run soak test for event ingestion + map tick loops.
+- [x] Add release checklist automation for mission objectives + benchmark budgets.
+- [x] Verify no hardcoded local machine paths remain in runtime code.
+- [x] Debug Round C:
+  - [x] dead-code cleanup sweep (python + ts)
+  - [x] duplicate logic consolidation in command/service layers
+  - [x] benchmark regression drill (simulate failure, verify gate blocks release)
+
+Reference:
+- [v1.3.25-CONTRACT-FREEZE-AND-RELEASE-CHECKLIST.md](specs/v1.3.25-CONTRACT-FREEZE-AND-RELEASE-CHECKLIST.md)
+
+### v1.3.26 (Complete) -- Core Stabilization Final Gate
+- [x] Final stabilization pass for command/runtime surfaces (no contract regressions).
+- [x] Final capability matrix sign-off for Core, Wizard, and TOYBOX lanes.
+- [x] Final benchmark sign-off against mission objective thresholds.
+- [x] Publish core stabilization release notes and v1.4 readiness memo.
+- [x] Debug Round Final:
+  - [x] hardcoding check passes
+  - [x] deprecated/depreciated code marker check passes
+  - [x] duplicate function check passes
+  - [x] unused-function report reviewed and approved
+
+Reference:
+- [v1.3.26-FINAL-GATE-READINESS-CHECKLIST.md](specs/v1.3.26-FINAL-GATE-READINESS-CHECKLIST.md)
+- [v1.3.26-CORE-STABILIZATION-RELEASE-NOTES.md](specs/v1.3.26-CORE-STABILIZATION-RELEASE-NOTES.md)
+- [v1.4.0-READINESS-MEMO.md](specs/v1.4.0-READINESS-MEMO.md)
+- [v1.4.0-KICKOFF-CHECKLIST.md](specs/v1.4.0-KICKOFF-CHECKLIST.md)
 
 ---
 
@@ -225,6 +255,9 @@ Last updated: 2026-02-15
 ## Core Roadmap (uDOS)
 
 ### v1.4.0 -- Repo Restructure and Containerisation
+
+Reference:
+- [v1.4.0-KICKOFF-CHECKLIST.md](specs/v1.4.0-KICKOFF-CHECKLIST.md)
 
 #### P0 -- Repo Restructure (Complete)
 - [x] Root cleanup: removed ephemeral debug/fix files.

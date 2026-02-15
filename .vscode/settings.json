@@ -1,6 +1,7 @@
 {
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
-  "python.linting.enabled": false,
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": true,
   "python.analysis.typeCheckingMode": "off",
   "python.analysis.indexing": false,
   "python.analysis.autoSearchPaths": false,
@@ -67,7 +68,6 @@
     "PYTHONUNBUFFERED": "1",
     "LESS": "-R"
   },
-  "extensions.ignoreRecommendations": true,
   "github.copilot.enable": {
     "*": true,
     "yaml": false,

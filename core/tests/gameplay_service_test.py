@@ -112,3 +112,10 @@ def test_gplay_map_command_is_dispatched():
     result = dispatcher.dispatch("GPLAY MAP STATUS")
     assert result["status"] == "success"
     assert "GPLAY MAP STATUS" in result.get("output", "")
+
+
+def test_gplay_lens_command_is_dispatched():
+    dispatcher = CommandDispatcher()
+    result = dispatcher.dispatch("GPLAY LENS STATUS")
+    assert result["status"] == "success"
+    assert "GPLAY LENS STATUS" in result.get("output", "")

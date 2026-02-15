@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import ast
+import json
 from pathlib import Path
 from typing import Dict, List, Tuple
 
 from core.commands.base import BaseCommandHandler
+from core.services.mission_objective_registry import MissionObjectiveRegistry
 from core.tui.output import OutputToolkit
 from core.services.logging_api import get_repo_root
 
@@ -29,6 +31,9 @@ class HealthHandler(BaseCommandHandler):
     }
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
+        if params and params[0].lower() == "check":
+            return self._handle_check(params[1:])
+
         repo = get_repo_root()
 
         checks: List[Tuple[str, bool]] = []
@@ -64,6 +69,66 @@ class HealthHandler(BaseCommandHandler):
             "checks_passed": passed,
             "checks_total": len(checks),
             "network_violations": len(network_violations),
+        }
+
+    def _handle_check(self, params: List[str]) -> Dict:
+        target = params[0].lower() if params else ""
+        fmt = "text"
+        for idx, token in enumerate(params):
+            lower = token.lower()
+            if lower == "--format" and idx + 1 < len(params):
+                fmt = params[idx + 1].strip().lower()
+            elif lower.startswith("--format="):
+                fmt = lower.split("=", 1)[1].strip()
+        if target in {"release-gates", "release-gate", "gates"}:
+            return self._check_release_gates(fmt)
+        return {
+            "status": "error",
+            "message": "Syntax: HEALTH CHECK release-gates [--format json|text]",
+        }
+
+    def _check_release_gates(self, fmt: str = "text") -> Dict:
+        payload = MissionObjectiveRegistry().snapshot()
+        summary = payload.get("summary", {})
+        status = "success"
+        if (
+            bool(summary.get("blocker_open"))
+            or bool(summary.get("contract_drift"))
+            or int(summary.get("fail", 0) or 0) > 0
+            or int(summary.get("error", 0) or 0) > 0
+        ):
+            status = "warning"
+
+        if fmt == "json":
+            output = json.dumps(payload, indent=2)
+        else:
+            output_lines = [OutputToolkit.banner("HEALTH CHECK release-gates"), ""]
+            output_lines.append(
+                "Summary: total={total} pass={pass_} fail={fail} error={error} pending={pending} blocker_open={blocker}".format(
+                    total=summary.get("total", 0),
+                    pass_=summary.get("pass", 0),
+                    fail=summary.get("fail", 0),
+                    error=summary.get("error", 0),
+                    pending=summary.get("pending", 0),
+                    blocker=summary.get("blocker_open", False),
+                )
+            )
+            drift = payload.get("contract_drift", {}).get("unknown_objective_ids", [])
+            if drift:
+                output_lines.append("Contract drift: unknown objective ids -> " + ", ".join(drift))
+            output_lines.append("")
+            output_lines.append("Objectives:")
+            for row in payload.get("objectives", []):
+                output_lines.append(
+                    f"- {row.get('id')} [{row.get('severity')}] status={row.get('status')}"
+                )
+            output = "\n".join(output_lines)
+
+        return {
+            "status": status,
+            "message": "Release-gate mission objective status",
+            "output": output,
+            "release_gates": payload,
         }
 
     def _scan_network_imports(self, repo_root: Path) -> List[Tuple[str, int, str]]:

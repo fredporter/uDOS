@@ -4,7 +4,7 @@ Self-Healing System for uDOS
 
 Detects and automatically repairs common issues:
 - Missing dependencies
-- Deprecated code patterns
+- Legacy code patterns
 - Configuration errors
 - Port conflicts
 - Version mismatches
@@ -46,7 +46,7 @@ logger = get_logger("self-healer")
 class IssueType(Enum):
     """Types of issues that can be detected and repaired."""
     MISSING_DEPENDENCY = "missing_dependency"
-    DEPRECATED_CODE = "deprecated_code"
+    LEGACY_CODE = "legacy_code"
     CONFIG_ERROR = "config_error"
     PORT_CONFLICT = "port_conflict"
     VERSION_MISMATCH = "version_mismatch"
@@ -189,13 +189,13 @@ class SelfHealer:
                 ))
 
     def _check_deprecations(self):
-        """Check for deprecated code patterns."""
+        """Check for legacy code patterns."""
         deprecation_patterns = {
             "wizard": [
                 {
                     "file": "wizard/server.py",
                     "pattern": "@app.on_event",
-                    "description": "FastAPI on_event is deprecated, use lifespan instead",
+                    "description": "FastAPI on_event is legacy, use lifespan instead",
                     "severity": IssueSeverity.WARNING,
                 }
             ],
@@ -203,7 +203,7 @@ class SelfHealer:
                 {
                     "file": "dev/goblin/goblin_server.py",
                     "pattern": "@app.on_event",
-                    "description": "FastAPI on_event is deprecated, use lifespan instead",
+                    "description": "FastAPI on_event is legacy, use lifespan instead",
                     "severity": IssueSeverity.WARNING,
                 }
             ]
@@ -216,7 +216,7 @@ class SelfHealer:
                 content = file_path.read_text()
                 if pattern["pattern"] in content:
                     self.issues.append(Issue(
-                        type=IssueType.DEPRECATED_CODE,
+                        type=IssueType.LEGACY_CODE,
                         severity=pattern["severity"],
                         description=pattern["description"],
                         component=self.component,
@@ -442,7 +442,7 @@ class SelfHealer:
                     return self._repair_command(issue.repair_action)
                 logger.info("[HEAL] Skipped repair at user request")
                 return False
-            elif issue.type == IssueType.DEPRECATED_CODE:
+            elif issue.type == IssueType.LEGACY_CODE:
                 # Don't auto-repair code changes (require manual review)
                 logger.info(f"[HEAL] Code changes require manual review: {issue.description}")
                 return False

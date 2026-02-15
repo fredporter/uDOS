@@ -20,7 +20,7 @@ Requirements (for APK):
   - Alpine Linux environment (for testing)
 
 Migration Note:
-    This replaces the old TinyCore TCZ packaging system (deprecated).
+    This replaces the old TinyCore TCZ packaging system (legacy).
   See ADR-0003-alpine-linux-migration.md for details.
 """
 
@@ -109,7 +109,7 @@ class PluginFactory:
 
     Supports:
     - Building from code containers
-    - TCZ packaging (TinyCore, deprecated)
+    - TCZ packaging (TinyCore, legacy)
     - TAR.GZ fallback
     - Manifest generation
     - Checksum calculation
@@ -666,7 +666,7 @@ class APKBuilder:
 
 class TCZBuilder:
     """
-    DEPRECATED: Old TinyCore TCZ package builder. Use Alpine-style plugin packaging and distribution managed by Wizard.
+    LEGACY: Old TinyCore TCZ package builder. Use Alpine-style plugin packaging and distribution managed by Wizard.
 
     This class is kept for backwards compatibility only.
     Use APKBuilder instead for Alpine Linux packages.
@@ -677,11 +677,11 @@ class TCZBuilder:
     """
 
     def __init__(self, logger=None):
-        """Initialize (deprecated)."""
+        """Initialize (legacy)."""
         import warnings
 
         warnings.warn(
-            "TCZBuilder is deprecated. Use APKBuilder for Alpine packages.",
+            "TCZBuilder is legacy. Use APKBuilder for Alpine packages.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -689,8 +689,8 @@ class TCZBuilder:
         self.apk_builder = APKBuilder(logger=logger)
 
     def build_tcz(self, *args, **kwargs):
-        """DEPRECATED: Use APKBuilder.build_apk() instead."""
+        """LEGACY: Use APKBuilder.build_apk() instead."""
         raise NotImplementedError(
-            "TCZ packaging is deprecated. Use Alpine APK packages instead.\n"
+            "TCZ packaging is legacy. Use Alpine APK packages instead.\n"
             "See: docs/decisions/ADR-0003-alpine-linux-migration.md"
         )

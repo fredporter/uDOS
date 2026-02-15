@@ -28,6 +28,9 @@ class GameplayHandler(BaseCommandHandler):
       GPLAY GATE RESET <gate_id>
       GPLAY TOYBOX LIST
       GPLAY TOYBOX SET <hethack|elite|rpgbbs|crawler3d>
+      GPLAY LENS STATUS
+      GPLAY LENS ENABLE
+      GPLAY LENS DISABLE
       GPLAY PROCEED
       GPLAY NEXT
       GPLAY UNLOCK
@@ -65,6 +68,9 @@ class GameplayHandler(BaseCommandHandler):
 
         if sub == "toybox":
             return self._handle_toybox(gameplay, username, role, params[1:])
+
+        if sub == "lens":
+            return self._handle_lens(gameplay, username, role, params[1:])
 
         if sub in {"proceed", "unlock", "next"}:
             return self._handle_proceed(gameplay)
@@ -144,23 +150,27 @@ class GameplayHandler(BaseCommandHandler):
             return {"status": "error", "message": "Permission denied: gameplay.mutate"}
 
         if action == "enter":
-            if len(params) < 2:
-                return {"status": "error", "message": "Syntax: GPLAY MAP ENTER <place_id>"}
-            result = runtime.enter(username, params[1])
+            target, error = self._require_arg(params, 1, "GPLAY MAP ENTER <place_id>")
+            if error:
+                return error
+            result = runtime.enter(username, target)
         elif action == "move":
-            if len(params) < 2:
-                return {"status": "error", "message": "Syntax: GPLAY MAP MOVE <target_place_id>"}
-            result = runtime.move(username, params[1])
+            target, error = self._require_arg(params, 1, "GPLAY MAP MOVE <target_place_id>")
+            if error:
+                return error
+            result = runtime.move(username, target)
         elif action == "inspect":
             result = runtime.inspect(username)
         elif action == "interact":
-            if len(params) < 2:
-                return {"status": "error", "message": "Syntax: GPLAY MAP INTERACT <interaction_id>"}
-            result = runtime.interact(username, params[1])
+            point, error = self._require_arg(params, 1, "GPLAY MAP INTERACT <interaction_id>")
+            if error:
+                return error
+            result = runtime.interact(username, point)
         elif action == "complete":
-            if len(params) < 2:
-                return {"status": "error", "message": "Syntax: GPLAY MAP COMPLETE <objective_id>"}
-            result = runtime.complete(username, params[1])
+            objective, error = self._require_arg(params, 1, "GPLAY MAP COMPLETE <objective_id>")
+            if error:
+                return error
+            result = runtime.complete(username, objective)
         elif action == "tick":
             steps = 1
             if len(params) >= 2:
@@ -195,6 +205,14 @@ class GameplayHandler(BaseCommandHandler):
             "player_stats": snapshot.get("stats", {}),
             "output": self._format_map_action(result, status, snapshot),
         }
+
+    def _require_arg(self, params: List[str], index: int, syntax: str) -> tuple[str, Dict | None]:
+        if len(params) <= index:
+            return "", {"status": "error", "message": f"Syntax: {syntax}"}
+        value = str(params[index]).strip()
+        if not value:
+            return "", {"status": "error", "message": f"Syntax: {syntax}"}
+        return value, None
 
     def _handle_gate(self, gameplay, role: str, params: List[str]) -> Dict:
         if not params or params[0].lower() == "status":
@@ -284,6 +302,49 @@ class GameplayHandler(BaseCommandHandler):
             "output": "Blocked: complete dungeon level 32 and retrieve the Amulet of Yendor.",
         }
 
+    def _handle_lens(self, gameplay, username: str, role: str, params: List[str]) -> Dict:
+        from core.services.map_runtime_service import get_map_runtime_service
+        from core.services.world_lens_service import get_world_lens_service
+
+        action = params[0].lower() if params else "status"
+        runtime = get_map_runtime_service()
+        world_lens = get_world_lens_service()
+
+        if action in {"status", "show"}:
+            map_status = runtime.status(username)
+            lens_status = world_lens.status(
+                username=username,
+                map_status=map_status,
+                progression_ready=gameplay.can_proceed(),
+            )
+            return {
+                "status": "success",
+                "message": "World lens status",
+                "lens": lens_status,
+                "output": self._format_lens_status(lens_status),
+            }
+
+        if action not in {"enable", "disable"}:
+            return {"status": "error", "message": "Syntax: GPLAY LENS <STATUS|ENABLE|DISABLE>"}
+
+        if not gameplay.has_permission(role, "gameplay.gate_admin"):
+            return {"status": "error", "message": "Permission denied: gameplay.gate_admin"}
+
+        world_lens.set_enabled(action == "enable", actor=f"gplay:{username}")
+        map_status = runtime.status(username)
+        lens_status = world_lens.status(
+            username=username,
+            map_status=map_status,
+            progression_ready=gameplay.can_proceed(),
+        )
+        verb = "enabled" if action == "enable" else "disabled"
+        return {
+            "status": "success",
+            "message": f"World lens {verb}",
+            "lens": lens_status,
+            "output": self._format_lens_status(lens_status),
+        }
+
     def _status_block(self, snapshot: Dict) -> Dict:
         stats = snapshot.get("stats", {})
         active = snapshot.get("toybox", {}).get("active_profile", "hethack")
@@ -334,5 +395,22 @@ class GameplayHandler(BaseCommandHandler):
                 f"Chunk2D: {status.get('chunk', {}).get('chunk2d_id')}",
                 f"XP={stats.get('xp', 0)} HP={stats.get('hp', 100)} Gold={stats.get('gold', 0)}",
                 f"Level={progress.get('level', 1)} AchievementLevel={progress.get('achievement_level', 0)}",
+            ]
+        )
+
+    def _format_lens_status(self, lens_status: Dict) -> str:
+        lens = lens_status.get("lens", {})
+        region = lens_status.get("single_region", {})
+        contract = lens_status.get("slice_contract", {})
+        state = "ready" if lens.get("ready") else "blocked"
+        reason = lens.get("blocking_reason") or "none"
+        return "\n".join(
+            [
+                "GPLAY LENS STATUS",
+                f"Version: {lens_status.get('version')}",
+                f"Enabled: {lens.get('enabled')} ({lens.get('enabled_source')})",
+                f"Slice: {region.get('id')} entry={region.get('entry_place_id')} active={region.get('active')}",
+                f"Contract: valid={contract.get('valid')} places={len(contract.get('allowed_place_ids', []))}",
+                f"State: {state} reason={reason}",
             ]
         )

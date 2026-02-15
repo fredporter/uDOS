@@ -15,7 +15,7 @@ export interface Anchor {
   anchorId: string; // "EARTH", "BODY:MOON", "GAME:skyrim"
   kind: AnchorKind;
   title: string;
-  status: "active" | "deprecated";
+  status: "active" | "legacy";
   config: Record<string, unknown>;
   createdAt: number;
   updatedAt: number;

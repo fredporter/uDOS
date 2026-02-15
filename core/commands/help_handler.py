@@ -128,11 +128,11 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         },
         "GPLAY": {
             "description": "Gameplay stats, gates, and TOYBOX profile controls",
-            "usage": "GPLAY [STATUS|STATS|GATE|TOYBOX|PROCEED]",
+            "usage": "GPLAY [STATUS|STATS|MAP|GATE|TOYBOX|LENS|PROCEED]",
             "example": "GPLAY TOYBOX SET hethack",
             "notes": "Persistent XP/HP/Gold with event-driven gate progression.",
             "category": "Navigation",
-            "syntax": "GPLAY STATUS | GPLAY STATS <SET|ADD> <xp|hp|gold> <value> | GPLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK> ... | GPLAY GATE <STATUS|COMPLETE|RESET> <gate_id> | GPLAY TOYBOX <LIST|SET> [profile] | GPLAY PROCEED",
+            "syntax": "GPLAY STATUS | GPLAY STATS <SET|ADD> <xp|hp|gold> <value> | GPLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK> ... | GPLAY GATE <STATUS|COMPLETE|RESET> <gate_id> | GPLAY TOYBOX <LIST|SET> [profile] | GPLAY LENS <STATUS|ENABLE|DISABLE> | GPLAY PROCEED",
         },
         "PLAY": {
             "description": "Conditional play options and unlock-token progression flow",
@@ -256,11 +256,11 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         },
         "HEALTH": {
             "description": "Offline/stdlib core health checks",
-            "usage": "HEALTH",
+            "usage": "HEALTH | HEALTH CHECK release-gates [--format json]",
             "example": "HEALTH",
-            "notes": "Checks local dirs/configs and reports banned network imports in core command paths.",
+            "notes": "Checks local dirs/configs, reports banned network imports, and can emit release-gate mission-objective status.",
             "category": "System & Maintenance",
-            "syntax": "HEALTH",
+            "syntax": "HEALTH | HEALTH CHECK release-gates [--format text|json]",
         },
         "VERIFY": {
             "description": "TypeScript runtime verification checks",

@@ -1,0 +1,79 @@
+{
+  "version": "1.3.25",
+  "freeze_label": "v1.3.x contract set pre-v1.4",
+  "generated_at_utc": "2026-02-15T13:54:34Z",
+  "contracts": [
+    {
+      "path": "core/config/ucli_command_contract_v1_3.json",
+      "sha256": "5b0236660d76c62f51de1c97cfc01bfc9c290a32b19392219636d4d2994f9dfe"
+    },
+    {
+      "path": "core/config/ucli_command_contract_v1_3_16.json",
+      "sha256": "c9dc3bfa4464f70344ce8337f898e92dbce373ef3ec04822d8578a3cc244f8c3"
+    },
+    {
+      "path": "core/config/world_adapter_contract_v1_3_21.json",
+      "sha256": "1d63e653c236f7b91e110b91592b0d8c2df740e26fa82c005031d4270768edd2"
+    },
+    {
+      "path": "core/config/v1_3_21_mission_objectives.json",
+      "sha256": "ee8babf51c7143d7224d6bdf9897424327d868168f695c6ed2405d6c580a8b4b"
+    },
+    {
+      "path": "core/config/v1_3_22_world_lens_mvp.json",
+      "sha256": "48434b00f103da3bf8b5f1f5893f56ee67edf9cac58e19c03d971e57ceec833d"
+    },
+    {
+      "path": "core/config/v1_3_23_mission_objectives.json",
+      "sha256": "07d9baac51efccb313e6fb51b0f3816b55f692ed7e0c0fe220d9f165d1e471f6"
+    },
+    {
+      "path": "docs/specs/UCLI-COMMAND-CONTRACT-v1.3.md",
+      "sha256": "f62f30b33062188445eaaec4854500113dc399ea67a0195cde888897b247aae4"
+    },
+    {
+      "path": "docs/specs/PLATFORM-CONTRACT-v1.3.md",
+      "sha256": "a79f63324b455c901de0da4c0e209419270b36f7cf317248679975831c4fbc2c"
+    },
+    {
+      "path": "docs/specs/v1.3.20-CHUNKING-CONTRACT.md",
+      "sha256": "eeba811a84c034a7c01ab375029c1fc2e60bda99f4d76891bc3e44a6164db564"
+    },
+    {
+      "path": "docs/specs/v1.3.21-WORLD-ADAPTER-CONTRACT.md",
+      "sha256": "685f2674bc0d65771e1d60ff40c4fb02bf6a01d97706d3b2654e694f96cb0633"
+    },
+    {
+      "path": "docs/specs/v1.3.21-DUAL-LENS-COMPAT-MATRIX.md",
+      "sha256": "f6927807ad5fd15b0b238be460d154bae8e71d5ad6873504bb6c877f53b3964d"
+    },
+    {
+      "path": "docs/specs/v1.3.21-CAPABILITY-BENCHMARK-MISSIONS.md",
+      "sha256": "6bf17ca1e2451a4e13fa1575cc58d4ebb4e87621397bd88034c6378074ee0b65"
+    },
+    {
+      "path": "docs/specs/v1.3.21-ADAPTER-READINESS-CHECKLIST.md",
+      "sha256": "50bde1ea281015cfb63148aeddd67e7aaac7853dffa106fe99093ac7007c2eda"
+    },
+    {
+      "path": "docs/specs/v1.3.23-MISSION-OBJECTIVE-REGISTRY-CONTRACT.md",
+      "sha256": "4254fc14937792290e3a74a750b6790515127f484eb7632fc62437978fef9165"
+    },
+    {
+      "path": "docs/specs/v1.3.23-ADAPTER-LIFECYCLE-AND-REPLAY-CONTRACT.md",
+      "sha256": "46da0af5fbe8cd3bb380be84e35912b53b7468d906dfb40aa1cb53078bad7d18"
+    },
+    {
+      "path": "docs/specs/v1.3.23-CONTRACT-DRIFT-CI-GUARDRAILS.md",
+      "sha256": "6f118289bc477edbe351d27ea79d872de0c34d690a3c6fee2797a166efb8f22d"
+    },
+    {
+      "path": "docs/specs/v1.3.23-STABILIZATION-ROUND-A-CHECKLIST.md",
+      "sha256": "9fe30ee175d8bc63f46032d5295a720494224dc676f795421b82a7e0c0e6aa44"
+    },
+    {
+      "path": "docs/specs/v1.3.24-ROUND-B-PARITY-AND-MIGRATION-CHECKLIST.md",
+      "sha256": "6e90a3a0c0489ff41316d265ca86b7e38a9c6d3c298ae27d425b466e4a5430ed"
+    }
+  ]
+}

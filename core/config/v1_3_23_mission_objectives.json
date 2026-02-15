@@ -1,0 +1,53 @@
+{
+  "version": "1.3.23",
+  "milestone": "v1.3.23",
+  "name": "Core Stabilization Round A Mission Objectives",
+  "objectives": [
+    {
+      "id": "obj.v1_3_23.registry_contract",
+      "description": "Mission objective registry contract is present and status payload is machine-readable.",
+      "owner": "core",
+      "severity": "blocker",
+      "checks": [
+        "core/tests/mission_objective_registry_test.py::test_registry_snapshot_has_required_summary_fields",
+        "core/tests/health_release_gates_command_test.py::test_health_check_release_gates_json_surface"
+      ]
+    },
+    {
+      "id": "obj.v1_3_23.adapter_lifecycle_health",
+      "description": "Adapter lifecycle lane exposes launch/stop/status retries and health probes.",
+      "owner": "wizard",
+      "severity": "required",
+      "checks": [
+        "docs/specs/v1.3.23-ADAPTER-LIFECYCLE-AND-REPLAY-CONTRACT.md"
+      ]
+    },
+    {
+      "id": "obj.v1_3_23.replay_determinism",
+      "description": "Deterministic replay harness produces repeatable state outputs.",
+      "owner": "core",
+      "severity": "required",
+      "checks": [
+        "docs/specs/v1.3.23-ADAPTER-LIFECYCLE-AND-REPLAY-CONTRACT.md"
+      ]
+    },
+    {
+      "id": "obj.v1_3_23.contract_drift_ci",
+      "description": "CI guardrails detect contract drift across map/gameplay/toybox surfaces.",
+      "owner": "ci",
+      "severity": "required",
+      "checks": [
+        "docs/specs/v1.3.23-CONTRACT-DRIFT-CI-GUARDRAILS.md"
+      ]
+    },
+    {
+      "id": "obj.v1_3_23.debug_scan_baseline",
+      "description": "Round A debug hygiene scans are green or triaged.",
+      "owner": "ci",
+      "severity": "advisory",
+      "checks": [
+        "docs/specs/v1.3.23-STABILIZATION-ROUND-A-CHECKLIST.md"
+      ]
+    }
+  ]
+}

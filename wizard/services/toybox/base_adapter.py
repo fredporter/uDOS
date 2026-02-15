@@ -37,12 +37,16 @@ class PTYAdapter:
         command_candidates: List[str],
         startup_args: Optional[List[str]] = None,
         parse_fn: Optional[Callable[[str], List[Dict[str, Any]]]] = None,
+        max_start_retries: int = 3,
+        retry_backoff_seconds: Optional[List[float]] = None,
     ) -> None:
         self.adapter_id = adapter_id
         self.env_cmd_var = env_cmd_var
         self.command_candidates = command_candidates
         self.startup_args = startup_args or []
         self.parse_fn = parse_fn
+        self.max_start_retries = max(0, int(max_start_retries))
+        self.retry_backoff_seconds = list(retry_backoff_seconds or [1.0, 2.0, 4.0])
 
         self.repo_root = get_repo_root()
         self.event_file = self.repo_root / "memory" / "bank" / "private" / "gameplay_events.ndjson"
@@ -58,6 +62,15 @@ class PTYAdapter:
         self._last_error: Optional[str] = None
         self._resolved_command: Optional[List[str]] = None
         self._last_depth = 1
+        self.state = "stopped"
+        self.retries = 0
+        self.last_transition_at = self._now_iso()
+
+    def _transition(self, state: str, *, error: Optional[str] = None) -> None:
+        self.state = state
+        self.last_transition_at = self._now_iso()
+        if error:
+            self._last_error = error
 
     def _now_iso(self) -> str:
         return datetime.now(timezone.utc).isoformat()
@@ -77,17 +90,16 @@ class PTYAdapter:
             + ", ".join(self.command_candidates)
         )
 
-    def start(self) -> None:
-        if self.running:
-            return
-        cmd = self._resolve_command()
-        cmd = cmd + self.startup_args
-        self._resolved_command = cmd
+    def _probe_pid_alive(self, pid: Optional[int]) -> bool:
+        if not pid:
+            return False
+        try:
+            os.kill(pid, 0)
+            return True
+        except OSError:
+            return False
 
-        proc_env = os.environ.copy()
-        proc_env.setdefault("TERM", "xterm-256color")
-        proc_env.setdefault("LINES", "30")
-        proc_env.setdefault("COLUMNS", "100")
+    def _spawn_once(self, cmd: List[str], proc_env: Dict[str, str]) -> tuple[int, int]:
         pid, master_fd = pty.fork()
         if pid == 0:
             os.chdir(str(self.repo_root))
@@ -95,17 +107,88 @@ class PTYAdapter:
                 os.execvpe(cmd[0], cmd, proc_env)
             except Exception:
                 os._exit(127)
+        return pid, master_fd
+
+    def _attempt_start(self, cmd: List[str]) -> bool:
+        proc_env = os.environ.copy()
+        proc_env.setdefault("TERM", "xterm-256color")
+        proc_env.setdefault("LINES", "30")
+        proc_env.setdefault("COLUMNS", "100")
+        pid, master_fd = self._spawn_once(cmd, proc_env)
         self.master_fd = master_fd
         self.proc_pid = pid
         self.returncode = None
         self.running = True
+
+        # Small startup probe: detect immediate crash and trigger retry path.
+        time.sleep(0.05)
+        if not self._probe_pid_alive(pid):
+            self.running = False
+            try:
+                waited_pid, status = os.waitpid(pid, os.WNOHANG)
+                if waited_pid == pid:
+                    if os.WIFEXITED(status):
+                        self.returncode = os.WEXITSTATUS(status)
+                    elif os.WIFSIGNALED(status):
+                        self.returncode = -os.WTERMSIG(status)
+            except Exception:
+                pass
+            if self.master_fd is not None:
+                try:
+                    os.close(self.master_fd)
+                except Exception:
+                    pass
+                self.master_fd = None
+            self.proc_pid = None
+            return False
+
         self._reader_thread = threading.Thread(target=self._reader_loop, daemon=True)
         self._reader_thread.start()
-        self._emit_event("TOYBOX_RUNTIME_STARTED", {"command": cmd})
+        return True
+
+    def start(self) -> None:
+        if self.running and self._probe_pid_alive(self.proc_pid):
+            return
+        self._transition("starting")
+        self.retries = 0
+        cmd = self._resolve_command() + self.startup_args
+        self._resolved_command = cmd
+
+        attempts = 0
+        while True:
+            attempts += 1
+            try:
+                if self._attempt_start(cmd):
+                    self.retries = max(0, attempts - 1)
+                    self._transition("running")
+                    self._emit_event("TOYBOX_RUNTIME_STARTED", {"command": cmd, "retries": self.retries})
+                    return
+            except Exception as exc:
+                self._last_error = str(exc)
+                self.running = False
+            if attempts - 1 >= self.max_start_retries:
+                self.retries = max(0, attempts - 1)
+                self._transition("failed", error=self._last_error or "startup failed")
+                self._emit_event(
+                    "TOYBOX_RUNTIME_FAILED",
+                    {
+                        "command": cmd,
+                        "retries": self.retries,
+                        "error": self._last_error or "startup failed",
+                    },
+                )
+                raise RuntimeError(self._last_error or f"Failed to start adapter {self.adapter_id}")
+
+            self.retries = max(0, attempts)
+            backoff_idx = min(self.retries - 1, max(0, len(self.retry_backoff_seconds) - 1))
+            delay = float(self.retry_backoff_seconds[backoff_idx]) if self.retry_backoff_seconds else 1.0
+            time.sleep(max(0.0, delay))
 
     def stop(self) -> None:
-        if not self.running:
+        if not self.running and not self._probe_pid_alive(self.proc_pid):
+            self._transition("stopped")
             return
+        self._transition("stopping")
         try:
             if self.proc_pid:
                 os.kill(self.proc_pid, signal.SIGTERM)
@@ -133,6 +216,7 @@ class PTYAdapter:
                     pass
                 self.master_fd = None
             self.proc_pid = None
+            self._transition("stopped")
             self._emit_event("TOYBOX_RUNTIME_STOPPED", {})
 
     def send(self, text: str) -> None:
@@ -174,6 +258,11 @@ class PTYAdapter:
                         self.returncode = -os.WTERMSIG(status)
             except Exception:
                 pass
+        if self.state in {"running", "starting", "degraded"}:
+            if self.returncode is not None and int(self.returncode) != 0:
+                self._transition("failed", error=self._last_error or f"runtime exited rc={self.returncode}")
+            else:
+                self._transition("stopped")
 
     def _handle_line(self, line: str) -> None:
         if not line:
@@ -199,23 +288,32 @@ class PTYAdapter:
         with self.event_file.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(row) + "\n")
 
+    def _health_level(self) -> str:
+        if self.state == "running" and self._probe_pid_alive(self.proc_pid):
+            return "ok"
+        if self.state in {"starting", "stopping", "degraded"}:
+            return "warn"
+        return "fail"
+
     def status(self) -> Dict[str, Any]:
-        alive = False
-        if self.proc_pid:
-            try:
-                os.kill(self.proc_pid, 0)
-                alive = True
-            except OSError:
-                alive = False
+        alive = self._probe_pid_alive(self.proc_pid)
         return {
             "adapter_id": self.adapter_id,
+            "state": self.state,
             "running": bool(self.running and alive),
             "pid": self.proc_pid,
+            "retries": self.retries,
             "returncode": self.returncode,
             "command": self._resolved_command,
             "last_error": self._last_error,
+            "last_transition_at": self.last_transition_at,
+            "health": self._health_level(),
             "depth": self._last_depth,
         }
+
+    def health(self) -> Dict[str, Any]:
+        row = self.status()
+        return {"ok": row.get("health") == "ok", **row}
 
     def output_text(self, tail_chars: int = 16000) -> str:
         with self._lock:
@@ -236,7 +334,7 @@ def create_app(adapter: PTYAdapter) -> FastAPI:
 
     @app.get("/health")
     def health() -> Dict[str, Any]:
-        return {"ok": True, **adapter.status()}
+        return adapter.health()
 
     @app.get("/status")
     def status() -> Dict[str, Any]:

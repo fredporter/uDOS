@@ -43,7 +43,7 @@ def create_setup_story_routes(
             repo_root / "core" / "tui" / "setup-story.md",
             repo_root / "core" / "framework" / "seed" / "bank" / "system" / "tui-setup-story.md",
             repo_root / "wizard" / "templates" / "tui-setup-story.md",
-            # Deprecated (fallback only)
+            # Legacy (fallback only)
             repo_root / "wizard" / "templates" / "setup-wizard-story.md",
         ]
         template_path = next((p for p in template_candidates if p.exists()), None)

@@ -18,7 +18,6 @@ Version: v1.0.0
 
 from typing import Optional, List, Dict, Any, Callable
 from dataclasses import dataclass
-import os
 from core.utils.tty import interactive_tty_status
 from .enhanced_prompt import EnhancedPrompt
 from core.services.logging_api import get_logger
@@ -562,8 +561,12 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="HEALTH",
         help_text="Stdlib/offline core health checks",
-        syntax="HEALTH",
-        examples=["HEALTH"],
+        syntax="HEALTH | HEALTH CHECK release-gates [--format text|json]",
+        options=[
+            "CHECK release-gates: emit mission-objective release-gate status",
+            "--format text|json: output mode for release-gate status",
+        ],
+        examples=["HEALTH", "HEALTH CHECK release-gates", "HEALTH CHECK release-gates --format json"],
         icon="•",
         category="Management",
     )
@@ -757,12 +760,14 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="GPLAY",
         help_text="XP/HP/Gold stats, progression gates, and TOYBOX profiles",
-        syntax="GPLAY [STATUS|STATS|GATE|TOYBOX|PROCEED]",
+        syntax="GPLAY [STATUS|STATS|MAP|GATE|TOYBOX|LENS|PROCEED]",
         options=[
             "STATUS: Show current user gameplay state",
             "STATS SET|ADD <xp|hp|gold> <value>: update stats",
+            "MAP STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK: deterministic map loop",
             "GATE STATUS|COMPLETE|RESET <gate_id>: progression gate control",
             "TOYBOX LIST|SET <profile>: gameplay runtime profile selection",
+            "LENS STATUS|ENABLE|DISABLE: v1.3.22 3D lens feature flag and slice readiness",
             "PROCEED: enforce interactive progression requirement",
         ],
         examples=[

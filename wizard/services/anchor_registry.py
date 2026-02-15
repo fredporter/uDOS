@@ -89,7 +89,7 @@ class AnchorMeta:
     anchor_id: str
     title: str
     kind: Optional[str] = None
-    status: str = "active"  # active|deprecated
+    status: str = "active"  # active|legacy
     version: Optional[str] = None
     description: Optional[str] = None
     capabilities: Optional[Dict[str, Any]] = None
