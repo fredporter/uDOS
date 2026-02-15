@@ -10,12 +10,16 @@ Scope boundary:
 | Theme | Target Layer(s) | Notes |
 | --- | --- | --- |
 | `dungeon` | `earth_layers_subterranean` | Rune-worn voice for sub-terrain dungeons. Keeps strings simple (Hotkey → Rune Key, Wizard → Golem) and limits replacements to the surface-facing copy so the underground map dialogue feels different without touching logs. |
+| `fantasy` | `earth_layers_subterranean`, `earth_layers` | Quest-style voice for dungeon/overworld messaging (`Quest Tip`, `Arcane Ops`). |
+| `role-play` | `earth_layers_subterranean`, `earth_layers` | Tabletop role-play voice for party/narrative messaging (`Role Tip`, `Narrator Ops`). |
 | `stranger-things` | `earth_layers_subterranean` | UpsideDown flavor for sub-terrain messaging (`Upside Tip`, `Signal Ops`) without changing command/log contracts. |
+| `explorer` | `earth_layers`, `regional_layers` | Expedition voice for route/surface traversal messaging (`Expedition Tip`, `Survey Ops`). |
 | `lonely-planet` | `earth_layers` | Explorer guidance voice for surface messaging (`Trail Tip`, `Guide Ops`). |
 | `doomsday` | `earth_layers` | Survival voice for critical messaging (`Survival Tip`, `Fallback Ops`). |
 | `hitchhikers` | `galaxy_layers` | Immediate space voice for near-Earth orbit and expedition messaging (`42 Tip`, `Guide Console`). |
 | `foundation` | `galaxy_layers` | Outer-space settlement voice aligned with deep galaxy layers. Ideal for extraplanetary builds, with replacements that stay in the orbital/survival spectrum. |
 | `galaxy` | `galaxy_layers` | Explicit alias-friendly galaxy messaging profile used for orbital/stellar map levels in TUI copy. |
+| `scientist` | `galaxy_layers`, `stellar_layers` | Systems/lab voice for orbital and stellar operations (`Lab Tip`, `Research Ops`). |
 
 Virtual layers reuse these galaxy/outer-space themes today (Foundation and Hitchhiker’s tones double as the “virtual themes”) but you can introduce additional templates by extending the seed folder and adding `virtual_layers` to the `companions` list.
 
@@ -26,6 +30,7 @@ Virtual layers reuse these galaxy/outer-space themes today (Foundation and Hitch
 - Switch the active base theme by setting `UDOS_THEME=<theme-name>` when launching uCODE or by calling `core/services/theme_service.ThemeService.load_theme`.
 - For TUI message routing, optionally set:
   - `UDOS_TUI_MESSAGE_THEME=dungeon|foundation|galaxy`
+  - `UDOS_TUI_MESSAGE_THEME=fantasy|role-play|explorer|scientist|stranger-things|lonely-planet|doomsday|hitchhikers|dungeon|foundation|galaxy`
   - `UDOS_TUI_MAP_LEVEL=dungeon|foundation|galaxy|...`
   - `UDOS_TUI_LEGACY_REPLACEMENTS=1` to temporarily restore broad legacy text replacement behavior.
 

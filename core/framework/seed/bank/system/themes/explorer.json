@@ -1,0 +1,15 @@
+{
+  "name": "explorer",
+  "description": "Expedition/fieldwork voice for route planning and surface traversal messaging.",
+  "companions": ["earth_layers", "regional_layers"],
+  "replacements": {
+    "uDOS": "Expedition Core",
+    "UDOS": "EXPEDITION CORE",
+    "Wizard": "Survey Ops",
+    "WIZARD": "SURVEY OPS",
+    "Self-Heal": "Field Recovery",
+    "SELF-HEAL": "FIELD RECOVERY",
+    "Repair": "Trail Patch",
+    "REPAIR": "TRAIL PATCH"
+  }
+}

@@ -54,3 +54,33 @@ def test_theme_service_supports_other_simple_vocab_profiles(monkeypatch):
     assert "42 Tip:" in themed_hitch
     assert "Guide Console status." in themed_hitch
     assert "Ship Health:" in themed_hitch
+
+
+def test_theme_service_supports_new_simple_vocab_profiles(monkeypatch):
+    monkeypatch.delenv("UDOS_TUI_LEGACY_REPLACEMENTS", raising=False)
+    svc = ThemeService()
+    sample = "Tip: Check Wizard status.\nHealth: stable."
+
+    monkeypatch.setenv("UDOS_TUI_MESSAGE_THEME", "fantasy")
+    themed_fantasy = svc.format(sample)
+    assert "Quest Tip:" in themed_fantasy
+    assert "Arcane Ops status." in themed_fantasy
+    assert "Guild Health:" in themed_fantasy
+
+    monkeypatch.setenv("UDOS_TUI_MESSAGE_THEME", "roleplay")
+    themed_role = svc.format(sample)
+    assert "Role Tip:" in themed_role
+    assert "Narrator Ops status." in themed_role
+    assert "Party Health:" in themed_role
+
+    monkeypatch.setenv("UDOS_TUI_MESSAGE_THEME", "explorer")
+    themed_explorer = svc.format(sample)
+    assert "Expedition Tip:" in themed_explorer
+    assert "Survey Ops status." in themed_explorer
+    assert "Field Health:" in themed_explorer
+
+    monkeypatch.setenv("UDOS_TUI_MESSAGE_THEME", "scientist")
+    themed_science = svc.format(sample)
+    assert "Lab Tip:" in themed_science
+    assert "Research Ops status." in themed_science
+    assert "Systems Health:" in themed_science

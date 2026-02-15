@@ -1,0 +1,15 @@
+{
+  "name": "role-play",
+  "description": "Tabletop-style role-play voice for party and narrative command messaging.",
+  "companions": ["earth_layers_subterranean", "earth_layers"],
+  "replacements": {
+    "uDOS": "Role Core",
+    "UDOS": "ROLE CORE",
+    "Wizard": "Narrator Ops",
+    "WIZARD": "NARRATOR OPS",
+    "Self-Heal": "Party Recovery",
+    "SELF-HEAL": "PARTY RECOVERY",
+    "Repair": "Session Patch",
+    "REPAIR": "SESSION PATCH"
+  }
+}

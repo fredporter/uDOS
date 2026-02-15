@@ -29,11 +29,29 @@ class ThemeService:
             "Wizard": "Dungeon Ops",
             "WIZARD": "DUNGEON OPS",
         },
+        "fantasy": {
+            "Tip:": "Quest Tip:",
+            "Health:": "Guild Health:",
+            "Wizard": "Arcane Ops",
+            "WIZARD": "ARCANE OPS",
+        },
+        "role-play": {
+            "Tip:": "Role Tip:",
+            "Health:": "Party Health:",
+            "Wizard": "Narrator Ops",
+            "WIZARD": "NARRATOR OPS",
+        },
         "stranger-things": {
             "Tip:": "Upside Tip:",
             "Health:": "Upside Health:",
             "Wizard": "Signal Ops",
             "WIZARD": "SIGNAL OPS",
+        },
+        "explorer": {
+            "Tip:": "Expedition Tip:",
+            "Health:": "Field Health:",
+            "Wizard": "Survey Ops",
+            "WIZARD": "SURVEY OPS",
         },
         "lonely-planet": {
             "Tip:": "Trail Tip:",
@@ -59,6 +77,12 @@ class ThemeService:
             "Wizard": "Star Ops",
             "WIZARD": "STAR OPS",
         },
+        "scientist": {
+            "Tip:": "Lab Tip:",
+            "Health:": "Systems Health:",
+            "Wizard": "Research Ops",
+            "WIZARD": "RESEARCH OPS",
+        },
         "hitchhikers": {
             "Tip:": "42 Tip:",
             "Health:": "Ship Health:",
@@ -68,19 +92,25 @@ class ThemeService:
     }
     THEME_ALIASES: Dict[str, str] = {
         "galxy": "galaxy",
+        "roleplay": "role-play",
     }
     MAP_LEVEL_THEME: Dict[str, str] = {
         "dungeon": "dungeon",
         "sub": "dungeon",
         "subterranean": "dungeon",
+        "fantasy": "fantasy",
+        "role-play": "role-play",
+        "roleplay": "role-play",
         "foundation": "foundation",
         "surface": "foundation",
         "sur": "foundation",
         "regional": "foundation",
+        "explorer": "explorer",
         "galaxy": "galaxy",
         "stellar": "galaxy",
         "orbital": "galaxy",
         "udn": "galaxy",
+        "scientist": "scientist",
     }
 
     def __init__(self):
