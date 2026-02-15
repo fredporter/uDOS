@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -33,6 +35,7 @@ jobs:
           python tools/ci/check_core_command_contract_v1_3_16.py
           python tools/ci/check_core_no_network_imports.py
           python tools/ci/check_contract_dispatcher_parity.py
+          python tools/ci/check_sonic_submodule_pin.py
 
   test-core:
     name: Test Core (TypeScript Runtime)

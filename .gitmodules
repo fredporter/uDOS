@@ -22,7 +22,7 @@
 
 [submodule "sonic"]
 	path = sonic
-	url = git@github.com:fredporter/uDOS-sonic.git
+	url = https://github.com/fredporter/uDOS-sonic
 	branch = main
 
 # PRIVATE SUBSYSTEMS (Moved from /dev to root for hardening)
