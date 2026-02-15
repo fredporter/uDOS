@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 import json
 import os
 import pty
@@ -322,15 +323,15 @@ class PTYAdapter:
 
 
 def create_app(adapter: PTYAdapter) -> FastAPI:
-    app = FastAPI(title=f"TOYBOX {adapter.adapter_id}")
-
-    @app.on_event("startup")
-    def _startup() -> None:
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI):
         adapter.start()
+        try:
+            yield
+        finally:
+            adapter.stop()
 
-    @app.on_event("shutdown")
-    def _shutdown() -> None:
-        adapter.stop()
+    app = FastAPI(title=f"TOYBOX {adapter.adapter_id}", lifespan=lifespan)
 
     @app.get("/health")
     def health() -> Dict[str, Any]:
