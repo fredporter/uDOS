@@ -51,6 +51,20 @@ UDOS_ROOT="${UDOS_ROOT:-}"
 # Default home root is ~/uDOS, but allow override via UDOS_HOME_ROOT.
 UDOS_HOME_ROOT="${UDOS_HOME_ROOT:-${HOME}/uDOS}"
 
+# Safe defaults for nounset shells (ucli runs with `set -u`).
+UDOS_QUIET="${UDOS_QUIET:-0}"
+UDOS_NO_LOG="${UDOS_NO_LOG:-0}"
+UDOS_TTY="${UDOS_TTY:-0}"
+UDOS_TUI_FORCE_STATUS="${UDOS_TUI_FORCE_STATUS:-0}"
+UDOS_MEMORY_ROOT="${UDOS_MEMORY_ROOT:-}"
+UDOS_HOME_ROOT_ALLOW_OUTSIDE="${UDOS_HOME_ROOT_ALLOW_OUTSIDE:-0}"
+UDOS_REBUILD="${UDOS_REBUILD:-0}"
+UDOS_VENV_DIR="${UDOS_VENV_DIR:-}"
+UDOS_USE_DOT_VENV="${UDOS_USE_DOT_VENV:-0}"
+UDOS_PIP_VERBOSE="${UDOS_PIP_VERBOSE:-0}"
+UDOS_SKIP_DEP_CHECK="${UDOS_SKIP_DEP_CHECK:-0}"
+UDOS_FORCE_REBUILD="${UDOS_FORCE_REBUILD:-0}"
+
 _udos_default_root() {
     # Prefer ~/uDOS when it exists and is a repo; otherwise fall back to script parent.
     if [ -n "$UDOS_HOME_ROOT" ] && [ -f "$UDOS_HOME_ROOT/uDOS.py" ]; then
@@ -479,7 +493,7 @@ ensure_python_env() {
     fi
 
     # Set environment
-    export PYTHONPATH="$UDOS_ROOT:$PYTHONPATH"
+    export PYTHONPATH="$UDOS_ROOT:${PYTHONPATH:-}"
     export UDOS_DEV_MODE=1
 
     # Prevent Python from writing .pyc files (helps with hot reload)
@@ -512,6 +526,130 @@ ensure_python_env() {
 
     # Create log directory
     mkdir -p "$UDOS_ROOT/memory/logs"
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Wizard Python Environment (policy: wizard/.venv owns third-party deps)
+# ═══════════════════════════════════════════════════════════════════════════
+wizard_venv_dir() {
+    echo "$UDOS_ROOT/wizard/.venv"
+}
+
+wizard_requirements_file() {
+    if [ -f "$UDOS_ROOT/wizard/requirements.txt" ]; then
+        echo "$UDOS_ROOT/wizard/requirements.txt"
+        return 0
+    fi
+    echo "$UDOS_ROOT/requirements.txt"
+}
+
+wizard_python_bin() {
+    local venv_dir
+    venv_dir="$(wizard_venv_dir)"
+    echo "$venv_dir/bin/python"
+}
+
+wizard_pip_bin() {
+    local venv_dir
+    venv_dir="$(wizard_venv_dir)"
+    echo "$venv_dir/bin/pip"
+}
+
+ensure_wizard_env() {
+    local venv_dir
+    venv_dir="$(wizard_venv_dir)"
+    if [ ! -x "$venv_dir/bin/python" ]; then
+        echo "Wizard environment not installed. Run: ucli wizard install" >&2
+        return 1
+    fi
+
+    # Activate wizard venv for wizard-only launch path.
+    source "$venv_dir/bin/activate"
+    export PYTHONPATH="$UDOS_ROOT:${PYTHONPATH:-}"
+    export PYTHONDONTWRITEBYTECODE=1
+    return 0
+}
+
+wizard_install_env() {
+    if [ -z "$UDOS_ROOT" ]; then
+        UDOS_ROOT="$(resolve_udos_root)" || return 1
+        export UDOS_ROOT
+    fi
+
+    local venv_dir req_file pip_bin py_bin
+    venv_dir="$(wizard_venv_dir)"
+    req_file="$(wizard_requirements_file)"
+    pip_bin="$(wizard_pip_bin)"
+    py_bin="$(wizard_python_bin)"
+
+    if [ ! -f "$req_file" ]; then
+        echo "Wizard requirements file not found: $req_file" >&2
+        return 1
+    fi
+
+    mkdir -p "$UDOS_ROOT/memory/logs"
+    local install_log="$UDOS_ROOT/memory/logs/wizard-venv-install-$(date +%Y%m%d-%H%M%S).log"
+
+    if [ ! -x "$py_bin" ]; then
+        echo "Creating Wizard environment at $venv_dir"
+        python3 -m venv "$venv_dir" >>"$install_log" 2>&1 || {
+            echo "Failed to create Wizard venv. See log: $install_log" >&2
+            return 1
+        }
+    fi
+
+    PIP_DISABLE_PIP_VERSION_CHECK=1 PIP_NO_PYTHON_VERSION_WARNING=1 \
+        "$pip_bin" install --progress-bar off -r "$req_file" >>"$install_log" 2>&1 || {
+        echo "Failed to install Wizard dependencies. See log: $install_log" >&2
+        return 1
+    }
+
+    "$py_bin" -c "import wizard.server" >>"$install_log" 2>&1 || {
+        echo "Wizard smoke check failed (import wizard.server). See log: $install_log" >&2
+        return 1
+    }
+
+    echo "Wizard environment ready: $venv_dir"
+    return 0
+}
+
+wizard_doctor_env() {
+    if [ -z "$UDOS_ROOT" ]; then
+        UDOS_ROOT="$(resolve_udos_root)" || return 1
+        export UDOS_ROOT
+    fi
+
+    local venv_dir py_bin req_file
+    venv_dir="$(wizard_venv_dir)"
+    py_bin="$(wizard_python_bin)"
+    req_file="$(wizard_requirements_file)"
+
+    echo "Wizard doctor report"
+    echo "  venv: $venv_dir"
+    if [ -x "$py_bin" ]; then
+        echo "  python: $("$py_bin" --version 2>&1)"
+    else
+        echo "  python: missing"
+        echo "Wizard environment not installed. Run: ucli wizard install" >&2
+        return 1
+    fi
+
+    if [ -f "$req_file" ]; then
+        echo "  requirements: $req_file"
+    else
+        echo "  requirements: missing ($req_file)"
+        return 1
+    fi
+
+    "$py_bin" - <<'PY'
+import importlib
+mods = ("fastapi", "uvicorn", "requests")
+missing = [m for m in mods if importlib.util.find_spec(m) is None]
+if missing:
+    print("  packages: missing -> " + ", ".join(missing))
+    raise SystemExit(1)
+print("  packages: ok")
+PY
 }
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -782,9 +920,14 @@ _setup_component_environment() {
     fi
     local component="$1"
 
-    # Ensure venv and dependencies
-    _udos_echo "${CYAN}[INFO]${NC} Checking Python environment and dependencies..."
-    ensure_python_env || return 1
+    # Ensure runtime environment. Wizard must use wizard/.venv; core keeps legacy path.
+    if [ "$component" = "wizard" ]; then
+        _udos_echo "${CYAN}[INFO]${NC} Checking Wizard environment..."
+        ensure_wizard_env || return 1
+    else
+        _udos_echo "${CYAN}[INFO]${NC} Checking Python environment and dependencies..."
+        ensure_python_env || return 1
+    fi
 
     # Setup memory/logs directory (prefer ~/memory/logs)
     local memory_root
@@ -909,10 +1052,10 @@ launch_component() {
 
     # Ensure consistent TUI behavior across platforms
     if [ "$mode" = "tui" ]; then
-        if [ -z "$UDOS_TTY" ]; then
+        if [ -z "${UDOS_TTY:-}" ]; then
             export UDOS_TTY=1
         fi
-        if [ -z "$UDOS_TUI_FORCE_STATUS" ]; then
+        if [ -z "${UDOS_TUI_FORCE_STATUS:-}" ]; then
             export UDOS_TUI_FORCE_STATUS=1
         fi
     fi

@@ -27,6 +27,25 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def _wizard_venv_dir() -> Path:
+    return _repo_root() / "wizard" / ".venv"
+
+
+def _wizard_requirements() -> Path:
+    repo = _repo_root()
+    primary = repo / "wizard" / "requirements.txt"
+    if primary.exists():
+        return primary
+    return repo / "requirements.txt"
+
+
+def _wizard_python() -> str:
+    py = _wizard_venv_dir() / "bin" / "python"
+    if py.exists():
+        return str(py)
+    return sys.executable
+
+
 def _run_cmd(cmd: list[str], cwd: Path | None = None, timeout: int = 60) -> Tuple[int, str, str]:
     try:
         proc = subprocess.Popen(
@@ -46,10 +65,10 @@ def check_venv() -> Dict[str, Any]:
 
     Healthy if either:
     - VIRTUAL_ENV points to an existing directory, or
-    - Current Python executable is inside repo/.venv
+    - Current Python executable is inside repo/wizard/.venv
     """
     venv_env = os.environ.get("VIRTUAL_ENV")
-    venv_dir = _repo_root() / ".venv"
+    venv_dir = _wizard_venv_dir()
     exe = Path(sys.executable)
 
     env_ok = bool(venv_env and Path(venv_env).exists())
@@ -73,14 +92,18 @@ def check_venv() -> Dict[str, Any]:
 
 def check_requirements() -> Dict[str, Any]:
     root = _repo_root()
-    req = root / "requirements.txt"
+    req = _wizard_requirements()
     if not req.exists():
         return {
             "name": "python_requirements",
             "status": "degraded",
-            "message": "requirements.txt missing",
+            "message": f"{req.name} missing",
         }
-    code, out, err = _run_cmd([sys.executable, "-m", "pip", "install", "-r", str(req), "--quiet"], cwd=root, timeout=300)
+    code, out, err = _run_cmd(
+        [_wizard_python(), "-m", "pip", "install", "-r", str(req), "--quiet"],
+        cwd=root,
+        timeout=300,
+    )
     ok = code == 0
     return {
         "name": "python_requirements",
@@ -103,7 +126,7 @@ def check_fastapi() -> Dict[str, Any]:
         return {
             "name": "fastapi",
             "status": "unhealthy",
-            "message": f"FastAPI/uvicorn missing: {str(e)}. Run: pip install -r requirements.txt",
+            "message": f"FastAPI/uvicorn missing: {str(e)}. Run: pip install -r wizard/requirements.txt",
         }
 
 
@@ -213,7 +236,11 @@ def attempt_safe_repair() -> Dict[str, Any]:
     results: Dict[str, Any] = {}
 
     # pip install
-    code, _, err = _run_cmd([sys.executable, "-m", "pip", "install", "-r", str(root / "requirements.txt")], cwd=root, timeout=600)
+    code, _, err = _run_cmd(
+        [_wizard_python(), "-m", "pip", "install", "-r", str(_wizard_requirements())],
+        cwd=root,
+        timeout=600,
+    )
     results["pip_install"] = {"ok": code == 0, "error": err.strip()[:160]}
 
     # git submodule update

@@ -17,6 +17,13 @@ Omit `UDOS_AUTOSTART=1` to install without launching.
 ./bin/ucli
 ```
 
+## Wizard Runtime Setup
+
+```bash
+./bin/ucli wizard install
+./bin/ucli wizard doctor
+```
+
 ### Options
 
 ```bash

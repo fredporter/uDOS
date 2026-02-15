@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Dict, List, Set
 
 
-CONTRACT_PATH = Path(__file__).resolve().parent.parent.parent / "core" / "config" / "ucli_command_contract_v1_3.json"
+CONTRACT_PATH = Path(__file__).resolve().parent.parent.parent / "core" / "config" / "ucli_command_contract_v1_3_16.json"
 
 
 _DEFAULT_COMMANDS = {
@@ -24,7 +24,6 @@ _DEFAULT_COMMANDS = {
     "STORY",
     "RUN",
     "BINDER",
-    "DATASET",
     "USER",
     "UID",
     "DEV",
@@ -40,20 +39,17 @@ _DEFAULT_COMMANDS = {
     "REPLY",
     "LOGS",
     "REPAIR",
-    "SHAKEDOWN",
     "REBOOT",
-    "PATTERN",
     "SONIC",
-    "INTEGRATION",
-    "PROVIDER",
     "SETUP",
+    "HEALTH",
+    "VERIFY",
+    "DRAW",
+    "TAG",
 }
 
 
-_DEFAULT_DEPRECATED_ALIASES = {
-    "GOBLIN": "DEV",
-    "WIZ": "WIZARD",
-}
+_DEFAULT_DEPRECATED_ALIASES = {}
 
 
 def _load_contract() -> Dict:

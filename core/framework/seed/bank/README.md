@@ -59,7 +59,7 @@ seed/bank/
 ### Help Templates
 
 Command reference templates for TUI:
-- System commands (SHAKEDOWN, REPAIR, VERSION, etc.)
+- System commands (HEALTH, VERIFY, REPAIR, VERSION, etc.)
 - File commands (LIST, EDIT, SAVE, etc.)
 - Assistant commands (ASK, EXPLAIN, GENERATE, etc.)
 - Grid commands (MAP, GRID, VIEWPORT, etc.)

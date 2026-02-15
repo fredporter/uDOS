@@ -7,7 +7,7 @@
   },
   "status": "stable",
   "location": "core/",
-  "description": "Lean TypeScript Runtime for markdown script execution + ANSI pattern generator",
+  "description": "Lean TypeScript Runtime for markdown script execution + DRAW/RUN TS backends",
   "features": [
     "Markdown parsing (frontmatter + blocks)",
     "State management (variables, objects, arrays)",
@@ -19,11 +19,12 @@
     "SQLite binding (optional, read-only)",
     "Variable interpolation in text",
     "ANSI pattern generator (C64, chevrons, scanlines, raster, progress, mosaic)",
-    "PATTERN command (interactive pattern display and cycling)"
+    "DRAW PAT command path (interactive pattern display and cycling)",
+    "RUN DATA command path (dataset list/validate/build/regen)"
   ],
   "created_at": "2026-01-16",
   "updated_at": "2026-01-24",
-  "notes": "Added ANSI pattern generator service and PATTERN command for visual feedback",
+  "notes": "v1.3.16 command split: SHAKEDOWN->HEALTH/VERIFY, PATTERN->DRAW PAT, DATASET->RUN DATA",
   "name": "core",
   "channel": "dev",
   "display": "v1.1.0",

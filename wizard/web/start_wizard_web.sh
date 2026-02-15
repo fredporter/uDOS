@@ -1,11 +1,18 @@
 #!/bin/bash
 # Start Wizard Server Web Interface
 
-# Activate venv
-source venv/bin/activate
+set -euo pipefail
 
-# Install dependencies if needed
-pip install fastapi uvicorn python-multipart jinja2 qrcode 2>/dev/null
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+WIZARD_VENV="$REPO_ROOT/wizard/.venv"
+
+if [ ! -x "$WIZARD_VENV/bin/python" ]; then
+  echo "Wizard environment not installed. Run: ./bin/ucli wizard install" >&2
+  exit 1
+fi
+
+# Activate Wizard venv
+source "$WIZARD_VENV/bin/activate"
 
 # Start server
 echo "🧙 Starting Wizard Server Web Interface..."

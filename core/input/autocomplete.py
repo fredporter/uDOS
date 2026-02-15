@@ -1,7 +1,7 @@
 """
 uDOS Core Autocomplete Service
 
-Intelligent command suggestion engine for Core's 13 main commands.
+Intelligent command suggestion engine for the active v1.3.16 command set.
 """
 
 from typing import List, Dict, Optional
@@ -58,14 +58,13 @@ class AutocompleteService:
                 "description": "Load saved state",
                 "options": [],
             },
-            "SHAKEDOWN": {
-                "description": "Run system validation",
-                "options": [
-                    "--detailed",
-                    "--fresh",
-                    "--destroy-verify",
-                    "--cycle",
-                ],
+            "HEALTH": {
+                "description": "Run offline stdlib health checks",
+                "options": [],
+            },
+            "VERIFY": {
+                "description": "Run TS/runtime verification checks",
+                "options": [],
             },
             "OK": {
                 "description": "Local Vibe helpers",
@@ -93,7 +92,7 @@ class AutocompleteService:
             },
             "WIZARD": {
                 "description": "Wizard server management",
-                "options": ["START", "STOP", "STATUS", "LOGS", "CONSOLE", "REBUILD"],
+                "options": ["START", "STOP", "STATUS", "REBUILD", "CHECK", "PROV", "INTEG"],
             },
         }
 

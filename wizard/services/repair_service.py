@@ -58,6 +58,15 @@ class RepairService:
             "library": repo_root / "library",
         }
 
+    def _wizard_venv_path(self) -> Path:
+        return self.repo_root / "wizard" / ".venv"
+
+    def _wizard_requirements_path(self) -> Path:
+        primary = self.repo_root / "wizard" / "requirements.txt"
+        if primary.exists():
+            return primary
+        return self.repo_root / "requirements.txt"
+
     def status(self) -> Dict[str, Any]:
         """Return status checks for tooling and paths."""
         os_info = get_system_info_service(self.repo_root).get_os_info()
@@ -86,8 +95,8 @@ class RepairService:
             },
             "paths": {
                 "repo_root": path_info(self.repo_root),
-                "venv": path_info(self.repo_root / ".venv"),
-                "requirements": path_info(self.repo_root / "requirements.txt"),
+                "venv": path_info(self._wizard_venv_path()),
+                "requirements": path_info(self._wizard_requirements_path()),
                 "wizard_dashboard": path_info(
                     self.repo_root / "wizard" / "dashboard"
                 ),
@@ -112,7 +121,8 @@ class RepairService:
 
     def bootstrap_venv(self) -> RepairResult:
         """Create venv and install requirements if present."""
-        venv_path = self.repo_root / ".venv"
+        venv_path = self._wizard_venv_path()
+        requirements_path = self._wizard_requirements_path()
         python_path = shutil.which("python3")
         if not python_path:
             return RepairResult(
@@ -141,9 +151,9 @@ class RepairService:
                 if not result.success:
                     return result
                 outputs.append(result.output)
-                if (self.repo_root / "requirements.txt").exists():
+                if requirements_path.exists():
                     result = self._run_command(
-                        [str(pip_path), "install", "-r", "requirements.txt"],
+                        [str(pip_path), "install", "-r", str(requirements_path)],
                         cwd=self.repo_root,
                     )
                     if not result.success:
@@ -165,15 +175,15 @@ class RepairService:
 
     def install_python_deps(self) -> RepairResult:
         """Install Python dependencies via venv if present."""
-        requirements = self.repo_root / "requirements.txt"
+        requirements = self._wizard_requirements_path()
         if not requirements.exists():
             return RepairResult(
                 success=False,
                 action="install-python-deps",
-                error="requirements.txt not found",
+                error=f"{requirements.name} not found",
             )
 
-        pip_path = self.repo_root / ".venv" / "bin" / "pip"
+        pip_path = self._wizard_venv_path() / "bin" / "pip"
         pip_cmd = str(pip_path) if pip_path.exists() else shutil.which("pip3")
         if not pip_cmd:
             return RepairResult(

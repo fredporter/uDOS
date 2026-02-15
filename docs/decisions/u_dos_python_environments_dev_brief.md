@@ -75,6 +75,20 @@ Notes:
 
 ## Runtime Contracts
 
+## v1.3.16 Command Contract Implications
+
+- Core command checks are split into:
+  - `HEALTH` for offline/stdlib checks
+  - `VERIFY` for TS runtime checks
+- Pattern and dataset flows are TS-backed under existing roots:
+  - `DRAW PAT ...`
+  - `RUN DATA ...`
+- Provider/integration/full shakedown are Wizard-owned:
+  - `WIZARD PROV ...`
+  - `WIZARD INTEG ...`
+  - `WIZARD CHECK`
+- No shims policy: removed core top-level commands fail explicitly.
+
 ### Core Python Contract
 
 Core Python scripts MUST:

@@ -1,0 +1,53 @@
+{
+  "version": "1.3.16",
+  "policy": "no_shims_no_backcompat",
+  "launcher": {
+    "subcommands": ["help", "tui", "wizard", "prompt", "cmd"],
+    "deprecated_aliases": {
+      "core": "tui",
+      "server": "wizard",
+      "command": "cmd",
+      "run": "cmd"
+    }
+  },
+  "ucode": {
+    "commands": [
+      "STATUS",
+      "HELP",
+      "MAP",
+      "PANEL",
+      "FIND",
+      "TELL",
+      "GOTO",
+      "BAG",
+      "GRAB",
+      "SPAWN",
+      "STORY",
+      "RUN",
+      "BINDER",
+      "USER",
+      "UID",
+      "DEV",
+      "WIZARD",
+      "CONFIG",
+      "SAVE",
+      "LOAD",
+      "FILE",
+      "NEW",
+      "EDIT",
+      "NPC",
+      "TALK",
+      "REPLY",
+      "LOGS",
+      "REPAIR",
+      "REBOOT",
+      "SONIC",
+      "SETUP",
+      "HEALTH",
+      "VERIFY",
+      "DRAW",
+      "TAG"
+    ],
+    "deprecated_aliases": {}
+  }
+}

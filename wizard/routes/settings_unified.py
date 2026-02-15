@@ -85,7 +85,7 @@ class UnifiedSettings(BaseModel):
 
 def get_venv_path() -> Path:
     """Get the .venv directory path."""
-    return get_repo_root() / ".venv"
+    return get_repo_root() / "wizard" / ".venv"
 
 
 def get_venv_status() -> VenvStatus:
@@ -141,7 +141,7 @@ def create_venv() -> Dict[str, Any]:
         return {
             "status": "created",
             "venv": status.model_dump(),
-            "next_step": "Install dependencies: pip install -r requirements.txt"
+            "next_step": "Install dependencies: pip install -r wizard/requirements.txt"
         }
     except Exception as e:
         logger.error(f"[LOCAL] Failed to create venv: {e}")

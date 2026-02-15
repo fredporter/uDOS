@@ -373,6 +373,17 @@ EOF
         info "Setting up Wizard Server..."
         cp -r "$PROJECT_ROOT/wizard" "$prefix/"
 
+        if [ -f "$PROJECT_ROOT/wizard/requirements.txt" ]; then
+            info "Creating Wizard virtual environment..."
+            python3 -m venv "$prefix/wizard/.venv"
+            source "$prefix/wizard/.venv/bin/activate"
+            pip install --upgrade pip
+            pip install -r "$prefix/wizard/requirements.txt"
+            deactivate
+        else
+            warn "wizard/requirements.txt not found; Wizard venv not preinstalled"
+        fi
+
         # Create wizard library directories
         mkdir -p "$prefix/library/os-images"
         mkdir -p "$prefix/library/containers"
@@ -397,23 +408,27 @@ EOF
 install_dev() {
     info "Setting up development mode..."
 
-    # Just setup venv and user directory
-    if [ ! -d "$PROJECT_ROOT/venv" ]; then
-        info "Creating Python virtual environment..."
-        python3 -m venv "$PROJECT_ROOT/venv"
+    # Dev piggybacks Wizard runtime venv.
+    if [ ! -d "$PROJECT_ROOT/wizard/.venv" ]; then
+        info "Creating Wizard virtual environment..."
+        python3 -m venv "$PROJECT_ROOT/wizard/.venv"
     fi
 
-    info "Installing Python dependencies..."
-    source "$PROJECT_ROOT/venv/bin/activate"
+    if [ ! -f "$PROJECT_ROOT/wizard/requirements.txt" ]; then
+        error "wizard/requirements.txt not found"
+    fi
+
+    info "Installing Wizard/Dev Python dependencies..."
+    source "$PROJECT_ROOT/wizard/.venv/bin/activate"
     pip install --upgrade pip
-    pip install -r "$PROJECT_ROOT/requirements.txt"
+    pip install -r "$PROJECT_ROOT/wizard/requirements.txt"
     deactivate
 
     # Setup user directory
     setup_user_directory "$HOME"
 
     success "Development environment ready"
-    info "Run: source venv/bin/activate && ./bin/ucli"
+    info "Run: ./bin/ucli (core) or ./bin/ucli wizard"
 
     if [ "${UDOS_AUTOSTART:-0}" = "1" ]; then
         info "Auto-starting uDOS..."

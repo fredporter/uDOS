@@ -1,8 +1,8 @@
-"""
-RUN command handler - execute TS markdown runtime scripts.
-"""
+"""RUN command handler - execute TS markdown runtime scripts and TS-backed data ops."""
 
 from pathlib import Path
+import json
+import subprocess
 from typing import Dict, List
 
 from core.commands.base import BaseCommandHandler
@@ -17,9 +17,11 @@ class RunHandler(BaseCommandHandler):
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         if not params:
             return {
-                "status": "error",
-                "message": "Usage: RUN <file> [section_id] | RUN PARSE <file>",
+                "status": "error", "message": "Usage: RUN <file> [section_id] | RUN PARSE <file> | RUN DATA ...",
             }
+
+        if params[0].upper() == "DATA":
+            return self._run_data(params[1:])
 
         if params[0].upper() == "PARSE":
             if len(params) < 2:
@@ -78,6 +80,68 @@ class RunHandler(BaseCommandHandler):
             "output": output,
             "runtime": payload,
         }
+
+    def _run_data(self, params: List[str]) -> Dict:
+        if not params:
+            return {
+                "status": "error",
+                "message": "Usage: RUN DATA <LIST|VALIDATE|BUILD|REGEN> [args]",
+            }
+
+        action = params[0].upper()
+        args = params[1:]
+        script = get_repo_root() / "core" / "runtime" / "data_runner.js"
+        if not script.exists():
+            return {"status": "error", "message": f"Data runner missing: {script}"}
+
+        ts_runtime = TSRuntimeService()
+        cmd = [ts_runtime.node_cmd, str(script), action.lower(), *args]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            return {
+                "status": "error",
+                "message": "RUN DATA failed",
+                "details": result.stderr.strip() or result.stdout.strip(),
+            }
+
+        try:
+            payload = json.loads(result.stdout.strip() or "{}")
+        except json.JSONDecodeError:
+            return {
+                "status": "error",
+                "message": "RUN DATA returned invalid JSON",
+                "details": result.stdout.strip(),
+            }
+
+        status = payload.get("status", "error")
+        if action == "LIST" and status == "success":
+            datasets = payload.get("datasets", [])
+            rows = [[d.get("id", ""), d.get("type", ""), d.get("path", "")] for d in datasets]
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("RUN DATA LIST"),
+                    OutputToolkit.table(["id", "type", "path"], rows) if rows else "(none)",
+                ]
+            )
+            return {"status": "success", "message": "Datasets", "output": output, "datasets": datasets}
+
+        banner = OutputToolkit.banner(f"RUN DATA {action}")
+        lines = [banner]
+        if payload.get("message"):
+            lines.append(payload["message"])
+        if payload.get("output"):
+            lines.append(f"Output: {payload['output']}")
+        if payload.get("invalid") is not None:
+            lines.append(f"Invalid cells: {payload['invalid']}")
+        if payload.get("sample"):
+            sample_rows = [[s.get("location", ""), s.get("cell", ""), s.get("reason", "")] for s in payload["sample"]]
+            lines.append(OutputToolkit.table(["location", "cell", "reason"], sample_rows))
+        if payload.get("locations") is not None:
+            lines.append(f"Locations: {payload['locations']}")
+        if payload.get("dropped_cells") is not None:
+            lines.append(f"Dropped cells: {payload['dropped_cells']}")
+
+        return {"status": status, "message": payload.get("message", "RUN DATA complete"), "output": "\n".join(lines), "payload": payload}
 
     def _resolve_path(self, file_arg: str) -> Path:
         path = Path(file_arg)

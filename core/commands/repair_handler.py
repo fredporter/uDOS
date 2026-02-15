@@ -481,7 +481,7 @@ EXAMPLES:
         output.append("")
         output.append("Next steps:")
         output.append("  • Run REPAIR --install-plugin <name>")
-        output.append("  • Run SHAKEDOWN to re-run diagnostics")
+        output.append("  • Run HEALTH and VERIFY to re-run diagnostics")
 
         logger.info("[LOCAL] REPAIR runtime refresh completed by %s", user.username if user else "unknown")
         return {

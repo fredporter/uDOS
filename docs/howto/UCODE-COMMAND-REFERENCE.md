@@ -1,599 +1,156 @@
-# uCODE Command Quick Reference
+# uCODE Command Reference
 
-**13 Python Commands | 8 TypeScript Blocks | 61/61 Tests Passing ✅**
+Version: Core v1.3.16
+Updated: 2026-02-15
 
----
+This reference documents the active core command surface after the v1.3.16 core/wizard split.
 
-## Navigation Commands (4)
+## Core Commands (v1.3.16)
 
-### MAP
+### Navigation
 
-Display location tile grid (80×24)
+- `MAP`
+- `PANEL`
+- `FIND`
+- `TELL`
+- `GOTO`
 
-```
-MAP [location-id]
-```
+### State and Runtime
 
-- Shows 80-column × 24-row grid
-- Tile contents with priority rendering
-- Column/row headers
-- Region information
+- `BAG`
+- `GRAB`
+- `SPAWN`
+- `SAVE`
+- `LOAD`
+- `STORY`
+- `RUN`
+- `DRAW`
 
-### PANEL
+### System
 
-Show detailed location information
+- `HEALTH` (offline stdlib shakedown)
+- `VERIFY` (TS runtime shakedown)
+- `REPAIR`
+- `REBOOT`
+- `DEV`
+- `UID`
+- `CONFIG`
+- `WIZARD`
+- `LOGS`
+- `SETUP`
 
-```
-PANEL [location-id]
-```
+### Workspace and Files
 
-- Comprehensive metadata (type, region, continent)
-- GPS coordinates with cardinal directions
-- Timezone and local time
-- Connection list with hints
+- `FILE`
+- `NEW`
+- `EDIT`
+- `BINDER`
+- `USER`
+- `NPC`
+- `TALK`
+- `REPLY`
+- `SONIC`
+- `TAG`
 
-### GOTO
+## Core Health Commands
 
-Navigate to adjacent or specific location
+### `HEALTH`
 
-```
-GOTO [direction | location-id]
-GOTO [north|south|east|west|up|down]
-GOTO [n|s|e|w|u|d]
-GOTO L300-BJ10
-```
+Runs offline/local checks only.
 
-- Direction-based: north, south, east, west, up, down
-- Direct navigation to location ID
-- Validates connections
-- Updates game state
-
-### FIND
-
-Search for locations
-
-```
-FIND [query]
-FIND tokyo --type city
-FIND --region asia --type capital
-```
-
-- Text search across all location attributes
-- Filter by type (--type flag)
-- Filter by region (--region flag)
-- Returns up to 20 results with previews
-
----
-
-## Information Commands (2)
-
-### TELL
-
-Display rich location descriptions
-
-```
-TELL [location-id]
-TELL L300-BJ10
+```bash
+HEALTH
 ```
 
-- Box-formatted output with Unicode borders
-- Full location description
-- Metadata and connections
-- Text wrapping at 75 characters
+Checks include local config, parser/dispatcher readiness, local paths, and offline policy signals.
 
-### HELP
+### `VERIFY`
 
-Get command reference
+Runs TypeScript/runtime checks.
 
-```
-HELP
-HELP MAP
-HELP inventory
+```bash
+VERIFY
 ```
 
-- List all 13 commands
-- Show specific command details
-- Display usage and examples
-- Browse by category
+Checks include Node availability, TS runtime artifacts, and script parse/execute smoke tests.
 
----
+## TS-backed command paths
 
-## Game State Commands (5)
+### Pattern flow
 
-### BAG
+Top-level `PATTERN` is removed. Use `DRAW PAT ...`.
 
-Manage character inventory
-
-```
-BAG list
-BAG add [item-name] [quantity]
-BAG remove [item-name] [quantity]
-BAG drop [item-name]
-BAG equip [item-name]
+```bash
+DRAW PAT LIST
+DRAW PAT CYCLE
+DRAW PAT TEXT "hello"
+DRAW PAT <pattern-name>
 ```
 
-- List inventory with weights
-- Add items to inventory
-- Remove specific quantity
-- Drop entire item
-- Toggle equipped status
-- Capacity limit: 100
+### Dataset flow
 
-### GRAB
+Top-level `DATASET` is removed. Use `RUN DATA ...`.
 
-Pick up objects at location
-
-```
-GRAB [object-name]
-GRAB key
-GRAB potion
+```bash
+RUN DATA LIST
+RUN DATA VALIDATE <id>
+RUN DATA BUILD <id> [output_id]
+RUN DATA REGEN <id> [output_id]
 ```
 
-- Search current location tiles
-- Case-insensitive matching
-- Adds to inventory automatically
-- Shows available objects if none match
+## Wizard-owned flows
 
-### SPAWN
+Provider/integration/full-system checks are Wizard-owned.
 
-Create objects or sprites
+Use:
 
-```
-SPAWN [type] [char] [name] at [location] [cell]
-SPAWN object 🗝️ key at L300-BJ10 BJ10
-SPAWN sprite 🧙 wizard at L300-BJ10 BJ15
+```bash
+WIZARD PROV LIST
+WIZARD PROV STATUS
+WIZARD INTEG status
+WIZARD CHECK
 ```
 
-- Types: object (static), sprite (dynamic)
-- Specify character representation
-- Place at specific cell
-- Validates location and cell
+## Removed Core Commands (No Shims)
 
-### SAVE
+The following top-level commands are removed from core and hard-fail in v1.3.16:
 
-Save current game state
+- `SHAKEDOWN`
+- `PATTERN`
+- `DATASET`
+- `INTEGRATION`
+- `PROVIDER`
+- `PROVIDOR` (typo; not accepted)
 
-```
-SAVE
-SAVE [slot-name]
-SAVE checkpoint-1
-```
+## Migration Table
 
-- Default slot: "quicksave"
-- Saves location, inventory, stats
-- JSON format in `/memory/saved_games/`
-- Named slots for multiple saves
-
-### LOAD
-
-Load saved game state
-
-```
-LOAD
-LOAD [slot-name]
-LOAD checkpoint-1
-```
-
-- Default slot: "quicksave"
-- Restores complete game state
-- Lists available saves if load fails
-- Overrides current state
-
----
-
-## System Commands (2)
-
-### SHAKEDOWN
-
-Validate system integrity
-
-```
-SHAKEDOWN
-```
-
-- 6-point system validation:
-  1. Locations database check
-  2. Core commands registration
-  3. Memory directories verify
-  4. TypeScript runtime verify
-  5. Handler modules check
-  6. Test suite verification
-- Returns pass/fail/warning status
-
-### REPAIR
-
-System maintenance and healing
-
-```
-REPAIR
-REPAIR --pull
-REPAIR --install
-REPAIR --check
-REPAIR --upgrade
-```
-
-- `--pull` - Git synchronization
-- `--install` - Dependency check/install
-- `--check` - System health check (default)
-- `--upgrade` - Full upgrade cycle
-
----
-
-## TypeScript Runtime Blocks (8)
-
-### state
-
-Define variables and data structures
-
-````markdown
-​`state
-$name = "Alice"
-$level = 1
-$inventory = ["sword", "shield"]
-$player = {
-  "name": "Alice",
-  "health": 100,
-  "mana": 50
-}
-​`
-````
-
-### set
-
-Update variable values
-
-````markdown
-​`set
-$level = $level + 1
-$health = 100
-$position.x = $position.x + 1
-​`
-````
-
-### form
-
-Create interactive input forms
-
-````markdown
-​`form
-text: name | "Your Name?"
-radio: class | ["Warrior", "Mage", "Rogue"]
-checkbox: agree | "I accept terms"
-​`
-````
-
-### if/else
-
-Conditional execution
-
-````markdown
-​`if
-$health <= 0
-Your character has fallen!
-​`else
-You have $health health remaining.
-​```
-````
-
-### nav
-
-Navigate between sections
-
-````markdown
-​`nav
-→ north | Skip to North Section
-→ south | Go South
-👈 back | Return to previous
-​`
-````
-
-### panel
-
-Display information panels
-
-````markdown
-​`panel
-Status Panel
-━━━━━━━━━━━━
-Health: $health / 100
-Mana: $mana / 50
-Level: $level
-​`
-````
-
-### map
-
-Display grid-based maps
-
-````markdown
-​`map
-40x25 grid
-[A1] [A2] [A3]
-[B1] [B2] [B3]
-Player at B2 (🧙)
-​`
-````
-
----
+- `SHAKEDOWN` -> `HEALTH` or `VERIFY` (core), `WIZARD CHECK` (full Wizard-side checks)
+- `PATTERN ...` -> `DRAW PAT ...`
+- `DATASET ...` -> `RUN DATA ...`
+- `INTEGRATION ...` -> `WIZARD INTEG ...`
+- `PROVIDER ...` -> `WIZARD PROV ...`
 
 ## Examples
 
-### Complete Game Sequence
-
 ```bash
-# Start
-MAP                           # Show current location
+# Core checks
+HEALTH
+VERIFY
 
-# Explore
-FIND tokyo                    # Search for locations
-TELL L300-BJ10              # Learn about location
+# Pattern and dataset flows
+DRAW PAT LIST
+RUN DATA LIST
+RUN DATA VALIDATE locations
 
-# Game State
-GRAB key                      # Pick up object
-BAG list                      # Check inventory
-SPAWN object 📦 package at L300-BJ10 BJ11
-
-# Progression
-SAVE checkpoint              # Save progress
-LOAD checkpoint              # Restore state
-
-# System
-SHAKEDOWN                     # Verify all systems working
-REPAIR --check               # Check system health
-HELP                         # See all commands
+# Wizard-owned checks
+WIZARD START
+WIZARD CHECK
+WIZARD INTEG status
+WIZARD PROV STATUS
 ```
 
-### Example With Slots
-
-```bash
-SAVE game-1                  # Create slot "game-1"
-GRAB sword                   # Modify state
-SAVE game-2                  # Create slot "game-2"
-LOAD game-1                  # Back to original state
-```
-
-### Example With Filters
-
-```bash
-FIND --type capital --region asia
-FIND london --region europe
-FIND --region africa
-```
-
----
-
-## Common Patterns
-
-### Check System Health
-
-```bash
-SHAKEDOWN        # Full validation
-REPAIR --check   # Current status
-```
-
-### Manage Saves
-
-```bash
-SAVE quicksave        # Auto-slot
-SAVE before-boss      # Named slot
-LOAD before-boss      # Restore
-```
-
-### Explore Locations
-
-```bash
-MAP L300-BJ10         # Tile grid
-PANEL L300-BJ10       # Details
-TELL L300-BJ10        # Description
-```
-
-### Inventory
-
-```bash
-BAG list              # Show all items
-BAG add sword 1       # Add item
-BAG equip sword       # Equip weapon
-BAG remove sword 1    # Remove 1 sword
-GRAB shield           # Pick up nearby
-```
-
----
-
-## Error Handling
-
-All commands return structured responses:
-
-```python
-{
-    "status": "success|error|warning",
-    "message": "Human-readable message",
-    # ... command-specific fields
-}
-```
-
-### Common Errors
-
-**Location Not Found**
-
-```
-TELL invalid-id
-→ error: Location "invalid-id" not found
-```
-
-**Insufficient Inventory Space**
-
-```
-BAG add sword 50
-→ error: Inventory full (capacity: 100)
-```
-
-**Invalid Game Slot**
-
-```
-LOAD nonexistent
-→ error: Save slot "nonexistent" not found
-→ Available slots: quicksave, game-1, game-2
-```
-
----
-
-## Integration Notes
-
-### For Developers
-
-**Import all commands:**
-
-```python
-from core.commands import (
-    MapHandler, PanelHandler, GotoHandler, FindHandler, TellHandler,
-    BagHandler, GrabHandler, SpawnHandler, SaveHandler, LoadHandler,
-    HelpHandler, ShakedownHandler, RepairHandler
-)
-```
-
-**Command routing:**
-
-```python
-handler = FindHandler()
-result = handler.handle(
-    command="FIND",
-    params=["tokyo", "--type", "city"],
-    grid=game_grid,
-    parser=command_parser
-)
-```
-
-### Handler Base Class
-
-All handlers extend `BaseCommandHandler`:
-
-- `handle(command, params, grid, parser)` - Main interface
-- `set_state(key, value)` - Store handler state
-- `get_state(key)` - Retrieve handler state
-- `clear_state()` - Reset state
-
----
-
-## Statistics
-
-| Category          | Count                 |
-| ----------------- | --------------------- |
-| Python Commands   | 13                    |
-| TypeScript Blocks | 8                     |
-| Test Cases        | 61                    |
-| Test Pass Rate    | 100%                  |
-| Lines of Code     | 2,000+                |
-| Handlers          | 13                    |
-| Documentation     | This guide + API docs |
-
----
-
-## Core Command Inventory (v1.2 Baseline, Python/TUI)
-
-Navigation
-- `MAP` — render grid map view
-- `PANEL` — open panel UI
-- `GOTO` — navigate to location
-- `FIND` — search files or locations
-
-Information
-- `TELL` — system info
-- `HELP` — core help
-
-Game/State
-- `BAG` — inventory
-- `GRAB` — take item
-- `SPAWN` — spawn entity
-- `SAVE` — save state or file
-- `LOAD` — load state or file
-
-System
-- `SHAKEDOWN` — run system diagnostics
-- `REPAIR` — repair runtime
-- `RESTART` / `REBOOT` — restart workflows
-- `RELOAD` — hot reload watcher
-- `SETUP` — setup story flow (preserved from v1.2)
-- `UID` — user identity management
-- `PATTERN` — ANSI/grid pattern generator
-- `LOGS` — view logs
-- `HOTKEYS`, `HOTKEY` — hotkey viewer
-- `DEV`, `DEV MODE` — dev mode controls
-
-User
-- `USER` — profile/permissions
-
-Cleanup
-- `DESTROY` — cleanup with wipe options
-- `UNDO` — restore from backup
-
-Migration
-- `MIGRATE` — SQLite/location migration
-
-Seed
-- `SEED` — seed data install
-
-NPC/Dialogue
-- `NPC` — NPC commands
-- `TALK`, `REPLY` — dialogue flow
-
-Wizard-bound (Core dispatch, Wizard required)
-- `CONFIG` — settings management
-- `PROVIDER` — model/provider config
-- `INTEGRATION` — integration tasks
-- `WIZARD` — Wizard lifecycle control
-
-Binder
-- `BINDER` — binder pick/compile/chapters
-
-Runtime
-- `STORY` — run story-format docs
-- `RUN` — execute markdown via TS runtime (`RUN <file>` / `RUN PARSE <file>`)
-
-Data
-- `DATASET` — list/validate/build datasets
-
-Files
-- `FILE` — file operations
-- `NEW`, `EDIT` — file editor
-
-Maintenance
-- `BACKUP`, `RESTORE`, `TIDY`, `CLEAN`, `COMPOST`
-
-## Wizard Commands (uCODE + Wizard CLI)
-
-`WIZARD` subcommands (from `core/commands/wizard_handler.py`):
-
-- `WIZARD START`
-- `WIZARD STOP`
-- `WIZARD STATUS`
-- `WIZARD REBUILD`
-
-Shell equivalents:
-
-```bash
-python -m wizard.server --no-interactive
-curl http://localhost:8765/health
-```
-
-## Vibe Commands (Integrated)
-
-```
-VIBE CHAT <prompt> [--no-context] [--model <name>] [--format text|json]
-VIBE CONTEXT [--files a,b,c] [--notes "..."]
-VIBE HISTORY [--limit N]
-VIBE CONFIG
-VIBE ANALYZE <path>
-VIBE EXPLAIN <symbol>
-VIBE SUGGEST <task>
-```
-
-Notes:
-- Goblin endpoints are preferred for local dev: `http://localhost:8767/api/dev/vibe/*`
-- Wizard endpoints are used if Goblin is unavailable: `http://localhost:8765/api/ai/*`
-- Wizard may require `WIZARD_ADMIN_TOKEN`
-
-## NL Routing (Prototype)
-
-```
-OK ROUTE <prompt> [--dry-run] [--no-context]
-```
+## Notes
+
+- Command names are canonical uppercase in docs.
+- Removed commands are not aliased or remapped.
+- Use `HELP` in TUI for live command help.

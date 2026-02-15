@@ -1,8 +1,9 @@
 """WIZARD command handler - Wizard server maintenance tasks."""
 
-from typing import List, Dict
+from typing import List, Dict, Optional, Any, Tuple
 from datetime import datetime
 import json
+import os
 import subprocess
 import threading
 import webbrowser
@@ -66,6 +67,12 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             return self._restart_wizard()
         elif action in {"status", "--status"}:
             return self._wizard_status()
+        elif action in {"prov", "provider"}:
+            return self._wizard_provider(params[1:])
+        elif action in {"integ", "integration"}:
+            return self._wizard_integration(params[1:])
+        elif action in {"check", "fullcheck", "full"}:
+            return self._wizard_full_check(params[1:])
         elif action in {"reset", "--reset"}:
             return self._reset_wizard(params[1:])
         elif action in {"help", "--help", "?"}:
@@ -156,6 +163,9 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                 "WIZARD KILL       Force kill Wizard process (port conflict fix)",
                 "WIZARD RESTART    Kill and restart Wizard",
                 "WIZARD STATUS     Check Wizard server status",
+                "WIZARD PROV ...   Provider operations (LIST|STATUS|ENABLE|DISABLE|SETUP|GENSECRET)",
+                "WIZARD INTEG ...  Integration wiring checks (status|github|mistral|ollama)",
+                "WIZARD CHECK      Full Wizard-side shakedown",
                 "WIZARD RESET      Wipe Wizard keystore + admin token (destructive)",
                 "  --wipe-profile  Also delete memory/user/profile.json",
                 "  --scrub-vault   Also delete VAULT_ROOT contents",
@@ -166,6 +176,145 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
     def _show_help(self) -> Dict:
         return {"status": "success", "output": self._help_text()}
+
+    def _wizard_provider(self, params: List[str]) -> Dict:
+        """Route provider operations through Wizard API surface."""
+        sub = (params[0].upper() if params else "LIST")
+        args = params[1:] if len(params) > 1 else []
+
+        if sub == "LIST":
+            ok, payload, err = self._wizard_api_json("GET", "/api/providers/list")
+            if not ok:
+                return {"status": "error", "message": err}
+            providers = payload.get("providers", [])
+            lines = [OutputToolkit.banner("WIZARD PROV LIST"), ""]
+            for provider in providers:
+                pid = provider.get("id", "?")
+                name = provider.get("name", pid)
+                status = provider.get("status", {})
+                configured = "OK" if status.get("configured") else "X"
+                available = "OK" if status.get("available") else "X"
+                enabled = "OK" if provider.get("enabled") else "X"
+                lines.append(f"{name} ({pid})")
+                lines.append(f"  Config: {configured}  Available: {available}  Enabled: {enabled}")
+            return {"status": "success", "message": "Provider list loaded", "output": "\n".join(lines)}
+
+        if sub == "STATUS":
+            if not args:
+                return {"status": "error", "message": "Usage: WIZARD PROV STATUS <id>"}
+            provider_id = args[0]
+            ok, payload, err = self._wizard_api_json("GET", f"/api/providers/{provider_id}/status")
+            if not ok:
+                return {"status": "error", "message": err}
+            provider = payload.get("provider", {})
+            lines = [OutputToolkit.banner(f"WIZARD PROV STATUS {provider_id.upper()}"), ""]
+            lines.append(f"ID: {provider.get('id', provider_id)}")
+            lines.append(f"Name: {provider.get('name', provider_id)}")
+            lines.append(f"Configured: {'yes' if provider.get('configured') else 'no'}")
+            lines.append(f"Available: {'yes' if provider.get('available') else 'no'}")
+            lines.append(f"Enabled: {'yes' if provider.get('enabled') else 'no'}")
+            return {"status": "success", "message": "Provider status loaded", "output": "\n".join(lines)}
+
+        if sub in {"ENABLE", "DISABLE"}:
+            if not args:
+                return {"status": "error", "message": f"Usage: WIZARD PROV {sub} <id>"}
+            provider_id = args[0]
+            method = "POST"
+            path = f"/api/providers/{provider_id}/{sub.lower()}"
+            ok, payload, err = self._wizard_api_json(method, path)
+            if not ok:
+                return {"status": "error", "message": err}
+            return {"status": "success", "message": payload.get("message", f"{sub} complete")}
+
+        if sub == "SETUP":
+            if not args:
+                return {"status": "error", "message": "Usage: WIZARD PROV SETUP <id>"}
+            provider_id = args[0]
+            ok, payload, err = self._wizard_api_json("POST", "/api/providers/setup/run", {"provider_id": provider_id})
+            if not ok:
+                return {"status": "error", "message": err}
+            lines = [OutputToolkit.banner(f"WIZARD PROV SETUP {provider_id.upper()}"), ""]
+            lines.append(payload.get("message", "Setup payload ready"))
+            for cmd in payload.get("commands", []):
+                ctype = cmd.get("type", "cmd")
+                cval = cmd.get("cmd", "")
+                lines.append(f"  {ctype}: {cval}")
+            return {"status": "success", "message": "Provider setup instructions loaded", "output": "\n".join(lines)}
+
+        if sub == "GENSECRET":
+            return {
+                "status": "error",
+                "message": "WIZARD PROV GENSECRET is not exposed by Wizard API. Use WIZARD RESET/SETUP or Wizard web config.",
+            }
+
+        return {"status": "error", "message": "Usage: WIZARD PROV [LIST|STATUS|ENABLE|DISABLE|SETUP|GENSECRET] ..."}
+
+    def _wizard_integration(self, params: List[str]) -> Dict:
+        """Route integration checks through Wizard API/system surfaces."""
+        sub = (params[0].lower() if params else "status")
+        if sub == "status":
+            ok, payload, err = self._wizard_api_json("GET", "/api/system/library")
+            if not ok:
+                return {"status": "error", "message": err}
+            lines = [OutputToolkit.banner("WIZARD INTEG STATUS"), ""]
+            total = payload.get("total_integrations")
+            enabled = payload.get("enabled_integrations")
+            installed = payload.get("installed_integrations")
+            if total is not None:
+                lines.append(f"Integrations: total={total} installed={installed} enabled={enabled}")
+            return {"status": "success", "message": "Integration status loaded", "output": "\n".join(lines)}
+        if sub in {"github", "mistral", "ollama"}:
+            ok, payload, err = self._wizard_api_json("GET", f"/api/providers/{sub}/status")
+            if not ok:
+                return {"status": "error", "message": err}
+            provider = payload.get("provider", {})
+            lines = [OutputToolkit.banner(f"WIZARD INTEG {sub.upper()}"), ""]
+            lines.append(f"Configured: {'yes' if provider.get('configured') else 'no'}")
+            lines.append(f"Available: {'yes' if provider.get('available') else 'no'}")
+            lines.append(f"Enabled: {'yes' if provider.get('enabled') else 'no'}")
+            return {"status": "success", "message": "Integration provider status loaded", "output": "\n".join(lines)}
+        return {"status": "error", "message": "Usage: WIZARD INTEG [status|github|mistral|ollama]"}
+
+    def _wizard_full_check(self, params: List[str]) -> Dict:
+        """Run full Wizard-side checks via monitoring diagnostics."""
+        ok, payload, err = self._wizard_api_json("GET", "/api/monitoring/diagnostics")
+        if not ok:
+            return {"status": "error", "message": err}
+        health = (payload.get("health") or {})
+        summary = health.get("summary") or {}
+        lines = [OutputToolkit.banner("WIZARD CHECK"), ""]
+        if summary:
+            lines.append(f"Services: {summary.get('total', '?')} total")
+            lines.append(f"Healthy: {summary.get('healthy', '?')}")
+            lines.append(f"Degraded: {summary.get('degraded', '?')}")
+            lines.append(f"Unhealthy: {summary.get('unhealthy', '?')}")
+        else:
+            lines.append("Diagnostics fetched; no summary data returned.")
+        return {"status": "success", "message": "Wizard diagnostics complete", "output": "\n".join(lines), "payload": payload}
+
+    def _wizard_api_json(self, method: str, path: str, body: Optional[Dict[str, Any]] = None) -> Tuple[bool, Dict[str, Any], str]:
+        """Call Wizard API using curl subprocess to avoid direct HTTP client imports."""
+        base_url, _ = self._wizard_urls()
+        url = f"{base_url}{path}"
+        cmd = ["curl", "-sS", "-m", "10", "-X", method.upper(), "-H", "Accept: application/json", url]
+        if body is not None:
+            cmd.extend(["-H", "Content-Type: application/json", "-d", json.dumps(body)])
+        token = os.environ.get("WIZARD_ADMIN_TOKEN", "").strip()
+        if token:
+            cmd.extend(["-H", f"Authorization: Bearer {token}"])
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=12)
+            if result.returncode != 0:
+                return False, {}, f"Wizard API call failed ({path}): {result.stderr.strip() or result.stdout.strip()}"
+            text = (result.stdout or "").strip()
+            if not text:
+                return True, {}, ""
+            try:
+                return True, json.loads(text), ""
+            except json.JSONDecodeError:
+                return False, {}, f"Wizard API returned non-JSON payload for {path}"
+        except Exception as exc:
+            return False, {}, f"Wizard API call error ({path}): {exc}"
 
     def _open_dashboard(self) -> Dict:
         banner = OutputToolkit.banner("WIZARD DASHBOARD")

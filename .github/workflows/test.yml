@@ -13,6 +13,27 @@ on:
     branches: [ main, develop ]
 
 jobs:
+  policy-guardrails:
+    name: Policy Guardrails (Core/Wizard Boundary)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run policy checks
+        run: |
+          python tools/ci/check_core_stdlib_boundary.py
+          python tools/ci/check_core_ts_dependency_policy.py
+          python tools/ci/check_core_command_contract_v1_3_16.py
+          python tools/ci/check_core_no_network_imports.py
+          python tools/ci/check_contract_dispatcher_parity.py
+
   test-core:
     name: Test Core (TypeScript Runtime)
     runs-on: ubuntu-latest
@@ -87,7 +108,7 @@ jobs:
 
   summary:
     name: Test Summary
-    needs: [test-core, test-python]
+    needs: [policy-guardrails, test-core, test-python]
     runs-on: ubuntu-latest
     if: always()
 

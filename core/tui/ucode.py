@@ -551,7 +551,8 @@ class UCLI:
             "STORY": "STORY",
             "RUN": "RUN",
             "REPAIR": "REPAIR",
-            "SHAKEDOWN": "SHAKEDOWN",
+            "HEALTH": "HEALTH",
+            "VERIFY": "VERIFY",
         }
 
         cmd = cmd_map.get(first_word)
@@ -1026,7 +1027,7 @@ class UCLI:
             print(f"  ⚠️ Last health log recorded {prev_remaining} remaining issues; automation will rerun diagnostics on drift.")
 
         if self.self_heal_summary and self.self_heal_summary.get("remaining", 0) > 0:
-            print("  ⚠️ Automation will rerun REPAIR/SHAKEDOWN until remaining issues drop to zero.")
+            print("  ⚠️ Automation will rerun REPAIR/HEALTH until remaining issues drop to zero.")
 
         if self.memory_test_summary:
             status = self.memory_test_summary.get("status", "idle")
@@ -2276,7 +2277,8 @@ System Management:
   INSTALL VIBE        - Install Ollama + Vibe CLI + Mistral models
   CONFIG              - Manage configuration variables
   DESTROY             - System cleanup (wipe user, compost, reset)
-  SHAKEDOWN           - Validate system health
+  HEALTH              - Stdlib/offline core health checks
+  VERIFY              - TS runtime/script verification checks
   REPAIR              - Fix issues and self-heal
   RESTART             - Restart/reload system
   USER                - User profile and permission management
@@ -2292,7 +2294,7 @@ Data & Stories:
   BINDER              - Multi-chapter project management
   STORY [name]        - Run story files (.md with questions/flow)
   RUN [file]          - Execute TypeScript scripts or Python files
-  DATASET             - Manage data imports and datasets
+  RUN DATA ...        - TS-backed dataset operations
 
 Navigation & Info:
   MAP                 - Show spatial map
@@ -2316,6 +2318,9 @@ AI Modes:
   WIZARD start        - Start Wizard server
   WIZARD stop         - Stop Wizard server
   WIZARD status       - Check Wizard status
+  WIZARD check        - Run full Wizard-side shakedown
+  WIZARD integ ...    - Integration checks (Wizard-owned)
+  WIZARD prov ...     - Provider operations (Wizard-owned)
   WIZARD console      - Enter Wizard interactive console
   WIZARD [page]       - Show Wizard page (status, ai, devices, quota, logs)
 

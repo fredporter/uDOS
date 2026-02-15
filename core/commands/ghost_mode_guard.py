@@ -20,6 +20,12 @@ def ghost_mode_block(command: str, params: Optional[List[str]] = None) -> Option
     # Allow non-destructive access paths
     if cmd == "RUN" and tokens[:1] == ["PARSE"]:
         return None
+    if cmd == "RUN" and tokens[:2] == ["DATA", "LIST"]:
+        return None
+    if cmd == "RUN" and tokens[:2] == ["DATA", "VALIDATE"]:
+        return None
+    if cmd == "DRAW":
+        return None
     if cmd == "BINDER":
         if not tokens or tokens[:1] in (["PICK"], ["CHAPTERS"]):
             return None
@@ -42,11 +48,19 @@ def ghost_mode_block(command: str, params: Optional[List[str]] = None) -> Option
             return None
     if cmd == "SETUP" and tokens[:1] in ([], ["--PROFILE"], ["--VIEW"], ["--SHOW"], ["--HELP"], ["HELP"]):
         return None
-    if cmd == "PROVIDER" and tokens[:1] in ([], ["LIST"]):
+    if cmd == "WIZARD" and tokens[:2] == ["PROV", "LIST"]:
         return None
-    if cmd == "PROVIDER" and tokens[:1] == ["STATUS"] and len(tokens) >= 2:
+    if cmd == "WIZARD" and tokens[:2] == ["PROV", "STATUS"]:
         return None
-    if cmd == "INTEGRATION" and tokens[:1] in ([], ["STATUS"], ["GITHUB"], ["MISTRAL"], ["OLLAMA"]):
+    if cmd == "WIZARD" and tokens[:2] == ["INTEG", "STATUS"]:
+        return None
+    if cmd == "WIZARD" and tokens[:2] == ["INTEG", "GITHUB"]:
+        return None
+    if cmd == "WIZARD" and tokens[:2] == ["INTEG", "MISTRAL"]:
+        return None
+    if cmd == "WIZARD" and tokens[:2] == ["INTEG", "OLLAMA"]:
+        return None
+    if cmd == "WIZARD" and tokens[:1] == ["CHECK"]:
         return None
     if cmd == "MIGRATE" and tokens[:1] in ([], ["CHECK"], ["STATUS"]):
         return None
@@ -54,11 +68,9 @@ def ghost_mode_block(command: str, params: Optional[List[str]] = None) -> Option
         return None
     if cmd == "UID" and tokens[:1] in ([], ["DECODE"], ["--HELP"]):
         return None
-    if cmd == "DATASET" and tokens[:1] in ([], ["LIST"], ["VALIDATE"], ["HELP"]):
-        return None
     if cmd == "SONIC" and tokens[:1] in ([], ["STATUS"], ["HELP"], ["LIST"], ["SYNC"], ["PLUGIN"]):
         return None
-    if cmd in {"HOTKEY", "HOTKEYS", "PATTERN"}:
+    if cmd in {"HOTKEY", "HOTKEYS"}:
         return None
 
     blocked_commands = {
@@ -90,17 +102,14 @@ def ghost_mode_block(command: str, params: Optional[List[str]] = None) -> Option
         "COMPOST",
         "UNDO",
         "CONFIG",
-        "PROVIDER",
-        "INTEGRATION",
         "MIGRATE",
         "USER",
         "UID",
-        "DATASET",
         "SONIC",
         "SONIC+",
         "HOTKEY",
         "HOTKEYS",
-        "PATTERN",
+        "DRAW",
     }
 
     if cmd in dry_run_commands:

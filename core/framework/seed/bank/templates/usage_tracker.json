@@ -1,15 +1,24 @@
 {
   "command_counts": {
-    "SHAKEDOWN": 1
+    "HEALTH": 1,
+    "VERIFY": 1
   },
   "success_counts": {
-    "SHAKEDOWN": 1
+    "HEALTH": 1,
+    "VERIFY": 1
   },
   "failure_counts": {},
   "recent_commands": [
     {
-      "command": "SHAKEDOWN",
+      "command": "HEALTH",
       "timestamp": "2025-11-26T17:59:44.363689",
+      "params": [],
+      "success": true,
+      "context": {}
+    },
+    {
+      "command": "VERIFY",
+      "timestamp": "2025-11-26T18:00:12.000000",
       "params": [],
       "success": true,
       "context": {}

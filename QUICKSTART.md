@@ -23,34 +23,13 @@ git clone https://github.com/fredporter/uDOS.git
 cd uDOS
 ```
 
-### 2. Create Virtual Environment
+### 2. Install Wizard Runtime (if needed)
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+./bin/ucli wizard install
 ```
 
-### 3. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-**If pip installation hangs or is slow,** install packages in smaller batches:
-
-```bash
-# AI providers
-pip install google-generativeai openai anthropic
-
-# Google services & auth
-pip install google-auth google-auth-oauthlib google-api-python-client
-
-# Core web & HTTP
-pip install fastapi uvicorn flask flask-cors aiohttp requests
-
-# UI & utilities
-pip install Pillow python-dotenv prompt_toolkit rich pytest
-```
+This creates `wizard/.venv` and installs pinned Wizard dependencies from `wizard/requirements.txt`.
 
 ---
 
@@ -88,11 +67,10 @@ Always-on backend service with web dashboard for APIs, webhooks, and AI model ro
 
 **What this does:**
 
-1. Activates virtual environment
-2. Installs dependencies if needed
-3. **Auto-builds the Svelte dashboard** (if npm is available)
-4. Starts Wizard Server on port `8765` in **daemon mode** (background service)
-5. Opens browser dashboard automatically
+1. Verifies Wizard environment (`wizard/.venv`) is installed
+2. **Auto-builds the Svelte dashboard** (if npm is available)
+3. Starts Wizard Server on port `8765` in **daemon mode** (background service)
+4. Opens browser dashboard automatically
 
 **Dashboard Tech Stack:**
 
@@ -193,12 +171,8 @@ tail -f memory/logs/dev-*.log
 ### Run Tests
 
 ```bash
-# Core TUI tests
-source venv/bin/activate
-pytest core/tests/ -v
-
-# Wizard Server tests
-pytest wizard/tests/ -v
+# Wizard runtime check
+./bin/ucli wizard doctor
 ```
 
 ---
@@ -209,10 +183,10 @@ pytest wizard/tests/ -v
 
 **Problem:** You see `python: command not found`
 
-**Solution:** Make sure virtual environment is activated:
+**Solution:** Verify your Python environment and path:
 
 ```bash
-source venv/bin/activate
+python3 --version
 ```
 
 ### ModuleNotFoundError (Missing Dependencies)
@@ -222,14 +196,8 @@ source venv/bin/activate
 **Solution:** Install dependencies manually:
 
 ```bash
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Or in smaller batches if the above hangs:
-pip install google-generativeai openai anthropic
-pip install google-auth google-auth-oauthlib google-api-python-client
-pip install fastapi uvicorn flask aiohttp requests
-pip install Pillow python-dotenv prompt_toolkit rich
+./bin/ucli wizard install
+./bin/ucli wizard doctor
 ```
 
 ### Port Already in Use

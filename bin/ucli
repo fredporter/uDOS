@@ -42,6 +42,8 @@ Usage:
   ./bin/ucli                Start uCLI TUI
   ./bin/ucli tui            Start uCLI TUI
   ./bin/ucli wizard         Start Wizard server (GUI/API)
+  ./bin/ucli wizard install Create/update Wizard venv at wizard/.venv
+  ./bin/ucli wizard doctor  Validate Wizard venv and core package imports
   ./bin/ucli prompt         Start shell-integrated prompt loop
   ./bin/ucli cmd <command>  Run one uCODE command via Wizard API
   ./bin/ucli help           Show this help
@@ -159,7 +161,23 @@ case "$subcommand" in
     launch_component core tui "$@"
     ;;
   wizard)
-    launch_component wizard server "$@"
+    wizard_subcommand="${1:-server}"
+    shift || true
+    case "$wizard_subcommand" in
+      install)
+        wizard_install_env
+        ;;
+      doctor)
+        wizard_doctor_env
+        ;;
+      server)
+        launch_component wizard server "$@"
+        ;;
+      *)
+        # Back-compat: treat unknown wizard arg as server args.
+        launch_component wizard server "$wizard_subcommand" "$@"
+        ;;
+    esac
     ;;
   prompt)
     exec "$SCRIPT_DIR/vibe-wrapper.sh" "$@"

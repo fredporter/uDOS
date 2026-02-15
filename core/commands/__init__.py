@@ -66,18 +66,18 @@ def __getattr__(name):
         from .help_handler import HelpHandler
 
         return HelpHandler
-    elif name == "ShakedownHandler":
-        from .shakedown_handler import ShakedownHandler
+    elif name == "HealthHandler":
+        from .health_handler import HealthHandler
 
-        return ShakedownHandler
+        return HealthHandler
+    elif name == "VerifyHandler":
+        from .verify_handler import VerifyHandler
+
+        return VerifyHandler
     elif name == "RepairHandler":
         from .repair_handler import RepairHandler
 
         return RepairHandler
-    elif name == "PatternHandler":
-        from .pattern_handler import PatternHandler
-
-        return PatternHandler
     elif name == "SonicHandler":
         from .sonic_handler import SonicHandler
 
@@ -86,10 +86,6 @@ def __getattr__(name):
         from .music_handler import MusicHandler
 
         return MusicHandler
-    elif name == "IntegrationHandler":
-        from .integration_handler import IntegrationHandler
-
-        return IntegrationHandler
     elif name == "SchedulerHandler":
         from .scheduler_handler import SchedulerHandler
 
@@ -126,10 +122,6 @@ def __getattr__(name):
         from .config_handler import ConfigHandler
 
         return ConfigHandler
-    elif name == "ProviderHandler":
-        from .provider_handler import ProviderHandler
-
-        return ProviderHandler
     elif name == "BinderHandler":
         from .binder_handler import BinderHandler
 
@@ -138,10 +130,6 @@ def __getattr__(name):
         from .run_handler import RunHandler
 
         return RunHandler
-    elif name == "DatasetHandler":
-        from .dataset_handler import DatasetHandler
-
-        return DatasetHandler
     elif name == "FileEditorHandler":
         from .file_editor_handler import FileEditorHandler
 
@@ -243,12 +231,11 @@ __all__ = [
     "LoadHandler",
     # System commands
     "HelpHandler",
-    "IntegrationHandler",
     "SchedulerHandler",
     "ScriptHandler",
-    "ShakedownHandler",
+    "HealthHandler",
+    "VerifyHandler",
     "RepairHandler",
-    "PatternHandler",
     "SonicHandler",
     "MusicHandler",
     "DevModeHandler",
@@ -268,14 +255,12 @@ __all__ = [
     "TalkHandler",
     # Wizard commands
     "ConfigHandler",
-    "ProviderHandler",
     "WizardHandler",
     "EmpireHandler",
     "EmpireHandler",
     "BinderHandler",
     "RunHandler",
     "StoryHandler",
-    "DatasetHandler",
     "FileEditorHandler",
     "FileHandler",  # Phase 2: Workspace picker integration
     "MaintenanceHandler",

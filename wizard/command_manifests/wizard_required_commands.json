@@ -7,8 +7,6 @@
     "WIZARD": ["wizard_server", "wizard_gui"],
     "SETUP": ["wizard_server", "wizard_gui"],
     "SCHEDULER": ["wizard_server", "networking"],
-    "SCRIPT": ["wizard_server"],
-    "PROVIDER": ["wizard_server", "networking"],
-    "INTEGRATION": ["wizard_server", "wizard_gui", "networking"]
+    "SCRIPT": ["wizard_server"]
   }
 }

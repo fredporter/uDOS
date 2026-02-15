@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import subprocess
 from typing import Dict, List
 
 from core.commands.base import BaseCommandHandler
@@ -9,6 +11,7 @@ from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.services.viewport_service import ViewportService
 from core.tui.output import OutputToolkit
 from core.services.logging_api import get_repo_root
+from core.services.ts_runtime_service import TSRuntimeService
 from core.utils.text_width import truncate_to_width, pad_to_width
 from core.utils.text_width import display_width
 
@@ -16,8 +19,14 @@ from core.utils.text_width import display_width
 class DrawHandler(BaseCommandHandler, HandlerLoggingMixin):
     """Handler for DRAW command - render ASCII demo panels."""
 
+    def __init__(self):
+        super().__init__()
+        self._pattern_index = 0
+
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         mode = (params[0].lower().strip() if params else "demo")
+        if mode == "pat":
+            return self._pattern(params[1:])
         if mode.endswith(".md") or mode.endswith(".txt"):
             return self._block(params)
         if mode == "block":
@@ -46,8 +55,61 @@ class DrawHandler(BaseCommandHandler, HandlerLoggingMixin):
                 "DRAW MAP               Render grid/map panel only",
                 "DRAW SCHEDULE          Render schedule/calendar/todo panel only",
                 "DRAW TIMELINE          Render timeline/progress/roadmap panel only",
+                "DRAW PAT [args]        TS-backed pattern operations (LIST|CYCLE|TEXT|<pattern>)",
             ]
         )
+
+    def _pattern(self, params: List[str]) -> Dict:
+        script = get_repo_root() / "core" / "runtime" / "pattern_runner.js"
+        if not script.exists():
+            return {"status": "error", "message": f"Pattern runner missing: {script}"}
+
+        action = "render"
+        args: List[str] = []
+        if not params:
+            action = "render"
+            name = ["c64", "chevrons", "scanlines", "raster", "progress", "mosaic"][self._pattern_index % 6]
+            self._pattern_index += 1
+            args = [name]
+        else:
+            head = params[0].lower()
+            if head == "list":
+                action = "list"
+            elif head == "cycle":
+                action = "cycle"
+                args = params[1:]
+            elif head == "text":
+                action = "text"
+                args = params[1:]
+            else:
+                action = "render"
+                args = [head]
+
+        ts_runtime = TSRuntimeService()
+        cmd = [ts_runtime.node_cmd, str(script), action, *args]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            return {
+                "status": "error",
+                "message": "DRAW PAT failed",
+                "details": result.stderr.strip() or result.stdout.strip(),
+            }
+
+        try:
+            payload = json.loads(result.stdout.strip() or "{}")
+        except json.JSONDecodeError:
+            return {"status": "error", "message": "Invalid DRAW PAT payload", "details": result.stdout.strip()}
+
+        status = payload.get("status", "error")
+        if action == "list" and status == "success":
+            pats = payload.get("patterns", [])
+            lines = [OutputToolkit.banner("DRAW PAT LIST"), ""]
+            for p in pats:
+                lines.append(f"- {p}")
+            return {"status": "success", "output": "\n".join(lines), "patterns": pats}
+
+        output = payload.get("output") or payload.get("message") or "No output"
+        return {"status": status, "message": payload.get("message", "DRAW PAT"), "output": output, "payload": payload}
 
     def _block(self, params: List[str]) -> Dict:
         if not params:

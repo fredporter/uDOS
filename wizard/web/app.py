@@ -165,7 +165,7 @@ async def dashboard(request: Request):
 async def config_dashboard(request: Request):
     """All-in-one Wizard config page with venv, secrets, and installer actions."""
     repo_root = Path(__file__).parent.parent
-    venv_path = repo_root / ".venv"
+    venv_path = repo_root / "wizard" / ".venv"
     venv_status = {
         "exists": venv_path.exists(),
         "python": None,
@@ -313,7 +313,7 @@ def _hotkey_map():
         {"key": "F3", "action": "REPAIR shortcut", "notes": "Runs `SelfHealer` helpers via the CLI handler."},
         {"key": "F4", "action": "RESTART / HOT RELOAD", "notes": "Triggers watcher stats and automatic reloads via `core/services/hot_reload.py`."},
         {"key": "F5", "action": "Extension palette", "notes": "Opens the plugin menu in the CLI; uses `LibraryManagerService` metadata."},
-        {"key": "F6", "action": "Pattern / Script runner", "notes": "Repeats the `PATTERN` banner logic defined in `memory/system/startup-script.md`."},
+        {"key": "F6", "action": "DRAW PAT / Script runner", "notes": "Repeats the `DRAW PAT` banner logic defined in `memory/bank/system/startup-script.md`."},
         {"key": "F7", "action": "Sonic Device DB", "notes": "Displays supported USB/media targets read from `memory/sonic/sonic-devices.db`."},
         {"key": "F8", "action": "Hotkey Center", "notes": "Proxies this same page from within the CLI and automation loops."},
         {"key": "↑ / ↓", "action": "Command history", "notes": "Shared with `SmartPrompt` history and predictor logging."},

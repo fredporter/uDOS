@@ -20,22 +20,20 @@ from core.commands import (
     SaveHandler,
     LoadHandler,
     HelpHandler,
-    ShakedownHandler,
+    HealthHandler,
+    VerifyHandler,
     RepairHandler,
     DevModeHandler,
     NPCHandler,
     DialogueEngine,
     TalkHandler,
     ConfigHandler,
-    ProviderHandler,
     WizardHandler,
     EmpireHandler,
-    PatternHandler,
     SonicHandler,
     MusicHandler,
     BinderHandler,
     RunHandler,
-    DatasetHandler,
     FileEditorHandler,
     MaintenanceHandler,
     StoryHandler,
@@ -50,7 +48,6 @@ from core.commands import (
     MigrateHandler,
     SeedHandler,
     HotkeyHandler,
-    IntegrationHandler,
     SchedulerHandler,
     ScriptHandler,
     ViewportHandler,
@@ -95,13 +92,13 @@ class CommandDispatcher:
             "SAVE": SaveHandler(),
             "LOAD": LoadHandler(),
             # System (9)
-            "SHAKEDOWN": ShakedownHandler(),
+            "HEALTH": HealthHandler(),
+            "VERIFY": VerifyHandler(),
             "REPAIR": RepairHandler(),
             "REBOOT": RestartHandler(),  # Hot reload + TUI restart
             "SETUP": SetupHandler(),
             "INSTALL": SetupHandler(),
             "UID": UIDHandler(),  # User ID management
-            "PATTERN": PatternHandler(),
             "SONIC": SonicHandler(),
             "MUSIC": MusicHandler(),
             "DEV": DevModeHandler(),  # Shortcut for DEV MODE
@@ -125,10 +122,8 @@ class CommandDispatcher:
             "REPLY": self.talk_handler,
             # Wizard Management (3)
             "CONFIG": ConfigHandler(),
-            "PROVIDER": ProviderHandler(),
             "WIZARD": WizardHandler(),
             "EMPIRE": EmpireHandler(),
-            "INTEGRATION": IntegrationHandler(),
             # Binder (Core)
             "BINDER": BinderHandler(),
             # Workspace-aware file operations
@@ -138,8 +133,6 @@ class CommandDispatcher:
             # Runtime (Story format)
             "STORY": StoryHandler(),
             "RUN": RunHandler(),
-            # Data
-            "DATASET": DatasetHandler(),
             # File operations
             "FILE": FileHandler(),  # Phase 2: Workspace picker integration
             "NEW": file_editor,
@@ -191,6 +184,16 @@ class CommandDispatcher:
             else:
                 handler = self.file_handler
         if not handler:
+            removed = {
+                "SHAKEDOWN": "Removed in v1.3.16. Use HEALTH or VERIFY (core), and WIZARD for full checks.",
+                "PATTERN": "Removed in v1.3.16. Use DRAW PAT ...",
+                "DATASET": "Removed in v1.3.16. Use RUN DATA ...",
+                "INTEGRATION": "Removed in v1.3.16 core. Use WIZARD integration/provider surfaces.",
+                "PROVIDER": "Removed in v1.3.16 core. Use WIZARD PROV ...",
+                "PROVIDOR": "Unknown command (typo). Canonical command is PROVIDER (Wizard-owned).",
+            }
+            if cmd_name in removed:
+                return {"status": "error", "message": removed[cmd_name]}
             return {
                 "status": "error",
                 "message": f"Unknown command: {cmd_name}",

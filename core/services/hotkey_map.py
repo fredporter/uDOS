@@ -24,7 +24,7 @@ def get_hotkey_map() -> List[Dict[str, str]]:
         {"key": "F3", "action": "REPAIR shortcut", "notes": "Triggers SelfHealer checks via CLI."},
         {"key": "F4", "action": "RESTART / HOT RELOAD", "notes": "Reloads handlers and restarts watchers."},
         {"key": "F5", "action": "Extension palette", "notes": "Opens the plugin menu (LibraryManager metadata)."},
-        {"key": "F6", "action": "Script / PATTERN", "notes": "Runs PATTERN/system script banners for automation."},
+        {"key": "F6", "action": "Script / DRAW PAT", "notes": "Runs DRAW PAT/system script banners for automation."},
         {"key": "F7", "action": "Sonic Device DB", "notes": "Shows Sonic USB/media capabilities from the device DB."},
         {"key": "F8", "action": "Hotkey Center", "notes": "Reloads this key map (including automation hints)."},
         {"key": "↑ / ↓", "action": "Command history", "notes": "Shared with SmartPrompt history/predictor."},

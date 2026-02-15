@@ -102,7 +102,7 @@
     F3: "REPAIR",
     F4: "REBOOT",
     F5: "WIZARD",
-    F6: "PATTERN",
+    F6: "DRAW PAT CYCLE",
     F7: "SONIC",
     F8: "HELP",
   };

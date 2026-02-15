@@ -507,8 +507,8 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="DRAW",
         help_text="Viewport-aware ASCII demos and panels",
-        syntax="DRAW [DEMO|PANEL|GRID|HELP]",
-        examples=["DRAW DEMO", "DRAW PANEL"],
+        syntax="DRAW [DEMO|MAP|SCHEDULE|TIMELINE|PAT ...]",
+        examples=["DRAW DEMO", "DRAW PAT LIST"],
         icon="•",
         category="System",
     )
@@ -550,15 +550,6 @@ def create_default_registry() -> CommandRegistry:
     )
 
     registry.register(
-        name="INTEGRATION",
-        help_text="Show GitHub and Mistral/Ollama wiring details",
-        syntax="INTEGRATION [status|github|mistral|ollama]",
-        examples=["INTEGRATION status", "INTEGRATION mistral"],
-        icon="•",
-        category="System",
-    )
-
-    registry.register(
         name="OK",
         help_text="Local Vibe helpers (EXPLAIN, DIFF, PATCH, LOCAL)",
         syntax="OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|PULL|VIBE|FALLBACK> [args]",
@@ -578,16 +569,19 @@ def create_default_registry() -> CommandRegistry:
     )
 
     registry.register(
-        name="SHAKEDOWN",
-        help_text="Full system validation and health check",
-        syntax="SHAKEDOWN [--detailed] [--fresh] [--destroy-verify] [--cycle]",
-        options=[
-            "--detailed: Show detailed results",
-            "--fresh: Validate fresh install",
-            "--destroy-verify: Verify DESTROY command works",
-            "--cycle: Dry-run command cycle",
-        ],
-        examples=["SHAKEDOWN", "SHAKEDOWN --cycle"],
+        name="HEALTH",
+        help_text="Stdlib/offline core health checks",
+        syntax="HEALTH",
+        examples=["HEALTH"],
+        icon="•",
+        category="Management",
+    )
+
+    registry.register(
+        name="VERIFY",
+        help_text="TypeScript runtime/script verification checks",
+        syntax="VERIFY",
+        examples=["VERIFY"],
         icon="•",
         category="Management",
     )
@@ -701,8 +695,8 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="RUN",
         help_text="Execute TypeScript scripts (embedded in .md files)",
-        syntax="RUN <file>",
-        examples=["RUN script.py", "RUN automation-script.md"],
+        syntax="RUN <file> | RUN PARSE <file> | RUN DATA ...",
+        examples=["RUN automation-script.md", "RUN PARSE memory/system/startup-script.md", "RUN DATA LIST"],
         icon="•",
         category="Data",
     )

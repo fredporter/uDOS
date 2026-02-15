@@ -3,7 +3,7 @@ System Script Runner
 =====================
 
 Ensures `/memory/bank/system` scripts exist and invokes them via the TS runtime.
-Provides startup/reboot hooks that seed the runtime with simple PATTERN output
+Provides startup/reboot hooks that seed the runtime with simple DRAW PAT output
 so the Core TUI and automation logs always show a visible signal when each run
 executes.
 
