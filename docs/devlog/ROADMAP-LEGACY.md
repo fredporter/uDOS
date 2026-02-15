@@ -43,8 +43,8 @@ Spatial universe and anchors
 - World lenses: Godot 2D/2.5D adapter MVP (v1.3.4), O3DE prototype adapter (v1.3.5). See [v1-3 -4 3dworld.md](../v1-3%20-4%203dworld.md).
 
 App and TUI alignment
-- Mac app submodule boundary: `/app/` is a separate submodule, private, and commercial (Mac App Store). Treat it independently from uDOS/uCODE core. Expect Xcode-specific paths/tooling.
-- App v1.3 refactor (submodule): external vault path, Typo editor, tasks index, export UI. See [uDOS-app-v1-3.md](../uDOS-app-v1-3.md).
+- Mac app boundary: Obsidian Companion is now external in private pre-release repo `fredporter/oc-app`. Treat it independently from uDOS/uCODE core.
+- App v1.3 refactor history remains in legacy docs; active ownership moved to `fredporter/oc-app`.
 - TUI and Vibe integration: complete. Wrapper routing merged into uCODE TUI, OK/? and slash routing live. See [TUI-Vibe-Integration.md](../TUI-Vibe-Integration.md).
 - Vibe CLI workflow alignment: complete. uCODE TUI owns routing and Vibe output. See [VIBE-CLI-ROADMAP-ALIGNMENT.md](../../VIBE-CLI-ROADMAP-ALIGNMENT.md).
 - Vibe capabilities track: natural language routing, code assistance, and code analysis surfaces. Prototype to testing to feedback loop.

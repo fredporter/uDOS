@@ -49,7 +49,7 @@ def health():
 
 
 @system_bp.route("/command", methods=["POST"])
-@system_bp.route("/execute", methods=["POST"])  # Tauri backend endpoint
+@system_bp.route("/execute", methods=["POST"])  # Frontend command endpoint
 def execute_command_api():
     """Execute any uDOS command."""
     data = request.get_json()
@@ -60,7 +60,7 @@ def execute_command_api():
 
     result = execute_command(command)
 
-    # Return in format expected by Tauri (success, output, error)
+    # Return standardized command response format (success, output, error)
     if result.get("status") == "success":
         return jsonify(
             {"success": True, "output": result.get("output", ""), "error": None}
@@ -137,7 +137,7 @@ def system_version():
         root = Path(__file__).parent.parent.parent.parent
         
         # Read component versions from version.json files
-        for component in ['core', 'api', 'app', 'wizard', 'knowledge']:
+        for component in ['core', 'api', 'wizard', 'knowledge']:
             version_file = root / component / 'version.json'
             if version_file.exists():
                 with open(version_file) as f:

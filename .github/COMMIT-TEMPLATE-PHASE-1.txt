@@ -16,7 +16,7 @@ v1.0.2.0 Phase 1: Architecture Split + uMarkdown App Scaffold
 - docs/PHASE-1-INDEX.md: Navigation guide
 - docs/START-DEV-ENV.sh: Quick start script
 
-### uMarkdown Mac App (`/app`)
+### uMarkdown Mac App (external: `fredporter/oc-app`)
 - Upgraded to Svelte 4.2.0 + Tailwind CSS 3.4.1
 - New build pipeline:
   - tailwind.config.js: Brand colors, typography
@@ -33,7 +33,7 @@ v1.0.2.0 Phase 1: Architecture Split + uMarkdown App Scaffold
   - index.html: Clean Svelte app shell
   - src/main.ts: Svelte initialization
 
-- Complete development guide (app/README.md)
+- Complete development guide (see `fredporter/oc-app`)
 
 ### Dev Server (Experimental)
 - `wizard/dev_server.py`: Complete FastAPI implementation
@@ -107,4 +107,4 @@ python -c "from wizard.dev_server import DevServer; print('✅')"
 - docs/PHASE-1-INDEX.md — File navigation
 - docs/PHASE-1-CHECKLIST.md — Verification
 - AGENTS.md — Architecture rules
-- app/README.md — App development guide
+- External app docs — `fredporter/oc-app`

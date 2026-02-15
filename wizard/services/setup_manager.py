@@ -104,7 +104,6 @@ def get_paths() -> Dict[str, Any]:
         "installation": {
             "core": str(root / "core"),
             "extensions": str(root / "extensions"),
-            "app": str(root / "app"),
             "wizard": str(root / "wizard"),
             "dev": str(root / "dev"),
         },

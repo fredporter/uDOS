@@ -771,7 +771,7 @@ rebuild_after_dev() {
 # ═══════════════════════════════════════════════════════════════════════════
 # Unified Component Launcher
 # ═══════════════════════════════════════════════════════════════════════════
-# Central dispatcher for all component launchers (core, wizard, goblin, empire, app)
+# Central dispatcher for all component launchers (core, wizard, goblin, empire)
 # Reduces launcher duplication across .command and .sh files
 # ═════════════════════════════════════════════════════════════════════════════
 
@@ -940,8 +940,7 @@ launch_empire_dev() {
     "$UDOS_ROOT/dev/bin/start-empire-dev.sh" "$@" || return 1
 }
 
-# Note: App (Tauri) launcher moved to dev/app/bin/
-# /app is a private submodule for commercial release via Xcode/Mac App Store
+# Obsidian Companion app is managed externally in fredporter/oc-app.
 
 launch_component() {
     local component="${1:-core}"
@@ -983,7 +982,7 @@ launch_component() {
             echo "  goblin:dev      - Goblin Dev Server"
             echo "  empire:dev      - Empire CRM Server"
             echo ""
-            echo "Note: App (Tauri) launcher is in dev/app/bin/"
+            echo "Note: Obsidian Companion is managed externally in fredporter/oc-app."
             return 1
             ;;
     esac

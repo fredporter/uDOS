@@ -193,47 +193,6 @@
     ]
   },
   "launch": {
-    "configurations": [
-      {
-        "type": "swift",
-        "request": "launch",
-        "args": [],
-        "cwd": "${workspaceFolder:Root}/app/ObsidianCompanion",
-        "name": "Debug ObsidianCompanion (Root/app/ObsidianCompanion)",
-        "target": "ObsidianCompanion",
-        "configuration": "debug",
-        "preLaunchTask": "swift: Build Debug ObsidianCompanion (Root/app/ObsidianCompanion)"
-      },
-      {
-        "type": "swift",
-        "request": "launch",
-        "args": [],
-        "cwd": "${workspaceFolder:Root}/app/ObsidianCompanion",
-        "name": "Release ObsidianCompanion (Root/app/ObsidianCompanion)",
-        "target": "ObsidianCompanion",
-        "configuration": "release",
-        "preLaunchTask": "swift: Build Release ObsidianCompanion (Root/app/ObsidianCompanion)"
-      },
-      {
-        "type": "swift",
-        "request": "launch",
-        "args": [],
-        "cwd": "${workspaceFolder:Root}/app",
-        "name": "Debug ObsidianCompanion (Root/app)",
-        "target": "ObsidianCompanion",
-        "configuration": "debug",
-        "preLaunchTask": "swift: Build Debug ObsidianCompanion (Root/app)"
-      },
-      {
-        "type": "swift",
-        "request": "launch",
-        "args": [],
-        "cwd": "${workspaceFolder:Root}/app",
-        "name": "Release ObsidianCompanion (Root/app)",
-        "target": "ObsidianCompanion",
-        "configuration": "release",
-        "preLaunchTask": "swift: Build Release ObsidianCompanion (Root/app)"
-      }
-    ]
+    "configurations": []
   }
 }
