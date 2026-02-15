@@ -2,12 +2,24 @@
   import { apiFetch } from "$lib/services/apiBase";
   import { buildAuthHeaders, getAdminToken } from "$lib/services/auth";
   import { onMount } from "svelte";
+  import TerminalPanel from "$lib/components/terminal/TerminalPanel.svelte";
+  import TerminalButton from "$lib/components/terminal/TerminalButton.svelte";
+  import TerminalInput from "$lib/components/terminal/TerminalInput.svelte";
 
   let status = null;
   let logs = [];
   let loading = true;
   let error = null;
   let canDevMode = false;
+  let scripts = [];
+  let tests = [];
+  let selectedScript = "";
+  let selectedTest = "";
+  let runOutput = "";
+  let runError = null;
+  let runBusy = false;
+  let devInstalled = false;
+  let devActivated = false;
 
   // GitHub PAT state
   let patStatus = null;
@@ -30,6 +42,19 @@
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       status = await res.json();
+      const req = status?.requirements || {};
+      const installed =
+        !!req.dev_root_present &&
+        !!req.dev_template_present &&
+        !!req.goblin_scaffold_ready;
+      if (installed && status?.active) {
+        await loadScriptCatalog();
+      } else {
+        scripts = [];
+        tests = [];
+        selectedScript = "";
+        selectedTest = "";
+      }
       loading = false;
     } catch (err) {
       error = `Failed to load status: ${err.message}`;
@@ -47,6 +72,100 @@
       logs = data.logs || [];
     } catch (err) {
       console.error("Failed to load logs:", err);
+    }
+  }
+
+  async function loadScriptCatalog() {
+    const req = status?.requirements || {};
+    const installed =
+      !!req.dev_root_present &&
+      !!req.dev_template_present &&
+      !!req.goblin_scaffold_ready;
+    if (!(installed && status?.active)) {
+      scripts = [];
+      tests = [];
+      selectedScript = "";
+      selectedTest = "";
+      return;
+    }
+    try {
+      const [scriptsRes, testsRes] = await Promise.all([
+        apiFetch("/api/dev/scripts", {
+          headers: buildAuthHeaders(getAdminToken()),
+        }),
+        apiFetch("/api/dev/tests", {
+          headers: buildAuthHeaders(getAdminToken()),
+        }),
+      ]);
+      if (scriptsRes.ok) {
+        const data = await scriptsRes.json();
+        scripts = data.scripts || [];
+        if (!selectedScript && scripts.length) selectedScript = scripts[0];
+      }
+      if (testsRes.ok) {
+        const data = await testsRes.json();
+        tests = data.tests || [];
+        if (!selectedTest && tests.length) selectedTest = tests[0];
+      }
+    } catch (err) {
+      console.error("Failed to load dev catalog", err);
+    }
+  }
+
+  async function runScript() {
+    if (!devActivated) {
+      runError = "Dev mode must be activated before running /dev scripts.";
+      return;
+    }
+    if (!selectedScript) return;
+    runBusy = true;
+    runError = null;
+    runOutput = "";
+    try {
+      const res = await apiFetch("/api/dev/scripts/run", {
+        method: "POST",
+        headers: {
+          ...buildAuthHeaders(getAdminToken()),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ path: selectedScript, args: [] }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.status === "error") throw new Error(data.message || `HTTP ${res.status}`);
+      runOutput = `${(data.stdout || "").trim()}\n${(data.stderr || "").trim()}`.trim() || "(no output)";
+      await loadLogs();
+    } catch (err) {
+      runError = `Script run failed: ${err.message}`;
+    } finally {
+      runBusy = false;
+    }
+  }
+
+  async function runTests() {
+    if (!devActivated) {
+      runError = "Dev mode must be activated before running /dev tests.";
+      return;
+    }
+    runBusy = true;
+    runError = null;
+    runOutput = "";
+    try {
+      const res = await apiFetch("/api/dev/tests/run", {
+        method: "POST",
+        headers: {
+          ...buildAuthHeaders(getAdminToken()),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ path: selectedTest || null, args: [] }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.status === "error") throw new Error(data.message || `HTTP ${res.status}`);
+      runOutput = `${(data.stdout || "").trim()}\n${(data.stderr || "").trim()}`.trim() || "(no output)";
+      await loadLogs();
+    } catch (err) {
+      runError = `Test run failed: ${err.message}`;
+    } finally {
+      runBusy = false;
     }
   }
 
@@ -159,6 +278,7 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await loadStatus();
       await loadLogs();
+      await loadScriptCatalog();
     } catch (err) {
       error = `Failed to activate: ${err.message}`;
       loading = false;
@@ -174,6 +294,10 @@
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await loadStatus();
+      scripts = [];
+      tests = [];
+      selectedScript = "";
+      selectedTest = "";
     } catch (err) {
       error = `Failed to deactivate: ${err.message}`;
       loading = false;
@@ -190,6 +314,7 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await loadStatus();
       await loadLogs();
+      await loadScriptCatalog();
     } catch (err) {
       error = `Failed to restart: ${err.message}`;
       loading = false;
@@ -199,6 +324,7 @@
   onMount(() => {
     loadStatus();
     loadLogs();
+    loadScriptCatalog();
     loadPatStatus();
     loadWebhookSecretStatus();
     const interval = setInterval(loadStatus, 5000); // Poll every 5s
@@ -207,12 +333,15 @@
 
   $: canDevMode =
     !!status?.requirements?.dev_root_present &&
-    !!status?.requirements?.dev_template_present;
+    !!status?.requirements?.dev_template_present &&
+    !!status?.requirements?.goblin_scaffold_ready;
+  $: devInstalled = canDevMode;
+  $: devActivated = !!status?.active && devInstalled;
 </script>
 
 <div class="max-w-7xl mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold text-white mb-2">Dev Mode</h1>
-  <p class="text-gray-400 mb-8">Manage Goblin experimental dev server</p>
+  <p class="text-gray-400 mb-8">Manage /dev scripts and tests through Wizard GUI</p>
 
   {#if error}
     <div
@@ -228,7 +357,7 @@
     <!-- Status Card -->
     <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-white">Goblin Server Status</h3>
+        <h3 class="text-lg font-semibold text-white">Dev Workspace Status</h3>
         <div class="flex items-center gap-2">
           <div
             class="w-3 h-3 rounded-full {status.active
@@ -244,51 +373,50 @@
       <div class="grid grid-cols-2 gap-4 text-sm mb-6">
         <div>
           <span class="text-gray-400">Port:</span>
-          <span class="text-white ml-2">{status.port || "8767"}</span>
+          <span class="text-white ml-2">{status.requirements?.scripts_root || "n/a"}</span>
         </div>
         <div>
           <span class="text-gray-400">Version:</span>
-          <span class="text-white ml-2">{status.version || "v0.2.0"}</span>
+          <span class="text-white ml-2">{status.requirements?.tests_root || "n/a"}</span>
         </div>
-        {#if status.pid}
-          <div>
-            <span class="text-gray-400">PID:</span>
-            <span class="text-white ml-2">{status.pid}</span>
-          </div>
-        {/if}
-        {#if status.uptime}
-          <div>
-            <span class="text-gray-400">Uptime:</span>
-            <span class="text-white ml-2">{status.uptime}</span>
-          </div>
-        {/if}
+        <div>
+          <span class="text-gray-400">Scripts:</span>
+          <span class="text-white ml-2">{status.requirements?.script_count ?? 0}</span>
+        </div>
+        <div>
+          <span class="text-gray-400">Tests:</span>
+          <span class="text-white ml-2">{status.requirements?.test_count ?? 0}</span>
+        </div>
       </div>
 
       <!-- Controls -->
       <div class="flex gap-3">
         {#if !status.active}
-          <button
+          <TerminalButton
             on:click={activate}
             disabled={loading || !canDevMode}
-            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+            variant="success"
+            className="px-4 py-2"
           >
             Activate Dev Mode
-          </button>
+          </TerminalButton>
         {:else}
-          <button
+          <TerminalButton
             on:click={deactivate}
             disabled={loading || !canDevMode}
-            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+            variant="danger"
+            className="px-4 py-2"
           >
             Deactivate
-          </button>
-          <button
+          </TerminalButton>
+          <TerminalButton
             on:click={restart}
             disabled={loading || !canDevMode}
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+            variant="accent"
+            className="px-4 py-2"
           >
             Restart
-          </button>
+          </TerminalButton>
         {/if}
       </div>
       {#if status?.requirements}
@@ -317,10 +445,91 @@
     {/if}
   {/if}
 
-  <!-- GitHub PAT Configuration -->
-  <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
-    <h3 class="text-lg font-semibold text-white mb-4">🐙 GitHub Personal Access Token</h3>
-    <p class="text-sm text-gray-400 mb-4">Configure your GitHub PAT for API access and repository operations.</p>
+  <TerminalPanel
+    className="mb-6"
+    title="/dev Goblin Scaffold Runner"
+    subtitle="Run development scripts and tests from /dev/goblin through Wizard GUI."
+  >
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label for="dev-script-select" class="block text-xs text-gray-400 mb-1">Script</label>
+        <select
+          id="dev-script-select"
+          bind:value={selectedScript}
+          disabled={!devActivated}
+          class="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white wiz-terminal-input disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {#if scripts.length === 0}
+            <option value="">No scripts found</option>
+          {:else}
+            {#each scripts as script}
+              <option value={script}>{script}</option>
+            {/each}
+          {/if}
+        </select>
+      </div>
+      <div>
+        <label for="dev-test-select" class="block text-xs text-gray-400 mb-1">Test</label>
+        <select
+          id="dev-test-select"
+          bind:value={selectedTest}
+          disabled={!devActivated}
+          class="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white wiz-terminal-input disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {#if tests.length === 0}
+            <option value="">No tests found</option>
+          {:else}
+            {#each tests as test}
+              <option value={test}>{test}</option>
+            {/each}
+          {/if}
+        </select>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mb-4">
+      <TerminalButton
+        on:click={runScript}
+        disabled={runBusy || !selectedScript || !devActivated}
+        variant="accent"
+        className="px-4 py-2"
+      >
+        Run Script
+      </TerminalButton>
+      <TerminalButton
+        on:click={runTests}
+        disabled={runBusy || !devActivated}
+        variant="neutral"
+        className="px-4 py-2"
+      >
+        Run Tests
+      </TerminalButton>
+    </div>
+
+    {#if !devInstalled}
+      <div class="bg-amber-900/40 border border-amber-700 text-amber-100 p-3 rounded text-sm">
+        /dev submodule is not installed or scaffold is incomplete. Dev operations are locked.
+      </div>
+    {:else if !devActivated}
+      <div class="bg-slate-900/70 border border-slate-700 text-slate-200 p-3 rounded text-sm">
+        Dev mode is installed but inactive. Activate Dev Mode to enable scripts and tests.
+      </div>
+    {/if}
+
+    {#if runError}
+      <div class="bg-red-900 text-red-200 p-3 rounded mb-3 text-sm">{runError}</div>
+    {/if}
+    {#if runOutput}
+      <pre class="bg-gray-900 border border-gray-700 rounded p-3 text-xs text-gray-200 overflow-x-auto wiz-terminal-log">{runOutput}</pre>
+    {/if}
+  </TerminalPanel>
+
+  <TerminalPanel
+    className="mb-6"
+    title="GitHub Personal Access Token"
+    subtitle="Configure your GitHub PAT for API access and repository operations."
+  >
 
     {#if patError}
       <div class="bg-red-900 text-red-200 p-3 rounded mb-4 text-sm">{patError}</div>
@@ -341,38 +550,41 @@
     </div>
 
     <div class="flex gap-3">
-      <input
+      <TerminalInput
         type="password"
         bind:value={patInput}
         placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-        class="flex-1 px-3 py-2 bg-gray-900 border border-gray-600 rounded text-white text-sm focus:border-blue-500 focus:outline-none"
+        className="flex-1"
       />
-      <button
+      <TerminalButton
         on:click={savePat}
         disabled={patLoading || !patInput.trim()}
-        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition"
+        variant="accent"
+        className="px-4 py-2"
       >
         {patLoading ? "Saving..." : "Save PAT"}
-      </button>
+      </TerminalButton>
       {#if patStatus?.configured}
-        <button
+        <TerminalButton
           on:click={clearPat}
           disabled={patLoading}
-          class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition"
+          variant="danger"
+          className="px-4 py-2"
         >
           Clear
-        </button>
+        </TerminalButton>
       {/if}
     </div>
     <p class="text-xs text-gray-500 mt-3">
       Create a token at <a href="https://github.com/settings/tokens" target="_blank" class="text-blue-400 hover:underline">github.com/settings/tokens</a>
     </p>
-  </div>
+  </TerminalPanel>
 
-  <!-- Webhook Secret Generator -->
-  <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
-    <h3 class="text-lg font-semibold text-white mb-4">🔐 Webhook Secret Generator</h3>
-    <p class="text-sm text-gray-400 mb-4">Generate secure webhook secrets for GitHub and other integrations.</p>
+  <TerminalPanel
+    className="mb-6"
+    title="Webhook Secret Generator"
+    subtitle="Generate secure webhook secrets for GitHub and other integrations."
+  >
 
     {#if webhookError}
       <div class="bg-red-900 text-red-200 p-3 rounded mb-4 text-sm">{webhookError}</div>
@@ -386,31 +598,33 @@
     </div>
 
     <div class="flex gap-3 mb-4">
-      <button
+      <TerminalButton
         on:click={generateWebhookSecret}
         disabled={webhookLoading}
-        class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition"
+        variant="accent"
+        className="px-4 py-2"
       >
         {webhookLoading ? "Generating..." : "Generate GitHub Webhook Secret"}
-      </button>
+      </TerminalButton>
     </div>
 
     {#if generatedSecret}
       <div class="bg-gray-900 border border-gray-600 rounded p-4">
         <div class="flex items-center justify-between mb-2">
           <span class="text-sm text-gray-400">Generated Secret (saved automatically):</span>
-          <button
+          <TerminalButton
             on:click={copySecret}
-            class="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded transition"
+            variant="neutral"
+            className="px-3 py-1 text-xs"
           >
             {copiedSecret ? "Copied!" : "Copy"}
-          </button>
+          </TerminalButton>
         </div>
         <code class="block text-xs text-green-400 font-mono break-all">{generatedSecret}</code>
         <p class="text-xs text-amber-400 mt-2">⚠️ Copy this secret now and add it to your GitHub webhook settings.</p>
       </div>
     {/if}
-  </div>
+  </TerminalPanel>
 
   <!-- Bottom padding spacer -->
   <div class="h-32"></div>

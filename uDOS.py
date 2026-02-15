@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 uDOS - Universal Device Operating System
-Main entry point: uCODE Unified Terminal TUI
+Main entry point: uCLI Unified Terminal TUI
 
-uCODE is the pivotal single-entry-point Terminal TUI for uDOS that:
+uCLI is the pivotal single-entry-point Terminal TUI for uDOS that:
 - Auto-detects available components (core, wizard, extensions)
 - Gracefully falls back to core-only mode if other components are missing
 - Handles extension/plugin packaging and distribution
@@ -22,6 +22,6 @@ sys.path.insert(0, project_root)
 os.chdir(project_root)
 
 if __name__ == '__main__':
-    from core.tui.ucode import uCODETUI
-    tui = uCODETUI()
+    from core.tui.ucode import UCLI
+    tui = UCLI()
     tui.run()

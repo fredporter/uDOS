@@ -1,6 +1,8 @@
 <script>
   import { apiFetch } from "$lib/services/apiBase";
   import { onDestroy, onMount } from "svelte";
+  import TerminalPanel from "$lib/components/terminal/TerminalPanel.svelte";
+  import TerminalButton from "$lib/components/terminal/TerminalButton.svelte";
 
   let dashboard = null;
   let processes = [];
@@ -183,19 +185,21 @@
         Auto-refresh
       </label>
       {#if dashboard?.monitoring}
-        <button
+        <TerminalButton
           on:click={stopMonitoring}
-          class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition"
+          className="px-4 py-2"
+          variant="neutral"
         >
           Stop Monitor
-        </button>
+        </TerminalButton>
       {:else}
-        <button
+        <TerminalButton
           on:click={startMonitoring}
-          class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition"
+          className="px-4 py-2"
+          variant="accent"
         >
           Start Monitor
-        </button>
+        </TerminalButton>
       {/if}
     </div>
   </div>
@@ -213,7 +217,7 @@
     <!-- Resource Summary -->
     {#if resources}
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+        <div class="wiz-terminal-panel p-4">
           <div class="text-gray-400 text-sm mb-1">CPU Usage</div>
           <div class="text-2xl font-bold text-white">{resources.cpu_percent?.toFixed(1) || 0}%</div>
           <div class="mt-2 h-2 bg-gray-700 rounded-full overflow-hidden">
@@ -223,7 +227,7 @@
             ></div>
           </div>
         </div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+        <div class="wiz-terminal-panel p-4">
           <div class="text-gray-400 text-sm mb-1">Memory Usage</div>
           <div class="text-2xl font-bold text-white">{resources.memory_percent?.toFixed(1) || 0}%</div>
           <div class="text-xs text-gray-500">
@@ -236,7 +240,7 @@
             ></div>
           </div>
         </div>
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+        <div class="wiz-terminal-panel p-4">
           <div class="text-gray-400 text-sm mb-1">Disk Usage</div>
           <div class="text-2xl font-bold text-white">{resources.disk_percent?.toFixed(1) || 0}%</div>
           <div class="text-xs text-gray-500">
@@ -254,29 +258,26 @@
 
     <!-- Stats Summary -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
+      <div class="wiz-terminal-panel p-4 text-center">
         <div class="text-3xl font-bold text-green-400">{dashboard?.active_processes || 0}</div>
         <div class="text-gray-400 text-sm">Active Processes</div>
       </div>
-      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
+      <div class="wiz-terminal-panel p-4 text-center">
         <div class="text-3xl font-bold text-purple-400">{dashboard?.allocated_ports || 0}</div>
         <div class="text-gray-400 text-sm">Allocated Ports</div>
       </div>
-      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
+      <div class="wiz-terminal-panel p-4 text-center">
         <div class="text-3xl font-bold text-blue-400">{dashboard?.registered_extensions || 0}</div>
         <div class="text-gray-400 text-sm">Extensions</div>
       </div>
-      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
+      <div class="wiz-terminal-panel p-4 text-center">
         <div class="text-3xl font-bold text-amber-400">{events.length || 0}</div>
         <div class="text-gray-400 text-sm">Recent Events</div>
       </div>
     </div>
 
     <!-- Managed Processes -->
-    <div class="bg-gray-800 border border-gray-700 rounded-lg mb-8">
-      <div class="px-4 py-3 border-b border-gray-700">
-        <h2 class="text-lg font-semibold text-white">Managed Processes</h2>
-      </div>
+    <TerminalPanel className="mb-8" title="Managed Processes">
       <div class="divide-y divide-gray-700">
         {#if processes.length === 0}
           <div class="p-8 text-center text-gray-500">No processes running</div>
@@ -298,18 +299,20 @@
               </div>
               <div class="flex items-center gap-2">
                 {#if proc.status === "running"}
-                  <button
+                  <TerminalButton
                     on:click={() => restartProcess(proc.name)}
-                    class="px-3 py-1 text-sm bg-amber-600 hover:bg-amber-700 text-white rounded transition"
+                    className="px-3 py-1 text-sm"
+                    variant="accent"
                   >
                     Restart
-                  </button>
-                  <button
+                  </TerminalButton>
+                  <TerminalButton
                     on:click={() => stopProcess(proc.name)}
-                    class="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition"
+                    className="px-3 py-1 text-sm"
+                    variant="danger"
                   >
                     Stop
-                  </button>
+                  </TerminalButton>
                 {:else}
                   <span class="text-gray-500 text-sm">Not running</span>
                 {/if}
@@ -318,20 +321,20 @@
           {/each}
         {/if}
       </div>
-    </div>
+    </TerminalPanel>
 
     <!-- Event Log -->
-    <div class="bg-gray-800 border border-gray-700 rounded-lg">
-      <div class="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-white">Event Log</h2>
-        <button
+    <TerminalPanel title="Event Log">
+      <svelte:fragment slot="header-actions">
+        <TerminalButton
           on:click={loadEvents}
-          class="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded transition"
+          className="px-3 py-1 text-sm"
+          variant="neutral"
         >
           Refresh
-        </button>
-      </div>
-      <div class="max-h-64 overflow-y-auto divide-y divide-gray-700">
+        </TerminalButton>
+      </svelte:fragment>
+      <div class="max-h-64 overflow-y-auto divide-y divide-gray-700 wiz-terminal-log">
         {#if events.length === 0}
           <div class="p-8 text-center text-gray-500">No events recorded</div>
         {:else}
@@ -356,6 +359,6 @@
           {/each}
         {/if}
       </div>
-    </div>
+    </TerminalPanel>
   {/if}
 </div>

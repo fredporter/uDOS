@@ -750,7 +750,7 @@ rebuild_wizard_dashboard() {
         echo -e "${CYAN}🧙 Wizard Dashboard: checking build...${NC}"
         # Ensure npm available
         if ! command -v npm >/dev/null 2>&1; then
-            echo -e "${YELLOW}⚠️  npm not found; skipping dashboard build (use ./bin/Launch-uCODE.sh wizard for guided install)${NC}"
+            echo -e "${YELLOW}⚠️  npm not found; skipping dashboard build (use ./bin/ucli wizard for guided install)${NC}"
             return 0
         fi
         maybe_npm_install "$dash_root" || return 1
@@ -771,7 +771,7 @@ rebuild_after_dev() {
 # ═══════════════════════════════════════════════════════════════════════════
 # Unified Component Launcher
 # ═══════════════════════════════════════════════════════════════════════════
-# Central dispatcher for all component launchers (core, wizard, goblin, empire)
+# Central dispatcher for uCLI + Wizard server launch
 # Reduces launcher duplication across .command and .sh files
 # ═════════════════════════════════════════════════════════════════════════════
 
@@ -893,54 +893,8 @@ PY
     print_service_url "Server" "http://localhost:${wizard_port}"
     print_service_url "Dashboard" "http://localhost:${wizard_port}/dashboard"
     _udos_echo ""
-    _udos_echo "${CYAN}[INFO]${NC} Launching uCODE TUI..."
-    _udos_echo ""
-
-    # Launch Core TUI with Wizard available
-    python "$UDOS_ROOT/uDOS.py" "$@" || return 1
+    _udos_echo "${GREEN}✓${NC} Wizard server ready. Open the dashboard URL in your browser."
 }
-
-launch_wizard_tui() {
-    local title="Wizard Dev TUI - Server + Interactive Console"
-    print_header "$title"
-
-    _setup_component_environment "wizard" || return 1
-    check_wizard_updates || return 1
-
-    # Delegate to wizard TUI launcher
-    "$UDOS_ROOT/wizard/launch_wizard_tui.sh" "$@" || return 1
-}
-
-launch_goblin_dev() {
-    local title="Goblin Dev Server - Experimental Features"
-    print_header "$title"
-
-    _setup_component_environment "goblin" || return 1
-
-    print_service_url "Server" "http://localhost:8767"
-    print_service_url "Dashboard" "http://localhost:5174"
-    print_service_url "Swagger" "http://localhost:8767/docs"
-    _udos_echo ""
-
-    # Delegate to goblin launcher
-    "$UDOS_ROOT/dev/bin/start-goblin-dev.sh" "$@" || return 1
-}
-
-launch_empire_dev() {
-    local title="Empire Private Server - CRM & Business Intelligence"
-    print_header "$title"
-
-    _setup_component_environment "empire" || return 1
-
-    print_service_url "Server" "http://localhost:8768"
-    print_service_url "Dashboard" "http://localhost:8768/dashboard"
-    _udos_echo ""
-
-    # Delegate to empire launcher
-    "$UDOS_ROOT/dev/bin/start-empire-dev.sh" "$@" || return 1
-}
-
-# Obsidian Companion app is managed externally in fredporter/oc-app.
 
 launch_component() {
     local component="${1:-core}"
@@ -969,20 +923,14 @@ launch_component() {
     case "$component:$mode" in
         core:tui)       run_with_log "core-tui" launch_core_tui "$@" ;;
         wizard:server)  run_with_log "wizard-server" launch_wizard_server "$@" ;;
-        wizard:tui)     run_with_log "wizard-tui" launch_wizard_tui "$@" ;;
-        goblin:dev)     run_with_log "goblin-dev" launch_goblin_dev "$@" ;;
-        empire:dev)     run_with_log "empire-dev" launch_empire_dev "$@" ;;
         *)
             echo -e "${RED}[ERROR]${NC} Unknown component:mode: $component:$mode"
             echo ""
             echo "Supported combinations:"
-            echo "  core:tui        - Core TUI interactive"
-            echo "  wizard:server   - Wizard Server + dashboard"
-            echo "  wizard:tui      - Wizard TUI console"
-            echo "  goblin:dev      - Goblin Dev Server"
-            echo "  empire:dev      - Empire CRM Server"
+            echo "  core:tui        - uCLI interactive terminal"
+            echo "  wizard:server   - Wizard server + web GUI"
             echo ""
-            echo "Note: Obsidian Companion is managed externally in fredporter/oc-app."
+            echo "Note: uCLI is the only TUI. Other interfaces run on Wizard GUI."
             return 1
             ;;
     esac

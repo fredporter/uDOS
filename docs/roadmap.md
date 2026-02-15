@@ -32,6 +32,7 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 - Documented binder `media/` folder support for non-uDOS-standard files.
 - Scaffolded Empire private extension spine with minimal entrypoint and docs.
 - Refactored Wizard server wiring into services (auth, logging, stats, scheduler, plugin repo, web proxy, webhooks).
+- Completed integration sweep: removed duplicated Wizard route registrations and dropped legacy compatibility wrappers (`create_sonic_routes`, `RebootAliasHandler`).
 - Bumped versions: `uDOS` to v1.3.9, `Wizard` to v1.1.2.
 
 ---

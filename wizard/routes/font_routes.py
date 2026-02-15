@@ -21,7 +21,6 @@ def _resolve_fonts_root() -> Optional[Path]:
     candidates = [
         repo_root / "fonts",  # New canonical location (root level)
         repo_root / "wizard" / "font-manager" / "fonts",  # Legacy
-        repo_root / "dev" / "goblin" / "fonts",  # Legacy
         repo_root / "library" / "fonts",  # Legacy
     ]
     for candidate in candidates:
@@ -50,15 +49,6 @@ def create_font_routes(auth_guard=None) -> APIRouter:
         if not fonts_root:
             raise HTTPException(status_code=404, detail="Fonts root not found")
         sample_path = fonts_root / "font-test.md"
-        if not sample_path.exists():
-            # Fallback to goblin static if present
-            sample_path = (
-                get_repo_root()
-                / "dev"
-                / "goblin"
-                / "static"
-                / "font-test.md"
-            )
         if not sample_path.exists():
             raise HTTPException(status_code=404, detail="font-test.md missing")
         return FileResponse(str(sample_path))

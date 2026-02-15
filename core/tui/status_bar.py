@@ -32,7 +32,7 @@ class ServerStatus(Enum):
 
 
 class TUIStatusBar:
-    """Persistent status bar for uCODE TUI."""
+    """Persistent status bar for uCLI."""
 
     def __init__(self):
         """Initialize status bar."""

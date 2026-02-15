@@ -1,0 +1,65 @@
+:root {
+  --wiz-terminal-bg: #0f172a;
+  --wiz-terminal-bg-elevated: #0b1220;
+  --wiz-terminal-surface: rgba(15, 23, 42, 0.8);
+  --wiz-terminal-border: #1f2937;
+  --wiz-terminal-border-soft: rgba(51, 65, 85, 0.7);
+  --wiz-terminal-text: #e2e8f0;
+  --wiz-terminal-text-dim: #94a3b8;
+  --wiz-terminal-accent: #38bdf8;
+  --wiz-terminal-accent-soft: rgba(56, 189, 248, 0.25);
+}
+
+.wiz-terminal-panel {
+  background: var(--wiz-terminal-bg);
+  border: 1px solid var(--wiz-terminal-border);
+  border-radius: 0.75rem;
+  color: var(--wiz-terminal-text);
+}
+
+.wiz-terminal-chip {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(30, 41, 59, 0.7);
+  color: var(--wiz-terminal-text);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.wiz-terminal-input {
+  background: #111827;
+  border: 1px solid var(--wiz-terminal-border);
+  border-radius: 0.5rem;
+  color: #f8fafc;
+  font-family: var(--mdk-font-code);
+}
+
+.wiz-terminal-input:focus {
+  outline: none;
+  border-color: var(--wiz-terminal-accent);
+  box-shadow: 0 0 0 3px var(--wiz-terminal-accent-soft);
+}
+
+.wiz-terminal-input::placeholder {
+  color: var(--wiz-terminal-text-dim);
+}
+
+.wiz-terminal-log {
+  background: var(--wiz-terminal-bg-elevated);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  border-radius: 0.5rem;
+  font-family: var(--mdk-font-code);
+  color: var(--wiz-terminal-text);
+}
+
+.wiz-terminal-btn {
+  border-radius: 0.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--wiz-terminal-text);
+}
+
+.wiz-terminal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

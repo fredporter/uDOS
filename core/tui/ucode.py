@@ -1,5 +1,5 @@
 """
-uCODE - Unified Terminal TUI
+uCLI - Unified Terminal TUI
 =============================
 
 The pivotal single-entry-point Terminal TUI for uDOS.
@@ -26,7 +26,7 @@ Commands:
   WIZARD [cmd]    - Wizard server control (if available)
   + Core commands (routed to dispatcher)
 
-Version: v1.0.0 (uCODE Unified)
+Version: v1.0.0 (uCLI Unified)
 Status: Production
 Date: 2026-01-28
 """
@@ -233,11 +233,11 @@ class ComponentDetector:
         return comp and comp.state == ComponentState.AVAILABLE
 
 
-class uCODETUI:
+class UCLI:
     """Unified Terminal TUI for uDOS."""
 
     def __init__(self):
-        """Initialize uCODE TUI."""
+        """Initialize uCLI TUI."""
         self.repo_root = get_repo_root()
         self.logger = get_logger("core", category="ucode-tui", name="ucode")
         self.quiet = os.getenv("UDOS_QUIET", "").strip() in ("1", "true", "yes")
@@ -584,7 +584,7 @@ class uCODETUI:
         return {"status": "success", "command": "OK"}
 
     def run(self) -> None:
-        """Start uCODE TUI."""
+        """Start uCLI TUI."""
         self.running = True
         self._autodetect_environment()
         self._refresh_viewport()
@@ -935,7 +935,7 @@ class uCODETUI:
                 if 0 <= col < width:
                     grid[grid_row][col] = ch
 
-        version_line = f"uCODE v{self.ucode_version}"
+        version_line = f"uCLI v{self.ucode_version}"
         version_row = height - 3
         version_col = max(0, (width - len(version_line)) // 2)
         for idx, ch in enumerate(version_line):
@@ -2215,7 +2215,7 @@ class uCODETUI:
 
     def _cmd_status(self, args: str) -> None:
         """Show system status."""
-        print(self._theme_text("\n═══ uCODE STATUS ═══\n"))
+        print(self._theme_text("\n═══ uCLI STATUS ═══\n"))
         self._show_component_status()
 
         if self.detector.is_available("wizard"):
@@ -2263,12 +2263,12 @@ class uCODETUI:
     def _cmd_help(self, args: str) -> None:
         """Show help."""
         help_text = """
-═══ uCODE HELP ═══
+═══ uCLI HELP ═══
 
 Core Commands:
   STATUS              - Show system status
   HELP                - This help message
-  EXIT                - Exit uCODE
+  EXIT                - Exit uCLI
 
 System Management:
   SETUP               - Run setup story (default)
@@ -3056,13 +3056,13 @@ For detailed help on any command, type the command name followed by --help
             print(f"  ❌ Error: {e}")
 
     def _cmd_exit(self, args: str) -> None:
-        """Exit uCODE."""
+        """Exit uCLI."""
         self.running = False
         print("\nGoodbye!")
 
     def _cleanup(self) -> None:
         """Cleanup on exit."""
-        self.logger.info("uCODE TUI shutting down")
+        self.logger.info("uCLI TUI shutting down")
 
     def _is_ghost_user(self) -> bool:
         """Return True if current user is the demo ghost profile.
@@ -3100,8 +3100,8 @@ For detailed help on any command, type the command name followed by --help
 
 
 def main():
-    """Main entry point for uCODE."""
-    tui = uCODETUI()
+    """Main entry point for uCLI."""
+    tui = UCLI()
     tui.run()
 
 

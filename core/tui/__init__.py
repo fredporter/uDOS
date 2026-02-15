@@ -6,14 +6,14 @@ Leverages Phase 5F command handlers and TypeScript runtime.
 All heavy lifting delegated to Wizard Server.
 
 Components:
-- ucode: Unified Terminal TUI (main entry point)
+- ucode: Unified Terminal TUI (uCLI)
 - dispatcher: Command routing
 - renderer: Output formatting
 - state: Game state management
 """
 
 __all__ = [
-    "uCODETUI",
+    "UCLI",
     "TUIRepl",
     "CommandDispatcher",
     "GridRenderer",
@@ -23,14 +23,14 @@ __all__ = [
 
 def __getattr__(name):
     """Lazy imports to avoid circular dependencies at module import time."""
-    if name == "uCODETUI":
-        from .ucode import uCODETUI
+    if name == "UCLI":
+        from .ucode import UCLI
 
-        return uCODETUI
+        return UCLI
     if name == "TUIRepl":
-        from .ucode import uCODETUI
+        from .ucode import UCLI
 
-        return uCODETUI
+        return UCLI
     if name == "CommandDispatcher":
         from .dispatcher import CommandDispatcher
 
@@ -49,7 +49,6 @@ def __getattr__(name):
         return GameState
     raise AttributeError(name)
 
-# Legacy alias expected by older tests (resolved lazily)
 def __dir__():
     return sorted(__all__)
 

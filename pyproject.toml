@@ -18,7 +18,6 @@ classifiers = [
     "Intended Audience :: End Users/Desktop",
     "Topic :: System :: Shells",
     "Topic :: Utilities",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -54,7 +53,7 @@ Documentation = "https://github.com/fredporter/uDOS/wiki"
 "Source Code" = "https://github.com/fredporter/uDOS"
 
 [project.scripts]
-udos = "core.uDOS_main:main"
+ucli = "core.tui.ucli:main"
 
 [project.optional-dependencies]
 # Ultra-minimal (~8MB) - Core TUI only, no extras
@@ -134,7 +133,9 @@ wizard = ["**/*.json", "**/*.md", "**/*.html", "**/*.css", "**/*.js"]
 
 [tool.pytest.ini_options]
 testpaths = ["memory/tests"]
-asyncio_mode = "auto"
+filterwarnings = [
+    "ignore:urllib3 v2 only supports OpenSSL 1\\.1\\.1\\+",
+]
 
 [tool.black]
 line-length = 100

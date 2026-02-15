@@ -155,8 +155,9 @@ async def dashboard(request: Request):
     stats = await get_system_stats()
 
     return templates.TemplateResponse(
+        request,
         "dashboard.html",
-        {"request": request, "stats": stats, "page_title": "Wizard Server Dashboard"},
+        {"stats": stats, "page_title": "Wizard Server Dashboard"},
     )
 
 
@@ -265,9 +266,9 @@ async def config_dashboard(request: Request):
         )
 
     return templates.TemplateResponse(
+        request,
         "config.html",
         {
-            "request": request,
             "page_title": "Wizard Configuration",
             "venv_status": venv_status,
             "secret_state": secret_state,
@@ -325,9 +326,9 @@ async def hotkey_center(request: Request):
     """Hotkey center page documenting CLI/automation keys."""
     payload = get_hotkey_payload(MEMORY_ROOT)
     return templates.TemplateResponse(
+        request,
         "hotkeys.html",
         {
-            "request": request,
             "key_map": payload["key_map"],
             "page_title": "Hotkey Center",
             "health_log": str(LOGS_DIR / "health-training.log"),
@@ -374,8 +375,9 @@ async def webhooks_dashboard(request: Request):
     webhooks = await list_webhooks()
 
     return templates.TemplateResponse(
+        request,
         "webhooks.html",
-        {"request": request, "webhooks": webhooks, "page_title": "Webhooks"},
+        {"webhooks": webhooks, "page_title": "Webhooks"},
     )
 
 
@@ -417,8 +419,9 @@ async def devices_dashboard(request: Request):
     devices = await list_devices()
 
     return templates.TemplateResponse(
+        request,
         "devices.html",
-        {"request": request, "devices": devices, "page_title": "Mesh Devices"},
+        {"devices": devices, "page_title": "Mesh Devices"},
     )
 
 
@@ -677,9 +680,7 @@ async def sync_status(request: Request):
 @app.get("/logs", response_class=HTMLResponse)
 async def logs_dashboard(request: Request):
     """Log viewer page."""
-    return templates.TemplateResponse(
-        "logs.html", {"request": request, "page_title": "Server Logs"}
-    )
+    return templates.TemplateResponse(request, "logs.html", {"page_title": "Server Logs"})
 
 
 @app.get("/api/logs")
@@ -755,7 +756,7 @@ async def websocket_endpoint(websocket: WebSocket):
 async def catalog_page(request: Request):
     """Groovebox sound pack catalog page."""
     return templates.TemplateResponse(
-        "catalog.html", {"request": request, "page_title": "Groovebox Catalog"}
+        request, "catalog.html", {"page_title": "Groovebox Catalog"}
     )
 
 

@@ -87,7 +87,7 @@ def create_log_routes(auth_guard=None):
 
     @router.get("/stream")
     async def stream_logs(
-        component: str = Query("wizard", pattern="^(core|wizard|script|goblin|extension)$"),
+        component: str = Query("wizard", pattern="^(core|wizard|script|extension|dev)$"),
         name: str = Query("wizard-server"),
         limit: int = Query(200, ge=0, le=2000),
     ):

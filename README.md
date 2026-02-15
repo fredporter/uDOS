@@ -18,7 +18,7 @@ Offline-first OS layer for knowledge systems, tools, and portable environments.
 ## Quick Start
 
 ```bash
-./bin/Launch-uCODE.sh
+./bin/ucli
 ```
 
 Common first commands:

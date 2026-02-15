@@ -306,16 +306,6 @@ class PortManager:
                 startup_cmd="python -m wizard.server",
                 shutdown_cmd=None,
             ),
-            "goblin": Service(
-                name="goblin",
-                port=8767,
-                environment=ServiceEnvironment.EXPERIMENTAL,
-                process_name="python",
-                description="Goblin Dev Server - Experimental features",
-                health_endpoint="http://localhost:8767/health",
-                startup_cmd="python dev/goblin/server.py",
-                shutdown_cmd=None,
-            ),
             "api": Service(
                 name="api",
                 port=5001,

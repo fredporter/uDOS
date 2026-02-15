@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.3",
+  "profile_name": "uDOS Local AI Profile",
+  "distribution": {
+    "owner": "uDOS",
+    "license": "internal-template",
+    "exportable": true,
+    "notes": "Distributable baseline for local Ollama prompt standards and mission objectives."
+  },
+  "standards": [
+    "Offline-first execution where possible.",
+    "Never suggest destructive operations without explicit confirmation.",
+    "Prefer reproducible, scriptable, testable workflows.",
+    "Use Wizard GUI for complex workflow orchestration and observability."
+  ],
+  "mission_objectives": [
+    "Keep uDOS resilient, modular, and locally controllable.",
+    "Reduce operator toil with clear, automatable runbooks.",
+    "Maintain consistent uCLI and Wizard behaviors across modules."
+  ],
+  "local_ollama": {
+    "endpoint": "http://127.0.0.1:11434",
+    "general_model": "mistral-small-latest",
+    "coding_model": "devstral-small-2",
+    "temperature_general": 0.4,
+    "temperature_coding": 0.2
+  },
+  "custom_instructions": {
+    "global": [
+      "Explain tradeoffs before irreversible actions.",
+      "Reference exact file paths for implementation instructions."
+    ],
+    "general": [
+      "Favor concise, plain-language responses for operations guidance."
+    ],
+    "coding": [
+      "Return minimal, reviewable diffs first; avoid speculative refactors.",
+      "Call out missing tests and operational risks explicitly."
+    ]
+  },
+  "local_skills": [
+    {
+      "id": "ops-triage",
+      "name": "Ops Triage",
+      "enabled": true,
+      "tags": ["ops", "incident"],
+      "instructions": "Collect service health, ports, recent logs, and actionable remediation steps."
+    }
+  ],
+  "user_quests": [
+    {
+      "id": "quest-bootstrap",
+      "title": "Bootstrap local uDOS",
+      "objective": "Bring up uCLI + Wizard on a clean machine",
+      "acceptance_criteria": [
+        "Wizard health endpoint returns 200",
+        "uCLI can dispatch STATUS",
+        "Dev mode gating reflects /dev state"
+      ],
+      "status": "active"
+    }
+  ],
+  "knowledge_library": [
+    {
+      "id": "kb-operations-baseline",
+      "title": "Operations baseline",
+      "summary": "Core operating principles and handoff expectations.",
+      "source": "knowledge/local/operations-baseline.md",
+      "tags": ["operations", "baseline"]
+    }
+  ]
+}

@@ -25,7 +25,7 @@ def get_logger(
     corr_id: Optional[str] = None,
 ) -> Logger:
     """Wizard-biased logger wrapper for v1.3 logging."""
-    known_components = {"core", "wizard", "script", "goblin", "extension"}
+    known_components = {"core", "wizard", "script", "extension", "dev"}
     if component not in known_components and category == "general" and name is None:
         category = component
         component = "wizard"

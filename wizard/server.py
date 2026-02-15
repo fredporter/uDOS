@@ -360,10 +360,6 @@ class WizardServer:
             auth_guard=self._authenticate, prefix="/api/system"
         )
         app.include_router(system_info_router_v1)
-        system_info_router = create_system_info_routes(
-            auth_guard=self._authenticate, prefix="/api/system"
-        )
-        app.include_router(system_info_router)
 
         # Register Wiki provisioning routes
         from wizard.routes.wiki_routes import create_wiki_routes
@@ -394,10 +390,6 @@ class WizardServer:
             auth_guard=self._authenticate_admin, prefix="/api/workspace"
         )
         app.include_router(workspace_router_v1)
-        workspace_router = create_workspace_routes(
-            auth_guard=self._authenticate_admin, prefix="/api/workspace"
-        )
-        app.include_router(workspace_router)
 
         # Register Font routes
         from wizard.routes.font_routes import create_font_routes
@@ -411,14 +403,6 @@ class WizardServer:
 
         diagram_router = create_diagram_routes()
         app.include_router(diagram_router)
-
-        # Register Self-Heal routes
-        from wizard.routes.self_heal_routes import create_self_heal_routes
-
-        self_heal_router = create_self_heal_routes(
-            auth_guard=self._authenticate_admin
-        )
-        app.include_router(self_heal_router)
 
         # Register Layer editor routes
         from wizard.routes.layer_editor_routes import create_layer_editor_routes
@@ -489,6 +473,12 @@ class WizardServer:
 
         sonic_router = create_sonic_plugin_routes(auth_guard=self._authenticate_admin)
         app.include_router(sonic_router)
+
+        # Register unified platform integration routes (Sonic/Groovebox/Themes/Dev scaffold)
+        from wizard.routes.platform_routes import create_platform_routes
+
+        platform_router = create_platform_routes(auth_guard=self._authenticate_admin)
+        app.include_router(platform_router)
 
         # Mount dashboard static files
         from fastapi.staticfiles import StaticFiles

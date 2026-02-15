@@ -280,12 +280,6 @@ class PluginRepository:
         self._save_index()
         return {"updated": updated, "total": len(self._index.plugins)}
 
-
-def _version_tuple(value: str) -> Tuple[int, ...]:
-    parts = re.findall(r"\d+", value or "")
-    return tuple(int(part) for part in parts)
-
-
     def verify_package(self, package_path: Path) -> bool:
         """
         Verify package integrity.
@@ -390,6 +384,11 @@ def _version_tuple(value: str) -> Tuple[int, ...]:
         self._save_index()
         logger.info(f"[PLUGIN] Disabled plugin: {plugin_id}")
         return True
+
+
+def _version_tuple(value: str) -> Tuple[int, ...]:
+    parts = re.findall(r"\d+", value or "")
+    return tuple(int(part) for part in parts)
 
 
 def _is_version_newer(candidate: str, installed: str) -> bool:

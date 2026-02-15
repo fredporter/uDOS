@@ -9,6 +9,11 @@
 
   import { createEventDispatcher, onMount } from 'svelte';
   import { buildAuthHeaders } from '$lib/services/auth';
+  import TerminalInput from '$lib/components/terminal/TerminalInput.svelte';
+  import TerminalTextarea from '$lib/components/terminal/TerminalTextarea.svelte';
+  import TerminalSelect from '$lib/components/terminal/TerminalSelect.svelte';
+  import TerminalTimezonePicker from '$lib/components/terminal/TerminalTimezonePicker.svelte';
+  import TerminalLocationPicker from '$lib/components/terminal/TerminalLocationPicker.svelte';
 
   export let field;
   export let value = '';
@@ -119,9 +124,15 @@
     dispatch('change', { name: field.name, value: newValue });
   }
 
+  function getEventValue(event) {
+    if (event?.detail && Object.prototype.hasOwnProperty.call(event.detail, 'value')) {
+      return event.detail.value;
+    }
+    return event?.target?.value;
+  }
+
   function handleInput(event) {
-    const target = event.target;
-    let newValue = target.value;
+    let newValue = getEventValue(event);
 
     if (field.type === 'number') {
       newValue = newValue ? parseFloat(newValue) : '';
@@ -136,13 +147,12 @@
   }
 
   function handleSelectChange(event) {
-    const target = event.target;
-    handleChange(target.value);
+    handleChange(getEventValue(event));
   }
 
   function handleLocationInput(event) {
-    const target = event.target;
-    locationQuery = target.value;
+    const nextQuery = event?.detail?.query ?? event?.target?.value ?? '';
+    locationQuery = nextQuery;
     if (value) {
       dispatch('change', {
         name: field.name,
@@ -152,10 +162,10 @@
     }
     if (searchTimer) clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
-      if (!locationQuery.trim()) {
+      if (!nextQuery.trim()) {
         fetchDefaultLocation();
       } else {
-        fetchLocationSuggestions(locationQuery.trim());
+        fetchLocationSuggestions(nextQuery.trim());
       }
     }, 250);
   }
@@ -192,13 +202,13 @@
     {/if}
   </label>
 
-  {#if field.type === 'text' || field.type === 'email' || field.type === 'number'}
+  {#if field.type === 'text' || field.type === 'email' || field.type === 'number' || field.type === 'date' || field.type === 'time' || field.type === 'datetime-local'}
     {#if overlayEnabled}
       <div class="input-overlay">
         {#if showPreviousOverlay}
           <span class="previous-value">{previousValue}</span>
         {/if}
-        <input
+        <TerminalInput
           id={field.name}
           type={field.type}
           placeholder={field.placeholder}
@@ -208,7 +218,7 @@
         />
       </div>
     {:else}
-      <input
+      <TerminalInput
         id={field.name}
         type={field.type}
         placeholder={field.placeholder}
@@ -218,69 +228,48 @@
       />
     {/if}
   {:else if field.type === 'textarea'}
-    <textarea
+    <TerminalTextarea
       id={field.name}
       placeholder={field.placeholder}
       bind:value
       on:input={handleInput}
       required={field.required}
       rows="4"
-    ></textarea>
+    />
   {:else if field.type === 'select'}
-    <select
+    <TerminalSelect
       id={field.name}
       bind:value
       on:change={handleSelectChange}
       required={field.required}
+      options={field.options || []}
     >
-      <option value="">-- Select an option --</option>
-      {#each field.options || [] as option}
-        <option value={option}>{option}</option>
-      {/each}
-    </select>
+    </TerminalSelect>
   {:else if field.type === 'location'}
-    <div class="location-wrapper">
-      <input
-        id={field.name}
-        type="text"
-        placeholder={field.placeholder}
-        value={locationQuery}
-        on:input={handleLocationInput}
-        required={field.required}
-      />
-      {#if locationLoading}
-        <div class="location-hint">Searching...</div>
-      {:else if locationSuggestions.length}
-        <div class="location-suggestions">
-          {#each locationSuggestions as option}
-            <button type="button" on:click={() => selectLocation(option)}>
-              <div class="location-name">{option.name}</div>
-              <div class="location-meta">{option.id} · {option.timezone}</div>
-            </button>
-          {/each}
-        </div>
-      {/if}
-    </div>
+    <TerminalLocationPicker
+      id={field.name}
+      placeholder={field.placeholder}
+      query={locationQuery}
+      loading={locationLoading}
+      suggestions={locationSuggestions}
+      required={field.required}
+      on:input={handleLocationInput}
+      on:select={(event) => selectLocation(event.detail.option)}
+    />
   {:else if field.type === 'timezone'}
     <div class="input-overlay">
       {#if showPreviousOverlay}
         <span class="previous-value">{previousValue}</span>
       {/if}
-      <input
+      <TerminalTimezonePicker
         id={field.name}
-        type="text"
         placeholder={field.placeholder}
         bind:value
         on:input={handleInput}
         required={field.required}
-        list={`${field.name}-timezone-options`}
+        options={timezoneOptions}
       />
     </div>
-    <datalist id={`${field.name}-timezone-options`}>
-      {#each timezoneOptions as option}
-        <option value={option.timezone}>{option.label}</option>
-      {/each}
-    </datalist>
   {:else if field.type === 'checkbox'}
     <div class="checkbox-wrapper">
       <input
@@ -340,25 +329,11 @@
     color: #ef4444;
   }
 
-  input[type='text'],
-  input[type='email'],
-  input[type='number'],
-  textarea,
-  select {
-    padding: 0.75rem 1rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 0.5rem;
-    background: white;
-    color: #1f2937;
-    font-family: inherit;
-    transition: all 0.2s ease;
-  }
-
   .input-overlay {
     position: relative;
   }
 
-  .input-overlay input {
+  .input-overlay :global(.terminal-form-input) {
     position: relative;
     background: transparent;
     z-index: 1;
@@ -380,39 +355,6 @@
       rgba(59, 130, 246, 0.05)
     );
     border-radius: 0.5rem;
-  }
-
-  :global(.dark) input[type='text'],
-  :global(.dark) input[type='email'],
-  :global(.dark) input[type='number'],
-  :global(.dark) textarea,
-  :global(.dark) select {
-    background: #374151;
-    color: #f3f4f6;
-    border-color: #4b5563;
-  }
-
-  input[type='text']:focus,
-  input[type='email']:focus,
-  input[type='number']:focus,
-  textarea:focus,
-  select:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
-  :global(.dark) input[type='text']:focus,
-  :global(.dark) input[type='email']:focus,
-  :global(.dark) input[type='number']:focus,
-  :global(.dark) textarea:focus,
-  :global(.dark) select:focus {
-    border-color: #8b5cf6;
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-  }
-
-  textarea {
-    resize: vertical;
   }
 
   /* Checkbox and Radio */
@@ -448,77 +390,15 @@
     cursor: pointer;
   }
 
-  .location-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .location-hint {
-    font-size: 0.85rem;
-    color: #6b7280;
-  }
-
-  :global(.dark) .location-hint {
-    color: #9ca3af;
-  }
-
-  .location-suggestions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-  }
-
-  .location-suggestions button {
-    text-align: left;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    padding: 0.6rem 0.75rem;
-    background: #f9fafb;
-    color: #1f2937;
-    transition: border 0.2s ease, background 0.2s ease;
-  }
-
-  :global(.dark) .location-suggestions button {
-    background: #1f2937;
-    border-color: #374151;
-    color: #f9fafb;
-  }
-
-  .location-suggestions button:hover {
-    border-color: #3b82f6;
-    background: #eef2ff;
-  }
-
-  :global(.dark) .location-suggestions button:hover {
-    border-color: #8b5cf6;
-    background: #111827;
-  }
-
-  .location-name {
-    font-weight: 600;
-  }
-
-  .location-meta {
-    font-size: 0.8rem;
-    color: #6b7280;
-  }
-
-  :global(.dark) .location-meta {
-    color: #9ca3af;
-  }
-
   /* Responsive */
   @media (max-width: 640px) {
     label {
       font-size: 0.9375rem;
     }
 
-    input[type='text'],
-    input[type='email'],
-    input[type='number'],
-    textarea,
-    select {
+    :global(.terminal-form-input),
+    :global(.terminal-form-textarea),
+    :global(.terminal-form-select) {
       font-size: 16px; /* Prevent iOS zoom */
     }
   }
