@@ -41,6 +41,7 @@ uCLI - unified terminal interface for uDOS
 Usage:
   ./bin/ucli                Start uCLI TUI
   ./bin/ucli tui            Start uCLI TUI
+  ./bin/ucli ts [command]   Run TS runtime lane (Node-gated, with core fallback guidance)
   ./bin/ucli wizard         Start Wizard server (GUI/API)
   ./bin/ucli wizard install Create/update Wizard venv at wizard/.venv
   ./bin/ucli wizard doctor  Validate Wizard venv and core package imports
@@ -135,6 +136,73 @@ PY
   fi
 }
 
+_node_runtime_available() {
+  command -v node >/dev/null 2>&1 || return 1
+  node --version >/dev/null 2>&1 || return 1
+}
+
+_ts_to_ucode_command() {
+  local action="${1:-}"
+  local action_lc
+  if [ $# -eq 0 ]; then
+    echo "VERIFY"
+    return 0
+  fi
+
+  action_lc="$(printf "%s" "$action" | tr '[:upper:]' '[:lower:]')"
+  shift || true
+  case "$action_lc" in
+    verify)
+      echo "VERIFY $*"
+      ;;
+    pat|pattern)
+      echo "DRAW PAT $*"
+      ;;
+    draw)
+      if [ "${1:-}" = "pat" ] || [ "${1:-}" = "PAT" ]; then
+        shift || true
+      fi
+      echo "DRAW PAT $*"
+      ;;
+    data)
+      echo "RUN DATA $*"
+      ;;
+    run)
+      if [ "${1:-}" = "data" ] || [ "${1:-}" = "DATA" ]; then
+        shift || true
+        echo "RUN DATA $*"
+      else
+        echo "RUN $*"
+      fi
+      ;;
+    *)
+      echo "$action $*"
+      ;;
+  esac
+}
+
+_run_ts_surface() {
+  local mapped_cmd
+  mapped_cmd="$(_ts_to_ucode_command "$@")"
+
+  if ! _node_runtime_available; then
+    echo "Node runtime not detected. Falling back to core mode." >&2
+    if [ -n "$mapped_cmd" ]; then
+      echo "Equivalent core command: $mapped_cmd" >&2
+    fi
+    if [ -t 0 ] && [ -w /dev/tty ] && [ $# -eq 0 ]; then
+      launch_component core tui
+      return $?
+    fi
+    if [ $# -eq 0 ]; then
+      echo "Run from an interactive terminal to open core mode." >&2
+    fi
+    return 0
+  fi
+
+  _dispatch_ucode "$mapped_cmd"
+}
+
 subcommand="${1:-tui}"
 shift || true
 
@@ -181,6 +249,9 @@ case "$subcommand" in
     ;;
   prompt)
     exec "$SCRIPT_DIR/vibe-wrapper.sh" "$@"
+    ;;
+  ts)
+    _run_ts_surface "$@"
     ;;
   cmd)
     _dispatch_ucode "$*"

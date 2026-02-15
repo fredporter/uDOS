@@ -137,6 +137,12 @@ jobs:
             wizard/tests/sonic_library_alias_routes_test.py \
             wizard/tests/sonic_plugin_alias_routes_test.py
 
+      - name: Run runtime boundary launcher tests
+        run: |
+          python -m pytest -q \
+            core/tests/ucli_runtime_boundary_test.py \
+            core/tests/ucli_ts_fallback_test.py
+
       - name: Upload coverage
         uses: codecov/codecov-action@v4
         if: always()
