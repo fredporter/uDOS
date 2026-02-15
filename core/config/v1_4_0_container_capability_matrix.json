@@ -1,0 +1,80 @@
+{
+  "version": "1.4.0",
+  "milestone": "v1.4.0",
+  "name": "Container Capability Matrix",
+  "lanes": [
+    {
+      "id": "wizard",
+      "service": "wizard",
+      "profiles": [],
+      "build_context": ".",
+      "capabilities": [
+        "api.health",
+        "core.command-routing",
+        "wizard.ui",
+        "ollama.dependency"
+      ],
+      "required_artifacts": [
+        "Dockerfile",
+        "docker-compose.yml"
+      ],
+      "smoke_gate": "tools/ci/check_v1_4_0_toybox_lifespan_readiness.py"
+    },
+    {
+      "id": "sonic",
+      "service": "mission-scheduler",
+      "profiles": [
+        "scheduler",
+        "all"
+      ],
+      "build_context": "./node/mission-scheduler",
+      "capabilities": [
+        "scheduler.loop",
+        "wizard.render.invoke"
+      ],
+      "required_artifacts": [
+        "sonic/Dockerfile",
+        "sonic/core/sonic_cli.py",
+        "docker-compose.yml"
+      ],
+      "smoke_gate": "tools/ci/check_v1_4_0_sonic_docker_smoke.py"
+    },
+    {
+      "id": "groovebox",
+      "service": "groovebox",
+      "profiles": [
+        "groovebox",
+        "all"
+      ],
+      "build_context": "./library/songscribe",
+      "capabilities": [
+        "songscribe.validate",
+        "midi.export",
+        "groovebox.integration"
+      ],
+      "required_artifacts": [
+        "library/songscribe/Dockerfile",
+        "library/songscribe/validate.py",
+        "docker-compose.yml"
+      ],
+      "smoke_gate": "tools/ci/check_v1_4_0_groovebox_docker_smoke.py"
+    },
+    {
+      "id": "homeassistant",
+      "service": "home-assistant",
+      "profiles": [
+        "homeassistant",
+        "all"
+      ],
+      "build_context": "./library/home-assistant",
+      "capabilities": [
+        "gateway.health",
+        "event.forwarding"
+      ],
+      "required_artifacts": [
+        "docker-compose.yml"
+      ],
+      "smoke_gate": "tools/ci/check_v1_4_0_compose_profile_matrix.py"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+# uDOS v1.4.0 — Kickoff Containerization Release Draft
+
+release_info:
+  version: 1.4.0
+  codename: "Containerization Kickoff"
+  release_date: "2026-02-15"
+  status: "draft"
+  tier: "v1.4.0 kickoff"
+
+description: |
+  Draft release artifact for the first v1.4.0 delivery slice.
+  Focused on container readiness, TOYBOX lifecycle migration, and compose profile validation.
+
+highlights:
+  - TOYBOX FastAPI lifecycle migrated from deprecated on_event hooks to lifespan handlers.
+  - Sonic Screwdriver container entrypoint corrected and smoke-gated.
+  - Songscribe/Groovebox Dockerfile added and smoke-gated.
+  - Compose profile matrix validator added with report artifact.
+
+artifacts:
+  ci_gates:
+    - tools/ci/check_v1_4_0_toybox_lifespan_readiness.py
+    - tools/ci/check_v1_4_0_sonic_docker_smoke.py
+    - tools/ci/check_v1_4_0_groovebox_docker_smoke.py
+    - tools/ci/check_v1_4_0_compose_profile_matrix.py
+    - tools/ci/check_v1_4_0_container_capability_matrix.py
+    - tools/ci/check_v1_4_0_release_preflight.py
+  reports:
+    - memory/reports/v1_4_0_compose_profile_matrix.json
+    - memory/reports/v1_4_0_container_capability_matrix.json
+    - memory/reports/v1_4_0_release_preflight.json
+  release_docs:
+    - releases/v1.4.0/PD-v1.4.0-kickoff-round.md
+    - releases/v1.4.0/PR-v1.4.0-kickoff-round.md
+
+validation:
+  commands:
+    - python3 tools/ci/check_v1_4_0_toybox_lifespan_readiness.py
+    - python3 tools/ci/check_v1_4_0_sonic_docker_smoke.py
+    - python3 tools/ci/check_v1_4_0_groovebox_docker_smoke.py
+    - python3 tools/ci/check_v1_4_0_compose_profile_matrix.py
+    - python3 tools/ci/check_v1_4_0_container_capability_matrix.py
+    - python3 tools/ci/check_v1_4_0_release_preflight.py
+    - python3 -m pytest -q core/tests/v1_4_0_toybox_lifespan_readiness_test.py core/tests/v1_4_0_container_kickoff_gates_test.py core/tests/v1_4_0_container_capability_matrix_test.py core/tests/v1_4_0_release_preflight_test.py wizard/tests/toybox_adapter_lifecycle_test.py
+
+open_items:
+  - Library manager commands (`LIBRARY sync/status`) remain planned for a subsequent v1.4.0 slice.
