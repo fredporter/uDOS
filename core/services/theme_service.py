@@ -21,6 +21,67 @@ class ThemeService:
     """Simple service that loads theme files and applies replacements."""
 
     SEED_DIR = Path("core/framework/seed/bank/system/themes")
+    SIMPLE_TUI_PRESETS: Dict[str, Dict[str, str]] = {
+        "default": {},
+        "dungeon": {
+            "Tip:": "Delve Tip:",
+            "Health:": "Delve Health:",
+            "Wizard": "Dungeon Ops",
+            "WIZARD": "DUNGEON OPS",
+        },
+        "stranger-things": {
+            "Tip:": "Upside Tip:",
+            "Health:": "Upside Health:",
+            "Wizard": "Signal Ops",
+            "WIZARD": "SIGNAL OPS",
+        },
+        "lonely-planet": {
+            "Tip:": "Trail Tip:",
+            "Health:": "Camp Health:",
+            "Wizard": "Guide Ops",
+            "WIZARD": "GUIDE OPS",
+        },
+        "doomsday": {
+            "Tip:": "Survival Tip:",
+            "Health:": "Bunker Health:",
+            "Wizard": "Fallback Ops",
+            "WIZARD": "FALLBACK OPS",
+        },
+        "foundation": {
+            "Tip:": "Foundation Tip:",
+            "Health:": "Foundation Health:",
+            "Wizard": "Control Ops",
+            "WIZARD": "CONTROL OPS",
+        },
+        "galaxy": {
+            "Tip:": "Galaxy Tip:",
+            "Health:": "Fleet Health:",
+            "Wizard": "Star Ops",
+            "WIZARD": "STAR OPS",
+        },
+        "hitchhikers": {
+            "Tip:": "42 Tip:",
+            "Health:": "Ship Health:",
+            "Wizard": "Guide Console",
+            "WIZARD": "GUIDE CONSOLE",
+        },
+    }
+    THEME_ALIASES: Dict[str, str] = {
+        "galxy": "galaxy",
+    }
+    MAP_LEVEL_THEME: Dict[str, str] = {
+        "dungeon": "dungeon",
+        "sub": "dungeon",
+        "subterranean": "dungeon",
+        "foundation": "foundation",
+        "surface": "foundation",
+        "sur": "foundation",
+        "regional": "foundation",
+        "galaxy": "galaxy",
+        "stellar": "galaxy",
+        "orbital": "galaxy",
+        "udn": "galaxy",
+    }
 
     def __init__(self):
         self.repo_root = get_repo_root()
@@ -79,15 +140,58 @@ class ThemeService:
             logger.warning("[THEME] Failed to load %s: %s", theme_path, exc)
             self.replacements = {}
 
-    def format(self, text: Optional[str]) -> str:
-        """Return themed version of the provided text."""
-        if not text or not self.replacements:
-            return text or ""
+    def _canonical_theme_name(self, name: Optional[str]) -> str:
+        if not name:
+            return "default"
+        raw = str(name).strip().lower()
+        return self.THEME_ALIASES.get(raw, raw)
 
+    def _resolve_message_theme(self, map_level: Optional[str] = None) -> str:
+        override = os.environ.get("UDOS_TUI_MESSAGE_THEME", "").strip().lower()
+        if override:
+            return self._canonical_theme_name(override)
+
+        if map_level:
+            mapped = self.MAP_LEVEL_THEME.get(str(map_level).strip().lower())
+            if mapped:
+                return mapped
+
+        env_level = os.environ.get("UDOS_TUI_MAP_LEVEL", "").strip().lower()
+        if env_level:
+            mapped = self.MAP_LEVEL_THEME.get(env_level)
+            if mapped:
+                return mapped
+
+        return self._canonical_theme_name(self.active_theme)
+
+    def _apply_replacements(self, text: str, replacements: Dict[str, str]) -> str:
         result = text
-        for key, value in self.replacements.items():
+        for key, value in replacements.items():
             result = result.replace(key, value)
         return result
+
+    def format(self, text: Optional[str], map_level: Optional[str] = None) -> str:
+        """
+        Return themed version of the provided text.
+
+        Default mode: simplified TUI message vocabulary only.
+        Legacy mode: full historical replacements (`UDOS_TUI_LEGACY_REPLACEMENTS=1`).
+        """
+        if not text:
+            return ""
+
+        legacy_mode = os.environ.get("UDOS_TUI_LEGACY_REPLACEMENTS", "").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+        if legacy_mode:
+            return self._apply_replacements(text, self.replacements)
+
+        theme_name = self._resolve_message_theme(map_level=map_level)
+        simple = self.SIMPLE_TUI_PRESETS.get(theme_name) or {}
+        return self._apply_replacements(text, simple)
 
 
 _THEME_SERVICE = ThemeService()

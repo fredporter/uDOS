@@ -2196,8 +2196,8 @@ class UCLI:
             # Non-fatal error, continue with startup
 
     def _theme_text(self, text: str) -> str:
-        """Apply the active theme to the provided message."""
-        themed = self.theme.format(text)
+        """Apply simplified TUI message theme to the provided message."""
+        themed = self.theme.format(text, map_level=self._infer_tui_map_level())
         width = ViewportService().get_cols()
         lines = themed.splitlines()
         clamped = [truncate_ansi_to_width(line, width) for line in lines]
@@ -2205,6 +2205,30 @@ class UCLI:
         if themed.endswith("\n"):
             output += "\n"
         return output
+
+    def _infer_tui_map_level(self) -> Optional[str]:
+        """Infer map-level theme bucket for TUI messaging."""
+        env_level = os.getenv("UDOS_TUI_MAP_LEVEL", "").strip().lower()
+        if env_level:
+            return env_level
+
+        loc = str(getattr(self.state, "current_location", "") or "").upper()
+        if ":SUB:" in loc or ":D" in loc:
+            return "dungeon"
+
+        marker = "L"
+        idx = loc.find(marker)
+        if idx == -1 or idx + 4 > len(loc):
+            return "foundation"
+
+        layer_raw = loc[idx + 1 : idx + 4]
+        if not layer_raw.isdigit():
+            return "foundation"
+
+        layer = int(layer_raw)
+        if layer >= 700:
+            return "galaxy"
+        return "foundation"
 
     def _show_component_status(self) -> None:
         """Show detected components."""

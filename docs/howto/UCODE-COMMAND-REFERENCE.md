@@ -158,3 +158,13 @@ DRAW PAT LIST
 RUN DATA LIST
 WIZARD CHECK
 ```
+
+## TUI Message Themes (Non-GUI)
+
+uCODE message wording can be lightly themed for map-level consistency.
+
+- Scope: terminal message IO only (not GUI/CSS/webview styling)
+- Base env: `UDOS_THEME=<theme>`
+- TUI override: `UDOS_TUI_MESSAGE_THEME=dungeon|foundation|galaxy|stranger-things|lonely-planet|doomsday|hitchhikers`
+- Optional map-level hint: `UDOS_TUI_MAP_LEVEL=dungeon|foundation|galaxy|...`
+- Legacy broad replacements (temporary): `UDOS_TUI_LEGACY_REPLACEMENTS=1`
