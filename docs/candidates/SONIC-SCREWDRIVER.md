@@ -52,10 +52,10 @@ It is maintained as a public database (`/sonic/datasets/`) and distributed via W
 | `bios`              | enum       | UEFI / Legacy / UEFI+Legacy                                   |
 | `secure_boot`       | enum       | yes / no / unknown                                            |
 | `tpm`               | enum       | yes / no / unknown                                            |
-| `usb_boot`          | enum       | yes / no / unknown                                            |
-| `ventoy`            | enum       | works / issues / unknown                                      |
+| `usb_boot`          | enum       | native / uefi_only / legacy_only / mixed / none              |
+| `uefi_native`       | enum       | works / issues / unknown                                      |
 | `reflash_potential` | enum       | high / medium / low / unknown                                 |
-| `methods`           | JSON array | Recommended flashing methods: `["Ventoy", "UEFI", "dd", ...]` |
+| `methods`           | JSON array | Recommended flashing methods: `["uefi-native", "dd", ...]`    |
 | `notes`             | string     | Device-specific guidance / caveats                            |
 | `sources`           | JSON array | Links to driver repos, firmware, documentation                |
 | `last_seen`         | date       | Last verified working date                                    |
@@ -104,8 +104,11 @@ Devices with:
 
 - `vendor` (string, optional) — Filter by vendor
 - `reflash_potential` (enum, optional) — high / medium / low
-- `usb_boot` (boolean, optional) — Filter by USB boot support
-- `ventoy` (enum, optional) — works / issues
+- `usb_boot` (enum, optional) — native / uefi_only / legacy_only / mixed / none
+- `uefi_native` (enum, optional) — works / issues / unknown
+- `windows10_boot` (enum, optional) — none / install / wtg / unknown
+- `media_mode` (enum, optional) — none / htpc / retro / unknown
+- `udos_launcher` (enum, optional) — none / basic / advanced / unknown
 - `limit` (int, 1–1000, default 100)
 - `offset` (int, default 0)
 
@@ -121,9 +124,9 @@ Devices with:
       "model": "OptiPlex 9020",
       "year": 2013,
       "reflash_potential": "high",
-      "usb_boot": "yes",
-      "ventoy": "works",
-      "methods": ["Ventoy", "UEFI", "dd"],
+      "usb_boot": "native",
+      "uefi_native": "works",
+      "methods": ["uefi-native", "dd"],
       "notes": "Excellent for Alpine. BIOS update may be needed for USB 3.0 boot.",
       "sources": ["https://dell.com/support/9020", ...]
     }
@@ -139,9 +142,17 @@ Fetch details for a specific device.
 
 Return JSON Schema for device records.
 
-### GET `/api/sonic/table`
+### GET `/api/sonic/db/status`
 
-Return raw Markdown table (for local storage / offline access).
+Return device database status and sync metadata.
+
+### POST `/api/sonic/db/rebuild`
+
+Rebuild runtime DB from `sonic/datasets/sonic-devices.sql`.
+
+### GET `/api/sonic/db/export`
+
+Export runtime DB to CSV.
 
 ### GET `/api/sonic/stats`
 
@@ -150,15 +161,28 @@ Return raw Markdown table (for local storage / offline access).
 ```json
 {
   "total_devices": 1250,
+  "by_vendor": {
+    "Dell": 110,
+    "Lenovo": 97
+  },
   "by_reflash_potential": {
     "high": 450,
     "medium": 600,
     "low": 150,
     "unknown": 50
   },
+  "by_windows10_boot": {
+    "none": 800,
+    "install": 300,
+    "wtg": 150
+  },
+  "by_media_mode": {
+    "none": 900,
+    "htpc": 250,
+    "retro": 100
+  },
   "usb_boot_capable": 900,
-  "ventoy_compatible": 750,
-  "unique_vendors": 42
+  "uefi_native_capable": 750
 }
 ```
 
@@ -181,7 +205,7 @@ When user wants to flash Alpine to hardware:
 2. Fetch: methods, notes, driver sources
 3. Display step-by-step instructions:
    - Boot from USB
-   - Flash Alpine ISO (Ventoy vs. direct dd)
+   - Flash Alpine ISO (native UEFI vs. direct dd)
    - Enable UEFI (if recommended)
    - Install to internal storage
 

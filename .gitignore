@@ -150,7 +150,6 @@ coverage/
 *.msi
 *.app
 **/bundle/
-distribution/
 distribution/**
 
 # ---------- Logs, runtime state, databases ----------
@@ -322,4 +321,8 @@ hubspot.config.yml
 *.zip
 distribution/releases/
 distribution/build/
+distribution/*
+!distribution/alpine-core/
+distribution/alpine-core/*
+!distribution/alpine-core/build-sonic-stick.sh
 wizard/config/notion_keys.json

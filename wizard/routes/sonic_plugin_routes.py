@@ -50,6 +50,54 @@ def create_sonic_plugin_routes(auth_guard: AuthGuard = None, repo_root: Optional
                 "message": f"Sonic plugin not available: {e}",
                 "installed": False,
             }
+
+        @router.get("/devices")
+        async def devices_unavailable(request: Request):
+            if auth_guard:
+                await auth_guard(request)
+            raise HTTPException(status_code=503, detail=f"Sonic plugin not available: {e}")
+
+        @router.post("/rescan")
+        async def rescan_unavailable(request: Request):
+            if auth_guard:
+                await auth_guard(request)
+            raise HTTPException(status_code=503, detail=f"Sonic plugin not available: {e}")
+
+        @router.post("/rebuild")
+        async def rebuild_unavailable(request: Request):
+            if auth_guard:
+                await auth_guard(request)
+            raise HTTPException(status_code=503, detail=f"Sonic plugin not available: {e}")
+
+        @router.get("/export")
+        async def export_unavailable(request: Request):
+            if auth_guard:
+                await auth_guard(request)
+            raise HTTPException(status_code=503, detail=f"Sonic plugin not available: {e}")
+
+        @router.post("/sync")
+        async def sync_unavailable(request: Request):
+            if auth_guard:
+                await auth_guard(request)
+            raise HTTPException(status_code=503, detail=f"Sonic plugin not available: {e}")
+
+        @router.get("/db/status")
+        async def db_status_unavailable(request: Request):
+            if auth_guard:
+                await auth_guard(request)
+            raise HTTPException(status_code=503, detail=f"Sonic plugin not available: {e}")
+
+        @router.post("/db/rebuild")
+        async def db_rebuild_unavailable(request: Request):
+            if auth_guard:
+                await auth_guard(request)
+            raise HTTPException(status_code=503, detail=f"Sonic plugin not available: {e}")
+
+        @router.get("/db/export")
+        async def db_export_unavailable(request: Request):
+            if auth_guard:
+                await auth_guard(request)
+            raise HTTPException(status_code=503, detail=f"Sonic plugin not available: {e}")
         return router
 
     # Health endpoint
@@ -80,7 +128,10 @@ def create_sonic_plugin_routes(auth_guard: AuthGuard = None, repo_root: Optional
         vendor: Optional[str] = Query(None),
         reflash_potential: Optional[str] = Query(None),
         usb_boot: Optional[str] = Query(None),
-        uefi_native: Optional[bool] = Query(None),
+        uefi_native: Optional[str] = Query(None),
+        windows10_boot: Optional[str] = Query(None),
+        media_mode: Optional[str] = Query(None),
+        udos_launcher: Optional[str] = Query(None),
         year_min: Optional[int] = Query(None),
         year_max: Optional[int] = Query(None),
         limit: int = Query(100, ge=1, le=1000),
@@ -93,7 +144,10 @@ def create_sonic_plugin_routes(auth_guard: AuthGuard = None, repo_root: Optional
         - vendor: Vendor name substring
         - reflash_potential: high, medium, low, unknown
         - usb_boot: native, uefi_only, legacy_only, mixed, none
-        - uefi_native: boolean filter
+        - uefi_native: works, issues, unknown
+        - windows10_boot: none, install, wtg, unknown
+        - media_mode: none, htpc, retro, unknown
+        - udos_launcher: none, basic, advanced, unknown
         - year_min/year_max: Year range
         """
         if auth_guard:
@@ -107,6 +161,9 @@ def create_sonic_plugin_routes(auth_guard: AuthGuard = None, repo_root: Optional
             reflash_potential=ReflashPotential(reflash_potential) if reflash_potential else None,
             usb_boot=USBBootSupport(usb_boot) if usb_boot else None,
             uefi_native=uefi_native,
+            windows10_boot=windows10_boot,
+            media_mode=media_mode,
+            udos_launcher=udos_launcher,
             year_min=year_min,
             year_max=year_max,
             limit=limit,
@@ -152,6 +209,8 @@ def create_sonic_plugin_routes(auth_guard: AuthGuard = None, repo_root: Optional
                 "total_devices": stats.total_devices,
                 "by_vendor": stats.by_vendor,
                 "by_reflash_potential": stats.by_reflash_potential,
+                "by_windows10_boot": stats.by_windows10_boot,
+                "by_media_mode": stats.by_media_mode,
                 "usb_boot_capable": stats.usb_boot_capable,
                 "uefi_native_capable": stats.uefi_native_capable,
                 "last_updated": stats.last_updated,
@@ -177,6 +236,22 @@ def create_sonic_plugin_routes(auth_guard: AuthGuard = None, repo_root: Optional
             "errors": status.errors,
         }
 
+    @router.get("/db/status")
+    async def db_status(request: Request):
+        """Alias for device database sync status."""
+        if auth_guard:
+            await auth_guard(request)
+        status = sync.get_status()
+        return {
+            "last_sync": status.last_sync,
+            "db_path": status.db_path,
+            "db_exists": status.db_exists,
+            "record_count": status.record_count,
+            "schema_version": status.schema_version,
+            "needs_rebuild": status.needs_rebuild,
+            "errors": status.errors,
+        }
+
     @router.post("/sync/rebuild")
     async def sync_rebuild(request: Request, force: bool = Query(False)):
         """Rebuild device database from SQL source."""
@@ -188,6 +263,46 @@ def create_sonic_plugin_routes(auth_guard: AuthGuard = None, repo_root: Optional
         if result["status"] == "error":
             raise HTTPException(status_code=500, detail=result["message"])
 
+        return result
+
+    @router.post("/db/rebuild")
+    async def db_rebuild(request: Request, force: bool = Query(False)):
+        """Alias for rebuilding the device database."""
+        if auth_guard:
+            await auth_guard(request)
+        result = sync.rebuild_database(force=force)
+        if result["status"] == "error":
+            raise HTTPException(status_code=500, detail=result["message"])
+        return result
+
+    @router.post("/rescan")
+    async def rescan(request: Request):
+        """Alias for non-destructive sync/rebuild operation."""
+        if auth_guard:
+            await auth_guard(request)
+        result = sync.rebuild_database(force=False)
+        if result["status"] == "error":
+            raise HTTPException(status_code=500, detail=result["message"])
+        return result
+
+    @router.post("/rebuild")
+    async def rebuild(request: Request):
+        """Alias for full rebuild operation."""
+        if auth_guard:
+            await auth_guard(request)
+        result = sync.rebuild_database(force=True)
+        if result["status"] == "error":
+            raise HTTPException(status_code=500, detail=result["message"])
+        return result
+
+    @router.post("/sync")
+    async def sync_alias(request: Request):
+        """Alias for sync operation used by Wizard GUI entry points."""
+        if auth_guard:
+            await auth_guard(request)
+        result = sync.rebuild_database(force=False)
+        if result["status"] == "error":
+            raise HTTPException(status_code=500, detail=result["message"])
         return result
 
     @router.post("/sync/export")
@@ -203,6 +318,28 @@ def create_sonic_plugin_routes(auth_guard: AuthGuard = None, repo_root: Optional
         if result["status"] == "error":
             raise HTTPException(status_code=500, detail=result["message"])
 
+        return result
+
+    @router.get("/db/export")
+    async def db_export(request: Request, output_path: Optional[str] = Query(None)):
+        """Alias for exporting the device database to CSV."""
+        if auth_guard:
+            await auth_guard(request)
+        result = sync.export_to_csv(
+            output_path=Path(output_path) if output_path else None
+        )
+        if result["status"] == "error":
+            raise HTTPException(status_code=500, detail=result["message"])
+        return result
+
+    @router.get("/export")
+    async def export_alias(request: Request, output_path: Optional[str] = Query(None)):
+        """Alias for export operation."""
+        if auth_guard:
+            await auth_guard(request)
+        result = sync.export_to_csv(output_path=Path(output_path) if output_path else None)
+        if result["status"] == "error":
+            raise HTTPException(status_code=500, detail=result["message"])
         return result
 
     # Flash pack endpoints

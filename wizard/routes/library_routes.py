@@ -92,6 +92,21 @@ async def _run_guard(request: Request) -> None:
         await result
 
 
+def _resolve_sonic_integration_name(manager) -> str:
+    status = manager.get_library_status()
+    names = {integration.name for integration in status.integrations}
+    for candidate in ("sonic", "sonic-screwdriver"):
+        if candidate in names:
+            return candidate
+    return "sonic"
+
+
+def _resolve_requested_integration_name(manager, requested_name: str) -> str:
+    if requested_name == "sonic":
+        return _resolve_sonic_integration_name(manager)
+    return requested_name
+
+
 @router.get("/status", response_model=Dict[str, Any])
 async def get_library_status(request: Request):
     """
@@ -199,9 +214,10 @@ async def install_integration(
     try:
         await _run_guard(request)
         manager = get_library_manager()
+        resolved_name = _resolve_requested_integration_name(manager, name)
 
         # Check if integration exists
-        integration = manager.get_integration(name)
+        integration = manager.get_integration(resolved_name)
         if not integration:
             raise HTTPException(
                 status_code=404, detail=f"Integration not found: {name}"
@@ -219,12 +235,12 @@ async def install_integration(
         )
         repo_entry = repo.get_plugin(name)
         repo_entry_dict = repo_entry.to_dict() if repo_entry else {}
-        validation = validate_manifest(manifest_data, name, repo_entry_dict)
+        validation = validate_manifest(manifest_data, resolved_name, repo_entry_dict)
 
-        prompt_payload = _generate_prompt_payload(name, manifest_data)
+        prompt_payload = _generate_prompt_payload(resolved_name, manifest_data)
         if integration.installed:
             log_plugin_install_event(
-                name,
+                resolved_name,
                 "wizard-api",
                 {"success": True, "action": "install", "message": "Already installed"},
                 manifest=manifest_data,
@@ -234,7 +250,7 @@ async def install_integration(
                 "success": True,
                 "result": {
                     "success": True,
-                    "plugin_name": name,
+                    "plugin_name": resolved_name,
                     "action": "install",
                     "message": "Already installed",
                 },
@@ -242,9 +258,9 @@ async def install_integration(
             }
 
         # Perform installation
-        result = manager.install_integration(name)
+        result = manager.install_integration(resolved_name)
         log_plugin_install_event(
-            name,
+            resolved_name,
             "wizard-api",
             result,
             manifest=manifest_data,
@@ -287,7 +303,8 @@ async def enable_integration(name: str, request: Request):
     try:
         await _run_guard(request)
         manager = get_library_manager()
-        result = manager.enable_integration(name)
+        resolved_name = _resolve_requested_integration_name(manager, name)
+        result = manager.enable_integration(resolved_name)
 
         return {
             "success": result.success,
@@ -322,7 +339,8 @@ async def disable_integration(name: str, request: Request):
     try:
         await _run_guard(request)
         manager = get_library_manager()
-        result = manager.disable_integration(name)
+        resolved_name = _resolve_requested_integration_name(manager, name)
+        result = manager.disable_integration(resolved_name)
 
         return {
             "success": result.success,
@@ -361,7 +379,8 @@ async def uninstall_integration(
     try:
         await _run_guard(request)
         manager = get_library_manager()
-        result = manager.uninstall_integration(name)
+        resolved_name = _resolve_requested_integration_name(manager, name)
+        result = manager.uninstall_integration(resolved_name)
 
         return {
             "success": result.success,
@@ -378,6 +397,58 @@ async def uninstall_integration(
         raise HTTPException(
             status_code=500, detail=f"Failed to uninstall integration: {str(e)}"
         )
+
+
+@router.get("/integration/sonic", response_model=Dict[str, Any])
+async def get_sonic_integration(request: Request):
+    await _run_guard(request)
+    manager = get_library_manager()
+    sonic_name = _resolve_sonic_integration_name(manager)
+    integration = manager.get_integration(sonic_name)
+    if not integration:
+        raise HTTPException(status_code=404, detail="Sonic integration not found")
+    return {
+        "success": True,
+        "integration": {
+            "name": integration.name,
+            "path": str(integration.path),
+            "source": integration.source,
+            "has_container": integration.has_container,
+            "version": integration.version,
+            "description": integration.description,
+            "installed": integration.installed,
+            "enabled": integration.enabled,
+            "can_install": integration.can_install,
+        },
+    }
+
+
+@router.post("/integration/sonic/install", response_model=Dict[str, Any])
+async def install_sonic_integration(background_tasks: BackgroundTasks, request: Request):
+    manager = get_library_manager()
+    sonic_name = _resolve_sonic_integration_name(manager)
+    return await install_integration(sonic_name, background_tasks, request)
+
+
+@router.post("/integration/sonic/enable", response_model=Dict[str, Any])
+async def enable_sonic_integration(request: Request):
+    manager = get_library_manager()
+    sonic_name = _resolve_sonic_integration_name(manager)
+    return await enable_integration(sonic_name, request)
+
+
+@router.post("/integration/sonic/disable", response_model=Dict[str, Any])
+async def disable_sonic_integration(request: Request):
+    manager = get_library_manager()
+    sonic_name = _resolve_sonic_integration_name(manager)
+    return await disable_integration(sonic_name, request)
+
+
+@router.delete("/integration/sonic", response_model=Dict[str, Any])
+async def uninstall_sonic_integration(background_tasks: BackgroundTasks, request: Request):
+    manager = get_library_manager()
+    sonic_name = _resolve_sonic_integration_name(manager)
+    return await uninstall_integration(sonic_name, background_tasks, request)
 
 
 @router.get("/enabled", response_model=Dict[str, Any])

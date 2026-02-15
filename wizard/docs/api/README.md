@@ -14,4 +14,4 @@ This directory is the canonical home for Wizard service contracts.
 - `wizard.config` — config get/set
 - `wizard.providers` — list providers, capabilities
 - `ucode.dispatch` — direct command execution (restricted in early phases)
-
+- `sonic` — Sonic Screwdriver lifecycle + device DB + build endpoints

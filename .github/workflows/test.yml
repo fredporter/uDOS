@@ -36,6 +36,29 @@ jobs:
           python tools/ci/check_core_no_network_imports.py
           python tools/ci/check_contract_dispatcher_parity.py
           python tools/ci/check_sonic_submodule_pin.py
+          python tools/ci/check_sonic_route_contract_v1_3_17.py
+
+  sonic-v1-3-17-gates:
+    name: Sonic v1.3.17 Gates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run Sonic release gate checks
+        run: |
+          python tools/ci/check_sonic_submodule_pin.py
+          python tools/ci/check_sonic_route_contract_v1_3_17.py
+          ./distribution/alpine-core/build-sonic-stick.sh --build-id ci-${{ github.run_id }} --profile alpine-core+sonic
+          python tools/ci/validate_sonic_artifact_manifest.py --build-dir distribution/builds/ci-${{ github.run_id }}
 
   test-core:
     name: Test Core (TypeScript Runtime)
@@ -105,6 +128,15 @@ jobs:
             echo "⏭️ No pytest configuration found"
           fi
 
+      - name: Run Sonic v1.3.17 Python tests
+        run: |
+          python -m pytest -q \
+            wizard/tests/sonic_build_service_artifacts_test.py \
+            wizard/tests/sonic_platform_artifacts_contract_test.py \
+            wizard/tests/sonic_platform_routes_test.py \
+            wizard/tests/sonic_library_alias_routes_test.py \
+            wizard/tests/sonic_plugin_alias_routes_test.py
+
       - name: Upload coverage
         uses: codecov/codecov-action@v4
         if: always()
@@ -112,7 +144,7 @@ jobs:
 
   summary:
     name: Test Summary
-    needs: [policy-guardrails, test-core, test-python]
+    needs: [policy-guardrails, sonic-v1-3-17-gates, test-core, test-python]
     runs-on: ubuntu-latest
     if: always()
 

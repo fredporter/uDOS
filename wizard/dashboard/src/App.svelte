@@ -30,6 +30,7 @@
   import UCodeConsole from "./routes/UCodeConsole.svelte";
   import Ports from "./routes/Ports.svelte";
   import Extensions from "./routes/Extensions.svelte";
+  import Sonic from "./routes/Sonic.svelte";
   import WizardTopBar from "./components/WizardTopBar.svelte";
   import WizardBottomBar from "./components/WizardBottomBar.svelte";
   import ToastContainer from "./lib/components/ToastContainer.svelte";
@@ -70,6 +71,7 @@
     "ucode",
     "ports",
     "extensions",
+    "sonic",
   ]);
 
   function navigate(route) {
@@ -292,6 +294,8 @@
         <Ports />
       {:else if currentRoute === "extensions"}
         <Extensions />
+      {:else if currentRoute === "sonic"}
+        <Sonic />
       {/if}
     </main>
   </div>

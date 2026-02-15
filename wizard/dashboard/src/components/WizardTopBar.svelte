@@ -11,6 +11,7 @@
     { id: "dashboard", label: "Wizard" },
     { id: "devices", label: "Devices" },
     { id: "library", label: "Library" },
+    { id: "sonic", label: "Sonic" },
     { id: "extensions", label: "Extensions" },
     { id: "webhooks", label: "Webhooks" },
   ];
@@ -32,6 +33,7 @@
     { id: "anchors", label: "⚓ Anchors" },
     { id: "tables", label: "📊 Tables" },
     { id: "library", label: "📚 Library" },
+    { id: "sonic", label: "🧰 Sonic" },
     { separator: true, label: "Services" },
     { id: "repair", label: "🛠 Repair" },
     { id: "font-manager", label: "🔤 Font Manager" },

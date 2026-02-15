@@ -6,109 +6,68 @@ Wizard Server integration for the Sonic Screwdriver device catalog.
 
 The `/sonic/datasets` folder in the public `sonic` submodule contains:
 
-- **sonic-devices.table.md** — Primary Markdown table (human-editable)
-- **sonic-devices.schema.json** — JSON Schema for validation
-- **sonic-devices.sql** — SQLite schema + seed data
-- **version.json** — Component versioning (v1.0.0)
+- `sonic-devices.table.md` - Primary Markdown table (human-editable)
+- `sonic-devices.schema.json` - JSON Schema for validation
+- `sonic-devices.sql` - SQLite schema + seed data
+- `version.json` - Dataset component version metadata
 
-## Distribution
+Runtime database location:
+- `memory/sonic/sonic-devices.db`
 
-- **Manifest:** `packages/sonic/udos-sonic-datasets.manifest.json`
-- **Scope:** Wizard Server distribution (included in package index)
-- **Integration:** Exposed via `/api/sonic/*` endpoints (auth required)
+## API Endpoints
 
-## Usage
+Core endpoints:
 
-### Get Device Catalog
+- `GET /api/sonic/health`
+- `GET /api/sonic/schema`
+- `GET /api/sonic/devices`
+- `GET /api/sonic/devices/{device_id}`
+- `GET /api/sonic/stats`
 
-```bash
-curl -H "Authorization: Bearer $DEVICE_TOKEN" \
-  http://localhost:8765/api/sonic/devices?vendor=Dell
-```
+Device DB endpoints:
 
-### Query Devices
+- `GET /api/sonic/sync/status`
+- `POST /api/sonic/sync/rebuild`
+- `POST /api/sonic/sync/export`
+- `GET /api/sonic/db/status` (alias)
+- `POST /api/sonic/db/rebuild` (alias)
+- `GET /api/sonic/db/export` (alias)
+- `POST /api/sonic/sync` (alias)
+- `POST /api/sonic/rescan` (alias)
+- `POST /api/sonic/rebuild` (alias)
+- `GET /api/sonic/export` (alias)
 
-Supported filters:
+## Query Filters (`GET /api/sonic/devices`)
 
-- `vendor` — Vendor name filter
-- `reflash_potential` — high, medium, low, unknown
-- `usb_boot` — true/false
-- `uefi_native` — works, issues, unknown
-- `limit` — Results per page (1–1000)
-- `offset` — Pagination offset
-
-### Get Device Details
-
-```bash
-curl -H "Authorization: Bearer $DEVICE_TOKEN" \
-  http://localhost:8765/api/sonic/devices/dell-optiplex-9020
-```
-
-### Schema and Raw Data
-
-```bash
-# JSON Schema
-curl http://localhost:8765/api/sonic/schema
-
-# Raw Markdown table
-curl http://localhost:8765/api/sonic/table
-
-# Catalog statistics
-curl http://localhost:8765/api/sonic/stats
-```
+- `vendor` - Vendor name filter
+- `reflash_potential` - `high`, `medium`, `low`, `unknown`
+- `usb_boot` - `native`, `uefi_only`, `legacy_only`, `mixed`, `none`
+- `uefi_native` - `works`, `issues`, `unknown`
+- `windows10_boot` - `none`, `install`, `wtg`, `unknown`
+- `media_mode` - `none`, `htpc`, `retro`, `unknown`
+- `udos_launcher` - `none`, `basic`, `advanced`, `unknown`
+- `year_min`
+- `year_max`
+- `limit` - results per page (1-1000)
+- `offset` - pagination offset
 
 ## Building the Database
-
-If the SQLite database doesn't exist, compile it:
 
 ```bash
 mkdir -p memory/sonic
 sqlite3 memory/sonic/sonic-devices.db < sonic/datasets/sonic-devices.sql
 ```
 
-Or via Wizard routes (triggers auto-compile):
+Or rebuild via API:
 
 ```bash
-# Health check will show next steps if DB missing
-curl http://localhost:8765/api/sonic/health
+curl -X POST -H "Authorization: Bearer $DEVICE_TOKEN" \
+  http://localhost:8765/api/sonic/db/rebuild
 ```
-
-## Adding Devices
-
-1. Edit `sonic/datasets/sonic-devices.table.md`
-2. Add row to table
-3. Recompile database (or rebuild with Core file parsing tools)
-4. Optionally bump `version.json` for new releases
-
-## Format
-
-Markdown table columns (required):
-
-| Field             | Type    | Example                            |
-| ----------------- | ------- | ---------------------------------- |
-| id                | string  | `macbookpro-2012`                  |
-| vendor            | string  | `Apple`                            |
-| model             | string  | `MacBook Pro`                      |
-| variant           | string  | `13" Mid 2012`                     |
-| year              | integer | `2012`                             |
-| cpu               | string  | `Intel i5-3210M`                   |
-| gpu               | string  | `Intel HD 4000`                    |
-| ram_gb            | integer | `8`                                |
-| storage_gb        | integer | `256`                              |
-| bios              | enum    | `UEFI`, `Legacy`, `UEFI+Legacy`    |
-| secure_boot       | enum    | `yes`, `no`, `unknown`             |
-| tpm               | enum    | `yes`, `no`, `unknown`             |
-| usb_boot          | enum    | `yes`, `no`, `unknown`             |
-| uefi_native       | enum    | `works`, `issues`, `unknown`       |
-| reflash_potential | enum    | `high`, `medium`, `low`, `unknown` |
-| methods           | json    | `["UEFI","dd","sonic_usb"]`        |
-| notes             | string  | Device-specific guidance           |
-| sources           | json    | `["https://..."]`                  |
-| last_seen         | date    | `2026-01-25`                       |
 
 ## References
 
-- [sonic/datasets/README.md](../../sonic/datasets/README.md) — Dataset guide
-- [sonic/CHANGELOG.md](../../sonic/CHANGELOG.md) — Version history
-- [packages/MANIFEST-INDEX.md](../MANIFEST-INDEX.md) — Package index
-- [AGENTS.md](../../AGENTS.md) — Distribution system overview
+- `sonic/datasets/README.md`
+- `wizard/routes/sonic_plugin_routes.py`
+- `library/sonic/api/__init__.py`
+- `library/sonic/sync/__init__.py`

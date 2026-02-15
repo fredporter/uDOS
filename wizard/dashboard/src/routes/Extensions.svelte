@@ -219,9 +219,9 @@
                     {:else if ext.id === "sonic"}
                       <button
                         class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded transition-colors"
-                        on:click={() => navigateTo("library")}
+                        on:click={() => navigateTo("sonic")}
                       >
-                        Open Sonic Integrations
+                        Open Sonic Center
                       </button>
                     {/if}
                   </div>

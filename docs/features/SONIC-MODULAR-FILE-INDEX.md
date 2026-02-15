@@ -88,6 +88,13 @@
 - `GET /api/sonic/sync/status` - Sync status
 - `POST /api/sonic/sync/rebuild` - Rebuild database
 - `POST /api/sonic/sync/export` - Export to CSV
+- `GET /api/sonic/db/status` - Device DB status alias
+- `POST /api/sonic/db/rebuild` - Device DB rebuild alias
+- `GET /api/sonic/db/export` - Device DB export alias
+- `POST /api/sonic/sync` - Sync alias
+- `POST /api/sonic/rescan` - Rescan alias
+- `POST /api/sonic/rebuild` - Rebuild alias
+- `GET /api/sonic/export` - Export alias
 - `GET /api/sonic/flash-packs` - List flash packs
 - `GET /api/sonic/flash-packs/{id}` - Flash pack details
 
