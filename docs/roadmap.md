@@ -201,23 +201,30 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 **Scope:** Standalone USB builder, device database, and uDOS compatibility.
 
 ### Now (v1.3.0)
-- Document standalone contract and decoupleable packaging.
-- Specify Ventoy-free partition layout.
-- Add Windows 10 install/WTG modes.
-- Define uDOS TUI minimal image target.
-- Expand device database schema (windows/media flags).
+- [x] Document standalone contract and decoupleable packaging.
+- [x] Specify Ventoy-free partition layout.
+- [x] Add Windows 10 install/WTG modes.
+- [x] Define uDOS TUI minimal image target.
+- [x] Expand device database schema (windows/media flags).
 
 ### Next (v1.2.x)
-- Implement custom partitioning scripts.
-- Create bootloader profiles and reboot routing.
-- Add uDOS Windows launcher and mode selector.
-- Establish dataset validation and build scripts.
+- [x] Implement custom partitioning scripts.
+- [ ] Create bootloader profiles and reboot routing.
+- [ ] Add uDOS Windows launcher and mode selector.
+- [x] Establish dataset validation and build scripts.
 
 ### Later (v1.3+)
-- Device profile auto-detection and recommendations.
-- Media console workflows (Kodi + WantMyMTV).
-- Windows gaming profile automation.
-- Public standalone releases and install guide.
+- [ ] Device profile auto-detection and recommendations.
+- [ ] Media console workflows (Kodi + WantMyMTV).
+- [ ] Windows gaming profile automation.
+- [ ] Public standalone releases and install guide.
+
+### v1.3.17 Status (2026-02-15)
+- [x] Ventoy removed from active Sonic pipeline and contracts.
+- [x] Native UEFI fields adopted (`uefi_native`, `ESP`) across Sonic datasets/API/docs.
+- [x] Legacy Ventoy scripts/config physically removed from Sonic submodule.
+- [ ] Sonic standalone release artifacts/checksums/signing flow finalized.
+- [ ] Wizard GUI Sonic entry points fully implemented end-to-end.
 
 ---
 
