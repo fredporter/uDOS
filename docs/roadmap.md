@@ -258,6 +258,8 @@ Last updated: 2026-02-15
 
 Reference:
 - [v1.4.0-KICKOFF-CHECKLIST.md](specs/v1.4.0-KICKOFF-CHECKLIST.md)
+- [v1.4.0-EXECUTION-ORDER.md](specs/v1.4.0-EXECUTION-ORDER.md)
+- [v1.4.0-DOCKER-AUTOMATION-CAPABILITY-SPEC.md](specs/v1.4.0-DOCKER-AUTOMATION-CAPABILITY-SPEC.md)
 
 #### P0 -- Repo Restructure (Complete)
 - [x] Root cleanup: removed ephemeral debug/fix files.
@@ -286,9 +288,9 @@ Reference:
 - [x] Add boundary tests for `core` (system Python), `wizard/dev` (venv required), and `ts` (Node capability-gated).
 
 #### P1 -- Containerisation
-- [ ] Sonic Screwdriver Dockerfile (ISO/USB builder).
-- [ ] Songscribe/Groovebox Dockerfile.
-- [ ] Verify all `docker compose --profile` combinations work.
+- [x] Sonic Screwdriver Dockerfile (ISO/USB builder).
+- [x] Songscribe/Groovebox Dockerfile.
+- [x] Verify all `docker compose --profile` combinations work.
 - [ ] Library manager: `LIBRARY sync` and `LIBRARY status` commands.
 
 #### P2 -- Code Quality and Modularization
