@@ -1,0 +1,11 @@
+{
+  "name": "pilot",
+  "description": "Cockpit-focused command voice for flight-path and orbital navigation messaging.",
+  "companions": ["galaxy_layers", "orbital_layers"],
+  "replacements": {
+    "Tip:": "Cockpit Tip:",
+    "Health:": "Flight Health:",
+    "Wizard": "Flight Ops",
+    "WIZARD": "FLIGHT OPS"
+  }
+}

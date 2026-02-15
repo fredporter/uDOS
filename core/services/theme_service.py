@@ -77,6 +77,24 @@ class ThemeService:
             "Wizard": "Star Ops",
             "WIZARD": "STAR OPS",
         },
+        "pilot": {
+            "Tip:": "Cockpit Tip:",
+            "Health:": "Flight Health:",
+            "Wizard": "Flight Ops",
+            "WIZARD": "FLIGHT OPS",
+        },
+        "captain-sailor": {
+            "Tip:": "Bridge Tip:",
+            "Health:": "Crew Health:",
+            "Wizard": "Deck Ops",
+            "WIZARD": "DECK OPS",
+        },
+        "pirate": {
+            "Tip:": "Raid Tip:",
+            "Health:": "Hull Health:",
+            "Wizard": "Corsair Ops",
+            "WIZARD": "CORSAIR OPS",
+        },
         "scientist": {
             "Tip:": "Lab Tip:",
             "Health:": "Systems Health:",
@@ -93,6 +111,8 @@ class ThemeService:
     THEME_ALIASES: Dict[str, str] = {
         "galxy": "galaxy",
         "roleplay": "role-play",
+        "captainsailor": "captain-sailor",
+        "captain_sailor": "captain-sailor",
     }
     MAP_LEVEL_THEME: Dict[str, str] = {
         "dungeon": "dungeon",
@@ -110,6 +130,10 @@ class ThemeService:
         "stellar": "galaxy",
         "orbital": "galaxy",
         "udn": "galaxy",
+        "pilot": "pilot",
+        "captain-sailor": "captain-sailor",
+        "captainsailor": "captain-sailor",
+        "pirate": "pirate",
         "scientist": "scientist",
     }
 

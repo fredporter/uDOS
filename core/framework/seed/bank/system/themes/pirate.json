@@ -1,0 +1,11 @@
+{
+  "name": "pirate",
+  "description": "Raider-style command voice for risky traversal and combat-heavy messaging.",
+  "companions": ["galaxy_layers", "earth_layers_subterranean"],
+  "replacements": {
+    "Tip:": "Raid Tip:",
+    "Health:": "Hull Health:",
+    "Wizard": "Corsair Ops",
+    "WIZARD": "CORSAIR OPS"
+  }
+}

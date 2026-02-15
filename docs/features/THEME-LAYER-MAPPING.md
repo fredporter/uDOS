@@ -19,6 +19,9 @@ Scope boundary:
 | `hitchhikers` | `galaxy_layers` | Immediate space voice for near-Earth orbit and expedition messaging (`42 Tip`, `Guide Console`). |
 | `foundation` | `galaxy_layers` | Outer-space settlement voice aligned with deep galaxy layers. Ideal for extraplanetary builds, with replacements that stay in the orbital/survival spectrum. |
 | `galaxy` | `galaxy_layers` | Explicit alias-friendly galaxy messaging profile used for orbital/stellar map levels in TUI copy. |
+| `pilot` | `galaxy_layers`, `orbital_layers` | Cockpit/navigation voice for flight-path operations (`Cockpit Tip`, `Flight Ops`). |
+| `captain-sailor` | `galaxy_layers`, `regional_layers` | Bridge-and-crew command voice (`Bridge Tip`, `Deck Ops`). |
+| `pirate` | `galaxy_layers`, `earth_layers_subterranean` | Raider voice for risky traversal/combat messaging (`Raid Tip`, `Corsair Ops`). |
 | `scientist` | `galaxy_layers`, `stellar_layers` | Systems/lab voice for orbital and stellar operations (`Lab Tip`, `Research Ops`). |
 
 Virtual layers reuse these galaxy/outer-space themes today (Foundation and Hitchhiker’s tones double as the “virtual themes”) but you can introduce additional templates by extending the seed folder and adding `virtual_layers` to the `companions` list.
@@ -30,7 +33,7 @@ Virtual layers reuse these galaxy/outer-space themes today (Foundation and Hitch
 - Switch the active base theme by setting `UDOS_THEME=<theme-name>` when launching uCODE or by calling `core/services/theme_service.ThemeService.load_theme`.
 - For TUI message routing, optionally set:
   - `UDOS_TUI_MESSAGE_THEME=dungeon|foundation|galaxy`
-  - `UDOS_TUI_MESSAGE_THEME=fantasy|role-play|explorer|scientist|stranger-things|lonely-planet|doomsday|hitchhikers|dungeon|foundation|galaxy`
+  - `UDOS_TUI_MESSAGE_THEME=fantasy|role-play|explorer|scientist|pilot|captain-sailor|pirate|stranger-things|lonely-planet|doomsday|hitchhikers|dungeon|foundation|galaxy`
   - `UDOS_TUI_MAP_LEVEL=dungeon|foundation|galaxy|...`
   - `UDOS_TUI_LEGACY_REPLACEMENTS=1` to temporarily restore broad legacy text replacement behavior.
 

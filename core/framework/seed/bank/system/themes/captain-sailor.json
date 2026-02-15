@@ -1,0 +1,11 @@
+{
+  "name": "captain-sailor",
+  "description": "Bridge-and-crew command voice for expedition leadership messaging.",
+  "companions": ["galaxy_layers", "regional_layers"],
+  "replacements": {
+    "Tip:": "Bridge Tip:",
+    "Health:": "Crew Health:",
+    "Wizard": "Deck Ops",
+    "WIZARD": "DECK OPS"
+  }
+}

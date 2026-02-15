@@ -84,3 +84,21 @@ def test_theme_service_supports_new_simple_vocab_profiles(monkeypatch):
     assert "Lab Tip:" in themed_science
     assert "Research Ops status." in themed_science
     assert "Systems Health:" in themed_science
+
+    monkeypatch.setenv("UDOS_TUI_MESSAGE_THEME", "pilot")
+    themed_pilot = svc.format(sample)
+    assert "Cockpit Tip:" in themed_pilot
+    assert "Flight Ops status." in themed_pilot
+    assert "Flight Health:" in themed_pilot
+
+    monkeypatch.setenv("UDOS_TUI_MESSAGE_THEME", "captainsailor")
+    themed_captain = svc.format(sample)
+    assert "Bridge Tip:" in themed_captain
+    assert "Deck Ops status." in themed_captain
+    assert "Crew Health:" in themed_captain
+
+    monkeypatch.setenv("UDOS_TUI_MESSAGE_THEME", "pirate")
+    themed_pirate = svc.format(sample)
+    assert "Raid Tip:" in themed_pirate
+    assert "Corsair Ops status." in themed_pirate
+    assert "Hull Health:" in themed_pirate
