@@ -38,6 +38,7 @@ PLACE_REF_RE = re.compile(
     r"(?::D(?P<depth>\d+))?"
     r"(?::I(?P<instance>.+))?$"
 )
+LOC_ID_DETAIL_RE = re.compile(r"^L(?P<layer>\d{3})-(?P<cell>[A-Z]{2}\d{2})(?:-Z(?P<z>-?\d{1,2}))?$")
 
 
 def _parse_place_ref(ref: str) -> Optional[Dict[str, Any]]:
@@ -65,6 +66,23 @@ def _parse_place_ref(ref: str) -> Optional[Dict[str, Any]]:
         "depth": depth,
         "instance": instance,
     }
+
+
+def _cell_to_col(cell: str) -> int:
+    # Two-letter base-26 column encoding: AA=0, AB=1, ..., ZZ=675
+    return (ord(cell[0]) - 65) * 26 + (ord(cell[1]) - 65)
+
+
+def _loc_point(loc_id: str) -> Optional[Tuple[int, int, int, int]]:
+    match = LOC_ID_DETAIL_RE.match(loc_id)
+    if not match:
+        return None
+    layer = int(match.group("layer"))
+    cell = match.group("cell")
+    row = int(cell[2:4])
+    col = _cell_to_col(cell[:2])
+    z = int(match.group("z")) if match.group("z") is not None else 0
+    return (layer, col, row, z)
 
 
 class LocationMigrator:
@@ -462,12 +480,12 @@ class LocationMigrator:
         now = int(time.time())
         inserted = 0
         features_seeded = 0
+        records: List[Dict[str, Any]] = []
         for place in places:
             place_ref = place.get("placeRef") or ""
             parsed = _parse_place_ref(place_ref)
             if not parsed:
                 continue
-            self._ensure_locid(conn, parsed["loc_id"], parsed["effective_layer"], parsed["final_cell"])
             place_id = place.get("placeId") or self._build_place_id(
                 parsed["anchor_id"],
                 parsed["space"],
@@ -475,6 +493,15 @@ class LocationMigrator:
                 parsed.get("depth"),
                 parsed.get("instance"),
             )
+            records.append({"place": place, "parsed": parsed, "place_id": place_id})
+
+        inferred_links = self._infer_seed_links(records)
+
+        for record in records:
+            place = record["place"]
+            parsed = record["parsed"]
+            place_id = record["place_id"]
+            self._ensure_locid(conn, parsed["loc_id"], parsed["effective_layer"], parsed["final_cell"])
             cursor.execute(
                 """
                 INSERT INTO places(place_id, anchor_id, space, loc_id, depth, instance, label, created_at, updated_at)
@@ -501,12 +528,58 @@ class LocationMigrator:
                 ),
             )
             inserted += 1
-            if self._upsert_place_seed_features(conn, place_id, place, now):
+            place_for_seed = dict(place)
+            explicit_links = place_for_seed.get("links")
+            if not isinstance(explicit_links, list):
+                inferred = inferred_links.get(place_id, [])
+                if inferred:
+                    place_for_seed["links"] = inferred
+                    metadata = place_for_seed.get("metadata")
+                    if not isinstance(metadata, dict):
+                        metadata = {}
+                    metadata.setdefault("link_mode", "inferred")
+                    place_for_seed["metadata"] = metadata
+            if self._upsert_place_seed_features(conn, place_id, place_for_seed, now):
                 features_seeded += 1
         return {
             "spatial_places_seeded": inserted,
             "spatial_place_features_seeded": features_seeded,
         }
+
+    def _infer_seed_links(self, records: List[Dict[str, Any]]) -> Dict[str, List[str]]:
+        """Infer deterministic adjacency for places with no explicit links."""
+        groups: Dict[Tuple[str, str, int], List[Dict[str, Any]]] = {}
+        for record in records:
+            parsed = record["parsed"]
+            key = (parsed["anchor_id"], parsed["space"], parsed["effective_layer"])
+            groups.setdefault(key, []).append(record)
+
+        inferred: Dict[str, List[str]] = {}
+        for _group_key, members in groups.items():
+            if len(members) < 2:
+                continue
+            for record in members:
+                place = record["place"]
+                if isinstance(place.get("links"), list) and len(place.get("links")) > 0:
+                    continue
+                origin = _loc_point(record["parsed"]["loc_id"])
+                if origin is None:
+                    continue
+                neighbors: List[Tuple[int, str]] = []
+                for candidate in members:
+                    if candidate["place_id"] == record["place_id"]:
+                        continue
+                    point = _loc_point(candidate["parsed"]["loc_id"])
+                    if point is None:
+                        continue
+                    # Same group already guarantees anchor/space/layer; compare cell + z.
+                    dist = abs(origin[1] - point[1]) + abs(origin[2] - point[2]) + abs(origin[3] - point[3])
+                    neighbors.append((dist, candidate["place_id"]))
+                neighbors.sort(key=lambda item: (item[0], item[1]))
+                links = [pid for _dist, pid in neighbors[:2]]
+                if links:
+                    inferred[record["place_id"]] = links
+        return inferred
 
     def _ensure_locid(self, conn: sqlite3.Connection, loc_id: str, layer: int, cell: str):
         now = int(time.time())

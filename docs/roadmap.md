@@ -75,6 +75,7 @@ Reference:
 
 ### v1.3.19 (Planned) -- Seed Data Depth Pass
 - [x] Add tracked default spatial place seed catalog + CI seed-catalog validation + optional `place_seed_features` persistence scaffold.
+- [x] Add deterministic adjacency inference during seed ingestion for places missing explicit links (same anchor/space/layer).
 - [ ] Expand `locations-seed.json` from locator-only entries to gameplay-ready tiles/links.
 - [ ] Add deterministic adjacency/connectivity for region traversal and map overlays.
 - [ ] Introduce elevation-aware seed fields (`z`, `z_min`, `z_max`, stairs/ramps/portals metadata).

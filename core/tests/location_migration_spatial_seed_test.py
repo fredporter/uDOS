@@ -74,3 +74,45 @@ def test_load_spatial_places_falls_back_to_tracked_default(tmp_path, monkeypatch
     places = migrator._load_spatial_places()
     assert len(places) >= 1
     assert any("z" in place for place in places)
+
+
+def test_insert_spatial_places_infers_links_when_missing(tmp_path):
+    migrator = LocationMigrator(data_dir=tmp_path)
+    conn = sqlite3.connect(tmp_path / "state.db")
+    conn.executescript(_schema_sql())
+    now = 1739580000
+    conn.execute(
+        """
+        INSERT INTO anchors(anchor_id, kind, title, status, config_json, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """,
+        ("EARTH", "earth", "Earth", "active", "{}", now, now),
+    )
+
+    stats = migrator._insert_spatial_places(
+        conn,
+        [
+            {"placeId": "a", "label": "A", "placeRef": "EARTH:SUR:L300-AA10"},
+            {"placeId": "b", "label": "B", "placeRef": "EARTH:SUR:L300-AA11"},
+            {"placeId": "c", "label": "C", "placeRef": "EARTH:SUR:L300-AA12"},
+        ],
+    )
+    conn.commit()
+
+    assert stats["spatial_places_seeded"] == 3
+    assert stats["spatial_place_features_seeded"] == 3
+
+    rows = conn.execute(
+        """
+        SELECT place_id, links_json, metadata_json
+        FROM place_seed_features
+        ORDER BY place_id
+        """
+    ).fetchall()
+    assert len(rows) == 3
+    for place_id, links_json, metadata_json in rows:
+        links = json.loads(links_json)
+        assert len(links) >= 1, place_id
+        metadata = json.loads(metadata_json)
+        assert metadata.get("link_mode") == "inferred"
+    conn.close()
