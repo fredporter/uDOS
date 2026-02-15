@@ -29,6 +29,8 @@ class SonicHandler(BaseCommandHandler):
             return self._help()
         if action == "status":
             return self._status()
+        if action == "sync":
+            return self._sync(params[1:])
         if action == "plan":
             return self._plan(params[1:])
         if action == "run":
@@ -77,6 +79,11 @@ class SonicHandler(BaseCommandHandler):
         return {
             "status": "ok",
             "sonic_root": str(sonic_root),
+            "wizard_api": {
+                "status": "/api/platform/sonic/status",
+                "device_db": "/api/sonic/db/status",
+                "sync": "/api/sonic/sync",
+            },
             "datasets": {
                 "table": str(dataset_root / "sonic-devices.table.md"),
                 "schema": str(dataset_root / "sonic-devices.schema.json"),
@@ -87,6 +94,73 @@ class SonicHandler(BaseCommandHandler):
                 "path": str(db_path),
                 "exists": db_path.exists(),
             },
+        }
+
+    def _sync(self, params: List[str]) -> Dict:
+        flags, _ = self._parse_flags(params)
+        sonic_root = self._sonic_root()
+        sql_source = sonic_root / "datasets" / "sonic-devices.sql"
+        db_path = self._repo_root() / "memory" / "sonic" / "sonic-devices.db"
+
+        if not sql_source.exists():
+            return {
+                "status": "error",
+                "message": f"Sonic dataset SQL missing: {sql_source}",
+                "suggestion": "Initialize/update the sonic submodule, then run SONIC SYNC again.",
+            }
+
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        force = bool(flags.get("force"))
+        command = ["sqlite3", str(db_path)]
+        if db_path.exists() and not force:
+            return {
+                "status": "ok",
+                "message": "Device DB already exists. Use SONIC SYNC --force to rebuild.",
+                "db_path": str(db_path),
+                "wizard_equivalent": "POST /api/sonic/db/rebuild?force=false",
+            }
+
+        if db_path.exists():
+            try:
+                db_path.unlink()
+            except OSError as exc:
+                return {
+                    "status": "error",
+                    "message": f"Failed to replace existing DB: {exc}",
+                    "db_path": str(db_path),
+                }
+
+        import subprocess
+
+        try:
+            with sql_source.open("r", encoding="utf-8") as sql_fh:
+                proc = subprocess.run(
+                    command,
+                    stdin=sql_fh,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "message": "sqlite3 is not installed; cannot sync Sonic device DB locally.",
+                "suggestion": "Install sqlite3 or use Wizard endpoint POST /api/sonic/db/rebuild.",
+            }
+
+        if proc.returncode != 0:
+            return {
+                "status": "error",
+                "message": "Sonic DB sync failed.",
+                "stderr": (proc.stderr or "").strip(),
+                "command": " ".join(command),
+            }
+
+        return {
+            "status": "ok",
+            "message": "Sonic device DB synced from dataset SQL.",
+            "db_path": str(db_path),
+            "wizard_equivalent": "POST /api/sonic/db/rebuild",
         }
 
     def _plan(self, params: List[str]) -> Dict:
@@ -171,10 +245,11 @@ class SonicHandler(BaseCommandHandler):
             "status": "ok",
             "syntax": [
                 "SONIC STATUS",
+                "SONIC SYNC [--force]",
                 "SONIC PLAN [--usb-device /dev/sdb] [--layout-file config/sonic-layout.json]",
                 "SONIC PLAN [--payloads-dir /path/to/payloads] [--format-mode full|skip]",
                 "SONIC RUN [--manifest config/sonic-manifest.json] [--dry-run]",
                 "SONIC RUN [--payloads-dir /path/to/payloads] [--no-validate-payloads] --confirm",
             ],
-            "note": "SONIC RUN requires --confirm and Linux for destructive operations.",
+            "note": "SONIC RUN requires --confirm and Linux for destructive operations. SONIC SYNC mirrors Wizard /api/sonic/db/rebuild.",
         }

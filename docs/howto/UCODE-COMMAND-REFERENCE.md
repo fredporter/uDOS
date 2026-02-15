@@ -1,108 +1,114 @@
 # uCODE Command Reference
 
-Version: Core v1.3.16
+Version: Core v1.3.16+
 Updated: 2026-02-15
 
-This reference documents the active core command surface after the v1.3.16 core/wizard split.
+This guide is split into:
+- TypeScript-backed command paths (Node runtime required)
+- Python ucode command surface (core dispatcher + TUI command routing)
 
-## Core Commands (v1.3.16)
+## TypeScript Command Set
 
-### Navigation
+These commands execute via TS/Node runtime components.
 
-- `MAP`
-- `PANEL`
-- `FIND`
-- `TELL`
-- `GOTO`
+- `RUN --ts <file> [section_id]`
+- `RUN --ts PARSE <file>`
+- `RUN --ts DATA LIST`
+- `RUN --ts DATA VALIDATE <id>`
+- `RUN --ts DATA BUILD <id> [output_id]`
+- `RUN --ts DATA REGEN <id> [output_id]`
+- `READ --ts <file>`
+- `STORY <file>`
+- `STORY PARSE <file>`
+- `STORY NEW <name>`
+- `SCRIPT RUN <name>`
+- `DRAW PAT LIST`
+- `DRAW PAT CYCLE`
+- `DRAW PAT TEXT "<text>"`
+- `DRAW PAT <pattern-name>`
+- `GRID <calendar|table|schedule|map|dashboard> [options]`
+- `VERIFY`
 
-### State and Runtime
+## Script Policy (Mobile Default)
 
+uDOS-flavored markdown scripts now run in mobile-safe mode by default.
+
+- Default: script fences cannot execute stdlib ucode command lines.
+- Explicit opt-in: add `allow_stdlib_commands: true` in markdown frontmatter.
+- Applies to `RUN`, `SCRIPT RUN`, and system script execution paths.
+
+Example frontmatter:
+
+```yaml
+---
+title: Startup Script
+allow_stdlib_commands: true
+---
+```
+
+## Python ucode Commands (Core Surface)
+
+Current dispatcher/TUI command surface:
+Global strict stdlib-only enforcement is not required; this is the active Python command surface in Core.
+
+- `ANCHOR`
+- `BACKUP`
 - `BAG`
-- `GRAB`
-- `SPAWN`
-- `SAVE`
-- `LOAD`
-- `STORY`
-- `RUN`
-- `DRAW`
-
-### System
-
-- `HEALTH` (offline stdlib shakedown)
-- `VERIFY` (TS runtime shakedown)
-- `REPAIR`
-- `REBOOT`
-- `DEV`
-- `UID`
-- `CONFIG`
-- `WIZARD`
-- `LOGS`
-- `SETUP`
-
-### Workspace and Files
-
-- `FILE`
-- `NEW`
-- `EDIT`
 - `BINDER`
-- `USER`
+- `CLEAN`
+- `COMPOST`
+- `CONFIG`
+- `DESTROY`
+- `DEV`
+- `DRAW`
+- `EDIT`
+- `EMPIRE`
+- `FILE`
+- `FIND`
+- `GHOST`
+- `GAMEPLAY`
+- `GOTO`
+- `GRAB`
+- `GRID`
+- `HEALTH`
+- `HELP`
+- `LOAD`
+- `LOGS`
+- `MAP`
+- `MIGRATE`
+- `MUSIC`
+- `NEW`
 - `NPC`
-- `TALK`
-- `REPLY`
+- `OK` (TUI-routed AI/local helper command)
+- `PANEL`
+- `PLACE`
+- `READ`
+- `REBOOT`
+- `REPAIR`
+- `RESTORE`
+- `RUN`
+- `SAVE`
+- `SCHEDULER`
+- `SEND`
+- `SCRIPT`
+- `SEED`
+- `SETUP`
 - `SONIC`
-- `TAG`
+- `SPAWN`
+- `STORY`
+- `TELL`
+- `TIDY`
+- `TOKEN`
+- `UID`
+- `UNDO`
+- `USER`
+- `VERIFY`
+- `VIEWPORT`
+- `WIZARD`
 
-## Core Health Commands
+## Wizard-Owned Flows
 
-### `HEALTH`
-
-Runs offline/local checks only.
-
-```bash
-HEALTH
-```
-
-Checks include local config, parser/dispatcher readiness, local paths, and offline policy signals.
-
-### `VERIFY`
-
-Runs TypeScript/runtime checks.
-
-```bash
-VERIFY
-```
-
-Checks include Node availability, TS runtime artifacts, and script parse/execute smoke tests.
-
-## TS-backed command paths
-
-### Pattern flow
-
-Top-level `PATTERN` is removed. Use `DRAW PAT ...`.
-
-```bash
-DRAW PAT LIST
-DRAW PAT CYCLE
-DRAW PAT TEXT "hello"
-DRAW PAT <pattern-name>
-```
-
-### Dataset flow
-
-Top-level `DATASET` is removed. Use `RUN DATA ...`.
-
-```bash
-RUN DATA LIST
-RUN DATA VALIDATE <id>
-RUN DATA BUILD <id> [output_id]
-RUN DATA REGEN <id> [output_id]
-```
-
-## Wizard-owned flows
-
-Provider/integration/full-system checks are Wizard-owned.
-
-Use:
+Provider/integration/full network checks are Wizard-owned.
 
 ```bash
 WIZARD PROV LIST
@@ -111,46 +117,44 @@ WIZARD INTEG status
 WIZARD CHECK
 ```
 
-## Removed Core Commands (No Shims)
+## SONIC Parity Quick Reference
 
-The following top-level commands are removed from core and hard-fail in v1.3.16:
+Core command:
+- `SONIC STATUS`
+- `SONIC SYNC [--force]`
+- `SONIC PLAN ...`
+- `SONIC RUN ... --confirm`
+
+Wizard API equivalents:
+- `GET /api/platform/sonic/status`
+- `POST /api/sonic/db/rebuild` (or `POST /api/sonic/sync`)
+- `POST /api/platform/sonic/build`
+
+## Removed Top-Level Commands
+
+These are removed from the canonical command surface:
 
 - `SHAKEDOWN`
 - `PATTERN`
 - `DATASET`
 - `INTEGRATION`
 - `PROVIDER`
-- `PROVIDOR` (typo; not accepted)
 
-## Migration Table
+Migration targets:
 
-- `SHAKEDOWN` -> `HEALTH` or `VERIFY` (core), `WIZARD CHECK` (full Wizard-side checks)
+- `SHAKEDOWN` -> `HEALTH` or `VERIFY` (core), `WIZARD CHECK` (full checks)
 - `PATTERN ...` -> `DRAW PAT ...`
 - `DATASET ...` -> `RUN DATA ...`
 - `INTEGRATION ...` -> `WIZARD INTEG ...`
 - `PROVIDER ...` -> `WIZARD PROV ...`
 
-## Examples
+## Quick Checks
 
 ```bash
-# Core checks
 HEALTH
 VERIFY
-
-# Pattern and dataset flows
+GAMEPLAY
 DRAW PAT LIST
 RUN DATA LIST
-RUN DATA VALIDATE locations
-
-# Wizard-owned checks
-WIZARD START
 WIZARD CHECK
-WIZARD INTEG status
-WIZARD PROV STATUS
 ```
-
-## Notes
-
-- Command names are canonical uppercase in docs.
-- Removed commands are not aliased or remapped.
-- Use `HELP` in TUI for live command help.

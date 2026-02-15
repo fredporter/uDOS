@@ -59,6 +59,7 @@ jobs:
           python tools/ci/check_sonic_route_contract_v1_3_17.py
           ./distribution/alpine-core/build-sonic-stick.sh --build-id ci-${{ github.run_id }} --profile alpine-core+sonic
           python tools/ci/validate_sonic_artifact_manifest.py --build-dir distribution/builds/ci-${{ github.run_id }}
+          python tools/ci/sonic_boot_smoke.py --build-dir distribution/builds/ci-${{ github.run_id }}
 
   test-core:
     name: Test Core (TypeScript Runtime)
