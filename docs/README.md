@@ -7,6 +7,7 @@ This is the canonical entry point for repository documentation.
 ## Start Here
 
 - Product roadmap: `docs/roadmap.md`
+- Sonic standalone release/install: `docs/howto/SONIC-STANDALONE-RELEASE-AND-INSTALL.md`
 - Command reference (canonical): `docs/howto/UCODE-COMMAND-REFERENCE.md`
 - Commands index: `docs/howto/commands/README.md`
 - Wizard command ownership: `docs/howto/commands/wizard.md`

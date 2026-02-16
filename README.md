@@ -46,6 +46,21 @@ Vault/data split:
 - **Extensions** — Container/plugin ecosystem
 - **Knowledge** — Static reference catalog
 
+### Sonic Round Status
+
+Sonic development round is complete in this monorepo:
+- Bootloader profiles + reboot routing
+- Windows launcher mode selector
+- Device auto-detection + recommendations
+- Media console workflows (Kodi + WantMyMTV)
+- Windows gaming profile automation
+- Release artifacts/checksum/signing readiness checks
+- Wizard GUI Sonic entrypoints end-to-end
+
+See:
+- `docs/roadmap.md` (Sonic section complete)
+- `docs/howto/SONIC-STANDALONE-RELEASE-AND-INSTALL.md`
+
 ## Core + Wizard Relationship
 
 - **Core** is the runtime. It can operate without Wizard (limited features).
