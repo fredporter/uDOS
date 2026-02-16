@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import hashlib
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -19,6 +20,14 @@ class SonicBuildService:
         if not manifest_path.exists():
             raise FileNotFoundError(f"Build manifest not found: {manifest_path}")
         return json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    @staticmethod
+    def _sha256(path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as fh:
+            for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
 
     def start_build(
         self,
@@ -147,6 +156,99 @@ class SonicBuildService:
             "artifacts": artifacts,
             "checksums": str(build_dir / "checksums.txt"),
             "manifest": str(build_dir / "build-manifest.json"),
+        }
+
+    def get_release_readiness(self, build_id: str) -> Dict[str, Any]:
+        build_dir = self.builds_root / build_id
+        if not build_dir.exists():
+            raise FileNotFoundError(f"Build not found: {build_id}")
+
+        manifest = self._load_manifest(build_dir)
+        checksums_path = build_dir / "checksums.txt"
+        manifest_sig_path = build_dir / "build-manifest.json.sig"
+        checksums_sig_path = build_dir / "checksums.txt.sig"
+
+        issues: List[str] = []
+        artifacts_status: List[Dict[str, Any]] = []
+        for entry in manifest.get("artifacts") or []:
+            rel_path = entry.get("path")
+            if not rel_path:
+                continue
+            artifact_path = build_dir / rel_path
+            exists = artifact_path.exists()
+            expected_sha = entry.get("sha256")
+            actual_sha = self._sha256(artifact_path) if exists else None
+            sha_match = bool(exists and expected_sha and actual_sha == expected_sha)
+            if not exists:
+                issues.append(f"artifact missing: {rel_path}")
+            elif expected_sha and not sha_match:
+                issues.append(f"artifact checksum mismatch: {rel_path}")
+
+            artifacts_status.append(
+                {
+                    "path": rel_path,
+                    "exists": exists,
+                    "expected_sha256": expected_sha,
+                    "actual_sha256": actual_sha,
+                    "checksum_match": sha_match,
+                }
+            )
+
+        checksum_file_verified = False
+        checksum_entries_checked = 0
+        if not checksums_path.exists():
+            issues.append("checksums.txt missing")
+        else:
+            checksum_rows = [
+                line.strip()
+                for line in checksums_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            checksum_file_verified = True
+            for line in checksum_rows:
+                try:
+                    expected, name = line.split(None, 1)
+                    name = name.strip()
+                    if name.startswith("*") or name.startswith(" "):
+                        name = name.lstrip("* ").strip()
+                except ValueError:
+                    checksum_file_verified = False
+                    issues.append(f"invalid checksum row: {line}")
+                    continue
+                checksum_entries_checked += 1
+                target = build_dir / name
+                if not target.exists():
+                    checksum_file_verified = False
+                    issues.append(f"checksum target missing: {name}")
+                    continue
+                actual = self._sha256(target)
+                if actual != expected:
+                    checksum_file_verified = False
+                    issues.append(f"checksum mismatch: {name}")
+
+        signing = {
+            "manifest_signature_present": manifest_sig_path.exists(),
+            "checksums_signature_present": checksums_sig_path.exists(),
+        }
+        signing["ready"] = (
+            signing["manifest_signature_present"] and signing["checksums_signature_present"]
+        )
+        if not signing["ready"]:
+            issues.append("release signatures incomplete")
+
+        release_ready = checksum_file_verified and signing["ready"] and not issues
+        return {
+            "build_id": manifest.get("build_id") or build_id,
+            "release_ready": release_ready,
+            "checksums": {
+                "path": str(checksums_path),
+                "present": checksums_path.exists(),
+                "verified": checksum_file_verified,
+                "entries_checked": checksum_entries_checked,
+            },
+            "signing": signing,
+            "artifacts": artifacts_status,
+            "issues": issues,
         }
 
 

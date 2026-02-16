@@ -32,6 +32,18 @@ class _BuildSvc:
     def get_build(self, build_id):
         return {"build_id": build_id}
 
+    def get_release_readiness(self, build_id):
+        if build_id == "missing":
+            raise FileNotFoundError("Build not found: missing")
+        return {
+            "build_id": build_id,
+            "release_ready": False,
+            "checksums": {"present": True, "verified": True, "entries_checked": 3},
+            "signing": {"manifest_signature_present": False, "checksums_signature_present": False, "ready": False},
+            "artifacts": [],
+            "issues": ["release signatures incomplete"],
+        }
+
 
 
 def _client(monkeypatch):
@@ -56,4 +68,20 @@ def test_platform_build_artifacts_contract_and_not_found(monkeypatch):
     assert "manifest" in payload
 
     missing_res = client.get("/api/platform/sonic/builds/missing/artifacts")
+    assert missing_res.status_code == 404
+
+
+def test_platform_release_readiness_contract_and_not_found(monkeypatch):
+    client = _client(monkeypatch)
+
+    ok_res = client.get("/api/platform/sonic/builds/b42/release-readiness")
+    assert ok_res.status_code == 200
+    payload = ok_res.json()
+    assert payload["build_id"] == "b42"
+    assert "release_ready" in payload
+    assert "checksums" in payload
+    assert "signing" in payload
+    assert isinstance(payload["issues"], list)
+
+    missing_res = client.get("/api/platform/sonic/builds/missing/release-readiness")
     assert missing_res.status_code == 404

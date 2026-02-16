@@ -71,6 +71,13 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
         except FileNotFoundError as exc:
             raise HTTPException(status_code=404, detail=str(exc))
 
+    @router.get("/sonic/builds/{id}/release-readiness")
+    async def get_sonic_release_readiness(id: str):
+        try:
+            return sonic_builds.get_release_readiness(id)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc))
+
     @router.get("/groovebox/status")
     async def groovebox_status():
         root = (repo_root or Path(__file__).resolve().parent.parent.parent) / "groovebox"
