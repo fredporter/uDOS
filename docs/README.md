@@ -33,5 +33,7 @@ Historical and superseded docs are moved under `docs/.archive/` with dated folde
 Current archive updates:
 - `docs/.archive/2026-02-11-roadmap-consolidation/`
 - `docs/.archive/2026-02-15-docs-cleanup/`
+- `docs/.archive/2026-02-17-legacy-docs/`
 
-Legacy command pages in `docs/howto/commands/` are marked archived and redirect to canonical v1.3.16+ docs.
+Legacy command pages in `docs/howto/commands/` now contain redirect stubs.
+Archived full content lives under `docs/.archive/2026-02-17-legacy-docs/howto/commands/`.

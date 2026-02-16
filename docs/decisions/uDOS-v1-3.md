@@ -293,7 +293,9 @@ Milestone 4 — WP public lane (optional add-on)
 
 Repo structure (target)
 
-memory/vault/       # Obsidian truth store
+vault/              # Distributable markdown scaffold (tracked template)
+core/framework/seed/vault/ # Canonical starter vault seed source (tracked)
+memory/vault/       # Runtime Obsidian/user vault data (local)
 themes/             # Theme packs
 core/               # TS deterministic engine (render, parse, sqlite, diff)
 wizard/             # node services + portal + scheduler + permissions

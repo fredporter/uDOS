@@ -81,11 +81,15 @@ wizard/
 └── version.json
 ```
 
-> **Note:** Plugin distribution packages are now served from the repo-level `distribution/` directory (consolidated from `wizard/distribution/`). Vault content lives at `memory/vault/`.
+> **Note:** Plugin distribution packages are now served from the repo-level `distribution/` directory (consolidated from `wizard/distribution/`).
+> Vault contract:
+> - `vault/` = distributable markdown scaffold (tracked)
+> - `core/framework/seed/vault/` = canonical starter seed source (tracked)
+> - `memory/vault/` = runtime user vault (local, gitignored)
 
 ---
 
--## 🎯 Responsibilities (Production)
+## 🎯 Responsibilities (Production)
 
 - Assistant routing gateway (local-first, policy-controlled cloud burst)
 - Dev Mode management (activate/deactivate Goblin dev server via `/api/dev/*`)
@@ -107,7 +111,7 @@ Not in Wizard: TUI command handlers, core business logic, runtime execution (liv
 
 ## 📜 MD → HTML + Theme Pack Pipeline
 
-- Wizard owns the renderer service that turns Markdown provenance (`memory/vault/`) into static HTML snapshots under `_site/<theme>` by following the Theme Pack contract (`../docs/Theme-Pack-Contract.md`) and the universal component guidance (`../docs/Universal-Components-Contract.md`).
+- Wizard owns the renderer service that turns Markdown provenance (`memory/vault/`) into static HTML snapshots under `memory/vault/_site/<theme>` by following the Theme Pack contract (`../docs/Theme-Pack-Contract.md`) and the universal component guidance (`../docs/Universal-Components-Contract.md`).
 - The renderer service must treat exported slots/data as simple objects (HTML strings + metadata) so it can satisfy both Wizard’s static portal (`wizard/portal-static/`) and any SvelteKit preview components. Refer to `wizard/docs/renderer-ui-standards.md` for the implementation boundary.
 - Theme metadata feeds the portal UI, mission reports, and export status endpoints so every lane (portal, CLI, Vibe) agrees on typography tokens (`../docs/CSS-Tokens.md`) and slot names.
 
@@ -204,4 +208,4 @@ curl -X POST http://localhost:8765/api/dev/activate
 
 ---
 
-_Updated: 2026-02-10 — v1.4.0 restructure: wizard consolidation, MCP gateway, distribution moved to repo root, vault → memory/vault_
+_Updated: 2026-02-17 — v1.4.0 restructure + vault contract alignment (template `vault/`, seed `core/framework/seed/vault/`, runtime `memory/vault/`)_

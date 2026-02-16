@@ -47,7 +47,11 @@ Use migration targets documented in `docs/howto/UCODE-COMMAND-REFERENCE.md`.
 
 ## Legacy Pages (Archived)
 
-The following v1.1-era pages are retained for historical reference and are marked archived:
+The following v1.1-era pages were archived to:
+
+- `docs/.archive/2026-02-17-legacy-docs/howto/commands/`
+
+Redirect stubs remain at the original paths:
 
 - `docs/howto/commands/navigation.md`
 - `docs/howto/commands/content.md`

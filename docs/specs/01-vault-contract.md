@@ -2,6 +2,15 @@
 
 Vault is plain files. Obsidian can open it. No hidden state required.
 
+## Template/Seed/Runtime Split
+
+- `vault/` — distributable markdown scaffold (tracked, no personal data)
+- `core/framework/seed/vault/` — canonical starter vault seed (tracked)
+- `memory/vault/` — runtime user vault (local, gitignored)
+
+Seed installers (`bin/install-seed.py` / `REPAIR --seed`) copy starter markdown from
+`core/framework/seed/vault/` into `memory/vault/`.
+
 ## Recommended layout (can map to existing repo folders later)
 ```txt
 memory/vault/

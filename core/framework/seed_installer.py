@@ -37,6 +37,7 @@ class SeedInstaller:
         self.memory_dir = Path(memory_dir)
         self.seed_dir = self.framework_dir / "seed"
         self.bank_dir = self.memory_dir / "bank"
+        self.vault_dir = self.memory_dir / "vault"
 
     def ensure_directories(self) -> bool:
         """
@@ -56,6 +57,7 @@ class SeedInstaller:
                 parents=True, exist_ok=True
             )
             (self.bank_dir / "workflows").mkdir(parents=True, exist_ok=True)
+            (self.vault_dir).mkdir(parents=True, exist_ok=True)
             (self.memory_dir / "logs").mkdir(parents=True, exist_ok=True)
             (self.memory_dir / "logs" / "monitoring").mkdir(parents=True, exist_ok=True)
             (self.memory_dir / "logs" / "quotas").mkdir(parents=True, exist_ok=True)
@@ -216,6 +218,46 @@ class SeedInstaller:
             logger.error(f"[LOCAL] Failed to install bank seeds: {e}")
             return results
 
+    def install_vault_seed(self, force: bool = False) -> Dict[str, bool]:
+        """
+        Install vault seed markdown into memory/vault.
+
+        Args:
+            force: Overwrite if exists
+
+        Returns:
+            Dict with status of each file copied
+        """
+        results = {}
+        vault_seed_dir = self.seed_dir / "vault"
+
+        if not vault_seed_dir.exists():
+            logger.warning(f"[LOCAL] Vault seed directory not found: {vault_seed_dir}")
+            return results
+
+        try:
+            self.vault_dir.mkdir(parents=True, exist_ok=True)
+
+            for item in vault_seed_dir.rglob("*"):
+                if not item.is_file():
+                    continue
+
+                rel_path = item.relative_to(vault_seed_dir)
+                target_file = self.vault_dir / rel_path
+                target_file.parent.mkdir(parents=True, exist_ok=True)
+
+                if target_file.exists() and not force:
+                    continue
+
+                shutil.copy2(item, target_file)
+                results[str(rel_path)] = True
+
+            logger.info(f"[LOCAL] Installed vault seed ({len(results)} files)")
+            return results
+        except Exception as e:
+            logger.error(f"[LOCAL] Failed to install vault seed: {e}")
+            return results
+
     def install_all(self, force: bool = False) -> Tuple[bool, List[str]]:
         """
         Install all seeds (directories, locations, timezones, bank).
@@ -250,6 +292,10 @@ class SeedInstaller:
         bank_results = self.install_bank_seeds(force)
         messages.append(f"✅ Bank seeds installed ({len(bank_results)} files)")
 
+        # 5. Install vault seed markdown
+        vault_results = self.install_vault_seed(force)
+        messages.append(f"✅ Vault seed installed ({len(vault_results)} files)")
+
         return True, messages
 
     def status(self) -> Dict[str, bool]:
@@ -271,6 +317,7 @@ class SeedInstaller:
             "locations_seeded": (self.bank_dir / "locations" / "locations.json").exists(),
             "timezones_seeded": (self.bank_dir / "timezones.json").exists(),
             "system_seeds": all(path.exists() for path in system_required),
+            "vault_seeded": (self.vault_dir / "README.md").exists(),
             "framework_seed_dir_exists": self.seed_dir.exists(),
         }
 

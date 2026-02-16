@@ -265,7 +265,10 @@ Reference:
 - [x] Root cleanup: removed ephemeral debug/fix files.
 - [x] Wizard consolidation: merged `api/wizard/`, `mcp/wizard/`, `core/wizard/` into `wizard/`.
 - [x] Removed compatibility shims (`services/` to direct `core.services` imports).
-- [x] Workspace filesystem: deprecated root `vault/` in favor of `memory/vault/`.
+- [x] Workspace filesystem contract aligned:
+  - `vault/` kept as distributable template scaffold
+  - `core/framework/seed/vault/` is canonical starter seed source
+  - `memory/vault/` remains runtime user vault (gitignored)
 - [x] Added `memory/inbox/` and `memory/submissions/` workspaces.
 - [x] Fixed vault path references in binder manager, compiler, server.
 - [x] Moved `vendor/emoji/` to `fonts/emoji/`.

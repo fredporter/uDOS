@@ -258,6 +258,24 @@ dev/library/**/
 !*.cfg
 !*.ini
 !requirements.txt
+
+# ---------- Vault distribution guardrails ----------
+# Keep root /vault as a clean distributable scaffold only.
+vault/**
+!vault/README.md
+!vault/VAULT-STRUCTURE.md
+!vault/Welcome to Markdown Vault.md
+!vault/@inbox/README.md
+!vault/@sandbox/README.md
+!vault/@binders/README.md
+!vault/@shared/README.md
+!vault/@public/README.md
+!vault/@private/README.md
+
+# ---------- Memory runtime guardrails ----------
+# Keep /memory strictly local runtime state (no tracked markdown loopholes).
+memory/**
+
 !setup.py
 !.gitignore
 !.gitattributes

@@ -28,6 +28,12 @@ Common first commands:
 
 Use [Obsidian](https://obsidian.md) as your editor/vault reader; uDOS works as the runtime and organization layer over the same files (no sync required).
 
+Vault/data split:
+- `vault/` is a distributable markdown scaffold (template only)
+- `core/framework/seed/vault/` is canonical starter seed content
+- `memory/vault/` is runtime user markdown data (local, not committed)
+- `memory/` is runtime state (logs, cache, db, private credentials)
+
 ---
 
 ## What Ships in v1.3
@@ -76,6 +82,10 @@ docs/        Architecture + specs
 - `docs/roadmap.md` — canonical roadmap
 - `docs/howto/UCODE-COMMAND-REFERENCE.md` — canonical command surface
 - `docs/DOCS-SPINE-v1.3.md` — spine redirect
+- `docs/decisions/VAULT-MEMORY-CONTRACT.md` — vault/template/runtime contract
+
+Documentation archive:
+- historical/superseded docs live under `docs/.archive/`
 
 ---
 

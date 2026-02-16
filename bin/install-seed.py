@@ -72,6 +72,7 @@ def main():
         print(f"Directories:        {'✅' if status['directories_exist'] else '❌'}")
         print(f"Locations seeded:   {'✅' if status['locations_seeded'] else '❌'}")
         print(f"Timezones seeded:   {'✅' if status['timezones_seeded'] else '❌'}")
+        print(f"Vault seeded:       {'✅' if status['vault_seeded'] else '❌'}")
         print(f"Framework dir:      {'✅' if status['framework_seed_dir_exists'] else '❌'}")
         return 0
 

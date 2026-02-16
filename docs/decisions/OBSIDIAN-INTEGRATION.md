@@ -1,11 +1,13 @@
 # uDOS + Obsidian Integration Guide
 
 **Version:** v1.3
-**Updated:** 2026-02-06
+**Updated:** 2026-02-17
 
-> **⚠️ PATH UPDATE:** References to legacy bank paths in older docs should be updated to:
-> - User vault: `memory/vault/` (default)
-> - System templates: `memory/system/`
+> **⚠️ PATH UPDATE:** References to legacy vault assumptions should be read with the current vault contract:
+> - Distributable scaffold: `vault/` (tracked, template only)
+> - Canonical starter seed: `core/framework/seed/vault/` (tracked)
+> - User runtime vault: `memory/vault/` (default, local)
+> - System templates/runtime assets: `memory/system/` (local)
 
 ---
 
@@ -73,6 +75,12 @@ Both apps share the same files in real-time!
 
 ## Vault Structure
 
+uDOS uses a template/seed/runtime split:
+
+- `vault/` is the clean distribution scaffold.
+- `core/framework/seed/vault/` is what seed installation copies.
+- `memory/vault/` is where Obsidian should point for day-to-day usage.
+
 ```
 memory/vault/              # Your personal vault
 ├── daily/                 # Daily notes
@@ -81,7 +89,9 @@ memory/vault/              # Your personal vault
 ├── scripts/               # Executable scripts
 └── ...
 
-memory/system/             # System templates + runtime assets (tracked)
+vault/                     # Distributable scaffold (tracked template)
+core/framework/seed/vault/ # Canonical starter seed (tracked)
+memory/system/             # System templates + runtime assets (local runtime)
 memory/private/            # Secrets + credentials (gitignored)
 ```
 
@@ -128,7 +138,7 @@ If you are coming from another system:
 ### Version Control
 Use Git for your vault:
 ```bash
-cd ~/Documents/uDOS/memory/user
+cd ~/Documents/uDOS/memory/vault
 git init
 git add .
 git commit -m "Initial vault"
@@ -197,4 +207,4 @@ Use Obsidian when you want a GUI. Use uDOS when you want automation. Use both to
 
 ---
 
-_Last updated: 2026-02-05_
+_Last updated: 2026-02-17_

@@ -16,6 +16,14 @@ The **Spatial Workspace Filesystem** bridges filesystem organisation with grid-b
 - **Binder integration** (folder-based multi-chapter projects)
 - **Front-matter standardization** (YAML metadata in .md files)
 
+### Vault Contract Context
+
+The workspace layer operates on runtime paths under `memory/`. Keep this split:
+
+- `vault/` = distributable template scaffold (tracked)
+- `core/framework/seed/vault/` = canonical starter seed source (tracked)
+- `memory/vault/` = active runtime workspace used by `@vault`
+
 ---
 
 ## Workspace Hierarchy

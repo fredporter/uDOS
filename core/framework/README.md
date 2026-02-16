@@ -16,6 +16,7 @@ core/framework/
 └── seed/              # Seed data for new installations
     ├── locations-seed.json     (< 10KB)
     ├── timezones-seed.json     (< 5KB)
+    ├── vault/                  # Starter markdown vault scaffold
     └── bank/                   # Bank seed data (distributed)
         ├── graphics/           # Themes, diagrams, teletext
         ├── help/               # Help template seeds
@@ -54,6 +55,11 @@ core/framework/
 - **Usage:** Copied to `memory/system/` (templates) and `memory/bank/` (user data) on first run or via `REPAIR --seed`
 - **Distribution:** Tracked in framework, user overrides gitignored
 
+#### Vault Seeds (`seed/vault/`)
+- **Purpose:** Empty starter markdown workspace scaffold
+- **Usage:** Copied to `memory/vault/` on first run or via `REPAIR --seed`
+- **Distribution:** Tracked in framework and mirrored by the root `vault/` template
+
 ---
 
 ## 🔄 Initialization Flow
@@ -72,6 +78,8 @@ core/framework/
 | `/core/framework/` | Schemas, templates, seed | ✅ Tracked |
 | `/knowledge/` | Static reference library | ✅ Tracked |
 | `memory/bank/` | User data (full locations, etc.) | ❌ Gitignored |
+| `memory/vault/` | Runtime user vault content | ❌ Gitignored |
+| `vault/` | Distributable markdown scaffold | ✅ Tracked |
 
 ---
 
