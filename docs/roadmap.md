@@ -395,7 +395,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 
 ### Next (v1.2.x)
 - [x] Implement custom partitioning scripts.
-- [ ] Create bootloader profiles and reboot routing.
+- [x] Create bootloader profiles and reboot routing.
 - [ ] Add uDOS Windows launcher and mode selector.
 - [x] Establish dataset validation and build scripts.
 
@@ -410,7 +410,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 - [x] Native UEFI fields adopted (`uefi_native`, `ESP`) across Sonic datasets/API/docs.
 - [x] Legacy Ventoy scripts/config physically removed from Sonic submodule.
 - [x] Sonic standalone release artifacts/checksums/signing flow finalized.
-- [ ] Wizard GUI Sonic entry points fully implemented end-to-end.
+- [x] Wizard GUI Sonic entry points fully implemented end-to-end.
 
 Reference decisions:
 - [u_dos_alpine_thin_gui_runtime_spec_chromium_kiosk_standard.md](decisions/u_dos_alpine_thin_gui_runtime_spec_chromium_kiosk_standard.md)

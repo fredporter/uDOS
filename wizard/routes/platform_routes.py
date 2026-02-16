@@ -13,6 +13,8 @@ from pydantic import BaseModel
 
 from wizard.services.sonic_bridge_service import get_sonic_bridge_service
 from wizard.services.sonic_build_service import get_sonic_build_service
+from wizard.services.sonic_boot_profile_service import get_sonic_boot_profile_service
+from wizard.services.sonic_plugin_service import get_sonic_service
 from wizard.services.theme_extension_service import get_theme_extension_service
 
 AuthGuard = Optional[Callable]
@@ -25,12 +27,28 @@ class SonicBuildRequest(BaseModel):
     output_dir: Optional[str] = None
 
 
+class SonicGUIActionRequest(BaseModel):
+    force: bool = False
+    output_path: Optional[str] = None
+    profile: str = "alpine-core+sonic"
+    build_id: Optional[str] = None
+    source_image: Optional[str] = None
+    output_dir: Optional[str] = None
+
+
+class SonicBootRouteRequest(BaseModel):
+    profile_id: str
+    reason: Optional[str] = None
+
+
 def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Path] = None) -> APIRouter:
     dependencies = [Depends(auth_guard)] if auth_guard else []
     router = APIRouter(prefix="/api/platform", tags=["platform"], dependencies=dependencies)
 
     sonic = get_sonic_bridge_service(repo_root=repo_root)
     sonic_builds = get_sonic_build_service(repo_root=repo_root)
+    sonic_boot = get_sonic_boot_profile_service(repo_root=repo_root)
+    sonic_ops = get_sonic_service(repo_root=repo_root)
     themes = get_theme_extension_service(repo_root=repo_root)
 
     @router.get("/sonic/status")
@@ -77,6 +95,104 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
             return sonic_builds.get_release_readiness(id)
         except FileNotFoundError as exc:
             raise HTTPException(status_code=404, detail=str(exc))
+
+    @router.get("/sonic/gui/summary")
+    async def sonic_gui_summary():
+        status = sonic.get_status()
+        builds = sonic_builds.list_builds(limit=5)
+        latest_build = builds["builds"][0] if builds.get("builds") else None
+        latest_build_id = latest_build.get("build_id") if latest_build else None
+
+        release_readiness = None
+        if latest_build_id:
+            try:
+                release_readiness = sonic_builds.get_release_readiness(latest_build_id)
+            except FileNotFoundError:
+                release_readiness = None
+
+        sync_status = None
+        if getattr(sonic_ops, "available", False):
+            try:
+                sync = sonic_ops.sync.get_status()
+                sync_status = {
+                    "db_exists": sync.db_exists,
+                    "record_count": sync.record_count,
+                    "needs_rebuild": sync.needs_rebuild,
+                    "last_sync": sync.last_sync,
+                }
+            except Exception:
+                sync_status = None
+
+        return {
+            "sonic": status,
+            "dashboard": {"route": "#sonic", "wizard_gui_hosted": True},
+            "latest_build": latest_build,
+            "latest_release_readiness": release_readiness,
+            "sync_status": sync_status,
+            "actions": {
+                "sync": "/api/platform/sonic/gui/actions/sync",
+                "rebuild": "/api/platform/sonic/gui/actions/rebuild",
+                "export": "/api/platform/sonic/gui/actions/export",
+                "build": "/api/platform/sonic/gui/actions/build",
+            },
+        }
+
+    @router.get("/sonic/boot/profiles")
+    async def sonic_boot_profiles():
+        return sonic_boot.list_profiles()
+
+    @router.get("/sonic/boot/route")
+    async def sonic_boot_route_status():
+        return sonic_boot.get_route_status()
+
+    @router.post("/sonic/boot/route")
+    async def sonic_boot_route(payload: SonicBootRouteRequest):
+        try:
+            route = sonic_boot.set_reboot_route(profile_id=payload.profile_id, reason=payload.reason)
+            return {"success": True, "route": route}
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail=str(exc))
+
+    @router.post("/sonic/gui/actions/sync")
+    async def sonic_gui_action_sync(payload: SonicGUIActionRequest):
+        if not getattr(sonic_ops, "available", False):
+            raise HTTPException(status_code=503, detail="Sonic plugin not available")
+        result = sonic_ops.sync.rebuild_database(force=False)
+        if result.get("status") == "error":
+            raise HTTPException(status_code=500, detail=result.get("message", "sync failed"))
+        return {"success": True, "action": "sync", "result": result}
+
+    @router.post("/sonic/gui/actions/rebuild")
+    async def sonic_gui_action_rebuild(payload: SonicGUIActionRequest):
+        if not getattr(sonic_ops, "available", False):
+            raise HTTPException(status_code=503, detail="Sonic plugin not available")
+        result = sonic_ops.sync.rebuild_database(force=payload.force or True)
+        if result.get("status") == "error":
+            raise HTTPException(status_code=500, detail=result.get("message", "rebuild failed"))
+        return {"success": True, "action": "rebuild", "result": result}
+
+    @router.post("/sonic/gui/actions/export")
+    async def sonic_gui_action_export(payload: SonicGUIActionRequest):
+        if not getattr(sonic_ops, "available", False):
+            raise HTTPException(status_code=503, detail="Sonic plugin not available")
+        out = Path(payload.output_path) if payload.output_path else None
+        result = sonic_ops.sync.export_to_csv(output_path=out)
+        if result.get("status") == "error":
+            raise HTTPException(status_code=500, detail=result.get("message", "export failed"))
+        return {"success": True, "action": "export", "result": result}
+
+    @router.post("/sonic/gui/actions/build")
+    async def sonic_gui_action_build(payload: SonicGUIActionRequest):
+        try:
+            result = sonic_builds.start_build(
+                profile=payload.profile,
+                build_id=payload.build_id,
+                source_image=payload.source_image,
+                output_dir=payload.output_dir,
+            )
+            return {"success": True, "action": "build", "result": result}
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Sonic build failed: {exc}")
 
     @router.get("/groovebox/status")
     async def groovebox_status():
