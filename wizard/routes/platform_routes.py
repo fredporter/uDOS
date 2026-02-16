@@ -15,6 +15,7 @@ from wizard.services.sonic_bridge_service import get_sonic_bridge_service
 from wizard.services.sonic_build_service import get_sonic_build_service
 from wizard.services.sonic_boot_profile_service import get_sonic_boot_profile_service
 from wizard.services.sonic_plugin_service import get_sonic_service
+from wizard.services.sonic_windows_launcher_service import get_sonic_windows_launcher_service
 from wizard.services.theme_extension_service import get_theme_extension_service
 
 AuthGuard = Optional[Callable]
@@ -41,6 +42,12 @@ class SonicBootRouteRequest(BaseModel):
     reason: Optional[str] = None
 
 
+class SonicWindowsModeRequest(BaseModel):
+    mode: str
+    launcher: Optional[str] = None
+    auto_repair: Optional[bool] = None
+
+
 def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Path] = None) -> APIRouter:
     dependencies = [Depends(auth_guard)] if auth_guard else []
     router = APIRouter(prefix="/api/platform", tags=["platform"], dependencies=dependencies)
@@ -49,6 +56,7 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
     sonic_builds = get_sonic_build_service(repo_root=repo_root)
     sonic_boot = get_sonic_boot_profile_service(repo_root=repo_root)
     sonic_ops = get_sonic_service(repo_root=repo_root)
+    sonic_windows = get_sonic_windows_launcher_service(repo_root=repo_root)
     themes = get_theme_extension_service(repo_root=repo_root)
 
     @router.get("/sonic/status")
@@ -152,6 +160,22 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
             return {"success": True, "route": route}
         except KeyError as exc:
             raise HTTPException(status_code=404, detail=str(exc))
+
+    @router.get("/sonic/windows/launcher")
+    async def sonic_windows_launcher_status():
+        return sonic_windows.get_status()
+
+    @router.post("/sonic/windows/launcher/mode")
+    async def sonic_windows_launcher_mode(payload: SonicWindowsModeRequest):
+        try:
+            state = sonic_windows.set_mode(
+                mode=payload.mode,
+                launcher=payload.launcher,
+                auto_repair=payload.auto_repair,
+            )
+            return {"success": True, "state": state}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
 
     @router.post("/sonic/gui/actions/sync")
     async def sonic_gui_action_sync(payload: SonicGUIActionRequest):

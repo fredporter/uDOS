@@ -396,7 +396,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 ### Next (v1.2.x)
 - [x] Implement custom partitioning scripts.
 - [x] Create bootloader profiles and reboot routing.
-- [ ] Add uDOS Windows launcher and mode selector.
+- [x] Add uDOS Windows launcher and mode selector.
 - [x] Establish dataset validation and build scripts.
 
 ### Later (v1.3+)
