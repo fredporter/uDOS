@@ -400,7 +400,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 - [x] Establish dataset validation and build scripts.
 
 ### Later (v1.3+)
-- [ ] Device profile auto-detection and recommendations.
+- [x] Device profile auto-detection and recommendations.
 - [ ] Media console workflows (Kodi + WantMyMTV).
 - [ ] Windows gaming profile automation.
 - [ ] Public standalone releases and install guide.

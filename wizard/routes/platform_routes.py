@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from wizard.services.sonic_bridge_service import get_sonic_bridge_service
 from wizard.services.sonic_build_service import get_sonic_build_service
 from wizard.services.sonic_boot_profile_service import get_sonic_boot_profile_service
+from wizard.services.sonic_device_profile_service import get_sonic_device_profile_service
 from wizard.services.sonic_plugin_service import get_sonic_service
 from wizard.services.sonic_windows_launcher_service import get_sonic_windows_launcher_service
 from wizard.services.theme_extension_service import get_theme_extension_service
@@ -55,6 +56,7 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
     sonic = get_sonic_bridge_service(repo_root=repo_root)
     sonic_builds = get_sonic_build_service(repo_root=repo_root)
     sonic_boot = get_sonic_boot_profile_service(repo_root=repo_root)
+    sonic_device_profile = get_sonic_device_profile_service(repo_root=repo_root)
     sonic_ops = get_sonic_service(repo_root=repo_root)
     sonic_windows = get_sonic_windows_launcher_service(repo_root=repo_root)
     themes = get_theme_extension_service(repo_root=repo_root)
@@ -136,6 +138,7 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
             "dashboard": {"route": "#sonic", "wizard_gui_hosted": True},
             "latest_build": latest_build,
             "latest_release_readiness": release_readiness,
+            "device_recommendations": sonic_device_profile.get_recommendations(),
             "sync_status": sync_status,
             "actions": {
                 "sync": "/api/platform/sonic/gui/actions/sync",
@@ -176,6 +179,10 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
             return {"success": True, "state": state}
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc))
+
+    @router.get("/sonic/device/recommendations")
+    async def sonic_device_recommendations():
+        return sonic_device_profile.get_recommendations()
 
     @router.post("/sonic/gui/actions/sync")
     async def sonic_gui_action_sync(payload: SonicGUIActionRequest):
