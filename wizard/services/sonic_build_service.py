@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import subprocess
 import hashlib
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -28,6 +29,48 @@ class SonicBuildService:
             for chunk in iter(lambda: fh.read(1024 * 1024), b""):
                 digest.update(chunk)
         return digest.hexdigest()
+
+    @staticmethod
+    def _verify_detached_signature(payload_path: Path, signature_path: Path) -> Dict[str, Any]:
+        if not payload_path.exists():
+            return {"present": signature_path.exists(), "verified": False, "detail": "payload missing"}
+        if not signature_path.exists():
+            return {"present": False, "verified": False, "detail": "signature missing"}
+
+        pubkey = os.environ.get("WIZARD_SONIC_SIGN_PUBKEY", "").strip()
+        if not pubkey:
+            return {
+                "present": True,
+                "verified": False,
+                "detail": "WIZARD_SONIC_SIGN_PUBKEY not configured",
+            }
+        pubkey_path = Path(pubkey)
+        if not pubkey_path.exists():
+            return {
+                "present": True,
+                "verified": False,
+                "detail": f"public key not found: {pubkey_path}",
+            }
+
+        verify = subprocess.run(
+            [
+                "openssl",
+                "dgst",
+                "-sha256",
+                "-verify",
+                str(pubkey_path),
+                "-signature",
+                str(signature_path),
+                str(payload_path),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if verify.returncode == 0:
+            return {"present": True, "verified": True, "detail": "signature verified via openssl"}
+        detail = (verify.stderr or verify.stdout or "openssl verify failed").strip()
+        return {"present": True, "verified": False, "detail": detail}
 
     def start_build(
         self,
@@ -227,11 +270,15 @@ class SonicBuildService:
                     issues.append(f"checksum mismatch: {name}")
 
         signing = {
-            "manifest_signature_present": manifest_sig_path.exists(),
-            "checksums_signature_present": checksums_sig_path.exists(),
+            "manifest": self._verify_detached_signature(build_dir / "build-manifest.json", manifest_sig_path),
+            "checksums": self._verify_detached_signature(checksums_path, checksums_sig_path),
         }
+        signing["manifest_signature_present"] = signing["manifest"]["present"]
+        signing["checksums_signature_present"] = signing["checksums"]["present"]
+        signing["manifest_signature_verified"] = signing["manifest"]["verified"]
+        signing["checksums_signature_verified"] = signing["checksums"]["verified"]
         signing["ready"] = (
-            signing["manifest_signature_present"] and signing["checksums_signature_present"]
+            signing["manifest_signature_verified"] and signing["checksums_signature_verified"]
         )
         if not signing["ready"]:
             issues.append("release signatures incomplete")

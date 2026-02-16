@@ -409,7 +409,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 - [x] Ventoy removed from active Sonic pipeline and contracts.
 - [x] Native UEFI fields adopted (`uefi_native`, `ESP`) across Sonic datasets/API/docs.
 - [x] Legacy Ventoy scripts/config physically removed from Sonic submodule.
-- [ ] Sonic standalone release artifacts/checksums/signing flow finalized.
+- [x] Sonic standalone release artifacts/checksums/signing flow finalized.
 - [ ] Wizard GUI Sonic entry points fully implemented end-to-end.
 
 Reference decisions:

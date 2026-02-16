@@ -12,6 +12,7 @@ Options:
   --build-id <id>         Build identifier (default: UTC timestamp)
   --source-image <path>   Optional source image to copy into build output
   --output-dir <path>     Output directory (default: distribution/builds/<build-id>)
+  --sign-key <path>       Optional private key path for detached signatures (openssl)
   --help                  Show this help
 USAGE
 }
@@ -20,6 +21,7 @@ PROFILE="alpine-core+sonic"
 BUILD_ID=""
 SOURCE_IMAGE=""
 OUTPUT_DIR=""
+SIGN_KEY="${WIZARD_SONIC_SIGN_KEY:-}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -37,6 +39,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --output-dir)
       OUTPUT_DIR="${2:-}"
+      shift 2
+      ;;
+    --sign-key)
+      SIGN_KEY="${2:-}"
       shift 2
       ;;
     --help|-h)
@@ -103,6 +109,8 @@ IMG_PATH="${OUTPUT_DIR}/${IMG_FILE}"
 ISO_PATH="${OUTPUT_DIR}/${ISO_FILE}"
 MANIFEST_PATH="${OUTPUT_DIR}/${MANIFEST_FILE}"
 CHECKSUM_PATH="${OUTPUT_DIR}/${CHECKSUM_FILE}"
+MANIFEST_SIG_PATH="${MANIFEST_PATH}.sig"
+CHECKSUM_SIG_PATH="${CHECKSUM_PATH}.sig"
 
 if [[ -n "${SOURCE_IMAGE}" ]]; then
   SOURCE_ABS="$(cd "$(dirname "${SOURCE_IMAGE}")" && pwd)/$(basename "${SOURCE_IMAGE}")"
@@ -212,6 +220,19 @@ for item in [img_path, iso_path, manifest]:
 checksums.write_text("\n".join(checksum_rows) + "\n", encoding="utf-8")
 PY
 
+if [[ -n "${SIGN_KEY}" ]]; then
+  if [[ ! -f "${SIGN_KEY}" ]]; then
+    echo "Signing key not found: ${SIGN_KEY}" >&2
+    exit 1
+  fi
+  if ! command -v openssl >/dev/null 2>&1; then
+    echo "openssl not found; cannot sign artifacts" >&2
+    exit 1
+  fi
+  openssl dgst -sha256 -sign "${SIGN_KEY}" -out "${MANIFEST_SIG_PATH}" "${MANIFEST_PATH}"
+  openssl dgst -sha256 -sign "${SIGN_KEY}" -out "${CHECKSUM_SIG_PATH}" "${CHECKSUM_PATH}"
+fi
+
 echo "[build-sonic-stick] Build complete"
 echo "  output_dir: ${OUTPUT_DIR}"
 echo "  profile:    ${PROFILE}"
@@ -220,3 +241,7 @@ echo "  root_sha:   ${ROOT_SHA}"
 echo "  sonic_sha:  ${SONIC_SHA}"
 echo "  manifest:   ${MANIFEST_PATH}"
 echo "  checksums:  ${CHECKSUM_PATH}"
+if [[ -n "${SIGN_KEY}" ]]; then
+  echo "  signature:  ${MANIFEST_SIG_PATH}"
+  echo "  signature:  ${CHECKSUM_SIG_PATH}"
+fi

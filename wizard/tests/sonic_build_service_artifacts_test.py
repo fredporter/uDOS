@@ -78,7 +78,7 @@ def test_get_build_artifacts_raises_when_build_missing(tmp_path):
         assert "Build not found" in str(exc)
 
 
-def test_release_readiness_reports_ready_when_checksums_and_signatures_match(tmp_path):
+def test_release_readiness_reports_ready_when_checksums_and_signatures_match(tmp_path, monkeypatch):
     repo = tmp_path / "repo"
     build_dir = repo / "distribution" / "builds" / "b2"
     build_dir.mkdir(parents=True)
@@ -129,6 +129,11 @@ def test_release_readiness_reports_ready_when_checksums_and_signatures_match(tmp
     )
 
     svc = SonicBuildService(repo_root=repo)
+    monkeypatch.setattr(
+        SonicBuildService,
+        "_verify_detached_signature",
+        staticmethod(lambda _payload, _sig: {"present": True, "verified": True, "detail": "test"}),
+    )
     readiness = svc.get_release_readiness("b2")
 
     assert readiness["release_ready"] is True
@@ -168,3 +173,40 @@ def test_release_readiness_reports_issues_for_missing_signatures(tmp_path):
     assert readiness["checksums"]["verified"] is True
     assert readiness["signing"]["ready"] is False
     assert "release signatures incomplete" in readiness["issues"]
+
+
+def test_release_readiness_reports_unverified_signatures_when_pubkey_missing(tmp_path, monkeypatch):
+    repo = tmp_path / "repo"
+    build_dir = repo / "distribution" / "builds" / "b4"
+    build_dir.mkdir(parents=True)
+
+    img_data = b"img-bytes"
+    img_sha = _sha256_bytes(img_data)
+    (build_dir / "sonic-stick.img").write_bytes(img_data)
+    _write_manifest(
+        build_dir,
+        [{"name": "sonic-stick.img", "path": "sonic-stick.img", "size_bytes": len(img_data), "sha256": img_sha}],
+    )
+    manifest_sha = hashlib.sha256((build_dir / "build-manifest.json").read_bytes()).hexdigest()
+    (build_dir / "checksums.txt").write_text(
+        "\n".join(
+            [
+                f"{img_sha}  sonic-stick.img",
+                f"{manifest_sha}  build-manifest.json",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (build_dir / "build-manifest.json.sig").write_text("sig", encoding="utf-8")
+    (build_dir / "checksums.txt.sig").write_text("sig", encoding="utf-8")
+
+    monkeypatch.delenv("WIZARD_SONIC_SIGN_PUBKEY", raising=False)
+    svc = SonicBuildService(repo_root=repo)
+    readiness = svc.get_release_readiness("b4")
+
+    assert readiness["release_ready"] is False
+    assert readiness["signing"]["manifest_signature_present"] is True
+    assert readiness["signing"]["checksums_signature_present"] is True
+    assert readiness["signing"]["manifest_signature_verified"] is False
+    assert readiness["signing"]["checksums_signature_verified"] is False
