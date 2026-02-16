@@ -32,3 +32,33 @@ def test_publish_service_provider_availability(tmp_path):
     service_with_dev = PublishService(repo_root=repo_root)
     capabilities_with_dev = service_with_dev.get_capabilities()
     assert capabilities_with_dev["providers"]["dev"]["available"] is True
+
+
+def test_oc_app_contract_and_render_payload(tmp_path):
+    service = PublishService(repo_root=tmp_path)
+    contract = service.get_oc_app_contract()
+    assert contract["provider"] == "oc_app"
+    assert contract["host_contract_version"] == "1.0.0"
+    assert contract["render_contract_version"] == "1.0.0"
+    assert "oc_app:render" in contract["session_boundary"]["required_scopes"]
+
+    render = service.render_oc_app(
+        {
+            "contract_version": "1.0.0",
+            "content": "# Header",
+            "content_type": "markdown",
+            "entrypoint": "main",
+            "assets": [{"path": "assets/app.js", "media_type": "application/javascript"}],
+            "session": {
+                "session_id": "sess_1",
+                "principal_id": "user_1",
+                "token_lease_id": "lease_1",
+                "scopes": ["oc_app:render"],
+            },
+        }
+    )
+    assert render["provider"] == "oc_app"
+    assert render["entrypoint"] == "main"
+    assert render["assets_manifest"]["count"] == 1
+    assert render["cache"]["html_etag"]
+    assert render["session"]["token_lease_validated"] is True

@@ -6,6 +6,7 @@ import hashlib
 import json
 import threading
 from datetime import datetime, timezone
+from html import escape
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
@@ -14,6 +15,8 @@ from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 
 CONTRACT_VERSION = "1.3.15-draft"
+OC_HOST_CONTRACT_VERSION = "1.0.0"
+OC_RENDER_CONTRACT_VERSION = "1.0.0"
 logger = get_logger("publish-service")
 
 
@@ -229,6 +232,145 @@ class PublishService:
     def sync_provider(self, provider: str) -> Dict[str, Any]:
         adapter = self._get_provider(provider)
         return adapter.sync_status()
+
+    @staticmethod
+    def _contains_forbidden_secret_keys(payload: Any) -> bool:
+        forbidden = {
+            "api_key",
+            "access_token",
+            "refresh_token",
+            "authorization",
+            "secret",
+            "password",
+        }
+        if isinstance(payload, dict):
+            for key, value in payload.items():
+                if str(key).strip().lower() in forbidden:
+                    return True
+                if PublishService._contains_forbidden_secret_keys(value):
+                    return True
+            return False
+        if isinstance(payload, list):
+            return any(PublishService._contains_forbidden_secret_keys(item) for item in payload)
+        return False
+
+    def get_oc_app_contract(self) -> Dict[str, Any]:
+        return {
+            "provider": "oc_app",
+            "host_contract_version": OC_HOST_CONTRACT_VERSION,
+            "render_contract_version": OC_RENDER_CONTRACT_VERSION,
+            "host": {
+                "route_prefix": "/api/publish/providers/oc_app",
+                "view_route": "/api/publish/providers/oc_app/view",
+                "render_route": "/api/publish/providers/oc_app/render",
+                "allowed_embed_modes": ["iframe", "webview"],
+            },
+            "rendering": {
+                "deterministic_html": True,
+                "asset_id_strategy": "sha256(path + content_sha256 + media_type)",
+                "supported_content_types": ["markdown", "html", "text"],
+                "cache_policy": {
+                    "html": "private, max-age=60",
+                    "assets": "public, max-age=31536000, immutable",
+                },
+            },
+            "session_boundary": {
+                "required": True,
+                "required_scopes": ["oc_app:render"],
+                "required_session_fields": ["session_id", "principal_id", "token_lease_id", "scopes"],
+                "forbidden_payload_fields": [
+                    "api_key",
+                    "access_token",
+                    "refresh_token",
+                    "authorization",
+                    "secret",
+                    "password",
+                ],
+                "token_policy": "Wizard validates lease id only; app tokens are not accepted in payload.",
+            },
+            "compatibility": {
+                "wizard_contract_version": CONTRACT_VERSION,
+                "supported_render_contract_versions": [OC_RENDER_CONTRACT_VERSION],
+                "backward_compatibility_window": "one minor contract version",
+            },
+        }
+
+    def render_oc_app(self, request_payload: Dict[str, Any]) -> Dict[str, Any]:
+        contract_version = request_payload.get("contract_version") or OC_RENDER_CONTRACT_VERSION
+        if contract_version != OC_RENDER_CONTRACT_VERSION:
+            raise RuntimeError(f"unsupported render contract version: {contract_version}")
+
+        session = request_payload.get("session") or {}
+        required_scope = "oc_app:render"
+        scopes = session.get("scopes") or []
+        if required_scope not in scopes:
+            raise RuntimeError("missing required scope: oc_app:render")
+        if not session.get("token_lease_id"):
+            raise RuntimeError("missing required session field: token_lease_id")
+        if not session.get("session_id"):
+            raise RuntimeError("missing required session field: session_id")
+        if not session.get("principal_id"):
+            raise RuntimeError("missing required session field: principal_id")
+
+        if self._contains_forbidden_secret_keys(request_payload.get("render_options", {})):
+            raise ValueError("render_options contains forbidden secret keys")
+
+        content = request_payload.get("content") or ""
+        content_type = request_payload.get("content_type") or "markdown"
+        entrypoint = request_payload.get("entrypoint") or "index"
+        assets = request_payload.get("assets") or []
+
+        if content_type == "html":
+            html = content
+        elif content_type == "text":
+            html = f"<pre data-content-type=\"text\">{escape(content)}</pre>"
+        else:
+            html = f"<pre data-content-type=\"markdown\">{escape(content)}</pre>"
+
+        normalized_assets = []
+        for asset in assets:
+            path = asset.get("path") or ""
+            media_type = asset.get("media_type") or "application/octet-stream"
+            content_sha = asset.get("content_sha256") or hashlib.sha256(path.encode("utf-8")).hexdigest()
+            asset_id = hashlib.sha256(
+                f"{path}|{content_sha}|{media_type}".encode("utf-8")
+            ).hexdigest()
+            normalized_assets.append(
+                {
+                    "asset_id": asset_id,
+                    "path": path,
+                    "media_type": media_type,
+                    "content_sha256": content_sha,
+                    "cache_control": "public, max-age=31536000, immutable",
+                }
+            )
+
+        html_etag = hashlib.sha256(html.encode("utf-8")).hexdigest()
+        return {
+            "provider": "oc_app",
+            "host_contract_version": OC_HOST_CONTRACT_VERSION,
+            "render_contract_version": OC_RENDER_CONTRACT_VERSION,
+            "request_id": f"oc_render_{uuid4().hex[:12]}",
+            "entrypoint": entrypoint,
+            "content_type": content_type,
+            "html": html,
+            "assets_manifest": {
+                "count": len(normalized_assets),
+                "items": normalized_assets,
+            },
+            "cache": {
+                "html_etag": html_etag,
+                "html_cache_control": "private, max-age=60",
+                "asset_cache_control": "public, max-age=31536000, immutable",
+            },
+            "session": {
+                "session_id": session["session_id"],
+                "principal_id": session["principal_id"],
+                "validated_scope": required_scope,
+                "token_lease_validated": True,
+            },
+            "rendered_at": _utc_now(),
+        }
 
 
 _publish_service: Optional[PublishService] = None

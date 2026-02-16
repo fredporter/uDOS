@@ -458,10 +458,10 @@ Versioning target:
 - uDOS monorepo is under development and does not ship `/app`.
 
 ### uDOS-side TODOs (Integration Only)
-- [ ] Define Wizard web view host contract for external app content.
-- [ ] Define rendering API contract (HTML/asset handoff, cache behavior, versioning).
-- [ ] Define auth/session boundary between Wizard and external Obsidian Companion flows.
-- [ ] Add compatibility tests for Wizard rendering integration points.
+- [x] Define Wizard web view host contract for external app content.
+- [x] Define rendering API contract (HTML/asset handoff, cache behavior, versioning).
+- [x] Define auth/session boundary between Wizard and external Obsidian Companion flows.
+- [x] Add compatibility tests for Wizard rendering integration points.
 - Draft contract: [OBSIDIAN-COMPANION-INTEGRATION-CONTRACT.md](specs/OBSIDIAN-COMPANION-INTEGRATION-CONTRACT.md).
 
 ### Migrated TODOs (Now in `oc-app`)

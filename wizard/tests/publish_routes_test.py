@@ -63,3 +63,79 @@ def test_publish_provider_validation():
         json={"source_workspace": "memory/vault", "provider": "oc_app"},
     )
     assert unavailable.status_code == 412
+
+
+def test_oc_app_contract_and_render_routes():
+    client = _client()
+
+    contract_res = client.get("/api/publish/providers/oc_app/contract")
+    assert contract_res.status_code == 200
+    contract = contract_res.json()["contract"]
+    assert contract["provider"] == "oc_app"
+    assert contract["host"]["render_route"] == "/api/publish/providers/oc_app/render"
+    assert "oc_app:render" in contract["session_boundary"]["required_scopes"]
+
+    render_res = client.post(
+        "/api/publish/providers/oc_app/render",
+        json={
+            "contract_version": "1.0.0",
+            "content": "# Title",
+            "content_type": "markdown",
+            "entrypoint": "index",
+            "render_options": {"theme": "default"},
+            "assets": [
+                {
+                    "path": "assets/style.css",
+                    "media_type": "text/css",
+                    "content_sha256": "f" * 64,
+                }
+            ],
+            "session": {
+                "session_id": "sess_1",
+                "principal_id": "user_1",
+                "token_lease_id": "lease_1",
+                "scopes": ["oc_app:render"],
+            },
+        },
+    )
+    assert render_res.status_code == 200
+    render = render_res.json()["render"]
+    assert render["provider"] == "oc_app"
+    assert render["entrypoint"] == "index"
+    assert render["assets_manifest"]["count"] == 1
+    assert render["session"]["token_lease_validated"] is True
+
+
+def test_oc_app_render_rejects_invalid_session_boundary():
+    client = _client()
+
+    missing_scope = client.post(
+        "/api/publish/providers/oc_app/render",
+        json={
+            "content": "hello",
+            "session": {
+                "session_id": "sess_2",
+                "principal_id": "user_2",
+                "token_lease_id": "lease_2",
+                "scopes": [],
+            },
+        },
+    )
+    assert missing_scope.status_code == 412
+    assert "missing required scope" in missing_scope.json()["detail"]
+
+    forbidden_secret = client.post(
+        "/api/publish/providers/oc_app/render",
+        json={
+            "content": "hello",
+            "render_options": {"api_key": "secret-value"},
+            "session": {
+                "session_id": "sess_3",
+                "principal_id": "user_3",
+                "token_lease_id": "lease_3",
+                "scopes": ["oc_app:render"],
+            },
+        },
+    )
+    assert forbidden_secret.status_code == 400
+    assert "forbidden secret keys" in forbidden_secret.json()["detail"]

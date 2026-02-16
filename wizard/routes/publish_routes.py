@@ -18,6 +18,29 @@ class PublishCreateRequest(BaseModel):
     options: dict[str, Any] = Field(default_factory=dict)
 
 
+class OCAttachmentPayload(BaseModel):
+    path: str
+    media_type: str = Field(default="application/octet-stream")
+    content_sha256: Optional[str] = None
+
+
+class OCRenderSessionPayload(BaseModel):
+    session_id: str
+    principal_id: str
+    token_lease_id: str
+    scopes: list[str] = Field(default_factory=list)
+
+
+class OCRenderRequest(BaseModel):
+    contract_version: str = Field(default="1.0.0")
+    content: str
+    content_type: str = Field(default="markdown")
+    entrypoint: str = Field(default="index")
+    render_options: dict[str, Any] = Field(default_factory=dict)
+    assets: list[OCAttachmentPayload] = Field(default_factory=list)
+    session: OCRenderSessionPayload
+
+
 def create_publish_routes(
     auth_guard: AuthGuard = None,
     publish_service: Optional[PublishService] = None,
@@ -84,5 +107,20 @@ def create_publish_routes(
             return {"success": True, "status": status}
         except KeyError:
             raise HTTPException(status_code=404, detail="Unknown publish provider")
+
+    @router.get("/providers/oc_app/contract")
+    async def get_oc_app_contract():
+        return {"success": True, "contract": service.get_oc_app_contract()}
+
+    @router.post("/providers/oc_app/render")
+    async def render_oc_app(payload: OCRenderRequest):
+        try:
+            request_payload = payload.model_dump() if hasattr(payload, "model_dump") else payload.dict()
+            rendered = service.render_oc_app(request_payload)
+            return {"success": True, "render": rendered}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+        except RuntimeError as exc:
+            raise HTTPException(status_code=412, detail=str(exc))
 
     return router
