@@ -403,7 +403,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 - [x] Device profile auto-detection and recommendations.
 - [x] Media console workflows (Kodi + WantMyMTV).
 - [x] Windows gaming profile automation.
-- [ ] Public standalone releases and install guide.
+- [x] Public standalone releases and install guide.
 
 ### v1.3.17 Status (2026-02-15)
 - [x] Ventoy removed from active Sonic pipeline and contracts.
