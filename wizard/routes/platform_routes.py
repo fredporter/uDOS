@@ -15,6 +15,7 @@ from wizard.services.sonic_bridge_service import get_sonic_bridge_service
 from wizard.services.sonic_build_service import get_sonic_build_service
 from wizard.services.sonic_boot_profile_service import get_sonic_boot_profile_service
 from wizard.services.sonic_device_profile_service import get_sonic_device_profile_service
+from wizard.services.sonic_media_console_service import get_sonic_media_console_service
 from wizard.services.sonic_plugin_service import get_sonic_service
 from wizard.services.sonic_windows_launcher_service import get_sonic_windows_launcher_service
 from wizard.services.theme_extension_service import get_theme_extension_service
@@ -49,6 +50,10 @@ class SonicWindowsModeRequest(BaseModel):
     auto_repair: Optional[bool] = None
 
 
+class SonicMediaStartRequest(BaseModel):
+    launcher: str
+
+
 def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Path] = None) -> APIRouter:
     dependencies = [Depends(auth_guard)] if auth_guard else []
     router = APIRouter(prefix="/api/platform", tags=["platform"], dependencies=dependencies)
@@ -57,6 +62,7 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
     sonic_builds = get_sonic_build_service(repo_root=repo_root)
     sonic_boot = get_sonic_boot_profile_service(repo_root=repo_root)
     sonic_device_profile = get_sonic_device_profile_service(repo_root=repo_root)
+    sonic_media = get_sonic_media_console_service(repo_root=repo_root)
     sonic_ops = get_sonic_service(repo_root=repo_root)
     sonic_windows = get_sonic_windows_launcher_service(repo_root=repo_root)
     themes = get_theme_extension_service(repo_root=repo_root)
@@ -139,6 +145,7 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
             "latest_build": latest_build,
             "latest_release_readiness": release_readiness,
             "device_recommendations": sonic_device_profile.get_recommendations(),
+            "media_console": sonic_media.get_status(),
             "sync_status": sync_status,
             "actions": {
                 "sync": "/api/platform/sonic/gui/actions/sync",
@@ -183,6 +190,26 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
     @router.get("/sonic/device/recommendations")
     async def sonic_device_recommendations():
         return sonic_device_profile.get_recommendations()
+
+    @router.get("/sonic/media/launchers")
+    async def sonic_media_launchers():
+        return sonic_media.list_launchers()
+
+    @router.get("/sonic/media/status")
+    async def sonic_media_status():
+        return sonic_media.get_status()
+
+    @router.post("/sonic/media/start")
+    async def sonic_media_start(payload: SonicMediaStartRequest):
+        try:
+            state = sonic_media.start(payload.launcher)
+            return {"success": True, "state": state}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @router.post("/sonic/media/stop")
+    async def sonic_media_stop():
+        return {"success": True, "state": sonic_media.stop()}
 
     @router.post("/sonic/gui/actions/sync")
     async def sonic_gui_action_sync(payload: SonicGUIActionRequest):

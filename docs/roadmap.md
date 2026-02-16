@@ -401,7 +401,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 
 ### Later (v1.3+)
 - [x] Device profile auto-detection and recommendations.
-- [ ] Media console workflows (Kodi + WantMyMTV).
+- [x] Media console workflows (Kodi + WantMyMTV).
 - [ ] Windows gaming profile automation.
 - [ ] Public standalone releases and install guide.
 
