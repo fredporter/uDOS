@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Request
 
+from wizard.services.extension_hot_reload_service import get_extension_hot_reload_service
 from wizard.services.path_utils import get_repo_root
 
 REPO_ROOT = get_repo_root()
@@ -181,3 +182,18 @@ async def empire_token_status(request: Request) -> Dict[str, Any]:
         "secrets_file_exists": has_secrets,
         "token_configured": token_configured,
     }
+
+
+@router.post("/hot-reload")
+async def hot_reload_extensions(request: Request) -> Dict[str, Any]:
+    """Run extension hot-reload scan and emit changed extension ids."""
+    svc = get_extension_hot_reload_service(repo_root=REPO_ROOT)
+    result = svc.hot_reload(OFFICIAL_EXTENSIONS)
+    return {"success": True, **result}
+
+
+@router.get("/hot-reload/status")
+async def hot_reload_status(request: Request, limit: int = 20) -> Dict[str, Any]:
+    """Get extension hot-reload status and recent history."""
+    svc = get_extension_hot_reload_service(repo_root=REPO_ROOT)
+    return {"success": True, **svc.get_status(limit=limit)}

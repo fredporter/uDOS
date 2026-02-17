@@ -336,7 +336,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 - [ ] Container orchestration: compose-based multi-container lifecycle management.
 - [ ] Plugin marketplace: discovery, install, update flow via plugin registry.
 - [x] Provider health checks: automated provider availability monitoring.
-- [ ] Extension hot-reload: live reload for wizard extensions without restart.
+- [x] Extension hot-reload: live reload for wizard extensions without restart.
 - [ ] Dashboard WebSocket events: real-time status push to web-admin.
 
 #### P2 -- Nice to Have
