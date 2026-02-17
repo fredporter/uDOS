@@ -2,7 +2,12 @@
 
 from typing import List, Dict, Optional
 from pathlib import Path
-import requests
+try:
+    import requests
+    HAS_REQUESTS = True
+except ImportError:
+    HAS_REQUESTS = False
+    requests = None
 import json
 import os
 
@@ -161,6 +166,13 @@ class DevModeHandler(BaseCommandHandler):
         Returns:
             Dict with dev mode status
         """
+        if not HAS_REQUESTS:
+            return {
+                "status": "error",
+                "message": "DEV MODE requires requests library",
+                "output": OutputToolkit.banner("DEV MODE") + "\nrequests library not available",
+            }
+        
         action = self._resolve_action(params[0] if params else "status")
         if action in {"on", "activate", "start"}:
             return self._activate_dev_mode()
