@@ -193,6 +193,42 @@ async def get_integration(name: str, request: Request):
         )
 
 
+@router.get("/integration/{name}/versions", response_model=Dict[str, Any])
+async def get_integration_versions(name: str, request: Request):
+    try:
+        await _run_guard(request)
+        manager = get_library_manager()
+        resolved_name = _resolve_requested_integration_name(manager, name)
+        payload = manager.get_integration_versions(resolved_name)
+        if not payload.get("found"):
+            raise HTTPException(status_code=404, detail=f"Integration not found: {name}")
+        return {"success": True, **payload}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get integration versions: {str(e)}"
+        )
+
+
+@router.get("/integration/{name}/dependencies", response_model=Dict[str, Any])
+async def get_integration_dependencies(name: str, request: Request):
+    try:
+        await _run_guard(request)
+        manager = get_library_manager()
+        resolved_name = _resolve_requested_integration_name(manager, name)
+        payload = manager.resolve_integration_dependencies(resolved_name)
+        if not payload.get("found"):
+            raise HTTPException(status_code=404, detail=f"Integration not found: {name}")
+        return {"success": True, **payload}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get integration dependencies: {str(e)}"
+        )
+
+
 @router.post("/integration/{name}/install", response_model=Dict[str, Any])
 async def install_integration(
     name: str, background_tasks: BackgroundTasks, request: Request
@@ -695,6 +731,24 @@ async def update_repo(name: str, request: Request):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update repo: {str(e)}")
+
+
+@router.delete("/repos/{name}", response_model=Dict[str, Any])
+async def delete_repo(name: str, request: Request, remove_packages: bool = False):
+    """
+    Delete a cloned repo from library/containers.
+    """
+    try:
+        await _run_guard(request)
+        factory = PluginFactory()
+        ok = factory.remove(name, remove_packages=remove_packages)
+        if not ok:
+            raise HTTPException(status_code=400, detail="Delete failed")
+        return {"success": True, "name": name, "remove_packages": remove_packages}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete repo: {str(e)}")
 
 
 @router.post("/repos/{name}/build", response_model=Dict[str, Any])

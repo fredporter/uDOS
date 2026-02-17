@@ -326,7 +326,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 ### v1.4.0
 
 #### P0 -- Must Have
-- [ ] Library manager completion: full CRUD, versioning, dependency resolution.
+- [x] Library manager completion: full CRUD, versioning, dependency resolution.
 - [x] Web proxy implementation: reverse proxy for container-hosted services.
 - [x] Workspace routing: `@workspace` syntax for routing requests to named contexts.
 - [x] MCP gateway hardening: auth, rate limiting, tool registration protocol.

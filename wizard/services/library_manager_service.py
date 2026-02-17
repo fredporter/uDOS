@@ -13,7 +13,7 @@ import json
 import subprocess
 import shutil
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Set
 from dataclasses import dataclass
 
 from wizard.services.plugin_factory import APKBuilder, BuildResult
@@ -141,7 +141,194 @@ class LibraryManagerService:
         status = self.get_library_status()
         return next((i for i in status.integrations if i.name == name), None)
 
+    def _resolve_manifest_path(self, integration: LibraryIntegration) -> Optional[Path]:
+        integration_path = Path(integration.path)
+        container_path = integration_path / "container.json"
+        if container_path.exists():
+            return container_path
+        definition_path = self.library_root / integration.name / "container.json"
+        if definition_path.exists():
+            return definition_path
+        return None
+
+    def _load_integration_manifest(self, integration: LibraryIntegration) -> Dict[str, Any]:
+        manifest_path = self._resolve_manifest_path(integration)
+        if not manifest_path:
+            return {}
+        try:
+            payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+            return payload if isinstance(payload, dict) else {}
+        except Exception:
+            return {}
+
+    def get_integration_versions(self, name: str) -> Dict[str, Any]:
+        integration = self.get_integration(name)
+        if not integration:
+            return {"integration": name, "found": False, "current_version": None, "available_versions": []}
+
+        manifest = self._load_integration_manifest(integration)
+        container = manifest.get("container", {}) if isinstance(manifest, dict) else {}
+        current = container.get("version") or integration.version or "latest"
+        available: List[str] = []
+
+        raw_candidates = []
+        for key in ("versions", "releases"):
+            value = manifest.get(key)
+            if isinstance(value, list):
+                raw_candidates.extend(value)
+        container_versions = container.get("versions")
+        if isinstance(container_versions, list):
+            raw_candidates.extend(container_versions)
+
+        for item in raw_candidates:
+            if isinstance(item, str):
+                available.append(item)
+            elif isinstance(item, dict):
+                version = item.get("version")
+                if version:
+                    available.append(str(version))
+
+        repo_path = self.repo_root / "library" / "containers" / name
+        git_dir = repo_path / ".git"
+        if git_dir.exists():
+            try:
+                tags = subprocess.run(
+                    ["git", "tag", "--list"],
+                    cwd=str(repo_path),
+                    capture_output=True,
+                    text=True,
+                    timeout=8,
+                )
+                if tags.returncode == 0:
+                    available.extend([line.strip() for line in tags.stdout.splitlines() if line.strip()])
+            except Exception:
+                pass
+
+        deduped: List[str] = []
+        seen = set()
+        for version in [str(current), *available]:
+            if version not in seen:
+                seen.add(version)
+                deduped.append(version)
+
+        return {
+            "integration": integration.name,
+            "found": True,
+            "current_version": str(current),
+            "available_versions": deduped,
+        }
+
+    def _extract_integration_dependencies(self, manifest: Dict[str, Any]) -> List[str]:
+        deps: List[str] = []
+        if not isinstance(manifest, dict):
+            return deps
+
+        candidates = [
+            manifest.get("dependencies"),
+            manifest.get("requires"),
+            (manifest.get("integration") or {}).get("depends_on"),
+            (manifest.get("integration") or {}).get("dependencies"),
+        ]
+        for candidate in candidates:
+            if isinstance(candidate, list):
+                for item in candidate:
+                    if isinstance(item, str) and item:
+                        deps.append(item)
+            elif isinstance(candidate, dict):
+                for key in ("integrations", "integration", "plugins"):
+                    values = candidate.get(key)
+                    if isinstance(values, list):
+                        for item in values:
+                            if isinstance(item, str) and item:
+                                deps.append(item)
+                    elif isinstance(values, str) and values:
+                        deps.append(values)
+
+        cleaned = []
+        seen = set()
+        for dep in deps:
+            dep_name = dep.strip()
+            if dep_name and dep_name not in seen:
+                seen.add(dep_name)
+                cleaned.append(dep_name)
+        return cleaned
+
+    def _extract_package_dependencies(self, manifest: Dict[str, Any]) -> Dict[str, List[str]]:
+        def _as_list(value: Any) -> List[str]:
+            if isinstance(value, list):
+                return [str(item) for item in value if item]
+            return []
+
+        system_requirements = manifest.get("system_requirements", {}) if isinstance(manifest, dict) else {}
+        return {
+            "apk_dependencies": _as_list(manifest.get("apk_dependencies")),
+            "brew_dependencies": _as_list(manifest.get("brew_dependencies")),
+            "apt_dependencies": _as_list(manifest.get("apt_dependencies")),
+            "pip_dependencies": _as_list(manifest.get("pip_dependencies")),
+            "system_dependencies": _as_list(system_requirements.get("dependencies")) if isinstance(system_requirements, dict) else [],
+        }
+
+    def resolve_integration_dependencies(self, name: str) -> Dict[str, Any]:
+        integration = self.get_integration(name)
+        if not integration:
+            return {
+                "integration": name,
+                "found": False,
+                "direct_integrations": [],
+                "install_order": [],
+                "missing_integrations": [],
+                "package_dependencies": {},
+            }
+
+        status = self.get_library_status()
+        available_names = {item.name for item in status.integrations}
+        manifest = self._load_integration_manifest(integration)
+        direct = self._extract_integration_dependencies(manifest)
+        package_dependencies = self._extract_package_dependencies(manifest)
+
+        missing = sorted([dep for dep in direct if dep not in available_names and dep != name])
+        visited: Set[str] = set()
+        visiting: Set[str] = set()
+        order: List[str] = []
+        cycle_detected = False
+
+        def _visit(dep_name: str) -> None:
+            nonlocal cycle_detected
+            if dep_name in visited or dep_name == name:
+                return
+            if dep_name in visiting:
+                cycle_detected = True
+                return
+            dep_integration = self.get_integration(dep_name)
+            if not dep_integration:
+                return
+            visiting.add(dep_name)
+            dep_manifest = self._load_integration_manifest(dep_integration)
+            for nested in self._extract_integration_dependencies(dep_manifest):
+                if nested in available_names:
+                    _visit(nested)
+            visiting.remove(dep_name)
+            visited.add(dep_name)
+            order.append(dep_name)
+
+        for dep in direct:
+            if dep in available_names:
+                _visit(dep)
+
+        return {
+            "integration": integration.name,
+            "found": True,
+            "direct_integrations": direct,
+            "install_order": order,
+            "missing_integrations": missing,
+            "cycle_detected": cycle_detected,
+            "package_dependencies": package_dependencies,
+        }
+
     def install_integration(self, name: str) -> InstallResult:
+        return self._install_integration_internal(name, set())
+
+    def _install_integration_internal(self, name: str, installing: Set[str]) -> InstallResult:
         """
         Install an integration from /library or /dev/library.
 
@@ -151,6 +338,14 @@ class LibraryManagerService:
         3. Build APK package if APKBUILD exists
         4. Install via package manager (apk, brew, apt)
         """
+        if name in installing:
+            return InstallResult(
+                success=False,
+                plugin_name=name,
+                action="install",
+                error="Dependency cycle detected during install",
+            )
+
         integration = self.get_integration(name)
         if not integration:
             return InstallResult(
@@ -168,7 +363,30 @@ class LibraryManagerService:
                 message="Already installed",
             )
 
+        dependency_resolution = self.resolve_integration_dependencies(name)
+        missing = dependency_resolution.get("missing_integrations", [])
+        if missing:
+            return InstallResult(
+                success=False,
+                plugin_name=name,
+                action="install",
+                error=f"Missing integration dependencies: {', '.join(missing)}",
+            )
+
         try:
+            installing.add(name)
+            for dep in dependency_resolution.get("install_order", []):
+                dep_integration = self.get_integration(dep)
+                if dep_integration and not dep_integration.installed:
+                    dep_result = self._install_integration_internal(dep, installing)
+                    if not dep_result.success:
+                        return InstallResult(
+                            success=False,
+                            plugin_name=name,
+                            action="install",
+                            error=f"Dependency install failed ({dep}): {dep_result.error or dep_result.message}",
+                        )
+
             integration_path = Path(integration.path)
             container_path = integration_path / "container.json"
             if not container_path.exists():
@@ -231,6 +449,8 @@ class LibraryManagerService:
                 action="install",
                 error=f"Install failed: {str(e)}",
             )
+        finally:
+            installing.discard(name)
 
     def enable_integration(self, name: str) -> InstallResult:
         """
