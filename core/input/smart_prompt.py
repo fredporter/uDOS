@@ -22,15 +22,36 @@ try:
     HAS_PROMPT_TOOLKIT = True
 except ImportError:
     # Stub classes for when prompt_toolkit is not available
-    class Completer:
+    class PromptSession:
         pass
     
+    class Completer:
+        pass
+
     class Completion:
         pass
     
-    class Document:
+    class InMemoryHistory:
         pass
     
+    class FileHistory:
+        pass
+    
+    class KeyBindings:
+        pass
+    
+    class Keys:
+        pass
+    
+    class Style:
+        pass
+    
+    class AutoSuggestFromHistory:
+        pass
+
+    class Document:
+        pass
+
     HAS_PROMPT_TOOLKIT = False
 
 import sys
