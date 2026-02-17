@@ -96,6 +96,10 @@ wizard/web/
 - `GET /logs` - Log viewer page
 - `GET /api/logs` - Log entries (JSON, filterable)
 
+### Hotkeys
+- `GET /hotkeys` - Hotkey Center (live key bindings + keymap runtime state)
+- `GET /hotkeys/data` - Hotkey payload + keymap runtime (JSON)
+
 ### Health
 - `GET /health` - Health check endpoint
 

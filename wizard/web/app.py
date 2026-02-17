@@ -57,6 +57,8 @@ from wizard.services.oauth_manager import (
     OAuthProvider,
     ConnectionStatus,
 )
+from wizard.services.keymap_config import resolve_effective_keymap_state
+from wizard.services.wizard_config import load_wizard_config_data
 
 # Setup
 WIZARD_ROOT = Path(__file__).parent.parent
@@ -305,26 +307,17 @@ async def oauth_connect(provider: str):
     return RedirectResponse(auth_url)
 
 
-def _hotkey_map():
-    return [
-        {"key": "Tab", "action": "Command Selector", "notes": "Opens the TAB menu even in fallback mode (SmartPrompt handles <kbd>Tab</kbd>)."},
-        {"key": "F1", "action": "Status / Help banner", "notes": "Bound by `core/tui/fkey_handler.py` to show self-heal stats."},
-        {"key": "F2", "action": "Logs / Diagnostics", "notes": "Replays health logs pulled from `memory/logs/health-training.log`."},
-        {"key": "F3", "action": "REPAIR shortcut", "notes": "Runs `SelfHealer` helpers via the CLI handler."},
-        {"key": "F4", "action": "RESTART / HOT RELOAD", "notes": "Triggers watcher stats and automatic reloads via `core/services/hot_reload.py`."},
-        {"key": "F5", "action": "Extension palette", "notes": "Opens the plugin menu in the CLI; uses `LibraryManagerService` metadata."},
-        {"key": "F6", "action": "DRAW PAT / Script runner", "notes": "Repeats the `DRAW PAT` banner logic defined in `memory/bank/system/startup-script.md`."},
-        {"key": "F7", "action": "Sonic Device DB", "notes": "Displays supported USB/media targets read from `memory/sonic/sonic-devices.db`."},
-        {"key": "F8", "action": "Hotkey Center", "notes": "Proxies this same page from within the CLI and automation loops."},
-        {"key": "↑ / ↓", "action": "Command history", "notes": "Shared with `SmartPrompt` history and predictor logging."},
-        {"key": "Enter", "action": "Confirm input", "notes": "Approves the date/time/timezone block and records overrides when refused."},
-    ]
+def _hotkey_keymap_state() -> Dict[str, Any]:
+    """Resolve current keymap state for fallback web hotkeys page."""
+    config = load_wizard_config_data(defaults={})
+    return resolve_effective_keymap_state(config=config, env=os.environ)
 
 
 @app.get("/hotkeys", response_class=HTMLResponse)
 async def hotkey_center(request: Request):
     """Hotkey center page documenting CLI/automation keys."""
     payload = get_hotkey_payload(MEMORY_ROOT)
+    keymap = _hotkey_keymap_state()
     return templates.TemplateResponse(
         request,
         "hotkeys.html",
@@ -332,7 +325,9 @@ async def hotkey_center(request: Request):
             "key_map": payload["key_map"],
             "page_title": "Hotkey Center",
             "health_log": str(LOGS_DIR / "health-training.log"),
+            "status": payload.get("status") or {},
             "hotkey_snapshot": payload["snapshot"],
+            "keymap": keymap,
         },
     )
 
@@ -341,6 +336,7 @@ async def hotkey_center(request: Request):
 async def hotkey_data():
     """Machine-readable key binding data + snapshot path."""
     payload = get_hotkey_payload(MEMORY_ROOT)
+    payload["keymap"] = _hotkey_keymap_state()
     return JSONResponse(payload)
 
 

@@ -1,11 +1,37 @@
 # uCODE Command Reference
 
 Version: Core v1.3.16+
-Updated: 2026-02-15
+Updated: 2026-02-17
 
 This guide is split into:
 - TypeScript-backed command paths (Node runtime required)
 - Python ucode command surface (core dispatcher + TUI command routing)
+
+## Hotkey + Keymap Quick Reference
+
+Wizard/uCLI hotkey behavior is controlled by the keymap profile and fallback parser.
+
+- Dashboard page: `Wizard -> Hotkeys`
+- API:
+  - `GET /api/ucode/hotkeys`
+  - `GET /api/ucode/keymap`
+  - `POST /api/ucode/keymap`
+- Profiles:
+  - `mac-obsidian` (mac-first default)
+  - `mac-terminal`
+  - `linux-default`
+  - `windows-default`
+- Env controls:
+  - `UDOS_KEYMAP_PROFILE`
+  - `UDOS_KEYMAP_OS` (`mac|linux|windows`)
+  - `UDOS_KEYMAP_SELF_HEAL` (`1|0|true|false`)
+
+Example:
+
+```bash
+export UDOS_KEYMAP_PROFILE=mac-obsidian
+export UDOS_KEYMAP_SELF_HEAL=1
+```
 
 ## TypeScript Command Set
 

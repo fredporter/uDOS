@@ -28,6 +28,15 @@ def test_parse_special_key_arrows_and_fkeys():
 def test_parse_special_key_self_heal_unknown_csi():
     env = {"UDOS_KEYMAP_OS": "mac", "UDOS_KEYMAP_SELF_HEAL": "1"}
     assert parse_special_key("\x1b[1;2B", env=env) == "DOWN"
+    assert parse_special_key("\x1b[15;2~", env=env) == "F5"
+    assert parse_special_key("\x1bOH", env=env) == "HOME"
+
+
+def test_parse_special_key_embedded_and_batched_sequences():
+    env = {"UDOS_KEYMAP_OS": "mac", "UDOS_KEYMAP_SELF_HEAL": "1"}
+    assert parse_special_key("· ▶ \x1b[A", env=env) == "UP"
+    assert parse_special_key("\x1b[A\x1b[A", env=env) == "UP"
+    assert parse_special_key("\x1b[A\x1b[B", env=env) == "DOWN"
 
 
 def test_strip_ansi_sequences():

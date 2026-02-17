@@ -51,8 +51,6 @@ def decode_key_input(raw: str, env: Optional[Mapping[str, str]] = None) -> Decod
     env = env or os.environ
     profile = resolve_keymap_profile(env)
     normalized = normalize_terminal_input(raw or "")
-    if normalized.count("\x1b") > 1:
-        return DecodedKey(raw=raw or "", normalized=normalized, profile=profile, action="NOISE")
     special = parse_special_key(normalized, env=env)
 
     if special:
@@ -69,6 +67,9 @@ def decode_key_input(raw: str, env: Optional[Mapping[str, str]] = None) -> Decod
         }
         if special in nav_map:
             return DecodedKey(raw=raw or "", normalized=normalized, profile=profile, action=nav_map[special], special=special)
+
+    if normalized.count("\x1b") > 1:
+        return DecodedKey(raw=raw or "", normalized=normalized, profile=profile, action="NOISE")
 
     # Canonical basic controls
     if normalized in {"\r", "\n"}:

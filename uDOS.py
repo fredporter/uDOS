@@ -22,6 +22,5 @@ sys.path.insert(0, project_root)
 os.chdir(project_root)
 
 if __name__ == '__main__':
-    from core.tui.ucode import UCLI
-    tui = UCLI()
-    tui.run()
+    from core.tui.ucli import main
+    main()

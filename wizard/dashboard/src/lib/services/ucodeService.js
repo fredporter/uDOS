@@ -39,6 +39,30 @@ export async function fetchUCodeHotkeys(token) {
   return res.json();
 }
 
+export async function fetchUCodeKeymap(token) {
+  const res = await apiFetch("/api/ucode/keymap", {
+    headers: buildAuthHeaders(token),
+  });
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(detail || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function updateUCodeKeymap(token, payload) {
+  const res = await apiFetch("/api/ucode/keymap", {
+    method: "POST",
+    headers: jsonHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(detail || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
 export async function fetchOkStatus(token) {
   const res = await apiFetch("/api/ucode/ok/status", {
     headers: buildAuthHeaders(token),

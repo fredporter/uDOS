@@ -27,6 +27,7 @@ import sys
 import os
 import logging
 import re
+import time
 from typing import Optional, List, Iterable, Tuple, Dict
 
 from .autocomplete import AutocompleteService
@@ -275,13 +276,21 @@ class SmartPrompt:
             f"  is_tty={is_tty}, HAS_PROMPT_TOOLKIT={HAS_PROMPT_TOOLKIT}"
         )
 
-        self.use_fallback = use_fallback or not HAS_PROMPT_TOOLKIT or not is_tty
+        force_fallback = os.environ.get("UDOS_SMARTPROMPT_FORCE_FALLBACK", "").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+        self.use_fallback = force_fallback or use_fallback or not HAS_PROMPT_TOOLKIT or not is_tty
         self.fallback_reason = None
         self.tab_handler = None
+        self.open_file_handler = None
         self.registry = registry
         self.fkey_handler = None
         self.bottom_toolbar_provider = None
         self.input_history: List[str] = []
+        self._fallback_history_cursor: Optional[int] = None
         self.logger = logger
 
         if self.use_fallback and not HAS_PROMPT_TOOLKIT:
@@ -399,37 +408,58 @@ class SmartPrompt:
             def _handle_meta_digit(event, _key=key_name):
                 self._trigger_function_key(_key)
 
-        @bindings.add(Keys.Tab)
-        def _(event):
-            """Handle Tab for command selector"""
-            if not self.tab_handler:
-                return
-
+        def _handle_hotkey_action(event, action: str) -> None:
             try:
-                # Try to use run_in_terminal if available
-                if hasattr(event.app, 'run_in_terminal'):
-                    selection = {"value": None}
+                if action == "OPEN_COMMAND":
+                    if not self.tab_handler:
+                        return
+                    if hasattr(event.app, "run_in_terminal"):
+                        selection = {"value": None}
 
-                    def run_selector():
-                        selection["value"] = self.tab_handler()
+                        def run_selector():
+                            selection["value"] = self.tab_handler()
 
-                    event.app.run_in_terminal(run_selector)
-                    if selection["value"]:
-                        event.app.current_buffer.insert_text(selection["value"])
-                else:
-                    # Fallback: run directly in current context
-                    selection = self.tab_handler()
-                    if selection:
-                        event.app.current_buffer.insert_text(selection)
-            except Exception as e:
-                # On any error, just suppress tab handling
-                debug_logger.debug(f"Tab handler error: {e}")
+                        event.app.run_in_terminal(run_selector)
+                        if selection["value"]:
+                            event.app.current_buffer.insert_text(selection["value"])
+                    else:
+                        selection = self.tab_handler()
+                        if selection:
+                            event.app.current_buffer.insert_text(selection)
+                    return
+
+                if action == "OPEN_FILE":
+                    self._trigger_open_file_shortcut()
+                    return
+
+                if action.startswith("FKEY_"):
+                    self._trigger_function_key(f"F{action.split('_', 1)[1]}")
+            except Exception as exc:
+                debug_logger.debug(f"Hotkey handler error: {exc}")
+
+        @bindings.add(Keys.Tab)
+        def _tab(event):
+            _handle_hotkey_action(event, "OPEN_COMMAND")
+
+        @bindings.add(Keys.ControlP)
+        def _ctrl_p(event):
+            action = decode_key_input("\x10", env=os.environ).action
+            _handle_hotkey_action(event, action)
+
+        @bindings.add(Keys.ControlO)
+        def _ctrl_o(event):
+            action = decode_key_input("\x0f", env=os.environ).action
+            _handle_hotkey_action(event, action)
 
         return bindings
 
     def set_tab_handler(self, handler) -> None:
         """Register a callback for Tab key in advanced prompt mode."""
         self.tab_handler = handler
+
+    def set_open_file_handler(self, handler) -> None:
+        """Register a callback for open-file shortcut actions."""
+        self.open_file_handler = handler
 
     def set_function_key_handler(self, handler) -> None:
         """Register a handler that responds to F1-F8 presses."""
@@ -666,6 +696,10 @@ class SmartPrompt:
             bottom_toolbar = self._get_bottom_toolbar if self.bottom_toolbar_provider else None
             user_input = self.session.prompt(prompt_text, bottom_toolbar=bottom_toolbar)
             debug_logger.debug(f"  Got input: '{user_input}'")
+            processed = self._process_hotkey_text_submission(user_input)
+            if processed is None:
+                return ""
+            user_input = processed
 
             # Track for history
             if user_input.strip():
@@ -678,6 +712,61 @@ class SmartPrompt:
             # Fallback to basic input
             return self._ask_fallback(prompt_text)
 
+    def _process_hotkey_text_submission(self, raw_input: str) -> Optional[str]:
+        """
+        Process prompt text for keymap actions and escape-noise self-heal.
+
+        Returns:
+            - cleaned command string
+            - "" for ignored key-only input
+            - None when caller should re-prompt immediately
+        """
+        normalized = normalize_terminal_input(raw_input or "")
+        decoded = decode_key_input(normalized, env=os.environ)
+
+        if decoded.action == "OPEN_COMMAND":
+            selection = self._handle_tab_shortcut()
+            return selection.strip() if selection else ""
+
+        if decoded.action == "OPEN_FILE":
+            self._trigger_open_file_shortcut()
+            return ""
+
+        if decoded.action.startswith("FKEY_"):
+            self._trigger_function_key(f"F{decoded.action.split('_', 1)[1]}")
+            return ""
+
+        if decoded.action in {
+            "NAV_UP",
+            "NAV_DOWN",
+            "NAV_LEFT",
+            "NAV_RIGHT",
+            "NAV_HOME",
+            "NAV_END",
+            "NAV_DELETE",
+            "NOISE",
+        }:
+            # If the line also includes semantic text, keep the text and drop
+            # only the control-sequence residue.
+            candidate = strip_literal_escape_sequences(strip_ansi_sequences(normalized)).strip()
+            if re.search(r"[A-Za-z0-9]", candidate):
+                return candidate
+            return ""
+
+        had_escape = "\x1b" in normalized
+        had_literal_escape = bool(
+            re.search(r"(?:\^\[\[[0-9;?]*[A-Za-z~]|\\x1b\[[0-9;?]*[A-Za-z~])", normalized)
+        )
+        if had_literal_escape:
+            normalized = strip_literal_escape_sequences(normalized)
+        if had_escape:
+            normalized = strip_ansi_sequences(normalized)
+
+        user_input = normalized.strip()
+        if (had_escape or had_literal_escape) and self._looks_like_escape_noise(user_input):
+            return ""
+        return user_input
+
     def _ask_fallback(self, prompt_text: str = "uDOS> ") -> str:
         """
         Get input using basic input().
@@ -689,9 +778,22 @@ class SmartPrompt:
             User input
         """
         try:
+            inline_toolbar = os.getenv("UDOS_PROMPT_TOOLBAR_INLINE", "").strip().lower() in {
+                "1",
+                "true",
+                "yes",
+                "on",
+            }
             while True:
-                self._render_fallback_toolbar()
-                raw_input = input(prompt_text)
+                if not inline_toolbar:
+                    self._render_fallback_toolbar()
+                raw_input = (
+                    self._read_raw_fallback_line(prompt_text)
+                    if self._can_use_raw_fallback_line_editor()
+                    else input(prompt_text)
+                )
+                if raw_input is None:
+                    continue
                 normalized = normalize_terminal_input(raw_input)
                 decoded = decode_key_input(normalized, env=os.environ)
                 fallback_fkey = self._parse_fallback_function_key(normalized)
@@ -703,6 +805,10 @@ class SmartPrompt:
                     tab_selection = self._handle_tab_shortcut()
                     if tab_selection:
                         return tab_selection.strip()
+                    continue
+
+                if decoded.action == "OPEN_FILE":
+                    self._trigger_open_file_shortcut()
                     continue
 
                 if decoded.action in {"NAV_UP", "NAV_DOWN", "NAV_LEFT", "NAV_RIGHT", "NAV_HOME", "NAV_END", "NAV_DELETE", "NOISE"}:
@@ -728,6 +834,225 @@ class SmartPrompt:
                 return user_input
         except (KeyboardInterrupt, EOFError):
             return ""
+
+    def _can_use_raw_fallback_line_editor(self) -> bool:
+        """Return True when we can safely use raw-mode fallback input."""
+        if os.getenv("UDOS_FALLBACK_RAW_EDITOR", "1").strip().lower() in {"0", "false", "no"}:
+            return False
+        if os.name == "nt":
+            return False
+        try:
+            import termios  # noqa: F401
+            import tty  # noqa: F401
+            if not sys.stdin.isatty() or not sys.stdout.isatty():
+                return False
+            return True
+        except Exception:
+            return False
+
+    def _read_escape_tail(self, timeout: float = 0.03) -> str:
+        """Read remaining bytes of an escape sequence in raw mode."""
+        try:
+            import select
+
+            tail = ""
+            deadline = time.monotonic() + timeout
+            while time.monotonic() < deadline:
+                ready, _, _ = select.select([sys.stdin], [], [], 0.005)
+                if not ready:
+                    continue
+                ch = sys.stdin.read(1)
+                if not ch:
+                    break
+                tail += ch
+                # Most sequences end in alpha or "~" (CSI/SS3).
+                if ch.isalpha() or ch == "~":
+                    break
+            return tail
+        except Exception:
+            return ""
+
+    def _redraw_raw_fallback_prompt(self, prompt_text: str, buffer_text: str) -> None:
+        """Redraw current fallback line buffer without leaking raw key bytes."""
+        sys.stdout.write("\r\033[2K")
+        sys.stdout.write(prompt_text)
+        sys.stdout.write(buffer_text)
+        sys.stdout.flush()
+
+    def _consume_literal_escape_suffix(
+        self, prompt_text: str, buffer_text: str
+    ) -> tuple[str, bool]:
+        """
+        Consume caret-style literal escape tokens at line end (for bad terminals).
+
+        Example token: '^[[A' or '^[[15~'
+        """
+        token_re = re.compile(r"(?:\^\[\[[0-9;?]*[A-Za-z~])$")
+        working = buffer_text
+        handled = False
+        while True:
+            match = token_re.search(working)
+            if not match:
+                break
+            token = match.group(0)
+            decoded = decode_key_input(normalize_terminal_input(token), env=os.environ)
+            prefix = working[: match.start()]
+
+            if decoded.action.startswith("FKEY_"):
+                self._trigger_function_key(f"F{decoded.action.split('_', 1)[1]}")
+                working = prefix
+                handled = True
+            elif decoded.action == "OPEN_COMMAND":
+                selection = self._handle_tab_shortcut()
+                working = selection.strip() if selection else prefix
+                handled = True
+            elif decoded.action == "OPEN_FILE":
+                self._trigger_open_file_shortcut()
+                working = prefix
+                handled = True
+            elif decoded.action == "NAV_UP":
+                if self.input_history:
+                    if self._fallback_history_cursor is None:
+                        self._fallback_history_cursor = len(self.input_history) - 1
+                    elif self._fallback_history_cursor > 0:
+                        self._fallback_history_cursor -= 1
+                    working = self.input_history[self._fallback_history_cursor]
+                else:
+                    working = prefix
+                handled = True
+            elif decoded.action == "NAV_DOWN":
+                if self.input_history and self._fallback_history_cursor is not None:
+                    if self._fallback_history_cursor < len(self.input_history) - 1:
+                        self._fallback_history_cursor += 1
+                        working = self.input_history[self._fallback_history_cursor]
+                    else:
+                        self._fallback_history_cursor = None
+                        working = ""
+                else:
+                    working = prefix
+                handled = True
+            else:
+                break
+
+        if handled:
+            self._redraw_raw_fallback_prompt(prompt_text, working)
+        return working, handled
+
+    def _read_raw_fallback_line(self, prompt_text: str) -> Optional[str]:
+        """
+        Read one line in raw mode to self-heal arrow/function-key handling.
+
+        Returns:
+            str: collected input line
+            None: no line submitted; caller should continue prompt loop
+        """
+        import termios
+        import tty
+
+        fd = sys.stdin.fileno()
+        original = termios.tcgetattr(fd)
+        buffer_chars: List[str] = []
+        self._fallback_history_cursor = None
+        self._redraw_raw_fallback_prompt(prompt_text, "")
+        try:
+            tty.setraw(fd)
+            while True:
+                ch = sys.stdin.read(1)
+                if not ch:
+                    sys.stdout.write("\n")
+                    return ""
+
+                if ch in {"\r", "\n"}:
+                    sys.stdout.write("\n")
+                    return "".join(buffer_chars)
+
+                if ch in {"\x03", "\x04"}:
+                    sys.stdout.write("\n")
+                    return ""
+
+                if ch in {"\x7f", "\b"}:
+                    if buffer_chars:
+                        buffer_chars.pop()
+                    self._redraw_raw_fallback_prompt(prompt_text, "".join(buffer_chars))
+                    continue
+
+                if ch == "\t":
+                    selection = self._handle_tab_shortcut()
+                    if selection:
+                        return selection.strip()
+                    self._redraw_raw_fallback_prompt(prompt_text, "".join(buffer_chars))
+                    continue
+
+                if ch in {"\x10", "\x0f"}:
+                    action = decode_key_input(ch, env=os.environ).action
+                    if action == "OPEN_COMMAND":
+                        selection = self._handle_tab_shortcut()
+                        if selection:
+                            return selection.strip()
+                    elif action == "OPEN_FILE":
+                        self._trigger_open_file_shortcut()
+                    elif action == "NAV_UP":
+                        if self.input_history:
+                            if self._fallback_history_cursor is None:
+                                self._fallback_history_cursor = len(self.input_history) - 1
+                            elif self._fallback_history_cursor > 0:
+                                self._fallback_history_cursor -= 1
+                            history_line = self.input_history[self._fallback_history_cursor]
+                            buffer_chars = list(history_line)
+                    elif action == "NAV_DOWN":
+                        if self.input_history and self._fallback_history_cursor is not None:
+                            if self._fallback_history_cursor < len(self.input_history) - 1:
+                                self._fallback_history_cursor += 1
+                                history_line = self.input_history[self._fallback_history_cursor]
+                            else:
+                                self._fallback_history_cursor = None
+                                history_line = ""
+                            buffer_chars = list(history_line)
+                    self._redraw_raw_fallback_prompt(prompt_text, "".join(buffer_chars))
+                    continue
+
+                if ch == "\x1b":
+                    seq = ch + self._read_escape_tail()
+                    decoded = decode_key_input(seq, env=os.environ)
+                    if decoded.action.startswith("FKEY_"):
+                        self._trigger_function_key(f"F{decoded.action.split('_', 1)[1]}")
+                        self._redraw_raw_fallback_prompt(prompt_text, "".join(buffer_chars))
+                        continue
+                    if decoded.action == "NAV_UP":
+                        if self.input_history:
+                            if self._fallback_history_cursor is None:
+                                self._fallback_history_cursor = len(self.input_history) - 1
+                            elif self._fallback_history_cursor > 0:
+                                self._fallback_history_cursor -= 1
+                            history_line = self.input_history[self._fallback_history_cursor]
+                            buffer_chars = list(history_line)
+                            self._redraw_raw_fallback_prompt(prompt_text, history_line)
+                        continue
+                    if decoded.action == "NAV_DOWN":
+                        if self.input_history and self._fallback_history_cursor is not None:
+                            if self._fallback_history_cursor < len(self.input_history) - 1:
+                                self._fallback_history_cursor += 1
+                                history_line = self.input_history[self._fallback_history_cursor]
+                            else:
+                                self._fallback_history_cursor = None
+                                history_line = ""
+                            buffer_chars = list(history_line)
+                            self._redraw_raw_fallback_prompt(prompt_text, history_line)
+                        continue
+                    # Ignore unsupported navigation escapes in fallback editor.
+                    continue
+
+                if ch.isprintable():
+                    buffer_chars.append(ch)
+                    candidate = "".join(buffer_chars)
+                    candidate, handled = self._consume_literal_escape_suffix(prompt_text, candidate)
+                    if handled:
+                        buffer_chars = list(candidate)
+                        continue
+                    sys.stdout.write(ch)
+                    sys.stdout.flush()
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, original)
 
     def _looks_like_escape_noise(self, text: str) -> bool:
         """Return True for non-semantic control-key residue in fallback mode."""
@@ -760,6 +1085,27 @@ class SmartPrompt:
         except Exception as exc:
             debug_logger.debug(f"Fallback toolbar render failed: {exc}")
 
+    def render_inline_toolbar(self, text: str = "") -> None:
+        """Render toolbar lines inline (outside prompt_toolkit bottom toolbar)."""
+        if not self.bottom_toolbar_provider:
+            return
+        try:
+            lines = self.bottom_toolbar_provider(text)
+            if lines is None:
+                return
+            if isinstance(lines, str):
+                if lines.strip():
+                    print(lines)
+                return
+            for line in lines:
+                if line is None:
+                    continue
+                s = str(line)
+                if s.strip():
+                    print(s)
+        except Exception as exc:
+            debug_logger.debug(f"Inline toolbar render failed: {exc}")
+
     def _parse_fallback_function_key(self, raw_input: str) -> Optional[str]:
         """Best-effort F1-F8 parsing in fallback mode across common terminals."""
         decoded = decode_key_input(raw_input, env=os.environ)
@@ -780,6 +1126,22 @@ class SmartPrompt:
         except Exception as exc:
             debug_logger.debug(f"Tab handler failed in fallback: {exc}")
         return None
+
+    def _trigger_open_file_shortcut(self) -> None:
+        """Invoke open-file shortcut action in both advanced and fallback modes."""
+        if self.open_file_handler:
+            try:
+                result = self.open_file_handler()
+                if result:
+                    output = result.get("output") or result.get("message") or ""
+                    if output:
+                        print(f"\n{output}")
+                return
+            except Exception as exc:
+                debug_logger.debug(f"Open-file handler failed: {exc}")
+
+        # Fallback behavior maps OPEN_FILE to F2 handler parity.
+        self._trigger_function_key("F2")
 
     def _trigger_function_key(self, key_name: str) -> None:
         """Run a handler when the user presses F1-F8."""

@@ -186,20 +186,83 @@ def parse_special_key(raw: str, env: Optional[Mapping[str, str]] = None) -> Opti
     env = env or os.environ
     os_profile = detect_terminal_os(env)
     normalized = normalize_terminal_input(raw)
-    key_name = _special_key_map(os_profile).get(normalized)
+    key_map = _special_key_map(os_profile)
+    key_name = key_map.get(normalized)
     if key_name:
         return key_name
 
     # Self-heal: when unknown escape appears, try coarse fallback for arrows.
     self_heal = str(env.get("UDOS_KEYMAP_SELF_HEAL", "1")).strip().lower() in {"1", "true", "yes", "on"}
-    if self_heal and normalized.startswith("\x1b[") and normalized:
-        last = normalized[-1]
-        if last == "A":
-            return "UP"
-        if last == "B":
-            return "DOWN"
-        if last == "C":
-            return "RIGHT"
-        if last == "D":
-            return "LEFT"
+    if self_heal:
+        if normalized.startswith("\x1b[") and normalized:
+            # Handle modified CSI sequences (for example: ESC[1;2B or ESC[15;2~).
+            num_match = re.match(r"^\x1b\[(\d+)(?:;[0-9]+)*~$", normalized)
+            if num_match:
+                numeric = int(num_match.group(1))
+                num_map = {
+                    1: "HOME",
+                    3: "DELETE",
+                    4: "END",
+                    7: "HOME",
+                    8: "END",
+                    11: "F1",
+                    12: "F2",
+                    13: "F3",
+                    14: "F4",
+                    15: "F5",
+                    17: "F6",
+                    18: "F7",
+                    19: "F8",
+                }
+                mapped = num_map.get(numeric)
+                if mapped:
+                    return mapped
+
+            last = normalized[-1]
+            if last == "A":
+                return "UP"
+            if last == "B":
+                return "DOWN"
+            if last == "C":
+                return "RIGHT"
+            if last == "D":
+                return "LEFT"
+            if last == "H":
+                return "HOME"
+            if last == "F":
+                return "END"
+
+        if normalized.startswith("\x1bO") and len(normalized) >= 3:
+            ss3 = normalized[-1]
+            if ss3 in {"A", "B", "C", "D"}:
+                return {"A": "UP", "B": "DOWN", "C": "RIGHT", "D": "LEFT"}[ss3]
+            if ss3 in {"H", "F"}:
+                return {"H": "HOME", "F": "END"}[ss3]
+            if ss3 in {"P", "Q", "R", "S"}:
+                return {"P": "F1", "Q": "F2", "R": "F3", "S": "F4"}[ss3]
+
+        # Embedded or batched escape sequences.
+        embedded_tokens = re.findall(
+            r"(?:\x1b\[[0-9;?]*[A-Za-z~]|\x1bO[A-Za-z]|\x1b\[\[[A-Za-z])",
+            normalized,
+        )
+        if embedded_tokens:
+            resolved: list[str] = []
+            for token in embedded_tokens:
+                mapped = key_map.get(token)
+                if mapped:
+                    resolved.append(mapped)
+                    continue
+                if token.startswith("\x1b[") and token:
+                    suffix = token[-1]
+                    if suffix in {"A", "B", "C", "D"}:
+                        resolved.append({"A": "UP", "B": "DOWN", "C": "RIGHT", "D": "LEFT"}[suffix])
+                        continue
+                    if suffix in {"H", "F"}:
+                        resolved.append({"H": "HOME", "F": "END"}[suffix])
+                        continue
+            if resolved:
+                # For fast repeated keys read as a single token burst, treat the
+                # final parsed key as the effective navigation intent.
+                return resolved[-1]
     return None

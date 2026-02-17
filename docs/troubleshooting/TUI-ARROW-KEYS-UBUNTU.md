@@ -18,6 +18,32 @@ Ubuntu/Debian systems require **system-level readline and ncurses libraries** fo
 
 ## Quick Fix
 
+### 0. Check Wizard Hotkeys Config (Recommended)
+
+Before reinstalling dependencies, confirm keymap settings are correct:
+
+- Open Wizard Dashboard -> `Hotkeys`
+- Verify:
+  - profile: `linux-default` (or your platform profile)
+  - OS override: `auto` (or explicit `linux` if detection is wrong)
+  - self-heal: enabled
+
+Equivalent API check:
+
+```bash
+curl -s http://localhost:8765/api/ucode/keymap | jq
+```
+
+Equivalent env overrides:
+
+```bash
+export UDOS_KEYMAP_PROFILE=linux-default
+export UDOS_KEYMAP_OS=linux
+export UDOS_KEYMAP_SELF_HEAL=1
+```
+
+Then restart uCODE/Wizard and retest.
+
 ### 1. Install System Dependencies
 
 ```bash
@@ -193,5 +219,5 @@ brew install readline ncurses
 
 ---
 
-**Last Updated:** 2026-02-09
+**Last Updated:** 2026-02-17
 **Applies To:** uDOS v1.3.x+

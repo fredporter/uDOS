@@ -16,6 +16,7 @@ Date: 2026-01-30
 Version: v1.0.0
 """
 
+import os
 from typing import Optional, List, Dict, Any, Callable
 from dataclasses import dataclass
 from core.utils.tty import interactive_tty_status
@@ -200,8 +201,18 @@ class ContextualCommandPrompt(EnhancedPrompt):
         """
         self.logger.debug("Asking for command with contextual help")
 
-        # Display context lines only in fallback mode; prompt_toolkit renders live toolbar.
-        if self.use_fallback:
+        # Optional inline toolbar render for terminals where bottom-toolbar
+        # painting is unreliable.
+        inline_toolbar = os.getenv("UDOS_PROMPT_TOOLBAR_INLINE", "").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+        if inline_toolbar:
+            self.render_inline_toolbar("")
+        elif self.use_fallback:
+            # Fallback legacy context (kept for compatibility if inline mode disabled).
             self._display_context_for_command("")
 
         # Use SmartPrompt directly - don't duplicate context printing

@@ -613,11 +613,7 @@ class UCLI:
                 try:
                     # Use contextual command prompt with suggestions (Phase 1)
                     self._show_status_bar()
-                    if self.prompt.use_fallback:
-                        indicator = self.renderer.get_prompt_indicator()
-                    else:
-                        indicator = self.renderer.get_prompt_indicator_plain()
-                    user_input = self.prompt.ask_command(f"{indicator} ▶ ")
+                    user_input = self.prompt.ask_command(self._prompt_text())
 
                     if not user_input:
                         continue
@@ -698,6 +694,11 @@ class UCLI:
         finally:
             self._cleanup()
 
+    @staticmethod
+    def _prompt_text() -> str:
+        """Return the canonical single-entry uCLI prompt label."""
+        return "▶ "
+
     def _print_task_progress(self, phase: str, label: str, percent: int) -> None:
         """Render a consistent phase progress bar."""
         if self.quiet:
@@ -735,29 +736,65 @@ class UCLI:
     def _run_startup_sequence(self) -> None:
         """Run startup steps with consistent progress bars + spinner feedback."""
         steps = [
-            ("loading", "Detecting environment", self._autodetect_environment),
-            ("loading", "Measuring viewport", self._refresh_viewport),
-            ("installation", "Running startup scripts", self._run_startup_script),
-            ("loading", "Rendering banner", self._show_banner),
-            ("loading", "Computing health summary", self._show_health_summary),
-            ("loading", "Checking AI availability", self._show_ai_startup_sequence),
-            ("loading", "Loading command hints", self._show_startup_hints),
-            ("loading", "Rendering startup draw", self._run_startup_draw),
+            ("loading", "Detecting environment", self._autodetect_environment, True),
+            ("loading", "Measuring viewport", self._refresh_viewport, True),
+            ("installation", "Running startup scripts", self._run_startup_script, True),
+            ("loading", "Rendering banner", self._show_banner, True),
+            ("loading", "Computing health summary", self._show_health_summary, True),
+            # Keep AI availability in foreground (no spinner) so interactive prompts are clean.
+            ("loading", "Checking AI availability", self._show_ai_startup_sequence, False),
+            ("loading", "Loading command hints", self._show_startup_hints, True),
+            ("loading", "Rendering startup draw", self._run_startup_draw, True),
         ]
         total = len(steps)
 
-        for idx, (phase, label, action) in enumerate(steps, start=1):
-            start_pct = int(((idx - 1) / total) * 100)
+        for idx, (phase, label, action, use_spinner) in enumerate(steps, start=1):
             done_pct = int((idx / total) * 100)
-            self._print_task_progress(phase, label, start_pct)
             try:
                 if self.quiet:
-                    action()
+                    result = action()
                 else:
-                    self._run_with_spinner(f"⏳ {label}", action)
+                    if use_spinner:
+                        result = self._run_with_spinner(f"⏳ {label}", action)
+                    else:
+                        print(self._theme_text(f"\n⏳ {label}"))
+                        result = action()
             except Exception as exc:
                 self.logger.warning(f"[STARTUP] Step failed ({label}): {exc}")
+                result = None
+            if label == "Checking AI availability":
+                self._maybe_prompt_setup_vibe(result)
             self._print_task_progress(phase, f"{label} complete", done_pct)
+
+    def _maybe_prompt_setup_vibe(self, ai_status: Optional[Dict[str, Any]]) -> None:
+        """Prompt once when local Vibe is unavailable during startup."""
+        if self.quiet or os.getenv("UDOS_AUTOMATION") == "1":
+            return
+        if not isinstance(ai_status, dict):
+            return
+        if ai_status.get("local_ready", False):
+            return
+        issue = ai_status.get("local_issue") or "setup required"
+        choice = self._ask_confirm(
+            question=f"Local Vibe unavailable ({issue}). Run SETUP vibe now?",
+            default=True,
+            help_text="Yes = run now, No = continue startup, Skip = defer for this launch",
+            variant="skip",
+        )
+        if choice == "yes":
+            try:
+                result = self.dispatcher.dispatch(
+                    "SETUP vibe",
+                    parser=self.prompt,
+                    game_state=self.state,
+                )
+                output = self.renderer.render(result) if isinstance(result, dict) else str(result)
+                if output:
+                    print(output)
+            except Exception as exc:
+                self._ui_line(f"SETUP vibe failed: {exc}", level="error")
+        elif choice == "skip":
+            self._ui_line("Deferred SETUP vibe for this launch.", level="info")
 
     def _open_command_selector(self) -> Optional[str]:
         """Open TAB command selector and return selected command text."""
@@ -781,7 +818,7 @@ class UCLI:
                     print(self._theme_text(f"     - {line}"))
         except Exception:
             pass
-        print(self._theme_text("\n  Tips: SETUP vibe | SETUP | HELP | TAB | OK EXPLAIN <file>"))
+        print(self._theme_text("\n  Tips: SETUP | HELP | TAB | OK EXPLAIN <file>"))
         print(self._theme_text("     Try: MAP | GRID MAP --input memory/system/grid-overlays-sample.json | WIZARD start\n"))
 
     def _run_startup_draw(self) -> None:
@@ -1258,20 +1295,21 @@ class UCLI:
         except Exception as exc:
             self.logger.debug(f"[OK] Failed to set prompt context: {exc}")
 
-    def _show_ai_startup_sequence(self) -> None:
-        """Show Vibe startup summary if Vibe CLI is installed."""
+    def _show_ai_startup_sequence(self) -> Dict[str, Any]:
+        """Show Vibe startup summary and return local/cloud readiness."""
         if self.quiet:
-            return
+            return {"local_ready": True, "cloud_ready": True}
         ok_status = self._get_ok_local_status()
         cloud_status = self._get_ok_cloud_status()
         model = ok_status.get("model") or self._get_ok_default_model()
         ctx = self._get_ok_context_window()
+        local_issue = ok_status.get("issue") or None
 
         lines = []
         if ok_status.get("ready"):
             lines.append(f"✅ Vibe ready ({model}, ctx {ctx})")
         else:
-            issue = ok_status.get("issue") or "setup required"
+            issue = local_issue or "setup required"
             lines.append(f"⚠️ Vibe needs setup: {issue} ({model}, ctx {ctx})")
             if issue in {"setup required", "ollama down", "missing model", "vibe-cli missing"}:
                 lines.append("Tip: SETUP vibe")
@@ -1290,6 +1328,12 @@ class UCLI:
         print(self._theme_text("\nVibe (Local)"))
         self.renderer.stream_text("\n".join(lines), prefix="vibe> ")
         print("")
+        return {
+            "local_ready": bool(ok_status.get("ready")),
+            "local_issue": local_issue,
+            "cloud_ready": bool(cloud_status.get("ready")),
+            "cloud_skip": bool(cloud_status.get("skip")),
+        }
 
     def _format_ai_status_line(self, label: str, status: Dict[str, Any]) -> str:
         """Format a single AI mode status line."""

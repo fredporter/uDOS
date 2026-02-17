@@ -23,6 +23,12 @@ def test_decode_key_input_mac_obsidian_shortcuts():
     assert decode_key_input("\x0f", env=env).action == "OPEN_FILE"  # Ctrl+O
 
 
-def test_decode_key_input_literal_noise():
+def test_decode_key_input_literal_sequence_prefers_last_nav():
     env = {"UDOS_KEYMAP_PROFILE": "mac-obsidian"}
-    assert decode_key_input("^[[A^[[B", env=env).action == "NOISE"
+    assert decode_key_input("^[[A^[[B", env=env).action == "NAV_DOWN"
+
+
+def test_decode_key_input_embedded_or_batched_nav():
+    env = {"UDOS_KEYMAP_PROFILE": "mac-obsidian", "UDOS_KEYMAP_SELF_HEAL": "1"}
+    assert decode_key_input("· ▶ ^[[A", env=env).action == "NAV_UP"
+    assert decode_key_input("^[[A^[[A", env=env).action == "NAV_UP"
