@@ -30,6 +30,7 @@ from wizard.routes.ollama_route_utils import (
     remove_ollama_model_payload,
     validate_model_name,
 )
+from wizard.services.provider_health_service import get_provider_health_service
 from core.services.integration_registry import get_provider_definitions
 
 
@@ -270,6 +271,27 @@ def create_provider_routes(auth_guard=None):
             "providers": _build_provider_list(),
             "quotas": quotas,
         }
+
+    @router.get("/health/summary")
+    async def provider_health_summary(stale_seconds: int = Query(300, ge=0, le=3600)):
+        """Get automated provider availability monitoring summary."""
+        svc = get_provider_health_service()
+        summary = svc.get_summary(auto_check_if_stale=True, stale_seconds=stale_seconds)
+        return {"success": True, "summary": summary}
+
+    @router.post("/health/check")
+    async def provider_health_check_now():
+        """Run provider availability checks now."""
+        svc = get_provider_health_service()
+        snapshot = svc.run_checks()
+        return {"success": True, "snapshot": snapshot}
+
+    @router.get("/health/history")
+    async def provider_health_history(limit: int = Query(20, ge=1, le=200)):
+        """Get provider health monitoring history."""
+        svc = get_provider_health_service()
+        history = svc.get_history(limit=limit)
+        return {"success": True, **history}
 
     @router.get("/{provider_id}/status")
     async def get_provider_status(provider_id: str):
