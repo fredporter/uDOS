@@ -337,7 +337,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 - [ ] Plugin marketplace: discovery, install, update flow via plugin registry.
 - [x] Provider health checks: automated provider availability monitoring.
 - [x] Extension hot-reload: live reload for wizard extensions without restart.
-- [ ] Dashboard WebSocket events: real-time status push to web-admin.
+- [x] Dashboard WebSocket events: real-time status push to web-admin.
 
 #### P2 -- Nice to Have
 - [ ] Self-heal route expansion: broader automated recovery strategies.

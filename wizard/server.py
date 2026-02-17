@@ -239,6 +239,9 @@ class WizardServer:
         # Register Extension detection routes
         from wizard.routes.extension_routes import router as extension_router
         app.include_router(extension_router)
+        from wizard.routes.dashboard_events_routes import create_dashboard_events_routes
+        dashboard_events_router = create_dashboard_events_routes(auth_guard=self._authenticate_admin)
+        app.include_router(dashboard_events_router)
 
         # Register Setup wizard routes
 
