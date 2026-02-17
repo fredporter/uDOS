@@ -15,7 +15,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
-import yaml
+try:
+    import yaml
+    HAS_YAML = True
+except ImportError:
+    HAS_YAML = False
+    yaml = None
 
 from core.services.logging_api import get_logger, get_repo_root
 from core.services.sqlite_service import SQLiteManager
@@ -616,7 +621,11 @@ class BinderCompiler:
                 "generated_at": datetime.now().isoformat(),
                 "chapter_count": len(chapters),
             }
-            header = "---\n" + yaml.safe_dump(brief) + "---\n\n"
+            if HAS_YAML:
+                header = "---\n" + yaml.safe_dump(brief) + "---\n\n"
+            else:
+                # Fallback: simple key-value format
+                header = "---\n" + '\n'.join(f'{k}: {v}' for k, v in brief.items()) + "\n---\n\n"
             body_lines: List[str] = []
             for idx, chapter in enumerate(chapters, 1):
                 title = chapter.get("title", f"Chapter {idx}")
