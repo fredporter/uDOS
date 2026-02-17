@@ -3,11 +3,14 @@ Songscribe routes for parsing and rendering Songscribe markdown.
 """
 
 from typing import Any, Dict
+from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Request
 
 from wizard.services.library_manager_service import get_library_manager
+from wizard.services.path_utils import get_memory_dir
 from groovebox.wizard.services.songscribe_service import get_songscribe_service
+from groovebox.transport.audio.groovebox import ImperialGroovebox
 
 router = APIRouter(prefix="/api/songscribe", tags=["songscribe"])
 service = get_songscribe_service()
@@ -77,4 +80,39 @@ async def songscribe_pattern(payload: Dict[str, Any]):
     return {
         "status": "ok",
         "pattern": service.to_pattern(text),
+    }
+
+
+@router.post("/transport/bridge")
+async def songscribe_transport_bridge(payload: Dict[str, Any]):
+    text = _require_text(payload)
+    cue = str(payload.get("cue") or "data").strip().lower()
+    save_wav = bool(payload.get("save_wav", False))
+    duration = float(payload.get("duration") or 2.0)
+
+    engine = ImperialGroovebox()
+    if cue == "handshake":
+        samples = engine.handshake(is_initiator=bool(payload.get("is_initiator", True)))
+    elif cue == "success":
+        samples = engine.success()
+    elif cue == "error":
+        samples = engine.error()
+    else:
+        samples = engine.data_stream(duration=max(0.1, min(duration, 10.0)))
+
+    pattern = service.to_pattern(text)
+    output_wav = None
+    if save_wav:
+        out_dir = get_memory_dir() / "groovebox" / "transport"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        stamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+        out_path = out_dir / f"songscribe-{cue}-{stamp}.wav"
+        output_wav = str(engine.save_wav(samples, str(out_path)))
+
+    return {
+        "status": "ok",
+        "cue": cue,
+        "sample_count": len(samples),
+        "pattern": pattern,
+        "wav_path": output_wav,
     }
