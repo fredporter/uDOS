@@ -6,6 +6,12 @@ on:
       build_id:
         description: 'Build identifier'
         required: false
+  workflow_call:
+    inputs:
+      build_id:
+        description: 'Build identifier'
+        required: false
+        type: string
 
 jobs:
   build-core:
@@ -13,42 +19,42 @@ jobs:
     uses: ./.github/workflows/build-core.yml
     with:
       target: core
-      build_id: ${{ github.event.inputs.build_id || github.run_id }}
-  
+      build_id: ${{ inputs.build_id || github.run_id }}
+
   build-wizard:
     name: Build Wizard
     uses: ./.github/workflows/build-wizard.yml
     with:
       target: wizard
-      build_id: ${{ github.event.inputs.build_id || github.run_id }}
-  
+      build_id: ${{ inputs.build_id || github.run_id }}
+
   build-api:
     name: Build API
     uses: ./.github/workflows/build-api.yml
     with:
       target: api
-      build_id: ${{ github.event.inputs.build_id || github.run_id }}
-  
+      build_id: ${{ inputs.build_id || github.run_id }}
+
   build-transport:
     name: Build Transport
     uses: ./.github/workflows/build-transport.yml
     with:
       target: transport
-      build_id: ${{ github.event.inputs.build_id || github.run_id }}
-  
+      build_id: ${{ inputs.build_id || github.run_id }}
+
   build-app:
     name: Build App
     uses: ./.github/workflows/build-app.yml
     with:
       target: app
-      build_id: ${{ github.event.inputs.build_id || github.run_id }}
-  
+      build_id: ${{ inputs.build_id || github.run_id }}
+
   summary:
     name: Build Summary
     runs-on: ubuntu-latest
     needs: [build-core, build-wizard, build-api, build-transport, build-app]
     if: always()
-    
+
     steps:
       - name: Check build results
         run: |
@@ -61,7 +67,7 @@ jobs:
           echo "| API | ${{ needs.build-api.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Transport | ${{ needs.build-transport.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| App | ${{ needs.build-app.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
-          
+
           if [[ "${{ needs.build-core.result }}" == "failure" ]] || \
              [[ "${{ needs.build-wizard.result }}" == "failure" ]] || \
              [[ "${{ needs.build-api.result }}" == "failure" ]] || \
