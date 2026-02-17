@@ -26,6 +26,7 @@ except ImportError:
 import sys
 import os
 import logging
+import re
 from typing import Optional, List, Iterable, Tuple, Dict
 
 from .autocomplete import AutocompleteService
@@ -687,40 +688,73 @@ class SmartPrompt:
             User input
         """
         try:
-            raw_input = input(prompt_text)
-            normalized = normalize_terminal_input(raw_input)
-            fallback_fkey = self._parse_fallback_function_key(normalized)
-            if fallback_fkey:
-                self._trigger_function_key(fallback_fkey)
-                return self._ask_fallback(prompt_text)
-            special_key = parse_special_key(normalized)
-            if special_key and special_key in {"UP", "DOWN", "LEFT", "RIGHT", "HOME", "END", "DELETE"}:
-                # Ignore navigation-only input and reprompt.
-                return self._ask_fallback(prompt_text)
+            while True:
+                self._render_fallback_toolbar()
+                raw_input = input(prompt_text)
+                normalized = normalize_terminal_input(raw_input)
+                fallback_fkey = self._parse_fallback_function_key(normalized)
+                if fallback_fkey:
+                    self._trigger_function_key(fallback_fkey)
+                    continue
 
-            had_escape = "\x1b" in normalized
-            if had_escape:
-                # Strip ANSI escape sequences (arrows, colors, etc.)
-                normalized = strip_ansi_sequences(normalized)
-            if "\t" in normalized:
-                tab_selection = self._handle_tab_shortcut()
-                if tab_selection:
-                    return tab_selection.strip()
-                # Continue prompting
-                return self._ask_fallback(prompt_text)
+                special_key = parse_special_key(normalized)
+                if special_key and special_key in {"UP", "DOWN", "LEFT", "RIGHT", "HOME", "END", "DELETE"}:
+                    # Ignore navigation-only input and reprompt.
+                    continue
 
-            user_input = normalized.strip()
+                had_escape = "\x1b" in normalized
+                if had_escape:
+                    # Strip ANSI escape sequences (arrows, colors, etc.)
+                    normalized = strip_ansi_sequences(normalized)
 
-            if not user_input and had_escape:
-                # Ignore bare arrow-key sequences in fallback mode
-                return self._ask_fallback(prompt_text)
+                if "\t" in normalized:
+                    tab_selection = self._handle_tab_shortcut()
+                    if tab_selection:
+                        return tab_selection.strip()
+                    continue
 
-            if user_input:
-                self._record_input(user_input)
+                user_input = normalized.strip()
+                if had_escape and self._looks_like_escape_noise(user_input):
+                    # Self-heal for terminals that echo raw control keys as text.
+                    continue
 
-            return user_input
+                if user_input:
+                    self._record_input(user_input)
+
+                return user_input
         except (KeyboardInterrupt, EOFError):
             return ""
+
+    def _looks_like_escape_noise(self, text: str) -> bool:
+        """Return True for non-semantic control-key residue in fallback mode."""
+        if not text:
+            return True
+        # Keep any meaningful alphanumeric input.
+        if re.search(r"[A-Za-z0-9]", text):
+            return False
+        # Strings of punctuation/symbols (e.g. '· ▶') are usually control-key echo noise.
+        return True
+
+    def _render_fallback_toolbar(self) -> None:
+        """Best-effort toolbar rendering when prompt_toolkit is unavailable."""
+        if not self.bottom_toolbar_provider:
+            return
+        try:
+            lines = self.bottom_toolbar_provider("")
+            if lines is None:
+                return
+            if isinstance(lines, str):
+                if lines.strip():
+                    print(lines)
+                return
+            for line in lines:
+                if line is None:
+                    continue
+                s = str(line)
+                if s.strip():
+                    print(s)
+        except Exception as exc:
+            debug_logger.debug(f"Fallback toolbar render failed: {exc}")
 
     def _parse_fallback_function_key(self, raw_input: str) -> Optional[str]:
         """Best-effort F1-F8 parsing in fallback mode across common terminals."""
