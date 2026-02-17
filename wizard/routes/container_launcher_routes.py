@@ -12,6 +12,8 @@ from pathlib import Path
 import json
 import subprocess
 import asyncio
+import shutil
+from pydantic import BaseModel, Field
 
 from wizard.services.path_utils import get_repo_root
 from wizard.services.logging_api import get_logger
@@ -19,6 +21,134 @@ from wizard.services.logging_api import get_logger
 logger = get_logger("container-launcher")
 
 router = APIRouter(prefix="/api/containers", tags=["containers"])
+
+
+class ComposeUpRequest(BaseModel):
+    profiles: List[str] = Field(default_factory=list)
+    build: bool = False
+    detach: bool = True
+
+
+class ComposeDownRequest(BaseModel):
+    profiles: List[str] = Field(default_factory=list)
+    remove_orphans: bool = True
+
+
+class ComposeOrchestrator:
+    VALID_PROFILES = {"scheduler", "homeassistant", "groovebox", "all"}
+
+    def __init__(self, repo_root: Path = None):
+        self.repo_root = repo_root or get_repo_root()
+        self.compose_file = self.repo_root / "docker-compose.yml"
+
+    def _normalize_profiles(self, profiles: Optional[List[str]]) -> List[str]:
+        normalized = [p.strip().lower() for p in (profiles or []) if p and p.strip()]
+        invalid = sorted([p for p in normalized if p not in self.VALID_PROFILES])
+        if invalid:
+            raise HTTPException(status_code=400, detail=f"Invalid compose profiles: {', '.join(invalid)}")
+        if "all" in normalized:
+            return ["all"]
+        deduped: List[str] = []
+        seen = set()
+        for profile in normalized:
+            if profile not in seen:
+                seen.add(profile)
+                deduped.append(profile)
+        return deduped
+
+    def _docker_available(self) -> bool:
+        if shutil.which("docker") is None:
+            return False
+        probe = subprocess.run(
+            ["docker", "compose", "version"],
+            cwd=str(self.repo_root),
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        return probe.returncode == 0
+
+    def _compose_base_cmd(self, profiles: List[str]) -> List[str]:
+        cmd = ["docker", "compose", "-f", str(self.compose_file)]
+        for profile in profiles:
+            cmd.extend(["--profile", profile])
+        return cmd
+
+    def up(self, profiles: Optional[List[str]] = None, build: bool = False, detach: bool = True) -> Dict[str, Any]:
+        normalized = self._normalize_profiles(profiles)
+        if not self._docker_available():
+            return {"success": False, "detail": "docker compose unavailable", "profiles": normalized}
+
+        cmd = self._compose_base_cmd(normalized) + ["up"]
+        if detach:
+            cmd.append("-d")
+        if build:
+            cmd.append("--build")
+
+        proc = subprocess.run(
+            cmd,
+            cwd=str(self.repo_root),
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+        return {
+            "success": proc.returncode == 0,
+            "profiles": normalized,
+            "command": cmd,
+            "stdout": (proc.stdout or "").strip()[:2000],
+            "stderr": (proc.stderr or "").strip()[:2000],
+        }
+
+    def down(self, profiles: Optional[List[str]] = None, remove_orphans: bool = True) -> Dict[str, Any]:
+        normalized = self._normalize_profiles(profiles)
+        if not self._docker_available():
+            return {"success": False, "detail": "docker compose unavailable", "profiles": normalized}
+
+        cmd = self._compose_base_cmd(normalized) + ["down"]
+        if remove_orphans:
+            cmd.append("--remove-orphans")
+
+        proc = subprocess.run(
+            cmd,
+            cwd=str(self.repo_root),
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+        return {
+            "success": proc.returncode == 0,
+            "profiles": normalized,
+            "command": cmd,
+            "stdout": (proc.stdout or "").strip()[:2000],
+            "stderr": (proc.stderr or "").strip()[:2000],
+        }
+
+    def status(self) -> Dict[str, Any]:
+        available_profiles = sorted(list(self.VALID_PROFILES))
+        if not self._docker_available():
+            return {
+                "success": False,
+                "docker_available": False,
+                "profiles": available_profiles,
+                "running_services": [],
+            }
+
+        cmd = ["docker", "compose", "-f", str(self.compose_file), "ps", "--services", "--filter", "status=running"]
+        proc = subprocess.run(
+            cmd,
+            cwd=str(self.repo_root),
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        running = [line.strip() for line in (proc.stdout or "").splitlines() if line.strip()]
+        return {
+            "success": proc.returncode == 0,
+            "docker_available": True,
+            "profiles": available_profiles,
+            "running_services": running,
+        }
 
 
 class ContainerLauncher:
@@ -229,6 +359,7 @@ class ContainerLauncher:
 
 # Create singleton launcher
 _launcher: Optional[ContainerLauncher] = None
+_orchestrator: Optional[ComposeOrchestrator] = None
 
 
 def get_launcher() -> ContainerLauncher:
@@ -239,7 +370,47 @@ def get_launcher() -> ContainerLauncher:
     return _launcher
 
 
+def get_orchestrator() -> ComposeOrchestrator:
+    global _orchestrator
+    if _orchestrator is None:
+        _orchestrator = ComposeOrchestrator()
+    return _orchestrator
+
+
 # Routes
+@router.post("/compose/up", response_model=Dict[str, Any])
+async def compose_up(payload: ComposeUpRequest, request: Request):
+    orchestrator = get_orchestrator()
+    result = orchestrator.up(
+        profiles=payload.profiles,
+        build=payload.build,
+        detach=payload.detach,
+    )
+    if not result.get("success"):
+        detail = result.get("detail") or result.get("stderr") or "compose up failed"
+        raise HTTPException(status_code=500, detail=detail)
+    return result
+
+
+@router.post("/compose/down", response_model=Dict[str, Any])
+async def compose_down(payload: ComposeDownRequest, request: Request):
+    orchestrator = get_orchestrator()
+    result = orchestrator.down(
+        profiles=payload.profiles,
+        remove_orphans=payload.remove_orphans,
+    )
+    if not result.get("success"):
+        detail = result.get("detail") or result.get("stderr") or "compose down failed"
+        raise HTTPException(status_code=500, detail=detail)
+    return result
+
+
+@router.get("/compose/status", response_model=Dict[str, Any])
+async def compose_status(request: Request):
+    orchestrator = get_orchestrator()
+    return orchestrator.status()
+
+
 @router.post("/{container_id}/launch")
 async def launch_container(container_id: str, request: Request, background_tasks: BackgroundTasks):
     """Launch a containerized plugin."""
