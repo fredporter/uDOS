@@ -1,6 +1,6 @@
 # uDOS Roadmap (Canonical)
 
-Last updated: 2026-02-17
+Last updated: 2026-02-17 (v1.4.0 released)
 
 This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs/devlog/ROADMAP-LEGACY.md](devlog/ROADMAP-LEGACY.md).
 
@@ -10,9 +10,9 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 
 - Core concept: uDOS is a local Obsidian companion runtime focused on `@workspace`/`@binder` organization, fractal/layered filesystem structures, knowledge-tree navigation, and digital-garden workflows.
 - Milestones v1.3.0 to v1.3.7: complete (archived records exist).
-- Current focus: v1.4.0 execution order (containerization/modularization) plus active uCLI TUI parity and advanced I/O hardening; next dev round is deployed and in execution.
-- Version alignment: monorepo is on `v1.3.14` dev cycle; latest published release manifest remains `v1.3.12`.
-- Outstanding (active): v1.4.0 platform/containerization and Wizard publish roadmap items remain open; v1.3.x stabilization rounds are complete.
+- Current focus: v1.4.0 is complete and released. Next active work is Groovebox v1.4+ (Songscribe parser pipeline, deferred from v1.4.0).
+- Version alignment: monorepo bumped to `v1.4.0` stable release.
+- Outstanding (active): Groovebox v1.4+ pipeline (Songscribe parser, audio synthesis, MIDI/WAV export, transport layer). All v1.4.0 Core and Wizard items are complete.
 - Dev mode policy: `/dev/` public submodule required and admin-only; see [DEV-MODE-POLICY.md](DEV-MODE-POLICY.md).
 - Core/Wizard boundary: `core` is the base runtime; `wizard` is the brand for connected services. Core can run without Wizard (limited). Wizard cannot run without Core.
 - Python environment boundary (2026-02-15): Core Python is stdlib-only and must run without a venv; Wizard owns third-party Python in `/wizard/.venv`; `/dev` piggybacks Wizard venv; Core TS runtime remains optional/lightweight.
@@ -331,7 +331,7 @@ Reference:
 - [x] Sonic Screwdriver Dockerfile (ISO/USB builder).
 - [x] Songscribe/Groovebox Dockerfile.
 - [x] Verify all `docker compose --profile` combinations work.
-- [ ] Library manager: `LIBRARY sync` and `LIBRARY status` commands.
+- [x] Library manager: `LIBRARY sync`, `LIBRARY status`, and `LIBRARY info` commands.
 
 #### P2 -- Code Quality and Modularization
 - [ ] Review long route factory functions for modularization opportunities:
@@ -392,9 +392,13 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 
 ## Groovebox Roadmap
 
-**Component:** `groovebox/` | **Current:** v1.3.14 (dev cycle; release manifest v1.3.12) | **Status:** Early Development
+**Component:** `groovebox/` | **Current:** v1.4.0 (deferred items) | **Status:** Deferred to v1.4+
 
-### v1.4.0
+### v1.4.0 (Deferred → v1.4+)
+
+Groovebox P0 pipeline was deferred from v1.4.0 to keep the v1.4.0 release focused on Core containerization and library management. The Songscribe Dockerfile and Groovebox smoke gate were completed as part of v1.4.0 container readiness; the full parser/synthesis pipeline moves to v1.4+.
+
+### v1.4+ -- Songscribe Pipeline
 
 #### P0 -- Must Have
 - [ ] Songscribe parser: tokenizer and AST for `.songscribe` markdown grammar.

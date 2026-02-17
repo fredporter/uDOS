@@ -4,11 +4,11 @@
   "name": "uDOS",
   "version": {
     "major": 1,
-    "minor": 3,
-    "patch": 14
+    "minor": 4,
+    "patch": 0
   },
-  "display": "v1.3.14",
-  "channel": "dev",
+  "display": "v1.4.0",
+  "channel": "stable",
   "released": "2026-02-17",
-  "description": "uDOS development cycle version"
+  "description": "v1.4.0 — Containerization, library management, and modularization"
 }
