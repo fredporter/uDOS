@@ -580,6 +580,15 @@ def create_default_registry() -> CommandRegistry:
         category="Management",
     )
 
+    registry.register(
+        name="DESTROY",
+        help_text="System cleanup/reset operations (admin-only)",
+        syntax="DESTROY [mode]",
+        examples=["DESTROY", "DESTROY CLEANUP", "DESTROY NUCLEAR"],
+        icon="•",
+        category="Management",
+    )
+
     # Wizard Commands
     registry.register(
         name="WIZARD",

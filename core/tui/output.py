@@ -18,6 +18,16 @@ class OutputToolkit:
     RESET = "\033[0m"
     INVERT = "\033[7m"
     DIM = "\033[2m"
+    SYMBOLS = {
+        "info": "•",
+        "ok": "✓",
+        "warn": "!",
+        "error": "✗",
+        "progress": "◌",
+        "tip": "›",
+        "step": "→",
+        "milestone": "★",
+    }
 
     @staticmethod
     def banner(title: str, width: Optional[int] = None, pad: str = "=") -> str:
@@ -134,6 +144,19 @@ class OutputToolkit:
     def alert(message: str, level: str = "info") -> str:
         prefix = {"info": "INFO", "warn": "WARN", "error": "ERROR"}.get(level, "INFO")
         return OutputToolkit._clamp(f"[{prefix}] {message}")
+
+    @staticmethod
+    def line(message: str, level: str = "info", mood: Optional[str] = None) -> str:
+        """
+        Render a single consistently-prefixed line.
+
+        mood is optional and should be used sparingly for milestone outputs.
+        """
+        symbol = OutputToolkit.SYMBOLS.get(level, OutputToolkit.SYMBOLS["info"])
+        prefix = f"{symbol} "
+        if mood:
+            prefix = f"{mood} {prefix}"
+        return OutputToolkit._clamp(f"{prefix}{message}")
 
     @staticmethod
     def checklist(items: Sequence[Tuple[str, bool]]) -> str:

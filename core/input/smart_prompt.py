@@ -317,7 +317,8 @@ class SmartPrompt:
                 "completion.meta": "ansiyellow",       # Yellow hints
                 "scrollbar": "ansicyan",               # Cyan scrollbar
                 "scrollbar.background": "ansiblack",   # Dark background
-                "bottom-toolbar": "ansibrightblack bg:ansiblack",
+                # Keep high contrast so toolbar remains visible across terminals/themes.
+                "bottom-toolbar": "ansiwhite bg:ansiblack",
                 "bottom-toolbar.suggestion": "ansibrightblue",
                 "bottom-toolbar.help": "ansiyellow",
                 "bottom-toolbar.tip": "ansicyan",
@@ -384,6 +385,12 @@ class SmartPrompt:
 
         for key_name in function_key_names:
             _bind_function_key(key_name)
+
+        # macOS/Linux compatibility: allow Meta+1..8 as soft aliases for F1..F8.
+        for index, key_name in enumerate(function_key_names, start=1):
+            @bindings.add("escape", str(index))
+            def _handle_meta_digit(event, _key=key_name):
+                self._trigger_function_key(_key)
 
         @bindings.add(Keys.Tab)
         def _(event):
@@ -676,6 +683,10 @@ class SmartPrompt:
         """
         try:
             raw_input = input(prompt_text)
+            fallback_fkey = self._parse_fallback_function_key(raw_input)
+            if fallback_fkey:
+                self._trigger_function_key(fallback_fkey)
+                return self._ask_fallback(prompt_text)
             had_escape = "\x1b" in raw_input
             if had_escape:
                 import re
@@ -700,6 +711,43 @@ class SmartPrompt:
             return user_input
         except (KeyboardInterrupt, EOFError):
             return ""
+
+    def _parse_fallback_function_key(self, raw_input: str) -> Optional[str]:
+        """Best-effort F1-F8 parsing in fallback mode across common terminals."""
+        if not raw_input:
+            return None
+
+        key_map = {
+            # VT/ANSI forms (macOS Terminal, iTerm2, many Linux terminals)
+            "\x1bOP": "F1",
+            "\x1bOQ": "F2",
+            "\x1bOR": "F3",
+            "\x1bOS": "F4",
+            "\x1b[15~": "F5",
+            "\x1b[17~": "F6",
+            "\x1b[18~": "F7",
+            "\x1b[19~": "F8",
+            # xterm alternate forms
+            "\x1b[11~": "F1",
+            "\x1b[12~": "F2",
+            "\x1b[13~": "F3",
+            "\x1b[14~": "F4",
+            # legacy rxvt forms
+            "\x1b[[A": "F1",
+            "\x1b[[B": "F2",
+            "\x1b[[C": "F3",
+            "\x1b[[D": "F4",
+            # Meta-digit soft aliases (useful on laptop keyboards)
+            "\x1b1": "F1",
+            "\x1b2": "F2",
+            "\x1b3": "F3",
+            "\x1b4": "F4",
+            "\x1b5": "F5",
+            "\x1b6": "F6",
+            "\x1b7": "F7",
+            "\x1b8": "F8",
+        }
+        return key_map.get(raw_input)
 
     def _handle_tab_shortcut(self) -> Optional[str]:
         """Invoke command selector via Tab even in fallback mode."""

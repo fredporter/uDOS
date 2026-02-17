@@ -29,7 +29,7 @@ from datetime import datetime
 from enum import Enum
 
 from core.services.logging_api import get_repo_root
-from core.tui.ui_elements import Spinner
+from core.tui.ui_elements import Spinner, ProgressBar
 
 
 class FunctionKeyCode(Enum):
@@ -71,6 +71,12 @@ class FKeyHandler:
             "F7": self._handle_fkey_help,
             "F8": self._handle_wizard,
         }
+
+    def _progress_line(self, phase: str, label: str, percent: int) -> None:
+        """Render consistent progress output for long-running F-key actions."""
+        pct = max(0, min(100, int(percent)))
+        bar = ProgressBar(total=100, width=24).render(pct, label=phase.upper())
+        print(f"{bar}  {label}")
 
     def handle_key(self, key_code: str) -> Optional[Dict]:
         """
@@ -114,6 +120,32 @@ class FKeyHandler:
         for fkey in FunctionKeyCode:
             if key_code == fkey.value:
                 return fkey.name
+
+        # Additional terminal variants (xterm/rxvt) + Meta-digit aliases.
+        alias_map = {
+            "\x1b[OP": "F1",
+            "\x1b[OQ": "F2",
+            "\x1b[OR": "F3",
+            "\x1b[OS": "F4",
+            "\x1b[11~": "F1",
+            "\x1b[12~": "F2",
+            "\x1b[13~": "F3",
+            "\x1b[14~": "F4",
+            "\x1b[[A": "F1",
+            "\x1b[[B": "F2",
+            "\x1b[[C": "F3",
+            "\x1b[[D": "F4",
+            "\x1b1": "F1",
+            "\x1b2": "F2",
+            "\x1b3": "F3",
+            "\x1b4": "F4",
+            "\x1b5": "F5",
+            "\x1b6": "F6",
+            "\x1b7": "F7",
+            "\x1b8": "F8",
+        }
+        if key_code in alias_map:
+            return alias_map[key_code]
 
         # Try numeric parsing for F5-F8 variants
         if key_code.startswith("\x1b["):
@@ -355,10 +387,12 @@ Tips:
             stop = threading.Event()
             spinner = Spinner(label="Starting Wizard", show_elapsed=False)
             thread = spinner.start_background(stop)
+            self._progress_line("loading", "Wizard startup", 0)
             time.sleep(2)
             stop.set()
             thread.join(timeout=1)
             spinner.stop("Wizard start complete")
+            self._progress_line("loading", "Wizard startup complete", 100)
 
             # Open dashboard
             webbrowser.open(dashboard_url)

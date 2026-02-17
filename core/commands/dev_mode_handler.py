@@ -85,6 +85,8 @@ class DevModeHandler(BaseCommandHandler):
                 }
             marker_paths = [
                 dev_root / "README.md",
+                dev_root / "docs" / "README.md",
+                dev_root / "docs" / "templates",
                 dev_root / "goblin" / "README.md",
                 dev_root / "goblin" / "dev_mode_commands.json",
                 dev_root / "goblin" / "scripts",
@@ -125,6 +127,8 @@ class DevModeHandler(BaseCommandHandler):
 
     def _resolve_action(self, raw_action: str) -> str:
         action = (raw_action or "status").strip().lower()
+        if action in {"mode", "state"}:
+            return "status"
         manifest = self._dev_manifest()
         actions = manifest.get("actions") or {}
         for canonical, meta in actions.items():

@@ -1,4 +1,4 @@
-import { isEmojiShortcode } from "./index";
+import { isEmojiShortcode } from "./index.js";
 
 export type EmojiRenderer = (shortcode: string) => string;
 

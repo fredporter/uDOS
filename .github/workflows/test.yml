@@ -20,8 +20,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Initialize Sonic submodule only
+        run: |
+          git submodule sync -- sonic
+          git -c protocol.version=2 submodule update --init --depth=1 -- sonic
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -47,8 +50,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Initialize Sonic submodule only
+        run: |
+          git submodule sync -- sonic
+          git -c protocol.version=2 submodule update --init --depth=1 -- sonic
 
       - name: Set up Python
         uses: actions/setup-python@v5

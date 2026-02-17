@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import type { EmojiReference, EmojiShortcode } from "./types";
+import type { EmojiReference, EmojiShortcode } from "./types.js";
 
 let cachedReference: EmojiReference | null = null;
 let cachedSet: ReadonlySet<EmojiShortcode> | null = null;

@@ -33,7 +33,16 @@ def interactive_tty_status(
     term = env.get("TERM", "").lower()
     allow_dumb = _truthy(env.get("UDOS_TTY")) or _truthy(env.get("UDOS_ALLOW_DUMB_TTY"))
     if term in ("", "dumb") and not allow_dumb:
-        return False, f"TERM={env.get('TERM', '<empty>')}"
+        # Some wrapper terminals report TERM=dumb but still support interactive input.
+        wrapper_hints = (
+            env.get("TERM_PROGRAM")
+            or env.get("COLORTERM")
+            or env.get("WT_SESSION")
+            or env.get("TMUX")
+            or env.get("VSCODE_PID")
+        )
+        if not wrapper_hints:
+            return False, f"TERM={env.get('TERM', '<empty>')}"
 
     ci = env.get("CI")
     if ci:

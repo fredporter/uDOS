@@ -57,6 +57,7 @@ from core.tui.renderer import GridRenderer
 from core.tui.state import GameState
 from core.tui.fkey_handler import FKeyHandler
 from core.tui.status_bar import TUIStatusBar
+from core.tui.ui_elements import ProgressBar
 from core.ui.command_selector import CommandSelector
 from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, create_default_registry
 from core.input.confirmation_utils import (
@@ -533,6 +534,8 @@ class UCLI:
             "STATUS": "STATUS",
             "STAT": "STATUS",
             "STATE": "STATUS",
+            "DEV": "DEV",
+            "DESTROY": "DESTROY",
             "WIZARD": "WIZARD",
             "CONFIG": "CONFIG",
             "SETUP": "SETUP",
@@ -558,6 +561,8 @@ class UCLI:
         }
 
         cmd = cmd_map.get(first_word)
+        if not cmd and first_word in self.dispatcher.handlers:
+            cmd = first_word
         if not cmd and self._is_ucode_command(first_word):
             cmd = first_word
 
@@ -589,14 +594,7 @@ class UCLI:
     def run(self) -> None:
         """Start uCLI TUI."""
         self.running = True
-        self._autodetect_environment()
-        self._refresh_viewport()
-        self._run_startup_script()
-        self._show_banner()
-        self._show_health_summary()
-        self._show_ai_startup_sequence()
-        self._show_startup_hints()
-        self._run_startup_draw()
+        self._run_startup_sequence()
 
         # Check if in ghost mode and prompt for setup
         self._check_ghost_mode()
@@ -655,14 +653,17 @@ class UCLI:
 
                                     # Notify user if they've exited Ghost Mode
                                     if old_ghost_mode and not self.ghost_mode:
-                                        print("\n🎉 Ghost Mode disabled - full access granted!")
+                                        print("")
+                                        self._ui_line("Ghost Mode disabled - full access granted!", level="ok", mood="🎉")
 
-                                print("\n✅ Setup form completed!")
-                                print(f"\nCollected {len(collected_data)} values")
+                                print("")
+                                self._ui_line("Setup form completed", level="ok")
+                                self._ui_line(f"Collected {len(collected_data)} values", level="info")
                                 if collected_data:
-                                    print("\nData saved. Next steps:")
-                                    print("  SETUP --profile    - View your profile")
-                                    print("  CONFIG             - View variables")
+                                    print("")
+                                    self._ui_line("Data saved. Next steps:", level="milestone")
+                                    print(self._theme_text("  › SETUP --profile    - View your profile"))
+                                    print(self._theme_text("  › CONFIG             - View variables"))
                             else:
                                 # Show the result for non-form stories
                                 output = self.renderer.render(result)
@@ -687,14 +688,76 @@ class UCLI:
                 except Exception as e:
                     reset_corr_id(token)
                     self.logger.error(f"[ERROR] {e}", exc_info=True)
-                    print(f"ERROR: {e}")
+                    self._ui_line(str(e), level="error")
 
         except KeyboardInterrupt:
-            print("\nInterrupt. Type EXIT to quit.")
+            print("")
+            self._ui_line("Interrupt. Type EXIT to quit.", level="warn")
         except EOFError:
             self.running = False
         finally:
             self._cleanup()
+
+    def _print_task_progress(self, phase: str, label: str, percent: int) -> None:
+        """Render a consistent phase progress bar."""
+        if self.quiet:
+            return
+        pct = max(0, min(100, int(percent)))
+        bar = ProgressBar(total=100, width=28).render(pct, label=phase.upper())
+        print(self._theme_text(OutputToolkit.line(f"{bar}  {label}", level="progress")))
+
+    def _ui_line(self, message: str, level: str = "info", mood: Optional[str] = None) -> None:
+        """Render a themed line with consistent symbols and spacing."""
+        print(self._theme_text(OutputToolkit.line(message, level=level, mood=mood)))
+
+    def _run_with_progress(
+        self,
+        phase: str,
+        label: str,
+        func: Callable[[], Any],
+        *,
+        spinner_label: Optional[str] = None,
+        mood: str = "busy",
+    ) -> Any:
+        """Run a long action with consistent progress-bar + spinner output."""
+        self._print_task_progress(phase, label, 0)
+        try:
+            if self.quiet:
+                result = func()
+            else:
+                result = self._run_with_spinner(spinner_label or f"⏳ {label}", func, mood=mood)
+        except Exception:
+            self._print_task_progress(phase, f"{label} failed", 100)
+            raise
+        self._print_task_progress(phase, f"{label} complete", 100)
+        return result
+
+    def _run_startup_sequence(self) -> None:
+        """Run startup steps with consistent progress bars + spinner feedback."""
+        steps = [
+            ("loading", "Detecting environment", self._autodetect_environment),
+            ("loading", "Measuring viewport", self._refresh_viewport),
+            ("installation", "Running startup scripts", self._run_startup_script),
+            ("loading", "Rendering banner", self._show_banner),
+            ("loading", "Computing health summary", self._show_health_summary),
+            ("loading", "Checking AI availability", self._show_ai_startup_sequence),
+            ("loading", "Loading command hints", self._show_startup_hints),
+            ("loading", "Rendering startup draw", self._run_startup_draw),
+        ]
+        total = len(steps)
+
+        for idx, (phase, label, action) in enumerate(steps, start=1):
+            start_pct = int(((idx - 1) / total) * 100)
+            done_pct = int((idx / total) * 100)
+            self._print_task_progress(phase, label, start_pct)
+            try:
+                if self.quiet:
+                    action()
+                else:
+                    self._run_with_spinner(f"⏳ {label}", action)
+            except Exception as exc:
+                self.logger.warning(f"[STARTUP] Step failed ({label}): {exc}")
+            self._print_task_progress(phase, f"{label} complete", done_pct)
 
     def _open_command_selector(self) -> Optional[str]:
         """Open TAB command selector and return selected command text."""
@@ -763,12 +826,12 @@ class UCLI:
 
                     # Only show if values were auto-detected (not already set)
                     if any("OS_TYPE" in u for u in results.get("updated", [])):
-                        print(f"  🖥️  Detected OS: {os_type}")
+                        self._ui_line(f"Detected OS: {os_type}", level="info")
                     if any("UDOS_TIMEZONE" in u for u in results.get("updated", [])):
-                        print(f"  🌍 Timezone: {tz}")
+                        self._ui_line(f"Timezone: {tz}", level="info")
                     if location and any("UDOS_LOCATION" in u for u in results.get("updated", [])):
                         display = f"{location} ({grid_id})" if grid_id else location
-                        print(f"  📍 Location: {display}")
+                        self._ui_line(f"Location: {display}", level="info")
                 self.logger.info(f"[AUTO-DETECT] Updated: {', '.join(results['updated'])}")
             if results.get("errors"):
                 for error in results["errors"]:
@@ -995,7 +1058,7 @@ class UCLI:
         summary_parts = []
         if self.self_heal_summary:
             success = self.self_heal_summary.get("success", False)
-            status = "✅" if success else "⚠️"
+            status = "✓" if success else "!"
             issues = self.self_heal_summary.get("issues", 0)
             repaired = self.self_heal_summary.get("repaired", 0)
             remaining = self.self_heal_summary.get("remaining", 0)
@@ -1026,10 +1089,16 @@ class UCLI:
 
         prev_remaining = (self.previous_health_log or {}).get("self_heal", {}).get("remaining", 0)
         if prev_remaining > 0:
-            print(f"  ⚠️ Last health log recorded {prev_remaining} remaining issues; automation will rerun diagnostics on drift.")
+            self._ui_line(
+                f"Last health log recorded {prev_remaining} remaining issues; automation will rerun diagnostics on drift.",
+                level="warn",
+            )
 
         if self.self_heal_summary and self.self_heal_summary.get("remaining", 0) > 0:
-            print("  ⚠️ Automation will rerun REPAIR/HEALTH until remaining issues drop to zero.")
+            self._ui_line(
+                "Automation will rerun REPAIR/HEALTH until remaining issues drop to zero.",
+                level="warn",
+            )
 
         if self.memory_test_summary:
             status = self.memory_test_summary.get("status", "idle")
@@ -1371,7 +1440,12 @@ class UCLI:
             service = TSRuntimeService()
 
             # Check with auto_build=True to trigger automatic build if missing
-            check_result = service._check_runtime_entry(auto_build=True)
+            check_result = self._run_with_progress(
+                "installation",
+                "TypeScript runtime validation",
+                lambda: service._check_runtime_entry(auto_build=True),
+                spinner_label="⏳ TS runtime check",
+            )
 
             if check_result and check_result.get("status") == "error":
                 # Auto-build failed or runtime still missing
@@ -2106,24 +2180,18 @@ class UCLI:
                 build_script = self.repo_root / "core" / "tools" / "build_ts_runtime.sh"
                 if build_script.exists():
                     try:
-                        from core.tui.ui_elements import Spinner
-
-                        spinner = Spinner(label="Building", show_elapsed=True)
-                        spinner.start()
-                        proc = subprocess.Popen(
-                            ["bash", str(build_script)],
-                            cwd=str(self.repo_root),
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            text=True,
+                        proc = self._run_with_progress(
+                            "installation",
+                            "TypeScript runtime build",
+                            lambda: subprocess.run(
+                                ["bash", str(build_script)],
+                                cwd=str(self.repo_root),
+                                capture_output=True,
+                                text=True,
+                            ),
+                            spinner_label="⏳ Building TS runtime",
                         )
-
-                        while proc.poll() is None:
-                            spinner.tick()
-                            time.sleep(spinner.interval)
-
-                        stdout, stderr = proc.communicate()
-                        spinner.stop("Build done")
+                        stdout, stderr = proc.stdout, proc.stderr
 
                         if proc.returncode == 0:
                             print("   OK TypeScript runtime built successfully.")
@@ -2628,9 +2696,11 @@ For detailed help on any command, type the command name followed by --help
         if use_cloud:
             try:
                 print(self._theme_text("OK → Cloud (Mistral)"))
-                cloud_result = self._run_with_spinner(
-                    "⏳ OK cloud",
+                cloud_result = self._run_with_progress(
+                    "loading",
+                    "OK cloud request",
                     lambda: self._run_ok_cloud(prompt),
+                    spinner_label="⏳ OK cloud",
                 )
                 response = cloud_result.get("response")
                 model = cloud_result.get("model") or model
@@ -2642,17 +2712,21 @@ For detailed help on any command, type the command name followed by --help
         if response is None:
             print(self._theme_text(f"OK → Vibe ({model}, local)"))
             try:
-                response = self._run_with_spinner(
-                    "⏳ OK local",
+                response = self._run_with_progress(
+                    "loading",
+                    "OK local request",
                     lambda: self._run_ok_local(prompt, model=model),
+                    spinner_label="⏳ OK local",
                 )
             except Exception as exc:
                 if auto_fallback and not use_cloud:
                     try:
                         print(self._theme_text("⚠️  Local failed. Trying cloud (Mistral)."))
-                        cloud_result = self._run_with_spinner(
-                            "⏳ OK cloud",
+                        cloud_result = self._run_with_progress(
+                            "loading",
+                            "OK fallback cloud request",
                             lambda: self._run_ok_cloud(prompt),
+                            spinner_label="⏳ OK cloud",
                         )
                         response = cloud_result.get("response")
                         model = cloud_result.get("model") or model
@@ -2680,9 +2754,11 @@ For detailed help on any command, type the command name followed by --help
             if self._needs_cloud_sanity_check(entry.get("response") or ""):
                 try:
                     print(self._theme_text("\nOK → Cloud sanity check"))
-                    cloud_result = self._run_with_spinner(
-                        "⏳ OK cloud",
+                    cloud_result = self._run_with_progress(
+                        "loading",
+                        "OK cloud sanity check",
                         lambda: self._run_ok_cloud(prompt),
+                        spinner_label="⏳ OK cloud",
                     )
                     cloud_response = cloud_result.get("response") or ""
                     if cloud_response:
@@ -2716,17 +2792,23 @@ For detailed help on any command, type the command name followed by --help
 
     def _run_ok_setup(self) -> None:
         """Install local OK helper stack (ollama, vibe-cli, models) if possible."""
-        print(self._theme_text("\n⚙️  OK SETUP: Installing local AI helpers"))
+        print("")
+        self._ui_line("OK SETUP: Installing local AI helpers", level="milestone")
         try:
             from core.services.ok_setup import run_ok_setup
-
-            result = run_ok_setup(self.repo_root, log=lambda msg: print(self._theme_text(msg)))
+            result = self._run_with_progress(
+                "installation",
+                "OK helper installation",
+                lambda: run_ok_setup(self.repo_root, log=lambda msg: print(self._theme_text(msg))),
+                spinner_label="⏳ Installing OK helpers",
+            )
             self.ai_modes_config = self._load_ai_modes_config()
             for warning in result.get("warnings", []):
-                print(self._theme_text(f"  ⚠️  {warning}"))
+                self._ui_line(warning, level="warn")
         except Exception as exc:
-            print(self._theme_text(f"  ⚠️  OK SETUP failed: {exc}"))
-        print(self._theme_text("✅ OK SETUP complete.\n"))
+            self._ui_line(f"OK SETUP failed: {exc}", level="error")
+        self._ui_line("OK SETUP complete", level="ok")
+        print("")
 
     def _maybe_run_ok_setup(self, requested: bool) -> None:
         if not requested:
@@ -2816,14 +2898,19 @@ For detailed help on any command, type the command name followed by --help
             print(self._theme_text("Usage: OK PULL <model>"))
             return
         if not shutil.which("ollama"):
-            print(self._theme_text("⚠️  Ollama not found. Install first via OK SETUP or SETUP VIBE."))
+            self._ui_line("Ollama not found. Install first via OK SETUP or SETUP VIBE.", level="warn")
             return
         try:
-            print(self._theme_text(f"⬇️  Pulling Ollama model: {model}"))
+            self._ui_line(f"Pulling Ollama model: {model}", level="step")
             from core.services.ok_setup import pull_ollama_model
-            result = pull_ollama_model(model, log=lambda msg: print(self._theme_text(msg)))
+            result = self._run_with_progress(
+                "download",
+                f"Model download ({model})",
+                lambda: pull_ollama_model(model, log=lambda msg: print(self._theme_text(msg))),
+                spinner_label=f"⏳ Downloading {model}",
+            )
             if result.get("success") != "true":
-                print(self._theme_text(f"⚠️  OK PULL failed: {result.get('error', 'unknown error')}"))
+                self._ui_line(f"OK PULL failed: {result.get('error', 'unknown error')}", level="error")
                 return
             # Update ok_modes.json so the model appears in routing lists.
             try:
@@ -2840,10 +2927,11 @@ For detailed help on any command, type the command name followed by --help
                     models.append({"name": pulled_name, "availability": ["core"]})
                     config_path.write_text(json.dumps(config, indent=2))
             except Exception as exc:
-                print(self._theme_text(f"⚠️  OK PULL: could not update ok_modes.json: {exc}"))
-            print(self._theme_text("✅ OK PULL complete.\n"))
+                self._ui_line(f"OK PULL: could not update ok_modes.json: {exc}", level="warn")
+            self._ui_line("OK PULL complete", level="ok")
+            print("")
         except Exception as exc:
-            print(self._theme_text(f"⚠️  OK PULL failed: {exc}"))
+            self._ui_line(f"OK PULL failed: {exc}", level="error")
 
     def _cmd_ok_route(self, args: str) -> None:
         """OK ROUTE <prompt> [--dry-run]."""
@@ -2934,14 +3022,19 @@ For detailed help on any command, type the command name followed by --help
         try:
             # Check if already running
             try:
-                resp = requests.get("http://127.0.0.1:8765/health", timeout=1)
+                resp = self._run_with_progress(
+                    "loading",
+                    "Wizard health probe",
+                    lambda: requests.get("http://127.0.0.1:8765/health", timeout=1),
+                    spinner_label="⏳ Probing Wizard",
+                )
                 if resp.status_code == 200:
-                    print("  ✅ Wizard already running")
+                    self._ui_line("Wizard already running", level="ok")
                     return
             except requests.exceptions.ConnectionError:
                 pass  # Not running, proceed
 
-            print("  Starting Wizard Server...")
+            self._ui_line("Starting Wizard Server", level="step")
             venv_activate = self.repo_root / ".venv" / "bin" / "activate"
 
             # Build command - use module execution for correct imports
@@ -2958,45 +3051,63 @@ For detailed help on any command, type the command name followed by --help
             try:
                 with open(str(log_file), 'w') as log:
                     # Redirect stderr to stdout in the shell command so we capture it
-                    proc = subprocess.Popen(
-                        cmd,
-                        shell=True,
-                        cwd=str(self.repo_root),
-                        stdin=subprocess.DEVNULL,
-                        stdout=log,
-                        stderr=log,
-                        preexec_fn=os.setsid if sys.platform != 'win32' else None
+                    proc = self._run_with_progress(
+                        "loading",
+                        "Wizard process spawn",
+                        lambda: subprocess.Popen(
+                            cmd,
+                            shell=True,
+                            cwd=str(self.repo_root),
+                            stdin=subprocess.DEVNULL,
+                            stdout=log,
+                            stderr=log,
+                            preexec_fn=os.setsid if sys.platform != 'win32' else None
+                        ),
+                        spinner_label="⏳ Spawning Wizard",
                     )
             except Exception as start_err:
                 raise Exception(f"Failed to spawn wizard process: {start_err}")
 
             # Wait for server to be ready (increased to 30 seconds to allow slow initialization)
             max_wait = 30
-            start = time.time()
-            attempt = 0
-            while time.time() - start < max_wait:
-                try:
-                    resp = requests.get("http://127.0.0.1:8765/health", timeout=1)
-                    if resp.status_code == 200:
-                        print(f"  ✅ Wizard Server started (PID: {proc.pid})")
-                        sys.stdout.flush()  # Ensure output is flushed
-                        return
-                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
-                    attempt += 1
+            def _wait_for_wizard() -> bool:
+                start = time.time()
+                while time.time() - start < max_wait:
+                    elapsed = time.time() - start
+                    pct = int(min(99, (elapsed / max_wait) * 100))
+                    self._print_task_progress("loading", "Wizard health check", pct)
+                    try:
+                        resp = requests.get("http://127.0.0.1:8765/health", timeout=1)
+                        if resp.status_code == 200:
+                            self._print_task_progress("loading", "Wizard health check complete", 100)
+                            return True
+                    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+                        pass
+                    except Exception:
+                        pass
                     time.sleep(0.5)
-                except Exception as e:
-                    # Other request errors, keep trying
-                    time.sleep(0.5)
+                return False
+
+            ready = self._run_with_progress(
+                "loading",
+                "Wizard startup wait",
+                _wait_for_wizard,
+                spinner_label="⏳ Waiting for Wizard",
+            )
+            if ready:
+                self._ui_line(f"Wizard Server started (PID: {proc.pid})", level="ok")
+                sys.stdout.flush()
+                return
 
             # If we get here, server didn't respond
-            print("  ⚠️  Wizard Server started but not responding (timeout after 30s)")
-            print(f"  Check {log_file} for startup logs")
-            print(f"  Tip: tail -f {log_file}")
+            self._ui_line("Wizard Server started but not responding (timeout after 30s)", level="warn")
+            self._ui_line(f"Check {log_file} for startup logs", level="info")
+            self._ui_line(f"Tip: tail -f {log_file}", level="tip")
             sys.stdout.flush()
 
         except Exception as e:
             self.logger.error(f"Failed to start Wizard: {e}")
-            print(f"  ❌ Error: {e}")
+            self._ui_line(f"Error: {e}", level="error")
             sys.stdout.flush()
 
     def _wizard_stop(self) -> None:
@@ -3004,45 +3115,69 @@ For detailed help on any command, type the command name followed by --help
         try:
             # Kill all python processes running wizard server
             # Match both 'wizard/server.py' and 'python -m wizard.server' (module form)
-            if sys.platform == 'win32':
-                cmd = "taskkill /F /IM python.exe"
-            else:
-                # Use more specific pattern to avoid matching avahi-daemon
-                cmd = "pkill -f 'python.*wizard.server' || pkill -f 'python.*wizard/server.py' || true"
-            time.sleep(0.5)
+            def _stop_proc() -> None:
+                if sys.platform == 'win32':
+                    subprocess.run("taskkill /F /IM python.exe", shell=True, check=False, capture_output=True, text=True)
+                else:
+                    # Use more specific pattern to avoid matching avahi-daemon
+                    subprocess.run(
+                        "pkill -f 'python.*wizard.server' || pkill -f 'python.*wizard/server.py' || true",
+                        shell=True,
+                        check=False,
+                        capture_output=True,
+                        text=True,
+                    )
+                time.sleep(0.5)
+
+            self._run_with_progress(
+                "loading",
+                "Wizard stop request",
+                _stop_proc,
+                spinner_label="⏳ Stopping Wizard",
+            )
 
             # Verify it stopped
             try:
-                resp = requests.get("http://127.0.0.1:8765/health", timeout=1)
+                resp = self._run_with_progress(
+                    "loading",
+                    "Wizard stop verification",
+                    lambda: requests.get("http://127.0.0.1:8765/health", timeout=1),
+                    spinner_label="⏳ Verifying Wizard stop",
+                )
                 if resp.status_code == 200:
-                    print("  ⚠️  Wizard Server still responding after stop command")
+                    self._ui_line("Wizard Server still responding after stop command", level="warn")
                 else:
-                    print("  ✅ Wizard Server stopped")
+                    self._ui_line("Wizard Server stopped", level="ok")
             except requests.exceptions.ConnectionError:
-                print("  ✅ Wizard Server stopped")
+                self._ui_line("Wizard Server stopped", level="ok")
 
             sys.stdout.flush()
 
         except Exception as e:
             self.logger.error(f"Failed to stop Wizard: {e}")
-            print(f"  ❌ Error: {e}")
+            self._ui_line(f"Error: {e}", level="error")
             sys.stdout.flush()
 
     def _wizard_status(self) -> None:
         """Check Wizard status."""
         try:
-            resp = requests.get("http://127.0.0.1:8765/health", timeout=2)
+            resp = self._run_with_progress(
+                "loading",
+                "Wizard status check",
+                lambda: requests.get("http://127.0.0.1:8765/health", timeout=2),
+                spinner_label="⏳ Checking Wizard status",
+            )
             if resp.status_code == 200:
-                print("  ✅ Wizard running on http://127.0.0.1:8765")
+                self._ui_line("Wizard running on http://127.0.0.1:8765", level="ok")
                 data = resp.json()
                 if "status" in data:
-                    print(f"     Status: {data['status']}")
+                    self._ui_line(f"Status: {data['status']}", level="info")
             else:
-                print("  ❌ Wizard not responding")
+                self._ui_line("Wizard not responding", level="error")
         except requests.exceptions.ConnectionError:
-            print("  ❌ Wizard not running")
+            self._ui_line("Wizard not running", level="error")
         except Exception as e:
-            print(f"  ⚠️  Error checking status: {e}")
+            self._ui_line(f"Error checking status: {e}", level="warn")
 
     def _wizard_console(self) -> None:
         """Enter Wizard interactive console."""
@@ -3076,21 +3211,26 @@ For detailed help on any command, type the command name followed by --help
 
             endpoint = page_map.get(page.lower())
             if not endpoint:
-                print(f"  ❌ Unknown page: {page}")
-                print(f"     Available: {', '.join(page_map.keys())}")
+                self._ui_line(f"Unknown page: {page}", level="error")
+                self._ui_line(f"Available: {', '.join(page_map.keys())}", level="info")
                 return
 
-            resp = requests.get(f"http://127.0.0.1:8765{endpoint}", timeout=5)
+            resp = self._run_with_progress(
+                "loading",
+                f"Wizard page fetch ({page.lower()})",
+                lambda: requests.get(f"http://127.0.0.1:8765{endpoint}", timeout=5),
+                spinner_label=f"⏳ Fetching Wizard page: {page.lower()}",
+            )
             if resp.status_code == 200:
                 data = resp.json()
                 print(json.dumps(data, indent=2))
             else:
-                print(f"  ❌ Request failed: {resp.status_code}")
+                self._ui_line(f"Request failed: {resp.status_code}", level="error")
 
         except requests.exceptions.ConnectionError:
-            print("  ❌ Wizard not running. Start with: WIZARD start")
+            self._ui_line("Wizard not running. Start with: WIZARD start", level="error")
         except Exception as e:
-            print(f"  ❌ Error: {e}")
+            self._ui_line(f"Error: {e}", level="error")
 
     def _cmd_exit(self, args: str) -> None:
         """Exit uCLI."""
