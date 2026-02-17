@@ -1,10 +1,6 @@
-"""
-uCLI entry point module
+"""Legacy module entrypoint routed through the uCLI bootstrap."""
 
-Allows running: python -m core.tui.ucli
-"""
-
-from core.tui.ucode import main
+from core.tui.ucli import main
 
 if __name__ == "__main__":
     main()
