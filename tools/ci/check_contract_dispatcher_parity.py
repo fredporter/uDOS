@@ -4,7 +4,12 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
+
+# Add repo root to path for core imports
+repo = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(repo))
 
 from core.tui.dispatcher import CommandDispatcher
 
@@ -13,7 +18,6 @@ DIRECT_UCLI = {"STATUS", "HELP"}
 
 
 def main() -> int:
-    repo = Path(__file__).resolve().parents[2]
     contract = json.loads((repo / "core" / "config" / "ucli_command_contract_v1_3_16.json").read_text())
     commands = set(contract.get("ucode", {}).get("commands", []))
     handlers = set(CommandDispatcher().handlers.keys())
