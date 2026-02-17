@@ -19,6 +19,7 @@ def test_publish_capabilities_and_job_lifecycle():
     payload = caps.json()
     assert payload["publish_routes_enabled"] is True
     assert payload["providers"]["wizard"]["available"] is True
+    assert payload["providers"]["wizard"]["publish_lane"] == "core"
 
     create_res = client.post(
         "/api/publish/jobs",
@@ -43,7 +44,22 @@ def test_publish_capabilities_and_job_lifecycle():
 
     manifest_res = client.get(f"/api/publish/manifests/{manifest_id}")
     assert manifest_res.status_code == 200
-    assert manifest_res.json()["manifest"]["publish_job_id"] == job_id
+    manifest = manifest_res.json()["manifest"]
+    assert manifest["publish_job_id"] == job_id
+    assert manifest["module"] == "wizard"
+    assert manifest["publish_lane"] == "core"
+    assert "source_workspace_sha256" in manifest["checksum_set"]
+
+
+def test_publish_provider_registry_route():
+    client = _client()
+
+    registry_res = client.get("/api/publish/providers")
+    assert registry_res.status_code == 200
+    providers = registry_res.json()["providers"]
+    assert "wizard" in providers
+    assert providers["wizard"]["publish_lane"] == "core"
+    assert providers["wizard"]["module"] == "wizard"
 
 
 def test_publish_provider_validation():
@@ -63,6 +79,13 @@ def test_publish_provider_validation():
         json={"source_workspace": "memory/vault", "provider": "oc_app"},
     )
     assert unavailable.status_code == 412
+
+    gate_blocked = client.post(
+        "/api/publish/jobs",
+        json={"source_workspace": "memory/vault", "provider": "sonic"},
+    )
+    assert gate_blocked.status_code == 412
+    assert "module-aware publish gating blocked" in gate_blocked.json()["detail"]
 
 
 def test_oc_app_contract_and_render_routes():

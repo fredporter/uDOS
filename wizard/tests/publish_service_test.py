@@ -34,6 +34,27 @@ def test_publish_service_provider_availability(tmp_path):
     assert capabilities_with_dev["providers"]["dev"]["available"] is True
 
 
+def test_publish_provider_registry_and_module_gate(tmp_path):
+    repo_root = tmp_path
+    (repo_root / "sonic").mkdir(parents=True, exist_ok=True)
+    service = PublishService(repo_root=repo_root)
+
+    registry = service.get_provider_registry()
+    assert registry["sonic"]["module"] == "sonic"
+    assert registry["sonic"]["publish_lane"] == "artifact"
+
+    job = service.create_job(source_workspace="sonic/datasets", provider="sonic")
+    assert job["module"] == "sonic"
+    assert job["publish_lane"] == "artifact"
+    assert job["module_gate"]["matched_source_prefix"] == "sonic"
+
+    try:
+        service.create_job(source_workspace="memory/vault", provider="sonic")
+        assert False, "expected module gate failure"
+    except RuntimeError as exc:
+        assert "module-aware publish gating blocked" in str(exc)
+
+
 def test_oc_app_contract_and_render_payload(tmp_path):
     service = PublishService(repo_root=tmp_path)
     contract = service.get_oc_app_contract()

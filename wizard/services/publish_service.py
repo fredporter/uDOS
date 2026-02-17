@@ -86,6 +86,41 @@ def _build_provider_registry(repo_root: Path) -> Dict[str, PublishProviderAdapte
     }
 
 
+def _build_provider_capability_contract() -> Dict[str, Dict[str, Any]]:
+    return {
+        "wizard": {
+            "module": "wizard",
+            "publish_lane": "core",
+            "requires_module_present": False,
+            "allowed_source_prefixes": ["memory/vault", "vault", "memory"],
+        },
+        "dev": {
+            "module": "dev",
+            "publish_lane": "sandbox",
+            "requires_module_present": True,
+            "allowed_source_prefixes": ["dev", "memory/dev", "memory/vault/@sandbox"],
+        },
+        "sonic": {
+            "module": "sonic",
+            "publish_lane": "artifact",
+            "requires_module_present": True,
+            "allowed_source_prefixes": ["sonic", "memory/sonic", "distribution/builds"],
+        },
+        "groovebox": {
+            "module": "groovebox",
+            "publish_lane": "media",
+            "requires_module_present": True,
+            "allowed_source_prefixes": ["groovebox", "memory/groovebox"],
+        },
+        "oc_app": {
+            "module": "oc_app",
+            "publish_lane": "external_adapter",
+            "requires_module_present": False,
+            "allowed_source_prefixes": ["memory/vault", "memory/vault/_site", "oc_app"],
+        },
+    }
+
+
 class PublishService:
     """Persistent publish queue scaffold with capability-aware providers."""
 
@@ -95,6 +130,7 @@ class PublishService:
         self._jobs: Dict[str, Dict[str, Any]] = {}
         self._manifests: Dict[str, Dict[str, Any]] = {}
         self._providers = _build_provider_registry(self.repo_root)
+        self._provider_contract = _build_provider_capability_contract()
         self._state_dir = self.repo_root / "memory" / "wizard" / "publish"
         self._state_path = self._state_dir / "publish_state.json"
         self._state_dir.mkdir(parents=True, exist_ok=True)
@@ -140,16 +176,53 @@ class PublishService:
     def get_capabilities(self) -> Dict[str, Any]:
         providers: Dict[str, Any] = {}
         for name, adapter in self._providers.items():
+            contract = self._provider_contract.get(name) or {}
             providers[name] = {
                 "available": adapter.available(),
                 "reason": adapter.reason(),
                 "route_prefix": f"/api/publish/providers/{name}",
+                "module": contract.get("module"),
+                "publish_lane": contract.get("publish_lane"),
+                "allowed_source_prefixes": contract.get("allowed_source_prefixes", []),
             }
         return {
             "contract_version": CONTRACT_VERSION,
             "providers": providers,
+            "provider_registry": self.get_provider_registry(),
             "publish_routes_enabled": True,
             "state_path": str(self._state_path),
+        }
+
+    def get_provider_registry(self) -> Dict[str, Any]:
+        registry: Dict[str, Any] = {}
+        for provider, adapter in self._providers.items():
+            contract = dict(self._provider_contract.get(provider) or {})
+            contract["provider"] = provider
+            contract["available"] = adapter.available()
+            contract["reason"] = adapter.reason()
+            contract["route_prefix"] = f"/api/publish/providers/{provider}"
+            registry[provider] = contract
+        return registry
+
+    def _validate_module_gate(self, provider: str, source_workspace: str) -> Dict[str, Any]:
+        contract = self._provider_contract.get(provider)
+        if not contract:
+            raise RuntimeError("provider contract missing")
+
+        normalized_source = (source_workspace or "").strip()
+        allowed_prefixes = contract.get("allowed_source_prefixes", [])
+        matched_prefix = next(
+            (prefix for prefix in allowed_prefixes if normalized_source.startswith(prefix)),
+            None,
+        )
+        if not matched_prefix:
+            raise RuntimeError(
+                f"module-aware publish gating blocked provider={provider} for source_workspace={source_workspace}"
+            )
+        return {
+            "module": contract.get("module"),
+            "publish_lane": contract.get("publish_lane"),
+            "matched_source_prefix": matched_prefix,
         }
 
     def list_jobs(self, provider: Optional[str] = None, status: Optional[str] = None) -> List[Dict[str, Any]]:
@@ -171,6 +244,7 @@ class PublishService:
         adapter = self._get_provider(provider)
         if not adapter.available():
             raise RuntimeError(adapter.reason() or "provider unavailable")
+        module_gate = self._validate_module_gate(provider, source_workspace)
 
         created_at = _utc_now()
         job_id = f"pub_{uuid4().hex[:12]}"
@@ -182,6 +256,8 @@ class PublishService:
             "contract_version": CONTRACT_VERSION,
             "provider": provider,
             "source_workspace": source_workspace,
+            "module": module_gate["module"],
+            "publish_lane": module_gate["publish_lane"],
             "artifact_manifest": {
                 "files": [],
                 "site_root": "memory/vault/_site",
@@ -196,11 +272,14 @@ class PublishService:
             "contract_version": CONTRACT_VERSION,
             "provider": provider,
             "source_workspace": source_workspace,
+            "module": module_gate["module"],
+            "publish_lane": module_gate["publish_lane"],
             "status": "queued",
             "created_at": created_at,
             "completed_at": None,
             "error_detail": None,
             "manifest_id": manifest_id,
+            "module_gate": module_gate,
             "options": options,
         }
 

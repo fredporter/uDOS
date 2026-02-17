@@ -1,6 +1,6 @@
-# Wizard Web Publish Spec v1.3.15 (Draft)
+# Wizard Web Publish Spec v1.3.15
 
-Status: draft (to be developed)  
+Status: implemented in Wizard publish routes/services  
 Target: v1.3.15
 
 ## Purpose
@@ -44,7 +44,7 @@ Owned by optional modules or wizard adapters:
 - `groovebox` provider: optional media publish artifacts via Wizard
 - `dev` provider: test/sandbox publish only when `/dev` is installed and active
 
-Providers must register capabilities and declare readiness checks before publish routes are exposed.
+Providers register capabilities through the Wizard publish provider registry and expose readiness through provider sync + route contract tests.
 
 ### 3) Contract-first Routing
 
@@ -59,12 +59,20 @@ Wizard publish routes are defined by contract + capability matrix:
 Proposed canonical API surface:
 
 - `GET /api/publish/capabilities`
+- `GET /api/publish/providers`
 - `GET /api/publish/jobs`
 - `POST /api/publish/jobs`
 - `GET /api/publish/jobs/{job_id}`
 - `POST /api/publish/jobs/{job_id}/cancel`
 - `GET /api/publish/manifests/{manifest_id}`
 - `POST /api/publish/providers/{provider}/sync`
+
+Implemented module-aware gating:
+- `wizard` provider accepts vault/memory sources.
+- `dev` provider accepts `/dev` and sandbox sources.
+- `sonic` provider accepts Sonic/distribution artifact sources.
+- `groovebox` provider accepts Groovebox/media sources.
+- `oc_app` remains external and unavailable until adapter activation.
 
 Proposed dashboard surface:
 

@@ -315,11 +315,11 @@ Reference:
 ### v1.3.15 -- Publish Spec Refactor (Planned)
 
 #### P0 -- Must Have
-- [ ] Define and approve Wizard web publish contract for monorepo/module model.
-- [ ] Implement provider capability registry for publish routes.
-- [ ] Add canonical publish API surface and dashboard publish views.
-- [ ] Enforce module-aware publish gating (`/dev`, `sonic`, `groovebox`, external app adapters).
-- [ ] Add release-gate tests for publish lifecycle + manifest integrity.
+- [x] Define and approve Wizard web publish contract for monorepo/module model.
+- [x] Implement provider capability registry for publish routes.
+- [x] Add canonical publish API surface and dashboard publish views.
+- [x] Enforce module-aware publish gating (`/dev`, `sonic`, `groovebox`, external app adapters).
+- [x] Add release-gate tests for publish lifecycle + manifest integrity.
 
 Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md)
 

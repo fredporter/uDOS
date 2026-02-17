@@ -53,6 +53,13 @@ def create_publish_routes(
     async def publish_capabilities():
         return service.get_capabilities()
 
+    @router.get("/providers")
+    async def publish_provider_registry():
+        return {
+            "success": True,
+            "providers": service.get_provider_registry(),
+        }
+
     @router.get("/jobs")
     async def list_publish_jobs(provider: Optional[str] = None, status: Optional[str] = None):
         return {
