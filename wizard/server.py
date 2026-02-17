@@ -448,6 +448,12 @@ class WizardServer:
         plugin_registry_router = create_plugin_registry_routes(auth_guard=self._authenticate_admin)
         app.include_router(plugin_registry_router)
 
+        # Register GitHub helper routes (PR/issue drafts)
+        from wizard.routes.github_helpers_routes import create_github_helpers_routes
+
+        github_helpers_router = create_github_helpers_routes(auth_guard=self._authenticate_admin)
+        app.include_router(github_helpers_router)
+
         # Register Webhook status routes
         from wizard.routes.webhook_routes import create_webhook_routes
 
