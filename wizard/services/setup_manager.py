@@ -8,11 +8,10 @@ Provides setup status, required variables, and path validation for Wizard.
 from __future__ import annotations
 
 import os
-import json
-from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 from wizard.services.path_utils import get_repo_root, get_memory_dir
+from wizard.services.wizard_config import load_wizard_config_data
 from core.locations import LocationService
 from wizard.services.setup_state import setup_state
 from wizard.services.setup_profiles import load_user_profile, load_install_profile
@@ -121,21 +120,12 @@ def get_paths() -> Dict[str, Any]:
 
 
 def _load_wizard_config() -> Dict[str, Any]:
-    config_path = get_repo_root() / "wizard" / "config" / "wizard.json"
     defaults = {
         "ok_gateway_enabled": False,
         "github_push_enabled": False,
         "web_proxy_enabled": False,
     }
-    if not config_path.exists():
-        return defaults.copy()
-    try:
-        parsed = json.loads(config_path.read_text())
-        if not isinstance(parsed, dict):
-            return defaults.copy()
-        return {**defaults, **parsed}
-    except Exception:
-        return defaults.copy()
+    return load_wizard_config_data(defaults=defaults)
 
 
 _location_service: LocationService | None = None

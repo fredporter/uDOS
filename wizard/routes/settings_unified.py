@@ -26,6 +26,7 @@ from pydantic import BaseModel
 
 from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root, get_memory_dir
+from wizard.services.wizard_config import load_wizard_config_data, save_wizard_config_data
 from core.services.integration_registry import get_wizard_secret_sync_map
 from core.services.destructive_ops import remove_path
 from wizard.services.secret_store import get_secret_store, SecretStoreError, SecretEntry
@@ -400,20 +401,12 @@ def set_secret(key: str, value: str) -> Dict[str, Any]:
 
 def _load_wizard_config() -> Dict[str, Any]:
     repo_root = get_repo_root()
-    config_path = repo_root / "wizard" / "config" / "wizard.json"
-    if config_path.exists():
-        try:
-            return json.loads(config_path.read_text())
-        except Exception:
-            return {}
-    return {}
+    return load_wizard_config_data(path=repo_root / "wizard" / "config" / "wizard.json")
 
 
 def _save_wizard_config(config: Dict[str, Any]) -> None:
     repo_root = get_repo_root()
-    config_path = repo_root / "wizard" / "config" / "wizard.json"
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    config_path.write_text(json.dumps(config, indent=2))
+    save_wizard_config_data(config, path=repo_root / "wizard" / "config" / "wizard.json")
 
 
 def _enable_provider(config: Dict[str, Any], provider_id: str) -> None:

@@ -31,6 +31,7 @@ from wizard.routes.ollama_route_utils import (
     validate_model_name,
 )
 from wizard.services.provider_health_service import get_provider_health_service
+from wizard.services.wizard_config import load_wizard_config_data
 from core.services.integration_registry import get_provider_definitions
 
 
@@ -86,13 +87,7 @@ def create_provider_routes(auth_guard=None):
         return {"flagged": [], "completed": [], "timestamp": None}
 
     def _load_wizard_config() -> Dict[str, Any]:
-        wizard_config = CONFIG_PATH / "wizard.json"
-        if wizard_config.exists():
-            try:
-                return json.loads(wizard_config.read_text())
-            except Exception:
-                return {}
-        return {}
+        return load_wizard_config_data(path=CONFIG_PATH / "wizard.json")
 
     def _get_enabled_providers() -> List[str]:
         config = _load_wizard_config()

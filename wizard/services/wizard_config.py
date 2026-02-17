@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+DEFAULT_WIZARD_CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "wizard.json"
 
 
 @dataclass
@@ -63,3 +66,41 @@ class WizardConfig:
     def save(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(self.to_dict(), indent=2), encoding="utf-8")
+
+
+def resolve_wizard_config_path(path: Optional[Path] = None) -> Path:
+    if path is not None:
+        return path
+    env_path = None
+    if "WIZARD_CONFIG_PATH" in os.environ:
+        env_path = Path(os.environ["WIZARD_CONFIG_PATH"]).expanduser()
+    return env_path or DEFAULT_WIZARD_CONFIG_PATH
+
+
+def load_wizard_config_data(
+    path: Optional[Path] = None,
+    defaults: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    config_path = resolve_wizard_config_path(path)
+    merged = dict(defaults or {})
+    if not config_path.exists():
+        return merged
+    try:
+        data = json.loads(config_path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            return merged
+        if "ok_gateway_enabled" not in data and "ai_gateway_enabled" in data:
+            data["ok_gateway_enabled"] = data.get("ai_gateway_enabled")
+        merged.update(data)
+        return merged
+    except (json.JSONDecodeError, OSError):
+        return merged
+
+
+def save_wizard_config_data(
+    config: Dict[str, Any],
+    path: Optional[Path] = None,
+) -> None:
+    config_path = resolve_wizard_config_path(path)
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(json.dumps(config, indent=2), encoding="utf-8")

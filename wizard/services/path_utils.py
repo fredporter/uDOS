@@ -4,10 +4,11 @@ Path Utilities for Wizard Server
 Provides reliable repo root detection to prevent creating folders outside repo.
 """
 
-import json
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
+
+from wizard.services.wizard_config import load_wizard_config_data
 
 
 def _home_root() -> Path:
@@ -128,11 +129,4 @@ def get_repo_root() -> Path:
 
 def _load_wizard_config() -> Dict[str, Any]:
     """Load wizard.json config if available."""
-    config_path = Path(__file__).parent.parent / "config" / "wizard.json"
-    if not config_path.exists():
-        return {}
-    try:
-        with open(config_path, "r") as f:
-            return json.load(f)
-    except json.JSONDecodeError:
-        return {}
+    return load_wizard_config_data()

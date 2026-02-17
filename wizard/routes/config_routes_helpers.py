@@ -13,6 +13,7 @@ from fastapi import HTTPException
 
 from core.services.integration_registry import get_assistant_config_key_map
 from wizard.services.path_utils import get_memory_dir, get_repo_root
+from wizard.services.wizard_config import load_wizard_config_data, save_wizard_config_data
 
 
 class ConfigRouteHelpers:
@@ -47,12 +48,11 @@ class ConfigRouteHelpers:
 
     def load_wizard_config(self) -> Dict[str, Any]:
         wizard_path = self.config_path / "wizard.json"
-        content, _error = self.load_json_config(wizard_path, default={})
-        return content
+        return load_wizard_config_data(path=wizard_path)
 
     def save_wizard_config(self, config: Dict[str, Any]) -> None:
         wizard_path = self.config_path / "wizard.json"
-        self.save_json_config(wizard_path, config)
+        save_wizard_config_data(config, path=wizard_path)
 
     def _enable_provider(self, config: Dict[str, Any], provider_id: str) -> bool:
         enabled = config.get("enabled_providers") or []
@@ -428,4 +428,3 @@ class ConfigRouteHelpers:
         content["file_locations"]["repo_root_actual"] = str(get_repo_root())
         content["file_locations"]["memory_root_actual"] = str(get_memory_dir())
         return content
-
