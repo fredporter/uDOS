@@ -30,6 +30,9 @@ set -e
 VERSION="1.0.3.0"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd 2>/dev/null || echo "$SCRIPT_DIR")"
+NPM_CACHE_DIR="${NPM_CONFIG_CACHE:-$PROJECT_ROOT/.npm-cache}"
+mkdir -p "$NPM_CACHE_DIR"
+export NPM_CONFIG_CACHE="$NPM_CACHE_DIR"
 
 # Bootstrap if running outside a repo (e.g., curl | bash)
 if [ ! -f "$PROJECT_ROOT/uDOS.py" ]; then
@@ -375,8 +378,8 @@ EOF
 
         if [ -f "$PROJECT_ROOT/wizard/requirements.txt" ]; then
             info "Creating Wizard virtual environment..."
-            python3 -m venv "$prefix/wizard/.venv"
-            source "$prefix/wizard/.venv/bin/activate"
+            python3 -m venv "$prefix/venv"
+            source "$prefix/venv/bin/activate"
             pip install --upgrade pip
             pip install -r "$prefix/wizard/requirements.txt"
             deactivate
@@ -408,10 +411,10 @@ EOF
 install_dev() {
     info "Setting up development mode..."
 
-    # Dev piggybacks Wizard runtime venv.
-    if [ ! -d "$PROJECT_ROOT/wizard/.venv" ]; then
+    # Dev piggybacks runtime venv.
+    if [ ! -d "$PROJECT_ROOT/venv" ]; then
         info "Creating Wizard virtual environment..."
-        python3 -m venv "$PROJECT_ROOT/wizard/.venv"
+        python3 -m venv "$PROJECT_ROOT/venv"
     fi
 
     if [ ! -f "$PROJECT_ROOT/wizard/requirements.txt" ]; then
@@ -419,7 +422,7 @@ install_dev() {
     fi
 
     info "Installing Wizard/Dev Python dependencies..."
-    source "$PROJECT_ROOT/wizard/.venv/bin/activate"
+    source "$PROJECT_ROOT/venv/bin/activate"
     pip install --upgrade pip
     pip install -r "$PROJECT_ROOT/wizard/requirements.txt"
     deactivate

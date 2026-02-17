@@ -49,7 +49,7 @@ Use migration targets documented in `docs/howto/UCODE-COMMAND-REFERENCE.md`.
 
 The following v1.1-era pages were archived to:
 
-- `docs/.archive/2026-02-17-legacy-docs/howto/commands/`
+- `/.compost/<date>/archive/docs/.archive/2026-02-17-archived-docs/howto/commands/`
 
 Redirect stubs remain at the original paths:
 

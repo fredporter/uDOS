@@ -80,7 +80,7 @@ def _is_port_open(host: str, port: int, timeout: float = 0.4) -> bool:
 
 def _status_line() -> str:
     # Role/ghost mode (simple env-based fallback)
-    role = os.getenv("UDOS_USER_ROLE", "guest").upper()
+    role = (os.getenv("UDOS_USER_ROLE") or os.getenv("USER_ROLE") or "guest").upper()
     ghost_mode = os.getenv("UDOS_GHOST_MODE", "1").strip().lower() in {"1", "true", "yes"}
     ghost_tag = " [GHOST MODE]" if ghost_mode else ""
     role_tag = "👻" if ghost_mode else "👤"

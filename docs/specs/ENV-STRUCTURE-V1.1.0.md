@@ -123,7 +123,7 @@ Imports `.env` identity and adds extended settings to keystore.
 
 **DESTROY:**
 - Wipes user profiles via user_manager (NOT .env)
-- Can archive memory to `.archive/compost/`
+- Can archive memory to `/.compost/<date>/archive/` (current policy)
 - Does NOT touch `.env` identity fields
 - Can clear Wizard keystore (separate operation)
 
@@ -185,12 +185,12 @@ DESTROY 4                   # NUCLEAR: Full reset (includes .env)
 ### Maintenance Commands
 
 ```bash
-BACKUP [scope]              # Creates a <timestamp>-<label>.tar.gz under <scope>/.backup
+BACKUP [scope]              # Creates a <timestamp>-<label>.tar.gz under /.compost/<date>/backups/<scope>
 RESTORE [scope] [archive]   # Extracts the .tar.gz into <scope>; use --force to overwrite
 UNDO [scope]                # Re-applies the latest .tar.gz backup for <scope> (Alpine-style tar/gzip)
 ```
 
-Backups, restores, and undo migrations all serialize to `.tar.gz` (tar + gzip) archives under each scope’s `.backup` folder so they follow Alpine conventions. `BACKUP` writes a manifest, `RESTORE` extracts the archive (and respects `--force`), and `UNDO` simply runs the most recent `tar.gz` again to roll back to the last checkpoint.
+Backups, restores, and undo migrations all serialize to `.tar.gz` (tar + gzip) archives under `/.compost/<date>/backups/<scope>` so they follow Alpine conventions. `BACKUP` writes a manifest, `RESTORE` extracts the archive (and respects `--force`), and `UNDO` simply runs the most recent `tar.gz` again to roll back to the last checkpoint.
 
 **Default backup targets (Wizard Repair UI):**
 - `wizard-config` → `wizard/config/`

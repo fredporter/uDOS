@@ -134,6 +134,13 @@ Global strict stdlib-only enforcement is not required; this is the active Python
 - `VIEWPORT`
 - `WIZARD`
 
+### Maintenance Storage Policy (v1.3.13+)
+
+- `BACKUP` writes to `/.compost/<date>/backups/<scope>/`
+- `RESTORE` and `UNDO` read latest from `/.compost/<date>/backups/<scope>/`
+- `TIDY` and `CLEAN` move files to `/.compost/<date>/trash/<timestamp>/<scope>/`
+- `COMPOST` migrates older local dirs (`.archive`, `.backup`, `.tmp`, `.temp`) into `/.compost/<date>/archive/...`
+
 ## Wizard-Owned Flows
 
 Provider/integration/full network checks are Wizard-owned.

@@ -60,7 +60,6 @@ UDOS_MEMORY_ROOT="${UDOS_MEMORY_ROOT:-}"
 UDOS_HOME_ROOT_ALLOW_OUTSIDE="${UDOS_HOME_ROOT_ALLOW_OUTSIDE:-0}"
 UDOS_REBUILD="${UDOS_REBUILD:-0}"
 UDOS_VENV_DIR="${UDOS_VENV_DIR:-}"
-UDOS_USE_DOT_VENV="${UDOS_USE_DOT_VENV:-0}"
 UDOS_PIP_VERBOSE="${UDOS_PIP_VERBOSE:-0}"
 UDOS_SKIP_DEP_CHECK="${UDOS_SKIP_DEP_CHECK:-0}"
 UDOS_FORCE_REBUILD="${UDOS_FORCE_REBUILD:-0}"
@@ -182,6 +181,31 @@ resolve_log_dir() {
     local memory_root
     memory_root="$(resolve_memory_root)"
     echo "$memory_root/logs"
+}
+
+npm_cache_dir() {
+    echo "$UDOS_ROOT/.npm-cache"
+}
+
+ensure_npm_cache_env() {
+    local cache_dir
+    cache_dir="$(npm_cache_dir)"
+    mkdir -p "$cache_dir"
+    export NPM_CONFIG_CACHE="$cache_dir"
+}
+
+_is_allowed_npm_project_dir() {
+    local dir="$1"
+    local resolved
+    resolved="$(_udos_realpath "$dir")"
+    case "$resolved" in
+        "$UDOS_ROOT/core"|"$UDOS_ROOT/wizard/dashboard")
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
 }
 
 run_with_log() {
@@ -419,6 +443,37 @@ clear_python_cache() {
     _udos_echo "  ${GREEN}✓${NC} Python cache cleared"
 }
 
+clean_runtime_artifacts() {
+    if [ -z "$UDOS_ROOT" ]; then
+        UDOS_ROOT="$(resolve_udos_root)" || return 1
+        export UDOS_ROOT
+    fi
+
+    _udos_echo "${YELLOW}🧹 Cleaning runtime artifacts (build, dist, __pycache__, .pytest_cache)...${NC}"
+    local cleaned=0
+    local failed=0
+
+    while IFS= read -r target; do
+        if rm -rf "$target" 2>/dev/null; then
+            cleaned=$((cleaned + 1))
+        else
+            failed=$((failed + 1))
+            echo -e "${YELLOW}⚠️  Failed to remove: $target${NC}"
+        fi
+    done < <(
+        find "$UDOS_ROOT" \
+            \( -path "$UDOS_ROOT/.git" -o -path "$UDOS_ROOT/venv" -o -path "$UDOS_ROOT/.npm-cache" -o -path "*/node_modules" \) -prune \
+            -o -type d \( -name "build" -o -name "dist" -o -name "__pycache__" -o -name ".pytest_cache" \) -print
+    )
+
+    _udos_echo "  ${GREEN}✓${NC} Removed ${cleaned} runtime paths"
+    if [ "$failed" -gt 0 ]; then
+        echo -e "${YELLOW}⚠️  ${failed} paths could not be removed${NC}"
+        return 1
+    fi
+    return 0
+}
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Python Environment Setup
 # ═══════════════════════════════════════════════════════════════════════════
@@ -433,10 +488,8 @@ ensure_python_env() {
     local venv_dir=""
     if [ -n "$UDOS_VENV_DIR" ]; then
         venv_dir="$UDOS_VENV_DIR"
-    elif [ "$UDOS_USE_DOT_VENV" = "1" ]; then
-        venv_dir="$UDOS_ROOT/venv"
     else
-        venv_dir="$UDOS_ROOT/venv"
+        venv_dir="$(wizard_venv_dir)"
     fi
 
     # Check venv - auto-create if missing
@@ -456,13 +509,35 @@ ensure_python_env() {
     source "$venv_dir/bin/activate"
     _udos_echo "${GREEN}✅ Python venv activated${NC}"
 
-    # Check dependencies - auto-install if missing
-    if ! python -c "import flask" 2>/dev/null; then
+    local req_file="$UDOS_ROOT/requirements.txt"
+    local req_stamp="$venv_dir/.udos_requirements.sha256"
+    local req_hash=""
+    local req_needs_install=0
+    if [ -f "$req_file" ]; then
+        if command -v shasum >/dev/null 2>&1; then
+            req_hash="$(shasum -a 256 "$req_file" | awk '{print $1}')"
+        elif command -v sha256sum >/dev/null 2>&1; then
+            req_hash="$(sha256sum "$req_file" | awk '{print $1}')"
+        fi
+    fi
+    if [ -n "$req_hash" ]; then
+        req_needs_install=1
+        if [ -f "$req_stamp" ]; then
+            local current_stamp
+            current_stamp="$(cat "$req_stamp" 2>/dev/null || true)"
+            if [ "$current_stamp" = "$req_hash" ]; then
+                req_needs_install=0
+            fi
+        fi
+    fi
+
+    # Check dependencies - install when requirements changed or prompt helper missing.
+    if [ "$req_needs_install" = "1" ] || ! python -c "import prompt_toolkit" 2>/dev/null; then
         _udos_echo "${YELLOW}⚠️  Dependencies missing - installing (first time setup)...${NC}"
         _udos_echo ""
         local pip_log="$UDOS_ROOT/memory/logs/pip-install-$(date +%Y%m%d-%H%M%S).log"
         mkdir -p "$(dirname "$pip_log")"
-        local pip_cmd="PIP_DISABLE_PIP_VERSION_CHECK=1 PIP_NO_PYTHON_VERSION_WARNING=1 pip install --progress-bar off -r \"$UDOS_ROOT/requirements.txt\""
+        local pip_cmd="PIP_DISABLE_PIP_VERSION_CHECK=1 PIP_NO_PYTHON_VERSION_WARNING=1 pip install --progress-bar off -r \"$req_file\""
         if [ "$UDOS_PIP_VERBOSE" = "1" ] && [ "$UDOS_QUIET" != "1" ]; then
             run_with_spinner "Installing dependencies..." \
                 "$pip_cmd 2>&1 | tee -a \"$pip_log\""
@@ -473,6 +548,9 @@ ensure_python_env() {
         if [ $? -eq 0 ]; then
         _udos_echo ""
         _udos_echo "  ${GREEN}✅ Dependencies installed${NC}"
+            if [ -n "$req_hash" ]; then
+                printf '%s\n' "$req_hash" > "$req_stamp" 2>/dev/null || true
+            fi
         else
             echo ""
             echo -e "  ${RED}❌ Failed to install dependencies${NC}"
@@ -537,10 +615,38 @@ ensure_python_env() {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════
-# Wizard Python Environment (policy: wizard/.venv owns third-party deps)
+# Wizard Python Environment (policy: repo venv owns third-party deps)
 # ═══════════════════════════════════════════════════════════════════════════
+wizard_venv_candidates() {
+    if [ -n "${WIZARD_VENV_PATH:-}" ]; then
+        if [[ "$WIZARD_VENV_PATH" = /* ]]; then
+            echo "$WIZARD_VENV_PATH"
+        else
+            echo "$UDOS_ROOT/$WIZARD_VENV_PATH"
+        fi
+    fi
+    echo "$UDOS_ROOT/venv"
+}
+
 wizard_venv_dir() {
-    echo "$UDOS_ROOT/wizard/.venv"
+    local candidate
+    while IFS= read -r candidate; do
+        if [ -x "$candidate/bin/python" ]; then
+            echo "$candidate"
+            return 0
+        fi
+    done < <(wizard_venv_candidates)
+
+    # Preferred create target when none exists.
+    if [ -n "${WIZARD_VENV_PATH:-}" ]; then
+        if [[ "$WIZARD_VENV_PATH" = /* ]]; then
+            echo "$WIZARD_VENV_PATH"
+        else
+            echo "$UDOS_ROOT/$WIZARD_VENV_PATH"
+        fi
+        return 0
+    fi
+    echo "$UDOS_ROOT/venv"
 }
 
 wizard_requirements_file() {
@@ -782,11 +888,21 @@ needs_rebuild() {
 
 maybe_npm_install() {
     local dir="$1"
+    if ! _is_allowed_npm_project_dir "$dir"; then
+        echo -e "${RED}Refusing npm install outside approved project dirs: $dir${NC}"
+        echo -e "${DIM}Allowed: $UDOS_ROOT/core, $UDOS_ROOT/wizard/dashboard${NC}"
+        return 1
+    fi
+    if [ ! -f "$dir/package.json" ]; then
+        echo -e "${RED}npm project missing package.json: $dir${NC}"
+        return 1
+    fi
+    ensure_npm_cache_env
     if [ "$UDOS_FORCE_REBUILD" = "1" ] || [ ! -d "$dir/node_modules" ] || [ "$dir/package.json" -nt "$dir/package-lock.json" ]; then
         local log_file="$UDOS_ROOT/memory/logs/npm-install-$(date +%Y%m%d-%H%M%S).log"
         mkdir -p "$(dirname "$log_file")"
         run_with_spinner "Installing dependencies in ${dir}" \
-            "cd '$dir' && npm install --no-fund --no-audit --silent >>'$log_file' 2>&1" || {
+            "cd '$dir' && NPM_CONFIG_CACHE='$NPM_CONFIG_CACHE' npm install --no-fund --no-audit --silent >>'$log_file' 2>&1" || {
             echo -e "${RED}Build log saved to: $log_file${NC}"
             return 1
         }
@@ -801,11 +917,21 @@ run_npm_build_if_needed() {
     local build_cmd="$3"   # e.g. "npm run build"
     local log_file="$UDOS_ROOT/memory/logs/npm-build-$(date +%Y%m%d-%H%M%S).log"
     mkdir -p "$(dirname "$log_file")"
+    if ! _is_allowed_npm_project_dir "$src_dir"; then
+        echo -e "${RED}Refusing npm build outside approved project dirs: $src_dir${NC}"
+        echo -e "${DIM}Allowed: $UDOS_ROOT/core, $UDOS_ROOT/wizard/dashboard${NC}"
+        return 1
+    fi
+    if [ ! -f "$src_dir/package.json" ]; then
+        echo -e "${RED}npm project missing package.json: $src_dir${NC}"
+        return 1
+    fi
+    ensure_npm_cache_env
 
     # If dist missing, always build
     if [ ! -d "$dist_dir" ]; then
         run_with_spinner "Building (output not found)" \
-            "cd '$src_dir' && $build_cmd >>'$log_file' 2>&1" || {
+            "cd '$src_dir' && NPM_CONFIG_CACHE='$NPM_CONFIG_CACHE' $build_cmd >>'$log_file' 2>&1" || {
             echo -e "${RED}Build log saved to: $log_file${NC}"
             return 1
         }
@@ -815,7 +941,7 @@ run_npm_build_if_needed() {
     # Force rebuild via flag
     if [ "$UDOS_FORCE_REBUILD" = "1" ]; then
         run_with_spinner "Building (--rebuild requested)" \
-            "cd '$src_dir' && $build_cmd >>'$log_file' 2>&1" || {
+            "cd '$src_dir' && NPM_CONFIG_CACHE='$NPM_CONFIG_CACHE' $build_cmd >>'$log_file' 2>&1" || {
             echo -e "${RED}Build log saved to: $log_file${NC}"
             return 1
         }
@@ -830,7 +956,7 @@ run_npm_build_if_needed() {
 
     if [ -n "$newest_src" ] && [ -n "$newest_dist" ] && [ "$newest_src" -nt "$newest_dist" ]; then
         run_with_spinner "Building (sources changed)" \
-            "cd '$src_dir' && $build_cmd >>'$log_file' 2>&1" || {
+            "cd '$src_dir' && NPM_CONFIG_CACHE='$NPM_CONFIG_CACHE' $build_cmd >>'$log_file' 2>&1" || {
             echo -e "${RED}Build log saved to: $log_file${NC}"
             return 1
         }
@@ -928,7 +1054,7 @@ _setup_component_environment() {
     fi
     local component="$1"
 
-    # Ensure runtime environment. Wizard must use wizard/.venv; core keeps legacy path.
+    # Ensure runtime environment. Prefer Wizard-managed venv for shared runtime deps.
     if [ "$component" = "wizard" ]; then
         _udos_echo "${CYAN}[INFO]${NC} Checking Wizard environment..."
         ensure_wizard_env || return 1

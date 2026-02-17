@@ -42,7 +42,7 @@ def destroy_menu_options() -> List[Dict[str, Any]]:
             "title": "ARCHIVE MEMORY (COMPOST)",
             "short": "Archive Memory (compost /memory)",
             "details": [
-                "Archive /memory to .archive/compost/YYYY-MM-DD",
+                "Archive /memory to .compost/<date>/trash/<timestamp>",
                 "Preserves data history",
                 "Frees up /memory space",
                 "Keeps users intact",
@@ -125,7 +125,7 @@ This will DESTROY:
   • All API keys and credentials
   • System will RESET to factory defaults
 
-This is IRREVERSIBLE (though .archive/ is preserved).
+This is IRREVERSIBLE (though .compost/ is preserved).
 
 Only admin users can perform this action.
 
@@ -156,7 +156,7 @@ NUMERIC OPTIONS:
 
 LEGACY FLAG SUPPORT (still works):
   --wipe-user       Clear user profiles and API keys
-  --compost         Archive /memory to .archive/compost/
+  --compost         Archive /memory to .compost/<date>/trash/
   --reload-repair   Hot reload + repair after cleanup
   --reset-all       NUCLEAR: Complete factory reset
   --scrub-memory    Permanently delete /memory (no archive)
@@ -177,12 +177,12 @@ SAFETY:
   • Most ops ask for confirmation before proceeding
   • Nuclear reset (option 4) requires explicit user action
   • All actions logged to audit trail
-  • Archived data preserved in .archive/compost/
+  • Archived data preserved in .compost/<date>/trash/
 
 RECOVERY:
-  • If you compost, see .archive/compost/ for your data
+  • If you compost, see .compost/<date>/trash/ for your data
   • Users can be recreated: USER create [name] [role]
-  • Config can be restored from git or .archive
+  • Config can be restored from git or .compost
   • Use STORY tui-setup to reconfigure
 
 NEXT STEPS AFTER CLEANUP:
@@ -277,7 +277,7 @@ def reset_wizard_keystore(repo_root: Path) -> List[str]:
         results.append("✓ Wizard keystore already reset (no secrets.tomb)")
         return results
 
-    archive_root = repo_root / ".archive"
+    archive_root = repo_root / ".compost" / "wizard-reset"
     archive_root.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
     backup_path = archive_root / f"secrets.tomb.backup.{timestamp}"
@@ -301,10 +301,11 @@ def archive_memory_to_compost(
     if not memory_path.exists():
         return lines, ""
 
-    archive_root = repo_root / ".archive"
+    archive_root = repo_root / ".compost"
     archive_root.mkdir(exist_ok=True)
+    date_folder = datetime.now().strftime("%Y-%m-%d")
     timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    compost_dir = archive_root / "compost" / timestamp
+    compost_dir = archive_root / date_folder / "trash" / timestamp
     compost_dir.mkdir(parents=True, exist_ok=True)
 
     metadata_file = compost_dir / metadata_filename
@@ -322,6 +323,6 @@ def archive_memory_to_compost(
     shutil.move(str(memory_path), str(compost_dir / "memory"))
     ensure_memory_layout(memory_path)
 
-    lines.append(f"✓ Archived to .archive/compost/{timestamp}")
+    lines.append(f"✓ Archived to .compost/{date_folder}/trash/{timestamp}")
     lines.append("✓ Recreated empty memory directories")
     return lines, timestamp

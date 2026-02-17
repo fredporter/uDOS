@@ -115,7 +115,7 @@ NOTES:
   • UNDO is a simple wrapper around RESTORE
   • Restores from the most recent backup
   • Use BACKUP before making risky changes
-  • Backups stored in .backup/ directory
+  • Backups stored in .compost/<date>/backups
   • All operations logged to audit trail
 
 RECOVERY:

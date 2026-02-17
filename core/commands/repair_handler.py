@@ -494,7 +494,7 @@ EXAMPLES:
         repo_root = get_repo_root()
         root_parent = repo_root.parent
         return [
-            ("Virtualenv (.venv)", repo_root / ".venv"),
+            ("Virtualenv (venv)", repo_root / "venv"),
             ("Extensions runtime copies", repo_root / "extensions"),
             ("Wizard dashboard node_modules", repo_root / "wizard" / "dashboard" / "node_modules"),
             ("Wizard dashboard dist", repo_root / "wizard" / "dashboard" / "dist"),

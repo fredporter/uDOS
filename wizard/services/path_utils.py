@@ -115,6 +115,28 @@ def get_logs_dir() -> Path:
     return logs_dir
 
 
+def _resolve_venv_path(raw_path: str) -> Path:
+    """Resolve venv path from env/user input, allowing relative paths."""
+    candidate = Path(raw_path).expanduser()
+    if not candidate.is_absolute():
+        candidate = get_repo_root() / candidate
+    return candidate
+
+
+def get_wizard_venv_dir() -> Path:
+    """Return Wizard runtime venv path.
+
+    Priority:
+    1. WIZARD_VENV_PATH env (absolute or repo-relative)
+    2. Default repo path: venv
+    """
+    env_venv = os.getenv("WIZARD_VENV_PATH", "").strip()
+    if env_venv:
+        return _resolve_venv_path(env_venv)
+
+    return get_repo_root() / "venv"
+
+
 # Cache repo root for performance
 _REPO_ROOT: Optional[Path] = None
 

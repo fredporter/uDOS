@@ -4,14 +4,14 @@ Offline-first OS layer for knowledge systems, tools, and portable environments.
 
 **Core concept:** uDOS is a local Obsidian companion runtime for organizing vault workflows with `@workspace` and `@binder` contexts, fractal/layered filesystem structures, knowledge trees, and digital garden publishing patterns.
 
-**Status:** v1.3.12 (released); monorepo is under development for v1.4 Wizard web view/rendering capabilities
+**Status:** v1.3.13 (dev cycle); latest released manifest remains v1.3.12 while monorepo continues toward v1.4 Wizard web view/rendering capabilities
 **Primary target:** Alpine Linux (Sonic USB)
 **Also supported:** macOS, Ubuntu, Windows (dev)
 
 **Start here:**
 - **Users/Beginners:** `wiki/Start-Here.md`
 - **Developers:** `docs/README.md`
-- **Release manifest:** `releases/v1.3.12.yml`
+- **Release manifest (latest release):** `releases/v1.3.12.yml`
 
 ---
 
@@ -100,7 +100,8 @@ docs/        Architecture + specs
 - `docs/decisions/VAULT-MEMORY-CONTRACT.md` — vault/template/runtime contract
 
 Documentation archive:
-- historical/superseded docs live under `docs/.archive/`
+- historical/superseded docs now live under `/.compost/<date>/archive/` (organic archive policy)
+- operational backup/trash flows are centralized under `/.compost` (see `docs/COMPOST-POLICY.md`)
 
 ---
 

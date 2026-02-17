@@ -14,7 +14,7 @@ Requires: Admin role or destroy permission
 
 Options:
     --wipe-user       Clear user profiles, roles, and API keys
-    --compost         Archive /memory to .archive/compost/YYYY-MM-DD
+    --compost         Archive /memory to .compost/<date>/trash/<timestamp>
     --reload-repair   Hot reload handlers and run repair after wipe
     --reset-all       NUCLEAR: Wipe everything, reset to factory defaults
     --scrub-memory    Permanently delete /memory (no archive)
@@ -402,7 +402,7 @@ EXAMPLES:
             - API keys and credentials
 
         Preserves:
-            - .archive/ folder (backup history)
+            - .compost/ folder (backup history)
             - Admin user (factory default)
             - Core framework
 
@@ -496,7 +496,7 @@ EXAMPLES:
             results.append("System state:")
             results.append("  • Users: Reset to admin only (factory default)")
             results.append("  • Variables: All cleared (admin environment blank)")
-            results.append("  • Memory: Empty (previous in .archive/compost/)")
+            results.append("  • Memory: Empty (previous in .compost/<date>/trash/)")
             results.append("  • Config: Factory defaults")
             results.append("  • API Keys: Cleared")
             results.append("")

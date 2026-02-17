@@ -31,9 +31,9 @@ COMPONENT_PATHS = {
 
 # Legacy paths - ARCHIVED 2026-01-05 (no longer used)
 # These have been moved/consolidated:
-#   - tauri-udos -> .archive/ (replaced by system-app)
-#   - tauri-typo -> .archive/ (replaced by system-app)
-#   - cloud -> .archive/ (folded into wizard)
+#   - tauri-udos -> .compost/<date>/archive (replaced by system-app)
+#   - tauri-typo -> .compost/<date>/archive (replaced by system-app)
+#   - cloud -> .compost/<date>/archive (folded into wizard)
 LEGACY_PATHS = {}
 
 # Cache for loaded versions

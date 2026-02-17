@@ -59,6 +59,7 @@ from wizard.services.oauth_manager import (
 )
 from wizard.services.keymap_config import resolve_effective_keymap_state
 from wizard.services.wizard_config import load_wizard_config_data
+from wizard.services.path_utils import get_repo_root, get_wizard_venv_dir
 
 # Setup
 WIZARD_ROOT = Path(__file__).parent.parent
@@ -166,8 +167,8 @@ async def dashboard(request: Request):
 @app.get("/config", response_class=HTMLResponse)
 async def config_dashboard(request: Request):
     """All-in-one Wizard config page with venv, secrets, and installer actions."""
-    repo_root = Path(__file__).parent.parent
-    venv_path = repo_root / "wizard" / ".venv"
+    repo_root = get_repo_root()
+    venv_path = get_wizard_venv_dir()
     venv_status = {
         "exists": venv_path.exists(),
         "python": None,

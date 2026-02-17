@@ -41,13 +41,12 @@ v1-3/**
 library/containers/
 !library/containers/.gitkeep
 
-# Local scratch folders
-.archive/
-**/.archive/
+# Local scratch/runtime folders
+# Policy: use global /.compost as the organic archive, soft backup, and elastic trash.
+.compost/
+**/.compost/
 .dev/
 **/.dev/
-.tmp/
-**/.tmp/
 .cache/
 **/.cache/
 .npm-cache/
@@ -344,3 +343,6 @@ distribution/*
 distribution/alpine-core/*
 !distribution/alpine-core/build-sonic-stick.sh
 wizard/config/notion_keys.json
+
+# Local docs archive (compost policy)
+docs/.archive/

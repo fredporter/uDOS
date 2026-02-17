@@ -798,7 +798,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             return {"status": "cancelled", "output": "\n".join(output_lines)}
 
         repo_root = get_repo_root()
-        archive_root = Path(repo_root) / ".archive" / "wizard-reset"
+        archive_root = Path(repo_root) / ".compost" / "wizard-reset"
         archive_root.mkdir(parents=True, exist_ok=True)
 
         tomb_path = Path(repo_root) / "wizard" / "secrets.tomb"

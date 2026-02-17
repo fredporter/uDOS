@@ -4,9 +4,27 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-WIZARD_VENV="$REPO_ROOT/wizard/.venv"
+WIZARD_VENV=""
 
-if [ ! -x "$WIZARD_VENV/bin/python" ]; then
+if [ -n "${WIZARD_VENV_PATH:-}" ]; then
+  if [[ "$WIZARD_VENV_PATH" = /* ]]; then
+    CANDIDATES=("$WIZARD_VENV_PATH")
+  else
+    CANDIDATES=("$REPO_ROOT/$WIZARD_VENV_PATH")
+  fi
+else
+  CANDIDATES=()
+fi
+CANDIDATES+=("$REPO_ROOT/venv")
+
+for candidate in "${CANDIDATES[@]}"; do
+  if [ -x "$candidate/bin/python" ]; then
+    WIZARD_VENV="$candidate"
+    break
+  fi
+done
+
+if [ -z "$WIZARD_VENV" ]; then
   echo "Wizard environment not installed. Run: ./bin/ucli wizard install" >&2
   exit 1
 fi

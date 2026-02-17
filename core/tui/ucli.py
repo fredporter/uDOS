@@ -44,6 +44,13 @@ def bootstrap_ucli_keymap_env(
     if not target_env.get("UDOS_KEYMAP_SELF_HEAL"):
         target_env["UDOS_KEYMAP_SELF_HEAL"] = "1"
 
+    # Since uCLI is now prompt_toolkit-first, default to advanced mode and
+    # only enable forced fallback when explicitly requested per-launch.
+    fallback_requested = _is_truthy(target_env.get("UDOS_SMARTPROMPT_FORCE_FALLBACK"))
+    fallback_explicit_opt_in = _is_truthy(target_env.get("UDOS_SMARTPROMPT_FORCE_FALLBACK_EXPLICIT"))
+    if fallback_requested and not fallback_explicit_opt_in:
+        target_env["UDOS_SMARTPROMPT_FORCE_FALLBACK"] = "0"
+
     if not target_env.get("UDOS_FALLBACK_RAW_EDITOR"):
         target_env["UDOS_FALLBACK_RAW_EDITOR"] = "1"
 

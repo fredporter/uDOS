@@ -29,12 +29,16 @@ This is the canonical entry point for repository documentation.
 
 ## Archive Policy
 
-Historical and superseded docs are moved under `docs/.archive/` with dated folders.
+Historical and superseded docs are moved under `/.compost` with dated folders.
 
 Current archive updates:
-- `docs/.archive/2026-02-11-roadmap-consolidation/`
-- `docs/.archive/2026-02-15-docs-cleanup/`
-- `docs/.archive/2026-02-17-legacy-docs/`
+- `/.compost/<date>/archive/docs/.archive/2026-02-11-roadmap-consolidation/`
+- `/.compost/<date>/archive/docs/.archive/2026-02-15-docs-cleanup/`
+- `/.compost/<date>/archive/docs/.archive/2026-02-17-archived-docs/`
 
 Legacy command pages in `docs/howto/commands/` now contain redirect stubs.
-Archived full content lives under `docs/.archive/2026-02-17-legacy-docs/howto/commands/`.
+Archived full content lives under `/.compost/<date>/archive/docs/.archive/2026-02-17-archived-docs/howto/commands/`.
+
+`docs/.archive/` itself is local-only and untracked.
+
+Compost runtime policy reference: `docs/COMPOST-POLICY.md`.

@@ -21,6 +21,7 @@ from core.services.maintenance_utils import (
     default_repo_allowlist,
     default_memory_allowlist,
     get_memory_root,
+    get_compost_root,
 )
 
 
@@ -138,7 +139,7 @@ class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
             if not backups:
                 return {
                     "status": "error",
-                    "message": f"No backups found in {target_root / '.backup'}",
+                    "message": f"No backups found in {get_compost_root() / 'backups'}",
                 }
             archive = backups[0]
 
@@ -232,7 +233,7 @@ class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
         if not backups:
             return {
                 "status": "error",
-                "message": f"No backups found to undo in {target_root / '.backup'}",
+                "message": f"No backups found to undo in {get_compost_root() / 'backups'}",
             }
 
         latest = backups[0]

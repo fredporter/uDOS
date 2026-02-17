@@ -248,7 +248,7 @@ def run_ok_setup(
                 status = "✅" if success else "⚠️"
                 spinner.stop(f"{status} {label}")
 
-    venv_python = repo_root / ".venv" / "bin" / "python"
+    venv_python = repo_root / "wizard" / ".venv" / "bin" / "python"
     pip_cmd = [str(venv_python), "-m", "pip"] if venv_python.exists() else [sys.executable, "-m", "pip"]
 
     run_cmd(pip_cmd + ["install", "-q", "mistral-vibe"], "Install Vibe CLI (mistral-vibe)")

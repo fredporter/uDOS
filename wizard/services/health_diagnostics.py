@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Dict, Any, Tuple
 
 from wizard.services.logging_api import get_logger
+from wizard.services.path_utils import get_wizard_venv_dir
 
 logger = get_logger("wizard", category="dev-recovery", name="dev-recovery")
 
@@ -28,7 +29,7 @@ def _repo_root() -> Path:
 
 
 def _wizard_venv_dir() -> Path:
-    return _repo_root() / "wizard" / ".venv"
+    return get_wizard_venv_dir()
 
 
 def _wizard_requirements() -> Path:
@@ -65,7 +66,7 @@ def check_venv() -> Dict[str, Any]:
 
     Healthy if either:
     - VIRTUAL_ENV points to an existing directory, or
-    - Current Python executable is inside repo/wizard/.venv
+    - Current Python executable is inside the resolved Wizard venv
     """
     venv_env = os.environ.get("VIRTUAL_ENV")
     venv_dir = _wizard_venv_dir()

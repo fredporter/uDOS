@@ -2,7 +2,7 @@
 Port Manager - Central Task and Process Manager for uDOS
 =========================================================
 
-Version: 1.3.12
+Version: 1.3.13
 
 Provides complete visibility and management of all services, processes,
 and system resources in the uDOS development and production environment.
@@ -23,7 +23,7 @@ Features:
 This is the central task manager for uDOS core and all extensions.
 """
 
-__version__ = "1.3.12"
+__version__ = "1.3.13"
 
 import os
 import json
@@ -242,10 +242,10 @@ class PortManager:
     - Event logging and audit trail
     - Multi-instance coordination
 
-    Version: 1.3.12
+    Version: 1.3.13
     """
 
-    VERSION = "1.3.12"
+    VERSION = "1.3.13"
     MAX_EVENT_LOG = 500
     MAX_RESOURCE_HISTORY = 60  # 1 hour of minute-by-minute snapshots
 

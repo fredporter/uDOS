@@ -3,7 +3,7 @@ Unified Settings Route (v1.1.0)
 ================================
 
 Single all-in-one settings page for:
-  1. Virtual environment (.venv) management & detection
+  1. Virtual environment (venv) management & detection
   2. Wizard API key & secret store configuration
   3. Extension & API installer integration
   4. Config auto-migration from v1.0.x formats
@@ -25,7 +25,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 
 from wizard.services.logging_api import get_logger
-from wizard.services.path_utils import get_repo_root, get_memory_dir
+from wizard.services.path_utils import get_repo_root, get_memory_dir, get_wizard_venv_dir
 from wizard.services.wizard_config import load_wizard_config_data, save_wizard_config_data
 from core.services.integration_registry import get_wizard_secret_sync_map
 from core.services.destructive_ops import remove_path
@@ -85,8 +85,8 @@ class UnifiedSettings(BaseModel):
 
 
 def get_venv_path() -> Path:
-    """Get the .venv directory path."""
-    return get_repo_root() / "wizard" / ".venv"
+    """Get the configured venv directory path."""
+    return get_wizard_venv_dir()
 
 
 def get_venv_status() -> VenvStatus:
@@ -558,7 +558,7 @@ def create_settings_unified_router(auth_guard=None):
     # VENV MANAGEMENT
     @router.get("/venv/status")
     async def venv_status(request: Request = None):
-        """Get .venv status."""
+        """Get venv status."""
         await check_auth(request)
         return get_venv_status().model_dump()
 

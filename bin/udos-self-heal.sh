@@ -45,14 +45,33 @@ if [[ "$2" == "--no-repair" ]] || [[ "$1" == "--no-repair" ]]; then
     fi
 fi
 
-# Ensure venv is activated
-if [ ! -f "$UDOS_ROOT/venv/bin/activate" ]; then
+# Ensure a Python venv is activated (env override + repo default).
+VENV_ACTIVATE=""
+if [ -n "${WIZARD_VENV_PATH:-}" ]; then
+    if [[ "$WIZARD_VENV_PATH" = /* ]]; then
+        CANDIDATES=("$WIZARD_VENV_PATH")
+    else
+        CANDIDATES=("$UDOS_ROOT/$WIZARD_VENV_PATH")
+    fi
+else
+    CANDIDATES=()
+fi
+CANDIDATES+=("$UDOS_ROOT/venv")
+
+for candidate in "${CANDIDATES[@]}"; do
+    if [ -f "$candidate/bin/activate" ]; then
+        VENV_ACTIVATE="$candidate/bin/activate"
+        break
+    fi
+done
+
+if [ -z "$VENV_ACTIVATE" ]; then
     echo -e "${RED}❌ Virtual environment not found${NC}"
-    echo "   Run: python3 -m venv venv"
+    echo "   Run: ./bin/ucli wizard install"
     exit 1
 fi
 
-source "$UDOS_ROOT/venv/bin/activate"
+source "$VENV_ACTIVATE"
 
 # Header
 echo ""

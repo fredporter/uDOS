@@ -16,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-from wizard.services.path_utils import get_repo_root
+from wizard.services.path_utils import get_repo_root, get_wizard_venv_dir
 from wizard.services.logging_api import get_logger
 from wizard.services.library_manager_service import get_library_manager
 from wizard.services.system_info_service import get_system_info_service
@@ -59,7 +59,7 @@ class RepairService:
         }
 
     def _wizard_venv_path(self) -> Path:
-        return self.repo_root / "wizard" / ".venv"
+        return get_wizard_venv_dir()
 
     def _wizard_requirements_path(self) -> Path:
         primary = self.repo_root / "wizard" / "requirements.txt"
