@@ -42,6 +42,55 @@ def create_enhanced_plugin_routes(auth_guard=None):
         dependencies=dependencies,
     )
 
+    @router.get("/marketplace")
+    async def marketplace_list(request: Request):
+        """Marketplace discovery payload backed by registry + discovery status."""
+        try:
+            discovery = get_discovery_service()
+            discovered = discovery.discover_all()
+            registry = get_registry().build_registry(refresh=False, include_manifests=False)
+
+            items: List[Dict[str, Any]] = []
+            for plugin_id, entry in registry.items():
+                discovered_item = discovered.get(plugin_id)
+                packages = entry.get("packages") or []
+                items.append(
+                    {
+                        "id": plugin_id,
+                        "name": entry.get("name") or plugin_id,
+                        "description": entry.get("description") or "",
+                        "version": entry.get("version") or "0.0.0",
+                        "installed": bool(discovered_item.installed) if discovered_item else False,
+                        "update_available": bool(discovered_item.update_available) if discovered_item else False,
+                        "packages": packages,
+                        "manifest_status": (entry.get("manifest_report") or {}).get("validation_status"),
+                    }
+                )
+
+            return {
+                "success": True,
+                "count": len(items),
+                "plugins": sorted(items, key=lambda item: item["id"]),
+            }
+        except Exception as e:
+            logger.error(f"[MARKETPLACE_LIST] Error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @router.get("/marketplace/{plugin_id}")
+    async def marketplace_get(plugin_id: str, request: Request):
+        """Marketplace plugin details from registry."""
+        try:
+            registry = get_registry().build_registry(refresh=False, include_manifests=True)
+            entry = registry.get(plugin_id)
+            if not entry:
+                raise HTTPException(status_code=404, detail=f"Plugin not found: {plugin_id}")
+            return {"success": True, "entry": entry}
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"[MARKETPLACE_GET] Error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
     @router.get("/catalog")
     async def get_plugin_catalog(request: Request):
         """Get complete plugin catalog with all metadata."""
@@ -412,6 +461,16 @@ def create_enhanced_plugin_routes(auth_guard=None):
             logger.error(f"[INSTALL] Error: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
 
+    @router.post("/marketplace/{plugin_id}/install")
+    async def marketplace_install(plugin_id: str, request: Request, background_tasks: BackgroundTasks):
+        """Marketplace install flow."""
+        return await install_plugin(plugin_id, request, background_tasks)
+
+    @router.post("/marketplace/{plugin_id}/update")
+    async def marketplace_update(plugin_id: str, request: Request, background_tasks: BackgroundTasks):
+        """Marketplace update flow."""
+        return await install_plugin(plugin_id, request, background_tasks)
+
     @router.post("/{plugin_id}/uninstall")
     async def uninstall_plugin(plugin_id: str, request: Request):
         """Uninstall a plugin by removing its source directory."""
@@ -446,6 +505,11 @@ def create_enhanced_plugin_routes(auth_guard=None):
         except Exception as e:
             logger.error(f"[UNINSTALL] Error: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
+
+    @router.post("/marketplace/{plugin_id}/uninstall")
+    async def marketplace_uninstall(plugin_id: str, request: Request):
+        """Marketplace uninstall flow."""
+        return await uninstall_plugin(plugin_id, request)
 
     return router
 
