@@ -30,6 +30,7 @@ from enum import Enum
 
 from core.services.logging_api import get_repo_root
 from core.tui.ui_elements import Spinner, ProgressBar
+from core.utils.tty import parse_special_key, normalize_terminal_input
 
 
 class FunctionKeyCode(Enum):
@@ -116,6 +117,13 @@ class FKeyHandler:
         Returns:
             F-key name (F1-F8) or None
         """
+        key_code = normalize_terminal_input(key_code)
+
+        # Try shared parser first (includes OS/env-aware mapping + self-heal).
+        parsed = parse_special_key(key_code)
+        if parsed and parsed.startswith("F"):
+            return parsed
+
         # Try direct mapping
         for fkey in FunctionKeyCode:
             if key_code == fkey.value:

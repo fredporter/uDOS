@@ -37,7 +37,12 @@ from core.input.confirmation_utils import (
     format_error,
 )
 from core.services.logging_api import get_logger
-from core.utils.tty import interactive_tty_status
+from core.utils.tty import (
+    interactive_tty_status,
+    normalize_terminal_input,
+    parse_special_key,
+    strip_ansi_sequences,
+)
 
 # Setup debug logging (silent by default, enable with DEBUG env var)
 
@@ -683,23 +688,28 @@ class SmartPrompt:
         """
         try:
             raw_input = input(prompt_text)
-            fallback_fkey = self._parse_fallback_function_key(raw_input)
+            normalized = normalize_terminal_input(raw_input)
+            fallback_fkey = self._parse_fallback_function_key(normalized)
             if fallback_fkey:
                 self._trigger_function_key(fallback_fkey)
                 return self._ask_fallback(prompt_text)
-            had_escape = "\x1b" in raw_input
+            special_key = parse_special_key(normalized)
+            if special_key and special_key in {"UP", "DOWN", "LEFT", "RIGHT", "HOME", "END", "DELETE"}:
+                # Ignore navigation-only input and reprompt.
+                return self._ask_fallback(prompt_text)
+
+            had_escape = "\x1b" in normalized
             if had_escape:
-                import re
                 # Strip ANSI escape sequences (arrows, colors, etc.)
-                raw_input = re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", raw_input)
-            if "\t" in raw_input:
+                normalized = strip_ansi_sequences(normalized)
+            if "\t" in normalized:
                 tab_selection = self._handle_tab_shortcut()
                 if tab_selection:
                     return tab_selection.strip()
                 # Continue prompting
                 return self._ask_fallback(prompt_text)
 
-            user_input = raw_input.strip()
+            user_input = normalized.strip()
 
             if not user_input and had_escape:
                 # Ignore bare arrow-key sequences in fallback mode
@@ -714,40 +724,10 @@ class SmartPrompt:
 
     def _parse_fallback_function_key(self, raw_input: str) -> Optional[str]:
         """Best-effort F1-F8 parsing in fallback mode across common terminals."""
-        if not raw_input:
-            return None
-
-        key_map = {
-            # VT/ANSI forms (macOS Terminal, iTerm2, many Linux terminals)
-            "\x1bOP": "F1",
-            "\x1bOQ": "F2",
-            "\x1bOR": "F3",
-            "\x1bOS": "F4",
-            "\x1b[15~": "F5",
-            "\x1b[17~": "F6",
-            "\x1b[18~": "F7",
-            "\x1b[19~": "F8",
-            # xterm alternate forms
-            "\x1b[11~": "F1",
-            "\x1b[12~": "F2",
-            "\x1b[13~": "F3",
-            "\x1b[14~": "F4",
-            # legacy rxvt forms
-            "\x1b[[A": "F1",
-            "\x1b[[B": "F2",
-            "\x1b[[C": "F3",
-            "\x1b[[D": "F4",
-            # Meta-digit soft aliases (useful on laptop keyboards)
-            "\x1b1": "F1",
-            "\x1b2": "F2",
-            "\x1b3": "F3",
-            "\x1b4": "F4",
-            "\x1b5": "F5",
-            "\x1b6": "F6",
-            "\x1b7": "F7",
-            "\x1b8": "F8",
-        }
-        return key_map.get(raw_input)
+        key = parse_special_key(raw_input)
+        if key and key.startswith("F"):
+            return key
+        return None
 
     def _handle_tab_shortcut(self) -> Optional[str]:
         """Invoke command selector via Tab even in fallback mode."""
