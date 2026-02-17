@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Dict
 import socket
 import time
+from collections import deque
 
 # Ensure local gateway module is importable without shadowing MCP SDK package.
 THIS_DIR = Path(__file__).resolve().parent
@@ -33,8 +34,38 @@ mcp = FastMCP(
     json_response=True,
 )
 
+_MCP_CALL_TIMESTAMPS: deque[float] = deque(maxlen=512)
+_MCP_LAST_CALL_TS: float = 0.0
+
+
+def _mcp_limits() -> tuple[int, float]:
+    rpm = int(os.getenv("WIZARD_MCP_RATE_LIMIT_PER_MIN", "120"))
+    min_interval = float(os.getenv("WIZARD_MCP_MIN_INTERVAL_SECONDS", "0.05"))
+    return max(1, rpm), max(0.0, min_interval)
+
+
+def _enforce_mcp_security() -> None:
+    global _MCP_LAST_CALL_TS
+    require_admin = os.getenv("WIZARD_MCP_REQUIRE_ADMIN_TOKEN", "1").strip().lower() in {"1", "true", "yes"}
+    if require_admin and not os.getenv("WIZARD_ADMIN_TOKEN"):
+        raise RuntimeError("MCP admin token required: set WIZARD_ADMIN_TOKEN")
+
+    rpm, min_interval = _mcp_limits()
+    now = time.time()
+    if _MCP_LAST_CALL_TS and now - _MCP_LAST_CALL_TS < min_interval:
+        raise RuntimeError("MCP rate limit: tool call cooldown active")
+    _MCP_LAST_CALL_TS = now
+
+    cutoff = now - 60.0
+    while _MCP_CALL_TIMESTAMPS and _MCP_CALL_TIMESTAMPS[0] < cutoff:
+        _MCP_CALL_TIMESTAMPS.popleft()
+    if len(_MCP_CALL_TIMESTAMPS) >= rpm:
+        raise RuntimeError("MCP rate limit: per-minute limit exceeded")
+    _MCP_CALL_TIMESTAMPS.append(now)
+
 
 def _client() -> WizardGateway:
+    _enforce_mcp_security()
     return WizardGateway(
         base_url=os.getenv("WIZARD_BASE_URL", "http://localhost:8765"),
         admin_token=os.getenv("WIZARD_ADMIN_TOKEN"),
@@ -114,17 +145,38 @@ def _extract_ucode_output(payload: Dict[str, Any]) -> str:
     return ""
 
 def _load_tool_index() -> list[str]:
-    tools_path = REPO_ROOT / "api" / "wizard" / "tools" / "mcp-tools.md"
-    if not tools_path.exists():
+    candidate_paths = [
+        REPO_ROOT / "api" / "wizard" / "tools" / "mcp-tools.md",
+        THIS_DIR.parent / "docs" / "api" / "tools" / "mcp-tools.md",
+    ]
+    tools_path = next((path for path in candidate_paths if path.exists()), None)
+    if tools_path is None:
         return []
     tools: list[str] = []
     for line in tools_path.read_text(encoding="utf-8", errors="ignore").splitlines():
         stripped = line.strip()
         if stripped.startswith("- `") and "`" in stripped[3:]:
-            name = stripped.split("`", 2)[1]
+            name = stripped.split("`", 2)[1].replace(".", "_")
             if name:
                 tools.append(name)
     return tools
+
+
+def _tool_registration_protocol() -> Dict[str, Any]:
+    tools = _load_tool_index()
+    server_tools = sorted(list(mcp._tool_manager._tools.keys()))
+    indexed_set = set(tools)
+    server_set = set(server_tools)
+    return {
+        "protocol_version": "1.0.0",
+        "indexed_count": len(tools),
+        "server_count": len(server_tools),
+        "indexed_tools": tools,
+        "server_tools": server_tools,
+        "missing_from_server": sorted(list(indexed_set - server_set)),
+        "missing_from_index": sorted(list(server_set - indexed_set)),
+        "valid": indexed_set.issubset(server_set),
+    }
 
 
 @mcp.tool()
@@ -152,6 +204,12 @@ def wizard_tools_list() -> Dict[str, Any]:
         "count": len(tools),
         "tools": tools,
     }
+
+
+@mcp.tool()
+def wizard_tools_registration_status() -> Dict[str, Any]:
+    """Return MCP tool registration protocol status."""
+    return _tool_registration_protocol()
 
 # Note: ucode_dispatch and ucode_command are defined at the end of this file
 # to return string content for MCP protocol compatibility.

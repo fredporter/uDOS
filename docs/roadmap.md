@@ -329,7 +329,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 - [ ] Library manager completion: full CRUD, versioning, dependency resolution.
 - [x] Web proxy implementation: reverse proxy for container-hosted services.
 - [x] Workspace routing: `@workspace` syntax for routing requests to named contexts.
-- [ ] MCP gateway hardening: auth, rate limiting, tool registration protocol.
+- [x] MCP gateway hardening: auth, rate limiting, tool registration protocol.
 - [ ] Unified config layer: single config source of truth across `wizard/`.
 
 #### P1 -- Should Have
