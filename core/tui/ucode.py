@@ -735,6 +735,12 @@ class UCLI:
 
     def _run_startup_sequence(self) -> None:
         """Run startup steps with consistent progress bars + spinner feedback."""
+        clean_startup = os.getenv("UDOS_TUI_CLEAN_STARTUP", "1").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
         steps = [
             ("loading", "Detecting environment", self._autodetect_environment, True),
             ("loading", "Measuring viewport", self._refresh_viewport, True),
@@ -754,7 +760,10 @@ class UCLI:
                 if self.quiet:
                     result = action()
                 else:
-                    if use_spinner:
+                    if clean_startup:
+                        self._ui_line(f"{label}...", level="info")
+                        result = action()
+                    elif use_spinner:
                         result = self._run_with_spinner(f"⏳ {label}", action)
                     else:
                         print(self._theme_text(f"\n⏳ {label}"))
@@ -764,7 +773,8 @@ class UCLI:
                 result = None
             if label == "Checking AI availability":
                 self._maybe_prompt_setup_vibe(result)
-            self._print_task_progress(phase, f"{label} complete", done_pct)
+            if not clean_startup:
+                self._print_task_progress(phase, f"{label} complete", done_pct)
 
     def _maybe_prompt_setup_vibe(self, ai_status: Optional[Dict[str, Any]]) -> None:
         """Prompt once when local Vibe is unavailable during startup."""

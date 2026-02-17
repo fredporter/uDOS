@@ -30,6 +30,32 @@ from core.services.viewport_service import ViewportService
 def _default_logger(message: str) -> None:
     print(message)
 
+
+def _load_ok_modes_config_for_setup(config_path: Path) -> tuple[Dict[str, object], List[str]]:
+    """Load ok_modes config with self-heal for empty/corrupt JSON."""
+    warnings: List[str] = []
+    config: Dict[str, object] = {"modes": {}}
+    if not config_path.exists():
+        return config, warnings
+
+    try:
+        loaded = json.loads(config_path.read_text())
+        if isinstance(loaded, dict):
+            return loaded, warnings
+        warnings.append("ok_modes.json was non-object; reset to defaults")
+        return config, warnings
+    except Exception as exc:
+        try:
+            backup = config_path.with_suffix(f".invalid-{int(time.time())}.json")
+            backup.write_text(config_path.read_text())
+            warnings.append(
+                f"Recovered invalid ok_modes.json; backup saved to {backup.name}"
+            )
+        except Exception:
+            warnings.append("Recovered invalid ok_modes.json (backup unavailable)")
+        warnings.append(f"ok_modes.json parse failed: {exc}")
+        return config, warnings
+
 def _format_bytes(num: int) -> str:
     if num <= 0:
         return "0B"
@@ -302,12 +328,12 @@ def run_ok_setup(
     # Update ok_modes.json
     try:
         config_path = repo_root / "core" / "config" / "ok_modes.json"
-        config = {"modes": {}}
-        if config_path.exists():
-            config = json.loads(config_path.read_text())
+        config, load_warnings = _load_ok_modes_config_for_setup(config_path)
+        warnings.extend(load_warnings)
         modes = config.setdefault("modes", {})
         ofvibe = modes.setdefault("ofvibe", {})
         models = ofvibe.setdefault("models", [])
+        default_models = ofvibe.setdefault("default_models", {})
         names = {m.get("name") for m in models if isinstance(m, dict)}
         if pulled_names:
             for pulled in pulled_names:
@@ -321,6 +347,8 @@ def run_ok_setup(
             ]:
                 if name not in names:
                     models.append({"name": name, "availability": availability})
+        default_models.setdefault("core", "mistral-small2")
+        default_models.setdefault("dev", "devstral-small-2")
         config_path.write_text(json.dumps(config, indent=2))
         steps.append("Updated ok_modes.json")
     except Exception as exc:

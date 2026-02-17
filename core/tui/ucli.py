@@ -44,18 +44,21 @@ def bootstrap_ucli_keymap_env(
     if not target_env.get("UDOS_KEYMAP_SELF_HEAL"):
         target_env["UDOS_KEYMAP_SELF_HEAL"] = "1"
 
-    # mac terminals are the highest-risk path for literal-escape leaks with
-    # prompt_toolkit integration; prefer hardened fallback unless user opted out.
-    if os_name == "mac" and not target_env.get("UDOS_SMARTPROMPT_FORCE_FALLBACK"):
-        target_env["UDOS_SMARTPROMPT_FORCE_FALLBACK"] = "1"
-
     if not target_env.get("UDOS_FALLBACK_RAW_EDITOR"):
         target_env["UDOS_FALLBACK_RAW_EDITOR"] = "1"
 
     if not target_env.get("UDOS_MENU_STYLE"):
         target_env["UDOS_MENU_STYLE"] = "hybrid"
 
-    if not target_env.get("UDOS_PROMPT_TOOLBAR_INLINE") and os_name == "mac":
+    if not target_env.get("UDOS_TUI_CLEAN_STARTUP"):
+        target_env["UDOS_TUI_CLEAN_STARTUP"] = "1"
+
+    # Inline toolbar is only useful in fallback mode where prompt_toolkit's
+    # bottom toolbar is unavailable.
+    if (
+        _is_truthy(target_env.get("UDOS_SMARTPROMPT_FORCE_FALLBACK"))
+        and not target_env.get("UDOS_PROMPT_TOOLBAR_INLINE")
+    ):
         target_env["UDOS_PROMPT_TOOLBAR_INLINE"] = "1"
 
     return {

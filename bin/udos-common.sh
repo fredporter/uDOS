@@ -64,6 +64,7 @@ UDOS_USE_DOT_VENV="${UDOS_USE_DOT_VENV:-0}"
 UDOS_PIP_VERBOSE="${UDOS_PIP_VERBOSE:-0}"
 UDOS_SKIP_DEP_CHECK="${UDOS_SKIP_DEP_CHECK:-0}"
 UDOS_FORCE_REBUILD="${UDOS_FORCE_REBUILD:-0}"
+UDOS_TTY_CAPTURE="${UDOS_TTY_CAPTURE:-0}"
 
 _udos_default_root() {
     # Prefer ~/uDOS when it exists and is a repo; otherwise fall back to script parent.
@@ -200,6 +201,13 @@ run_with_log() {
     fi
 
     if [ "$UDOS_TTY" = "1" ]; then
+        if [ "$UDOS_TTY_CAPTURE" != "1" ]; then
+            # Fidelity-first mode: keep native terminal behavior for prompt_toolkit
+            # and key handling. Explicitly opt in to script(1) capture with
+            # UDOS_TTY_CAPTURE=1 when needed.
+            "$@"
+            return $?
+        fi
         if command -v script >/dev/null 2>&1; then
             local term_effective="${TERM}"
             if [ -z "$term_effective" ] || [ "$term_effective" = "dumb" ]; then

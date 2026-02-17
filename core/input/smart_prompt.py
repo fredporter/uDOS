@@ -12,7 +12,7 @@ Advanced input handling with:
 try:
     from prompt_toolkit import PromptSession
     from prompt_toolkit.completion import Completer, Completion
-    from prompt_toolkit.history import InMemoryHistory
+    from prompt_toolkit.history import InMemoryHistory, FileHistory
     from prompt_toolkit.key_binding import KeyBindings
     from prompt_toolkit.keys import Keys
     from prompt_toolkit.styles import Style
@@ -28,6 +28,7 @@ import os
 import logging
 import re
 import time
+from pathlib import Path
 from typing import Optional, List, Iterable, Tuple, Dict
 
 from .autocomplete import AutocompleteService
@@ -103,6 +104,43 @@ class CoreCompleter(Completer):
             return
 
         debug_logger.debug(f"  Words: {words}, word count: {len(words)}")
+
+        # Slash-command completion (Vibe-style UX)
+        if text.startswith("/"):
+            slash_commands = [
+                "/help",
+                "/status",
+                "/ok",
+                "/setup",
+                "/logs",
+                "/clear",
+                "/exit",
+            ]
+            partial = text.strip().lower()
+            for cmd in slash_commands:
+                if cmd.startswith(partial):
+                    yield Completion(
+                        cmd[len(partial):],
+                        start_position=-len(partial),
+                        display=cmd,
+                        display_meta="slash command",
+                    )
+            return
+
+        # @path completion (Vibe-style UX)
+        path_match = re.search(r"(?:^|\s)@([^\s]*)$", text)
+        if path_match:
+            partial_path = path_match.group(1)
+            for candidate in self._path_suggestions(partial_path):
+                token = f"@{candidate}"
+                start_pos = -len(partial_path) - 1
+                yield Completion(
+                    token,
+                    start_position=start_pos,
+                    display=token,
+                    display_meta="path",
+                )
+            return
 
         # Completing command (first word)
         if len(words) == 1:
@@ -244,6 +282,35 @@ class CoreCompleter(Completer):
 
         return hints.get(option.lower(), "")
 
+    def _path_suggestions(self, partial: str) -> List[str]:
+        """Return relative file suggestions for @path completion."""
+        try:
+            base = Path(".").resolve()
+            raw = (partial or "").strip()
+            search_root = base
+            prefix = raw
+            if "/" in raw:
+                parent = Path(raw).parent
+                search_root = (base / parent).resolve()
+                prefix = Path(raw).name
+            if not search_root.exists() or not search_root.is_dir():
+                return []
+
+            candidates = []
+            for entry in sorted(search_root.iterdir(), key=lambda p: (not p.is_dir(), p.name.lower())):
+                name = entry.name
+                if prefix and not name.lower().startswith(prefix.lower()):
+                    continue
+                rel = entry.relative_to(base).as_posix()
+                if entry.is_dir():
+                    rel = rel + "/"
+                candidates.append(rel)
+                if len(candidates) >= 20:
+                    break
+            return candidates
+        except Exception:
+            return []
+
 
 class SmartPrompt:
     """
@@ -320,7 +387,15 @@ class SmartPrompt:
         self.autocomplete_service = AutocompleteService()
         self.predictor = CommandPredictor(self.autocomplete_service)
         self.completer = CoreCompleter(self.autocomplete_service, registry=self.registry)
-        self.history = InMemoryHistory()
+        history_path = (
+            Path(os.environ.get("UDOS_PROMPT_HISTORY_FILE", "~/.udos/history/ucli.history"))
+            .expanduser()
+        )
+        try:
+            history_path.parent.mkdir(parents=True, exist_ok=True)
+            self.history = FileHistory(str(history_path))
+        except Exception:
+            self.history = InMemoryHistory()
 
         # Create key bindings
         self.key_bindings = self._create_key_bindings()
@@ -331,6 +406,7 @@ class SmartPrompt:
                 "prompt": "ansigreen bold",           # Bold green prompt
                 "completion": "ansiwhite",             # White completions
                 "completion.meta": "ansiyellow",       # Yellow hints
+                "auto-suggestion": "ansibrightblack",  # Ghost text while typing
                 "scrollbar": "ansicyan",               # Cyan scrollbar
                 "scrollbar.background": "ansiblack",   # Dark background
                 # Keep high contrast so toolbar remains visible across terminals/themes.

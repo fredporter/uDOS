@@ -6,11 +6,10 @@ def test_bootstrap_ucli_keymap_env_mac_defaults():
     state = bootstrap_ucli_keymap_env(env=env, tty_env=env)
     assert env["UDOS_KEYMAP_PROFILE"] == "mac-obsidian"
     assert env["UDOS_KEYMAP_SELF_HEAL"] == "1"
-    assert env["UDOS_SMARTPROMPT_FORCE_FALLBACK"] == "1"
     assert env["UDOS_FALLBACK_RAW_EDITOR"] == "1"
-    assert env["UDOS_PROMPT_TOOLBAR_INLINE"] == "1"
     assert state["profile"] == "mac-obsidian"
-    assert state["force_fallback"] is True
+    assert state["force_fallback"] is False
+    assert state["inline_toolbar"] is False
 
 
 def test_bootstrap_ucli_keymap_env_respects_existing_values():
