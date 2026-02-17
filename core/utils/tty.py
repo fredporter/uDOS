@@ -97,6 +97,22 @@ def strip_ansi_sequences(text: str) -> str:
     return re.sub(f"(?:{osc}|{csi}|{single})", "", text)
 
 
+def strip_literal_escape_sequences(text: str) -> str:
+    """
+    Strip literal (non-control) escape notations from terminal input.
+
+    Examples removed:
+      ^[[A
+      ^[[1;2B
+      \\x1b[15~
+    """
+    if not text:
+        return text
+    literal_caret = r"\^\[\[[0-9;?]*[A-Za-z~]"
+    literal_hex = r"\\x1b\[[0-9;?]*[A-Za-z~]"
+    return re.sub(f"(?:{literal_caret}|{literal_hex})", "", text)
+
+
 def _special_key_map(os_profile: str) -> Dict[str, str]:
     base = {
         # Arrow/navigation keys (CSI + SS3 variants)

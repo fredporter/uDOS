@@ -43,6 +43,7 @@ from core.utils.tty import (
     normalize_terminal_input,
     parse_special_key,
     strip_ansi_sequences,
+    strip_literal_escape_sequences,
 )
 
 # Setup debug logging (silent by default, enable with DEBUG env var)
@@ -703,6 +704,9 @@ class SmartPrompt:
                     continue
 
                 had_escape = "\x1b" in normalized
+                had_literal_escape = bool(re.search(r"(?:\^\[\[[0-9;?]*[A-Za-z~]|\\x1b\[[0-9;?]*[A-Za-z~])", normalized))
+                if had_literal_escape:
+                    normalized = strip_literal_escape_sequences(normalized)
                 if had_escape:
                     # Strip ANSI escape sequences (arrows, colors, etc.)
                     normalized = strip_ansi_sequences(normalized)
@@ -714,7 +718,7 @@ class SmartPrompt:
                     continue
 
                 user_input = normalized.strip()
-                if had_escape and self._looks_like_escape_noise(user_input):
+                if (had_escape or had_literal_escape) and self._looks_like_escape_noise(user_input):
                     # Self-heal for terminals that echo raw control keys as text.
                     continue
 

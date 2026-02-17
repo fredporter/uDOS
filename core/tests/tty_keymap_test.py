@@ -3,6 +3,7 @@ from core.utils.tty import (
     normalize_terminal_input,
     parse_special_key,
     strip_ansi_sequences,
+    strip_literal_escape_sequences,
 )
 
 
@@ -32,3 +33,8 @@ def test_parse_special_key_self_heal_unknown_csi():
 def test_strip_ansi_sequences():
     text = "\x1b[31mhello\x1b[0m world \x1b[B"
     assert strip_ansi_sequences(text) == "hello world "
+
+
+def test_strip_literal_escape_sequences():
+    text = "^[[A^[[B^[[C^[[D"
+    assert strip_literal_escape_sequences(text) == ""
