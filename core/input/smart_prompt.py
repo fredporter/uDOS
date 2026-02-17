@@ -21,6 +21,16 @@ try:
 
     HAS_PROMPT_TOOLKIT = True
 except ImportError:
+    # Stub classes for when prompt_toolkit is not available
+    class Completer:
+        pass
+    
+    class Completion:
+        pass
+    
+    class Document:
+        pass
+    
     HAS_PROMPT_TOOLKIT = False
 
 import sys
