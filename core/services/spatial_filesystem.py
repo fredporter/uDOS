@@ -35,7 +35,12 @@ Version: 1.0.7.0
 
 import os
 import json
-import yaml
+try:
+    import yaml
+    HAS_YAML = True
+except ImportError:
+    HAS_YAML = False
+    yaml = None
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Any
 from dataclasses import dataclass, field, asdict
@@ -388,7 +393,10 @@ class SpatialFilesystem:
                     frontmatter_str = parts[1]
                     body = parts[2]
 
-            metadata_dict = yaml.safe_load(frontmatter_str) or {}
+            if HAS_YAML:
+                metadata_dict = yaml.safe_load(frontmatter_str) or {}
+            else:
+                metadata_dict = {}
 
             tags = metadata_dict.get('tags', [])
             if isinstance(tags, str):
@@ -605,7 +613,11 @@ class SpatialFilesystem:
             **metadata.custom_fields
         }
 
-        frontmatter_yaml = yaml.dump(frontmatter, default_flow_style=False)
+        if HAS_YAML:
+            frontmatter_yaml = yaml.dump(frontmatter, default_flow_style=False)
+        else:
+            # Fallback: simple key-value format
+            frontmatter_yaml = '\n'.join(f'{k}: {v}' for k, v in frontmatter.items())
 
         # Remove old front-matter if present
         if content.startswith('---'):
