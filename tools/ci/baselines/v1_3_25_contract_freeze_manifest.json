@@ -5,11 +5,11 @@
   "contracts": [
     {
       "path": "core/config/ucli_command_contract_v1_3.json",
-      "sha256": "5b0236660d76c62f51de1c97cfc01bfc9c290a32b19392219636d4d2994f9dfe"
+      "sha256": "e90060cc96862596f01d74ec8147937789995d23b5f4561143b9b2d3f634fd7c"
     },
     {
       "path": "core/config/ucli_command_contract_v1_3_16.json",
-      "sha256": "c9dc3bfa4464f70344ce8337f898e92dbce373ef3ec04822d8578a3cc244f8c3"
+      "sha256": "0a27c53eb6216c934959f4647353f2e9943a8128a460bec41fbb852b27630a1f"
     },
     {
       "path": "core/config/world_adapter_contract_v1_3_21.json",
@@ -45,7 +45,7 @@
     },
     {
       "path": "docs/specs/v1.3.21-DUAL-LENS-COMPAT-MATRIX.md",
-      "sha256": "f6927807ad5fd15b0b238be460d154bae8e71d5ad6873504bb6c877f53b3964d"
+      "sha256": "b591a2f05c19834dcc0969a046194a9ba25758fe04adae3fa2492f3f4527e917"
     },
     {
       "path": "docs/specs/v1.3.21-CAPABILITY-BENCHMARK-MISSIONS.md",

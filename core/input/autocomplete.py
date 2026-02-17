@@ -81,6 +81,10 @@ class AutocompleteService:
                 "description": "Fix system issues",
                 "options": ["--pull", "--upgrade-all"],
             },
+            "LIBRARY": {
+                "description": "Library integration manager",
+                "options": ["STATUS", "SYNC", "LIST", "INFO", "HELP"],
+            },
             "NPC": {
                 "description": "NPC management",
                 "options": ["LIST", "CREATE", "EDIT", "DELETE"],

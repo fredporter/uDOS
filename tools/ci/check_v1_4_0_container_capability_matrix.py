@@ -93,32 +93,35 @@ def main() -> int:
         expected_context = str(lane.get("build_context", "")).strip()
         smoke_gate = str(lane.get("smoke_gate", "")).strip()
 
-        svc = compose.get(service)
-        if not svc:
-            missing_services.append({"lane": lane_id, "service": service})
-            continue
+        skip_compose = lane.get("skip_compose", False)
 
-        actual_profiles = sorted(str(x) for x in svc.get("profiles", []) if str(x).strip())
-        if actual_profiles != expected_profiles:
-            profile_mismatches.append(
-                {
-                    "lane": lane_id,
-                    "service": service,
-                    "expected": expected_profiles,
-                    "actual": actual_profiles,
-                }
-            )
+        if not skip_compose:
+            svc = compose.get(service)
+            if not svc:
+                missing_services.append({"lane": lane_id, "service": service})
+                continue
 
-        actual_context = str(svc.get("build_context") or "").strip()
-        if expected_context and actual_context and actual_context != expected_context:
-            context_mismatches.append(
-                {
-                    "lane": lane_id,
-                    "service": service,
-                    "expected": expected_context,
-                    "actual": actual_context,
-                }
-            )
+            actual_profiles = sorted(str(x) for x in svc.get("profiles", []) if str(x).strip())
+            if actual_profiles != expected_profiles:
+                profile_mismatches.append(
+                    {
+                        "lane": lane_id,
+                        "service": service,
+                        "expected": expected_profiles,
+                        "actual": actual_profiles,
+                    }
+                )
+
+            actual_context = str(svc.get("build_context") or "").strip()
+            if expected_context and actual_context and actual_context != expected_context:
+                context_mismatches.append(
+                    {
+                        "lane": lane_id,
+                        "service": service,
+                        "expected": expected_context,
+                        "actual": actual_context,
+                    }
+                )
 
         for artifact in lane.get("required_artifacts", []):
             rel = str(artifact).strip()

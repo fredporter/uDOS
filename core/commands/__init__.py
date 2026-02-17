@@ -259,6 +259,10 @@ def __getattr__(name):
         from .web_handler import WebHandler
 
         return WebHandler
+    elif name == "LibraryHandler":
+        from .library_handler import LibraryHandler
+
+        return LibraryHandler
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -333,4 +337,5 @@ __all__ = [
     "MeshHandler",
     "OkfixHandler",
     "WebHandler",
+    "LibraryHandler",
 ]

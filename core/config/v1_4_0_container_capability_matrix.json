@@ -75,6 +75,25 @@
         "docker-compose.yml"
       ],
       "smoke_gate": "tools/ci/check_v1_4_0_compose_profile_matrix.py"
+    },
+    {
+      "id": "library-command",
+      "service": null,
+      "skip_compose": true,
+      "profiles": [],
+      "build_context": null,
+      "capabilities": [
+        "library.status",
+        "library.sync",
+        "library.info",
+        "command.routing"
+      ],
+      "required_artifacts": [
+        "core/commands/library_handler.py",
+        "core/tests/v1_4_0_library_command_test.py",
+        "tools/ci/check_v1_4_0_library_command_smoke.py"
+      ],
+      "smoke_gate": "tools/ci/check_v1_4_0_library_command_smoke.py"
     }
   ]
 }

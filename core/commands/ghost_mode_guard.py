@@ -76,6 +76,8 @@ def ghost_mode_block(command: str, params: Optional[List[str]] = None) -> Option
         return None
     if cmd == "SONIC" and tokens[:1] in ([], ["STATUS"], ["HELP"], ["LIST"], ["SYNC"], ["PLUGIN"]):
         return None
+    if cmd == "LIBRARY" and tokens[:1] in ([], ["STATUS"], ["LIST"], ["INFO"], ["HELP"], ["SYNC"]):
+        return None
     if cmd in {"HOTKEY", "HOTKEYS"}:
         return None
 

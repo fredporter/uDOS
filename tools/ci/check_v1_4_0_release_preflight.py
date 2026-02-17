@@ -20,6 +20,7 @@ CHECKS: List[List[str]] = [
     [sys.executable, "tools/ci/check_v1_4_0_groovebox_docker_smoke.py"],
     [sys.executable, "tools/ci/check_v1_4_0_compose_profile_matrix.py"],
     [sys.executable, "tools/ci/check_v1_4_0_container_capability_matrix.py"],
+    [sys.executable, "tools/ci/check_v1_4_0_library_command_smoke.py"],
 ]
 
 

@@ -76,6 +76,7 @@ class CommandDispatcher:
         # Import FileHandler here to avoid circular import
         # (FileHandler → OutputToolkit → ucode → dispatcher → FileHandler)
         from core.commands.file_handler import FileHandler
+        from core.commands.library_handler import LibraryHandler
 
         play = PlayHandler()
         self.handlers: Dict[str, Any] = {
@@ -148,6 +149,8 @@ class CommandDispatcher:
             "TIDY": maintenance,
             "CLEAN": maintenance,
             "COMPOST": maintenance,
+            # Library management
+            "LIBRARY": LibraryHandler(),
         }
 
         self.file_handler = file_editor

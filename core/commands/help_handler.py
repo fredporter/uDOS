@@ -50,6 +50,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "LOGS",
             "VIEWPORT",
             "DRAW",
+            "LIBRARY",
         ],
         "Automation": [
             "SCHEDULER",
@@ -269,6 +270,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "notes": "SYNC rebuilds local device DB from sonic/datasets SQL. Wizard parity endpoints live under /api/sonic/db/*.",
             "category": "System & Maintenance",
             "syntax": "SONIC STATUS | SONIC SYNC [--force] | SONIC PLAN [flags] | SONIC RUN [flags] --confirm",
+        },
+        "LIBRARY": {
+            "description": "Library integration manager — list, sync, and inspect integrations",
+            "usage": "LIBRARY <STATUS|SYNC|INFO <name>|LIST|HELP>",
+            "example": "LIBRARY STATUS",
+            "notes": "SYNC rescans the /library directory. INFO shows detail for one integration.",
+            "category": "System & Maintenance",
+            "syntax": "LIBRARY STATUS | LIBRARY SYNC | LIBRARY INFO <name> | LIBRARY LIST",
         },
         "REBOOT": {
             "description": "Hot reload handlers and restart the TUI",
