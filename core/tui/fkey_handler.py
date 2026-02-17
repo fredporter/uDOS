@@ -30,7 +30,8 @@ from enum import Enum
 
 from core.services.logging_api import get_repo_root
 from core.tui.ui_elements import Spinner, ProgressBar
-from core.utils.tty import parse_special_key, normalize_terminal_input
+from core.input.keymap import decode_key_input
+from core.utils.tty import normalize_terminal_input
 
 
 class FunctionKeyCode(Enum):
@@ -120,9 +121,9 @@ class FKeyHandler:
         key_code = normalize_terminal_input(key_code)
 
         # Try shared parser first (includes OS/env-aware mapping + self-heal).
-        parsed = parse_special_key(key_code)
-        if parsed and parsed.startswith("F"):
-            return parsed
+        decoded = decode_key_input(key_code, env=os.environ)
+        if decoded.action.startswith("FKEY_"):
+            return f"F{decoded.action.split('_', 1)[1]}"
 
         # Try direct mapping
         for fkey in FunctionKeyCode:

@@ -38,10 +38,10 @@ from core.input.confirmation_utils import (
     format_error,
 )
 from core.services.logging_api import get_logger
+from core.input.keymap import decode_key_input
 from core.utils.tty import (
     interactive_tty_status,
     normalize_terminal_input,
-    parse_special_key,
     strip_ansi_sequences,
     strip_literal_escape_sequences,
 )
@@ -693,13 +693,19 @@ class SmartPrompt:
                 self._render_fallback_toolbar()
                 raw_input = input(prompt_text)
                 normalized = normalize_terminal_input(raw_input)
+                decoded = decode_key_input(normalized, env=os.environ)
                 fallback_fkey = self._parse_fallback_function_key(normalized)
                 if fallback_fkey:
                     self._trigger_function_key(fallback_fkey)
                     continue
 
-                special_key = parse_special_key(normalized)
-                if special_key and special_key in {"UP", "DOWN", "LEFT", "RIGHT", "HOME", "END", "DELETE"}:
+                if decoded.action == "OPEN_COMMAND":
+                    tab_selection = self._handle_tab_shortcut()
+                    if tab_selection:
+                        return tab_selection.strip()
+                    continue
+
+                if decoded.action in {"NAV_UP", "NAV_DOWN", "NAV_LEFT", "NAV_RIGHT", "NAV_HOME", "NAV_END", "NAV_DELETE", "NOISE"}:
                     # Ignore navigation-only input and reprompt.
                     continue
 
@@ -710,12 +716,6 @@ class SmartPrompt:
                 if had_escape:
                     # Strip ANSI escape sequences (arrows, colors, etc.)
                     normalized = strip_ansi_sequences(normalized)
-
-                if "\t" in normalized:
-                    tab_selection = self._handle_tab_shortcut()
-                    if tab_selection:
-                        return tab_selection.strip()
-                    continue
 
                 user_input = normalized.strip()
                 if (had_escape or had_literal_escape) and self._looks_like_escape_noise(user_input):
@@ -762,9 +762,9 @@ class SmartPrompt:
 
     def _parse_fallback_function_key(self, raw_input: str) -> Optional[str]:
         """Best-effort F1-F8 parsing in fallback mode across common terminals."""
-        key = parse_special_key(raw_input)
-        if key and key.startswith("F"):
-            return key
+        decoded = decode_key_input(raw_input, env=os.environ)
+        if decoded.action.startswith("FKEY_"):
+            return f"F{decoded.action.split('_', 1)[1]}"
         return None
 
     def _handle_tab_shortcut(self) -> Optional[str]:

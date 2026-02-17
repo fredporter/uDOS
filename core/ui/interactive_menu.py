@@ -12,7 +12,8 @@ Provides:
 import sys
 import os
 from typing import List, Dict, Optional, Tuple, Callable, Any
-from core.utils.tty import interactive_tty_status, parse_special_key
+from core.input.keymap import decode_key_input
+from core.utils.tty import interactive_tty_status
 from core.services.viewport_service import ViewportService
 from core.utils.text_width import pad_to_width, truncate_to_width
 from dataclasses import dataclass
@@ -332,11 +333,11 @@ class InteractiveMenu:
                                 seq += part
                                 if part.isalpha() or part == '~':
                                     break
-                            key = parse_special_key("\x1b" + next_char + seq)
-                            if key == "UP":
+                            decoded = decode_key_input("\x1b" + next_char + seq, env=os.environ)
+                            if decoded.action == "NAV_UP":
                                 self.selected_index = (self.selected_index - 1) % len(self.items)
                                 self._display()
-                            elif key == "DOWN":
+                            elif decoded.action == "NAV_DOWN":
                                 self.selected_index = (self.selected_index + 1) % len(self.items)
                                 self._display()
                             continue
