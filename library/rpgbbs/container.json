@@ -5,8 +5,8 @@
     "name": "TOYBOX RPGBBS",
     "description": "Social dungeon/BBS gameplay runtime adapter for uDOS TOYBOX.",
     "type": "git",
-    "source": "https://github.com/evs-rpg/rpgbbs.git",
-    "ref": "main",
+    "source": "https://github.com/paladin-t/b8",
+    "ref": "master",
     "cloned_at": null,
     "last_update": null,
     "commit": null,
@@ -27,7 +27,7 @@
   },
   "metadata": {
     "license": "Public Domain / Open Source",
-    "homepage": "https://github.com/evs-rpg/rpgbbs",
+    "homepage": "https://github.com/paladin-t/b8",
     "documentation": "docs/specs/TOYBOX-GAMEPLAY-SCAFFOLD-v1.3.md",
     "maintainer": "uDOS Wizard Server",
     "category": "toybox-gameplay"
@@ -37,6 +37,11 @@
     "lens": "social-dungeon",
     "upstream_policy": "no-fork",
     "reskin_policy": "udos-ui-redraw-2026"
+  },
+  "service": {
+    "port": 7423,
+    "health_check_url": "http://localhost:7423/health",
+    "browser_route": "/ui/rpgbbs"
   },
   "launch_config": {
     "command": ["python3", "-m", "wizard.services.toybox.rpgbbs_adapter"],

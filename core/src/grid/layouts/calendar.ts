@@ -1,26 +1,9 @@
 import { Canvas80x30 } from "../canvas.js";
 import { packageGrid } from "../pack.js";
-import { GridCanvasSpec } from "../types.js";
+import { CalendarInput, GridCanvasSpec } from "../types.js";
+import { compactSpatialRef, normalizeScheduleRows, normalizeTaskRows, spatialRef } from "./shared.js";
 
-function eventSpatialRef(event: any): string | null {
-  const ref = event?.placeRef || event?.locId || event?.location;
-  if (!ref || typeof ref !== "string") return null;
-  return ref.trim() || null;
-}
-
-function taskSpatialRef(task: any): string | null {
-  const ref = task?.placeRef || task?.locId || task?.location;
-  if (!ref || typeof ref !== "string") return null;
-  return ref.trim() || null;
-}
-
-function compactSpatialRef(ref: string): string {
-  const parts = ref.split(":");
-  if (parts.length >= 3) return parts.slice(-2).join(":");
-  return ref;
-}
-
-export function renderCalendarDay(spec: GridCanvasSpec, input: any) {
+export function renderCalendarDay(spec: GridCanvasSpec, input: CalendarInput) {
   const c = new Canvas80x30();
   c.clear(" ");
   c.box(0, 0, 80, 30, "single", spec.title);
@@ -30,17 +13,20 @@ export function renderCalendarDay(spec: GridCanvasSpec, input: any) {
 
   const spatialRefs = new Set<string>();
 
+  const scheduleRows = normalizeScheduleRows(input.events || []);
+  const taskRows = normalizeTaskRows(input.tasks || []);
+
   let y = 2;
-  for (const e of input.events || []) {
-    const ref = eventSpatialRef(e);
+  for (const e of scheduleRows) {
+    const ref = e._ref || null;
     if (ref) spatialRefs.add(ref);
     const refHint = ref ? ` @${compactSpatialRef(ref)}` : "";
-    c.write(2, y++, `${e.time} ${e.title}${refHint}`.slice(0, 50));
+    c.write(2, y++, `${e.time} ${e.item}${refHint}`.slice(0, 50));
   }
 
   y = 2;
-  for (const t of input.tasks || []) {
-    const ref = taskSpatialRef(t);
+  for (const t of taskRows) {
+    const ref = spatialRef(t);
     if (ref) spatialRefs.add(ref);
     const refHint = ref ? ` @${compactSpatialRef(ref)}` : "";
     c.write(54, y++, `${t.status} ${t.text}${refHint}`.slice(0, 24));

@@ -58,3 +58,20 @@ def test_get_ok_local_status_variants(monkeypatch):
     ready = utils.get_ok_local_status()
     assert ready["ready"] is True
     assert ready["issue"] is None
+
+
+def test_get_ok_local_status_accepts_tagged_alias(monkeypatch):
+    monkeypatch.setattr(
+        utils,
+        "load_ai_modes_config",
+        lambda: {"modes": {"ofvibe": {"ollama_endpoint": "http://ollama"}}},
+    )
+    monkeypatch.setattr(utils, "get_ok_default_model", lambda: "devstral-small-2")
+    monkeypatch.setattr(
+        utils,
+        "fetch_ollama_models",
+        lambda endpoint: {"reachable": True, "models": ["devstral-small-2:latest"]},
+    )
+    ready = utils.get_ok_local_status()
+    assert ready["ready"] is True
+    assert ready["issue"] is None

@@ -358,6 +358,229 @@ function testOutputFormat(): TestResult {
   }
 }
 
+// Test 12: Schedule panel parity (supports scheduleItems + deterministic sort)
+function testSchedulePanelParity(): TestResult {
+  try {
+    const baseSpec = { width: 80 as const, height: 30 as const, title: "Schedule Parity" };
+    const a: GridRendererInput = {
+      mode: "schedule",
+      spec: baseSpec,
+      data: {
+        scheduleItems: [
+          { start: "13:00", title: "Refactor", placeRef: "EARTH:SUR:L305-DB12" },
+          { start: "09:00", title: "Standup", placeRef: "EARTH:SUR:L305-DA11" },
+        ],
+      },
+    };
+    const b: GridRendererInput = {
+      mode: "schedule",
+      spec: baseSpec,
+      data: {
+        scheduleItems: [
+          { start: "09:00", title: "Standup", placeRef: "EARTH:SUR:L305-DA11" },
+          { start: "13:00", title: "Refactor", placeRef: "EARTH:SUR:L305-DB12" },
+        ],
+      },
+    };
+
+    const ra = renderGrid(a);
+    const rb = renderGrid(b);
+    assert(ra.rawText === rb.rawText, "Schedule output should be deterministic for reordered input");
+    assert(ra.rawText.includes("Spatial EARTH:SUR:L305-DA11, EARTH:SUR:L305-DB12"), "Spatial footer should include both refs");
+    return {
+      name: "Schedule Panel Parity",
+      passed: true,
+      message: "Schedule panel deterministic parity passed",
+    };
+  } catch (e: any) {
+    return { name: "Schedule Panel Parity", passed: false, message: e.message };
+  }
+}
+
+// Test 13: Workflow mode rendering for task/schedule/workflow panels
+function testWorkflowMode(): TestResult {
+  try {
+    const input: GridRendererInput = {
+      mode: "workflow",
+      spec: { width: 80, height: 30, title: "Workflow Panel" },
+      data: {
+        tasks: [
+          { status: "[ ]", text: "Write spec", due: "2026-02-17" },
+        ],
+        scheduleItems: [
+          { start: "10:00", title: "Design review", placeRef: "EARTH:SUR:L305-DA11" },
+        ],
+        workflowSteps: [
+          { id: "wf-1", title: "Draft", state: "in_progress" },
+          { id: "wf-2", title: "Ship", state: "todo", dependsOn: ["wf-1"] },
+        ],
+      },
+    };
+    const result = renderGrid(input);
+
+    assert(result.lines.length === 30, "Should have 30 lines");
+    assert(result.rawText.includes("Tasks"), "Should render Tasks panel");
+    assert(result.rawText.includes("Schedule"), "Should render Schedule panel");
+    assert(result.rawText.includes("Workflow"), "Should render Workflow panel");
+    assert(result.rawText.includes("Counts T:1 S:1 W:2"), "Should render panel counts footer");
+    return {
+      name: "Workflow Mode",
+      passed: true,
+      message: "Workflow mode renders task/schedule/workflow panels",
+    };
+  } catch (e: any) {
+    return { name: "Workflow Mode", passed: false, message: e.message };
+  }
+}
+
+// Test 14: Dashboard parity summary from task/schedule/workflow payloads
+function testDashboardPanelParity(): TestResult {
+  try {
+    const input: GridRendererInput = {
+      mode: "dashboard",
+      spec: { width: 80, height: 30, title: "Dashboard Parity" },
+      data: {
+        tasks: [{ status: "[ ]", text: "A task" }],
+        scheduleItems: [{ start: "09:30", title: "Sync" }],
+        workflowSteps: [{ id: "wf-1", title: "Investigate", state: "in_progress" }],
+      },
+    };
+    const result = renderGrid(input);
+
+    assert(result.rawText.includes("Panels:"), "Should include panel summary header");
+    assert(result.rawText.includes("Tasks: 1"), "Should include task count");
+    assert(result.rawText.includes("Schedule: 1"), "Should include schedule count");
+    assert(result.rawText.includes("Workflow: 1"), "Should include workflow count");
+    return {
+      name: "Dashboard Panel Parity",
+      passed: true,
+      message: "Dashboard parity summary for task/schedule/workflow panels",
+    };
+  } catch (e: any) {
+    return { name: "Dashboard Panel Parity", passed: false, message: e.message };
+  }
+}
+
+// Test 15: Map mode layer stack (terrain + objects + overlays + workflow markers)
+function testMapLayerStack(): TestResult {
+  try {
+    const input: GridRendererInput = {
+      mode: "map",
+      spec: { width: 80, height: 30, title: "Map Layers" },
+      data: {
+        focusLocId: "EARTH:SUR:L305-DA11",
+        terrain: [
+          { locId: "EARTH:SUR:L305-DA11", glyph: ".", label: "Plains" },
+          { locId: "EARTH:SUR:L305-DA12", glyph: "~", label: "Water" },
+        ],
+        objects: [
+          { locId: "EARTH:SUR:L305-DA11", sprite: "@", label: "Player" },
+        ],
+        overlays: [
+          { locId: "EARTH:SUR:L305-DA11", icon: "T", label: "Tasks" },
+        ],
+        workflowMarkers: [
+          { locId: "EARTH:SUR:L305-DA12", stepId: "wf-1", state: "in_progress", title: "Survey" },
+        ],
+      },
+    };
+
+    const result = renderGrid(input);
+
+    assert(result.lines.length === 30, "Should have 30 lines");
+    assert(result.rawText.includes("Layers (b\u2192t):"), "Should include layer stack header");
+    assert(result.rawText.includes("+ terrain"), "Should list terrain layer");
+    assert(result.rawText.includes("+ objects"), "Should list objects layer");
+    assert(result.rawText.includes("+ overlays"), "Should list overlays layer");
+    assert(result.rawText.includes("+ workflow"), "Should list workflow layer");
+    assert(result.rawText.includes("Counts:"), "Should include layer counts");
+    assert(result.rawText.includes("T:2 O:1 OV:1 W:1"), "Should have correct layer counts");
+
+    return {
+      name: "Map Layer Stack",
+      passed: true,
+      message: "Map layer stack (terrain/objects/overlays/workflow) renders correctly",
+    };
+  } catch (e: any) {
+    return { name: "Map Layer Stack", passed: false, message: e.message };
+  }
+}
+
+// Test 16: Map mode layer visibility control
+function testMapLayerVisibility(): TestResult {
+  try {
+    const input: GridRendererInput = {
+      mode: "map",
+      spec: { width: 80, height: 30, title: "Layer Vis" },
+      data: {
+        focusLocId: "EARTH:SUR:L305-DA11",
+        terrain: [{ locId: "EARTH:SUR:L305-DA11", glyph: ".", label: "Plains" }],
+        objects: [{ locId: "EARTH:SUR:L305-DA11", sprite: "@", label: "Player" }],
+        overlays: [{ locId: "EARTH:SUR:L305-DA11", icon: "T", label: "Tasks" }],
+        workflowMarkers: [
+          { locId: "EARTH:SUR:L305-DA11", stepId: "wf-1", state: "done", title: "Done" },
+        ],
+        layers: [
+          { kind: "terrain", visible: true },
+          { kind: "objects", visible: false, label: "hidden-objs" },
+          { kind: "overlays", visible: true },
+          { kind: "workflow", visible: true },
+        ],
+      },
+    };
+
+    const result = renderGrid(input);
+
+    assert(result.lines.length === 30, "Should have 30 lines");
+    assert(result.rawText.includes("+ terrain"), "terrain should be visible");
+    assert(result.rawText.includes("- hidden-objs"), "objects should be hidden with custom label");
+    assert(result.rawText.includes("+ overlays"), "overlays should be visible");
+    assert(result.rawText.includes("+ workflow"), "workflow should be visible");
+    // With objects layer hidden, object count should be 0
+    assert(result.rawText.includes("O:0"), "Hidden objects layer should count 0");
+
+    return {
+      name: "Map Layer Visibility",
+      passed: true,
+      message: "Map layer visibility control (show/hide layers) works correctly",
+    };
+  } catch (e: any) {
+    return { name: "Map Layer Visibility", passed: false, message: e.message };
+  }
+}
+
+// Test 17: Map workflow markers z-filtering
+function testMapWorkflowMarkerZFilter(): TestResult {
+  try {
+    const input: GridRendererInput = {
+      mode: "map",
+      spec: { width: 80, height: 30, title: "WF Markers Z" },
+      data: {
+        focusLocId: "EARTH:SUR:L305-DA11-Z0",
+        viewport: { zRange: 1 },
+        workflowMarkers: [
+          { locId: "EARTH:SUR:L305-DA11-Z0", stepId: "wf-1", state: "in_progress" },
+          { locId: "EARTH:SUR:L305-DA12-Z5", stepId: "wf-2", state: "todo" },
+        ],
+      },
+    };
+
+    const result = renderGrid(input);
+
+    assert(result.lines.length === 30, "Should have 30 lines");
+    // wf-1 at z=0 is on-plane, wf-2 at z=5 is far outside zRange=1
+    assert(result.rawText.includes("W:1"), "Should count only the in-range workflow marker");
+
+    return {
+      name: "Map Workflow Marker Z Filter",
+      passed: true,
+      message: "Workflow markers respect z-range viewport filtering",
+    };
+  } catch (e: any) {
+    return { name: "Map Workflow Marker Z Filter", passed: false, message: e.message };
+  }
+}
+
 // Run all tests
 export function runTests(): TestResult[] {
   const tests = [
@@ -372,6 +595,12 @@ export function runTests(): TestResult[] {
     testDashboardMode,
     testMapModeZViewport,
     testOutputFormat,
+    testSchedulePanelParity,
+    testWorkflowMode,
+    testDashboardPanelParity,
+    testMapLayerStack,
+    testMapLayerVisibility,
+    testMapWorkflowMarkerZFilter,
   ];
 
   results.length = 0;

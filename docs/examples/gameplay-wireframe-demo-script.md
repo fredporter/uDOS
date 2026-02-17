@@ -157,7 +157,7 @@ options:
 Slide 8 - Operator Checklist
 
 Recommended operator flow:
-1. `GPLAY STATUS`
+1. `PLAY STATUS`
 2. `PLAY OPTIONS`
 3. `RULE LIST`
 4. `RULE TEST IF xp>=50 and level>=2`

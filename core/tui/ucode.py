@@ -47,6 +47,7 @@ from typing import Dict, List, Optional, Any, Callable
 from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
+from contextlib import contextmanager
 
 # Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -58,6 +59,7 @@ from core.tui.state import GameState
 from core.tui.fkey_handler import FKeyHandler
 from core.tui.status_bar import TUIStatusBar
 from core.tui.ui_elements import ProgressBar
+from core.tui.stdout_guard import install_stdout_guard, atomic_print, atomic_stdout_write
 from core.ui.command_selector import CommandSelector
 from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, create_default_registry
 from core.input.confirmation_utils import (
@@ -102,6 +104,14 @@ class ComponentState(Enum):
     AVAILABLE = "available"
     MISSING = "missing"
     ERROR = "error"
+
+
+class IOLifecyclePhase(Enum):
+    """Prompt/output ownership lifecycle for interactive sessions."""
+
+    INPUT = "input"          # exclusive stdin ownership
+    RENDER = "render"        # exclusive stdout ownership
+    BACKGROUND = "background"  # no direct stdout writes; queue/defer
 
 
 @dataclass
@@ -239,6 +249,7 @@ class UCLI:
 
     def __init__(self):
         """Initialize uCLI TUI."""
+        install_stdout_guard()
         self.repo_root = get_repo_root()
         self.logger = get_logger("core", category="ucode-tui", name="ucode")
         self.quiet = os.getenv("UDOS_QUIET", "").strip() in ("1", "true", "yes")
@@ -281,7 +292,6 @@ class UCLI:
             "STATUS": self._cmd_status,
             "HELP": self._cmd_help,
             "LOCAL": self._cmd_ok_local,
-            "VIBE": self._cmd_ok_local,
             "EXPLAIN": self._cmd_ok_explain,
             "DIFF": self._cmd_ok_diff,
             "PATCH": self._cmd_ok_patch,
@@ -315,6 +325,8 @@ class UCLI:
         self.prompt_parser = get_prompt_parser_service()
         self.todo_reminder = get_reminder_service(self.todo_manager)
         self._init_ok_prompt_context()
+        self._io_phase = IOLifecyclePhase.BACKGROUND
+        self._io_phase_lock = threading.RLock()
 
         if self.prompt.use_fallback:
             self.logger.info(f"[ContextualPrompt] Using fallback mode: {self.prompt.fallback_reason}")
@@ -371,11 +383,34 @@ class UCLI:
         """Print recent command history."""
         history = self.state.session_history[-limit:]
         if not history:
-            print("No history yet.")
+            atomic_print("No history yet.")
             return
-        print("Recent history:")
-        for entry in history:
-            print(f"  {entry}")
+        lines = ["Recent history:"] + [f"  {entry}" for entry in history]
+        atomic_stdout_write("\n".join(lines) + "\n")
+
+    @staticmethod
+    def _emit_lines(lines: List[str]) -> None:
+        """Emit a set of lines as one stdout write to avoid interleaving."""
+        if not lines:
+            return
+        atomic_stdout_write("\n".join(lines) + "\n")
+
+    def _get_io_phase(self) -> IOLifecyclePhase:
+        with self._io_phase_lock:
+            return self._io_phase
+
+    def _set_io_phase(self, phase: IOLifecyclePhase) -> None:
+        with self._io_phase_lock:
+            self._io_phase = phase
+
+    @contextmanager
+    def _io_phase_scope(self, phase: IOLifecyclePhase):
+        previous = self._get_io_phase()
+        self._set_io_phase(phase)
+        try:
+            yield
+        finally:
+            self._set_io_phase(previous)
 
     def _is_ucode_command(self, token: str) -> bool:
         """Return True if token is a known uCODE command."""
@@ -422,7 +457,7 @@ class UCLI:
             if cmd_name == "SETUP":
                 self._run_ok_setup()
                 return {"status": "success", "command": "OK SETUP"}
-            if cmd_name in {"LOCAL", "VIBE", "EXPLAIN", "DIFF", "PATCH", "ROUTE"}:
+            if cmd_name in {"LOCAL", "EXPLAIN", "DIFF", "PATCH", "ROUTE"}:
                 if use_cloud and cmd_name in {"EXPLAIN", "DIFF", "PATCH"} and "--cloud" not in args:
                     args = f"{args} --cloud".strip()
                 self.commands[cmd_name](args)
@@ -618,9 +653,10 @@ class UCLI:
         try:
             while self.running:
                 try:
-                    # Use contextual command prompt with suggestions (Phase 1)
-                    self._show_status_bar()
-                    user_input = self.prompt.ask_command(self._prompt_text())
+                    # input phase: exclusive stdin ownership
+                    with self._io_phase_scope(IOLifecyclePhase.INPUT):
+                        self._show_status_bar()
+                        user_input = self.prompt.ask_command(self._prompt_text())
 
                     if not user_input:
                         continue
@@ -630,51 +666,69 @@ class UCLI:
                     corr_id = new_corr_id("C")
                     token = set_corr_id(corr_id)
                     try:
-                        result = self._route_input(user_input)
+                        # render phase: exclusive stdout ownership
+                        with self._io_phase_scope(IOLifecyclePhase.RENDER):
+                            result = self._route_input(user_input)
 
-                        # Check for EXIT before processing
-                        normalized_input = user_input.strip().upper()
-                        if normalized_input in ("EXIT", "?EXIT", "? EXIT", "OK EXIT"):
-                            self.running = False
-                            print("See you later!")
-                            break
+                            # Check for EXIT before processing
+                            normalized_input = user_input.strip().upper()
+                            if normalized_input in ("EXIT", "?EXIT", "? EXIT", "OK EXIT"):
+                                self.running = False
+                                atomic_print("See you later!")
+                                break
 
-                        # Special handling for STORY and SETUP commands with forms
-                        normalized_cmd = result.get("command", "").upper()
-                        if normalized_cmd in ("STORY", "SETUP"):
-                            # Check if this is a form-based story
-                            if result.get("story_form"):
-                                collected_data = self._handle_story_form(result["story_form"])
+                            # Special handling for STORY and SETUP commands with forms
+                            normalized_cmd = result.get("command", "").upper()
+                            if normalized_cmd in ("STORY", "SETUP"):
+                                # Check if this is a form-based story
+                                if result.get("story_form"):
+                                    collected_data = self._handle_story_form(result["story_form"])
 
-                                # Save collected data if this came from SETUP command
-                                if normalized_cmd == "SETUP" and collected_data:
-                                    self._save_user_profile(collected_data)
+                                    # Save collected data if this came from SETUP command
+                                    if normalized_cmd == "SETUP" and collected_data:
+                                        self._save_user_profile(collected_data)
 
-                                    # Reload Ghost Mode status after profile update
-                                    old_ghost_mode = self.ghost_mode
-                                    self.ghost_mode = self._is_ghost_user()
+                                        # Reload Ghost Mode status after profile update
+                                        old_ghost_mode = self.ghost_mode
+                                        self.ghost_mode = self._is_ghost_user()
 
-                                    # Notify user if they've exited Ghost Mode
-                                    if old_ghost_mode and not self.ghost_mode:
-                                        print("")
-                                        self._ui_line("Ghost Mode disabled - full access granted!", level="ok", mood="🎉")
+                                        # Notify user if they've exited Ghost Mode
+                                        if old_ghost_mode and not self.ghost_mode:
+                                            atomic_stdout_write("\n")
+                                            self._ui_line("Ghost Mode disabled - full access granted!", level="ok", mood="🎉")
 
-                                print("")
-                                self._ui_line("Setup form completed", level="ok")
-                                self._ui_line(f"Collected {len(collected_data)} values", level="info")
-                                if collected_data:
-                                    print("")
-                                    self._ui_line("Data saved. Next steps:", level="milestone")
-                                    print(self._theme_text("  › SETUP --profile    - View your profile"))
-                                    print(self._theme_text("  › CONFIG             - View variables"))
+                                    atomic_stdout_write("\n")
+                                    self._emit_lines(
+                                        [
+                                            self._theme_text(
+                                                OutputToolkit.line("Setup form completed", level="ok")
+                                            ),
+                                            self._theme_text(
+                                                OutputToolkit.line(
+                                                    f"Collected {len(collected_data)} values", level="info"
+                                                )
+                                            ),
+                                        ]
+                                    )
+                                    if collected_data:
+                                        self._emit_lines(
+                                            [
+                                                "",
+                                                self._theme_text(
+                                                    OutputToolkit.line("Data saved. Next steps:", level="milestone")
+                                                ),
+                                                self._theme_text("  › SETUP --profile    - View your profile"),
+                                                self._theme_text("  › CONFIG             - View variables"),
+                                            ]
+                                        )
+                                else:
+                                    # Show the result for non-form stories
+                                    output = self.renderer.render(result)
+                                    atomic_print(output)
                             else:
-                                # Show the result for non-form stories
+                                # Render normal command output
                                 output = self.renderer.render(result)
-                                print(output)
-                        else:
-                            # Render normal command output
-                            output = self.renderer.render(result)
-                            print(output)
+                                atomic_print(output)
 
                         self.state.update_from_handler(result)
                         self.logger.info(
@@ -686,7 +740,7 @@ class UCLI:
                         reset_corr_id(token)
 
                 except KeyboardInterrupt:
-                    print()
+                    atomic_stdout_write("\n")
                     continue
                 except Exception as e:
                     reset_corr_id(token)
@@ -694,7 +748,7 @@ class UCLI:
                     self._ui_line(str(e), level="error")
 
         except KeyboardInterrupt:
-            print("")
+            atomic_stdout_write("\n")
             self._ui_line("Interrupt. Type EXIT to quit.", level="warn")
         except EOFError:
             self.running = False
@@ -712,11 +766,11 @@ class UCLI:
             return
         pct = max(0, min(100, int(percent)))
         bar = ProgressBar(total=100, width=28).render(pct, label=phase.upper())
-        print(self._theme_text(OutputToolkit.line(f"{bar}  {label}", level="progress")))
+        atomic_print(self._theme_text(OutputToolkit.line(f"{bar}  {label}", level="progress")))
 
     def _ui_line(self, message: str, level: str = "info", mood: Optional[str] = None) -> None:
         """Render a themed line with consistent symbols and spacing."""
-        print(self._theme_text(OutputToolkit.line(message, level=level, mood=mood)))
+        atomic_print(self._theme_text(OutputToolkit.line(message, level=level, mood=mood)))
 
     def _run_with_progress(
         self,
@@ -748,6 +802,12 @@ class UCLI:
             "yes",
             "on",
         }
+        startup_extras = os.getenv("UDOS_TUI_STARTUP_EXTRAS", "0").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
         steps = [
             ("loading", "Detecting environment", self._autodetect_environment, True),
             ("loading", "Measuring viewport", self._refresh_viewport, True),
@@ -756,9 +816,14 @@ class UCLI:
             ("loading", "Computing health summary", self._show_health_summary, True),
             # Keep AI availability in foreground (no spinner) so interactive prompts are clean.
             ("loading", "Checking AI availability", self._show_ai_startup_sequence, False),
-            ("loading", "Loading command hints", self._show_startup_hints, True),
-            ("loading", "Rendering startup draw", self._run_startup_draw, True),
         ]
+        if startup_extras:
+            steps.extend(
+                [
+                    ("loading", "Loading command hints", self._show_startup_hints, True),
+                    ("loading", "Rendering startup draw", self._run_startup_draw, True),
+                ]
+            )
         total = len(steps)
 
         for idx, (phase, label, action, use_spinner) in enumerate(steps, start=1):
@@ -901,6 +966,8 @@ class UCLI:
             "yes",
             "on",
         }
+        if self._get_io_phase() != IOLifecyclePhase.INPUT and not force_status:
+            return
         if self.quiet and not force_status:
             return
         output_stream = sys.stdout
@@ -984,11 +1051,6 @@ class UCLI:
 
     def _get_vibe_banner(self) -> str:
         """Return the Vibe-style ASCII startup banner."""
-        version = self._get_repo_display_version()
-        if version.lower().startswith("v"):
-            version_text = f"uDOS {version}"
-        else:
-            version_text = f"uDOS v{version}"
         lines = [
             "████████████████████████████████████████████████████████████",
             "██                                                        ██",
@@ -999,8 +1061,8 @@ class UCLI:
             "██   ██  ████  ██  ███████  ████  ██  ████  ██  ███████   ██",
             "██   ███      ████      ███      ███       ███       ██   ██",
             "██   ██████████████████████████████████████████████████   ██",
-            "██   ███████████████    ███████████    ████████████████   ██",
-            f"██   ████████████████   {version_text}   █████████████████   ██",
+            "██   ███████████████    ████████████    ███████████████   ██",
+            "██   █████████████████                █████████████████   ██",
             "██   ██████████████████████████████████████████████████   ██",
             "██                                                        ██",
             "████████████████████████████████████████████████████████████",
@@ -1015,12 +1077,9 @@ class UCLI:
             "\033[95m",
         ]
         reset = "\033[0m"
-        white = "\033[97m"
         tinted = []
         for idx, line in enumerate(lines):
             color = colors[idx % len(colors)]
-            if version_text in line:
-                line = line.replace(version_text, f"{white}{version_text}{color}")
             tinted.append(f"{color}{line}{reset}")
         return "\n".join(tinted)
 
@@ -1380,6 +1439,19 @@ class UCLI:
         except Exception as exc:
             return {"reachable": False, "error": str(exc)}
 
+    def _normalize_model_names(self, names: list[str]) -> set[str]:
+        """Return canonical model names including both tagged and base forms."""
+        normalized: set[str] = set()
+        for raw in names:
+            name = (raw or "").strip()
+            if not name:
+                continue
+            normalized.add(name)
+            base = name.split(":", 1)[0].strip()
+            if base:
+                normalized.add(base)
+        return normalized
+
     def _get_ok_local_status(self) -> Dict[str, Any]:
         """Return OK local Vibe status (Ollama + model)."""
         mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
@@ -1395,7 +1467,9 @@ class UCLI:
                 "detail": tags.get("error"),
             }
         models = tags.get("models") or []
-        if model and model not in models:
+        normalized_models = self._normalize_model_names(models)
+        normalized_target = self._normalize_model_names([model]) if model else set()
+        if model and normalized_target.isdisjoint(normalized_models):
             return {
                 "ready": False,
                 "issue": "missing model",
@@ -1611,11 +1685,12 @@ class UCLI:
 
         # Display context lines
         if self.prompt.show_context:
-            print(f"\n  ╭─ Valid choices: {range_display}")
+            context_lines = [f"", f"  ╭─ Valid choices: {range_display}"]
             if help_text:
-                print(f"  ╰─ {help_text}")
+                context_lines.append(f"  ╰─ {help_text}")
             else:
-                print(f"  ╰─ Enter number and press Enter")
+                context_lines.append("  ╰─ Enter number and press Enter")
+            self._emit_lines(context_lines)
 
         # Get choice using standard menu handler
         return self.prompt.ask_menu_choice(prompt, num_options, allow_zero=allow_cancel)
@@ -2407,6 +2482,11 @@ class UCLI:
                         "          GRID SCHEDULE --input memory/system/grid-schedule-sample.json"
                     )
                 )
+                print(
+                    self._theme_text(
+                        "          GRID WORKFLOW --input memory/system/grid-workflow-sample.json"
+                    )
+                )
                 print()
             else:
                 print(self._theme_text("UGRID Demo unavailable (renderer not ready)"))
@@ -2437,8 +2517,7 @@ System Management:
   REPAIR              - Fix issues and self-heal
   REBOOT              - Restart/reload system
   USER                - User profile and permission management
-  GPLAY            - XP/HP/Gold, progression gates, TOYBOX profiles
-  PLAY                - Conditional play options + unlock-token flow
+  PLAY                - Unified gameplay (stats/map/gates/TOYBOX + options/tokens)
   RULE                - IF/THEN gameplay automations for PLAY/TOYBOX
   LOGS                - View unified system logs
   ANCHOR              - Gameplay anchors (list/show/register/bind)
@@ -2720,6 +2799,9 @@ For detailed help on any command, type the command name followed by --help
         def spin() -> None:
             spinner.start()
             while not stop.is_set():
+                if self._get_io_phase() == IOLifecyclePhase.INPUT:
+                    time.sleep(spinner.interval)
+                    continue
                 spinner.tick()
                 time.sleep(spinner.interval)
             spinner.stop(f"{label} done")
@@ -2727,14 +2809,15 @@ For detailed help on any command, type the command name followed by --help
         thread = threading.Thread(target=spin, daemon=True)
         thread.start()
         try:
-            result = func()
+            with self._io_phase_scope(IOLifecyclePhase.BACKGROUND):
+                result = func()
         except Exception:
             self.renderer.set_mood(previous_mood, pace=0.7, blink=True)
             stop.set()
-            thread.join(timeout=0.5)
+            thread.join(timeout=2)
             raise
         stop.set()
-        thread.join(timeout=0.5)
+        thread.join(timeout=2)
         self.renderer.set_mood(previous_mood, pace=0.7, blink=True)
         return result
 
@@ -2757,12 +2840,8 @@ For detailed help on any command, type the command name followed by --help
         if use_cloud:
             try:
                 print(self._theme_text("OK → Cloud (Mistral)"))
-                cloud_result = self._run_with_progress(
-                    "loading",
-                    "OK cloud request",
-                    lambda: self._run_ok_cloud(prompt),
-                    spinner_label="⏳ OK cloud",
-                )
+                self._ui_line("OK cloud request...", level="info")
+                cloud_result = self._run_ok_cloud(prompt)
                 response = cloud_result.get("response")
                 model = cloud_result.get("model") or model
                 source = "cloud"
@@ -2773,22 +2852,14 @@ For detailed help on any command, type the command name followed by --help
         if response is None:
             print(self._theme_text(f"OK → Vibe ({model}, local)"))
             try:
-                response = self._run_with_progress(
-                    "loading",
-                    "OK local request",
-                    lambda: self._run_ok_local(prompt, model=model),
-                    spinner_label="⏳ OK local",
-                )
+                self._ui_line("OK local request...", level="info")
+                response = self._run_ok_local(prompt, model=model)
             except Exception as exc:
                 if auto_fallback and not use_cloud:
                     try:
                         print(self._theme_text("⚠️  Local failed. Trying cloud (Mistral)."))
-                        cloud_result = self._run_with_progress(
-                            "loading",
-                            "OK fallback cloud request",
-                            lambda: self._run_ok_cloud(prompt),
-                            spinner_label="⏳ OK cloud",
-                        )
+                        self._ui_line("OK fallback cloud request...", level="info")
+                        cloud_result = self._run_ok_cloud(prompt)
                         response = cloud_result.get("response")
                         model = cloud_result.get("model") or model
                         source = "cloud"
@@ -2815,12 +2886,8 @@ For detailed help on any command, type the command name followed by --help
             if self._needs_cloud_sanity_check(entry.get("response") or ""):
                 try:
                     print(self._theme_text("\nOK → Cloud sanity check"))
-                    cloud_result = self._run_with_progress(
-                        "loading",
-                        "OK cloud sanity check",
-                        lambda: self._run_ok_cloud(prompt),
-                        spinner_label="⏳ OK cloud",
-                    )
+                    self._ui_line("OK cloud sanity check...", level="info")
+                    cloud_result = self._run_ok_cloud(prompt)
                     cloud_response = cloud_result.get("response") or ""
                     if cloud_response:
                         self.renderer.stream_text(cloud_response, prefix="ok-check> ")
@@ -3325,15 +3392,25 @@ For detailed help on any command, type the command name followed by --help
 
         if self.ghost_mode:
             # In ghost mode
-            print("\n" + "="*60)
-            print("Ghost Mode (Demo/Test Access)")
-            print("="*60)
-            print("\nYou're currently in ghost mode with limited access.")
-            print("To set up your identity and unlock full features:\n")
-            print("  SETUP\n")
-            print("Or view this setup prompt later:")
-            print("  SETUP --profile\n")
-            print("="*60 + "\n")
+            self._emit_lines(
+                [
+                    "",
+                    "=" * 60,
+                    "Ghost Mode (Demo/Test Access)",
+                    "=" * 60,
+                    "",
+                    "You're currently in ghost mode with limited access.",
+                    "To set up your identity and unlock full features:",
+                    "",
+                    "  SETUP",
+                    "",
+                    "Or view this setup prompt later:",
+                    "  SETUP --profile",
+                    "",
+                    "=" * 60,
+                    "",
+                ]
+            )
 
 
 

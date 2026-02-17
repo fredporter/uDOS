@@ -21,7 +21,7 @@
   "integration": {
     "wrapper_path": "extensions/play/nethack/",
     "service_path": null,
-    "handler_path": "core/commands/nethack_handler.py",
+    "handler_path": "core/commands/gameplay_handler.py",
     "install_script": "extensions/setup/install_nethack.sh",
     "layers": "400-455"
   },

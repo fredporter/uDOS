@@ -16,6 +16,15 @@
 !elite/
 !rpgbbs/
 !crawler3d/
+!nethack/
+!nounproject/
+!home-assistant/
+!songscribe/
+# Ignore everything inside home-assistant and songscribe except container.json
+home-assistant/*
+!home-assistant/container.json
+songscribe/*
+!songscribe/container.json
 !/README.md
 !/container.schema.json
 !/container.template.json

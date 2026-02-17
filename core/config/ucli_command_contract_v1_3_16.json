@@ -3,12 +3,7 @@
   "policy": "no_shims_no_backcompat",
   "launcher": {
     "subcommands": ["help", "tui", "wizard", "prompt", "cmd"],
-    "deprecated_aliases": {
-      "core": "tui",
-      "server": "wizard",
-      "command": "cmd",
-      "run": "cmd"
-    }
+    "deprecated_aliases": {}
   },
   "ucode": {
     "commands": [
@@ -26,7 +21,6 @@
       "RUN",
       "BINDER",
       "USER",
-      "GPLAY",
       "PLAY",
       "RULE",
       "UID",

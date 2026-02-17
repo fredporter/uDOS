@@ -54,7 +54,6 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
             SETUP --edit       Edit setup values
             SETUP --clear      Clear setup data (start over)
             SETUP --help       Show help
-            INSTALL vibe       Install Ollama + Vibe CLI + Mistral models
 
         Local data stored in .env:
             USER_NAME          Username
@@ -121,17 +120,6 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
             return self._run_story()
 
         action = params[0].lower()
-        alias_map = {
-            "help": "--help",
-            "-h": "--help",
-            "?": "--help",
-            "profile": "--profile",
-            "view": "--view",
-            "show": "--show",
-            "edit": "--edit",
-            "clear": "--clear",
-        }
-        action = alias_map.get(action, action)
 
         # Check if this is a webhook setup request (new!)
         if action == "webhook":
@@ -147,9 +135,9 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
         if action in provider_names:
             return self._setup_provider(action)
 
-        if action in {"--story", "--run", "--wizard-setup"}:
+        if action == "--story":
             return self._run_story()
-        elif action in {"--profile", "--view", "--show"}:
+        elif action == "--profile":
             return self._show_profile()
         elif action == "--edit":
             return self._edit_interactively()

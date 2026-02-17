@@ -87,6 +87,44 @@
         }
       }
     },
+    "service": {
+      "type": "object",
+      "description": "Runtime service configuration for the containerized process",
+      "properties": {
+        "port": {
+          "type": "integer",
+          "description": "Port the service listens on"
+        },
+        "health_check_url": {
+          "type": ["string", "null"],
+          "description": "URL polled to verify service is ready"
+        },
+        "browser_route": {
+          "type": ["string", "null"],
+          "description": "Wizard proxy path for iframe/browser embedding (e.g. /ui/songscribe)"
+        }
+      }
+    },
+    "launch_config": {
+      "type": "object",
+      "description": "How to start the service process",
+      "properties": {
+        "command": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Argv list for the process"
+        },
+        "cwd": {
+          "type": "string",
+          "description": "Working directory (relative to repo root or '.' for repo root)"
+        },
+        "env": {
+          "type": "object",
+          "description": "Extra environment variables to set",
+          "additionalProperties": {"type": "string"}
+        }
+      }
+    },
     "integration": {
       "type": "object",
       "description": "uDOS integration layer paths",

@@ -24,6 +24,7 @@ from .enhanced_prompt import EnhancedPrompt
 from core.services.logging_api import get_logger
 from core.services.dev_state import get_dev_state_label
 from core.services.viewport_service import ViewportService
+from core.tui.stdout_guard import atomic_stdout_write
 
 
 def _get_safe_logger():
@@ -233,22 +234,25 @@ class ContextualCommandPrompt(EnhancedPrompt):
         # Get suggestions
         suggestions = self.registry.get_suggestions(prefix, limit=5)
 
+        lines = []
+
         # Line 1: Suggestions
         if suggestions:
             suggestion_names = [s.name for s in suggestions[:3]]
             suggestion_text = ", ".join(suggestion_names)
             if len(suggestions) > 3:
                 suggestion_text += f" (+{len(suggestions) - 3} more)"
-            print(f"  ╭─ Suggestions: {suggestion_text}")
+            lines.append(f"  ╭─ Suggestions: {suggestion_text}")
         else:
-            print(f"  ╭─ No matching commands")
+            lines.append("  ╭─ No matching commands")
 
         # Line 2: Help text for first suggestion
         if suggestions:
             first_cmd = suggestions[0]
-            print(f"  ╰─ {first_cmd.icon} {first_cmd.help_text}")
+            lines.append(f"  ╰─ {first_cmd.icon} {first_cmd.help_text}")
         else:
-            print(f"  ╰─ Type a command name to see suggestions")
+            lines.append("  ╰─ Type a command name to see suggestions")
+        atomic_stdout_write("\n".join(lines) + "\n")
 
     def _build_command_toolbar(self, text: str):
         """
@@ -553,7 +557,7 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="OK",
         help_text="Local Vibe helpers (EXPLAIN, DIFF, PATCH, LOCAL)",
-        syntax="OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|PULL|VIBE|FALLBACK> [args]",
+        syntax="OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|PULL|FALLBACK> [args]",
         options=[
             "LOCAL: Show recent local outputs",
             "EXPLAIN: Summarize code in a file",
@@ -561,7 +565,6 @@ def create_default_registry() -> CommandRegistry:
             "PATCH: Draft a patch with preview",
             "ROUTE: Rule-based NL routing",
             "PULL: Download an Ollama model by name",
-            "VIBE: Alias for LOCAL",
             "FALLBACK: Toggle auto-fallback (on|off)",
         ],
         examples=["OK PULL mistral-small2", "OK ROUTE show scheduler logs", "OK EXPLAIN core/tui/ucode.py"],
@@ -754,11 +757,12 @@ def create_default_registry() -> CommandRegistry:
 
     registry.register(
         name="GRID",
-        help_text="Render UGRID canvas (calendar/table/schedule/map/dashboard)",
+        help_text="Render UGRID canvas (calendar/table/schedule/map/dashboard/workflow)",
         syntax="GRID <mode> [--input file.json] [--loc LOCID]",
         examples=[
             "GRID MAP --loc EARTH:SUR:L305-DA11",
             "GRID CALENDAR --input memory/events.json",
+            "GRID WORKFLOW --input memory/system/grid-workflow-sample.json",
         ],
         icon="•",
         category="Navigation",
@@ -778,34 +782,17 @@ def create_default_registry() -> CommandRegistry:
     )
 
     registry.register(
-        name="GPLAY",
-        help_text="XP/HP/Gold stats, progression gates, and TOYBOX profiles",
-        syntax="GPLAY [STATUS|STATS|MAP|GATE|TOYBOX|LENS|PROCEED]",
+        name="PLAY",
+        help_text="Unified gameplay: stats/map/gates/TOYBOX + play options/tokens",
+        syntax="PLAY [STATUS|STATS|MAP|GATE|TOYBOX|LENS|PROCEED|OPTIONS|START <id>|TOKENS|CLAIM]",
         options=[
-            "STATUS: Show current user gameplay state",
+            "STATUS: show gameplay + progression + unlock token state",
             "STATS SET|ADD <xp|hp|gold> <value>: update stats",
             "MAP STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK: deterministic map loop",
             "GATE STATUS|COMPLETE|RESET <gate_id>: progression gate control",
             "TOYBOX LIST|SET <profile>: gameplay runtime profile selection",
-            "LENS STATUS|ENABLE|DISABLE: v1.3.22 3D lens feature flag and slice readiness",
-            "PROCEED: enforce interactive progression requirement",
-        ],
-        examples=[
-            "GPLAY",
-            "GPLAY STATS ADD xp 25",
-            "GPLAY GATE COMPLETE dungeon_l32_amulet",
-            "GPLAY PROCEED",
-        ],
-        icon="•",
-        category="Navigation",
-    )
-
-    registry.register(
-        name="PLAY",
-        help_text="Conditional gameplay options and unlock-token flow",
-        syntax="PLAY [STATUS|OPTIONS|START <id>|TOKENS|CLAIM]",
-        options=[
-            "STATUS: show level, achievement level, and unlock token counts",
+            "LENS STATUS|ENABLE|DISABLE: 3D lens feature flag and slice readiness",
+            "PROCEED|NEXT|UNLOCK: progression gate check",
             "OPTIONS: list open/locked play routes and requirements",
             "START <id>: start an available play route",
             "TOKENS: list unlocked PLAY tokens",
@@ -813,6 +800,8 @@ def create_default_registry() -> CommandRegistry:
         ],
         examples=[
             "PLAY",
+            "PLAY STATS ADD xp 25",
+            "PLAY GATE COMPLETE dungeon_l32_amulet",
             "PLAY OPTIONS",
             "PLAY START galaxy",
             "PLAY CLAIM",

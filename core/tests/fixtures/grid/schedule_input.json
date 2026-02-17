@@ -1,0 +1,14 @@
+{
+  "scheduleItems": [
+    {
+      "start": "13:00",
+      "title": "Refactor",
+      "placeRef": "EARTH:SUR:L305-DB12"
+    },
+    {
+      "start": "09:00",
+      "title": "Standup",
+      "placeRef": "EARTH:SUR:L305-DA11"
+    }
+  ]
+}

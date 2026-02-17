@@ -62,6 +62,9 @@ Examples:
 
 ```bash
 DRAW PAT LIST
+DRAW --py PAT CYCLE
+DRAW --md MAP
+DRAW --md --save diagrams/map-demo.md DEMO
 RUN DATA LIST
 RUN DATA VALIDATE locations
 ```

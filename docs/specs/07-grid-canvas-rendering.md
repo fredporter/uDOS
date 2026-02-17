@@ -1,174 +1,137 @@
-# uDOS v1.3 — Grid Canvas Text Rendering Spec
+# uDOS v1.3.26+ — Grid Canvas and Text Rendering Spec
 
-80×30 fixed canvas for CLI + TUI + logs
+Status: active alignment spec for current uCLI/TUI behavior.
 
 ## 1) Goal
 
-Deterministic, themeable, text-only rendering for:
+Define one rendering contract across uCLI, DRAW/GRID outputs, logs, and markdown exports:
 
-- Vibe CLI output (terminal + logs)
-- Fixed-width teletext visuals
-- Copy/paste stable layouts
-- Remote/low-bandwidth displays (beacons)
-- Dashboards, maps, calendars, tables, schedules
+- deterministic text layouts,
+- width-safe Unicode rendering,
+- object-aware panels for map/task/schedule/workflow surfaces,
+- parity between terminal output and markdown diagram output.
 
-## 2) Canvas model
+## 2) Canvas Models
 
-- **Dimensions:** width 80, height 30; origin (0,0) top-left.
-- **Character:** one Unicode codepoint per cell, ASCII-safe by default; optional extended glyph mode.
-- **Colour:** ANSI colouring allowed as backend but canonical output is plain text (colour layer optional).
+uDOS supports two display modes:
 
-## 3) Output format (canonical)
-
-A render package contains:
-
-```
---- udos-grid:v1
-size: 80x30
-title: "Daily Schedule"
-mode: "calendar"
-theme: "mono"
-ts: 2026-02-03T19:14:00+10:00
----
-
-<30 lines of exactly 80 chars>
-
---- end ---
-```
+- Canonical canvas: fixed `80x30` for deterministic snapshots, CI, and replay parity.
+- Adaptive canvas: terminal-width aware rendering for interactive uCLI sessions.
 
 Rules:
 
-- Exactly 30 body lines, each 80 visible columns (ANSI stripped).
-- No tabs; newline only per row.
+- Canonical mode never probes runtime terminal size.
+- Adaptive mode may read viewport columns and clamp/truncate accordingly.
+- Both modes must produce stable ordering and deterministic content for the same input.
 
-## 4) Rendering pipeline
+## 3) Text Rendering Capabilities
 
-1. **Layout:** transform data into primitives (boxes, text, tables, lists, mini-maps, sparklines).
-2. **Draw:** render primitives into a Canvas80x30 buffer.
-3. **Emit:** backend can output `plain`, `ansi`, or `json` (for tests).
+Current renderer behavior (Python core) aligns to width-aware helpers:
 
-## 5) Primitives
+- visible width uses `display_width` (ANSI stripped),
+- truncation uses ellipsis and visible-width clamping,
+- right-padding uses visible-width padding,
+- ANSI color is optional and must not break width math.
 
-### 5.1 Box
-`box(x, y, w, h, style="single", title?)` with optional borders (`single`, `double`, `none`).
+Character handling:
 
-### 5.2 Text block
-`text(x, y, w, h, content, opts={align, wrap, ellipsis})` word-wraps/clips.
+- ASCII-safe is always supported.
+- Box/block glyphs are allowed (`█`, `░`, line-drawing chars).
+- Emoji/wide glyphs are allowed in adaptive mode but must not shift column alignment.
 
-### 5.3 Table
-`table(x, y, w, h, columns, rows, opts)` supports fixed widths, row separators, selected rows (ansi).
+## 4) Output Formats
 
-### 5.4 List
-`list(x, y, w, h, items, bullet)` for bulleted/numbered lists.
+Renderers may emit:
 
-### 5.5 Mini-map
-`minimap(x, y, w, h, cells, focus?, overlays?)` shows grid world + overlays (T tasks, N notes, E events, ! alerts).
+- `text`: plain/ANSI terminal output.
+- `json`: structured lines/metadata for tests and integrations.
+- `markdown`: fenced text diagram for docs/binders/workflows.
 
-## 6) Layout modes
+Markdown diagram contract:
 
-### 6.1 Dashboard
-- Top banner (title+clock)
-- Left: mission queue
-- Right: stats (quota, models, node)
-- Bottom: recent logs
+````md
+# <Title>
 
-### 6.2 Calendar
-- Day variant: timeline rows, events
-- Week variant: 7 columns
-- Layout uses header (rows 0-1), timeline (2-28), footer row 29.
-
-### 6.3 Schedule (agenda)
-- Header + table (time | item | location/LocId) + footer filters.
-
-### 6.4 Table
-- Header (query + row count), table region, footer (page/offset).
-
-### 6.5 Map
-- Shows LocId grid with edge labels, focus highlight, overlay markers, legend.
-
-## 7) Determinism rules
-
-- Sort tasks/events by time/title.
-- Tables sort by stable key unless overridden.
-- Word wrap/truncation deterministic (ellipsis).
-- Canonical mode never probes terminal width.
-
-## 8) API spec (TS)
-
-```ts
-export interface GridCanvasSpec {
-  width: 80;
-  height: 30;
-  title?: string;
-  theme?: string;
-  mode?: "dashboard" | "calendar" | "schedule" | "table" | "map";
-}
-
-export interface RenderResult {
-  header: Record<string, unknown>;
-  lines: string[];
-  rawText: string;
-}
-
-export interface RendererBackend {
-  emit(result: RenderResult): string;
-}
-
-export interface Canvas80x30 {
-  clear(fill?: string): void;
-  box(x: number, y: number, w: number, h: number, style?: string, title?: string): void;
-  text(x: number, y: number, w: number, h: number, content: string, opts?: any): void;
-  table(x: number, y: number, w: number, h: number, columns: any[], rows: any[], opts?: any): void;
-  minimap(x: number, y: number, w: number, h: number, cells: any, opts?: any): void;
-  toLines(): string[]; // 30 lines
-}
+```text
+<diagram lines>
 ```
+````
 
-CLI:
+This format is canonical for `DRAW MD ...` and `DRAW --md ...`.
 
-- `udos-core grid render --mode calendar --input tasks.json`
-- `udos-core grid render --mode map --loc EARTH:SUR:L305-DA11 --layer 305`
+## 5) uCLI Command Alignment
 
-Vibe usage:
+Grid/text surfaces align to these command lanes:
 
-- Vibe calls the CLI and prints output; optional MCP wraps responses.
+- `DRAW`:
+  - demo/panels/block art/patterns
+  - supports `--py|--ts`, `--md`, `--save`
+- `GRID`:
+  - calendar/table/schedule/map/dashboard runtime modes
+- `MAP`, `PANEL`, `TELL`:
+  - spatial/location views
+- `PLAY MAP ...`:
+  - map loop event/state surfaces
+- `PLACE` and `BINDER`:
+  - workspace/tag/chapter workflow views
 
-## 9) Example (calendar day)
+All command outputs must preserve prompt/status integrity (no interleaved redraw corruption).
 
-```
---- udos-grid:v1
-size: 80x30
-title: "Boss — Tue 3 Feb 2026"
-mode: "calendar"
-theme: "mono"
----
+## 6) Object Types for Grid Panels
 
-+------------------------------------------------------------------------------+
-| 09:00  Standup                 | Tasks (Today)                               |
-| 10:00  Build v1.3 grid renderer| [ ] Wire vault picker                        |
-| 11:00  Review themes           | [ ] Index tasks → sqlite                     |
-| 12:00  Lunch                   | [x] Add spatial schema                       |
-| 13:00  Focus: Typo editor      | [ ] Export _site (prose)                     |
-| 14:00  Beacon testing          |                                             |
-|                                                                              |
-|                                                                              |
-|                                                                              |
-+------------------------------------------------------------------------------+
---- end ---
-```
+Grid renderers should model typed objects, not free-form strings only.
 
-## 10) Integration
+Minimum object families:
 
-- Spatial: map mode overlays from places/file_place_tags.
-- Tasks: agenda/calendar from task index.
-- Missions: dashboard panels from scheduler logs.
-- Publishing: final “report grid” exported for logs.
+- `location`:
+  - `loc_id`, `place_ref`, `layer`, `z`
+- `task`:
+  - `id`, `title`, `status`, `due`, `owner`, `loc_id?`
+- `schedule_item`:
+  - `start`, `end?`, `title`, `channel`, `loc_id?`
+- `workflow_step`:
+  - `id`, `title`, `state`, `depends_on[]`, `owner?`
+- `event`:
+  - `type`, `ts`, `summary`, `source`
+- `object/sprite`:
+  - `id`, `glyph`, `kind`, `loc_id`, `state`
 
-## 11) First tasks
+Panel renderers should degrade gracefully when optional fields are missing.
 
-1. Canvas buffer + `box()`/`text()`.
-2. `table()` primitive.
-3. Calendar day template.
-4. Map mode LocId overlays.
+## 7) Layout Modes (Current)
 
-> We can also deliver starter TS module, golden snapshots, or CLI skeleton upon request.
+- `dashboard`: status + mission/log summary.
+- `calendar`: day/week timeline.
+- `schedule`: agenda rows (`time | item | location/workspace`).
+- `table`: generic fixed-width tabular output.
+- `map`: LocId/place overlays with legend.
+- `workflow`: task chain/progress lane (text-first, deterministic).
+
+## 8) Determinism and Ordering
+
+- Tasks/events sort by stable keys (`time`, then `title/id`).
+- Tables use explicit column ordering.
+- Wrapping/truncation uses deterministic ellipsis rules.
+- No tabs.
+- Canonical `80x30` snapshots must pass line-count and width checks.
+
+## 9) Advanced I/O Safety Requirements
+
+Rendering pipeline must enforce single-writer output discipline:
+
+- Input phase: prompt owns stdin.
+- Render phase: renderer owns stdout.
+- Background workers: no direct stdout writes outside render pipeline.
+
+Terminal control safety:
+
+- avoid cursor-home side effects on screen restore,
+- clear full line before progressive redraw,
+- never leave partial control-sequence artifacts in captured output.
+
+## 10) Integration Targets
+
+- Spatial overlays from place/location contracts.
+- Task and schedule views from prompt/task workflow services.
+- Workflow diagrams exportable to markdown for binder/docs usage.
+- CI snapshot fixtures for canonical `80x30` and markdown diagram outputs.

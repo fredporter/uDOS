@@ -19,6 +19,7 @@ from pathlib import Path
 
 from core.tui.ui_elements import format_table
 from core.tui.output import OutputToolkit
+from core.tui.stdout_guard import atomic_stdout_write
 
 
 class GridRenderer:
@@ -228,8 +229,7 @@ class GridRenderer:
         lines = text.splitlines() if text else [""]
         for line in lines:
             rendered = self._apply_emoji(line)
-            sys.stdout.write(f"{self.CYAN}{prefix}{self.RESET}{rendered}\n")
-            sys.stdout.flush()
+            atomic_stdout_write(f"{self.CYAN}{prefix}{self.RESET}{rendered}\n")
             if delay_ms > 0:
                 time.sleep(delay_ms / 1000.0)
 
@@ -296,7 +296,7 @@ class GridRenderer:
     @staticmethod
     def clear_screen() -> None:
         """Clear terminal screen"""
-        print("\033[2J\033[H", end="")
+        atomic_stdout_write("\033[2J\033[H", flush=True)
 
     def present_frames(self, frames: Sequence[str], interval: float = 0.8, repeat: int = 1, clear: bool = True) -> None:
         """Present full-screen frames with clears between (presentation-style)."""
@@ -306,7 +306,3 @@ class GridRenderer:
     def separator(char: str = "-", width: int = 60) -> str:
         """Create a separator line"""
         return char * width
-
-
-# Legacy alias for older imports/tests
-Renderer = GridRenderer

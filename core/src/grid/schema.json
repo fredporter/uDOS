@@ -14,9 +14,61 @@
         "theme": { "type": "string", "enum": ["mono", "dark", "light"] },
         "mode": {
           "type": "string",
-          "enum": ["dashboard", "calendar", "schedule", "table", "map"]
+          "enum": ["dashboard", "calendar", "schedule", "table", "map", "workflow"]
         },
         "ts": { "type": "string", "format": "date-time" }
+      }
+    },
+    "TaskItem": {
+      "type": "object",
+      "required": ["status", "text"],
+      "properties": {
+        "id": { "type": "string" },
+        "status": { "type": "string" },
+        "text": { "type": "string" },
+        "due": { "type": "string" },
+        "owner": { "type": "string" },
+        "placeRef": { "type": "string" },
+        "locId": { "type": "string" },
+        "location": { "type": "string" },
+        "layer": { "type": "string" },
+        "z": { "type": "integer" }
+      }
+    },
+    "ScheduleItem": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "start": { "type": "string" },
+        "end": { "type": "string" },
+        "time": { "type": "string" },
+        "item": { "type": "string" },
+        "title": { "type": "string" },
+        "channel": { "type": "string" },
+        "placeRef": { "type": "string" },
+        "locId": { "type": "string" },
+        "location": { "type": "string" },
+        "layer": { "type": "string" },
+        "z": { "type": "integer" }
+      }
+    },
+    "WorkflowStep": {
+      "type": "object",
+      "required": ["id", "title", "state"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "state": { "type": "string", "enum": ["todo", "in_progress", "blocked", "done"] },
+        "owner": { "type": "string" },
+        "dependsOn": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "placeRef": { "type": "string" },
+        "locId": { "type": "string" },
+        "location": { "type": "string" },
+        "layer": { "type": "string" },
+        "z": { "type": "integer" }
       }
     },
     "CalendarInput": {
@@ -24,25 +76,11 @@
       "properties": {
         "events": {
           "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["time", "title"],
-            "properties": {
-              "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
-              "title": { "type": "string" }
-            }
-          }
+          "items": { "$ref": "#/definitions/ScheduleItem" }
         },
         "tasks": {
           "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["status", "text"],
-            "properties": {
-              "status": { "type": "string", "pattern": "^\\[[x ]\\]$|^✓|^○" },
-              "text": { "type": "string" }
-            }
-          }
+          "items": { "$ref": "#/definitions/TaskItem" }
         }
       }
     },
@@ -73,21 +111,16 @@
         "perPage": { "type": "integer", "minimum": 1, "maximum": 100 }
       }
     },
-    "ScheduleEvent": {
-      "type": "object",
-      "required": ["time", "item", "location"],
-      "properties": {
-        "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
-        "item": { "type": "string" },
-        "location": { "type": "string", "maxLength": 30 }
-      }
-    },
     "ScheduleInput": {
       "type": "object",
       "properties": {
         "events": {
           "type": "array",
-          "items": { "$ref": "#/definitions/ScheduleEvent" }
+          "items": { "$ref": "#/definitions/ScheduleItem" }
+        },
+        "scheduleItems": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ScheduleItem" }
         },
         "filters": { "type": "object" }
       }
@@ -101,7 +134,48 @@
           "pattern": "^[A-Z0-9]+:[A-Z0-9]+:L[0-9]{3}-[A-Z]{2}[0-9]{2}(-Z-?[0-9]{1,2})?$"
         },
         "icon": { "type": "string", "enum": ["T", "N", "E", "!", "*"] },
-        "label": { "type": "string", "maxLength": 20 }
+        "label": { "type": "string", "maxLength": 20 },
+        "z": { "type": "integer" }
+      }
+    },
+    "TerrainCell": {
+      "type": "object",
+      "required": ["locId", "glyph"],
+      "properties": {
+        "locId": { "type": "string" },
+        "glyph": { "type": "string", "minLength": 1, "maxLength": 1 },
+        "label": { "type": "string", "maxLength": 20 },
+        "z": { "type": "integer" }
+      }
+    },
+    "MapObject": {
+      "type": "object",
+      "required": ["locId", "sprite"],
+      "properties": {
+        "locId": { "type": "string" },
+        "sprite": { "type": "string", "minLength": 1, "maxLength": 2 },
+        "label": { "type": "string", "maxLength": 20 },
+        "z": { "type": "integer" }
+      }
+    },
+    "WorkflowMarker": {
+      "type": "object",
+      "required": ["locId", "stepId", "state"],
+      "properties": {
+        "locId": { "type": "string" },
+        "stepId": { "type": "string" },
+        "state": { "type": "string", "enum": ["todo", "in_progress", "blocked", "done"] },
+        "title": { "type": "string", "maxLength": 30 },
+        "z": { "type": "integer" }
+      }
+    },
+    "MapLayerSpec": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "type": "string", "enum": ["terrain", "objects", "overlays", "workflow"] },
+        "label": { "type": "string", "maxLength": 20 },
+        "visible": { "type": "boolean" }
       }
     },
     "MapInput": {
@@ -111,6 +185,29 @@
         "overlays": {
           "type": "array",
           "items": { "$ref": "#/definitions/LocIdOverlay" }
+        },
+        "terrain": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/TerrainCell" }
+        },
+        "objects": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/MapObject" }
+        },
+        "workflowMarkers": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/WorkflowMarker" }
+        },
+        "layers": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/MapLayerSpec" },
+          "description": "Ordered layer stack bottom-to-top. Defaults: terrain, objects, overlays, workflow."
+        },
+        "viewport": {
+          "type": "object",
+          "properties": {
+            "zRange": { "type": "integer", "minimum": 0 }
+          }
         }
       }
     },
@@ -152,6 +249,35 @@
               "message": { "type": "string" }
             }
           }
+        },
+        "tasks": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/TaskItem" }
+        },
+        "scheduleItems": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ScheduleItem" }
+        },
+        "workflowSteps": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/WorkflowStep" }
+        }
+      }
+    },
+    "WorkflowInput": {
+      "type": "object",
+      "properties": {
+        "tasks": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/TaskItem" }
+        },
+        "scheduleItems": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ScheduleItem" }
+        },
+        "workflowSteps": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/WorkflowStep" }
         }
       }
     }
@@ -161,7 +287,7 @@
       "required": ["spec", "data", "mode"],
       "properties": {
         "spec": { "$ref": "#/definitions/GridCanvasSpec" },
-        "mode": { "type": "string", "enum": ["calendar", "table", "schedule", "map", "dashboard"] }
+        "mode": { "type": "string", "enum": ["calendar", "table", "schedule", "map", "dashboard", "workflow"] }
       }
     },
     {
@@ -194,6 +320,12 @@
           "properties": {
             "mode": { "const": "dashboard" },
             "data": { "$ref": "#/definitions/DashboardInput" }
+          }
+        },
+        {
+          "properties": {
+            "mode": { "const": "workflow" },
+            "data": { "$ref": "#/definitions/WorkflowInput" }
           }
         }
       ]

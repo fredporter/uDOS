@@ -234,6 +234,31 @@ def __getattr__(name):
         from .interactive_menu_mixin import InteractiveMenuMixin
 
         return InteractiveMenuMixin
+    # Integration handlers (library-backed)
+    elif name == "AIHandler":
+        from .ai_handler import AIHandler
+
+        return AIHandler
+    elif name == "HomeHandler":
+        from .home_handler import HomeHandler
+
+        return HomeHandler
+    elif name == "ExportHandler":
+        from .export_handler import ExportHandler
+
+        return ExportHandler
+    elif name == "MeshHandler":
+        from .mesh_handler import MeshHandler
+
+        return MeshHandler
+    elif name == "OkfixHandler":
+        from .okfix_handler import OkfixHandler
+
+        return OkfixHandler
+    elif name == "WebHandler":
+        from .web_handler import WebHandler
+
+        return WebHandler
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -301,4 +326,11 @@ __all__ = [
     "WorkspaceHandler",
     # UI Mixins
     "InteractiveMenuMixin",
+    # Integration handlers (library-backed)
+    "AIHandler",
+    "HomeHandler",
+    "ExportHandler",
+    "MeshHandler",
+    "OkfixHandler",
+    "WebHandler",
 ]

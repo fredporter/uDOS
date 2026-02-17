@@ -71,14 +71,14 @@ TOYBOX profile changes and TUI message theme switching are complementary:
 
 ```bash
 # Dungeon lens
-GPLAY TOYBOX SET hethack
+PLAY TOYBOX SET hethack
 export UDOS_TUI_MAP_LEVEL=dungeon
 export UDOS_TUI_MESSAGE_THEME=dungeon
 
 # Galaxy lens
-GPLAY TOYBOX SET elite
+PLAY TOYBOX SET elite
 export UDOS_TUI_MAP_LEVEL=galaxy
 export UDOS_TUI_MESSAGE_THEME=pilot
 ```
 
-If you only set `GPLAY TOYBOX`, gameplay profile state changes but message wording does not automatically switch. Keep the theme switch explicit so operators can override tone per session.
+If you only set `PLAY TOYBOX`, gameplay profile state changes but message wording does not automatically switch. Keep the theme switch explicit so operators can override tone per session.

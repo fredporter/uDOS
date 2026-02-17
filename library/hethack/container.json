@@ -7,7 +7,7 @@
     "type": "git",
     "source": "https://github.com/NetHack/NetHack",
     "ref": "NetHack-3.6.7_Released",
-    "cloned_at": null,
+    "cloned_at": "2026-02-17T12:11:39.195071Z",
     "last_update": null,
     "commit": null,
     "version": "0.1.0-scaffold"
@@ -38,8 +38,17 @@
     "upstream_policy": "no-fork",
     "reskin_policy": "udos-ui-redraw-2026"
   },
+  "service": {
+    "port": 7421,
+    "health_check_url": "http://localhost:7421/health",
+    "browser_route": "/ui/hethack"
+  },
   "launch_config": {
-    "command": ["python3", "-m", "wizard.services.toybox.hethack_adapter"],
+    "command": [
+      "python3",
+      "-m",
+      "wizard.services.toybox.hethack_adapter"
+    ],
     "cwd": "."
   },
   "repo_path": "memory/library/containers/hethack"

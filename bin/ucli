@@ -261,15 +261,15 @@ shift || true
 
 case "$subcommand" in
   core)
-    echo "Legacy alias removed in v1.3: core. Use: tui" >&2
+    echo "Unknown subcommand: core. Use: tui" >&2
     exit 2
     ;;
   server)
-    echo "Legacy alias removed in v1.3: server. Use: wizard" >&2
+    echo "Unknown subcommand: server. Use: wizard" >&2
     exit 2
     ;;
   command|run)
-    echo "Legacy alias removed in v1.3: $subcommand. Use: cmd" >&2
+    echo "Unknown subcommand: $subcommand. Use: cmd" >&2
     exit 2
     ;;
 esac
@@ -295,8 +295,9 @@ case "$subcommand" in
         launch_component wizard server "$@"
         ;;
       *)
-        # Back-compat: treat unknown wizard arg as server args.
-        launch_component wizard server "$wizard_subcommand" "$@"
+        echo "Unknown wizard subcommand: $wizard_subcommand" >&2
+        echo "Use one of: server | install | doctor" >&2
+        exit 2
         ;;
     esac
     ;;

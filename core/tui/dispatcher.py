@@ -46,7 +46,6 @@ from core.commands import (
     RestartHandler,
     DestroyHandler,
     UserHandler,
-    GameplayHandler,
     PlayHandler,
     RuleHandler,
     UndoHandler,
@@ -78,6 +77,7 @@ class CommandDispatcher:
         # (FileHandler → OutputToolkit → ucode → dispatcher → FileHandler)
         from core.commands.file_handler import FileHandler
 
+        play = PlayHandler()
         self.handlers: Dict[str, Any] = {
             # Navigation (5)
             "MAP": MapHandler(),
@@ -114,8 +114,7 @@ class CommandDispatcher:
             "DRAW": DrawHandler(),  # Viewport-aware ASCII demo panels
             # User Management (2)
             "USER": UserHandler(),  # User profiles and permissions
-            "GPLAY": GameplayHandler(),  # XP/HP/Gold, gates, TOYBOX profiles
-            "PLAY": PlayHandler(),  # Conditional options + token unlock flow
+            "PLAY": play,  # Unified gameplay + conditional play options
             "RULE": RuleHandler(),  # Conditional IF/THEN gameplay automation rules
             # Cleanup/Reset (2)
             "DESTROY": DestroyHandler(),  # System cleanup with data wipe options

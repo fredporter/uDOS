@@ -1,14 +1,9 @@
 import { Canvas80x30 } from "../canvas.js";
 import { packageGrid } from "../pack.js";
-import { GridCanvasSpec, TableColumn } from "../types.js";
+import { GridCanvasSpec, ScheduleInput, TableColumn } from "../types.js";
+import { normalizeScheduleRows } from "./shared.js";
 
-function scheduleSpatialRef(event: any): string | null {
-  const ref = event?.placeRef || event?.locId || event?.location;
-  if (!ref || typeof ref !== "string") return null;
-  return ref.trim() || null;
-}
-
-export function renderSchedule(spec: GridCanvasSpec, input: any) {
+export function renderSchedule(spec: GridCanvasSpec, input: ScheduleInput) {
   const c = new Canvas80x30();
   c.clear(" ");
 
@@ -22,18 +17,17 @@ export function renderSchedule(spec: GridCanvasSpec, input: any) {
     { key: "location", title: "Location/LocId", width: 26 },
   ];
 
-  // Sort events by time
+  // Normalize and sort schedule rows by time/title/location
   const spatialRefs = new Set<string>();
-  const events = (input.events || []).sort((a: any, b: any) => {
-    const timeA = a.time || "";
-    const timeB = b.time || "";
-    return timeA.localeCompare(timeB);
-  }).map((event: any) => {
-    const ref = scheduleSpatialRef(event);
-    if (ref) spatialRefs.add(ref);
+  const sourceRows = input.scheduleItems && input.scheduleItems.length > 0
+    ? input.scheduleItems
+    : input.events || [];
+  const events = normalizeScheduleRows(sourceRows).map((event) => {
+    if (event._ref) spatialRefs.add(event._ref);
     return {
-      ...event,
-      location: ref || event.location || "",
+      time: event.time,
+      item: event.item,
+      location: event.location,
     };
   });
 

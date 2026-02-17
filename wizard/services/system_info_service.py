@@ -47,6 +47,11 @@ class LibraryIntegration:
     can_install: bool  # If can be installed (has container.json)
     description: str = ""
     version: str = ""
+    container_type: str = "local"  # "local" | "git" | "docker"
+    git_cloned: bool = False       # For git-type: whether the repo has been cloned
+    git_source: str = ""           # For git-type: source URL from container.json
+    git_ref: str = ""              # For git-type: branch/tag ref
+    is_running: bool = False       # Whether a managed process is currently running
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -263,13 +268,30 @@ class SystemInfoService:
         version = ""
 
         # Read manifest if exists
+        container_type = "local"
+        git_cloned = False
+        git_source = ""
+        git_ref = ""
+
         if has_container:
             try:
                 with open(container_json) as f:
                     manifest = json.load(f)
-                description = manifest.get("container", {}).get("description", "")
-                version = manifest.get("container", {}).get("version", "")
+                container_meta = manifest.get("container", {})
+                description = container_meta.get("description", "")
+                version = container_meta.get("version", "")
                 repo_path = manifest.get("repo_path")
+                # Git container type detection
+                raw_type = container_meta.get("type", "local")
+                container_type = raw_type if raw_type in ("local", "git", "docker") else "local"
+                if container_type == "git":
+                    git_source = container_meta.get("source", "")
+                    git_ref = container_meta.get("ref", "main")
+                    # Cloned if cloned_at is set or a .git directory exists inside item_path
+                    git_cloned = bool(
+                        container_meta.get("cloned_at")
+                        or (item_path / ".git").exists()
+                    )
             except Exception:
                 pass
 
@@ -294,6 +316,10 @@ class SystemInfoService:
             can_install=has_container,  # Can install if has container.json
             description=description,
             version=version,
+            container_type=container_type,
+            git_cloned=git_cloned,
+            git_source=git_source,
+            git_ref=git_ref,
         )
 
     def _check_if_installed(self, item_path: Path) -> bool:

@@ -1,0 +1,122 @@
+{
+  "$schema": "../container.schema.json",
+  "container": {
+    "id": "songscribe",
+    "name": "Songscribe",
+    "description": "Turn any song into sheet music. ML-powered instrument separation, audio-to-MIDI conversion, and score generation.",
+    "type": "git",
+    "source": "https://github.com/gabe-serna/songscribe",
+    "ref": "main",
+    "cloned_at": "2026-02-17T12:10:24.209668Z",
+    "last_update": null,
+    "commit": null,
+    "version": "1.2.1"
+  },
+  "policy": {
+    "read_only": true,
+    "auto_update": false,
+    "update_channel": "wizard_only",
+    "verify_signatures": false
+  },
+  "service": {
+    "port": 3000,
+    "health_check_url": "http://localhost:3000",
+    "browser_route": "/ui/songscribe"
+  },
+  "launch_config": {
+    "command": [
+      "npm",
+      "run",
+      "dev"
+    ],
+    "cwd": "."
+  },
+  "integration": {
+    "wrapper_path": "extensions/groovebox/songscribe/",
+    "service_path": "wizard/services/transcription_service.py",
+    "handler_path": "core/commands/music_handler.py",
+    "install_script": "wizard/tools/songscribe_setup.py"
+  },
+  "metadata": {
+    "license": "MIT",
+    "homepage": "https://songscribe.xyz/",
+    "documentation": "https://github.com/gabe-serna/songscribe#readme",
+    "maintainer": "Gabe Serna / uDOS Wizard Server",
+    "category": "audio",
+    "backend_repo": "https://github.com/gabe-serna/songscribe-api"
+  },
+  "capabilities": {
+    "features": [
+      "audio-to-midi",
+      "instrument-separation",
+      "vocal-removal",
+      "drum-transcription",
+      "sheet-music-generation",
+      "midi-editor",
+      "pdf-export"
+    ],
+    "presets": {
+      "solo": "1 instrument",
+      "duet": "vocals + no vocals",
+      "small_band": "vocals, drums, bass, other",
+      "full_band": "vocals, drums, bass, guitar, piano, other"
+    },
+    "input_formats": [
+      "mp3",
+      "wav",
+      "flac",
+      "ogg",
+      "youtube_url"
+    ],
+    "output_formats": [
+      "midi",
+      "musicxml",
+      "pdf",
+      "stems"
+    ]
+  },
+  "dependencies": {
+    "frontend": {
+      "runtime": "node",
+      "framework": "next.js",
+      "libraries": [
+        "tone.js",
+        "wavesurfer.js",
+        "flat-embed"
+      ]
+    },
+    "backend": {
+      "runtime": "python",
+      "libraries": {
+        "moseca": "Instrument separation (Demucs-based)",
+        "basic-pitch": "Spotify's audio-to-MIDI (neural network)",
+        "adtof": "Drum transcription"
+      }
+    }
+  },
+  "system_requirements": {
+    "cpu": "Modern multi-core recommended",
+    "memory": "8GB+ for ML models",
+    "gpu": "Optional - CUDA acceleration for faster processing",
+    "storage": "2GB+ for models",
+    "platforms": [
+      "linux",
+      "macos",
+      "windows"
+    ]
+  },
+  "wizard_commands": [
+    "MUSIC TRANSCRIBE <file.mp3>",
+    "MUSIC TRANSCRIBE <youtube_url>",
+    "MUSIC SEPARATE <file.mp3> --preset full_band",
+    "MUSIC STEMS <file.mp3>",
+    "MUSIC SCORE <file.mid>"
+  ],
+  "groovebox_integration": {
+    "import_midi": true,
+    "export_to_mml": true,
+    "stem_to_track": true,
+    "note": "Transcribed MIDI can be edited in Groovebox and exported to MML patterns"
+  },
+  "repo_path": "memory/library/containers/songscribe"
+}

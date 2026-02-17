@@ -52,7 +52,10 @@ These commands execute via TS/Node runtime components.
 - `DRAW PAT CYCLE`
 - `DRAW PAT TEXT "<text>"`
 - `DRAW PAT <pattern-name>`
-- `GRID <calendar|table|schedule|map|dashboard> [options]`
+- `DRAW --py PAT <...>` (Python-backed pattern renderer)
+- `DRAW MD <mode>` or `DRAW --md <mode>` (markdown fenced diagram output)
+- `DRAW --save <file.md> <mode>` (persist diagram output)
+- `GRID <calendar|table|schedule|map|dashboard|workflow> [options]`
 - `VERIFY`
 
 ## Script Policy (Mobile Default)
@@ -92,7 +95,7 @@ Global strict stdlib-only enforcement is not required; this is the active Python
 - `FILE`
 - `FIND`
 - `GHOST`
-- `GPLAY`
+- `PLAY`
 - `PLAY`
 - `RULE`
 - `GOTO`
@@ -188,13 +191,30 @@ Migration targets:
 ```bash
 HEALTH
 VERIFY
-GPLAY
+PLAY
 PLAY OPTIONS
 PLAY CLAIM
 RULE LIST
 DRAW PAT LIST
 RUN DATA LIST
 WIZARD CHECK
+```
+
+## GRID Workflow Quick Example
+
+Use the tracked sample payload under `memory/system/`:
+
+```bash
+GRID WORKFLOW --input memory/system/grid-workflow-sample.json
+```
+
+Other canonical GRID samples:
+
+```bash
+GRID CALENDAR --input memory/system/grid-calendar-sample.json
+GRID TABLE --input memory/system/grid-table-sample.json
+GRID SCHEDULE --input memory/system/grid-schedule-sample.json
+GRID MAP --input memory/system/grid-overlays-sample.json
 ```
 
 ## TUI Message Themes (Non-GUI)
@@ -213,17 +233,17 @@ Use this simple operator pattern when changing gameplay lens:
 
 ```bash
 # TOYBOX dungeon profile + dungeon-style message vocabulary
-GPLAY TOYBOX SET hethack
+PLAY TOYBOX SET hethack
 export UDOS_TUI_MAP_LEVEL=dungeon
 export UDOS_TUI_MESSAGE_THEME=dungeon
 
 # TOYBOX galaxy profile + galaxy-style message vocabulary
-GPLAY TOYBOX SET elite
+PLAY TOYBOX SET elite
 export UDOS_TUI_MAP_LEVEL=galaxy
 export UDOS_TUI_MESSAGE_THEME=pilot
 ```
 
 Notes:
-- `GPLAY TOYBOX SET ...` changes gameplay profile state.
+- `PLAY TOYBOX SET ...` changes gameplay profile state.
 - `UDOS_TUI_MAP_LEVEL` and `UDOS_TUI_MESSAGE_THEME` control TUI message wording.
 - z/elevation (`-Zz`, `z_min`, `z_max`, stairs/ramps/portals) is spatial/map data, and should not be conflated with GUI styling.

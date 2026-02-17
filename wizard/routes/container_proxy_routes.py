@@ -12,6 +12,7 @@ import httpx
 from typing import Optional
 
 from wizard.services.logging_api import get_logger
+from wizard.routes.container_launcher_routes import get_launcher
 
 logger = get_logger("container-proxy")
 
@@ -21,17 +22,13 @@ router = APIRouter(prefix="/ui", tags=["container-proxy"])
 class ContainerProxy:
     """Proxies requests to containerized services."""
 
-    CONTAINER_PORTS = {
-        "home-assistant": 8123,
-        "songscribe": 3000,
-        "hethack": 7421,
-        "elite": 7422,
-        "rpgbbs": 7423,
-        "crawler3d": 7424,
-    }
-
     def __init__(self):
         self.client = httpx.AsyncClient(timeout=30.0)
+
+    def _get_port(self, container_id: str) -> Optional[int]:
+        """Look up port from library container.json via launcher discovery."""
+        config = get_launcher().get_container_config(container_id)
+        return config.get("port") if config else None
 
     async def proxy_request(
         self,
@@ -41,7 +38,7 @@ class ContainerProxy:
     ) -> StreamingResponse:
         """Proxy HTTP request to container service."""
 
-        port = self.CONTAINER_PORTS.get(container_id)
+        port = self._get_port(container_id)
         if not port:
             raise HTTPException(status_code=404, detail=f"Container not found: {container_id}")
 

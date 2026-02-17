@@ -1,8 +1,9 @@
 import { Canvas80x30 } from "../canvas.js";
 import { packageGrid } from "../pack.js";
-import { GridCanvasSpec } from "../types.js";
+import { DashboardInput, GridCanvasSpec } from "../types.js";
+import { normalizeScheduleRows, normalizeTaskRows, normalizeWorkflowRows, workflowStateGlyph } from "./shared.js";
 
-export function renderDashboard(spec: GridCanvasSpec, input: any) {
+export function renderDashboard(spec: GridCanvasSpec, input: DashboardInput) {
   const c = new Canvas80x30();
   c.clear(" ");
 
@@ -32,6 +33,22 @@ export function renderDashboard(spec: GridCanvasSpec, input: any) {
         const line = `${key}: ${value}`;
         c.write(42, y++, line.slice(0, 36));
       }
+    }
+  }
+
+  // Optional parity summary blocks from task/schedule/workflow panels.
+  const taskRows = normalizeTaskRows(input.tasks || []);
+  const schedRows = normalizeScheduleRows(input.scheduleItems || []);
+  const wfRows = normalizeWorkflowRows(input.workflowSteps || []);
+  if (taskRows.length || schedRows.length || wfRows.length) {
+    if (y < 15) c.write(42, y++, "Panels:");
+    if (y < 15) c.write(42, y++, `Tasks: ${taskRows.length}`);
+    if (y < 15) c.write(42, y++, `Schedule: ${schedRows.length}`);
+    if (y < 15) c.write(42, y++, `Workflow: ${wfRows.length}`);
+    const inProgress = wfRows.filter((step) => step.state === "in_progress");
+    if (y < 15 && inProgress.length > 0) {
+      const head = inProgress[0];
+      c.write(42, y++, `Now ${workflowStateGlyph(head.state)} ${head.title}`.slice(0, 36));
     }
   }
 

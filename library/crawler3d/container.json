@@ -5,8 +5,8 @@
     "name": "TOYBOX Crawler3D",
     "description": "3D crawler gameplay runtime adapter for uDOS TOYBOX.",
     "type": "git",
-    "source": "https://github.com/tomassedovic/crawl3d.git",
-    "ref": "main",
+    "source": "https://github.com/crawl/crawl",
+    "ref": "master",
     "cloned_at": null,
     "last_update": null,
     "commit": null,
@@ -27,7 +27,7 @@
   },
   "metadata": {
     "license": "Open Source",
-    "homepage": "https://github.com/tomassedovic/crawl3d",
+    "homepage": "https://crawl.develz.org/",
     "documentation": "docs/specs/TOYBOX-GAMEPLAY-SCAFFOLD-v1.3.md",
     "maintainer": "uDOS Wizard Server",
     "category": "toybox-gameplay"
@@ -37,6 +37,11 @@
     "lens": "crawler3d",
     "upstream_policy": "no-fork",
     "reskin_policy": "udos-ui-redraw-2026"
+  },
+  "service": {
+    "port": 7424,
+    "health_check_url": "http://localhost:7424/health",
+    "browser_route": "/ui/crawler3d"
   },
   "launch_config": {
     "command": ["python3", "-m", "wizard.services.toybox.crawler3d_adapter"],

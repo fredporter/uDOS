@@ -87,10 +87,9 @@ def test_rule_if_then_evaluates_against_play_state(tmp_path):
 
 def test_gameplay_command_is_dispatched():
     dispatcher = CommandDispatcher()
-
-    result = dispatcher.dispatch("GPLAY STATUS")
+    result = dispatcher.dispatch("PLAY STATUS")
     assert result["status"] == "success"
-    assert "GPLAY STATUS" in result.get("output", "")
+    assert "PLAY STATUS" in result.get("output", "")
 
 
 def test_play_command_is_dispatched():
@@ -107,15 +106,15 @@ def test_rule_command_is_dispatched():
     assert "RULE LIST" in result.get("output", "")
 
 
-def test_gplay_map_command_is_dispatched():
+def test_play_map_command_is_dispatched():
     dispatcher = CommandDispatcher()
-    result = dispatcher.dispatch("GPLAY MAP STATUS")
+    result = dispatcher.dispatch("PLAY MAP STATUS")
     assert result["status"] == "success"
-    assert "GPLAY MAP STATUS" in result.get("output", "")
+    assert "PLAY MAP STATUS" in result.get("output", "")
 
 
-def test_gplay_lens_command_is_dispatched():
+def test_play_lens_command_is_dispatched():
     dispatcher = CommandDispatcher()
-    result = dispatcher.dispatch("GPLAY LENS STATUS")
+    result = dispatcher.dispatch("PLAY LENS STATUS")
     assert result["status"] == "success"
-    assert "GPLAY LENS STATUS" in result.get("output", "")
+    assert "PLAY LENS STATUS" in result.get("output", "")

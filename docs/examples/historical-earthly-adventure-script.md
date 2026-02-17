@@ -295,7 +295,7 @@ Slide 12 - Ending
 Template complete.
 
 Suggested runtime commands after adapting this file:
-- `GPLAY STATUS`
+- `PLAY STATUS`
 - `PLAY OPTIONS`
 - `PLAY START dungeon`
 - `PLAY CLAIM`

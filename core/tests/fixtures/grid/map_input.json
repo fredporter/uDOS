@@ -1,0 +1,18 @@
+{
+  "focusLocId": "EARTH:SUR:L305-DA11",
+  "terrain": [
+    { "locId": "EARTH:SUR:L305-DA11", "glyph": ".", "label": "Plains" },
+    { "locId": "EARTH:SUR:L305-DA12", "glyph": "~", "label": "Water" },
+    { "locId": "EARTH:SUR:L305-DA13", "glyph": "^", "label": "Mountains" }
+  ],
+  "objects": [
+    { "locId": "EARTH:SUR:L305-DA11", "sprite": "@", "label": "Player" }
+  ],
+  "overlays": [
+    { "locId": "EARTH:SUR:L305-DA11", "icon": "T", "label": "Tasks" },
+    { "locId": "EARTH:SUR:L305-DA12", "icon": "N", "label": "Notes" }
+  ],
+  "workflowMarkers": [
+    { "locId": "EARTH:SUR:L305-DA13", "stepId": "wf-1", "state": "in_progress", "title": "Survey" }
+  ]
+}

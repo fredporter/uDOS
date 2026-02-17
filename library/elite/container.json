@@ -38,6 +38,11 @@
     "upstream_policy": "no-fork",
     "reskin_policy": "udos-ui-redraw-2026"
   },
+  "service": {
+    "port": 7422,
+    "health_check_url": "http://localhost:7422/health",
+    "browser_route": "/ui/elite"
+  },
   "launch_config": {
     "command": ["python3", "-m", "wizard.services.toybox.elite_adapter"],
     "cwd": "."

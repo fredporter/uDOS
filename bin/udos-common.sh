@@ -1186,7 +1186,9 @@ launch_component() {
 
     # Ensure consistent TUI behavior across platforms
     if [ "$mode" = "tui" ]; then
-        if [ -z "${UDOS_TTY:-}" ]; then
+        # Keep interactive TTY semantics by default for uCLI. A global default
+        # of UDOS_TTY=0 should not downgrade core:tui to piped logging mode.
+        if [ "${UDOS_TTY:-0}" != "1" ]; then
             export UDOS_TTY=1
         fi
         if [ -z "${UDOS_TUI_FORCE_STATUS:-}" ]; then

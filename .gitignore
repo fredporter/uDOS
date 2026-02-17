@@ -230,6 +230,7 @@ node_modules/
 library/**/
 !library/container.schema.json
 !library/container.template.json
+!library/*/container.json
 !library/README.md
 !library/*.md
 !library/binders/*.md

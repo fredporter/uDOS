@@ -55,7 +55,13 @@ def bootstrap_ucli_keymap_env(
         target_env["UDOS_FALLBACK_RAW_EDITOR"] = "1"
 
     if not target_env.get("UDOS_MENU_STYLE"):
-        target_env["UDOS_MENU_STYLE"] = "hybrid"
+        target_env["UDOS_MENU_STYLE"] = "numbered"
+
+    if not target_env.get("UDOS_MENU_ALT_SCREEN"):
+        target_env["UDOS_MENU_ALT_SCREEN"] = "0"
+
+    if not target_env.get("UDOS_MENU_ENABLE_RAW_NAV"):
+        target_env["UDOS_MENU_ENABLE_RAW_NAV"] = "0"
 
     if not target_env.get("UDOS_TUI_CLEAN_STARTUP"):
         target_env["UDOS_TUI_CLEAN_STARTUP"] = "1"

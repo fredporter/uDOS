@@ -31,7 +31,7 @@ def test_command_capability_matrix_denials_and_negative_paths(monkeypatch, tmp_p
     dispatcher = CommandDispatcher()
 
     user_mgr.switch_user("guest")
-    denied_stats = dispatcher.dispatch("GPLAY STATS ADD xp 1")
+    denied_stats = dispatcher.dispatch("PLAY STATS ADD xp 1")
     assert denied_stats["status"] == "error"
     assert denied_stats["message"] == "Permission denied: gameplay.mutate"
 
@@ -40,7 +40,7 @@ def test_command_capability_matrix_denials_and_negative_paths(monkeypatch, tmp_p
     assert denied_rule["message"] == "Permission denied: gameplay.rule_admin"
 
     user_mgr.switch_user("user")
-    denied_toybox = dispatcher.dispatch("GPLAY TOYBOX SET elite")
+    denied_toybox = dispatcher.dispatch("PLAY TOYBOX SET elite")
     assert denied_toybox["status"] == "error"
     assert denied_toybox["message"] == "Permission denied: toybox.admin"
 
@@ -57,9 +57,9 @@ def test_command_capability_matrix_denials_and_negative_paths(monkeypatch, tmp_p
     assert bad_play_syntax["status"] == "error"
     assert bad_play_syntax["message"] == "Syntax: PLAY START <option_id>"
 
-    bad_lens_syntax = dispatcher.dispatch("GPLAY LENS nonsense")
+    bad_lens_syntax = dispatcher.dispatch("PLAY LENS nonsense")
     assert bad_lens_syntax["status"] == "error"
-    assert bad_lens_syntax["message"] == "Syntax: GPLAY LENS <STATUS|ENABLE|DISABLE>"
+    assert bad_lens_syntax["message"] == "Syntax: PLAY LENS <STATUS|ENABLE|DISABLE>"
 
     unknown_play_subcommand = dispatcher.dispatch("PLAY BOGUS")
     assert unknown_play_subcommand["status"] == "error"

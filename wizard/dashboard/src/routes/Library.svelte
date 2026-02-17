@@ -1,5 +1,5 @@
 <script>
-  import { apiFetch } from "$lib/services/apiBase";
+  import { apiFetch, resolveApiBase } from "$lib/services/apiBase";
   import { onMount } from "svelte";
 
   let libraryData = null;
@@ -15,6 +15,8 @@
   let containers = [];
   let containerMap = {};
   let containerError = null;
+  // Clone progress state: { [containerId]: { progress, status, message, error } }
+  let cloneProgress = {};
   let toolchainPackages =
     "python3 py3-pip py3-setuptools py3-wheel py3-virtualenv";
   let toolchainResult = null;
@@ -338,10 +340,86 @@
         method: "POST",
         headers: authHeaders(),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!res.ok) {
+        // 409 = not cloned, surface the detail message
+        throw new Error(data.detail || `HTTP ${res.status}`);
+      }
       await loadContainers();
     } catch (err) {
       alert(`❌ Launch failed: ${err.message}`);
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  function containerStateLabel(container) {
+    switch (container.state) {
+      case "running": return "🟢 Running";
+      case "not_cloned": return "📥 Not Cloned";
+      case "not_running": return "🔴 Stopped";
+      case "no_metadata": return "⚠️ No Metadata";
+      default: return container.running ? "🟢 Running" : "🔴 Stopped";
+    }
+  }
+
+  function containerStateColor(container) {
+    switch (container.state) {
+      case "running": return "text-emerald-400";
+      case "not_cloned": return "text-amber-400";
+      case "no_metadata": return "text-orange-400";
+      default: return "text-gray-400";
+    }
+  }
+
+  async function cloneContainer(containerId) {
+    actionInProgress = `container-clone-${containerId}`;
+    cloneProgress[containerId] = { progress: 0, status: "starting", message: "Connecting...", error: null };
+    cloneProgress = cloneProgress; // trigger reactivity
+
+    try {
+      const apiBase = resolveApiBase() ?? "";
+      const url = `${apiBase}/api/containers/${containerId}/clone/stream`;
+      const evtSource = new EventSource(url);
+
+      await new Promise((resolve, reject) => {
+        evtSource.onmessage = (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            cloneProgress[containerId] = {
+              progress: data.progress ?? cloneProgress[containerId]?.progress ?? 0,
+              status: data.status ?? "cloning",
+              message: data.message ?? data.error ?? "",
+              error: data.error ?? null,
+            };
+            cloneProgress = cloneProgress; // trigger reactivity
+
+            if (data.status === "complete") {
+              evtSource.close();
+              resolve(data);
+            } else if (data.status === "failed") {
+              evtSource.close();
+              reject(new Error(data.error || "Clone failed"));
+            }
+          } catch (_) {}
+        };
+        evtSource.onerror = (e) => {
+          evtSource.close();
+          reject(new Error("SSE connection error"));
+        };
+        // Safety timeout: 3 minutes
+        setTimeout(() => { evtSource.close(); reject(new Error("Clone timed out after 3 minutes")); }, 180000);
+      });
+
+      await loadContainers();
+      // Clear progress after a short delay so user can see ✅
+      setTimeout(() => {
+        delete cloneProgress[containerId];
+        cloneProgress = cloneProgress;
+      }, 3000);
+    } catch (err) {
+      cloneProgress[containerId] = { progress: cloneProgress[containerId]?.progress ?? 0, status: "failed", message: err.message, error: err.message };
+      cloneProgress = cloneProgress;
     } finally {
       actionInProgress = null;
     }
@@ -368,8 +446,28 @@
     window.open(container.browser_route, "_blank");
   }
 
-  onMount(() => {
+  async function ensureToken() {
     adminToken = localStorage.getItem("wizardAdminToken") || "";
+    if (!adminToken) {
+      // Bootstrap token from server env (only works for local requests)
+      try {
+        const res = await fetch(`${resolveApiBase() ?? ""}/api/admin-token/status`);
+        if (res.ok) {
+          const data = await res.json();
+          const token = data?.env?.WIZARD_ADMIN_TOKEN || "";
+          if (token) {
+            localStorage.setItem("wizardAdminToken", token);
+            adminToken = token;
+          }
+        }
+      } catch {
+        // Silent: best-effort token bootstrap
+      }
+    }
+  }
+
+  onMount(async () => {
+    await ensureToken();
     if (adminToken) {
       refreshAll();
     } else {
@@ -701,43 +799,80 @@
 
           {#if containerMap[integration.name]}
             {@const container = containerMap[integration.name]}
-            <div class="flex items-center justify-between text-xs text-gray-400">
-              <span>
-                Container: {container.running ? "Running" : "Stopped"}
+            <div class="flex items-center justify-between text-xs">
+              <span class={containerStateColor(container)}>
+                {containerStateLabel(container)}
               </span>
-              {#if container.port}
-                <span>Port {container.port}</span>
+              {#if container.port && container.state === "running"}
+                <span class="text-gray-500">Port {container.port}</span>
+              {/if}
+              {#if container.container_type && container.container_type !== "local"}
+                <span class="text-gray-600 capitalize">{container.container_type}</span>
               {/if}
             </div>
-            <div class="flex gap-2">
-              {#if container.running}
-                <button
-                  class="flex-1 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-medium disabled:opacity-50"
-                  on:click={() => stopContainer(container.id)}
-                  disabled={actionInProgress !== null}
-                >
-                  {actionInProgress === `container-stop-${container.id}`
-                    ? "..."
-                    : "Stop"}
-                </button>
-                <button
-                  class="flex-1 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium disabled:opacity-50"
-                  on:click={() => openContainer(container)}
-                >
-                  Open
-                </button>
+            {#if container.state === "not_cloned"}
+              {#if cloneProgress[container.id]}
+                {@const cp = cloneProgress[container.id]}
+                <div class="space-y-1">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class={cp.status === "failed" ? "text-red-400" : cp.status === "complete" ? "text-emerald-400" : "text-amber-300"}>
+                      {cp.status === "failed" ? "❌" : cp.status === "complete" ? "✅" : "⏳"} {cp.message}
+                    </span>
+                    <span class="text-gray-500">{cp.progress}%</span>
+                  </div>
+                  <div class="w-full bg-gray-700 rounded-full h-1.5">
+                    <div
+                      class={`h-1.5 rounded-full transition-all duration-300 ${cp.status === "failed" ? "bg-red-500" : cp.status === "complete" ? "bg-emerald-500" : "bg-amber-400"}`}
+                      style="width: {cp.progress}%"
+                    ></div>
+                  </div>
+                </div>
               {:else}
-                <button
-                  class="flex-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium disabled:opacity-50"
-                  on:click={() => launchContainer(container.id)}
-                  disabled={actionInProgress !== null}
-                >
-                  {actionInProgress === `container-launch-${container.id}`
-                    ? "..."
-                    : "Launch"}
-                </button>
+                <div class="flex gap-2 items-center">
+                  <button
+                    class="flex-1 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-medium disabled:opacity-50"
+                    on:click={() => cloneContainer(container.id)}
+                    disabled={actionInProgress !== null}
+                  >
+                    Clone Repo
+                  </button>
+                </div>
               {/if}
-            </div>
+            {:else if container.state === "no_metadata"}
+              <div class="text-xs text-orange-300 bg-orange-900/30 rounded px-2 py-1">
+                container.json missing — check library entry.
+              </div>
+            {:else}
+              <div class="flex gap-2">
+                {#if container.state === "running"}
+                  <button
+                    class="flex-1 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-medium disabled:opacity-50"
+                    on:click={() => stopContainer(container.id)}
+                    disabled={actionInProgress !== null}
+                  >
+                    {actionInProgress === `container-stop-${container.id}`
+                      ? "..."
+                      : "Stop"}
+                  </button>
+                  <button
+                    class="flex-1 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium disabled:opacity-50"
+                    on:click={() => openContainer(container)}
+                  >
+                    Open
+                  </button>
+                {:else}
+                  <button
+                    class="flex-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium disabled:opacity-50"
+                    on:click={() => launchContainer(container.id)}
+                    disabled={actionInProgress !== null}
+                  >
+                    {actionInProgress === `container-launch-${container.id}`
+                      ? "..."
+                      : "Launch"}
+                  </button>
+                {/if}
+              </div>
+            {/if}
           {/if}
         </div>
       {/each}

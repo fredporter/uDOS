@@ -3,12 +3,7 @@
   "policy": "no_shims_no_backcompat",
   "launcher": {
     "subcommands": ["help", "tui", "wizard", "prompt", "cmd"],
-    "deprecated_aliases": {
-      "core": "tui",
-      "server": "wizard",
-      "command": "cmd",
-      "run": "cmd"
-    }
+    "deprecated_aliases": {}
   },
   "ucode": {
     "commands": [
@@ -27,7 +22,7 @@
       "BINDER",
       "DATASET",
       "USER",
-      "GPLAY",
+      "PLAY",
       "UID",
       "DEV",
       "WIZARD",
@@ -50,9 +45,6 @@
       "PROVIDER",
       "SETUP"
     ],
-    "deprecated_aliases": {
-      "GOBLIN": "DEV",
-      "WIZ": "WIZARD"
-    }
+    "deprecated_aliases": {}
   }
 }

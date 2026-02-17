@@ -8,7 +8,7 @@ UGRID Core provides a unified rendering layer for all text-based UI output in uD
 
 **Key Features:**
 - ✅ Fixed 80×30 character canvas (teletext-style)
-- ✅ 5 layout modes: calendar, table, schedule, map, dashboard
+- ✅ 6 layout modes: calendar, table, schedule, map, dashboard, workflow
 - ✅ LocId spatial overlay system for maps
 - ✅ Workflow cross-links (calendar/schedule/todo items -> spatial place refs)
 - ✅ Deterministic output (good for diffs, logging, archiving)
@@ -21,7 +21,7 @@ UGRID Core provides a unified rendering layer for all text-based UI output in uD
 renderGrid(input)
     ↓
 [Layout Select]
-    ↓ (mode: calendar|table|schedule|map|dashboard)
+    ↓ (mode: calendar|table|schedule|map|dashboard|workflow)
 [Render Layout Function]
     ↓
 [Canvas80x30]
@@ -87,6 +87,9 @@ udos-core grid render --mode map --loc "EARTH:SUR:L305-DA11"
 
 # Dashboard with mission status
 udos-core grid render --mode dashboard --input missions.json
+
+# Workflow panel parity (tasks + schedule + workflow steps)
+udos-core grid render --mode workflow --input memory/system/grid-workflow-sample.json
 ```
 
 ### Vibe Integration

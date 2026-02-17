@@ -1,0 +1,22 @@
+{
+  "events": [
+    {
+      "time": "09:00",
+      "title": "Standup"
+    },
+    {
+      "time": "11:00",
+      "title": "UGRID review"
+    }
+  ],
+  "tasks": [
+    {
+      "status": "[ ]",
+      "text": "Ship GRID demos"
+    },
+    {
+      "status": "[x]",
+      "text": "Wire overlays"
+    }
+  ]
+}

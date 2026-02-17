@@ -92,6 +92,20 @@ def fetch_ollama_models(endpoint: str) -> Dict[str, Any]:
         return {"reachable": False, "error": str(exc)}
 
 
+def _normalize_model_names(names: list[str]) -> set[str]:
+    """Return canonical model names including both tagged and base forms."""
+    normalized: set[str] = set()
+    for raw in names:
+        name = (raw or "").strip()
+        if not name:
+            continue
+        normalized.add(name)
+        base = name.split(":", 1)[0].strip()
+        if base:
+            normalized.add(base)
+    return normalized
+
+
 def get_ok_local_status() -> Dict[str, Any]:
     config = load_ai_modes_config()
     mode = (config.get("modes") or {}).get("ofvibe", {})
@@ -108,7 +122,9 @@ def get_ok_local_status() -> Dict[str, Any]:
             "models": [],
         }
     models = tags.get("models") or []
-    if model and model not in models:
+    normalized_models = _normalize_model_names(models)
+    normalized_target = _normalize_model_names([model]) if model else set()
+    if model and normalized_target.isdisjoint(normalized_models):
         return {
             "ready": False,
             "issue": "missing model",

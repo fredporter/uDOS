@@ -290,6 +290,10 @@ class StoryFormHandler:
     def _setup_terminal(self) -> bool:
         """Setup terminal for raw input capture and disable stdout logging."""
         try:
+            # Inline-first default: keep fullscreen/raw form mode opt-in only.
+            # Set UDOS_STORY_FORM_TUI=1 to force the rich TUI form renderer.
+            if os.getenv("UDOS_STORY_FORM_TUI", "0").strip().lower() not in {"1", "true", "yes", "on"}:
+                return False
             if not self._is_interactive():
                 return False
 

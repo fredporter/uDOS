@@ -32,10 +32,6 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
             cmd = (command or "").upper()
             if cmd == "SEND":
                 result = self._handle_send(params)
-            elif cmd == "TALK":
-                result = self._handle_talk(params)
-            elif cmd == "REPLY":
-                result = self._handle_reply(params)
             else:
                 trace.set_status('error')
                 return {"status": "error", "message": f"Unknown command: {command}"}

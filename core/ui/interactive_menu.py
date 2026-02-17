@@ -16,6 +16,7 @@ from core.input.keymap import decode_key_input
 from core.utils.tty import interactive_tty_status
 from core.services.viewport_service import ViewportService
 from core.utils.text_width import pad_to_width, truncate_to_width
+from core.tui.stdout_guard import atomic_print, atomic_stdout_write
 from dataclasses import dataclass
 from enum import Enum
 
@@ -55,7 +56,7 @@ class InteractiveMenu:
         self,
         title: str,
         items: List[MenuItem],
-        style: MenuStyle = MenuStyle.HYBRID,
+        style: MenuStyle = MenuStyle.NUMBERED,
         allow_cancel: bool = True,
         show_help: bool = True,
     ):
@@ -78,7 +79,8 @@ class InteractiveMenu:
         self.logger = None
         self._raw_mode = False
         self._alt_screen = False
-        self._use_alt_screen = os.getenv("UDOS_MENU_ALT_SCREEN", "1").lower() not in ("0", "false", "no")
+        self._use_alt_screen = os.getenv("UDOS_MENU_ALT_SCREEN", "0").lower() in ("1", "true", "yes", "on")
+        self._raw_nav_enabled = os.getenv("UDOS_MENU_ENABLE_RAW_NAV", "0").lower() in ("1", "true", "yes", "on")
         self._ascii_only = self._should_use_ascii()
         
         try:
@@ -110,22 +112,22 @@ class InteractiveMenu:
         """Switch to alternate screen buffer for stable redraws."""
         if self._alt_screen or not self._use_alt_screen:
             return
-        sys.stdout.write("\033[?1049h\033[H")
-        sys.stdout.flush()
+        atomic_stdout_write("\033[?1049h\033[H")
         self._alt_screen = True
 
     def _exit_alt_screen(self) -> None:
         """Return from alternate screen buffer."""
         if not self._alt_screen:
             return
-        sys.stdout.write("\033[?1049l\033[H")
-        sys.stdout.flush()
+        # Do not force cursor-home on exit; restoring alt-screen already
+        # restores cursor/screen state and forcing \033[H can overwrite
+        # prior content in the primary buffer.
+        atomic_stdout_write("\033[?1049l")
         self._alt_screen = False
 
     def _clear_screen(self) -> None:
         """Clear visible screen area."""
-        sys.stdout.write("\033[2J\033[H")
-        sys.stdout.flush()
+        atomic_stdout_write("\033[2J\033[H")
 
     def show(self) -> Optional[str]:
         """
@@ -161,12 +163,12 @@ class InteractiveMenu:
                 if choice < 0 or choice >= len(self.items):
                     if choice == -1 and self.allow_cancel:
                         return None
-                    print("  ❌ Invalid choice")
+                    atomic_print("  ❌ Invalid choice")
                     continue
 
                 item = self.items[choice]
                 if not item.enabled:
-                    print("  ❌ That option is not available")
+                    atomic_print("  ❌ That option is not available")
                     continue
 
                 # Handle submenus
@@ -181,7 +183,7 @@ class InteractiveMenu:
                     try:
                         item.action()
                     except Exception as e:
-                        print(f"  ❌ Action failed: {e}")
+                        atomic_print(f"  ❌ Action failed: {e}")
                         if self.logger:
                             self.logger.error(f"Menu action failed: {e}")
                         continue
@@ -258,8 +260,7 @@ class InteractiveMenu:
         newline = "\r\n" if self._raw_mode else "\n"
         width = ViewportService().get_cols()
         padded = [pad_to_width(line, width) for line in lines]
-        sys.stdout.write(newline.join(padded) + newline)
-        sys.stdout.flush()
+        atomic_stdout_write(newline.join(padded) + newline)
 
     def _get_choice(self) -> Optional[int]:
         """
@@ -269,6 +270,10 @@ class InteractiveMenu:
             Index of selected item, -1 to cancel, or None for error
         """
         try:
+            if (self.style == MenuStyle.ARROW or self.style == MenuStyle.HYBRID) and not self._raw_nav_enabled:
+                if self.logger:
+                    self.logger.info("[LOCAL] Raw arrow menu input disabled; using numeric input")
+                return self._get_choice_numeric()
             if self.style == MenuStyle.ARROW or self.style == MenuStyle.HYBRID:
                 if not self._is_interactive():
                     if self.logger:
@@ -510,7 +515,7 @@ def show_confirm(title: str, help_text: str = "") -> bool:
         from core.input.confirmation_utils import format_prompt, parse_confirmation
         prompt = format_prompt(title, "yes", "ok")
         if help_text:
-            print(f"  {help_text}")
+            atomic_print(f"  {help_text}")
         response = input(prompt)
         choice = parse_confirmation(response, "yes", "ok")
         return choice in {"yes", "ok"}

@@ -36,7 +36,7 @@
   import ToastContainer from "./lib/components/ToastContainer.svelte";
   import { initTypography } from "./lib/typography.js";
   import { notifyError, notifyFromLog } from "$lib/services/toastService";
-  import { buildAuthHeaders } from "$lib/services/auth";
+  import { buildAuthHeaders, setAdminToken } from "$lib/services/auth";
 
   // Simple hash-based routing
   let currentRoute = "dashboard";
@@ -206,8 +206,25 @@
     }
   }
 
+  async function bootstrapAdminToken() {
+    // Auto-set the admin token from the server's env if not already in localStorage.
+    // The /api/admin-token/status endpoint only responds to local requests, so this is safe.
+    if (localStorage.getItem("wizardAdminToken")) return;
+    try {
+      const res = await apiFetch("/api/admin-token/status");
+      if (res.ok) {
+        const data = await res.json();
+        const token = data?.env?.WIZARD_ADMIN_TOKEN || "";
+        if (token) setAdminToken(token);
+      }
+    } catch {
+      // Silent: token bootstrap is best-effort.
+    }
+  }
+
   onMount(() => {
     handleHashChange();
+    bootstrapAdminToken();
     // Load theme preference
     const savedTheme = localStorage.getItem("wizard-theme");
     if (savedTheme === "light") {

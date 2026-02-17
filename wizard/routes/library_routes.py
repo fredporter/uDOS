@@ -138,6 +138,11 @@ async def get_library_status(request: Request):
                     "installed": integration.installed,
                     "enabled": integration.enabled,
                     "can_install": integration.can_install,
+                    "container_type": integration.container_type,
+                    "git_cloned": integration.git_cloned,
+                    "git_source": integration.git_source,
+                    "git_ref": integration.git_ref,
+                    "is_running": integration.is_running,
                 }
                 for integration in status.integrations
             ],
@@ -182,6 +187,11 @@ async def get_integration(name: str, request: Request):
                 "installed": integration.installed,
                 "enabled": integration.enabled,
                 "can_install": integration.can_install,
+                "container_type": integration.container_type,
+                "git_cloned": integration.git_cloned,
+                "git_source": integration.git_source,
+                "git_ref": integration.git_ref,
+                "is_running": integration.is_running,
             },
         }
 
@@ -303,6 +313,11 @@ async def install_integration(
             validation=validation,
         )
 
+        steps_out = []
+        if result.steps:
+            for s in result.steps:
+                steps_out.append({"n": s.n, "total": s.total, "name": s.name, "ok": s.ok, "detail": s.detail})
+
         return {
             "success": result.success,
             "result": {
@@ -311,6 +326,8 @@ async def install_integration(
                 "action": result.action,
                 "message": result.message,
                 "error": result.error,
+                "steps": steps_out,
+                "steps_total": len(steps_out),
             },
             "prompt": prompt_payload,
         }
@@ -677,9 +694,6 @@ async def list_repos(request: Request):
     """
     try:
         await _run_guard(request)
-        if repo.startswith("http") and "github.com" not in repo:
-            raise HTTPException(status_code=400, detail="Only GitHub repos supported")
-
         factory = PluginFactory()
         return {"success": True, "repos": factory.list_repos()}
     except Exception as e:

@@ -37,8 +37,6 @@ def char_width(ch: str) -> int:
         return 0
     if _is_emoji(ch):
         return 2
-    if unicodedata.category(ch) == "So":
-        return 2
     if unicodedata.east_asian_width(ch) in ("W", "F"):
         return 2
     return 1

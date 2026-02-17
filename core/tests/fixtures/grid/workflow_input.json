@@ -1,0 +1,31 @@
+{
+  "tasks": [
+    {
+      "status": "[ ]",
+      "text": "Write spec",
+      "due": "2026-02-17"
+    }
+  ],
+  "scheduleItems": [
+    {
+      "start": "10:00",
+      "title": "Design review",
+      "placeRef": "EARTH:SUR:L305-DA11"
+    }
+  ],
+  "workflowSteps": [
+    {
+      "id": "wf-1",
+      "title": "Draft",
+      "state": "in_progress"
+    },
+    {
+      "id": "wf-2",
+      "title": "Ship",
+      "state": "todo",
+      "dependsOn": [
+        "wf-1"
+      ]
+    }
+  ]
+}

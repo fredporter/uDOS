@@ -3,7 +3,7 @@
  * Keep in sync with docs/specs/07-grid-canvas-rendering.md
  */
 
-export type GridCanvasMode = "dashboard" | "calendar" | "schedule" | "table" | "map"
+export type GridCanvasMode = "dashboard" | "calendar" | "schedule" | "table" | "map" | "workflow"
 
 export interface GridCanvasSpec {
   width: 80

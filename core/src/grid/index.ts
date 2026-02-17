@@ -4,9 +4,10 @@ import { renderTable } from "./layouts/table.js";
 import { renderSchedule } from "./layouts/schedule.js";
 import { renderMap } from "./layouts/map.js";
 import { renderDashboard } from "./layouts/dashboard.js";
+import { renderWorkflow } from "./layouts/workflow.js";
 
 export interface GridRendererInput {
-  mode: "calendar" | "table" | "schedule" | "map" | "dashboard";
+  mode: "calendar" | "table" | "schedule" | "map" | "dashboard" | "workflow";
   spec: GridCanvasSpec;
   data: any;
 }
@@ -25,6 +26,8 @@ export function renderGrid(input: GridRendererInput): RenderResult {
       return renderMap(spec, data);
     case "dashboard":
       return renderDashboard(spec, data);
+    case "workflow":
+      return renderWorkflow(spec, data);
     default:
       throw new Error(`Unknown render mode: ${mode}`);
   }
@@ -36,6 +39,7 @@ export {
   renderSchedule,
   renderMap,
   renderDashboard,
+  renderWorkflow,
 };
 
 export * from "./canvas.js";

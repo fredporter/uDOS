@@ -74,6 +74,26 @@ def build_sample_schedule() -> Dict[str, Any]:
     }
 
 
+def build_sample_workflow() -> Dict[str, Any]:
+    return {
+        "tasks": [
+            {"id": "task-1", "status": "[ ]", "text": "Finalize command contract", "due": "2026-02-18"},
+            {"id": "task-2", "status": "[x]", "text": "Ship stdout lock", "due": "2026-02-17"},
+            {"id": "task-3", "status": "[ ]", "text": "Add parity fixtures", "due": "2026-02-19"},
+        ],
+        "scheduleItems": [
+            {"id": "sched-1", "start": "09:30", "item": "TUI parity standup", "locId": "EARTH:SUR:L305-DA11"},
+            {"id": "sched-2", "start": "13:00", "item": "Workflow fixture review", "locId": "EARTH:SUR:L305-DA12"},
+            {"id": "sched-3", "start": "16:15", "item": "Release note update", "location": "WIZARD"},
+        ],
+        "workflowSteps": [
+            {"id": "wf-io", "title": "I/O contract", "state": "done"},
+            {"id": "wf-grid", "title": "GRID workflow docs", "state": "in_progress", "dependsOn": ["wf-io"]},
+            {"id": "wf-parity", "title": "Panel parity fixtures", "state": "todo", "dependsOn": ["wf-grid"]},
+        ],
+    }
+
+
 def generate_sample_grid_inputs(root: Path) -> Dict[str, Path]:
     root.mkdir(parents=True, exist_ok=True)
     outputs = {
@@ -81,6 +101,7 @@ def generate_sample_grid_inputs(root: Path) -> Dict[str, Path]:
         "calendar": root / "grid-calendar-sample.json",
         "table": root / "grid-table-sample.json",
         "schedule": root / "grid-schedule-sample.json",
+        "workflow": root / "grid-workflow-sample.json",
     }
 
     outputs["map"].write_text(
@@ -97,6 +118,10 @@ def generate_sample_grid_inputs(root: Path) -> Dict[str, Path]:
     )
     outputs["schedule"].write_text(
         json.dumps(build_sample_schedule(), indent=2),
+        encoding="utf-8",
+    )
+    outputs["workflow"].write_text(
+        json.dumps(build_sample_workflow(), indent=2),
         encoding="utf-8",
     )
 

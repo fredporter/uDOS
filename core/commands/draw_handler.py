@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import json
 import subprocess
-from typing import Dict, List
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
@@ -30,23 +31,37 @@ class DrawHandler(BaseCommandHandler, HandlerLoggingMixin):
             runtime_mode = args[0][2:].lower()
             args = args[1:]
 
+        md_output, save_path, args = self._extract_output_flags(args)
         mode = (args[0].lower().strip() if args else "demo")
+        if mode == "md":
+            md_output = True
+            args = args[1:]
+            mode = (args[0].lower().strip() if args else "demo")
+
         if mode == "pat":
             if runtime_mode == "py":
-                return {"status": "error", "message": "DRAW --py does not support PAT. Use DRAW --ts PAT ..."}
-            return self._pattern(args[1:])
+                result = self._pattern_py(args[1:])
+            else:
+                result = self._pattern(args[1:])
+            return self._finalize_output(result, md_output=md_output, save_path=save_path, title="DRAW PAT")
         if mode.endswith(".md") or mode.endswith(".txt"):
-            return self._block(args)
+            result = self._block(args)
+            return self._finalize_output(result, md_output=md_output, save_path=save_path, title="DRAW BLOCK")
         if mode == "block":
-            return self._block(args[1:])
+            result = self._block(args[1:])
+            return self._finalize_output(result, md_output=md_output, save_path=save_path, title="DRAW BLOCK")
         if mode in {"demo", "show"}:
-            return self._demo()
+            result = self._demo()
+            return self._finalize_output(result, md_output=md_output, save_path=save_path, title="DRAW DEMO")
         if mode in {"map", "grid"}:
-            return self._map_panel()
+            result = self._map_panel()
+            return self._finalize_output(result, md_output=md_output, save_path=save_path, title="DRAW MAP")
         if mode in {"schedule", "calendar", "todo"}:
-            return self._schedule_panel()
+            result = self._schedule_panel()
+            return self._finalize_output(result, md_output=md_output, save_path=save_path, title="DRAW SCHEDULE")
         if mode in {"timeline", "progress", "roadmap"}:
-            return self._timeline_panel()
+            result = self._timeline_panel()
+            return self._finalize_output(result, md_output=md_output, save_path=save_path, title="DRAW TIMELINE")
         return {
             "status": "error",
             "message": f"Unknown DRAW option: {mode}",
@@ -60,12 +75,36 @@ class DrawHandler(BaseCommandHandler, HandlerLoggingMixin):
                 "DRAW DEMO              Render viewport-sized ASCII demo panels",
                 "DRAW BLOCK <text>      Render block text (options: --border --invert --rainbow)",
                 "DRAW <file.md>         Render ASCII file from seed templates/demos",
+                "DRAW MD <mode>         Render any DRAW mode as markdown fenced diagram",
+                "DRAW --md <mode>       Same as DRAW MD; keeps script-friendly arg order",
+                "DRAW --save <file.md>  Save output (plain or markdown) under memory/story by default",
                 "DRAW MAP               Render grid/map panel only",
                 "DRAW SCHEDULE          Render schedule/calendar/todo panel only",
                 "DRAW TIMELINE          Render timeline/progress/roadmap panel only",
-                "DRAW PAT [args]        TS-backed pattern operations (LIST|CYCLE|TEXT|<pattern>)",
+                "DRAW PAT [args]        Pattern ops (LIST|CYCLE|TEXT|<pattern>) via TS (default) or --py",
             ]
         )
+
+    def _extract_output_flags(self, args: List[str]) -> Tuple[bool, Optional[str], List[str]]:
+        md_output = False
+        save_path: Optional[str] = None
+        out: List[str] = []
+        i = 0
+        while i < len(args):
+            tok = args[i]
+            low = tok.lower()
+            if low == "--md":
+                md_output = True
+                i += 1
+                continue
+            if low == "--save":
+                if i + 1 < len(args):
+                    save_path = args[i + 1]
+                    i += 2
+                    continue
+            out.append(tok)
+            i += 1
+        return md_output, save_path, out
 
     def _pattern(self, params: List[str]) -> Dict:
         script = get_repo_root() / "core" / "runtime" / "pattern_runner.js"
@@ -118,6 +157,69 @@ class DrawHandler(BaseCommandHandler, HandlerLoggingMixin):
 
         output = payload.get("output") or payload.get("message") or "No output"
         return {"status": status, "message": payload.get("message", "DRAW PAT"), "output": output, "payload": payload}
+
+    def _pattern_py(self, params: List[str]) -> Dict:
+        patterns = ["c64", "chevrons", "scanlines", "raster", "progress", "mosaic"]
+        if not params:
+            name = patterns[self._pattern_index % len(patterns)]
+            self._pattern_index += 1
+            return {"status": "success", "message": "DRAW PAT (py)", "output": self._render_py_pattern(name), "pattern": name}
+
+        head = params[0].lower()
+        if head == "list":
+            lines = [OutputToolkit.banner("DRAW PAT LIST"), ""]
+            lines.extend(f"- {p}" for p in patterns)
+            return {"status": "success", "message": "Pattern list", "patterns": patterns, "output": "\n".join(lines)}
+
+        if head == "cycle":
+            name = patterns[self._pattern_index % len(patterns)]
+            self._pattern_index += 1
+            return {"status": "success", "message": "DRAW PAT CYCLE (py)", "output": self._render_py_pattern(name), "pattern": name}
+
+        if head == "text":
+            text = " ".join(params[1:]).strip() or "DRAW"
+            return self._block(text.split())
+
+        name = head
+        if name not in patterns:
+            return {"status": "error", "message": f"Unknown pattern: {name}", "output": "Use: DRAW PAT LIST"}
+        return {"status": "success", "message": "DRAW PAT (py)", "output": self._render_py_pattern(name), "pattern": name}
+
+    def _render_py_pattern(self, name: str) -> str:
+        cols = max(24, ViewportService().get_cols())
+        width = min(cols - 2, 72)
+        if name == "scanlines":
+            lines = [("█" * width) if i % 2 == 0 else ("░" * width) for i in range(10)]
+            return "\n".join(lines)
+        if name == "chevrons":
+            return "\n".join(
+                truncate_to_width((" " * i) + ">>>>>=====<<<<<", width) for i in range(0, 10)
+            )
+        if name == "raster":
+            lines = []
+            for row in range(10):
+                line = "".join("▓" if (row + col) % 2 == 0 else "░" for col in range(min(width, 48)))
+                lines.append(line)
+            return "\n".join(lines)
+        if name == "progress":
+            lines = [OutputToolkit.progress_bar(i, 10, width=28) for i in range(1, 11)]
+            return "\n".join(lines)
+        if name == "mosaic":
+            return "\n".join(
+                "".join("█" if (r * c) % 3 == 0 else "▒" if (r + c) % 2 == 0 else "░" for c in range(min(width, 48)))
+                for r in range(10)
+            )
+        # c64 default
+        rows = [
+            "╔" + "═" * (min(width, 48) - 2) + "╗",
+            "║  COMMODORE 64 STYLE RASTER DEMO"[: max(0, min(width, 48) - 1)],
+            "╠" + "═" * (min(width, 48) - 2) + "╣",
+        ]
+        for i in range(6):
+            fill = "".join("█" if (i + j) % 3 == 0 else " " for j in range(min(width, 48) - 4))
+            rows.append(f"║ {fill} ║")
+        rows.append("╚" + "═" * (min(width, 48) - 2) + "╝")
+        return "\n".join(rows)
 
     def _block(self, params: List[str]) -> Dict:
         if not params:
@@ -374,3 +476,50 @@ class DrawHandler(BaseCommandHandler, HandlerLoggingMixin):
 
         output = "\n".join(styled)
         return OutputToolkit._clamp(output)
+
+    def _to_markdown_diagram(self, output: str, title: str) -> str:
+        body = (output or "").rstrip("\n")
+        lines = [f"# {title}", "", "```text", body, "```", ""]
+        return "\n".join(lines)
+
+    def _resolve_save_path(self, save_path: str) -> Path:
+        target = Path(save_path)
+        if target.is_absolute():
+            return target
+        repo_root = get_repo_root()
+        return repo_root / "memory" / "story" / target
+
+    def _finalize_output(
+        self,
+        result: Dict,
+        *,
+        md_output: bool = False,
+        save_path: Optional[str] = None,
+        title: str = "DRAW",
+    ) -> Dict:
+        if not isinstance(result, dict) or result.get("status") != "success":
+            return result
+
+        output = str(result.get("output", ""))
+        if md_output:
+            output = self._to_markdown_diagram(output, title)
+            result["output"] = output
+            result["format"] = "markdown"
+        else:
+            result["format"] = "text"
+
+        if save_path:
+            try:
+                target = self._resolve_save_path(save_path)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(output)
+                result["saved_to"] = str(target)
+                message = result.get("message") or "DRAW saved"
+                result["message"] = f"{message} | saved: {target}"
+            except Exception as exc:
+                return {
+                    "status": "error",
+                    "message": f"Failed to save DRAW output: {exc}",
+                    "output": result.get("output", ""),
+                }
+        return result

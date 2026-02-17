@@ -1,0 +1,30 @@
+{
+  "modes": {
+    "ofvibe": {
+      "models": [
+        {
+          "name": "mistral-small",
+          "availability": [
+            "core"
+          ]
+        },
+        {
+          "name": "mistral-large",
+          "availability": [
+            "core"
+          ]
+        },
+        {
+          "name": "devstral-small-2",
+          "availability": [
+            "core"
+          ]
+        }
+      ],
+      "default_models": {
+        "core": "mistral-small2",
+        "dev": "devstral-small-2"
+      }
+    }
+  }
+}

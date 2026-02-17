@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 export interface CliOptions {
-  mode: "calendar" | "table" | "schedule" | "map" | "dashboard";
+  mode: "calendar" | "table" | "schedule" | "map" | "dashboard" | "workflow";
   input?: string;
   loc?: string;
   layer?: string;

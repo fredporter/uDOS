@@ -201,7 +201,6 @@ USAGE:
   SETUP              Run setup story (interactive questions)
   SETUP <provider>   Setup a provider (github, ollama, mistral, etc.)
   SETUP vibe         Install Vibe CLI + Ollama + Mistral models
-  INSTALL vibe       Alias for SETUP vibe
   SETUP --profile    Show your current setup
   SETUP --edit       Edit setup manually
   SETUP --clear      Clear all setup data
@@ -240,4 +239,3 @@ EXAMPLES:
   SETUP --clear && SETUP    # Reset and reconfigure
   nano .env                 # Manual editing
 """.strip()
-

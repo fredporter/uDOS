@@ -32,12 +32,12 @@ Reference templates:
     - progression gates (`dungeon_l32_amulet`)
     - TOYBOX profile registry and active profile
     - role permission scaffold for gameplay/toybox actions
-- Command: `GPLAY` via `core/commands/gameplay_handler.py`
-  - `GPLAY STATUS`
-  - `GPLAY STATS SET|ADD <xp|hp|gold> <value>`
-  - `GPLAY GATE STATUS|COMPLETE|RESET <gate_id>`
-  - `GPLAY TOYBOX LIST|SET <profile>`
-  - `GPLAY PROCEED|NEXT|UNLOCK`
+- Command: `PLAY` via `core/commands/gameplay_handler.py`
+  - `PLAY STATUS`
+  - `PLAY STATS SET|ADD <xp|hp|gold> <value>`
+  - `PLAY GATE STATUS|COMPLETE|RESET <gate_id>`
+  - `PLAY TOYBOX LIST|SET <profile>`
+  - `PLAY PROCEED|NEXT|UNLOCK`
 - Command: `PLAY` via `core/commands/play_handler.py`
   - `PLAY STATUS`
   - `PLAY OPTIONS`
@@ -175,7 +175,7 @@ Implemented in Core:
   - vertical transition guard via portal requirement
   - canonical action events: `ENTER`, `INSPECT`, `INTERACT`, `COMPLETE`, `TICK`
 - `core/commands/gameplay_handler.py`
-  - `GPLAY MAP STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK`
+  - `PLAY MAP STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK`
 - `core/services/gameplay_service.py`
   - map-event ingestion and metrics (`map_moves`, `map_interactions`, etc.)
 
@@ -184,7 +184,7 @@ Implemented in Core:
 TOYBOX profile switching and TUI message-layer switching are separate controls:
 
 - Gameplay profile:
-  - `GPLAY TOYBOX SET hethack|elite|rpgbbs|crawler3d`
+  - `PLAY TOYBOX SET hethack|elite|rpgbbs|crawler3d`
 - Message-level layer/theme hinting:
   - `UDOS_TUI_MAP_LEVEL=dungeon|foundation|galaxy`
   - `UDOS_TUI_MESSAGE_THEME=<theme>`
@@ -193,12 +193,12 @@ Reference operator flows:
 
 ```bash
 # Dungeon runtime + dungeon messaging
-GPLAY TOYBOX SET hethack
+PLAY TOYBOX SET hethack
 export UDOS_TUI_MAP_LEVEL=dungeon
 export UDOS_TUI_MESSAGE_THEME=dungeon
 
 # Galaxy runtime + galaxy messaging
-GPLAY TOYBOX SET elite
+PLAY TOYBOX SET elite
 export UDOS_TUI_MAP_LEVEL=galaxy
 export UDOS_TUI_MESSAGE_THEME=pilot
 ```

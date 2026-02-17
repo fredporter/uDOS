@@ -21,6 +21,17 @@ from wizard.services.system_info_service import LibraryStatus, LibraryIntegratio
 
 
 @dataclass
+class InstallStep:
+    """A single step in an install pipeline."""
+
+    n: int           # Step number (1-based)
+    total: int       # Total steps in pipeline
+    name: str        # Short label e.g. "setup", "apk_build", "pkg_install"
+    ok: bool
+    detail: str = ""
+
+
+@dataclass
 class InstallResult:
     """Result of plugin installation."""
 
@@ -29,6 +40,7 @@ class InstallResult:
     action: str  # "installed", "updated", "enabled", "disabled"
     message: str = ""
     error: str = ""
+    steps: Any = None  # List[InstallStep] — populated by install pipeline
 
 
 class LibraryManagerService:
@@ -373,19 +385,34 @@ class LibraryManagerService:
                 error=f"Missing integration dependencies: {', '.join(missing)}",
             )
 
+        # Determine total steps: deps + setup + (apk_build?) + pkg_install
+        dep_order = dependency_resolution.get("install_order", [])
+        integration_path_tmp = Path(integration.path)
+        apkbuild_exists = (integration_path_tmp / "APKBUILD").exists()
+        total_steps = len(dep_order) + 1 + (1 if apkbuild_exists else 0) + 1
+        steps: List[InstallStep] = []
+
         try:
             installing.add(name)
-            for dep in dependency_resolution.get("install_order", []):
+
+            # Install dependencies first
+            for i, dep in enumerate(dep_order, start=1):
                 dep_integration = self.get_integration(dep)
                 if dep_integration and not dep_integration.installed:
                     dep_result = self._install_integration_internal(dep, installing)
+                    steps.append(InstallStep(n=i, total=total_steps, name=f"dep:{dep}", ok=dep_result.success, detail=dep_result.message or dep_result.error))
                     if not dep_result.success:
                         return InstallResult(
                             success=False,
                             plugin_name=name,
                             action="install",
                             error=f"Dependency install failed ({dep}): {dep_result.error or dep_result.message}",
+                            steps=steps,
                         )
+                else:
+                    steps.append(InstallStep(n=i, total=total_steps, name=f"dep:{dep}", ok=True, detail="already installed"))
+
+            step_n = len(dep_order) + 1
 
             integration_path = Path(integration.path)
             container_path = integration_path / "container.json"
@@ -401,45 +428,60 @@ class LibraryManagerService:
                         integration_path = candidate
                         container_path = definition_path
 
-            # 1. Run setup script if present
+            # Recompute totals now that we know the real integration_path
+            apkbuild_path = integration_path / "APKBUILD"
+            if apkbuild_path.exists() and not apkbuild_exists:
+                total_steps += 1
+            for s in steps:
+                s.total = total_steps
+
+            # Step: run setup script
             setup_result = self._run_setup_script(integration_path)
+            steps.append(InstallStep(n=step_n, total=total_steps, name="setup", ok=setup_result[0], detail=setup_result[1]))
+            step_n += 1
             if not setup_result[0]:
                 return InstallResult(
                     success=False,
                     plugin_name=name,
                     action="install",
                     error=f"Setup failed: {setup_result[1]}",
+                    steps=steps,
                 )
 
-            # 2. Build APK if APKBUILD exists
-            apkbuild_path = integration_path / "APKBUILD"
+            # Step: build APK if APKBUILD exists
             if apkbuild_path.exists():
                 build_result = self.apk_builder.build_apk(
                     name, container_path=integration_path
                 )
+                steps.append(InstallStep(n=step_n, total=total_steps, name="apk_build", ok=build_result.success, detail=build_result.error or "ok"))
+                step_n += 1
                 if not build_result.success:
                     return InstallResult(
                         success=False,
                         plugin_name=name,
                         action="install",
                         error=f"APK build failed: {build_result.error}",
+                        steps=steps,
                     )
 
-            # 3. Install via package manager
+            # Step: install via package manager
             package_result = self._install_via_package_manager(name, integration_path)
+            steps.append(InstallStep(n=step_n, total=total_steps, name="pkg_install", ok=package_result[0], detail=package_result[1]))
             if not package_result[0]:
                 return InstallResult(
                     success=False,
                     plugin_name=name,
                     action="install",
                     error=f"Package install failed: {package_result[1]}",
+                    steps=steps,
                 )
 
             return InstallResult(
                 success=True,
                 plugin_name=name,
                 action="installed",
-                message="Installation successful",
+                message=f"Installation successful ({len(steps)}/{total_steps} steps)",
+                steps=steps,
             )
 
         except Exception as e:
@@ -448,6 +490,7 @@ class LibraryManagerService:
                 plugin_name=name,
                 action="install",
                 error=f"Install failed: {str(e)}",
+                steps=steps,
             )
         finally:
             installing.discard(name)

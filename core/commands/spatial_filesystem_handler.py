@@ -31,7 +31,7 @@ from core.services.spatial_filesystem import (
     GridLocation
 )
 from core.services.logging_api import get_logger
-from core.tui.renderer import Renderer
+from core.tui.renderer import GridRenderer
 
 logger = get_logger('spatial-filesystem-handler')
 
@@ -47,7 +47,7 @@ class SpatialFilesystemHandler:
             fs: SpatialFilesystem instance (created if None)
         """
         self.fs = fs or SpatialFilesystem(user_role=UserRole.USER)
-        self.renderer = Renderer()
+        self.renderer = GridRenderer()
 
     # =========================================================================
     # Workspace Commands

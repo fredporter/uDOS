@@ -1,6 +1,6 @@
 # uDOS Roadmap (Canonical)
 
-Last updated: 2026-02-15
+Last updated: 2026-02-17
 
 This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs/devlog/ROADMAP-LEGACY.md](devlog/ROADMAP-LEGACY.md).
 
@@ -10,8 +10,9 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 
 - Core concept: uDOS is a local Obsidian companion runtime focused on `@workspace`/`@binder` organization, fractal/layered filesystem structures, knowledge-tree navigation, and digital-garden workflows.
 - Milestones v1.3.0 to v1.3.7: complete (archived records exist).
-- Current focus: v1.3.23 Core Stabilization Round A as the final quality ramp into v1.4.0.
-- Outstanding (active): v1.4.0 platform/containerization and Wizard publish roadmap items remain open; v1.3.16 command/boundary refactor is complete.
+- Current focus: v1.4.0 execution order (containerization/modularization) plus active uCLI TUI parity and advanced I/O hardening; next dev round is deployed and in execution.
+- Version alignment: monorepo is on `v1.3.14` dev cycle; latest published release manifest remains `v1.3.12`.
+- Outstanding (active): v1.4.0 platform/containerization and Wizard publish roadmap items remain open; v1.3.x stabilization rounds are complete.
 - Dev mode policy: `/dev/` public submodule required and admin-only; see [DEV-MODE-POLICY.md](DEV-MODE-POLICY.md).
 - Core/Wizard boundary: `core` is the base runtime; `wizard` is the brand for connected services. Core can run without Wizard (limited). Wizard cannot run without Core.
 - Python environment boundary (2026-02-15): Core Python is stdlib-only and must run without a venv; Wizard owns third-party Python in `/wizard/.venv`; `/dev` piggybacks Wizard venv; Core TS runtime remains optional/lightweight.
@@ -44,13 +45,13 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 - Added CI policy guardrails for command contract parity, core no-network imports, stdlib boundary, and TS dependency policy.
 - Added Wizard venv lifecycle commands (`ucli wizard install`, `ucli wizard doctor`) and pinned Wizard deps at `wizard/requirements.txt`.
 - Added architecture decision docs for Apple Silicon VM/remote-desktop topology, Alpine Chromium kiosk thin-GUI runtime standard, and Sonic DB-driven GPU/UI launch profiles.
-- Scaffolded gameplay hooks (`GPLAY` command + persistent XP/HP/Gold + progression gates) and initial TOYBOX profiles (`hethack`, `elite`) with Wizard container route exposure.
+- Scaffolded gameplay hooks (`PLAY` command + persistent XP/HP/Gold + progression gates) and initial TOYBOX profiles (`hethack`, `elite`) with Wizard container route exposure.
 - Replaced TOYBOX launch stubs with PTY-based upstream adapter services (`hethack`, `elite`) and wired event-driven gate/stat updates via Core gameplay tick ingestion.
 - Added TOYBOX container expansion (`rpgbbs`, `crawler3d`), standardized gameplay progress fields (`level`, `achievement_level`, `location.grid/z`, metrics), and `PLAY` command conditional/token unlock flow.
 - Added `RULE` command scaffold for gameplay IF/THEN automations that evaluate normalized TOYBOX state and trigger gameplay actions/tokens.
 - Published TOYBOX variable comparison spec: `docs/specs/TOYBOX-CONTAINER-VARIABLE-COMPARISON-v1.3.md`.
 - Added gameplay tutorial/template assets (wireframe demo + historical era variants) and seeded `gameplay-wireframe-demo-script.md` into framework system seeds.
-- Added v1.3.22 world-lens MVP bootstrap: `GPLAY LENS` status/toggle command surface + single-region 3D lens readiness service behind feature flag.
+- Added v1.3.22 world-lens MVP bootstrap: `PLAY LENS` status/toggle command surface + single-region 3D lens readiness service behind feature flag.
 - Hardened v1.3.22 single-region vertical slice contract checks (allowed place set, LocId/PlaceRef parse validation, slice connectivity validation against seed data).
 - Added v1.3.22 parity + ownership guard tests: same quest/place MAP event flow now verified across 2D map lane and adapter lane, with adapter payload attempts blocked from overriding core-owned identity/permissions/gates.
 - Started v1.3.23 Round A with mission objective registry + `HEALTH CHECK release-gates` status surface (text/json payload contract).
@@ -223,7 +224,7 @@ Reference:
 
 ## Active Checklist (Merged)
 
-Last updated: 2026-02-15
+Last updated: 2026-02-17
 
 ### P0 -- Wizard/Vibe Refactor
 - [x] Add MCP server tests to verify stdio tool wrapping and tool index parsing.
@@ -243,8 +244,44 @@ Last updated: 2026-02-15
 - [x] Ensure Wizard dependency pinning policy is enforced (`requirements.txt`/lockfile committed and used by install path).
 - [x] Add/verify `udos wizard install` and `udos wizard doctor` for venv lifecycle checks.
 
+### P0 -- TUI Parity and Advanced I/O Hardening (Active)
+- [x] Next-round handoff prep note created: [2026-02-17-next-dev-round-prep.md](releases/2026-02-17-next-dev-round-prep.md).
+- [x] Next-round execution note deployed: [2026-02-17-next-dev-round-execution.md](releases/2026-02-17-next-dev-round-execution.md).
+- [x] Single-writer stdout lock deployed across prompt/menu/renderer/uCLI interactive paths.
+- [x] Full-screen/raw menu defaults removed; inline-first mode is now default with explicit opt-in toggles.
+- [x] `GRID WORKFLOW` sample payload + command docs/examples added (`memory/system/grid-workflow-sample.json`).
+- [x] Canonical `80x30` parity fixtures added for GRID calendar/schedule/workflow panels.
+- [ ] Consolidate interactive surfaces (menus, story forms, confirmations, selectors) onto one inline-first I/O layer with consistent rendering rules.
+- [x] Remove mixed full-screen/raw-mode defaults from core command flows; allow full-screen mode only as explicit opt-in.
+- [x] Add explicit prompt lifecycle contract:
+  - [x] input phase (exclusive stdin ownership)
+  - [x] render phase (exclusive stdout ownership)
+  - [x] background phase (no direct stdout writes; queue to renderer)
+- [ ] Implement output arbitration to prevent interleaving between:
+  - [ ] startup banners/progress
+  - [ ] status bar redraws
+  - [ ] command output payloads
+  - [ ] toolbar/suggestion refresh
+- [ ] Standardize terminal control sequences:
+  - [ ] no cursor-home on menu/screen restore
+  - [ ] line-clear via ANSI-safe primitives
+  - [ ] width-safe handling for block glyphs and emoji
+- [ ] Add advanced I/O compatibility test matrix:
+  - [ ] iTerm2 (macOS), Terminal.app (macOS), VS Code integrated terminal, Linux PTY
+  - [ ] arrow keys/history/completion parity in advanced and fallback prompt modes
+  - [ ] no-output-corruption regression snapshots for startup + HELP + STORY flows
+- [ ] Add CI gate for TUI parity:
+  - [ ] fail on detected output interleaving/misalignment regressions
+  - [ ] fail on reintroduction of deprecated compatibility shims
+
 ### P1 -- Platform and Extensions
 - [x] Reintroduce Empire business features on new extension spine.
+- [ ] uCLI map layer rendering extension:
+  - [ ] Add layered map renderer contract in uCLI (`base terrain`, `objects/sprites`, `overlays`, `workflow/task markers`).
+  - [ ] Add deterministic z-layer view controls and legend rendering for LocId + PlaceRef surfaces.
+  - [ ] Align `MAP`, `GRID MAP`, and `PLAY MAP` outputs to a shared map-panel schema.
+  - [ ] Add markdown diagram export path for map layers (`DRAW --md MAP`, `GRID MAP --format md` parity target).
+  - [ ] Add parity tests for canonical `80x30` and adaptive viewport map outputs.
 
 ### P2 -- Code Quality (Pre-v1.4)
 - [x] Review long route factory functions for modularization.
@@ -310,7 +347,7 @@ Reference:
 
 ## Wizard Roadmap
 
-**Component:** `wizard/` | **Current:** v1.3.12 | **Status:** Active Development
+**Component:** `wizard/` | **Current:** v1.3.14 (dev cycle; release manifest v1.3.12) | **Status:** Active Development
 
 ### v1.3.15 -- Publish Spec Refactor (Planned)
 
@@ -355,7 +392,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 
 ## Groovebox Roadmap
 
-**Component:** `groovebox/` | **Current:** v1.3.12 | **Status:** Early Development
+**Component:** `groovebox/` | **Current:** v1.3.14 (dev cycle; release manifest v1.3.12) | **Status:** Early Development
 
 ### v1.4.0
 

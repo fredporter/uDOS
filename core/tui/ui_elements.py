@@ -48,9 +48,9 @@ class Spinner:
             text = f"{self.label} {frame}"
         else:
             text = f"{self.label} {frame} {elapsed}s"
-        width = ViewportService().get_cols()
-        text = pad_to_width(text, width)
-        sys.stdout.write("\r" + text)
+        # Clear the full terminal row first so stale suffix characters from
+        # prior longer frames cannot bleed into subsequent output.
+        sys.stdout.write("\r\033[2K" + text)
         sys.stdout.flush()
         self._idx += 1
 
@@ -58,8 +58,7 @@ class Spinner:
         if not self._running:
             return
         elapsed = time.time() - self._start
-        width = ViewportService().get_cols()
-        sys.stdout.write("\r" + (" " * width) + "\r")
+        sys.stdout.write("\r\033[2K")
         sys.stdout.flush()
         self._running = False
         if success_text:

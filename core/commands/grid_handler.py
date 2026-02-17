@@ -2,7 +2,7 @@
 GRID command handler - Render UGRID canvas outputs.
 
 Routes to the TypeScript UGRID renderer (core/dist/grid/cli.js) via Node.
-Supports calendar, table, schedule, map, and dashboard modes with LocId overlays.
+Supports calendar, table, schedule, map, dashboard, and workflow modes.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from core.services.logging_api import get_logger, get_repo_root
 class GridHandler(BaseCommandHandler, HandlerLoggingMixin):
     """Render 80x30 grid canvas outputs via UGRID."""
 
-    MODES = {"calendar", "table", "schedule", "map", "dashboard"}
+    MODES = {"calendar", "table", "schedule", "map", "dashboard", "workflow"}
 
     def __init__(self):
         super().__init__()

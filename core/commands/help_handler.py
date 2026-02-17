@@ -29,7 +29,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
     ]
 
     COMMAND_CATEGORIES = {
-        "Navigation": ["MAP", "GRID", "ANCHOR", "PANEL", "GOTO", "FIND", "TELL", "GPLAY", "PLAY", "RULE"],
+        "Navigation": ["MAP", "GRID", "ANCHOR", "PANEL", "GOTO", "FIND", "TELL", "PLAY", "RULE"],
         "Inventory": ["BAG", "GRAB", "SPAWN"],
         "NPCs & Dialogue": ["NPC", "SEND"],
         "Files & State": ["SAVE", "LOAD", "NEW", "EDIT", "UNDO"],
@@ -79,12 +79,12 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "syntax": "MAP [--follow] [--zoom N] [location_id]",
         },
         "GRID": {
-            "description": "Render UGRID canvas (calendar/table/schedule/map/dashboard)",
+            "description": "Render UGRID canvas (calendar/table/schedule/map/dashboard/workflow)",
             "usage": "GRID <mode> [--input file.json] [--loc LOCID]",
             "example": "GRID MAP --loc EARTH:SUR:L305-DA11",
             "notes": "Uses 80x30 UGRID renderer with LocId overlays for map mode",
             "category": "Navigation",
-            "syntax": "GRID <calendar|table|schedule|map|dashboard> [--input <json>] [--loc <locid>] [--title <text>] [--theme <name>]",
+            "syntax": "GRID <calendar|table|schedule|map|dashboard|workflow> [--input <json>] [--loc <locid>] [--title <text>] [--theme <name>]",
         },
         "ANCHOR": {
             "description": "List gameplay anchors or show anchor details",
@@ -126,21 +126,13 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "category": "Navigation",
             "syntax": "TELL [--verbose] [location_id]",
         },
-        "GPLAY": {
-            "description": "Gameplay stats, gates, and TOYBOX profile controls",
-            "usage": "GPLAY [STATUS|STATS|MAP|GATE|TOYBOX|LENS|PROCEED]",
-            "example": "GPLAY TOYBOX SET hethack",
-            "notes": "Persistent XP/HP/Gold with event-driven gate progression.",
-            "category": "Navigation",
-            "syntax": "GPLAY STATUS | GPLAY STATS <SET|ADD> <xp|hp|gold> <value> | GPLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK> ... | GPLAY GATE <STATUS|COMPLETE|RESET> <gate_id> | GPLAY TOYBOX <LIST|SET> [profile] | GPLAY LENS <STATUS|ENABLE|DISABLE> | GPLAY PROCEED",
-        },
         "PLAY": {
-            "description": "Conditional play options and unlock-token progression flow",
-            "usage": "PLAY [STATUS|OPTIONS|START <option>|TOKENS|CLAIM]",
-            "example": "PLAY START galaxy",
-            "notes": "Uses gameplay achievement level and gates to unlock options and tokens.",
+            "description": "Unified gameplay command (stats/map/gates/TOYBOX + options/tokens).",
+            "usage": "PLAY [STATUS|STATS|MAP|GATE|TOYBOX|LENS|PROCEED|OPTIONS|START <option>|TOKENS|CLAIM]",
+            "example": "PLAY STATS ADD xp 25",
+            "notes": "Unified gameplay surface for progression, map loop, gates, TOYBOX, and play options.",
             "category": "Navigation",
-            "syntax": "PLAY STATUS | PLAY OPTIONS | PLAY START <dungeon|galaxy|social|ascension> | PLAY TOKENS | PLAY CLAIM",
+            "syntax": "PLAY STATUS | PLAY STATS <SET|ADD> <xp|hp|gold> <value> | PLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK> ... | PLAY GATE <STATUS|COMPLETE|RESET> <gate_id> | PLAY TOYBOX <LIST|SET> [profile] | PLAY LENS <STATUS|ENABLE|DISABLE> | PLAY PROCEED | PLAY OPTIONS | PLAY START <dungeon|galaxy|social|ascension> | PLAY TOKENS | PLAY CLAIM",
         },
         "RULE": {
             "description": "Conditional IF/THEN gameplay automations paired with PLAY and TOYBOX",

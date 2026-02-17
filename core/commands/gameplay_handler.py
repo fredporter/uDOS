@@ -1,4 +1,4 @@
-"""GPLAY command handler - progression stats, gates, TOYBOX profiles, and map runtime loop."""
+"""PLAY command handler - progression stats, gates, TOYBOX profiles, and map runtime loop."""
 
 from __future__ import annotations
 
@@ -11,29 +11,29 @@ class GameplayHandler(BaseCommandHandler):
     """Handle gameplay scaffolding commands.
 
     Commands:
-      GPLAY
-      GPLAY STATUS
-      GPLAY STATS
-      GPLAY STATS SET <xp|hp|gold> <value>
-      GPLAY STATS ADD <xp|hp|gold> <delta>
-      GPLAY MAP STATUS
-      GPLAY MAP ENTER <place_id>
-      GPLAY MAP MOVE <target_place_id>
-      GPLAY MAP INSPECT
-      GPLAY MAP INTERACT <interaction_id>
-      GPLAY MAP COMPLETE <objective_id>
-      GPLAY MAP TICK [steps]
-      GPLAY GATE STATUS
-      GPLAY GATE COMPLETE <gate_id>
-      GPLAY GATE RESET <gate_id>
-      GPLAY TOYBOX LIST
-      GPLAY TOYBOX SET <hethack|elite|rpgbbs|crawler3d>
-      GPLAY LENS STATUS
-      GPLAY LENS ENABLE
-      GPLAY LENS DISABLE
-      GPLAY PROCEED
-      GPLAY NEXT
-      GPLAY UNLOCK
+      PLAY
+      PLAY STATUS
+      PLAY STATS
+      PLAY STATS SET <xp|hp|gold> <value>
+      PLAY STATS ADD <xp|hp|gold> <delta>
+      PLAY MAP STATUS
+      PLAY MAP ENTER <place_id>
+      PLAY MAP MOVE <target_place_id>
+      PLAY MAP INSPECT
+      PLAY MAP INTERACT <interaction_id>
+      PLAY MAP COMPLETE <objective_id>
+      PLAY MAP TICK [steps]
+      PLAY GATE STATUS
+      PLAY GATE COMPLETE <gate_id>
+      PLAY GATE RESET <gate_id>
+      PLAY TOYBOX LIST
+      PLAY TOYBOX SET <hethack|elite|rpgbbs|crawler3d>
+      PLAY LENS STATUS
+      PLAY LENS ENABLE
+      PLAY LENS DISABLE
+      PLAY PROCEED
+      PLAY NEXT
+      PLAY UNLOCK
     """
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
@@ -78,13 +78,13 @@ class GameplayHandler(BaseCommandHandler):
         if sub in {"help", "-h", "--help"}:
             return {
                 "status": "success",
-                "message": self.__doc__ or "GPLAY help",
-                "output": (self.__doc__ or "GPLAY help").strip(),
+                "message": self.__doc__ or "PLAY help",
+                "output": (self.__doc__ or "PLAY help").strip(),
             }
 
         return {
             "status": "error",
-            "message": f"Unknown GPLAY subcommand: {sub}",
+            "message": f"Unknown PLAY subcommand: {sub}",
         }
 
     def _handle_stats(self, gameplay, username: str, role: str, params: List[str]) -> Dict:
@@ -104,7 +104,7 @@ class GameplayHandler(BaseCommandHandler):
         if len(params) < 3:
             return {
                 "status": "error",
-                "message": "Syntax: GPLAY STATS <SET|ADD> <xp|hp|gold> <value>",
+                "message": "Syntax: PLAY STATS <SET|ADD> <xp|hp|gold> <value>",
             }
         stat = params[1].lower()
         try:
@@ -150,24 +150,24 @@ class GameplayHandler(BaseCommandHandler):
             return {"status": "error", "message": "Permission denied: gameplay.mutate"}
 
         if action == "enter":
-            target, error = self._require_arg(params, 1, "GPLAY MAP ENTER <place_id>")
+            target, error = self._require_arg(params, 1, "PLAY MAP ENTER <place_id>")
             if error:
                 return error
             result = runtime.enter(username, target)
         elif action == "move":
-            target, error = self._require_arg(params, 1, "GPLAY MAP MOVE <target_place_id>")
+            target, error = self._require_arg(params, 1, "PLAY MAP MOVE <target_place_id>")
             if error:
                 return error
             result = runtime.move(username, target)
         elif action == "inspect":
             result = runtime.inspect(username)
         elif action == "interact":
-            point, error = self._require_arg(params, 1, "GPLAY MAP INTERACT <interaction_id>")
+            point, error = self._require_arg(params, 1, "PLAY MAP INTERACT <interaction_id>")
             if error:
                 return error
             result = runtime.interact(username, point)
         elif action == "complete":
-            objective, error = self._require_arg(params, 1, "GPLAY MAP COMPLETE <objective_id>")
+            objective, error = self._require_arg(params, 1, "PLAY MAP COMPLETE <objective_id>")
             if error:
                 return error
             result = runtime.complete(username, objective)
@@ -182,7 +182,7 @@ class GameplayHandler(BaseCommandHandler):
         else:
             return {
                 "status": "error",
-                "message": "Syntax: GPLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK>",
+                "message": "Syntax: PLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK>",
             }
 
         if not result.get("ok"):
@@ -232,7 +232,7 @@ class GameplayHandler(BaseCommandHandler):
         if action in {"complete", "reset"} and not gameplay.has_permission(role, "gameplay.gate_admin"):
             return {"status": "error", "message": "Permission denied: gameplay.gate_admin"}
         if len(params) < 2:
-            return {"status": "error", "message": "Syntax: GPLAY GATE <COMPLETE|RESET> <gate_id>"}
+            return {"status": "error", "message": "Syntax: PLAY GATE <COMPLETE|RESET> <gate_id>"}
 
         gate_id = params[1]
         if action == "complete":
@@ -273,7 +273,7 @@ class GameplayHandler(BaseCommandHandler):
 
         action = params[0].lower()
         if action != "set" or len(params) < 2:
-            return {"status": "error", "message": "Syntax: GPLAY TOYBOX SET <profile_id>"}
+            return {"status": "error", "message": "Syntax: PLAY TOYBOX SET <profile_id>"}
         profile_id = params[1].lower()
         try:
             active = gameplay.set_active_toybox(profile_id, username=username)
@@ -325,7 +325,7 @@ class GameplayHandler(BaseCommandHandler):
             }
 
         if action not in {"enable", "disable"}:
-            return {"status": "error", "message": "Syntax: GPLAY LENS <STATUS|ENABLE|DISABLE>"}
+            return {"status": "error", "message": "Syntax: PLAY LENS <STATUS|ENABLE|DISABLE>"}
 
         if not gameplay.has_permission(role, "gameplay.gate_admin"):
             return {"status": "error", "message": "Permission denied: gameplay.gate_admin"}
@@ -353,7 +353,7 @@ class GameplayHandler(BaseCommandHandler):
 
         output = "\n".join(
             [
-                "GPLAY STATUS",
+                "PLAY STATUS",
                 f"User: {snapshot.get('username')} ({snapshot.get('role')})",
                 f"TOYBOX: {active}",
                 f"XP={stats.get('xp', 0)} HP={stats.get('hp', 100)} Gold={stats.get('gold', 0)}",
@@ -375,7 +375,7 @@ class GameplayHandler(BaseCommandHandler):
         metrics = progress.get("metrics", {})
         return "\n".join(
             [
-                "GPLAY MAP STATUS",
+                "PLAY MAP STATUS",
                 f"Place: {status.get('current_place_id')} ({status.get('label')})",
                 f"Loc: {status.get('place_ref')} z={status.get('z')}",
                 f"Chunk2D: {status.get('chunk', {}).get('chunk2d_id')}",
@@ -390,7 +390,7 @@ class GameplayHandler(BaseCommandHandler):
         progress = snapshot.get("progress", {})
         return "\n".join(
             [
-                f"GPLAY MAP {action_result.get('action', 'ACTION')}",
+                f"PLAY MAP {action_result.get('action', 'ACTION')}",
                 f"Place: {status.get('current_place_id')} ({status.get('label')})",
                 f"Chunk2D: {status.get('chunk', {}).get('chunk2d_id')}",
                 f"XP={stats.get('xp', 0)} HP={stats.get('hp', 100)} Gold={stats.get('gold', 0)}",
@@ -406,7 +406,7 @@ class GameplayHandler(BaseCommandHandler):
         reason = lens.get("blocking_reason") or "none"
         return "\n".join(
             [
-                "GPLAY LENS STATUS",
+                "PLAY LENS STATUS",
                 f"Version: {lens_status.get('version')}",
                 f"Enabled: {lens.get('enabled')} ({lens.get('enabled_source')})",
                 f"Slice: {region.get('id')} entry={region.get('entry_place_id')} active={region.get('active')}",

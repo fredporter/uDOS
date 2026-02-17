@@ -24,8 +24,6 @@ from pathlib import Path
 from typing import Callable, List, Dict
 
 from core.tui.ui_elements import Spinner
-from core.utils.text_width import pad_to_width
-from core.services.viewport_service import ViewportService
 
 def _default_logger(message: str) -> None:
     print(message)
@@ -81,11 +79,43 @@ def _format_eta(seconds: float) -> str:
     return f"{sec}s"
 
 
+def _lookup_installed_model_size(*names: str) -> int:
+    """Return installed model size in bytes from Ollama /api/tags."""
+    candidates = set()
+    for name in names:
+        if not name:
+            continue
+        norm = str(name).strip()
+        if not norm:
+            continue
+        candidates.add(norm)
+        if ":" not in norm:
+            candidates.add(f"{norm}:latest")
+
+    if not candidates:
+        return 0
+
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:11434/api/tags", timeout=3) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+        models = payload.get("models") or []
+        for model in models:
+            if not isinstance(model, dict):
+                continue
+            model_name = str(model.get("name") or "").strip()
+            if model_name in candidates:
+                return int(model.get("size") or 0)
+    except Exception:
+        return 0
+    return 0
+
+
 def pull_ollama_model(
     model: str,
     log: Callable[[str], None],
     display_name: str | None = None,
     aliases: List[str] | None = None,
+    stream_progress: bool = True,
 ) -> Dict[str, str]:
     """
     Pull an Ollama model via the local HTTP API with progress.
@@ -106,19 +136,20 @@ def pull_ollama_model(
         last_total = 0
         last_done = 0
         last_status = ""
-        width = ViewportService().get_cols()
-        stream = sys.stdout.isatty()
+        stream = bool(stream_progress and sys.stdout.isatty())
 
         def update_line(line: str) -> None:
             if not stream:
                 return
-            sys.stdout.write("\r" + pad_to_width(line, width))
+            # ANSI clear avoids width-mismatch artifacts when terminal size
+            # changes or Unicode widths are ambiguous across environments.
+            sys.stdout.write("\r\033[2K" + line)
             sys.stdout.flush()
 
         def clear_line() -> None:
             if not stream:
                 return
-            sys.stdout.write("\r" + (" " * width) + "\r")
+            sys.stdout.write("\r\033[2K")
             sys.stdout.flush()
 
         payload = json.dumps({"name": name, "stream": True}).encode("utf-8")
@@ -181,7 +212,9 @@ def pull_ollama_model(
 
         clear_line()
         elapsed = time.time() - start
-        size = _format_bytes(last_total) if last_total else "unknown size"
+        installed_size = _lookup_installed_model_size(display, name, model, *(aliases or []))
+        size_bytes = installed_size or last_total
+        size = _format_bytes(size_bytes) if size_bytes else "unknown size"
         log(f"✅ Ollama pull {display} ({size}, {_format_eta(elapsed)})")
         return {"success": "true", "name": name}
 
@@ -201,6 +234,7 @@ def run_ok_setup(
 ) -> Dict[str, List[str]]:
     if log is None:
         log = _default_logger
+    interactive_output = log is _default_logger
 
     steps: List[str] = []
     warnings: List[str] = []
@@ -216,7 +250,7 @@ def run_ok_setup(
         stop = threading.Event()
         thread = None
         success = False
-        spinner_active = bool(use_spinner and sys.stdout.isatty())
+        spinner_active = bool(use_spinner and interactive_output and sys.stdout.isatty())
         if spinner_active:
             spinner = Spinner(label=label, show_elapsed=True)
             thread = spinner.start_background(stop)
@@ -283,19 +317,32 @@ def run_ok_setup(
             except Exception as exc:
                 warnings.append(f"Start Ollama daemon failed: {exc}")
         # Allow the daemon to boot
+        spinner = None
         stop = threading.Event()
-        spinner = Spinner(label="Waiting for Ollama", show_elapsed=True)
-        thread = spinner.start_background(stop)
+        thread = None
+        if interactive_output and sys.stdout.isatty():
+            spinner = Spinner(label="Waiting for Ollama", show_elapsed=True)
+            thread = spinner.start_background(stop)
+        else:
+            log("  • Waiting for Ollama")
         for _ in range(10):
             if ollama_running():
                 stop.set()
-                thread.join(timeout=1)
-                spinner.stop("Ollama ready")
+                if thread:
+                    thread.join(timeout=1)
+                if spinner:
+                    spinner.stop("Ollama ready")
+                else:
+                    log("  ✓ Ollama ready")
                 return
             time.sleep(0.5)
         stop.set()
-        thread.join(timeout=1)
-        spinner.stop("Ollama start timed out")
+        if thread:
+            thread.join(timeout=1)
+        if spinner:
+            spinner.stop("Ollama start timed out")
+        else:
+            log("  ⚠️  Ollama start timed out")
 
     pulled_names: List[str] = []
     if shutil.which("ollama"):
@@ -316,6 +363,7 @@ def run_ok_setup(
                 log=log,
                 display_name=display,
                 aliases=[name for name in aliases if name != pull_name],
+                stream_progress=interactive_output,
             )
             if result.get("success") == "true":
                 steps.append(f"Ollama pull {display}")
