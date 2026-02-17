@@ -22,6 +22,11 @@ class _Manager:
             installed=False,
             enabled=False,
             can_install=True,
+            container_type=None,
+            git_cloned=False,
+            git_source=None,
+            git_ref=None,
+            is_running=False,
         )
         self.last_action_name = None
 
@@ -35,7 +40,7 @@ class _Manager:
 
     def install_integration(self, name):
         self.last_action_name = name
-        return _Result(success=True, plugin_name=name, action="install", message="ok", error=None)
+        return _Result(success=True, plugin_name=name, action="install", message="ok", error=None, steps=[])
 
     def enable_integration(self, name):
         self.last_action_name = name

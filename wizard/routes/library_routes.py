@@ -168,7 +168,8 @@ async def get_integration(name: str, request: Request):
     try:
         await _run_guard(request)
         manager = get_library_manager()
-        integration = manager.get_integration(name)
+        resolved_name = _resolve_requested_integration_name(manager, name)
+        integration = manager.get_integration(resolved_name)
 
         if not integration:
             raise HTTPException(
