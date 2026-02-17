@@ -385,6 +385,9 @@ class WizardServer:
         from wizard.routes.container_proxy_routes import router as container_proxy_router
 
         app.include_router(container_proxy_router)
+        from wizard.routes.web_proxy_routes import create_web_proxy_routes
+        web_proxy_router = create_web_proxy_routes(auth_guard=self._authenticate_admin)
+        app.include_router(web_proxy_router)
 
         # Register Workspace routes
         from wizard.routes.workspace_routes import create_workspace_routes
