@@ -51,6 +51,11 @@ class PullRequest(BaseModel):
     model: str
 
 
+class RecoverRequest(BaseModel):
+    strategy: str = "quick_recover"
+    dry_run: bool = True
+
+
 def _nounproject_client() -> NounProjectClient:
     return NounProjectClient(NounProjectConfig(name="nounproject"))
 
@@ -159,6 +164,78 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
     router = APIRouter(
         prefix="/api/self-heal", tags=["self-heal"], dependencies=dependencies
     )
+
+    strategies = {
+        "quick_recover": {
+            "description": "Validate critical dependencies and start Ollama if needed.",
+            "steps": ["check_ollama", "check_port_conflicts"],
+        },
+        "ollama_recover": {
+            "description": "Recover Ollama daemon and validate required model availability.",
+            "steps": ["check_ollama", "check_models"],
+        },
+        "ports_recover": {
+            "description": "Detect service port conflicts and return remediation plan.",
+            "steps": ["check_port_conflicts"],
+        },
+    }
+
+    @router.get("/strategies")
+    async def list_recovery_strategies():
+        return {"success": True, "count": len(strategies), "strategies": strategies}
+
+    @router.post("/recover")
+    async def recover(payload: RecoverRequest):
+        strategy = strategies.get(payload.strategy)
+        if not strategy:
+            raise HTTPException(status_code=404, detail=f"Unknown strategy: {payload.strategy}")
+
+        pm = get_port_manager()
+        actions = []
+        summary = {"dry_run": payload.dry_run, "strategy": payload.strategy}
+
+        if "check_ollama" in strategy["steps"]:
+            if payload.dry_run:
+                actions.append({"step": "check_ollama", "planned": True})
+            else:
+                ollama_result = _ensure_ollama_running()
+                actions.append({"step": "check_ollama", "result": ollama_result})
+
+        if "check_models" in strategy["steps"]:
+            models = _ollama_models()
+            normalized = {_normalize_model_name(m) for m in models}
+            required = ["mistral", "devstral-small-2"]
+            missing = [m for m in required if m not in normalized]
+            actions.append(
+                {
+                    "step": "check_models",
+                    "required": required,
+                    "available": sorted(list(normalized)),
+                    "missing": missing,
+                }
+            )
+
+        if "check_port_conflicts" in strategy["steps"]:
+            pm.check_all_services()
+            conflicts = []
+            for name, service in pm.services.items():
+                if not service.port:
+                    continue
+                occupant = pm.get_port_occupant(service.port)
+                if occupant and occupant.get("process") != service.process_name:
+                    conflicts.append(
+                        {
+                            "service": name,
+                            "port": service.port,
+                            "expected_process": service.process_name,
+                            "actual_process": occupant.get("process"),
+                            "pid": occupant.get("pid"),
+                        }
+                    )
+            actions.append({"step": "check_port_conflicts", "conflicts": conflicts})
+            summary["conflict_count"] = len(conflicts)
+
+        return {"success": True, "summary": summary, "actions": actions}
 
     @router.get("/status")
     async def status():
