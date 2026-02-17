@@ -30,6 +30,13 @@ class PRDraftRequest(BaseModel):
     dry_run: bool = True
 
 
+class PublishSyncRequest(BaseModel):
+    repo: str
+    workflow: str = "publish.yml"
+    ref: str = "main"
+    dry_run: bool = True
+
+
 def _gh_available() -> bool:
     return shutil.which("gh") is not None
 
@@ -106,5 +113,42 @@ def create_github_helpers_routes(auth_guard=None) -> APIRouter:
         if proc.returncode != 0:
             raise HTTPException(status_code=500, detail=(proc.stderr or proc.stdout or "pr draft failed").strip())
         return {"success": True, "dry_run": False, "url": (proc.stdout or "").strip()}
+
+    @router.post("/publish-sync")
+    async def publish_sync(payload: PublishSyncRequest):
+        if not payload.repo.strip():
+            raise HTTPException(status_code=400, detail="repo is required")
+        if not payload.workflow.strip():
+            raise HTTPException(status_code=400, detail="workflow is required")
+
+        cmd = [
+            "gh",
+            "workflow",
+            "run",
+            payload.workflow,
+            "--repo",
+            payload.repo,
+            "--ref",
+            payload.ref,
+        ]
+
+        if payload.dry_run:
+            return {"success": True, "dry_run": True, "command": cmd}
+
+        if not _gh_available():
+            raise HTTPException(status_code=503, detail="gh CLI not found")
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        if proc.returncode != 0:
+            raise HTTPException(
+                status_code=500,
+                detail=(proc.stderr or proc.stdout or "publish sync failed").strip(),
+            )
+        return {
+            "success": True,
+            "dry_run": False,
+            "workflow": payload.workflow,
+            "ref": payload.ref,
+            "detail": (proc.stdout or "").strip(),
+        }
 
     return router

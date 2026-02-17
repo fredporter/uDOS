@@ -55,3 +55,14 @@ def test_issue_create_exec(monkeypatch):
     )
     assert res.status_code == 200
     assert res.json()["url"].endswith("/issues/1")
+
+
+def test_publish_sync_dry_run():
+    client = _client()
+    res = client.post(
+        "/api/github/helpers/publish-sync",
+        json={"repo": "owner/repo", "workflow": "publish.yml", "ref": "main", "dry_run": True},
+    )
+    assert res.status_code == 200
+    assert res.json()["dry_run"] is True
+    assert res.json()["command"][:3] == ["gh", "workflow", "run"]

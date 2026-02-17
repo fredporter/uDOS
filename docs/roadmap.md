@@ -344,7 +344,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 - [x] Diagram generation service: server-side diagram rendering pipeline.
 - [x] Songscribe route integration: bridge groovebox transport into Wizard API.
 - [x] GitHub integration polish: PR and issue automation helpers.
-- [ ] GitHub Actions publish sync (from OC-app) when moving beyond direct push.
+- [x] GitHub Actions publish sync (from OC-app) when moving beyond direct push.
 
 ### v1.5.0 (Planned)
 - [ ] Multi-tenant workspace isolation.
