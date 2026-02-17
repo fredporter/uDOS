@@ -28,6 +28,10 @@ def test_workspace_route_accepts_at_workspace_refs():
         assert res.status_code == 200
         assert "Workspace Route Test" in res.json().get("content", "")
 
+        res = client.get("/api/workspace/read", params={"path": f"@workspace/vault/{marker}"})
+        assert res.status_code == 200
+        assert "Workspace Route Test" in res.json().get("content", "")
+
         res = client.get("/api/workspace/list", params={"path": "@vault"})
         assert res.status_code == 200
         assert res.json().get("success") is True
@@ -45,3 +49,14 @@ def test_workspace_roots_include_aliases():
     roots = res.json().get("roots", {})
     assert "@vault" in roots
     assert "@sandbox" in roots
+    assert "@workspace/vault" in roots
+
+
+def test_workspace_resolve_with_workspace_prefix():
+    app = build_app()
+    client = TestClient(app)
+    res = client.get("/api/workspace/resolve", params={"path": "@workspace/vault"})
+    assert res.status_code == 200
+    payload = res.json()
+    assert payload["success"] is True
+    assert payload["normalized"] == "vault"

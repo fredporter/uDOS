@@ -53,6 +53,13 @@ def _split_root(path: str) -> Tuple[str, str]:
     raw = _normalize_workspace_ref(path)
     if not raw:
         return "memory", ""
+    if raw.startswith("workspace/"):
+        parts = raw.split("/", 2)
+        if len(parts) >= 2:
+            root_key = parts[1]
+            rel = parts[2] if len(parts) > 2 else ""
+            if root_key in _resolve_workspace_root():
+                return root_key, rel
     parts = raw.split("/", 1)
     root_key = parts[0]
     if root_key in _resolve_workspace_root():
@@ -86,9 +93,25 @@ def create_workspace_routes(auth_guard=None, prefix="/api/workspace") -> APIRout
         }
         for key in sorted(root_map):
             roots[f"@{key}"] = f"@{key}"
+            roots[f"@workspace/{key}"] = f"@workspace/{key}"
         return {
             "success": True,
             "roots": roots,
+        }
+
+    @router.get("/resolve")
+    async def resolve_workspace_path(path: str = ""):
+        try:
+            resolved = _resolve_path(path)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+        root_key, rel = _split_root(path)
+        normalized_path = root_key if not rel else f"{root_key}/{rel}"
+        return {
+            "success": True,
+            "input": path,
+            "normalized": normalized_path,
+            "absolute_path": str(resolved),
         }
 
     @router.get("/list")
