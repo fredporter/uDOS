@@ -24,7 +24,7 @@
       "**/__pycache__": true,
       "**/*.pyc": true
     },
-    "python.defaultInterpreterPath": "${workspaceFolder:Root}/.venv/bin/python",
+    "python.defaultInterpreterPath": "${workspaceFolder:Root}/venv/bin/python",
     "python.terminal.executeInFileDir": true,
     "terminal.integrated.defaultProfile.osx": "bash",
     "terminal.integrated.profiles.osx": {
@@ -37,8 +37,8 @@
       }
     },
     "terminal.integrated.env.osx": {
-      "VIRTUAL_ENV": "${workspaceFolder:Root}/.venv",
-      "PATH": "${workspaceFolder:Root}/.venv/bin:${env:PATH}",
+      "VIRTUAL_ENV": "${workspaceFolder:Root}/venv",
+      "PATH": "${workspaceFolder:Root}/venv/bin:${env:PATH}",
       "PYTHONPATH": "${workspaceFolder:Root}",
       "UDOS_ROOT": "${env:UDOS_ROOT}",
       "VAULT_ROOT": "/Users/fredbook/Documents/vault-md"

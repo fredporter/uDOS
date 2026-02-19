@@ -46,7 +46,7 @@ def _build_status_payload(memory_root: Path) -> Dict[str, Any]:
         "doc_path": str(doc_path),
         "doc_last_modified": None,
         "deliverables": [
-            "Wizard config page now routes `.venv → secrets → installers → hotkeys` and shares manifest validation with CLI installs.",
+            "Wizard config page now routes `venv → secrets → installers → hotkeys` and shares manifest validation with CLI installs.",
             "CLI `PLUGIN install` and `/api/library/.../install` log every manifest/health event to `memory/logs/health-training.log`.",
             "Sonic Screwdriver USB builder scripts, device DB sync, media logs, and Windows launch parameters are captured in `core/docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md`.",
         ],

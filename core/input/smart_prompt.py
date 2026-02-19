@@ -24,28 +24,28 @@ except ImportError:
     # Stub classes for when prompt_toolkit is not available
     class PromptSession:
         pass
-    
+
     class Completer:
         pass
 
     class Completion:
         pass
-    
+
     class InMemoryHistory:
         pass
-    
+
     class FileHistory:
         pass
-    
+
     class KeyBindings:
         pass
-    
+
     class Keys:
         pass
-    
+
     class Style:
         pass
-    
+
     class AutoSuggestFromHistory:
         pass
 

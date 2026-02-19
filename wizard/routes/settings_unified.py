@@ -135,7 +135,7 @@ def create_venv() -> Dict[str, Any]:
         return {"error": "venv already exists", "path": str(venv_path)}
 
     try:
-        logger.info(f"[LOCAL] Creating .venv at {venv_path}")
+        logger.info(f"[LOCAL] Creating venv at {venv_path}")
         venv.create(str(venv_path), with_pip=True, clear=False)
 
         status = get_venv_status()
@@ -157,7 +157,7 @@ def delete_venv() -> Dict[str, Any]:
         return {"error": "venv does not exist"}
 
     try:
-        logger.info(f"[LOCAL] Deleting .venv at {venv_path}")
+        logger.info(f"[LOCAL] Deleting venv at {venv_path}")
         remove_path(venv_path)
         return {"status": "deleted"}
     except Exception as e:

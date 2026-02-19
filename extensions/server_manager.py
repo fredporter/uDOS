@@ -174,7 +174,7 @@ class ServerManager:
         # Construct command with potential port override
         command = server['command']
         env_vars = ""
-        
+
         # Debug: Check command type
         if not isinstance(command, str):
             error_msg = f"❌ Invalid command configuration for {server['name']}\n"
@@ -193,10 +193,10 @@ class ServerManager:
             command = command.split(' ', 1)[1]
 
         # Use absolute path for python from venv
-        python_executable = f"{self.root.parent}/.venv/bin/python"
+        python_executable = f"{self.root.parent}/venv/bin/python"
         command = command.replace("python", python_executable, 1)
 
-        full_command = f"cd {self.root.parent} && source .venv/bin/activate && {env_vars}{command} > memory/logs/{server_key}_server.log 2>&1 &"
+        full_command = f"cd {self.root.parent} && source venv/bin/activate && {env_vars}{command} > memory/logs/{server_key}_server.log 2>&1 &"
 
         os.system(full_command)
 

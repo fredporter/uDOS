@@ -1,5 +1,5 @@
 {
-  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.defaultInterpreterPath": "${workspaceFolder}/venv/bin/python",
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": true,
   "python.analysis.typeCheckingMode": "off",
@@ -17,13 +17,13 @@
     "**/node_modules": true,
     "**/.pytest_cache": true,
     "**/.cache": true,
-    ".venv": true,
+    "venv": true,
     "**/.archive": true,
     "**/.dev": true,
     "**/target": true
   },
   "files.watcherExclude": {
-    "**/.venv/**": true,
+    "**/venv/**": true,
     "**/node_modules/**": true,
     "**/__pycache__/**": true,
     "**/target/**": true,
@@ -31,7 +31,7 @@
   },
   "search.exclude": {
     "**/node_modules": true,
-    "**/.venv": true,
+    "**/venv": true,
     "**/target": true,
     "**/__pycache__": true,
     "**/.cache": true,

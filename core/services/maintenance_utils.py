@@ -20,7 +20,7 @@ from core.services.logging_api import get_repo_root
 
 DEFAULT_EXCLUDES = [
     ".git/*",
-    ".venv/*",
+    "venv/*",
     "node_modules/*",
     "dist/*",
     "build/*",
@@ -592,7 +592,7 @@ def default_repo_allowlist() -> List[str]:
         "memory",
         "dev",
         ".git",
-        ".venv",
+            "venv",
         ".compost",
         "requirements.txt",
         "README.md",

@@ -172,7 +172,7 @@ class DevModeHandler(BaseCommandHandler):
                 "message": "DEV MODE requires requests library",
                 "output": OutputToolkit.banner("DEV MODE") + "\nrequests library not available",
             }
-        
+
         action = self._resolve_action(params[0] if params else "status")
         if action in {"on", "activate", "start"}:
             return self._activate_dev_mode()

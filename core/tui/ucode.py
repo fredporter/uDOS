@@ -3163,7 +3163,7 @@ For detailed help on any command, type the command name followed by --help
                 pass  # Not running, proceed
 
             self._ui_line("Starting Wizard Server", level="step")
-            venv_activate = self.repo_root / "wizard" / ".venv" / "bin" / "activate"
+            venv_activate = self.repo_root / "venv" / "bin" / "activate"
 
             # Build command - use module execution for correct imports
             # Use bash explicitly for 'source' command (not sh)
@@ -3311,7 +3311,7 @@ For detailed help on any command, type the command name followed by --help
         """Enter Wizard interactive console."""
         try:
             print("  Launching Wizard interactive console...")
-            venv_activate = self.repo_root / "wizard" / ".venv" / "bin" / "activate"
+            venv_activate = self.repo_root / "venv" / "bin" / "activate"
 
             if venv_activate.exists():
                 cmd = f"source {venv_activate} && python wizard/wizard_tui.py"

@@ -63,7 +63,29 @@
       "Bash(__NEW_LINE_56172bff45a5eaad__ echo \"\")",
       "Bash(__NEW_LINE_5fea4c8139e32c33__ echo \"\")",
       "Bash(git check-ignore:*)",
-      "Bash(# Check if there''s a git sparse checkout or info/exclude file causing this cat /Users/fredbook/Code/uDOS/.git/info/exclude)"
+      "Bash(# Check if there''s a git sparse checkout or info/exclude file causing this cat /Users/fredbook/Code/uDOS/.git/info/exclude)",
+      "Bash(git push:*)",
+      "Bash(git submodule foreach:*)",
+      "Bash(git -C /Users/fredbook/Code/uDOS log --oneline -15)",
+      "Bash(cat:*)",
+      "Bash(git -C /Users/fredbook/Code/uDOS log --oneline --follow -- core/config/ucli_command_contract_v1_3.json)",
+      "Bash(git -C /Users/fredbook/Code/uDOS log --oneline --follow -- core/config/ucli_command_contract_v1_3_16.json)",
+      "Bash(git -C /Users/fredbook/Code/uDOS log --oneline --follow -- docs/specs/v1.3.21-DUAL-LENS-COMPAT-MATRIX.md)",
+      "Bash(git -C /Users/fredbook/Code/uDOS show 8b91f33 -- core/config/ucli_command_contract_v1_3.json)",
+      "Bash(git -C /Users/fredbook/Code/uDOS show 8b91f33 -- docs/specs/v1.3.21-DUAL-LENS-COMPAT-MATRIX.md)",
+      "Bash(git -C /Users/fredbook/Code/uDOS show 8b91f33 -- core/config/ucli_command_contract_v1_3_16.json)",
+      "Bash(git -C /Users/fredbook/Code/uDOS log --oneline -5)",
+      "Bash(git -C /Users/fredbook/Code/uDOS status --short)",
+      "Bash(git -C /Users/fredbook/Code/uDOS tag -a v1.4.0 -m \"uDOS v1.4.0 — Containerization, Library Management, and Modularization\")",
+      "Bash(git -C /Users/fredbook/Code/uDOS tag -l v1.4.0 -v)",
+      "Bash(git -C /Users/fredbook/Code/uDOS tag -d v1.4.0)",
+      "Bash(git -C /Users/fredbook/Code/uDOS log --oneline -4)",
+      "Bash(git -C /Users/fredbook/Code/uDOS describe --tags --exact-match HEAD)",
+      "Bash(git -C /Users/fredbook/Code/uDOS push origin main v1.4.0)",
+      "Bash(git -C /Users/fredbook/Code/uDOS push origin v1.4.0 --force)",
+      "Bash(gh release create:*)",
+      "Bash(gh release edit:*)",
+      "Bash(gh api:*)"
     ]
   }
 }

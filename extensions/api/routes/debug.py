@@ -101,7 +101,7 @@ def open_debug_tui():
             script = f"""
             tell application "Terminal"
                 activate
-                do script "cd {udos_path} && source .venv/bin/activate && ./bin/ucli tui -c L"
+                do script "cd {udos_path} && source venv/bin/activate && ./bin/ucli tui -c L"
             end tell
             """
             subprocess.Popen(["osascript", "-e", script])
@@ -111,7 +111,7 @@ def open_debug_tui():
             terminals = ["gnome-terminal", "konsole", "xfce4-terminal", "xterm"]
             for term in terminals:
                 try:
-                    cmd = f"cd {udos_path} && source .venv/bin/activate && ./bin/ucli tui -c L"
+                    cmd = f"cd {udos_path} && source venv/bin/activate && ./bin/ucli tui -c L"
                     subprocess.Popen([term, "--", "bash", "-c", cmd])
                     method = term
                     break

@@ -52,15 +52,15 @@ This creates a clean boundary:
     /py/                # wizard python app + libs
     requirements.in     # high-level deps (optional)
     requirements.txt    # pinned (generated) OR lockfile
-    .venv/              # wizard venv (local install or bundled build output)
+  /venv/                # wizard venv (local install or bundled build output)
 
   /dev/
     /py/                # dev scripts (lint/test/build/docs/etc)
-    README.md           # states: uses /wizard/.venv
+    README.md           # states: uses /venv
 ```
 
 Notes:
-- `.venv/` is **gitignored**.
+- `venv/` is **gitignored**.
 - Requirements/lock files are committed.
 - Core TS runtime should have a **build output** directory (e.g. `/core/ts/dist`) committed or produced by release packaging.
 
@@ -90,7 +90,7 @@ Core TS runtime MAY:
 
 ### Wizard Python Contract
 Wizard MAY:
-- Use third-party Python packages installed into `/wizard/.venv`.
+- Use third-party Python packages installed into `/venv`.
 - Provide a stable CLI entrypoint callable from core, e.g. `udos wizard ...`
 - Expose reusable libs for `/dev` scripts.
 
@@ -117,7 +117,7 @@ Pseudo-matrix:
 |---|---|---|
 | Core Python | `python3` | core CLI, filesystem, sqlite, logging |
 | Core TS | `node` (or bundled) | orchestrator, renderers, validators, plugins |
-| Wizard | `/wizard/.venv` | server, integrations, richer tooling |
+| Wizard | `/venv` | server, integrations, richer tooling |
 | Dev | `/dev` + wizard venv | tests, lint, build, docs |
 
 ---
@@ -138,8 +138,8 @@ ASCII flow:
 udos
  ├─ core   -> /core/py/*                      (system python, stdlib only)
  ├─ ts     -> node /core/ts/dist/cli.js       (if node exists)
- ├─ wizard -> /wizard/.venv/bin/python -m ... (venv)
- └─ dev    -> /wizard/.venv/bin/python /dev/py/...
+ ├─ wizard -> /venv/bin/python -m ... (venv)
+ └─ dev    -> /venv/bin/python /dev/py/...
 ```
 
 ### Policy: TS orchestrates, but never becomes a hard requirement
@@ -196,7 +196,7 @@ udos
 Wizard installation is explicit:
 
 - `udos wizard install`
-  - create `/wizard/.venv`
+  - create `/venv`
   - install pinned deps
   - run minimal smoke test
 
@@ -282,9 +282,8 @@ If user runs `udos ts ...` without Node:
 
 - Core Python runs on a clean system Python with **no pip installs**.
 - Core TS runtime is optional, minimal, and works when Node exists.
-- Wizard installs into `/wizard/.venv` from pinned requirements.
-- Dev scripts run using `/wizard/.venv` with no extra venv.
+- Wizard installs into `/venv` from pinned requirements.
+- Dev scripts run using `/venv` with no extra venv.
 - CI blocks non-stdlib imports in `/core/py`.
 - CI flags heavyweight TS deps.
 - Error messages are clear when capabilities are missing.
-

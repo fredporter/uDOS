@@ -29,7 +29,7 @@ cd uDOS
 ./bin/ucli wizard install
 ```
 
-This creates `wizard/.venv` and installs pinned Wizard dependencies from `wizard/requirements.txt`.
+This creates `venv/` and installs pinned Wizard dependencies from `wizard/requirements.txt`.
 
 ---
 
@@ -67,7 +67,7 @@ Always-on backend service with web dashboard for APIs, webhooks, and AI model ro
 
 **What this does:**
 
-1. Verifies Wizard environment (`wizard/.venv`) is installed
+1. Verifies Wizard environment (`venv/`) is installed
 2. **Auto-builds the Svelte dashboard** (if npm is available)
 3. Starts Wizard Server on port `8765` in **daemon mode** (background service)
 4. Opens browser dashboard automatically

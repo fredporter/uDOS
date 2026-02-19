@@ -105,7 +105,7 @@ class DependencyWarningMonitor:
         "notopensslwarning": (
             "urllib3/OpenSSL mismatch detected.",
             "Install Python 3.11+ (python.org package, Homebrew, or pyenv) so the ssl"
-            " module links against OpenSSL 3.x, recreate .venv, then run REPAIR"
+            " module links against OpenSSL 3.x, recreate venv, then run REPAIR"
             " --upgrade.",
         ),
         "urllib3 v2 only supports openssl": (
@@ -293,7 +293,7 @@ def _check_python_version() -> List[DependencyIssue]:
                 message=f"Python {current} detected (minimum supported {target}).",
                 resolution=(
                     "Install Python 3.11+ via python.org installer, Homebrew (brew install"
-                    " python@3.11), or pyenv, then recreate the .venv and rerun REPAIR --upgrade."
+                    " python@3.11), or pyenv, then recreate the venv and rerun REPAIR --upgrade."
                 ),
             )
         )
@@ -324,7 +324,7 @@ def _check_ssl_version() -> List[DependencyIssue]:
                 message=f"LibreSSL detected ({version_text.strip()}); urllib3 v2 requires OpenSSL 1.1.1+.",
                 resolution=(
                     "Install Python built against OpenSSL 3.x (python.org, Homebrew python@3.11,"
-                    " or pyenv), recreate .venv, and run REPAIR --upgrade."
+                    " or pyenv), recreate venv, and run REPAIR --upgrade."
                 ),
             )
         )
@@ -422,7 +422,7 @@ def run_preflight_check(
             else:
                 print(f"   ℹ️  Skipped [{issue.code}]. You can fix this later with REPAIR --upgrade")
                 all_repaired = False
-        
+
         # Return 0 so server continues (warnings are non-critical)
         if all_repaired:
             print("\n✅ All dependency issues fixed!")
@@ -430,7 +430,7 @@ def run_preflight_check(
         else:
             print("\n⚠️  Some warnings remain, but server will continue.")
             return 0
-    
+
     if auto_repair_if_headless:
         print("Attempting automatic REPAIR --upgrade (non-interactive session)...")
         success = _invoke_repair("--upgrade")

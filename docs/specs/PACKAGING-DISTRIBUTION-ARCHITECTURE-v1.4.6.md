@@ -53,6 +53,7 @@ udos-wizard-full-v1.4.6/
     requirements.txt
     web/                          # Dashboard frontend (Svelte compiled)
     routes/                       # API routes
+    mcp/                          # MCP server (stdio transport)
   venv/                           # Shared Python venv (root-level snapshot)
   docker-compose.yml              # Full service stack
   distribution/
@@ -392,6 +393,253 @@ services:
 
 ---
 
+## MCP Server Integration
+
+### Wizard MCP Server Architecture
+
+**Purpose:** Expose Wizard capabilities to VSCode Copilot and other MCP clients via stdio transport.
+
+**Location:** `wizard/mcp/mcp_server.py`
+
+**Protocol:** Model Context Protocol (MCP) stdio transport
+
+#### MCP Server Components
+
+```
+wizard/mcp/
+  mcp_server.py                   # Main MCP stdio server
+  tools/
+    command_tool.py               # Execute uDOS commands via MCP
+    state_tool.py                 # Query game state
+    config_tool.py                # Manage configuration
+  resources/
+    game_state.py                 # Expose current game state as resource
+    command_history.py            # Command execution history
+  schemas/
+    tool_schemas.json             # JSON schemas for MCP tools
+  tests/
+    test_mcp_lifecycle.py         # Server startup/shutdown tests
+    test_tool_execution.py        # Tool execution tests
+    test_vscode_integration.py    # VSCode integration E2E tests
+```
+
+#### MCP Tools Exposed
+
+| Tool Name | Description | Parameters | Auth Required |
+|-----------|-------------|------------|---------------|
+| `execute_command` | Run uDOS command | `command: str`, `args: dict` | Yes |
+| `query_state` | Get current game state | `scope: str` | No |
+| `get_config` | Read configuration | `key: str` | No |
+| `set_config` | Update configuration | `key: str`, `value: any` | Yes |
+| `list_extensions` | List installed extensions | None | No |
+| `library_search` | Search library catalog | `query: str` | No |
+
+#### VSCode Integration
+
+**Configuration:** `.vscode/mcp.json` (auto-generated on install)
+
+```json
+{
+  "mcpServers": {
+    "udos-wizard": {
+      "command": "/Users/fredbook/Code/uDOS/.venv-mcp/bin/python",
+      "args": ["/Users/fredbook/Code/uDOS/wizard/mcp/mcp_server.py"],
+      "transport": "stdio",
+      "env": {
+        "UDOS_HOME": "/Users/fredbook/Code/uDOS",
+        "WIZARD_PORT_FILE": "/Users/fredbook/Code/uDOS/wizard/.wizard-port"
+      }
+    }
+  }
+}
+```
+
+**Copilot Integration Flow:**
+
+1. **Startup:** VSCode launches MCP server via stdio
+2. **Discovery:** MCP server announces available tools/resources
+3. **Tool Invocation:** Copilot calls tools via MCP protocol
+4. **Command Execution:** MCP server routes to Wizard → Core
+5. **Response:** Results streamed back through stdio
+6. **Shutdown:** MCP server receives SIGTERM, graceful cleanup
+
+#### Hardening Requirements
+
+**Security:**
+
+- ✅ **Input Validation:** All MCP tool parameters validated against JSON schemas
+- ✅ **Command Injection Prevention:** Whitelist allowed commands; sanitize all user input
+- ✅ **Authorization:** Token-based auth for write operations (config changes, command execution)
+- ✅ **Rate Limiting:** Max 100 requests/minute per client to prevent abuse
+- ✅ **Audit Logging:** All MCP requests logged with timestamp, client ID, tool name, params
+
+**Reliability:**
+
+- ✅ **Graceful Degradation:** If Wizard unavailable, MCP server returns error (not crash)
+- ✅ **Timeout Handling:** All Wizard calls timeout after 30s; return error to client
+- ✅ **Error Messages:** Sanitized errors (no stack traces exposed to MCP clients)
+- ✅ **Health Check:** MCP server exposes `/health` endpoint for monitoring
+- ✅ **Process Management:** Clean shutdown on SIGTERM/SIGINT; no zombie processes
+
+**Performance:**
+
+- ✅ **Response Time:** 95th percentile <500ms for read operations
+- ✅ **Memory Usage:** <100 MB resident memory under normal load
+- ✅ **Connection Pooling:** Reuse Wizard HTTP connections (no reconnect per request)
+- ✅ **Caching:** Cache static resources (config schemas, tool definitions) for 5 minutes
+
+#### Testing Strategy
+
+**Unit Tests:** `wizard/mcp/tests/`
+
+```python
+# test_mcp_lifecycle.py
+def test_server_startup_stdio():
+    """Test MCP server starts and announces tools via stdio"""
+    proc = subprocess.Popen([...], stdin=PIPE, stdout=PIPE)
+    # Verify initialization message
+    # Verify tool list announcement
+    # Clean shutdown
+
+def test_graceful_shutdown():
+    """Test SIGTERM triggers clean shutdown"""
+    # Start server
+    # Send SIGTERM
+    # Verify exit code 0
+    # Verify no orphaned processes
+
+# test_tool_execution.py
+def test_execute_command_success():
+    """Test valid command execution"""
+    # Mock Wizard response
+    # Call execute_command tool
+    # Verify response matches schema
+
+def test_execute_command_injection_blocked():
+    """Test command injection prevention"""
+    # Attempt shell metacharacters in command
+    # Verify request rejected
+
+def test_rate_limiting():
+    """Test rate limiter blocks excessive requests"""
+    # Make 101 requests rapidly
+    # Verify 101st request gets 429 Too Many Requests
+```
+
+**Integration Tests:** `wizard/mcp/tests/integration/`
+
+```python
+# test_vscode_integration.py
+def test_copilot_tool_discovery():
+    """Test VSCode can discover MCP tools"""
+    # Launch MCP server via VSCode extension API
+    # Query available tools
+    # Verify all expected tools present
+
+def test_copilot_command_execution_e2e():
+    """Test end-to-end command execution via Copilot"""
+    # Copilot invokes execute_command
+    # MCP server routes to Wizard
+    # Wizard executes in Core
+    # Response returns to Copilot
+    # Verify result matches expectation
+
+def test_wizard_unavailable_fallback():
+    """Test MCP server handles Wizard downtime"""
+    # Stop Wizard service
+    # Attempt execute_command via MCP
+    # Verify graceful error returned (not crash)
+```
+
+**E2E Tests:** Run via `WIZARD test --mcp`
+
+1. Start Wizard services (`WIZARD start`)
+2. Launch MCP server
+3. Connect VSCode Copilot client (simulated)
+4. Execute all MCP tools with valid/invalid inputs
+5. Verify audit logs written correctly
+6. Verify no memory leaks (monitor RSS over 100 iterations)
+7. Graceful shutdown test
+
+**Performance Tests:** `wizard/mcp/tests/perf/`
+
+```bash
+# Load test: 1000 requests over 10 seconds
+python wizard/mcp/tests/perf/load_test.py --requests 1000 --duration 10
+
+# Expected:
+# - 95th percentile: <500ms
+# - Error rate: <1%
+# - Memory growth: <10 MB
+```
+
+#### CI/CD Integration
+
+**GitHub Actions:** `.github/workflows/mcp-tests.yml`
+
+```yaml
+name: MCP Server Tests
+
+on:
+  push:
+    paths:
+      - 'wizard/mcp/**'
+  pull_request:
+
+jobs:
+  test-mcp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r wizard/mcp/requirements.txt
+      - name: Run unit tests
+        run: pytest wizard/mcp/tests/ -v --cov=wizard/mcp
+      - name: Run integration tests
+        run: pytest wizard/mcp/tests/integration/ -v
+      - name: Security scan
+        run: bandit -r wizard/mcp/ -ll
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+```
+
+#### Monitoring & Observability
+
+**Metrics Collected:**
+
+- Request count per tool (Prometheus counter)
+- Request latency histogram (P50, P95, P99)
+- Error rate by error type
+- Active connections gauge
+- Memory usage (RSS, VMS)
+
+**Logs:**
+
+```json
+{
+  "timestamp": "2026-02-20T14:30:45Z",
+  "level": "INFO",
+  "component": "mcp_server",
+  "event": "tool_invocation",
+  "tool": "execute_command",
+  "client_id": "vscode-copilot-abc123",
+  "duration_ms": 245,
+  "status": "success"
+}
+```
+
+**Alerts:**
+
+- Error rate >5% over 5 minutes → Slack notification
+- P95 latency >1s over 5 minutes → Warning
+- Memory usage >200 MB → Critical alert
+
+---
+
 ## Sonic Standalone Integration
 
 ### Sonic ISO Build Pipeline
@@ -516,7 +764,11 @@ gpg --verify udos-core-slim-v1.4.6.tar.gz.sig udos-core-slim-v1.4.6.tar.gz
 ✅ **Sonic:** Boots on 5+ diverse hardware targets; Wizard bridge latency <200ms
 ✅ **Security:** No CVEs in Docker images; all artifacts signed and verified
 ✅ **Tests:** E2E coverage for all 4 variants + upgrade paths (v1.4.3 → v1.4.6)
-✅ **Documentation:** Installation guides for all platforms, library docs, Docker ops manual
+✅ **MCP Server:** All unit tests pass; VSCode integration E2E tests pass; <500ms P95 latency
+✅ **MCP Hardening:** Input validation 100% coverage; rate limiting enforced; audit logs complete
+✅ **MCP Monitoring:** Metrics exported to Prometheus; error rate <1%; no memory leaks
+✅ **Wizard Admin Audit:** Security hardening complete (XSS/CSRF/injection prevention); penetration testing passed; accessibility WCAG 2.1 AA compliant; performance <2s load time
+✅ **Documentation:** Installation guides for all platforms, library docs, Docker ops manual, MCP integration guide, Wizard admin security guide
 
 ---
 

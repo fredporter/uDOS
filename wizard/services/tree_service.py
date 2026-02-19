@@ -23,7 +23,6 @@ class TreeStructureService:
         ".cache",
         ".tmp",
         "venv",
-        ".venv",
     }
 
     SUBMODULE_EXCLUDES: Set[str] = {
@@ -35,7 +34,6 @@ class TreeStructureService:
         ".cache",
         ".tmp",
         "venv",
-        ".venv",
     }
 
     def __init__(self, repo_root: Optional[Path] = None) -> None:

@@ -14,7 +14,7 @@ from typing import Any, Dict, Iterable, List, Optional
 
 
 REQUIRED_THEME_SLOTS = ["{{content}}", "{{title}}", "{{nav}}", "{{meta}}", "{{footer}}"]
-DEFAULT_SKIP_DIRS = {".git", ".archive", "node_modules", ".venv", ".venv-mcp", "_site"}
+DEFAULT_SKIP_DIRS = {".git", ".archive", "node_modules", "venv", ".venv-mcp", "_site"}
 
 
 @dataclass

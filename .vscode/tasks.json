@@ -7,7 +7,7 @@
 			"command": "bash",
 			"args": [
 				"-c",
-				"if [ -z \"$VIRTUAL_ENV\" ]; then echo \"WARN: Virtual environment not active! Run: source .venv/bin/activate\"; exit 1; else echo \"OK: Virtual environment active: $VIRTUAL_ENV\"; fi"
+				"if [ -z \"$VIRTUAL_ENV\" ]; then echo \"WARN: Virtual environment not active! Run: source venv/bin/activate\"; exit 1; else echo \"OK: Virtual environment active: $VIRTUAL_ENV\"; fi"
 			],
 			"group": "build",
 			"presentation": {
@@ -42,7 +42,7 @@
 			"command": "/bin/bash",
 			"args": [
 				"-lc",
-				"if [ -z \"$VIRTUAL_ENV\" ]; then echo \"WARN: Virtual environment not active! Run: source .venv/bin/activate\"; exit 1; else echo \"OK: Virtual environment active: $VIRTUAL_ENV\"; fi; if [ -n \"$VIRTUAL_ENV\" ] && [ -x \"$VIRTUAL_ENV/bin/python\" ]; then PYTHON=\"$VIRTUAL_ENV/bin/python\"; else PYTHON=python; fi; if [ -f memory/tests/shakedown-script.md ]; then $PYTHON ${workspaceFolder}/uDOS.py --script memory/tests/shakedown-script.md; else $PYTHON -m pytest memory/tests/test_shakedown_destroy_v1_1_0.py; fi"
+				"if [ -z \"$VIRTUAL_ENV\" ]; then echo \"WARN: Virtual environment not active! Run: source venv/bin/activate\"; exit 1; else echo \"OK: Virtual environment active: $VIRTUAL_ENV\"; fi; if [ -n \"$VIRTUAL_ENV\" ] && [ -x \"$VIRTUAL_ENV/bin/python\" ]; then PYTHON=\"$VIRTUAL_ENV/bin/python\"; else PYTHON=python; fi; if [ -f memory/tests/shakedown-script.md ]; then $PYTHON ${workspaceFolder}/uDOS.py --script memory/tests/shakedown-script.md; else $PYTHON -m pytest memory/tests/test_shakedown_destroy_v1_1_0.py; fi"
 			],
 			"group": {
 				"kind": "test",
@@ -59,7 +59,7 @@
 		{
 			"label": "Run TypeScript Standalone Tests",
 			"type": "shell",
-			"command": "${workspaceFolder}/.venv/bin/python",
+			"command": "${workspaceFolder}/venv/bin/python",
 			"args": [
 				"${workspaceFolder}/memory/tests/test_v1_0_2_standalone.py"
 			],
@@ -75,7 +75,7 @@
 		{
 			"label": "Run TypeScript Integration Tests",
 			"type": "shell",
-			"command": "${workspaceFolder}/.venv/bin/python",
+			"command": "${workspaceFolder}/venv/bin/python",
 			"args": [
 				"${workspaceFolder}/memory/tests/integration/test_v1_0_2_integration.py"
 			],
@@ -109,7 +109,7 @@
 			"command": "/bin/bash",
 			"args": [
 				"-lc",
-				"PORT=$(${workspaceFolder}/.venv/bin/python -m wizard.cli_port_manager available 9000 | tr -cd \"0-9\"); ${workspaceFolder}/.venv/bin/python -m wizard.cli_port_manager reassign wizard $PORT >/dev/null; echo \"$PORT\" > ${workspaceFolder}/.wizard-port; echo \"Wizard port: $PORT\"; PYTHONPATH=\"${workspaceFolder}\" ${workspaceFolder}/.venv/bin/python -m wizard.server --port $PORT"
+				"PORT=$(${workspaceFolder}/venv/bin/python -m wizard.cli_port_manager available 9000 | tr -cd \"0-9\"); ${workspaceFolder}/venv/bin/python -m wizard.cli_port_manager reassign wizard $PORT >/dev/null; echo \"$PORT\" > ${workspaceFolder}/.wizard-port; echo \"Wizard port: $PORT\"; PYTHONPATH=\"${workspaceFolder}\" ${workspaceFolder}/venv/bin/python -m wizard.server --port $PORT"
 			],
 			"isBackground": true,
 			"presentation": {
@@ -142,7 +142,7 @@
 			"command": "/bin/bash",
 			"args": [
 				"-lc",
-				"PORT=$(${workspaceFolder}/.venv/bin/python -m wizard.cli_port_manager available 9100 | tr -cd \"0-9\"); echo \"$PORT\" > ${workspaceFolder}/.dashboard-port; echo \"Dashboard port: $PORT\"; cd ${workspaceFolder}/wizard/dashboard/dist && python -m http.server $PORT"
+				"PORT=$(${workspaceFolder}/venv/bin/python -m wizard.cli_port_manager available 9100 | tr -cd \"0-9\"); echo \"$PORT\" > ${workspaceFolder}/.dashboard-port; echo \"Dashboard port: $PORT\"; cd ${workspaceFolder}/wizard/dashboard/dist && python -m http.server $PORT"
 			],
 			"isBackground": true,
 			"presentation": {
@@ -556,40 +556,40 @@
 		{
 			"label": "Run Wizard Server Direct",
 			"type": "shell",
-			"command": "/home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 9000"
+			"command": "/home/wizard/Code/uDOS/venv/bin/python -m wizard.server --port 9000"
 		},
 		{
 			"label": "Run Wizard Server Direct (Check)",
 			"type": "shell",
-			"command": "/home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 9000",
+			"command": "/home/wizard/Code/uDOS/venv/bin/python -m wizard.server --port 9000",
 			"isBackground": true
 		},
 		{
 			"label": "Run Wizard Server Direct (Check 2)",
 			"type": "shell",
-			"command": "/home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 9000",
+			"command": "/home/wizard/Code/uDOS/venv/bin/python -m wizard.server --port 9000",
 			"isBackground": true
 		},
 		{
 			"label": "Run Wizard Server Direct (Check 3)",
 			"type": "shell",
-			"command": "/home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 9000",
+			"command": "/home/wizard/Code/uDOS/venv/bin/python -m wizard.server --port 9000",
 			"isBackground": true
 		},
 		{
 			"label": "Wizard Server Error Output",
 			"type": "shell",
-			"command": "PYTHONUNBUFFERED=1 /home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 9000 2>&1 | head -200"
+			"command": "PYTHONUNBUFFERED=1 /home/wizard/Code/uDOS/venv/bin/python -m wizard.server --port 9000 2>&1 | head -200"
 		},
 		{
 			"label": "Wizard Server Full Error",
 			"type": "shell",
-			"command": "PYTHONUNBUFFERED=1 /home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 9000 2>&1"
+			"command": "PYTHONUNBUFFERED=1 /home/wizard/Code/uDOS/venv/bin/python -m wizard.server --port 9000 2>&1"
 		},
 		{
 			"label": "Check FastAPI",
 			"type": "shell",
-			"command": "/home/wizard/Code/uDOS/.venv/bin/python -c \"import fastapi,uvicorn; print('ok')\""
+			"command": "/home/wizard/Code/uDOS/venv/bin/python -c \"import fastapi,uvicorn; print('ok')\""
 		},
 		{
 			"label": "Check Port 9000",
@@ -604,7 +604,7 @@
 		{
 			"label": "Run Wizard Server 8765",
 			"type": "shell",
-			"command": "PYTHONUNBUFFERED=1 /home/wizard/Code/uDOS/.venv/bin/python -m wizard.server --port 8765",
+			"command": "PYTHONUNBUFFERED=1 /home/wizard/Code/uDOS/venv/bin/python -m wizard.server --port 8765",
 			"isBackground": true
 		},
 		{

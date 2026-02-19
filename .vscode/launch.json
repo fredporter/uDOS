@@ -21,7 +21,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "envFile": "${workspaceFolder}/.env",
-            "python": "${workspaceFolder}/.venv/bin/python",
+            "python": "${workspaceFolder}/venv/bin/python",
             "cwd": "${workspaceFolder}"
         },
         {
@@ -33,7 +33,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "envFile": "${workspaceFolder}/.env",
-            "python": "${workspaceFolder}/.venv/bin/python",
+            "python": "${workspaceFolder}/venv/bin/python",
             "cwd": "${workspaceFolder}"
         },
         {
@@ -43,7 +43,7 @@
             "program": "${workspaceFolder}/memory/tests/integration/test_v1_0_2_integration.py",
             "console": "integratedTerminal",
             "justMyCode": false,
-            "python": "${workspaceFolder}/.venv/bin/python",
+            "python": "${workspaceFolder}/venv/bin/python",
             "cwd": "${workspaceFolder}"
         },
         {
@@ -53,7 +53,7 @@
             "program": "${workspaceFolder}/memory/tests/test_v1_0_2_standalone.py",
             "console": "integratedTerminal",
             "justMyCode": false,
-            "python": "${workspaceFolder}/.venv/bin/python",
+            "python": "${workspaceFolder}/venv/bin/python",
             "cwd": "${workspaceFolder}"
         },
         {
@@ -63,7 +63,7 @@
             "program": "${workspaceFolder}/dev/tools/test_resource_help.py",
             "console": "integratedTerminal",
             "justMyCode": false,
-            "python": "${workspaceFolder}/.venv/bin/python",
+            "python": "${workspaceFolder}/venv/bin/python",
             "cwd": "${workspaceFolder}",
             "envFile": "${workspaceFolder}/.env",
             "preLaunchTask": null,
@@ -76,7 +76,7 @@
             "program": "${workspaceFolder}/dev/goblin/goblin_server.py",
             "console": "integratedTerminal",
             "justMyCode": false,
-            "python": "${workspaceFolder}/.venv/bin/python",
+            "python": "${workspaceFolder}/venv/bin/python",
             "cwd": "${workspaceFolder}",
             "envFile": "${workspaceFolder}/.env"
         },
@@ -87,7 +87,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": false,
-            "python": "${workspaceFolder}/.venv/bin/python",
+            "python": "${workspaceFolder}/venv/bin/python",
             "cwd": "${workspaceFolder}"
         },
         {
@@ -98,7 +98,7 @@
             "args": ["${file}"],
             "console": "integratedTerminal",
             "justMyCode": false,
-            "python": "${workspaceFolder}/.venv/bin/python",
+            "python": "${workspaceFolder}/venv/bin/python",
             "cwd": "${workspaceFolder}",
             "envFile": "${workspaceFolder}/.env"
         }
