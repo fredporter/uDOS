@@ -208,4 +208,4 @@ curl -X POST http://localhost:8765/api/dev/activate
 
 ---
 
-_Updated: 2026-02-17 — v1.4.0 restructure + vault contract alignment (template `vault/`, seed `core/framework/seed/vault/`, runtime `memory/vault/`)_
+_Updated: 2026-02-19 — v1.4.3 consolidated release alignment + vault contract alignment (template `vault/`, seed `core/framework/seed/vault/`, runtime `memory/vault/`)_

@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Wiki Home
+    url: https://github.com/fredporter/uDOS/wiki/Home
+    about: Browse wiki pages and navigation.
+  - name: Docs and Specs Index
+    url: https://github.com/fredporter/uDOS/blob/main/docs/README.md
+    about: Locate canonical docs and specs before opening an issue.
+  - name: Documentation/Wiki Request
+    url: https://github.com/fredporter/uDOS/issues/new?template=documentation.md
+    about: Request updates to docs, wiki pages, sidebar, or navigation.
+  - name: Q&A / Usage Help
+    url: https://github.com/fredporter/uDOS/issues/new?template=question.md
+    about: Ask questions when you are blocked or uncertain.

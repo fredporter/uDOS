@@ -1,12 +1,14 @@
 # uDOS Documentation Index
 
-Updated: 2026-02-15
+Updated: 2026-02-19
 
 This is the canonical entry point for repository documentation.
 
 ## Start Here
 
 - Product roadmap: `docs/roadmap.md`
+- Consolidated release notes: `docs/releases/v1.4.3-release-notes.md`
+- Specs catalog (main + detailed): `docs/specs/README.md`
 - Sonic standalone release/install: `docs/howto/SONIC-STANDALONE-RELEASE-AND-INSTALL.md`
 - Command reference (canonical): `docs/howto/UCODE-COMMAND-REFERENCE.md`
 - Commands index: `docs/howto/commands/README.md`
@@ -16,7 +18,7 @@ This is the canonical entry point for repository documentation.
 
 ## Documentation Flow
 
-1. Root orientation: `README.md`, `QUICKSTART.md`, `INSTALLATION.md`
+1. Root orientation: `README.md`, `QUICKSTART.md`, `INSTALLATION.md`, `wiki/Home.md`
 2. Runtime command surface: `docs/howto/UCODE-COMMAND-REFERENCE.md`
 3. System boundaries and contracts: `docs/specs/`, `docs/decisions/`
 4. Component docs:

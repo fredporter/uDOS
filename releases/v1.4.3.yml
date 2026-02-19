@@ -1,0 +1,35 @@
+# uDOS v1.4.3 — Consolidated v1.4 Stream Release
+
+release_info:
+  version: 1.4.3
+  codename: "v1.4 Stream Consolidation"
+  release_date: "2026-02-19"
+  status: "released"
+  tier: "stable"
+
+description: |
+  Consolidated v1.4 stream release artifact.
+  Canonical notes are maintained at docs/releases/v1.4.3-release-notes.md.
+
+highlights:
+  - Container readiness gates complete (TOYBOX lifecycle, Sonic/Groovebox smoke, compose profile matrix).
+  - LIBRARY command surface complete and wired into dispatcher/help/ghost-mode/autocomplete.
+  - Capability matrix and release preflight unified for v1.4 cycle validation.
+
+artifacts:
+  release_docs:
+    - docs/releases/v1.4.3-release-notes.md
+  ci_gates:
+    - tools/ci/check_v1_3_25_contract_freeze.py
+    - tools/ci/check_v1_3_26_final_stabilization.py
+    - tools/ci/check_v1_4_0_toybox_lifespan_readiness.py
+    - tools/ci/check_v1_4_0_sonic_docker_smoke.py
+    - tools/ci/check_v1_4_0_groovebox_docker_smoke.py
+    - tools/ci/check_v1_4_0_compose_profile_matrix.py
+    - tools/ci/check_v1_4_0_container_capability_matrix.py
+    - tools/ci/check_v1_4_0_library_command_smoke.py
+    - tools/ci/check_v1_4_0_release_preflight.py
+  reports:
+    - memory/reports/v1_4_0_release_preflight.json
+    - memory/reports/v1_4_0_container_capability_matrix.json
+    - memory/reports/v1_4_0_compose_profile_matrix.json

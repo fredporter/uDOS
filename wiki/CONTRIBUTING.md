@@ -1,7 +1,7 @@
-# Contributing to uDOS (v1.3)
+# Contributing to uDOS
 
-**Version:** v1.3.0  
-**Last Updated:** 2026-02-04
+**Version:** v1.4.3
+**Last Updated:** 2026-02-19
 
 Thanks for helping build uDOS. This page is the quick path; deep process lives in:
 - `docs/CONTRIBUTION-PROCESS.md`
@@ -53,5 +53,6 @@ pip install -r requirements.txt
 ## Help
 
 - Start with `wiki/README.md`
+- Use issue templates in `/.github/ISSUE_TEMPLATE/` for bugs, feature requests, and docs updates
 - Ask in issues or discussions
 - Keep it small and shippable

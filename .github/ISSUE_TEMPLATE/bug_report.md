@@ -52,4 +52,4 @@ Any other relevant information:
 - [ ] I've searched existing issues for duplicates
 - [ ] I've included all requested information
 - [ ] I've tested with the latest version
-- [ ] I've checked the [Troubleshooting Guide](https://github.com/fredporter/uDOS-dev/wiki/Troubleshooting-Complete)
+- [ ] I've checked the [Troubleshooting Guide](https://github.com/fredporter/uDOS/blob/main/docs/troubleshooting/README.md)

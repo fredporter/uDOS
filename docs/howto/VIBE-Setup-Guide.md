@@ -112,7 +112,7 @@ cloud_enabled = false
 context_files = [
     "AGENTS.md",
     "docs/_index.md",
-    "docs/ROADMAP.md",
+    "docs/roadmap.md",
     ".vibe/CONTEXT.md"
 ]
 ```

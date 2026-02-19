@@ -1,6 +1,6 @@
 # uDOS Roadmap (Canonical)
 
-Last updated: 2026-02-17 (v1.4.0 released)
+Last updated: 2026-02-19 (v1.4.3 released)
 
 This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs/devlog/ROADMAP-LEGACY.md](devlog/ROADMAP-LEGACY.md).
 
@@ -10,9 +10,10 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 
 - Core concept: uDOS is a local Obsidian companion runtime focused on `@workspace`/`@binder` organization, fractal/layered filesystem structures, knowledge-tree navigation, and digital-garden workflows.
 - Milestones v1.3.0 to v1.3.7: complete (archived records exist).
-- Current focus: v1.4.0 is complete and released. Next active work is Groovebox v1.4+ (Songscribe parser pipeline, deferred from v1.4.0).
-- Version alignment: monorepo bumped to `v1.4.0` stable release.
-- Outstanding (active): Groovebox v1.4+ pipeline (Songscribe parser, audio synthesis, MIDI/WAV export, transport layer). All v1.4.0 Core and Wizard items are complete.
+- Current focus: v1.4.3 is complete and released. Next active work is Groovebox v1.4+ (Songscribe parser pipeline, deferred from the v1.4 stream).
+- Version alignment: monorepo docs aligned to `v1.4.3` stable release.
+- Outstanding (active): Groovebox v1.4+ pipeline (Songscribe parser, audio synthesis, MIDI/WAV export, transport layer). All v1.4 Core and Wizard items remain complete through v1.4.3.
+- Consolidated release notes: [docs/releases/v1.4.3-release-notes.md](releases/v1.4.3-release-notes.md).
 - Dev mode policy: `/dev/` public submodule required and admin-only; see [DEV-MODE-POLICY.md](DEV-MODE-POLICY.md).
 - Core/Wizard boundary: `core` is the base runtime; `wizard` is the brand for connected services. Core can run without Wizard (limited). Wizard cannot run without Core.
 - Python environment boundary (2026-02-15): Core Python is stdlib-only and must run without a venv; Wizard owns third-party Python in `/wizard/.venv`; `/dev` piggybacks Wizard venv; Core TS runtime remains optional/lightweight.
@@ -291,9 +292,10 @@ Last updated: 2026-02-17
 
 ## Core Roadmap (uDOS)
 
-### v1.4.0 -- Repo Restructure and Containerisation
+### v1.4.x -- Repo Restructure and Containerisation (Completed in v1.4.3)
 
 Reference:
+- [v1.4.3 consolidated release notes](releases/v1.4.3-release-notes.md)
 - [v1.4.0-KICKOFF-CHECKLIST.md](specs/v1.4.0-KICKOFF-CHECKLIST.md)
 - [v1.4.0-EXECUTION-ORDER.md](specs/v1.4.0-EXECUTION-ORDER.md)
 - [v1.4.0-DOCKER-AUTOMATION-CAPABILITY-SPEC.md](specs/v1.4.0-DOCKER-AUTOMATION-CAPABILITY-SPEC.md)
@@ -347,7 +349,7 @@ Reference:
 
 ## Wizard Roadmap
 
-**Component:** `wizard/` | **Current:** v1.3.14 (dev cycle; release manifest v1.3.12) | **Status:** Active Development
+**Component:** `wizard/` | **Current:** v1.4.3 (stable release) | **Status:** Active Development
 
 ### v1.3.15 -- Publish Spec Refactor (Planned)
 
@@ -360,7 +362,7 @@ Reference:
 
 Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md)
 
-### v1.4.0
+### v1.4.x (Completed in v1.4.3)
 
 #### P0 -- Must Have
 - [x] Library manager completion: full CRUD, versioning, dependency resolution.
@@ -392,11 +394,11 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 
 ## Groovebox Roadmap
 
-**Component:** `groovebox/` | **Current:** v1.4.0 (deferred items) | **Status:** Deferred to v1.4+
+**Component:** `groovebox/` | **Current:** v1.4.3 (deferred items from v1.4.0 stream) | **Status:** Deferred to v1.4+
 
-### v1.4.0 (Deferred → v1.4+)
+### v1.4 stream (Deferred → v1.4+)
 
-Groovebox P0 pipeline was deferred from v1.4.0 to keep the v1.4.0 release focused on Core containerization and library management. The Songscribe Dockerfile and Groovebox smoke gate were completed as part of v1.4.0 container readiness; the full parser/synthesis pipeline moves to v1.4+.
+Groovebox P0 pipeline was deferred from the v1.4.0 implementation stream to keep release scope focused on Core containerization and library management. The Songscribe Dockerfile and Groovebox smoke gate were completed in the v1.4 stream and consolidated in v1.4.3; the full parser/synthesis pipeline moves to v1.4+.
 
 ### v1.4+ -- Songscribe Pipeline
 

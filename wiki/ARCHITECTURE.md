@@ -1,7 +1,7 @@
-# uDOS Architecture (v1.3)
+# uDOS Architecture
 
-**Version:** v1.3.0
-**Last Updated:** 2026-02-04
+**Version:** v1.4.3
+**Last Updated:** 2026-02-19
 **Status:** Active
 
 uDOS is an offline‑first, vault‑based system with optional gateway services and modular extensions.
@@ -85,12 +85,12 @@ uDOS/
 ---
 
 ## Versioning
-- Core + Wizard version-locked in `v1.3.0-release-manifest.yml`.
+- Core + Wizard release baseline is tracked in `releases/v1.4.3.yml`.
 - Submodules can ship on their own cadence.
 
 ---
 
 ## Related Docs
-- `docs/ARCHITECTURE-v1.3.md`
-- `docs/DOCS-SPINE-v1.3.md`
-- `docs/ROADMAP-TODO.md`
+- `docs/README.md`
+- `docs/roadmap.md`
+- `docs/specs/wiki_spec_obsidian.md`

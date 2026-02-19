@@ -56,7 +56,7 @@ What testing has been done?
 
 List any dependencies:
 
-- uDOS version: [e.g., >=v1.1.0]
+- uDOS version: [e.g., >=v1.4.3]
 - Python packages: [if any]
 - External tools: [if any]
 
@@ -81,13 +81,13 @@ If yes to any, explain the necessity and safety measures.
 
 ## ✔️ Quality Checklist
 
-- [ ] Code follows [uDOS style guide](https://github.com/fredporter/uDOS-dev/wiki/Style-Guide)
+- [ ] Code follows [uDOS contribution process](https://github.com/fredporter/uDOS/blob/main/docs/CONTRIBUTION-PROCESS.md)
 - [ ] Extension has comprehensive documentation
 - [ ] All features are tested
 - [ ] Extension metadata is complete (manifest.json)
 - [ ] No security vulnerabilities identified
-- [ ] Compatible with uDOS v1.1.0+
-- [ ] Follows [extension development guidelines](https://github.com/fredporter/uDOS-dev/wiki/API-Reference)
+- [ ] Compatible with uDOS v1.4.3+
+- [ ] Follows [extension development guidelines](https://github.com/fredporter/uDOS/blob/main/extensions/README.md)
 
 ## 📝 Additional Notes
 

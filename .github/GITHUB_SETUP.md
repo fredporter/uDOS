@@ -1,6 +1,6 @@
 # GitHub Repository Setup Guide
 
-Guide for setting up Projects, Issues, and Pull Requests on the uDOS public repository.
+Guide for setting up Projects, Issues, Pull Requests, and GitHub Wiki wiring on the uDOS public repository.
 
 ---
 
@@ -19,6 +19,26 @@ The repository includes:
 ### Pull Request Template
 - **PR Template** (`.github/PULL_REQUEST_TEMPLATE.md`)
 
+### Issue Template Routing
+- **Template config/contact links** (`.github/ISSUE_TEMPLATE/config.yml`)
+
+---
+
+## GitHub Wiki Wiring
+
+The repository wiki pages should map to files under `wiki/`:
+
+- `wiki/Home.md` -> Wiki Home
+- `wiki/_Sidebar.md` -> left navigation
+- `wiki/_Footer.md` -> footer links
+- `wiki/README.md` -> local wiki source index
+
+Canonical wiki/spec references:
+
+- `docs/specs/wiki_spec_obsidian.md`
+- `docs/specs/README.md`
+- `docs/roadmap.md`
+
 ---
 
 ## Setting Up GitHub Projects
@@ -29,7 +49,7 @@ The repository includes:
 2. Click the **Projects** tab
 3. Click **New project**
 4. Choose **Board** layout
-5. Name it: **uDOS v1.3 Development**
+5. Name it: **uDOS v1.4.3 Development**
 
 **Columns to create:**
 - 📋 **Backlog** — Ideas and future work
@@ -89,8 +109,8 @@ Create/use these labels:
 
 Create milestones for releases:
 
-- **v1.3.0** — Current release
-- **v1.4.0** — Next minor release
+- **v1.4.3** — Current stable release
+- **v1.5.0** — Next minor release
 - **v2.0.0** — Future major release
 
 ---
@@ -135,7 +155,7 @@ Contributors should:
 
 1. Fork the repository
 2. Create a feature branch
-3. Make changes following [Style Guide](wiki/Style-Guide.md)
+3. Make changes following [Contribution Process](../docs/CONTRIBUTION-PROCESS.md)
 4. Push to their fork
 5. Open PR using the template
 
@@ -270,5 +290,5 @@ Point contributors to:
 1. Go to GitHub repository settings
 2. Create a new Project board
 3. Add labels for organization
-4. Create v1.3.0 milestone
+4. Create v1.4.3 milestone (or next target)
 5. Start organizing existing issues!

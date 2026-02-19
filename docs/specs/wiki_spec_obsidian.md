@@ -1,9 +1,10 @@
 # uDOS Wiki Specification
 _Obsidian-compatible Markdown profile_
 
-Version: 1.0  
-Status: Stable  
+Version: 1.1
+Status: Stable
 Scope: Plain Markdown wiki authoring for uDOS binders, Wizard, CLI, and App
+Release baseline validated: v1.4.3
 
 ---
 
@@ -234,4 +235,3 @@ authoring-rules:
   - Tags for categorisation, not navigation
 ---
 ```
-

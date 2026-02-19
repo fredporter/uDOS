@@ -1,17 +1,18 @@
-# uDOS v1.3
+# uDOS v1.4.3
 
 Offline-first OS layer for knowledge systems, tools, and portable environments.
 
 **Core concept:** uDOS is a local Obsidian companion runtime for organizing vault workflows with `@workspace` and `@binder` contexts, fractal/layered filesystem structures, knowledge trees, and digital garden publishing patterns.
 
-**Status:** v1.3.14 (dev cycle); latest released manifest remains v1.3.12 while monorepo continues toward v1.4 Wizard web view/rendering capabilities
+**Status:** v1.4.3 (released); consolidated v1.4+ release notes published
 **Primary target:** Alpine Linux (Sonic USB)
 **Also supported:** macOS, Ubuntu, Windows (dev)
 
 **Start here:**
-- **Users/Beginners:** `wiki/Start-Here.md`
+- **Users/Beginners:** `wiki/Home.md`
 - **Developers:** `docs/README.md`
-- **Release manifest (latest release):** `releases/v1.3.12.yml`
+- **Release manifest (latest release):** `releases/v1.4.3.yml`
+- **Release notes (canonical):** `docs/releases/v1.4.3-release-notes.md`
 
 ---
 
@@ -36,7 +37,7 @@ Vault/data split:
 
 ---
 
-## What Ships in v1.3
+## What Ships in v1.4.3
 
 - **Core** — Deterministic Markdown → HTML runtime (offline)
 - **Wizard** — LAN gateway (AI routing, plugins, sync)
@@ -95,6 +96,7 @@ docs/        Architecture + specs
 - `wiki/README.md` — user guides
 - `docs/README.md` — canonical docs index and flow
 - `docs/roadmap.md` — canonical roadmap
+- `docs/releases/v1.4.3-release-notes.md` — consolidated v1.4+ release notes
 - `docs/howto/UCODE-COMMAND-REFERENCE.md` — canonical command surface
 - `docs/DOCS-SPINE-v1.3.md` — spine redirect
 - `docs/decisions/VAULT-MEMORY-CONTRACT.md` — vault/template/runtime contract

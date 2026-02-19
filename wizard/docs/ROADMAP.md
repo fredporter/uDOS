@@ -1,5 +1,5 @@
 # Wizard Roadmap (Moved)
 
-This roadmap now lives in [docs/ROADMAP.md](../../docs/ROADMAP.md#wizard-roadmap).
+This roadmap now lives in [docs/roadmap.md](../../docs/roadmap.md#wizard-roadmap).
 
-Archived copy: [docs/.archive/2026-02-11-roadmap-consolidation/wizard-ROADMAP.md](../../docs/.archive/2026-02-11-roadmap-consolidation/wizard-ROADMAP.md).
+Historical copy is preserved under the compost/archive policy in `/.compost/.../archive/...`.

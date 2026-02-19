@@ -448,7 +448,7 @@ rss_xml = feed.generate_rss(items=research_items)
 - Integration Tests: `core/tests/test_binder_integration_v1_0_6.py`
 - Unit Tests: `core/tests/test_binder_*.py`
 - Phase 3 Documentation: `docs/devlog/2026-01-17-phase-3-*.md`
-- Roadmap: `docs/ROADMAP.md`
+- Roadmap: `docs/roadmap.md`
 
 ---
 

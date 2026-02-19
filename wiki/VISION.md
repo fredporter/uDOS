@@ -1,10 +1,10 @@
 # uDOS Vision
 
-**Version:** v1.3.0
-**Last Updated:** 2026-02-04
+**Version:** v1.4.3
+**Last Updated:** 2026-02-19
 **Status:** Vision / Aspirational
 
-> This document describes the long‑term direction. Not every feature listed is part of the v1.3 release manifest.
+> This document describes the long‑term direction. Not every feature listed is part of the current v1.4.3 release baseline.
 
 **A text-first computing environment for humans who value privacy, simplicity, and offline capability.**
 
@@ -176,7 +176,7 @@ wellbeing:
 
 1. **TUI Users**: Run `./bin/Launch-uCODE.sh` and type `HELP`
 2. **Desktop Users**: Launch uCode Markdown App
-3. **Developers**: See [Contributing](../wiki/Contributing.md)
+3. **Developers**: See [Contributing](../wiki/CONTRIBUTING.md)
 
 ---
 

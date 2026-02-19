@@ -9,7 +9,7 @@ v1.0.2.0 Phase 1: Architecture Split + uMarkdown App Scaffold
 - Port assignments: 8765 (Wizard), 8766 (Dev)
 
 ### Documentation
-- docs/ROADMAP.md: v1.0.2.0 breakdown (4 phases, 8 weeks)
+- docs/roadmap.md: v1.0.2.0 breakdown (4 phases, 8 weeks)
 - docs/devlog/2026-01-15-phase-1-scaffold.md: Complete audit trail
 - docs/PHASE-1-SUMMARY.md: Executive summary
 - docs/PHASE-1-CHECKLIST.md: Verification checklist

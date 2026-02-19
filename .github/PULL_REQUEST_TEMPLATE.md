@@ -49,7 +49,7 @@ If applicable, add screenshots or example outputs:
 
 ### Code Quality
 
-- [ ] Code follows [uDOS style guide](https://github.com/fredporter/uDOS-dev/wiki/Style-Guide)
+- [ ] Code follows [uDOS contribution process](https://github.com/fredporter/uDOS/blob/main/docs/CONTRIBUTION-PROCESS.md)
 - [ ] Self-review performed
 - [ ] Comments added for complex logic
 - [ ] No unnecessary debug code or commented code
@@ -101,6 +101,6 @@ Specific areas you'd like reviewers to focus on:
 **By submitting this PR, I confirm that:**
 
 - [ ] I have read and agree to the [Code of Conduct](CODE_OF_CONDUCT.md)
-- [ ] I have read the [Contributing Guidelines](../wiki/Contributing.md)
+- [ ] I have read the [Contributing Guidelines](../wiki/CONTRIBUTING.md)
 - [ ] My contribution is my own original work
 - [ ] I license my contribution under the project's [MIT License](LICENSE.txt)
