@@ -31,6 +31,10 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install core dependencies for CI checks
+        run: |
+          pip install PyYAML requests prompt-toolkit
+
       - name: Run policy checks
         run: |
           python tools/ci/check_core_stdlib_boundary.py
