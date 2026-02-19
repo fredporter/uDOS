@@ -795,6 +795,31 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
   - [ ] Document base image versions and CVE patching process.
 
 - [ ] **Wizard Admin Web Page Audit**
+  - [ ] **Page Inventory & Mapping**
+    - [ ] Complete audit of all dashboard pages: count, list, identify duplicates.
+    - [ ] Map page dependency graph (which pages reference/link to which).
+    - [ ] Document page purposes and target workflows.
+    - [ ] Identify orphaned pages (unreachable from navigation).
+    - [ ] Check for duplicate functionality across multiple pages (consolidation candidates).
+    - [ ] Create page matrix: name, route, status (working/broken/incomplete), last updated date.
+    - [ ] Document page-to-feature mapping (which admin features are exposed on which pages).
+  - [ ] **Page Functionality Audit**
+    - [ ] Verify each page loads without errors (200 HTTP, no console errors).
+    - [ ] Test all interactive elements: buttons, forms, dropdowns, modals.
+    - [ ] Verify data binding: inputs update model, model changes update display.
+    - [ ] Check form validation: required fields, input formats, error messages.
+    - [ ] Test CRUD operations: create, read, update, delete workflows on all pages.
+    - [ ] Verify search/filter functionality (if applicable).
+    - [ ] Check pagination and sorting (if applicable).
+    - [ ] Test real-time updates (if WebSocket/polling used).
+  - [ ] **Duplication & Code Cleanup**
+    - [ ] Identify duplicate page designs (same layout/styling across pages).
+    - [ ] Find duplicate form implementations (consolidate into reusable components).
+    - [ ] Audit CSS duplication: identify unused styles, consolidate shared styles.
+    - [ ] Check for duplicate API endpoints (consolidate if functional overlap).
+    - [ ] Identify duplicate state management (consolidate into single source of truth).
+    - [ ] Document reusable component candidates (buttons, modals, tables, forms).
+    - [ ] Plan refactoring: consolidate duplicates, extract shared components.
   - [ ] **Security Hardening Review**
     - [ ] Full security audit: XSS, CSRF, SQL injection, command injection prevention.
     - [ ] Authentication/authorization review: session management, token-based auth, role-based access control.
@@ -809,17 +834,22 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
     - [ ] WCAG 2.1 AA compliance review (screen readers, keyboard navigation, color contrast).
     - [ ] Test with actual assistive technologies (NVDA, JAWS on Windows; VoiceOver on macOS).
     - [ ] Usability review: admin workflow efficiency, error messages clarity, help documentation.
+    - [ ] Test on multiple browsers: Chrome, Firefox, Safari, Edge.
+    - [ ] Test responsive design: mobile, tablet, desktop viewports.
   - [ ] **Performance & Load Testing**
     - [ ] Browser DevTools profiling: identify rendering bottlenecks, excessive re-renders.
     - [ ] Load test dashboard: 100+ concurrent users via `k6` or similar.
     - [ ] Monitor memory leaks: long-session dashboard operation (8+ hours).
     - [ ] Test on low-bandwidth connections (3G, 4G throttling).
-  - [ ] **Documentation & Hardening Report**
-    - [ ] Generate comprehensive audit report: findings, risk levels, remediation recommendations.
+    - [ ] Profile each page: time-to-interactive, first contentful paint, largest contentful paint.
+  - [ ] **Documentation & Audit Report**
+    - [ ] Generate comprehensive audit report: findings by category, risk levels, recommendations.
+    - [ ] Create page inventory spreadsheet: all pages, status, functionality, duplicates identified.
     - [ ] Create WIZARD-ADMIN-SECURITY.md: security architecture, attack surface, mitigations.
     - [ ] Document authentication flows: session lifecycle, token refresh, session timeout.
     - [ ] Create admin onboarding guide: secure setup, password best practices, 2FA if applicable.
     - [ ] Publish security policy: responsible disclosure, CVE handling process for Wizard.
+    - [ ] Create refactoring roadmap: consolidation plan with effort estimates.
 
 #### P3 -- Sonic Standalone Integration & Distribution
 

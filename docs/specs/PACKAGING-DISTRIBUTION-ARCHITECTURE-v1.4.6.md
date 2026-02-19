@@ -393,6 +393,328 @@ services:
 
 ---
 
+## Wizard Admin Dashboard Page Audit
+
+### Overview
+
+The Wizard admin dashboard requires comprehensive audit covering page inventory, functionality verification, duplication analysis, and hardening. This section defines the audit scope and deliverables.
+
+### Phase 1: Page Inventory & Mapping
+
+**Deliverable:** Complete page inventory with dependency graph
+
+| Page | Route | Status | Purpose | Dependencies | Duplicates |
+|------|-------|--------|---------|--------------|-----------|
+| Dashboard Home | `/#/dashboard` | [working/broken/incomplete] | System overview, status cards | — | — |
+| System Health | `/#/system/health` | — | Container health, resource usage | `/api/health` | — |
+| Configuration | `/#/config` | — | Wizard config editor (JSON) | `/api/config` | — |
+| Library Manager | `/#/library` | — | Local library browser, install, update | `/api/library` | — |
+| Docker Services | `/#/system/docker` | — | Container status, logs, controls | `/api/docker` | — |
+| User Management | `/#/users` | — | Admin users, roles, permissions | `/api/users` | — |
+| Audit Logs | `/#/audit-logs` | — | API request history, errors, access logs | `/api/audit-logs` | — |
+| Extensions | `/#/extensions` | — | Installed extensions, enable/disable | `/api/extensions` | — |
+| Settings | `/#/settings` | — | Admin preferences (theme, language, etc) | `/api/settings` | — |
+| ... | ... | ... | ... | ... | ... |
+
+**Audit Tasks:**
+- [ ] List all routes in `wizard/routes/` and `wizard/web/src/` (identify any missing/extra)
+- [ ] Count total pages (expected: 15-25 main pages)
+- [ ] Identify orphaned routes (reachable via URL but no navigation link)
+- [ ] Map page dependency graph (draw DAG: which pages call which APIs, reference which other pages)
+- [ ] Identify duplicate pages by functionality (e.g., two "library" pages, two "config" pages)
+- [ ] Check for duplicate navigation entries (same page listed in multiple nav menus)
+- [ ] Document page load times (baseline metric for performance audit)
+
+### Phase 2: Page Functionality Audit
+
+**Deliverable:** Functionality verification matrix with test results
+
+**For each page, verify:**
+
+1. **Page Load:**
+   - [ ] HTTP 200 response with no 404/500 errors
+   - [ ] Page renders in <2 seconds (on modern hardware)
+   - [ ] No console errors (JavaScript errors, unhandled promises)
+   - [ ] No missing assets (images, CSS, fonts load successfully)
+   - [ ] Graceful degradation if optional features unavailable (e.g., Docker not running)
+
+2. **Interactive Elements:**
+   - [ ] All buttons are clickable and functional
+   - [ ] All links navigate to correct destinations
+   - [ ] Dropdowns/selects open and show options
+   - [ ] Modals open and close correctly
+   - [ ] Accordions expand/collapse
+   - [ ] Tabs switch content correctly
+
+3. **Forms & Input Validation:**
+   - [ ] Required fields show validation errors if empty
+   - [ ] Input formats validated (email, numbers, JSON, etc)
+   - [ ] Submit button disabled until form valid
+   - [ ] Error messages are clear and actionable
+   - [ ] Success messages confirm actions completed
+
+4. **Data Binding & State:**
+   - [ ] Form inputs update underlying model on change
+   - [ ] Model updates refresh display in real-time
+   - [ ] No stale data displayed after updates
+   - [ ] Undo/redo works if supported
+
+5. **CRUD Operations:**
+   - [ ] Create: new items can be added (e.g., new user, new library)
+   - [ ] Read: existing items display correctly with all fields
+   - [ ] Update: edits persist after save
+   - [ ] Delete: items can be removed with confirmation
+   - [ ] Bulk operations work if supported
+
+6. **Search & Filter:**
+   - [ ] Search returns correct results
+   - [ ] Filters apply and exclude correctly
+   - [ ] Search is case-insensitive if expected
+   - [ ] Results update in real-time as user types
+
+7. **Real-time Updates:**
+   - [ ] WebSocket/polling updates work (if used)
+   - [ ] Server-sent updates display without page reload
+   - [ ] No duplicate updates in list (check for duplicate event handling)
+
+8. **Error Handling:**
+   - [ ] Network errors show user-friendly messages (not stack traces)
+   - [ ] Timeout errors are handled gracefully
+   - [ ] Retry logic works if implemented
+   - [ ] Offline state is handled clearly
+
+### Phase 3: Duplication Audit
+
+**Deliverable:** Duplication inventory with consolidation recommendations
+
+**Check for:**
+
+1. **Duplicate Page Designs:**
+   - [ ] Pages with identical layouts (same sections, same styling)
+   - [ ] Multiple admin pages with same visual structure
+   - [ ] Example: two different "settings" pages, two "status" pages
+   - **Action:** Consolidate into single canonical page
+
+2. **Duplicate Forms:**
+   - [ ] Same form repeated on multiple pages (e.g., library search)
+   - [ ] Similar form structures (config, user create, library create)
+   - **Action:** Extract into reusable form component library
+
+3. **Duplicate CSS:**
+   - [ ] Unused CSS rules (audit with coverage tools)
+   - [ ] Duplicate selectors defining same styles
+   - [ ] Similar color/spacing across pages (consolidate into design tokens)
+   - **Action:** Extract into shared stylesheet, use CSS variables
+
+4. **Duplicate API Endpoints:**
+   - [ ] Endpoints that return same data (e.g., `/api/config` and `/api/settings`)
+   - [ ] Endpoints with same logic, different paths (e.g., `/api/user/{id}` and `/api/users/{id}`)
+   - **Action:** Consolidate into single endpoint with clear semantics
+
+5. **Duplicate State Management:**
+   - [ ] Multiple stores tracking same data (e.g., `userStore` and `accountStore`)
+   - [ ] State duplicated across components (prop drilling instead of store)
+   - **Action:** Consolidate into single store, use proper state management pattern
+
+6. **Duplicate Components:**
+   - [ ] Button styles repeated in multiple components
+   - [ ] Table layouts repeated for different data types
+   - [ ] Modal patterns used identically in different contexts
+   - **Action:** Create reusable component library (Button, Table, Modal, Form, etc)
+
+**Duplication Report Template:**
+
+```
+### Duplicate: [Name]
+- **Type:** [Page/Form/CSS/API/Component]
+- **Locations:** [List of files/routes]
+- **Functionality:** [What it does]
+- **Impact:** [Code size or maintenance burden]
+- **Recommendation:** Consolidate into [single location]
+- **Effort Estimate:** [hours to consolidate]
+```
+
+### Phase 4: Security Hardening
+
+**Deliverable:** Security audit report with CVE/vulnerability list and remediation plan
+
+1. **Input Validation Audit:**
+   - [ ] All form inputs sanitized before sending to server
+   - [ ] File uploads validated (type, size, content)
+   - [ ] URL parameters validated (no path traversal)
+   - [ ] JSON parsing handles invalid JSON gracefully
+
+2. **Output Encoding:**
+   - [ ] User-generated content HTML-encoded (prevent XSS)
+   - [ ] API responses rendered safely
+   - [ ] No `dangerouslySetInnerHTML` or equivalent without sanitization
+
+3. **Authentication & Authorization:**
+   - [ ] Session tokens stored securely (httpOnly cookies preferred)
+   - [ ] Token refresh works without user noticing
+   - [ ] Session timeout enforced
+   - [ ] Buttons/features hidden if user lacks permission
+   - [ ] API checks permissions server-side (not just client-side)
+
+4. **CSRF Protection:**
+   - [ ] Forms include CSRF tokens
+   - [ ] State-changing requests (POST/PUT/DELETE) require token
+   - [ ] SameSite cookie attribute set correctly
+
+5. **API Security:**
+   - [ ] Rate limiting prevents brute force (max requests per minute)
+   - [ ] Error messages don't leak sensitive info (e.g., "user not found" vs "invalid credentials")
+   - [ ] API validates all inputs server-side
+   - [ ] API responses filtered (no unnecessary data leakage)
+
+### Phase 5: Penetration Testing
+
+**Deliverable:** Penetration test report with proof-of-concept exploits (if found)
+
+**Manual Testing:**
+- [ ] Attempt XSS injection in form fields
+- [ ] Attempt SQL injection via search/filter
+- [ ] Attempt command injection in text areas
+- [ ] Attempt CSRF via form submission from external site
+- [ ] Attempt privilege escalation (demoted user tries to access admin page)
+- [ ] Attempt session hijacking (steal session token from URL/cookie)
+- [ ] Attempt brute force (rapid login attempts)
+
+**Automated Scanning:**
+- [ ] Run OWASP ZAP on all admin pages
+- [ ] Run Burp Suite Community on all APIs
+- [ ] Review scan findings and confirm true positives vs false positives
+- [ ] Document any CVEs with CVSS scores
+
+### Phase 6: Accessibility & UX
+
+**Deliverable:** WCAG 2.1 AA compliance checklist with remediation plan
+
+1. **Keyboard Navigation:**
+   - [ ] All interactive elements reachable via Tab key
+   - [ ] Tab order is logical (top-to-bottom, left-to-right)
+   - [ ] Focus indicator visible on all elements
+   - [ ] Escape key closes modals/menus
+   - [ ] Enter key submits forms
+
+2. **Screen Reader Support:**
+   - [ ] All images have alt text
+   - [ ] Form labels properly associated with inputs
+   - [ ] Page structure uses semantic HTML (headings, landmarks)
+   - [ ] ARIA labels/roles used correctly
+   - [ ] Tables have proper headers
+
+3. **Visual Accessibility:**
+   - [ ] Text contrast ratio ≥4.5:1 for normal text
+   - [ ] Text contrast ratio ≥3:1 for large text
+   - [ ] No information conveyed by color alone (use icons/labels)
+   - [ ] Focus indicators visible (not hidden by CSS)
+
+4. **Responsive Design:**
+   - [ ] Pages render correctly at 320px width (mobile)
+   - [ ] Pages render correctly at 768px width (tablet)
+   - [ ] Pages render correctly at 1440px width (desktop)
+   - [ ] No horizontal scrolling at any breakpoint
+   - [ ] Touch targets ≥44x44px (mobile-friendly)
+
+5. **Browser Compatibility:**
+   - [ ] Chrome (latest 2 versions)
+   - [ ] Firefox (latest 2 versions)
+   - [ ] Safari (latest 2 versions)
+   - [ ] Edge (latest 2 versions)
+
+### Phase 7: Performance Testing
+
+**Deliverable:** Performance profile with optimization recommendations
+
+**Metrics to measure:**
+
+1. **Page Load Time:**
+   - [ ] Time to First Contentful Paint (FCP)
+   - [ ] Time to Largest Contentful Paint (LCP)
+   - [ ] Cumulative Layout Shift (CLS)
+   - [ ] First Input Delay (FID)
+   - Target: <2 seconds LCP, <0.1 CLS
+
+2. **Runtime Performance:**
+   - [ ] Frame rate when scrolling lists (target: 60 fps)
+   - [ ] Response time to button clicks (target: <100ms)
+   - [ ] Real-time update latency (target: <500ms)
+
+3. **Memory Usage:**
+   - [ ] Baseline memory (page first load)
+   - [ ] Memory after 100 interactions
+   - [ ] Memory after 8 hours of continuous operation
+   - Target: No growth >10% over baseline
+
+4. **Network Usage:**
+   - [ ] Total payload size (gzipped)
+   - [ ] Number of requests
+   - [ ] Largest individual requests
+   - Target: <1 MB total, <30 requests
+
+**Tools:**
+- Chrome DevTools Lighthouse
+- WebPageTest
+- k6 load testing
+- Memory profiling (Chrome DevTools)
+
+### Phase 8: Documentation & Report
+
+**Deliverables:**
+
+1. **Page Inventory Spreadsheet:**
+   - All pages, routes, statuses, dependencies, duplicates
+   - Cross-referenced with test results from Phase 2
+
+2. **Duplication Report:**
+   - List of all duplicates found with consolidation recommendations
+   - Effort estimates for each consolidation task
+   - Prioritized list (highest impact first)
+
+3. **Security Audit Report:**
+   - Findings by category (XSS, CSRF, auth, injection, etc)
+   - Risk levels (critical, high, medium, low)
+   - Remediation steps for each finding
+   - Timeline for fixes
+
+4. **Accessibility Report:**
+   - WCAG 2.1 AA compliance status (% compliant)
+   - List of non-compliant elements with fixes
+   - Accessibility roadmap for future work
+
+5. **Performance Report:**
+   - Current metrics vs targets
+   - Identified bottlenecks
+   - Optimization recommendations (code splitting, lazy loading, caching, etc)
+   - Timeline for performance improvements
+
+6. **WIZARD-ADMIN-SECURITY.md:**
+   - Wizard admin security architecture
+   - Attack surface analysis
+   - Threat model and mitigations
+   - Session management details
+   - Authentication/authorization flows
+   - Rate limiting policies
+   - CSRF protection details
+   - Data validation strategies
+
+7. **WIZARD-ADMIN-ONBOARDING.md:**
+   - How to set up Wizard admin securely
+   - Password best practices
+   - 2FA setup (if applicable)
+   - Role-based access control setup
+   - Common admin workflows
+   - Troubleshooting guide
+
+8. **Refactoring Roadmap:**
+   - Prioritized list of consolidations
+   - Effort estimates
+   - Dependencies between tasks
+   - Release timeline
+
+---
+
 ## MCP Server Integration
 
 ### Wizard MCP Server Architecture
