@@ -42,7 +42,6 @@ Thumbs.db
 .env
 .env.*
 venv/
-.venv/
 .venv-mcp/
 
 # Docker

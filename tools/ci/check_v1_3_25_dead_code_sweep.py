@@ -29,7 +29,7 @@ def _iter_py_files() -> List[Path]:
         if not root.exists():
             continue
         for path in root.rglob("*.py"):
-            if any(part in {"__pycache__", ".venv", "dist", "node_modules", "tests"} for part in path.parts):
+            if any(part in {"__pycache__", "venv", "dist", "node_modules", "tests"} for part in path.parts):
                 continue
             out.append(path)
     return out

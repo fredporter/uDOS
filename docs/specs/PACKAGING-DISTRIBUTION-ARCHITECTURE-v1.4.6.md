@@ -2,19 +2,25 @@
 
 **Status:** Specification (v1.4.6 dev round)
 **Owner:** uDOS Build/Release Team
-**Target Release:** 2026-05-31
+**Milestone:** Round 6 (Packaging & Distribution Hardening) → Gate to v1.4.7 Stable
 
 ---
 
 ## Vision
 
-Transform uDOS from a monolithic repository into a **consumable distribution system** with:
+Transform uDOS from a monolithic repository into a **consumable distribution system** with **production-grade hardening**:
 
 - **Multi-variant packaging:** Core-only, Wizard-full, Sonic-standalone, Dev-complete
 - **Local library ecosystem:** Versioned packages with dependency resolution, updates, sharing
 - **Hardened Docker:** Health checks, lifecycle management, security scanning, backup/restore
 - **Standalone Sonic:** Bootable ISO without Wizard dependency; integration bridge for Wizard hosts
 - **Decentralized distribution:** No central monorepository; packages distributed via GitHub Releases, package registries, local libraries
+- **Security & Compliance:** Third-party security audit, penetration testing, SBOM generation, secrets management
+- **Performance & Observability:** Baseline metrics, load testing, centralized logging, distributed tracing, alerting
+- **Backup & Recovery:** Automated backups, disaster recovery, upgrade rollback, data retention policies
+- **Advanced Testing:** Chaos engineering, fuzzing, contract testing, compatibility matrix
+
+**This round establishes the foundation for v1.4.7 Stable Release.**
 
 ---
 
@@ -118,7 +124,7 @@ udos-dev-complete-v1.4.6/
 ```json
 {
   "version": "1.4.6",
-  "release_date": "2026-05-31T00:00:00Z",
+  "release_milestone": "round-6-complete",
   "variants": [
     {
       "name": "core-slim",
@@ -172,7 +178,7 @@ udos-dev-complete-v1.4.6/
 ```json
 {
   "catalog_version": "1.0",
-  "last_updated": "2026-05-31T00:00:00Z",
+  "last_updated_milestone": "v1.4.6-round-6",
   "libraries": [
     {
       "id": "lib-grid-extensions",
@@ -200,7 +206,7 @@ udos-dev-complete-v1.4.6/
         "sha512": "xyz789..."
       },
       "installed": {
-        "timestamp": "2026-02-20T14:30:00Z",
+        "milestone": "v1.4.6-round-6",
         "version": "1.2.3"
       }
     }
@@ -943,7 +949,7 @@ jobs:
 
 ```json
 {
-  "timestamp": "2026-02-20T14:30:45Z",
+  "timestamp": "<ISO-8601-timestamp>",
   "level": "INFO",
   "component": "mcp_server",
   "event": "tool_invocation",
@@ -959,6 +965,170 @@ jobs:
 - Error rate >5% over 5 minutes → Slack notification
 - P95 latency >1s over 5 minutes → Warning
 - Memory usage >200 MB → Critical alert
+
+---
+
+## Security & Compliance Hardening
+
+### P5 -- Security Audit & Penetration Testing
+
+**Goal:** Comprehensive security hardening before Stable Release
+
+- [ ] **Security Audit**
+  - [ ] Third-party security audit of Core + Wizard + MCP server
+  - [ ] Penetration testing on Wizard HTTP endpoints
+  - [ ] Code security scanning (Bandit for Python, ESLint security plugins)
+  - [ ] Dependency vulnerability scanning (pip-audit, npm audit, Trivy)
+  - [ ] Secrets scanning (no credentials in git history)
+  - [ ] Supply chain security audit (verify all dependencies)
+
+- [ ] **SBOM Generation & Artifact Provenance**
+  - [ ] Auto-generate SBOM in CycloneDX format for all releases
+  - [ ] Include all Python deps (requirements.txt), JS deps (package.json), Docker images
+  - [ ] Sign SBOM artifacts with GPG
+  - [ ] Publish SBOM with release artifacts
+  - [ ] Generate SLSA provenance for build reproducibility
+
+- [ ] **Compliance Documentation**
+  - [ ] License inventory (all dependencies + license types)
+  - [ ] Attribution file generation (NOTICE.txt)
+  - [ ] Privacy policy (if cloud services involved)
+  - [ ] Terms of service (if publishing enabled)
+  - [ ] GDPR compliance check (if EU users)
+  - [ ] Export compliance (check for cryptography restrictions)
+
+- [ ] **Secrets Management**
+  - [ ] Document secrets rotation procedures (GitHub PAT, API keys)
+  - [ ] Implement secrets vault integration (optional: 1Password, HashiCorp Vault)
+  - [ ] Add secrets expiry warnings in SETUP/CONFIG commands
+  - [ ] Encrypt sensitive config files at rest
+  - [ ] Add secrets detection pre-commit hooks
+
+### P6 -- Performance Baselines & Load Testing
+
+**Goal:** Establish performance budgets and regression detection
+
+- [ ] **Core Command Benchmarks**
+  - [ ] Baseline all P0 commands (HEALTH, VERIFY, DRAW, PLACE, BINDER, RUN, PLAY)
+  - [ ] Performance budget: p95 <100ms for read operations, <500ms for writes
+  - [ ] CI gate: fail if any command regresses >20% from baseline
+  - [ ] Generate benchmark report per release (markdown table + graphs)
+  - [ ] Store benchmark history in `memory/system/benchmarks/`
+
+- [ ] **Wizard Service Load Tests**
+  - [ ] Load test HTTP server: 1000 concurrent users
+  - [ ] Load test MCP server: 100 req/sec sustained for 10 minutes
+  - [ ] Load test file picker: 100k+ files in vault
+  - [ ] Load test GitHub Pages sync: 10k+ markdown files
+  - [ ] Identify bottlenecks and optimize (caching, indexing, query optimization)
+
+- [ ] **Memory & Resource Tests**
+  - [ ] Long-running soak test (24 hours, monitor RSS growth)
+  - [ ] Detect memory leaks (valgrind for Python extensions if any)
+  - [ ] Resource limits enforcement (ulimit, cgroups in Docker)
+  - [ ] Test graceful degradation under memory pressure
+  - [ ] Profile CPU usage patterns under realistic load
+
+- [ ] **Regression Detection**
+  - [ ] Automated benchmark comparison in CI (current vs baseline)
+  - [ ] Performance dashboard in Wizard GUI (`#/system/performance`)
+  - [ ] Alert on >20% regression in any metric
+  - [ ] Track performance trends over releases
+
+### P7 -- System-Wide Observability
+
+**Goal:** Production-ready monitoring and debugging
+
+- [ ] **Centralized Logging**
+  - [ ] Structured logging format (JSON) for all components
+  - [ ] Log aggregation: file-based + optional remote (syslog, Loki)
+  - [ ] Log rotation policies (max 7 days, 100MB per file)
+  - [ ] LOGS command enhancement: filter by component, level, time range, search
+  - [ ] Correlation IDs for cross-service request tracking
+
+- [ ] **Metrics & Alerting**
+  - [ ] Prometheus metrics for Core (command latency, error rate, cache hits)
+  - [ ] Prometheus metrics for Wizard (HTTP requests, active connections, queue depth)
+  - [ ] Prometheus metrics for Docker (container health, resource usage)
+  - [ ] Pre-configured Grafana dashboards (optional, exported as JSON)
+  - [ ] Alert rules: error rate >5%, memory >80%, disk >90%, container unhealthy
+  - [ ] Wire alerts to HEALTH command output
+
+- [ ] **Distributed Tracing** (optional, nice-to-have)
+  - [ ] OpenTelemetry integration for cross-service requests
+  - [ ] Trace uCODE → Shell → VIBE dispatch chain
+  - [ ] Trace Wizard → Core API calls
+  - [ ] Trace MCP requests end-to-end
+  - [ ] Visualize traces in Jaeger (optional)
+
+- [ ] **Health Dashboard**
+  - [ ] Real-time system health in Wizard GUI (`#/system/health`)
+  - [ ] Show all metrics: CPU, memory, disk, network, container status
+  - [ ] Show recent errors and warnings
+  - [ ] Show performance trends (last 24h, 7d, 30d)
+
+### P8 -- Backup, Recovery & Business Continuity
+
+**Goal:** Zero data loss, rapid recovery
+
+- [ ] **Automated Backups**
+  - [ ] `BACKUP create` command: snapshot vault + memory + config
+  - [ ] `BACKUP restore <snapshot>` command
+  - [ ] Scheduled backups (daily, weekly, monthly retention)
+  - [ ] Backup verification (test restore in sandbox)
+  - [ ] Backup encryption (optional, GPG-encrypted archives)
+  - [ ] Incremental backups (delta-only after first full backup)
+
+- [ ] **Disaster Recovery Procedures**
+  - [ ] Document full system recovery from backup
+  - [ ] Document partial recovery (vault only, config only)
+  - [ ] Test recovery on clean system (DR drill)
+  - [ ] Recovery time objective (RTO): <1 hour
+  - [ ] Recovery point objective (RPO): last backup (ideally <24h)
+  - [ ] Create disaster recovery runbook
+
+- [ ] **Upgrade Rollback**
+  - [ ] Pre-upgrade snapshot automation (auto-backup before upgrade)
+  - [ ] Rollback script: `REPAIR rollback --to v1.4.5`
+  - [ ] Test failed upgrade → rollback → retry workflow
+  - [ ] Version history tracking (what versions were installed when)
+  - [ ] Preserve user data across rollback
+
+- [ ] **Data Retention & Archival**
+  - [ ] Define retention policies (logs: 7d, backups: 30d, archives: 1y)
+  - [ ] Automatic archival of old data
+  - [ ] Compression for archived data
+  - [ ] Document data deletion procedures (GDPR right to erasure)
+
+### P9 -- Advanced Testing
+
+**Goal:** Production-grade reliability
+
+- [ ] **Chaos Engineering**
+  - [ ] Network partition tests (Wizard ↔ Core connection loss)
+  - [ ] Disk full simulation (test graceful degradation)
+  - [ ] Memory pressure tests (OOM handling)
+  - [ ] Container crash recovery tests (auto-restart verification)
+  - [ ] Clock skew tests (time synchronization issues)
+
+- [ ] **Fuzzing**
+  - [ ] Fuzz test all command parsers (invalid syntax, edge cases)
+  - [ ] Fuzz test MCP tool parameters
+  - [ ] Fuzz test file path inputs (path traversal, special chars)
+  - [ ] Fuzz test configuration files (invalid JSON/YAML)
+  - [ ] Fuzz test network inputs (malformed HTTP, WebSocket frames)
+
+- [ ] **Contract Testing**
+  - [ ] Pact tests for Wizard → Core API
+  - [ ] MCP protocol contract tests (Copilot compatibility)
+  - [ ] Docker Compose contract tests (service dependencies)
+  - [ ] Library package format contract tests
+
+- [ ] **Compatibility Testing**
+  - [ ] Test on Python 3.8, 3.9, 3.10, 3.11, 3.12
+  - [ ] Test on macOS Intel, macOS ARM, Ubuntu 20.04, 22.04, 24.04
+  - [ ] Test with different Docker versions
+  - [ ] Test with different shell environments (bash, zsh, fish)
 
 ---
 
@@ -1090,7 +1260,12 @@ gpg --verify udos-core-slim-v1.4.6.tar.gz.sig udos-core-slim-v1.4.6.tar.gz
 ✅ **MCP Hardening:** Input validation 100% coverage; rate limiting enforced; audit logs complete
 ✅ **MCP Monitoring:** Metrics exported to Prometheus; error rate <1%; no memory leaks
 ✅ **Wizard Admin Audit:** Security hardening complete (XSS/CSRF/injection prevention); penetration testing passed; accessibility WCAG 2.1 AA compliant; performance <2s load time
-✅ **Documentation:** Installation guides for all platforms, library docs, Docker ops manual, MCP integration guide, Wizard admin security guide
+✅ **Security Audit (P5):** Third-party security audit passed; SBOM generated for all releases; no secrets in git history; compliance documented
+✅ **Performance Baselines (P6):** All P0 commands meet performance budget; load tests passed; no memory leaks; regression detection operational
+✅ **Observability (P7):** Structured logging operational; Prometheus metrics exported; alerts configured; health dashboard functional
+✅ **Backup & Recovery (P8):** Automated backups working; disaster recovery tested; upgrade rollback functional; RTO <1hr, RPO <24hr
+✅ **Advanced Testing (P9):** Chaos tests passed; fuzzing completed; contract tests passing; compatibility matrix validated
+✅ **Documentation:** Installation guides for all platforms, library docs, Docker ops manual, MCP integration guide, Wizard admin security guide, DR runbook, SBOM published
 
 ---
 

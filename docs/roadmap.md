@@ -1,6 +1,6 @@
 # uDOS Roadmap (Canonical)
 
-Last updated: 2026-02-20 (v1.4.7 Stable Release planning)
+Last updated: Current milestone: v1.4.6 Round 6 planning
 
 This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs/devlog/ROADMAP-LEGACY.md](devlog/ROADMAP-LEGACY.md).
 
@@ -10,13 +10,13 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 
 - Core concept: uDOS is a local Obsidian companion runtime focused on `@workspace`/`@binder` organization, fractal/layered filesystem structures, knowledge-tree navigation, and digital-garden workflows.
 - Milestones v1.3.0 to v1.3.7: complete (archived records exist).
-- Current focus: v1.4.3 released (2026-02-17). v1.4.4 dev cycle 2026-03-01 to 2026-03-31 (core hardening, gameplay lenses, TUI genres, command dispatch). v1.4.5 dev cycle 2026-04-01 to 2026-04-30 (Wizard stabilization, GitHub Pages publishing). v1.4.6 dev cycle 2026-05-01 to 2026-05-31 (packaging, local libraries, Docker hardening). **v1.4.7 Stable Release planned 2026-06-01 to 2026-06-30 (consolidation, command audit, version unification)**. Groovebox v1.4+ (Songscribe parser pipeline) deferred.
-- Version alignment: v1.4.3 released; v1.4.4-6 dev cycles run in parallel; **v1.4.7 is first fully-integrated Stable Release (no multi-version support, all installations upgrade to v1.4.7)**.
-- Outstanding (active): v1.4.4 includes core hardening, gameplay lenses (5 implementations), TUI genres (4 types), three-stage command dispatch. v1.4.5 includes Wizard stabilization, GUI browser/file picker, GitHub Pages + Jekyll publishing (no monorepo). v1.4.6 includes distribution packaging (4 variants), local library system (versioning, updates), Docker hardening, standalone Sonic. **v1.4.7 consolidates all work into Stable Release: audits all 40+ commands, modernizes REPAIR/SETUP, removes all backwards-compat shims, unifies versions, publishes comprehensive release notes and command reference.** Groovebox v1.4+ pipeline remains deferred.
+- Current focus: v1.4.3 complete (shipped). **Round 4** (v1.4.4): core hardening, gameplay lenses (5 implementations), TUI genres (4 types), three-stage command dispatch. **Round 5** (v1.4.5): Wizard stabilization, GUI browser/file picker, GitHub Pages + Jekyll publishing (no monorepo). **Round 6** (v1.4.6): distribution packaging (4 variants), local library system (versioning, updates), Docker hardening, standalone Sonic, security audit, performance testing. **Stable Release Gate** (v1.4.7): consolidation, command audit, version unification, no backwards-compat shims. Groovebox v1.4+ (Songscribe parser pipeline) deferred.
+- Version alignment: v1.4.3 shipped; Rounds 4-6 run in parallel phases; **v1.4.7 is first fully-integrated Stable Release (no multi-version support, all installations upgrade to v1.4.7)**.
+- Outstanding (active): Round 4 includes core hardening, gameplay lenses, TUI genres, three-stage command dispatch. Round 5 includes Wizard stabilization, GUI browser/file picker, GitHub Pages + Jekyll publishing. Round 6 includes distribution packaging (4 variants), local library system, Docker hardening, standalone Sonic, **security audit, performance baselines, observability, backup/recovery**. **Stable Release** consolidates all work: audits all 40+ commands, modernizes REPAIR/SETUP, removes all backwards-compat shims, unifies versions, publishes comprehensive release notes and command reference. Groovebox v1.4+ pipeline remains deferred.
 - Consolidated release notes: [docs/releases/v1.4.3-release-notes.md](releases/v1.4.3-release-notes.md).
 - Dev mode policy: `/dev/` public submodule required and admin-only; see [DEV-MODE-POLICY.md](DEV-MODE-POLICY.md).
 - Core/Wizard boundary: `core` is the base runtime; `wizard` is the brand for connected services. Core can run without Wizard (limited). Wizard cannot run without Core.
-- Python environment boundary (2026-02-15): Core Python is stdlib-only and must run without a venv; Wizard owns third-party Python in `/venv`; `/dev` piggybacks Wizard venv; Core TS runtime remains optional/lightweight.
+- Python environment boundary: Core Python is stdlib-only and must run without a venv; Wizard owns third-party Python in `/venv`; `/dev` piggybacks Wizard venv; Core TS runtime remains optional/lightweight.
 - Policy source for env split: [u_dos_python_environments_dev_brief.md](decisions/u_dos_python_environments_dev_brief.md).
 - Policy source for VM/control-plane + remote access topology: [u_dos_vm_and_remote_desktop_architecture_apple_silicon_dedicated_nodes.md](decisions/u_dos_vm_and_remote_desktop_architecture_apple_silicon_dedicated_nodes.md).
 - Policy source for Alpine thin GUI runtime standard: [u_dos_alpine_thin_gui_runtime_spec_chromium_kiosk_standard.md](decisions/u_dos_alpine_thin_gui_runtime_spec_chromium_kiosk_standard.md).
@@ -31,7 +31,7 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 - Full vibe-cli integration with uCODE TUI complete.
 - Vibe embed and minimal uCODE surface implemented.
 - Dev mode gate enforcement finalized.
-- Logging API v1.3 implemented and tested (2026-02-08).
+- Logging API v1.3 implemented and tested.
 - Empire business features split to dedicated Empire scope.
 - Migrated legacy bank paths to `memory/system/` and `memory/vault/`.
 - Implemented plugin packaging flow (`PLUGIN pack`) aligned to `distribution/plugins`.
@@ -703,13 +703,13 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 
 ---
 
-### v1.4.6 -- Packaging, Local Libraries & Distribution Hardening
+### v1.4.6 -- Packaging, Local Libraries & Distribution Hardening (Round 6)
 
-**Goal:** Establish comprehensive packaging and distribution system for uDOS, including standalone Sonic ISO distribution, local library management with versioning and updates, hardened Docker container lifecycle, and integrated Wizard/Sonic deployment.
+**Goal:** Establish comprehensive packaging and distribution system for uDOS, including standalone Sonic ISO distribution, local library management with versioning and updates, hardened Docker container lifecycle, integrated Wizard/Sonic deployment, **and complete security/performance/observability hardening before Stable Release**.
 
-**Timeline:** 2026-05-01 to 2026-05-31 (planned)
+**Milestone:** Round 6 complete → Gate to v1.4.7 Stable Release
 
-**Key Focus:** uDOS shifts from monorepo to consumable distribution packages with local library ecosystem; Sonic becomes standalone bootable artifact; container system gains health, recovery, and auto-update mechanisms.
+**Key Focus:** uDOS shifts from monorepo to consumable distribution packages with local library ecosystem; Sonic becomes standalone bootable artifact; container system gains health, recovery, and auto-update mechanisms; **production-ready hardening (security audit, performance baselines, observability, backup/recovery, comprehensive testing)**.
 
 #### P0 -- Packaging & Distribution Infrastructure
 
@@ -734,7 +734,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
   - [ ] Release artifacts on GitHub Releases (direct download, versioned).
   - [ ] Create package registry schema (`releases/package-registry.json`).
   - [ ] Document installation pathways: direct download, package managers (brew, apt, choco), Docker image.
-  - [ ] Create installation guide: `INSTALLATION-v1.4.6.md` (multiple OS/arch combinations).
+  - [ ] Create installation guide: `INSTALLATION.md` (multiple OS/arch combinations, version-agnostic).
 
 #### P1 -- Local Library System & Package Management
 
@@ -878,7 +878,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 - [ ] **Distribution Testing**
   - [ ] E2E test all package variants installation (core-slim, wizard-full, sonic-iso, dev-complete).
   - [ ] Test installation on Linux (Ubuntu 20.04, 22.04), macOS (12, 13), Windows (WSL2).
-  - [ ] Test upgrades: v1.4.3 → v1.4.6 on all platforms.
+  - [ ] Test upgrades: v1.4.3 → Round 6 on all platforms.
   - [ ] Verify no data loss during upgrade (vault and memory preserved).
 
 - [ ] **Library System Testing**
@@ -900,24 +900,160 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
   - [ ] Test Sonic in VM (VirtualBox, QEMU, Hyper-V).
 
 - [ ] **Documentation**
-  - [ ] Create `INSTALLATION-v1.4.6.md`: installation guide for all variants and platforms.
+  - [ ] Create `INSTALLATION.md`: installation guide for all variants and platforms.
   - [ ] Create `LIBRARY-MANAGEMENT.md`: library browser, install, update, share workflows.
   - [ ] Create `DOCKER-OPERATIONS.md`: container health, logs, backup/restore, troubleshooting.
   - [ ] Create `SONIC-STANDALONE.md`: Sonic boot, setup, updates, Wizard bridge.
   - [ ] Create `PACKAGING-INTERNALS.md`: release process, package structure, artifact signing.
 
+#### P5 -- Security Audit & Compliance
+
+- [ ] **Security Hardening**
+  - [ ] Third-party security audit of Core + Wizard + MCP server
+  - [ ] Penetration testing on Wizard HTTP endpoints (OWASP Top 10)
+  - [ ] Code security scanning (Bandit, ESLint security plugins)
+  - [ ] Dependency vulnerability scanning (pip-audit, npm audit, Trivy)
+  - [ ] Secrets scanning (no credentials in git history, pre-commit hooks)
+  - [ ] Supply chain security audit (verify all dependencies, SBOM generation)
+
+- [ ] **SBOM & Provenance**
+  - [ ] Auto-generate SBOM in CycloneDX format for all releases
+  - [ ] Include all Python deps, JS deps, Docker images
+  - [ ] Sign SBOM artifacts with GPG
+  - [ ] Generate SLSA provenance for build reproducibility
+
+- [ ] **Compliance & Legal**
+  - [ ] License inventory (all dependencies + license types)
+  - [ ] Attribution file (NOTICE.txt)
+  - [ ] Privacy policy (if cloud services)
+  - [ ] GDPR compliance check (if EU users)
+  - [ ] Export compliance (cryptography restrictions)
+
+- [ ] **Secrets Management**
+  - [ ] Document secrets rotation procedures
+  - [ ] Secrets vault integration (optional: 1Password, HashiCorp Vault)
+  - [ ] Secrets expiry warnings
+  - [ ] Encrypt sensitive config files at rest
+
+#### P6 -- Performance Baselines & Load Testing
+
+- [ ] **Core Command Benchmarks**
+  - [ ] Baseline all P0 commands (HEALTH, VERIFY, DRAW, PLACE, BINDER, RUN, PLAY)
+  - [ ] Performance budget: p95 <100ms reads, <500ms writes
+  - [ ] CI gate: fail if >20% regression
+  - [ ] Generate benchmark report per release
+  - [ ] Store benchmark history
+
+- [ ] **Wizard Service Load Tests**
+  - [ ] Load test HTTP server: 1000 concurrent users
+  - [ ] Load test MCP server: 100 req/sec sustained
+  - [ ] Load test file picker: 100k+ files
+  - [ ] Load test GitHub Pages sync: 10k+ files
+
+- [ ] **Memory & Resource Tests**
+  - [ ] Long-running soak test (24 hours)
+  - [ ] Memory leak detection
+  - [ ] Resource limits enforcement
+  - [ ] Graceful degradation under pressure
+
+- [ ] **Regression Detection**
+  - [ ] Automated benchmark comparison in CI
+  - [ ] Performance dashboard in Wizard GUI
+  - [ ] Alert on >20% regression
+
+#### P7 -- System-Wide Observability
+
+- [ ] **Centralized Logging**
+  - [ ] Structured logging (JSON) for all components
+  - [ ] Log aggregation: file + optional remote (syslog, Loki)
+  - [ ] Log rotation policies (7d, 100MB per file)
+  - [ ] LOGS command: filter by component, level, time, search
+  - [ ] Correlation IDs for cross-service tracking
+
+- [ ] **Metrics & Alerting**
+  - [ ] Prometheus metrics for Core, Wizard, Docker
+  - [ ] Pre-configured Grafana dashboards (optional)
+  - [ ] Alert rules: error rate, memory, disk, container health
+  - [ ] Wire alerts to HEALTH command
+
+- [ ] **Distributed Tracing** (optional)
+  - [ ] OpenTelemetry integration
+  - [ ] Trace uCODE → Shell → VIBE
+  - [ ] Trace Wizard → Core API
+  - [ ] Trace MCP end-to-end
+
+- [ ] **Health Dashboard**
+  - [ ] Real-time system health in Wizard GUI
+  - [ ] Show metrics, errors, performance trends
+
+#### P8 -- Backup, Recovery & Business Continuity
+
+- [ ] **Automated Backups**
+  - [ ] `BACKUP create/restore` commands
+  - [ ] Scheduled backups (daily, weekly, monthly)
+  - [ ] Backup verification (test restore)
+  - [ ] Backup encryption (optional, GPG)
+  - [ ] Incremental backups
+
+- [ ] **Disaster Recovery**
+  - [ ] Document full system recovery
+  - [ ] Document partial recovery
+  - [ ] Test recovery on clean system (DR drill)
+  - [ ] RTO: <1 hour, RPO: <24 hours
+  - [ ] Create DR runbook
+
+- [ ] **Upgrade Rollback**
+  - [ ] Pre-upgrade auto-snapshot
+  - [ ] Rollback script: `REPAIR rollback --to <version>`
+  - [ ] Test upgrade → rollback → retry workflow
+  - [ ] Version history tracking
+
+- [ ] **Data Retention**
+  - [ ] Define retention policies (logs: 7d, backups: 30d)
+  - [ ] Automatic archival
+  - [ ] Compression for archives
+  - [ ] Document data deletion (GDPR)
+
+#### P9 -- Advanced Testing
+
+- [ ] **Chaos Engineering**
+  - [ ] Network partition tests
+  - [ ] Disk full simulation
+  - [ ] Memory pressure tests
+  - [ ] Container crash recovery
+  - [ ] Clock skew tests
+
+- [ ] **Fuzzing**
+  - [ ] Fuzz command parsers
+  - [ ] Fuzz MCP tool parameters
+  - [ ] Fuzz file path inputs
+  - [ ] Fuzz config files
+  - [ ] Fuzz network inputs
+
+- [ ] **Contract Testing**
+  - [ ] Pact tests for Wizard → Core
+  - [ ] MCP protocol contract tests
+  - [ ] Docker Compose contract tests
+  - [ ] Library package format tests
+
+- [ ] **Compatibility Testing**
+  - [ ] Test Python 3.8-3.12
+  - [ ] Test macOS Intel/ARM, Ubuntu 20.04/22.04/24.04
+  - [ ] Test different Docker versions
+  - [ ] Test different shells (bash, zsh, fish)
+
 **Reference Artifacts:**
-- [PACKAGING-DISTRIBUTION-ARCHITECTURE-v1.4.6.md](specs/PACKAGING-DISTRIBUTION-ARCHITECTURE-v1.4.6.md): Complete packaging system, library catalog, Docker hardening, Sonic integration
+- [PACKAGING-DISTRIBUTION-ARCHITECTURE-v1.4.6.md](specs/PACKAGING-DISTRIBUTION-ARCHITECTURE-v1.4.6.md): Complete packaging system, library catalog, Docker hardening, Sonic integration, security/performance/observability hardening
 
 ---
 
-### v1.4.7 -- Stable Release (Consolidation & Command Audit)
+### v1.4.7 -- Stable Release (Consolidation & Command Audit) [Gate Milestone]
 
-**Goal:** Consolidate v1.4.4 through v1.4.6 work into a single Stable Release, audit and modernize complete command set (legacy concepts preserved but updated), ensure REPAIR/SETUP commands handle all scenarios, eliminate all backwards-compatibility shims, and establish version unification (all installations run v1.4.7 Stable).
+**Goal:** Consolidate Rounds 4-6 work into a single Stable Release, audit and modernize complete command set (legacy concepts preserved but updated), ensure REPAIR/SETUP commands handle all scenarios, eliminate all backwards-compatibility shims, and establish version unification (all installations run v1.4.7 Stable).
 
-**Timeline:** 2026-06-01 to 2026-06-30 (planned)
+**Milestone:** Stable Release Gate complete → v1.4.7 shipped
 
-**Key Focus:** uDOS v1.4.7 is the **first fully-integrated stable release** combining Core hardening, Gameplay lenses, TUI genres, Command dispatch, GitHub Pages publishing, Local libraries, and Docker hardening. No legacy shims, no dual versions, one modern coherent platform.
+**Key Focus:** uDOS v1.4.7 is the **first fully-integrated stable release** combining Core hardening, Gameplay lenses, TUI genres, Command dispatch, GitHub Pages publishing, Local libraries, Docker hardening, **and all security/performance/observability work from Round 6**. No legacy shims, no dual versions, one modern coherent platform.
 
 #### P0 -- Release Consolidation & Version Unification
 
@@ -935,7 +1071,7 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
     - Docker image tags → v1.4.7
     - Sonic ISO → v1.4.7
   - [ ] Establish version policy: **no multi-version installations supported; all installations must upgrade to v1.4.7**.
-  - [ ] Create deprecation timeline: v1.3.x support ends 2026-09-30, v1.4.0-6 support ends 2026-12-31.
+  - [ ] Create deprecation timeline: v1.3.x and v1.4.0-6 EOL milestones documented.
   - [ ] Wire auto-update checks into Core and Wizard (badge notifications, migration warnings).
 
 - [ ] **Legacy Shim Removal & Cleanup**
@@ -1043,6 +1179,8 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 
 #### P2 -- REPAIR & SETUP Command Hardening
 
+**Note:** REPAIR integrates with backup/recovery from Round 6 P8
+
 - [ ] **REPAIR Command Modernization (v1.4.7)**
   - [ ] `REPAIR` (default) - comprehensive health check for v1.4.7 stack
     - Verify Core Python env (stdlib-only, no venv contamination)
@@ -1103,6 +1241,8 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
 
 #### P3 -- Release Documentation & Migration
 
+**Note:** Incorporates all Round 6 hardening work (security, performance, observability, backup/recovery)
+
 - [ ] **Create Comprehensive v1.4.7 Release Notes**
   - [ ] Executive summary (major features, highlights, why upgrade)
   - [ ] Feature matrix (40+ commands with descriptions + examples)
@@ -1123,7 +1263,8 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
   - [ ] Test upgrade paths:
     - v1.3.x (any point) → v1.4.7
     - v1.4.0 → v1.4.7
-    - v1.4.3 → v1.4.7 (direct supported upgrade)
+    - v1.4.3 → v1.4.7
+    - Rounds 4, 5, 6 → v1.4.7
     - All variant combinations
   - [ ] Verify data preservation: vault, binders, workspace state, game progress
   - [ ] Verify config migration: old configs auto-converted to v1.4.7 schema
@@ -1144,17 +1285,60 @@ Reference: [WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md](specs/WIZARD-WEB-PUBLISH-SPEC-v1
   - [ ] REPAIR/SETUP command validated for v1.4.7
   - [ ] Zero known critical bugs in main features
   - [ ] 100% test coverage for command dispatch
+  - [ ] **All Round 6 hardening complete: security audit passed, performance baselines met, observability operational, backup/recovery tested**
   - [ ] All documentation updated and reviewed
-  - [ ] Release artifacts signed (GPG)
+  - [ ] Release artifacts signed (GPG) with SBOM
   - [ ] GitHub release published with consolidated notes
   - [ ] Version unified across all components
 
 - [ ] **Post-Release Support Plan**
   - [ ] Publish v1.4.7 Stable as recommended minimum version
-  - [ ] Auto-update notifications for v1.3.x and v1.4.0-6 users
+  - [ ] Auto-update notifications for earlier versions
   - [ ] Create support pathways: docs + FAQ + community issues
-  - [ ] Monitor first-week bug reports, patch as needed
+  - [ ] Monitor initial adoption, patch as needed
   - [ ] Begin v1.5.0 planning once v1.4.7 stabilizes
+
+#### P5 -- User Acceptance & Accessibility
+
+- [ ] **User Acceptance Testing**
+  - [ ] Recruit beta testers (mix of new + experienced users)
+  - [ ] UAT scenarios: setup → workspace → gameplay → publish
+  - [ ] Collect feedback via survey + GitHub issues
+  - [ ] Iterate on UX pain points before release
+  - [ ] Run UAT for minimum 2 weeks before Stable Release
+
+- [ ] **Accessibility**
+  - [ ] TUI screen reader compatibility (NVDA, JAWS testing)
+  - [ ] Keyboard navigation completeness (no mouse-only ops)
+  - [ ] Color blindness-friendly themes
+  - [ ] WCAG 2.1 AA compliance for Wizard GUI
+  - [ ] Document accessibility features
+
+- [ ] **Error Message Standardization**
+  - [ ] Audit all error messages for clarity
+  - [ ] Add error codes (e.g., UDOS-E-1001: Invalid workspace path)
+  - [ ] Error format: `[CODE] Message. Suggestion: <action>`
+  - [ ] Link errors to documentation
+
+#### P6 -- Developer Experience & Extensibility
+
+- [ ] **Contributor Guide**
+  - [ ] Create CONTRIBUTING.md (code style, PR process, testing)
+  - [ ] Dev environment setup automation (`make dev-setup`)
+  - [ ] Local testing guide (run tests, coverage requirements)
+  - [ ] Debugging guide (logs, breakpoints, common issues)
+
+- [ ] **Extension API Documentation**
+  - [ ] Document extension registration API
+  - [ ] Document command extension pattern
+  - [ ] Document library packaging best practices
+  - [ ] Create example extension repository
+
+- [ ] **API Versioning Strategy**
+  - [ ] Define API stability guarantees (what breaks, what doesn't)
+  - [ ] Versioned API endpoints (v1, v2) for breaking changes
+  - [ ] Deprecation policy (advance notice, migration guide)
+  - [ ] Document upgrade paths for extensions
 
 **Reference Artifacts:**
 - Command contract: [UCLI-COMMAND-CONTRACT-v1.3.md](specs/UCLI-COMMAND-CONTRACT-v1.3.md) (to be updated to v1.4.7)

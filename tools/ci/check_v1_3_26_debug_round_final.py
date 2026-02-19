@@ -39,7 +39,7 @@ def _scan_runtime_deprecated_markers() -> List[Dict[str, Any]]:
         for path in root.rglob("*"):
             if not path.is_file() or path.suffix not in {".py", ".ts", ".tsx", ".js", ".mjs", ".cjs"}:
                 continue
-            if any(part in {"__pycache__", "node_modules", "dist", ".venv", "tests"} for part in path.parts):
+            if any(part in {"__pycache__", "node_modules", "dist", "venv", "tests"} for part in path.parts):
                 continue
             lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
             for idx, line in enumerate(lines, start=1):

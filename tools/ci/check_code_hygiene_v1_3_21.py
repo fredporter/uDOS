@@ -41,7 +41,7 @@ def _iter_files() -> List[Path]:
                 continue
             if path.suffix not in TEXT_EXTS:
                 continue
-            if any(part in {"node_modules", "dist", "__pycache__", ".venv", "coverage"} for part in path.parts):
+            if any(part in {"node_modules", "dist", "__pycache__", "venv", "coverage"} for part in path.parts):
                 continue
             if "tests" in path.parts:
                 continue

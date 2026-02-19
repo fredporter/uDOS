@@ -125,8 +125,7 @@ secrets.py
 # Python virtual environments
 venv/
 **/venv/
-.venv/
-.venv-smoke/
+venv-smoke/
 env/
 **/env/
 node_modules/

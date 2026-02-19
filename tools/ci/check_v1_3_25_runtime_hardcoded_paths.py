@@ -31,7 +31,7 @@ def scan_runtime_hardcoded_paths() -> Dict[str, Any]:
         for path in root.rglob("*"):
             if not path.is_file() or path.suffix not in TEXT_EXTS:
                 continue
-            if any(part in {"__pycache__", ".venv", "dist", "node_modules", "tests"} for part in path.parts):
+            if any(part in {"__pycache__", "venv", "dist", "node_modules", "tests"} for part in path.parts):
                 continue
             try:
                 lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
