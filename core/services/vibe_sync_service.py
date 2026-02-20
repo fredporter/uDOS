@@ -5,6 +5,8 @@ from datetime import datetime
 from core.services.logging_manager import get_logger
 from core.sync.event_queue import EventQueue
 from core.sync.oauth_manager import get_oauth_manager
+from core.sync.calendar_provider_factory import CalendarProviderFactory
+from core.sync.transformers import CalendarEventTransformer
 
 logger = get_logger(__name__)
 
@@ -20,7 +22,7 @@ class VibeSyncService:
         self.oauth_manager = get_oauth_manager()
 
         # Provider instances (will be initialized on demand)
-        self.calendar_provider = None
+        self.calendar_providers = {}  # Keyed by provider type
         self.email_provider = None
         self.project_manager = None
         self.slack_client = None
@@ -34,30 +36,84 @@ class VibeSyncService:
     # ==================== Calendar Operations ====================
 
     async def sync_calendar(
-        self, provider_type: str, credentials: Optional[Dict] = None
+        self, provider_type: str, mission_id: str, credentials: Optional[Dict] = None
     ) -> Dict[str, Any]:
         """Synchronize calendar with external provider.
 
         Args:
             provider_type: 'google_calendar', 'outlook_calendar', 'apple_calendar'
+            mission_id: Target mission ID for created tasks
             credentials: OAuth credentials (optional, uses cached if not provided)
 
         Returns:
             Sync result dict
         """
-        logger.info(f"Starting calendar sync for {provider_type}")
+        logger.info(f"Starting calendar sync for {provider_type} → mission {mission_id}")
         self.sync_status = "syncing"
 
         try:
-            # TODO: Implement actual calendar provider instantiation
-            # For now, return placeholder
-            result = {
-                "status": "pending",
-                "provider": provider_type,
+            # Get or create provider
+            if provider_type not in self.calendar_providers:
+                provider = CalendarProviderFactory.create_provider(provider_type)
+                if not provider:
+                    return {"status": "error", "error": f"Unknown provider: {provider_type}"}
+                self.calendar_providers[provider_type] = provider
+
+            provider = self.calendar_providers[provider_type]
+
+            # Get credentials
+            if not credentials:
+                credentials = await self.oauth_manager.get_credentials(provider_type)
+            if not credentials:
+                logger.error(f"No credentials for {provider_type}")
+                return {"status": "error", "error": f"No credentials for {provider_type}"}
+
+            # Authenticate
+            if not await provider.authenticate(credentials):
+                return {"status": "error", "error": f"Authentication failed for {provider_type}"}
+
+            # Fetch events (last 7 days to next 30 days)
+            from datetime import timedelta
+            start_date = datetime.now() - timedelta(days=7)
+            end_date = datetime.now() + timedelta(days=30)
+
+            events = await provider.fetch_events(start_date, end_date)
+            logger.info(f"Fetched {len(events)} calendar events from {provider_type}")
+
+            # Transform to tasks
+            created_tasks = []
+            errors = []
+
+            for event in events:
+                try:
+                    task_item = CalendarEventTransformer.event_to_task_item(
+                        event, mission_id
+                    )
+                    created_tasks.append(task_item)
+                except Exception as e:
+                    logger.error(f"Error transforming event {event.id}: {e}")
+                    errors.append({"event_id": event.id, "error": str(e)})
+
+            # Store sync history
+            self.sync_history[provider_type] = {
                 "timestamp": datetime.now().isoformat(),
-                "message": "Calendar sync not yet implemented for Phase 8.1",
+                "events_synced": len(events),
+                "tasks_created": len(created_tasks),
+                "errors": len(errors),
             }
-            return result
+
+            self.sync_status = "idle"
+
+            return {
+                "status": "success",
+                "provider": provider_type,
+                "mission_id": mission_id,
+                "timestamp": datetime.now().isoformat(),
+                "events_synced": len(events),
+                "tasks_created": len(created_tasks),
+                "errors": errors,
+                "tasks": created_tasks,
+            }
 
         except Exception as e:
             logger.error(f"Calendar sync error: {e}")
@@ -82,11 +138,41 @@ class VibeSyncService:
         )
 
         try:
-            # TODO: Implement actual event fetching
-            return []
+            # Get or create provider
+            if provider_type not in self.calendar_providers:
+                provider = CalendarProviderFactory.create_provider(provider_type)
+                if not provider:
+                    return []
+                self.calendar_providers[provider_type] = provider
+
+            provider = self.calendar_providers[provider_type]
+
+            # Get credentials and authenticate
+            credentials = await self.oauth_manager.get_credentials(provider_type)
+            if not credentials or not await provider.authenticate(credentials):
+                logger.warning(f"Cannot authenticate {provider_type}")
+                return []
+
+            # Parse date range
+            start_date = datetime.fromisoformat(date_range.get('start_date', ''))
+            end_date = datetime.fromisoformat(date_range.get('end_date', ''))
+
+            events = await provider.fetch_events(start_date, end_date)
+            logger.info(f"Retrieved {len(events)} events from {provider_type}")
+            return [
+                {
+                    "id": e.id,
+                    "title": e.title,
+                    "start_time": e.start_time.isoformat(),
+                    "end_time": e.end_time.isoformat(),
+                    "provider": e.provider,
+                }
+                for e in events
+            ]
+
         except Exception as e:
             logger.error(f"Error fetching calendar events: {e}")
-            raise
+            return []
 
     async def create_task_from_event(
         self, mission_id: str, event: Dict[str, Any]
@@ -95,7 +181,7 @@ class VibeSyncService:
 
         Args:
             mission_id: Target mission ID
-            event: Calendar event dict
+            event: Calendar event dict with provider and event data
 
         Returns:
             Created task ID
@@ -105,30 +191,76 @@ class VibeSyncService:
         )
 
         try:
-            # TODO: Implement task creation from event
-            # This will integrate with Phase 6 VibeBinderService
-            return f"task-{datetime.now().timestamp()}"
+            # Transform event to Binder task
+            from core.sync.base_providers import CalendarEvent
+
+            cal_event = CalendarEvent(
+                id=event.get('id', ''),
+                title=event.get('title', ''),
+                description=event.get('description', ''),
+                start_time=datetime.fromisoformat(event.get('start_time', '')),
+                end_time=datetime.fromisoformat(event.get('end_time', '')),
+                location=event.get('location'),
+                attendees=event.get('attendees'),
+                provider=event.get('provider', 'unknown'),
+                is_all_day=event.get('is_all_day', False),
+            )
+
+            task_item = CalendarEventTransformer.event_to_task_item(cal_event, mission_id)
+
+            # TODO: Persist to Binder using VibeBinderService
+            # For now, return the task ID
+            return task_item['id']
+
         except Exception as e:
             logger.error(f"Error creating task from event: {e}")
             raise
 
     async def update_calendar_from_task(
-        self, task_id: str, event_id: str
+        self, provider_type: str, task_id: str, event_id: str, changes: Dict[str, Any] = None
     ) -> bool:
         """Update calendar event when task changes.
 
         Args:
+            provider_type: Calendar provider type
             task_id: Binder task ID
             event_id: External calendar event ID
+            changes: Optional dict of changes (title, description, due_date)
 
         Returns:
             True if successful
         """
-        logger.info(f"Updating calendar event {event_id} from task {task_id}")
+        logger.info(
+            f"Updating calendar event {event_id} from task {task_id} "
+            f"({provider_type})"
+        )
 
         try:
-            # TODO: Implement calendar update from task
-            return True
+            # Get provider
+            if provider_type not in self.calendar_providers:
+                logger.error(f"Provider {provider_type} not initialized")
+                return False
+
+            provider = self.calendar_providers[provider_type]
+
+            # Get credentials and authenticate
+            credentials = await self.oauth_manager.get_credentials(provider_type)
+            if not credentials or not await provider.authenticate(credentials):
+                logger.warning(f"Cannot authenticate {provider_type}")
+                return False
+
+            # Update event
+            if not changes:
+                changes = {}
+
+            success = await provider.update_event(event_id, changes)
+            if success:
+                logger.info(f"Updated calendar event {event_id}")
+            else:
+                logger.error(f"Failed to update calendar event {event_id}")
+
+            return success
+
         except Exception as e:
             logger.error(f"Error updating calendar event: {e}")
             return False
