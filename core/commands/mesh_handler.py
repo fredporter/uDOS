@@ -8,6 +8,7 @@ from typing import Dict, List
 
 from core.commands.base import BaseCommandHandler
 from core.services.logging_api import get_logger
+from core.services.error_contract import CommandError
 
 logger = get_logger("command-mesh")
 
@@ -43,7 +44,12 @@ class MeshHandler(BaseCommandHandler):
         if action == "ping":
             return self._ping(params[1:])
 
-        return {"status": "error", "message": f"Unknown MESH action '{params[0]}'. Try MESH HELP."}
+        raise CommandError(
+            code="ERR_COMMAND_NOT_FOUND",
+            message=f"Unknown MESH action '{params[0]}'. Try MESH HELP.",
+            recovery_hint="Use MESH STATUS, NODES, SEND, CHANNEL, or PING",
+            level="INFO",
+        )
 
     # ------------------------------------------------------------------
     def _cli(self) -> str | None:
@@ -52,16 +58,37 @@ class MeshHandler(BaseCommandHandler):
     def _run(self, args: List[str]) -> Dict:
         cli = self._cli()
         if not cli:
-            return {"status": "error", "message": "MeshCore CLI not found. Install meshcore and ensure it is in PATH."}
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message="MeshCore CLI not found. Install meshcore and ensure it is in PATH.",
+                recovery_hint="Install meshcore or meshctl",
+                level="ERROR",
+            )
         try:
             result = subprocess.run([cli] + args, capture_output=True, text=True, timeout=15)
             if result.returncode != 0:
-                return {"status": "error", "message": (result.stderr or result.stdout).strip()[:300]}
+                raise CommandError(
+                    code="ERR_RUNTIME_UNEXPECTED",
+                    message=(result.stderr or result.stdout).strip()[:300],
+                    recovery_hint="Check MeshCore installation and configuration",
+                    level="ERROR",
+                )
             return {"status": "success", "output": result.stdout.strip()}
         except subprocess.TimeoutExpired:
-            return {"status": "error", "message": "MeshCore command timed out."}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message="MeshCore command timed out.",
+                recovery_hint="Try the command again or check MeshCore daemon status",
+                level="ERROR",
+            )
         except Exception as e:
-            return {"status": "error", "message": str(e)}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=str(e),
+                recovery_hint="Check MeshCore daemon and command syntax",
+                level="ERROR",
+                cause=e,
+            )
 
     def _status(self) -> Dict:
         result = self._run(["status"])
@@ -74,7 +101,12 @@ class MeshHandler(BaseCommandHandler):
 
     def _send(self, params: List[str]) -> Dict:
         if len(params) < 2:
-            return {"status": "error", "message": "Usage: MESH SEND <node_id> <message>"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: MESH SEND <node_id> <message>",
+                recovery_hint="Provide a node ID and message",
+                level="INFO",
+            )
         node_id = params[0]
         msg = " ".join(params[1:])
         return self._run(["send", "--to", node_id, msg])
@@ -86,7 +118,12 @@ class MeshHandler(BaseCommandHandler):
 
     def _ping(self, params: List[str]) -> Dict:
         if not params:
-            return {"status": "error", "message": "Usage: MESH PING <node_id>"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: MESH PING <node_id>",
+                recovery_hint="Provide a node ID to ping",
+                level="INFO",
+            )
         return self._run(["ping", params[0]])
 
     def _help(self) -> Dict:

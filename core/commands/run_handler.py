@@ -10,6 +10,7 @@ from core.commands.base import BaseCommandHandler
 from core.services.logging_api import get_repo_root
 from core.services.ts_runtime_service import TSRuntimeService
 from core.tui.output import OutputToolkit
+from core.services.error_contract import CommandError
 
 
 class RunHandler(BaseCommandHandler):
@@ -17,9 +18,12 @@ class RunHandler(BaseCommandHandler):
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         if not params:
-            return {
-                "status": "error", "message": "Usage: RUN [--ts|--py] <file> [section_id] | RUN [--ts] PARSE <file> | RUN [--ts] DATA ...",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: RUN [--ts|--py] <file> [section_id] | RUN [--ts] PARSE <file> | RUN [--ts] DATA ...",
+                recovery_hint="Provide a file to run or PARSE/DATA subcommand",
+                level="INFO",
+            )
 
         run_mode = "ts"
         args = params[:]
@@ -28,14 +32,21 @@ class RunHandler(BaseCommandHandler):
             args = args[1:]
 
         if not args:
-            return {
-                "status": "error",
-                "message": "Usage: RUN [--ts|--py] <file> [section_id] | RUN [--ts] PARSE <file> | RUN [--ts] DATA ...",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: RUN [--ts|--py] <file> [section_id] | RUN [--ts] PARSE <file> | RUN [--ts] DATA ...",
+                recovery_hint="Provide a file to run or PARSE/DATA subcommand",
+                level="INFO",
+            )
 
         if run_mode == "py":
             if args[0].upper() in {"PARSE", "DATA"}:
-                return {"status": "error", "message": "RUN --py supports script execution only (no PARSE/DATA)"}
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="RUN --py supports script execution only (no PARSE/DATA)",
+                    recovery_hint="Use RUN --ts for PARSE and DATA operations",
+                    level="INFO",
+                )
             return self._run_python(args)
 
         if args[0].upper() == "DATA":
@@ -43,7 +54,12 @@ class RunHandler(BaseCommandHandler):
 
         if args[0].upper() == "PARSE":
             if len(args) < 2:
-                return {"status": "error", "message": "Usage: RUN PARSE <file>"}
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Usage: RUN PARSE <file>",
+                    recovery_hint="Provide a file path to parse",
+                    level="INFO",
+                )
             file_arg = args[1]
             script_path = self._resolve_path(file_arg)
             service = TSRuntimeService()

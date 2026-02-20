@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 
 from core.commands.base import BaseCommandHandler
 from core.services.logging_api import get_logger, get_repo_root
+from core.services.error_contract import CommandError
 
 logger = get_logger("command-web")
 
@@ -46,7 +47,12 @@ class WebHandler(BaseCommandHandler):
         if params[0].startswith("http"):
             return self._fetch(params)
 
-        return {"status": "error", "message": f"Unknown WEB action '{params[0]}'. Try WEB HELP."}
+        raise CommandError(
+            code="ERR_COMMAND_NOT_FOUND",
+            message=f"Unknown WEB action '{params[0]}'. Try WEB HELP.",
+            recovery_hint="Use WEB FETCH, WEB MD, or WEB SAVE",
+            level="INFO",
+        )
 
     # ------------------------------------------------------------------
     def _validate_url(self, url: str) -> bool:
@@ -74,29 +80,59 @@ class WebHandler(BaseCommandHandler):
 
     def _fetch(self, params: List[str]) -> Dict:
         if not params:
-            return {"status": "error", "message": "Usage: WEB FETCH <url>"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: WEB FETCH <url>",
+                recovery_hint="Provide a URL to fetch",
+                level="INFO",
+            )
         url = params[0]
         if not self._validate_url(url):
-            return {"status": "error", "message": f"Invalid URL: {url}"}
+            raise CommandError(
+                code="ERR_VALIDATION_SCHEMA",
+                message=f"Invalid URL: {url}",
+                recovery_hint="Provide a valid HTTP/HTTPS URL",
+                level="INFO",
+            )
         if not shutil.which("curl"):
-            return {"status": "error", "message": "curl not found in PATH."}
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message="curl not found in PATH.",
+                recovery_hint="Install curl",
+                level="ERROR",
+            )
         try:
             result = subprocess.run(
                 ["curl", "-sL", "--max-time", "30", url],
                 capture_output=True, text=True, timeout=35,
             )
             if result.returncode != 0:
-                return {"status": "error", "message": result.stderr.strip()[:200]}
+                raise CommandError(
+                    code="ERR_IO_READ_FAILED",
+                    message=result.stderr.strip()[:200],
+                    recovery_hint="Check URL and try again",
+                    level="ERROR",
+                )
             content = result.stdout
             return {"status": "success", "url": url, "length": len(content), "output": content[:2000]}
         except subprocess.TimeoutExpired:
-            return {"status": "error", "message": "Fetch timed out after 30s."}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message="Fetch timed out after 30s.",
+                recovery_hint="Try the URL again or check your connection",
+                level="ERROR",
+            )
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
     def _to_markdown(self, params: List[str]) -> Dict:
         if not params:
-            return {"status": "error", "message": "Usage: WEB MD <url> [--out <file>]"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: WEB MD <url> [--out <file>]",
+                recovery_hint="Provide a URL to convert to Markdown",
+                level="INFO",
+            )
 
         url = None
         out_path = None
@@ -112,7 +148,12 @@ class WebHandler(BaseCommandHandler):
                 i += 1
 
         if not url or not self._validate_url(url):
-            return {"status": "error", "message": f"Invalid URL: {url}"}
+            raise CommandError(
+                code="ERR_VALIDATION_SCHEMA",
+                message=f"Invalid URL: {url}",
+                recovery_hint="Provide a valid HTTP/HTTPS URL",
+                level="INFO",
+            )
 
         logger.info(f"[WEB] to-markdown: {url}")
 
@@ -131,9 +172,19 @@ class WebHandler(BaseCommandHandler):
 
         # Fallback: curl + pandoc
         if not shutil.which("curl"):
-            return {"status": "error", "message": "curl not found. Cannot fetch URL."}
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message="curl not found. Cannot fetch URL.",
+                recovery_hint="Install curl",
+                level="ERROR",
+            )
         if not shutil.which("pandoc"):
-            return {"status": "error", "message": "pandoc not found. Install pandoc for HTML→Markdown conversion."}
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message="pandoc not found. Install pandoc for HTML→Markdown conversion.",
+                recovery_hint="Install pandoc",
+                level="ERROR",
+            )
 
         try:
             curl = subprocess.run(
@@ -141,21 +192,42 @@ class WebHandler(BaseCommandHandler):
                 capture_output=True, text=True, timeout=35,
             )
             if curl.returncode != 0:
-                return {"status": "error", "message": curl.stderr.strip()[:200]}
+                raise CommandError(
+                    code="ERR_IO_READ_FAILED",
+                    message=curl.stderr.strip()[:200],
+                    recovery_hint="Check URL and try again",
+                    level="ERROR",
+                )
 
             pandoc = subprocess.run(
                 ["pandoc", "-f", "html", "-t", "markdown", "--wrap=none"],
                 input=curl.stdout, capture_output=True, text=True, timeout=15,
             )
             if pandoc.returncode != 0:
-                return {"status": "error", "message": pandoc.stderr.strip()[:200]}
+                raise CommandError(
+                    code="ERR_RUNTIME_UNEXPECTED",
+                    message=pandoc.stderr.strip()[:200],
+                    recovery_hint="Check pandoc installation",
+                    level="ERROR",
+                )
 
             md = pandoc.stdout.strip()
             return self._save_or_return(md, out_path, url)
         except subprocess.TimeoutExpired:
-            return {"status": "error", "message": "Conversion timed out."}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message="Conversion timed out.",
+                recovery_hint="Try a simpler URL or check your connection",
+                level="ERROR",
+            )
         except Exception as e:
-            return {"status": "error", "message": str(e)}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=str(e),
+                recovery_hint="Check URL and dependencies",
+                level="ERROR",
+                cause=e,
+            )
 
     def _save_or_return(self, content: str, out_path: str | None, url: str) -> Dict:
         if out_path:
@@ -169,12 +241,27 @@ class WebHandler(BaseCommandHandler):
 
     def _save(self, params: List[str]) -> Dict:
         if len(params) < 2:
-            return {"status": "error", "message": "Usage: WEB SAVE <url> <file>"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: WEB SAVE <url> <file>",
+                recovery_hint="Provide both URL and destination file path",
+                level="INFO",
+            )
         url, out_path = params[0], params[1]
         if not self._validate_url(url):
-            return {"status": "error", "message": f"Invalid URL: {url}"}
+            raise CommandError(
+                code="ERR_VALIDATION_SCHEMA",
+                message=f"Invalid URL: {url}",
+                recovery_hint="Provide a valid HTTP/HTTPS URL",
+                level="INFO",
+            )
         if not shutil.which("curl"):
-            return {"status": "error", "message": "curl not found in PATH."}
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message="curl not found in PATH.",
+                recovery_hint="Install curl",
+                level="ERROR",
+            )
         p = Path(out_path)
         if not p.is_absolute():
             p = get_repo_root() / p
@@ -185,12 +272,28 @@ class WebHandler(BaseCommandHandler):
                 capture_output=True, text=True, timeout=65,
             )
             if result.returncode != 0:
-                return {"status": "error", "message": result.stderr.strip()[:200]}
+                raise CommandError(
+                    code="ERR_IO_WRITE_FAILED",
+                    message=result.stderr.strip()[:200],
+                    recovery_hint="Check URL and file path\",
+                    level="ERROR\",
+                )
             return {"status": "success", "url": url, "saved_to": str(p), "size": p.stat().st_size}
         except subprocess.TimeoutExpired:
-            return {"status": "error", "message": "Download timed out after 60s."}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message="Download timed out after 60s.",
+                recovery_hint="Try the URL again or check your connection",
+                level="ERROR",
+            )
         except Exception as e:
-            return {"status": "error", "message": str(e)}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=str(e),
+                recovery_hint="Check URL and file path",
+                level="ERROR",
+                cause=e,
+            )
 
     def _help(self) -> Dict:
         return {
