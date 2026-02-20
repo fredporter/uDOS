@@ -162,17 +162,26 @@ class SchedulerHandler(BaseCommandHandler):
                 recovery_hint="Check Wizard initialization: WIZARD SETUP",
                 level="ERROR",
             )
-            return {
-                "status": "error",
-                "message": f"Failed to resolve task: {exc}",
-                "output": banner,
-            }
+
+        identifier = args[0]
+        try:
+            task_id = self._resolve_task_id(identifier)
+        except Exception as exc:
+            logger.error("[SCHEDULER] Failed to resolve task: %s", exc)
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=f"Failed to resolve task: {exc}",
+                recovery_hint="Check task database",
+                level="ERROR",
+                cause=exc,
+            )
         if not task_id:
-            return {
-                "status": "error",
-                "message": f"Task not found: {identifier}",
-                "output": banner + "\nRun: SCHEDULER LIST",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_NOT_FOUND",
+                message=f"Task not found: {identifier}",
+                recovery_hint="Run SCHEDULER LIST to see available tasks",
+                level="ERROR",
+            )
 
         run_id = f"run_{uuid.uuid4().hex[:12]}"
         scheduled_for = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
@@ -193,11 +202,13 @@ class SchedulerHandler(BaseCommandHandler):
                 conn.commit()
         except Exception as exc:
             logger.error("[SCHEDULER] Failed to queue task %s: %s", task_id, exc)
-            return {
-                "status": "error",
-                "message": f"Failed to queue task: {exc}",
-                "output": banner,
-            }
+            raise CommandError(
+                code="ERR_IO_WRITE_FAILED",
+                message=f"Failed to queue task: {exc}",
+                recovery_hint="Check task database and retry",
+                level="ERROR",
+                cause=exc,
+            )
 
         lines = [
             banner,
@@ -211,11 +222,12 @@ class SchedulerHandler(BaseCommandHandler):
     def _show_logs(self, args: List[str]) -> Dict:
         banner = OutputToolkit.banner("SCHEDULER LOGS")
         if not self.db_path.exists():
-            return {
-                "status": "error",
-                "message": "Scheduler database not found",
-                "output": banner + "\n❌ Missing memory/wizard/tasks.db",
-            }
+            raise CommandError(
+                code="ERR_IO_FILE_NOT_FOUND",
+                message="Scheduler database not found",
+                recovery_hint="Check Wizard initialization: WIZARD SETUP",
+                level="ERROR",
+            )
 
         identifier = args[0] if args else None
 
@@ -234,11 +246,12 @@ class SchedulerHandler(BaseCommandHandler):
                     )
                     row = cursor.fetchone()
                     if not row:
-                        return {
-                            "status": "error",
-                            "message": f"Run not found: {identifier}",
-                            "output": banner,
-                        }
+                        raise CommandError(
+                            code="ERR_COMMAND_NOT_FOUND",
+                            message=f"Run not found: {identifier}",
+                            recovery_hint="Check run ID and try again",
+                            level="ERROR",
+                        )
                     run_id, task_id, name, state, started_at, completed_at, result, output = row
                     lines = [
                         banner,
@@ -283,9 +296,17 @@ class SchedulerHandler(BaseCommandHandler):
                         """
                     )
                 rows = cursor.fetchall()
+        except CommandError:
+            raise
         except Exception as exc:
             logger.error("[SCHEDULER] Failed to read logs: %s", exc)
-            return {"status": "error", "message": f"Failed to read logs: {exc}"}
+            raise CommandError(
+                code="ERR_IO_READ_FAILED",
+                message=f"Failed to read logs: {exc}",
+                recovery_hint="Check scheduler database integrity",
+                level="ERROR",
+                cause=exc,
+            )
 
         lines = [banner, ""]
         if not rows:
