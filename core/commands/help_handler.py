@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.commands.interactive_menu_mixin import InteractiveMenuMixin
+from core.services.error_contract import CommandError
 from core.commands.help_support import (
     format_command_help,
     format_search_results,
@@ -531,13 +532,12 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             if len(matching) == 1:
                 main_arg = matching[0]
             else:
-                return {
-                    "status": "error",
-                    "message": f"Unknown command: {main_arg}",
-                    "hint": "Try 'HELP' for all commands or 'HELP CATEGORY Navigation'",
-                    "available": list(self.COMMANDS.keys())[:5],
-                    "output": f"Unknown command: {main_arg}\nTry: HELP SEARCH <query>",
-                }
+                raise CommandError(
+                    code="ERR_COMMAND_NOT_FOUND",
+                    message=f"Unknown command: {main_arg}",
+                    recovery_hint="Try HELP or HELP SEARCH <query>",
+                    level="INFO",
+                )
 
         return self._show_command_help(main_arg)
 
@@ -642,11 +642,12 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
     def _show_command_help(self, cmd_name: str) -> Dict:
         """Show detailed help for a specific command."""
         if cmd_name not in self.COMMANDS:
-            return {
-                "status": "error",
-                "message": f"Unknown command: {cmd_name}",
-                "output": f"Unknown command: {cmd_name}\nTry: HELP SEARCH {cmd_name}",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_NOT_FOUND",
+                message=f"Unknown command: {cmd_name}",
+                recovery_hint="Try HELP SEARCH <query>",
+                level="INFO",
+            )
         cmd_info = self.COMMANDS[cmd_name]
         help_text = format_command_help(cmd_name, cmd_info)
 
@@ -674,12 +675,12 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
 
         if not matching_cat:
             available = list(self.COMMAND_CATEGORIES.keys())
-            return {
-                "status": "error",
-                "message": f"Unknown category: {category}",
-                "available_categories": available,
-                "output": f"Unknown category: {category}\nAvailable: {', '.join(available)}",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_NOT_FOUND",
+                message=f"Unknown category: {category}",
+                recovery_hint=f"Available: {', '.join(available)}",
+                level="INFO",
+            )
 
         commands = self.COMMAND_CATEGORIES[matching_cat]
 

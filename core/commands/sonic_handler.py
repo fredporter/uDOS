@@ -180,7 +180,14 @@ class SonicHandler(BaseCommandHandler):
         resolved_layout = _resolve(layout_file)
         resolved_payloads = _resolve(payloads_dir) if payloads_dir else None
 
-        from sonic.core.plan import write_plan
+        try:
+            from sonic.core.plan import write_plan
+        except ImportError:
+            return {
+                "status": "error",
+                "message": "Sonic extension not available",
+                "suggestion": "Install sonic extension or check SONIC_ROOT path",
+            }
 
         try:
             manifest = write_plan(

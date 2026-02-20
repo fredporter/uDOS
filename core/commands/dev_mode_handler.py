@@ -2,12 +2,7 @@
 
 from typing import List, Dict, Optional
 from pathlib import Path
-try:
-    import requests
-    HAS_REQUESTS = True
-except ImportError:
-    HAS_REQUESTS = False
-    requests = None
+from core.services.stdlib_http import http_get, http_post, HTTPError
 import json
 import os
 
@@ -213,29 +208,29 @@ class DevModeHandler(BaseCommandHandler):
             guard = self._throttle_guard("/api/dev/activate")
             if guard:
                 return guard
-            response = requests.post(
+            response = http_post(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/dev/activate",
                 headers=self._headers(),
                 timeout=10,
             )
-            if response.status_code in {401, 403}:
+            if response["status_code"] in {401, 403}:
                 return self._admin_guard() or {
                     "status": "error",
                     "message": "Admin token required for dev mode",
                 }
-            if response.status_code == 412:
+            if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
                     "message": "Dev submodule missing",
                 }
-            if response.status_code == 409:
-                result = response.json()
+            if response["status_code"] == 409:
+                result = response.get("json", {})
                 return {
                     "status": "error",
                     "message": result.get("detail") or "Dev mode is not active",
                 }
-            result = response.json()
-            if not response.ok:
+            result = response.get("json", {})
+            if response["status_code"] >= 400:
                 return {
                     "status": "error",
                     "message": result.get("detail") or result.get("message") or "Dev mode activation failed",
@@ -261,7 +256,7 @@ class DevModeHandler(BaseCommandHandler):
                 "goblin_endpoint": result.get("goblin_endpoint"),
                 "goblin_pid": result.get("goblin_pid"),
             }
-        except requests.exceptions.ConnectionError:
+        except HTTPError:
             logger.error("[DEV] Cannot connect to Wizard Server")
             return {
                 "status": "error",
@@ -284,23 +279,23 @@ class DevModeHandler(BaseCommandHandler):
             guard = self._throttle_guard("/api/dev/deactivate")
             if guard:
                 return guard
-            response = requests.post(
+            response = http_post(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/dev/deactivate",
                 headers=self._headers(),
                 timeout=10,
             )
-            if response.status_code in {401, 403}:
+            if response["status_code"] in {401, 403}:
                 return self._admin_guard() or {
                     "status": "error",
                     "message": "Admin token required for dev mode",
                 }
-            if response.status_code == 412:
+            if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
                     "message": "Dev submodule missing",
                 }
-            result = response.json()
-            if not response.ok:
+            result = response.get("json", {})
+            if response["status_code"] >= 400:
                 return {
                     "status": "error",
                     "message": result.get("detail") or result.get("message") or "Dev mode deactivation failed",
@@ -318,7 +313,7 @@ class DevModeHandler(BaseCommandHandler):
                 "output": output,
                 "state": "deactivated",
             }
-        except requests.exceptions.ConnectionError:
+        except HTTPError:
             return {
                 "status": "error",
                 "message": "Wizard Server not running",
@@ -342,23 +337,23 @@ class DevModeHandler(BaseCommandHandler):
             guard = self._throttle_guard("/api/dev/status")
             if guard:
                 return guard
-            response = requests.get(
+            response = http_get(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/dev/status",
                 headers=self._headers(),
                 timeout=5,
             )
-            if response.status_code in {401, 403}:
+            if response["status_code"] in {401, 403}:
                 return self._admin_guard() or {
                     "status": "error",
                     "message": "Admin token required for dev mode",
                 }
-            if response.status_code == 412:
+            if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
                     "message": "Dev submodule missing",
                 }
-            result = response.json()
-            if not response.ok:
+            result = response.get("json", {})
+            if response["status_code"] >= 400:
                 return {
                     "status": "error",
                     "message": result.get("detail") or result.get("message") or "Dev mode status failed",
@@ -397,7 +392,7 @@ class DevModeHandler(BaseCommandHandler):
                 "tests_root": result.get("tests_root"),
                 "services": result.get("services"),
             }
-        except requests.exceptions.ConnectionError:
+        except HTTPError:
             return {
                 "status": "wizard_offline",
                 "message": "Wizard Server not running",
@@ -421,29 +416,29 @@ class DevModeHandler(BaseCommandHandler):
             guard = self._throttle_guard("/api/dev/restart")
             if guard:
                 return guard
-            response = requests.post(
+            response = http_post(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/dev/restart",
                 headers=self._headers(),
                 timeout=15,
             )
-            if response.status_code in {401, 403}:
+            if response["status_code"] in {401, 403}:
                 return self._admin_guard() or {
                     "status": "error",
                     "message": "Admin token required for dev mode",
                 }
-            if response.status_code == 412:
+            if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
                     "message": "Dev submodule missing",
                 }
-            if response.status_code == 409:
-                result = response.json()
+            if response["status_code"] == 409:
+                result = response.get("json", {})
                 return {
                     "status": "error",
                     "message": result.get("detail") or "Dev mode is not active",
                 }
-            result = response.json()
-            if not response.ok:
+            result = response.get("json", {})
+            if response["status_code"] >= 400:
                 return {
                     "status": "error",
                     "message": result.get("detail") or result.get("message") or "Dev mode restart failed",
@@ -461,7 +456,7 @@ class DevModeHandler(BaseCommandHandler):
                 "output": output,
                 "state": "restarted",
             }
-        except requests.exceptions.ConnectionError:
+        except HTTPError:
             return {
                 "status": "error",
                 "message": "Wizard Server not running",
@@ -485,29 +480,29 @@ class DevModeHandler(BaseCommandHandler):
             guard = self._throttle_guard("/api/dev/logs")
             if guard:
                 return guard
-            response = requests.get(
+            response = http_get(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/dev/logs?lines={lines}",
                 headers=self._headers(),
                 timeout=5,
             )
-            if response.status_code in {401, 403}:
+            if response["status_code"] in {401, 403}:
                 return self._admin_guard() or {
                     "status": "error",
                     "message": "Admin token required for dev mode",
                 }
-            if response.status_code == 412:
+            if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
                     "message": "Dev submodule missing",
                 }
-            if response.status_code == 409:
-                result = response.json()
+            if response["status_code"] == 409:
+                result = response.get("json", {})
                 return {
                     "status": "error",
                     "message": result.get("detail") or "Dev mode is not active",
                 }
-            result = response.json()
-            if not response.ok:
+            result = response.get("json", {})
+            if response["status_code"] >= 400:
                 return {
                     "status": "error",
                     "message": result.get("detail") or result.get("message") or "Dev mode logs failed",
@@ -548,29 +543,29 @@ class DevModeHandler(BaseCommandHandler):
             guard = self._throttle_guard("/api/dev/health")
             if guard:
                 return guard
-            response = requests.get(
+            response = http_get(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/dev/health",
                 headers=self._headers(),
                 timeout=5,
             )
-            if response.status_code in {401, 403}:
+            if response["status_code"] in {401, 403}:
                 return self._admin_guard() or {
                     "status": "error",
                     "message": "Admin token required for dev mode",
                 }
-            if response.status_code == 412:
+            if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
                     "message": "Dev submodule missing",
                 }
-            if response.status_code == 409:
-                result = response.json()
+            if response["status_code"] == 409:
+                result = response.get("json", {})
                 return {
                     "status": "error",
                     "message": result.get("detail") or "Dev mode is not active",
                 }
-            result = response.json()
-            if not response.ok:
+            result = response.get("json", {})
+            if response["status_code"] >= 400:
                 return {
                     "status": "error",
                     "message": result.get("detail") or result.get("message") or "Dev mode health failed",
@@ -603,7 +598,7 @@ class DevModeHandler(BaseCommandHandler):
                 "dev_active": result.get("status") == "active",
                 "services": result.get("services"),
             }
-        except requests.exceptions.ConnectionError:
+        except HTTPError:
             return {
                 "status": "wizard_offline",
                 "healthy": False,
@@ -628,29 +623,29 @@ class DevModeHandler(BaseCommandHandler):
             guard = self._throttle_guard("/api/dev/clear")
             if guard:
                 return guard
-            response = requests.post(
+            response = http_post(
                 f"http://{self.wizard_host}:{self.wizard_port}/api/dev/clear",
                 headers=self._headers(),
                 timeout=20,
             )
-            if response.status_code in {401, 403}:
+            if response["status_code"] in {401, 403}:
                 return self._admin_guard() or {
                     "status": "error",
                     "message": "Admin token required for dev mode",
                 }
-            if response.status_code == 412:
+            if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
                     "message": "Dev submodule missing",
                 }
-            if response.status_code == 409:
-                result = response.json()
+            if response["status_code"] == 409:
+                result = response.get("json", {})
                 return {
                     "status": "error",
                     "message": result.get("detail") or "Dev mode is not active",
                 }
-            result = response.json()
-            if not response.ok:
+            result = response.get("json", {})
+            if response["status_code"] >= 400:
                 return {
                     "status": "error",
                     "message": result.get("detail") or result.get("message") or "Dev mode clear failed",

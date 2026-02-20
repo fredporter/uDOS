@@ -12,6 +12,7 @@ from core.commands.base import BaseCommandHandler
 from core.tui.output import OutputToolkit
 from core.tui.ui_elements import Spinner
 from core.services.logging_api import get_logger, get_repo_root
+from core.services.stdlib_http import http_get
 
 logger = get_logger("empire-handler")
 
@@ -296,11 +297,9 @@ class EmpireHandler(BaseCommandHandler):
         headers = {"Authorization": f"Bearer {token}"} if token else {}
 
         try:
-            import requests
-
-            resp = requests.get(f"{api_base}/health", headers=headers, timeout=3)
-            if resp.status_code != 200:
-                output_lines.append(f"⚠️  API unhealthy: HTTP {resp.status_code}")
+            resp = http_get(f"{api_base}/health", headers=headers, timeout=3)
+            if resp["status_code"] != 200:
+                output_lines.append(f"⚠️  API unhealthy: HTTP {resp['status_code']}")
                 return self._start_api_then_check(output_lines, api_base, headers)
         except Exception:
             output_lines.append("⚠️  API not running. Starting now...")
@@ -321,15 +320,14 @@ class EmpireHandler(BaseCommandHandler):
 
         try:
             import time
-            import requests
 
             stop = threading.Event()
             spinner = Spinner(label="Waiting for Empire API", show_elapsed=True)
             thread = spinner.start_background(stop)
             for _ in range(10):
                 try:
-                    resp = requests.get(f"{api_base}/health", headers=headers, timeout=2)
-                    if resp.status_code == 200:
+                    resp = http_get(f"{api_base}/health", headers=headers, timeout=2)
+                    if resp["status_code"] == 200:
                         stop.set()
                         thread.join(timeout=1)
                         spinner.stop("Empire API ready")

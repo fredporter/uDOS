@@ -413,9 +413,9 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
     def _start_wizard(self) -> Dict:
         """Start Wizard server."""
-        import requests
         import time
         import socket
+        from core.services.stdlib_http import http_get, HTTPError
 
         banner = OutputToolkit.banner("WIZARD START")
         output_lines = [banner, ""]
@@ -425,15 +425,15 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
         # Check if already running
         try:
-            resp = requests.get(f"{base_url}/health", timeout=2)
-            if resp.status_code == 200:
+            resp = http_get(f"{base_url}/health", timeout=2)
+            if resp["status_code"] == 200:
                 output_lines.append(f"✅ Wizard already running on {base_url}")
                 self._maybe_open_dashboard(output_lines)
                 return {
                     "status": "success",
                     "output": "\n".join(output_lines),
                 }
-        except requests.exceptions.ConnectionError:
+        except HTTPError:
             pass  # Not running, proceed
         except Exception as exc:
             logger.warning(f"[LOCAL] Health check failed: {exc}")
@@ -611,7 +611,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
     def _stop_wizard(self) -> Dict:
         """Stop Wizard server."""
         import subprocess
-        import requests
+        from core.services.stdlib_http import http_get, HTTPError
 
         banner = OutputToolkit.banner("WIZARD STOP")
         output_lines = [banner, ""]
@@ -640,7 +640,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                     output_lines.append("⚠️  Wizard still responding after stop")
                 else:
                     output_lines.append("✅ Wizard stopped")
-            except requests.exceptions.ConnectionError:
+            except HTTPError:
                 output_lines.append("✅ Wizard stopped")
 
             return {"status": "success", "output": "\n".join(output_lines)}
@@ -737,7 +737,6 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
     def _stop_wizard_old(self) -> Dict:
         """Stop Wizard server (old method)."""
         import subprocess
-        import requests
 
         banner = OutputToolkit.banner("WIZARD STOP")
         output_lines = [banner, ""]
@@ -784,18 +783,18 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
     def _wizard_status(self) -> Dict:
         """Check Wizard server status."""
-        import requests
+        from core.services.stdlib_http import http_get, HTTPError
 
         banner = OutputToolkit.banner("WIZARD STATUS")
         output_lines = [banner, ""]
         base_url, _ = self._wizard_urls()
 
         try:
-            resp = requests.get(f"{base_url}/health", timeout=2)
-            if resp.status_code == 200:
+            resp = http_get(f"{base_url}/health", timeout=2)
+            if resp["status_code"] == 200:
                 output_lines.append(f"✅ Wizard running on {base_url}")
                 try:
-                    data = resp.json()
+                    data = resp.get("json")
                     if "version" in data:
                         output_lines.append(f"📦 Version: {data['version']}")
                     if "services" in data:
@@ -816,7 +815,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                     "status": "error",
                     "output": "\n".join(output_lines),
                 }
-        except requests.exceptions.ConnectionError:
+        except HTTPError:
             output_lines.append("❌ Wizard not running")
             return {
                 "status": "error",

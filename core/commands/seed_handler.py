@@ -9,6 +9,7 @@ from typing import Dict, List
 from core.commands.base import BaseCommandHandler
 from core.framework.seed_installer import SeedInstaller
 from core.services.logging_api import get_logger
+from core.services.error_contract import CommandError
 
 logger = get_logger("seed_handler")
 
@@ -99,8 +100,9 @@ Use SEED INSTALL to manually bootstrap if needed.
             }
 
         else:
-            return {
-                "status": "error",
-                "output": f"Unknown SEED subcommand: {subcommand}\nUse 'SEED HELP' for usage.",
-                "type": "text",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_NOT_FOUND",
+                message=f"Unknown SEED subcommand: {subcommand}",
+                recovery_hint="Use SEED INSTALL, STATUS, or HELP",
+                level="INFO",
+            )

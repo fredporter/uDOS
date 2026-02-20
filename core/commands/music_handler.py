@@ -20,18 +20,21 @@ class MusicHandler(BaseCommandHandler):
         self._init_services()
 
     def _init_services(self) -> None:
-        """Lazy-initialize services."""
+        """Lazy-initialize services via provider registry."""
         try:
-            from groovebox.wizard.services.groovebox_service import get_groovebox_service
-            self.groovebox_service = get_groovebox_service()
-        except (ImportError, Exception):
-            pass
+            from core.services.provider_registry import get_provider
+            # Try to get groovebox service from provider registry
+            # Groovebox services are registered by Wizard if available
+            self.groovebox_service = get_provider("groovebox_service")
+        except Exception:
+            self.groovebox_service = None
 
         try:
-            from groovebox.wizard.services.songscribe_service import get_songscribe_service
-            self.songscribe_service = get_songscribe_service()
-        except (ImportError, Exception):
-            pass
+            from core.services.provider_registry import get_provider
+            # Try to get songscribe service from provider registry
+            self.songscribe_service = get_provider("songscribe_service")
+        except Exception:
+            self.songscribe_service = None
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         """

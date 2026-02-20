@@ -4,6 +4,7 @@ from typing import List, Dict
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.services.viewport_service import ViewportService
+from core.services.error_contract import CommandError
 
 
 class ViewportHandler(BaseCommandHandler, HandlerLoggingMixin):
@@ -42,8 +43,9 @@ class ViewportHandler(BaseCommandHandler, HandlerLoggingMixin):
                 "source": result.get("source"),
             }
 
-        return {
-            "status": "error",
-            "command": "VIEWPORT",
-            "message": "Usage: VIEWPORT [SHOW|REFRESH]",
-        }
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message="Usage: VIEWPORT [SHOW|REFRESH]",
+            recovery_hint="Use VIEWPORT SHOW or VIEWPORT REFRESH",
+            level="INFO",
+        )
