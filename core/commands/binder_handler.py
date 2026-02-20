@@ -17,6 +17,7 @@ from core.commands.base import BaseCommandHandler
 from core.tui.file_browser import FileBrowser
 from core.tui.output import OutputToolkit
 from core.services.logging_api import get_repo_root
+from core.services.error_contract import CommandError
 
 
 class BinderHandler(BaseCommandHandler):
@@ -88,7 +89,12 @@ class BinderHandler(BaseCommandHandler):
 
         if subcommand == "CHAPTERS":
             if len(params) < 2:
-                return {"status": "error", "message": "BINDER CHAPTERS <binder_id>"}
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Usage: BINDER CHAPTERS <binder_id>",
+                    recovery_hint="Provide a binder ID",
+                    level="INFO",
+                )
             binder_id = params[1]
             compiler = BinderCompiler()
             chapters = _run_async(compiler.get_chapters(binder_id=binder_id))
@@ -117,7 +123,12 @@ class BinderHandler(BaseCommandHandler):
                 "chapters": chapters,
             }
 
-        return {"status": "error", "message": f"Unknown BINDER subcommand: {subcommand}"}
+        raise CommandError(
+            code="ERR_COMMAND_NOT_FOUND",
+            message=f"Unknown BINDER subcommand: {subcommand}",
+            recovery_hint="Use BINDER PICK, COMPILE, or CHAPTERS",
+            level="INFO",
+        )
 
     def _pick_binder(self, start_dir: str) -> Dict:
         browser = FileBrowser(start_dir=start_dir, pick_directories=True)

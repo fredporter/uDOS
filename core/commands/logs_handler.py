@@ -2,6 +2,7 @@
 
 from typing import List, Dict, Optional, Any
 from core.commands.base import BaseCommandHandler
+from core.services.error_contract import CommandError
 
 try:
     from core.services.logging_api import get_logger, get_log_manager
@@ -43,12 +44,22 @@ class LogsHandler(BaseCommandHandler):
 
         if subcommand == "--last":
             if len(params) < 2:
-                return {"status": "error", "message": "Usage: LOGS --last N"}
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Usage: LOGS --last N",
+                    recovery_hint="Provide a number of log entries to display",
+                    level="INFO",
+                )
             try:
                 limit = int(params[1])
                 return self._show_logs(limit=limit)
             except ValueError:
-                return {"status": "error", "message": f"Invalid number: {params[1]}"}
+                raise CommandError(
+                    code="ERR_VALIDATION_SCHEMA",
+                    message=f"Invalid number: {params[1]}",
+                    recovery_hint="Use LOGS --last <number>",
+                    level="INFO",
+                )
 
         elif subcommand == "--core":
             return self._show_logs(component="core", limit=50)
@@ -61,15 +72,30 @@ class LogsHandler(BaseCommandHandler):
 
         elif subcommand == "--level":
             if len(params) < 2:
-                return {"status": "error", "message": "Usage: LOGS --level DEBUG|INFO|WARN|ERROR|FATAL"}
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Usage: LOGS --level DEBUG|INFO|WARN|ERROR|FATAL",
+                    recovery_hint="Choose a valid log level",
+                    level="INFO",
+                )
             level_str = params[1].lower()
             if level_str not in {"trace", "debug", "info", "warn", "error", "fatal"}:
-                return {"status": "error", "message": f"Invalid level: {params[1]}"}
+                raise CommandError(
+                    code="ERR_VALIDATION_SCHEMA",
+                    message=f"Invalid level: {params[1]}",
+                    recovery_hint="Use DEBUG, INFO, WARN, ERROR, or FATAL",
+                    level="INFO",
+                )
             return self._show_logs(level=level_str, limit=50)
 
         elif subcommand == "--category":
             if len(params) < 2:
-                return {"status": "error", "message": "Usage: LOGS --category CATEGORY"}
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Usage: LOGS --category CATEGORY",
+                    recovery_hint="Provide a category name",
+                    level="INFO",
+                )
             category = params[1]
             return self._show_logs(category=category, limit=50)
 
@@ -86,7 +112,12 @@ class LogsHandler(BaseCommandHandler):
             return {"status": "info", "output": self._help_text()}
 
         else:
-            return {"status": "error", "message": f"Unknown LOGS subcommand: {subcommand}\nType: LOGS help"}
+            raise CommandError(
+                code="ERR_COMMAND_NOT_FOUND",
+                message=f"Unknown LOGS subcommand: {subcommand}",
+                recovery_hint="Run LOGS help for available options",
+                level="INFO",
+            )
 
     def _show_logs(
         self,

@@ -7,6 +7,7 @@ from typing import Dict, List
 
 from core.commands.base import BaseCommandHandler
 from core.tui.output import OutputToolkit
+from core.services.error_contract import CommandError
 
 
 class TokenHandler(BaseCommandHandler):
@@ -36,7 +37,12 @@ class TokenHandler(BaseCommandHandler):
                     try:
                         nbytes = max(16, min(128, int(args[idx + 1])))
                     except ValueError:
-                        return {"status": "error", "message": "TOKEN --len requires an integer"}
+                        raise CommandError(
+                            code="ERR_VALIDATION_SCHEMA",
+                            message="TOKEN --len requires an integer",
+                            recovery_hint="Use TOKEN --len <number> (16-128)",
+                            level="INFO",
+                        )
 
             token = secrets.token_urlsafe(nbytes)
             output = "\n".join(
@@ -53,4 +59,9 @@ class TokenHandler(BaseCommandHandler):
                 "token": token,
             }
 
-        return {"status": "error", "message": f"Unknown TOKEN action: {action}"}
+        raise CommandError(
+            code="ERR_COMMAND_NOT_FOUND",
+            message=f"Unknown TOKEN action: {action}",
+            recovery_hint="Use TOKEN or TOKEN GEN",
+            level="INFO",
+        )

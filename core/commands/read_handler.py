@@ -9,6 +9,7 @@ from core.commands.base import BaseCommandHandler
 from core.services.logging_api import get_repo_root
 from core.services.ts_runtime_service import TSRuntimeService
 from core.tui.output import OutputToolkit
+from core.services.error_contract import CommandError
 
 
 class ReadHandler(BaseCommandHandler):
@@ -16,13 +17,23 @@ class ReadHandler(BaseCommandHandler):
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         if not params:
-            return {"status": "error", "message": "Usage: READ [--ts] <file>"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: READ [--ts] <file>",
+                recovery_hint="Provide a file path to read",
+                level="INFO",
+            )
 
         args = params[:]
         if args and args[0].lower() == "--ts":
             args = args[1:]
         if not args:
-            return {"status": "error", "message": "Usage: READ [--ts] <file>"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: READ [--ts] <file>",
+                recovery_hint="Provide a file path to read",
+                level="INFO",
+            )
 
         file_arg = args[0]
         script_path = self._resolve_path(file_arg)

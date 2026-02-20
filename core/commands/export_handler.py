@@ -9,6 +9,7 @@ from typing import Dict, List
 
 from core.commands.base import BaseCommandHandler
 from core.services.logging_api import get_logger, get_repo_root
+from core.services.error_contract import CommandError
 
 logger = get_logger("command-export")
 
@@ -47,7 +48,12 @@ class ExportHandler(BaseCommandHandler):
         if params[0].endswith(".md"):
             return self._export_pdf(params)
 
-        return {"status": "error", "message": f"Unknown EXPORT action '{params[0]}'. Try EXPORT HELP."}
+        raise CommandError(
+            code="ERR_COMMAND_NOT_FOUND",
+            message=f"Unknown EXPORT action '{params[0]}'. Try EXPORT HELP.",
+            recovery_hint="Use EXPORT PDF, EXPORT HTML, or EXPORT HELP",
+            level="INFO",
+        )
 
     # ------------------------------------------------------------------
     def _resolve(self, path_str: str) -> Path:
@@ -90,15 +96,30 @@ class ExportHandler(BaseCommandHandler):
 
     def _export_pdf(self, params: List[str]) -> Dict:
         if not params:
-            return {"status": "error", "message": "Usage: EXPORT PDF <file.md> [--out <output.pdf>]"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: EXPORT PDF <file.md> [--out <output.pdf>]",
+                recovery_hint="Provide input file path",
+                level="INFO",
+            )
 
         input_str, out_str = self._parse_args(params)
         if not input_str:
-            return {"status": "error", "message": "No input file specified."}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="No input file specified.",
+                recovery_hint="Provide a Markdown file path",
+                level="INFO",
+            )
 
         src = self._resolve(input_str)
         if not src.exists():
-            return {"status": "error", "message": f"File not found: {src}"}
+            raise CommandError(
+                code="ERR_IO_FILE_NOT_FOUND",
+                message=f"File not found: {src}",
+                recovery_hint="Check file path and try again",
+                level="ERROR",
+            )
 
         dest = Path(out_str) if out_str else src.with_suffix(".pdf")
         logger.info(f"[EXPORT] PDF: {src} -> {dest}")
@@ -111,34 +132,75 @@ class ExportHandler(BaseCommandHandler):
                     cmd = [chrome, "--headless", "--disable-gpu", f"--print-to-pdf={dest}", str(src)]
                     break
             else:
-                return {"status": "error", "message": "No PDF converter available. Install pandoc or chromium."}
+                raise CommandError(
+                    code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                    message="No PDF converter available. Install pandoc or chromium.",
+                    recovery_hint="Install pandoc or chromium-browser",
+                    level="ERROR",
+                )
 
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
             if result.returncode != 0:
-                return {"status": "error", "message": result.stderr.strip()[:300]}
+                raise CommandError(
+                    code="ERR_IO_WRITE_FAILED",
+                    message=result.stderr.strip()[:300],
+                    recovery_hint="Check input file and try again",
+                    level="ERROR",
+                )
             return {"status": "success", "output_path": str(dest), "message": f"PDF exported: {dest}"}
         except subprocess.TimeoutExpired:
-            return {"status": "error", "message": "Export timed out after 60s."}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message="Export timed out after 60s.",
+                recovery_hint="Try a smaller file or check system resources",
+                level="ERROR",
+            )
         except Exception as e:
-            return {"status": "error", "message": str(e)}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=str(e),
+                recovery_hint="Check file path and converter installation",
+                level="ERROR",
+                cause=e,
+            )
 
     def _export_html(self, params: List[str]) -> Dict:
         if not params:
-            return {"status": "error", "message": "Usage: EXPORT HTML <file.md> [--out <output.html>]"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: EXPORT HTML <file.md> [--out <output.html>]",
+                recovery_hint="Provide input file path",
+                level="INFO",
+            )
 
         input_str, out_str = self._parse_args(params)
         if not input_str:
-            return {"status": "error", "message": "No input file specified."}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="No input file specified.",
+                recovery_hint="Provide a Markdown file path",
+                level="INFO",
+            )
 
         src = self._resolve(input_str)
         if not src.exists():
-            return {"status": "error", "message": f"File not found: {src}"}
+            raise CommandError(
+                code="ERR_IO_FILE_NOT_FOUND",
+                message=f"File not found: {src}",
+                recovery_hint="Check file path and try again",
+                level="ERROR",
+            )
 
         dest = Path(out_str) if out_str else src.with_suffix(".html")
 
         if not shutil.which("pandoc"):
-            return {"status": "error", "message": "pandoc not found. Install pandoc for HTML export."}
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message="pandoc not found. Install pandoc for HTML export.",
+                recovery_hint="Install pandoc",
+                level="ERROR",
+            )
 
         try:
             result = subprocess.run(
@@ -146,10 +208,21 @@ class ExportHandler(BaseCommandHandler):
                 capture_output=True, text=True, timeout=30,
             )
             if result.returncode != 0:
-                return {"status": "error", "message": result.stderr.strip()[:300]}
+                raise CommandError(
+                    code="ERR_IO_WRITE_FAILED",
+                    message=result.stderr.strip()[:300],
+                    recovery_hint="Check input file and try again",
+                    level="ERROR",
+                )
             return {"status": "success", "output_path": str(dest), "message": f"HTML exported: {dest}"}
         except Exception as e:
-            return {"status": "error", "message": str(e)}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=str(e),
+                recovery_hint="Check file path and converter installation",
+                level="ERROR",
+                cause=e,
+            )
 
     def _help(self) -> Dict:
         return {
