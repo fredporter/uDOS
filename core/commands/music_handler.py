@@ -200,10 +200,20 @@ class MusicHandler(BaseCommandHandler):
     def _handle_show(self, args: List[str], grid=None, parser=None) -> Dict:
         """MUSIC SHOW <pattern_id> [--width 16|32]"""
         if not self.groovebox_service:
-            return {"status": "error", "message": "Groovebox service not available"}
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message="Groovebox service not available",
+                recovery_hint="Check Groovebox service installation",
+                level="ERROR",
+            )
 
         if not args:
-            return {"status": "error", "message": "Missing pattern_id"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Missing pattern_id",
+                recovery_hint="Use MUSIC SHOW <pattern_id>",
+                level="INFO",
+            )
 
         try:
             pattern_id = args[0]
@@ -219,7 +229,12 @@ class MusicHandler(BaseCommandHandler):
 
             pattern = self.groovebox_service.get_pattern(pattern_id)
             if not pattern:
-                return {"status": "error", "message": f"Pattern not found: {pattern_id}"}
+                raise CommandError(
+                    code="ERR_COMMAND_NOT_FOUND",
+                    message=f"Pattern not found: {pattern_id}",
+                    recovery_hint="Run MUSIC LIST to see available patterns",
+                    level="ERROR",
+                )
 
             # Render ASCII grid
             if self.songscribe_service:
@@ -233,16 +248,34 @@ class MusicHandler(BaseCommandHandler):
                 "status": "ok",
                 "data": {"pattern_id": pattern_id, "ascii": ascii_grid, "width": width},
             }
+        except CommandError:
+            raise
         except Exception as e:
-            return {"status": "error", "message": str(e)}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=str(e),
+                recovery_hint="Check pattern data and Groovebox service",
+                level="ERROR",
+                cause=e,
+            )
 
     def _handle_export(self, args: List[str], grid=None, parser=None) -> Dict:
         """MUSIC EXPORT <pattern_id> --format midi|wav|pdf"""
         if not self.groovebox_service:
-            return {"status": "error", "message": "Groovebox service not available"}
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message="Groovebox service not available",
+                recovery_hint="Check Groovebox service installation",
+                level="ERROR",
+            )
 
         if not args:
-            return {"status": "error", "message": "Missing pattern_id"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Missing pattern_id",
+                recovery_hint="Use MUSIC EXPORT <pattern_id> --format midi|wav|pdf",
+                level="INFO",
+            )
 
         pattern_id = args[0]
         fmt = "midi"
@@ -260,7 +293,12 @@ class MusicHandler(BaseCommandHandler):
 
             pattern_data = self.groovebox_service.get_pattern(pattern_id)
             if not pattern_data:
-                return {"status": "error", "message": f"Pattern not found: {pattern_id}"}
+                raise CommandError(
+                    code="ERR_COMMAND_NOT_FOUND",
+                    message=f"Pattern not found: {pattern_id}",
+                    recovery_hint="Run MUSIC LIST to see available patterns",
+                    level="ERROR",
+                )
 
             pattern = dict_to_pattern(pattern_data)
             export_dir = self.groovebox_service.pattern_root.parent / "exports"
@@ -294,11 +332,24 @@ class MusicHandler(BaseCommandHandler):
                     "data": {"file": str(output), "format": "pdf"},
                 }
             else:
-                return {"status": "error", "message": f"Unknown format: {fmt}"}
+                raise CommandError(
+                    code="ERR_VALIDATION_SCHEMA",
+                    message=f"Unknown format: {fmt}",
+                    recovery_hint="Use format: midi, wav, or pdf",
+                    level="INFO",
+                )
 
+        except CommandError:
+            raise
         except Exception as e:
             logger.error(f"{LogTags.LOCAL} MUSIC EXPORT failed: {e}")
-            return {"status": "error", "message": str(e)}
+            raise CommandError(
+                code="ERR_IO_WRITE_FAILED",
+                message=str(e),
+                recovery_hint="Check export directory and converter services",
+                level="ERROR",
+                cause=e,
+            )
 
     def _handle_transcribe(self, args: List[str], grid=None, parser=None) -> Dict:
         """
@@ -310,11 +361,21 @@ class MusicHandler(BaseCommandHandler):
         - adtof: drum transcription
         """
         if not args:
-            return {"status": "error", "message": "Missing audio file"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Missing audio file",
+                recovery_hint="Use MUSIC TRANSCRIBE <audio_file>",
+                level="INFO",
+            )
 
         audio_file = Path(args[0])
         if not audio_file.exists():
-            return {"status": "error", "message": f"Audio file not found: {audio_file}"}
+            raise CommandError(
+                code="ERR_IO_FILE_NOT_FOUND",
+                message=f"Audio file not found: {audio_file}",
+                recovery_hint="Check file path and try again",
+                level="ERROR",
+            )
 
         # Extract preset if provided
         preset = "full_band"
@@ -348,19 +409,23 @@ class MusicHandler(BaseCommandHandler):
             }
 
         except ImportError:
-            return {
-                "status": "error",
-                "message": "Transcription backend not available",
-                "note": "Install: pip install demucs basic-pitch adtof",
-                "audio_file": str(audio_file),
-            }
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message="Transcription backend not available",
+                recovery_hint="Install: pip install demucs basic-pitch adtof",
+                level="ERROR",
+            )
+        except CommandError:
+            raise
         except Exception as e:
             logger.error(f"[TRANSCRIPTION] Error: {e}")
-            return {
-                "status": "error",
-                "message": f"Transcription failed: {str(e)}",
-                "audio_file": str(audio_file),
-            }
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=f"Transcription failed: {str(e)}",
+                recovery_hint="Check audio file and transcription service",
+                level="ERROR",
+                cause=e,
+            )
 
     def _handle_play(self, args: List[str], grid=None, parser=None) -> Dict:
         """
@@ -370,7 +435,12 @@ class MusicHandler(BaseCommandHandler):
         Requires: Audio playback engine (not yet wired to TUI)
         """
         if not args:
-            return {"status": "error", "message": "Missing pattern_id"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Missing pattern_id",
+                recovery_hint="Use MUSIC PLAY <pattern_id>",
+                level="INFO",
+            )
 
         pattern_id = args[0]
         loop_count = None
@@ -388,18 +458,19 @@ class MusicHandler(BaseCommandHandler):
         if self.groovebox_service:
             pattern = self.groovebox_service.get_pattern(pattern_id)
             if not pattern:
-                return {
-                    "status": "error",
-                    "message": f"Pattern not found: {pattern_id}",
-                }
+                raise CommandError(
+                    code="ERR_COMMAND_NOT_FOUND",
+                    message=f"Pattern not found: {pattern_id}",
+                    recovery_hint="Run MUSIC LIST to see available patterns",
+                    level="ERROR",
+                )
 
-        return {
-            "status": "error",
-            "message": "PLAY backend unavailable",
-            "note": "Install/wire Groovebox playback service, or use MUSIC EXPORT <pattern_id> --format wav and play externally.",
-            "pattern_id": pattern_id,
-            "loop_count": loop_count,
-        }
+        raise CommandError(
+            code="ERR_RUNTIME_DEPENDENCY_MISSING",
+            message="PLAY backend unavailable",
+            recovery_hint="Install/wire Groovebox playback service, or use MUSIC EXPORT and play externally",
+            level="ERROR",
+        )
 
     def _help(self, message: str = None) -> Dict:
         """Return help text."""
