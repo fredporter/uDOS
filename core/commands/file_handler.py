@@ -7,6 +7,8 @@ Provides interactive file browser with workspace picker.
 Commands:
     FILE                    Open workspace picker then file browser
     FILE BROWSE             Same as FILE
+    FILE NEW <name>         Create a new file in /memory
+    FILE EDIT <path>        Open a file in editor
     FILE LIST [path]        List files (quick command, no picker)
     FILE SHOW <file>        Display file content
 
@@ -30,9 +32,10 @@ class FileHandler(BaseCommandHandler):
     2. Quick: FILE LIST/SHOW for direct operations without picker
     """
 
-    def __init__(self):
+    def __init__(self, file_editor: BaseCommandHandler = None):
         super().__init__()
         self.user_role = self._get_user_role()
+        self._file_editor = file_editor
 
     def _get_user_role(self) -> UserRole:
         """Determine user role from state or config."""
@@ -72,6 +75,9 @@ class FileHandler(BaseCommandHandler):
         subcommand = params[0].upper()
         sub_params = params[1:] if len(params) > 1 else []
 
+        if subcommand in {"NEW", "EDIT"}:
+            return self._handle_edit(subcommand, sub_params, grid, parser)
+
         if subcommand == "LIST":
             return self._handle_list(sub_params)
 
@@ -85,8 +91,22 @@ class FileHandler(BaseCommandHandler):
         return {
             "status": "error",
             "message": f"Unknown FILE subcommand: {subcommand}",
-            "suggestion": "Try: FILE, FILE LIST, FILE SHOW, FILE HELP",
+            "suggestion": "Try: FILE, FILE NEW, FILE EDIT, FILE LIST, FILE SHOW, FILE HELP",
         }
+
+    def _handle_edit(
+        self,
+        subcommand: str,
+        params: List[str],
+        grid=None,
+        parser=None,
+    ) -> Dict[str, Any]:
+        if not self._file_editor:
+            return {
+                "status": "error",
+                "message": "File editor not available",
+            }
+        return self._file_editor.handle(subcommand, params, grid, parser)
 
     def _handle_interactive_browse(self) -> Dict[str, Any]:
         """
@@ -117,7 +137,7 @@ class FileHandler(BaseCommandHandler):
                 f"Selected: {selected_file}",
                 f"Size: {selected_file.stat().st_size} bytes",
                 "",
-                "Use: EDIT <file> to open in editor",
+                "Use: FILE EDIT <file> to open in editor",
                 "     PLACE READ @ws/file to read content",
             ])
 
@@ -264,6 +284,8 @@ Interactive Mode:
   FILE PICK                  Same as FILE
 
 Quick Commands:
+    FILE NEW <name>               Create a new file in /memory
+    FILE EDIT <path>              Open a file in editor
   FILE LIST [@workspace]     List files (default: @sandbox)
   FILE SHOW @ws/file.md      Display file content
   FILE HELP                  Show this help
@@ -288,9 +310,9 @@ Examples:
   FILE SHOW @sandbox/readme.md      # Show file content
 
 Related Commands:
-  EDIT <file>                       # Open file in editor
-  PLACE LIST @sandbox               # Spatial filesystem commands
-  BINDER open @sandbox/project      # Open binder project
+    FILE EDIT <file>                  # Open file in editor
+    PLACE LIST @sandbox               # Spatial filesystem commands
+    BINDER open @sandbox/project      # Open binder project
 
 Navigation in Picker:
   j/k or 2/8     Move down/up

@@ -94,6 +94,14 @@ def __getattr__(name):
         from .script_handler import ScriptHandler
 
         return ScriptHandler
+    elif name == "ThemeHandler":
+        from .theme_handler import ThemeHandler
+
+        return ThemeHandler
+    elif name == "SkinHandler":
+        from .skin_handler import SkinHandler
+
+        return SkinHandler
     elif name == "DevModeHandler":
         from .dev_mode_handler import DevModeHandler
 

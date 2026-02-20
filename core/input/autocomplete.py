@@ -77,6 +77,14 @@ class AutocompleteService:
                 "description": "Manage system scripts",
                 "options": ["LIST", "RUN", "LOG"],
             },
+            "THEME": {
+                "description": "TUI message theme manager",
+                "options": ["LIST", "SHOW", "SET", "CLEAR"],
+            },
+            "SKIN": {
+                "description": "Wizard GUI skin manager",
+                "options": ["LIST", "SHOW", "SET", "CLEAR"],
+            },
             "REPAIR": {
                 "description": "Fix system issues",
                 "options": ["--pull", "--upgrade-all"],

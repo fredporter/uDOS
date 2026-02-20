@@ -29,9 +29,12 @@ class GameplayHandler(BaseCommandHandler):
       PLAY GATE RESET <gate_id>
       PLAY TOYBOX LIST
       PLAY TOYBOX SET <hethack|elite|rpgbbs|crawler3d>
-      PLAY LENS STATUS
-      PLAY LENS ENABLE
-      PLAY LENS DISABLE
+            PLAY LENS LIST
+            PLAY LENS SHOW
+            PLAY LENS SET <lens>
+            PLAY LENS STATUS
+            PLAY LENS ENABLE
+            PLAY LENS DISABLE
       PLAY PROCEED
       PLAY NEXT
       PLAY UNLOCK
@@ -384,6 +387,52 @@ class GameplayHandler(BaseCommandHandler):
         runtime = get_map_runtime_service()
         world_lens = get_world_lens_service()
 
+        if action in {"list", "ls"}:
+            active = gameplay.get_active_toybox()
+            profiles = gameplay.get_toybox_profiles()
+            lines = [f"Active lens: {active}", "Available lenses:"]
+            for profile_id, profile in profiles.items():
+                marker = "*" if profile_id == active else " "
+                lines.append(f"{marker} {profile_id} -> {profile.get('container_id')}")
+            return {
+                "status": "success",
+                "message": "Lens profiles",
+                "lens": {"active": active, "profiles": profiles},
+                "output": "\n".join(lines),
+            }
+
+        if action in {"set", "use"} or (params and action not in {"status", "show", "enable", "disable"}):
+            target = params[1].lower() if action in {"set", "use"} and len(params) > 1 else action
+            if not target:
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Syntax: PLAY LENS SET <lens>",
+                    recovery_hint="Usage: PLAY LENS LIST to see lenses",
+                    level="INFO",
+                )
+            if not gameplay.has_permission(role, "toybox.admin"):
+                raise CommandError(
+                    code="ERR_AUTH_PERMISSION_DENIED",
+                    message="Permission denied: toybox.admin",
+                    recovery_hint="Switch to a user with toybox admin permissions",
+                    level="WARNING",
+                )
+            try:
+                active = gameplay.set_active_toybox(target, username=username)
+            except ValueError as exc:
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message=str(exc),
+                    recovery_hint="Use PLAY LENS LIST to see lenses",
+                    level="INFO",
+                )
+            return {
+                "status": "success",
+                "message": f"Active lens set to {active}",
+                "lens": {"active": active},
+                "output": f"Active lens: {active}",
+            }
+
         if action in {"status", "show"}:
             map_status = runtime.status(username)
             lens_status = world_lens.status(
@@ -401,8 +450,8 @@ class GameplayHandler(BaseCommandHandler):
         if action not in {"enable", "disable"}:
             raise CommandError(
                 code="ERR_COMMAND_INVALID_ARG",
-                message="Syntax: PLAY LENS <STATUS|ENABLE|DISABLE>",
-                recovery_hint="Usage: PLAY LENS STATUS",
+                message="Syntax: PLAY LENS <LIST|SHOW|SET|STATUS|ENABLE|DISABLE>",
+                recovery_hint="Usage: PLAY LENS LIST",
                 level="INFO",
             )
 

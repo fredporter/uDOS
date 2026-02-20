@@ -33,7 +33,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         "Navigation": ["MAP", "GRID", "ANCHOR", "PANEL", "GOTO", "FIND", "TELL", "PLAY", "RULE"],
         "Inventory": ["BAG", "GRAB", "SPAWN"],
         "NPCs & Dialogue": ["NPC", "SEND"],
-        "Files & State": ["SAVE", "LOAD", "NEW", "EDIT", "UNDO"],
+        "Files & State": ["SAVE", "LOAD", "FILE", "UNDO"],
         "AI & Models": ["OK"],
         "System & Maintenance": [
             "REBOOT",
@@ -51,6 +51,8 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "LOGS",
             "VIEWPORT",
             "DRAW",
+            "THEME",
+            "SKIN",
             "LIBRARY",
         ],
         "Automation": [
@@ -134,7 +136,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "example": "PLAY STATS ADD xp 25",
             "notes": "Unified gameplay surface for progression, map loop, gates, TOYBOX, and play options.",
             "category": "Navigation",
-            "syntax": "PLAY STATUS | PLAY STATS <SET|ADD> <xp|hp|gold> <value> | PLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK> ... | PLAY GATE <STATUS|COMPLETE|RESET> <gate_id> | PLAY TOYBOX <LIST|SET> [profile] | PLAY LENS <STATUS|ENABLE|DISABLE> | PLAY PROCEED | PLAY OPTIONS | PLAY START <dungeon|galaxy|social|ascension> | PLAY TOKENS | PLAY CLAIM",
+            "syntax": "PLAY STATUS | PLAY STATS <SET|ADD> <xp|hp|gold> <value> | PLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK> ... | PLAY GATE <STATUS|COMPLETE|RESET> <gate_id> | PLAY TOYBOX <LIST|SET> [profile] | PLAY LENS <LIST|SHOW|SET|STATUS|ENABLE|DISABLE> [lens] | PLAY PROCEED | PLAY OPTIONS | PLAY START <dungeon|galaxy|social|ascension> | PLAY TOKENS | PLAY CLAIM",
         },
         "RULE": {
             "description": "Conditional IF/THEN gameplay automations paired with PLAY and TOYBOX",
@@ -184,21 +186,13 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "category": "Files & State",
             "syntax": "LOAD [path] | LOAD --state <slot_name>",
         },
-        "NEW": {
-            "description": "Create a new markdown file in /memory",
-            "usage": "NEW [name]",
-            "example": "NEW daily-notes",
-            "notes": "Creates/open /memory/<name>.md in editor",
+        "FILE": {
+            "description": "Workspace-aware file browser and editor entry",
+            "usage": "FILE [BROWSE|LIST|SHOW|NEW|EDIT] [path]",
+            "example": "FILE NEW daily-notes or FILE EDIT notes.md",
+            "notes": "FILE NEW/EDIT replace legacy NEW/EDIT commands",
             "category": "Files & State",
-            "syntax": "NEW <name> [--no-edit] [--template <type>]",
-        },
-        "EDIT": {
-            "description": "Edit a markdown file in /memory",
-            "usage": "EDIT [path]",
-            "example": "EDIT notes.md",
-            "notes": "Opens editor for /memory/<path>",
-            "category": "Files & State",
-            "syntax": "EDIT <path> [--readonly]",
+            "syntax": "FILE [BROWSE|LIST|SHOW|NEW|EDIT|HELP] [path]",
         },
         "HELP": {
             "description": "Display command reference",
@@ -223,6 +217,22 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "notes": "Persists UDOS_VIEWPORT_COLS/ROWS in .env for stable TUI sizing.",
             "category": "System & Maintenance",
             "syntax": "VIEWPORT [SHOW|REFRESH]",
+        },
+        "THEME": {
+            "description": "TUI message theming (text-only)",
+            "usage": "THEME [LIST|SHOW|SET|CLEAR] [name]",
+            "example": "THEME SET dungeon",
+            "notes": "Controls text-only TUI message replacements (errors, tips, labels).",
+            "category": "System & Maintenance",
+            "syntax": "THEME LIST | THEME SHOW <name> | THEME SET <name> | THEME CLEAR",
+        },
+        "SKIN": {
+            "description": "Wizard GUI skin manager (HTML/CSS)",
+            "usage": "SKIN [LIST|SHOW|SET|CLEAR] [name]",
+            "example": "SKIN SET prose",
+            "notes": "Selects Wizard GUI skin packs stored under /themes.",
+            "category": "System & Maintenance",
+            "syntax": "SKIN LIST | SKIN SHOW <name> | SKIN SET <name> | SKIN CLEAR",
         },
         "DRAW": {
             "description": "Render viewport-aware ASCII panels",

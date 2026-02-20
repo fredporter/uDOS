@@ -1,7 +1,7 @@
 # uCODE Command Reference
 
-Version: Core v1.3.16+
-Updated: 2026-02-17
+Version: Core v1.3.20+
+Updated: 2026-02-20
 
 This guide is split into:
 - TypeScript-backed command paths (Node runtime required)
@@ -77,65 +77,68 @@ allow_stdlib_commands: true
 
 ## Python ucode Commands (Core Surface)
 
-Current dispatcher/TUI command surface:
+Current dispatcher/TUI command surface (55 commands, Core v1.3.20+).
 Global strict stdlib-only enforcement is not required; this is the active Python command surface in Core.
 
-- `ANCHOR`
-- `BACKUP`
-- `BAG`
-- `BINDER`
-- `CLEAN`
-- `COMPOST`
-- `CONFIG`
-- `DESTROY`
-- `DEV`
-- `DRAW`
-- `EDIT`
-- `EMPIRE`
-- `FILE`
-- `FIND`
-- `GHOST`
-- `PLAY`
-- `PLAY`
-- `RULE`
-- `GOTO`
-- `GRAB`
-- `GRID`
-- `HEALTH`
-- `HELP`
-- `LOAD`
-- `LOGS`
-- `MAP`
-- `MIGRATE`
-- `MUSIC`
-- `NEW`
-- `NPC`
-- `OK` (TUI-routed AI/local helper command)
-- `PANEL`
-- `PLACE`
-- `READ`
-- `REBOOT`
-- `REPAIR`
-- `RESTORE`
-- `RUN`
-- `SAVE`
-- `SCHEDULER`
-- `SEND`
-- `SCRIPT`
-- `SEED`
-- `SETUP`
-- `SONIC`
-- `SPAWN`
-- `STORY`
-- `TELL`
-- `TIDY`
-- `TOKEN`
-- `UID`
-- `UNDO`
-- `USER`
-- `VERIFY`
-- `VIEWPORT`
-- `WIZARD`
+| Command | Description |
+| --- | --- |
+| ANCHOR | Manage gameplay anchors, bindings, and instances |
+| BACKUP | Create backup snapshots in `.compost` |
+| BAG | Inventory management |
+| BINDER | Binder selection and compilation |
+| CLEAN | Move non-default files into `.compost` trash |
+| COMPOST | Archive `.archive/.backup/.tmp/.temp` into `.compost` |
+| CONFIG | Configuration menu and Wizard config access |
+| DESTROY | Destructive cleanup/reset operations |
+| DEV | Wizard-controlled dev mode |
+| DRAW | Viewport-aware ASCII panels and patterns |
+| EMPIRE | Empire extension control |
+| FILE | Workspace-aware file browser (use `FILE NEW` / `FILE EDIT`) |
+| FIND | Search locations by query |
+| GHOST | Ghost Mode status and policy |
+| GOTO | Navigate to a location |
+| GRAB | Pick up objects |
+| GRID | Render grid views (calendar/table/schedule/map/dashboard/workflow) |
+| HEALTH | Offline core health checks |
+| HELP | Command reference and search |
+| LIBRARY | Library integrations: status/sync/info/list |
+| LOAD | Load file or state slot |
+| LOGS | Unified log viewer |
+| MAP | Spatial map view |
+| MIGRATE | Location data migration |
+| MUSIC | Songscribe/Groovebox workflows |
+| NPC | NPC list and management |
+| PANEL | Location info panel |
+| PLACE | Workspace/tag/location operations |
+| PLAY | Gameplay command surface (stats/map/gates/toybox) |
+| READ | Read file content or TS runtime documents |
+| REBOOT | Hot reload handlers + restart TUI |
+| REPAIR | Self-healing and maintenance checks |
+| RESTORE | Restore from backups |
+| RULE | IF/THEN gameplay automation rules |
+| RUN | Script execution (TS/Python) |
+| SAVE | Save file or state slot |
+| SCHEDULER | Wizard task scheduler |
+| SCRIPT | System script runner |
+| SEED | Framework seed installer |
+| SEND | NPC dialogue/response routing |
+| SETUP | Setup profiles and providers |
+| SONIC | Sonic status/sync/plan/run |
+| SPAWN | Spawn objects/sprites |
+| STORY | Story runtime commands |
+| TELL | Rich location description |
+| TIDY | Move junk files into `.compost` trash |
+| TOKEN | Token generation utilities |
+| UID | User identity tools |
+| UNDO | Restore latest backup (undo wrapper) |
+| USER | User profiles and permissions |
+| VERIFY | TS runtime verification |
+| VIEWPORT | Measure/cache viewport size |
+| WIZARD | Wizard server management |
+
+Notes:
+- Legacy `NEW` and `EDIT` are consolidated into `FILE NEW` and `FILE EDIT`.
+- `OK` is a TUI helper command routed by uCLI (not part of dispatcher contract).
 
 ### Maintenance Storage Policy (v1.3.13+)
 

@@ -563,6 +563,10 @@ class UCLI:
         first_word = words[0].upper()
         rest = words[1] if len(words) > 1 else ""
 
+        if first_word in {"NEW", "EDIT"}:
+            rest = f"{first_word} {rest}".strip()
+            first_word = "FILE"
+
         # Map common commands (case insensitive shortcuts)
         cmd_map = {
             "HELP": "HELP",
@@ -577,8 +581,6 @@ class UCLI:
             "SETUP": "SETUP",
             "PLACE": "PLACE",
             "FILE": "FILE",
-            "NEW": "NEW",
-            "EDIT": "EDIT",
             "MAP": "MAP",
             "DRAW": "DRAW",
             "FIND": "FIND",

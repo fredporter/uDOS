@@ -528,6 +528,24 @@ def create_default_registry() -> CommandRegistry:
     )
 
     registry.register(
+        name="THEME",
+        help_text="TUI message theme manager (text-only)",
+        syntax="THEME [LIST|SHOW|SET|CLEAR] [name]",
+        examples=["THEME LIST", "THEME SET dungeon"],
+        icon="•",
+        category="System",
+    )
+
+    registry.register(
+        name="SKIN",
+        help_text="Wizard GUI skin manager (HTML/CSS)",
+        syntax="SKIN [LIST|SHOW|SET|CLEAR] [name]",
+        examples=["SKIN LIST", "SKIN SET prose"],
+        icon="•",
+        category="System",
+    )
+
+    registry.register(
         name="EXIT",
         help_text="Exit uCODE",
         syntax="EXIT",
@@ -684,15 +702,19 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="FILE",
         help_text="Interactive workspace and file browser",
-        syntax="FILE [BROWSE|LIST|SHOW] [path]",
+        syntax="FILE [BROWSE|LIST|SHOW|NEW|EDIT] [path]",
         options=[
             "FILE: Open workspace picker → file browser",
+            "NEW <name>: Create a new file in /memory",
+            "EDIT <path>: Open a file in editor",
             "LIST [workspace]: List files in workspace",
             "SHOW <file>: Display file content",
             "HELP: Show FILE command help",
         ],
         examples=[
             "FILE",
+            "FILE NEW daily-notes",
+            "FILE EDIT notes.md",
             "FILE LIST @sandbox",
             "FILE SHOW @sandbox/readme.md",
         ],

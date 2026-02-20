@@ -131,12 +131,12 @@
         "problemMatcher": []
       },
       {
-        "label": "uDOS: Shakedown",
+        "label": "uDOS: Health Check",
         "type": "shell",
         "command": "/bin/bash",
         "args": [
           "-lc",
-          "printf 'SHAKEDOWN\\n' | ${workspaceFolder:Root}/bin/vibe"
+          "printf 'HEALTH\\n' | ${workspaceFolder:Root}/bin/vibe"
         ],
         "presentation": {
           "reveal": "always",

@@ -10,7 +10,7 @@ import json
 import os
 import shutil
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 from core.services.logging_api import get_logger, get_repo_root
 
@@ -20,6 +20,7 @@ logger = get_logger("theme")
 class ThemeService:
     """Simple service that loads theme files and applies replacements."""
 
+    ENV_MESSAGE_THEME = "UDOS_TUI_MESSAGE_THEME"
     SEED_DIR = Path("core/framework/seed/bank/system/themes")
     SIMPLE_TUI_PRESETS: Dict[str, Dict[str, str]] = {
         "default": {},
@@ -227,8 +228,12 @@ class ThemeService:
         raw = str(name).strip().lower()
         return self.THEME_ALIASES.get(raw, raw)
 
+    def canonical_message_theme(self, name: Optional[str]) -> str:
+        """Return a canonical TUI message theme name."""
+        return self._canonical_theme_name(name)
+
     def _resolve_message_theme(self, map_level: Optional[str] = None) -> str:
-        override = os.environ.get("UDOS_TUI_MESSAGE_THEME", "").strip().lower()
+        override = os.environ.get(self.ENV_MESSAGE_THEME, "").strip().lower()
         if override:
             return self._canonical_theme_name(override)
 
@@ -245,11 +250,27 @@ class ThemeService:
 
         return self._canonical_theme_name(self.active_theme)
 
+    def get_active_message_theme(self, map_level: Optional[str] = None) -> str:
+        """Return the active TUI message theme name."""
+        return self._resolve_message_theme(map_level=map_level)
+
+    def list_message_themes(self) -> List[str]:
+        """Return supported TUI message theme names."""
+        return sorted(self.SIMPLE_TUI_PRESETS.keys())
+
     def _apply_replacements(self, text: str, replacements: Dict[str, str]) -> str:
         result = text
         for key, value in replacements.items():
             result = result.replace(key, value)
         return result
+
+    def format_for_theme(self, text: Optional[str], theme_name: Optional[str]) -> str:
+        """Format text using a specific TUI message theme (no env override)."""
+        if not text:
+            return ""
+        canonical = self._canonical_theme_name(theme_name)
+        simple = self.SIMPLE_TUI_PRESETS.get(canonical) or {}
+        return self._apply_replacements(text, simple)
 
     def format(self, text: Optional[str], map_level: Optional[str] = None) -> str:
         """

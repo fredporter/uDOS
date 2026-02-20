@@ -159,9 +159,13 @@ python -m core.version bump core build
 ### Testing
 
 ```bash
-# Shakedown (47 tests)
-./bin/Launch-uCODE.sh
-# Then type: SHAKEDOWN
+# Core verification
+./bin/ucli
+# Then type: HEALTH or VERIFY
+
+# Full Wizard checks
+./bin/ucli
+# Then type: WIZARD CHECK
 
 # Python tests
 pytest memory/tests/ core/tests/ -v

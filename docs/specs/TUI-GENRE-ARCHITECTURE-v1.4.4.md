@@ -1,4 +1,4 @@
-# TUI GENRE Architecture — v1.4.4
+# TUI THEME Architecture — v1.4.4
 
 **Status:** Architecture Specification
 **Target:** Terminal UI theming system separate from Web GUI themes
@@ -8,7 +8,7 @@
 
 ## Overview
 
-**GENRE** is uDOS's theming system for TUI (Terminal User Interface) styling. GENREs define:
+**THEME** is uDOS's text-only theming system for TUI (Terminal User Interface) messaging. THEMEs define:
 - Color palettes (for ANSI output)
 - Error/warning/success message formats
 - ASCII art and border styles
@@ -20,14 +20,14 @@ This is **separate and distinct** from Wizard's web GUI themes (HTML/CSS in `wiz
 ### Design Goals
 
 1. **Separation of Concerns** — TUI styling independent from web GUI
-2. **Modularity** — Each GENRE is self-contained, easy to add/remove
-3. **Consistency** — All error/system messages follow GENRE conventions
+2. **Modularity** — Each THEME is self-contained, easy to add/remove
+3. **Consistency** — All error/system messages follow THEME conventions
 4. **Accessibility** — High-contrast genres for readability; colorblind-safe defaults
 5. **Extensibility** — Users can create custom GENREs without core modifications
 
 ---
 
-## GENRE Categories
+## THEME Categories
 
 ### 1. Retro (Classic Computing)
 
@@ -117,7 +117,7 @@ definition: |
 
 ---
 
-## GENRE Definition Format
+## THEME Definition Format
 
 ### File Structure
 

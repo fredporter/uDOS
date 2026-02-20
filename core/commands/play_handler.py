@@ -30,9 +30,12 @@ class PlayHandler(BaseCommandHandler):
       PLAY GATE RESET <gate_id>
       PLAY TOYBOX LIST
       PLAY TOYBOX SET <hethack|elite|rpgbbs|crawler3d>
-      PLAY LENS STATUS
-      PLAY LENS ENABLE
-      PLAY LENS DISABLE
+    PLAY LENS LIST
+    PLAY LENS SHOW
+    PLAY LENS SET <lens>
+    PLAY LENS STATUS
+    PLAY LENS ENABLE
+    PLAY LENS DISABLE
       PLAY PROCEED
       PLAY NEXT
       PLAY UNLOCK

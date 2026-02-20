@@ -18,7 +18,7 @@ DIRECT_UCLI = {"STATUS", "HELP"}
 
 
 def main() -> int:
-    contract = json.loads((repo / "core" / "config" / "ucli_command_contract_v1_3_16.json").read_text())
+    contract = json.loads((repo / "core" / "config" / "ucli_command_contract_v1_3_20.json").read_text())
     commands = set(contract.get("ucode", {}).get("commands", []))
     handlers = set(CommandDispatcher().handlers.keys())
 

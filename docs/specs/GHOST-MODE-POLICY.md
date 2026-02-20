@@ -47,7 +47,7 @@ In Ghost Mode, write-capable commands are blocked or forced into dry-run mode.
 - `PLUGIN install/remove/pack`
 - `WIZARD start/stop/rebuild`
 - `DESTROY`
-- File editing commands (`NEW`, `EDIT`, `SAVE`, `LOAD`)
+- File editing commands (`FILE NEW`, `FILE EDIT`, `SAVE`, `LOAD`)
 
 ## Required Components (Strict)
 1. `ollama` installed

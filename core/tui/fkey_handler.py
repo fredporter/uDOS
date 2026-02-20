@@ -211,7 +211,7 @@ Write your content here...
         return {
             "status": "success",
             "message": f"Created: {filepath}",
-            "output": f"OK File created: {filepath}\nTo edit: EDIT {filename}",
+            "output": f"OK File created: {filepath}\nTo edit: FILE EDIT {filename}",
         }
 
     def _handle_file_picker(self) -> Dict:

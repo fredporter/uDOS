@@ -30,6 +30,8 @@ def ghost_mode_block(command: str, params: Optional[List[str]] = None) -> Option
         return None
     if cmd == "PLACE" and tokens[:1] in ([], ["LIST"], ["READ"], ["INFO"], ["HELP"], ["FIND"], ["TAGS"], ["SEARCH"]):
         return None
+    if cmd == "FILE" and tokens[:1] in ([], ["LIST"], ["SHOW"], ["HELP"], ["BROWSE"], ["PICK"], ["OPEN"]):
+        return None
     if cmd == "DRAW":
         return None
     if cmd == "BINDER":
@@ -96,8 +98,7 @@ def ghost_mode_block(command: str, params: Optional[List[str]] = None) -> Option
         "SEED",
         "PLUGIN",
         "WIZARD",
-        "NEW",
-        "EDIT",
+        "FILE",
         "SAVE",
         "LOAD",
     }

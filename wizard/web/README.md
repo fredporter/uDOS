@@ -2,7 +2,7 @@
 
 **FastAPI-based browser interface for Wizard Server administration**
 
-Version: v1.0.0.0  
+Version: v1.0.0.0
 Stack: FastAPI + HTMX + Alpine.js + Tailwind CSS
 
 ---
@@ -83,6 +83,7 @@ wizard/web/
 - `GET /poke` - POKE management page
 - `POST /api/poke/upload` - Upload file for hosting
 - `GET /p/{path}` - Serve hosted file
+    - GUI skins are managed via the Core `SKIN` command (HTML/CSS packs under `/themes`).
 
 ### Webhooks
 - `GET /webhooks` - Webhook management page
@@ -146,7 +147,7 @@ http://192.168.1.100:8080/
 **Auto-refreshing stats:**
 
 ```html
-<div 
+<div
     hx-get="/api/stats"
     hx-trigger="every 5s"
     hx-swap="innerHTML"
@@ -158,7 +159,7 @@ http://192.168.1.100:8080/
 **Lazy-loaded device list:**
 
 ```html
-<div 
+<div
     hx-get="/api/devices"
     hx-trigger="load"
     hx-swap="innerHTML"
@@ -170,7 +171,7 @@ http://192.168.1.100:8080/
 **Click to load logs:**
 
 ```html
-<button 
+<button
     hx-get="/api/logs?level=error"
     hx-target="#log-container"
 >
@@ -225,7 +226,7 @@ function dashboard() {
 }
 
 .nav-link {
-    @apply px-3 py-2 rounded-md text-sm font-medium text-gray-300 
+    @apply px-3 py-2 rounded-md text-sm font-medium text-gray-300
            hover:bg-gray-700 hover:text-white transition-colors;
 }
 ```
@@ -419,5 +420,5 @@ sudo systemctl start udos-wizard-web
 
 ---
 
-*Last Updated: 2026-01-05*  
+*Last Updated: 2026-01-05*
 *Version: v1.0.0.0*

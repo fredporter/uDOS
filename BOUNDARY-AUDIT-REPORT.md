@@ -29,7 +29,7 @@ from groovebox.wizard.services.songscribe_service import get_songscribe_service
 
 ---
 
-### 2. ❌ SONIC Handler - External Library Import  
+### 2. ❌ SONIC Handler - External Library Import
 **File:** `core/commands/sonic_handler.py` (line 183)
 **Type:** External stdlib boundary
 **Severity:** MEDIUM

@@ -13,7 +13,7 @@ from core.services.editor_utils import (
 
 
 class FileEditorHandler(BaseCommandHandler):
-    """Handle NEW/EDIT/LOAD/SAVE commands for text files in /memory."""
+    """Handle FILE NEW/EDIT (and legacy NEW/EDIT/LOAD/SAVE) for /memory files."""
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         cmd = command.upper()

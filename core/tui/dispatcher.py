@@ -56,6 +56,8 @@ from core.commands import (
     SeedHandler,
     SchedulerHandler,
     ScriptHandler,
+    ThemeHandler,
+    SkinHandler,
     ViewportHandler,
     DrawHandler,
     WorkspaceHandler,
@@ -116,6 +118,8 @@ class CommandDispatcher:
             "LOGS": LogsHandler(),  # View unified logs
             "SCHEDULER": SchedulerHandler(),  # Wizard task scheduler
             "SCRIPT": ScriptHandler(),  # System script runner
+            "THEME": ThemeHandler(),  # TUI message theme manager
+            "SKIN": SkinHandler(),  # Wizard GUI skin manager
             "VIEWPORT": ViewportHandler(),  # Measure viewport size
             "DRAW": DrawHandler(),  # Viewport-aware ASCII demo panels
             # User Management (2)
@@ -145,9 +149,7 @@ class CommandDispatcher:
             "RUN": RunHandler(),
             "READ": ReadHandler(),
             # File operations
-            "FILE": FileHandler(),  # Phase 2: Workspace picker integration
-            "NEW": file_editor,
-            "EDIT": file_editor,
+            "FILE": FileHandler(file_editor=file_editor),  # Phase 2: Workspace picker integration
             # Maintenance
             "BACKUP": maintenance,
             "RESTORE": maintenance,
@@ -192,6 +194,10 @@ class CommandDispatcher:
 
         cmd_name = parts[0].upper()
         cmd_params = parts[1:]
+
+        if cmd_name in {"NEW", "EDIT"}:
+            cmd_params = [cmd_name] + cmd_params
+            cmd_name = "FILE"
 
         # Get handler
         handler = self.handlers.get(cmd_name)

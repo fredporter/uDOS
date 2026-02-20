@@ -64,6 +64,9 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 - Added v1.3.24 benchmark history snapshots + regression-delta evaluator/alerts with CI gate (`check_v1_3_24_benchmark_history.py`).
 - Added v1.3.24 command capability matrix negative-path tests for role denials, blocked flows, and deterministic syntax/unknown-subcommand errors.
 - Completed v1.3.24 Debug Round B hygiene gate: duplicate/legacy-marker baselines cleared and unused private-function annotations emitted via triage artifact.
+- Completed core stdlib-boundary audit and repaired non-stdlib imports (stdlib_http + provider registry guardrails).
+- Synced dispatcher and command contract to v1.3.20 (55 commands) and refreshed command references/help.
+- Consolidated legacy NEW/EDIT into FILE NEW/EDIT with routing + policy updates.
 
 ---
 

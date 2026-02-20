@@ -29,21 +29,64 @@ The **Command Dispatch Chain** is a three-stage input routing system for uCLI th
 ### Registry
 
 ```python
-# core/services/command_dispatch_service.py
+# core/tui/dispatcher.py (authoritative),
+# core/config/ucli_command_contract_v1_3_20.json (contract)
 
-UCODE_REGISTRY = {
-    # Command name → handler function
-    "HELP": handle_help,
-    "HEALTH": handle_health,
-    "VERIFY": handle_verify,
-    "PLACE": handle_place,
-    "BINDER": handle_binder,
-    "DRAW": handle_draw,
-    "RUN": handle_run,
-    "PLAY": handle_play,
-    "RULE": handle_rule,
-    "LIBRARY": handle_library,
-}
+UCODE_COMMANDS = [
+    "ANCHOR",
+    "BACKUP",
+    "BAG",
+    "BINDER",
+    "CLEAN",
+    "COMPOST",
+    "CONFIG",
+    "DESTROY",
+    "DEV",
+    "DRAW",
+    "EMPIRE",
+    "FILE",
+    "FIND",
+    "GHOST",
+    "GOTO",
+    "GRAB",
+    "GRID",
+    "HEALTH",
+    "HELP",
+    "LIBRARY",
+    "LOAD",
+    "LOGS",
+    "MAP",
+    "MIGRATE",
+    "MUSIC",
+    "NPC",
+    "PANEL",
+    "PLACE",
+    "PLAY",
+    "READ",
+    "REBOOT",
+    "REPAIR",
+    "RESTORE",
+    "RULE",
+    "RUN",
+    "SAVE",
+    "SCHEDULER",
+    "SCRIPT",
+    "SEED",
+    "SEND",
+    "SETUP",
+    "SONIC",
+    "SPAWN",
+    "STORY",
+    "TELL",
+    "TIDY",
+    "TOKEN",
+    "UID",
+    "UNDO",
+    "USER",
+    "VERIFY",
+    "VIEWPORT",
+    "WIZARD",
+]
 
 # Aliases and variations
 UCODE_ALIASES = {
@@ -266,7 +309,7 @@ def route_to_vibe(input_str: str) -> str:
 |-------|-------|--------|
 | `What is my workspace?` | VIBE | AI: "Your current workspace is @vault with 42 documents." |
 | `Show me all commands` | VIBE | AI: "See HELP for list. Want help with specific task?" |
-| `Create a new note` | VIBE | AI: "Use: BINDER --create my-note.md" + likely creates it |
+| `Create a new note` | VIBE | AI: "Use: FILE NEW my-note" + likely creates it |
 | `How do I play nethack?` | VIBE | AI: "Run: PLAY @profile/nethack" + explanation |
 
 ---

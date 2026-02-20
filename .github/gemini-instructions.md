@@ -19,7 +19,7 @@ When assisting with uDOS development:
 2. **Entry point**: `core/uDOS_main.py` → `core/uDOS_commands.py` (router)
 3. **Command flow**: Router → Handler (`core/commands/*_handler.py`) → Service
 4. **Configuration**: `core/config.py` (unified .env + user.json)
-5. **Test validation**: Run `./bin/Launch-uCODE.sh core` or `python uDOS.py --script memory/tests/shakedown-script.md`
+5. **Test validation**: Run `./bin/ucli` then use `HEALTH`, `VERIFY`, or `WIZARD CHECK` commands
 
 ## Workspace Structure (v1.2.21)
 
@@ -177,7 +177,7 @@ Context available in OK commands includes:
 2. Verify file paths exist
 3. Check git status for conflicts
 4. Test in sandbox first
-5. Use SHAKEDOWN for validation
+5. Use HEALTH/VERIFY/WIZARD CHECK for validation
 
 ## Key Design Principles
 
@@ -200,8 +200,8 @@ Context available in OK commands includes:
 ✅ **Do:**
 - Use error_helper for all exceptions
 - Check logs before suggesting fixes
-- Test with `./bin/Launch-uCODE.sh core` or `python uDOS.py --script script-example.md`
-- Run SHAKEDOWN after changes
+- Test with `./bin/ucli` using HEALTH/VERIFY commands
+- Run WIZARD CHECK after changes
 - Follow handler pattern for commands
 - Document all public APIs
 
@@ -227,7 +227,7 @@ echo -e "STATUS\nTREE\nEXIT" | python uDOS.py
 4. ✅ Analyze git status for related changes
 5. Suggest specific commands to run
 6. Provide code fixes with explanations
-7. Recommend SHAKEDOWN after fixes
+7. Recommend HEALTH/VERIFY/WIZARD CHECK after fixes
 
 **For "OK ASK" commands:**
 1. Use workspace context

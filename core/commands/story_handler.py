@@ -269,7 +269,7 @@ set $user.completed true
 ---
 
 **Story created:** {story_file.name}
-**Edit:** `EDIT {story_file.relative_to(repo_root)}`
+**Edit:** `FILE EDIT {story_file.relative_to(repo_root)}`
 **Run:** `STORY {safe_name}`
 """
 
@@ -278,7 +278,7 @@ set $user.completed true
         return {
             "status": "success",
             "message": f"Story created: {story_file.name}",
-            "output": f"Created: {story_file}\n\nRun with: STORY {safe_name}\nEdit with: EDIT {story_file.relative_to(repo_root)}",
+            "output": f"Created: {story_file}\n\nRun with: STORY {safe_name}\nEdit with: FILE EDIT {story_file.relative_to(repo_root)}",
         }
 
     def _process_interactive_form(self, form_spec: Dict) -> Dict:
