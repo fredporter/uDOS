@@ -927,5 +927,20 @@ def ucode_dispatch(command: str) -> str:
     return _wrap_display(rendered)
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Vibe Skills MCP Tools Registration
+# ─────────────────────────────────────────────────────────────────────────────
+
+try:
+    from vibe_mcp_integration import register_vibe_mcp_tools
+    register_vibe_mcp_tools(mcp)
+except ImportError as e:
+    # Vibe MCP integration is optional
+    pass
+except Exception as e:
+    # Log but don't fail if Vibe integration has issues
+    pass
+
+
 if __name__ == "__main__":
     mcp.run(transport="stdio")

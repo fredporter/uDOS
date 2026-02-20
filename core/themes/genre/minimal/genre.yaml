@@ -1,0 +1,32 @@
+# Minimal GENRE Definition
+metadata:
+  name: "minimal"
+  display_name: "Minimal (Zen)"
+  description: "Clean, distraction-free aesthetic with grayscale palette"
+
+palette:
+  primary: "\033[38;5;250m"  # Light gray
+  secondary: "\033[38;5;245m"  # Medium gray
+  accent: "\033[38;5;39m"    # Blue accent
+  background: "\033[48;5;0m" # Black
+  error_bg: "\033[48;5;0m"   # Black background
+  error_fg: "\033[38;5;15m"   # Bright white
+
+borders:
+  horizontal: "─"
+  vertical: "│"
+  corner_top_left: "┌"
+  corner_top_right: "┐"
+  corner_bottom_left: "└"
+  corner_bottom_right: "┘"
+
+templates:
+  error: "ERROR:"
+  warning: "WARNING:"
+  success: "SUCCESS:"
+  info: "INFO:"
+
+formatting:
+  heading: "normal_case"
+  command: "no_brackets"
+  emphasis: "none"

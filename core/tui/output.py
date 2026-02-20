@@ -9,6 +9,7 @@ from typing import Iterable, List, Sequence, Tuple, Optional
 
 from core.utils.text_width import display_width, pad_to_width, truncate_to_width, truncate_ansi_to_width
 from core.services.viewport_service import ViewportService
+from core.services.tui_genre_manager import get_tui_genre_manager
 import time
 
 
@@ -18,6 +19,14 @@ class OutputToolkit:
     RESET = "\033[0m"
     INVERT = "\033[7m"
     DIM = "\033[2m"
+    
+    @staticmethod
+    def _get_genre_manager():
+        """Get the TUI GENRE manager instance."""
+        try:
+            return get_tui_genre_manager()
+        except:
+            return None
     SYMBOLS = {
         "info": "•",
         "ok": "✓",
@@ -200,6 +209,63 @@ class OutputToolkit:
 
         renderer = MapRenderer()
         return OutputToolkit._clamp(renderer.render(location))
+
+    @staticmethod
+    def genre_banner(title: str, genre: Optional[str] = None) -> str:
+        """Create a GENRE-themed banner."""
+        manager = OutputToolkit._get_genre_manager()
+        if manager and genre:
+            manager.set_active_genre(genre)
+        
+        return OutputToolkit.banner(title)
+
+    @staticmethod
+    def genre_box(title: str, body: str, genre: Optional[str] = None) -> str:
+        """Create a GENRE-themed box."""
+        manager = OutputToolkit._get_genre_manager()
+        if manager:
+            if genre:
+                manager.set_active_genre(genre)
+            return manager.create_box(title, body)
+        
+        # Fallback to standard box
+        return OutputToolkit.box(title, body)
+
+    @staticmethod
+    def genre_error(message: str, genre: Optional[str] = None) -> str:
+        """Format an error message with GENRE theming."""
+        manager = OutputToolkit._get_genre_manager()
+        if manager:
+            if genre:
+                manager.set_active_genre(genre)
+            return manager.format_error(message)
+        
+        # Fallback to standard error format
+        return f"ERROR: {message}"
+
+    @staticmethod
+    def genre_warning(message: str, genre: Optional[str] = None) -> str:
+        """Format a warning message with GENRE theming."""
+        manager = OutputToolkit._get_genre_manager()
+        if manager:
+            if genre:
+                manager.set_active_genre(genre)
+            return manager.format_warning(message)
+        
+        # Fallback to standard warning format
+        return f"WARNING: {message}"
+
+    @staticmethod
+    def genre_success(message: str, genre: Optional[str] = None) -> str:
+        """Format a success message with GENRE theming."""
+        manager = OutputToolkit._get_genre_manager()
+        if manager:
+            if genre:
+                manager.set_active_genre(genre)
+            return manager.format_success(message)
+        
+        # Fallback to standard success format
+        return f"SUCCESS: {message}"
 
     @staticmethod
     def _clamp(text: str) -> str:

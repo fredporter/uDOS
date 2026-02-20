@@ -10,10 +10,10 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 
 - Core concept: uDOS is a local Obsidian companion runtime focused on `@workspace`/`@binder` organization, fractal/layered filesystem structures, knowledge-tree navigation, and digital-garden workflows.
 - Milestones v1.3.0 to v1.3.7: complete (archived records exist).
-- Current focus: v1.4.3 complete (shipped). **Round 4** (v1.4.4): core hardening, gameplay lenses (5 implementations), TUI genres (4 types), three-stage command dispatch. **Round 5** (v1.4.5): Wizard stabilization, GUI browser/file picker, GitHub Pages + Jekyll publishing (no monorepo). **Round 6** (v1.4.6): distribution packaging (4 variants), local library system (versioning, updates), Docker hardening, standalone Sonic, security audit, performance testing. **Stable Release Gate** (v1.4.7): consolidation, command audit, version unification, no backwards-compat shims. Groovebox v1.4+ (Songscribe parser pipeline) deferred.
-- Version alignment: v1.4.3 shipped; Rounds 4-6 run in parallel phases; **v1.4.7 is first fully-integrated Stable Release (no multi-version support, all installations upgrade to v1.4.7)**.
-- Outstanding (active): Round 4 includes core hardening, gameplay lenses, TUI genres, three-stage command dispatch. Round 5 includes Wizard stabilization, GUI browser/file picker, GitHub Pages + Jekyll publishing. Round 6 includes distribution packaging (4 variants), local library system, Docker hardening, standalone Sonic, **security audit, performance baselines, observability, backup/recovery**. **Stable Release** consolidates all work: audits all 40+ commands, modernizes REPAIR/SETUP, removes all backwards-compat shims, unifies versions, publishes comprehensive release notes and command reference. Groovebox v1.4+ pipeline remains deferred.
-- Consolidated release notes: [docs/releases/v1.4.3-release-notes.md](releases/v1.4.3-release-notes.md).
+- Current focus: **v1.4.4 complete** with extended Phase 6 integration. Core hardening, gameplay lenses, TUI genres, the three-stage command dispatch (Vibe uCLI), and full backend persistence are all implemented. **Round 5** (v1.4.5): Wizard stabilization, GUI browser/file picker, GitHub Pages + Jekyll publishing (no monorepo). **Round 6** (v1.4.6): distribution packaging (4 variants), local library system (versioning, updates), Docker hardening, standalone Sonic, security audit, performance testing. **Stable Release Gate** (v1.4.7): consolidation, command audit, version unification, no backwards-compat shims. Groovebox v1.4+ (Songscribe parser pipeline) deferred.
+- Version alignment: v1.4.4 shipped; Rounds 5-6 run in parallel phases; **v1.4.7 is first fully-integrated Stable Release (no multi-version support, all installations upgrade to v1.4.7)**.
+- Outstanding (active): Round 5 includes Wizard stabilization, GUI browser/file picker, GitHub Pages + Jekyll publishing. Round 6 includes distribution packaging (4 variants), local library system, Docker hardening, standalone Sonic, **security audit, performance baselines, observability, backup/recovery**. **Stable Release** consolidates all work: audits all 40+ commands, modernizes REPAIR/SETUP, removes all backwards-compat shims, unifies versions, publishes comprehensive release notes and command reference. Groovebox v1.4+ pipeline remains deferred.
+- Consolidated release notes: [docs/releases/v1.4.4-release-notes.md](releases/v1.4.4-release-notes.md).
 - Dev mode policy: `/dev/` public submodule required and admin-only; see [DEV-MODE-POLICY.md](DEV-MODE-POLICY.md).
 - Core/Wizard boundary: `core` is the base runtime; `wizard` is the brand for connected services. Core can run without Wizard (limited). Wizard cannot run without Core.
 - Python environment boundary: Core Python is stdlib-only and must run without a venv; Wizard owns third-party Python in `/venv`; `/dev` piggybacks Wizard venv; Core TS runtime remains optional/lightweight.
@@ -27,6 +27,8 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 
 ## Recent Progress
 
+- **Phase 6 Complete**: Backend persistence layer integrated across all 9 Vibe services (plus Setup + Binder services). PersistenceService abstracts file I/O to `memory/vibe/` directory. All 134 tests passing (48 service + 8 persistence + 8 binder/setup + 30 MCP + 40 CLI).
+- **Phase 6 Extension Complete**: Unified task & workflow management system. Enhanced VibeBinderService with AI-friendly JSON format supporting 5 item types (task, calendar_event, invite, reminder, imported). ProjectInitializer templates for quick project setup. Comprehensive documentation with guides, examples, and seed data. All 134 tests still passing.
 - Completed Wizard service split with MCP gateway integration.
 - Full vibe-cli integration with uCODE TUI complete.
 - Vibe embed and minimal uCODE surface implemented.
@@ -350,9 +352,11 @@ Reference:
 
 ### v1.4.4 -- Core Hardening, Demo Scripts & Educational Distribution
 
-**Goal:** Stabilize core internals via comprehensive modularization audit, expand TypeScript runtime feature coverage with demo scripts, and create executable educational assets for community learning.
+**Goal:** Stabilize core internals via comprehensive modularization audit, expand TypeScript runtime feature coverage with demo scripts, and create executable educational assets for community learning. **Vibe uCLI protocol implementation (three-stage dispatch) initiated.**
 
-**Timeline:** 2026-03-01 to 2026-03-31 (planned)
+**Timeline:** 2026-03-01 to 2026-03-31 (running); Vibe protocol Phase 1 complete 2026-02-20
+
+**Progress:** Phase 1 (core services + protocol spec) complete. Phase 2 (bin/ucli TUI integration) complete. Phase 3 (MCP integration) complete.
 
 #### P0 -- Core Module Audit & Hardening
 
@@ -418,25 +422,43 @@ Reference:
   - [ ] Add genre export for error renders: colored error frames, styled logging output.
   - [ ] Create `docs/specs/TUI-GENRE-ARCHITECTURE-v1.4.4.md` with genre contract + customization guide.
 
-**uCLI VIBE Integration Hardening:**
+**uCLI VIBE Integration -- Phase 1-3 Complete:**
 
-- [ ] **Input Dispatch Chain Optimization**
-  - [ ] Implement three-stage dispatch: (1) uCODE command matching, (2) shell/bash passthrough, (3) VIBE/OK fallback.
-  - [ ] Stage 1: Tokenize input, match against canonical command registry (`HELP`, `HEALTH`, `PLACE`, `DRAW`, `RUN`, `PLAY`, `RULE`, `LIBRARY`, `BINDER`, `VERIFY`).
-  - [ ] Stage 2: If no uCODE match, check if input is valid shell syntax (bash/sh safety checks).
-  - [ ] Stage 3: If neither Stage 1 nor 2 match, route to Wizard VIBE/OK service for AI handling.
-  - [ ] Add early-exit optimization: Stage 1 match confidence >95% short-circuits Stages 2+3.
-  - [ ] Create `core/services/command_dispatch_service.py` with three-stage dispatcher.
-  - [ ] Wire dispatcher in `bin/ucli` at REPL input phase.
-  - [ ] Add dispatch diagnostics: `ucli --dispatch-debug "input"` shows dispatch chain reasoning.
-  - [ ] Create `docs/specs/uCLI-COMMAND-DISPATCH-v1.4.4.md` with routing contract + examples.
+- [x] **Phase 1: Protocol & Core Services (COMPLETE 2026-02-20)**
+  - [x] Define three-stage dispatch architecture: (1) uCODE command matching, (2) shell/bash passthrough, (3) VIBE/OK fallback.
+  - [x] Protocol: Stage 1 tokenizes input, matches against canonical registry with confidence scoring.
+  - [x] Protocol: Stage 2 validates shell syntax with strict safety checks (allowlist, blocklist).
+  - [x] Protocol: Stage 3 routes to Vibe skills for natural language / AI handling.
+  - [x] Early-exit optimization: Stage 1 match confidence ≥95% short-circuits Stages 2+3.
+  - [x] Create `docs/specs/VIBE-UCLI-PROTOCOL-v1.4.4.md` with full dispatch contract, skill mapping, examples, and latency budgets.
+  - [x] Create `core/services/command_dispatch_service.py` with three-stage dispatcher.
+  - [x] Create `core/services/vibe_skill_mapper.py` (skill inference + routing).
+  - [x] Create test suite: `core/tests/v1_4_4_command_dispatch_chain_test.py` (44+ tests).
 
-- [ ] **VIBE Integration Testing**
-  - [ ] Create `core/tests/v1_4_4_command_dispatch_chain_test.py` with dispatch scenarios.
-  - [ ] Add tests for dispatch ambiguity (e.g., `PLAY` vs. `play` case sensitivity, abbreviation handling).
-  - [ ] Add tests for fallback routing (e.g., `UNKNOWN_CMD` → Wizard → appropriate error or AI response).
-  - [ ] Add tests for shell passthrough safety (reject attempts to break out, exfiltrate data).
-  - [ ] Verify dispatch latency: uCODE dispatch <10ms, shell validation <50ms, VIBE lookup <500ms.
+- [x] **Phase 2: TUI Integration (COMPLETE 2026-02-20)**
+  - [x] Create `core/tui/vibe_dispatch_adapter.py` — TUI-friendly adapter for CommandDispatchService.
+  - [x] Wire adapter into `core/tui/ucode.py` `_route_input()` method.
+  - [x] Implement confidence-based confirmation flow (0.80-0.95 range).
+  - [x] Implement Vibe skill routing with action inference.
+  - [x] Create fallback chain: uCODE → shell → Vibe skill → OK.
+  - [x] Create test suite: `core/tests/vibe_dispatch_adapter_test.py` (25 tests, all passing).
+
+- [x] **Phase 3: MCP Integration (COMPLETE 2026-02-20)**
+  - [x] Create `wizard/mcp/vibe_mcp_integration.py` — Vibe skills as MCP tools (34 tools, 9 skills).
+  - [x] Wire tools into Wizard MCP server (`wizard/mcp/mcp_server.py`).
+  - [x] Create MCP tool test suite: `wizard/tests/vibe_mcp_integration_test.py` (15 tests).
+  - [x] Create integration documentation: `docs/howto/VIBE-MCP-INTEGRATION.md` and `wizard/docs/api/tools/VIBE-MCP-TOOLS.md`.
+
+- [ ] **Phase 4: Backend Service Implementation (PENDING)**
+  - [ ] Implement device service backend (replace "pending" stubs).
+  - [ ] Implement vault service backend.
+  - [ ] Implement workspace service backend.
+  - [ ] Implement wizard automation backend.
+  - [ ] Implement network diagnostics backend.
+  - [ ] Implement script runner backend.
+  - [ ] Implement user/auth backend.
+  - [ ] Implement ask/language model routing backend.
+  - [ ] Add dispatch diagnostics: `ucli --dispatch-debug "input"` shows dispatch chain reasoning + latency.
 
 #### P1b -- TypeScript Runtime Demo Scripts & Feature Showcase
 

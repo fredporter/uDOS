@@ -61,6 +61,7 @@ from core.tui.fkey_handler import FKeyHandler
 from core.tui.status_bar import TUIStatusBar
 from core.tui.ui_elements import ProgressBar
 from core.tui.stdout_guard import install_stdout_guard, atomic_print, atomic_stdout_write
+from core.tui.vibe_dispatch_adapter import get_vibe_adapter
 from core.ui.command_selector import CommandSelector
 from core.input import SmartPrompt, EnhancedPrompt, ContextualCommandPrompt, create_default_registry
 from core.input.confirmation_utils import (
@@ -519,6 +520,101 @@ class UCLI:
         self._run_ok_request(user_input, mode="LOCAL")
         return {"status": "success", "command": "OK", "dispatch_reason": "fallback"}
 
+    def _dispatch_with_vibe(self, user_input: str) -> Dict[str, Any]:
+        """
+        Three-stage dispatch with Vibe skill routing (v1.4.4).
+
+        Uses CommandDispatchService for:
+          1. uCODE command matching (fuzzy, confidence scoring)
+          2. Shell validation (safety checks)
+          3. Vibe skill routing (natural language inference)
+          4. Fallback to OK (language model)
+
+        Returns:
+            Dict with status, message, and routed result
+        """
+        adapter = get_vibe_adapter()
+
+        # Pass confirmation function for fuzzy matches (0.80-0.95 confidence)
+        result = adapter.dispatch(
+            user_input,
+            ask_confirm_fn=self._ask_confirm
+        )
+
+        # Log dispatch decision
+        self.logger.debug(
+            f"[Vibe Dispatch] {result.status}: cmd={result.command}, "
+            f"skill={result.skill}, confidence={result.confidence}",
+            extra={"user_input": user_input}
+        )
+
+        # Handle different result types
+        if result.status == "success" and result.command:
+            # uCODE command matched and confirmed (confidence ≥ 0.95 or confirmed at 0.80-0.95)
+            rest = ""
+            parts = user_input.strip().split(None, 1)
+            if len(parts) > 1:
+                rest = parts[1]
+            return self._execute_ucode_command(result.command, rest)
+
+        elif result.status == "vibe_routed":
+            # Routed to a Vibe skill (device, vault, workspace, etc.)
+            # Note: actual service implementations pending (Phase 4)
+            skill = result.skill
+            action = result.action
+
+            self.logger.info(
+                f"Vibe skill routed: {skill}.{action}",
+                extra={"user_input": user_input, "skill": skill, "action": action}
+            )
+
+            # For now, show message indicating routing
+            # When Phase 4 services are implemented, route to actual service
+            message = f"Routing to Vibe skill: {skill}"
+            if action:
+                message += f" → {action}"
+
+            return {
+                "status": "vibe_routed",
+                "message": message,
+                "skill": skill,
+                "action": action,
+                "command": f"{skill}:{action}",
+            }
+
+        elif result.validation_reason == "shell_valid":
+            # Shell command passed validation
+            return self._execute_shell_command(user_input)
+
+        elif result.status == "fallback_ok":
+            # Fallback to OK (language model) system
+            self.logger.debug(f"Falling back to OK: {user_input}")
+            self._run_ok_request(user_input, mode="LOCAL")
+            return {
+                "status": "success",
+                "command": "OK",
+                "message": result.message,
+                "dispatch_reason": "vibe_fallback_ok",
+            }
+
+        else:
+            # Error or unhandled case
+            if result.status == "error":
+                return {
+                    "status": "error",
+                    "message": result.message,
+                }
+
+            # Fallback to OK as ultimate fallback
+            self._run_ok_request(user_input, mode="LOCAL")
+            return {
+                "status": "success",
+                "command": "OK",
+                "message": result.message,
+                "dispatch_reason": "final_fallback",
+            }
+
+
     def _route_input(self, user_input: str) -> Dict[str, Any]:
         """
         Route input based on prefix: '?', 'OK', '/', or question mode.
@@ -581,8 +677,8 @@ class UCLI:
         if user_input.startswith("/"):
             return self._handle_slash_input(user_input)
 
-        # Mode 3: Three-stage dispatch chain
-        return self._dispatch_three_stage(user_input)
+        # Mode 3: Three-stage dispatch chain with Vibe skill routing (v1.4.4)
+        return self._dispatch_with_vibe(user_input)
 
     def _handle_slash_input(self, user_input: str) -> Dict[str, Any]:
         """

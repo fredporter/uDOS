@@ -1,14 +1,15 @@
 # uDOS Documentation Index
 
-Updated: 2026-02-19
+Updated: 2026-02-20
 
 This is the canonical entry point for repository documentation.
 
 ## Start Here
 
 - Product roadmap: `docs/roadmap.md`
-- Consolidated release notes: `docs/releases/v1.4.3-release-notes.md`
+- Consolidated release notes: `docs/releases/v1.4.4-release-notes.md`
 - Specs catalog (main + detailed): `docs/specs/README.md`
+- Workflow & Task Management (NEW): `docs/WORKFLOW-TASK-COMPLETE-INDEX.md`
 - Sonic standalone release/install: `docs/howto/SONIC-STANDALONE-RELEASE-AND-INSTALL.md`
 - Command reference (canonical): `docs/howto/UCODE-COMMAND-REFERENCE.md`
 - Commands index: `docs/howto/commands/README.md`

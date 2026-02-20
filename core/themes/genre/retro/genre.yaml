@@ -1,0 +1,32 @@
+# Retro GENRE Definition
+metadata:
+  name: "retro"
+  display_name: "Retro (C64)"
+  description: "Vintage computing aesthetic with 16-color palette"
+
+palette:
+  primary: "\033[38;5;15m"  # Bright white
+  secondary: "\033[38;5;8m"  # Bright gray
+  accent: "\033[38;5;12m"   # Bright blue
+  background: "\033[48;5;0m" # Black
+  error_bg: "\033[48;5;1m" # Red background
+  error_fg: "\033[38;5;15m" # White text
+
+borders:
+  horizontal: "═"
+  vertical: "║"
+  corner_top_left: "╔"
+  corner_top_right: "╗"
+  corner_bottom_left: "╚"
+  corner_bottom_right: "╝"
+
+templates:
+  error: "▓▒░ ERROR ░▒▓"
+  warning: "⚠ WARNING ⚠"
+  success: "✓ SUCCESS ✓"
+  info: "ℹ INFO ℹ"
+
+formatting:
+  heading: "ALL_CAPS"
+  command: "[BRACKETS]"
+  emphasis: "bold"

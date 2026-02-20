@@ -1,0 +1,32 @@
+# Neon GENRE Definition
+metadata:
+  name: "neon"
+  display_name: "Neon (Cyberpunk)"
+  description: "High-contrast cyberpunk aesthetic with bright colors"
+
+palette:
+  primary: "\033[38;5;81m"   # Bright cyan
+  secondary: "\033[38;5;201m"  # Bright magenta
+  accent: "\033[38;5;118m"   # Bright green
+  background: "\033[48;5;0m" # Black
+  error_bg: "\033[48;5;196m" # Bright red background
+  error_fg: "\033[38;5;15m"   # White text
+
+borders:
+  horizontal: "─"
+  vertical: "│"
+  corner_top_left: "╭"
+  corner_top_right: "╮"
+  corner_bottom_left: "╰"
+  corner_bottom_right: "╯"
+
+templates:
+  error: "▀▄ ERROR ▄▀"
+  warning: "⚡ WARNING ⚡"
+  success: "✔ SUCCESS ✔"
+  info: "ℹ INFO ℹ"
+
+formatting:
+  heading: "lowercase_with_guillemets"
+  command: "«guillemets»"
+  emphasis: "bold_italic"
