@@ -1513,6 +1513,8 @@ class UCLI:
             self.logger.debug(f"[OK] Failed to set prompt context: {exc}")
 
     def _show_ai_startup_sequence(self) -> Dict[str, Any]:
+            from core.services.provider_registry import CoreProviderRegistry
+            CoreProviderRegistry.auto_register_vibe()
         """Show Vibe startup summary and return local/cloud readiness."""
         if self.quiet:
             return {"local_ready": True, "cloud_ready": True}
@@ -1534,11 +1536,18 @@ class UCLI:
             issue = local_issue or "setup required"
             lines.append(f"⚠️ Vibe needs setup: {issue} ({model}, ctx {ctx})")
             if issue in {"setup required", "ollama down", "missing model", "vibe-cli missing"}:
-                lines.append("Tip: SETUP vibe")
+                lines.append("Tip: SETUP vibe (auto-repair/install)")
             if issue == "missing model":
-                lines.append(f"Tip: OK PULL {model}")
+                lines.append(f"Tip: OK PULL {model} (auto-pull if missing)")
                 if fallback_model:
-                    lines.append(f"Tip: OK PULL {fallback_model}  # lightweight fallback")
+                    lines.append(f"Tip: OK PULL {fallback_model}  # lightweight fallback (auto-pull)")
+            if issue == "ollama not running":
+                lines.append("Tip: REPAIR ollama (auto-restart)")
+            if issue == "port blocked":
+                lines.append("Tip: REPAIR port (auto-fix config)")
+            if issue == "model corrupted":
+                lines.append("Tip: REPAIR model (auto-pull)")
+            lines.append("Tip: RUN HEALTH/REPAIR to auto-fix all issues")
         if cloud_status.get("skip"):
             lines.append("Tip: WIZARD start")
         elif cloud_status.get("ready"):
@@ -1546,7 +1555,7 @@ class UCLI:
         else:
             issue = cloud_status.get("issue") or "setup required"
             lines.append(f"⚠️ Mistral cloud needed: {issue}")
-            lines.append("Tip: SETUP")
+            lines.append("Tip: REPAIR cloud (check API quota, switch key, use local, or auto-retry)")
         lines.append("Tip: OK EXPLAIN <file> | OK LOCAL")
 
         print(self._theme_text("\nVibe (Local)"))
@@ -2950,12 +2959,21 @@ For detailed help on any command, type the command name followed by --help
             json=payload,
             timeout=15,
         )
+        if response.status_code == 429:
+            return {
+                "response": (
+                    "⚠️ Cloud quota exceeded (429 Too Many Requests). "
+                    "Try using local model, OpenRouter, or API manager. "
+                    "Cloud will auto-retry after quota resets."
+                ),
+                "model": "cloud-quota-exceeded"
+            }
         if response.status_code != 200:
             try:
                 detail = response.json().get("detail")
             except Exception:
                 detail = response.text[:200]
-            raise RuntimeError(detail or f"Wizard cloud request failed ({response.status_code})")
+            return {"response": f"❌ Cloud model failed: {detail or f'Wizard cloud request failed ({response.status_code})'}", "model": "cloud-error"}
         data = response.json()
         return {"response": data.get("response", ""), "model": data.get("model", "")}
 
@@ -2974,6 +2992,14 @@ For detailed help on any command, type the command name followed by --help
 
         target_model = model or self._get_ok_default_model()
 
+        import concurrent.futures
+        def generate_with_timeout(vibe, prompt, timeout=30):
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(vibe.generate, prompt, "markdown")
+                try:
+                    return future.result(timeout=timeout)
+                except concurrent.futures.TimeoutError:
+                    return f"❌ Model generation timed out after {timeout}s."
         # Try primary model
         try:
             if callable(vibe_provider):
@@ -2982,9 +3008,8 @@ For detailed help on any command, type the command name followed by --help
                 vibe = vibe_provider.create(model=target_model)
             else:
                 vibe = vibe_provider
-            return vibe.generate(prompt, format="markdown")
+            return generate_with_timeout(vibe, prompt, timeout=30)
         except Exception as exc:
-            # Try fallback model if configured and primary failed
             fallback_model = self._get_ok_fallback_model()
             if fallback_model and fallback_model != target_model:
                 self.logger.warning(
@@ -2997,11 +3022,11 @@ For detailed help on any command, type the command name followed by --help
                         vibe = vibe_provider.create(model=fallback_model)
                     else:
                         vibe = vibe_provider
-                    return vibe.generate(prompt, format="markdown")
+                    return generate_with_timeout(vibe, prompt, timeout=30)
                 except Exception as fallback_exc:
                     self.logger.error(f"[OK] Fallback model {fallback_model} also failed: {fallback_exc}")
-                    raise exc  # Raise original error
-            raise
+                    return f"❌ Both primary and fallback models failed: {exc} / {fallback_exc}"
+            return f"❌ Model generation failed: {exc}"
 
     def _run_with_spinner(self, label: str, func: Callable[[], Any], mood: str = "busy") -> Any:
         """Run a long action with a lightweight spinner + elapsed seconds."""

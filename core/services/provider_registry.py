@@ -1,3 +1,21 @@
+    @classmethod
+    def auto_register_vibe(cls):
+        """Auto-register VibeService if Ollama is running and model is available."""
+        try:
+            from wizard.services.vibe_service import VibeService, VibeConfig
+            config = VibeConfig()
+            vibe = VibeService(config)
+            if vibe._verify_connection():
+                cls.register(
+                    ProviderType.VIBE_SERVICE,
+                    vibe,
+                    name="VibeService",
+                    description="Local Vibe provider (Ollama)",
+                    version="1.0.0"
+                )
+                logger.info("Auto-registered VibeService provider.")
+        except Exception as exc:
+            logger.warning(f"Auto-register VibeService failed: {exc}")
 """
 Core Provider Registry — v1.4.4
 

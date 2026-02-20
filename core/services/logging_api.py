@@ -446,9 +446,14 @@ class Logger:
         err: Optional[Any] = None,
         event: Optional[str] = None,
         exc_info: Optional[bool] = None,
+        **kwargs: Any,
     ) -> None:
         if not self._manager._should_log(level, self._category):
             return
+
+        # Ignore unknown kwargs (like 'extra')
+        # Only use known arguments
+        # This prevents TypeError from unexpected kwargs
 
         if args:
             try:
@@ -575,8 +580,11 @@ def set_corr_id(corr_id: Optional[str]) -> contextvars.Token:
 
 
 def reset_corr_id(token: contextvars.Token) -> None:
-    """Reset corr_id context to previous value."""
-    _CORR_ID.reset(token)
+    """Reset corr_id context to previous value. Only reset if token is valid and not already used."""
+    try:
+        _CORR_ID.reset(token)
+    except RuntimeError:
+        pass  # Ignore if token already used
 
 
 def get_corr_id() -> Optional[str]:
