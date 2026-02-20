@@ -13,7 +13,9 @@ from core.commands.base import BaseCommandHandler
 from core.commands.interactive_menu_mixin import InteractiveMenuMixin
 from core.tui.output import OutputToolkit
 from core.tui.ui_elements import Spinner
-from core.services.logging_api import get_logger, get_repo_root
+from core.services.logging_manager import get_logger
+from core.services.logging_api import get_repo_root
+from core.services.stdlib_http import http_get, HTTPError
 from core.services.destructive_ops import remove_path, resolve_vault_root, scrub_directory
 from core.services.error_contract import CommandError
 
@@ -415,7 +417,6 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         """Start Wizard server."""
         import time
         import socket
-        from core.services.stdlib_http import http_get, HTTPError
 
         banner = OutputToolkit.banner("WIZARD START")
         output_lines = [banner, ""]
@@ -476,8 +477,8 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             max_attempts = 120  # 120 * 0.5s = 60 seconds
             for attempt in range(max_attempts):
                 try:
-                    resp = requests.get(f"{base_url}/health", timeout=1)
-                    if resp.status_code == 200:
+                    resp = http_get(f"{base_url}/health", timeout=1)
+                    if resp["status_code"] == 200:
                         stop.set()
                         thread.join(timeout=1)
                         spinner.stop("Wizard ready")
@@ -489,7 +490,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                             "status": "success",
                             "output": "\n".join(output_lines),
                         }
-                except requests.exceptions.RequestException:
+                except HTTPError:
                     pass
                 time.sleep(0.5)
 
@@ -534,8 +535,8 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             else:
                 # Port is free but health check timed out - check once more
                 try:
-                    resp = requests.get(f"{base_url}/health", timeout=2)
-                    if resp.status_code == 200:
+                    resp = http_get(f"{base_url}/health", timeout=2)
+                    if resp["status_code"] == 200:
                         output_lines.append("✅ Wizard Server is now responding")
                         output_lines.append(f"📍 Server: {base_url}")
                         output_lines.append(f"📍 Dashboard: {dashboard_url}")
@@ -544,7 +545,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                             "status": "success",
                             "output": "\n".join(output_lines),
                         }
-                except requests.exceptions.RequestException:
+                except HTTPError:
                     pass
 
                 # Still not responding - show diagnostics and offer browser anyway
@@ -635,8 +636,8 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
             # Verify stopped
             try:
-                resp = requests.get("http://127.0.0.1:8765/health", timeout=1)
-                if resp.status_code == 200:
+                resp = http_get("http://127.0.0.1:8765/health", timeout=1)
+                if resp["status_code"] == 200:
                     output_lines.append("⚠️  Wizard still responding after stop")
                 else:
                     output_lines.append("✅ Wizard stopped")
@@ -760,12 +761,12 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
             # Verify stopped
             try:
-                resp = requests.get("http://127.0.0.1:8765/health", timeout=1)
-                if resp.status_code == 200:
+                resp = http_get("http://127.0.0.1:8765/health", timeout=1)
+                if resp["status_code"] == 200:
                     output_lines.append("⚠️  Wizard still responding after stop")
                 else:
                     output_lines.append("✅ Wizard Server stopped")
-            except requests.exceptions.ConnectionError:
+            except HTTPError:
                 output_lines.append("✅ Wizard Server stopped")
 
             return {

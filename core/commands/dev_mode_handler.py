@@ -6,13 +6,9 @@ from core.services.stdlib_http import http_get, http_post, HTTPError
 import json
 import os
 
-try:
-    from core.services.logging_api import get_logger
-    logger = get_logger("core", category="dev-mode", name="dev-mode-handler")
-except ImportError:
-    import logging
+from core.services.logging_manager import get_logger
 
-    logger = logging.getLogger("dev-mode-handler")
+logger = get_logger("core", category="dev-mode", name="dev-mode-handler")
 
 from core.services.rate_limit_helpers import guard_wizard_endpoint
 
@@ -161,13 +157,6 @@ class DevModeHandler(BaseCommandHandler):
         Returns:
             Dict with dev mode status
         """
-        if not HAS_REQUESTS:
-            return {
-                "status": "error",
-                "message": "DEV MODE requires requests library",
-                "output": OutputToolkit.banner("DEV MODE") + "\nrequests library not available",
-            }
-
         action = self._resolve_action(params[0] if params else "status")
         if action in {"on", "activate", "start"}:
             return self._activate_dev_mode()
