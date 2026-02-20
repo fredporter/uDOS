@@ -25,6 +25,8 @@ from core.services.vibe_user_service import get_user_service
 from core.services.vibe_wizard_service import get_wizard_service
 from core.services.vibe_help_service import get_help_service
 from core.services.vibe_ask_service import get_ask_service
+from core.services.vibe_binder_service import get_binder_service
+from core.services.vibe_tui_service import get_tui_service
 from core.services.vibe_skill_mapper import get_default_mapper
 
 
@@ -249,6 +251,85 @@ class VibeCliHandler:
             result = service.suggest(context)
         else:
             result = self._error(f"Unknown ask action: {action}")
+
+        return self._format_output(result)
+
+    def _handle_binder(self, action: str, args: List[str]) -> Dict[str, Any]:
+        """Handle binder skill commands (unified task management)."""
+        service = get_binder_service()
+
+        if action == "LIST":
+            result = service.list_binders()
+        elif action == "CREATE" and len(args) >= 2:
+            mission_id = args[0]
+            name = args[1]
+            template = args[2].lower() if len(args) > 2 else None
+            result = service.initialize_project(mission_id, name, template)
+        elif action == "GET" and args:
+            result = service.get_mission(args[0])
+        elif action == "ADD_TASK" and len(args) >= 2:
+            mission_id = args[0]
+            title = args[1]
+            description = args[2] if len(args) > 2 else None
+            result = service.add_move(mission_id, title, description, "task")
+        elif action == "ADD_CALENDAR" and len(args) >= 2:
+            mission_id = args[0]
+            title = args[1]
+            start_date = args[2] if len(args) > 2 else None
+            end_date = args[3] if len(args) > 3 else None
+            result = service.add_calendar_event(mission_id, title, start_date, end_date)
+        elif action == "ADD_IMPORT" and len(args) >= 3:
+            mission_id = args[0]
+            title = args[1]
+            source = args[2]
+            source_id = args[3] if len(args) > 3 else None
+            result = service.add_imported_item(mission_id, title, source, source_id)
+        elif action == "LIST_TASKS" and args:
+            mission_id = args[0]
+            status = args[1].lower() if len(args) > 1 else None
+            result = service.list_moves(mission_id, status)
+        elif action == "GET_TASK" and len(args) >= 2:
+            mission_id = args[0]
+            move_id = args[1]
+            moves = service.list_moves(mission_id)
+            move = next((m for m in moves.get("moves", []) if m.get("id") == move_id), None)
+            result = {"status": "success", "move": move} if move else {"status": "error", "message": "Task not found"}
+        elif action == "COMPLETE" and len(args) >= 2:
+            mission_id = args[0]
+            move_id = args[1]
+            result = service.complete_move(mission_id, move_id)
+        elif action == "AI_SUMMARY" and args:
+            result = service.get_task_summary_for_ai(args[0])
+        else:
+            result = self._error(f"Unknown binder action: {action}")
+
+        return self._format_output(result)
+
+    def _handle_ucli(self, action: str, args: List[str]) -> Dict[str, Any]:
+        """Handle ucli TUI skill commands (interactive UI views)."""
+        service = get_tui_service()
+
+        if action == "BINDER":
+            mission_id = args[0] if args else None
+            result = service.launch_binder_ui(mission_id)
+        elif action == "TASKS" and args:
+            mission_id = args[0]
+            status = args[1].lower() if len(args) > 1 else None
+            item_type = args[2] if len(args) > 2 else None
+            result = service.launch_tasks_ui(mission_id, status, item_type)
+        elif action == "MISSIONS":
+            result = service.launch_missions_ui()
+        elif action == "SEARCH":
+            query = args[0] if args else None
+            result = service.launch_search_ui(query)
+        elif action == "STATISTICS":
+            mission_id = args[0] if args else None
+            result = service.launch_statistics_view(mission_id)
+        elif action == "HELP":
+            topic = args[0] if args else None
+            result = service.launch_help_ui(topic)
+        else:
+            result = self._error(f"Unknown ucode action: {action}")
 
         return self._format_output(result)
 

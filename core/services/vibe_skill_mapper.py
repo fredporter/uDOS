@@ -328,6 +328,139 @@ HELP_SKILL = SkillContract(
     },
 )
 
+BINDER_SKILL = SkillContract(
+    name="binder",
+    description="Unified workflow and task management (missions, tasks, milestones, AI ingestion)",
+    actions={
+        "list": SkillAction(
+            name="list",
+            description="List all binders/missions",
+            args=[],
+            optional_args=["filter"],
+            returns_type="list[mission]",
+        ),
+        "create": SkillAction(
+            name="create",
+            description="Create new mission/binder",
+            args=["mission_id", "name"],
+            optional_args=["template", "description"],
+            returns_type="mission",
+        ),
+        "get": SkillAction(
+            name="get",
+            description="Get mission details",
+            args=["mission_id"],
+            optional_args=[],
+            returns_type="mission",
+        ),
+        "add_task": SkillAction(
+            name="add_task",
+            description="Add task to mission",
+            args=["mission_id", "title"],
+            optional_args=["description", "priority", "assigned_to", "tags"],
+            returns_type="move",
+        ),
+        "add_calendar_event": SkillAction(
+            name="add_calendar_event",
+            description="Add calendar event to mission",
+            args=["mission_id", "title"],
+            optional_args=["description", "start_date", "end_date", "organizer", "attendees"],
+            returns_type="move",
+        ),
+        "add_import": SkillAction(
+            name="add_import",
+            description="Import item from external system",
+            args=["mission_id", "title", "source"],
+            optional_args=["description", "source_id", "metadata"],
+            returns_type="move",
+        ),
+        "list_tasks": SkillAction(
+            name="list_tasks",
+            description="List tasks/moves in mission",
+            args=["mission_id"],
+            optional_args=["status", "item_type", "tag"],
+            returns_type="list[move]",
+        ),
+        "get_task": SkillAction(
+            name="get_task",
+            description="Get task details",
+            args=["mission_id", "move_id"],
+            optional_args=[],
+            returns_type="move",
+        ),
+        "update_task": SkillAction(
+            name="update_task",
+            description="Update task/move",
+            args=["mission_id", "move_id"],
+            optional_args=["title", "description", "status", "priority", "tags"],
+            returns_type="move",
+        ),
+        "complete_task": SkillAction(
+            name="complete_task",
+            description="Mark task as completed",
+            args=["mission_id", "move_id"],
+            optional_args=[],
+            returns_type="milestone",
+        ),
+        "ai_summary": SkillAction(
+            name="ai_summary",
+            description="Get AI-ready task summary for mission",
+            args=["mission_id"],
+            optional_args=[],
+            returns_type="ai_summary",
+        ),
+    },
+)
+
+UCLI_SKILL = SkillContract(
+    name="ucli",
+    description="uCLI Terminal UI views and navigation (uCODE protocol TUI layer)",
+    actions={
+        "binder": SkillAction(
+            name="binder",
+            description="Launch interactive binder/mission explorer",
+            args=[],
+            optional_args=["mission_id"],
+            returns_type="ui_view",
+        ),
+        "tasks": SkillAction(
+            name="tasks",
+            description="Launch tasks/moves browser with filtering",
+            args=["mission_id"],
+            optional_args=["status", "item_type"],
+            returns_type="ui_view",
+        ),
+        "missions": SkillAction(
+            name="missions",
+            description="Launch missions selector with detail view",
+            args=[],
+            optional_args=[],
+            returns_type="ui_view",
+        ),
+        "search": SkillAction(
+            name="search",
+            description="Launch full-text search interface",
+            args=[],
+            optional_args=["query"],
+            returns_type="ui_view",
+        ),
+        "statistics": SkillAction(
+            name="statistics",
+            description="Show metrics and statistics dashboard",
+            args=[],
+            optional_args=["mission_id"],
+            returns_type="ui_view",
+        ),
+        "help": SkillAction(
+            name="help",
+            description="Show help interface",
+            args=[],
+            optional_args=["topic"],
+            returns_type="ui_view",
+        ),
+    },
+)
+
 # Skill registry
 SKILL_REGISTRY = {
     "device": DEVICE_SKILL,
@@ -339,6 +472,9 @@ SKILL_REGISTRY = {
     "script": SCRIPT_SKILL,
     "user": USER_SKILL,
     "help": HELP_SKILL,
+    "binder": BINDER_SKILL,
+    "ucli": UCLI_SKILL,
+    "ucode": UCLI_SKILL,  # Alias: ucode → ucli (backward compatibility)
 }
 
 

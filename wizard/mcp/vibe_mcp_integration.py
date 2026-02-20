@@ -30,6 +30,8 @@ from core.services.vibe_user_service import get_user_service
 from core.services.vibe_wizard_service import get_wizard_service
 from core.services.vibe_help_service import get_help_service
 from core.services.vibe_ask_service import get_ask_service
+from core.services.vibe_binder_service import get_binder_service
+from core.services.vibe_tui_service import get_tui_service
 
 logger = get_logger("vibe-mcp")
 
@@ -334,6 +336,237 @@ class VibeMCPIntegration:
                 "message": f"Failed to get suggestions: {e}",
             }
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # Binder Skill (Unified Task Management)
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def binder_list(self) -> Dict[str, Any]:
+        """List all binders/missions."""
+        try:
+            service = get_binder_service()
+            return service.list_binders()
+        except Exception as e:
+            self.logger.error(f"Binder list failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to list binders: {e}",
+            }
+
+    def binder_create(
+        self,
+        mission_id: str,
+        name: str,
+        template: Optional[str] = None,
+        description: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Create new mission/binder."""
+        try:
+            service = get_binder_service()
+            return service.initialize_project(mission_id, name, template)
+        except Exception as e:
+            self.logger.error(f"Binder create failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to create binder: {e}",
+            }
+
+    def binder_get(self, mission_id: str) -> Dict[str, Any]:
+        """Get mission details."""
+        try:
+            service = get_binder_service()
+            return service.get_mission(mission_id)
+        except Exception as e:
+            self.logger.error(f"Binder get failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to get mission: {e}",
+            }
+
+    def binder_add_task(
+        self,
+        mission_id: str,
+        title: str,
+        description: Optional[str] = None,
+        priority: Optional[str] = None,
+        assigned_to: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        """Add task to mission."""
+        try:
+            service = get_binder_service()
+            return service.add_move(mission_id, title, description, "task")
+        except Exception as e:
+            self.logger.error(f"Binder add_task failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to add task: {e}",
+            }
+
+    def binder_add_calendar_event(
+        self,
+        mission_id: str,
+        title: str,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        organizer: Optional[str] = None,
+        attendees: Optional[List[Dict[str, Any]]] = None,
+    ) -> Dict[str, Any]:
+        """Add calendar event to mission."""
+        try:
+            service = get_binder_service()
+            return service.add_calendar_event(mission_id, title, start_date, end_date, organizer, attendees)
+        except Exception as e:
+            self.logger.error(f"Binder add_calendar_event failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to add calendar event: {e}",
+            }
+
+    def binder_add_import(
+        self,
+        mission_id: str,
+        title: str,
+        source: str,
+        source_id: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Import item from external system."""
+        try:
+            service = get_binder_service()
+            return service.add_imported_item(mission_id, title, source, source_id, metadata)
+        except Exception as e:
+            self.logger.error(f"Binder add_import failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to import item: {e}",
+            }
+
+    def binder_list_tasks(
+        self,
+        mission_id: str,
+        status: Optional[str] = None,
+        item_type: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """List tasks/moves in mission."""
+        try:
+            service = get_binder_service()
+            return service.list_moves(mission_id, status, item_type)
+        except Exception as e:
+            self.logger.error(f"Binder list_tasks failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to list tasks: {e}",
+            }
+
+    def binder_complete_task(
+        self,
+        mission_id: str,
+        move_id: str,
+    ) -> Dict[str, Any]:
+        """Mark task as completed."""
+        try:
+            service = get_binder_service()
+            return service.complete_move(mission_id, move_id)
+        except Exception as e:
+            self.logger.error(f"Binder complete_task failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to complete task: {e}",
+            }
+
+    def binder_ai_summary(self, mission_id: str) -> Dict[str, Any]:
+        """Get AI-ready task summary for mission."""
+        try:
+            service = get_binder_service()
+            return service.get_task_summary_for_ai(mission_id)
+        except Exception as e:
+            self.logger.error(f"Binder ai_summary failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to get AI summary: {e}",
+            }
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # uCLI TUI Skill (Interactive UI Views — uCODE protocol TUI layer)
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def ucli_binder_ui(self, mission_id: Optional[str] = None) -> Dict[str, Any]:
+        """Launch interactive binder/mission explorer (uCLI TUI)."""
+        try:
+            service = get_tui_service()
+            return service.launch_binder_ui(mission_id)
+        except Exception as e:
+            self.logger.error(f"uCLI binder UI failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to launch binder UI: {e}",
+            }
+
+    def ucli_tasks_ui(
+        self,
+        mission_id: str,
+        status: Optional[str] = None,
+        item_type: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Launch tasks/moves browser (uCLI TUI)."""
+        try:
+            service = get_tui_service()
+            return service.launch_tasks_ui(mission_id, status, item_type)
+        except Exception as e:
+            self.logger.error(f"uCLI tasks UI failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to launch tasks UI: {e}",
+            }
+
+    def ucli_missions_ui(self) -> Dict[str, Any]:
+        """Launch missions selector (uCLI TUI)."""
+        try:
+            service = get_tui_service()
+            return service.launch_missions_ui()
+        except Exception as e:
+            self.logger.error(f"uCLI missions UI failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to launch missions UI: {e}",
+            }
+
+    def ucode_search_ui(self, query: Optional[str] = None) -> Dict[str, Any]:
+        """Launch search interface."""
+        try:
+            service = get_tui_service()
+            return service.launch_search_ui(query)
+        except Exception as e:
+            self.logger.error(f"uCode search UI failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to launch search UI: {e}",
+            }
+
+    def ucode_statistics_view(self, mission_id: Optional[str] = None) -> Dict[str, Any]:
+        """Launch statistics dashboard."""
+        try:
+            service = get_tui_service()
+            return service.launch_statistics_view(mission_id)
+        except Exception as e:
+            self.logger.error(f"uCode statistics view failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to launch statistics view: {e}",
+            }
+
+    def ucode_help_ui(self, topic: Optional[str] = None) -> Dict[str, Any]:
+        """Launch help interface."""
+        try:
+            service = get_tui_service()
+            return service.launch_help_ui(topic)
+        except Exception as e:
+            self.logger.error(f"uCode help UI failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to launch help UI: {e}",
+            }
+
 
 # Global integration instance
 _vibe_mcp: Optional[VibeMCPIntegration] = None
@@ -484,3 +717,116 @@ def register_vibe_mcp_tools(mcp_server) -> None:
     def vibe_ask_suggest(context: str) -> Dict[str, Any]:
         """Get suggestions based on context."""
         return vibe.ask_suggest(context)
+
+    # Binder skill (Unified Task Management)
+    @mcp_server.tool()
+    def vibe_binder_list() -> Dict[str, Any]:
+        """List all binders/missions."""
+        return vibe.binder_list()
+
+    @mcp_server.tool()
+    def vibe_binder_create(
+        mission_id: str,
+        name: str,
+        template: Optional[str] = None,
+        description: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Create new mission/binder."""
+        return vibe.binder_create(mission_id, name, template, description)
+
+    @mcp_server.tool()
+    def vibe_binder_get(mission_id: str) -> Dict[str, Any]:
+        """Get mission details."""
+        return vibe.binder_get(mission_id)
+
+    @mcp_server.tool()
+    def vibe_binder_add_task(
+        mission_id: str,
+        title: str,
+        description: Optional[str] = None,
+        priority: Optional[str] = None,
+        assigned_to: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        """Add task to mission."""
+        return vibe.binder_add_task(mission_id, title, description, priority, assigned_to, tags)
+
+    @mcp_server.tool()
+    def vibe_binder_add_calendar_event(
+        mission_id: str,
+        title: str,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        organizer: Optional[str] = None,
+        attendees: Optional[List[Dict[str, Any]]] = None,
+    ) -> Dict[str, Any]:
+        """Add calendar event to mission."""
+        return vibe.binder_add_calendar_event(mission_id, title, start_date, end_date, organizer, attendees)
+
+    @mcp_server.tool()
+    def vibe_binder_add_import(
+        mission_id: str,
+        title: str,
+        source: str,
+        source_id: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Import item from external system."""
+        return vibe.binder_add_import(mission_id, title, source, source_id, metadata)
+
+    @mcp_server.tool()
+    def vibe_binder_list_tasks(
+        mission_id: str,
+        status: Optional[str] = None,
+        item_type: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """List tasks/moves in mission."""
+        return vibe.binder_list_tasks(mission_id, status, item_type)
+
+    @mcp_server.tool()
+    def vibe_binder_complete_task(
+        mission_id: str,
+        move_id: str,
+    ) -> Dict[str, Any]:
+        """Mark task as completed."""
+        return vibe.binder_complete_task(mission_id, move_id)
+
+    @mcp_server.tool()
+    def vibe_binder_ai_summary(mission_id: str) -> Dict[str, Any]:
+        """Get AI-ready task summary for mission."""
+        return vibe.binder_ai_summary(mission_id)
+
+    # uCode TUI skill (Interactive UIs)
+    @mcp_server.tool()
+    def vibe_ucode_binder(mission_id: Optional[str] = None) -> Dict[str, Any]:
+        """Launch interactive binder/mission explorer UI."""
+        return vibe.ucode_binder_ui(mission_id)
+
+    @mcp_server.tool()
+    def vibe_ucode_tasks(
+        mission_id: str,
+        status: Optional[str] = None,
+        item_type: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Launch tasks/moves browser UI."""
+        return vibe.ucode_tasks_ui(mission_id, status, item_type)
+
+    @mcp_server.tool()
+    def vibe_ucode_missions() -> Dict[str, Any]:
+        """Launch missions selector UI."""
+        return vibe.ucode_missions_ui()
+
+    @mcp_server.tool()
+    def vibe_ucode_search(query: Optional[str] = None) -> Dict[str, Any]:
+        """Launch search interface."""
+        return vibe.ucode_search_ui(query)
+
+    @mcp_server.tool()
+    def vibe_ucode_statistics(mission_id: Optional[str] = None) -> Dict[str, Any]:
+        """Launch statistics and metrics dashboard."""
+        return vibe.ucode_statistics_view(mission_id)
+
+    @mcp_server.tool()
+    def vibe_ucode_help(topic: Optional[str] = None) -> Dict[str, Any]:
+        """Launch help interface."""
+        return vibe.ucode_help_ui(topic)
