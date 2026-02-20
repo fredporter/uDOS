@@ -125,8 +125,8 @@ class IssueTransformer:
         """
         try:
             task_item = {
-                "id": f"task-{issue.id}",
-                "type": "task",
+                "id": f"issue-{issue.id}",
+                "type": "issue",
                 "title": f"[{issue.key}] {issue.title}",
                 "description": issue.description or "No description provided",
                 "status": _map_issue_status_to_task_status(issue.status),
@@ -135,7 +135,7 @@ class IssueTransformer:
                 "updated_at": issue.updated_at.isoformat(),
                 "due_date": issue.due_date.isoformat() if issue.due_date else None,
                 "assigned_to": issue.assignee,
-                "tags": ["project_sync", issue.provider],
+                "tags": [issue.provider, issue.key.split("-")[0].upper()],
                 "metadata": {
                     "external_id": issue.id,
                     "external_provider": issue.provider,
@@ -146,7 +146,7 @@ class IssueTransformer:
                 },
             }
 
-            logger.info(f"Transformed issue to task: {task_item['id']}")
+            logger.info(f"Transformed issue to unified format: {task_item['id']}")
             return task_item
 
         except Exception as e:

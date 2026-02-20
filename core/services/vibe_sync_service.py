@@ -7,9 +7,11 @@ from core.sync.event_queue import EventQueue
 from core.sync.oauth_manager import get_oauth_manager
 from core.sync.calendar_provider_factory import CalendarProviderFactory
 from core.sync.email_provider_factory import EmailProviderFactory
+from core.sync.project_manager_factory import ProjectManagerFactory
 from core.sync.transformers import (
     CalendarEventTransformer,
     EmailMessageTransformer,
+    IssueTransformer,
 )
 
 logger = get_logger(__name__)
@@ -28,7 +30,7 @@ class VibeSyncService:
         # Provider instances (will be initialized on demand)
         self.calendar_providers = {}  # Keyed by provider type
         self.email_providers = {}  # Keyed by provider type
-        self.project_manager = None
+        self.project_managers = {}  # Keyed by provider type (jira, linear)
         self.slack_client = None
 
         # Sync history
@@ -393,7 +395,7 @@ class VibeSyncService:
             # Fetch messages
             emails = await provider.fetch_messages(query or "", limit)
             logger.info(f"Retrieved {len(emails)} emails from {provider_type}")
-            
+
             return [
                 {
                     "id": e.message_id,
@@ -456,29 +458,76 @@ class VibeSyncService:
     # ==================== Project Management ====================
 
     async def sync_jira(
-        self, workspace_id: str, jql: Optional[str] = None
+        self, workspace_id: str, mission_id: str, jql: Optional[str] = None,
+        credentials: Optional[Dict] = None
     ) -> Dict[str, Any]:
         """Synchronize with Jira instance.
 
         Args:
             workspace_id: Jira workspace/instance ID
+            mission_id: Target mission ID for created tasks
             jql: Jira Query Language filter
+            credentials: Jira credentials (instance_url, email, api_token)
 
         Returns:
             Sync result dict
         """
-        logger.info(f"Starting Jira sync for workspace {workspace_id}")
+        logger.info(f"Starting Jira sync for workspace {workspace_id} to mission {mission_id}")
         self.sync_status = "syncing"
 
         try:
-            result = {
-                "status": "pending",
+            # Initialize Jira manager if needed
+            if "jira" not in self.project_managers:
+                self.project_managers["jira"] = ProjectManagerFactory.create_provider("jira")
+
+            jira_mgr = self.project_managers["jira"]
+            if not jira_mgr:
+                logger.error("Failed to create Jira manager")
+                return {"status": "error", "error": "Failed to create Jira manager"}
+
+            # Get credentials from OAuth manager if not provided
+            if not credentials:
+                credentials = await self.oauth_manager.get_credentials("jira")
+                if not credentials:
+                    return {"status": "error", "error": "No Jira credentials found"}
+
+            # Authenticate
+            if not await jira_mgr.authenticate(credentials):
+                return {"status": "error", "error": "Jira authentication failed"}
+
+            # Fetch issues from Jira
+            jql = jql or "order by updated DESC"
+            issues = await jira_mgr.fetch_issues(
+                query=jql,
+                filters={"max_results": 50}
+            )
+
+            logger.info(f"Fetched {len(issues)} Jira issues")
+
+            # Transform and create tasks
+            created_tasks = []
+            for issue in issues:
+                task_item = IssueTransformer.issue_to_task_item(issue, mission_id)
+                # TODO: Persist to Binder using VibeBinderService
+                created_tasks.append({"id": task_item["id"], "title": task_item["title"]})
+
+            # Update sync history
+            self.sync_history["jira"] = {
+                "last_sync": datetime.now().isoformat(),
+                "issues_synced": len(issues),
+                "tasks_created": len(created_tasks),
+            }
+
+            self.sync_status = "idle"
+            return {
+                "status": "success",
                 "provider": "jira",
                 "workspace_id": workspace_id,
+                "mission_id": mission_id,
+                "issues_synced": len(issues),
+                "tasks_created": len(created_tasks),
                 "timestamp": datetime.now().isoformat(),
-                "message": "Jira sync not yet implemented for Phase 8.1",
             }
-            return result
 
         except Exception as e:
             logger.error(f"Jira sync error: {e}")
@@ -486,29 +535,79 @@ class VibeSyncService:
             return {"status": "error", "error": str(e)}
 
     async def sync_linear(
-        self, team_id: str, status_filter: Optional[str] = None
+        self, team_id: str, mission_id: str, status_filter: Optional[str] = None,
+        credentials: Optional[Dict] = None
     ) -> Dict[str, Any]:
         """Synchronize with Linear workspace.
 
         Args:
             team_id: Linear team/workspace ID
+            mission_id: Target mission ID for created tasks
             status_filter: Status filter (e.g., 'active', 'completed')
+            credentials: Linear credentials (api_key)
 
         Returns:
             Sync result dict
         """
-        logger.info(f"Starting Linear sync for team {team_id}")
+        logger.info(f"Starting Linear sync for team {team_id} to mission {mission_id}")
         self.sync_status = "syncing"
 
         try:
-            result = {
-                "status": "pending",
+            # Initialize Linear manager if needed
+            if "linear" not in self.project_managers:
+                self.project_managers["linear"] = ProjectManagerFactory.create_provider("linear")
+
+            linear_mgr = self.project_managers["linear"]
+            if not linear_mgr:
+                logger.error("Failed to create Linear manager")
+                return {"status": "error", "error": "Failed to create Linear manager"}
+
+            # Get credentials from OAuth manager if not provided
+            if not credentials:
+                credentials = await self.oauth_manager.get_credentials("linear")
+                if not credentials:
+                    return {"status": "error", "error": "No Linear credentials found"}
+
+            # Authenticate
+            if not await linear_mgr.authenticate(credentials):
+                return {"status": "error", "error": "Linear authentication failed"}
+
+            # Fetch issues from Linear
+            filters = {"team_id": team_id, "max_results": 50}
+            if status_filter:
+                filters["status"] = status_filter
+
+            issues = await linear_mgr.fetch_issues(
+                query="",
+                filters=filters
+            )
+
+            logger.info(f"Fetched {len(issues)} Linear issues")
+
+            # Transform and create tasks
+            created_tasks = []
+            for issue in issues:
+                task_item = IssueTransformer.issue_to_task_item(issue, mission_id)
+                # TODO: Persist to Binder using VibeBinderService
+                created_tasks.append({"id": task_item["id"], "title": task_item["title"]})
+
+            # Update sync history
+            self.sync_history["linear"] = {
+                "last_sync": datetime.now().isoformat(),
+                "issues_synced": len(issues),
+                "tasks_created": len(created_tasks),
+            }
+
+            self.sync_status = "idle"
+            return {
+                "status": "success",
                 "provider": "linear",
                 "team_id": team_id,
+                "mission_id": mission_id,
+                "issues_synced": len(issues),
+                "tasks_created": len(created_tasks),
                 "timestamp": datetime.now().isoformat(),
-                "message": "Linear sync not yet implemented for Phase 8.1",
             }
-            return result
 
         except Exception as e:
             logger.error(f"Linear sync error: {e}")
@@ -528,11 +627,24 @@ class VibeSyncService:
         logger.info(f"Received webhook from {provider}")
 
         try:
-            # TODO: Implement webhook handling
+            if provider == "jira":
+                if "jira" not in self.project_managers:
+                    self.project_managers["jira"] = ProjectManagerFactory.create_provider("jira")
+                mgr = self.project_managers["jira"]
+                if mgr:
+                    return await mgr.handle_webhook(payload)
+
+            elif provider == "linear":
+                if "linear" not in self.project_managers:
+                    self.project_managers["linear"] = ProjectManagerFactory.create_provider("linear")
+                mgr = self.project_managers["linear"]
+                if mgr:
+                    return await mgr.handle_webhook(payload)
+
             return {
                 "status": "received",
                 "provider": provider,
-                "message": "Webhook handling not yet implemented for Phase 8.1",
+                "message": "Webhook received but provider not configured",
             }
         except Exception as e:
             logger.error(f"Webhook handling error: {e}")
@@ -569,6 +681,51 @@ class VibeSyncService:
             logger.error(f"Slack sync error: {e}")
             self.sync_status = "error"
             return {"status": "error", "error": str(e)}
+
+    async def create_task_from_issue(
+        self, mission_id: str, issue: Dict[str, Any]
+    ) -> str:
+        """Create a Binder task from a project management issue.
+
+        Args:
+            mission_id: Target mission ID
+            issue: Issue dict with issue data
+
+        Returns:
+            Created task ID
+        """
+        logger.info(
+            f"Creating task from issue '{issue.get('title')}' in mission {mission_id}"
+        )
+
+        try:
+            # Transform issue to Binder task
+            from core.sync.base_providers import Issue
+
+            issue_obj = Issue(
+                id=issue.get('id', ''),
+                key=issue.get('key', ''),
+                title=issue.get('title', 'No title'),
+                description=issue.get('description', ''),
+                status=issue.get('status', 'todo'),
+                assignee=issue.get('assignee'),
+                created_at=datetime.fromisoformat(issue.get('created_at', datetime.now().isoformat())),
+                updated_at=datetime.fromisoformat(issue.get('updated_at', datetime.now().isoformat())),
+                due_date=datetime.fromisoformat(issue.get('due_date')) if issue.get('due_date') else None,
+                url=issue.get('url', ''),
+                provider=issue.get('provider', 'unknown'),
+                custom_fields=issue.get('custom_fields', {}),
+            )
+
+            task_item = IssueTransformer.issue_to_task_item(issue_obj, mission_id)
+
+            # TODO: Persist to Binder using VibeBinderService
+            # For now, return the task ID
+            return task_item['id']
+
+        except Exception as e:
+            logger.error(f"Error creating task from issue: {e}")
+            raise
 
     async def post_task_update(
         self, task_id: str, channel: str, update: Dict[str, Any]
