@@ -5,6 +5,7 @@ from pathlib import Path
 
 from core.commands.base import BaseCommandHandler
 from core.services.logging_api import get_logger, LogTags, get_repo_root
+from core.services.error_contract import CommandError
 
 logger = get_logger("command-music")
 
@@ -84,11 +85,13 @@ class MusicHandler(BaseCommandHandler):
                 return result
             except Exception as e:
                 logger.error(f"{LogTags.LOCAL} MUSIC {action} failed: {e}")
-                return {
-                    "status": "error",
-                    "message": f"Command failed: {str(e)}",
-                    "action": action,
-                }
+                raise CommandError(
+                    code="ERR_RUNTIME_UNEXPECTED",
+                    message=f"Command failed: {str(e)}",
+                    recovery_hint="Check Groovebox service",
+                    level="ERROR",
+                    cause=e,
+                )
         else:
             return self._help(f"Unknown action: {action}")
 

@@ -11,6 +11,7 @@ import uuid
 from core.commands.base import BaseCommandHandler
 from core.tui.output import OutputToolkit
 from core.services.logging_api import get_logger, get_repo_root
+from core.services.error_contract import CommandError
 
 logger = get_logger("scheduler-handler")
 
@@ -38,11 +39,12 @@ class SchedulerHandler(BaseCommandHandler):
         if action in {"HELP", "--HELP", "-H", "?"}:
             return self._help()
 
-        return {
-            "status": "error",
-            "message": f"Unknown SCHEDULER option: {action}",
-            "output": self._help_text(),
-        }
+        raise CommandError(
+            code="ERR_COMMAND_NOT_FOUND",
+            message=f"Unknown SCHEDULER option: {action}",
+            recovery_hint="Use SCHEDULER LIST, RUN, LOG, or HELP",
+            level="INFO",
+        )
 
     def _help_text(self) -> str:
         return "\n".join(
@@ -63,11 +65,12 @@ class SchedulerHandler(BaseCommandHandler):
     def _list_tasks(self) -> Dict:
         banner = OutputToolkit.banner("SCHEDULER TASKS")
         if not self.db_path.exists():
-            return {
-                "status": "error",
-                "message": "Scheduler database not found",
-                "output": banner + "\n❌ Missing memory/wizard/tasks.db",
-            }
+            raise CommandError(
+                code="ERR_IO_FILE_NOT_FOUND",
+                message="Scheduler database not found",
+                recovery_hint="Check Wizard initialization: WIZARD SETUP",
+                level="ERROR",
+            )
 
         rows = []
         try:
@@ -103,7 +106,13 @@ class SchedulerHandler(BaseCommandHandler):
                 rows = cursor.fetchall()
         except Exception as exc:
             logger.error("[SCHEDULER] Failed to list tasks: %s", exc)
-            return {"status": "error", "message": f"Failed to read tasks: {exc}"}
+            raise CommandError(
+                code="ERR_IO_READ_FAILED",
+                message=f"Failed to read tasks: {exc}",
+                recovery_hint="Check scheduler database integrity",
+                level="ERROR",
+                cause=exc,
+            )
 
         lines = [banner, ""]
         if not rows:
@@ -139,23 +148,20 @@ class SchedulerHandler(BaseCommandHandler):
     def _run_task(self, args: List[str]) -> Dict:
         banner = OutputToolkit.banner("SCHEDULER RUN")
         if not args:
-            return {
-                "status": "error",
-                "message": "Missing task id",
-                "output": banner + "\nUsage: SCHEDULER RUN <task_id>",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Missing task id",
+                recovery_hint="Use SCHEDULER RUN <task_id>",
+                level="INFO",
+            )
 
         if not self.db_path.exists():
-            return {
-                "status": "error",
-                "message": "Scheduler database not found",
-                "output": banner + "\n❌ Missing memory/wizard/tasks.db",
-            }
-
-        identifier = args[0]
-        try:
-            task_id = self._resolve_task_id(identifier)
-        except Exception as exc:
+            raise CommandError(
+                code="ERR_IO_FILE_NOT_FOUND",
+                message="Scheduler database not found",
+                recovery_hint="Check Wizard initialization: WIZARD SETUP",
+                level="ERROR",
+            )
             return {
                 "status": "error",
                 "message": f"Failed to resolve task: {exc}",
