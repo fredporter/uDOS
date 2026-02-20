@@ -153,12 +153,23 @@ class MusicHandler(BaseCommandHandler):
                 },
             }
         except Exception as e:
-            return {"status": "error", "message": str(e)}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=str(e),
+                recovery_hint="Check Music services",
+                level="ERROR",
+                cause=e,
+            )
 
     def _handle_list(self, args: List[str], grid=None, parser=None) -> Dict:
         """MUSIC LIST [--sort name|tempo|date]"""
         if not self.groovebox_service:
-            return {"status": "error", "message": "Groovebox service not available"}
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message="Groovebox service not available",
+                recovery_hint="Check Groovebox service installation",
+                level="ERROR",
+            )
 
         try:
             patterns = self.groovebox_service.list_patterns()
@@ -178,7 +189,13 @@ class MusicHandler(BaseCommandHandler):
 
             return {"status": "ok", "data": {"total": len(patterns), "patterns": patterns}}
         except Exception as e:
-            return {"status": "error", "message": str(e)}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=str(e),
+                recovery_hint="Check Groovebox service",
+                level="ERROR",
+                cause=e,
+            )
 
     def _handle_show(self, args: List[str], grid=None, parser=None) -> Dict:
         """MUSIC SHOW <pattern_id> [--width 16|32]"""
