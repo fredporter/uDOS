@@ -7,6 +7,7 @@ from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.commands.interactive_menu_mixin import InteractiveMenuMixin
 from core.services.logging_api import get_logger, get_repo_root, LogTags
+from core.services.error_contract import CommandError
 
 logger = get_logger("config-handler")
 
@@ -100,11 +101,12 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixi
                     result = self._show_help()
                 else:
                     trace.set_status("error")
-                    return {
-                        "status": "error",
-                        "message": f"Unknown flag: --{flag}",
-                        "output": "Usage: CONFIG --sync | --export | --delete <key> | --help",
-                    }
+                    raise CommandError(
+                        code="ERR_COMMAND_INVALID_ARG",
+                        message=f"Unknown flag: --{flag}",
+                        recovery_hint="Run CONFIG --help for available options",
+                        level="INFO",
+                    )
 
                 trace.set_status(result.get("status", "success"))
                 return result
@@ -172,11 +174,12 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixi
 
         config_dir = get_repo_root() / "wizard" / "config"
         if not config_dir.exists():
-            return {
-                "status": "error",
-                "message": "Config directory not found",
-                "output": "Expected: wizard/config",
-            }
+            raise CommandError(
+                code="ERR_IO_FILE_NOT_FOUND",
+                message="Config directory not found",
+                recovery_hint="Expected: wizard/config",
+                level="ERROR",
+            )
 
         output = [OutputToolkit.banner("CONFIGURATION FILES"), ""]
         files = sorted([p for p in config_dir.iterdir() if p.is_file()])
@@ -199,11 +202,12 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixi
         config_file = config_dir / filename
 
         if not config_file.exists():
-            return {
-                "status": "error",
-                "message": f"Config file not found: {filename}",
-                "output": "Use 'CONFIG LIST' to see available files",
-            }
+            raise CommandError(
+                code="ERR_IO_FILE_NOT_FOUND",
+                message=f"Config file not found: {filename}",
+                recovery_hint="Use 'CONFIG LIST' to see available files",
+                level="INFO",
+            )
 
         import subprocess
         import os
@@ -217,24 +221,31 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixi
 
         try:
             if not editor:
-                return {
-                    "status": "error",
-                    "message": "Editor not found",
-                    "output": "Install micro or nano, or set EDITOR environment variable",
-                }
+                raise CommandError(
+                    code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                    message="Editor not found",
+                    recovery_hint="Install micro or nano, or set EDITOR environment variable",
+                    level="ERROR",
+                )
             subprocess.run([editor, str(config_file)], check=True)
             return {
                 "status": "success",
                 "output": f"Edited {filename}\n\nNOTE: Restart Wizard Server to apply changes",
             }
         except subprocess.CalledProcessError:
-            return {"status": "error", "message": f"Failed to open editor: {editor}"}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=f"Failed to open editor: {editor}",
+                recovery_hint="Check if editor is available in PATH",
+                level="ERROR",
+            )
         except FileNotFoundError:
-            return {
-                "status": "error",
-                "message": f"Editor not found: {editor}",
-                "output": "Install micro or nano, or set EDITOR environment variable",
-            }
+            raise CommandError(
+                code="ERR_IO_FILE_NOT_FOUND",
+                message=f"Editor not found: {editor}",
+                recovery_hint="Install micro or nano, or set EDITOR environment variable",
+                level="ERROR",
+            )
 
     def _run_setup(self) -> Dict:
         """Run provider setup check."""
@@ -259,7 +270,13 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixi
 
             return {"status": "success", "output": "\n".join(output)}
         except Exception as e:
-            return {"status": "error", "message": f"Failed to run setup: {str(e)}"}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=f"Failed to run setup: {str(e)}",
+                recovery_hint="Try running manually: python -m wizard.check_provider_setup",
+                level="ERROR",
+                cause=e,
+            )
 
     # ========================================================================
     # Variable Management Methods
@@ -271,25 +288,33 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixi
             env_data = self._load_env_file()
             return self._format_env_variables(env_data)
         except Exception as e:
-            return {"status": "error", "message": f"Failed to list variables: {e}"}
+            raise CommandError(
+                code="ERR_IO_READ_FAILED",
+                message=f"Failed to list variables: {e}",
+                recovery_hint="Check if .env file is readable",
+                level="ERROR",
+                cause=e,
+            )
 
     def _get_variable(self, key: str) -> Dict:
         """Get a specific variable."""
         try:
             env_data = self._load_env_file()
             if not env_data:
-                return {
-                    "status": "error",
-                    "message": "No local configuration found",
-                    "output": "Create .env or use CONFIG <key> <value>",
-                }
+                raise CommandError(
+                    code="ERR_IO_FILE_NOT_FOUND",
+                    message="No local configuration found",
+                    recovery_hint="Create .env or use CONFIG <key> <value>",
+                    level="INFO",
+                )
 
             if key not in env_data:
-                return {
-                    "status": "error",
-                    "message": f"Variable not found: {key}",
-                    "output": "Use CONFIG to list all variables",
-                }
+                raise CommandError(
+                    code="ERR_VALIDATION_INVALID_ID",
+                    message=f"Variable not found: {key}",
+                    recovery_hint="Use CONFIG to list all variables",
+                    level="INFO",
+                )
 
             value = env_data.get(key)
             from core.tui.output import OutputToolkit
@@ -301,7 +326,13 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixi
             return {"status": "success", "output": "\n".join(lines)}
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to get variable: {e}"}
+            raise CommandError(
+                code="ERR_IO_READ_FAILED",
+                message=f"Failed to get variable: {e}",
+                recovery_hint="Check if .env file is readable",
+                level="ERROR",
+                cause=e,
+            )
 
     def _set_variable(self, key: str, value: str) -> Dict:
         """Set a variable value."""
@@ -345,18 +376,25 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixi
             }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to set variable: {e}"}
+            raise CommandError(
+                code="ERR_IO_WRITE_FAILED",
+                message=f"Failed to set variable: {e}",
+                recovery_hint="Check if .env file is writable",
+                level="ERROR",
+                cause=e,
+            )
 
     def _delete_variable(self, key: str) -> Dict:
         """Delete a variable."""
         try:
             env_path = get_repo_root() / ".env"
             if not env_path.exists():
-                return {
-                    "status": "error",
-                    "message": "No local configuration found",
-                    "output": "Create .env or use CONFIG <key> <value>",
-                }
+                raise CommandError(
+                    code="ERR_IO_FILE_NOT_FOUND",
+                    message="No local configuration found",
+                    recovery_hint="Create .env or use CONFIG <key> <value>",
+                    level="INFO",
+                )
 
             lines = env_path.read_text().splitlines()
             new_lines = []
@@ -376,14 +414,25 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixi
                 new_lines.append(line)
 
             if not removed:
-                return {"status": "error", "message": f"Variable not found: {key}"}
+                raise CommandError(
+                    code="ERR_VALIDATION_INVALID_ID",
+                    message=f"Variable not found: {key}",
+                    recovery_hint="Use CONFIG to list all variables",
+                    level="INFO",
+                )
 
             env_path.write_text("\n".join(new_lines) + ("\n" if new_lines else ""))
 
             return {"status": "success", "output": f"OK Deleted variable: {key}"}
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to delete variable: {e}"}
+            raise CommandError(
+                code="ERR_IO_WRITE_FAILED",
+                message=f"Failed to delete variable: {e}",
+                recovery_hint="Check if .env file is writable",
+                level="ERROR",
+                cause=e,
+            )
 
     def _sync_variables(self) -> Dict:
         """Sync all variables across tiers."""
@@ -392,11 +441,12 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixi
 
             env_path = get_repo_root() / ".env"
             if not env_path.exists():
-                return {
-                    "status": "error",
-                    "message": "No local configuration found",
-                    "output": "Create .env or use CONFIG <key> <value>",
-                }
+                raise CommandError(
+                    code="ERR_IO_FILE_NOT_FOUND",
+                    message="No local configuration found",
+                    recovery_hint="Create .env or use CONFIG <key> <value>",
+                    level="INFO",
+                )
 
             lines = [OutputToolkit.banner("SYNC COMPLETE"), ""]
             lines.append("  Local .env is authoritative")
@@ -405,7 +455,13 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixi
             return {"status": "success", "output": "\n".join(lines)}
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to sync: {e}"}
+            raise CommandError(
+                code="ERR_IO_READ_FAILED",
+                message=f"Failed to sync: {e}",
+                recovery_hint="Check if .env file is readable",
+                level="ERROR",
+                cause=e,
+            )
 
     def _export_config(self) -> Dict:
         """Export configuration for backup."""
@@ -433,7 +489,13 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixi
                 "output": f"OK Config exported to: {export_path}\n\nNOTE: This backup does NOT include secrets",
             }
         except Exception as e:
-            return {"status": "error", "message": f"Failed to export: {e}"}
+            raise CommandError(
+                code="ERR_IO_WRITE_FAILED",
+                message=f"Failed to export: {e}",
+                recovery_hint="Check if memory/ directory is writable",
+                level="ERROR",
+                cause=e,
+            )
 
     def _show_help(self) -> Dict:
         """Show detailed help."""
@@ -566,4 +628,10 @@ SECURITY:
 
             return {"status": "success", "output": "\n".join(lines)}
         except Exception as e:
-            return {"status": "error", "message": f"Failed to format variables: {e}"}
+            raise CommandError(
+                code="ERR_IO_READ_FAILED",
+                message=f"Failed to format variables: {e}",
+                recovery_hint="Check if .env file is readable",
+                level="ERROR",
+                cause=e,
+            )

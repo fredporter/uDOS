@@ -19,6 +19,7 @@ from core.services.maintenance_utils import (
     get_memory_root,
     tidy,
 )
+from core.services.error_contract import CommandError
 
 
 class HealthHandler(BaseCommandHandler):
@@ -124,10 +125,12 @@ class HealthHandler(BaseCommandHandler):
             return self._check_release_gates(fmt)
         if target in {"storage", "local-storage", "disk"}:
             return self._check_storage(fmt)
-        return {
-            "status": "error",
-            "message": "Syntax: HEALTH CHECK <release-gates|storage> [--format json|text]",
-        }
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message="Syntax: HEALTH CHECK <release-gates|storage> [--format json|text]",
+            recovery_hint="Choose a valid HEALTH CHECK target",
+            level="INFO",
+        )
 
     def _check_release_gates(self, fmt: str = "text") -> Dict:
         payload = MissionObjectiveRegistry().snapshot()

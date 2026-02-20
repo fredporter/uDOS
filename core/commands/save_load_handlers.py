@@ -6,6 +6,7 @@ from pathlib import Path
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.tui.output import OutputToolkit
+from core.services.error_contract import CommandError
 
 # Dynamic project root detection
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -85,7 +86,12 @@ class SaveHandler(BaseCommandHandler, HandlerLoggingMixin):
                 trace.record_error(e)
                 trace.set_status('error')
                 self.log_operation(command, 'save_failed', {'error': str(e)})
-                return {"status": "error", "message": f"Failed to save game: {str(e)}"}
+                raise CommandError(
+                    code="ERR_IO_WRITE_FAILED",
+                    message=f"Failed to save game: {str(e)}",
+                    recovery_hint="Check disk space and permissions in memory/saved_games",
+                    level="ERROR",
+                )
 
 
 class LoadHandler(BaseCommandHandler, HandlerLoggingMixin):
@@ -125,11 +131,13 @@ class LoadHandler(BaseCommandHandler, HandlerLoggingMixin):
                     'slot': slot_name,
                     'available': len(available)
                 })
-                return {
-                    "status": "error",
-                    "message": f"Save file '{slot_name}' not found",
-                    "available_saves": available,
-                }
+                raise CommandError(
+                    code="ERR_IO_FILE_NOT_FOUND",
+                    message=f"Save file '{slot_name}' not found",
+                    recovery_hint="Use LOAD without args to use quicksave or list available saves",
+                    details={"available_saves": available},
+                    level="INFO",
+                )
 
             try:
                 # Read save file
@@ -175,4 +183,9 @@ class LoadHandler(BaseCommandHandler, HandlerLoggingMixin):
                 trace.record_error(e)
                 trace.set_status('error')
                 self.log_operation(command, 'load_failed', {'error': str(e)})
-                return {"status": "error", "message": f"Failed to load game: {str(e)}"}
+                raise CommandError(
+                    code="ERR_IO_READ_FAILED",
+                    message=f"Failed to load game: {str(e)}",
+                    recovery_hint="Verify save file integrity or use a different slot",
+                    level="ERROR",
+                )

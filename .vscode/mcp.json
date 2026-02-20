@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "udos-wizard": {
+      "command": "${workspaceFolder}/.venv-mcp/bin/python",
+      "args": [
+        "${workspaceFolder}/wizard/mcp/mcp_server.py"
+      ],
+      "transport": "stdio",
+      "env": {
+        "UDOS_ROOT": "${workspaceFolder}",
+        "WIZARD_PORT_FILE": "${workspaceFolder}/.wizard-port",
+        "WIZARD_ADMIN_TOKEN": "${env:WIZARD_ADMIN_TOKEN}",
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}

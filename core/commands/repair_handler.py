@@ -525,12 +525,11 @@ EXAMPLES:
 
     def _reinstall_integrations(self) -> Dict[str, Any]:
         """Reinstall enabled or installed integrations via the Wizard library manager."""
+        from core.services.provider_registry import get_provider, ProviderType, ProviderNotAvailableError
         try:
-            from wizard.services.library_manager_service import get_library_manager
-        except ImportError:
+            manager = get_provider(ProviderType.LIBRARY_MANAGER)
+        except ProviderNotAvailableError:
             return {"available": False, "results": []}
-
-        manager = get_library_manager()
         status = manager.get_library_status()
         results = []
         for integration in status.integrations:
@@ -543,13 +542,12 @@ EXAMPLES:
         return {"available": True, "results": results}
 
     def _collect_plugin_updates(self) -> Optional[List[Any]]:
+        from core.services.provider_registry import get_provider, ProviderType, ProviderNotAvailableError
         try:
-            from wizard.services.plugin_repository import get_repository
-        except ImportError:
+            repo = get_provider(ProviderType.PLUGIN_REPOSITORY)
+            return repo.check_updates()
+        except ProviderNotAvailableError:
             return None
-
-        repo = get_repository()
-        return repo.check_updates()
 
     def _install_plugin(self, plugin_name: Optional[str]) -> Dict:
         if not plugin_name:
@@ -558,15 +556,14 @@ EXAMPLES:
                 "message": "Usage: REPAIR --install-plugin <integration_name>",
             }
 
+        from core.services.provider_registry import get_provider, ProviderType, ProviderNotAvailableError
         try:
-            from wizard.services.library_manager_service import get_library_manager
-        except ImportError:
+            manager = get_provider(ProviderType.LIBRARY_MANAGER)
+        except ProviderNotAvailableError:
             return {
                 "status": "error",
                 "message": "Wizard component unavailable; cannot manage plugins",
             }
-
-        manager = get_library_manager()
         integration = manager.get_integration(plugin_name)
         if not integration:
             return {

@@ -7,6 +7,7 @@ state tracking, and movement between locations.
 
 from typing import Dict, List, Any, Optional
 from .base import BaseCommandHandler
+from core.services.error_contract import CommandError
 
 
 class NPCHandler(BaseCommandHandler):
@@ -84,12 +85,22 @@ class NPCHandler(BaseCommandHandler):
         elif command == "SPAWN":
             return self._handle_spawn(params)
         else:
-            return {"status": "error", "message": f"Unknown NPC command: {command}"}
+            raise CommandError(
+                code="ERR_COMMAND_NOT_FOUND",
+                message=f"Unknown NPC command: {command}",
+                recovery_hint="Use NPC or SPAWN commands",
+                level="INFO",
+            )
 
     def _handle_npc_list(self, params: List[str]) -> Dict[str, Any]:
         """List NPCs at current or specified location"""
         if not params:
-            return {"status": "error", "message": "Usage: NPC <location_id>"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: NPC <location_id>",
+                recovery_hint="Provide a location ID to list NPCs",
+                level="INFO",
+            )
 
         location_id = params[0]
         npcs_at_location = [
@@ -138,11 +149,12 @@ class NPCHandler(BaseCommandHandler):
     def _handle_spawn(self, params: List[str]) -> Dict[str, Any]:
         """Spawn new NPC at location"""
         if len(params) < 3:
-            return {
-                "status": "error",
-                "message": "Usage: SPAWN <npc_type> <name> <location_id>",
-                "suggestion": "Example: SPAWN merchant 'Trader Tom' L300-BJ10",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: SPAWN <npc_type> <name> <location_id>",
+                recovery_hint="Example: SPAWN merchant 'Trader Tom' L300-BJ10",
+                level="INFO",
+            )
 
         npc_type = params[0].lower()
         npc_name = params[1]
@@ -159,11 +171,12 @@ class NPCHandler(BaseCommandHandler):
         elif npc_type == "hostile":
             npc_data = self._create_hostile(npc_id, npc_name, location_id)
         else:
-            return {
-                "status": "error",
-                "message": f"Unknown NPC type: {npc_type}",
-                "suggestion": "Valid types: merchant, quest_giver, hostile",
-            }
+            raise CommandError(
+                code="ERR_VALIDATION_INVALID_ID",
+                message=f"Unknown NPC type: {npc_type}",
+                recovery_hint="Valid types: merchant, quest_giver, hostile",
+                level="INFO",
+            )
 
         self.npcs[npc_id] = npc_data
 

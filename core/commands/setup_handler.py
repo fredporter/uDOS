@@ -29,6 +29,7 @@ from core.commands.setup_handler_helpers import (
     save_setup_to_env,
     setup_help_text,
 )
+from core.services.error_contract import CommandError
 
 logger = get_logger('setup-handler')
 
@@ -146,11 +147,12 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
         elif action == "--help":
             return self._show_help()
         else:
-            return {
-                "status": "error",
-                "message": f"Unknown option: {action}",
-                "help": "Usage: SETUP [webhook|provider|--profile|--edit|--clear|--help]\n       Webhook: SETUP webhook [github]\n       Providers: github, ollama, mistral, openrouter"
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message=f"Unknown option: {action}",
+                recovery_hint="Usage: SETUP [webhook|provider|--profile|--edit|--clear|--help]",
+                level="INFO",
+            )
 
 
     def _show_profile(self) -> Dict:
@@ -239,10 +241,13 @@ When Wizard Server is installed, it imports this data.
                 "output": "\n".join(lines)
             }
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to load profile: {e}"
-            }
+            raise CommandError(
+                code="ERR_IO_READ_FAILED",
+                message=f"Failed to load profile: {e}",
+                recovery_hint="Check if .env file is readable",
+                level="ERROR",
+                cause=e,
+            )
 
     def _run_story(self) -> Dict:
         """Launch the setup story to configure user identity in .env."""
@@ -271,11 +276,13 @@ When Wizard Server is installed, it imports this data.
             return result
 
         except Exception as exc:
-            return {
-                "status": "error",
-                "message": f"Failed to start setup story: {exc}",
-                "help": "Ensure core/framework/seed/bank/system/tui-setup-story.md exists"
-            }
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=f"Failed to start setup story: {exc}",
+                recovery_hint="Ensure core/framework/seed/bank/system/tui-setup-story.md exists",
+                level="ERROR",
+                cause=exc,
+            )
 
     def _apply_system_datetime(self, form_data: Dict) -> Dict:
         """Apply system datetime approval or collect overrides when needed."""
@@ -350,7 +357,13 @@ When Wizard Server is installed, it imports this data.
             }
             return handler.process_story_form(form_spec)
         except Exception as e:
-            return {"status": "error", "message": f"Override form failed: {e}"}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=f"Override form failed: {e}",
+                recovery_hint="Check datetime override form processing",
+                level="ERROR",
+                cause=e,
+            )
 
     def _seed_confirmation(self) -> str:
         """Confirm local memory/bank and seed structure after setup."""
@@ -402,10 +415,13 @@ Key fields to edit:
                 "output": "✅ Setup data cleared from .env. Run 'SETUP' to configure again."
             }
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to clear setup: {e}"
-            }
+            raise CommandError(
+                code="ERR_IO_WRITE_FAILED",
+                message=f"Failed to clear setup: {e}",
+                recovery_hint="Check if .env file is writable",
+                level="ERROR",
+                cause=e,
+            )
 
     def _show_help(self) -> Dict:
         """Show help for SETUP command."""
@@ -455,19 +471,27 @@ Key fields to edit:
                 output.append(f"\n✅ {provider_id} setup completed successfully")
                 return {"status": "success", "output": "\n".join(output)}
             else:
-                output.append(f"\n⚠️  {provider_id} setup had issues")
-                output.append("Check the output above for details.")
-                return {"status": "error", "output": "\n".join(output)}
+                raise CommandError(
+                    code="ERR_RUNTIME_UNEXPECTED",
+                    message=f"{provider_id} setup had issues",
+                    recovery_hint="Check the output above for details",
+                    level="ERROR",
+                )
         except FileNotFoundError:
-            return {
-                "status": "error",
-                "message": f"Provider setup not available: {provider_id}"
-            }
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message=f"Provider setup not available: {provider_id}",
+                recovery_hint="Ensure wizard.check_provider_setup module is installed",
+                level="ERROR",
+            )
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to setup {provider_id}: {str(e)}"
-            }
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=f"Failed to setup {provider_id}: {str(e)}",
+                recovery_hint="Check provider setup logs for details",
+                level="ERROR",
+                cause=e,
+            )
 
     # ========================================================================
     # Helper Methods - .env Storage

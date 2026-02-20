@@ -51,9 +51,13 @@ def main() -> int:
         _print(client.ucode_dispatch(args.ucode_command))
         return 0
     if args.tools:
-        tools_path = THIS_DIR.parent.parent / "api" / "wizard" / "tools" / "mcp-tools.md"
-        if not tools_path.exists():
-            _print({"count": 0, "tools": [], "error": f"Tool index not found: {tools_path}"})
+        candidate_paths = [
+            THIS_DIR.parent.parent / "api" / "wizard" / "tools" / "mcp-tools.md",
+            THIS_DIR.parent / "docs" / "api" / "tools" / "mcp-tools.md",
+        ]
+        tools_path = next((p for p in candidate_paths if p.exists()), None)
+        if not tools_path:
+            _print({"count": 0, "tools": [], "error": "Tool index not found"})
             return 1
         tools: list[str] = []
         for line in tools_path.read_text(encoding="utf-8", errors="ignore").splitlines():

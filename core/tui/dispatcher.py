@@ -6,6 +6,9 @@ Manages command handlers including system, NPC, and dev mode.
 """
 
 from typing import Dict, List, Any, Optional
+
+from core.services.error_contract import CommandError
+from core.services.logging_manager import get_logger
 from core.commands import (
     MapHandler,
     GridHandler,
@@ -64,6 +67,8 @@ class CommandDispatcher:
 
     def __init__(self):
         """Initialize command dispatcher with all handlers including NPC system"""
+        self.logger = get_logger("command-dispatcher")
+
         # Initialize NPC system (shared instances)
         self.npc_handler = NPCHandler()
         self.dialogue_engine = DialogueEngine()
@@ -178,7 +183,12 @@ class CommandDispatcher:
         # Parse command
         parts = command_text.strip().split()
         if not parts:
-            return {"status": "error", "message": "Empty command"}
+            raise CommandError(
+                code="ERR_COMMAND_EMPTY",
+                message="Empty command",
+                recovery_hint="Type HELP to see available commands",
+                level="INFO",
+            )
 
         cmd_name = parts[0].upper()
         cmd_params = parts[1:]
@@ -192,11 +202,12 @@ class CommandDispatcher:
             else:
                 handler = self.file_handler
         if not handler:
-            return {
-                "status": "error",
-                "message": f"Unknown command: {cmd_name}",
-                "suggestion": "Type HELP for command list",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_NOT_FOUND",
+                message=f"Unknown command: {cmd_name}",
+                recovery_hint="Type HELP for command list",
+                level="INFO",
+            )
 
         # Ghost Mode guard for destructive commands
         try:
@@ -219,10 +230,29 @@ class CommandDispatcher:
             if game_state is not None:
                 self._sync_game_state_from_handler(handler, game_state)
             return result
-        except Exception as e:
+        except CommandError as exc:
+            exc.log(self.logger)
             return {
                 "status": "error",
-                "message": f"Command failed: {str(e)}",
+                "code": exc.code,
+                "message": exc.message,
+                "recovery_hint": exc.recovery_hint,
+                "command": cmd_name,
+            }
+        except Exception as exc:
+            error = CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=f"Command failed: {str(exc)}",
+                recovery_hint="Run HEALTH to diagnose or retry the command",
+                cause=exc,
+                level="ERROR",
+            )
+            error.log(self.logger)
+            return {
+                "status": "error",
+                "code": error.code,
+                "message": error.message,
+                "recovery_hint": error.recovery_hint,
                 "command": cmd_name,
             }
 

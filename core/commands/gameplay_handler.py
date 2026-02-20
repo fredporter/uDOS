@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Dict, List
 
 from .base import BaseCommandHandler
+from core.services.error_contract import CommandError
 
 
 class GameplayHandler(BaseCommandHandler):
@@ -43,7 +44,12 @@ class GameplayHandler(BaseCommandHandler):
         user_mgr = get_user_manager()
         current_user = user_mgr.current()
         if not current_user:
-            return {"status": "error", "message": "No active user"}
+            raise CommandError(
+                code="ERR_AUTH_REQUIRED",
+                message="No active user",
+                recovery_hint="Run SETUP to create a user profile",
+                level="INFO",
+            )
 
         gameplay = get_gameplay_service()
         username = current_user.username
@@ -82,10 +88,12 @@ class GameplayHandler(BaseCommandHandler):
                 "output": (self.__doc__ or "PLAY help").strip(),
             }
 
-        return {
-            "status": "error",
-            "message": f"Unknown PLAY subcommand: {sub}",
-        }
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message=f"Unknown PLAY subcommand: {sub}",
+            recovery_hint="Use PLAY --help to see available subcommands",
+            level="INFO",
+        )
 
     def _handle_stats(self, gameplay, username: str, role: str, params: List[str]) -> Dict:
         stats = gameplay.get_user_stats(username)
@@ -98,26 +106,43 @@ class GameplayHandler(BaseCommandHandler):
             }
 
         if not gameplay.has_permission(role, "gameplay.mutate"):
-            return {"status": "error", "message": "Permission denied: gameplay.mutate"}
+            raise CommandError(
+                code="ERR_AUTH_PERMISSION_DENIED",
+                message="Permission denied: gameplay.mutate",
+                recovery_hint="Switch to a user with gameplay permissions",
+                level="WARNING",
+            )
 
         action = params[0].lower()
         if len(params) < 3:
-            return {
-                "status": "error",
-                "message": "Syntax: PLAY STATS <SET|ADD> <xp|hp|gold> <value>",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Syntax: PLAY STATS <SET|ADD> <xp|hp|gold> <value>",
+                recovery_hint="Usage: PLAY STATS SET xp 10",
+                level="INFO",
+            )
         stat = params[1].lower()
         try:
             value = int(params[2])
         except ValueError:
-            return {"status": "error", "message": "Value must be an integer"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Value must be an integer",
+                recovery_hint="Use a numeric value, e.g., PLAY STATS ADD gold 5",
+                level="INFO",
+            )
 
         if action == "set":
             stats = gameplay.set_user_stat(username, stat, value)
         elif action == "add":
             stats = gameplay.add_user_stat(username, stat, value)
         else:
-            return {"status": "error", "message": "Use SET or ADD"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Use SET or ADD",
+                recovery_hint="Usage: PLAY STATS SET xp 10",
+                level="INFO",
+            )
 
         self.set_state("player_stats", stats)
         return {
@@ -136,7 +161,12 @@ class GameplayHandler(BaseCommandHandler):
         if action in {"status", "show"}:
             status = runtime.status(username)
             if not status.get("ok"):
-                return {"status": "error", "message": status.get("error", "Map runtime unavailable")}
+                raise CommandError(
+                    code="ERR_SERVICE_UNAVAILABLE",
+                    message=status.get("error", "Map runtime unavailable"),
+                    recovery_hint="Start required services or run HEALTH for diagnostics",
+                    level="ERROR",
+                )
             snapshot = gameplay.snapshot(username, role)
             return {
                 "status": "success",
@@ -147,29 +177,26 @@ class GameplayHandler(BaseCommandHandler):
             }
 
         if not gameplay.has_permission(role, "gameplay.mutate"):
-            return {"status": "error", "message": "Permission denied: gameplay.mutate"}
+            raise CommandError(
+                code="ERR_AUTH_PERMISSION_DENIED",
+                message="Permission denied: gameplay.mutate",
+                recovery_hint="Switch to a user with gameplay permissions",
+                level="WARNING",
+            )
 
         if action == "enter":
-            target, error = self._require_arg(params, 1, "PLAY MAP ENTER <place_id>")
-            if error:
-                return error
+            target = self._require_arg(params, 1, "PLAY MAP ENTER <place_id>")
             result = runtime.enter(username, target)
         elif action == "move":
-            target, error = self._require_arg(params, 1, "PLAY MAP MOVE <target_place_id>")
-            if error:
-                return error
+            target = self._require_arg(params, 1, "PLAY MAP MOVE <target_place_id>")
             result = runtime.move(username, target)
         elif action == "inspect":
             result = runtime.inspect(username)
         elif action == "interact":
-            point, error = self._require_arg(params, 1, "PLAY MAP INTERACT <interaction_id>")
-            if error:
-                return error
+            point = self._require_arg(params, 1, "PLAY MAP INTERACT <interaction_id>")
             result = runtime.interact(username, point)
         elif action == "complete":
-            objective, error = self._require_arg(params, 1, "PLAY MAP COMPLETE <objective_id>")
-            if error:
-                return error
+            objective = self._require_arg(params, 1, "PLAY MAP COMPLETE <objective_id>")
             result = runtime.complete(username, objective)
         elif action == "tick":
             steps = 1
@@ -177,13 +204,20 @@ class GameplayHandler(BaseCommandHandler):
                 try:
                     steps = int(params[1])
                 except ValueError:
-                    return {"status": "error", "message": "Steps must be an integer"}
+                    raise CommandError(
+                        code="ERR_COMMAND_INVALID_ARG",
+                        message="Steps must be an integer",
+                        recovery_hint="Usage: PLAY MAP TICK 1",
+                        level="INFO",
+                    )
             result = runtime.tick(username, steps)
         else:
-            return {
-                "status": "error",
-                "message": "Syntax: PLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK>",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Syntax: PLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK>",
+                recovery_hint="Use PLAY MAP STATUS to see map state",
+                level="INFO",
+            )
 
         if not result.get("ok"):
             return {
@@ -206,13 +240,23 @@ class GameplayHandler(BaseCommandHandler):
             "output": self._format_map_action(result, status, snapshot),
         }
 
-    def _require_arg(self, params: List[str], index: int, syntax: str) -> tuple[str, Dict | None]:
+    def _require_arg(self, params: List[str], index: int, syntax: str) -> str:
         if len(params) <= index:
-            return "", {"status": "error", "message": f"Syntax: {syntax}"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message=f"Syntax: {syntax}",
+                recovery_hint=f"Usage: {syntax}",
+                level="INFO",
+            )
         value = str(params[index]).strip()
         if not value:
-            return "", {"status": "error", "message": f"Syntax: {syntax}"}
-        return value, None
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message=f"Syntax: {syntax}",
+                recovery_hint=f"Usage: {syntax}",
+                level="INFO",
+            )
+        return value
 
     def _handle_gate(self, gameplay, role: str, params: List[str]) -> Dict:
         if not params or params[0].lower() == "status":
@@ -230,9 +274,19 @@ class GameplayHandler(BaseCommandHandler):
 
         action = params[0].lower()
         if action in {"complete", "reset"} and not gameplay.has_permission(role, "gameplay.gate_admin"):
-            return {"status": "error", "message": "Permission denied: gameplay.gate_admin"}
+            raise CommandError(
+                code="ERR_AUTH_PERMISSION_DENIED",
+                message="Permission denied: gameplay.gate_admin",
+                recovery_hint="Switch to a user with gate admin permissions",
+                level="WARNING",
+            )
         if len(params) < 2:
-            return {"status": "error", "message": "Syntax: PLAY GATE <COMPLETE|RESET> <gate_id>"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Syntax: PLAY GATE <COMPLETE|RESET> <gate_id>",
+                recovery_hint="Usage: PLAY GATE STATUS or PLAY GATE COMPLETE <gate_id>",
+                level="INFO",
+            )
 
         gate_id = params[1]
         if action == "complete":
@@ -251,7 +305,12 @@ class GameplayHandler(BaseCommandHandler):
                 "gate": gate,
                 "output": f"Gate {gate_id} reset.",
             }
-        return {"status": "error", "message": "Use STATUS, COMPLETE, or RESET"}
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message="Use STATUS, COMPLETE, or RESET",
+            recovery_hint="Usage: PLAY GATE STATUS",
+            level="INFO",
+        )
 
     def _handle_toybox(self, gameplay, username: str, role: str, params: List[str]) -> Dict:
         if not params or params[0].lower() == "list":
@@ -269,11 +328,21 @@ class GameplayHandler(BaseCommandHandler):
             }
 
         if not gameplay.has_permission(role, "toybox.admin"):
-            return {"status": "error", "message": "Permission denied: toybox.admin"}
+            raise CommandError(
+                code="ERR_AUTH_PERMISSION_DENIED",
+                message="Permission denied: toybox.admin",
+                recovery_hint="Switch to a user with toybox admin permissions",
+                level="WARNING",
+            )
 
         action = params[0].lower()
         if action != "set" or len(params) < 2:
-            return {"status": "error", "message": "Syntax: PLAY TOYBOX SET <profile_id>"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Syntax: PLAY TOYBOX SET <profile_id>",
+                recovery_hint="Usage: PLAY TOYBOX LIST to see profiles",
+                level="INFO",
+            )
         profile_id = params[1].lower()
         try:
             active = gameplay.set_active_toybox(profile_id, username=username)
@@ -284,7 +353,12 @@ class GameplayHandler(BaseCommandHandler):
                 "output": f"Active TOYBOX: {active}",
             }
         except ValueError as exc:
-            return {"status": "error", "message": str(exc)}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message=str(exc),
+                recovery_hint="Use PLAY TOYBOX LIST to see profiles",
+                level="INFO",
+            )
 
     def _handle_proceed(self, gameplay) -> Dict:
         if gameplay.can_proceed():
@@ -325,10 +399,20 @@ class GameplayHandler(BaseCommandHandler):
             }
 
         if action not in {"enable", "disable"}:
-            return {"status": "error", "message": "Syntax: PLAY LENS <STATUS|ENABLE|DISABLE>"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Syntax: PLAY LENS <STATUS|ENABLE|DISABLE>",
+                recovery_hint="Usage: PLAY LENS STATUS",
+                level="INFO",
+            )
 
         if not gameplay.has_permission(role, "gameplay.gate_admin"):
-            return {"status": "error", "message": "Permission denied: gameplay.gate_admin"}
+            raise CommandError(
+                code="ERR_AUTH_PERMISSION_DENIED",
+                message="Permission denied: gameplay.gate_admin",
+                recovery_hint="Switch to a user with gate admin permissions",
+                level="WARNING",
+            )
 
         world_lens.set_enabled(action == "enable", actor=f"gplay:{username}")
         map_status = runtime.status(username)

@@ -3,6 +3,7 @@
 from typing import List, Dict, Optional
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
+from core.services.error_contract import CommandError
 
 
 class BagHandler(BaseCommandHandler, HandlerLoggingMixin):
@@ -47,15 +48,17 @@ class BagHandler(BaseCommandHandler, HandlerLoggingMixin):
             else:
                 trace.set_status('error')
                 self.log_param_error(command, params, f"Unknown action: {action}")
-                return {
-                    "status": "error",
-                    "message": f"Unknown action: {action}. Try: list, add, remove, drop, equip",
-                }
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message=f"Unknown action: {action}. Try: list, add, remove, drop, equip",
+                    recovery_hint="Use BAG list to view inventory",
+                    level="INFO",
+                )
 
     def _list_inventory(self, trace=None) -> Dict:
         """List all items in inventory."""
         from core.tui.output import OutputToolkit
-        
+
         inventory = self.get_state("inventory") or []
 
         if not inventory:
@@ -137,10 +140,12 @@ class BagHandler(BaseCommandHandler, HandlerLoggingMixin):
         if not params:
             if trace:
                 trace.set_status('error')
-            return {
-                "status": "error",
-                "message": "ADD requires item name (and optional quantity)",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="ADD requires item name (and optional quantity)",
+                recovery_hint="Usage: BAG add <item_name> [quantity]",
+                level="INFO",
+            )
 
         item_name = " ".join(params).split()[0]
         quantity = 1
@@ -191,10 +196,12 @@ class BagHandler(BaseCommandHandler, HandlerLoggingMixin):
         if not params:
             if trace:
                 trace.set_status('error')
-            return {
-                "status": "error",
-                "message": "REMOVE requires item name (and optional quantity)",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="REMOVE requires item name (and optional quantity)",
+                recovery_hint="Usage: BAG remove <item_name> [quantity]",
+                level="INFO",
+            )
 
         item_name = " ".join(params).split()[0]
         quantity = 1
@@ -225,14 +232,24 @@ class BagHandler(BaseCommandHandler, HandlerLoggingMixin):
 
         if trace:
             trace.set_status('error')
-        return {"status": "error", "message": f"Item '{item_name}' not found in bag"}
+        raise CommandError(
+            code="ERR_ITEM_NOT_FOUND",
+            message=f"Item '{item_name}' not found in bag",
+            recovery_hint="Use BAG list to see available items",
+            level="INFO",
+        )
 
     def _drop_item(self, params: List[str], trace=None) -> Dict:
         """Drop item from inventory (removes it entirely)."""
         if not params:
             if trace:
                 trace.set_status('error')
-            return {"status": "error", "message": "DROP requires item name"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="DROP requires item name",
+                recovery_hint="Usage: BAG drop <item_name>",
+                level="INFO",
+            )
 
         item_name = " ".join(params)
         inventory = self.get_state("inventory") or []
@@ -248,14 +265,24 @@ class BagHandler(BaseCommandHandler, HandlerLoggingMixin):
 
         if trace:
             trace.set_status('error')
-        return {"status": "error", "message": f"Item '{item_name}' not found"}
+        raise CommandError(
+            code="ERR_ITEM_NOT_FOUND",
+            message=f"Item '{item_name}' not found",
+            recovery_hint="Use BAG list to see available items",
+            level="INFO",
+        )
 
     def _equip_item(self, params: List[str], trace=None) -> Dict:
         """Equip an item."""
         if not params:
             if trace:
                 trace.set_status('error')
-            return {"status": "error", "message": "EQUIP requires item name"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="EQUIP requires item name",
+                recovery_hint="Usage: BAG equip <item_name>",
+                level="INFO",
+            )
 
         item_name = " ".join(params)
         inventory = self.get_state("inventory") or []
@@ -275,4 +302,9 @@ class BagHandler(BaseCommandHandler, HandlerLoggingMixin):
 
         if trace:
             trace.set_status('error')
-        return {"status": "error", "message": f"Item '{item_name}' not found"}
+        raise CommandError(
+            code="ERR_ITEM_NOT_FOUND",
+            message=f"Item '{item_name}' not found",
+            recovery_hint="Use BAG list to see available items",
+            level="INFO",
+        )

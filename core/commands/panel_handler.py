@@ -11,6 +11,7 @@ from typing import Dict, List, Optional
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.locations import load_locations, Location, LocationService
+from core.services.error_contract import CommandError
 
 
 class PanelHandler(BaseCommandHandler, HandlerLoggingMixin):
@@ -56,14 +57,24 @@ class PanelHandler(BaseCommandHandler, HandlerLoggingMixin):
                     'location_id': location_id,
                     'error': str(e)
                 })
-                return {"status": "error", "message": f"Failed to load locations: {str(e)}"}
+                raise CommandError(
+                    code="ERR_LOCATION_LOAD_FAILED",
+                    message=f"Failed to load locations: {str(e)}",
+                    recovery_hint="Run VERIFY to check location data integrity",
+                    level="WARNING",
+                )
 
             if not location:
                 trace.set_status('error')
                 self.log_operation(command, 'location_not_found', {
                     'location_id': location_id
                 })
-                return {"status": "error", "message": f"Location {location_id} not found"}
+                raise CommandError(
+                    code="ERR_LOCATION_NOT_FOUND",
+                    message=f"Location {location_id} not found",
+                    recovery_hint="Use FIND to search for available locations",
+                    level="INFO",
+                )
 
             trace.mark_milestone('location_validated')
 
@@ -102,7 +113,12 @@ class PanelHandler(BaseCommandHandler, HandlerLoggingMixin):
                     'location_id': location_id,
                     'error': str(e)
                 })
-                raise
+                raise CommandError(
+                    code="ERR_RENDER_FAILED",
+                    message=f"Failed to render panel: {str(e)}",
+                    recovery_hint="Try PANEL again or run HEALTH for diagnostics",
+                    level="ERROR",
+                )
 
             trace.mark_milestone('panel_formatted')
             trace.set_status('success')
@@ -129,7 +145,7 @@ class PanelHandler(BaseCommandHandler, HandlerLoggingMixin):
             Formatted panel string
         """
         from core.tui.output import OutputToolkit
-        
+
         lines = []
         lines.append(OutputToolkit.banner("LOCATION PANEL"))
         lines.append(f"Name: {location.name}")

@@ -22,12 +22,11 @@ from core.services.hotkey_map import read_hotkey_payload, write_hotkey_payload
 from core.services.logging_api import get_logger, get_repo_root
 from core.services.ts_runtime_service import TSRuntimeService
 from core.services.automation_monitor import AutomationMonitor
-try:
-    from wizard.services.monitoring_manager import MonitoringManager
-    WIZARD_AVAILABLE = True
-except Exception:
-    WIZARD_AVAILABLE = False
-    MonitoringManager = None
+from core.services.provider_registry import (
+    get_provider,
+    ProviderType,
+    ProviderNotAvailableError,
+)
 from core.services.notification_history_service import remind_if_pending
 from core.services.todo_reminder_service import get_reminder_service
 
@@ -47,9 +46,12 @@ class SystemScriptRunner:
         else:
             self.memory_root = self.repo_root / "memory"
         self.system_dir = self.memory_root / "bank" / "system"
-        if WIZARD_AVAILABLE and MonitoringManager:
-            self.monitoring = MonitoringManager()
-        else:
+        try:
+            provider = get_provider(ProviderType.MONITORING_MANAGER)
+            self.monitoring = provider() if callable(provider) else provider
+        except ProviderNotAvailableError:
+            self.monitoring = None
+        except Exception:
             self.monitoring = None
         self.system_dir.mkdir(parents=True, exist_ok=True)
         self.template_dir = self.repo_root / self.SCRIPT_TEMPLATE_DIR

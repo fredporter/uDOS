@@ -3,23 +3,34 @@
 import os
 from typing import Dict, Optional, Any
 
-try:
-    from wizard.services.rate_limiter import get_rate_limiter
-    from wizard.services.rate_limiter import RateLimitResult
-except ImportError:  # pragma: no cover - guard for missing wizard server
-    get_rate_limiter = None
-    RateLimitResult = None
-
-try:
-    from wizard.services.provider_load_logger import log_provider_event
-except ImportError:
-    log_provider_event = None
+from core.services.provider_registry import (
+    get_provider,
+    ProviderType,
+    ProviderNotAvailableError,
+)
 
 _DEVICE_ID = f"core-cli-{os.getpid()}"
 
 
+def _get_rate_limiter() -> Optional[Any]:
+    try:
+        return get_provider(ProviderType.RATE_LIMITER)
+    except ProviderNotAvailableError:
+        return None
+
+
+def _get_load_logger() -> Optional[Any]:
+    try:
+        return get_provider(ProviderType.PROVIDER_LOAD_LOGGER)
+    except ProviderNotAvailableError:
+        return None
+
+
 def _log_throttle(endpoint: str, result: Optional[Any]) -> None:
-    if not log_provider_event or not result:
+    if not result:
+        return
+    logger = _get_load_logger()
+    if not logger:
         return
     reason = result.reason or "rate_limit_exceeded"
     metadata = {
@@ -30,14 +41,15 @@ def _log_throttle(endpoint: str, result: Optional[Any]) -> None:
         if getattr(result, "tier", None)
         else None,
     }
-    log_provider_event("wizard-api", "throttle", reason, source="rate-limiter", metadata=metadata)
+    if callable(logger):
+        logger("wizard-api", "throttle", reason, source="rate-limiter", metadata=metadata)
 
 
 def guard_wizard_endpoint(endpoint: str) -> Optional[Dict[str, Any]]:
     """Guard a Wizard endpoint; return an error payload on throttling."""
-    if not get_rate_limiter:
+    limiter = _get_rate_limiter()
+    if not limiter:
         return None
-    limiter = get_rate_limiter()
     result = limiter.check(_DEVICE_ID, endpoint)
     if result.allowed:
         limiter.record(_DEVICE_ID, endpoint, allowed=True)

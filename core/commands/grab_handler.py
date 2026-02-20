@@ -4,6 +4,7 @@ from typing import List, Dict
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.locations import load_locations
+from core.services.error_contract import CommandError
 
 
 class GrabHandler(BaseCommandHandler, HandlerLoggingMixin):
@@ -26,7 +27,12 @@ class GrabHandler(BaseCommandHandler, HandlerLoggingMixin):
             if not params:
                 trace.set_status('error')
                 self.log_param_error(command, params, "Object name required")
-                return {"status": "error", "message": "GRAB requires an object name"}
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="GRAB requires an object name",
+                    recovery_hint="Usage: GRAB <object_name>",
+                    level="INFO",
+                )
 
             # Get current location
             current_location_id = self.get_state("current_location") or "L300-BJ10"
@@ -40,15 +46,22 @@ class GrabHandler(BaseCommandHandler, HandlerLoggingMixin):
                 trace.record_error(e)
                 trace.set_status('error')
                 self.log_operation(command, 'location_load_failed', {'error': str(e)})
-                return {"status": "error", "message": f"Failed to load location: {str(e)}"}
+                raise CommandError(
+                    code="ERR_LOCATION_LOAD_FAILED",
+                    message=f"Failed to load location: {str(e)}",
+                    recovery_hint="Run VERIFY to check location data integrity",
+                    level="WARNING",
+                )
 
             if not location:
                 trace.set_status('error')
                 self.log_operation(command, 'location_not_found', {'location_id': current_location_id})
-                return {
-                    "status": "error",
-                    "message": f"Current location {current_location_id} not found",
-                }
+                raise CommandError(
+                    code="ERR_LOCATION_NOT_FOUND",
+                    message=f"Current location {current_location_id} not found",
+                    recovery_hint="Use FIND to search for available locations",
+                    level="INFO",
+                )
 
             object_name = " ".join(params).lower()
             trace.add_event('object_name_parsed', {'name': object_name[:50]})
@@ -72,15 +85,19 @@ class GrabHandler(BaseCommandHandler, HandlerLoggingMixin):
             if not found_objects:
                 trace.set_status('error')
                 self.log_operation(command, 'object_not_found', {'object_name': object_name[:50]})
-                return {
-                    "status": "error",
-                    "message": f"No object matching '{object_name}' found at {location.name}",
-                    "available_objects": [
-                        obj.label
-                        for cell in location.tiles.values()
-                        for obj in cell.objects
-                    ],
-                }
+                raise CommandError(
+                    code="ERR_RESOURCE_NOT_FOUND",
+                    message=f"No object matching '{object_name}' found at {location.name}",
+                    recovery_hint="Try a different object name or use TELL for details",
+                    details={
+                        "available_objects": [
+                            obj.label
+                            for cell in location.tiles.values()
+                            for obj in cell.objects
+                        ]
+                    },
+                    level="INFO",
+                )
 
             # Pick up first matching object
             grabbed = found_objects[0]

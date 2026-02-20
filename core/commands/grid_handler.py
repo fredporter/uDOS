@@ -13,6 +13,7 @@ from typing import Dict, List, Optional
 
 from .base import BaseCommandHandler
 from .handler_logging_mixin import HandlerLoggingMixin
+from core.services.error_contract import CommandError
 from core.services.logging_api import get_logger, get_repo_root
 
 
@@ -32,28 +33,24 @@ class GridHandler(BaseCommandHandler, HandlerLoggingMixin):
         with self.trace_command(command, params) as trace:
             if not self.cli_path.exists():
                 trace.set_status("error")
-                return {
-                    "status": "error",
-                    "message": "UGRID renderer not found",
-                    "details": f"Missing: {self.cli_path}",
-                    "suggestion": "Rebuild grid runtime or restore core/dist/grid",
-                }
+                raise CommandError(
+                    code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                    message="UGRID renderer not found",
+                    recovery_hint="Rebuild grid runtime or restore core/dist/grid",
+                    details={"missing": str(self.cli_path)},
+                    level="ERROR",
+                )
 
             try:
                 opts = self._parse_params(params)
-            except ValueError as exc:
+            except CommandError as exc:
                 trace.set_status("error")
                 self.log_param_error(command, params, str(exc))
-                return {"status": "error", "message": str(exc)}
+                raise
 
             trace.add_event("grid_options", {"mode": opts["mode"]})
 
-            result = self._run_node_render(opts)
-            if result["status"] != "success":
-                trace.set_status("error")
-                return result
-
-            output = result["output"]
+            output = self._run_node_render(opts)
             from core.tui.output import OutputToolkit
 
             trace.set_status("success")
@@ -85,37 +82,72 @@ class GridHandler(BaseCommandHandler, HandlerLoggingMixin):
             if arg == "--mode":
                 idx += 1
                 if idx >= len(params):
-                    raise ValueError("GRID --mode requires a value")
+                    raise CommandError(
+                        code="ERR_COMMAND_INVALID_ARG",
+                        message="GRID --mode requires a value",
+                        recovery_hint="Usage: GRID --mode <calendar|table|schedule|map|dashboard|workflow>",
+                        level="INFO",
+                    )
                 mode = params[idx].lower()
             elif arg == "--input":
                 idx += 1
                 if idx >= len(params):
-                    raise ValueError("GRID --input requires a file path")
+                    raise CommandError(
+                        code="ERR_COMMAND_INVALID_ARG",
+                        message="GRID --input requires a file path",
+                        recovery_hint="Usage: GRID --input <path/to/input.json>",
+                        level="INFO",
+                    )
                 input_path = params[idx]
             elif arg == "--loc":
                 idx += 1
                 if idx >= len(params):
-                    raise ValueError("GRID --loc requires a LocId value")
+                    raise CommandError(
+                        code="ERR_COMMAND_INVALID_ARG",
+                        message="GRID --loc requires a LocId value",
+                        recovery_hint="Usage: GRID --loc <LocId>",
+                        level="INFO",
+                    )
                 loc = params[idx]
             elif arg == "--layer":
                 idx += 1
                 if idx >= len(params):
-                    raise ValueError("GRID --layer requires a value")
+                    raise CommandError(
+                        code="ERR_COMMAND_INVALID_ARG",
+                        message="GRID --layer requires a value",
+                        recovery_hint="Usage: GRID --layer <layer>",
+                        level="INFO",
+                    )
                 layer = params[idx]
             elif arg == "--title":
                 idx += 1
                 if idx >= len(params):
-                    raise ValueError("GRID --title requires a value")
+                    raise CommandError(
+                        code="ERR_COMMAND_INVALID_ARG",
+                        message="GRID --title requires a value",
+                        recovery_hint="Usage: GRID --title <title>",
+                        level="INFO",
+                    )
                 title = params[idx]
             elif arg == "--theme":
                 idx += 1
                 if idx >= len(params):
-                    raise ValueError("GRID --theme requires a value")
+                    raise CommandError(
+                        code="ERR_COMMAND_INVALID_ARG",
+                        message="GRID --theme requires a value",
+                        recovery_hint="Usage: GRID --theme <theme>",
+                        level="INFO",
+                    )
                 theme = params[idx]
             elif arg == "--output":
                 idx += 1
                 if idx >= len(params):
-                    raise ValueError("GRID --output requires a file path")
+                    raise CommandError(
+                        code="ERR_COMMAND_INVALID_ARG",
+                        message="GRID --output requires a file path",
+                        recovery_hint="Usage: GRID --output <path/to/output.txt>",
+                        level="INFO",
+                    )
                 output_path = params[idx]
             else:
                 if mode is None and arg.lower() in self.MODES:
@@ -129,8 +161,11 @@ class GridHandler(BaseCommandHandler, HandlerLoggingMixin):
         if mode is None:
             mode = "calendar"
         if mode not in self.MODES:
-            raise ValueError(
-                f"GRID mode must be one of: {', '.join(sorted(self.MODES))}"
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message=f"GRID mode must be one of: {', '.join(sorted(self.MODES))}",
+                recovery_hint="Use GRID --mode <calendar|table|schedule|map|dashboard|workflow>",
+                level="INFO",
             )
 
         return {
@@ -155,7 +190,7 @@ class GridHandler(BaseCommandHandler, HandlerLoggingMixin):
                 pass
         return "node"
 
-    def _run_node_render(self, opts: Dict[str, Optional[str]]) -> Dict[str, str]:
+    def _run_node_render(self, opts: Dict[str, Optional[str]]) -> str:
         cmd = [self.node_cmd, str(self.cli_path), "--mode", opts["mode"]]
 
         if opts.get("input"):
@@ -163,10 +198,12 @@ class GridHandler(BaseCommandHandler, HandlerLoggingMixin):
             if not input_path.is_absolute():
                 input_path = self.repo_root / input_path
             if not input_path.exists():
-                return {
-                    "status": "error",
-                    "message": f"Input JSON not found: {input_path}",
-                }
+                raise CommandError(
+                    code="ERR_IO_FILE_NOT_FOUND",
+                    message=f"Input JSON not found: {input_path}",
+                    recovery_hint="Check the input path or run GRID without --input",
+                    level="INFO",
+                )
             cmd.extend(["--input", str(input_path)])
         if opts.get("loc"):
             cmd.extend(["--loc", opts["loc"]])
@@ -193,30 +230,39 @@ class GridHandler(BaseCommandHandler, HandlerLoggingMixin):
                 text=True,
             )
         except FileNotFoundError:
-            return {
-                "status": "error",
-                "message": "Node.js not available",
-                "details": "Install Node.js and ensure `node` is on PATH",
-            }
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message="Node.js not available",
+                recovery_hint="Install Node.js and ensure `node` is on PATH",
+                level="ERROR",
+            )
         except Exception as exc:
-            return {
-                "status": "error",
-                "message": "Failed to invoke UGRID renderer",
-                "details": str(exc),
-            }
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message="Failed to invoke UGRID renderer",
+                recovery_hint="Check Node.js install and grid runtime build",
+                details={"error": str(exc)},
+                level="ERROR",
+            )
 
         if result.returncode != 0:
-            return {
-                "status": "error",
-                "message": "UGRID renderer failed",
-                "details": result.stderr.strip() or result.stdout.strip(),
-            }
+            raise CommandError(
+                code="ERR_RUNTIME_EXECUTION_FAILED",
+                message="UGRID renderer failed",
+                recovery_hint="Run GRID again or rebuild the grid runtime",
+                details={"stderr": result.stderr.strip() or result.stdout.strip()},
+                level="ERROR",
+            )
 
         output = result.stdout.strip()
         if not output:
-            return {
-                "status": "error",
-                "message": "UGRID renderer returned empty output",
-            }
+            raise CommandError(
+                code="ERR_RUNTIME_EMPTY_OUTPUT",
+                message="UGRID renderer returned empty output",
+                recovery_hint="Check input data or rebuild grid runtime",
+                level="WARNING",
+            )
+
+        return output
 
         return {"status": "success", "output": output}

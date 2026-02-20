@@ -6,6 +6,7 @@ from typing import Dict, List
 
 from .base import BaseCommandHandler
 from .gameplay_handler import GameplayHandler
+from core.services.error_contract import CommandError
 
 
 class PlayHandler(BaseCommandHandler):
@@ -62,7 +63,12 @@ class PlayHandler(BaseCommandHandler):
 
         current_user = get_user_manager().current()
         if not current_user:
-            return {"status": "error", "message": "No active user"}
+            raise CommandError(
+                code="ERR_AUTH_REQUIRED",
+                message="No active user",
+                recovery_hint="Run SETUP to create a user profile",
+                level="INFO",
+            )
 
         gameplay = get_gameplay_service()
         username = current_user.username
@@ -104,12 +110,22 @@ class PlayHandler(BaseCommandHandler):
             }
         if sub == "start":
             if len(params) < 2:
-                return {"status": "error", "message": f"Syntax: {canonical} START <option_id>"}
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message=f"Syntax: {canonical} START <option_id>",
+                    recovery_hint=f"Usage: {canonical} START <option_id>",
+                    level="INFO",
+                )
             option_id = params[1].lower()
             try:
                 result = gameplay.start_play_option(username, option_id)
             except ValueError as exc:
-                return {"status": "error", "message": str(exc)}
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message=str(exc),
+                    recovery_hint=f"Use {canonical} OPTIONS to list available options",
+                    level="INFO",
+                )
             if result.get("status") == "blocked":
                 return {
                     "status": "blocked",
@@ -135,7 +151,12 @@ class PlayHandler(BaseCommandHandler):
                 "message": self.__doc__ or f"{canonical} help",
                 "output": (self.__doc__ or f"{canonical} help").strip(),
             }
-        return {"status": "error", "message": f"Unknown {canonical} subcommand: {sub}"}
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message=f"Unknown {canonical} subcommand: {sub}",
+            recovery_hint=f"Use {canonical} --help to see available subcommands",
+            level="INFO",
+        )
 
     def _status(self, gameplay, username: str, role: str, cmd_name: str = "PLAY") -> Dict:
         snapshot = gameplay.snapshot(username, role)

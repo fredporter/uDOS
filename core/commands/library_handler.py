@@ -54,8 +54,17 @@ class LibraryHandler(BaseCommandHandler):
         return Path(__file__).resolve().parents[2]
 
     def _get_manager(self):
-        from wizard.services.library_manager_service import get_library_manager
-        return get_library_manager(self._repo_root())
+        from core.services.error_contract import CommandError
+        from core.services.provider_registry import get_provider, ProviderType, ProviderNotAvailableError
+        try:
+            return get_provider(ProviderType.LIBRARY_MANAGER)
+        except ProviderNotAvailableError:
+            raise CommandError(
+                code="ERR_PROVIDER_OFFLINE",
+                message="Wizard library manager not available",
+                recovery_hint="Start Wizard services and retry: WIZARD START",
+                level="ERROR",
+            )
 
     def _status(self) -> Dict:
         try:

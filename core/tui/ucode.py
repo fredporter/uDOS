@@ -91,12 +91,6 @@ from core.services.todo_service import (
 )
 from core.tui.advanced_form_handler import AdvancedFormField
 from core.services.system_script_runner import SystemScriptRunner
-try:
-    from wizard.services.monitoring_manager import MonitoringManager
-    WIZARD_MONITORING_AVAILABLE = True
-except Exception:
-    MonitoringManager = None
-    WIZARD_MONITORING_AVAILABLE = False
 
 
 class ComponentState(Enum):
@@ -1306,9 +1300,19 @@ class UCLI:
     def _get_ok_context_window(self) -> int:
         """Return the local Vibe context window size."""
         try:
-            from wizard.services.vibe_service import VibeConfig
-
-            return VibeConfig().context_window
+            from core.services.provider_registry import (
+                get_provider,
+                ProviderType,
+                ProviderNotAvailableError,
+            )
+            vibe_provider = get_provider(ProviderType.VIBE_SERVICE)
+            if isinstance(vibe_provider, dict) and "context_window" in vibe_provider:
+                return int(vibe_provider["context_window"])
+            if hasattr(vibe_provider, "context_window"):
+                return int(getattr(vibe_provider, "context_window"))
+            if hasattr(vibe_provider, "get_context_window"):
+                return int(vibe_provider.get_context_window())
+            raise ProviderNotAvailableError("Vibe provider missing context_window")
         except Exception:
             return 8192
 
@@ -1563,10 +1567,20 @@ class UCLI:
                 return json.loads(summary_path.read_text())
             except Exception as exc:
                 self.logger.warning("[Monitoring] Failed to read summary: %s", exc)
-        if not WIZARD_MONITORING_AVAILABLE or MonitoringManager is None:
+        try:
+            from core.services.provider_registry import (
+                get_provider,
+                ProviderType,
+                ProviderNotAvailableError,
+            )
+            provider = get_provider(ProviderType.MONITORING_MANAGER)
+            monitoring = provider(data_dir=memory_root / "monitoring") if callable(provider) else provider
+            return monitoring.log_training_summary()
+        except ProviderNotAvailableError:
             return {}
-        monitoring = MonitoringManager(data_dir=memory_root / "monitoring")
-        return monitoring.log_training_summary()
+        except Exception as exc:
+            self.logger.debug("[Monitoring] Provider unavailable: %s", exc)
+            return {}
 
     def _check_and_build_ts_runtime(self) -> None:
         """Check if TS runtime is built, auto-build if missing (first-time setup)."""
@@ -1920,7 +1934,16 @@ class UCLI:
 
             # Fallback: Try direct save via Wizard services (if Wizard is available but server isn't running)
             try:
-                from wizard.services.setup_profiles import save_user_profile, save_install_profile
+                from core.services.provider_registry import (
+                    get_provider,
+                    ProviderType,
+                    ProviderNotAvailableError,
+                )
+                providers = get_provider(ProviderType.SETUP_PROFILES)
+                save_user_profile = providers.get("save_user_profile") if isinstance(providers, dict) else None
+                save_install_profile = providers.get("save_install_profile") if isinstance(providers, dict) else None
+                if not save_user_profile or not save_install_profile:
+                    raise ProviderNotAvailableError("Setup profile providers not available")
 
                 # Split the collected data into user and install sections
                 # User profile fields
@@ -1967,7 +1990,7 @@ class UCLI:
                     print(f"\n⚠️  Secret store is locked: {error}")
                     print("   ✅ Saved locally. Set WIZARD_KEY and run WIZARD START to sync.")
 
-            except (ImportError, Exception) as e:
+            except Exception as e:
                 self.logger.debug(f"Wizard direct save not available: {e}")
 
             # Final fallback: Save to local profile file in memory/
@@ -2116,12 +2139,18 @@ class UCLI:
             self.logger.debug(f"[SETUP] Wizard secret store API unavailable: {exc}")
 
         try:
-            from wizard.services.secret_store import get_secret_store
-
-            store = get_secret_store()
+            from core.services.provider_registry import (
+                get_provider,
+                ProviderType,
+                ProviderNotAvailableError,
+            )
+            provider = get_provider(ProviderType.SECRET_STORE)
+            store = provider() if callable(provider) else provider
             store.unlock()
             store.set_entry("mistral_api_key", api_key, provider="setup")
             print("✅ Mistral API key stored in Wizard secret store (local)")
+        except ProviderNotAvailableError:
+            self.logger.debug("[SETUP] Wizard secret store provider not available")
         except Exception as exc:
             self.logger.warning(f"[SETUP] Failed to store Mistral key locally: {exc}")
     def _sync_local_user(self, identity: Dict[str, Any]) -> None:
@@ -2245,7 +2274,15 @@ class UCLI:
 
             # Try to load user profile from Wizard
             try:
-                from wizard.services.setup_profiles import load_user_profile
+                from core.services.provider_registry import (
+                    get_provider,
+                    ProviderType,
+                    ProviderNotAvailableError,
+                )
+                providers = get_provider(ProviderType.SETUP_PROFILES)
+                load_user_profile = providers.get("load_user_profile") if isinstance(providers, dict) else None
+                if not load_user_profile:
+                    raise ProviderNotAvailableError("Setup profile provider not available")
 
                 result = load_user_profile()
 
@@ -2258,7 +2295,7 @@ class UCLI:
                 if result.locked and "not set" in str(result.error).lower():
                     self.logger.debug("Wizard not yet initialized, treating as fresh install")
 
-            except (ImportError, Exception) as e:
+            except Exception as e:
                 self.logger.debug(f"Could not check user profile: {e}")
                 return
 
@@ -2780,10 +2817,24 @@ For detailed help on any command, type the command name followed by --help
 
     def _run_ok_local(self, prompt: str, model: Optional[str] = None) -> str:
         """Run a local Vibe request via Ollama."""
-        from wizard.services.vibe_service import VibeService, VibeConfig
+        from core.services.provider_registry import (
+            get_provider,
+            ProviderType,
+            ProviderNotAvailableError,
+        )
 
-        config = VibeConfig(model=model or self._get_ok_default_model())
-        vibe = VibeService(config=config)
+        try:
+            vibe_provider = get_provider(ProviderType.VIBE_SERVICE)
+        except ProviderNotAvailableError as exc:
+            raise RuntimeError("Local Vibe provider not available") from exc
+
+        target_model = model or self._get_ok_default_model()
+        if callable(vibe_provider):
+            vibe = vibe_provider(model=target_model)
+        elif hasattr(vibe_provider, "create"):
+            vibe = vibe_provider.create(model=target_model)
+        else:
+            vibe = vibe_provider
         return vibe.generate(prompt, format="markdown")
 
     def _run_with_spinner(self, label: str, func: Callable[[], Any], mood: str = "busy") -> Any:

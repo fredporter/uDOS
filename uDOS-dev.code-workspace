@@ -22,12 +22,28 @@
     "files.exclude": {
       "**/node_modules": true,
       "**/__pycache__": true,
-      "**/*.pyc": true
+      "**/*.pyc": true,
+      "**/.venv-mcp": true,
+      "**/venv": false
+    },
+    "search.exclude": {
+      "**/.venv-mcp": true,
+      "**/venv": true,
+      "**/__pycache__": true,
+      "**/node_modules": true
     },
     "python.defaultInterpreterPath": "${workspaceFolder:Root}/venv/bin/python",
     "python.terminal.executeInFileDir": true,
-    "terminal.integrated.defaultProfile.osx": "bash",
+    "terminal.integrated.defaultProfile.osx": "zsh",
     "terminal.integrated.profiles.osx": {
+      "zsh": {
+        "path": "/bin/zsh",
+        "args": [
+          "-l",
+          "-i"
+        ],
+        "icon": "terminal"
+      },
       "bash": {
         "path": "/bin/bash",
         "args": [
@@ -40,8 +56,11 @@
       "VIRTUAL_ENV": "${workspaceFolder:Root}/venv",
       "PATH": "${workspaceFolder:Root}/venv/bin:${env:PATH}",
       "PYTHONPATH": "${workspaceFolder:Root}",
-      "UDOS_ROOT": "${env:UDOS_ROOT}",
-      "VAULT_ROOT": "/Users/fredbook/Documents/vault-md"
+      "UDOS_ROOT": "${workspaceFolder:Root}",
+      "UDOS_WIZARD_PORT_FILE": "${workspaceFolder:Root}/.wizard-port",
+      "VAULT_ROOT": "/Users/fredbook/Documents/vault-md",
+      "PAGER": "cat",
+      "PYTHONUNBUFFERED": "1"
     },
     "terminal.integrated.shellArgs.osx": [
       "-l",

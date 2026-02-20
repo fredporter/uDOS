@@ -15,6 +15,7 @@ from core.tui.output import OutputToolkit
 from core.tui.ui_elements import Spinner
 from core.services.logging_api import get_logger, get_repo_root
 from core.services.destructive_ops import remove_path, resolve_vault_root, scrub_directory
+from core.services.error_contract import CommandError
 
 logger = get_logger("wizard-handler")
 
@@ -79,11 +80,12 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         elif action in {"help", "--help", "?"}:
             return self._show_help()
 
-        return {
-            "status": "error",
-            "message": f"Unknown option: {action}",
-            "output": self._help_text(),
-        }
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message=f"Unknown option: {action}",
+            recovery_hint="Run WIZARD --help for available options",
+            level="INFO",
+        )
 
     def _rebuild_wizard(self) -> Dict:
         """Rebuild wizard dashboard artifacts."""
@@ -94,21 +96,23 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         # Validate repo root exists
         if not repo_root or not Path(repo_root).exists():
             logger.error("[LOCAL] Invalid repo root for wizard rebuild")
-            return {
-                "status": "error",
-                "message": "Wizard root not found",
-                "output": banner + "\n❌ Invalid repository root",
-            }
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message="Wizard root not found",
+                recovery_hint="Ensure uDOS is running from repository root",
+                level="ERROR",
+            )
 
         # Validate build script exists
         build_script = Path(repo_root) / "bin" / "udos-common.sh"
         if not build_script.exists():
             logger.error(f"[LOCAL] Build script not found: {build_script}")
-            return {
-                "status": "error",
-                "message": "Build infrastructure not found",
-                "output": banner + f"\n❌ Missing: {build_script}",
-            }
+            raise CommandError(
+                code="ERR_IO_FILE_NOT_FOUND",
+                message="Build infrastructure not found",
+                recovery_hint=f"Missing: {build_script}",
+                level="ERROR",
+            )
 
         try:
             rebuild_cmd = (
@@ -129,11 +133,12 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
             if result.returncode != 0:
                 logger.error(f"[LOCAL] Wizard rebuild failed with code {result.returncode}")
-                return {
-                    "status": "error",
-                    "message": f"Rebuild failed (exit {result.returncode})",
-                    "output": banner + "\n❌ Build failed - check output above",
-                }
+                raise CommandError(
+                    code="ERR_RUNTIME_UNEXPECTED",
+                    message=f"Rebuild failed (exit {result.returncode})",
+                    recovery_hint="Check build output above for details",
+                    level="ERROR",
+                )
 
             logger.info("[LOCAL] Wizard rebuild successful")
             return {
@@ -142,18 +147,21 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             }
         except subprocess.TimeoutExpired:
             logger.error("[LOCAL] Wizard rebuild timed out (300s)")
-            return {
-                "status": "error",
-                "message": "Rebuild timed out (exceeded 5 minutes)",
-                "output": "\n".join(output_lines) + "\n❌ Build process exceeded timeout",
-            }
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message="Rebuild timed out (exceeded 5 minutes)",
+                recovery_hint="Try rebuilding manually: source bin/udos-common.sh && rebuild_wizard_dashboard",
+                level="ERROR",
+            )
         except Exception as exc:
             logger.error(f"[LOCAL] Wizard rebuild failed: {exc}")
-            return {
-                "status": "error",
-                "message": str(exc),
-                "output": "\n".join(output_lines) + f"\n❌ Error: {exc}",
-            }
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=str(exc),
+                recovery_hint="Check wizard dashboard build logs",
+                level="ERROR",
+                cause=exc,
+            )
 
     def _help_text(self) -> str:
         return "\n".join(
@@ -186,7 +194,12 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         if sub == "LIST":
             ok, payload, err = self._wizard_api_json("GET", "/api/providers/list")
             if not ok:
-                return {"status": "error", "message": err}
+                raise CommandError(
+                    code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                    message=err,
+                    recovery_hint="Check if Wizard server is running (WIZARD STATUS)",
+                    level="ERROR",
+                )
             providers = payload.get("providers", [])
             lines = [OutputToolkit.banner("WIZARD PROV LIST"), ""]
             for provider in providers:
@@ -202,11 +215,21 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
         if sub == "STATUS":
             if not args:
-                return {"status": "error", "message": "Usage: WIZARD PROV STATUS <id>"}
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Usage: WIZARD PROV STATUS <id>",
+                    recovery_hint="Provide a provider ID (e.g., github, mistral)",
+                    level="INFO",
+                )
             provider_id = args[0]
             ok, payload, err = self._wizard_api_json("GET", f"/api/providers/{provider_id}/status")
             if not ok:
-                return {"status": "error", "message": err}
+                raise CommandError(
+                    code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                    message=err,
+                    recovery_hint="Check if Wizard server is running (WIZARD STATUS)",
+                    level="ERROR",
+                )
             provider = payload.get("provider", {})
             lines = [OutputToolkit.banner(f"WIZARD PROV STATUS {provider_id.upper()}"), ""]
             lines.append(f"ID: {provider.get('id', provider_id)}")
@@ -218,22 +241,42 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
         if sub in {"ENABLE", "DISABLE"}:
             if not args:
-                return {"status": "error", "message": f"Usage: WIZARD PROV {sub} <id>"}
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message=f"Usage: WIZARD PROV {sub} <id>",
+                    recovery_hint="Provide a provider ID (e.g., github, mistral)",
+                    level="INFO",
+                )
             provider_id = args[0]
             method = "POST"
             path = f"/api/providers/{provider_id}/{sub.lower()}"
             ok, payload, err = self._wizard_api_json(method, path)
             if not ok:
-                return {"status": "error", "message": err}
+                raise CommandError(
+                    code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                    message=err,
+                    recovery_hint="Check if Wizard server is running (WIZARD STATUS)",
+                    level="ERROR",
+                )
             return {"status": "success", "message": payload.get("message", f"{sub} complete")}
 
         if sub == "SETUP":
             if not args:
-                return {"status": "error", "message": "Usage: WIZARD PROV SETUP <id>"}
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Usage: WIZARD PROV SETUP <id>",
+                    recovery_hint="Provide a provider ID (e.g., github, mistral)",
+                    level="INFO",
+                )
             provider_id = args[0]
             ok, payload, err = self._wizard_api_json("POST", "/api/providers/setup/run", {"provider_id": provider_id})
             if not ok:
-                return {"status": "error", "message": err}
+                raise CommandError(
+                    code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                    message=err,
+                    recovery_hint="Check if Wizard server is running (WIZARD STATUS)",
+                    level="ERROR",
+                )
             lines = [OutputToolkit.banner(f"WIZARD PROV SETUP {provider_id.upper()}"), ""]
             lines.append(payload.get("message", "Setup payload ready"))
             for cmd in payload.get("commands", []):
@@ -259,7 +302,12 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                 "token": token,
             }
 
-        return {"status": "error", "message": "Usage: WIZARD PROV [LIST|STATUS|ENABLE|DISABLE|SETUP|GENSECRET] ..."}
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message="Usage: WIZARD PROV [LIST|STATUS|ENABLE|DISABLE|SETUP|GENSECRET] ...",
+            recovery_hint="Run WIZARD PROV LIST to see available providers",
+            level="INFO",
+        )
 
     def _wizard_integration(self, params: List[str]) -> Dict:
         """Route integration checks through Wizard API/system surfaces."""
@@ -267,7 +315,12 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         if sub == "status":
             ok, payload, err = self._wizard_api_json("GET", "/api/system/library")
             if not ok:
-                return {"status": "error", "message": err}
+                raise CommandError(
+                    code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                    message=err,
+                    recovery_hint="Check if Wizard server is running (WIZARD STATUS)",
+                    level="ERROR",
+                )
             lines = [OutputToolkit.banner("WIZARD INTEG STATUS"), ""]
             total = payload.get("total_integrations")
             enabled = payload.get("enabled_integrations")
@@ -278,20 +331,35 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         if sub in {"github", "mistral", "ollama"}:
             ok, payload, err = self._wizard_api_json("GET", f"/api/providers/{sub}/status")
             if not ok:
-                return {"status": "error", "message": err}
+                raise CommandError(
+                    code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                    message=err,
+                    recovery_hint="Check if Wizard server is running (WIZARD STATUS)",
+                    level="ERROR",
+                )
             provider = payload.get("provider", {})
             lines = [OutputToolkit.banner(f"WIZARD INTEG {sub.upper()}"), ""]
             lines.append(f"Configured: {'yes' if provider.get('configured') else 'no'}")
             lines.append(f"Available: {'yes' if provider.get('available') else 'no'}")
             lines.append(f"Enabled: {'yes' if provider.get('enabled') else 'no'}")
             return {"status": "success", "message": "Integration provider status loaded", "output": "\n".join(lines)}
-        return {"status": "error", "message": "Usage: WIZARD INTEG [status|github|mistral|ollama]"}
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message="Usage: WIZARD INTEG [status|github|mistral|ollama]",
+            recovery_hint="Choose a valid integration option",
+            level="INFO",
+        )
 
     def _wizard_full_check(self, params: List[str]) -> Dict:
         """Run full Wizard-side checks via monitoring diagnostics."""
         ok, payload, err = self._wizard_api_json("GET", "/api/monitoring/diagnostics")
         if not ok:
-            return {"status": "error", "message": err}
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message=err,
+                recovery_hint="Check if Wizard server is running (WIZARD STATUS)",
+                level="ERROR",
+            )
         health = (payload.get("health") or {})
         summary = health.get("summary") or {}
         lines = [OutputToolkit.banner("WIZARD CHECK"), ""]
@@ -335,7 +403,13 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             webbrowser.open(dashboard_url)
             return {"status": "success", "output": banner + "\n✅ Opened Wizard Dashboard"}
         except Exception as exc:
-            return {"status": "error", "message": str(exc), "output": banner + f"\n❌ {exc}"}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=str(exc),
+                recovery_hint=f"Manually open: {dashboard_url}",
+                level="ERROR",
+                cause=exc,
+            )
 
     def _start_wizard(self) -> Dict:
         """Start Wizard server."""
@@ -371,16 +445,20 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         try:
             # Validate python module
             if not subprocess.run(
-                ["python", "-c", "import wizard.server"],
+                [
+                    "python",
+                    "-c",
+                    "import importlib; importlib.import_module('wizard.server')",
+                ],
                 capture_output=True,
                 timeout=5
             ).returncode == 0:
-                output_lines.append("❌ Wizard module not found")
-                return {
-                    "status": "error",
-                    "message": "Wizard module not available",
-                    "output": "\n".join(output_lines),
-                }
+                raise CommandError(
+                    code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                    message="Wizard module not available",
+                    recovery_hint="Ensure wizard package is installed in current Python environment",
+                    level="ERROR",
+                )
 
             # Start in background
             subprocess.Popen(
@@ -430,9 +508,13 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
             if port_in_use:
                 # Port occupied - offer self-healing options
-                from wizard.services.port_manager import get_port_manager
-                pm = get_port_manager()
-                occupant = pm.get_port_occupant(port)
+                from core.services.provider_registry import get_provider, ProviderType, ProviderNotAvailableError
+                try:
+                    pm = get_provider(ProviderType.PORT_MANAGER)
+                    occupant = pm.get_port_occupant(port)
+                except ProviderNotAvailableError:
+                    pm = None
+                    occupant = None
 
                 if occupant:
                     output_lines.append(
@@ -499,11 +581,13 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
 
         except Exception as exc:
             logger.error(f"[LOCAL] Failed to start Wizard: {exc}")
-            return {
-                "status": "error",
-                "message": str(exc),
-                "output": "\n".join(output_lines) + f"\n❌ Error: {exc}",
-            }
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=str(exc),
+                recovery_hint="Check wizard server logs or try manual start: python -m wizard.server",
+                level="ERROR",
+                cause=exc,
+            )
 
     def _maybe_open_dashboard(self, output_lines: List[str]) -> None:
         _, dashboard_url = self._wizard_urls()
@@ -574,11 +658,20 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         output_lines = [banner, ""]
 
         try:
-            from wizard.services.port_manager import get_port_manager
-            pm = get_port_manager()
+            from core.services.provider_registry import (
+                get_provider,
+                ProviderType,
+                ProviderNotAvailableError,
+            )
+            pm = get_provider(ProviderType.PORT_MANAGER)
 
             host, port = self._wizard_host_port()
             occupant = pm.get_port_occupant(port)
+
+        except ProviderNotAvailableError:
+            output_lines.append("⚠️  Wizard port manager unavailable")
+            output_lines.append("   ▶ Start Wizard or install Wizard services")
+            return {"status": "error", "output": "\n".join(output_lines)}
 
             if not occupant:
                 output_lines.append(f"✅ Port {port} is free (Wizard not running)")

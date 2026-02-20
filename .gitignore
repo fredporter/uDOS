@@ -183,6 +183,7 @@ test_*.sh
 .DS_Store
 **/.DS_Store
 .vscode/settings.json
+.vscode/mcp.json
 .vscode/*.log
 .idea/
 *.swp

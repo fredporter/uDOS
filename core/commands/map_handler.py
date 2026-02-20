@@ -11,6 +11,7 @@ from typing import Dict, List, Optional, Tuple
 from .base import BaseCommandHandler
 from .handler_logging_mixin import HandlerLoggingMixin
 from core.locations import load_locations, Location
+from core.services.error_contract import CommandError
 from core.services.map_renderer import MapRenderer
 
 
@@ -52,14 +53,24 @@ class MapHandler(BaseCommandHandler, HandlerLoggingMixin):
                     'location_id': location_id,
                     'error': str(e)
                 })
-                return {"status": "error", "message": f"Failed to load locations: {str(e)}"}
+                raise CommandError(
+                    code="ERR_LOCATION_LOAD_FAILED",
+                    message=f"Failed to load locations: {str(e)}",
+                    recovery_hint="Run VERIFY to check location data integrity",
+                    level="WARNING",
+                )
 
             if not location:
                 trace.set_status('error')
                 self.log_operation(command, 'location_not_found', {
                     'location_id': location_id
                 })
-                return {"status": "error", "message": f"Location {location_id} not found"}
+                raise CommandError(
+                    code="ERR_LOCATION_NOT_FOUND",
+                    message=f"Location {location_id} not found",
+                    recovery_hint="Use FIND to search for available locations",
+                    level="INFO",
+                )
 
             trace.mark_milestone('location_validated')
 
@@ -78,7 +89,12 @@ class MapHandler(BaseCommandHandler, HandlerLoggingMixin):
                     'location_id': location_id,
                     'error': str(e)
                 })
-                return {"status": "error", "message": f"Failed to render grid: {str(e)}"}
+                raise CommandError(
+                    code="ERR_RENDER_FAILED",
+                    message=f"Failed to render grid: {str(e)}",
+                    recovery_hint="Try MAP again or run HEALTH for renderer diagnostics",
+                    level="ERROR",
+                )
 
             # Import OutputToolkit only when needed (avoid circular import)
             from core.tui.output import OutputToolkit

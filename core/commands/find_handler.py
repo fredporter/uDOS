@@ -4,6 +4,7 @@ from typing import List, Dict, Optional
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.locations import load_locations
+from core.services.error_contract import CommandError
 
 
 class FindHandler(BaseCommandHandler, HandlerLoggingMixin):
@@ -26,10 +27,12 @@ class FindHandler(BaseCommandHandler, HandlerLoggingMixin):
             if not params:
                 trace.set_status('error')
                 self.log_param_error(command, params, "Search query required")
-                return {
-                    "status": "error",
-                    "message": "FIND requires a search query (name, type, or region)",
-                }
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="FIND requires a search query (name, type, or region)",
+                    recovery_hint="Usage: FIND <query> [--type <type>] [--region <region>]",
+                    level="INFO",
+                )
 
             try:
                 db = load_locations()
@@ -39,7 +42,12 @@ class FindHandler(BaseCommandHandler, HandlerLoggingMixin):
                 trace.record_error(e)
                 trace.set_status('error')
                 self.log_operation(command, 'load_failed', {'error': str(e)})
-                return {"status": "error", "message": f"Failed to load locations: {str(e)}"}
+                raise CommandError(
+                    code="ERR_LOCATION_LOAD_FAILED",
+                    message=f"Failed to load locations: {str(e)}",
+                    recovery_hint="Run VERIFY to check location data integrity",
+                    level="WARNING",
+                )
 
             trace.mark_milestone('data_loaded')
 

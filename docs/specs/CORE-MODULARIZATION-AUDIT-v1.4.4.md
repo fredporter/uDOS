@@ -1,8 +1,43 @@
 # Core Modularization Audit — v1.4.4
 
-**Status:** Planning
+**Status:** Phase 1 Discovery Complete (2026-02-20)
 **Target Completion:** 2026-03-31
+**Current Phase:** Phase 2 Remediation Planning
 **Scope:** Comprehensive audit and hardening of Core module boundaries, dependency integrity, and code organization.
+
+---
+
+## Phase 1 Discovery Results (2026-02-20)
+
+### Key Findings
+
+**✅ Strengths:**
+- Handler modules well-organized (43 files, largest ~850 LOC)
+- Parser modules properly separated (<250 LOC each)
+- Clear service-layer structure (54 modules)
+
+**⚠️ CRITICAL ISSUES:**
+1. **Core/Wizard Boundary Violation:** 7+ direct wizard imports in Core
+   - `core/tui/ucode.py` — 6 wizard imports
+   - `core/commands/wizard_handler.py` — port_manager
+   - `core/commands/repair_handler.py` — library_manager + plugin_repository
+   - `core/commands/library_handler.py` — library_manager
+   - `core/services/rate_limit_helpers.py` — rate_limiter, provider_load_logger
+   - `core/services/system_script_runner.py` — MonitoringManager
+
+2. **Large Service Modules:** Several services exceed 700 LOC
+   - `gameplay_service.py` (1188 LOC) — PTY lifecycle + state replay + game logic
+   - `location_migration_service.py` (943 LOC) — Schema migration + indexing + validation
+   - `self_healer.py` (729 LOC) — Multiple recovery strategies bundled
+
+3. **Error Handling:** No unified contract; inconsistent patterns across handlers
+
+### Phase 1 Status: ✅ COMPLETE
+- [x] Boundary violations identified
+- [x] Large modules cataloged
+- [x] Error patterns reviewed
+- [x] Test scaffolds located
+- [ ] Ready for Phase 2 remediation planning
 
 ---
 

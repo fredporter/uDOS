@@ -4,6 +4,7 @@ from typing import List, Dict
 from core.commands.base import BaseCommandHandler
 from core.locations import load_locations
 from core.tui.output import OutputToolkit
+from core.services.error_contract import CommandError
 
 
 class TellHandler(BaseCommandHandler):
@@ -31,10 +32,20 @@ class TellHandler(BaseCommandHandler):
             db = load_locations()
             location = db.get(location_id)
         except Exception as e:
-            return {"status": "error", "message": f"Failed to load location: {str(e)}"}
+            raise CommandError(
+                code="ERR_LOCATION_LOAD_FAILED",
+                message=f"Failed to load location: {str(e)}",
+                recovery_hint="Run VERIFY to check location data integrity",
+                level="WARNING",
+            )
 
         if not location:
-            return {"status": "error", "message": f"Location {location_id} not found"}
+            raise CommandError(
+                code="ERR_LOCATION_NOT_FOUND",
+                message=f"Location {location_id} not found",
+                recovery_hint="Use FIND to search for available locations",
+                level="INFO",
+            )
 
         # Build rich description
         description_lines = [OutputToolkit.banner("LOCATION DETAIL")]

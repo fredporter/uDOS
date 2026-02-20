@@ -11,6 +11,7 @@ from typing import Dict, List, Optional
 from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.locations import load_locations, LocationService
+from core.services.error_contract import CommandError
 
 
 class GotoHandler(BaseCommandHandler, HandlerLoggingMixin):
@@ -39,10 +40,12 @@ class GotoHandler(BaseCommandHandler, HandlerLoggingMixin):
             if not params:
                 trace.set_status('error')
                 self.log_param_error(command, params, "Location ID or direction required")
-                return {
-                    "status": "error",
-                    "message": "GOTO requires location ID or direction (north, south, east, west, up, down)",
-                }
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="GOTO requires location ID or direction (north, south, east, west, up, down)",
+                    recovery_hint="Usage: GOTO <location_id> or GOTO <direction>",
+                    level="INFO",
+                )
 
             # Load locations
             try:
@@ -57,20 +60,24 @@ class GotoHandler(BaseCommandHandler, HandlerLoggingMixin):
                 self.log_operation(command, 'current_location_load_failed', {
                     'error': str(e)
                 })
-                return {
-                    "status": "error",
-                    "message": f"Failed to load current location: {str(e)}",
-                }
+                raise CommandError(
+                    code="ERR_LOCATION_LOAD_FAILED",
+                    message=f"Failed to load current location: {str(e)}",
+                    recovery_hint="Run VERIFY to check location data integrity",
+                    level="WARNING",
+                )
 
             if not current:
                 trace.set_status('error')
                 self.log_operation(command, 'current_location_not_found', {
                     'location_id': self.current_location
                 })
-                return {
-                    "status": "error",
-                    "message": f"Current location {self.current_location} not found",
-                }
+                raise CommandError(
+                    code="ERR_LOCATION_NOT_FOUND",
+                    message=f"Current location {self.current_location} not found",
+                    recovery_hint="Use FIND to search for available locations",
+                    level="INFO",
+                )
 
             trace.mark_milestone('current_location_validated')
 
@@ -95,7 +102,7 @@ class GotoHandler(BaseCommandHandler, HandlerLoggingMixin):
                 trace.add_event('direction_navigation', {
                     'direction': target_param.lower()
                 })
-                
+
                 # Expand short directions
                 direction_map = {
                     "n": "north",
@@ -121,11 +128,13 @@ class GotoHandler(BaseCommandHandler, HandlerLoggingMixin):
                         'direction': target_dir,
                         'available_directions': available
                     })
-                    return {
-                        "status": "error",
-                        "message": f"Cannot go {target_dir} from here.",
-                        "available_directions": available,
-                    }
+                    raise CommandError(
+                        code="ERR_LOCATION_NOT_FOUND",
+                        message=f"Cannot go {target_dir} from here.",
+                        recovery_hint=f"Available exits: {', '.join(available) if available else 'none'}",
+                        details={"available_directions": available},
+                        level="INFO",
+                    )
             else:
                 # Treat as location ID
                 target_id = target_param
@@ -141,18 +150,22 @@ class GotoHandler(BaseCommandHandler, HandlerLoggingMixin):
                 trace.record_error(e)
                 trace.set_status('error')
                 self.log_operation(command, 'target_load_failed', {'error': str(e)})
-                return {
-                    "status": "error",
-                    "message": f"Failed to load target location: {str(e)}",
-                }
+                raise CommandError(
+                    code="ERR_LOCATION_LOAD_FAILED",
+                    message=f"Failed to load target location: {str(e)}",
+                    recovery_hint="Run VERIFY to check location data integrity",
+                    level="WARNING",
+                )
 
             if not target:
                 trace.set_status('error')
                 self.log_operation(command, 'target_not_found', {'target_id': target_id})
-                return {
-                    "status": "error",
-                    "message": f"Target location {target_id} not found",
-                }
+                raise CommandError(
+                    code="ERR_LOCATION_NOT_FOUND",
+                    message=f"Target location {target_id} not found",
+                    recovery_hint="Use FIND to search for available locations",
+                    level="INFO",
+                )
 
             # Check if target is reachable from current location
             if not self._is_connected(current, target_id):
@@ -161,13 +174,16 @@ class GotoHandler(BaseCommandHandler, HandlerLoggingMixin):
                     'current_location': current.name,
                     'target_location': target.name
                 })
-                return {
-                    "status": "error",
-                    "message": f"Cannot reach {target.name} from {current.name}",
-                    "current_location": current.name,
-                    "target_location": target.name,
-                    "note": "Location is not directly connected. Use pathfinding for multi-step routes.",
-                }
+                raise CommandError(
+                    code="ERR_STATE_INVALID_TRANSITION",
+                    message=f"Cannot reach {target.name} from {current.name}",
+                    recovery_hint="Use FIND to locate a path or try a connected direction",
+                    details={
+                        "current_location": current.name,
+                        "target_location": target.name,
+                    },
+                    level="INFO",
+                )
 
             # Update game state
             previous_location = self.current_location
