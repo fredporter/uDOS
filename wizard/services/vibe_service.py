@@ -54,7 +54,7 @@ class VibeConfig:
     temperature: float = 0.2  # Deterministic for code
     context_window: int = 8192
     top_p: float = 0.95
-    timeout_seconds: int = 120
+    timeout_seconds: int = 30
 
 
 class VibeService:
@@ -134,9 +134,9 @@ class VibeService:
             # /api/chat - Chat completion (messages array) - newer
             # /api/generate - Simple prompt - legacy
             # Try chat first, fallback to generate
-            
+
             logger.info(f"[LOCAL] Vibe: Generating with {self.config.model}...")
-            
+
             temperature = kwargs.pop("temperature", None)
             top_p = kwargs.pop("top_p", None)
             max_tokens = kwargs.pop("max_tokens", None)
@@ -157,25 +157,25 @@ class VibeService:
                     "options": options,
                     **kwargs,
                 }
-                
+
                 resp = requests.post(
                     f"{self.config.endpoint}/api/chat",
                     json=payload,
                     timeout=self.config.timeout_seconds,
                 )
                 resp.raise_for_status()
-                
+
                 if stream:
                     return self._stream_response(resp)
                 else:
                     data = resp.json()
                     response_text = data["message"]["content"]
-            
+
             except requests.exceptions.HTTPError as e:
                 if e.response.status_code == 404:
                     # Fallback to /api/generate (older Ollama versions)
                     logger.info("[LOCAL] Vibe: /api/chat not available, using /api/generate")
-                    
+
                     # Convert messages to single prompt
                     prompt_parts = []
                     for msg in messages:
@@ -187,16 +187,16 @@ class VibeService:
                             prompt_parts.append(f"User: {content}")
                         elif role == "assistant":
                             prompt_parts.append(f"Assistant: {content}")
-                    
+
                     combined_prompt = "\n\n".join(prompt_parts)
-                    
+
                     payload = {
                         "model": self.config.model,
                         "prompt": combined_prompt,
                         "stream": False,
                         "options": options,
                     }
-                    
+
                     resp = requests.post(
                         f"{self.config.endpoint}/api/generate",
                         json=payload,

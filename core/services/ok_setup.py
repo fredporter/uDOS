@@ -4,8 +4,7 @@ OK Setup Helper - Install local AI stack for Vibe.
 Installs:
   - mistral-vibe (Vibe CLI)
   - Ollama (if missing)
-  - Recommended models: mistral-small2, mistral-large2, devstral-small-2
-
+  - Recommended models: mistral-small2, mistral-large2, devstral-small-2  - Fallback model: qwen2.5:0.5b (lightweight open-source, 500MB)
 Updates core/config/ok_modes.json with recommended models.
 """
 
@@ -243,6 +242,7 @@ def run_ok_setup(
             {"name": "mistral-small2", "pull": "mistral-small", "aliases": ["mistral-small2", "mistral-small:latest"]},
             {"name": "mistral-large2", "pull": "mistral-large", "aliases": ["mistral-large2", "mistral-large:latest"]},
             {"name": "devstral-small-2", "pull": "devstral-small-2", "aliases": ["devstral-small-2"]},
+            {"name": "qwen2.5:0.5b", "pull": "qwen2.5:0.5b", "aliases": ["qwen2.5:0.5b"]},
         ]
 
     def run_cmd(cmd: List[str], label: str, quiet: bool = True, use_spinner: bool = True) -> bool:
@@ -392,11 +392,13 @@ def run_ok_setup(
                 ("mistral-small2", ["core"]),
                 ("mistral-large2", ["core"]),
                 ("devstral-small-2", ["dev"]),
+                ("qwen2.5:0.5b", ["core", "fallback"]),
             ]:
                 if name not in names:
                     models.append({"name": name, "availability": availability})
         default_models.setdefault("core", "mistral-small2")
         default_models.setdefault("dev", "devstral-small-2")
+        default_models.setdefault("fallback", "qwen2.5:0.5b")
         config_path.write_text(json.dumps(config, indent=2))
         steps.append("Updated ok_modes.json")
     except Exception as exc:

@@ -1428,6 +1428,12 @@ class UCLI:
                 model = default_models.get("dev") or model
         return model or "devstral-small-2"
 
+    def _get_ok_fallback_model(self) -> Optional[str]:
+        """Return the fallback model for OK commands when primary fails."""
+        mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
+        default_models = mode.get("default_models") or {}
+        return default_models.get("fallback")
+
     def _get_ok_context_window(self) -> int:
         """Return the local Vibe context window size."""
         try:
@@ -1513,12 +1519,17 @@ class UCLI:
         ok_status = self._get_ok_local_status()
         cloud_status = self._get_ok_cloud_status()
         model = ok_status.get("model") or self._get_ok_default_model()
+        fallback_model = self._get_ok_fallback_model()
         ctx = self._get_ok_context_window()
         local_issue = ok_status.get("issue") or None
+        endpoint = ok_status.get("ollama_endpoint", "http://127.0.0.1:11434")
 
         lines = []
         if ok_status.get("ready"):
-            lines.append(f"✅ Vibe ready ({model}, ctx {ctx})")
+            lines.append(f"✅ Vibe/Ollama healthy ({model}, ctx {ctx}, timeout 30s)")
+            lines.append(f"   Endpoint: {endpoint}")
+            if fallback_model:
+                lines.append(f"   Fallback: {fallback_model} (lightweight open-source)")
         else:
             issue = local_issue or "setup required"
             lines.append(f"⚠️ Vibe needs setup: {issue} ({model}, ctx {ctx})")
@@ -1526,10 +1537,12 @@ class UCLI:
                 lines.append("Tip: SETUP vibe")
             if issue == "missing model":
                 lines.append(f"Tip: OK PULL {model}")
+                if fallback_model:
+                    lines.append(f"Tip: OK PULL {fallback_model}  # lightweight fallback")
         if cloud_status.get("skip"):
             lines.append("Tip: WIZARD start")
         elif cloud_status.get("ready"):
-            lines.append("✅ Mistral cloud ready")
+            lines.append("✅ Mistral cloud ready (timeout 15s)")
         else:
             issue = cloud_status.get("issue") or "setup required"
             lines.append(f"⚠️ Mistral cloud needed: {issue}")
@@ -2960,13 +2973,35 @@ For detailed help on any command, type the command name followed by --help
             raise RuntimeError("Local Vibe provider not available") from exc
 
         target_model = model or self._get_ok_default_model()
-        if callable(vibe_provider):
-            vibe = vibe_provider(model=target_model)
-        elif hasattr(vibe_provider, "create"):
-            vibe = vibe_provider.create(model=target_model)
-        else:
-            vibe = vibe_provider
-        return vibe.generate(prompt, format="markdown")
+
+        # Try primary model
+        try:
+            if callable(vibe_provider):
+                vibe = vibe_provider(model=target_model)
+            elif hasattr(vibe_provider, "create"):
+                vibe = vibe_provider.create(model=target_model)
+            else:
+                vibe = vibe_provider
+            return vibe.generate(prompt, format="markdown")
+        except Exception as exc:
+            # Try fallback model if configured and primary failed
+            fallback_model = self._get_ok_fallback_model()
+            if fallback_model and fallback_model != target_model:
+                self.logger.warning(
+                    f"[OK] Primary model {target_model} failed, trying fallback {fallback_model}: {exc}"
+                )
+                try:
+                    if callable(vibe_provider):
+                        vibe = vibe_provider(model=fallback_model)
+                    elif hasattr(vibe_provider, "create"):
+                        vibe = vibe_provider.create(model=fallback_model)
+                    else:
+                        vibe = vibe_provider
+                    return vibe.generate(prompt, format="markdown")
+                except Exception as fallback_exc:
+                    self.logger.error(f"[OK] Fallback model {fallback_model} also failed: {fallback_exc}")
+                    raise exc  # Raise original error
+            raise
 
     def _run_with_spinner(self, label: str, func: Callable[[], Any], mood: str = "busy") -> Any:
         """Run a long action with a lightweight spinner + elapsed seconds."""

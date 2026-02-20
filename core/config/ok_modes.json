@@ -19,12 +19,23 @@
           "availability": [
             "core"
           ]
+        },
+        {
+          "name": "qwen2.5:0.5b",
+          "availability": [
+            "core",
+            "fallback"
+          ],
+          "note": "Lightweight fallback (500MB)"
         }
       ],
       "default_models": {
-        "core": "mistral-small2",
-        "dev": "devstral-small-2"
-      }
+        "core": "mistral-small",
+        "dev": "devstral-small-2",
+        "fallback": "qwen2.5:0.5b"
+      },
+      "ollama_endpoint": "http://127.0.0.1:11434",
+      "auto_fallback": true
     }
   }
 }

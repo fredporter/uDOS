@@ -57,6 +57,7 @@ logger = get_logger("wizard", category="ok-gateway", name="ok-gateway")
 # Configuration paths
 CONFIG_PATH = Path(__file__).parent / "config"
 CACHE_PATH = Path(__file__).parent.parent.parent / "memory" / "wizard" / "ai_cache"
+API_MGMT_PATH = Path(__file__).parent.parent.parent / "memory" / "system"
 
 
 class AIProvider(Enum):
@@ -326,7 +327,7 @@ class OKGateway:
 
     def _load_costs(self):
         """Load cost tracking data."""
-        costs_file = self.config_path / "ai_costs.json"
+        costs_file = API_MGMT_PATH / "api_management.json"
         if costs_file.exists():
             try:
                 data = json.loads(costs_file.read_text())
@@ -339,8 +340,8 @@ class OKGateway:
 
     def _save_costs(self):
         """Save cost tracking data."""
-        self.config_path.mkdir(parents=True, exist_ok=True)
-        costs_file = self.config_path / "ai_costs.json"
+        API_MGMT_PATH.mkdir(parents=True, exist_ok=True)
+        costs_file = API_MGMT_PATH / "api_management.json"
         costs_file.write_text(json.dumps(asdict(self.costs), indent=2))
 
     def _check_resets(self):
