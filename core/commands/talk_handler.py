@@ -9,6 +9,7 @@ from .base import BaseCommandHandler
 from .handler_logging_mixin import HandlerLoggingMixin
 from .npc_handler import NPCHandler
 from .dialogue_engine import DialogueEngine
+from core.services.error_contract import CommandError
 
 
 class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
@@ -34,7 +35,12 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
                 result = self._handle_send(params)
             else:
                 trace.set_status('error')
-                return {"status": "error", "message": f"Unknown command: {command}"}
+                raise CommandError(
+                    code="ERR_COMMAND_NOT_FOUND",
+                    message=f"Unknown command: {command}",
+                    recovery_hint="Use SEND <npc_name>",
+                    level="INFO",
+                )
 
             status = result.get("status") if isinstance(result, dict) else None
             if status:
@@ -51,11 +57,12 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
           SEND REPLY <option_number>
         """
         if not params:
-            return {
-                "status": "error",
-                "message": "Usage: SEND <npc_name> | SEND <option_number>",
-                "suggestion": "Example: SEND Kenji",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: SEND <npc_name> | SEND <option_number>",
+                recovery_hint="Example: SEND Kenji",
+                level="INFO",
+            )
 
         head = params[0].upper()
         if head == "TO":
@@ -118,11 +125,12 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
     def _handle_talk(self, params: List[str]) -> Dict[str, Any]:
         """Initiate conversation with NPC"""
         if not params:
-            return {
-                "status": "error",
-                "message": "Usage: SEND <npc_name>",
-                "suggestion": "Example: SEND Kenji",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: SEND <npc_name>",
+                recovery_hint="Example: SEND Kenji",
+                level="INFO",
+            )
 
         npc_name = " ".join(params)
         player_id = self._get_player_id()
@@ -130,11 +138,12 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
         # Find NPC by name
         npc = self._find_npc_by_name(npc_name)
         if not npc:
-            return {
-                "status": "error",
-                "message": f"NPC not found: {npc_name}",
-                "suggestion": "Use NPC <location> to see NPCs nearby",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_NOT_FOUND",
+                message=f"NPC not found: {npc_name}",
+                recovery_hint="Use NPC <location> to see NPCs nearby",
+                level="ERROR",
+            )
 
         # Get dialogue tree
         tree_id = npc.get("dialogue_tree", "merchant_generic")
@@ -184,30 +193,33 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
     def _handle_reply(self, params: List[str]) -> Dict[str, Any]:
         """Reply to NPC dialogue option"""
         if not params:
-            return {
-                "status": "error",
-                "message": "Usage: SEND <option_number>",
-                "suggestion": "Example: SEND 1",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: SEND <option_number>",
+                recovery_hint="Example: SEND 1",
+                level="INFO",
+            )
 
         player_id = self._get_player_id()
 
         # Check if conversation is active
         if player_id not in self.active_conversations:
-            return {
-                "status": "error",
-                "message": "No active conversation",
-                "suggestion": "Use SEND <npc_name> to start a conversation",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="No active conversation",
+                recovery_hint="Use SEND <npc_name> to start a conversation",
+                level="INFO",
+            )
 
         try:
             option_num = int(params[0]) - 1  # Convert to 0-indexed
         except ValueError:
-            return {
-                "status": "error",
-                "message": "Invalid option number",
-                "suggestion": "Use a number like: SEND 1",
-            }
+            raise CommandError(
+                code="ERR_VALIDATION_SCHEMA",
+                message="Invalid option number",
+                recovery_hint="Use a number like: SEND 1",
+                level="INFO",
+            )
 
         conv_state = self.active_conversations[player_id]
         tree_id = conv_state["tree_id"]
@@ -216,19 +228,30 @@ class TalkHandler(BaseCommandHandler, HandlerLoggingMixin):
         # Get current dialogue node
         tree = self.dialogue_engine.get_tree(tree_id)
         if not tree:
-            return {"status": "error", "message": "Dialogue tree not found"}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message="Dialogue tree not found",
+                recovery_hint="Check NPC dialogue_tree configuration",
+                level="ERROR",
+            )
 
         current_node = tree.get_node(conv_state["current_node"])
         if not current_node:
-            return {"status": "error", "message": "Current dialogue node not found"}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message="Current dialogue node not found",
+                recovery_hint="Check conversation state",
+                level="ERROR",
+            )
 
         # Validate option
         if option_num < 0 or option_num >= len(current_node.options):
-            return {
-                "status": "error",
-                "message": f"Invalid option: {option_num + 1}",
-                "suggestion": f"Choose 1-{len(current_node.options)}",
-            }
+            raise CommandError(
+                code="ERR_VALIDATION_SCHEMA",
+                message=f"Invalid option: {option_num + 1}",
+                recovery_hint=f"Choose 1-{len(current_node.options)}",
+                level="INFO",
+            )
 
         selected_option = current_node.options[option_num]
         next_node_id = selected_option.get("next")
