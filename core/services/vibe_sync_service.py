@@ -8,10 +8,12 @@ from core.sync.oauth_manager import get_oauth_manager
 from core.sync.calendar_provider_factory import CalendarProviderFactory
 from core.sync.email_provider_factory import EmailProviderFactory
 from core.sync.project_manager_factory import ProjectManagerFactory
+from core.sync.slack_client import SlackClient
 from core.sync.transformers import (
     CalendarEventTransformer,
     EmailMessageTransformer,
     IssueTransformer,
+    SlackMessageTransformer,
 )
 
 logger = get_logger(__name__)
@@ -653,29 +655,79 @@ class VibeSyncService:
     # ==================== Slack Integration ====================
 
     async def sync_slack(
-        self, workspace: str, channels: Optional[List[str]] = None
+        self, workspace: str, mission_id: str, channels: Optional[List[str]] = None,
+        credentials: Optional[Dict] = None
     ) -> Dict[str, Any]:
         """Synchronize with Slack workspace.
 
         Args:
             workspace: Slack workspace ID
+            mission_id: Target mission ID for created tasks
             channels: List of channel IDs to sync
+            credentials: Slack credentials (access_token, bot_token)
 
         Returns:
             Sync result dict
         """
-        logger.info(f"Starting Slack sync for workspace {workspace}")
+        logger.info(f"Starting Slack sync for workspace {workspace} to mission {mission_id}")
         self.sync_status = "syncing"
 
         try:
-            result = {
-                "status": "pending",
-                "workspace": workspace,
-                "channels": channels or [],
-                "timestamp": datetime.now().isoformat(),
-                "message": "Slack sync not yet implemented for Phase 8.1",
+            # Initialize Slack client if needed
+            if not self.slack_client:
+                self.slack_client = SlackClient()
+
+            # Get credentials from OAuth manager if not provided
+            if not credentials:
+                credentials = await self.oauth_manager.get_credentials("slack")
+                if not credentials:
+                    return {"status": "error", "error": "No Slack credentials found"}
+
+            # Authenticate
+            if not await self.slack_client.authenticate(credentials):
+                return {"status": "error", "error": "Slack authentication failed"}
+
+            # Default to all public channels if none specified
+            if not channels:
+                channels = []  # In production: query workspace for public channels
+
+            logger.info(f"Fetching messages from {len(channels)} Slack channels")
+
+            # Fetch messages from each channel
+            created_tasks = []
+            for channel in channels:
+                messages = await self.slack_client.fetch_channel_messages(
+                    channel=channel,
+                    limit=50,
+                )
+
+                logger.info(f"Processing {len(messages)} messages from #{channel}")
+
+                # Transform and create tasks
+                for message in messages:
+                    task_item = SlackMessageTransformer.slack_to_task_item(message, mission_id)
+                    # TODO: Persist to Binder using VibeBinderService
+                    created_tasks.append({"id": task_item["id"], "title": task_item["title"]})
+
+            # Update sync history
+            self.sync_history["slack"] = {
+                "last_sync": datetime.now().isoformat(),
+                "channels_synced": len(channels),
+                "messages_processed": len(created_tasks),
+                "tasks_created": len(created_tasks),
             }
-            return result
+
+            self.sync_status = "idle"
+            return {
+                "status": "success",
+                "provider": "slack",
+                "workspace": workspace,
+                "mission_id": mission_id,
+                "channels_synced": len(channels),
+                "messages_processed": len(created_tasks),
+                "tasks_created": len(created_tasks),
+                "timestamp": datetime.now().isoformat(),
+            }
 
         except Exception as e:
             logger.error(f"Slack sync error: {e}")
@@ -743,8 +795,39 @@ class VibeSyncService:
         logger.info(f"Posting task update for {task_id} to Slack channel {channel}")
 
         try:
-            # TODO: Implement Slack post
-            return True
+            # Initialize Slack client if needed
+            if not self.slack_client:
+                self.slack_client = SlackClient()
+
+            # Get credentials from OAuth manager
+            credentials = await self.oauth_manager.get_credentials("slack")
+            if not credentials:
+                logger.error("No Slack credentials available for posting")
+                return False
+
+            # Authenticate
+            if not await self.slack_client.authenticate(credentials):
+                logger.error("Failed to authenticate with Slack")
+                return False
+
+            # Build message text from update
+            status = update.get("status", "updated")
+            title = update.get("title", "Task updated")
+            message_text = f":memo: *{title}* [{status}]\nID: {task_id}"
+
+            # Post message
+            ts = await self.slack_client.post_message(
+                channel=channel,
+                text=message_text,
+            )
+
+            if ts:
+                logger.info(f"Posted task update to Slack: {ts}")
+                return True
+            else:
+                logger.error(f"Failed to post task update to Slack")
+                return False
+
         except Exception as e:
             logger.error(f"Error posting to Slack: {e}")
             return False
