@@ -11,6 +11,7 @@ from core.commands.base import BaseCommandHandler
 from core.services.logging_api import get_logger, get_repo_root
 from core.services.ts_runtime_service import TSRuntimeService
 from core.tui.output import OutputToolkit
+from core.services.error_contract import CommandError
 
 logger = get_logger("core", category="script-runner", name="script-handler")
 
@@ -47,11 +48,12 @@ class ScriptHandler(BaseCommandHandler):
         if action in {"HELP", "--HELP", "-H", "?"}:
             return self._help()
 
-        return {
-            "status": "error",
-            "message": f"Unknown SCRIPT option: {action}",
-            "output": self._help_text(),
-        }
+        raise CommandError(
+            code="ERR_COMMAND_NOT_FOUND",
+            message=f"Unknown SCRIPT option: {action}",
+            recovery_hint="Use SCRIPT LIST, RUN, LOG, or HELP",
+            level="INFO",
+        )
 
     def _help_text(self) -> str:
         return "\n".join(
@@ -109,19 +111,21 @@ class ScriptHandler(BaseCommandHandler):
     def _run_script(self, args: List[str]) -> Dict:
         banner = OutputToolkit.banner("SCRIPT RUN")
         if not args:
-            return {
-                "status": "error",
-                "message": "Missing script name",
-                "output": banner + "\nUsage: SCRIPT RUN <name>",
-            }
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Missing script name",
+                recovery_hint="Use SCRIPT RUN <name>",
+                level="INFO",
+            )
 
         script = self._resolve_script(args[0])
         if not script:
-            return {
-                "status": "error",
-                "message": f"Script not found: {args[0]}",
-                "output": banner + "\nRun: SCRIPT LIST",
-            }
+            raise CommandError(
+                code="ERR_IO_FILE_NOT_FOUND",
+                message=f"Script not found: {args[0]}",
+                recovery_hint="Run SCRIPT LIST to see available scripts",
+                level="ERROR",
+            )
 
         service = TSRuntimeService()
         result = service.execute(script)

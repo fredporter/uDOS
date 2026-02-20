@@ -6,6 +6,7 @@ from typing import Dict, List
 
 from core.commands.base import BaseCommandHandler
 from core.services.logging_api import get_logger
+from core.services.error_contract import CommandError
 
 logger = get_logger("command-home")
 
@@ -42,7 +43,12 @@ class HomeHandler(BaseCommandHandler):
         if action == "call":
             return self._service_call(params[1:])
 
-        return {"status": "error", "message": f"Unknown HOME action '{params[0]}'. Try HOME HELP."}
+        raise CommandError(
+            code="ERR_COMMAND_NOT_FOUND",
+            message=f"Unknown HOME action '{params[0]}'. Try HOME HELP.",
+            recovery_hint="Use HOME STATUS, LIGHTS, DEVICES, or CALL",
+            level="INFO",
+        )
 
     # ------------------------------------------------------------------
     def _get_token(self) -> str:
@@ -57,11 +63,22 @@ class HomeHandler(BaseCommandHandler):
             headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"} if token else {}
             resp = httpx.get(f"{_HA_BASE}{path}", headers=headers, timeout=10)
             if resp.status_code == 401:
-                return {"status": "error", "message": "Home Assistant: unauthorised. Set HA_TOKEN env var."}
+                raise CommandError(
+                    code="ERR_AUTH_REQUIRED",
+                    message="Home Assistant: unauthorised. Set HA_TOKEN env var.",
+                    recovery_hint="Set HA_TOKEN environment variable",
+                    level="ERROR",
+                )
             resp.raise_for_status()
             return {"status": "success", "data": resp.json()}
         except Exception as e:
-            return {"status": "error", "message": f"Home Assistant unreachable: {e}"}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=f"Home Assistant unreachable: {e}",
+                recovery_hint="Check Home Assistant is running on localhost:8123",
+                level="ERROR",
+                cause=e,
+            )
 
     def _ha_post(self, path: str, payload: Dict) -> Dict:
         try:
@@ -72,7 +89,13 @@ class HomeHandler(BaseCommandHandler):
             resp.raise_for_status()
             return {"status": "success", "data": resp.json() if resp.content else {}}
         except Exception as e:
-            return {"status": "error", "message": f"Home Assistant error: {e}"}
+            raise CommandError(
+                code="ERR_RUNTIME_UNEXPECTED",
+                message=f"Home Assistant error: {e}",
+                recovery_hint="Check Home Assistant service and API",
+                level="ERROR",
+                cause=e,
+            )
 
     def _status(self) -> Dict:
         result = self._ha_get("/api/")
@@ -99,7 +122,12 @@ class HomeHandler(BaseCommandHandler):
         entity = params[1] if len(params) > 1 else None
         if action in {"on", "off"} and entity:
             return self._ha_post(f"/api/services/light/turn_{action}", {"entity_id": entity})
-        return {"status": "error", "message": "Usage: HOME LIGHTS [ON|OFF <entity_id>]"}
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message="Usage: HOME LIGHTS [ON|OFF <entity_id>]",
+            recovery_hint="Provide action (ON/OFF) and entity ID",
+            level="INFO",
+        )
 
     def _devices(self) -> Dict:
         result = self._ha_get("/api/states")
@@ -115,7 +143,12 @@ class HomeHandler(BaseCommandHandler):
 
     def _service_call(self, params: List[str]) -> Dict:
         if len(params) < 2:
-            return {"status": "error", "message": "Usage: HOME CALL <domain> <service> [entity_id]"}
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Usage: HOME CALL <domain> <service> [entity_id]",
+                recovery_hint="Provide domain and service parameters",
+                level="INFO",
+            )
         domain, service = params[0], params[1]
         payload = {"entity_id": params[2]} if len(params) > 2 else {}
         return self._ha_post(f"/api/services/{domain}/{service}", payload)

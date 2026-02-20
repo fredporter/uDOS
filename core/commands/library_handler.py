@@ -7,6 +7,7 @@ from typing import Dict, List
 
 from core.commands.base import BaseCommandHandler
 from core.services.logging_api import get_logger
+from core.services.error_contract import CommandError
 
 logger = get_logger("command-library")
 
@@ -40,13 +41,20 @@ class LibraryHandler(BaseCommandHandler):
 
         if action == "info":
             if len(params) < 2:
-                return {"status": "error", "message": "Usage: LIBRARY INFO <name>"}
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Usage: LIBRARY INFO <name>",
+                    recovery_hint="Provide an integration name",
+                    level="INFO",
+                )
             return self._info(params[1])
 
-        return {
-            "status": "error",
-            "message": f"Unknown LIBRARY action '{params[0]}'. Use LIBRARY HELP.",
-        }
+        raise CommandError(
+            code="ERR_COMMAND_NOT_FOUND",
+            message=f"Unknown LIBRARY action '{params[0]}'. Use LIBRARY HELP.",
+            recovery_hint="Use LIBRARY STATUS, SYNC, or INFO",
+            level="INFO",
+        )
 
     # ------------------------------------------------------------------
 
@@ -70,9 +78,17 @@ class LibraryHandler(BaseCommandHandler):
         try:
             manager = self._get_manager()
             status = manager.get_library_status()
+        except CommandError:
+            raise
         except Exception as exc:
             logger.warning(f"[LIBRARY] status error: {exc}")
-            return {"status": "error", "message": f"Library status unavailable: {exc}"}
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message=f"Library status unavailable: {exc}",
+                recovery_hint="Check Wizard services and retry",
+                level="ERROR",
+                cause=exc,
+            )
 
         integrations = status.integrations if status.integrations else []
         rows = []
@@ -102,9 +118,17 @@ class LibraryHandler(BaseCommandHandler):
             manager = self._get_manager()
             # Re-read status to force a rescan (service rebuilds from disk each call)
             status = manager.get_library_status()
+        except CommandError:
+            raise
         except Exception as exc:
             logger.warning(f"[LIBRARY] sync error: {exc}")
-            return {"status": "error", "message": f"Library sync failed: {exc}"}
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message=f"Library sync failed: {exc}",
+                recovery_hint="Check Wizard services and retry",
+                level="ERROR",
+                cause=exc,
+            )
 
         total = len(status.integrations) if status.integrations else 0
         return {
@@ -117,11 +141,24 @@ class LibraryHandler(BaseCommandHandler):
         try:
             manager = self._get_manager()
             integration = manager.get_integration(name)
+        except CommandError:
+            raise
         except Exception as exc:
-            return {"status": "error", "message": f"Library info error: {exc}"}
+            raise CommandError(
+                code="ERR_RUNTIME_DEPENDENCY_MISSING",
+                message=f"Library info error: {exc}",
+                recovery_hint="Check Wizard services and retry",
+                level="ERROR",
+                cause=exc,
+            )
 
         if not integration:
-            return {"status": "error", "message": f"Integration '{name}' not found."}
+            raise CommandError(
+                code="ERR_COMMAND_NOT_FOUND",
+                message=f"Integration '{name}' not found.",
+                recovery_hint="Run LIBRARY STATUS to see available integrations",
+                level="ERROR",
+            )
 
         enabled = getattr(integration, "enabled", False)
         cloned = getattr(integration, "installed", False) or getattr(integration, "cloned", False)
