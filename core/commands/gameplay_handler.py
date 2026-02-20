@@ -29,12 +29,12 @@ class GameplayHandler(BaseCommandHandler):
       PLAY GATE RESET <gate_id>
       PLAY TOYBOX LIST
       PLAY TOYBOX SET <hethack|elite|rpgbbs|crawler3d>
-            PLAY LENS LIST
-            PLAY LENS SHOW
-            PLAY LENS SET <lens>
-            PLAY LENS STATUS
-            PLAY LENS ENABLE
-            PLAY LENS DISABLE
+    PLAY LENS LIST
+    PLAY LENS SHOW
+    PLAY LENS SET <lens>
+    PLAY LENS STATUS
+    PLAY LENS ENABLE
+    PLAY LENS DISABLE
       PLAY PROCEED
       PLAY NEXT
       PLAY UNLOCK
@@ -381,10 +381,12 @@ class GameplayHandler(BaseCommandHandler):
 
     def _handle_lens(self, gameplay, username: str, role: str, params: List[str]) -> Dict:
         from core.services.map_runtime_service import get_map_runtime_service
+        from core.services.lens_service import get_lens_service
         from core.services.world_lens_service import get_world_lens_service
 
         action = params[0].lower() if params else "status"
         runtime = get_map_runtime_service()
+        lens_service = get_lens_service()
         world_lens = get_world_lens_service()
 
         if action in {"list", "ls"}:
@@ -398,6 +400,24 @@ class GameplayHandler(BaseCommandHandler):
                 "status": "success",
                 "message": "Lens profiles",
                 "lens": {"active": active, "profiles": profiles},
+                "output": "\n".join(lines),
+            }
+
+        if action in {"show", "info"}:
+            active = gameplay.get_active_toybox()
+            target = params[1].lower() if len(params) > 1 else active
+            lens = lens_service.get_lens(name=target)
+            meta = lens.get_metadata()
+            lines = [
+                f"LENS SHOW {target}",
+                f"Name: {meta.get('name', target)}",
+                f"Description: {meta.get('description', '')}",
+                f"Supported: {meta.get('supported_variants', '')}",
+            ]
+            return {
+                "status": "success",
+                "message": f"Lens info: {target}",
+                "lens": meta,
                 "output": "\n".join(lines),
             }
 

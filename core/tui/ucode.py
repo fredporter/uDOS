@@ -48,6 +48,7 @@ from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
 from contextlib import contextmanager
+import re
 
 # Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -410,6 +411,114 @@ class UCLI:
         """Return True if token is a known uCODE command."""
         return token.strip().upper() in self.ucode_command_set
 
+    def _ucode_aliases(self) -> Dict[str, str]:
+        return {
+            "?": "HELP",
+            "H": "HELP",
+            "STAT": "STATUS",
+            "STATE": "STATUS",
+            "LS": "BINDER",
+            "SEARCH": "FIND",
+        }
+
+    def _levenshtein_distance(self, a: str, b: str) -> int:
+        if a == b:
+            return 0
+        if not a:
+            return len(b)
+        if not b:
+            return len(a)
+        prev = list(range(len(b) + 1))
+        for i, ca in enumerate(a, start=1):
+            curr = [i]
+            for j, cb in enumerate(b, start=1):
+                insert = curr[j - 1] + 1
+                delete = prev[j] + 1
+                replace = prev[j - 1] + (0 if ca == cb else 1)
+                curr.append(min(insert, delete, replace))
+            prev = curr
+        return prev[-1]
+
+    def _match_ucode_command(self, input_str: str) -> tuple[Optional[str], float]:
+        tokens = input_str.strip().split()
+        if not tokens:
+            return None, 0.0
+        first = tokens[0].upper()
+        aliases = self._ucode_aliases()
+        if first in aliases:
+            return aliases[first], 0.95
+        if first in self.ucode_command_set:
+            return first, 1.0
+
+        matches = [cmd for cmd in self.ucode_command_set if cmd.startswith(first)]
+        if len(matches) == 1:
+            return matches[0], 0.9
+        if len(matches) > 1:
+            return None, 0.0
+
+        distances = {cmd: self._levenshtein_distance(first, cmd) for cmd in self.ucode_command_set}
+        best = min(distances, key=distances.get)
+        if distances[best] <= 1:
+            return best, 0.8
+        return None, 0.0
+
+    def _execute_ucode_command(self, cmd: str, rest: str) -> Dict[str, Any]:
+        full_cmd = f"{cmd} {rest}".strip()
+        if cmd in self.commands and cmd not in self.dispatcher.handlers:
+            self.commands[cmd](rest)
+            return {"status": "success", "command": cmd}
+        return self.dispatcher.dispatch(full_cmd, parser=self.prompt, game_state=self.state)
+
+    def _validate_shell_syntax(self, input_str: str) -> tuple[bool, str]:
+        dangerous_patterns = [
+            r"\$\(",
+            r"`.+`",
+            r">\s*/",
+            r">>\s*/",
+            r"rm\s+-rf",
+            r"\bsudo\b",
+            r"\bdd\s+if=",
+        ]
+        for pattern in dangerous_patterns:
+            if re.search(pattern, input_str):
+                return False, "blocked pattern"
+        return True, "ok"
+
+    def _dispatch_three_stage(self, user_input: str) -> Dict[str, Any]:
+        words = user_input.strip().split(None, 1)
+        if words and words[0].upper() in {"NEW", "EDIT"}:
+            rest = words[1] if len(words) > 1 else ""
+            user_input = f"FILE {words[0].upper()} {rest}".strip()
+        cmd, confidence = self._match_ucode_command(user_input)
+        rest = ""
+        if cmd:
+            parts = user_input.strip().split(None, 1)
+            rest = parts[1] if len(parts) > 1 else ""
+            if confidence >= 0.95:
+                return self._execute_ucode_command(cmd, rest)
+            if confidence >= 0.8:
+                choice = self._ask_confirm(
+                    question=f"Did you mean {cmd}?",
+                    default=True,
+                    help_text="Yes = run command, No = continue, Skip = try shell",
+                    variant="skip",
+                )
+                if choice == "yes":
+                    return self._execute_ucode_command(cmd, rest)
+                if choice == "skip":
+                    pass
+                else:
+                    pass
+
+        safe, reason = self._validate_shell_syntax(user_input)
+        if safe:
+            result = self._execute_shell_command(user_input)
+            if result.get("status") in {"success", "cancelled"}:
+                return result
+
+        self._run_ok_request(user_input, mode="LOCAL")
+        return {"status": "success", "command": "OK", "dispatch_reason": "fallback"}
+
     def _route_input(self, user_input: str) -> Dict[str, Any]:
         """
         Route input based on prefix: '?', 'OK', '/', or question mode.
@@ -472,8 +581,8 @@ class UCLI:
         if user_input.startswith("/"):
             return self._handle_slash_input(user_input)
 
-        # Mode 3: Question mode (natural language routing)
-        return self._handle_question_mode(user_input)
+        # Mode 3: Three-stage dispatch chain
+        return self._dispatch_three_stage(user_input)
 
     def _handle_slash_input(self, user_input: str) -> Dict[str, Any]:
         """
@@ -550,84 +659,8 @@ class UCLI:
 
 
     def _handle_question_mode(self, user_input: str) -> Dict[str, Any]:
-        """
-        Handle question mode (natural language routing).
-
-        Simple: Uppercase first word and dispatch as command.
-        Complex sentences are treated as HELP queries.
-        """
-        words = user_input.strip().split(None, 1)
-        if not words:
-            return {"status": "error", "message": "Empty input"}
-
-        first_word = words[0].upper()
-        rest = words[1] if len(words) > 1 else ""
-
-        if first_word in {"NEW", "EDIT"}:
-            rest = f"{first_word} {rest}".strip()
-            first_word = "FILE"
-
-        # Map common commands (case insensitive shortcuts)
-        cmd_map = {
-            "HELP": "HELP",
-            "H": "HELP",
-            "STATUS": "STATUS",
-            "STAT": "STATUS",
-            "STATE": "STATUS",
-            "DEV": "DEV",
-            "DESTROY": "DESTROY",
-            "WIZARD": "WIZARD",
-            "CONFIG": "CONFIG",
-            "SETUP": "SETUP",
-            "PLACE": "PLACE",
-            "FILE": "FILE",
-            "MAP": "MAP",
-            "DRAW": "DRAW",
-            "FIND": "FIND",
-            "SEARCH": "FIND",
-            "LOGS": "LOGS",
-            "BINDER": "BINDER",
-            "STORY": "STORY",
-            "RUN": "RUN",
-            "REPAIR": "REPAIR",
-            "HEALTH": "HEALTH",
-            "VERIFY": "VERIFY",
-            "SEND": "SEND",
-            "READ": "READ",
-            "TOKEN": "TOKEN",
-            "GHOST": "GHOST",
-        }
-
-        cmd = cmd_map.get(first_word)
-        if not cmd and first_word in self.dispatcher.handlers:
-            cmd = first_word
-        if not cmd and self._is_ucode_command(first_word):
-            cmd = first_word
-
-        if cmd:
-            full_cmd = f"{cmd} {rest}".strip()
-            if cmd in self.commands and cmd not in self.dispatcher.handlers:
-                self.commands[cmd](rest)
-                return {"status": "success", "command": cmd}
-
-            result = self.dispatcher.dispatch(full_cmd, parser=self.prompt, game_state=self.state)
-            if isinstance(result, dict) and result.get("status") == "error":
-                message = result.get("message", "")
-                if isinstance(message, str) and "Unknown command" in message:
-                    cmd = None
-                else:
-                    return result
-            else:
-                return result
-
-        result = self._execute_shell_command(user_input)
-        if result.get("status") == "success":
-            return result
-        if result.get("status") == "cancelled":
-            return result
-
-        self._run_ok_request(user_input, mode="LOCAL")
-        return {"status": "success", "command": "OK"}
+        """Compatibility path for three-stage dispatch."""
+        return self._dispatch_three_stage(user_input)
 
     def run(self) -> None:
         """Start uCLI TUI."""

@@ -48,7 +48,7 @@ Expected: Persist theme preference to environment
   Theme Set: dark
   Environment: UDOS_TUI_MESSAGE_THEME=dark
   Persistence: ✓ Saved
-  
+
   Verify:
   > THEME SHOW
   ✓ Current Theme: dark
@@ -62,7 +62,7 @@ Expected: Revert to default theme
 ✓ Output:
   Theme Cleared
   Reverted to: default
-  
+
   Verify:
   > THEME SHOW
   ✓ Current Theme: default
@@ -107,7 +107,7 @@ Expected: Apply and persist skin selection
 ✓ Output:
   Skin Applied: dark
   Persistence: ✓ Saved to Wizard config
-  
+
   Next: Reload Wizard dashboard to see changes
   > WIZARD REBUILD
 """
@@ -120,7 +120,7 @@ Expected: Revert GUI theme
 ✓ Output:
   Skin Reset to: default
   GUI Theme: Standard Wizard UI
-  
+
   Verify:
   > SKIN SHOW
   ✓ Current Skin: default
@@ -158,7 +158,7 @@ Expected: Show all registered lens variants
   • elite       - Elite: Dangerous HUD [bundled]
   • rpgbbs      - RPGBBS retro display [bundled]
   • crawler3d   - 3D dungeon crawler view [bundled]
-  
+
   Total: 5 lenses
 """
 
@@ -200,7 +200,7 @@ Expected: Activate new lens for gameplay
   Lens Switch: nethack
   Rendering: Switched to NetHack interface
   Status: ✓ Active
-  
+
   Verify:
   > PLAY LENS STATUS
   ✓ Current Lens: nethack
@@ -214,7 +214,7 @@ Expected: Make lens available (requires TOYBOX admin)
 ✓ Output:
   Lens Enabled: elite
   Status: Available for gameplay
-  
+
   If not admin:
   ✗ Error: Admin permission required (TOYBOX)
   Tip: SETUP or switch user role
@@ -327,12 +327,12 @@ Instructions:
   > what does PLAY do?
   [Stage 1: no match] → [Stage 2: not applicable]
   → [Stage 3: VIBE inference]
-  
+
   ✓ Output: AI explanation of PLAY command
 
   > explain the theme system
   [Stage 3: VIBE inference]
-  
+
   ✓ Output: AI explanation of THEME functionality
 
 Fallback ensures: No "command not found" errors
@@ -362,24 +362,24 @@ Expected: Show internal dispatch progression
 
 Instructions:
   > PLAY LENS SET ascii
-  
+
   [1] Parse input
       User input: "PLAY LENS SET ascii"
       Tokens: ["PLAY", "LENS", "SET", "ascii"]
-  
+
   [2] Normalize
       NEW → FILE, EDIT → FILE (not applicable here)
       Result: ["PLAY", "LENS", "SET", "ascii"]
-  
+
   [3] Stage 1: uCODE Match
       Lookup: "PLAY" in contract ✓ Found
       Match: PlayHandler
       Status: Proceed to execution (fast path)
-  
+
   [4] Execution
       play_handler.handle("PLAY", ["LENS", "SET", "ascii"])
       ✓ Output: Lens switched to ascii
-  
+
   Result: Routed via Stage 1 (exact match) ✓
 """
 
@@ -389,14 +389,14 @@ Expected: Close matches resolve via Levenshtein
 
 Instructions:
   > PLAU          [typo: "PLAY"]
-  
+
   Stage 1 Check:
     Exact match "PLAU" in contract? No
     Close matches? Yes:
       - Distance to "PLAY": 1 (edit distance)
       - Distance to "PLAN": 2
     Best match: "PLAY" (distance <= threshold)
-  
+
   Action: Dispatch to PLAY handler
   ✓ Output: PLAY command executed (typo corrected)
 
@@ -410,10 +410,10 @@ Expected: Confirm dispatch chain is implemented
 Instructions:
   > HELP SEARCH dispatch
   ✓ Output: Information about three-stage dispatch
-  
+
   > HELP ADVANCED
   ✓ Output: Mentions dispatch chain, Stage 1/2/3
-  
+
   Technical: Check core/tui/ucode.py
     Functions:
       - _match_ucode_command()
@@ -436,10 +436,10 @@ Walkthrough:
   ──────────────────────────────
   > THEME SET dark
   ✓ Output: Theme Set: dark
-  
+
   > SKIN SET light
   ✓ Output: Skin Applied: light
-  
+
   > PLAY LENS SET ascii
   ✓ Output: Lens Switched: ascii
 
@@ -447,10 +447,10 @@ Walkthrough:
   ─────────────────────────────
   > THEME SHOW
   ✓ Output: Current Theme: dark
-  
+
   > SKIN SHOW
   ✓ Output: Current Skin: light
-  
+
   > PLAY LENS STATUS
   ✓ Output: Current Lens: ascii
 
@@ -471,7 +471,7 @@ Walkthrough:
   ✓ SKIN system active (GUI)
   ✓ PLAY LENS system active (gameplay)
   ✓ Three-stage dispatch active (routing)
-  
+
   Result: v1.4.4 features fully integrated ✓
 
 Summary:
