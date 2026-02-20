@@ -1,12 +1,16 @@
 """Main sync service orchestrator (Phase 8)."""
 
 from typing import Dict, List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timedelta
 from core.services.logging_manager import get_logger
 from core.sync.event_queue import EventQueue
 from core.sync.oauth_manager import get_oauth_manager
 from core.sync.calendar_provider_factory import CalendarProviderFactory
-from core.sync.transformers import CalendarEventTransformer
+from core.sync.email_provider_factory import EmailProviderFactory
+from core.sync.transformers import (
+    CalendarEventTransformer,
+    EmailMessageTransformer,
+)
 
 logger = get_logger(__name__)
 
@@ -23,7 +27,7 @@ class VibeSyncService:
 
         # Provider instances (will be initialized on demand)
         self.calendar_providers = {}  # Keyed by provider type
-        self.email_provider = None
+        self.email_providers = {}  # Keyed by provider type
         self.project_manager = None
         self.slack_client = None
 
@@ -268,28 +272,84 @@ class VibeSyncService:
     # ==================== Email Operations ====================
 
     async def sync_emails(
-        self, provider_type: str, credentials: Optional[Dict] = None
+        self, provider_type: str, mission_id: str, query: str = "", limit: int = 50,
+        credentials: Optional[Dict] = None
     ) -> Dict[str, Any]:
         """Synchronize email with external provider.
 
         Args:
             provider_type: 'gmail', 'outlook_email', 'imap'
-            credentials: OAuth credentials
+            mission_id: Target mission ID for created tasks
+            query: Email search/filter query
+            limit: Max emails to sync
+            credentials: OAuth credentials (optional, uses cached if not provided)
 
         Returns:
             Sync result dict
         """
-        logger.info(f"Starting email sync for {provider_type}")
+        logger.info(
+            f"Starting email sync for {provider_type} → mission {mission_id} "
+            f"(query='{query}', limit={limit})"
+        )
         self.sync_status = "syncing"
 
         try:
-            result = {
-                "status": "pending",
-                "provider": provider_type,
+            # Get or create provider
+            if provider_type not in self.email_providers:
+                provider = EmailProviderFactory.create_provider(provider_type)
+                if not provider:
+                    return {"status": "error", "error": f"Unknown provider: {provider_type}"}
+                self.email_providers[provider_type] = provider
+
+            provider = self.email_providers[provider_type]
+
+            # Get credentials
+            if not credentials:
+                credentials = await self.oauth_manager.get_credentials(provider_type)
+            if not credentials:
+                logger.error(f"No credentials for {provider_type}")
+                return {"status": "error", "error": f"No credentials for {provider_type}"}
+
+            # Authenticate
+            if not await provider.authenticate(credentials):
+                return {"status": "error", "error": f"Authentication failed for {provider_type}"}
+
+            # Fetch emails
+            emails = await provider.fetch_messages(query or "", limit)
+            logger.info(f"Fetched {len(emails)} emails from {provider_type}")
+
+            # Transform to tasks
+            created_tasks = []
+            errors = []
+
+            for email in emails:
+                try:
+                    task_item = EmailMessageTransformer.email_to_task_item(email, mission_id)
+                    created_tasks.append(task_item)
+                except Exception as e:
+                    logger.error(f"Error transforming email {email.message_id}: {e}")
+                    errors.append({"email_id": email.message_id, "error": str(e)})
+
+            # Store sync history
+            self.sync_history[provider_type] = {
                 "timestamp": datetime.now().isoformat(),
-                "message": "Email sync not yet implemented for Phase 8.1",
+                "emails_synced": len(emails),
+                "tasks_created": len(created_tasks),
+                "errors": len(errors),
             }
-            return result
+
+            self.sync_status = "idle"
+
+            return {
+                "status": "success",
+                "provider": provider_type,
+                "mission_id": mission_id,
+                "timestamp": datetime.now().isoformat(),
+                "emails_synced": len(emails),
+                "tasks_created": len(created_tasks),
+                "errors": errors,
+                "tasks": created_tasks,
+            }
 
         except Exception as e:
             logger.error(f"Email sync error: {e}")
@@ -297,25 +357,58 @@ class VibeSyncService:
             return {"status": "error", "error": str(e)}
 
     async def fetch_emails(
-        self, provider_type: str, filters: Optional[Dict] = None
+        self, provider_type: str, query: str = "", limit: int = 50
     ) -> List[Dict]:
         """Fetch emails from external provider.
 
         Args:
             provider_type: Email provider type
-            filters: Filter criteria (label, unread, etc.)
+            query: Search/filter query
+            limit: Max emails to return
 
         Returns:
-            List of email messages
+            List of email message dicts
         """
-        logger.info(f"Fetching emails from {provider_type} with filters {filters}")
+        logger.info(
+            f"Fetching emails from {provider_type} "
+            f"(query='{query}', limit={limit})"
+        )
 
         try:
-            # TODO: Implement actual email fetching
-            return []
+            # Get or create provider
+            if provider_type not in self.email_providers:
+                provider = EmailProviderFactory.create_provider(provider_type)
+                if not provider:
+                    return []
+                self.email_providers[provider_type] = provider
+
+            provider = self.email_providers[provider_type]
+
+            # Get credentials and authenticate
+            credentials = await self.oauth_manager.get_credentials(provider_type)
+            if not credentials or not await provider.authenticate(credentials):
+                logger.warning(f"Cannot authenticate {provider_type}")
+                return []
+
+            # Fetch messages
+            emails = await provider.fetch_messages(query or "", limit)
+            logger.info(f"Retrieved {len(emails)} emails from {provider_type}")
+            
+            return [
+                {
+                    "id": e.message_id,
+                    "subject": e.subject,
+                    "from": e.from_addr,
+                    "timestamp": e.timestamp.isoformat() if e.timestamp else None,
+                    "provider": e.provider,
+                    "is_unread": e.is_unread,
+                }
+                for e in emails
+            ]
+
         except Exception as e:
             logger.error(f"Error fetching emails: {e}")
-            raise
+            return []
 
     async def create_task_from_email(
         self, mission_id: str, email: Dict[str, Any]
@@ -324,7 +417,7 @@ class VibeSyncService:
 
         Args:
             mission_id: Target mission ID
-            email: Email message dict
+            email: Email message dict with email data
 
         Returns:
             Created task ID
@@ -334,8 +427,28 @@ class VibeSyncService:
         )
 
         try:
-            # TODO: Implement task creation from email
-            return f"task-{datetime.now().timestamp()}"
+            # Transform email to Binder task
+            from core.sync.base_providers import EmailMessage
+
+            email_msg = EmailMessage(
+                message_id=email.get('id', ''),
+                subject=email.get('subject', 'No subject'),
+                from_addr=email.get('from', 'unknown'),
+                to_addrs=email.get('to', []),
+                body=email.get('body', ''),
+                timestamp=datetime.fromisoformat(email.get('timestamp', '')),
+                thread_id=email.get('thread_id'),
+                labels=email.get('labels', []),
+                provider=email.get('provider', 'unknown'),
+                is_unread=email.get('is_unread', False),
+            )
+
+            task_item = EmailMessageTransformer.email_to_task_item(email_msg, mission_id)
+
+            # TODO: Persist to Binder using VibeBinderService
+            # For now, return the task ID
+            return task_item['id']
+
         except Exception as e:
             logger.error(f"Error creating task from email: {e}")
             raise
