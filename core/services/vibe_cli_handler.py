@@ -13,6 +13,7 @@ Examples:
 """
 
 from typing import Dict, Any, Optional, List
+import asyncio
 import sys
 
 from core.services.logging_manager import get_logger
@@ -28,6 +29,7 @@ from core.services.vibe_ask_service import get_ask_service
 from core.services.vibe_binder_service import get_binder_service
 from core.services.vibe_tui_service import get_tui_service
 from core.services.vibe_skill_mapper import get_default_mapper
+from core.services.vibe_sync_service import get_sync_service
 
 
 class VibeCliHandler:
@@ -332,6 +334,47 @@ class VibeCliHandler:
             result = self._error(f"Unknown ucode action: {action}")
 
         return self._format_output(result)
+
+    def _handle_sync(self, action: str, args: List[str]) -> Dict[str, Any]:
+        """Handle sync skill commands (external system synchronization)."""
+        service = get_sync_service()
+
+        if action == "CALENDAR" and len(args) >= 2:
+            provider = args[0]
+            mission_id = args[1]
+            result = self._run_async(service.sync_calendar(provider, mission_id))
+        elif action == "EMAIL" and len(args) >= 2:
+            provider = args[0]
+            mission_id = args[1]
+            result = self._run_async(service.sync_emails(provider, mission_id))
+        elif action == "JIRA" and len(args) >= 2:
+            workspace_id = args[0]
+            mission_id = args[1]
+            jql = args[2] if len(args) > 2 else None
+            result = self._run_async(service.sync_jira(workspace_id, mission_id, jql))
+        elif action == "LINEAR" and len(args) >= 2:
+            team_id = args[0]
+            mission_id = args[1]
+            status_filter = args[2] if len(args) > 2 else None
+            result = self._run_async(service.sync_linear(team_id, mission_id, status_filter))
+        elif action == "SLACK" and len(args) >= 2:
+            workspace = args[0]
+            mission_id = args[1]
+            channels = args[2:] if len(args) > 2 else None
+            result = self._run_async(service.sync_slack(workspace, mission_id, channels))
+        elif action == "ALL" and args:
+            systems = args[1:] if len(args) > 1 else None
+            result = self._run_async(service.trigger_full_sync(systems))
+        elif action == "STATUS":
+            result = self._run_async(service.get_sync_status())
+        else:
+            result = self._error(f"Unknown sync action: {action}")
+
+        return self._format_output(result)
+
+    def _run_async(self, coro):
+        """Run async coroutine in CLI context."""
+        return asyncio.run(coro)
 
     def _format_output(self, service_result: Dict[str, Any]) -> Dict[str, Any]:
         """Format service result for CLI output."""

@@ -238,7 +238,7 @@ class TestSlackMessageTransformer:
         """Test transforming Slack message to task."""
         from datetime import datetime
         import time
-        
+
         ts = time.time()
         message = SlackMessage(
             message_id="1234567890.123456",
@@ -264,7 +264,7 @@ class TestSlackMessageTransformer:
     def test_transform_slack_bot_message_to_task(self):
         """Test transforming Slack bot message to task."""
         import time
-        
+
         ts = time.time()
         message = SlackMessage(
             message_id="1234567890.654321",
@@ -338,7 +338,7 @@ class TestVibeSyncServiceSlack:
         """Test posting task update to Slack."""
         with patch.object(sync_service.oauth_manager, "get_credentials", new_callable=AsyncMock) as mock_creds:
             mock_creds.return_value = {"access_token": "xoxb-test-token"}
-            
+
             result = await sync_service.post_task_update(
                 task_id="task-123",
                 channel="C123456789",
@@ -392,7 +392,7 @@ class TestPhase8SlackIntegration:
     async def test_slack_message_to_task_flow(self):
         """Test converting Slack message to task."""
         import time
-        
+
         ts = time.time()
         message = SlackMessage(
             message_id="ts-123",

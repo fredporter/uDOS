@@ -8,6 +8,7 @@ script, user, and help skills.
 from __future__ import annotations
 
 from typing import Any, Dict, Optional, List
+import asyncio
 from pathlib import Path
 import sys
 
@@ -32,6 +33,7 @@ from core.services.vibe_help_service import get_help_service
 from core.services.vibe_ask_service import get_ask_service
 from core.services.vibe_binder_service import get_binder_service
 from core.services.vibe_tui_service import get_tui_service
+from core.services.vibe_sync_service import get_sync_service
 
 logger = get_logger("vibe-mcp")
 
@@ -43,6 +45,10 @@ class VibeMCPIntegration:
         """Initialize Vibe MCP integration."""
         self.mapper = get_default_mapper()
         self.logger = logger
+
+    def _run_async(self, coro):
+        """Run async coroutine in MCP context."""
+        return asyncio.run(coro)
 
     def skill_index(self) -> Dict[str, Any]:
         """Return Vibe skill index for MCP discovery."""
@@ -487,6 +493,104 @@ class VibeMCPIntegration:
             }
 
     # ─────────────────────────────────────────────────────────────────────────
+    # Sync Skill (External System Synchronization)
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def sync_calendar(
+        self,
+        provider: str,
+        mission_id: str,
+        date_range: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Sync calendar events from external provider."""
+        try:
+            service = get_sync_service()
+            return self._run_async(service.sync_calendar(provider, mission_id))
+        except Exception as e:
+            self.logger.error(f"Sync calendar failed: {e}")
+            return {"status": "error", "message": f"Failed to sync calendar: {e}"}
+
+    def sync_email(
+        self,
+        provider: str,
+        mission_id: str,
+        query: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Sync emails from external provider."""
+        try:
+            service = get_sync_service()
+            return self._run_async(service.sync_emails(provider, mission_id, query, limit))
+        except Exception as e:
+            self.logger.error(f"Sync email failed: {e}")
+            return {"status": "error", "message": f"Failed to sync email: {e}"}
+
+    def sync_jira(
+        self,
+        workspace_id: str,
+        mission_id: str,
+        jql: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Sync Jira issues from workspace."""
+        try:
+            service = get_sync_service()
+            return self._run_async(service.sync_jira(workspace_id, mission_id, jql))
+        except Exception as e:
+            self.logger.error(f"Sync Jira failed: {e}")
+            return {"status": "error", "message": f"Failed to sync Jira: {e}"}
+
+    def sync_linear(
+        self,
+        team_id: str,
+        mission_id: str,
+        status: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Sync Linear issues from team."""
+        try:
+            service = get_sync_service()
+            return self._run_async(service.sync_linear(team_id, mission_id, status))
+        except Exception as e:
+            self.logger.error(f"Sync Linear failed: {e}")
+            return {"status": "error", "message": f"Failed to sync Linear: {e}"}
+
+    def sync_slack(
+        self,
+        workspace: str,
+        mission_id: str,
+        channels: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        """Sync Slack messages from workspace."""
+        try:
+            service = get_sync_service()
+            return self._run_async(service.sync_slack(workspace, mission_id, channels))
+        except Exception as e:
+            self.logger.error(f"Sync Slack failed: {e}")
+            return {"status": "error", "message": f"Failed to sync Slack: {e}"}
+
+    def sync_all(
+        self,
+        mission_id: str,
+        systems: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        """Sync all configured external systems."""
+        try:
+            service = get_sync_service()
+            return self._run_async(service.trigger_full_sync(systems))
+        except Exception as e:
+            self.logger.error(f"Sync all failed: {e}")
+            return {"status": "error", "message": f"Failed to sync all: {e}"}
+
+    def sync_status(self) -> Dict[str, Any]:
+        """Get sync status for all systems."""
+        try:
+            service = get_sync_service()
+            return self._run_async(service.get_sync_status())
+        except Exception as e:
+            self.logger.error(f"Sync status failed: {e}")
+            return {"status": "error", "message": f"Failed to get sync status: {e}"}
+
+    # ─────────────────────────────────────────────────────────────────────────
     # uCLI TUI Skill (Interactive UI Views — uCODE protocol TUI layer)
     # ─────────────────────────────────────────────────────────────────────────
 
@@ -795,6 +899,67 @@ def register_vibe_mcp_tools(mcp_server) -> None:
     def vibe_binder_ai_summary(mission_id: str) -> Dict[str, Any]:
         """Get AI-ready task summary for mission."""
         return vibe.binder_ai_summary(mission_id)
+
+    # Sync skill (External System Synchronization)
+    @mcp_server.tool()
+    def vibe_sync_calendar(
+        provider: str,
+        mission_id: str,
+        date_range: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Sync calendar events from external provider."""
+        return vibe.sync_calendar(provider, mission_id, date_range, limit)
+
+    @mcp_server.tool()
+    def vibe_sync_email(
+        provider: str,
+        mission_id: str,
+        query: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Sync emails from external provider."""
+        return vibe.sync_email(provider, mission_id, query, limit)
+
+    @mcp_server.tool()
+    def vibe_sync_jira(
+        workspace_id: str,
+        mission_id: str,
+        jql: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Sync Jira issues from workspace."""
+        return vibe.sync_jira(workspace_id, mission_id, jql)
+
+    @mcp_server.tool()
+    def vibe_sync_linear(
+        team_id: str,
+        mission_id: str,
+        status: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Sync Linear issues from team."""
+        return vibe.sync_linear(team_id, mission_id, status)
+
+    @mcp_server.tool()
+    def vibe_sync_slack(
+        workspace: str,
+        mission_id: str,
+        channels: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        """Sync Slack messages from workspace."""
+        return vibe.sync_slack(workspace, mission_id, channels)
+
+    @mcp_server.tool()
+    def vibe_sync_all(
+        mission_id: str,
+        systems: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        """Sync all configured external systems."""
+        return vibe.sync_all(mission_id, systems)
+
+    @mcp_server.tool()
+    def vibe_sync_status() -> Dict[str, Any]:
+        """Get sync status for all systems."""
+        return vibe.sync_status()
 
     # uCode TUI skill (Interactive UIs)
     @mcp_server.tool()

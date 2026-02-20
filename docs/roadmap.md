@@ -1,6 +1,6 @@
 # uDOS Roadmap (Canonical)
 
-Last updated: Current milestone: v1.4.6 Round 6 planning
+Last updated: 2026-02-21 | Current milestone: v1.4.4 Phase 3-4 active, Round 5-6 in parallel planning
 
 This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs/devlog/ROADMAP-LEGACY.md](devlog/ROADMAP-LEGACY.md).
 
@@ -10,8 +10,8 @@ This file is the single canonical roadmap for uDOS. Legacy detail lives in [docs
 
 - Core concept: uDOS is a local Obsidian companion runtime focused on `@workspace`/`@binder` organization, fractal/layered filesystem structures, knowledge-tree navigation, and digital-garden workflows.
 - Milestones v1.3.0 to v1.3.7: complete (archived records exist).
-- Current focus: **v1.4.4 complete** with extended Phase 6 integration. Core hardening, gameplay lenses, TUI genres, the three-stage command dispatch (Vibe uCLI), and full backend persistence are all implemented. **Round 5** (v1.4.5): Wizard stabilization, GUI browser/file picker, GitHub Pages + Jekyll publishing (no monorepo). **Round 6** (v1.4.6): distribution packaging (4 variants), local library system (versioning, updates), Docker hardening, standalone Sonic, security audit, performance testing. **Stable Release Gate** (v1.4.7): consolidation, command audit, version unification, no backwards-compat shims. Groovebox v1.4+ (Songscribe parser pipeline) deferred.
-- Version alignment: v1.4.4 shipped; Rounds 5-6 run in parallel phases; **v1.4.7 is first fully-integrated Stable Release (no multi-version support, all installations upgrade to v1.4.7)**.
+- Current focus: **v1.4.4 active** with three-phase Vibe uCLI protocol implementation. **Phase 1-3 complete** (protocol definition, TUI integration, MCP integration). **Phase 4 pending** (backend service implementation). Round 5 and Round 6 in parallel planning phase. Core hardening, gameplay lenses, TUI genres, the three-stage command dispatch (Vibe uCLI), and full backend persistence are implemented. **Round 5** (v1.4.5): Wizard stabilization, GUI browser/file picker, GitHub Pages + Jekyll publishing (no monorepo). **Round 6** (v1.4.6): distribution packaging (4 variants), local library system (versioning, updates), Docker hardening, standalone Sonic, security audit, performance testing. **Stable Release Gate** (v1.4.7): consolidation, command audit, version unification, no backwards-compat shims. Groovebox v1.4+ (Songscribe parser pipeline) deferred.
+- Version alignment: v1.4.4 in flight; Rounds 5-6 run in parallel planning; **v1.4.7 is first fully-integrated Stable Release (no multi-version support, all installations upgrade to v1.4.7)**.
 - Outstanding (active): Round 5 includes Wizard stabilization, GUI browser/file picker, GitHub Pages + Jekyll publishing. Round 6 includes distribution packaging (4 variants), local library system, Docker hardening, standalone Sonic, **security audit, performance baselines, observability, backup/recovery**. **Stable Release** consolidates all work: audits all 40+ commands, modernizes REPAIR/SETUP, removes all backwards-compat shims, unifies versions, publishes comprehensive release notes and command reference. Groovebox v1.4+ pipeline remains deferred.
 - Consolidated release notes: [docs/releases/v1.4.4-release-notes.md](releases/v1.4.4-release-notes.md).
 - Dev mode policy: `/dev/` public submodule required and admin-only; see [DEV-MODE-POLICY.md](DEV-MODE-POLICY.md).
@@ -230,7 +230,7 @@ Reference:
 
 ## Active Checklist (Merged)
 
-Last updated: 2026-02-17
+Last updated: 2026-02-21
 
 ### P0 -- Wizard/Vibe Refactor
 - [x] Add MCP server tests to verify stdio tool wrapping and tool index parsing.
@@ -422,7 +422,7 @@ Reference:
   - [ ] Add genre export for error renders: colored error frames, styled logging output.
   - [ ] Create `docs/specs/TUI-GENRE-ARCHITECTURE-v1.4.4.md` with genre contract + customization guide.
 
-**uCLI VIBE Integration -- Phase 1-3 Complete:**
+**uCLI VIBE Integration -- Phase 1-3 Complete, Phase 4 Pending:**
 
 - [x] **Phase 1: Protocol & Core Services (COMPLETE 2026-02-20)**
   - [x] Define three-stage dispatch architecture: (1) uCODE command matching, (2) shell/bash passthrough, (3) VIBE/OK fallback.
@@ -459,6 +459,35 @@ Reference:
   - [ ] Implement user/auth backend.
   - [ ] Implement ask/language model routing backend.
   - [ ] Add dispatch diagnostics: `ucli --dispatch-debug "input"` shows dispatch chain reasoning + latency.
+
+#### P0 -- v1.4 Task & Formatting System (Active - 2026-02-21)
+
+- [x] **Document Processing & Archival**
+  - [x] Implement `.compost` directory for automatic file versioning.
+  - [x] Archive previous versions to `.compost/[timestamp]_[filename]` before file updates.
+  - [x] Keep last 10 versions by default (configurable retention policy).
+  - [x] Integrate archival into `SpatialFilesystem.write_file()` method.
+
+- [x] **Formatting Services**
+  - [x] Create `core/services/formatting_service.py` with Markdown to Marp conversion.
+  - [x] Add table extraction and conversion to JSON.
+  - [x] Integrate formatting as Vibe skill: `process_and_format_document()`.
+  - [x] Output Marp slides to `slides/` subdirectory.
+  - [x] Output JSON table data to `data/` subdirectory.
+
+- [ ] **Task & Contact Management Schema**
+  - [ ] Define `contacts.json` schema (personal and project scopes).
+  - [ ] Define `moves.json` schema (task tracking with contact linkage).
+  - [ ] Implement contact sync logic between `obsc-app` and uDOS.
+  - [ ] Create Vibe skill for email parsing and task creation.
+  - [ ] Implement symlink/fallback system for merged contact views.
+
+- [ ] **Documentation Updates**
+  - [x] Create unified v1.4 specification: `docs/decisions/uDOS-v1-4-spec.md`.
+  - [x] Update wiki with Vibe skill set page: `wiki/Vibe-Skill-Set.md`.
+  - [x] Add wiki sidebar link to Vibe skill documentation.
+  - [ ] Update task management guides with new schema examples.
+  - [ ] Create migration guide from legacy task formats to v1.4 schema.
 
 #### P1b -- TypeScript Runtime Demo Scripts & Feature Showcase
 

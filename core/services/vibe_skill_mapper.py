@@ -461,6 +461,62 @@ UCLI_SKILL = SkillContract(
     },
 )
 
+SYNC_SKILL = SkillContract(
+    name="sync",
+    description="External system synchronization (calendar, email, projects, chat)",
+    actions={
+        "calendar": SkillAction(
+            name="calendar",
+            description="Sync calendar events from external providers",
+            args=["provider", "mission_id"],
+            optional_args=["date_range", "limit"],
+            returns_type="sync_result",
+        ),
+        "email": SkillAction(
+            name="email",
+            description="Sync emails from external providers",
+            args=["provider", "mission_id"],
+            optional_args=["query", "limit"],
+            returns_type="sync_result",
+        ),
+        "jira": SkillAction(
+            name="jira",
+            description="Sync Jira issues from workspace",
+            args=["workspace_id", "mission_id"],
+            optional_args=["jql"],
+            returns_type="sync_result",
+        ),
+        "linear": SkillAction(
+            name="linear",
+            description="Sync Linear issues from team",
+            args=["team_id", "mission_id"],
+            optional_args=["status"],
+            returns_type="sync_result",
+        ),
+        "slack": SkillAction(
+            name="slack",
+            description="Sync Slack messages from workspace",
+            args=["workspace", "mission_id"],
+            optional_args=["channels"],
+            returns_type="sync_result",
+        ),
+        "all": SkillAction(
+            name="all",
+            description="Sync all configured external systems",
+            args=["mission_id"],
+            optional_args=["systems"],
+            returns_type="sync_result",
+        ),
+        "status": SkillAction(
+            name="status",
+            description="Get sync status for all systems",
+            args=[],
+            optional_args=[],
+            returns_type="sync_status",
+        ),
+    },
+)
+
 # Skill registry
 SKILL_REGISTRY = {
     "device": DEVICE_SKILL,
@@ -475,6 +531,7 @@ SKILL_REGISTRY = {
     "binder": BINDER_SKILL,
     "ucli": UCLI_SKILL,
     "ucode": UCLI_SKILL,  # Alias: ucode → ucli (backward compatibility)
+    "sync": SYNC_SKILL,
 }
 
 
