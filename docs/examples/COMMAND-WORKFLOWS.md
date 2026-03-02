@@ -145,6 +145,16 @@ SCHEDULER RUN <name>           # Execute scheduled task
 SCHEDULER DELETE <name>        # Remove task
 ```
 
+### WORKFLOW - Multi-phase markdown workflow runner
+```bash
+WORKFLOW LIST TEMPLATES
+WORKFLOW NEW WRITING-article article-001 goal="Write release note" audience=operators tone=plain word_limit=600
+WORKFLOW RUN article-001
+WORKFLOW STATUS article-001
+WORKFLOW APPROVE article-001
+WORKFLOW ESCALATE article-001
+```
+
 ### RULE - Conditional automation
 ```bash
 RULE LIST                                    # Show automation rules

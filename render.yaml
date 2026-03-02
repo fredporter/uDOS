@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: wizard-api
+    env: python
+    plan: starter
+    buildCommand: uv sync --group dev --extra udos-wizard && cd web-admin && npm install && npm run build
+    startCommand: uv run python -m wizard.server
+    autoDeploy: true
+    envVars:
+      - key: UDOS_DEPLOY_MODE
+        value: managed
+      - key: PYTHON_VERSION
+        value: 3.12
+
+  - type: cron
+    name: wizard-jobs
+    env: python
+    plan: starter
+    schedule: "*/1 * * * *"
+    buildCommand: uv sync --group dev --extra udos-wizard
+    startCommand: uv run python -m wizard.jobs.run_due_tasks
+    envVars:
+      - key: UDOS_DEPLOY_MODE
+        value: managed
+
+  - type: cron
+    name: wizard-health
+    env: python
+    plan: starter
+    schedule: "*/5 * * * *"
+    buildCommand: uv sync --group dev --extra udos-wizard
+    startCommand: uv run python -m wizard.jobs.health_snapshot
+    envVars:
+      - key: UDOS_DEPLOY_MODE
+        value: managed
+
+  - type: cron
+    name: wizard-maintenance
+    env: python
+    plan: starter
+    schedule: "0 * * * *"
+    buildCommand: uv sync --group dev --extra udos-wizard
+    startCommand: uv run python -m wizard.jobs.maintenance
+    envVars:
+      - key: UDOS_DEPLOY_MODE
+        value: managed

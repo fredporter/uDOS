@@ -8,6 +8,9 @@ from typing import Callable, Awaitable, Optional
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
+from core.services.permission_handler import Permission
+from core.services.user_service import get_user_manager
+from wizard.services.dev_extension_service import get_dev_extension_service
 from wizard.services.dev_mode_service import get_dev_mode_service
 from wizard.services.logging_api import get_logger, new_corr_id
 
@@ -38,22 +41,21 @@ class TestRunRequest(BaseModel):
 def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
     router = APIRouter(prefix="/api/dev", tags=["dev-mode"])
     dev_mode = get_dev_mode_service()
+    dev_extension = get_dev_extension_service()
     logger = get_logger("wizard", category="dev-mode", name="dev")
 
     def _ensure_admin_dev_access():
         try:
-            from core.services.user_service import get_user_manager, Permission
-
             user_mgr = get_user_manager()
-            if not user_mgr.has_permission(Permission.ADMIN):
-                raise HTTPException(status_code=403, detail="Admin role required for dev mode")
+            if not user_mgr.has_permission(Permission.ADMIN) or not user_mgr.has_permission(Permission.DEV_MODE):
+                raise HTTPException(status_code=403, detail="Admin + Dev Mode permissions required")
         except HTTPException:
             raise
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
 
     def _ensure_dev_submodule():
-        message = dev_mode.ensure_requirements()
+        message = dev_extension.ensure_framework()
         if message:
             raise HTTPException(status_code=412, detail=message)
 
@@ -78,7 +80,9 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
             await auth_guard(request)
         _ensure_admin_dev_access()
         logger.debug("Dev status requested")
-        return dev_mode.get_status()
+        status = dev_mode.get_status()
+        status["extension"] = dev_extension.status()
+        return status
 
     @router.post("/activate")
     async def activate_dev_mode(request: Request):
@@ -88,7 +92,9 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
         _ensure_dev_submodule()
         corr_id = new_corr_id("C")
         logger.info("Dev mode activate requested", ctx={"corr_id": corr_id})
-        return dev_mode.activate()
+        result = dev_mode.activate()
+        result["extension"] = dev_extension.status()
+        return result
 
     @router.post("/deactivate")
     async def deactivate_dev_mode(request: Request):
@@ -97,7 +103,9 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
         _ensure_admin_dev_access()
         corr_id = new_corr_id("C")
         logger.info("Dev mode deactivate requested", ctx={"corr_id": corr_id})
-        return dev_mode.deactivate()
+        result = dev_mode.deactivate()
+        result["extension"] = dev_extension.status()
+        return result
 
     @router.post("/restart")
     async def restart_dev_mode(request: Request):
@@ -107,7 +115,9 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
         _ensure_dev_submodule()
         corr_id = new_corr_id("C")
         logger.info("Dev mode restart requested", ctx={"corr_id": corr_id})
-        return dev_mode.restart()
+        result = dev_mode.restart()
+        result["extension"] = dev_extension.status()
+        return result
 
     @router.post("/clear")
     async def clear_dev_mode(request: Request):
@@ -178,14 +188,18 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
             await auth_guard(request)
         _ensure_admin_dev_access()
         try:
-            from wizard.services.secret_store import get_secret
-            token = get_secret("github_token")
-            configured = bool(token and len(token) > 10)
-            masked = f"{token[:4]}...{token[-4:]}" if configured and len(token) > 8 else None
-            return {"configured": configured, "masked": masked}
+            return dev_extension.get_pat_status()
         except Exception as exc:
             logger.error("GitHub PAT status check failed", err=exc)
             return {"configured": False, "masked": None, "error": str(exc)}
+
+    @router.get("/github/status")
+    async def github_status(request: Request):
+        """Return consolidated GitHub/Dev extension status."""
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        return dev_extension.github_status()
 
     @router.post("/github/pat")
     async def set_github_pat(request: Request, body: GitHubPATRequest):
@@ -195,10 +209,9 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
         _ensure_admin_dev_access()
         corr_id = new_corr_id("C")
         try:
-            from wizard.services.secret_store import set_secret
-            set_secret("github_token", body.token)
+            result = dev_extension.set_pat(body.token)
             logger.info("GitHub PAT updated", ctx={"corr_id": corr_id})
-            return {"success": True, "message": "GitHub PAT saved"}
+            return result
         except Exception as exc:
             logger.error("GitHub PAT update failed", err=exc, ctx={"corr_id": corr_id})
             raise HTTPException(status_code=500, detail=str(exc))
@@ -211,10 +224,9 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
         _ensure_admin_dev_access()
         corr_id = new_corr_id("C")
         try:
-            from wizard.services.secret_store import set_secret
-            set_secret("github_token", "")
+            result = dev_extension.clear_pat()
             logger.info("GitHub PAT cleared", ctx={"corr_id": corr_id})
-            return {"success": True, "message": "GitHub PAT cleared"}
+            return result
         except Exception as exc:
             logger.error("GitHub PAT clear failed", err=exc, ctx={"corr_id": corr_id})
             raise HTTPException(status_code=500, detail=str(exc))
@@ -239,10 +251,7 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
             await auth_guard(request)
         _ensure_admin_dev_access()
         try:
-            from wizard.services.secret_store import get_secret
-            secret = get_secret("github_webhook_secret")
-            configured = bool(secret and len(secret) > 8)
-            return {"configured": configured}
+            return dev_extension.get_webhook_secret_status()
         except Exception as exc:
             logger.error("GitHub webhook secret status check failed", err=exc)
             return {"configured": False, "error": str(exc)}
@@ -255,11 +264,9 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
         _ensure_admin_dev_access()
         corr_id = new_corr_id("C")
         try:
-            from wizard.services.secret_store import set_secret
-            new_secret = secrets.token_hex(32)
-            set_secret("github_webhook_secret", new_secret)
+            result = dev_extension.set_webhook_secret()
             logger.info("GitHub webhook secret generated", ctx={"corr_id": corr_id})
-            return {"success": True, "secret": new_secret, "message": "Webhook secret generated and saved"}
+            return result
         except Exception as exc:
             logger.error("GitHub webhook secret generation failed", err=exc, ctx={"corr_id": corr_id})
             raise HTTPException(status_code=500, detail=str(exc))

@@ -34,6 +34,7 @@
   import Extensions from "./routes/Extensions.svelte";
   import Sonic from "./routes/Sonic.svelte";
   import Setup from "./routes/Setup.svelte";
+  import ThinGui from "./routes/ThinGui.svelte";
 
   // Route mapping
   const routes = {
@@ -68,6 +69,7 @@
     extensions: Extensions,
     sonic: Sonic,
     setup: Setup,
+    "thin-gui": ThinGui,
   };
 
   // Simple hash-based routing
@@ -278,5 +280,4 @@
     </main>
   </div>
 </div>
-
 

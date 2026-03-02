@@ -9,10 +9,13 @@ from __future__ import annotations
 from collections.abc import Awaitable, Callable
 import os
 from pathlib import Path
+import re
 import shutil
 from typing import Any, Optional
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
+from pydantic import BaseModel
 
 from core.services.health_training import log_plugin_install_event
 from core.services.prompt_parser_service import get_prompt_parser_service
@@ -28,6 +31,7 @@ from wizard.services.path_utils import get_repo_root
 from wizard.services.plugin_factory import APKBuilder
 from wizard.services.plugin_repository import PluginRepository
 from wizard.services.plugin_validation import load_manifest, validate_manifest
+from wizard.routes.container_launcher_routes import get_launcher
 from wizard.tools.github_dev import PluginFactory
 
 AuthGuard = Optional[Callable[[Request], Awaitable[None]]]
@@ -39,6 +43,14 @@ _calendar_renderer = CalendarGridRenderer()
 _gantt_renderer = GanttGridRenderer()
 _prompt_parser = get_prompt_parser_service()
 _reminder_service = get_reminder_service(_todo_manager)
+_OWNER_REPO_RE = re.compile(r"^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$")
+
+
+class RepoInstallWizardRequest(BaseModel):
+    repo: str
+    branch: str = "main"
+    launch_if_runnable: bool = True
+    open_thin_gui: bool = True
 
 
 def _build_prompt_instruction(name: str, manifest: dict[str, Any]) -> str:
@@ -126,6 +138,116 @@ def _resolve_requested_integration_name(manager, requested_name: str) -> str:
             )
         return _resolve_sonic_integration_name(manager)
     return requested_name
+
+
+def _normalize_repo_input(repo: str) -> dict[str, str]:
+    raw = (repo or "").strip()
+    if not raw:
+        raise HTTPException(status_code=400, detail="repo is required")
+
+    if _OWNER_REPO_RE.fullmatch(raw):
+        owner, name = raw.split("/", 1)
+        return {
+            "input": raw,
+            "kind": "github-shorthand",
+            "host": "github.com",
+            "owner": owner,
+            "name": name,
+            "clone_target": raw,
+            "canonical_url": f"https://github.com/{owner}/{name}.git",
+            "display": raw,
+        }
+
+    if raw.startswith(("git@", "ssh://", "file://", "http://")):
+        raise HTTPException(
+            status_code=400,
+            detail="Only owner/name or https repository URLs are supported",
+        )
+
+    parsed = urlparse(raw)
+    if parsed.scheme != "https" or not parsed.netloc:
+        raise HTTPException(
+            status_code=400,
+            detail="Repository must be owner/name or a valid https URL",
+        )
+    if parsed.username or parsed.password or parsed.query or parsed.fragment:
+        raise HTTPException(
+            status_code=400,
+            detail="Repository URL must not include credentials, query params, or fragments",
+        )
+
+    path_parts = [part for part in parsed.path.split("/") if part]
+    if len(path_parts) < 2:
+        raise HTTPException(
+            status_code=400,
+            detail="Repository URL must include owner and repository name",
+        )
+
+    owner = path_parts[-2]
+    name = path_parts[-1].removesuffix(".git")
+    if not owner or not name:
+        raise HTTPException(status_code=400, detail="Repository URL is missing owner or name")
+
+    canonical_path = "/".join([*path_parts[:-1], f"{name}.git"])
+    canonical_url = f"https://{parsed.netloc}/{canonical_path}"
+    return {
+        "input": raw,
+        "kind": "https-url",
+        "host": parsed.netloc.lower(),
+        "owner": owner,
+        "name": name,
+        "clone_target": canonical_url,
+        "canonical_url": canonical_url,
+        "display": f"{owner}/{name}",
+    }
+
+
+def _repo_allowed(normalized: dict[str, str]) -> None:
+    allowlist = os.environ.get("WIZARD_LIBRARY_REPO_ALLOWLIST", "").strip()
+    if not allowlist:
+        return
+    allowed = [item.strip() for item in allowlist.split(",") if item.strip()]
+    candidates = {
+        normalized["input"],
+        normalized["display"],
+        normalized["clone_target"],
+        normalized["canonical_url"],
+    }
+    for entry in allowed:
+        prefix = entry.rstrip("*")
+        if any(
+            candidate == entry
+            or candidate == prefix
+            or candidate.startswith(prefix)
+            for candidate in candidates
+        ):
+            return
+    raise HTTPException(status_code=403, detail="Repo not allowed")
+
+
+def _inventory_rows(inventory: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for name, details in sorted((inventory or {}).items()):
+        deps = details.get("deps", {}) if isinstance(details, dict) else {}
+        apk = list(deps.get("apk_dependencies") or [])
+        apt = list(deps.get("apt_dependencies") or [])
+        brew = list(deps.get("brew_dependencies") or [])
+        pip = list(deps.get("pip_dependencies") or [])
+        python_version = deps.get("python_version") or ""
+        rows.append(
+            {
+                "name": name,
+                "path": details.get("path"),
+                "source": details.get("source"),
+                "python_version": python_version,
+                "apk_dependencies": apk,
+                "apt_dependencies": apt,
+                "brew_dependencies": brew,
+                "pip_dependencies": pip,
+                "dependency_count": len(apk) + len(apt) + len(brew) + len(pip),
+            }
+        )
+    return rows
 
 
 @router.get("/status", response_model=dict[str, Any])
@@ -697,9 +819,33 @@ async def get_library_inventory(request: Request):
         await _run_guard(request)
         manager = get_library_manager()
         inventory = manager.get_dependency_inventory()
-        return {"success": True, "inventory": inventory}
+        return {
+            "success": True,
+            "inventory": inventory,
+            "rows": _inventory_rows(inventory),
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get inventory: {e!s}")
+
+
+@router.post("/inventory/{name}/install", response_model=dict[str, Any])
+async def install_inventory_dependencies(name: str, request: Request):
+    """Install declared package dependencies for one inventory row."""
+    try:
+        await _run_guard(request)
+        manager = get_library_manager()
+        result = manager.install_inventory_dependencies(name)
+        if not result.get("success"):
+            detail = result.get("message") or "Dependency install failed"
+            status = 404 if detail == "Integration not found" else 400
+            raise HTTPException(status_code=status, detail=detail)
+        return {"success": True, "result": result}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to install inventory dependencies: {e!s}"
+        )
 
 
 @router.post("/toolchain/update", response_model=dict[str, Any])
@@ -734,26 +880,71 @@ async def clone_repo(request: Request, repo: str, branch: str = "main"):
     """Clone a repo into library/containers."""
     try:
         await _run_guard(request)
-        allowlist = os.environ.get("WIZARD_LIBRARY_REPO_ALLOWLIST", "").strip()
-        if allowlist:
-            allowed = [item.strip() for item in allowlist.split(",") if item.strip()]
-            if not any(
-                repo == entry
-                or repo.startswith(entry.rstrip("*"))
-                or repo == entry.rstrip("*")
-                for entry in allowed
-            ):
-                raise HTTPException(status_code=403, detail="Repo not allowed")
+        normalized = _normalize_repo_input(repo)
+        _repo_allowed(normalized)
 
         factory = PluginFactory()
-        cloned = factory.clone(repo, branch=branch)
+        cloned = factory.clone(normalized["clone_target"], branch=branch)
         if not cloned:
             raise HTTPException(status_code=400, detail="Clone failed")
-        return {"success": True, "repo": cloned.to_dict()}
+        return {
+            "success": True,
+            "repo": cloned.to_dict(),
+            "normalized_repo": normalized,
+        }
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to clone repo: {e!s}")
+
+
+@router.post("/repos/install-wizard", response_model=dict[str, Any])
+async def install_repo_wizard(
+    request: Request,
+    payload: RepoInstallWizardRequest,
+    background_tasks: BackgroundTasks,
+):
+    """Clone a repo, then launch/open it when a runnable container is detected."""
+    try:
+        await _run_guard(request)
+        normalized = _normalize_repo_input(payload.repo)
+        _repo_allowed(normalized)
+
+        factory = PluginFactory()
+        cloned = factory.clone(normalized["clone_target"], branch=payload.branch.strip() or "main")
+        if not cloned:
+            raise HTTPException(status_code=400, detail="Clone failed")
+
+        launcher = get_launcher()
+        container_config = launcher.get_container_config(cloned.name)
+        container_result: dict[str, Any] = {
+            "detected": bool(container_config),
+            "launch_requested": bool(payload.launch_if_runnable),
+            "launched": False,
+            "launch_result": None,
+            "thin_gui": None,
+        }
+        if container_config and payload.launch_if_runnable:
+            launch_result = await launcher.launch_container(cloned.name, background_tasks)
+            container_result["launched"] = bool(launch_result.get("success"))
+            container_result["launch_result"] = launch_result
+            if payload.open_thin_gui:
+                container_result["thin_gui"] = {
+                    "target_url": f"http://localhost:{container_config['port']}{container_config['browser_route']}",
+                    "target_label": cloned.name,
+                    "title": container_config["name"],
+                }
+
+        return {
+            "success": True,
+            "repo": cloned.to_dict(),
+            "normalized_repo": normalized,
+            "container": container_result,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to run install wizard: {e!s}")
 
 
 @router.post("/repos/{name}/update", response_model=dict[str, Any])

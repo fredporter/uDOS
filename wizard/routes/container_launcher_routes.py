@@ -160,6 +160,13 @@ class ContainerLauncher:
         self.processes: Dict[str, subprocess.Popen] = {}
         self.library_root = self.repo_root / "library"
 
+    def _container_manifest_roots(self) -> List[Path]:
+        roots = [self.library_root]
+        containers_root = self.library_root / "containers"
+        if containers_root.exists():
+            roots.append(containers_root)
+        return roots
+
     def _discover_containers(self) -> Dict[str, Dict[str, Any]]:
         """
         Discover all launchable containers by scanning library/*/container.json.
@@ -169,28 +176,33 @@ class ContainerLauncher:
         found: Dict[str, Dict[str, Any]] = {}
         if not self.library_root.exists():
             return found
-        for entry in sorted(self.library_root.iterdir()):
-            if not entry.is_dir():
+        for root in self._container_manifest_roots():
+            if not root.exists():
                 continue
-            cj = entry / "container.json"
-            if not cj.exists():
-                continue
-            try:
-                manifest = json.loads(cj.read_text())
-            except Exception:
-                continue
-            container_section = manifest.get("container", {})
-            service_section = manifest.get("service", {})
-            port = service_section.get("port")
-            if not port:
-                continue  # not a runnable service
-            cid = container_section.get("id") or entry.name
-            found[cid] = {
-                "name": container_section.get("name", cid),
-                "port": port,
-                "health_check_url": service_section.get("health_check_url"),
-                "browser_route": service_section.get("browser_route", f"/ui/{cid}"),
-            }
+            for entry in sorted(root.iterdir()):
+                if not entry.is_dir():
+                    continue
+                cj = entry / "container.json"
+                if not cj.exists():
+                    continue
+                try:
+                    manifest = json.loads(cj.read_text())
+                except Exception:
+                    continue
+                container_section = manifest.get("container", {})
+                service_section = manifest.get("service", {})
+                port = service_section.get("port")
+                if not port:
+                    continue  # not a runnable service
+                cid = container_section.get("id") or entry.name
+                found[cid] = {
+                    "name": container_section.get("name", cid),
+                    "port": port,
+                    "health_check_url": service_section.get("health_check_url"),
+                    "browser_route": service_section.get("browser_route", f"/ui/{cid}"),
+                    "container_path": str(entry),
+                    "manifest_path": str(cj),
+                }
         return found
 
     @property
@@ -209,13 +221,28 @@ class ContainerLauncher:
 
     def _read_container_metadata(self, container_id: str) -> Optional[Dict[str, Any]]:
         """Read container.json for a library entry. Returns None if not found."""
-        container_json_path = self.library_root / container_id / "container.json"
-        if not container_json_path.exists():
-            return None
-        try:
-            return json.loads(container_json_path.read_text())
-        except Exception:
-            return None
+        candidate_paths = [
+            self.library_root / container_id / "container.json",
+            self.library_root / "containers" / container_id / "container.json",
+        ]
+        for container_json_path in candidate_paths:
+            if not container_json_path.exists():
+                continue
+            try:
+                return json.loads(container_json_path.read_text())
+            except Exception:
+                return None
+        return None
+
+    def _resolve_container_runtime_path(self, container_id: str) -> Path:
+        candidate_paths = [
+            self.library_root / "containers" / container_id,
+            self.library_root / container_id,
+        ]
+        for path in candidate_paths:
+            if path.exists():
+                return path
+        return self.library_root / container_id
 
     def _container_state(self, container_id: str) -> str:
         """
@@ -277,13 +304,15 @@ class ContainerLauncher:
         try:
             container_metadata = self._read_container_metadata(container_id)
             launch_config = (container_metadata or {}).get("launch_config", {})
+            runtime_path = self._resolve_container_runtime_path(container_id)
 
             # Schedule container launch in background
             background_tasks.add_task(
                 self._launch_service,
                 container_id,
                 config,
-                launch_config
+                launch_config,
+                runtime_path,
             )
 
             return {
@@ -305,11 +334,10 @@ class ContainerLauncher:
             logger.error(f"[CONTAINER-LAUNCHER] Failed to launch {container_id}: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Failed to launch container: {str(e)}")
 
-    async def _launch_service(self, container_id: str, config: Dict[str, Any], launch_config: Dict[str, Any]):
+    async def _launch_service(self, container_id: str, config: Dict[str, Any], launch_config: Dict[str, Any], runtime_path: Path):
         """Launch service in background."""
         try:
-            container_path = self.library_root / container_id
-            launch_cwd = container_path
+            launch_cwd = runtime_path
             custom_cwd = launch_config.get("cwd")
             if custom_cwd:
                 cwd_path = Path(custom_cwd)

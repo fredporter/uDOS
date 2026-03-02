@@ -1,86 +1,66 @@
 <script context="module" lang="ts">
-  import { getAnchors, getPlaces, getFileTags } from '$lib/services/spatialService';
-  import { getThemes, getSiteSummary, getMissions, getContributions } from '$lib/services/rendererService';
+  import { getAnchors, getPlaces, getFileTags } from "$lib/services/spatialService";
+  import { getThemes, getSiteSummary, getMissions, getContributions } from "$lib/services/rendererService";
+  import { getOpsSession, getOpsSummary } from "$lib/services/opsService";
 
   export async function load({ fetch }) {
-    const [anchorRes, placeRes, tagRes, themeRes, siteSummary, missionRes, contributionRes] = await Promise.all([
+    const [
+      sessionRes,
+      summaryRes,
+      anchorRes,
+      placeRes,
+      tagRes,
+      themeRes,
+      siteSummary,
+      missionRes,
+      contributionRes,
+    ] = await Promise.all([
+      getOpsSession(fetch),
+      getOpsSummary(fetch),
       getAnchors(fetch),
       getPlaces(fetch),
       getFileTags(fetch),
       getThemes(fetch),
       getSiteSummary(fetch),
       getMissions(fetch),
-      getContributions(fetch)
+      getContributions(fetch),
     ]);
-    const contributions =
-      (contributionRes?.contributions ?? []).map((entry: any) => ({
-        id: entry.id,
-        status: entry.status,
-        path: entry.path ?? "",
-        manifest: entry.manifest ?? {},
-      })) ?? [];
 
     return {
+      session: sessionRes,
+      summary: summaryRes,
       anchors: anchorRes?.anchors ?? [],
       places: placeRes?.places ?? [],
       fileTags: tagRes?.file_tags ?? [],
       themes: themeRes?.themes ?? [],
       siteExports: siteSummary?.exports ?? [],
       missions: missionRes?.missions ?? [],
-      contributions
+      contributions:
+        (contributionRes?.contributions ?? []).map((entry) => ({
+          id: entry.id,
+          status: entry.status,
+          path: entry.path ?? "",
+          manifest: entry.manifest ?? {},
+        })) ?? [],
     };
   }
- </script>
+</script>
 
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { getAdminToken, setAdminToken } from "$lib/services/auth";
-  import ThemePicker from '$lib/components/ThemePicker.svelte';
-  import MissionQueue from '$lib/components/MissionQueue.svelte';
-  import SpatialPanel from '$lib/components/SpatialPanel.svelte';
-  import TaskPanel from '$lib/components/TaskPanel.svelte';
-  import RendererPreview from '$lib/components/RendererPreview.svelte';
-  import ContributionQueue from '$lib/components/ContributionQueue.svelte';
-  import '$lib/styles/global.css';
-  import type { AnchorRow, PlaceRow, FileTagRow } from '$lib/types/spatial';
-  import type { MissionData } from '$lib/lib/types/mission';
-  import type { ContributionRow } from '$lib/types/contribution';
+  import ThemePicker from "$lib/components/ThemePicker.svelte";
+  import MissionQueue from "$lib/components/MissionQueue.svelte";
+  import SpatialPanel from "$lib/components/SpatialPanel.svelte";
+  import TaskPanel from "$lib/components/TaskPanel.svelte";
+  import RendererPreview from "$lib/components/RendererPreview.svelte";
+  import ContributionQueue from "$lib/components/ContributionQueue.svelte";
+  import "$lib/styles/global.css";
 
-  export let data: {
-    anchors: AnchorRow[];
-    places: PlaceRow[];
-    fileTags: FileTagRow[];
-    themes: any[];
-    siteExports: { theme: string; files: number; lastModified: string | null }[];
-    missions: MissionData[];
-    contributions: ContributionRow[];
-  };
+  export let data;
 
-  const { anchors, places, fileTags, themes, siteExports, missions, contributions } = data;
-
-  let adminToken = "";
-  let tokenSaved = false;
-  let tokenStatus = "Auth disabled";
-
-  onMount(() => {
-    adminToken = getAdminToken();
-    tokenStatus = adminToken ? "Auth enabled" : "Auth disabled";
-  });
-
-  function saveToken() {
-    setAdminToken(adminToken);
-    tokenSaved = true;
-    tokenStatus = adminToken ? "Auth enabled" : "Auth disabled";
-    window.location.reload();
-  }
-
-  function clearToken() {
-    adminToken = "";
-    setAdminToken("");
-    tokenSaved = true;
-    tokenStatus = "Auth disabled";
-    window.location.reload();
-  }
+  const summary = data.summary ?? {};
+  const session = data.session ?? { authenticated: false };
+  const jobs = summary.jobs ?? {};
+  const health = summary.health ?? {};
 </script>
 
 <svelte:head>
@@ -88,38 +68,50 @@
 </svelte:head>
 
 <main>
-  <header>
-    <h1>uDOS v1.3 Control Plane</h1>
-    <p>Shared theme metadata, mission queue, and preview helpers.</p>
-    <div class="token-status">{tokenStatus}</div>
-    <div class="admin-token">
-      <label>
-        <span>Admin token</span>
-        <input
-          type="password"
-          placeholder="Bearer token for /api/renderer/*"
-          bind:value={adminToken}
-        />
-      </label>
-      <div class="token-actions">
-        <button on:click={saveToken}>Save</button>
-        <button on:click={clearToken}>Clear</button>
-      </div>
-      {#if tokenSaved}
-        <p class="token-note">Token saved. Reloading…</p>
-      {:else}
-        <p class="token-note">Stored in localStorage as `wizardAdminToken`.</p>
-      {/if}
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Managed Wizard Control Plane</p>
+      <h1>uDOS operations from workflows, tasks, and prompts</h1>
+      <p class="lede">
+        The operator surface now assumes session-based access and canonical ops routes. Human-readable
+        tasks, workflow templates, schedules, and prompt-driven jobs remain the source of truth.
+      </p>
+    </div>
+    <div class="status-card">
+      <div><strong>Deploy mode</strong><span>{data.session?.deploy_mode ?? "local"}</span></div>
+      <div><strong>Session</strong><span>{session.authenticated ? "Authenticated" : "Not signed in"}</span></div>
+      <div><strong>Role</strong><span>{data.session?.session?.role ?? "guest"}</span></div>
+      <div><strong>Health</strong><span>{health.status ?? "unknown"}</span></div>
     </div>
   </header>
-  <ThemePicker {themes} />
-  <section class="two-column">
-    <MissionQueue {missions} />
-    <TaskPanel {missions} />
+
+  <section class="stats">
+    <article>
+      <h2>Jobs</h2>
+      <p>{jobs.stats?.pending_queue ?? 0} queued</p>
+    </article>
+    <article>
+      <h2>Successful today</h2>
+      <p>{jobs.stats?.successful_today ?? 0}</p>
+    </article>
+    <article>
+      <h2>Workflow templates</h2>
+      <p>{(summary.workflow_templates ?? []).length}</p>
+    </article>
+    <article>
+      <h2>Workflow runs</h2>
+      <p>{(summary.workflow_runs ?? []).length}</p>
+    </article>
   </section>
-  <RendererPreview {siteExports} />
-  <ContributionQueue {contributions} />
-  <SpatialPanel {anchors} {places} {fileTags} />
+
+  <ThemePicker themes={data.themes} />
+  <section class="two-column">
+    <MissionQueue missions={data.missions} />
+    <TaskPanel missions={data.missions} />
+  </section>
+  <RendererPreview siteExports={data.siteExports} />
+  <ContributionQueue contributions={data.contributions} />
+  <SpatialPanel anchors={data.anchors} places={data.places} fileTags={data.fileTags} />
 </main>
 
 <style>
@@ -129,61 +121,77 @@
     gap: 1.25rem;
   }
 
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.8fr);
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.75rem;
+    color: #38bdf8;
+  }
+
+  h1 {
+    margin: 0.2rem 0 0.5rem;
+  }
+
+  .lede {
+    margin: 0;
+    max-width: 62ch;
+    color: #cbd5e1;
+  }
+
+  .status-card,
+  .stats article {
+    padding: 1rem;
+    border-radius: 0.85rem;
+    background: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+  }
+
+  .status-card {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .status-card div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: #e2e8f0;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+
+  .stats h2 {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #94a3b8;
+  }
+
+  .stats p {
+    margin: 0.5rem 0 0;
+    font-size: 1.4rem;
+    color: #f8fafc;
+  }
+
   .two-column {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1rem;
   }
 
-  .admin-token {
-    margin-top: 1rem;
-    padding: 0.75rem;
-    border-radius: 0.75rem;
-    border: 1px solid rgba(148, 163, 184, 0.3);
-    background: rgba(15, 23, 42, 0.6);
-    display: grid;
-    gap: 0.5rem;
-  }
-
-  .admin-token label {
-    display: grid;
-    gap: 0.35rem;
-    font-size: 0.85rem;
-    color: #e2e8f0;
-  }
-
-  .admin-token input {
-    width: 100%;
-    padding: 0.45rem 0.65rem;
-    border-radius: 0.5rem;
-    border: 1px solid rgba(148, 163, 184, 0.35);
-    background: rgba(2, 6, 23, 0.9);
-    color: #e2e8f0;
-  }
-
-  .token-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .token-actions button {
-    padding: 0.45rem 0.75rem;
-    border-radius: 0.5rem;
-    border: 1px solid rgba(59, 130, 246, 0.4);
-    background: rgba(59, 130, 246, 0.2);
-    color: #e2e8f0;
-    cursor: pointer;
-  }
-
-  .token-note {
-    font-size: 0.75rem;
-    color: #94a3b8;
-    margin: 0;
-  }
-
-  .token-status {
-    margin-top: 0.35rem;
-    font-size: 0.8rem;
-    color: #38bdf8;
+  @media (max-width: 800px) {
+    .hero {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

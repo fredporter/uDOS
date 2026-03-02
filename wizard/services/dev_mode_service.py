@@ -1,8 +1,8 @@
-"""
-Dev Mode Service for Wizard Server.
+"""Dev Mode Service for Wizard Server.
 
-Dev Mode is a /dev workspace runner exposed via Wizard GUI APIs.
-It does not launch a separate TUI or standalone Goblin server.
+Dev Mode is an explicitly activated contributor extension rooted at /dev.
+Wizard owns the runtime logic; /dev provides the remote framework,
+governance files, and templates that gate contributor workflows.
 """
 
 from __future__ import annotations
@@ -30,11 +30,9 @@ class DevModeService:
         self.active = False
         self.start_time: Optional[float] = None
         self.services_status = {
-            "dev_workspace": False,
-            "script_runner": False,
-            "test_runner": False,
+            "dev_extension_framework": False,
             "workflow_manager": False,
-            "github_integration": False,
+            "github_service": False,
             "dashboard_watch": False,
         }
 
@@ -46,19 +44,19 @@ class DevModeService:
         return self.wizard_root / "dev"
 
     def _scripts_root(self) -> Path:
-        return self._dev_root() / "goblin" / "scripts"
+        return self._dev_root() / "dev-work" / "scripts"
 
     def _tests_root(self) -> Path:
-        return self._dev_root() / "goblin" / "tests"
+        return self._dev_root() / "testing" / "tests"
 
     def _sandbox_root(self) -> Path:
-        return self._dev_root() / "goblin" / "wizard-sandbox"
+        return self._dev_root() / "files" / "wizard-sandbox"
 
-    def _goblin_root(self) -> Path:
-        return self._dev_root() / "goblin"
+    def _framework_manifest(self) -> Path:
+        return self._dev_root() / "extension.json"
 
     def _dev_commands_manifest(self) -> Path:
-        return self._goblin_root() / "dev_mode_commands.json"
+        return self._dev_root() / "docs" / "templates" / "extensions.json"
 
     def get_dev_commands_manifest(self) -> Dict[str, Any]:
         path = self._dev_commands_manifest()
@@ -75,35 +73,17 @@ class DevModeService:
         if not dev_root.exists():
             return False
         markers = [
-            self._scripts_root(),
-            self._tests_root(),
-            self._sandbox_root(),
-            dev_root / "goblin" / "README.md",
-            self._dev_commands_manifest(),
             dev_root / "README.md",
+            dev_root / "AGENTS.md",
+            dev_root / "DEVLOG.md",
+            dev_root / "project.json",
+            dev_root / "tasks.md",
+            dev_root / "completed.json",
+            self._framework_manifest(),
+            dev_root / "docs" / "README.md",
+            dev_root / "docs" / "DEV-MODE-POLICY.md",
         ]
-        return any(path.exists() for path in markers)
-
-    def _ensure_goblin_scaffold(self) -> None:
-        goblin_root = self._goblin_root()
-        scripts = self._scripts_root()
-        tests = self._tests_root()
-        sandbox = self._sandbox_root()
-
-        scripts.mkdir(parents=True, exist_ok=True)
-        tests.mkdir(parents=True, exist_ok=True)
-        sandbox.mkdir(parents=True, exist_ok=True)
-
-        readme = goblin_root / "README.md"
-        if not readme.exists():
-            readme.write_text(
-                "# Goblin Dev Scaffold\n\n"
-                "Wizard dev mode uses this scaffold for development execution.\n"
-                "- scripts/: runnable dev scripts\n"
-                "- tests/: runnable dev tests\n"
-                "- wizard-sandbox/: GUI-bound dev outputs\n",
-                encoding="utf-8",
-            )
+        return all(path.exists() for path in markers)
 
     def _allowed_script(self, path: Path) -> bool:
         return path.suffix.lower() in {".sh", ".py"}
@@ -165,14 +145,20 @@ class DevModeService:
             "scripts_root": str(scripts_root),
             "tests_root": str(tests_root),
             "sandbox_root": str(sandbox_root),
-            "goblin_root": str(self._goblin_root()),
+            "framework_manifest": str(self._framework_manifest()),
+            "framework_manifest_present": self._framework_manifest().exists(),
             "dev_commands_manifest": str(self._dev_commands_manifest()),
             "dev_commands_manifest_present": self._dev_commands_manifest().exists(),
             "script_count": script_count,
             "test_count": test_count,
-            "goblin_scaffold_ready": (
-                scripts_root.exists() and tests_root.exists() and sandbox_root.exists()
-            ),
+            "framework_ready": present,
+            "remote_framework_only": True,
+            "ignored_local_paths": {
+                "files": str(self._dev_root() / "files"),
+                "relecs": str(self._dev_root() / "relecs"),
+                "dev-work": str(self._dev_root() / "dev-work"),
+                "testing": str(self._dev_root() / "testing"),
+            },
         }
         self._dev_requirements_checked_at = now
         return self._dev_requirements_cache
@@ -180,15 +166,11 @@ class DevModeService:
     def ensure_requirements(self) -> Optional[str]:
         req = self.check_requirements(force=True)
         if not req.get("dev_root_present"):
-            return "Dev submodule not present (/dev missing). Clone github.com/fredporter/uDOS-dev."
+            return "Dev extension workspace not present at /dev."
         if not req.get("dev_template_present"):
-            return "Dev submodule is missing required templates. Re-clone or update /dev."
-        if not req.get("dev_commands_manifest_present"):
-            return "Dev command manifest missing (/dev/goblin/dev_mode_commands.json)."
-        self._ensure_goblin_scaffold()
-        refreshed = self.check_requirements(force=True)
-        if not refreshed.get("goblin_scaffold_ready"):
-            return "Dev submodule scaffold is incomplete (/dev/goblin/scripts, tests, wizard-sandbox required)."
+            return "Dev extension workspace is missing required framework files. Update /dev from the remote dev framework."
+        if not req.get("framework_manifest_present"):
+            return "Dev extension manifest missing (/dev/extension.json)."
         return None
 
     def ensure_active(self) -> Optional[str]:
@@ -210,9 +192,8 @@ class DevModeService:
 
         self.active = True
         self.start_time = time.time()
-        self.services_status["dev_workspace"] = True
-        self.services_status["script_runner"] = True
-        self.services_status["test_runner"] = True
+        self.services_status["dev_extension_framework"] = True
+        self.services_status["github_service"] = True
 
         self._start_dashboard_watch()
 
@@ -228,7 +209,7 @@ class DevModeService:
 
         return {
             "status": "activated",
-            "message": "Dev mode activated: /dev scripts/tests available in Wizard GUI",
+            "message": "Dev Mode extension activated: /dev framework available in Wizard",
             "dev_root": str(self._dev_root()),
             "timestamp": datetime.now().isoformat(),
         }
@@ -356,7 +337,6 @@ class DevModeService:
             "active": self.active,
             "uptime_seconds": uptime_seconds,
             "dev_root": str(self._dev_root()),
-            "goblin_root": str(self._goblin_root()),
             "scripts_root": str(self._scripts_root()),
             "tests_root": str(self._tests_root()),
             "sandbox_root": str(self._sandbox_root()),
@@ -419,11 +399,12 @@ class DevModeService:
             "healthy": healthy,
             "services": {
                 "dev_workspace": {
-                    "status": "healthy" if healthy else "unhealthy",
-                    "scripts_root": str(self._scripts_root()),
-                    "tests_root": str(self._tests_root()),
-                    "sandbox_root": str(self._sandbox_root()),
-                }
+                "status": "healthy" if healthy else "unhealthy",
+                "scripts_root": str(self._scripts_root()),
+                "tests_root": str(self._tests_root()),
+                "sandbox_root": str(self._sandbox_root()),
+                "framework_manifest": str(self._framework_manifest()),
+            }
             },
         }
 

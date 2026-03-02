@@ -187,6 +187,12 @@ These commands execute via TS/Node runtime components.
 - `STORY PARSE <file>`
 - `STORY NEW <name>`
 - `SCRIPT RUN <name>`
+- `WORKFLOW LIST [TEMPLATES|RUNS]`
+- `WORKFLOW NEW <template> <workflow_id> [key=value ...]`
+- `WORKFLOW RUN <workflow_id>`
+- `WORKFLOW STATUS <workflow_id>`
+- `WORKFLOW APPROVE <workflow_id>`
+- `WORKFLOW ESCALATE <workflow_id>`
 - `DRAW PAT LIST`
 - `DRAW PAT CYCLE`
 - `DRAW PAT TEXT "<text>"`
@@ -222,7 +228,7 @@ Current dispatch registry (54 commands) is defined in:
 
 Contract command set:
 
-`ANCHOR`, `BAG`, `BINDER`, `CLEAN`, `COMPOST`, `CONFIG`, `DESTROY`, `DEV`, `DRAW`, `EMPIRE`, `FILE`, `FIND`, `GHOST`, `GOTO`, `GRAB`, `GRID`, `HEALTH`, `HELP`, `LIBRARY`, `LOAD`, `LOGS`, `MAP`, `MIGRATE`, `MODE`, `MUSIC`, `NPC`, `PANEL`, `PLACE`, `PLAY`, `READ`, `REBOOT`, `REPAIR`, `RESTART`, `RULE`, `RUN`, `SAVE`, `SCHEDULE`, `SCHEDULER`, `SCRIPT`, `SETUP`, `SKIN`, `SONIC`, `SPAWN`, `TALK`, `TELL`, `THEME`, `TOKEN`, `UID`, `UNDO`, `USER`, `VERIFY`, `VIEWPORT`, `WIZARD`
+`ANCHOR`, `BAG`, `BINDER`, `CLEAN`, `COMPOST`, `CONFIG`, `DESTROY`, `DEV`, `DRAW`, `EMPIRE`, `FILE`, `FIND`, `GHOST`, `GOTO`, `GRAB`, `GRID`, `HEALTH`, `HELP`, `LIBRARY`, `LOAD`, `LOGS`, `MAP`, `MIGRATE`, `MODE`, `MUSIC`, `NPC`, `PANEL`, `PLACE`, `PLAY`, `READ`, `REBOOT`, `REPAIR`, `RESTART`, `RULE`, `RUN`, `SAVE`, `SCHEDULE`, `SCHEDULER`, `SCRIPT`, `SETUP`, `SKIN`, `SONIC`, `SPAWN`, `TALK`, `TELL`, `THEME`, `TOKEN`, `UID`, `UNDO`, `USER`, `VERIFY`, `VIEWPORT`, `WIZARD`, `WORKFLOW`
 
 Notes:
 - Legacy `NEW` and `EDIT` are consolidated into `FILE NEW` and `FILE EDIT`.

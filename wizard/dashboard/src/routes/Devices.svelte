@@ -11,9 +11,61 @@
   let pairingQR = "";
   let pairingSvg = "";
   let adminToken = "";
+  let sharedView = false;
+  let shareLinkCopied = false;
+  let shareResetTimer = null;
 
   const authHeaders = () =>
     adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
+
+  function readRouteState() {
+    const hash = typeof window !== "undefined" ? window.location.hash || "" : "";
+    const [, rawQuery = ""] = hash.split("?");
+    const params = new URLSearchParams(rawQuery);
+    filter = params.get("filter") || "all";
+    sharedView = params.has("filter");
+  }
+
+  function persistRouteState() {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams();
+    if (filter && filter !== "all") params.set("filter", filter);
+    const query = params.toString();
+    const nextHash = query ? `devices?${query}` : "devices";
+    if (window.location.hash.slice(1) !== nextHash) {
+      window.history.replaceState(null, "", `#${nextHash}`);
+    }
+  }
+
+  function clearSharedView() {
+    filter = "all";
+    sharedView = false;
+    persistRouteState();
+  }
+
+  function currentShareLabels() {
+    const labels = [];
+    if (filter && filter !== "all") labels.push(`filter=${filter}`);
+    return labels;
+  }
+
+  async function copyShareLink() {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams();
+    if (filter && filter !== "all") params.set("filter", filter);
+    const query = params.toString();
+    const url = `${window.location.origin}${window.location.pathname}#${query ? `devices?${query}` : "devices"}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      shareLinkCopied = true;
+      if (shareResetTimer) window.clearTimeout(shareResetTimer);
+      shareResetTimer = window.setTimeout(() => {
+        shareLinkCopied = false;
+      }, 1500);
+    } catch (err) {
+      error = `Failed to copy share link: ${err.message || err}`;
+    }
+  }
 
   function handleBackdropClick(event) {
     if (event.target === event.currentTarget) {
@@ -118,18 +170,54 @@
     return true;
   });
 
+  $: persistRouteState();
+
   onMount(() => {
     adminToken = localStorage.getItem("wizardAdminToken") || "";
+    readRouteState();
     loadDevices();
     const interval = setInterval(loadDevices, 10000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (shareResetTimer) clearTimeout(shareResetTimer);
+    };
   });
 </script>
 
 <div class="max-w-7xl mx-auto px-4 py-8">
   <!-- Header -->
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-white">Mesh Devices</h1>
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <h1 class="text-3xl font-bold text-white">Mesh Devices</h1>
+        {#if sharedView}
+          <div class="flex items-center gap-2">
+            <div class="px-2 py-1 rounded-full border border-violet-700 bg-violet-950/40 text-[11px] uppercase tracking-[0.2em] text-violet-200">
+              Shared View
+            </div>
+            {#each currentShareLabels() as label}
+              <div class="px-2 py-1 rounded border border-violet-800 bg-violet-950/20 text-[11px] text-violet-100">
+                {label}
+              </div>
+            {/each}
+            <button
+              type="button"
+              class="px-2 py-1 rounded border border-violet-700 text-[11px] uppercase tracking-[0.2em] text-violet-200 hover:bg-violet-950/40"
+              on:click={clearSharedView}
+            >
+              Dismiss
+            </button>
+          </div>
+        {/if}
+      </div>
+      <button
+        type="button"
+        class="px-3 py-1 text-xs rounded border border-violet-700 text-violet-200 hover:bg-violet-950/40"
+        on:click={copyShareLink}
+      >
+        {shareLinkCopied ? "Copied" : "Copy Share Link"}
+      </button>
+    </div>
     <p class="mt-1 text-gray-400">Monitor and manage connected uDOS nodes</p>
   </div>
 

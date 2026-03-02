@@ -1,6 +1,6 @@
 # uDOS Roadmap (Canonical)
 
-Last updated: 2026-03-02
+Last updated: 2026-03-03
 
 This roadmap tracks active execution and planned development.
 
@@ -20,6 +20,105 @@ Status on March 2, 2026:
 - `UCODE EXTENSION`, `UCODE PACKAGE`, and `UCODE REPAIR STATUS` added for profile-aware operations
 - non-Dev TUI fallback now routes to local operator planning instead of defaulting to `vibe`/provider routing
 - certified profile manifest introduced at `distribution/profiles/certified-profiles.json`
+
+### Pre-1.5 Progress Snapshot
+
+Completed basework as of March 2, 2026:
+- Dev Mode is now an explicit certified profile and activated extension surface
+- `/dev` is being re-established as the Dev Mode extension framework and governance root
+- active standard runtime no longer treats `vibe` as a normal-user surface
+- Sonic verification now covers manifest structure, dataset contracts, media provenance, and signed release bundles
+- Wizard Sonic GUI now exposes release-signing alerts, dataset-contract state, historical build readiness, and shareable operator views
+- Library operator workflow now supports repo validation, clone-to-launch install flow, Thin GUI launch, and structured dependency inventory
+- certified-profile policy now gates extension behavior and installer/profile summaries
+
+### Remaining Release Tasks
+
+Priority lanes to close before v1.5 release:
+- Creator profile completion:
+  Songscribe transcription GA, score export, sound-library management, queue/health visibility
+- Gameplay profile completion:
+  integrated mission/progression packaging, educational mapping, gaming-profile verification
+- Dev extension consolidation:
+  route remaining GitHub/library contributor workflows through the Dev Mode extension service
+- Packaging and repair closure:
+  profile drift detection, rollback/patch validation, package-group install evidence across supported profiles
+- Documentation and operator runbooks:
+  remove stale legacy terminology and complete profile-specific recovery/troubleshooting docs
+
+### Workflow Scheduler Split
+
+Core workflow scheduler lane:
+- completed on March 3, 2026:
+  - added `core/workflows/` deterministic workflow runtime
+  - added `WORKFLOW` command family: `LIST`, `NEW`, `RUN`, `STATUS`, `APPROVE`, `ESCALATE`
+  - added markdown workflow template parsing, phase execution, approval checkpoints, and provider-tier escalation
+  - added workflow artifact/state output under `memory/vault/workflows/<workflow-id>/`
+  - wired creative-pack templates/prompts into the core execution path
+  - updated command contract and operator docs for `WORKFLOW`
+  - added targeted test coverage for workflow parser, scheduler, handler, and command-surface parity
+- current core workflow lane status:
+  - deterministic local workflow execution is now live
+  - markdown-first workflow artifacts are now a real runtime surface, not only a design brief
+  - local execution remains available without network/provider access
+- remaining core workflow tasks:
+  - expand template coverage beyond the current creative-pack set
+  - add stronger variable validation and richer phase contract parsing
+  - connect real provider backends behind the current deterministic mock provider path
+  - add packaging-stage execution contracts after text-first workflow stages are stable
+
+Wizard workflow integration lane:
+- completed on March 3, 2026:
+  - added canonical Wizard operations routes under `/api/ops/*`
+  - built and verified `web-admin` as the hosted operator control plane served from `/admin`
+  - added managed deploy mode with SQLite local fallback and Postgres-backed Wizard store support for managed environments
+  - added Wizard migrations, managed bootstrap tooling, and cron job entrypoints for due-task execution, health snapshots, and maintenance
+  - added markdown-first task and workflow import so Obsidian-style task files can create jobs directly inside the Wizard control plane
+  - added managed environment contract docs plus one canonical pytest runner and Python artifact cleanup scripts
+- build GUI task/calendar/project views on top of the new workflow artifacts and runtime scheduler state
+- connect workflow execution windows, provider budget planning, research/import jobs, and contact-linked tasks
+- expose workflow orchestration through Wizard APIs and MCP after the core lane is stable
+- keep Wizard scheduling and GUI work tracked separately from the core implementation path
+- roadmap note:
+  - no Wizard workflow control-plane or GUI scheduler implementation has been merged in this core pass
+  - Wizard work should build on the new core artifact/state contract instead of introducing a parallel workflow runtime
+
+Extension workflow lane:
+- Empire: email import to tasks, contact linking, contact store repair/debug, scraping, and knowledge expansion jobs
+- Typo: integrated file picker, template browser, markdown formatting tools, and workflow/task expansion helpers
+- creative pack templates: keep extending template coverage for writing, image, video, music, and packaging workflows
+
+### Workflow Rebaseline Notes
+
+Carry-forward direction from the workflow brief and current implementation:
+- markdown-first remains the canonical authoring model
+- human checkpoints remain required between major phases unless explicitly relaxed later
+- paced execution windows remain part of the active design, but only the core workflow artifact/state layer is implemented today
+- provider rotation is currently deterministic and scaffolded; budget-aware Wizard orchestration remains a follow-on lane
+- workflow implementation is now split deliberately:
+  - core owns deterministic parsing, state, artifacts, local execution, and command surface
+  - Wizard owns future scheduler windows, GUI, MCP/API orchestration, and budget-aware execution
+  - extensions own domain-specific workflow enrichment such as contacts, email intake, research, and formatting
+
+### Creator Acceptance Pass
+
+The creator-profile acceptance pass started on March 3, 2026.
+
+Current tracking document:
+- [`docs/decisions/v1-5-creator-blocker-matrix.md`](/Users/fredbook/Code/uDOS/docs/decisions/v1-5-creator-blocker-matrix.md)
+
+Current result:
+- creator profile remains blocked by transcription scaffolding, score export closure, sound-library health verification, and end-to-end install/verify evidence
+
+### Next Release Sequence
+
+1. Close the Dev extension consolidation and documentation cleanup lane.
+2. Expand the core workflow lane with more templates and stronger phase contracts.
+3. Start Wizard workflow integration against the new core workflow artifact/state model.
+4. Finish creator-profile blocker matrix and acceptance tests.
+5. Finish gameplay/gaming profile packaging and verification.
+6. Run full certified-profile release readiness sweep.
+7. Freeze docs, installers, and operator runbooks for v1.5 signoff.
 
 ### Immediate Exit Criteria
 

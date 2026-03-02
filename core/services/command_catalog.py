@@ -72,6 +72,7 @@ CANONICAL_UCODE_COMMANDS: Final[frozenset[str]] = frozenset(
         # Workspace/content/files
         "BINDER",
         "PLACE",
+        "WORKFLOW",
         "STORY",
         "RUN",
         "READ",
@@ -79,6 +80,7 @@ CANONICAL_UCODE_COMMANDS: Final[frozenset[str]] = frozenset(
         # Library/offline assistant
         "LIBRARY",
         "UCODE",
+        "OPERATOR",
     }
 )
 

@@ -60,6 +60,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         "Automation": [
             "SCHEDULER",
             "SCRIPT",
+            "WORKFLOW",
         ],
         "Advanced": [
             "BINDER",
@@ -195,6 +196,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "notes": "FILE NEW/EDIT replace legacy NEW/EDIT commands",
             "category": "Files & State",
             "syntax": "FILE [BROWSE|LIST|SHOW|NEW|EDIT|HELP] [path]",
+        },
+        "WORKFLOW": {
+            "description": "Run deterministic markdown-first multi-phase workflows",
+            "usage": "WORKFLOW <LIST|NEW|RUN|STATUS|APPROVE|ESCALATE> ...",
+            "example": "WORKFLOW NEW WRITING-article article-001 goal=\"Write release note\" audience=operators tone=plain word_limit=600",
+            "notes": "Workflow artifacts are written to memory/vault/workflows/<workflow-id>/",
+            "category": "Automation",
+            "syntax": "WORKFLOW LIST [TEMPLATES|RUNS] | WORKFLOW NEW <template> <workflow_id> [key=value ...] | WORKFLOW RUN <workflow_id> | WORKFLOW STATUS <workflow_id> | WORKFLOW APPROVE <workflow_id> | WORKFLOW ESCALATE <workflow_id>",
         },
         "HELP": {
             "description": "Display command reference",

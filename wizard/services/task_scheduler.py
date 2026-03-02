@@ -12,8 +12,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from wizard.services.logging_api import get_logger
+from wizard.services.deploy_mode import is_managed_mode
 from wizard.services.path_utils import get_repo_root
 from wizard.services.system_info_service import get_system_info_service
+from wizard.services.store import get_wizard_store
 from core.services.maintenance_utils import compost_cleanup
 from wizard.services.repair_service import get_repair_service
 
@@ -27,8 +29,11 @@ class TaskScheduler:
         repo_root = get_repo_root()
         default_db = repo_root / "memory" / "wizard" / "tasks.db"
         self.db_path = Path(db_path or default_db)
+        self._managed = is_managed_mode()
+        self.store = get_wizard_store()
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self._init_db()
+        if not self._managed:
+            self._init_db()
         logger.info(f"[WIZ] Task scheduler using {self.db_path}")
 
     def _init_db(self) -> None:
@@ -103,6 +108,8 @@ class TaskScheduler:
         self._add_column(conn, "task_queue", queue_columns, "requires_network", "INTEGER DEFAULT 0")
 
     def get_settings(self) -> Dict[str, Any]:
+        if self._managed:
+            return self.store.get_scheduler_settings()
         defaults = {
             "max_tasks_per_tick": 2,
             "tick_seconds": 60,
@@ -134,6 +141,8 @@ class TaskScheduler:
         return defaults
 
     def update_settings(self, updates: Dict[str, Any]) -> Dict[str, Any]:
+        if self._managed:
+            return self.store.update_scheduler_settings(updates)
         settings = self.get_settings()
         settings.update({k: v for k, v in updates.items() if v is not None})
         try:
@@ -180,6 +189,24 @@ class TaskScheduler:
         kind: Optional[str] = None,
         payload: Optional[dict] = None,
     ) -> Dict[str, Any]:
+        if self._managed:
+            return self.store.create_task(
+                {
+                    "name": name,
+                    "description": description,
+                    "schedule": schedule,
+                    "provider": provider,
+                    "enabled": enabled,
+                    "priority": priority,
+                    "need": need,
+                    "mission": mission,
+                    "objective": objective,
+                    "resource_cost": resource_cost,
+                    "requires_network": requires_network,
+                    "kind": kind,
+                    "payload": payload or {},
+                }
+            )
         task_id = f"task_{uuid.uuid4().hex[:12]}"
         try:
             with sqlite3.connect(self.db_path) as conn:
@@ -233,6 +260,8 @@ class TaskScheduler:
             return {"error": str(exc)}
 
     def get_task(self, task_id: str) -> Optional[Dict[str, Any]]:
+        if self._managed:
+            return self.store.get_task(task_id)
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
@@ -254,6 +283,8 @@ class TaskScheduler:
     def list_tasks(
         self, state: Optional[str] = None, limit: int = 50
     ) -> List[Dict[str, Any]]:
+        if self._managed:
+            return self.store.list_tasks(state=state, limit=limit)
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
@@ -272,6 +303,8 @@ class TaskScheduler:
         self, task_id: str, scheduled_for: Optional[datetime] = None
     ) -> Dict[str, Any]:
         scheduled_for = scheduled_for or datetime.now()
+        if self._managed:
+            return self.store.schedule_task(task_id, scheduled_for)
         run_id = f"run_{uuid.uuid4().hex[:12]}"
         try:
             with sqlite3.connect(self.db_path) as conn:
@@ -329,6 +362,8 @@ class TaskScheduler:
             return {"error": str(exc)}
 
     def get_pending_queue(self, limit: int = 10) -> List[Dict[str, Any]]:
+        if self._managed:
+            return self.store.get_pending_queue(limit=limit)
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
@@ -350,6 +385,8 @@ class TaskScheduler:
             return []
 
     def get_scheduled_queue(self, limit: int = 50) -> List[Dict[str, Any]]:
+        if self._managed:
+            return self.store.get_scheduled_queue(limit=limit)
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
@@ -380,6 +417,8 @@ class TaskScheduler:
             return []
 
     def mark_processing(self, queue_id: int) -> bool:
+        if self._managed:
+            return False
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.execute(
@@ -395,6 +434,8 @@ class TaskScheduler:
     def complete_task(
         self, run_id: str, result: str = "success", output: str = ""
     ) -> bool:
+        if self._managed:
+            return self.store.complete_task_run(run_id, result=result, output=output)
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.execute(
@@ -422,6 +463,8 @@ class TaskScheduler:
             return False
 
     def get_task_history(self, task_id: str, limit: int = 20) -> List[Dict[str, Any]]:
+        if self._managed:
+            return self.store.get_task_history(task_id, limit=limit)
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
@@ -435,6 +478,8 @@ class TaskScheduler:
             return []
 
     def get_execution_history(self, limit: int = 50) -> List[Dict[str, Any]]:
+        if self._managed:
+            return self.store.get_execution_history(limit=limit)
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
@@ -469,6 +514,8 @@ class TaskScheduler:
         return last_run is None or (now - last_run) >= timedelta(days=1)
 
     def _get_last_run_time(self, task_id: str) -> Optional[datetime]:
+        if self._managed:
+            return self.store.get_last_run_time(task_id)
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.execute(
@@ -543,7 +590,11 @@ class TaskScheduler:
             max_tasks = int(settings.get("max_tasks_per_tick", 2))
         allow_network = bool(settings.get("allow_network", True))
         scheduled = self.schedule_due_tasks()
-        pending = self.get_pending_queue(limit=20)
+        pending = (
+            self.store.claim_due_queue_items(limit=20)
+            if self._managed
+            else self.get_pending_queue(limit=20)
+        )
         if not pending:
             return {"scheduled": scheduled, "executed": 0}
 
@@ -557,7 +608,7 @@ class TaskScheduler:
                 continue
             if item.get("requires_network") and not network_ok:
                 continue
-            if not self.mark_processing(item["id"]):
+            if (not self._managed) and (not self.mark_processing(item["id"])):
                 continue
             result, output = self._execute_task_item(item)
             self.complete_task(item["run_id"], result=result, output=output)
@@ -603,6 +654,8 @@ class TaskScheduler:
         )
 
     def get_task_by_kind(self, kind: str) -> Optional[Dict[str, Any]]:
+        if self._managed:
+            return self.store.get_task_by_kind(kind)
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
@@ -616,6 +669,8 @@ class TaskScheduler:
             return None
 
     def get_stats(self) -> Dict[str, Any]:
+        if self._managed:
+            return self.store.get_task_stats()
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.execute(

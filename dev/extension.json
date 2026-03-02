@@ -1,0 +1,39 @@
+{
+  "id": "dev-mode",
+  "name": "Dev Mode",
+  "version": "1.5.0",
+  "status": "in-progress",
+  "entry": "DEV",
+  "runtime_owner": "wizard",
+  "framework_root": "/dev",
+  "activation": {
+    "explicit": true,
+    "profile": "dev",
+    "permissions": ["admin", "dev_mode"]
+  },
+  "commands": {
+    "status": {
+      "aliases": ["stat", "mode", "state"]
+    },
+    "on": {
+      "aliases": ["activate", "start"]
+    },
+    "off": {
+      "aliases": ["deactivate", "stop"]
+    },
+    "restart": {
+      "aliases": []
+    },
+    "logs": {
+      "aliases": ["log"]
+    },
+    "health": {
+      "aliases": []
+    },
+    "clear": {
+      "aliases": []
+    }
+  },
+  "syntax": "DEV [on|off|status|restart|logs|health|clear]",
+  "summary": "Permission-gated Dev extension framework for contributor workflows, TUI tooling, GitHub operations, and roadmap management."
+}

@@ -8,6 +8,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from wizard.services.deploy_mode import is_managed_mode
+from wizard.services.store import get_wizard_store
+
 LIFECYCLE_STATES = ("planned", "starting", "ready", "stopping", "stopped", "error")
 
 
@@ -20,25 +23,40 @@ class LaunchSessionService:
 
     def __init__(self, repo_root: Path | None = None):
         self.repo_root = repo_root or Path(__file__).resolve().parent.parent.parent
+        self._managed = is_managed_mode()
+        self.store = get_wizard_store()
         self.state_dir = self.repo_root / "memory" / "wizard" / "launch"
-        self.state_dir.mkdir(parents=True, exist_ok=True)
+        if not self._managed:
+            self.state_dir.mkdir(parents=True, exist_ok=True)
 
     def _session_path(self, session_id: str) -> Path:
         return self.state_dir / f"{session_id}.json"
 
     def _write_session(self, payload: dict[str, Any]) -> None:
+        if self._managed:
+            session_id = str(payload["session_id"])
+            try:
+                self.store.get_launch_session(session_id)
+                self.store.update_launch_session(session_id, payload)
+            except FileNotFoundError:
+                self.store.create_launch_session(payload)
+            return
         self._session_path(str(payload["session_id"])).write_text(
             json.dumps(payload, indent=2),
             encoding="utf-8",
         )
 
     def get_session(self, session_id: str) -> dict[str, Any]:
+        if self._managed:
+            return self.store.get_launch_session(session_id)
         path = self._session_path(session_id)
         if not path.exists():
             raise FileNotFoundError(f"Launch session not found: {session_id}")
         return json.loads(path.read_text(encoding="utf-8"))
 
     def list_sessions(self, *, target: str | None = None, limit: int = 50) -> list[dict[str, Any]]:
+        if self._managed:
+            return self.store.list_launch_sessions(target=target, limit=limit)
         normalized_target = (target or "").strip().lower()
         sessions: list[dict[str, Any]] = []
         for path in sorted(self.state_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):

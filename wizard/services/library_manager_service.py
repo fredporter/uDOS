@@ -99,6 +99,42 @@ class LibraryManagerService:
                 continue
         return inventory
 
+    def install_inventory_dependencies(self, name: str) -> Dict[str, Any]:
+        """Install declared package dependencies for one integration."""
+        integration = self.get_integration(name)
+        if not integration:
+            return {
+                "success": False,
+                "integration": name,
+                "message": "Integration not found",
+            }
+
+        manifest_path = self._resolve_manifest_path(integration)
+        if not manifest_path:
+            return {
+                "success": False,
+                "integration": name,
+                "message": "container.json not found",
+            }
+
+        ok, message = self._install_via_package_manager(name, manifest_path.parent)
+        manifest = self._load_integration_manifest(integration)
+        deps = {
+            "apk_dependencies": manifest.get("apk_dependencies", []),
+            "brew_dependencies": manifest.get("brew_dependencies", []),
+            "apt_dependencies": manifest.get("apt_dependencies", []),
+            "pip_dependencies": manifest.get("pip_dependencies", []),
+        }
+        installed_groups = {
+            key: value for key, value in deps.items() if isinstance(value, list) and value
+        }
+        return {
+            "success": ok,
+            "integration": name,
+            "message": message,
+            "installed_groups": installed_groups,
+        }
+
     def update_alpine_toolchain(
         self, packages: Optional[List[str]] = None
     ) -> Dict[str, Any]:

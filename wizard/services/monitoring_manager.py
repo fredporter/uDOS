@@ -17,10 +17,12 @@ from enum import Enum
 from collections import defaultdict
 
 from core.services.health_training import read_last_summary
+from wizard.services.deploy_mode import is_managed_mode
 from wizard.services.logging_api import get_logger
 from wizard.services.notification_history_service import NotificationHistoryService
 import os
 from wizard.services.plugin_registry import get_registry
+from wizard.services.store import get_wizard_store
 
 logger = get_logger("wizard", category="monitoring", name="monitoring")
 
@@ -160,7 +162,10 @@ class MonitoringManager:
             alert_callbacks: Optional callback functions for alerts
         """
         self.data_dir = data_dir or Path("memory/logs/monitoring")
-        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self._managed = is_managed_mode()
+        self.store = get_wizard_store()
+        if not self._managed:
+            self.data_dir.mkdir(parents=True, exist_ok=True)
 
         self.check_interval = check_interval
         self.alert_callbacks = alert_callbacks or []
@@ -792,6 +797,8 @@ class MonitoringManager:
         )
 
         self.audit_entries.append(entry)
+        if self._managed:
+            self.store.append_audit_entry(entry.to_dict())
 
         # Log to file
         log_level = logger.info if success else logger.error
@@ -800,7 +807,7 @@ class MonitoringManager:
         )
 
         # Save periodically
-        if len(self.audit_entries) % 100 == 0:
+        if (not self._managed) and len(self.audit_entries) % 100 == 0:
             self._save_audit_log()
 
         return entry
@@ -839,12 +846,18 @@ class MonitoringManager:
 
     def _save_alerts(self):
         """Save alerts to disk"""
+        if self._managed:
+            for alert in self.alerts:
+                self.store.upsert_alert(alert.to_dict())
+            return
         alerts_file = self.data_dir / "alerts.json"
         with open(alerts_file, "w") as f:
             json.dump([a.to_dict() for a in self.alerts], f, indent=2)
 
     def _save_audit_log(self):
         """Save audit log to disk"""
+        if self._managed:
+            return
         # Save to dated file
         today = datetime.now().strftime("%Y-%m-%d")
         audit_file = self.data_dir / f"audit-{today}.json"
@@ -854,6 +867,10 @@ class MonitoringManager:
 
     def _load_state(self):
         """Load persisted state"""
+        if self._managed:
+            self.alerts = [Alert(**row) for row in self.store.list_alerts(limit=500)]
+            self.audit_entries = [AuditLogEntry(**{**row, "user": row.get("user_name", row.get("user"))}) for row in self.store.list_audit_entries(limit=1000)]
+            return
         # Load alerts
         alerts_file = self.data_dir / "alerts.json"
         if alerts_file.exists():

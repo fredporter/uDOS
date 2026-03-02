@@ -21,7 +21,13 @@ Each file captures a discrete architectural, design, or technology choice.
 | [OK-update-v1-4-6.md](OK-update-v1-4-6.md) | OK-mode cloud provider contract updates for v1.4.6 |
 | [MCP-API.md](MCP-API.md) | MCP API integration design |
 
-## AI & LLM Backend
+## Workflow & Orchestration
+
+| File | Topic |
+|------|-------|
+| [v1-5-workflow.md](v1-5-workflow.md) | Active v1.5 workflow scheduler decision, scope split, and core/Wizard/extension ownership |
+
+## OK Provider & Model Runtime
 
 | File | Topic |
 |------|-------|

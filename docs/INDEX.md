@@ -1,6 +1,6 @@
 # Documentation Index & Navigation
 
-**Last Updated:** 2026-02-21
+**Last Updated:** 2026-03-03
 
 Complete navigation guide for uDOS + Vibe documentation.
 
@@ -19,6 +19,7 @@ Complete navigation guide for uDOS + Vibe documentation.
 ### 🔧 I'm a Maintainer
 - [Integration Readiness](INTEGRATION-READINESS.md) — Health checks
 - [Roadmap](roadmap.md) — Active milestone and execution steps
+- [v1.5 Workflow Decision](decisions/v1-5-workflow.md) — Active workflow architecture and lane split
 - [UCODE Offline Operator Runbook](howto/UCODE-OFFLINE-OPERATOR-RUNBOOK.md) — No-network recovery flow
 - [Troubleshooting](troubleshooting/) — Common issues
 
@@ -39,6 +40,7 @@ Complete navigation guide for uDOS + Vibe documentation.
 | [ARCHITECTURE.md](ARCHITECTURE.md) | 20 min | Non-fork integration model |
 | [INTEGRATION-READINESS.md](INTEGRATION-READINESS.md) | 15 min | Audit results & validation |
 | [roadmap.md](roadmap.md) | 10 min | Active milestone and execution priorities |
+| [decisions/v1-5-workflow.md](decisions/v1-5-workflow.md) | 10 min | Active workflow scheduler decision |
 | [PHASE-A-QUICKREF.md](PHASE-A-QUICKREF.md) | 15 min | Developer templates |
 
 ### Development Guides
@@ -119,12 +121,14 @@ README.md (start here)
 - **New to project?** → [dev/GETTING-STARTED.md](dev/GETTING-STARTED.md)
 - **Understand design?** → [ARCHITECTURE.md](ARCHITECTURE.md)
 - **Track current priorities?** → [roadmap.md](roadmap.md)
+- **Track workflow architecture?** → [decisions/v1-5-workflow.md](decisions/v1-5-workflow.md)
 - **Build a tool?** → [PHASE-A-QUICKREF.md](PHASE-A-QUICKREF.md)
 
 ### For Specific Tasks
 
 - **Set up dev environment** → [dev/GETTING-STARTED.md](dev/GETTING-STARTED.md)
 - **Understand project readiness** → [INTEGRATION-READINESS.md](INTEGRATION-READINESS.md)
+- **Find workflow status/scope split** → [roadmap.md](roadmap.md) and [decisions/v1-5-workflow.md](decisions/v1-5-workflow.md)
 - **Find format specs** → [specs/](specs/)
 - **Solve a problem** → [troubleshooting/](troubleshooting/)
 - **Learn design decisions** → [decisions/](decisions/)

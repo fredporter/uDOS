@@ -5,6 +5,7 @@
     openContainerAction,
     stopContainerAction,
   } from "$lib/services/containerActions";
+  import { openThinGuiWindow } from "$lib/services/thinGuiWindow";
   import { onMount } from "svelte";
 
   let libraryData = null;
@@ -14,6 +15,7 @@
   let actionInProgress = null; // Track which action is in progress
   let adminToken = "";
   let inventoryData = null;
+  let inventoryRows = [];
   let reposData = [];
   let packagesData = [];
   let apkStatus = null;
@@ -25,9 +27,162 @@
   let toolchainPackages =
     "python3 py3-pip py3-setuptools py3-wheel py3-virtualenv";
   let toolchainResult = null;
+  let inventoryActionNotice = null;
+  let launchActionNotice = null;
+  let repoSearch = "";
+  let packageSearch = "";
+  let inventorySearch = "";
+  let containerSearch = "";
+  let newRepoUrl = "";
+  let newRepoBranch = "main";
+  let sharedView = false;
+  let shareLinkCopied = false;
+  let shareResetTimer = null;
+  let restoredFromSession = false;
+
+  const librarySessionKey = "wizard:library:view-state";
 
   const authHeaders = () =>
     adminToken ? { Authorization: `Bearer ${adminToken}` } : {};
+
+  function readRouteState() {
+    const hash = typeof window !== "undefined" ? window.location.hash || "" : "";
+    const [, rawQuery = ""] = hash.split("?");
+    const params = new URLSearchParams(rawQuery);
+    filterStatus = params.get("filter") || "all";
+    repoSearch = params.get("repoSearch") || "";
+    packageSearch = params.get("packageSearch") || "";
+    inventorySearch = params.get("inventorySearch") || "";
+    containerSearch = params.get("containerSearch") || "";
+    sharedView =
+      params.has("filter") ||
+      params.has("repoSearch") ||
+      params.has("packageSearch") ||
+      params.has("inventorySearch") ||
+      params.has("containerSearch");
+  }
+
+  function persistRouteState() {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams();
+    if (filterStatus && filterStatus !== "all") params.set("filter", filterStatus);
+    if (repoSearch) params.set("repoSearch", repoSearch);
+    if (packageSearch) params.set("packageSearch", packageSearch);
+    if (inventorySearch) params.set("inventorySearch", inventorySearch);
+    if (containerSearch) params.set("containerSearch", containerSearch);
+    const query = params.toString();
+    const nextHash = query ? `library?${query}` : "library";
+    if (window.location.hash.slice(1) !== nextHash) {
+      window.history.replaceState(null, "", `#${nextHash}`);
+    }
+  }
+
+  function currentShareLabels() {
+    const labels = [];
+    if (filterStatus && filterStatus !== "all") labels.push(`filter=${filterStatus}`);
+    if (repoSearch) labels.push(`repoSearch=${repoSearch}`);
+    if (packageSearch) labels.push(`packageSearch=${packageSearch}`);
+    if (inventorySearch) labels.push(`inventorySearch=${inventorySearch}`);
+    if (containerSearch) labels.push(`containerSearch=${containerSearch}`);
+    return labels;
+  }
+
+  function clearSharedView() {
+    restoredFromSession = false;
+    filterStatus = "all";
+    repoSearch = "";
+    packageSearch = "";
+    inventorySearch = "";
+    containerSearch = "";
+    sharedView = false;
+    persistRouteState();
+    persistViewState();
+  }
+
+  async function copyShareLink() {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams();
+    if (filterStatus && filterStatus !== "all") params.set("filter", filterStatus);
+    if (repoSearch) params.set("repoSearch", repoSearch);
+    if (packageSearch) params.set("packageSearch", packageSearch);
+    if (inventorySearch) params.set("inventorySearch", inventorySearch);
+    if (containerSearch) params.set("containerSearch", containerSearch);
+    const query = params.toString();
+    const url = `${window.location.origin}${window.location.pathname}#${query ? `library?${query}` : "library"}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      shareLinkCopied = true;
+      if (shareResetTimer) window.clearTimeout(shareResetTimer);
+      shareResetTimer = window.setTimeout(() => {
+        shareLinkCopied = false;
+      }, 1500);
+    } catch (err) {
+      error = `Failed to copy share link: ${err.message || err}`;
+    }
+  }
+
+  function persistViewState() {
+    if (typeof window === "undefined") return;
+    window.sessionStorage.setItem(
+      librarySessionKey,
+      JSON.stringify({
+        filterStatus,
+        repoSearch,
+        packageSearch,
+        inventorySearch,
+        containerSearch,
+      }),
+    );
+  }
+
+  function restoreViewState() {
+    if (typeof window === "undefined") return;
+    const raw = window.sessionStorage.getItem(librarySessionKey);
+    if (!raw) return;
+    try {
+      const payload = JSON.parse(raw);
+      if (!payload || typeof payload !== "object") return;
+      if (filterStatus === "all" && typeof payload.filterStatus === "string" && payload.filterStatus) {
+        filterStatus = payload.filterStatus;
+        sharedView = payload.filterStatus !== "all";
+        restoredFromSession = payload.filterStatus !== "all";
+      }
+      if (!repoSearch && typeof payload.repoSearch === "string") {
+        repoSearch = payload.repoSearch;
+        sharedView = sharedView || payload.repoSearch.length > 0;
+        restoredFromSession = restoredFromSession || payload.repoSearch.length > 0;
+      }
+      if (!packageSearch && typeof payload.packageSearch === "string") {
+        packageSearch = payload.packageSearch;
+        sharedView = sharedView || payload.packageSearch.length > 0;
+        restoredFromSession = restoredFromSession || payload.packageSearch.length > 0;
+      }
+      if (!inventorySearch && typeof payload.inventorySearch === "string") {
+        inventorySearch = payload.inventorySearch;
+        sharedView = sharedView || payload.inventorySearch.length > 0;
+        restoredFromSession = restoredFromSession || payload.inventorySearch.length > 0;
+      }
+      if (!containerSearch && typeof payload.containerSearch === "string") {
+        containerSearch = payload.containerSearch;
+        sharedView = sharedView || payload.containerSearch.length > 0;
+        restoredFromSession = restoredFromSession || payload.containerSearch.length > 0;
+      }
+    } catch {
+      window.sessionStorage.removeItem(librarySessionKey);
+    }
+  }
+
+  function clearFilters() {
+    clearSharedView();
+  }
+
+  function clearLaunchNotice() {
+    launchActionNotice = null;
+  }
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 
   async function loadLibrary() {
     loading = true;
@@ -53,8 +208,10 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       inventoryData = data.inventory || {};
+      inventoryRows = data.rows || [];
     } catch (err) {
       inventoryData = null;
+      inventoryRows = [];
     }
   }
 
@@ -340,11 +497,17 @@
 
   async function launchContainer(containerId) {
     actionInProgress = `container-launch-${containerId}`;
+    launchActionNotice = null;
     try {
       await launchContainerAction(apiFetch, authHeaders(), containerId);
       await loadContainers();
     } catch (err) {
-      alert(`❌ Launch failed: ${err.message}`);
+      launchActionNotice = {
+        type: "error",
+        containerId,
+        message: `Launch failed for ${containerId}: ${err.message}`,
+        retryMode: "launch",
+      };
     } finally {
       actionInProgress = null;
     }
@@ -446,6 +609,168 @@
     openContainerAction(container);
   }
 
+  function openContainerThinGui(container) {
+    const route = container?.browser_route || "/";
+    const url = `http://localhost:${container.port}${route}`;
+    openThinGuiWindow({
+      title: container?.name || container?.id || "Container",
+      targetUrl: url,
+      targetLabel: container?.id || container?.name || "container",
+    });
+  }
+
+  async function cloneRepoByAddress() {
+    const repo = newRepoUrl.trim();
+    const branch = newRepoBranch.trim() || "main";
+    if (!repo) {
+      error = "Repository address is required";
+      return;
+    }
+    actionInProgress = "repo-clone-address";
+    error = null;
+    try {
+      const params = new URLSearchParams({ repo, branch });
+      const res = await apiFetch(`/api/library/repos/clone?${params.toString()}`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data?.detail || data?.error || `HTTP ${res.status}`);
+      }
+      newRepoUrl = "";
+      newRepoBranch = "main";
+      await Promise.all([loadRepos(), loadContainers(), loadLibrary()]);
+    } catch (err) {
+      error = `Failed to add repo: ${err.message || err}`;
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  async function installRepoWithWizard() {
+    const repo = newRepoUrl.trim();
+    const branch = newRepoBranch.trim() || "main";
+    if (!repo) {
+      error = "Repository address is required";
+      return;
+    }
+    actionInProgress = "repo-install-wizard";
+    error = null;
+    launchActionNotice = null;
+    try {
+      const res = await apiFetch("/api/library/repos/install-wizard", {
+        method: "POST",
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({
+          repo,
+          branch,
+          launch_if_runnable: true,
+          open_thin_gui: true,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data?.detail || data?.error || `HTTP ${res.status}`);
+      }
+      newRepoUrl = "";
+      newRepoBranch = "main";
+      await refreshAll();
+      const thinGui = data?.container?.thin_gui;
+      const launchContainerId = data?.container?.launch_result?.container_id || data?.repo?.name;
+      if (thinGui?.target_url && launchContainerId) {
+        await waitForContainerReady(launchContainerId, thinGui);
+        openThinGuiWindow({
+          title: thinGui.title || thinGui.target_label || "Container",
+          targetUrl: thinGui.target_url,
+          targetLabel: thinGui.target_label || thinGui.title || "container",
+        });
+      }
+    } catch (err) {
+      if (!launchActionNotice || launchActionNotice.retryMode !== "open-thin-gui") {
+        error = `Failed to add repo with install wizard: ${err.message || err}`;
+      }
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
+  async function waitForContainerReady(containerId, thinGui = null, maxAttempts = 15, delayMs = 1000) {
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      const res = await apiFetch(`/api/containers/${containerId}/status`, {
+        headers: authHeaders(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.state === "running") {
+          await loadContainers();
+          return true;
+        }
+      }
+      await sleep(delayMs);
+    }
+    launchActionNotice = {
+      type: "warning",
+      containerId,
+      message: `${containerId} is still launching. Retry when the service becomes ready.`,
+      retryMode: "open-thin-gui",
+      thinGui,
+    };
+    throw new Error(`Container ${containerId} did not become ready in time`);
+  }
+
+  async function retryLaunchAction() {
+    const notice = launchActionNotice;
+    if (!notice?.containerId) return;
+    if (notice.retryMode === "launch") {
+      await launchContainer(notice.containerId);
+      return;
+    }
+    if (notice.retryMode === "open-thin-gui" && notice.thinGui) {
+      actionInProgress = `container-retry-open-${notice.containerId}`;
+      try {
+        await waitForContainerReady(notice.containerId, notice.thinGui);
+        openThinGuiWindow({
+          title: notice.thinGui.title || notice.thinGui.target_label || "Container",
+          targetUrl: notice.thinGui.target_url,
+          targetLabel: notice.thinGui.target_label || notice.thinGui.title || "container",
+        });
+        launchActionNotice = null;
+      } catch (err) {
+        // waitForContainerReady sets the notice payload
+      } finally {
+        actionInProgress = null;
+      }
+    }
+  }
+
+  async function installInventoryDependencies(name) {
+    actionInProgress = `inventory-install-${name}`;
+    inventoryActionNotice = null;
+    try {
+      const res = await apiFetch(`/api/library/inventory/${name}/install`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data?.detail || data?.result?.message || `HTTP ${res.status}`);
+      }
+      inventoryActionNotice = {
+        type: "success",
+        message: data.result?.message || `Installed dependencies for ${name}`,
+      };
+      await loadInventory();
+    } catch (err) {
+      inventoryActionNotice = {
+        type: "error",
+        message: `Dependency install failed for ${name}: ${err.message || err}`,
+      };
+    } finally {
+      actionInProgress = null;
+    }
+  }
+
   async function ensureToken() {
     adminToken = localStorage.getItem("wizardAdminToken") || "";
     if (!adminToken) {
@@ -467,6 +792,8 @@
   }
 
   onMount(async () => {
+    readRouteState();
+    restoreViewState();
     await ensureToken();
     if (adminToken) {
       refreshAll();
@@ -475,15 +802,94 @@
     }
     loadContainers();
   });
+
+  $: persistRouteState();
+  $: persistViewState();
+  $: filteredRepos = reposData.filter((repo) => {
+    if (!repoSearch) return true;
+    return `${repo.name || ""}`.toLowerCase().includes(repoSearch.toLowerCase());
+  });
+  $: filteredPackages = packagesData.filter((pkg) => {
+    if (!packageSearch) return true;
+    return `${pkg.filename || ""}`.toLowerCase().includes(packageSearch.toLowerCase());
+  });
+  $: filteredInventoryEntries = inventoryRows.filter((entry) => {
+    if (!inventorySearch) return true;
+    const dependencyText = [
+      entry.name,
+      entry.path,
+      entry.source,
+      entry.python_version,
+      ...(entry.apk_dependencies || []),
+      ...(entry.apt_dependencies || []),
+      ...(entry.brew_dependencies || []),
+      ...(entry.pip_dependencies || []),
+    ]
+      .filter(Boolean)
+      .join(" ");
+    return dependencyText.toLowerCase().includes(inventorySearch.toLowerCase());
+  });
+  $: filteredContainers = containers.filter((container) => {
+    if (!containerSearch) return true;
+    return `${container.id || ""} ${container.name || ""} ${container.state || ""}`
+      .toLowerCase()
+      .includes(containerSearch.toLowerCase());
+  });
+  $: filteredIntegrations = getFilteredIntegrations().filter((integration) => {
+    if (!containerSearch) return true;
+    if (!containerMap[integration.name]) return true;
+    const container = containerMap[integration.name];
+    return `${container.id || ""} ${container.name || ""} ${container.state || ""}`
+      .toLowerCase()
+      .includes(containerSearch.toLowerCase());
+  });
 </script>
 
 <div class="max-w-7xl mx-auto px-4 py-8 text-white space-y-6">
   <div class="flex items-center justify-between gap-3">
     <div>
-      <h1 class="text-3xl font-bold text-white mb-1">Library</h1>
+      <div class="mb-3 flex flex-wrap items-center gap-2">
+        <h1 class="text-3xl font-bold text-white">Library</h1>
+        {#if restoredFromSession}
+          <div class="rounded-full border border-cyan-700 bg-cyan-950/30 px-2 py-1 text-[11px] uppercase tracking-[0.2em] text-cyan-200">
+            Restored
+          </div>
+        {/if}
+        {#if sharedView}
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="rounded-full border border-violet-700 bg-violet-950/40 px-2 py-1 text-[11px] uppercase tracking-[0.2em] text-violet-200">
+              Shared View
+            </div>
+            {#each currentShareLabels() as label}
+              <div class="rounded border border-violet-800 bg-violet-950/20 px-2 py-1 text-[11px] text-violet-100">
+                {label}
+              </div>
+            {/each}
+            <button
+              type="button"
+              class="rounded border border-violet-700 px-2 py-1 text-[11px] uppercase tracking-[0.2em] text-violet-200 hover:bg-violet-950/40"
+              on:click={clearSharedView}
+            >
+              Dismiss
+            </button>
+          </div>
+        {/if}
+      </div>
       <p class="text-gray-400">Integrations and plugins</p>
     </div>
     <div class="flex gap-2">
+      <button
+        class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-white text-sm font-semibold border border-gray-700"
+        on:click={copyShareLink}
+      >
+        {shareLinkCopied ? "Copied" : "Copy Share Link"}
+      </button>
+      <button
+        class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-white text-sm font-semibold border border-gray-700"
+        on:click={clearFilters}
+      >
+        Clear Filters
+      </button>
       <button
         class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold"
         on:click={refreshAll}
@@ -506,6 +912,36 @@
       {error}
     </div>
   {:else if libraryData}
+    {#if launchActionNotice}
+      <div class={`rounded-lg border px-4 py-3 text-sm ${
+        launchActionNotice.type === "error"
+          ? "border-red-700 bg-red-950/20 text-red-200"
+          : "border-amber-700 bg-amber-950/20 text-amber-200"
+      }`}>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>{launchActionNotice.message}</div>
+          <div class="flex items-center gap-2">
+            <button
+              class="rounded bg-gray-800 px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+              on:click={retryLaunchAction}
+              disabled={actionInProgress !== null}
+            >
+              {actionInProgress === `container-retry-open-${launchActionNotice.containerId}` ||
+              actionInProgress === `container-launch-${launchActionNotice.containerId}`
+                ? "Retrying..."
+                : "Retry"}
+            </button>
+            <button
+              class="rounded border border-current px-3 py-1.5 text-xs font-medium"
+              on:click={clearLaunchNotice}
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      </div>
+    {/if}
+
     <!-- Stats -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
@@ -608,20 +1044,282 @@
       </div>
     </div>
 
-    <!-- Filters -->
-    <div class="flex gap-2 flex-wrap">
-      {#each ["all", "installed", "available", "enabled"] as status}
+    <div class="rounded-lg border border-gray-800 bg-gray-900 p-4">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-white">Add Repo To Library</h2>
+        <div class="text-xs text-gray-500">Accepts `owner/name` or full `https://...git`</div>
+      </div>
+      <div class="grid gap-3 lg:grid-cols-[1fr_180px_auto_auto]">
+        <input
+          bind:value={newRepoUrl}
+          class="rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white"
+          placeholder="https://github.com/example/project.git"
+        />
+        <input
+          bind:value={newRepoBranch}
+          class="rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white"
+          placeholder="main"
+        />
         <button
-          class={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
-            filterStatus === status
-              ? "bg-indigo-600 text-white"
-              : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700"
-          }`}
-          on:click={() => (filterStatus = status)}
+          class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
+          on:click={installRepoWithWizard}
+          disabled={actionInProgress !== null}
         >
-          {status.charAt(0).toUpperCase() + status.slice(1)}
+          {actionInProgress === "repo-install-wizard" ? "Installing..." : "Clone + Launch"}
         </button>
-      {/each}
+        <button
+          class="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-500 disabled:opacity-50"
+          on:click={cloneRepoByAddress}
+          disabled={actionInProgress !== null}
+        >
+          {actionInProgress === "repo-clone-address" ? "Adding..." : "Add Repo"}
+        </button>
+      </div>
+      <div class="mt-2 text-xs text-gray-500">
+        `Clone + Launch` will open Thin GUI automatically when the cloned repo exposes a runnable container.
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="grid gap-4 lg:grid-cols-2 xl:grid-cols-5">
+      <div class="flex gap-2 flex-wrap">
+        {#each ["all", "installed", "available", "enabled"] as status}
+          <button
+            class={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+              filterStatus === status
+                ? "bg-indigo-600 text-white"
+                : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700"
+            }`}
+            on:click={() => {
+              restoredFromSession = false;
+              filterStatus = status;
+              sharedView =
+                status !== "all" ||
+                repoSearch.length > 0 ||
+                packageSearch.length > 0 ||
+                inventorySearch.length > 0 ||
+                containerSearch.length > 0;
+            }}
+          >
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </button>
+        {/each}
+      </div>
+      <input
+        bind:value={repoSearch}
+        on:input={() => {
+          restoredFromSession = false;
+          sharedView =
+            filterStatus !== "all" ||
+            repoSearch.length > 0 ||
+            packageSearch.length > 0 ||
+            inventorySearch.length > 0 ||
+            containerSearch.length > 0;
+        }}
+        class="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white"
+        placeholder="Search repos"
+      />
+      <input
+        bind:value={packageSearch}
+        on:input={() => {
+          restoredFromSession = false;
+          sharedView =
+            filterStatus !== "all" ||
+            repoSearch.length > 0 ||
+            packageSearch.length > 0 ||
+            inventorySearch.length > 0 ||
+            containerSearch.length > 0;
+        }}
+        class="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white"
+        placeholder="Search packages"
+      />
+      <input
+        bind:value={inventorySearch}
+        on:input={() => {
+          restoredFromSession = false;
+          sharedView =
+            filterStatus !== "all" ||
+            repoSearch.length > 0 ||
+            packageSearch.length > 0 ||
+            inventorySearch.length > 0 ||
+            containerSearch.length > 0;
+        }}
+        class="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white"
+        placeholder="Search inventory"
+      />
+      <input
+        bind:value={containerSearch}
+        on:input={() => {
+          restoredFromSession = false;
+          sharedView =
+            filterStatus !== "all" ||
+            repoSearch.length > 0 ||
+            packageSearch.length > 0 ||
+            inventorySearch.length > 0 ||
+            containerSearch.length > 0;
+        }}
+        class="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white"
+        placeholder="Search containers"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+      <div class="rounded-lg border border-gray-800 bg-gray-900 p-4">
+        <div class="mb-3 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-white">Dependency Inventory</h2>
+          <div class="text-xs text-gray-500">{filteredInventoryEntries.length} visible</div>
+        </div>
+        {#if inventoryActionNotice}
+          <div class={`mb-3 rounded border px-3 py-2 text-sm ${
+            inventoryActionNotice.type === "success"
+              ? "border-emerald-700 bg-emerald-950/20 text-emerald-200"
+              : "border-red-700 bg-red-950/20 text-red-200"
+          }`}>
+            {inventoryActionNotice.message}
+          </div>
+        {/if}
+        {#if inventoryRows.length === 0}
+          <div class="rounded border border-dashed border-gray-700 bg-gray-800/50 px-3 py-4 text-sm text-gray-400">
+            Inventory has not been populated yet.
+          </div>
+        {:else if filteredInventoryEntries.length === 0}
+          <div class="rounded border border-dashed border-gray-700 bg-gray-800/50 px-3 py-4 text-sm text-gray-400">
+            No inventory entries match the current inventory search.
+          </div>
+        {:else}
+          <div class="space-y-2">
+            {#each filteredInventoryEntries as entry}
+              <div class="rounded border border-gray-700 bg-gray-800 px-3 py-3">
+                <div class="mb-3 flex items-start justify-between gap-3">
+                  <div>
+                    <div class="text-sm font-medium text-white">{entry.name}</div>
+                    <div class="text-xs text-gray-400">{entry.source || "library"} · {entry.path || "n/a"}</div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="rounded border border-slate-600 bg-slate-900 px-2 py-1 text-xs text-slate-200">
+                      {entry.dependency_count} deps
+                    </div>
+                    <button
+                      class="rounded bg-indigo-600 px-2 py-1 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+                      on:click={() => installInventoryDependencies(entry.name)}
+                      disabled={actionInProgress !== null || entry.dependency_count === 0}
+                    >
+                      {actionInProgress === `inventory-install-${entry.name}` ? "..." : "Install"}
+                    </button>
+                  </div>
+                </div>
+                <div class="grid gap-2 md:grid-cols-2">
+                  <div class="rounded border border-gray-700 bg-gray-900/60 p-2">
+                    <div class="mb-1 text-[11px] uppercase tracking-[0.2em] text-gray-500">Python</div>
+                    <div class="text-xs text-gray-300">
+                      {entry.python_version || "system default"}
+                    </div>
+                  </div>
+                  <div class="rounded border border-gray-700 bg-gray-900/60 p-2">
+                    <div class="mb-1 text-[11px] uppercase tracking-[0.2em] text-gray-500">Install Surface</div>
+                    <div class="text-xs text-gray-300">
+                      {entry.apk_dependencies?.length ? "APK" : ""}
+                      {entry.apt_dependencies?.length ? " APT" : ""}
+                      {entry.brew_dependencies?.length ? " Brew" : ""}
+                      {entry.pip_dependencies?.length ? " Pip" : ""}
+                      {entry.dependency_count === 0 ? "No declared package dependencies" : ""}
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-3 grid gap-2 lg:grid-cols-2">
+                  <div class="rounded border border-gray-700 bg-gray-900/60 p-2">
+                    <div class="mb-1 text-[11px] uppercase tracking-[0.2em] text-emerald-300">APK</div>
+                    <div class="flex flex-wrap gap-1">
+                      {#if entry.apk_dependencies?.length}
+                        {#each entry.apk_dependencies as dep}
+                          <span class="rounded bg-emerald-950/50 px-2 py-1 text-xs text-emerald-100">{dep}</span>
+                        {/each}
+                      {:else}
+                        <span class="text-xs text-gray-500">None</span>
+                      {/if}
+                    </div>
+                  </div>
+                  <div class="rounded border border-gray-700 bg-gray-900/60 p-2">
+                    <div class="mb-1 text-[11px] uppercase tracking-[0.2em] text-sky-300">APT</div>
+                    <div class="flex flex-wrap gap-1">
+                      {#if entry.apt_dependencies?.length}
+                        {#each entry.apt_dependencies as dep}
+                          <span class="rounded bg-sky-950/50 px-2 py-1 text-xs text-sky-100">{dep}</span>
+                        {/each}
+                      {:else}
+                        <span class="text-xs text-gray-500">None</span>
+                      {/if}
+                    </div>
+                  </div>
+                  <div class="rounded border border-gray-700 bg-gray-900/60 p-2">
+                    <div class="mb-1 text-[11px] uppercase tracking-[0.2em] text-amber-300">Brew</div>
+                    <div class="flex flex-wrap gap-1">
+                      {#if entry.brew_dependencies?.length}
+                        {#each entry.brew_dependencies as dep}
+                          <span class="rounded bg-amber-950/50 px-2 py-1 text-xs text-amber-100">{dep}</span>
+                        {/each}
+                      {:else}
+                        <span class="text-xs text-gray-500">None</span>
+                      {/if}
+                    </div>
+                  </div>
+                  <div class="rounded border border-gray-700 bg-gray-900/60 p-2">
+                    <div class="mb-1 text-[11px] uppercase tracking-[0.2em] text-fuchsia-300">Pip</div>
+                    <div class="flex flex-wrap gap-1">
+                      {#if entry.pip_dependencies?.length}
+                        {#each entry.pip_dependencies as dep}
+                          <span class="rounded bg-fuchsia-950/50 px-2 py-1 text-xs text-fuchsia-100">{dep}</span>
+                        {/each}
+                      {:else}
+                        <span class="text-xs text-gray-500">None</span>
+                      {/if}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+
+      <div class="rounded-lg border border-gray-800 bg-gray-900 p-4">
+        <div class="mb-3 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-white">Container Runtime</h2>
+          <div class="text-xs text-gray-500">{filteredContainers.length} visible</div>
+        </div>
+        {#if containers.length === 0}
+          <div class="rounded border border-dashed border-gray-700 bg-gray-800/50 px-3 py-4 text-sm text-gray-400">
+            No launchable containers are available yet.
+          </div>
+        {:else if filteredContainers.length === 0}
+          <div class="rounded border border-dashed border-gray-700 bg-gray-800/50 px-3 py-4 text-sm text-gray-400">
+            No containers match the current container search.
+          </div>
+        {:else}
+          <div class="space-y-2">
+            {#each filteredContainers as container}
+              <div class="rounded border border-gray-700 bg-gray-800 px-3 py-3">
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <div class="text-sm font-medium text-white">{container.name}</div>
+                    <div class="text-xs text-gray-400">{container.id} · {container.state}</div>
+                  </div>
+                  <div class="flex gap-2">
+                    {#if container.state === "running"}
+                      <button
+                        class="rounded bg-cyan-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-cyan-500"
+                        on:click={() => openContainerThinGui(container)}
+                      >
+                        Thin GUI
+                      </button>
+                    {/if}
+                  </div>
+                </div>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
     </div>
 
     <!-- Repo Inventory -->
@@ -636,10 +1334,16 @@
         </button>
       </div>
       {#if reposData.length === 0}
-        <div class="text-xs text-gray-500">No repos found</div>
+        <div class="rounded border border-dashed border-gray-700 bg-gray-800/50 px-3 py-4 text-sm text-gray-400">
+          No library repos are available yet.
+        </div>
+      {:else if filteredRepos.length === 0}
+        <div class="rounded border border-dashed border-gray-700 bg-gray-800/50 px-3 py-4 text-sm text-gray-400">
+          No repos match the current repo search.
+        </div>
       {:else}
         <div class="space-y-2">
-          {#each reposData as repo}
+          {#each filteredRepos as repo}
             <div class="flex items-center justify-between bg-gray-800 border border-gray-700 rounded px-3 py-2">
               <div class="text-sm text-white">{repo.name}</div>
               <div class="flex gap-2">
@@ -683,10 +1387,16 @@
         </button>
       </div>
       {#if packagesData.length === 0}
-        <div class="text-xs text-gray-500">No packages yet</div>
+        <div class="rounded border border-dashed border-gray-700 bg-gray-800/50 px-3 py-4 text-sm text-gray-400">
+          No built packages are available yet. Build a repo to populate this section.
+        </div>
+      {:else if filteredPackages.length === 0}
+        <div class="rounded border border-dashed border-gray-700 bg-gray-800/50 px-3 py-4 text-sm text-gray-400">
+          No packages match the current package search.
+        </div>
       {:else}
         <div class="space-y-2">
-          {#each packagesData as pkg}
+          {#each filteredPackages as pkg}
             <div class="flex items-center justify-between bg-gray-800 border border-gray-700 rounded px-3 py-2">
               <div class="text-sm text-white">{pkg.filename}</div>
               <div class="text-xs text-gray-400">{pkg.size_bytes || 0} bytes</div>
@@ -698,7 +1408,7 @@
 
     <!-- Integrations grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {#each getFilteredIntegrations() as integration (integration.name)}
+      {#each filteredIntegrations as integration (integration.name)}
         <div
           class="bg-gray-800 border border-gray-700 rounded-lg p-5 hover:border-gray-600 transition space-y-3"
         >
@@ -853,6 +1563,12 @@
                   >
                     Open
                   </button>
+                  <button
+                    class="flex-1 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium"
+                    on:click={() => openContainerThinGui(container)}
+                  >
+                    Thin GUI
+                  </button>
                 {:else}
                   <button
                     class="flex-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium disabled:opacity-50"
@@ -871,9 +1587,9 @@
       {/each}
     </div>
 
-    {#if getFilteredIntegrations().length === 0}
-      <div class="text-center py-12 text-gray-400">
-        No integrations found for this filter
+    {#if filteredIntegrations.length === 0}
+      <div class="rounded-lg border border-dashed border-gray-700 bg-gray-800/50 px-4 py-10 text-center text-gray-400">
+        No integrations match the current library filter.
       </div>
     {/if}
   {/if}

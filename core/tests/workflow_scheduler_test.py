@@ -1,0 +1,72 @@
+from __future__ import annotations
+
+import shutil
+from pathlib import Path
+
+from core.workflows.parser import WorkflowTemplateParser
+from core.workflows.scheduler import WorkflowScheduler
+from core.services.path_service import get_repo_root
+
+
+def _cleanup(workflow_id: str) -> None:
+    path = Path(get_repo_root()) / "memory" / "vault" / "workflows" / workflow_id
+    if path.exists():
+        shutil.rmtree(path)
+
+
+def test_workflow_template_parser_extracts_phases_and_outputs() -> None:
+    markdown = """# WORKFLOW: writing-article-v1
+
+## Goal
+Write a release note
+
+## Constraints
+- Audience: operators
+- Tone: plain
+
+## Phases
+1. Outline (writing/outline -> 01-outline.md)
+2. Draft (writing/draft -> 02-draft.md)
+
+## Outputs
+- 01-outline.md
+- 02-draft.md
+"""
+    spec = WorkflowTemplateParser().parse("wf-test", markdown)
+
+    assert spec.template_id == "writing-article-v1"
+    assert spec.goal == "Write a release note"
+    assert spec.constraints["audience"] == "operators"
+    assert [phase.name for phase in spec.phases] == ["outline", "draft"]
+    assert spec.outputs == ["01-outline.md", "02-draft.md"]
+
+
+def test_workflow_scheduler_create_run_approve_cycle() -> None:
+    workflow_id = "wf-test-article"
+    _cleanup(workflow_id)
+    scheduler = WorkflowScheduler(Path(get_repo_root()))
+
+    try:
+        scheduler.create_workflow(
+            "WRITING-article",
+            workflow_id,
+            {
+                "goal": "Write a release note",
+                "audience": "operators",
+                "tone": "plain",
+                "word_limit": "600",
+            },
+        )
+        state = scheduler.run_workflow(workflow_id)
+        assert state.status == "awaiting_approval"
+        assert state.phases[0].status == "pending_approval"
+        assert (Path(get_repo_root()) / "memory" / "vault" / "workflows" / workflow_id / "01-outline.md").exists()
+
+        approved = scheduler.approve_phase(workflow_id)
+        assert approved.status == "ready"
+        assert approved.current_phase_index == 1
+
+        escalated = scheduler.escalate_phase(workflow_id)
+        assert escalated.phases[1].tier == "tier2_cloud"
+    finally:
+        _cleanup(workflow_id)

@@ -40,8 +40,9 @@ class DevModeHandler(BaseCommandHandler):
                 Permission,
                 get_permission_handler,
             )
+            permission_handler = get_permission_handler()
 
-            if not get_permission_handler().require(Permission.ADMIN, action="dev_mode"):
+            if not permission_handler.require(Permission.ADMIN, action="dev_mode"):
                 output = "\n".join(
                     [
                         OutputToolkit.banner("DEV MODE"),
@@ -52,6 +53,19 @@ class DevModeHandler(BaseCommandHandler):
                 return {
                     "status": "error",
                     "message": "Admin role required for dev mode",
+                    "output": output,
+                }
+            if not permission_handler.require(Permission.DEV_MODE, action="dev_mode"):
+                output = "\n".join(
+                    [
+                        OutputToolkit.banner("DEV MODE"),
+                        "Dev mode requires explicit Dev Mode permission.",
+                        "Tip: Enable the dev profile and use an admin account with dev access.",
+                    ]
+                )
+                return {
+                    "status": "error",
+                    "message": "Dev Mode permission required",
                     "output": output,
                 }
         except Exception as exc:
@@ -82,24 +96,27 @@ class DevModeHandler(BaseCommandHandler):
                 }
             marker_paths = [
                 dev_root / "README.md",
+                dev_root / "AGENTS.md",
+                dev_root / "DEVLOG.md",
+                dev_root / "project.json",
+                dev_root / "tasks.md",
+                dev_root / "completed.json",
+                dev_root / "extension.json",
                 dev_root / "docs" / "README.md",
                 dev_root / "docs" / "templates",
-                dev_root / "goblin" / "README.md",
-                dev_root / "goblin" / "dev_mode_commands.json",
-                dev_root / "goblin" / "scripts",
-                dev_root / "goblin" / "tests",
+                dev_root / "docs" / "DEV-MODE-POLICY.md",
             ]
-            if not any(path.exists() for path in marker_paths):
+            if not all(path.exists() for path in marker_paths):
                 output = "\n".join(
                     [
                         OutputToolkit.banner("DEV MODE"),
-                        "Dev submodule is missing required templates.",
-                        "Hint: Re-clone or update /dev.",
+                        "Dev extension framework is missing required files.",
+                        "Hint: Update the /dev remote framework.",
                     ]
                 )
                 return {
                     "status": "error",
-                    "message": "Dev templates missing",
+                    "message": "Dev framework missing",
                     "output": output,
                 }
         except Exception as exc:
@@ -113,7 +130,7 @@ class DevModeHandler(BaseCommandHandler):
         try:
             from core.services.logging_api import get_repo_root
 
-            manifest_path = get_repo_root() / "dev" / "goblin" / "dev_mode_commands.json"
+            manifest_path = get_repo_root() / "dev" / "extension.json"
             if not manifest_path.exists():
                 return {}
             with open(manifest_path, encoding="utf-8") as handle:
@@ -127,7 +144,7 @@ class DevModeHandler(BaseCommandHandler):
         if action in {"mode", "state"}:
             return "status"
         manifest = self._dev_manifest()
-        actions = manifest.get("actions") or {}
+        actions = manifest.get("commands") or {}
         for canonical, meta in actions.items():
             aliases = [str(item).strip().lower() for item in (meta or {}).get("aliases", []) if str(item).strip()]
             if action == canonical.lower() or action in aliases:
@@ -225,14 +242,16 @@ class DevModeHandler(BaseCommandHandler):
                     "message": result.get("detail") or result.get("message") or "Dev mode activation failed",
                 }
             logger.info(f"[DEV] Dev mode activated: {result.get('message')}")
+            framework = (result.get("extension") or {}).get("framework", {})
             output = "\n".join(
                 [
                     OutputToolkit.banner("DEV MODE ACTIVATED"),
                     OutputToolkit.table(
                         ["key", "value"],
                         [
-                            ["endpoint", str(result.get("goblin_endpoint"))],
-                            ["pid", str(result.get("goblin_pid"))],
+                            ["dev_root", str(result.get("dev_root"))],
+                            ["framework_ready", str(framework.get("framework_ready"))],
+                            ["remote_framework_only", str(framework.get("remote_framework_only"))],
                         ],
                     ),
                 ]
@@ -242,8 +261,8 @@ class DevModeHandler(BaseCommandHandler):
                 "message": result.get("message"),
                 "output": output,
                 "state": "activated",
-                "goblin_endpoint": result.get("goblin_endpoint"),
-                "goblin_pid": result.get("goblin_pid"),
+                "dev_root": result.get("dev_root"),
+                "extension": result.get("extension"),
             }
         except HTTPError:
             logger.error("[DEV] Cannot connect to Wizard Server")
@@ -349,6 +368,8 @@ class DevModeHandler(BaseCommandHandler):
                 }
             services = result.get("services") or {}
             service_rows = [[name, str(active)] for name, active in services.items()]
+            extension = result.get("extension") or {}
+            framework = extension.get("framework") or {}
             output = "\n".join(
                 [
                     OutputToolkit.banner("DEV MODE STATUS"),
@@ -360,6 +381,7 @@ class DevModeHandler(BaseCommandHandler):
                             ["dev_root", str(result.get("dev_root"))],
                             ["scripts_root", str(result.get("scripts_root"))],
                             ["tests_root", str(result.get("tests_root"))],
+                            ["framework_ready", str(framework.get("framework_ready"))],
                         ],
                     ),
                     "",
@@ -380,6 +402,7 @@ class DevModeHandler(BaseCommandHandler):
                 "scripts_root": result.get("scripts_root"),
                 "tests_root": result.get("tests_root"),
                 "services": result.get("services"),
+                "extension": extension,
             }
         except HTTPError:
             return {
@@ -508,7 +531,6 @@ class DevModeHandler(BaseCommandHandler):
                 "message": "Dev mode logs",
                 "output": output,
                 "state": "logs",
-                "goblin_pid": result.get("goblin_pid"),
                 "log_file": result.get("log_file"),
                 "logs": result.get("logs", []),
                 "total_lines": result.get("total_lines"),

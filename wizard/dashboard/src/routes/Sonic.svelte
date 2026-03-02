@@ -36,9 +36,17 @@
   let selectedBuildSigningAlert = null;
   let selectedBuildLoading = false;
   let requestedBuildId = null;
+  let shareLinkCopied = false;
+  let sharedView = false;
+  let cacheInvalidationNotice = null;
+  let restoredFromSession = false;
 
   let buildProfile = "alpine-core+sonic";
   let datasetPollTimer = null;
+  let shareResetTimer = null;
+  let cacheNoticeTimer = null;
+
+  const readinessSessionKey = "wizard:sonic:selected-build-readiness";
 
   const headers = () => buildAuthHeaders(getAdminToken());
 
@@ -67,6 +75,7 @@
     const [, rawQuery = ""] = hash.split("?");
     const params = new URLSearchParams(rawQuery);
     requestedBuildId = params.get("build") || null;
+    sharedView = params.has("build") || params.has("datasetCheckedAt");
     const persistedCheckedAt = params.get("datasetCheckedAt");
     if (persistedCheckedAt) {
       datasetCheckedAt = persistedCheckedAt;
@@ -83,6 +92,103 @@
     const nextHash = query ? `sonic?${query}` : "sonic";
     if (window.location.hash.slice(1) !== nextHash) {
       window.history.replaceState(null, "", `#${nextHash}`);
+    }
+  }
+
+  function clearSharedView() {
+    restoredFromSession = false;
+    requestedBuildId = null;
+    sharedView = false;
+    datasetCheckedAt = null;
+    updateDatasetFreshness();
+    if (guiSummary?.latest_build?.build_id) {
+      selectedBuildId = guiSummary.latest_build.build_id;
+      selectedBuildReadiness = latestReleaseReadiness;
+      selectedBuildSigningAlert = releaseSigningAlert;
+    } else {
+      selectedBuildId = null;
+      invalidateSelectedBuildCache();
+    }
+    persistRouteState();
+    persistSelectedBuildReadiness();
+  }
+
+  function persistSelectedBuildReadiness() {
+    if (typeof window === "undefined") return;
+    if (!selectedBuildId || !selectedBuildReadiness) {
+      window.sessionStorage.removeItem(readinessSessionKey);
+      return;
+    }
+    window.sessionStorage.setItem(
+      readinessSessionKey,
+      JSON.stringify({
+        buildId: selectedBuildId,
+        readiness: selectedBuildReadiness,
+        alert: selectedBuildSigningAlert,
+      }),
+    );
+  }
+
+  function restoreSelectedBuildReadiness() {
+    if (typeof window === "undefined") return;
+    const raw = window.sessionStorage.getItem(readinessSessionKey);
+    if (!raw) return;
+    try {
+      const payload = JSON.parse(raw);
+      if (!payload || typeof payload !== "object") return;
+      if (requestedBuildId && payload.buildId === requestedBuildId) {
+        selectedBuildId = payload.buildId;
+        selectedBuildReadiness = payload.readiness || null;
+        selectedBuildSigningAlert = payload.alert || null;
+        restoredFromSession = true;
+      } else if (!requestedBuildId && payload.buildId) {
+        requestedBuildId = payload.buildId;
+        selectedBuildId = payload.buildId;
+        selectedBuildReadiness = payload.readiness || null;
+        selectedBuildSigningAlert = payload.alert || null;
+        restoredFromSession = true;
+      }
+    } catch {
+      window.sessionStorage.removeItem(readinessSessionKey);
+    }
+  }
+
+  function invalidateSelectedBuildCache() {
+    selectedBuildReadiness = null;
+    selectedBuildSigningAlert = null;
+    if (typeof window !== "undefined") {
+      window.sessionStorage.removeItem(readinessSessionKey);
+    }
+  }
+
+  function buildShareUrl() {
+    if (typeof window === "undefined") return "";
+    const params = new URLSearchParams();
+    if (selectedBuildId) params.set("build", selectedBuildId);
+    if (datasetCheckedAt) params.set("datasetCheckedAt", datasetCheckedAt);
+    const query = params.toString();
+    return `${window.location.origin}${window.location.pathname}#${query ? `sonic?${query}` : "sonic"}`;
+  }
+
+  function currentShareLabels() {
+    const labels = [];
+    if (selectedBuildId) labels.push(`build=${selectedBuildId}`);
+    if (datasetCheckedAt) labels.push(`datasetCheckedAt=${formatTimestamp(datasetCheckedAt)}`);
+    return labels;
+  }
+
+  async function copyShareLink() {
+    const url = buildShareUrl();
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      shareLinkCopied = true;
+      if (shareResetTimer) window.clearTimeout(shareResetTimer);
+      shareResetTimer = window.setTimeout(() => {
+        shareLinkCopied = false;
+      }, 1500);
+    } catch (err) {
+      error = `Failed to copy share link: ${err?.message || err}`;
     }
   }
 
@@ -132,9 +238,11 @@
         if (guiSummary?.sync_status) syncStatus = guiSummary.sync_status;
         const latestBuildId = guiSummary?.latest_build?.build_id || null;
         if (latestBuildId) {
-          selectedBuildId = latestBuildId;
-          selectedBuildReadiness = latestReleaseReadiness;
-          selectedBuildSigningAlert = releaseSigningAlert;
+          if (!selectedBuildId) {
+            selectedBuildId = latestBuildId;
+            selectedBuildReadiness = latestReleaseReadiness;
+            selectedBuildSigningAlert = releaseSigningAlert;
+          }
         } else {
           selectedBuildId = null;
           selectedBuildReadiness = null;
@@ -147,13 +255,38 @@
         datasetCheckedAt = payload?.checked_at || null;
         updateDatasetFreshness();
       }
+      if (selectedBuildId && builds.length > 0 && !builds.some((item) => item.build_id === selectedBuildId)) {
+        const staleBuildId = selectedBuildId;
+        const latestBuildId = guiSummary?.latest_build?.build_id || null;
+        invalidateSelectedBuildCache();
+        if (latestBuildId) {
+          selectedBuildId = latestBuildId;
+          selectedBuildReadiness = latestReleaseReadiness;
+          selectedBuildSigningAlert = releaseSigningAlert;
+          requestedBuildId = latestBuildId;
+        } else {
+          selectedBuildId = null;
+          requestedBuildId = null;
+        }
+        cacheInvalidationNotice = staleBuildId
+          ? `Cached readiness for ${staleBuildId} was cleared because that build is no longer available.`
+          : "Cached readiness was cleared because the selected build is no longer available.";
+        if (cacheNoticeTimer) window.clearTimeout(cacheNoticeTimer);
+        cacheNoticeTimer = window.setTimeout(() => {
+          cacheInvalidationNotice = null;
+        }, 4000);
+      }
       if (requestedBuildId && requestedBuildId !== selectedBuildId) {
         const knownBuild = builds.find((item) => item.build_id === requestedBuildId);
         if (knownBuild) {
           await selectBuild(requestedBuildId);
         }
+      } else if (!requestedBuildId && selectedBuildId === guiSummary?.latest_build?.build_id) {
+        selectedBuildReadiness = latestReleaseReadiness;
+        selectedBuildSigningAlert = releaseSigningAlert;
       }
       persistRouteState();
+      persistSelectedBuildReadiness();
     } catch (err) {
       error = err?.message || String(err);
     } finally {
@@ -218,11 +351,13 @@
 
   async function selectBuild(buildId) {
     if (!buildId || selectedBuildLoading) return;
+    restoredFromSession = false;
     selectedBuildId = buildId;
     persistRouteState();
     if (buildId === guiSummary?.latest_build?.build_id && latestReleaseReadiness) {
       selectedBuildReadiness = latestReleaseReadiness;
       selectedBuildSigningAlert = releaseSigningAlert;
+      persistSelectedBuildReadiness();
       return;
     }
 
@@ -237,9 +372,9 @@
       selectedBuildReadiness = payload;
       selectedBuildSigningAlert = payload?.release_signing_alert || null;
       persistRouteState();
+      persistSelectedBuildReadiness();
     } catch (err) {
-      selectedBuildReadiness = null;
-      selectedBuildSigningAlert = null;
+      invalidateSelectedBuildCache();
       error = `Failed to load build readiness: ${err?.message || err}`;
     } finally {
       selectedBuildLoading = false;
@@ -248,6 +383,7 @@
 
   onMount(() => {
     readRouteState();
+    restoreSelectedBuildReadiness();
     refresh();
     datasetPollTimer = window.setInterval(() => {
       refreshDatasetContract({ silent: true });
@@ -257,6 +393,12 @@
   onDestroy(() => {
     if (datasetPollTimer) {
       window.clearInterval(datasetPollTimer);
+    }
+    if (shareResetTimer) {
+      window.clearTimeout(shareResetTimer);
+    }
+    if (cacheNoticeTimer) {
+      window.clearTimeout(cacheNoticeTimer);
     }
   });
 </script>
@@ -271,18 +413,61 @@
     </div>
   {/if}
 
+  {#if cacheInvalidationNotice}
+    <div class="bg-amber-950/60 text-amber-100 p-4 rounded-lg border border-amber-700 mb-6">
+      {cacheInvalidationNotice}
+    </div>
+  {/if}
+
   {#if loading}
     <div class="text-gray-400">Loading Sonic surfaces...</div>
   {:else}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
-        <div class="text-xs text-gray-400 mb-2">Status</div>
+        <div class="flex items-center justify-between gap-3 mb-2">
+          <div class="flex items-center gap-2">
+            <div class="text-xs text-gray-400">Status</div>
+            {#if restoredFromSession}
+              <div class="rounded-full border border-cyan-700 bg-cyan-950/30 px-2 py-1 text-[11px] uppercase tracking-[0.2em] text-cyan-200">
+                Restored
+              </div>
+            {/if}
+          </div>
+          {#if sharedView}
+            <div class="flex items-center gap-2">
+              <div class="px-2 py-1 rounded-full border border-violet-700 bg-violet-950/40 text-[11px] uppercase tracking-[0.2em] text-violet-200">
+                Shared View
+              </div>
+              {#each currentShareLabels() as label}
+                <div class="px-2 py-1 rounded border border-violet-800 bg-violet-950/20 text-[11px] text-violet-100">
+                  {label}
+                </div>
+              {/each}
+              <button
+                type="button"
+                class="px-2 py-1 rounded border border-violet-700 text-[11px] uppercase tracking-[0.2em] text-violet-200 hover:bg-violet-950/40"
+                on:click={clearSharedView}
+              >
+                Dismiss
+              </button>
+            </div>
+          {/if}
+        </div>
         <div class="text-white">Bridge: {platformStatus?.available ? "available" : "missing"}</div>
         <div class="text-gray-400 text-sm">Version: {platformStatus?.version || "n/a"}</div>
         <div class="text-gray-400 text-sm">Health: {sonicHealth?.status || "unknown"}</div>
       </div>
       <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
-        <div class="text-xs text-gray-400 mb-2">Sync</div>
+        <div class="flex items-center justify-between gap-3 mb-2">
+          <div class="text-xs text-gray-400">Sync</div>
+          <button
+            type="button"
+            class="px-3 py-1 text-xs rounded border border-violet-700 text-violet-200 hover:bg-violet-950/40"
+            on:click={copyShareLink}
+          >
+            {shareLinkCopied ? "Copied" : "Copy Share Link"}
+          </button>
+        </div>
         <div class="text-gray-300 text-sm">DB exists: {syncStatus?.db_exists ? "yes" : "no"}</div>
         <div class="text-gray-300 text-sm">Records: {syncStatus?.record_count ?? 0}</div>
         <div class="text-gray-300 text-sm">Last sync: {syncStatus?.last_sync || "n/a"}</div>

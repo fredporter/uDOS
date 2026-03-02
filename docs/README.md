@@ -1,12 +1,14 @@
 # uDOS Documentation Index
 
-Updated: 2026-02-24
+Updated: 2026-03-03
 
 This is the canonical entry point for repository documentation.
 
 ## Start Here
 
 - Product roadmap: `docs/roadmap.md`
+- Workflow architecture decision: `docs/decisions/v1-5-workflow.md`
+- Workflow archive redirect: `docs/v1-4-workflow-PLAN.md`
 - Consolidated release notes: `docs/releases/v1.4.4-release-notes.md`
 - Specs catalog (main + detailed): `docs/specs/README.md`
 - Integration readiness: `docs/specs/INTEGRATION-READINESS.md`
@@ -23,7 +25,8 @@ This is the canonical entry point for repository documentation.
 1. Root orientation: `README.md`, `QUICKSTART.md`, `INSTALLATION.md`, `wiki/Home.md`
 2. Runtime command surface: `docs/howto/UCODE-COMMAND-REFERENCE.md`
 3. System boundaries and contracts: `docs/specs/`, `docs/decisions/`
-4. Component docs:
+4. Workflow execution direction: `docs/decisions/v1-5-workflow.md`, `docs/roadmap.md`
+5. Component docs:
 - Core: `core/README.md`
 - Wizard: `wizard/README.md`
 - Sonic: `sonic/README.md`

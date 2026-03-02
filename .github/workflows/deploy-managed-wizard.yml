@@ -1,0 +1,39 @@
+name: Deploy Managed Wizard
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync dependencies
+        run: uv sync --group dev --extra udos-wizard
+
+      - name: Run Wizard tests
+        env:
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+        run: uv run pytest wizard/tests
+
+      - name: Run managed migrations
+        env:
+          UDOS_DEPLOY_MODE: managed
+          SUPABASE_DB_DSN: ${{ secrets.SUPABASE_DB_DSN }}
+        run: uv run python -m wizard.tools.migrate
+
+      - name: Render deploy hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: curl -fsSL -X POST "$RENDER_DEPLOY_HOOK_URL"

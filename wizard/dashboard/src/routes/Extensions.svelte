@@ -13,6 +13,11 @@
   let sonicStatus = null;
   let themeExtensions = null;
   let grooveboxStatus = null;
+  let selectedExtensionId = null;
+  let requestedExtensionId = null;
+  let sharedView = false;
+  let shareLinkCopied = false;
+  let shareResetTimer = null;
 
   async function loadExtensions() {
     try {
@@ -23,6 +28,9 @@
       const data = await res.json();
       extensions = data.extensions || [];
       summary = data.summary || null;
+      if (requestedExtensionId && extensions.some((ext) => ext.id === requestedExtensionId)) {
+        selectedExtensionId = requestedExtensionId;
+      }
       loading = false;
     } catch (err) {
       error = `Failed to load extensions: ${err.message}`;
@@ -67,15 +75,83 @@
     window.location.hash = route;
   }
 
+  function readRouteState() {
+    const hash = typeof window !== "undefined" ? window.location.hash || "" : "";
+    const [, rawQuery = ""] = hash.split("?");
+    const params = new URLSearchParams(rawQuery);
+    requestedExtensionId = params.get("ext") || null;
+    sharedView = params.has("ext");
+  }
+
+  function persistRouteState() {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams();
+    if (selectedExtensionId) params.set("ext", selectedExtensionId);
+    const query = params.toString();
+    const nextHash = query ? `extensions?${query}` : "extensions";
+    if (window.location.hash.slice(1) !== nextHash) {
+      window.history.replaceState(null, "", `#${nextHash}`);
+    }
+  }
+
+  function selectExtension(extId) {
+    selectedExtensionId = extId;
+    requestedExtensionId = extId;
+    sharedView = Boolean(extId);
+    persistRouteState();
+  }
+
+  function clearSharedView() {
+    selectedExtensionId = null;
+    requestedExtensionId = null;
+    sharedView = false;
+    persistRouteState();
+  }
+
+  function currentShareLabels() {
+    const labels = [];
+    if (selectedExtensionId) labels.push(`ext=${selectedExtensionId}`);
+    return labels;
+  }
+
+  async function copyShareLink() {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams();
+    if (selectedExtensionId) params.set("ext", selectedExtensionId);
+    const query = params.toString();
+    const url = `${window.location.origin}${window.location.pathname}#${query ? `extensions?${query}` : "extensions"}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      shareLinkCopied = true;
+      if (shareResetTimer) window.clearTimeout(shareResetTimer);
+      shareResetTimer = window.setTimeout(() => {
+        shareLinkCopied = false;
+      }, 1500);
+    } catch (err) {
+      error = `Failed to copy share link: ${err.message || err}`;
+    }
+  }
+
+  function handleExtensionCardKeydown(event, extId) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      selectExtension(extId);
+    }
+  }
+
   function openEmpireWeb() {
     const port = 8991;
     window.open(`http://127.0.0.1:${port}`, "_blank");
   }
 
   onMount(() => {
+    readRouteState();
     loadExtensions();
     loadEmpireStatus();
     loadPlatformStatus();
+    return () => {
+      if (shareResetTimer) clearTimeout(shareResetTimer);
+    };
   });
 
   // Group by category
@@ -98,7 +174,37 @@
 </script>
 
 <div class="max-w-7xl mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold text-white mb-2">Extensions</h1>
+  <div class="flex items-center justify-between gap-4 mb-2">
+    <div class="flex items-center gap-3">
+      <h1 class="text-3xl font-bold text-white">Extensions</h1>
+      {#if sharedView}
+        <div class="flex items-center gap-2">
+          <div class="px-2 py-1 rounded-full border border-violet-700 bg-violet-950/40 text-[11px] uppercase tracking-[0.2em] text-violet-200">
+            Shared View
+          </div>
+          {#each currentShareLabels() as label}
+            <div class="px-2 py-1 rounded border border-violet-800 bg-violet-950/20 text-[11px] text-violet-100">
+              {label}
+            </div>
+          {/each}
+          <button
+            type="button"
+            class="px-2 py-1 rounded border border-violet-700 text-[11px] uppercase tracking-[0.2em] text-violet-200 hover:bg-violet-950/40"
+            on:click={clearSharedView}
+          >
+            Dismiss
+          </button>
+        </div>
+      {/if}
+    </div>
+    <button
+      type="button"
+      class="px-3 py-1 text-xs rounded border border-violet-700 text-violet-200 hover:bg-violet-950/40"
+      on:click={copyShareLink}
+    >
+      {shareLinkCopied ? "Copied" : "Copy Share Link"}
+    </button>
+  </div>
   <p class="text-gray-400 mb-8">Official uDOS extensions installed on this system</p>
 
   {#if error}
@@ -155,6 +261,11 @@
                 class="bg-gray-800 border rounded-lg p-5 transition-all {ext.present
                   ? 'border-gray-600 hover:border-blue-500'
                   : 'border-gray-700 opacity-60'}"
+                class:border-cyan-500={selectedExtensionId === ext.id}
+                role="button"
+                tabindex="0"
+                on:click={() => selectExtension(ext.id)}
+                on:keydown={(event) => handleExtensionCardKeydown(event, ext.id)}
               >
                 <div class="flex items-start justify-between mb-3">
                   <div class="flex items-center gap-3">

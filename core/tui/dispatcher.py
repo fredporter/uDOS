@@ -64,6 +64,7 @@ from core.commands import (
     ViewportHandler,
     DrawHandler,
     WorkspaceHandler,
+    WorkflowHandler,
     UcodeHandler,
     OperatorHandler,
 )
@@ -151,6 +152,7 @@ class CommandDispatcher:
             "BINDER": BinderHandler(),
             # Workspace-aware file operations
             "PLACE": workspace,
+            "WORKFLOW": WorkflowHandler(),
             # Runtime (Story format)
             "STORY": StoryHandler(),
             "RUN": RunHandler(),

@@ -6,17 +6,18 @@ Related: logging policy and diagnostics scaffolding lives in [docs/LOGGING-API-v
 
 ## Rules
 - `/dev/` is a public submodule repo (github.com/fredporter/uDOS-dev).
-- Dev mode is only available when `/dev/` exists and contains the developer template.
-- Dev mode is restricted to `admin` role users only.
-- Dev mode enables the `DEV ON` / `DEV OFF` controls and related developer tooling.
+- Dev mode is only available when `/dev/` exists and contains the Dev extension framework.
+- Dev mode is restricted to users with both `admin` and `dev_mode` permissions.
+- Dev mode enables the `DEV ON` / `DEV OFF` controls and related contributor tooling.
+- The live runtime remains TUI/Dev tooling based for v1.5; `/dev` does not host a separate server.
 - If `/dev/` is missing or the user is not `admin`, dev mode must be unavailable and return a friendly soft-failure reason.
 
 ## Policy Contract (Gate)
 Dev mode is gated in both Wizard APIs and uCODE clients.
 
 - **Admin-only**: all `/api/dev/*` calls require a valid `X-Admin-Token` and an admin user role.
-- **/dev required**: `/api/dev/status`, `/api/dev/health`, `/api/dev/activate`, `/api/dev/restart`, `/api/dev/clear`, `/api/dev/logs` require `/dev` + templates to exist.
-- **Deactivate exception**: `/api/dev/deactivate` is allowed even if `/dev` is missing (to shut down a stale Goblin process).
+- **/dev required**: `/api/dev/status`, `/api/dev/health`, `/api/dev/activate`, `/api/dev/restart`, `/api/dev/clear`, `/api/dev/logs` require `/dev` + the Dev extension framework files to exist.
+- **Deactivate exception**: `/api/dev/deactivate` is allowed even if `/dev` is missing so a stale activated state can be cleared safely.
 
 ### Expected Failure Modes
 - `403` — not admin / missing admin token → return a friendly “admin required” message.
@@ -35,4 +36,4 @@ Dev mode is gated in both Wizard APIs and uCODE clients.
 - uDOS should containerize and overlay UI without modifying upstream repos.
 
 ## Rationale
-The `/dev/` submodule provides the templates and structure for vibe-cli coding across core, wizard, extensions, and plugins. It is a public, open-source extension for contributors, and serves as the explicit gate for developer capabilities.
+The `/dev/` submodule provides the framework, templates, and governance for Dev Mode across core, wizard, extensions, and plugins. It is a public, open-source extension for contributors and serves as the explicit gate for permissioned developer capabilities.

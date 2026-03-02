@@ -23,6 +23,9 @@ from dataclasses import dataclass, asdict
 from io import StringIO
 import uuid
 
+from wizard.services.deploy_mode import is_managed_mode
+from wizard.services.store import get_wizard_store
+
 
 @dataclass
 class Notification:
@@ -53,8 +56,11 @@ class NotificationHistoryService:
 
     def __init__(self, db_path: str = "memory/notifications.db"):
         self.db_path = Path(db_path)
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self._init_schema()
+        self._managed = is_managed_mode()
+        self.store = get_wizard_store()
+        if not self._managed:
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+            self._init_schema()
 
     def _init_schema(self):
         """Initialize database schema on first run."""
@@ -118,6 +124,19 @@ class NotificationHistoryService:
         notification_id = f"toast-{uuid.uuid4().hex[:12]}"
         timestamp = datetime.now(timezone.utc).isoformat()
 
+        if self._managed:
+            return self.store.save_notification(
+                {
+                    "id": notification_id,
+                    "type": type_,
+                    "title": title,
+                    "message": message,
+                    "timestamp": timestamp,
+                    "duration_ms": duration_ms,
+                    "sticky": sticky,
+                }
+            )
+
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 """
@@ -143,6 +162,8 @@ class NotificationHistoryService:
         self, limit: int = 20, offset: int = 0
     ) -> Tuple[List[Dict[str, Any]], int]:
         """Get paginated notification history."""
+        if self._managed:
+            return self.store.get_notifications(limit=limit, offset=offset)
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             
@@ -175,6 +196,14 @@ class NotificationHistoryService:
         limit: int = 50,
     ) -> List[Dict[str, Any]]:
         """Search notifications with filters."""
+        if self._managed:
+            return self.store.search_notifications(
+                query=query,
+                type_filter=type_filter,
+                start_date=start_date,
+                end_date=end_date,
+                limit=limit,
+            )
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             
@@ -205,6 +234,8 @@ class NotificationHistoryService:
 
     async def delete_notification(self, notification_id: str) -> bool:
         """Delete a single notification."""
+        if self._managed:
+            return self.store.delete_notification(notification_id)
         with sqlite3.connect(self.db_path) as conn:
             conn.execute("DELETE FROM notification_actions WHERE notification_id = ?", (notification_id,))
             conn.execute("DELETE FROM notifications WHERE id = ?", (notification_id,))
@@ -214,6 +245,9 @@ class NotificationHistoryService:
     async def clear_old_notifications(self, days: int = 30) -> int:
         """Remove notifications older than N days."""
         cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+
+        if self._managed:
+            return self.store.clear_old_notifications(cutoff_iso=cutoff)
 
         with sqlite3.connect(self.db_path) as conn:
             result = conn.execute(
@@ -227,6 +261,8 @@ class NotificationHistoryService:
 
     async def get_stats(self) -> Dict[str, Any]:
         """Get notification statistics."""
+        if self._managed:
+            return self.store.get_notification_stats()
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             

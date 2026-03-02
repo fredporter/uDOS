@@ -238,6 +238,10 @@ def __getattr__(name):
         from .workspace_handler import WorkspaceHandler
 
         return WorkspaceHandler
+    elif name == "WorkflowHandler":
+        from .workflow_handler import WorkflowHandler
+
+        return WorkflowHandler
     elif name == "UcodeHandler":
         from .ucode_handler import UcodeHandler
 

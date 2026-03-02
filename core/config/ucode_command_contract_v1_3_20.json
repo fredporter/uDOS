@@ -64,7 +64,9 @@
       "USER",
       "VERIFY",
       "VIEWPORT",
-      "WIZARD"
+      "WIZARD",
+      "WORKFLOW",
+      "OPERATOR"
     ],
     "deprecated_aliases": {}
   }

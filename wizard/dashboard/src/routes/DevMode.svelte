@@ -46,7 +46,7 @@
       const installed =
         !!req.dev_root_present &&
         !!req.dev_template_present &&
-        !!req.goblin_scaffold_ready;
+        !!req.framework_ready;
       if (installed && status?.active) {
         await loadScriptCatalog();
       } else {
@@ -80,7 +80,7 @@
     const installed =
       !!req.dev_root_present &&
       !!req.dev_template_present &&
-      !!req.goblin_scaffold_ready;
+      !!req.framework_ready;
     if (!(installed && status?.active)) {
       scripts = [];
       tests = [];
@@ -334,14 +334,14 @@
   $: canDevMode =
     !!status?.requirements?.dev_root_present &&
     !!status?.requirements?.dev_template_present &&
-    !!status?.requirements?.goblin_scaffold_ready;
+    !!status?.requirements?.framework_ready;
   $: devInstalled = canDevMode;
   $: devActivated = !!status?.active && devInstalled;
 </script>
 
 <div class="max-w-7xl mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold text-white mb-2">Dev Mode</h1>
-  <p class="text-gray-400 mb-8">Manage /dev scripts and tests through Wizard GUI</p>
+  <p class="text-gray-400 mb-8">Manage the activated /dev extension framework and TUI tooling through Wizard GUI</p>
 
   {#if error}
     <div
@@ -357,7 +357,7 @@
     <!-- Status Card -->
     <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-white">Dev Workspace Status</h3>
+        <h3 class="text-lg font-semibold text-white">Dev Extension Status</h3>
         <div class="flex items-center gap-2">
           <div
             class="w-3 h-3 rounded-full {status.active
@@ -372,12 +372,12 @@
 
       <div class="grid grid-cols-2 gap-4 text-sm mb-6">
         <div>
-          <span class="text-gray-400">Port:</span>
-          <span class="text-white ml-2">{status.requirements?.scripts_root || "n/a"}</span>
+          <span class="text-gray-400">Dev Root:</span>
+          <span class="text-white ml-2">{status.requirements?.dev_root || status.dev_root || "n/a"}</span>
         </div>
         <div>
-          <span class="text-gray-400">Version:</span>
-          <span class="text-white ml-2">{status.requirements?.tests_root || "n/a"}</span>
+          <span class="text-gray-400">Framework:</span>
+          <span class="text-white ml-2">{status.requirements?.framework_ready ? "ready" : "incomplete"}</span>
         </div>
         <div>
           <span class="text-gray-400">Scripts:</span>
@@ -422,11 +422,12 @@
       {#if status?.requirements}
         <div class="mt-4 text-xs text-gray-400">
           /dev present: {status.requirements.dev_root_present ? "yes" : "no"} ·
-          templates ok: {status.requirements.dev_template_present ? "yes" : "no"}
+          templates ok: {status.requirements.dev_template_present ? "yes" : "no"} ·
+          framework manifest: {status.requirements.framework_manifest_present ? "yes" : "no"}
         </div>
       {/if}
       {#if !canDevMode}
-        <div class="mt-2 text-xs text-amber-300">Dev mode requires admin access and /dev templates.</div>
+        <div class="mt-2 text-xs text-amber-300">Dev mode requires admin + dev permissions and a complete /dev framework.</div>
       {/if}
     </div>
 
@@ -447,8 +448,8 @@
 
   <TerminalPanel
     className="mb-6"
-    title="/dev Goblin Scaffold Runner"
-    subtitle="Run development scripts and tests from /dev/goblin through Wizard GUI."
+    title="/dev Extension Runner"
+    subtitle="Run contributor scripts and tests from the activated /dev framework while keeping the live runtime TUI based."
   >
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -509,11 +510,11 @@
 
     {#if !devInstalled}
       <div class="bg-amber-900/40 border border-amber-700 text-amber-100 p-3 rounded text-sm">
-        /dev submodule is not installed or scaffold is incomplete. Dev operations are locked.
+        /dev is not installed or the Dev extension framework is incomplete. Dev operations are locked.
       </div>
     {:else if !devActivated}
       <div class="bg-slate-900/70 border border-slate-700 text-slate-200 p-3 rounded text-sm">
-        Dev mode is installed but inactive. Activate Dev Mode to enable scripts and tests.
+        Dev Mode is installed but inactive. Activate the Dev extension to enable scripts and tests.
       </div>
     {/if}
 

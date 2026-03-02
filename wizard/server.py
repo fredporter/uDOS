@@ -30,6 +30,7 @@ import webbrowser
 from core.services.dependency_warning_monitor import install_dependency_warning_monitor
 from core.services.unified_config_loader import get_bool_config, get_config
 from wizard.services.device_auth import DeviceStatus, get_device_auth
+from wizard.services.deploy_mode import is_managed_mode
 from wizard.services.logging_api import get_log_stats, get_logger
 from wizard.services.mesh_sync import get_mesh_sync
 from wizard.services.ok_gateway import OKGateway, OKRequest
@@ -241,11 +242,6 @@ class WizardServer:
         )
         app.include_router(settings_router)
 
-        # Register Task scheduler routes
-        from wizard.routes.task_routes import create_task_routes
-
-        task_router = create_task_routes(auth_guard=self._authenticate_admin)
-        app.include_router(task_router)
         from wizard.routes.teletext_routes import router as teletext_router
 
         app.include_router(teletext_router)
@@ -356,16 +352,12 @@ class WizardServer:
 
         # Register Configuration routes
         from wizard.routes.config_admin_routes import (
-            create_admin_token_routes,
             create_public_export_routes,
         )
         from wizard.routes.config_routes import create_config_routes
 
         config_router = create_config_routes(auth_guard=self._authenticate_admin)
         app.include_router(config_router)
-
-        admin_token_router = create_admin_token_routes()
-        app.include_router(admin_token_router)
 
         public_export_router = create_public_export_routes()
         app.include_router(public_export_router)
@@ -476,13 +468,13 @@ class WizardServer:
         log_router = create_log_routes()
         app.include_router(log_router)
 
-        # Register Monitoring routes
-        from wizard.routes.monitoring_routes import create_monitoring_routes
+        from wizard.routes.ops_routes import create_ops_routes
 
-        monitoring_router = create_monitoring_routes(
-            auth_guard=self._authenticate_admin
+        ops_router = create_ops_routes(
+            auth_guard=self._authenticate_admin,
+            session_resolver=self._operator_session,
         )
-        app.include_router(monitoring_router)
+        app.include_router(ops_router)
 
         # Register Catalog routes
         from wizard.routes.catalog_routes import create_catalog_routes
@@ -561,11 +553,12 @@ class WizardServer:
         ha_router = create_ha_routes(auth_guard=self._authenticate_admin)
         app.include_router(ha_router)
 
-        # Mount dashboard static files
+        # Mount operator UI and static files
         from fastapi.responses import FileResponse, HTMLResponse
         from fastapi.staticfiles import StaticFiles
 
         dashboard_path = Path(__file__).parent / "dashboard" / "dist"
+        web_admin_path = REPO_ROOT / "web-admin" / "build"
         if not dashboard_path.exists():
             healed = ensure_static_dashboard_dist(dashboard_path)
             if healed:
@@ -577,6 +570,20 @@ class WizardServer:
             app.mount(
                 "/_site", StaticFiles(directory=str(site_root)), name="vault-site"
             )
+        if web_admin_path.exists():
+            web_admin_assets = web_admin_path / "_app"
+            if web_admin_assets.exists():
+                app.mount(
+                    "/admin/_app",
+                    StaticFiles(directory=str(web_admin_assets)),
+                    name="admin-app-assets",
+                )
+
+            @app.get("/admin")
+            async def serve_admin(request: Request):
+                await self._authenticate_admin(request)
+                return FileResponse(str(web_admin_path / "index.html"))
+
         if dashboard_path.exists():
             assets_path = dashboard_path / "assets"
             if assets_path.exists():
@@ -588,6 +595,8 @@ class WizardServer:
 
             @app.get("/")
             async def serve_dashboard():
+                if web_admin_path.exists():
+                    return FileResponse(str(web_admin_path / "index.html"))
                 return FileResponse(str(dashboard_path / "index.html"))
 
             @app.get("/dashboard")
@@ -599,6 +608,8 @@ class WizardServer:
             # Fallback: serve basic dashboard when build isn't available
             @app.get("/")
             async def serve_dashboard_fallback():
+                if web_admin_path.exists():
+                    return FileResponse(str(web_admin_path / "index.html"))
                 return HTMLResponse(get_fallback_dashboard_html())
 
             @app.get("/dashboard")
@@ -607,10 +618,11 @@ class WizardServer:
                 return HTMLResponse(get_fallback_dashboard_html())
 
         self.app = app
-        self.scheduler_runner.start(
-            days=self.config.compost_cleanup_days,
-            dry_run=self.config.compost_cleanup_dry_run,
-        )
+        if not is_managed_mode():
+            self.scheduler_runner.start(
+                days=self.config.compost_cleanup_days,
+                dry_run=self.config.compost_cleanup_dry_run,
+            )
         return app
 
     def _register_routes(self, app: FastAPI):
@@ -1085,6 +1097,10 @@ class WizardServer:
     async def _authenticate_admin(self, request: Request) -> None:
         """Authenticate admin request (delegated to auth service)."""
         return await self.auth.authenticate_admin(request)
+
+    def _operator_session(self, request: Request) -> dict[str, object]:
+        """Resolve the current operator session for the control plane."""
+        return self.auth.get_operator_session(request)
 
     def run(self, host: str = None, port: int = None, interactive: bool = True):
         """Run the Wizard Server with optional interactive console."""

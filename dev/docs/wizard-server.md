@@ -34,7 +34,7 @@ The Wizard Server is a dedicated always-on machine in **Realm B** that provides 
 
 ## Dev Mode
 
-Dev Mode enables Wizard Server capabilities on your development machine.
+Dev Mode enables Wizard contributor capabilities on your development machine through the permissioned `/dev` extension framework.
 
 ### Enable Dev Mode
 

@@ -12,6 +12,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse
 
 from core.services.unified_config_loader import get_config
+from wizard.services.deploy_mode import is_managed_mode
 from wizard.services.admin_secret_contract import (
     collect_admin_secret_contract,
     repair_admin_secret_contract,
@@ -57,6 +58,11 @@ def create_admin_token_routes() -> APIRouter:
     @router.post("/generate")
     async def generate_admin_token(request: Request):
         _ensure_local_request(request)
+        if is_managed_mode():
+            raise HTTPException(
+                status_code=410,
+                detail="Managed mode uses operator session auth; admin token generation is disabled",
+            )
 
         repo_root = get_repo_root()
         env_path = repo_root / ".env"
@@ -121,6 +127,13 @@ def create_admin_token_routes() -> APIRouter:
     @router.get("/status")
     async def get_admin_token_status(request: Request):
         _ensure_local_request(request)
+        if is_managed_mode():
+            return {
+                "status": "managed",
+                "auth_mode": "operator-session",
+                "has_admin_token": False,
+                "has_wizard_key": bool(get_config("WIZARD_KEY")),
+            }
 
         repo_root = get_repo_root()
         env_path = repo_root / ".env"
