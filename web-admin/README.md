@@ -20,3 +20,5 @@ cd web-admin
 npm install
 npm run dev -- --host
 ```
+
+Generated dependency and build-work directories under `web-admin/node_modules/` and `web-admin/.svelte-kit/` are local-only and should not be committed. The deployable static output remains `web-admin/build/`.
