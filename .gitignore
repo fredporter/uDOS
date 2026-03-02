@@ -163,6 +163,9 @@ venv.bak/
 web-admin/node_modules/
 web-admin/.svelte-kit/
 web-admin/.vite/
+wizard/dashboard/node_modules/
+wizard/dashboard/.vite/
+extensions/thin-gui/node_modules/
 
 # Spyder project settings
 .spyderproject
