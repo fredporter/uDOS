@@ -22,6 +22,7 @@ def test_ucode_help_surface(monkeypatch, tmp_path):
     result = handler.handle("UCODE", [])
     assert result["status"] == "success"
     assert "UCODE DEMO LIST" in result["output"]
+    assert "UCODE PROFILE <LIST|SHOW|INSTALL|ENABLE|DISABLE|VERIFY>" in result["output"]
 
 
 def test_ucode_demo_list_and_run(monkeypatch, tmp_path):
@@ -182,3 +183,55 @@ def test_dispatcher_accepts_ucli_alias(monkeypatch, tmp_path):
     result = dispatcher.dispatch("UCLI DEMO LIST")
     assert result["status"] == "success"
     assert "parse_file" in result["output"]
+
+
+def test_ucode_profile_lifecycle(monkeypatch, tmp_path):
+    handler = _handler_with_home(monkeypatch, tmp_path)
+
+    listed = handler.handle("UCODE", ["PROFILE", "LIST"])
+    assert listed["status"] == "success"
+    assert "core" in listed["output"]
+
+    installed = handler.handle("UCODE", ["PROFILE", "INSTALL", "home"])
+    assert installed["status"] == "success"
+    assert "home" in installed["output"]
+
+    shown = handler.handle("UCODE", ["PROFILE", "SHOW", "home"])
+    assert shown["status"] == "success"
+    assert "Profile: Home (home)" in shown["output"]
+
+    verified = handler.handle("UCODE", ["PROFILE", "VERIFY", "core"])
+    assert verified["status"] == "success"
+    assert "Profile verify: core" in verified["output"]
+
+
+def test_ucode_operator_status_and_plan(monkeypatch, tmp_path):
+    handler = _handler_with_home(monkeypatch, tmp_path)
+
+    status = handler.handle("UCODE", ["OPERATOR", "STATUS"])
+    assert status["status"] == "success"
+    assert "Operator mode:" in status["output"]
+
+    plan = handler.handle("UCODE", ["OPERATOR", "PLAN", "install", "creator", "profile"])
+    assert plan["status"] == "success"
+    assert "Intent: profiles" in plan["output"]
+    assert "UCODE PROFILE INSTALL creator" in plan["output"]
+
+
+def test_ucode_extension_and_package_views(monkeypatch, tmp_path):
+    handler = _handler_with_home(monkeypatch, tmp_path)
+
+    extensions = handler.handle("UCODE", ["EXTENSION", "LIST"])
+    assert extensions["status"] == "success"
+    assert "groovebox" in extensions["output"]
+
+    package_groups = handler.handle("UCODE", ["PACKAGE", "VERIFY", "utilities"])
+    assert package_groups["status"] == "success"
+    assert "Package group: Utilities (utilities)" in package_groups["output"]
+
+
+def test_ucode_repair_status(monkeypatch, tmp_path):
+    handler = _handler_with_home(monkeypatch, tmp_path)
+    result = handler.handle("UCODE", ["REPAIR", "STATUS"])
+    assert result["status"] == "success"
+    assert "Rebaseline repair contracts:" in result["output"]

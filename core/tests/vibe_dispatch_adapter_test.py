@@ -157,6 +157,17 @@ class TestVibeDispatchAdapter:
         if result.status == "fallback_ok":
             assert "language model" in result.message.lower()
 
+    def test_dispatch_fallback_to_local_operator_when_model_disabled(self):
+        """Test non-dev path can request local operator fallback instead of model routing."""
+        adapter = VibeDispatchAdapter()
+        result = adapter.dispatch(
+            "some random unmatched text",
+            allow_skill_routing=False,
+            allow_model_fallback=False,
+        )
+        assert result.status == "fallback_local"
+        assert result.data.get("operator_prompt") == "some random unmatched text"
+
     def test_dispatch_result_to_dict(self):
         """Test VibeDispatchResult can be converted to dict."""
         result = VibeDispatchResult(

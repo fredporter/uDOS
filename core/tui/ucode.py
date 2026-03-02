@@ -79,7 +79,8 @@ from core.services.logging_api import (
     set_corr_id,
 )
 from core.services.memory_test_scheduler import MemoryTestScheduler
-from core.services.mode_policy import mode_summary
+from core.services.mode_policy import RuntimeMode, mode_summary, resolve_runtime_mode
+from core.services.operator_mode_service import get_operator_mode_service
 from core.services.network_gate_policy import (
     bootstrap_download_gate,
     close_bootstrap_gate,
@@ -293,7 +294,7 @@ class UCODE:
         # Component detection
         self.detector = ComponentDetector(self.repo_root)
         self.components = self.detector.detect_all()
-        self.ai_modes_config = self._load_ai_modes_config()
+        self.dev_mode_config = self._load_dev_mode_config()
 
         # Core components (always available)
         self.dispatcher = CommandDispatcher()
@@ -330,8 +331,10 @@ class UCODE:
             "FALLBACK": self._cmd_ok_fallback,
             "EXIT": self._cmd_exit,
         }
-        self.ucode_command_set.update(self.commands.keys())
-        self.ucode_command_set.add("OK")
+        self.ucode_command_set.add("OPERATOR")
+        if self._dev_mode_active():
+            self.ucode_command_set.update(self.commands.keys())
+            self.ucode_command_set.add("OK")
         # Conditional commands
         # WIZARD command now handled by dispatcher (WizardHandler)
 
@@ -356,7 +359,7 @@ class UCODE:
         self.gantt_renderer = TodoGanttGridRenderer()
         self.prompt_parser = get_prompt_parser_service()
         self.todo_reminder = get_reminder_service(self.todo_manager)
-        self._init_ok_prompt_context()
+        self._init_operator_prompt_context()
         self._io_phase = IOLifecyclePhase.BACKGROUND
         self._io_phase_lock = threading.RLock()
 
@@ -541,25 +544,32 @@ class UCODE:
         )
 
     def _dispatch_with_vibe(self, user_input: str) -> dict[str, Any]:
-        """Three-stage dispatch with Vibe skill routing (v1.4.4).
+        """Three-stage dispatch with Dev-only vibe routing and local operator fallback.
 
-        Uses CommandDispatchService for:
+        Uses command-first dispatch for:
           1. uCODE command matching (fuzzy, confidence scoring)
           2. Shell validation (safety checks)
-          3. Vibe skill routing (natural language inference)
-          4. Fallback to OK (language model)
+          3. Dev-only vibe skill routing
+          4. Non-dev local operator fallback
+          5. Dev-only OK fallback
 
         Returns:
             Dict with status, message, and routed result
         """
         adapter = get_vibe_adapter()
+        dev_mode = resolve_runtime_mode() == RuntimeMode.DEV
 
         # Pass confirmation function for fuzzy matches (0.80-0.95 confidence)
-        result = adapter.dispatch(user_input, ask_confirm_fn=self._ask_confirm)
+        result = adapter.dispatch(
+            user_input,
+            ask_confirm_fn=self._ask_confirm,
+            allow_skill_routing=dev_mode,
+            allow_model_fallback=dev_mode,
+        )
 
         # Log dispatch decision
         self.logger.debug(
-            f"[Vibe Dispatch] {result.status}: cmd={result.command}, "
+            f"[Dispatch] {result.status}: cmd={result.command}, "
             f"skill={result.skill}, confidence={result.confidence}",
             extra={"user_input": user_input},
         )
@@ -575,7 +585,6 @@ class UCODE:
 
         elif result.status == "vibe_routed":
             # Routed to a Vibe skill (device, vault, workspace, etc.)
-            # Note: actual service implementations pending (Phase 4)
             skill = result.skill
             action = result.action
 
@@ -598,6 +607,9 @@ class UCODE:
                 "command": f"{skill}:{action}",
             }
 
+        elif result.status == "fallback_local":
+            return self._route_to_operator(user_input)
+
         elif result.validation_reason == "shell_valid":
             # Shell command passed validation
             return self._execute_shell_command(user_input)
@@ -608,7 +620,7 @@ class UCODE:
             self._run_ok_request(
                 user_input,
                 mode="LOCAL",
-                use_cloud=(self._ok_primary_provider() == "cloud"),
+                use_cloud=(self._get_dev_mode_primary_provider() == "cloud"),
             )
             return {
                 "status": "success",
@@ -626,7 +638,7 @@ class UCODE:
             self._run_ok_request(
                 user_input,
                 mode="LOCAL",
-                use_cloud=(self._ok_primary_provider() == "cloud"),
+                use_cloud=(self._get_dev_mode_primary_provider() == "cloud"),
             )
             return {
                 "status": "success",
@@ -636,7 +648,7 @@ class UCODE:
             }
 
     def _route_input(self, user_input: str) -> dict[str, Any]:
-        """Route input based on prefix: '?', 'OK', '/', or question mode.
+        """Route input based on operator/dev prefixes or slash mode.
 
         Returns:
             Dict with status, message, and routed result
@@ -645,58 +657,19 @@ class UCODE:
         if not user_input:
             return {"status": "error", "message": "Empty input"}
 
-        # Mode 1: AI prompt mode (? or OK)
+        # Mode 1: operator prompt shorthand
         if user_input.startswith("?"):
             prompt = user_input[1:].strip()
             if not prompt:
-                return {"status": "error", "message": "OK prompt required"}
-            self._run_ok_request(
-                prompt, mode="LOCAL", use_cloud=(self._ok_primary_provider() == "cloud")
-            )
-            return {"status": "success", "command": "OK"}
+                return {"status": "error", "message": "Operator prompt required"}
+            return self._route_to_operator(prompt)
 
         lowered = user_input.lower()
+        if lowered == "operator" or lowered.startswith("operator "):
+            return self._handle_operator_prefix(user_input)
+
         if lowered == "ok" or lowered.startswith("ok "):
-            parts = user_input.split(None, 1)
-            if len(parts) < 2:
-                return {"status": "error", "message": "OK prompt required"}
-            normalized = parts[1].strip()
-            if not normalized:
-                return {"status": "error", "message": "OK prompt required"}
-
-            use_cloud = self._ok_primary_provider() == "cloud"
-            ok_parts = normalized.split(None, 1)
-            cmd_name = ok_parts[0].upper()
-            args = ok_parts[1] if len(ok_parts) > 1 else ""
-            if cmd_name == "CLOUD":
-                use_cloud = True
-                normalized = args
-                ok_parts = normalized.split(None, 1)
-                cmd_name = ok_parts[0].upper() if ok_parts and ok_parts[0] else ""
-                args = ok_parts[1] if len(ok_parts) > 1 else ""
-            if cmd_name == "SETUP":
-                self._run_ok_setup()
-                return {"status": "success", "command": "OK SETUP"}
-            if cmd_name in {"LOCAL", "EXPLAIN", "DIFF", "PATCH", "ROUTE"}:
-                if (
-                    use_cloud
-                    and cmd_name in {"EXPLAIN", "DIFF", "PATCH"}
-                    and "--cloud" not in args
-                ):
-                    args = f"{args} --cloud".strip()
-                self.commands[cmd_name](args)
-                return {"status": "success", "command": cmd_name}
-            if cmd_name == "PULL":
-                self.commands[cmd_name](args)
-                return {"status": "success", "command": cmd_name}
-            if cmd_name == "FALLBACK":
-                self._cmd_ok_fallback(args)
-                return {"status": "success", "command": cmd_name}
-
-            if not normalized:
-                return {"status": "error", "message": "OK prompt required"}
-            self._run_ok_request(normalized, mode="LOCAL", use_cloud=use_cloud)
-            return {"status": "success", "command": "OK"}
+            return self._handle_ok_prefix(user_input)
 
         # Mode 2: Slash mode
         if user_input.startswith("/"):
@@ -704,6 +677,129 @@ class UCODE:
 
         # Mode 3: Three-stage dispatch chain with Vibe skill routing (v1.4.4)
         return self._dispatch_with_vibe(user_input)
+
+    def _dev_mode_active(self) -> bool:
+        return resolve_runtime_mode() == RuntimeMode.DEV
+
+    def _route_to_operator(self, prompt: str) -> dict[str, Any]:
+        operator_service = get_operator_mode_service()
+        plan = operator_service.plan(prompt)
+        lines = [
+            f"Operator intent: {plan.intent.label} ({plan.intent.confidence:.2f})",
+            plan.summary,
+        ]
+        for action_item in plan.actions:
+            lines.append(f"- {action_item.command}: {action_item.description}")
+        return {
+            "status": "operator_plan",
+            "message": "Local operator guidance ready",
+            "output": "\n".join(lines),
+            "operator_plan": {
+                "summary": plan.summary,
+                "intent": {
+                    "label": plan.intent.label,
+                    "confidence": plan.intent.confidence,
+                    "reason": plan.intent.reason,
+                },
+                "actions": [
+                    {
+                        "type": action_item.action_type,
+                        "command": action_item.command,
+                        "safe": action_item.safe,
+                        "description": action_item.description,
+                    }
+                    for action_item in plan.actions
+                ],
+            },
+        }
+
+    def _handle_operator_prefix(self, user_input: str) -> dict[str, Any]:
+        parts = user_input.split(None, 1)
+        if len(parts) == 1:
+            return self.dispatcher.dispatch(
+                "UCODE OPERATOR STATUS", parser=self.prompt, game_state=self.state
+            )
+        normalized = parts[1].strip()
+        if not normalized:
+            return self.dispatcher.dispatch(
+                "UCODE OPERATOR STATUS", parser=self.prompt, game_state=self.state
+            )
+        upper = normalized.upper()
+        if upper.startswith(("STATUS", "QUEUE", "PLAN ")):
+            return self.dispatcher.dispatch(
+                f"UCODE OPERATOR {normalized}",
+                parser=self.prompt,
+                game_state=self.state,
+            )
+        return self._route_to_operator(normalized)
+
+    def _legacy_dev_only_response(self, original: str) -> dict[str, Any]:
+        return {
+            "status": "warning",
+            "message": "Legacy helper surface is Dev Mode only",
+            "output": (
+                f"`{original}` is reserved for Dev Mode.\n"
+                "Standard runtime uses OPERATOR and UCODE OPERATOR.\n"
+                "Use: OPERATOR <prompt>\n"
+                "Or: UCODE OPERATOR STATUS\n"
+                "Enable DEV ON only when you need contributor tooling."
+            ),
+        }
+
+    def _handle_ok_prefix(self, user_input: str) -> dict[str, Any]:
+        parts = user_input.split(None, 1)
+        normalized = parts[1].strip() if len(parts) > 1 else ""
+
+        if not normalized:
+            return (
+                self._legacy_dev_only_response("OK")
+                if not self._dev_mode_active()
+                else {"status": "error", "message": "Operator prompt required"}
+            )
+
+        ok_parts = normalized.split(None, 1)
+        cmd_name = ok_parts[0].upper()
+        args = ok_parts[1] if len(ok_parts) > 1 else ""
+
+        if not self._dev_mode_active():
+            if cmd_name in {"LOCAL", "ROUTE"}:
+                return self._route_to_operator(args or normalized)
+            if cmd_name == "SETUP":
+                return {
+                    "status": "warning",
+                    "message": "Standard runtime setup is operator-first",
+                    "output": (
+                        "Legacy `OK SETUP` is retired in standard runtime.\n"
+                        "Use: SETUP\n"
+                        "Then: UCODE PROFILE LIST\n"
+                        "And: UCODE OPERATOR STATUS"
+                    ),
+                }
+            return self._legacy_dev_only_response(f"OK {cmd_name}")
+
+        use_cloud = self._get_dev_mode_primary_provider() == "cloud"
+        if cmd_name == "CLOUD":
+            use_cloud = True
+            normalized = args
+            ok_parts = normalized.split(None, 1)
+            cmd_name = ok_parts[0].upper() if ok_parts and ok_parts[0] else ""
+            args = ok_parts[1] if len(ok_parts) > 1 else ""
+        if cmd_name == "SETUP":
+            self._run_dev_mode_setup()
+            return {"status": "success", "command": "OK SETUP"}
+        if cmd_name in {"LOCAL", "EXPLAIN", "DIFF", "PATCH", "ROUTE"}:
+            if use_cloud and cmd_name in {"EXPLAIN", "DIFF", "PATCH"} and "--cloud" not in args:
+                args = f"{args} --cloud".strip()
+            self.commands[cmd_name](args)
+            return {"status": "success", "command": cmd_name}
+        if cmd_name == "PULL":
+            self.commands[cmd_name](args)
+            return {"status": "success", "command": cmd_name}
+        if cmd_name == "FALLBACK":
+            self._cmd_ok_fallback(args)
+            return {"status": "success", "command": cmd_name}
+        self._run_ok_request(normalized, mode="LOCAL", use_cloud=use_cloud)
+        return {"status": "success", "command": "OK"}
 
     def _validate_shell_safety(self, command: str) -> bool:
         """Validate shell command safety (v1.4.6).
@@ -824,7 +920,7 @@ class UCODE:
                 "[v1.4.6] Provider engine not available, using legacy routing"
             )
             self._run_ok_request(
-                prompt, mode="LOCAL", use_cloud=(self._ok_primary_provider() == "cloud")
+                prompt, mode="LOCAL", use_cloud=(self._get_dev_mode_primary_provider() == "cloud")
             )
             return {"status": "success", "command": "OK"}
 
@@ -1013,7 +1109,7 @@ class UCODE:
                     if not user_input:
                         continue
 
-                    # Route input based on prefix (? / OK) or question mode
+                    # Route input based on operator/dev prefixes or slash mode
                     # This implements the uCODE Prompt Spec
                     corr_id = new_corr_id("C")
                     token = set_corr_id(corr_id)
@@ -1029,6 +1125,7 @@ class UCODE:
                                 "?EXIT",
                                 "? EXIT",
                                 "OK EXIT",
+                                "OPERATOR EXIT",
                             ):
                                 self.running = False
                                 atomic_print("See you later!")
@@ -1183,11 +1280,11 @@ class UCODE:
             ("loading", "Measuring viewport", self._refresh_viewport, True),
             ("installation", "Running startup scripts", self._run_startup_script, True),
             ("loading", "Computing health summary", self._show_health_summary, True),
-            # Keep AI availability in foreground (no spinner) so interactive prompts are clean.
+            # Keep operator/dev surface checks in foreground so interactive prompts are clean.
             (
                 "loading",
-                "Checking AI availability",
-                self._show_ai_startup_sequence,
+                "Checking operator surfaces",
+                self._show_operator_startup_sequence,
                 False,
             ),
         ]
@@ -1215,20 +1312,22 @@ class UCODE:
             except Exception as exc:
                 self.logger.warning(f"[STARTUP] Step failed ({label}): {exc}")
                 result = None
-            if label == "Checking AI availability":
-                self._maybe_prompt_setup_vibe(result)
+            if label == "Checking operator surfaces":
+                self._maybe_prompt_dev_setup(result)
             if not clean_startup:
                 self._print_task_progress(phase, f"{label} complete", done_pct)
 
-    def _maybe_prompt_setup_vibe(self, ai_status: dict[str, Any] | None) -> None:
-        """Prompt once when local Vibe is unavailable during startup."""
+    def _maybe_prompt_dev_setup(self, ai_status: dict[str, Any] | None) -> None:
+        """Prompt once for Dev Mode setup when the dev helper lane is unavailable."""
         from core.services.unified_config_loader import get_bool_config
 
         if self.quiet or get_bool_config("UDOS_AUTOMATION"):
             return
-        if not self._startup_setup_prompt_enabled():
+        if not self._dev_mode_active():
             return
-        if self._ok_primary_provider() == "cloud":
+        if not self._startup_dev_setup_prompt_enabled():
+            return
+        if self._get_dev_mode_primary_provider() == "cloud":
             return
         if not isinstance(ai_status, dict):
             return
@@ -1236,7 +1335,7 @@ class UCODE:
             return
         issue = ai_status.get("local_issue") or "setup required"
         choice = self._ask_confirm(
-            question=f"Local Vibe unavailable ({issue}). Run SETUP vibe now?",
+            question=f"Dev Mode helper unavailable ({issue}). Run SETUP now?",
             default=True,
             help_text="Yes = run now, No = continue startup, Skip = defer for this launch",
             variant="skip",
@@ -1244,7 +1343,7 @@ class UCODE:
         if choice == "yes":
             try:
                 result = self.dispatcher.dispatch(
-                    "SETUP vibe", parser=self.prompt, game_state=self.state
+                    "SETUP dev", parser=self.prompt, game_state=self.state
                 )
                 output = (
                     self.renderer.render(result)
@@ -1254,9 +1353,9 @@ class UCODE:
                 if output:
                     print(output)
             except Exception as exc:
-                self._ui_line(f"SETUP vibe failed: {exc}", level="error")
+                self._ui_line(f"SETUP dev failed: {exc}", level="error")
         elif choice == "skip":
-            self._ui_line("Deferred SETUP vibe for this launch.", level="info")
+            self._ui_line("Deferred Dev Mode setup for this launch.", level="info")
 
     def _open_command_selector(self) -> str | None:
         """Open TAB command selector and return selected command text."""
@@ -1280,10 +1379,10 @@ class UCODE:
                     print(self._theme_text(f"     - {line}"))
         except Exception:
             pass
-        print(self._theme_text("\n  Tips: SETUP | HELP | TAB | OK EXPLAIN <file>"))
+        print(self._theme_text("\n  Tips: SETUP | HELP | TAB | OPERATOR <prompt>"))
         print(
             self._theme_text(
-                "     Try: MAP | GRID MAP --input memory/system/grid-overlays-sample.json | WIZARD start\n"
+                "     Try: UCODE PROFILE LIST | UCODE OPERATOR STATUS | WIZARD start\n"
             )
         )
 
@@ -1396,7 +1495,7 @@ class UCODE:
                     pass
 
     def _show_first_run_ai_setup_hint(self) -> None:
-        """Show a first-run hint for local AI setup."""
+        """Show a first-run hint for local operator/dev setup."""
         try:
             if self.quiet:
                 return
@@ -1409,11 +1508,7 @@ class UCODE:
         except Exception:
             pass
 
-        print(
-            self._theme_text(
-                "\nFirst-Run AI: SETUP to add provider key + local models | WIZARD status\n"
-            )
-        )
+        print(self._theme_text("\nFirst-Run: SETUP | UCODE PROFILE LIST | UCODE OPERATOR STATUS\n"))
 
     def _network_online(self) -> bool:
         """Return True when local loopback services are reachable."""
@@ -1710,13 +1805,13 @@ class UCODE:
         if choice in {"REPAIR", "RESTORE", "DESTROY"}:
             self.dispatcher.dispatch(choice, parser=self.prompt, game_state=self.state)
 
-    def _get_ai_modes_path(self) -> Path:
-        """Return path to OK modes configuration."""
+    def _get_dev_mode_config_path(self) -> Path:
+        """Return path to Dev Mode helper configuration."""
         return self.repo_root / "core" / "config" / "ok_modes.json"
 
-    def _load_ai_modes_config(self) -> dict[str, Any]:
-        """Load OK modes configuration (safe fallback)."""
-        path = self._get_ai_modes_path()
+    def _load_dev_mode_config(self) -> dict[str, Any]:
+        """Load Dev Mode helper configuration (safe fallback)."""
+        path = self._get_dev_mode_config_path()
         if not path.exists():
             return {"modes": {}}
         try:
@@ -1726,15 +1821,15 @@ class UCODE:
             self.logger.warning("[AI] Failed to load ok_modes.json: %s", exc)
             return {"modes": {}}
 
-    def _write_ai_modes_config(self, config: dict[str, Any]) -> None:
-        """Persist OK modes configuration safely."""
-        path = self._get_ai_modes_path()
+    def _write_dev_mode_config(self, config: dict[str, Any]) -> None:
+        """Persist Dev Mode helper configuration safely."""
+        path = self._get_dev_mode_config_path()
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(config, indent=2))
 
-    def _get_ok_default_model(self) -> str:
-        """Return the default local model for OK commands."""
-        mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
+    def _get_dev_mode_default_model(self) -> str:
+        """Return the default local model for Dev Mode helper requests."""
+        mode = (self.dev_mode_config.get("modes") or {}).get("ofvibe", {})
         default_models = mode.get("default_models") or {}
         model = default_models.get("core") or default_models.get("dev")
         try:
@@ -1749,18 +1844,18 @@ class UCODE:
                 model = default_models.get("dev") or model
         return model or "devstral-small-2"
 
-    def _get_ok_fallback_model(self) -> str | None:
-        """Return the fallback model for OK commands when primary fails."""
-        mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
+    def _get_dev_mode_fallback_model(self) -> str | None:
+        """Return the fallback model for Dev Mode helper requests when primary fails."""
+        mode = (self.dev_mode_config.get("modes") or {}).get("ofvibe", {})
         default_models = mode.get("default_models") or {}
         return default_models.get("fallback")
 
-    def _ok_primary_provider(self) -> str:
-        """Return normalized primary provider preference for OK requests."""
+    def _get_dev_mode_primary_provider(self) -> str:
+        """Return normalized primary provider preference for Dev Mode helper requests."""
         env_value = self._env_value("VIBE_PRIMARY_PROVIDER").lower()
         if env_value in {"local", "cloud"}:
             return env_value
-        mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
+        mode = (self.dev_mode_config.get("modes") or {}).get("ofvibe", {})
         mode_value = str(mode.get("primary_provider", "")).strip().lower()
         if mode_value in {"local", "cloud"}:
             return mode_value
@@ -1782,8 +1877,8 @@ class UCODE:
 
         return "local", "default"
 
-    def _get_ok_context_window(self) -> int:
-        """Return the local Vibe context window size."""
+    def _get_dev_mode_context_window(self) -> int:
+        """Return the local Dev Mode context window size."""
         try:
             from core.services.provider_registry import (
                 ProviderNotAvailableError,
@@ -1802,8 +1897,8 @@ class UCODE:
         except Exception:
             return 8192
 
-    def _ok_auto_fallback_enabled(self) -> bool:
-        """Return whether OK should auto-fallback between local and cloud."""
+    def _dev_mode_auto_fallback_enabled(self) -> bool:
+        """Return whether Dev Mode helper should auto-fallback between local and cloud."""
         from core.services.unified_config_loader import get_config_loader
 
         if raw_value := get_config_loader().get("UDOS_OK_AUTO_FALLBACK"):
@@ -1812,10 +1907,10 @@ class UCODE:
                 return True
             if env_value in {"0", "false", "no", "off"}:
                 return False
-        mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
+        mode = (self.dev_mode_config.get("modes") or {}).get("ofvibe", {})
         return bool(mode.get("auto_fallback", False))
 
-    def _ok_cloud_sanity_check_enabled(self) -> bool:
+    def _dev_mode_cloud_sanity_check_enabled(self) -> bool:
         """Return whether low-confidence local responses should trigger cloud sanity checks."""
         from core.services.unified_config_loader import get_config_loader
 
@@ -1825,17 +1920,17 @@ class UCODE:
                 return True
             if env_value in {"0", "false", "no", "off"}:
                 return False
-        mode = (self.ai_modes_config.get("modes") or {}).get("ofvibe", {})
+        mode = (self.dev_mode_config.get("modes") or {}).get("ofvibe", {})
         return bool(mode.get("cloud_sanity_check", False))
 
-    def _set_ok_auto_fallback(self, enabled: bool) -> None:
-        """Enable or disable OK auto-fallback between local/cloud."""
-        config = self._load_ai_modes_config()
+    def _set_dev_mode_auto_fallback(self, enabled: bool) -> None:
+        """Enable or disable Dev Mode helper auto-fallback between local/cloud."""
+        config = self._load_dev_mode_config()
         modes = config.setdefault("modes", {})
         ofvibe = modes.setdefault("ofvibe", {})
         ofvibe["auto_fallback"] = bool(enabled)
-        self._write_ai_modes_config(config)
-        self.ai_modes_config = config
+        self._write_dev_mode_config(config)
+        self.dev_mode_config = config
 
     def _wizard_base_url(self) -> str:
         """Wizard server base URL for brokered cloud access."""
@@ -1878,8 +1973,8 @@ class UCODE:
     def _normalize_model_names(models: list[str]) -> list[str]:
         return [m.strip() for m in models if m and str(m).strip()]
 
-    def _get_ok_local_status(self) -> dict[str, Any]:
-        """Return local provider status for OK Local / Vibe checks.
+    def _get_dev_mode_local_status(self) -> dict[str, Any]:
+        """Return local provider status for Dev Mode helper checks.
 
         Uses centralized AIProviderHandler for unified provider status.
         Eliminates duplicate status checking code.
@@ -1926,30 +2021,56 @@ class UCODE:
 
         return get_config_loader().get_str(key, "").strip()
 
-    def _startup_setup_prompt_enabled(self) -> bool:
-        """Return whether startup should prompt to run SETUP vibe."""
+    def _startup_dev_setup_prompt_enabled(self) -> bool:
+        """Return whether startup should prompt to run Dev Mode setup."""
         from core.services.unified_config_loader import get_bool_config
 
         return get_bool_config("UDOS_PROMPT_SETUP_VIBE")
 
     # NOTE: _get_ok_cloud_status() removed 2025-02-24 — use AIProviderHandler.check_cloud_provider() instead
     # See: core/services/ai_provider_handler.py
-    def _init_ok_prompt_context(self) -> None:
-        """Expose OK local model info to the prompt toolbar."""
+    def _init_operator_prompt_context(self) -> None:
+        """Expose operator/dev helper status to the prompt toolbar."""
         try:
-            self.prompt.ok_model = self._get_ok_default_model()
-            self.prompt.ok_context_window = self._get_ok_context_window()
+            if self._dev_mode_active():
+                self.prompt.ok_model = self._get_dev_mode_default_model()
+                self.prompt.ok_context_window = self._get_dev_mode_context_window()
+            else:
+                self.prompt.ok_model = "operator"
+                self.prompt.ok_context_window = 0
         except Exception as exc:
             self.logger.debug(f"[OK] Failed to set prompt context: {exc}")
 
-    def _show_ai_startup_sequence(self) -> dict[str, Any]:
-        """Show Vibe startup summary and return local/cloud readiness."""
+    def _show_operator_startup_sequence(self) -> dict[str, Any]:
+        """Show standard operator summary, with Dev Mode helper status when active."""
         from core.services.ai_provider_handler import get_ai_provider_handler
         from core.services.provider_registry import CoreProviderRegistry
 
         CoreProviderRegistry.auto_register_vibe()
         if self.quiet:
             return {"local_ready": True, "cloud_ready": True}
+
+        operator_status = get_operator_mode_service().status_payload()
+        topology = operator_status["session"]["topology"]
+        enabled_profiles = ", ".join(operator_status["session"]["enabled_profiles"]) or "(none)"
+        print(self._theme_text("\nOperator"))
+        self.renderer.stream_text(
+            f"Topology: {topology}\nEnabled profiles: {enabled_profiles}\nQueued tasks: {operator_status['session']['queued_tasks']}",
+            prefix="operator> ",
+        )
+        if not self._dev_mode_active():
+            self.renderer.stream_text(
+                "Standard runtime uses OPERATOR and UCODE OPERATOR.\nDEV-only helper tooling remains gated behind DEV ON.",
+                prefix="operator> ",
+            )
+            print("")
+            return {
+                "local_ready": True,
+                "local_issue": None,
+                "cloud_ready": False,
+                "cloud_skip": True,
+                "cloud_direct": False,
+            }
 
         # Use unified AI provider handler (replaces scattered status checks)
         handler = get_ai_provider_handler()
@@ -1971,9 +2092,9 @@ class UCODE:
             "skip": not cloud_status_obj.is_configured,
         }
 
-        model = ok_status.get("model") or self._get_ok_default_model()
-        fallback_model = self._get_ok_fallback_model()
-        ctx = self._get_ok_context_window()
+        model = ok_status.get("model") or self._get_dev_mode_default_model()
+        fallback_model = self._get_dev_mode_fallback_model()
+        ctx = self._get_dev_mode_context_window()
         local_issue = ok_status.get("issue") or None
         endpoint = ok_status.get("ollama_endpoint", "http://127.0.0.1:11434")
 
@@ -1985,14 +2106,14 @@ class UCODE:
                 lines.append(f"   Fallback: {fallback_model} (lightweight open-source)")
         else:
             issue = local_issue or "setup required"
-            lines.append(f"⚠️ Vibe needs setup: {issue} ({model}, ctx {ctx})")
+            lines.append(f"⚠️ Dev Mode helper needs setup: {issue} ({model}, ctx {ctx})")
             if issue in {
                 "setup required",
                 "ollama down",
                 "missing model",
                 "vibe-cli missing",
             }:
-                lines.append("Tip: SETUP vibe (auto-repair/install)")
+                lines.append("Tip: SETUP (operator/dev onboarding)")
             if issue == "missing model":
                 lines.append(f"Tip: OK PULL {model} (auto-pull if missing)")
                 if fallback_model:
@@ -2018,21 +2139,12 @@ class UCODE:
             )
         lines.append("Tip: OK EXPLAIN <file> | OK LOCAL")
 
-        print(self._theme_text("\nVibe (Local)"))
+        print(self._theme_text("\nDev Helper"))
         route, source = self._provider_route_details()
         self.renderer.stream_text(
-            f"Provider route: {route} (source: {source})", prefix="vibe> "
+            f"Provider route: {route} (source: {source})", prefix="dev> "
         )
-
-        # Diagnostic: warn if cloud mode is enabled but API key is missing
-        if route == "cloud" and not cloud_status.get("ready"):
-            from core.services.unified_config_loader import get_config
-            mistral_key = get_config("MISTRAL_API_KEY", "").strip()
-            if not mistral_key:
-                lines.insert(0, "❌ URGENT: Cloud mode enabled but MISTRAL_API_KEY is empty")
-                lines.insert(1, "   Set now: WIZARD KEY SET <your_api_key>")
-
-        self.renderer.stream_text("\n".join(lines), prefix="vibe> ")
+        self.renderer.stream_text("\n".join(lines), prefix="dev> ")
         print("")
         return {
             "local_ready": bool(ok_status.get("ready")),
@@ -2051,7 +2163,7 @@ class UCODE:
             return f"  ⚠️ {label}: " + ", ".join(issues)
         return f"  ⚠️ {label}: setup required"
 
-    # NOTE: _fetch_ollama_models(), _normalize_model_names(), and _get_ok_local_status()
+    # NOTE: _fetch_ollama_models(), _normalize_model_names(), and _get_dev_mode_local_status()
     # removed 2025-02-24 — use AIProviderHandler.check_local_provider() instead
     # See: core/services/ai_provider_handler.py
 
@@ -2415,15 +2527,18 @@ class UCODE:
             enriched_data = identity_enc.enrich_identity(
                 collected_data, location=location
             )
-            install_choice = (
-                str(collected_data.get("ok_helper_install", "")).strip().lower()
-            )
-            ok_setup_requested = install_choice in {"yes", "y", "true", "1", "ok"}
-            if ok_setup_requested:
+            install_choice = str(
+                collected_data.get(
+                    "dev_mode_helper_install",
+                    collected_data.get("ok_helper_install", ""),
+                )
+            ).strip().lower()
+            dev_mode_setup_requested = install_choice in {"yes", "y", "true", "1", "ok"}
+            if dev_mode_setup_requested:
                 mistral_key = (collected_data.get("mistral_api_key") or "").strip()
                 if not mistral_key:
                     try:
-                        print("\nMistral API key required for Vibe helper setup.")
+                        print("\nMistral API key required for Dev Mode helper setup.")
                         mistral_key = input(
                             "Mistral API key (leave blank to skip): "
                         ).strip()
@@ -2554,7 +2669,7 @@ class UCODE:
                                 enriched_data, location=location
                             )
 
-                        self._maybe_run_ok_setup(ok_setup_requested)
+                        self._maybe_run_dev_mode_setup(dev_mode_setup_requested)
                         return
                     elif response.get("status_code") == 503:
                         self.logger.warning("[SETUP] Wizard secret store locked")
@@ -2647,8 +2762,8 @@ class UCODE:
                         "[SETUP] Setup data saved via direct Wizard services"
                     )
                     print("\n✅ Setup data saved to Wizard keystore.")
-                    self._maybe_run_ok_setup(ok_setup_requested)
-                    self._maybe_run_ok_setup(ok_setup_requested)
+                    self._maybe_run_dev_mode_setup(dev_mode_setup_requested)
+                    self._maybe_run_dev_mode_setup(dev_mode_setup_requested)
                     return
                 elif user_result.locked or install_result.locked:
                     error = user_result.error or install_result.error
@@ -2666,7 +2781,7 @@ class UCODE:
             if wizard_reachable and not wizard_locked:
                 print("\nℹ️  Wizard is reachable; skipping local profile cache.")
                 print("   ▶ Run WIZARD STATUS or retry SETUP to sync.")
-                self._maybe_run_ok_setup(ok_setup_requested)
+                self._maybe_run_dev_mode_setup(dev_mode_setup_requested)
                 return
             profile_dir = self.repo_root / "memory" / "user"
             profile_dir.mkdir(parents=True, exist_ok=True)
@@ -2690,7 +2805,7 @@ class UCODE:
             )
             print(f"\nSetup data saved locally to {profile_file}")
             print("⚠️  Note: Run WIZARD START to sync this data to the keystore.")
-            self._maybe_run_ok_setup(ok_setup_requested)
+            self._maybe_run_dev_mode_setup(dev_mode_setup_requested)
 
         except Exception as e:
             self.logger.error(
@@ -3303,14 +3418,14 @@ class UCODE:
         """Configure OK auto-fallback mode."""
         token = args.strip().lower()
         if token in {"on", "true", "yes"}:
-            self._set_ok_auto_fallback(True)
+            self._set_dev_mode_auto_fallback(True)
             print(self._theme_text("OK fallback set to auto (on)."))
             return
         if token in {"off", "false", "no"}:
-            self._set_ok_auto_fallback(False)
+            self._set_dev_mode_auto_fallback(False)
             print(self._theme_text("OK fallback set to manual (off)."))
             return
-        current = "on" if self._ok_auto_fallback_enabled() else "off"
+        current = "on" if self._dev_mode_auto_fallback_enabled() else "off"
         print(self._theme_text("Usage: OK FALLBACK on|off"))
         print(self._theme_text(f"Current: {current}"))
 
@@ -3426,7 +3541,7 @@ class UCODE:
         except ProviderNotAvailableError as exc:
             raise RuntimeError("Local Vibe provider not available") from exc
 
-        target_model = model or self._get_ok_default_model()
+        target_model = model or self._get_dev_mode_default_model()
 
         import concurrent.futures
 
@@ -3448,7 +3563,7 @@ class UCODE:
                 vibe = vibe_provider
             return generate_with_timeout(vibe, prompt, timeout=30)
         except Exception as exc:
-            fallback_model = self._get_ok_fallback_model()
+            fallback_model = self._get_dev_mode_fallback_model()
             if fallback_model and fallback_model != target_model:
                 self.logger.warning(
                     f"[OK] Primary model {target_model} failed, trying fallback {fallback_model}: {exc}"
@@ -3513,10 +3628,10 @@ class UCODE:
         use_cloud: bool = False,
     ) -> None:
         """Execute OK request with optional cloud fallback."""
-        model = self._get_ok_default_model()
+        model = self._get_dev_mode_default_model()
         source = "local"
         response = None
-        auto_fallback = self._ok_auto_fallback_enabled()
+        auto_fallback = self._dev_mode_auto_fallback_enabled()
         from core.services.unified_config_loader import get_bool_config
 
         dev_mode = get_bool_config("UDOS_DEV_MODE")
@@ -3547,7 +3662,7 @@ class UCODE:
             except Exception as exc:
                 should_try_cloud = (
                     auto_fallback and not use_cloud
-                ) or self._ok_primary_provider() == "cloud"
+                ) or self._get_dev_mode_primary_provider() == "cloud"
                 if should_try_cloud:
                     try:
                         print(
@@ -3583,7 +3698,7 @@ class UCODE:
             not use_cloud
             and auto_fallback
             and not dev_mode
-            and self._ok_cloud_sanity_check_enabled()
+            and self._dev_mode_cloud_sanity_check_enabled()
         ):
             if self._needs_cloud_sanity_check(entry.get("response") or ""):
                 try:
@@ -3622,10 +3737,10 @@ class UCODE:
         ]
         return any(phrase in lowered for phrase in uncertain_phrases)
 
-    def _run_ok_setup(self) -> None:
-        """Install local OK helper stack (ollama, vibe-cli, models) if possible."""
+    def _run_dev_mode_setup(self) -> None:
+        """Install local Dev Mode helper stack (ollama, vibe, models) if possible."""
         print("")
-        self._ui_line("OK SETUP: Installing local AI helpers", level="milestone")
+        self._ui_line("SETUP: Installing Dev Mode helpers", level="milestone")
         gate_open = bool(gate_status().get("gate_open"))
         if not gate_open:
             allow_downloads = self._ask_yes_no(
@@ -3648,32 +3763,32 @@ class UCODE:
                 self._ui_line("Web gate open for setup downloads", level="info")
                 result = self._run_with_progress(
                     "installation",
-                    "OK helper installation",
+                    "Dev Mode helper installation",
                     lambda: run_ok_setup(
                         self.repo_root, log=lambda msg: print(self._theme_text(msg))
                     ),
-                    spinner_label="⏳ Installing OK helpers",
+                    spinner_label="⏳ Installing Dev Mode helpers",
                 )
-            self.ai_modes_config = self._load_ai_modes_config()
+            self.dev_mode_config = self._load_dev_mode_config()
             for warning in result.get("warnings", []):
                 self._ui_line(warning, level="warn")
         except Exception as exc:
-            self._ui_line(f"OK SETUP failed: {exc}", level="error")
+            self._ui_line(f"SETUP failed: {exc}", level="error")
         finally:
             close_bootstrap_gate(reason="setup-complete")
             self._ui_line(
                 "Web gate closed. WIZARD START to manage networking.", level="info"
             )
-        self._ui_line("OK SETUP complete", level="ok")
+        self._ui_line("SETUP complete", level="ok")
         print("")
 
-    def _maybe_run_ok_setup(self, requested: bool) -> None:
+    def _maybe_run_dev_mode_setup(self, requested: bool) -> None:
         if not requested:
             return
         try:
-            self._run_ok_setup()
+            self._run_dev_mode_setup()
         except Exception as exc:
-            print(self._theme_text(f"⚠️  OK SETUP skipped: {exc}"))
+            print(self._theme_text(f"⚠️  Dev Mode setup skipped: {exc}"))
 
     def _cmd_ok_explain(self, args: str) -> None:
         """OK EXPLAIN <file> [start end] [--cloud]."""
@@ -3756,7 +3871,7 @@ class UCODE:
             return
         if not shutil.which("ollama"):
             self._ui_line(
-                "Ollama not found. Install first via OK SETUP or SETUP VIBE.",
+                "Ollama not found. Install first via SETUP or SETUP dev.",
                 level="warn",
             )
             return

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 import hashlib
 import hmac
@@ -19,6 +19,8 @@ from typing import Any
 from core.commands.base import BaseCommandHandler
 from core.services.error_contract import CommandError
 from core.services.offline_assets_service import resolve_offline_assets_contract
+from core.services.operator_mode_service import get_operator_mode_service
+from core.services.release_profile_service import get_release_profile_service
 
 
 @dataclass(frozen=True)
@@ -66,6 +68,8 @@ class UcodeHandler(BaseCommandHandler):
         self.metrics_events_path = self.metrics_root / "usage-events.jsonl"
         self.metrics_summary_path = self.metrics_root / "usage-summary.json"
         self.minimum_spec = _MinimumSpec()
+        self.profile_service = get_release_profile_service()
+        self.operator_service = get_operator_mode_service()
 
     def handle(
         self, command: str, params: list[str], grid: Any = None, parser: Any = None
@@ -98,10 +102,20 @@ class UcodeHandler(BaseCommandHandler):
                     result = self._handle_update()
                 case "env":
                     result = self._handle_env(params[1:])
+                case "profile":
+                    result = self._handle_profile(params[1:])
+                case "operator":
+                    result = self._handle_operator(params[1:])
+                case "extension":
+                    result = self._handle_extension(params[1:])
+                case "package":
+                    result = self._handle_package(params[1:])
+                case "repair":
+                    result = self._handle_rebaseline_repair(params[1:])
                 case _:
                     raise CommandError(
                         code="ERR_COMMAND_INVALID_ARG",
-                        message="Syntax: UCODE <DEMO|SYSTEM|DOCS|CAPABILITIES|PLUGIN|METRICS|UPDATE|ENV> ...",
+                        message="Syntax: UCODE <DEMO|SYSTEM|DOCS|CAPABILITIES|PLUGIN|METRICS|UPDATE|ENV|PROFILE|OPERATOR|EXTENSION|PACKAGE|REPAIR> ...",
                         recovery_hint="Run UCODE for command help",
                         level="INFO",
                     )
@@ -138,6 +152,11 @@ class UcodeHandler(BaseCommandHandler):
             "  UCODE METRICS [SUMMARY]",
             "  UCODE UPDATE",
             "  UCODE ENV [key=value ...]",
+            "  UCODE PROFILE <LIST|SHOW|INSTALL|ENABLE|DISABLE|VERIFY> [profile]",
+            "  UCODE OPERATOR <STATUS|PLAN <prompt>|QUEUE>",
+            "  UCODE EXTENSION <LIST|VERIFY> [extension]",
+            "  UCODE PACKAGE <LIST|VERIFY> [group]",
+            "  UCODE REPAIR STATUS",
         ]
         return {
             "status": "success",
@@ -766,6 +785,260 @@ class UcodeHandler(BaseCommandHandler):
                 recovery_hint="Check that .env file is writable",
                 level="ERROR",
             )
+
+    def _handle_profile(self, params: list[str]) -> dict[str, Any]:
+        action = params[0].lower() if params else "list"
+        args = params[1:]
+
+        if action == "list":
+            profiles = self.profile_service.list_profiles()
+            lines = ["Certified release profiles:"]
+            for profile in profiles:
+                tags = []
+                if profile["mandatory"]:
+                    tags.append("mandatory")
+                if profile["installed"]:
+                    tags.append("installed")
+                if profile["enabled"]:
+                    tags.append("enabled")
+                lines.append(f"- {profile['profile_id']} [{', '.join(tags) or 'available'}]")
+                lines.append(f"  {profile['summary']}")
+            return {"status": "success", "profiles": profiles, "output": "\n".join(lines)}
+
+        if not args:
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Syntax: UCODE PROFILE <SHOW|INSTALL|ENABLE|DISABLE|VERIFY> <profile>",
+                recovery_hint="Run `UCODE PROFILE LIST`",
+                level="INFO",
+            )
+
+        profile_id = args[0].strip().lower()
+        profile = self.profile_service.get_profile(profile_id)
+        if not profile:
+            raise CommandError(
+                code="ERR_COMMAND_NOT_FOUND",
+                message=f"Unknown profile: {profile_id}",
+                recovery_hint="Run `UCODE PROFILE LIST`",
+                level="INFO",
+            )
+
+        if action == "show":
+            verify = self.profile_service.verify_profile(profile_id)
+            lines = [
+                f"Profile: {profile['label']} ({profile['profile_id']})",
+                profile["summary"],
+                f"Mandatory: {'yes' if profile['mandatory'] else 'no'}",
+                f"Installed: {'yes' if profile['installed'] else 'no'}",
+                f"Enabled: {'yes' if profile['enabled'] else 'no'}",
+                f"Components: {', '.join(profile['components']) or '(none)'}",
+                f"Extensions: {', '.join(profile['extensions']) or '(none)'}",
+                f"Package groups: {', '.join(profile['package_groups']) or '(none)'}",
+                f"Healthy: {'yes' if verify['healthy'] else 'no'}",
+            ]
+            if verify["missing_components"]:
+                lines.append(f"Missing components: {', '.join(verify['missing_components'])}")
+            if verify["missing_extensions"]:
+                lines.append(f"Missing extensions: {', '.join(verify['missing_extensions'])}")
+            lines.append(f"Blockers: {', '.join(profile['blockers']) or '(none)'}")
+            return {"status": "success", "profile": profile, "verify": verify, "output": "\n".join(lines)}
+
+        if action == "install":
+            result = self.profile_service.install_profiles([profile_id])
+            return {
+                "status": "success",
+                "message": f"Installed profile: {profile_id}",
+                "result": result,
+                "output": f"Installed/enabled profiles: {', '.join(result['enabled'])}",
+            }
+
+        if action == "enable":
+            result = self.profile_service.set_enabled(profile_id, True)
+            return {"status": "success", "profile": result, "output": f"Enabled profile: {profile_id}"}
+
+        if action == "disable":
+            try:
+                result = self.profile_service.set_enabled(profile_id, False)
+            except ValueError as exc:
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message=str(exc),
+                    recovery_hint="Mandatory profiles must remain enabled",
+                    level="INFO",
+                ) from exc
+            return {"status": "success", "profile": result, "output": f"Disabled profile: {profile_id}"}
+
+        if action == "verify":
+            verify = self.profile_service.verify_profile(profile_id)
+            lines = [
+                f"Profile verify: {profile_id}",
+                f"Healthy: {'yes' if verify['healthy'] else 'no'}",
+                f"Missing components: {', '.join(verify['missing_components']) or '(none)'}",
+                f"Missing extensions: {', '.join(verify['missing_extensions']) or '(none)'}",
+                f"Blockers: {', '.join(verify['blockers']) or '(none)'}",
+            ]
+            return {"status": "success", "verify": verify, "output": "\n".join(lines)}
+
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message="Syntax: UCODE PROFILE <LIST|SHOW|INSTALL|ENABLE|DISABLE|VERIFY> [profile]",
+            recovery_hint="Run `UCODE PROFILE LIST`",
+            level="INFO",
+        )
+
+    def _handle_operator(self, params: list[str]) -> dict[str, Any]:
+        action = params[0].lower() if params else "status"
+        args = params[1:]
+
+        if action == "status":
+            payload = self.operator_service.status_payload()
+            lines = [
+                "Operator mode:",
+                f"  mode: {payload['session']['mode']}",
+                f"  topology: {payload['session']['topology']}",
+                f"  enabled profiles: {', '.join(payload['session']['enabled_profiles']) or '(none)'}",
+                f"  queued tasks: {payload['session']['queued_tasks']}",
+            ]
+            for capability in payload["capabilities"]:
+                lines.append(
+                    f"  capability {capability['name']}: {'ok' if capability['available'] else 'missing'} - {capability['detail']}"
+                )
+            return {"status": "success", "operator": payload, "output": "\n".join(lines)}
+
+        if action == "queue":
+            payload = self.operator_service.status_payload()
+            lines = ["Operator queue:"]
+            for task in payload["tasks"]:
+                lines.append(f"- {task['task_id']} [{task['status']}] {task['title']}")
+            return {"status": "success", "tasks": payload["tasks"], "output": "\n".join(lines)}
+
+        if action == "plan":
+            prompt = " ".join(args).strip()
+            plan = self.operator_service.plan(prompt)
+            lines = [
+                f"Intent: {plan.intent.label} ({plan.intent.confidence:.2f})",
+                f"Reason: {plan.intent.reason}",
+                f"Summary: {plan.summary}",
+            ]
+            if plan.actions:
+                lines.append("Actions:")
+                for action_item in plan.actions:
+                    lines.append(f"- {action_item.command} :: {action_item.description}")
+            if plan.tasks:
+                lines.append("Tasks:")
+                for task in plan.tasks:
+                    lines.append(f"- {task.task_id} [{task.status}] {task.title}")
+            return {"status": "success", "plan": asdict(plan), "output": "\n".join(lines)}
+
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message="Syntax: UCODE OPERATOR <STATUS|PLAN <prompt>|QUEUE>",
+            recovery_hint="Run `UCODE OPERATOR STATUS`",
+            level="INFO",
+        )
+
+    def _handle_extension(self, params: list[str]) -> dict[str, Any]:
+        action = params[0].lower() if params else "list"
+        args = params[1:]
+
+        if action == "list":
+            extensions = self.profile_service.list_extensions()
+            lines = ["Official extensions:"]
+            for extension in extensions:
+                availability = "available" if extension["available"] else "missing"
+                lines.append(f"- {extension['extension_id']} [{availability}]")
+                lines.append(f"  {extension['summary']}")
+            return {"status": "success", "extensions": extensions, "output": "\n".join(lines)}
+
+        if action == "verify" and args:
+            try:
+                extension = self.profile_service.extension_status(args[0].strip().lower())
+            except ValueError as exc:
+                raise CommandError(
+                    code="ERR_COMMAND_NOT_FOUND",
+                    message=str(exc),
+                    recovery_hint="Run `UCODE EXTENSION LIST`",
+                    level="INFO",
+                ) from exc
+            lines = [
+                f"Extension: {extension['label']} ({extension['extension_id']})",
+                f"Profiles: {', '.join(extension['profiles']) or '(none)'}",
+                f"Available: {'yes' if extension['available'] else 'no'}",
+                f"Path: {extension['path']}",
+            ]
+            return {"status": "success", "extension": extension, "output": "\n".join(lines)}
+
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message="Syntax: UCODE EXTENSION <LIST|VERIFY> [extension]",
+            recovery_hint="Run `UCODE EXTENSION LIST`",
+            level="INFO",
+        )
+
+    def _handle_package(self, params: list[str]) -> dict[str, Any]:
+        action = params[0].lower() if params else "list"
+        args = params[1:]
+        groups = self.profile_service.list_package_groups()
+
+        if action == "list":
+            lines = ["Package groups:"]
+            for group in groups:
+                state = "active" if group["active"] else "inactive"
+                lines.append(f"- {group['package_id']} [{state}]")
+                lines.append(f"  {group['summary']}")
+                lines.append(f"  Repos: {', '.join(group['repos']) or '(none)'}")
+            return {"status": "success", "packages": groups, "output": "\n".join(lines)}
+
+        if action == "verify" and args:
+            package_id = args[0].strip().lower()
+            package = next((item for item in groups if item["package_id"] == package_id), None)
+            if not package:
+                raise CommandError(
+                    code="ERR_COMMAND_NOT_FOUND",
+                    message=f"Unknown package group: {package_id}",
+                    recovery_hint="Run `UCODE PACKAGE LIST`",
+                    level="INFO",
+                )
+            lines = [
+                f"Package group: {package['label']} ({package['package_id']})",
+                package["summary"],
+                f"Active: {'yes' if package['active'] else 'no'}",
+                f"Profiles: {', '.join(package['profiles']) or '(none)'}",
+                f"Repos: {', '.join(package['repos']) or '(none)'}",
+            ]
+            return {"status": "success", "package": package, "output": "\n".join(lines)}
+
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message="Syntax: UCODE PACKAGE <LIST|VERIFY> [group]",
+            recovery_hint="Run `UCODE PACKAGE LIST`",
+            level="INFO",
+        )
+
+    def _handle_rebaseline_repair(self, params: list[str]) -> dict[str, Any]:
+        action = params[0].lower() if params else "status"
+        if action != "status":
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Syntax: UCODE REPAIR STATUS",
+                recovery_hint="Run `UCODE REPAIR STATUS`",
+                level="INFO",
+            )
+        topology = self.profile_service.topology_summary()
+        profiles = self.profile_service.list_profiles()
+        lines = [
+            "Rebaseline repair contracts:",
+            f"- topology: {topology['mode']} :: {topology['summary']}",
+            "- verify certified profiles before repair execution",
+        ]
+        for profile in profiles:
+            verify = self.profile_service.verify_profile(profile["profile_id"])
+            state = "ok" if verify["healthy"] else "attention"
+            lines.append(
+                f"- {profile['profile_id']} [{state}] missing components={len(verify['missing_components'])}, missing extensions={len(verify['missing_extensions'])}"
+            )
+        lines.append("Suggested sequence: HEALTH -> REPAIR STATUS -> UCODE PROFILE VERIFY <profile>")
+        return {"status": "success", "profiles": profiles, "output": "\n".join(lines)}
 
     def _seed_demo_assets(self, *, overwrite: bool) -> None:
         demo_seeds = {

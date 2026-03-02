@@ -108,6 +108,7 @@ class TestCommandDispatcher:
         assert "HELP" in commands
         assert "NPC" in commands
         assert "SEND" in commands
+        assert "OPERATOR" in commands
         assert len(commands) >= 16
 
     def test_dispatch_unknown_command(self):

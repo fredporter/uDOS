@@ -242,6 +242,10 @@ def __getattr__(name):
         from .ucode_handler import UcodeHandler
 
         return UcodeHandler
+    elif name == "OperatorHandler":
+        from .operator_handler import OperatorHandler
+
+        return OperatorHandler
     elif name == "WizardHandler":
         from .wizard_handler import WizardHandler
 

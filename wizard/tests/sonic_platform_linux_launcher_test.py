@@ -13,6 +13,8 @@ class _BridgeSvc:
 
 
 class _BuildSvc:
+    builds_root = "/tmp/builds"
+
     def start_build(self, **_kwargs):
         return {"success": True}
 

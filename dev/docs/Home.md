@@ -59,7 +59,7 @@ git submodule update --init --recursive
 
 ## 🔧 Development Workflow
 
-1. **Install uDOS** — See [main repo](https://github.com/fredporter/uDOS-vibe)
+1. **Install uDOS** — See [main repo](https://github.com/fredporter/uDOS)
 2. **Add `/dev/` submodule** — [ADD-SUBMODULE](ADD-SUBMODULE)
 3. **Create your project** — Use guides above
 4. **Test locally** — Keep projects in `/dev/` (gitignored)
@@ -78,27 +78,27 @@ git submodule update --init --recursive
 
 ## 🔗 Related Resources
 
-- [uDOS Main Repository](https://github.com/fredporter/uDOS-vibe)
-- [uDOS Wiki](https://github.com/fredporter/uDOS-vibe/wiki)
-- [uDOS Documentation](https://github.com/fredporter/uDOS-vibe/tree/main/docs)
+- [uDOS Main Repository](https://github.com/fredporter/uDOS)
+- [uDOS Wiki](https://github.com/fredporter/uDOS/wiki)
+- [uDOS Documentation](https://github.com/fredporter/uDOS/tree/main/docs)
 
 ---
 
 ## 🤝 Community & Support
 
 ### Contributing
-- [Contributing Guide](https://github.com/fredporter/uDOS-vibe/blob/main/CONTRIBUTORS.md) — How to contribute to uDOS
-- [Code of Conduct](https://github.com/fredporter/uDOS-vibe/blob/main/CODE_OF_CONDUCT.md) — Community guidelines
-- [Style Guide](https://github.com/fredporter/uDOS-vibe/wiki/STYLE-GUIDE) — Coding standards
+- [Contributing Guide](https://github.com/fredporter/uDOS/blob/main/CONTRIBUTORS.md) — How to contribute to uDOS
+- [Code of Conduct](https://github.com/fredporter/uDOS/blob/main/CODE_OF_CONDUCT.md) — Community guidelines
+- [Style Guide](https://github.com/fredporter/uDOS/wiki/STYLE-GUIDE) — Coding standards
 
 ### Issues & Support
-- [Report uDOS Issues](https://github.com/fredporter/uDOS-vibe/issues) — Main project bugs/features
+- [Report uDOS Issues](https://github.com/fredporter/uDOS/issues) — Main project bugs/features
 - [Report Scaffold Issues](https://github.com/fredporter/uDOS-dev/issues) — Dev scaffold issues
-- [Discussions](https://github.com/fredporter/uDOS-vibe/discussions) — Questions & ideas
+- [Discussions](https://github.com/fredporter/uDOS/discussions) — Questions & ideas
 
 ### Resources
-- [Installation Guide](https://github.com/fredporter/uDOS-vibe/blob/main/INSTALLATION.md)
-- [Quick Start](https://github.com/fredporter/uDOS-vibe/blob/main/QUICKSTART.md)
+- [Installation Guide](https://github.com/fredporter/uDOS/blob/main/INSTALLATION.md)
+- [Quick Start](https://github.com/fredporter/uDOS/blob/main/QUICKSTART.md)
 
 ---
 

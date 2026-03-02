@@ -1,4 +1,6 @@
-# Quick Start: uDOS v1.4.5 +Vibe
+# Quick Start: uDOS v1.5 Rebaseline
+
+`ucode` is now the standard runtime entry point. Use `vibe` only when Dev Mode is explicitly enabled.
 
 ## 📦 Installation
 
@@ -18,7 +20,7 @@ The installer will:
 - ✓ Detect your OS and hardware
 - ✓ Install uv (Python package manager)
 - ✓ Set up your `.env` configuration
-- ✓ Install Vibe CLI with uDOS tools
+- ✓ Install Dev Mode tooling only when the `dev` profile is selected
 - ✓ Optionally install micro editor, Obsidian, and Ollama
 - ✓ Create vault structure and symlinks
 
@@ -34,17 +36,23 @@ The installer will:
 
 ---
 
-## 🚀 Start Vibe
+## 🚀 Start ucode
 
 After installation:
 ```bash
-cd /path/to/uDOS-vibe
-vibe
+cd /path/to/uDOS
+./bin/ucode
 ```
 
 First time? Run the setup story:
 ```
 SETUP
+```
+
+Then inspect the supported release lanes:
+```
+UCODE PROFILE LIST
+UCODE OPERATOR STATUS
 ```
 
 ---

@@ -1,4 +1,4 @@
-# .vibe/config.toml — project-local Vibe configuration for uDOS-vibe
+# .vibe/config.toml — project-local Vibe configuration for uDOS
 #
 # Goal:
 # - Use globally installed `vibe` CLI

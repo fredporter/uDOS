@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
 
@@ -33,6 +34,8 @@ class SonicHandler(BaseCommandHandler):
             return self._status()
         if action == "sync":
             return self._sync(params[1:])
+        if action == "verify":
+            return self._verify(params[1:])
         if action == "plan":
             return self._plan(params[1:])
         if action == "run":
@@ -96,6 +99,62 @@ class SonicHandler(BaseCommandHandler):
                 "path": str(db_path),
                 "exists": db_path.exists(),
             },
+            "manifest": {
+                "example": str(sonic_root / "config" / "sonic-manifest.json.example"),
+                "default": str(sonic_root / "config" / "sonic-manifest.json"),
+                "layout": str(sonic_root / "config" / "sonic-layout.json"),
+            },
+        }
+
+    def _verify(self, params: List[str]) -> Dict:
+        flags, _ = self._parse_flags(params)
+        sonic_root = self._sonic_root()
+        manifest_path = Path(flags.get("manifest") or "config/sonic-manifest.json")
+        if not manifest_path.is_absolute():
+            manifest_path = sonic_root / manifest_path
+        build_dir = None
+        if flags.get("build-dir"):
+            build_dir = Path(str(flags.get("build-dir")))
+            if not build_dir.is_absolute():
+                build_dir = self._repo_root() / build_dir
+        elif flags.get("build-id"):
+            build_dir = self._repo_root() / "distribution" / "builds" / str(flags.get("build-id"))
+        flash_pack = str(flags.get("flash-pack")).strip() if flags.get("flash-pack") else None
+
+        try:
+            from sonic.core.verify import verify_sonic_ready
+        except ImportError:
+            return {
+                "status": "error",
+                "message": "Sonic manifest verifier is unavailable",
+                "suggestion": "Install the Sonic module and retry SONIC VERIFY.",
+            }
+
+        verification = verify_sonic_ready(
+            sonic_root,
+            manifest_path=manifest_path,
+            build_dir=build_dir,
+            flash_pack=flash_pack,
+        )
+        if not verification["ok"]:
+            return {
+                "status": "error",
+                "message": "Sonic verification failed.",
+                "manifest_path": str(manifest_path),
+                "build_dir": str(build_dir) if build_dir else None,
+                "verification": verification,
+            }
+
+        manifest_warnings = (verification.get("manifest") or {}).get("warnings", [])
+        media_issues = verification.get("media_policy", {}).get("issues", [])
+        release_issues = (verification.get("release_bundle") or {}).get("issues", [])
+        status = "warning" if manifest_warnings or media_issues or release_issues else "ok"
+        return {
+            "status": status,
+            "message": "Sonic verification complete.",
+            "manifest_path": str(manifest_path),
+            "build_dir": str(build_dir) if build_dir else None,
+            "verification": verification,
         }
 
     def _sync(self, params: List[str]) -> Dict:
@@ -184,6 +243,7 @@ class SonicHandler(BaseCommandHandler):
         resolved_payloads = _resolve(payloads_dir) if payloads_dir else None
 
         try:
+            from sonic.core.manifest import validate_manifest_data
             from sonic.core.plan import write_plan
         except ImportError:
             return {
@@ -205,6 +265,7 @@ class SonicHandler(BaseCommandHandler):
         except ValueError as exc:
             return {"status": "error", "message": str(exc)}
 
+        verification = validate_manifest_data(manifest, manifest_path=resolved_out)
         logger.info(f"{LogTags.LOCAL} SONIC: plan written {resolved_out}")
         policy_flag = None
         policy_note = None
@@ -215,9 +276,10 @@ class SonicHandler(BaseCommandHandler):
                 "Boundary enforcement is currently disabled by configuration."
             )
         return {
-            "status": "ok",
+            "status": "warning" if verification["warnings"] else "ok",
             "manifest_path": str(resolved_out),
             "manifest": manifest,
+            "verification": verification,
             "dry_run": bool(flags.get("dry-run")),
             **({"policy_flag": policy_flag} if policy_flag else {}),
             **({"policy_note": policy_note} if policy_note else {}),
@@ -243,6 +305,42 @@ class SonicHandler(BaseCommandHandler):
         if not manifest_path.is_absolute():
             manifest_path = sonic_root / manifest_path
 
+        try:
+            from sonic.core.verify import verify_sonic_ready
+        except ImportError:
+            return {
+                "status": "error",
+                "message": "Sonic manifest verifier is unavailable",
+                "suggestion": "Install the Sonic module and retry SONIC RUN.",
+            }
+
+        verification = verify_sonic_ready(
+            sonic_root,
+            manifest_path=manifest_path,
+            flash_pack=(str(flags.get("flash-pack")).strip() if flags.get("flash-pack") else None),
+        )
+        manifest_verification = verification.get("manifest") or {"ok": False, "errors": ["manifest verification unavailable"]}
+        if not manifest_verification["ok"]:
+            return {
+                "status": "error",
+                "message": "SONIC RUN blocked: manifest failed verification.",
+                "manifest_path": str(manifest_path),
+                "verification": verification,
+            }
+        warnings = list(manifest_verification.get("warnings", []))
+        warnings.extend(verification.get("media_policy", {}).get("issues", []))
+        if warnings and not flags.get("no-validate-payloads"):
+            return {
+                "status": "warning",
+                "message": "SONIC RUN blocked until verification warnings are reviewed.",
+                "manifest_path": str(manifest_path),
+                "verification": verification,
+                "suggestion": (
+                    "Fix the reported payload/layout warnings, or rerun with "
+                    "--no-validate-payloads if you intentionally accept them."
+                ),
+            }
+
         cmd = ["python3", str(sonic_root / "core" / "sonic_cli.py"), "run", "--manifest", str(manifest_path)]
         if flags.get("dry-run"):
             cmd.append("--dry-run")
@@ -262,8 +360,6 @@ class SonicHandler(BaseCommandHandler):
                 "command": " ".join(cmd),
             }
 
-        import subprocess
-
         logger.info(f"{LogTags.LOCAL} SONIC: executing {' '.join(cmd)}")
         rc = subprocess.call(cmd)
         policy_flag = None
@@ -278,6 +374,7 @@ class SonicHandler(BaseCommandHandler):
             "status": "ok" if rc == 0 else "error",
             "return_code": rc,
             "command": " ".join(cmd),
+            "verification": verification,
             **({"policy_flag": policy_flag} if policy_flag else {}),
             **({"policy_note": policy_note} if policy_note else {}),
         }
@@ -288,10 +385,11 @@ class SonicHandler(BaseCommandHandler):
             "syntax": [
                 "SONIC STATUS",
                 "SONIC SYNC [--force]",
+                "SONIC VERIFY [--manifest config/sonic-manifest.json] [--build-id <id>] [--flash-pack <pack>]",
                 "SONIC PLAN [--usb-device /dev/sdb] [--layout-file config/sonic-layout.json]",
                 "SONIC PLAN [--payloads-dir /path/to/payloads] [--format-mode full|skip]",
                 "SONIC RUN [--manifest config/sonic-manifest.json] [--dry-run]",
                 "SONIC RUN [--payloads-dir /path/to/payloads] [--no-validate-payloads] --confirm",
             ],
-            "note": "SONIC RUN requires --confirm and Linux for destructive operations. SONIC SYNC mirrors Wizard /api/sonic/db/rebuild.",
+            "note": "SONIC VERIFY checks manifest structure, media-source policy, device DB readiness, and optional signed release bundles. SONIC RUN requires --confirm and Linux for destructive operations. SONIC SYNC mirrors Wizard /api/sonic/db/rebuild.",
         }

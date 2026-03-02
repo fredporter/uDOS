@@ -5,6 +5,9 @@ from dataclasses import dataclass, asdict, field
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
+ALLOWED_BOOT_MODES = {"uefi-native"}
+ALLOWED_FORMAT_MODES = {"full", "skip"}
+
 
 @dataclass
 class PartitionSpec:
@@ -56,6 +59,13 @@ def read_manifest(path: Path) -> Optional[Dict]:
         return json.loads(path.read_text())
     except json.JSONDecodeError:
         return None
+
+
+def _resolve_manifest_path(base: Path, value: str) -> Path:
+    candidate = Path(value)
+    if candidate.is_absolute():
+        return candidate
+    return base / candidate
 
 
 def _default_partitions() -> List[PartitionSpec]:
@@ -162,3 +172,152 @@ def default_manifest(
         auto_scale=resolved_auto_scale,
         partitions=partitions,
     )
+
+
+def validate_manifest_data(manifest: Dict[str, Any], manifest_path: Optional[Path] = None) -> Dict[str, Any]:
+    errors: List[str] = []
+    warnings: List[str] = []
+    required_keys = ["usb_device", "boot_mode", "repo_root", "payload_dir", "iso_dir", "partitions"]
+    missing_keys = [key for key in required_keys if key not in manifest]
+    if missing_keys:
+        errors.append(f"missing required manifest keys: {', '.join(sorted(missing_keys))}")
+
+    partitions_raw = manifest.get("partitions")
+    partition_summaries: List[Dict[str, Any]] = []
+    if not isinstance(partitions_raw, list) or not partitions_raw:
+        errors.append("manifest must define at least one partition")
+        partitions_raw = []
+
+    boot_mode = manifest.get("boot_mode")
+    if boot_mode and boot_mode not in ALLOWED_BOOT_MODES:
+        errors.append(f"unsupported boot_mode '{boot_mode}'")
+
+    format_mode = manifest.get("format_mode", "full")
+    if format_mode not in ALLOWED_FORMAT_MODES:
+        errors.append(f"unsupported format_mode '{format_mode}'")
+
+    usb_device = str(manifest.get("usb_device", "")).strip()
+    if usb_device and not usb_device.startswith("/dev/"):
+        warnings.append(f"usb_device '{usb_device}' is not a Linux block-device path")
+
+    repo_root_raw = str(manifest.get("repo_root", "")).strip()
+    manifest_base = manifest_path.parent if manifest_path else Path.cwd()
+    repo_root = _resolve_manifest_path(manifest_base, repo_root_raw) if repo_root_raw else None
+    if repo_root is None:
+        errors.append("manifest repo_root is required")
+    elif not repo_root.exists():
+        warnings.append(f"repo_root does not exist: {repo_root}")
+
+    payload_dir_raw = str(manifest.get("payload_dir", "")).strip()
+    iso_dir_raw = str(manifest.get("iso_dir", "")).strip()
+    payload_dir = None
+    iso_dir = None
+    if repo_root is not None:
+        if payload_dir_raw:
+            payload_dir = _resolve_manifest_path(repo_root, payload_dir_raw)
+            if not payload_dir.exists():
+                warnings.append(f"payload_dir does not exist: {payload_dir}")
+        else:
+            errors.append("manifest payload_dir is required")
+        if iso_dir_raw:
+            iso_dir = _resolve_manifest_path(repo_root, iso_dir_raw)
+            if not iso_dir.exists():
+                warnings.append(f"iso_dir does not exist: {iso_dir}")
+        else:
+            errors.append("manifest iso_dir is required")
+
+    seen_names: set[str] = set()
+    seen_labels: set[str] = set()
+    remainder_count = 0
+    missing_payload_refs: List[str] = []
+
+    for index, item in enumerate(partitions_raw):
+        if not isinstance(item, dict):
+            errors.append(f"partition #{index + 1} must be an object")
+            continue
+        name = str(item.get("name", "")).strip()
+        label = str(item.get("label", "")).strip()
+        fs = str(item.get("fs", "")).strip()
+        remainder = bool(item.get("remainder", False))
+        size_gb = item.get("size_gb")
+
+        if not name:
+            errors.append(f"partition #{index + 1} is missing name")
+        elif name in seen_names:
+            errors.append(f"duplicate partition name '{name}'")
+        else:
+            seen_names.add(name)
+
+        if not label:
+            errors.append(f"partition '{name or index + 1}' is missing label")
+        elif label in seen_labels:
+            errors.append(f"duplicate partition label '{label}'")
+        else:
+            seen_labels.add(label)
+
+        if not fs:
+            errors.append(f"partition '{name or index + 1}' is missing fs")
+        if remainder:
+            remainder_count += 1
+        elif not isinstance(size_gb, (int, float)) or float(size_gb) <= 0:
+            errors.append(f"partition '{name or index + 1}' must define a positive size_gb")
+
+        partition_summary = {
+            "name": name,
+            "label": label,
+            "fs": fs,
+            "remainder": remainder,
+            "size_gb": size_gb,
+            "role": item.get("role"),
+        }
+
+        for key in ("image", "payload_dir"):
+            raw_ref = item.get(key)
+            if not raw_ref:
+                continue
+            resolved_ref = None
+            if repo_root is not None:
+                resolved_ref = _resolve_manifest_path(repo_root, str(raw_ref))
+                if not resolved_ref.exists():
+                    missing_payload_refs.append(f"{name}:{key}:{resolved_ref}")
+            partition_summary[f"{key}_path"] = str(resolved_ref) if resolved_ref else str(raw_ref)
+
+        partition_summaries.append(partition_summary)
+
+    if remainder_count > 1:
+        errors.append("only one remainder partition is allowed")
+    for ref in missing_payload_refs:
+        warnings.append(f"missing payload reference: {ref}")
+
+    return {
+        "ok": not errors,
+        "errors": errors,
+        "warnings": warnings,
+        "required_keys": required_keys,
+        "paths": {
+            "manifest": str(manifest_path) if manifest_path else None,
+            "repo_root": str(repo_root) if repo_root else repo_root_raw,
+            "payload_dir": str(payload_dir) if payload_dir else payload_dir_raw,
+            "iso_dir": str(iso_dir) if iso_dir else iso_dir_raw,
+        },
+        "summary": {
+            "partition_count": len(partition_summaries),
+            "remainder_partitions": remainder_count,
+            "missing_payload_references": len(missing_payload_refs),
+        },
+        "partitions": partition_summaries,
+    }
+
+
+def verify_manifest_path(path: Path) -> Dict[str, Any]:
+    payload = read_manifest(path)
+    if payload is None:
+        return {
+            "ok": False,
+            "errors": [f"unable to read manifest: {path}"],
+            "warnings": [],
+            "paths": {"manifest": str(path)},
+            "summary": {"partition_count": 0, "remainder_partitions": 0, "missing_payload_references": 0},
+            "partitions": [],
+        }
+    return validate_manifest_data(payload, manifest_path=path)

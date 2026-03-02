@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from unittest.mock import patch
 
 import wizard.routes.platform_routes as platform_routes
 
@@ -17,6 +18,8 @@ class _BridgeSvc:
 
 
 class _BuildSvc:
+    builds_root = "/tmp/builds"
+
     def start_build(self, profile="alpine-core+sonic", build_id=None, source_image=None, output_dir=None):
         return {"success": True, "build_id": build_id or "b1", "profile": profile}
 
@@ -81,6 +84,10 @@ def test_sonic_gui_summary_and_actions(monkeypatch):
     assert summary["dashboard"]["route"] == "#sonic"
     assert summary["latest_build"]["build_id"] == "b1"
     assert summary["latest_release_readiness"]["release_ready"] is True
+    assert summary["release_signing_alert"] is None
+    assert summary["dataset_contract"]["available"] is True
+    assert "ok" in summary["dataset_contract"]
+    assert "verification" in summary
     assert summary["sync_status"]["record_count"] == 123
 
     sync_res = client.post("/api/platform/sonic/gui/actions/sync", json={})
@@ -100,6 +107,10 @@ def test_sonic_gui_summary_and_actions(monkeypatch):
     assert build_res.status_code == 200
     assert build_res.json()["action"] == "build"
 
+    verify_res = client.get("/api/platform/sonic/verify")
+    assert verify_res.status_code == 200
+    assert "verification" in verify_res.json()
+
 
 def test_sonic_gui_action_requires_plugin_for_sync(monkeypatch):
     class _UnavailableOps:
@@ -115,3 +126,76 @@ def test_sonic_gui_action_requires_plugin_for_sync(monkeypatch):
 
     res = client.post("/api/platform/sonic/gui/actions/sync", json={})
     assert res.status_code == 503
+
+
+def test_sonic_gui_summary_surfaces_signing_pubkey_alert(monkeypatch):
+    class _WarnBuildSvc(_BuildSvc):
+        def get_release_readiness(self, build_id):
+            return {
+                "build_id": build_id,
+                "release_ready": False,
+                "checksums": {"verified": True},
+                "signing": {
+                    "ready": False,
+                    "manifest": {
+                        "present": True,
+                        "verified": False,
+                        "detail": "WIZARD_SONIC_SIGN_PUBKEY not configured",
+                    },
+                    "checksums": {
+                        "present": True,
+                        "verified": False,
+                        "detail": "WIZARD_SONIC_SIGN_PUBKEY not configured",
+                    },
+                },
+                "issues": ["release signatures incomplete"],
+            }
+
+    monkeypatch.setattr(platform_routes, "get_sonic_bridge_service", lambda repo_root=None: _BridgeSvc())
+    monkeypatch.setattr(platform_routes, "get_sonic_build_service", lambda repo_root=None: _WarnBuildSvc())
+    monkeypatch.setattr(platform_routes, "get_sonic_service", lambda repo_root=None: _SonicOps())
+
+    app = FastAPI()
+    app.include_router(platform_routes.create_platform_routes(auth_guard=None))
+    client = TestClient(app)
+
+    summary = client.get("/api/platform/sonic/gui/summary").json()
+    assert summary["release_signing_alert"]["code"] == "sonic_signing_pubkey_missing"
+    assert summary["release_signing_alert"]["severity"] == "error"
+
+
+def test_sonic_gui_summary_surfaces_dataset_contract_drift(monkeypatch):
+    broken_verification = {
+        "ok": False,
+        "media_policy": {
+            "policies": [
+                {
+                    "policy_id": "device-database",
+                    "level": "error",
+                    "detail": "Sonic dataset contract validation failed",
+                    "contract": {
+                        "ok": False,
+                        "errors": ["schema version mismatch"],
+                        "warnings": [],
+                        "version": {"version": "v1.0.0", "schema_version": "9.9", "updated": "2026-03-02"},
+                        "sql": {"seed_rows": [{"index": 1, "ok": False, "errors": ["seed row #1 mismatch"]}]},
+                        "diff": {"required_mismatch_fields": ["year"]},
+                    },
+                }
+            ]
+        },
+    }
+
+    monkeypatch.setattr(platform_routes, "get_sonic_bridge_service", lambda repo_root=None: _BridgeSvc())
+    monkeypatch.setattr(platform_routes, "get_sonic_build_service", lambda repo_root=None: _BuildSvc())
+    monkeypatch.setattr(platform_routes, "get_sonic_service", lambda repo_root=None: _SonicOps())
+
+    app = FastAPI()
+    with patch.object(platform_routes, "verify_sonic_ready", return_value=broken_verification):
+        app.include_router(platform_routes.create_platform_routes(auth_guard=None))
+        client = TestClient(app)
+        summary = client.get("/api/platform/sonic/gui/summary").json()
+
+    assert summary["dataset_contract"]["ok"] is False
+    assert summary["dataset_contract"]["errors"] == ["schema version mismatch"]
+    assert summary["dataset_contract"]["diff"]["required_mismatch_fields"] == ["year"]

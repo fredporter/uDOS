@@ -92,20 +92,20 @@ help: "Your access level. Role 'ghost' forces Ghost Mode."
 default: user
 ```
 ```story
-name: ok_helper_install
-label: Download and Install Vibe OK Helper...?
+name: dev_mode_helper_install
+label: Download and Install Dev Mode Helper...?
 type: select
 required: true
 options:
-  - yes: Yes (install Ollama, Vibe CLI, Mistral2 small/large, Devstral2 small)
+  - yes: Yes (install Ollama, vibe Dev Mode tooling, Mistral2 small/large, Devstral2 small)
   - no: No (skip for now)
   - skip: Skip (ask me later)
-help: "Runs OK SETUP to install Ollama + Vibe CLI + recommended local models. Wizard can later add Mistral online sanity checks and quotas."
+help: "Runs SETUP dev to install Ollama + vibe Dev Mode tooling + recommended local models. Operator mode remains the standard runtime."
 default: no
 ```
 ```story
 name: mistral_api_key
-label: Mistral API key (for Vibe helper)
+label: Mistral API key (for Dev Mode helper)
 type: text
 required: false
 placeholder: "sk-..."

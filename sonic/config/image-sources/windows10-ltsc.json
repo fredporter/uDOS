@@ -1,0 +1,15 @@
+{
+  "source_id": "windows10-ltsc-base",
+  "platform": "windows10-ltsc",
+  "publisher": "Microsoft",
+  "channel": "ltsc",
+  "origin_url": "https://www.microsoft.com/software-download",
+  "artifact_path": "payloads/windows/windows10-ltsc.iso",
+  "artifact_kind": "iso",
+  "license": "Windows media redistribution subject to upstream terms",
+  "tracked_at": "2026-03-02",
+  "provenance": {
+    "strategy": "upstream-download",
+    "verified_by": "sonic-verify"
+  }
+}

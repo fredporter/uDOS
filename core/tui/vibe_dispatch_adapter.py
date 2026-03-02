@@ -78,7 +78,14 @@ class VibeDispatchAdapter:
         self.dispatcher = CommandDispatchService()
         self.skill_mapper = get_default_mapper()
 
-    def dispatch(self, user_input: str, ask_confirm_fn=None) -> VibeDispatchResult:
+    def dispatch(
+        self,
+        user_input: str,
+        ask_confirm_fn=None,
+        *,
+        allow_skill_routing: bool = True,
+        allow_model_fallback: bool = True,
+    ) -> VibeDispatchResult:
         """
         Three-stage dispatch w/ Vibe skill routing.
 
@@ -124,10 +131,18 @@ class VibeDispatchAdapter:
                     )
                 elif choice == "skip":
                     self.logger.debug(f"[STAGE1] User skipped to fallback for: {cmd}")
-                    return self._try_shell_or_fallback(user_input)
+                    return self._try_shell_or_fallback(
+                        user_input,
+                        allow_skill_routing=allow_skill_routing,
+                        allow_model_fallback=allow_model_fallback,
+                    )
                 else:
                     self.logger.debug(f"[STAGE1] User declined match, trying fallback")
-                    return self._try_shell_or_fallback(user_input)
+                    return self._try_shell_or_fallback(
+                        user_input,
+                        allow_skill_routing=allow_skill_routing,
+                        allow_model_fallback=allow_model_fallback,
+                    )
 
             elif confidence >= 0.95:
                 # High confidence: execute directly
@@ -139,9 +154,19 @@ class VibeDispatchAdapter:
                 )
 
         # No uCODE match: Try shell or Vibe skill
-        return self._try_shell_or_fallback(user_input)
+        return self._try_shell_or_fallback(
+            user_input,
+            allow_skill_routing=allow_skill_routing,
+            allow_model_fallback=allow_model_fallback,
+        )
 
-    def _try_shell_or_fallback(self, user_input: str) -> VibeDispatchResult:
+    def _try_shell_or_fallback(
+        self,
+        user_input: str,
+        *,
+        allow_skill_routing: bool,
+        allow_model_fallback: bool,
+    ) -> VibeDispatchResult:
         """
         Try shell command validation, then Vibe skill routing, then OK fallback.
         """
@@ -167,27 +192,38 @@ class VibeDispatchAdapter:
             )
 
         # Stage 3: Vibe Skill Routing
-        skill = infer_vibe_skill(user_input)
+        if allow_skill_routing:
+            skill = infer_vibe_skill(user_input)
 
-        self.logger.debug(f"[STAGE3] Vibe skill inference: {skill}")
+            self.logger.debug(f"[STAGE3] Vibe skill inference: {skill}")
 
-        try:
-            skill_contract = self.skill_mapper.get_skill(skill)
-            if skill_contract:
-                action = self._infer_skill_action(user_input, skill)
-                return VibeDispatchResult(
-                    status="vibe_routed",
-                    skill=skill,
-                    action=action,
-                    message=f"Routed to Vibe skill '{skill}'",
-                    data={
-                        "skill_contract": skill_contract.to_dict() if hasattr(skill_contract, 'to_dict') else {},
-                        "inferred_action": action,
-                        **({"policy_flag": policy_flag} if policy_flag else {}),
-                    },
-                )
-        except Exception as e:
-            self.logger.warning(f"Failed to get skill {skill}: {e}")
+            try:
+                skill_contract = self.skill_mapper.get_skill(skill)
+                if skill_contract:
+                    action = self._infer_skill_action(user_input, skill)
+                    return VibeDispatchResult(
+                        status="vibe_routed",
+                        skill=skill,
+                        action=action,
+                        message=f"Routed to Vibe skill '{skill}'",
+                        data={
+                            "skill_contract": skill_contract.to_dict() if hasattr(skill_contract, 'to_dict') else {},
+                            "inferred_action": action,
+                            **({"policy_flag": policy_flag} if policy_flag else {}),
+                        },
+                    )
+            except Exception as e:
+                self.logger.warning(f"Failed to get skill {skill}: {e}")
+
+        if not allow_model_fallback:
+            return VibeDispatchResult(
+                status="fallback_local",
+                message="Routing to local operator mode",
+                data={
+                    "operator_prompt": user_input,
+                    **({"policy_flag": policy_flag} if policy_flag else {}),
+                },
+            )
 
         # Fallback: Route to OK (language model)
         self.logger.debug(f"[FALLBACK] Routing to OK for: {user_input}")

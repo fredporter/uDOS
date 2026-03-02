@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import subprocess
 import os
+import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -14,6 +14,7 @@ from core.services.packaging_build_metadata_service import (
     resolve_sonic_builds_root,
 )
 from core.services.packaging_manifest_service import load_packaging_manifest
+from sonic.core.verify import verify_detached_signature, verify_release_bundle
 
 
 class SonicBuildService:
@@ -44,45 +45,7 @@ class SonicBuildService:
 
     @staticmethod
     def _verify_detached_signature(payload_path: Path, signature_path: Path) -> Dict[str, Any]:
-        if not payload_path.exists():
-            return {"present": signature_path.exists(), "verified": False, "detail": "payload missing"}
-        if not signature_path.exists():
-            return {"present": False, "verified": False, "detail": "signature missing"}
-
-        pubkey = os.environ.get("WIZARD_SONIC_SIGN_PUBKEY", "").strip()
-        if not pubkey:
-            return {
-                "present": True,
-                "verified": False,
-                "detail": "WIZARD_SONIC_SIGN_PUBKEY not configured",
-            }
-        pubkey_path = Path(pubkey)
-        if not pubkey_path.exists():
-            return {
-                "present": True,
-                "verified": False,
-                "detail": f"public key not found: {pubkey_path}",
-            }
-
-        verify = subprocess.run(
-            [
-                "openssl",
-                "dgst",
-                "-sha256",
-                "-verify",
-                str(pubkey_path),
-                "-signature",
-                str(signature_path),
-                str(payload_path),
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if verify.returncode == 0:
-            return {"present": True, "verified": True, "detail": "signature verified via openssl"}
-        detail = (verify.stderr or verify.stdout or "openssl verify failed").strip()
-        return {"present": True, "verified": False, "detail": detail}
+        return verify_detached_signature(payload_path, signature_path)
 
     def start_build(
         self,
@@ -219,98 +182,7 @@ class SonicBuildService:
         build_dir = self.builds_root / build_id
         if not build_dir.exists():
             raise FileNotFoundError(f"Build not found: {build_id}")
-
-        manifest = self._load_manifest(build_dir)
-        checksums_path = build_dir / "checksums.txt"
-        manifest_sig_path = build_dir / "build-manifest.json.sig"
-        checksums_sig_path = build_dir / "checksums.txt.sig"
-
-        issues: List[str] = []
-        artifacts_status: List[Dict[str, Any]] = []
-        for entry in manifest.get("artifacts") or []:
-            rel_path = entry.get("path")
-            if not rel_path:
-                continue
-            artifact_path = build_dir / rel_path
-            exists = artifact_path.exists()
-            expected_sha = entry.get("sha256")
-            actual_sha = self._sha256(artifact_path) if exists else None
-            sha_match = bool(exists and expected_sha and actual_sha == expected_sha)
-            if not exists:
-                issues.append(f"artifact missing: {rel_path}")
-            elif expected_sha and not sha_match:
-                issues.append(f"artifact checksum mismatch: {rel_path}")
-
-            artifacts_status.append(
-                {
-                    "path": rel_path,
-                    "exists": exists,
-                    "expected_sha256": expected_sha,
-                    "actual_sha256": actual_sha,
-                    "checksum_match": sha_match,
-                }
-            )
-
-        checksum_file_verified = False
-        checksum_entries_checked = 0
-        if not checksums_path.exists():
-            issues.append("checksums.txt missing")
-        else:
-            checksum_rows = [
-                line.strip()
-                for line in checksums_path.read_text(encoding="utf-8").splitlines()
-                if line.strip()
-            ]
-            checksum_file_verified = True
-            for line in checksum_rows:
-                try:
-                    expected, name = line.split(None, 1)
-                    name = name.strip()
-                    if name.startswith("*") or name.startswith(" "):
-                        name = name.lstrip("* ").strip()
-                except ValueError:
-                    checksum_file_verified = False
-                    issues.append(f"invalid checksum row: {line}")
-                    continue
-                checksum_entries_checked += 1
-                target = build_dir / name
-                if not target.exists():
-                    checksum_file_verified = False
-                    issues.append(f"checksum target missing: {name}")
-                    continue
-                actual = self._sha256(target)
-                if actual != expected:
-                    checksum_file_verified = False
-                    issues.append(f"checksum mismatch: {name}")
-
-        signing = {
-            "manifest": self._verify_detached_signature(build_dir / "build-manifest.json", manifest_sig_path),
-            "checksums": self._verify_detached_signature(checksums_path, checksums_sig_path),
-        }
-        signing["manifest_signature_present"] = signing["manifest"]["present"]
-        signing["checksums_signature_present"] = signing["checksums"]["present"]
-        signing["manifest_signature_verified"] = signing["manifest"]["verified"]
-        signing["checksums_signature_verified"] = signing["checksums"]["verified"]
-        signing["ready"] = (
-            signing["manifest_signature_verified"] and signing["checksums_signature_verified"]
-        )
-        if not signing["ready"]:
-            issues.append("release signatures incomplete")
-
-        release_ready = checksum_file_verified and signing["ready"] and not issues
-        return {
-            "build_id": manifest.get("build_id") or build_id,
-            "release_ready": release_ready,
-            "checksums": {
-                "path": str(checksums_path),
-                "present": checksums_path.exists(),
-                "verified": checksum_file_verified,
-                "entries_checked": checksum_entries_checked,
-            },
-            "signing": signing,
-            "artifacts": artifacts_status,
-            "issues": issues,
-        }
+        return verify_release_bundle(build_dir, pubkey=os.environ.get("WIZARD_SONIC_SIGN_PUBKEY", "").strip() or None)
 
 
 _sonic_build_service: Optional[SonicBuildService] = None

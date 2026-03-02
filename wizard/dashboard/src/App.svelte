@@ -83,7 +83,7 @@
 
   function handleHashChange() {
     const hash = window.location.hash.slice(1);
-    const next = hash || "dashboard";
+    const next = (hash.split("?")[0] || "dashboard").trim();
     currentRoute = validRoutes.has(next) ? next : "dashboard";
   }
 

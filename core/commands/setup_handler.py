@@ -49,8 +49,9 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
 
         Usage:
             SETUP              Run the setup story (configure local identity)
-            SETUP webhook      Interactive GitHub webhook setup (vibe-cli style)
+            SETUP webhook      Interactive GitHub webhook setup
             SETUP <provider>   Setup a specific provider (github, ollama, mistral, etc.)
+            SETUP dev          Install Dev Mode helper tooling
             SETUP --profile    Show your current setup profile
             SETUP --edit       Edit setup values
             SETUP --clear      Clear setup data (start over)
@@ -66,7 +67,7 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
             OS_TYPE            alpine | ubuntu | mac | windows
             WIZARD_KEY         Gateway to Wizard keystore (auto-generated)
 
-        Webhook Setup (interactive, vibe-cli style):
+        Webhook Setup:
             SETUP webhook           Full setup (GitHub)
             SETUP webhook github    GitHub webhooks only
 
@@ -87,7 +88,7 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
                     ("Edit setup", "edit", "Update local .env values"),
                     ("Clear setup", "clear", "Reset local setup data"),
                     ("Webhook setup", "webhook", "Configure GitHub webhooks"),
-                    ("Vibe helper setup", "vibe", "Install Ollama + Vibe CLI + Mistral models"),
+                    ("Dev Mode helper setup", "dev", "Install Ollama + vibe Dev Mode tooling + recommended models"),
                     ("Provider setup", "provider", "Configure provider (github/ollama/mistral/openrouter)"),
                     ("Help", "help", "Show SETUP help"),
                 ],
@@ -106,8 +107,8 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
                 from core.commands.webhook_setup_handler import WebhookSetupHandler
                 handler = WebhookSetupHandler()
                 return handler.handle("SETUP", ["webhook"], grid, parser)
-            if choice == "vibe":
-                return self._setup_vibe()
+            if choice == "dev":
+                return self._setup_dev_mode_helper()
             if choice == "provider":
                 try:
                     provider = input("Provider (github/ollama/mistral/openrouter): ").strip().lower()
@@ -128,8 +129,10 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
             handler = WebhookSetupHandler()
             return handler.handle("SETUP", params, grid, parser)
 
+        if action in {"dev", "operator", "helper"}:
+            return self._setup_dev_mode_helper()
         if action == "vibe":
-            return self._setup_vibe()
+            return self._setup_dev_mode_helper(legacy_alias=True)
 
         # Check if this is a provider setup request
         provider_names = {"github", "ollama", "mistral", "openrouter"}
@@ -430,11 +433,13 @@ Key fields to edit:
             "output": setup_help_text(),
         }
 
-    def _setup_vibe(self) -> Dict:
-        """Install local Vibe helper stack (Ollama + Vibe CLI + models)."""
+    def _setup_dev_mode_helper(self, legacy_alias: bool = False) -> Dict:
+        """Install local Dev Mode helper stack (Ollama + vibe + models)."""
         output: List[str] = []
-        output.append("\n⚙️  SETUP VIBE: Installing local AI helpers\n")
+        output.append("\n⚙️  SETUP: Installing Dev Mode helpers\n")
         output.append("=" * 60)
+        if legacy_alias:
+            output.append("Legacy alias detected: `SETUP vibe` now routes to `SETUP dev`.")
         try:
             from core.services.ok_setup import run_ok_setup
             from core.services.logging_api import get_repo_root
@@ -454,7 +459,7 @@ Key fields to edit:
                     output.append("Run WIZARD START to manage networking.")
                     return {"status": "warning", "output": "\n".join(output)}
 
-            with bootstrap_download_gate(opened_by="core.commands.setup_vibe"):
+            with bootstrap_download_gate(opened_by="core.commands.setup_dev_mode"):
                 output.append("🌐 Web gate open for setup downloads")
                 result = run_ok_setup(
                     get_repo_root(),
@@ -463,11 +468,15 @@ Key fields to edit:
                 )
             for warning in result.get("warnings", []):
                 output.append(f"  ⚠️  {warning}")
-            output.append("✅ SETUP VIBE complete.")
+            output.append("✅ Dev Mode helper setup complete.")
+            output.append("Next steps:")
+            output.append("  • UCODE PROFILE LIST")
+            output.append("  • UCODE OPERATOR STATUS")
+            output.append("  • DEV ON   (only when contributor tooling is needed)")
             output.append("🔒 Web gate closed. WIZARD START to manage networking.")
             return {"status": "success", "output": "\n".join(output)}
         except Exception as exc:
-            output.append(f"⚠️  SETUP VIBE failed: {exc}")
+            output.append(f"⚠️  Dev Mode helper setup failed: {exc}")
             return {"status": "error", "output": "\n".join(output)}
         finally:
             close_bootstrap_gate(reason="setup-complete")

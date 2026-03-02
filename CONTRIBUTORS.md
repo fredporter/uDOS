@@ -86,7 +86,7 @@ Want to see your name here? Check out:
 
 - [Contributors Guide](wiki/Contributors.md) — How to get started
 - [Code of Conduct](CODE_OF_CONDUCT.md) — Community guidelines
-- [GitHub Issues](https://github.com/fredporter/uDOS-vibe/issues) — Find something to work on
+- [GitHub Issues](https://github.com/fredporter/uDOS/issues) — Find something to work on
 
 ---
 

@@ -53,7 +53,7 @@ This section is for developers who want to set up the repository for local devel
 
    ```bash
    git clone <repository-url>
-   cd uDOS-vibe
+   cd uDOS
    ```
 
 2. Install dependencies:

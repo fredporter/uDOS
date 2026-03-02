@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-This directory contains decision records for uDOS-vibe.
+This directory contains decision records for uDOS.
 Each file captures a discrete architectural, design, or technology choice.
 
 ---

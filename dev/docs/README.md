@@ -126,11 +126,11 @@ The `/dev/.gitignore` automatically excludes:
 3. **Read uDOS docs** in `/docs/` (root level)
 
 ### Community Support
-- [**Contributing Guide**](https://github.com/fredporter/uDOS-vibe/blob/main/CONTRIBUTORS.md) — How to contribute
-- [**Report Issues**](https://github.com/fredporter/uDOS-vibe/issues) — Main uDOS bugs/features
+- [**Contributing Guide**](https://github.com/fredporter/uDOS/blob/main/CONTRIBUTORS.md) — How to contribute
+- [**Report Issues**](https://github.com/fredporter/uDOS/issues) — Main uDOS bugs/features
 - [**Scaffold Issues**](https://github.com/fredporter/uDOS-dev/issues) — Dev scaffold problems
-- [**Discussions**](https://github.com/fredporter/uDOS-vibe/discussions) — Ask questions
-- [**Code of Conduct**](https://github.com/fredporter/uDOS-vibe/blob/main/CODE_OF_CONDUCT.md) — Community guidelines
+- [**Discussions**](https://github.com/fredporter/uDOS/discussions) — Ask questions
+- [**Code of Conduct**](https://github.com/fredporter/uDOS/blob/main/CODE_OF_CONDUCT.md) — Community guidelines
 
 ---
 
@@ -143,7 +143,7 @@ If you create useful templates, scripts, or examples:
 3. **Submit a PR** to the [uDOS-dev repository](https://github.com/fredporter/uDOS-dev)
 4. **Keep it minimal** — framework only, no projects
 
-**For main uDOS contributions**, see the [uDOS Contributing Guide](https://github.com/fredporter/uDOS-vibe/blob/main/CONTRIBUTORS.md).
+**For main uDOS contributions**, see the [uDOS Contributing Guide](https://github.com/fredporter/uDOS/blob/main/CONTRIBUTORS.md).
 
 ---
 

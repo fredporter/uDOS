@@ -1,8 +1,8 @@
-# uDOS-vibe Installation Guide
+# uDOS Installation Guide
 
 ## Overview
 
-The uDOS-vibe installer provides a comprehensive, cross-platform setup experience for macOS and Linux. It handles all dependencies, environment configuration, and optional components automatically.
+The uDOS installer provides a comprehensive, cross-platform setup experience for macOS and Linux. It handles all dependencies, environment configuration, and optional components automatically.
 
 ## Quick Install
 
@@ -15,21 +15,21 @@ The uDOS-vibe installer provides a comprehensive, cross-platform setup experienc
 
 **Option 2: Terminal**
 ```bash
-cd /path/to/uDOS-vibe
+cd /path/to/uDOS
 ./bin/install-udos-vibe.sh
 ```
 
 ### Linux (Ubuntu/Alpine)
 
 ```bash
-cd /path/to/uDOS-vibe
+cd /path/to/uDOS
 ./bin/install-udos-vibe.sh
 ```
 
 ## Installation Modes
 
 ### Full Installation (Default)
-Installs both core uDOS-vibe and wizard components:
+Installs both core uDOS and wizard components:
 ```bash
 ./bin/install-udos-vibe.sh
 ```
@@ -96,10 +96,10 @@ Use `--tier 1|2|3` to test hardline gating for a requested tier.
 - **Vault structure**: Creates `memory/vault/` and seeds from template
 - **Directory structure**: Sets up logs, cache, and runtime directories
 
-### 5. Vibe CLI Installation
-- **Install global vibe CLI**: Using the official curl installer
-- **uDOS integration**: Creates `.vibe/` symlinks for custom tools/skills
-- **Trust directory**: Configures vibe to trust the repo directory
+### 5. Dev Mode Tooling Installation
+- **Install global vibe runtime**: Only when the `dev` profile is selected
+- **uDOS integration**: Creates `.vibe/` symlinks for contributor tools/skills
+- **Standard runtime**: `ucode` remains the primary entry point
 - **Core dependencies**: Installs Python packages from `pyproject.toml`
 
 ### 6. Wizard Server Setup (if not --core)
@@ -152,7 +152,7 @@ You'll be prompted to set:
 ## Directory Structure After Install
 
 ```
-uDOS-vibe/
+uDOS/
 ├── .env                      # Your configuration (DO NOT COMMIT)
 ├── .vibe/
 │   ├── tools -> ../vibe/core/tools/ucode
@@ -212,7 +212,7 @@ This approach saves disk space and keeps installations minimal.
 
 ### 1. Test Core Installation
 ```bash
-cd /path/to/uDOS-vibe
+cd /path/to/uDOS
 vibe
 ```
 
@@ -296,7 +296,7 @@ chmod +x bin/install-udos-vibe.command
 ### Import errors after install
 Reinstall dependencies by profile:
 ```bash
-cd /path/to/uDOS-vibe
+cd /path/to/uDOS
 uv sync --extra udos          # Core profile only
 uv sync --extra udos-wizard   # Wizard web/API profile (includes FastAPI)
 # uv sync --extra udos-full   # Optional full profile with extra providers
@@ -311,7 +311,7 @@ uv sync --extra udos-wizard   # Wizard web/API profile (includes FastAPI)
 
 ### Update dependencies only
 ```bash
-cd /path/to/uDOS-vibe
+cd /path/to/uDOS
 uv sync --extra udos
 # If you use Wizard web/API features:
 uv sync --extra udos-wizard
@@ -399,4 +399,4 @@ After successful installation:
 3. Check [howto/TOOLS-REFERENCE.md](howto/TOOLS-REFERENCE.md) for available tools
 4. Review [docs/README.md](docs/README.md) for architecture details
 
-Happy coding with uDOS-vibe! 🚀
+Happy coding with uDOS! 🚀

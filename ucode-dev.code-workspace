@@ -1,7 +1,7 @@
 {
   "folders": [
     {
-      "name": "uDOS-vibe",
+      "name": "uDOS",
       "path": "."
     }
   ],
@@ -22,7 +22,7 @@
       "**/__pycache__": true,
       "**/node_modules": true
     },
-    "python.defaultInterpreterPath": "${workspaceFolder:uDOS-vibe}/venv/bin/python",
+    "python.defaultInterpreterPath": "${workspaceFolder:uDOS}/venv/bin/python",
     "python.terminal.executeInFileDir": true,
     "terminal.integrated.defaultProfile.osx": "zsh",
     "terminal.integrated.profiles.osx": {
@@ -43,11 +43,11 @@
       }
     },
     "terminal.integrated.env.osx": {
-      "VIRTUAL_ENV": "${workspaceFolder:uDOS-vibe}/venv",
-      "PATH": "${workspaceFolder:uDOS-vibe}/venv/bin:${env:PATH}",
-      "PYTHONPATH": "${workspaceFolder:uDOS-vibe}",
-      "UDOS_ROOT": "${workspaceFolder:uDOS-vibe}",
-      "UDOS_WIZARD_PORT_FILE": "${workspaceFolder:uDOS-vibe}/.wizard-port",
+      "VIRTUAL_ENV": "${workspaceFolder:uDOS}/venv",
+      "PATH": "${workspaceFolder:uDOS}/venv/bin:${env:PATH}",
+      "PYTHONPATH": "${workspaceFolder:uDOS}",
+      "UDOS_ROOT": "${workspaceFolder:uDOS}",
+      "UDOS_WIZARD_PORT_FILE": "${workspaceFolder:uDOS}/.wizard-port",
       "VAULT_ROOT": "/Users/fredbook/Documents/vault-md",
       "PAGER": "cat",
       "PYTHONUNBUFFERED": "1"
@@ -78,7 +78,7 @@
         "command": "/bin/bash",
         "args": [
           "-lc",
-          "printf 'STATUS\\n' | ${workspaceFolder:uDOS-vibe}/bin/vibe"
+          "printf 'STATUS\\n' | ${workspaceFolder:uDOS}/bin/vibe"
         ],
         "presentation": {
           "reveal": "always",
@@ -94,7 +94,7 @@
         "command": "/bin/bash",
         "args": [
           "-lc",
-          "printf 'TEST\\n' | ${workspaceFolder:uDOS-vibe}/bin/vibe"
+          "printf 'TEST\\n' | ${workspaceFolder:uDOS}/bin/vibe"
         ],
         "presentation": {
           "reveal": "always",
@@ -110,7 +110,7 @@
         "command": "/bin/bash",
         "args": [
           "-lc",
-          "printf 'LINT\\n' | ${workspaceFolder:uDOS-vibe}/bin/vibe"
+          "printf 'LINT\\n' | ${workspaceFolder:uDOS}/bin/vibe"
         ],
         "presentation": {
           "reveal": "always",
@@ -126,7 +126,7 @@
         "command": "/bin/bash",
         "args": [
           "-lc",
-          "printf 'HEALTH\\n' | ${workspaceFolder:uDOS-vibe}/bin/vibe"
+          "printf 'HEALTH\\n' | ${workspaceFolder:uDOS}/bin/vibe"
         ],
         "presentation": {
           "reveal": "always",
@@ -142,7 +142,7 @@
         "command": "/bin/bash",
         "args": [
           "-lc",
-          "printf 'TAIL LOGS\\n' | ${workspaceFolder:uDOS-vibe}/bin/vibe"
+          "printf 'TAIL LOGS\\n' | ${workspaceFolder:uDOS}/bin/vibe"
         ],
         "presentation": {
           "reveal": "always",
@@ -158,7 +158,7 @@
         "command": "/bin/bash",
         "args": [
           "-lc",
-          "printf 'WIZARD start\\n' | ${workspaceFolder:uDOS-vibe}/bin/vibe"
+          "printf 'WIZARD start\\n' | ${workspaceFolder:uDOS}/bin/vibe"
         ],
         "presentation": {
           "reveal": "always",
@@ -174,7 +174,7 @@
         "command": "/bin/bash",
         "args": [
           "-lc",
-          "${workspaceFolder:uDOS-vibe}/venv/bin/python ${workspaceFolder:uDOS-vibe}/bin/ucode-cycle.py"
+          "${workspaceFolder:uDOS}/venv/bin/python ${workspaceFolder:uDOS}/bin/ucode-cycle.py"
         ],
         "presentation": {
           "reveal": "always",
@@ -187,9 +187,9 @@
       {
         "label": "Wizard: Run MCP (stdio)",
         "type": "process",
-        "command": "${workspaceFolder:uDOS-vibe}/venv/bin/python",
+        "command": "${workspaceFolder:uDOS}/venv/bin/python",
         "args": [
-          "${workspaceFolder:uDOS-vibe}/mcp/wizard/mcp_server.py"
+          "${workspaceFolder:uDOS}/mcp/wizard/mcp_server.py"
         ],
         "presentation": {
           "reveal": "always",

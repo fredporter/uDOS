@@ -6,8 +6,8 @@ This guide walks you through adding the `/dev/` scaffold submodule to your uDOS 
 
 ## Prerequisites
 
-✅ Git installed and configured  
-✅ uDOS workspace cloned (`git clone https://github.com/fredporter/uDOS-vibe.git`)  
+✅ Git installed and configured
+✅ uDOS workspace cloned (`git clone https://github.com/fredporter/uDOS.git`)
 ✅ Basic understanding of git submodules
 
 ---
@@ -113,7 +113,7 @@ git commit -m "Update dev scaffold"
 
 The `.gitignore` in `/dev/` ensures:
 
-✅ **Framework tracked:** README, wiki, templates, examples  
+✅ **Framework tracked:** README, wiki, templates, examples
 ❌ **Projects excluded:** Your custom code stays private
 
 ---
@@ -185,8 +185,8 @@ Now you have:
 
 ## Next Steps
 
-✅ **Read the scaffold structure:** [SCAFFOLD-STRUCTURE.md](SCAFFOLD-STRUCTURE.md)  
-✅ **Start building:** [DEVELOP-EXTENSION.md](DEVELOP-EXTENSION.md) or [DEVELOP-CONTAINER.md](DEVELOP-CONTAINER.md)  
+✅ **Read the scaffold structure:** [SCAFFOLD-STRUCTURE.md](SCAFFOLD-STRUCTURE.md)
+✅ **Start building:** [DEVELOP-EXTENSION.md](DEVELOP-EXTENSION.md) or [DEVELOP-CONTAINER.md](DEVELOP-CONTAINER.md)
 ✅ **Review examples:** `/dev/examples/`
 
 ---

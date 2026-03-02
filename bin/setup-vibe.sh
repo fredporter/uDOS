@@ -1,8 +1,8 @@
 #!/bin/bash
-# Setup script for uDOS-Vibe integration with globally-installed Vibe CLI
+# Legacy bridge script for uDOS Dev Mode tooling integration
 #
 # This script ensures the repo's custom tools and skills are discoverable
-# by the globally-installed Vibe CLI.
+# by the globally-installed vibe runtime used for Dev Mode.
 #
 # Usage: ./bin/setup-vibe.sh
 
@@ -10,7 +10,7 @@ set -e
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-echo "🔧 Setting up uDOS-Vibe integration with global Vibe CLI..."
+echo "🔧 Setting up uDOS Dev Mode tooling bridge..."
 echo "📁 Repo root: $REPO_ROOT"
 
 # Verify directory structure
@@ -41,9 +41,9 @@ echo "  .vibe/skills -> $(readlink "$REPO_ROOT/.vibe/skills")"
 echo ""
 cd "$REPO_ROOT"
 if vibe --version >/dev/null 2>&1; then
-    echo "✓ Vibe CLI detected and ready"
+    echo "✓ Dev Mode tooling detected and ready"
 else
-    echo "⚠️  Vibe CLI not found in PATH"
+    echo "⚠️  Dev Mode tooling not found in PATH"
 fi
 
 echo ""
@@ -60,13 +60,13 @@ else
 fi
 
 echo ""
-echo "✅ Setup complete!"
+echo "✅ Dev Mode bridge setup complete!"
 echo ""
 echo "📖 To use uDOS commands (recommended):"
 echo "   cd $REPO_ROOT"
 echo "   ./bin/ucode"
 echo ""
-echo "💬 Raw Vibe chat UI (optional):"
+echo "💬 Raw Dev Mode tooling (optional):"
 echo "   vibe"
 echo "   (non-blocking defaults; MCP is opt-in in .vibe/config.toml)"
 echo "   enable MCP tools: uv run --project . scripts/mcp_activation.py enable"

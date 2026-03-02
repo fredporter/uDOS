@@ -5,6 +5,8 @@ import wizard.routes.platform_routes as platform_routes
 
 
 class _StubBuildService:
+    builds_root = "distribution/builds"
+
     def start_build(self, profile="alpine-core+sonic", build_id=None, source_image=None, output_dir=None):
         return {
             "success": True,
@@ -62,3 +64,12 @@ def test_platform_sonic_build_endpoints(monkeypatch):
     artifacts_res = client.get("/api/platform/sonic/builds/stub-build/artifacts")
     assert artifacts_res.status_code == 200
     assert artifacts_res.json()["build_id"] == "stub-build"
+
+    verify_res = client.get("/api/platform/sonic/verify")
+    assert verify_res.status_code == 200
+    assert "verification" in verify_res.json()
+
+    dataset_res = client.get("/api/platform/sonic/dataset-contract")
+    assert dataset_res.status_code == 200
+    assert "dataset_contract" in dataset_res.json()
+    assert "checked_at" in dataset_res.json()

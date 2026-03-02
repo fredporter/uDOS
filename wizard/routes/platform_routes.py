@@ -7,12 +7,14 @@ from __future__ import annotations
 
 import asyncio
 import json
+from datetime import datetime, UTC
 from pathlib import Path
 from typing import Callable, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
+from sonic.core.verify import verify_sonic_ready
 
 from wizard.services.launch_session_service import get_launch_session_service
 from wizard.services.sonic_adapters import to_sync_status_payload
@@ -75,7 +77,85 @@ class SonicGamingProfileRequest(BaseModel):
     extra: dict = Field(default_factory=dict)
 
 
+def _build_release_signing_alert(release_readiness: Optional[dict]) -> Optional[dict]:
+    if not release_readiness:
+        return None
+
+    signing = release_readiness.get("signing") or {}
+    if signing.get("ready"):
+        return None
+
+    manifest = signing.get("manifest") or {}
+    checksums = signing.get("checksums") or {}
+    details = [str(item).strip() for item in {manifest.get("detail"), checksums.get("detail")} if str(item).strip()]
+    issue_text = " ".join(str(item) for item in release_readiness.get("issues") or [])
+    combined = " ".join(details + [issue_text]).lower()
+    manifest_present = signing.get("manifest_signature_present")
+    checksums_present = signing.get("checksums_signature_present")
+    if manifest_present is False or checksums_present is False:
+        return {
+            "severity": "error",
+            "code": "sonic_signing_signature_missing",
+            "title": "Sonic release signatures are missing",
+            "detail": details[0] if details else "Release bundle signatures are missing from the latest build.",
+            "action": "Generate detached signatures for build-manifest.json and checksums.txt, then verify again.",
+        }
+
+    if "public key not found" in combined or "not configured" in combined:
+        return {
+            "severity": "error",
+            "code": "sonic_signing_pubkey_missing",
+            "title": "Sonic release signing key is not configured",
+            "detail": details[0] if details else "Configure WIZARD_SONIC_SIGN_PUBKEY so Wizard can verify Sonic release signatures.",
+            "action": "Set WIZARD_SONIC_SIGN_PUBKEY to the release verification public key and rebuild the readiness view.",
+        }
+
+    if "signature missing" in combined:
+        return {
+            "severity": "error",
+            "code": "sonic_signing_signature_missing",
+            "title": "Sonic release signatures are missing",
+            "detail": details[0] if details else "Release bundle signatures are missing from the latest build.",
+            "action": "Generate detached signatures for build-manifest.json and checksums.txt, then verify again.",
+        }
+
+    if not release_readiness.get("release_ready"):
+        return {
+            "severity": "warning",
+            "code": "sonic_signing_unverified",
+            "title": "Sonic release bundle is present but not verified",
+            "detail": details[0] if details else "Signing checks did not complete successfully for the latest Sonic build.",
+            "action": "Review the release-readiness issues and correct signing or checksum failures before distribution.",
+        }
+
+    return None
+
+
+def _extract_dataset_contract_summary(verification: dict) -> dict:
+    media_policy = verification.get("media_policy") or {}
+    device_policy = next(
+        (item for item in media_policy.get("policies") or [] if item.get("policy_id") == "device-database"),
+        None,
+    )
+    contract = (device_policy or {}).get("contract") or {}
+    version = contract.get("version") or {}
+    return {
+        "available": device_policy is not None,
+        "ok": bool(contract.get("ok")) if device_policy else False,
+        "level": (device_policy or {}).get("level"),
+        "detail": (device_policy or {}).get("detail"),
+        "version": version.get("version"),
+        "schema_version": version.get("schema_version"),
+        "updated": version.get("updated"),
+        "errors": contract.get("errors") or [],
+        "warnings": contract.get("warnings") or [],
+        "seed_rows": ((contract.get("sql") or {}).get("seed_rows") or []),
+        "diff": contract.get("diff") or {},
+    }
+
+
 def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Path] = None) -> APIRouter:
+    resolved_repo_root = repo_root or Path(__file__).resolve().parent.parent.parent
     dependencies = [Depends(auth_guard)] if auth_guard else []
     router = APIRouter(prefix="/api/platform", tags=["platform"], dependencies=dependencies)
 
@@ -98,6 +178,55 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
     @router.get("/sonic/artifacts")
     async def sonic_artifacts(limit: int = Query(200, ge=1, le=1000)):
         return sonic.list_artifacts(limit=limit)
+
+    @router.get("/sonic/verify")
+    async def sonic_verify(
+        manifest: str = Query("config/sonic-manifest.json"),
+        build_id: Optional[str] = Query(None),
+        build_dir: Optional[str] = Query(None),
+        flash_pack: Optional[str] = Query(None),
+    ):
+        sonic_root = resolved_repo_root / "sonic"
+        manifest_path = Path(manifest)
+        if not manifest_path.is_absolute():
+            manifest_path = sonic_root / manifest_path
+        resolved_build_dir = None
+        if build_dir:
+            resolved_build_dir = Path(build_dir)
+            if not resolved_build_dir.is_absolute():
+                resolved_build_dir = resolved_repo_root / resolved_build_dir
+        elif build_id:
+            builds_root = getattr(sonic_builds, "builds_root", resolved_repo_root / "distribution" / "builds")
+            resolved_build_dir = Path(builds_root) / build_id
+
+        verification = verify_sonic_ready(
+            sonic_root,
+            manifest_path=manifest_path,
+            build_dir=resolved_build_dir,
+            flash_pack=flash_pack,
+        )
+        return {
+            "manifest_path": str(manifest_path),
+            "build_dir": str(resolved_build_dir) if resolved_build_dir else None,
+            "verification": verification,
+        }
+
+    @router.get("/sonic/dataset-contract")
+    async def sonic_dataset_contract(manifest: str = Query("config/sonic-manifest.json")):
+        sonic_root = resolved_repo_root / "sonic"
+        manifest_path = Path(manifest)
+        if not manifest_path.is_absolute():
+            manifest_path = sonic_root / manifest_path
+
+        verification = verify_sonic_ready(
+            sonic_root,
+            manifest_path=manifest_path,
+        )
+        return {
+            "manifest_path": str(manifest_path),
+            "checked_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+            "dataset_contract": _extract_dataset_contract_summary(verification),
+        }
 
     @router.post("/sonic/build")
     async def sonic_build(payload: SonicBuildRequest):
@@ -132,7 +261,11 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
     @router.get("/sonic/builds/{id}/release-readiness")
     async def get_sonic_release_readiness(id: str):
         try:
-            return sonic_builds.get_release_readiness(id)
+            readiness = sonic_builds.get_release_readiness(id)
+            return {
+                **readiness,
+                "release_signing_alert": _build_release_signing_alert(readiness),
+            }
         except FileNotFoundError as exc:
             raise HTTPException(status_code=404, detail=str(exc))
 
@@ -149,6 +282,13 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
                 release_readiness = sonic_builds.get_release_readiness(latest_build_id)
             except FileNotFoundError:
                 release_readiness = None
+        release_signing_alert = _build_release_signing_alert(release_readiness)
+        builds_root = Path(getattr(sonic_builds, "builds_root", resolved_repo_root / "distribution" / "builds"))
+        verification = verify_sonic_ready(
+            resolved_repo_root / "sonic",
+            manifest_path=(resolved_repo_root / "sonic" / "config" / "sonic-manifest.json"),
+            build_dir=(builds_root / latest_build_id) if latest_build_id else None,
+        )
 
         sync_status = None
         if getattr(sonic_ops, "available", False):
@@ -162,6 +302,9 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
             "dashboard": {"route": "#sonic", "wizard_gui_hosted": True},
             "latest_build": latest_build,
             "latest_release_readiness": release_readiness,
+            "release_signing_alert": release_signing_alert,
+            "dataset_contract": _extract_dataset_contract_summary(verification),
+            "verification": verification,
             "device_recommendations": sonic_device_profile.get_recommendations(),
             "media_console": sonic_media.get_status(),
             "windows_gaming_profiles": sonic_gaming.list_profiles(),

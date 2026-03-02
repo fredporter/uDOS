@@ -1,0 +1,95 @@
+{
+  "schema": "udos.release.profiles.v1",
+  "profiles": [
+    {
+      "profile_id": "core",
+      "label": "Core",
+      "summary": "Mandatory base install: ucode, operator mode, offline workflows, repair and update controls.",
+      "mandatory": true,
+      "default_enabled": true,
+      "components": ["ucode", "operator", "offline-assets", "repair", "update"],
+      "package_groups": ["utilities"],
+      "blockers": ["ucode-single-entry", "operator-offline-ready", "repair-contract", "update-contract"]
+    },
+    {
+      "profile_id": "home",
+      "label": "Home",
+      "summary": "Wizard server, home utilities, paired-device workflows, and curated household services.",
+      "components": ["wizardd", "thin-ui-pairing", "home-services"],
+      "package_groups": ["home", "utilities"],
+      "blockers": ["wizard-pairing", "home-service-health", "home-package-verification"]
+    },
+    {
+      "profile_id": "creator",
+      "label": "Creator",
+      "summary": "Groovebox, Songscribe, score workflows, transcription queueing, and sound-library management.",
+      "components": ["music", "transcription", "sound-library"],
+      "extensions": ["groovebox"],
+      "package_groups": ["creator", "utilities"],
+      "blockers": ["transcription-ga", "score-export", "library-health"]
+    },
+    {
+      "profile_id": "gaming",
+      "label": "Gaming",
+      "summary": "Gameplay progression, educational missions, and curated gaming/runtime packages.",
+      "components": ["gameplay", "missions", "gaming-repos"],
+      "package_groups": ["gaming", "utilities"],
+      "blockers": ["mission-mapping", "gaming-package-verification"]
+    },
+    {
+      "profile_id": "dev",
+      "label": "Dev",
+      "summary": "Dev Mode only: vibe bridge, repo tooling, workflow authoring, and contributor utilities.",
+      "components": ["dev-mode", "vibe", "repo-tooling"],
+      "extensions": ["dev-mode"],
+      "package_groups": ["dev", "utilities"],
+      "blockers": ["dev-mode-gate", "vibe-dev-only"]
+    }
+  ],
+  "package_groups": {
+    "utilities": {
+      "label": "Utilities",
+      "summary": "Base utilities and offline helper assets.",
+      "repos": ["core-local", "offline-assets"]
+    },
+    "home": {
+      "label": "Home",
+      "summary": "Household services, server helpers, and companion integrations.",
+      "repos": ["home-assistant", "wizard-home"]
+    },
+    "creator": {
+      "label": "Creator",
+      "summary": "Music, scoring, media workflows, and open sound libraries.",
+      "repos": ["songscribe", "groovebox-library"]
+    },
+    "gaming": {
+      "label": "Gaming",
+      "summary": "Gameplay content and gaming-oriented package lanes.",
+      "repos": ["gaming-bundle", "retro-runtime"]
+    },
+    "dev": {
+      "label": "Dev",
+      "summary": "Contributor utilities and development runtime dependencies.",
+      "repos": ["vibe-dev", "repo-tooling"]
+    }
+  },
+  "extensions": {
+    "empire": {
+      "label": "Empire",
+      "path": "extensions/empire",
+      "profiles": ["home"],
+      "summary": "Operational business/data extension."
+    },
+    "dev-mode": {
+      "label": "Dev Mode",
+      "path": "dev",
+      "profiles": ["dev"],
+      "summary": "Contributor scaffold and Dev Mode gate."
+    },
+    "groovebox": {
+      "label": "Groovebox",
+      "path": "extensions/groovebox",
+      "profiles": ["creator"],
+      "summary": "Creator-profile music workflow extension."
+    }
+  }

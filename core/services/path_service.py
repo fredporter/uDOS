@@ -65,10 +65,6 @@ def find_repo_root(start_path: Path | None = None, marker: str = DEFAULT_REPO_MA
             env_path = (Path.cwd() / env_path).resolve()
         if (env_path / marker).exists():
             return _enforce_home_root(env_path)
-        raise RuntimeError(
-            f"UDOS_ROOT={env_root} does not contain {marker} marker. "
-            "Invalid container configuration or .env corruption."
-        )
 
     current = _normalize_start_path(start_path)
     for parent in [current] + list(current.parents):

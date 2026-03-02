@@ -6,8 +6,8 @@ Welcome to uDOS + Vibe development! This guide covers setup, project structure, 
 
 ```bash
 # Clone
-git clone https://github.com/fredporter/uDOS-vibe.git
-cd uDOS-vibe
+git clone https://github.com/fredporter/uDOS.git
+cd uDOS
 
 # Install
 uv sync --extra udos-wizard
@@ -83,7 +83,7 @@ Vibe-dev workspace auto-activates the venv (`vibe-dev.code-workspace`).
 ## Project Structure at a Glance
 
 ```
-uDOS-vibe/
+uDOS/
 ├── vibe/               # Mistral Vibe (never modify directly)
 ├── core/               # uDOS core (main development area)
 │   ├── commands/       # 50+ command handlers

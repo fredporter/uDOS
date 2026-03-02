@@ -65,6 +65,7 @@ from core.commands import (
     DrawHandler,
     WorkspaceHandler,
     UcodeHandler,
+    OperatorHandler,
 )
 
 
@@ -165,6 +166,7 @@ class CommandDispatcher:
             # Library management
             "LIBRARY": LibraryHandler(),
             "UCODE": UcodeHandler(),
+            "OPERATOR": OperatorHandler(),
         }
 
         self.file_handler = file_editor

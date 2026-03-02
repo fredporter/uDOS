@@ -34,7 +34,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         "Inventory": ["BAG", "GRAB", "SPAWN"],
         "NPCs & Dialogue": ["NPC", "SEND"],
         "Files & State": ["SAVE", "LOAD", "FILE", "UNDO"],
-        "AI & Models": ["OK"],
+        "Operator & Dev": ["OK"],
         "System & Maintenance": [
             "REBOOT",
             "HEALTH",
@@ -205,12 +205,20 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "syntax": "HELP [<command>] | HELP CATEGORY <category> | HELP SEARCH <query>",
         },
         "OK": {
-            "description": "Local Vibe helpers (offline-first)",
-            "usage": "OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|VIBE|FALLBACK> [args]",
-            "example": "OK ROUTE show scheduler logs",
-            "notes": "Routes to local Vibe (Ollama-backed). ROUTE uses rule-based NL routing. FALLBACK toggles auto-switching to cloud on failure.",
-            "category": "AI & Models",
-            "syntax": "OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|VIBE|FALLBACK> [args] [--cloud]",
+            "description": "Legacy Dev Mode helper bridge",
+            "usage": "OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|FALLBACK> [args]",
+            "example": "OPERATOR show scheduler logs",
+            "notes": "Standard runtime uses OPERATOR and UCODE OPERATOR. `OK` remains available only for Dev Mode helper and coding flows.",
+            "category": "Operator & Dev",
+            "syntax": "OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|FALLBACK> [args] [--cloud]  # Dev Mode only",
+        },
+        "OPERATOR": {
+            "description": "Top-level operator status, planning, and queue access",
+            "usage": "OPERATOR <STATUS|PLAN <prompt>|QUEUE>",
+            "example": "OPERATOR PLAN install creator profile",
+            "notes": "Dedicated top-level alias for `UCODE OPERATOR ...` in the standard runtime.",
+            "category": "Operator & Dev",
+            "syntax": "OPERATOR STATUS | OPERATOR PLAN <prompt> | OPERATOR QUEUE",
         },
         "VIEWPORT": {
             "description": "Measure and cache terminal viewport size",
@@ -294,11 +302,11 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         },
         "SONIC": {
             "description": "Sonic Screwdriver status, dataset sync, and USB planning",
-            "usage": "SONIC <STATUS|SYNC|PLAN|RUN|HELP>",
+            "usage": "SONIC <STATUS|SYNC|VERIFY|PLAN|RUN|HELP>",
             "example": "SONIC SYNC --force",
             "notes": "SYNC rebuilds local device DB from sonic/datasets SQL. Wizard parity endpoints live under /api/sonic/db/*.",
             "category": "System & Maintenance",
-            "syntax": "SONIC STATUS | SONIC SYNC [--force] | SONIC PLAN [flags] | SONIC RUN [flags] --confirm",
+            "syntax": "SONIC STATUS | SONIC SYNC [--force] | SONIC VERIFY [--manifest path] | SONIC PLAN [flags] | SONIC RUN [flags] --confirm",
         },
         "LIBRARY": {
             "description": "Library integration manager — list, sync, and inspect integrations",
@@ -584,7 +592,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "Inventory",
             "NPCs & Dialogue",
             "Files & State",
-            "AI & Models",
+            "Operator & Dev",
             "System & Maintenance",
             "Advanced",
         ]

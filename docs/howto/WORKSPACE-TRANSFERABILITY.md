@@ -5,7 +5,7 @@
 
 ---
 
-## Quick Answer: YES, uDOS-vibe is Fully Transferable Between Machines
+## Quick Answer: YES, uDOS is Fully Transferable Between Machines
 
 The workspace is designed to be portable. Here's what you need to know when switching machines.
 
@@ -24,7 +24,7 @@ The workspace is designed to be portable. Here's what you need to know when swit
 ```bash
 # Clone on new machine:
 git clone <repo-url>
-cd uDOS-vibe
+cd uDOS
 ```
 
 ---
@@ -68,8 +68,8 @@ cp .env .env.backup.$(date +%Y%m%d)
 
 ```bash
 # 1. Clone the repo
-git clone <repo-url> uDOS-vibe
-cd uDOS-vibe
+git clone <repo-url> uDOS
+cd uDOS
 
 # 2. Install dependencies (one-time)
 ./bin/install-udos-vibe.sh         # Full setup

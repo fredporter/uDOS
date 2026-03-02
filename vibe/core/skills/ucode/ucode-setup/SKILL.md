@@ -18,7 +18,7 @@ inside this vibe session. Be concise — only ask questions when genuinely neede
 ## Prerequisites (check once, silently)
 
 Before running any tool, confirm:
-1. We are running from the uDOS-vibe repo root (presence of `uDOS.py` and `vibe/`)
+1. We are running from the uDOS repo root (presence of `uDOS.py` and `vibe/`)
 2. `UDOS_ROOT` is set in `.env` (or inferrable from the file path)
 
 If either is missing, tell the user and stop — they need to `cd` to the repo root first.

@@ -199,7 +199,7 @@ stored in the Wizard keystore.
 USAGE:
   SETUP              Run setup story (interactive questions)
   SETUP <provider>   Setup a provider (github, ollama, mistral, etc.)
-  SETUP vibe         Install Vibe CLI + Ollama + Mistral models
+  SETUP dev          Install Dev Mode helper tooling
   SETUP --profile    Show your current setup
   SETUP --edit       Edit setup manually
   SETUP --clear      Clear all setup data
@@ -210,7 +210,7 @@ PROVIDERS:
   SETUP ollama       Setup local Ollama AI model
   SETUP mistral      Configure Mistral AI provider
   SETUP openrouter   Configure OpenRouter gateway
-  SETUP vibe         Install Vibe CLI + Ollama + Mistral local models
+  SETUP dev          Install Ollama + vibe Dev Mode tooling + recommended local models
 
 LOCAL SETTINGS (.env):
     USER_NAME          Username
@@ -226,14 +226,14 @@ EXTENDED SETTINGS (Wizard Keystore - installed later):
   OAuth Tokens:      Calendar, Google Drive, etc.
   Cloud Services:    AWS, GCP, Azure credentials
   Webhooks:          Custom webhooks and secrets
-  AI Routing:        Provider credentials and endpoints
+  Provider Routing:  Provider credentials and endpoints
   Activations:       Integration activation settings
 
 EXAMPLES:
   SETUP                     # Start interactive setup
   SETUP github              # Setup GitHub authentication
   SETUP ollama              # Setup local Ollama
-  SETUP vibe                # Install Vibe CLI + Ollama + Mistral models
+  SETUP dev                 # Install Dev Mode helper tooling
   SETUP --profile           # View current settings
   SETUP --clear && SETUP    # Reset and reconfigure
   nano .env                 # Manual editing

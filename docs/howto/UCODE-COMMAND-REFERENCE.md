@@ -13,10 +13,10 @@ Offline operations runbook:
 uDOS commands execute in multiple contexts. Commands are **case-insensitive** —
 outputs appear in CAPS for display clarity only.
 
-### 1. Vibe CLI Direct Commands (v1.5+ — Primary Interactive Path)
+### 1. ucode / Operator Direct Commands (v1.5+ — Primary Interactive Path)
 
-Run ucode commands directly from the Vibe CLI input bar without leaving the
-chat. Three input styles are supported:
+Run ucode commands directly from the standard runtime. `vibe` remains a Dev
+Mode surface only. Three input styles are supported:
 
 #### `:command` — Colon prefix (recommended, always ucode)
 ```
@@ -75,21 +75,21 @@ STATUS
 | `map` | ucode MAP | Single word |
 | `FIND tokyo` | ucode FIND | Multi-word, first word ALL-CAPS |
 | `:find tokyo` | ucode FIND | Colon prefix |
-| `find me a file` | **AI** | Multi-word, lowercase first word — natural language |
-| `help me with this` | **AI** | Multi-word, lowercase — goes to AI |
+| `find me a file` | **OPERATOR** | Multi-word, lowercase first word — natural language |
+| `help me with this` | **OPERATOR** | Multi-word, lowercase — goes to operator planning |
 
-### 2. Vibe CLI Interactive (AI-Mediated)
+### 2. Operator Interactive
 ```bash
-vibe
+ucode
 # User: "show me the map"
-# → AI infers intent → routes to ucode MAP via MCP skill
+# → OPERATOR infers intent → routes to ucode MAP guidance
 ```
 
-### 3. Vibe Bash Tool
+### 3. Dev Mode `vibe` Tooling
 ```bash
 vibe
 # User: "!ucode MAP"
-# → Executes shell command via Vibe bash tool
+# → Executes shell command via Dev Mode tooling
 ```
 
 ### 4. Shell/Script Execution
@@ -101,7 +101,7 @@ ucode MAP
 ucode SETUP WIZARD --background
 
 # Check progress
-ucode SETUP CHECK --vibe
+ucode UCODE OPERATOR STATUS
 ucode STATUS TASK_ID
 ```
 
@@ -142,7 +142,7 @@ export UDOS_MESSAGE_THEME=fantasy  # Not TUI-specific
 export UDOS_MAP_LEVEL=dungeon      # Spatial context, not UI
 ```
 
-**Note**: Former `UDOS_TUI_*` variables renamed to clarify they control backend message formatting, not UI rendering. Vibe CLI is the active interactive interface.
+**Note**: Former `UDOS_TUI_*` variables renamed to clarify they control backend message formatting, not UI rendering. `ucode` is the active interactive interface; `vibe` remains Dev Mode tooling only.
 
 Legacy pre-`vibe-cli` interactive references were composted here:
 - `docs/.compost/tui-legacy-2026-02/TUI-MIGRATION-PLAN.md`

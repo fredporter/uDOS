@@ -18,3 +18,10 @@ payloads/
 
 The v2 flow will copy contents into partitions based on role. For squashfs partitions,
 `udos.squashfs` is written directly to the partition block device.
+
+Each primary media source also requires matching provenance metadata under
+`sonic/config/image-sources/`:
+
+- `alpine-udos.json`
+- `ubuntu-wizard.json`
+- `windows10-ltsc.json`

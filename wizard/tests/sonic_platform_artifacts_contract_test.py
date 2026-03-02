@@ -5,6 +5,8 @@ import wizard.routes.platform_routes as platform_routes
 
 
 class _BuildSvc:
+    builds_root = "/tmp/builds"
+
     def get_build_artifacts(self, build_id):
         if build_id == "missing":
             raise FileNotFoundError("Build not found: missing")
@@ -81,6 +83,8 @@ def test_platform_release_readiness_contract_and_not_found(monkeypatch):
     assert "release_ready" in payload
     assert "checksums" in payload
     assert "signing" in payload
+    assert "release_signing_alert" in payload
+    assert payload["release_signing_alert"]["code"] == "sonic_signing_signature_missing"
     assert isinstance(payload["issues"], list)
 
     missing_res = client.get("/api/platform/sonic/builds/missing/release-readiness")

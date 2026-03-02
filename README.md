@@ -1,4 +1,4 @@
-# uDOS v1.4.5 +Vibe
+# uDOS v1.5 Rebaseline
 
 ```
 ████████████████████████████████████████████████████████████
@@ -25,13 +25,27 @@
 
 ## What is This?
 
-**uDOS v1.4.5 +Vibe** is an integrated development environment combining:
+uDOS v1.5 is being rebaselined around one runtime rule:
 
-- **vibe-cli runtime** — Open-source CLI coding assistant with tool execution and subagents
-- **uDOS** — Offline-first OS layer for vault workflows, knowledge systems, and portable tooling
-- **Wizard** — LAN gateway for extensions, AI routing, and sync
+- `ucode` is the primary user entry point
+- Wizard is the browser/service layer that hangs off `ucode`
+- `vibe` is a Dev Mode surface only
+- Sonic remains independently distributable, but installed-system control routes through `ucode`
 
-This repository brings together uDOS's extensive command suite (50+ tools) and knowledge system with vibe-cli agent capabilities, without forking Vibe.
+The active release-control surface is now:
+
+- `UCODE PROFILE LIST`
+- `UCODE PROFILE SHOW <profile>`
+- `UCODE PROFILE INSTALL <profile>`
+- `UCODE OPERATOR STATUS`
+- `UCODE OPERATOR PLAN <prompt>`
+- `UCODE EXTENSION LIST`
+- `UCODE PACKAGE LIST`
+
+Authoritative release planning now lives in:
+
+- [docs/roadmap.md](docs/roadmap.md)
+- [distribution/profiles/certified-profiles.json](distribution/profiles/certified-profiles.json)
 
 ### Key Differences from Stock Vibe
 
@@ -58,13 +72,18 @@ This repository brings together uDOS's extensive command suite (50+ tools) and k
 
 ### Installation
 
+Current direction:
+- use `ucode` as the standard runtime shell after install
+- treat `vibe` as contributor tooling gated behind Dev Mode
+- verify release lanes through `UCODE PROFILE ...`
+
 **Option 1: Automated installer (recommended)**
 
 macOS:
 ```bash
 # Clone the repository
-git clone https://github.com/fredporter/uDOS-vibe.git
-cd uDOS-vibe
+git clone https://github.com/fredporter/uDOS.git
+cd uDOS
 
 # Run installer (double-click in Finder, or from terminal)
 ./bin/install-udos-vibe.sh
@@ -73,8 +92,8 @@ cd uDOS-vibe
 Linux:
 ```bash
 # Clone the repository
-git clone https://github.com/fredporter/uDOS-vibe.git
-cd uDOS-vibe
+git clone https://github.com/fredporter/uDOS.git
+cd uDOS
 
 # Run installer
 ./bin/install-udos-vibe.sh
@@ -91,8 +110,8 @@ The installer automatically handles:
 
 ```bash
 # Clone and navigate
-git clone https://github.com/fredporter/uDOS-vibe.git
-cd uDOS-vibe
+git clone https://github.com/fredporter/uDOS.git
+cd uDOS
 
 # Install uv if not present
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -119,7 +138,7 @@ After installation:
 vibe
 
 # Or with explicit repo context
-cd /path/to/uDOS-vibe && vibe
+cd /path/to/uDOS && vibe
 ```
 
 Inside vibe:
@@ -148,7 +167,7 @@ You: /list-skills
 ## Project Structure
 
 ```
-uDOS-vibe/
+uDOS/
 ├── vibe/                          # vibe-cli runtime (read-only base)
 │   ├── cli/                       # Entry point
 │   ├── core/
@@ -256,8 +275,8 @@ By category:
 #### 1. From Source (Recommended)
 
 ```bash
-git clone https://github.com/fredporter/uDOS-vibe.git
-cd uDOS-vibe
+git clone https://github.com/fredporter/uDOS.git
+cd uDOS
 
 # Install with uv (recommended)
 uv sync --extra udos-wizard
@@ -267,10 +286,10 @@ uv sync --extra udos-wizard
 
 ```bash
 # Copy the workspace config
-cp vibe-dev.code-workspace uDOS-vibe.code-workspace
+cp vibe-dev.code-workspace uDOS.code-workspace
 
 # Open in VS Code
-code uDOS-vibe.code-workspace
+code uDOS.code-workspace
 
 # Terminal will auto-activate venv and set uDOS env vars
 ```
@@ -296,7 +315,7 @@ Optional environment variables (see `.env.example`):
 
 ```bash
 # uDOS settings
-UDOS_ROOT=/path/to/uDOS-vibe
+UDOS_ROOT=/path/to/uDOS
 UDOS_MEMORY=/path/to/memory
 UDOS_VAULT=/path/to/vault
 
@@ -528,7 +547,7 @@ See [docs/troubleshooting/](docs/troubleshooting/) for more.
 
 ## Resources
 
-- **uDOS v1.4.5 +Vibe** — https://github.com/fredporter/uDOS-vibe
+- **uDOS v1.4.5 +Vibe** — https://github.com/fredporter/uDOS
 - **MCP Spec** — https://modelcontextprotocol.io
 - **Credits** — [wiki/credits.md](wiki/credits.md)
 - **Agent Skills** — https://agentskills.io

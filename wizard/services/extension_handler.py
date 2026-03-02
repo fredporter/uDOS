@@ -21,6 +21,7 @@ from enum import Enum
 from datetime import datetime
 from abc import ABC, abstractmethod
 
+from core.services.release_profile_service import get_release_profile_service
 from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 
@@ -61,6 +62,7 @@ class ExtensionMetadata:
     repository: Optional[str] = None
     required_secrets: List[str] = None
     required_capabilities: List[str] = None
+    release_profiles: List[str] = None
     icon: Optional[str] = None
     
     def __post_init__(self):
@@ -68,6 +70,8 @@ class ExtensionMetadata:
             self.required_secrets = []
         if self.required_capabilities is None:
             self.required_capabilities = []
+        if self.release_profiles is None:
+            self.release_profiles = []
 
 
 @dataclass
@@ -170,7 +174,8 @@ class GitHubCLIExtension(Extension):
             author="uDOS Team",
             repository="https://github.com/fredporter/uDOS-vibe",
             required_secrets=["github_token"],
-            required_capabilities=["subprocess", "git", "api"]
+            required_capabilities=["subprocess", "git", "api"],
+            release_profiles=["dev"],
         )
         super().__init__(metadata)
     
@@ -269,10 +274,49 @@ class ExtensionHandler:
         self.extensions: Dict[str, Extension] = {}
         self.secret_store = secret_store
         self.logger = get_logger("extension-handler")
+        self._profile_service = get_release_profile_service()
+
+    def _enabled_profiles(self) -> set[str]:
+        return {
+            item["profile_id"]
+            for item in self._profile_service.list_profiles()
+            if item.get("enabled")
+        }
+
+    def _profile_policy(self, extension: Extension) -> tuple[bool, Optional[str], List[str]]:
+        required = [profile.strip().lower() for profile in extension.metadata.release_profiles if profile.strip()]
+        if not required:
+            return True, None, []
+        enabled = self._enabled_profiles()
+        if enabled.intersection(required):
+            return True, None, required
+        reason = (
+            f"Extension '{extension.metadata.name}' requires one of the enabled profiles: "
+            f"{', '.join(required)}"
+        )
+        return False, reason, required
+
+    def _apply_profile_policy(self, extension: Extension) -> tuple[bool, Optional[str], List[str]]:
+        allowed, reason, required = self._profile_policy(extension)
+        if not allowed:
+            extension.instance.enabled = False
+            extension.instance.status = ExtensionStatus.DISABLED
+            extension.instance.config["profile_policy"] = "blocked"
+            extension.instance.config["profile_reason"] = reason
+            self.logger.info("[LOCAL] Skipping %s: %s", extension.metadata.name, reason)
+        else:
+            if extension.instance.config.get("profile_policy") == "blocked":
+                extension.instance.enabled = True
+                if extension.instance.status == ExtensionStatus.DISABLED:
+                    extension.instance.status = ExtensionStatus.NOT_INSTALLED
+            extension.instance.config["profile_policy"] = "allowed"
+            extension.instance.config.pop("profile_reason", None)
+        return allowed, reason, required
     
     def register(self, extension: Extension) -> None:
         """Register a new extension."""
         name = extension.metadata.name
+        self._apply_profile_policy(extension)
         self.extensions[name] = extension
         self.logger.info(f"[LOCAL] Registered extension: {name}")
     
@@ -281,6 +325,11 @@ class ExtensionHandler:
         results = {}
         for name, ext in self.extensions.items():
             try:
+                allowed, _, _ = self._apply_profile_policy(ext)
+                if not allowed:
+                    results[name] = False
+                    continue
+
                 # Validate secrets first
                 if self.secret_store:
                     has_secrets = await ext.validate_secrets(self.secret_store)
@@ -306,7 +355,15 @@ class ExtensionHandler:
         ext = self.extensions.get(extension_name)
         if not ext:
             return {"error": f"Extension not found: {extension_name}"}
-        
+
+        allowed, reason, required = self._apply_profile_policy(ext)
+        if not allowed:
+            return {
+                "error": f"Extension blocked by certified profile policy: {extension_name}",
+                "required_profiles": required,
+                "reason": reason,
+            }
+
         if not ext.instance.enabled:
             return {"error": f"Extension disabled: {extension_name}"}
         
@@ -334,6 +391,9 @@ class ExtensionHandler:
                 "enabled": ext.instance.enabled,
                 "version": ext.metadata.version,
                 "last_activity": ext.instance.last_activity,
+                "required_profiles": list(ext.metadata.release_profiles),
+                "profile_policy": ext.instance.config.get("profile_policy", "allowed"),
+                "profile_reason": ext.instance.config.get("profile_reason"),
             }
         
         # Return status of all extensions
@@ -343,6 +403,9 @@ class ExtensionHandler:
                 "enabled": ext.instance.enabled,
                 "version": ext.metadata.version,
                 "category": ext.metadata.category.value,
+                "required_profiles": list(ext.metadata.release_profiles),
+                "profile_policy": ext.instance.config.get("profile_policy", "allowed"),
+                "profile_reason": ext.instance.config.get("profile_reason"),
             }
             for name, ext in self.extensions.items()
         }

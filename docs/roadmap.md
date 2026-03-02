@@ -1,8 +1,34 @@
 # uDOS Roadmap (Canonical)
 
-Last updated: 2026-02-26
+Last updated: 2026-03-02
 
 This roadmap tracks active execution and planned development.
+
+## v1.5 Rebaseline (Active)
+
+Status on March 2, 2026:
+- the earlier v1.5 GA claim dated February 26, 2026 is now treated as stale
+- v1.5 has been reopened as an active rebaseline release
+- `ucode` is the primary entry point for standard users
+- `vibe` is being restricted to Dev Mode only
+- certified release profiles now define supported install lanes: `core`, `home`, `creator`, `gaming`, `dev`
+
+### Active Foundation Work
+
+- `UCODE PROFILE` command family added as the release-control surface
+- `UCODE OPERATOR` command family added as the deterministic local helper surface
+- `UCODE EXTENSION`, `UCODE PACKAGE`, and `UCODE REPAIR STATUS` added for profile-aware operations
+- non-Dev TUI fallback now routes to local operator planning instead of defaulting to `vibe`/provider routing
+- certified profile manifest introduced at `distribution/profiles/certified-profiles.json`
+
+### Immediate Exit Criteria
+
+- `ucode` remains the sole primary interaction surface for normal runtime
+- profile install/enable/verify flows work from the TUI
+- standard runtime no longer depends on `vibe`
+- release/governance docs stop claiming a completed v1.5 GA state
+
+---
 
 ## Scope Notes
 
@@ -112,7 +138,9 @@ Or slot this time for burn-in, stabilization, and user validation before RC phas
 
 ---
 
-## v1.5 Complete Tested Working Release ✅ (GA: 2026-02-26)
+## v1.5 Complete Tested Working Release ✅ (Superseded snapshot from 2026-02-26)
+
+This section is retained as historical evidence only. It is no longer the active release truth for the repository after the March 2, 2026 rebaseline.
 
 **Primary Focus:** Release candidate hardening → General Availability
 

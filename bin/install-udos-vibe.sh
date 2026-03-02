@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # ============================================================
-# uDOS-vibe Installation & Setup Script
+# uDOS Installation & Setup Script
 # ============================================================
 # Cross-platform installer for macOS and Linux
-# Handles: OS detection, dependencies, .env setup, vibe-cli,
+# Handles: OS detection, dependencies, .env setup, Dev Mode tooling,
 #          optional Ollama, wizard lazy-loading, and more.
 #
 # Usage:
@@ -31,7 +31,7 @@ function banner() {
     echo -e "${BOLD}${CYAN}"
     echo "╔═══════════════════════════════════════════════════════════╗"
     echo "║                                                           ║"
-    echo "║               uDOS-vibe Installation Setup                ║"
+    echo "║                 uDOS Installation Setup                   ║"
     echo "║                                                           ║"
     echo "╚═══════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -71,6 +71,11 @@ WIZARD_ONLY=false
 SKIP_OLLAMA=false
 REQUESTED_TIER="auto"
 PREFLIGHT_JSON=false
+PROFILE_SELECTION=""
+SELECTED_PROFILES_CSV=""
+SELECTED_TINYCORE_TIER="core"
+SELECTED_PACKAGE_GROUPS=""
+SELECTED_PROFILE_EXTENSIONS=""
 
 OS_TYPE=""
 OS_VERSION=""
@@ -93,42 +98,6 @@ VIBE_CLI_INSTALLED=false
 UV_INSTALLED=false
 MICRO_INSTALLED=false
 OBSIDIAN_INSTALLED=false
-NON_INTERACTIVE=false
-
-if [[ "${UDOS_INSTALLER_NONINTERACTIVE:-0}" == "1" ]] || [[ ! -t 0 ]]; then
-    NON_INTERACTIVE=true
-fi
-
-function read_prompt_default() {
-    local __var_name="$1"
-    local question="$2"
-    local default_value="${3:-}"
-    local secret="${4:-false}"
-    local input_value=""
-
-    if [[ "$NON_INTERACTIVE" == true ]]; then
-        printf -v "$__var_name" '%s' "$default_value"
-        if [[ "$secret" == true ]]; then
-            info "Non-interactive mode: using default for secret input"
-        else
-            info "Non-interactive mode: ${question} -> ${default_value:-<empty>}"
-        fi
-        return 0
-    fi
-
-    prompt "$question"
-    if [[ "$secret" == true ]]; then
-        read -r -s input_value || input_value="$default_value"
-        echo ""
-    else
-        read -r input_value || input_value="$default_value"
-    fi
-
-    if [[ -z "$input_value" ]]; then
-        input_value="$default_value"
-    fi
-    printf -v "$__var_name" '%s' "$input_value"
-}
 
 # ── Installer Dispatch (Host vs TinyCore) ───────────────────
 function maybe_dispatch_to_tinycore_installer() {
@@ -192,6 +161,18 @@ while [[ $# -gt 0 ]]; do
             PREFLIGHT_JSON=true
             shift
             ;;
+        --profile|--profiles)
+            PROFILE_SELECTION="${2:-}"
+            if [[ -z "${2:-}" ]]; then
+                error "--profile requires a comma-separated value"
+                exit 1
+            fi
+            shift 2
+            ;;
+        --profile=*|--profiles=*)
+            PROFILE_SELECTION="${1#*=}"
+            shift
+            ;;
         --tier)
             REQUESTED_TIER="${2:-auto}"
             if [[ -z "${2:-}" ]]; then
@@ -208,6 +189,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --wizard       Install wizard components only (assumes core exists)"
             echo "  --update       Update existing installation"
             echo "  --skip-ollama  Skip Ollama installation prompts"
+            echo "  --profile      Certified profiles: core,home,creator,gaming,dev"
             echo "  --tinycore     Route to TinyCore package installer (distribution/installer.sh)"
             echo "  --tier         Runtime tier: auto | 1 | 2 | 3"
             echo "  --preflight-json  Print capability/tier decision as JSON and exit"
@@ -222,6 +204,57 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+function _default_profile_selection() {
+    if [[ "$WIZARD_ONLY" == true ]]; then
+        echo "home"
+        return
+    fi
+    if [[ "$CORE_ONLY" == true ]]; then
+        echo "core"
+        return
+    fi
+    echo "core,home"
+}
+
+function _profile_selected() {
+    local needle="$1"
+    [[ ",$SELECTED_PROFILES_CSV," == *",$needle,"* ]]
+}
+
+function select_certified_profiles() {
+    local requested="${PROFILE_SELECTION:-$(_default_profile_selection)}"
+    local resolved="$requested"
+
+    if command -v uv >/dev/null 2>&1; then
+        resolved="$(UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli resolved --repo-root "$REPO_ROOT" --profiles "$requested" 2>/dev/null || printf '%s' "$requested")"
+        SELECTED_TINYCORE_TIER="$(UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli tier --repo-root "$REPO_ROOT" --profiles "$resolved" 2>/dev/null || printf 'core')"
+        SELECTED_PACKAGE_GROUPS="$(UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli packages --repo-root "$REPO_ROOT" --profiles "$resolved" 2>/dev/null || true)"
+        SELECTED_PROFILE_EXTENSIONS="$(UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli extensions --repo-root "$REPO_ROOT" --profiles "$resolved" 2>/dev/null || true)"
+    fi
+
+    SELECTED_PROFILES_CSV="$resolved"
+    info "Certified profiles: $SELECTED_PROFILES_CSV"
+    info "Package groups: ${SELECTED_PACKAGE_GROUPS:-utilities}"
+    info "Official extensions: ${SELECTED_PROFILE_EXTENSIONS:-none}"
+}
+
+function sync_certified_profiles() {
+    if [[ -z "$SELECTED_PROFILES_CSV" ]]; then
+        return
+    fi
+    if command -v uv >/dev/null 2>&1; then
+        UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli install --repo-root "$REPO_ROOT" --profiles "$SELECTED_PROFILES_CSV" >/dev/null 2>&1 || warning "Could not persist certified profile state"
+        return
+    fi
+    mkdir -p "$REPO_ROOT/memory/ucode"
+    cat > "$REPO_ROOT/memory/ucode/release-profiles.json" <<EOF
+{
+  "enabled": ["$(printf '%s' "$SELECTED_PROFILES_CSV" | sed 's/,/","/g')"],
+  "installed": ["$(printf '%s' "$SELECTED_PROFILES_CSV" | sed 's/,/","/g')"]
+}
+EOF
+}
 
 # ── OS Detection ─────────────────────────────────────────────
 function detect_os() {
@@ -661,7 +694,8 @@ function install_micro() {
         return
     fi
 
-    read_prompt_default response "Install micro text editor for TUI editing? (recommended) [Y/n]" "Y"
+    prompt "Install micro text editor for TUI editing? (recommended) [Y/n]"
+    read -r response
     if [[ "$response" =~ ^[Nn] ]]; then
         warning "Skipping micro installation"
         return
@@ -699,7 +733,8 @@ function check_obsidian() {
             success "Obsidian found"
         else
             warning "Obsidian not found"
-            read_prompt_default response "Install Obsidian? (recommended for vault management) [Y/n]" "Y"
+            prompt "Install Obsidian? (recommended for vault management) [Y/n]"
+            read -r response
             if [[ ! "$response" =~ ^[Nn] ]]; then
                 info "Opening Obsidian download page..."
                 open "https://obsidian.md/download"
@@ -774,7 +809,8 @@ function setup_env_file() {
 
     if [[ -f "$env_file" ]]; then
         warning ".env file already exists"
-        read_prompt_default response "Overwrite with fresh template? [y/N]" "N"
+        prompt "Overwrite with fresh template? [y/N]"
+        read -r response
         if [[ ! "$response" =~ ^[Yy] ]]; then
             info "Keeping existing .env file"
             return
@@ -799,7 +835,8 @@ function setup_env_file() {
 
     # Prompt for essential values
     echo ""
-    read_prompt_default username "Enter your username (leave empty for 'Ghost' mode):" ""
+    prompt "Enter your username (leave empty for 'Ghost' mode):"
+    read -r username
     if [[ -n "$username" ]]; then
         upsert_env_var "$env_file" "USER_NAME" "$username"
         # Canonical username key is USER_NAME; remove legacy alias to avoid drift.
@@ -811,12 +848,8 @@ function setup_env_file() {
     fi
 
     echo ""
-    local api_key="${UDOS_MISTRAL_API_KEY:-${MISTRAL_API_KEY:-}}"
-    if [[ -z "$api_key" ]]; then
-        read_prompt_default api_key "Enter your Mistral API key (get one at https://console.mistral.ai):" "" true
-    else
-        info "Using existing Mistral API key from environment"
-    fi
+    prompt "Enter your Mistral API key (get one at https://console.mistral.ai):"
+    read -r api_key
     if [[ -n "$api_key" ]]; then
         sed -i.bak "s|MISTRAL_API_KEY=.*|MISTRAL_API_KEY=$api_key|g" "$env_file"
         rm -f "$env_file.bak"
@@ -996,7 +1029,8 @@ function setup_vault_structure() {
     success "Vault structure ready"
 
     if [[ "$OBSIDIAN_INSTALLED" == true ]]; then
-        read_prompt_default response "Open vault in Obsidian? [Y/n]" "Y"
+        prompt "Open vault in Obsidian? [Y/n]"
+        read -r response
         if [[ ! "$response" =~ ^[Nn] ]]; then
             if [[ "$OS_TYPE" == "mac" ]]; then
                 open -a Obsidian "$vault_root"
@@ -1005,256 +1039,52 @@ function setup_vault_structure() {
     fi
 }
 
-# ── Install Vibe CLI ─────────────────────────────────────────
-function _run_vibe_installer() {
-    local url="$1"
-    local install_dir="${2:-.}"
-    local tmp_script
-    tmp_script=$(mktemp) || return 2
-
-    # Download installer to temp file (more robust than piping)
-    if ! curl -fsSL "$url" -o "$tmp_script" 2>/dev/null; then
-        rm -f "$tmp_script"
-        return 1
-    fi
-
-    # Verify we got actual content (not an error page)
-    if [[ ! -s "$tmp_script" ]] || grep -q "404\|Not Found\|Unauthorized" "$tmp_script" 2>/dev/null; then
-        rm -f "$tmp_script"
-        return 1
-    fi
-
-    # Run with explicit bash (not sh) to avoid dash incompatibilities on Ubuntu
-    if ! bash "$tmp_script" 2>/dev/null; then
-        rm -f "$tmp_script"
-        return 1
-    fi
-
-    rm -f "$tmp_script"
-    return 0
-}
-
-function _ensure_path_configured() {
-    # Ensure ~/.local/bin is in PATH for new shells
-    local shell_configs=(
-        "$HOME/.bashrc"
-        "$HOME/.zshrc"
-        "$HOME/.bash_profile"
-    )
-
-    local path_line='export PATH="${HOME}/.local/bin:${PATH}"'
-
-    for config in "${shell_configs[@]}"; do
-        if [[ -f "$config" ]]; then
-            if ! grep -q "\.local/bin" "$config"; then
-                echo "" >> "$config"
-                echo "# Added by uDOS-vibe installer" >> "$config"
-                echo "$path_line" >> "$config"
-            fi
-        fi
-    done
-}
-
-function _ensure_vibe_wrapper() {
-    local real_vibe_bin="${1:-}"
-    if [[ -n "$real_vibe_bin" ]] && [[ "$real_vibe_bin" == "$HOME/.local/bin/vibe" ]]; then
-        local alt_vibe
-        alt_vibe="$(which -a vibe 2>/dev/null | awk '!seen[$0]++' | grep -v "^$HOME/.local/bin/vibe$" | head -n1 || true)"
-        if [[ -n "$alt_vibe" ]]; then
-            real_vibe_bin="$alt_vibe"
-        fi
-    fi
-    mkdir -p "$HOME/.local/bin"
-
-    cat > "$HOME/.local/bin/vibe" <<WRAPPER
-#!/usr/bin/env bash
-set -euo pipefail
-
-REPO_ROOT="$REPO_ROOT"
-REAL_VIBE_BIN="$real_vibe_bin"
-WRAPPER_PATH="\$HOME/.local/bin/vibe"
-
-if [[ -f "\$REPO_ROOT/.env" ]] && [[ -z "\${MISTRAL_API_KEY:-}" ]]; then
-    ENV_KEY_LINE=\$(grep -E '^MISTRAL_API_KEY=' "\$REPO_ROOT/.env" | tail -n1 || true)
-    ENV_KEY=\$(printf '%s' "\${ENV_KEY_LINE#*=}" | sed -E "s/^[\"']//; s/[\"']\$//")
-    if [[ -n "\$ENV_KEY" ]]; then
-        export MISTRAL_API_KEY="\$ENV_KEY"
-    fi
-fi
-
-if [[ -n "\$REAL_VIBE_BIN" ]] && [[ "\$REAL_VIBE_BIN" != "\$WRAPPER_PATH" ]] && [[ -x "\$REAL_VIBE_BIN" ]]; then
-    exec "\$REAL_VIBE_BIN" "\$@"
-fi
-
-if [[ -x "\$REPO_ROOT/venv/bin/vibe" ]]; then
-    exec "\$REPO_ROOT/venv/bin/vibe" "\$@"
-fi
-
-echo "Error: vibe executable not found (checked REAL_VIBE_BIN and \$REPO_ROOT/venv/bin/vibe)" >&2
-exit 127
-WRAPPER
-
-    chmod +x "$HOME/.local/bin/vibe"
-    _ensure_path_configured
-    export PATH="$HOME/.local/bin:$PATH"
-    hash -r 2>/dev/null || true
-}
-
-function _install_vibe_from_pyproject() {
-    # Fallback: use uv to install vibe from local pyproject.toml
-    step "Installing vibe from local Python package..."
-
-    cd "$REPO_ROOT" || return 1
-
-    # Sync the vibe package specifically
-    if ! uv sync --extra udos-wizard --quiet 2>/dev/null; then
-        return 1
-    fi
-
-    if [[ -x "$REPO_ROOT/venv/bin/vibe" ]]; then
-        _ensure_vibe_wrapper ""
-        return 0
-    fi
-
-    return 1
-}
-
+# ── Install Dev Mode Tooling ─────────────────────────────────
 function install_vibe_cli() {
-    step "Installing Vibe CLI..."
-
-    # Try multiple install URLs in order
-    local urls=(
-        "${VIBE_INSTALL_URL:-https://mistral.ai/vibe/install.sh}"
-        "https://vibe.mistral.ai/install.sh"
-    )
+    step "Installing Dev Mode tooling (vibe)..."
+    local vibe_install_url="${VIBE_INSTALL_URL:-https://mistral.ai/vibe/install.sh}"
 
     if command -v vibe &> /dev/null; then
         VIBE_CLI_INSTALLED=true
-        local existing_vibe_bin
-        existing_vibe_bin="$(command -v vibe)"
         local current_version=$(vibe --version 2>/dev/null | head -n1 || echo "unknown")
-        info "Vibe CLI already installed: $current_version"
-        _ensure_vibe_wrapper "$existing_vibe_bin"
+        info "Dev Mode tooling already installed: $current_version"
 
         if [[ "$UPDATE_MODE" == true ]]; then
-            read_prompt_default response "Update Vibe CLI? [Y/n]" "Y"
+            prompt "Update Dev Mode tooling? [Y/n]"
+            read -r response
             if [[ ! "$response" =~ ^[Nn] ]]; then
-                local update_ok=false
-                for url in "${urls[@]}"; do
-                    if _run_vibe_installer "$url"; then
-                        update_ok=true
-                        # Clear shell cache after update
-                        hash -r 2>/dev/null || true
-                        break
-                    fi
-                done
-
-                if [[ "$update_ok" != true ]]; then
-                    info "Official installer URLs unreachable; vibe remains at current version."
+                if curl -fsSL "$vibe_install_url" | sh; then
+                    success "Dev Mode tooling updated"
+                else
+                    warning "Dev Mode tooling update skipped (installer URL unavailable or network/DNS issue)."
                 fi
             fi
         fi
         return
     fi
 
-    info "Installing Vibe CLI using official installer..."
-
-    local install_ok=false
-
-    for url in "${urls[@]}"; do
-        info "Trying installer URL: $url"
-        if _run_vibe_installer "$url"; then
-            install_ok=true
-            # Clear shell command cache after installation
-            hash -r 2>/dev/null || true
-            # Also refresh PATH in this shell
-            export PATH="${HOME}/.local/bin:${HOME}/.vibe/bin:/usr/local/bin:${PATH}"
-            break
-        fi
-    done
-
-    if [[ "$install_ok" != true ]]; then
-        warning "Official Vibe CLI installers unreachable."
-        info "Attempting fallback: installing vibe from local Python package..."
-
-        if _install_vibe_from_pyproject; then
-            install_ok=true
-            # Refresh PATH
-            hash -r 2>/dev/null || true
-            export PATH="${HOME}/.local/bin:${PATH}"
-            info "Vibe installed via Python package fallback"
-        else
-            error "All vibe installation methods failed."
-            if [[ "$OS_TYPE" == "linux" || "$OS_TYPE" == "ubuntu" ]]; then
-                error ""
-                error "Linux-specific troubleshooting:"
-                error "  1. Check network/DNS: curl https://mistral.ai >/dev/null"
-                error "  2. Check bash: which bash && bash --version"
-                error "  3. Check disk space: df -h"
-                error "  4. Manual install: uv run -m pip install mistral-vibe"
-                error "  5. Or use ucode instead: ./bin/ucode"
-            fi
-            warning "Continuing with core installation; vibe can be installed later."
-            VIBE_CLI_INSTALLED=false
-            return
-        fi
+    info "Installing vibe for Dev Mode using official installer..."
+    if ! curl -fsSL "$vibe_install_url" | sh; then
+        warning "Dev Mode tooling install skipped (installer URL unavailable or network/DNS issue)."
+        warning "Set VIBE_INSTALL_URL to an alternate installer endpoint, or install vibe manually and rerun --update."
+        VIBE_CLI_INSTALLED=false
+        return
     fi
 
-    # Verify installation succeeded
     if command -v vibe &> /dev/null; then
-        local real_vibe_bin
-        real_vibe_bin="$(command -v vibe)"
-        _ensure_vibe_wrapper "$real_vibe_bin"
         VIBE_CLI_INSTALLED=true
-        success "Vibe CLI installed successfully"
-        vibe --version || success "Vibe CLI is ready"
+        success "Dev Mode tooling installed successfully"
+        vibe --version
     else
-        # Final fallback check - look for vibe in standard locations
-        local possible_vibe
-        possible_vibe=$(find "$HOME/.local/bin" "$HOME/.vibe/bin" "/usr/local/bin" -name "vibe" -executable 2>/dev/null | head -n1)
-
-        if [[ -n "$possible_vibe" ]]; then
-            _ensure_vibe_wrapper "$possible_vibe"
-            VIBE_CLI_INSTALLED=true
-            success "Vibe CLI found at: $possible_vibe"
-            warning "Add to PATH: export PATH=\"\$(dirname \"$possible_vibe\"):\$PATH\""
-        else
-            warning "Vibe CLI not found in PATH after installation attempt."
-
-            # Help diagnose PATH issues on Linux
-            if [[ "$OS_TYPE" == "linux" || "$OS_TYPE" == "ubuntu" ]]; then
-                warning ""
-                warning "Checking common installation paths on Linux:"
-                local possible_paths=(
-                    "$HOME/.local/bin/vibe"
-                    "$HOME/.vibe/bin/vibe"
-                    "/usr/local/bin/vibe"
-                    "$HOME/.cargo/bin/vibe"
-                    "$REPO_ROOT/venv/bin/vibe"
-                )
-                local found_vibe=false
-                for path in "${possible_paths[@]}"; do
-                    if [[ -x "$path" ]]; then
-                        warning "  Found vibe at: $path"
-                        found_vibe=true
-                    fi
-                done
-
-                if [[ "$found_vibe" == true ]]; then
-                    warning "Add to your .bashrc or .zshrc:"
-                    warning "  export PATH=\"\${HOME}/.local/bin:\${PATH}\""
-                    warning "Then: source ~/.bashrc  (or restart terminal)"
-                fi
-            fi
-
-            VIBE_CLI_INSTALLED=false
-        fi
+        warning "Dev Mode tooling installer completed but 'vibe' binary is not on PATH yet."
+        warning "Continue setup now, then rerun with --update after confirming PATH."
+        VIBE_CLI_INSTALLED=false
     fi
 }
 
 # ── Setup Vibe Integration ───────────────────────────────────
 function setup_vibe_integration() {
-    step "Setting up uDOS-Vibe integration..."
+    step "Setting up Dev Mode tooling bridge..."
 
     # Run the existing setup-vibe.sh script
     if [[ -f "$REPO_ROOT/bin/setup-vibe.sh" ]]; then
@@ -1273,7 +1103,7 @@ function setup_vibe_integration() {
             ln -s ../vibe/core/skills/ucode "$REPO_ROOT/.vibe/skills"
         fi
 
-        success "Vibe integration configured"
+        success "Dev Mode tooling bridge configured"
     fi
 
 }
@@ -1296,8 +1126,8 @@ function install_core_requirements() {
 
 # ── Install Wizard Requirements (Lazy) ──────────────────────
 function install_wizard_requirements() {
-    if [[ "$CORE_ONLY" == true ]]; then
-        info "Skipping wizard requirements (core-only mode)"
+    if [[ "$CORE_ONLY" == true ]] || ! _profile_selected "home"; then
+        info "Skipping wizard requirements (home profile not selected)"
         return
     fi
 
@@ -1326,6 +1156,11 @@ function install_ollama() {
         return
     fi
 
+    if ! _profile_selected "dev"; then
+        info "Skipping Ollama installation (dev profile not selected)"
+        return
+    fi
+
     if [[ "$LOCAL_MODELS_ALLOWED" != true ]]; then
         info "Skipping Ollama installation (selected $INSTALL_TIER profile disables local-model setup)"
         return
@@ -1338,7 +1173,8 @@ function install_ollama() {
         ollama --version
     else
         echo ""
-        read_prompt_default response "Install Ollama for local LLM support? (optional) [y/N]" "N"
+        prompt "Install Ollama for local LLM support? (optional) [y/N]"
+        read -r response
         if [[ ! "$response" =~ ^[Yy] ]]; then
             info "Skipping Ollama installation"
             return
@@ -1361,7 +1197,8 @@ function install_ollama() {
 
     # Offer to download models
     echo ""
-    read_prompt_default response "Download Ollama models for $INSTALL_TIER profile? [Y/n]" "N"
+    prompt "Download Ollama models for $INSTALL_TIER profile? [Y/n]"
+    read -r response
     if [[ "$response" =~ ^[Nn] ]]; then
         return
     fi
@@ -1427,7 +1264,8 @@ function download_ollama_models() {
     echo "  7) gemma2             (1.6GB) - Lightweight general model"
     echo "  8) deepseek-coder     (3.8GB) - Code model"
     echo ""
-    read_prompt_default selection "Enter numbers (e.g., '1 2 4') or 'recommended' or 'all' or 'skip':" "skip"
+    prompt "Enter numbers (e.g., '1 2 4') or 'recommended' or 'all' or 'skip':"
+    read -r selection
 
     if [[ "$selection" == "skip" ]]; then
         info "Skipping model downloads"
@@ -1506,11 +1344,15 @@ function run_health_check() {
     echo "  Free Storage: ${FREE_STORAGE_GB}GB"
     echo "  GPU: $(if [[ "$HAS_GPU" == true ]]; then echo "Yes"; else echo "No"; fi)"
     echo "  Selected Tier: $INSTALL_TIER"
+    echo "  Certified Profiles: ${SELECTED_PROFILES_CSV:-core}"
+    echo "  TinyCore Tier Mapping: $SELECTED_TINYCORE_TIER"
+    echo "  Package Groups: ${SELECTED_PACKAGE_GROUPS:-utilities}"
+    echo "  Official Extensions: ${SELECTED_PROFILE_EXTENSIONS:-none}"
     echo "  Local Models Allowed: $(if [[ "$LOCAL_MODELS_ALLOWED" == true ]]; then echo "Yes"; else echo "No"; fi)"
     echo ""
     echo "Installed Components:"
     echo "  uv: $(if command -v uv &> /dev/null; then echo "✓ $(uv --version)"; else echo "✗"; fi)"
-    echo "  Vibe CLI: $(if command -v vibe &> /dev/null; then echo "✓ $(vibe --version | head -n1)"; else echo "✗"; fi)"
+    echo "  Dev Mode Tooling: $(if command -v vibe &> /dev/null; then echo "✓ $(vibe --version | head -n1)"; else echo "✗"; fi)"
     echo "  micro: $(if command -v micro &> /dev/null; then echo "✓"; else echo "✗"; fi)"
     echo "  Obsidian: $(if [[ "$OBSIDIAN_INSTALLED" == true ]]; then echo "✓"; else echo "✗"; fi)"
     echo "  Ollama: $(if command -v ollama &> /dev/null; then echo "✓ $(ollama --version)"; else echo "✗"; fi)"
@@ -1519,7 +1361,7 @@ function run_health_check() {
     echo "  Repo Root: $REPO_ROOT"
     echo "  .env: $(if [[ -f "$REPO_ROOT/.env" ]]; then echo "✓"; else echo "✗"; fi)"
     echo "  Vault: $(if [[ -d "$REPO_ROOT/memory/vault" ]]; then echo "✓"; else echo "✗"; fi)"
-    echo "  Vibe Integration: $(if [[ -L "$REPO_ROOT/.vibe/tools" ]]; then echo "✓"; else echo "✗"; fi)"
+    echo "  Dev Tool Bridge: $(if [[ -L "$REPO_ROOT/.vibe/tools" ]]; then echo "✓"; else echo "✗"; fi)"
     echo ""
     echo "═══════════════════════════════════════════════════════════"
 }
@@ -1536,10 +1378,12 @@ function main() {
     fi
     check_required_commands
     install_uv
+    select_certified_profiles
 
     if [[ "$WIZARD_ONLY" == true ]]; then
         # Wizard-only mode: assume core is already installed
         install_wizard_requirements
+        sync_certified_profiles
         success "Wizard components installed successfully!"
         exit 0
     fi
@@ -1551,18 +1395,23 @@ function main() {
     enforce_env_policy
     reconcile_user_identity_state
     setup_vault_structure
-    install_vibe_cli
-    setup_vibe_integration
+    if _profile_selected "dev"; then
+        install_vibe_cli
+        setup_vibe_integration
+    else
+        info "Skipping Dev Mode tooling installation (dev profile not selected)"
+    fi
     install_core_requirements
 
-    # Wizard installation (unless core-only)
-    if [[ "$CORE_ONLY" == false ]]; then
+    # Wizard installation (home profile)
+    if [[ "$CORE_ONLY" == false ]] && _profile_selected "home"; then
         install_wizard_requirements
     fi
 
     # Optional components
     install_ollama
     reconcile_provider_mode
+    sync_certified_profiles
 
     # Final checks
     run_health_check
@@ -1578,18 +1427,24 @@ function main() {
     echo "1. Review and update .env with your configuration:"
     printf '%b\n' "   ${CYAN}micro $REPO_ROOT/.env${NC}"
     echo ""
-    echo "2. Start Vibe CLI:"
-    printf '%b\n' "   ${CYAN}cd $REPO_ROOT${NC}"
-    printf '%b\n' "   ${CYAN}vibe${NC}"
-    echo ""
-    echo "   Or open uCODE command runtime:"
+    echo "2. Open uCODE command runtime:"
     printf '%b\n' "   ${CYAN}./bin/ucode${NC}"
     echo ""
-    if [[ "$CORE_ONLY" == false ]]; then
+    if _profile_selected "dev"; then
+        echo "   Dev profile also installed contributor tooling:"
+        printf '%b\n' "   ${CYAN}cd $REPO_ROOT${NC}"
+        printf '%b\n' "   ${CYAN}vibe${NC}"
+        echo ""
+    fi
+    if _profile_selected "home"; then
         echo "3. Start the wizard server:"
         printf '%b\n' "   ${CYAN}echo 'WIZARD start' | $REPO_ROOT/bin/ucode${NC}"
         echo ""
     fi
+    echo "3. Review certified profiles from ucode:"
+    printf '%b\n' "   ${CYAN}UCODE PROFILE LIST${NC}"
+    printf '%b\n' "   ${CYAN}UCODE OPERATOR STATUS${NC}"
+    echo ""
     echo "4. Run the SETUP story to complete configuration:"
     printf '%b\n' "   ${CYAN}./bin/ucode${NC} then type: ${BOLD}SETUP${NC}"
     echo ""
@@ -1610,7 +1465,7 @@ function main() {
         fi
     elif [[ "${UDOS_AUTO_LAUNCH_VIBE:-0}" == "1" ]]; then
         if command -v vibe &> /dev/null; then
-            info "Launching Vibe CLI chat UI..."
+            info "Launching Dev Mode tooling (vibe)..."
             cd "$REPO_ROOT"
             vibe || warning "Vibe exited with non-zero status"
         else

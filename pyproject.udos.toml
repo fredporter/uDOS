@@ -47,10 +47,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/fredporter/uDOS-vibe"
-"Bug Tracker" = "https://github.com/fredporter/uDOS-vibe/issues"
-Documentation = "https://github.com/fredporter/uDOS-vibe/wiki"
-"Source Code" = "https://github.com/fredporter/uDOS-vibe"
+Homepage = "https://github.com/fredporter/uDOS"
+"Bug Tracker" = "https://github.com/fredporter/uDOS/issues"
+Documentation = "https://github.com/fredporter/uDOS/wiki"
+"Source Code" = "https://github.com/fredporter/uDOS"
 
 [project.scripts]
 ucode = "core.tui.ucode_entry:main"

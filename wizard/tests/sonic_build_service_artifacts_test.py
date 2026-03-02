@@ -131,9 +131,8 @@ def test_release_readiness_reports_ready_when_checksums_and_signatures_match(tmp
 
     svc = SonicBuildService(repo_root=repo)
     monkeypatch.setattr(
-        SonicBuildService,
-        "_verify_detached_signature",
-        staticmethod(lambda _payload, _sig: {"present": True, "verified": True, "detail": "test"}),
+        "sonic.core.verify.verify_detached_signature",
+        lambda _payload, _sig, pubkey=None: {"present": True, "verified": True, "detail": "test"},
     )
     readiness = svc.get_release_readiness("b2")
 

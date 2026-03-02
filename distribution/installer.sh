@@ -19,6 +19,7 @@ fi
 
 TIER=""
 CUSTOM_PACKAGES=""
+PROFILE_SELECTION=""
 ASSUME_YES=0
 DRY_RUN=0
 CACHE_DIR="${TMPDIR:-/tmp}/udos-tcz"
@@ -29,6 +30,9 @@ ARCH="unknown"
 MEM_MB=0
 CPU_COUNT=0
 RECOMMENDED_TIER="core"
+SELECTED_PROFILES="core"
+SELECTED_PACKAGE_GROUPS=""
+SELECTED_EXTENSIONS=""
 
 maybe_dispatch_to_host_installer() {
   for arg in "$@"; do
@@ -48,10 +52,11 @@ usage() {
   cat <<'EOF'
 uDOS TinyCore Installer
 
-Usage: installer.sh [--tier=TIER] [--packages="p1,p2"] [--from=/path/to/tcz] [--yes] [--dry-run]
+Usage: installer.sh [--tier=TIER] [--profile=core,home] [--packages="p1,p2"] [--from=/path/to/tcz] [--yes] [--dry-run]
 
 Options:
   --tier, -t       tier from packaging manifest (default: platform auto-select)
+  --profile        certified profiles: core,home,creator,gaming,dev
   --packages, -p   comma-separated custom list (overrides tier)
   --from, -f       directory containing .tcz files (default: auto-detected)
   --yes, -y        non-interactive install
@@ -91,6 +96,46 @@ tier_packages() {
   manifest_packages=$(tier_packages_from_manifest "$1" || true)
   [ -n "$manifest_packages" ] || err "Tier '$1' not found in packaging manifest"
   echo "$manifest_packages"
+}
+
+resolve_profiles() {
+  requested="$1"
+  if [ -z "$requested" ]; then
+    requested="core"
+  fi
+  if command -v uv >/dev/null 2>&1; then
+    resolved=$(UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli resolved --repo-root "$REPO_ROOT" --profiles "$requested" 2>/dev/null || true)
+    [ -n "$resolved" ] || resolved="$requested"
+  else
+    resolved="$requested"
+  fi
+  printf '%s\n' "$resolved"
+}
+
+sync_certified_profiles() {
+  if [ -z "$SELECTED_PROFILES" ]; then
+    return 0
+  fi
+
+  if command -v uv >/dev/null 2>&1; then
+    UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli install --repo-root "$REPO_ROOT" --profiles "$SELECTED_PROFILES" >/dev/null 2>&1 || warn "Could not persist certified profile state"
+    return 0
+  fi
+
+  mkdir -p "$REPO_ROOT/memory/ucode"
+  cat > "$REPO_ROOT/memory/ucode/release-profiles.json" <<EOF
+{
+  "enabled": ["$(printf '%s' "$SELECTED_PROFILES" | sed 's/,/","/g')"],
+  "installed": ["$(printf '%s' "$SELECTED_PROFILES" | sed 's/,/","/g')"]
+}
+EOF
+}
+
+load_profile_summary() {
+  if command -v uv >/dev/null 2>&1; then
+    SELECTED_PACKAGE_GROUPS=$(UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli packages --repo-root "$REPO_ROOT" --profiles "$SELECTED_PROFILES" 2>/dev/null || true)
+    SELECTED_EXTENSIONS=$(UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli extensions --repo-root "$REPO_ROOT" --profiles "$SELECTED_PROFILES" 2>/dev/null || true)
+  fi
 }
 
 detect_platform() {
@@ -184,6 +229,8 @@ parse_args() {
     case "$1" in
       --tier=*|-t=*) TIER=${1#*=}; TIER_OVERRIDE=1 ;;
       --tier|-t) TIER=$2; TIER_OVERRIDE=1; shift ;;
+      --profile=*|--profiles=*) PROFILE_SELECTION=${1#*=} ;;
+      --profile|--profiles) PROFILE_SELECTION=$2; shift ;;
       --packages=*|-p=*) CUSTOM_PACKAGES=${1#*=} ;;
       --packages|-p) CUSTOM_PACKAGES=$2; shift ;;
       --from=*|-f=*) PKG_DIR=${1#*=} ;;
@@ -234,6 +281,15 @@ main() {
   prepare_cache
 
   detect_platform
+  SELECTED_PROFILES=$(resolve_profiles "$PROFILE_SELECTION")
+  load_profile_summary
+
+  if [ "$TIER_OVERRIDE" -eq 0 ] && command -v uv >/dev/null 2>&1; then
+    mapped_tier=$(UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli tier --repo-root "$REPO_ROOT" --profiles "$SELECTED_PROFILES" 2>/dev/null || true)
+    if [ -n "$mapped_tier" ]; then
+      RECOMMENDED_TIER="$mapped_tier"
+    fi
+  fi
 
   if [ -z "$CUSTOM_PACKAGES" ] && [ "$TIER_OVERRIDE" -eq 0 ]; then
     TIER="$RECOMMENDED_TIER"
@@ -252,6 +308,9 @@ main() {
 
   log "uDOS Installer"
   log "Tier: $TIER"
+  log "Certified profiles: $SELECTED_PROFILES"
+  log "Package groups: ${SELECTED_PACKAGE_GROUPS:-utilities}"
+  log "Official extensions: ${SELECTED_EXTENSIONS:-none}"
   log "Packages: $PKGS"
   log "Source: $PKG_DIR"
 
@@ -270,6 +329,8 @@ main() {
     fi
     install_pkg "$pkg"
   done
+
+  sync_certified_profiles
 
   log "Installation complete"
 }
