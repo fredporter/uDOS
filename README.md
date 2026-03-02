@@ -28,8 +28,10 @@
 uDOS v1.5 is being rebaselined around one runtime rule:
 
 - `ucode` is the primary user entry point
+- the v1.5 `ucode` TUI is the standard interactive user experience
 - Wizard is the browser/service layer that hangs off `ucode`
 - `vibe` is a Dev Mode surface only
+- Mistral-backed contributor flows are treated as Dev Mode operations
 - Sonic remains independently distributable, but installed-system control routes through `ucode`
 
 The active release-control surface is now:
@@ -51,15 +53,15 @@ Authoritative release planning now lives in:
 
 | Feature | Stock Vibe | uDOS v1.4.5 +Vibe |
 |---------|-----------|------------|
-| Installation | Global `vibe` via official installer | Clone repo + `uv venv venv` + `uv sync --extra udos-wizard` |
-| Commands | Read/write/bash/git tools | uDOS suite (50+) + Vibe tools |
+| Installation | Global `vibe` via official installer | Repo install with `ucode` as the standard runtime |
+| Commands | Read/write/bash/git tools | `ucode` standard runtime plus optional Dev Mode tooling |
 | Workspace | Project folder | Project + vault + memory + Obsidian |
 | Knowledge | Code only | Markdown vault (offline) |
 | Extensibility | Skills/MCP | Skills + uDOS Wizard server |
 | Setup | Interactive key entry | Auto-generates identity + keys |
 
 > [!WARNING]
-> vibe-cli works on Windows, but we officially support and target UNIX environments.
+> Dev Mode tooling works on Windows, but we officially support and target UNIX environments.
 
 ---
 
@@ -75,6 +77,7 @@ Authoritative release planning now lives in:
 Current direction:
 - use `ucode` as the standard runtime shell after install
 - treat `vibe` as contributor tooling gated behind Dev Mode
+- treat Mistral-backed contributor flows as Dev Mode operations rather than the default runtime
 - verify release lanes through `UCODE PROFILE ...`
 
 **Option 1: Automated installer (recommended)**
@@ -102,7 +105,7 @@ cd uDOS
 The installer automatically handles:
 - ✓ uv package manager installation
 - ✓ Environment configuration (.env)
-- ✓ Vibe CLI installation
+- ✓ standard runtime installation
 - ✓ Vault structure setup
 - ✓ Optional components (micro, Obsidian, Ollama)
 
@@ -131,44 +134,23 @@ uv run ./uDOS.py SETUP
 
 ### First Commands
 
-After installation:
+After installation, start with the `ucode` surface:
 
 ```bash
-# Start vibe CLI
-vibe
-
-# Or with explicit repo context
-cd /path/to/uDOS && vibe
+ucode HELP
+ucode SETUP
+ucode STATUS
+ucode UCODE PROFILE LIST
+ucode UCODE OPERATOR STATUS
 ```
 
-Inside vibe:
-```
-SETUP          # Complete user configuration
-STATUS         # Check system health
-HELP           # List available commands
-WIZARD start   # Launch web server (optional)
-```
-
-**Example flow:**
-```
-> vibe
-Welcome to vibe-cli + uDOS
-
-You: Read the file @core/commands/help.py and explain what it does
-🤖: [reads file, explains using agent]
-
-You: Create a new uDOS skill for markdown validation
-🤖: [scaffolds skill in vibe/core/skills/ucode/]
-
-You: /list-skills
-🤖: Available skills: code-review, markdown-*
-```
+Use `vibe` only when you explicitly want the Dev Mode contributor surface.
 
 ## Project Structure
 
 ```
 uDOS/
-├── vibe/                          # vibe-cli runtime (read-only base)
+├── vibe/                          # Dev Mode contributor runtime (read-only base)
 │   ├── cli/                       # Entry point
 │   ├── core/
 │   │   ├── tools/                 # Built-in tools
@@ -190,7 +172,7 @@ uDOS/
 │   └── tests/
 │
 ├── docs/                          # Development documentation
-│   ├── ARCHITECTURE.md            # Addon model, non-fork strategy
+│   ├── ARCHITECTURE.md            # Architecture overview
 │   ├── INTEGRATION-READINESS.md   # Audit results
 │   ├── roadmap.md                 # Active milestone and execution plan
 │   ├── specs/                     # Format/interface specs
@@ -234,101 +216,27 @@ uDOS/
 
 ---
 
-## Comprehensive Documentation
+## Documentation
 
-Start here:
-- **New to the project?** → [Getting Started](docs/dev/GETTING-STARTED.md)
-- **Architecture & design** → [Architecture Guide](docs/ARCHITECTURE.md)
-- **Integration strategy** → [Integration Readiness](docs/INTEGRATION-READINESS.md)
-- **Current execution plan** → [Roadmap](docs/roadmap.md)
+Use [docs/README.md](docs/README.md) as the canonical documentation front door.
 
-By category:
-- **Development** — [docs/dev/](docs/dev/) — Setup, building, testing
-- **Design** — [docs/decisions/](docs/decisions/) — ADRs, rationale
-- **Specs** — [docs/specs/](docs/specs/) — Formats, schemas, contracts
-- **Procedures** — [docs/howto/](docs/howto/) — Step-by-step guides
-- **User Guide** — [wiki/](wiki/Home.md) — End-user documentation
-
-### Documentation Index
-
-- `docs/ARCHITECTURE.md` — How uDOS+Vibe integration works (non-fork model)
-- `docs/AUDIT-RESOLUTION.md` — Pre-Phase-A readiness audit results
-- `docs/INTEGRATION-READINESS.md` — Project prerequisites and validation
-- `docs/PHASE-A-QUICKREF.md` — Developer quick reference for building tools
-- `docs/roadmap.md` — Active milestone and release readiness checklist
-- `docs/specs/` — Format specifications and contracts
-- `docs/decisions/` — Architecture decision records
-- `wiki/Home.md` — User guides and getting-started docs
+Recommended entrypoints:
+- [docs/roadmap.md](docs/roadmap.md) for active v1.5 work
+- [docs/decisions/v1-5-workflow.md](docs/decisions/v1-5-workflow.md) for workflow ownership and lane split
+- [docs/specs/README.md](docs/specs/README.md) for active contracts
+- [docs/howto/](docs/howto/) for operator procedures
+- [docs/examples/](docs/examples/) for sample assets and packs
 
 ---
 
 ## Installation & Setup
 
-### System Requirements
+For installation, configuration, and environment setup, use:
+- [docs/INSTALLATION.md](docs/INSTALLATION.md)
+- [docs/howto/OFFLINE-OK-SETUP-QUICKSTART.md](docs/howto/OFFLINE-OK-SETUP-QUICKSTART.md)
+- [docs/specs/MINIMUM-SPEC-VIBE-CLI-UCODE.md](docs/specs/MINIMUM-SPEC-VIBE-CLI-UCODE.md)
 
-- **Python**: 3.12+ (required)
-- **OS**: macOS, Linux, Windows (officially supported on UNIX)
-- **Terminal**: Modern emulator recommended (WezTerm, Alacritty, Ghostty, Kitty)
-
-### Installation Methods
-
-#### 1. From Source (Recommended)
-
-```bash
-git clone https://github.com/fredporter/uDOS.git
-cd uDOS
-
-# Install with uv (recommended)
-uv sync --extra udos-wizard
-```
-
-#### 2. Quick Dev Setup
-
-```bash
-# Copy the workspace config
-cp vibe-dev.code-workspace uDOS.code-workspace
-
-# Open in VS Code
-code uDOS.code-workspace
-
-# Terminal will auto-activate venv and set uDOS env vars
-```
-
-### Configuration
-
-On first run, Vibe will prompt for your AI provider API key. It is securely saved to `~/.vibe/.env`.
-
-Alternatively, configure via environment:
-```bash
-export AI_API_KEY="your-key-here"
-```
-
-Or manually create `~/.vibe/.env`:
-```ini
-AI_API_KEY=your-key-here
-AI_API_BASE_URL=https://your-provider.example/v1
-```
-
-### Environment Setup
-
-Optional environment variables (see `.env.example`):
-
-```bash
-# uDOS settings
-UDOS_ROOT=/path/to/uDOS
-UDOS_MEMORY=/path/to/memory
-UDOS_VAULT=/path/to/vault
-
-# Wizard server
-UDOS_WIZARD_PORT=8000
-UDOS_WIZARD_HOST=0.0.0.0
-UDOS_WIZARD_KEY="auto-generated-on-setup"
-
-# AI provider API
-AI_API_KEY="your-api-key"
-```
-
-### Minimum Spec (vibe-cli + uCode Addon)
+### Minimum Spec (`ucode` Runtime Path)
 
 | Component | Requirement |
 |---------|-------------|
@@ -337,7 +245,7 @@ AI_API_KEY="your-api-key"
 | RAM | 4 GB |
 | Storage | 5 GB free (SSD recommended) |
 | Network | Optional (online/offline pathways supported) |
-| Dependencies | Python 3.8+, vibe-cli, uCode addon |
+| Dependencies | Python 3.12+, uDOS runtime, optional Wizard/Dev Mode layers |
 
 Operational pathways:
 - `With network`: `UCODE` + cloud provider fallback + full command/docs surface.
@@ -347,9 +255,9 @@ See full brief: [`docs/specs/MINIMUM-SPEC-VIBE-CLI-UCODE.md`](docs/specs/MINIMUM
 
 ## Features
 
-### Vibe Features
+### Dev Mode Features
 
-- **Interactive Chat**: A conversational AI agent that understands your requests
+- **Interactive Chat**: A conversational OK Assistant that understands your requests
 - **Powerful Tools**: Read/write/patch files, execute shell commands, search code, manage todos
 - **Project-Aware**: Scans file structure and Git status for context
 - **Multiple Agents**: Default, plan, accept-edits, auto-approve profiles
@@ -358,52 +266,38 @@ See full brief: [`docs/specs/MINIMUM-SPEC-VIBE-CLI-UCODE.md`](docs/specs/MINIMUM
 - **MCP Support**: Model Context Protocol servers for additional tools
 - **Highly Configurable**: Customize via `~/.vibe/config.toml`
 
-### uDOS Features
+### Standard Runtime Features
 
 - **50+ Commands**: Extensive CLI command suite
 - **Vault-Based**: Offline Obsidian-compatible knowledge system
 - **Auto-Setup**: Identity + API key auto-generation
 - **Self-Healing**: SETUP, REPAIR, SEED commands
 - **Wizard Server**: LAN gateway and extension routing
-- **Non-Fork**: Addon architecture integrates with Vibe without divergence
+- **Non-Fork**: Addon architecture integrates with optional Dev Mode tooling without divergence
 
 ---
 
 ## Usage
 
-### Interactive Mode
+### Standard Runtime
 
 ```bash
-# Start Vibe
-vibe
-
-# Reference files with @
-> Read the file @src/main.py
-
-# Use shell commands (prefix with !)
-> !ls -la src/
-
-# Create todo items
-> Add item to todo: "Refactor authentication"
-
-# Delegate to subagents
-> task(task="Explore the codebase", agent="explore")
+ucode HELP
+ucode STATUS
+ucode WORKFLOW LIST
+ucode UCODE PROFILE SHOW core
+ucode UCODE OPERATOR PLAN "review current workspace state"
 ```
 
-### Non-Interactive / Scripting
+### Dev Mode
 
 ```bash
-# Single prompt
+# Start the Dev Mode contributor surface
+vibe
+
+# Example Dev Mode prompts
 vibe --prompt "Refactor the main function"
-
-# With specific tools
 vibe --enabled-tools "bash*,read_file" --prompt "List files in src/"
-
-# With cost limit
-vibe --max-price 2.0 --prompt "Analyze security"
-
-# Output as JSON
-vibe --output json --prompt "Check structure"
 ```
 
 ### Command Reference
@@ -471,7 +365,7 @@ See [docs/PHASE-A-QUICKREF.md](docs/PHASE-A-QUICKREF.md) for scaffolding templat
 # Enable debug logging
 export DEBUG=1
 export LOG_LEVEL=debug
-vibe --prompt "test"
+ucode STATUS
 
 # Attach debugger
 uv run debugpy -- bin/vibe SETUP
@@ -490,33 +384,23 @@ We welcome contributions! Please see:
 
 ---
 
-## Architecture & Design
+## Architecture
 
-### Non-Fork Integration Model
+uDOS uses a boundary-first architecture:
+- `core` for deterministic local behavior
+- `wizard` for networked and managed behavior
+- explicit integration surfaces instead of upstream runtime forking
 
-uDOS integrates with Vibe *without* forking:
-
-- **Vibe core** (`vibe/*`): treated as external runtime surface; local extensions stay isolated
-- **Addon code**: Lives in `vibe/core/tools/ucode/` and `vibe/core/skills/ucode/`
-- **Integration**: Declared in `.vibe/config.toml` (committed, under our control)
-- **Isolation**: All uDOS logic lives in `core/`, `wizard/`, `tests/`
-
-When Vibe releases an update, this repo remains an overlay for ucode tools/skills and Wizard integration while preserving local command contracts.
-
-### Key Components
-
-**CommandDispatcher** — Router for 50+ uDOS commands
-**Wizard** — MCP server + LAN gateway
-**ToolManager/SkillManager** — Vibe's tool/skill discovery system
-**Framework** — Service layer, memory, parsers
-
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for comprehensive design guide.
+Start here:
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- [docs/ARCHITECTURE-INTEGRATION-REFERENCE.md](docs/ARCHITECTURE-INTEGRATION-REFERENCE.md)
+- [docs/decisions/OK-GOVERNANCE-POLICY.md](docs/decisions/OK-GOVERNANCE-POLICY.md)
 
 ---
 
 ## Troubleshooting
 
-**Vibe not finding uDOS tools?**
+**Dev Mode tooling not finding uDOS tools?**
 ```bash
 # Check tool discovery
 uv run python -c "from vibe.core.tools.tool_manager import ToolManager; print(ToolManager().resolve_local_tools_dir('vibe/core/tools/ucode'))"
@@ -525,13 +409,10 @@ uv run python -c "from vibe.core.tools.tool_manager import ToolManager; print(To
 cat .vibe/config.toml
 ```
 
-**AI provider API errors?**
+**OK provider API errors?**
 ```bash
-# Check API key
-echo $AI_API_KEY
-
-# Test connectivity
-vibe --prompt "What version are you?"
+# Check your configured provider key and endpoint values
+grep -E 'API_KEY|API_BASE_URL' .env ~/.vibe/.env 2>/dev/null
 ```
 
 **Python venv issues?**
@@ -547,7 +428,7 @@ See [docs/troubleshooting/](docs/troubleshooting/) for more.
 
 ## Resources
 
-- **uDOS v1.4.5 +Vibe** — https://github.com/fredporter/uDOS
+- **uDOS v1.5 rebaseline** — https://github.com/fredporter/uDOS
 - **MCP Spec** — https://modelcontextprotocol.io
 - **Credits** — [wiki/credits.md](wiki/credits.md)
 - **Agent Skills** — https://agentskills.io
@@ -556,7 +437,7 @@ See [docs/troubleshooting/](docs/troubleshooting/) for more.
 
 ## License
 
-This project integrates vibe-cli runtime components and uDOS (Apache 2.0).
+This project integrates Dev Mode contributor tooling with uDOS (Apache 2.0).
 
 All code is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
 
@@ -564,7 +445,7 @@ All code is licensed under the Apache License, Version 2.0. See [LICENSE](LICENS
 
 ## Data & Privacy
 
-Vibe can send code and conversations to your configured AI provider endpoint.
+Dev Mode tooling can send code and conversations to your configured OK provider endpoint.
 - Review your provider's privacy policy and data terms.
 - Disable telemetry: `enable_telemetry = false` in `~/.vibe/config.toml`
 
@@ -576,6 +457,6 @@ uDOS stores runtime data locally in `memory/` (git-ignored).
 
 **Questions?** Open an issue or visit [wiki/Home.md](wiki/Home.md)
 
-Made with ❤️ for developers who want AI + local knowledge
+Made with ❤️ for developers who want OK models + local knowledge
 
 </div>

@@ -23,8 +23,15 @@ from wizard.services.notification_history_service import NotificationHistoryServ
 import os
 from wizard.services.plugin_registry import get_registry
 from wizard.services.store import get_wizard_store
+from wizard.services.task_scheduler import TaskScheduler
 
 logger = get_logger("wizard", category="monitoring", name="monitoring")
+
+AUTOMATION_WINDOWS_MINUTES = {
+    "run_due_tasks": 5,
+    "health_snapshot": 15,
+    "maintenance": 90,
+}
 
 
 class HealthStatus(Enum):
@@ -377,10 +384,118 @@ class MonitoringManager:
         results = {
             "wizard_core": self.check_wizard_core(),
             "plugin_registry": self.check_plugin_registry(),
+            "automation_jobs": self.check_automation_jobs(),
+            "scheduler_queue": self.check_scheduler_queue(),
         }
         if self._goblin_monitor_enabled():
             results["goblin"] = self.check_goblin()
         return results
+
+    def _heartbeat_key(self, job_name: str) -> str:
+        return f"automation_heartbeat:{job_name}"
+
+    def _parse_iso_datetime(self, value: str | None) -> datetime | None:
+        if not value:
+            return None
+        try:
+            return datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError:
+            return None
+
+    def get_automation_status(self) -> Dict[str, Dict[str, Any]]:
+        settings = self.store.get_scheduler_settings()
+        now = datetime.now().astimezone()
+        status: Dict[str, Dict[str, Any]] = {}
+        for job_name, grace_minutes in AUTOMATION_WINDOWS_MINUTES.items():
+            payload = settings.get(self._heartbeat_key(job_name)) or {}
+            if not isinstance(payload, dict):
+                payload = {}
+            last_success_at = self._parse_iso_datetime(payload.get("last_success_at"))
+            last_failure_at = self._parse_iso_datetime(payload.get("last_failure_at"))
+            last_run_at = self._parse_iso_datetime(payload.get("last_run_at"))
+            overdue = False
+            if last_success_at is None:
+                overdue = True
+            else:
+                overdue = (now - last_success_at.astimezone()).total_seconds() > (grace_minutes * 60)
+            status[job_name] = {
+                "job": job_name,
+                "grace_minutes": grace_minutes,
+                "last_run_at": payload.get("last_run_at"),
+                "last_success_at": payload.get("last_success_at"),
+                "last_failure_at": payload.get("last_failure_at"),
+                "last_error": payload.get("last_error"),
+                "last_duration_ms": payload.get("last_duration_ms"),
+                "last_metadata": payload.get("last_metadata"),
+                "last_status": payload.get("last_status", "unknown"),
+                "overdue": overdue,
+                "has_run": last_run_at is not None,
+            }
+        return status
+
+    def check_automation_jobs(self) -> HealthCheck:
+        def check():
+            statuses = self.get_automation_status()
+            overdue_jobs = [name for name, payload in statuses.items() if payload.get("overdue")]
+            if overdue_jobs:
+                self.create_alert(
+                    type=AlertType.SYSTEM_ERROR,
+                    severity=AlertSeverity.ERROR,
+                    message=f"Automation heartbeat overdue: {', '.join(overdue_jobs)}",
+                    service="wizard.jobs",
+                    metadata={"jobs": overdue_jobs},
+                )
+                return (
+                    HealthStatus.DEGRADED,
+                    f"Overdue automation jobs: {', '.join(overdue_jobs)}",
+                    {"jobs": statuses},
+                )
+            self._resolve_matching_alerts(
+                service="wizard.jobs",
+                type_value=AlertType.SYSTEM_ERROR.value,
+                message_contains="heartbeat overdue",
+            )
+            return HealthStatus.HEALTHY, "Automation jobs reporting", {"jobs": statuses}
+
+        return self.check_health("automation_jobs", check)
+
+    def check_scheduler_queue(self) -> HealthCheck:
+        def check():
+            scheduler = TaskScheduler()
+            settings = scheduler.get_settings()
+            defer_threshold = int(settings.get("defer_alert_threshold", 3) or 0)
+            backoff_threshold_seconds = int(settings.get("backoff_alert_minutes", 120) or 0) * 60
+            queued = scheduler.get_scheduled_queue(limit=200)
+            pressured = [
+                item for item in queued
+                if item.get("defer_reason")
+                and (
+                    int(item.get("defer_count") or 0) >= defer_threshold
+                    or int(item.get("backoff_seconds") or 0) >= backoff_threshold_seconds
+                )
+            ]
+            if pressured:
+                queue_ids = [int(item["id"]) for item in pressured if item.get("id") is not None]
+                self.create_alert(
+                    type=AlertType.SYSTEM_ERROR,
+                    severity=AlertSeverity.WARNING,
+                    message=f"Deferred queue pressure: {len(pressured)} queued job(s) exceeded retry thresholds",
+                    service="wizard.scheduler",
+                    metadata={"queue_ids": queue_ids},
+                )
+                return (
+                    HealthStatus.DEGRADED,
+                    f"Deferred queue pressure on {len(pressured)} queued job(s)",
+                    {"count": len(pressured), "queue_ids": queue_ids},
+                )
+            self._resolve_matching_alerts(
+                service="wizard.scheduler",
+                type_value=AlertType.SYSTEM_ERROR.value,
+                message_contains="deferred queue pressure",
+            )
+            return HealthStatus.HEALTHY, "Deferred queue within retry thresholds", {"count": 0}
+
+        return self.check_health("scheduler_queue", check)
 
     @staticmethod
     def _goblin_monitor_enabled() -> bool:
@@ -553,6 +668,33 @@ class MonitoringManager:
         self._save_alerts()
 
         return alert
+
+    def _resolve_matching_alerts(
+        self,
+        *,
+        service: str,
+        type_value: str,
+        metadata_match: Optional[Dict[str, Any]] = None,
+        message_contains: str | None = None,
+    ) -> int:
+        resolved = 0
+        for alert in self.alerts:
+            if alert.resolved:
+                continue
+            if alert.service != service or alert.type != type_value:
+                continue
+            if message_contains and message_contains.lower() not in alert.message.lower():
+                continue
+            if metadata_match:
+                alert_metadata = alert.metadata or {}
+                if any(alert_metadata.get(key) != value for key, value in metadata_match.items()):
+                    continue
+            alert.resolved = True
+            alert.acknowledged = True
+            resolved += 1
+        if resolved:
+            self._save_alerts()
+        return resolved
 
     def get_alerts(
         self,
@@ -839,6 +981,67 @@ class MonitoringManager:
         filtered.sort(key=lambda e: e.timestamp, reverse=True)
 
         return filtered[:limit]
+
+    def record_automation_run(
+        self,
+        job_name: str,
+        *,
+        success: bool,
+        duration_ms: float | None = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        error: Optional[str] = None,
+    ) -> AuditLogEntry:
+        entry = self.audit_log(
+            operation=f"automation:{job_name}",
+            service="wizard.jobs",
+            user="system",
+            success=success,
+            duration_ms=duration_ms,
+            metadata=metadata or {},
+            error=error,
+        )
+        settings = self.store.get_scheduler_settings()
+        heartbeat_key = self._heartbeat_key(job_name)
+        payload = settings.get(heartbeat_key) or {}
+        if not isinstance(payload, dict):
+            payload = {}
+        now_iso = datetime.now().isoformat()
+        payload.update(
+            {
+                "last_run_at": now_iso,
+                "last_status": "success" if success else "error",
+                "last_duration_ms": duration_ms,
+                "last_metadata": metadata or {},
+                "last_error": error,
+            }
+        )
+        if success:
+            payload["last_success_at"] = now_iso
+            self._resolve_matching_alerts(
+                service="wizard.jobs",
+                type_value=AlertType.SYSTEM_ERROR.value,
+                metadata_match={"job": job_name},
+                message_contains="automation job failed",
+            )
+        else:
+            payload["last_failure_at"] = now_iso
+            self.create_alert(
+                type=AlertType.SYSTEM_ERROR,
+                severity=AlertSeverity.ERROR,
+                message=f"Automation job failed: {job_name}",
+                service="wizard.jobs",
+                metadata={"job": job_name, "error": error},
+            )
+        self.store.update_scheduler_settings({heartbeat_key: payload})
+        return entry
+
+    def get_recent_automation_runs(self, limit: int = 20) -> List[Dict[str, Any]]:
+        entries = [
+            entry
+            for entry in self.get_audit_log(service="wizard.jobs", limit=limit * 5)
+            if entry.operation.startswith("automation:")
+        ]
+        return [entry.to_dict() for entry in entries[:limit]]
 
     # -------------------------------------------------------------------------
     # State Persistence

@@ -1,51 +1,56 @@
-# uDOS Documentation Index
+# uDOS Documentation
 
 Updated: 2026-03-03
 
-This is the canonical entry point for repository documentation.
+This is the canonical front door for repository documentation.
 
 ## Start Here
 
-- Product roadmap: `docs/roadmap.md`
-- Workflow architecture decision: `docs/decisions/v1-5-workflow.md`
-- Workflow archive redirect: `docs/v1-4-workflow-PLAN.md`
-- Consolidated release notes: `docs/releases/v1.4.4-release-notes.md`
-- Specs catalog (main + detailed): `docs/specs/README.md`
-- Integration readiness: `docs/specs/INTEGRATION-READINESS.md`
-- Sonic standalone release/install: `docs/howto/SONIC-STANDALONE-RELEASE-AND-INSTALL.md`
-- Command reference (canonical): `docs/howto/UCODE-COMMAND-REFERENCE.md`
-- Offline operator runbook: `docs/howto/UCODE-OFFLINE-OPERATOR-RUNBOOK.md`
-- Commands index: `docs/howto/commands/README.md`
-- Wizard command ownership: `docs/howto/commands/wizard.md`
-- Decisions index: `docs/decisions/README.md`
-- Specs index: `docs/specs/`
+- Roadmap: `docs/roadmap.md`
+- Workflow decision: `docs/decisions/v1-5-workflow.md`
+- Workflow spec: `docs/specs/WORKFLOW-SCHEDULER-v1.5.md`
+- Offline assist decision: `docs/decisions/v1-5-offline-assist.md`
+- Offline assist spec: `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md`
+- Workflow quickstart: `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md`
+- Documentation map: `docs/specs/DOCUMENTATION-CANONICAL-MAP.md`
 
-## Documentation Flow
+## By Need
 
-1. Root orientation: `README.md`, `QUICKSTART.md`, `INSTALLATION.md`, `wiki/Home.md`
-2. Runtime command surface: `docs/howto/UCODE-COMMAND-REFERENCE.md`
-3. System boundaries and contracts: `docs/specs/`, `docs/decisions/`
-4. Workflow execution direction: `docs/decisions/v1-5-workflow.md`, `docs/roadmap.md`
-5. Component docs:
-- Core: `core/README.md`
-- Wizard: `wizard/README.md`
-- Sonic: `sonic/README.md`
-- Library: `library/README.md`
-- Extensions: `extensions/README.md`
-- Empire: `empire/README.md`
+- Architecture and boundaries:
+  `docs/ARCHITECTURE.md`,
+  `docs/ARCHITECTURE-INTEGRATION-REFERENCE.md`,
+  `docs/decisions/README.md`
+- Runtime contracts:
+  `docs/specs/README.md`
+- Operator how-to docs:
+  `docs/howto/`
+- Examples and sample packs:
+  `docs/examples/`
+- Active dev evidence:
+  `docs/devlog/README.md`
 
-## Archive Policy
+## Recommended Paths
 
-Historical and superseded docs are moved under `/.compost` with dated folders.
+- New to the repo:
+  `README.md`,
+  `docs/dev/GETTING-STARTED.md`,
+  `docs/ARCHITECTURE.md`
+- Working on workflows:
+  `docs/decisions/v1-5-workflow.md`,
+  `docs/specs/WORKFLOW-SCHEDULER-v1.5.md`,
+  `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md`
+- Working on offline assist:
+  `docs/decisions/v1-5-offline-assist.md`,
+  `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md`,
+  `docs/examples/udos_ulogic_pack/README.md`
+- Working on operations:
+  `docs/howto/MANAGED-WIZARD-OPERATIONS.md`,
+  `docs/howto/UCODE-OFFLINE-OPERATOR-RUNBOOK.md`
+- Working on binders/templates:
+  `docs/howto/BINDER-QUICKSTART.md`,
+  `docs/examples/`
 
-Current archive updates:
-- `/.compost/<date>/archive/docs/.archive/2026-02-11-roadmap-consolidation/`
-- `/.compost/<date>/archive/docs/.archive/2026-02-15-docs-cleanup/`
-- `/.compost/<date>/archive/docs/.archive/2026-02-17-archived-docs/`
+## Notes
 
-Legacy command pages in `docs/howto/commands/` now contain redirect stubs.
-Archived full content lives under `/.compost/<date>/archive/docs/.archive/2026-02-17-archived-docs/howto/commands/`.
-
-`docs/.archive/` itself is local-only and untracked.
-
-Compost runtime policy reference: `docs/COMPOST-POLICY.md`.
+- `docs/INDEX.md` is the quick navigation page.
+- Superseded documents stay in the active tree only as redirect stubs or move to `.compost` during cleanup.

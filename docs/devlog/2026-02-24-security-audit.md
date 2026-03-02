@@ -10,7 +10,7 @@
 The repository has **exposed sensitive API credentials and tokens** in the committed `.env` file. This violates the documented security model and has triggered external security alerts via email.
 
 ### Exposed Secrets Found
-- **MISTRAL_API_KEY** - AI provider credential
+- **MISTRAL_API_KEY** - OK provider credential
 - **WIZARD_ADMIN_TOKEN** - Admin authentication token
 - **WIZARD_KEY** - Encryption key for the secrets tomb
 
@@ -100,7 +100,7 @@ UDOS_LOCATION=grid-code
 UDOS_LOCATION_NAME=Greenwich
 UDOS_GRID_ID=
 
-# ── AI Provider ──────────────────────────────────────────────
+# ── OK Provider ──────────────────────────────────────────────
 # DO NOT PUT ACTUAL KEYS HERE!
 # Set only in Wizard dashboard or wizard/secrets.tomb via setup story
 MISTRAL_API_KEY=
@@ -342,4 +342,3 @@ Once completed, verify:
 > 3. CI will now reject commits containing secrets
 >
 > **More details:** docs/devlog/2026-02-24-security-audit.md
-

@@ -283,7 +283,7 @@ Based on codebase audit, these patterns could benefit from centralization:
 
 **Missing:**
 - [ ] Permission handler mention
-- [ ] AI provider handler mention
+- [ ] OK provider handler mention
 - [ ] Path constants handler mention
 
 **Recommendation:** Add to v1.4.6 completed features section

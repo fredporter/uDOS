@@ -1,0 +1,1 @@
+# Intent Patterns (offline)\n\nExtend parser_nl.py or build a loader that reads this file.\n

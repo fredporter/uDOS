@@ -1,37 +1,41 @@
-# Architecture Note — MCP Bridge Implementation
+# MCP Bridge Decision
 
-**Version:** v1.4.4+
-**Date:** 2026-02-06 (original), 2026-02-22 (updated)
-**Status:** Implemented
+Status: active implementation reference  
+Updated: 2026-03-03
+
+## Purpose
+
+This document records the MCP bridge role in the current uDOS architecture.
 
 ## Decision
 
-Implemented MCP bridge for Vibe CLI integration:
+Wizard provides the MCP bridge for managed tool and command access.
+It exists to expose uDOS capabilities through a structured bridge without redefining the standard runtime boundary.
 
-- `wizard/mcp/mcp_server.py` — stdio MCP server bridging Vibe → uDOS commands
-- `.vibe/config.toml` — MCP server registration and tool/skill paths
-- Command execution via multiple contexts (Vibe interactive, Vibe bash tool, shell, Python API)
+## Working Rules
 
-Wizard directory contains both MCP server and optional web admin UI.
+- the standard interactive user experience is the v1.5 `ucode` TUI
+- `vibe` uses MCP as part of Dev Mode operations
+- Wizard owns MCP server behavior and managed bridge logic
+- command execution should still converge on the canonical command/runtime surfaces rather than creating parallel behavior
 
-## Rationale
+## Current Implementation Shape
 
-- **Vibe-first architecture**: Vibe CLI is exclusive interactive interface; MCP bridge enables AI-powered command routing
-- **Multi-context execution**: Commands work in Vibe interactive, Vibe bash tool, shell scripts, and Python API
-- **Single command surface**: All contexts route through same CommandDispatcher/command handlers
-- **Optional wizard services**: MCP server can run standalone (stdio) or with web admin UI
+- `wizard/mcp/mcp_server.py` provides the stdio MCP server
+- `.vibe/config.toml` registers MCP access for Dev Mode tooling
+- command execution continues to rely on the shared command/runtime surfaces
 
-## Implementation Status
+## v1.5 Relevance
 
-- ✅ MCP server implemented: `wizard/mcp/mcp_server.py`
-- ✅ Vibe config committed: `.vibe/config.toml`
-- ✅ Command infrastructure preserved: `core/tui/dispatcher.py`, `core/commands/`
-- ✅ Multi-context execution documented: [TUI-Vibe-Integration.md](TUI-Vibe-Integration.md)
-- ✅ Background task workflow: `--background` flag, `STATUS`/`LOGS` commands
+For v1.5, this decision governs:
+- MCP bridge stability
+- tool registration integrity
+- Dev Mode bridge behavior
+- alignment between MCP access and the `ucode`-first runtime model
 
-## References
+## Related Documents
 
-- [TUI-Vibe-Integration.md](TUI-Vibe-Integration.md) — Multi-context execution patterns
-- [UCODE-COMMAND-REFERENCE.md](../howto/UCODE-COMMAND-REFERENCE.md) — Complete command reference
-- [ARCHITECTURE.md](../ARCHITECTURE.md) — Repository structure overview
-
+- `docs/decisions/v1-5-rebaseline.md`
+- `docs/decisions/v1-5-ucode-tui-spec.md`
+- `docs/decisions/WIZARD-SERVICE-SPLIT-MAP.md`
+- `docs/howto/UCODE-COMMAND-REFERENCE.md`

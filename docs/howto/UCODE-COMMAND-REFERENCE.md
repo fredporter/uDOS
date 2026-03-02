@@ -236,7 +236,8 @@ Notes:
 - `UCODE SYSTEM INFO` includes minimum-spec validation for `2 cores / 4.0 GB RAM / 5.0 GB free storage`.
 - `UCODE SYSTEM INFO` includes a first field-validation round marker with local sample size and rebaseline targets.
 - `UCODE PLUGIN INSTALL <name>` creates a local plugin scaffold entry for capability discovery (`UCODE CAPABILITIES`).
-- `UCODE METRICS` reports local-only usage metrics from `~/.vibe-cli/ucode/metrics/` (no network export).
+- `UCODE METRICS` reports local-only usage metrics from `memory/ucode/metrics/` by default (no network export).
+- Set `UDOS_UCODE_ROOT` to move the `UCODE` offline asset/cache root.
 
 ### Maintenance Storage Policy (v1.3.13+)
 
@@ -287,7 +288,7 @@ Migration targets:
 - `INTEGRATION ...` -> `WIZARD INTEG ...`
 - `PROVIDER ...` -> `WIZARD PROV ...`
 
-## Vibe CLI Prefix Cheat Sheet
+## Dev Mode Prefix Cheat Sheet
 
 | Prefix | Example | Behaviour |
 |---|---|---|
@@ -296,7 +297,7 @@ Migration targets:
 | `!` | `!ls -la` | Bash shell passthrough |
 | (none, single word) | `health` | ucode if exact match — any case |
 | (none, multi-word ALL-CAPS) | `MAP tokyo` | ucode if first word exact match |
-| (none, multi-word lower) | `help me` | AI — natural language preserved |
+| (none, multi-word lower) | `help me` | OK Assistant — natural language preserved |
 
 **Three commands use vibe's `/` and need `:` for ucode access:**
 - `:help` → ucode HELP (command reference) vs `/help` → vibe help

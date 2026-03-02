@@ -43,7 +43,7 @@ Move completed roadmap items out of `docs/roadmap.md` so the roadmap remains act
 
 - `docs/roadmap.md` Cycle D status record (captured before move) recorded:
   - `1966 passed, 3 skipped, 0 warnings` (post-fix clean-room run).
-- Earlier triage baseline in `docs/devlog/2026-02-23-roadmap-full-sweep-triage.md`:
+- Earlier triage baseline in `docs/.compost/historic/2026-03-03-devlog-interim-plans-and-progress/2026-02-23-roadmap-full-sweep-triage.md`:
   - `1946 passed, 5 failed, 3 skipped, 2 warnings`.
 - Delta shows closure of previously triaged failure/warning buckets.
 

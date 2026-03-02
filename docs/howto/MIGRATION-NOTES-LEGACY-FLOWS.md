@@ -3,15 +3,16 @@
 Date: 2026-02-22  
 Status: Active
 
-This note is for operators migrating from legacy pre-`vibe-cli` command habits into the current `vibe-cli` + dispatcher model.
+This note is for operators migrating from legacy pre-`vibe` command habits into the current v1.5 `ucode`-first runtime model.
 
 ## Execution Model Changes
 
-- Interactive loop is now `vibe-cli` first.
+- Standard interactive runtime is now `ucode` first.
+- `vibe` is a Dev Mode contributor surface only.
 - Command dispatch order is fixed:
   1. ucode command match
   2. shell passthrough (safety gated)
-  3. vibe fallback
+  3. OK fallback or Wizard-backed handling where enabled
 - Wizard MCP is the canonical tool gateway.
 
 ## Legacy Command Compatibility
@@ -36,4 +37,4 @@ The following legacy entries are still accepted and mapped:
 
 - `docs/specs/COMMAND-DISPATCH-RC-SCOPE.md`
 - `docs/howto/UCODE-COMMAND-REFERENCE.md`
-- `docs/decisions/TUI-Vibe-Integration.md`
+- `docs/decisions/v1-5-ucode-tui-spec.md`

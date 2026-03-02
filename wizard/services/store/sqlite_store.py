@@ -72,7 +72,11 @@ class SQLiteWizardStore(WizardStore):
                     priority INTEGER DEFAULT 5,
                     need INTEGER DEFAULT 5,
                     resource_cost INTEGER DEFAULT 1,
-                    requires_network INTEGER DEFAULT 0
+                    requires_network INTEGER DEFAULT 0,
+                    defer_reason TEXT,
+                    defer_count INTEGER DEFAULT 0,
+                    backoff_seconds INTEGER DEFAULT 0,
+                    last_deferred_at TEXT
                 );
                 CREATE TABLE IF NOT EXISTS launch_sessions (
                     session_id TEXT PRIMARY KEY,
@@ -131,6 +135,23 @@ class SQLiteWizardStore(WizardStore):
                 );
                 """
             )
+            queue_columns = set()
+            for row in conn.execute("PRAGMA table_info(task_queue)").fetchall():
+                if isinstance(row, sqlite3.Row):
+                    try:
+                        queue_columns.add(str(row["name"]))
+                        continue
+                    except (KeyError, IndexError):
+                        pass
+                queue_columns.add(str(row[1]))
+            if "defer_reason" not in queue_columns:
+                conn.execute("ALTER TABLE task_queue ADD COLUMN defer_reason TEXT")
+            if "defer_count" not in queue_columns:
+                conn.execute("ALTER TABLE task_queue ADD COLUMN defer_count INTEGER DEFAULT 0")
+            if "backoff_seconds" not in queue_columns:
+                conn.execute("ALTER TABLE task_queue ADD COLUMN backoff_seconds INTEGER DEFAULT 0")
+            if "last_deferred_at" not in queue_columns:
+                conn.execute("ALTER TABLE task_queue ADD COLUMN last_deferred_at TEXT")
 
     def _json_dump(self, value: Any) -> str:
         return json.dumps(value or {})
@@ -353,6 +374,54 @@ class SQLiteWizardStore(WizardStore):
                     (now, row["task_id"]),
                 )
         return True
+
+    def release_queue_item(
+        self,
+        queue_id: int,
+        *,
+        scheduled_for: datetime | None = None,
+        reason: str | None = None,
+        backoff_seconds: int | None = None,
+    ) -> bool:
+        scheduled_iso = scheduled_for.isoformat() if scheduled_for else None
+        with self._connect() as conn:
+            result = conn.execute(
+                """
+                UPDATE task_queue
+                SET state = 'pending',
+                    processed_at = NULL,
+                    scheduled_for = COALESCE(?, scheduled_for),
+                    defer_reason = COALESCE(?, defer_reason),
+                    defer_count = defer_count + 1,
+                    backoff_seconds = COALESCE(?, backoff_seconds),
+                    last_deferred_at = ?
+                WHERE id = ?
+                """,
+                (scheduled_iso, reason, backoff_seconds, _utc_now(), queue_id),
+            )
+        return result.rowcount > 0
+
+    def retry_queue_item(self, queue_id: int) -> dict[str, Any] | None:
+        now = _utc_now()
+        with self._connect() as conn:
+            result = conn.execute(
+                """
+                UPDATE task_queue
+                SET state = 'pending',
+                    processed_at = NULL,
+                    scheduled_for = ?,
+                    defer_reason = NULL,
+                    defer_count = 0,
+                    backoff_seconds = 0,
+                    last_deferred_at = NULL
+                WHERE id = ?
+                """,
+                (now, queue_id),
+            )
+            if not result.rowcount:
+                return None
+        rows = self._queue_rows("WHERE q.id = ?", (queue_id,), limit=1)
+        return rows[0] if rows else None
 
     def get_execution_history(self, *, limit: int = 50) -> list[dict[str, Any]]:
         with self._connect() as conn:

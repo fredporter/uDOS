@@ -35,7 +35,7 @@ Installs both core uDOS and wizard components:
 ```
 
 ### Core Only
-Install only the core vibe-cli with uDOS tools (no wizard server):
+Install only the standard `ucode` runtime path without wizard services:
 ```bash
 ./bin/install-udos-vibe.sh --core
 ```
@@ -47,7 +47,7 @@ Add wizard components to an existing core installation:
 ```
 
 ### Update Existing Installation
-Update vibe-cli and dependencies to latest versions:
+Update the installed runtime and dependencies:
 ```bash
 ./bin/install-udos-vibe.sh --update
 ```
@@ -88,7 +88,7 @@ Use `--tier 1|2|3` to test hardline gating for a requested tier.
   - `WIZARD_KEY` → Auto-generated encryption key
 - **User Setup**: Prompts for:
   - Username (or enter Ghost mode)
-  - Mistral API key (from [console.mistral.ai](https://console.mistral.ai))
+  - provider configuration only for lanes that require it
 
 ### 4. Editor & Vault Setup
 - **micro editor**: Optional TUI-friendly text editor
@@ -141,7 +141,7 @@ These are set automatically by the installer:
 ### User-Provided
 You'll be prompted to set:
 - `USER_USERNAME` - Your username (or "Ghost" for demo mode)
-- `MISTRAL_API_KEY` - Mistral AI API key (required)
+- `MISTRAL_API_KEY` - optional Dev Mode provider key when that lane is enabled
 
 ### Optional (can be set manually later)
 - `UDOS_TIMEZONE` - Your timezone (e.g., "America/New_York")
@@ -172,8 +172,8 @@ uDOS/
 
 ### Core Components
 **Always installed** (except with `--wizard` flag):
-- Vibe CLI (`vibe` command)
-- uDOS custom tools and skills
+- `ucode` runtime and command surface
+- core uDOS tools and scaffolds
 - Core Python dependencies (minimal)
 - Vault structure and templates
 - Basic TUI and command system
@@ -188,14 +188,14 @@ uDOS/
 **Installed with full or `--wizard` mode**:
 - FastAPI/Flask web servers
 - WebSocket support for real-time features
-- Multi-provider AI routing (OpenAI, Anthropic, Google)
+- Multi-provider OK routing (OpenAI, Anthropic, Google)
 - QR code generation
 - Extended web admin interface
 - Gmail/Google Drive integration
 
 **Use wizard for**:
 - Web-based access
-- Multiple AI providers
+- Multiple OK providers
 - Team/shared usage
 - Advanced integrations
 - LAN gateway features
@@ -203,7 +203,7 @@ uDOS/
 ### Lazy Loading
 The wizard is **not required** for core functionality:
 1. Install core: `./bin/install-udos-vibe.sh --core`
-2. Use vibe-cli normally
+2. Use `ucode` normally
 3. When you need wizard features: `./bin/install-udos-vibe.sh --wizard`
 
 This approach saves disk space and keeps installations minimal.
@@ -213,15 +213,15 @@ This approach saves disk space and keeps installations minimal.
 ### 1. Test Core Installation
 ```bash
 cd /path/to/uDOS
-vibe
+ucode STATUS
 ```
 
-You should see the Vibe CLI interface with uDOS tools available.
+You should see the standard `ucode` runtime respond successfully.
 
 ### 2. Run Setup Story
-In vibe, type:
+In the standard runtime, run:
 ```
-SETUP
+ucode SETUP
 ```
 
 This completes the user configuration:
@@ -232,12 +232,7 @@ This completes the user configuration:
 
 ### 3. Start Wizard (if installed)
 ```bash
-printf 'WIZARD start\n' | ./bin/vibe
-```
-
-Or from vibe CLI:
-```
-WIZARD start
+ucode WIZARD start
 ```
 
 Access the web interface at: http://localhost:8765
@@ -304,7 +299,7 @@ uv sync --extra udos-wizard   # Wizard web/API profile (includes FastAPI)
 
 ## Updating
 
-### Update vibe-cli
+### Update runtime install
 ```bash
 ./bin/install-udos-vibe.sh --update
 ```
@@ -353,7 +348,7 @@ export UDOS_AUTOMATION=1
 
 ## Uninstallation
 
-### Remove vibe-cli
+### Remove Dev Mode tooling
 ```bash
 uv tool uninstall mistral-vibe
 ```

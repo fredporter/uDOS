@@ -10,7 +10,7 @@ Canonical selector contract:
 
 Execution model:
 
-- Interactive flows through `vibe-cli`
+- Interactive flows through the v1.5 `ucode` TUI
 - ucode commands must support non-interactive flags for automation
 
 ## Readiness Check
@@ -25,7 +25,7 @@ The checker validates:
 
 - Interactive terminal detection (TTY)
 - Shell selector stack: `fzf`, `fd`, `gum`, `bat`
-- Python selector stack: `PyInquirer`, `pick` (via `uv run python`)
+- Python selector stack: `pick` (and optional richer prompt tooling where installed)
 - Fallback policy expectations
 
 ## Required vs Optional
@@ -36,7 +36,6 @@ The checker validates:
   - `fd`
   - `gum`
   - `bat`
-  - `PyInquirer` (optional; may be incompatible on Python 3.12)
   - `pick`
 
 ## Input Method Contract

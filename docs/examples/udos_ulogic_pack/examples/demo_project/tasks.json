@@ -1,0 +1,14 @@
+{
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Bootstrap uLogic scaffold",
+      "status": "open",
+      "owner": "Builder",
+      "deps": [],
+      "tags": [
+        "ulogic"
+      ]
+    }
+  ]
+}

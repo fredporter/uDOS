@@ -9,9 +9,12 @@ def test_import_markdown_tasks(tmp_path):
         """
 - schedule: weekday-evening
 - priority: 7
-- [ ] Prepare release notes
-- [x] Done task
-- [ ] Review workflow prompts
+        - project: release-ops
+        - budget_units: 3
+        - local_only: true
+        - [ ] Prepare release notes
+        - [x] Done task
+        - [ ] Review workflow prompts
 """.strip(),
         encoding="utf-8",
     )
@@ -21,6 +24,9 @@ def test_import_markdown_tasks(tmp_path):
     assert len(jobs) == 2
     assert jobs[0]["schedule"] == "weekday-evening"
     assert jobs[0]["priority"] == 7
+    assert jobs[0]["requires_network"] is False
+    assert jobs[0]["payload"]["project"] == "release-ops"
+    assert jobs[0]["payload"]["budget_units"] == 3
 
 
 def test_import_workflow_markdown(tmp_path):
@@ -42,4 +48,6 @@ def test_import_workflow_markdown(tmp_path):
     jobs = service.import_source(str(source))
     assert len(jobs) == 2
     assert jobs[0]["kind"] == "workflow_phase"
+    assert jobs[0]["payload"]["project"] == "writing-workflow"
     assert jobs[0]["payload"]["prompt_name"] == "outline"
+    assert jobs[0]["payload"]["window"] == "off_peak"

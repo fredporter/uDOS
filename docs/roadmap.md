@@ -10,7 +10,9 @@ Status on March 2, 2026:
 - the earlier v1.5 GA claim dated February 26, 2026 is now treated as stale
 - v1.5 has been reopened as an active rebaseline release
 - `ucode` is the primary entry point for standard users
+- the v1.5 `ucode` TUI is the standard interactive experience
 - `vibe` is being restricted to Dev Mode only
+- Mistral-backed contributor flows are being restricted to Dev Mode operations
 - certified release profiles now define supported install lanes: `core`, `home`, `creator`, `gaming`, `dev`
 
 ### Active Foundation Work
@@ -45,6 +47,213 @@ Priority lanes to close before v1.5 release:
   profile drift detection, rollback/patch validation, package-group install evidence across supported profiles
 - Documentation and operator runbooks:
   remove stale legacy terminology and complete profile-specific recovery/troubleshooting docs
+- `ucode` TUI refactor:
+  align the standard TUI with the v1.5 teletext-safe `ucode` direction, shared primitives, and backend event-contract model
+- Full specs shakedown and demo pass:
+  run a pre-release feature check against the active specs catalog, implement missing pieces, harden weak paths, and capture end-to-end demo evidence for v1.5 signoff
+
+Documentation closure status:
+- active-tree runtime/operator docs cleanup is complete for the v1.5 pre-release surface
+- remaining documentation work is limited to low-priority historical terminology cleanup, release-evidence updates, and keeping new docs aligned to the `ucode`-first runtime rule
+
+### Full Specs Shakedown and Demo Pass
+
+Pre-release rule:
+- every active feature family represented in `docs/specs/` must have a recorded shakedown/demo outcome before v1.5 release
+- use `docs/specs/README.md` as the active spec catalog and `docs/roadmap.md` as the release tracking surface
+- where a spec is historical or draft-only, record that status explicitly and do not treat it as a silent pass
+
+Execution model:
+- `checking`
+  - inventory active canonical specs from `docs/specs/README.md`
+  - map each spec to an executable feature area, command surface, route set, or operator workflow
+  - identify missing implementation, stale docs, broken examples, and unverified runtime paths
+  - produce a demo checklist with expected inputs, outputs, and evidence paths
+- `implementing`
+  - close any spec-to-runtime gaps discovered during checking
+  - fix broken command paths, routes, file layouts, operator flows, or example assets needed for demoable behavior
+  - update specs/how-to docs where the implementation truth has shifted
+- `hardening`
+  - run end-to-end shakedown tests and manual demo passes across core, Wizard, and extension lanes
+  - verify error handling, offline behavior, profile gating, packaging assumptions, and recovery paths
+  - capture evidence in devlog, release notes, or dedicated acceptance docs
+- `extending`
+  - add follow-on coverage where a spec is valid but under-demonstrated for v1.5
+  - expand examples, sample binders, demo datasets, and operator walkthroughs for post-GA depth without blocking the main release
+
+Minimum v1.5 shakedown coverage:
+- command/runtime specs:
+  `UCODE-COMMAND-CONTRACT`, `RUNTIME-INTERFACE-SPEC`, `PORT-REGISTRY`, `GHOST-MODE-POLICY`
+- workflow/task specs:
+  `WORKFLOW-SCHEDULER-v1.5`, `OFFLINE-ASSIST-STANDARD-v1.5`, task ingestion/import specs, formatting spec, Obsidian-facing specs
+- profile and extension specs:
+  Dev Mode, gameplay lens, 3D world extension lane, plugin manifest, packaging/runtime contracts that remain active for release
+- operator proof:
+  at least one full demo per certified profile lane where applicable: `core`, `home`, `creator`, `gaming`, `dev`
+
+Release evidence required:
+- one consolidated shakedown checklist linked from the roadmap
+- implementation fixes landed for any failed critical checks
+- hardening notes showing what passed, what is deferred, and what is extension-only
+- a final demo/readiness summary before v1.5 freeze
+
+### Decision Coverage For v1.5 Pre-Release
+
+All active files under `docs/decisions/` must be accounted for in the v1.5 pre-release through one of these actions:
+- `checking`
+- `implementing`
+- `hardening`
+- `extending`
+- `archived/monitor-only`
+
+#### Rebaseline and release truth
+
+- `docs/decisions/v1-5-rebaseline.md`
+  - status: active source of truth
+  - release action: `hardening`
+  - scope: keep roadmap, profile policy, runtime entrypoint rules, and Dev Mode provider boundaries aligned to the rebaseline
+
+- `docs/decisions/v1-5-creator-blocker-matrix.md`
+  - status: active release gate
+  - release action: `checking` -> `implementing` -> `hardening`
+  - scope: creator profile blockers, evidence capture, signoff
+
+#### Workflow and Wizard orchestration
+
+- `docs/decisions/v1-5-workflow.md`
+  - status: active source of truth
+  - release action: `implementing` -> `hardening` -> `extending`
+  - scope: core workflow scheduler, Wizard follow-on integration, extension workflow lanes
+
+- `docs/decisions/v1-5-offline-assist.md`
+  - status: active source of truth
+  - release action: `checking` -> `implementing` -> `hardening`
+  - scope: offline assist standard, `ucode`-first execution loops, file-backed project/task state, and promotion path from the `udos_ulogic_pack` reference scaffold into canonical runtime contracts
+
+- `docs/decisions/v1-5-wizard-PLAN.md`
+  - status: superseded redirect stub
+  - release action: `archived/monitor-only`
+  - scope: keep as redirect only; do not implement from this file
+
+- `docs/decisions/WIZARD-SERVICE-SPLIT-MAP.md`
+  - status: active boundary map
+  - release action: `checking` -> `hardening`
+  - scope: enforce Wizard API/MCP/service ownership during v1.5 pre-release work
+
+- `docs/decisions/MCP-API.md`
+  - status: active implementation reference
+  - release action: `hardening` -> `extending`
+  - scope: MCP bridge stability, tool registration, command-routing integrity
+
+#### `ucode` TUI and terminal runtime
+
+- `docs/decisions/v1-5-ucode-tui-spec.md`
+  - status: active source of truth
+  - release action: `implementing` -> `hardening`
+  - scope: `ucode`-first TUI behavior, shared primitives, output-contract alignment, paste/resize safety, teletext-safe layout consistency, and separation from Dev Mode contributor flows
+
+- `docs/decisions/udos-protocol-v1.md`
+  - status: active supporting protocol
+  - release action: `hardening`
+  - scope: TUI/backend structured message protocol stability
+
+- `docs/decisions/udos-reference-implementation.md`
+  - status: active supporting reference
+  - release action: `implementing` -> `extending`
+  - scope: reference implementation shape for the TUI frontend/backend split
+
+- `docs/decisions/udos-teletext-theme.md`
+  - status: active supporting theme reference
+  - release action: `hardening`
+  - scope: teletext-style visual rules and fixed-width layout consistency
+
+#### Core architecture and runtime contracts
+
+- `docs/decisions/UDOS-PYTHON-CORE-STDLIB-PROFILE.md`
+  - status: active boundary contract
+  - release action: `checking` -> `hardening`
+  - scope: preserve stdlib-only core and prevent Wizard/network leakage into core
+
+- `docs/decisions/UDOS-PYTHON-ENVIRONMENTS-DEV-BRIEF.md`
+  - status: active implementation constraint
+  - release action: `checking` -> `hardening`
+  - scope: environment model, Wizard venv ownership, Dev Mode alignment
+
+- `docs/decisions/VAULT-MEMORY-CONTRACT.md`
+  - status: active source of truth
+  - release action: `checking` -> `hardening`
+  - scope: tracked scaffold vs local runtime state split, seed installation, memory layout
+
+- `docs/decisions/data-layer-architecture.md`
+  - status: proposed architecture still relevant
+  - release action: `checking` -> `implementing`
+  - scope: data placement cleanup, SQL/JSON/Python parity, local/runtime layout decisions
+
+- `docs/decisions/LOGGING-API-v1.3.md`
+  - status: active but draft-like
+  - release action: `hardening`
+  - scope: unified logging behavior, low-overhead logging, centralised log layout
+
+- `docs/decisions/formatting-spec-v1-4.md`
+  - status: redirect stub to canonical spec
+  - release action: `checking` complete, now `hardening`
+  - scope: active formatting rules now live in `docs/specs/FORMATTING-SPEC-v1.4.md`
+
+- `docs/decisions/OK-update-v1-4-6.md`
+  - status: redirect stub to canonical governance decision
+  - release action: `hardening`
+  - scope: active governance rules now live in `docs/decisions/OK-GOVERNANCE-POLICY.md`
+
+- `docs/decisions/OK-GOVERNANCE-POLICY.md`
+  - status: active governance source of truth
+  - release action: `hardening`
+  - scope: terminology policy, AGENTS authority, boundary rules, and OK Agent behavior constraints
+
+#### Platform and deployment lanes
+
+- `docs/decisions/alpine-linux-spec.md`
+  - status: active platform direction
+  - release action: `checking` -> `hardening`
+  - scope: Alpine deployment assumptions, plugin/package model, OS-aware behavior
+
+- `docs/decisions/UDOS-ALPINE-THIN-GUI-RUNTIME-SPEC.md`
+  - status: active platform/runtime direction
+  - release action: `checking` -> `extending`
+  - scope: thin GUI runtime expectations and compatibility with current release profiles
+
+- `docs/decisions/UDOS-VM-REMOTE-DESKTOP-ARCHITECTURE.md`
+  - status: active but likely non-blocking for GA
+  - release action: `monitor-only` / `extending`
+  - scope: keep aligned, but do not let it block v1.5 unless a release path depends on it
+
+#### Obsidian, home, and media lanes
+
+- `docs/decisions/OBSIDIAN-INTEGRATION.md`
+  - status: active user model reference
+  - release action: `checking` -> `hardening`
+  - scope: shared-vault model, open-box editing, Obsidian compatibility
+
+- `docs/decisions/HOME-ASSISTANT-BRIDGE.md`
+  - status: planned v1.5 stable lane
+  - release action: `implementing` -> `hardening`
+  - scope: Home Assistant discovery/command bridge and Wizard contract
+
+- `docs/decisions/uHOME-spec.md`
+  - status: active home profile lane
+  - release action: `implementing` -> `hardening`
+  - scope: uHOME packaging, DVR/ad-filtered stack, Sonic-installed home profile behavior
+
+- `docs/decisions/SONIC-DB-SPEC-GPU-PROFILES.md`
+  - status: active Sonic contract
+  - release action: `hardening`
+  - scope: Sonic DB schema and launch-profile consistency for v1.5 media/profile readiness
+
+#### Historical architecture snapshots
+
+- `docs/decisions/uDOS-v1-3.md`
+  - status: historical architecture snapshot
+  - release action: `archived/monitor-only`
+  - scope: retain for context only; do not treat as current release truth
 
 ### Workflow Scheduler Split
 
@@ -61,6 +270,10 @@ Core workflow scheduler lane:
   - deterministic local workflow execution is now live
   - markdown-first workflow artifacts are now a real runtime surface, not only a design brief
   - local execution remains available without network/provider access
+- canonical docs for this lane:
+  - `docs/decisions/v1-5-workflow.md`
+  - `docs/specs/WORKFLOW-SCHEDULER-v1.5.md`
+  - `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md`
 - remaining core workflow tasks:
   - expand template coverage beyond the current creative-pack set
   - add stronger variable validation and richer phase contract parsing
@@ -75,18 +288,103 @@ Wizard workflow integration lane:
   - added Wizard migrations, managed bootstrap tooling, and cron job entrypoints for due-task execution, health snapshots, and maintenance
   - added markdown-first task and workflow import so Obsidian-style task files can create jobs directly inside the Wizard control plane
   - added managed environment contract docs plus one canonical pytest runner and Python artifact cleanup scripts
-- build GUI task/calendar/project views on top of the new workflow artifacts and runtime scheduler state
+  - added workflow-aware queue execution so `workflow_phase` jobs advance real core workflow state instead of acting as placeholder tasks
+  - added off-peak window handling, daily provider-budget controls, defer tracking, and per-reason retry/backoff policy for managed scheduling
+  - added deferred queue preview and retry controls, inline alert actions, automation heartbeat visibility, and maintenance policy controls in `/admin`
+  - added maintenance automation with preview/live passes, per-reason windows, queue-pressure recovery, and Wizard host timezone metadata for operator scheduling decisions
+  - added project and calendar planning views on `/admin`, with server-local scheduling timestamps carried through the operator surface
+- current Wizard workflow lane status:
+  - the managed Wizard control plane is now live and verified end to end at `/admin`
+  - markdown-first tasks, prompts, and workflow templates can be expanded into scheduled work without requiring network access just to define the workflow
+  - scheduling policy is now operator-visible, previewable, and adjustable from the canonical ops surface
 - connect workflow execution windows, provider budget planning, research/import jobs, and contact-linked tasks
 - expose workflow orchestration through Wizard APIs and MCP after the core lane is stable
 - keep Wizard scheduling and GUI work tracked separately from the core implementation path
+- canonical docs for this lane:
+  - `docs/roadmap.md`
+  - `docs/decisions/v1-5-workflow.md`
 - roadmap note:
-  - no Wizard workflow control-plane or GUI scheduler implementation has been merged in this core pass
-  - Wizard work should build on the new core artifact/state contract instead of introducing a parallel workflow runtime
+  - Wizard work should continue building on the core workflow artifact/state contract instead of introducing a parallel workflow runtime
+  - next work in this lane should favor richer project/calendar views and contact-linked operator workflows over adding another scheduler surface
+
+### Offline Assist Standard Lane
+
+Offline assist lane:
+- completed on March 3, 2026:
+  - promoted the v1.5 offline assist decision into the canonical spec at `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md`
+  - grounded that spec in the base reference scaffold under `docs/examples/udos_ulogic_pack/`
+  - aligned roadmap and specs coverage so the offline assist lane is part of v1.5 release tracking instead of a detached decision note
+- current offline assist lane status:
+  - the canonical contract now exists for an offline-first assist runtime that is `ucode`-first, file-backed, and deterministic by default
+  - the example scaffold is the current implementation reference for parser, planner, executor, verifier, gameplay, and state-store shape
+- remaining offline assist tasks:
+  - promote stable pieces of the `udos_ulogic_pack` scaffold into `core/` without violating the stdlib-only boundary
+  - align workflow, task, and mission contracts so markdown-first editing remains the source surface for offline assist operations
+  - connect the offline assist runtime to canonical `ucode` dispatch and local workflow execution without adding a parallel command system
+- canonical docs for this lane:
+  - `docs/decisions/v1-5-offline-assist.md`
+  - `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md`
+  - `docs/examples/udos_ulogic_pack/README.md`
 
 Extension workflow lane:
 - Empire: email import to tasks, contact linking, contact store repair/debug, scraping, and knowledge expansion jobs
 - Typo: integrated file picker, template browser, markdown formatting tools, and workflow/task expansion helpers
 - creative pack templates: keep extending template coverage for writing, image, video, music, and packaging workflows
+
+### `ucode` TUI Refactor Lane
+
+Current source of truth:
+- `docs/decisions/v1-5-ucode-tui-spec.md`
+- `docs/decisions/udos-protocol-v1.md`
+- `docs/decisions/udos-reference-implementation.md`
+- `docs/decisions/udos-teletext-theme.md`
+
+Pre-release work:
+- `checking`
+  - inventory the current `ucode` terminal path against the v1.5 TUI decision
+  - identify selector/input inconsistencies, layout drift, unsafe paste handling, backend text paths that bypass the output contract, and any drift that still treats `vibe` or Mistral contributor flows as the standard runtime
+- `implementing`
+  - refactor the standard TUI toward shared primitives, teletext-safe layout, and structured render events
+  - align runtime entry behavior so `ucode` remains the default interactive path and Dev Mode Mistral operations stay separate
+- `hardening`
+  - shakedown paste safety, resize behavior, slow-output handling, narrow-terminal fallback, and at least one end-to-end workflow/task flow
+- `extending`
+  - add richer teletext blocks, improved pickers, and post-release polish without blocking signoff
+
+### Documentation Consolidation Lane
+
+Completed on March 3, 2026:
+- promoted the active workflow decision into:
+  - a stable spec in `docs/specs/WORKFLOW-SCHEDULER-v1.5.md`
+  - an operator guide in `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md`
+- converted the older workflow plan file into an archive redirect
+- added `docs/specs/DOCUMENTATION-CANONICAL-MAP.md` to record canonical doc ownership and cleanup targets
+- merged Wizard plan milestones into the roadmap and converted duplicate plan/spec workflow docs into redirect stubs
+- completed a second-pass docs audit for duplication, verbosity, and likely `.compost` candidates
+- promoted `docs/decisions/formatting-spec-v1-4.md` into the canonical spec `docs/specs/FORMATTING-SPEC-v1.4.md`
+- renamed the legacy task-ingestion spec filename to `docs/specs/TASK-JSON-FORMAT-OK-MODEL-INGESTION.md`
+- split `docs/specs/typescript-markdown-runtime.md` into the active contract `docs/specs/TYPESCRIPT-MARKDOWN-RUNTIME-CONTRACT.md` plus archived detail
+- split `docs/specs/PACKAGING-DISTRIBUTION-ARCHITECTURE-v1.4.6.md` into the active contract `docs/specs/PACKAGING-RELEASE-CONTRACT-v1.5.md` plus archived detail
+- merged `docs/MANAGED-OPERATIONS.md` into `docs/howto/MANAGED-WIZARD-OPERATIONS.md`
+- bulk-archived unreferenced devlogs out of the active `docs/devlog/` surface
+- split `docs/decisions/OK-update-v1-4-6.md` into the active decision `docs/decisions/OK-GOVERNANCE-POLICY.md` plus redirect stub
+- split `docs/specs/Spatial-Grid-COMPLETE.md` into the active contract `docs/specs/SPATIAL-GRID-CONTRACT.md` plus redirect stub
+- split `docs/howto/TOOLS-REFERENCE.md` into a short tools index plus focused category pages
+- reduced `docs/howto/OFFLINE-ASSITANT-SETUP.md` into a front-door guide plus quickstart/reference companions
+- reduced `docs/howto/SVG-GRAPHICS-GENERATION.md` into a front-door guide plus quickstart/reference companions
+- reduced `docs/howto/WIZARD-PLUGIN-SYSTEM.md` into a front-door guide plus quickstart/reference companions
+- reduced `docs/ARCHITECTURE.md` into an overview plus detailed integration reference
+- reduced `docs/howto/BINDER-USAGE-GUIDE.md` into a front-door guide plus binder quickstart
+- reduced `docs/examples/example-sqlite.db.md` into a front-door example plus focused companion examples
+- reduced `docs/specs/UCODE-COMMAND-DISPATCH-v1.4.4.md` to a redirect stub plus `docs/specs/UCODE-DISPATCH-CONTRACT.md`
+- aligned the active runtime docs to the v1.5 rule that `ucode` TUI is the standard experience and `vibe`/Mistral contributor flows are Dev Mode only
+- rewrote TUI-adjacent docs around the v1.5 `ucode` TUI source of truth and added a dedicated TUI refactor lane to the roadmap
+- updated operator-facing install, setup, migration, selector, Ghost Mode, and MCP docs to remove `vibe`-first runtime guidance
+- completed the active-tree documentation cleanup pass for core operator/runtime docs and the main docs entry surfaces
+
+Remaining:
+- complete low-priority terminology cleanup in historical or low-traffic active docs as time permits
+- keep future docs aligned to the `ucode`-first runtime rule and Dev Mode boundary
 
 ### Workflow Rebaseline Notes
 
@@ -113,12 +411,13 @@ Current result:
 ### Next Release Sequence
 
 1. Close the Dev extension consolidation and documentation cleanup lane.
-2. Expand the core workflow lane with more templates and stronger phase contracts.
-3. Start Wizard workflow integration against the new core workflow artifact/state model.
-4. Finish creator-profile blocker matrix and acceptance tests.
-5. Finish gameplay/gaming profile packaging and verification.
-6. Run full certified-profile release readiness sweep.
-7. Freeze docs, installers, and operator runbooks for v1.5 signoff.
+2. Run the full specs `checking` pass and build the v1.5 shakedown/demo checklist from `docs/specs/README.md`.
+3. Expand the core workflow lane with more templates and stronger phase contracts.
+4. Start Wizard workflow integration against the new core workflow artifact/state model.
+5. Finish creator-profile blocker matrix and acceptance tests.
+6. Finish gameplay/gaming profile packaging and verification.
+7. Complete the specs shakedown `implementing` and `hardening` passes, then run the full certified-profile release readiness sweep.
+8. Freeze docs, installers, operator runbooks, and demo evidence for v1.5 signoff.
 
 ### Immediate Exit Criteria
 
@@ -148,7 +447,7 @@ See full details: `docs/decisions/ARCHITECTURE-DEFERRED-MILESTONES.md`
 ### Completed
 - ✅ Entry point & call graph audit — 6 entry points mapped, 8 parallel-stack problems (P1–P8) identified
 - ✅ P2: Removed dead `wizard.json` read from `UnifiedConfigLoader`
-- ✅ P4: `get_ok_local_status()` delegates to `AIProviderHandler.check_local_provider()` — single AI status path
+- ✅ P4: `get_ok_local_status()` delegates to the shared provider-status handler — single OK provider status path
 - ✅ P5: Lazy imports in `core/tui/ucode.py` — eliminates Core→Wizard circular import
 - ✅ P6: `/api/self-heal/status` wired to `collect_self_heal_summary()` via `run_in_executor`
 - ✅ P7: `admin_secret_contract.py` → `secret_vault.py` — naming collision resolved
@@ -173,10 +472,10 @@ See full details: `docs/decisions/ARCHITECTURE-DEFERRED-MILESTONES.md`
 
 ### Completed Features
 - ✅ Centralized `UnifiedConfigLoader` for all config sources (.env → TOML → JSON)
-- ✅ Centralized `AIProviderHandler` for Ollama/Mistral status checking
+- ✅ Centralized shared provider-status handler for Ollama/Mistral status checking
 - ✅ Centralized `PermissionHandler` created + critical class definition bug fixed
 - ⏳ Partial TUI migration to config loader (7 os.getenv() → get_config())
-- ⏳ Wizard provider routes migrated to AIProviderHandler
+- ⏳ Wizard provider routes migrated to the shared provider-status handler
 - ✅ Unit tests for all 3 central handlers (113/113 passing)
 - ✅ `admin_secret_contract.py` (SecureVault interface for cloud API keys)
 
@@ -194,7 +493,7 @@ See full details: `docs/decisions/ARCHITECTURE-DEFERRED-MILESTONES.md`
 - [x] User data paths aligned — wizard routes + user_service both use `get_user_manager()` → `memory/bank/private/users.json`
 - [x] Secrets location documented with path constants (`paths.py`: get_vault_root, get_vault_md_root, get_private_memory_dir)
 - [x] Profile matrix tests pass — 16/16 passing
-- [x] `admin_secret_contract.py` created — unblocks 11 AIProviderHandler cloud tests
+- [x] `admin_secret_contract.py` created — unblocks 11 provider-status handler cloud tests
 - [x] Devlog: v1.4.6 completion summary — `docs/devlog/2026-02-24-v1.4.6-complete.md`
 
 ---

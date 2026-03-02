@@ -35,6 +35,7 @@ class PhaseSpec:
 class WorkflowSpec:
     workflow_id: str
     template_id: str
+    project: str
     goal: str
     constraints: dict[str, Any]
     phases: list[PhaseSpec]

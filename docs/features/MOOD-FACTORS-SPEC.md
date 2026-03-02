@@ -207,7 +207,7 @@ COMMAND_COMPLEXITY = {
     # Medium (0.5)
     "GUIDE": 0.5, "SEARCH": 0.5, "LIST": 0.5, "WELLBEING": 0.5,
     # Complex (0.8)
-    "MAKE": 0.8, "BUNDLE": 0.8, "MISSION": 0.8, "AI": 0.8,
+    "MAKE": 0.8, "BUNDLE": 0.8, "MISSION": 0.8, "OK": 0.8,
     # High (1.0)
     "DEV": 1.0, "REPAIR": 1.0, "SHAKEDOWN": 1.0,
 }

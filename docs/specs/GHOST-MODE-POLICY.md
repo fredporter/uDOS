@@ -67,18 +67,17 @@ In Ghost Mode, write-capable commands are blocked or forced into dry-run mode.
 
 ## Required Components (Strict)
 1. `ollama` installed
-2. `vibe-cli` installed
-3. `mistral-small` pulled
-4. `mistral-large` pulled
-5. `devstral-small-2` pulled
+2. standard `ucode` runtime installed
+3. at least one supported local OK model available for offline-safe operation
+4. any extra contributor-facing model lanes are optional and profile-driven
 
 ## Model Roles (Core Defaults)
-1. Chat and summaries use `mistral-small`.
-2. Scheduler and deep workflow reasoning use `mistral-large`.
-3. Code and repo operations use `devstral-small-2`.
+1. local chat and summary operations use the default local OK model set
+2. scheduler and deeper workflow reasoning use the configured local reasoning-capable model when available
+3. contributor and repo-oriented model lanes may be enabled separately through Dev Mode
 
 ## Routing Contract
-1. `/core` uses the Vibe-CLI router as the baseline router.
+1. `/core` uses the standard `ucode` runtime path as the baseline router.
 2. `wizard-server` can extend or override routing as an addon.
 3. `/core` and `/dev` must not make online requests directly.
 4. All online calls must route through `wizard-server`.
@@ -89,7 +88,7 @@ In Ghost Mode, write-capable commands are blocked or forced into dry-run mode.
 **Agent status:** `offline`, `online`
 
 **Offline provider list order:**
-1. Default Mistral set (primary)
+1. Default local OK model set (primary)
 2. Other Ollama models (secondary)
 
 **Online provider list order:**
@@ -100,7 +99,7 @@ In Ghost Mode, write-capable commands are blocked or forced into dry-run mode.
 
 ## API Management
 1. Wizard manages API keys, quotas, and policy-based routing.
-2. Mistral API key is collected during Setup and stored in `.env` or Wizard keystore.
+2. Provider API keys are collected only for lanes that require them and stored in `.env` or Wizard keystore.
 3. Optional online stabilization is permitted only via Wizard policy.
 
 ## Seed Template

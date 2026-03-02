@@ -17,6 +17,9 @@ def _cleanup(workflow_id: str) -> None:
 def test_workflow_template_parser_extracts_phases_and_outputs() -> None:
     markdown = """# WORKFLOW: writing-article-v1
 
+## Project
+release-ops
+
 ## Goal
 Write a release note
 
@@ -35,6 +38,7 @@ Write a release note
     spec = WorkflowTemplateParser().parse("wf-test", markdown)
 
     assert spec.template_id == "writing-article-v1"
+    assert spec.project == "release-ops"
     assert spec.goal == "Write a release note"
     assert spec.constraints["audience"] == "operators"
     assert [phase.name for phase in spec.phases] == ["outline", "draft"]
@@ -56,7 +60,10 @@ def test_workflow_scheduler_create_run_approve_cycle() -> None:
                 "tone": "plain",
                 "word_limit": "600",
             },
+            project="release-ops",
         )
+        spec = scheduler.load_spec(workflow_id)
+        assert spec.project == "release-ops"
         state = scheduler.run_workflow(workflow_id)
         assert state.status == "awaiting_approval"
         assert state.phases[0].status == "pending_approval"
@@ -68,5 +75,27 @@ def test_workflow_scheduler_create_run_approve_cycle() -> None:
 
         escalated = scheduler.escalate_phase(workflow_id)
         assert escalated.phases[1].tier == "tier2_cloud"
+    finally:
+        _cleanup(workflow_id)
+
+
+def test_workflow_scheduler_create_from_markdown_persists_project() -> None:
+    workflow_id = "wf-project-markdown"
+    _cleanup(workflow_id)
+    scheduler = WorkflowScheduler(Path(get_repo_root()))
+
+    markdown = """# WORKFLOW: planning-note
+
+## Goal
+Plan a note
+
+## Phases
+1. Outline (writing/outline -> 01-outline.md)
+"""
+
+    try:
+        scheduler.create_workflow_from_markdown(workflow_id, markdown, project="project-lane")
+        spec = scheduler.load_spec(workflow_id)
+        assert spec.project == "project-lane"
     finally:
         _cleanup(workflow_id)

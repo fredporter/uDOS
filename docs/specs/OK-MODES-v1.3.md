@@ -1,12 +1,12 @@
-# Wizard AI Modes + Local Model Defaults
+# Wizard OK Modes + Local Model Defaults
 
 **Status:** Implemented
 **Scope:** Wizard OK gateway + Core access
 
 ## 1) Goals
-- Standardize **AI modes** for consistent behavior across TUI, App, and extensions.
+- Standardize **OK modes** for consistent behavior across TUI, App, and extensions.
 - Keep **offline-first** routing as the default (Ollama local models).
-- Provide **Core access** via `/api/ai/complete` with strict policy controls.
+- Provide Core access via the Wizard completion endpoint with strict policy controls.
 - Enforce Ghost Mode policy in `docs/specs/GHOST-MODE-POLICY.md`.
 
 ## 2) OK Modes (Contract)
@@ -29,7 +29,7 @@
 
 ## 3) Local Model Defaults (Ollama)
 
-Default local set for AI OK:
+Default local set for OK operation:
 - **Chat / summaries:** `mistral-small`
 - **Reasoning / scheduler:** `mistral-large`
 - **Code / repo work:** `devstral-small-2`
@@ -43,7 +43,8 @@ Defaults map to `library/ollama/container.json` (or equivalent) and are enforced
 
 ## 4) Core Access (Wizard API)
 
-Core accesses Wizard via **`/api/ai/complete`**.
+Core accesses Wizard via the completion endpoint.
+Legacy route names may still exist in implementation, but user-facing terminology should use OK Assistant / OK Model wording.
 
 Request contract (minimal):
 ```json
@@ -60,7 +61,7 @@ Request contract (minimal):
 Notes:
 - `mode` selects the preset template + temperature.
 - `conversation_id` enables threaded context.
-- `privacy=private` **must never** route to cloud providers.
+- `privacy=private` must never route to cloud providers.
 
 ## 5) Offline-First Policy (Required)
 
@@ -72,9 +73,9 @@ Hard rules:
 - `privacy=private` → local only.
 - `offline_required` tag → local only.
 - If local model unavailable → return clear error with install prompt.
- - Ghost Mode → local only, destructive commands dry-run only.
+- Ghost Mode → local only, destructive commands dry-run only.
 
 ## 6) Deliverables
-- `/api/ai/complete` supports `mode` + `conversation_id`.
+- the completion endpoint supports `mode` + `conversation_id`.
 - Wizard applies prompt templates + temperature presets.
-- Core uses `/api/ai/complete` for all assistant calls (no direct cloud).
+- Core uses the Wizard completion endpoint for assistant calls instead of direct cloud routing.

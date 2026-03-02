@@ -1,8 +1,12 @@
-# Contributions Contract (v1.3)
+# Contributions Contract (v1.3 Snapshot)
 
-Wiki-style updates are handled as **contribution bundles** (patches), not direct edits to curated notes.
+Status: historical-but-active reference  
+Updated: 2026-03-03
 
-## Bundle layout
+Wiki-style updates are handled as contribution bundles, not direct edits to curated notes.
+
+## Bundle Layout
+
 ```txt
 _contributions/contrib_<id>/
   manifest.yml
@@ -11,8 +15,13 @@ _contributions/contrib_<id>/
   signatures/   (optional)
 ```
 
-## AI as contributor
-AI must produce:
-- patch.diff
-- notes explaining changes
-- run report referencing the contribution id
+## Contributor Outputs
+
+OK Assistants, OK Agents, or helper workflows must produce:
+- `patch.diff`
+- notes explaining the proposed change
+- a run report that references the contribution id
+
+## Contract Rule
+
+Treat generated changes as proposals for review and merge, not silent source-of-truth edits.

@@ -98,7 +98,7 @@ Every publish job must produce:
 - publish operations require Wizard auth and policy checks.
 - module-scoped publish operations require module capability + activation checks.
 - `/dev` publish/testing actions are admin-only and disabled when `/dev` is absent.
-- no direct publish execution from non-`vibe-cli` interactive loops or legacy command aliases.
+- no direct publish execution from non-`ucode` interactive loops or legacy command aliases.
 
 ## Migration from v1.3.x
 

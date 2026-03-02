@@ -1,0 +1,1 @@
+# MISSION: example\n\n## Goal\n{{goal}}\n

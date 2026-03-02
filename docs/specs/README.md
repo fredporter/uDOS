@@ -1,7 +1,7 @@
 # uDOS Specs Catalog
 
-Updated: 2026-02-22
-Release baseline: v1.4.6
+Updated: 2026-03-03
+Release baseline: v1.5 rebaseline
 
 This index organizes main specs and detailed specs under `docs/specs/`.
 
@@ -16,11 +16,23 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 - `docs/specs/DEV-Mode-Spec.md` — development mode behavior
 - `docs/specs/GAMEPLAY-LENS-SKIN-PROGRESSION-v1.4.8.md` — unified progression contract for PLAY LENS and SKIN
 - `docs/specs/3DWORLD-EXTENSION-SPEC-v1.5.0.md` — containerized 3D world extension contract (draft lane toward v1.5)
+- `docs/specs/WORKFLOW-SCHEDULER-v1.5.md` — core workflow scheduler contract for v1.5
+- `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md` — canonical offline assist and `uLogic` standard for v1.5, grounded in the `udos_ulogic_pack` reference scaffold
+- `docs/specs/FORMATTING-SPEC-v1.4.md` — canonical formatting and `.compost` archival contract
+- `docs/specs/TYPESCRIPT-MARKDOWN-RUNTIME-CONTRACT.md` — active TypeScript markdown runtime contract
+- `docs/specs/PACKAGING-RELEASE-CONTRACT-v1.5.md` — active packaging and release contract
+- `docs/specs/SPATIAL-GRID-CONTRACT.md` — active spatial grid and text-graphics contract
+- `docs/specs/UCODE-DISPATCH-CONTRACT.md` — active input-dispatch and routing contract
+- `docs/specs/INTEGRATION-READINESS.md` — active integration readiness summary
+- `docs/specs/MINIMUM-SPEC-VIBE-CLI-UCODE.md` — active minimum runtime pathway contract
+- `docs/specs/UCODE-SELECTOR-INTEGRATION-BRIEF.md` — supporting selector brief for the v1.5 `ucode` TUI
+- `docs/specs/DOCUMENTATION-CANONICAL-MAP.md` — current docs assessment and canonical ownership map
 
 ## Detailed / Historical Execution Specs
 
 - `docs/specs/v1.3.*.md` — stabilization rounds and bridge contracts
 - `docs/specs/v1.4.0-*.md` — v1.4 execution artifacts consolidated by v1.4.3 notes
+- `docs/specs/03-contributions-contract.md` — historical contribution-bundle contract snapshot
 - `docs/specs/WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md` — wizard publish contract
 - `docs/specs/TOYBOX-*.md` — TOYBOX gameplay/runtime contracts
 - `docs/specs/Spatial-*.md` and numbered specs (`01-*`, `02-*`, etc.) — architecture and schema details
@@ -29,6 +41,9 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 
 - `docs/releases/v1.4.3-release-notes.md` — consolidated v1.4+ release notes
 - `docs/roadmap.md` — canonical roadmap
+- `docs/decisions/v1-5-workflow.md` — workflow architecture decision
+- `docs/decisions/v1-5-offline-assist.md` — offline assist architecture decision
+- `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md` — operator workflow quickstart
 
 ## Usage Guidance
 

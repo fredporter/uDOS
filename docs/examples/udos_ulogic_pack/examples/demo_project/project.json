@@ -1,0 +1,21 @@
+{
+  "name": "uDOS-demo",
+  "version": "0.0.1",
+  "constraints": {
+    "offline_first": true,
+    "allowed_shell": [
+      "python",
+      "bash"
+    ],
+    "max_runtime_seconds": 60,
+    "destructive_commands": false
+  },
+  "workflow_defaults": {
+    "approval_required": true,
+    "tier_policy": "offline_only"
+  },
+  "gameplay": {
+    "enabled": true,
+    "mode": "builder"
+  }
+}

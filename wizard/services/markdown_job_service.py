@@ -7,7 +7,10 @@ from typing import Any
 from wizard.services.path_utils import get_repo_root, get_vault_dir
 
 _TASK_LINE_RE = re.compile(r"^\s*[-*]\s+\[(?P<done>[ xX])\]\s+(?P<title>.+)$")
-_META_RE = re.compile(r"^\s*[-*]\s+(?P<key>schedule|priority|need|mission|objective|provider|window|kind|requires_network)\s*:\s*(?P<value>.+)$", re.IGNORECASE)
+_META_RE = re.compile(
+    r"^\s*[-*]\s+(?P<key>schedule|cadence|priority|need|mission|objective|project|provider|window|kind|requires_network|resource_cost|budget_units|local_only)\s*:\s*(?P<value>.+)$",
+    re.IGNORECASE,
+)
 _WORKFLOW_PHASE_RE = re.compile(
     r"^\s*(?P<index>\d+)\.\s+(?P<title>.+?)\s+\((?P<adapter>[^/]+)/(?P<prompt>[^ ]+)\s+->\s+(?P<output>[^)]+)\)\s*$"
 )
@@ -45,6 +48,7 @@ class MarkdownJobService:
             "priority": 5,
             "need": 5,
             "resource_cost": 1,
+            "budget_units": 1,
             "requires_network": False,
             "kind": "markdown_task",
         }
@@ -53,12 +57,14 @@ class MarkdownJobService:
             if meta:
                 key = meta.group("key").strip().lower()
                 value = meta.group("value").strip()
-                if key in {"priority", "need"}:
+                if key in {"priority", "need", "resource_cost", "budget_units"}:
                     metadata[key] = int(value)
-                elif key == "requires_network":
+                elif key in {"requires_network", "local_only"}:
                     metadata[key] = value.lower() in {"1", "true", "yes", "on"}
                 elif key == "kind":
                     metadata["kind"] = value
+                elif key == "cadence":
+                    metadata["schedule"] = value
                 else:
                     metadata[key] = value
                 continue
@@ -66,6 +72,9 @@ class MarkdownJobService:
             if not match or match.group("done").lower() == "x":
                 continue
             title = match.group("title").strip()
+            requires_network = metadata.get("requires_network", False)
+            if metadata.get("local_only"):
+                requires_network = False
             jobs.append(
                 {
                     "name": title,
@@ -77,12 +86,15 @@ class MarkdownJobService:
                     "mission": metadata.get("mission"),
                     "objective": metadata.get("objective"),
                     "resource_cost": metadata.get("resource_cost", 1),
-                    "requires_network": metadata.get("requires_network", False),
+                    "requires_network": requires_network,
                     "kind": metadata.get("kind", "markdown_task"),
                     "payload": {
                         "source_path": str(path.relative_to(self.repo_root)),
                         "source_type": "markdown_task",
+                        "project": metadata.get("project"),
                         "window": metadata.get("window"),
+                        "budget_units": metadata.get("budget_units", metadata.get("resource_cost", 1)),
+                        "local_only": bool(metadata.get("local_only", False)),
                     },
                 }
             )
@@ -112,10 +124,14 @@ class MarkdownJobService:
                     "payload": {
                         "source_path": str(path.relative_to(self.repo_root)),
                         "source_type": "workflow",
+                        "project": workflow_id,
+                        "workflow_id": workflow_id,
                         "phase_index": int(match.group("index")),
                         "adapter": match.group("adapter").strip(),
                         "prompt_name": match.group("prompt").strip(),
                         "output": match.group("output").strip(),
+                        "window": "off_peak",
+                        "budget_units": 2,
                     },
                 }
             )

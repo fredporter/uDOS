@@ -55,8 +55,8 @@ UCODE UPDATE
 
 2. Verify update manifest:
 ```bash
-cat ~/.vibe-cli/ucode/update-manifest.json
-cat ~/.vibe-cli/ucode/bundles/offline-content-bundle.json
+cat memory/ucode/update-manifest.json
+cat memory/ucode/bundles/offline-content-bundle.json
 ```
 
 3. Re-run offline triage:
@@ -78,8 +78,8 @@ UCODE UPDATE
 
 2. Verify local asset directories:
 ```bash
-ls -la ~/.vibe-cli/ucode/demos
-ls -la ~/.vibe-cli/ucode/docs
+ls -la memory/ucode/demos
+ls -la memory/ucode/docs
 ```
 
 3. Validate seeded examples exist:
@@ -95,10 +95,17 @@ Capture these fields in incident notes:
 - Network state (`offline`, `degraded`, `online`).
 - Commands run.
 - `UCODE UPDATE` result status.
-- Manifest timestamp from `~/.vibe-cli/ucode/update-manifest.json`.
-- Bundle verification status from `~/.vibe-cli/ucode/bundles/offline-content-bundle.json`.
-- Local usage summary from `~/.vibe-cli/ucode/metrics/usage-summary.json`.
+- Manifest timestamp from `memory/ucode/update-manifest.json`.
+- Bundle verification status from `memory/ucode/bundles/offline-content-bundle.json`.
+- Local usage summary from `memory/ucode/metrics/usage-summary.json`.
 - Any missing demo/doc artifacts after refresh.
+
+## Storage Root
+
+Default `UCODE` offline assets live under:
+- `memory/ucode/`
+
+If `UDOS_UCODE_ROOT` is set, the handler uses that override instead.
 
 ## Related Docs
 

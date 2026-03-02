@@ -1,0 +1,5 @@
+ALTER TABLE task_queue
+ADD COLUMN IF NOT EXISTS backoff_seconds INTEGER NOT NULL DEFAULT 0;
+
+ALTER TABLE task_queue
+ADD COLUMN IF NOT EXISTS last_deferred_at TEXT;

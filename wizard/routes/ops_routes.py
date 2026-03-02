@@ -28,6 +28,56 @@ def _tail_lines(path: Path, lines: int) -> list[str]:
     return data[-lines:]
 
 
+def _server_time_metadata() -> dict[str, str]:
+    now = datetime.now().astimezone()
+    return {
+        "iana_name": (os.environ.get("TZ") or "").strip(),
+        "label": now.tzname() or "local",
+        "offset": now.strftime("%z"),
+        "local_time": now.isoformat(),
+    }
+
+
+def _validate_auto_retry_policy(
+    policy: dict[str, dict[str, Any]] | None,
+) -> dict[str, dict[str, Any]] | None:
+    if policy is None:
+        return None
+    validated: dict[str, dict[str, Any]] = {}
+    for reason, entry in policy.items():
+        if not isinstance(reason, str) or not reason.strip():
+            raise HTTPException(status_code=400, detail="Maintenance retry policy reason must be a non-empty string")
+        if not isinstance(entry, dict):
+            raise HTTPException(status_code=400, detail=f"Maintenance retry policy for '{reason}' must be an object")
+        if "enabled" in entry and not isinstance(entry["enabled"], bool):
+            raise HTTPException(status_code=400, detail=f"Maintenance retry policy for '{reason}' has invalid enabled flag")
+        if "dry_run" in entry and not isinstance(entry["dry_run"], bool):
+            raise HTTPException(status_code=400, detail=f"Maintenance retry policy for '{reason}' has invalid dry_run flag")
+        if "window" in entry and not isinstance(entry["window"], str):
+            raise HTTPException(status_code=400, detail=f"Maintenance retry policy for '{reason}' has invalid window")
+        limit = entry.get("limit", 0)
+        if isinstance(limit, bool) or not isinstance(limit, int) or limit < 0:
+            raise HTTPException(status_code=400, detail=f"Maintenance retry policy for '{reason}' has invalid limit")
+        window = str(entry.get("window", "") or "").strip()
+        if window:
+            try:
+                start_raw, end_raw = window.split("-", 1)
+                datetime.strptime(start_raw, "%H:%M")
+                datetime.strptime(end_raw, "%H:%M")
+            except ValueError as exc:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Maintenance retry policy for '{reason}' has invalid window",
+                ) from exc
+        validated[reason.strip()] = {
+            "enabled": bool(entry.get("enabled", True)),
+            "limit": int(limit),
+            "dry_run": bool(entry.get("dry_run", False)),
+            "window": window,
+        }
+    return validated
+
+
 class OpsJobCreate(BaseModel):
     name: str | None = None
     description: str | None = None
@@ -40,10 +90,30 @@ class OpsJobCreate(BaseModel):
     need: int = 5
     mission: str | None = None
     objective: str | None = None
+    project: str | None = None
     resource_cost: int = 1
     requires_network: bool = False
+    window: str | None = None
+    budget_units: int | None = None
     prompt_text: str | None = None
     source_path: str | None = None
+
+
+class OpsSettingsUpdate(BaseModel):
+    max_tasks_per_tick: int | None = None
+    tick_seconds: int | None = None
+    allow_network: bool | None = None
+    off_peak_start_hour: int | None = None
+    off_peak_end_hour: int | None = None
+    api_budget_daily: int | None = None
+    api_budget_used: int | None = None
+    defer_alert_threshold: int | None = None
+    backoff_alert_minutes: int | None = None
+    auto_retry_deferred_reasons: list[str] | None = None
+    auto_retry_deferred_limit: int | None = None
+    maintenance_retry_dry_run: bool | None = None
+    auto_retry_deferred_policy: dict[str, dict[str, Any]] | None = None
+    backoff_policy: dict[str, dict[str, int]] | None = None
 
 
 def create_ops_routes(
@@ -75,12 +145,20 @@ def create_ops_routes(
         return {
             "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "deploy_mode": get_deploy_mode(),
+            "runtime": {
+                "server_time": _server_time_metadata(),
+            },
             "jobs": {
                 "stats": scheduler.get_stats(),
+                "settings": scheduler.get_settings(),
                 "queue": scheduler.get_scheduled_queue(limit=10),
                 "runs": scheduler.get_execution_history(limit=10),
             },
             "health": monitoring.get_health_summary(),
+            "automation": {
+                "recent_runs": monitoring.get_recent_automation_runs(limit=20),
+                "status": monitoring.get_automation_status(),
+            },
             "config": {
                 "managed": is_managed_mode(),
                 "status": get_full_config_status(),
@@ -96,6 +174,9 @@ def create_ops_routes(
         monitoring.run_default_checks()
         return {
             "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "runtime": {
+                "server_time": _server_time_metadata(),
+            },
             "health": monitoring.get_health_summary(),
             "alerts": [alert.to_dict() for alert in monitoring.get_alerts(limit=20)],
         }
@@ -103,6 +184,9 @@ def create_ops_routes(
     @router.get("/jobs")
     async def list_jobs(limit: int = Query(50, ge=1, le=500)) -> dict[str, Any]:
         return {
+            "runtime": {
+                "server_time": _server_time_metadata(),
+            },
             "tasks": scheduler.list_tasks(limit=limit),
             "queue": scheduler.get_scheduled_queue(limit=limit),
             "runs": scheduler.get_execution_history(limit=min(limit, 100)),
@@ -111,6 +195,40 @@ def create_ops_routes(
             "workflow_runs": workflow_scheduler.list_workflows(),
             "workspace_sources": workspace_service.list_sources(limit=100),
         }
+
+    @router.get("/workflows")
+    async def list_workflows(limit: int = Query(50, ge=1, le=500)) -> dict[str, Any]:
+        workflow_ids = workflow_scheduler.list_workflows()[:limit]
+        workflows = []
+        for workflow_id in workflow_ids:
+            try:
+                workflows.append(workflow_scheduler.status(workflow_id))
+            except FileNotFoundError:
+                continue
+        return {"count": len(workflows), "workflows": workflows}
+
+    @router.post("/workflows/{workflow_id}/approve")
+    async def approve_workflow_phase(workflow_id: str) -> dict[str, Any]:
+        try:
+            state = workflow_scheduler.approve_phase(workflow_id)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        return {"success": True, "workflow_id": workflow_id, "state": state.status}
+
+    @router.post("/workflows/{workflow_id}/escalate")
+    async def escalate_workflow_phase(workflow_id: str) -> dict[str, Any]:
+        try:
+            state = workflow_scheduler.escalate_phase(workflow_id)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        return {"success": True, "workflow_id": workflow_id, "state": state.status}
+
+    @router.post("/settings")
+    async def update_settings(payload: OpsSettingsUpdate) -> dict[str, Any]:
+        updates = payload.model_dump(exclude_none=True)
+        if "auto_retry_deferred_policy" in updates:
+            updates["auto_retry_deferred_policy"] = _validate_auto_retry_policy(updates["auto_retry_deferred_policy"])
+        return {"settings": scheduler.update_settings(updates)}
 
     @router.post("/jobs")
     async def create_job(payload: OpsJobCreate) -> dict[str, Any]:
@@ -156,7 +274,10 @@ def create_ops_routes(
                         payload={
                             "prompt_text": payload.prompt_text,
                             "instruction_id": parsed.get("instruction_id"),
+                            "project": payload.project,
                             "tags": task.tags,
+                            "window": payload.window,
+                            "budget_units": payload.budget_units or payload.resource_cost,
                             **(payload.payload or {}),
                         },
                     )
@@ -177,13 +298,43 @@ def create_ops_routes(
             resource_cost=payload.resource_cost,
             requires_network=payload.requires_network,
             kind=payload.kind,
-            payload=payload.payload,
+            payload={
+                **(payload.payload or {}),
+                "project": payload.project,
+                "window": payload.window,
+                "budget_units": payload.budget_units or payload.resource_cost,
+            },
         )
         return {"created": [created]}
 
     @router.post("/jobs/{job_id}/run")
     async def run_job(job_id: str) -> dict[str, Any]:
         return scheduler.execute_task(job_id)
+
+    @router.post("/jobs/queue/{queue_id}/retry")
+    async def retry_queue_item(queue_id: int) -> dict[str, Any]:
+        retried = scheduler.retry_queue_item(queue_id)
+        if not retried:
+            raise HTTPException(status_code=404, detail="Queued job not found")
+        monitoring.check_scheduler_queue()
+        return {"success": True, "queue_item": retried}
+
+    @router.post("/jobs/retry-deferred")
+    async def retry_deferred_jobs(
+        reason: str | None = Query(None),
+        limit: int = Query(50, ge=1, le=500),
+    ) -> dict[str, Any]:
+        retried = scheduler.retry_deferred_items(reason=reason, limit=limit)
+        monitoring.check_scheduler_queue()
+        return {"success": True, "count": len(retried), "queue_items": retried, "reason": reason}
+
+    @router.get("/jobs/deferred-preview")
+    async def preview_deferred_jobs(
+        reason: str | None = Query(None),
+        limit: int = Query(20, ge=1, le=200),
+    ) -> dict[str, Any]:
+        items = scheduler.list_deferred_items(reason=reason, limit=limit)
+        return {"count": len(items), "queue_items": items, "reason": reason}
 
     @router.get("/alerts")
     async def list_alerts(

@@ -13,6 +13,7 @@ _CONSTRAINT_RE = re.compile(r"^- (?P<key>[^:]+): (?P<value>.+)$")
 class WorkflowTemplateParser:
     def parse(self, workflow_id: str, markdown: str, source_path: Path | None = None) -> WorkflowSpec:
         title = self._section_text(markdown, "WORKFLOW:", title_mode=True)
+        project = self._section_text(markdown, "Project")
         goal = self._section_text(markdown, "Goal")
         constraints = self._constraint_map(markdown)
         phases = self._phases(markdown)
@@ -20,6 +21,7 @@ class WorkflowTemplateParser:
         return WorkflowSpec(
             workflow_id=workflow_id,
             template_id=title,
+            project=(project.strip() or constraints.get("project") or workflow_id),
             goal=goal.strip(),
             constraints=constraints,
             phases=phases,

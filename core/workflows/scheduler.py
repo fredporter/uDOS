@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from dataclasses import asdict
+from dataclasses import asdict, replace
 
 from .artifacts import WorkflowArtifactStore
 from .contracts import PhaseRuntimeState, WorkflowRuntimeState, WorkflowSpec
@@ -32,15 +32,40 @@ class WorkflowScheduler:
     def list_workflows(self) -> list[str]:
         return self.store.list_workflows()
 
-    def create_workflow(self, template_name: str, workflow_id: str, variables: dict[str, str]) -> WorkflowSpec:
+    def create_workflow(
+        self,
+        template_name: str,
+        workflow_id: str,
+        variables: dict[str, str],
+        *,
+        project: str | None = None,
+    ) -> WorkflowSpec:
         template_path = self.template_root / f"{template_name}.md"
         template = template_path.read_text(encoding="utf-8")
         rendered = template
         for key, value in variables.items():
             rendered = rendered.replace(f"{{{{{key}}}}}", value)
         spec = self.parser.parse(workflow_id=workflow_id, markdown=rendered, source_path=template_path)
+        if project:
+            spec = replace(spec, project=project)
         self.store.ensure_workflow_dir(workflow_id)
         self.store.write_spec(spec, rendered)
+        self.store.write_state(self._initial_state(spec))
+        return spec
+
+    def create_workflow_from_markdown(
+        self,
+        workflow_id: str,
+        markdown: str,
+        *,
+        source_path: Path | None = None,
+        project: str | None = None,
+    ) -> WorkflowSpec:
+        spec = self.parser.parse(workflow_id=workflow_id, markdown=markdown, source_path=source_path)
+        if project:
+            spec = replace(spec, project=project)
+        self.store.ensure_workflow_dir(workflow_id)
+        self.store.write_spec(spec, markdown)
         self.store.write_state(self._initial_state(spec))
         return spec
 
@@ -67,6 +92,7 @@ class WorkflowScheduler:
         return WorkflowSpec(
             workflow_id=payload["workflow_id"],
             template_id=payload.get("template_id", ""),
+            project=payload.get("project", payload["workflow_id"]),
             goal=payload.get("goal", ""),
             constraints=dict(payload.get("constraints", {})),
             phases=phases,

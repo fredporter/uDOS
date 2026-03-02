@@ -1,6 +1,6 @@
 # Development Getting Started Guide
 
-Welcome to uDOS + Vibe development! This guide covers setup, project structure, and common workflows.
+Welcome to uDOS development. This guide covers setup, project structure, and common workflows for the v1.5 rebaseline.
 
 ## Quick Setup (30 seconds)
 
@@ -19,8 +19,8 @@ uv run ./uDOS.py SETUP
 ## What You Get
 
 After setup:
-- `~/.vibe/config.toml` — Vibe configuration
-- `~/.vibe/.env` — API keys (auto-generated)
+- `.vibe/config.toml` — Dev Mode contributor tooling config
+- `.env` / Wizard keystore — provider configuration where enabled
 - `memory/vault/` — Local knowledge base
 - `core/` — uDOS commands ready to call
 
@@ -47,17 +47,14 @@ After setup:
 ## First Commands
 
 ```bash
-# See what vibe can do
+# Standard runtime
+ucode HELP
+ucode STATUS
+ucode UCODE PROFILE LIST
+
+# Dev Mode tooling
 vibe --help
-
-# Run interactively
-vibe
-
-# Try a quick prompt
 vibe --prompt "What tools do you have?"
-
-# Check status
-uv run ./uDOS.py STATUS
 ```
 
 ## Python Environment
@@ -78,18 +75,18 @@ uv add package_name
 source venv/bin/activate
 ```
 
-Vibe-dev workspace auto-activates the venv (`vibe-dev.code-workspace`).
+The dev workspace auto-activates the venv (`vibe-dev.code-workspace`).
 
 ## Project Structure at a Glance
 
 ```
 uDOS/
-├── vibe/               # Mistral Vibe (never modify directly)
+├── vibe/               # Dev Mode contributor runtime (never modify directly)
 ├── core/               # uDOS core (main development area)
 │   ├── commands/       # 50+ command handlers
 │   ├── framework/      # Service layer + base classes
 │   └── tests/          # Tests for core/
-├── wizard/             # Vibe integration server
+├── wizard/             # Managed service and integration layer
 ├── docs/               # Development documentation
 ├── tests/              # Integration tests
 ├── wiki/               # User guides (Obsidian format)
@@ -140,14 +137,14 @@ See `docs/PHASE-A-QUICKREF.md` for templates.
 1. Scaffold in `vibe/core/tools/ucode/my_tool.py`
 2. Inherit from `BaseTool`
 3. Implement `run()` method
-4. Test: `vibe --enabled-tools "my_tool" --prompt "use my tool"`
+4. Test through Dev Mode: `vibe --enabled-tools "my_tool" --prompt "use my tool"`
 
 ### Create a New Skill
 
 1. Create `vibe/core/skills/ucode/my-skill/SKILL.md`
 2. Write YAML frontmatter + description
 3. Optionally add implementation
-4. Test with `vibe` shell
+4. Test with the Dev Mode `vibe` shell
 
 ## Debugging
 
@@ -155,7 +152,7 @@ See `docs/PHASE-A-QUICKREF.md` for templates.
 # Enable debug logging
 export DEBUG=1
 export LOG_LEVEL=debug
-vibe --prompt "test"
+ucode STATUS
 
 # Run with debugger
 uv run debugpy -- ./uDOS.py SETUP
@@ -217,4 +214,4 @@ Follow [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 - Search [docs/](../docs/) for architecture / design docs
 - Open an issue with details
 
-Happy coding! ✨
+Keep `ucode` as the standard runtime when documenting or testing user-facing flows. Use `vibe` only for Dev Mode contributor operations.

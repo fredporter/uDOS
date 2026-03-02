@@ -147,7 +147,7 @@ type PluginType =
 - `allowed: true, domains: []` — Full internet access (requires approval)
 - `allowed: true, domains: [...]` — Whitelist only
 
-### AI Permissions
+### OK Model Permissions
 
 ```json
 {

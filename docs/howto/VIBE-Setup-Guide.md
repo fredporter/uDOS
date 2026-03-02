@@ -1,16 +1,16 @@
-# Vibe Setup Guide (uDOS Overlay)
+# Dev Mode Tooling Setup Guide
 
-This repository runs as an overlay on top of globally installed `vibe`.
-Do not clone/install a separate local Vibe source tree inside this repo.
+This guide covers optional Dev Mode contributor tooling setup.
+The standard runtime remains `ucode`; use this guide only when you need the `vibe` Dev Mode surface.
 
 ## Target Model
 
-- Global Vibe CLI install via official installer
+- optional global Dev Mode tooling install
 - Single Python environment in repo root: `venv/`
 - Project-local Vibe wiring in `.vibe/config.toml`
 - ucode command-set delivered through repo-local tools/skills and Wizard MCP
 
-## 1. Install Global Vibe CLI
+## 1. Install Dev Mode Tooling
 
 ```bash
 curl -fsSL https://vibe.mistral.ai/install.sh | sh
@@ -31,7 +31,7 @@ uv venv venv
 uv sync --extra udos-wizard
 ```
 
-## 3. Validate Local Vibe Config
+## 3. Validate Local Dev Mode Config
 
 Project config is committed in `.vibe/config.toml`.
 
@@ -46,7 +46,7 @@ Canonical MCP activation command (cross-platform):
 uv run --project . scripts/mcp_activation.py enable
 ```
 
-## 4. Trust and Launch
+## 4. Trust and Launch Dev Mode
 
 From repo root:
 
@@ -82,7 +82,7 @@ uv run --project . scripts/mcp_activation.py status
 uv run --project . wizard/mcp/mcp_server.py --tools
 ```
 
-### Symptom: skills or tools do not appear in Vibe
+### Symptom: skills or tools do not appear in Dev Mode
 
 Fix:
 
@@ -101,5 +101,5 @@ Policy for this repo:
 
 ## Notes
 
-- This guide supersedes old instructions that cloned `mistral-vibe` locally or used pip-editable local Vibe installs.
+- This guide supersedes old instructions that treated Dev Mode tooling as the default runtime.
 - Keep historical material in `docs/.compost/` only.

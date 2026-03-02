@@ -216,6 +216,56 @@ class PostgresWizardStore(WizardStore):
                 cur.execute("UPDATE tasks SET state = 'harvest', updated_at = %s WHERE id = %s", (now, row["task_id"]))
         return True
 
+    def release_queue_item(
+        self,
+        queue_id: int,
+        *,
+        scheduled_for: datetime | None = None,
+        reason: str | None = None,
+        backoff_seconds: int | None = None,
+    ) -> bool:
+        scheduled_iso = scheduled_for.isoformat() if scheduled_for else None
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE task_queue
+                SET state = 'pending',
+                    processed_at = NULL,
+                    scheduled_for = COALESCE(%s, scheduled_for),
+                    defer_reason = COALESCE(%s, defer_reason),
+                    defer_count = defer_count + 1,
+                    backoff_seconds = COALESCE(%s, backoff_seconds),
+                    last_deferred_at = %s
+                WHERE id = %s
+                """,
+                (scheduled_iso, reason, backoff_seconds, _utc_now(), queue_id),
+            )
+            return cur.rowcount > 0
+
+    def retry_queue_item(self, queue_id: int) -> dict[str, Any] | None:
+        now = _utc_now()
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE task_queue
+                SET state = 'pending',
+                    processed_at = NULL,
+                    scheduled_for = %s,
+                    defer_reason = NULL,
+                    defer_count = 0,
+                    backoff_seconds = 0,
+                    last_deferred_at = NULL
+                WHERE id = %s
+                RETURNING id
+                """,
+                (now, queue_id),
+            )
+            row = cur.fetchone()
+        if not row:
+            return None
+        rows = self._queue_rows("WHERE q.id = %s", (queue_id,), limit=1)
+        return rows[0] if rows else None
+
     def get_execution_history(self, *, limit: int = 50) -> list[dict[str, Any]]:
         with self._connect() as conn, conn.cursor() as cur:
             cur.execute("SELECT * FROM task_runs ORDER BY created_at DESC LIMIT %s", (limit,))

@@ -102,7 +102,7 @@ Migration:
 
 - **subprocess** – execute system commands
 
-  - **Use**: git, vibe-cli, shell tools
+  - **Use**: git, `ucode`, Dev Mode tooling, shell tools
   - **UCode command**: `RUN`
 
 - **argparse** – CLI argument parsing

@@ -11,27 +11,35 @@ Each file captures a discrete architectural, design, or technology choice.
 |------|-------|
 | [WIZARD-SERVICE-SPLIT-MAP.md](WIZARD-SERVICE-SPLIT-MAP.md) | Core vs Wizard service ownership boundaries |
 | [VAULT-MEMORY-CONTRACT.md](VAULT-MEMORY-CONTRACT.md) | Secret vault storage contract and memory layout |
-| [data-layer-architecture.md](data-layer-architecture.md) | Data layer design (SQL/JSON/Python parity) |
-| [UDOS-VM-REMOTE-DESKTOP-ARCHITECTURE.md](UDOS-VM-REMOTE-DESKTOP-ARCHITECTURE.md) | VM and remote desktop topology (Apple Silicon) |
+| [data-layer-architecture.md](data-layer-architecture.md) | Data layer architecture decision |
+| [UDOS-VM-REMOTE-DESKTOP-ARCHITECTURE.md](UDOS-VM-REMOTE-DESKTOP-ARCHITECTURE.md) | VM and remote desktop topology decision |
 
 ## Provider & Cloud Integration
 
 | File | Topic |
 |------|-------|
-| [OK-update-v1-4-6.md](OK-update-v1-4-6.md) | OK-mode cloud provider contract updates for v1.4.6 |
-| [MCP-API.md](MCP-API.md) | MCP API integration design |
+| [OK-update-v1-4-6.md](OK-update-v1-4-6.md) | Redirect stub to the canonical governance policy |
+| [OK-GOVERNANCE-POLICY.md](OK-GOVERNANCE-POLICY.md) | Active governance and terminology policy |
+| [MCP-API.md](MCP-API.md) | MCP bridge decision for Wizard and Dev Mode tooling |
 
 ## Workflow & Orchestration
 
 | File | Topic |
 |------|-------|
 | [v1-5-workflow.md](v1-5-workflow.md) | Active v1.5 workflow scheduler decision, scope split, and core/Wizard/extension ownership |
+| [v1-5-offline-assist.md](v1-5-offline-assist.md) | Active v1.5 offline assist decision covering `ucode`-first loops, file-backed state, and the `udos_ulogic_pack` reference scaffold |
+| [../specs/WORKFLOW-SCHEDULER-v1.5.md](../specs/WORKFLOW-SCHEDULER-v1.5.md) | Canonical workflow scheduler runtime contract derived from the v1.5 decision |
+| [../specs/OFFLINE-ASSIST-STANDARD-v1.5.md](../specs/OFFLINE-ASSIST-STANDARD-v1.5.md) | Canonical offline assist runtime contract derived from the v1.5 decision |
 
 ## OK Provider & Model Runtime
 
 | File | Topic |
 |------|-------|
 | [TUI-Vibe-Integration.md](TUI-Vibe-Integration.md) | TUI ↔ Vibe LLM integration design |
+| [v1-5-ucode-tui-spec.md](v1-5-ucode-tui-spec.md) | Active v1.5 `ucode` TUI decision |
+| [udos-protocol-v1.md](udos-protocol-v1.md) | Supporting TUI protocol reference |
+| [udos-reference-implementation.md](udos-reference-implementation.md) | Supporting TUI reference implementation skeleton |
+| [udos-teletext-theme.md](udos-teletext-theme.md) | Supporting teletext theme reference |
 | [vibe-cli-architecture-fix-v1-4-6.md](vibe-cli-architecture-fix-v1-4-6.md) | Vibe CLI architecture fixes for v1.4.6 |
 | [vibe-cli-implementation-status-v1-4-6.md](vibe-cli-implementation-status-v1-4-6.md) | Vibe CLI implementation status at v1.4.6 |
 | [vibe-cli-integration-plan-v1-4-6.md](vibe-cli-integration-plan-v1-4-6.md) | Vibe CLI integration plan for v1.4.6 |
@@ -41,23 +49,23 @@ Each file captures a discrete architectural, design, or technology choice.
 | File | Topic |
 |------|-------|
 | [HOME-ASSISTANT-BRIDGE.md](HOME-ASSISTANT-BRIDGE.md) | uDOS ↔ Home Assistant bridge design |
-| [uHOME-spec.md](uHOME-spec.md) | uHOME subsystem specification |
+| [uHOME-spec.md](uHOME-spec.md) | uHOME home profile decision |
 
 ## Sonic & Media Stack
 
 | File | Topic |
 |------|-------|
-| [SONIC-DB-SPEC-GPU-PROFILES.md](SONIC-DB-SPEC-GPU-PROFILES.md) | Sonic DB schema, GPU profiles, thin UI launch profiles |
+| [SONIC-DB-SPEC-GPU-PROFILES.md](SONIC-DB-SPEC-GPU-PROFILES.md) | Sonic DB GPU and launch profile decision |
 
 ## Platform & Runtime
 
 | File | Topic |
 |------|-------|
 | [alpine-linux-spec.md](alpine-linux-spec.md) | Alpine Linux deployment specification |
-| [UDOS-ALPINE-THIN-GUI-RUNTIME-SPEC.md](UDOS-ALPINE-THIN-GUI-RUNTIME-SPEC.md) | Alpine thin-GUI runtime (Chromium kiosk) |
+| [UDOS-ALPINE-THIN-GUI-RUNTIME-SPEC.md](UDOS-ALPINE-THIN-GUI-RUNTIME-SPEC.md) | Alpine thin-GUI runtime decision |
 | [UDOS-PYTHON-CORE-STDLIB-PROFILE.md](UDOS-PYTHON-CORE-STDLIB-PROFILE.md) | Python stdlib profile (no-networking mode) |
-| [UDOS-PYTHON-ENVIRONMENTS-DEV-BRIEF.md](UDOS-PYTHON-ENVIRONMENTS-DEV-BRIEF.md) | Python environment management dev brief |
-| [uDOS-v1-3.md](uDOS-v1-3.md) | uDOS v1.3 platform architecture snapshot |
+| [UDOS-PYTHON-ENVIRONMENTS-DEV-BRIEF.md](UDOS-PYTHON-ENVIRONMENTS-DEV-BRIEF.md) | Python environment decision |
+| [uDOS-v1-3.md](uDOS-v1-3.md) | Historical uDOS v1.3 architecture snapshot |
 
 ## Developer Experience & Tooling
 
@@ -65,5 +73,5 @@ Each file captures a discrete architectural, design, or technology choice.
 |------|-------|
 | [LOGGING-API-v1.3.md](LOGGING-API-v1.3.md) | Logging API contract (v1.3) |
 | [TERMINAL-STYLING-v1.3.md](TERMINAL-STYLING-v1.3.md) | Terminal styling standards (v1.3) |
-| [formatting-spec-v1-4.md](formatting-spec-v1-4.md) | Code and output formatting spec (v1.4) |
+| [formatting-spec-v1-4.md](formatting-spec-v1-4.md) | Redirect stub to the canonical formatting spec in `docs/specs/FORMATTING-SPEC-v1.4.md` |
 | [OBSIDIAN-INTEGRATION.md](OBSIDIAN-INTEGRATION.md) | Obsidian knowledge base integration design |

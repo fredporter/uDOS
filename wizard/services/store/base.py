@@ -47,6 +47,21 @@ class WizardStore(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def release_queue_item(
+        self,
+        queue_id: int,
+        *,
+        scheduled_for: datetime | None = None,
+        reason: str | None = None,
+        backoff_seconds: int | None = None,
+    ) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
+    def retry_queue_item(self, queue_id: int) -> dict[str, Any] | None:
+        raise NotImplementedError
+
+    @abstractmethod
     def complete_task_run(self, run_id: str, *, result: str, output: str) -> bool:
         raise NotImplementedError
 

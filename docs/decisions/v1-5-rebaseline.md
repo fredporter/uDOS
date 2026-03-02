@@ -10,8 +10,10 @@ uDOS v1.5 is reopened as an active rebaseline release. The earlier repository cl
 ## Product Rule
 
 - `ucode` is the sole primary user entry point
+- the v1.5 `ucode` TUI is the standard interactive user experience
 - Wizard is the browser/service layer subordinate to `ucode`
 - `vibe` is restricted to Dev Mode
+- Mistral-backed contributor flows are restricted to Dev Mode operations unless explicitly surfaced through Wizard-managed policy
 - Sonic remains independently distributable, but installed-system control is routed through `ucode`
 
 ## Release Profiles

@@ -100,7 +100,7 @@ This development log tracks major milestones, architectural decisions, and imple
 3. **HIGH:** Complete config migration (4-6h)
 4. **MEDIUM:** Create paths.py handler (2-3h)
 
-**Completion Status:** 38% (see CENTRALIZATION-STATUS.md)
+**Completion Status:** 38% (archived status snapshot: `docs/.compost/historic/2026-03-03-session-and-summary-relics/CENTRALIZATION-STATUS.md`)
 
 ---
 

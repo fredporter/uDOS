@@ -1,6 +1,6 @@
 # DevLog Directory
 
-**Purpose:** Development logs, completion summaries, test reports, and AI assistant session notes.
+**Purpose:** Development logs, completion summaries, test reports, and OK Assistant session notes.
 
 ## What Goes Here
 
@@ -9,7 +9,7 @@ All development documentation that tracks progress, testing, and implementation 
 - **Implementation summaries** - Completion notes for features/components (e.g., `2026-02-22-vibe-integration-complete.md`)
 - **Test reports** - Validation logs, test results, QA findings (e.g., `installer-test-report.md`)
 - **Development progress** - Sprint updates, milestone tracking, progress notes
-- **AI assistant sessions** - Significant Copilot/Cursor conversation summaries
+- **OK Assistant sessions** - Significant assistant conversation summaries
 - **Installation/setup logs** - First-run reports, configuration validations
 - **Refactoring logs** - Large-scale code changes, migration reports
 
@@ -21,16 +21,20 @@ Use date prefixes for chronological sorting:
 
 ## Current Files
 
-Active historical devlog:
-- `INSTALLATION-COMPLETE.md` - Installer implementation completion summary
-- `INSTALLER-TEST-REPORT.md` - Comprehensive installer test results
+Retained active evidence docs:
+- dated implementation logs that still support the active roadmap
+- milestone evidence logs still referenced by `docs/roadmap.md`
+- focused validation and audit logs that remain relevant to v1.5 rebaseline work
 
-Archived devlog stubs:
-- `docs/.archive/2026-02-15-docs-cleanup/devlog/` - Old roadmap checklists
-- `/.compost/2026-02-22/archive/docs/devlog/` - Legacy roadmap/planner snapshots moved out of active docs
+Archived devlog material:
+- `docs/.compost/historic/2026-03-03-devlog-rollups-and-relics/` - superseded completion summaries, quick-reference cards, and stale GA/release notes
+- `docs/.compost/historic/2026-03-03-devlog-interim-plans-and-progress/` - interim milestone plans, progress logs, and narrow completion notes
+- `docs/.compost/historic/2026-03-03-devlog-unreferenced-bulk/` - remaining unreferenced implementation logs moved out of the active devlog surface
+- `docs/.archive/2026-02-15-docs-cleanup/devlog/` - old roadmap checklists
+- `/.compost/2026-02-22/archive/docs/devlog/` - legacy roadmap/planner snapshots moved out of active docs
 
 ## Cross-References
 
 - Canonical active roadmap: [docs/roadmap.md](../roadmap.md)
-- Archive policy: [docs/.archive/README.md](../.archive/README.md)
+- Documentation cleanup map: [docs/specs/DOCUMENTATION-CANONICAL-MAP.md](../specs/DOCUMENTATION-CANONICAL-MAP.md)
 - Documentation organization: [AGENTS.md](../../AGENTS.md)

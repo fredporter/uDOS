@@ -1,0 +1,1 @@
+import sys, platform\nprint('python', sys.version)\nprint('platform', platform.platform())\n

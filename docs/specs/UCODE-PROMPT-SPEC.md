@@ -2,7 +2,7 @@
 
 **Date:** 2026-02-04
 **Status:** Implementation-aligned
-**Scope:** uCODE input parsing, command prefixes, shell routing, autocomplete, and auto-route behavior in the Vibe CLI/ucode command interface.
+**Scope:** uCODE input parsing, command prefixes, shell routing, autocomplete, and auto-route behavior in the v1.5 `ucode` command interface.
 
 ---
 
@@ -16,7 +16,7 @@ uCODE must clearly separate **questions** from **commands** while keeping comman
 
 There are three modes, determined by the first non‑whitespace characters.
 
-1. **AI Prompt mode**
+1. **OK Prompt mode**
 Prefix: `OK ` or `?`
 Example: `OK EXPLAIN core/tui/ucode.py`
 Example: `? summarize this file`
@@ -34,13 +34,13 @@ Example: `status`
 ## 3. Parsing Rules
 
 1. **Trim left whitespace**, then inspect prefix.
-2. **AI Prompt mode** if input starts with `OK` followed by whitespace, or starts with `?`.
+2. **OK Prompt mode** if input starts with `OK` followed by whitespace, or starts with `?`.
 - Normalize `OK` or `?` to a single internal prefix `OK`.
 3. **Slash mode** if input starts with `/`.
 - If the first token matches a **uCODE command** in the registry, route to uCODE.
 - Otherwise route to **shell**, if shell routing is enabled.
 4. **Auto route mode** if none of the above matches.
-- Route order: **uCODE → shell → AI** (local‑first with optional cloud sanity).
+- Route order: **uCODE → shell → OK Assistant** (local‑first with optional cloud sanity).
 5. **Command naming restriction:** uCODE commands must **not** start with digits (`0-9`) or `-`/`=`.
    - This reserves numeric‑first input for menu selection (see section 7).
 
@@ -138,7 +138,7 @@ Creates an SVG file at `memory/vault/sandbox/tree.svg`.
 ```text
 ?SETUP
 ```
-Runs the TUI setup story (AI prompt routed to uCODE).
+Runs the TUI setup story (OK prompt routed to uCODE).
 
 ```text
  /ls -la
@@ -148,7 +148,7 @@ Shell command (no uCODE registry match).
 ```text
 How do I publish to the public lane?
 ```
-Auto route mode (uCODE → shell → AI).
+Auto route mode (uCODE → shell → OK Assistant).
 
 ---
 
@@ -162,9 +162,9 @@ Auto route mode (uCODE → shell → AI).
 
 ## 11. Acceptance Criteria
 
-1. `OK` and `?` reliably route to the same AI prompt handler.
+1. `OK` and `?` reliably route to the same OK prompt handler.
 2. `/help` routes to uCODE if registered; `/ls` routes to shell when shell is enabled.
-3. Auto route mode attempts uCODE → shell → AI in that order.
+3. Auto route mode attempts uCODE → shell → OK Assistant in that order.
 4. Autocomplete suggestions update based on command context.
 5. Autocomplete never takes over input; suggestions require explicit accept.
 6. Shell commands are logged and destructive operations prompt for confirmation.

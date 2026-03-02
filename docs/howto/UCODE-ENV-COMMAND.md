@@ -66,7 +66,7 @@ File: /path/to/uDOS-vibe/.env
 
 ### With Quoted Values (Spaces)
 ```bash
-UCODE ENV location_name="San Francisco" user_bio="AI researcher from CA"
+UCODE ENV location_name="San Francisco" user_bio="OK Model researcher from CA"
 ```
 
 Variables with spaces require quotes around the value.
@@ -354,4 +354,3 @@ UCODE ENV UDOS_LOG_LEVEL=DEBUG UDOS_LOG_FORMAT=json UDOS_LOG_DEST=file
 - [SETUP-SECRETS.md](SETUP-SECRETS.md) — Secret management best practices
 - [ENV-STRUCTURE-V1.1.0.md](../specs/ENV-STRUCTURE-V1.1.0.md) — .env design spec
 - [core/commands/ucode_handler.py](../../core/commands/ucode_handler.py) — Implementation
-

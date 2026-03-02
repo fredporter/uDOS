@@ -49,7 +49,7 @@ In Obsidian:
 ### 3. Start Using Both
 
 - **Obsidian** — Rich editing, graph view, plugins
-- **uDOS** — Automation, CLI, runtime execution, AI integration
+- **uDOS** — Automation, CLI, runtime execution, OK integration
 
 Both apps share the same files in real-time!
 
@@ -66,7 +66,7 @@ Both apps share the same files in real-time!
 
 ### For Execution & Automation (uDOS)
 - Script execution
-- AI assistance
+- OK Assistant support
 - Workflow automation
 - Command-line operations
 - System integration

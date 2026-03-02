@@ -113,7 +113,7 @@ Wizard or external dependency failed or unavailable.
 ```python
 raise CommandError(
     code="ERR_PROVIDER_OFFLINE",
-    message="AI provider 'ollama' is not responding.",
+    message="OK provider 'ollama' is not responding.",
     recovery_hint="Start Wizard services: `ucode wizard start`. Check status: `HEALTH --verbose`."
 )
 ```
@@ -204,7 +204,7 @@ def handle_health_check(args):
     except ProviderOfflineError as e:
         raise CommandError(
             code="ERR_PROVIDER_OFFLINE",
-            message="AI provider 'ollama' is not responding.",
+            message="OK provider 'ollama' is not responding.",
             recovery_hint="Start Wizard: `ucode wizard start`",
             cause=e
         )

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "uDOS project.json",
+  "type": "object",
+  "required": [
+    "name",
+    "constraints"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "offline_first": {
+          "type": "boolean"
+        },
+        "allowed_shell": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "max_runtime_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "destructive_commands": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "workflow_defaults": {
+      "type": "object"
+    },
+    "gameplay": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

@@ -34,9 +34,9 @@ Goal: establish clear service boundaries and a migration path to `/api` + `/mcp`
 
 ---
 
-### 2) AI & Model Gateway
+### 2) OK Provider & Model Gateway
 **Responsibilities**
-- Provider routing, model selection, AI request orchestration
+- Provider routing, model selection, OK request orchestration
 
 **Primary code**
 - `wizard/services/ok_gateway.py`
