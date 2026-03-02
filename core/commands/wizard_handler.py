@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+import getpass
 import json
 from pathlib import Path
 import secrets
@@ -45,6 +46,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                     ("Start server", "start", "Launch Wizard server"),
                     ("Stop server", "stop", "Stop Wizard server"),
                     ("Status", "status", "Check Wizard health"),
+                    ("Key management", "key", "Manage MISTRAL_API_KEY in .env"),
                     (
                         "Reset keystore",
                         "reset",
@@ -95,6 +97,8 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             return self._restart_wizard()
         elif action in {"status", "--status"}:
             return self._wizard_status()
+        elif action in {"key", "keys", "--key", "--keys"}:
+            return self._wizard_key(params[1:])
         elif action in {"prov", "provider"}:
             return self._wizard_provider(params[1:])
         elif action in {"integ", "integration"}:
@@ -120,6 +124,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         repo_root = get_repo_root()
         banner = OutputToolkit.banner("WIZARD REBUILD")
         output_lines = [banner, ""]
+        used_dashboard_fallback = False
 
         # Validate repo root exists
         if not repo_root or not Path(repo_root).exists():
@@ -131,23 +136,52 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                 level="ERROR",
             )
 
-        # Validate build script exists
-        build_script = Path(repo_root) / "bin" / "udos-common.sh"
-        if not build_script.exists():
-            logger.error(f"[LOCAL] Build script not found: {build_script}")
-            raise CommandError(
-                code="ERR_IO_FILE_NOT_FOUND",
-                message="Build infrastructure not found",
-                recovery_hint=f"Missing: {build_script}",
-                level="ERROR",
-            )
-
         try:
-            rebuild_cmd = (
-                f'source "{repo_root}/bin/udos-common.sh" '
-                "&& export UDOS_FORCE_REBUILD=1 "
-                "&& rebuild_wizard_dashboard"
-            )
+            build_script = Path(repo_root) / "bin" / "udos-common.sh"
+            dashboard_root = Path(repo_root) / "wizard" / "dashboard"
+
+            if build_script.exists():
+                rebuild_cmd = (
+                    f'source "{repo_root}/bin/udos-common.sh" '
+                    "&& export UDOS_FORCE_REBUILD=1 "
+                    "&& rebuild_wizard_dashboard"
+                )
+            elif dashboard_root.exists():
+                used_dashboard_fallback = True
+                npm_bin = subprocess.run(
+                    ["bash", "-lc", "command -v npm"],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                    cwd=str(repo_root),
+                )
+                if npm_bin.returncode != 0:
+                    logger.warning(
+                        "[LOCAL] npm is unavailable; keeping fallback dashboard content"
+                    )
+                    return {
+                        "status": "warning",
+                        "output": (
+                            banner
+                            + "\n⚠️ Build tooling unavailable (npm not found). "
+                            "Fallback dashboard remains active."
+                        ),
+                    }
+
+                output_lines.append(
+                    "Build infrastructure script missing; using dashboard-local self-heal path."
+                )
+                rebuild_cmd = "npm install --no-audit --no-fund && npm run build"
+                repo_root = dashboard_root
+            else:
+                logger.warning("[LOCAL] Wizard dashboard source not found; skipping rebuild")
+                return {
+                    "status": "warning",
+                    "output": (
+                        banner
+                        + "\n⚠️ Dashboard source missing; keeping current dashboard artifacts."
+                    ),
+                }
 
             # Run without capturing output so spinner can use terminal directly
             result = subprocess.run(
@@ -163,6 +197,15 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                 logger.error(
                     f"[LOCAL] Wizard rebuild failed with code {result.returncode}"
                 )
+                if used_dashboard_fallback:
+                    return {
+                        "status": "warning",
+                        "output": (
+                            banner
+                            + "\n⚠️ Dashboard build attempted but failed; fallback dashboard remains active."
+                            + "\nTry: cd wizard/dashboard && rm -rf node_modules && npm install && npm run build"
+                        ),
+                    }
                 raise CommandError(
                     code="ERR_RUNTIME_UNEXPECTED",
                     message=f"Rebuild failed (exit {result.returncode})",
@@ -177,12 +220,22 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             }
         except subprocess.TimeoutExpired:
             logger.error("[LOCAL] Wizard rebuild timed out (300s)")
+            if used_dashboard_fallback:
+                return {
+                    "status": "warning",
+                    "output": (
+                        banner
+                        + "\n⚠️ Dashboard rebuild timed out; fallback dashboard remains active."
+                    ),
+                }
             raise CommandError(
                 code="ERR_RUNTIME_UNEXPECTED",
                 message="Rebuild timed out (exceeded 5 minutes)",
                 recovery_hint="Try rebuilding manually: source bin/udos-common.sh && rebuild_wizard_dashboard",
                 level="ERROR",
             )
+        except CommandError:
+            raise
         except Exception as exc:
             logger.error(f"[LOCAL] Wizard rebuild failed: {exc}")
             raise CommandError(
@@ -201,6 +254,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             "WIZARD KILL       Force kill Wizard process (port conflict fix)",
             "WIZARD RESTART    Kill and restart Wizard",
             "WIZARD STATUS     Check Wizard server status",
+            "WIZARD KEY ...    Manage MISTRAL_API_KEY (status|set|clear)",
             "WIZARD PROV ...   Provider operations (LIST|STATUS|ENABLE|DISABLE|SETUP|GENSECRET)",
             "WIZARD INTEG ...  Integration wiring checks (status|github|mistral|ollama)",
             "WIZARD CHECK      Full Wizard-side shakedown",
@@ -211,6 +265,99 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             "WIZARD REBUILD    Rebuild Wizard dashboard artifacts",
             "WIZARD HELP       Show this help",
         ])
+
+    def _wizard_key(self, params: list[str]) -> dict:
+        sub = params[0].lower() if params else "status"
+
+        from core.services.config_sync_service import ConfigSyncManager
+
+        sync = ConfigSyncManager()
+
+        if sub in {"status", "show"}:
+            env_data = sync.load_env_dict()
+            key = (env_data.get("MISTRAL_API_KEY") or "").strip()
+            banner = OutputToolkit.banner("WIZARD KEY STATUS")
+            if key:
+                preview = "*" * max(4, len(key) - 4) + key[-4:]
+                return {
+                    "status": "success",
+                    "output": "\n".join([
+                        banner,
+                        "",
+                        "MISTRAL_API_KEY: set",
+                        f"Preview: {preview}",
+                    ]),
+                }
+            return {
+                "status": "warning",
+                "output": "\n".join([
+                    banner,
+                    "",
+                    "MISTRAL_API_KEY: missing",
+                    "Set one with: WIZARD KEY SET <key>",
+                ]),
+            }
+
+        if sub in {"set", "add", "update"}:
+            key_value = ""
+            if len(params) > 1:
+                key_value = " ".join(params[1:]).strip()
+            elif sub == "set":
+                try:
+                    key_value = getpass.getpass("Enter Mistral API key: ").strip()
+                except Exception:
+                    key_value = ""
+
+            if not key_value:
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Usage: WIZARD KEY SET <key>",
+                    recovery_hint="Provide key as argument, or run interactively and enter when prompted",
+                    level="INFO",
+                )
+
+            ok, message = sync.update_env_vars({"MISTRAL_API_KEY": key_value})
+            if not ok:
+                raise CommandError(
+                    code="ERR_RUNTIME_UNEXPECTED",
+                    message=message,
+                    recovery_hint="Check .env write permissions",
+                    level="ERROR",
+                )
+            return {
+                "status": "success",
+                "output": "\n".join([
+                    OutputToolkit.banner("WIZARD KEY SET"),
+                    "",
+                    "✅ MISTRAL_API_KEY updated in .env",
+                    "Restart Vibe to pick up the new key value.",
+                ]),
+            }
+
+        if sub in {"clear", "unset", "remove", "delete"}:
+            ok, message = sync.update_env_vars({"MISTRAL_API_KEY": None})
+            if not ok:
+                raise CommandError(
+                    code="ERR_RUNTIME_UNEXPECTED",
+                    message=message,
+                    recovery_hint="Check .env write permissions",
+                    level="ERROR",
+                )
+            return {
+                "status": "success",
+                "output": "\n".join([
+                    OutputToolkit.banner("WIZARD KEY CLEAR"),
+                    "",
+                    "✅ MISTRAL_API_KEY removed from .env",
+                ]),
+            }
+
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message="Usage: WIZARD KEY [STATUS|SET|CLEAR]",
+            recovery_hint="Examples: WIZARD KEY STATUS | WIZARD KEY SET <key> | WIZARD KEY CLEAR",
+            level="INFO",
+        )
 
     def _wizard_mode(self, params: list[str]) -> dict:
         sub = params[0].lower() if params else "status"
@@ -726,10 +873,28 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         base_url, _ = self._wizard_urls()
         manager = get_wizard_process_manager()
 
+        key_state = "unknown"
+        key_preview = ""
+        try:
+            from core.services.config_sync_service import ConfigSyncManager
+
+            env_data = ConfigSyncManager().load_env_dict()
+            key = (env_data.get("MISTRAL_API_KEY") or "").strip()
+            if key:
+                key_state = "set"
+                key_preview = "*" * max(4, len(key) - 4) + key[-4:]
+            else:
+                key_state = "missing"
+        except Exception:
+            pass
+
         try:
             status = manager.status(base_url=base_url)
             if status.connected:
                 output_lines.append(f"✅ Wizard running on {base_url}")
+                output_lines.append(f"🔐 Mistral key: {key_state}")
+                if key_preview:
+                    output_lines.append(f"   Preview: {key_preview}")
                 try:
                     data = status.health
                     if "version" in data:
@@ -744,6 +909,9 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                     pass
                 return {"status": "success", "output": "\n".join(output_lines)}
             output_lines.append("❌ Wizard not running")
+            output_lines.append(f"🔐 Mistral key: {key_state}")
+            if key_preview:
+                output_lines.append(f"   Preview: {key_preview}")
             output_lines.append("Run: WIZARD START")
             if status.pid:
                 output_lines.append(f"PID file process: {status.pid} (unhealthy)")

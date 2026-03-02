@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 
 def get_fallback_dashboard_html() -> str:
     """Return basic HTML dashboard when Svelte build isn't available."""
@@ -92,3 +94,22 @@ def get_fallback_dashboard_html() -> str:
     </div>
 </body>
 </html>"""
+
+
+def ensure_static_dashboard_dist(dist_dir: Path) -> bool:
+    """Materialize a static dashboard index as an emergency self-heal path.
+
+    Returns True when index.html exists after this call.
+    """
+    try:
+        dist_dir.mkdir(parents=True, exist_ok=True)
+        index_path = dist_dir / "index.html"
+        if not index_path.exists():
+            html = get_fallback_dashboard_html().replace(
+                "This is a basic fallback dashboard. The full Svelte dashboard hasn't been built yet.",
+                "Dashboard is running in safe static mode because compiled UI assets are missing.",
+            )
+            index_path.write_text(html, encoding="utf-8")
+        return index_path.exists()
+    except Exception:
+        return False

@@ -38,7 +38,10 @@ from wizard.services.path_utils import get_repo_root
 logger = get_logger("wizard.server")
 from typing import TYPE_CHECKING
 
-from wizard.services.dashboard_fallback import get_fallback_dashboard_html
+from wizard.services.dashboard_fallback import (
+    ensure_static_dashboard_dist,
+    get_fallback_dashboard_html,
+)
 from wizard.services.env_loader import load_dotenv
 from wizard.services.log_reader import LogReader
 from wizard.services.plugin_repo_service import PluginRepoService
@@ -563,17 +566,25 @@ class WizardServer:
         from fastapi.staticfiles import StaticFiles
 
         dashboard_path = Path(__file__).parent / "dashboard" / "dist"
+        if not dashboard_path.exists():
+            healed = ensure_static_dashboard_dist(dashboard_path)
+            if healed:
+                self.logger.warning(
+                    "[WIZ] dashboard dist missing; generated static safe-mode dashboard"
+                )
         site_root = REPO_ROOT / "memory" / "vault" / "_site"
         if site_root.exists():
             app.mount(
                 "/_site", StaticFiles(directory=str(site_root)), name="vault-site"
             )
         if dashboard_path.exists():
-            app.mount(
-                "/assets",
-                StaticFiles(directory=str(dashboard_path / "assets")),
-                name="assets",
-            )
+            assets_path = dashboard_path / "assets"
+            if assets_path.exists():
+                app.mount(
+                    "/assets",
+                    StaticFiles(directory=str(assets_path)),
+                    name="assets",
+                )
 
             @app.get("/")
             async def serve_dashboard():

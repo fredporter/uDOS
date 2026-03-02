@@ -2023,6 +2023,15 @@ class UCODE:
         self.renderer.stream_text(
             f"Provider route: {route} (source: {source})", prefix="vibe> "
         )
+
+        # Diagnostic: warn if cloud mode is enabled but API key is missing
+        if route == "cloud" and not cloud_status.get("ready"):
+            from core.services.unified_config_loader import get_config
+            mistral_key = get_config("MISTRAL_API_KEY", "").strip()
+            if not mistral_key:
+                lines.insert(0, "❌ URGENT: Cloud mode enabled but MISTRAL_API_KEY is empty")
+                lines.insert(1, "   Set now: WIZARD KEY SET <your_api_key>")
+
         self.renderer.stream_text("\n".join(lines), prefix="vibe> ")
         print("")
         return {

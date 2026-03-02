@@ -30,4 +30,7 @@ else
   exit 127
 fi
 
+# Ensure wizard dependencies are installed
+"${UV_BIN}" sync --project "${REPO_ROOT}" --extra udos-wizard --quiet || true
+
 exec "${UV_BIN}" run --project "${REPO_ROOT}" -m core.tui.ucode_entry "$@"

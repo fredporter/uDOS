@@ -1,6 +1,8 @@
 <script>
-  import { apiFetch } from "$lib/services/apiBase";
   import { onMount, onDestroy } from "svelte";
+  import { apiFetch } from "$lib/services/apiBase";
+
+  // Route components
   import Dashboard from "./routes/Dashboard.svelte";
   import Devices from "./routes/Devices.svelte";
   import Webhooks from "./routes/Webhooks.svelte";
@@ -13,10 +15,10 @@
   import Binder from "./routes/Binder.svelte";
   import GitHub from "./routes/GitHub.svelte";
   import Wiki from "./routes/Wiki.svelte";
-  import Library from "./routes/Library.svelte";
   import Files from "./routes/Files.svelte";
   import Story from "./routes/Story.svelte";
   import Tables from "./routes/Tables.svelte";
+  import Library from "./routes/Library.svelte";
   import Repair from "./routes/Repair.svelte";
   import FontManager from "./routes/FontManager.svelte";
   import EmojiPipeline from "./routes/EmojiPipeline.svelte";
@@ -31,48 +33,47 @@
   import Ports from "./routes/Ports.svelte";
   import Extensions from "./routes/Extensions.svelte";
   import Sonic from "./routes/Sonic.svelte";
-  import WizardTopBar from "./components/WizardTopBar.svelte";
-  import WizardBottomBar from "./components/WizardBottomBar.svelte";
-  import ToastContainer from "./lib/components/ToastContainer.svelte";
-  import { initTypography } from "./lib/typography.js";
-  import { notifyError, notifyFromLog } from "$lib/services/toastService";
-  import { buildAuthHeaders, setAdminToken } from "$lib/services/auth";
+  import Setup from "./routes/Setup.svelte";
+
+  // Route mapping
+  const routes = {
+    dashboard: Dashboard,
+    devices: Devices,
+    webhooks: Webhooks,
+    logs: Logs,
+    catalog: Catalog,
+    config: Config,
+    devmode: DevMode,
+    tasks: Tasks,
+    workflow: Workflow,
+    binder: Binder,
+    github: GitHub,
+    wiki: Wiki,
+    files: Files,
+    story: Story,
+    tables: Tables,
+    library: Library,
+    repair: Repair,
+    "font-manager": FontManager,
+    "emoji-pipeline": EmojiPipeline,
+    "pixel-editor": PixelEditor,
+    "layer-editor": LayerEditor,
+    "svg-processor": SvgProcessor,
+    hotkeys: Hotkeys,
+    groovebox: Groovebox,
+    renderer: Renderer,
+    anchors: Anchors,
+    ucode: UCodeConsole,
+    ports: Ports,
+    extensions: Extensions,
+    sonic: Sonic,
+    setup: Setup,
+  };
 
   // Simple hash-based routing
   let currentRoute = "dashboard";
   let isDark = true;
-  const validRoutes = new Set([
-    "dashboard",
-    "devices",
-    "webhooks",
-    "logs",
-    "catalog",
-    "config",
-    "devmode",
-    "tasks",
-    "workflow",
-    "binder",
-    "github",
-    "wiki",
-    "files",
-    "story",
-    "tables",
-    "library",
-    "repair",
-    "font-manager",
-    "emoji-pipeline",
-    "pixel-editor",
-    "layer-editor",
-    "svg-processor",
-    "hotkeys",
-    "groovebox",
-    "renderer",
-    "anchors",
-    "ucode",
-    "ports",
-    "extensions",
-    "sonic",
-  ]);
+  const validRoutes = new Set(Object.keys(routes));
 
   function navigate(route) {
     if (!validRoutes.has(route)) return;
@@ -231,7 +232,7 @@
       isDark = false;
     }
     applyTheme();
-    initTypography();
+    // initTypography(); // TODO: restore when src/lib is complete
     window.addEventListener("error", handleGlobalError);
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
     pollLogs();
@@ -245,78 +246,37 @@
   });
 </script>
 
-<div class="mdk-app">
+<div class="mdk-app" style="background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; flex-direction: column;">
   <!-- Top Navigation Bar -->
-  <WizardTopBar {currentRoute} onNavigate={navigate} />
-  <ToastContainer />
+  <header style="text-align: center; padding: 20px; border-bottom: 1px solid #334155;">
+    <h1 style="color: #60a5fa; margin: 0 0 5px 0;">🧙 uDOS Wizard Server</h1>
+    <p style="color: #cbd5e1; margin: 0; font-size: 14px;">Dashboard v1.4.6</p>
+  </header>
 
-  <div class="mdk-shell">
-    <!-- Content -->
-    <main class="mdk-main">
-      {#if currentRoute === "dashboard"}
-        <Dashboard />
-      {:else if currentRoute === "devices"}
-        <Devices />
-      {:else if currentRoute === "webhooks"}
-        <Webhooks />
-      {:else if currentRoute === "logs"}
-        <Logs />
-      {:else if currentRoute === "catalog"}
-        <Catalog />
-      {:else if currentRoute === "config"}
-        <Config />
-      {:else if currentRoute === "devmode"}
-        <DevMode />
-      {:else if currentRoute === "tasks"}
-        <Tasks />
-      {:else if currentRoute === "workflow"}
-        <Workflow />
-      {:else if currentRoute === "binder"}
-        <Binder />
-      {:else if currentRoute === "github"}
-        <GitHub />
-      {:else if currentRoute === "wiki"}
-        <Wiki />
-      {:else if currentRoute === "files"}
-        <Files />
-      {:else if currentRoute === "story"}
-        <Story />
-      {:else if currentRoute === "tables"}
-        <Tables />
-      {:else if currentRoute === "library"}
-        <Library />
-      {:else if currentRoute === "repair"}
-        <Repair />
-      {:else if currentRoute === "font-manager"}
-        <FontManager />
-      {:else if currentRoute === "emoji-pipeline"}
-        <EmojiPipeline />
-      {:else if currentRoute === "pixel-editor"}
-        <PixelEditor />
-      {:else if currentRoute === "layer-editor"}
-        <LayerEditor />
-      {:else if currentRoute === "svg-processor"}
-        <SvgProcessor />
-      {:else if currentRoute === "hotkeys"}
-        <Hotkeys />
-      {:else if currentRoute === "groovebox"}
-        <Groovebox />
-      {:else if currentRoute === "renderer"}
-        <Renderer />
-      {:else if currentRoute === "anchors"}
-        <Anchors />
-      {:else if currentRoute === "ucode"}
-        <UCodeConsole />
-      {:else if currentRoute === "ports"}
-        <Ports />
-      {:else if currentRoute === "extensions"}
-        <Extensions />
-      {:else if currentRoute === "sonic"}
-        <Sonic />
-      {/if}
+  <div class="mdk-shell" style="flex: 1; overflow: hidden; display: flex;">
+    <!-- Sidebar Navigation -->
+    <nav style="width: 200px; border-right: 1px solid #334155; overflow-y: auto; padding: 12px 0;">
+      {#each Array.from(validRoutes) as route (route)}
+        <button
+          on:click={() => navigate(route)}
+          style="width: 100%; padding: 10px 16px; border: none; background: {currentRoute === route ? '#1e293b' : 'transparent'}; color: {currentRoute === route ? '#60a5fa' : '#cbd5e1'}; text-align: left; cursor: pointer; font-size: 14px; transition: all 0.2s;"
+        >
+          {route.replace(/-/g, ' ')}
+        </button>
+      {/each}
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="mdk-main" style="flex: 1; overflow-y: auto; padding: 20px;">
+      {#key currentRoute}
+        {#if routes[currentRoute]}
+          <svelte:component this={routes[currentRoute]} />
+        {:else}
+          <div style="color: #94a3b8;">Route not found: {currentRoute}</div>
+        {/if}
+      {/key}
     </main>
   </div>
 </div>
 
-<!-- Bottom Settings Bar -->
-<WizardBottomBar {isDark} onDarkModeToggle={toggleTheme} />
+

@@ -44,6 +44,8 @@ eggs/
 .eggs/
 lib/
 lib64/
+# Exception: Allow wizard dashboard lib directory
+!wizard/dashboard/src/lib/
 parts/
 sdist/
 var/
@@ -210,6 +212,8 @@ core/memory/
 .compost/
 *.db
 *.sqlite3
+.wizard.pid
+*.pid
 
 # ── uDOS secrets store (live tomb, never committed) ──
 # Commit wizard/secrets.tomb.example as the stub instead
@@ -235,6 +239,17 @@ README 2.md
 core/node_modules/
 core/grid-runtime/node_modules/
 
+# ── Platform-specific node_modules (not synced between machines) ──
+**/node_modules/@esbuild/darwin-*
+**/node_modules/@esbuild/linux-*
+**/node_modules/@rollup/rollup-darwin-*
+**/node_modules/@rollup/rollup-linux-*
+**/node_modules/.svelte2tsx-language-server-files/
+
 # Auto-generated / secret backups
 .env.backup*
 snapshot_report.html
+
+# ── Temporary numbered files ──
+[0-9].
+[0-9][0-9].

@@ -93,6 +93,42 @@ VIBE_CLI_INSTALLED=false
 UV_INSTALLED=false
 MICRO_INSTALLED=false
 OBSIDIAN_INSTALLED=false
+NON_INTERACTIVE=false
+
+if [[ "${UDOS_INSTALLER_NONINTERACTIVE:-0}" == "1" ]] || [[ ! -t 0 ]]; then
+    NON_INTERACTIVE=true
+fi
+
+function read_prompt_default() {
+    local __var_name="$1"
+    local question="$2"
+    local default_value="${3:-}"
+    local secret="${4:-false}"
+    local input_value=""
+
+    if [[ "$NON_INTERACTIVE" == true ]]; then
+        printf -v "$__var_name" '%s' "$default_value"
+        if [[ "$secret" == true ]]; then
+            info "Non-interactive mode: using default for secret input"
+        else
+            info "Non-interactive mode: ${question} -> ${default_value:-<empty>}"
+        fi
+        return 0
+    fi
+
+    prompt "$question"
+    if [[ "$secret" == true ]]; then
+        read -r -s input_value || input_value="$default_value"
+        echo ""
+    else
+        read -r input_value || input_value="$default_value"
+    fi
+
+    if [[ -z "$input_value" ]]; then
+        input_value="$default_value"
+    fi
+    printf -v "$__var_name" '%s' "$input_value"
+}
 
 # ── Installer Dispatch (Host vs TinyCore) ───────────────────
 function maybe_dispatch_to_tinycore_installer() {
@@ -625,8 +661,7 @@ function install_micro() {
         return
     fi
 
-    prompt "Install micro text editor for TUI editing? (recommended) [Y/n]"
-    read -r response
+    read_prompt_default response "Install micro text editor for TUI editing? (recommended) [Y/n]" "Y"
     if [[ "$response" =~ ^[Nn] ]]; then
         warning "Skipping micro installation"
         return
@@ -664,8 +699,7 @@ function check_obsidian() {
             success "Obsidian found"
         else
             warning "Obsidian not found"
-            prompt "Install Obsidian? (recommended for vault management) [Y/n]"
-            read -r response
+            read_prompt_default response "Install Obsidian? (recommended for vault management) [Y/n]" "Y"
             if [[ ! "$response" =~ ^[Nn] ]]; then
                 info "Opening Obsidian download page..."
                 open "https://obsidian.md/download"
@@ -740,8 +774,7 @@ function setup_env_file() {
 
     if [[ -f "$env_file" ]]; then
         warning ".env file already exists"
-        prompt "Overwrite with fresh template? [y/N]"
-        read -r response
+        read_prompt_default response "Overwrite with fresh template? [y/N]" "N"
         if [[ ! "$response" =~ ^[Yy] ]]; then
             info "Keeping existing .env file"
             return
@@ -766,8 +799,7 @@ function setup_env_file() {
 
     # Prompt for essential values
     echo ""
-    prompt "Enter your username (leave empty for 'Ghost' mode):"
-    read -r username
+    read_prompt_default username "Enter your username (leave empty for 'Ghost' mode):" ""
     if [[ -n "$username" ]]; then
         upsert_env_var "$env_file" "USER_NAME" "$username"
         # Canonical username key is USER_NAME; remove legacy alias to avoid drift.
@@ -779,8 +811,12 @@ function setup_env_file() {
     fi
 
     echo ""
-    prompt "Enter your Mistral API key (get one at https://console.mistral.ai):"
-    read -r api_key
+    local api_key="${UDOS_MISTRAL_API_KEY:-${MISTRAL_API_KEY:-}}"
+    if [[ -z "$api_key" ]]; then
+        read_prompt_default api_key "Enter your Mistral API key (get one at https://console.mistral.ai):" "" true
+    else
+        info "Using existing Mistral API key from environment"
+    fi
     if [[ -n "$api_key" ]]; then
         sed -i.bak "s|MISTRAL_API_KEY=.*|MISTRAL_API_KEY=$api_key|g" "$env_file"
         rm -f "$env_file.bak"
@@ -960,8 +996,7 @@ function setup_vault_structure() {
     success "Vault structure ready"
 
     if [[ "$OBSIDIAN_INSTALLED" == true ]]; then
-        prompt "Open vault in Obsidian? [Y/n]"
-        read -r response
+        read_prompt_default response "Open vault in Obsidian? [Y/n]" "Y"
         if [[ ! "$response" =~ ^[Nn] ]]; then
             if [[ "$OS_TYPE" == "mac" ]]; then
                 open -a Obsidian "$vault_root"
@@ -971,23 +1006,151 @@ function setup_vault_structure() {
 }
 
 # ── Install Vibe CLI ─────────────────────────────────────────
+function _run_vibe_installer() {
+    local url="$1"
+    local install_dir="${2:-.}"
+    local tmp_script
+    tmp_script=$(mktemp) || return 2
+
+    # Download installer to temp file (more robust than piping)
+    if ! curl -fsSL "$url" -o "$tmp_script" 2>/dev/null; then
+        rm -f "$tmp_script"
+        return 1
+    fi
+
+    # Verify we got actual content (not an error page)
+    if [[ ! -s "$tmp_script" ]] || grep -q "404\|Not Found\|Unauthorized" "$tmp_script" 2>/dev/null; then
+        rm -f "$tmp_script"
+        return 1
+    fi
+
+    # Run with explicit bash (not sh) to avoid dash incompatibilities on Ubuntu
+    if ! bash "$tmp_script" 2>/dev/null; then
+        rm -f "$tmp_script"
+        return 1
+    fi
+
+    rm -f "$tmp_script"
+    return 0
+}
+
+function _ensure_path_configured() {
+    # Ensure ~/.local/bin is in PATH for new shells
+    local shell_configs=(
+        "$HOME/.bashrc"
+        "$HOME/.zshrc"
+        "$HOME/.bash_profile"
+    )
+
+    local path_line='export PATH="${HOME}/.local/bin:${PATH}"'
+
+    for config in "${shell_configs[@]}"; do
+        if [[ -f "$config" ]]; then
+            if ! grep -q "\.local/bin" "$config"; then
+                echo "" >> "$config"
+                echo "# Added by uDOS-vibe installer" >> "$config"
+                echo "$path_line" >> "$config"
+            fi
+        fi
+    done
+}
+
+function _ensure_vibe_wrapper() {
+    local real_vibe_bin="${1:-}"
+    if [[ -n "$real_vibe_bin" ]] && [[ "$real_vibe_bin" == "$HOME/.local/bin/vibe" ]]; then
+        local alt_vibe
+        alt_vibe="$(which -a vibe 2>/dev/null | awk '!seen[$0]++' | grep -v "^$HOME/.local/bin/vibe$" | head -n1 || true)"
+        if [[ -n "$alt_vibe" ]]; then
+            real_vibe_bin="$alt_vibe"
+        fi
+    fi
+    mkdir -p "$HOME/.local/bin"
+
+    cat > "$HOME/.local/bin/vibe" <<WRAPPER
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$REPO_ROOT"
+REAL_VIBE_BIN="$real_vibe_bin"
+WRAPPER_PATH="\$HOME/.local/bin/vibe"
+
+if [[ -f "\$REPO_ROOT/.env" ]] && [[ -z "\${MISTRAL_API_KEY:-}" ]]; then
+    ENV_KEY_LINE=\$(grep -E '^MISTRAL_API_KEY=' "\$REPO_ROOT/.env" | tail -n1 || true)
+    ENV_KEY=\$(printf '%s' "\${ENV_KEY_LINE#*=}" | sed -E "s/^[\"']//; s/[\"']\$//")
+    if [[ -n "\$ENV_KEY" ]]; then
+        export MISTRAL_API_KEY="\$ENV_KEY"
+    fi
+fi
+
+if [[ -n "\$REAL_VIBE_BIN" ]] && [[ "\$REAL_VIBE_BIN" != "\$WRAPPER_PATH" ]] && [[ -x "\$REAL_VIBE_BIN" ]]; then
+    exec "\$REAL_VIBE_BIN" "\$@"
+fi
+
+if [[ -x "\$REPO_ROOT/venv/bin/vibe" ]]; then
+    exec "\$REPO_ROOT/venv/bin/vibe" "\$@"
+fi
+
+echo "Error: vibe executable not found (checked REAL_VIBE_BIN and \$REPO_ROOT/venv/bin/vibe)" >&2
+exit 127
+WRAPPER
+
+    chmod +x "$HOME/.local/bin/vibe"
+    _ensure_path_configured
+    export PATH="$HOME/.local/bin:$PATH"
+    hash -r 2>/dev/null || true
+}
+
+function _install_vibe_from_pyproject() {
+    # Fallback: use uv to install vibe from local pyproject.toml
+    step "Installing vibe from local Python package..."
+
+    cd "$REPO_ROOT" || return 1
+
+    # Sync the vibe package specifically
+    if ! uv sync --extra udos-wizard --quiet 2>/dev/null; then
+        return 1
+    fi
+
+    if [[ -x "$REPO_ROOT/venv/bin/vibe" ]]; then
+        _ensure_vibe_wrapper ""
+        return 0
+    fi
+
+    return 1
+}
+
 function install_vibe_cli() {
     step "Installing Vibe CLI..."
-    local vibe_install_url="${VIBE_INSTALL_URL:-https://mistral.ai/vibe/install.sh}"
+
+    # Try multiple install URLs in order
+    local urls=(
+        "${VIBE_INSTALL_URL:-https://mistral.ai/vibe/install.sh}"
+        "https://vibe.mistral.ai/install.sh"
+    )
 
     if command -v vibe &> /dev/null; then
         VIBE_CLI_INSTALLED=true
+        local existing_vibe_bin
+        existing_vibe_bin="$(command -v vibe)"
         local current_version=$(vibe --version 2>/dev/null | head -n1 || echo "unknown")
         info "Vibe CLI already installed: $current_version"
+        _ensure_vibe_wrapper "$existing_vibe_bin"
 
         if [[ "$UPDATE_MODE" == true ]]; then
-            prompt "Update Vibe CLI? [Y/n]"
-            read -r response
+            read_prompt_default response "Update Vibe CLI? [Y/n]" "Y"
             if [[ ! "$response" =~ ^[Nn] ]]; then
-                if curl -fsSL "$vibe_install_url" | sh; then
-                    success "Vibe CLI updated"
-                else
-                    warning "Vibe CLI update skipped (installer URL unavailable or network/DNS issue)."
+                local update_ok=false
+                for url in "${urls[@]}"; do
+                    if _run_vibe_installer "$url"; then
+                        update_ok=true
+                        # Clear shell cache after update
+                        hash -r 2>/dev/null || true
+                        break
+                    fi
+                done
+
+                if [[ "$update_ok" != true ]]; then
+                    info "Official installer URLs unreachable; vibe remains at current version."
                 fi
             fi
         fi
@@ -995,21 +1158,97 @@ function install_vibe_cli() {
     fi
 
     info "Installing Vibe CLI using official installer..."
-    if ! curl -fsSL "$vibe_install_url" | sh; then
-        warning "Vibe CLI install skipped (installer URL unavailable or network/DNS issue)."
-        warning "Set VIBE_INSTALL_URL to an alternate installer endpoint, or install Vibe CLI manually and rerun --update."
-        VIBE_CLI_INSTALLED=false
-        return
+
+    local install_ok=false
+
+    for url in "${urls[@]}"; do
+        info "Trying installer URL: $url"
+        if _run_vibe_installer "$url"; then
+            install_ok=true
+            # Clear shell command cache after installation
+            hash -r 2>/dev/null || true
+            # Also refresh PATH in this shell
+            export PATH="${HOME}/.local/bin:${HOME}/.vibe/bin:/usr/local/bin:${PATH}"
+            break
+        fi
+    done
+
+    if [[ "$install_ok" != true ]]; then
+        warning "Official Vibe CLI installers unreachable."
+        info "Attempting fallback: installing vibe from local Python package..."
+
+        if _install_vibe_from_pyproject; then
+            install_ok=true
+            # Refresh PATH
+            hash -r 2>/dev/null || true
+            export PATH="${HOME}/.local/bin:${PATH}"
+            info "Vibe installed via Python package fallback"
+        else
+            error "All vibe installation methods failed."
+            if [[ "$OS_TYPE" == "linux" || "$OS_TYPE" == "ubuntu" ]]; then
+                error ""
+                error "Linux-specific troubleshooting:"
+                error "  1. Check network/DNS: curl https://mistral.ai >/dev/null"
+                error "  2. Check bash: which bash && bash --version"
+                error "  3. Check disk space: df -h"
+                error "  4. Manual install: uv run -m pip install mistral-vibe"
+                error "  5. Or use ucode instead: ./bin/ucode"
+            fi
+            warning "Continuing with core installation; vibe can be installed later."
+            VIBE_CLI_INSTALLED=false
+            return
+        fi
     fi
 
+    # Verify installation succeeded
     if command -v vibe &> /dev/null; then
+        local real_vibe_bin
+        real_vibe_bin="$(command -v vibe)"
+        _ensure_vibe_wrapper "$real_vibe_bin"
         VIBE_CLI_INSTALLED=true
         success "Vibe CLI installed successfully"
-        vibe --version
+        vibe --version || success "Vibe CLI is ready"
     else
-        warning "Vibe CLI installer completed but 'vibe' binary is not on PATH yet."
-        warning "Continue setup now, then rerun with --update after confirming PATH."
-        VIBE_CLI_INSTALLED=false
+        # Final fallback check - look for vibe in standard locations
+        local possible_vibe
+        possible_vibe=$(find "$HOME/.local/bin" "$HOME/.vibe/bin" "/usr/local/bin" -name "vibe" -executable 2>/dev/null | head -n1)
+
+        if [[ -n "$possible_vibe" ]]; then
+            _ensure_vibe_wrapper "$possible_vibe"
+            VIBE_CLI_INSTALLED=true
+            success "Vibe CLI found at: $possible_vibe"
+            warning "Add to PATH: export PATH=\"\$(dirname \"$possible_vibe\"):\$PATH\""
+        else
+            warning "Vibe CLI not found in PATH after installation attempt."
+
+            # Help diagnose PATH issues on Linux
+            if [[ "$OS_TYPE" == "linux" || "$OS_TYPE" == "ubuntu" ]]; then
+                warning ""
+                warning "Checking common installation paths on Linux:"
+                local possible_paths=(
+                    "$HOME/.local/bin/vibe"
+                    "$HOME/.vibe/bin/vibe"
+                    "/usr/local/bin/vibe"
+                    "$HOME/.cargo/bin/vibe"
+                    "$REPO_ROOT/venv/bin/vibe"
+                )
+                local found_vibe=false
+                for path in "${possible_paths[@]}"; do
+                    if [[ -x "$path" ]]; then
+                        warning "  Found vibe at: $path"
+                        found_vibe=true
+                    fi
+                done
+
+                if [[ "$found_vibe" == true ]]; then
+                    warning "Add to your .bashrc or .zshrc:"
+                    warning "  export PATH=\"\${HOME}/.local/bin:\${PATH}\""
+                    warning "Then: source ~/.bashrc  (or restart terminal)"
+                fi
+            fi
+
+            VIBE_CLI_INSTALLED=false
+        fi
     fi
 }
 
@@ -1099,8 +1338,7 @@ function install_ollama() {
         ollama --version
     else
         echo ""
-        prompt "Install Ollama for local LLM support? (optional) [y/N]"
-        read -r response
+        read_prompt_default response "Install Ollama for local LLM support? (optional) [y/N]" "N"
         if [[ ! "$response" =~ ^[Yy] ]]; then
             info "Skipping Ollama installation"
             return
@@ -1123,8 +1361,7 @@ function install_ollama() {
 
     # Offer to download models
     echo ""
-    prompt "Download Ollama models for $INSTALL_TIER profile? [Y/n]"
-    read -r response
+    read_prompt_default response "Download Ollama models for $INSTALL_TIER profile? [Y/n]" "N"
     if [[ "$response" =~ ^[Nn] ]]; then
         return
     fi
@@ -1190,8 +1427,7 @@ function download_ollama_models() {
     echo "  7) gemma2             (1.6GB) - Lightweight general model"
     echo "  8) deepseek-coder     (3.8GB) - Code model"
     echo ""
-    prompt "Enter numbers (e.g., '1 2 4') or 'recommended' or 'all' or 'skip':"
-    read -r selection
+    read_prompt_default selection "Enter numbers (e.g., '1 2 4') or 'recommended' or 'all' or 'skip':" "skip"
 
     if [[ "$selection" == "skip" ]]; then
         info "Skipping model downloads"

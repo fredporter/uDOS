@@ -16,7 +16,7 @@ from typing import Optional, Tuple
 
 from core.services.editor_utils import find_nano_binary
 from core.services.editor_utils import resolve_workspace_path as resolve_core_workspace_path
-from wizard.services.path_utils import get_repo_root
+from wizard.services.path_utils import get_repo_root, get_memory_dir
 from wizard.services.logging_api import get_logger
 
 logger = get_logger("wizard.editor")
@@ -63,6 +63,12 @@ def ensure_micro_repo() -> None:
     if target.exists():
         return
 
+    # Skip cloning in daemon/non-interactive mode to avoid blocking startup
+    import sys
+    if not sys.stdin.isatty():
+        logger.debug(f"[WIZ] Skipping micro repo clone in non-interactive mode")
+        return
+
     git = shutil.which("git")
     if not git:
         logger.warning("[WIZ] git not found; cannot clone micro")
@@ -71,11 +77,14 @@ def ensure_micro_repo() -> None:
     try:
         target.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(
-            [git, "clone", "https://github.com/zyedidia/micro", str(target)],
+            [git, "clone", "--depth", "1", "https://github.com/zyedidia/micro", str(target)],
             check=True,
             cwd=str(repo_root),
+            timeout=30,
         )
         logger.info(f"[WIZ] Cloned micro to {target}")
+    except subprocess.TimeoutExpired:
+        logger.warning(f"[WIZ] Timeout cloning micro (>30s); will retry later")
     except Exception as exc:
         logger.warning(f"[WIZ] Failed to clone micro: {exc}")
 
