@@ -47,9 +47,9 @@ check_tty() {
 check_python_module() {
   local module="$1"
   local label="$2"
-  if [ -x "venv/bin/python" ] && venv/bin/python -c "import ${module}" >/dev/null 2>&1; then
-    ok "$label available in venv"
-  elif UV_PROJECT_ENVIRONMENT=venv uv run python -c "import ${module}" >/dev/null 2>&1; then
+  if [ -x ".venv/bin/python" ] && .venv/bin/python -c "import ${module}" >/dev/null 2>&1; then
+    ok "$label available in .venv"
+  elif UV_PROJECT_ENVIRONMENT=.venv uv run python -c "import ${module}" >/dev/null 2>&1; then
     ok "$label available in project environment"
   else
     warn "$label not available in project environment"

@@ -24,6 +24,8 @@ This policy defines canonical locations for pytest artifacts, runtime logs, and 
 ## Pytest Defaults
 
 - `pyproject.toml` is the source of truth for pytest defaults (`testpaths`, `cache_dir`, `addopts`).
+- root `scripts/run_pytest.sh` and `scripts/run_pytest_profile.sh` are the canonical executable entrypoints.
+- `scripts/run_pytest_core_stdlib.sh` is the canonical active-core stdlib smoke lane.
 - Default runs should not emit cache/temp files into package directories.
 
 ## CI and Local Consistency

@@ -68,4 +68,4 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run pytest \
 ## Notes
 
 - Avoid hand-editing the managed MCP block; use `scripts/mcp_activation.py`.
-- This document replaces older instructions that referenced `venv/bin/python` and deprecated integration scaffolds.
+- This document replaces older instructions that referenced `/.venv/bin/python` directly and deprecated integration scaffolds.

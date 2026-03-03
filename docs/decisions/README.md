@@ -30,6 +30,7 @@ Each file captures a discrete architectural, design, or technology choice.
 | [v1-5-offline-assist.md](v1-5-offline-assist.md) | Active v1.5 offline assist decision covering `ucode`-first loops, file-backed state, and the `udos_ulogic_pack` reference scaffold |
 | [v1-5-logic-input-handler.md](v1-5-logic-input-handler.md) | Active v1.5 smart logic input handler decision for the standard `ucode` runtime |
 | [v1-5-workflow-manager.md](v1-5-workflow-manager.md) | Active v1.5 workflow manager standardization decision across core, Wizard, and offline logic |
+| [v1-5-python-runtime-contract.md](v1-5-python-runtime-contract.md) | Active v1.5 Python runtime, `.venv`, `uv`, and pytest ownership decision |
 | [../specs/WORKFLOW-SCHEDULER-v1.5.md](../specs/WORKFLOW-SCHEDULER-v1.5.md) | Canonical workflow scheduler runtime contract derived from the v1.5 decision |
 | [../specs/OFFLINE-ASSIST-STANDARD-v1.5.md](../specs/OFFLINE-ASSIST-STANDARD-v1.5.md) | Canonical offline assist runtime contract derived from the v1.5 decision |
 

@@ -238,9 +238,8 @@ UDOS_WIDTH=80         # Override width
 
 **TUI won't start:**
 ```bash
-# Check virtual environment
-source venv/bin/activate
-python --version  # Should be 3.10+
+# Check runtime environment
+UV_PROJECT_ENVIRONMENT=.venv uv run python --version  # Should be 3.12+
 
 # Check logs
 tail -f memory/logs/session-commands-$(date +%Y-%m-%d).log

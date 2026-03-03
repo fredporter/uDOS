@@ -268,12 +268,8 @@ Registered in `core/tui/dispatcher.py`
 git clone https://github.com/fredporter/uDOS-vibe.git
 cd uDOS
 
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Install Python dependencies
-uv pip install -r requirements.txt
+# Sync repo environment
+UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --dev
 
 # First run (automatic bootstrap)
 python uDOS.py
@@ -291,15 +287,14 @@ WORKDIR /opt/udos
 # Copy source
 COPY . .
 
-# Create venv and install dependencies
-RUN python -m venv venv && \
-    venv/bin/python -m pip install -r requirements.txt
+# Sync repo environment
+RUN uv sync --extra udos-wizard --dev
 
 # Bootstrap seed data
-RUN venv/bin/python bin/install-seed.py
+RUN uv run python bin/install-seed.py
 
 # Run Wizard server
-CMD ["venv/bin/python", "-m", "wizard.server"]
+CMD ["uv", "run", "python", "-m", "wizard.server"]
 ```
 
 ### CI/CD Pipeline

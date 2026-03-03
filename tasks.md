@@ -21,6 +21,12 @@ Status: Active
   - Owner: Documentation Team
   - Notes: Prioritize `WORKFLOW`, `UCODE PROFILE`, `UCODE OPERATOR`, profile install/verify, and `ucode`-first runtime guidance
 
+- [ ] Standardize Python operation on one `.venv` + `uv` runtime contract
+  - Status: In Progress
+  - Owner: Architecture Team
+  - Priority: High
+  - Notes: Normalize launchers, workspace config, pytest entrypoints, and active docs; keep executable pytest wrappers at root `scripts/` and contributor policy under `/dev/`
+
 ### Round 2 — Offline Logic and Knowledge Foundations
 
 - [ ] Promote stable offline logic runtime pieces from `docs/examples/udos_ulogic_pack/` into canonical core modules

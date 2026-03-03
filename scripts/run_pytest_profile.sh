@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-.venv}"
 
 profile="${1:-full}"
 shift || true

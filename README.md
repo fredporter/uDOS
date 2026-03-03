@@ -120,14 +120,14 @@ cd uDOS
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Install uDOS v1.4.5 +Vibe
-uv sync --extra udos-wizard
+UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard
 
 # Copy and configure .env
 cp .env.example .env
 # Edit `.env` with your provider key settings
 
 # Run setup story
-uv run ./uDOS.py SETUP
+UV_PROJECT_ENVIRONMENT=.venv uv run ./uDOS.py SETUP
 ```
 
 📚 **Full installation guide**: [docs/INSTALLATION.md](docs/INSTALLATION.md)
@@ -329,13 +329,13 @@ See [docs/howto/UCODE-COMMAND-REFERENCE.md](docs/howto/UCODE-COMMAND-REFERENCE.m
 
 ```bash
 # Run all tests
-uv run pytest tests/
+./scripts/run_pytest.sh tests
 
 # With coverage
-uv run pytest tests/ --cov=core --cov=wizard
+./scripts/run_pytest.sh tests --cov=core --cov=wizard
 
 # Specific test
-uv run pytest tests/core/test_commands.py::test_help_handler
+./scripts/run_pytest.sh tests/core/test_commands.py::test_help_handler
 ```
 
 ### Running Linters

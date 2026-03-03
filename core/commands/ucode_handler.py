@@ -26,6 +26,12 @@ from core.services.system_capability_service import (
     MinimumSystemSpec,
     get_system_capability_service,
 )
+from core.services.python_runtime_contract import (
+    CANONICAL_ENV_DIRNAME,
+    CANONICAL_ENV_MANAGER,
+    CANONICAL_PYTHON_VERSION,
+    detect_python_runtime_status,
+)
 
 
 @dataclass(frozen=True)
@@ -1134,9 +1140,29 @@ class UcodeHandler(BaseCommandHandler):
             )
         topology = self.profile_service.topology_summary()
         profiles = self.profile_service.list_profiles()
+        python_runtime = detect_python_runtime_status(self.repo_root)
         lines = [
             "Rebaseline repair contracts:",
             f"- topology: {topology['mode']} :: {topology['summary']}",
+            (
+                f"- python runtime: {CANONICAL_ENV_MANAGER} + {CANONICAL_ENV_DIRNAME} "
+                f"(python {CANONICAL_PYTHON_VERSION})"
+            ),
+            f"- executable: {python_runtime.executable}",
+            f"- canonical env: {python_runtime.canonical_env}",
+            f"- uv available: {'yes' if python_runtime.uv_available else 'no'}",
+            (
+                "- using canonical env: "
+                f"{'yes' if python_runtime.using_canonical_env else 'no'}"
+            ),
+            (
+                "- core stdlib contract: "
+                f"{'ok' if python_runtime.core_boundary_ok else 'attention'}"
+            ),
+            (
+                "- wizard runtime available: "
+                f"{'yes' if python_runtime.wizard_runtime_available else 'no'}"
+            ),
             "- verify certified profiles before repair execution",
         ]
         for profile in profiles:
@@ -1145,8 +1171,17 @@ class UcodeHandler(BaseCommandHandler):
             lines.append(
                 f"- {profile['profile_id']} [{state}] missing components={len(verify['missing_components'])}, missing extensions={len(verify['missing_extensions'])}"
             )
+        if python_runtime.problems:
+            lines.append("- python runtime issues:")
+            for item in python_runtime.problems:
+                lines.append(f"  - {item}")
         lines.append("Suggested sequence: HEALTH -> REPAIR STATUS -> UCODE PROFILE VERIFY <profile>")
-        return {"status": "success", "profiles": profiles, "output": "\n".join(lines)}
+        return {
+            "status": "success",
+            "profiles": profiles,
+            "python_runtime": python_runtime.to_dict(),
+            "output": "\n".join(lines),
+        }
 
     def _seed_demo_assets(self, *, overwrite: bool) -> None:
         demo_seeds = {

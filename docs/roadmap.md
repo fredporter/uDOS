@@ -47,6 +47,7 @@ Still open for v1.5 release closure:
 - establish one canonical global knowledge-bank contract: distributed seed, read-only for users, contributor-editable only through the Dev extension lane
 - establish one canonical user knowledge-tree contract for local gathering, duplication, editing, enhancement, and runbook execution
 - standardize Markdown templates/runbooks so core, Wizard, Sonic, `uHOME`, and offline logic packs use the same open-box workflow structure
+- standardize Python operation on one `uv` + `/.venv` runtime contract across `ucode`, Wizard, tests, workspace config, and docs
 - define Sonic Device DB as a distributed seeded global catalog with user submissions and contributor approval flow rather than an end-user editable runtime database
 - full specs shakedown against the active catalog in `docs/specs/README.md`
 - offline assist promotion from reference scaffold into canonical core runtime pieces
@@ -56,6 +57,7 @@ Still open for v1.5 release closure:
 - creator and gaming profile acceptance evidence
 - TUI hardening and release evidence capture
 - remaining doc/example drift cleanup around the `ucode`-first runtime rule
+- remaining Python environment drift cleanup around legacy `venv/` references and fragmented pytest instructions
 - Sonic dashboard follow-through beyond runtime defaults, especially end-to-end build/install evidence capture against the new shared workspace contract
 - `uHOME` runtime follow-through beyond the current scaffolded presentation/playback layer, especially TV-node polish and standalone packaging validation
 - final release pass across Wizard, Groovebox, and core to close remaining spec-to-runtime evidence gaps

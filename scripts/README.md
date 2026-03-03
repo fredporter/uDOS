@@ -19,6 +19,12 @@ This directory contains scripts that support project versioning and deployment w
 ./scripts/run_pytest_profile.sh full
 ```
 
+### Core stdlib smoke lane
+
+```bash
+./scripts/run_pytest_core_stdlib.sh
+```
+
 ### Clean Python artifacts
 
 ```bash

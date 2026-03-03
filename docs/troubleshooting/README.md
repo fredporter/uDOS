@@ -17,8 +17,7 @@ For no-network operation and fallback recovery procedures, use:
 **Quick Fix:**
 ```bash
 sudo apt-get install -y libreadline-dev libncurses5-dev python3-dev
-source venv/bin/activate
-uv pip install --upgrade --force-reinstall prompt_toolkit
+UV_PROJECT_ENVIRONMENT=.venv uv pip install --python .venv/bin/python --upgrade --force-reinstall prompt_toolkit
 ```
 
 **Full Guide:** [TUI-ARROW-KEYS-UBUNTU.md](TUI-ARROW-KEYS-UBUNTU.md)
@@ -40,8 +39,7 @@ uv pip install --upgrade --force-reinstall prompt_toolkit
 **Fix:**
 ```bash
 export TERM=xterm-256color
-source venv/bin/activate
-uv pip install prompt_toolkit>=3.0.0
+UV_PROJECT_ENVIRONMENT=.venv uv pip install --python .venv/bin/python prompt_toolkit>=3.0.0
 ```
 
 ---
@@ -116,19 +114,19 @@ xcode-select --install
 
 ### Virtual environment not activating
 
-**Symptom:** `source venv/bin/activate` does nothing
+**Symptom:** `/.venv` is missing or shell activation assumptions are stale
 
 **Check:**
 ```bash
-ls -la venv/bin/activate
+ls -la .venv/bin/python
 # Should exist
 ```
 
 **Fix:**
 ```bash
-uv venv venv --clear
-source venv/bin/activate
-uv pip install -r requirements.txt
+rm -rf .venv
+uv venv .venv --python 3.12
+UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --dev
 ```
 
 ---

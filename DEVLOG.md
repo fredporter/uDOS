@@ -34,6 +34,26 @@ This log tracks root-level milestone changes and release-tracking updates for th
 1. keep Empire aligned with the shared workflow/template standards as Round 4 and Round 5 continue
 2. close the remaining Wizard-wide orchestration and release evidence work outside the Empire module itself
 
+### 2026-03-03: Python Runtime Contract Consolidation
+
+**Status:** In Progress
+
+**Changes:**
+- standardized the active Python runtime direction on `uv` plus `/.venv`
+- aligned launcher scripts and workspace settings away from legacy `venv/` references
+- added a canonical Python runtime decision/spec pair and a root stdlib smoke lane
+- kept pytest execution centralized in root `scripts/` while reinforcing `/dev/` as contributor governance only
+
+**Implementation truth captured:**
+- `UCODE REPAIR STATUS` now reports Python runtime contract health
+- `bin/ucode` no longer auto-installs Wizard extras on normal runtime launch
+- root tooling now treats `/.venv` as the canonical local Python environment path
+- active docs are being rewritten to one `uv`/`/.venv` operating model
+
+**Next steps:**
+1. finish the remaining active-doc cleanup for stale `venv/` references
+2. tighten the stdlib boundary audit allowlist as legacy core exceptions are retired
+
 ### 2026-03-03: v1.5 Roadmap Rebaseline Consolidation
 
 **Status:** Completed

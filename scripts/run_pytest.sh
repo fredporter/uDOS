@@ -6,6 +6,7 @@ unset USER_NAME
 unset USER_ROLE
 unset MISTRAL_API_KEY
 unset UDOS_LOG_RING
+export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-.venv}"
 
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run --group dev python -m pytest \
   -p pytest_asyncio.plugin \

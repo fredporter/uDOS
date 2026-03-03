@@ -33,7 +33,7 @@ After setup:
 - `AGENTS.md` — Development patterns
 
 **Common workflows:**
-- Running tests → `uv run pytest tests/`
+- Running tests → `./scripts/run_pytest.sh tests`
 - Linting → `uv run ruff check --fix .`
 - Building tools → `vibe/core/tools/ucode/*.py`
 - Building skills → `vibe/core/skills/ucode/*.md`
@@ -67,7 +67,7 @@ Current Vibe skill set:
 
 ## Python Environment
 
-All commands should use `uv`:
+All commands should use `uv` with the repo-local `/.venv` contract:
 
 ```bash
 # Run Python scripts
@@ -77,13 +77,10 @@ uv run python script.py
 uv run pytest tests/
 
 # Install dependencies
-uv add package_name
-
-# Activate venv (if you prefer)
-source venv/bin/activate
+UV_PROJECT_ENVIRONMENT=.venv uv add package_name
 ```
 
-The dev workspace auto-activates the venv (`vibe-dev.code-workspace`).
+The dev workspace points at `/.venv` through `ucode-dev.code-workspace`.
 
 ## Project Structure at a Glance
 
@@ -109,13 +106,13 @@ uDOS/
 
 ```bash
 # All tests
-uv run pytest tests/ -v
+./scripts/run_pytest.sh tests -v
 
 # Specific file
-uv run pytest tests/core/test_commands.py -v
+./scripts/run_pytest.sh tests/core/test_commands.py -v
 
 # With coverage
-uv run pytest tests/ --cov=core --cov=wizard
+./scripts/run_pytest.sh tests --cov=core --cov=wizard
 ```
 
 ### Format & Lint
@@ -179,7 +176,7 @@ Open `vibe-dev.code-workspace`:
 code vibe-dev.code-workspace
 ```
 
-This auto-activates the venv and sets uDOS environment variables.
+This points Python tooling at `/.venv` and sets uDOS environment variables.
 
 ### Cursor
 
@@ -191,7 +188,7 @@ Set env vars:
 ```bash
 export UDOS_ROOT="$(pwd)"
 export PYTHONPATH="$UDOS_ROOT:$PYTHONPATH"
-source venv/bin/activate
+export UV_PROJECT_ENVIRONMENT=.venv
 ```
 
 ## Git Workflow

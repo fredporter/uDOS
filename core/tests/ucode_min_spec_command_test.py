@@ -6,6 +6,7 @@ import pytest
 
 from core.services.error_contract import CommandError
 from core.commands.ucode_handler import UcodeHandler
+from core.services.python_runtime_contract import PythonRuntimeStatus
 from core.services.system_capability_service import MinimumSpecResult, MinimumSystemSpec
 from core.tui.dispatcher import CommandDispatcher
 
@@ -288,6 +289,25 @@ def test_ucode_extension_and_package_views(monkeypatch, tmp_path):
 
 def test_ucode_repair_status(monkeypatch, tmp_path):
     handler = _handler_with_home(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        "core.commands.ucode_handler.detect_python_runtime_status",
+        lambda repo_root=None: PythonRuntimeStatus(
+            executable="/tmp/udos/.venv/bin/python",
+            repo_root=str(tmp_path),
+            canonical_env=str(tmp_path / ".venv"),
+            canonical_python=str(tmp_path / ".venv" / "bin" / "python"),
+            uv_available=True,
+            uv_path="/usr/local/bin/uv",
+            using_canonical_env=True,
+            core_boundary_ok=True,
+            wizard_dependency_groups_declared=True,
+            wizard_runtime_available=False,
+            problems=("wizard runtime dependencies unavailable",),
+        ),
+    )
     result = handler.handle("UCODE", ["REPAIR", "STATUS"])
     assert result["status"] == "success"
     assert "Rebaseline repair contracts:" in result["output"]
+    assert "python runtime: uv + .venv" in result["output"]
+    assert "core stdlib contract: ok" in result["output"]
+    assert "wizard runtime dependencies unavailable" in result["output"]

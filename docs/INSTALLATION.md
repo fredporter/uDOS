@@ -344,8 +344,8 @@ ollama pull mistral:latest
 ### Custom Python Environment
 The installer uses `--system` flag with uv. To use a virtual environment:
 ```bash
-uv venv venv
-source venv/bin/activate
+uv venv .venv --python 3.12
+UV_PROJECT_ENVIRONMENT=.venv uv run python --version
 uv sync --extra udos
 # Add Wizard profile only when needed:
 uv sync --extra udos-wizard

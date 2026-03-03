@@ -96,16 +96,16 @@ $ python extensions/server_manager.py status
 
 ```bash
 cd ~/uDOS
-source venv/bin/activate
+export UV_PROJECT_ENVIRONMENT=.venv
 
 # Start API server
-PORT=5001 python extensions/api/server.py &
+PORT=5001 uv run python extensions/api/server.py &
 
 # Start terminal server
-python extensions/core/extensions_server.py terminal &
+uv run python extensions/core/extensions_server.py terminal &
 
 # Start dashboard
-python extensions/core/extensions_server.py dashboard &
+uv run python extensions/core/extensions_server.py dashboard &
 ```
 
 #### Health Check

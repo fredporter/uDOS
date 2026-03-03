@@ -146,7 +146,7 @@ reportMissingTypeStubs = false
 reportPrivateImportUsage = false
 include = ["vibe/**/*.py", "tests/**/*.py"]
 venvPath = "."
-venv = "venv"
+venv = ".venv"
 
 [tool.ruff]
 include = ["vibe/**/*.py", "tests/**/*.py"]

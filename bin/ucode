@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-venv}"
+export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-.venv}"
 
 if [[ "${1:-}" == "ts" ]]; then
   shift
@@ -17,20 +17,17 @@ if [[ "${1:-}" == "ts" ]]; then
   exit 0
 fi
 
-if [[ -x "${REPO_ROOT}/venv/bin/python" ]]; then
-  exec "${REPO_ROOT}/venv/bin/python" -m core.tui.ucode_entry "$@"
+if [[ -x "${REPO_ROOT}/.venv/bin/python" ]]; then
+  exec "${REPO_ROOT}/.venv/bin/python" -m core.tui.ucode_entry "$@"
 fi
 
 if command -v uv >/dev/null 2>&1; then
   UV_BIN="$(command -v uv)"
-elif [[ -x "${REPO_ROOT}/venv/bin/uv" ]]; then
-  UV_BIN="${REPO_ROOT}/venv/bin/uv"
+elif [[ -x "${REPO_ROOT}/.venv/bin/uv" ]]; then
+  UV_BIN="${REPO_ROOT}/.venv/bin/uv"
 else
-  echo "venv python and uv are both unavailable." >&2
+  echo ".venv python and uv are both unavailable." >&2
   exit 127
 fi
-
-# Ensure wizard dependencies are installed
-"${UV_BIN}" sync --project "${REPO_ROOT}" --extra udos-wizard --quiet || true
 
 exec "${UV_BIN}" run --project "${REPO_ROOT}" -m core.tui.ucode_entry "$@"
